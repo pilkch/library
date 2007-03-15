@@ -6,10 +6,10 @@
 #include <SDL/SDL_net.h>
 
 
-#include <BREATHE/cMem.h>
-#include <BREATHE/cLog.h>
 
-#include <BREATHE/cNetwork.h>
+#include <BREATHE/UTIL/cLog.h>
+
+#include <BREATHE/UTIL/cNetwork.h>
 
 namespace BREATHE
 {

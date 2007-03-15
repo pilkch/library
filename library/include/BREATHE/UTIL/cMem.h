@@ -21,6 +21,14 @@
 // Copyright 2000, Fluid Studios, Inc., all rights reserved.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+#ifndef BREATHE_H
+!!! Include cBreathe.h, do not include this file
+#endif //BREATHE_H
+
+#ifdef CMEM_H
+!!! Include cBreathe.h, do not include this file, something includes this
+#endif //CMEM_H
+
 #ifndef	CMEM_H
 #define	CMEM_H
 

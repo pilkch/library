@@ -10,9 +10,9 @@
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
-#include <BREATHE/cMem.h>
 
-#include <BREATHE/cLog.h>
+
+#include <BREATHE/UTIL/cLog.h>
 
 #include <cmath>
 #include <BREATHE/MATH/cMath.h>
@@ -34,7 +34,7 @@
 #include <BREATHE/RENDER/cMaterial.h>
 #include <BREATHE/RENDER/cRender.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 

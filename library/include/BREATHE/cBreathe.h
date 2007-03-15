@@ -17,9 +17,14 @@
  *                                                                       *
  *************************************************************************/
 
+#ifdef CMEM_H
+!!! cMem.h already included, include cBreathe.h only
+#endif //CMEM_H
 
 #ifndef BREATHE_H
 #define BREATHE_H
+
+#include <BREATHE/UTIL/cMem.h>
 
 //Defines
 
@@ -49,21 +54,6 @@ namespace BREATHE
 	const bool BAD=true;
 	const bool GOOD=false;
 	
-	#define SIZE_TYPE unsigned long int
-
-	const SIZE_TYPE STR_SMALL=256;
-	const SIZE_TYPE STR_MEDIUM=2048;
-	const SIZE_TYPE STR_LARGE=320000;
-
-	#define STR_SIZE STR_LARGE
-
-	#define BUFFER_SIZE_IN STR_LARGE
-	#define BUFFER_SIZE_OUT STR_MEDIUM
-
-
-	#define STR_END "\r\n"
-
-
 	//Safe deleting functions
 	template <class T> inline void SAFE_DELETE(T x)
 	{ 

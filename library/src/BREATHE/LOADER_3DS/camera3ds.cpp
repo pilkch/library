@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 
-#include <BREATHE/cMem.h>
-#include <BREATHE/cLog.h>
+
+#include <BREATHE/UTIL/cLog.h>
 
 #include <BREATHE/MATH/cVec3.h>
 #include <BREATHE/MATH/cMat4.h>

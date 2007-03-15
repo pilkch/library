@@ -9,11 +9,10 @@
 #include <fstream>
 
 #include <BREATHE/cBreathe.h>
-#include <BREATHE/cMem.h>
-#include <BREATHE/cLog.h>
-#include <BREATHE/cFileSystem.h>
 
-#include <BREATHE/cMD5.h>
+#include <BREATHE/UTIL/cLog.h>
+#include <BREATHE/UTIL/cFileSystem.h>
+#include <BREATHE/UTIL/cMD5.h>
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>

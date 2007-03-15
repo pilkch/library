@@ -24,14 +24,14 @@
 
 #include <ODE/ode.h>
 
-#include <BREATHE/cMem.h>
+
 
 #include <BREATHE/cBreathe.h>
-#include <BREATHE/cString.h>
-#include <BREATHE/cLog.h>
-#include <BREATHE/cFileSystem.h>
-#include <BREATHE/cVar.h>
-#include <BREATHE/cConsole.h>
+#include <BREATHE/UTIL/cString.h>
+#include <BREATHE/UTIL/cLog.h>
+#include <BREATHE/UTIL/cFileSystem.h>
+#include <BREATHE/UTIL/cVar.h>
+#include <BREATHE/UTIL/cConsole.h>
 
 #include <BREATHE/UTIL/cTimer.h>
 
@@ -43,7 +43,7 @@
 #include <BREATHE/MATH/cQuaternion.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 #include <BREATHE/MODEL/cStatic.h>
@@ -60,8 +60,8 @@
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 
-#include <BREATHE/cLevel.h>
-#include <BREATHE/cApp.h>
+#include <BREATHE/GAME/cLevel.h>
+#include <BREATHE/UTIL/cApp.h>
 
 namespace BREATHE
 {

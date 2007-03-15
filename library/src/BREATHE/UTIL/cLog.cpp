@@ -2,14 +2,13 @@
 # pragma warning(disable: 4786)
 #endif
 
+#include <stdarg.h>
+
 #include <string>
 #include <vector>
 
-#include "BREATHE/cLog.h"
-
-#include <stdarg.h>
-
-#include <BREATHE/cFileSystem.h>
+#include <BREATHE/UTIL/cLog.h>
+#include <BREATHE/UTIL/cFileSystem.h>
 
 BREATHE::cLog *pLog;
 

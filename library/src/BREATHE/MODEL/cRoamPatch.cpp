@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 
-#include <BREATHE/cMem.h>
+
 
 
 #include <windows.h>
@@ -27,7 +27,7 @@
 #include <BREATHE/MATH/cColour.h>
 
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 #include <BREATHE/MODEL/cStatic.h>

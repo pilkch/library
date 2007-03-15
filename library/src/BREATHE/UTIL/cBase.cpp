@@ -1,8 +1,9 @@
+#include <cmath>
+
 #include <string>
 
 #include <BREATHE/cBreathe.h>
 
-#include <math.h>
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -13,7 +14,7 @@
 #include <BREATHE/MATH/cFrustum.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 
 namespace BREATHE
 {

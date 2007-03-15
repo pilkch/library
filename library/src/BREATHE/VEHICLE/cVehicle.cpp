@@ -11,7 +11,7 @@
 #include <ODE/ode.h>
 
 #include <BREATHE/cBreathe.h>
-#include <BREATHE/cMem.h>
+
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -24,25 +24,25 @@
 #include <BREATHE/MATH/cOctree.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 #include <BREATHE/MODEL/cStatic.h>
 
 #include <BREATHE/RENDER/cCamera.h>
-#include <BREATHE/cLevel.h>
+#include <BREATHE/GAME/cLevel.h>
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 
-#include <BREATHE/cPlayer.h>
-#include <BREATHE/cPetrolBowser.h>
+#include <BREATHE/GAME/cPlayer.h>
+#include <BREATHE/GAME/cPetrolBowser.h>
 #include <BREATHE/VEHICLE/cPart.h>
 #include <BREATHE/VEHICLE/cWheel.h>
 #include <BREATHE/VEHICLE/cSeat.h>
 #include <BREATHE/VEHICLE/cVehicle.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cModel.h>
 #include <BREATHE/MODEL/cStatic.h>
 

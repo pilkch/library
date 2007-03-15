@@ -6,7 +6,7 @@
 
 #include <ode/ode.h>
 
-#include <BREATHE/cMem.h>
+
 
 #include <math.h>
 #include <BREATHE/MATH/cMath.h>
@@ -20,9 +20,9 @@
 #include <BREATHE/MATH/cOctree.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/cLog.h>
+#include <BREATHE/UTIL/cLog.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 

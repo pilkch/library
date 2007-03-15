@@ -9,13 +9,13 @@
 #include <vector>
 
 
-#include <BREATHE/cMem.h>
 
 
 
-#include <BREATHE/cVar.h>
-#include <BREATHE/cConsole.h>
-#include <BREATHE/cLog.h>
+
+#include <BREATHE/UTIL/cVar.h>
+#include <BREATHE/UTIL/cConsole.h>
+#include <BREATHE/UTIL/cLog.h>
 
 namespace BREATHE
 {

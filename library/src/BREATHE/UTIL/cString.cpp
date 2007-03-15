@@ -1,7 +1,7 @@
 #include <string>
 
 #include <BREATHE/cBreathe.h>
-#include <BREATHE/cString.h>
+#include <BREATHE/UTIL/cString.h>
 
 namespace BREATHE
 {

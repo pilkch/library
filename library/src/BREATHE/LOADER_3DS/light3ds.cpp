@@ -1,7 +1,7 @@
 #include "BREATHE/LOADER_3DS/light3ds.h"
 #include "BREATHE/LOADER_3DS/build3ds.h"
 
-#include <BREATHE/cLog.h>
+#include <BREATHE/UTIL/cLog.h>
 
 namespace BREATHE
 {

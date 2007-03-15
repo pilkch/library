@@ -14,9 +14,9 @@
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
-#include <BREATHE/cMem.h>
 
-#include <BREATHE/cLog.h>
+
+#include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
@@ -30,9 +30,9 @@
 #include <BREATHE/MATH/cOctree.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 
-#include <BREATHE/cFileSystem.h>
+#include <BREATHE/UTIL/cFileSystem.h>
 
 #include <BREATHE/RENDER/cCamera.h>
 
@@ -41,12 +41,12 @@
 #include <BREATHE/RENDER/cMaterial.h>
 #include <BREATHE/RENDER/cRender.h>
 
-#include <BREATHE/cBase.h>
+#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>
 #include <BREATHE/MODEL/cModel.h>
 #include <BREATHE/MODEL/cStatic.h>
 
-#include <BREATHE/cLevel.h>
+#include <BREATHE/GAME/cLevel.h>
 
 namespace BREATHE
 {

@@ -11,10 +11,10 @@
 #include <stack>
 
 #include <BREATHE/cBreathe.h>
-#include <BREATHE/cString.h>
-#include <BREATHE/cMem.h>
-#include <BREATHE/cLog.h>
-#include <BREATHE/cXML.h>
+#include <BREATHE/UTIL/cString.h>
+
+#include <BREATHE/UTIL/cLog.h>
+#include <BREATHE/UTIL/cXML.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -142,7 +142,7 @@ namespace BREATHE
 					if(std::string::npos != n)
 					{
 						// Collect name
-						std::string inName=BREATHE::STRING::CutTrailing(sData.substr(0, n), " ");
+						std::string inName=STRING::CutTrailing(sData.substr(0, n), " ");
 
 						// attribute="value"...
 						sData=STRING::CutLeading(sData.substr(n), " ");

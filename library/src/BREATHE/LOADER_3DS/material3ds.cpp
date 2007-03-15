@@ -1,12 +1,11 @@
-#include "BREATHE/LOADER_3DS/material3ds.h"
-#include "BREATHE/LOADER_3DS/build3ds.h"
+#include <BREATHE/LOADER_3DS/material3ds.h>
+#include <BREATHE/LOADER_3DS/build3ds.h>
 
 #include <iostream>
 #include <string>
-using namespace std;
 
-#include "BREATHE/cMem.h"
-#include "BREATHE/cLog.h"
+
+#include <BREATHE/UTIL/cLog.h>
 
 namespace BREATHE
 {
@@ -43,7 +42,7 @@ namespace BREATHE
 
 		void Material3DS::NewMaterial(Model3DSChunk c)
 		{
-			string mat_name = c.Str();
+			std::string mat_name = c.Str();
 
 #ifdef DEBUG3DS
 			if(mat_name.find(".mat") != string::npos)
