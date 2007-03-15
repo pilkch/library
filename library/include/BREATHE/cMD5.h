@@ -1,0 +1,76 @@
+/*
+ *  RFC 1321 compliant MD5 implementation
+ *  
+ *  Incorporated into:
+ *  Various GPL projects by Christopher Pilkington
+ *
+ *
+ *  Copyright (C) 2001-2003  Christophe Devine
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#ifndef CMD5_H
+#define CMD5_H
+
+namespace BREATHE
+{
+	#ifndef uint32
+	#define uint32 unsigned long int
+	#endif
+
+	class cMD5_Context
+	{
+	public:
+		uint32 total[2];
+		uint32 state[4];
+		unsigned char buffer[64];
+	};
+	
+	class cMD5
+	{
+	private:
+		unsigned char cMD5::h2d(unsigned char a, unsigned char b);
+
+		cMD5_Context ctx;
+
+		void Start();
+		void Update(cMD5_Context *ctx, unsigned char *input, uint32 length);
+		void Finish(cMD5_Context *ctx);
+		void Process(cMD5_Context *ctx, unsigned char data[64]);
+
+	public:
+		unsigned char result[16]; //Raw result
+
+		std::string sResult; //Result formatted
+
+
+		cMD5();
+		~cMD5();
+
+		bool CheckString(char *input);
+		bool CheckFile(std::string);
+
+		bool SetResultFromFormatted(char *input);
+
+		bool operator==(const cMD5 & rhs) const;
+		bool operator!=(const cMD5 & rhs) const;
+
+		bool operator==(const std::string & rhs) const;
+		bool operator!=(const std::string & rhs) const;
+	};
+}
+
+#endif //CMD5_H

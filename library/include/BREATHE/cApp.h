@@ -1,0 +1,110 @@
+#ifndef CAPP_H
+#define CAPP_H
+
+namespace BREATHE
+{
+	class cAppKey;
+
+	class cApp : public cUpdateable
+	{
+		void ConsoleExecuteSingleCommand(std::string s);
+
+	public:
+		cLevel *pLevel;
+		RENDER::cRender *pRender;
+		PHYSICS::cPhysics *pPhysics;
+
+		bool bConsole;
+		bool bDebug;
+		bool bActive;
+		bool bDone;
+		bool bThirdPerson;
+		bool bUpdatePhysics;
+		bool bStepPhysics;
+
+		bool bReturnCode;
+
+		float phi, psi, dist, elev;
+
+		UTIL::cTimer tPhysics;
+		UTIL::cTimer tUpdate;
+		UTIL::cTimer tRender;
+
+		std::vector<std::string>vArgs;
+
+		std::map<std::string, cVar *>mVar;
+		
+		std::map<unsigned int, cAppKey * >mKey;
+		
+		const SDL_VideoInfo *videoInfo;
+
+		SDL_Surface *surface;
+
+		SDL_Event event;
+
+		// Information about the current video settings
+		SDL_VideoInfo* g_info;
+
+
+		std::string sTitle;
+
+    cConsole *pConsole;
+
+
+		cApp(int argc, char **argv);
+		~cApp();
+
+		bool Init();
+		void MainLoop();
+
+		bool ToggleFullscreen();
+		bool ResizeWindow(unsigned int w, unsigned int h);
+
+		void AddKey(unsigned int code, bool repeat);
+		bool IsKeyDown(unsigned int code);
+		void UpdateKeys(float fCurrentTime);
+		void UpdateEvents(float fCurrentTime);
+
+		void OnKeyUp(SDL_keysym *keysym);
+    
+		void ConsoleAddKey(unsigned int code);
+		void ConsoleAddLine(std::string s);
+		void ConsoleExecute(std::string s);
+
+		cVar *VarFind(std::string name);
+		void VarSet(std::string name, std::string value);
+
+		virtual bool LoadScene()=0;
+		virtual bool InitScene()=0;
+		virtual bool DestroyScene()=0;
+
+		virtual void LoadTextures()=0;
+		virtual void DestroyTextures()=0;
+
+		virtual void Update(float fCurrentTime)=0;
+		virtual void UpdatePhysics(float fCurrentTime)=0;
+		virtual void UpdateInput(float fCurrentTime)=0;
+		virtual void RenderScene(float fCurrentTime)=0;
+		virtual void RenderHUD(float fCurrentTime)=0;
+		virtual void OnMouse(int button,int state,int x,int y)=0;
+		
+		virtual bool Execute(std::string sCommand)=0;
+	};
+
+	class cAppKey
+	{
+	public:
+		//std::string sCommand;
+		//cKey(std::string command);
+
+		bool bRepeat;
+		bool bDown;
+		bool bCollected;
+
+		unsigned int uiCode;
+
+		cAppKey(unsigned int code, bool repeat=true);
+	};
+}
+
+#endif //CAPP_H
