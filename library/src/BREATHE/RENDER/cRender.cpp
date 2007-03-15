@@ -81,6 +81,8 @@ PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
 PFNGLDELETESHADERPROC glDeleteShader;
 PFNGLDELETEPROGRAMPROC glDeleteProgram;
 
+#define MAX_TEXTURE_SIZE 1024
+
 namespace BREATHE
 {
 	namespace RENDER
@@ -205,15 +207,19 @@ namespace BREATHE
 			pLog->Success("Render", "Renderer   : %s", glGetString( GL_RENDERER ));
 			pLog->Success("Render", "Version    : %s", glGetString( GL_VERSION ));
 			pLog->Success("Render", "Extensions : %s", glGetString( GL_EXTENSIONS ));
-			if(iMaxTextureSize>=1024)
+			
+	#endif
+	
+			if(iMaxTextureSize>=MAX_TEXTURE_SIZE)
+			{
+	#ifdef _DEBUG
 				pLog->Success("Render", "Max Texture Size : %d", iMaxTextureSize);
+	#endif //_DEBUG
+				iMaxTextureSize=MAX_TEXTURE_SIZE;
+			}
 			else
 				pLog->Error("Render", "Max Texture Size : %d", iMaxTextureSize);
-	#endif //_DEBUG
-
-			if(iMaxTextureSize>=1024)
-				iMaxTextureSize=1024;
-
+	
 
 			if(FindExtension("GL_ARB_multitexture"))
         pLog->Success("Render", "Found GL_ARB_multitexture");
@@ -316,7 +322,7 @@ namespace BREATHE
 		
 		void cRender::SetCamera(cCamera *c)
 		{
-			
+			pCamera = c;
 		}
 
 		void cRender::BeginFrame(float fCurrentTime)
@@ -1324,7 +1330,6 @@ namespace BREATHE
 				glUseProgram(pMaterial->pShader->uiShaderProgram);
 
 				GLint loc=-1;
-				int n=1024;
 
 				loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "cameraPos");
 				if(loc != -1)
