@@ -33,9 +33,7 @@ namespace BREATHE
 
 			float fPetrolTankSize; //Total size
 
-			float fPetrolStock;
-			float fPetrolPremium;
-			float fPetrolRacing;
+			std::vector<float>vPetrolTank;
 
 			//Properties, change based on parts installed
 			struct struct_properties
@@ -68,7 +66,7 @@ namespace BREATHE
 			~cVehicle();
 
 			void Init(cLevelSpawn p, unsigned int uiSeats);
-			void Update(float fTime);
+			void Update(float fTimeStep);
 			void UpdateInput();
 
 			void PhysicsInit(cLevelSpawn p);

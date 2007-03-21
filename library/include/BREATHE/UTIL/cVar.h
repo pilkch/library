@@ -61,8 +61,7 @@ namespace BREATHE
 		//Convert these types into sValue
 		void operator=(const std::string &rhs);
 
-		std::string operator*(const std::string & rhs) const
-		{	return std::string(sValue + rhs);	}
+		std::string operator*(const std::string & rhs) const;
 	};
 }
 

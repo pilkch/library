@@ -483,7 +483,7 @@ namespace BREATHE
 
 			// these affect how this texture is drawn later on...
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			// clean up
 			SDL_FreeSurface(surface);
@@ -1331,11 +1331,11 @@ namespace BREATHE
 
 				GLint loc=-1;
 
-				loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "cameraPos");
+				/*loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "cameraPos");
 				if(loc != -1)
 				  glUniform3f(loc, pCamera->eye.x, pCamera->eye.y, pCamera->eye.z);
 				else
-					pLog->Error("Shader", "%s: Couldn't set cameraPos", pMaterial->sName.c_str());
+					pLog->Error("Shader", "%s: Couldn't set cameraPos", pMaterial->sName.c_str());*/
 
 
 				if(uiActiveUnits>0)

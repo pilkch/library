@@ -34,6 +34,7 @@
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
@@ -64,8 +65,8 @@ float fSuspensionK=6.0f;
 float fSuspensionU=0.8f;
 
 float fSuspensionMin=0.25f;
-float fSuspensionNormal=1.1f;
-float fSuspensionMax=1.4f;
+float fSuspensionNormal=4.0f;//1.1f;
+float fSuspensionMax=5.0f;//1.4f;
 
 float w=1.6f;
 float l=4.8f;
@@ -352,6 +353,9 @@ namespace BREATHE
 			pGlass=NULL;
 			pWheel=NULL;
 
+
+			bFourWheelDrive=fourwheeldrive;
+
 			fRadius=w;
 
 			fWidth=w;
@@ -364,14 +368,12 @@ namespace BREATHE
 			fControl_Steer=0.0f;
 			fControl_Handbrake=0.0f;
 
-			fPetrolTankSize=10.0f;
-			fPetrolStock=5.0f;
-			fPetrolPremium=3.0f;
-			fPetrolRacing=2.0f;
+			fPetrolTankSize=70.0f;
 
-			bFourWheelDrive=fourwheeldrive;
 
 			fWeight=fMass;
+
+			vPetrolTank.insert(0, PETROL_SIZE, 0.0f);
 		}
 
 		cVehicle::~cVehicle()
@@ -440,14 +442,44 @@ namespace BREATHE
 			rfWheel_=vWheel[3];
 		}
 
+
 		void cVehicle::Update(float fCurrentTime)
 		{
 			PHYSICS::cPhysicsObject::Update(fCurrentTime);
+	
+			/*
+			Real rpm = FLT_MIN;
+
+			for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
+			{
+				rpm = std::max(rpm,(*i)->getRPM());
+			}
+
+			_engine->update(time);
+			Real power = _engine->getPowerAtRPM(rpm);
+			Real desired_rpm = _engine->getDesiredRPM();
+			Real brake = _engine->getBrakeForce();
+
+			for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
+			{
+				(*i)->update(power,desired_rpm,brake);
+			}
+			
+			if (_antisway)
+			{
+				_swayLastUpdate += time;
+				if  (_swayLastUpdate > _swayRate)
+				{
+					applyAntiSwayBarForces ();
+					_swayLastUpdate =Ogre::Real(0.0);
+				}
+			}*/
 
 			//TODO: Run through the parts.  They are already in order in the vector
 			//eg. vPart[0]=turbo, vPart[1]=turbo, vPart[2]=tyres
 			std::vector<cPart *>::iterator iter=vPart.begin();
-			while(iter!=vPart.end())
+			std::vector<cPart *>::iterator end=vPart.end();
+			while(iter!=end)
 			{
 				(*iter)->Update();
 
@@ -492,6 +524,28 @@ namespace BREATHE
 			for(i=0;i<4;i++)
 				vWheel[i]->Update(fCurrentTime);
 
+			/*
+			private void applyAntiSwayBarForces()
+			{
+				amt=0;
+			
+				for(int i=0;i<4;i++){				
+					Vector3 anchor2 = wheels[i].Joint.Anchor2;
+					Vector3 anchor1 = wheels[i].Joint.Anchor;
+					Vector3 axis = wheels[i].Joint.Axis2;
+					
+					displacement = Vector3.Dot(anchor1-anchor2,axis);
+					
+					if(displacement> 0){
+						amt = displacement * swayForce;
+						if(amt> swayForceLimit)
+							amt = swayForceLimit;
+						wheels[i].Body.AddForce(-axis *amt); //downforce
+						wheels[i^1].Body.AddForce(axis *amt); //upforce
+					}
+				}		
+ 			}*/
+
 
 			/*// drag
 			f32 dragConstant = 0.5f;
@@ -511,47 +565,21 @@ namespace BREATHE
 
 		void cVehicle::FillUp(cPetrolBowser *pBowser)
 		{
-			float fSpace=static_cast<unsigned int>(fPetrolTankSize-fPetrolStock-fPetrolPremium-fPetrolRacing);
+			float fSpace = static_cast<unsigned int>(fPetrolTankSize);
+			for(int i=0;i<PETROL_SIZE;i++)
+				fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
+
 			cPlayer *p=vSeat[0]->pPlayer;
 
-			if(PETROL_RACING==pBowser->uiType)
+			if(pBowser->fPrice * fSpace < p->fDollars)
 			{
-				if(pBowser->fPrice*fSpace<p->fDollars)
-				{
-					fPetrolRacing+=fSpace;
-					p->fDollars-=pBowser->fPrice*fSpace;
-				}
-				else
-				{
-					fPetrolRacing+=(p->fDollars/pBowser->fPrice);
-					p->fDollars=0.0f;
-				}
+				vPetrolTank[pBowser->uiType]+=fSpace;
+				p->fDollars-=pBowser->fPrice*fSpace;
 			}
-			else if(PETROL_PREMIUM==pBowser->uiType)
+			else
 			{
-				if(pBowser->fPrice*fSpace<p->fDollars)
-				{
-					fPetrolPremium+=fSpace;
-					p->fDollars-=pBowser->fPrice*fSpace;
-				}
-				else
-				{
-					fPetrolPremium+=(p->fDollars/pBowser->fPrice);
-					p->fDollars=0.0f;
-				}
-			}
-			else if(PETROL_STOCK==pBowser->uiType)
-			{
-				if(pBowser->fPrice*fSpace<p->fDollars)
-				{
-					fPetrolStock+=fSpace;
-					p->fDollars-=pBowser->fPrice*fSpace;
-				}
-				else
-				{
-					fPetrolStock+=(p->fDollars/pBowser->fPrice);
-					p->fDollars=0.0f;
-				}
+				vPetrolTank[pBowser->uiType]+=(p->fDollars/pBowser->fPrice);
+				p->fDollars=0.0f;
 			}
 		}
 

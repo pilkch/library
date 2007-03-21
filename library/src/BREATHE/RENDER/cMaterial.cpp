@@ -80,7 +80,10 @@ namespace BREATHE
 				{
 						infoLog = new char[infologLength];
 						glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
-						pLog->Success("Render", "Shader %s: %s", sShaderVertex.c_str(), infoLog);
+						std::string sInfo(infoLog);
+						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+								sInfo.find("Warning") != std::string::npos)
+							pLog->Error("Render", "Shader %s: %s", sShaderVertex.c_str(), infoLog);
 						delete infoLog;
 				}
 			}
@@ -96,7 +99,10 @@ namespace BREATHE
 				{
 						infoLog = new char[infologLength];
 						glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
-						pLog->Success("Render", "Shader %s: %s", sShaderFragment.c_str(), infoLog);
+						std::string sInfo(infoLog);
+						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+								sInfo.find("Warning") != std::string::npos)
+							pLog->Error("Render", "Shader %s: %s", sShaderFragment.c_str(), infoLog);
 						delete infoLog;
 				}
 			}
@@ -112,7 +118,10 @@ namespace BREATHE
 				{
 						infoLog = new char[infologLength];
 						glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
-						pLog->Success("Render", "Program %s %s: %s", sShaderVertex.c_str(), sShaderFragment.c_str(), infoLog);
+						std::string sInfo(infoLog);
+						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+								sInfo.find("Warning") != std::string::npos)
+              pLog->Error("Render", "Program %s %s: %s", sShaderVertex.c_str(), sShaderFragment.c_str(), infoLog);
 						delete infoLog;
 				}
 			}

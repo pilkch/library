@@ -78,4 +78,9 @@ namespace BREATHE
 	{
 		sValue=rhs;
 	}
+
+	std::string cVar::operator*(const std::string & rhs) const
+	{
+		return std::string(sValue + rhs);
+	}
 }

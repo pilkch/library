@@ -97,28 +97,27 @@ namespace BREATHE
         dBodyDestroy(pPhysicsObject->body);
 		}
 
-		void cPhysics::Update(float fCurrentTime)
+		void cPhysics::Update(float fTimeStep)
 		{
-			float interval=0.016f;
+			float fInterval=0.016f;
+			float fDampTorque = 0.05f;
+			float fDampLinearVel = 0.02f;
 
 			//First Iteration
 			//  apply one-size-fits-all rotational and linear dampening
 
-			std::list<cPhysicsObject *>::iterator iter=lPhysicsObject.begin();
+			std::list<cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
+			std::list<cPhysicsObject*>::iterator iterEnd = lPhysicsObject.end();
 
-			while(lPhysicsObject.end() != iter)
+			dBodyID b;
+			while(iterEnd != iter)
 			{
-				if((*iter)->bBody)
+				if(b = (*iter)->body)
 				{
-          dBodyID b = (*iter)->body;
-
-					if(b)
-					{
-						dReal const * av = dBodyGetAngularVel( b );
-						dBodyAddTorque( b, -av[0]*0.05f, -av[1]*0.05f, -av[2]*0.05f );
-						dReal const * lv = dBodyGetLinearVel( b );
-						dBodyAddForce( b, -lv[0]*0.02f, -lv[1]*0.02f, -lv[2]*0.02f );
-					}
+          dReal const * av = dBodyGetAngularVel( b );
+					dBodyAddTorque( b, -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );
+					dReal const * lv = dBodyGetLinearVel( b );
+					dBodyAddForce( b, -lv[0]*fDampLinearVel, -lv[1]*fDampLinearVel, -lv[2]*fDampLinearVel );
 				}
 
 				iter++;
@@ -130,7 +129,7 @@ namespace BREATHE
 
 			//PStepper::stepAll( dt );
 
-			dWorldQuickStep(world, interval);
+			dWorldQuickStep(world, fInterval);
 			dJointGroupEmpty(contactgroup);
 		}
 

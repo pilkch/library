@@ -33,6 +33,7 @@
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>

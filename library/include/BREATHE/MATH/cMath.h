@@ -13,6 +13,7 @@ namespace BREATHE
 		extern const float c180_DIV_PI;
 
 		extern const float cEPSILON;
+		extern const float cINFINITY;
 		
 		template <class T> inline T clamp(T i, T lower, T upper)
 		{ 

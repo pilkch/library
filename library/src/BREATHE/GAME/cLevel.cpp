@@ -40,6 +40,7 @@
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
 
 #include <BREATHE/RENDER/cCamera.h>
 
@@ -146,24 +147,23 @@ namespace BREATHE
 
 
 		// We don't have any spawns yet, add a default one
-		if(vSpawn.size()<1)
-		{
-			vSpawn.push_back(new cLevelSpawn());
-			pSpawn=vSpawn.back();
-
-			pSpawn->v3Position=MATH::cVec3(10.0f, 10.0f, 10.0f);
+		if(0==vSpawn.size()) {
+			pLog->Error("Level", "No spawns defined");
+			return BREATHE::BAD;
 		}
 
 
 		unsigned int i=0;
 		unsigned int n=vCubemap.size();
+
+		if(0==n) {
+			pLog->Error("Level", "No cubemaps defined");
+			return BREATHE::BAD;
+		}
+
 		for(i=0;i<n;i++)
 			pRender->AddCubeMap(vCubemap[i]->sFilename);
 
-		if(0==n) {
-			pLog->Error("Level", "No cubemaps defined, minimum is 1");
-			return BREATHE::BAD;
-		}
 
 		return BREATHE::GOOD;
 	}
@@ -194,7 +194,7 @@ namespace BREATHE
 				
 				float angleCosine;
 				
-				MATH::cVec3 out;
+				MATH::cVec3 v3out;
 
 				objToCamProj.Normalize();
 
@@ -207,12 +207,14 @@ namespace BREATHE
 				// if the lookAt and objToCamProj vectors are too close together then 
 				// |angleCosine| could be bigger than 1 due to lack of precision
 				if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-					out.z=90.0f+a;
+					v3out.z=90.0f+a;
 				else
-					out.z=-90.0f;
+					v3out.z=-90.0f;
 
-				pSpawn->v3Rotation=out;
+				pSpawn->v3Rotation=v3out;
 				pSpawn->v3Position=p->vCamera[i]->eye;
+				pLog->Error("Level", "Upate in 3ds and remove this");
+				pSpawn->v3Position.z=-1.5f;
 			}
 
 			vNode.push_back(pNode);
@@ -463,7 +465,7 @@ namespace BREATHE
 		}
 
 
-		if((fCurrentTime-fPreviousTime)>1000.0f)
+		//if((fCurrentTime-fPreviousTime)>1000.0f)
 		{
 			fPreviousTime=fCurrentTime;
 
@@ -578,6 +580,9 @@ namespace BREATHE
 		//Have to have a spawn in the level before calling this
 		unsigned int i=0;
 		unsigned int n=vSpawn.size();
+
+		if(n<1) pLog->Error("Level", "No spawns defined");
+
 		float d=(vSpawn[0]->v3Position-p).GetLength();
 		float t=0.0f;
 		cLevelSpawn *s=vSpawn[0];

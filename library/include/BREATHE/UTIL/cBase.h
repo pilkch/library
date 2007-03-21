@@ -8,7 +8,7 @@ namespace BREATHE
 	//This can be used for generic things such as the audio, renderer, game etc.
 	class cUpdateable
 	{
-		virtual void Update(float fTime)=0;
+		virtual void Update(float fCurrentTime)=0;
 	};
 
 	//This is for in game objects that have a physical presence in the world such as the player, 

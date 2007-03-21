@@ -6,6 +6,7 @@ namespace BREATHE
 	const unsigned int PETROL_STOCK=0;
 	const unsigned int PETROL_PREMIUM=1;
 	const unsigned int PETROL_RACING=2;
+	const unsigned int PETROL_SIZE=3;
 
 	class cPetrolBowser
 	{
