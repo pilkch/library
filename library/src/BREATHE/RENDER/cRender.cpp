@@ -250,7 +250,7 @@ namespace BREATHE
 
 			float fShaderVersion=0.0f;
 			char buffer[100]="";
-			sprintf(buffer, "%s", glGetString(GL_VERSION));
+			strcpy(buffer, (char*)glGetString(GL_VERSION));
 				
 			std::stringstream stm(buffer);
 			

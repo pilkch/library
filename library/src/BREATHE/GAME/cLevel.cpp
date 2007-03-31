@@ -361,6 +361,8 @@ namespace BREATHE
 				}
 			}
 		}
+
+		pLog->Success("Level", "TransformModels returning");
 	}
 
 	MODEL::cStatic *cLevel::AddModel(std::string sNewfilename)
@@ -465,7 +467,7 @@ namespace BREATHE
 		}
 
 
-		//if((fCurrentTime-fPreviousTime)>1000.0f)
+		if((fCurrentTime-fPreviousTime)>1000.0f)
 		{
 			fPreviousTime=fCurrentTime;
 

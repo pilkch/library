@@ -24,11 +24,9 @@
 #ifndef BREATHE_H
 #define BREATHE_H
 
-#include <BREATHE/UTIL/cMem.h>
+// Defines
 
-//Defines
-
-//Platform
+// Platform
 #if defined(WIN32) || defined(_MSC_VER) || defined(_BORLANDC_)
 #define PLATFORM_WINDOWS
 #elif defined(__LINUX__)
@@ -36,35 +34,46 @@
 #elif defined(__MACOSX__)
 #define PLATFORM_MAC
 #else
-!!! //We don't support this platform yet
+!!! We don't support this platform yet
 #endif
 
-//What type of build is this?
+// What type of build is this?
 #ifdef NDEBUG
 #define BUILD_RELEASE
 #else
 #define BUILD_DEBUG
 #endif
 
-//Utility types, objects etc.
+
+// CRT's memory leak detection
+#if defined(BUILD_DEBUG)
+#include <crtdbg.h>
+#endif
+
+// FluidStudios' memory leak detection
+#include <BREATHE/UTIL/cMem.h>
+
+
+
+// Utility types, objects etc.
 
 namespace BREATHE
 {
-	//Constants
+	// Constants
 	const bool BAD=true;
 	const bool GOOD=false;
 	
-	//Safe deleting functions
+	// Safe deleting functions
 	template <class T> inline void SAFE_DELETE(T x)
 	{ 
-		delete x;
-		x=NULL;
+		delete (x);
+		(x)=NULL;
 	}
 
 	template <class T> inline void SAFE_DELETE_ARRAY(T x)
 	{ 
-		delete [] x;
-		x=NULL;
+		delete [] (x);
+		(x)=NULL;
 	}
 }
 

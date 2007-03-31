@@ -13,10 +13,10 @@ namespace BREATHE
 		void t(FILE * f);
 		void n(FILE * f);
 
-#ifdef _DEBUG
+#ifdef BUILD_DEBUG
 		void trace(std::string section);
 		void trace(std::string section, std::string text);
-#endif //_DEBUG
+#endif //BUILD_DEBUG
 
 		FILE * logfile;
 
@@ -48,12 +48,6 @@ namespace BREATHE
 		void Error(std::string section, std::string text);
 		void Success(std::string section, char *text, ...);
 		void Error(std::string section, char *text, ...);
-
-	#ifdef _DEBUG
-		void Debug(std::string s1, std::string text);
-	#endif
-		
-		bool html;
 	};
 }
 

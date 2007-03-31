@@ -24,8 +24,6 @@
 
 #include <ODE/ode.h>
 
-
-
 #include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cString.h>
 #include <BREATHE/UTIL/cLog.h>
@@ -107,6 +105,9 @@ namespace BREATHE
 		
 		pRender=new RENDER::cRender();
 
+
+		SDL_ShowCursor(SDL_DISABLE);
+
 		pPhysics=new PHYSICS::cPhysics();
 
 		pLevel=new cLevel(pRender, pPhysics);
@@ -182,9 +183,9 @@ namespace BREATHE
 			return BREATHE::BAD;
 		}
 
-	#ifndef _DEBUG
+/*#ifdef BUILD_DEBUG
 		pRender->uiFlags |= SDL_FULLSCREEN;
-	#endif //_DEBUG
+#endif //BUILD_DEBUG*/
 
 		// This checks to see if surfaces can be stored in memory 
 		if ( videoInfo->hw_available )

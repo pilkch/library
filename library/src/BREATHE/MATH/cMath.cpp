@@ -24,6 +24,6 @@ namespace BREATHE
 		const float c180_DIV_PI=57.2957795130823208767f;
 
 		const float cEPSILON=0.001f;//std::numeric_limits<float>::epsilon();
-		const float cINFINITY=std::numeric_limits<float>::infinity();
+		const float cINFINITY=std::numeric_limits<float>::max();//std::numeric_limits<float>::infinity();
 	}
 }

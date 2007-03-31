@@ -127,6 +127,8 @@
 // cluttered and hard to read.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+//#define CLEAR_ALLOCS
+
 //#define	TEST_MEMORY_MANAGER
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -232,10 +234,17 @@ const		unsigned int	m_alloc_free           = 8;
 // -DOC- Get to know these values. They represent the values that will be used to fill unused and deallocated RAM.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+#ifdef CLEAR_ALLOCS
+static		unsigned int	prefixPattern          = 0x00000000; // Fill pattern for bytes preceeding allocated blocks
+static		unsigned int	postfixPattern         = 0x00000000; // Fill pattern for bytes following allocated blocks
+static		unsigned int	unusedPattern          = 0x00000000; // Fill pattern for freshly allocated blocks
+static		unsigned int	releasedPattern        = 0x00000000; // Fill pattern for deallocated blocks
+#else
 static		unsigned int	prefixPattern          = 0xbaadf00d; // Fill pattern for bytes preceeding allocated blocks
 static		unsigned int	postfixPattern         = 0xdeadc0de; // Fill pattern for bytes following allocated blocks
 static		unsigned int	unusedPattern          = 0xfeedface; // Fill pattern for freshly allocated blocks
 static		unsigned int	releasedPattern        = 0xdeadbeef; // Fill pattern for deallocated blocks
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Other locals
