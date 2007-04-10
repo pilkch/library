@@ -48,6 +48,7 @@ http://www.freetype.org/
 
 3DS File Loader
 genjix@gmail.com
+http://sourceforge.net/projects/scene3ds
 http://www.gamedev.net/community/forums/topic.asp?topic_id=313126
 
 MD5 RFC 1321 compliant MD5 implementation

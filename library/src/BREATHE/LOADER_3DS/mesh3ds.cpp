@@ -1,9 +1,11 @@
 #include "BREATHE/LOADER_3DS/mesh3ds.h"
 #include "BREATHE/LOADER_3DS/build3ds.h"
 
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
 #include <sstream>
-using namespace std;
 
 #include <BREATHE/UTIL/cLog.h>
 
@@ -21,14 +23,12 @@ namespace BREATHE
 
 		}
 
-		void Mesh3DS::Parse(const string &name , Model3DSChunk c)
+		void Mesh3DS::Parse(const std::string &name , Model3DSChunk c)
 		{
 			bFoundMeshes=true;
 
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t<<"Mesh3DS::Parse(" << name.c_str() << ")";
-			pLog->Success("c3ds", t.str());
+			pLog->Success("c3ds", std::string("Mesh3DS::Parse(") + name + ")");
 #endif //DEBUG3DS
 
 			Mesh3DSObject mesh(name , c);

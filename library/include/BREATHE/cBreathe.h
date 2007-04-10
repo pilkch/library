@@ -24,7 +24,13 @@
 #ifndef BREATHE_H
 #define BREATHE_H
 
-// Defines
+#if defined(__hppa__) || \
+    defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+    (defined(__MIPS__) && defined(__MISPEB__)) || \
+    defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+    defined(__sparc__)
+!!! We don't support big endian systems, get a real computer (x86)
+#endif
 
 // Platform
 #if defined(WIN32) || defined(_MSC_VER) || defined(_BORLANDC_)

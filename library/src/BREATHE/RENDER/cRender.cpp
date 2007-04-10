@@ -2,9 +2,11 @@
 #include <cstdlib>
 #include <cstdarg>
 
-#include <sstream>
+// writing on a text file
 #include <iostream>
 #include <fstream>
+
+#include <sstream>
 #include <vector>
 #include <map>
 #include <list>
@@ -143,10 +145,10 @@ namespace BREATHE
 
 		bool cRender::FindExtension(std::string sExt)
 		{
-			std::ostringstream stm;
-			stm<<static_cast<const unsigned char *>(glGetString( GL_EXTENSIONS ));
+			std::ostringstream t;
+			t<<static_cast<const unsigned char *>(glGetString( GL_EXTENSIONS ));
 
-			return (stm.str().find(sExt) != std::string::npos);
+			return (t.str().find(sExt) != std::string::npos);
 		}
 
 		bool cRender::Init()
@@ -202,23 +204,27 @@ namespace BREATHE
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
 
 	#ifdef _DEBUG
-			pLog->Success("Render", "Screen BPP: %d", SDL_GetVideoSurface()->format->BitsPerPixel);
-			pLog->Success("Render", "Vendor     : %s", glGetString( GL_VENDOR ));
-			pLog->Success("Render", "Renderer   : %s", glGetString( GL_RENDERER ));
-			pLog->Success("Render", "Version    : %s", glGetString( GL_VERSION ));
-			pLog->Success("Render", "Extensions : %s", glGetString( GL_EXTENSIONS ));
-			
+			std::ostringstream t;
+			t << "Screen BPP: ";
+			t << SDL_GetVideoSurface()->format->BitsPerPixel;
+			pLog->Success("Render", t.str());
+			pLog->Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
+			pLog->Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
+			pLog->Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
+			pLog->Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
 	#endif
 	
+			t.str("");
+			t << iMaxTextureSize;
 			if(iMaxTextureSize>=MAX_TEXTURE_SIZE)
 			{
 	#ifdef _DEBUG
-				pLog->Success("Render", "Max Texture Size : %d", iMaxTextureSize);
+				pLog->Success("Render", std::string("Max Texture Size : ") + t.str());
 	#endif //_DEBUG
 				iMaxTextureSize=MAX_TEXTURE_SIZE;
 			}
 			else
-				pLog->Error("Render", "Max Texture Size : %d", iMaxTextureSize);
+				pLog->Error("Render", std::string("Max Texture Size : ") + t.str());
 	
 
 			if(FindExtension("GL_ARB_multitexture"))
@@ -398,10 +404,14 @@ namespace BREATHE
 			if(NULL==p)
 			{
 				p=pTextureNotFoundTexture;
-				pLog->Error("Texture", "%s pTextureNotFound", sNewFilename.c_str());
+				pLog->Error("Texture", sNewFilename + " pTextureNotFound");
 			}
 			else
-				pLog->Success("Texture", "%s %d", sNewFilename.c_str(), p->uiTexture);
+			{
+				std::ostringstream t;
+				t << p->uiTexture;
+				pLog->Success("Texture", sNewFilename + " " + t.str());
+			}
 			
 			mTexture[sNewFilename]=p;		
 
@@ -421,7 +431,7 @@ namespace BREATHE
 			
 			p=new cTexture();
 
-			pLog->Success("Texture", "Loading %s", sNewFilename.c_str());
+			pLog->Success("Texture", "Loading " + sNewFilename);
 		
 			unsigned int mode=0;
 			SDL_Surface *surface = IMG_Load(sNewFilename.c_str());
@@ -429,7 +439,7 @@ namespace BREATHE
 			// could not load filename
 			if (!surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture %s", sNewFilename.c_str());
+				pLog->Error("Texture", "Couldn't Load Texture " + sNewFilename);
 				return false;
 			}
 
@@ -446,7 +456,9 @@ namespace BREATHE
 			else
 			{
 				SDL_FreeSurface(surface);
-				pLog->Error("Texture", "Error Unknown Image Format (%d)", surface->format->BytesPerPixel);
+				std::ostringstream t;
+				t << surface->format->BytesPerPixel;
+				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 				
 				return false;
 			}
@@ -503,7 +515,7 @@ namespace BREATHE
 
 			sFilename=pFileSystem->FindFile(sFilename);
 
-			pLog->Success("Texture", "Loading %s", sFilename.c_str());
+			pLog->Success("Texture", "Loading " + sFilename);
 		
 			unsigned int mode=0;
 			SDL_Surface *surface = IMG_Load(sFilename.c_str());
@@ -511,7 +523,7 @@ namespace BREATHE
 			// could not load filename
 			if (!surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture %s", sFilename.c_str());
+				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
 				return false;
 			}
 
@@ -528,7 +540,9 @@ namespace BREATHE
 			else
 			{
 				SDL_FreeSurface(surface);
-				pLog->Error("Texture", "Error Unknown Image Format (%d)", surface->format->BytesPerPixel);
+				std::ostringstream t;
+				t << surface->format->BytesPerPixel;
+				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 				
 				return false;
 			}
@@ -572,7 +586,9 @@ namespace BREATHE
 			// clean up
 			SDL_FreeSurface(surface);
 
-			pLog->Success("Texture", "TextureNotFoundTexture %d", pTextureNotFoundTexture->uiTexture);
+			std::ostringstream t;
+			t << pTextureNotFoundTexture->uiTexture;
+			pLog->Success("Texture", "TextureNotFoundTexture " + t.str());
 
 			return true;
 		}
@@ -583,7 +599,7 @@ namespace BREATHE
 
 			sFilename=pFileSystem->FindFile(sFilename);
 
-			pLog->Success("Texture", "Loading %s", sFilename.c_str());
+			pLog->Success("Texture", "Loading " + sFilename);
 		
 			unsigned int mode=0;
 			SDL_Surface *surface = IMG_Load(sFilename.c_str());
@@ -591,7 +607,7 @@ namespace BREATHE
 			// could not load filename
 			if (!surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture %s", sFilename.c_str());
+				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
 				return false;
 			}
 
@@ -608,7 +624,9 @@ namespace BREATHE
 			else
 			{
 				SDL_FreeSurface(surface);
-				pLog->Error("Texture", "Error Unknown Image Format (%d)", surface->format->BytesPerPixel);
+				std::ostringstream t;
+				t << surface->format->BytesPerPixel;
+				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 				
 				return false;
 			}
@@ -652,7 +670,9 @@ namespace BREATHE
 			// clean up
 			SDL_FreeSurface(surface);
 
-			pLog->Success("Texture", "MaterialNotFoundTexture %d", pMaterialNotFoundTexture->uiTexture);
+			std::ostringstream t;
+			t << pMaterialNotFoundTexture->uiTexture;
+			pLog->Success("Texture", "MaterialNotFoundTexture " + t.str());
 
 			return true;
 		}
@@ -712,7 +732,7 @@ namespace BREATHE
 				GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 			};
 
-			pLog->Success("Texture", "Loading CubeMap %s", sFilename.c_str());
+			pLog->Success("Texture", "Loading CubeMap " + sFilename);
 		
 			unsigned int i=0;
 			unsigned int uiTempTexture=0;
@@ -749,7 +769,7 @@ namespace BREATHE
 				// could not load filename
 				if (!surface)
 				{
-					pLog->Error("Texture", "Couldn't Load Texture %s", sFilename.c_str());
+					pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
 					return false;
 				}
 
@@ -766,7 +786,9 @@ namespace BREATHE
 				else
 				{
 					SDL_FreeSurface(surface);
-					pLog->Error("Texture", "Error Unknown Image Format (%d)", surface->format->BytesPerPixel);
+					std::ostringstream t;
+					t << surface->format->BytesPerPixel;
+					pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 					
 					return false;
 				}
@@ -833,7 +855,9 @@ namespace BREATHE
 			glEnable(GL_TEXTURE_2D);
 
 
-			pLog->Success("Texture", "%d", p->uiTexture);
+			std::ostringstream t;
+			t << p->uiTexture;
+			pLog->Success("Texture", t.str());
 
 			return p;
 		}
@@ -1335,7 +1359,7 @@ namespace BREATHE
 				if(loc != -1)
 				  glUniform3f(loc, pCamera->eye.x, pCamera->eye.y, pCamera->eye.z);
 				else
-					pLog->Error("Shader", "%s: Couldn't set cameraPos", pMaterial->sName.c_str());*/
+					pLog->Error("Shader", ": pMaterial->sName + "Couldn't set cameraPos");*/
 
 
 				if(uiActiveUnits>0)
@@ -1344,7 +1368,7 @@ namespace BREATHE
 					if(loc != -1)
 						glUniform1i(loc, 0);//pMaterial->vLayer[0]->uiTexture);
 					else
-						pLog->Error("Shader", "%s: Couldn't set texUnit0", pMaterial->sName.c_str());
+						pLog->Error("Shader", pMaterial->sName + ": Couldn't set texUnit0");
 				}
 	
 				if(uiActiveUnits>1)
@@ -1353,7 +1377,7 @@ namespace BREATHE
 					if(loc != -1)
 						glUniform1i(loc, 1);//pMaterial->vLayer[1]->uiTexture);
 					else
-						pLog->Error("Shader", "%s: Couldn't set texUnit1", pMaterial->sName.c_str());
+						pLog->Error("Shader", pMaterial->sName + ": Couldn't set texUnit1");
 				}
 
 				//glDisable(GL_LIGHTING);

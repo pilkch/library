@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
 #include <stdarg.h>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
 #include <vector>
 #include <map>
 

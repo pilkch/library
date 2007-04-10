@@ -10,6 +10,10 @@
 
 
 
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
 
 
 

@@ -7,6 +7,11 @@
 #include <string>
 #include <vector>
 
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
+
 #include <BREATHE/cBreathe.h>
 
 #if defined(BUILD_DEBUG) && defined(PLATFORM_WINDOWS)
@@ -18,9 +23,10 @@
 
 BREATHE::cLog *pLog;
 
-
 namespace BREATHE
 {
+	#define t "\t"
+
 	cLog::cLog()
 	{
 		strfilename="log/index.html"; 
@@ -28,8 +34,8 @@ namespace BREATHE
 		scol=0;
 		ecol=0;
 		hash=35;
-		starttable="\t\t\t<table border=\"0\" cellspacing=\"0\">";
-		startline="\t\t\t\t<tr>";
+		starttable=t t t "<table border=\"0\" cellspacing=\"0\">";
+		startline=t t t t "<tr>";
 		startsuccesscolumn[0]="<td bgcolor=\"" + hash + "006600\" width=\"*\">";
 		startsuccesscolumn[1]="<td bgcolor=\"" + hash + "005500\">";
 		starterrorcolumn[0]="<td bgcolor=\"" + hash + "660000\">";
@@ -37,85 +43,65 @@ namespace BREATHE
 		endcolumn="</td>";
 		endline="</td></tr>\n";
 		newline="<br>\n";
-		endtable="\t\t\t</table>\n";
+		endtable=t t t "</table>\n";
 	}
 
 	cLog::~cLog()
 	{
-		if(logfile=fopen(strfilename.c_str(), "a+"))
-		{
-			fprintf(logfile, "%s\t\t</center>\n\t</body>\n</html>", endtable.c_str());
-			fclose(logfile);
-		}
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open())
+			return;
+
+		logfile << endtable << "\t\t</center>\n\t</body>" << std::endl << "</html>";
+		logfile.close();
 	}
 
-	bool cLog::WriteLog()
+	bool cLog::CreateLog()
 	{ 
-		//Clear the log file contents
-		if((logfile=fopen(strfilename.c_str(), "wb"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out);
+
+		if(!logfile.is_open())
 			return false;
 
-		fclose(logfile);
+		logfile << "<html>" << std::endl;
+		logfile << t << "<head>" << std::endl;
+		logfile << t << t << "<title>Log</title>" << std::endl;
+		logfile << t << t << "<style type=\"text/css\">" << std::endl;
+		logfile << t << t << "<!--" << std::endl;
+		logfile << t << t << t << "td { font-family: Tahoma; font-size: 12px; } " << std::endl;
+		logfile << t << t << "-->" << std::endl;
+		logfile << t << t << "</style>" << std::endl;
+		logfile << t << "</head>" << std::endl;
+		logfile << t << "<body font face=\"Tohama\" size=\"2\" bgcolor=\"" << hash.data()[0] << "000000\" text=\"" << hash.data()[0] << "FFFFFF\">" << std::endl;
+		logfile << t << t << "<center>" << std::endl;
+		logfile << t << t << t << starttable << std::endl;
+		logfile << t << t << t << startline << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Component" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Event" << endline;
 
-		if(logfile=fopen(strfilename.c_str(), "a+"))
-		{
-			fprintf(logfile, "<html>");n(logfile);
-			t(logfile);fprintf(logfile, "<head>");n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "<title>Log</title>");n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "<style type=\"text/css\">");n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "<!--");n(logfile);
-			t(logfile);t(logfile);t(logfile);fprintf(logfile, "td { font-family: Tahoma; font-size: 12px; } ");n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "-->");n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "</style>");n(logfile);
-			t(logfile);fprintf(logfile, "</head>");n(logfile);
-			t(logfile);fprintf(logfile, "<body font face=\"Tohama\" size=\"2\" bgcolor=\"%c000000\" text=\"%cFFFFFF\">", hash.data()[0], hash.data()[0]);n(logfile);
-			t(logfile);t(logfile);fprintf(logfile, "<center>");n(logfile);
-			fprintf(logfile, "%s", starttable.c_str());n(logfile);
-			fprintf(logfile, "%s<td bgcolor=\"%c0000FF\">Component%s<td bgcolor=\"%c0000FF\">Event%s", startline.c_str(), hash.data()[0], endcolumn.c_str(), hash.data()[0], endline.c_str());
-
-			//Close the file, return success
-			fclose (logfile);
-		}
-		else
-			return false;
+		//Close the file, return success
+		logfile.close();
 
 		return true;
-	}
-
-	void cLog::t(FILE * f)
-	{
-		fputc('\t', f);
-	}
-
-	void cLog::n(FILE * f)
-	{
-		fputc('\n', f);
 	}
 
 #ifdef BUILD_DEBUG
 	void cLog::trace(std::string section)
 	{
-		std::string t="<!> ";
-		t+=section;
-		t+="\n";
+		std::string s="<!> " + section + "\n";
 #ifdef PLATFORM_WINDOWS
-		OutputDebugString(t.c_str());
+		OutputDebugString(s.c_str());
 #else
-		printf(t.c_str());
+		printf(s.c_str());
 #endif
 	}
 
 	void cLog::trace(std::string section, std::string text)
 	{
-		std::string t="<!> ";
-		t+=section;
-		t+=" - ";
-		t+=text;
-		t+="\n";
+		std::string s="<!> " + section + " - " + text + "\n";
 #ifdef PLATFORM_WINDOWS
-		OutputDebugString(t.c_str());
+		OutputDebugString(s.c_str());
 #else
-		printf(t.c_str());
+		printf(s.c_str());
 #endif
 	}
 #endif //BUILD_DEBUG
@@ -129,7 +115,7 @@ namespace BREATHE
 		BREATHE::FILESYSTEM::CreateDirectory("log/mem");
 		BREATHE::FILESYSTEM::CreateFile(strfilename);
 
-		WriteLog();
+		CreateLog();
 
 #ifdef BUILD_DEBUG
 		pLog->Success("Build", "Debug");
@@ -142,22 +128,25 @@ namespace BREATHE
 
 	void cLog::Newline()
 	{
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open()) 
 			return;
 		
-		fprintf(logfile, "%s<td bgcolor=\"%c0000CC\"> %s<td bgcolor=\"%c0000CC\"> %s", startline.c_str(), hash.data()[0], endcolumn.c_str(), hash.data()[0], endline.c_str());
-		
-		fclose(logfile);
+		logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
+		logfile.close();
 	}
 
 	void cLog::Newline(std::string s1)
 	{
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open()) 
 			return;
 
-		fprintf(logfile, "%s<td bgcolor=\"%c0000CC\">%s%s<td bgcolor=\"%c0000CC\">%s", startline.c_str(), hash.data()[0], s1.c_str(), endcolumn.c_str(), hash.data()[0], endline.c_str());
+		logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
 		
-		fclose(logfile);
+		logfile.close();
 
 #ifdef BUILD_DEBUG
 		trace(s1);
@@ -166,11 +155,13 @@ namespace BREATHE
 
 	void cLog::Newline(std::string s1, std::string text)
 	{
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open()) 
 			return;
 
-		fprintf(logfile, "%s<td bgcolor=\"%c0000CC\">%s%s<td bgcolor=\"%c0000CC\">%s%s", startline.c_str(), hash.data()[0], s1.c_str(), endcolumn.c_str(), hash.data()[0], text.c_str(), endline.c_str());
-		fclose(logfile);
+		logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << text << endline;
+		logfile.close();
 
 #ifdef BUILD_DEBUG
 		trace(s1, text);
@@ -179,14 +170,15 @@ namespace BREATHE
 
 	void cLog::Success(std::string section, std::string text)
 	{
-		//Open the file for append
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open()) 
 			return;
 
-		fprintf(logfile, "%s%s%s%s%s%s%s", startline.c_str(), startsuccesscolumn[scol].c_str(), section.c_str(), endcolumn.c_str(), startsuccesscolumn[scol].c_str(), text.c_str(), endline.c_str());
+		logfile << startline << startsuccesscolumn[scol] << section << endcolumn << startsuccesscolumn[scol] << text << endline;
 		
 		//Close the file
-		fclose(logfile);
+		logfile.close();
 
 		scol=!scol;
 
@@ -197,79 +189,19 @@ namespace BREATHE
 
 	void cLog::Error(std::string section, std::string text)
 	{
-		//Open the file for append
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
+		logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+		
+		if(!logfile.is_open()) 
 			return;
 
-		fprintf(logfile, "%s%s%s%s%s%s%s", startline.c_str(), starterrorcolumn[ecol].c_str(), section.c_str(), endcolumn.c_str(), starterrorcolumn[ecol].c_str(), text.c_str(), endline.c_str());
+		logfile << startline << starterrorcolumn[ecol] << section << endcolumn << starterrorcolumn[ecol] << text << endline;
 		
-		fclose(logfile);
+		logfile.close();
 
 		ecol=!ecol;
 
 #ifdef BUILD_DEBUG
 		trace(section, text);
 #endif //BUILD_DEBUG
-	}
-
-	void cLog::Success(std::string section, char *text, ...)
-	{
-		va_list arg_list;
-		va_start(arg_list, text);
-
-		//Open the file for append
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
-			return;
-
-		if(scol==true || scol==false)
-			fprintf(logfile, "%s%s%s%s%s", startline.c_str(), startsuccesscolumn[scol].c_str(), section.c_str(), endcolumn.c_str(), startsuccesscolumn[scol].c_str());
-		else
-		{
-			scol=true;
-			fprintf(logfile, "%s%s%s%s%s", startline.c_str(), startsuccesscolumn[scol].c_str(), section.c_str(), endcolumn.c_str(), startsuccesscolumn[scol].c_str());
-		}
-
-		vfprintf(logfile, text, arg_list);
-		fprintf(logfile, endline.c_str());
-
-		fclose(logfile);
-
-#ifdef BUILD_DEBUG
-		trace(section, text);
-#endif //BUILD_DEBUG
-
-		va_end(arg_list);
-
-		scol=!scol;
-	}
-
-	void cLog::Error(std::string section, char *text, ...)
-	{
-		va_list arg_list;
-		va_start(arg_list, text);
-
-		//Open the file for append
-		if((logfile=fopen(strfilename.c_str(), "a+"))==NULL)
-			return;
-
-		if(ecol==true || ecol==false)
-			fprintf(logfile, "%s%s%s%s%s", startline.c_str(), starterrorcolumn[ecol].c_str(), section.c_str(), endcolumn.c_str(), starterrorcolumn[ecol].c_str());
-		else
-		{
-			ecol=true;
-			fprintf(logfile, "%s%s%s%s%s", startline.c_str(), starterrorcolumn[ecol].c_str(), section.c_str(), endcolumn.c_str(), starterrorcolumn[ecol].c_str());
-		}
-		vfprintf(logfile, text, arg_list);
-		fprintf(logfile, endline.c_str());
-		
-		fclose(logfile);
-
-#ifdef BUILD_DEBUG
-		trace(section, text);
-#endif //BUILD_DEBUG
-
-		va_end(arg_list);
-
-		ecol=!ecol;
 	}
 }

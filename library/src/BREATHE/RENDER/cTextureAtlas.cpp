@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <sstream>
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
+#include <sstream>
 #include <vector>
 #include <map>
 #include <string>
@@ -119,7 +122,9 @@ namespace BREATHE
 			// clean up
 			SDL_FreeSurface(surface);
 
-			pLog->Success("Texture", "Atlas: %d", uiTexture);
+			std::ostringstream t;
+			t << uiTexture;
+			pLog->Success("Texture", "Atlas: " + t.str());
 		}
 
 		void cTextureAtlas::BlitSurface(SDL_Surface *src, unsigned int x, unsigned int y)
@@ -161,7 +166,7 @@ namespace BREATHE
 		
 		cTexture *cTextureAtlas::AddTexture(std::string sFilename)
 		{
-			pLog->Success("Texture", "Loading %s", sFilename.c_str());
+			pLog->Success("Texture", "Loading " + sFilename);
 
 			sFilename=pFileSystem->FindFile(sFilename);
 		
@@ -171,7 +176,7 @@ namespace BREATHE
 			// could not load filename
 			if (!tex)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture %s", sFilename.c_str());
+				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
 				return NULL;
 			}
 
@@ -190,7 +195,12 @@ namespace BREATHE
 			else
 			{
 				SDL_FreeSurface(tex);
-				pLog->Error("Texture", "Image format must be RGBA not (%d) BPP", tex->format->BytesPerPixel);
+
+				std::ostringstream t;
+				t << "Image format must be RGBA not (";
+				t << tex->format->BytesPerPixel;
+				t << ") BPP";
+				pLog->Error("Texture", t.str());
 				
 				return NULL;
 			}
@@ -288,16 +298,37 @@ namespace BREATHE
 
 				BlitSurface(tex, foundX*uiSegmentWidthPX, foundY*uiSegmentWidthPX);
 
-				pLog->Success("Texture Atlas", "Found position for texture %s (%dx%d) @ (%dx%d) (%dx%d)", 
-					sFilename.c_str(), tex->w, tex->h, foundX*uiSegmentWidthPX, foundY*uiSegmentWidthPX, 
-					uiAtlasWidthNSegments*uiSegmentWidthPX, uiAtlasWidthNSegments*uiSegmentWidthPX);
-				pLog->Success("Texture", "%d", uiTexture);
+				std::ostringstream t;
+				t << "Found position for texture ";
+				t << sFilename;
+				t << "(";
+				t << tex->w;
+				t << "x";
+				t << tex->h;
+				t << ") @ (";
+				t << foundX*uiSegmentWidthPX;
+				t << "x";
+				t << foundY*uiSegmentWidthPX;
+				t << ") (";
+				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
+				t << "x";
+				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
+				t << ")";
+				pLog->Success("Texture Atlas", t.str());
+				
+				t.str("");
+				t << uiTexture;
+				pLog->Success("Texture", t.str());
 			}
 			else
 			{
-				pLog->Error("Texture Atlas", "Couldn't find position for texture %s (%dx%d) (%dx%d)", 
-					sFilename.c_str(), requiredW, requiredH, 
-					uiAtlasWidthNSegments*uiSegmentWidthPX, uiAtlasWidthNSegments*uiSegmentWidthPX);
+				std::ostringstream t;
+				t << "Couldn't find position for texture " + sFilename + " (";
+				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
+				t << "x";
+				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
+				t << ")",
+				pLog->Error("Texture Atlas", t.str());
 			}
 
 			SDL_FreeSurface(tex);

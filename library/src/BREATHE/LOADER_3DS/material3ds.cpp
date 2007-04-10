@@ -1,7 +1,10 @@
 #include <BREATHE/LOADER_3DS/material3ds.h>
 #include <BREATHE/LOADER_3DS/build3ds.h>
 
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
 #include <string>
 
 

@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include <string>
 #include <iostream>
@@ -8,8 +8,8 @@
 #include <map>
 #include <list>
 
-#include <ODE/ode.h>
 
+#include <ODE/ode.h>
 
 
 #include <BREATHE/MATH/cMath.h>
@@ -33,6 +33,7 @@
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
@@ -210,7 +211,6 @@ namespace BREATHE
 			pParent=parent;
 
 			bFront=false;
-			bContact=false;
 
 
 			fSuspensionK=6.0f;
@@ -219,21 +219,22 @@ namespace BREATHE
 			fSuspensionNormal=0.0f;
 			fSuspensionMin=0.0f;
 			fSuspensionMax=0.0f;
-
-			fContact=0.0f;
-
 			
 			std::memset(r, 0, sizeof(float)*16);
 		}
 		
 		cWheel::~cWheel()
 		{
-			dGeomDestroy(ray_);
+			dGeomDestroy(geomRay);
 		}
 
-		void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
+		void cWheel::Init(PHYSICS::cPhysics *phys, bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
 		{
+			pPhysics = phys;
+
 			this->bFront=bFront;
+			
+			contact.Clear();
 
 			fRadius=fWRadius;
 			fWeight=fInWeight;
@@ -248,85 +249,128 @@ namespace BREATHE
 			v3SuspensionTopRel=pos;
 			v3SuspensionTop=pos;
 
-			fTraction=0.0f;
+			fTraction=1.0f;
 
-			ray_ = dCreateRay(0, 1 );
+			geomRay = dCreateRay(0, 1 );
 		}
 
 		void cWheel::RayCast()
 		{
 			MATH::cVec3 dir=-pParent->m.GetUp().GetNormalized();
 
-			bContact = false;
-			fContact = fSuspensionMax;
+			contact.Clear();
 
-			std::memset( &contact_, 0, sizeof( contact_ ) );
-			dGeomRaySet(ray_, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
-			dGeomRaySetLength(ray_, 1.0f);
-			dSpaceCollide2(ray_, (dGeomID)PHYSICS::spaceStatic, this, callback);
-			dSpaceCollide2(ray_, (dGeomID)PHYSICS::spaceDynamic, this, callback);
+			contact.fDepth = fSuspensionMax;
+			
+			dGeomRaySet(geomRay, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
+			dGeomRaySetLength(geomRay, fSuspensionMax);
+			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceStatic, this, callback);
+			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceDynamic, this, callback);
 		}
 
 		void cWheel::callback( void * data, dGeomID g1, dGeomID g2 )
 		{
 			dContact c;
 
-			if( dGeomGetBody( g1 ) == ((cWheel *)data)->pParent->body )
+			cWheel* p = ((cWheel*)data);
+
+			if( dGeomGetBody( g1 ) == p->pParent->body )
 				return;
 
-			if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1)
-			{
-				if(c.geom.depth < ((cWheel *)data)->fContact) 
-				{
-					((cWheel *)data)->bContact = true;
-					((cWheel *)data)->fContact = c.geom.depth;
-					((cWheel *)data)->contact_ = c.geom;
-				}
-			}
+			if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->contact.fDepth)
+				p->contact.SetContact(c.geom, p->pParent->geom, c.geom.depth);
 		}
 
-		void cWheel::Update(float fTime)
+
+		//------------------------------------------------------------------------------------------------
+		/*void Vehicle::applyAntiSwayBarForces (  )
 		{
+			Real amt;
+			Body * wheelBody;
+			for( int i = 0; i < 4; i++)
+			{
+				SuspensionJoint * const wheelJoint = static_cast<SuspensionJoint*>( _wheels.at( i )->getBody()->getJoint(0) );
+				const Ogre::Vector3 anchor2 (wheelJoint->getAdditionalAnchor());
+				const Ogre::Vector3 anchor1 (wheelJoint->getAnchor());
+				const Ogre::Vector3 axis (wheelJoint->getAxis());
+				const Ogre::Real displacement = ( anchor1 - anchor2 ).dotProduct( axis );
+				if( displacement > 0 )
+				{
+
+					amt = displacement * _swayForce;
+					if( amt > _swayForceLimit ) 
+						amt = _swayForceLimit;
+
+					// force down
+					wheelBody = _wheels.at( i )->getBody();
+					wheelBody->addForce( -axis * amt );
+
+					// force up
+					wheelBody = _wheels.at( i^1 )->getBody();
+					wheelBody->addForce( axis * amt );
+				}
+			}
+		}*/
+
+		void cWheel::Update(float fCurrentTime)
+		{
+			// Find out if this wheel is even touching anything
 			RayCast();
 
+			static float fLast;
+			float fStep = fCurrentTime - fLast;
+			fLast = fCurrentTime;
 
+		
+			// Set up the vectors to use when working out wheel rotation and position
 			MATH::cVec3 right=pParent->m.GetRight().GetNormalized();
 			MATH::cVec3 front=pParent->m.GetFront().GetNormalized();
 			MATH::cVec3 up=pParent->m.GetUp().GetNormalized();
 			MATH::cVec3 down=-up;
+			
 			MATH::cVec3 dir=front;
 
-
-			MATH::cMat4 mPositionRel;
-			mPositionRel.SetTranslation(v3SuspensionTopRel);
-
-			MATH::cMat4 mRotation;
-			if(bFront)
-        mRotation.SetRotationZ(-MATH::atan2(pParent->fSteer, 1));//BREATHE::MATH::cPI);
-
-
-
-			MATH::cMat4 mContact;
-			mContact.SetTranslation((fContact-fRadius)*MATH::v3Down);
-
-			m=pParent->m*mPositionRel*mRotation*mContact;
-
-			p=m.GetPosition();
-
-			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
-
-			v=pParent->v;
-			
-			v3SuspensionTop = (pParent->m*mPositionRel).GetPosition();
-
-
-			if(bContact)
 			{
+				float fContact = contact.bContact ? contact.fDepth : fSuspensionMax;
+
+				MATH::cMat4 mPositionRel;
+				mPositionRel.SetTranslation(v3SuspensionTopRel);
+
+				MATH::cMat4 mRotation;
+				if(bFront)
+					mRotation.SetRotationZ(-MATH::atan2(pParent->fSteer, 1));//BREATHE::MATH::cPI);
+
+
+
+				MATH::cMat4 mContact;
+				mContact.SetTranslation((fContact-fRadius)*MATH::v3Down);
+
+				m=pParent->m*mPositionRel*mRotation*mContact;
+
+				p=m.GetPosition();
+
+				r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
+				r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
+				r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
+
+				v=pParent->v;
+				
+				v3SuspensionTop = (pParent->m*mPositionRel).GetPosition();
+			}
+
+
+			if(contact.bContact)
+			{
+				// Traction will range from 
+				// 0.0f (No contact)
+				// and
+				// 1.0f (We are at the boundary between no weight being put on the wheel/suspension and weight being applied)
+				// When we compress the springs and the tyre we still have fTraction=1.0f;
+				fTraction=1.0f;
+
 				float wheelAccel=pParent->fSpeed;
 				float wheelBrake=pParent->fBrake;
-				float wheelSlip=fabsf(pParent->fVel)*fabsf(pParent->fVel);
+				float wheelSlip=0.00001f * MATH::sqr(fabsf(pParent->fVel));
 
 				if(bFront)
 				{
@@ -349,67 +393,73 @@ namespace BREATHE
 					wheelBrake*=0.25;
 				}
 
-
-				dContact c;
-
-				c.surface.mode = 0;        
-        c.surface.mode |= dContactFDir1;
-        c.surface.mode |= dContactMu2;
-        c.surface.mode |= dContactMotion1;
-        c.surface.mode |= dContactApprox1;
-        c.surface.mode |= dContactSoftCFM;
-        c.surface.mode |= dContactSoftERP;
-        c.surface.mode |= dContactSlip1;
-        c.surface.mode |= dContactSlip2;
-        c.surface.mode |= dContactBounce;
 				
-				//Sideways friction
-				//set the FDS slip coefficient in friction direction 2 to fSlip*v, 
-				//where v is the tire rolling velocity and k is a tire parameter that you can chose based on experimentation.
+				
 
-				//Forward rolling friction
+
+				// *** Create the contact
+
+				// Sideways friction
+				// set friction direction 1 in the direction that the tire is rolling in, 
+				// and set the FDS slip coefficient in friction direction 2 to fTireConstant*fTireRollingVelocity, 
+				// where fTireRollingVelocity is the tire rolling velocity and 
+				// fTireConstant is a tire parameter that you can chose based on experimentation.
+
+				float fTireConstant=1.0f;
+				float fTireRollingVelocity=1.0f;
+
+				contact.SetFrictionDirection1(dir);
+				contact.SetFDSSlipCoefficient2(fTireConstant*fTireRollingVelocity);
+
+				//contact.SetFDSSlipCoefficient1(wheelSlip);
+				//contact.SetFDSSlipCoefficient2(wheelSlip);
+
+
+				// Forward rolling friction
+				// up/down contacts are full friction; sideways contacts are frictionless 
+				// to allow for better sliding behavior.
+				//BREATHE::MATH::cVec3 geom_normal = (BREATHE::MATH::cVec3 const &)c.geom.normal[0];
+				//contact.setCoulombFriction(wheelSlip * std::min(fabsf(geom_normal.z), 1.0f) * 0.0000001f);
 				//if( (pParent->fControl_Accelerate > 0.0f && pParent->fVel >= -0.1f) || 
 				//	(pParent->fControl_Accelerate < 0.0f && pParent->fVel <= 0.1f) ) 
-				//{
-					c.surface.mu = (float)0.0001;
-					c.surface.mu2 = wheelSlip * 0.9f;
-				//}
+					 contact.SetCoulombFriction(0.0001f);
 				//else
-				//{
-				//	c.surface.mu = 0.4f;
-				//	c.surface.mu2 = 10.0f;
-				//}
+				//	contact.setCoulombFriction(0.4f);
+
+
+
+
+				 
+				// According to the ODE docs;
+
+				// By adjusting the values of ERP and CFM, you can achieve various effects. 
+				// For example you can simulate springy constraints, where the two bodies oscillate 
+				// as though connected by springs. Or you can simulate more spongy constraints, without 
+				// the oscillation. In fact, ERP and CFM can be selected to have the same effect as any 
+				// desired spring and damper constants. 
+				// If you have a spring constant fSuspensionK and damping constant fSuspensionU, 
+				// then the corresponding ODE constants are:
+
+				// ERP = fStep * fSuspensionK / ((fStep * fSuspensionK) + fSuspensionU)
+				// CFM = 1.0f / ((fStep * fSuspensionK) + fSuspensionU)
+
+				// where h is the stepsize. These values will give the same effect as a spring-and-damper 
+				// system simulated with implicit first order integration.
 				
-				//  up/down contacts are full friction; sideways contacts are frictionless 
-				//  to allow for better sliding behavior.
-				BREATHE::MATH::cVec3 geom_normal = (BREATHE::MATH::cVec3 const &)c.geom.normal[0];
-				c.surface.mu = wheelSlip * fabsf( geom_normal.z ) * 0.0000001f;
-
-				c.surface.slip1 = wheelSlip;
-				c.surface.slip2 = wheelSlip;
-
-
-				//Collision repulsion
-				c.surface.soft_erp = 0.2; //0.9999;
-				c.surface.soft_cfm = 0.0001; //0.00001;
+				// Suspension
+				fStep = pPhysics->fInterval * 50000.0f; // Such a big number, can we do something about this?
+				contact.SetElasticity(fStep * fSuspensionK / ((fStep * fSuspensionK) + fSuspensionU), 
+															1.0f / ((fStep * fSuspensionK) + fSuspensionU));
 				
-				//Bounce
-				c.surface.bounce = 0.001f;
-				c.surface.bounce_vel = 0.001f;
+				// Bounce
+				contact.SetBounce(0.001f, 0.2f);
 
-
-				c.geom = contact_;
-				c.geom.depth = fContact;
-				c.geom.g1 = pParent->geom;
-
-
-				//float fDepth=0.5f/fSuspensionMax;
-				//c.geom.depth = fDepth*fContact;
-
-				(BREATHE::MATH::cVec3 &)c.fdir1 = dir;
-
-				c.surface.motion1 = wheelAccel;
+				// Contact Depth
+				contact.CreateContact(contact.fDepth); //*0.5f/fSuspensionMax;
 				
+
+				
+				// Add forces to push the car
 				MATH::cVec3 v(wheelAccel * dir * 100.0f);
 				dBodyAddForce(pParent->body, v.x, v.y, v.z);
 
@@ -418,22 +468,6 @@ namespace BREATHE
 					MATH::cVec3 v(down * pParent->fSteer * pParent->fSpeed * 100.0f);
 					dBodyAddRelTorque(pParent->body, v.x, v.y, v.z);
 				}
-
-				dJointID j = dJointCreateContact(PHYSICS::world, PHYSICS::contactgroup, &c);
-				dJointAttach(j, dGeomGetBody(c.geom.g1), dGeomGetBody(c.geom.g2));
-				
-
-				
-				float dampTorque=10000.0f + (10000.0f * wheelBrake);
-				float dampForce=100.0f + (4000.0f * wheelBrake);
-				
-				dReal const * av = dBodyGetAngularVel(pParent->body);
-				dBodyAddTorque(pParent->body, -av[0]*dampTorque, -av[1]*dampTorque, -av[2]*dampTorque);
-
-				dReal const * lv = dBodyGetLinearVel(pParent->body);
-				dBodyAddForce(pParent->body, -lv[0]*dampForce, -lv[1]*dampForce, -lv[2]*dampForce);
-
-
 
 
 
@@ -452,9 +486,6 @@ namespace BREATHE
 
 				//dBodyAddRelForce(pParent->body, force.x, force.y, force.z);
 				//dBodyAddRelForceAtRelPos(pParent->body, force.x, force.y, force.z, pos.x, pos.y, pos.z);*/
-
-
-				fTraction=1.0f;
 			}
 			else
 				fTraction=0.0f;

@@ -2,9 +2,12 @@
 #include <cmath>
 
 // STL
-#include <iostream>
 #include <list>
 #include <vector>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 // Anything else
 #include <ode/ode.h>
@@ -47,15 +50,11 @@ namespace BREATHE
 
 		void cContact::Clear()
 		{
-			bContact=false;
+			bContact = false;
+			fDepth = MATH::cINFINITY;
 
 			std::memset(&contact, 0, sizeof(contact));
 			contact.surface.mode = dContactApprox1;
-		}
-
-		bool cContact::Contact()
-		{
-			return bContact;
 		}
 
 		dContact cContact::GetContact()
@@ -63,13 +62,14 @@ namespace BREATHE
 			return contact;
 		}
 
-		void cContact::SetGeom(dContactGeom o1, dGeomID o2)
+		void cContact::SetContact(dContactGeom o1, dGeomID o2, float fContact)
 		{
-			bContact=true;
+			bContact = true;
+			fDepth = fContact;
 
 			contact.geom = o1;
 			contact.geom.g1 = o2;
-			contact.surface.mode |= dContactApprox1;			
+			contact.surface.mode = dContactApprox1;			
 		}
 
 		void cContact::SetFDSSlipCoefficient1(float fSlip1)
@@ -102,8 +102,22 @@ namespace BREATHE
 			contact.surface.mode |= dContactSoftERP;
 			contact.surface.mode |= dContactSoftCFM;
 
-			contact.surface.soft_erp = fERP;
+			contact.surface.soft_erp = 1.0f;//fERP;
 			contact.surface.soft_cfm = fCFM;
+
+			
+			//JITTER
+
+			//What is your CFM?  If it's too stiff, you can get jitter.  Try using a
+			//value 10x or 100x greater than what you're using now.  Stuff I've done in
+			//my app usually uses a CFM around 0.001... 0.01 gets spongy, 0.00001 is
+			//usually jittery.  
+
+			//I have always left ERP at 1.0, but you could also try reducing that to
+			//combat jitter.
+
+			printf("fERP 1.0=%.6f\n", fERP);
+			printf("fCFM (0.01..0.00001) 0.001=%.6f\n", fCFM);
 		}
 
 		void cContact::SetBounce(float fBounce, float fBounceVelocity)
@@ -118,8 +132,8 @@ namespace BREATHE
 		{
 			contact.geom.depth = fDepth;
 
-			//dJointID j = dJointCreateContact(PHYSICS::world, PHYSICS::contactgroup, &contact);
-			//dJointAttach(j, dGeomGetBody(contact.geom.g1), dGeomGetBody(contact.geom.g2));
+			dJointID j = dJointCreateContact(PHYSICS::world, PHYSICS::contactgroup, &contact);
+			dJointAttach(j, dGeomGetBody(contact.geom.g1), dGeomGetBody(contact.geom.g2));
 		}
 	}
 }

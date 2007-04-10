@@ -1,8 +1,11 @@
 #include "BREATHE/LOADER_3DS/build3ds.h"
 
-#include <iostream>
 #include <string>
 
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 #include <BREATHE/UTIL/cLog.h>
 

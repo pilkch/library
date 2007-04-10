@@ -3,8 +3,11 @@
 #include <cmath>
 
 #include <string>
+
+// writing on a text file
 #include <iostream>
 #include <fstream>
+
 #include <sstream>
 #include <vector>
 #include <map>
@@ -93,7 +96,7 @@ namespace BREATHE
 		cLevelSpawn *pSpawn;
 
 		{
-			pLog->Success("Level", "cLevelNode::Load %s", sNewFilename.c_str());
+			pLog->Success("Level", "cLevelNode::Load " + sNewFilename);
 			BREATHE::XML::cNode root(sNewFilename);
 
 			BREATHE::XML::cNode* p=root.FindChild("level");
@@ -256,7 +259,7 @@ namespace BREATHE
 		std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
 		for(;iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "UV %s", iter->first.c_str());
+			pLog->Success("Transform", "UV " + iter->first);
 
 			s=iter->second;
 
@@ -282,10 +285,10 @@ namespace BREATHE
 								t->Transform(&fTextureCoords[texcoord], &fTextureCoords[texcoord+1]);
 						}
 						else
-							pLog->Error("Transform", "Texture not found %s", mat->sTexture0.c_str());
+							pLog->Error("Transform", "Texture not found " + mat->sTexture0);
 					}
 					else
-						pLog->Error("Transform", "Material not found %s", m->sMaterial.c_str());
+						pLog->Error("Transform", "Material not found " + m->sMaterial);
 				}
 			}
 		}
@@ -296,7 +299,7 @@ namespace BREATHE
 		//Calculate normals
 		for(iter=mStatic.begin();iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "Normals %s", iter->first.c_str());
+			pLog->Success("Transform", "Normals " + iter->first);
 
 			s=iter->second;
 			
@@ -336,7 +339,7 @@ namespace BREATHE
 
 		for(iter=mStatic.begin();iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "Optimising %s", iter->first.c_str());
+			pLog->Success("Transform", "Optimising " + iter->first);
 
 			s=iter->second;
 
@@ -814,7 +817,7 @@ namespace BREATHE
 							glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
 						}
 					else if(pRender->bCubemap)
-						pLog->Error("RenderStaticModel", "Invalid texture unit count %u", pRender->uiActiveUnits);
+						pLog->Error("RenderStaticModel", "Invalid texture unit count " + pRender->uiActiveUnits);
 					
 				glEnd();
 

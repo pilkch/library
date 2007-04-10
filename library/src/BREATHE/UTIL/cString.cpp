@@ -1,4 +1,6 @@
 #include <string>
+#include <cctype> // for toupper/tolower
+#include <algorithm>
 
 #include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cString.h>
@@ -37,6 +39,25 @@ namespace BREATHE
 			}
 
 			return sSource;
+		}
+
+		
+		std::string ToLower(std::string sSource)
+		{
+			std::string sOut(sSource);
+
+			transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
+
+			return sOut;
+		}
+
+		std::string ToUpper(std::string sSource)
+		{
+			std::string sOut(sSource);
+
+      transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
+
+			return sOut;
 		}
 
 		

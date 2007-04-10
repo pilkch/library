@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
@@ -161,9 +164,9 @@ namespace BREATHE
 			std::string mat_name = c.Str();
 
 			if(mat_name.find(".mat") != std::string::npos)
-				pLog->Success("3ds", "Material: %s", mat_name.c_str());
+				pLog->Success("3ds", "Material: " + mat_name);
 			else
-				pLog->Error("3ds", "Invalid material: %s", mat_name.c_str());
+				pLog->Error("3ds", "Invalid material: " + mat_name);
 
 			vMaterial.push_back(mat_name);
 		}
@@ -193,9 +196,7 @@ namespace BREATHE
 		{
 			bFoundMeshes=true;
 
-			std::ostringstream t;
-			t<<"Mesh3DS::Parse(" << sName.c_str() << ")";
-			pLog->Success("c3ds", t.str());
+			pLog->Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
 			LOADER_3DS::Mesh3DSObject *m=new LOADER_3DS::Mesh3DSObject(sName , c);
 
@@ -267,17 +268,14 @@ namespace BREATHE
 			iVersionMesh=0;
 			fScale=1.0f;
 
-
-			std::ostringstream t;
-
-			t<<"Loading "<<sFilename;
-			pLog->Success("c3ds", (char*)t.str().c_str());
+			pLog->Success("c3ds", "Loading " + sFilename);
 
 
 			LOADER_3DS::Model3DSFile file(sFilename);
 
 			LOADER_3DS::Model3DSChunk root = file.Child();
 
+			std::ostringstream t;
 			for(LOADER_3DS::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
 			{
 				switch(cc.ID())

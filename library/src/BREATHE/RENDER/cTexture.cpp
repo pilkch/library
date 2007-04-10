@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <sstream>
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
+#include <sstream>
 #include <vector>
 #include <map>
 #include <string>

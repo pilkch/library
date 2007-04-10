@@ -9,15 +9,15 @@ namespace BREATHE
 		{
 			dContact contact;
 
-			bool bContact;
-
 		public:
+			bool bContact;
 			cContact();
 
-			bool Contact();
+			float fDepth;
+
 			dContact GetContact();
 
-			void SetGeom(dContactGeom o1, dGeomID o2);
+			void SetContact(dContactGeom o1, dGeomID o2, float fContact);
 			
 			void Clear();
 			void SetFDSSlipCoefficient1(float fSlip1);

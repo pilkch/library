@@ -4,10 +4,13 @@
 #include <stdarg.h>
 
 #include <sstream>
-#include <iostream>
 #include <vector>
 #include <map>
 #include <string>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>

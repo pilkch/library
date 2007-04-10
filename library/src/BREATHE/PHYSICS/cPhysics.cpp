@@ -1,6 +1,9 @@
 #include <cmath>
 
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
 #include <list>
 #include <vector>
 
@@ -41,7 +44,7 @@ namespace BREATHE
 
 		cPhysics::cPhysics()
 		{
-
+			fInterval = 0.016f;
 		}
 
 		cPhysics::~cPhysics()
@@ -99,7 +102,6 @@ namespace BREATHE
 
 		void cPhysics::Update(float fTimeStep)
 		{
-			float fInterval=0.016f;
 			float fDampTorque = 0.05f;
 			float fDampLinearVel = 0.02f;
 

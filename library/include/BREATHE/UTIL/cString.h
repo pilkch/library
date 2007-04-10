@@ -29,6 +29,9 @@ namespace BREATHE
 
 		std::string HTMLDecode(std::string sSource);
 		std::string HTMLEncode(std::string sSource);
+
+		std::string ToLower(std::string sSource);
+		std::string ToUpper(std::string sSource);
 	}
 }
 

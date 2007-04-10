@@ -2,11 +2,13 @@
 #include <cstdlib>
 #include <cmath>
 
-#include <string>
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
+#include <string>
 #include <sstream>
 #include <vector>
-#include <fstream>
 #include <map>
 #include <stack>
 
@@ -49,7 +51,7 @@ namespace BREATHE
 				Parse(sData, NULL);
 			}
 			else
-        pLog->Error("XML", "%s not found", inFilename.c_str());
+        pLog->Error("XML", inFilename + " not found");
 		}
 
 		cNode::cNode(cNode *inParent)
@@ -119,7 +121,7 @@ namespace BREATHE
 
 							if(sClose!=sName)
 							{
-								pLog->Error("XML", "Opening tag \"%s\" doesn't match closing tag \"%s\"", sName.c_str(), sClose.c_str());
+								pLog->Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
 								return "";
 							}
 
@@ -127,7 +129,7 @@ namespace BREATHE
 						}
 						else
 						{
-							pLog->Error("XML", "Tag \"%s\" doesn't have a closing tag", sName.c_str());
+							pLog->Error("XML", "Tag \"" + sName + "\" doesn't have a closing tag");
 							return "";
 						}
 
@@ -341,7 +343,7 @@ namespace BREATHE
 				}
 			}
 			else
-				pLog->Success("XML", "%sContent=\"%s\"", sTab.c_str(), sContentOnly.c_str());
+				pLog->Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
 
 			n=vChild.size();
 			for(i=0;i<n;i++)

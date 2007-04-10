@@ -2,6 +2,10 @@
 #  pragma warning(disable: 4786)  
 #endif
 
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
 #include <sstream>
 #include <string>
 #include <list>

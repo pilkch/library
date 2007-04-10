@@ -3,8 +3,10 @@
 #include <cstdlib>
 #include <cstdarg>
 
+// writing on a text file
 #include <iostream>
 #include <fstream>
+
 #include <list>
 #include <vector>
 #include <map>
@@ -83,7 +85,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-							pLog->Error("Render", "Shader %s: %s", sShaderVertex.c_str(), infoLog);
+								pLog->Error("Render", std::string("Shader ") + sShaderVertex + std::string(": ") + infoLog);
 						delete infoLog;
 				}
 			}
@@ -102,7 +104,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-							pLog->Error("Render", "Shader %s: %s", sShaderFragment.c_str(), infoLog);
+								pLog->Error("Render", std::string("Shader ") + sShaderFragment + ": " + infoLog);
 						delete infoLog;
 				}
 			}
@@ -121,7 +123,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-              pLog->Error("Render", "Program %s %s: %s", sShaderVertex.c_str(), sShaderFragment.c_str(), infoLog);
+								pLog->Error("Render", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
 						delete infoLog;
 				}
 			}
@@ -155,7 +157,7 @@ namespace BREATHE
 					}
 					else
 					{
-						pLog->Error("Render", "Shader not found %s", sShaderVertex.c_str());
+						pLog->Error("Render", std::string("Shader not found ") + sShaderVertex);
 						uiShaderVertex=0;
 					}
 				}
@@ -186,7 +188,7 @@ namespace BREATHE
 					}
 					else
 					{
-						pLog->Error("Render", "Shader not found %s", sShaderFragment.c_str());
+						pLog->Error("Render", std::string("Shader not found ") + sShaderFragment);
 						uiShaderFragment=0;
 					}
 				}
@@ -260,7 +262,7 @@ namespace BREATHE
 
 			bool cMaterial::Load(std::string sFilename)
 			{
-				pLog->Success("Material", "Loading %s", sFilename.c_str());
+				pLog->Success("Material", std::string("Loading ") + sFilename);
 				sName=sFilename;
 
 				sFilename=pFileSystem->FindFile(sFilename);
@@ -412,20 +414,20 @@ namespace BREATHE
 					}
 					f.close();
 
-					pLog->Success("Material", "sTexture0 %s", sTexture0.c_str());
-					pLog->Success("Material", "sTexture1 %s", sTexture1.c_str());
+					pLog->Success("Material", std::string("sTexture0 ") + sTexture0);
+					pLog->Success("Material", std::string("sTexture1 ") + sTexture1);
 
 					if(pShader)
 					{
-						pLog->Success("Material", "sShaderVertex %s", pShader->sShaderVertex.c_str());
-						pLog->Success("Material", "sShaderFragment %s", pShader->sShaderFragment.c_str());
+						pLog->Success("Material", std::string("sShaderVertex ") + pShader->sShaderVertex);
+						pLog->Success("Material", std::string("sShaderFragment ") + pShader->sShaderFragment);
 					}
 
-					pLog->Success("Material", "Loaded %s", sFilename.c_str());
+					pLog->Success("Material", std::string("Loaded ") + sFilename);
 				}
 				else
 				{
-					pLog->Error("Material", "Not found %s", sFilename.c_str());
+					pLog->Error("Material", std::string("Not found ") + sFilename);
 					return false;
 				}
 

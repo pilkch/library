@@ -1,7 +1,10 @@
 #include "BREATHE/LOADER_3DS/mesh3dsobject.h"
 #include "BREATHE/LOADER_3DS/build3ds.h"
 
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
 #include <sstream>
 
 #include <BREATHE/UTIL/cLog.h>
@@ -100,7 +103,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_vertices = " << n_vertices;
-			pLog->Success("c3ds", (char*)t.str().c_str());
+			pLog->Success("c3ds", t.str());
 
 			for(int i = 0 ; i < n_vertices ; i++)
 			{
@@ -123,7 +126,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_texcoords = " << n_texcoords;
-			pLog->Success("c3ds", (char*)t.str().c_str());
+			pLog->Success("c3ds", t.str());
 
 			for(int i = 0 ; i < n_texcoords ; i++)
 			{
@@ -148,7 +151,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_faces = " << n_faces;
-			pLog->Success("c3ds", (char*)t.str().c_str());
+			pLog->Success("c3ds", t.str());
 
 			for(i = 0 ; i < (unsigned int)(n_faces); i++)
 			{
@@ -174,9 +177,9 @@ namespace BREATHE
 					break;
 
 					default:
-						std::ostringstream t;
+						t.str("");
 						t<<"Unknown id: 0x" << std::hex << cc.ID();
-						pLog->Error("c3ds", (char*)t.str().c_str());
+						pLog->Error("c3ds", t.str());
 					break;
 				}
 			}
@@ -189,9 +192,7 @@ namespace BREATHE
 			sMaterial = c.Str();
 			std::vector<int> faces_applied;
 
-			std::ostringstream t;
-			t<<"ParseFacesMaterials: " << sMaterial;
-			pLog->Success("c3ds", (char*)t.str().c_str());
+			pLog->Success("c3ds", "ParseFacesMaterials: " + sMaterial);
 
 			int n_faces = c.Short();
 			int f=0;

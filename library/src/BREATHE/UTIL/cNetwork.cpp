@@ -1,5 +1,9 @@
 #include <string>
 
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
 #include <sstream>
 
 #include <SDL/SDL.h>

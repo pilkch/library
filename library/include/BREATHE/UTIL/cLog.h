@@ -1,24 +1,21 @@
 #ifndef CLOG_H
 #define CLOG_H
 
+
+
 namespace BREATHE
 {
-	#define LOG_MAX_LEN 255
-
 	class cLog
 	{   
 	protected:
-		bool WriteLog();
-
-		void t(FILE * f);
-		void n(FILE * f);
+		bool CreateLog();
 
 #ifdef BUILD_DEBUG
 		void trace(std::string section);
 		void trace(std::string section, std::string text);
 #endif //BUILD_DEBUG
 
-		FILE * logfile;
+		std::ofstream logfile;
 
 		std::string strfilename;
 
@@ -46,8 +43,6 @@ namespace BREATHE
 
 		void Success(std::string section, std::string text);
 		void Error(std::string section, std::string text);
-		void Success(std::string section, char *text, ...);
-		void Error(std::string section, char *text, ...);
 	};
 }
 

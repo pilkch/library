@@ -26,6 +26,7 @@ namespace BREATHE
 		public:
 			std::list<cPhysicsObject * >lPhysicsObject;
 
+			float fInterval;
 
 			cPhysics();
 			~cPhysics();

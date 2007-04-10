@@ -1,8 +1,12 @@
 #include <cmath>
 
-#include <iostream>
 #include <list>
 #include <vector>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
+
 
 #include <ode/ode.h>
 

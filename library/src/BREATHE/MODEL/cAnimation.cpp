@@ -1,6 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 #include <sstream>
-#include <map>
 #include <vector>
+#include <map>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 
 #include <BREATHE/UTIL/cLog.h>

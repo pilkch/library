@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
 #include <stdarg.h>
+
 #include <vector>
 #include <map>
 
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>

@@ -65,8 +65,8 @@ float fSuspensionK=6.0f;
 float fSuspensionU=0.8f;
 
 float fSuspensionMin=0.25f;
-float fSuspensionNormal=4.0f;//1.1f;
-float fSuspensionMax=5.0f;//1.4f;
+float fSuspensionNormal=1.1f;
+float fSuspensionMax=1.4f;
 
 float w=1.6f;
 float l=4.8f;
@@ -152,16 +152,6 @@ m_fTorqueOnDriveWheels =  m_fAccel * (1.0 - m_fClutch)	* LookupTorque(m_iRPM)
 																												* m_fDifferentialRatio ;			// Here I get the engine torque
 
 
-
-JITTER
-
-What is your CFM?  If it's too stiff, you can get jitter.  Try using a
-value 10x or 100x greater than what you're using now.  Stuff I've done in
-my app usually uses a CFM around 0.001... 0.01 gets spongy, 0.00001 is
-usually jittery.  
-
-I have always left ERP at 1.0, but you could also try reducing that to
-combat jitter.
 																												
 LIFT and DRAG
 
@@ -380,7 +370,8 @@ namespace BREATHE
 		{	
 			while(vWheel.size())
 			{
-				SAFE_DELETE(vWheel[vWheel.size()-1]);
+				// Deleted in physics list
+				//SAFE_DELETE(vWheel[vWheel.size()-1]);
 				vWheel.pop_back();
 			};
 
@@ -400,7 +391,7 @@ namespace BREATHE
 
 		void cVehicle::PhysicsInit(cLevelSpawn p)
 		{
-			p.v3Position+=MATH::cVec3(0.0f, 0.0f, fSuspensionMax+fWheelRadius);
+			p.v3Position+=MATH::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
 
 
 			CreateBox(p.v3Position, p.v3Rotation);
@@ -408,20 +399,20 @@ namespace BREATHE
 			pPhysics->AddPhysicsObject(this);
 
 			//Rear		
-			lrWheel_->Init(false, fWheelRadius, fWheelWeight, 
+			lrWheel_->Init(pPhysics, false, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
-			rrWheel_->Init(false, fWheelRadius, fWheelWeight, 
+			rrWheel_->Init(pPhysics, false, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
 			//Front
-			lfWheel_->Init(true, fWheelRadius, fWheelWeight, 
+			lfWheel_->Init(pPhysics, true, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 
-			rfWheel_->Init(true, fWheelRadius, fWheelWeight, 
+			rfWheel_->Init(pPhysics, true, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 		}

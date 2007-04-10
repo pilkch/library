@@ -3,7 +3,10 @@
 #include <cstdio>
 #include <cstdlib>
 
+// writing on a text file
 #include <iostream>
+#include <fstream>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -146,7 +149,7 @@ namespace BREATHE
 		pLog->Success("Delete", "Log");
 		
 		pLog->Success("Main", "Successfully exited");
-		pLog->Success("Main", "return %d", bReturnCode);
+		pLog->Success("Main", "return " + bReturnCode);
 
 		if(pLog)
 		{
@@ -163,22 +166,144 @@ namespace BREATHE
 
 	bool cApp::Init()
 	{
-		// initialize SDL 
-		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
+		// Init SDL 
+		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_JOYSTICK) < 0 )
 		{
-			pLog->Error("SDL", "Video initialization failed: %s", SDL_GetError());
+			pLog->Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
-		
-		SDL_WM_SetCaption(sTitle.c_str(), sTitle.c_str());
+
+		{
+			// Joysticks
+			int nJoysticks = SDL_NumJoysticks();
+			std::ostringstream t;
+			t << "Joysticks found: ";
+			t << nJoysticks;
+
+			if(nJoysticks)
+			{
+				pLog->Success("SDL", t.str());
+				SDL_JoystickEventState(SDL_ENABLE);
+
+				for(int i=0; i < nJoysticks; i++ ) 
+				{
+					t.str("");
+					t << "Joystick(";
+					t << i;
+					t << ") ";
+					t << SDL_JoystickName(i);
+					pLog->Success("SDL", t.str());
+
+					//TODO: Create a list of joysticks, close them at the end of the program
+					SDL_Joystick *joystick = SDL_JoystickOpen(i);
+
+					t.str("");
+					t << "Buttons=";
+					t << SDL_JoystickNumButtons(joystick);
+					t << ", Axes=";
+					t << SDL_JoystickNumAxes(joystick);
+					t << ", Hats=";
+					t << SDL_JoystickNumHats(joystick);
+					t << ", Balls=";
+					t << SDL_JoystickNumBalls(joystick);
+					pLog->Success("SDL", t.str());
+
+					// ...
+
+					// After we are entirely finished with each joystick close them
+					SDL_JoystickClose(joystick);
+				}
+			}
+			else
+        pLog->Error("SDL", t.str());
+
+			/*if(nJoysticks)
+			{
+				SDL_Event event;
+				// Other initializtion code goes here 
+
+				// Start main game loop here 
+
+				while(SDL_PollEvent(&event))
+				{  
+						switch(event.type)
+						{  
+								case SDL_KEYDOWN:
+								/* handle keyboard stuff here 				
+								break;
+
+								case SDL_QUIT:
+								/* Set whatever flags are necessary to 
+								/* end the main game loop here 
+								break;
+
+
+								case SDL_JOYAXISMOTION:  /* Handle Joystick Motion 
+								if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+								{
+									/* code goes here
+								}
+								break;
+
+
+								case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+								if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+								{
+										if( event.jaxis.axis == 0) 
+										{
+												/* Left-right movement code goes here
+										}
+
+										if( event.jaxis.axis == 1) 
+										{
+												/* Up-Down movement code goes here
+										}
+								}
+								break;
+
+
+								case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
+								if ( event.jbutton.button == 0 ) 
+								{
+										/* code goes here
+								}
+								break;
+
+
+								case SDL_JOYHATMOTION:  /* Handle Hat Motion
+								if ( event.jhat.value & SDL_HAT_UP )
+								{
+										// Do up stuff here
+								}
+
+								if ( event.jhat.value & SDL_HAT_LEFT )
+								{
+										// Do left stuff here
+								}
+
+								if ( event.jhat.value & SDL_HAT_RIGHTDOWN )
+								{
+										// Do right and down together stuff here
+								}
+								break;
+						}
+				}
+
+				// End loop here
+			}*/
+		}
+
+		std::string s = (STRING::ToLower(sTitle) + ".ico");
+		pLog->Success("SDL", "Setting caption to " + s);
+		SDL_WM_SetCaption(sTitle.c_str(), s.c_str());
 
 		// Fetch the video info 
 		videoInfo = SDL_GetVideoInfo( );
 
 		if ( !videoInfo )
 		{
-			pLog->Error("SDL", "Video query failed: %s", SDL_GetError());
+			pLog->Error("SDL", std::string("Video query failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
@@ -211,7 +336,7 @@ namespace BREATHE
 		// Verify there is a surface 
 		if(!surface)
 		{
-			pLog->Error("SDL", "Video mode set failed: %s", SDL_GetError());
+			pLog->Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
@@ -262,7 +387,7 @@ namespace BREATHE
 			return BREATHE::GOOD;
 		}
 
-		pLog->Error("SDL", "Could not get a surface after toggle full screen: %s", SDL_GetError());
+		pLog->Error("SDL", std::string("Could not get a surface after toggle full screen: ") + SDL_GetError());
 
 		bReturnCode=BREATHE::BAD;
 		
@@ -319,7 +444,7 @@ namespace BREATHE
 		surface = SDL_SetVideoMode(w, h, 32, pRender->uiFlags);
 		if ( !surface )
 		{
-			pLog->Error("SDL", "Could not get a surface after resize: %s", SDL_GetError());
+			pLog->Error("SDL", std::string("Could not get a surface after resize: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
@@ -364,12 +489,13 @@ namespace BREATHE
 			switch( event.type )
 			{
 				case SDL_ACTIVEEVENT:				
-					bActive=event.active.gain != 0;
-					if(bActive)
-						pLog->Success("Active", "%d", event.active.gain);
-					else
-						pLog->Error("Active", "%d", event.active.gain);
-
+					{
+						bActive=event.active.gain != 0;
+						if(bActive)
+							pLog->Success("Active", "Active");
+						else
+							pLog->Error("Active", "Inactive");
+					}
 					break;
 				case SDL_VIDEORESIZE:
 					if(!ResizeWindow(event.resize.w, event.resize.h))
@@ -521,7 +647,7 @@ namespace BREATHE
 		if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
 		{
 			ConsoleExecute(pConsole->sLine);
-			pConsole->sLine.clear();
+			pConsole->sLine="";
 			pConsole->uiCursorPosition=0;
 		}
 		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
@@ -561,7 +687,7 @@ namespace BREATHE
 		else if(SDLK_TAB==uiCode)
 			; //TODO: Autocomplete
 		else if(SDLK_CLEAR==uiCode)
-			pConsole->sLine.clear();
+			pConsole->sLine="";
 		else if(SDLK_UP==uiCode)
 			; //TODO: History of typed in items
 		else if(SDLK_DOWN==uiCode)
