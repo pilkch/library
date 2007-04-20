@@ -1,8 +1,6 @@
 #ifndef LIGHT3DSOBJECT_H
 #define LIGHT3DSOBJECT_H
 
-#include <string>
-
 namespace BREATHE
 {
 	namespace LOADER_3DS

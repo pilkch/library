@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <cmath>
 
 #include <vector>
 #include <map>
@@ -14,10 +15,10 @@
 #include <SDL/SDL_image.h>
 
 
-
+// Breathe
+#include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
 
-#include <cmath>
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>

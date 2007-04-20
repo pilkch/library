@@ -2,6 +2,9 @@
 
 #include <limits>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>

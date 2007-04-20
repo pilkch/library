@@ -1,5 +1,8 @@
 #include <math.h>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -260,24 +263,24 @@ namespace BREATHE
 			cVec4 result;
 
 			result.SetX(		entries[0]*rhs.GetX()
-							+	entries[4]*rhs.GetY()
-							+	entries[8]*rhs.GetZ()
-							+	entries[12]*rhs.GetW());
+										+	entries[4]*rhs.GetY()
+										+	entries[8]*rhs.GetZ()
+										+	entries[12]*rhs.GetW());
 
 			result.SetY(		entries[1]*rhs.GetX()
-							+	entries[5]*rhs.GetY()
-							+	entries[9]*rhs.GetZ()
-							+	entries[13]*rhs.GetW());
+										+	entries[5]*rhs.GetY()
+										+	entries[9]*rhs.GetZ()
+										+	entries[13]*rhs.GetW());
 
 			result.SetZ(		entries[2]*rhs.GetX()
-							+	entries[6]*rhs.GetY()
-							+	entries[10]*rhs.GetZ()
-							+	entries[14]*rhs.GetW());
+										+	entries[6]*rhs.GetY()
+										+	entries[10]*rhs.GetZ()
+										+	entries[14]*rhs.GetW());
 
 			result.SetW(		entries[3]*rhs.GetX()
-							+	entries[7]*rhs.GetY()
-							+	entries[11]*rhs.GetZ()
-							+	entries[15]*rhs.GetW());
+										+	entries[7]*rhs.GetY()
+										+	entries[11]*rhs.GetZ()
+										+	entries[15]*rhs.GetW());
 
 			return result;
 		}
@@ -320,16 +323,19 @@ namespace BREATHE
 			return cVec3(entries[8], entries[9], entries[10]);
 		}
 
+		// Returned in absolute units
 		cVec3 cMat4::GetPosition()
 		{
 			return cVec3(entries[12], entries[13], entries[14]);
 		}
 
+		// Returned in degrees
 		cVec3 cMat4::GetRotation()
 		{
-			return cVec3(	entries[0] + entries[4] + entries[8],
-										entries[1] + entries[5] + entries[9],
-										entries[2] + entries[6] + entries[10]);
+			return cVec3(	(entries[0] + entries[4] + entries[8]),
+										(entries[1] + entries[5] + entries[9]),
+										(	entries[0] + entries[1] + 
+											entries[4] + entries[5]));//entries[2] + entries[6] + entries[10]));
 		}
 
 		cVec3 cMat4::GetTranslatedVec3(const cVec3 & rhs) const

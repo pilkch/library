@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+#include <math.h>
+
+
 #include <vector>
 #include <map>
 
@@ -14,7 +17,8 @@
 
 
 
-#include <math.h>
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -131,8 +135,8 @@ namespace BREATHE
 			{
 				// Extremely slow distance metric (sqrt is used).
 				// Replace this with a faster one!
-				float distance = 1.0f + BREATHE::MATH::sqrt(BREATHE::MATH::sqr((float)centerX - cRoam::pFrustum->eye.x) +
-					BREATHE::MATH::sqr((float)centerY - cRoam::pFrustum->eye.z) );
+				float distance = 1.0f + sqrt(BREATHE::MATH::sqrf((float)centerX - cRoam::pFrustum->eye.x) +
+					BREATHE::MATH::sqrf((float)centerY - cRoam::pFrustum->eye.z) );
 				
 				// Egads!  A division too?  What's this world coming to!
 				// This should also be replaced with a faster operation.

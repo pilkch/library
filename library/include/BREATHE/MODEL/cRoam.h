@@ -61,8 +61,7 @@ namespace BREATHE
 
 			~cRoam()
 			{
-				if(m_HeightMap)
-					delete [] m_HeightMap;
+				SAFE_DELETE_ARRAY(m_HeightMap);
 			}
 			
 			int Load(char *directory);

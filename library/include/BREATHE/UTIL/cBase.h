@@ -8,6 +8,7 @@ namespace BREATHE
 	//This can be used for generic things such as the audio, renderer, game etc.
 	class cUpdateable
 	{
+	public:
 		virtual void Update(float fCurrentTime)=0;
 	};
 
@@ -23,12 +24,13 @@ namespace BREATHE
 		
 		//Position and rotation
 		MATH::cVec3 p;
-		float r[12];
+		//float r[12];
 
 		MATH::cVec3 v;
 
 		//Position and rotation matrix
 		MATH::cMat4 m;
+
 
 		cObject();
 	};

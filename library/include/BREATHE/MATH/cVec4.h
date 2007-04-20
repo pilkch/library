@@ -32,7 +32,7 @@ namespace BREATHE
 			void LoadOne(void);
 
 			float GetLength() const
-			{	return BREATHE::MATH::sqrt((x*x)+(y*y)+(z*z));	}
+			{	return sqrtf((x*x)+(y*y)+(z*z));	}
 			
 			float GetSquaredLength() const
 			{	return (x*x)+(y*y)+(z*z);	}

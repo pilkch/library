@@ -31,9 +31,12 @@ namespace BREATHE
 	class cLevelModel
 	{
 	public:
-		MATH::cVec3 v3Position;
-
 		std::string sFilename;
+
+		MATH::cVec3 v3Position;
+		MATH::cVec3 v3Rotation;
+
+		MODEL::cStatic* pModel;
 	};
 
 	class cLevelCubemap
@@ -65,9 +68,9 @@ namespace BREATHE
 	public:
 		unsigned int uiStatus;
 		
-		MATH::cColour colourFog;
-
 		float fFogDistance;
+
+		MATH::cColour colourFog;
 
 		std::string sFilename;
 		std::string sName;
@@ -81,10 +84,8 @@ namespace BREATHE
 		void Load();
 		void Unload();
 
-		void LoadModel(std::string sFilename);
-
 		void Update(float fTime);
-		void Render();
+		unsigned int Render(float fTime);
 	};
 
 	class cLevel : public cUpdateable
@@ -93,12 +94,12 @@ namespace BREATHE
 
 	public:
 		RENDER::cRender *pRender;
-		PHYSICS::cPhysics *pPhysics;
 
 		unsigned int uiWidth;
 		unsigned int uiHeight;
 
 		float fNodeWidth;
+		float fWaterLevel;
 
 		std::string sFilename;
 
@@ -116,8 +117,7 @@ namespace BREATHE
     std::map< std::wstring, RefPointer< TriMeshData > > triMeshes_;*/
 
 		std::list<VEHICLE::cVehicle *> lVehicle;
-
-		std::vector<cObject*> vObjects;
+		std::list<PHYSICS::cPhysicsObject*> lPhysicsObject;
 
 		std::vector<cLevelNode*>vNode; //vModel.size()=uiWidth*uiHeight;
 
@@ -125,7 +125,7 @@ namespace BREATHE
 		
 		std::vector<cLevelCubemap * >vCubemap;
 
-		cLevel(RENDER::cRender *p, PHYSICS::cPhysics *phy);
+		cLevel(RENDER::cRender *p);
 		~cLevel();
 
 		bool Load(std::string sNewFilename);

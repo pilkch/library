@@ -14,16 +14,13 @@ namespace BREATHE
 			std::vector<unsigned int> vIndicies;
 
 		public:
-			//cPhysics *pPhysics;
-
-
 			bool bBody;
 			bool bDynamic;
 
 			dBodyID body;
 			dGeomID geom;
 
-			BREATHE::MODEL::cModel *pModel;
+      MODEL::cModel *pModel;
 
 
 			cPhysicsObject();
@@ -35,8 +32,8 @@ namespace BREATHE
 			void CreateSphere(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3());
 			void CreateTrimesh(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3());
 
-			void Update(float fTime);
-			void UpdateComponents();
+			virtual void Update(float fTime);
+			virtual void UpdateComponents();
 
 
 			

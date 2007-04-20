@@ -6,10 +6,13 @@
 
 #include <sstream>
 
-#include "BREATHE/LOADER_3DS/build3ds.h"
-#include "BREATHE/LOADER_3DS/chunk.h"
+// Breathe
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/UTIL/cLog.h>
+
+#include "BREATHE/LOADER_3DS/build3ds.h"
+#include "BREATHE/LOADER_3DS/chunk.h"
 
 namespace BREATHE
 {

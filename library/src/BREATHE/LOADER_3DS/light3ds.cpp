@@ -1,11 +1,16 @@
-#include "BREATHE/LOADER_3DS/light3ds.h"
-#include "BREATHE/LOADER_3DS/build3ds.h"
-
 // writing on a text file
 #include <iostream>
 #include <fstream>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/UTIL/cLog.h>
+
+#include "BREATHE/LOADER_3DS/light3ds.h"
+#include "BREATHE/LOADER_3DS/build3ds.h"
+
+
 
 namespace BREATHE
 {

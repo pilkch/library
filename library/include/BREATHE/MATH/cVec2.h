@@ -34,7 +34,7 @@ namespace BREATHE
 			cVec2 SetLength(float length) const;
 
 			float GetLength() const
-			{	return BREATHE::MATH::sqrt((x*x)+(y*y));	}
+			{	return sqrtf((x*x)+(y*y));	}
 			
 			float GetSquaredLength() const
 			{	return (x*x)+(y*y);	}

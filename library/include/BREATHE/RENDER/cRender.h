@@ -63,10 +63,12 @@ namespace BREATHE
 
 			bool bCanShader;
 
+			bool bFullscreen;
 			unsigned int uiWidth;
 			unsigned int uiHeight;
-			unsigned int uiBPP;
-			unsigned int uiFlags;		
+			unsigned int uiDepth;
+
+			unsigned int uiFlags;
 
       int iMaxTextureSize;
 

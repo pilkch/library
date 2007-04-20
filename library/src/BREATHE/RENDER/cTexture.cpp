@@ -17,10 +17,9 @@
 #include <SDL/SDL_image.h>
 
 
-
-
-#include <BREATHE/UTIL/cLog.h>
+// Breathe
 #include <BREATHE/cBreathe.h>
+#include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
 
 #include <BREATHE/MATH/cMath.h>

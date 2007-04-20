@@ -52,7 +52,7 @@
 
 
 // CRT's memory leak detection
-#if defined(BUILD_DEBUG)
+#ifdef BUILD_DEBUG
 #include <crtdbg.h>
 #endif
 
@@ -70,13 +70,13 @@ namespace BREATHE
 	const bool GOOD=false;
 	
 	// Safe deleting functions
-	template <class T> inline void SAFE_DELETE(T x)
+	template <class T> inline void SAFE_DELETE(T& x)
 	{ 
 		delete (x);
 		(x)=NULL;
 	}
 
-	template <class T> inline void SAFE_DELETE_ARRAY(T x)
+	template <class T> inline void SAFE_DELETE_ARRAY(T& x)
 	{ 
 		delete [] (x);
 		(x)=NULL;

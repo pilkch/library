@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <cmath>
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -11,14 +13,13 @@
 
 
 
-
-
-
-#include <BREATHE/UTIL/cLog.h>
+// Breathe
 #include <BREATHE/cBreathe.h>
 
 
-#include <cmath>
+#include <BREATHE/UTIL/cLog.h>
+
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>

@@ -13,8 +13,6 @@ namespace BREATHE
 		class cVehicle : virtual public PHYSICS::cPhysicsObject
 		{
 		public:
-			PHYSICS::cPhysics *pPhysics;
-
 			bool bEngineOff;
 			bool bFourWheelDrive;
 
@@ -62,7 +60,7 @@ namespace BREATHE
 
 			std::vector<cSeat*> vSeat;
 
-			cVehicle(PHYSICS::cPhysics *p);
+			cVehicle();
 			~cVehicle();
 
 			void Init(cLevelSpawn p, unsigned int uiSeats);

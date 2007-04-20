@@ -12,7 +12,6 @@ namespace BREATHE
 	public:
 		cLevel *pLevel;
 		RENDER::cRender *pRender;
-		PHYSICS::cPhysics *pPhysics;
 
 		bool bConsole;
 		bool bDebug;
@@ -24,7 +23,7 @@ namespace BREATHE
 
 		bool bReturnCode;
 
-		float phi, psi, dist, elev;
+		float dist, elev;
 
 		UTIL::cTimer tPhysics;
 		UTIL::cTimer tUpdate;

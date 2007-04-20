@@ -16,49 +16,23 @@ namespace BREATHE
 		extern const float cINFINITY;
 		
 		template <class T> inline T clamp(T i, T lower, T upper)
-		{ 
+		{
 			return (i < lower) ? lower : (i > upper) ? upper : i;
 		}
 
-		//Square
-		inline float sqr(float a)
+		inline float toDegrees(float x)
 		{
-			return a*a;
+			return x * c180_DIV_PI;
 		}
 
-		//Square Root
-		inline float sqrt(float a)
+		inline float toRadians(float x)
 		{
-			//return sqrtf(a);
-
-			__asm
-			{
-				fld a;
-				fsqrt;
-				fstp a;
-			}
-			return a;
+			return x * cPI_DIV_180;
 		}
 
-		//Trig functions
-		inline float acos(float x)
+		inline float sqrf(float x)
 		{
-			return acosf(x);
-		}
-		
-		inline float cos(float x)
-		{
-			return cosf(x);
-		}
-
-		inline float sin(float x)
-		{
-			return sinf(x);
-		}
-
-		inline float atan2(float x, float y)
-		{
-			return atan2f(x, y);
+			return x*x;
 		}
 	}
 }

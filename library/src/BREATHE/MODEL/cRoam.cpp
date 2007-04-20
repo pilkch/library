@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include <vector>
 #include <map>
@@ -14,7 +15,10 @@
 
 
 
-#include <math.h>
+
+#include <BREATHE/cBreathe.h>
+
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -234,14 +238,14 @@ namespace BREATHE
 			//   - A patch is visible if it's center point is included in the angle: Left,Eye,Right
 			//   - This visibility test is only accurate if the frustum cannot look up or down significantly.
 			//
-			int eyeX = (int)(cRoam::pFrustum->eye.x - PATCH_SIZE * MATH::sin( cRoam::pFrustum->look.z * MATH::cPI_DIV_180 ));
-			int eyeY = (int)(cRoam::pFrustum->eye.z + PATCH_SIZE * MATH::cos( cRoam::pFrustum->look.z * MATH::cPI_DIV_180 ));
+			int eyeX = (int)(cRoam::pFrustum->eye.x - PATCH_SIZE * sinf( cRoam::pFrustum->look.z * MATH::cPI_DIV_180 ));
+			int eyeY = (int)(cRoam::pFrustum->eye.z + PATCH_SIZE * cosf( cRoam::pFrustum->look.z * MATH::cPI_DIV_180 ));
 
-			int leftX  = (int)(eyeX + 100.0f * MATH::sin( (cRoam::pFrustum->look.z-cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
-			int leftY  = (int)(eyeY - 100.0f * MATH::cos( (cRoam::pFrustum->look.z-cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
+			int leftX  = (int)(eyeX + 100.0f * sinf( (cRoam::pFrustum->look.z-cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
+			int leftY  = (int)(eyeY - 100.0f * cosf( (cRoam::pFrustum->look.z-cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
 
-			int rightX = (int)(eyeX + 100.0f * MATH::sin( (cRoam::pFrustum->look.z+cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
-			int rightY = (int)(eyeY - 100.0f * MATH::cos( (cRoam::pFrustum->look.z+cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
+			int rightX = (int)(eyeX + 100.0f * sinf( (cRoam::pFrustum->look.z+cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
+			int rightY = (int)(eyeY - 100.0f * cosf( (cRoam::pFrustum->look.z+cRoam::pFrustum->fov) * MATH::cPI_DIV_180 ));
 
 			int X, Y;
 			cRoamPatch *patch;

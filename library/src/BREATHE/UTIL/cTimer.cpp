@@ -1,5 +1,8 @@
 #include <SDL/SDL.h>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/UTIL/cTimer.h>
 
 namespace BREATHE

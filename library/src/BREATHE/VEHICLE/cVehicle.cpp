@@ -332,11 +332,9 @@ namespace BREATHE
 {
 	namespace VEHICLE
 	{
-		cVehicle::cVehicle(PHYSICS::cPhysics *p)
+		cVehicle::cVehicle()
 			: PHYSICS::cPhysicsObject()
 		{
-			pPhysics=p;
-
 			pBody=NULL;
 			pMirror=NULL;
 			pMetal=NULL;
@@ -399,20 +397,20 @@ namespace BREATHE
 			pPhysics->AddPhysicsObject(this);
 
 			//Rear		
-			lrWheel_->Init(pPhysics, false, fWheelRadius, fWheelWeight, 
+			lrWheel_->Init(false, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
-			rrWheel_->Init(pPhysics, false, fWheelRadius, fWheelWeight, 
+			rrWheel_->Init(false, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
 			//Front
-			lfWheel_->Init(pPhysics, true, fWheelRadius, fWheelWeight, 
+			lfWheel_->Init(true, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 
-			rfWheel_->Init(pPhysics, true, fWheelRadius, fWheelWeight, 
+			rfWheel_->Init(true, fWheelRadius, fWheelWeight, 
 				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
 				MATH::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 		}
@@ -471,11 +469,7 @@ namespace BREATHE
 			std::vector<cPart *>::iterator iter=vPart.begin();
 			std::vector<cPart *>::iterator end=vPart.end();
 			while(iter!=end)
-			{
-				(*iter)->Update();
-
-				iter++;
-			};
+				(*iter++)->Update();
 
 
 			fSteer = fControl_Steer * fMaxSteer;
@@ -581,7 +575,7 @@ namespace BREATHE
 			if(NULL==pPlayer)
 				return;
 	    
-			if(pPlayer->bClutch)
+			if(pPlayer->bInputClutch)
 			{
 				fControl_Clutch+=0.1f;
 				if(fControl_Clutch>1.0f)
@@ -591,7 +585,7 @@ namespace BREATHE
 				fControl_Clutch*=0.9f;
 
 
-			if(pPlayer->bAccelerate)
+			if(pPlayer->bInputUp)
 			{
 				fControl_Accelerate+=0.1f;
 				if(fControl_Accelerate>1.0f)
@@ -600,7 +594,7 @@ namespace BREATHE
 			else
 				fControl_Accelerate*=0.9f;
 			
-			if(pPlayer->bBrake)
+			if(pPlayer->bInputDown)
 			{
 				fControl_Brake+=0.1f;
 				if(fControl_Brake>1.0f)
@@ -609,13 +603,13 @@ namespace BREATHE
 			else
 				fControl_Brake*=0.9f;
 			
-			if(pPlayer->bLeft && !pPlayer->bRight)
+			if(pPlayer->bInputLeft && !pPlayer->bInputRight)
 			{
 				fControl_Steer-=0.1f;
 				if(fControl_Steer<-1.0f)
 					fControl_Steer=-1.0f;
 			}
-			else if(pPlayer->bRight && !pPlayer->bLeft)
+			else if(pPlayer->bInputRight && !pPlayer->bInputLeft)
 			{
 				fControl_Steer+=0.1f;
 				if(fControl_Steer>1.0f)
@@ -624,7 +618,7 @@ namespace BREATHE
 			else
 				fControl_Steer*=0.9f;
 			
-			if(pPlayer->bHandbrake) //Instant on
+			if(pPlayer->bInputHandbrake) //Instant on
 				fControl_Handbrake=1.0f;
 			else
 				fControl_Handbrake=0.0f;

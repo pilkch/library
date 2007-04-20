@@ -24,7 +24,6 @@ namespace BREATHE
 		class cPhysics : public cUpdateable
 		{
 		public:
-			std::list<cPhysicsObject * >lPhysicsObject;
 
 			float fInterval;
 
@@ -38,8 +37,15 @@ namespace BREATHE
 
 			void AddPhysicsObject(cPhysicsObject *pPhysicsObject);
 			void RemovePhysicsObject(cPhysicsObject *pPhysicsObject);
+			
+			unsigned int GetSize() { return lPhysicsObject.size(); }
+
+			std::list<cPhysicsObject * >::iterator GetObjectListBegin() { return lPhysicsObject.begin(); }
+			std::list<cPhysicsObject * >::iterator GetObjectListEnd() { return lPhysicsObject.end(); }
 
 		private:
+
+			std::list<cPhysicsObject * >lPhysicsObject;
 
 			// This wrapper is called by the physics library to get information
 			// about object collisions
@@ -52,5 +58,7 @@ namespace BREATHE
 		};
 	}
 }
+
+extern BREATHE::PHYSICS::cPhysics* pPhysics;
 
 #endif //CPHYSICS_H

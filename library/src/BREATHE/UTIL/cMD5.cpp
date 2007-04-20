@@ -40,6 +40,9 @@
 #include <sstream>
 #include <iomanip>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/UTIL/cMD5.h>
 
 namespace BREATHE

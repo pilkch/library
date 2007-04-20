@@ -1,5 +1,3 @@
-#include "BREATHE/LOADER_3DS/mesh3ds.h"
-#include "BREATHE/LOADER_3DS/build3ds.h"
 
 // writing on a text file
 #include <iostream>
@@ -7,7 +5,14 @@
 
 #include <sstream>
 
+
+// Breathe
+#include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
+
+#include "BREATHE/LOADER_3DS/mesh3ds.h"
+#include "BREATHE/LOADER_3DS/build3ds.h"
+
 
 namespace BREATHE
 {

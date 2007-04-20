@@ -7,8 +7,7 @@ namespace BREATHE
 	{
 	public:
 		/*cLevel *pLevel;
-		RENDER::cRender *pRender;
-		PHYSICS::cPhysics *pPhysics;*/
+		RENDER::cRender *pRender;*/
     
 		cItem();
 		~cItem();

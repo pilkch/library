@@ -10,9 +10,12 @@ namespace BREATHE
 
 	class cItem;
 
-	const int PLAYER_DEAD=0;
-	const int PLAYER_WALKING=1;
-	const int PLAYER_DRIVING=2;
+	const int PLAYER_STATE_DEAD=0;
+	const int PLAYER_STATE_WALK=1;
+	const int PLAYER_STATE_RUN=2;
+	const int PLAYER_STATE_SPRINT=3;
+	const int PLAYER_STATE_DRIVE=4;
+	const int PLAYER_STATE_PASSENGER=5;
 
 	class cPlayer : virtual public PHYSICS::cPhysicsObject
 	{
@@ -22,14 +25,29 @@ namespace BREATHE
 		cPlayer();
 		~cPlayer();
 
-		bool bAccelerate;
-		bool bBrake;
-		bool bLeft;
-		bool bRight;
-		bool bHandbrake;
-		bool bClutch;
+		unsigned int uiState;
 
-		bool bState;
+#ifdef BUILD_DEBUG
+		bool bThirdPerson;
+#endif
+
+		bool bInputUp;
+		bool bInputDown;
+		bool bInputLeft;
+		bool bInputRight;
+		
+		bool bInputHandbrake;
+		bool bInputClutch;
+
+		bool bInputJump;
+		bool bInputCrouch;
+
+
+		float fSpeedWalk;
+		float fSpeedRun;
+		float fSpeedSprint;
+
+		float fVertical, fHorizontal;
 
 		float fDollars;
 

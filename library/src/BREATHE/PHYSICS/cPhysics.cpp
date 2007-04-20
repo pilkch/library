@@ -10,8 +10,8 @@
 #include <ode/ode.h>
 
 
+#include <BREATHE/cBreathe.h>
 
-#include <math.h>
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -31,6 +31,8 @@
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+
+BREATHE::PHYSICS::cPhysics* pPhysics = NULL;
 
 namespace BREATHE
 {
@@ -93,11 +95,6 @@ namespace BREATHE
 		void cPhysics::RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
 		{
 			lPhysicsObject.remove(pPhysicsObject);
-
-			dGeomDestroy(pPhysicsObject->geom);
-
-			if(pPhysicsObject->bBody)
-        dBodyDestroy(pPhysicsObject->body);
 		}
 
 		void cPhysics::Update(float fTimeStep)

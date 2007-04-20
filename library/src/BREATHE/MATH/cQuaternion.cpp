@@ -2,6 +2,9 @@
 
 #include <cstdio>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -21,15 +24,13 @@ namespace BREATHE
 		//load the identity quaternion
 		void cQuaternion::LoadIdentity(void)
 		{
-		x=0.0f;
-		y=0.0f;
-		z=0.0f;
-		w=1.0f;
+			x = y = z = 0.0f;
+			w=1.0f;
 		}
 
 		void cQuaternion::Normalise()
 		{
-			float magnitude = 1.0f / BREATHE::MATH::sqrt(x*x + y*y + z*z + w*w);
+			float magnitude = 1.0f / sqrtf(x*x + y*y + z*z + w*w);
 			x *= magnitude;
 			y *= magnitude;
 			z *= magnitude;
@@ -42,17 +43,17 @@ namespace BREATHE
 			x=-x;
 			y=-y;
 			z=-z;
-			// w=-w; ?
+			//Note: w=w;
 		}
 
 		cQuaternion cQuaternion::Inverse()
 		{
-			return cQuaternion(-x,-y,-z,w);
+			return cQuaternion(-x, -y, -z, w);
 		}
 
 		cQuaternion cQuaternion::Conjugate()
 		{
-			return cQuaternion(-x,-y,-z,w);
+			return cQuaternion(-x, -y, -z, w);
 		}
 
 		//set a quaternion from angles of rotation about x, y, z
@@ -157,6 +158,15 @@ namespace BREATHE
 
 			SetFromAxisAngle(axis, angle);
 		}
+		
+		void cQuaternion::SetFromODEQuaternion(float* q)
+		{
+			w=q[0];
+			x=q[1];
+			y=q[2];
+			z=q[3];
+		}
+
 
 		float cQuaternion::GetAngle(void) const
 		{
@@ -177,12 +187,25 @@ namespace BREATHE
 			return result;
 		}
 
-		cQuaternion cQuaternion::operator*(cQuaternion b)
+		
+		cVec3 cQuaternion::GetEuler(void) const
 		{
-			return cQuaternion(w*b.x + x*b.w + y*b.z - z*b.y,
-				w*b.y - x*b.z + y*b.w + z*b.x,
-				w*b.z + x*b.y - y*b.x + z*b.w,
-				w*b.w - x*b.x - y*b.y - z*b.z);
+			float sqw = w*w;
+			float sqx = x*x;
+			float sqy = y*y;
+			float sqz = z*z;
+
+			return cVec3(	(atan2(2.0f * (y*z + x*w) , (-sqx - sqy + sqz + sqw)) * c180_DIV_PI),
+										(asin(-2.0f * (x*z - y*w)) * c180_DIV_PI),
+										(atan2(2.0f * (x*y + z*w),(sqx - sqy - sqz + sqw))	* c180_DIV_PI));
+		}
+
+		cQuaternion cQuaternion::operator*(cQuaternion& q)
+		{
+			return cQuaternion(	w*q.x + x*q.w + y*q.z - z*q.y,
+													w*q.y + y*q.w + z*q.x - x*q.z,
+													w*q.z + z*q.w + x*q.y - y*q.x,
+													w*q.w - x*q.x - y*q.y - z*q.z);
 		}
 
 

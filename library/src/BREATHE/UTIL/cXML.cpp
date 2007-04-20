@@ -65,7 +65,7 @@ namespace BREATHE
 		{
 			int n=vChild.size();
 			for(int i=0;i<n;i++)
-        delete vChild[i];
+         SAFE_DELETE(vChild[i]);
 		}
 	
 		std::string cNode::Parse(std::string sData, cNode* pPrevious)

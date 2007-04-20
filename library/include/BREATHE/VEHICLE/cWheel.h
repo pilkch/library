@@ -10,7 +10,6 @@ namespace BREATHE
 		class cWheel : virtual public PHYSICS::cPhysicsObject
 		{
 			cVehicle *pParent;
-			PHYSICS::cPhysics *pPhysics;
 
 		public:
 			bool bFront; //At the moment only the front wheels are steerable
@@ -29,7 +28,7 @@ namespace BREATHE
 			cWheel(cVehicle *p);
 			~cWheel();
 
-			void Init(PHYSICS::cPhysics *pPhysics, bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, 
+			void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, 
 				float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos);
 			void Update(float fTimeStep);
 

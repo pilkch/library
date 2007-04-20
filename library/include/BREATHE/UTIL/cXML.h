@@ -79,7 +79,10 @@ namespace BREATHE
 				if(iter != mAttribute.end())
 				{
 					if(pValue)
-						*pValue = ("true" == iter->second);
+					{
+						std::string v = iter->second;
+						*pValue = ("true" == v);
+					}
 					return true;
 				}
 

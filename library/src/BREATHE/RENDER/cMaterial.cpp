@@ -17,9 +17,10 @@
 #include <SDL/SDL_image.h>
 
 
+// Breathe
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -86,7 +87,7 @@ namespace BREATHE
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
 								pLog->Error("Render", std::string("Shader ") + sShaderVertex + std::string(": ") + infoLog);
-						delete infoLog;
+						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
 
@@ -105,7 +106,7 @@ namespace BREATHE
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
 								pLog->Error("Render", std::string("Shader ") + sShaderFragment + ": " + infoLog);
-						delete infoLog;
+						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
 			
@@ -124,7 +125,7 @@ namespace BREATHE
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
 								pLog->Error("Render", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
-						delete infoLog;
+						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
 

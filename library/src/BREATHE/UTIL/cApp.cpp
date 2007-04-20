@@ -33,6 +33,7 @@
 #include <BREATHE/UTIL/cFileSystem.h>
 #include <BREATHE/UTIL/cVar.h>
 #include <BREATHE/UTIL/cConsole.h>
+#include <BREATHE/UTIL/cXML.h>
 
 #include <BREATHE/UTIL/cTimer.h>
 
@@ -113,49 +114,29 @@ namespace BREATHE
 
 		pPhysics=new PHYSICS::cPhysics();
 
-		pLevel=new cLevel(pRender, pPhysics);
+		pLevel=new cLevel(pRender);
 	}
 
 	cApp::~cApp()
 	{
 		pLog->Success("Delete", "Level");
-		if(pLevel)
-		{
-			delete pLevel;
-			pLevel=NULL;
-		}
+		SAFE_DELETE(pLevel);
 
 		pLog->Success("Delete", "Physics");
-		if(pPhysics)
-		{
-			delete pPhysics;
-			pPhysics=NULL;
-		}
+		SAFE_DELETE(pPhysics);
 
 		pLog->Success("Delete", "Render");
-		if(pRender)
-		{
-			delete pRender;
-			pRender=NULL;
-		}
+		SAFE_DELETE(pRender);
 		
 		pLog->Success("Delete", "FileSystem");
-		if(pFileSystem)
-		{
-			delete pFileSystem;
-			pFileSystem=NULL;
-		}
+		SAFE_DELETE(pFileSystem);
 		
 		pLog->Success("Delete", "Log");
 		
 		pLog->Success("Main", "Successfully exited");
 		pLog->Success("Main", "return " + bReturnCode);
 
-		if(pLog)
-		{
-			delete pLog;
-			pLog=NULL;
-		}
+		SAFE_DELETE(pLog);
 
 		TTF_Quit();
 
@@ -166,6 +147,65 @@ namespace BREATHE
 
 	bool cApp::Init()
 	{
+		{
+			pLog->Success("Init", "Loading config.xml");
+			BREATHE::XML::cNode pRoot("config.xml");
+
+			pRoot = *(pRoot.FindChild("config"));
+
+			BREATHE::XML::cNode* p = pRoot.FindChild("directory");
+			while(p)
+			{
+				std::string sDirectory;
+				if(p->GetAttribute("path", &sDirectory))
+					pFileSystem->AddDirectory(sDirectory);
+
+				p=p->Next("directory");
+			};
+
+			p = pRoot.FindChild("render");
+			while(p)
+			{
+				std::ostringstream t;
+				unsigned int uiValue;
+				if(p->GetAttribute("width", &uiValue))
+				{
+					t.str("");
+					t<<"width = ";
+					t<<uiValue;
+					pLog->Success("Config", t.str());
+					pRender->uiWidth = uiValue;
+				}
+				if(p->GetAttribute("height", &uiValue))
+				{
+					t.str("");
+					t<<"height = ";
+					t<<uiValue;
+					pLog->Success("Config", t.str());
+					pRender->uiHeight = uiValue;
+				}
+				if(p->GetAttribute("depth", &uiValue))
+				{
+					t.str("");
+					t<<"depth = ";
+					t<<uiValue;
+					pLog->Success("Config", t.str());
+					pRender->uiDepth = uiValue;
+				}
+
+				bool bFullscreen;
+				if(p->GetAttribute("fullscreen", &bFullscreen))
+				{
+					pLog->Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
+					pRender->bFullscreen = bFullscreen;
+				}
+
+				p=p->Next("render");
+			};
+		}
+
+
+
 		// Init SDL 
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_JOYSTICK) < 0 )
 		{
@@ -308,9 +348,10 @@ namespace BREATHE
 			return BREATHE::BAD;
 		}
 
-/*#ifdef BUILD_DEBUG
-		pRender->uiFlags |= SDL_FULLSCREEN;
-#endif //BUILD_DEBUG*/
+		
+		
+		if(pRender->bFullscreen)
+			pRender->uiFlags |= SDL_FULLSCREEN;
 
 		// This checks to see if surfaces can be stored in memory 
 		if ( videoInfo->hw_available )
@@ -331,7 +372,7 @@ namespace BREATHE
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 		// get a SDL surface 
-		surface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiBPP, pRender->uiFlags);
+		surface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
 
 		// Verify there is a surface 
 		if(!surface)
@@ -363,14 +404,23 @@ namespace BREATHE
 	{
 		DestroyTextures();
 
-		
-		pRender->uiFlags ^=SDL_FULLSCREEN;
+		if(pRender->bFullscreen)
+		{
+			pRender->uiFlags &= ~(SDL_FULLSCREEN);
+			pRender->bFullscreen = false;
+		}
+		else
+		{
+			pRender->uiFlags |= SDL_FULLSCREEN;
+			pRender->bFullscreen = true;
+		}
 
-		surface=SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiBPP, pRender->uiFlags);
+
+		surface=SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
 
 		if(surface)
 		{
-			if(pRender->uiFlags & SDL_FULLSCREEN)
+			if(pRender->bFullscreen)
 			{
 				pLog->Newline();
 				pLog->Success("SDL", "Changed to fullscreen");
@@ -441,7 +491,7 @@ namespace BREATHE
 	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
 	{
 		// handle resize event 
-		surface = SDL_SetVideoMode(w, h, 32, pRender->uiFlags);
+		surface = SDL_SetVideoMode(w, h, pRender->uiDepth, pRender->uiFlags);
 		if ( !surface )
 		{
 			pLog->Error("SDL", std::string("Could not get a surface after resize: ") + SDL_GetError());

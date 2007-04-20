@@ -11,6 +11,7 @@
 #include <ODE/ode.h>
 
 
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -44,26 +45,83 @@
 namespace BREATHE
 {
 	cPlayer::cPlayer()
-		: cPhysicsObject()
+			: PHYSICS::cPhysicsObject()
 	{
+		bBody=false;
+		bDynamic=false;
+
 		pSeat=NULL;
 
-		bAccelerate=false;
-		bBrake=false;
-		bLeft=false;
-		bRight=false;
-		bHandbrake=false;
+		uiState = PLAYER_STATE_DRIVE;
+		
+#ifdef BUILD_DEBUG
+		bThirdPerson = true;
+#endif
+
+		// Movement
+		bInputUp = bInputDown = bInputLeft = bInputRight = false;
+		
+		bInputHandbrake = bInputClutch = false;
+
+		bInputJump = bInputCrouch = false;
+
+		fSpeedWalk = 1.0f;
+		fSpeedRun = 2.0f;
+		fSpeedSprint = 3.0f;
 
 		fDollars=0.0f;
+		
+		fVertical=0.0f;
+		fHorizontal=0.0f;
 	}
 
 	cPlayer::~cPlayer()
 	{
-		
+		pPhysics->RemovePhysicsObject(this);
 	}
 
 	void cPlayer::Update(float fTime)
 	{
+		if(PLAYER_STATE_DRIVE == uiState)
+		{
+			
+		}
+		else if(PLAYER_STATE_PASSENGER == uiState)
+		{
+			
+		}
+		else
+		{
+			if(bInputUp || bInputDown || bInputLeft || bInputRight)
+			{
+				float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+				
+				float fDirection = fHorizontal + MATH::toRadians(90.0f);
 
+				if(bInputUp)
+				{
+					if(bInputLeft)
+						fDirection += MATH::toRadians(45.0f);
+					else if(bInputRight)
+						fDirection -= MATH::toRadians(45.0f);
+				}
+				else if(bInputDown)
+				{
+					if(bInputLeft)
+						fDirection -= MATH::toRadians(235.0f);
+					else if(bInputRight)
+						fDirection += MATH::toRadians(235.0f);
+					else
+						fDirection += MATH::toRadians(180.0f);
+				}
+				else if(bInputLeft)
+					fDirection += MATH::toRadians(90.0f);
+				else if(bInputRight)
+					fDirection -= MATH::toRadians(90.0f);
+
+				p.x += fSpeed * cosf(fDirection);
+				p.y += fSpeed * sinf(fDirection);
+			}
+		}
 	}
 }

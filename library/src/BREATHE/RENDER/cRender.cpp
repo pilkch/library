@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cstdarg>
 
+#include <cmath>
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -16,12 +18,11 @@
 #include <SDL/SDL_image.h>
 
 
-
-#include <BREATHE/UTIL/cLog.h>
+// Breathe
 #include <BREATHE/cBreathe.h>
+#include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
 
-#include <math.h>
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -101,9 +102,11 @@ namespace BREATHE
 			bActiveShader=false;
 			bActiveColour=false;
 
+			bFullscreen=true;
 			uiWidth=1024;
 			uiHeight=768;
-			uiBPP = 32;
+			uiDepth = 32;
+
 			uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
 
 			iMaxTextureSize=0;
@@ -136,11 +139,7 @@ namespace BREATHE
 			//TODO: Delete materials and shader objects and atlases etc.
 
 			pLog->Success("Delete", "Camera");
-			if(pCamera)
-			{
-				delete pCamera;
-				pCamera=NULL;
-			}
+			SAFE_DELETE(pCamera);
 		}
 
 		bool cRender::FindExtension(std::string sExt)
@@ -203,24 +202,20 @@ namespace BREATHE
 
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
 
-	#ifdef _DEBUG
 			std::ostringstream t;
 			t << "Screen BPP: ";
-			t << SDL_GetVideoSurface()->format->BitsPerPixel;
+			t << (unsigned int)(SDL_GetVideoSurface()->format->BitsPerPixel);
 			pLog->Success("Render", t.str());
 			pLog->Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
 			pLog->Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
 			pLog->Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
 			pLog->Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
-	#endif
 	
 			t.str("");
 			t << iMaxTextureSize;
 			if(iMaxTextureSize>=MAX_TEXTURE_SIZE)
 			{
-	#ifdef _DEBUG
 				pLog->Success("Render", std::string("Max Texture Size : ") + t.str());
-	#endif //_DEBUG
 				iMaxTextureSize=MAX_TEXTURE_SIZE;
 			}
 			else
@@ -481,7 +476,7 @@ namespace BREATHE
 					pDst -= nPitch;
 				};
 			
-				delete[] pBuf;
+				SAFE_DELETE_ARRAY(pBuf);
 			}
 
 			// create one texture name
@@ -565,7 +560,7 @@ namespace BREATHE
 					pDst -= nPitch;
 				};
 			
-				delete[] pBuf;
+				SAFE_DELETE_ARRAY(pBuf);
 			}
 
 			//TODO: Put into a texture atlas
@@ -649,7 +644,7 @@ namespace BREATHE
 					pDst -= nPitch;
 				};
 			
-				delete[] pBuf;
+				SAFE_DELETE_ARRAY(pBuf);
 			}
 
 			//TODO: Put into a texture atlas
@@ -811,7 +806,7 @@ namespace BREATHE
 						pDst -= nPitch;
 					};
 				
-					delete[] pBuf;
+					SAFE_DELETE_ARRAY(pBuf);
 				}
 
 
@@ -930,7 +925,7 @@ namespace BREATHE
 			}
 			else
 			{
-				delete pMaterial;
+				SAFE_DELETE(pMaterial);
 				pMaterial=pMaterialNotFoundMaterial;
 			}
 			
@@ -962,15 +957,8 @@ namespace BREATHE
 			unsigned int n=0;
 			unsigned int unit=GL_TEXTURE0;
 
-			for(i=n;i<MATERIAL::nLayers;i++)
+			for(i=n;i<MATERIAL::nLayers;i++, unit++)
 			{
-				if(1==i)
-					unit=GL_TEXTURE1;
-				else if(2==i)
-					unit=GL_TEXTURE2;
-				else if(3==i)
-					unit=GL_TEXTURE3;
-
 				//Activate the current texture unit
 				glActiveTexture(unit);
 
@@ -1051,15 +1039,8 @@ namespace BREATHE
 
 			unit=GL_TEXTURE0;
 			
-			for(i=0;i<n;i++)
+			for(i=0;i<n;i++, unit++)
 			{
-				if(1==i)
-					unit=GL_TEXTURE1;
-				else if(2==i)
-					unit=GL_TEXTURE2;
-				else if(3==i)
-					unit=GL_TEXTURE3;
-
 				//If this is a cubemap, set the material texture to the cubemap before we get there
 				if(TEXTURE_CUBEMAP==vNewLayer[i].uiTextureMode)
 					vNewLayer[i].uiTexture=pLevel->FindClosestCubeMap(pos)->uiTexture;
@@ -1196,7 +1177,16 @@ namespace BREATHE
 					}
 				}
 
-				/*//Same Mode, just change texture
+
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				//Same Mode, just change texture
 				else if(vLayer[i].uiTexture!=vNewLayer[i].uiTexture)
 				{
 					if(TEXTURE_MASK==vLayer[i].uiTextureMode)
@@ -1242,18 +1232,130 @@ namespace BREATHE
 						glBlendFunc(GL_ONE, GL_ZERO);
 						glDisable(GL_BLEND);
 					}
-				}*/
+
+					
+					//Set the current mode and texture
+					vLayer[i].uiTextureMode=vNewLayer[i].uiTextureMode;
+					vLayer[i].uiTexture=vNewLayer[i].uiTexture;
+
+
+
+
+					
+					if(TEXTURE_NONE==vLayer[i].uiTextureMode)
+						glDisable(GL_TEXTURE_2D);
+					else if(TEXTURE_NORMAL==vLayer[i].uiTextureMode)
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+					}
+					else if(TEXTURE_MASK==vLayer[i].uiTextureMode)
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+						glEnable(GL_BLEND);
+					}
+					else if(TEXTURE_BLEND==vLayer[i].uiTextureMode)
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+						glEnable(GL_BLEND);
+					}
+					else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+					{
+						//Assume we got one we shouldn't be here if we didn't
+						//It is possible if there are NO cubemaps in the whole level,
+						//so make sure we load one already
+						glDisable(GL_TEXTURE_2D);
+						glEnable(GL_TEXTURE_CUBE_MAP);
+						glBindTexture(GL_TEXTURE_CUBE_MAP, vLayer[i].uiTexture);
+
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
+
+
+						
+						glMatrixMode(GL_TEXTURE);
+						glPushMatrix();
+						glLoadIdentity();
+						
+						float y=-Angle(MATH::cVec2(camera.eye.x, camera.eye.y), MATH::cVec2(camera.target.x, camera.target.y));
+						float x=-Angle(MATH::cVec2(camera.eye.y, camera.eye.z), MATH::cVec2(camera.target.y, camera.target.z));
+						//std::cout<<y<<"\t"<<x<<"\n";
+
+						glRotatef(y, 0.0f, 1.0f, 0.0f);
+						glRotatef(x, 1.0f, 0.0f, 0.0f);
+
+						
+						//float mat[16];
+						//glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+
+						//MATH::cQuaternion q(mat[8], mat[9], -mat[10]);
+
+						//glLoadMatrixf(static_cast<float *>(q.GetMatrix()));
+
+
+						glMatrixMode(GL_MODELVIEW);
+
+
+						glEnable(GL_TEXTURE_GEN_S);
+						glEnable(GL_TEXTURE_GEN_T);
+						glEnable(GL_TEXTURE_GEN_R); 
+
+						glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+						glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+					}
+					else
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+					}
+
+					if(0==unit)
+					{
+						if(n>1)
+						{
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+						}
+						else
+						{
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+						}
+					}
+				}
+
+
+
+				
+
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
+				// **************************************************************************************
 			}
 
-			for(i=n;i<MATERIAL::nLayers;i++)
-			{
-				if(1==i)
-					unit=GL_TEXTURE1;
-				else if(2==i)
-					unit=GL_TEXTURE2;
-				else if(3==i)
-					unit=GL_TEXTURE3;
+			unit = GL_TEXTURE0 + n;
 
+			for(i=n;i<MATERIAL::nLayers;i++, unit++)
+			{
 				//Activate the current texture unit
 				glActiveTexture(unit);
 

@@ -1,5 +1,8 @@
 #include <math.h>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -51,7 +54,7 @@ namespace BREATHE
 			// Here we calculate the magnitude of the normal to the plane (point A B C)
 			// Remember that (A, B, C) is that same thing as the normal's (X, Y, Z).
 			// To calculate magnitude you use the equation:  magnitude = sqrt( x^2 + y^2 + z^2)
-			float magnitude = BREATHE::MATH::sqrt(	frustum[side][A] * frustum[side][A] + 
+			float magnitude = sqrtf(	frustum[side][A] * frustum[side][A] + 
 																							frustum[side][B] * frustum[side][B] + 
 																							frustum[side][C] * frustum[side][C] );
 

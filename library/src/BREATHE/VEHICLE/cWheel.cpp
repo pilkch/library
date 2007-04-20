@@ -11,6 +11,7 @@
 
 #include <ODE/ode.h>
 
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -219,8 +220,6 @@ namespace BREATHE
 			fSuspensionNormal=0.0f;
 			fSuspensionMin=0.0f;
 			fSuspensionMax=0.0f;
-			
-			std::memset(r, 0, sizeof(float)*16);
 		}
 		
 		cWheel::~cWheel()
@@ -228,10 +227,8 @@ namespace BREATHE
 			dGeomDestroy(geomRay);
 		}
 
-		void cWheel::Init(PHYSICS::cPhysics *phys, bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
+		void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
 		{
-			pPhysics = phys;
-
 			this->bFront=bFront;
 			
 			contact.Clear();
@@ -338,7 +335,7 @@ namespace BREATHE
 
 				MATH::cMat4 mRotation;
 				if(bFront)
-					mRotation.SetRotationZ(-MATH::atan2(pParent->fSteer, 1));//BREATHE::MATH::cPI);
+					mRotation.SetRotationZ(-atan2(pParent->fSteer, 1.0f));
 
 
 
@@ -348,10 +345,6 @@ namespace BREATHE
 				m=pParent->m*mPositionRel*mRotation*mContact;
 
 				p=m.GetPosition();
-
-				r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-				r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-				r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
 
 				v=pParent->v;
 				
@@ -370,7 +363,7 @@ namespace BREATHE
 
 				float wheelAccel=pParent->fSpeed;
 				float wheelBrake=pParent->fBrake;
-				float wheelSlip=0.00001f * MATH::sqr(fabsf(pParent->fVel));
+				float wheelSlip=0.00001f * fabsf(pParent->fVel) * fabsf(pParent->fVel);
 
 				if(bFront)
 				{

@@ -116,8 +116,8 @@ namespace BREATHE
 			//I have always left ERP at 1.0, but you could also try reducing that to
 			//combat jitter.
 
-			printf("fERP 1.0=%.6f\n", fERP);
-			printf("fCFM (0.01..0.00001) 0.001=%.6f\n", fCFM);
+			//printf("fERP 1.0=%.6f\n", fERP);
+			//printf("fCFM (0.01..0.00001) 0.001=%.6f\n", fCFM);
 		}
 
 		void cContact::SetBounce(float fBounce, float fBounceVelocity)

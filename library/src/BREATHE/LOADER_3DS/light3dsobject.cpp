@@ -1,3 +1,8 @@
+#include <string>
+
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include "BREATHE/LOADER_3DS/light3dsobject.h"
 #include "BREATHE/LOADER_3DS/build3ds.h"
 

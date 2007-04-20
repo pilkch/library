@@ -9,7 +9,8 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 
-
+// Breathe
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/UTIL/cLog.h>
 

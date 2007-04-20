@@ -15,7 +15,8 @@
 #include <fstream>
 
 
-
+// Breathe
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/UTIL/cVar.h>
 #include <BREATHE/UTIL/cConsole.h>

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <math.h>
 
 #include <sstream>
 #include <vector>
@@ -10,11 +11,11 @@
 #include <iostream>
 #include <fstream>
 
-
+// Breathe
+#include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
 
-#include <math.h>
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>

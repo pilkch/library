@@ -1,16 +1,20 @@
-#include "BREATHE/LOADER_3DS/build3ds.h"
-
-#include <string>
-
-
 // writing on a text file
 #include <iostream>
 #include <fstream>
+
+#include <string>
+
+// Breathe
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/UTIL/cLog.h>
 
 #include <BREATHE/MATH/cVec3.h>
 #include <BREATHE/MATH/cMat4.h>
+
+#include "BREATHE/LOADER_3DS/build3ds.h"
+
+
 
 #include <BREATHE/RENDER/cCamera.h>
 #include <BREATHE/LOADER_3DS/camera3ds.h>

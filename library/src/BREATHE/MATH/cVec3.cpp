@@ -1,5 +1,8 @@
 #include <math.h>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
+
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
 #include <BREATHE/MATH/cVec3.h>
@@ -25,7 +28,7 @@ namespace BREATHE
 
 		float cVec3::GetLength() const
 		{	
-			return BREATHE::MATH::sqrt((x*x)+(y*y)+(z*z));
+			return sqrtf((x*x)+(y*y)+(z*z));
 		}
 
 		float cVec3::GetMagnitude() const

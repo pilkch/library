@@ -66,12 +66,12 @@ namespace BREATHE
 	/*
 	std::string s=pFileSystem->GetMD5(sFilename);*/
 
-	cLevel::cLevel(RENDER::cRender *p, PHYSICS::cPhysics *phy)
+	cLevel::cLevel(RENDER::cRender *p)
 	{
+		fWaterLevel = 1.0f;
 		fPreviousTime=0.0f;
 
 		pRender=p;
-		pPhysics=phy;
 
 		p->pLevel=this;
 	}
@@ -82,7 +82,7 @@ namespace BREATHE
 		std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
 		while(iter!=mStatic.end())
 		{
-			delete iter->second;
+			SAFE_DELETE(iter->second);
 			iter++;
 		};
 	}
@@ -106,6 +106,7 @@ namespace BREATHE
 				p->GetAttribute("fNodeWidth", &fNodeWidth);
 				p->GetAttribute("uiWidth", &uiWidth);
 				p->GetAttribute("uiHeight", &uiHeight);
+				p->GetAttribute("fWaterLevel", &fWaterLevel);
 				
 				p=p->FirstChild();
 
@@ -204,7 +205,7 @@ namespace BREATHE
 				// compute the angle
 				angleCosine = cam.DotProduct(objToCamProj);
 
-				float a=MATH::acos(angleCosine)*MATH::c180_DIV_PI;
+				float a=acosf(angleCosine)*MATH::c180_DIV_PI;
 
 				// perform the rotation. The if statement is used for stability reasons
 				// if the lookAt and objToCamProj vectors are too close together then 
@@ -459,14 +460,11 @@ namespace BREATHE
     unsigned int currentY=static_cast<unsigned int>(pRender->pCamera->target.y/fNodeWidth);
 
 		{
-			std::list<PHYSICS::cPhysicsObject *>::iterator iter=pPhysics->lPhysicsObject.begin();
+			std::list<PHYSICS::cPhysicsObject *>::iterator iter=pPhysics->GetObjectListBegin();
+			std::list<PHYSICS::cPhysicsObject *>::iterator end=pPhysics->GetObjectListEnd();
 
-			while(iter != pPhysics->lPhysicsObject.end())
-			{
-				(*iter)->Update(fCurrentTime);
-
-				iter++;
-			};
+			while(end != iter)
+				(*iter++)->Update(fCurrentTime);
 		}
 
 
@@ -499,15 +497,24 @@ namespace BREATHE
 		unsigned int i=0;
 		unsigned int n=vNode.size();
 		for(i=0;i<n;i++)
-      uiTriangles+=RenderStaticModel(GetModel(vNode[0]->sFilename + "mesh.3ds"), MATH::cVec3(0.0f, 0.0f, 0.0f));
+			uiTriangles += vNode[i]->Render(fCurrentTime);
 
 		//n=vStatic.size();
 		//for(i=0;i<n;i++)
 		//	uiTriangles+=RenderStaticModel(vStatic[i]);));
 		
-		//n=vObjects.size();
-		//for(i=0;i<n;i++)
-    //  uiTriangles+=vObjects[i]->Render();
+		std::list<PHYSICS::cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
+		std::list<PHYSICS::cPhysicsObject*>::iterator end = lPhysicsObject.end();
+		while(end != iter)
+		{
+			glPushMatrix();
+				glMultMatrixf((*iter)->m);
+				
+				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>((*iter++)->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+
+				//pRender->SetMaterial();
+			glPopMatrix();
+		}
 
 		n=vCubemap.size();
 		for(i=0;i<n;i++)
@@ -608,11 +615,13 @@ namespace BREATHE
 	void cLevel::AddPhysicsObject(PHYSICS::cPhysicsObject *d)
 	{
 		pPhysics->AddPhysicsObject(d);
+		lPhysicsObject.push_back(d);
 	}
 
 	void cLevel::RemovePhysicsObject(PHYSICS::cPhysicsObject *d)
 	{
 		pPhysics->RemovePhysicsObject(d);
+		lPhysicsObject.remove(d);
 	}
 
 
@@ -897,14 +906,6 @@ namespace BREATHE
 		sFilename=sNewFilename;
 	}
 
-	void cLevelNode::LoadModel(std::string sLine)
-	{
-		//std::vector<cLevelModel * >vModel;
-		
-		//data/props/static/crate	10.0	10.0	0.0
-		//data/props/static/stopsign	-10.0	-10.0	0.0
-	}
-
 	void cLevelNode::Load()
 	{
 		uiStatus=NODE_ACTIVE;
@@ -942,9 +943,18 @@ namespace BREATHE
 					{
 						std::string sPath;
 						if(p->GetAttribute("path", &sPath))
-							LoadModel(sPath);
+						{
+							cLevelModel* pModel = new cLevelModel();
+							vModel.push_back(pModel);
 
-						//TODO: position="10.0, 10.0, 0.0"
+							pModel->sFilename = sPath + "/mesh.3ds";
+							
+							// Pre load the mesh for this model
+							pModel->pModel = pLevel->AddModel(pModel->sFilename);
+
+							p->GetAttribute("position", &pModel->v3Position);
+							p->GetAttribute("position", &pModel->v3Rotation);
+						}
 
 						p=p->Next("model");
 					};
@@ -976,7 +986,7 @@ namespace BREATHE
 		uiStatus=NODE_INACTIVE;
 	}
 
-	void cLevelNode::Update(float fTime)
+	void cLevelNode::Update(float fCurrentTime)
 	{
 		if(NODE_INACTIVE!=uiStatus)
 			uiStatus--;
@@ -984,8 +994,21 @@ namespace BREATHE
 			Unload();
 	}
 
-	void cLevelNode::Render()
+	unsigned int cLevelNode::Render(float fCurrentTime)
 	{
-		
+		unsigned int uiTriangles = 0;
+
+		uiTriangles+=pLevel->RenderStaticModel(pLevel->GetModel(sFilename + "mesh.3ds"), MATH::cVec3(0.0f, 0.0f, 0.0f));
+
+		unsigned int n = vModel.size();
+		for(unsigned int i = 0; i < n; i++)
+		{
+			//glPushMatrix();
+			//	glMultMatrixf(()->m);
+				uiTriangles+=pLevel->RenderStaticModel(vModel[i]->pModel, vModel[i]->v3Position);
+			//glPopMatrix();
+		}
+
+		return uiTriangles;
 	}
 }

@@ -33,7 +33,7 @@ namespace BREATHE
 				return w;
 			}
 
-			cQuaternion operator*(cQuaternion b);
+			cQuaternion operator*(cQuaternion& q);
 					
 			//Invert the quaternion
 			void Invert();
@@ -50,9 +50,13 @@ namespace BREATHE
 			//set from vectors (source and destination)
 			void SetFromVectors(const cVec3 & source, const cVec3 & destination);
 
+			//set from ODE style quaternion (w, x, y, z)
+			void SetFromODEQuaternion(float* q);
+
 			//retrieve axis/angle
 			float GetAngle(void) const;
 			cVec3 GetAxis(void) const;
+			cVec3 GetEuler(void) const;
 
 			
 			//default constructor

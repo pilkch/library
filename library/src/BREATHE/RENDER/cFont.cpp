@@ -26,7 +26,7 @@
 //catch any exceptions that we throw.
 #include <stdexcept>
 
-
+#include <BREATHE/cBreathe.h>
 #include <BREATHE/RENDER/cFont.h>
 
 namespace BREATHE
@@ -102,7 +102,7 @@ namespace BREATHE
 					0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data );
 
 			//With the texture created, we don't need to expanded data anymore
-				delete [] expanded_data;
+			BREATHE::SAFE_DELETE_ARRAY(expanded_data);
 
 			//So now we can create the display list
 			glNewList(list_base+ch,GL_COMPILE);
@@ -204,7 +204,7 @@ namespace BREATHE
 		cFont::~cFont() {
 			glDeleteLists(list_base,128);
 			glDeleteTextures(128,textures);
-			delete [] textures;
+			SAFE_DELETE_ARRAY(textures);
 		}
 
 		/// A fairly straight forward function that pushes

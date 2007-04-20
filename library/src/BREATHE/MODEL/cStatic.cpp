@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 
+// Breathe
+#include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
 

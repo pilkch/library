@@ -11,6 +11,7 @@
 #include <ode/ode.h>
 
 
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -72,32 +73,19 @@ namespace BREATHE
 			bBody=true;
 			bDynamic=true;
 
-			body=0;
-			geom=0;
+			body=NULL;
+			geom=NULL;
 
 			
 
 			fWeight=1.0f;
-			fRadius=0.5f;
+			fRadius=2.0f;
 
 
 
 			p[0]=0;
 			p[1]=0;
 			p[2]=0;
-			
-			r[0]=0;
-			r[1]=0;
-			r[2]=0;
-			r[3]=0;
-			r[4]=0;
-			r[5]=0;
-			r[6]=0;
-			r[7]=0;
-			r[8]=0;
-			r[9]=0;
-			r[10]=0;
-			r[11]=0;
 
 			v[0]=0;
 			v[1]=0;
@@ -110,7 +98,15 @@ namespace BREATHE
 
 		cPhysicsObject::~cPhysicsObject()
 		{
+			if(geom) {
+				dGeomDestroy(geom);
+				geom = NULL;
+			}
 
+			if(bBody) {
+        dBodyDestroy(body);
+				body = NULL;
+			}
 		}
 		
 		void cPhysicsObject::SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies)
@@ -161,7 +157,43 @@ namespace BREATHE
 		
 		void cPhysicsObject::CreateSphere(MATH::cVec3 pos, MATH::cVec3 rot)
 		{
+			pos.z+=fHeight;
 
+			m.LoadIdentity();
+			m.SetRotationZ(rot.z*MATH::cPI_DIV_180);
+
+			dMatrix3 r;
+			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
+			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
+			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
+
+			m.SetTranslation(pos);
+
+			p=pos;
+			
+			if(bDynamic)
+        geom = dCreateSphere(PHYSICS::spaceDynamic, fRadius);
+			else
+        geom = dCreateSphere(PHYSICS::spaceStatic, fRadius);
+
+			dGeomSetPosition(geom, p.x, p.y, p.z);
+			dGeomSetRotation(geom, r);
+
+			if(bBody)
+			{
+				body = dBodyCreate(PHYSICS::world);
+				dBodySetPosition(body, p.x, p.y, p.z);
+				dBodySetRotation(body, r);
+				dBodySetAutoDisableFlag(body, 1);
+
+				dGeomSetBody(geom, body);
+
+
+				dMass mass;
+				dMassSetSphere (&mass, 1, fRadius);
+				dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
+				dBodySetMass(body, &mass);
+			}
 		}
 
 		void cPhysicsObject::CreateTrimesh(MATH::cVec3 pos, MATH::cVec3 rot)
@@ -341,10 +373,6 @@ namespace BREATHE
 		void cPhysicsObject::UpdateComponents()
 		{
 			p=m.GetPosition();
-
-			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
 		}
 	}
 }

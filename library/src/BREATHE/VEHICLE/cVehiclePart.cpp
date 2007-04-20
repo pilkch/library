@@ -12,6 +12,7 @@
 #include <ODE/ode.h>
 
 
+#include <BREATHE/cBreathe.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
