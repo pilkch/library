@@ -947,13 +947,14 @@ namespace BREATHE
 							cLevelModel* pModel = new cLevelModel();
 							vModel.push_back(pModel);
 
-							pModel->sFilename = sPath + "/mesh.3ds";
-							
 							// Pre load the mesh for this model
-							pModel->pModel = pLevel->AddModel(pModel->sFilename);
+							pModel->pModel = pLevel->AddModel(sPath + "/mesh.3ds");
 
-							p->GetAttribute("position", &pModel->v3Position);
-							p->GetAttribute("position", &pModel->v3Rotation);
+							p->GetAttribute("position", &pModel->p);
+
+							MATH::cVec3 v;
+							if(p->GetAttribute("position", &v))
+                pModel->m.SetTranslation(v);
 						}
 
 						p=p->Next("model");
@@ -1000,13 +1001,17 @@ namespace BREATHE
 
 		uiTriangles+=pLevel->RenderStaticModel(pLevel->GetModel(sFilename + "mesh.3ds"), MATH::cVec3(0.0f, 0.0f, 0.0f));
 
-		unsigned int n = vModel.size();
-		for(unsigned int i = 0; i < n; i++)
+		std::vector<BREATHE::cLevelModel*>::iterator iter = vModel.begin();
+		std::vector<BREATHE::cLevelModel*>::iterator end = vModel.end();
+		
+		while(end != iter)
 		{
-			//glPushMatrix();
-			//	glMultMatrixf(()->m);
-				uiTriangles+=pLevel->RenderStaticModel(vModel[i]->pModel, vModel[i]->v3Position);
-			//glPopMatrix();
+			glPushMatrix();
+				glMultMatrixf((*iter)->m);
+				uiTriangles+=pLevel->RenderStaticModel((*iter)->pModel, MATH::cVec3(0.0f, 0.0f, 0.0f));
+			glPopMatrix();
+
+			iter++;
 		}
 
 		return uiTriangles;

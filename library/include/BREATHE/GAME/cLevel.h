@@ -28,15 +28,15 @@ namespace BREATHE
 
 
 
-	class cLevelModel
+	class cLevelModel : public cObject
 	{
 	public:
-		std::string sFilename;
-
-		MATH::cVec3 v3Position;
-		MATH::cVec3 v3Rotation;
-
 		MODEL::cStatic* pModel;
+
+		void Update(float fCurrentTime)
+		{
+			
+		}
 	};
 
 	class cLevelCubemap

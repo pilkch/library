@@ -307,29 +307,16 @@ namespace BREATHE
 		{
 			if(bDynamic)
 			{
+				dReal *p0;
+				dReal *r0;
+
 				if(bBody)
 				{
-					const dReal *p0=dBodyGetPosition(body);
-					const dReal *r0=dBodyGetRotation(body);
+					p0=const_cast<dReal*>(dBodyGetPosition(body));
+					r0=const_cast<dReal*>(dBodyGetRotation(body));
 					const dReal *v0=dBodyGetLinearVel(body);
 					//const dReal *a0=dBodyGetAngularVel(body);
 					
-					m[0]  =     r0[0];
-					m[1]  =     r0[4];
-					m[2]  =     r0[8];
-					m[3]  =     0;
-					m[4]  =     r0[1];
-					m[5]  =     r0[5];
-					m[6]  =     r0[9];
-					m[7]  =     0;
-					m[8]  =     r0[2];
-					m[9]  =     r0[6];
-					m[10] =     r0[10];
-					m[11] =     0;
-					m[12] =     p0[0];
-					m[13] =     p0[1];
-					m[14] =     p0[2];
-					m[15] =     1;
 
 					v[0]=v0[0];
 					v[1]=v0[1];
@@ -337,34 +324,31 @@ namespace BREATHE
 				}
 				else
 				{
-					const dReal *p0=dGeomGetPosition(geom);
-					const dReal *r0=dGeomGetRotation(geom);
-					//const dReal *v0=dGeomGetLinearVel(geom);
-					//const dReal *a0=dGeomGetAngularVel(geom);
-
-					
-					m[0]  =     r0[0];
-					m[1]  =     r0[4];
-					m[2]  =     r0[8];
-					m[3]  =     0;
-					m[4]  =     r0[1];
-					m[5]  =     r0[5];
-					m[6]  =     r0[9];
-					m[7]  =     0;
-					m[8]  =     r0[2];
-					m[9]  =     r0[6];
-					m[10] =     r0[10];
-					m[11] =     0;
-					m[12] =     p0[0];
-					m[13] =     p0[1];
-					m[14] =     p0[2];
-					m[15] =     1;
+					p0=const_cast<dReal*>(dGeomGetPosition(geom));
+					r0=const_cast<dReal*>(dGeomGetRotation(geom));
 
 					//Trimeshes are static for the moment
 					v[0]=0.0f;
 					v[1]=0.0f;
 					v[2]=0.0f;
 				}
+
+				m[0]  =     r0[0];
+				m[1]  =     r0[4];
+				m[2]  =     r0[8];
+				m[3]  =     0;
+				m[4]  =     r0[1];
+				m[5]  =     r0[5];
+				m[6]  =     r0[9];
+				m[7]  =     0;
+				m[8]  =     r0[2];
+				m[9]  =     r0[6];
+				m[10] =     r0[10];
+				m[11] =     0;
+				m[12] =     p0[0];
+				m[13] =     p0[1];
+				m[14] =     p0[2];
+				m[15] =     1;
 			}
 
 			UpdateComponents();

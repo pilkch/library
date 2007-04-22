@@ -58,8 +58,7 @@ namespace BREATHE
 				return false;
 			}
 
-			template <>
-        bool GetAttribute(std::string sAttribute, std::string* pValue)
+			bool GetAttribute(std::string sAttribute, std::string* pValue)
 			{
 				std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
@@ -72,8 +71,7 @@ namespace BREATHE
 				return false;
 			}
 			
-			template <>
-				bool GetAttribute(std::string sAttribute, bool* pValue)
+			bool GetAttribute(std::string sAttribute, bool* pValue)
 			{
 				std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
@@ -89,17 +87,23 @@ namespace BREATHE
 				return false;
 			}
 
-			template <>
-				bool GetAttribute(std::string sAttribute, MATH::cVec3* pValue)
+			bool GetAttribute(std::string sAttribute, MATH::cVec3* pValue)
 			{
 				std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
 				{
 					if(pValue)
 					{
+						char c;
 						std::stringstream stm(iter->second);
+						stm >> std::skipws;
+
 						stm >> pValue->x;
+						stm >> c;
+
 						stm >> pValue->y;
+						stm >> c;
+
 						stm >> pValue->z;
 					}
 					return true;
@@ -108,8 +112,7 @@ namespace BREATHE
 				return false;
 			}
 			
-			template <>
-				bool GetAttribute(std::string sAttribute, MATH::cColour* pValue)
+			bool GetAttribute(std::string sAttribute, MATH::cColour* pValue)
 			{
 				std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
