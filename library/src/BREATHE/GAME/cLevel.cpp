@@ -528,7 +528,7 @@ namespace BREATHE
 		return uiTriangles;
 	}
 
-	unsigned int cLevel::RenderVehicles(float fCurrentTime)
+	unsigned int cLevel::RenderVehicles(float fCurrentTime, VEHICLE::cVehicle *pOwnVehicle)
 	{
 		unsigned int uiTriangles=0;
 		VEHICLE::cVehicle *pVehicle=NULL;
@@ -538,42 +538,38 @@ namespace BREATHE
 		{
 			pVehicle=*iter;
 
-			glPushMatrix();
-				glMultMatrixf(pVehicle->m);
-				//if(bDebug)
-				//	uiTriangles+=RenderStaticModel(GetModel("data/props/static/test_carcubemap/mesh.3ds"), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
-				//else
+			if((NULL == pOwnVehicle) || (pVehicle != pOwnVehicle))
+			{
+				glPushMatrix();
+					glMultMatrixf(pVehicle->m);
 					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
-			glPopMatrix();
+				glPopMatrix();
 
 
+				glPushMatrix();
+					glMultMatrixf(pVehicle->lfWheel_->m);
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				glPopMatrix();
+				
+				glPushMatrix();
+					glMultMatrixf(pVehicle->lrWheel_->m);
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				glPopMatrix();
+				
+				
+				BREATHE::MATH::cMat4 r;
+				r.SetRotationZ(BREATHE::MATH::cPI);
 
-			pRender->SetMaterial();
+				glPushMatrix();
+					glMultMatrixf(pVehicle->rfWheel_->m*r);
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				glPopMatrix();
 
-			glPushMatrix();
-				glMultMatrixf(pVehicle->lfWheel_->m);
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
-			glPopMatrix();
-			
-			glPushMatrix();
-				glMultMatrixf(pVehicle->lrWheel_->m);
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
-			glPopMatrix();
-			
-			
-			BREATHE::MATH::cMat4 r;
-			r.SetRotationZ(BREATHE::MATH::cPI);
-
-			glPushMatrix();
-				glMultMatrixf(pVehicle->rfWheel_->m*r);
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
-			glPopMatrix();
-
-			glPushMatrix();
-				glMultMatrixf(pVehicle->rrWheel_->m*r);
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
-			glPopMatrix();
-
+				glPushMatrix();
+					glMultMatrixf(pVehicle->rrWheel_->m*r);
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				glPopMatrix();
+			}
 
 			iter++;
 		};
@@ -826,14 +822,18 @@ namespace BREATHE
 							glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
 						}
 					else if(pRender->bCubemap)
-						pLog->Error("RenderStaticModel", "Invalid texture unit count " + pRender->uiActiveUnits);
+					{
+						std::ostringstream t;
+						t << pRender->uiActiveUnits;
+						pLog->Error("RenderStaticModel", "Invalid texture unit count " + t.str());
+					}
 					
 				glEnd();
 
 		}
 
 		if(bUseColour)
-			pRender->SetColour();
+			pRender->ClearColour();
 		
 		return uiTriangles;
 	}

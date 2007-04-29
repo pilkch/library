@@ -41,6 +41,7 @@
 
 #include <BREATHE/VEHICLE/cPart.h>
 #include <BREATHE/VEHICLE/cVehicle.h>
+#include <BREATHE/VEHICLE/cSeat.h>
 
 namespace BREATHE
 {
@@ -84,11 +85,12 @@ namespace BREATHE
 	{
 		if(PLAYER_STATE_DRIVE == uiState)
 		{
-			
+			p = pSeat->pVehicle->m.GetPosition();
+			//m.SetTranslationPart(pSeat->pVehicle->m.GetPosition());
 		}
 		else if(PLAYER_STATE_PASSENGER == uiState)
 		{
-			
+			//m.SetTranslationPart(pSeat->pVehicle->m.GetPosition());
 		}
 		else
 		{

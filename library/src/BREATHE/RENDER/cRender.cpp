@@ -333,8 +333,6 @@ namespace BREATHE
 
 			glMultMatrixf(pCamera->m);
 
-			SetColour();
-
 			if(bRenderWireframe)
 				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 			else
@@ -348,14 +346,20 @@ namespace BREATHE
 			}
 			else
 				glDisable(GL_LIGHTING);
+
+			ClearColour();
+			ClearMaterial();
+
+			uiTextureModeChanges = uiTextureChanges = 0;
 		}
 
 		void cRender::BeginHUD(float fCurrentTime)
 		{
-			SetColour();
-
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 			glDisable(GL_LIGHTING);
+			
+			ClearColour();
+			ClearMaterial();
 		}
 
 		void cRender::EndFrame()
@@ -951,25 +955,29 @@ namespace BREATHE
 			return (atan((b.y-a.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 270.0f) * MATH::c180_DIV_PI;
 		}
 
-		bool cRender::SetMaterial()
+		bool cRender::ClearMaterial()
 		{
 			unsigned int i=0;
 			unsigned int n=0;
 			unsigned int unit=GL_TEXTURE0;
 
+			MATERIAL::cLayer* layerOld;
+
 			for(i=n;i<MATERIAL::nLayers;i++, unit++)
 			{
+				layerOld = &vLayer[i];
+
 				//Activate the current texture unit
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if(TEXTURE_MASK==vLayer[i].uiTextureMode || TEXTURE_BLEND==vLayer[i].uiTextureMode)
+				if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 					glBlendFunc(GL_ONE, GL_ZERO);
 					glDisable(GL_BLEND);
 				}
-				else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
 					glMatrixMode(GL_TEXTURE);
 					glPopMatrix();
@@ -989,7 +997,7 @@ namespace BREATHE
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 				//Set the current mode and texture
-				vLayer[i].uiTextureMode=TEXTURE_NONE;
+				layerOld->uiTextureMode=TEXTURE_NONE;
 			}
 
 			glActiveTexture(GL_TEXTURE0);
@@ -1001,12 +1009,12 @@ namespace BREATHE
 			if(bCanShader)
         glUseProgram(NULL);
 
-			SetColour();
+			ClearColour();
 
 			return true;
 		}
 
-		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3 pos, cCamera &camera)
+		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos, cCamera &camera)
 		{
 			if(pMaterial == NULL)
 			{
@@ -1020,45 +1028,59 @@ namespace BREATHE
 				return true;
 			}
 
+			uiTextureModeChanges++;
+			//uiTextureChanges
+
 			unsigned int i=0;
 			unsigned int n=MATERIAL::nLayers;
 			unsigned int unit=0;
 
-			std::vector<MATERIAL::cLayer>vNewLayer;
+			MATERIAL::cLayer* layerOld;
+			MATERIAL::cLayer* layerNew;
 
 			for(i=0;i<n;i++)
-				if((TEXTURE_NONE!=pMaterial->vLayer[i]->uiTextureMode && TEXTURE_CUBEMAP!=pMaterial->vLayer[i]->uiTextureMode) ||
-					(TEXTURE_CUBEMAP==pMaterial->vLayer[i]->uiTextureMode && bCubemap))
-						vNewLayer.push_back(*pMaterial->vLayer[i]);
+			{
+				layerNew = pMaterial->vLayer[i];
 
-			if(0==n)
-				pLog->Error("Render", "here");
+				if(	TEXTURE_NONE==layerNew->uiTextureMode || 
+						(TEXTURE_CUBEMAP==layerNew->uiTextureMode && !bCubemap))
+						n = i;
 
-			n=vNewLayer.size();
+				//if((TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_CUBEMAP!=layerNew->uiTextureMode) ||
+				//	(TEXTURE_CUBEMAP==layerNew->uiTextureMode && bCubemap))
+				//		n = i;
+			}
+
+			if(0 == n)
+				pLog->Error("Render", "No layers to render");
+
 			uiActiveUnits=n;
 
 			unit=GL_TEXTURE0;
 			
 			for(i=0;i<n;i++, unit++)
 			{
+				layerNew = pMaterial->vLayer[i];
+				layerOld = &vLayer[i];
+
 				//If this is a cubemap, set the material texture to the cubemap before we get there
-				if(TEXTURE_CUBEMAP==vNewLayer[i].uiTextureMode)
-					vNewLayer[i].uiTexture=pLevel->FindClosestCubeMap(pos)->uiTexture;
+				if(TEXTURE_CUBEMAP==layerNew->uiTextureMode)
+					layerNew->uiTexture=pLevel->FindClosestCubeMap(pos)->uiTexture;
 
 				//Activate the current texture unit
 				glActiveTexture(unit);
 
 				//Different mode, probably means different texture, change mode and bind it anyway
-				if(vLayer[i].uiTextureMode!=vNewLayer[i].uiTextureMode)
+				if(layerOld->uiTextureMode!=layerNew->uiTextureMode)
 				{
 					//Undo last mode
-					if(TEXTURE_MASK==vLayer[i].uiTextureMode || TEXTURE_BLEND==vLayer[i].uiTextureMode)
+					if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
 					{
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glBlendFunc(GL_ONE, GL_ZERO);
 						glDisable(GL_BLEND);
 					}
-					else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
 						glMatrixMode(GL_TEXTURE);
 						glPopMatrix();
@@ -1078,42 +1100,42 @@ namespace BREATHE
 					}
 
 					//Set the current mode and texture
-					vLayer[i].uiTextureMode=vNewLayer[i].uiTextureMode;
-					vLayer[i].uiTexture=vNewLayer[i].uiTexture;
+					layerOld->uiTextureMode=layerNew->uiTextureMode;
+					layerOld->uiTexture=layerNew->uiTexture;
 
-					if(TEXTURE_NONE==vLayer[i].uiTextureMode)
+					if(TEXTURE_NONE==layerOld->uiTextureMode)
 						glDisable(GL_TEXTURE_2D);
-					else if(TEXTURE_NORMAL==vLayer[i].uiTextureMode)
+					else if(TEXTURE_NORMAL==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 					}
-					else if(TEXTURE_MASK==vLayer[i].uiTextureMode)
+					else if(TEXTURE_MASK==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_BLEND==vLayer[i].uiTextureMode)
+					else if(TEXTURE_BLEND==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
 						//Assume we got one we shouldn't be here if we didn't
 						//It is possible if there are NO cubemaps in the whole level,
 						//so make sure we load one already
 						glDisable(GL_TEXTURE_2D);
 						glEnable(GL_TEXTURE_CUBE_MAP);
-						glBindTexture(GL_TEXTURE_CUBE_MAP, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_CUBE_MAP, layerOld->uiTexture);
 
 						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
@@ -1161,7 +1183,7 @@ namespace BREATHE
 					else
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 					}
 
 					if(0==unit)
@@ -1187,25 +1209,26 @@ namespace BREATHE
 				// **************************************************************************************
 				// **************************************************************************************
 				//Same Mode, just change texture
-				else if(vLayer[i].uiTexture!=vNewLayer[i].uiTexture)
+				else if(layerOld->uiTexture!=layerNew->uiTexture)
 				{
-					if(TEXTURE_MASK==vLayer[i].uiTextureMode)
+					uiTextureChanges++;
+					if(TEXTURE_MASK==layerOld->uiTextureMode)
 					{
-						vLayer[i].uiTexture=vNewLayer[i].uiTexture;
-						glBindTexture(GL_TEXTURE_2D, vNewLayer[i].uiTexture);
+						layerOld->uiTexture=layerNew->uiTexture;
+						glBindTexture(GL_TEXTURE_2D, layerNew->uiTexture);
 					}
-					else if(TEXTURE_BLEND==vLayer[i].uiTextureMode)
+					else if(TEXTURE_BLEND==layerOld->uiTextureMode)
 					{
-						vLayer[i].uiTexture=vNewLayer[i].uiTexture;
-						glBindTexture(GL_TEXTURE_2D, vNewLayer[i].uiTexture);
+						layerOld->uiTexture=layerNew->uiTexture;
+						glBindTexture(GL_TEXTURE_2D, layerNew->uiTexture);
 
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
-						vLayer[i].uiTexture=vNewLayer[i].uiTexture;
+						layerOld->uiTexture=layerNew->uiTexture;
 
 						cTexture *t=pLevel->FindClosestCubeMap(pos);
 
@@ -1235,46 +1258,46 @@ namespace BREATHE
 
 					
 					//Set the current mode and texture
-					vLayer[i].uiTextureMode=vNewLayer[i].uiTextureMode;
-					vLayer[i].uiTexture=vNewLayer[i].uiTexture;
+					layerOld->uiTextureMode=layerNew->uiTextureMode;
+					layerOld->uiTexture=layerNew->uiTexture;
 
 
 
 
 					
-					if(TEXTURE_NONE==vLayer[i].uiTextureMode)
+					if(TEXTURE_NONE==layerOld->uiTextureMode)
 						glDisable(GL_TEXTURE_2D);
-					else if(TEXTURE_NORMAL==vLayer[i].uiTextureMode)
+					else if(TEXTURE_NORMAL==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 					}
-					else if(TEXTURE_MASK==vLayer[i].uiTextureMode)
+					else if(TEXTURE_MASK==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_BLEND==vLayer[i].uiTextureMode)
+					else if(TEXTURE_BLEND==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
 						//Assume we got one we shouldn't be here if we didn't
 						//It is possible if there are NO cubemaps in the whole level,
 						//so make sure we load one already
 						glDisable(GL_TEXTURE_2D);
 						glEnable(GL_TEXTURE_CUBE_MAP);
-						glBindTexture(GL_TEXTURE_CUBE_MAP, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_CUBE_MAP, layerOld->uiTexture);
 
 						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
@@ -1322,7 +1345,7 @@ namespace BREATHE
 					else
 					{
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, vLayer[i].uiTexture);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
 					}
 
 					if(0==unit)
@@ -1356,17 +1379,20 @@ namespace BREATHE
 
 			for(i=n;i<MATERIAL::nLayers;i++, unit++)
 			{
+				layerNew = pMaterial->vLayer[i];
+				layerOld = &vLayer[i];
+
 				//Activate the current texture unit
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if(TEXTURE_MASK==vLayer[i].uiTextureMode || TEXTURE_BLEND==vLayer[i].uiTextureMode)
+				if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 					glBlendFunc(GL_ONE, GL_ZERO);
 					glDisable(GL_BLEND);
 				}
-				else if(TEXTURE_CUBEMAP==vLayer[i].uiTextureMode)
+				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
 					glMatrixMode(GL_TEXTURE);
 					glPopMatrix();
@@ -1385,7 +1411,7 @@ namespace BREATHE
 				glDisable(GL_TEXTURE_2D);
 
 				//Set the current mode and texture
-				vLayer[i].uiTextureMode=TEXTURE_NONE;
+				layerOld->uiTextureMode=TEXTURE_NONE;
 			}
 
 
@@ -1512,22 +1538,6 @@ namespace BREATHE
 			};
 
 			return pMaterial;
-		}
-
-		void cRender::SetColour()
-		{
-			bActiveColour=false;
-
-			colour.SetBlack();
-			colour.a=1.0f;
-		}
-		
-		void cRender::SetColour(MATH::cColour inColour)
-		{
-			bActiveColour=true;
-
-			colour=inColour;
-			colour.a=1.0f;
 		}
 
 		void cRender::ReloadMaterials()

@@ -150,7 +150,7 @@ namespace BREATHE
 		void AddPhysicsObject(PHYSICS::cPhysicsObject *d);
 		void RemovePhysicsObject(PHYSICS::cPhysicsObject *d);
 
-		unsigned int RenderVehicles(float fCurrentTime);
+		unsigned int RenderVehicles(float fCurrentTime, VEHICLE::cVehicle *pOwnVehicle);
 		unsigned int RenderStaticModel(MODEL::cStatic *p, MATH::cVec3 pos, MATH::cColour colour=MATH::cColour(0.0f, 0.0f, 0.0f, 0.0f));
 
 		RENDER::cTexture *FindClosestCubeMap(MATH::cVec3 pos);

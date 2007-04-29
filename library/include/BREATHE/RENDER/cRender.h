@@ -72,6 +72,9 @@ namespace BREATHE
 
       int iMaxTextureSize;
 
+			unsigned int uiTextureChanges;
+			unsigned int uiTextureModeChanges;
+
 			MATH::cVec4 v3SunPosition;
 
 			std::vector<RENDER::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
@@ -151,16 +154,37 @@ namespace BREATHE
 
 			MATERIAL::cMaterial *AddMaterial(std::string sFilename);
 			MATERIAL::cMaterial *AddMaterialNotFoundMaterial(std::string sFilename);
-			bool SetMaterial();
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3 pos, cCamera &camera);
+			bool ClearMaterial();
+			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos, cCamera &camera);
 
-			void SetColour();
+			void ClearColour();
 			void SetColour(MATH::cColour inColour);
 
 			MATERIAL::cMaterial *GetMaterial(std::string sFilename);
 
 			void ReloadMaterials();
 		};
+
+		
+		inline void cRender::ClearColour()
+		{
+			bActiveColour=false;
+
+			colour.SetBlack();
+			colour.a=1.0f;
+
+			glColor4f(colour.r, colour.g, colour.b, colour.a);
+		}
+		
+		inline void cRender::SetColour(MATH::cColour inColour)
+		{
+			bActiveColour=true;
+
+			colour=inColour;
+			colour.a=1.0f;
+
+			glColor4f(colour.r, colour.g, colour.b, colour.a);
+		}
 	}
 }
 

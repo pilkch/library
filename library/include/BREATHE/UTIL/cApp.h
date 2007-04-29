@@ -23,7 +23,7 @@ namespace BREATHE
 
 		bool bReturnCode;
 
-		float dist, elev;
+		float dist;
 
 		UTIL::cTimer tPhysics;
 		UTIL::cTimer tUpdate;
