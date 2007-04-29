@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 
 // Breathe
 #include <BREATHE/cBreathe.h>

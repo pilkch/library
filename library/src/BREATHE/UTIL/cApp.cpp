@@ -44,6 +44,8 @@
 #include <BREATHE/MATH/cPlane.h>
 #include <BREATHE/MATH/cQuaternion.h>
 #include <BREATHE/MATH/cColour.h>
+#include <BREATHE/MATH/cOctree.h>
+
 
 #include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/MODEL/cMesh.h>

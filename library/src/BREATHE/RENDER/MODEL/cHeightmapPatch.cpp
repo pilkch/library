@@ -1,23 +1,15 @@
-#include <stdio.h>
-
-#include <math.h>
-
+#include <cstdio>
+#include <cmath>
 
 #include <vector>
 #include <map>
 
-
-
-
 #include <windows.h>
 #include <gl\gl.h>
 
-//#include <cCamera.h>
-
-
-
-
 #include <BREATHE/cBreathe.h>
+
+//#include <cCamera.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -426,17 +418,17 @@ namespace BREATHE
 					// We want to render triangle strips
 					//glBegin( GL_TRIANGLES);			
 
-					//SetFogCoord(g_FogDepth, p[0].y);
-					//SetTextureCoord(p[0].x, p[0].z);
-					glVertex3f(p[0].x, p[0].y, p[0].z);
+						//SetFogCoord(g_FogDepth, p[0].y);
+						//SetTextureCoord(p[0].x, p[0].z);
+						glVertex3f(p[0].x, p[0].y, p[0].z);
 
-					//SetFogCoord(g_FogDepth, p[1].y);
-					//SetTextureCoord(p[1].x, p[1].z);
-					glVertex3f(p[1].x, p[1].y, p[1].z);
+						//SetFogCoord(g_FogDepth, p[1].y);
+						//SetTextureCoord(p[1].x, p[1].z);
+						glVertex3f(p[1].x, p[1].y, p[1].z);
 
-					//SetFogCoord(g_FogDepth, p[2].y);
-					//SetTextureCoord(p[2].x, p[2].z);
-					glVertex3f(p[2].x, p[2].y, p[2].z);
+						//SetFogCoord(g_FogDepth, p[2].y);
+						//SetTextureCoord(p[2].x, p[2].z);
+						glVertex3f(p[2].x, p[2].y, p[2].z);
 					
 					// Stop rendering triangle strips
 					//glEnd();
