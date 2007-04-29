@@ -34,7 +34,7 @@
 #include <BREATHE/MATH/cOctree.h>
 #include <BREATHE/MATH/cColour.h>
 
-#include <BREATHE/RENDER/cCamera.h>
+
 
 
 /*#include <BREATHE/UTIL/cBase.h>
@@ -51,9 +51,9 @@
 #include <BREATHE/RENDER/cRender.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
 #include <BREATHE/GAME/cLevel.h>
 
@@ -119,7 +119,7 @@ namespace BREATHE
 			pCurrentMaterial=NULL;
 			pLevel=NULL;
 
-			pCamera=new cCamera();
+			pFrustum=new MATH::cFrustum();
 
 			unsigned int i=0;
 			for(i=0;i<nAtlas;i++)
@@ -138,8 +138,8 @@ namespace BREATHE
 		{
 			//TODO: Delete materials and shader objects and atlases etc.
 
-			pLog->Success("Delete", "Camera");
-			SAFE_DELETE(pCamera);
+			pLog->Success("Delete", "Frustum");
+			SAFE_DELETE(pFrustum);
 		}
 
 		bool cRender::FindExtension(std::string sExt)
@@ -321,17 +321,12 @@ namespace BREATHE
 			return BREATHE::BAD;
 		}
 		
-		void cRender::SetCamera(cCamera *c)
-		{
-			pCamera = c;
-		}
-
 		void cRender::BeginFrame(float fCurrentTime)
 		{
 			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 			glLoadIdentity();
 
-			glMultMatrixf(pCamera->m);
+			glMultMatrixf(pFrustum->m);
 
 			if(bRenderWireframe)
 				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
@@ -1014,7 +1009,7 @@ namespace BREATHE
 			return true;
 		}
 
-		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos, cCamera &camera)
+		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos)
 		{
 			if(pMaterial == NULL)
 			{
@@ -1153,8 +1148,8 @@ namespace BREATHE
 						glPushMatrix();
 						glLoadIdentity();
 						
-						float y=-Angle(MATH::cVec2(camera.eye.x, camera.eye.y), MATH::cVec2(camera.target.x, camera.target.y));
-						float x=-Angle(MATH::cVec2(camera.eye.y, camera.eye.z), MATH::cVec2(camera.target.y, camera.target.z));
+						float y=-Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
+						float x=-Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -1315,8 +1310,10 @@ namespace BREATHE
 						glPushMatrix();
 						glLoadIdentity();
 						
-						float y=-Angle(MATH::cVec2(camera.eye.x, camera.eye.y), MATH::cVec2(camera.target.x, camera.target.y));
-						float x=-Angle(MATH::cVec2(camera.eye.y, camera.eye.z), MATH::cVec2(camera.target.y, camera.target.z));
+						float y=-Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), 
+							MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
+						float x=-Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), 
+							MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);

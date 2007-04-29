@@ -37,7 +37,7 @@
 
 #include <BREATHE/UTIL/cFileSystem.h>
 
-#include <BREATHE/RENDER/cCamera.h>
+
 
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
@@ -45,9 +45,9 @@
 #include <BREATHE/RENDER/cRender.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
 #include <BREATHE/GAME/cLevel.h>
 

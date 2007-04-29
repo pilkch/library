@@ -26,8 +26,8 @@
 #include <BREATHE/UTIL/cLog.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>

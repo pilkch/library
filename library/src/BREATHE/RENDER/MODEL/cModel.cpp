@@ -32,7 +32,7 @@
 #include <BREATHE/MATH/cColour.h>
 
 
-#include <BREATHE/RENDER/cCamera.h>
+
 
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
@@ -40,21 +40,25 @@
 #include <BREATHE/RENDER/cRender.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
 
 namespace BREATHE
 {
-	namespace MODEL
+	namespace RENDER
 	{
-		cModel::cModel()
+		namespace MODEL
 		{
+			cModel::cModel()
+				:	cUpdateable()
+			{
 
-		}
+			}
 
-		cModel::~cModel()
-		{
+			cModel::~cModel()
+			{
 
+			}
 		}
 	}
 }

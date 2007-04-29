@@ -37,15 +37,15 @@
 #include <BREATHE/MATH/cColour.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
 
-#include <BREATHE/RENDER/cCamera.h>
+
 
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
@@ -79,7 +79,7 @@ namespace BREATHE
 	cLevel::~cLevel()
 	{
 		pLog->Success("Delete", "Static Mesh");
-		std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
+		std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
 		while(iter!=mStatic.end())
 		{
 			SAFE_DELETE(iter->second);
@@ -153,7 +153,10 @@ namespace BREATHE
 		// We don't have any spawns yet, add a default one
 		if(0==vSpawn.size()) {
 			pLog->Error("Level", "No spawns defined");
-			return BREATHE::BAD;
+			cLevelSpawn *p = new cLevelSpawn();
+			p->v3Position = MATH::cVec3(0.0f, 0.0f, 0.0f);
+			p->v3Rotation = MATH::cVec3(0.0f, 0.0f, 90.0f);
+			vSpawn.push_back(p);
 		}
 
 
@@ -174,14 +177,14 @@ namespace BREATHE
 
 	void cLevel::LoadNode(std::string sNewFilename)
 	{
-		MODEL::cStatic *p=AddModel("data/level/" + sNewFilename + "/mesh.3ds");
+		RENDER::MODEL::cStatic *p=AddModel("data/level/" + sNewFilename + "/mesh.3ds");
 		
 		if(p)
 		{
 			cLevelNode *pNode=new cLevelNode(this, "data/level/" + sNewFilename + "/");
 			pNode->Load();
 
-			
+			/*
 			unsigned int i=0;
 			unsigned int n=p->vCamera.size();
 			for(i=0;i<n;i++)
@@ -219,7 +222,7 @@ namespace BREATHE
 				pSpawn->v3Position=p->vCamera[i]->eye;
 				pLog->Error("Level", "Upate in 3ds and remove this");
 				pSpawn->v3Position.z=-1.5f;
-			}
+			}*/
 
 			vNode.push_back(pNode);
 		}
@@ -246,8 +249,8 @@ namespace BREATHE
 		RENDER::cTexture *t=NULL;
 		RENDER::MATERIAL::cMaterial *mat=NULL;
 
-		MODEL::cStatic *s=NULL;
-		MODEL::cMesh *m;
+		RENDER::MODEL::cStatic *s=NULL;
+		RENDER::MODEL::cMesh *m;
 		float *fTextureCoords=NULL;
 		unsigned int nMeshes=0;
 		unsigned int uiTriangles=0;
@@ -257,7 +260,7 @@ namespace BREATHE
 		unsigned int triangle=0;
 
 		//Transform uv texture coordinates
-		std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
+		std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
 		for(;iter!=mStatic.end();iter++)
 		{
 			pLog->Success("Transform", "UV " + iter->first);
@@ -332,7 +335,7 @@ namespace BREATHE
 
 
 		//Swap sub meshes around to optimise rendering
-		MODEL::cMesh *pTemp;
+		RENDER::MODEL::cMesh *pTemp;
 		unsigned int pass=0;
 		unsigned int i=0;
 		unsigned int uiMode0=0;
@@ -369,14 +372,14 @@ namespace BREATHE
 		pLog->Success("Level", "TransformModels returning");
 	}
 
-	MODEL::cStatic *cLevel::AddModel(std::string sNewfilename)
+	RENDER::MODEL::cStatic *cLevel::AddModel(std::string sNewfilename)
 	{
-		MODEL::cStatic *pModel=mStatic[sNewfilename];
+		RENDER::MODEL::cStatic *pModel=mStatic[sNewfilename];
 
 		if(pModel)
 			return pModel;
 		
-		pModel=new MODEL::cStatic();
+		pModel=new RENDER::MODEL::cStatic();
 
 		if(pModel->Load(sNewfilename))
 		{
@@ -393,9 +396,9 @@ namespace BREATHE
 		return NULL;
 	}
 
-	MODEL::cStatic *cLevel::GetModel(std::string sFilename)
+	RENDER::MODEL::cStatic *cLevel::GetModel(std::string sFilename)
 	{
-		MODEL::cStatic *pModel=mStatic[sFilename];
+		RENDER::MODEL::cStatic *pModel=mStatic[sFilename];
 		if(pModel)
 			return pModel;
 		
@@ -456,8 +459,8 @@ namespace BREATHE
 	void cLevel::Update(float fCurrentTime)
 	{
 		//TODO: Calculate the current nodes
-    unsigned int currentX=static_cast<unsigned int>(pRender->pCamera->target.x/fNodeWidth);
-    unsigned int currentY=static_cast<unsigned int>(pRender->pCamera->target.y/fNodeWidth);
+    unsigned int currentX=static_cast<unsigned int>(pRender->pFrustum->target.x/fNodeWidth);
+    unsigned int currentY=static_cast<unsigned int>(pRender->pFrustum->target.y/fNodeWidth);
 
 		{
 			std::list<PHYSICS::cPhysicsObject *>::iterator iter=pPhysics->GetObjectListBegin();
@@ -510,7 +513,7 @@ namespace BREATHE
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
 				
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>((*iter++)->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>((*iter++)->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 
 				//pRender->SetMaterial();
 			glPopMatrix();
@@ -542,18 +545,18 @@ namespace BREATHE
 			{
 				glPushMatrix();
 					glMultMatrixf(pVehicle->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
 				glPopMatrix();
 
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lfWheel_->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 				glPopMatrix();
 				
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lrWheel_->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 				glPopMatrix();
 				
 				
@@ -562,12 +565,12 @@ namespace BREATHE
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rfWheel_->m*r);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 				glPopMatrix();
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rrWheel_->m*r);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 				glPopMatrix();
 			}
 
@@ -632,7 +635,7 @@ namespace BREATHE
 	}
 
 
-	unsigned int cLevel::RenderStaticModel(MODEL::cStatic *p, MATH::cVec3 pos, MATH::cColour colour)
+	unsigned int cLevel::RenderStaticModel(RENDER::MODEL::cStatic *p, MATH::cVec3 pos, MATH::cColour colour)
 	{	
 		if(NULL==p)
 			return 0;
@@ -650,8 +653,8 @@ namespace BREATHE
 		unsigned int nMeshes=0;
 		unsigned int nTotalTriangles=0;
 
-		std::vector<MODEL::cMesh*> vMesh=p->vMesh;
-		MODEL::cMesh *m=NULL;
+		std::vector<RENDER::MODEL::cMesh*> vMesh=p->vMesh;
+		RENDER::MODEL::cMesh *m=NULL;
 
 		nMeshes=vMesh.size();
 
@@ -668,7 +671,7 @@ namespace BREATHE
 			
 			if(NULL == m->pMaterial)
 				m->pMaterial = pRender->GetMaterial(m->sMaterial);
-			pRender->SetMaterial(m->pMaterial, pos, *pRender->pCamera);
+			pRender->SetMaterial(m->pMaterial, pos);
 
 
 			/*glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertex_buf);

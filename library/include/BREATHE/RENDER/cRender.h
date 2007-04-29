@@ -91,14 +91,12 @@ namespace BREATHE
 
 
 
-			cCamera *pCamera;
+			MATH::cFrustum *pFrustum;
 
 			cRender();
 			~cRender();
 
 			bool Init();
-
-			void SetCamera(cCamera *c);
 
 			void BeginFrame(float fCurrentTime);
 			void BeginHUD(float fCurrentTime);
@@ -155,7 +153,7 @@ namespace BREATHE
 			MATERIAL::cMaterial *AddMaterial(std::string sFilename);
 			MATERIAL::cMaterial *AddMaterialNotFoundMaterial(std::string sFilename);
 			bool ClearMaterial();
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos, cCamera &camera);
+			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos);
 
 			void ClearColour();
 			void SetColour(MATH::cColour inColour);

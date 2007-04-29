@@ -45,11 +45,41 @@ namespace BREATHE
 			D = 3				// The distance the plane is from the origin
 		};
 
-		///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
-		/////
-		/////	This normalizes a plane (A side) from a given frustum.
-		/////
-		///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
+		
+		cFrustum::cFrustum()
+		{
+			target.x=0.0f;
+			target.y=0.0f;
+			target.z=0.0f;
+
+			eye.x=10.0f;
+			eye.y=0.0f;
+			eye.z=2.0f;
+
+			up.x=0.0f;
+			up.y=0.0f;
+			up.z=1.0f;
+
+
+			targetIdeal.x=0.0f;
+			targetIdeal.y=0.0f;
+			targetIdeal.z=0.0f;
+
+			eyeIdeal.x=10.0f;
+			eyeIdeal.y=0.0f;
+			eyeIdeal.z=2.0f;
+
+			upIdeal.x=0.0f;
+			upIdeal.y=0.0f;
+			upIdeal.z=1.0f;
+		}
+
+		cFrustum::~cFrustum()
+		{
+
+		}
+
+
 
 		void cFrustum::NormalizePlane(float frustum[6][4], int side)
 		{
@@ -88,39 +118,49 @@ namespace BREATHE
 		//
 		//-----------------------------------------------------------------------------
 
-		void cFrustum::update(cVec3 & newLook, cVec3 & newEye, cVec3 & newUp)
+		void cFrustum::Update()
 		{
-			look=newLook;
-			look.Normalize();
+			//float f=fabs(targetIdeal.GetLength()-targetIdeal.GetLength());
+			//if(f>1.0f)
+			//	f=0.01f;
+			target=target.lerp(targetIdeal, 0.05f);
+			eye=eye.lerp(eyeIdeal, 0.05f);
+			up=up.lerp(upIdeal, 0.05f);
 
-			eye=newEye;
+			m.LookAt(eye, target, up);
+
+
+			//target=newTarget;
+			//target.Normalize();
+
+			//eye=newEye;
 			
-			up=newUp;
+			//up=newUp;
 			
-			right=look.CrossProduct(up);
+			right=target.CrossProduct(up);
 			right.Normalize();
 
-			up=right.CrossProduct(look);
+			up=right.CrossProduct(target);
 			up.Normalize();
 
 			modl[0] =  right.x;
 			modl[1] =  up.x;
-			modl[2] = -look.x;
+			modl[2] = -target.x;
 			modl[3] =  0.0f;
 
 			modl[4] =  right.y;
 			modl[5] =  up.y;
-			modl[6] = -look.y;
+			modl[6] = -target.y;
 			modl[7] =  0.0f;
 
 			modl[8]  =  right.z;
 			modl[9]  =  up.z;
-			modl[10] = -look.z;
+			modl[10] = -target.z;
 			modl[11] =  0.0f;
 
 			modl[12] = -right.DotProduct(eye);
 			modl[13] = -up.DotProduct(eye);
-			modl[14] =  look.DotProduct(eye);
+			modl[14] =  target.DotProduct(eye);
 			modl[15] =  1.0f;
 
 

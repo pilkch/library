@@ -28,35 +28,38 @@
 #include <BREATHE/MATH/cColour.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
-#include <BREATHE/MODEL/cAnimation.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cAnimation.h>
 
 namespace BREATHE
 {
-	namespace MODEL
+	namespace RENDER
 	{
-		cAnimation::cAnimation() : cModel()
+		namespace MODEL
 		{
-			pLog->Error("Animation", "Don't use this class");
-		}
+			cAnimation::cAnimation() : cModel()
+			{
+				pLog->Error("Animation", "Don't use this class");
+			}
 
-		cAnimation::~cAnimation()
-		{
-			pLog->Error("Animation", "Don't use this class");
-		}		
-		
-		int cAnimation::Load(std::string sFilename)
-		{
-			pLog->Error("Animation", "Don't use this class");
+			cAnimation::~cAnimation()
+			{
+				pLog->Error("Animation", "Don't use this class");
+			}		
+			
+			int cAnimation::Load(std::string sFilename)
+			{
+				pLog->Error("Animation", "Don't use this class");
 
-			return 0;
-		}
+				return 0;
+			}
 
-		void cAnimation::Update(float fTime)
-		{
-			pLog->Error("Animation", "Don't use this class");
+			void cAnimation::Update(float fTime)
+			{
+				pLog->Error("Animation", "Don't use this class");
+			}
 		}
 	}
 }

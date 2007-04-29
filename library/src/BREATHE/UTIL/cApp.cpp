@@ -44,13 +44,14 @@
 #include <BREATHE/MATH/cPlane.h>
 #include <BREATHE/MATH/cQuaternion.h>
 #include <BREATHE/MATH/cColour.h>
+#include <BREATHE/MATH/cFrustum.h>
 #include <BREATHE/MATH/cOctree.h>
 
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
 
 #include <BREATHE/RENDER/cTexture.h>
@@ -58,7 +59,7 @@
 #include <BREATHE/RENDER/cMaterial.h>
 #include <BREATHE/RENDER/cRender.h>
 
-#include <BREATHE/RENDER/cCamera.h>
+
 
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>

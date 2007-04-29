@@ -4,9 +4,7 @@
 namespace BREATHE
 {
 	namespace MATH
-	{
-		class cFrustum;
-		
+	{		
 		// So we can tell which octant we are talking about
 		enum eOctreeNodes
 		{
@@ -23,7 +21,6 @@ namespace BREATHE
 		// This is our octree class
 		class cOctree
 		{
-			cFrustum * frustum;
 		public:
 			cOctree();
 			~cOctree();
@@ -62,17 +59,17 @@ namespace BREATHE
 			void CreateNewNode(cVec3 *pVertices,	std::vector<bool> pList, int numberOfVerts,
 				  				cVec3 vCenter,	float width,        int triangleCount, int nodeID);
 
-			// Once we are finished subdividing we need to assign the vertices to the end node.
-			void AssignVerticesToNode(cVec3 *pVertices, int numberOfVerts);
-
 			// This goes through each of the nodes and then draws the end nodes vertices.
 			// This function should be called by starting with the root node.
-			virtual unsigned int Render(cOctree *pNode)=0;
+			virtual unsigned int Render(cOctree *pNode) { return 0; }
 
 			// This initializes the data members
 			void create(cFrustum * newcFrustum);
 
-		private:
+
+			
+		public:
+			cFrustum * frustum;
 
 			// This tells us if we have divided this node into more sub nodes
 			bool m_bSubDivided;

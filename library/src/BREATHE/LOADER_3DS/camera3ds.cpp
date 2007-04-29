@@ -11,12 +11,13 @@
 
 #include <BREATHE/MATH/cVec3.h>
 #include <BREATHE/MATH/cMat4.h>
+#include <BREATHE/MATH/cFrustum.h>
 
 #include "BREATHE/LOADER_3DS/build3ds.h"
 
 
 
-#include <BREATHE/RENDER/cCamera.h>
+
 #include <BREATHE/LOADER_3DS/camera3ds.h>
 
 namespace BREATHE
@@ -39,7 +40,7 @@ namespace BREATHE
 		{
 			pLog->Success("3ds", "Camera");
 
-			RENDER::cCamera *p=new RENDER::cCamera();
+			MATH::cFrustum *p=new MATH::cFrustum();
 
 			p->eye.x=p->eyeIdeal.x= fScale * c.Float();
 			p->eye.y=p->eyeIdeal.y= fScale * c.Float();
@@ -52,7 +53,7 @@ namespace BREATHE
 			float bank_angle= fScale * c.Float();
 			float focus= fScale * c.Float();
 
-			vCamera.push_back(p);
+			//vCamera.push_back(p);
 		}
 	}
 }

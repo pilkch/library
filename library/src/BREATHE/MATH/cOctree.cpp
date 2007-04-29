@@ -22,34 +22,39 @@ namespace BREATHE
 	{
 		cOctree::cOctree()
 		{
+			m_bSubDivided = false;
+
 			g_CurrentSubdivision=0;
 			g_MaxSubdivisions=10;
 			g_MaxTriangles=2000;
 			g_EndNodeCount=0;
 			g_TotalNodesDrawn=0;
+			
+
+			m_pVertices = NULL;
+
+			m_pOctreeNodes[0] = NULL;
+			m_pOctreeNodes[1] = NULL;
+			m_pOctreeNodes[2] = NULL;
+			m_pOctreeNodes[3] = NULL;
+			m_pOctreeNodes[4] = NULL;
+			m_pOctreeNodes[5] = NULL;
+			m_pOctreeNodes[6] = NULL;
+			m_pOctreeNodes[7] = NULL;
 		}
 
 		cOctree::~cOctree()
 		{
-			// Free the triangle data if it's not NULL
-			if( m_pVertices )
-			{
-				delete m_pVertices;	
-				m_pVertices = NULL;
-			}
+			SAFE_DELETE(m_pVertices);
 
-			// Go through all of the nodes and free them if they were allocated
-			for(int i = 0; i < 8; i++)
-			{
-				// Make sure this node is valid
-				if(m_pOctreeNodes[i])
-				{
-					// Free this array index.  This will call the deconstructor which will
-					// free the octree data correctly.  This allows us to forget about it's clean up
-					delete m_pOctreeNodes[i];
-					m_pOctreeNodes[i] = NULL;
-				}
-			}
+			SAFE_DELETE(m_pOctreeNodes[0]);
+			SAFE_DELETE(m_pOctreeNodes[1]);
+			SAFE_DELETE(m_pOctreeNodes[2]);
+			SAFE_DELETE(m_pOctreeNodes[3]);
+			SAFE_DELETE(m_pOctreeNodes[4]);
+			SAFE_DELETE(m_pOctreeNodes[5]);
+			SAFE_DELETE(m_pOctreeNodes[6]);
+			SAFE_DELETE(m_pOctreeNodes[7]);
 		}
 
 		void cOctree::create(cFrustum * newFrustum)
@@ -433,80 +438,26 @@ namespace BREATHE
 			}
 			else
 			{
-				// If we get here we must either be subdivided past our max level, or our triangle
-				// count went below the minimum amount of triangles so we need to store them.
-				
-				// Assign the vertices to this node since we reached the end node.
-				// This will be the end node that actually gets called to be drawn.
-				// We just pass in the vertices and vertex count to be assigned to this node.
-				AssignVerticesToNode(pVertices, numberOfVerts);
+				// Store the triangles here
+
+				// Since we did not subdivide this node we want to set our flag to false
+				m_bSubDivided = false;
+
+				// Initialize the triangle count of this end node (total verts / 3 = total triangles)
+				m_TriangleCount = numberOfVerts / 3;
+
+				// Allocate enough memory to hold the needed vertices for the triangles
+				m_pVertices = new cVec3 [numberOfVerts];
+
+				// Initialize the vertices to 0 before we copy the data over to them
+				std::memset(m_pVertices, 0, sizeof(cVec3) * numberOfVerts);
+
+				// Copy the passed in vertex data over to our node vertice data
+				std::memcpy(m_pVertices, pVertices, sizeof(cVec3) * numberOfVerts);
+
+				// Increase the amount of end nodes created (Nodes with vertices stored)
+				g_EndNodeCount++;
 			}
 		}
-
-
-		//////////////////////////// ASSIGN VERTICES TO NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\*
-		/////
-		/////	This allocates memory for the vertices to assign to the current end node
-		/////
-		//////////////////////////// ASSIGN VERTICES TO NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\*
-
-		void cOctree::AssignVerticesToNode(cVec3 *pVertices, int numberOfVerts)
-		{
-			// Since we did not subdivide this node we want to set our flag to false
-			m_bSubDivided = false;
-
-			// Initialize the triangle count of this end node (total verts / 3 = total triangles)
-			m_TriangleCount = numberOfVerts / 3;
-
-			// Allocate enough memory to hold the needed vertices for the triangles
-			m_pVertices = new cVec3 [numberOfVerts];
-
-			// Initialize the vertices to 0 before we copy the data over to them
-			std::memset(m_pVertices, 0, sizeof(cVec3) * numberOfVerts);
-
-			// Copy the passed in vertex data over to our node vertice data
-			std::memcpy(m_pVertices, pVertices, sizeof(cVec3) * numberOfVerts);
-
-			// Increase the amount of end nodes created (Nodes with vertices stored)
-			g_EndNodeCount++;
-		}
-
-		/////////////////////////////////////////////////////////////////////////////////
-		//
-		// * QUICK NOTES * 
-		//
-		// This tutorial was an add on to the last octree tutorial which just showed us
-		// how to create an octree.  There wasn't a lot added, but the power that is provides
-		// is incredible.  We now have a functional octree that only draws the vertices in
-		// our view.  There are 2 things we added to this tutorial since the last:
-		// 
-		// 1) We added the frustum code (frustum.cpp and frustum.h).  This is all explained
-		// in our frustum tutorial on our site if you don't understand the code.  Once we
-		// create our global CFrustum object: g_Frustum, we just need to call this every frame:
-		// 
-		// g_Frustum.CalculateFrustum();
-		// 
-		// We only really need to call it when the camera moves but you can do those checks 
-		// yourself.  Then, once the frustum planes are calculated we can use this function to
-		// check if the end nodes are in our frustum:
-		//
-		// g_Frustum.CubeInFrustum(center.x, center.y, center.z, cubeWidth / 2);
-		// 
-		// That's it for the frustum!  Simple, yet wonderfully usefull.  We left in the sphere
-		// and point code in frustum.cpp from the frustum tutorial just so if you wanted to
-		// include the frustum.cpp file in your application/game you didn't have to copy and
-		// paste them back in.  Just ingore those for this tutorial though.
-		// 
-		// 2) Finally we added a counter (g_TotalNodesDrawn) to tell us how many of the end 
-		// nodes are being drawn.  This let's us know how well the octree is working.  You 
-		// can view this information in the window's title bar, along with the other subdivision 
-		// information.
-		//
-		// Hopefully by breaking the octree tutorial up into multiple parts it isn't so hard
-		// to digest.  The next tutorial will focus on reading in a real world with texture
-		// information, normals, etc...  Then you can actually use this code in a project.
-		// I also included the HTML octree tutorial with this tutorial as well just in case
-		// some people didn't want to download the first octree tutorial but wanted to get right
-		// to the good stuff.  This HTML file will explain in more detail the octree theory, etc...
 	}
 }

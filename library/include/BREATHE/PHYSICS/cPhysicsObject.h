@@ -20,7 +20,7 @@ namespace BREATHE
 			dBodyID body;
 			dGeomID geom;
 
-      MODEL::cModel *pModel;
+			RENDER::MODEL::cModel *pModel;
 
 
 			cPhysicsObject();

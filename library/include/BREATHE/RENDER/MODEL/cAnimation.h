@@ -3,19 +3,22 @@
 
 namespace BREATHE
 {
-	namespace MODEL
+	namespace RENDER
 	{
-		class cAnimation : public cModel
+		namespace MODEL
 		{
-		public:
-			cAnimation();
-			~cAnimation();
+			class cAnimation : public cModel
+			{
+			public:
+				cAnimation();
+				~cAnimation();
 
-			int Load(std::string sFilename);
-			void Update(float fTime);
-			
-			std::vector<cStatic*>vFrame; //A vector of all the statics in this model
-		};
+				int Load(std::string sFilename);
+				void Update(float fTime);
+				
+				std::vector<cStatic*>vFrame; //A vector of all the statics in this model
+			};
+		}
 	}
 }
 

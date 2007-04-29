@@ -25,11 +25,11 @@
 #include <BREATHE/MATH/cColour.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cMesh.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
-#include <BREATHE/RENDER/cCamera.h>
+
 #include <BREATHE/GAME/cLevel.h>
 
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
@@ -44,8 +44,8 @@
 #include <BREATHE/VEHICLE/cVehicle.h>
 
 #include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/MODEL/cModel.h>
-#include <BREATHE/MODEL/cStatic.h>
+#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <BREATHE/RENDER/MODEL/cStatic.h>
 
 #if (_MSC_VER >= 1300) && (WINVER < 0x0500)
 #pragma warning(disable:4305)
