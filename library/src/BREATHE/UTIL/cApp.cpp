@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -32,7 +33,6 @@
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
 #include <BREATHE/UTIL/cVar.h>
-#include <BREATHE/UTIL/cConsole.h>
 #include <BREATHE/UTIL/cXML.h>
 
 #include <BREATHE/UTIL/cTimer.h>
@@ -74,9 +74,6 @@ namespace BREATHE
 	{
     srand(time(NULL));
 
-		pLog=new cLog();
-		pLog->Init();
-
 		{
 			int i=1;
 			std::string s;
@@ -92,7 +89,7 @@ namespace BREATHE
 				s+=" " + std::string(argv[i]);
 			}
 
-			pLog->Success("Arguments", s);
+			LOG.Success("Arguments", s);
 		}
 		
 		pFileSystem=new cFileSystem();
@@ -105,8 +102,6 @@ namespace BREATHE
 		bStepPhysics=false;
 
 		bReturnCode=BREATHE::GOOD;
-
-		pConsole=new cConsole();
 
 		g_info=NULL;
 		
@@ -122,24 +117,22 @@ namespace BREATHE
 
 	cApp::~cApp()
 	{
-		pLog->Success("Delete", "Level");
+		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 
-		pLog->Success("Delete", "Physics");
+		LOG.Success("Delete", "Physics");
 		SAFE_DELETE(pPhysics);
 
-		pLog->Success("Delete", "Render");
+		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
 		
-		pLog->Success("Delete", "FileSystem");
+		LOG.Success("Delete", "FileSystem");
 		SAFE_DELETE(pFileSystem);
 		
-		pLog->Success("Delete", "Log");
+		LOG.Success("Delete", "Log");
 		
-		pLog->Success("Main", "Successfully exited");
-		pLog->Success("Main", "return " + bReturnCode);
-
-		SAFE_DELETE(pLog);
+		LOG.Success("Main", "Successfully exited");
+		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
 
 		TTF_Quit();
 
@@ -151,7 +144,7 @@ namespace BREATHE
 	bool cApp::Init()
 	{
 		{
-			pLog->Success("Init", "Loading config.xml");
+			LOG.Success("Init", "Loading config.xml");
 			BREATHE::XML::cNode pRoot("config.xml");
 
 			pRoot = *(pRoot.FindChild("config"));
@@ -176,7 +169,7 @@ namespace BREATHE
 					t.str("");
 					t<<"width = ";
 					t<<uiValue;
-					pLog->Success("Config", t.str());
+					LOG.Success("Config", t.str());
 					pRender->uiWidth = uiValue;
 				}
 				if(p->GetAttribute("height", &uiValue))
@@ -184,7 +177,7 @@ namespace BREATHE
 					t.str("");
 					t<<"height = ";
 					t<<uiValue;
-					pLog->Success("Config", t.str());
+					LOG.Success("Config", t.str());
 					pRender->uiHeight = uiValue;
 				}
 				if(p->GetAttribute("depth", &uiValue))
@@ -192,14 +185,14 @@ namespace BREATHE
 					t.str("");
 					t<<"depth = ";
 					t<<uiValue;
-					pLog->Success("Config", t.str());
+					LOG.Success("Config", t.str());
 					pRender->uiDepth = uiValue;
 				}
 
 				bool bFullscreen;
 				if(p->GetAttribute("fullscreen", &bFullscreen))
 				{
-					pLog->Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
+					LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
 					pRender->bFullscreen = bFullscreen;
 				}
 
@@ -212,7 +205,7 @@ namespace BREATHE
 		// Init SDL 
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_JOYSTICK) < 0 )
 		{
-			pLog->Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
+			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
@@ -226,7 +219,7 @@ namespace BREATHE
 
 			if(nJoysticks)
 			{
-				pLog->Success("SDL", t.str());
+				LOG.Success("SDL", t.str());
 				SDL_JoystickEventState(SDL_ENABLE);
 
 				for(int i=0; i < nJoysticks; i++ ) 
@@ -236,7 +229,7 @@ namespace BREATHE
 					t << i;
 					t << ") ";
 					t << SDL_JoystickName(i);
-					pLog->Success("SDL", t.str());
+					LOG.Success("SDL", t.str());
 
 					//TODO: Create a list of joysticks, close them at the end of the program
 					SDL_Joystick *joystick = SDL_JoystickOpen(i);
@@ -250,7 +243,7 @@ namespace BREATHE
 					t << SDL_JoystickNumHats(joystick);
 					t << ", Balls=";
 					t << SDL_JoystickNumBalls(joystick);
-					pLog->Success("SDL", t.str());
+					LOG.Success("SDL", t.str());
 
 					// ...
 
@@ -259,7 +252,7 @@ namespace BREATHE
 				}
 			}
 			else
-        pLog->Error("SDL", t.str());
+        LOG.Error("SDL", t.str());
 
 			/*if(nJoysticks)
 			{
@@ -338,57 +331,10 @@ namespace BREATHE
 		}
 
 		std::string s = (STRING::ToLower(sTitle) + ".ico");
-		pLog->Success("SDL", "Setting caption to " + s);
+		LOG.Success("SDL", "Setting caption to " + s);
 		SDL_WM_SetCaption(sTitle.c_str(), s.c_str());
 
-		// Fetch the video info 
-		videoInfo = SDL_GetVideoInfo( );
-
-		if ( !videoInfo )
-		{
-			pLog->Error("SDL", std::string("Video query failed: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
-		}
-
-		
-		
-		if(pRender->bFullscreen)
-			pRender->uiFlags |= SDL_FULLSCREEN;
-
-		// This checks to see if surfaces can be stored in memory 
-		if ( videoInfo->hw_available )
-			pRender->uiFlags |= SDL_HWSURFACE;
-		else
-		{
-			pRender->uiFlags |= SDL_SWSURFACE;
-			pLog->Error("SDL", "SOFTWARE SURFACE");
-		}
-
-		// This checks if hardware blits can be done 
-		if ( videoInfo->blit_hw )
-			pRender->uiFlags |= SDL_HWACCEL;
-		else
-			pLog->Error("SDL", "SOFTWARE BLIT");
-
-		// Sets up OpenGL double buffering 
-		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-		// get a SDL surface 
-		surface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
-
-		// Verify there is a surface 
-		if(!surface)
-		{
-			pLog->Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
-		}
-
-		if(BREATHE::BAD==ResizeWindow(pRender->uiWidth, pRender->uiHeight))
-			return BREATHE::BAD;
-
-		if(BREATHE::BAD==pRender->Init())
+		if(BREATHE::BAD==InitRender())
 			return BREATHE::BAD;
 
 		TTF_Init();
@@ -402,49 +348,106 @@ namespace BREATHE
 		return BREATHE::GOOD;
 	}
 
-	
-	bool cApp::ToggleFullscreen()
+	bool cApp::InitRender()
 	{
-		DestroyTextures();
+		// Fetch the video info 
+		videoInfo = SDL_GetVideoInfo( );
 
+		if ( !videoInfo )
+		{
+			LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
+			bReturnCode=BREATHE::BAD;
+			return BREATHE::BAD;
+		}
+		
 		if(pRender->bFullscreen)
 		{
-			pRender->uiFlags &= ~(SDL_FULLSCREEN);
-			pRender->bFullscreen = false;
+			LOG.Success("App", "Going to fullscreen");
+			pRender->uiFlags |= SDL_FULLSCREEN;
 		}
 		else
 		{
-			pRender->uiFlags |= SDL_FULLSCREEN;
-			pRender->bFullscreen = true;
+			LOG.Success("App", "Going to windowed");
+			pRender->uiFlags &= ~SDL_FULLSCREEN;
 		}
 
-
-		surface=SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
-
-		if(surface)
+		// This checks to see if surfaces can be stored in memory 
+		if ( videoInfo->hw_available )
 		{
-			if(pRender->bFullscreen)
-			{
-				pLog->Newline();
-				pLog->Success("SDL", "Changed to fullscreen");
-			}
-			else
-			{
-				pLog->Newline();
-				pLog->Success("SDL", "Changed to windowed");
-			}
-
-			pRender->Init();
-			LoadTextures();
-
-			return BREATHE::GOOD;
+			pRender->uiFlags |= SDL_HWSURFACE;
+			pRender->uiFlags &= ~SDL_SWSURFACE;
+		}
+		else
+		{
+			pRender->uiFlags |= SDL_SWSURFACE;
+			pRender->uiFlags &= ~SDL_HWSURFACE;
+			LOG.Error("SDL", "SOFTWARE SURFACE");
 		}
 
-		pLog->Error("SDL", std::string("Could not get a surface after toggle full screen: ") + SDL_GetError());
+		// This checks if hardware blits can be done 
+		if ( videoInfo->blit_hw )
+			pRender->uiFlags |= SDL_HWACCEL;
+		else
+		{
+			pRender->uiFlags &= ~SDL_HWACCEL;
+			LOG.Error("SDL", "SOFTWARE BLIT");
+		}
 
-		bReturnCode=BREATHE::BAD;
+		// Sets up OpenGL double buffering 
+		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+		// get a SDL surface 
+		surface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
+
+		// Verify there is a surface 
+		if(!surface)
+		{
+			LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
+			bReturnCode=BREATHE::BAD;
+			return BREATHE::BAD;
+		}
+
+		if(BREATHE::BAD==ResizeWindow(pRender->uiWidth, pRender->uiHeight))
+			return BREATHE::BAD;
+
+		if(BREATHE::BAD==pRender->Init())
+			return BREATHE::BAD;
+
+		return BREATHE::GOOD;
+	}
+
+	bool cApp::DestroyRender()
+	{
+		SDL_FreeSurface(surface);
+
+		surface = NULL;
+
+		return BREATHE::GOOD;
+	}
+	
+	bool cApp::ToggleFullscreen()
+	{	
+		// Destroy the old render
+		if(BREATHE::BAD==DestroyRender())
+		{
+			bReturnCode=BREATHE::BAD;
+			return BREATHE::BAD;
+		}
+
+		// Toggle fullscreen
+		pRender->bFullscreen = !pRender->bFullscreen;
+
+
+		// Create the new render
+		if(BREATHE::BAD==InitRender())
+		{
+			bReturnCode=BREATHE::BAD;
+			return BREATHE::BAD;
+		}
+
+		pRender->ReloadTextures();
 		
-		return BREATHE::BAD;		
+		return BREATHE::GOOD;		
 	}
 
 	cVar *cApp::VarFind(std::string name)
@@ -497,7 +500,7 @@ namespace BREATHE
 		surface = SDL_SetVideoMode(w, h, pRender->uiDepth, pRender->uiFlags);
 		if ( !surface )
 		{
-			pLog->Error("SDL", std::string("Could not get a surface after resize: ") + SDL_GetError());
+			LOG.Error("SDL", std::string("Could not get a surface after resize: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
@@ -545,9 +548,9 @@ namespace BREATHE
 					{
 						bActive=event.active.gain != 0;
 						if(bActive)
-							pLog->Success("Active", "Active");
+							LOG.Success("Active", "Active");
 						else
-							pLog->Error("Active", "Inactive");
+							LOG.Error("Active", "Inactive");
 					}
 					break;
 				case SDL_VIDEORESIZE:
@@ -566,7 +569,7 @@ namespace BREATHE
 
 					break;
 				case SDL_QUIT:
-					pLog->Success("SDL", "SDL_Quit: Quiting");
+					LOG.Success("SDL", "SDL_Quit: Quiting");
 					bDone=true;
 
 					break;
@@ -699,48 +702,48 @@ namespace BREATHE
 
 		if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
 		{
-			ConsoleExecute(pConsole->sLine);
-			pConsole->sLine="";
-			pConsole->uiCursorPosition=0;
+			ConsoleExecute(CONSOLE.sLine);
+			CONSOLE.sLine="";
+			CONSOLE.uiCursorPosition=0;
 		}
 		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
 		{
 			bConsole=false;
-			pConsole->sLine="";
-			pConsole->uiCursorPosition=0;
+			CONSOLE.sLine="";
+			CONSOLE.uiCursorPosition=0;
 		}
 		else if(SDLK_DELETE==uiCode)
 		{
-			if(pConsole->uiCursorPosition<pConsole->sLine.size())
-				pConsole->sLine.erase(pConsole->uiCursorPosition, 1);
+			if(CONSOLE.uiCursorPosition<CONSOLE.sLine.size())
+				CONSOLE.sLine.erase(CONSOLE.uiCursorPosition, 1);
 		}
 		else if(SDLK_BACKSPACE==uiCode)
 		{
-			if(pConsole->uiCursorPosition>0)
+			if(CONSOLE.uiCursorPosition>0)
 			{
-				pConsole->sLine.erase(pConsole->uiCursorPosition-1, 1);
-				pConsole->uiCursorPosition--;
+				CONSOLE.sLine.erase(CONSOLE.uiCursorPosition-1, 1);
+				CONSOLE.uiCursorPosition--;
 			}
 		}
 		else if(SDLK_LEFT==uiCode)
 		{
-			if(pConsole->uiCursorPosition>0)
-        pConsole->uiCursorPosition--;
+			if(CONSOLE.uiCursorPosition>0)
+        CONSOLE.uiCursorPosition--;
 		}
 		else if(SDLK_RIGHT==uiCode)
 		{
-			if(pConsole->uiCursorPosition<pConsole->sLine.size())
-				pConsole->uiCursorPosition++;
+			if(CONSOLE.uiCursorPosition<CONSOLE.sLine.size())
+				CONSOLE.uiCursorPosition++;
 		}
 		else if(SDLK_HOME==uiCode)
-      pConsole->uiCursorPosition=0;
+      CONSOLE.uiCursorPosition=0;
 		else if(SDLK_END==uiCode)
-      pConsole->uiCursorPosition=pConsole->sLine.size();
+      CONSOLE.uiCursorPosition=CONSOLE.sLine.size();
 
 		else if(SDLK_TAB==uiCode)
 			; //TODO: Autocomplete
 		else if(SDLK_CLEAR==uiCode)
-			pConsole->sLine="";
+			CONSOLE.sLine="";
 		else if(SDLK_UP==uiCode)
 			; //TODO: History of typed in items
 		else if(SDLK_DOWN==uiCode)
@@ -765,21 +768,18 @@ namespace BREATHE
 
 			std::string s;
 			s+=static_cast<unsigned char>(uiCode);
-			pConsole->sLine.insert(pConsole->uiCursorPosition, s);
-			pConsole->uiCursorPosition++;
+			CONSOLE.sLine.insert(CONSOLE.uiCursorPosition, s);
+			CONSOLE.uiCursorPosition++;
 		}
 
 		//When we press a key we want to see where we are up to
-		pConsole->uiCursorBlink=0;
+		CONSOLE.uiCursorBlink=0;
 	}
 	
 	//TODO: use a cVar instead of a constant
 	void cApp::ConsoleAddLine(std::string s)
 	{
-		if(pConsole->lLine.size()>=10)
-			pConsole->lLine.pop_front();
-
-		pConsole->lLine.push_back(s);
+		CONSOLE<<s;
 	}
 
 	//This is for executing one single line, cannot have ";"
@@ -951,8 +951,9 @@ namespace BREATHE
 
 				fUpdateNext=fCurrentTime+fUpdateDelta;
 			}
-
-			if(bActive)// && fCurrentTime > fRenderNext)
+		
+			
+			if(!bDone && bActive)// && fCurrentTime > fRenderNext)
 			{
 				pRender->BeginFrame(fCurrentTime);
 					RenderScene(fCurrentTime);

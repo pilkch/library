@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
+
 // Breathe
 #include <BREATHE/cBreathe.h>
 
@@ -27,7 +29,7 @@ namespace BREATHE
 
 		void Light3DS::Parse(const std::string &name , Model3DSChunk c)
 		{
-			pLog->Error("c3ds", "object light");
+			LOG.Error("c3ds", "object light");
 		}
 	}
 }

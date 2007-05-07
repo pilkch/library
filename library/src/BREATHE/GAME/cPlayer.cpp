@@ -55,8 +55,9 @@ namespace BREATHE
 
 		uiState = PLAYER_STATE_DRIVE;
 		
-#ifdef BUILD_DEBUG
 		bThirdPerson = true;
+#ifdef BUILD_DEBUG
+		bThirdPersonDebug = true;
 #endif
 
 		// Movement

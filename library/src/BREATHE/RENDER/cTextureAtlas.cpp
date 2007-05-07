@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 #include <vector>
 #include <map>
@@ -47,12 +48,12 @@ namespace BREATHE
 
 			uiSegmentWidthPX=128;
 			uiSegmentSmallPX=128;
-			uiAtlasWidthPX=128;
+
+			uiWidth=128;
+			uiHeight=128;
 			
 			uiAtlasWidthNSegments=1;
 			uiAtlasSegmentN=1;
-
-			surface=NULL;
 
 			uiTexture=0;
 		}
@@ -64,9 +65,16 @@ namespace BREATHE
 
 		void cTextureAtlas::Begin(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX)
 		{
+			if(surface)
+			{
+				LOG.Error("TextureAtlas", "Already has a surface");
+				return;
+			}
+
 			uiSegmentWidthPX=uiNewSegmentWidthPX;
 			uiSegmentSmallPX=uiNewSegmentSmallPX;
-			uiAtlasWidthPX=uiNewAtlasWidthPX;
+			
+			uiWidth=uiHeight=uiNewAtlasWidthPX;
 			
 			uiAtlasWidthNSegments=uiNewAtlasWidthPX/uiNewSegmentWidthPX;
 			uiAtlasSegmentN=uiAtlasWidthNSegments*uiAtlasWidthNSegments;
@@ -91,20 +99,21 @@ namespace BREATHE
 			amask = 0xff000000;
 	#endif
 			
-			surface = SDL_CreateRGBSurface(SDL_SWSURFACE, uiAtlasWidthPX, uiAtlasWidthPX, 32, 
+			surface = SDL_CreateRGBSurface(SDL_SWSURFACE, uiWidth, uiHeight, 32, 
 				rmask, gmask, bmask, amask);
 
 			if (!surface)
-				pLog->Error("TextureAtlas", "Couldn't Create Texture");
+				LOG.Error("TextureAtlas", "Couldn't Create Texture");
 			else
 				SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 255, 0));
 			
-
 			glGenTextures(1, &uiTexture);
 		}
 
 		void cTextureAtlas::End()
 		{
+			CopyFromSurface();
+
 			glBindTexture(GL_TEXTURE_2D, uiTexture);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
@@ -118,13 +127,9 @@ namespace BREATHE
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
-			// clean up
-			SDL_FreeSurface(surface);
-
 			std::ostringstream t;
 			t << uiTexture;
-			pLog->Success("Texture", "Atlas: " + t.str());
+			LOG.Success("Texture", "Atlas: " + t.str());
 		}
 
 		void cTextureAtlas::BlitSurface(SDL_Surface *src, unsigned int x, unsigned int y)
@@ -166,7 +171,7 @@ namespace BREATHE
 		
 		cTexture *cTextureAtlas::AddTexture(std::string sFilename)
 		{
-			pLog->Success("Texture", "Loading " + sFilename);
+			LOG.Success("Texture", "Loading " + sFilename);
 
 			sFilename=pFileSystem->FindFile(sFilename);
 		
@@ -176,19 +181,19 @@ namespace BREATHE
 			// could not load filename
 			if (!tex)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
+				LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
 				return NULL;
 			}
 
 			if(tex->format->BytesPerPixel == 4)// RGBA 32bit
 			{
 				mode = GL_RGBA;
-				pLog->Success("Texture", "RGBA Image");
+				LOG.Success("Texture", "RGBA Image");
 			}
 			else if(tex->format->BytesPerPixel == 3)
 			{
 				SDL_FreeSurface(tex);
-				pLog->Error("Texture", "Image format must be RGBA not RGB");
+				LOG.Error("Texture", "Image format must be RGBA not RGB");
 				
 				return NULL;
 			}
@@ -200,7 +205,7 @@ namespace BREATHE
 				t << "Image format must be RGBA not (";
 				t << tex->format->BytesPerPixel;
 				t << ") BPP";
-				pLog->Error("Texture", t.str());
+				LOG.Error("Texture", t.str());
 				
 				return NULL;
 			}
@@ -289,7 +294,7 @@ namespace BREATHE
 			if(bFound)
 			{
 				p=new cTexture();
-				p->fScale=static_cast<float>(tex->w)/static_cast<float>(uiAtlasWidthPX);
+				p->fScale=static_cast<float>(tex->w)/static_cast<float>(uiWidth);
 				p->sFilename=sFilename;
 				p->uiTextureAtlas=uiID;
 				p->uiTexture=uiTexture;
@@ -314,11 +319,11 @@ namespace BREATHE
 				t << "x";
 				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
 				t << ")";
-				pLog->Success("Texture Atlas", t.str());
+				LOG.Success("Texture Atlas", t.str());
 				
 				t.str("");
 				t << uiTexture;
-				pLog->Success("Texture", t.str());
+				LOG.Success("Texture", t.str());
 			}
 			else
 			{
@@ -328,7 +333,7 @@ namespace BREATHE
 				t << "x";
 				t << uiAtlasWidthNSegments*uiSegmentWidthPX;
 				t << ")",
-				pLog->Error("Texture Atlas", t.str());
+				LOG.Error("Texture Atlas", t.str());
 			}
 
 			SDL_FreeSurface(tex);

@@ -10,6 +10,23 @@ namespace BREATHE
 		class cWheel;
 		class cSeat;
 
+		//Properties, change based on parts installed
+		class cVehicleProperties
+		{
+		public:
+			float fDrag;
+			float fRollResistance;
+			float fDownforce;
+
+			float fWeight;
+			float fBoost;
+			float fEngineSpeed;
+			float fTraction0;
+			float fTraction1;
+			float fTraction2;
+			float fTraction3;
+		};
+
 		class cVehicle : virtual public PHYSICS::cPhysicsObject
 		{
 		public:
@@ -29,23 +46,11 @@ namespace BREATHE
 			float fBrake;
 			float fVel;
 
+			cVehicleProperties properties;
+
 			float fPetrolTankSize; //Total size
 
 			std::vector<float>vPetrolTank;
-
-			//Properties, change based on parts installed
-			struct struct_properties
-			{
-				float fDrag;
-				float fDownforce;
-				float fWeight;
-				float fBoost;
-				float fEngineSpeed;
-				float fTraction0;
-				float fTraction1;
-				float fTraction2;
-				float fTraction3;
-			}properties;
 
 			std::vector<cPart*>vPart;
 

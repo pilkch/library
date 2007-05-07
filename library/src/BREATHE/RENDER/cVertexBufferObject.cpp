@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <list>
 #include <sstream>
 #include <vector>
 #include <map>

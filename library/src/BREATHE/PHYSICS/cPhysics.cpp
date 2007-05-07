@@ -137,7 +137,7 @@ namespace BREATHE
 			//Ignore collisions between NULL geometry
 			if(!(o1 && o2))
 			{
-				pLog->Error("nearCallbackStatic", "NULL geometry");
+				LOG.Error("nearCallbackStatic", "NULL geometry");
 				return;
 			}
 
@@ -177,7 +177,7 @@ namespace BREATHE
 			//Ignore collisions between NULL geometry
 			if(!(o1 && o2))
 			{
-				pLog->Error("nearCallbackDynamic", "NULL geometry");
+				LOG.Error("nearCallbackDynamic", "NULL geometry");
 				return;
 			}
 

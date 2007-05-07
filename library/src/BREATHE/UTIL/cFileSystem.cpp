@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <list>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -115,7 +116,7 @@ namespace BREATHE
 		}
 
 		vDirectory.push_back(sDirectory);
-    pLog->Success("FileSystem", "Added " + sDirectory);
+    LOG.Success("FileSystem", "Added " + sDirectory);
 	}
 
 	std::string cFileSystem::FindFile(std::string sFilename)
@@ -164,7 +165,7 @@ namespace BREATHE
 			iter++;
 		};
     
-		pLog->Error("FileSystem", "Not Found " + sFilename);
+		LOG.Error("FileSystem", "Not Found " + sFilename);
 		return sFilename;
 	}
 
@@ -197,7 +198,7 @@ namespace BREATHE
 
 			return false;
 #else
-			pLog->Error("cFileSystem::CreateFile", "Not implemented on this platform");
+			LOG.Error("cFileSystem::CreateFile", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -214,7 +215,7 @@ namespace BREATHE
 
 			return !(ERROR_PATH_NOT_FOUND==CreateDirectory(sFoldername.c_str(), NULL));
 #else
-			pLog->Error("cFileSystem::CreateFolder", "Not implemented on this platform");
+			LOG.Error("cFileSystem::CreateFolder", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -250,7 +251,7 @@ namespace BREATHE
 			
 			return false;
 #else
-			pLog->Error("cFileSystem::CreateFile", "Not implemented on this platform");
+			LOG.Error("cFileSystem::CreateFile", "Not implemented on this platform");
 			return false;
 #endif
 		}

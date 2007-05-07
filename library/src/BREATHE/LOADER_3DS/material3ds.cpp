@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <string>
 
 // Breathe
@@ -30,7 +31,7 @@ namespace BREATHE
 		void Material3DS::Parse(Model3DSChunk c)
 		{
 #ifdef DEBUG3DS
-			pLog->Success("3ds", "Edit material");
+			LOG.Success("3ds", "Edit material");
 #endif
 			
 			for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
@@ -53,9 +54,9 @@ namespace BREATHE
 
 #ifdef DEBUG3DS
 			if(mat_name.find(".mat") != string::npos)
-				pLog->Success("3ds", "Material: %s", mat_name.c_str());
+				LOG.Success("3ds", "Material: %s", mat_name.c_str());
 			else
-				pLog->Error("3ds", "Invalid material: %s", mat_name.c_str());
+				LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
 #endif
 
 			materials.push_back(mat_name);

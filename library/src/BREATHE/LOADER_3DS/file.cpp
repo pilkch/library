@@ -1,5 +1,7 @@
 #include <sstream>
 
+#include <list>
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -29,7 +31,7 @@ namespace BREATHE
 		Model3DSChunk Model3DSFile::Child()
 		{
 #ifdef DEBUG3DS
-			pLog->Success("c3ds", "SEEK 0");
+			LOG.Success("c3ds", "SEEK 0");
 #endif //DEBUG3DS
 
 			file.seekg(0, std::ios::beg);
@@ -41,7 +43,7 @@ namespace BREATHE
 			int curr_pos = file.tellg();
 
 #ifdef DEBUG3DS
-			pLog->Success("c3ds", "SEEK 0");
+			LOG.Success("c3ds", "SEEK 0");
 #endif //DEBUG3DS
 
 			file.seekg(0, std::ios::beg);
@@ -53,7 +55,7 @@ namespace BREATHE
 #ifdef DEBUG3DS
 			std::ostringstream t;
 			t	<<"SEEK " << ending;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			file.seekg(curr_pos, std::ios::beg);
@@ -61,7 +63,7 @@ namespace BREATHE
 #ifdef DEBUG3DS
 			t.str("");
 			t	<<"SEEK " << curr_pos;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			return ending - beginning;

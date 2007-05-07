@@ -1,6 +1,8 @@
 #include <cmath>
 
 #include <sstream>
+
+#include <list>
 #include <map>
 #include <vector>
 
@@ -80,14 +82,14 @@ namespace BREATHE
 							t.str("");
 							iVersionMesh=cc.Int();
 							t<<"Mesh Version " << iVersionMesh;
-							pLog->Success("c3ds", t.str());
+							LOG.Success("c3ds", t.str());
 						break;
 
 						case(0x100):
 							t.str("");
 							fScale=cc.Float();
 							t<<"Master Scale "<<fScale;
-							pLog->Success("c3ds", t.str());
+							LOG.Success("c3ds", t.str());
 							fScale*=0.5f;
 						break;
 
@@ -102,7 +104,7 @@ namespace BREATHE
 						default:
 							t.str("");
 							t<<"Unknown type1 0x" << std::hex << cc.ID();
-							pLog->Error("c3ds", t.str());
+							LOG.Error("c3ds", t.str());
 						break;
 					}
 				}
@@ -132,7 +134,7 @@ namespace BREATHE
 						default:
 							t.str("");
 							t<<"Unknown object 0x" << std::hex << cc.ID();
-							pLog->Error("c3ds", t.str());
+							LOG.Error("c3ds", t.str());
 						break;
 					}
 				}
@@ -141,13 +143,13 @@ namespace BREATHE
 			
 			void cStatic::ParseLight(const std::string &name , LOADER_3DS::Model3DSChunk c)
 			{
-				pLog->Error("c3ds", "object light");
+				LOG.Error("c3ds", "object light");
 			}
 
 			
 			void cStatic::ParseMaterial(LOADER_3DS::Model3DSChunk c)
 			{
-				pLog->Success("3ds", "Edit material");
+				LOG.Success("3ds", "Edit material");
 				
 				for(LOADER_3DS::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
@@ -168,9 +170,9 @@ namespace BREATHE
 				std::string mat_name = c.Str();
 
 				if(mat_name.find(".mat") != std::string::npos)
-					pLog->Success("3ds", "Material: " + mat_name);
+					LOG.Success("3ds", "Material: " + mat_name);
 				else
-					pLog->Error("3ds", "Invalid material: " + mat_name);
+					LOG.Error("3ds", "Invalid material: " + mat_name);
 
 				vMaterial.push_back(mat_name);
 			}
@@ -178,7 +180,7 @@ namespace BREATHE
 
 			void cStatic::ParseCamera(LOADER_3DS::Model3DSChunk c)
 			{
-				pLog->Success("3ds", "Camera");
+				LOG.Success("3ds", "Camera");
 
 				MATH::cFrustum *p=new MATH::cFrustum();
 
@@ -200,7 +202,7 @@ namespace BREATHE
 			{
 				bFoundMeshes=true;
 
-				pLog->Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
+				LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
 				LOADER_3DS::Mesh3DSObject *m=new LOADER_3DS::Mesh3DSObject(sName , c);
 
@@ -272,7 +274,7 @@ namespace BREATHE
 				iVersionMesh=0;
 				fScale=1.0f;
 
-				pLog->Success("c3ds", "Loading " + sFilename);
+				LOG.Success("c3ds", "Loading " + sFilename);
 
 
 				LOADER_3DS::Model3DSFile file(sFilename);
@@ -288,7 +290,7 @@ namespace BREATHE
 							t.str("");
 							iVersionFile=cc.Int();
 							t<<"File Version " << iVersionFile;
-							pLog->Success("c3ds", t.str());
+							LOG.Success("c3ds", t.str());
 						break;
 						
 						case(0x3d3d):
@@ -298,13 +300,13 @@ namespace BREATHE
 						case(0xb000):
 							t.str("");
 							t<<"Keyframe Information";
-							pLog->Success("c3ds", t.str());
+							LOG.Success("c3ds", t.str());
 						break;
 
 						default:
 							t.str("");
 							t<<"Unknown type0 0x" << std::hex << cc.ID();
-							pLog->Error("c3ds", t.str());
+							LOG.Error("c3ds", t.str());
 						break;
 					}
 				}

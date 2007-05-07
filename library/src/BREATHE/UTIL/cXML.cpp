@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -51,7 +52,7 @@ namespace BREATHE
 				Parse(sData, NULL);
 			}
 			else
-        pLog->Error("XML", inFilename + " not found");
+        LOG.Error("XML", inFilename + " not found");
 		}
 
 		cNode::cNode(cNode *inParent)
@@ -84,7 +85,7 @@ namespace BREATHE
 
 					if(nEndComment == std::string::npos)
 					{
-						pLog->Error("XML", "Unterminated comment");
+						LOG.Error("XML", "Unterminated comment");
 						return "";
 					}
 
@@ -121,7 +122,7 @@ namespace BREATHE
 
 							if(sClose!=sName)
 							{
-								pLog->Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
+								LOG.Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
 								return "";
 							}
 
@@ -129,7 +130,7 @@ namespace BREATHE
 						}
 						else
 						{
-							pLog->Error("XML", "Tag \"" + sName + "\" doesn't have a closing tag");
+							LOG.Error("XML", "Tag \"" + sName + "\" doesn't have a closing tag");
 							return "";
 						}
 
@@ -339,18 +340,18 @@ namespace BREATHE
 						sTag+="&gt;";
 					else			
 						sTag+="/&gt;";
-					pLog->Success("XML", sTag.c_str());
+					LOG.Success("XML", sTag.c_str());
 				}
 			}
 			else
-				pLog->Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
+				LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
 
 			n=vChild.size();
 			for(i=0;i<n;i++)
 				vChild[i]->PrintToLog(sTab + "&nbsp;");
 
 			if(vChild.size()>0 && sName != "")
-				pLog->Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
+				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
 		}
 #endif //BUILD_DEBUG
 	}

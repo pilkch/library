@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 #include <vector>
 #include <map>
@@ -138,7 +139,7 @@ namespace BREATHE
 		{
 			//TODO: Delete materials and shader objects and atlases etc.
 
-			pLog->Success("Delete", "Frustum");
+			LOG.Success("Delete", "Frustum");
 			SAFE_DELETE(pFrustum);
 		}
 
@@ -205,38 +206,38 @@ namespace BREATHE
 			std::ostringstream t;
 			t << "Screen BPP: ";
 			t << (unsigned int)(SDL_GetVideoSurface()->format->BitsPerPixel);
-			pLog->Success("Render", t.str());
-			pLog->Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
-			pLog->Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
-			pLog->Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
-			pLog->Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
+			LOG.Success("Render", t.str());
+			LOG.Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
+			LOG.Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
+			LOG.Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
+			LOG.Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
 	
 			t.str("");
 			t << iMaxTextureSize;
 			if(iMaxTextureSize>=MAX_TEXTURE_SIZE)
 			{
-				pLog->Success("Render", std::string("Max Texture Size : ") + t.str());
+				LOG.Success("Render", std::string("Max Texture Size : ") + t.str());
 				iMaxTextureSize=MAX_TEXTURE_SIZE;
 			}
 			else
-				pLog->Error("Render", std::string("Max Texture Size : ") + t.str());
+				LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
 	
 
 			if(FindExtension("GL_ARB_multitexture"))
-        pLog->Success("Render", "Found GL_ARB_multitexture");
+        LOG.Success("Render", "Found GL_ARB_multitexture");
 			else
 			{
-				pLog->Error("Render", "Not Found GL_ARB_multitexture");
+				LOG.Error("Render", "Not Found GL_ARB_multitexture");
 				return false;
 			}
 
 
 
 			if(FindExtension("GL_ARB_texture_cube_map"))
-				pLog->Success("Render", "Found GL_ARB_texture_cube_map");
+				LOG.Success("Render", "Found GL_ARB_texture_cube_map");
 			else
 			{
-				pLog->Error("Render", "Not Found GL_ARB_texture_cube_map");
+				LOG.Error("Render", "Not Found GL_ARB_texture_cube_map");
 				return false;
 			}
 
@@ -259,13 +260,13 @@ namespace BREATHE
 			
 			if(fShaderVersion<2.0f)
 			{
-				pLog->Error("Render", "Not Found Shader2.0");
+				LOG.Error("Render", "Not Found Shader2.0");
 				bCanShader=false;
 				bShader=false;
 			}
 			else
 			{
-				pLog->Success("Render", "Found Shader2.0");
+				LOG.Success("Render", "Found Shader2.0");
 
 				*(void**)&glShaderSource = SDL_GL_GetProcAddress("glShaderSource");
 				*(void**)&glCompileShader = SDL_GL_GetProcAddress("glCompileShader");
@@ -308,9 +309,9 @@ namespace BREATHE
 			}
 			
 			if(bCanShader)
-				pLog->Success("Render", "Can use shaders, shaders turned on");
+				LOG.Success("Render", "Can use shaders, shaders turned on");
 			else
-				pLog->Success("Render", "Cannot use shaders, shaders turned off");
+				LOG.Success("Render", "Cannot use shaders, shaders turned off");
 
 
 			if(	NULL!=glActiveTexture && 
@@ -323,7 +324,7 @@ namespace BREATHE
 		
 		void cRender::BeginFrame(float fCurrentTime)
 		{
-			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 			glLoadIdentity();
 
 			glMultMatrixf(pFrustum->m);
@@ -345,7 +346,7 @@ namespace BREATHE
 			ClearColour();
 			ClearMaterial();
 
-			uiTextureModeChanges = uiTextureChanges = 0;
+			uiTextureModeChanges = uiTextureChanges = uiTriangles = 0;
 		}
 
 		void cRender::BeginHUD(float fCurrentTime)
@@ -359,7 +360,7 @@ namespace BREATHE
 
 		void cRender::EndFrame()
 		{
-			SDL_GL_SwapBuffers( );
+			SDL_GL_SwapBuffers();
 		}
 
 		void cRender::SetAtlasWidth(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX)
@@ -398,13 +399,13 @@ namespace BREATHE
 			if(NULL==p)
 			{
 				p=pTextureNotFoundTexture;
-				pLog->Error("Texture", sNewFilename + " pTextureNotFound");
+				LOG.Error("Texture", sNewFilename + " pTextureNotFound");
 			}
 			else
 			{
 				std::ostringstream t;
 				t << p->uiTexture;
-				pLog->Success("Texture", sNewFilename + " " + t.str());
+				LOG.Success("Texture", sNewFilename + " " + t.str());
 			}
 			
 			mTexture[sNewFilename]=p;		
@@ -425,45 +426,45 @@ namespace BREATHE
 			
 			p=new cTexture();
 
-			pLog->Success("Texture", "Loading " + sNewFilename);
+			LOG.Success("Texture", "Loading " + sNewFilename);
 		
 			unsigned int mode=0;
-			SDL_Surface *surface = IMG_Load(sNewFilename.c_str());
+			p->surface = IMG_Load(sNewFilename.c_str());
 
 			// could not load filename
-			if (!surface)
+			if (!p->surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture " + sNewFilename);
-				return false;
+				LOG.Error("Texture", "Couldn't Load Texture " + sNewFilename);
+				delete p;
+				return NULL;
 			}
 
-			if(surface->format->BytesPerPixel == 3) // RGB 24bit
+			if(p->surface->format->BytesPerPixel == 3) // RGB 24bit
 			{
 				mode = GL_RGB;
-				pLog->Success("Texture", "RGB Image");
+				LOG.Success("Texture", "RGB Image");
 			}
-			else if(surface->format->BytesPerPixel == 4)// RGBA 32bit
+			else if(p->surface->format->BytesPerPixel == 4)// RGBA 32bit
 			{
 				mode = GL_RGBA;
-				pLog->Success("Texture", "RGBA Image");
+				LOG.Success("Texture", "RGBA Image");
 			}
 			else
 			{
-				SDL_FreeSurface(surface);
 				std::ostringstream t;
-				t << surface->format->BytesPerPixel;
-				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
-				
-				return false;
+				t << p->surface->format->BytesPerPixel;
+				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
+				delete p;
+				return NULL;
 			}
 
 			{
-				int nHH = surface->h / 2;
-				int nPitch = surface->pitch;
+				int nHH = p->surface->h / 2;
+				int nPitch = p->surface->pitch;
 			
 				unsigned char* pBuf = new unsigned char[nPitch];
-				unsigned char* pSrc = (unsigned char*) surface->pixels;
-				unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
+				unsigned char* pSrc = (unsigned char*) p->surface->pixels;
+				unsigned char* pDst = (unsigned char*) p->surface->pixels + nPitch*(p->surface->h - 1);
 			
 				while (nHH--)
 				{
@@ -478,6 +479,9 @@ namespace BREATHE
 				SAFE_DELETE_ARRAY(pBuf);
 			}
 
+			p->CopyFromSurface(p->surface->w, p->surface->h);
+
+
 			// create one texture name
 			glGenTextures(1, &p->uiTexture);
 
@@ -485,18 +489,15 @@ namespace BREATHE
 			glBindTexture(GL_TEXTURE_2D, p->uiTexture);
 
 			// this reads from the sdl surface and puts it into an opengl texture
-			glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, mode, p->surface->w, p->surface->h, 0, mode, GL_UNSIGNED_BYTE, p->surface->pixels);
 
 			// these affect how this texture is drawn later on...
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-			// clean up
-			SDL_FreeSurface(surface);
-
 			std::ostringstream s;
 			s<<sNewFilename<<" "<<p->uiTexture<<"\0";
-			pLog->Success("Texture", s.str().c_str());
+			LOG.Success("Texture", s.str().c_str());
 			
 			mTexture[sNewFilename]=p;		
 
@@ -509,45 +510,45 @@ namespace BREATHE
 
 			sFilename=pFileSystem->FindFile(sFilename);
 
-			pLog->Success("Texture", "Loading " + sFilename);
+			LOG.Success("Texture", "Loading " + sFilename);
 		
 			unsigned int mode=0;
-			SDL_Surface *surface = IMG_Load(sFilename.c_str());
+			pTextureNotFoundTexture->surface = IMG_Load(sFilename.c_str());
 
 			// could not load filename
-			if (!surface)
+			if (!pTextureNotFoundTexture->surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
-				return false;
+				LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
+				return NULL;
 			}
 
-			if(surface->format->BytesPerPixel == 3) // RGB 24bit
+			if(pTextureNotFoundTexture->surface->format->BytesPerPixel == 3) // RGB 24bit
 			{
 				mode = GL_RGB;
-				pLog->Success("Texture", "RGB Image");
+				LOG.Success("Texture", "RGB Image");
 			}
-			else if(surface->format->BytesPerPixel == 4)// RGBA 32bit
+			else if(pTextureNotFoundTexture->surface->format->BytesPerPixel == 4)// RGBA 32bit
 			{
 				mode = GL_RGBA;
-				pLog->Success("Texture", "RGBA Image");
+				LOG.Success("Texture", "RGBA Image");
 			}
 			else
 			{
-				SDL_FreeSurface(surface);
 				std::ostringstream t;
-				t << surface->format->BytesPerPixel;
-				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
+				t << pTextureNotFoundTexture->surface->format->BytesPerPixel;
+				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 				
-				return false;
+				return NULL;
 			}
 
 			{
-				int nHH = surface->h / 2;
-				int nPitch = surface->pitch;
+				int nHH = pTextureNotFoundTexture->surface->h / 2;
+				int nPitch = pTextureNotFoundTexture->surface->pitch;
 			
 				unsigned char* pBuf = new unsigned char[nPitch];
-				unsigned char* pSrc = (unsigned char*) surface->pixels;
-				unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
+				unsigned char* pSrc = (unsigned char*) pTextureNotFoundTexture->surface->pixels;
+				unsigned char* pDst = (unsigned char*) pTextureNotFoundTexture->surface->pixels + 
+					nPitch*(pTextureNotFoundTexture->surface->h - 1);
 			
 				while (nHH--)
 				{
@@ -562,6 +563,9 @@ namespace BREATHE
 				SAFE_DELETE_ARRAY(pBuf);
 			}
 
+			pTextureNotFoundTexture->CopyFromSurface(
+				pTextureNotFoundTexture->surface->w,
+				pTextureNotFoundTexture->surface->h);
 			//TODO: Put into a texture atlas
 
 			// create one texture name
@@ -571,18 +575,17 @@ namespace BREATHE
 			glBindTexture(GL_TEXTURE_2D, pTextureNotFoundTexture->uiTexture);
 
 			// this reads from the sdl surface and puts it into an opengl texture
-			glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, mode, 
+				pTextureNotFoundTexture->surface->w, pTextureNotFoundTexture->surface->h, 
+				0, mode, GL_UNSIGNED_BYTE, pTextureNotFoundTexture->surface->pixels);
 
 			// these affect how this texture is drawn later on...
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			// clean up
-			SDL_FreeSurface(surface);
-
 			std::ostringstream t;
 			t << pTextureNotFoundTexture->uiTexture;
-			pLog->Success("Texture", "TextureNotFoundTexture " + t.str());
+			LOG.Success("Texture", "TextureNotFoundTexture " + t.str());
 
 			return true;
 		}
@@ -593,45 +596,45 @@ namespace BREATHE
 
 			sFilename=pFileSystem->FindFile(sFilename);
 
-			pLog->Success("Texture", "Loading " + sFilename);
+			LOG.Success("Texture", "Loading " + sFilename);
 		
 			unsigned int mode=0;
-			SDL_Surface *surface = IMG_Load(sFilename.c_str());
+			pMaterialNotFoundTexture->surface = IMG_Load(sFilename.c_str());
 
 			// could not load filename
-			if (!surface)
+			if (!pMaterialNotFoundTexture->surface)
 			{
-				pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
-				return false;
+				LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
+				return NULL;
 			}
 
-			if(surface->format->BytesPerPixel == 3) // RGB 24bit
+			if(pMaterialNotFoundTexture->surface->format->BytesPerPixel == 3) // RGB 24bit
 			{
 				mode = GL_RGB;
-				pLog->Success("Texture", "RGB Image");
+				LOG.Success("Texture", "RGB Image");
 			}
-			else if(surface->format->BytesPerPixel == 4)// RGBA 32bit
+			else if(pMaterialNotFoundTexture->surface->format->BytesPerPixel == 4)// RGBA 32bit
 			{
 				mode = GL_RGBA;
-				pLog->Success("Texture", "RGBA Image");
+				LOG.Success("Texture", "RGBA Image");
 			}
 			else
 			{
-				SDL_FreeSurface(surface);
 				std::ostringstream t;
-				t << surface->format->BytesPerPixel;
-				pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
+				t << pMaterialNotFoundTexture->surface->format->BytesPerPixel;
+				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 				
-				return false;
+				return NULL;
 			}
 
 			{
-				int nHH = surface->h / 2;
-				int nPitch = surface->pitch;
+				int nHH = pMaterialNotFoundTexture->surface->h / 2;
+				int nPitch = pMaterialNotFoundTexture->surface->pitch;
 			
 				unsigned char* pBuf = new unsigned char[nPitch];
-				unsigned char* pSrc = (unsigned char*) surface->pixels;
-				unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
+				unsigned char* pSrc = (unsigned char*) pMaterialNotFoundTexture->surface->pixels;
+				unsigned char* pDst = (unsigned char*) pMaterialNotFoundTexture->surface->pixels + 
+					nPitch*(pMaterialNotFoundTexture->surface->h - 1);
 			
 				while (nHH--)
 				{
@@ -646,6 +649,10 @@ namespace BREATHE
 				SAFE_DELETE_ARRAY(pBuf);
 			}
 
+			pMaterialNotFoundTexture->CopyFromSurface(
+				pMaterialNotFoundTexture->surface->w,
+				pMaterialNotFoundTexture->surface->h);
+
 			//TODO: Put into a texture atlas
 
 			// create one texture name
@@ -655,18 +662,17 @@ namespace BREATHE
 			glBindTexture(GL_TEXTURE_2D, pMaterialNotFoundTexture->uiTexture);
 
 			// this reads from the sdl surface and puts it into an opengl texture
-			glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, mode, 
+				pMaterialNotFoundTexture->surface->w, pMaterialNotFoundTexture->surface->h, 
+				0, mode, GL_UNSIGNED_BYTE, pMaterialNotFoundTexture->surface->pixels);
 
 			// these affect how this texture is drawn later on...
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			// clean up
-			SDL_FreeSurface(surface);
-
 			std::ostringstream t;
 			t << pMaterialNotFoundTexture->uiTexture;
-			pLog->Success("Texture", "MaterialNotFoundTexture " + t.str());
+			LOG.Success("Texture", "MaterialNotFoundTexture " + t.str());
 
 			return true;
 		}
@@ -703,6 +709,17 @@ namespace BREATHE
 
 		cTexture *cRender::AddCubeMap(std::string sFilename)
 		{
+			/*TODO: 
+			Surface of 1x6 that holds the cubemap faces,
+			not actually used for rendering, just collecting each surface
+
+			class cCubeMap : protected cTexture
+			{
+			public:
+				CopyFromSurface(uiWidth, 6 * uiHeight);
+			};
+			*/
+
 			if(""==sFilename)
 				return pTextureNotFoundTexture;
 
@@ -726,7 +743,7 @@ namespace BREATHE
 				GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 			};
 
-			pLog->Success("Texture", "Loading CubeMap " + sFilename);
+			LOG.Success("Texture", "Loading CubeMap " + sFilename);
 		
 			unsigned int i=0;
 			unsigned int uiTempTexture=0;
@@ -763,28 +780,28 @@ namespace BREATHE
 				// could not load filename
 				if (!surface)
 				{
-					pLog->Error("Texture", "Couldn't Load Texture " + sFilename);
-					return false;
+					LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
+					return NULL;
 				}
 
 				if(surface->format->BytesPerPixel == 3) // RGB 24bit
 				{
 					mode = GL_RGB;
-					pLog->Success("Texture", "RGB Image");
+					LOG.Success("Texture", "RGB Image");
 				}
 				else if(surface->format->BytesPerPixel == 4)// RGBA 32bit
 				{
 					mode = GL_RGBA;
-					pLog->Success("Texture", "RGBA Image");
+					LOG.Success("Texture", "RGBA Image");
 				}
 				else
 				{
 					SDL_FreeSurface(surface);
 					std::ostringstream t;
 					t << surface->format->BytesPerPixel;
-					pLog->Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
+					LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 					
-					return false;
+					return NULL;
 				}
 
 				{
@@ -851,7 +868,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t << p->uiTexture;
-			pLog->Success("Texture", t.str());
+			LOG.Success("Texture", t.str());
 
 			return p;
 		}
@@ -1013,7 +1030,7 @@ namespace BREATHE
 		{
 			if(pMaterial == NULL)
 			{
-				pLog->Error("Render", "No texture specified");
+				LOG.Error("Render", "No texture specified");
 				return false;
 			}
 
@@ -1047,7 +1064,7 @@ namespace BREATHE
 			}
 
 			if(0 == n)
-				pLog->Error("Render", "No layers to render");
+				LOG.Error("Render", "No layers to render");
 
 			uiActiveUnits=n;
 
@@ -1484,7 +1501,7 @@ namespace BREATHE
 				if(loc != -1)
 				  glUniform3f(loc, pCamera->eye.x, pCamera->eye.y, pCamera->eye.z);
 				else
-					pLog->Error("Shader", ": pMaterial->sName + "Couldn't set cameraPos");*/
+					LOG.Error("Shader", ": pMaterial->sName + "Couldn't set cameraPos");*/
 
 
 				if(uiActiveUnits>0)
@@ -1493,7 +1510,7 @@ namespace BREATHE
 					if(loc != -1)
 						glUniform1i(loc, 0);//pMaterial->vLayer[0]->uiTexture);
 					else
-						pLog->Error("Shader", pMaterial->sName + ": Couldn't set texUnit0");
+						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit0");
 				}
 	
 				if(uiActiveUnits>1)
@@ -1502,7 +1519,7 @@ namespace BREATHE
 					if(loc != -1)
 						glUniform1i(loc, 1);//pMaterial->vLayer[1]->uiTexture);
 					else
-						pLog->Error("Shader", pMaterial->sName + ": Couldn't set texUnit1");
+						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit1");
 				}
 
 				//glDisable(GL_LIGHTING);
@@ -1537,23 +1554,71 @@ namespace BREATHE
 			return pMaterial;
 		}
 
-		void cRender::ReloadMaterials()
+		
+		void cRender::ReloadTextures()
 		{
-			std::map<std::string, MATERIAL::cMaterial *>::iterator iter=mMaterial.begin();
-			MATERIAL::cMaterial *pMaterial;
+			LOG.Success("Render", "ReloadTextures");
+			cTextureAtlas *pAtlas = NULL;
+			unsigned int n = vTextureAtlas.size();
+			unsigned int* pOldTexture = new unsigned int[n];
+			for(unsigned int i = 0;i<n;i++)
+			{
+				pAtlas = vTextureAtlas[i];
+				pOldTexture[i] = pAtlas->uiTexture;
+				
+				// Destroy old texture
+				glDeleteTextures(1, &pAtlas->uiTexture);
+				
+				// Create new texture				
+				glGenTextures(1, &pAtlas->uiTexture);
+				
+				glBindTexture(GL_TEXTURE_2D, pAtlas->uiTexture);
 
-			while(iter != mMaterial.end())
+				
+				pAtlas->CopyToSurface();
+
+
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pAtlas->surface->w, pAtlas->surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pAtlas->surface->pixels);
+
+				//Remove this line if there are artifacts
+				gluBuild2DMipmaps(GL_TEXTURE_2D, 4, pAtlas->surface->w, pAtlas->surface->h, GL_RGBA, GL_UNSIGNED_BYTE, pAtlas->surface->pixels);
+			}
+
+
+			MATERIAL::cMaterial * pMaterial = NULL;
+			std::map<std::string, MATERIAL::cMaterial *>::iterator iter=mMaterial.begin();
+			for(;iter!=mMaterial.end();iter++)
 			{
 				pMaterial=iter->second;
+
+				unsigned int nLayer = pMaterial->vLayer.size();
+				for(unsigned int iLayer = 0;iLayer<nLayer;iLayer++)
+				{
+					bool bFound = false;
+					unsigned int iAtlas = 0;
+					while(iAtlas<n && !bFound)
+					{
+						if(pMaterial->vLayer[iLayer]->uiTexture == pOldTexture[iAtlas])
+						{
+							pMaterial->vLayer[iLayer]->uiTexture = vTextureAtlas[iAtlas]->uiTexture;
+							bFound = true;
+						}
+
+						iAtlas++;
+					}
+
+					if(!bFound)
+					{
+						//TODO: Reload from texture
+					}
+				}
 
 				if(pMaterial->pShader)
 				{
 					pMaterial->pShader->Destroy();
 					pMaterial->pShader->Init();
 				}
-
-				iter++;
-			};
+			}
 		}
 	}
 }

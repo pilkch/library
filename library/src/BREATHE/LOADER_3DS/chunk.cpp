@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 
 // Breathe
@@ -27,7 +28,7 @@ namespace BREATHE
 			std::ostringstream t;
 			
 			t<< "Model3DSChunk::Model3DSChunk()";
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			begin = file.tellg();
@@ -46,9 +47,9 @@ namespace BREATHE
 				<< "chunkset_end = (" << chunkset_end << ")";
 			
 			if(0==id || -1==begin || end > chunkset_end)
-				pLog->Error("c3ds", t.str());
+				LOG.Error("c3ds", t.str());
 			else
-				pLog->Success("c3ds", t.str());
+				LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 		}
 
@@ -71,7 +72,7 @@ namespace BREATHE
 #ifdef DEBUG3DS
 			std::ostringstream t;
 			t	<<"SEEK " << iPosition;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			file.seekg(iPosition, std::ios::beg);
@@ -92,7 +93,7 @@ namespace BREATHE
 				<< ((0!=id) && (begin < chunkset_end) && (begin >= 0))
 				<< " ((0x0!=0x" << std::hex << id << ") && (" 
 				<< std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			return (0!=id) && (begin < chunkset_end) && (begin >= 0);
@@ -155,7 +156,7 @@ namespace BREATHE
 #ifdef DEBUG3DS
 			std::ostringstream t;
 			t << "Child() end = (" << end << ")";
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			return Model3DSChunk(file , end);
@@ -165,7 +166,7 @@ namespace BREATHE
 #ifdef DEBUG3DS
 			std::ostringstream t;
 			t	<<"SEEK " << end;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
 			Finish();

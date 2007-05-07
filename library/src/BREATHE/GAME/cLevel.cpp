@@ -78,7 +78,7 @@ namespace BREATHE
 
 	cLevel::~cLevel()
 	{
-		pLog->Success("Delete", "Static Mesh");
+		LOG.Success("Delete", "Static Mesh");
 		std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
 		while(iter!=mStatic.end())
 		{
@@ -96,7 +96,7 @@ namespace BREATHE
 		cLevelSpawn *pSpawn;
 
 		{
-			pLog->Success("Level", "cLevelNode::Load " + sNewFilename);
+			LOG.Success("Level", "cLevelNode::Load " + sNewFilename);
 			BREATHE::XML::cNode root(sNewFilename);
 
 			BREATHE::XML::cNode* p=root.FindChild("level");
@@ -152,7 +152,7 @@ namespace BREATHE
 
 		// We don't have any spawns yet, add a default one
 		if(0==vSpawn.size()) {
-			pLog->Error("Level", "No spawns defined");
+			LOG.Error("Level", "No spawns defined");
 			cLevelSpawn *p = new cLevelSpawn();
 			p->v3Position = MATH::cVec3(0.0f, 0.0f, 0.0f);
 			p->v3Rotation = MATH::cVec3(0.0f, 0.0f, 90.0f);
@@ -164,7 +164,7 @@ namespace BREATHE
 		unsigned int n=vCubemap.size();
 
 		if(0==n) {
-			pLog->Error("Level", "No cubemaps defined");
+			LOG.Error("Level", "No cubemaps defined");
 			return BREATHE::BAD;
 		}
 
@@ -189,7 +189,7 @@ namespace BREATHE
 			unsigned int n=p->vCamera.size();
 			for(i=0;i<n;i++)
 			{
-				pLog->Success("Level", "Spawn");
+				LOG.Success("Level", "Spawn");
 
 				vSpawn.push_back(new cLevelSpawn());
 				cLevelSpawn *pSpawn=vSpawn.back();
@@ -220,14 +220,14 @@ namespace BREATHE
 
 				pSpawn->v3Rotation=v3out;
 				pSpawn->v3Position=p->vCamera[i]->eye;
-				pLog->Error("Level", "Upate in 3ds and remove this");
+				LOG.Error("Level", "Upate in 3ds and remove this");
 				pSpawn->v3Position.z=-1.5f;
 			}*/
 
 			vNode.push_back(pNode);
 		}
 		else
-			pLog->Error("Node", "Mesh not found" + sNewFilename);
+			LOG.Error("Node", "Mesh not found" + sNewFilename);
 	}
 	
 	void cLevel::LoadCubemap(std::string line)
@@ -263,7 +263,7 @@ namespace BREATHE
 		std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
 		for(;iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "UV " + iter->first);
+			LOG.Success("Transform", "UV " + iter->first);
 
 			s=iter->second;
 
@@ -289,10 +289,10 @@ namespace BREATHE
 								t->Transform(&fTextureCoords[texcoord], &fTextureCoords[texcoord+1]);
 						}
 						else
-							pLog->Error("Transform", "Texture not found " + mat->sTexture0);
+							LOG.Error("Transform", "Texture not found " + mat->sTexture0);
 					}
 					else
-						pLog->Error("Transform", "Material not found " + m->sMaterial);
+						LOG.Error("Transform", "Material not found " + m->sMaterial);
 				}
 			}
 		}
@@ -303,7 +303,7 @@ namespace BREATHE
 		//Calculate normals
 		for(iter=mStatic.begin();iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "Normals " + iter->first);
+			LOG.Success("Transform", "Normals " + iter->first);
 
 			s=iter->second;
 			
@@ -343,7 +343,7 @@ namespace BREATHE
 
 		for(iter=mStatic.begin();iter!=mStatic.end();iter++)
 		{
-			pLog->Success("Transform", "Optimising " + iter->first);
+			LOG.Success("Transform", "Optimising " + iter->first);
 
 			s=iter->second;
 
@@ -369,7 +369,7 @@ namespace BREATHE
 			}
 		}
 
-		pLog->Success("Level", "TransformModels returning");
+		LOG.Success("Level", "TransformModels returning");
 	}
 
 	RENDER::MODEL::cStatic *cLevel::AddModel(std::string sNewfilename)
@@ -592,7 +592,7 @@ namespace BREATHE
 		unsigned int i=0;
 		unsigned int n=vSpawn.size();
 
-		if(n<1) pLog->Error("Level", "No spawns defined");
+		if(n<1) LOG.Error("Level", "No spawns defined");
 
 		float d=(vSpawn[0]->v3Position-p).GetLength();
 		float t=0.0f;
@@ -828,7 +828,7 @@ namespace BREATHE
 					{
 						std::ostringstream t;
 						t << pRender->uiActiveUnits;
-						pLog->Error("RenderStaticModel", "Invalid texture unit count " + t.str());
+						LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
 					}
 					
 				glEnd();

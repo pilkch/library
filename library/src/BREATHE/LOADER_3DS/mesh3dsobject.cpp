@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 
 // Breathe
@@ -47,7 +48,7 @@ namespace BREATHE
 					default:
 						std::ostringstream t;
 						t<<"error : unknown chunk " << std::hex << cc.ID();
-						pLog->Error("c3ds", (char*)t.str().c_str());
+						LOG.Error("c3ds", (char*)t.str().c_str());
 					break;
 				}
 			}
@@ -107,7 +108,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_vertices = " << n_vertices;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 
 			for(int i = 0 ; i < n_vertices ; i++)
 			{
@@ -130,7 +131,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_texcoords = " << n_texcoords;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 
 			for(int i = 0 ; i < n_texcoords ; i++)
 			{
@@ -155,7 +156,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t<<"n_faces = " << n_faces;
-			pLog->Success("c3ds", t.str());
+			LOG.Success("c3ds", t.str());
 
 			for(i = 0 ; i < (unsigned int)(n_faces); i++)
 			{
@@ -183,7 +184,7 @@ namespace BREATHE
 					default:
 						t.str("");
 						t<<"Unknown id: 0x" << std::hex << cc.ID();
-						pLog->Error("c3ds", t.str());
+						LOG.Error("c3ds", t.str());
 					break;
 				}
 			}
@@ -196,7 +197,7 @@ namespace BREATHE
 			sMaterial = c.Str();
 			std::vector<int> faces_applied;
 
-			pLog->Success("c3ds", "ParseFacesMaterials: " + sMaterial);
+			LOG.Success("c3ds", "ParseFacesMaterials: " + sMaterial);
 
 			int n_faces = c.Short();
 			int f=0;

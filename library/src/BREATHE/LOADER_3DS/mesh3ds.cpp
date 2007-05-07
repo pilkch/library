@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 
 
@@ -33,7 +34,7 @@ namespace BREATHE
 			bFoundMeshes=true;
 
 #ifdef DEBUG3DS
-			pLog->Success("c3ds", std::string("Mesh3DS::Parse(") + name + ")");
+			LOG.Success("c3ds", std::string("Mesh3DS::Parse(") + name + ")");
 #endif //DEBUG3DS
 
 			Mesh3DSObject mesh(name , c);

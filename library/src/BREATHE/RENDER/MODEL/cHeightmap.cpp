@@ -1,14 +1,11 @@
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
+#include <list>
 #include <vector>
 #include <map>
 
-
-
-
-#include <windows.h>
-#include <gl\gl.h>
+#include <GL/Glee.h>
 
 //#include <cCamera.h>
 

@@ -17,7 +17,6 @@
 
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cVar.h>
-#include <BREATHE/UTIL/cConsole.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>

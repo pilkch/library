@@ -37,11 +37,8 @@ namespace BREATHE
 			unsigned int uiSegmentSmallPX; //An image this width or smaller is considered small
 
 			unsigned int uiSegmentWidthPX; //Width of a segment
-			unsigned int uiAtlasWidthPX; //Total atlas width in pixels
 			unsigned int uiAtlasWidthNSegments; //Total atlas width in segments
 			unsigned int uiAtlasSegmentN; //Total atlas segments
-
-			SDL_Surface *surface;
 
 			std::vector<bool> vSegment;
 

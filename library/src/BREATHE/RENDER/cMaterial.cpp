@@ -86,7 +86,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-								pLog->Error("Render", std::string("Shader ") + sShaderVertex + std::string(": ") + infoLog);
+								LOG.Error("Render", std::string("Shader ") + sShaderVertex + std::string(": ") + infoLog);
 						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
@@ -105,7 +105,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-								pLog->Error("Render", std::string("Shader ") + sShaderFragment + ": " + infoLog);
+								LOG.Error("Render", std::string("Shader ") + sShaderFragment + ": " + infoLog);
 						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
@@ -124,7 +124,7 @@ namespace BREATHE
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
-								pLog->Error("Render", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
+								LOG.Error("Render", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
 						 SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
@@ -158,7 +158,7 @@ namespace BREATHE
 					}
 					else
 					{
-						pLog->Error("Render", std::string("Shader not found ") + sShaderVertex);
+						LOG.Error("Render", std::string("Shader not found ") + sShaderVertex);
 						uiShaderVertex=0;
 					}
 				}
@@ -189,7 +189,7 @@ namespace BREATHE
 					}
 					else
 					{
-						pLog->Error("Render", std::string("Shader not found ") + sShaderFragment);
+						LOG.Error("Render", std::string("Shader not found ") + sShaderFragment);
 						uiShaderFragment=0;
 					}
 				}
@@ -263,7 +263,7 @@ namespace BREATHE
 
 			bool cMaterial::Load(std::string sFilename)
 			{
-				pLog->Success("Material", std::string("Loading ") + sFilename);
+				LOG.Success("Material", std::string("Loading ") + sFilename);
 				sName=sFilename;
 
 				sFilename=pFileSystem->FindFile(sFilename);
@@ -411,24 +411,24 @@ namespace BREATHE
 						}
 
 						else if(""!=line)
-							pLog->Error("Config", line);
+							LOG.Error("Config", line);
 					}
 					f.close();
 
-					pLog->Success("Material", std::string("sTexture0 ") + sTexture0);
-					pLog->Success("Material", std::string("sTexture1 ") + sTexture1);
+					LOG.Success("Material", std::string("sTexture0 ") + sTexture0);
+					LOG.Success("Material", std::string("sTexture1 ") + sTexture1);
 
 					if(pShader)
 					{
-						pLog->Success("Material", std::string("sShaderVertex ") + pShader->sShaderVertex);
-						pLog->Success("Material", std::string("sShaderFragment ") + pShader->sShaderFragment);
+						LOG.Success("Material", std::string("sShaderVertex ") + pShader->sShaderVertex);
+						LOG.Success("Material", std::string("sShaderFragment ") + pShader->sShaderFragment);
 					}
 
-					pLog->Success("Material", std::string("Loaded ") + sFilename);
+					LOG.Success("Material", std::string("Loaded ") + sFilename);
 				}
 				else
 				{
-					pLog->Error("Material", std::string("Not found ") + sFilename);
+					LOG.Error("Material", std::string("Not found ") + sFilename);
 					return false;
 				}
 

@@ -27,9 +27,10 @@ namespace BREATHE
 
 		unsigned int uiState;
 
-#ifdef BUILD_DEBUG
 		bool bThirdPerson;
-#endif
+#ifdef BUILD_DEBUG
+		bool bThirdPersonDebug;
+#endif BUILD_DEBUG
 
 		bool bInputUp;
 		bool bInputDown;

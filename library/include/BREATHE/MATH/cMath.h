@@ -34,6 +34,16 @@ namespace BREATHE
 		{
 			return x*x;
 		}
+
+		inline unsigned int random(unsigned int max)
+		{
+			return rand() % max;
+		}
+
+		inline float random()
+		{
+			return (rand() % 10000) * 0.0001f;
+		}
 	}
 }
 

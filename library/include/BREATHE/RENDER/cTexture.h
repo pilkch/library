@@ -22,12 +22,22 @@ namespace BREATHE
 			unsigned int uiTexture;
 			std::string sFilename;
 			
+			unsigned int uiWidth;
+			unsigned int uiHeight;
+
 			float fScale;
 			float fU;
 			float fV;
 
+			SDL_Surface* surface;
+			unsigned char* pData;
+
 			cTexture();
 			~cTexture();
+			
+			void CopyFromSurface(unsigned int w, unsigned int h);
+			void CopyFromSurface();
+			void CopyToSurface();
 			
 			void Transform(float *u, float *v);
 		};

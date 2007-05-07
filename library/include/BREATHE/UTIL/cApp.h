@@ -17,7 +17,6 @@ namespace BREATHE
 		bool bDebug;
 		bool bActive;
 		bool bDone;
-		bool bThirdPerson;
 		bool bUpdatePhysics;
 		bool bStepPhysics;
 
@@ -47,14 +46,14 @@ namespace BREATHE
 
 		std::string sTitle;
 
-    cConsole *pConsole;
-
-
 		cApp(int argc, char **argv);
 		~cApp();
 
 		bool Init();
 		void MainLoop();
+
+		bool InitRender();
+		bool DestroyRender();		
 
 		bool ToggleFullscreen();
 		bool ResizeWindow(unsigned int w, unsigned int h);
@@ -77,8 +76,7 @@ namespace BREATHE
 		virtual bool InitScene()=0;
 		virtual bool DestroyScene()=0;
 
-		virtual void LoadTextures()=0;
-		virtual void DestroyTextures()=0;
+		virtual void FullscreenSwitch()=0;
 
 		virtual void Update(float fCurrentTime)=0;
 		virtual void UpdatePhysics(float fCurrentTime)=0;

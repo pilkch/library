@@ -74,6 +74,7 @@ namespace BREATHE
 
 			unsigned int uiTextureChanges;
 			unsigned int uiTextureModeChanges;
+			unsigned int uiTriangles;
 
 			MATH::cVec4 v3SunPosition;
 
@@ -146,7 +147,6 @@ namespace BREATHE
 			cTexture *GetCubeMap(std::string sFilename);
 
 
-			
 			MATERIAL::cMaterial* pCurrentMaterial;
 
 
@@ -160,7 +160,8 @@ namespace BREATHE
 
 			MATERIAL::cMaterial *GetMaterial(std::string sFilename);
 
-			void ReloadMaterials();
+			
+			void ReloadTextures();
 		};
 
 		

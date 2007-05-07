@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <sstream>
 
 #include <SDL/SDL.h>
@@ -31,12 +32,12 @@ namespace BREATHE
 		{
 			std::ostringstream t;
 			t<<"SDLNet_Init: "<<SDLNet_GetError();
-			pLog->Error("cNetwork::cNetwork", t.str());
+			LOG.Error("cNetwork::cNetwork", t.str());
 
 			return false;
 		}
 
-		pLog->Success("cNetwork", "Init");
+		LOG.Success("cNetwork", "Init");
 
 		return true;
 	}
@@ -66,11 +67,11 @@ namespace BREATHE
 		{
 			std::ostringstream t;
 			t<<"SDLNet_GetError: "<<SDLNet_GetError();
-			pLog->Error("cNetwork", t.str());
+			LOG.Error("cNetwork", t.str());
 		}
 
 		SDLNet_Quit();
 
-		pLog->Success("cNetwork", "Shutdown");
+		LOG.Success("cNetwork", "Shutdown");
 	}
 }

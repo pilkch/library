@@ -350,6 +350,9 @@ namespace BREATHE
 			fLength=l;
 			fHeight=h;
 
+			fWeight=fMass;
+
+
 			fControl_Accelerate=0.0f;
 			fControl_Brake=0.0f;
 			fControl_Clutch=0.0f;
@@ -359,7 +362,19 @@ namespace BREATHE
 			fPetrolTankSize=70.0f;
 
 
-			fWeight=fMass;
+			// http://home.planet.nl/~monstrous/tutcar.html
+			properties.fDrag = 0.4257f;      // Drag constant (air resistance)
+			properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
+			properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
+						
+			properties.fWeight = fWeight;
+			properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
+			properties.fEngineSpeed = 800.0f; // RPM
+			properties.fTraction0 = 1.0f;
+			properties.fTraction1 = 1.0f;
+			properties.fTraction2 = 1.0f;
+			properties.fTraction3 = 1.0f;
+
 
 			vPetrolTank.insert(0, PETROL_SIZE, 0.0f);
 		}

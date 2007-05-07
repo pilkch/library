@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <list>
 #include <string>
 
 // Breathe
@@ -38,7 +39,7 @@ namespace BREATHE
 
 		void Camera3DS::Parse(Model3DSChunk c)
 		{
-			pLog->Success("3ds", "Camera");
+			LOG.Success("3ds", "Camera");
 
 			MATH::cFrustum *p=new MATH::cFrustum();
 

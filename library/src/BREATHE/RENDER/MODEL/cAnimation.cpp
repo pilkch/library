@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include <list>
 #include <sstream>
 #include <vector>
 #include <map>
@@ -41,24 +42,24 @@ namespace BREATHE
 		{
 			cAnimation::cAnimation() : cModel()
 			{
-				pLog->Error("Animation", "Don't use this class");
+				LOG.Error("Animation", "Don't use this class");
 			}
 
 			cAnimation::~cAnimation()
 			{
-				pLog->Error("Animation", "Don't use this class");
+				LOG.Error("Animation", "Don't use this class");
 			}		
 			
 			int cAnimation::Load(std::string sFilename)
 			{
-				pLog->Error("Animation", "Don't use this class");
+				LOG.Error("Animation", "Don't use this class");
 
 				return 0;
 			}
 
 			void cAnimation::Update(float fTime)
 			{
-				pLog->Error("Animation", "Don't use this class");
+				LOG.Error("Animation", "Don't use this class");
 			}
 		}
 	}

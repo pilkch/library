@@ -18,6 +18,7 @@
 #include <SDL/SDL_image.h>
 
 //Some STL headers
+#include <list>
 #include <vector>
 #include <string>
 
@@ -107,7 +108,7 @@ namespace BREATHE
 			//So now we can create the display list
 			glNewList(list_base+ch,GL_COMPILE);
 
-			glBindTexture(GL_TEXTURE_2D,tex_base[ch]);
+			glBindTexture(GL_TEXTURE_2D, tex_base[ch]);
 
 			//first we need to move over a little so that
 			//the character has the right amount of space
