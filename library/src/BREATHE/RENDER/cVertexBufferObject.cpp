@@ -1,23 +1,24 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 #include <list>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <string>
+#include <memory>
 
 // writing on a text file
 #include <iostream>
 #include <fstream>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
-#include <SDL/SDL_image.h>
+#include <GL/Glee.h>
 
-
+//#include <SDL/SDL.h>
+//#include <SDL/SDL_opengl.h>
+//#include <SDL/SDL_image.h>
 
 // Breathe
 #include <BREATHE/cBreathe.h>
@@ -34,12 +35,146 @@
 #include <BREATHE/MATH/cFrustum.h>
 #include <BREATHE/MATH/cColour.h>
 
+#include <BREATHE/UTIL/cBase.h>
+
 #include <BREATHE/RENDER/cVertexBufferObject.h>
 
 namespace BREATHE
 {
 	namespace RENDER
 	{
+		#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+		cVertexBufferObject::cVertexBufferObject()
+		{
+			uiVertices = 0;
+
+			uiOffsetTextureUnit1 = 0;
+			uiOffsetTextureUnit2 = 0;
+
+			bufferID = NULL;
+		}
+
+		cVertexBufferObject::~cVertexBufferObject()
+		{
+			uiVertices = 0;
+
+			Destroy();
+		}
+
+		void cVertexBufferObject::Destroy()
+		{
+			if(bufferID) 
+			{
+				glBindBufferARB(GL_ARRAY_BUFFER, 0);
+				glDeleteBuffersARB(1, &bufferID);
+			}
+		}
+
+		void cVertexBufferObject::Init()
+		{
+			// Create a big array that holds all of the data
+			// Set the buffer data to this big array
+			// Assign offsets for our arrays
+			uiVertices = pVertex.vData.size();
+
+			unsigned int uiVertexSize = pVertex.vData.size() * sizeof(MATH::cVec3);
+			unsigned int uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(MATH::cVec2);
+			//unsigned int uiTextureCoordSize1 = pTextureCoord1.vData.size() * sizeof(MATH::cVec2);
+			unsigned int uiNormalSize = pNormal.vData.size() * sizeof(MATH::cVec3);
+			
+			pVertex.uiOffset = 0 + 0;
+			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
+			//pTextureCoord1.uiOffset = pTextureCoord0.uiOffset + uiTextureCoordSize0;
+			pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
+			
+			if(pTextureCoord.vData.size() > pVertex.vData.size())
+			{
+				uiOffsetTextureUnit1 = pTextureCoord.uiOffset + (pVertex.vData.size() * sizeof(MATH::cVec2));
+
+				if(pTextureCoord.vData.size()/2 > pVertex.vData.size())
+					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (pVertex.vData.size() * sizeof(MATH::cVec2));
+			}
+
+			std::vector<float>vData;
+			unsigned int i = 0;
+			for (i =0;i<pVertex.vData.size(); i++)
+			{
+				vData.push_back(pVertex.vData[i].x);
+				vData.push_back(pVertex.vData[i].y);
+				vData.push_back(pVertex.vData[i].z);
+			}
+			for (i =0;i<pTextureCoord.vData.size(); i++)
+			{
+				vData.push_back(pTextureCoord.vData[i].u);
+				vData.push_back(pTextureCoord.vData[i].v);
+			}
+			for (i =0;i<pNormal.vData.size(); i++)
+			{
+				vData.push_back(pNormal.vData[i].x);
+				vData.push_back(pNormal.vData[i].y);
+				vData.push_back(pNormal.vData[i].z);
+			}
+
+			glGenBuffersARB(1, &bufferID);
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+			glBufferDataARB(GL_ARRAY_BUFFER_ARB, vData.size() * sizeof(float), &vData[0], GL_STATIC_DRAW_ARB);
+		}
+		
+		unsigned int cVertexBufferObject::Render()
+		{
+			// TODO: Call this only once at start of rendering?  Not per vbo?
+			
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
+
+
+			glEnableClientState( GL_NORMAL_ARRAY );
+			glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(pNormal.uiOffset));
+
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(pTextureCoord.uiOffset));
+
+			if(uiOffsetTextureUnit1)
+			{
+				glClientActiveTextureARB(GL_TEXTURE1_ARB);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit1));
+				
+				if(uiOffsetTextureUnit2)
+				{
+					glClientActiveTextureARB(GL_TEXTURE2_ARB);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit2));
+				}
+			}
+			
+
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(pVertex.uiOffset));
+
+				glDrawArrays(GL_TRIANGLES, 0, uiVertices);
+		
+			glDisableClientState( GL_VERTEX_ARRAY );
+			
+			if(uiOffsetTextureUnit1)
+			{
+				if(uiOffsetTextureUnit2)
+				{
+					glClientActiveTexture( GL_TEXTURE2 );
+					glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+				}
+
+				glClientActiveTexture( GL_TEXTURE1 );
+				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			}
+
+			glClientActiveTexture( GL_TEXTURE0 );
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+			glDisableClientState( GL_NORMAL_ARRAY );
+
+			return 0;
+		}
 	}
 }

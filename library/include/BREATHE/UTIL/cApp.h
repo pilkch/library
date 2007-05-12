@@ -11,7 +11,6 @@ namespace BREATHE
 
 	public:
 		cLevel *pLevel;
-		RENDER::cRender *pRender;
 
 		bool bConsole;
 		bool bDebug;
@@ -33,12 +32,12 @@ namespace BREATHE
 		std::map<std::string, cVar *>mVar;
 		
 		std::map<unsigned int, cAppKey * >mKey;
+		std::vector<SDL_Joystick*>vJoystick;
 		
 		const SDL_VideoInfo *videoInfo;
 
-		SDL_Surface *surface;
-
 		SDL_Event event;
+
 
 		// Information about the current video settings
 		SDL_VideoInfo* g_info;
@@ -56,6 +55,7 @@ namespace BREATHE
 		bool DestroyRender();		
 
 		bool ToggleFullscreen();
+		bool SetPerspective();
 		bool ResizeWindow(unsigned int w, unsigned int h);
 
 		void AddKey(unsigned int code, bool repeat);
@@ -66,7 +66,6 @@ namespace BREATHE
 		void OnKeyUp(SDL_keysym *keysym);
     
 		void ConsoleAddKey(unsigned int code);
-		void ConsoleAddLine(std::string s);
 		void ConsoleExecute(std::string s);
 
 		cVar *VarFind(std::string name);
@@ -101,6 +100,9 @@ namespace BREATHE
 		unsigned int uiCode;
 
 		cAppKey(unsigned int code, bool repeat=true);
+		
+		bool IsKeyDown();
+		void SetKeyUp(bool bConsole);
 	};
 }
 

@@ -12,7 +12,7 @@ namespace BREATHE
 			//either add a cMesh *pMesh or std::vector<cMesh *>vMesh in which to store data
 			//Not including this means that we can also override this object with for example cBillboard which doesn't
 			//have to contain an actual mesh, you can specify your own coords etc.  
-			class cModel : public cUpdateable
+			class cModel : public cRenderable
 			{
 			public:
 				unsigned int uiTriangles;
@@ -22,8 +22,6 @@ namespace BREATHE
 				~cModel();
 
 				virtual int Load(std::string sFilename)=0;
-				virtual void Update(float fTime)=0;
-				virtual unsigned int Render()=0;
 			};
 		}
 	}

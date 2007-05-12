@@ -1,23 +1,25 @@
+// Standard includes
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
-
 #include <cmath>
 
-// writing on a text file
+// STL includes
 #include <iostream>
 #include <fstream>
-
 #include <list>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <list>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
-#include <SDL/SDL_image.h>
+// Anything else
+#include <GL/Glee.h>
+#include <GL/glu.h>
 
+//#include <SDL/SDL.h>
+//#include <SDL/SDL_opengl.h>
+#include <SDL/SDL_image.h>
 
 // Breathe
 #include <BREATHE/cBreathe.h>
@@ -35,57 +37,25 @@
 #include <BREATHE/MATH/cOctree.h>
 #include <BREATHE/MATH/cColour.h>
 
-
-
-
-/*#include <BREATHE/UTIL/cBase.h>
-
-#include <BREATHE/cModel_Animation.h>
-#include <BREATHE/cModel_Static.h>
-#include <BREATHE/cModel_Roam_Patch.h>
-#include <BREATHE/cModel_Roam.h>
-#include <BREATHE/cModel.h>*/
+#include <BREATHE/UTIL/cBase.h>
 
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
 #include <BREATHE/RENDER/cMaterial.h>
 #include <BREATHE/RENDER/cRender.h>
+#include <BREATHE/RENDER/cVertexBufferObject.h>
 
-#include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 #include <BREATHE/RENDER/MODEL/cStatic.h>
 
 #include <BREATHE/GAME/cLevel.h>
 
-PFNGLACTIVETEXTUREPROC glActiveTexture;
-PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f;
-PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
-
-PFNGLGENBUFFERSARBPROC glGenBuffersARB;
-PFNGLBINDBUFFERARBPROC glBindBufferARB;
-PFNGLBUFFERDATAARBPROC glBufferDataARB;
-PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB;
-
-PFNGLSHADERSOURCEARBPROC glShaderSource;
-PFNGLCOMPILESHADERARBPROC glCompileShader;
-PFNGLCREATEPROGRAMPROC glCreateProgram;
-PFNGLCREATESHADERPROC glCreateShader;
-PFNGLATTACHSHADERPROC glAttachShader;
-PFNGLLINKPROGRAMPROC glLinkProgram;
-PFNGLUSEPROGRAMPROC glUseProgram;
-PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
-PFNGLUNIFORM3FPROC glUniform3f;
-PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
-PFNGLUNIFORM1IPROC glUniform1i;
-PFNGLGETSHADERIVPROC glGetShaderiv;
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-PFNGLGETPROGRAMIVPROC glGetProgramiv;
-PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
-PFNGLDELETESHADERPROC glDeleteShader;
-PFNGLDELETEPROGRAMPROC glDeleteProgram;
-
 #define MAX_TEXTURE_SIZE 1024
+
+const float fDetailScale = 20.0f;
+
+BREATHE::RENDER::cRender* pRender = NULL;
 
 namespace BREATHE
 {
@@ -151,6 +121,47 @@ namespace BREATHE
 			return (t.str().find(sExt) != std::string::npos);
 		}
 
+		void cRender::ToggleFullscreen()
+		{
+			bFullscreen = !bFullscreen;
+
+			if(bFullscreen)
+			{
+#ifdef BUILD_DEBUG
+				uiWidth = 1024;
+				uiHeight = 768;
+				return;
+#endif
+
+				if(uiWidth<1280)
+				{
+					if(uiWidth<1024)
+					{
+						if(uiWidth<800)
+						{
+							uiWidth = 640;
+							uiHeight = 480;
+						}
+						else
+						{
+							uiWidth = 800;
+							uiHeight = 600;
+						}
+					}
+					else
+					{
+						uiWidth = 1024;
+						uiHeight = 768;
+					}
+				}
+				else
+				{
+					uiWidth = 1600;
+					uiHeight = 1280;
+				}
+			}
+		}
+
 		bool cRender::Init()
 		{
 			glClearColor(1.0f, 0.0f, 1.0f, 0.0f);				// Clear The Background Color To Black
@@ -205,7 +216,7 @@ namespace BREATHE
 
 			std::ostringstream t;
 			t << "Screen BPP: ";
-			t << (unsigned int)(SDL_GetVideoSurface()->format->BitsPerPixel);
+			t << (unsigned int)(pSurface->format->BitsPerPixel);
 			LOG.Success("Render", t.str());
 			LOG.Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
 			LOG.Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
@@ -241,13 +252,6 @@ namespace BREATHE
 				return false;
 			}
 
-			
-			*(void**)&glClientActiveTexture = SDL_GL_GetProcAddress("glClientActiveTexture");
-			*(void**)&glActiveTexture = SDL_GL_GetProcAddress("glActiveTexture");
-			*(void**)&glMultiTexCoord2f = SDL_GL_GetProcAddress("glMultiTexCoord2f");
-
-
-
 			//GL_SHADING_LANGUAGE_VERSION
 
 			float fShaderVersion=0.0f;
@@ -268,42 +272,7 @@ namespace BREATHE
 			{
 				LOG.Success("Render", "Found Shader2.0");
 
-				*(void**)&glShaderSource = SDL_GL_GetProcAddress("glShaderSource");
-				*(void**)&glCompileShader = SDL_GL_GetProcAddress("glCompileShader");
-				*(void**)&glCreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
-				*(void**)&glCreateShader = SDL_GL_GetProcAddress("glCreateShader");
-				*(void**)&glAttachShader = SDL_GL_GetProcAddress("glAttachShader");
-				*(void**)&glLinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
-				*(void**)&glUseProgram = SDL_GL_GetProcAddress("glUseProgram");
-				*(void**)&glGetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
-				*(void**)&glUniform3f  = SDL_GL_GetProcAddress("glUniform3f");
-				*(void**)&glUniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
-				*(void**)&glUniform1i = SDL_GL_GetProcAddress("glUniform1i");
-				*(void**)&glGetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");
-				*(void**)&glGetShaderInfoLog = SDL_GL_GetProcAddress("glGetShaderInfoLog");
-				*(void**)&glGetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
-				*(void**)&glGetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
-				*(void**)&glDeleteShader = SDL_GL_GetProcAddress("glDeleteShader");
-				*(void**)&glDeleteProgram = SDL_GL_GetProcAddress("glDeleteProgram");
-				
-				bCanShader=
-					glShaderSource &&
-					glCompileShader &&
-					glCreateProgram &&
-					glCreateShader &&
-					glAttachShader &&
-					glLinkProgram &&
-					glUseProgram &&
-					glGetUniformLocation &&
-					glUniform3f &&
-					glUniformMatrix4fv &&
-					glUniform1i &&
-					glGetShaderiv &&
-					glGetShaderInfoLog &&
-					glGetProgramiv &&
-					glGetProgramInfoLog &&
-					glDeleteShader &&
-					glDeleteProgram;
+				bCanShader = true;
         
 				bShader=bCanShader;
 			}
@@ -314,12 +283,7 @@ namespace BREATHE
 				LOG.Success("Render", "Cannot use shaders, shaders turned off");
 
 
-			if(	NULL!=glActiveTexture && 
-					NULL!=glMultiTexCoord2f &&
-					NULL!=glClientActiveTexture)
-				return BREATHE::GOOD;
-
-			return BREATHE::BAD;
+			return BREATHE::GOOD;
 		}
 		
 		void cRender::BeginFrame(float fCurrentTime)
@@ -441,8 +405,9 @@ namespace BREATHE
 
 			if(p->surface->format->BytesPerPixel == 3) // RGB 24bit
 			{
-				mode = GL_RGB;
-				LOG.Success("Texture", "RGB Image");
+				LOG.Error("Texture", "RGB Image" + sNewFilename);
+				delete p;
+				return NULL;
 			}
 			else if(p->surface->format->BytesPerPixel == 4)// RGBA 32bit
 			{
@@ -692,6 +657,14 @@ namespace BREATHE
 			mTexture[sNewFilename]=p;
 
 			return p;
+		}
+
+		cVertexBufferObject* cRender::AddVertexBufferObject()
+		{
+			cVertexBufferObject* pVertexBufferObject = new cVertexBufferObject();
+			vVertexBufferObject.push_back(pVertexBufferObject);
+
+			return pVertexBufferObject;
 		}
 
 		cTexture *cRender::GetCubeMap(std::string sNewFilename)
@@ -983,11 +956,21 @@ namespace BREATHE
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
+				if(	TEXTURE_MASK==layerOld->uiTextureMode || 
+						TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 					glBlendFunc(GL_ONE, GL_ZERO);
 					glDisable(GL_BLEND);
+				}
+				else if(	TEXTURE_DETAIL==layerOld->uiTextureMode)
+				{
+					// Reset the texture matrix
+					glMatrixMode(GL_TEXTURE);
+					glLoadIdentity();
+					glMatrixMode(GL_MODELVIEW);
+
+					glEnable(GL_LIGHTING);
 				}
 				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
@@ -1068,7 +1051,7 @@ namespace BREATHE
 
 			uiActiveUnits=n;
 
-			unit=GL_TEXTURE0;
+			unit=GL_TEXTURE0_ARB;
 			
 			for(i=0;i<n;i++, unit++)
 			{
@@ -1086,7 +1069,9 @@ namespace BREATHE
 				if(layerOld->uiTextureMode!=layerNew->uiTextureMode)
 				{
 					//Undo last mode
-					if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
+					if(	TEXTURE_MASK==layerOld->uiTextureMode ||
+							TEXTURE_BLEND==layerOld->uiTextureMode ||
+							TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glBlendFunc(GL_ONE, GL_ZERO);
@@ -1139,6 +1124,28 @@ namespace BREATHE
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 						glEnable(GL_BLEND);
+					}
+					else if(TEXTURE_DETAIL==layerOld->uiTextureMode)
+					{
+						glActiveTexture(GL_TEXTURE0_ARB);
+						glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+						glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
+
+						glActiveTexture(GL_TEXTURE1_ARB);
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
+										
+						// Change the texture matrix so that we have more detail than normal texture
+						glMatrixMode(GL_TEXTURE);
+							glLoadIdentity();
+							glScalef(fDetailScale, fDetailScale, 1);
+							glMatrixMode(GL_MODELVIEW);
+
+							// General Switches
+							glDisable(GL_BLEND);
+							glEnable(GL_LIGHTING);
 					}
 					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
@@ -1224,7 +1231,8 @@ namespace BREATHE
 				else if(layerOld->uiTexture!=layerNew->uiTexture)
 				{
 					uiTextureChanges++;
-					if(TEXTURE_MASK==layerOld->uiTextureMode)
+					if(	TEXTURE_MASK==layerOld->uiTextureMode || 
+							TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						layerOld->uiTexture=layerNew->uiTexture;
 						glBindTexture(GL_TEXTURE_2D, layerNew->uiTexture);
@@ -1293,7 +1301,8 @@ namespace BREATHE
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glEnable(GL_BLEND);
 					}
-					else if(TEXTURE_BLEND==layerOld->uiTextureMode)
+					else if(TEXTURE_BLEND==layerOld->uiTextureMode || 
+									TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
@@ -1389,7 +1398,7 @@ namespace BREATHE
 				// **************************************************************************************
 			}
 
-			unit = GL_TEXTURE0 + n;
+			unit = GL_TEXTURE0_ARB + n;
 
 			for(i=n;i<MATERIAL::nLayers;i++, unit++)
 			{
@@ -1400,11 +1409,23 @@ namespace BREATHE
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if(TEXTURE_MASK==layerOld->uiTextureMode || TEXTURE_BLEND==layerOld->uiTextureMode)
+				if(	TEXTURE_MASK==layerOld->uiTextureMode || 
+						TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 					glBlendFunc(GL_ONE, GL_ZERO);
 					glDisable(GL_BLEND);
+				}
+				else if(TEXTURE_DETAIL==layerOld->uiTextureMode)
+				{
+					// Change the texture matrix so that we have more detail than normal texture
+					glMatrixMode(GL_TEXTURE);
+						glLoadIdentity();
+					glMatrixMode(GL_MODELVIEW);
+
+					// General Switches
+					glDisable(GL_BLEND);
+					glEnable(GL_LIGHTING);
 				}
 				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
@@ -1432,7 +1453,7 @@ namespace BREATHE
 
 			if(1==uiActiveUnits)
 			{			
-				glActiveTexture(GL_TEXTURE0);
+				glActiveTexture(GL_TEXTURE0_ARB);
 				if(TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
 				{
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
@@ -1447,34 +1468,71 @@ namespace BREATHE
 			}
 			else if(2==uiActiveUnits)
 			{
-				glActiveTexture(GL_TEXTURE1);
-				float a1[4] = {0.6f, 0.6f, 0.6f, 1.0f};
-				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
-				
-				glActiveTexture(GL_TEXTURE0);
-				if(TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
+				if(TEXTURE_DETAIL==pMaterial->vLayer[1]->uiTextureMode)
 				{
-					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
+					// TEXTURE-UNIT #0
+					glActiveTexture(GL_TEXTURE0_ARB);
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[0]->uiTexture);
+					glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+					glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
 
-					glColor4f(colour.r, colour.g, colour.b, colour.a);
+					// TEXTURE-UNIT #1
+					glActiveTexture(GL_TEXTURE1_ARB);
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[1]->uiTexture);
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
+									
+					// Now we want to enter the texture matrix.  This will allow us
+					// to change the tiling of the detail texture.
+					glMatrixMode(GL_TEXTURE);
+
+						// Reset the current matrix and apply our chosen scale value
+						glLoadIdentity();
+						glScalef(fDetailScale, fDetailScale, 1);
+
+						// Leave the texture matrix and set us back in the model view matrix
+						glMatrixMode(GL_MODELVIEW);
+
+						// General Switches
+						glDisable(GL_BLEND);
+						glDisable(GL_LIGHTING);
 				}
 				else
 				{
-					float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
+					{
+						glActiveTexture(GL_TEXTURE1_ARB);
+
+						float a1[4] = {0.6f, 0.6f, 0.6f, 1.0f};
+						glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
+					}
+					
+					glActiveTexture(GL_TEXTURE0_ARB);
+					if(	TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour &&
+							!TEXTURE_DETAIL==vLayer[1].uiTextureMode)
+					{
+						glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
+						glColor4f(colour.r, colour.g, colour.b, colour.a);
+					}
+					else
+					{
+						float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+						glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
+					}
 				}
 			}
 			else if(3==uiActiveUnits)
 			{
-				glActiveTexture(GL_TEXTURE2);
+				glActiveTexture(GL_TEXTURE2_ARB);
 				float a2[4] = {0.5f, 0.5f, 0.5f, 1.0f};
 				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a2);
 				
-				glActiveTexture(GL_TEXTURE1);
+				glActiveTexture(GL_TEXTURE1_ARB);
 				float a1[4] = {0.5f, 0.5f, 0.5f, 1.0f};
 				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
 				
-				glActiveTexture(GL_TEXTURE0);
+				glActiveTexture(GL_TEXTURE0_ARB);
 				if(TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
 				{
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
@@ -1558,13 +1616,15 @@ namespace BREATHE
 		void cRender::ReloadTextures()
 		{
 			LOG.Success("Render", "ReloadTextures");
+			
+			LOG.Success("Render", "ReloadTextures Atlases");
 			cTextureAtlas *pAtlas = NULL;
 			unsigned int n = vTextureAtlas.size();
-			unsigned int* pOldTexture = new unsigned int[n];
+			std::vector<unsigned int>vOldTextureAtlas;
 			for(unsigned int i = 0;i<n;i++)
 			{
 				pAtlas = vTextureAtlas[i];
-				pOldTexture[i] = pAtlas->uiTexture;
+				vOldTextureAtlas.push_back(pAtlas->uiTexture);
 				
 				// Destroy old texture
 				glDeleteTextures(1, &pAtlas->uiTexture);
@@ -1584,39 +1644,84 @@ namespace BREATHE
 				gluBuild2DMipmaps(GL_TEXTURE_2D, 4, pAtlas->surface->w, pAtlas->surface->h, GL_RGBA, GL_UNSIGNED_BYTE, pAtlas->surface->pixels);
 			}
 
-
-			MATERIAL::cMaterial * pMaterial = NULL;
-			std::map<std::string, MATERIAL::cMaterial *>::iterator iter=mMaterial.begin();
-			for(;iter!=mMaterial.end();iter++)
 			{
-				pMaterial=iter->second;
-
-				unsigned int nLayer = pMaterial->vLayer.size();
-				for(unsigned int iLayer = 0;iLayer<nLayer;iLayer++)
+				LOG.Success("Render", "ReloadTextures Misc Textures");
+				cTexture *pTexture = NULL;
+				std::map<std::string, cTexture* >::iterator iter=mTexture.begin();
+				std::map<std::string, cTexture* >::iterator iterEnd=mTexture.end();
+				while(iter != iterEnd)
 				{
-					bool bFound = false;
-					unsigned int iAtlas = 0;
-					while(iAtlas<n && !bFound)
+					pTexture = iter->second;
+
+					// Destroy old texture
+					glDeleteTextures(1, &pTexture->uiTexture);
+					
+					// Create new texture				
+					glGenTextures(1, &pTexture->uiTexture);
+					
+					glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+
+					if(pTexture->surface)
 					{
-						if(pMaterial->vLayer[iLayer]->uiTexture == pOldTexture[iAtlas])
+						pTexture->CopyToSurface();
+
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pTexture->surface->w, pTexture->surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pTexture->surface->pixels);
+
+						//Remove this line if there are artifacts
+						gluBuild2DMipmaps(GL_TEXTURE_2D, 4, pTexture->surface->w, pTexture->surface->h, GL_RGBA, GL_UNSIGNED_BYTE, pTexture->surface->pixels);
+					}
+
+					iter++;
+				}
+			}
+
+			{
+				LOG.Success("Render", "ReloadTextures Materials");
+				MATERIAL::cMaterial * pMaterial = NULL;
+				std::map<std::string, MATERIAL::cMaterial *>::iterator iter=mMaterial.begin();
+				for(;iter!=mMaterial.end();iter++)
+				{
+					pMaterial=iter->second;
+
+					unsigned int nLayer = pMaterial->vLayer.size();
+					for(unsigned int iLayer = 0;iLayer<nLayer;iLayer++)
+					{
+						bool bFound = false;
+						unsigned int iAtlas = 0;
+						while(iAtlas<n && !bFound)
 						{
-							pMaterial->vLayer[iLayer]->uiTexture = vTextureAtlas[iAtlas]->uiTexture;
-							bFound = true;
+							if(pMaterial->vLayer[iLayer]->uiTexture == vOldTextureAtlas[iAtlas])
+							{
+								pMaterial->vLayer[iLayer]->uiTexture = vTextureAtlas[iAtlas]->uiTexture;
+								bFound = true;
+							}
+
+							iAtlas++;
 						}
 
-						iAtlas++;
+						if(!bFound)
+						{
+							pMaterial->vLayer[iLayer]->uiTexture = GetTexture(iLayer == 0 ? pMaterial->sTexture0 :
+																																iLayer == 1 ? pMaterial->sTexture1 :
+																																pMaterial->sTexture2)->uiTexture;
+						}
 					}
 
-					if(!bFound)
+					if(pMaterial->pShader)
 					{
-						//TODO: Reload from texture
+						pMaterial->pShader->Destroy();
+						pMaterial->pShader->Init();
 					}
 				}
+			}
 
-				if(pMaterial->pShader)
+			{
+				LOG.Success("Render", "ReloadTextures Vertex Buffer Objects");
+				n = vVertexBufferObject.size();
+				for(i = 0;i<n;i++)
 				{
-					pMaterial->pShader->Destroy();
-					pMaterial->pShader->Init();
+					vVertexBufferObject[i]->Destroy();
+					vVertexBufferObject[i]->Init();
 				}
 			}
 		}

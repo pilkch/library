@@ -12,6 +12,8 @@
 #include <map>
 #include <string>
 
+#include <GL/Glee.h>
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
@@ -311,6 +313,8 @@ namespace BREATHE
 								vLayer[0]->uiTextureMode=TEXTURE_BLEND;
 							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
 								vLayer[0]->uiTextureMode=TEXTURE_CUBEMAP;
+							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
+								vLayer[0]->uiTextureMode=TEXTURE_DETAIL;
 						}
 						else if(line.find("uiTextureMode1=") != std::string::npos)
 						{
@@ -324,6 +328,8 @@ namespace BREATHE
 								vLayer[1]->uiTextureMode=TEXTURE_BLEND;
 							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
 								vLayer[1]->uiTextureMode=TEXTURE_CUBEMAP;
+							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
+								vLayer[1]->uiTextureMode=TEXTURE_DETAIL;
 						}
 						else if(line.find("uiTextureMode2=") != std::string::npos)
 						{
@@ -337,6 +343,8 @@ namespace BREATHE
 								vLayer[2]->uiTextureMode=TEXTURE_BLEND;
 							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
 								vLayer[2]->uiTextureMode=TEXTURE_CUBEMAP;
+							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
+								vLayer[2]->uiTextureMode=TEXTURE_DETAIL;
 						}
 
 						else if(line.find("uiTextureAtlas0=") != std::string::npos)

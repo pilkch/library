@@ -112,11 +112,15 @@ namespace BREATHE
 
 		pPhysics=new PHYSICS::cPhysics();
 
-		pLevel=new cLevel(pRender);
+		pLevel=new cLevel();
 	}
 
 	cApp::~cApp()
 	{
+		unsigned int nJoysticks = vJoystick.size();
+		for(unsigned int i = 0; i < nJoysticks; i++)
+      SDL_JoystickClose(vJoystick[i]);
+
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 
@@ -232,23 +236,20 @@ namespace BREATHE
 					LOG.Success("SDL", t.str());
 
 					//TODO: Create a list of joysticks, close them at the end of the program
-					SDL_Joystick *joystick = SDL_JoystickOpen(i);
+					SDL_Joystick *pJoystick = SDL_JoystickOpen(i);
 
 					t.str("");
 					t << "Buttons=";
-					t << SDL_JoystickNumButtons(joystick);
+					t << SDL_JoystickNumButtons(pJoystick);
 					t << ", Axes=";
-					t << SDL_JoystickNumAxes(joystick);
+					t << SDL_JoystickNumAxes(pJoystick);
 					t << ", Hats=";
-					t << SDL_JoystickNumHats(joystick);
+					t << SDL_JoystickNumHats(pJoystick);
 					t << ", Balls=";
-					t << SDL_JoystickNumBalls(joystick);
+					t << SDL_JoystickNumBalls(pJoystick);
 					LOG.Success("SDL", t.str());
-
-					// ...
-
-					// After we are entirely finished with each joystick close them
-					SDL_JoystickClose(joystick);
+					
+					vJoystick.push_back(pJoystick);
 				}
 			}
 			else
@@ -397,17 +398,17 @@ namespace BREATHE
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 		// get a SDL surface 
-		surface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
+		pRender->pSurface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
 
 		// Verify there is a surface 
-		if(!surface)
+		if(!pRender->pSurface)
 		{
 			LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
 			return BREATHE::BAD;
 		}
 
-		if(BREATHE::BAD==ResizeWindow(pRender->uiWidth, pRender->uiHeight))
+		if(BREATHE::BAD==SetPerspective())
 			return BREATHE::BAD;
 
 		if(BREATHE::BAD==pRender->Init())
@@ -418,9 +419,9 @@ namespace BREATHE
 
 	bool cApp::DestroyRender()
 	{
-		SDL_FreeSurface(surface);
+		SDL_FreeSurface(pRender->pSurface);
 
-		surface = NULL;
+		pRender->pSurface = NULL;
 
 		return BREATHE::GOOD;
 	}
@@ -435,8 +436,7 @@ namespace BREATHE
 		}
 
 		// Toggle fullscreen
-		pRender->bFullscreen = !pRender->bFullscreen;
-
+		pRender->ToggleFullscreen();
 
 		// Create the new render
 		if(BREATHE::BAD==InitRender())
@@ -494,33 +494,55 @@ namespace BREATHE
 		bCollected=false;
 	}
 
-	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
+	bool cAppKey::IsKeyDown()
 	{
-		// handle resize event 
-		surface = SDL_SetVideoMode(w, h, pRender->uiDepth, pRender->uiFlags);
-		if ( !surface )
+		if(bDown)
 		{
-			LOG.Error("SDL", std::string("Could not get a surface after resize: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			if(bRepeat)
+			{
+				bCollected=true;
+				return true;
+			}
+			else if(!bCollected)
+			{
+				bCollected=true;
+				return true;
+			}
+
+      bDown=false;
+			bCollected=true;
 		}
 
-		
+		return false;
+	}
+	
+	void cAppKey::SetKeyUp(bool bConsole)
+	{
+		if(bRepeat)
+		{
+			bDown=false;
+			bCollected=false;
+		}
+		else if(!bConsole)
+		{
+			bDown=true;
+			bCollected=false;
+		}
+	}
 
-
-
-
+	bool cApp::SetPerspective()
+	{
 		// Height / width ration
 		GLfloat ratio;
 
 		// Protect against a divide by zero 
-		if ( h == 0 )
-			h = 1;
+		if ( pRender->uiHeight == 0 )
+			pRender->uiHeight = 1;
 
-		ratio = ( GLfloat )w / ( GLfloat )h;
+		ratio = ( GLfloat )pRender->uiWidth / ( GLfloat )pRender->uiHeight;
 
 		// Setup our viewport. 
-		glViewport( 0, 0, ( GLint )w, ( GLint )h );
+		glViewport( 0, 0, ( GLint )pRender->uiWidth, ( GLint )pRender->uiHeight );
 
 		// change to the projection matrix and set our viewing volume. 
 		glMatrixMode( GL_PROJECTION );
@@ -533,6 +555,19 @@ namespace BREATHE
 		glMatrixMode(GL_MODELVIEW);
 
 		glLoadIdentity();
+
+		return BREATHE::GOOD;
+	}
+
+	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
+	{
+		DestroyRender();
+
+		pRender->uiWidth = w;
+		pRender->uiHeight = h;
+
+		InitRender();
+		pRender->ReloadTextures();
 
 		return BREATHE::GOOD;
 	}
@@ -554,7 +589,8 @@ namespace BREATHE
 					}
 					break;
 				case SDL_VIDEORESIZE:
-					if(!ResizeWindow(event.resize.w, event.resize.h))
+
+					if(BREATHE::BAD == ResizeWindow(event.resize.w, event.resize.h))
 						bDone=true;
 
 					break;
@@ -588,89 +624,57 @@ namespace BREATHE
 
 	bool cApp::IsKeyDown(unsigned int code)
 	{
-		bool bDown=false;
-		cAppKey *p;
 		std::map<unsigned int, cAppKey * >::iterator iter=mKey.find(code);
 		
 		if(iter!=mKey.end())
-		{
-			p=(iter->second);
-			if(p->bDown)
-			{
-				if(p->bRepeat)
-				{
-					p->bCollected=true;
-					return true;
-				}
-				else if(!p->bCollected)
-				{
-					p->bCollected=true;
-					return true;
-				}
-
-        p->bDown=false;
-				p->bCollected=true;
-			}
-		}
+			return iter->second->IsKeyDown();
 
 		return false;
 	}
 
 	void cApp::UpdateKeys(float fCurrentTime)
 	{
-		Uint8 *key = SDL_GetKeyState( NULL );
-
-		cAppKey *p;
-		std::map<unsigned int, cAppKey * >::iterator iter=mKey.begin();
-		
-		while(iter!=mKey.end())
 		{
-			p=(iter->second);
+			Uint8 *key = SDL_GetKeyState( NULL );
 
-			//This key is pressed
-			if(key[p->uiCode])
+			cAppKey *p;
+			std::map<unsigned int, cAppKey * >::iterator iter=mKey.begin();
+			
+			while(iter!=mKey.end())
 			{
-				//This key can be held down
-				if(p->bRepeat)
-				{
-					p->bDown=true;
-					p->bCollected=false;
-				}
-				//This key can only be pressed once
-				else
-				{
-					p->bDown=false;
-					p->bCollected=false;
-				}
-			}
-			else
-				p->bDown=false;
+				p=(iter->second);
 
-			iter++;
+				//This key is pressed
+				if(key[p->uiCode])
+				{
+					//This key can be held down
+					if(p->bRepeat)
+					{
+						p->bDown=true;
+						p->bCollected=false;
+					}
+					//This key can only be pressed once
+					else
+					{
+						p->bDown=false;
+						p->bCollected=false;
+					}
+				}
+				else
+					p->bDown=false;
+
+				iter++;
+			}
 		}
 	}
 	void cApp::OnKeyUp(SDL_keysym *keysym)
 	{
 		unsigned int code=keysym->sym;
 
-		cAppKey *p;
 		std::map<unsigned int, cAppKey * >::iterator iter=mKey.find(code);
 		
 		if(iter!=mKey.end())
-		{
-			p=(iter->second);
-			
-			if(p->bRepeat)
-			{
-				p->bDown=false;
-				p->bCollected=false;
-			}
-			else if(!bConsole)
-			{
-				p->bDown=true;
-				p->bCollected=false;
-			}
-		}
+			iter->second->SetKeyUp(bConsole);
 
 		if(bConsole)
 			ConsoleAddKey(code);
@@ -776,16 +780,10 @@ namespace BREATHE
 		CONSOLE.uiCursorBlink=0;
 	}
 	
-	//TODO: use a cVar instead of a constant
-	void cApp::ConsoleAddLine(std::string s)
-	{
-		CONSOLE<<s;
-	}
-
 	//This is for executing one single line, cannot have ";"
 	void cApp::ConsoleExecuteSingleCommand(std::string s)
 	{
-		ConsoleAddLine(s);
+		CONSOLE<<s;
 
 		std::string full(s);
 		std::vector<std::string> args;
@@ -826,7 +824,7 @@ namespace BREATHE
 
 				while(iter!=mVar.end())
 				{
-					ConsoleAddLine(iter->first + " \"" + std::string(*(iter->second)) + "\"");
+					CONSOLE<<iter->first + " \"" + std::string(*(iter->second)) + "\"";
 
 					iter++;
 				};
@@ -843,7 +841,7 @@ namespace BREATHE
 					c+="(" + args[a] + ")";
 				c+="]";
 
-				ConsoleAddLine(c);
+				CONSOLE<<c;
 			}
 		}
 	}

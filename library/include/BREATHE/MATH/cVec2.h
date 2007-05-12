@@ -85,16 +85,22 @@ namespace BREATHE
 			operator const float* () const {return (const float*) this;}
 
 			//member variables
-			union
-			{
-				float x;
-				float u;
-			};
 
+			// We do this so that x maps to u and y maps to v
+			// for use in texture mapping as well as position coords
 			union
 			{
-				float y;
-				float v;
+				struct
+				{
+					float x;
+					float y;
+				};
+
+				struct
+				{
+					float u;
+					float v;
+				};
 			};
 		};
 	}

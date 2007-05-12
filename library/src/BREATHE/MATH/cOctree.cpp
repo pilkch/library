@@ -139,9 +139,9 @@ namespace BREATHE
 			{
 				// Get the current dimensions for this vertex.  We use the abs() function
 				// to get the absolute value because it might return a negative number.
-				int currentWidth  = abs(pVertices[i].x - m_vCenter.x);	
-				int currentHeight = abs(pVertices[i].y - m_vCenter.y);		
-				int currentDepth  = abs(pVertices[i].z - m_vCenter.z);	
+				float currentWidth  = abs(pVertices[i].x - m_vCenter.x);	
+				float currentHeight = abs(pVertices[i].y - m_vCenter.y);		
+				float currentDepth  = abs(pVertices[i].z - m_vCenter.z);	
 
 				// Check if the current width value is greater than the max width stored.
 				if(currentWidth  > maxWidth)	maxWidth  = currentWidth;

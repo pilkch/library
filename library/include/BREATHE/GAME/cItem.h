@@ -6,8 +6,7 @@ namespace BREATHE
 	class cItem : virtual public PHYSICS::cPhysicsObject
 	{
 	public:
-		/*cLevel *pLevel;
-		RENDER::cRender *pRender;*/
+		/*cLevel *pLevel;*/
     
 		cItem();
 		~cItem();

@@ -93,7 +93,6 @@ namespace BREATHE
 		float fPreviousTime;
 
 	public:
-		RENDER::cRender *pRender;
 
 		unsigned int uiWidth;
 		unsigned int uiHeight;
@@ -116,7 +115,7 @@ namespace BREATHE
 		
 		std::vector<cLevelCubemap * >vCubemap;
 
-		cLevel(RENDER::cRender *p);
+		cLevel();
 		~cLevel();
 
 		bool Load(std::string sNewFilename);

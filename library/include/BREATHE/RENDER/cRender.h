@@ -1,37 +1,12 @@
 #ifndef CRENDER_H
 #define CRENDER_H
 
-extern PFNGLACTIVETEXTUREPROC glActiveTexture;
-extern PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f;
-extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
-
-extern PFNGLGENBUFFERSARBPROC glGenBuffersARB;
-extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
-extern PFNGLBUFFERDATAARBPROC glBufferDataARB;
-extern PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB;
-
-extern PFNGLSHADERSOURCEARBPROC glShaderSource;
-extern PFNGLCOMPILESHADERARBPROC glCompileShader;
-extern PFNGLCREATEPROGRAMPROC glCreateProgram;
-extern PFNGLCREATESHADERPROC glCreateShader;
-extern PFNGLATTACHSHADERPROC glAttachShader;
-extern PFNGLLINKPROGRAMPROC glLinkProgram;
-extern PFNGLUSEPROGRAMPROC glUseProgram;
-extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
-extern PFNGLUNIFORM3FPROC glUniform3f;
-extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
-extern PFNGLUNIFORM1IPROC glUniform1i;
-extern PFNGLGETSHADERIVPROC glGetShaderiv;
-extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
-extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
-extern PFNGLDELETESHADERPROC glDeleteShader;
-extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
-
 namespace BREATHE
 {	
 	namespace RENDER
 	{
+		class cVertexBufferObject;
+
 		class cRender
 		{
 		private:
@@ -91,8 +66,13 @@ namespace BREATHE
 
 
 
+			std::vector<cVertexBufferObject*>vVertexBufferObject;
+			cVertexBufferObject* AddVertexBufferObject();
+
 
 			MATH::cFrustum *pFrustum;
+
+			SDL_Surface *pSurface;
 
 			cRender();
 			~cRender();
@@ -102,6 +82,8 @@ namespace BREATHE
 			void BeginFrame(float fCurrentTime);
 			void BeginHUD(float fCurrentTime);
 			void EndFrame();
+
+			void ToggleFullscreen();
 
 			/*//Font
 		protected:
@@ -153,6 +135,7 @@ namespace BREATHE
 			MATERIAL::cMaterial *AddMaterial(std::string sFilename);
 			MATERIAL::cMaterial *AddMaterialNotFoundMaterial(std::string sFilename);
 			bool ClearMaterial();
+			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, MATH::cVec3()); }
 			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos);
 
 			void ClearColour();
@@ -186,5 +169,7 @@ namespace BREATHE
 		}
 	}
 }
+
+extern BREATHE::RENDER::cRender* pRender;
 
 #endif //CRENDER_H

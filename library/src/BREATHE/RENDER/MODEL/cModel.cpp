@@ -51,7 +51,6 @@ namespace BREATHE
 		namespace MODEL
 		{
 			cModel::cModel()
-				:	cUpdateable()
 			{
 
 			}

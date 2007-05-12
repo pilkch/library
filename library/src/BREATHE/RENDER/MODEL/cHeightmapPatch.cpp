@@ -4,11 +4,17 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <fstream>
 
-#include <windows.h>
-#include <gl\gl.h>
+#include <GL/Glee.h>
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+#include <SDL/SDL_image.h>
+
+// Breathe
 #include <BREATHE/cBreathe.h>
+#include <BREATHE/UTIL/cLog.h>
 
 //#include <cCamera.h>
 
@@ -25,6 +31,7 @@
 
 
 #include <BREATHE/UTIL/cBase.h>
+#include <BREATHE/RENDER/cVertexBufferObject.h>
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 #include <BREATHE/RENDER/MODEL/cStatic.h>
@@ -37,7 +44,7 @@ namespace BREATHE
 	namespace RENDER
 	{
 		namespace MODEL
-		{
+		{/*
 			// Split a single Triangle and link it into the mesh.
 			// Will correctly force-split diamonds.
 			void cHeightmapPatch::Split(cTriTreeNode *tri)
@@ -626,7 +633,7 @@ namespace BREATHE
 				//SetFogCoord(g_FogDepth, point2.fy);
 				//SetTextureCoord(point2.ux, point2.uz);
 				glVertex3f(point2.x, point2.y, point2.z);
-			}
+			}*/
 		}
 	}
 }

@@ -7,10 +7,44 @@ namespace BREATHE
 {
 	namespace RENDER
 	{
-		class cVertexBufferObject
+		template <class T>
+		class cVertexBufferObjectArray
+		{
+		public:			
+			void SetData(std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
+			T* GetData() { return vData.size() ? &vData[0] : NULL; }
+			unsigned int GetDataSize() { return vData.size(); }
+
+			unsigned int uiOffset;
+
+			std::vector<T> vData;
+		};
+
+		class cVertexBufferObject : protected cRenderable
 		{
 		public:
+			cVertexBufferObject();
+			~cVertexBufferObject();
 
+			void Destroy();
+			void Init();
+			unsigned int Render();
+			void Update(float fCurrentTime) {}
+
+			cVertexBufferObjectArray<MATH::cVec3> pVertex;
+			cVertexBufferObjectArray<MATH::cVec3> pNormal;
+			cVertexBufferObjectArray<MATH::cVec2> pTextureCoord;
+			//cVertexBufferObjectArray<MATH::cVec2> pTextureCoord1;
+
+		private:
+			unsigned int uiVertices;
+
+			unsigned int uiOffsetTextureUnit1;
+			unsigned int uiOffsetTextureUnit2;
+
+			// Note: one buffer per cVertexBufferObject, 
+			// but with multiple offsets for each cVertexBufferObjectArray
+			GLuint bufferID;
 		};
 	}
 }

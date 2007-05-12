@@ -13,13 +13,17 @@
 #include <map>
 #include <list>
 
+#include <GL/Glee.h>
+
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
+
 #include <ode/ode.h>
 
-
+// Breathe
 #include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
 #include <BREATHE/UTIL/cFileSystem.h>
@@ -66,14 +70,12 @@ namespace BREATHE
 	/*
 	std::string s=pFileSystem->GetMD5(sFilename);*/
 
-	cLevel::cLevel(RENDER::cRender *p)
+	cLevel::cLevel()
 	{
 		fWaterLevel = 1.0f;
 		fPreviousTime=0.0f;
 
-		pRender=p;
-
-		p->pLevel=this;
+		pRender->pLevel=this;
 	}
 
 	cLevel::~cLevel()
@@ -672,82 +674,6 @@ namespace BREATHE
 			if(NULL == m->pMaterial)
 				m->pMaterial = pRender->GetMaterial(m->sMaterial);
 			pRender->SetMaterial(m->pMaterial, pos);
-
-
-			/*glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertex_buf);
-			glVertexPointer(3, GL_FLOAT, 0, 0); //3 is xyz, last 0 ("pointer") is offset in vertex-array
-
-			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
-			
-			glEnableClientState(GL_VERTEX_ARRAY);
-
-			//use indexing
-			glDrawElements(GL_TRIANGLE_STRIP, I_SIZ, GL_UNSIGNED_SHORT, 0); //last 0 is offset in element-array*/
-
-			/*// grass
-			glActiveTexture(GL_TEXTURE0);
-			glClientActiveTexture(GL_TEXTURE0);
-			glTexCoordPointer(2, GL_FLOAT, 0, tex[i*x*2].m);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnable(GL_TEXTURE_2D);
-
-			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-			glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_MODULATE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-			// grass lightmap
-			glActiveTexture(GL_TEXTURE1);
-			glClientActiveTexture(GL_TEXTURE1);
-			glTexCoordPointer(2, GL_FLOAT, 0, tex2[i*x*2].m);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnable(GL_TEXTURE_2D);
-			
-			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-			glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_MODULATE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_EXT, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_ALPHA_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
-			// rock 
-			glClientActiveTexture(GL_TEXTURE2);
-			glTexCoordPointer(2, GL_FLOAT, 0, tex[i*x*2].m);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnable(GL_TEXTURE_2D);
-			
-			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-			glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_MODULATE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-			glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE3_ALPHA_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND3_ALPHA_EXT, GL_SRC_ALPHA);
-			// rock lightmap
-			glClientActiveTexture(GL_TEXTURE3);
-			glTexCoordPointer(2, GL_FLOAT, 0, tex2[i*x*2].m);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnable(GL_TEXTURE_2D);*/
-
-
-			/*Draw the normals
-			VECTOR3 v0,v1,v2; // the points for a triangle
-			VECTOR3 n0=v0 + normal * 2.0f; // end of normal line
-
-			glBegin(GL_LINES);
-			glVertex3f(v0.x, v0.y, v0.z);
-			glVertex3f(n0.x, n0.y, n0.z);
-			glEnd();
-			
-			glBegin(GL_LINES);
-			glVertex3f(v1.x, v1.y, v1.z);
-			glVertex3f(n1.x, n1.y, n1.z);
-			glEnd();
-
-			glBegin(GL_LINES);
-			glVertex3f(v2.x, v2.y, v2.z);
-			glVertex3f(n2.x, n2.y, n2.z);
-			glEnd();*/
-
 
 				texcoord=0;
 				vert=0;

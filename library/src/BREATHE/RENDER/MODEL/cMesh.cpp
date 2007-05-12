@@ -11,6 +11,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <GL/Glee.h>
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>

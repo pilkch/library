@@ -6,7 +6,7 @@ namespace BREATHE
 	namespace RENDER
 	{
 		namespace MODEL
-		{
+		{/*
 			// Depth of variance tree: should be near SQRT(PATCH_SIZE) + 1
 			#define VARIANCE_DEPTH (9)
 
@@ -85,7 +85,7 @@ namespace BREATHE
 																int rightX, int rightY, unsigned char rightZ,
 																int apexX,  int apexY,  unsigned char apexZ,
 																int node);
-			};
+			};*/
 		}
 	}
 }

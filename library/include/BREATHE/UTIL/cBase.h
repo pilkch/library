@@ -34,6 +34,12 @@ namespace BREATHE
 
 		cObject();
 	};
+	
+	class cRenderable : protected cUpdateable
+	{
+	public:
+		virtual unsigned int Render()=0;
+	};
 }
 
 #endif //CBASE_H
