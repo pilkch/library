@@ -41,8 +41,6 @@ namespace BREATHE
 				cVertexBufferObject* pVBO;
 
 				//static BREATHE::MATH::cFrustum *pFrustum;
-
-				//std::vector <cTriangle*> vTriangles;
 			};
 
 			

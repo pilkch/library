@@ -391,78 +391,14 @@ namespace BREATHE
 			p=new cTexture();
 
 			LOG.Success("Texture", "Loading " + sNewFilename);
-		
-			unsigned int mode=0;
-			p->surface = IMG_Load(sNewFilename.c_str());
-
-			// could not load filename
-			if (!p->surface)
-			{
-				LOG.Error("Texture", "Couldn't Load Texture " + sNewFilename);
-				delete p;
-				return NULL;
-			}
-
-			if(p->surface->format->BytesPerPixel == 3) // RGB 24bit
-			{
-				LOG.Error("Texture", "RGB Image" + sNewFilename);
-				delete p;
-				return NULL;
-			}
-			else if(p->surface->format->BytesPerPixel == 4)// RGBA 32bit
-			{
-				mode = GL_RGBA;
-				LOG.Success("Texture", "RGBA Image");
-			}
-			else
-			{
-				std::ostringstream t;
-				t << p->surface->format->BytesPerPixel;
-				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
-				delete p;
-				return NULL;
-			}
-
-			{
-				int nHH = p->surface->h / 2;
-				int nPitch = p->surface->pitch;
 			
-				unsigned char* pBuf = new unsigned char[nPitch];
-				unsigned char* pSrc = (unsigned char*) p->surface->pixels;
-				unsigned char* pDst = (unsigned char*) p->surface->pixels + nPitch*(p->surface->h - 1);
-			
-				while (nHH--)
-				{
-					std::memcpy(pBuf, pSrc, nPitch);
-					std::memcpy(pSrc, pDst, nPitch);
-					std::memcpy(pDst, pBuf, nPitch);
-			
-					pSrc += nPitch;
-					pDst -= nPitch;
-				};
-			
-				SAFE_DELETE_ARRAY(pBuf);
+			if(p->Load(sNewFilename) != BREATHE::GOOD)
+			{
+				SAFE_DELETE(p);
+				return p;
 			}
-
-			p->CopyFromSurface(p->surface->w, p->surface->h);
-
-
-			// create one texture name
-			glGenTextures(1, &p->uiTexture);
-
-			// tell opengl to use the generated texture name
-			glBindTexture(GL_TEXTURE_2D, p->uiTexture);
-
-			// this reads from the sdl surface and puts it into an opengl texture
-			glTexImage2D(GL_TEXTURE_2D, 0, mode, p->surface->w, p->surface->h, 0, mode, GL_UNSIGNED_BYTE, p->surface->pixels);
-
-			// these affect how this texture is drawn later on...
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-			std::ostringstream s;
-			s<<sNewFilename<<" "<<p->uiTexture<<"\0";
-			LOG.Success("Texture", s.str().c_str());
+			
+			p->GenerateOpenGLTexture();
 			
 			mTexture[sNewFilename]=p;		
 

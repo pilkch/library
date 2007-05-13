@@ -17,6 +17,13 @@ namespace BREATHE
 	const int PLAYER_STATE_DRIVE=4;
 	const int PLAYER_STATE_PASSENGER=5;
 
+	const int CAMERA_FIRSTPERSON = 0;
+	const int CAMERA_THIRDPERSON = 1;
+#ifdef BUILD_DEBUG
+	const int CAMERA_THIRDPERSONFREE = 2;
+	const int CAMERA_FIRSTPERSONFREE = 3;
+#endif
+
 	class cPlayer : virtual public PHYSICS::cPhysicsObject
 	{
 	public:
@@ -27,10 +34,7 @@ namespace BREATHE
 
 		unsigned int uiState;
 
-		bool bThirdPerson;
-#ifdef BUILD_DEBUG
-		bool bThirdPersonDebug;
-#endif BUILD_DEBUG
+		unsigned int uiCameraMode;
 
 		bool bInputUp;
 		bool bInputDown;
@@ -58,9 +62,18 @@ namespace BREATHE
 		void Init(MATH::cVec3 &pos);
 		void Update(float fTime);
 
-		bool isDriving()
+		bool IsDriving()
 		{
 			return NULL==pSeat;
+		}
+
+		bool IsThirdPersonCamera()
+		{
+#ifdef BUILD_RELEASE
+			return (uiCameraMode == CAMERA_THIRDPERSON);
+#else
+			return (uiCameraMode == CAMERA_THIRDPERSON) || (uiCameraMode == CAMERA_THIRDPERSONFREE);
+#endif
 		}
 	};
 }

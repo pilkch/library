@@ -32,6 +32,7 @@
 
 #include <BREATHE/UTIL/cBase.h>
 #include <BREATHE/RENDER/cVertexBufferObject.h>
+#include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 #include <BREATHE/RENDER/MODEL/cStatic.h>

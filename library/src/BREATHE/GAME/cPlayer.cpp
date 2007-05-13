@@ -55,9 +55,10 @@ namespace BREATHE
 
 		uiState = PLAYER_STATE_DRIVE;
 		
-		bThirdPerson = true;
-#ifdef BUILD_DEBUG
-		bThirdPersonDebug = true;
+#ifdef BUILD_RELEASE
+		uiCameraMode = CAMERA_THIRDPERSON;
+#else
+		uiCameraMode = CAMERA_THIRDPERSONFREE;
 #endif
 
 		// Movement
@@ -107,6 +108,11 @@ namespace BREATHE
 						fDirection += MATH::toRadians(45.0f);
 					else if(bInputRight)
 						fDirection -= MATH::toRadians(45.0f);
+					
+#ifdef BUILD_DEBUG
+					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+						p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
+#endif
 				}
 				else if(bInputDown)
 				{
@@ -116,6 +122,11 @@ namespace BREATHE
 						fDirection += MATH::toRadians(235.0f);
 					else
 						fDirection += MATH::toRadians(180.0f);
+
+#ifdef BUILD_DEBUG
+					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+						p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
+#endif
 				}
 				else if(bInputLeft)
 					fDirection += MATH::toRadians(90.0f);
