@@ -96,43 +96,58 @@ namespace BREATHE
 		}
 		else
 		{
-			float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
-				
-			float fDirection = fHorizontal + MATH::toRadians(90.0f);
-
-			if(fInputUp)
+			if(fInputUp > MATH::cEPSILON || fInputDown > MATH::cEPSILON || 
+				fInputLeft > MATH::cEPSILON || fInputRight > MATH::cEPSILON)
 			{
-				if(fInputLeft)
-					fDirection += MATH::toRadians(45.0f);
-				else if(fInputRight)
-					fDirection -= MATH::toRadians(45.0f);
-				
+				float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+					
+				float fDirection = fHorizontal + MATH::toRadians(90.0f);
+
+				if(fInputUp > MATH::cEPSILON && fInputUp > fInputDown)
+				{
+					if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
+						fDirection += MATH::toRadians(45.0f);
+					else if(fInputRight > MATH::cEPSILON)
+						fDirection -= MATH::toRadians(45.0f);
+					
 #ifdef BUILD_DEBUG
-				if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
-					p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
+					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+						p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
 #endif
-			}
-			else if(fInputDown)
-			{
-				if(fInputLeft)
-					fDirection -= MATH::toRadians(235.0f);
-				else if(fInputRight)
-					fDirection += MATH::toRadians(235.0f);
-				else
-					fDirection += MATH::toRadians(180.0f);
+				}
+				else if(fInputDown > MATH::cEPSILON)
+				{
+					if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
+						fDirection += MATH::toRadians(125.0f);
+					else if(fInputRight > MATH::cEPSILON)
+						fDirection -= MATH::toRadians(125.0f);
+					else
+						fDirection += MATH::toRadians(180.0f);
 
 #ifdef BUILD_DEBUG
-				if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
-					p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
+					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+						p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
 #endif
-			}
-			else if(fInputLeft)
-				fDirection += MATH::toRadians(90.0f);
-			else if(fInputRight)
-				fDirection -= MATH::toRadians(90.0f);
+				}
+				else if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
+				{
+					fDirection += MATH::toRadians(90.0f);
+					fSpeed *= fInputLeft;
+				}
+				else if(fInputRight > MATH::cEPSILON)
+				{
+					fDirection -= MATH::toRadians(90.0f);
+					fSpeed *= fInputRight;
+				}
 
-			p.x += fSpeed * cosf(fDirection);
-			p.y += fSpeed * sinf(fDirection);
+				//float fUpDown = fInputUp - fInputDown;
+				//float fLeftRight = fInputLeft - fInputRight;
+
+				//p.x += fUpDown * cosf(fDirection);
+				//p.y += fLeftRight * sinf(fDirection);
+				p.x += fSpeed * cosf(fDirection);
+				p.y += fSpeed * sinf(fDirection);
+			}
 		}
 	}
 }

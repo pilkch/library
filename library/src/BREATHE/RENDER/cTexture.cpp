@@ -17,8 +17,6 @@
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
-#include <png.h>
-
 // Breathe
 #include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
