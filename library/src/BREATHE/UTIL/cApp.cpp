@@ -94,8 +94,11 @@ namespace BREATHE
 		
 		pFileSystem=new cFileSystem();
 
+#ifdef BUILD_DEBUG
+		bDebug = true;
+#endif
+
     bConsole=false;
-		bDebug=false;
 		bActive=true;
 		bDone=false;
 		bUpdatePhysics=true;
@@ -830,7 +833,10 @@ namespace BREATHE
 				};
 			}
 			else if(GOOD==Execute(full))
-				;
+			{
+				
+			}
+#ifdef BUILD_DEBUG
 			else if(bDebug)
 			{
 				unsigned int a=0;
@@ -843,6 +849,7 @@ namespace BREATHE
 
 				CONSOLE<<c;
 			}
+#endif
 		}
 	}
 

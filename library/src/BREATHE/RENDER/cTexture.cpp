@@ -17,6 +17,7 @@
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
+#include <png.h>
 
 // Breathe
 #include <BREATHE/cBreathe.h>
@@ -203,6 +204,12 @@ namespace BREATHE
 		{
 			*u=(*u)*fScale+fU;
 			*v=(*v)*fScale+fV;
+		}
+
+		bool cTexture::SaveToBMP(std::string inFilename)
+		{
+			SDL_SaveBMP(surface, inFilename.c_str());
+			return BREATHE::GOOD;
 		}
 	}
 }

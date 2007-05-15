@@ -62,7 +62,7 @@ namespace BREATHE
 #endif
 
 		// Movement
-		bInputUp = bInputDown = bInputLeft = bInputRight = false;
+		fInputUp = fInputDown = fInputLeft = fInputRight = 0.0f;
 		
 		bInputHandbrake = bInputClutch = false;
 
@@ -96,46 +96,43 @@ namespace BREATHE
 		}
 		else
 		{
-			if(bInputUp || bInputDown || bInputLeft || bInputRight)
-			{
-				float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+			float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
 				
-				float fDirection = fHorizontal + MATH::toRadians(90.0f);
+			float fDirection = fHorizontal + MATH::toRadians(90.0f);
 
-				if(bInputUp)
-				{
-					if(bInputLeft)
-						fDirection += MATH::toRadians(45.0f);
-					else if(bInputRight)
-						fDirection -= MATH::toRadians(45.0f);
-					
+			if(fInputUp)
+			{
+				if(fInputLeft)
+					fDirection += MATH::toRadians(45.0f);
+				else if(fInputRight)
+					fDirection -= MATH::toRadians(45.0f);
+				
 #ifdef BUILD_DEBUG
-					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
-						p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
+				if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+					p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
 #endif
-				}
-				else if(bInputDown)
-				{
-					if(bInputLeft)
-						fDirection -= MATH::toRadians(235.0f);
-					else if(bInputRight)
-						fDirection += MATH::toRadians(235.0f);
-					else
-						fDirection += MATH::toRadians(180.0f);
-
-#ifdef BUILD_DEBUG
-					if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
-						p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
-#endif
-				}
-				else if(bInputLeft)
-					fDirection += MATH::toRadians(90.0f);
-				else if(bInputRight)
-					fDirection -= MATH::toRadians(90.0f);
-
-				p.x += fSpeed * cosf(fDirection);
-				p.y += fSpeed * sinf(fDirection);
 			}
+			else if(fInputDown)
+			{
+				if(fInputLeft)
+					fDirection -= MATH::toRadians(235.0f);
+				else if(fInputRight)
+					fDirection += MATH::toRadians(235.0f);
+				else
+					fDirection += MATH::toRadians(180.0f);
+
+#ifdef BUILD_DEBUG
+				if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+					p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
+#endif
+			}
+			else if(fInputLeft)
+				fDirection += MATH::toRadians(90.0f);
+			else if(fInputRight)
+				fDirection -= MATH::toRadians(90.0f);
+
+			p.x += fSpeed * cosf(fDirection);
+			p.y += fSpeed * sinf(fDirection);
 		}
 	}
 }

@@ -600,38 +600,10 @@ namespace BREATHE
 				fControl_Clutch*=0.9f;
 
 
-			if(pPlayer->bInputUp)
-			{
-				fControl_Accelerate+=0.1f;
-				if(fControl_Accelerate>1.0f)
-					fControl_Accelerate=1.0f;
-			}
-			else
-				fControl_Accelerate*=0.9f;
-			
-			if(pPlayer->bInputDown)
-			{
-				fControl_Brake+=0.1f;
-				if(fControl_Brake>1.0f)
-					fControl_Brake=1.0f;
-			}
-			else
-				fControl_Brake*=0.9f;
-			
-			if(pPlayer->bInputLeft && !pPlayer->bInputRight)
-			{
-				fControl_Steer-=0.1f;
-				if(fControl_Steer<-1.0f)
-					fControl_Steer=-1.0f;
-			}
-			else if(pPlayer->bInputRight && !pPlayer->bInputLeft)
-			{
-				fControl_Steer+=0.1f;
-				if(fControl_Steer>1.0f)
-					fControl_Steer=1.0f;
-			}
-			else
-				fControl_Steer*=0.9f;
+			fControl_Accelerate = pPlayer->fInputUp;
+			fControl_Brake = pPlayer->fInputDown;
+			if(pPlayer->fInputLeft > pPlayer->fInputRight) fControl_Steer = -1.0f * pPlayer->fInputLeft;
+			else fControl_Steer = pPlayer->fInputRight;
 			
 			if(pPlayer->bInputHandbrake) //Instant on
 				fControl_Handbrake=1.0f;

@@ -46,6 +46,8 @@ namespace BREATHE
 			void CopyFromSurface();
 			void CopyToSurface();
 
+			bool SaveToBMP(std::string sFilename);
+
 			void GenerateOpenGLTexture();
 			
 			void Transform(float *u, float *v);

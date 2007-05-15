@@ -36,10 +36,10 @@ namespace BREATHE
 
 		unsigned int uiCameraMode;
 
-		bool bInputUp;
-		bool bInputDown;
-		bool bInputLeft;
-		bool bInputRight;
+		float fInputUp;
+		float fInputDown;
+		float fInputLeft;
+		float fInputRight;
 		
 		bool bInputHandbrake;
 		bool bInputClutch;

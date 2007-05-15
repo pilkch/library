@@ -12,8 +12,11 @@ namespace BREATHE
 	public:
 		cLevel *pLevel;
 
-		bool bConsole;
+#ifdef BUILD_DEBUG
 		bool bDebug;
+#endif
+
+		bool bConsole;
 		bool bActive;
 		bool bDone;
 		bool bUpdatePhysics;

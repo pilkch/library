@@ -459,5 +459,185 @@ namespace BREATHE
 				g_EndNodeCount++;
 			}
 		}
+
+/*
+Load a .t3d file from unreal tournament 1
+bool test(char *fileName, Set <class Polygon *> &polygons, TextureTable &textureTable){
+	char str[256];
+	Stack <STATE> states;
+	STATE state = NONE;
+	int i,len;
+
+	// Polygon variables
+	class Polygon *poly;
+	//class Polygon *poly;
+	Set <Vertex> vertices;
+	unsigned int flags, pflags;
+	Vertex normal;
+	Vertex origo, textureU, textureV;
+    float panU, panV;
+    TextureID baseTexture, bumpMap;
+    unsigned int sizeU, sizeV;
+
+	// Actor variables
+	bool usePolygons = true;
+	Vertex location(0,0,0);
+	int vertexComponent;
+
+
+
+
+	tok.setFile(fileName);
+
+	while (tok.next(str)){
+		if (stricmp(str, "Begin") == 0){
+			tok.next(str);
+			states.push(state);
+
+			if (stricmp(str, "Map") == 0){
+				state = MAP;
+			} else if (stricmp(str, "Polygon") == 0){
+				state = POLYGON;
+				if (usePolygons){
+					vertices.clear();
+					flags = pflags = 0;
+                    panU = panV = 0.0f;
+				}
+			} else if (stricmp(str, "Actor") == 0){
+				state = ACTOR;
+				location = Vertex(0,0,0);
+				usePolygons = true;
+			} else {
+				state = NONE;
+			}
+		} else if (stricmp(str, "End") == 0){
+			tok.next(NULL);
+
+			switch(state){
+			case POLYGON:
+				if (usePolygons){
+					if ((flags & PF_Invisible) == 0){
+						len = vertices.getSize();
+						poly = new class Polygon(len);
+						for (i = 0; i < len; i++){
+							//poly->setVertex(i, vertices[i]);
+                            poly->setVertex(len - i - 1, vertices[i]);
+						}
+						if (flags & PF_TwoSided){
+							poly->setFlags(PF_DOUBLESIDED, true);
+						}
+						if (flags & PF_Unlit){
+							poly->setFlags(PF_UNLIT, true);
+						}
+						if (flags & PF_Translucent){
+							poly->setFlags(PF_TRANSLUCENT, true);
+						}
+
+                        //if (flags & PF_SpecialPoly){
+                        //	poly->setFlags(PF_FOGVOLUME | PF_NONBLOCKING, true);
+                        //}
+
+                        
+
+                        poly->setFlags(pflags, true);
+
+                        //origo -= (panU * (textureU / length(textureU)) + panV * (textureV / length(textureV)));
+                        //origo += ((-panU - 2) * textureU * 2 + panV * textureV * 2);
+
+                        origo -= (panU * textureU) / lengthSqr(textureU);
+                        origo -= (panV * textureV) / lengthSqr(textureV);
+
+                        textureU = fix(textureU);
+                        textureV = fix(textureV);
+
+						poly->setTexCoordSystem(fix(origo), textureU / (float) sizeU, textureV / (float) sizeV);
+                        poly->setTextures(baseTexture,bumpMap);
+						poly->finalize();
+						//poly->setNormal(normal);
+						polygons.add(poly);
+
+					}
+				}
+				break;
+			}
+
+			state = states.pop();
+		} else {
+
+
+			switch(state){
+			case POLYGON:
+				if (usePolygons){
+					if (stricmp(str, "Flags") == 0){
+						tok.next(NULL); // =
+						tok.next(str);  // flags
+						flags = atoi(str);
+												
+					} else if ((flags & PF_Invisible) == 0){
+						if (stricmp(str, "Vertex") == 0){
+							Vertex v = readVertex();
+							vertices.add(fix(v + location));
+						} else if (stricmp(str, "Normal") == 0){
+							normal = fix(readVertex());
+						} else if (stricmp(str, "Texture") == 0){
+    						tok.next(NULL); // =
+	    					tok.next(str);  // texture name
+                            textureTable.getTexturesFromName(str, sizeU, sizeV, baseTexture, bumpMap, pflags);
+						} else if (stricmp(str, "TextureU") == 0){
+							textureU = readVertex();
+						} else if (stricmp(str, "TextureV") == 0){
+							textureV = readVertex();
+						} else if (stricmp(str, "Origin") == 0){
+							origo = readVertex();
+						} else if (stricmp(str, "Pan") == 0){
+    						tok.next(NULL); // U
+    						tok.next(NULL); // =
+	    					tok.next(str);  // U pan or -
+                            if (str[0] == '-'){
+    	    					tok.next(str);  // U pan
+		    				    panU = -(float) atof(str);
+                            } else panU = (float) atof(str);
+
+    						tok.next(NULL); // V
+    						tok.next(NULL); // =
+	    					tok.next(str);  // V pan or -
+                            if (str[0] == '-'){
+    	    					tok.next(str);  // V pan
+		    				    panV = -(float) atof(str);
+                            } else panV = (float) atof(str);
+						}
+					}
+				}
+				break;
+			case ACTOR:
+				if (stricmp(str, "Group") == 0){
+					usePolygons = false;
+				} else if (stricmp(str, "Location") == 0){
+					float value;
+					tok.next(NULL); // =
+					tok.next(NULL); // (
+					do {
+						tok.next(str);
+						vertexComponent = (*str - 'X');
+						tok.next(NULL); // =
+						tok.next(str);  // sign/value
+						if (*str == '-'){
+							tok.next(str);  // number
+							value = -(float) atof(str);
+						} else {
+							value = (float) atof(str);
+						}
+						location[vertexComponent] = value;
+
+						tok.next(str);
+					} while (*str == ',');
+				}
+				break;
+			}
+		}
+	}
+	
+	return true;
+}*/
 	}
 }
