@@ -74,6 +74,7 @@ namespace BREATHE
 			{
 				SAFE_DELETE(pVBO);
 				SAFE_DELETE(pHeight);
+				SAFE_DELETE_ARRAY(pNormal);
 
 				pMaterial = NULL;
 			}
@@ -84,6 +85,7 @@ namespace BREATHE
 
 				sFilename=pFileSystem->FindFile("data/level/node00/heightmap.png");
 
+				// Load heightmap
 				{
 					cTexture* pTexture = new cTexture();
 					if(pTexture->Load(sFilename) == BREATHE::BAD)
@@ -94,18 +96,19 @@ namespace BREATHE
 
 					uiWidth = pTexture->uiWidth;
 					uiHeight = pTexture->uiHeight;
-					uiTriangles = uiWidth * uiHeight * 2;
 
 					pHeight = new float[(uiWidth + 1) * (uiHeight + 1)];
 					
-					float fRolling = 0.3f;
+					float fRolling = 10.3f;
 
 					unsigned int uiCount = 0;
 					for(unsigned int h = 0; h < uiHeight; h++)
 					{
 						for(unsigned int w = 0; w < uiWidth; w++)
 						{
-							pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->pData[uiCount++];
+							//pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->pData[uiCount++];
+							pHeight[w + (h * (uiWidth + 1))] = fScale*(sinf(fRolling*static_cast<float>(w)) + 
+								cosf(fRolling*static_cast<float>(h)));
 						}
 					}
 
@@ -128,6 +131,51 @@ namespace BREATHE
 							cosf(fRolling*static_cast<float>(uiHeight+1)));
 				}
 
+				// Fill out normals
+				{
+					pNormal = new MATH::cVec3[(uiWidth + 1) * (uiHeight + 1)];
+					
+					std::vector<MATH::cVec3>* normal_buffer = new std::vector<MATH::cVec3>[(uiWidth + 1) * (uiHeight + 1)];
+
+					for(unsigned int h = 0; h < uiHeight; h++)
+					{
+						for(unsigned int w = 0; w < uiWidth; w++)
+						{
+							// get the three vertices that make the faces
+							MATH::cVec3 p1(fWidth * w, fHeight * h, pHeight[w + (h * (uiWidth + 1))]);
+							MATH::cVec3 p2(fWidth * (w + 1), fHeight * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
+							MATH::cVec3 p3(fWidth * w, fHeight * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
+
+							MATH::cVec3 v1 = p2 - p1;
+							MATH::cVec3 v2 = p3 - p1;
+							MATH::cVec3 normal = v1.CrossProduct( v2 );
+
+							// Store the face's normal for each of the vertices that make up the face.
+							normal_buffer[w + (h * (uiWidth + 1))].push_back( normal );
+							normal_buffer[w + 1 + (h * (uiWidth + 1))].push_back( normal );
+							normal_buffer[w + ((h + 1) * (uiWidth + 1))].push_back( normal );
+						}
+					}
+
+					// Now loop through each vertex vector, and average out all the normals stored.
+					unsigned int i = 0;
+					
+					for(unsigned int h = 0; h < uiHeight; h++)
+					{
+						for(unsigned int w = 0; w < uiWidth; w++)
+						{
+							i = w + (h * (uiWidth + 1));
+							for(unsigned int j = 0; j < normal_buffer[i].size(); ++j )
+								pNormal[i] += normal_buffer[i][j];
+					  
+							pNormal[i].Normalize();
+						}
+					}
+
+					SAFE_DELETE_ARRAY(normal_buffer);
+				}
+
+				// Create VBO
 				float* p = &pHeight[0];
 
 				pVBO = pRender->AddVertexBufferObject();
@@ -158,12 +206,12 @@ namespace BREATHE
 						vVertex.push_back(MATH::cVec3(fX - fHTW, fY + fHTH, Height(fX, fY + fHTH2)));
 						vVertex.push_back(MATH::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
 
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
-						vNormal.push_back(MATH::cVec3(0.0f, 0.0f, 1.0f));
+						vNormal.push_back(Normal(fX, fY));
+						vNormal.push_back(Normal(fX + fHTW2, fY));
+						vNormal.push_back(Normal(fX + fHTW2, fY + fHTH2));
+						vNormal.push_back(Normal(fX + fHTW2, fY + fHTH2));
+						vNormal.push_back(Normal(fX, fY + fHTH2));
+						vNormal.push_back(Normal(fX, fY));
 
 
 						// Base texture
@@ -183,6 +231,8 @@ namespace BREATHE
 						vTextureCoord.push_back(MATH::cVec2(0.0f, 0.0f));
 					}
 				}
+				
+				uiTriangles = uiVBOWidth * uiVBOHeight * 2;
 
 				pVBO->pVertex.SetData(vVertex);
 				pVBO->pNormal.SetData(vNormal);

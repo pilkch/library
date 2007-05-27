@@ -16,10 +16,6 @@
 
 #include <GL/Glee.h>
 
-//#include <SDL/SDL.h>
-//#include <SDL/SDL_opengl.h>
-//#include <SDL/SDL_image.h>
-
 // Breathe
 #include <BREATHE/cBreathe.h>
 #include <BREATHE/UTIL/cLog.h>
@@ -116,6 +112,10 @@ namespace BREATHE
 				vData.push_back(pNormal.vData[i].z);
 			}
 
+			//glGenBuffersARB(1, &index_buf);
+			//glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
+			//glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, I_SIZ*sizeof(GLushort), tet_index, GL_STATIC_DRAW_ARB);
+
 			glGenBuffersARB(1, &bufferID);
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 			glBufferDataARB(GL_ARRAY_BUFFER_ARB, vData.size() * sizeof(float), &vData[0], GL_STATIC_DRAW_ARB);
@@ -123,11 +123,16 @@ namespace BREATHE
 		
 		unsigned int cVertexBufferObject::Render()
 		{
+			glEnable(GL_LIGHTING);
 			// TODO: Call this only once at start of rendering?  Not per vbo?
 			
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
-
+			// Index Array
+			//glEnableClientState( GL_NORMAL_ARRAY );
+			//glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
+			// Don't need this apparently? glIndexPointer(GL_UNSIGNED_SHORT, 0, BUFFER_OFFSET(pIndex.uiOffset));
+		
 			glEnableClientState( GL_NORMAL_ARRAY );
 			glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(pNormal.uiOffset));
 
@@ -154,6 +159,8 @@ namespace BREATHE
 			glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(pVertex.uiOffset));
 
 				glDrawArrays(GL_TRIANGLES, 0, uiVertices);
+				//glDrawRangeElements( GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
+				//glDrawElements(GL_TRIANGLES, uiIndicies, GL_UNSIGNED_SHORT, BUFFER_OFFSET(pIndex.uiOffset));
 		
 			glDisableClientState( GL_VERTEX_ARRAY );
 			

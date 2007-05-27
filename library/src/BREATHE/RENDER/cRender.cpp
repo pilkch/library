@@ -53,7 +53,7 @@
 
 #define MAX_TEXTURE_SIZE 1024
 
-const float fDetailScale = 20.0f;
+const float fDetailScale = 0.5f;
 
 BREATHE::RENDER::cRender* pRender = NULL;
 
@@ -906,7 +906,7 @@ namespace BREATHE
 					glLoadIdentity();
 					glMatrixMode(GL_MODELVIEW);
 
-					glEnable(GL_LIGHTING);
+					//glEnable(GL_LIGHTING);
 				}
 				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
@@ -1064,14 +1064,14 @@ namespace BREATHE
 					else if(TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						glActiveTexture(GL_TEXTURE0_ARB);
-						glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-						glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
+						//glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+						//glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
 
 						glActiveTexture(GL_TEXTURE1_ARB);
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, layerOld->uiTexture);
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
+						//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+						//glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
 										
 						// Change the texture matrix so that we have more detail than normal texture
 						glMatrixMode(GL_TEXTURE);
@@ -1081,7 +1081,7 @@ namespace BREATHE
 
 							// General Switches
 							glDisable(GL_BLEND);
-							glEnable(GL_LIGHTING);
+							//glEnable(GL_LIGHTING);
 					}
 					else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
@@ -1361,7 +1361,7 @@ namespace BREATHE
 
 					// General Switches
 					glDisable(GL_BLEND);
-					glEnable(GL_LIGHTING);
+					//glEnable(GL_LIGHTING);
 				}
 				else if(TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 				{
@@ -1410,15 +1410,15 @@ namespace BREATHE
 					glActiveTexture(GL_TEXTURE0_ARB);
 					glEnable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[0]->uiTexture);
-					glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-					glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
+					//glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+					//glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
 
 					// TEXTURE-UNIT #1
 					glActiveTexture(GL_TEXTURE1_ARB);
 					glEnable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[1]->uiTexture);
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
+					//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+					//glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
 									
 					// Now we want to enter the texture matrix.  This will allow us
 					// to change the tiling of the detail texture.
@@ -1433,7 +1433,7 @@ namespace BREATHE
 
 						// General Switches
 						glDisable(GL_BLEND);
-						glDisable(GL_LIGHTING);
+						//glDisable(GL_LIGHTING);
 				}
 				else
 				{
