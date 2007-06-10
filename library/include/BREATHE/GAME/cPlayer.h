@@ -62,10 +62,7 @@ namespace BREATHE
 		void Init(MATH::cVec3 &pos);
 		void Update(float fTime);
 
-		bool IsDriving()
-		{
-			return NULL==pSeat;
-		}
+		bool IsDriving();
 
 		bool IsThirdPersonCamera()
 		{

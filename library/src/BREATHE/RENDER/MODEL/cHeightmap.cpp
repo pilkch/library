@@ -43,6 +43,8 @@
 #include <BREATHE/RENDER/MODEL/cHeightmapPatch.h>
 #include <BREATHE/RENDER/MODEL/cHeightmap.h>
 
+#include <BREATHE/GAME/cLevel.h>
+
 namespace BREATHE
 {
 	namespace RENDER
@@ -58,16 +60,14 @@ namespace BREATHE
 				uiHeight = 0;
 
 				// Width of each tile
-				fWidth = 1.0f;
-				fHeight = 1.0f;
+				fWidthOfTile = 1.0f;
+				fHeightOfTile = 1.0f;
 
 				// Vertical scale
-				fScale = 1.0f;
+				fScale = 0.5f;
 
 				pHeight = NULL;
 				pVBO = NULL;
-
-				pMaterial = NULL;
 			}
 
 			cHeightmap::~cHeightmap()
@@ -75,15 +75,17 @@ namespace BREATHE
 				SAFE_DELETE(pVBO);
 				SAFE_DELETE(pHeight);
 				SAFE_DELETE_ARRAY(pNormal);
-
-				pMaterial = NULL;
 			}
 			
 			int cHeightmap::Load(std::string sFilename)
 			{
-				pMaterial = pRender->AddMaterial("grass.mat");
+				sMaterial = "grass.mat";
+				pMaterial = pRender->AddMaterial(sMaterial);
 
-				sFilename=pFileSystem->FindFile("data/level/node00/heightmap.png");
+				sFilename=BREATHE::FILESYSTEM::FindFile("data/level/node00/heightmap.png");
+
+				float fHighest = -MATH::cINFINITY;
+				float fLowest = MATH::cINFINITY;
 
 				// Load heightmap
 				{
@@ -106,9 +108,12 @@ namespace BREATHE
 					{
 						for(unsigned int w = 0; w < uiWidth; w++)
 						{
-							//pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->pData[uiCount++];
-							pHeight[w + (h * (uiWidth + 1))] = fScale*(sinf(fRolling*static_cast<float>(w)) + 
-								cosf(fRolling*static_cast<float>(h)));
+							pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->pData[uiCount++];
+							//pHeight[w + (h * (uiWidth + 1))] = fScale*(sinf(fRolling*static_cast<float>(w)) + 
+							//	cosf(fRolling*static_cast<float>(h)));
+							
+							if(pHeight[w + (h * (uiWidth + 1))] > fHighest) fHighest = pHeight[w + (h * (uiWidth + 1))];
+							if(pHeight[w + (h * (uiWidth + 1))] < fLowest) fLowest = pHeight[w + (h * (uiWidth + 1))];
 						}
 					}
 
@@ -131,6 +136,26 @@ namespace BREATHE
 							cosf(fRolling*static_cast<float>(uiHeight+1)));
 				}
 
+
+				
+
+				unsigned int uiVBOStrideWidth = 8;
+				unsigned int uiVBOStrideHeight = 8;
+
+				fWidthOfTile = pLevel->fNodeWidth / uiWidth / uiVBOStrideWidth;
+				fHeightOfTile = pLevel->fNodeWidth / uiHeight / uiVBOStrideHeight;
+
+				unsigned int uiVBOWidth = uiWidth/uiVBOStrideWidth;
+				unsigned int uiVBOHeight = uiHeight/uiVBOStrideHeight;
+				
+				float fHalfWidth = static_cast<float>(uiWidth) * 0.5f;
+				float fHalfHeight = static_cast<float>(uiHeight) * 0.5f;
+				float fHTW = fWidthOfTile * 0.5f * uiVBOWidth;
+				float fHTH = fHeightOfTile * 0.5f * uiVBOHeight;
+				float fHTW2 = fWidthOfTile * uiVBOWidth;
+				float fHTH2 = fHeightOfTile * uiVBOHeight;
+
+
 				// Fill out normals
 				{
 					pNormal = new MATH::cVec3[(uiWidth + 1) * (uiHeight + 1)];
@@ -142,9 +167,9 @@ namespace BREATHE
 						for(unsigned int w = 0; w < uiWidth; w++)
 						{
 							// get the three vertices that make the faces
-							MATH::cVec3 p1(fWidth * w, fHeight * h, pHeight[w + (h * (uiWidth + 1))]);
-							MATH::cVec3 p2(fWidth * (w + 1), fHeight * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
-							MATH::cVec3 p3(fWidth * w, fHeight * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
+							MATH::cVec3 p1(fWidthOfTile * w, fHeightOfTile * h, pHeight[w + (h * (uiWidth + 1))]);
+							MATH::cVec3 p2(fWidthOfTile * (w + 1), fHeightOfTile * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
+							MATH::cVec3 p3(fWidthOfTile * w, fHeightOfTile * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
 
 							MATH::cVec3 v1 = p2 - p1;
 							MATH::cVec3 v2 = p3 - p1;
@@ -180,24 +205,12 @@ namespace BREATHE
 
 				pVBO = pRender->AddVertexBufferObject();
 
-				unsigned int uiVBOStrideWidth = 8;
-				unsigned int uiVBOStrideHeight = 8;
-				unsigned int uiVBOWidth = uiWidth/uiVBOStrideWidth;
-				unsigned int uiVBOHeight = uiHeight/uiVBOStrideHeight;
-				
-				float fHalfWidth = static_cast<float>(uiWidth) * 0.5f;
-				float fHalfHeight = static_cast<float>(uiHeight) * 0.5f;
-				float fHTW = fWidth * 0.5f * uiVBOStrideWidth;
-				float fHTH = fHeight * 0.5f * uiVBOStrideHeight;
-				float fHTW2 = fWidth * uiVBOStrideWidth;
-				float fHTH2 = fHeight * uiVBOStrideHeight;
-
-				for(unsigned int w = 0; w < uiVBOWidth; w++)
+				for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
 				{
-					for(unsigned int h = 0; h < uiVBOHeight; h++)
+					for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
 					{
-						float fX = (static_cast<float>(w * uiVBOStrideWidth) - fHalfWidth) * fWidth;
-						float fY = (static_cast<float>(h * uiVBOStrideHeight) - fHalfHeight) * fHeight;
+						float fX = (static_cast<float>(w * uiVBOStrideWidth) - fHalfWidth) * fWidthOfTile;
+						float fY = (static_cast<float>(h * uiVBOStrideHeight) - fHalfHeight) * fHeightOfTile;
 
 						vVertex.push_back(MATH::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
 						vVertex.push_back(MATH::cVec3(fX + fHTW, fY - fHTH, Height(fX + fHTW2, fY)));
@@ -240,15 +253,19 @@ namespace BREATHE
 
 				pVBO->Init();
 
+				
+				SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, fHighest);
+
 				return 0;
 			}
 
 			unsigned int cHeightmap::Render()
 			{
-				//pRender->ClearMaterial();
 				pRender->SetMaterial(pMaterial);
-          
+				
 				pVBO->Render();
+
+				pRender->RenderBox(MATH::cVec3(-fWidth, -fLength, -fHeight), MATH::cVec3(fWidth, fLength, fHeight));
 
 				return uiTriangles;
 			}

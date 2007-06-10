@@ -27,26 +27,9 @@ namespace BREATHE
 			float fUpdateInterval;
 			float fUpdateIntervalDivFPS;
 		};
-
-		/*class cProfiler
-		{
-
-			
-			inline float GetMPF() { return fMPF; }
-
-
-		private:
-			float fMPF;
-
-			float fTotalTime;
-
-		};*/
-
 		
 		inline float GetTime()
 		{
-			//(float)timeGetTime;
-
 			//return the milliseconds since we started
 			return (float)SDL_GetTicks();
 		}

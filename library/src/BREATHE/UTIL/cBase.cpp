@@ -18,14 +18,67 @@
 
 namespace BREATHE
 {
-	cObject::cObject()
-		: cUpdateable()
+	// cObjectSphere
+	cObjectSphere::cObjectSphere()
 	{
-		fRadius=0.5f;
+		fRadius = 1.0f;
+	}
+	
+	void cObjectSphere::SetDimensions(float fInRadius)
+	{
+		fRadius = fInRadius;
+	}
+
+	// cObject
+	cObject::cObject()
+	{
 		fWidth=1.0f;
 		fHeight=1.0f;
 		fLength=1.0f;
 
 		fWeight=1.0f;
+	}
+
+	
+	void cObject::SetDimensions(float fInWidth, float fInLength, float fInHeight)
+	{
+		fWidth = fInWidth;
+		fLength = fInLength;
+		fHeight = fInHeight;
+
+		fRadius = fWidth;
+		if(fInLength > fRadius) fRadius = fInLength;
+		if(fInHeight > fRadius) fRadius = fInHeight;
+	}
+	
+	// Collisions
+	bool cObjectSphere::Collide(cObjectSphere& rhs)
+	{
+		return (GetDistance(rhs) < 0.0f);
+	}
+
+	float cObjectSphere::GetDistance(cObjectSphere& rhs)
+	{
+		return MATH::sqrf(p.GetSquaredLength() + rhs.p.GetSquaredLength());
+	}
+
+
+	bool cObject::Collide(cObject& rhs)
+	{
+		if(cObjectSphere::Collide(rhs))
+			return true;
+
+		
+
+		return false;
+	}
+
+	float cObject::GetDistance(cObject& rhs)
+	{
+		float fDistance = cObjectSphere::GetDistance(rhs);
+		
+		
+		
+		return fDistance;
 	}
 }

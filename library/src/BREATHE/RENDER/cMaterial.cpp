@@ -53,6 +53,8 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
+#include <BREATHE/UTIL/cXML.h>
+
 namespace BREATHE
 {
 	namespace RENDER
@@ -61,7 +63,7 @@ namespace BREATHE
 		{
 			cLayer::cLayer()
 			{
-				uiTexture=0;
+				pTexture=NULL;
 				uiTextureMode=TEXTURE_NONE;
 			}
 
@@ -260,187 +262,115 @@ namespace BREATHE
 				
 				unsigned int i=0;
 				for(i=0;i<nLayers;i++)
+				{
 					vLayer.push_back(new cLayer());
+				}
+			}
+
+			cMaterial::~cMaterial()
+			{
+				unsigned int i=0;
+				for(i=0;i<nLayers;i++)
+					SAFE_DELETE(vLayer[i]);
 			}
 
 			bool cMaterial::Load(std::string sFilename)
 			{
 				LOG.Success("Material", std::string("Loading ") + sFilename);
-				sName=sFilename;
 
-				sFilename=pFileSystem->FindFile(sFilename);
-				std::string sPath=pFileSystem->GetPath(sFilename);
+				BREATHE::FILESYSTEM::FindFile(sFilename);
+
+				std::string sPath=BREATHE::FILESYSTEM::GetPath(sFilename);
 				
-				std::string line;
-				std::ifstream f(sFilename.c_str());
-				if(f.is_open())
+				XML::cNode root(sFilename);
+				XML::cNode* p=root.FindChild("material");
+
+				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
+				//	<layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
+				//	<layer sTexture="concrete_normalmap.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
+				//</material>
+
+				if(NULL == p)
 				{
-					while(!f.eof())
+					LOG.Error("Material", std::string("Not Found ") + sFilename);
+					for(unsigned int i=0;i<nLayers;i++)
+						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
+
+					return BREATHE::BAD;
+				}
+				
+				
+				p->GetAttribute("collide", &bCollideTrimesh);
+					
+				std::string sValue;
+				if(p->GetAttribute("sShaderVertex", &sValue))
+				{
+					if(!pShader) pShader=new cShader();
+					pShader->sShaderVertex=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
+				}
+				if(p->GetAttribute("sShaderFragment", &sValue))
+				{
+					if(!pShader) pShader=new cShader();
+					pShader->sShaderFragment=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
+				}
+
+				if(pShader) pShader->Init();
+
+
+				p=p->FirstChild();
+				
+				cLayer* l = NULL;
+				unsigned int n = vLayer.size();
+				unsigned int i = 0;
+				while(p && i < nLayers)
+				{
+					l = vLayer[i];
+					if("layer" == p->sName)
 					{
-						std::getline(f, line);
+						std::string sTexture;
+						if(p->GetAttribute("sTexture", &sTexture))
+							l->sTexture = BREATHE::FILESYSTEM::FindFile(sPath + sTexture);
 
-						int n=line.find("//");
-						if(n != std::string::npos)
-							line=line.substr(0, n);
-
-						if(line.find("sShaderVertex=") != std::string::npos)
+						std::string sValue;
+						if(p->GetAttribute("uiTextureMode", &sValue))
 						{
-							if(!pShader) pShader=new cShader();
-							pShader->sShaderVertex=pFileSystem->FindFile(sPath+line.substr(14));
-						}
-						else if(line.find("sShaderFragment=") != std::string::npos)
-						{
-							if(!pShader) pShader=new cShader();
-							pShader->sShaderFragment=pFileSystem->FindFile(sPath+line.substr(16));
+							if(sValue == "TEXTURE_NORMAL")				l->uiTextureMode=TEXTURE_NORMAL;
+							else if(sValue == "TEXTURE_MASK")			l->uiTextureMode=TEXTURE_MASK;
+							else if(sValue == "TEXTURE_BLEND")		l->uiTextureMode=TEXTURE_BLEND;
+							else if(sValue == "TEXTURE_DETAIL")		l->uiTextureMode=TEXTURE_DETAIL;
+							else if(sValue == "TEXTURE_CUBEMAP")	l->uiTextureMode=TEXTURE_CUBEMAP;
 						}
 
-						else if(line.find("sTexture0=") != std::string::npos)
-							sTexture0=pFileSystem->FindFile(sPath+line.substr(10));
-						else if(line.find("sTexture1=") != std::string::npos)
-							sTexture1=pFileSystem->FindFile(sPath+line.substr(10));
-						else if(line.find("sTexture2=") != std::string::npos)
-							sTexture2=pFileSystem->FindFile(sPath+line.substr(10));
-
-						else if(line.find("uiTextureMode0=") != std::string::npos)
+						unsigned int uiTextureAtlas = ATLAS_NONE;
+						if(p->GetAttribute("uiTextureAtlas", &sValue))
 						{
-							std::string t=line.substr(15);
-
-							if(t.find("TEXTURE_NORMAL") != std::string::npos)
-								vLayer[0]->uiTextureMode=TEXTURE_NORMAL;
-							else if(t.find("TEXTURE_MASK") != std::string::npos)
-								vLayer[0]->uiTextureMode=TEXTURE_MASK;
-							else if(t.find("TEXTURE_BLEND") != std::string::npos)
-								vLayer[0]->uiTextureMode=TEXTURE_BLEND;
-							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
-								vLayer[0]->uiTextureMode=TEXTURE_CUBEMAP;
-							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
-								vLayer[0]->uiTextureMode=TEXTURE_DETAIL;
+							if(sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
+							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_LANDSCAPE;
+							else if(sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
+							else if(sValue == "ATLAS_VEHICLES")	uiTextureAtlas = ATLAS_VEHICLES;
+							else if(sValue == "ATLAS_PROPS")		uiTextureAtlas = ATLAS_PROPS;
+							else if(sValue == "ATLAS_WEAPONS")	uiTextureAtlas = ATLAS_WEAPONS;
+							else if(sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
 						}
-						else if(line.find("uiTextureMode1=") != std::string::npos)
-						{
-							std::string t=line.substr(15);
-
-							if(t.find("TEXTURE_NORMAL") != std::string::npos)
-								vLayer[1]->uiTextureMode=TEXTURE_NORMAL;
-							else if(t.find("TEXTURE_MASK") != std::string::npos)
-								vLayer[1]->uiTextureMode=TEXTURE_MASK;
-							else if(t.find("TEXTURE_BLEND") != std::string::npos)
-								vLayer[1]->uiTextureMode=TEXTURE_BLEND;
-							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
-								vLayer[1]->uiTextureMode=TEXTURE_CUBEMAP;
-							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
-								vLayer[1]->uiTextureMode=TEXTURE_DETAIL;
-						}
-						else if(line.find("uiTextureMode2=") != std::string::npos)
-						{
-							std::string t=line.substr(15);
-
-							if(t.find("TEXTURE_NORMAL") != std::string::npos)
-								vLayer[2]->uiTextureMode=TEXTURE_NORMAL;
-							else if(t.find("TEXTURE_MASK") != std::string::npos)
-								vLayer[2]->uiTextureMode=TEXTURE_MASK;
-							else if(t.find("TEXTURE_BLEND") != std::string::npos)
-								vLayer[2]->uiTextureMode=TEXTURE_BLEND;
-							else if(t.find("TEXTURE_CUBEMAP") != std::string::npos)
-								vLayer[2]->uiTextureMode=TEXTURE_CUBEMAP;
-							else if(t.find("TEXTURE_DETAIL") != std::string::npos)
-								vLayer[2]->uiTextureMode=TEXTURE_DETAIL;
-						}
-
-						else if(line.find("uiTextureAtlas0=") != std::string::npos)
-						{
-							std::string t=line.substr(16);
-
-							if(t.find("ATLAS_LANDSCAPE") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_LANDSCAPE;
-							else if(t.find("ATLAS_BUILDING") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_BUILDING;
-							else if(t.find("ATLAS_FOLIAGE") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_FOLIAGE;
-							else if(t.find("ATLAS_VEHICLES") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_VEHICLES;
-							else if(t.find("ATLAS_PROPS") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_PROPS;
-							else if(t.find("ATLAS_WEAPONS") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_WEAPONS;
-							else if(t.find("ATLAS_EFFECTS") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_EFFECTS;
-							else if(t.find("ATLAS_NONE") != std::string::npos)
-								vLayer[0]->uiTexture=ATLAS_NONE;
-						}
-						else if(line.find("uiTextureAtlas1=") != std::string::npos)
-						{
-							std::string t=line.substr(16);
-
-							if(t.find("ATLAS_LANDSCAPE") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_LANDSCAPE;
-							else if(t.find("ATLAS_BUILDING") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_BUILDING;
-							else if(t.find("ATLAS_FOLIAGE") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_FOLIAGE;
-							else if(t.find("ATLAS_VEHICLES") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_VEHICLES;
-							else if(t.find("ATLAS_PROPS") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_PROPS;
-							else if(t.find("ATLAS_WEAPONS") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_WEAPONS;
-							else if(t.find("ATLAS_EFFECTS") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_EFFECTS;
-							else if(t.find("ATLAS_NONE") != std::string::npos)
-								vLayer[1]->uiTexture=ATLAS_NONE;
-						}
-						else if(line.find("uiTextureAtlas2=") != std::string::npos)
-						{
-							std::string t=line.substr(16);
-
-							if(t.find("ATLAS_LANDSCAPE") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_LANDSCAPE;
-							else if(t.find("ATLAS_BUILDING") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_BUILDING;
-							else if(t.find("ATLAS_FOLIAGE") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_FOLIAGE;
-							else if(t.find("ATLAS_VEHICLES") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_VEHICLES;
-							else if(t.find("ATLAS_PROPS") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_PROPS;
-							else if(t.find("ATLAS_WEAPONS") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_WEAPONS;
-							else if(t.find("ATLAS_EFFECTS") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_EFFECTS;
-							else if(t.find("ATLAS_NONE") != std::string::npos)
-								vLayer[2]->uiTexture=ATLAS_NONE;
-						}
-
 						
-						else if(line.find("bCollideTrimesh=") != std::string::npos)
+						if(TEXTURE_CUBEMAP != l->uiTextureMode)
 						{
-							if(line.find("true") != std::string::npos || line.find("0") != std::string::npos)
-								bCollideTrimesh=true;
+							if(ATLAS_NONE != uiTextureAtlas) l->pTexture = pRender->AddTextureToAtlas(l->sTexture, uiTextureAtlas);
+							
+							if(NULL == l->pTexture)
+							{
+								uiTextureAtlas = ATLAS_NONE;
+								l->pTexture = pRender->AddTexture(l->sTexture);
+							}
 						}
-
-						else if(""!=line)
-							LOG.Error("Config", line);
-					}
-					f.close();
-
-					LOG.Success("Material", std::string("sTexture0 ") + sTexture0);
-					LOG.Success("Material", std::string("sTexture1 ") + sTexture1);
-
-					if(pShader)
-					{
-						LOG.Success("Material", std::string("sShaderVertex ") + pShader->sShaderVertex);
-						LOG.Success("Material", std::string("sShaderFragment ") + pShader->sShaderFragment);
 					}
 
-					LOG.Success("Material", std::string("Loaded ") + sFilename);
-				}
-				else
-				{
-					LOG.Error("Material", std::string("Not found ") + sFilename);
-					return false;
+					i++;
+					p = p->Next();
 				}
 
-				return true;
+				LOG.Success("Material", std::string("Loaded ") + sFilename);
+				return BREATHE::GOOD;
 			}
 
 		}

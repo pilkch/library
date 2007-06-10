@@ -150,4 +150,9 @@ namespace BREATHE
 			}
 		}
 	}
+
+	bool cPlayer::IsDriving()
+	{
+		return (pSeat && (pSeat->pVehicle->vSeat[0]->pPlayer == this));
+	}
 }

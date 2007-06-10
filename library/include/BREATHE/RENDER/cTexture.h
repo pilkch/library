@@ -8,7 +8,6 @@ namespace BREATHE
 	namespace RENDER
 	{
 		//Texture modes for materials
-		// TODO: Move this to 
 		const unsigned int TEXTURE_NONE=0;
 		const unsigned int TEXTURE_NORMAL=1;
 		const unsigned int TEXTURE_MASK=2;
@@ -17,11 +16,35 @@ namespace BREATHE
 		const unsigned int TEXTURE_CUBEMAP=5;
 		
 		const unsigned int TEXTURE_RGBA=0;
-		const unsigned int TEXTURE_HEIGHTMAP=0;
+		const unsigned int TEXTURE_HEIGHTMAP=1;
+		const unsigned int TEXTURE_FRAMEBUFFEROBJECT=2;
 
 		class cTexture
 		{
 		public:
+			cTexture();
+			~cTexture();
+			
+			bool Load(std::string sFilename);
+
+			// pData <--> surface -> OpenGL texture
+			void CopyFromDataToSurface();
+
+			void CopyFromSurfaceToData(unsigned int w, unsigned int h);
+			void CopyFromSurfaceToData();
+
+			void CopyFromSurfaceToTexture();
+
+
+			bool SaveToBMP(std::string sFilename);
+			
+			void Transform(float& u, float& v);
+
+			virtual void Create();
+			void Destroy();
+			void Reload();
+
+
 			unsigned int uiTextureAtlas;
 			unsigned int uiTexture;
 			std::string sFilename;
@@ -36,21 +59,23 @@ namespace BREATHE
 
 			SDL_Surface* surface;
 			unsigned char* pData;
+		};
 
-			cTexture();
-			~cTexture();
-			
-			bool Load(std::string sFilename);
+		inline void cTexture::Transform(float& u, float& v)
+		{
+			u = u * fScale + fU;
+			v = v * fScale + fV;
+		}
 
-			void CopyFromSurface(unsigned int w, unsigned int h);
-			void CopyFromSurface();
-			void CopyToSurface();
+		class cTextureFrameBufferObject : public cTexture
+		{
+		public:
+			cTextureFrameBufferObject();
+			~cTextureFrameBufferObject();
+			void Create();
 
-			bool SaveToBMP(std::string sFilename);
-
-			void GenerateOpenGLTexture();
-			
-			void Transform(float *u, float *v);
+			unsigned int uiFBO;					// Our handle to the FBO
+			unsigned int uiFBODepthBuffer;	// Our handle to the depth render buffer
 		};
 	}
 }

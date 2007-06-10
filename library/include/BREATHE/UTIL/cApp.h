@@ -10,7 +10,6 @@ namespace BREATHE
 		void ConsoleExecuteSingleCommand(std::string s);
 
 	public:
-		cLevel *pLevel;
 
 #ifdef BUILD_DEBUG
 		bool bDebug;
@@ -23,8 +22,6 @@ namespace BREATHE
 		bool bStepPhysics;
 
 		bool bReturnCode;
-
-		float dist;
 
 		UTIL::cTimer tPhysics;
 		UTIL::cTimer tUpdate;
@@ -87,6 +84,8 @@ namespace BREATHE
 		virtual void RenderHUD(float fCurrentTime)=0;
 		virtual void OnMouse(int button,int state,int x,int y)=0;
 		
+		virtual void Render(float fCurrentTime);
+
 		virtual bool Execute(std::string sCommand)=0;
 	};
 

@@ -20,9 +20,6 @@ namespace BREATHE
 {
 	namespace MATH
 	{
-		// This is the index in our selection buffer that has the closet object ID clicked
-		#define FIRST_OBJECT_ID  3								
-
 		// We create an enum of the sides so we don't have to call each side 0 or 1.
 		// This way it makes it more understandable and readable when dealing with frustum sides.
 		enum FrustumSide
@@ -39,10 +36,10 @@ namespace BREATHE
 		// want to be more descriptive.
 		enum PlaneData
 		{
-			A = 0,				// The X value of the plane's normal
-			B = 1,				// The Y value of the plane's normal
-			C = 2,				// The Z value of the plane's normal
-			D = 3				// The distance the plane is from the origin
+			A = 0,	// The X value of the plane's normal
+			B = 1,	// The Y value of the plane's normal
+			C = 2,	// The Z value of the plane's normal
+			D = 3		// The distance the plane is from the origin
 		};
 
 		
@@ -120,9 +117,6 @@ namespace BREATHE
 
 		void cFrustum::Update()
 		{
-			//float f=fabs(targetIdeal.GetLength()-targetIdeal.GetLength());
-			//if(f>1.0f)
-			//	f=0.01f;
 			target=target.lerp(targetIdeal, 0.05f);
 			eye=eye.lerp(eyeIdeal, 0.05f);
 			up=up.lerp(upIdeal, 0.05f);
@@ -130,18 +124,12 @@ namespace BREATHE
 			m.LookAt(eye, target, up);
 
 
-			//target=newTarget;
-			//target.Normalize();
-
-			//eye=newEye;
-			
-			//up=newUp;
-			
 			right=target.CrossProduct(up);
 			right.Normalize();
 
 			up=right.CrossProduct(target);
 			up.Normalize();
+
 
 			modl[0] =  right.x;
 			modl[1] =  up.x;
@@ -162,7 +150,6 @@ namespace BREATHE
 			modl[13] = -up.DotProduct(eye);
 			modl[14] =  target.DotProduct(eye);
 			modl[15] =  1.0f;
-
 
 
 			proj[0]		= 1.29904f;
@@ -271,59 +258,30 @@ namespace BREATHE
 		// Because all of our planes point INWARDS (The normals are all pointing inside the frustum)
 		// we then can assume that if a point is in FRONT of all of the planes, it's inside.
 
-		///////////////////////////////// POINT IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
-		/////
-		/////	This determines if a point is inside of the frustum
-		/////
-		///////////////////////////////// POINT IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
-
 		bool cFrustum::PointInFrustum( float x, float y, float z )
 		{
-			// Go through all the sides of the frustum
-			for(int i = 0; i < 6; i++ )
-			{
-				// Calculate the plane equation and check if the point is behind a side of the frustum
-				if(m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= 0)
-				{
-					// The point was behind a side, so it ISN'T in the frustum
-					return false;
-				}
-			}
+			if(m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= 0) return false;
+			if(m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= 0) return false;
+			if(m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= 0) return false;
+			if(m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= 0) return false;
+			if(m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= 0) return false;
+			if(m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= 0) return false;
 
-			// The point was inside of the frustum (In front of ALL the sides of the frustum)
 			return true;
 		}
-
-
-		///////////////////////////////// SPHERE IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
-		/////
-		/////	This determines if a sphere is inside of our frustum by it's center and radius.
-		/////
-		///////////////////////////////// SPHERE IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
 		bool cFrustum::SphereInFrustum( float x, float y, float z, float radius )
 		{
-			// Go through all the sides of the frustum
-			for(int i = 0; i < 6; i++ )	
-			{
-				// If the center of the sphere is farther away from the plane than the radius
-				if( m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= -radius )
-				{
-					// The distance was greater than the radius so the sphere is outside of the frustum
-					return false;
-				}
-			}
+			// If the center of the sphere is farther away from the plane than the radius
+			if(m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= -radius ) return false;
+			if(m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= -radius ) return false;
+			if(m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= -radius ) return false;
+			if(m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= -radius ) return false;
+			if(m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= -radius ) return false;
+			if(m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= -radius ) return false;
 			
-			// The sphere was inside of the frustum!
 			return true;
 		}
-
-
-		///////////////////////////////// CUBE IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
-		/////
-		/////	This determines if a cube is in or around our frustum by it's center and 1/2 it's length
-		/////
-		///////////////////////////////// CUBE IN cFrustum \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
 		bool cFrustum::CubeInFrustum( float x, float y, float z, float size )
 		{
@@ -331,11 +289,7 @@ namespace BREATHE
 			// and half the length.  Think of it like a radius.  Then we checking each point
 			// in the cube and seeing if it is inside the frustum.  If a point is found in front
 			// of a side, then we skip to the next side.  If we get to a plane that does NOT have
-			// a point in front of it, then it will return false.
-
-			// *Note* - This will sometimes say that a cube is inside the frustum when it isn't.
-			// This happens when all the corners of the bounding box are not behind any one plane.
-			// This is rare and shouldn't effect the overall rendering speed.
+			// a point in front of it, then it will return false.  
 
 			for(int i = 0; i < 6; i++ )
 			{
@@ -356,7 +310,7 @@ namespace BREATHE
 				if(m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
 					continue;
 
-				// If we get here, it isn't in the frustum
+				// Not in the frustum
 				return false;
 			}
 

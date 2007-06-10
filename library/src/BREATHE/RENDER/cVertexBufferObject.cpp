@@ -123,7 +123,6 @@ namespace BREATHE
 		
 		unsigned int cVertexBufferObject::Render()
 		{
-			glEnable(GL_LIGHTING);
 			// TODO: Call this only once at start of rendering?  Not per vbo?
 			
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);

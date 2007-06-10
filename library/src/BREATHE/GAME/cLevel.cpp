@@ -65,10 +65,14 @@
 #include <BREATHE/VEHICLE/cSeat.h>
 #include <BREATHE/VEHICLE/cVehicle.h>
 
+BREATHE::cLevel* pLevel = NULL;
+
+const unsigned int uiNodeNameDisplayTime = 100;
+
 namespace BREATHE
 {
 	/*
-	std::string s=pFileSystem->GetMD5(sFilename);*/
+	std::string s=BREATHE::FILESYSTEM::GetMD5(sFilename);*/
 
 	cLevel::cLevel()
 	{
@@ -76,6 +80,10 @@ namespace BREATHE
 		fPreviousTime=0.0f;
 
 		pRender->pLevel=this;
+
+		pCurrentNode = NULL;
+
+		uiDisplayNodeName = uiNodeNameDisplayTime;
 	}
 
 	cLevel::~cLevel()
@@ -105,17 +113,20 @@ namespace BREATHE
 
 			if(p)
 			{
-				p->GetAttribute("fNodeWidth", &fNodeWidth);
-				p->GetAttribute("uiWidth", &uiWidth);
-				p->GetAttribute("uiHeight", &uiHeight);
 				p->GetAttribute("fWaterLevel", &fWaterLevel);
-				
+
 				p=p->FirstChild();
 
 				while(p)
 				{
 					if("nodes" == p->sName)
 					{
+						p->GetAttribute("fWidth", &fNodeWidth);
+						p->GetAttribute("uiWidth", &uiNodeWidth);
+						p->GetAttribute("uiHeight", &uiNodeHeight);
+						p->GetAttribute("uiHeightMapPixelWidth", &uiNodeHeightMapPixelWidth);
+						p->GetAttribute("uiHeightMapPixelHeight", &uiNodeHeightMapPixelHeight);
+
 						BREATHE::XML::cNode *pParent=p;
 							p=p->FindChild("node");
 							while(p)
@@ -265,14 +276,16 @@ namespace BREATHE
 		std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
 		for(;iter!=mStatic.end();iter++)
 		{
-			LOG.Success("Transform", "UV " + iter->first);
-
 			s=iter->second;
 
 			if(s)
 			{
 				nMeshes=s->vMesh.size();
-				
+
+				std::ostringstream sOut;
+				sOut<<nMeshes;
+				LOG.Success("Transform", "UV model=" + iter->first + " meshes=" + sOut.str());
+
 				for(mesh=0;mesh<nMeshes;mesh++)
 				{
 					m=s->vMesh[mesh];
@@ -283,20 +296,27 @@ namespace BREATHE
 
 					if(mat)
 					{
-						t=pRender->GetTexture(mat->sTexture0);
-						
-						if(t)
+						if(mat->vLayer.size() > 0)
 						{
-							for(texcoord=0;texcoord<nTexcoords;texcoord+=2)
-								t->Transform(&fTextureCoords[texcoord], &fTextureCoords[texcoord+1]);
+							t = mat->vLayer[0]->pTexture;//t=pRender->GetTexture(mat->vLayer[0]->sTexture);
+						
+							if(t)
+							{
+								for(texcoord=0;texcoord<nTexcoords;texcoord+=2)
+									t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
+							}
+							else
+								LOG.Error("Transform", "Texture not found " + mat->vLayer[0]->sTexture);
 						}
 						else
-							LOG.Error("Transform", "Texture not found " + mat->sTexture0);
+							LOG.Error("Transform", "Material doesn't have any layers");
 					}
 					else
 						LOG.Error("Transform", "Material not found " + m->sMaterial);
 				}
 			}
+			else
+				LOG.Error("Transform", "Model==NULL");
 		}
 
 
@@ -338,7 +358,7 @@ namespace BREATHE
 
 		//Swap sub meshes around to optimise rendering
 		RENDER::MODEL::cMesh *pTemp;
-		unsigned int pass=0;
+		unsigned int uiPass=0;
 		unsigned int i=0;
 		unsigned int uiMode0=0;
 		unsigned int uiMode1=0;
@@ -353,9 +373,9 @@ namespace BREATHE
 			{
 				nMeshes=s->vMesh.size();
 
-				for(pass=1; pass < nMeshes; pass++) 
+				for(uiPass=1; uiPass < nMeshes; uiPass++) 
 				{
-					for (i=0; i < nMeshes-pass; i++) 
+					for (i=0; i < nMeshes-uiPass; i++) 
 					{
 						uiMode0=pRender->GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
 
@@ -391,7 +411,8 @@ namespace BREATHE
 			unsigned int n=pModel->vMesh.size();
 			for(i=0;i<n;i++)
 				pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
-
+				//pModel->vMesh[i]->pMaterial = pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
+			
 			return pModel;
 		}
 
@@ -461,8 +482,28 @@ namespace BREATHE
 	void cLevel::Update(float fCurrentTime)
 	{
 		//TODO: Calculate the current nodes
-    unsigned int currentX=static_cast<unsigned int>(pRender->pFrustum->target.x/fNodeWidth);
-    unsigned int currentY=static_cast<unsigned int>(pRender->pFrustum->target.y/fNodeWidth);
+		if(pRender->pFrustum->eye.x > 0.0f && pRender->pFrustum->eye.y > 0.0f)
+		{
+			unsigned int currentX=static_cast<unsigned int>(pRender->pFrustum->eye.x/fNodeWidth);
+			unsigned int currentY=static_cast<unsigned int>(pRender->pFrustum->eye.y/fNodeWidth);
+			
+			unsigned int uiCurrentNode = currentY * uiNodeWidth + currentX;
+
+			if(uiCurrentNode < vNode.size())
+			{
+				cLevelNode* pNode = vNode[uiCurrentNode];
+				
+				// Have we changed nodes in the last time step?  
+				if(pNode && pCurrentNode != pNode)
+				{
+					if(pCurrentNode && (pCurrentNode->sName != pNode->sName))
+						uiDisplayNodeName = uiNodeNameDisplayTime;
+
+					// Anything that must happen on the boundary happens here
+					pCurrentNode = pNode;
+				}
+			}
+		}
 
 		{
 			std::list<PHYSICS::cPhysicsObject *>::iterator iter=pPhysics->GetObjectListBegin();
@@ -494,6 +535,9 @@ namespace BREATHE
 				iter++;
 			};
 		}
+
+		// Update the counter that says whether to display the node name
+		if(uiDisplayNodeName) uiDisplayNodeName--;
 	}
 
 	unsigned int cLevel::Render(float fCurrentTime)
@@ -502,7 +546,7 @@ namespace BREATHE
 		unsigned int i=0;
 		unsigned int n=vNode.size();
 		for(i=0;i<n;i++)
-			uiTriangles += vNode[i]->Render(fCurrentTime);
+			uiTriangles += vNode[i]->Render();
 
 		//n=vStatic.size();
 		//for(i=0;i<n;i++)
@@ -826,6 +870,7 @@ namespace BREATHE
 
 	}
 
+
 	cLevelNode::cLevelNode(cLevel *p, std::string sNewFilename)
 	{
 		uiStatus=0;
@@ -837,8 +882,9 @@ namespace BREATHE
 
 	void cLevelNode::Load()
 	{
-		uiStatus=NODE_ACTIVE;
-		
+		LOG.Success("LevelNode", "Load");
+			
+		uiStatus=NODE_ACTIVE;		
 		
 		bool bModels=false;
 		bool bCubemaps=false;
@@ -850,9 +896,7 @@ namespace BREATHE
 
 		if(p)
 		{
-			std::string sCRC;
 			p->GetAttribute("crc", &sCRC);
-			std::string sName;
 			p->GetAttribute("name", &sName);
 		}
 
@@ -909,6 +953,8 @@ namespace BREATHE
 
 			p=p->Next();
 		};
+
+		LOG.Success("LevelNode", "Load returning");
 	}
 		
 	void cLevelNode::Unload()
@@ -924,7 +970,7 @@ namespace BREATHE
 			Unload();
 	}
 
-	unsigned int cLevelNode::Render(float fCurrentTime)
+	unsigned int cLevelNode::Render()
 	{
 		unsigned int uiTriangles = 0;
 

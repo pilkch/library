@@ -61,7 +61,7 @@ namespace BREATHE
 	const unsigned int NODE_UNLOAD=1;
 	const unsigned int NODE_ACTIVE=20; //Seconds since the player has been in the vicinity
 
-	class cLevelNode : public cUpdateable
+	class cLevelNode : public cRenderable
 	{
 		cLevel *pLevel;
 
@@ -85,7 +85,7 @@ namespace BREATHE
 		void Unload();
 
 		void Update(float fTime);
-		unsigned int Render(float fTime);
+		unsigned int Render();
 	};
 
 	class cLevel : public cUpdateable
@@ -93,14 +93,23 @@ namespace BREATHE
 		float fPreviousTime;
 
 	public:
-
-		unsigned int uiWidth;
-		unsigned int uiHeight;
-
-		float fNodeWidth;
+		// Global level information loaded from xml
 		float fWaterLevel;
 
 		std::string sFilename;
+		
+		// Node Information loaded from xml
+		unsigned int uiNodeWidth;
+		unsigned int uiNodeHeight;
+		unsigned int uiNodeHeightMapPixelWidth;
+		unsigned int uiNodeHeightMapPixelHeight;
+
+		float fNodeWidth;
+
+
+		// Dynamic information
+    cLevelNode* pCurrentNode;
+		unsigned int uiDisplayNodeName;
 
 		//std::map<std::string, RENDER::MODEL::cAnimatino*> mAnimation;
 		std::map<std::string, RENDER::MODEL::cStatic*> mStatic;
@@ -148,5 +157,7 @@ namespace BREATHE
 		VEHICLE::cVehicle *FindClosestVehicle(MATH::cVec3 pos, float fMaxDistance);
 	};
 }
+
+extern BREATHE::cLevel* pLevel;
 
 #endif //CLEVEL_H

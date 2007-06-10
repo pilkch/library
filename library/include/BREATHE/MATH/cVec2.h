@@ -8,12 +8,11 @@ namespace BREATHE
 		class cVec2
 		{
 		public:
-			cVec2(float newX = 0.0f, float newY = 0.0f)		//constructors
-			{x=newX;	y=newY;}
-			cVec2(const float * rhs);
-			cVec2(const cVec2 & rhs)
-			{x=rhs.x;	y=rhs.y;}
-			~cVec2() {}	//empty
+			inline cVec2() {}
+			inline cVec2(float newX, float newY) {x=newX;	y=newY;}
+			inline cVec2(const float * rhs);
+			inline cVec2(const cVec2 & rhs) {x=rhs.x;	y=rhs.y;}
+			inline ~cVec2() {}	//empty
 
 			void Set(float newX, float newY);	//set member variables
 			
@@ -57,7 +56,7 @@ namespace BREATHE
 			cVec2 operator*(const float rhs) const;
 			
 			cVec2 operator/(const float rhs) const
-			{	return (rhs==0) ? 0.0f : cVec2(x / rhs, y / rhs);	}
+			{	return (rhs==0) ? cVec2(0.0f, 0.0f) : cVec2(x / rhs, y / rhs);	}
 
 			cVec2 operator/(const cVec2 & rhs) const
 			{	return cVec2(x / rhs.x, y / rhs.y);	}

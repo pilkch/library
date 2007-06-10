@@ -13,8 +13,10 @@
 #include <map>
 #include <string>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+// Anything else
+#include <GL/Glee.h>
+#include <GL/glu.h>
+
 #include <SDL/SDL_image.h>
 
 // Breathe
@@ -33,6 +35,9 @@
 #include <BREATHE/MATH/cColour.h>
 
 #include <BREATHE/RENDER/cTexture.h>
+#include <BREATHE/RENDER/cTextureAtlas.h>
+#include <BREATHE/RENDER/cMaterial.h>
+#include <BREATHE/RENDER/cRender.h>
 
 namespace BREATHE
 {
@@ -40,13 +45,15 @@ namespace BREATHE
 	{
 		cTexture::cTexture()
 		{
-			fScale=1.0f;
-			fU=0.0f;
-			fV=0.0f;
+			uiTexture = 0;
 
 			uiWidth = 0;
 			uiHeight = 0;
 			uiMode = TEXTURE_RGBA;
+
+			fScale=1.0f;
+			fU=0.0f;
+			fV=0.0f;
 			
 			pData=NULL;
 			surface=NULL;
@@ -143,35 +150,22 @@ namespace BREATHE
 				return BREATHE::BAD;
 			}
 
-			CopyFromSurface(surface->w, surface->h);
+			uiWidth = surface->w;
+			uiHeight = surface->h;
+
+			{
+				std::ostringstream t;
+				t<<uiWidth;
+				t<<"x";
+				t<<uiHeight;
+				LOG.Success("Texture", t.str());
+			}
+			CopyFromSurfaceToData(surface->w, surface->h);
 
 			return BREATHE::GOOD;
 		}
-
-		void cTexture::GenerateOpenGLTexture()
-		{
-			if(uiMode == TEXTURE_RGBA)
-			{
-				// create one texture name
-				glGenTextures(1, &uiTexture);
-
-				// tell opengl to use the generated texture name
-				glBindTexture(GL_TEXTURE_2D, uiTexture);
-
-				// this reads from the sdl surface and puts it into an opengl texture
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-
-				// these affect how this texture is drawn later on...
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-				std::ostringstream s;
-				s<<sFilename<<" "<<uiTexture<<"\0";
-				LOG.Success("Texture", s.str().c_str());
-			}
-		}
 		
-		void cTexture::CopyFromSurface(unsigned int w, unsigned int h)
+		void cTexture::CopyFromSurfaceToData(unsigned int w, unsigned int h)
 		{
 			// Fill out the pData structure array, we use this for when we have to reload this data
 			// on a task switch or fullscreen mode change
@@ -179,10 +173,10 @@ namespace BREATHE
 			uiWidth = w;
 			uiHeight = h;
 
-			CopyFromSurface();
+			CopyFromSurfaceToData();
 		}
 
-		void cTexture::CopyFromSurface()
+		void cTexture::CopyFromSurfaceToData()
 		{
 			// Fill out the pData structure array, we use this for when we have to reload this data
 			// on a task switch or fullscreen mode change
@@ -192,22 +186,128 @@ namespace BREATHE
 			std::memcpy(pData, surface->pixels, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
-		void cTexture::CopyToSurface()
+		void cTexture::CopyFromDataToSurface()
 		{
 			if(pData)
         std::memcpy(surface->pixels, pData, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
-		}
-
-		void cTexture::Transform(float *u, float *v)
-		{
-			*u=(*u)*fScale+fU;
-			*v=(*v)*fScale+fV;
 		}
 
 		bool cTexture::SaveToBMP(std::string inFilename)
 		{
 			SDL_SaveBMP(surface, inFilename.c_str());
 			return BREATHE::GOOD;
+		}
+
+		void cTexture::Create()
+		{
+			// Create new texture
+			glGenTextures(1, &uiTexture);
+			
+			// Bind so that the next operations happen on this texture
+			glBindTexture(GL_TEXTURE_2D, uiTexture);
+		}
+
+		void cTexture::Destroy()
+		{
+			// Destroy old texture
+			glDeleteTextures(1, &uiTexture);
+		}
+
+		void cTexture::CopyFromSurfaceToTexture()
+		{
+			// Bind so that the next operations happen on this texture
+			glBindTexture(GL_TEXTURE_2D, uiTexture);
+
+			if(surface)
+			{
+				// Copy from surface to texture
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+
+				//Remove this line if there are artifacts
+				gluBuild2DMipmaps(GL_TEXTURE_2D, 4, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+				
+				// Settings to make the texture look a bit nicer when we do blit it to the screen
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+				//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			}
+		}
+
+		void cTexture::Reload()
+		{
+			// Delete the old texture
+			Destroy();
+
+			// Create a new one
+			Create();
+
+			// Copy from data buffer to surface
+			CopyFromDataToSurface();
+
+			// Copy from surface to texture
+			CopyFromSurfaceToTexture();
+		}
+
+
+		
+		// *** Frame Buffer Object
+		cTextureFrameBufferObject::cTextureFrameBufferObject()
+			: cTexture()
+		{
+			uiFBO = 0;
+			uiFBODepthBuffer = 0;
+			uiMode = TEXTURE_FRAMEBUFFEROBJECT;
+		}
+
+		cTextureFrameBufferObject::~cTextureFrameBufferObject()
+		{
+			glDeleteFramebuffersEXT(1, &uiFBO);
+			glDeleteRenderbuffersEXT(1, &uiFBODepthBuffer);
+			glDeleteTextures(1, &uiTexture);
+		}
+
+		void cTextureFrameBufferObject::Create()
+		{
+			// Create FBO
+			glGenFramebuffersEXT(1, &uiFBO);
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
+
+			// Create the Render Buffer for Depth	
+			glGenRenderbuffersEXT(1, &uiFBODepthBuffer);
+			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
+			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+
+
+			// Now setup a texture to render to
+			glGenTextures(1, &uiTexture);
+			glBindTexture(GL_TEXTURE_2D, uiTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, 
+				GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+#ifdef RENDER_GENERATEFBOMIPMAPS
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmapEXT(GL_TEXTURE_2D);
+#endif //RENDER_GENERATEFBOMIPMAPS
+
+			// And attach it to the FBO so we can render to it
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
+
+			// Attach the depth render buffer to the FBO as it's depth attachment
+			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
+
+
+			GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+			if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
+				LOG.Error("Texture", "Frame buffer status failed");
+
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);	// Unbind the FBO for now
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace BREATHE
 		class cVec3
 		{
 		public:
-			inline cVec3() { x=y=z=0.0f; }
+			inline cVec3() {}
 			inline cVec3(float newX, float newY, float newZ)	{x=newX;	y=newY;		z=newZ;}
 			inline cVec3(const float * rhs) { x=*rhs; y=*(rhs+1); z=*(rhs+2); }
 			inline cVec3(const cVec3 & rhs) {x=rhs.x;	y=rhs.y;	z=rhs.z;}

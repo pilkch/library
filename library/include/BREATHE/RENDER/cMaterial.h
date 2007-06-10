@@ -14,8 +14,9 @@ namespace BREATHE
 			class cLayer
 			{
 			public:
-				unsigned int uiTexture;
+				cTexture* pTexture;
 				unsigned int uiTextureMode;
+				std::string sTexture;
 
 				cLayer();
 			};
@@ -72,15 +73,11 @@ namespace BREATHE
 				float fCorrugation; //0.0f=none, 1.0f=very bouncy (stairs etc.)
 
 				std::string sName;
-
-				std::string sTexture0;
-				std::string sTexture1;
-				std::string sTexture2;
-
 				
 				cShader *pShader;
 
-				cMaterial(std::string name);
+				cMaterial(std::string sName);
+				~cMaterial();
 
 				bool Load(std::string sNewFilename);
 			};

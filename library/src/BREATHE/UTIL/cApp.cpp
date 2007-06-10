@@ -92,8 +92,6 @@ namespace BREATHE
 			LOG.Success("Arguments", s);
 		}
 		
-		pFileSystem=new cFileSystem();
-
 #ifdef BUILD_DEBUG
 		bDebug = true;
 #endif
@@ -132,10 +130,7 @@ namespace BREATHE
 
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
-		
-		LOG.Success("Delete", "FileSystem");
-		SAFE_DELETE(pFileSystem);
-		
+				
 		LOG.Success("Delete", "Log");
 		
 		LOG.Success("Main", "Successfully exited");
@@ -161,7 +156,7 @@ namespace BREATHE
 			{
 				std::string sDirectory;
 				if(p->GetAttribute("path", &sDirectory))
-					pFileSystem->AddDirectory(sDirectory);
+					BREATHE::FILESYSTEM::AddDirectory(sDirectory);
 
 				p=p->Next("directory");
 			};
@@ -887,6 +882,19 @@ namespace BREATHE
 		}
 	}
 
+	
+	void cApp::Render(float fCurrentTime)
+	{
+		// This is just the default rendering procedure
+		// If you want to render to texture, FBO, etc, you will want to override this
+		pRender->BeginRenderToScreen();
+			RenderScene(fCurrentTime);
+			pRender->BeginHUD();
+				RenderHUD(fCurrentTime);
+			pRender->EndHUD();
+		pRender->EndRenderToScreen();
+	}
+
 
 	void cApp::MainLoop()
 	{
@@ -932,6 +940,8 @@ namespace BREATHE
 			if(fCurrentTime > fInputNext)
 			{
 				UpdateInput(fCurrentTime);
+
+				// These have to be in this order or nothing gets collected
 				UpdateKeys(fCurrentTime);
 
 				fInputNext=fCurrentTime+fInputDelta;
@@ -960,11 +970,7 @@ namespace BREATHE
 			
 			if(!bDone && bActive)// && fCurrentTime > fRenderNext)
 			{
-				pRender->BeginFrame(fCurrentTime);
-					RenderScene(fCurrentTime);
-				pRender->BeginHUD(fCurrentTime);
-					RenderHUD(fCurrentTime);
-				pRender->EndFrame();
+				Render(fCurrentTime);
 
 				tRender.Update(fCurrentTime);
 

@@ -232,7 +232,7 @@ namespace BREATHE
 					uiTriangles+=pCurrentMesh->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
-					pCurrentMesh->sMaterial=pFileSystem->FindFile(pFileSystem->GetPath(sFilename) + m->sMaterial);
+					pCurrentMesh->sMaterial=BREATHE::FILESYSTEM::FindFile(BREATHE::FILESYSTEM::GetPath(sFilename) + m->sMaterial);
 
 					char *c=const_cast<char *>(pCurrentMesh->sMaterial.c_str());
 					pCurrentMesh->sMaterial=c;

@@ -7,7 +7,7 @@ namespace BREATHE
 	{
 		namespace MODEL
 		{
-			class cHeightmap : public cModel
+			class cHeightmap : public cModel, public cObject
 			{
 			public:
 				cHeightmap();
@@ -28,8 +28,6 @@ namespace BREATHE
 				std::vector<MATH::cVec3>vVertex;
 				std::vector<MATH::cVec3>vNormal;
 				std::vector<MATH::cVec2>vTextureCoord;
-				
-				MATERIAL::cMaterial* pMaterial;
 
 			protected:
 				float* pHeight;
@@ -38,13 +36,16 @@ namespace BREATHE
 				unsigned int uiWidth;
 				unsigned int uiHeight;
 
-				float fWidth;
-				float fHeight;
+				float fWidthOfTile;
+				float fHeightOfTile;
 				float fScale;
 
 				cVertexBufferObject* pVBO;
 
 				//static BREATHE::MATH::cFrustum *pFrustum;
+
+				std::string sMaterial;
+				MATERIAL::cMaterial* pMaterial;
 			};
 
 			
@@ -58,8 +59,8 @@ namespace BREATHE
 
 			inline float cHeightmap::Height(float x, float y)
 			{
-				x += static_cast<float>(uiWidth>>1) * fWidth;
-				y += static_cast<float>(uiHeight>>1) * fHeight;
+				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
+				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
 
 				if(x < 0.0f) x = 0.0f;
 				if(y < 0.0f) y = 0.0f;
@@ -86,8 +87,8 @@ namespace BREATHE
 
 			inline MATH::cVec3 cHeightmap::Normal(float x, float y)
 			{
-				x += static_cast<float>(uiWidth>>1) * fWidth;
-				y += static_cast<float>(uiHeight>>1) * fHeight;
+				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
+				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
 
 				if(x < 0.0f) x = 0.0f;
 				if(y < 0.0f) y = 0.0f;

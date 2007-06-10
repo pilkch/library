@@ -25,6 +25,31 @@ namespace BREATHE
 			float fTraction1;
 			float fTraction2;
 			float fTraction3;
+			
+			std::vector<float>vGearRatio; // 0=Reverse, 1=Neutral, 2=1st, 3=2nd, ...
+			int iGears; // Number of drive ratios
+			int iGearCurrent; // -1 = reverse, 0 = Neutral
+			
+
+			float GetCurrentGearRatio()
+			{
+				if((iGearCurrent >= -1) && (iGearCurrent < iGears + 2))
+					return vGearRatio[1 + iGearCurrent];
+				else
+					return 1.0f;
+			}
+
+			void ShiftUp()
+			{
+				iGearCurrent++;
+				if(iGearCurrent > iGears) iGearCurrent = iGears;
+			}
+
+			void ShiftDown()
+			{
+				iGearCurrent--;
+				if(iGearCurrent < -1) iGearCurrent = -1;
+			}
 		};
 
 		class cVehicle : virtual public PHYSICS::cPhysicsObject
@@ -49,7 +74,6 @@ namespace BREATHE
 			cVehicleProperties properties;
 
 			float fPetrolTankSize; //Total size
-
 			std::vector<float>vPetrolTank;
 
 			std::vector<cPart*>vPart;

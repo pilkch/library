@@ -13,7 +13,7 @@ namespace BREATHE
 		{
 			iCount=0;
 
-			fFPS=fLastTime=fUpdateInterval=0.0f;
+			fFPS=fLastTime=fUpdateInterval=fUpdateIntervalDivFPS=0.0f;
 		}
 
 		void cTimer::Init(unsigned int uiHz)
@@ -23,6 +23,7 @@ namespace BREATHE
 			fFPS=(float)uiHz;
 			fLastTime=GetTime();
 			fUpdateInterval=2000.0f;
+			fUpdateIntervalDivFPS=2000.0f/uiHz;
 		}
 		
 		void cTimer::Update(float fCurrentTime)

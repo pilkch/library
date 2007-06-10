@@ -113,7 +113,9 @@ namespace BREATHE
 			template<typename T> cConsole& operator<<(const T& t)
 			{
 				//logfile << t;
-				Success(LOG.section, t);
+				std::ostringstream o;
+				o<<t;
+				Success(LOG.section, o.str());
 				return *this;
 			}
 			

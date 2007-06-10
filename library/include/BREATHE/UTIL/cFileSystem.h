@@ -12,11 +12,11 @@
 
 namespace BREATHE
 {
-	class cFileSystem
-	{	
-		std::vector<std::string> vDirectory;
-	public:
-		std::string FindFile(std::string sFilename); //Return the full filename "concrete.png" = "data/common/images/" + sFilename
+	namespace FILESYSTEM
+	{		
+		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
+		std::string FindFile(std::string sFilename);
+
 		void AddDirectory(std::string sDirectory);
 
 		std::string GetMD5(std::string sFilename);
@@ -25,16 +25,12 @@ namespace BREATHE
 		std::string GetFile(std::string sFilename);
 		std::string GetFileNoExtension(std::string sFilename);
 		std::string GetExtension(std::string sFilename);
-	};
 
-	namespace FILESYSTEM
-	{
+
 		bool FileExists(std::string sFilename);
 		bool CreateDirectory(std::string sFoldername);
 		bool CreateFile(std::string sFilename);
 	}
 }
-
-extern BREATHE::cFileSystem *pFileSystem;
 
 #endif //CFILESYSTEM_H

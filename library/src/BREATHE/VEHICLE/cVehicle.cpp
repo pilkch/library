@@ -360,6 +360,7 @@ namespace BREATHE
 			fControl_Handbrake=0.0f;
 
 			fPetrolTankSize=70.0f;
+			vPetrolTank.insert(0, PETROL_SIZE, 0.0f);
 
 
 			// http://home.planet.nl/~monstrous/tutcar.html
@@ -375,8 +376,15 @@ namespace BREATHE
 			properties.fTraction2 = 1.0f;
 			properties.fTraction3 = 1.0f;
 
-
-			vPetrolTank.insert(0, PETROL_SIZE, 0.0f);
+			properties.vGearRatio.push_back(-1.0f); // Reverse
+			properties.vGearRatio.push_back(0.0f); // Neutral
+			properties.vGearRatio.push_back(1.0f); // 1st
+			properties.vGearRatio.push_back(1.6f); // 2nd
+			properties.vGearRatio.push_back(2.3f); // 3rd
+			properties.vGearRatio.push_back(3.4f); // 4th
+			properties.vGearRatio.push_back(5.0f); // 5th
+			properties.iGears = 5; // Number of drive ratios
+			properties.iGearCurrent = 1; //-1 = reverse, 0 = Neutral
 		}
 
 		cVehicle::~cVehicle()
@@ -488,7 +496,7 @@ namespace BREATHE
 
 
 			fSteer = fControl_Steer * fMaxSteer;
-			fSpeed = fControl_Accelerate * fMaxAcceleration;
+			fSpeed = fControl_Accelerate * fMaxAcceleration * properties.GetCurrentGearRatio();
 			fBrake = fControl_Brake + fControl_Handbrake;
 
 			if(fBrake>1.0f)

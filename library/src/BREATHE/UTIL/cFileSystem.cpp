@@ -19,166 +19,163 @@
 #include <windows.h>
 #endif
 
-BREATHE::cFileSystem *pFileSystem;
-
 namespace BREATHE
 {
-	std::string cFileSystem::GetPath(std::string sFilename)
+	namespace FILESYSTEM
 	{
-		std::string p="";
-		std::string s=sFilename;
+		std::vector<std::string> vDirectory;
 
-		int i=s.find("/");;
-		while(i!=std::string::npos)
+
+		std::string GetPath(std::string sFilename)
 		{
-			i++;
-			p+=s.substr(0, i);
-			s=s.substr(i);
-			i=s.find("/");
-		};
+			std::string p="";
+			std::string s=sFilename;
 
-		return p;
-	}
+			std::string::size_type i=s.find("/");;
+			while(i!=std::string::npos)
+			{
+				i++;
+				p+=s.substr(0, i);
+				s=s.substr(i);
+				i=s.find("/");
+			};
 
-	std::string cFileSystem::GetFile(std::string sFilename)
-	{
-		std::string s=sFilename;
-
-		int i=s.find("/");;
-		while(i!=std::string::npos)
-		{
-			i++;
-			s=s.substr(i);
-			i=s.find("/");
-		};
-
-		return s;
-	}
-	std::string cFileSystem::GetFileNoExtension(std::string sFilename)
-	{
-		std::string s=sFilename;
-
-		int i=s.find("/");
-		while(i!=std::string::npos)
-		{
-			i++;
-			s=s.substr(i);
-			i=s.find("/");
-		};
-
-		i=s.find(".");;
-		if(i!=std::string::npos)
-			return s.substr(0, i);
-
-		return "";
-	}
-	std::string cFileSystem::GetExtension(std::string sFilename)
-	{
-		std::string p="";
-		std::string s=sFilename;
-
-		int i=s.find("/");;
-		while(i!=std::string::npos)
-		{
-			i++;
-			s=s.substr(i);
-			i=s.find("/");
-		};
-
-		if(i!=std::string::npos)
-			s=s.substr(i);
-
-		i=s.find(".");;
-		while(i!=std::string::npos)
-		{
-			i++;
-			s=s.substr(i);
-			i=s.find(".");
-		};
-
-		if(i!=std::string::npos)
-			p=s.substr(i);
-		else
-      p=s.substr(0);
-
-		return p;
-	}
-
-	
-	void cFileSystem::AddDirectory(std::string sDirectory)
-	{
-		unsigned int i=0;
-		unsigned int n=vDirectory.size();
-		for(i=0;i<n;i++)
-		{
-			if(vDirectory[i]==sDirectory)
-				return;
+			return p;
 		}
 
-		vDirectory.push_back(sDirectory);
-    LOG.Success("FileSystem", "Added " + sDirectory);
-	}
-
-	std::string cFileSystem::FindFile(std::string sFilename)
-	{
-		if(""==sFilename)
-			return "";
-
-		//Check sFilename that was passed in
-		std::ifstream f(sFilename.c_str());
-
-		if(f.is_open())
+		std::string GetFile(std::string sFilename)
 		{
-			f.close();
+			std::string::size_type i=sFilename.rfind("/");
+			std::string s;
+			if(std::string::npos != i)
+			{
+				i++;
+				s = sFilename.substr(i);
+			};
+
+			return s;
+		}
+		std::string GetFileNoExtension(std::string sFilename)
+		{
+			std::string::size_type i=sFilename.find("/");
+			while(i!=std::string::npos)
+			{
+				i++;
+				sFilename=sFilename.substr(i);
+				i=sFilename.find("/");
+			};
+
+			i=sFilename.find(".");;
+			if(i!=std::string::npos)
+				return sFilename.substr(0, i);
+
+			return "";
+		}
+		std::string GetExtension(std::string sFilename)
+		{
+			std::string p="";
+			std::string s=sFilename;
+
+			std::string::size_type i=s.find("/");;
+			while(i!=std::string::npos)
+			{
+				i++;
+				s=s.substr(i);
+				i=s.find("/");
+			};
+
+			if(i!=std::string::npos)
+				s=s.substr(i);
+
+			i=s.find(".");;
+			while(i!=std::string::npos)
+			{
+				i++;
+				s=s.substr(i);
+				i=s.find(".");
+			};
+
+			if(i!=std::string::npos)
+				p=s.substr(i);
+			else
+				p=s.substr(0);
+
+			return p;
+		}
+
+		
+		void AddDirectory(std::string sDirectory)
+		{
+			unsigned int i=0;
+			unsigned int n=vDirectory.size();
+			for(i=0;i<n;i++)
+			{
+				if(vDirectory[i]==sDirectory)
+					return;
+			}
+
+			vDirectory.push_back(sDirectory);
+			LOG.Success("FileSystem", "Added " + sDirectory);
+		}
+
+		std::string FindFile(std::string sFilename)
+		{
+			if(""==sFilename)
+				return "";
+
+			//Check sFilename that was passed in
+			std::ifstream f(sFilename.c_str());
+
+			if(f.is_open())
+			{
+				f.close();
+				return sFilename;
+			}
+
+			//Check for each directory+sFilename
+			std::vector<std::string>::iterator iter=vDirectory.begin();
+			while(iter!=vDirectory.end())
+			{
+				f.open(((*iter) + sFilename).c_str());
+				
+				if(f.is_open())
+				{
+					f.close();
+					return (*iter) + sFilename;
+				}
+
+				iter++;
+			};
+			
+
+			//Check for each directory+sFilename-path
+			iter=vDirectory.begin();
+			std::string sFile=GetFile(sFilename);
+			while(iter!=vDirectory.end())
+			{
+				f.open(((*iter) + sFile).c_str());
+				
+				if(f.is_open())
+				{
+					f.close();
+					return (*iter) + sFile;
+				}
+
+				iter++;
+			};
+	    
+			LOG.Error("FileSystem", "Not Found " + sFilename);
 			return sFilename;
 		}
 
-		//Check for each directory+sFilename
-		std::vector<std::string>::iterator iter=vDirectory.begin();
-    while(iter!=vDirectory.end())
+		std::string GetMD5(std::string sFilename)
 		{
-			f.open(((*iter) + sFilename).c_str());
-			
-			if(f.is_open())
-			{
-				f.close();
-				return (*iter) + sFilename;
-			}
+			cMD5 m;
+			m.CheckFile(sFilename.c_str());
 
-			iter++;
-		};
+			return m.sResult;
+		}
 		
-
-		//Check for each directory+sFilename-path
-		iter=vDirectory.begin();
-		std::string sFile=GetFile(sFilename);
-    while(iter!=vDirectory.end())
-		{
-			f.open(((*iter) + sFile).c_str());
-			
-			if(f.is_open())
-			{
-				f.close();
-				return (*iter) + sFile;
-			}
-
-			iter++;
-		};
-    
-		LOG.Error("FileSystem", "Not Found " + sFilename);
-		return sFilename;
-	}
-
-	std::string cFileSystem::GetMD5(std::string sFilename)
-	{
-		cMD5 m;
-		m.CheckFile(sFilename.c_str());
-
-		return m.sResult;
-	}
-	
-	namespace FILESYSTEM
-	{
 #ifdef PLATFORM_WINDOWS
 #pragma push_macro("FileExists")
 #undef FileExists
@@ -198,7 +195,7 @@ namespace BREATHE
 
 			return false;
 #else
-			LOG.Error("cFileSystem::CreateFile", "Not implemented on this platform");
+			LOG.Error("CreateFile", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -215,7 +212,7 @@ namespace BREATHE
 
 			return !(ERROR_PATH_NOT_FOUND==CreateDirectory(sFoldername.c_str(), NULL));
 #else
-			LOG.Error("cFileSystem::CreateFolder", "Not implemented on this platform");
+			LOG.Error("CreateFolder", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -235,13 +232,13 @@ namespace BREATHE
 
 			// File not found, we can now create the file
 			HANDLE handle = CreateFile(sFilename.c_str(),     // file to create
-                   GENERIC_WRITE,          // open for writing
-                   0,                      // do not share
-                   NULL,                   // default security
-                   CREATE_ALWAYS,          // overwrite existing
-                   FILE_ATTRIBUTE_NORMAL | // normal file
-                   FILE_FLAG_OVERLAPPED,   // asynchronous I/O
-                   NULL);                  // no attr. template
+									GENERIC_WRITE,          // open for writing
+									0,                      // do not share
+									NULL,                   // default security
+									CREATE_ALWAYS,          // overwrite existing
+									FILE_ATTRIBUTE_NORMAL | // normal file
+									FILE_FLAG_OVERLAPPED,   // asynchronous I/O
+									NULL);                  // no attr. template
 			if(INVALID_HANDLE_VALUE != handle)
 			{
 				// This file is created
@@ -251,7 +248,7 @@ namespace BREATHE
 			
 			return false;
 #else
-			LOG.Error("cFileSystem::CreateFile", "Not implemented on this platform");
+			LOG.Error("CreateFile", "Not implemented on this platform");
 			return false;
 #endif
 		}
