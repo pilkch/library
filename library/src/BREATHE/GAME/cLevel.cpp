@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 #include <GL/Glee.h>
 
@@ -45,11 +46,10 @@
 #include <BREATHE/RENDER/MODEL/cModel.h>
 #include <BREATHE/RENDER/MODEL/cStatic.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
-
-
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
@@ -356,8 +356,7 @@ namespace BREATHE
 		}
 
 
-		//Swap sub meshes around to optimise rendering
-		RENDER::MODEL::cMesh *pTemp;
+		// TODO: Optimise order for rendering
 		unsigned int uiPass=0;
 		unsigned int i=0;
 		unsigned int uiMode0=0;
@@ -381,11 +380,7 @@ namespace BREATHE
 
 						//x[i] > x[i+1]
 						if(RENDER::TEXTURE_MASK==uiMode0 || RENDER::TEXTURE_BLEND==uiMode0)
-						{
-							pTemp = s->vMesh[i]; 
-							s->vMesh[i] = s->vMesh[i+1]; 
-							s->vMesh[i+1] = pTemp;
-						}
+							std::swap<RENDER::MODEL::cMesh*>(s->vMesh[i], s->vMesh[i+1]);
 					}
 				}
 			}

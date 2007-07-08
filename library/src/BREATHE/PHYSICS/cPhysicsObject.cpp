@@ -28,9 +28,10 @@
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
-
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 
 /*// Wedge 
@@ -61,7 +62,9 @@ dVector3 Size;
 dVector3 Vertices[VertexCount];
 int Indices[IndexCount];
 
-
+const unsigned int uiDirectionX = 1;
+const unsigned int uiDirectionY = 2;
+const unsigned int uiDirectionZ = 3;
 
 namespace BREATHE
 {
@@ -114,8 +117,8 @@ namespace BREATHE
 			vCoords=coords;
 			vIndicies=indicies;
 		}
-		
-		void cPhysicsObject::CreateBox(MATH::cVec3 pos, MATH::cVec3 rot)
+
+		void cPhysicsObject::InitCommon(MATH::cVec3& pos, MATH::cVec3& rot)
 		{
 			pos.z+=fHeight;
 
@@ -130,11 +133,6 @@ namespace BREATHE
 			m.SetTranslation(pos);
 
 			p=pos;
-			
-			if(bDynamic)
-        geom = dCreateBox(PHYSICS::spaceDynamic, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
-			else
-        geom = dCreateBox(PHYSICS::spaceStatic, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
 
 			dGeomSetPosition(geom, p.x, p.y, p.z);
 			dGeomSetRotation(geom, r);
@@ -147,8 +145,18 @@ namespace BREATHE
 				dBodySetAutoDisableFlag(body, 1);
 
 				dGeomSetBody(geom, body);
+			}
+		}
+		
+		void cPhysicsObject::CreateBox(MATH::cVec3 pos, MATH::cVec3 rot)
+		{
+			geom = dCreateBox(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, 
+				2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
+			
+			InitCommon(pos, rot);
 
-
+			if(bBody)
+			{
 				dMass mass;
 				dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
 				dBodySetMass(body, &mass);
@@ -157,41 +165,42 @@ namespace BREATHE
 		
 		void cPhysicsObject::CreateSphere(MATH::cVec3 pos, MATH::cVec3 rot)
 		{
-			pos.z+=fHeight;
+			geom = dCreateSphere(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius);
 
-			m.LoadIdentity();
-			m.SetRotationZ(rot.z*MATH::cPI_DIV_180);
-
-			dMatrix3 r;
-			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
-
-			m.SetTranslation(pos);
-
-			p=pos;
-			
-			if(bDynamic)
-        geom = dCreateSphere(PHYSICS::spaceDynamic, fRadius);
-			else
-        geom = dCreateSphere(PHYSICS::spaceStatic, fRadius);
-
-			dGeomSetPosition(geom, p.x, p.y, p.z);
-			dGeomSetRotation(geom, r);
+			InitCommon(pos, rot);
 
 			if(bBody)
 			{
-				body = dBodyCreate(PHYSICS::world);
-				dBodySetPosition(body, p.x, p.y, p.z);
-				dBodySetRotation(body, r);
-				dBodySetAutoDisableFlag(body, 1);
-
-				dGeomSetBody(geom, body);
-
-
 				dMass mass;
-				dMassSetSphere (&mass, 1, fRadius);
 				dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
+				dBodySetMass(body, &mass);
+			}
+		}
+
+		void cPhysicsObject::CreateCapsule(MATH::cVec3 pos, MATH::cVec3 rot)
+		{
+			geom = dCreateCapsule(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
+		
+			InitCommon(pos, rot);
+
+			if(bBody)
+			{
+				dMass mass;
+				dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
+				dBodySetMass(body, &mass);
+			}
+		}
+
+		void cPhysicsObject::CreateCylinder(MATH::cVec3 pos, MATH::cVec3 rot)
+		{
+			geom = dCreateCylinder(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
+
+			InitCommon(pos, rot);
+
+			if(bBody)
+			{
+				dMass mass;
+				dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
 				dBodySetMass(body, &mass);
 			}
 		}
@@ -303,7 +312,7 @@ namespace BREATHE
 			//dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
 		}
 
-		void cPhysicsObject::Update(float fTime)
+		void cPhysicsObject::Update(float fCurrentTime)
 		{
 			if(bDynamic)
 			{
@@ -357,6 +366,25 @@ namespace BREATHE
 		void cPhysicsObject::UpdateComponents()
 		{
 			p=m.GetPosition();
+		}
+
+
+		// *****************************************************************************************************
+		// Upright Capsule
+		// *****************************************************************************************************
+		cUprightCapsule::cUprightCapsule()
+			: cPhysicsObject()
+		{
+
+		}
+		
+		void cUprightCapsule::Update(float fCurrentTime)
+		{
+			// Stop the capsule from rotating forwards, backwards, left, right
+			dBodySetAngularVel(body, 0.0f, 0.0f, 0.0f);
+			dBodySetTorque(body, 0.0f, 0.0f, 0.0f);
+			
+			cPhysicsObject::Update(fCurrentTime);
 		}
 	}
 }

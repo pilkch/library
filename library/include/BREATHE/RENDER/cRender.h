@@ -178,27 +178,6 @@ namespace BREATHE
 			
 			void ReloadTextures();
 		};
-
-		
-		inline void cRender::ClearColour()
-		{
-			bActiveColour=false;
-
-			colour.SetBlack();
-			colour.a=1.0f;
-
-			glColor4f(colour.r, colour.g, colour.b, colour.a);
-		}
-		
-		inline void cRender::SetColour(MATH::cColour inColour)
-		{
-			bActiveColour=true;
-
-			colour=inColour;
-			colour.a=1.0f;
-
-			glColor4f(colour.r, colour.g, colour.b, colour.a);
-		}
 	}
 }
 

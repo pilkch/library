@@ -68,6 +68,7 @@ namespace BREATHE
 
 				pHeight = NULL;
 				pVBO = NULL;
+				pMaterial = NULL;
 			}
 
 			cHeightmap::~cHeightmap()
@@ -225,23 +226,71 @@ namespace BREATHE
 						vNormal.push_back(Normal(fX + fHTW2, fY + fHTH2));
 						vNormal.push_back(Normal(fX, fY + fHTH2));
 						vNormal.push_back(Normal(fX, fY));
+					}
+				}
 
 
-						// Base texture
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 0.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 0.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 0.0f));
+				// Stretched Base Texture
+				if(pMaterial->vLayer.size() > 0)
+				{
+					cTexture* pTexture = pMaterial->vLayer[0]->pTexture;
+					if(pTexture)
+					{
+						LOG.Success("Heightmap", "Adding base texture coordinates");
 
-						// Detail texture
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 0.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 0.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(1.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 1.0f));
-						vTextureCoord.push_back(MATH::cVec2(0.0f, 0.0f));
+						// Now at the detail texture coordinates so that they are after the base texture coordinates
+						for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
+						{
+							for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
+							{
+								float u1 = (float(w)) / float(uiWidth);
+								float v1 = (float(h)) / float(uiHeight);
+								float u2 = (float(w + uiVBOStrideWidth)) / float(uiWidth);
+								float v2 = (float(h + uiVBOStrideHeight)) / float(uiHeight);
+
+								pTexture->Transform(u1, v1);
+								pTexture->Transform(u2, v2);
+
+								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+								vTextureCoord.push_back(MATH::cVec2(u2, v1));
+								vTextureCoord.push_back(MATH::cVec2(u2, v2));
+								vTextureCoord.push_back(MATH::cVec2(u2, v2));
+								vTextureCoord.push_back(MATH::cVec2(u1, v2));
+								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+							}
+						}
+					}
+				}
+
+				// Detail Texture
+				if(pMaterial->vLayer.size() > 1)
+				{
+					cTexture* pDetailTexture = pMaterial->vLayer[1]->pTexture;
+					if(pDetailTexture)
+					{
+						float u1 = 0.0f;
+						float v1 = 0.0f;
+						float u2 = 1.0f;
+						float v2 = 1.0f;
+
+						pDetailTexture->Transform(u1, v1);
+						pDetailTexture->Transform(u2, v2);
+
+						LOG.Success("Heightmap", "Adding detail texture coordinates");
+
+						// Now at the detail texture coordinates so that they are after the base texture coordinates
+						for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
+						{
+							for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
+							{
+								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+								vTextureCoord.push_back(MATH::cVec2(u2, v1));
+								vTextureCoord.push_back(MATH::cVec2(u2, v2));
+								vTextureCoord.push_back(MATH::cVec2(u2, v2));
+								vTextureCoord.push_back(MATH::cVec2(u1, v2));
+								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+							}
+						}
 					}
 				}
 				
@@ -261,9 +310,11 @@ namespace BREATHE
 
 			unsigned int cHeightmap::Render()
 			{
-				pRender->SetMaterial(pMaterial);
-				
-				pVBO->Render();
+				if(pMaterial && pVBO)
+				{
+					pRender->SetMaterial(pMaterial);
+					pVBO->Render();
+				}
 
 				pRender->RenderBox(MATH::cVec3(-fWidth, -fLength, -fHeight), MATH::cVec3(fWidth, fLength, fHeight));
 

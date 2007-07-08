@@ -33,10 +33,10 @@
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
-
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 namespace BREATHE
 {

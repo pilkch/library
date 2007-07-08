@@ -19,7 +19,7 @@ namespace BREATHE
 		extern dGeomID ground;
 
 
-		//class cPhysicsObject;
+		class cPhysicsObject;
 
 		class cPhysics : public cUpdateable
 		{

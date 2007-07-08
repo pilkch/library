@@ -14,7 +14,7 @@ namespace BREATHE
 				~cAnimation();
 
 				int Load(std::string sFilename);
-				void Update(float fTime);
+				void Update(float fCurrentTime);
 				
 				std::vector<cStatic*>vFrame; //A vector of all the statics in this model
 			};

@@ -5,7 +5,7 @@ namespace BREATHE
 {
 	class cAppKey;
 
-	class cApp : public cUpdateable
+	class cApp
 	{
 		void ConsoleExecuteSingleCommand(std::string s);
 

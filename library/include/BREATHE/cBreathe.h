@@ -52,13 +52,17 @@
 
 
 // CRT's memory leak detection
-#ifdef BUILD_DEBUG
+#if defined BUILD_DEBUG && defined PLATFORM_WINDOWS
 #include <crtdbg.h>
 #endif
 
+
+// For our types (uint8_t, uint32_t, etc.)
+#include <SDL/SDL.h>
+
+
 // FluidStudios' memory leak detection
 #include <BREATHE/UTIL/cMem.h>
-
 
 
 // Utility types, objects etc.

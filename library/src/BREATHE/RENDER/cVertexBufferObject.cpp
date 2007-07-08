@@ -45,6 +45,7 @@ namespace BREATHE
 		{
 			uiVertices = 0;
 
+			uiOffsetTextureUnit0 = 0;
 			uiOffsetTextureUnit1 = 0;
 			uiOffsetTextureUnit2 = 0;
 
@@ -60,7 +61,7 @@ namespace BREATHE
 
 		void cVertexBufferObject::Destroy()
 		{
-			if(bufferID) 
+			if(bufferID)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER, 0);
 				glDeleteBuffersARB(1, &bufferID);
@@ -76,24 +77,28 @@ namespace BREATHE
 
 			unsigned int uiVertexSize = pVertex.vData.size() * sizeof(MATH::cVec3);
 			unsigned int uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(MATH::cVec2);
-			//unsigned int uiTextureCoordSize1 = pTextureCoord1.vData.size() * sizeof(MATH::cVec2);
 			unsigned int uiNormalSize = pNormal.vData.size() * sizeof(MATH::cVec3);
 			
 			pVertex.uiOffset = 0 + 0;
 			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
-			//pTextureCoord1.uiOffset = pTextureCoord0.uiOffset + uiTextureCoordSize0;
 			pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
 			
-			if(pTextureCoord.vData.size() > pVertex.vData.size())
+			uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
+			if(pTextureCoord.vData.size() > uiVertices)
 			{
-				uiOffsetTextureUnit1 = pTextureCoord.uiOffset + (pVertex.vData.size() * sizeof(MATH::cVec2));
+				uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(MATH::cVec2));
 
-				if(pTextureCoord.vData.size()/2 > pVertex.vData.size())
-					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (pVertex.vData.size() * sizeof(MATH::cVec2));
+				if(pTextureCoord.vData.size()/2 > uiVertices)
+					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(MATH::cVec2));
 			}
 
 			std::vector<float>vData;
 			unsigned int i = 0;
+			/*vData.resize(	uiVertexSize + uiTextureCoordSize + uiNormalSize);
+			memcpy(&vData[pVertex.uiOffset],				&pVertex.vData[0], uiVertexSize);
+			memcpy(&vData[pTextureCoord.uiOffset],	&pTextureCoord.vData[0], uiTextureCoordSize);
+			memcpy(&vData[pNormal.uiOffset],				&pNormal.vData[0], uiNormalSize);*/
+
 			for (i =0;i<pVertex.vData.size(); i++)
 			{
 				vData.push_back(pVertex.vData[i].x);
@@ -112,6 +117,7 @@ namespace BREATHE
 				vData.push_back(pNormal.vData[i].z);
 			}
 
+			size_t x = vData.size();
 			//glGenBuffersARB(1, &index_buf);
 			//glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
 			//glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, I_SIZ*sizeof(GLushort), tet_index, GL_STATIC_DRAW_ARB);
@@ -137,7 +143,7 @@ namespace BREATHE
 
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(pTextureCoord.uiOffset));
+			glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit0));
 
 			if(uiOffsetTextureUnit1)
 			{

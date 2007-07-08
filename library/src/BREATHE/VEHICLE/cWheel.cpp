@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 
 #include <ODE/ode.h>
@@ -31,9 +32,10 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
@@ -221,17 +223,10 @@ namespace BREATHE
 			fSuspensionMax=0.0f;
 		}
 		
-		cWheel::~cWheel()
-		{
-			dGeomDestroy(geomRay);
-		}
-
 		void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
 		{
 			this->bFront=bFront;
 			
-			contact.Clear();
-
 			fRadius=fWRadius;
 			fWeight=fInWeight;
 
@@ -246,25 +241,25 @@ namespace BREATHE
 			v3SuspensionTop=pos;
 
 			fTraction=1.0f;
-
-			geomRay = dCreateRay(0, 1 );
+			
+			cPhysicsRayCast::Create(1.0f);
 		}
 
 		void cWheel::RayCast()
 		{
 			MATH::cVec3 dir=-pParent->m.GetUp().GetNormalized();
 
-			contact.Clear();
+			rayContact.Clear();
 
-			contact.fDepth = fSuspensionMax;
+			rayContact.fDepth = fSuspensionMax;
 			
 			dGeomRaySet(geomRay, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
 			dGeomRaySetLength(geomRay, fSuspensionMax);
-			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceStatic, this, callback);
-			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceDynamic, this, callback);
+			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceStatic, this, RayCastCallback);
+			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceDynamic, this, RayCastCallback);
 		}
 
-		void cWheel::callback( void * data, dGeomID g1, dGeomID g2 )
+		void cWheel::RayCastCallback( void * data, dGeomID g1, dGeomID g2 )
 		{
 			dContact c;
 
@@ -273,8 +268,8 @@ namespace BREATHE
 			if( dGeomGetBody( g1 ) == p->pParent->body )
 				return;
 
-			if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->contact.fDepth)
-				p->contact.SetContact(c.geom, p->pParent->geom, c.geom.depth);
+			if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
+				p->rayContact.SetContact(c.geom, p->pParent->geom, c.geom.depth);
 		}
 
 
@@ -327,7 +322,7 @@ namespace BREATHE
 			MATH::cVec3 dir=front;
 
 			{
-				float fContact = contact.bContact ? contact.fDepth : fSuspensionMax;
+				float fContact = rayContact.bContact ? rayContact.fDepth : fSuspensionMax;
 
 				MATH::cMat4 mPositionRel;
 				mPositionRel.SetTranslation(v3SuspensionTopRel);
@@ -351,7 +346,7 @@ namespace BREATHE
 			}
 
 
-			if(contact.bContact)
+			if(rayContact.bContact)
 			{
 				// Traction will range from 
 				// 0.0f (No contact)
@@ -400,11 +395,11 @@ namespace BREATHE
 				float fTireConstant=1.0f;
 				float fTireRollingVelocity=1.0f;
 
-				contact.SetFrictionDirection1(dir);
-				contact.SetFDSSlipCoefficient2(fTireConstant*fTireRollingVelocity);
+				rayContact.SetFrictionDirection1(dir);
+				rayContact.SetFDSSlipCoefficient2(fTireConstant*fTireRollingVelocity);
 
-				//contact.SetFDSSlipCoefficient1(wheelSlip);
-				//contact.SetFDSSlipCoefficient2(wheelSlip);
+				//rayContact.SetFDSSlipCoefficient1(wheelSlip);
+				//rayContact.SetFDSSlipCoefficient2(wheelSlip);
 
 
 				// Forward rolling friction
@@ -414,9 +409,9 @@ namespace BREATHE
 				//contact.setCoulombFriction(wheelSlip * std::min(fabsf(geom_normal.z), 1.0f) * 0.0000001f);
 				//if( (pParent->fControl_Accelerate > 0.0f && pParent->fVel >= -0.1f) || 
 				//	(pParent->fControl_Accelerate < 0.0f && pParent->fVel <= 0.1f) ) 
-					 contact.SetCoulombFriction(0.0001f);
+					 rayContact.SetCoulombFriction(0.0001f);
 				//else
-				//	contact.setCoulombFriction(0.4f);
+				//	rayContact.setCoulombFriction(0.4f);
 
 
 
@@ -440,14 +435,14 @@ namespace BREATHE
 				
 				// Suspension
 				fStep = pPhysics->fInterval * 50000.0f; // Such a big number, can we do something about this?
-				contact.SetElasticity(fStep * fSuspensionK / ((fStep * fSuspensionK) + fSuspensionU), 
+				rayContact.SetElasticity(fStep * fSuspensionK / ((fStep * fSuspensionK) + fSuspensionU), 
 															1.0f / ((fStep * fSuspensionK) + fSuspensionU));
 				
 				// Bounce
-				contact.SetBounce(0.001f, 0.2f);
+				rayContact.SetBounce(0.001f, 0.2f);
 
 				// Contact Depth
-				contact.CreateContact(contact.fDepth); //*0.5f/fSuspensionMax;
+				rayContact.CreateContact(rayContact.fDepth); //*0.5f/fSuspensionMax;
 				
 
 				
@@ -478,6 +473,17 @@ namespace BREATHE
 
 				//dBodyAddRelForce(pParent->body, force.x, force.y, force.z);
 				//dBodyAddRelForceAtRelPos(pParent->body, force.x, force.y, force.z, pos.x, pos.y, pos.z);*/
+
+				
+				// Rolling Drag
+				float fDampTorque = 100.0f;
+				float fDampLinearVel = 100.0f;
+				dReal const * av = dBodyGetAngularVel( pParent->body );
+				dReal const * lv = dBodyGetLinearVel( pParent->body );
+
+				// TODO: Check whether we are on our roof/side too
+				dBodyAddTorque( pParent->body, -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );
+				dBodyAddForce( pParent->body, -lv[0]*fDampLinearVel, -lv[1]*fDampLinearVel, -lv[2]*fDampLinearVel );
 			}
 			else
 				fTraction=0.0f;

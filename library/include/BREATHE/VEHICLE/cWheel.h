@@ -7,7 +7,7 @@ namespace BREATHE
 	{
 		class cVehicle;
 
-		class cWheel : virtual public PHYSICS::cPhysicsObject
+		class cWheel : virtual public PHYSICS::cPhysicsObject, public PHYSICS::cPhysicsRayCast
 		{
 			cVehicle *pParent;
 
@@ -26,20 +26,15 @@ namespace BREATHE
 			MATH::cVec3 v3SuspensionTop;
 
 			cWheel(cVehicle *p);
-			~cWheel();
 
 			void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, 
 				float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos);
-			void Update(float fTimeStep);
+			void Update(float fCurrentTime);
 
-
-			//Raycasting
-			dGeomID geomRay;
-
-			PHYSICS::cContact contact;
-
+			
+			// For raycasting to find out if this particular wheel is touching anything
 			void RayCast();
-			static void callback( void * data, dGeomID g1, dGeomID g2 );
+			static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 		};
 	}
 }

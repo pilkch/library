@@ -29,8 +29,10 @@
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 BREATHE::PHYSICS::cPhysics* pPhysics = NULL;
 
@@ -125,8 +127,6 @@ namespace BREATHE
 			dSpaceCollide(spaceDynamic, this, cPhysics::nearCallbackDynamic);
 			dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, this, &cPhysics::nearCallbackStatic);
 			//dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, this, &cPhysics::nearCallbackTrigger);
-
-			//PStepper::stepAll( dt );
 
 			dWorldQuickStep(world, fInterval);
 			dJointGroupEmpty(contactgroup);

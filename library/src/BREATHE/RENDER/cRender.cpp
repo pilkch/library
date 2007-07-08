@@ -57,26 +57,25 @@ namespace BREATHE
 {
 	namespace RENDER
 	{
-		cRender::cRender()
+		cRender::cRender() : 
+			bRenderWireframe(false),
+			bLight(true),
+			bCubemap(true),
+			bShader(true),
+			
+			bCanCubemap(false),
+			bCanShader(false),
+			bCanFrameBufferObject(false),
+
+			bActiveShader(false),
+			bActiveColour(false),
+
+			bFullscreen(true),
+			uiWidth(1024),
+			uiHeight(768),
+			uiDepth(32)
 		{
 			pRender = this;
-
-			bLight=true;
-			bCubemap=true;
-			bShader=true;
-			bRenderWireframe=false;
-
-			bCanCubemap=false;
-			bCanShader=false;
-			bCanFrameBufferObject=false;
-
-			bActiveShader=false;
-			bActiveColour=false;
-
-			bFullscreen=true;
-			uiWidth=1024;
-			uiHeight=768;
-			uiDepth = 32;
 
 			uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
 
@@ -274,9 +273,7 @@ namespace BREATHE
 			else
 			{
 				LOG.Success("Render", "Found Shader2.0");
-
 				bCanShader = true;
-        
 				bShader=bCanShader;
 			}
 			
@@ -848,8 +845,8 @@ namespace BREATHE
 			{
 				if(a.y>b.y)
 					return (atan((a.y-b.y)/(a.x-b.x)) + MATH::cPI_DIV_180 * 90.0f) * MATH::c180_DIV_PI;
-				else
-					return (-atan((a.y-b.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 90.0f) * MATH::c180_DIV_PI;
+				
+				return (-atan((a.y-b.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 90.0f) * MATH::c180_DIV_PI;
 			}
 			
 
@@ -1525,6 +1522,26 @@ namespace BREATHE
 			}
 
 			return pMaterialNotFoundMaterial;
+		}
+
+		void cRender::ClearColour()
+		{
+			bActiveColour=false;
+
+			colour.SetBlack();
+			colour.a=1.0f;
+
+			glColor4f(colour.r, colour.g, colour.b, colour.a);
+		}
+		
+		void cRender::SetColour(MATH::cColour inColour)
+		{
+			bActiveColour=true;
+
+			colour=inColour;
+			colour.a=1.0f;
+
+			glColor4f(colour.r, colour.g, colour.b, colour.a);
 		}
 
 		

@@ -50,7 +50,7 @@ namespace BREATHE
 				~cStatic();
 
 				int Load(std::string sFilename);
-				void Update(float fTime);
+				void Update(float fCurrentTime);
 				unsigned int Render();
 				
 				unsigned int Render(cOctree *pNode);

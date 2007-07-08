@@ -1,5 +1,7 @@
+// Basic standard library includes
 #include <cmath>
 
+// STL
 #include <list>
 #include <vector>
 
@@ -7,10 +9,14 @@
 #include <iostream>
 #include <fstream>
 
-
+// Anything else
 #include <ode/ode.h>
 
+// Breathe
 #include <BREATHE/cBreathe.h>
+
+#include <BREATHE/UTIL/cLog.h>
+#include <BREATHE/UTIL/cVar.h>
 
 #include <BREATHE/MATH/cMath.h>
 #include <BREATHE/MATH/cVec2.h>
@@ -27,28 +33,35 @@
 #include <BREATHE/RENDER/MODEL/cMesh.h>
 #include <BREATHE/RENDER/MODEL/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cUprightCapsule.h>
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
+
 
 namespace BREATHE
 {
 	namespace PHYSICS
-	{	
-		cUprightCapsule::cUprightCapsule()
-			: cPhysicsObject()
+	{
+		cPhysicsRayCast::cPhysicsRayCast()
 		{
-
-		}
-
-		cUprightCapsule::~cUprightCapsule()
-		{
-
+			geomRay = 0;
 		}
 		
-		void cUprightCapsule::Update(float fTime)
+		cPhysicsRayCast::~cPhysicsRayCast()
 		{
-			cPhysicsObject::Update(fTime);
+			if(geomRay)
+			{
+				dGeomDestroy(geomRay);
+				geomRay = 0;
+			}
+		}
+
+		void cPhysicsRayCast::Create(float fLength)
+		{
+			rayContact.Clear();
+
+			geomRay = dCreateRay(0, fLength);
 		}
 	}
 }

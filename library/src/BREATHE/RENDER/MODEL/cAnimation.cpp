@@ -57,7 +57,7 @@ namespace BREATHE
 				return 0;
 			}
 
-			void cAnimation::Update(float fTime)
+			void cAnimation::Update(float fCurrentTime)
 			{
 				LOG.Error("Animation", "Don't use this class");
 			}

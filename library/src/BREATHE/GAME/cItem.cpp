@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include <string>
 #include <iostream>
@@ -32,8 +32,10 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/GAME/cItem.h>
 

@@ -144,21 +144,26 @@ namespace BREATHE
 				lineX=0;
 				while(lineX<uiAtlasWidthNSegments && uiAtlasWidthNSegments-lineX>=requiredW && !bFound)
 				{
+					// Set bGood to true
 					bGood=true;
 					countH=0;
 					uiOffset=rowY*uiAtlasWidthNSegments+lineX;
-					while(countH<requiredH && bGood)
+
+					for(countH=0;countH<requiredH;countH++)
 					{
-						countW=0;
-						while(countW<requiredW && bGood)
+						for(countW=0;countW<requiredW;countW++)
 						{
-							bGood=!vSegment[uiOffset + countH*uiAtlasWidthNSegments+countW];
-							countW++;
-						};
+							// bGood = true if this vSegment has not been filled yet
+							bGood = (false == vSegment[uiOffset + countH*uiAtlasWidthNSegments+countW]);
+							if(!bGood)
+								break;
+						}
 
-						countH++;
-					};
+						if(!bGood)
+							break;
+					}
 
+					// If bGood is still true then we have found a valid position for this texture
 					if(bGood)
 					{
 						bFound=true;

@@ -10,7 +10,9 @@ namespace BREATHE
 		template <class T>
 		class cVertexBufferObjectArray
 		{
-		public:			
+		public:
+			cVertexBufferObjectArray() { uiOffset = 0; }
+
 			void SetData(std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
 			T* GetData() { return vData.size() ? &vData[0] : NULL; }
 			unsigned int GetDataSize() { return vData.size(); }
@@ -34,11 +36,11 @@ namespace BREATHE
 			cVertexBufferObjectArray<MATH::cVec3> pVertex;
 			cVertexBufferObjectArray<MATH::cVec3> pNormal;
 			cVertexBufferObjectArray<MATH::cVec2> pTextureCoord;
-			//cVertexBufferObjectArray<MATH::cVec2> pTextureCoord1;
 
 		private:
 			unsigned int uiVertices;
 
+			unsigned int uiOffsetTextureUnit0;
 			unsigned int uiOffsetTextureUnit1;
 			unsigned int uiOffsetTextureUnit2;
 

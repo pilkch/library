@@ -12,6 +12,7 @@ namespace BREATHE
 		extern const float cPI_DIV_180;
 		extern const float c180_DIV_PI;
 
+		extern const float cSQUARE_ROOT_2;
 		extern const float cEPSILON;
 		extern const float cINFINITY;
 		

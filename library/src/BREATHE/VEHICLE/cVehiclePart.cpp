@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 #include <ODE/ode.h>
 
@@ -32,8 +33,12 @@
 
 
 #include <BREATHE/GAME/cLevel.h>
+
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
 #include <BREATHE/PHYSICS/cPhysicsObject.h>
+
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
 #include <BREATHE/VEHICLE/cPart.h>

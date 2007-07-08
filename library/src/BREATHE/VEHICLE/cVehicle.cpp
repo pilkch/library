@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 #include <ODE/ode.h>
 
@@ -32,9 +33,10 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
@@ -335,6 +337,8 @@ namespace BREATHE
 		cVehicle::cVehicle()
 			: PHYSICS::cPhysicsObject()
 		{
+			p.x = p.y = p.z = 0.0f;
+
 			pBody=NULL;
 			pMirror=NULL;
 			pMetal=NULL;
@@ -569,6 +573,28 @@ namespace BREATHE
 			controller->SetControllerForce(force);
 
 			controller->SetControllerTorque(torque);*/
+
+			if(body)
+			{
+				// Aerodynamic Drag
+				// To simulate aerodynamic drag, it would be better to use the square of the velocity, 
+				// because that's how drag works in reality. The force should also be applied at the object's 
+				// aerodynamic center rather than at the body location. These may be the same, but 
+				// (especially if you're using geometry transforms) they may not be. The center of 
+				// the object's cross section would probably be close to the aerodynamic center, at least 
+				// for non-engineering purposes. In any case, dBodyAddForceAtRelPos? will allow you to 
+				// apply the force at a specific point in the body's frame of reference. 
+				
+				// TODO: Use a lot more drag in water
+				float fDampTorque = 1.0f;
+				float fDampLinearVel = 1.0f;
+				dReal const * av = dBodyGetAngularVel( body );
+				dReal const * lv = dBodyGetLinearVel( body );
+
+				// TODO: Check whether we are on our roof/side too
+				dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
+				dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
+			}
 		}
 
 		void cVehicle::FillUp(cPetrolBowser *pBowser)

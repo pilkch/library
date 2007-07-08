@@ -93,7 +93,7 @@ namespace BREATHE
 			~cVehicle();
 
 			void Init(cLevelSpawn p, unsigned int uiSeats);
-			void Update(float fTimeStep);
+			void Update(float fCurrentTime);
 			void UpdateInput();
 
 			void PhysicsInit(cLevelSpawn p);

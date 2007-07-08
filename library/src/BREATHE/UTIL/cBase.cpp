@@ -49,6 +49,8 @@ namespace BREATHE
 		fRadius = fWidth;
 		if(fInLength > fRadius) fRadius = fInLength;
 		if(fInHeight > fRadius) fRadius = fInHeight;
+
+		fRadius *= MATH::cSQUARE_ROOT_2;
 	}
 	
 	// Collisions

@@ -23,7 +23,7 @@ namespace BREATHE
 
 				unsigned int Render();
 
-				void Update(float fTime);
+				void Update(float fCurrentTime);
 
 				std::vector<MATH::cVec3>vVertex;
 				std::vector<MATH::cVec3>vNormal;

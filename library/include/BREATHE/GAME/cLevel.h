@@ -84,7 +84,7 @@ namespace BREATHE
 		void Load();
 		void Unload();
 
-		void Update(float fTime);
+		void Update(float fCurrentTime);
 		unsigned int Render();
 	};
 
@@ -136,8 +136,8 @@ namespace BREATHE
 		RENDER::MODEL::cStatic *AddModel(std::string sNewFilename);
 		RENDER::MODEL::cStatic *GetModel(std::string sNewFilename);
 
-		void Update(float fTime);
-		unsigned int Render(float fTime);
+		void Update(float fCurrentTime);
+		unsigned int Render(float fCurrentTime);
 
 		cLevelSpawn GetSpawn(); //Get a random spawn
 		cLevelSpawn GetSpawn(MATH::cVec3 &p); //Get closest spawn to requested position
@@ -155,6 +155,75 @@ namespace BREATHE
 		RENDER::cTexture *FindClosestCubeMap(MATH::cVec3 pos);
 
 		VEHICLE::cVehicle *FindClosestVehicle(MATH::cVec3 pos, float fMaxDistance);
+	};
+
+	
+	class cSceneGraph
+	{
+	public:
+		std::list<cLevelNode*> listOpaque;
+		std::map<float, cLevelNode*> mTransparent;
+
+		cLevelNode* pRoot;
+
+		/*
+		class cLevelNode
+		{
+		public:
+			bool IsDirty() { return bIsDirty; }
+
+			void SetDirty() { bIsDirty = true; if(pParent) pParent->SetDirty(); }
+			void ClearDirty() { bIsDirty = false; }
+
+		private:
+			bool bIsDirty;
+		};
+		
+		class cLevelNode
+		{
+		public:
+			bool IsDirty() { return uiDirty; }
+
+			void SetDirty() { uiDirty++; if(pParent) pParent->SetDirty(); }
+			void ClearDirty() { uiDirty--; if(pParent) pParent->ClearDirty(); }
+
+		private:
+			bool uiDirty;
+		};
+		*/
+
+		void Update()
+		{
+			listOpaque.clear();
+			mTransparent.clear();
+
+			/*for each item in list
+				if(opaque)
+					listOpaque.add(item);
+				else
+					mTransparent.add(fDistance, item);*/
+		}
+
+		void Render()
+		{
+			unsigned int uiTriangles = 0;
+
+			// Opaque first
+			{
+				std::list<cLevelNode*>::iterator iter = listOpaque.begin();
+				std::list<cLevelNode*>::iterator iterEnd = listOpaque.end();
+				while(iter != iterEnd)
+					uiTriangles += (*(iter++))->Render();
+			}
+
+			// Transparent second
+			{
+				std::map<float, cLevelNode*>::iterator iter = mTransparent.begin();
+				std::map<float, cLevelNode*>::iterator iterEnd = mTransparent.end();
+				while(iter != iterEnd)
+					uiTriangles += (*(iter++)).second->Render();
+			}
+		}
 	};
 }
 

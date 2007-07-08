@@ -27,15 +27,11 @@
 
 namespace BREATHE
 {
-	#ifndef uint32
-	#define uint32 unsigned long int
-	#endif
-
 	class cMD5_Context
 	{
 	public:
-		uint32 total[2];
-		uint32 state[4];
+		uint32_t total[2];
+		uint32_t state[4];
 		unsigned char buffer[64];
 	};
 	
@@ -47,7 +43,7 @@ namespace BREATHE
 		cMD5_Context ctx;
 
 		void Start();
-		void Update(cMD5_Context *ctx, unsigned char *input, uint32 length);
+		void Update(cMD5_Context *ctx, unsigned char *input, uint32_t length);
 		void Finish(cMD5_Context *ctx);
 		void Process(cMD5_Context *ctx, unsigned char data[64]);
 

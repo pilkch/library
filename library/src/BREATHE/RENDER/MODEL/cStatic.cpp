@@ -434,7 +434,7 @@ namespace BREATHE
 				return 0;
 			}
 			
-			void cStatic::Update(float fTime)
+			void cStatic::Update(float fCurrentTime)
 			{
 
 			}

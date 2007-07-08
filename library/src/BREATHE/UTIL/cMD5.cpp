@@ -49,10 +49,10 @@ namespace BREATHE
 {
 	#define GET_UINT32(n,b,i)                     \
 	{                                             \
-		(n) = ( (uint32) (b)[(i)    ]       )       \
-				| ( (uint32) (b)[(i) + 1] <<  8 )       \
-				| ( (uint32) (b)[(i) + 2] << 16 )       \
-				| ( (uint32) (b)[(i) + 3] << 24 );      \
+		(n) = ( (uint32_t) (b)[(i)    ]       )       \
+				| ( (uint32_t) (b)[(i) + 1] <<  8 )       \
+				| ( (uint32_t) (b)[(i) + 2] << 16 )       \
+				| ( (uint32_t) (b)[(i) + 3] << 24 );      \
 	}
 
 	#define PUT_UINT32(n,b,i)                     \
@@ -179,7 +179,7 @@ namespace BREATHE
 
 	void cMD5::Process( cMD5_Context *ctx, unsigned char data[64] )
 	{
-		uint32 X[16], A, B, C, D;
+		uint32_t X[16], A, B, C, D;
 
 		GET_UINT32( X[0],  data,  0 );
 		GET_UINT32( X[1],  data,  4 );
@@ -300,12 +300,12 @@ namespace BREATHE
 		ctx->state[3] += D;
 	}
 
-	void cMD5::Update( cMD5_Context *ctx, unsigned char *input, uint32 length )
+	void cMD5::Update( cMD5_Context *ctx, unsigned char *input, uint32_t length )
 	{
 		if( ! length ) return;
 		
-		uint32 left = ctx->total[0] & 0x3F;
-		uint32 fill = 64 - left;
+		uint32_t left = ctx->total[0] & 0x3F;
+		uint32_t fill = 64 - left;
 
 		ctx->total[0] += length;
 		ctx->total[0] &= 0xFFFFFFFF;
@@ -338,8 +338,8 @@ namespace BREATHE
 
 	void cMD5::Finish( cMD5_Context *ctx)
 	{
-		uint32 last, padn;
-		uint32 high, low;
+		uint32_t last, padn;
+		uint32_t high, low;
 		unsigned char msglen[8];
 
 		high = ( ctx->total[0] >> 29 )

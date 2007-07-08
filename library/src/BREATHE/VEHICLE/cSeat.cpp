@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 #include <ODE/ode.h>
 
@@ -32,9 +33,10 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
 #include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/GAME/cPlayer.h>
 #include <BREATHE/GAME/cPetrolBowser.h>
@@ -67,6 +69,8 @@ namespace BREATHE
 		{
 			pPlayer=p;
 			p->pSeat=this;
+			
+			if(pVehicle->vSeat[0] == this) pPlayer->ChangeStateToDriving();
 		}
 
 		void cSeat::EjectPlayer()
@@ -77,6 +81,8 @@ namespace BREATHE
 
 			p->pSeat=NULL;
 			p->p=pVehicle->p+MATH::cVec3(0.0f, 0.0f, 3.0f);
+			
+			p->ChangeStateToRunning();
 		}
 	}
 }

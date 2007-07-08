@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 //FreeType Headers
 #include <freetype/ft2build.h>
@@ -59,14 +60,15 @@
 #include <BREATHE/RENDER/cMaterial.h>
 #include <BREATHE/RENDER/cRender.h>
 
-
-
-
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 #include <BREATHE/PHYSICS/cPhysics.h>
+#include <BREATHE/PHYSICS/cContact.h>
+#include <BREATHE/PHYSICS/cRayCast.h>
+#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
 #include <BREATHE/GAME/cLevel.h>
 #include <BREATHE/UTIL/cApp.h>
+
+#include <BREATHE/AUDIO/cAudio.h>
 
 namespace BREATHE
 {
@@ -122,6 +124,11 @@ namespace BREATHE
 		for(unsigned int i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
 
+		TTF_Quit();
+
+		LOG.Success("Delete", "Audio");
+		BREATHE::AUDIO::Destroy();
+
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 
@@ -135,8 +142,6 @@ namespace BREATHE
 		
 		LOG.Success("Main", "Successfully exited");
 		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
-
-		TTF_Quit();
 
 		SDL_Quit();
 	}
@@ -205,7 +210,7 @@ namespace BREATHE
 
 
 		// Init SDL 
-		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_JOYSTICK) < 0 )
+		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
 		{
 			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
 			bReturnCode=BREATHE::BAD;
@@ -337,6 +342,8 @@ namespace BREATHE
 			return BREATHE::BAD;
 
 		TTF_Init();
+
+		BREATHE::AUDIO::Init();
 
 		if(BREATHE::BAD==LoadScene())
 			return BREATHE::BAD;

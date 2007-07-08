@@ -24,7 +24,7 @@ namespace BREATHE
 	const int CAMERA_FIRSTPERSONFREE = 3;
 #endif
 
-	class cPlayer : virtual public PHYSICS::cPhysicsObject
+	class cPlayer : virtual public PHYSICS::cUprightCapsule
 	{
 	public:
 		VEHICLE::cSeat *pSeat;
@@ -59,19 +59,19 @@ namespace BREATHE
 		//list of items
 		std::vector<cItem *>vItem;
 
-		void Init(MATH::cVec3 &pos);
-		void Update(float fTime);
+		void Update(float fCurrentTime);
 
+		bool IsInACar();
 		bool IsDriving();
+		bool IsThirdPersonCamera();
 
-		bool IsThirdPersonCamera()
-		{
-#ifdef BUILD_RELEASE
-			return (uiCameraMode == CAMERA_THIRDPERSON);
-#else
-			return (uiCameraMode == CAMERA_THIRDPERSON) || (uiCameraMode == CAMERA_THIRDPERSONFREE);
-#endif
-		}
+		void ChangeStateToDriving();
+		void ChangeStateToRunning();
+
+	
+		// For raycasting to find out if we standing on anything when we are in walking mode
+		void RayCast();
+		static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 	};
 }
 
