@@ -5,77 +5,87 @@
 
 namespace BREATHE
 {
-	class cPathEdge;
-
-	class cPathNode : public MATH::cVec3
+	namespace GAME
 	{
-	public:
-		cPathNode();
-		cPathNode(MATH::cVec3& v);
-		cPathNode(float x, float y, float z);
-		virtual ~cPathNode();
+		namespace PATH
+		{
+			class cPathEdge;
+			class cPathNode;
 
-		void Update();
+			typedef std::list<cPathNode*> node_list;
+			typedef std::list<cPathEdge*>::iterator edge_list_iterator;
 
-		float fWeight;
+			typedef std::vector<cPathEdge*>::iterator edge_vector_iterator;
+			typedef std::list<cPathNode*>::iterator node_list_iterator;
 
-		std::vector<cPathEdge*> vEdge;
-	};
-	
-	class cPathEdge
-	{
-	public:
-		cPathEdge();
-		cPathEdge(float fWeight);
-		virtual ~cPathEdge();
+			class cPathNode : public MATH::cVec3
+			{
+			public:
+				cPathNode();
+				cPathNode(MATH::cVec3& v);
+				cPathNode(float x, float y, float z);
+				virtual ~cPathNode();
 
-		void Update();
+				void Update();
 
-		float fWeight;
-		float fDistance;
+				float fWeight;
 
-		cPathNode* pNode0;
-		cPathNode* pNode1;
-	};
+				std::vector<cPathEdge*> vEdge;
+			};
+			
+			class cPathEdge
+			{
+			public:
+				cPathEdge();
+				cPathEdge(float fWeight);
+				virtual ~cPathEdge();
 
-	class cPathGraph
-	{
-	public:
-		cPathGraph();
-		~cPathGraph();
+				void Update();
 
-		typedef std::list<cPathNode*> path_list;
-		typedef std::list<cPathNode*>::iterator path_iterator;
+				float fWeight;
+				float fDistance;
 
-		bool empty() const { return vNode.empty(); }
+				cPathNode* pNode0;
+				cPathNode* pNode1;
+			};
 
-		bool GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, path_list& lPathOut);
-		bool GetPath(const MATH::cVec3& v3Begin, const MATH::cVec3& v3End, path_list& lPathOut);
+			class cPathGraph
+			{
+			public:
+				cPathGraph();
+				~cPathGraph();
 
-		cPathNode* GetNode(const MATH::cVec3& v3Point);
-		//cPathNode* GetNode(const int id);
-		
-		void AddNode(cPathNode* node);
-		void AddEdgeOneWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
-		void AddEdgeTwoWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
-		//void AddEdgeOneWay(cPathEdge* edge, const int idSource, const int idDestination);
-		//void AddEdgeTwoWay(cPathEdge* edge, const int idSource, const int idDestination);
+				bool empty() const { return vNode.empty(); }
 
-		// Removal is a bit of tricky subject
-		// a) two way edges only, deletion is easy, just delete the node/edge and all references to it
-		// b) one way edges as well as two way edges, have to scan the whole tree to find references to delete
-		//void RemoveNode(const int id);
-		//void RemoveEdge(const int id);
-		//void RemoveNode(const cPathNode* node);
-		//void RemoveEdge(const cPathEdge* edge);
-		
-	private:
-		bool _GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, 
-			std::map<cPathNode*, bool>& mVisited, path_list& lPathOut);
+				bool GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, node_list& lPathOut);
+				bool GetPath(const MATH::cVec3& v3Begin, const MATH::cVec3& v3End, node_list& lPathOut);
 
-		std::vector<cPathNode*> vNode;
-		std::vector<cPathEdge*> vEdge;
-	};
+				cPathNode* GetNode(const MATH::cVec3& v3Point);
+				//cPathNode* GetNode(const int id);
+				
+				void AddNode(cPathNode* node);
+				void AddEdgeOneWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
+				void AddEdgeTwoWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
+				//void AddEdgeOneWay(cPathEdge* edge, const int idSource, const int idDestination);
+				//void AddEdgeTwoWay(cPathEdge* edge, const int idSource, const int idDestination);
+
+				// Removal is a bit of tricky subject
+				// a) two way edges only, deletion is easy, just delete the node/edge and all references to it
+				// b) one way edges as well as two way edges, have to scan the whole tree to find references to delete
+				//void RemoveNode(const int id);
+				//void RemoveEdge(const int id);
+				//void RemoveNode(const cPathNode* node);
+				//void RemoveEdge(const cPathEdge* edge);
+				
+			private:
+				bool _GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, 
+					std::map<cPathNode*, bool>& mVisited, node_list& lPathOut);
+
+				std::vector<cPathNode*> vNode;
+				std::vector<cPathEdge*> vEdge;
+			};
+		}
+	}
 }
 
 #endif //CPATHGRAPH_H

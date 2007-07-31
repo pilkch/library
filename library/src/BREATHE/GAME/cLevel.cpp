@@ -298,7 +298,9 @@ namespace BREATHE
 					{
 						if(mat->vLayer.size() > 0)
 						{
-							t = mat->vLayer[0]->pTexture;//t=pRender->GetTexture(mat->vLayer[0]->sTexture);
+							t = mat->vLayer[0]->pTexture;
+
+							if(NULL == t) t = pRender->GetTexture(mat->vLayer[0]->sTexture);
 						
 							if(t)
 							{
@@ -501,8 +503,8 @@ namespace BREATHE
 		}
 
 		{
-			std::list<PHYSICS::cPhysicsObject *>::iterator iter=pPhysics->GetObjectListBegin();
-			std::list<PHYSICS::cPhysicsObject *>::iterator end=pPhysics->GetObjectListEnd();
+			std::list<PHYSICS::cPhysicsObject *>::iterator iter=PHYSICS::GetObjectListBegin();
+			std::list<PHYSICS::cPhysicsObject *>::iterator end=PHYSICS::GetObjectListEnd();
 
 			while(end != iter)
 				(*iter++)->Update(fCurrentTime);
@@ -654,13 +656,13 @@ namespace BREATHE
 
 	void cLevel::AddPhysicsObject(PHYSICS::cPhysicsObject *d)
 	{
-		pPhysics->AddPhysicsObject(d);
+		PHYSICS::AddPhysicsObject(d);
 		lPhysicsObject.push_back(d);
 	}
 
 	void cLevel::RemovePhysicsObject(PHYSICS::cPhysicsObject *d)
 	{
-		pPhysics->RemovePhysicsObject(d);
+		PHYSICS::RemovePhysicsObject(d);
 		lPhysicsObject.remove(d);
 	}
 
@@ -791,9 +793,9 @@ namespace BREATHE
 						}
 					else if(pRender->bCubemap)
 					{
-						std::ostringstream t;
-						t << pRender->uiActiveUnits;
-						LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
+						//std::ostringstream t;
+						//t << pRender->uiActiveUnits;
+						//LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
 					}
 					
 				glEnd();

@@ -108,13 +108,11 @@ namespace BREATHE
 
 		g_info=NULL;
 		
-		pRender=new RENDER::cRender();
-
-
 		SDL_ShowCursor(SDL_DISABLE);
 
-		pPhysics=new PHYSICS::cPhysics();
 
+		pRender=new RENDER::cRender();
+		
 		pLevel=new cLevel();
 	}
 
@@ -126,14 +124,14 @@ namespace BREATHE
 
 		TTF_Quit();
 
-		LOG.Success("Delete", "Audio");
+		LOG.Success("Destroy", "Audio");
 		BREATHE::AUDIO::Destroy();
 
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 
-		LOG.Success("Delete", "Physics");
-		SAFE_DELETE(pPhysics);
+		LOG.Success("Destroy", "Physics");
+		BREATHE::PHYSICS::Destroy();
 
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
@@ -344,6 +342,8 @@ namespace BREATHE
 		TTF_Init();
 
 		BREATHE::AUDIO::Init();
+		
+		BREATHE::PHYSICS::Init();
 
 		if(BREATHE::BAD==LoadScene())
 			return BREATHE::BAD;
@@ -889,31 +889,29 @@ namespace BREATHE
 		}
 	}
 
-	
 	void cApp::Render(float fCurrentTime)
 	{
-		// This is just the default rendering procedure
-		// If you want to render to texture, FBO, etc, you will want to override this
-		pRender->BeginRenderToScreen();
-			RenderScene(fCurrentTime);
-			pRender->BeginHUD();
-				RenderHUD(fCurrentTime);
-			pRender->EndHUD();
-		pRender->EndRenderToScreen();
+		pRender->Begin();
+			pRender->BeginRenderScene();
+				RenderScene(fCurrentTime);
+			pRender->EndRenderScene();
+			pRender->BeginScreenSpaceRendering();
+				RenderScreenSpace(fCurrentTime);
+			pRender->EndScreenSpaceRendering();
+		pRender->End();
 	}
 
 
 	void cApp::MainLoop()
 	{
 		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
-		//SDL_ShowCursor(SDL_DISABLE);	
-		
+		//SDL_ShowCursor(SDL_DISABLE);
 		
 		float fCurrentTime=0.0f;
 
-		unsigned int uiPhysicsHz=30;
-		unsigned int uiUpdateHz=30;
-		unsigned int uiTargetFramesPerSecond=60;
+		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * PHYSICS::fInterval);
+		unsigned int uiUpdateHz = 30;
+		unsigned int uiTargetFramesPerSecond = 60;
 
 		float fEventsDelta=1000.0f/30.0f; // Should be once every single loop?
 		float fInputDelta=1000.0f/30.0f;
@@ -946,9 +944,8 @@ namespace BREATHE
 			
 			if(fCurrentTime > fInputNext)
 			{
-				UpdateInput(fCurrentTime);
-
 				// These have to be in this order or nothing gets collected
+				UpdateInput(fCurrentTime);
 				UpdateKeys(fCurrentTime);
 
 				fInputNext=fCurrentTime+fInputDelta;
@@ -958,7 +955,6 @@ namespace BREATHE
 			{
 				UpdatePhysics(fCurrentTime);
 
-				
 				tPhysics.Update(fCurrentTime);
 
 				fPhysicsNext=fCurrentTime+fPhysicsDelta;
@@ -967,7 +963,6 @@ namespace BREATHE
 			if(fCurrentTime > fUpdateNext)
 			{
 				Update(fCurrentTime);
-
 
 				tUpdate.Update(fCurrentTime);
 

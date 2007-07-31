@@ -21,7 +21,7 @@ namespace BREATHE
 
 			//set from 2 quaternions
 			//if the second is backwards, it will be modified
-			void Slerp(const cQuaternion & q1, cQuaternion q2, float interpolation);
+			void Slerp(const cQuaternion & q1, cQuaternion q2, const float interpolation);
 
 			//retrieve a value
 			float operator[](int index) const
@@ -32,6 +32,10 @@ namespace BREATHE
 
 				return w;
 			}
+
+			//cast to pointer to a (float*)
+			operator float* () const {return (float*) this;}
+			operator const float* () const {return (const float*) this;}
 
 			cQuaternion operator*(cQuaternion& q);
 					
@@ -87,7 +91,7 @@ namespace BREATHE
 
 			cMat4 GetMatrix();
 
-			float x, y, z, w;
+			float w, x, y, z;
 		};
 	}
 }

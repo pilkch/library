@@ -41,10 +41,7 @@ namespace BREATHE
 			virtual void Update(float fCurrentTime);
 			virtual void UpdateComponents();
 
-
-			
-			//pPhysics->AddPhysicsObject(this);
-			//pPhysics->RemovePhysicsObject(this);
+			void RemoveFromWorld();
 
 			//void PhysicsInit(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3());
 			//void PhysicsDestroy();
@@ -52,7 +49,7 @@ namespace BREATHE
 
 		// *****************************************************************************************************
 		// Upright Capsule, use this for characters that cannot fall over
-		// Basically the same as a normal capsule, just with constraints that
+		// Basically the same as a normal capsule, just with constraints that: 
 		// a) Stop the capsule tipping over
 		// b) Help the capsule up stairs by pushing the capsule up when we collide a ray in front of our feet
 		// *****************************************************************************************************

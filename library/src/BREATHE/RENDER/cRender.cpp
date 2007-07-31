@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstdarg>
 #include <cmath>
+#include <cassert>
 
 // STL includes
 #include <iostream>
@@ -73,7 +74,10 @@ namespace BREATHE
 			bFullscreen(true),
 			uiWidth(1024),
 			uiHeight(768),
-			uiDepth(32)
+			uiDepth(32),
+
+			pFrameBuffer0(NULL),
+			pFrameBuffer1(NULL)
 		{
 			pRender = this;
 
@@ -110,6 +114,9 @@ namespace BREATHE
 
 			LOG.Success("Delete", "Frustum");
 			SAFE_DELETE(pFrustum);
+
+			SAFE_DELETE(pFrameBuffer0);
+			SAFE_DELETE(pFrameBuffer1);
 		}
 
 		bool cRender::FindExtension(std::string sExt)
@@ -296,7 +303,43 @@ namespace BREATHE
 			return BREATHE::GOOD;
 		}
 		
-		void cRender::BeginRenderToScreen()
+		void cRender::BeginRenderToTexture(cTextureFrameBufferObject* pTexture)
+		{
+			glEnable(GL_TEXTURE_2D);
+
+			// First we bind the FBO so we can render to it
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTexture->uiFBO);
+			
+			// Save the view port and set it to the size of the texture
+			glPushAttrib(GL_VIEWPORT_BIT);
+			glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			glMultMatrixf(pFrustum->m);			               
+		}
+
+		void cRender::EndRenderToTexture(cTextureFrameBufferObject* pTexture)
+		{
+			// Restore old view port and set rendering back to default frame buffer
+			glPopAttrib();
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+#ifdef RENDER_GENERATEFBOMIPMAPS
+			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+
+				glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+#endif //RENDER_GENERATEFBOMIPMAPS
+
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		void cRender::_BeginRenderToScreen()
 		{
 			// Set viewport
 			glViewport(0, 0, uiWidth, uiHeight);
@@ -326,48 +369,72 @@ namespace BREATHE
 			uiTextureModeChanges = uiTextureChanges = uiTriangles = 0;
 		}
 
-		void cRender::EndRenderToScreen()
+		void cRender::_EndRenderToScreen()
 		{
 			SDL_GL_SwapBuffers();
 		}
 
+		void cRender::_RenderPostRenderPass(MATERIAL::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO)
+		{
+			BeginScreenSpaceRendering();
+				SetMaterial(pMaterial);
+				glBindTexture(GL_TEXTURE_2D, pFBO->uiTexture);
+				RenderScreenSpaceRectangle(0.0f, 0.0f, 1.0f, 1.0f);
+			EndScreenSpaceRendering();
+		}
+
+		void cRender::Begin()
+		{
+			if(lPostRenderEffects.size() == 0) _BeginRenderToScreen();
+		}
+
+		void cRender::End()
+		{
+			_EndRenderToScreen();
+		}
 		
-
-		void cRender::BeginRenderToTexture(cTextureFrameBufferObject* pTexture)
+		void cRender::BeginRenderScene()
 		{
-			// First we bind the FBO so we can render to it
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTexture->uiFBO);
-			
-			// Save the view port and set it to the size of the texture
-			glPushAttrib(GL_VIEWPORT_BIT);
-			glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+			// If we are just rendering to the screen, no post rendering effects
+			if(lPostRenderEffects.size() == 0) return;
 
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glMultMatrixf(pFrustum->m);
+			BeginRenderToTexture(pFrameBuffer0);
 		}
 
-		void cRender::EndRenderToTexture(cTextureFrameBufferObject* pTexture)
+		void cRender::EndRenderScene()
 		{
-			// Restore old view port and set rendering back to default frame buffer
-			glPopAttrib();
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+			// Basically we render like this, if there are no post rendering effects,
+			// render straight to the screen.  
+			// If there is one rendering effect render to pFrameBuffer0 then to the screen.  
+			// If there is more than one rendering effect, render to pFrameBuffer0,
+			// then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
+			// until n-1, for the last effect we render whichever FBO we last rendered to,
+			// to the screen.  
+			unsigned int n = lPostRenderEffects.size();
 
-			
-			// Now bind the texture to use it
-			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+			// If we are just rendering to the screen, no post rendering effects
+			if(n == 0) return;
 
-#ifdef RENDER_GENERATEFBOMIPMAPS
-			glGenerateMipmapEXT(GL_TEXTURE_2D);
-#endif //RENDER_GENERATEFBOMIPMAPS
+			// Ok, we actually want to do some exciting post render effects
+			assert(pFrameBuffer0);
+			EndRenderToTexture(pFrameBuffer0);
 
-			glDisable(GL_TEXTURE_2D);
+			// We have just rendered to a texture, loop through the post render chain alternating
+			// rendering to pFrameBuffer0 and pFrameBuffer1
+			std::list<MATERIAL::cMaterial*>::iterator iter = lPostRenderEffects.begin();
+			unsigned int i = 0;
+			for(i = 0; i < n - 1; i++, iter++)
+			{
+				BeginRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
+        	_RenderPostRenderPass(*iter, ((i+1) % 2) ? pFrameBuffer0 : pFrameBuffer1);
+				EndRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
+			}
+
+			// Finally draw our texture to the screen, we don't end rendering to the screen in this function,
+			// from now on in our rendering process we use exactly the same method as non-FBO rendering
+			_BeginRenderToScreen();
+				_RenderPostRenderPass(*iter, (n==1 || ((i+1) % 2)) ? pFrameBuffer0 :pFrameBuffer1);
 		}
-
-
 
 
 		// Our screen coordinates look like this
@@ -376,7 +443,7 @@ namespace BREATHE
 		//
 		// 0.0f, 1.0f						1.0f, 1.0f
 
-		void cRender::RenderHUDElement(float fX, float fY, float fWidth, float fHeight)
+		void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
 		{
 			fWidth *= uiWidth;
 			fHeight *= uiHeight;
@@ -395,7 +462,7 @@ namespace BREATHE
 			glEnd();
 		}
 
-		void cRender::BeginHUD()
+		void cRender::BeginScreenSpaceRendering()
 		{
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 			glDisable(GL_LIGHTING);
@@ -420,7 +487,7 @@ namespace BREATHE
 				glLoadIdentity();								// Reset The Matrix
 		}
 		
-		void cRender::EndHUD()
+		void cRender::EndScreenSpaceRendering()
 		{
 				glMatrixMode( GL_PROJECTION );	// Select Projection
 				glPopMatrix();									// Pop The Matrix
@@ -927,6 +994,8 @@ namespace BREATHE
 
 		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos)
 		{
+			assert(pMaterial);
+
 			if(pMaterial == NULL)
 			{
 				LOG.Error("Render", "No texture specified");
@@ -962,8 +1031,8 @@ namespace BREATHE
 				//		n = i;
 			}
 
-			if(0 == n)
-				LOG.Error("Render", "No layers to render");
+			//if(0 == n)
+			//	LOG.Error("Render", "No layers to render");
 
 			uiActiveUnits=n;
 
@@ -1115,7 +1184,7 @@ namespace BREATHE
 						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 						glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 					}
-					else
+					else if(TEXTURE_POST_RENDER!=layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
@@ -1478,7 +1547,7 @@ namespace BREATHE
 					LOG.Error("Shader", pMaterial->sName + " Couldn't set cameraPos");*/
 
 
-				if(uiActiveUnits>0)
+				if(uiActiveUnits>0 && pMaterial->pShader->bTexUnit0)
 				{
 					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit0");
 					if(loc != -1)
@@ -1486,14 +1555,32 @@ namespace BREATHE
 					else
 						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit0");
 				}
-	
-				if(uiActiveUnits>1)
+
+				if(uiActiveUnits>1 && pMaterial->pShader->bTexUnit1)
 				{
 					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit1");
 					if(loc != -1)
 						glUniform1i(loc, 1);
 					else
 						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit1");
+				}
+
+				if(uiActiveUnits>2 && pMaterial->pShader->bTexUnit2)
+				{
+					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit2");
+					if(loc != -1)
+						glUniform1i(loc, 2);
+					else
+						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit2");
+				}
+
+				if(uiActiveUnits>3 && pMaterial->pShader->bTexUnit3)
+				{
+					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit3");
+					if(loc != -1)
+						glUniform1i(loc, 3);
+					else
+						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit3");
 				}
 
 				glEnable(GL_LIGHTING);
@@ -1524,6 +1611,33 @@ namespace BREATHE
 			return pMaterialNotFoundMaterial;
 		}
 
+		MATERIAL::cMaterial* cRender::AddPostRenderEffect(std::string sFilename)
+		{
+			MATERIAL::cMaterial* pMaterial = AddMaterial(sFilename);
+			assert(pMaterial);
+			lPostRenderEffects.push_back(pMaterial);
+
+			if	(!pFrameBuffer0)
+			{
+				pFrameBuffer0 = new cTextureFrameBufferObject();
+				pFrameBuffer0->Create();
+			}
+
+			if (lPostRenderEffects.size() > 1 && !pFrameBuffer1)
+			{
+				pFrameBuffer1 = new cTextureFrameBufferObject();
+				pFrameBuffer1->Create();
+			}			
+
+			return pMaterial;
+		}
+
+		void cRender::RemovePostRenderEffect()
+		{
+			if	(lPostRenderEffects.size() > 0) lPostRenderEffects.pop_back();
+		}
+
+
 		void cRender::ClearColour()
 		{
 			bActiveColour=false;
@@ -1543,6 +1657,7 @@ namespace BREATHE
 
 			glColor4f(colour.r, colour.g, colour.b, colour.a);
 		}
+
 
 		
 		void cRender::ReloadTextures()

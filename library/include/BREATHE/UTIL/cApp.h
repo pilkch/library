@@ -81,7 +81,7 @@ namespace BREATHE
 		virtual void UpdatePhysics(float fCurrentTime)=0;
 		virtual void UpdateInput(float fCurrentTime)=0;
 		virtual void RenderScene(float fCurrentTime)=0;
-		virtual void RenderHUD(float fCurrentTime)=0;
+		virtual void RenderScreenSpace(float fCurrentTime)=0;
 		virtual void OnMouse(int button,int state,int x,int y)=0;
 		
 		virtual void Render(float fCurrentTime);

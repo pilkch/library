@@ -15,7 +15,6 @@ namespace BREATHE
 	
 	namespace PHYSICS
 	{
-		class cPhysics;
 		class cPhysicsObject;
 	}
 
@@ -156,7 +155,6 @@ namespace BREATHE
 
 		VEHICLE::cVehicle *FindClosestVehicle(MATH::cVec3 pos, float fMaxDistance);
 	};
-
 	
 	class cSceneGraph
 	{

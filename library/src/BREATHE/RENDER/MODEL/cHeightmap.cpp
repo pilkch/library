@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cmath>
+#include <cassert>
 
 #include <list>
 #include <vector>
@@ -80,6 +81,8 @@ namespace BREATHE
 			
 			int cHeightmap::Load(std::string sFilename)
 			{
+				SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, 1.0f);
+
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
@@ -302,7 +305,6 @@ namespace BREATHE
 
 				pVBO->Init();
 
-				
 				SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, fHighest);
 
 				return 0;

@@ -55,6 +55,9 @@
 #pragma warning(disable:4244)
 #endif
 
+extern float fAAA;
+extern float fBBB;
+
 /*
 
 
@@ -251,7 +254,7 @@ namespace BREATHE
 
 			rayContact.Clear();
 
-			rayContact.fDepth = fSuspensionMax;
+			rayContact.fDepth = fSuspensionMax - MATH::cEPSILON;
 			
 			dGeomRaySet(geomRay, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
 			dGeomRaySetLength(geomRay, fSuspensionMax);
@@ -307,11 +310,6 @@ namespace BREATHE
 		{
 			// Find out if this wheel is even touching anything
 			RayCast();
-
-			static float fLast;
-			float fStep = fCurrentTime - fLast;
-			fLast = fCurrentTime;
-
 		
 			// Set up the vectors to use when working out wheel rotation and position
 			MATH::cVec3 right=pParent->m.GetRight().GetNormalized();
@@ -409,7 +407,7 @@ namespace BREATHE
 				//contact.setCoulombFriction(wheelSlip * std::min(fabsf(geom_normal.z), 1.0f) * 0.0000001f);
 				//if( (pParent->fControl_Accelerate > 0.0f && pParent->fVel >= -0.1f) || 
 				//	(pParent->fControl_Accelerate < 0.0f && pParent->fVel <= 0.1f) ) 
-					 rayContact.SetCoulombFriction(0.0001f);
+					 rayContact.SetCoulombFriction(0.001f);
 				//else
 				//	rayContact.setCoulombFriction(0.4f);
 
@@ -434,22 +432,44 @@ namespace BREATHE
 				// system simulated with implicit first order integration.
 				
 				// Suspension
-				fStep = pPhysics->fInterval * 50000.0f; // Such a big number, can we do something about this?
-				rayContact.SetElasticity(fStep * fSuspensionK / ((fStep * fSuspensionK) + fSuspensionU), 
-															1.0f / ((fStep * fSuspensionK) + fSuspensionU));
+				{
+					fSuspensionK = fAAA;
+					fSuspensionU = fBBB;
+					dReal const * lv = dBodyGetLinearVel( pParent->body );
+					if(lv[2] < 0.3f)
+						rayContact.SetSuspensionKU(fSuspensionK, fSuspensionU);
+					else
+					{
+            //fSuspensionK /= (lv[2] * lv[2] * fSuspensionMax);
+						if(rayContact.fDepth > fSuspensionNormal) rayContact.fDepth = fSuspensionNormal - MATH::cEPSILON;
+						//rayContact.SetElasticity(PHYSICS::fERP, PHYSICS::fCFM);
+						if(lv[2] < 0.0f)
+              rayContact.SetSuspensionKU(fSuspensionK, fSuspensionU);
+						else
+              rayContact.SetSuspensionKU(fSuspensionK * 0.8f, fSuspensionU);
+					}
+				}
 				
 				// Bounce
-				rayContact.SetBounce(0.001f, 0.2f);
+				rayContact.SetBounce(PHYSICS::fBounce, PHYSICS::fBounceVel);
 
 				// Contact Depth
-				rayContact.CreateContact(rayContact.fDepth); //*0.5f/fSuspensionMax;
-				
+				rayContact.CreateContact(rayContact.fDepth);
+
+				/*{
+          dReal const * lv = dBodyGetLinearVel( pParent->body );
+					MATH::cVec3 v(MATH::v3Up * 0.001f * (lv[2] < 0.0f ? -lv[2] : lv[2]) / (rayContact.fDepth / fSuspensionMax));
+					//dBodyAddForce(pParent->body, v.x, v.y, v.z);
+				}*/
 
 				
-				// Add forces to push the car
-				MATH::cVec3 v(wheelAccel * dir * 100.0f);
-				dBodyAddForce(pParent->body, v.x, v.y, v.z);
+				// Add forces to push the car forward/backward
+				{
+					MATH::cVec3 v(wheelAccel * dir * 100.0f);
+					dBodyAddForce(pParent->body, v.x, v.y, v.z);
+				}
 
+				// Add force to turn the car
 				if(bFront)
 				{
 					MATH::cVec3 v(down * pParent->fSteer * pParent->fSpeed * 100.0f);
@@ -482,8 +502,8 @@ namespace BREATHE
 				dReal const * lv = dBodyGetLinearVel( pParent->body );
 
 				// TODO: Check whether we are on our roof/side too
-				dBodyAddTorque( pParent->body, -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );
-				dBodyAddForce( pParent->body, -lv[0]*fDampLinearVel, -lv[1]*fDampLinearVel, -lv[2]*fDampLinearVel );
+				//dBodyAddTorque( pParent->body, -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );
+				//dBodyAddForce( pParent->body, -lv[0]*fDampLinearVel, -lv[1]*fDampLinearVel, -lv[2]*fDampLinearVel );
 			}
 			else
 				fTraction=0.0f;

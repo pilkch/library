@@ -254,7 +254,6 @@ namespace BREATHE
 		
 		// *** Frame Buffer Object
 		cTextureFrameBufferObject::cTextureFrameBufferObject()
-			: cTexture()
 		{
 			uiFBO = 0;
 			uiFBODepthBuffer = 0;

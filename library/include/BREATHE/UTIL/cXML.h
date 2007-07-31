@@ -15,6 +15,8 @@ namespace BREATHE
 
 	namespace XML
 	{
+		typedef std::map<std::string, std::string>::iterator iterator;
+
 		// Can be made up of either
 		// a) cNode with sName
 		// b) cNode with sName, vChild
@@ -44,7 +46,7 @@ namespace BREATHE
 			template <class T>
 				bool GetAttribute(std::string sAttribute, T* pValue)
 			{
-				std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
+				iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
 				{
 					if(pValue)

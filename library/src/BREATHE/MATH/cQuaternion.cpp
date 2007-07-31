@@ -59,21 +59,17 @@ namespace BREATHE
 		//set a quaternion from angles of rotation about x, y, z
 		void cQuaternion::SetFromAngles(const cVec3 & v)
 		{
-			float angle;
-			double sr, sp, sy;
-			double cr, cp, cy;
-
-			angle=v.z*0.5f;
-			sy=sin(angle);
-			cy=cos(angle);
+			float angle = v.z*0.5f;
+			double sy = sin(angle);
+			double cy = cos(angle);
 
 			angle=v.y*0.5f;
-			sp=sin(angle);
-			cp=cos(angle);
+			double sp = sin(angle);
+			double cp = cos(angle);
 
 			angle=v.x*0.5f;
-			sr=sin(angle);
-			cr=sin(angle);
+			double sr = sin(angle);
+			double cr = sin(angle);
 
 			double crcp=cr*cp;
 			double srsp=sr*sp;
@@ -84,7 +80,7 @@ namespace BREATHE
 			w=(float)(crcp*cy - srsp*sy);
 		}
 
-		void cQuaternion::Slerp(const cQuaternion & q1, cQuaternion q2, float interpolation)
+		void cQuaternion::Slerp(const cQuaternion & q1, cQuaternion q2, const float interpolation)
 		{
 			//see if q2 is backwards
 			int i=0;
@@ -123,10 +119,10 @@ namespace BREATHE
 			}
 			else
 			{
-				x=-q1[1];
-				y= q1[0];
-				z=-q1[3];
-				w= q1[2];
+				x =-q1[1];
+				y = q1[0];
+				z =-q1[3];
+				w = q1[2];
 
 				scaleQ1 = sin((1.0f-interpolation)*0.5f*cPI);
 				scaleQ2 = sin(interpolation*0.5f*cPI);

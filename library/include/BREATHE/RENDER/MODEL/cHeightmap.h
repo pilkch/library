@@ -14,9 +14,11 @@ namespace BREATHE
 				~cHeightmap();
 
 				int Load(std::string sFilename);
-					
+				
 				float Height(int x, int y);
 				float Height(float x, float y);
+				
+				float Hermite4( float fFrac, const float * ptr );
 				
 				MATH::cVec3 Normal(int x, int y);
 				MATH::cVec3 Normal(float x, float y);
@@ -57,7 +59,40 @@ namespace BREATHE
 				return pHeight[x + (y * (uiWidth + 1))];
 			}
 
+			inline float cHeightmap::Hermite4( float fFrac, const float* ptr )
+			{
+				const float    c     = (ptr[2] - ptr[0]) * 0.5f;
+				const float    v     = ptr[1] - ptr[2];
+				const float    w     = c + v;
+				const float    a     = w + v + (ptr[3] - ptr[1]) * 0.5f;
+				const float    b     = w + a;
+				return ((((a * fFrac) - b) * fFrac + c) * fFrac + ptr[1]);
+			}
+
 			inline float cHeightmap::Height(float x, float y)
+			{
+				assert( x < 0.0f && y < 0.0f );
+				assert( x > fWidth && y > fLength );
+				
+				unsigned int xp = static_cast<unsigned int>(x);
+				unsigned int yp = static_cast<unsigned int>(y);
+
+				x -= (unsigned int)(x);
+				y -= (unsigned int)(y);
+
+				float xx[ 4 ];
+				float yy[ 4 ];
+				for( int iz = 0; iz < 4; ++iz ) {
+					const float* data2 = &pHeight[xp - 1 + (iz + yp - 1) * (uiWidth + 1)];
+					for( int ix = 0; ix < 4; ++ix ) {
+						xx[ ix ] = data2[ ix ];
+					}
+					yy[ iz ] = Hermite4( x, xx );
+				}
+				return Hermite4(y, yy);
+			}
+
+			/*inline float cHeightmap::Height(float x, float y)
 			{
 				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
 				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
@@ -83,7 +118,7 @@ namespace BREATHE
 
 				// calculate interpolated ground height
 				return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
-			}
+			}*/
 
 			inline MATH::cVec3 cHeightmap::Normal(float x, float y)
 			{

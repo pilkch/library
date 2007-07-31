@@ -101,12 +101,17 @@ namespace BREATHE
 
 		cPhysicsObject::~cPhysicsObject()
 		{
+			RemoveFromWorld();
+		}
+
+		void cPhysicsObject::RemoveFromWorld()
+		{
 			if(geom) {
 				dGeomDestroy(geom);
 				geom = NULL;
 			}
 
-			if(bBody) {
+			if(body) {
         dBodyDestroy(body);
 				body = NULL;
 			}

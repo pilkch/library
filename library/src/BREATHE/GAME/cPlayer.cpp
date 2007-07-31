@@ -76,7 +76,7 @@ namespace BREATHE
 		fSpeedRun = 2.0f;
 		fSpeedSprint = 3.0f;
 
-		fWeight = 20.0f;
+		fWeight = 80.0f;
 
 		fDollars=0.0f;
 		
@@ -86,11 +86,11 @@ namespace BREATHE
 
 	cPlayer::~cPlayer()
 	{
-		pPhysics->RemovePhysicsObject(this);
+		PHYSICS::RemovePhysicsObject(this);
 	}
 
 
-	const float fMaxDistance = 5.5f;
+	const float fMaxDistance = 2.5f;
 	
 	void cPlayer::RayCast()
 	{
@@ -118,8 +118,8 @@ namespace BREATHE
 
 	void cPlayer::Update(float fCurrentTime)
 	{
-		float fSpeed =	(PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
-
+		float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+		
 		if(PLAYER_STATE_DRIVE == uiState)
 		{
 			p = pSeat->pVehicle->m.GetPosition();
@@ -177,7 +177,7 @@ namespace BREATHE
 			}
 		}
 #endif
-		else
+		else if (body)
 		{
 			PHYSICS::cUprightCapsule::Update(fCurrentTime);
 
@@ -188,62 +188,37 @@ namespace BREATHE
 				// Push us out of whatever surface we are falling towards
 				// We want to negate the downwards motion with an upwards one and then 
 				// add a little bit, enough to get out of the surface
-				//if(rayContact.fDepth < 10.0f)
-				
-				if(body && rayContact.fDepth < 0.5f)
 				{
 					const dReal* pos = dBodyGetPosition(body);
-					dBodySetPosition(body, pos[0], pos[1], pos[2] + MATH::cEPSILON);
+					dBodySetPosition(body, pos[0], pos[1], pos[2] + /*0.03f * rayContact.fDepth*/ + MATH::cEPSILON);
 
 					const dReal* vel = dBodyGetLinearVel(body);
-					dBodySetLinearVel(body, vel[0], vel[1], (vel[2] < 0.0f) ? 0.0f : vel[2]);
+					dBodySetLinearVel(body, vel[0], vel[1], ((vel[2] < 0.0f) ? 0.0f : vel[2]) + MATH::cEPSILON);
 				}
 
-				if(fInputUp > MATH::cEPSILON || fInputDown > MATH::cEPSILON || 
-					fInputLeft > MATH::cEPSILON || fInputRight > MATH::cEPSILON)
+				// Handle the actual movement
 				{
-					float fDirection = fHorizontal + MATH::toRadians(90.0f);
+					// Get a unit vector that represents which way the player is heading
+					MATH::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
+					v.Normalize();
 
-					if(fInputUp > MATH::cEPSILON && fInputUp > fInputDown)
-					{
-						if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
-							fDirection += MATH::toRadians(45.0f);
-						else if(fInputRight > MATH::cEPSILON)
-							fDirection -= MATH::toRadians(45.0f);
-					}
-					else if(fInputDown > MATH::cEPSILON)
-					{
-						if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
-							fDirection += MATH::toRadians(125.0f);
-						else if(fInputRight > MATH::cEPSILON)
-							fDirection -= MATH::toRadians(125.0f);
-						else
-							fDirection += MATH::toRadians(180.0f);
-					}
-					else if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
-					{
-						fDirection += MATH::toRadians(90.0f);
-						fSpeed *= fInputLeft;
-					}
-					else if(fInputRight > MATH::cEPSILON)
-					{
-						fDirection -= MATH::toRadians(90.0f);
-						fSpeed *= fInputRight;
-					}
+					// Bias the inputs slightly so that walking forwards is fastest, then left/right 
+					// and then backwards is slowest to make for slightly more interesting gameplay
+					v.x *= 0.8f;
+					if(v.y < 0.0f) v.y *= 0.5f;
 
-					if(body)
-					{
-						// Do the actual movement
-						{
-							fSpeed *= 10.0f;
-							MATH::cVec3 v(fSpeed * cosf(fDirection), fSpeed * sinf(fDirection), 0.0f);
-							//dBodyAddForce(body, v.x, v.y, v.z);
-							//dBodyAddTorque(body, v.x, v.y, v.z);
-							dBodyAddForce(body, v.x/20, v.y/20, v.z/20);
-							const dReal* vel = dBodyGetLinearVel(body);
-							dBodySetLinearVel(body, vel[0]+v.x/20, vel[1]+v.y/20, vel[2]+v.z/20);
-						}
-					}
+					// We have a vector saying which direction to go but it is not in world coordinates, 
+					// add it to our current heading vector (A whole matrix is probably not needed, just
+					// makes it a lot easier)
+					MATH::cMat4 m;
+					m.SetRotationEuler(0.0f, 0.0f, fHorizontal);
+
+					// Multiply our movement vector by our speed
+					v = m.GetRotatedVec3(v) * fSpeed * 50.0f;
+					
+					// Get our current velocity add our movement velocity
+					const dReal* vel = dBodyGetLinearVel(body);
+          dBodySetLinearVel(body, v.x, v.y, vel[2]+v.z);
 				}
 			}
 			else
@@ -280,7 +255,7 @@ namespace BREATHE
 	{
 		uiState = PLAYER_STATE_DRIVE;
 
-		pPhysics->RemovePhysicsObject(this);
+		PHYSICS::RemovePhysicsObject(this);
 
 		if(geom) {
 			dGeomDestroy(geom);
@@ -313,7 +288,7 @@ namespace BREATHE
 #endif
 			bBody = true;
 			CreateCapsule(p);
-			pPhysics->AddPhysicsObject(this);
+			PHYSICS::AddPhysicsObject(this);
 
 			cPhysicsRayCast::Create(1.0f);
 #ifdef BUILD_DEBUG

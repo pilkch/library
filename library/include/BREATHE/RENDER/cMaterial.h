@@ -14,17 +14,18 @@ namespace BREATHE
 			class cLayer
 			{
 			public:
+				cLayer();
+
 				cTexture* pTexture;
 				unsigned int uiTextureMode;
 				std::string sTexture;
-
-				cLayer();
 			};
 
 			class cShader
 			{
 			public:
 				cShader();
+
 				void Init();
 				void Destroy();
 				
@@ -32,19 +33,27 @@ namespace BREATHE
 				void CheckStatusFragment();
 				void CheckStatusProgram();
 
-				unsigned int uiShaderVertex;
-				unsigned int uiShaderFragment;
-
 				std::string sShaderVertex;
 				std::string sShaderFragment;
 
+				unsigned int uiShaderVertex;
+				unsigned int uiShaderFragment;
+
 				// Combined resource id
 				unsigned int uiShaderProgram;
+
+				bool bTexUnit0;
+				bool bTexUnit1;
+				bool bTexUnit2;
+				bool bTexUnit3;
 			};
 
 			class cMaterial
 			{
 			public:
+				cMaterial(std::string sName);
+				~cMaterial();
+
 				//Rendering
 				char chDustR;
 				char chDustG; 
@@ -75,9 +84,6 @@ namespace BREATHE
 				std::string sName;
 				
 				cShader *pShader;
-
-				cMaterial(std::string sName);
-				~cMaterial();
 
 				bool Load(std::string sNewFilename);
 			};

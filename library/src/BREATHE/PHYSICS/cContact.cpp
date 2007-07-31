@@ -98,25 +98,36 @@ namespace BREATHE
 
 		void cContact::SetElasticity(float fERP, float fCFM)
 		{
+			// JITTER
+			// What is your CFM?  If it's too stiff, you can get jitter.  Try using a
+			// value 10x or 100x greater than what you're using now.  Stuff I've done in
+			// my app usually uses a CFM around 0.001... 0.01 gets spongy, 0.00001 is
+			// usually jittery.  I have always left ERP at 1.0, but you could also try reducing 
+			// that to combat jitter.
+
 			contact.surface.mode |= dContactSoftERP;
 			contact.surface.mode |= dContactSoftCFM;
 
-			contact.surface.soft_erp = 1.0f;//fERP;
+			contact.surface.soft_erp = fERP;
 			contact.surface.soft_cfm = fCFM;
+		}
 
-			
-			//JITTER
+		void cContact::SetSuspensionKU(float fSuspensionK, float fSuspensionU)
+		{
+			// By adjusting the values of ERP and CFM, you can achieve various effects. 
+			// For example you can simulate springy constraints, where the two bodies 
+			// oscillate as though connected by springs. Or you can simulate more spongy constraints, 
+			// without the oscillation. In fact, ERP and CFM can be selected to have the same effect 
+			// as any desired spring and damper constants. If you have a spring constant kp and 
+			// damping constant kd, then the corresponding ODE constants are:
+			// ERP = h k_p / (h k_p + k_d)
+			// CFM = 1 / (h k_p + k_d)
+			// where h is the stepsize. These values will give the same effect as a spring-and-damper 
+			// system simulated with implicit first order integration.
 
-			//What is your CFM?  If it's too stiff, you can get jitter.  Try using a
-			//value 10x or 100x greater than what you're using now.  Stuff I've done in
-			//my app usually uses a CFM around 0.001... 0.01 gets spongy, 0.00001 is
-			//usually jittery.  
-
-			//I have always left ERP at 1.0, but you could also try reducing that to
-			//combat jitter.
-
-			//printf("fERP 1.0=%.6f\n", fERP);
-			//printf("fCFM (0.01..0.00001) 0.001=%.6f\n", fCFM);
+			float fSuspensionStep = PHYSICS::fInterval * 1000.0f;
+			SetElasticity((fSuspensionStep * fSuspensionK) / ((fSuspensionStep * fSuspensionK) + fSuspensionU), 
+										1.0f / ((fSuspensionStep * fSuspensionK) + fSuspensionU));
 		}
 
 		void cContact::SetBounce(float fBounce, float fBounceVelocity)

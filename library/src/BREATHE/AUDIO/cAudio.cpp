@@ -58,6 +58,7 @@ namespace BREATHE
 		int iError = 0;
 
 		std::list<cAudioSource*> lAudioSource;
+		typedef std::list<cAudioSource*>::iterator iterator;
 		
 		void AddSource(cAudioSource* pSource)
 		{
@@ -201,11 +202,21 @@ namespace BREATHE
 			SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up,
 				BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
 
-			std::list<cAudioSource*>::iterator iter = lAudioSource.begin();
-			std::list<cAudioSource*>::iterator iterEnd = lAudioSource.end();
+			iterator iter = lAudioSource.begin();
+			iterator iterEnd = lAudioSource.end();
 
+			cAudioSource* pSource = NULL;
 			while(iter != iterEnd)
-				(*(iter++))->Update();
+			{
+				pSource = (*(iter++));
+				if (pSource->IsPlaying())
+				{
+					pSource->Update();
+					continue;
+				}
+				
+				lAudioSource.remove(pSource);
+			};
 		}
 
 		void SetListener(MATH::cVec3& position, MATH::cVec3& lookat, MATH::cVec3& up, MATH::cVec3& velocity)
@@ -239,8 +250,8 @@ namespace BREATHE
 
 		// ********************************************** cAudioSound **********************************************
 
-		cAudioSource::cAudioSource(cAudioBuffer* pInBuffer)
-			: uiSource(0), pBuffer(NULL), pNodeParent(NULL)
+		cAudioSource::cAudioSource(cAudioBuffer* pInBuffer, float fVolume)
+			: uiSource(0), pBuffer(NULL), pNodeParent(NULL), volume(fVolume)
 		{
 			Create(pInBuffer);
 		}
@@ -275,6 +286,8 @@ namespace BREATHE
 		{
 			pNodeParent = NULL;
 			RemoveSource(this);
+			alDeleteSources(1, &uiSource);
+			uiSource = 0;
 		}
 
 		void cAudioSource::Play()
@@ -284,9 +297,29 @@ namespace BREATHE
       ReportError();
 		}
 
+		void cAudioSource::Stop()
+		{
+			alSourceStop(uiSource);
+		}
+
 		void cAudioSource::Update()
 		{
 			alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
+		}
+
+		bool cAudioSource::IsValid()
+		{
+			return uiSource && pBuffer && pNodeParent;
+		}
+
+		bool cAudioSource::IsPlaying()
+		{
+			if(!IsValid()) return false;
+
+			// If we have stopped playing this sound remove us from the list
+			ALint value = AL_PLAYING;
+			alGetSourcei(uiSource, AL_SOURCE_STATE, &value);
+			return (AL_PLAYING == value);
 		}
 
 	/*
@@ -392,5 +425,57 @@ namespace BREATHE
 			if ((error = alGetError()) != AL_NO_ERROR) 
 			DisplayALError("alSourcei 0 AL_LOOPING true: \n", error);
 		}*/
+
+
+
+
+
+		// For mixing two sounds together for a collision mostly
+		cAudioSourceMix::cAudioSourceMix(cAudioBuffer* pBuffer0, cAudioBuffer* pBuffer1, float fVolume0, float fVolume1) :
+			source0(pBuffer0, fVolume0),
+			source1(pBuffer1, fVolume1)
+		{
+
+		}
+
+		void cAudioSourceMix::Attach(cObject* pNodeParent)
+		{
+			source0.Attach(pNodeParent);
+			source1.Attach(pNodeParent);
+		}
+		
+		void cAudioSourceMix::Remove()
+		{
+			source0.Remove();
+			source1.Remove();
+		}
+		
+		void cAudioSourceMix::Update()
+		{
+			source0.Update();
+			source1.Update();
+		}
+		
+		void cAudioSourceMix::Play()
+		{
+			source0.Play();
+			source1.Play();
+		}
+		
+		void cAudioSourceMix::Stop()
+		{
+			source0.Stop();
+			source1.Stop();
+		}
+		
+		bool cAudioSourceMix::IsValid()
+		{
+			return source0.IsValid() && source1.IsValid();
+		}
+		
+		bool cAudioSourceMix::IsPlaying()
+		{
+			return source0.IsPlaying() && source1.IsPlaying();
+		}
 	}
 }

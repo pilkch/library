@@ -25,6 +25,7 @@ namespace BREATHE
 			void SetCoulombFriction(float fFriction);
 			void SetFrictionDirection1(MATH::cVec3 v3Friction);
 			void SetElasticity(float fERP, float fCFM);
+			void SetSuspensionKU(float fSuspensionK, float fSuspensionU);
 			void SetBounce(float fBounce, float fBounceVelocity);
 			
 			void CreateContact(float fContact);

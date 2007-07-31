@@ -16,27 +16,27 @@ namespace BREATHE
 		extern const float cEPSILON;
 		extern const float cINFINITY;
 		
-		template <class T> inline T clamp(T i, T lower, T upper)
+		template <class T> inline T clamp(const T i, const T lower, const T upper)
 		{
 			return (i < lower) ? lower : (i > upper) ? upper : i;
 		}
 
-		inline float toDegrees(float x)
+		inline float toDegrees(const float x)
 		{
 			return x * c180_DIV_PI;
 		}
 
-		inline float toRadians(float x)
+		inline float toRadians(const float x)
 		{
 			return x * cPI_DIV_180;
 		}
 
-		inline float sqrf(float x)
+		inline float sqrf(const float x)
 		{
-			return x*x;
+			return x * x;
 		}
 
-		inline unsigned int random(unsigned int max)
+		inline unsigned int random(const unsigned int max)
 		{
 			return rand() % max;
 		}

@@ -8,16 +8,17 @@ namespace BREATHE
 	namespace RENDER
 	{
 		//Texture modes for materials
-		const unsigned int TEXTURE_NONE=0;
-		const unsigned int TEXTURE_NORMAL=1;
-		const unsigned int TEXTURE_MASK=2;
-		const unsigned int TEXTURE_BLEND=3;
-		const unsigned int TEXTURE_DETAIL=4;
-		const unsigned int TEXTURE_CUBEMAP=5;
+		const unsigned int TEXTURE_NONE = 0;
+		const unsigned int TEXTURE_NORMAL = 1;
+		const unsigned int TEXTURE_MASK = 2;
+		const unsigned int TEXTURE_BLEND = 3;
+		const unsigned int TEXTURE_DETAIL = 4;
+		const unsigned int TEXTURE_CUBEMAP = 5;
+		const unsigned int TEXTURE_POST_RENDER = 6;
 		
-		const unsigned int TEXTURE_RGBA=0;
-		const unsigned int TEXTURE_HEIGHTMAP=1;
-		const unsigned int TEXTURE_FRAMEBUFFEROBJECT=2;
+		const unsigned int TEXTURE_RGBA = 0;
+		const unsigned int TEXTURE_HEIGHTMAP = 1;
+		const unsigned int TEXTURE_FRAMEBUFFEROBJECT = 2;
 
 		class cTexture
 		{

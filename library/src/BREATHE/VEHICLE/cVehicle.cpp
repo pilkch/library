@@ -70,6 +70,10 @@ float fSuspensionMin=0.25f;
 float fSuspensionNormal=1.1f;
 float fSuspensionMax=1.4f;
 
+//float fSuspensionMin=0.25f;
+//float fSuspensionNormal=1.1f;
+//float fSuspensionMax=4.4f;
+
 float w=1.6f;
 float l=4.8f;
 float h=1.0f;
@@ -411,7 +415,8 @@ namespace BREATHE
 
 		void cVehicle::PhysicsDestroy()
 		{
-			pPhysics->RemovePhysicsObject(this);
+			PHYSICS::RemovePhysicsObject(this);
+			RemoveFromWorld();
 		}
 
 		void cVehicle::PhysicsInit(cLevelSpawn p)
@@ -421,7 +426,7 @@ namespace BREATHE
 
 			CreateBox(p.v3Position, p.v3Rotation);
 
-			pPhysics->AddPhysicsObject(this);
+			PHYSICS::AddPhysicsObject(this);
 
 			//Rear		
 			lrWheel_->Init(false, fWheelRadius, fWheelWeight, 
@@ -592,8 +597,8 @@ namespace BREATHE
 				dReal const * lv = dBodyGetLinearVel( body );
 
 				// TODO: Check whether we are on our roof/side too
-				dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
-				dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
+				//dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
+				//dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
 			}
 		}
 

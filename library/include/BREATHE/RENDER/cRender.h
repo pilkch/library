@@ -10,8 +10,8 @@ namespace BREATHE
 	{
 		const unsigned int MAX_TEXTURE_SIZE=1024;
 
-		const unsigned int FBO_TEXTURE_WIDTH=512;
-		const unsigned int FBO_TEXTURE_HEIGHT=512;
+		const unsigned int FBO_TEXTURE_WIDTH=1024;
+		const unsigned int FBO_TEXTURE_HEIGHT=1024;
 
 		class cVertexBufferObject;
 		class cMaterial;
@@ -90,31 +90,33 @@ namespace BREATHE
 
 			bool Init();
 
-			// Your drawing loop will look something like this
+			// These are the actual calls, the previous may actually render to an FBO first
+		private:
+			void _BeginRenderToScreen();
+			void _EndRenderToScreen();
 
-			// // Optional
-			// BeginRenderToTexture();
-			// .. Render
-			// EndRenderToTexture();
+			void _RenderPostRenderPass(MATERIAL::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO);
 
-			// BeginRenderToScreen();
-			// .. Render [optionally using fbo as a normal texture]
-			// EndRenderToScreen();
-
+		public:
+			void Begin();
+			void End();
+			
 			void BeginRenderToScreen();
 			void EndRenderToScreen();
 
 			void BeginRenderToTexture(cTextureFrameBufferObject* pTexture);
 			void EndRenderToTexture(cTextureFrameBufferObject* pTexture);
 
-			// Trying to keep these independent
-			void BeginHUD();
-			void EndHUD();
+			void BeginRenderScene();
+			void EndRenderScene();
+
+			void BeginScreenSpaceRendering();
+			void EndScreenSpaceRendering();
+
+			void RenderBox(MATH::cVec3& vMin, MATH::cVec3& vMax);
+			void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
 
 			void ToggleFullscreen();
-
-			void RenderHUDElement(float fX, float fY, float fWidth, float fHeight);
-			void RenderBox(MATH::cVec3& vMin, MATH::cVec3& vMax);
 
 			/*//Font
 		protected:
@@ -157,14 +159,14 @@ namespace BREATHE
 			cTexture *AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas);
 			
 			cTexture *GetTexture(std::string sFilename);
-			cTexture *GetCubeMap(std::string sFilename);
+			cTexture* GetCubeMap(std::string sFilename);
 
 
 			MATERIAL::cMaterial* pCurrentMaterial;
 
 
-			MATERIAL::cMaterial *AddMaterial(std::string sFilename);
-			MATERIAL::cMaterial *AddMaterialNotFoundMaterial(std::string sFilename);
+			MATERIAL::cMaterial* AddMaterial(std::string sFilename);
+			MATERIAL::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
 			bool ClearMaterial();
 			bool SetMaterial(std::string sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
 			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, MATH::cVec3()); }
@@ -173,10 +175,18 @@ namespace BREATHE
 			void ClearColour();
 			void SetColour(MATH::cColour inColour);
 
-			MATERIAL::cMaterial *GetMaterial(std::string sFilename);
+			MATERIAL::cMaterial* GetMaterial(std::string sFilename);
 
 			
 			void ReloadTextures();
+
+			MATERIAL::cMaterial* AddPostRenderEffect(std::string sFilename);
+			void RemovePostRenderEffect();
+
+		private:
+			std::list<MATERIAL::cMaterial*> lPostRenderEffects;
+			cTextureFrameBufferObject* pFrameBuffer0;
+			cTextureFrameBufferObject* pFrameBuffer1;
 		};
 	}
 }

@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 // writing on a text file
 #include <iostream>
@@ -138,7 +139,6 @@ namespace BREATHE
 					}
 					
 					std::string sSlashSpaceRightBracket="/ >";
-					//std::string sSlashSpaceRightBracket="/ >";
 
 					std::string::size_type n=sData.find_first_of(sSlashSpaceRightBracket);
 
@@ -182,9 +182,11 @@ namespace BREATHE
 								char c=*iter;
 								if(*iter == ' ')
 								{
-									p->AddAttribute(sData.substr(0, *iter), "");
-									sData=STRING::CutLeading(sData.substr(*iter), " ");
+									p->AddAttribute(sAttributeName, "");
+									sAttributeName = "";
+									sData=STRING::CutLeading(&*iter, " ");
 									iter=sData.begin();
+									continue;
 								}
 								else if(*iter == '=')
 								{
@@ -234,8 +236,10 @@ namespace BREATHE
 							if('>'==*iter)
 							{
 								// >...
-								sData.erase(sData.begin(), ++iter);
+								iter++;
+								sData.erase(sData.begin(), iter);
 								sData=(*vChild.rbegin())->Parse(sData, this);
+								iter = sData.begin();
 							}
 						}
 					}
@@ -332,7 +336,7 @@ namespace BREATHE
 				if(sName != "")
 				{
 					std::string sTag = sTab + "&lt;" + sName;
-					std::map<std::string, std::string>::iterator iter=mAttribute.begin();
+					iterator iter=mAttribute.begin();
 					for(;iter!=mAttribute.end();iter++)
 						sTag += " " + iter->first + "=\"" + iter->second + "\"";
 
@@ -357,11 +361,11 @@ namespace BREATHE
 	
 		bool cNode::GetAttribute(std::string sAttribute, std::string* pValue)
 		{
-			std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
+			assert(pValue);
+			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				if(pValue)
-					*pValue=iter->second;
+				*pValue=iter->second;
 				return true;
 			}
 
@@ -370,14 +374,12 @@ namespace BREATHE
 		
 		bool cNode::GetAttribute(std::string sAttribute, bool* pValue)
 		{
-			std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
+			assert(pValue);
+			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				if(pValue)
-				{
-					std::string v = iter->second;
-					*pValue = ("true" == v);
-				}
+				std::string v = iter->second;
+				*pValue = ("true" == v);
 				return true;
 			}
 
@@ -386,23 +388,21 @@ namespace BREATHE
 
 		bool cNode::GetAttribute(std::string sAttribute, MATH::cVec3* pValue)
 		{
-			std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
+			assert(pValue);
+			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				if(pValue)
-				{
-					char c;
-					std::stringstream stm(iter->second);
-					stm >> std::skipws;
+				char c;
+				std::stringstream stm(iter->second);
+				stm >> std::skipws;
 
-					stm >> pValue->x;
-					stm >> c;
+				stm >> pValue->x;
+				stm >> c;
 
-					stm >> pValue->y;
-					stm >> c;
+				stm >> pValue->y;
+				stm >> c;
 
-					stm >> pValue->z;
-				}
+				stm >> pValue->z;
 				return true;
 			}
 
@@ -411,17 +411,15 @@ namespace BREATHE
 		
 		bool cNode::GetAttribute(std::string sAttribute, MATH::cColour* pValue)
 		{
-			std::map<std::string, std::string>::iterator iter = mAttribute.find(sAttribute);
+			assert(pValue);
+			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				if(pValue)
-				{
-					std::stringstream stm(iter->second);
-					stm >> pValue->r;
-					stm >> pValue->g;
-					stm >> pValue->b;
-					stm >> pValue->a;
-				}
+				std::stringstream stm(iter->second);
+				stm >> pValue->r;
+				stm >> pValue->g;
+				stm >> pValue->b;
+				stm >> pValue->a;
 				return true;
 			}
 
