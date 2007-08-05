@@ -302,6 +302,38 @@ namespace BREATHE
 
 			return BREATHE::GOOD;
 		}
+
+		void cRender::_BeginRenderShared()
+		{
+			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			glMultMatrixf(pFrustum->m);
+
+			if(bRenderWireframe)
+			{
+				glDisable( GL_CULL_FACE );
+				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			}
+			else
+			{
+				glEnable( GL_CULL_FACE );
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			}
+
+			
+			if(bLight)
+			{
+				glLightfv (GL_LIGHT0, GL_POSITION, v4SunPosition);
+				glEnable( GL_LIGHTING );
+			}
+			else
+				glDisable(GL_LIGHTING);
+
+			ClearColour();
+			ClearMaterial();
+		}
 		
 		void cRender::BeginRenderToTexture(cTextureFrameBufferObject* pTexture)
 		{
@@ -314,12 +346,7 @@ namespace BREATHE
 			glPushAttrib(GL_VIEWPORT_BIT);
 			glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
 
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glMultMatrixf(pFrustum->m);			               
+			_BeginRenderShared();
 		}
 
 		void cRender::EndRenderToTexture(cTextureFrameBufferObject* pTexture)
@@ -344,27 +371,7 @@ namespace BREATHE
 			// Set viewport
 			glViewport(0, 0, uiWidth, uiHeight);
 
-			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
-			glLoadIdentity();
-
-			glMultMatrixf(pFrustum->m);
-
-			if(bRenderWireframe)
-				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-			else
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-
-			
-			if(bLight)
-			{
-				glLightfv (GL_LIGHT0, GL_POSITION, v4SunPosition);
-				glEnable( GL_LIGHTING );
-			}
-			else
-				glDisable(GL_LIGHTING);
-
-			ClearColour();
-			ClearMaterial();
+			_BeginRenderShared();
 
 			uiTextureModeChanges = uiTextureChanges = uiTriangles = 0;
 		}
@@ -992,6 +999,48 @@ namespace BREATHE
 			return true;
 		}
 
+		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, int value)
+		{
+			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+			if(loc == -1)
+			{
+				LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+				assert(loc);
+				return false;
+			}
+			
+			glUniform1i(loc, value);
+			return true;
+		}
+
+		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, float value)
+		{
+			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+			if(loc == -1)
+			{
+				LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+				assert(loc);
+				return false;
+			}
+			
+			glUniform1f(loc, value);
+			return true;
+		}
+
+		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, MATH::cVec3& value)
+		{
+			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+			if(loc == -1)
+			{
+				LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+				assert(loc);
+				return false;
+			}
+			
+			glUniform3f(loc, value.x, value.y, value.z);
+			return true;
+		}
+
 		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos)
 		{
 			assert(pMaterial);
@@ -1437,8 +1486,10 @@ namespace BREATHE
 
 
 			if(1==uiActiveUnits)
-			{			
+			{
 				glActiveTexture(GL_TEXTURE0_ARB);
+				glEnable(GL_TEXTURE_2D);
+				
 				if(TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
 				{
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
@@ -1538,50 +1589,20 @@ namespace BREATHE
 
 				glUseProgram(pMaterial->pShader->uiShaderProgram);
 
-				GLint loc=-1;
-
-				/*loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "cameraPos");
-				if(loc != -1)
-				  glUniform3f(loc, pFrustum->eye.x, pFrustum->eye.y, pFrustum->eye.z);
-				else
-					LOG.Error("Shader", pMaterial->sName + " Couldn't set cameraPos");*/
-
+				if(pMaterial->pShader->bCameraPos)
+					SetShaderConstant(pMaterial, "cameraPos", pFrustum->eye);
 
 				if(uiActiveUnits>0 && pMaterial->pShader->bTexUnit0)
-				{
-					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit0");
-					if(loc != -1)
-						glUniform1i(loc, 0);
-					else
-						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit0");
-				}
+					SetShaderConstant(pMaterial, "texUnit0", 0);
 
 				if(uiActiveUnits>1 && pMaterial->pShader->bTexUnit1)
-				{
-					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit1");
-					if(loc != -1)
-						glUniform1i(loc, 1);
-					else
-						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit1");
-				}
+					SetShaderConstant(pMaterial, "texUnit1", 1);
 
 				if(uiActiveUnits>2 && pMaterial->pShader->bTexUnit2)
-				{
-					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit2");
-					if(loc != -1)
-						glUniform1i(loc, 2);
-					else
-						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit2");
-				}
+					SetShaderConstant(pMaterial, "texUnit2", 2);
 
 				if(uiActiveUnits>3 && pMaterial->pShader->bTexUnit3)
-				{
-					loc=glGetUniformLocation(pMaterial->pShader->uiShaderProgram, "texUnit3");
-					if(loc != -1)
-						glUniform1i(loc, 3);
-					else
-						LOG.Error("Shader", pMaterial->sName + ": Couldn't set texUnit3");
-				}
+					SetShaderConstant(pMaterial, "texUnit3", 3);
 
 				glEnable(GL_LIGHTING);
 			}

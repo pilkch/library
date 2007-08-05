@@ -92,6 +92,8 @@ namespace BREATHE
 
 			// These are the actual calls, the previous may actually render to an FBO first
 		private:
+			void _BeginRenderShared();
+
 			void _BeginRenderToScreen();
 			void _EndRenderToScreen();
 
@@ -171,6 +173,10 @@ namespace BREATHE
 			bool SetMaterial(std::string sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
 			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, MATH::cVec3()); }
 			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos);
+			
+			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, int value);
+			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, float value);
+			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, MATH::cVec3& value);
 
 			void ClearColour();
 			void SetColour(MATH::cColour inColour);

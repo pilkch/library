@@ -42,6 +42,8 @@ namespace BREATHE
 				// Combined resource id
 				unsigned int uiShaderProgram;
 
+				bool bCameraPos;
+
 				bool bTexUnit0;
 				bool bTexUnit1;
 				bool bTexUnit2;

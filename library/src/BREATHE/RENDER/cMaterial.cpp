@@ -70,6 +70,8 @@ namespace BREATHE
 
 			
 			cShader::cShader() :
+				bCameraPos(false),
+
 				bTexUnit0(false),
 				bTexUnit1(false),
 				bTexUnit2(false),
@@ -326,6 +328,8 @@ namespace BREATHE
 
 				if(pShader)
 				{
+					p->GetAttribute("cameraPos", &pShader->bCameraPos);
+					
 					p->GetAttribute("texUnit0", &pShader->bTexUnit0);
 					p->GetAttribute("texUnit1", &pShader->bTexUnit1);
 					p->GetAttribute("texUnit2", &pShader->bTexUnit2);

@@ -150,7 +150,7 @@ namespace BREATHE
 						// attribute="value"...
 						sData=STRING::CutLeading(sData.substr(n), " ");
 
-						// Fill in attributes if any and find the end of the opening tag
+						// Fill in attributes if any, and find the end of the opening tag
 						if('/' == sData[0])
 						{
 							// />
@@ -237,6 +237,12 @@ namespace BREATHE
 							{
 								// >...
 								iter++;
+								if (sAttributeName != "")
+								{
+									// attribute>
+									p->AddAttribute(sAttributeName, sAttributeValue);
+									sAttributeName = "";
+								}
 								sData.erase(sData.begin(), iter);
 								sData=(*vChild.rbegin())->Parse(sData, this);
 								iter = sData.begin();
@@ -365,7 +371,7 @@ namespace BREATHE
 			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				*pValue=iter->second;
+				*pValue = iter->second;
 				return true;
 			}
 
@@ -379,7 +385,7 @@ namespace BREATHE
 			if(iter != mAttribute.end())
 			{
 				std::string v = iter->second;
-				*pValue = ("true" == v);
+				*pValue = ("false" != v);
 				return true;
 			}
 
