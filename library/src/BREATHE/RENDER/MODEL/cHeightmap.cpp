@@ -318,7 +318,7 @@ namespace BREATHE
 					pVBO->Render();
 				}
 
-				pRender->RenderBox(MATH::cVec3(-fWidth, -fLength, -fHeight), MATH::cVec3(fWidth, fLength, fHeight));
+				pRender->RenderWireframeBox(MATH::cVec3(-fWidth, -fLength, -fHeight), MATH::cVec3(fWidth, fLength, fHeight));
 
 				return uiTriangles;
 			}

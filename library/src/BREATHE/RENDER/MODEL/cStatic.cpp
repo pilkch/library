@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cmath>
 
 #include <sstream>
@@ -335,6 +336,13 @@ namespace BREATHE
 					return Load3DS(sFilename);
 
 				return 0;
+			}
+
+			cMesh* cStatic::GetMesh(unsigned int index)
+			{
+				assert(index < vMesh.size());
+
+				return vMesh[index];
 			}
 
 

@@ -70,17 +70,19 @@
 namespace BREATHE
 {
 	// Constants
-	const bool BAD=true;
-	const bool GOOD=false;
+	const bool BAD=false;
+	const bool GOOD=true;
 	
 	// Safe deleting functions
-	template <class T> inline void SAFE_DELETE(T& x)
+	template <class T>
+	inline void SAFE_DELETE(T& x)
 	{ 
 		delete (x);
 		(x)=NULL;
 	}
 
-	template <class T> inline void SAFE_DELETE_ARRAY(T& x)
+	template <class T>
+	inline void SAFE_DELETE_ARRAY(T& x)
 	{ 
 		delete [] (x);
 		(x)=NULL;

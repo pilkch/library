@@ -16,79 +16,30 @@ namespace BREATHE
 		class cVertexBufferObject;
 		class cMaterial;
 
+		namespace MODEL
+		{
+			class cMesh;
+			class cStatic;
+			class cAnimation;
+		}
+
 		class cRender
 		{
-		private:
-			unsigned int uiSegmentWidthPX;
-			unsigned int uiSegmentSmallPX;
-			unsigned int uiAtlasWidthPX;
-
-			bool FindExtension(std::string sExt);
-
-			
-			bool bActiveColour;
-			bool bActiveShader;
-
-			MATH::cColour colour;
-			std::vector<MATERIAL::cLayer>vLayer;
-
 		public:
-			std::map<std::string, cTexture *> mTexture; //Map that contains filename, texture pairs
-			std::map<std::string, cTexture *> mCubeMap; //Map that contains filename, cubemap texture pairs
-
-
-			cLevel *pLevel;
-
-
-			bool bRenderWireframe;
-			bool bLight;
-			bool bCubemap;
-			bool bShader;
-
-			bool bCanCubemap;
-			bool bCanShader;
-			bool bCanFrameBufferObject;
-
-			bool bFullscreen;
-			unsigned int uiWidth;
-			unsigned int uiHeight;
-			unsigned int uiDepth;
-
-			unsigned int uiFlags;
-
-      int iMaxTextureSize;
-
-			unsigned int uiTextureChanges;
-			unsigned int uiTextureModeChanges;
-			unsigned int uiTriangles;
-
-			MATH::cVec4 v4SunPosition;
-
-			std::vector<RENDER::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
-
-			cTexture *pTextureNotFoundTexture;
-			cTexture *pMaterialNotFoundTexture;
-			
-			unsigned int uiActiveUnits;
-
-			MATERIAL::cMaterial *pMaterialNotFoundMaterial;
-
-			std::map<std::string, MATERIAL::cMaterial *> mMaterial;
-
-
-
-			std::vector<cVertexBufferObject*>vVertexBufferObject;
-			cVertexBufferObject* AddVertexBufferObject();
-
-
-			MATH::cFrustum *pFrustum;
-
-			SDL_Surface *pSurface;
-
 			cRender();
 			~cRender();
 
+		private:
+			bool FindExtension(std::string sExt);
+
+		public:
 			bool Init();
+
+			void ToggleFullscreen();
+			void SetAtlasWidth(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX);
+
+			void BeginLoadingTextures();
+			void EndLoadingTextures();
 
 			// These are the actual calls, the previous may actually render to an FBO first
 		private:
@@ -115,43 +66,26 @@ namespace BREATHE
 			void BeginScreenSpaceRendering();
 			void EndScreenSpaceRendering();
 
-			void RenderBox(MATH::cVec3& vMin, MATH::cVec3& vMax);
-			void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
-
-			void ToggleFullscreen();
-
-			/*//Font
-		protected:
-			int font_line;
-
-			int font_m_iTexture;
-			int font_charWidth;					// Desired width of font
-			int font_charHeight;					// Desired height of font
-			int font_charSpacing;				// Spacing between each character
-			int font_textureFilter;			// What type of texture filtering to render the text with.
-															// 0 = point AKA no filtering
-															// 1 = Linear
-
-			void *font_pVertices;				// Temp memory to work with when modify vertex buffers
-
-			unsigned int font_base; //which display list
-			int font_texture;
-
-		public:
-			virtual bool Font_Create(int newTexture, void *pDevice, void *pRenderer)=0;
-
-			virtual void Font_Begin(bool reset)=0;
-			virtual void Font_Print(int x, int y, int set, char * string, ...)=0;
-			virtual void Font_Println(int set, char * string, ...)=0;
-			virtual void Font_End(void)=0;*/
-
-
+			void RenderArrow(MATH::cVec3& from, MATH::cVec3& to, MATH::cColour& colour);
+			void RenderAxisReference(float x, float y, float z);
+			void RenderAxisReference(MATH::cVec3& position);
+			void RenderWireframeBox(MATH::cVec3& vMin, MATH::cVec3& vMax);
+			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
 			
+			void RenderMesh(MODEL::cMesh* pMesh);
 
-			void SetAtlasWidth(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX);
+			void PushScreenSpacePosition(float x, float y);
+			void PopScreenSpacePosition();
 
-			void BeginLoadingTextures();
-			void EndLoadingTextures();
+
+			// *** Resources
+
+			void TransformModels();
+
+			MODEL::cStatic *AddModel(std::string sNewFilename);
+			MODEL::cStatic *GetModel(std::string sNewFilename);
+
+			cVertexBufferObject* AddVertexBufferObject();
 
 			bool AddTextureNotFoundTexture(std::string sNewFilename);
 			bool AddMaterialNotFoundTexture(std::string sNewFilename);
@@ -179,7 +113,8 @@ namespace BREATHE
 			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, MATH::cVec3& value);
 
 			void ClearColour();
-			void SetColour(MATH::cColour inColour);
+			void SetColour(float r, float g, float b);
+			void SetColour(const MATH::cColour& inColour);
 
 			MATERIAL::cMaterial* GetMaterial(std::string sFilename);
 
@@ -193,6 +128,74 @@ namespace BREATHE
 			std::list<MATERIAL::cMaterial*> lPostRenderEffects;
 			cTextureFrameBufferObject* pFrameBuffer0;
 			cTextureFrameBufferObject* pFrameBuffer1;
+
+
+
+
+		public:
+			std::map<std::string, cTexture *> mTexture; //Map that contains filename, texture pairs
+			std::map<std::string, cTexture *> mCubeMap; //Map that contains filename, cubemap texture pairs
+
+
+			bool bRenderWireframe;
+			bool bLight;
+			bool bCubemap;
+			bool bShader;
+
+			bool bCanCubemap;
+			bool bCanShader;
+			bool bCanFrameBufferObject;
+
+			bool bFullscreen;
+			unsigned int uiWidth;
+			unsigned int uiHeight;
+			unsigned int uiDepth;
+
+			unsigned int uiFlags;
+
+      int iMaxTextureSize;
+
+			unsigned int uiTextureChanges;
+			unsigned int uiTextureModeChanges;
+			unsigned int uiTriangles;
+
+			unsigned int uiActiveUnits;
+
+			MATH::cVec4 v4SunPosition;
+
+
+			cTexture *pTextureNotFoundTexture;
+			cTexture *pMaterialNotFoundTexture;
+			
+			MATERIAL::cMaterial *pMaterialNotFoundMaterial;
+
+
+			std::vector<RENDER::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
+			std::map<std::string, MATERIAL::cMaterial *> mMaterial;
+
+			std::vector<cVertexBufferObject*>vVertexBufferObject;
+
+
+			cLevel *pLevel;
+			MATH::cFrustum *pFrustum;
+
+			SDL_Surface *pSurface;
+
+		private:
+			unsigned int uiSegmentWidthPX;
+			unsigned int uiSegmentSmallPX;
+			unsigned int uiAtlasWidthPX;
+
+			
+			bool bActiveColour;
+			bool bActiveShader;
+
+			MATH::cColour colour;
+			std::vector<MATERIAL::cLayer>vLayer;
+
+			
+			//std::map<std::string, MODEL::cAnimation*> mAnimation;
+			std::map<std::string, MODEL::cStatic*> mStatic;
 		};
 	}
 }

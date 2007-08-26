@@ -115,8 +115,17 @@ namespace BREATHE
 			LOG.Success("Delete", "Frustum");
 			SAFE_DELETE(pFrustum);
 
+			LOG.Success("Delete", "Frame Buffer Objects");
 			SAFE_DELETE(pFrameBuffer0);
 			SAFE_DELETE(pFrameBuffer1);
+
+			LOG.Success("Delete", "Static Mesh");
+			std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
+			while(iter!=mStatic.end())
+			{
+				SAFE_DELETE(iter->second);
+				iter++;
+			};
 		}
 
 		bool cRender::FindExtension(std::string sExt)
@@ -170,55 +179,6 @@ namespace BREATHE
 
 		bool cRender::Init()
 		{
-			glClearColor(1.0f, 0.0f, 1.0f, 0.0f);				// Clear The Background Color To Black
-			glClearDepth(1.0);									// Enables Clearing Of The Depth Buffer
-			glEnable(GL_DEPTH_TEST);							// Enable Depth Testing
-			glDepthFunc( GL_LEQUAL );
-
-			glCullFace( GL_BACK );
-			glFrontFace( GL_CCW );
-			glEnable( GL_CULL_FACE );
-
-			glEnable( GL_TEXTURE_2D );
-			glShadeModel( GL_SMOOTH );
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-			glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-			
-
-			MATH::cColour LightAmbient(0.0f, 0.0f, 0.0f, 1.0f);
-			MATH::cColour LightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
-			MATH::cColour LightSpecular(1.0f, 1.0f, 1.0f, 1.0f);
-
-			MATH::cColour LightModelAmbient(0.2f, 0.2f, 0.2f, 1.0f);
-			
-			MATH::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
-			MATH::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
-
-			glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.000008f); //2.5f);
-			glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
-			glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f); //0.1f);
-
-			glLightfv(GL_LIGHT0, GL_POSITION, v4SunPosition );
-
-			glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient );
-			glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse );
-			glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular );
-
-			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightModelAmbient);
-
-			glEnable( GL_LIGHTING );
-			glEnable( GL_LIGHT0 );
-			glEnable( GL_COLOR_MATERIAL );
-
-			glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-	 
-			glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
-			glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
-			
-
-
-
-			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
 
 			std::ostringstream t;
 			t << "Screen BPP: ";
@@ -229,6 +189,9 @@ namespace BREATHE
 			LOG.Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
 			LOG.Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
 	
+
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
+
 			t.str("");
 			t << iMaxTextureSize;
 			if(iMaxTextureSize>=MAX_TEXTURE_SIZE)
@@ -299,6 +262,53 @@ namespace BREATHE
 			else
 				LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
 
+
+			
+			glClearColor(1.0f, 0.0f, 1.0f, 0.0f);				// Clear The Background Color To Black
+			glClearDepth(1.0);									// Enables Clearing Of The Depth Buffer
+			glEnable(GL_DEPTH_TEST);							// Enable Depth Testing
+			glDepthFunc( GL_LEQUAL );
+
+			glCullFace( GL_BACK );
+			glFrontFace( GL_CCW );
+			glEnable( GL_CULL_FACE );
+
+			glEnable( GL_TEXTURE_2D );
+			glShadeModel( GL_SMOOTH );
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+			glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+			
+
+			MATH::cColour LightAmbient(1.0f, 1.0f, 1.0f, 1.0f);
+			MATH::cColour LightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
+			MATH::cColour LightSpecular(1.0f, 1.0f, 1.0f, 1.0f);
+
+			MATH::cColour LightModelAmbient(0.2f, 0.2f, 0.2f, 1.0f);
+			
+			MATH::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
+			MATH::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
+
+			glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.000008f); //2.5f);
+			glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
+			glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f); //0.1f);
+
+			glLightfv(GL_LIGHT0, GL_POSITION, v4SunPosition );
+
+			glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient );
+			glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse );
+			glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular );
+
+			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightModelAmbient);
+
+			glEnable( GL_LIGHTING );
+			glEnable( GL_LIGHT0 );
+
+			glEnable( GL_COLOR_MATERIAL );
+			glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+	 
+			glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
+			glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
+			
 
 			return BREATHE::GOOD;
 		}
@@ -500,10 +510,74 @@ namespace BREATHE
 				glPopMatrix();									// Pop The Matrix
 				glMatrixMode( GL_MODELVIEW );		// Select Modelview
 				glPopMatrix();									// Pop The Matrix
-			glPopAttrib();			
+			glPopAttrib();
 		}
 
-		void cRender::RenderBox(MATH::cVec3& vMin, MATH::cVec3& vMax)
+		void cRender::PushScreenSpacePosition(float x, float y)
+		{
+			glPushMatrix();
+				glLoadIdentity();
+      	glTranslatef(x, y, 0.0f);
+		}
+
+		void cRender::PopScreenSpacePosition()
+		{
+			glPopMatrix();
+		}
+
+		
+		void cRender::RenderMesh(MODEL::cMesh* pMesh)
+		{
+
+		}
+
+		void cRender::RenderArrow(MATH::cVec3& from, MATH::cVec3& to, MATH::cColour& colour)
+		{
+			SetColour(colour);
+    	glBegin(GL_LINES);
+				glVertex3f(from.x, from.y, from.z);
+				glVertex3f(to.x, to.y, to.z);
+			glEnd();
+		}
+
+		void cRender::RenderAxisReference(float x, float y, float z)
+		{
+			MATH::cVec3 position(x, y, z);
+			RenderAxisReference(position);
+		}
+
+		void cRender::RenderAxisReference(MATH::cVec3& position)
+		{
+			const float fWidth = 20.0f;
+			
+			glDisable(GL_COLOR_MATERIAL);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_TEXTURE_2D);
+			
+				SetColour(1.0f, 0.0f, 0.0f);
+    		glBegin(GL_LINES);
+					glVertex3f(position.x, position.y, position.z);
+					glVertex3f(position.x + fWidth, position.y, position.z);
+				glEnd();
+
+				SetColour(0.0f, 1.0f, 0.0f);
+    		glBegin(GL_LINES);
+					glVertex3f(position.x, position.y, position.z);
+					glVertex3f(position.x, position.y + fWidth, position.z);
+				glEnd();
+
+				SetColour(0.0f, 0.0f, 1.0f);
+    		glBegin(GL_LINES);
+					glVertex3f(position.x, position.y, position.z);
+					glVertex3f(position.x, position.y, position.z + fWidth);
+				glEnd();
+				
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_LIGHTING);
+			glEnable(GL_COLOR_MATERIAL);
+		}
+
+		void cRender::RenderWireframeBox(MATH::cVec3& vMin, MATH::cVec3& vMax)
 		{
     	glBegin(GL_LINES);
 
@@ -1206,8 +1280,8 @@ namespace BREATHE
 						glPushMatrix();
 						glLoadIdentity();
 						
-						float y=-Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
-						float x=-Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
+						float y = -Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
+						float x = -Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -1589,6 +1663,11 @@ namespace BREATHE
 
 				glUseProgram(pMaterial->pShader->uiShaderProgram);
 
+				// TODO: We also need some more variables within our post render shaders such as
+				// brightness: HDR, Top Gear Shader, Night Vision
+				// exposure: HDR, Top Gear Shader
+				// sunPosition: Car Shader, shadows, grass
+
 				if(pMaterial->pShader->bCameraPos)
 					SetShaderConstant(pMaterial, "cameraPos", pFrustum->eye);
 
@@ -1659,6 +1738,46 @@ namespace BREATHE
 		}
 
 
+		
+		MODEL::cStatic *cRender::AddModel(std::string sNewfilename)
+		{
+			MODEL::cStatic *pModel=mStatic[sNewfilename];
+
+			if(pModel)
+				return pModel;
+			
+			pModel=new MODEL::cStatic();
+
+			if(pModel->Load(sNewfilename))
+			{
+				mStatic[sNewfilename]=pModel;
+
+				unsigned int i=0;
+				unsigned int n=pModel->vMesh.size();
+				for(i=0;i<n;i++)
+					pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
+					//pModel->vMesh[i]->pMaterial = pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
+				
+				return pModel;
+			}
+
+			return NULL;
+		}
+
+		MODEL::cStatic *cRender::GetModel(std::string sFilename)
+		{
+			MODEL::cStatic *pModel=mStatic[sFilename];
+			if(pModel)
+				return pModel;
+			
+			std::cout<<"Couldn't find "<<sFilename<<std::endl;
+
+			return NULL;
+		}
+
+		
+
+
 		void cRender::ClearColour()
 		{
 			bActiveColour=false;
@@ -1668,18 +1787,156 @@ namespace BREATHE
 
 			glColor4f(colour.r, colour.g, colour.b, colour.a);
 		}
+
+		void cRender::SetColour(float r, float g, float b)
+		{
+			MATH::cColour colour(r, g, b, 1.0f);
+			SetColour(colour);
+		}
 		
-		void cRender::SetColour(MATH::cColour inColour)
+		void cRender::SetColour(const MATH::cColour& inColour)
 		{
 			bActiveColour=true;
 
-			colour=inColour;
-			colour.a=1.0f;
+			colour = inColour;
 
 			glColor4f(colour.r, colour.g, colour.b, colour.a);
 		}
 
 
+		void cRender::TransformModels()
+		{
+			cTexture *t=NULL;
+			MATERIAL::cMaterial *mat=NULL;
+
+			MODEL::cStatic *s=NULL;
+			MODEL::cMesh *m;
+			float *fTextureCoords=NULL;
+			unsigned int nMeshes=0;
+			unsigned int uiTriangles=0;
+			unsigned int nTexcoords=0;
+			unsigned int mesh=0;
+			unsigned int texcoord=0;
+			unsigned int triangle=0;
+
+			//Transform uv texture coordinates
+			std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
+			for(;iter!=mStatic.end();iter++)
+			{
+				s=iter->second;
+
+				if(s)
+				{
+					nMeshes=s->vMesh.size();
+
+					std::ostringstream sOut;
+					sOut<<nMeshes;
+					LOG.Success("Transform", "UV model=" + iter->first + " meshes=" + sOut.str());
+
+					for(mesh=0;mesh<nMeshes;mesh++)
+					{
+						m=s->vMesh[mesh];
+						fTextureCoords=&m->vTextureCoord[0];
+						nTexcoords=m->vTextureCoord.size();
+
+						mat=pRender->GetMaterial(m->sMaterial);
+
+						if(mat)
+						{
+							if(mat->vLayer.size() > 0)
+							{
+								t = mat->vLayer[0]->pTexture;
+
+								if(NULL == t) t = pRender->GetTexture(mat->vLayer[0]->sTexture);
+							
+								if(t)
+								{
+									for(texcoord=0;texcoord<nTexcoords;texcoord+=2)
+										t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
+								}
+								else
+									LOG.Error("Transform", "Texture not found " + mat->vLayer[0]->sTexture);
+							}
+							else
+								LOG.Error("Transform", "Material doesn't have any layers");
+						}
+						else
+							LOG.Error("Transform", "Material not found " + m->sMaterial);
+					}
+				}
+				else
+					LOG.Error("Transform", "Model==NULL");
+			}
+
+
+			float *fNormals=NULL;
+
+			//Calculate normals
+			for(iter=mStatic.begin();iter!=mStatic.end();iter++)
+			{
+				LOG.Success("Transform", "Normals " + iter->first);
+
+				s=iter->second;
+				
+				if(s)
+				{
+					nMeshes=s->vMesh.size();
+					
+					for(mesh=0;mesh<nMeshes;mesh++)
+					{
+						m=s->vMesh[mesh];
+						fNormals=&m->vNormal[0];
+
+						/*Init all vertex normals to zero
+
+						for all faces:
+							compute face normal  
+							  
+						for every vertex in every face:
+							add face normal to vertex normal
+							for all adjacent faces:
+									if the dotproduct of the face normal and the adjacentface normal is > 0.71:
+											add adjacentface normal to vertex normal
+
+						for all vertex normals:
+							normalize vertex normal*/
+					}
+				}
+			}
+
+
+			// TODO: Optimise order for rendering
+			unsigned int uiPass=0;
+			unsigned int i=0;
+			unsigned int uiMode0=0;
+			unsigned int uiMode1=0;
+
+			for(iter=mStatic.begin();iter!=mStatic.end();iter++)
+			{
+				LOG.Success("Transform", "Optimising " + iter->first);
+
+				s=iter->second;
+
+				if(s)
+				{
+					nMeshes=s->vMesh.size();
+
+					for(uiPass=1; uiPass < nMeshes; uiPass++) 
+					{
+						for (i=0; i < nMeshes-uiPass; i++) 
+						{
+							uiMode0=pRender->GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
+
+							//x[i] > x[i+1]
+							if(TEXTURE_MASK==uiMode0 || TEXTURE_BLEND==uiMode0)
+								std::swap<MODEL::cMesh*>(s->vMesh[i], s->vMesh[i+1]);
+						}
+					}
+				}
+			}
+
+			LOG.Success("Render", "TransformModels returning");
+		}
 		
 		void cRender::ReloadTextures()
 		{

@@ -55,8 +55,10 @@
 #pragma warning(disable:4244)
 #endif
 
+#ifndef BUILD_EDITOR
 extern float fAAA;
 extern float fBBB;
+#endif
 
 /*
 
@@ -433,8 +435,13 @@ namespace BREATHE
 				
 				// Suspension
 				{
+#ifdef BUILD_EDITOR
+					fSuspensionK = 6.0f;
+					fSuspensionU = 1.0f;
+#else
 					fSuspensionK = fAAA;
 					fSuspensionU = fBBB;
+#endif
 					dReal const * lv = dBodyGetLinearVel( pParent->body );
 					if(lv[2] < 0.3f)
 						rayContact.SetSuspensionKU(fSuspensionK, fSuspensionU);

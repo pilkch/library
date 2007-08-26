@@ -68,6 +68,9 @@ namespace BREATHE
 		void ChangeStateToDriving();
 		void ChangeStateToRunning();
 
+		void ChangeItemUp();
+		void ChangeItemDown();
+
 	
 		// For raycasting to find out if we standing on anything when we are in walking mode
 		void RayCast();

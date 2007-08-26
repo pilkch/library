@@ -110,8 +110,6 @@ namespace BREATHE
     cLevelNode* pCurrentNode;
 		unsigned int uiDisplayNodeName;
 
-		//std::map<std::string, RENDER::MODEL::cAnimatino*> mAnimation;
-		std::map<std::string, RENDER::MODEL::cStatic*> mStatic;
 		//std::map<std::string, RENDER::MODEL::cHeightmap*> mHeightmap;
 
 		std::list<VEHICLE::cVehicle *> lVehicle;
@@ -129,11 +127,6 @@ namespace BREATHE
 		bool Load(std::string sNewFilename);
 		void LoadNode(std::string sNewFilename);
 		void LoadCubemap(std::string sFilename);
-
-		void TransformModels();
-
-		RENDER::MODEL::cStatic *AddModel(std::string sNewFilename);
-		RENDER::MODEL::cStatic *GetModel(std::string sNewFilename);
 
 		void Update(float fCurrentTime);
 		unsigned int Render(float fCurrentTime);

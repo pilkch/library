@@ -47,22 +47,23 @@
 
 namespace BREATHE
 {
-	cPlayer::cPlayer()
-			: PHYSICS::cUprightCapsule()
+	cPlayer::cPlayer() : 
+		PHYSICS::cUprightCapsule()
 	{
-		p.x = p.y = p.z = 0.0f;
+		bDynamic = true;
+		bBody = false;
 
-		bBody=false;
-		bDynamic=true;
+		p.x = p.y = 0.0f;
+		p.z = 10.0f;
 
-		pSeat=NULL;
+		pSeat = NULL;
 
-		uiState = PLAYER_STATE_DRIVE;
+		uiState = PLAYER_STATE_WALK;
 		
 #ifdef BUILD_RELEASE
-		uiCameraMode = CAMERA_THIRDPERSON;
+		uiCameraMode = CAMERA_FIRSTPERSON;
 #else
-		uiCameraMode = CAMERA_THIRDPERSONFREE;
+		uiCameraMode = CAMERA_FIRSTPERSONFREE;
 #endif
 
 		// Movement
@@ -294,5 +295,15 @@ namespace BREATHE
 #ifdef BUILD_DEBUG
 		}
 #endif
+	}
+
+	void cPlayer::ChangeItemUp()
+	{
+		
+	}
+
+	void cPlayer::ChangeItemDown()
+	{
+		
 	}
 }
