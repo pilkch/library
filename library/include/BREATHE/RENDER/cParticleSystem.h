@@ -5,7 +5,6 @@ namespace BREATHE
 {
 	namespace RENDER
 	{
-		const unsigned int MAX_PARTICLES = 300;
 		const unsigned int DEFAULT_LIFESPANMIN = 30;
 		const unsigned int DEFAULT_LIFESPANMAX = 50;
 		const float DEFAULT_PARTICLE_WIDTH = 1.0f;
@@ -20,25 +19,33 @@ namespace BREATHE
 		{
 		public:
 			cParticle();
+			
+			static bool DepthCompare(const cParticle& lhs, const cParticle& rhs);
 
 			MATH::cVec3 p;
 			MATH::cVec3 vel;
 
-			bool IsAlive();
+			bool IsAlive() const;
 			void SetLife(unsigned int life);
 			void DecrementLife();
 			void Kill();
 
+			void SetDepth(float depth);
+			float GetDepth() const;
+
 		private:
 			unsigned int life;
+			float depth;
 		};
 
 		class cParticleSystem : public cRenderable
 		{
 		public:
-			cParticleSystem(unsigned int uiMaxSize = MAX_PARTICLES,
+			cParticleSystem(unsigned int uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 			virtual ~cParticleSystem();
+
+			void Sort();
 
 			// Parameters
 			unsigned int uiSize;
@@ -67,7 +74,7 @@ namespace BREATHE
 		class cParticleSystemBillboard : public cParticleSystem
 		{
 		public:
-			cParticleSystemBillboard(unsigned int uiMaxSize = MAX_PARTICLES,
+			cParticleSystemBillboard(unsigned int uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX,
 				float fInParticleWidth = DEFAULT_PARTICLE_WIDTH, float fInParticleHeight = DEFAULT_PARTICLE_HEIGHT);
 
@@ -88,7 +95,7 @@ namespace BREATHE
 		class cParticleSystemMesh : public cParticleSystem
 		{
 		public:
-			cParticleSystemMesh(unsigned int uiMaxSize = MAX_PARTICLES,
+			cParticleSystemMesh(unsigned int uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 
 			void Update(float fCurrentTime);
@@ -103,13 +110,25 @@ namespace BREATHE
 		};
 
 		// ************************************** Inlines **************************************
-		
+
+		// ** cParticle
+
 		inline cParticle::cParticle() :
 			life(0)
 		{
 		}
+		
+		inline void cParticle::SetDepth(float _depth)
+		{
+			depth = _depth;
+		}
 
-		inline bool cParticle::IsAlive()
+		inline float cParticle::GetDepth() const
+		{
+			return depth;
+		}
+
+		inline bool cParticle::IsAlive() const
 		{
 			return life > 0;
 		}
@@ -127,6 +146,13 @@ namespace BREATHE
 		inline void cParticle::Kill()
 		{
 			life = 0;
+		}
+
+		// *** Comparison for sorting particles based on depth
+
+		inline bool cParticle::DepthCompare(const cParticle& lhs, const cParticle& rhs)
+		{
+			return (lhs.GetDepth() > rhs.GetDepth());
 		}
 	}
 }

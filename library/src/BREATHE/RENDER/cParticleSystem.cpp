@@ -35,23 +35,12 @@
 #include <BREATHE/RENDER/cRender.h>
 #include <BREATHE/RENDER/cParticleSystem.h>
 
+#include <BREATHE/RENDER/MODEL/cMesh.h>
+
 namespace BREATHE
 {
 	namespace RENDER
 	{
-		// Ugly hack!
-		// Because we have to have a static function (And to make it worse, one that we can't pass data to),
-		// we have a global variable here that is set for each particle system when it performs it's sort.  
-		MATH::cVec3 particleSystemPosition;
-
-		bool cParticleCompare(const cParticle& lhs, const cParticle& rhs)
-		{
-			return (
-				((particleSystemPosition + lhs.p) - pRender->pFrustum->eye).GetLength() > 
-				((particleSystemPosition + rhs.p) - pRender->pFrustum->eye).GetLength());
-		}
-
-
 		cParticleSystem::cParticleSystem(unsigned int uiMaxSize, 
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
 
@@ -99,6 +88,14 @@ namespace BREATHE
 				MATH::randomMinusOneToPlusOne() * spawnVelocity.z);
 		}
 
+		void cParticleSystem::Sort()
+		{
+			unsigned int n = particles.size();
+			for (unsigned int i = 0; i < n; i++)
+				particles[i].SetDepth((position + particles[i].p - pRender->pFrustum->eye).GetLength());
+
+			std::sort(particles.begin(), particles.end(), cParticle::DepthCompare);
+		}
 
 
 		cParticleSystemBillboard::cParticleSystemBillboard(unsigned int uiMaxSize, 
@@ -133,8 +130,7 @@ namespace BREATHE
 				i++;
 			}
 
-			particleSystemPosition = position;
-			std::sort(particles.begin(), particles.end(), cParticleCompare);
+			Sort();
 		}
 
 		unsigned int cParticleSystemBillboard::Render()
@@ -243,8 +239,7 @@ namespace BREATHE
 				i++;
 			}
 
-			particleSystemPosition = position;
-			std::sort(particles.begin(), particles.end(), cParticleCompare);
+			Sort();
 		}
 
 		unsigned int cParticleSystemMesh::Render()
@@ -253,6 +248,9 @@ namespace BREATHE
 
 			glPushMatrix();
 				glTranslatef(position.x, position.y, position.z);
+
+				assert(pMesh != NULL);
+				pRender->SetMaterial(pMesh->pMaterial);
 
 				unsigned int uiParticlesRendered = 0;
 				cParticle* p = &particles[0];

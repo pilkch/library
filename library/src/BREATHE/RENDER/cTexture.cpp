@@ -1,7 +1,8 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // writing on a text file
 #include <iostream>
@@ -94,6 +95,8 @@ namespace BREATHE
 			}
 			else if (24 == surface->format->BitsPerPixel)
 			{
+				LOG.Error("Texture", "RGB Image " + sFilename);
+				assert(24 != surface->format->BitsPerPixel);
 				// Add alpha channel
 				SDL_PixelFormat format = {
 					NULL, 32, 4, 0, 0, 0, 0, 

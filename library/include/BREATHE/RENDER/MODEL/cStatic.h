@@ -58,6 +58,7 @@ namespace BREATHE
 				unsigned int Render(cOctree *pNode);
 
 				//void Split(unsigned int uiMesh, cModel_Static **pDest, unsigned int uiDest); //Which mesh to subtract, destination model
+				void CloneTo(cStatic* rhs);
 
 				cMesh* GetMesh(unsigned int index);
 			};

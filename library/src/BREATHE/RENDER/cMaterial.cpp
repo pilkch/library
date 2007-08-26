@@ -341,34 +341,34 @@ namespace BREATHE
 
 				p=p->FirstChild();
 				
-				cLayer* l = NULL;
+				cLayer* pLayer = NULL;
 				unsigned int n = vLayer.size();
 				unsigned int i = 0;
 				while(p && i < nLayers)
 				{
-					l = vLayer[i];
+					pLayer = vLayer[i];
 					if("layer" == p->sName)
 					{
 						std::string sTexture;
 						if(p->GetAttribute("sTexture", &sTexture))
-							l->sTexture = BREATHE::FILESYSTEM::FindFile(sPath + sTexture);
+							pLayer->sTexture = BREATHE::FILESYSTEM::FindFile(sPath + sTexture);
 
 						std::string sValue;
 						if(p->GetAttribute("uiTextureMode", &sValue))
 						{
-							if(sValue == "TEXTURE_NORMAL")						l->uiTextureMode=TEXTURE_NORMAL;
-							else if(sValue == "TEXTURE_MASK")					l->uiTextureMode=TEXTURE_MASK;
-							else if(sValue == "TEXTURE_BLEND")				l->uiTextureMode=TEXTURE_BLEND;
-							else if(sValue == "TEXTURE_DETAIL")				l->uiTextureMode=TEXTURE_DETAIL;
-							else if(sValue == "TEXTURE_CUBEMAP")			l->uiTextureMode=TEXTURE_CUBEMAP;
-							else if(sValue == "TEXTURE_POST_RENDER")	l->uiTextureMode=TEXTURE_POST_RENDER;
+							if(sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
+							else if(sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
+							else if(sValue == "TEXTURE_BLEND")				pLayer->uiTextureMode=TEXTURE_BLEND;
+							else if(sValue == "TEXTURE_DETAIL")				pLayer->uiTextureMode=TEXTURE_DETAIL;
+							else if(sValue == "TEXTURE_CUBEMAP")			pLayer->uiTextureMode=TEXTURE_CUBEMAP;
+							else if(sValue == "TEXTURE_POST_RENDER")	pLayer->uiTextureMode=TEXTURE_POST_RENDER;
 						}
 
 						unsigned int uiTextureAtlas = ATLAS_NONE;
 						if(p->GetAttribute("uiTextureAtlas", &sValue))
 						{
 							if(sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
-							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_LANDSCAPE;
+							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
 							else if(sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
 							else if(sValue == "ATLAS_VEHICLES")	uiTextureAtlas = ATLAS_VEHICLES;
 							else if(sValue == "ATLAS_PROPS")		uiTextureAtlas = ATLAS_PROPS;
@@ -376,19 +376,20 @@ namespace BREATHE
 							else if(sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
 						}
 
-						if(TEXTURE_CUBEMAP == l->uiTextureMode)
+						if(TEXTURE_CUBEMAP == pLayer->uiTextureMode)
 						{
+							uiTextureAtlas = ATLAS_NONE;
 							LOG.Error("CUBEMAP", "CUBEMAP");
 						}
 						
-						if((TEXTURE_CUBEMAP != l->uiTextureMode) && (TEXTURE_POST_RENDER != l->uiTextureMode))
+						if((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode))
 						{
-							if(ATLAS_NONE != uiTextureAtlas) l->pTexture = pRender->AddTextureToAtlas(l->sTexture, uiTextureAtlas);
+							if(ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 							
-							if(NULL == l->pTexture)
+							if(NULL == pLayer->pTexture)
 							{
 								uiTextureAtlas = ATLAS_NONE;
-								l->pTexture = pRender->AddTexture(l->sTexture);
+								pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
 							}
 						}
 					}

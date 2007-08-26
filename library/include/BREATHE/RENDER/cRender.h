@@ -82,8 +82,9 @@ namespace BREATHE
 
 			void TransformModels();
 
-			MODEL::cStatic *AddModel(std::string sNewFilename);
-			MODEL::cStatic *GetModel(std::string sNewFilename);
+			MODEL::cStatic* AddModel(std::string sNewFilename);
+			MODEL::cStatic* GetModel(std::string sNewFilename);
+			MODEL::cStatic* CreateNewModel(std::string sName);
 
 			cVertexBufferObject* AddVertexBufferObject();
 

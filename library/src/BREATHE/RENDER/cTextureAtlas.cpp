@@ -111,17 +111,17 @@ namespace BREATHE
 			sFilename=BREATHE::FILESYSTEM::FindFile(sFilename);
 		
 			// Load the texture
-			cTexture* p=new cTexture();
+			cTexture* pTexture = new cTexture();
 			
-			if(p->Load(sFilename) != BREATHE::GOOD)
+			if(pTexture->Load(sFilename) != BREATHE::GOOD)
 			{
-				SAFE_DELETE(p);
+				SAFE_DELETE(pTexture);
 				return pRender->pTextureNotFoundTexture;
 			}
 
 			// We have a valid texture, find a spot for it
-			unsigned int uiTextureWidth = p->surface->w;
-			unsigned int uiTextureHeight = p->surface->h;
+			unsigned int uiTextureWidth = pTexture->surface->w;
+			unsigned int uiTextureHeight = pTexture->surface->h;
 			bool bFound=false;
 			bool bGood=true;
 
@@ -192,26 +192,26 @@ namespace BREATHE
 				t << ")",
 				LOG.Error("Texture Atlas", t.str());
 
-				SAFE_DELETE(p);
+				SAFE_DELETE(pTexture);
 				return pRender->pTextureNotFoundTexture;
 			}
 
 			// Ok, we have found a spot to place this texture
 			// Place it
-			BlitSurface(p->surface, foundX*uiSegmentWidthPX, foundY*uiSegmentWidthPX);
+			BlitSurface(pTexture->surface, foundX*uiSegmentWidthPX, foundY*uiSegmentWidthPX);
 
 			// Now we delete the texture
-			SAFE_DELETE(p);
+			SAFE_DELETE(pTexture);
 
 
 			// Now we return a texture that points to the right spot in the texture atlas
-			p=new cTexture();
-			p->fScale=static_cast<float>(uiTextureWidth)/static_cast<float>(uiWidth);
-			p->sFilename=this->sFilename;
-			p->uiTexture=this->uiTexture;
-			p->uiTextureAtlas=this->uiID;
-			p->fU=static_cast<float>(foundX)/static_cast<float>(uiAtlasWidthNSegments);
-			p->fV=static_cast<float>(foundY)/static_cast<float>(uiAtlasWidthNSegments);
+			pTexture=new cTexture();
+			pTexture->fScale=static_cast<float>(uiTextureWidth)/static_cast<float>(uiWidth);
+			pTexture->sFilename=this->sFilename;
+			pTexture->uiTexture=this->uiTexture;
+			pTexture->uiTextureAtlas=this->uiID;
+			pTexture->fU=static_cast<float>(foundX)/static_cast<float>(uiAtlasWidthNSegments);
+			pTexture->fV=static_cast<float>(foundY)/static_cast<float>(uiAtlasWidthNSegments);
 
 			std::ostringstream t;
 			t << "Found position for texture ";
@@ -235,7 +235,7 @@ namespace BREATHE
 			t << uiTexture;
 			LOG.Success("Texture", t.str());
 
-			return p;
+			return pTexture;
 		}
 
 		void cTextureAtlas::Begin(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX)

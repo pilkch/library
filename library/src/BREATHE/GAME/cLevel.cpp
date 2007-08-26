@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -389,7 +390,7 @@ namespace BREATHE
 		{
 			glPushMatrix();
 				glTranslatef(vCubemap[i]->v3Position.x, vCubemap[i]->v3Position.y, vCubemap[i]->v3Position.z);
-				uiTriangles+=RenderStaticModel(pRender->GetModel("data/props/static/cubemap/mesh.3ds"), vCubemap[i]->v3Position);
+				uiTriangles+=RenderStaticModel(pRender->GetModel("data/props/static/sphere/mesh.3ds"), vCubemap[i]->v3Position);
 			glPopMatrix();
 		}
 
@@ -501,7 +502,7 @@ namespace BREATHE
 
 
 	unsigned int cLevel::RenderStaticModel(RENDER::MODEL::cStatic *p, MATH::cVec3 pos, MATH::cColour colour)
-	{	
+	{
 		if(NULL==p)
 			return 0;
 
@@ -510,118 +511,23 @@ namespace BREATHE
 		if(bUseColour)
 			pRender->SetColour(colour);
 
-		unsigned int triangle=0;
-		unsigned int texcoord=0;
-		unsigned int vert=0;
-		unsigned int mesh=0;
-		unsigned int uiTriangles=0;
-		unsigned int nMeshes=0;
-		unsigned int nTotalTriangles=0;
+		unsigned int uiTriangles = 0;
+		unsigned int nMeshes = 0;
 
 		std::vector<RENDER::MODEL::cMesh*> vMesh=p->vMesh;
-		RENDER::MODEL::cMesh *m=NULL;
 
-		nMeshes=vMesh.size();
+		nMeshes = vMesh.size();
 
-		for(mesh=0;mesh<nMeshes;mesh++)
+		for(unsigned int mesh=0;mesh<nMeshes;mesh++)
 		{
-			m=vMesh[mesh];
+			assert(vMesh[mesh]->pMeshData);
 
-			float *fVertices=&m->vVertex[0];
-			float *fTextureCoords=&m->vTextureCoord[0];
-			
-			uiTriangles=m->uiTriangles;
-			nTotalTriangles+=uiTriangles;
+			if(NULL == vMesh[mesh]->pMaterial)
+				vMesh[mesh]->pMaterial = pRender->GetMaterial(vMesh[mesh]->sMaterial);
+			pRender->SetMaterial(vMesh[mesh]->pMaterial);
 
-			
-			if(NULL == m->pMaterial)
-				m->pMaterial = pRender->GetMaterial(m->sMaterial);
-			pRender->SetMaterial(m->pMaterial, pos);
-
-				texcoord=0;
-				vert=0;
-				MATH::cVec3 v0;
-				MATH::cVec3 v1;
-				MATH::cVec3 v2;
-				MATH::cVec3 n;
-
-				glBegin(GL_TRIANGLES);
-				
-					if(1==pRender->uiActiveUnits)
-						for(triangle=0;triangle<uiTriangles;triangle++, vert+=9, texcoord+=6)
-						{						
-							v0.Set(&fVertices[vert]);
-							v1.Set(&fVertices[vert+3]);
-							v2.Set(&fVertices[vert+6]);
-							n.Cross(v0-v2, v2-v1);
-							n.Normalize();
-
-							glNormal3f(n.x, n.y, n.z);
-
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-						}
-					else if(2==pRender->uiActiveUnits)
-						for(triangle=0;triangle<uiTriangles;triangle++, vert+=9, texcoord+=6)
-						{
-							v0.Set(&fVertices[vert]);
-							v1.Set(&fVertices[vert+3]);
-							v2.Set(&fVertices[vert+6]);
-							n.Cross(v0-v2, v2-v1);
-							n.Normalize();
-
-							glNormal3f(n.x, n.y, n.z);
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-							//n.Cross(v1-v0, v0-v2);
-
-							//glNormal3f(n.x, n.y, n.z);
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-							//n.Cross(v2-v1, v1-v0);
-
-							//glNormal3f(n.x, n.y, n.z);
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-						}
-					else if(3==pRender->uiActiveUnits)
-						for(triangle=0;triangle<uiTriangles;triangle++, vert+=9, texcoord+=6)
-						{							
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-							glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-							glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-							glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-						}
-					else if(pRender->bCubemap)
-					{
-						//std::ostringstream t;
-						//t << pRender->uiActiveUnits;
-						//LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
-					}
-					
-				glEnd();
-
+			pRender->RenderMesh(vMesh[mesh]);
+			uiTriangles += vMesh[mesh]->pMeshData->uiTriangles;
 		}
 
 		if(bUseColour)

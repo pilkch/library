@@ -205,16 +205,14 @@ namespace BREATHE
 
 				LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
-				LOADER_3DS::Mesh3DSObject *m=new LOADER_3DS::Mesh3DSObject(sName , c);
+				LOADER_3DS::Mesh3DSObject* pMesh = new LOADER_3DS::Mesh3DSObject(sName , c);
 
-				if(m)
+				if(pMesh)
 				{
 					vMesh.push_back(new cMesh());
 
-					pCurrentMesh=vMesh.back();
-
-					
-
+					pCurrentMesh = vMesh.back();
+          pCurrentMesh->CreateNewMesh();
 
 
 					unsigned int face=0;
@@ -225,42 +223,42 @@ namespace BREATHE
 					std::string sMaterial;
 				
 
-					std::vector<LOADER_3DS::Mesh3DSVertex> vVertex=m->Vertices();
-					std::vector<LOADER_3DS::Mesh3DSTextureCoord> vTextureCoord=m->TextureCoords();
-					std::vector<LOADER_3DS::Mesh3DSFace> vFaces=m->Faces();
+					std::vector<LOADER_3DS::Mesh3DSVertex> vVertex = pMesh->Vertices();
+					std::vector<LOADER_3DS::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
+					std::vector<LOADER_3DS::Mesh3DSFace> vFaces = pMesh->Faces();
 					
-					pCurrentMesh->uiTriangles=vFaces.size();
-					uiTriangles+=pCurrentMesh->uiTriangles;
+					pCurrentMesh->pMeshData->uiTriangles = vFaces.size();
+					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
-					pCurrentMesh->sMaterial=BREATHE::FILESYSTEM::FindFile(BREATHE::FILESYSTEM::GetPath(sFilename) + m->sMaterial);
+					pCurrentMesh->sMaterial=BREATHE::FILESYSTEM::FindFile(BREATHE::FILESYSTEM::GetPath(sFilename) + pMesh->sMaterial);
 
 					char *c=const_cast<char *>(pCurrentMesh->sMaterial.c_str());
 					pCurrentMesh->sMaterial=c;
 
-					for(face=0;face<pCurrentMesh->uiTriangles;face++)
+					for(face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
 					{
 						// 3ds files store faces as having 3 indexs in vertex arrays
 						f = vFaces[face];
 
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.a].x);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.a].y);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.a].z);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].x);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].y);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].z);
 
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.b].x);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.b].y);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.b].z);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].x);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].y);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].z);
 						
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.c].x);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.c].y);
-						pCurrentMesh->vVertex.push_back(fScale * vVertex[f.c].z);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].x);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].y);
+						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].z);
 						
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.a].u);
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.a].v);
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.b].u);
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.b].v);
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.c].u);
-						pCurrentMesh->vTextureCoord.push_back(vTextureCoord[f.c].v);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].u);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].v);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].u);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].v);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].u);
+						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].v);
 					}
 
 					uiCurrentMesh++;
@@ -445,6 +443,20 @@ namespace BREATHE
 			void cStatic::Update(float fCurrentTime)
 			{
 
+			}
+
+			void cStatic::CloneTo(cStatic* rhs)
+			{
+				rhs->vMesh.clear();
+
+				unsigned int i;
+				unsigned int n = vMesh.size();
+				for (i = 0; i < n; i++)
+				{
+					cMesh* pMesh = new cMesh();
+					vMesh[i]->CloneTo(pMesh);
+					rhs->vMesh.push_back(pMesh);
+				}
 			}
 		}
 	}

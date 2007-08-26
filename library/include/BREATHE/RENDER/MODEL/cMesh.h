@@ -13,10 +13,22 @@ namespace BREATHE
 		
 		namespace MODEL
 		{
-			//Static Mesh
-			class cMesh
+			//uiTextures	|	uiTriangles	fVerticies	vNormals	fTexCoords
+			//------------+---------------------------------------------
+			//1						|	n						n*9					n*9				n*6
+			//2						|	n						n*9					n*9				n*12
+			//3						|	n						n*9					n*9				n*18
+
+			class cMeshData
 			{
 			public:
+				cMeshData();
+				~cMeshData();
+
+				void CloneTo(cMeshData* rhs);
+				void CreateVBO();
+
+
 				unsigned int uiVertexBuffer;
 				unsigned int uiIndexBuffer;
 				unsigned int uiNormalBuffer;
@@ -25,28 +37,30 @@ namespace BREATHE
 				unsigned int uiTriangles;
 				unsigned int uiTextures;
 
-				MATH::cMat4 m4Mat;
-
 				std::vector<unsigned int> vIndex;
 
 				std::vector<float> vVertex;
 				std::vector<float> vNormal;
 				std::vector<float> vTextureCoord;
-				
-				std::string sMaterial;
-				
-				RENDER::MATERIAL::cMaterial* pMaterial;
+			};
 
+			//Static Mesh
+			class cMesh
+			{
+			public:
 				cMesh();
-				~cMesh();
 
-				void CreateVBO();
+				void CreateNewMesh();
 
-				//uiTextures	|	uiTriangles	fVerticies	vNormals	fTexCoords
-				//------------+---------------------------------------------
-				//1						|	n						n*9					n*9				n*6
-				//2						|	n						n*9					n*9				n*12				
-				//3						|	n						n*9					n*9				n*18
+				void CloneTo(cMesh* rhs);
+
+				void SetMaterial(MATERIAL::cMaterial* pMaterial);
+				void SetMaterial(std::string sMaterial);
+				
+				cMeshData* pMeshData;
+
+				std::string sMaterial;
+				MATERIAL::cMaterial* pMaterial;
 			};
 		}
 	}
