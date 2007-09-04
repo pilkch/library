@@ -624,6 +624,44 @@ namespace BREATHE
 				
 			glEnd();
 		}
+		
+		unsigned int cRender::RenderStaticModel(MODEL::cStatic *p)
+		{
+			if(NULL==p)
+				return 0;
+
+			unsigned int uiTriangles = 0;
+			unsigned int nMeshes = 0;
+
+			std::vector<MODEL::cMesh*> vMesh=p->vMesh;
+
+			nMeshes = vMesh.size();
+
+			for(unsigned int mesh=0;mesh<nMeshes;mesh++)
+			{
+				assert(vMesh[mesh]->pMeshData);
+
+				if(NULL == vMesh[mesh]->pMaterial)
+					vMesh[mesh]->pMaterial = pRender->GetMaterial(vMesh[mesh]->sMaterial);
+				pRender->SetMaterial(vMesh[mesh]->pMaterial);
+
+				pRender->RenderMesh(vMesh[mesh]);
+				uiTriangles += vMesh[mesh]->pMeshData->uiTriangles;
+			}
+			
+			return uiTriangles;
+		}
+
+		unsigned int cRender::RenderStaticModel(MODEL::cStatic *p, MATH::cColour& colour)
+		{
+			pRender->SetColour(colour);
+
+			unsigned int uiTriangles = RenderStaticModel(p);
+
+			pRender->ClearColour();
+
+			return uiTriangles;
+		}
 
 		void cRender::RenderArrow(MATH::cVec3& from, MATH::cVec3& to, MATH::cColour& colour)
 		{
@@ -1098,6 +1136,22 @@ namespace BREATHE
 			return (atan((b.y-a.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 270.0f) * MATH::c180_DIV_PI;
 		}
 
+		bool cRender::SetTexture0(cTexture* pTexture)
+		{
+			//Activate the correct texture unit
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+			return true;
+		}
+
+		bool cRender::SetTexture1(cTexture* pTexture)
+		{
+			//Activate the correct texture unit
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+			return true;
+		}
+
 		bool cRender::ClearMaterial()
 		{
 			unsigned int i=0;
@@ -1151,6 +1205,8 @@ namespace BREATHE
 
 				//Set the current mode and texture
 				layerOld->uiTextureMode=TEXTURE_NONE;
+				layerOld->pTexture = NULL;
+				layerOld->sTexture = "";
 			}
 
 			glActiveTexture(GL_TEXTURE0);
@@ -1161,6 +1217,8 @@ namespace BREATHE
 			
 			if(bCanShader)
         glUseProgram(NULL);
+
+			pCurrentMaterial = NULL;
 
 			ClearColour();
 
@@ -1877,7 +1935,7 @@ namespace BREATHE
 			if(pModel)
 				return pModel;
 			
-			std::cout<<"Couldn't find "<<sFilename<<std::endl;
+			//std::cout<<"Couldn't find "<<sFilename<<std::endl;
 
 			return NULL;
 		}
@@ -1930,8 +1988,9 @@ namespace BREATHE
 			std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
 			for(;iter!=mStatic.end();iter++)
 			{
+				std::string sFilename = iter->first;
 				s=iter->second;
-
+				
 				assert(s);
 				
 				nMeshes=s->vMesh.size();

@@ -369,7 +369,8 @@ namespace BREATHE
 		{
 			assert(pValue);
 			iterator iter = mAttribute.find(sAttribute);
-			if(iter != mAttribute.end())
+			iterator iterEnd = mAttribute.end();
+			if(iter != iterEnd)
 			{
 				*pValue = iter->second;
 				return true;

@@ -244,13 +244,12 @@ namespace BREATHE
 
 		unsigned int cParticleSystemMesh::Render()
 		{
-			assert(pMesh);
+			assert(pMesh != NULL);
 
 			glPushMatrix();
 				glTranslatef(position.x, position.y, position.z);
 
-				assert(pMesh != NULL);
-				pRender->SetMaterial(pMesh->pMaterial);
+				if (pMesh->pMaterial) pRender->SetMaterial(pMesh->pMaterial);
 
 				unsigned int uiParticlesRendered = 0;
 				cParticle* p = &particles[0];

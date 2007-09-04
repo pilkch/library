@@ -116,6 +116,8 @@ namespace BREATHE
 				std::ostringstream o;
 				o<<t;
 				Success(LOG.section, o.str());
+
+				std::cout<<o.str()<<std::endl;
 				return *this;
 			}
 			

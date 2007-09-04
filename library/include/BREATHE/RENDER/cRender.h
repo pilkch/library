@@ -73,6 +73,8 @@ namespace BREATHE
 			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
 			
 			void RenderMesh(MODEL::cMesh* pMesh);
+			unsigned int RenderStaticModel(MODEL::cStatic* p);
+			unsigned int RenderStaticModel(MODEL::cStatic* p, MATH::cColour& colour);
 
 			void PushScreenSpacePosition(float x, float y);
 			void PopScreenSpacePosition();
@@ -99,8 +101,11 @@ namespace BREATHE
 			cTexture* GetCubeMap(std::string sFilename);
 
 
-			MATERIAL::cMaterial* pCurrentMaterial;
 
+			bool SetTexture0(std::string sTexture) { return SetTexture0(GetTexture(sTexture)); }
+			bool SetTexture0(cTexture* pTexture);
+			bool SetTexture1(std::string sTexture) { return SetTexture1(GetTexture(sTexture)); }
+			bool SetTexture1(cTexture* pTexture);
 
 			MATERIAL::cMaterial* AddMaterial(std::string sFilename);
 			MATERIAL::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
@@ -194,6 +199,7 @@ namespace BREATHE
 			MATH::cColour colour;
 			std::vector<MATERIAL::cLayer>vLayer;
 
+			MATERIAL::cMaterial* pCurrentMaterial;
 			
 			//std::map<std::string, MODEL::cAnimation*> mAnimation;
 			std::map<std::string, MODEL::cStatic*> mStatic;

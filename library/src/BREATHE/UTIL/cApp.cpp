@@ -332,7 +332,7 @@ namespace BREATHE
 			}*/
 		}
 
-		std::string s = (STRING::ToLower(sTitle) + ".ico");
+		std::string s = ("app.ico");
 		LOG.Success("SDL", "Setting caption to " + s);
 		SDL_WM_SetCaption(sTitle.c_str(), s.c_str());
 
@@ -350,6 +350,10 @@ namespace BREATHE
 
 		if(BREATHE::BAD==InitScene())
 			return BREATHE::BAD;
+
+		// Setup mouse
+		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
+		//SDL_ShowCursor(SDL_DISABLE);
 
 		return BREATHE::GOOD;
 	}
@@ -902,12 +906,14 @@ namespace BREATHE
 	}
 
 
-	void cApp::MainLoop()
+	bool cApp::Run()
 	{
-		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
-		//SDL_ShowCursor(SDL_DISABLE);
-		
-		float fCurrentTime=0.0f;
+		LOG.Newline("Run");
+		bReturnCode = Init();
+		if (bReturnCode == BAD) return bReturnCode;
+
+    LOG.Newline("MainLoop");
+		float fCurrentTime = 0.0f;
 
 		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * PHYSICS::fInterval);
 		unsigned int uiUpdateHz = 30;
@@ -980,6 +986,11 @@ namespace BREATHE
 			}
 		}while (!bDone);
 
-		SDL_ShowCursor(SDL_ENABLE);	
+		SDL_ShowCursor(SDL_ENABLE);
+
+		LOG.Newline("DestroyScene");
+		DestroyScene();
+
+		return bReturnCode;
 	}
 }

@@ -49,7 +49,7 @@ namespace BREATHE
 		~cApp();
 
 		bool Init();
-		void MainLoop();
+		bool Run();
 
 		bool InitRender();
 		bool DestroyRender();		

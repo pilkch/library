@@ -234,7 +234,7 @@ namespace BREATHE
 			vNode.push_back(pNode);
 		}
 		else
-			LOG.Error("Node", "Mesh not found" + sNewFilename);
+			LOG.Error("Node", "Mesh not found " + sNewFilename);
 	}
 	
 	void cLevel::LoadCubemap(std::string line)
@@ -379,18 +379,9 @@ namespace BREATHE
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
 				
-				uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>((*iter++)->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>((*iter++)->pModel));
 
 				//pRender->SetMaterial();
-			glPopMatrix();
-		}
-
-		n=vCubemap.size();
-		for(i=0;i<n;i++)
-		{
-			glPushMatrix();
-				glTranslatef(vCubemap[i]->v3Position.x, vCubemap[i]->v3Position.y, vCubemap[i]->v3Position.z);
-				uiTriangles+=RenderStaticModel(pRender->GetModel("data/props/static/sphere/mesh.3ds"), vCubemap[i]->v3Position);
 			glPopMatrix();
 		}
 
@@ -411,18 +402,18 @@ namespace BREATHE
 			{
 				glPushMatrix();
 					glMultMatrixf(pVehicle->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
 				glPopMatrix();
 
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lfWheel_->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 				
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lrWheel_->m);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 				
 				
@@ -431,12 +422,12 @@ namespace BREATHE
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rfWheel_->m*r);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rrWheel_->m*r);
-					uiTriangles+=RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel), BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 			}
 
@@ -498,42 +489,6 @@ namespace BREATHE
 	void cLevel::RemoveVehicle(VEHICLE::cVehicle *v)
 	{
 		lVehicle.remove(v);
-	}
-
-
-	unsigned int cLevel::RenderStaticModel(RENDER::MODEL::cStatic *p, MATH::cVec3 pos, MATH::cColour colour)
-	{
-		if(NULL==p)
-			return 0;
-
-		bool bUseColour=(0.0f!=colour.r || 0.0f!=colour.g || 0.0f!=colour.b);				
-
-		if(bUseColour)
-			pRender->SetColour(colour);
-
-		unsigned int uiTriangles = 0;
-		unsigned int nMeshes = 0;
-
-		std::vector<RENDER::MODEL::cMesh*> vMesh=p->vMesh;
-
-		nMeshes = vMesh.size();
-
-		for(unsigned int mesh=0;mesh<nMeshes;mesh++)
-		{
-			assert(vMesh[mesh]->pMeshData);
-
-			if(NULL == vMesh[mesh]->pMaterial)
-				vMesh[mesh]->pMaterial = pRender->GetMaterial(vMesh[mesh]->sMaterial);
-			pRender->SetMaterial(vMesh[mesh]->pMaterial);
-
-			pRender->RenderMesh(vMesh[mesh]);
-			uiTriangles += vMesh[mesh]->pMeshData->uiTriangles;
-		}
-
-		if(bUseColour)
-			pRender->ClearColour();
-		
-		return uiTriangles;
 	}
 
 	RENDER::cTexture *cLevel::FindClosestCubeMap(MATH::cVec3 pos)
@@ -699,7 +654,7 @@ namespace BREATHE
 	{
 		unsigned int uiTriangles = 0;
 
-		uiTriangles+=pLevel->RenderStaticModel(pRender->GetModel(sFilename + "mesh.3ds"), MATH::cVec3(0.0f, 0.0f, 0.0f));
+		uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(sFilename + "mesh.3ds"));
 
 		std::vector<BREATHE::cLevelModel*>::iterator iter = vModel.begin();
 		std::vector<BREATHE::cLevelModel*>::iterator end = vModel.end();
@@ -708,7 +663,7 @@ namespace BREATHE
 		{
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
-				uiTriangles+=pLevel->RenderStaticModel((*iter)->pModel, MATH::cVec3(0.0f, 0.0f, 0.0f));
+				uiTriangles+=pRender->RenderStaticModel((*iter)->pModel);
 			glPopMatrix();
 
 			iter++;

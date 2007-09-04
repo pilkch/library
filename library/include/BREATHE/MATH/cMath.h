@@ -36,12 +36,12 @@ namespace BREATHE
 			return x * x;
 		}
 
-		inline unsigned int random(unsigned int maximum)
+		inline uint32_t random(uint32_t maximum)
 		{
 			return rand() % maximum;
 		}
 
-		inline unsigned int random(unsigned int minimum, unsigned int maximum)
+		inline uint32_t random(uint32_t minimum, uint32_t maximum)
 		{
 			return minimum + rand() % maximum;
 		}
