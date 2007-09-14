@@ -50,7 +50,7 @@ namespace BREATHE
 				}
 				f.close();
 
-				Parse(sData, NULL);
+				ParseFromString(sData, NULL);
 			}
 			else
         LOG.Error("XML", inFilename + " not found");
@@ -70,7 +70,7 @@ namespace BREATHE
          SAFE_DELETE(vChild[i]);
 		}
 	
-		std::string cNode::Parse(std::string sData, cNode* pPrevious)
+		std::string cNode::ParseFromString(std::string sData, cNode* pPrevious)
 		{
 			while(sData.length())
 			{
@@ -101,13 +101,13 @@ namespace BREATHE
 					if(angleBracket)
 					{
 						//Content</name>
-						sContent=sData.substr(0, angleBracket);
+						sContent = sData.substr(0, angleBracket);
 					}
 
 					// example attribute="value"...
 					sData=STRING::CutLeading(sData.substr(angleBracket+1), " ");
 
-					if(sData[0]=='/')
+					if(sData[0] == '/')
 					{
 						// </name>
 						if(sContent.size() && sContent != "/>")
@@ -179,7 +179,7 @@ namespace BREATHE
 
 							while(iter!=sData.end() && *iter!='/' && *iter!='>')
 							{
-								char c=*iter;
+								BREATHE::unicode_char c=*iter;
 								if(*iter == ' ')
 								{
 									p->AddAttribute(sAttributeName, "");
@@ -244,7 +244,7 @@ namespace BREATHE
 									sAttributeName = "";
 								}
 								sData.erase(sData.begin(), iter);
-								sData=(*vChild.rbegin())->Parse(sData, this);
+								sData=(*vChild.rbegin())->ParseFromString(sData, this);
 								iter = sData.begin();
 							}
 						}
@@ -259,14 +259,109 @@ namespace BREATHE
 					// No tags, just content for the parent tag (this)
 					cNode* p=AddNode();
 
-					p->bContentOnly=true;
-					p->sContentOnly+=sData;
+					p->bContentOnly = true;
+					p->sContentOnly += STRING::CutTrailing(sData, "\n\r\t");
 					return "";
 				}
 			}
 
 			return sData;
 		}
+
+
+		void cNode::SaveToFile(std::string inFilename)
+		{
+			std::ofstream f(inFilename.c_str());
+
+			if(f.is_open())
+			{
+				int n=vChild.size();
+				for(int i=0;i<n;i++)
+					vChild[i]->WriteToFile(f, "");
+				f.close();
+			}
+			else
+        LOG.Error("XML", inFilename + " not found");
+		}
+
+		void cNode::WriteToFile(std::ofstream& f, std::string sTab)
+		{
+			assert(f.is_open());
+			
+			int i, n;
+			if(IsNameAndAttributesAndChildren())
+			{
+				if(sName != "")
+				{
+					std::string sTag = sTab + "<" + sName;
+					iterator iter=mAttribute.begin();
+					for(;iter!=mAttribute.end();iter++)
+					{
+						if (iter->second.length() > 0)
+              sTag += " " + iter->first + "=\"" + iter->second + "\"";
+						else
+							sTag += " " + iter->first;
+					}
+
+					if(vChild.size() == 0)
+					{
+						f<<sTag<<"/>"<<std::endl;
+						return;
+					}
+					
+					f<<sTag<<">";
+					
+					if (!vChild[0]->IsContentOnly())
+						f<<std::endl;
+				}
+			}
+			else
+				f<<sContentOnly;
+
+			n = vChild.size();
+			for(i=0;i<n;i++)
+				vChild[i]->WriteToFile(f, sTab + "\t");
+
+			if (sName != "")
+			{
+				if(vChild.size() == 0 || (vChild.size() > 0 && !vChild[0]->IsContentOnly()))
+					f<<sTab<<"</"<<sName<<">"<<std::endl;
+				else
+					f<<"</"<<sName<<">"<<std::endl;
+			}
+		}
+
+#ifdef BUILD_DEBUG
+		void cNode::PrintToLog(std::string sTab)
+		{
+			int i, n;
+			if(IsNameAndAttributesAndChildren())
+			{
+				if(sName != "")
+				{
+					std::string sTag = sTab + "&lt;" + sName;
+					iterator iter=mAttribute.begin();
+					for(;iter!=mAttribute.end();iter++)
+						sTag += " " + iter->first + "=\"" + iter->second + "\"";
+
+					if(vChild.size()>0)
+						sTag+="&gt;";
+					else			
+						sTag+="/&gt;";
+					LOG.Success("XML", sTag.c_str());
+				}
+			}
+			else
+				LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
+
+			n=vChild.size();
+			for(i=0;i<n;i++)
+				vChild[i]->PrintToLog(sTab + "&nbsp;");
+
+			if(vChild.size()>0 && sName != "")
+				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
+		}
+#endif //BUILD_DEBUG
 
 		cNode* cNode::FirstChild()
 		{
@@ -321,8 +416,8 @@ namespace BREATHE
 			cNode* p=AddNode();
 
 			if(p) {
-				p->sContentOnly=inContent;
-				p->bContentOnly=true;
+				p->sContentOnly = STRING::CutTrailing(inContent, "\n\r\t");
+				p->bContentOnly = true;
 			}
 		}
 
@@ -330,40 +425,6 @@ namespace BREATHE
 		{
 			mAttribute[inAttribute]=inValue;
 		}
-
-		
-
-#ifdef BUILD_DEBUG
-		void cNode::PrintToLog(std::string sTab)
-		{
-			int i, n;
-			if(IsNameAndAttributesAndChildren())
-			{
-				if(sName != "")
-				{
-					std::string sTag = sTab + "&lt;" + sName;
-					iterator iter=mAttribute.begin();
-					for(;iter!=mAttribute.end();iter++)
-						sTag += " " + iter->first + "=\"" + iter->second + "\"";
-
-					if(vChild.size()>0)
-						sTag+="&gt;";
-					else			
-						sTag+="/&gt;";
-					LOG.Success("XML", sTag.c_str());
-				}
-			}
-			else
-				LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
-
-			n=vChild.size();
-			for(i=0;i<n;i++)
-				vChild[i]->PrintToLog(sTab + "&nbsp;");
-
-			if(vChild.size()>0 && sName != "")
-				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
-		}
-#endif //BUILD_DEBUG
 	
 		bool cNode::GetAttribute(std::string sAttribute, std::string* pValue)
 		{
@@ -399,7 +460,7 @@ namespace BREATHE
 			iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				char c;
+				BREATHE::unicode_char c;
 				std::stringstream stm(iter->second);
 				stm >> std::skipws;
 

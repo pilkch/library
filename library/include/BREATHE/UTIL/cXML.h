@@ -29,22 +29,14 @@ namespace BREATHE
 			cNode(std::string inFilename);
 			cNode(cNode *inParent);
 			~cNode();
-	
-#ifdef BUILD_DEBUG
-		void PrintToLog(std::string sTab="");
-#endif //BUILD_DEBUG
 
-			std::string sName;
-			std::map<std::string, std::string> mAttribute; // One of each attribute
-
-			std::string sContentOnly;
+			void SaveToFile(std::string inFilename);
 
 			bool IsNameAndAttributesAndChildren() { return !bContentOnly; }
 			bool IsContentOnly() { return bContentOnly; }
 
-
 			template <class T>
-				bool GetAttribute(std::string sAttribute, T* pValue)
+			bool GetAttribute(std::string sAttribute, T* pValue)
 			{
 				iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
@@ -70,21 +62,31 @@ namespace BREATHE
 			cNode* Next();
 			cNode* Next(std::string sName);
 
+
+			std::string sName;
+			std::map<std::string, std::string> mAttribute; // One of each attribute
+
 		protected:
+			cNode* AddNode();
+			void AddAttribute(std::string inAttribute, std::string inValue);
+			void AddContent(std::string inContent);
+
+#ifdef BUILD_DEBUG
+			void PrintToLog(std::string sTab="");
+#endif //BUILD_DEBUG
+
+
 			std::vector<cNode*> vChild;
 
 			cNode* pParent;
 			cNode* pNext;
 
 			bool bContentOnly;
-
-
-			cNode* AddNode();
-			void AddAttribute(std::string inAttribute, std::string inValue);
-			void AddContent(std::string inContent);
+			std::string sContentOnly;
 
 		private:
-			std::string Parse(std::string sData, cNode* pPrevious);
+			std::string ParseFromString(std::string sData, cNode* pPrevious);
+			void WriteToFile(std::ofstream& file, std::string sTab);
 		};
 	}
 }
