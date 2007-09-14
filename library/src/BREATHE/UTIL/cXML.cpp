@@ -294,7 +294,7 @@ namespace BREATHE
 				if(sName != "")
 				{
 					std::string sTag = sTab + "<" + sName;
-					iterator iter=mAttribute.begin();
+					attribute_iterator iter=mAttribute.begin();
 					for(;iter!=mAttribute.end();iter++)
 					{
 						if (iter->second.length() > 0)
@@ -340,7 +340,7 @@ namespace BREATHE
 				if(sName != "")
 				{
 					std::string sTag = sTab + "&lt;" + sName;
-					iterator iter=mAttribute.begin();
+					attribute_iterator iter=mAttribute.begin();
 					for(;iter!=mAttribute.end();iter++)
 						sTag += " " + iter->first + "=\"" + iter->second + "\"";
 
@@ -385,12 +385,12 @@ namespace BREATHE
 			return NULL;
 		}
 
-		cNode* cNode::Next()
+		cNode* cNode::GetNext()
 		{
 			return pNext;
 		}
 
-		cNode* cNode::Next(std::string sName)
+		cNode* cNode::GetNext(std::string sName)
 		{
 			cNode* p=pNext;
       while(p)
@@ -421,6 +421,11 @@ namespace BREATHE
 			}
 		}
 
+		std::string cNode::GetName()
+		{
+			return sName;
+		}
+
 		void cNode::AddAttribute(std::string inAttribute, std::string inValue)
 		{
 			mAttribute[inAttribute]=inValue;
@@ -429,8 +434,8 @@ namespace BREATHE
 		bool cNode::GetAttribute(std::string sAttribute, std::string* pValue)
 		{
 			assert(pValue);
-			iterator iter = mAttribute.find(sAttribute);
-			iterator iterEnd = mAttribute.end();
+			attribute_iterator iter = mAttribute.find(sAttribute);
+			attribute_iterator iterEnd = mAttribute.end();
 			if(iter != iterEnd)
 			{
 				*pValue = iter->second;
@@ -443,7 +448,7 @@ namespace BREATHE
 		bool cNode::GetAttribute(std::string sAttribute, bool* pValue)
 		{
 			assert(pValue);
-			iterator iter = mAttribute.find(sAttribute);
+			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
 				std::string v = iter->second;
@@ -457,7 +462,7 @@ namespace BREATHE
 		bool cNode::GetAttribute(std::string sAttribute, MATH::cVec3* pValue)
 		{
 			assert(pValue);
-			iterator iter = mAttribute.find(sAttribute);
+			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
 				BREATHE::unicode_char c;
@@ -480,7 +485,7 @@ namespace BREATHE
 		bool cNode::GetAttribute(std::string sAttribute, MATH::cColour* pValue)
 		{
 			assert(pValue);
-			iterator iter = mAttribute.find(sAttribute);
+			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
 				std::stringstream stm(iter->second);

@@ -15,8 +15,6 @@ namespace BREATHE
 
 	namespace XML
 	{
-		typedef std::map<std::string, std::string>::iterator iterator;
-
 		// Can be made up of either
 		// a) cNode with sName
 		// b) cNode with sName, vChild
@@ -25,6 +23,9 @@ namespace BREATHE
 		// e) cNode with sContentOnly, no mAttribute, no vChild
 		class cNode
 		{
+		private:
+			typedef std::map<std::string, std::string>::iterator attribute_iterator;
+
 		public:
 			cNode(std::string inFilename);
 			cNode(cNode *inParent);
@@ -35,10 +36,12 @@ namespace BREATHE
 			bool IsNameAndAttributesAndChildren() { return !bContentOnly; }
 			bool IsContentOnly() { return bContentOnly; }
 
+			std::string GetName();
+
 			template <class T>
 			bool GetAttribute(std::string sAttribute, T* pValue)
 			{
-				iterator iter = mAttribute.find(sAttribute);
+				attribute_iterator iter = mAttribute.find(sAttribute);
 				if(iter != mAttribute.end())
 				{
 					if(pValue)
@@ -57,16 +60,42 @@ namespace BREATHE
 			bool GetAttribute(std::string sAttribute, MATH::cVec3* pValue);
 			bool GetAttribute(std::string sAttribute, MATH::cColour* pValue);
 
+			class cIterator
+			{
+			public:
+				cIterator(const cIterator& rhs);
+				cIterator(const cNode& rhs);
+				cIterator& operator=(const cIterator& rhs);
+				cIterator& operator=(const cNode& rhs);
+
+				operator bool();
+
+				operator++(int);
+				void Next(std::string sName);
+				
+				void FirstChild();
+				void FindChild(std::string sName);
+
+				std::string GetName();
+
+				template <class T>
+				bool GetAttribute(std::string sAttribute, T* pValue);
+
+			private:
+				cNode* pNode;
+
+				cIterator();
+			};
+
+			typedef cIterator iterator;
+
+		private:
+			cNode* GetNext();
+			cNode* GetNext(std::string sName);
+			
 			cNode* FirstChild();
 			cNode* FindChild(std::string sName);
-			cNode* Next();
-			cNode* Next(std::string sName);
 
-
-			std::string sName;
-			std::map<std::string, std::string> mAttribute; // One of each attribute
-
-		protected:
 			cNode* AddNode();
 			void AddAttribute(std::string inAttribute, std::string inValue);
 			void AddContent(std::string inContent);
@@ -81,13 +110,83 @@ namespace BREATHE
 			cNode* pParent;
 			cNode* pNext;
 
+			std::string sName;
+			std::map<std::string, std::string> mAttribute; // One of each attribute
+
 			bool bContentOnly;
 			std::string sContentOnly;
 
-		private:
 			std::string ParseFromString(std::string sData, cNode* pPrevious);
 			void WriteToFile(std::ofstream& file, std::string sTab);
 		};
+
+
+		// *** Inlines
+		
+		inline cNode::cIterator::cIterator(const cIterator& rhs) :
+			pNode(rhs.pNode)
+		{
+		}
+
+		inline cNode::cIterator::cIterator(const cNode& rhs) :
+			pNode(&const_cast<cNode&>(rhs))
+		{
+		}
+
+		inline cNode::cIterator& cNode::cIterator::operator=(const cIterator& rhs)
+		{
+			pNode = rhs.pNode;
+			return *this;
+		}
+
+		inline cNode::cIterator& cNode::cIterator::operator=(const cNode& rhs)
+		{
+			pNode = &const_cast<cNode&>(rhs);
+			return *this;
+		}
+
+		inline cNode::cIterator::operator bool()
+		{
+			return pNode != NULL;
+		}
+
+		inline cNode::cIterator::operator++(int)
+		{
+			assert(pNode != NULL);
+			pNode = pNode->GetNext();
+			return *this;
+		}
+
+		inline void cNode::cIterator::Next(std::string sName)
+		{
+			assert(pNode != NULL);
+			pNode = pNode->GetNext(sName);
+		}
+
+		inline void cNode::cIterator::FirstChild()
+		{
+			assert(pNode != NULL);
+			pNode = pNode->FirstChild();
+		}
+		
+		inline void cNode::cIterator::FindChild(std::string sName)
+		{
+			assert(pNode != NULL);
+			pNode = pNode->FindChild(sName);
+		}
+
+		inline std::string cNode::cIterator::GetName()
+		{
+			assert(pNode != NULL);
+			return pNode->GetName();
+		}
+
+		template <class T>
+		inline bool cNode::cIterator::GetAttribute(std::string sAttribute, T* pValue)
+		{
+			assert(pNode != NULL);
+			return pNode->GetAttribute(sAttribute, pValue);
+		}
 	}
 }
 
