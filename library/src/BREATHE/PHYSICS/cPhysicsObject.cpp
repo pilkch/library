@@ -290,7 +290,7 @@ namespace BREATHE
 			/*
       vertices_ = new D3DXVECTOR3[ vcount ];
       for( size_t i = 0; i < vcount; ++i ) {
-        vertices_[i] = *(D3DXVECTOR3 const *)((char *)verts + vstride * i);
+        vertices_[i] = *(D3DXVECTOR3 const *)((int8_t *)verts + vstride * i);
       }
       indices_ = new int[ icount ];
       for( size_t i = 0; i < icount; ++i ) {

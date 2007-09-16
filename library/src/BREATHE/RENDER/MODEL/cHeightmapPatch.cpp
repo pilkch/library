@@ -222,10 +222,11 @@ namespace BREATHE
 			// ---------------------------------------------------------------------
 			// Computes Variance over the entire tree.  Does not examine node relationships.
 			//
-			unsigned char cHeightmapPatch::RecursComputeVariance( int leftX,  int leftY,  unsigned char leftZ,
-															int rightX, int rightY, unsigned char rightZ,
-														int apexX,  int apexY,  unsigned char apexZ,
-														int node)
+			unsigned char cHeightmapPatch::RecursComputeVariance( 
+				int leftX,  int leftY,  uin8_t leftZ,
+				int rightX, int rightY, uin8_t rightZ,
+				int apexX,  int apexY,  uint8_t apexZ,
+				int node)
 			{
 				//        /|\
 				//      /  |  \

@@ -57,9 +57,9 @@ namespace BREATHE
 				~cMaterial();
 
 				//Rendering
-				char chDustR;
-				char chDustG; 
-				char chDustB;
+				uint8_t chDustR;
+				uint8_t chDustG; 
+				uint8_t chDustB;
 
 				std::vector<cLayer *>vLayer; 
 				//0=Diffuse

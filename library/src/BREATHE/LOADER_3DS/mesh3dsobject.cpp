@@ -48,7 +48,7 @@ namespace BREATHE
 					default:
 						std::ostringstream t;
 						t<<"error : unknown chunk " << std::hex << cc.ID();
-						LOG.Error("c3ds", (char*)t.str().c_str());
+						LOG.Error("c3ds", t.str());
 					break;
 				}
 			}

@@ -124,6 +124,10 @@ namespace BREATHE
 		cLevel();
 		~cLevel();
 
+	private:
+		bool LoadXML(std::string sNewFilename);
+
+	public:
 		bool Load(std::string sNewFilename);
 		void LoadNode(std::string sNewFilename);
 		void LoadCubemap(std::string sFilename);

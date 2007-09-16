@@ -21,7 +21,7 @@ namespace BREATHE
 
 
 
-		bool IsWhiteSpace(char c);
+		bool IsWhiteSpace(BREATHE::unicode_char c);
 		
 		std::string Replace(std::string sSource, std::string f, std::string r);
 		std::string CutLeading(std::string sSource, std::string f);

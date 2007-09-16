@@ -33,6 +33,10 @@ namespace BREATHE
 
 			void SaveToFile(std::string inFilename);
 
+#ifdef BUILD_DEBUG
+			void PrintToLog(std::string sTab="");
+#endif //BUILD_DEBUG
+
 			bool IsNameAndAttributesAndChildren() { return !bContentOnly; }
 			bool IsContentOnly() { return bContentOnly; }
 
@@ -99,10 +103,6 @@ namespace BREATHE
 			cNode* AddNode();
 			void AddAttribute(std::string inAttribute, std::string inValue);
 			void AddContent(std::string inContent);
-
-#ifdef BUILD_DEBUG
-			void PrintToLog(std::string sTab="");
-#endif //BUILD_DEBUG
 
 
 			std::vector<cNode*> vChild;

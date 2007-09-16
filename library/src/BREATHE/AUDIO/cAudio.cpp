@@ -322,6 +322,18 @@ namespace BREATHE
 			return (AL_PLAYING == value);
 		}
 
+		void cAudioSource::TransformTo2DSource()
+		{
+			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
+			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 0.0);
+		}
+
+		void cAudioSource::TransformTo3DSource()
+		{
+			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
+			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 1.0);
+		}
+
 	/*
 
 

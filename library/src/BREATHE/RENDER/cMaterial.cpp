@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
+#include <cassert>
 
 // writing on a text file
 #include <iostream>
@@ -295,14 +296,17 @@ namespace BREATHE
 				std::string sPath=BREATHE::FILESYSTEM::GetPath(sFilename);
 				
 				XML::cNode root(sFilename);
-				XML::cNode* p=root.FindChild("material");
+				XML::cNode::iterator iter(root);
+				
+				if (!iter) return BREATHE::BAD;
 
 				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
 				//	<layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
 				//	<layer sTexture="concrete_normalmap.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
 				//</material>
 
-				if(NULL == p)
+				iter.FindChild("material");
+				if(!iter)
 				{
 					LOG.Error("Material", std::string("Not Found ") + sFilename);
 					for(unsigned int i=0;i<nLayers;i++)
@@ -311,16 +315,15 @@ namespace BREATHE
 					return BREATHE::BAD;
 				}
 				
-				
-				p->GetAttribute("collide", &bCollideTrimesh);
+				iter.GetAttribute("collide", &bCollideTrimesh);
 					
 				std::string sValue;
-				if(p->GetAttribute("sShaderVertex", &sValue))
+				if(iter.GetAttribute("sShaderVertex", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
 					pShader->sShaderVertex=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
 				}
-				if(p->GetAttribute("sShaderFragment", &sValue))
+				if(iter.GetAttribute("sShaderFragment", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
 					pShader->sShaderFragment=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
@@ -328,33 +331,33 @@ namespace BREATHE
 
 				if(pShader)
 				{
-					p->GetAttribute("cameraPos", &pShader->bCameraPos);
+					iter.GetAttribute("cameraPos", &pShader->bCameraPos);
 					
-					p->GetAttribute("texUnit0", &pShader->bTexUnit0);
-					p->GetAttribute("texUnit1", &pShader->bTexUnit1);
-					p->GetAttribute("texUnit2", &pShader->bTexUnit2);
-					p->GetAttribute("texUnit3", &pShader->bTexUnit3);
+					iter.GetAttribute("texUnit0", &pShader->bTexUnit0);
+					iter.GetAttribute("texUnit1", &pShader->bTexUnit1);
+					iter.GetAttribute("texUnit2", &pShader->bTexUnit2);
+					iter.GetAttribute("texUnit3", &pShader->bTexUnit3);
 
 					pShader->Init();
 				}
 
 
-				p=p->FirstChild();
+				iter.FirstChild();
 				
 				cLayer* pLayer = NULL;
 				unsigned int n = vLayer.size();
 				unsigned int i = 0;
-				while(p && i < nLayers)
+				while(iter && i < nLayers)
 				{
 					pLayer = vLayer[i];
-					if("layer" == p->sName)
+					if("layer" == iter.GetName())
 					{
 						std::string sTexture;
-						if(p->GetAttribute("sTexture", &sTexture))
+						if(iter.GetAttribute("sTexture", &sTexture))
 							pLayer->sTexture = BREATHE::FILESYSTEM::FindFile(sPath + sTexture);
 
 						std::string sValue;
-						if(p->GetAttribute("uiTextureMode", &sValue))
+						if(iter.GetAttribute("uiTextureMode", &sValue))
 						{
 							if(sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
 							else if(sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
@@ -365,7 +368,7 @@ namespace BREATHE
 						}
 
 						unsigned int uiTextureAtlas = ATLAS_NONE;
-						if(p->GetAttribute("uiTextureAtlas", &sValue))
+						if(iter.GetAttribute("uiTextureAtlas", &sValue))
 						{
 							if(sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
 							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
@@ -395,7 +398,7 @@ namespace BREATHE
 					}
 
 					i++;
-					p = p->Next();
+					iter++;
 				}
 
 				LOG.Success("Material", std::string("Loaded ") + sFilename);

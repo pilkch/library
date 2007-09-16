@@ -33,11 +33,11 @@
 #endif
 
 // Platform
-#if defined(WIN32) || defined(_MSC_VER) || defined(_BORLANDC_)
+#if defined(WIN32) || defined(_MSC_VER) || defined(_BORLANDC_) || defined(__WIN__)
 #define PLATFORM_WINDOWS
-#elif defined(__LINUX__)
+#elif defined(__LINUX__) || defined(__linux__)
 #define PLATFORM_LINUX
-#elif defined(__MACOSX__)
+#elif defined(__APPLE__) || defined(MACOSX) || defined (__MACOSX__)
 #define PLATFORM_MAC
 #else
 !!! We don't support this platform yet
@@ -69,6 +69,12 @@
 
 namespace BREATHE
 {
+#ifdef BUILD_UNICODE
+	typedef wchar_t unicode_char;
+#else
+	typedef char unicode_char;
+#endif
+
 	// Constants
 	const bool BAD=false;
 	const bool GOOD=true;

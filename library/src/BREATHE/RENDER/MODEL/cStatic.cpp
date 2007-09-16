@@ -218,7 +218,7 @@ namespace BREATHE
 					unsigned int face=0;
 					unsigned int mesh=0;
 
-					LOADER_3DS::Mesh3DSFace f;		    
+					LOADER_3DS::Mesh3DSFace f;
 					
 					std::string sMaterial;
 				
@@ -233,8 +233,10 @@ namespace BREATHE
 					//vMaterial[uiCurrentMesh];
 					pCurrentMesh->sMaterial=BREATHE::FILESYSTEM::FindFile(BREATHE::FILESYSTEM::GetPath(sFilename) + pMesh->sMaterial);
 
-					char *c=const_cast<char *>(pCurrentMesh->sMaterial.c_str());
-					pCurrentMesh->sMaterial=c;
+					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
+					// try it, comment these lines out, it breaks.  I don't know why :(
+					BREATHE::unicode_char* c = (BREATHE::unicode_char*)(pCurrentMesh->sMaterial.c_str());
+					pCurrentMesh->sMaterial = c;
 
 					for(face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
 					{

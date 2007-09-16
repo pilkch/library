@@ -91,10 +91,9 @@ namespace BREATHE
 	{
 	}
 
-	bool cLevel::Load(std::string sNewFilename)
+	bool cLevel::LoadXML(std::string sNewFilename)
 	{
 		sFilename=sNewFilename;
-		
 		bool bNodes=false;
 
 		cLevelSpawn *pSpawn;
@@ -103,59 +102,70 @@ namespace BREATHE
 			LOG.Success("Level", "cLevelNode::Load " + sNewFilename);
 			BREATHE::XML::cNode root(sNewFilename);
 
-			BREATHE::XML::cNode* p=root.FindChild("level");
-
-			if(p)
+			BREATHE::XML::cNode::iterator iter(root);
+			if (!iter) return BREATHE::BAD;
+			
+			iter.FindChild("level");
+			if(iter)
 			{
-				p->GetAttribute("fWaterLevel", &fWaterLevel);
+				iter.GetAttribute("fWaterLevel", &fWaterLevel);
 
-				p=p->FirstChild();
+				iter.FirstChild();
 
-				while(p)
+				while(iter)
 				{
-					if("nodes" == p->sName)
+					if("nodes" == iter.GetName())
 					{
-						p->GetAttribute("fWidth", &fNodeWidth);
-						p->GetAttribute("uiWidth", &uiNodeWidth);
-						p->GetAttribute("uiHeight", &uiNodeHeight);
-						p->GetAttribute("uiHeightMapPixelWidth", &uiNodeHeightMapPixelWidth);
-						p->GetAttribute("uiHeightMapPixelHeight", &uiNodeHeightMapPixelHeight);
+						iter.GetAttribute("fWidth", &fNodeWidth);
+						iter.GetAttribute("uiWidth", &uiNodeWidth);
+						iter.GetAttribute("uiHeight", &uiNodeHeight);
+						iter.GetAttribute("uiHeightMapPixelWidth", &uiNodeHeightMapPixelWidth);
+						iter.GetAttribute("uiHeightMapPixelHeight", &uiNodeHeightMapPixelHeight);
 
-						BREATHE::XML::cNode *pParent=p;
-							p=p->FindChild("node");
-							while(p)
+						BREATHE::XML::cNode::iterator iterParent = iter;
+							iter.FindChild("node");
+							while(iter)
 							{
 								std::string sPath;
-								if(p->GetAttribute("path", &sPath))
+								if(iter.GetAttribute("path", &sPath))
 									LoadNode(sPath);
 
-								p=p->Next("node");
+								iter.Next("node");
 							};
-						p=pParent;
+						iter = iterParent;
 					}
-					else if("spawns" == p->sName)
+					else if("spawns" == iter.GetName())
 					{
-						BREATHE::XML::cNode *pParent=p;
-							p=p->FindChild("spawn");
-							while(p)
+						BREATHE::XML::cNode::iterator iterParent = iter;
+							iter.FindChild("spawn");
+							while(iter)
 							{
 								pSpawn = new cLevelSpawn();
 								vSpawn.push_back(pSpawn);
 	
-								p->GetAttribute("position", &pSpawn->v3Position);
-								p->GetAttribute("rotation", &pSpawn->v3Rotation);
+								iter.GetAttribute("position", &pSpawn->v3Position);
+								iter.GetAttribute("rotation", &pSpawn->v3Rotation);
 
-								p=p->Next("spawn");
+								iter.Next("spawn");
 							};
-						p=pParent;
+						iter = iterParent;
 					}
 
-					p=p->Next();
+					iter++;
 				};
 
 			}
 		}
 
+		return BREATHE::GOOD;
+	}
+
+	bool cLevel::Load(std::string sNewFilename)
+	{
+		bool bResult = BREATHE::GOOD;
+
+		if (LoadXML(sNewFilename) != BREATHE::GOOD) bResult = BREATHE::BAD;
+      
 
 		// We don't have any spawns yet, add a default one
 		if(0==vSpawn.size()) {
@@ -166,20 +176,21 @@ namespace BREATHE
 			vSpawn.push_back(p);
 		}
 
-
 		unsigned int i=0;
 		unsigned int n=vCubemap.size();
 
-		if(0==n) {
+		if(0 == n)
+		{
 			LOG.Error("Level", "No cubemaps defined");
-			return BREATHE::BAD;
+			bResult = BREATHE::BAD;
+		}
+		else
+		{
+			for(i=0;i<n;i++)
+				pRender->AddCubeMap(vCubemap[i]->sFilename);
 		}
 
-		for(i=0;i<n;i++)
-			pRender->AddCubeMap(vCubemap[i]->sFilename);
-
-
-		return BREATHE::GOOD;
+		return bResult;
 	}
 
 	void cLevel::LoadNode(std::string sNewFilename)
@@ -572,30 +583,32 @@ namespace BREATHE
 
 		XML::cNode root(sFilename + "node.xml");
 
-		XML::cNode* p=root.FindChild("node");
-
-		if(p)
+		XML::cNode::iterator iter(root);
+		if (!iter) return;
+			
+		iter.FindChild("node");
+		if(iter)
 		{
-			p->GetAttribute("crc", &sCRC);
-			p->GetAttribute("name", &sName);
+			iter.GetAttribute("crc", &sCRC);
+			iter.GetAttribute("name", &sName);
 		}
 
-		p=p->FirstChild();
-		while(p)
+		iter.FirstChild();
+		while(iter)
 		{
-			if("fog" == p->sName)
+			if("fog" == iter.GetName())
 			{
-        p->GetAttribute("colour", &colourFog);
-				p->GetAttribute("distance", &fFogDistance);
+        iter.GetAttribute("colour", &colourFog);
+				iter.GetAttribute("distance", &fFogDistance);
 			}
-			else if("models" == p->sName)
+			else if("models" == iter.GetName())
 			{
-				BREATHE::XML::cNode *pParent=p;
-					p=p->FindChild("model");
-					while(p)
+				BREATHE::XML::cNode::iterator iterParent = iter;
+					iter.FindChild("model");
+					while(iter)
 					{
 						std::string sPath;
-						if(p->GetAttribute("path", &sPath))
+						if(iter.GetAttribute("path", &sPath))
 						{
 							cLevelModel* pModel = new cLevelModel();
 							vModel.push_back(pModel);
@@ -603,35 +616,35 @@ namespace BREATHE
 							// Pre load the mesh for this model
 							pModel->pModel = pRender->AddModel(sPath + "/mesh.3ds");
 
-							p->GetAttribute("position", &pModel->p);
+							iter.GetAttribute("position", &pModel->p);
 
 							MATH::cVec3 v;
-							if(p->GetAttribute("position", &v))
+							if(iter.GetAttribute("position", &v))
                 pModel->m.SetTranslation(v);
 						}
 
-						p=p->Next("model");
+						iter.Next("model");
 					};
-				p=pParent;
+				iter = iterParent;
 			}
-			else if("cubemaps" == p->sName)
+			else if("cubemaps" == iter.GetName())
 			{
-				BREATHE::XML::cNode *pParent=p;
-					p=p->FindChild("cubemap");
-					while(p)
+				BREATHE::XML::cNode::iterator iterParent = iter;
+					iter.FindChild("cubemap");
+					while(iter)
 					{
 						std::string sPath;
-						if(p->GetAttribute("texture", &sPath))
+						if(iter.GetAttribute("texture", &sPath))
 							pLevel->LoadCubemap(sPath);
 
 						//TODO: position="10.0, 10.0, 0.0"
 
-						p=p->Next("cubemap");
+						iter.Next("cubemap");
 					};
-				p=pParent;
+				iter = iterParent;
 			}
 
-			p=p->Next();
+			iter++;
 		};
 
 		LOG.Success("LevelNode", "Load returning");

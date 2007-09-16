@@ -9,7 +9,7 @@ namespace BREATHE
 {
 	namespace STRING
 	{
-		bool IsWhiteSpace(char c)
+		bool IsWhiteSpace(BREATHE::unicode_char c)
 		{
 			// We regard space, tab, new line and carriage return characters as white space
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');

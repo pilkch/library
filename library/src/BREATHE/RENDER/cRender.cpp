@@ -38,6 +38,8 @@
 
 #include <BREATHE/UTIL/cBase.h>
 
+#include <BREATHE/UTIL/cVar.h>
+
 #include <BREATHE/RENDER/cTexture.h>
 #include <BREATHE/RENDER/cTextureAtlas.h>
 #include <BREATHE/RENDER/cMaterial.h>
@@ -50,7 +52,7 @@
 
 #include <BREATHE/GAME/cLevel.h>
 
-const float fDetailScale = 0.5f;
+BREATHE::cVar<float> fDetailScale = 0.5f;
 
 BREATHE::RENDER::cRender* pRender = NULL;
 
@@ -133,7 +135,7 @@ namespace BREATHE
 		bool cRender::FindExtension(std::string sExt)
 		{
 			std::ostringstream t;
-			t<<static_cast<const unsigned char *>(glGetString( GL_EXTENSIONS ));
+			t<<const_cast<const unsigned char*>(glGetString( GL_EXTENSIONS ));
 
 			return (t.str().find(sExt) != std::string::npos);
 		}
@@ -179,17 +181,39 @@ namespace BREATHE
 			}
 		}
 
+		void cRender::SetPerspective()
+		{
+			// Protect against a divide by zero 
+			assert(pRender->uiHeight != 0);
+
+			// Height / width ratio
+			GLfloat ratio = (GLfloat)pRender->uiWidth / (GLfloat)pRender->uiHeight;
+
+			// Setup our viewport
+			glViewport(0, 0, ( GLint )pRender->uiWidth, ( GLint )pRender->uiHeight);
+
+			// change to the projection matrix and set our viewing volume
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+
+			// Set our perspective
+			gluPerspective(45.0f, ratio, 0.1f, 1000.0f);
+
+			// Make sure we're changing the model view and not the projection
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+		}
+
 		bool cRender::Init()
 		{
-
 			std::ostringstream t;
 			t << "Screen BPP: ";
 			t << (unsigned int)(pSurface->format->BitsPerPixel);
 			LOG.Success("Render", t.str());
-			LOG.Success("Render", std::string("Vendor     : ") + (char *)glGetString( GL_VENDOR ));
-			LOG.Success("Render", std::string("Renderer   : ") + (char *)glGetString( GL_RENDERER ));
-			LOG.Success("Render", std::string("Version    : ") + (char *)glGetString( GL_VERSION ));
-			LOG.Success("Render", std::string("Extensions : ") + (char *)glGetString( GL_EXTENSIONS ));
+			LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
+			LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
+			LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
+			LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
 	
 
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
@@ -269,7 +293,7 @@ namespace BREATHE
 			glClearColor(1.0f, 0.0f, 1.0f, 0.0f);				// Clear The Background Color To Black
 			glClearDepth(1.0);									// Enables Clearing Of The Depth Buffer
 			glEnable(GL_DEPTH_TEST);							// Enable Depth Testing
-			glDepthFunc( GL_LEQUAL );
+			glDepthFunc(GL_LEQUAL);
 
 			glCullFace( GL_BACK );
 			glFrontFace( GL_CCW );
@@ -1297,13 +1321,11 @@ namespace BREATHE
 			{
 				layerNew = pMaterial->vLayer[i];
 
-				if(	TEXTURE_NONE==layerNew->uiTextureMode || 
-						(TEXTURE_CUBEMAP==layerNew->uiTextureMode && !bCubemap))
-						n = i;
+				if(	TEXTURE_NONE==layerNew->uiTextureMode || (TEXTURE_CUBEMAP==layerNew->uiTextureMode && !bCubemap))
+					n = i;
 
-				//if((TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_CUBEMAP!=layerNew->uiTextureMode) ||
-				//	(TEXTURE_CUBEMAP==layerNew->uiTextureMode && bCubemap))
-				//		n = i;
+				//if((TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_CUBEMAP!=layerNew->uiTextureMode) || (TEXTURE_CUBEMAP==layerNew->uiTextureMode && bCubemap))
+				//	n = i;
 			}
 
 			//if(0 == n)
@@ -1400,7 +1422,7 @@ namespace BREATHE
 						// Change the texture matrix so that we have more detail than normal texture
 						glMatrixMode(GL_TEXTURE);
 							glLoadIdentity();
-							glScalef(fDetailScale, fDetailScale, 1);
+							glScalef(fDetailScale.GetFloat(), fDetailScale.GetFloat(), 1);
 							glMatrixMode(GL_MODELVIEW);
 
 							// General Switches
@@ -1752,7 +1774,7 @@ namespace BREATHE
 
 						// Reset the current matrix and apply our chosen scale value
 						glLoadIdentity();
-						glScalef(fDetailScale, fDetailScale, 1);
+						glScalef(fDetailScale.GetFloat(), fDetailScale.GetFloat(), 1);
 
 						// Leave the texture matrix and set us back in the model view matrix
 						glMatrixMode(GL_MODELVIEW);
@@ -1879,7 +1901,7 @@ namespace BREATHE
 			{
 				pFrameBuffer1 = new cTextureFrameBufferObject();
 				pFrameBuffer1->Create();
-			}			
+			}
 
 			return pMaterial;
 		}
@@ -2092,7 +2114,7 @@ namespace BREATHE
 
 							//x[i] > x[i+1]
 							if(TEXTURE_MASK==uiMode0 || TEXTURE_BLEND==uiMode0)
-								std::swap<MODEL::cMesh*>(s->vMesh[i], s->vMesh[i+1]);
+								std::swap(s->vMesh[i], s->vMesh[i+1]);
 						}
 					}
 				}

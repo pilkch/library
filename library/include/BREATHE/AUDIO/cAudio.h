@@ -5,7 +5,7 @@ namespace BREATHE
 {
 	namespace AUDIO
 	{
-		#define AUDIO_MAX_BUFFERS 32
+		#define AUDIO_MAX_BUFFERS 16
 
 		// Forward declaration
 		class cAudioSource;
@@ -57,6 +57,9 @@ namespace BREATHE
 
 			bool IsValid();
 			bool IsPlaying();
+
+			void TransformTo2DSource();
+			void TransformTo3DSource();
 
 		private:
 			unsigned int uiSource;

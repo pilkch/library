@@ -462,8 +462,8 @@ namespace BREATHE
 
 /*
 Load a .t3d file from unreal tournament 1
-bool test(char *fileName, Set <class Polygon *> &polygons, TextureTable &textureTable){
-	char str[256];
+bool test(std::string fileName, Set <class Polygon *> &polygons, TextureTable &textureTable){
+	std::string str;
 	Stack <STATE> states;
 	STATE state = NONE;
 	int i,len;

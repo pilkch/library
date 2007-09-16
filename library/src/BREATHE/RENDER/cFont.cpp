@@ -171,7 +171,7 @@ namespace BREATHE
 
 
 
-		cFont::cFont(const char * fname, unsigned int h)
+		cFont::cFont(const BREATHE::unicode_char * fname, unsigned int h)
 		{
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];
@@ -275,7 +275,7 @@ namespace BREATHE
 				lines.push_back(line);
 			}
 
-			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT);	
+			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT);
 			glMatrixMode(GL_MODELVIEW);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_TEXTURE_2D);
@@ -315,6 +315,9 @@ namespace BREATHE
 
 				glPopMatrix();
 			}
+
+			
+			glEnable(GL_DEPTH_TEST);
 
 
 			glPopAttrib();

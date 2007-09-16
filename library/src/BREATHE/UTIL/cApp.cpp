@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 
 // writing on a text file
 #include <iostream>
@@ -150,26 +151,41 @@ namespace BREATHE
 	{
 		{
 			LOG.Success("Init", "Loading config.xml");
-			BREATHE::XML::cNode pRoot("config.xml");
+			BREATHE::XML::cNode root("config.xml");
 
-			pRoot = *(pRoot.FindChild("config"));
+			BREATHE::XML::cNode::iterator iter(root);
+			if (!iter)
+			{
+				bReturnCode=BREATHE::BAD;
+				return BREATHE::BAD;
+			}
 
-			BREATHE::XML::cNode* p = pRoot.FindChild("directory");
-			while(p)
+			iter.FindChild("config");
+			if (!iter) return BREATHE::GOOD;
+
+			iter.FindChild("directory");
+			if (!iter) return BREATHE::GOOD;
+
+			while(iter)
 			{
 				std::string sDirectory;
-				if(p->GetAttribute("path", &sDirectory))
-					BREATHE::FILESYSTEM::AddDirectory(sDirectory);
+				if(iter.GetAttribute("path", &sDirectory)) BREATHE::FILESYSTEM::AddDirectory(sDirectory);
 
-				p=p->Next("directory");
+				iter.Next("directory");
 			};
 
-			p = pRoot.FindChild("render");
-			while(p)
+			iter = root;
+			if (!iter) return BREATHE::GOOD;
+
+			iter.FindChild("config");
+			if (!iter) return BREATHE::GOOD;
+
+			iter.FindChild("render");
+			while(iter)
 			{
 				std::ostringstream t;
 				unsigned int uiValue;
-				if(p->GetAttribute("width", &uiValue))
+				if(iter.GetAttribute("width", &uiValue))
 				{
 					t.str("");
 					t<<"width = ";
@@ -177,7 +193,7 @@ namespace BREATHE
 					LOG.Success("Config", t.str());
 					pRender->uiWidth = uiValue;
 				}
-				if(p->GetAttribute("height", &uiValue))
+				if(iter.GetAttribute("height", &uiValue))
 				{
 					t.str("");
 					t<<"height = ";
@@ -185,7 +201,7 @@ namespace BREATHE
 					LOG.Success("Config", t.str());
 					pRender->uiHeight = uiValue;
 				}
-				if(p->GetAttribute("depth", &uiValue))
+				if(iter.GetAttribute("depth", &uiValue))
 				{
 					t.str("");
 					t<<"depth = ";
@@ -195,13 +211,13 @@ namespace BREATHE
 				}
 
 				bool bFullscreen;
-				if(p->GetAttribute("fullscreen", &bFullscreen))
+				if(iter.GetAttribute("fullscreen", &bFullscreen))
 				{
 					LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
 					pRender->bFullscreen = bFullscreen;
 				}
 
-				p=p->Next("render");
+				iter.Next("render");
 			};
 		}
 
@@ -334,7 +350,7 @@ namespace BREATHE
 
 		std::string s = ("app.ico");
 		LOG.Success("SDL", "Setting caption to " + s);
-		SDL_WM_SetCaption(sTitle.c_str(), s.c_str());
+		SDL_WM_SetCaption(title.c_str(), s.c_str());
 
 		if(BREATHE::BAD==InitRender())
 			return BREATHE::BAD;
@@ -459,9 +475,9 @@ namespace BREATHE
 		return BREATHE::GOOD;		
 	}
 
-	cVar *cApp::VarFind(std::string name)
+	cVar<std::string>* cApp::VarFind(std::string name)
 	{
-		std::map<std::string, cVar * >::iterator iter=mVar.begin();
+		std::map<std::string, cVar<std::string>*>::iterator iter=mVar.begin();
 
 		std::string s;
 		while(iter!=mVar.end())
@@ -474,96 +490,10 @@ namespace BREATHE
 
 		return NULL;
 	}
-	
-	void cApp::VarSet(std::string name, std::string value)
-	{
-		std::map<std::string, cVar * >::iterator iter=mVar.begin();
-
-		std::string s;
-		while(iter!=mVar.end())
-		{
-			if(name==iter->first)
-			{
-				*(iter->second)=value;
-				return;
-			}
-
-			iter++;
-		};
-
-		mVar[name]=new cVar(value);
-	}
-
-
-	cAppKey::cAppKey(unsigned int code, bool repeat)
-	{
-		uiCode=code;
-		bRepeat=repeat;
-		bDown=false;
-		bCollected=false;
-	}
-
-	bool cAppKey::IsKeyDown()
-	{
-		if(bDown)
-		{
-			if(bRepeat)
-			{
-				bCollected=true;
-				return true;
-			}
-			else if(!bCollected)
-			{
-				bCollected=true;
-				return true;
-			}
-
-      bDown=false;
-			bCollected=true;
-		}
-
-		return false;
-	}
-	
-	void cAppKey::SetKeyUp(bool bConsole)
-	{
-		if(bRepeat)
-		{
-			bDown=false;
-			bCollected=false;
-		}
-		else if(!bConsole)
-		{
-			bDown=true;
-			bCollected=false;
-		}
-	}
 
 	bool cApp::SetPerspective()
 	{
-		// Height / width ration
-		GLfloat ratio;
-
-		// Protect against a divide by zero 
-		if ( pRender->uiHeight == 0 )
-			pRender->uiHeight = 1;
-
-		ratio = ( GLfloat )pRender->uiWidth / ( GLfloat )pRender->uiHeight;
-
-		// Setup our viewport. 
-		glViewport( 0, 0, ( GLint )pRender->uiWidth, ( GLint )pRender->uiHeight );
-
-		// change to the projection matrix and set our viewing volume. 
-		glMatrixMode( GL_PROJECTION );
-		glLoadIdentity( );
-
-		// Set our perspective 
-		gluPerspective( 45.0f, ratio, 0.1f, 1000.0f );
-
-		// Make sure we're changing the model view and not the projection 
-		glMatrixMode(GL_MODELVIEW);
-
-		glLoadIdentity();
+		pRender->SetPerspective();
 
 		return BREATHE::GOOD;
 	}
@@ -624,16 +554,24 @@ namespace BREATHE
 		}
 	}
 
-	void cApp::AddKey(unsigned int code, bool repeat)
+	void cApp::AddKeyRepeat(unsigned int code)
 	{
-		cAppKey *p=new cAppKey(code, repeat);
+		mKey[code] = new cKey(code, true, true, false);
+	}
 
-		mKey[code]=p;
+	void cApp::AddKeyNoRepeat(unsigned int code)
+	{
+		mKey[code] = new cKey(code, false, false, false);
+	}
+
+	void cApp::AddKeyToggle(unsigned int code)
+	{
+		mKey[code] = new cKey(code, false, false, true);
 	}
 
 	bool cApp::IsKeyDown(unsigned int code)
 	{
-		std::map<unsigned int, cAppKey * >::iterator iter=mKey.find(code);
+		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 		
 		if(iter!=mKey.end())
 			return iter->second->IsKeyDown();
@@ -646,12 +584,12 @@ namespace BREATHE
 		{
 			Uint8 *key = SDL_GetKeyState( NULL );
 
-			cAppKey *p;
-			std::map<unsigned int, cAppKey * >::iterator iter=mKey.begin();
+			cKey* p;
+			std::map<unsigned int, cKey* >::iterator iter=mKey.begin();
 			
-			while(iter!=mKey.end())
+			while(iter != mKey.end())
 			{
-				p=(iter->second);
+				p = (iter->second);
 
 				//This key is pressed
 				if(key[p->uiCode])
@@ -676,11 +614,12 @@ namespace BREATHE
 			}
 		}
 	}
+
 	void cApp::OnKeyUp(SDL_keysym *keysym)
 	{
 		unsigned int code=keysym->sym;
 
-		std::map<unsigned int, cAppKey * >::iterator iter=mKey.find(code);
+		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 		
 		if(iter!=mKey.end())
 			iter->second->SetKeyUp(bConsole);
@@ -780,7 +719,7 @@ namespace BREATHE
 			}*/
 
 			std::string s;
-			s+=static_cast<unsigned char>(uiCode);
+			s += static_cast<BREATHE::unicode_char>(uiCode);
 			CONSOLE.sLine.insert(CONSOLE.uiCursorPosition, s);
 			CONSOLE.uiCursorPosition++;
 		}
@@ -790,7 +729,7 @@ namespace BREATHE
 	}
 	
 	//This is for executing one single line, cannot have ";"
-	void cApp::ConsoleExecuteSingleCommand(std::string s)
+	void cApp::_ConsoleExecuteSingleCommand(std::string s)
 	{
 		CONSOLE<<s;
 
@@ -829,11 +768,11 @@ namespace BREATHE
 				bDone=true;
 			else if("var"==args[0])
 			{
-				std::map<std::string, cVar * >::iterator iter=mVar.begin();
+				std::map<std::string, cVar<std::string>* >::iterator iter=mVar.begin();
 
 				while(iter!=mVar.end())
 				{
-					CONSOLE<<iter->first + " \"" + std::string(*(iter->second)) + "\"";
+					CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\"";
 
 					iter++;
 				};
@@ -888,7 +827,7 @@ namespace BREATHE
 				}
 
 				if(line.length())
-          ConsoleExecuteSingleCommand(line);	
+					_ConsoleExecuteSingleCommand(line);	
 			};
 		}
 	}
@@ -992,5 +931,56 @@ namespace BREATHE
 		DestroyScene();
 
 		return bReturnCode;
+	}
+
+
+	// *** cKey
+
+	cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
+		uiCode(code),
+
+		bVariable(variable),
+		bRepeat(repeat),
+		bToggle(toggle),
+		
+		bDown(false),
+		bCollected(false)
+	{
+	}
+
+	bool cApp::cKey::IsKeyDown()
+	{
+		if(bDown)
+		{
+			if(bRepeat)
+			{
+				bCollected=true;
+				return true;
+			}
+			else if(!bCollected)
+			{
+				bCollected=true;
+				return true;
+			}
+
+      bDown=false;
+			bCollected=true;
+		}
+
+		return false;
+	}
+	
+	void cApp::cKey::SetKeyUp(bool bConsole)
+	{
+		if(bRepeat)
+		{
+			bDown=false;
+			bCollected=false;
+		}
+		else if(!bConsole)
+		{
+			bDown=true;
+			bCollected=false;
+		}
 	}
 }

@@ -10,7 +10,7 @@ namespace BREATHE
 		class cFont 
 		{
 		public:
-			cFont(const char * fname, unsigned int h);
+			cFont(const BREATHE::unicode_char * fname, unsigned int h);
 			~cFont();
       
 			void printf(float x, float y, const char *fmt, ...);

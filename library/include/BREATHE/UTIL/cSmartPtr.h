@@ -82,11 +82,13 @@ namespace BREATHE
 		public:
 			typedef T element_type;
 
-			explicit cSmartPtr(T* p = 0) : // allocate a new counter
+			// allocate a new counter
+			explicit cSmartPtr(T* p = NULL) :
 				refCount(0)
 			{
 				if (p) refCount = new counter(p);
 			}
+
 			~cSmartPtr()
 			{
 				release();
@@ -98,11 +100,11 @@ namespace BREATHE
 			}
 			cSmartPtr& operator=(const cSmartPtr& r)
 			{
-					if (this != &r) {
-							release();
-							acquire(r.refCount);
-					}
-					return *this;
+				if (this != &r) {
+					release();
+					acquire(r.refCount);
+				}
+				return *this;
 			}
 
 			T& operator*()  const throw()	{return *refCount->ptr;}

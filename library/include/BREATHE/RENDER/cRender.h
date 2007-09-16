@@ -35,6 +35,8 @@ namespace BREATHE
 		public:
 			bool Init();
 
+			void SetPerspective();
+
 			void ToggleFullscreen();
 			void SetAtlasWidth(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX);
 
