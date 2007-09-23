@@ -22,6 +22,9 @@ namespace BREATHE
 		void Add(cAudioSource* pSource);
 		void Remove(cAudioSource* pSource);
 
+		void StartAll();
+		void StopAll();
+
 		// Buffer to hold the audio data
 		class cAudioBuffer
 		{

@@ -206,6 +206,63 @@ namespace BREATHE
 			//std::map<std::string, MODEL::cAnimation*> mAnimation;
 			std::map<std::string, MODEL::cStatic*> mStatic;
 		};
+
+		namespace SETTINGS
+		{
+			class resolution
+			{
+			public:
+				resolution(int width, int height);
+
+				int GetWidth() const { return width; }
+				int GetHeight() const { return height; }
+
+			private:
+				int width;
+				int height;
+			};
+
+			class iterator
+			{
+			public:
+				void GetStandardResolutions() { GetResolutions(false); }
+				void GetWidescreenResolutions() { GetResolutions(true); }
+
+				iterator();
+
+				int GetWidth() const { return (*iter).GetWidth(); }
+				int GetHeight() const { return (*iter).GetHeight(); }
+
+				operator ++(int);
+				operator bool() const;
+				
+			protected:
+				void GetResolutions(bool onlyWidescreen);
+
+				std::vector<resolution> resolutions;
+				std::vector<resolution>::iterator iter;
+			};
+
+			// *** Inlines
+			
+			inline resolution::resolution(int _width, int _height) :
+				width(_width),
+				height(_height)
+			{
+			}
+
+			
+			inline iterator::operator ++(int)
+			{
+				iter++;
+				return *this;
+			}
+
+			inline iterator::operator bool() const
+			{
+				return iter != resolutions.end();
+			}
+		}
 	}
 }
 

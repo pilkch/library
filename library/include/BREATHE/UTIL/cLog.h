@@ -1,6 +1,8 @@
 #ifndef CLOG_H
 #define CLOG_H
 
+#include <sstream>
+
 namespace BREATHE
 {
 	namespace LOGGING
@@ -16,18 +18,83 @@ namespace BREATHE
 		class cLogBase
 		{
 		public:
-			
-			virtual void Newline()= 0;
-			virtual void Newline(std::string s1)= 0;
-			virtual void Newline(std::string s1, std::string text)= 0;
+			template<typename T>
+			cLogBase& operator<<(const T& t)
+			{
+				std::ostringstream o;
+				o<<t;
 
-			virtual void Success(std::string section, std::string text)= 0;
-			virtual void Error(std::string section, std::string text)= 0;
+				line += o.str();
+
+				return *this;
+			}
+
+			cLogBase& operator<<(float t)
+			{
+				std::stringstream o;
+				o<<t;
+
+				line += o.str();
+
+				return *this;
+			}
+
+			cLogBase& operator<<(bool t)
+			{
+				line += (t ? "true" : "false");
+
+				return *this;
+			}
+
+			cLogBase& operator<<(const std::ostringstream& o)
+			{
+				line += o.str();
+
+				return *this;
+			}
+			
+			cLogBase& operator<<(std::ostream& (* func)(std::ostream&))
+			{ 
+				_EndLine(line);
+
+				return *this; 
+			}
+
+			//void precision ( unsigned long p );
+
+			void ClearLine() { line.clear(); }
+
+		private:
+			virtual void _EndLine(std::string& o) = 0;
+
+			std::string line;
 		};
 
-		class cLog : protected cLogBase
+
+		class cConsole;
+
+		class cLog : public cLogBase
 		{
-		protected:
+		public:
+			cLog();
+			~cLog();
+
+			friend class cConsole;
+
+			void Newline();
+			void Newline(std::string s1);
+			void Newline(std::string s1, std::string text);
+
+			void Success(std::string section, std::string text);
+			void Error(std::string section, std::string text);
+
+		private:
+			void _EndLine(std::string& o)
+			{
+				Success(section, o);
+				ClearLine();
+			}
+
 			bool CreateLog();
 
 	#ifdef BUILD_DEBUG
@@ -51,35 +118,7 @@ namespace BREATHE
 			std::string endtable;
 			std::string hash;
 
-
-		public:
-
 			std::string section;
-
-			cLog();
-			~cLog();
-
-			template<typename T> cLog& operator<<(const T& t)
-			{
-				//Success(section, t);
-				logfile << t;
-				return *this;
-			}
-			
-			cLog& operator<<(std::ostream& (*func)(std::ostream&))
-			{ 
-				logfile << func; 
-				return *this; 
-			}
-
-			void precision ( unsigned long p );
-
-			void Newline();
-			void Newline(std::string s1);
-			void Newline(std::string s1, std::string text);
-
-			void Success(std::string section, std::string text);
-			void Error(std::string section, std::string text);
 		};
 	}
 }
@@ -91,11 +130,15 @@ namespace BREATHE
 {
 	namespace LOGGING
 	{
-		class cConsole : protected cLogBase
+		class cScreen;
+
+		class cConsole : public cLogBase
 		{
 		public:
 			cConsole();
 			~cConsole();
+
+			friend class cScreen;
 			
 			unsigned int uiCursorBlink;
 			unsigned int uiCursorPosition;
@@ -103,32 +146,22 @@ namespace BREATHE
 			std::string sLine;
 
 			
-			void Newline();
+			/*void Newline();
 			void Newline(std::string s1);
 			void Newline(std::string s1, std::string text);
 
 			void Success(std::string section, std::string text);
-			void Error(std::string section, std::string text);
+			void Error(std::string section, std::string text);*/
 
-			template<typename T> cConsole& operator<<(const T& t)
+		private:
+			void _EndLine(std::string& o)
 			{
-				//logfile << t;
-				std::ostringstream o;
-				o<<t;
-				Success(LOG.section, o.str());
+				// Cascade output to log file
+				LOG._EndLine(o);
 
-				std::cout<<o.str()<<std::endl;
-				return *this;
+				std::cout<<o<<std::endl;
+				ClearLine();
 			}
-			
-			cConsole& operator<<(std::ostream& (*func)(std::ostream&))
-			{ 
-				//logfile << func;
-				//Success(LOG.section, func);
-				return *this; 
-			}
-
-			void precision ( unsigned long p );
 		};
 	}
 }
@@ -139,18 +172,27 @@ namespace BREATHE
 {
 	namespace LOGGING
 	{
-		class cScreen : protected cLogBase
+		class cScreen : public cLogBase
 		{
 		public:
 			cScreen();
 			~cScreen();
-			
-			void Newline();
-			void Newline(std::string s1);
-			void Newline(std::string s1, std::string text);
 
-			void Success(std::string section, std::string text);
-			void Error(std::string section, std::string text);
+			std::list<std::string> lLine;
+
+		private:
+			void _EndLine(std::string& o)
+			{
+				// Cascade output to console
+				CONSOLE._EndLine(o);
+
+				// Add line to screen
+				//if(lLine.size()>CONSOLE_MAXLINES)
+				//	lLine.pop_front();
+				
+				lLine.push_back(o);
+				ClearLine();
+			}
 		};
 	}
 }

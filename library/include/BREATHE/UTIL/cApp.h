@@ -11,7 +11,12 @@ namespace BREATHE
 		cApp(int argc, char **argv);
 		~cApp();
 
-		bool Init();
+		bool InitApp();
+		bool DestroyApp();
+
+		bool InitRender();
+		bool DestroyRender();
+
 		bool Run();
 		
 		// We have a default render function, but if you want to do anything special you will have to override this
@@ -31,11 +36,7 @@ namespace BREATHE
 		virtual void RenderScreenSpace(float fCurrentTime)=0;
 		virtual void OnMouse(int button,int state,int x,int y)=0;
 
-		virtual bool Execute(std::string sCommand)=0;
-
-
-		bool InitRender();
-		bool DestroyRender();		
+		virtual bool Execute(std::string sCommand)=0;	
 
 		bool ToggleFullscreen();
 		bool SetPerspective();

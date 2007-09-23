@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <sstream>
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -217,18 +219,18 @@ namespace BREATHE
 		}
 
 		
-		void cLog::precision ( unsigned long p )
+		/*void cLog::precision ( unsigned long p )
 		{
 			logfile << std::setprecision( p );
-		}
+		}*/
 
 
 		// ***********************************************CONSOLE*******************************************************
 
-		cConsole::cConsole()
+		cConsole::cConsole() :
+			uiCursorBlink(0),
+			uiCursorPosition(0)
 		{
-			uiCursorBlink=0;
-			uiCursorPosition=0;
 		}
 
 		cConsole::~cConsole()
@@ -236,10 +238,10 @@ namespace BREATHE
 
 		}
 
-		void cConsole::Newline()
+		/*void cConsole::Newline()
 		{
 			if(lLine.size()>CONSOLE_MAXLINES)
-				lLine.pop_front(); 
+				lLine.pop_front();
 			
 			lLine.push_back("");
 		}
@@ -247,7 +249,7 @@ namespace BREATHE
 		void cConsole::Newline(std::string text)
 		{
 			if(lLine.size()>CONSOLE_MAXLINES)
-				lLine.pop_front(); 
+				lLine.pop_front();
 			
 			lLine.push_back(text);
 		}
@@ -255,7 +257,7 @@ namespace BREATHE
 		void cConsole::Newline(std::string s1, std::string text)
 		{
 			if(lLine.size()>CONSOLE_MAXLINES)
-				lLine.pop_front(); 
+				lLine.pop_front();
 			
 			lLine.push_back(text);
 		}
@@ -263,7 +265,7 @@ namespace BREATHE
 		void cConsole::Success(std::string section, std::string text)
 		{
 			if(lLine.size()>CONSOLE_MAXLINES)
-				lLine.pop_front(); 
+				lLine.pop_front();
 			
 			lLine.push_back(text);
 		}
@@ -275,6 +277,15 @@ namespace BREATHE
 			
 			lLine.push_back(text);
 		}
+		
+		cConsole& cConsole::operator<<(const std::ostringstream& o)
+		{
+			//logfile << t;
+			LOG.Success(LOG.section, o.str());
+
+			std::cout<<o.str()<<std::endl;
+			return *this;
+		}*/
 
 
 		// ***********************************************SCREEN*******************************************************
@@ -288,7 +299,7 @@ namespace BREATHE
 
 		}
 			
-		void cScreen::Newline()
+		/*void cScreen::Newline()
 		{
 
 		}
@@ -312,6 +323,6 @@ namespace BREATHE
 		void cScreen::Error(std::string section, std::string text)
 		{
 
-		}
+		}*/
 	}
 }

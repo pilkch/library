@@ -81,7 +81,9 @@ namespace BREATHE
 		template <class C>
 		cVar(const C& rhs)
 		{
-			value = rhs;
+			std::ostringstream t;
+			t<<rhs;
+			value = t.str();
 		}
 
 
@@ -91,7 +93,9 @@ namespace BREATHE
 		template <class C>
 		cVar<std::string>& operator=(const C& rhs)
 		{
-			value = rhs;
+			std::ostringstream t;
+			t<<rhs;
+			value = t.str();
 			return *this;
 		}
 
@@ -202,7 +206,7 @@ namespace BREATHE
 	inline unsigned int cVar<std::string>::GetUnsignedInt() const 
 	{
 		std::stringstream t(value);
-		unsigned int i;
+		unsigned int i = 0;
 		t>>i;
 		return i;
 	}
@@ -210,7 +214,7 @@ namespace BREATHE
 	inline int cVar<std::string>::GetInt() const 
 	{
 		std::stringstream t(value);
-		int i;
+		int i = 0;
 		t>>i;
 		return i;
 	}
@@ -218,7 +222,7 @@ namespace BREATHE
 	inline float cVar<std::string>::GetFloat() const 
 	{
 		std::stringstream t(value);
-		float i;
+		float i = 0.0f;
 		t>>i;
 		return i;
 	}

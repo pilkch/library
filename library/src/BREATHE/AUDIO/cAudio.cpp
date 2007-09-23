@@ -92,6 +92,34 @@ namespace BREATHE
 			alutSleep (3);
 		}
 
+		void StartAll()
+		{
+			iterator iter = lAudioSource.begin();
+			iterator iterEnd = lAudioSource.end();
+
+			cAudioSource* pSource = NULL;
+			while(iter != iterEnd)
+			{
+				pSource = (*(iter++));
+				if(pSource->IsValid())
+					pSource->Play();
+			};
+		}
+
+		void StopAll()
+		{
+			iterator iter = lAudioSource.begin();
+			iterator iterEnd = lAudioSource.end();
+
+			cAudioSource* pSource = NULL;
+			while(iter != iterEnd)
+			{
+				pSource = (*(iter++));
+				if(pSource->IsValid())
+					pSource->Play();
+			};
+		}
+
 		bool Init()
 		{
 			if(!alutInitWithoutContext(NULL, NULL))

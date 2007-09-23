@@ -20,6 +20,7 @@ namespace BREATHE
 		void AddDirectory(std::string sDirectory);
 
 		std::string GetMD5(std::string sFilename);
+		std::string GetSHA1(std::string sFilename);
 
 		std::string GetPath(std::string sFilename);
 		std::string GetFile(std::string sFilename);
@@ -30,6 +31,18 @@ namespace BREATHE
 		bool FileExists(std::string sFilename);
 		bool CreateDirectory(std::string sFoldername);
 		bool CreateFile(std::string sFilename);
+
+		class iterator
+		{
+		public:
+			iterator();
+			~iterator();
+
+			std::string GetName() const;
+
+      operator ++(int);
+			operator bool() const;
+		};
 	}
 }
 

@@ -71,9 +71,36 @@
 
 #include <BREATHE/AUDIO/cAudio.h>
 
+#ifdef BUILD_DEBUG
+void TestVariable(BREATHE::cApp* app, std::string variable)
+{
+	BREATHE::cVar<std::string>* p = app->VarFind(variable);
+	assert(p);
+	std::string s = p->GetString();
+	bool b = p->GetBool();
+	unsigned int ui = p->GetUnsignedInt();
+	int i = p->GetInt();
+	float f = p->GetFloat();
+	CONSOLE<<variable<<"=(\""<<s<<"\","<<b<<","<<ui<<","<<i<<","<<f<<")"<<std::endl;
+}
+#endif
+
 namespace BREATHE
 {
-	cApp::cApp(int argc, char **argv)
+	cApp::cApp(int argc, char **argv) :
+#ifdef BUILD_DEBUG
+		bDebug(true),
+#endif
+
+    bConsole(false),
+		bActive(true),
+		bDone(false),
+		bUpdatePhysics(true),
+		bStepPhysics(false),
+
+		bReturnCode(BREATHE::GOOD),
+
+		g_info(NULL)
 	{
     srand(time(NULL));
 
@@ -94,20 +121,26 @@ namespace BREATHE
 
 			LOG.Success("Arguments", s);
 		}
+
 		
-#ifdef BUILD_DEBUG
-		bDebug = true;
-#endif
+		LOG<<"This is printed to the log"<<std::endl;
+		CONSOLE<<"This is printed to the console"<<std::endl;
+		SCREEN<<"This is printed to the screen"<<std::endl;
+		
+		CONSOLE<<"1"<<std::endl;
+		CONSOLE<<"2"<<std::endl;
+		CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
 
-    bConsole=false;
-		bActive=true;
-		bDone=false;
-		bUpdatePhysics=true;
-		bStepPhysics=false;
+		VarSet("bool", true);
+		VarSet("int", 180);
+		VarSet("float", 123.45f);
+		VarSet("string", "this is a string");
 
-		bReturnCode=BREATHE::GOOD;
+		TestVariable(this, "bool");
+		TestVariable(this, "int");
+		TestVariable(this, "float");
+		TestVariable(this, "string");
 
-		g_info=NULL;
 		
 		SDL_ShowCursor(SDL_DISABLE);
 
@@ -147,7 +180,7 @@ namespace BREATHE
 
 	
 
-	bool cApp::Init()
+	bool cApp::InitApp()
 	{
 		{
 			LOG.Success("Init", "Loading config.xml");
@@ -367,9 +400,20 @@ namespace BREATHE
 		if(BREATHE::BAD==InitScene())
 			return BREATHE::BAD;
 
+		BREATHE::AUDIO::StartAll();
+
 		// Setup mouse
 		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
 		//SDL_ShowCursor(SDL_DISABLE);
+
+		return BREATHE::GOOD;
+	}
+
+	bool cApp::DestroyApp()
+	{
+		SDL_ShowCursor(SDL_ENABLE);
+
+		BREATHE::AUDIO::StopAll();
 
 		return BREATHE::GOOD;
 	}
@@ -848,7 +892,7 @@ namespace BREATHE
 	bool cApp::Run()
 	{
 		LOG.Newline("Run");
-		bReturnCode = Init();
+		bReturnCode = InitApp();
 		if (bReturnCode == BAD) return bReturnCode;
 
     LOG.Newline("MainLoop");
@@ -925,10 +969,11 @@ namespace BREATHE
 			}
 		}while (!bDone);
 
-		SDL_ShowCursor(SDL_ENABLE);
-
 		LOG.Newline("DestroyScene");
 		DestroyScene();
+
+		LOG.Newline("DestroyApp");
+		DestroyApp();
 
 		return bReturnCode;
 	}

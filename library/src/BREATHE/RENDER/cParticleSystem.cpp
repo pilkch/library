@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <sstream>
 
 // OpenGL Headers
 #include <GL/Glee.h>

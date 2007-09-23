@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <algorithm>
 
 // Anything else
 #include <GL/Glee.h>
@@ -214,7 +215,7 @@ namespace BREATHE
 			LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
 			LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
 			LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
-	
+			
 
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
 
@@ -227,7 +228,26 @@ namespace BREATHE
 			}
 			else
 				LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
-	
+			
+			{
+				CONSOLE<<"WIDESCREEN"<<std::endl;
+				SETTINGS::iterator iter;
+				iter.GetWidescreenResolutions();
+				while(iter)
+				{
+					CONSOLE<<iter.GetWidth()<<"x"<<iter.GetHeight()<<std::endl;
+					iter++;
+				};
+
+				CONSOLE<<"STANDARD"<<std::endl;
+				iter.GetStandardResolutions();
+				while(iter)
+				{
+					CONSOLE<<iter.GetWidth()<<"x"<<iter.GetHeight()<<std::endl;
+					iter++;
+				};
+			}
+
 
 			if(FindExtension("GL_ARB_multitexture"))
         LOG.Success("Render", "Found GL_ARB_multitexture");
@@ -2177,6 +2197,56 @@ namespace BREATHE
 					vVertexBufferObject[i]->Destroy();
 					vVertexBufferObject[i]->Init();
 				}
+			}
+		}
+
+		namespace SETTINGS
+		{
+			bool ResolutionCompare(const resolution& lhs, const resolution& rhs)
+			{
+				return (lhs.GetHeight() > rhs.GetHeight() && lhs.GetWidth() > rhs.GetWidth());
+			}
+
+			iterator::iterator()
+			{
+				iter = resolutions.end();
+			}
+
+
+			const float fWideScreenRatio = 1.33333333333333333333333f;
+
+			void iterator::GetResolutions(bool onlyWidescreen)
+			{
+				resolutions.clear();
+				iter = resolutions.end();
+
+				SDL_Rect **modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+				if(modes == (SDL_Rect **)0 || modes == (SDL_Rect **)-1)
+				{
+					CONSOLE<<"No modes available"<<std::endl;
+					resolutions.push_back(resolution(640, 480));
+				}
+				else if(onlyWidescreen)
+				{
+					for(int i=0;modes[i];++i)
+					{
+						float ratio = static_cast<float>(modes[i]->w)/static_cast<float>(modes[i]->h);
+						if (ratio > fWideScreenRatio)
+							resolutions.push_back(resolution(modes[i]->w, modes[i]->h));
+					}
+				}
+				else
+				{
+					for(int i=0;modes[i];++i)
+					{
+						float ratio = static_cast<float>(modes[i]->w)/static_cast<float>(modes[i]->h);
+						if (ratio < fWideScreenRatio + MATH::cEPSILON)
+							resolutions.push_back(resolution(modes[i]->w, modes[i]->h));
+					}
+				}
+
+				std::sort(resolutions.begin(), resolutions.end(), ResolutionCompare);
+				iter = resolutions.begin();
 			}
 		}
 	}

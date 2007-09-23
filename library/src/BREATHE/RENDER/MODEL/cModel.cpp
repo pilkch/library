@@ -11,6 +11,8 @@
 // writing on a text file
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
