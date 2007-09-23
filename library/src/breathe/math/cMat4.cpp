@@ -5,7 +5,7 @@
 // Breathe
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -18,7 +18,7 @@
 
 namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		cMat4::cMat4(float e0, float e1, float e2, float e3,
 							float e4, float e5, float e6, float e7,

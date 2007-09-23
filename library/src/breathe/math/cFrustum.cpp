@@ -5,7 +5,7 @@
 // Breathe
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -18,7 +18,7 @@
 
 namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		// We create an enum of the sides so we don't have to call each side 0 or 1.
 		// This way it makes it more understandable and readable when dealing with frustum sides.

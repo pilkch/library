@@ -1,7 +1,7 @@
 #ifndef CAPP_H
 #define CAPP_H
 
-namespace BREATHE
+namespace breathe
 {
 	const float KEY_MIN = 0.1f;
 

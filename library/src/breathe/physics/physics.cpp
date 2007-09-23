@@ -11,36 +11,34 @@
 #include <ode/ode.h>
 
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
 
-BREATHE::PHYSICS::cPhysics* pPhysics = NULL;
-
-namespace BREATHE
+namespace breathe
 {
-	namespace PHYSICS
-	{		
+	namespace physics
+	{
 		const float fInterval = 0.01f; // 0.01 * 1000ms = 10ms
 		const int iMaxContacts = 100;
 		const float fFriction = 2000.0f;
@@ -78,8 +76,8 @@ namespace BREATHE
 
 		void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ)
 		{
-			BREATHE::MATH::cVec3 p(posX, posY, posZ);
-			BREATHE::MATH::cVec3 n(nX, nY, nZ);
+			breathe::math::cVec3 p(posX, posY, posZ);
+			breathe::math::cVec3 n(nX, nY, nZ);
 
 			n.Normalize();
 
@@ -88,7 +86,7 @@ namespace BREATHE
 
 		void Init()
 		{
-			BREATHE::PHYSICS::world = dWorldCreate();
+			breathe::physics::world = dWorldCreate();
 
 			dWorldSetGravity(world, 0, 0, fGravity);
 

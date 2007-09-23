@@ -3,7 +3,7 @@
 
 // Base Objects to derive game types from
 
-namespace BREATHE
+namespace breathe
 {
 	// This can be used for generic things such as the audio, renderer, game etc.
 	// Pure virtual
@@ -33,7 +33,7 @@ namespace BREATHE
 		virtual float GetDistance(cObjectSphere& obj);
 
 		// Position and size
-		MATH::cVec3 p;
+		math::cVec3 p;
 		float fRadius;
 	};
 
@@ -54,10 +54,10 @@ namespace BREATHE
 		//Position and rotation
 		//float r[12];
 
-		MATH::cVec3 v;
+		math::cVec3 v;
 
 		//Position and rotation matrix
-		MATH::cMat4 m;
+		math::cMat4 m;
 
 		void SetDimensions(float fWidth, float fLength, float fHeight);
 
@@ -68,7 +68,7 @@ namespace BREATHE
 	class cScenegraphNode : public virtual cObject
 	{
 	public:
-		MATH::cMat4 mOffset;
+		math::cMat4 mOffset;
 	};
 
 	class cOctreeNode : public virtual cObject

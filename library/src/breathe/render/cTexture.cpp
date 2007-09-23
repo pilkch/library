@@ -23,9 +23,9 @@
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/filesystem.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -42,7 +42,7 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		cTexture::cTexture()
 		{

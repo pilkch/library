@@ -23,7 +23,7 @@
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -42,15 +42,15 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			cModel::cModel()
 			{

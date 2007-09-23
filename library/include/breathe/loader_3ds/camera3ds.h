@@ -7,12 +7,12 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		class cCamera;
 	}
 
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		class Camera3DS
 		{

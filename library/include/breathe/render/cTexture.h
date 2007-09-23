@@ -5,7 +5,7 @@ struct SDL_Surface;
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		//Texture modes for materials
 		const unsigned int TEXTURE_NONE = 0;

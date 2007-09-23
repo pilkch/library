@@ -23,7 +23,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		const float fScale=0.1f;
 

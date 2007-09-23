@@ -14,19 +14,19 @@
 #include <map>
 #include <stack>
 
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cString.h>
+#include <breathe/breathe.h>
+#include <breathe/util/cString.h>
 
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cXML.h>
+#include <breathe/util/log.h>
+#include <breathe/util/xml.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cColour.h>
 
-namespace BREATHE
+namespace breathe
 {
-	namespace XML
+	namespace xml
 	{
 		//cNode
 
@@ -179,7 +179,7 @@ namespace BREATHE
 
 							while(iter!=sData.end() && *iter!='/' && *iter!='>')
 							{
-								BREATHE::unicode_char c=*iter;
+								breathe::unicode_char c=*iter;
 								if(*iter == ' ')
 								{
 									p->AddAttribute(sAttributeName, "");
@@ -459,13 +459,13 @@ namespace BREATHE
 			return false;
 		}
 
-		bool cNode::GetAttribute(std::string sAttribute, MATH::cVec3* pValue)
+		bool cNode::GetAttribute(std::string sAttribute, math::cVec3* pValue)
 		{
 			assert(pValue);
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				BREATHE::unicode_char c;
+				breathe::unicode_char c;
 				std::stringstream stm(iter->second);
 				stm >> std::skipws;
 
@@ -482,7 +482,7 @@ namespace BREATHE
 			return false;
 		}
 		
-		bool cNode::GetAttribute(std::string sAttribute, MATH::cColour* pValue)
+		bool cNode::GetAttribute(std::string sAttribute, math::cColour* pValue)
 		{
 			assert(pValue);
 			attribute_iterator iter = mAttribute.find(sAttribute);

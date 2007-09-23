@@ -20,7 +20,7 @@
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -31,8 +31,8 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/base.h>
+#include <breathe/util/filesystem.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -50,9 +50,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			cHeightmap::cHeightmap()
 			{
@@ -88,7 +88,7 @@ namespace breathe
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
-				sFilename=breathe::FILESYSTEM::FindFile("data/level/node00/heightmap.png");
+				sFilename=breathe::filesystem::FindFile("data/level/node00/heightmap.png");
 
 				float fHighest = -math::cINFINITY;
 				float fLowest = math::cINFINITY;

@@ -1,11 +1,11 @@
 #ifndef CVEHICLESEAT_H
 #define CVEHICLESEAT_H
 
-namespace BREATHE
+namespace breathe
 {
 	class c3ds;
 
-	namespace VEHICLE
+	namespace vehicle
 	{
 		class cVehicle;
 

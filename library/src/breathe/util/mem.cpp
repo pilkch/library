@@ -87,7 +87,7 @@
 #include <unistd.h>
 #endif
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- If you're like me, it's hard to gain trust in foreign code. This memory manager will try to INDUCE your code to crash (for
@@ -192,7 +192,7 @@ static	const	unsigned int	paddingSize            = 4;
 #elif defined(__BEOS__)
 	#ifdef _DEBUG
 		#ifdef USE_ASSERT
-			extern void debugger(const BREATHE::unicode_char *message);
+			extern void debugger(const breathe::unicode_char *message);
 			#define	m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
 		#else
 			#define m_assert(x) {}
@@ -251,7 +251,7 @@ static		unsigned int	releasedPattern        = 0xdeadbeef; // Fill pattern for de
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 static	const	unsigned int	hashSize               = 1 << hashBits;
-static	const	BREATHE::unicode_char	*allocationTypes[] = {
+static	const	breathe::unicode_char	*allocationTypes[] = {
 	"Unknown",
 	"new",     "new[]",  "malloc",   "calloc",
 	"realloc", "delete", "delete[]", "free"
@@ -261,14 +261,14 @@ static		sAllocUnit	*reservoir;
 static		unsigned int	currentAllocationCount = 0;
 static		unsigned int	breakOnAllocationCount = 0;
 static		sMStats		stats;
-static	const	BREATHE::unicode_char		*sourceFile  = "??";
-static	const	BREATHE::unicode_char		*sourceFunc  = "??";
+static	const	breathe::unicode_char		*sourceFile  = "??";
+static	const	breathe::unicode_char		*sourceFunc  = "??";
 static		unsigned int	sourceLine             = 0;
 static		bool		staticDeinitTime       = false;
 static		sAllocUnit	**reservoirBuffer      = NULL;
 static		unsigned int	reservoirBufferSize    = 0;
-extern const	BREATHE::unicode_char		*memoryLogFile;
-extern const	BREATHE::unicode_char		*memoryLeakLogFile;
+extern const	breathe::unicode_char		*memoryLogFile;
+extern const	breathe::unicode_char		*memoryLeakLogFile;
 static		void		doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -346,7 +346,7 @@ static	void	doCleanupLogOnFirstRun()
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-static	const BREATHE::unicode_char	*sourceFileStripper(const BREATHE::unicode_char *sourceFile)
+static	const breathe::unicode_char	*sourceFileStripper(const breathe::unicode_char *sourceFile)
 {
 	char	*ptr = strrchr(sourceFile, '\\');
 	if (ptr) return ptr + 1;
@@ -357,7 +357,7 @@ static	const BREATHE::unicode_char	*sourceFileStripper(const BREATHE::unicode_ch
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-static	const BREATHE::unicode_char	*ownerString(const BREATHE::unicode_char *sourceFile, const unsigned int sourceLine, const BREATHE::unicode_char *sourceFunc)
+static	const breathe::unicode_char	*ownerString(const breathe::unicode_char *sourceFile, const unsigned int sourceLine, const breathe::unicode_char *sourceFunc)
 {
 	static	char	str[90];
 	std::memset(str, 0, sizeof(str));

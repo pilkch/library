@@ -32,7 +32,7 @@
 // Breathe Headers
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
 #include <breathe/math/cMat4.h>
@@ -47,7 +47,7 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		///This function gets the first power of 2 >= the
 		///int that we pass it.

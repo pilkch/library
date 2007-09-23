@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		class cColour
 		{

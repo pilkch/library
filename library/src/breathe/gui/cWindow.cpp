@@ -22,9 +22,9 @@
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/filesystem.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -44,7 +44,7 @@
 
 namespace breathe
 {
-	namespace GUI
+	namespace gui
 	{
 		cWindow::cWindow(unsigned int _id, float _x, float _y, float _width, float _height) :
 			cWidget(_id, _x, _y, _width, _height)

@@ -14,7 +14,7 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -25,7 +25,7 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
@@ -41,14 +41,14 @@
 #include <breathe/game/cPlayer.h>
 #include <breathe/game/cPetrolBowser.h>
 
-#include <breathe/VEHICLE/cPart.h>
-#include <breathe/VEHICLE/cVehicle.h>
-#include <breathe/VEHICLE/cSeat.h>
+#include <breathe/vehicle/cPart.h>
+#include <breathe/vehicle/cVehicle.h>
+#include <breathe/vehicle/cSeat.h>
 
 namespace breathe
 {
 	cPlayer::cPlayer() : 
-		PHYSICS::cUprightCapsule()
+		physics::cUprightCapsule()
 	{
 		bDynamic = true;
 		bBody = false;
@@ -87,7 +87,7 @@ namespace breathe
 
 	cPlayer::~cPlayer()
 	{
-		PHYSICS::RemovePhysicsObject(this);
+		physics::RemovePhysicsObject(this);
 	}
 
 
@@ -103,8 +103,8 @@ namespace breathe
 		
 		dGeomRaySet(geomRay, p.x, p.y, p.z, dir.x, dir.y, dir.z);
 		dGeomRaySetLength(geomRay, fMaxDistance);
-		dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceStatic, this, RayCastCallback);
-		dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceDynamic, this, RayCastCallback);
+		dSpaceCollide2(geomRay, (dGeomID)physics::spaceStatic, this, RayCastCallback);
+		dSpaceCollide2(geomRay, (dGeomID)physics::spaceDynamic, this, RayCastCallback);
 	}
 
 	void cPlayer::RayCastCallback( void * data, dGeomID g1, dGeomID g2 )
@@ -180,7 +180,7 @@ namespace breathe
 #endif
 		else if (body)
 		{
-			PHYSICS::cUprightCapsule::Update(fCurrentTime);
+			physics::cUprightCapsule::Update(fCurrentTime);
 
 			RayCast();
 
@@ -256,7 +256,7 @@ namespace breathe
 	{
 		uiState = PLAYER_STATE_DRIVE;
 
-		PHYSICS::RemovePhysicsObject(this);
+		physics::RemovePhysicsObject(this);
 
 		if(geom) {
 			dGeomDestroy(geom);
@@ -289,7 +289,7 @@ namespace breathe
 #endif
 			bBody = true;
 			CreateCapsule(p);
-			PHYSICS::AddPhysicsObject(this);
+			physics::AddPhysicsObject(this);
 
 			cPhysicsRayCast::Create(1.0f);
 #ifdef BUILD_DEBUG

@@ -9,7 +9,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		struct Mesh3DSVertex
 		{

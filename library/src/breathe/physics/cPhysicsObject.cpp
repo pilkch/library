@@ -13,7 +13,7 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -24,7 +24,7 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 
@@ -68,7 +68,7 @@ const unsigned int uiDirectionZ = 3;
 
 namespace breathe
 {
-	namespace PHYSICS
+	namespace physics
 	{	
 		cPhysicsObject::cPhysicsObject()
 			: cObject()
@@ -144,7 +144,7 @@ namespace breathe
 
 			if(bBody)
 			{
-				body = dBodyCreate(PHYSICS::world);
+				body = dBodyCreate(physics::world);
 				dBodySetPosition(body, p.x, p.y, p.z);
 				dBodySetRotation(body, r);
 				dBodySetAutoDisableFlag(body, 1);
@@ -155,7 +155,7 @@ namespace breathe
 		
 		void cPhysicsObject::CreateBox(math::cVec3 pos, math::cVec3 rot)
 		{
-			geom = dCreateBox(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, 
+			geom = dCreateBox(bDynamic ? physics::spaceDynamic : physics::spaceStatic, 
 				2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
 			
 			InitCommon(pos, rot);
@@ -170,7 +170,7 @@ namespace breathe
 		
 		void cPhysicsObject::CreateSphere(math::cVec3 pos, math::cVec3 rot)
 		{
-			geom = dCreateSphere(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius);
+			geom = dCreateSphere(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius);
 
 			InitCommon(pos, rot);
 
@@ -184,7 +184,7 @@ namespace breathe
 
 		void cPhysicsObject::CreateCapsule(math::cVec3 pos, math::cVec3 rot)
 		{
-			geom = dCreateCapsule(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
+			geom = dCreateCapsule(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius, fLength);
 		
 			InitCommon(pos, rot);
 
@@ -198,7 +198,7 @@ namespace breathe
 
 		void cPhysicsObject::CreateCylinder(math::cVec3 pos, math::cVec3 rot)
 		{
-			geom = dCreateCylinder(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
+			geom = dCreateCylinder(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius, fLength);
 
 			InitCommon(pos, rot);
 
@@ -279,7 +279,7 @@ namespace breathe
 
 			dGeomTriMeshDataBuildSimple(Data, (dReal*)Vertices, VertexCount, Indices, IndexCount);
 			
-			geom = dCreateTriMesh(PHYSICS::spaceStatic, Data, NULL , NULL , NULL);
+			geom = dCreateTriMesh(physics::spaceStatic, Data, NULL , NULL , NULL);
 
 			dGeomSetBody(geom, 0);
 

@@ -1,13 +1,13 @@
 #ifndef CVEHICLEWHEEL_H
 #define CVEHICLEWHEEL_H
 
-namespace BREATHE
+namespace breathe
 {
-	namespace VEHICLE
+	namespace vehicle
 	{
 		class cVehicle;
 
-		class cWheel : virtual public PHYSICS::cPhysicsObject, public PHYSICS::cPhysicsRayCast
+		class cWheel : virtual public physics::cPhysicsObject, public physics::cPhysicsRayCast
 		{
 			cVehicle *pParent;
 
@@ -22,13 +22,13 @@ namespace BREATHE
 
 			float fTraction;
 
-			MATH::cVec3 v3SuspensionTopRel; //Don't use this for rendering
-			MATH::cVec3 v3SuspensionTop;
+			math::cVec3 v3SuspensionTopRel; //Don't use this for rendering
+			math::cVec3 v3SuspensionTop;
 
 			cWheel(cVehicle *p);
 
 			void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, 
-				float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos);
+				float fSNormal, float fSMin, float fSMax, math::cVec3 &pos);
 			void Update(float fCurrentTime);
 
 			

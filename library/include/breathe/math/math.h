@@ -1,9 +1,9 @@
 #ifndef CMATH_H
 #define CMATH_H
 
-namespace BREATHE
+namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		//Constants
 		extern const float cPI;

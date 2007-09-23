@@ -1,9 +1,9 @@
 #ifndef CAUDIO_H
 #define CAUDIO_H
 
-namespace BREATHE
+namespace breathe
 {
-	namespace AUDIO
+	namespace audio
 	{
 		#define AUDIO_MAX_BUFFERS 16
 
@@ -17,7 +17,7 @@ namespace BREATHE
 
 		void Sleep();
 
-		void SetListener(MATH::cVec3& position, MATH::cVec3& lookat, MATH::cVec3& up, MATH::cVec3& velocity);
+		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity);
 
 		void Add(cAudioSource* pSource);
 		void Remove(cAudioSource* pSource);

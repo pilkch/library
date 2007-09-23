@@ -5,9 +5,9 @@
 
 namespace breathe
 {
-	namespace GAME
+	namespace game
 	{
-		namespace PATH
+		namespace path
 		{
 			class cPathEdge;
 			class cPathNode;

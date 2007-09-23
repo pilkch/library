@@ -152,7 +152,8 @@ void	operator delete[](void *reportedAddress);
 // Macros -- "Kids, please don't try this at home. We're trained professionals here." :)
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#include "cMemEnd.h"
+#include <breathe/util/memend.h>
+
 #define	new		(m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? NULL : new
 #define	delete		(m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? m_setOwner("",0,"") : delete
 #define	malloc(sz)	m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_malloc,sz)

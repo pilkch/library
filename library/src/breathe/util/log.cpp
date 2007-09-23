@@ -15,14 +15,14 @@
 #include <fstream>
 #include <iomanip>
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
 #if defined(BUILD_DEBUG) && defined(PLATFORM_WINDOWS)
 	#include <windows.h>
 #endif //BUILD_DEBUG && PLATFORM_WINDOWS
 
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/util/log.h>
+#include <breathe/util/filesystem.h>
 
 
 
@@ -32,13 +32,13 @@
 #define CONSOLE_MAXLINES 50
 
 
-BREATHE::LOGGING::cLog LOG;
-BREATHE::LOGGING::cConsole CONSOLE;
-BREATHE::LOGGING::cScreen SCREEN;
+breathe::logging::cLog LOG;
+breathe::logging::cConsole CONSOLE;
+breathe::logging::cScreen SCREEN;
 
-namespace BREATHE
+namespace breathe
 {
-	namespace LOGGING
+	namespace logging
 	{
 		// ***********************************************LOG*******************************************************
 
@@ -62,9 +62,9 @@ namespace BREATHE
 
 
 
-			BREATHE::FILESYSTEM::CreateDirectory("log");
-			BREATHE::FILESYSTEM::CreateDirectory("log/mem");
-			BREATHE::FILESYSTEM::CreateFile(strfilename);
+			breathe::filesystem::CreateDirectory("log");
+			breathe::filesystem::CreateDirectory("log/mem");
+			breathe::filesystem::CreateFile(strfilename);
 
 			CreateLog();
 

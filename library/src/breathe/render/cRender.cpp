@@ -24,7 +24,7 @@
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/filesystem.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -37,7 +37,7 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 
 #include <breathe/util/cVar.h>
 
@@ -107,8 +107,8 @@ namespace breathe
 			pMaterialNotFoundTexture=NULL;
 			pTextureNotFoundTexture=NULL;
 
-			for(i=0;i<MATERIAL::nLayers;i++)
-				vLayer.push_back(MATERIAL::cLayer());
+			for(i=0;i<material::nLayers;i++)
+				vLayer.push_back(material::cLayer());
 			
 			pMaterialNotFoundMaterial=NULL;
 		}
@@ -437,7 +437,7 @@ namespace breathe
 			SDL_GL_SwapBuffers();
 		}
 
-		void cRender::_RenderPostRenderPass(MATERIAL::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO)
+		void cRender::_RenderPostRenderPass(material::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO)
 		{
 			BeginScreenSpaceRendering();
 				SetMaterial(pMaterial);
@@ -484,7 +484,7 @@ namespace breathe
 
 			// We have just rendered to a texture, loop through the post render chain alternating
 			// rendering to pFrameBuffer0 and pFrameBuffer1
-			std::list<MATERIAL::cMaterial*>::iterator iter = lPostRenderEffects.begin();
+			std::list<material::cMaterial*>::iterator iter = lPostRenderEffects.begin();
 			unsigned int i = 0;
 			for(i = 0; i < n - 1; i++, iter++)
 			{
@@ -827,8 +827,8 @@ namespace breathe
 			if((""==sNewFilename) || (ATLAS_NONE == uiAtlas))
 				return pTextureNotFoundTexture;
 			
-			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
-			std::string s = breathe::FILESYSTEM::GetFile(sFilename);
+			std::string sFilename=breathe::filesystem::FindFile(sNewFilename);
+			std::string s = breathe::filesystem::GetFile(sFilename);
 
 			cTexture* p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
 			if(NULL==p)
@@ -849,8 +849,8 @@ namespace breathe
 			if(""==sNewFilename)
 				return pTextureNotFoundTexture;
 			
-			std::string sFilename = breathe::FILESYSTEM::FindFile(sNewFilename);
-			std::string s = breathe::FILESYSTEM::GetFile(sFilename);
+			std::string sFilename = breathe::filesystem::FindFile(sNewFilename);
+			std::string s = breathe::filesystem::GetFile(sFilename);
 
 			
 			cTexture* p = GetTexture(s);
@@ -880,7 +880,7 @@ namespace breathe
 		{
 			cTexture* p=new cTexture();
 
-			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
+			std::string sFilename=breathe::filesystem::FindFile(sNewFilename);
 			
 			if(p->Load(sFilename) != breathe::GOOD)
 			{
@@ -905,7 +905,7 @@ namespace breathe
 		{
 			cTexture* p=new cTexture();
 
-			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
+			std::string sFilename=breathe::filesystem::FindFile(sNewFilename);
 
 			LOG.Success("Texture", "Loading " + sFilename);
 			
@@ -1014,15 +1014,15 @@ namespace breathe
 
 			std::stringstream s;
 
-			std::string sFile=breathe::FILESYSTEM::GetFileNoExtension(sFilename);
-			std::string sExt=breathe::FILESYSTEM::GetExtension(sFilename);
+			std::string sFile=breathe::filesystem::GetFileNoExtension(sFilename);
+			std::string sExt=breathe::filesystem::GetExtension(sFilename);
 			
 			for(i=0;i<6;i++)
 			{
 				s.str( "" );
 
 				s<<sFile<<"/"<<sFile<<i<<"."<<sExt;
-				sFilename=breathe::FILESYSTEM::FindFile(s.str());
+				sFilename=breathe::filesystem::FindFile(s.str());
 
 				unsigned int mode=0;
 
@@ -1124,13 +1124,13 @@ namespace breathe
 			return p;
 		}
 
-		MATERIAL::cMaterial *cRender::AddMaterialNotFoundMaterial(std::string sNewFilename)
+		material::cMaterial *cRender::AddMaterialNotFoundMaterial(std::string sNewFilename)
 		{
 			AddMaterialNotFoundTexture(sNewFilename);
 
-			sNewFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
+			sNewFilename=breathe::filesystem::FindFile(sNewFilename);
 
-			pMaterialNotFoundMaterial=new MATERIAL::cMaterial("MaterialNotFound");
+			pMaterialNotFoundMaterial=new material::cMaterial("MaterialNotFound");
 
 			pMaterialNotFoundMaterial->vLayer[0]->sTexture=sNewFilename;
 			pMaterialNotFoundMaterial->vLayer[0]->pTexture=pMaterialNotFoundTexture;
@@ -1139,18 +1139,18 @@ namespace breathe
 			return pMaterialNotFoundMaterial;
 		}
 
-		MATERIAL::cMaterial *cRender::AddMaterial(std::string sNewfilename)
+		material::cMaterial *cRender::AddMaterial(std::string sNewfilename)
 		{
 			if(""==sNewfilename)
 				return NULL;
 
-			MATERIAL::cMaterial *pMaterial = GetMaterial(sNewfilename);
+			material::cMaterial *pMaterial = GetMaterial(sNewfilename);
 			
 			if(pMaterial != pMaterialNotFoundMaterial)
 				return pMaterial;
 			
-			std::string sFilename = FILESYSTEM::FindFile(sNewfilename);
-			pMaterial=new MATERIAL::cMaterial(sFilename);
+			std::string sFilename = filesystem::FindFile(sNewfilename);
+			pMaterial=new material::cMaterial(sFilename);
 
 			if(breathe::BAD == pMaterial->Load(sFilename))
 			{
@@ -1202,9 +1202,9 @@ namespace breathe
 			unsigned int n=0;
 			unsigned int unit=GL_TEXTURE0;
 
-			MATERIAL::cLayer* layerOld;
+			material::cLayer* layerOld;
 
-			for(i=n;i<MATERIAL::nLayers;i++, unit++)
+			for(i=n;i<material::nLayers;i++, unit++)
 			{
 				layerOld = &vLayer[i];
 
@@ -1269,7 +1269,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, int value)
+		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value)
 		{
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
@@ -1283,7 +1283,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, float value)
+		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value)
 		{
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
@@ -1297,7 +1297,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, math::cVec3& value)
+		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value)
 		{
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
@@ -1311,7 +1311,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, math::cVec3& pos)
+		bool cRender::SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos)
 		{
 			assert(pMaterial);
 
@@ -1331,11 +1331,11 @@ namespace breathe
 			//uiTextureChanges
 
 			unsigned int i=0;
-			unsigned int n=MATERIAL::nLayers;
+			unsigned int n=material::nLayers;
 			unsigned int unit=0;
 
-			MATERIAL::cLayer* layerOld;
-			MATERIAL::cLayer* layerNew;
+			material::cLayer* layerOld;
+			material::cLayer* layerNew;
 
 			for(i=0;i<n;i++)
 			{
@@ -1702,7 +1702,7 @@ namespace breathe
 
 			unit = GL_TEXTURE0_ARB + n;
 
-			for(i=n;i<MATERIAL::nLayers;i++, unit++)
+			for(i=n;i<material::nLayers;i++, unit++)
 			{
 				layerNew = pMaterial->vLayer[i];
 				layerOld = &vLayer[i];
@@ -1891,9 +1891,9 @@ namespace breathe
 			return true;
 		}
 
-		MATERIAL::cMaterial* cRender::GetMaterial(std::string sFilename)
+		material::cMaterial* cRender::GetMaterial(std::string sFilename)
 		{
-			std::map<std::string, MATERIAL::cMaterial * >::iterator iter=mMaterial.begin();
+			std::map<std::string, material::cMaterial * >::iterator iter=mMaterial.begin();
 
 			while(iter!=mMaterial.end())
 			{
@@ -1905,9 +1905,9 @@ namespace breathe
 			return pMaterialNotFoundMaterial;
 		}
 
-		MATERIAL::cMaterial* cRender::AddPostRenderEffect(std::string sFilename)
+		material::cMaterial* cRender::AddPostRenderEffect(std::string sFilename)
 		{
-			MATERIAL::cMaterial* pMaterial = AddMaterial(sFilename);
+			material::cMaterial* pMaterial = AddMaterial(sFilename);
 			assert(pMaterial);
 			lPostRenderEffects.push_back(pMaterial);
 
@@ -2014,7 +2014,7 @@ namespace breathe
 		void cRender::TransformModels()
 		{
 			cTexture* t = NULL;
-			MATERIAL::cMaterial* mat=NULL;
+			material::cMaterial* mat=NULL;
 
 			model::cStatic* s=NULL;
 			model::cMesh* pMesh;
@@ -2172,9 +2172,9 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Materials");
-				MATERIAL::cMaterial * pMaterial = NULL;
-				std::map<std::string, MATERIAL::cMaterial *>::iterator iter=mMaterial.begin();
-				std::map<std::string, MATERIAL::cMaterial *>::iterator iterEnd=mMaterial.end();
+				material::cMaterial * pMaterial = NULL;
+				std::map<std::string, material::cMaterial *>::iterator iter=mMaterial.begin();
+				std::map<std::string, material::cMaterial *>::iterator iterEnd=mMaterial.end();
 				while(iter != iterEnd)
 				{
 					pMaterial = iter->second;

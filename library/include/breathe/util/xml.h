@@ -1,19 +1,19 @@
 #ifndef CXML_H
 #define CXML_H
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cColour.h>
 
-namespace BREATHE
+namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		class cVec3;
 		class cColour;
 	}
 
-	namespace XML
+	namespace xml
 	{
 		// Can be made up of either
 		// a) cNode with sName
@@ -61,8 +61,8 @@ namespace BREATHE
 
 			bool GetAttribute(std::string sAttribute, std::string* pValue);
 			bool GetAttribute(std::string sAttribute, bool* pValue);
-			bool GetAttribute(std::string sAttribute, MATH::cVec3* pValue);
-			bool GetAttribute(std::string sAttribute, MATH::cColour* pValue);
+			bool GetAttribute(std::string sAttribute, math::cVec3* pValue);
+			bool GetAttribute(std::string sAttribute, math::cColour* pValue);
 
 			class cIterator
 			{

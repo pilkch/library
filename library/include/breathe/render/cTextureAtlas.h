@@ -5,7 +5,7 @@ struct SDL_Surface;
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		/*	
 			Atlas0	landscape textures: bitumen, dirt, grass, concrete, snow, water rocks, stairs, cliffs, sky

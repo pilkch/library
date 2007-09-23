@@ -1,9 +1,9 @@
 #ifndef COPERATINGSYSTEM_H
 #define COPERATINGSYSTEM_H
 
-namespace BREATHE
+namespace breathe
 {
-	namespace OPERATINGSYSTEM
+	namespace operatingsystem
 	{
 		std::string GetOperatingSystemNameString();
 		std::string GetOperatingSystemVersionString();

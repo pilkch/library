@@ -30,51 +30,51 @@
 
 #include <ODE/ode.h>
 
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cString.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
-#include <BREATHE/UTIL/cVar.h>
-#include <BREATHE/UTIL/cXML.h>
+#include <breathe/breathe.h>
+#include <breathe/util/cString.h>
+#include <breathe/util/log.h>
+#include <breathe/util/filesystem.h>
+#include <breathe/util/cVar.h>
+#include <breathe/util/xml.h>
 
-#include <BREATHE/UTIL/cTimer.h>
+#include <breathe/util/cTimer.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cColour.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-
-
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cColour.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
 
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
 
-#include <BREATHE/GAME/cLevel.h>
-#include <BREATHE/UTIL/cApp.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
-#include <BREATHE/AUDIO/cAudio.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
+
+#include <breathe/game/cLevel.h>
+#include <breathe/util/app.h>
+
+#include <breathe/audio/audio.h>
 
 #ifdef BUILD_DEBUG
-void TestVariable(BREATHE::cApp* app, std::string variable)
+void TestVariable(breathe::cApp* app, std::string variable)
 {
-	BREATHE::cVar<std::string>* p = app->VarFind(variable);
+	breathe::cVar<std::string>* p = app->VarFind(variable);
 	assert(p);
 	std::string s = p->GetString();
 	bool b = p->GetBool();
@@ -85,7 +85,7 @@ void TestVariable(BREATHE::cApp* app, std::string variable)
 }
 #endif
 
-namespace BREATHE
+namespace breathe
 {
 	cApp::cApp(int argc, char **argv) :
 #ifdef BUILD_DEBUG
@@ -98,7 +98,7 @@ namespace BREATHE
 		bUpdatePhysics(true),
 		bStepPhysics(false),
 
-		bReturnCode(BREATHE::GOOD),
+		bReturnCode(breathe::GOOD),
 
 		g_info(NULL)
 	{
@@ -145,7 +145,7 @@ namespace BREATHE
 		SDL_ShowCursor(SDL_DISABLE);
 
 
-		pRender=new RENDER::cRender();
+		pRender=new render::cRender();
 		
 		pLevel=new cLevel();
 	}
@@ -159,13 +159,13 @@ namespace BREATHE
 		TTF_Quit();
 
 		LOG.Success("Destroy", "Audio");
-		BREATHE::AUDIO::Destroy();
+		breathe::audio::Destroy();
 
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 
 		LOG.Success("Destroy", "Physics");
-		BREATHE::PHYSICS::Destroy();
+		breathe::physics::Destroy();
 
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
@@ -184,34 +184,34 @@ namespace BREATHE
 	{
 		{
 			LOG.Success("Init", "Loading config.xml");
-			BREATHE::XML::cNode root("config.xml");
+			breathe::xml::cNode root("config.xml");
 
-			BREATHE::XML::cNode::iterator iter(root);
+			breathe::xml::cNode::iterator iter(root);
 			if (!iter)
 			{
-				bReturnCode=BREATHE::BAD;
-				return BREATHE::BAD;
+				bReturnCode=breathe::BAD;
+				return breathe::BAD;
 			}
 
 			iter.FindChild("config");
-			if (!iter) return BREATHE::GOOD;
+			if (!iter) return breathe::GOOD;
 
 			iter.FindChild("directory");
-			if (!iter) return BREATHE::GOOD;
+			if (!iter) return breathe::GOOD;
 
 			while(iter)
 			{
 				std::string sDirectory;
-				if(iter.GetAttribute("path", &sDirectory)) BREATHE::FILESYSTEM::AddDirectory(sDirectory);
+				if(iter.GetAttribute("path", &sDirectory)) breathe::filesystem::AddDirectory(sDirectory);
 
 				iter.Next("directory");
 			};
 
 			iter = root;
-			if (!iter) return BREATHE::GOOD;
+			if (!iter) return breathe::GOOD;
 
 			iter.FindChild("config");
-			if (!iter) return BREATHE::GOOD;
+			if (!iter) return breathe::GOOD;
 
 			iter.FindChild("render");
 			while(iter)
@@ -260,8 +260,8 @@ namespace BREATHE
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
 		{
 			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			bReturnCode=breathe::BAD;
+			return breathe::BAD;
 		}
 
 		{
@@ -385,37 +385,37 @@ namespace BREATHE
 		LOG.Success("SDL", "Setting caption to " + s);
 		SDL_WM_SetCaption(title.c_str(), s.c_str());
 
-		if(BREATHE::BAD==InitRender())
-			return BREATHE::BAD;
+		if(breathe::BAD==InitRender())
+			return breathe::BAD;
 
 		TTF_Init();
 
-		BREATHE::AUDIO::Init();
+		breathe::audio::Init();
 		
-		BREATHE::PHYSICS::Init();
+		breathe::physics::Init();
 
-		if(BREATHE::BAD==LoadScene())
-			return BREATHE::BAD;
+		if(breathe::BAD==LoadScene())
+			return breathe::BAD;
 
-		if(BREATHE::BAD==InitScene())
-			return BREATHE::BAD;
+		if(breathe::BAD==InitScene())
+			return breathe::BAD;
 
-		BREATHE::AUDIO::StartAll();
+		breathe::audio::StartAll();
 
 		// Setup mouse
 		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
 		//SDL_ShowCursor(SDL_DISABLE);
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	bool cApp::DestroyApp()
 	{
 		SDL_ShowCursor(SDL_ENABLE);
 
-		BREATHE::AUDIO::StopAll();
+		breathe::audio::StopAll();
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	bool cApp::InitRender()
@@ -426,8 +426,8 @@ namespace BREATHE
 		if ( !videoInfo )
 		{
 			LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			bReturnCode=breathe::BAD;
+			return breathe::BAD;
 		}
 		
 		if(pRender->bFullscreen)
@@ -473,17 +473,17 @@ namespace BREATHE
 		if(!pRender->pSurface)
 		{
 			LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			bReturnCode=breathe::BAD;
+			return breathe::BAD;
 		}
 
-		if(BREATHE::BAD==SetPerspective())
-			return BREATHE::BAD;
+		if(breathe::BAD==SetPerspective())
+			return breathe::BAD;
 
-		if(BREATHE::BAD==pRender->Init())
-			return BREATHE::BAD;
+		if(breathe::BAD==pRender->Init())
+			return breathe::BAD;
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	bool cApp::DestroyRender()
@@ -492,31 +492,31 @@ namespace BREATHE
 
 		pRender->pSurface = NULL;
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 	
 	bool cApp::ToggleFullscreen()
 	{	
 		// Destroy the old render
-		if(BREATHE::BAD==DestroyRender())
+		if(breathe::BAD==DestroyRender())
 		{
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			bReturnCode=breathe::BAD;
+			return breathe::BAD;
 		}
 
 		// Toggle fullscreen
 		pRender->ToggleFullscreen();
 
 		// Create the new render
-		if(BREATHE::BAD==InitRender())
+		if(breathe::BAD==InitRender())
 		{
-			bReturnCode=BREATHE::BAD;
-			return BREATHE::BAD;
+			bReturnCode=breathe::BAD;
+			return breathe::BAD;
 		}
 
 		pRender->ReloadTextures();
 		
-		return BREATHE::GOOD;		
+		return breathe::GOOD;		
 	}
 
 	cVar<std::string>* cApp::VarFind(std::string name)
@@ -539,7 +539,7 @@ namespace BREATHE
 	{
 		pRender->SetPerspective();
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
@@ -552,7 +552,7 @@ namespace BREATHE
 		InitRender();
 		pRender->ReloadTextures();
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	void cApp::UpdateEvents(float fCurrentTime)
@@ -573,7 +573,7 @@ namespace BREATHE
 					break;
 				case SDL_VIDEORESIZE:
 
-					if(BREATHE::BAD == ResizeWindow(event.resize.w, event.resize.h))
+					if(breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
 						bDone=true;
 
 					break;
@@ -763,7 +763,7 @@ namespace BREATHE
 			}*/
 
 			std::string s;
-			s += static_cast<BREATHE::unicode_char>(uiCode);
+			s += static_cast<breathe::unicode_char>(uiCode);
 			CONSOLE.sLine.insert(CONSOLE.uiCursorPosition, s);
 			CONSOLE.uiCursorPosition++;
 		}
@@ -898,7 +898,7 @@ namespace BREATHE
     LOG.Newline("MainLoop");
 		float fCurrentTime = 0.0f;
 
-		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * PHYSICS::fInterval);
+		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * physics::fInterval);
 		unsigned int uiUpdateHz = 30;
 		unsigned int uiTargetFramesPerSecond = 60;
 

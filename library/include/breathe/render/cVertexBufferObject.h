@@ -5,7 +5,7 @@ struct SDL_Surface;
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		template <class T>
 		class cVertexBufferObjectArray

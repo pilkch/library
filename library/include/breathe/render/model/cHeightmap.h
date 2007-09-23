@@ -3,9 +3,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			class cHeightmap : public cModel, public cObject
 			{
@@ -47,7 +47,7 @@ namespace breathe
 				//static breathe::math::cFrustum *pFrustum;
 
 				std::string sMaterial;
-				MATERIAL::cMaterial* pMaterial;
+				material::cMaterial* pMaterial;
 			};
 
 			

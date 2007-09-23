@@ -27,7 +27,7 @@
 #include <breathe/util/log.h>
 #include <breathe/util/cString.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -38,9 +38,9 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/filesystem.h>
 
 
 
@@ -49,20 +49,20 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
 #include <breathe/game/cLevel.h>
 
-#include <breathe/util/cXML.h>
+#include <breathe/util/xml.h>
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MATERIAL
+		namespace material
 		{
 			cLayer::cLayer() :
 				pTexture(NULL),
@@ -292,9 +292,9 @@ namespace breathe
 			{
 				LOG.Success("Material", std::string("Loading ") + sFilename);
 
-				breathe::FILESYSTEM::FindFile(sFilename);
+				breathe::filesystem::FindFile(sFilename);
 
-				std::string sPath=breathe::FILESYSTEM::GetPath(sFilename);
+				std::string sPath=breathe::filesystem::GetPath(sFilename);
 				
 				xml::cNode root(sFilename);
 				xml::cNode::iterator iter(root);
@@ -322,12 +322,12 @@ namespace breathe
 				if(iter.GetAttribute("sShaderVertex", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
-					pShader->sShaderVertex=breathe::FILESYSTEM::FindFile(sPath + sValue);
+					pShader->sShaderVertex=breathe::filesystem::FindFile(sPath + sValue);
 				}
 				if(iter.GetAttribute("sShaderFragment", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
-					pShader->sShaderFragment=breathe::FILESYSTEM::FindFile(sPath + sValue);
+					pShader->sShaderFragment=breathe::filesystem::FindFile(sPath + sValue);
 				}
 
 				if(pShader)
@@ -355,7 +355,7 @@ namespace breathe
 					{
 						std::string sTexture;
 						if(iter.GetAttribute("sTexture", &sTexture))
-							pLayer->sTexture = breathe::FILESYSTEM::FindFile(sPath + sTexture);
+							pLayer->sTexture = breathe::filesystem::FindFile(sPath + sTexture);
 
 						std::string sValue;
 						if(iter.GetAttribute("uiTextureMode", &sValue))

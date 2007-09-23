@@ -3,15 +3,15 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MATERIAL
+		namespace material
 		{
 			class cMaterial;	
 		}
 
 		
-		namespace MODEL
+		namespace model
 		{
 			//uiTextures	|	uiTriangles	fVerticies	vNormals	fTexCoords
 			//------------+---------------------------------------------
@@ -54,13 +54,13 @@ namespace breathe
 
 				void CloneTo(cMesh* rhs);
 
-				void SetMaterial(MATERIAL::cMaterial* pMaterial);
+				void SetMaterial(material::cMaterial* pMaterial);
 				void SetMaterial(std::string sMaterial);
 				
 				cMeshData* pMeshData;
 
 				std::string sMaterial;
-				MATERIAL::cMaterial* pMaterial;
+				material::cMaterial* pMaterial;
 			};
 		}
 	}

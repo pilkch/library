@@ -7,7 +7,7 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -22,9 +22,9 @@
 
 namespace breathe
 {
-	namespace GAME
+	namespace game
 	{
-		namespace PATH
+		namespace path
 		{
 			cPathNode::cPathNode()
 			{

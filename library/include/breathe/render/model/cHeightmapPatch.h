@@ -3,9 +3,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{/*
 			// Depth of variance tree: should be near SQRT(PATCH_SIZE) + 1
 			#define VARIANCE_DEPTH (9)

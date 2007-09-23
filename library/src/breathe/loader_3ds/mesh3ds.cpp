@@ -17,7 +17,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		Mesh3DS::Mesh3DS()
 		{

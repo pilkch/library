@@ -5,9 +5,9 @@ namespace breathe
 {
 	class cLevel;
 
-	namespace RENDER
+	namespace render
 	{
-		namespace MATERIAL
+		namespace material
 		{
 			const unsigned int nLayers=3;
 

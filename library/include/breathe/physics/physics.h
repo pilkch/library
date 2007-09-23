@@ -1,9 +1,9 @@
 #ifndef CPHYSICS_H
 #define CPHYSICS_H
 
-namespace BREATHE
+namespace breathe
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		extern const float fInterval;
 		extern  const int iMaxContacts;

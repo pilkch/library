@@ -1,11 +1,11 @@
 #ifndef CVEHICLE_H
 #define CVEHICLE_H
 
-namespace BREATHE
+namespace breathe
 {
 	class c3ds;
 
-	namespace VEHICLE
+	namespace vehicle
 	{
 		class cWheel;
 		class cSeat;
@@ -52,7 +52,7 @@ namespace BREATHE
 			}
 		};
 
-		class cVehicle : virtual public PHYSICS::cPhysicsObject
+		class cVehicle : virtual public physics::cPhysicsObject
 		{
 		public:
 			bool bEngineOff;

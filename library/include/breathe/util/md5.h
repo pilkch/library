@@ -25,7 +25,7 @@
 #ifndef CMD5_H
 #define CMD5_H
 
-namespace BREATHE
+namespace breathe
 {
 	class cMD5_Context
 	{

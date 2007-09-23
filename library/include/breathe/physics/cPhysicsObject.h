@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		class cPhysics;
 		

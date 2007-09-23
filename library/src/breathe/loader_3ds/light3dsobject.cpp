@@ -8,7 +8,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		Light3DSObject::Light3DSObject(const std::string &nname)
 		: name(nname)

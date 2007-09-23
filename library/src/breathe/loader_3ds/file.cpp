@@ -10,12 +10,12 @@
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
 
-#include "breathe/loader_3ds/file.h"
-#include "breathe/loader_3ds/build3ds.h"
+#include <breathe/loader_3ds/file.h>
+#include <breathe/loader_3ds/build3ds.h>
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		Model3DSFile::Model3DSFile(std::string src)
 			: file(src.c_str(), std::ios::binary)

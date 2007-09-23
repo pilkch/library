@@ -3,14 +3,14 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		const unsigned int DEFAULT_LIFESPANMIN = 30;
 		const unsigned int DEFAULT_LIFESPANMAX = 50;
 		const float DEFAULT_PARTICLE_WIDTH = 1.0f;
 		const float DEFAULT_PARTICLE_HEIGHT = 1.0f;
 
-		namespace MODEL
+		namespace model
 		{
 			class cMesh;
 		}
@@ -83,13 +83,13 @@ namespace breathe
 
 			void SetParticleWidth(float fWidth);
 			void SetParticleHeight(float fHeight);
-			void SetMaterial(MATERIAL::cMaterial* pMaterial);
+			void SetMaterial(material::cMaterial* pMaterial);
 
 		private:			
 			float fParticleWidth;
 			float fParticleHeight;
 
-			MATERIAL::cMaterial* pMaterial;
+			material::cMaterial* pMaterial;
 		};
 
 		class cParticleSystemMesh : public cParticleSystem

@@ -3,9 +3,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			class cAnimation : public cModel
 			{

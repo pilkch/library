@@ -16,7 +16,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		Light3DS::Light3DS()
 		{

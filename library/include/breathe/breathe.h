@@ -62,12 +62,12 @@
 
 
 // FluidStudios' memory leak detection
-#include <BREATHE/UTIL/cMem.h>
+#include <breathe/util/mem.h>
 
 
 // Utility types, objects etc.
 
-namespace BREATHE
+namespace breathe
 {
 #ifdef BUILD_UNICODE
 	typedef wchar_t unicode_char;

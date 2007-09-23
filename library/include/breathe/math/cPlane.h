@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace MATH
+	namespace math
 	{
 		//constants for ClassifyPoint()
 		const int POINT_ON_cPlane=0;

@@ -3,9 +3,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			//Base class for cModel_Animation, cModel_Roam, cModel_Static
 			//Doesn't actually contain cMesh objects, but the idea is that you inherit this class and then

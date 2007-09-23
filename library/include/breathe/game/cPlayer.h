@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace VEHICLE
+	namespace vehicle
 	{
 		class cSeat;
 	}
@@ -24,10 +24,10 @@ namespace breathe
 	const int CAMERA_FIRSTPERSONFREE = 3;
 #endif
 
-	class cPlayer : virtual public PHYSICS::cUprightCapsule
+	class cPlayer : virtual public physics::cUprightCapsule
 	{
 	public:
-		VEHICLE::cSeat *pSeat;
+		vehicle::cSeat *pSeat;
 		
 		cPlayer();
 		~cPlayer();

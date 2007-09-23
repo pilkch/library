@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace GUI
+	namespace gui
 	{
 		class cWindow : public cWidget
 		{

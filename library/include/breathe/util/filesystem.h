@@ -10,9 +10,9 @@
 #undef FileExists
 #endif
 
-namespace BREATHE
+namespace breathe
 {
-	namespace FILESYSTEM
+	namespace filesystem
 	{		
 		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
 		std::string FindFile(std::string sFilename);

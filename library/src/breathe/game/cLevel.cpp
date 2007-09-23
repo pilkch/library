@@ -28,10 +28,10 @@
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
-#include <breathe/util/cFileSystem.h>
-#include <breathe/util/cXML.h>
+#include <breathe/util/filesystem.h>
+#include <breathe/util/xml.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -42,7 +42,7 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
@@ -61,10 +61,10 @@
 
 #include <breathe/game/cPlayer.h>
 #include <breathe/game/cPetrolBowser.h>
-#include <breathe/VEHICLE/cPart.h>
-#include <breathe/VEHICLE/cWheel.h>
-#include <breathe/VEHICLE/cSeat.h>
-#include <breathe/VEHICLE/cVehicle.h>
+#include <breathe/vehicle/cPart.h>
+#include <breathe/vehicle/cWheel.h>
+#include <breathe/vehicle/cSeat.h>
+#include <breathe/vehicle/cVehicle.h>
 
 breathe::cLevel* pLevel = NULL;
 
@@ -73,7 +73,7 @@ const unsigned int uiNodeNameDisplayTime = 100;
 namespace breathe
 {
 	/*
-	std::string s=breathe::FILESYSTEM::GetMD5(sFilename);*/
+	std::string s=breathe::filesystem::GetMD5(sFilename);*/
 
 	cLevel::cLevel()
 	{
@@ -337,8 +337,8 @@ namespace breathe
 		}
 
 		{
-			std::list<PHYSICS::cPhysicsObject *>::iterator iter=PHYSICS::GetObjectListBegin();
-			std::list<PHYSICS::cPhysicsObject *>::iterator end=PHYSICS::GetObjectListEnd();
+			std::list<physics::cPhysicsObject *>::iterator iter=physics::GetObjectListBegin();
+			std::list<physics::cPhysicsObject *>::iterator end=physics::GetObjectListEnd();
 
 			while(end != iter)
 				(*iter++)->Update(fCurrentTime);
@@ -357,9 +357,9 @@ namespace breathe
 
 		
 		{
-			VEHICLE::cVehicle *pVehicle=NULL;
+			vehicle::cVehicle *pVehicle=NULL;
 		
-			std::list<VEHICLE::cVehicle *>::iterator iter=lVehicle.begin();
+			std::list<vehicle::cVehicle*>::iterator iter=lVehicle.begin();
 			while(iter!=lVehicle.end())
 			{
 				(*iter)->Update(fCurrentTime);
@@ -383,8 +383,8 @@ namespace breathe
 		//for(i=0;i<n;i++)
 		//	uiTriangles+=RenderStaticModel(vStatic[i]);));
 		
-		std::list<PHYSICS::cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
-		std::list<PHYSICS::cPhysicsObject*>::iterator end = lPhysicsObject.end();
+		std::list<physics::cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
+		std::list<physics::cPhysicsObject*>::iterator end = lPhysicsObject.end();
 		while(end != iter)
 		{
 			glPushMatrix();
@@ -399,12 +399,12 @@ namespace breathe
 		return uiTriangles;
 	}
 
-	unsigned int cLevel::RenderVehicles(float fCurrentTime, VEHICLE::cVehicle *pOwnVehicle)
+	unsigned int cLevel::RenderVehicles(float fCurrentTime, vehicle::cVehicle *pOwnVehicle)
 	{
 		unsigned int uiTriangles=0;
-		VEHICLE::cVehicle *pVehicle=NULL;
+		vehicle::cVehicle *pVehicle=NULL;
 		
-		std::list<VEHICLE::cVehicle *>::iterator iter=lVehicle.begin();
+		std::list<vehicle::cVehicle *>::iterator iter=lVehicle.begin();
 		while(iter!=lVehicle.end())
 		{
 			pVehicle=*iter;
@@ -479,25 +479,25 @@ namespace breathe
 		return *s;
 	}
 
-	void cLevel::AddPhysicsObject(PHYSICS::cPhysicsObject *d)
+	void cLevel::AddPhysicsObject(physics::cPhysicsObject *d)
 	{
-		PHYSICS::AddPhysicsObject(d);
+		physics::AddPhysicsObject(d);
 		lPhysicsObject.push_back(d);
 	}
 
-	void cLevel::RemovePhysicsObject(PHYSICS::cPhysicsObject *d)
+	void cLevel::RemovePhysicsObject(physics::cPhysicsObject *d)
 	{
-		PHYSICS::RemovePhysicsObject(d);
+		physics::RemovePhysicsObject(d);
 		lPhysicsObject.remove(d);
 	}
 
 
-	void cLevel::AddVehicle(VEHICLE::cVehicle *v)
+	void cLevel::AddVehicle(vehicle::cVehicle *v)
 	{
 		lVehicle.push_back(v);
 	}
 
-	void cLevel::RemoveVehicle(VEHICLE::cVehicle *v)
+	void cLevel::RemoveVehicle(vehicle::cVehicle *v)
 	{
 		lVehicle.remove(v);
 	}
@@ -527,16 +527,16 @@ namespace breathe
 		return pRender->GetCubeMap(c->sFilename);
 	}
 
-	VEHICLE::cVehicle *cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
+	vehicle::cVehicle *cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
 	{
 		if(lVehicle.size()<1)
 			return NULL;
 
-		std::list<VEHICLE::cVehicle *>::iterator iter=lVehicle.begin();
+		std::list<vehicle::cVehicle *>::iterator iter=lVehicle.begin();
 
 		float d=fMaxDistance;
 		float t=fMaxDistance;
-		breathe::VEHICLE::cVehicle *v=NULL;
+		breathe::vehicle::cVehicle *v=NULL;
 
 		while(iter!=lVehicle.end())
 		{

@@ -12,43 +12,43 @@
 
 #include <ODE/ode.h>
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
 
-#include <BREATHE/GAME/cPlayer.h>
-#include <BREATHE/GAME/cPetrolBowser.h>
+#include <breathe/game/cPlayer.h>
+#include <breathe/game/cPetrolBowser.h>
 
-#include <BREATHE/VEHICLE/cPart.h>
-#include <BREATHE/VEHICLE/cWheel.h>
-#include <BREATHE/VEHICLE/cSeat.h>
-#include <BREATHE/VEHICLE/cVehicle.h>
+#include <breathe/vehicle/cPart.h>
+#include <breathe/vehicle/cWheel.h>
+#include <breathe/vehicle/cSeat.h>
+#include <breathe/vehicle/cVehicle.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
 #if (_MSC_VER >= 1300) && (WINVER < 0x0500)
 #pragma warning(disable:4305)
@@ -205,15 +205,15 @@ extern float fBBB;
         dBodyAddForceAtPos( car->odeBody, -force[0], -force[1], -force[2], pos1[0], pos1[1], pos1[2] );
 */
 
-namespace BREATHE
+namespace breathe
 {
-	namespace VEHICLE
+	namespace vehicle
 	{
 		float fFrontSlip=0.0001f;
 		float fRearSlip=0.001f;
 
 		cWheel::cWheel(cVehicle *parent)
-			: PHYSICS::cPhysicsObject()
+			: physics::cPhysicsObject()
 		{
 			pParent=parent;
 
@@ -228,7 +228,7 @@ namespace BREATHE
 			fSuspensionMax=0.0f;
 		}
 		
-		void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, MATH::cVec3 &pos)
+		void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, math::cVec3 &pos)
 		{
 			this->bFront=bFront;
 			
@@ -252,16 +252,16 @@ namespace BREATHE
 
 		void cWheel::RayCast()
 		{
-			MATH::cVec3 dir=-pParent->m.GetUp().GetNormalized();
+			math::cVec3 dir=-pParent->m.GetUp().GetNormalized();
 
 			rayContact.Clear();
 
-			rayContact.fDepth = fSuspensionMax - MATH::cEPSILON;
+			rayContact.fDepth = fSuspensionMax - math::cEPSILON;
 			
 			dGeomRaySet(geomRay, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
 			dGeomRaySetLength(geomRay, fSuspensionMax);
-			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceStatic, this, RayCastCallback);
-			dSpaceCollide2(geomRay, (dGeomID)PHYSICS::spaceDynamic, this, RayCastCallback);
+			dSpaceCollide2(geomRay, (dGeomID)physics::spaceStatic, this, RayCastCallback);
+			dSpaceCollide2(geomRay, (dGeomID)physics::spaceDynamic, this, RayCastCallback);
 		}
 
 		void cWheel::RayCastCallback( void * data, dGeomID g1, dGeomID g2 )
@@ -314,27 +314,27 @@ namespace BREATHE
 			RayCast();
 		
 			// Set up the vectors to use when working out wheel rotation and position
-			MATH::cVec3 right=pParent->m.GetRight().GetNormalized();
-			MATH::cVec3 front=pParent->m.GetFront().GetNormalized();
-			MATH::cVec3 up=pParent->m.GetUp().GetNormalized();
-			MATH::cVec3 down=-up;
+			math::cVec3 right=pParent->m.GetRight().GetNormalized();
+			math::cVec3 front=pParent->m.GetFront().GetNormalized();
+			math::cVec3 up=pParent->m.GetUp().GetNormalized();
+			math::cVec3 down=-up;
 			
-			MATH::cVec3 dir=front;
+			math::cVec3 dir=front;
 
 			{
 				float fContact = rayContact.bContact ? rayContact.fDepth : fSuspensionMax;
 
-				MATH::cMat4 mPositionRel;
+				math::cMat4 mPositionRel;
 				mPositionRel.SetTranslation(v3SuspensionTopRel);
 
-				MATH::cMat4 mRotation;
+				math::cMat4 mRotation;
 				if(bFront)
 					mRotation.SetRotationZ(-atan2(pParent->fSteer, 1.0f));
 
 
 
-				MATH::cMat4 mContact;
-				mContact.SetTranslation((fContact-fRadius)*MATH::v3Down);
+				math::cMat4 mContact;
+				mContact.SetTranslation((fContact-fRadius)*math::v3Down);
 
 				m=pParent->m*mPositionRel*mRotation*mContact;
 
@@ -405,7 +405,7 @@ namespace BREATHE
 				// Forward rolling friction
 				// up/down contacts are full friction; sideways contacts are frictionless 
 				// to allow for better sliding behavior.
-				//BREATHE::MATH::cVec3 geom_normal = (BREATHE::MATH::cVec3 const &)c.geom.normal[0];
+				//breathe::math::cVec3 geom_normal = (breathe::math::cVec3 const &)c.geom.normal[0];
 				//contact.setCoulombFriction(wheelSlip * std::min(fabsf(geom_normal.z), 1.0f) * 0.0000001f);
 				//if( (pParent->fControl_Accelerate > 0.0f && pParent->fVel >= -0.1f) || 
 				//	(pParent->fControl_Accelerate < 0.0f && pParent->fVel <= 0.1f) ) 
@@ -448,8 +448,8 @@ namespace BREATHE
 					else
 					{
             //fSuspensionK /= (lv[2] * lv[2] * fSuspensionMax);
-						if(rayContact.fDepth > fSuspensionNormal) rayContact.fDepth = fSuspensionNormal - MATH::cEPSILON;
-						//rayContact.SetElasticity(PHYSICS::fERP, PHYSICS::fCFM);
+						if(rayContact.fDepth > fSuspensionNormal) rayContact.fDepth = fSuspensionNormal - math::cEPSILON;
+						//rayContact.SetElasticity(physics::fERP, physics::fCFM);
 						if(lv[2] < 0.0f)
               rayContact.SetSuspensionKU(fSuspensionK, fSuspensionU);
 						else
@@ -458,28 +458,28 @@ namespace BREATHE
 				}
 				
 				// Bounce
-				rayContact.SetBounce(PHYSICS::fBounce, PHYSICS::fBounceVel);
+				rayContact.SetBounce(physics::fBounce, physics::fBounceVel);
 
 				// Contact Depth
 				rayContact.CreateContact(rayContact.fDepth);
 
 				/*{
           dReal const * lv = dBodyGetLinearVel( pParent->body );
-					MATH::cVec3 v(MATH::v3Up * 0.001f * (lv[2] < 0.0f ? -lv[2] : lv[2]) / (rayContact.fDepth / fSuspensionMax));
+					math::cVec3 v(math::v3Up * 0.001f * (lv[2] < 0.0f ? -lv[2] : lv[2]) / (rayContact.fDepth / fSuspensionMax));
 					//dBodyAddForce(pParent->body, v.x, v.y, v.z);
 				}*/
 
 				
 				// Add forces to push the car forward/backward
 				{
-					MATH::cVec3 v(wheelAccel * dir * 100.0f);
+					math::cVec3 v(wheelAccel * dir * 100.0f);
 					dBodyAddForce(pParent->body, v.x, v.y, v.z);
 				}
 
 				// Add force to turn the car
 				if(bFront)
 				{
-					MATH::cVec3 v(down * pParent->fSteer * pParent->fSpeed * 100.0f);
+					math::cVec3 v(down * pParent->fSteer * pParent->fSpeed * 100.0f);
 					dBodyAddRelTorque(pParent->body, v.x, v.y, v.z);
 				}
 
@@ -487,16 +487,16 @@ namespace BREATHE
 
 				/*float restlength=1.0;
 				float delta = fSuspensionMax-(fContact-fRadius);
-				float deltalength = MATH::sqrt(delta*delta);
+				float deltalength = math::sqrt(delta*delta);
 				float diff = (deltalength-restlength)/deltalength;
 
 				float fForce=1.90f*pParent->fWeight*(fSuspensionMax-(fContact-fRadius))*fSuspensionK;
 				float fTorque=10.0f;
-				MATH::cVec3 force(up.x*fForce, up.y*fForce, up.z*fForce);
-				MATH::cVec3 torque(up.z*fTorque, up.z*fTorque, 0.0f);
-				MATH::cVec3 pos(v3SuspensionTopRel);
-				//MATH::cVec3 pos(v3SuspensionTop);
-				//MATH::cVec3 pos((pParent->m*mPositionRel).GetPosition());
+				math::cVec3 force(up.x*fForce, up.y*fForce, up.z*fForce);
+				math::cVec3 torque(up.z*fTorque, up.z*fTorque, 0.0f);
+				math::cVec3 pos(v3SuspensionTopRel);
+				//math::cVec3 pos(v3SuspensionTop);
+				//math::cVec3 pos((pParent->m*mPositionRel).GetPosition());
 
 				//dBodyAddRelForce(pParent->body, force.x, force.y, force.z);
 				//dBodyAddRelForceAtRelPos(pParent->body, force.x, force.y, force.z, pos.x, pos.y, pos.z);*/

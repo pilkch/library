@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace GUI
+	namespace gui
 	{
 		// This is our base object.  
 		// Windows as well as controls are derived from it.  

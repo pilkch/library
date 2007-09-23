@@ -6,19 +6,19 @@ namespace breathe
 	class cCamera;
 	class cObject;
 
-	namespace RENDER
+	namespace render
 	{
 		class cRender;
 		class cTexture;
 	}
 
 	
-	namespace PHYSICS
+	namespace physics
 	{
 		class cPhysicsObject;
 	}
 
-	namespace VEHICLE
+	namespace vehicle
 	{
 		class cVehicle;
 	}
@@ -112,8 +112,8 @@ namespace breathe
 
 		//std::map<std::string, render::model::cHeightmap*> mHeightmap;
 
-		std::list<VEHICLE::cVehicle *> lVehicle;
-		std::list<PHYSICS::cPhysicsObject*> lPhysicsObject;
+		std::list<vehicle::cVehicle *> lVehicle;
+		std::list<physics::cPhysicsObject*> lPhysicsObject;
 
 		std::vector<cLevelNode*>vNode; //vModel.size()=uiWidth*uiHeight;
 
@@ -139,17 +139,17 @@ namespace breathe
 		cLevelSpawn GetSpawn(math::cVec3 &p); //Get closest spawn to requested position
 
 		
-		void AddVehicle(VEHICLE::cVehicle *v);
-		void RemoveVehicle(VEHICLE::cVehicle *v);
+		void AddVehicle(vehicle::cVehicle *v);
+		void RemoveVehicle(vehicle::cVehicle *v);
 
-		void AddPhysicsObject(PHYSICS::cPhysicsObject *d);
-		void RemovePhysicsObject(PHYSICS::cPhysicsObject *d);
+		void AddPhysicsObject(physics::cPhysicsObject *d);
+		void RemovePhysicsObject(physics::cPhysicsObject *d);
 
-		unsigned int RenderVehicles(float fCurrentTime, VEHICLE::cVehicle *pOwnVehicle);
+		unsigned int RenderVehicles(float fCurrentTime, vehicle::cVehicle *pOwnVehicle);
 
 		render::cTexture *FindClosestCubeMap(math::cVec3 pos);
 
-		VEHICLE::cVehicle *FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
+		vehicle::cVehicle *FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
 	};
 	
 	class cSceneGraph

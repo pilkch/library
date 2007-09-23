@@ -12,9 +12,9 @@ namespace breathe
 		class Mesh3DSObject;
 	}
 
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			class cStatic : public cModel, protected math::cOctree
 			{

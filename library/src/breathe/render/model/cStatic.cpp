@@ -14,9 +14,9 @@
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/log.h>
-#include <breathe/util/cFileSystem.h>
+#include <breathe/util/filesystem.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -29,7 +29,7 @@
 
 
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
@@ -46,9 +46,9 @@
 //then they are all added to the root node and there are no children
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{
 			float fScaleCamera=0.05f;
 			int iVersionFile;
@@ -231,7 +231,7 @@ namespace breathe
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
-					pCurrentMesh->sMaterial=breathe::FILESYSTEM::FindFile(breathe::FILESYSTEM::GetPath(sFilename) + pMesh->sMaterial);
+					pCurrentMesh->sMaterial=breathe::filesystem::FindFile(breathe::filesystem::GetPath(sFilename) + pMesh->sMaterial);
 
 					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
 					// try it, comment these lines out, it breaks.  I don't know why :(

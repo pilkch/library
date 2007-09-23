@@ -16,7 +16,7 @@ namespace breathe
 		class cVertexBufferObject;
 		class cMaterial;
 
-		namespace MODEL
+		namespace model
 		{
 			class cMesh;
 			class cStatic;
@@ -50,7 +50,7 @@ namespace breathe
 			void _BeginRenderToScreen();
 			void _EndRenderToScreen();
 
-			void _RenderPostRenderPass(MATERIAL::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO);
+			void _RenderPostRenderPass(material::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO);
 
 		public:
 			void Begin();
@@ -109,31 +109,31 @@ namespace breathe
 			bool SetTexture1(std::string sTexture) { return SetTexture1(GetTexture(sTexture)); }
 			bool SetTexture1(cTexture* pTexture);
 
-			MATERIAL::cMaterial* AddMaterial(std::string sFilename);
-			MATERIAL::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
+			material::cMaterial* AddMaterial(std::string sFilename);
+			material::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
 			bool ClearMaterial();
 			bool SetMaterial(std::string sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, math::cVec3()); }
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial, math::cVec3& pos);
+			bool SetMaterial(material::cMaterial* pMaterial) { return SetMaterial(pMaterial, math::cVec3()); }
+			bool SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos);
 			
-			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, int value);
-			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, float value);
-			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, math::cVec3& value);
+			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value);
+			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value);
+			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value);
 
 			void ClearColour();
 			void SetColour(float r, float g, float b);
 			void SetColour(const math::cColour& inColour);
 
-			MATERIAL::cMaterial* GetMaterial(std::string sFilename);
+			material::cMaterial* GetMaterial(std::string sFilename);
 
 			
 			void ReloadTextures();
 
-			MATERIAL::cMaterial* AddPostRenderEffect(std::string sFilename);
+			material::cMaterial* AddPostRenderEffect(std::string sFilename);
 			void RemovePostRenderEffect();
 
 		private:
-			std::list<MATERIAL::cMaterial*> lPostRenderEffects;
+			std::list<material::cMaterial*> lPostRenderEffects;
 			cTextureFrameBufferObject* pFrameBuffer0;
 			cTextureFrameBufferObject* pFrameBuffer1;
 
@@ -175,11 +175,11 @@ namespace breathe
 			cTexture *pTextureNotFoundTexture;
 			cTexture *pMaterialNotFoundTexture;
 			
-			MATERIAL::cMaterial *pMaterialNotFoundMaterial;
+			material::cMaterial *pMaterialNotFoundMaterial;
 
 
 			std::vector<render::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
-			std::map<std::string, MATERIAL::cMaterial *> mMaterial;
+			std::map<std::string, material::cMaterial *> mMaterial;
 
 			std::vector<cVertexBufferObject*>vVertexBufferObject;
 
@@ -199,9 +199,9 @@ namespace breathe
 			bool bActiveShader;
 
 			math::cColour colour;
-			std::vector<MATERIAL::cLayer>vLayer;
+			std::vector<material::cLayer>vLayer;
 
-			MATERIAL::cMaterial* pCurrentMaterial;
+			material::cMaterial* pCurrentMaterial;
 			
 			//std::map<std::string, model::cAnimation*> mAnimation;
 			std::map<std::string, model::cStatic*> mStatic;

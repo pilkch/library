@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	class cItem : virtual public PHYSICS::cPhysicsObject
+	class cItem : virtual public physics::cPhysicsObject
 	{
 	public:
 		/*cLevel *pLevel;*/

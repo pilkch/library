@@ -19,38 +19,38 @@
 #include <AL/alut.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
-#include <BREATHE/AUDIO/cAudio.h>
+#include <breathe/audio/audio.h>
 
-namespace BREATHE
+namespace breathe
 {
-	namespace AUDIO
+	namespace audio
 	{
 		ALCcontext *Context = NULL;
 		ALCdevice *Device = NULL;
@@ -134,7 +134,7 @@ namespace BREATHE
 			t<<".";
 			t<<iMinor;
 			LOG.Success("Audio", t.str());
-			printf("AUDIO::Init %s\n", t.str().c_str());
+			printf("audio::Init %s\n", t.str().c_str());
 
 
 /*#ifdef PLATFORM_WINDOWS
@@ -146,7 +146,7 @@ namespace BREATHE
 
 			Device = alcOpenDevice(NULL); // select the "default device"
 			if (Device == NULL)				
-				return BREATHE::BAD;
+				return breathe::BAD;
 
 			// Create our context
 			Context=alcCreateContext(Device,NULL);
@@ -209,7 +209,7 @@ namespace BREATHE
 				}
 			}
 
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 
 		void Destroy()
@@ -228,7 +228,7 @@ namespace BREATHE
 		void Update(float fCurrentTime)
 		{
 			SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up,
-				BREATHE::MATH::cVec3(0.0f, 0.0f, 0.0f));
+				breathe::math::cVec3(0.0f, 0.0f, 0.0f));
 
 			iterator iter = lAudioSource.begin();
 			iterator iterEnd = lAudioSource.end();
@@ -247,7 +247,7 @@ namespace BREATHE
 			};
 		}
 
-		void SetListener(MATH::cVec3& position, MATH::cVec3& lookat, MATH::cVec3& up, MATH::cVec3& velocity)
+		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity)
 		{
 			ALfloat listenerOri[]={lookat.x, lookat.y, lookat.z, up.x, up.y, up.z};
 

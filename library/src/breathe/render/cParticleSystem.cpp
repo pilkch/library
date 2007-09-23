@@ -21,14 +21,14 @@
 // Breathe Headers
 #include <breathe/breathe.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
 #include <breathe/math/cMat4.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -40,7 +40,7 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		cParticleSystem::cParticleSystem(unsigned int uiMaxSize, 
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
@@ -182,7 +182,7 @@ namespace breathe
 			fParticleHeight = fHeight;
 		}
 		
-		void cParticleSystemBillboard::SetMaterial(MATERIAL::cMaterial* pInMaterial)
+		void cParticleSystemBillboard::SetMaterial(material::cMaterial* pInMaterial)
 		{
 			assert(pInMaterial);
 			pMaterial = pInMaterial;

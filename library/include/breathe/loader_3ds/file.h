@@ -7,7 +7,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		class Model3DSFile
 		{

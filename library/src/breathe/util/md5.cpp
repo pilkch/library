@@ -41,11 +41,11 @@
 #include <iomanip>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cMD5.h>
+#include <breathe/util/md5.h>
 
-namespace BREATHE
+namespace breathe
 {
 	#define GET_UINT32(n,b,i)                     \
 	{                                             \

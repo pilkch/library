@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace MATH
+	namespace math
 	{		
 		// So we can tell which octant we are talking about
 		enum eOctreeNodes

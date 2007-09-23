@@ -3,9 +3,9 @@
 
 #include <sstream>
 
-namespace BREATHE
+namespace breathe
 {
-	namespace LOGGING
+	namespace logging
 	{
 		enum 
 		{
@@ -123,12 +123,12 @@ namespace BREATHE
 	}
 }
 
-extern BREATHE::LOGGING::cLog LOG;
+extern breathe::logging::cLog LOG;
 
 
-namespace BREATHE
+namespace breathe
 {
-	namespace LOGGING
+	namespace logging
 	{
 		class cScreen;
 
@@ -166,11 +166,11 @@ namespace BREATHE
 	}
 }
 
-extern BREATHE::LOGGING::cConsole CONSOLE;
+extern breathe::logging::cConsole CONSOLE;
 
-namespace BREATHE
+namespace breathe
 {
-	namespace LOGGING
+	namespace logging
 	{
 		class cScreen : public cLogBase
 		{
@@ -197,6 +197,6 @@ namespace BREATHE
 	}
 }
 
-extern BREATHE::LOGGING::cScreen SCREEN;
+extern breathe::logging::cScreen SCREEN;
 
 #endif

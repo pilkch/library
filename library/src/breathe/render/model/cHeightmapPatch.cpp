@@ -21,7 +21,7 @@
 
 //#include <cCamera.h>
 
-#include <breathe/math/cMath.h>
+#include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
@@ -33,7 +33,7 @@
 #include <breathe/math/cColour.h>
 
 
-#include <breathe/util/cBase.h>
+#include <breathe/util/base.h>
 #include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/model/cMesh.h>
@@ -45,9 +45,9 @@
 
 namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
-		namespace MODEL
+		namespace model
 		{/*
 			// Split a single Triangle and link it into the mesh.
 			// Will correctly force-split diamonds.
