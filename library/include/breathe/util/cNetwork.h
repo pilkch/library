@@ -1,7 +1,7 @@
 #ifndef CNETWORK_H
 #define CNETWORK_H
 
-namespace BREATHE
+namespace breathe
 {
 	// Maximum Packet Size
 	#define MAXTCPLEN 128

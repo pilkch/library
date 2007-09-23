@@ -1,7 +1,7 @@
 #ifndef CWINDOW_H
 #define CWINDOW_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace GUI
 	{

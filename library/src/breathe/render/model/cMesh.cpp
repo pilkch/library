@@ -21,33 +21,33 @@
 
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
-
-
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
 
-namespace BREATHE
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+
+namespace breathe
 {
 	namespace RENDER
 	{

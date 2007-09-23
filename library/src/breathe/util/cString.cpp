@@ -2,14 +2,14 @@
 #include <cctype> // for toupper/tolower
 #include <algorithm>
 
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cString.h>
+#include <breathe/breathe.h>
+#include <breathe/util/cString.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace STRING
 	{
-		bool IsWhiteSpace(BREATHE::unicode_char c)
+		bool IsWhiteSpace(breathe::unicode_char c)
 		{
 			// We regard space, tab, new line and carriage return characters as white space
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');

@@ -1,7 +1,7 @@
 #ifndef CCOLOUR_H
 #define CCOLOUR_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

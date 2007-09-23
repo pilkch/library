@@ -1,12 +1,12 @@
 #include <string>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include "BREATHE/LOADER_3DS/light3dsobject.h"
-#include "BREATHE/LOADER_3DS/build3ds.h"
+#include "breathe/loader_3ds/light3dsobject.h"
+#include "breathe/loader_3ds/build3ds.h"
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

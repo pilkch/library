@@ -26,54 +26,54 @@
 #include <ode/ode.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
-#include <BREATHE/UTIL/cXML.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cFileSystem.h>
+#include <breathe/util/cXML.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-#include <BREATHE/GAME/cPlayer.h>
-#include <BREATHE/GAME/cPetrolBowser.h>
-#include <BREATHE/VEHICLE/cPart.h>
-#include <BREATHE/VEHICLE/cWheel.h>
-#include <BREATHE/VEHICLE/cSeat.h>
-#include <BREATHE/VEHICLE/cVehicle.h>
+#include <breathe/game/cPlayer.h>
+#include <breathe/game/cPetrolBowser.h>
+#include <breathe/VEHICLE/cPart.h>
+#include <breathe/VEHICLE/cWheel.h>
+#include <breathe/VEHICLE/cSeat.h>
+#include <breathe/VEHICLE/cVehicle.h>
 
-BREATHE::cLevel* pLevel = NULL;
+breathe::cLevel* pLevel = NULL;
 
 const unsigned int uiNodeNameDisplayTime = 100;
 
-namespace BREATHE
+namespace breathe
 {
 	/*
-	std::string s=BREATHE::FILESYSTEM::GetMD5(sFilename);*/
+	std::string s=breathe::FILESYSTEM::GetMD5(sFilename);*/
 
 	cLevel::cLevel()
 	{
@@ -100,10 +100,10 @@ namespace BREATHE
 
 		{
 			LOG.Success("Level", "cLevelNode::Load " + sNewFilename);
-			BREATHE::XML::cNode root(sNewFilename);
+			breathe::xml::cNode root(sNewFilename);
 
-			BREATHE::XML::cNode::iterator iter(root);
-			if (!iter) return BREATHE::BAD;
+			breathe::xml::cNode::iterator iter(root);
+			if (!iter) return breathe::BAD;
 			
 			iter.FindChild("level");
 			if(iter)
@@ -122,7 +122,7 @@ namespace BREATHE
 						iter.GetAttribute("uiHeightMapPixelWidth", &uiNodeHeightMapPixelWidth);
 						iter.GetAttribute("uiHeightMapPixelHeight", &uiNodeHeightMapPixelHeight);
 
-						BREATHE::XML::cNode::iterator iterParent = iter;
+						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("node");
 							while(iter)
 							{
@@ -136,7 +136,7 @@ namespace BREATHE
 					}
 					else if("spawns" == iter.GetName())
 					{
-						BREATHE::XML::cNode::iterator iterParent = iter;
+						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("spawn");
 							while(iter)
 							{
@@ -157,22 +157,22 @@ namespace BREATHE
 			}
 		}
 
-		return BREATHE::GOOD;
+		return breathe::GOOD;
 	}
 
 	bool cLevel::Load(std::string sNewFilename)
 	{
-		bool bResult = BREATHE::GOOD;
+		bool bResult = breathe::GOOD;
 
-		if (LoadXML(sNewFilename) != BREATHE::GOOD) bResult = BREATHE::BAD;
+		if (LoadXML(sNewFilename) != breathe::GOOD) bResult = breathe::BAD;
       
 
 		// We don't have any spawns yet, add a default one
 		if(0==vSpawn.size()) {
 			LOG.Error("Level", "No spawns defined");
 			cLevelSpawn *p = new cLevelSpawn();
-			p->v3Position = MATH::cVec3(0.0f, 0.0f, 0.0f);
-			p->v3Rotation = MATH::cVec3(0.0f, 0.0f, 90.0f);
+			p->v3Position = math::cVec3(0.0f, 0.0f, 0.0f);
+			p->v3Rotation = math::cVec3(0.0f, 0.0f, 90.0f);
 			vSpawn.push_back(p);
 		}
 
@@ -182,7 +182,7 @@ namespace BREATHE
 		if(0 == n)
 		{
 			LOG.Error("Level", "No cubemaps defined");
-			bResult = BREATHE::BAD;
+			bResult = breathe::BAD;
 		}
 		else
 		{
@@ -195,7 +195,7 @@ namespace BREATHE
 
 	void cLevel::LoadNode(std::string sNewFilename)
 	{
-		RENDER::MODEL::cStatic *p=pRender->AddModel("data/level/" + sNewFilename + "/mesh.3ds");
+		render::model::cStatic *p=pRender->AddModel("data/level/" + sNewFilename + "/mesh.3ds");
 		
 		if(p)
 		{
@@ -212,21 +212,21 @@ namespace BREATHE
 				vSpawn.push_back(new cLevelSpawn());
 				cLevelSpawn *pSpawn=vSpawn.back();
 
-				MATH::cVec3 cam=p->vCamera[i]->eye;
-				MATH::cVec3 objPos=p->vCamera[i]->target;
+				math::cVec3 cam=p->vCamera[i]->eye;
+				math::cVec3 objPos=p->vCamera[i]->target;
 
-				MATH::cVec3 objToCamProj(cam.x - objPos.x, 0.0f, cam.z - objPos.z);
+				math::cVec3 objToCamProj(cam.x - objPos.x, 0.0f, cam.z - objPos.z);
 				
 				float angleCosine;
 				
-				MATH::cVec3 v3out;
+				math::cVec3 v3out;
 
 				objToCamProj.Normalize();
 
 				// compute the angle
 				angleCosine = cam.DotProduct(objToCamProj);
 
-				float a=acosf(angleCosine)*MATH::c180_DIV_PI;
+				float a=acosf(angleCosine)*math::c180_DIV_PI;
 
 				// perform the rotation. The if statement is used for stability reasons
 				// if the lookAt and objToCamProj vectors are too close together then 
@@ -390,7 +390,7 @@ namespace BREATHE
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
 				
-				uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>((*iter++)->pModel));
+				uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>((*iter++)->pModel));
 
 				//pRender->SetMaterial();
 			glPopMatrix();
@@ -413,32 +413,32 @@ namespace BREATHE
 			{
 				glPushMatrix();
 					glMultMatrixf(pVehicle->m);
-					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->pModel), BREATHE::MATH::cColour(1.0f, 0.0f, 0.0f));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->pModel), breathe::math::cColour(1.0f, 0.0f, 0.0f));
 				glPopMatrix();
 
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lfWheel_->m);
-					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 				
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lrWheel_->m);
-					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 				
 				
-				BREATHE::MATH::cMat4 r;
-				r.SetRotationZ(BREATHE::MATH::cPI);
+				breathe::math::cMat4 r;
+				r.SetRotationZ(breathe::math::cPI);
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rfWheel_->m*r);
-					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rrWheel_->m*r);
-					uiTriangles+=pRender->RenderStaticModel(static_cast<BREATHE::RENDER::MODEL::cStatic *>(pVehicle->lfWheel_->pModel));
+					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 			}
 
@@ -454,7 +454,7 @@ namespace BREATHE
 		return *vSpawn[i];
 	}
 		
-	cLevelSpawn cLevel::GetSpawn(MATH::cVec3 &p)
+	cLevelSpawn cLevel::GetSpawn(math::cVec3 &p)
 	{
 		//Have to have a spawn in the level before calling this
 		unsigned int i=0;
@@ -502,7 +502,7 @@ namespace BREATHE
 		lVehicle.remove(v);
 	}
 
-	RENDER::cTexture *cLevel::FindClosestCubeMap(MATH::cVec3 pos)
+	render::cTexture *cLevel::FindClosestCubeMap(math::cVec3 pos)
 	{
 		unsigned int n=vCubemap.size();
 
@@ -527,7 +527,7 @@ namespace BREATHE
 		return pRender->GetCubeMap(c->sFilename);
 	}
 
-	VEHICLE::cVehicle *cLevel::FindClosestVehicle(MATH::cVec3 pos, float fMaxDistance)
+	VEHICLE::cVehicle *cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
 	{
 		if(lVehicle.size()<1)
 			return NULL;
@@ -536,7 +536,7 @@ namespace BREATHE
 
 		float d=fMaxDistance;
 		float t=fMaxDistance;
-		BREATHE::VEHICLE::cVehicle *v=NULL;
+		breathe::VEHICLE::cVehicle *v=NULL;
 
 		while(iter!=lVehicle.end())
 		{
@@ -581,9 +581,9 @@ namespace BREATHE
 		bool bCubemaps=false;
 		
 
-		XML::cNode root(sFilename + "node.xml");
+		xml::cNode root(sFilename + "node.xml");
 
-		XML::cNode::iterator iter(root);
+		xml::cNode::iterator iter(root);
 		if (!iter) return;
 			
 		iter.FindChild("node");
@@ -603,7 +603,7 @@ namespace BREATHE
 			}
 			else if("models" == iter.GetName())
 			{
-				BREATHE::XML::cNode::iterator iterParent = iter;
+				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("model");
 					while(iter)
 					{
@@ -618,7 +618,7 @@ namespace BREATHE
 
 							iter.GetAttribute("position", &pModel->p);
 
-							MATH::cVec3 v;
+							math::cVec3 v;
 							if(iter.GetAttribute("position", &v))
                 pModel->m.SetTranslation(v);
 						}
@@ -629,7 +629,7 @@ namespace BREATHE
 			}
 			else if("cubemaps" == iter.GetName())
 			{
-				BREATHE::XML::cNode::iterator iterParent = iter;
+				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("cubemap");
 					while(iter)
 					{
@@ -669,8 +669,8 @@ namespace BREATHE
 
 		uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(sFilename + "mesh.3ds"));
 
-		std::vector<BREATHE::cLevelModel*>::iterator iter = vModel.begin();
-		std::vector<BREATHE::cLevelModel*>::iterator end = vModel.end();
+		std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
+		std::vector<breathe::cLevelModel*>::iterator end = vModel.end();
 		
 		while(end != iter)
 		{

@@ -1,7 +1,7 @@
 #ifndef CPLANE_H
 #define CPLANE_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

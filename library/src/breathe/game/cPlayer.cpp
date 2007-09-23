@@ -12,40 +12,40 @@
 #include <ODE/ode.h>
 
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
 
-#include <BREATHE/GAME/cPlayer.h>
-#include <BREATHE/GAME/cPetrolBowser.h>
+#include <breathe/game/cPlayer.h>
+#include <breathe/game/cPetrolBowser.h>
 
-#include <BREATHE/VEHICLE/cPart.h>
-#include <BREATHE/VEHICLE/cVehicle.h>
-#include <BREATHE/VEHICLE/cSeat.h>
+#include <breathe/VEHICLE/cPart.h>
+#include <breathe/VEHICLE/cVehicle.h>
+#include <breathe/VEHICLE/cSeat.h>
 
-namespace BREATHE
+namespace breathe
 {
 	cPlayer::cPlayer() : 
 		PHYSICS::cUprightCapsule()
@@ -95,7 +95,7 @@ namespace BREATHE
 	
 	void cPlayer::RayCast()
 	{
-		MATH::cVec3 dir = MATH::v3Down;
+		math::cVec3 dir = math::v3Down;
 
 		rayContact.Clear();
 
@@ -132,39 +132,39 @@ namespace BREATHE
 #ifdef BUILD_DEBUG
 		else if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
 		{
-			if(fInputUp > MATH::cEPSILON || fInputDown > MATH::cEPSILON || 
-				fInputLeft > MATH::cEPSILON || fInputRight > MATH::cEPSILON)
+			if(fInputUp > math::cEPSILON || fInputDown > math::cEPSILON || 
+				fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON)
 			{	
-				float fDirection = fHorizontal + MATH::toRadians(90.0f);
+				float fDirection = fHorizontal + math::toRadians(90.0f);
 
-				if(fInputUp > MATH::cEPSILON && fInputUp > fInputDown)
+				if(fInputUp > math::cEPSILON && fInputUp > fInputDown)
 				{
-					if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
-						fDirection += MATH::toRadians(45.0f);
-					else if(fInputRight > MATH::cEPSILON)
-						fDirection -= MATH::toRadians(45.0f);
+					if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+						fDirection += math::toRadians(45.0f);
+					else if(fInputRight > math::cEPSILON)
+						fDirection -= math::toRadians(45.0f);
 					
-					p.z += fSpeed * sinf(fVertical - MATH::toRadians(90.0f));
+					p.z += fSpeed * sinf(fVertical - math::toRadians(90.0f));
 				}
-				else if(fInputDown > MATH::cEPSILON)
+				else if(fInputDown > math::cEPSILON)
 				{
-					if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
-						fDirection += MATH::toRadians(125.0f);
-					else if(fInputRight > MATH::cEPSILON)
-						fDirection -= MATH::toRadians(125.0f);
+					if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+						fDirection += math::toRadians(125.0f);
+					else if(fInputRight > math::cEPSILON)
+						fDirection -= math::toRadians(125.0f);
 					else
-						fDirection += MATH::toRadians(180.0f);
+						fDirection += math::toRadians(180.0f);
 
-					p.z += fSpeed * sinf(fVertical + MATH::toRadians(90.0f));
+					p.z += fSpeed * sinf(fVertical + math::toRadians(90.0f));
 				}
-				else if(fInputLeft > MATH::cEPSILON && fInputLeft > fInputRight)
+				else if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
 				{
-					fDirection += MATH::toRadians(90.0f);
+					fDirection += math::toRadians(90.0f);
 					fSpeed *= fInputLeft;
 				}
-				else if(fInputRight > MATH::cEPSILON)
+				else if(fInputRight > math::cEPSILON)
 				{
-					fDirection -= MATH::toRadians(90.0f);
+					fDirection -= math::toRadians(90.0f);
 					fSpeed *= fInputRight;
 				}
 
@@ -191,16 +191,16 @@ namespace BREATHE
 				// add a little bit, enough to get out of the surface
 				{
 					const dReal* pos = dBodyGetPosition(body);
-					dBodySetPosition(body, pos[0], pos[1], pos[2] + /*0.03f * rayContact.fDepth*/ + MATH::cEPSILON);
+					dBodySetPosition(body, pos[0], pos[1], pos[2] + /*0.03f * rayContact.fDepth*/ + math::cEPSILON);
 
 					const dReal* vel = dBodyGetLinearVel(body);
-					dBodySetLinearVel(body, vel[0], vel[1], ((vel[2] < 0.0f) ? 0.0f : vel[2]) + MATH::cEPSILON);
+					dBodySetLinearVel(body, vel[0], vel[1], ((vel[2] < 0.0f) ? 0.0f : vel[2]) + math::cEPSILON);
 				}
 
 				// Handle the actual movement
 				{
 					// Get a unit vector that represents which way the player is heading
-					MATH::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
+					math::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
 					v.Normalize();
 
 					// Bias the inputs slightly so that walking forwards is fastest, then left/right 
@@ -211,7 +211,7 @@ namespace BREATHE
 					// We have a vector saying which direction to go but it is not in world coordinates, 
 					// add it to our current heading vector (A whole matrix is probably not needed, just
 					// makes it a lot easier)
-					MATH::cMat4 m;
+					math::cMat4 m;
 					m.SetRotationEuler(0.0f, 0.0f, fHorizontal);
 
 					// Multiply our movement vector by our speed

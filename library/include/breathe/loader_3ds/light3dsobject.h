@@ -1,7 +1,7 @@
 #ifndef LIGHT3DSOBJECT_H
 #define LIGHT3DSOBJECT_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

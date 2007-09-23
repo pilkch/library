@@ -7,7 +7,7 @@
 #ifndef CQUATERNION_H
 #define CQUATERNION_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

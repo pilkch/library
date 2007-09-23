@@ -1,7 +1,7 @@
 #ifndef CMODEL_ANIMATION_H
 #define CMODEL_ANIMATION_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{

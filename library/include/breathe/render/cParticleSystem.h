@@ -1,7 +1,7 @@
 #ifndef CPARTICLESYSTEM_H
 #define CPARTICLESYSTEM_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -22,8 +22,8 @@ namespace BREATHE
 			
 			static bool DepthCompare(const cParticle& lhs, const cParticle& rhs);
 
-			MATH::cVec3 p;
-			MATH::cVec3 vel;
+			math::cVec3 p;
+			math::cVec3 vel;
 
 			bool IsAlive() const;
 			void SetLife(unsigned int life);
@@ -52,10 +52,10 @@ namespace BREATHE
 			unsigned int uiLifeSpanMin;
 			unsigned int uiLifeSpanMax;
 
-			MATH::cVec3 spawnVelocity;
+			math::cVec3 spawnVelocity;
 
-			MATH::cVec3 position;
-			MATH::cVec3 gravity;
+			math::cVec3 position;
+			math::cVec3 gravity;
 			
 			std::vector<cParticle> particles;
 
@@ -101,10 +101,10 @@ namespace BREATHE
 			void Update(float fCurrentTime);
 			unsigned int Render();
 
-			void SetMesh(MODEL::cMesh* pMesh);
+			void SetMesh(model::cMesh* pMesh);
 
 		private:
-			MODEL::cMesh* pMesh;
+			model::cMesh* pMesh;
 
 			void InitParticle(unsigned int uiParticle);
 		};

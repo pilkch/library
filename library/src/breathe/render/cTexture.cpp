@@ -21,26 +21,26 @@
 #include <SDL/SDL_image.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cFileSystem.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -77,7 +77,7 @@ namespace BREATHE
 			if (!surface)
 			{
 				LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
-				return BREATHE::BAD;
+				return breathe::BAD;
 			}
 
 			
@@ -150,7 +150,7 @@ namespace BREATHE
 				std::ostringstream t;
 				t << surface->format->BitsPerPixel;
 				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + sFilename);
-				return BREATHE::BAD;
+				return breathe::BAD;
 			}
 
 			uiWidth = surface->w;
@@ -165,7 +165,7 @@ namespace BREATHE
 			}
 			CopyFromSurfaceToData(surface->w, surface->h);
 
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 		
 		void cTexture::CopyFromSurfaceToData(unsigned int w, unsigned int h)
@@ -198,7 +198,7 @@ namespace BREATHE
 		bool cTexture::SaveToBMP(std::string inFilename)
 		{
 			SDL_SaveBMP(surface, inFilename.c_str());
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 
 		void cTexture::Create()

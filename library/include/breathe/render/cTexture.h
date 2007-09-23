@@ -3,7 +3,7 @@
 
 struct SDL_Surface;
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{

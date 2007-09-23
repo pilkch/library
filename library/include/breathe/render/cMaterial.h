@@ -1,7 +1,7 @@
 #ifndef CMATERIAL_H
 #define CMATERIAL_H
 
-namespace BREATHE
+namespace breathe
 {
 	class cLevel;
 

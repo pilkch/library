@@ -22,44 +22,44 @@
 #include <SDL/SDL_image.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cFileSystem.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
+#include <breathe/util/cBase.h>
 
-#include <BREATHE/UTIL/cVar.h>
+#include <breathe/util/cVar.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
-#include <BREATHE/RENDER/cVertexBufferObject.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+#include <breathe/render/cVertexBufferObject.h>
 
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-BREATHE::cVar<float> fDetailScale = 0.5f;
+breathe::cVar<float> fDetailScale = 0.5f;
 
-BREATHE::RENDER::cRender* pRender = NULL;
+breathe::render::cRender* pRender = NULL;
 
-namespace BREATHE
+namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		cRender::cRender() : 
 			bRenderWireframe(false),
@@ -98,7 +98,7 @@ namespace BREATHE
 			pCurrentMaterial=NULL;
 			pLevel=NULL;
 
-			pFrustum=new MATH::cFrustum();
+			pFrustum=new math::cFrustum();
 
 			unsigned int i=0;
 			for(i=0;i<nAtlas;i++)
@@ -125,7 +125,7 @@ namespace BREATHE
 			SAFE_DELETE(pFrameBuffer1);
 
 			LOG.Success("Delete", "Static Mesh");
-			std::map<std::string, RENDER::MODEL::cStatic*>::iterator iter=mStatic.begin();
+			std::map<std::string, render::model::cStatic*>::iterator iter=mStatic.begin();
 			while(iter!=mStatic.end())
 			{
 				SAFE_DELETE(iter->second);
@@ -325,14 +325,14 @@ namespace BREATHE
 			glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 			
 
-			MATH::cColour LightAmbient(1.0f, 1.0f, 1.0f, 1.0f);
-			MATH::cColour LightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
-			MATH::cColour LightSpecular(1.0f, 1.0f, 1.0f, 1.0f);
+			math::cColour LightAmbient(1.0f, 1.0f, 1.0f, 1.0f);
+			math::cColour LightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
+			math::cColour LightSpecular(1.0f, 1.0f, 1.0f, 1.0f);
 
-			MATH::cColour LightModelAmbient(0.2f, 0.2f, 0.2f, 1.0f);
+			math::cColour LightModelAmbient(0.2f, 0.2f, 0.2f, 1.0f);
 			
-			MATH::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
-			MATH::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
+			math::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
+			math::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
 
 			glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.000008f); //2.5f);
 			glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
@@ -356,7 +356,7 @@ namespace BREATHE
 			glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
 			
 
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 
 		void cRender::_BeginRenderShared()
@@ -572,7 +572,7 @@ namespace BREATHE
 		}
 
 		
-		void cRender::RenderMesh(MODEL::cMesh* pMesh)
+		void cRender::RenderMesh(model::cMesh* pMesh)
 		{
 			assert(pMesh);
 			assert(pMesh->pMeshData);
@@ -586,10 +586,10 @@ namespace BREATHE
 			unsigned int mesh=0;
 			unsigned int nTriangles = pMesh->pMeshData->uiTriangles;
 
-			MATH::cVec3 v0;
-			MATH::cVec3 v1;
-			MATH::cVec3 v2;
-			MATH::cVec3 n;
+			math::cVec3 v0;
+			math::cVec3 v1;
+			math::cVec3 v2;
+			math::cVec3 n;
 
 			glBegin(GL_TRIANGLES);
 			
@@ -669,7 +669,7 @@ namespace BREATHE
 			glEnd();
 		}
 		
-		unsigned int cRender::RenderStaticModel(MODEL::cStatic *p)
+		unsigned int cRender::RenderStaticModel(model::cStatic *p)
 		{
 			if(NULL==p)
 				return 0;
@@ -677,7 +677,7 @@ namespace BREATHE
 			unsigned int uiTriangles = 0;
 			unsigned int nMeshes = 0;
 
-			std::vector<MODEL::cMesh*> vMesh=p->vMesh;
+			std::vector<model::cMesh*> vMesh=p->vMesh;
 
 			nMeshes = vMesh.size();
 
@@ -696,7 +696,7 @@ namespace BREATHE
 			return uiTriangles;
 		}
 
-		unsigned int cRender::RenderStaticModel(MODEL::cStatic *p, MATH::cColour& colour)
+		unsigned int cRender::RenderStaticModel(model::cStatic *p, math::cColour& colour)
 		{
 			pRender->SetColour(colour);
 
@@ -707,7 +707,7 @@ namespace BREATHE
 			return uiTriangles;
 		}
 
-		void cRender::RenderArrow(MATH::cVec3& from, MATH::cVec3& to, MATH::cColour& colour)
+		void cRender::RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour)
 		{
 			SetColour(colour);
     	glBegin(GL_LINES);
@@ -718,11 +718,11 @@ namespace BREATHE
 
 		void cRender::RenderAxisReference(float x, float y, float z)
 		{
-			MATH::cVec3 position(x, y, z);
+			math::cVec3 position(x, y, z);
 			RenderAxisReference(position);
 		}
 
-		void cRender::RenderAxisReference(MATH::cVec3& position)
+		void cRender::RenderAxisReference(math::cVec3& position)
 		{
 			const float fWidth = 20.0f;
 			
@@ -753,7 +753,7 @@ namespace BREATHE
 			glEnable(GL_COLOR_MATERIAL);
 		}
 
-		void cRender::RenderWireframeBox(MATH::cVec3& vMin, MATH::cVec3& vMax)
+		void cRender::RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax)
 		{
     	glBegin(GL_LINES);
 
@@ -827,8 +827,8 @@ namespace BREATHE
 			if((""==sNewFilename) || (ATLAS_NONE == uiAtlas))
 				return pTextureNotFoundTexture;
 			
-			std::string sFilename=BREATHE::FILESYSTEM::FindFile(sNewFilename);
-			std::string s = BREATHE::FILESYSTEM::GetFile(sFilename);
+			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
+			std::string s = breathe::FILESYSTEM::GetFile(sFilename);
 
 			cTexture* p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
 			if(NULL==p)
@@ -849,8 +849,8 @@ namespace BREATHE
 			if(""==sNewFilename)
 				return pTextureNotFoundTexture;
 			
-			std::string sFilename = BREATHE::FILESYSTEM::FindFile(sNewFilename);
-			std::string s = BREATHE::FILESYSTEM::GetFile(sFilename);
+			std::string sFilename = breathe::FILESYSTEM::FindFile(sNewFilename);
+			std::string s = breathe::FILESYSTEM::GetFile(sFilename);
 
 			
 			cTexture* p = GetTexture(s);
@@ -859,7 +859,7 @@ namespace BREATHE
 			
 			p=new cTexture();
 			
-			if(p->Load(sFilename) != BREATHE::GOOD)
+			if(p->Load(sFilename) != breathe::GOOD)
 			{
 				SAFE_DELETE(p);
 				return pTextureNotFoundTexture;
@@ -880,12 +880,12 @@ namespace BREATHE
 		{
 			cTexture* p=new cTexture();
 
-			std::string sFilename=BREATHE::FILESYSTEM::FindFile(sNewFilename);
+			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
 			
-			if(p->Load(sFilename) != BREATHE::GOOD)
+			if(p->Load(sFilename) != breathe::GOOD)
 			{
 				SAFE_DELETE(p);
-				return BREATHE::BAD;
+				return breathe::BAD;
 			}
 			
 			p->Create();
@@ -898,21 +898,21 @@ namespace BREATHE
 			t << pTextureNotFoundTexture->uiTexture;
 			LOG.Success("Texture", "TextureNotFoundTexture " + t.str());
 
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 
 		bool cRender::AddMaterialNotFoundTexture(std::string sNewFilename)
 		{
 			cTexture* p=new cTexture();
 
-			std::string sFilename=BREATHE::FILESYSTEM::FindFile(sNewFilename);
+			std::string sFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
 
 			LOG.Success("Texture", "Loading " + sFilename);
 			
-			if(p->Load(sFilename) != BREATHE::GOOD)
+			if(p->Load(sFilename) != breathe::GOOD)
 			{
 				SAFE_DELETE(p);
-				return BREATHE::BAD;
+				return breathe::BAD;
 			}
 			
 			p->Create();
@@ -925,7 +925,7 @@ namespace BREATHE
 			t << pMaterialNotFoundTexture->uiTexture;
 			LOG.Success("Texture", "MaterialNotFoundTexture " + t.str());
 
-			return BREATHE::GOOD;
+			return breathe::GOOD;
 		}
 
 
@@ -1014,15 +1014,15 @@ namespace BREATHE
 
 			std::stringstream s;
 
-			std::string sFile=BREATHE::FILESYSTEM::GetFileNoExtension(sFilename);
-			std::string sExt=BREATHE::FILESYSTEM::GetExtension(sFilename);
+			std::string sFile=breathe::FILESYSTEM::GetFileNoExtension(sFilename);
+			std::string sExt=breathe::FILESYSTEM::GetExtension(sFilename);
 			
 			for(i=0;i<6;i++)
 			{
 				s.str( "" );
 
 				s<<sFile<<"/"<<sFile<<i<<"."<<sExt;
-				sFilename=BREATHE::FILESYSTEM::FindFile(s.str());
+				sFilename=breathe::FILESYSTEM::FindFile(s.str());
 
 				unsigned int mode=0;
 
@@ -1128,7 +1128,7 @@ namespace BREATHE
 		{
 			AddMaterialNotFoundTexture(sNewFilename);
 
-			sNewFilename=BREATHE::FILESYSTEM::FindFile(sNewFilename);
+			sNewFilename=breathe::FILESYSTEM::FindFile(sNewFilename);
 
 			pMaterialNotFoundMaterial=new MATERIAL::cMaterial("MaterialNotFound");
 
@@ -1152,7 +1152,7 @@ namespace BREATHE
 			std::string sFilename = FILESYSTEM::FindFile(sNewfilename);
 			pMaterial=new MATERIAL::cMaterial(sFilename);
 
-			if(BREATHE::BAD == pMaterial->Load(sFilename))
+			if(breathe::BAD == pMaterial->Load(sFilename))
 			{
 				SAFE_DELETE(pMaterial);
 				pMaterial=pMaterialNotFoundMaterial;
@@ -1163,21 +1163,21 @@ namespace BREATHE
 			return pMaterial;
 		}
 
-		float Angle(const MATH::cVec2 & a, const MATH::cVec2 & b)
+		float Angle(const math::cVec2 & a, const math::cVec2 & b)
 		{
 			if(a.x>b.x)
 			{
 				if(a.y>b.y)
-					return (atan((a.y-b.y)/(a.x-b.x)) + MATH::cPI_DIV_180 * 90.0f) * MATH::c180_DIV_PI;
+					return (atan((a.y-b.y)/(a.x-b.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
 				
-				return (-atan((a.y-b.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 90.0f) * MATH::c180_DIV_PI;
+				return (-atan((a.y-b.y)/(b.x-a.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
 			}
 			
 
 			if(b.y>a.y)
-				return (atan((b.y-a.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 270.0f) * MATH::c180_DIV_PI;
+				return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 
-			return (atan((b.y-a.y)/(b.x-a.x)) + MATH::cPI_DIV_180 * 270.0f) * MATH::c180_DIV_PI;
+			return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 		}
 
 		bool cRender::SetTexture0(cTexture* pTexture)
@@ -1297,7 +1297,7 @@ namespace BREATHE
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, MATH::cVec3& value)
+		bool cRender::SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, math::cVec3& value)
 		{
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
@@ -1311,7 +1311,7 @@ namespace BREATHE
 			return true;
 		}
 
-		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos)
+		bool cRender::SetMaterial(MATERIAL::cMaterial* pMaterial, math::cVec3& pos)
 		{
 			assert(pMaterial);
 
@@ -1474,8 +1474,8 @@ namespace BREATHE
 						glPushMatrix();
 						glLoadIdentity();
 						
-						float y = -Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
-						float x = -Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
+						float y = -Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y), math::cVec2(pFrustum->target.x, pFrustum->target.y));
+						float x = -Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z), math::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -1485,7 +1485,7 @@ namespace BREATHE
 						//float mat[16];
 						//glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 
-						//MATH::cQuaternion q(mat[8], mat[9], -mat[10]);
+						//math::cQuaternion q(mat[8], mat[9], -mat[10]);
 
 						//glLoadMatrixf(static_cast<float *>(q.GetMatrix()));
 
@@ -1638,10 +1638,10 @@ namespace BREATHE
 						glPushMatrix();
 						glLoadIdentity();
 						
-						float y=-Angle(MATH::cVec2(pFrustum->eye.x, pFrustum->eye.y), 
-							MATH::cVec2(pFrustum->target.x, pFrustum->target.y));
-						float x=-Angle(MATH::cVec2(pFrustum->eye.y, pFrustum->eye.z), 
-							MATH::cVec2(pFrustum->target.y, pFrustum->target.z));
+						float y=-Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y), 
+							math::cVec2(pFrustum->target.x, pFrustum->target.y));
+						float x=-Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z), 
+							math::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -1651,7 +1651,7 @@ namespace BREATHE
 						//float mat[16];
 						//glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 
-						//MATH::cQuaternion q(mat[8], mat[9], -mat[10]);
+						//math::cQuaternion q(mat[8], mat[9], -mat[10]);
 
 						//glLoadMatrixf(static_cast<float *>(q.GetMatrix()));
 
@@ -1932,28 +1932,28 @@ namespace BREATHE
 		}
 
 
-		MODEL::cStatic* cRender::CreateNewModel(std::string sName)
+		model::cStatic* cRender::CreateNewModel(std::string sName)
 		{
-			MODEL::cStatic *pModel = mStatic[sName];
+			model::cStatic *pModel = mStatic[sName];
 
 			if(pModel)
 				return pModel;
 			
-			pModel = new MODEL::cStatic();
+			pModel = new model::cStatic();
 			
 			mStatic[sName] = pModel;
 			
 			return pModel;
 		}
 		
-		MODEL::cStatic* cRender::AddModel(std::string sNewfilename)
+		model::cStatic* cRender::AddModel(std::string sNewfilename)
 		{
-			MODEL::cStatic *pModel = mStatic[sNewfilename];
+			model::cStatic *pModel = mStatic[sNewfilename];
 
 			if(pModel)
 				return pModel;
 			
-			pModel=new MODEL::cStatic();
+			pModel=new model::cStatic();
 
 			if(pModel->Load(sNewfilename))
 			{
@@ -1971,9 +1971,9 @@ namespace BREATHE
 			return NULL;
 		}
 
-		MODEL::cStatic *cRender::GetModel(std::string sFilename)
+		model::cStatic *cRender::GetModel(std::string sFilename)
 		{
-			MODEL::cStatic *pModel=mStatic[sFilename];
+			model::cStatic *pModel=mStatic[sFilename];
 			if(pModel)
 				return pModel;
 			
@@ -1997,11 +1997,11 @@ namespace BREATHE
 
 		void cRender::SetColour(float r, float g, float b)
 		{
-			MATH::cColour colour(r, g, b, 1.0f);
+			math::cColour colour(r, g, b, 1.0f);
 			SetColour(colour);
 		}
 		
-		void cRender::SetColour(const MATH::cColour& inColour)
+		void cRender::SetColour(const math::cColour& inColour)
 		{
 			bActiveColour=true;
 
@@ -2016,8 +2016,8 @@ namespace BREATHE
 			cTexture* t = NULL;
 			MATERIAL::cMaterial* mat=NULL;
 
-			MODEL::cStatic* s=NULL;
-			MODEL::cMesh* pMesh;
+			model::cStatic* s=NULL;
+			model::cMesh* pMesh;
 			float* fTextureCoords=NULL;
 			unsigned int nMeshes=0;
 			unsigned int uiTriangles=0;
@@ -2027,7 +2027,7 @@ namespace BREATHE
 			unsigned int triangle=0;
 
 			//Transform uv texture coordinates
-			std::map<std::string, MODEL::cStatic*>::iterator iter=mStatic.begin();
+			std::map<std::string, model::cStatic*>::iterator iter=mStatic.begin();
 			for(;iter!=mStatic.end();iter++)
 			{
 				std::string sFilename = iter->first;
@@ -2240,7 +2240,7 @@ namespace BREATHE
 					for(int i=0;modes[i];++i)
 					{
 						float ratio = static_cast<float>(modes[i]->w)/static_cast<float>(modes[i]->h);
-						if (ratio < fWideScreenRatio + MATH::cEPSILON)
+						if (ratio < fWideScreenRatio + math::cEPSILON)
 							resolutions.push_back(resolution(modes[i]->w, modes[i]->h));
 					}
 				}

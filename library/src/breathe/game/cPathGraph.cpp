@@ -5,22 +5,22 @@
 #include <list>
 #include <set>
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/GAME/cPathGraph.h>
+#include <breathe/game/cPathGraph.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace GAME
 	{
@@ -31,14 +31,14 @@ namespace BREATHE
 				fWeight = 1.0f;
 			}
 			
-			cPathNode::cPathNode(MATH::cVec3& v)
-				: MATH::cVec3(v)
+			cPathNode::cPathNode(math::cVec3& v)
+				: math::cVec3(v)
 			{
 				fWeight = 1.0f;
 			}
 
 			cPathNode::cPathNode(float x, float y, float z)
-				: MATH::cVec3(x, y, z)
+				: math::cVec3(x, y, z)
 			{
 				fWeight = 1.0f;
 			}
@@ -95,11 +95,11 @@ namespace BREATHE
 			
 
 			
-			cPathNode* cPathGraph::GetNode(const MATH::cVec3& v3Point)
+			cPathNode* cPathGraph::GetNode(const math::cVec3& v3Point)
 			{
 				std::vector<cPathNode*>::iterator iter = vNode.begin();
 				std::vector<cPathNode*>::iterator iterEnd = vNode.end();
-				float fClosest = MATH::cINFINITY;
+				float fClosest = math::cINFINITY;
 				cPathNode* pNode = NULL;
 				float fDistance = 0;
 				while(iter != iterEnd)
@@ -273,7 +273,7 @@ namespace BREATHE
 			// 5) if there is not a valid path:
 			// vPathOut = empty;
 			// return false;
-			bool cPathGraph::GetPath(const MATH::cVec3& v3Begin, const MATH::cVec3& v3End, node_list& lPathOut)
+			bool cPathGraph::GetPath(const math::cVec3& v3Begin, const math::cVec3& v3End, node_list& lPathOut)
 			{
 				lPathOut.clear();
 

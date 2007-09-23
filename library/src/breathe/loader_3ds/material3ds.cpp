@@ -7,15 +7,15 @@
 #include <string>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/LOADER_3DS/material3ds.h>
-#include <BREATHE/LOADER_3DS/build3ds.h>
+#include <breathe/loader_3ds/material3ds.h>
+#include <breathe/loader_3ds/build3ds.h>
 
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

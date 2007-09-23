@@ -5,7 +5,7 @@
 
 #include "chunk.h"
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -17,7 +17,7 @@ namespace BREATHE
 		class Camera3DS
 		{
 		public:
-			std::vector<RENDER::cCamera * > vCamera;
+			std::vector<render::cCamera * > vCamera;
 
 			Camera3DS();
 			~Camera3DS();

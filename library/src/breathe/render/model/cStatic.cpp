@@ -12,39 +12,39 @@
 #include <fstream>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cFileSystem.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
 
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/LOADER_3DS/file.h>
-#include <BREATHE/LOADER_3DS/chunk.h>
-#include <BREATHE/LOADER_3DS/light3ds.h>
-#include <BREATHE/LOADER_3DS/material3ds.h>
-#include <BREATHE/LOADER_3DS/mesh3ds.h>
-#include <BREATHE/LOADER_3DS/camera3ds.h>
+#include <breathe/loader_3ds/file.h>
+#include <breathe/loader_3ds/chunk.h>
+#include <breathe/loader_3ds/light3ds.h>
+#include <breathe/loader_3ds/material3ds.h>
+#include <breathe/loader_3ds/mesh3ds.h>
+#include <breathe/loader_3ds/camera3ds.h>
 
 //Uses an Octree to partition the model
 //If all of the triangles can be contained within a small radius, 
 //then they are all added to the root node and there are no children
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -183,7 +183,7 @@ namespace BREATHE
 			{
 				LOG.Success("3ds", "Camera");
 
-				MATH::cFrustum *p=new MATH::cFrustum();
+				math::cFrustum *p=new math::cFrustum();
 
 				p->eye.x=p->eyeIdeal.x= fScaleCamera * c.Float();
 				p->eye.y=p->eyeIdeal.y= fScaleCamera * c.Float();
@@ -231,11 +231,11 @@ namespace BREATHE
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
-					pCurrentMesh->sMaterial=BREATHE::FILESYSTEM::FindFile(BREATHE::FILESYSTEM::GetPath(sFilename) + pMesh->sMaterial);
+					pCurrentMesh->sMaterial=breathe::FILESYSTEM::FindFile(breathe::FILESYSTEM::GetPath(sFilename) + pMesh->sMaterial);
 
 					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
 					// try it, comment these lines out, it breaks.  I don't know why :(
-					BREATHE::unicode_char* c = (BREATHE::unicode_char*)(pCurrentMesh->sMaterial.c_str());
+					breathe::unicode_char* c = (breathe::unicode_char*)(pCurrentMesh->sMaterial.c_str());
 					pCurrentMesh->sMaterial = c;
 
 					for(face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
@@ -346,7 +346,7 @@ namespace BREATHE
 			}
 
 
-			unsigned int cStatic::Render(MATH::cOctree *pNode)
+			unsigned int cStatic::Render(math::cOctree *pNode)
 			{
 				// We should already have the octree created before we call this function.
 				// This only goes through the nodes that are in our frustum, then renders those
@@ -372,14 +372,14 @@ namespace BREATHE
 
 					// Recurse to the bottom of these nodes and draw the end node's vertices
 					// Like creating the octree, we need to recurse through each of the 8 nodes.
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::TOP_LEFT_FRONT]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::TOP_LEFT_BACK]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::TOP_RIGHT_BACK]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::TOP_RIGHT_FRONT]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::BOTTOM_LEFT_FRONT]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::BOTTOM_LEFT_BACK]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::BOTTOM_RIGHT_BACK]);
-					uiTriangles += Render(pNode->m_pOctreeNodes[MATH::BOTTOM_RIGHT_FRONT]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::TOP_LEFT_FRONT]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::TOP_LEFT_BACK]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::TOP_RIGHT_BACK]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::TOP_RIGHT_FRONT]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::BOTTOM_LEFT_FRONT]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::BOTTOM_LEFT_BACK]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::BOTTOM_RIGHT_BACK]);
+					uiTriangles += Render(pNode->m_pOctreeNodes[math::BOTTOM_RIGHT_FRONT]);
 				}
 				else
 				{

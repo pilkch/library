@@ -1,7 +1,7 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

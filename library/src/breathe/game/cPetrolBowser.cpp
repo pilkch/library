@@ -1,8 +1,8 @@
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/GAME/cPetrolBowser.h>
+#include <breathe/game/cPetrolBowser.h>
 
-namespace BREATHE
+namespace breathe
 {
 	cPetrolBowser::cPetrolBowser(unsigned int type, float price)
 	{

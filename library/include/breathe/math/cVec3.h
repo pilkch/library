@@ -1,7 +1,7 @@
 #ifndef CVEC3_H
 #define CVEC3_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

@@ -1,7 +1,7 @@
 #ifndef CSTRING_H
 #define CSTRING_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace STRING
 	{
@@ -21,7 +21,7 @@ namespace BREATHE
 
 
 
-		bool IsWhiteSpace(BREATHE::unicode_char c);
+		bool IsWhiteSpace(breathe::unicode_char c);
 		
 		std::string Replace(std::string sSource, std::string f, std::string r);
 		std::string CutLeading(std::string sSource, std::string f);

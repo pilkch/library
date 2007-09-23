@@ -30,22 +30,22 @@
 #include <SDL/SDL_image.h>
 
 // Breathe Headers
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
-#include <BREATHE/RENDER/cFont.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -118,7 +118,7 @@ namespace BREATHE
 					0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data );
 
 			//With the texture created, we don't need to expanded data anymore
-			BREATHE::SAFE_DELETE_ARRAY(expanded_data);
+			breathe::SAFE_DELETE_ARRAY(expanded_data);
 
 			//So now we can create the display list
 			glNewList(list_base+ch,GL_COMPILE);
@@ -171,7 +171,7 @@ namespace BREATHE
 
 
 
-		cFont::cFont(const BREATHE::unicode_char * fname, unsigned int h)
+		cFont::cFont(const breathe::unicode_char * fname, unsigned int h)
 		{
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];

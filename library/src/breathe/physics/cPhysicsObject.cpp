@@ -11,27 +11,27 @@
 #include <ode/ode.h>
 
 
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
 
-#include <BREATHE/PHYSICS/cPhysics.h>
-#include <BREATHE/PHYSICS/cContact.h>
-#include <BREATHE/PHYSICS/cRayCast.h>
-#include <BREATHE/PHYSICS/cPhysicsObject.h>
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cContact.h>
+#include <breathe/physics/cRayCast.h>
+#include <breathe/physics/cPhysicsObject.h>
 
 
 /*// Wedge 
@@ -66,7 +66,7 @@ const unsigned int uiDirectionX = 1;
 const unsigned int uiDirectionY = 2;
 const unsigned int uiDirectionZ = 3;
 
-namespace BREATHE
+namespace breathe
 {
 	namespace PHYSICS
 	{	
@@ -123,12 +123,12 @@ namespace BREATHE
 			vIndicies=indicies;
 		}
 
-		void cPhysicsObject::InitCommon(MATH::cVec3& pos, MATH::cVec3& rot)
+		void cPhysicsObject::InitCommon(math::cVec3& pos, math::cVec3& rot)
 		{
 			pos.z+=fHeight;
 
 			m.LoadIdentity();
-			m.SetRotationZ(rot.z*MATH::cPI_DIV_180);
+			m.SetRotationZ(rot.z*math::cPI_DIV_180);
 
 			dMatrix3 r;
 			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
@@ -153,7 +153,7 @@ namespace BREATHE
 			}
 		}
 		
-		void cPhysicsObject::CreateBox(MATH::cVec3 pos, MATH::cVec3 rot)
+		void cPhysicsObject::CreateBox(math::cVec3 pos, math::cVec3 rot)
 		{
 			geom = dCreateBox(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, 
 				2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
@@ -168,7 +168,7 @@ namespace BREATHE
 			}
 		}
 		
-		void cPhysicsObject::CreateSphere(MATH::cVec3 pos, MATH::cVec3 rot)
+		void cPhysicsObject::CreateSphere(math::cVec3 pos, math::cVec3 rot)
 		{
 			geom = dCreateSphere(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius);
 
@@ -182,7 +182,7 @@ namespace BREATHE
 			}
 		}
 
-		void cPhysicsObject::CreateCapsule(MATH::cVec3 pos, MATH::cVec3 rot)
+		void cPhysicsObject::CreateCapsule(math::cVec3 pos, math::cVec3 rot)
 		{
 			geom = dCreateCapsule(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
 		
@@ -196,7 +196,7 @@ namespace BREATHE
 			}
 		}
 
-		void cPhysicsObject::CreateCylinder(MATH::cVec3 pos, MATH::cVec3 rot)
+		void cPhysicsObject::CreateCylinder(math::cVec3 pos, math::cVec3 rot)
 		{
 			geom = dCreateCylinder(bDynamic ? PHYSICS::spaceDynamic : PHYSICS::spaceStatic, fRadius, fLength);
 
@@ -210,13 +210,13 @@ namespace BREATHE
 			}
 		}
 
-		void cPhysicsObject::CreateTrimesh(MATH::cVec3 pos, MATH::cVec3 rot)
+		void cPhysicsObject::CreateTrimesh(math::cVec3 pos, math::cVec3 rot)
 		{
 			bBody=false;
 			bDynamic=false;
 
 			m.LoadIdentity();
-			m.SetRotationZ(rot.z*MATH::cPI_DIV_180);
+			m.SetRotationZ(rot.z*math::cPI_DIV_180);
 
 			dMatrix3 r;
 			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;

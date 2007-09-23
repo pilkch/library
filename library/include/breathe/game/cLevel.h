@@ -1,7 +1,7 @@
 #ifndef CLEVEL_H
 #define CLEVEL_H
 
-namespace BREATHE
+namespace breathe
 {
 	class cCamera;
 	class cObject;
@@ -30,7 +30,7 @@ namespace BREATHE
 	class cLevelModel : public cObject
 	{
 	public:
-		RENDER::MODEL::cStatic* pModel;
+		render::model::cStatic* pModel;
 
 		void Update(float fCurrentTime)
 		{
@@ -41,7 +41,7 @@ namespace BREATHE
 	class cLevelCubemap
 	{
 	public:
-		MATH::cVec3 v3Position;
+		math::cVec3 v3Position;
 
 		std::string sFilename;
 	};
@@ -51,8 +51,8 @@ namespace BREATHE
 	public:
 		cLevelSpawn();
 
-		MATH::cVec3 v3Position;
-		MATH::cVec3 v3Rotation;
+		math::cVec3 v3Position;
+		math::cVec3 v3Rotation;
 	};
 
 
@@ -69,7 +69,7 @@ namespace BREATHE
 		
 		float fFogDistance;
 
-		MATH::cColour colourFog;
+		math::cColour colourFog;
 
 		std::string sFilename;
 		std::string sName;
@@ -110,7 +110,7 @@ namespace BREATHE
     cLevelNode* pCurrentNode;
 		unsigned int uiDisplayNodeName;
 
-		//std::map<std::string, RENDER::MODEL::cHeightmap*> mHeightmap;
+		//std::map<std::string, render::model::cHeightmap*> mHeightmap;
 
 		std::list<VEHICLE::cVehicle *> lVehicle;
 		std::list<PHYSICS::cPhysicsObject*> lPhysicsObject;
@@ -136,7 +136,7 @@ namespace BREATHE
 		unsigned int Render(float fCurrentTime);
 
 		cLevelSpawn GetSpawn(); //Get a random spawn
-		cLevelSpawn GetSpawn(MATH::cVec3 &p); //Get closest spawn to requested position
+		cLevelSpawn GetSpawn(math::cVec3 &p); //Get closest spawn to requested position
 
 		
 		void AddVehicle(VEHICLE::cVehicle *v);
@@ -147,9 +147,9 @@ namespace BREATHE
 
 		unsigned int RenderVehicles(float fCurrentTime, VEHICLE::cVehicle *pOwnVehicle);
 
-		RENDER::cTexture *FindClosestCubeMap(MATH::cVec3 pos);
+		render::cTexture *FindClosestCubeMap(math::cVec3 pos);
 
-		VEHICLE::cVehicle *FindClosestVehicle(MATH::cVec3 pos, float fMaxDistance);
+		VEHICLE::cVehicle *FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
 	};
 	
 	class cSceneGraph
@@ -221,6 +221,6 @@ namespace BREATHE
 	};
 }
 
-extern BREATHE::cLevel* pLevel;
+extern breathe::cLevel* pLevel;
 
 #endif //CLEVEL_H

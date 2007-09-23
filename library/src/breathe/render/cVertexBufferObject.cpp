@@ -17,25 +17,25 @@
 #include <GL/Glee.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cFileSystem.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
+#include <breathe/util/cBase.h>
 
-#include <BREATHE/RENDER/cVertexBufferObject.h>
+#include <breathe/render/cVertexBufferObject.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -75,9 +75,9 @@ namespace BREATHE
 			// Assign offsets for our arrays
 			uiVertices = pVertex.vData.size();
 
-			unsigned int uiVertexSize = pVertex.vData.size() * sizeof(MATH::cVec3);
-			unsigned int uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(MATH::cVec2);
-			unsigned int uiNormalSize = pNormal.vData.size() * sizeof(MATH::cVec3);
+			unsigned int uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
+			unsigned int uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
+			unsigned int uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
 			
 			pVertex.uiOffset = 0 + 0;
 			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
@@ -86,10 +86,10 @@ namespace BREATHE
 			uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
 			if(pTextureCoord.vData.size() > uiVertices)
 			{
-				uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(MATH::cVec2));
+				uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(math::cVec2));
 
 				if(pTextureCoord.vData.size()/2 > uiVertices)
-					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(MATH::cVec2));
+					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(math::cVec2));
 			}
 
 			std::vector<float>vData;

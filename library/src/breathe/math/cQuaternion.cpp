@@ -3,21 +3,21 @@
 #include <cmath>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cQuaternion.h>
-/*#include "BREATHE/cPlane.h"
-#include "BREATHE/cCollision.h"
-#include "BREATHE/cFrustum.h"
-#include "BREATHE/cOctree.h"
-#include "BREATHE/cColour.h"*/
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cQuaternion.h>
+/*#include "breathe/cPlane.h"
+#include "breathe/cCollision.h"
+#include "breathe/cFrustum.h"
+#include "breathe/cOctree.h"
+#include "breathe/cColour.h"*/
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

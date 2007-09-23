@@ -1,7 +1,7 @@
 #ifndef CMAT4_H
 #define CMAT4_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{

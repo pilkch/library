@@ -1,7 +1,7 @@
 #ifndef COCTREE_H
 #define COCTREE_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace MATH
 	{		

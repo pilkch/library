@@ -7,7 +7,7 @@
 
 #include "chunk.h"
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

@@ -6,15 +6,15 @@
 #include <sstream>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
 
-#include "BREATHE/LOADER_3DS/mesh3dsobject.h"
-#include "BREATHE/LOADER_3DS/build3ds.h"
+#include "breathe/loader_3ds/mesh3dsobject.h"
+#include "breathe/loader_3ds/build3ds.h"
 
 
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{

@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-namespace BREATHE
+namespace breathe
 {
 	//	cVar
 	//	

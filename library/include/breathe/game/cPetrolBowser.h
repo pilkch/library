@@ -1,7 +1,7 @@
 #ifndef CPETROLBOWSER_H
 #define CPETROLBOWSER_H
 
-namespace BREATHE
+namespace breathe
 {
 	const unsigned int PETROL_STOCK=0;
 	const unsigned int PETROL_PREMIUM=1;

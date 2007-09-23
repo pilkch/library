@@ -1,7 +1,7 @@
 #ifndef CMODELHEIGHTMAP_H
 #define CMODELHEIGHTMAP_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -20,20 +20,20 @@ namespace BREATHE
 				
 				float Hermite4( float fFrac, const float * ptr );
 				
-				MATH::cVec3 Normal(int x, int y);
-				MATH::cVec3 Normal(float x, float y);
+				math::cVec3 Normal(int x, int y);
+				math::cVec3 Normal(float x, float y);
 
 				unsigned int Render();
 
 				void Update(float fCurrentTime);
 
-				std::vector<MATH::cVec3>vVertex;
-				std::vector<MATH::cVec3>vNormal;
-				std::vector<MATH::cVec2>vTextureCoord;
+				std::vector<math::cVec3>vVertex;
+				std::vector<math::cVec3>vNormal;
+				std::vector<math::cVec2>vTextureCoord;
 
 			protected:
 				float* pHeight;
-				MATH::cVec3* pNormal;
+				math::cVec3* pNormal;
 
 				unsigned int uiWidth;
 				unsigned int uiHeight;
@@ -44,7 +44,7 @@ namespace BREATHE
 
 				cVertexBufferObject* pVBO;
 
-				//static BREATHE::MATH::cFrustum *pFrustum;
+				//static breathe::math::cFrustum *pFrustum;
 
 				std::string sMaterial;
 				MATERIAL::cMaterial* pMaterial;
@@ -120,7 +120,7 @@ namespace BREATHE
 				return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
 			}*/
 
-			inline MATH::cVec3 cHeightmap::Normal(float x, float y)
+			inline math::cVec3 cHeightmap::Normal(float x, float y)
 			{
 				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
 				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
@@ -137,9 +137,9 @@ namespace BREATHE
 				//   |   |
 				//   3---2
 
-				MATH::cVec3 h0 = pNormal[xi + (yi * static_cast<unsigned int>(uiWidth + 1))];
-				MATH::cVec3 h1 = pNormal[xi+1 + (yi * static_cast<unsigned int>(uiWidth + 1))];
-				MATH::cVec3 h3 = pNormal[xi + ((yi+1) * static_cast<unsigned int>(uiWidth + 1))];
+				math::cVec3 h0 = pNormal[xi + (yi * static_cast<unsigned int>(uiWidth + 1))];
+				math::cVec3 h1 = pNormal[xi+1 + (yi * static_cast<unsigned int>(uiWidth + 1))];
+				math::cVec3 h3 = pNormal[xi + ((yi+1) * static_cast<unsigned int>(uiWidth + 1))];
 
 				float	xfrac = x - static_cast<float>(xi);
 				float yfrac = y - static_cast<float>(yi);

@@ -22,43 +22,43 @@
 
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cLog.h>
-#include <BREATHE/UTIL/cString.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cString.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
+#include <breathe/util/cBase.h>
 
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/util/cFileSystem.h>
 
 
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-#include <BREATHE/UTIL/cXML.h>
+#include <breathe/util/cXML.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -292,14 +292,14 @@ namespace BREATHE
 			{
 				LOG.Success("Material", std::string("Loading ") + sFilename);
 
-				BREATHE::FILESYSTEM::FindFile(sFilename);
+				breathe::FILESYSTEM::FindFile(sFilename);
 
-				std::string sPath=BREATHE::FILESYSTEM::GetPath(sFilename);
+				std::string sPath=breathe::FILESYSTEM::GetPath(sFilename);
 				
-				XML::cNode root(sFilename);
-				XML::cNode::iterator iter(root);
+				xml::cNode root(sFilename);
+				xml::cNode::iterator iter(root);
 				
-				if (!iter) return BREATHE::BAD;
+				if (!iter) return breathe::BAD;
 
 				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
 				//	<layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
@@ -313,7 +313,7 @@ namespace BREATHE
 					for(unsigned int i=0;i<nLayers;i++)
 						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
 
-					return BREATHE::BAD;
+					return breathe::BAD;
 				}
 				
 				iter.GetAttribute("collide", &bCollideTrimesh);
@@ -322,12 +322,12 @@ namespace BREATHE
 				if(iter.GetAttribute("sShaderVertex", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
-					pShader->sShaderVertex=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
+					pShader->sShaderVertex=breathe::FILESYSTEM::FindFile(sPath + sValue);
 				}
 				if(iter.GetAttribute("sShaderFragment", &sValue))
 				{
 					if(!pShader) pShader=new cShader();
-					pShader->sShaderFragment=BREATHE::FILESYSTEM::FindFile(sPath + sValue);
+					pShader->sShaderFragment=breathe::FILESYSTEM::FindFile(sPath + sValue);
 				}
 
 				if(pShader)
@@ -355,7 +355,7 @@ namespace BREATHE
 					{
 						std::string sTexture;
 						if(iter.GetAttribute("sTexture", &sTexture))
-							pLayer->sTexture = BREATHE::FILESYSTEM::FindFile(sPath + sTexture);
+							pLayer->sTexture = breathe::FILESYSTEM::FindFile(sPath + sTexture);
 
 						std::string sValue;
 						if(iter.GetAttribute("uiTextureMode", &sValue))
@@ -403,7 +403,7 @@ namespace BREATHE
 				}
 
 				LOG.Success("Material", std::string("Loaded ") + sFilename);
-				return BREATHE::GOOD;
+				return breathe::GOOD;
 			}
 
 		}

@@ -1,11 +1,11 @@
 #include <SDL/SDL.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cTimer.h>
+#include <breathe/util/cTimer.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace UTIL
 	{

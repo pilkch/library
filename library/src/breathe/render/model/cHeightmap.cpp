@@ -17,38 +17,38 @@
 #include <SDL/SDL_image.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/UTIL/cFileSystem.h>
+#include <breathe/util/cBase.h>
+#include <breathe/util/cFileSystem.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
-#include <BREATHE/RENDER/cVertexBufferObject.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+#include <breathe/render/cVertexBufferObject.h>
 
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
-#include <BREATHE/RENDER/MODEL/cHeightmapPatch.h>
-#include <BREATHE/RENDER/MODEL/cHeightmap.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
+#include <breathe/render/model/cHeightmapPatch.h>
+#include <breathe/render/model/cHeightmap.h>
 
-#include <BREATHE/GAME/cLevel.h>
+#include <breathe/game/cLevel.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -88,15 +88,15 @@ namespace BREATHE
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
-				sFilename=BREATHE::FILESYSTEM::FindFile("data/level/node00/heightmap.png");
+				sFilename=breathe::FILESYSTEM::FindFile("data/level/node00/heightmap.png");
 
-				float fHighest = -MATH::cINFINITY;
-				float fLowest = MATH::cINFINITY;
+				float fHighest = -math::cINFINITY;
+				float fLowest = math::cINFINITY;
 
 				// Load heightmap
 				{
 					cTexture* pTexture = new cTexture();
-					if(pTexture->Load(sFilename) == BREATHE::BAD)
+					if(pTexture->Load(sFilename) == breathe::BAD)
 					{
 						LOG.Error("Heightmap", "Failed to load " + sFilename);
 						return 0;
@@ -164,22 +164,22 @@ namespace BREATHE
 
 				// Fill out normals
 				{
-					pNormal = new MATH::cVec3[(uiWidth + 1) * (uiHeight + 1)];
+					pNormal = new math::cVec3[(uiWidth + 1) * (uiHeight + 1)];
 					
-					std::vector<MATH::cVec3>* normal_buffer = new std::vector<MATH::cVec3>[(uiWidth + 1) * (uiHeight + 1)];
+					std::vector<math::cVec3>* normal_buffer = new std::vector<math::cVec3>[(uiWidth + 1) * (uiHeight + 1)];
 
 					for(unsigned int h = 0; h < uiHeight; h++)
 					{
 						for(unsigned int w = 0; w < uiWidth; w++)
 						{
 							// get the three vertices that make the faces
-							MATH::cVec3 p1(fWidthOfTile * w, fHeightOfTile * h, pHeight[w + (h * (uiWidth + 1))]);
-							MATH::cVec3 p2(fWidthOfTile * (w + 1), fHeightOfTile * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
-							MATH::cVec3 p3(fWidthOfTile * w, fHeightOfTile * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
+							math::cVec3 p1(fWidthOfTile * w, fHeightOfTile * h, pHeight[w + (h * (uiWidth + 1))]);
+							math::cVec3 p2(fWidthOfTile * (w + 1), fHeightOfTile * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
+							math::cVec3 p3(fWidthOfTile * w, fHeightOfTile * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
 
-							MATH::cVec3 v1 = p2 - p1;
-							MATH::cVec3 v2 = p3 - p1;
-							MATH::cVec3 normal = v1.CrossProduct( v2 );
+							math::cVec3 v1 = p2 - p1;
+							math::cVec3 v2 = p3 - p1;
+							math::cVec3 normal = v1.CrossProduct( v2 );
 
 							// Store the face's normal for each of the vertices that make up the face.
 							normal_buffer[w + (h * (uiWidth + 1))].push_back( normal );
@@ -218,12 +218,12 @@ namespace BREATHE
 						float fX = (static_cast<float>(w * uiVBOStrideWidth) - fHalfWidth) * fWidthOfTile;
 						float fY = (static_cast<float>(h * uiVBOStrideHeight) - fHalfHeight) * fHeightOfTile;
 
-						vVertex.push_back(MATH::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
-						vVertex.push_back(MATH::cVec3(fX + fHTW, fY - fHTH, Height(fX + fHTW2, fY)));
-						vVertex.push_back(MATH::cVec3(fX + fHTW, fY + fHTH, Height(fX + fHTW2, fY + fHTH2)));
-						vVertex.push_back(MATH::cVec3(fX + fHTW, fY + fHTH, Height(fX + fHTW2, fY + fHTH2)));
-						vVertex.push_back(MATH::cVec3(fX - fHTW, fY + fHTH, Height(fX, fY + fHTH2)));
-						vVertex.push_back(MATH::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
+						vVertex.push_back(math::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
+						vVertex.push_back(math::cVec3(fX + fHTW, fY - fHTH, Height(fX + fHTW2, fY)));
+						vVertex.push_back(math::cVec3(fX + fHTW, fY + fHTH, Height(fX + fHTW2, fY + fHTH2)));
+						vVertex.push_back(math::cVec3(fX + fHTW, fY + fHTH, Height(fX + fHTW2, fY + fHTH2)));
+						vVertex.push_back(math::cVec3(fX - fHTW, fY + fHTH, Height(fX, fY + fHTH2)));
+						vVertex.push_back(math::cVec3(fX - fHTW, fY - fHTH, Height(fX, fY)));
 
 						vNormal.push_back(Normal(fX, fY));
 						vNormal.push_back(Normal(fX + fHTW2, fY));
@@ -256,12 +256,12 @@ namespace BREATHE
 								pTexture->Transform(u1, v1);
 								pTexture->Transform(u2, v2);
 
-								vTextureCoord.push_back(MATH::cVec2(u1, v1));
-								vTextureCoord.push_back(MATH::cVec2(u2, v1));
-								vTextureCoord.push_back(MATH::cVec2(u2, v2));
-								vTextureCoord.push_back(MATH::cVec2(u2, v2));
-								vTextureCoord.push_back(MATH::cVec2(u1, v2));
-								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+								vTextureCoord.push_back(math::cVec2(u1, v1));
+								vTextureCoord.push_back(math::cVec2(u2, v1));
+								vTextureCoord.push_back(math::cVec2(u2, v2));
+								vTextureCoord.push_back(math::cVec2(u2, v2));
+								vTextureCoord.push_back(math::cVec2(u1, v2));
+								vTextureCoord.push_back(math::cVec2(u1, v1));
 							}
 						}
 					}
@@ -288,12 +288,12 @@ namespace BREATHE
 						{
 							for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
 							{
-								vTextureCoord.push_back(MATH::cVec2(u1, v1));
-								vTextureCoord.push_back(MATH::cVec2(u2, v1));
-								vTextureCoord.push_back(MATH::cVec2(u2, v2));
-								vTextureCoord.push_back(MATH::cVec2(u2, v2));
-								vTextureCoord.push_back(MATH::cVec2(u1, v2));
-								vTextureCoord.push_back(MATH::cVec2(u1, v1));
+								vTextureCoord.push_back(math::cVec2(u1, v1));
+								vTextureCoord.push_back(math::cVec2(u2, v1));
+								vTextureCoord.push_back(math::cVec2(u2, v2));
+								vTextureCoord.push_back(math::cVec2(u2, v2));
+								vTextureCoord.push_back(math::cVec2(u1, v2));
+								vTextureCoord.push_back(math::cVec2(u1, v1));
 							}
 						}
 					}
@@ -320,7 +320,7 @@ namespace BREATHE
 					pVBO->Render();
 				}
 
-				pRender->RenderWireframeBox(MATH::cVec3(-fWidth, -fLength, -fHeight), MATH::cVec3(fWidth, fLength, fHeight));
+				pRender->RenderWireframeBox(math::cVec3(-fWidth, -fLength, -fHeight), math::cVec3(fWidth, fLength, fHeight));
 
 				return uiTriangles;
 			}

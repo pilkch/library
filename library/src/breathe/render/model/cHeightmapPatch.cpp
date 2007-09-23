@@ -16,34 +16,34 @@
 #include <SDL/SDL_image.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/breathe.h>
+#include <breathe/util/log.h>
 
 //#include <cCamera.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec2.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cPlane.h>
-#include <BREATHE/MATH/cQuaternion.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cOctree.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+#include <breathe/math/cColour.h>
 
 
-#include <BREATHE/UTIL/cBase.h>
-#include <BREATHE/RENDER/cVertexBufferObject.h>
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/MODEL/cMesh.h>
-#include <BREATHE/RENDER/MODEL/cModel.h>
-#include <BREATHE/RENDER/MODEL/cStatic.h>
-#include <BREATHE/RENDER/MODEL/cHeightmapPatch.h>
-#include <BREATHE/RENDER/MODEL/cHeightmap.h>
+#include <breathe/util/cBase.h>
+#include <breathe/render/cVertexBufferObject.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
+#include <breathe/render/model/cHeightmapPatch.h>
+#include <breathe/render/model/cHeightmap.h>
 
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -141,8 +141,8 @@ namespace BREATHE
 				{
 					// Extremely slow distance metric (sqrt is used).
 					// Replace this with a faster one!
-					float distance = 1.0f + sqrt(BREATHE::MATH::sqrf((float)centerX - cHeightmap::pFrustum->eye.x) +
-						BREATHE::MATH::sqrf((float)centerY - cHeightmap::pFrustum->eye.z) );
+					float distance = 1.0f + sqrt(breathe::math::sqrf((float)centerX - cHeightmap::pFrustum->eye.x) +
+						breathe::math::sqrf((float)centerY - cHeightmap::pFrustum->eye.z) );
 					
 					// Egads!  A division too?  What's this world coming to!
 					// This should also be replaced with a faster operation.
@@ -178,13 +178,13 @@ namespace BREATHE
 				}
 				else									// A leaf node!  Output a triangle to be rendered.
 				{
-					MATH::cVec3 p[4];
+					math::cVec3 p[4];
 
-					p[0]=MATH::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
-					p[1]=MATH::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
-					p[2]=MATH::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
+					p[0]=math::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
+					p[1]=math::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
+					p[2]=math::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
 					
-					MATH::cPlane plane;
+					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
 					if((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
@@ -403,13 +403,13 @@ namespace BREATHE
 				}
 				else									// A leaf node!  Output a triangle to be rendered.
 				{
-					MATH::cVec3 p[3];
+					math::cVec3 p[3];
 
-					p[0]=MATH::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
-					p[1]=MATH::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
-					p[2]=MATH::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
+					p[0]=math::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
+					p[1]=math::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
+					p[2]=math::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
 					
-					MATH::cPlane plane;
+					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
 					if((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
@@ -478,11 +478,11 @@ namespace BREATHE
 				}
 				else									// A leaf node!  Output a triangle to be rendered.
 				{
-					MATH::cVec3 p[3];
+					math::cVec3 p[3];
 
-					p[0]=MATH::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
-					p[1]=MATH::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
-					p[2]=MATH::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
+					p[0]=math::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
+					p[1]=math::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
+					p[2]=math::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
 
 					triangle.point0.x=p[0].x;
 					triangle.point0.y=p[0].y;

@@ -1,7 +1,7 @@
 #ifndef CWIDGET_H
 #define CWIDGET_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace GUI
 	{

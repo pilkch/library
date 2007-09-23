@@ -1,7 +1,7 @@
 #ifndef CPHYSICSRAYCAST_H
 #define CPHYSICSRAYCAST_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace PHYSICS
 	{		

@@ -1,7 +1,7 @@
 #ifndef CITEM_H
 #define CITEM_H
 
-namespace BREATHE
+namespace breathe
 {
 	class cItem : virtual public PHYSICS::cPhysicsObject
 	{

@@ -3,7 +3,7 @@
 
 // Path Graph for Dijkstra algorithm
 
-namespace BREATHE
+namespace breathe
 {
 	namespace GAME
 	{
@@ -18,11 +18,11 @@ namespace BREATHE
 			typedef std::vector<cPathEdge*>::iterator edge_vector_iterator;
 			typedef std::list<cPathNode*>::iterator node_list_iterator;
 
-			class cPathNode : public MATH::cVec3
+			class cPathNode : public math::cVec3
 			{
 			public:
 				cPathNode();
-				cPathNode(MATH::cVec3& v);
+				cPathNode(math::cVec3& v);
 				cPathNode(float x, float y, float z);
 				virtual ~cPathNode();
 
@@ -58,9 +58,9 @@ namespace BREATHE
 				bool empty() const { return vNode.empty(); }
 
 				bool GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, node_list& lPathOut);
-				bool GetPath(const MATH::cVec3& v3Begin, const MATH::cVec3& v3End, node_list& lPathOut);
+				bool GetPath(const math::cVec3& v3Begin, const math::cVec3& v3End, node_list& lPathOut);
 
-				cPathNode* GetNode(const MATH::cVec3& v3Point);
+				cPathNode* GetNode(const math::cVec3& v3Point);
 				//cPathNode* GetNode(const int id);
 				
 				void AddNode(cPathNode* node);

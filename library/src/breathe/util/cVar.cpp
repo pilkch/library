@@ -14,12 +14,12 @@
 #include <vector>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cVar.h>
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/cVar.h>
+#include <breathe/util/log.h>
 
-namespace BREATHE
+namespace breathe
 {
 
 }

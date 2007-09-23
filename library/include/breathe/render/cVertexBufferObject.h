@@ -3,7 +3,7 @@
 
 struct SDL_Surface;
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -33,9 +33,9 @@ namespace BREATHE
 			unsigned int Render();
 			void Update(float fCurrentTime) {}
 
-			cVertexBufferObjectArray<MATH::cVec3> pVertex;
-			cVertexBufferObjectArray<MATH::cVec3> pNormal;
-			cVertexBufferObjectArray<MATH::cVec2> pTextureCoord;
+			cVertexBufferObjectArray<math::cVec3> pVertex;
+			cVertexBufferObjectArray<math::cVec3> pNormal;
+			cVertexBufferObjectArray<math::cVec2> pTextureCoord;
 
 		private:
 			unsigned int uiVertices;

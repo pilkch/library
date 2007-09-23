@@ -1,7 +1,7 @@
 #ifndef CMODELHEIGHTMAPPATCH_H
 #define CMODELHEIGHTMAPPATCH_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{

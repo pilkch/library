@@ -3,7 +3,7 @@
 
 //TODO: USE OCTREE, NO MATTER WHAT, EVEN IF THERE ARE 2 TRIANGLES AND THEY BOTH GO IN THE ROOT NODE
 
-namespace BREATHE
+namespace breathe
 {
 	namespace LOADER_3DS
 	{
@@ -16,7 +16,7 @@ namespace BREATHE
 	{
 		namespace MODEL
 		{
-			class cStatic : public cModel, protected MATH::cOctree
+			class cStatic : public cModel, protected math::cOctree
 			{
 			private:
 				int Load3DS(std::string sFilename);

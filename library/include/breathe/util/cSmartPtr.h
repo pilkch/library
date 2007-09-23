@@ -1,4 +1,4 @@
-namespace BREATHE
+namespace breathe
 {
 	namespace UTIL
 	{

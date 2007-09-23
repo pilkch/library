@@ -1,7 +1,7 @@
 #ifndef CSTATICTEXT_H
 #define CSTATICTEXT_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace GUI
 	{

@@ -4,9 +4,9 @@
 // FBO mipmaps
 //#define RENDER_GENERATEFBOMIPMAPS
 
-namespace BREATHE
+namespace breathe
 {
-	namespace RENDER
+	namespace render
 	{
 		const unsigned int MAX_TEXTURE_SIZE=1024;
 
@@ -68,15 +68,15 @@ namespace BREATHE
 			void BeginScreenSpaceRendering();
 			void EndScreenSpaceRendering();
 
-			void RenderArrow(MATH::cVec3& from, MATH::cVec3& to, MATH::cColour& colour);
+			void RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour);
 			void RenderAxisReference(float x, float y, float z);
-			void RenderAxisReference(MATH::cVec3& position);
-			void RenderWireframeBox(MATH::cVec3& vMin, MATH::cVec3& vMax);
+			void RenderAxisReference(math::cVec3& position);
+			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
 			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
 			
-			void RenderMesh(MODEL::cMesh* pMesh);
-			unsigned int RenderStaticModel(MODEL::cStatic* p);
-			unsigned int RenderStaticModel(MODEL::cStatic* p, MATH::cColour& colour);
+			void RenderMesh(model::cMesh* pMesh);
+			unsigned int RenderStaticModel(model::cStatic* p);
+			unsigned int RenderStaticModel(model::cStatic* p, math::cColour& colour);
 
 			void PushScreenSpacePosition(float x, float y);
 			void PopScreenSpacePosition();
@@ -86,9 +86,9 @@ namespace BREATHE
 
 			void TransformModels();
 
-			MODEL::cStatic* AddModel(std::string sNewFilename);
-			MODEL::cStatic* GetModel(std::string sNewFilename);
-			MODEL::cStatic* CreateNewModel(std::string sName);
+			model::cStatic* AddModel(std::string sNewFilename);
+			model::cStatic* GetModel(std::string sNewFilename);
+			model::cStatic* CreateNewModel(std::string sName);
 
 			cVertexBufferObject* AddVertexBufferObject();
 
@@ -113,16 +113,16 @@ namespace BREATHE
 			MATERIAL::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
 			bool ClearMaterial();
 			bool SetMaterial(std::string sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, MATH::cVec3()); }
-			bool SetMaterial(MATERIAL::cMaterial* pMaterial, MATH::cVec3& pos);
+			bool SetMaterial(MATERIAL::cMaterial* pMaterial) { return SetMaterial(pMaterial, math::cVec3()); }
+			bool SetMaterial(MATERIAL::cMaterial* pMaterial, math::cVec3& pos);
 			
 			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, int value);
 			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, float value);
-			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, MATH::cVec3& value);
+			bool SetShaderConstant(MATERIAL::cMaterial* pMaterial, std::string sConstant, math::cVec3& value);
 
 			void ClearColour();
 			void SetColour(float r, float g, float b);
-			void SetColour(const MATH::cColour& inColour);
+			void SetColour(const math::cColour& inColour);
 
 			MATERIAL::cMaterial* GetMaterial(std::string sFilename);
 
@@ -169,7 +169,7 @@ namespace BREATHE
 
 			unsigned int uiActiveUnits;
 
-			MATH::cVec4 v4SunPosition;
+			math::cVec4 v4SunPosition;
 
 
 			cTexture *pTextureNotFoundTexture;
@@ -178,14 +178,14 @@ namespace BREATHE
 			MATERIAL::cMaterial *pMaterialNotFoundMaterial;
 
 
-			std::vector<RENDER::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
+			std::vector<render::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
 			std::map<std::string, MATERIAL::cMaterial *> mMaterial;
 
 			std::vector<cVertexBufferObject*>vVertexBufferObject;
 
 
 			cLevel *pLevel;
-			MATH::cFrustum *pFrustum;
+			math::cFrustum *pFrustum;
 
 			SDL_Surface *pSurface;
 
@@ -198,13 +198,13 @@ namespace BREATHE
 			bool bActiveColour;
 			bool bActiveShader;
 
-			MATH::cColour colour;
+			math::cColour colour;
 			std::vector<MATERIAL::cLayer>vLayer;
 
 			MATERIAL::cMaterial* pCurrentMaterial;
 			
-			//std::map<std::string, MODEL::cAnimation*> mAnimation;
-			std::map<std::string, MODEL::cStatic*> mStatic;
+			//std::map<std::string, model::cAnimation*> mAnimation;
+			std::map<std::string, model::cStatic*> mStatic;
 		};
 
 		namespace SETTINGS
@@ -266,6 +266,6 @@ namespace BREATHE
 	}
 }
 
-extern BREATHE::RENDER::cRender* pRender;
+extern breathe::render::cRender* pRender;
 
 #endif //CRENDER_H

@@ -1,7 +1,7 @@
 #ifndef CMODEL_H
 #define CMODEL_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{

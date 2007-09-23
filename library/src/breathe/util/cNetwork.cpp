@@ -11,13 +11,13 @@
 #include <SDL/SDL_net.h>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/UTIL/cNetwork.h>
+#include <breathe/util/cNetwork.h>
 
-namespace BREATHE
+namespace breathe
 {
 	cNetwork *pNetwork=NULL;
 

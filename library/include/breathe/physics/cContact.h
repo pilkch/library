@@ -1,7 +1,7 @@
 #ifndef CPHYSICSCONTACT_H
 #define CPHYSICSCONTACT_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace PHYSICS
 	{
@@ -23,7 +23,7 @@ namespace BREATHE
 			void SetFDSSlipCoefficient1(float fSlip1);
 			void SetFDSSlipCoefficient2(float fSlip2);
 			void SetCoulombFriction(float fFriction);
-			void SetFrictionDirection1(MATH::cVec3 v3Friction);
+			void SetFrictionDirection1(math::cVec3 v3Friction);
 			void SetElasticity(float fERP, float fCFM);
 			void SetSuspensionKU(float fSuspensionK, float fSuspensionU);
 			void SetBounce(float fBounce, float fBounceVelocity);

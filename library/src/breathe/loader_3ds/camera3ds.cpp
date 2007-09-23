@@ -6,22 +6,22 @@
 #include <string>
 
 // Breathe
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/UTIL/cLog.h>
+#include <breathe/util/log.h>
 
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cFrustum.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cFrustum.h>
 
-#include "BREATHE/LOADER_3DS/build3ds.h"
-
-
+#include "breathe/loader_3ds/build3ds.h"
 
 
-#include <BREATHE/LOADER_3DS/camera3ds.h>
 
-namespace BREATHE
+
+#include <breathe/loader_3ds/camera3ds.h>
+
+namespace breathe
 {
 	namespace LOADER_3DS
 	{
@@ -41,7 +41,7 @@ namespace BREATHE
 		{
 			LOG.Success("3ds", "Camera");
 
-			MATH::cFrustum *p=new MATH::cFrustum();
+			math::cFrustum *p=new math::cFrustum();
 
 			p->eye.x=p->eyeIdeal.x= fScale * c.Float();
 			p->eye.y=p->eyeIdeal.y= fScale * c.Float();

@@ -1,7 +1,7 @@
 #ifndef CTIMER_H
 #define CTIMER_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace UTIL
 	{

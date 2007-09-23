@@ -1,7 +1,7 @@
 #ifndef CMESH_H
 #define CMESH_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{

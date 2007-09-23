@@ -19,26 +19,26 @@
 #include <SDL/SDL_image.h>
 
 // Breathe Headers
-#include <BREATHE/cBreathe.h>
+#include <breathe/breathe.h>
 
-#include <BREATHE/MATH/cMath.h>
-#include <BREATHE/MATH/cVec3.h>
-#include <BREATHE/MATH/cVec4.h>
-#include <BREATHE/MATH/cMat4.h>
-#include <BREATHE/MATH/cFrustum.h>
-#include <BREATHE/MATH/cColour.h>
+#include <breathe/math/cMath.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cColour.h>
 
-#include <BREATHE/UTIL/cBase.h>
+#include <breathe/util/cBase.h>
 
-#include <BREATHE/RENDER/cTexture.h>
-#include <BREATHE/RENDER/cTextureAtlas.h>
-#include <BREATHE/RENDER/cMaterial.h>
-#include <BREATHE/RENDER/cRender.h>
-#include <BREATHE/RENDER/cParticleSystem.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+#include <breathe/render/cParticleSystem.h>
 
-#include <BREATHE/RENDER/MODEL/cMesh.h>
+#include <breathe/render/model/cMesh.h>
 
-namespace BREATHE
+namespace breathe
 {
 	namespace RENDER
 	{
@@ -81,12 +81,12 @@ namespace BREATHE
 			assert(uiParticle < particles.size());
 			
 			cParticle* pParticle = &particles[uiParticle];
-			pParticle->SetLife(MATH::random(uiLifeSpanMin, uiLifeSpanMax));
+			pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
 			pParticle->p.Set(0.0f, 0.0f, 0.0f);
 			pParticle->vel.Set(
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.x, 
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.y, 
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.z);
+				math::randomMinusOneToPlusOne() * spawnVelocity.x, 
+				math::randomMinusOneToPlusOne() * spawnVelocity.y, 
+				math::randomMinusOneToPlusOne() * spawnVelocity.z);
 		}
 
 		void cParticleSystem::Sort()
@@ -206,15 +206,15 @@ namespace BREATHE
 			assert(uiParticle < particles.size());
 			
 			cParticle* pParticle = &particles[uiParticle];
-			pParticle->SetLife(MATH::random(uiLifeSpanMin, uiLifeSpanMax));
+			pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
 			pParticle->p.Set(0.0f, 0.0f, 0.0f);
 			pParticle->vel.Set(
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.x, 
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.y, 
-				MATH::randomMinusOneToPlusOne() * spawnVelocity.z);
+				math::randomMinusOneToPlusOne() * spawnVelocity.x, 
+				math::randomMinusOneToPlusOne() * spawnVelocity.y, 
+				math::randomMinusOneToPlusOne() * spawnVelocity.z);
 		}
 
-		void cParticleSystemMesh::SetMesh(MODEL::cMesh* pInMesh)
+		void cParticleSystemMesh::SetMesh(model::cMesh* pInMesh)
 		{
 			assert(pInMesh);
 			pMesh = pInMesh;

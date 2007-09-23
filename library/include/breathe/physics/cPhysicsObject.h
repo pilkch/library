@@ -1,7 +1,7 @@
 #ifndef CPHYSICSOBJECT_H
 #define CPHYSICSOBJECT_H
 
-namespace BREATHE
+namespace breathe
 {
 	namespace PHYSICS
 	{
@@ -20,7 +20,7 @@ namespace BREATHE
 			dBodyID body;
 			dGeomID geom;
 
-			RENDER::MODEL::cModel *pModel;
+			render::model::cModel *pModel;
 
 
 			cPhysicsObject();
@@ -29,21 +29,21 @@ namespace BREATHE
 			void SetTrimeshSource(std::vector<float>& coords, std::vector<unsigned int>& indicies);
 			void SetHeightmapSource(std::vector<float>& heightvalues, unsigned int uiWidth, unsigned int uiHeight);
 
-			void InitCommon(MATH::cVec3& pos, MATH::cVec3& rot);
+			void InitCommon(math::cVec3& pos, math::cVec3& rot);
 
-			void CreateBox(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
-			void CreateSphere(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
-			void CreateCapsule(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
-			void CreateCylinder(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
-			void CreateTrimesh(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
-			void CreateHeightmap(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateBox(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateSphere(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateCapsule(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateCylinder(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateTrimesh(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
+			void CreateHeightmap(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
 
 			virtual void Update(float fCurrentTime);
 			virtual void UpdateComponents();
 
 			void RemoveFromWorld();
 
-			//void PhysicsInit(MATH::cVec3 pos, MATH::cVec3 rot=MATH::cVec3());
+			//void PhysicsInit(math::cVec3 pos, math::cVec3 rot=math::cVec3());
 			//void PhysicsDestroy();
 		};
 
