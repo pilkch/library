@@ -7,7 +7,7 @@
 
 namespace breathe
 {
-	namespace UTIL
+	namespace util
 	{
 		cTimer::cTimer()
 		{

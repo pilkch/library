@@ -11,6 +11,8 @@ namespace breathe
 
 		int GetOperatingSystemVersionMajor();
 		int GetOperatingSystemVersionMinor();
+
+		std::string GetUserName();
 	}
 }
 

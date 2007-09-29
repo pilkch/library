@@ -47,16 +47,16 @@
 
 namespace breathe
 {
-	#define GET_UINT32(n,b,i)                     \
-	{                                             \
-		(n) = ( (uint32_t) (b)[(i)    ]       )       \
-				| ( (uint32_t) (b)[(i) + 1] <<  8 )       \
-				| ( (uint32_t) (b)[(i) + 2] << 16 )       \
-				| ( (uint32_t) (b)[(i) + 3] << 24 );      \
+	#define GET_UINT32(n,b,i)															\
+	{																											\
+		(n) = ( (uint32_t) (b)[(i)    ]       )							\
+				| ( (uint32_t) (b)[(i) + 1] <<  8 )							\
+				| ( (uint32_t) (b)[(i) + 2] << 16 )							\
+				| ( (uint32_t) (b)[(i) + 3] << 24 );						\
 	}
 
-	#define PUT_UINT32(n,b,i)                     \
-	{                                             \
+	#define PUT_UINT32(n,b,i)														  \
+	{																											\
 		(b)[(i)    ] = (unsigned char) ( (n)       );       \
 		(b)[(i) + 1] = (unsigned char) ( (n) >>  8 );       \
 		(b)[(i) + 2] = (unsigned char) ( (n) >> 16 );       \
@@ -75,11 +75,6 @@ namespace breathe
 	cMD5::cMD5()
 	{
 		std::memset(result, 0, sizeof(result));
-	}
-
-	cMD5::~cMD5()
-	{
-
 	}
 
 	bool cMD5::CheckString(char * input)
@@ -402,5 +397,17 @@ namespace breathe
 	bool cMD5::operator!=(const std::string & rhs) const
 	{
 		return rhs!=sResult;
+	}
+
+	std::string cMD5::GetResult() const
+	{
+		return sResult;
+	}
+
+	std::string cMD5::GetResultFormatted() const
+	{
+		unicode_char temp[17];
+		strcpy(temp, (unicode_char*)result);
+		return std::string(temp);
 	}
 }

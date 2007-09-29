@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 #include <list>
 #include <string>
@@ -10,6 +11,9 @@
 #include <fstream>
 
 #include <breathe/breathe.h>
+#include <breathe/util/cString.h>
+
+#include <unrarlib/unrarlib.h>
 
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
@@ -24,7 +28,19 @@ namespace breathe
 	namespace filesystem
 	{
 		std::vector<std::string> vDirectory;
+		std::string sExecutable = "";
 
+		void SetThisExecutable(std::string executable)
+		{
+			sExecutable = GetPath(breathe::string::Replace(executable, "\\", "/"));
+			assert(sExecutable.length() > 0);
+		}
+
+		std::string GetThisApplicationDirectory()
+		{
+			assert(sExecutable.length() > 0);
+			return sExecutable;
+		}
 
 		std::string GetPath(std::string sFilename)
 		{
@@ -173,7 +189,7 @@ namespace breathe
 			cMD5 m;
 			m.CheckFile(sFilename.c_str());
 
-			return m.sResult;
+			return m.GetResult();
 		}
 		
 #ifdef PLATFORM_WINDOWS
@@ -210,7 +226,7 @@ namespace breathe
 #ifdef PLATFORM_WINDOWS
 #pragma pop_macro("CreateDirectory")
 
-			return !(ERROR_PATH_NOT_FOUND==CreateDirectory(sFoldername.c_str(), NULL));
+			return (ERROR_PATH_NOT_FOUND != CreateDirectory(sFoldername.c_str(), NULL));
 #else
 			LOG.Error("CreateFolder", "Not implemented on this platform");
 			return false;
@@ -251,6 +267,106 @@ namespace breathe
 			LOG.Error("CreateFile", "Not implemented on this platform");
 			return false;
 #endif
+		}
+
+
+		// ************************************************* path *************************************************
+
+		path::path(std::string file_or_directory)
+		{
+			sPath = file_or_directory;
+		}
+
+		bool path::IsFile() const
+		{
+			return GetFile().length() > 0;
+		}
+		
+		bool path::IsDirectory() const
+		{
+			return GetFile().length() == 0;
+		}
+
+		std::string path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
+		{
+			assert(IsDirectory());
+			return filesystem::GetPath(sPath);
+		}
+
+		std::string path::GetFile() const // Returns just the file "file.txt"
+		{
+			assert(IsFile());
+			return filesystem::GetFile(sPath);
+		}
+
+		std::string path::GetExtenstion() const // Returns just the extension ".txt"
+		{
+			assert(IsFile());
+			return filesystem::GetExtension(sPath);
+		}
+
+		std::string path::str() const // Returns the full path "/folder1/folder2/file.txt"
+		{
+			return sPath;
+		}
+
+
+		// ********************************************* directory_iterator *********************************************
+		
+		directory_iterator::directory_iterator()
+		{
+			//TODO: Set ourselves to the current directory
+		}
+
+		directory_iterator::directory_iterator(const directory_iterator& rhs)
+		{
+		}
+
+		directory_iterator::~directory_iterator()
+		{
+		}
+
+		std::string directory_iterator::GetName() const
+		{
+			return "";
+		}
+
+		bool directory_iterator::HasChildren() const
+		{
+			return false;
+		}
+
+		directory_iterator directory_iterator::GetDirectoryIterator() const
+		{
+			return directory_iterator();
+		}
+
+		file_iterator directory_iterator::GetFileIterator() const
+		{
+			return file_iterator();
+		}
+
+
+		directory_iterator::operator ++(int)
+		{
+			return *this;
+		}
+
+		directory_iterator::operator bool() const
+		{
+			return false;
+		}
+
+		directory_iterator::operator =(const directory_iterator& rhs)
+		{
+			return *this;
+		}
+
+
+		// *********************************************** file_iterator ***********************************************
+
+		file_iterator::file_iterator()
+		{
 		}
 	}
 }

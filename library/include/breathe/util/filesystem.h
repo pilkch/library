@@ -13,7 +13,13 @@
 namespace breathe
 {
 	namespace filesystem
-	{		
+	{
+		class directory_iterator;
+		class file_iterator;
+
+		void SetThisExecutable(std::string executable);
+		std::string GetThisApplicationDirectory();
+
 		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
 		std::string FindFile(std::string sFilename);
 
@@ -27,21 +33,52 @@ namespace breathe
 		std::string GetFileNoExtension(std::string sFilename);
 		std::string GetExtension(std::string sFilename);
 
-
 		bool FileExists(std::string sFilename);
 		bool CreateDirectory(std::string sFoldername);
 		bool CreateFile(std::string sFilename);
 
-		class iterator
+		class path
 		{
 		public:
-			iterator();
-			~iterator();
+			path(std::string file_or_directory);
+
+			bool IsFile() const;
+			bool IsDirectory() const;
+
+			std::string GetDirectory() const; // Returns just the directory "/folder1/folder2/"
+			std::string GetFile() const; // Returns just the file "file.txt"
+			std::string GetExtenstion() const; // Returns just the extension ".txt"
+			std::string str() const; // Returns the full path "/folder1/folder2/file.txt"
+
+		private:
+			path();
+
+			std::string sPath;
+		};
+
+		class directory_iterator
+		{
+		public:
+			directory_iterator();
+			directory_iterator(const directory_iterator& rhs);
+			~directory_iterator();
 
 			std::string GetName() const;
+			bool HasChildren() const;
 
-      operator ++(int);
+			directory_iterator GetDirectoryIterator() const;
+			file_iterator GetFileIterator() const;
+
+			operator ++(int);
 			operator bool() const;
+
+			operator =(const directory_iterator& rhs);
+		};
+
+		class file_iterator
+		{
+		public:
+			file_iterator();
 		};
 	}
 }

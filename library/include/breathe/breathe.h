@@ -24,23 +24,51 @@
 #ifndef BREATHE_H
 #define BREATHE_H
 
-#if defined(__hppa__) || \
-    defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
-    (defined(__MIPS__) && defined(__MISPEB__)) || \
-    defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
-    defined(__sparc__)
-!!! We don't support big endian systems, get a real computer (x86)
+#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__)
+#error "This is a 64 bit compile, have fun!"
+#define X86_64_SYSTEM   1
+typedef int             int32;
+typedef unsigned int    uint32;
+
+typedef short           int16;
+typedef unsigned short  uint16;
+typedef char            int8;
+typedef unsigned char   uint8;
+
+/* 32 bit for comparison
+typedef int             int32;
+typedef unsigned int    uint32;
+
+typedef short           int16;
+typedef unsigned short  uint16;
+typedef char            int8;
+typedef unsigned char   uint8;*/
 #endif
 
-// Platform
-#if defined(WIN32) || defined(_MSC_VER) || defined(_BORLANDC_) || defined(__WIN__)
+// Operating System
+#if defined(WIN32) || defined(__WIN__) || \
+	defined(_MSC_VER) || defined(__CYGWIN32__) || defined(_BORLANDC_) || defined(__MINGW32__)
 #define PLATFORM_WINDOWS
 #elif defined(__LINUX__) || defined(__linux__)
 #define PLATFORM_LINUX
-#elif defined(__APPLE__) || defined(MACOSX) || defined (__MACOSX__)
+#elif defined(__APPLE__) || defined(__apple__) || defined(MACOSX) || defined (__MACOSX__)
 #define PLATFORM_MAC
+#elif defined(_XENON) || \
+	defined(SN_TARGET_PSP_HW) || \
+	defined(SN_TARGET_PS3)
+#error "This platform has not been built on yet"
 #else
-!!! We don't support this platform yet
+#error "Need some help identifying the platform!"
+#endif
+
+// Architecture
+#if defined(__hppa__) || \
+	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+	(defined(__MIPS__) && defined(__MISPEB__)) || \
+	(defined(__APPLE__) && defined(__MACH__)) || \
+	defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+	defined(__sparc__)
+#error "We don't support big endian systems, get a real computer (x86)
 #endif
 
 // What type of build is this?
@@ -69,10 +97,17 @@
 
 namespace breathe
 {
-#ifdef BUILD_UNICODE
+#ifdef UNICODE
 	typedef wchar_t unicode_char;
+#ifndef PLATFORM_WINDOWS
+	#define _TEXT(s) L##s
+	#define TEXT(s) _TEXT(s)
+#endif
 #else
 	typedef char unicode_char;
+#ifndef PLATFORM_WINDOWS
+	#define TEXT(s) s
+#endif
 #endif
 
 	// Constants
@@ -93,6 +128,12 @@ namespace breathe
 		delete [] (x);
 		(x)=NULL;
 	}
+
+	#define NO_COPY(T) \
+		private: \
+		T(const T&); \
+		void operator=(const T&); \
+		public: 
 }
 
 #endif //BREATHE_H

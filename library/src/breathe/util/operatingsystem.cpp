@@ -115,5 +115,23 @@ namespace breathe
 			return 0;
 #endif
 		}
+
+#ifdef PLATFORM_WINDOWS
+		std::string GetUserName()
+		{
+			unicode_char user[260];
+			user[0] = 0;
+
+			DWORD nSize=(DWORD)260;
+			if(!GetComputerName(user, &nSize))
+			{
+				if(getenv("USER") != 0) strcpy(user, getenv("USER"));
+				else if (getenv("USERNAME") != 0) strcpy(user, getenv("USERNAME"));
+				else strcpy(user, TEXT("<UNKNOWN>"));
+			}
+
+			return std::string(user);
+		}
+#endif
 	}
 }

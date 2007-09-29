@@ -72,10 +72,10 @@ namespace breathe
 
 			}
 
-			void cStatic::ParseEditor3D(LOADER_3DS::Model3DSChunk c, std::string sFilename)
+			void cStatic::ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename)
 			{
 				std::ostringstream t;
-				for(LOADER_3DS::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -111,12 +111,12 @@ namespace breathe
 				}
 			}
 
-			void cStatic::ParseEditObject(LOADER_3DS::Model3DSChunk c, std::string sFilename)
+			void cStatic::ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename)
 			{
 				std::ostringstream t;
 				std::string obj_name = c.Str();
 				
-				for(LOADER_3DS::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -142,17 +142,17 @@ namespace breathe
 			}
 
 			
-			void cStatic::ParseLight(const std::string &name , LOADER_3DS::Model3DSChunk c)
+			void cStatic::ParseLight(const std::string &name , loader_3ds::Model3DSChunk c)
 			{
 				LOG.Error("c3ds", "object light");
 			}
 
 			
-			void cStatic::ParseMaterial(LOADER_3DS::Model3DSChunk c)
+			void cStatic::ParseMaterial(loader_3ds::Model3DSChunk c)
 			{
 				LOG.Success("3ds", "Edit material");
 				
-				for(LOADER_3DS::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -166,7 +166,7 @@ namespace breathe
 				}
 			}
 
-			void cStatic::NewMaterial(LOADER_3DS::Model3DSChunk c)
+			void cStatic::NewMaterial(loader_3ds::Model3DSChunk c)
 			{
 				std::string mat_name = c.Str();
 
@@ -179,7 +179,7 @@ namespace breathe
 			}
 
 
-			void cStatic::ParseCamera(LOADER_3DS::Model3DSChunk c)
+			void cStatic::ParseCamera(loader_3ds::Model3DSChunk c)
 			{
 				LOG.Success("3ds", "Camera");
 
@@ -199,13 +199,13 @@ namespace breathe
 				//vCamera.push_back(p);
 			}
 
-			void cStatic::ParseMesh(const std::string &sName , LOADER_3DS::Model3DSChunk c, std::string sFilename)
+			void cStatic::ParseMesh(const std::string &sName , loader_3ds::Model3DSChunk c, std::string sFilename)
 			{
 				bFoundMeshes=true;
 
 				LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
-				LOADER_3DS::Mesh3DSObject* pMesh = new LOADER_3DS::Mesh3DSObject(sName , c);
+				loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName , c);
 
 				if(pMesh)
 				{
@@ -218,14 +218,14 @@ namespace breathe
 					unsigned int face=0;
 					unsigned int mesh=0;
 
-					LOADER_3DS::Mesh3DSFace f;
+					loader_3ds::Mesh3DSFace f;
 					
 					std::string sMaterial;
 				
 
-					std::vector<LOADER_3DS::Mesh3DSVertex> vVertex = pMesh->Vertices();
-					std::vector<LOADER_3DS::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
-					std::vector<LOADER_3DS::Mesh3DSFace> vFaces = pMesh->Faces();
+					std::vector<loader_3ds::Mesh3DSVertex> vVertex = pMesh->Vertices();
+					std::vector<loader_3ds::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
+					std::vector<loader_3ds::Mesh3DSFace> vFaces = pMesh->Faces();
 					
 					pCurrentMesh->pMeshData->uiTriangles = vFaces.size();
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
@@ -278,12 +278,12 @@ namespace breathe
 				LOG.Success("c3ds", "Loading " + sFilename);
 
 
-				LOADER_3DS::Model3DSFile file(sFilename);
+				loader_3ds::Model3DSFile file(sFilename);
 
-				LOADER_3DS::Model3DSChunk root = file.Child();
+				loader_3ds::Model3DSChunk root = file.Child();
 
 				std::ostringstream t;
-				for(LOADER_3DS::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
+				for(loader_3ds::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{

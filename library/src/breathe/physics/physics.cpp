@@ -60,7 +60,7 @@ namespace breathe
 		std::list<cPhysicsObject * >lPhysicsObject;
 
 		
-		unsigned int GetSize() { return lPhysicsObject.size(); }
+		size_t GetSize() { return lPhysicsObject.size(); }
 		iterator GetObjectListBegin() { return lPhysicsObject.begin(); }
 		iterator GetObjectListEnd() { return lPhysicsObject.end(); }
 

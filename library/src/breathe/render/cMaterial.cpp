@@ -100,7 +100,7 @@ namespace breathe
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("ERROR") != std::string::npos)
 						{
-							sInfo = STRING::Replace(sInfo, "\n", "<br>");
+							sInfo = string::Replace(sInfo, "\n", "<br>");
 							LOG.Error("Material", std::string("Vertex Shader") + sShaderVertex + std::string(": ") + sInfo);
 						}
 						SAFE_DELETE_ARRAY(infoLog);
@@ -121,7 +121,7 @@ namespace breathe
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("ERROR") != std::string::npos)
 						{
-							sInfo = STRING::Replace(sInfo, "\n", "<br>");
+							sInfo = string::Replace(sInfo, "\n", "<br>");
 							LOG.Error("Material", std::string("Fragment Shader ") + sShaderFragment + ": " + sInfo);
 						}
 						SAFE_DELETE_ARRAY(infoLog);

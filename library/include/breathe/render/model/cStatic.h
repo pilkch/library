@@ -5,7 +5,7 @@
 
 namespace breathe
 {
-	namespace LOADER_3DS
+	namespace loader_3ds
 	{
 		class Model3DSChunk;
 		class Light3DSObject;
@@ -21,20 +21,20 @@ namespace breathe
 			private:
 				int Load3DS(std::string sFilename);
 
-				void ParseEditor3D(LOADER_3DS::Model3DSChunk c, std::string sFilename);	
-				void ParseEditObject(LOADER_3DS::Model3DSChunk c, std::string sFilename);
+				void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);	
+				void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
 				
-				void ParseMesh(const std::string &name, LOADER_3DS::Model3DSChunk c, std::string sFilename);
-				void ParseMaterial(LOADER_3DS::Model3DSChunk c);
+				void ParseMesh(const std::string &name, loader_3ds::Model3DSChunk c, std::string sFilename);
+				void ParseMaterial(loader_3ds::Model3DSChunk c);
 
-				void ParseCamera(LOADER_3DS::Model3DSChunk c);
-				void ParseLight(const std::string &name, LOADER_3DS::Model3DSChunk c);
+				void ParseCamera(loader_3ds::Model3DSChunk c);
+				void ParseLight(const std::string &name, loader_3ds::Model3DSChunk c);
 
-				void NewMaterial(LOADER_3DS::Model3DSChunk c);
+				void NewMaterial(loader_3ds::Model3DSChunk c);
 
 				/*
-				std::vector<LOADER_3DS::Light3DSObject> lights;
-				std::vector<LOADER_3DS::Mesh3DSObject> meshes;*/
+				std::vector<loader_3ds::Light3DSObject> lights;
+				std::vector<loader_3ds::Mesh3DSObject> meshes;*/
 				std::vector<std::string> vMaterial;
 
 				unsigned int uiCurrentMesh;

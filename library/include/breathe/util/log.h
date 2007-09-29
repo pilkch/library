@@ -5,6 +5,77 @@
 
 namespace breathe
 {
+	template <class T>
+	class constant_stack
+	{
+	public:
+		template <class T>
+		class iterator
+		{
+		public:
+			iterator(size_t i);
+		};
+
+		constant_stack(size_t n);
+
+		void push_back(const T& rhs);
+
+		iterator<T> begin();
+		iterator<T> end();
+		
+		size_t size() const;
+
+		T& operator[](size_t i);
+
+	private:
+		std::vector<T> elements;
+		size_t first;
+		size_t n;
+	};
+	
+	template <class T>
+	constant_stack<T>::constant_stack(size_t _n)
+	{
+		n = _n;
+		elements.reserve(n);
+	}
+	
+	template <class T>
+	void constant_stack<T>::push_back(const T& rhs)
+	{
+		if (elements.size() < n) elements.push_back(rhs);
+		else
+		{
+			if (first >= n) first = 0;
+			elements[first++] = rhs;
+		}
+	}
+	
+	template <class T>
+	typename constant_stack<T>::iterator<T> constant_stack<T>::begin()
+	{
+		return elements.begin();
+	}
+
+	template <class T>
+	typename constant_stack<T>::iterator<T> constant_stack<T>::end()
+	{
+		return elements.end();
+	}
+	
+	template <class T>
+	size_t constant_stack<T>::size() const
+	{
+		return elements.size();
+	}
+
+	template <class T>
+	T& constant_stack<T>::operator[](size_t i)
+	{
+		assert(i < elements.size());
+		return elements[(first + i) % n];
+	}
+
 	namespace logging
 	{
 		enum 
@@ -54,7 +125,7 @@ namespace breathe
 			}
 			
 			cLogBase& operator<<(std::ostream& (* func)(std::ostream&))
-			{ 
+			{
 				_EndLine(line);
 
 				return *this; 
@@ -142,8 +213,8 @@ namespace breathe
 			
 			unsigned int uiCursorBlink;
 			unsigned int uiCursorPosition;
-			std::list<std::string>lLine;
-			std::string sLine;
+			constant_stack<std::string> lines;
+			std::string current;
 
 			
 			/*void Newline();
@@ -159,6 +230,7 @@ namespace breathe
 				// Cascade output to log file
 				LOG._EndLine(o);
 
+				lines.push_back(o);
 				std::cout<<o<<std::endl;
 				ClearLine();
 			}

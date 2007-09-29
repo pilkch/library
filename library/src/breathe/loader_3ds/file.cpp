@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include <list>
+#include <vector>
 
 // writing on a text file
 #include <iostream>

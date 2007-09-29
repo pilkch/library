@@ -77,9 +77,9 @@ namespace breathe
 
 		bool bReturnCode;
 
-		UTIL::cTimer tPhysics;
-		UTIL::cTimer tUpdate;
-		UTIL::cTimer tRender;
+		util::cTimer tPhysics;
+		util::cTimer tUpdate;
+		util::cTimer tRender;
 
 		std::vector<std::string>vArgs;
 
@@ -97,6 +97,7 @@ namespace breathe
 
 	private:
 		void _ConsoleExecuteSingleCommand(std::string s);
+		void _InitArguments(int argc, char **argv);
 
 		bool _IsKeyDown(float fAmount);
 		

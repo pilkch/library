@@ -288,7 +288,8 @@ namespace breathe
 			}
 			else
 			{
-				LOG.Success("Render", "Found Shader2.0");
+				if(fShaderVersion<3.0f) LOG.Success("Render", "Found Shader3.0");
+				else LOG.Success("Render", "Found Shader2.0");
 				bCanShader = true;
 				bShader=bCanShader;
 			}

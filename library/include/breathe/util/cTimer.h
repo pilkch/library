@@ -3,7 +3,7 @@
 
 namespace breathe
 {
-	namespace UTIL
+	namespace util
 	{
 		class cTimer
 		{

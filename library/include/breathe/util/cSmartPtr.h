@@ -1,6 +1,6 @@
 namespace breathe
 {
-	namespace UTIL
+	namespace util
 	{
 		/*template <class T>
 		class cSmartPtr

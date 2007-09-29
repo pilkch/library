@@ -196,11 +196,6 @@ then you have to update ALL the objects, if the objects do the rendering.
 Having objects describe themselves with multiples of geometry-material-state is much more flexible,
 as you can easily throw that at mirroring, cube mapping, shadow maps, shadow volumes, cel shading, 
 and whatever else you care about implementing.*/
-
-
-
-
-
 }
 
 #endif //CBASE_H

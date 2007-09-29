@@ -120,12 +120,7 @@ namespace breathe
 
 			float &operator[](int i)
 			{
-				if(0==i)
-					return x;
-				else if(1==i)
-					return y;
-				
-				return z;
+				return ((0==i) ? x : ((1==i) ? y : z));
 			}
 
 			//member variables

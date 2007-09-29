@@ -27,6 +27,7 @@
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_TTF.h>
+#include <SDL/SDL_net.h>
 
 #include <ODE/ode.h>
 
@@ -71,6 +72,9 @@
 
 #include <breathe/audio/audio.h>
 
+#include <breathe/util/thread.h>
+#include <breathe/util/cNetwork.h>
+
 #ifdef BUILD_DEBUG
 void TestVariable(breathe::cApp* app, std::string variable)
 {
@@ -102,26 +106,9 @@ namespace breathe
 
 		g_info(NULL)
 	{
+		_InitArguments(argc, argv);
+
     srand(time(NULL));
-
-		{
-			int i=1;
-			std::string s;
-			if(i<argc)
-			{
-				vArgs.push_back(argv[i]);
-				s=argv[i];
-			}
-
-			for(i=2;i<argc;i++)
-			{
-				vArgs.push_back(argv[i]);
-				s+=" " + std::string(argv[i]);
-			}
-
-			LOG.Success("Arguments", s);
-		}
-
 		
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
@@ -141,12 +128,24 @@ namespace breathe
 		TestVariable(this, "float");
 		TestVariable(this, "string");
 
-		
+		// get all files ending in .dll
+		CONSOLE<<"FileSystem Test"<<std::endl;
+		breathe::filesystem::path dir_path(".");
+		/*directory_iterator end_it;
+		for(directory_iterator it(dir_path); it != end_it; ++it) {
+			if( !is_directory(it->status()) && extension(it->path()) == ".dll" ) {
+				it->path().string();
+			}
+		}*/
+
+
 		SDL_ShowCursor(SDL_DISABLE);
 
 
 		pRender=new render::cRender();
 		
+		breathe::network::Init();
+
 		pLevel=new cLevel();
 	}
 
@@ -167,6 +166,9 @@ namespace breathe
 		LOG.Success("Destroy", "Physics");
 		breathe::physics::Destroy();
 
+		LOG.Success("Destroy", "Network");
+		breathe::network::Destroy();
+
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
 				
@@ -176,6 +178,27 @@ namespace breathe
 		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
 
 		SDL_Quit();
+	}
+
+	void cApp::_InitArguments(int argc, char **argv)
+	{
+		filesystem::SetThisExecutable(argv[0]);
+
+		int i=1;
+		std::string s;
+		if(i<argc)
+		{
+			vArgs.push_back(argv[i]);
+			s=argv[i];
+		}
+
+		for(i=2;i<argc;i++)
+		{
+			vArgs.push_back(argv[i]);
+			s+=" " + std::string(argv[i]);
+		}
+
+		LOG.Success("Arguments", s);
 	}
 
 	
@@ -698,26 +721,26 @@ namespace breathe
 
 		if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
 		{
-			ConsoleExecute(CONSOLE.sLine);
-			CONSOLE.sLine="";
+			ConsoleExecute(CONSOLE.current);
+			CONSOLE.current="";
 			CONSOLE.uiCursorPosition=0;
 		}
 		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
 		{
 			bConsole=false;
-			CONSOLE.sLine="";
+			CONSOLE.current="";
 			CONSOLE.uiCursorPosition=0;
 		}
 		else if(SDLK_DELETE==uiCode)
 		{
-			if(CONSOLE.uiCursorPosition<CONSOLE.sLine.size())
-				CONSOLE.sLine.erase(CONSOLE.uiCursorPosition, 1);
+			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
+				CONSOLE.current.erase(CONSOLE.uiCursorPosition, 1);
 		}
 		else if(SDLK_BACKSPACE==uiCode)
 		{
 			if(CONSOLE.uiCursorPosition>0)
 			{
-				CONSOLE.sLine.erase(CONSOLE.uiCursorPosition-1, 1);
+				CONSOLE.current.erase(CONSOLE.uiCursorPosition-1, 1);
 				CONSOLE.uiCursorPosition--;
 			}
 		}
@@ -728,18 +751,18 @@ namespace breathe
 		}
 		else if(SDLK_RIGHT==uiCode)
 		{
-			if(CONSOLE.uiCursorPosition<CONSOLE.sLine.size())
+			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
 				CONSOLE.uiCursorPosition++;
 		}
 		else if(SDLK_HOME==uiCode)
       CONSOLE.uiCursorPosition=0;
 		else if(SDLK_END==uiCode)
-      CONSOLE.uiCursorPosition=CONSOLE.sLine.size();
+      CONSOLE.uiCursorPosition=CONSOLE.current.size();
 
 		else if(SDLK_TAB==uiCode)
 			; //TODO: Autocomplete
 		else if(SDLK_CLEAR==uiCode)
-			CONSOLE.sLine="";
+			CONSOLE.current="";
 		else if(SDLK_UP==uiCode)
 			; //TODO: History of typed in items
 		else if(SDLK_DOWN==uiCode)
@@ -764,7 +787,7 @@ namespace breathe
 
 			std::string s;
 			s += static_cast<breathe::unicode_char>(uiCode);
-			CONSOLE.sLine.insert(CONSOLE.uiCursorPosition, s);
+			CONSOLE.current.insert(CONSOLE.uiCursorPosition, s);
 			CONSOLE.uiCursorPosition++;
 		}
 
@@ -848,7 +871,7 @@ namespace breathe
 		if(""!=s)
 		{
 			//Take out all \n, each line should be finished with a ";" or it is not a valid line
-			s=STRING::Replace(s, "\n", " ");
+			s=string::Replace(s, "\n", " ");
 
 			//Split into std::strings that are all ended with ";"
 			int endofline;
@@ -921,14 +944,14 @@ namespace breathe
 
 		do
 		{
-			fCurrentTime=UTIL::GetTime();
+			fCurrentTime = util::GetTime();
 
 
       if(fCurrentTime > fEventsNext)
 			{
 				UpdateEvents(fCurrentTime);
 
-				fEventsNext=fCurrentTime+fEventsDelta;
+				fEventsNext = fCurrentTime+fEventsDelta;
 			}
 			
 			if(fCurrentTime > fInputNext)

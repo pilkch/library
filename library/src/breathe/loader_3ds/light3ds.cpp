@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include <list>
+#include <vector>
 
 // Breathe
 #include <breathe/breathe.h>

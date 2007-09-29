@@ -46,7 +46,7 @@ namespace breathe
 					std::getline(f, line);
 					
 					// Get rid of leading tabs
-					sData+=STRING::CutLeading(line, "\t");
+					sData+=string::StripLeading(line, "\t");
 				}
 				f.close();
 
@@ -78,7 +78,7 @@ namespace breathe
 				int lsize=sData.size();
 				bool isEmpty=sData.empty();
 
-				sData=STRING::CutLeading(STRING::CutLeading(sData, " "), "\t");
+				sData=string::StripLeading(string::StripLeading(sData, " "), "\t");
 
 				while(sData.find("<!--") == 0)
 				{
@@ -90,7 +90,7 @@ namespace breathe
 						return "";
 					}
 
-					sData=STRING::CutLeading(STRING::CutLeading(sData.substr(nEndComment), " "), "\t");
+					sData=string::StripLeading(string::StripLeading(sData.substr(nEndComment), " "), "\t");
 				}
 
 				std::string::size_type angleBracket=sData.find("<");
@@ -105,7 +105,7 @@ namespace breathe
 					}
 
 					// example attribute="value"...
-					sData=STRING::CutLeading(sData.substr(angleBracket+1), " ");
+					sData=string::StripLeading(sData.substr(angleBracket+1), " ");
 
 					if(sData[0] == '/')
 					{
@@ -119,7 +119,7 @@ namespace breathe
 
 						if(angleBracket != std::string::npos)
 						{
-							std::string sClose=STRING::CutTrailing(STRING::CutLeading(sData.substr(1, angleBracket-1), " "), " ");
+							std::string sClose=string::StripTrailing(string::StripLeading(sData.substr(1, angleBracket-1), " "), " ");
 
 							if(sClose!=sName)
 							{
@@ -127,7 +127,7 @@ namespace breathe
 								return "";
 							}
 
-              sData=STRING::CutLeading(sData.substr(angleBracket+1), " ");
+              sData=string::StripLeading(sData.substr(angleBracket+1), " ");
 						}
 						else
 						{
@@ -145,10 +145,10 @@ namespace breathe
 					if(std::string::npos != n)
 					{
 						// Collect name
-						std::string inName=STRING::CutTrailing(sData.substr(0, n), " ");
+						std::string inName=string::StripTrailing(sData.substr(0, n), " ");
 
 						// attribute="value"...
-						sData=STRING::CutLeading(sData.substr(n), " ");
+						sData=string::StripLeading(sData.substr(n), " ");
 
 						// Fill in attributes if any, and find the end of the opening tag
 						if('/' == sData[0])
@@ -184,7 +184,7 @@ namespace breathe
 								{
 									p->AddAttribute(sAttributeName, "");
 									sAttributeName = "";
-									sData=STRING::CutLeading(&*iter, " ");
+									sData=string::StripLeading(&*iter, " ");
 									iter=sData.begin();
 									continue;
 								}
@@ -194,7 +194,7 @@ namespace breathe
 									if(iter!=sData.end() && *iter == '\"')
 									{
 										sData.erase(sData.begin(), ++iter);
-										sData=STRING::CutLeading(sData, " ");
+										sData=string::StripLeading(sData, " ");
 
 										std::string::size_type nQuote=sData.find("\"");
 										std::string::size_type nSlashQuote=sData.find("\\\"");
@@ -207,14 +207,14 @@ namespace breathe
 												p->AddAttribute(sAttributeName, sAttributeValue + sData.substr(0, nQuote));
 												sAttributeName="";
 												sAttributeValue="";
-												sData=STRING::CutLeading(sData.substr(nQuote+1), " ");
+												sData=string::StripLeading(sData.substr(nQuote+1), " ");
 												break;
 											}
 											else
 											{
 												// attribute="value\"innervalue..."
 												sAttributeValue+=sData.substr(0, nSlashQuote);
-												sData=STRING::CutLeading(sData.substr(nSlashQuote+2), " ");
+												sData=string::StripLeading(sData.substr(nSlashQuote+2), " ");
 											}
 
 											nQuote=sData.find("\"");
@@ -260,7 +260,7 @@ namespace breathe
 					cNode* p=AddNode();
 
 					p->bContentOnly = true;
-					p->sContentOnly += STRING::CutTrailing(sData, "\n\r\t");
+					p->sContentOnly += string::StripTrailing(sData, "\n\r\t");
 					return "";
 				}
 			}
@@ -416,7 +416,7 @@ namespace breathe
 			cNode* p=AddNode();
 
 			if(p) {
-				p->sContentOnly = STRING::CutTrailing(inContent, "\n\r\t");
+				p->sContentOnly = string::StripTrailing(inContent, "\n\r\t");
 				p->bContentOnly = true;
 			}
 		}

@@ -29,7 +29,7 @@
 
 #define t "\t"
 
-#define CONSOLE_MAXLINES 50
+const int CONSOLE_MAXLINES = 50;
 
 
 breathe::logging::cLog LOG;
@@ -229,7 +229,9 @@ namespace breathe
 
 		cConsole::cConsole() :
 			uiCursorBlink(0),
-			uiCursorPosition(0)
+			uiCursorPosition(0),
+
+			lines(10)
 		{
 		}
 

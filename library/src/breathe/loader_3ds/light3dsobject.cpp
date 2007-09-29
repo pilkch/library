@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 // Breathe
 #include <breathe/breathe.h>

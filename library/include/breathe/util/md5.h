@@ -47,14 +47,11 @@ namespace breathe
 		void Finish(cMD5_Context *ctx);
 		void Process(cMD5_Context *ctx, unsigned char data[64]);
 
-	public:
 		unsigned char result[16]; //Raw result
-
 		std::string sResult; //Result formatted
 
-
+	public:
 		cMD5();
-		~cMD5();
 
 		bool CheckString(char *input);
 		bool CheckFile(std::string);
@@ -66,6 +63,9 @@ namespace breathe
 
 		bool operator==(const std::string & rhs) const;
 		bool operator!=(const std::string & rhs) const;
+
+		std::string GetResult() const;
+		std::string GetResultFormatted() const;
 	};
 }
 
