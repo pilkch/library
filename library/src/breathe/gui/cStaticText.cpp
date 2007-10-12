@@ -47,23 +47,8 @@ namespace breathe
 	namespace gui
 	{
 		cStaticText::cStaticText(unsigned int _id, float _x, float _y, float _width, float _height) :
-			cWidget(_id, _x, _y, _width, _height)
+			cWidget(_id, WIDGET_STATICTEXT, _x, _y, _width, _height)
 		{
-
-		}
-
-		cStaticText::~cStaticText()
-		{
-
-		}
-
-		void cStaticText::Render()
-		{
-			if (false == bVisible) return;
-
-			pRender->RenderScreenSpaceRectangle(x, y, width, height);
-
-			RenderChildren();
 		}
 	}
 }

@@ -14,17 +14,21 @@ namespace breathe
 			Atlas3	vehicles, people, tires, guns, weapons, tools, etc.
 			Atlas4	special effects: particles, smoke, lens flare, sun
 		*/
-		const unsigned int ATLAS_NONE=0xFFFFFF;
 
-		const unsigned int ATLAS_LANDSCAPE=0;
-		const unsigned int ATLAS_BUILDING=1;
-		const unsigned int ATLAS_FOLIAGE=2;
-		const unsigned int ATLAS_VEHICLES=3;
-		const unsigned int ATLAS_PROPS=4;
-		const unsigned int ATLAS_WEAPONS=5;
-		const unsigned int ATLAS_EFFECTS=6;
-
-		const unsigned int nAtlas=7;
+		enum ATLAS
+		{
+			ATLAS_LANDSCAPE=0,
+			ATLAS_BUILDING,
+			ATLAS_FOLIAGE,
+			ATLAS_VEHICLES,
+			ATLAS_PROPS,
+			ATLAS_WEAPONS,
+			ATLAS_EFFECTS,
+			
+			nAtlas,
+			
+			ATLAS_NONE = 0xFFFFFF
+		};
 
 		class cTextureAtlas
 			: public cTexture

@@ -5,14 +5,19 @@
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cColour.h>
 
+/*
+TODO:
+Identify and replace these in XML:
+&amp;	&
+&lt;	<
+&gt;	>
+&quot;	"
+&apos;	'
+change comments <!-- --> to comment object (bComment = true). 
+*/
+
 namespace breathe
 {
-	namespace math
-	{
-		class cVec3;
-		class cColour;
-	}
-
 	namespace xml
 	{
 		// Can be made up of either

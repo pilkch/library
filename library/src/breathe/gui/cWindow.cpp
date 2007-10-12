@@ -1,7 +1,9 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cassert>
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // writing on a text file
 #include <iostream>
@@ -47,34 +49,62 @@ namespace breathe
 	namespace gui
 	{
 		cWindow::cWindow(unsigned int _id, float _x, float _y, float _width, float _height) :
-			cWidget(_id, _x, _y, _width, _height)
+			cWidget(_id, WIDGET_WINDOW, _x, _y, _width, _height)
 		{
-
 		}
 
 		cWindow::~cWindow()
 		{
-
 		}
 
 		
+		render::material::cMaterial* pMaterial= NULL;
 
-		cWindowManager::cWindowManager(float _x, float _y, float _width, float _height) :
-				cWidget(0, _x, _y, _width, _height)
+		cWindowManager::cWindowManager()
 		{
-
 		}
 
 		cWindowManager::~cWindowManager()
 		{
+		}
 
+		void cWindowManager::LoadTheme()
+		{
+			pMaterial = pRender->AddMaterial("gui.mat");
+		}
+			
+		bool cWindowManager::AddChild(cWindow* pChild)
+		{
+			child.push_back(pChild);
+			pChild->pParent = nullptr;
+
+			return true;
+		}
+
+		void cWindowManager::RenderChildren(const cWidget& widget)
+		{
+			if (false == widget.IsVisible()) return;
+
+			pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+
+			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
+
+				unsigned int n = widget.child.size();
+				for (unsigned int i = 0; i < n; i++)
+					RenderChildren(*widget.child[i]);
+
+			pRender->PopScreenSpacePosition();
 		}
 
 		void cWindowManager::Render()
 		{
-			if (false == bVisible) return;
+			assert(pMaterial != nullptr);
 
-			RenderChildren();
+			pRender->SetMaterial(pMaterial);
+
+			unsigned int n = child.size();
+			for (unsigned int i = 0; i < n; i++)
+				RenderChildren(*child[i]);
 		}
 	}
 }

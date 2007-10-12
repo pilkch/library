@@ -19,8 +19,10 @@ namespace breathe
 
 		bool Run();
 		
-		// We have a default render function, but if you want to do anything special you will have to override this
-		virtual void Render(float fCurrentTime);
+		// The render order is managed/automated by this class, so if you want to do anything special like 
+		// rendering to an FBO first or adding a timer in, you can do it by overriding these
+		virtual void BeginRender(float fCurrentTime) {}
+		virtual void EndRender(float fCurrentTime) {}
 
 		// Pure virtual functions, these *have* to be overridden in your derived game class
 		virtual bool LoadScene()=0;
@@ -54,6 +56,11 @@ namespace breathe
 
 		void OnKeyUp(SDL_keysym *keysym);
     
+		void CursorShow();
+		void CursorHide();
+
+		void ConsoleShow();
+		void ConsoleHide();
 		void ConsoleAddKey(unsigned int code);
 		void ConsoleExecute(std::string s);
 
@@ -80,6 +87,8 @@ namespace breathe
 		util::cTimer tPhysics;
 		util::cTimer tUpdate;
 		util::cTimer tRender;
+		
+		gui::cWindowManager window_manager;
 
 		std::vector<std::string>vArgs;
 
@@ -98,6 +107,7 @@ namespace breathe
 	private:
 		void _ConsoleExecuteSingleCommand(std::string s);
 		void _InitArguments(int argc, char **argv);
+		void _Render(float fCurrentTime);
 
 		bool _IsKeyDown(float fAmount);
 		

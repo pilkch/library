@@ -12,14 +12,12 @@ namespace breathe
 			SDL_Delay(milliseconds);
 		}
 
-#ifdef PLATFORM_WINDOWS
-#undef Yield
-#endif
-
 		inline void YieldThisThread()
 		{
 #ifdef PLATFORM_WINDOWS
 			::Sleep(0);
+			SDL_Delay(0);
+			SDL_Delay(1);
 #else
 			sched_yield();
 #endif

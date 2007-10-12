@@ -5,28 +5,44 @@ namespace breathe
 {
 	namespace gui
 	{
+		enum WIDGET_TYPE
+		{
+			WIDGET_WINDOW = 0,
+			WIDGET_BUTTON,
+			WIDGET_STATICTEXT,
+			WIDGET_UNKNOWN = 0xFF
+		};
+
 		// This is our base object.  
 		// Windows as well as controls are derived from it.  
 		// Points are all relative to the parent.  
 		class cWidget
 		{
 		public:
-			cWidget(unsigned int id, float x, float y, float width, float height);
+			cWidget(unsigned int id, WIDGET_TYPE type, float x, float y, float width, float height);
 			~cWidget();
 
 			bool AddChild(cWidget* pChild);
+			cWidget* FindChild(unsigned int id);
 
-			unsigned int GetID();
-			float GetX();
-			float GetY();
+			unsigned int GetID() const { return id; }
+			WIDGET_TYPE GetType() const { return type; }
+			float GetX() const { return x; }
+			float GetY() const { return y; }
+			float GetWidth() const { return width; }
+			float GetHeight() const { return height; }
+
+			int GetMinimum() const { return minimum; }
+			int GetMaximum() const { return maximum; }
+			int GetValue() const { return value; }
+
+			bool IsEnabled() const { return bEnabled; }
+			bool IsVisible() const { return bVisible; }
 
 			void Enable();
 			void Disable();
 			void Show();
 			void Hide();
-
-			
-			virtual void Render();
 
 			void SetPosition(float x, float y);
 			void SetSize(float width, float height);
@@ -36,6 +52,11 @@ namespace breathe
 			cWidget* pParent;
 
 			unsigned int id;
+			WIDGET_TYPE type;
+
+			int minimum;
+			int maximum;
+			int value;
 
 			float x;
 			float y;
@@ -47,7 +68,7 @@ namespace breathe
 			bool bVisible;
 
 
-			void RenderChildren();
+			friend class cWindowManager;
 		};
 		
 		inline void cWidget::Enable()

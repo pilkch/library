@@ -45,9 +45,10 @@ namespace breathe
 {
 	namespace gui
 	{
-		cWidget::cWidget(unsigned int _id, float _x, float _y, float _width, float _height) :
+		cWidget::cWidget(unsigned int _id, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
 			pParent(NULL),
 			id(_id),
+			type(_type),
 			x(_x),
 			y(_y),
 			width(_width),
@@ -73,24 +74,15 @@ namespace breathe
 			return true;
 		}
 		
-		void cWidget::Render()
+		cWidget* cWidget::FindChild(unsigned int _id)
 		{
-			if (false == bVisible) return;
+			if (_id == id) return this;
 
-			pRender->RenderScreenSpaceRectangle(x, y, width, height);
+			unsigned int n = child.size();
+			for (unsigned int i = 0; i < n; i++)
+				child[i]->FindChild(_id);
 
-			RenderChildren();
-		}
-
-		void cWidget::RenderChildren()
-		{
-			pRender->PushScreenSpacePosition(x, y);
-
-				unsigned int n = child.size();
-				for (unsigned int i = 0; i < n; i++)
-					child[i]->Render();
-
-			pRender->PopScreenSpacePosition();
+			return NULL;
 		}
 
 		void cWidget::SetPosition(float _x, float _y)

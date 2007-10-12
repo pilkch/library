@@ -930,6 +930,13 @@ namespace breathe
 		}
 
 
+		cTexture* cRender::GetTextureAtlas(ATLAS atlas)
+		{
+			assert(atlas < nAtlas);
+			
+			return vTextureAtlas[atlas];
+		}
+
 		cTexture *cRender::GetTexture(std::string sNewFilename)
 		{			
 			std::map<std::string, cTexture *>::iterator iter = mTexture.find(sNewFilename);
@@ -1179,6 +1186,16 @@ namespace breathe
 				return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 
 			return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
+		}
+
+		bool cRender::SetTexture0(ATLAS atlas)
+		{
+			return SetTexture0(GetTextureAtlas(atlas));
+		}
+
+		bool cRender::SetTexture1(ATLAS atlas)
+		{
+			return SetTexture1(GetTextureAtlas(atlas));
 		}
 
 		bool cRender::SetTexture0(cTexture* pTexture)

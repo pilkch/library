@@ -1,3 +1,110 @@
+/*
+
+antiportal: A polygon that is totally opaque, not rendered, but hiding models behind it, like in Farcry.  
+Can be walls that hide players etc. behind them. 
+
+<config>
+<input>
+<onfoot>
+<key code="w" action="forward" repeat="true"/>
+<key code="a" action="left" repeat="true"/>
+</onfoot>
+<invehicle>
+<key code="a" action="gearup" repeat="false"/>
+<key code="up" action="forward" repeat="true"/> 
+</invehicle>
+</input>
+</config>
+
+And then console is handled automatically, not configurable.  Cannot override tilde key for console toggle on/off.
+
+
+
+
+	#define EPSILON 0.000001
+#define CROSS(dest,v1,v2) \
+          dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
+          dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
+          dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
+#define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2])
+#define SUB(dest,v1,v2) \
+          dest[0]=v1[0]-v2[0]; \
+          dest[1]=v1[1]-v2[1]; \
+          dest[2]=v1[2]-v2[2]; 
+
+int
+intersect_triangle(double orig[3], double dir[3],
+                   double vert0[3], double vert1[3], double vert2[3],
+                   double *t, double *u, double *v)
+{
+   double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
+   double det,inv_det;
+
+   // find vectors for two edges sharing vert0 
+   SUB(edge1, vert1, vert0);
+   SUB(edge2, vert2, vert0);
+
+   // begin calculating determinant - also used to calculate U parameter 
+   CROSS(pvec, dir, edge2);
+
+   // if determinant is near zero, ray lies in plane of triangle 
+   det = DOT(edge1, pvec);
+
+#ifdef TEST_CULL           // define TEST_CULL if culling is desired 
+   if (det < EPSILON)
+      return 0;
+
+   // calculate distance from vert0 to ray origin 
+   SUB(tvec, orig, vert0);
+
+   // calculate U parameter and test bounds 
+   *u = DOT(tvec, pvec);
+   if (*u < 0.0 || *u > det)
+      return 0;
+
+   // prepare to test V parameter 
+   CROSS(qvec, tvec, edge1);
+
+    // calculate V parameter and test bounds 
+   *v = DOT(dir, qvec);
+   if (*v < 0.0 || *u + *v > det)
+      return 0;
+
+   // calculate t, scale parameters, ray intersects triangle 
+   *t = DOT(edge2, qvec);
+   inv_det = 1.0 / det;
+   *t *= inv_det;
+   *u *= inv_det;
+   *v *= inv_det;
+#else                    // the non-culling branch 
+   if (det > -EPSILON && det < EPSILON)
+     return 0;
+   inv_det = 1.0 / det;
+
+   // calculate distance from vert0 to ray origin 
+   SUB(tvec, orig, vert0);
+
+   // calculate U parameter and test bounds 
+   *u = DOT(tvec, pvec) * inv_det;
+   if (*u < 0.0 || *u > 1.0)
+     return 0;
+
+   // prepare to test V parameter 
+   CROSS(qvec, tvec, edge1);
+
+   // calculate V parameter and test bounds 
+   *v = DOT(dir, qvec) * inv_det;
+   if (*v < 0.0 || *u + *v > 1.0)
+     return 0;
+
+   // calculate t, ray intersects triangle 
+   *t = DOT(edge2, qvec) * inv_det;
+#endif
+   return 1;
+}
+
+*/
+
 #include <cmath>
 #include <ctime>
 #include <cstdio>
@@ -68,6 +175,10 @@
 #include <breathe/physics/cPhysicsObject.h>
 
 #include <breathe/game/cLevel.h>
+
+#include <breathe/gui/cWidget.h>
+#include <breathe/gui/cWindow.h>
+
 #include <breathe/util/app.h>
 
 #include <breathe/audio/audio.h>
@@ -201,115 +312,8 @@ namespace breathe
 		LOG.Success("Arguments", s);
 	}
 
-	#define EPSILON 0.000001
-#define CROSS(dest,v1,v2) \
-          dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
-          dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
-          dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
-#define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2])
-#define SUB(dest,v1,v2)
-          dest[0]=v1[0]-v2[0]; \
-          dest[1]=v1[1]-v2[1]; \
-          dest[2]=v1[2]-v2[2]; 
-
-int
-intersect_triangle(double orig[3], double dir[3],
-                   double vert0[3], double vert1[3], double vert2[3],
-                   double *t, double *u, double *v)
-{
-   double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
-   double det,inv_det;
-
-   /* find vectors for two edges sharing vert0 */
-   SUB(edge1, vert1, vert0);
-   SUB(edge2, vert2, vert0);
-
-   /* begin calculating determinant - also used to calculate U parameter */
-   CROSS(pvec, dir, edge2);
-
-   /* if determinant is near zero, ray lies in plane of triangle */
-   det = DOT(edge1, pvec);
-
-#ifdef TEST_CULL           /* define TEST_CULL if culling is desired */
-   if (det < EPSILON)
-      return 0;
-
-   /* calculate distance from vert0 to ray origin */
-   SUB(tvec, orig, vert0);
-
-   /* calculate U parameter and test bounds */
-   *u = DOT(tvec, pvec);
-   if (*u < 0.0 || *u > det)
-      return 0;
-
-   /* prepare to test V parameter */
-   CROSS(qvec, tvec, edge1);
-
-    /* calculate V parameter and test bounds */
-   *v = DOT(dir, qvec);
-   if (*v < 0.0 || *u + *v > det)
-      return 0;
-
-   /* calculate t, scale parameters, ray intersects triangle */
-   *t = DOT(edge2, qvec);
-   inv_det = 1.0 / det;
-   *t *= inv_det;
-   *u *= inv_det;
-   *v *= inv_det;
-#else                    /* the non-culling branch */
-   if (det > -EPSILON && det < EPSILON)
-     return 0;
-   inv_det = 1.0 / det;
-
-   /* calculate distance from vert0 to ray origin */
-   SUB(tvec, orig, vert0);
-
-   /* calculate U parameter and test bounds */
-   *u = DOT(tvec, pvec) * inv_det;
-   if (*u < 0.0 || *u > 1.0)
-     return 0;
-
-   /* prepare to test V parameter */
-   CROSS(qvec, tvec, edge1);
-
-   /* calculate V parameter and test bounds */
-   *v = DOT(dir, qvec) * inv_det;
-   if (*v < 0.0 || *u + *v > 1.0)
-     return 0;
-
-   /* calculate t, ray intersects triangle */
-   *t = DOT(edge2, qvec) * inv_det;
-#endif
-   return 1;
-}
-
 	bool cApp::InitApp()
 	{
-antiportal: A polygon that is totally opaque, not rendered, but hiding models behind it, like in Farcry.  Can be walls that hide players etc. behind them. 
-
-Identify and replace these in XML:
-&amp;	&
-&lt;	<
-&gt;	>
-&quot;	"
-&apos;	'
-change comments <!-- --> to comment object (bComment = true). 
-
-<config>
-<input>
-<onfoot>
-<key code="w" action="forward" repeat="true"/>
-<key code="a" action="left" repeat="true"/>
-</onfoot>
-<invehicle>
-<key code="a" action="gearup" repeat="false"/>
-<key code="up" action="forward" repeat="true"/> 
-</invehicle>
-</input>
-</config>
-
-And then console is handled automatically, not configurable.  Cannot override tilde key for console toggle on/off.
-
 		{
 			LOG.Success("Init", "Loading config.xml");
 			breathe::xml::cNode root("config.xml");
@@ -525,8 +529,21 @@ And then console is handled automatically, not configurable.  Cannot override ti
 		if(breathe::BAD==LoadScene())
 			return breathe::BAD;
 
+
+		window_manager.LoadTheme();
+
+		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(1, 0.0f, 0.8f, 0.2f, 0.2f);
+		breathe::gui::cWindow* pWindow1 = new breathe::gui::cWindow(2, 0.05f, 0.85f, 0.1f, 0.1f);
+		pWindow0->AddChild(pWindow1);
+		window_manager.AddChild(pWindow0);
+
+		breathe::gui::cWindow* pWindow2 = new breathe::gui::cWindow(3, 0.8f, 0.0f, 0.2f, 0.2f);
+		window_manager.AddChild(pWindow2);
+
+
 		if(breathe::BAD==InitScene())
 			return breathe::BAD;
+
 
 		breathe::audio::StartAll();
 
@@ -801,6 +818,34 @@ And then console is handled automatically, not configurable.  Cannot override ti
 	}
 
 
+	void cApp::CursorShow()
+	{
+		SDL_ShowCursor(SDL_ENABLE);
+	}
+
+	void cApp::CursorHide()
+	{
+		SDL_ShowCursor(SDL_DISABLE);
+	}
+
+
+	void cApp::ConsoleShow()
+	{
+		bConsole = true;
+		CONSOLE.current = "";
+		CONSOLE.uiCursorPosition = 0;
+
+		CursorShow();
+	}
+
+	void cApp::ConsoleHide()
+	{
+		bConsole = false;
+		CONSOLE.current = "";
+		CONSOLE.uiCursorPosition = 0;
+
+		CursorHide();
+	}
 
 	void cApp::ConsoleAddKey(unsigned int uiCode)
 	{
@@ -830,12 +875,10 @@ And then console is handled automatically, not configurable.  Cannot override ti
 			CONSOLE.current="";
 			CONSOLE.uiCursorPosition=0;
 		}
+
 		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
-		{
-			bConsole=false;
-			CONSOLE.current="";
-			CONSOLE.uiCursorPosition=0;
-		}
+			ConsoleHide();
+
 		else if(SDLK_DELETE==uiCode)
 		{
 			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
@@ -1004,16 +1047,21 @@ And then console is handled automatically, not configurable.  Cannot override ti
 		}
 	}
 
-	void cApp::Render(float fCurrentTime)
+	void cApp::_Render(float fCurrentTime)
 	{
-		pRender->Begin();
-			pRender->BeginRenderScene();
-				RenderScene(fCurrentTime);
-			pRender->EndRenderScene();
-			pRender->BeginScreenSpaceRendering();
-				RenderScreenSpace(fCurrentTime);
-			pRender->EndScreenSpaceRendering();
-		pRender->End();
+		BeginRender(fCurrentTime);
+
+			pRender->Begin();
+				pRender->BeginRenderScene();
+					RenderScene(fCurrentTime);
+				pRender->EndRenderScene();
+				pRender->BeginScreenSpaceRendering();
+					RenderScreenSpace(fCurrentTime);
+					window_manager.Render();
+				pRender->EndScreenSpaceRendering();
+			pRender->End();
+
+		EndRender(fCurrentTime);
 	}
 
 
@@ -1089,12 +1137,14 @@ And then console is handled automatically, not configurable.  Cannot override ti
 			
 			if(!bDone && bActive)// && fCurrentTime > fRenderNext)
 			{
-				Render(fCurrentTime);
+				_Render(fCurrentTime);
 
 				tRender.Update(fCurrentTime);
 
 				fRenderNext = fCurrentTime + fRenderDelta;
 			}
+
+			breathe::util::YieldThisThread();
 		}while (!bDone);
 
 		LOG.Newline("DestroyScene");

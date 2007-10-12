@@ -1,6 +1,10 @@
 #ifndef CWINDOW_H
 #define CWINDOW_H
 
+/*
+include shadows for gui with an alpha blend niceynicey.
+*/
+
 namespace breathe
 {
 	namespace gui
@@ -12,17 +16,25 @@ namespace breathe
 			~cWindow();
 		};
 
-		class cWindowManager : public cWidget
+		class cWindowManager
 		{
 		public:
-			cWindowManager(float x, float y, float width, float height);
+			cWindowManager();
 			~cWindowManager();
 
+			void LoadTheme();
 			void Render();
 
 			// Handles events such as clicking on a button, listview selection changed, 
 			// pulldownlist selection changed, input box keypress, etc.
 			virtual void DefaultEvent(unsigned int id) {}
+
+			bool AddChild(cWindow* pChild);
+
+		private:
+			void RenderChildren(const cWidget& widget);
+			
+			std::vector<cWindow*> child;
 		};
 	}
 }

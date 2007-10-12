@@ -99,14 +99,17 @@ namespace breathe
 			cTexture *AddTexture(std::string sNewFilename);
 			cTexture *AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas);
 			
+			cTexture* GetTextureAtlas(ATLAS atlas);
 			cTexture *GetTexture(std::string sFilename);
 			cTexture* GetCubeMap(std::string sFilename);
 
 
 
 			bool SetTexture0(std::string sTexture) { return SetTexture0(GetTexture(sTexture)); }
+			bool SetTexture0(ATLAS atlas);
 			bool SetTexture0(cTexture* pTexture);
 			bool SetTexture1(std::string sTexture) { return SetTexture1(GetTexture(sTexture)); }
+			bool SetTexture1(ATLAS atlas);
 			bool SetTexture1(cTexture* pTexture);
 
 			material::cMaterial* AddMaterial(std::string sFilename);
