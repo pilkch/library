@@ -84,7 +84,6 @@ typedef unsigned char   uint8;*/
 #include <crtdbg.h>
 #endif
 
-
 // For our types (uint8_t, uint32_t, etc.)
 #include <SDL/SDL.h>
 
@@ -92,6 +91,26 @@ typedef unsigned char   uint8;*/
 // FluidStudios' memory leak detection
 #include <breathe/util/mem.h>
 
+#ifdef UNICODE
+#ifndef PLATFORM_WINDOWS
+	#define _TEXT(s) L##s
+	#define TEXT(s) _TEXT(s)
+#endif
+#else
+#ifndef PLATFORM_WINDOWS
+	#define TEXT(s) s
+#endif
+#endif
+
+#ifndef nullptr
+#define nullptr NULL
+#endif
+
+#define NO_COPY(T) \
+	private: \
+	T(const T&); \
+	void operator=(const T&); \
+	public: 
 
 // Utility types, objects etc.
 
@@ -99,15 +118,8 @@ namespace breathe
 {
 #ifdef UNICODE
 	typedef wchar_t unicode_char;
-#ifndef PLATFORM_WINDOWS
-	#define _TEXT(s) L##s
-	#define TEXT(s) _TEXT(s)
-#endif
 #else
 	typedef char unicode_char;
-#ifndef PLATFORM_WINDOWS
-	#define TEXT(s) s
-#endif
 #endif
 
 	// Constants
@@ -128,12 +140,6 @@ namespace breathe
 		delete [] (x);
 		(x)=NULL;
 	}
-
-	#define NO_COPY(T) \
-		private: \
-		T(const T&); \
-		void operator=(const T&); \
-		public: 
 }
 
 #endif //BREATHE_H

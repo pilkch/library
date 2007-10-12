@@ -18,6 +18,10 @@
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
 
+#ifdef max
+#undef max
+#endif
+
 namespace breathe
 {
 	namespace math

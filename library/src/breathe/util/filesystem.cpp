@@ -225,8 +225,13 @@ namespace breathe
 		{
 #ifdef PLATFORM_WINDOWS
 #pragma pop_macro("CreateDirectory")
+			
+#ifdef UNICODE
+			return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryW(sFoldername.c_str(), NULL));
+#else
+			return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryA(sFoldername.c_str(), NULL));
+#endif // !UNICODE
 
-			return (ERROR_PATH_NOT_FOUND != CreateDirectory(sFoldername.c_str(), NULL));
 #else
 			LOG.Error("CreateFolder", "Not implemented on this platform");
 			return false;
@@ -247,14 +252,19 @@ namespace breathe
 				return true;
 
 			// File not found, we can now create the file
-			HANDLE handle = CreateFile(sFilename.c_str(),     // file to create
-									GENERIC_WRITE,          // open for writing
-									0,                      // do not share
-									NULL,                   // default security
-									CREATE_ALWAYS,          // overwrite existing
-									FILE_ATTRIBUTE_NORMAL | // normal file
-									FILE_FLAG_OVERLAPPED,   // asynchronous I/O
-									NULL);                  // no attr. template
+#ifdef UNICODE
+			HANDLE handle = ::CreateFileW(
+#else
+			HANDLE handle = ::CreateFileA(
+#endif
+				sFilename.c_str(),     // file to create
+				GENERIC_WRITE,          // open for writing
+				0,                      // do not share
+				NULL,                   // default security
+				CREATE_ALWAYS,          // overwrite existing
+				FILE_ATTRIBUTE_NORMAL | // normal file
+				FILE_FLAG_OVERLAPPED,   // asynchronous I/O
+				NULL);                  // no attr. template
 			if(INVALID_HANDLE_VALUE != handle)
 			{
 				// This file is created

@@ -58,12 +58,16 @@ namespace breathe
 		{
 		public:
 			void Download(std::string path);
+			std::string GetContent() const;
+			
 
 		private:
 			int ThreadFunction();
 
 			std::string path;
 			std::string server;
+			std::string content;
+
 			breathe::network::cConnectionTCP connection;
 		};
 	}

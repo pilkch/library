@@ -124,7 +124,7 @@ namespace breathe
 				return *this;
 			}
 			
-			cLogBase& operator<<(std::ostream& (* func)(std::ostream&))
+			cLogBase& operator<<(std::ostream& (* /*func*/)(std::ostream&))
 			{
 				_EndLine(line);
 
@@ -190,6 +190,9 @@ namespace breathe
 			std::string hash;
 
 			std::string section;
+
+		private:
+			cLog(const cLog&);
 		};
 	}
 }

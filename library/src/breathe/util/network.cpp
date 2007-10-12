@@ -1,4 +1,5 @@
 // Standard libraries
+#include <cassert>
 #include <string>
 
 #include <iostream>
@@ -9,6 +10,10 @@
 #include <sstream>
 
 // Other libraries
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 
@@ -17,8 +22,13 @@
 
 #include <breathe/util/log.h>
 
+#include <breathe/util/cString.h>
 #include <breathe/util/thread.h>
-#include <breathe/util/cNetwork.h>
+#include <breathe/util/network.h>
+
+
+#define STR_LEN 512
+#define STR_END "\r\n"
 
 namespace breathe
 {
@@ -108,25 +118,24 @@ namespace breathe
 		int cDownloadHTTP::ThreadFunction()
 		{
 			std::cout<<server<<" "<<path<<std::endl;
+			content = "";
 
 			connection.Open(server, 80);
 			
-				#define STR_LEN 512
 				char buffer[STR_LEN];
 				buffer[0] = 0;
 				int len;
 				unsigned long ulProgress = 0;
 
-				#define STR_END "\r\n"
 				sprintf(buffer, 
-					TEXT("GET /%s HTTP/1.1") TEXT(STR_END)
-					TEXT("Host: %s") TEXT(STR_END)
-					TEXT("Range: bytes=%ld-") TEXT(STR_END)
-					TEXT("User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)") TEXT(STR_END)
-					TEXT("Accept: */*") TEXT(STR_END)
-					TEXT("Accept-Language: en-us") TEXT(STR_END)
-					TEXT("Connection: Keep-Alive") TEXT(STR_END)
-					TEXT("") TEXT(STR_END)
+					"GET /%s HTTP/1.1" STR_END
+					"Host: %s" STR_END
+					"Range: bytes=%ld-" STR_END
+					"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END
+					"Accept: */*" STR_END
+					"Accept-Language: en-us" STR_END
+					"Connection: Keep-Alive" STR_END
+					"" STR_END
 
 					, path.c_str(), server.c_str(), ulProgress);
 
@@ -137,9 +146,7 @@ namespace breathe
 					exit(EXIT_FAILURE);
 				}
 
-				uint32_t timeout = 32000;
 				len = 1;
-				std::string content;
 				while (len > 0)
 				{
 					len = SDLNet_TCP_Recv(connection.sd, buffer, STR_LEN - 1);
@@ -166,6 +173,11 @@ namespace breathe
 			if (path.length() < 1) path = "/";
 
 			Run();
+		}
+    
+		std::string cDownloadHTTP::GetContent() const
+		{
+			return content;
 		}
 	}
 }

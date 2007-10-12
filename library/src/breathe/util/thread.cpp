@@ -15,6 +15,10 @@
 #include <stack>
 
 // Other libraries
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <sdl/sdl.h>
 
 // Breathe
@@ -25,90 +29,6 @@ namespace breathe
 {
 	namespace util
 	{
-		// *** cThread
 
-		cThread::cThread() :
-			thread(NULL)
-		{
-		}
-
-		cThread::~cThread()
-		{
-			if (thread != NULL) Kill();
-		}
-
-		void cThread::Run()
-		{
-			thread = SDL_CreateThread(RunThreadFunction, this);
-		}
-		
-		void cThread::Pause(uint32_t milliseconds)
-		{
-			SDL_Delay(milliseconds);
-		}
-
-		void cThread::Wait()
-		{
-			assert(thread);
-			SDL_WaitThread(thread, NULL);
-			thread = NULL;
-		}
-
-		void cThread::Kill()
-		{
-			assert(thread);
-			SDL_KillThread(thread);
-			thread = NULL;
-		}
-
-		// Not the most elegant method, but it works
-		int cThread::RunThreadFunction(void* pData)
-		{
-			assert(pData);
-			cThread* pThis = static_cast<cThread*>(pData);
-			assert(pThis);
-			return pThis->ThreadFunction();
-		}
-
-		// *** cMutex
-
-		cMutex::cMutex()
-		{
-			mutex = SDL_CreateMutex();
-			assert(mutex);
-		}
-
-		cMutex::~cMutex()
-		{
-			assert(mutex);
-			SDL_DestroyMutex(mutex);
-		}
-
-		void cMutex::Lock()
-		{
-			assert(mutex);
-			SDL_mutexP(mutex);
-		}
-
-		void cMutex::Unlock()
-		{
-			assert(mutex);
-			SDL_mutexV(mutex);
-		}
-
-		// *** cLockObject
-
-		cLockObject::cLockObject(cMutex* _mutex) :
-			mutex(_mutex)
-		{
-			assert(mutex);
-			mutex->Lock();
-		}
-
-		cLockObject::~cLockObject()
-		{
-			assert(mutex);
-			mutex->Unlock();
-		}
 	}
 }
