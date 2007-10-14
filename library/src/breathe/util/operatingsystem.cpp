@@ -11,6 +11,7 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/operatingsystem.h>
 #include <breathe/util/md5.h>
@@ -119,18 +120,16 @@ namespace breathe
 #ifdef PLATFORM_WINDOWS
 		std::string GetUserName()
 		{
-			unicode_char user[260];
+			breathe::string::unicode_char user[260];
 			user[0] = 0;
 
 			DWORD nSize=(DWORD)260;
-			if(!GetComputerName(user, &nSize))
-			{
-				if(getenv("USER") != 0) strcpy(user, getenv("USER"));
-				else if (getenv("USERNAME") != 0) strcpy(user, getenv("USERNAME"));
-				else strcpy(user, TEXT("<UNKNOWN>"));
-			}
+			if(GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string::string_t(user));
 
-			return std::string(user);
+			if(getenv("USER") != 0) return std::string(getenv("USER"));
+			else if (getenv("USERNAME") != 0) return std::string(getenv("USERNAME"));
+			
+			return std::string("<UNKNOWN>");
 		}
 #endif
 	}

@@ -8,6 +8,8 @@
 
 // Breathe
 #include <breathe/breathe.h>
+
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
 #include "breathe/loader_3ds/mesh3dsobject.h"

@@ -13,11 +13,11 @@
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
 
-#include <unrarlib/unrarlib.h>
-
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 #include <breathe/util/md5.h>
+
+#include <unrarlib/unrarlib.h>
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -27,6 +27,21 @@ namespace breathe
 {
 	namespace filesystem
 	{
+		void DetectByteOrderMark(const uint8_t* bytes)
+		{
+			/*
+			UTF-8 EF BB BF
+			UTF-16 (big-endian) FE FF
+			UTF-16 (little-endian) FF FE
+			UTF-16BE, UTF-32BE (big-endian) No BOM!
+			UTF-16LE, UTF-32LE (little-endian) No BOM!
+			UTF-32 (big-endian) 00 00 FE FF
+			UTF-32 (little-endian) FF FE 00 00
+			SCSU (compression) 0E FE FF
+			*/
+		}
+
+
 		std::vector<std::string> vDirectory;
 		std::string sExecutable = "";
 
@@ -42,10 +57,10 @@ namespace breathe
 			return sExecutable;
 		}
 
-		std::string GetPath(std::string sFilename)
+		std::string GetPath(const std::string& sFilename)
 		{
-			std::string p="";
-			std::string s=sFilename;
+			std::string p = "";
+			std::string s = sFilename;
 
 			std::string::size_type i=s.find("/");;
 			while(i!=std::string::npos)
@@ -59,35 +74,34 @@ namespace breathe
 			return p;
 		}
 
-		std::string GetFile(std::string sFilename)
+		std::string GetFile(const std::string& sFilename)
 		{
-			std::string::size_type i=sFilename.rfind("/");
-			std::string s;
-			if(std::string::npos != i)
-			{
-				i++;
-				s = sFilename.substr(i);
-			};
+			std::string::size_type i = sFilename.rfind("/");
 
-			return s;
+			// We didn't find a folder, so just return the whole path
+			if(std::string::npos == i) return sFilename;
+
+			i++;
+			return sFilename.substr(i);
 		}
-		std::string GetFileNoExtension(std::string sFilename)
+		std::string GetFileNoExtension(const std::string& sFilename)
 		{
-			std::string::size_type i=sFilename.find("/");
-			while(i!=std::string::npos)
+			std::string::size_type i = sFilename.find("/");
+			std::string temp = sFilename;
+			while(i != std::string::npos)
 			{
 				i++;
-				sFilename=sFilename.substr(i);
-				i=sFilename.find("/");
+				temp = temp.substr(i);
+				i = temp.find("/");
 			};
 
-			i=sFilename.find(".");;
-			if(i!=std::string::npos)
-				return sFilename.substr(0, i);
+			i = temp.find(".");;
+			if(i != std::string::npos)
+				return temp.substr(0, i);
 
 			return "";
 		}
-		std::string GetExtension(std::string sFilename)
+		std::string GetExtension(const std::string& sFilename)
 		{
 			std::string p="";
 			std::string s=sFilename;
@@ -132,6 +146,17 @@ namespace breathe
 
 			vDirectory.push_back(sDirectory);
 			LOG.Success("FileSystem", "Added " + sDirectory);
+		}
+
+		std::string FindFile(std::string sPath, std::string sFilename)
+		{
+			std::string temp = FindFile(sPath + sFilename);
+			
+			if (filesystem::FileExists(breathe::string::ToString_t(temp))) return temp;
+
+			//!breathe::filesystem::FileExists(breathe::string::ToString_t(pLayer->sTexture)))
+
+			return FindFile(sFilename);
 		}
 
 		std::string FindFile(std::string sFilename)
@@ -196,7 +221,7 @@ namespace breathe
 #pragma push_macro("FileExists")
 #undef FileExists
 #endif
-		bool FileExists(std::string sFilename)
+		bool FileExists(breathe::string::string_t sFilename)
 		{
 #ifdef PLATFORM_WINDOWS
 #pragma pop_macro("FileExists")
@@ -211,7 +236,7 @@ namespace breathe
 
 			return false;
 #else
-			LOG.Error("CreateFile", "Not implemented on this platform");
+			LOG.Error("FileExists", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -221,7 +246,7 @@ namespace breathe
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #endif
-		bool CreateDirectory(std::string sFoldername)
+		bool CreateDirectory(breathe::string::string_t sFoldername)
 		{
 #ifdef PLATFORM_WINDOWS
 #pragma pop_macro("CreateDirectory")
@@ -233,7 +258,7 @@ namespace breathe
 #endif // !UNICODE
 
 #else
-			LOG.Error("CreateFolder", "Not implemented on this platform");
+			LOG.Error("CreateDirectory", "Not implemented on this platform");
 			return false;
 #endif
 		}
@@ -242,7 +267,7 @@ namespace breathe
 #pragma push_macro("CreateFile")
 #undef CreateFile
 #endif
-		bool CreateFile(std::string sFilename)
+		bool CreateFile(breathe::string::string_t sFilename)
 		{
 #ifdef PLATFORM_WINDOWS
 #pragma pop_macro("CreateFile")

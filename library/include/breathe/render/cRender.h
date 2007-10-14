@@ -104,6 +104,9 @@ namespace breathe
 			cTexture* GetCubeMap(std::string sFilename);
 
 
+			void SelectTextureUnit0();
+			void SelectTextureUnit1();
+			void SelectTextureUnit2();
 
 			bool SetTexture0(std::string sTexture) { return SetTexture0(GetTexture(sTexture)); }
 			bool SetTexture0(ATLAS atlas);
@@ -127,7 +130,7 @@ namespace breathe
 			void SetColour(float r, float g, float b);
 			void SetColour(const math::cColour& inColour);
 
-			material::cMaterial* GetMaterial(std::string sFilename);
+			material::cMaterial* GetMaterial(const std::string& sFilename);
 
 			
 			void ReloadTextures();

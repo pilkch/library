@@ -406,8 +406,8 @@ namespace breathe
 
 	std::string cMD5::GetResultFormatted() const
 	{
-		unicode_char temp[17];
-		strcpy(temp, (unicode_char*)result);
+		char temp[17];
+		strcpy(temp, (char*)result);
 		return std::string(temp);
 	}
 }

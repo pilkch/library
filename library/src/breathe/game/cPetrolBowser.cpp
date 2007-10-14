@@ -1,3 +1,5 @@
+#include <string>
+
 #include <breathe/breathe.h>
 
 #include <breathe/game/cPetrolBowser.h>

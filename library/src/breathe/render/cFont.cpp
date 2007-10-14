@@ -12,10 +12,8 @@
 #include <string>
 #include <map>
 
-//Using the STL exception library increases the
-//chances that someone else using our code will correctly
-//catch any exceptions that we throw.
-#include <stdexcept>
+#include <iostream>
+#include <fstream>
 
 // FreeType Headers
 #include <freetype/ft2build.h>
@@ -31,6 +29,10 @@
 
 // Breathe Headers
 #include <breathe/breathe.h>
+
+#include <breathe/util/cString.h>
+#include <breathe/util/log.h>
+#include <breathe/util/filesystem.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
@@ -49,29 +51,26 @@ namespace breathe
 {
 	namespace render
 	{
-		///This function gets the first power of 2 >= the
-		///int that we pass it.
-		inline int next_p2 ( int a )
-		{
-			int rval=1;
-			while(rval<a) rval<<=1;
-			return rval;
-		}
-
 		///Create a display list coresponding to the give character.
-		void make_dlist ( FT_Face face, char ch, GLuint list_base, GLuint * tex_base )
+		void make_dlist(FT_Face face, char ch, GLuint list_base, GLuint * tex_base )
 		{
 			//The first thing we do is get FreeType to render our character
 			//into a bitmap.  This actually requires a couple of FreeType commands:
 
 			//Load the Glyph for our character.
 			if(FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT ))
-				throw std::runtime_error("FT_Load_Glyph failed");
+			{
+				LOG.Error("Font", "FT_Load_Glyph failed");
+				return;
+			}
 
 			//Move the face's glyph into a Glyph object.
-				FT_Glyph glyph;
-				if(FT_Get_Glyph( face->glyph, &glyph ))
-				throw std::runtime_error("FT_Get_Glyph failed");
+			FT_Glyph glyph;
+			if(FT_Get_Glyph( face->glyph, &glyph ))
+			{
+				LOG.Error("Font", "FT_Get_Glyph failed");
+				return;
+			}
 
 			//Convert the glyph to a bitmap.
 			FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1 );
@@ -83,8 +82,8 @@ namespace breathe
 			//Use our helper function to get the widths of
 			//the bitmap data that we will need in order to create
 			//our texture.
-			int width = next_p2( bitmap.width );
-			int height = next_p2( bitmap.rows );
+			int width = math::nextPowerOfTwo(bitmap.width);
+			int height = math::nextPowerOfTwo(bitmap.rows);
 
 			//Allocate memory for the texture data.
 			GLubyte* expanded_data = new GLubyte[ 2 * width * height];
@@ -171,8 +170,10 @@ namespace breathe
 
 
 
-		cFont::cFont(const breathe::unicode_char * fname, unsigned int h)
+		cFont::cFont(const std::string fname, unsigned int h)
 		{
+			std::string sFilename = filesystem::FindFile(fname);
+
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];
 
@@ -180,18 +181,24 @@ namespace breathe
 
 			//Create and initilize a freetype font library.
 			FT_Library library;
-			if (FT_Init_FreeType( &library )) 
-				throw std::runtime_error("FT_Init_FreeType failed");
+			if (FT_Init_FreeType( &library ))
+			{
+				LOG.Error("Font", "FT_Init_FreeType failed");
+				return;
+			}
 
 			//The object in which Freetype holds information on a given
 			//font is called a "face".
-			FT_Face face;
+			FT_Face face = NULL;
 
 			//This is where we load in the font information from the file.
 			//Of all the places where the code might die, this is the most likely,
 			//as FT_New_Face will die if the font file does not exist or is somehow broken.
-			if (FT_New_Face( library, fname, 0, &face )) 
-				throw std::runtime_error("FT_New_Face failed (there is probably a problem with your font file)");
+			if (FT_New_Face( library, sFilename.c_str(), 0, &face ))
+			{
+				LOG.Error("Font", "FT_New_Face failed to load font \"" + sFilename + "\"");
+				return;
+			}
 
 			//For some twisted reason, Freetype measures font size
 			//in terms of 1/64ths of pixels.  Thus, to make a font

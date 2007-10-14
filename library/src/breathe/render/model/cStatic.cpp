@@ -13,6 +13,8 @@
 
 // Breathe
 #include <breathe/breathe.h>
+
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 
@@ -235,7 +237,7 @@ namespace breathe
 
 					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
 					// try it, comment these lines out, it breaks.  I don't know why :(
-					breathe::unicode_char* c = (breathe::unicode_char*)(pCurrentMesh->sMaterial.c_str());
+					char* c = (char*)(pCurrentMesh->sMaterial.c_str());
 					pCurrentMesh->sMaterial = c;
 
 					for(face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)

@@ -7,7 +7,7 @@ namespace breathe
 	{
 		namespace model
 		{
-			class cHeightmap : public cModel, public cObject
+			class cHeightmap : public cModel
 			{
 			public:
 				cHeightmap();

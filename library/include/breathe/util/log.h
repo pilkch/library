@@ -175,7 +175,7 @@ namespace breathe
 
 			std::ofstream logfile;
 
-			std::string strfilename;
+			breathe::string::string_t strfilename;
 
 			bool scol;
 			bool ecol;

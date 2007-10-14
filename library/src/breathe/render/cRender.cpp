@@ -23,6 +23,8 @@
 
 // Breathe
 #include <breathe/breathe.h>
+
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 
@@ -440,6 +442,8 @@ namespace breathe
 
 		void cRender::_RenderPostRenderPass(material::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO)
 		{
+			assert(pMaterial != nullptr);
+
 			BeginScreenSpaceRendering();
 				SetMaterial(pMaterial);
 				glBindTexture(GL_TEXTURE_2D, pFBO->uiTexture);
@@ -542,20 +546,35 @@ namespace breathe
 			// 0.0f, 0.0f						1.0f, 0.0f
 
 			glPushAttrib(GL_TRANSFORM_BIT);
-				glMatrixMode(GL_PROJECTION);		// Select Projection
-				glPushMatrix();									// Push The Matrix
-				glLoadIdentity();								// Reset The Matrix
-				glOrtho( 0, uiWidth, 0, uiHeight, -1, 1 );	// Select Ortho Mode
-				glMatrixMode(GL_MODELVIEW);			// Select Modelview Matrix
-				glPushMatrix();									// Push The Matrix
-				glLoadIdentity();								// Reset The Matrix
+
+				// Setup projection matrix
+				glMatrixMode(GL_PROJECTION);
+				glPushMatrix();
+				glLoadIdentity();
+				glOrtho( 0, uiWidth, 0, uiHeight, -1, 1 );
+
+				// Setup modelview matrix
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glLoadIdentity();
+
+				// Setup texture matrix
+				pRender->SelectTextureUnit0();
+				glMatrixMode(GL_TEXTURE);
+				glPushMatrix();
+				glLoadIdentity();
+				glScalef(1.0f, -1.0f, 1.0f);
+				
+				glMatrixMode(GL_MODELVIEW);
 		}
 		
 		void cRender::EndScreenSpaceRendering()
 		{
-				glMatrixMode( GL_PROJECTION );	// Select Projection
+				glMatrixMode( GL_TEXTURE );			// Select Texture
 				glPopMatrix();									// Pop The Matrix
 				glMatrixMode( GL_MODELVIEW );		// Select Modelview
+				glPopMatrix();									// Pop The Matrix
+				glMatrixMode( GL_PROJECTION );	// Select Projection
 				glPopMatrix();									// Pop The Matrix
 			glPopAttrib();
 		}
@@ -564,7 +583,7 @@ namespace breathe
 		{
 			glPushMatrix();
 				glLoadIdentity();
-      	glTranslatef(x, y, 0.0f);
+      	glTranslatef(x * 0.5f * float(uiWidth), y * 0.5f * float(uiHeight), 0.0f);
 		}
 
 		void cRender::PopScreenSpacePosition()
@@ -825,14 +844,14 @@ namespace breathe
 
 		cTexture *cRender::AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas)
 		{
-			if((""==sNewFilename) || (ATLAS_NONE == uiAtlas))
-				return pTextureNotFoundTexture;
+			assert(sNewFilename != "");
+			assert(ATLAS_NONE != uiAtlas);
 			
 			std::string sFilename=breathe::filesystem::FindFile(sNewFilename);
 			std::string s = breathe::filesystem::GetFile(sFilename);
 
 			cTexture* p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
-			if(NULL==p)
+			if(p == nullptr || p == pTextureNotFoundTexture)
 			{
 				LOG.Error("Texture", sFilename + " pTextureNotFound");
 				return pTextureNotFoundTexture;
@@ -847,21 +866,23 @@ namespace breathe
 
 		cTexture *cRender::AddTexture(std::string sNewFilename)
 		{
-			if(""==sNewFilename)
-				return pTextureNotFoundTexture;
+			assert(sNewFilename != "");
 			
 			std::string sFilename = breathe::filesystem::FindFile(sNewFilename);
 			std::string s = breathe::filesystem::GetFile(sFilename);
 
 			
 			cTexture* p = GetTexture(s);
+			if(p == nullptr)
+			{
+				assert(p != nullptr);
+				return pTextureNotFoundTexture;
+			}
 			
-			if(p != pTextureNotFoundTexture) return p;
-			
-			p=new cTexture();
-			
+			p=new cTexture();			
 			if(p->Load(sFilename) != breathe::GOOD)
 			{
+				LOG.Error("Render", "Failed to load " + sFilename);
 				SAFE_DELETE(p);
 				return pTextureNotFoundTexture;
 			}
@@ -879,12 +900,15 @@ namespace breathe
 
 		bool cRender::AddTextureNotFoundTexture(std::string sNewFilename)
 		{
-			cTexture* p=new cTexture();
+			cTexture* p = new cTexture();
 
 			std::string sFilename=breathe::filesystem::FindFile(sNewFilename);
 			
 			if(p->Load(sFilename) != breathe::GOOD)
 			{
+				// Just assert, don't even try to come back from this situation
+				LOG.Error("Render", "Failed to load texture not found texture");
+				assert(false);
 				SAFE_DELETE(p);
 				return breathe::BAD;
 			}
@@ -912,6 +936,9 @@ namespace breathe
 			
 			if(p->Load(sFilename) != breathe::GOOD)
 			{
+				// Just assert, don't even try to come back from this situation
+				LOG.Error("Render", "Failed to load material not found texture");
+				assert(false);
 				SAFE_DELETE(p);
 				return breathe::BAD;
 			}
@@ -1158,7 +1185,7 @@ namespace breathe
 				return pMaterial;
 			
 			std::string sFilename = filesystem::FindFile(sNewfilename);
-			pMaterial=new material::cMaterial(sFilename);
+			pMaterial = new material::cMaterial(sFilename);
 
 			if(breathe::BAD == pMaterial->Load(sFilename))
 			{
@@ -1166,7 +1193,7 @@ namespace breathe
 				pMaterial=pMaterialNotFoundMaterial;
 			}
 			
-			mMaterial[sFilename]=pMaterial;
+			mMaterial[filesystem::GetFile(sFilename)]=pMaterial;
 
 			return pMaterial;
 		}
@@ -1188,6 +1215,22 @@ namespace breathe
 			return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 		}
 
+		
+		void cRender::SelectTextureUnit0()
+		{
+			glActiveTexture(GL_TEXTURE0);
+		}
+
+		void cRender::SelectTextureUnit1()
+		{
+			glActiveTexture(GL_TEXTURE1);
+		}
+
+		void cRender::SelectTextureUnit2()
+		{
+			glActiveTexture(GL_TEXTURE2);
+		}
+
 		bool cRender::SetTexture0(ATLAS atlas)
 		{
 			return SetTexture0(GetTextureAtlas(atlas));
@@ -1200,6 +1243,8 @@ namespace breathe
 
 		bool cRender::SetTexture0(cTexture* pTexture)
 		{
+			assert(pTexture != nullptr);
+
 			//Activate the correct texture unit
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
@@ -1208,6 +1253,8 @@ namespace breathe
 
 		bool cRender::SetTexture1(cTexture* pTexture)
 		{
+			assert(pTexture != nullptr);
+
 			//Activate the correct texture unit
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
@@ -1289,6 +1336,9 @@ namespace breathe
 
 		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value)
 		{
+			assert(pMaterial != nullptr);
+			assert(pMaterial->pShader != nullptr);
+
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
 			{
@@ -1303,6 +1353,9 @@ namespace breathe
 
 		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value)
 		{
+			assert(pMaterial != nullptr);
+			assert(pMaterial->pShader != nullptr);
+
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
 			{
@@ -1317,6 +1370,9 @@ namespace breathe
 
 		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value)
 		{
+			assert(pMaterial != nullptr);
+			assert(pMaterial->pShader != nullptr);
+
 			GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
 			if(loc == -1)
 			{
@@ -1331,13 +1387,7 @@ namespace breathe
 
 		bool cRender::SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos)
 		{
-			assert(pMaterial);
-
-			if(pMaterial == NULL)
-			{
-				LOG.Error("Render", "No texture specified");
-				return false;
-			}
+			assert(pMaterial != nullptr);
 
 			if(pCurrentMaterial == pMaterial)
 			{
@@ -1419,6 +1469,8 @@ namespace breathe
 					//Set the current mode and texture
 					layerOld->uiTextureMode=layerNew->uiTextureMode;
 					layerOld->pTexture=layerNew->pTexture;
+
+					if (layerOld->pTexture == nullptr) continue;
 
 					if(TEXTURE_NONE==layerOld->uiTextureMode)
 						glDisable(GL_TEXTURE_2D);
@@ -1909,13 +1961,14 @@ namespace breathe
 			return true;
 		}
 
-		material::cMaterial* cRender::GetMaterial(std::string sFilename)
+		material::cMaterial* cRender::GetMaterial(const std::string& sFilename)
 		{
 			std::map<std::string, material::cMaterial * >::iterator iter=mMaterial.begin();
 
+			std::string temp = filesystem::GetFile(sFilename);
 			while(iter!=mMaterial.end())
 			{
-				if (sFilename == iter->first) 
+				if (temp == iter->first) 
 					return iter->second;
 				iter++;
 			}

@@ -21,6 +21,7 @@
 
 // Breathe
 #include <breathe/breathe.h>
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 
@@ -49,12 +50,18 @@ namespace breathe
 			pParent(NULL),
 			id(_id),
 			type(_type),
+
 			x(_x),
 			y(_y),
 			width(_width),
 			height(_height),
+
 			bEnabled(true),
-			bVisible(true)
+			bVisible(true),
+
+			minimum(0),
+			maximum(100),
+			value(0)
 		{
 
 		}

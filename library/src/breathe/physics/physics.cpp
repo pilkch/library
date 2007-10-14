@@ -13,6 +13,9 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cString.h>
+#include <breathe/util/log.h>
+
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
@@ -23,8 +26,6 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
-
-#include <breathe/util/log.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>

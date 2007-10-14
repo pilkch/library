@@ -24,8 +24,8 @@
 // Breathe
 #include <breathe/breathe.h>
 
-#include <breathe/util/log.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/log.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -292,9 +292,9 @@ namespace breathe
 			{
 				LOG.Success("Material", std::string("Loading ") + sFilename);
 
-				breathe::filesystem::FindFile(sFilename);
+				sFilename = breathe::filesystem::FindFile(sFilename);
 
-				std::string sPath=breathe::filesystem::GetPath(sFilename);
+				std::string sPath = breathe::filesystem::GetPath(sFilename);
 				
 				xml::cNode root(sFilename);
 				xml::cNode::iterator iter(root);
@@ -321,13 +321,13 @@ namespace breathe
 				std::string sValue;
 				if(iter.GetAttribute("sShaderVertex", &sValue))
 				{
-					if(!pShader) pShader=new cShader();
-					pShader->sShaderVertex=breathe::filesystem::FindFile(sPath + sValue);
+					if(pShader == nullptr) pShader = new cShader();
+					pShader->sShaderVertex = breathe::filesystem::FindFile(sPath, sValue);
 				}
 				if(iter.GetAttribute("sShaderFragment", &sValue))
 				{
-					if(!pShader) pShader=new cShader();
-					pShader->sShaderFragment=breathe::filesystem::FindFile(sPath + sValue);
+					if(pShader == nullptr) pShader = new cShader();
+					pShader->sShaderFragment = breathe::filesystem::FindFile(sPath, sValue);
 				}
 
 				if(pShader)
@@ -355,7 +355,10 @@ namespace breathe
 					{
 						std::string sTexture;
 						if(iter.GetAttribute("sTexture", &sTexture))
-							pLayer->sTexture = breathe::filesystem::FindFile(sPath + sTexture);
+						{
+							// Try in the same directory as the material
+							pLayer->sTexture = breathe::filesystem::FindFile(sPath, sTexture);
+						}
 
 						std::string sValue;
 						if(iter.GetAttribute("uiTextureMode", &sValue))

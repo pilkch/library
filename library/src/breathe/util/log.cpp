@@ -21,6 +21,7 @@
 	#include <windows.h>
 #endif //BUILD_DEBUG && PLATFORM_WINDOWS
 
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 
@@ -42,10 +43,9 @@ namespace breathe
 	{
 		// ***********************************************LOG*******************************************************
 
-		cLog::cLog()
+		cLog::cLog() :
+			strfilename(TEXT("log/index.html"))
 		{
-			strfilename="log/index.html"; 
-
 			scol=0;
 			ecol=0;
 			hash=35;
@@ -62,8 +62,8 @@ namespace breathe
 
 
 
-			breathe::filesystem::CreateDirectory("log");
-			breathe::filesystem::CreateDirectory("log/mem");
+			breathe::filesystem::CreateDirectory(TEXT("log"));
+			breathe::filesystem::CreateDirectory(TEXT("log/mem"));
 			breathe::filesystem::CreateFile(strfilename);
 
 			CreateLog();
@@ -77,7 +77,7 @@ namespace breathe
 
 		cLog::~cLog()
 		{
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open())
 				return;
@@ -88,7 +88,7 @@ namespace breathe
 
 		bool cLog::CreateLog()
 		{ 
-			logfile.open(strfilename.c_str(), std::ios::out);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out);
 
 			if(!logfile.is_open())
 				return false;
@@ -116,28 +116,23 @@ namespace breathe
 	#ifdef BUILD_DEBUG
 		void cLog::trace(std::string section)
 		{
-			std::string s="<!> " + section + "\n";
+			breathe::string::string_t s = TEXT("<!> ") + breathe::string::ToString_t(section) + TEXT("\n");
 	#ifdef PLATFORM_WINDOWS
 			OutputDebugString(s.c_str());
 	#else
-			printf(s.c_str());
+			printf(breathe::string::ToUTF8(s).c_str());
 	#endif
 		}
 
 		void cLog::trace(std::string section, std::string text)
 		{
-			std::string s="<!> " + section + " - " + text + "\n";
-	#ifdef PLATFORM_WINDOWS
-			OutputDebugString(s.c_str());
-	#else
-			printf(s.c_str());
-	#endif
+			trace(section + " - " + text);
 		}
 	#endif //BUILD_DEBUG
 
 		void cLog::Newline()
 		{
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open()) 
 				return;
@@ -150,7 +145,7 @@ namespace breathe
 		{
 			section = s1;
 
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open()) 
 				return;
@@ -168,7 +163,7 @@ namespace breathe
 		{
 			section = s1;
 
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open()) 
 				return;
@@ -183,7 +178,7 @@ namespace breathe
 
 		void cLog::Success(std::string section, std::string text)
 		{
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open()) 
 				return;
@@ -202,7 +197,7 @@ namespace breathe
 
 		void cLog::Error(std::string section, std::string text)
 		{
-			logfile.open(strfilename.c_str(), std::ios::out | std::ios::app);
+			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 			
 			if(!logfile.is_open()) 
 				return;

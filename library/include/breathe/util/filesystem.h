@@ -22,20 +22,21 @@ namespace breathe
 
 		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
 		std::string FindFile(std::string sFilename);
+		std::string FindFile(std::string sPath, std::string sFilename);
 
 		void AddDirectory(std::string sDirectory);
 
 		std::string GetMD5(std::string sFilename);
 		std::string GetSHA1(std::string sFilename);
 
-		std::string GetPath(std::string sFilename);
-		std::string GetFile(std::string sFilename);
-		std::string GetFileNoExtension(std::string sFilename);
-		std::string GetExtension(std::string sFilename);
+		std::string GetPath(const std::string& sFilename);
+		std::string GetFile(const std::string& sFilename);
+		std::string GetFileNoExtension(const std::string& sFilename);
+		std::string GetExtension(const std::string& sFilename);
 
-		bool FileExists(std::string sFilename);
-		bool CreateDirectory(std::string sFoldername);
-		bool CreateFile(std::string sFilename);
+		bool FileExists(breathe::string::string_t sFilename);
+		bool CreateDirectory(breathe::string::string_t sFoldername);
+		bool CreateFile(breathe::string::string_t sFilename);
 
 		class path
 		{

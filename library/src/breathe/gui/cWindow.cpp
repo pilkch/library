@@ -23,6 +23,7 @@
 
 // Breathe
 #include <breathe/breathe.h>
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
 
@@ -66,6 +67,9 @@ namespace breathe
 
 		cWindowManager::~cWindowManager()
 		{
+			unsigned int n = child.size();
+			for (unsigned int i = 0; i < n; i++)
+				SAFE_DELETE(child[i]);
 		}
 
 		void cWindowManager::LoadTheme()
@@ -83,13 +87,15 @@ namespace breathe
 
 		void cWindowManager::RenderChildren(const cWidget& widget)
 		{
-			if (false == widget.IsVisible()) return;
+			if (false == widget.IsVisible()) return;			
 
 			pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 
-			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
+			unsigned int n = widget.child.size();
+			if (n == 0) return;
 
-				unsigned int n = widget.child.size();
+			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
+				
 				for (unsigned int i = 0; i < n; i++)
 					RenderChildren(*widget.child[i]);
 

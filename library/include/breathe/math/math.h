@@ -55,6 +55,14 @@ namespace breathe
 		{
 			return -1.0f + float(rand() % 20000) * 0.0001f;
 		}
+		
+		///This function gets the first power of 2 >= the int that we pass it.
+		inline int nextPowerOfTwo(int a )
+		{
+			int rval = 1;
+			while(rval < a) rval<<= 1;
+			return rval;
+		}
 	}
 }
 

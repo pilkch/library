@@ -116,12 +116,6 @@ typedef unsigned char   uint8;*/
 
 namespace breathe
 {
-#ifdef UNICODE
-	typedef wchar_t unicode_char;
-#else
-	typedef char unicode_char;
-#endif
-
 	// Constants
 	const bool BAD=false;
 	const bool GOOD=true;

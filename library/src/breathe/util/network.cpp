@@ -20,9 +20,9 @@
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
-#include <breathe/util/cString.h>
 #include <breathe/util/thread.h>
 #include <breathe/util/network.h>
 
@@ -57,7 +57,7 @@ namespace breathe
 			if(SDLNet_Init()==-1) 
 			{
 				std::ostringstream t;
-				t<<"SDLNet_Init: "<<SDLNet_GetError();
+				t << "SDLNet_Init: " << SDLNet_GetError();
 				LOG.Error("cNetwork::cNetwork", t.str());
 
 				return false;
@@ -70,13 +70,6 @@ namespace breathe
 
 		void Destroy()
 		{
-			if(strlen(SDLNet_GetError()))
-			{
-				std::ostringstream t;
-				t<<"SDLNet_GetError: "<<SDLNet_GetError();
-				LOG.Error("cNetwork", t.str());
-			}
-
 			SDLNet_Quit();
 
 			LOG.Success("cNetwork", "Shutdown");
@@ -168,8 +161,8 @@ namespace breathe
 		void cDownloadHTTP::Download(std::string _path)
 		{
 			path = _path;
-			server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, TEXT("http://")), TEXT("/"));
-			path = breathe::string::StripBeforeInclusive(_path, server + TEXT("/"));
+			server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, "http://"), "/");
+			path = breathe::string::StripBeforeInclusive(_path, server + "/");
 			if (path.length() < 1) path = "/";
 
 			Run();

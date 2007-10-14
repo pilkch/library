@@ -9,55 +9,68 @@ namespace breathe
 {
 	namespace string
 	{
-		bool IsWhiteSpace(breathe::unicode_char c)
+		bool IsWhiteSpace(unicode_char c)
 		{
 			// We regard space, tab, new line and carriage return characters as white space
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
 		}
 		
-		std::string Replace(std::string sSource, std::string sFind, std::string sReplace)
+		std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)
 		{
 			size_t j;
-			for(;(j = sSource.find(sFind)) != std::string::npos;)
+			std::string temp(source);
+			for(;(j = temp.find(sFind)) != std::string::npos;)
 			{
-				sSource.replace(j, sFind.length(), sReplace);
+				temp.replace(j, sFind.length(), sReplace);
 			}
-			return sSource;
+			return temp;
 		}
 
-		std::string StripLeading(std::string source, std::string find)
+		std::string StripLeading(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_not_of(find);
-			if(std::string::npos != i) return source.erase(0, i);
+			if(std::string::npos != i) {
+				std::string temp(source);
+				return temp.erase(0, i);
+			}
 
 			return source;
 		}
 		
-		std::string StripTrailing(std::string source, std::string find)
+		std::string StripTrailing(const std::string& source, const std::string& find)
 		{
 			std::string::size_type iEndOfContent = source.find_last_not_of(find);
-			if(std::string::npos != iEndOfContent) return source.erase(iEndOfContent + 1);
+			if(std::string::npos != iEndOfContent) {
+				std::string temp(source);
+				return temp.erase(iEndOfContent + 1);
+			}
 			
 			return source;
 		}
 
-		std::string StripBefore(std::string source, std::string find)
+		std::string StripBefore(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_of(find);
-			if(std::string::npos != i) return source.erase(0, i);
+			if(std::string::npos != i) {
+				std::string temp(source);
+				return temp.erase(0, i);
+			}
 
 			return source;
 		}
 
-		std::string StripAfter(std::string source, std::string find)
+		std::string StripAfter(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_last_of(find);
-			if(std::string::npos != i) return source.erase(i);
+			if(std::string::npos != i) {
+				std::string temp(source);
+				return temp.erase(i);
+			}
 
 			return source;
 		}
 
-		std::string StripBeforeInclusive(std::string source, std::string find)
+		std::string StripBeforeInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find(find);
 			if(std::string::npos != i) 
@@ -66,7 +79,7 @@ namespace breathe
 			return source;
 		}
 
-		std::string StripAfterInclusive(std::string source, std::string find)
+		std::string StripAfterInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_of(find);
 			if(std::string::npos != i) {
@@ -78,7 +91,7 @@ namespace breathe
 			return source;
 		}
 		
-		std::string ToLower(std::string source)
+		std::string ToLower(const std::string& source)
 		{
 			std::string sOut(source);
 
@@ -87,7 +100,7 @@ namespace breathe
 			return sOut;
 		}
 
-		std::string ToUpper(std::string source)
+		std::string ToUpper(const std::string& source)
 		{
 			std::string sOut(source);
 
@@ -97,14 +110,14 @@ namespace breathe
 		}
 
 		
-		std::string HTMLDecode(std::string source)
+		std::string HTMLDecode(const std::string& source)
 		{
 			std::string sOut(source);
 
 			return sOut;
 		}
 
-		std::string HTMLEncode(std::string source)
+		std::string HTMLEncode(const std::string& source)
 		{
 			std::string sOut(source);
 

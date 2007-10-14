@@ -15,8 +15,8 @@
 #include <stack>
 
 #include <breathe/breathe.h>
-#include <breathe/util/cString.h>
 
+#include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/xml.h>
 
@@ -179,7 +179,7 @@ namespace breathe
 
 							while(iter!=sData.end() && *iter!='/' && *iter!='>')
 							{
-								breathe::unicode_char c=*iter;
+								breathe::string::unicode_char c=*iter;
 								if(*iter == ' ')
 								{
 									p->AddAttribute(sAttributeName, "");
@@ -465,7 +465,7 @@ namespace breathe
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				breathe::unicode_char c;
+				breathe::string::unicode_char c;
 				std::stringstream stm(iter->second);
 				stm >> std::skipws;
 

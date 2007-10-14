@@ -70,6 +70,16 @@ namespace breathe
 
 			friend class cWindowManager;
 		};
+
+		template <WIDGET_TYPE t>
+		class cWidgetTemplate : public cWidget
+		{
+		public:
+			cWidgetTemplate(unsigned int id, float x, float y, float width, float height) :
+				cWidget(id, t, x, y, width, height)
+			{
+			}
+		};
 		
 		inline void cWidget::Enable()
 		{
@@ -90,6 +100,9 @@ namespace breathe
 		{
 			bVisible = false;
 		}
+
+		typedef cWidgetTemplate<WIDGET_BUTTON> cButton;
+		typedef cWidgetTemplate<WIDGET_STATICTEXT> cStaticText;
 	}
 }
 
