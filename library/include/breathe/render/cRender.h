@@ -73,6 +73,9 @@ namespace breathe
 			void RenderAxisReference(math::cVec3& position);
 			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
 			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
+			void cRender::RenderScreenSpaceRectangle(
+				float fX, float fY, float fWidth, float fHeight,
+				float fU, float fV, float fU2, float fV2);
 			
 			void RenderMesh(model::cMesh* pMesh);
 			unsigned int RenderStaticModel(model::cStatic* p);

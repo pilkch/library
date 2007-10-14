@@ -101,6 +101,7 @@ namespace breathe
 			bVisible = false;
 		}
 
+		typedef cWidgetTemplate<WIDGET_WINDOW> cWindow;
 		typedef cWidgetTemplate<WIDGET_BUTTON> cButton;
 		typedef cWidgetTemplate<WIDGET_STATICTEXT> cStaticText;
 	}

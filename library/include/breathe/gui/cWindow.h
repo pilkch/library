@@ -1,5 +1,5 @@
-#ifndef CWINDOW_H
-#define CWINDOW_H
+#ifndef CWINDOW_MANAGER_H
+#define CWINDOW_MANAGER_H
 
 /*
 include shadows for gui with an alpha blend niceynicey.
@@ -9,13 +9,6 @@ namespace breathe
 {
 	namespace gui
 	{
-		class cWindow : public cWidget
-		{
-		public:
-			cWindow(unsigned int id, float x, float y, float width, float height);
-			~cWindow();
-		};
-
 		class cWindowManager
 		{
 		public:
@@ -32,11 +25,16 @@ namespace breathe
 			bool AddChild(cWindow* pChild);
 
 		private:
-			void RenderChildren(const cWidget& widget);
+			void _RenderChildren(const cWidget& widget);
+			void _RenderWidget(const cWidget& widget);
+
+			void _RenderWindow(const cWidget& widget);
+			void _RenderButton(const cWidget& widget);
+			void _RenderStaticText(const cWidget& widget);
 			
 			std::vector<cWindow*> child;
 		};
 	}
 }
 
-#endif //CWINDOW_H
+#endif //CWINDOW_MANAGER_H

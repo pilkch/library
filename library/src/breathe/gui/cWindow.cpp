@@ -48,17 +48,7 @@
 namespace breathe
 {
 	namespace gui
-	{
-		cWindow::cWindow(unsigned int _id, float _x, float _y, float _width, float _height) :
-			cWidget(_id, WIDGET_WINDOW, _x, _y, _width, _height)
-		{
-		}
-
-		cWindow::~cWindow()
-		{
-		}
-
-		
+	{		
 		render::material::cMaterial* pMaterial= NULL;
 
 		cWindowManager::cWindowManager()
@@ -85,11 +75,31 @@ namespace breathe
 			return true;
 		}
 
-		void cWindowManager::RenderChildren(const cWidget& widget)
+		void cWindowManager::_RenderWindow(const cWidget& widget)
+		{
+			pRender->RenderScreenSpaceRectangle(
+				widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight(),
+				0.0f, 0.0f, 0.3f, 0.1f);
+		}
+
+		void cWindowManager::_RenderWidget(const cWidget& widget)
+		{
+			switch(widget.GetType())
+			{
+				case WIDGET_WINDOW:
+					_RenderWindow(widget);
+					break;
+					
+				default:
+					pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+			};
+		}
+
+		void cWindowManager::_RenderChildren(const cWidget& widget)
 		{
 			if (false == widget.IsVisible()) return;			
 
-			pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+			_RenderWidget(widget);
 
 			unsigned int n = widget.child.size();
 			if (n == 0) return;
@@ -97,7 +107,7 @@ namespace breathe
 			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
 				
 				for (unsigned int i = 0; i < n; i++)
-					RenderChildren(*widget.child[i]);
+					_RenderChildren(*widget.child[i]);
 
 			pRender->PopScreenSpacePosition();
 		}
@@ -118,7 +128,7 @@ namespace breathe
 
 			unsigned int n = child.size();
 			for (unsigned int i = 0; i < n; i++)
-				RenderChildren(*child[i]);
+				_RenderChildren(*child[i]);
 
 			glMatrixMode( GL_TEXTURE );			// Select Texture
 			glPopMatrix();									// Pop The Matrix
