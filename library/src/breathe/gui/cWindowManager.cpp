@@ -43,7 +43,7 @@
 #include <breathe/render/cRender.h>
 
 #include <breathe/gui/cWidget.h>
-#include <breathe/gui/cWindow.h>
+#include <breathe/gui/cWindowManager.h>
 
 namespace breathe
 {

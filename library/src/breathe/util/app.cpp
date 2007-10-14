@@ -179,7 +179,7 @@ int intersect_triangle(
 #include <breathe/game/cLevel.h>
 
 #include <breathe/gui/cWidget.h>
-#include <breathe/gui/cWindow.h>
+#include <breathe/gui/cWindowManager.h>
 
 #include <breathe/util/app.h>
 #include <breathe/util/thread.h>
