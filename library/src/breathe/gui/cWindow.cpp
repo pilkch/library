@@ -107,10 +107,21 @@ namespace breathe
 			assert(pMaterial != nullptr);
 
 			pRender->SetMaterial(pMaterial);
+			
+			// Setup texture matrix
+			pRender->SelectTextureUnit0();
+			glMatrixMode(GL_TEXTURE);
+			glPushMatrix();
+			glLoadIdentity();
+			glScalef(1.0f, -1.0f, 1.0f);
+			glMatrixMode( GL_MODELVIEW );
 
 			unsigned int n = child.size();
 			for (unsigned int i = 0; i < n; i++)
 				RenderChildren(*child[i]);
+
+			glMatrixMode( GL_TEXTURE );			// Select Texture
+			glPopMatrix();									// Pop The Matrix
 		}
 	}
 }
