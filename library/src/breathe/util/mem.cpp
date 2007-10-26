@@ -141,7 +141,7 @@
 // -DOC- Enable the line below to pause the program when your program calls an assert
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-//#define USE_ASSERT
+#define USE_ASSERT
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- Enable the line below if you want to stress-test your app's error-handling. Set RANDOM_FAIL to the percentage of failures you
@@ -161,9 +161,9 @@ static		bool		alwaysValidateAll      = true;
 static		bool		alwaysLogAll           = true;
 static		bool		alwaysWipeAll          = true;
 static		bool		cleanupLogOnFirstRun   = true;
-static	const	unsigned int	paddingSize            = 1024; // An extra 8K per allocation!
+static	const	unsigned int	paddingSize  = 1024; // An extra 8K per allocation!
 #else
-static	const	unsigned int	hashBits               = 12;
+static	const	unsigned int	hashBits     = 12;
 static		bool		randomWipe             = false;
 static		bool		alwaysValidateAll      = false;
 static		bool		alwaysLogAll           = false;
@@ -192,7 +192,7 @@ static	const	unsigned int	paddingSize            = 4;
 #elif defined(__BEOS__)
 	#ifdef _DEBUG
 		#ifdef USE_ASSERT
-			extern void debugger(const breathe::string::unicode_char *message);
+			extern void debugger(const breathe::string::unicode_char* message);
 			#define	m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
 		#else
 			#define m_assert(x) {}

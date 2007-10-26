@@ -62,6 +62,8 @@ namespace breathe
 			cVec3 GetAxis(void) const;
 			cVec3 GetEuler(void) const;
 
+			cMat4 GetMatrix() const;
+
 			
 			//default constructor
 			cQuaternion(void)
@@ -88,8 +90,6 @@ namespace breathe
 			{
 				Slerp(q1, q2, interpolation);
 			}
-
-			cMat4 GetMatrix();
 
 			float w, x, y, z;
 		};

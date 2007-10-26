@@ -138,7 +138,7 @@ namespace breathe
 			printf("audio::Init %s\n", t.str().c_str());
 
 
-/*#ifdef PLATFORM_WINDOWS
+/*#ifdef __WIN__
 			char *initString = "DirectSound3D";
 #else
 			char *initString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
@@ -226,7 +226,7 @@ namespace breathe
 				ReportError();
 		}
 
-		void Update(float fCurrentTime)
+		void Update(sampletime_t currentTime)
 		{
 			SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up,
 				breathe::math::cVec3(0.0f, 0.0f, 0.0f));

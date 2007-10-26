@@ -13,7 +13,7 @@ namespace breathe
 
 		bool Init();
 		void Destroy();
-		void Update(float fCurrentTime);
+		void Update(sampletime_t currentTime);
 
 		void Sleep();
 

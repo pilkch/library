@@ -12,7 +12,6 @@ namespace breathe
 			inline cVec2(float newX, float newY) {x=newX;	y=newY;}
 			inline cVec2(const float * rhs);
 			inline cVec2(const cVec2 & rhs) {x=rhs.x;	y=rhs.y;}
-			inline ~cVec2() {}	//empty
 
 			void Set(float newX, float newY);	//set member variables
 			

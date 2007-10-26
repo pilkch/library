@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 Usage:
-Put the whole library folder someowhere on your hard drive.
+Put the whole library folder somewhere on your hard drive.
 Add to your build paths:
 library/include
 library/src

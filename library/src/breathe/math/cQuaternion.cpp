@@ -205,7 +205,7 @@ namespace breathe
 		}
 
 
-		cMat4 cQuaternion::GetMatrix()
+		cMat4 cQuaternion::GetMatrix() const
 		{
 			double x2,y2,z2,w2,xy,yz,xz,wx,wy,wz;
 			//double xx,yy,zz;

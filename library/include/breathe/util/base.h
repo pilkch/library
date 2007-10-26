@@ -15,7 +15,7 @@ namespace breathe
 		void SetDimensions(float fRadius);
 
 		virtual bool Collide(cObjectSphere& obj);
-		virtual float GetDistance(cObjectSphere& obj);
+		virtual float GetDistance(cObjectSphere& obj) const;
 
 		// Position and size
 		math::cVec3 p;
@@ -28,7 +28,7 @@ namespace breathe
 	class cUpdateable
 	{
 	public:
-		virtual void Update(float fCurrentTime)=0;
+		virtual void Update(sampletime_t currentTime)=0;
 	};
 	
 	// This is for in game objects that have a physical presence in the world such as the player, 
@@ -55,7 +55,7 @@ namespace breathe
 
 		void SetDimensions(float fWidth, float fLength, float fHeight);
 
-		float GetDistance(cObject& obj);
+		float GetDistance(cObject& obj) const;
 		bool Collide(cObject& obj);
 	};
 

@@ -16,7 +16,7 @@
 #include <breathe/util/operatingsystem.h>
 #include <breathe/util/md5.h>
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #include <windows.h>
 #endif
 
@@ -26,11 +26,11 @@ namespace breathe
 	{
 		std::string GetOperatingSystemNameString()
 		{
-#ifdef PLATFORM_WINDOWS
+#if defined(__WIN__)
 			return "Windows";
-#elif defined PLATFORM_LINUX
+#elif defined(__LINUX__)
 			return "Linux";
-#elif defined PLATFORM_MAC
+#elif defined(__APPLE__)
 	#if defined(__MACOSX__)
 			return "MacOSX";
 	#else
@@ -93,31 +93,31 @@ namespace breathe
 
 		int GetOperatingSystemVersionMajor()
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 			OSVERSIONINFO vi;
 			vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 			GetVersionEx(&vi);
 			return vi.dwMajorVersion;
 #else
-			!!! Unknown operating system
+#error "Unknown operating system"
 			return 0;
 #endif
 		}
 
 		int GetOperatingSystemVersionMinor()
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 			OSVERSIONINFO vi;
 			vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 			GetVersionEx(&vi);
 			return vi.dwMinorVersion;
 #else
-			!!! Unknown operating system
+#error "Unknown operating system"
 			return 0;
 #endif
 		}
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 		std::string GetUserName()
 		{
 			breathe::string::unicode_char user[260];
