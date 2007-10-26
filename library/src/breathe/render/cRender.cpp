@@ -83,8 +83,12 @@ namespace breathe
 
 			uiTriangles(0),
 
-			pFrameBuffer0(NULL),
-			pFrameBuffer1(NULL)
+			pFrameBuffer0(nullptr),
+			pFrameBuffer1(nullptr),
+			
+			g_info(nullptr),
+			videoInfo(nullptr),
+			pSurface(nullptr)
 		{
 			pRender = this;
 
@@ -187,13 +191,13 @@ namespace breathe
 		void cRender::SetPerspective()
 		{
 			// Protect against a divide by zero 
-			assert(pRender->uiHeight != 0);
+			assert(uiHeight != 0);
 
 			// Height / width ratio
-			GLfloat ratio = (GLfloat)pRender->uiWidth / (GLfloat)pRender->uiHeight;
+			GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
 
 			// Setup our viewport
-			glViewport(0, 0, ( GLint )pRender->uiWidth, ( GLint )pRender->uiHeight);
+			glViewport(0, 0, ( GLint )uiWidth, ( GLint )uiHeight);
 
 			// change to the projection matrix and set our viewing volume
 			glMatrixMode(GL_PROJECTION);
@@ -205,6 +209,75 @@ namespace breathe
 			// Make sure we're changing the model view and not the projection
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
+		}
+
+		bool cRender::PreInit()
+		{
+			// Fetch the video info
+			videoInfo = SDL_GetVideoInfo();
+
+			if (!videoInfo)
+			{
+				LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
+				return breathe::BAD;
+			}
+			
+			if(bFullscreen)
+			{
+				LOG.Success("App", "Going to fullscreen");
+				uiFlags |= SDL_FULLSCREEN;
+			}
+			else
+			{
+				LOG.Success("App", "Going to windowed");
+				uiFlags &= ~SDL_FULLSCREEN;
+			}
+
+
+			// This checks to see if surfaces can be stored in memory 
+			if ( videoInfo->hw_available )
+			{
+				uiFlags |= SDL_HWSURFACE;
+				uiFlags &= ~SDL_SWSURFACE;
+			}
+			else
+			{
+				uiFlags |= SDL_SWSURFACE;
+				uiFlags &= ~SDL_HWSURFACE;
+				LOG.Error("SDL", "SOFTWARE SURFACE");
+			}
+
+			// This checks if hardware blits can be done 
+			if ( videoInfo->blit_hw )
+				uiFlags |= SDL_HWACCEL;
+			else
+			{
+				uiFlags &= ~SDL_HWACCEL;
+				LOG.Error("SDL", "SOFTWARE BLIT");
+			}
+
+			// Sets up OpenGL double buffering 
+			SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+			// get a SDL surface 
+			pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
+
+			// Verify there is a surface 
+			if(!pSurface)
+			{
+				LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
+				return breathe::BAD;
+			}
+
+			return breathe::GOOD;
+		}
+
+		void cRender::Destroy()
+		{
+			assert(pSurface != nullptr);
+
+			SDL_FreeSurface(pSurface);
+			pSurface = nullptr;
 		}
 
 		bool cRender::Init()
@@ -721,10 +794,10 @@ namespace breathe
 				assert(vMesh[mesh]->pMeshData);
 
 				if(NULL == vMesh[mesh]->pMaterial)
-					vMesh[mesh]->pMaterial = pRender->GetMaterial(vMesh[mesh]->sMaterial);
-				pRender->SetMaterial(vMesh[mesh]->pMaterial);
+					vMesh[mesh]->pMaterial = GetMaterial(vMesh[mesh]->sMaterial);
+				SetMaterial(vMesh[mesh]->pMaterial);
 
-				pRender->RenderMesh(vMesh[mesh]);
+				RenderMesh(vMesh[mesh]);
 				uiTriangles += vMesh[mesh]->pMeshData->uiTriangles;
 			}
 			
@@ -733,11 +806,11 @@ namespace breathe
 
 		unsigned int cRender::RenderStaticModel(model::cStatic *p, math::cColour& colour)
 		{
-			pRender->SetColour(colour);
+			SetColour(colour);
 
 			unsigned int uiTriangles = RenderStaticModel(p);
 
-			pRender->ClearColour();
+			ClearColour();
 
 			return uiTriangles;
 		}
@@ -2048,8 +2121,8 @@ namespace breathe
 				unsigned int i=0;
 				unsigned int n=pModel->vMesh.size();
 				for(i=0;i<n;i++)
-					pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
-					//pModel->vMesh[i]->pMaterial = pRender->AddMaterial(pModel->vMesh[i]->sMaterial);
+					AddMaterial(pModel->vMesh[i]->sMaterial);
+					//pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
 				
 				return pModel;
 			}
@@ -2133,7 +2206,7 @@ namespace breathe
 					fTextureCoords = &pMesh->pMeshData->vTextureCoord[0];
 					nTexcoords = pMesh->pMeshData->vTextureCoord.size();
 
-					mat = pRender->GetMaterial(pMesh->sMaterial);
+					mat = GetMaterial(pMesh->sMaterial);
 
 					if(mat)
 					{
@@ -2141,7 +2214,7 @@ namespace breathe
 						{
 							t = mat->vLayer[0]->pTexture;
 
-							if(NULL == t) t = pRender->GetTexture(mat->vLayer[0]->sTexture);
+							if(NULL == t) t = GetTexture(mat->vLayer[0]->sTexture);
 						
 							if(t)
 							{
@@ -2216,7 +2289,7 @@ namespace breathe
 					{
 						for (i=0; i < nMeshes-uiPass; i++) 
 						{
-							uiMode0=pRender->GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
+							uiMode0=GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
 
 							//x[i] > x[i+1]
 							if(TEXTURE_MASK==uiMode0 || TEXTURE_BLEND==uiMode0)

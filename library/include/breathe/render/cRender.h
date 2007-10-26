@@ -33,7 +33,11 @@ namespace breathe
 			bool FindExtension(std::string sExt);
 
 		public:
+			// Candidate for removal
+			bool PreInit();
+			
 			bool Init();
+			void Destroy();
 
 			void SetPerspective();
 
@@ -73,7 +77,7 @@ namespace breathe
 			void RenderAxisReference(math::cVec3& position);
 			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
 			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
-			void cRender::RenderScreenSpaceRectangle(
+			void RenderScreenSpaceRectangle(
 				float fX, float fY, float fWidth, float fHeight,
 				float fU, float fV, float fU2, float fV2);
 			
@@ -196,8 +200,6 @@ namespace breathe
 			cLevel *pLevel;
 			math::cFrustum *pFrustum;
 
-			SDL_Surface *pSurface;
-
 		private:
 			unsigned int uiSegmentWidthPX;
 			unsigned int uiSegmentSmallPX;
@@ -212,8 +214,21 @@ namespace breathe
 
 			material::cMaterial* pCurrentMaterial;
 			
+			// Information about the current video settings
+			SDL_VideoInfo* g_info;
+			const SDL_VideoInfo *videoInfo;
+			SDL_Surface *pSurface;
+
 			//std::map<std::string, model::cAnimation*> mAnimation;
 			std::map<std::string, model::cStatic*> mStatic;
+
+		public:
+			void QueueAddOpaqueObject();
+			void QueueAddTransparentObject();
+
+		private:
+			cRender(const cRender&);
+			cRender& operator=(const cRender&);
 		};
 
 		namespace SETTINGS

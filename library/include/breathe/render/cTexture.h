@@ -24,7 +24,7 @@ namespace breathe
 		{
 		public:
 			cTexture();
-			~cTexture();
+			virtual ~cTexture();
 			
 			bool Load(std::string sFilename);
 

@@ -217,9 +217,7 @@ namespace breathe
 		bUpdatePhysics(true),
 		bStepPhysics(false),
 
-		bReturnCode(breathe::GOOD),
-
-		g_info(NULL)
+		bReturnCode(breathe::GOOD)
 	{
 		_InitArguments(argc, argv);
 
@@ -806,104 +804,16 @@ namespace breathe
 
 
 	bool cApp::InitRender()
-
 	{
-
-		// Fetch the video info 
-
-		videoInfo = SDL_GetVideoInfo( );
-
-
-		if ( !videoInfo )
-
+		if(breathe::BAD == pRender->PreInit())
 		{
-
-			LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
-
-			bReturnCode=breathe::BAD;
-
+			bReturnCode = breathe::BAD;
 			return breathe::BAD;
-
 		}
-
 		
+		pRender->SetPerspective();
 
-		if(pRender->bFullscreen)
-
-		{
-
-			LOG.Success("App", "Going to fullscreen");
-
-			pRender->uiFlags |= SDL_FULLSCREEN;
-
-		}
-
-		else
-
-		{
-
-			LOG.Success("App", "Going to windowed");
-
-			pRender->uiFlags &= ~SDL_FULLSCREEN;
-
-		}
-
-
-		// This checks to see if surfaces can be stored in memory 
-
-		if ( videoInfo->hw_available )
-
-		{
-
-			pRender->uiFlags |= SDL_HWSURFACE;
-
-			pRender->uiFlags &= ~SDL_SWSURFACE;
-
-		}
-
-		else
-
-		{
-
-			pRender->uiFlags |= SDL_SWSURFACE;
-
-			pRender->uiFlags &= ~SDL_HWSURFACE;
-
-			LOG.Error("SDL", "SOFTWARE SURFACE");
-
-		}
-
-
-		// This checks if hardware blits can be done 
-
-		if ( videoInfo->blit_hw )
-
-			pRender->uiFlags |= SDL_HWACCEL;
-
-		else
-		{
-			pRender->uiFlags &= ~SDL_HWACCEL;
-			LOG.Error("SDL", "SOFTWARE BLIT");
-		}
-
-		// Sets up OpenGL double buffering 
-		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-		// get a SDL surface 
-		pRender->pSurface = SDL_SetVideoMode(pRender->uiWidth, pRender->uiHeight, pRender->uiDepth, pRender->uiFlags);
-
-		// Verify there is a surface 
-		if(!pRender->pSurface)
-		{
-			LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
-			bReturnCode=breathe::BAD;
-			return breathe::BAD;
-		}
-
-		if(breathe::BAD==SetPerspective())
-			return breathe::BAD;
-
-		if(breathe::BAD==pRender->Init())
+		if(breathe::BAD == pRender->Init())
 			return breathe::BAD;
 
 		return breathe::GOOD;
@@ -911,9 +821,7 @@ namespace breathe
 
 	bool cApp::DestroyRender()
 	{
-		SDL_FreeSurface(pRender->pSurface);
-
-		pRender->pSurface = NULL;
+		pRender->Destroy();
 
 		return breathe::GOOD;
 	}
@@ -959,373 +867,205 @@ namespace breathe
 		return NULL;
 	}
 
-
-	bool cApp::SetPerspective()
-	{
-		pRender->SetPerspective();
-		return breathe::GOOD;
-	}
-
 	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
-
 	{
-
 		DestroyRender();
 
-
 		pRender->uiWidth = w;
-
 		pRender->uiHeight = h;
 
-
 		InitRender();
-
 		pRender->ReloadTextures();
 
-
 		return breathe::GOOD;
-
 	}
 
-
 	void cApp::UpdateEvents(float fCurrentTime)
-
 	{
-
 		// handle the events in the queue 
-
 		while ( SDL_PollEvent( &event ) )
-
 		{
-
 			switch( event.type )
-
 			{
-
-				case SDL_ACTIVEEVENT:				
-
+				case SDL_ACTIVEEVENT:
 					{
-
 						bActive=event.active.gain != 0;
-
 						if(bActive)
-
 							LOG.Success("Active", "Active");
-
 						else
-
 							LOG.Error("Active", "Inactive");
-
 					}
-
 					break;
 
 				case SDL_VIDEORESIZE:
-
-
 					if(breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
-
 						bDone=true;
-
-
 					break;
 
 				case SDL_KEYUP:
-
 					OnKeyUp(&event.key.keysym);
-
-
 					break;
 
 				case SDL_MOUSEMOTION:
-
 				case SDL_MOUSEBUTTONDOWN:
-
 				case SDL_MOUSEBUTTONUP:
-
 					OnMouse(event.button.button, event.button.state, event.button.x, event.button.y);
-
-
 					break;
 
 				case SDL_QUIT:
-
 					LOG.Success("SDL", "SDL_Quit: Quiting");
-
 					bDone=true;
-
-
 					break;
 
 				default:
-
 					break;
-
 			}
-
 		}
-
 	}
-
 
 	void cApp::AddKeyRepeat(unsigned int code)
-
 	{
-
 		mKey[code] = new cKey(code, true, true, false);
-
 	}
-
 
 	void cApp::AddKeyNoRepeat(unsigned int code)
-
 	{
-
 		mKey[code] = new cKey(code, false, false, false);
-
 	}
-
 
 	void cApp::AddKeyToggle(unsigned int code)
-
 	{
-
 		mKey[code] = new cKey(code, false, false, true);
-
 	}
-
 
 	bool cApp::IsKeyDown(unsigned int code)
-
 	{
-
 		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 
-		
-
 		if(iter!=mKey.end())
-
 			return iter->second->IsKeyDown();
 
-
 		return false;
-
 	}
 
-
 	void cApp::UpdateKeys(float fCurrentTime)
-
 	{
-
 		{
-
 			Uint8 *key = SDL_GetKeyState( NULL );
-
-
 			cKey* p;
 
 			std::map<unsigned int, cKey* >::iterator iter=mKey.begin();
-
-			
-
 			while(iter != mKey.end())
-
 			{
-
 				p = (iter->second);
 
-
 				//This key is pressed
-
 				if(key[p->uiCode])
-
 				{
-
 					//This key can be held down
-
 					if(p->bRepeat)
-
 					{
-
 						p->bDown=true;
-
 						p->bCollected=false;
-
 					}
-
 					//This key can only be pressed once
-
 					else
-
 					{
-
 						p->bDown=false;
-
 						p->bCollected=false;
-
 					}
-
 				}
-
 				else
-
 					p->bDown=false;
 
-
 				iter++;
-
 			}
-
 		}
-
 	}
-
 
 	void cApp::OnKeyUp(SDL_keysym *keysym)
-
 	{
-
 		unsigned int code=keysym->sym;
 
-
 		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
-
-		
-
 		if(iter!=mKey.end())
-
 			iter->second->SetKeyUp(bConsole);
 
-
 		if(bConsole)
-
 			ConsoleAddKey(code);
-
 	}
-
-
 
 	void cApp::CursorShow()
-
 	{
-
 		SDL_ShowCursor(SDL_ENABLE);
-
 	}
-
 
 	void cApp::CursorHide()
-
 	{
-
 		SDL_ShowCursor(SDL_DISABLE);
-
 	}
 
-
-
 	void cApp::ConsoleShow()
-
 	{
-
 		bConsole = true;
 
 		CONSOLE.current = "";
-
 		CONSOLE.uiCursorPosition = 0;
 
-
 		CursorShow();
-
 	}
 
-
 	void cApp::ConsoleHide()
-
 	{
-
 		bConsole = false;
 
 		CONSOLE.current = "";
-
 		CONSOLE.uiCursorPosition = 0;
 
-
 		CursorHide();
-
 	}
 
 
 	void cApp::ConsoleAddKey(unsigned int uiCode)
-
 	{
-
 		//Uint8 *key = SDL_GetKeyState( NULL );
-
-
 		//key for shift, control, etc. modifiers
 
 		//if(key[SDLK_SHIFT])
-
-		/*SDLK_NUMLOCK		= 300,
-
-	SDLK_CAPSLOCK		= 301,
-
-	SDLK_SCROLLOCK		= 302,
-
-	SDLK_RSHIFT		= 303,
-
-	SDLK_LSHIFT		= 304,
-
-	SDLK_RCTRL		= 305,
-
-	SDLK_LCTRL		= 306,
-
-	SDLK_RALT		= 307,
-
-	SDLK_LALT		= 308,
-
-	SDLK_RMETA		= 309,
-
-	SDLK_LMETA		= 310,
-
-	SDLK_LSUPER		= 311,		//Left "Windows" key
-
-	SDLK_RSUPER		= 312,		//Right "Windows" key
-
-	SDLK_MODE		= 313,		//"Alt Gr" key
-
-	SDLK_COMPOSE		= 314,		//Multi-key compose key*/
-
+		/*
+		SDLK_NUMLOCK		= 300,
+		SDLK_CAPSLOCK		= 301,
+		SDLK_SCROLLOCK		= 302,
+		SDLK_RSHIFT		= 303,
+		SDLK_LSHIFT		= 304,
+		SDLK_RCTRL		= 305,
+		SDLK_LCTRL		= 306,
+		SDLK_RALT		= 307,
+		SDLK_LALT		= 308,
+		SDLK_RMETA		= 309,
+		SDLK_LMETA		= 310,
+		SDLK_LSUPER		= 311,		//Left "Windows" key
+		SDLK_RSUPER		= 312,		//Right "Windows" key
+		SDLK_MODE		= 313,		//"Alt Gr" key
+		SDLK_COMPOSE		= 314,		//Multi-key compose key
+		*/
 
 		if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
-
 		{
-
 			ConsoleExecute(CONSOLE.current);
 
 			CONSOLE.current="";
-
 			CONSOLE.uiCursorPosition=0;
-
 		}
-
 
 		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
-
 			ConsoleHide();
 
-
 		else if(SDLK_DELETE==uiCode)
-
 		{
-
 			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
-
 				CONSOLE.current.erase(CONSOLE.uiCursorPosition, 1);
-
 		}
-
 		else if(SDLK_BACKSPACE==uiCode)
 
 		{

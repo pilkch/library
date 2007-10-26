@@ -9,7 +9,7 @@ namespace breathe
 	{
 	public:
 		cApp(int argc, char **argv);
-		~cApp();
+		virtual ~cApp();
 
 		bool InitApp();
 		bool DestroyApp();
@@ -41,7 +41,6 @@ namespace breathe
 		virtual bool Execute(std::string sCommand)=0;	
 
 		bool ToggleFullscreen();
-		bool SetPerspective();
 		bool ResizeWindow(unsigned int w, unsigned int h);
 
 		void AddKeyRepeat(unsigned int code); // ie. for a key like wasd.  
@@ -95,14 +94,8 @@ namespace breathe
 		std::map<std::string, cVar<std::string>*>mVar;
 		
 		std::vector<SDL_Joystick*>vJoystick;
-		
-		const SDL_VideoInfo *videoInfo;
 
 		SDL_Event event;
-
-
-		// Information about the current video settings
-		SDL_VideoInfo* g_info;
 
 	private:
 		void _ConsoleExecuteSingleCommand(std::string s);

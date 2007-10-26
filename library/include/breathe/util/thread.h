@@ -27,7 +27,7 @@ namespace breathe
 		{
 		public:
 			cThread();
-			~cThread();
+			virtual ~cThread();
 
 			void Run();
 			void Wait();

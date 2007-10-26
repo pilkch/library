@@ -24,7 +24,7 @@ namespace breathe
 
 
 			cPhysicsObject();
-			~cPhysicsObject();
+			virtual ~cPhysicsObject();
 			
 			void SetTrimeshSource(std::vector<float>& coords, std::vector<unsigned int>& indicies);
 			void SetHeightmapSource(std::vector<float>& heightvalues, unsigned int uiWidth, unsigned int uiHeight);
