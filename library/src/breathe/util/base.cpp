@@ -59,7 +59,7 @@ namespace breathe
 		return (GetDistance(rhs) < 0.0f);
 	}
 
-	float cObjectSphere::GetDistance(cObjectSphere& rhs)
+	float cObjectSphere::GetDistance(cObjectSphere& rhs) const
 	{
 		return math::sqrf(p.GetSquaredLength() + rhs.p.GetSquaredLength());
 	}
@@ -75,7 +75,7 @@ namespace breathe
 		return false;
 	}
 
-	float cObject::GetDistance(cObject& rhs)
+	float cObject::GetDistance(cObject& rhs) const
 	{
 		float fDistance = cObjectSphere::GetDistance(rhs);
 		

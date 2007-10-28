@@ -181,27 +181,12 @@ int intersect_triangle(
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindowManager.h>
 
+#include <breathe/util/unittest.h>
 #include <breathe/util/app.h>
 #include <breathe/util/thread.h>
 #include <breathe/util/network.h>
 
 #include <breathe/audio/audio.h>
-
-#ifdef BUILD_DEBUG
-void TestVariable(breathe::cApp* app, std::string variable)
-{
-	breathe::cVar<std::string>* p = app->VarFind(variable);
-	assert(p != NULL);
-
-	std::string s = p->GetString();
-	bool b = p->GetBool();
-	unsigned int ui = p->GetUnsignedInt();
-	int i = p->GetInt();
-	float f = p->GetFloat();
-
-	CONSOLE<<variable<<"=(\""<<s<<"\","<<b<<","<<ui<<","<<i<<","<<f<<")"<<std::endl;
-}
-#endif
 
 namespace breathe
 {
@@ -221,7 +206,7 @@ namespace breathe
 	{
 		_InitArguments(argc, argv);
 
-    srand(time(NULL));		
+		srand(breathe::util::GetTime());
 
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
@@ -230,16 +215,6 @@ namespace breathe
 		CONSOLE<<"1"<<std::endl;
 		CONSOLE<<"2"<<std::endl;
 		CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
-
-		VarSet("bool", true);
-		VarSet("int", 180);
-		VarSet("float", 123.45f);
-		VarSet("string", "this is a string");
-
-		TestVariable(this, "bool");
-		TestVariable(this, "int");
-		TestVariable(this, "float");
-		TestVariable(this, "string");
 
 		// get all files ending in .dll
 		CONSOLE<<"FileSystem Test"<<std::endl;
@@ -259,62 +234,44 @@ namespace breathe
 		breathe::network::Init();
 
 		pLevel=new cLevel();
+
+		AddKeyNoRepeat(SDLK_ESCAPE);
+		AddKeyNoRepeat(SDLK_BACKQUOTE);
+		AddKeyNoRepeat(SDLK_INSERT);
+		AddKeyNoRepeat(SDLK_RETURN);
 	}
 
 
 	cApp::~cApp()
-
 	{
-
-		unsigned int nJoysticks = vJoystick.size();
-
-		for(unsigned int i = 0; i < nJoysticks; i++)
-
+		size_t nJoysticks = vJoystick.size();
+		for(size_t i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
-
 
 		TTF_Quit();
 
-
 		LOG.Success("Destroy", "Audio");
-
 		breathe::audio::Destroy();
 
-
 		LOG.Success("Delete", "Level");
-
 		SAFE_DELETE(pLevel);
 
-
 		LOG.Success("Destroy", "Physics");
-
 		breathe::physics::Destroy();
 
-
 		LOG.Success("Destroy", "Network");
-
 		breathe::network::Destroy();
 
-
 		LOG.Success("Delete", "Render");
-
 		SAFE_DELETE(pRender);
-
-				
-
-		LOG.Success("Delete", "Log");
-
 		
+		LOG.Success("Delete", "Log");		
 
 		LOG.Success("Main", "Successfully exited");
-
 		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
 
-
 		SDL_Quit();
-
 	}
-
 
 	void cApp::_InitArguments(int argc, char **argv)
 
@@ -372,141 +329,80 @@ namespace breathe
 			{
 
 				bReturnCode=breathe::BAD;
-
 				return breathe::BAD;
-
 			}
 
-
 			iter.FindChild("config");
-
 			if (!iter) return breathe::GOOD;
-
 
 			iter.FindChild("directory");
-
 			if (!iter) return breathe::GOOD;
 
-
 			while(iter)
-
 			{
-
 				std::string sDirectory;
-
-				if(iter.GetAttribute("path", &sDirectory)) breathe::filesystem::AddDirectory(sDirectory);
-
-
+				if(iter.GetAttribute("path", sDirectory)) breathe::filesystem::AddDirectory(sDirectory);
 				iter.Next("directory");
-
 			};
 
-
 			iter = root;
-
 			if (!iter) return breathe::GOOD;
-
 
 			iter.FindChild("config");
-
 			if (!iter) return breathe::GOOD;
 
-
 			iter.FindChild("render");
-
 			while(iter)
-
 			{
-
 				std::ostringstream t;
-
 				unsigned int uiValue;
 
-				if(iter.GetAttribute("width", &uiValue))
-
+				if(iter.GetAttribute("width", uiValue))
 				{
-
 					t.str("");
-
 					t<<"width = ";
-
 					t<<uiValue;
-
 					LOG.Success("Config", t.str());
-
 					pRender->uiWidth = uiValue;
-
 				}
 
-				if(iter.GetAttribute("height", &uiValue))
-
+				if(iter.GetAttribute("height", uiValue))
 				{
-
 					t.str("");
-
 					t<<"height = ";
-
 					t<<uiValue;
-
 					LOG.Success("Config", t.str());
-
 					pRender->uiHeight = uiValue;
-
 				}
 
-				if(iter.GetAttribute("depth", &uiValue))
-
+				if(iter.GetAttribute("depth", uiValue))
 				{
-
 					t.str("");
-
 					t<<"depth = ";
-
 					t<<uiValue;
-
 					LOG.Success("Config", t.str());
-
 					pRender->uiDepth = uiValue;
-
 				}
-
 
 				bool bFullscreen;
 
-				if(iter.GetAttribute("fullscreen", &bFullscreen))
-
+				if(iter.GetAttribute("fullscreen", bFullscreen))
 				{
-
 					LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
-
 					pRender->bFullscreen = bFullscreen;
-
 				}
 
-
 				iter.Next("render");
-
 			};
-
 		}
-
-
-
 
 		// Init SDL 
-
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
-
 		{
-
 			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
-
 			bReturnCode=breathe::BAD;
-
 			return breathe::BAD;
-
 		}
-
 
 		{
 
@@ -851,22 +747,6 @@ namespace breathe
 		return breathe::GOOD;		
 	}
 
-
-	cVar<std::string>* cApp::VarFind(std::string name)
-	{
-		std::map<std::string, cVar<std::string>*>::iterator iter=mVar.begin();
-
-		while(iter!=mVar.end())
-		{
-			if(name==iter->first)
-				return iter->second;
-
-			iter++;
-		};
-
-		return NULL;
-	}
-
 	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
 	{
 		DestroyRender();
@@ -880,7 +760,7 @@ namespace breathe
 		return breathe::GOOD;
 	}
 
-	void cApp::UpdateEvents(float fCurrentTime)
+	void cApp::UpdateEvents(sampletime_t currentTime)
 	{
 		// handle the events in the queue 
 		while ( SDL_PollEvent( &event ) )
@@ -948,7 +828,7 @@ namespace breathe
 		return false;
 	}
 
-	void cApp::UpdateKeys(float fCurrentTime)
+	void cApp::UpdateKeys(sampletime_t currentTime)
 	{
 		{
 			Uint8 *key = SDL_GetKeyState( NULL );
@@ -993,6 +873,15 @@ namespace breathe
 
 		if(bConsole)
 			ConsoleAddKey(code);
+	}
+
+	void cApp::_UpdateInput(sampletime_t currentTime)
+	{
+#ifdef BUILD_DEBUG
+		if (IsKeyDown(SDLK_INSERT)) util::RunUnitTests();
+#endif
+
+		UpdateInput(currentTime);
 	}
 
 	void cApp::CursorShow()
@@ -1067,206 +956,103 @@ namespace breathe
 				CONSOLE.current.erase(CONSOLE.uiCursorPosition, 1);
 		}
 		else if(SDLK_BACKSPACE==uiCode)
-
 		{
-
 			if(CONSOLE.uiCursorPosition>0)
-
 			{
-
 				CONSOLE.current.erase(CONSOLE.uiCursorPosition-1, 1);
-
 				CONSOLE.uiCursorPosition--;
-
 			}
-
 		}
-
 		else if(SDLK_LEFT==uiCode)
-
 		{
-
 			if(CONSOLE.uiCursorPosition>0)
-
         CONSOLE.uiCursorPosition--;
-
 		}
 
 		else if(SDLK_RIGHT==uiCode)
-
 		{
-
 			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
-
 				CONSOLE.uiCursorPosition++;
-
 		}
-
 		else if(SDLK_HOME==uiCode)
-
       CONSOLE.uiCursorPosition=0;
-
 		else if(SDLK_END==uiCode)
-
       CONSOLE.uiCursorPosition=CONSOLE.current.size();
 
-
 		else if(SDLK_TAB==uiCode)
-
 			; //TODO: Autocomplete
-
 		else if(SDLK_CLEAR==uiCode)
-
 			CONSOLE.current="";
-
 		else if(SDLK_UP==uiCode)
-
 			; //TODO: History of typed in items
-
 		else if(SDLK_DOWN==uiCode)
-
 			; //TODO: History of typed in items
-
 		else if(SDLK_PAGEUP==uiCode)
-
 			; //TODO: History of all console items
-
 		else if(SDLK_PAGEDOWN==uiCode)
-
 			; //TODO: History of all console items
-
 
 		else if(uiCode<300)
-
 		{
-
 			/*#include <SDL/SDL_keysym.h>
-
-					
-
-			if((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9))
-
-			{
-
-				std::ostringstream t;
-
-
-				t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";
-
 				
+			if((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9))
+			{
+				std::ostringstream t;
+				t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";				
 
 				ConsoleAddLine(t.str());
-
 			}*/
 
-
 			std::string s;
-
 			s += char(uiCode);
 
 			CONSOLE.current.insert(CONSOLE.uiCursorPosition, s);
-
 			CONSOLE.uiCursorPosition++;
-
 		}
-
 
 		//When we press a key we want to see where we are up to
-
 		CONSOLE.uiCursorBlink=0;
-
 	}
 
-	
-
 	//This is for executing one single line, cannot have ";"
-
 	void cApp::_ConsoleExecuteSingleCommand(std::string s)
-
 	{
-
 		CONSOLE<<s;
 
-
 		std::string full(s);
-
 		std::vector<std::string> args;
 
-
 		{
-
-			int whitespace;
-
+			size_t whitespace;
 			std::string parameter;
 
-
 			//We have a line, find the individual parts
-
 			while(s.length())
-
 			{
-
 				whitespace=s.find(" ");
 
-
 				if(std::string::npos==whitespace)
-
 				{
-
 					parameter=s;
-
 					s="";
-
 				}
-
 				else
-
 				{
-
 					parameter=s.substr(0, whitespace);
-
 					s=s.substr(whitespace+1);
-
 				}
-
 
 				if(parameter.length())
-
 					args.push_back(parameter);
-
 			};
-
 		}
 
 
-		
-
 		if(args.size())
-
 		{
-
-			if("quit"==full || "exit"==full)
-
-				bDone=true;
-
-			else if("var"==args[0])
-
-			{
-
-				std::map<std::string, cVar<std::string>* >::iterator iter=mVar.begin();
-
-
-				while(iter!=mVar.end())
-
-				{
-
-					CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\"";
-
-
-					iter++;
-
-				};
-			}
+			if("quit"==full || "exit"==full) bDone = true;
+			else if("var"==args[0]) var::PrintAll();
 			else if(GOOD==Execute(full))
 			{
 
@@ -1297,13 +1083,13 @@ namespace breathe
 			s=string::Replace(s, "\n", " ");
 
 			//Split into std::strings that are all ended with ";"
-			int endofline;
+			size_t endofline;
 			std::string line;
 			std::string parameter;
 
 			while(s.length())
 			{
-				endofline=s.find(";");
+				endofline = s.find(";");
 
 				if(std::string::npos==endofline)
 				{
@@ -1322,21 +1108,21 @@ namespace breathe
 		}
 	}
 
-	void cApp::_Render(float fCurrentTime)
+	void cApp::_Render(sampletime_t currentTime)
 	{
-		BeginRender(fCurrentTime);
+		BeginRender(currentTime);
 
 			pRender->Begin();
 				pRender->BeginRenderScene();
-					RenderScene(fCurrentTime);
+					RenderScene(currentTime);
 				pRender->EndRenderScene();
 				pRender->BeginScreenSpaceRendering();
-					RenderScreenSpace(fCurrentTime);
+					RenderScreenSpace(currentTime);
 					window_manager.Render();
 				pRender->EndScreenSpaceRendering();
 			pRender->End();
 
-		EndRender(fCurrentTime);
+		EndRender(currentTime);
 	}
 
 	bool cApp::Run()
@@ -1348,7 +1134,7 @@ namespace breathe
 
     LOG.Newline("MainLoop");
 
-		float fCurrentTime = 0.0f;
+		sampletime_t currentTime = breathe::util::GetTime();
 
 		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * physics::fInterval);
 		unsigned int uiUpdateHz = 30;
@@ -1370,43 +1156,45 @@ namespace breathe
 		tUpdate.Init(uiUpdateHz);
 		tRender.Init(uiTargetFramesPerSecond);
 
+		//TODO: Activate window so that it is on top as soon as we start
+
 		do
 		{
-			fCurrentTime = util::GetTime();
+			currentTime = util::GetTime();
 
-      if(fCurrentTime > fEventsNext)
+      if(currentTime > fEventsNext)
 			{
-				UpdateEvents(fCurrentTime);
-				fEventsNext = fCurrentTime+fEventsDelta;
+				UpdateEvents(currentTime);
+				fEventsNext = currentTime + fEventsDelta;
 			}
 
-			if(fCurrentTime > fInputNext)
+			if(currentTime > fInputNext)
 			{
 				// These have to be in this order or nothing gets collected
-				UpdateInput(fCurrentTime);
-				UpdateKeys(fCurrentTime);
-				fInputNext=fCurrentTime+fInputDelta;
+				_UpdateInput(currentTime);
+				UpdateKeys(currentTime);
+				fInputNext = currentTime + fInputDelta;
 			}
 
-			if(bStepPhysics || (bUpdatePhysics && fCurrentTime > fPhysicsNext))
+			if(bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
 			{
-				UpdatePhysics(fCurrentTime);
-				tPhysics.Update(fCurrentTime);
-				fPhysicsNext=fCurrentTime+fPhysicsDelta;
+				UpdatePhysics(currentTime);
+				tPhysics.Update(currentTime);
+				fPhysicsNext = currentTime + fPhysicsDelta;
 			}
 
-			if(fCurrentTime > fUpdateNext)
+			if(currentTime > fUpdateNext)
 			{
-				Update(fCurrentTime);
-				tUpdate.Update(fCurrentTime);
-				fUpdateNext=fCurrentTime+fUpdateDelta;
+				Update(currentTime);
+				tUpdate.Update(currentTime);
+				fUpdateNext = currentTime + fUpdateDelta;
 			}
 
-			if(!bDone && bActive)// && fCurrentTime > fRenderNext)
+			if(!bDone && bActive)// && currentTime > fRenderNext)
 			{
-				_Render(fCurrentTime);
-				tRender.Update(fCurrentTime);
-				fRenderNext = fCurrentTime + fRenderDelta;
+				_Render(currentTime);
+				tRender.Update(currentTime);
+				fRenderNext = currentTime + fRenderDelta;
 			}
 			breathe::util::YieldThisThread();
 		}while (!bDone);

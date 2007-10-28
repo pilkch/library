@@ -14,7 +14,7 @@ namespace breathe
 
 		inline void YieldThisThread()
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 			::Sleep(0);
 			SDL_Delay(0);
 			SDL_Delay(1);

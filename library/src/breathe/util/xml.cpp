@@ -17,12 +17,18 @@
 #include <breathe/breathe.h>
 
 #include <breathe/util/cString.h>
+
+#ifndef FIRESTARTER
 #include <breathe/util/log.h>
+#endif
+
 #include <breathe/util/xml.h>
 
+#ifndef FIRESTARTER
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cColour.h>
+#endif
 
 namespace breathe
 {
@@ -30,7 +36,7 @@ namespace breathe
 	{
 		//cNode
 
-		cNode::cNode(std::string inFilename)
+		cNode::cNode(const std::string& inFilename)
 		{
 			bContentOnly=false;
 			pParent=pNext=NULL;
@@ -46,14 +52,16 @@ namespace breathe
 					std::getline(f, line);
 					
 					// Get rid of leading tabs
-					sData+=string::StripLeading(line, "\t");
+					sData += string::StripLeading(line, "\t");
 				}
 				f.close();
 
 				ParseFromString(sData, NULL);
 			}
+#ifndef FIRESTARTER
 			else
         LOG.Error("XML", inFilename + " not found");
+#endif
 		}
 
 		cNode::cNode(cNode *inParent)
@@ -65,28 +73,31 @@ namespace breathe
 
 		cNode::~cNode()
 		{
-			int n=vChild.size();
-			for(int i=0;i<n;i++)
+			size_t n=vChild.size();
+			for(size_t i=0;i<n;i++)
          SAFE_DELETE(vChild[i]);
 		}
 	
-		std::string cNode::ParseFromString(std::string sData, cNode* pPrevious)
+		std::string cNode::ParseFromString(const std::string& data, cNode* pPrevious)
 		{
+			std::string sData(data);
 			while(sData.length())
 			{
-				int length=sData.length();
-				int lsize=sData.size();
+				size_t length=sData.length();
+				size_t lsize=sData.size();
 				bool isEmpty=sData.empty();
 
 				sData=string::StripLeading(string::StripLeading(sData, " "), "\t");
 
 				while(sData.find("<!--") == 0)
 				{
-					int nEndComment=sData.find("-->");
+					size_t nEndComment=sData.find("-->");
 
 					if(nEndComment == std::string::npos)
 					{
+#ifndef FIRESTARTER
 						LOG.Error("XML", "Unterminated comment");
+#endif
 						return "";
 					}
 
@@ -123,7 +134,9 @@ namespace breathe
 
 							if(sClose!=sName)
 							{
+#ifndef FIRESTARTER
 								LOG.Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
+#endif
 								return "";
 							}
 
@@ -131,7 +144,9 @@ namespace breathe
 						}
 						else
 						{
+#ifndef FIRESTARTER
 							LOG.Error("XML", "Tag \"" + sName + "\" doesn't have a closing tag");
+#endif
 							return "";
 						}
 
@@ -269,26 +284,28 @@ namespace breathe
 		}
 
 
-		void cNode::SaveToFile(std::string inFilename)
+		void cNode::SaveToFile(const std::string& inFilename)
 		{
 			std::ofstream f(inFilename.c_str());
 
 			if(f.is_open())
 			{
-				int n=vChild.size();
-				for(int i=0;i<n;i++)
+				size_t n=vChild.size();
+				for(size_t i=0;i<n;i++)
 					vChild[i]->WriteToFile(f, "");
 				f.close();
 			}
+#ifndef FIRESTARTER
 			else
         LOG.Error("XML", inFilename + " not found");
+#endif
 		}
 
-		void cNode::WriteToFile(std::ofstream& f, std::string sTab)
+		void cNode::WriteToFile(std::ofstream& f, const std::string& sTab)
 		{
 			assert(f.is_open());
 			
-			int i, n;
+			size_t i, n;
 			if(IsNameAndAttributesAndChildren())
 			{
 				if(sName != "")
@@ -332,9 +349,9 @@ namespace breathe
 		}
 
 #ifdef BUILD_DEBUG
-		void cNode::PrintToLog(std::string sTab)
+		void cNode::PrintToLog(const std::string& sTab)
 		{
-			int i, n;
+			size_t i, n;
 			if(IsNameAndAttributesAndChildren())
 			{
 				if(sName != "")
@@ -348,18 +365,25 @@ namespace breathe
 						sTag+="&gt;";
 					else			
 						sTag+="/&gt;";
+
+#ifndef FIRESTARTER
 					LOG.Success("XML", sTag.c_str());
+#endif
 				}
 			}
+#ifndef FIRESTARTER
 			else
 				LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
+#endif
 
 			n=vChild.size();
 			for(i=0;i<n;i++)
 				vChild[i]->PrintToLog(sTab + "&nbsp;");
 
+#ifndef FIRESTARTER
 			if(vChild.size()>0 && sName != "")
 				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
+#endif
 		}
 #endif //BUILD_DEBUG
 
@@ -370,7 +394,7 @@ namespace breathe
 			return NULL;
 		}
 
-		cNode* cNode::FindChild(std::string sName)
+		cNode* cNode::FindChild(const std::string& sName)
 		{
 			if(vChild.size())
 			{
@@ -390,7 +414,7 @@ namespace breathe
 			return pNext;
 		}
 
-		cNode* cNode::GetNext(std::string sName)
+		cNode* cNode::GetNext(const std::string& sName)
 		{
 			cNode* p=pNext;
       while(p)
@@ -411,7 +435,7 @@ namespace breathe
 			return p;
 		}
 	
-		void cNode::AddContent(std::string inContent)
+		void cNode::AddContent(const std::string& inContent)
 		{
 			cNode* p=AddNode();
 
@@ -421,47 +445,45 @@ namespace breathe
 			}
 		}
 
-		std::string cNode::GetName()
+		std::string cNode::GetName() const
 		{
 			return sName;
 		}
 
-		void cNode::AddAttribute(std::string inAttribute, std::string inValue)
+		void cNode::AddAttribute(const std::string& inAttribute, const std::string& inValue)
 		{
 			mAttribute[inAttribute]=inValue;
 		}
 	
-		bool cNode::GetAttribute(std::string sAttribute, std::string* pValue)
+		bool cNode::GetAttribute(const std::string& sAttribute, std::string& value)
 		{
-			assert(pValue);
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			attribute_iterator iterEnd = mAttribute.end();
 			if(iter != iterEnd)
 			{
-				*pValue = iter->second;
+				value = iter->second;
 				return true;
 			}
 
 			return false;
 		}
 		
-		bool cNode::GetAttribute(std::string sAttribute, bool* pValue)
+		bool cNode::GetAttribute(const std::string& sAttribute, bool& value)
 		{
-			assert(pValue);
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
 				std::string v = iter->second;
-				*pValue = ("false" != v);
+				value = ("false" != v);
 				return true;
 			}
 
 			return false;
 		}
-
-		bool cNode::GetAttribute(std::string sAttribute, math::cVec3* pValue)
+		
+		bool cNode::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues)
 		{
-			assert(pValue);
+			assert(pValue != nullptr);
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
@@ -469,34 +491,60 @@ namespace breathe
 				std::stringstream stm(iter->second);
 				stm >> std::skipws;
 
-				stm >> pValue->x;
+				std::string s(iter->second);
+				char sz[100];
+				strcpy(sz, s.c_str());
+
+				size_t i = 0;
+				while (i != nValues) {
+					stm >> pValue[i++];
+					stm >> c;
+				};
+
+				return true;
+			}
+
+			return false;
+		}
+
+#ifndef FIRESTARTER
+		bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value)
+		{
+			attribute_iterator iter = mAttribute.find(sAttribute);
+			if(iter != mAttribute.end())
+			{
+				breathe::string::unicode_char c;
+				std::stringstream stm(iter->second);
+				stm >> std::skipws;
+
+				stm >> value.x;
 				stm >> c;
 
-				stm >> pValue->y;
+				stm >> value.y;
 				stm >> c;
 
-				stm >> pValue->z;
+				stm >> value.z;
 				return true;
 			}
 
 			return false;
 		}
 		
-		bool cNode::GetAttribute(std::string sAttribute, math::cColour* pValue)
+		bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value)
 		{
-			assert(pValue);
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
 				std::stringstream stm(iter->second);
-				stm >> pValue->r;
-				stm >> pValue->g;
-				stm >> pValue->b;
-				stm >> pValue->a;
+				stm >> value.r;
+				stm >> value.g;
+				stm >> value.b;
+				stm >> value.a;
 				return true;
 			}
 
 			return false;
 		}
+#endif
 	}
 }

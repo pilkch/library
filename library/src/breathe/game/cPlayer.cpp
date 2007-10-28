@@ -117,7 +117,7 @@ namespace breathe
 			p->rayContact.SetContact(c.geom, p->geom, c.geom.depth);
 	}
 
-	void cPlayer::Update(float fCurrentTime)
+	void cPlayer::Update(sampletime_t currentTime)
 	{
 		float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
 		
@@ -180,7 +180,7 @@ namespace breathe
 #endif
 		else if (body)
 		{
-			physics::cUprightCapsule::Update(fCurrentTime);
+			physics::cUprightCapsule::Update(currentTime);
 
 			RayCast();
 

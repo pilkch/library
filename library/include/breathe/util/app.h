@@ -21,8 +21,8 @@ namespace breathe
 		
 		// The render order is managed/automated by this class, so if you want to do anything special like 
 		// rendering to an FBO first or adding a timer in, you can do it by overriding these
-		virtual void BeginRender(float fCurrentTime) {}
-		virtual void EndRender(float fCurrentTime) {}
+		virtual void BeginRender(sampletime_t currentTime) {}
+		virtual void EndRender(sampletime_t currentTime) {}
 
 		// Pure virtual functions, these *have* to be overridden in your derived game class
 		virtual bool LoadScene()=0;
@@ -31,11 +31,11 @@ namespace breathe
 
 		virtual void FullscreenSwitch()=0;
 
-		virtual void Update(float fCurrentTime)=0;
-		virtual void UpdatePhysics(float fCurrentTime)=0;
-		virtual void UpdateInput(float fCurrentTime)=0;
-		virtual void RenderScene(float fCurrentTime)=0;
-		virtual void RenderScreenSpace(float fCurrentTime)=0;
+		virtual void Update(sampletime_t currentTime)=0;
+		virtual void UpdatePhysics(sampletime_t currentTime)=0;
+		virtual void UpdateInput(sampletime_t currentTime)=0;
+		virtual void RenderScene(sampletime_t currentTime)=0;
+		virtual void RenderScreenSpace(sampletime_t currentTime)=0;
 		virtual void OnMouse(int button,int state,int x,int y)=0;
 
 		virtual bool Execute(std::string sCommand)=0;	
@@ -50,8 +50,8 @@ namespace breathe
 		bool IsKeyDown(unsigned int code);
 		bool IsKeyDownReset(unsigned int code);
 
-		void UpdateKeys(float fCurrentTime);
-		void UpdateEvents(float fCurrentTime);
+		void UpdateKeys(sampletime_t currentTime);
+		void UpdateEvents(sampletime_t currentTime);
 
 		void OnKeyUp(SDL_keysym *keysym);
     
@@ -64,13 +64,7 @@ namespace breathe
 		void ConsoleExecute(std::string s);
 
 		void SetTitle(std::string sTitle);
-
-		cVar<std::string>* VarFind(std::string name);
-
-		template <class T>
-		void VarSet(std::string name, T value);
-
-
+		
 #ifdef BUILD_DEBUG
 		bool bDebug;
 #endif
@@ -90,8 +84,6 @@ namespace breathe
 		gui::cWindowManager window_manager;
 
 		std::vector<std::string>vArgs;
-
-		std::map<std::string, cVar<std::string>*>mVar;
 		
 		std::vector<SDL_Joystick*>vJoystick;
 
@@ -100,8 +92,9 @@ namespace breathe
 	private:
 		void _ConsoleExecuteSingleCommand(std::string s);
 		void _InitArguments(int argc, char **argv);
-		void _Render(float fCurrentTime);
+		void _Render(sampletime_t currentTime);
 
+		void _UpdateInput(sampletime_t currentTime);
 		bool _IsKeyDown(float fAmount);
 		
 		std::string title;
@@ -137,28 +130,6 @@ namespace breathe
 	{
 		title = sTitle;
 	}
-
-	template <class T>
-	inline void cApp::VarSet(std::string name, T value)
-	{
-		std::map<std::string, cVar<std::string>*>::iterator iter = mVar.begin();
-
-		std::string s;
-		while(iter != mVar.end())
-		{
-			if(name == iter->first)
-			{
-				cVar<std::string>* p = iter->second;
-				*p = value;
-				return;
-			}
-
-			iter++;
-		};
-
-		mVar[name] = new cVar<std::string>(value);
-	}
-
 	
 	// Convert from a float amount to a bool
 	inline bool cApp::_IsKeyDown(float fAmount)

@@ -17,9 +17,9 @@
 
 #include <breathe/breathe.h>
 
-#if defined(BUILD_DEBUG) && defined(PLATFORM_WINDOWS)
+#if defined(BUILD_DEBUG) && defined(__WIN__)
 	#include <windows.h>
-#endif //BUILD_DEBUG && PLATFORM_WINDOWS
+#endif //BUILD_DEBUG && __WIN__
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
@@ -117,7 +117,7 @@ namespace breathe
 		void cLog::trace(std::string section)
 		{
 			breathe::string::string_t s = TEXT("<!> ") + breathe::string::ToString_t(section) + TEXT("\n");
-	#ifdef PLATFORM_WINDOWS
+	#ifdef __WIN__
 			OutputDebugString(s.c_str());
 	#else
 			printf(breathe::string::ToUTF8(s).c_str());

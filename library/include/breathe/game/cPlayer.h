@@ -59,7 +59,7 @@ namespace breathe
 		//list of items
 		std::vector<cItem *>vItem;
 
-		void Update(float fCurrentTime);
+		void Update(sampletime_t currentTime);
 
 		bool IsInACar();
 		bool IsDriving();

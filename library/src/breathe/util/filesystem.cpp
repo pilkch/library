@@ -13,13 +13,15 @@
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
 
-#include <breathe/util/log.h>
 #include <breathe/util/filesystem.h>
+
+#ifndef FIRESTARTER
+#include <breathe/util/log.h>
 #include <breathe/util/md5.h>
+#endif
 
-#include <unrarlib/unrarlib.h>
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #include <windows.h>
 #endif
 
@@ -45,7 +47,7 @@ namespace breathe
 		std::vector<std::string> vDirectory;
 		std::string sExecutable = "";
 
-		void SetThisExecutable(std::string executable)
+		void SetThisExecutable(const std::string& executable)
 		{
 			sExecutable = GetPath(breathe::string::Replace(executable, "\\", "/"));
 			assert(sExecutable.length() > 0);
@@ -134,10 +136,10 @@ namespace breathe
 		}
 
 		
-		void AddDirectory(std::string sDirectory)
+		void AddDirectory(const std::string& sDirectory)
 		{
-			unsigned int i=0;
-			unsigned int n=vDirectory.size();
+			size_t i=0;
+			size_t n=vDirectory.size();
 			for(i=0;i<n;i++)
 			{
 				if(vDirectory[i]==sDirectory)
@@ -145,10 +147,12 @@ namespace breathe
 			}
 
 			vDirectory.push_back(sDirectory);
+#ifndef FIRESTARTER
 			LOG.Success("FileSystem", "Added " + sDirectory);
+#endif
 		}
 
-		std::string FindFile(std::string sPath, std::string sFilename)
+		std::string FindFile(const std::string& sPath, const std::string& sFilename)
 		{
 			std::string temp = FindFile(sPath + sFilename);
 			
@@ -159,7 +163,7 @@ namespace breathe
 			return FindFile(sFilename);
 		}
 
-		std::string FindFile(std::string sFilename)
+		std::string FindFile(const std::string& sFilename)
 		{
 			if(""==sFilename)
 				return "";
@@ -205,25 +209,29 @@ namespace breathe
 				iter++;
 			};
 	    
+#ifndef FIRESTARTER
 			LOG.Error("FileSystem", "Not Found " + sFilename);
+#endif
 			return sFilename;
 		}
 
-		std::string GetMD5(std::string sFilename)
+#ifndef FIRESTARTER
+		std::string GetMD5(const std::string& sFilename)
 		{
 			cMD5 m;
 			m.CheckFile(sFilename.c_str());
 
 			return m.GetResult();
 		}
+#endif
 		
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma push_macro("FileExists")
 #undef FileExists
 #endif
-		bool FileExists(breathe::string::string_t sFilename)
+		bool FileExists(const breathe::string::string_t& sFilename)
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma pop_macro("FileExists")
 			
 			WIN32_FIND_DATA FindFileData;
@@ -242,13 +250,13 @@ namespace breathe
 		}
 
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #endif
-		bool CreateDirectory(breathe::string::string_t sFoldername)
+		bool CreateDirectory(const breathe::string::string_t& sFoldername)
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
 			
 #ifdef UNICODE
@@ -263,13 +271,13 @@ namespace breathe
 #endif
 		}
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma push_macro("CreateFile")
 #undef CreateFile
 #endif
-		bool CreateFile(breathe::string::string_t sFilename)
+		bool CreateFile(const breathe::string::string_t& sFilename)
 		{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma pop_macro("CreateFile")
 			
 			// Check if this file is already created so that we don't overwrite it
@@ -307,7 +315,7 @@ namespace breathe
 
 		// ************************************************* path *************************************************
 
-		path::path(std::string file_or_directory)
+		path::path(const std::string& file_or_directory)
 		{
 			sPath = file_or_directory;
 		}
@@ -346,11 +354,25 @@ namespace breathe
 		}
 
 
+
+		// *********************************************** file_iterator ***********************************************
+
+		file_iterator::file_iterator()
+		{
+		}
+
+
+
 		// ********************************************* directory_iterator *********************************************
 		
 		directory_iterator::directory_iterator()
 		{
 			//TODO: Set ourselves to the current directory
+		}
+			
+		directory_iterator::directory_iterator(const std::string& directory)
+		{
+			
 		}
 
 		directory_iterator::directory_iterator(const directory_iterator& rhs)
@@ -395,13 +417,6 @@ namespace breathe
 		directory_iterator::operator =(const directory_iterator& rhs)
 		{
 			return *this;
-		}
-
-
-		// *********************************************** file_iterator ***********************************************
-
-		file_iterator::file_iterator()
-		{
 		}
 	}
 }

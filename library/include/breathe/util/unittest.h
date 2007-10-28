@@ -1,7 +1,7 @@
 #ifndef UNITEST_H
 #define UNITEST_H
 
-#ifdef BUILD_DEBUG
+#if !defined NDEBUG || defined(BUILD_DEBUG)
 
 namespace breathe
 {

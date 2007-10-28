@@ -22,11 +22,11 @@
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #ifndef BREATHE_H
-!!! Include cBreathe.h, do not include this file
+#error "Include cBreathe.h, do not include this file"
 #endif //BREATHE_H
 
 #ifdef CMEM_H
-!!! Include cBreathe.h, do not include this file, something includes this
+#error "Include cBreathe.h, do not include this file"
 #endif //CMEM_H
 
 #ifndef	CMEM_H

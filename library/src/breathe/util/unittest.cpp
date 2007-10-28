@@ -27,6 +27,8 @@ namespace breathe
 	{
 		std::list<cUnitTestBase*> unittests;
 
+
+
 		cUnitTestBase::cUnitTestBase(std::string component) :
 			sComponent(component)
 		{
@@ -48,6 +50,7 @@ namespace breathe
 		void cUnitTestBase::SetFailed(std::string error)
 		{
 			LOG.Error("Unit Test", sComponent + " " + error);
+			success = false;
 		}
 
 		void RunUnitTests()

@@ -1,7 +1,7 @@
 #ifndef CFILESYSTEM_H
 #define CFILESYSTEM_H
 
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #pragma push_macro("CreateFile")
@@ -17,31 +17,33 @@ namespace breathe
 		class directory_iterator;
 		class file_iterator;
 
-		void SetThisExecutable(std::string executable);
+		void SetThisExecutable(const std::string& executable);
 		std::string GetThisApplicationDirectory();
 
 		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
-		std::string FindFile(std::string sFilename);
-		std::string FindFile(std::string sPath, std::string sFilename);
+		std::string FindFile(const std::string& sFilename);
+		std::string FindFile(const std::string& sPath, const std::string& sFilename);
 
-		void AddDirectory(std::string sDirectory);
+		void AddDirectory(const std::string& sDirectory);
 
-		std::string GetMD5(std::string sFilename);
-		std::string GetSHA1(std::string sFilename);
+#ifndef FIRESTARTER
+		std::string GetMD5(const std::string& sFilename);
+		std::string GetSHA1(const std::string& sFilename);
+#endif
 
 		std::string GetPath(const std::string& sFilename);
 		std::string GetFile(const std::string& sFilename);
 		std::string GetFileNoExtension(const std::string& sFilename);
 		std::string GetExtension(const std::string& sFilename);
 
-		bool FileExists(breathe::string::string_t sFilename);
-		bool CreateDirectory(breathe::string::string_t sFoldername);
-		bool CreateFile(breathe::string::string_t sFilename);
+		bool FileExists(const breathe::string::string_t& sFilename);
+		bool CreateDirectory(const breathe::string::string_t& sFoldername);
+		bool CreateFile(const breathe::string::string_t& sFilename);
 
 		class path
 		{
 		public:
-			path(std::string file_or_directory);
+			path(const std::string& file_or_directory);
 
 			bool IsFile() const;
 			bool IsDirectory() const;
@@ -50,7 +52,7 @@ namespace breathe
 			std::string GetFile() const; // Returns just the file "file.txt"
 			std::string GetExtenstion() const; // Returns just the extension ".txt"
 			std::string str() const; // Returns the full path "/folder1/folder2/file.txt"
-
+			
 		private:
 			path();
 
@@ -61,6 +63,7 @@ namespace breathe
 		{
 		public:
 			directory_iterator();
+			directory_iterator(const std::string& directory);
 			directory_iterator(const directory_iterator& rhs);
 			~directory_iterator();
 

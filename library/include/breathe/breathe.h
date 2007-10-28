@@ -18,11 +18,15 @@
  *************************************************************************/
 
 #ifdef CMEM_H
-!!! cMem.h already included, include cBreathe.h only
+#error "Don't include mem.h directly, include breathe.h instead"
 #endif //CMEM_H
 
 #ifndef BREATHE_H
 #define BREATHE_H
+
+#ifdef FIRESTARTER
+#define NO_SDL
+#endif
 
 #if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__)
 #error "This is a 64 bit compile, have fun!"
@@ -45,15 +49,25 @@ typedef char            int8;
 typedef unsigned char   uint8;*/
 #endif
 
+
 // Operating System
+// Use the standard defines were possible:
+// __WIN__, __LINUX__, __APPLE__
+
 #if defined(WIN32) || defined(__WIN__) || \
 	defined(_MSC_VER) || defined(__CYGWIN32__) || defined(_BORLANDC_) || defined(__MINGW32__)
-#define PLATFORM_WINDOWS
+#ifndef __WIN__
+#define __WIN__
+#endif
 #elif defined(__LINUX__) || defined(__linux__)
-#define PLATFORM_LINUX
+#ifndef __LINUX__
+#define __LINUX__
+#endif
 #elif defined(__APPLE__) || defined(__apple__) || defined(MACOSX) || defined (__MACOSX__)
-#define PLATFORM_MAC
-#elif defined(_XENON) || \
+#ifndef __APPLE__
+#define __APPLE__
+#endif
+#elif defined(_XENON) || \ 
 	defined(SN_TARGET_PSP_HW) || \
 	defined(SN_TARGET_PS3)
 #error "This platform has not been built on yet"
@@ -68,7 +82,7 @@ typedef unsigned char   uint8;*/
 	(defined(__APPLE__) && defined(__MACH__)) || \
 	defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
 	defined(__sparc__)
-#error "We don't support big endian systems, get a real computer (x86)
+#error "We don't support big endian systems, get a real computer (little endian x86)
 #endif
 
 // What type of build is this?
@@ -80,24 +94,32 @@ typedef unsigned char   uint8;*/
 
 
 // CRT's memory leak detection
-#if defined BUILD_DEBUG && defined PLATFORM_WINDOWS
+#if defined BUILD_DEBUG && defined __WIN__
 #include <crtdbg.h>
 #endif
 
+#ifdef NO_SDL
+typedef unsigned char uint8_t;
+typedef long int uint32_t;
+#else
 // For our types (uint8_t, uint32_t, etc.)
 #include <SDL/SDL.h>
+#endif
 
+typedef uint32_t sampletime_t;
 
+#ifndef FIRESTARTER
 // FluidStudios' memory leak detection
 #include <breathe/util/mem.h>
+#endif
 
 #ifdef UNICODE
-#ifndef PLATFORM_WINDOWS
+#ifndef __WIN__
 	#define _TEXT(s) L##s
 	#define TEXT(s) _TEXT(s)
 #endif
 #else
-#ifndef PLATFORM_WINDOWS
+#ifndef __WIN__
 	#define TEXT(s) s
 #endif
 #endif
@@ -117,22 +139,22 @@ typedef unsigned char   uint8;*/
 namespace breathe
 {
 	// Constants
-	const bool BAD=false;
-	const bool GOOD=true;
+	const bool BAD = false;
+	const bool GOOD = true;
 	
 	// Safe deleting functions
 	template <class T>
 	inline void SAFE_DELETE(T& x)
 	{ 
-		delete (x);
-		(x)=NULL;
+		delete x;
+		x = NULL;
 	}
 
 	template <class T>
 	inline void SAFE_DELETE_ARRAY(T& x)
 	{ 
-		delete [] (x);
-		(x)=NULL;
+		delete [] x;
+		x = NULL;
 	}
 }
 

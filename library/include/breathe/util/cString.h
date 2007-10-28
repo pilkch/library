@@ -5,7 +5,7 @@ namespace breathe
 {
 	namespace string
 	{
-#ifdef PLATFORM_WINDOWS
+#ifdef __WIN__
 		const size_t size_wchar_t = 2;
 #else
 		const size_t size_wchar_t = 4;
@@ -38,11 +38,11 @@ namespace breathe
 
 		inline std::wstring ToWchar_t(const std::string& source)
 		{
-			const size_t len = source.length();
+			const size_t len = source.length() + 1;
 			wchar_t* pTemp = new wchar_t[len];
-			mbstowcs(pTemp, source.data(), len * size_wchar_t);
+			mbstowcs(pTemp, source.data(), len);
 			std::wstring temp(pTemp);
-			SAFE_DELETE(pTemp);
+			SAFE_DELETE_ARRAY(pTemp);
 
 			return temp;
 		}
@@ -54,11 +54,11 @@ namespace breathe
 
 		inline std::string ToUTF8(const std::wstring& source)
 		{
-			const size_t len = source.length();
+			const size_t len = source.length() + 1;
 			char* pTemp = new char[len];
-			wcstombs(pTemp, source.data(), len * size_wchar_t);
+			wcstombs(pTemp, source.data(), len);
 			std::string temp(pTemp);
-			SAFE_DELETE(pTemp);
+			SAFE_DELETE_ARRAY(pTemp);
 
 			return temp;
 		}

@@ -237,6 +237,30 @@ namespace breathe
 		value = rhs.value;
 		return *this;
 	}
+
+
+	
+	class var
+	{
+	public:
+		template <class T>
+		static void VarSet(std::string name, T value)
+		{
+			cVar<std::string>* pVar = VarFind(name);
+			if (pVar != nullptr) {
+				*pVar = value;
+				return;
+			}
+
+			mVar[name] = new cVar<std::string>(value);
+		}
+
+		static cVar<std::string>* VarFind(std::string name);
+		static void PrintAll();
+
+	private:
+		static std::map<std::string, cVar<std::string>*> mVar;
+	};
 }
 
 #endif //CVAR_H

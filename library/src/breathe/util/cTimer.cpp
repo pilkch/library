@@ -9,11 +9,11 @@ namespace breathe
 {
 	namespace util
 	{
-		cTimer::cTimer()
+		cTimer::cTimer() :
+			iCount(0),
+			lastTime(0)
 		{
-			iCount=0;
-
-			fFPS=fLastTime=fUpdateInterval=fUpdateIntervalDivFPS=0.0f;
+			fFPS=fUpdateInterval=fUpdateIntervalDivFPS=0.0f;
 		}
 
 		void cTimer::Init(unsigned int uiHz)
@@ -21,18 +21,19 @@ namespace breathe
 			iCount=0;
 
 			fFPS=(float)uiHz;
-			fLastTime=GetTime();
 			fUpdateInterval=2000.0f;
 			fUpdateIntervalDivFPS=2000.0f/uiHz;
+
+			lastTime = GetTime();
 		}
 		
-		void cTimer::Update(float fCurrentTime)
+		void cTimer::Update(sampletime_t currentTime)
 		{
 			iCount++;
-			if(fCurrentTime - fLastTime > fUpdateInterval)
+			if((currentTime - lastTime) > fUpdateInterval)
 			{
-				fFPS = iCount / (fCurrentTime - fLastTime) * 1000.0f;
-				fLastTime=fCurrentTime;
+				fFPS = iCount / (currentTime - lastTime) * 1000.0f;
+				lastTime = currentTime;
 				iCount=0;
 			}
 		}
