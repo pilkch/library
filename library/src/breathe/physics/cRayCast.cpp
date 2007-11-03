@@ -4,6 +4,7 @@
 // STL
 #include <list>
 #include <vector>
+#include <map>
 
 // writing on a text file
 #include <iostream>

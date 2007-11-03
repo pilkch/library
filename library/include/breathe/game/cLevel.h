@@ -32,7 +32,7 @@ namespace breathe
 	public:
 		render::model::cStatic* pModel;
 
-		void Update(float fCurrentTime)
+		void Update(sampletime_t currentTime)
 		{
 			
 		}
@@ -83,14 +83,12 @@ namespace breathe
 		void Load();
 		void Unload();
 
-		void Update(float fCurrentTime);
+		void Update(sampletime_t currentTime);
 		unsigned int Render();
 	};
 
 	class cLevel : public cUpdateable
 	{
-		float fPreviousTime;
-
 	public:
 		// Global level information loaded from xml
 		float fWaterLevel;
@@ -132,8 +130,8 @@ namespace breathe
 		void LoadNode(std::string sNewFilename);
 		void LoadCubemap(std::string sFilename);
 
-		void Update(float fCurrentTime);
-		unsigned int Render(float fCurrentTime);
+		void Update(sampletime_t currentTime);
+		unsigned int Render(sampletime_t currentTime);
 
 		cLevelSpawn GetSpawn(); //Get a random spawn
 		cLevelSpawn GetSpawn(math::cVec3 &p); //Get closest spawn to requested position
@@ -145,79 +143,14 @@ namespace breathe
 		void AddPhysicsObject(physics::cPhysicsObject *d);
 		void RemovePhysicsObject(physics::cPhysicsObject *d);
 
-		unsigned int RenderVehicles(float fCurrentTime, vehicle::cVehicle *pOwnVehicle);
+		unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicle *pOwnVehicle);
 
 		render::cTexture *FindClosestCubeMap(math::cVec3 pos);
 
 		vehicle::cVehicle *FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
-	};
-	
-	class cSceneGraph
-	{
-	public:
-		std::list<cLevelNode*> listOpaque;
-		std::map<float, cLevelNode*> mTransparent;
 
-		cLevelNode* pRoot;
-
-		/*
-		class cLevelNode
-		{
-		public:
-			bool IsDirty() { return bIsDirty; }
-
-			void SetDirty() { bIsDirty = true; if(pParent) pParent->SetDirty(); }
-			void ClearDirty() { bIsDirty = false; }
-
-		private:
-			bool bIsDirty;
-		};
-		
-		class cLevelNode
-		{
-		public:
-			bool IsDirty() { return uiDirty; }
-
-			void SetDirty() { uiDirty++; if(pParent) pParent->SetDirty(); }
-			void ClearDirty() { uiDirty--; if(pParent) pParent->ClearDirty(); }
-
-		private:
-			bool uiDirty;
-		};
-		*/
-
-		void Update()
-		{
-			listOpaque.clear();
-			mTransparent.clear();
-
-			/*for each item in list
-				if(opaque)
-					listOpaque.add(item);
-				else
-					mTransparent.add(fDistance, item);*/
-		}
-
-		void Render()
-		{
-			unsigned int uiTriangles = 0;
-
-			// Opaque first
-			{
-				std::list<cLevelNode*>::iterator iter = listOpaque.begin();
-				std::list<cLevelNode*>::iterator iterEnd = listOpaque.end();
-				while(iter != iterEnd)
-					uiTriangles += (*(iter++))->Render();
-			}
-
-			// Transparent second
-			{
-				std::map<float, cLevelNode*>::iterator iter = mTransparent.begin();
-				std::map<float, cLevelNode*>::iterator iterEnd = mTransparent.end();
-				while(iter != iterEnd)
-					uiTriangles += (*(iter++)).second->Render();
-			}
-		}
+	private:
+		uint32_t previousTime;
 	};
 }
 

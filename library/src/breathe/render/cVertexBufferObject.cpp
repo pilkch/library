@@ -75,11 +75,11 @@ namespace breathe
 			// Create a big array that holds all of the data
 			// Set the buffer data to this big array
 			// Assign offsets for our arrays
-			uiVertices = pVertex.vData.size();
+			uiVertices = static_cast<unsigned int>(pVertex.vData.size());
 
-			unsigned int uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
-			unsigned int uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
-			unsigned int uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
+			size_t uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
+			size_t uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
+			size_t uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
 			
 			pVertex.uiOffset = 0 + 0;
 			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
@@ -95,7 +95,7 @@ namespace breathe
 			}
 
 			std::vector<float>vData;
-			unsigned int i = 0;
+			size_t i = 0;
 			/*vData.resize(	uiVertexSize + uiTextureCoordSize + uiNormalSize);
 			memcpy(&vData[pVertex.uiOffset],				&pVertex.vData[0], uiVertexSize);
 			memcpy(&vData[pTextureCoord.uiOffset],	&pTextureCoord.vData[0], uiTextureCoordSize);

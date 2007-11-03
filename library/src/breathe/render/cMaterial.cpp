@@ -316,15 +316,15 @@ namespace breathe
 					return breathe::BAD;
 				}
 				
-				iter.GetAttribute("collide", &bCollideTrimesh);
+				iter.GetAttribute("collide", bCollideTrimesh);
 					
 				std::string sValue;
-				if(iter.GetAttribute("sShaderVertex", &sValue))
+				if(iter.GetAttribute("sShaderVertex", sValue))
 				{
 					if(pShader == nullptr) pShader = new cShader();
 					pShader->sShaderVertex = breathe::filesystem::FindFile(sPath, sValue);
 				}
-				if(iter.GetAttribute("sShaderFragment", &sValue))
+				if(iter.GetAttribute("sShaderFragment", sValue))
 				{
 					if(pShader == nullptr) pShader = new cShader();
 					pShader->sShaderFragment = breathe::filesystem::FindFile(sPath, sValue);
@@ -332,12 +332,12 @@ namespace breathe
 
 				if(pShader)
 				{
-					iter.GetAttribute("cameraPos", &pShader->bCameraPos);
+					iter.GetAttribute("cameraPos", pShader->bCameraPos);
 					
-					iter.GetAttribute("texUnit0", &pShader->bTexUnit0);
-					iter.GetAttribute("texUnit1", &pShader->bTexUnit1);
-					iter.GetAttribute("texUnit2", &pShader->bTexUnit2);
-					iter.GetAttribute("texUnit3", &pShader->bTexUnit3);
+					iter.GetAttribute("texUnit0", pShader->bTexUnit0);
+					iter.GetAttribute("texUnit1", pShader->bTexUnit1);
+					iter.GetAttribute("texUnit2", pShader->bTexUnit2);
+					iter.GetAttribute("texUnit3", pShader->bTexUnit3);
 
 					pShader->Init();
 				}
@@ -346,22 +346,22 @@ namespace breathe
 				iter.FirstChild();
 				
 				cLayer* pLayer = NULL;
-				unsigned int n = vLayer.size();
-				unsigned int i = 0;
+				size_t n = vLayer.size();
+				size_t i = 0;
 				while(iter && i < nLayers)
 				{
 					pLayer = vLayer[i];
 					if("layer" == iter.GetName())
 					{
 						std::string sTexture;
-						if(iter.GetAttribute("sTexture", &sTexture))
+						if(iter.GetAttribute("sTexture", sTexture))
 						{
 							// Try in the same directory as the material
 							pLayer->sTexture = breathe::filesystem::FindFile(sPath, sTexture);
 						}
 
 						std::string sValue;
-						if(iter.GetAttribute("uiTextureMode", &sValue))
+						if(iter.GetAttribute("uiTextureMode", sValue))
 						{
 							if(sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
 							else if(sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
@@ -372,7 +372,7 @@ namespace breathe
 						}
 
 						unsigned int uiTextureAtlas = ATLAS_NONE;
-						if(iter.GetAttribute("uiTextureAtlas", &sValue))
+						if(iter.GetAttribute("uiTextureAtlas", sValue))
 						{
 							if(sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
 							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;

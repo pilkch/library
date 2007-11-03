@@ -25,7 +25,7 @@ namespace breathe
 
 				unsigned int Render();
 
-				void Update(float fCurrentTime);
+				void Update(sampletime_t currentTime);
 
 				std::vector<math::cVec3>vVertex;
 				std::vector<math::cVec3>vNormal;

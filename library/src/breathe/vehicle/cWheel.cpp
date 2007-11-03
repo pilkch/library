@@ -308,7 +308,7 @@ namespace breathe
 			}
 		}*/
 
-		void cWheel::Update(float fCurrentTime)
+		void cWheel::Update(sampletime_t currentTime)
 		{
 			// Find out if this wheel is even touching anything
 			RayCast();

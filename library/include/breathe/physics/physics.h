@@ -25,7 +25,7 @@ namespace breathe
 		
 		void Init();
 		void Destroy();
-		void Update(float fCurrentTime);
+		void Update(sampletime_t currentTime);
 
 		void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ);
 

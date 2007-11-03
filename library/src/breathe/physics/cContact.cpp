@@ -4,6 +4,7 @@
 // STL
 #include <list>
 #include <vector>
+#include <map>
 
 // writing on a text file
 #include <iostream>
@@ -58,7 +59,7 @@ namespace breathe
 			contact.surface.mode = dContactApprox1;
 		}
 
-		dContact cContact::GetContact()
+		dContact cContact::GetContact() const
 		{
 			return contact;
 		}

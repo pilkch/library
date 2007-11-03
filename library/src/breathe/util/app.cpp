@@ -196,7 +196,6 @@ namespace breathe
 		bDebug(true),
 #endif
 
-    bConsole(false),
 		bActive(true),
 		bDone(false),
 		bUpdatePhysics(true),
@@ -204,6 +203,8 @@ namespace breathe
 
 		bReturnCode(breathe::GOOD)
 	{
+		CONSOLE.SetApp(this);
+
 		_InitArguments(argc, argv);
 
 		srand(breathe::util::GetTime());
@@ -869,10 +870,9 @@ namespace breathe
 
 		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 		if(iter!=mKey.end())
-			iter->second->SetKeyUp(bConsole);
+			iter->second->SetKeyUp(CONSOLE.IsVisible());
 
-		if(bConsole)
-			ConsoleAddKey(code);
+		if(CONSOLE.IsVisible()) CONSOLE.AddKey(CONSOLE.IsVisible());
 	}
 
 	void cApp::_UpdateInput(sampletime_t currentTime)
@@ -896,130 +896,32 @@ namespace breathe
 
 	void cApp::ConsoleShow()
 	{
-		bConsole = true;
-
-		CONSOLE.current = "";
-		CONSOLE.uiCursorPosition = 0;
-
+		CONSOLE.Show();
 		CursorShow();
 	}
 
+	//Reckless Kelly
+	//Young Einstein
+	//Hair Spray
+	//Saint-Saens "Danse Macabre"
+
 	void cApp::ConsoleHide()
 	{
-		bConsole = false;
-
-		CONSOLE.current = "";
-		CONSOLE.uiCursorPosition = 0;
-
+		CONSOLE.Hide();
 		CursorHide();
 	}
 
-
-	void cApp::ConsoleAddKey(unsigned int uiCode)
+	void cApp::ConsoleExecute(const std::string& command)
 	{
-		//Uint8 *key = SDL_GetKeyState( NULL );
-		//key for shift, control, etc. modifiers
-
-		//if(key[SDLK_SHIFT])
-		/*
-		SDLK_NUMLOCK		= 300,
-		SDLK_CAPSLOCK		= 301,
-		SDLK_SCROLLOCK		= 302,
-		SDLK_RSHIFT		= 303,
-		SDLK_LSHIFT		= 304,
-		SDLK_RCTRL		= 305,
-		SDLK_LCTRL		= 306,
-		SDLK_RALT		= 307,
-		SDLK_LALT		= 308,
-		SDLK_RMETA		= 309,
-		SDLK_LMETA		= 310,
-		SDLK_LSUPER		= 311,		//Left "Windows" key
-		SDLK_RSUPER		= 312,		//Right "Windows" key
-		SDLK_MODE		= 313,		//"Alt Gr" key
-		SDLK_COMPOSE		= 314,		//Multi-key compose key
-		*/
-
-		if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
-		{
-			ConsoleExecute(CONSOLE.current);
-
-			CONSOLE.current="";
-			CONSOLE.uiCursorPosition=0;
-		}
-
-		else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
-			ConsoleHide();
-
-		else if(SDLK_DELETE==uiCode)
-		{
-			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
-				CONSOLE.current.erase(CONSOLE.uiCursorPosition, 1);
-		}
-		else if(SDLK_BACKSPACE==uiCode)
-		{
-			if(CONSOLE.uiCursorPosition>0)
-			{
-				CONSOLE.current.erase(CONSOLE.uiCursorPosition-1, 1);
-				CONSOLE.uiCursorPosition--;
-			}
-		}
-		else if(SDLK_LEFT==uiCode)
-		{
-			if(CONSOLE.uiCursorPosition>0)
-        CONSOLE.uiCursorPosition--;
-		}
-
-		else if(SDLK_RIGHT==uiCode)
-		{
-			if(CONSOLE.uiCursorPosition<CONSOLE.current.size())
-				CONSOLE.uiCursorPosition++;
-		}
-		else if(SDLK_HOME==uiCode)
-      CONSOLE.uiCursorPosition=0;
-		else if(SDLK_END==uiCode)
-      CONSOLE.uiCursorPosition=CONSOLE.current.size();
-
-		else if(SDLK_TAB==uiCode)
-			; //TODO: Autocomplete
-		else if(SDLK_CLEAR==uiCode)
-			CONSOLE.current="";
-		else if(SDLK_UP==uiCode)
-			; //TODO: History of typed in items
-		else if(SDLK_DOWN==uiCode)
-			; //TODO: History of typed in items
-		else if(SDLK_PAGEUP==uiCode)
-			; //TODO: History of all console items
-		else if(SDLK_PAGEDOWN==uiCode)
-			; //TODO: History of all console items
-
-		else if(uiCode<300)
-		{
-			/*#include <SDL/SDL_keysym.h>
-				
-			if((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9))
-			{
-				std::ostringstream t;
-				t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";				
-
-				ConsoleAddLine(t.str());
-			}*/
-
-			std::string s;
-			s += char(uiCode);
-
-			CONSOLE.current.insert(CONSOLE.uiCursorPosition, s);
-			CONSOLE.uiCursorPosition++;
-		}
-
-		//When we press a key we want to see where we are up to
-		CONSOLE.uiCursorBlink=0;
+		Execute(command);
 	}
 
 	//This is for executing one single line, cannot have ";"
-	void cApp::_ConsoleExecuteSingleCommand(std::string s)
+	void cApp::_ConsoleExecuteSingleCommand(const std::string& command)
 	{
-		CONSOLE<<s;
+		CONSOLE<<command;
 
+		std::string s(command);
 		std::string full(s);
 		std::vector<std::string> args;
 
@@ -1034,13 +936,13 @@ namespace breathe
 
 				if(std::string::npos==whitespace)
 				{
-					parameter=s;
-					s="";
+					parameter = s;
+					s = "";
 				}
 				else
 				{
 					parameter=s.substr(0, whitespace);
-					s=s.substr(whitespace+1);
+					s = s.substr(whitespace+1);
 				}
 
 				if(parameter.length())
@@ -1074,9 +976,10 @@ namespace breathe
 		}
 	}
 
-	//This is for executing multiple lines of commands, seperated by ";"
-	void cApp::ConsoleExecute(std::string s)
+	/*//This is for executing multiple lines of commands, seperated by ";"
+	void cApp::ConsoleExecute(const std::string& command)
 	{
+		std::string s(command);
 		if("" != s)
 		{
 			//Take out all \n, each line should be finished with a ";" or it is not a valid line
@@ -1093,20 +996,20 @@ namespace breathe
 
 				if(std::string::npos==endofline)
 				{
-					line=s;
-					s="";
+					line = s;
+					s = "";
 				}
 				else
 				{
-					line=s.substr(0, endofline);
-					s=s.substr(endofline+1);
+					line = s.substr(0, endofline);
+					s = s.substr(endofline+1);
 				}
 
 				if(line.length())
 					_ConsoleExecuteSingleCommand(line);	
 			};
 		}
-	}
+	}*/
 
 	void cApp::_Render(sampletime_t currentTime)
 	{

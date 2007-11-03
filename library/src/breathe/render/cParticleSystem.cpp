@@ -42,7 +42,7 @@ namespace breathe
 {
 	namespace render
 	{
-		cParticleSystem::cParticleSystem(unsigned int uiMaxSize, 
+		cParticleSystem::cParticleSystem(size_t uiMaxSize, 
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
 
 			uiSize(uiMaxSize),
@@ -52,7 +52,7 @@ namespace breathe
 			gravity(0.0f, 0.0f, -0.005f),
 			spawnVelocity(0.1f, 0.1f, 0.3f)
 		{
-			unsigned int i;
+			size_t i;
 			for (i = 0; i < uiSize; i++)
 				particles.push_back(cParticle());
 		}
@@ -64,15 +64,15 @@ namespace breathe
 		
 		void cParticleSystem::Init()
 		{
-			unsigned int n = particles.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = particles.size();
+			for (size_t i = 0; i < n; i++)
 				InitParticle(i);
 		}
 
 		void cParticleSystem::Clear()
 		{
-			unsigned int n = particles.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = particles.size();
+			for (size_t i = 0; i < n; i++)
 				particles[i].Kill();
 		}
 		
@@ -91,8 +91,8 @@ namespace breathe
 
 		void cParticleSystem::Sort()
 		{
-			unsigned int n = particles.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = particles.size();
+			for (size_t i = 0; i < n; i++)
 				particles[i].SetDepth((position + particles[i].p - pRender->pFrustum->eye).GetLength());
 
 			std::sort(particles.begin(), particles.end(), cParticle::DepthCompare);
@@ -111,7 +111,7 @@ namespace breathe
 		{
 		}
 
-		void cParticleSystemBillboard::Update(float fCurrentTime)
+		void cParticleSystemBillboard::Update(sampletime_t currentTime)
 		{
 			std::vector<cParticle>::iterator iter = particles.begin();
 			std::vector<cParticle>::iterator iterEnd = particles.end();
@@ -149,8 +149,8 @@ namespace breathe
 
 					unsigned int uiParticlesRendered = 0;
 					cParticle* p = &particles[0];
-					unsigned int n = particles.size();
-					for (unsigned int i = 0; i < n; i++, p++)
+					size_t n = particles.size();
+					for (size_t i = 0; i < n; i++, p++)
 					{
 						if (!p->IsAlive()) continue;
 
@@ -220,7 +220,7 @@ namespace breathe
 			pMesh = pInMesh;
 		}
 
-		void cParticleSystemMesh::Update(float fCurrentTime)
+		void cParticleSystemMesh::Update(sampletime_t currentTime)
 		{
 			std::vector<cParticle>::iterator iter = particles.begin();
 			std::vector<cParticle>::iterator iterEnd = particles.end();
@@ -254,8 +254,8 @@ namespace breathe
 
 				unsigned int uiParticlesRendered = 0;
 				cParticle* p = &particles[0];
-				unsigned int n = particles.size();
-				for (unsigned int i = 0; i < n; i++, p++)
+				size_t n = particles.size();
+				for (size_t i = 0; i < n; i++, p++)
 				{
 					if (!p->IsAlive()) continue;
 

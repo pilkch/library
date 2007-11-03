@@ -31,7 +31,7 @@ namespace breathe
 			int iGearCurrent; // -1 = reverse, 0 = Neutral
 			
 
-			float GetCurrentGearRatio()
+			float GetCurrentGearRatio() const
 			{
 				if((iGearCurrent >= -1) && (iGearCurrent < iGears + 2))
 					return vGearRatio[1 + iGearCurrent];
@@ -93,7 +93,7 @@ namespace breathe
 			~cVehicle();
 
 			void Init(cLevelSpawn p, unsigned int uiSeats);
-			void Update(float fCurrentTime);
+			void Update(uint32_t currentTime);
 			void UpdateInput();
 
 			void PhysicsInit(cLevelSpawn p);

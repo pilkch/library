@@ -229,7 +229,7 @@ namespace breathe
 					std::vector<loader_3ds::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
 					std::vector<loader_3ds::Mesh3DSFace> vFaces = pMesh->Faces();
 					
-					pCurrentMesh->pMeshData->uiTriangles = vFaces.size();
+					pCurrentMesh->pMeshData->uiTriangles = (unsigned int)(vFaces.size());
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
@@ -444,7 +444,7 @@ namespace breathe
 				return 0;
 			}
 			
-			void cStatic::Update(float fCurrentTime)
+			void cStatic::Update(sampletime_t currentTime)
 			{
 
 			}
@@ -453,8 +453,8 @@ namespace breathe
 			{
 				rhs->vMesh.clear();
 
-				unsigned int i;
-				unsigned int n = vMesh.size();
+				size_t i;
+				size_t n = vMesh.size();
 				for (i = 0; i < n; i++)
 				{
 					cMesh* pMesh = new cMesh();

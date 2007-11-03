@@ -232,17 +232,17 @@ namespace breathe
 		}
 	}
 
-	bool cPlayer::IsInACar()
+	bool cPlayer::IsInACar() const
 	{
 		return (NULL != pSeat);
 	}
 
-	bool cPlayer::IsDriving()
+	bool cPlayer::IsDriving() const
 	{
 		return ((NULL != pSeat) && (this == pSeat->pVehicle->vSeat[0]->pPlayer));
 	}
 	
-	bool cPlayer::IsThirdPersonCamera()
+	bool cPlayer::IsThirdPersonCamera() const
 	{
 #ifdef BUILD_RELEASE
 		return (uiCameraMode == CAMERA_THIRDPERSON);

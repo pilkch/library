@@ -259,7 +259,7 @@ namespace breathe
 		
 		// ********************************************** cAudioBuffer **********************************************
 
-		cAudioBuffer::cAudioBuffer(std::string sInFilename, bool bInLooping)
+		cAudioBuffer::cAudioBuffer(const std::string& sInFilename, bool bInLooping)
 			: uiBuffer(0), bLooping(bInLooping), sFilename()
 		{
 			Create(sInFilename);
@@ -270,7 +270,7 @@ namespace breathe
 			if(uiBuffer) alDeleteBuffers(1, &uiBuffer);
 		}
 
-    void cAudioBuffer::Create(std::string sInFilename)
+    void cAudioBuffer::Create(const std::string& sInFilename)
 		{
 			sFilename = sInFilename;
 			uiBuffer = alutCreateBufferFromFile(sFilename.c_str());
@@ -336,12 +336,12 @@ namespace breathe
 			alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
 		}
 
-		bool cAudioSource::IsValid()
+		bool cAudioSource::IsValid() const
 		{
 			return uiSource && pBuffer && pNodeParent;
 		}
 
-		bool cAudioSource::IsPlaying()
+		bool cAudioSource::IsPlaying() const
 		{
 			if(!IsValid()) return false;
 
@@ -509,12 +509,12 @@ namespace breathe
 			source1.Stop();
 		}
 		
-		bool cAudioSourceMix::IsValid()
+		bool cAudioSourceMix::IsValid() const
 		{
 			return source0.IsValid() && source1.IsValid();
 		}
 		
-		bool cAudioSourceMix::IsPlaying()
+		bool cAudioSourceMix::IsPlaying() const
 		{
 			return source0.IsPlaying() && source1.IsPlaying();
 		}

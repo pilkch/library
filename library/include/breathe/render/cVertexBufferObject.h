@@ -31,7 +31,7 @@ namespace breathe
 			void Destroy();
 			void Init();
 			unsigned int Render();
-			void Update(float fCurrentTime) {}
+			void Update(sampletime_t currentTime) {}
 
 			cVertexBufferObjectArray<math::cVec3> pVertex;
 			cVertexBufferObjectArray<math::cVec3> pNormal;

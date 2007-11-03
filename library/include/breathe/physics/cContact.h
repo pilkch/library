@@ -15,7 +15,7 @@ namespace breathe
 
 			float fDepth;
 
-			dContact GetContact();
+			dContact GetContact() const;
 
 			void SetContact(dContactGeom o1, dGeomID o2, float fContact);
 			

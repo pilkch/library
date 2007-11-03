@@ -61,9 +61,9 @@ namespace breathe
 
 		void Update(sampletime_t currentTime);
 
-		bool IsInACar();
-		bool IsDriving();
-		bool IsThirdPersonCamera();
+		bool IsInACar() const;
+		bool IsDriving() const;
+		bool IsThirdPersonCamera() const;
 
 		void ChangeStateToDriving();
 		void ChangeStateToRunning();

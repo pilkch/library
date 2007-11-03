@@ -42,7 +42,7 @@ namespace breathe
 			return (x*x)+(y*y)+(z*z);	
 		}
 
-		bool cVec3::isZeroVector(void)
+		bool cVec3::IsZeroVector() const
 		{
 			return (x<cEPSILON && x>-cEPSILON &&
 							y<cEPSILON && y>-cEPSILON &&

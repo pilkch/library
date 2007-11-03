@@ -41,14 +41,14 @@ namespace breathe
 		class cParticleSystem : public cRenderable
 		{
 		public:
-			cParticleSystem(unsigned int uiMaxSize,
+			cParticleSystem(size_t uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 			virtual ~cParticleSystem();
 
 			void Sort();
 
 			// Parameters
-			unsigned int uiSize;
+			size_t uiSize;
 			unsigned int uiLifeSpanMin;
 			unsigned int uiLifeSpanMax;
 
@@ -60,7 +60,7 @@ namespace breathe
 			std::vector<cParticle> particles;
 
 		protected:
-			virtual void InitParticle(unsigned int uiParticle);
+			virtual void InitParticle(size_t uiParticle);
 
 		private:
 			void Init();
@@ -74,11 +74,11 @@ namespace breathe
 		class cParticleSystemBillboard : public cParticleSystem
 		{
 		public:
-			cParticleSystemBillboard(unsigned int uiMaxSize,
+			cParticleSystemBillboard(size_t uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX,
 				float fInParticleWidth = DEFAULT_PARTICLE_WIDTH, float fInParticleHeight = DEFAULT_PARTICLE_HEIGHT);
 
-			void Update(float fCurrentTime);
+			void Update(sampletime_t currentTime);
 			unsigned int Render();
 
 			void SetParticleWidth(float fWidth);
@@ -95,10 +95,10 @@ namespace breathe
 		class cParticleSystemMesh : public cParticleSystem
 		{
 		public:
-			cParticleSystemMesh(unsigned int uiMaxSize,
+			cParticleSystemMesh(size_t uiMaxSize,
 				unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 
-			void Update(float fCurrentTime);
+			void Update(sampletime_t currentTime);
 			unsigned int Render();
 
 			void SetMesh(model::cMesh* pMesh);
@@ -106,7 +106,7 @@ namespace breathe
 		private:
 			model::cMesh* pMesh;
 
-			void InitParticle(unsigned int uiParticle);
+			void InitParticle(size_t uiParticle);
 		};
 
 		// ************************************** Inlines **************************************

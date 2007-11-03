@@ -29,8 +29,8 @@ namespace breathe
 
 			cVec3 GetReflected(cVec3 v);
 
-			cVec3 GetNormal() { return normal; }
-			float GetIntercept() { return intercept; }
+			cVec3 GetNormal() const { return normal; }
+			float GetIntercept() const { return intercept; }
 			
 			//find point of intersection of 3 cPlanes
 			bool Intersect3(const cPlane & p2, const cPlane & p3, cVec3 & result);
@@ -61,8 +61,8 @@ namespace breathe
 			cPlane(const cVec3& origin, const cVec3& normal);
 			cPlane(const cVec3& p1, const cVec3& p2, const cVec3& p3);
 			
-			bool isFrontFacingTo(const cVec3& direction) const;
-			double signedDistanceTo(const cVec3& point) const;
+			bool IsFrontFacingTo(const cVec3& direction) const;
+			double SignedDistanceTo(const cVec3& point) const;
 		};
 	}
 }

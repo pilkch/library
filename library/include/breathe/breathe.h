@@ -28,25 +28,9 @@
 #define NO_SDL
 #endif
 
-#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__)
+#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || \
+	defined(__LP64__)
 #error "This is a 64 bit compile, have fun!"
-#define X86_64_SYSTEM   1
-typedef int             int32;
-typedef unsigned int    uint32;
-
-typedef short           int16;
-typedef unsigned short  uint16;
-typedef char            int8;
-typedef unsigned char   uint8;
-
-/* 32 bit for comparison
-typedef int             int32;
-typedef unsigned int    uint32;
-
-typedef short           int16;
-typedef unsigned short  uint16;
-typedef char            int8;
-typedef unsigned char   uint8;*/
 #endif
 
 
@@ -63,7 +47,7 @@ typedef unsigned char   uint8;*/
 #ifndef __LINUX__
 #define __LINUX__
 #endif
-#elif defined(__APPLE__) || defined(__apple__) || defined(MACOSX) || defined (__MACOSX__)
+#elif defined(__APPLE__) || defined(__apple__) || defined(MACOSX) || defined(__MACOSX__)
 #ifndef __APPLE__
 #define __APPLE__
 #endif
@@ -94,7 +78,7 @@ typedef unsigned char   uint8;*/
 
 
 // CRT's memory leak detection
-#if defined BUILD_DEBUG && defined __WIN__
+#if defined(BUILD_DEBUG) && defined(__WIN__)
 #include <crtdbg.h>
 #endif
 

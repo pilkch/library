@@ -317,7 +317,7 @@ namespace breathe
 			//dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
 		}
 
-		void cPhysicsObject::Update(float fCurrentTime)
+		void cPhysicsObject::Update(sampletime_t currentTime)
 		{
 			if(bDynamic)
 			{
@@ -383,13 +383,13 @@ namespace breathe
 
 		}
 		
-		void cUprightCapsule::Update(float fCurrentTime)
+		void cUprightCapsule::Update(sampletime_t currentTime)
 		{
 			// Stop the capsule from rotating forwards, backwards, left, right
 			dBodySetAngularVel(body, 0.0f, 0.0f, 0.0f);
 			dBodySetTorque(body, 0.0f, 0.0f, 0.0f);
 			
-			cPhysicsObject::Update(fCurrentTime);
+			cPhysicsObject::Update(currentTime);
 		}
 	}
 }

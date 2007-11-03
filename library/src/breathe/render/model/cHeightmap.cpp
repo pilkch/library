@@ -71,8 +71,10 @@ namespace breathe
 				// Vertical scale
 				fScale = 0.5f;
 
+				pNormal = NULL;
 				pHeight = NULL;
 				pVBO = NULL;
+
 				pMaterial = NULL;
 			}
 
@@ -328,7 +330,7 @@ namespace breathe
 			}
 
 
-			void cHeightmap::Update(float time)
+			void cHeightmap::Update(sampletime_t currentTime)
 			{	
 				
 			}

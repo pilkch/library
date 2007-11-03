@@ -464,9 +464,9 @@ namespace breathe
 		}
 
 
-		void cVehicle::Update(float fCurrentTime)
+		void cVehicle::Update(sampletime_t currentTime)
 		{
-			physics::cPhysicsObject::Update(fCurrentTime);
+			physics::cPhysicsObject::Update(currentTime);
 	
 			/*
 			Real rpm = FLT_MIN;
@@ -539,7 +539,7 @@ namespace breathe
 			unsigned int i=0;
 
 			for(i=0;i<4;i++)
-				vWheel[i]->Update(fCurrentTime);
+				vWheel[i]->Update(currentTime);
 
 			/*
 			private void applyAntiSwayBarForces()

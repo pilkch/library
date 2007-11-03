@@ -18,27 +18,6 @@ namespace breathe
 		bool DestroyRender();
 
 		bool Run();
-		
-		// The render order is managed/automated by this class, so if you want to do anything special like 
-		// rendering to an FBO first or adding a timer in, you can do it by overriding these
-		virtual void BeginRender(sampletime_t currentTime) {}
-		virtual void EndRender(sampletime_t currentTime) {}
-
-		// Pure virtual functions, these *have* to be overridden in your derived game class
-		virtual bool LoadScene()=0;
-		virtual bool InitScene()=0;
-		virtual bool DestroyScene()=0;
-
-		virtual void FullscreenSwitch()=0;
-
-		virtual void Update(sampletime_t currentTime)=0;
-		virtual void UpdatePhysics(sampletime_t currentTime)=0;
-		virtual void UpdateInput(sampletime_t currentTime)=0;
-		virtual void RenderScene(sampletime_t currentTime)=0;
-		virtual void RenderScreenSpace(sampletime_t currentTime)=0;
-		virtual void OnMouse(int button,int state,int x,int y)=0;
-
-		virtual bool Execute(std::string sCommand)=0;	
 
 		bool ToggleFullscreen();
 		bool ResizeWindow(unsigned int w, unsigned int h);
@@ -50,55 +29,80 @@ namespace breathe
 		bool IsKeyDown(unsigned int code);
 		bool IsKeyDownReset(unsigned int code);
 
-		void UpdateKeys(sampletime_t currentTime);
-		void UpdateEvents(sampletime_t currentTime);
-
-		void OnKeyUp(SDL_keysym *keysym);
-    
 		void CursorShow();
 		void CursorHide();
 
 		void ConsoleShow();
 		void ConsoleHide();
-		void ConsoleAddKey(unsigned int code);
-		void ConsoleExecute(std::string s);
-
-		void SetTitle(std::string sTitle);
+		void ConsoleExecute(const std::string& s);
 		
+		void SetTitle(const std::string& sTitle);
+
 #ifdef BUILD_DEBUG
-		bool bDebug;
+		bool IsDebug() const { return bDebug; }
+		void ToggleDebug() { bDebug = !bDebug; }
 #endif
 
-		bool bConsole;
-		bool bActive;
-		bool bDone;
-		bool bUpdatePhysics;
+	protected:
 		bool bStepPhysics;
+		bool bUpdatePhysics;
+		bool bDone;
 
-		bool bReturnCode;
+		SDL_Event event;
 
 		util::cTimer tPhysics;
 		util::cTimer tUpdate;
 		util::cTimer tRender;
 		
-		gui::cWindowManager window_manager;
-
-		std::vector<std::string>vArgs;
-		
 		std::vector<SDL_Joystick*>vJoystick;
 
-		SDL_Event event;
-
 	private:
-		void _ConsoleExecuteSingleCommand(std::string s);
+		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, char **argv);
 		void _Render(sampletime_t currentTime);
 
 		void _UpdateInput(sampletime_t currentTime);
 		bool _IsKeyDown(float fAmount);
-		
-		std::string title;
 
+		// The render order is managed/automated by this class, so if you want to do anything special like 
+		// rendering to an FBO first or adding a timer in, you can do it by overriding these
+		virtual void BeginRender(sampletime_t currentTime) {}
+		virtual void EndRender(sampletime_t currentTime) {}
+
+		// Pure virtual functions, these *have* to be overridden in your derived game class
+		virtual bool LoadScene()=0;
+		virtual bool InitScene()=0;
+		virtual bool DestroyScene()=0;
+
+		virtual void Update(sampletime_t currentTime)=0;
+		virtual void UpdatePhysics(sampletime_t currentTime)=0;
+		virtual void UpdateInput(sampletime_t currentTime)=0;
+		virtual void RenderScene(sampletime_t currentTime)=0;
+		virtual void RenderScreenSpace(sampletime_t currentTime)=0;
+		virtual void OnMouse(int button,int state,int x,int y)=0;
+
+		virtual void FullscreenSwitch()=0;
+		virtual bool Execute(const std::string& sCommand)=0;	
+
+		void UpdateKeys(sampletime_t currentTime);
+		void UpdateEvents(sampletime_t currentTime);
+
+		void OnKeyUp(SDL_keysym *keysym);
+    		
+#ifdef BUILD_DEBUG
+		bool bDebug;
+#endif
+
+		bool bActive;
+		bool bReturnCode;
+
+		std::string title;
+		
+		gui::cWindowManager window_manager;
+
+		std::vector<std::string>vArgs;
+		
+		
 		class cKey
 		{
 		public:
@@ -126,7 +130,7 @@ namespace breathe
 
 	// *** Inlines
 
-	inline void cApp::SetTitle(std::string sTitle)
+	inline void cApp::SetTitle(const std::string& sTitle)
 	{
 		title = sTitle;
 	}

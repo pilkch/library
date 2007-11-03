@@ -29,16 +29,16 @@ namespace breathe
 		class cAudioBuffer
 		{
 		public:
-			cAudioBuffer(std::string sFilename, bool bLooping=false);
+			cAudioBuffer(const std::string& sFilename, bool bLooping=false);
 			~cAudioBuffer();
 
-			bool IsLooping() { return bLooping; }
-			bool IsValid() { return uiBuffer != 0; }
+			bool IsLooping() const { return bLooping; }
+			bool IsValid() const { return uiBuffer != 0; }
 
 			unsigned int uiBuffer;
 
 		private:
-			void Create(std::string sFilename);
+			void Create(const std::string& sFilename);
 
 			bool bLooping;
 			std::string sFilename;
@@ -58,8 +58,8 @@ namespace breathe
 			void Play();
 			void Stop();
 
-			bool IsValid();
-			bool IsPlaying();
+			bool IsValid() const;
+			bool IsPlaying() const;
 
 			void TransformTo2DSource();
 			void TransformTo3DSource();
@@ -92,8 +92,8 @@ namespace breathe
 			void Play();
 			void Stop();
 
-			bool IsValid();
-			bool IsPlaying();
+			bool IsValid() const;
+			bool IsPlaying() const;
 
 		private:
 			cAudioSource source0;

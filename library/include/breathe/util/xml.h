@@ -44,8 +44,8 @@ namespace breathe
 			void PrintToLog(const std::string& sTab="");
 #endif //BUILD_DEBUG
 
-			bool IsNameAndAttributesAndChildren() { return !bContentOnly; }
-			bool IsContentOnly() { return bContentOnly; }
+			bool IsNameAndAttributesAndChildren() const { return !bContentOnly; }
+			bool IsContentOnly() const { return bContentOnly; }
 
 			std::string GetName() const;
 

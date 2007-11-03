@@ -123,7 +123,7 @@ namespace breathe
 			lPhysicsObject.remove(pPhysicsObject);
 		}
 
-		void Update(float fCurrentTime)
+		void Update(sampletime_t currentTime)
 		{
 			//First Iteration
 			//  apply one-size-fits-all rotational and linear dampening

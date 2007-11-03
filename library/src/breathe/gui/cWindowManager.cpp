@@ -57,8 +57,8 @@ namespace breathe
 
 		cWindowManager::~cWindowManager()
 		{
-			unsigned int n = child.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = child.size();
+			for (size_t i = 0; i < n; i++)
 				SAFE_DELETE(child[i]);
 		}
 
@@ -101,12 +101,12 @@ namespace breathe
 
 			_RenderWidget(widget);
 
-			unsigned int n = widget.child.size();
+			size_t n = widget.child.size();
 			if (n == 0) return;
 
 			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
 				
-				for (unsigned int i = 0; i < n; i++)
+				for (size_t i = 0; i < n; i++)
 					_RenderChildren(*widget.child[i]);
 
 			pRender->PopScreenSpacePosition();
@@ -126,8 +126,8 @@ namespace breathe
 			glScalef(1.0f, -1.0f, 1.0f);
 			glMatrixMode( GL_MODELVIEW );
 
-			unsigned int n = child.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = child.size();
+			for (size_t i = 0; i < n; i++)
 				_RenderChildren(*child[i]);
 
 			glMatrixMode( GL_TEXTURE );			// Select Texture

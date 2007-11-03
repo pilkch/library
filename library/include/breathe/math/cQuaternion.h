@@ -58,15 +58,15 @@ namespace breathe
 			void SetFromODEQuaternion(float* q);
 
 			//retrieve axis/angle
-			float GetAngle(void) const;
-			cVec3 GetAxis(void) const;
-			cVec3 GetEuler(void) const;
+			float GetAngle() const;
+			cVec3 GetAxis() const;
+			cVec3 GetEuler() const;
 
 			cMat4 GetMatrix() const;
 
 			
 			//default constructor
-			cQuaternion(void)
+			cQuaternion()
 			{
 				LoadIdentity();
 			}

@@ -35,16 +35,16 @@ namespace breathe
 			int g_TotalNodesDrawn;
 
 			// This returns the center of this node
-			cVec3 GetCenter() {	 return m_vCenter;	}
+			cVec3 GetCenter() const {	 return m_vCenter;	}
 
 			// This returns the triangle count stored in this node
-			int GetTriangleCount()  {   return m_TriangleCount;	}
+			int GetTriangleCount() const {   return m_TriangleCount;	}
 
 			// This returns the widht of this node (since it's a cube the height and depth are the same)
-			float GetWidth() {	 return m_Width;	}
+			float GetWidth() const {	 return m_Width;	}
 
 				// This returns if this node is subdivided or not
-			bool IsSubDivided()  {   return m_bSubDivided;	}
+			bool IsSubDivided() const {   return m_bSubDivided;	}
 
 			// This sets the initial width, height and depth for the whole scene
 			void GetSceneDimensions(cVec3 *pVertices, int numberOfVerts);

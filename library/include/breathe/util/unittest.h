@@ -11,6 +11,7 @@ namespace breathe
 		{
 		public:
 			cUnitTestBase(std::string component);
+			virtual ~cUnitTestBase();
 
 			void Run();
 			

@@ -40,13 +40,13 @@ namespace breathe
 			equation[3] = -(normal.x*origin.x+normal.y*origin.y+normal.z*origin.z);
 		}
 
-		bool cPlane::isFrontFacingTo(const cVec3& direction) const 
+		bool cPlane::IsFrontFacingTo(const cVec3& direction) const 
 		{
 			double dot = normal.DotProduct(direction);
 			return (dot <= 0);
 		}
 			
-		double cPlane::signedDistanceTo(const cVec3& point) const 
+		double cPlane::SignedDistanceTo(const cVec3& point) const 
 		{
 			return (point.DotProduct(normal)) + equation[3];
 		}

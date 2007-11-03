@@ -551,7 +551,7 @@ namespace breathe
 			// then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
 			// until n-1, for the last effect we render whichever FBO we last rendered to,
 			// to the screen.  
-			unsigned int n = lPostRenderEffects.size();
+			size_t n = lPostRenderEffects.size();
 
 			// If we are just rendering to the screen, no post rendering effects
 			if(n == 0) return;
@@ -563,7 +563,7 @@ namespace breathe
 			// We have just rendered to a texture, loop through the post render chain alternating
 			// rendering to pFrameBuffer0 and pFrameBuffer1
 			std::list<material::cMaterial*>::iterator iter = lPostRenderEffects.begin();
-			unsigned int i = 0;
+			size_t i = 0;
 			for(i = 0; i < n - 1; i++, iter++)
 			{
 				BeginRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
@@ -787,9 +787,9 @@ namespace breathe
 
 			std::vector<model::cMesh*> vMesh=p->vMesh;
 
-			nMeshes = vMesh.size();
+			nMeshes = static_cast<unsigned int>(vMesh.size());
 
-			for(unsigned int mesh=0;mesh<nMeshes;mesh++)
+			for(size_t mesh=0;mesh<nMeshes;mesh++)
 			{
 				assert(vMesh[mesh]->pMeshData);
 
@@ -2118,8 +2118,8 @@ namespace breathe
 			{
 				mStatic[sNewfilename]=pModel;
 
-				unsigned int i=0;
-				unsigned int n=pModel->vMesh.size();
+				size_t i=0;
+				size_t n=pModel->vMesh.size();
 				for(i=0;i<n;i++)
 					AddMaterial(pModel->vMesh[i]->sMaterial);
 					//pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
@@ -2178,9 +2178,9 @@ namespace breathe
 			model::cStatic* s=NULL;
 			model::cMesh* pMesh;
 			float* fTextureCoords=NULL;
-			unsigned int nMeshes=0;
+			size_t nMeshes=0;
 			unsigned int uiTriangles=0;
-			unsigned int nTexcoords=0;
+			size_t nTexcoords=0;
 			unsigned int mesh=0;
 			unsigned int texcoord=0;
 			unsigned int triangle=0;
@@ -2194,10 +2194,10 @@ namespace breathe
 				
 				assert(s);
 				
-				nMeshes=s->vMesh.size();
+				nMeshes = s->vMesh.size();
 
 				std::ostringstream sOut;
-				sOut<<nMeshes;
+				sOut<<static_cast<unsigned int>(nMeshes);
 				LOG.Success("Transform", "UV model=" + iter->first + " meshes=" + sOut.str());
 
 				for(mesh=0;mesh<nMeshes;mesh++)
@@ -2309,8 +2309,8 @@ namespace breathe
 			{
 				LOG.Success("Render", "ReloadTextures Atlases");
 				cTextureAtlas *pAtlas = NULL;
-				unsigned int n = vTextureAtlas.size();
-				for(unsigned int i = 0;i<n;i++)
+				size_t n = vTextureAtlas.size();
+				for(size_t i = 0;i<n;i++)
 					vTextureAtlas[i]->Reload();
 			}
 
@@ -2350,8 +2350,8 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Vertex Buffer Objects");
-				unsigned int n = vVertexBufferObject.size();
-				for(unsigned int i = 0; i<n; i++)
+				size_t n = vVertexBufferObject.size();
+				for(size_t i = 0; i<n; i++)
 				{
 					vVertexBufferObject[i]->Destroy();
 					vVertexBufferObject[i]->Init();

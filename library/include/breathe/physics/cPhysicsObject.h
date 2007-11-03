@@ -38,7 +38,7 @@ namespace breathe
 			void CreateTrimesh(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
 			void CreateHeightmap(math::cVec3 pos, math::cVec3 rot=math::cVec3(0.0f, 0.0f, 0.0f));
 
-			virtual void Update(float fCurrentTime);
+			virtual void Update(sampletime_t currentTime);
 			virtual void UpdateComponents();
 
 			void RemoveFromWorld();
@@ -58,7 +58,7 @@ namespace breathe
 		public:
 			cUprightCapsule();
 
-			void Update(float fCurrentTime);
+			void Update(sampletime_t currentTime);
 		};
 	}
 }

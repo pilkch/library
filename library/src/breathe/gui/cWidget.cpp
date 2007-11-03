@@ -68,8 +68,8 @@ namespace breathe
 
 		cWidget::~cWidget()
 		{
-			unsigned int n = child.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = child.size();
+			for (size_t i = 0; i < n; i++)
 				SAFE_DELETE(child[i]);
 		}
 			
@@ -85,8 +85,8 @@ namespace breathe
 		{
 			if (_id == id) return this;
 
-			unsigned int n = child.size();
-			for (unsigned int i = 0; i < n; i++)
+			size_t n = child.size();
+			for (size_t i = 0; i < n; i++)
 				child[i]->FindChild(_id);
 
 			return NULL;

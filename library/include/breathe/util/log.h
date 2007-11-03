@@ -126,7 +126,7 @@ namespace breathe
 			
 			cLogBase& operator<<(std::ostream& (* /*func*/)(std::ostream&))
 			{
-				_EndLine(line);
+				_AddLine(line);
 
 				return *this; 
 			}
@@ -134,9 +134,13 @@ namespace breathe
 			//void precision ( unsigned long p );
 
 			void ClearLine() { line.clear(); }
+			
+
+			virtual void Success(const std::string& section, const std::string& text) = 0;
+			virtual void Error(const std::string& section, const std::string& text) = 0;
 
 		private:
-			virtual void _EndLine(std::string& o) = 0;
+			virtual void _AddLine(const std::string& o) = 0;
 
 			std::string line;
 		};
@@ -153,14 +157,14 @@ namespace breathe
 			friend class cConsole;
 
 			void Newline();
-			void Newline(std::string s1);
-			void Newline(std::string s1, std::string text);
+			void Newline(const std::string& s1);
+			void Newline(const std::string& s1, const std::string& text);
 
-			void Success(std::string section, std::string text);
-			void Error(std::string section, std::string text);
+			void Success(const std::string& section, const std::string& text);
+			void Error(const std::string& section, const std::string& text);
 
 		private:
-			void _EndLine(std::string& o)
+			void _AddLine(const std::string& o)
 			{
 				Success(section, o);
 				ClearLine();
@@ -168,10 +172,10 @@ namespace breathe
 
 			bool CreateLog();
 
-	#ifdef BUILD_DEBUG
-			void trace(std::string section);
-			void trace(std::string section, std::string text);
-	#endif //BUILD_DEBUG
+#ifdef BUILD_DEBUG
+			void trace(const std::string& section);
+			void trace(const std::string& section, const std::string& text);
+#endif //BUILD_DEBUG
 
 			std::ofstream logfile;
 
@@ -202,11 +206,66 @@ extern breathe::logging::cLog LOG;
 
 namespace breathe
 {
+	class cApp;
+
+	namespace util
+	{
+		class cConsoleBase
+		{
+		public:
+			cConsoleBase() :
+				bShow(false),
+
+				pApp(nullptr),
+
+				uiCursorBlink(0),
+				uiCursorPosition(0),
+
+				lines(10)
+			{
+			}
+
+			unsigned int uiCursorBlink;
+			unsigned int uiCursorPosition;
+
+			void SetApp(cApp* inApp) { pApp = inApp; }
+		
+			const constant_stack<std::string>& GetLines() const { return lines; }
+			const std::string GetCurrentLine() const { return current; }
+			void ClearCurrent() { current = ""; }
+
+			void AddKey(unsigned int code);
+			void ExecuteCommand(const std::string& command);
+
+			bool IsVisible() const { return bShow; }
+			void Show()
+			{
+				bShow = true;
+				uiCursorPosition = 0;
+				ClearCurrent();
+			}
+
+			void Hide()
+			{
+				bShow = false;
+				uiCursorPosition = 0;
+				ClearCurrent();
+			}
+
+		protected:
+			bool bShow;
+			cApp* pApp;
+			
+			constant_stack<std::string> lines;
+			std::string current;
+		};
+	}
+
 	namespace logging
 	{
 		class cScreen;
 
-		class cConsole : public cLogBase
+		class cConsole : public cLogBase, public util::cConsoleBase
 		{
 		public:
 			cConsole();
@@ -214,24 +273,18 @@ namespace breathe
 
 			friend class cScreen;
 			
-			unsigned int uiCursorBlink;
-			unsigned int uiCursorPosition;
-			constant_stack<std::string> lines;
-			std::string current;
-
-			
 			/*void Newline();
-			void Newline(std::string s1);
-			void Newline(std::string s1, std::string text);
+			void Newline(const std::string& s1);
+			void Newline(const std::string& s1, const std::string& text);*/
 
-			void Success(std::string section, std::string text);
-			void Error(std::string section, std::string text);*/
+			void Success(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
+			void Error(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
 
 		private:
-			void _EndLine(std::string& o)
+			void _AddLine(const std::string& o)
 			{
 				// Cascade output to log file
-				LOG._EndLine(o);
+				LOG._AddLine(o);
 
 				lines.push_back(o);
 				std::cout<<o<<std::endl;
@@ -253,13 +306,18 @@ namespace breathe
 			cScreen();
 			~cScreen();
 
-			std::list<std::string> lLine;
+			void Success(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
+			void Error(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
+
+			const std::list<std::string>& GetLines() const;
 
 		private:
-			void _EndLine(std::string& o)
+			std::list<std::string> lLine;
+
+			void _AddLine(const std::string& o)
 			{
 				// Cascade output to console
-				CONSOLE._EndLine(o);
+				CONSOLE._AddLine(o);
 
 				// Add line to screen
 				//if(lLine.size()>CONSOLE_MAXLINES)

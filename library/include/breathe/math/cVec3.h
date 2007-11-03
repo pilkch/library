@@ -23,10 +23,10 @@ namespace breathe
 			inline float GetY() const {return y;}
 			inline float GetZ() const {return z;}
 			
-			bool isZeroVector(void);
+			bool IsZeroVector() const;
 
-			inline void LoadZero(void) { x=y=z=0.0f; }
-			void LoadOne(void);					//fill with (1, 1, 1)
+			inline void LoadZero() { x=y=z=0.0f; }
+			void LoadOne();					//fill with (1, 1, 1)
 			void Negate();
 			
 			//vector algebra

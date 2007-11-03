@@ -25,41 +25,49 @@ namespace breathe
 {
 	namespace util
 	{
-		std::list<cUnitTestBase*> unittests;
-
+		std::list<cUnitTestBase*>* unittests = nullptr;
 
 
 		cUnitTestBase::cUnitTestBase(std::string component) :
 			sComponent(component)
 		{
-			unittests.push_back(this);
+			if (nullptr == unittests) unittests = new std::list<cUnitTestBase*>;
+
+			unittests->push_back(this);
+		}
+		
+		cUnitTestBase::~cUnitTestBase()
+		{
+			unittests->remove(this);
+			if (unittests->empty()) SAFE_DELETE(unittests);
 		}
 
 		void cUnitTestBase::Run()
 		{
 			success = true;
 
-			LOG.Success("Unit Test", "Running " + sComponent);
+			CONSOLE.Success("Unit Test", "Running " + sComponent);
 
 			Test();
 			
-			if (true == success) LOG.Success("Unit Test", sComponent + " Successfully completed");
-			else LOG.Error("Unit Test", sComponent + " FAILED");
+			if (true == success) CONSOLE.Success("Unit Test", sComponent + " Successfully completed");
+			else CONSOLE.Error("Unit Test", sComponent + " FAILED");
 		}
 			
 		void cUnitTestBase::SetFailed(std::string error)
 		{
-			LOG.Error("Unit Test", sComponent + " " + error);
+			CONSOLE.Error("Unit Test", sComponent + " " + error);
 			success = false;
 		}
 
 		void RunUnitTests()
 		{
-			std::list<cUnitTestBase*>::iterator iter(unittests.begin());
-			std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
+			std::list<cUnitTestBase*>::iterator iter(unittests->begin());
+			std::list<cUnitTestBase*>::iterator iterEnd(unittests->end());
 
 			while (iter != iterEnd) {
 				(*iter)->Run();
+				iter++;
 			}
 		}
 	}

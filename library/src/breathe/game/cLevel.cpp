@@ -77,14 +77,14 @@ namespace breathe
 	/*
 	std::string s=breathe::filesystem::GetMD5(sFilename);*/
 
-	cLevel::cLevel()
+	cLevel::cLevel() :
+		previousTime(0),
+			
+		fWaterLevel(1.0f),
+
+		pCurrentNode(nullptr)
 	{
-		fWaterLevel = 1.0f;
-		fPreviousTime=0.0f;
-
-		pRender->pLevel=this;
-
-		pCurrentNode = NULL;
+		pRender->pLevel = this;
 
 		uiDisplayNodeName = uiNodeNameDisplayTime;
 	}
@@ -110,7 +110,7 @@ namespace breathe
 			iter.FindChild("level");
 			if(iter)
 			{
-				iter.GetAttribute("fWaterLevel", &fWaterLevel);
+				iter.GetAttribute("fWaterLevel", fWaterLevel);
 
 				iter.FirstChild();
 
@@ -118,18 +118,18 @@ namespace breathe
 				{
 					if("nodes" == iter.GetName())
 					{
-						iter.GetAttribute("fWidth", &fNodeWidth);
-						iter.GetAttribute("uiWidth", &uiNodeWidth);
-						iter.GetAttribute("uiHeight", &uiNodeHeight);
-						iter.GetAttribute("uiHeightMapPixelWidth", &uiNodeHeightMapPixelWidth);
-						iter.GetAttribute("uiHeightMapPixelHeight", &uiNodeHeightMapPixelHeight);
+						iter.GetAttribute("fWidth", fNodeWidth);
+						iter.GetAttribute("uiWidth", uiNodeWidth);
+						iter.GetAttribute("uiHeight", uiNodeHeight);
+						iter.GetAttribute("uiHeightMapPixelWidth", uiNodeHeightMapPixelWidth);
+						iter.GetAttribute("uiHeightMapPixelHeight", uiNodeHeightMapPixelHeight);
 
 						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("node");
 							while(iter)
 							{
 								std::string sPath;
-								if(iter.GetAttribute("path", &sPath))
+								if(iter.GetAttribute("path", sPath))
 									LoadNode(sPath);
 
 								iter.Next("node");
@@ -145,8 +145,8 @@ namespace breathe
 								pSpawn = new cLevelSpawn();
 								vSpawn.push_back(pSpawn);
 	
-								iter.GetAttribute("position", &pSpawn->v3Position);
-								iter.GetAttribute("rotation", &pSpawn->v3Rotation);
+								iter.GetAttribute("position", pSpawn->v3Position);
+								iter.GetAttribute("rotation", pSpawn->v3Rotation);
 
 								iter.Next("spawn");
 							};
@@ -170,7 +170,7 @@ namespace breathe
       
 
 		// We don't have any spawns yet, add a default one
-		if(0==vSpawn.size()) {
+		if(0 == vSpawn.size()) {
 			LOG.Error("Level", "No spawns defined");
 			cLevelSpawn *p = new cLevelSpawn();
 			p->v3Position = math::cVec3(0.0f, 0.0f, 0.0f);
@@ -178,8 +178,8 @@ namespace breathe
 			vSpawn.push_back(p);
 		}
 
-		unsigned int i=0;
-		unsigned int n=vCubemap.size();
+		size_t i=0;
+		size_t n=vCubemap.size();
 
 		if(0 == n)
 		{
@@ -205,8 +205,8 @@ namespace breathe
 			pNode->Load();
 
 			/*
-			unsigned int i=0;
-			unsigned int n=p->vCamera.size();
+			size_t i=0;
+			size_t n=p->vCamera.size();
 			for(i=0;i<n;i++)
 			{
 				LOG.Success("Level", "Spawn");
@@ -312,7 +312,7 @@ namespace breathe
 		}
 	}*/
 
-	void cLevel::Update(float fCurrentTime)
+	void cLevel::Update(sampletime_t currentTime)
 	{
 		//TODO: Calculate the current nodes
 		if(pRender->pFrustum->eye.x > 0.0f && pRender->pFrustum->eye.y > 0.0f)
@@ -343,18 +343,18 @@ namespace breathe
 			std::list<physics::cPhysicsObject *>::iterator end=physics::GetObjectListEnd();
 
 			while(end != iter)
-				(*iter++)->Update(fCurrentTime);
+				(*iter++)->Update(currentTime);
 		}
 
 
-		if((fCurrentTime-fPreviousTime)>1000.0f)
+		if((currentTime - previousTime)>1000.0f)
 		{
-			fPreviousTime=fCurrentTime;
+			previousTime = currentTime;
 
-			unsigned int n=vNode.size();
-			unsigned int i=0;
+			size_t n=vNode.size();
+			size_t i=0;
 			for(i=0;i<n;i++)
-				vNode[i]->Update(fCurrentTime);
+				vNode[i]->Update(currentTime);
 		}
 
 		
@@ -364,7 +364,7 @@ namespace breathe
 			std::list<vehicle::cVehicle*>::iterator iter=lVehicle.begin();
 			while(iter!=lVehicle.end())
 			{
-				(*iter)->Update(fCurrentTime);
+				(*iter)->Update(currentTime);
 				iter++;
 			};
 		}
@@ -373,11 +373,11 @@ namespace breathe
 		if(uiDisplayNodeName) uiDisplayNodeName--;
 	}
 
-	unsigned int cLevel::Render(float fCurrentTime)
+	unsigned int cLevel::Render(sampletime_t currentTime)
 	{
-		unsigned int uiTriangles=0;
-		unsigned int i=0;
-		unsigned int n=vNode.size();
+		unsigned int uiTriangles = 0;
+		size_t i = 0;
+		size_t n = vNode.size();
 		for(i=0;i<n;i++)
 			uiTriangles += vNode[i]->Render();
 
@@ -401,7 +401,7 @@ namespace breathe
 		return uiTriangles;
 	}
 
-	unsigned int cLevel::RenderVehicles(float fCurrentTime, vehicle::cVehicle *pOwnVehicle)
+	unsigned int cLevel::RenderVehicles(sampletime_t currentTime, vehicle::cVehicle *pOwnVehicle)
 	{
 		unsigned int uiTriangles=0;
 		vehicle::cVehicle *pVehicle=NULL;
@@ -452,15 +452,15 @@ namespace breathe
 
 	cLevelSpawn cLevel::GetSpawn()
 	{
-		unsigned int i=rand()%(vSpawn.size());
+		size_t i=rand()%(vSpawn.size());
 		return *vSpawn[i];
 	}
 		
 	cLevelSpawn cLevel::GetSpawn(math::cVec3 &p)
 	{
 		//Have to have a spawn in the level before calling this
-		unsigned int i=0;
-		unsigned int n=vSpawn.size();
+		size_t i=0;
+		size_t n=vSpawn.size();
 
 		if(n<1) LOG.Error("Level", "No spawns defined");
 
@@ -504,14 +504,14 @@ namespace breathe
 		lVehicle.remove(v);
 	}
 
-	render::cTexture *cLevel::FindClosestCubeMap(math::cVec3 pos)
+	render::cTexture* cLevel::FindClosestCubeMap(math::cVec3 pos)
 	{
-		unsigned int n=vCubemap.size();
+		size_t n = vCubemap.size();
 
 		if(n<1)
 			return NULL;
 
-		unsigned int i=0;
+		size_t i=0;
 		cLevelCubemap *c=vCubemap[0];
 		float f=(vCubemap[0]->v3Position-pos).GetLength();
 		float a=0.0f;
@@ -529,7 +529,7 @@ namespace breathe
 		return pRender->GetCubeMap(c->sFilename);
 	}
 
-	vehicle::cVehicle *cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
+	vehicle::cVehicle* cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
 	{
 		if(lVehicle.size()<1)
 			return NULL;
@@ -591,8 +591,8 @@ namespace breathe
 		iter.FindChild("node");
 		if(iter)
 		{
-			iter.GetAttribute("crc", &sCRC);
-			iter.GetAttribute("name", &sName);
+			iter.GetAttribute("crc", sCRC);
+			iter.GetAttribute("name", sName);
 		}
 
 		iter.FirstChild();
@@ -600,8 +600,8 @@ namespace breathe
 		{
 			if("fog" == iter.GetName())
 			{
-        iter.GetAttribute("colour", &colourFog);
-				iter.GetAttribute("distance", &fFogDistance);
+        iter.GetAttribute("colour", colourFog);
+				iter.GetAttribute("distance", fFogDistance);
 			}
 			else if("models" == iter.GetName())
 			{
@@ -610,7 +610,7 @@ namespace breathe
 					while(iter)
 					{
 						std::string sPath;
-						if(iter.GetAttribute("path", &sPath))
+						if(iter.GetAttribute("path", sPath))
 						{
 							cLevelModel* pModel = new cLevelModel();
 							vModel.push_back(pModel);
@@ -618,10 +618,10 @@ namespace breathe
 							// Pre load the mesh for this model
 							pModel->pModel = pRender->AddModel(sPath + "/mesh.3ds");
 
-							iter.GetAttribute("position", &pModel->p);
+							iter.GetAttribute("position", pModel->p);
 
 							math::cVec3 v;
-							if(iter.GetAttribute("position", &v))
+							if(iter.GetAttribute("position", v))
                 pModel->m.SetTranslation(v);
 						}
 
@@ -636,7 +636,7 @@ namespace breathe
 					while(iter)
 					{
 						std::string sPath;
-						if(iter.GetAttribute("texture", &sPath))
+						if(iter.GetAttribute("texture", sPath))
 							pLevel->LoadCubemap(sPath);
 
 						//TODO: position="10.0, 10.0, 0.0"
@@ -657,7 +657,7 @@ namespace breathe
 		uiStatus=NODE_INACTIVE;
 	}
 
-	void cLevelNode::Update(float fCurrentTime)
+	void cLevelNode::Update(sampletime_t currentTime)
 	{
 		if(NODE_INACTIVE!=uiStatus)
 			uiStatus--;
