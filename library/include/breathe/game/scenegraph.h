@@ -62,7 +62,7 @@ namespace breathe
 
 		class cSceneGraphNode : public cRenderable
 		{
-			cSceneGraph *pLevel;
+			cSceneGraph* pLevel;
 
 		public:
 			unsigned int uiStatus;
@@ -75,9 +75,9 @@ namespace breathe
 			std::string sName;
 			std::string sCRC;
 
-			std::vector<cSceneGraphModel * >vModel;
+			std::vector<cSceneGraphModel*>vModel;
 				
-			cSceneGraphNode(cSceneGraph *p, std::string sNewFilename);
+			cSceneGraphNode(cSceneGraph* p, std::string sNewFilename);
 			~cSceneGraphNode();
 
 			void Load();

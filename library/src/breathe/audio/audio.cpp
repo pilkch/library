@@ -53,8 +53,8 @@ namespace breathe
 {
 	namespace audio
 	{
-		ALCcontext *Context = NULL;
-		ALCdevice *Device = NULL;
+		ALCcontext* Context = NULL;
+		ALCdevice* Device = NULL;
 		ALboolean g_bEAX = false;
 		int iError = 0;
 
@@ -139,11 +139,11 @@ namespace breathe
 
 
 /*#ifdef __WIN__
-			char *initString = "DirectSound3D";
+			char* initString = "DirectSound3D";
 #else
-			char *initString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
+			char* initString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
 #endif
-			Device = alcOpenDevice((unsigned char *)initString);*/
+			Device = alcOpenDevice((unsigned char*)initString);*/
 
 			Device = alcOpenDevice(NULL); // select the "default device"
 			if (Device == NULL)				

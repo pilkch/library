@@ -166,7 +166,7 @@ namespace breathe
 	{
 		bool bResult = breathe::GOOD;
 
-		if (LoadXML(sNewFilename) != breathe::GOOD) bResult = breathe::BAD;
+		LoadXML(sNewFilename);
       
 
 		// We don't have any spawns yet, add a default one
@@ -184,7 +184,7 @@ namespace breathe
 		if(0 == n)
 		{
 			LOG.Error("Level", "No cubemaps defined");
-			bResult = breathe::BAD;
+			//bResult = breathe::BAD;
 		}
 		else
 		{

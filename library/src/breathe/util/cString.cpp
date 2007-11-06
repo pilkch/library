@@ -1,6 +1,9 @@
-#include <string>
 #include <cctype> // for toupper/tolower
+
+#include <string>
+#include <vector>
 #include <algorithm>
+#include <sstream>
 
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
@@ -15,6 +18,34 @@ namespace breathe
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
 		}
 		
+		size_t CountOccurrences(const std::string& source, const std::string& sFind)
+		{
+			size_t n = 0;
+			
+			size_t i = 0;
+			size_t j;
+			for(;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, n++)
+				;
+
+			return n;
+		}
+
+		void Split(const std::string& source, char sFind, std::vector<std::string>& vOut)
+		{
+			vOut.clear();
+
+			std::stringstream stm(source);
+			std::string field;
+
+			while (getline(stm, field, sFind)) vOut.push_back(Trim(field));
+		}
+
+		std::string Trim(const std::string& source)
+		{
+			std::string::size_type start = source.find_first_not_of(" \t\v");
+			return source.substr(start, std::string::npos);
+		}
+
 		std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)
 		{
 			size_t j;
@@ -109,6 +140,13 @@ namespace breathe
 			return sOut;
 		}
 
+		float ToFloat(const std::string& source)
+		{
+			float value = 0.0f;
+			std::stringstream stm(source);
+			stm >> value;
+			return value;
+		}
 		
 		std::string HTMLDecode(const std::string& source)
 		{

@@ -57,9 +57,9 @@ namespace breathe
 			SAFE_DELETE(m_pOctreeNodes[7]);
 		}
 
-		void cOctree::create(cFrustum * newFrustum)
+		void cOctree::create(cFrustum* newFrustum)
 		{
-			frustum=newFrustum;
+			frustum = newFrustum;
 
 			g_CurrentSubdivision=0;
 			g_MaxSubdivisions=10;
@@ -93,7 +93,7 @@ namespace breathe
 		/////
 		///////////////////////////////// cOctree \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::GetSceneDimensions(cVec3 *pVertices, int numberOfVerts)
+		void cOctree::GetSceneDimensions(cVec3* pVertices, int numberOfVerts)
 		{
 			// We pass in the list of vertices and the vertex count to get the
 			// center point and width of the whole scene.  We use this information
@@ -179,7 +179,7 @@ namespace breathe
 		/////
 		///////////////////////////////// GET NEW NODE CENTER \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		cVec3 cOctree::GetNewNodeCenter(cVec3 vCenter, float width, int nodeID)
+		cVec3 cOctree::GetNewNodeCenter(const cVec3& vCenter, float width, int nodeID)
 		{
 			// I created this function which takes an enum ID to see which node's center
 			// we need to calculate.  Once we find that we need to subdivide a node we find
@@ -247,8 +247,8 @@ namespace breathe
 		/////
 		///////////////////////////////// CREATE NEW NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::CreateNewNode(cVec3 *pVertices, std::vector<bool> pList, int numberOfVerts,
-					  					cVec3 vCenter,	 float width,        int triangleCount, int nodeID)
+		void cOctree::CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, int numberOfVerts,
+					  					const cVec3& vCenter,	 float width,        int triangleCount, int nodeID)
 		{
 			// This function helps us set up the new node that is being created.  We only
 			// want to create a new node if it found triangles in it's area.  If there were
@@ -258,7 +258,7 @@ namespace breathe
 			if(triangleCount)		
 			{
 				// Allocate memory for the triangles found in this node (tri's * 3 for vertices)
-				cVec3 *pNodeVertices = new cVec3 [triangleCount * 3];
+				cVec3* pNodeVertices = new cVec3 [triangleCount * 3];
 
 				// Create an counter to count the current index of the new node vertices
 				int index = 0;
@@ -308,7 +308,7 @@ namespace breathe
 		/////
 		///////////////////////////////// CREATE NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::CreateNode(cVec3 *pVertices, int numberOfVerts, cVec3 vCenter, float width)
+		void cOctree::CreateNode(const cVec3* pVertices, int numberOfVerts, const cVec3& vCenter, float width)
 		{
 			// This is our main function that creates the octree.  We will recurse through
 			// this function until we finish subdividing.  Either this will be because we
@@ -462,15 +462,15 @@ namespace breathe
 
 /*
 Load a .t3d file from unreal tournament 1
-bool test(std::string fileName, Set <class Polygon *> &polygons, TextureTable &textureTable){
+bool test(const std::string& fileName, Set <class Polygon *>& polygons, TextureTable& textureTable){
 	std::string str;
 	Stack <STATE> states;
 	STATE state = NONE;
 	int i,len;
 
 	// Polygon variables
-	class Polygon *poly;
-	//class Polygon *poly;
+	class Polygon* poly;
+	//class Polygon* poly;
 	Set <Vertex> vertices;
 	unsigned int flags, pflags;
 	Vertex normal;

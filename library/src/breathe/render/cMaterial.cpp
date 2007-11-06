@@ -94,7 +94,7 @@ namespace breathe
 				glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
 				if (infologLength > 0)
 				{
-						char *infoLog = new char[infologLength];
+						char* infoLog = new char[infologLength];
 						glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
 						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
@@ -169,7 +169,7 @@ namespace breathe
 							line="";
 						};
 
-						const char *str=buffer.c_str();
+						const char* str=buffer.c_str();
 						glShaderSource(uiShaderVertex, 1, &str, NULL);
 						glCompileShader(uiShaderVertex);
 						
@@ -200,7 +200,7 @@ namespace breathe
 							buffer+="\n";
 						};
 
-						const char *str=buffer.c_str();
+						const char* str=buffer.c_str();
 						glShaderSource(uiShaderFragment, 1, &str, NULL);
 						glCompileShader(uiShaderFragment);
 						
@@ -288,11 +288,11 @@ namespace breathe
 					SAFE_DELETE(vLayer[i]);
 			}
 
-			bool cMaterial::Load(std::string sFilename)
+			bool cMaterial::Load(const std::string& inFilename)
 			{
-				LOG.Success("Material", std::string("Loading ") + sFilename);
+				LOG.Success("Material", std::string("Loading ") + inFilename);
 
-				sFilename = breathe::filesystem::FindFile(sFilename);
+				std::string sFilename = breathe::filesystem::FindFile(inFilename);
 
 				std::string sPath = breathe::filesystem::GetPath(sFilename);
 				

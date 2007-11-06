@@ -21,6 +21,7 @@ namespace breathe
 
 		bool IsWhiteSpace(breathe::string::unicode_char c);
 		
+		size_t CountOccurrences(const std::string& source, const std::string& find);
 		std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
 		std::string StripLeading(const std::string& source, const std::string& find);
 		std::string StripTrailing(const std::string& source, const std::string& find);
@@ -28,6 +29,8 @@ namespace breathe
 		std::string StripAfter(const std::string& source, const std::string& find);
 		std::string StripBeforeInclusive(const std::string& source, const std::string& find);
 		std::string StripAfterInclusive(const std::string& source, const std::string& find);
+		void Split(const std::string& source, char find, std::vector<std::string>& vOut);
+		std::string Trim(const std::string& source);
 
 		std::string HTMLDecode(const std::string& source);
 		std::string HTMLEncode(const std::string& source);
@@ -70,6 +73,9 @@ namespace breathe
 		inline string_t ToString_t(const std::string& source) { return source; }
 		inline string_t ToString_t(const std::wstring& source) { return ToUTF8(source); }
 #endif
+
+		inline bool ToBool(const std::string& source) { return ("false" != source); }
+		float ToFloat(const std::string& source);
 	}
 }
 

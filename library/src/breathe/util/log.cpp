@@ -337,7 +337,7 @@ namespace breathe
 		
 		void cConsoleBase::AddKey(unsigned int uiCode)
 		{
-			//Uint8 *key = SDL_GetKeyState( NULL );
+			//Uint8* key = SDL_GetKeyState( NULL );
 			//key for shift, control, etc. modifiers
 
 			//if(key[SDLK_SHIFT])

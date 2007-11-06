@@ -8,7 +8,7 @@ namespace breathe
 	class cApp
 	{
 	public:
-		cApp(int argc, char **argv);
+		cApp(int argc, char** argv);
 		virtual ~cApp();
 
 		bool InitApp();
@@ -58,7 +58,7 @@ namespace breathe
 
 	private:
 		void _ConsoleExecuteSingleCommand(const std::string& s);
-		void _InitArguments(int argc, char **argv);
+		void _InitArguments(int argc, char** argv);
 		void _Render(sampletime_t currentTime);
 
 		void _UpdateInput(sampletime_t currentTime);
@@ -87,7 +87,7 @@ namespace breathe
 		void UpdateKeys(sampletime_t currentTime);
 		void UpdateEvents(sampletime_t currentTime);
 
-		void OnKeyUp(SDL_keysym *keysym);
+		void OnKeyUp(SDL_keysym* keysym);
     		
 #ifdef BUILD_DEBUG
 		bool bDebug;
@@ -124,7 +124,7 @@ namespace breathe
 			void SetKeyUp(bool bConsole);
 		};
 
-		std::map<unsigned int, cKey * >mKey;
+		std::map<unsigned int, cKey* >mKey;
 	};
 
 

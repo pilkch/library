@@ -157,31 +157,31 @@ namespace breathe
 
 		inline cNode::cIterator::operator bool() const
 		{
-			return pNode != NULL;
+			return pNode != nullptr;
 		}
 
 		inline cNode::cIterator::operator++(int)
 		{
-			assert(pNode != NULL);
+			assert(pNode != nullptr);
 			pNode = pNode->GetNext();
 			return *this;
 		}
 
 		inline void cNode::cIterator::Next(const std::string& sName)
 		{
-			assert(pNode != NULL);
+			assert(pNode != nullptr);
 			pNode = pNode->GetNext(sName);
 		}
 
 		inline void cNode::cIterator::FirstChild()
 		{
-			assert(pNode != NULL);
+			assert(pNode != nullptr);
 			pNode = pNode->FirstChild();
 		}
 		
 		inline void cNode::cIterator::FindChild(const std::string& sName)
 		{
-			assert(pNode != NULL);
+			assert(pNode != nullptr);
 			pNode = pNode->FindChild(sName);
 		}
 

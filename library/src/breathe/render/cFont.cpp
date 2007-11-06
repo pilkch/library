@@ -52,7 +52,7 @@ namespace breathe
 	namespace render
 	{
 		///Create a display list coresponding to the give character.
-		void make_dlist(FT_Face face, char ch, GLuint list_base, GLuint * tex_base )
+		void make_dlist(FT_Face face, char ch, GLuint list_base, GLuint* tex_base )
 		{
 			//The first thing we do is get FreeType to render our character
 			//into a bitmap.  This actually requires a couple of FreeType commands:
@@ -233,7 +233,7 @@ namespace breathe
 
 		///Much like Nehe's glPrint function, but modified to work
 		///with freetype fonts.
-		void cFont::printf(float x, float y, const char *fmt, ...)
+		void cFont::printf(float x, float y, const char* fmt, ...)
 		{
 			x *= pRender->uiWidth;
 			y *= pRender->uiHeight;
@@ -258,17 +258,17 @@ namespace breathe
 			//a regular expression library such as the one avliable from
 			//boost.org (I've only done it out by hand to avoid complicating
 			//this tutorial with unnecessary library dependencies).
-			const char *start_line=text;
+			const char* start_line=text;
 			std::vector<std::string> lines;
 
-			const char * c = text;
+			const char* c = text;
 
 			for(;*c;c++)
 			{
 				if(*c=='\n')
 				{
 					std::string line;
-					for(const char *n=start_line;n<c;n++) 
+					for(const char* n=start_line;n<c;n++) 
 						line.append(1,*n);
 					lines.push_back(line);
 					start_line=c+1;
@@ -277,7 +277,7 @@ namespace breathe
 			if(start_line) 
 			{
 				std::string line;
-				for(const char *n=start_line;n<c;n++) 
+				for(const char* n=start_line;n<c;n++) 
 					line.append(1,*n);
 				lines.push_back(line);
 			}

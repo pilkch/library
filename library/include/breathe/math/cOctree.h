@@ -47,29 +47,27 @@ namespace breathe
 			bool IsSubDivided() const {   return m_bSubDivided;	}
 
 			// This sets the initial width, height and depth for the whole scene
-			void GetSceneDimensions(cVec3 *pVertices, int numberOfVerts);
+			void GetSceneDimensions(cVec3* pVertices, int numberOfVerts);
 
 			// This takes in the previous nodes center, width and which node ID that will be subdivided
-			cVec3 GetNewNodeCenter(cVec3 vCenter, float width, int nodeID);
+			cVec3 GetNewNodeCenter(const cVec3& vCenter, float width, int nodeID);
 
 			// This subdivides a node depending on the triangle and node width
-			void CreateNode(cVec3 *pVertices, int numberOfVerts, cVec3 vCenter, float width);
+			void CreateNode(const cVec3* pVertices, int numberOfVerts, const cVec3& vCenter, float width);
 
 			// This cleans up the new subdivided node creation process, so our code isn't HUGE!
-			void CreateNewNode(cVec3 *pVertices,	std::vector<bool> pList, int numberOfVerts,
-				  				cVec3 vCenter,	float width,        int triangleCount, int nodeID);
+			void CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, int numberOfVerts,
+				  				const cVec3& vCenter,	float width, int triangleCount, int nodeID);
 
 			// This goes through each of the nodes and then draws the end nodes vertices.
 			// This function should be called by starting with the root node.
 			virtual unsigned int Render(cOctree *pNode) { return 0; }
 
 			// This initializes the data members
-			void create(cFrustum * newcFrustum);
-
-
+			void create(cFrustum* newcFrustum);
 			
 		public:
-			cFrustum * frustum;
+			cFrustum* frustum;
 
 			// This tells us if we have divided this node into more sub nodes
 			bool m_bSubDivided;
@@ -84,10 +82,10 @@ namespace breathe
 			cVec3 m_vCenter;
 
 			// This stores the triangles that should be drawn with this node
-			cVec3 *m_pVertices;
+			cVec3* m_pVertices;
 
 			// These are the eight nodes branching down from this current node
-			cOctree *m_pOctreeNodes[8];	
+			cOctree* m_pOctreeNodes[8];	
 		};
 	}
 }

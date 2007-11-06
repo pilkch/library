@@ -399,10 +399,10 @@ namespace breathe
 			if(vChild.size())
 			{
 				cNode* p=vChild[0];
-        while(p)
+        while(p != nullptr)
 				{
 					if(sName == p->sName) return p;
-					p=p->pNext;
+					p = p->pNext;
 				}
 			}
 			
@@ -473,8 +473,8 @@ namespace breathe
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				std::string v = iter->second;
-				value = ("false" != v);
+				value = breathe::string::ToBool(iter->second);
+
 				return true;
 			}
 
@@ -513,17 +513,13 @@ namespace breathe
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				breathe::string::unicode_char c;
-				std::stringstream stm(iter->second);
-				stm >> std::skipws;
+				std::vector<std::string> vSplit;
+				breathe::string::Split(iter->second, ',', vSplit);
 
-				stm >> value.x;
-				stm >> c;
-
-				stm >> value.y;
-				stm >> c;
-
-				stm >> value.z;
+				if (vSplit.size() > 0) value.x = breathe::string::ToFloat(vSplit[0]);
+				if (vSplit.size() > 1) value.y = breathe::string::ToFloat(vSplit[1]);
+				if (vSplit.size() > 2) value.z = breathe::string::ToFloat(vSplit[2]);
+				
 				return true;
 			}
 
@@ -535,11 +531,14 @@ namespace breathe
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				std::stringstream stm(iter->second);
-				stm >> value.r;
-				stm >> value.g;
-				stm >> value.b;
-				stm >> value.a;
+				std::vector<std::string> vSplit;
+				breathe::string::Split(iter->second, ',', vSplit);
+
+				if (vSplit.size() > 0) value.r = breathe::string::ToFloat(vSplit[0]);
+				if (vSplit.size() > 1) value.g = breathe::string::ToFloat(vSplit[1]);
+				if (vSplit.size() > 2) value.b = breathe::string::ToFloat(vSplit[2]);
+				if (vSplit.size() > 3) value.a = breathe::string::ToFloat(vSplit[3]);
+
 				return true;
 			}
 

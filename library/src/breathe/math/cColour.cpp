@@ -30,7 +30,7 @@ namespace breathe
 			Clamp();
 		}
 
-		cColour::cColour(const float * rhs)
+		cColour::cColour(const float* rhs)
 		{
 			r=*rhs;
 			g=*(rhs+1);
@@ -40,7 +40,7 @@ namespace breathe
 			Clamp();
 		}
 
-		cColour::cColour(const cColour & rhs)
+		cColour::cColour(const cColour& rhs)
 		{
 			r=rhs.r;
 			g=rhs.g;

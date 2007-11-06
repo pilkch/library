@@ -18,7 +18,7 @@ namespace breathe
 {
 	namespace math
 	{
-		cVec2::cVec2(const float * rhs)
+		cVec2::cVec2(const float* rhs)
 		{
 			x=*rhs;
 			y=*(rhs+1);

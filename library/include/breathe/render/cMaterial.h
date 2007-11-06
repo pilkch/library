@@ -61,7 +61,7 @@ namespace breathe
 				uint8_t chDustG; 
 				uint8_t chDustB;
 
-				std::vector<cLayer *>vLayer; 
+				std::vector<cLayer*>vLayer; 
 				//0=Diffuse
 				//1+=Either none, detail, cubemap or bumpmap
 
@@ -85,9 +85,9 @@ namespace breathe
 
 				std::string sName;
 				
-				cShader *pShader;
+				cShader* pShader;
 
-				bool Load(std::string sNewFilename);
+				bool Load(const std::string& sNewFilename);
 			};
 		}
 	}

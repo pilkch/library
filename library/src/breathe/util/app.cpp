@@ -292,43 +292,27 @@ namespace breathe
 			vArgs.push_back(argv[i]);
 
 			s=argv[i];
-
 		}
-
 
 		for(i=2;i<argc;i++)
-
 		{
-
 			vArgs.push_back(argv[i]);
-
 			s+=" " + std::string(argv[i]);
-
 		}
 
-
 		LOG.Success("Arguments", s);
-
 	}
 
-
 	bool cApp::InitApp()
-
 	{
-
 		{
-
 			LOG.Success("Init", "Loading config.xml");
 
 			breathe::xml::cNode root("config.xml");
-
-
 			breathe::xml::cNode::iterator iter(root);
 
 			if (!iter)
-
 			{
-
 				bReturnCode=breathe::BAD;
 				return breathe::BAD;
 			}
@@ -649,11 +633,11 @@ namespace breathe
 		window_manager.LoadTheme();
 
 
-		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(1, 0.4f, 0.4f, 0.2f, 0.2f);
+		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(1, 0.05f, 0.75f, 0.2f, 0.2f);
 
 		pWindow0->AddChild(new breathe::gui::cStaticText(2, 0.05f, 0.05f, 0.1f, 0.1f));
 
-		pWindow0->AddChild(new breathe::gui::cStaticText(3, 0.5f, 0.5f, 0.1f, 0.1f));
+		pWindow0->AddChild(new breathe::gui::cStaticText(3, 0.05f, 0.5f, 0.1f, 0.1f));
 
 		pWindow0->AddChild(new breathe::gui::cButton(4, 0.5f, 0.05f, 0.1f, 0.1f));
 

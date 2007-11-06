@@ -102,12 +102,12 @@ namespace breathe
 			bool AddTextureNotFoundTexture(std::string sNewFilename);
 			bool AddMaterialNotFoundTexture(std::string sNewFilename);
 
-			cTexture *AddCubeMap(std::string sFilename);
-			cTexture *AddTexture(std::string sNewFilename);
-			cTexture *AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas);
+			cTexture* AddCubeMap(std::string sFilename);
+			cTexture* AddTexture(std::string sNewFilename);
+			cTexture* AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas);
 			
 			cTexture* GetTextureAtlas(ATLAS atlas);
-			cTexture *GetTexture(std::string sFilename);
+			cTexture* GetTexture(std::string sFilename);
 			cTexture* GetCubeMap(std::string sFilename);
 
 
@@ -154,8 +154,8 @@ namespace breathe
 
 
 		public:
-			std::map<std::string, cTexture *> mTexture; //Map that contains filename, texture pairs
-			std::map<std::string, cTexture *> mCubeMap; //Map that contains filename, cubemap texture pairs
+			std::map<std::string, cTexture*> mTexture; //Map that contains filename, texture pairs
+			std::map<std::string, cTexture*> mCubeMap; //Map that contains filename, cubemap texture pairs
 
 
 			bool bRenderWireframe;
@@ -185,20 +185,20 @@ namespace breathe
 			math::cVec4 v4SunPosition;
 
 
-			cTexture *pTextureNotFoundTexture;
-			cTexture *pMaterialNotFoundTexture;
+			cTexture* pTextureNotFoundTexture;
+			cTexture* pMaterialNotFoundTexture;
 			
-			material::cMaterial *pMaterialNotFoundMaterial;
+			material::cMaterial* pMaterialNotFoundMaterial;
 
 
-			std::vector<render::cTextureAtlas *> vTextureAtlas; //Vector that contains texture atlases
-			std::map<std::string, material::cMaterial *> mMaterial;
+			std::vector<render::cTextureAtlas*> vTextureAtlas; //Vector that contains texture atlases
+			std::map<std::string, material::cMaterial*> mMaterial;
 
 			std::vector<cVertexBufferObject*>vVertexBufferObject;
 
 
-			cLevel *pLevel;
-			math::cFrustum *pFrustum;
+			cLevel* pLevel;
+			math::cFrustum* pFrustum;
 
 		private:
 			unsigned int uiSegmentWidthPX;
@@ -216,8 +216,8 @@ namespace breathe
 			
 			// Information about the current video settings
 			SDL_VideoInfo* g_info;
-			const SDL_VideoInfo *videoInfo;
-			SDL_Surface *pSurface;
+			const SDL_VideoInfo* videoInfo;
+			SDL_Surface* pSurface;
 
 			//std::map<std::string, model::cAnimation*> mAnimation;
 			std::map<std::string, model::cStatic*> mStatic;

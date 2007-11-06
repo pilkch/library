@@ -10,8 +10,8 @@ namespace breathe
 		public:
 			//constructors
 			cColour(float newR = 0.0f, float newG = 0.0f, float newB = 0.0f, float newA=0.0f);
-			cColour(const float * rhs);
-			cColour(const cColour & rhs);
+			cColour(const float* rhs);
+			cColour(const cColour& rhs);
 			~cColour() {}	//empty
 
 			void Set(float newR, float newG, float newB, float newA);	//set member variables

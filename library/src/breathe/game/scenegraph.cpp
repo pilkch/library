@@ -88,7 +88,7 @@ namespace breathe
 		}
 
 
-		cSceneGraphNode::cSceneGraphNode(cSceneGraph *p, std::string sNewFilename)
+		cSceneGraphNode::cSceneGraphNode(cSceneGraph* p, std::string sNewFilename)
 		{
 			uiStatus=0;
 

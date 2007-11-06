@@ -107,7 +107,7 @@ namespace breathe
 		dSpaceCollide2(geomRay, (dGeomID)physics::spaceDynamic, this, RayCastCallback);
 	}
 
-	void cPlayer::RayCastCallback( void * data, dGeomID g1, dGeomID g2 )
+	void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
 	{
 		cPlayer* p = ((cPlayer*)data);
 		if( dGeomGetBody( g1 ) == p->body ) return;

@@ -27,7 +27,7 @@ namespace breathe
 	class cPlayer : virtual public physics::cUprightCapsule
 	{
 	public:
-		vehicle::cSeat *pSeat;
+		vehicle::cSeat* pSeat;
 		
 		cPlayer();
 		~cPlayer();
@@ -57,7 +57,7 @@ namespace breathe
 		float fDollars;
 
 		//list of items
-		std::vector<cItem *>vItem;
+		std::vector<cItem*>vItem;
 
 		void Update(sampletime_t currentTime);
 

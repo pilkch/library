@@ -101,18 +101,18 @@ namespace breathe
 			void SetOrtho(float left, float right, float bottom, float top, float n, float f);
 
 			//set parts of the matrix
-			void SetTranslationPart(const cVec3 & translation);
+			void SetTranslationPart(const cVec3& translation);
 			void SetRotationPartEuler(const double angleX, const double angleY, const double angleZ);
-			void SetRotationPartEuler(const cVec3 & rotations)
+			void SetRotationPartEuler(const cVec3& rotations)
 			{
 				SetRotationPartEuler((float)rotations.x, (float)rotations.y, (float)rotations.z);
 			}
 
-			//cast to pointer to a (float *) for glGetFloatv etc
+			//cast to pointer to a (float*) for glGetFloatv etc
 			operator float* () const {return (float*) this;}
 			operator const float* () const {return (const float*) this;}
 
-			void LookAt(const cVec3 &eye,const cVec3 &dir,const cVec3 &up);
+			void LookAt(const cVec3& eye,const cVec3& dir,const cVec3& up);
 
 		private:
 			float entries[16];

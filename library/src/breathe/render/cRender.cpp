@@ -685,8 +685,8 @@ namespace breathe
 			assert(pMesh);
 			assert(pMesh->pMeshData);
 
-			float *fVertices=&pMesh->pMeshData->vVertex[0];
-			float *fTextureCoords=&pMesh->pMeshData->vTextureCoord[0];
+			float* fVertices=&pMesh->pMeshData->vVertex[0];
+			float* fTextureCoords=&pMesh->pMeshData->vTextureCoord[0];
 
 			unsigned int triangle=0;
 			unsigned int texcoord=0;
@@ -777,7 +777,7 @@ namespace breathe
 			glEnd();
 		}
 		
-		unsigned int cRender::RenderStaticModel(model::cStatic *p)
+		unsigned int cRender::RenderStaticModel(model::cStatic* p)
 		{
 			if(NULL==p)
 				return 0;
@@ -804,7 +804,7 @@ namespace breathe
 			return uiTriangles;
 		}
 
-		unsigned int cRender::RenderStaticModel(model::cStatic *p, math::cColour& colour)
+		unsigned int cRender::RenderStaticModel(model::cStatic* p, math::cColour& colour)
 		{
 			SetColour(colour);
 
@@ -930,7 +930,7 @@ namespace breathe
 
 
 
-		cTexture *cRender::AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas)
+		cTexture* cRender::AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas)
 		{
 			assert(sNewFilename != "");
 			assert(ATLAS_NONE != uiAtlas);
@@ -952,7 +952,7 @@ namespace breathe
 			return p;
 		}
 
-		cTexture *cRender::AddTexture(std::string sNewFilename)
+		cTexture* cRender::AddTexture(std::string sNewFilename)
 		{
 			assert(sNewFilename != "");
 			
@@ -1052,9 +1052,9 @@ namespace breathe
 			return vTextureAtlas[atlas];
 		}
 
-		cTexture *cRender::GetTexture(std::string sNewFilename)
+		cTexture* cRender::GetTexture(std::string sNewFilename)
 		{			
-			std::map<std::string, cTexture *>::iterator iter = mTexture.find(sNewFilename);
+			std::map<std::string, cTexture* >::iterator iter = mTexture.find(sNewFilename);
 			if(iter != mTexture.end())
 				return iter->second;
 
@@ -1069,12 +1069,12 @@ namespace breathe
 			return pVertexBufferObject;
 		}
 
-		cTexture *cRender::GetCubeMap(std::string sNewFilename)
+		cTexture* cRender::GetCubeMap(std::string sNewFilename)
 		{		
 			if(""==sNewFilename)
 				return NULL;
 			
-			std::map<std::string, cTexture *>::iterator iter=mCubeMap.find(sNewFilename);
+			std::map<std::string, cTexture*>::iterator iter=mCubeMap.find(sNewFilename);
 
 			if(mCubeMap.end()!=iter)
 				return iter->second;
@@ -1082,7 +1082,7 @@ namespace breathe
 			return NULL;
 		}
 
-		cTexture *cRender::AddCubeMap(std::string sFilename)
+		cTexture* cRender::AddCubeMap(std::string sFilename)
 		{
 			/*TODO: Surface of 1x6 that holds the cubemap faces,
 			not actually used for rendering, just collecting each surface
@@ -1097,7 +1097,7 @@ namespace breathe
 			if(""==sFilename)
 				return pTextureNotFoundTexture;
 
-			cTexture *p=mCubeMap[sFilename];
+			cTexture* p=mCubeMap[sFilename];
 			if(p)
 				return p;
 
@@ -1149,7 +1149,7 @@ namespace breathe
 
 				unsigned int mode=0;
 
-				SDL_Surface *surface = IMG_Load(sFilename.c_str());
+				SDL_Surface* surface = IMG_Load(sFilename.c_str());
 
 				// could not load filename
 				if (!surface)
@@ -1247,7 +1247,7 @@ namespace breathe
 			return p;
 		}
 
-		material::cMaterial *cRender::AddMaterialNotFoundMaterial(std::string sNewFilename)
+		material::cMaterial* cRender::AddMaterialNotFoundMaterial(std::string sNewFilename)
 		{
 			AddMaterialNotFoundTexture(sNewFilename);
 
@@ -1262,12 +1262,12 @@ namespace breathe
 			return pMaterialNotFoundMaterial;
 		}
 
-		material::cMaterial *cRender::AddMaterial(std::string sNewfilename)
+		material::cMaterial* cRender::AddMaterial(std::string sNewfilename)
 		{
 			if(""==sNewfilename)
 				return NULL;
 
-			material::cMaterial *pMaterial = GetMaterial(sNewfilename);
+			material::cMaterial* pMaterial = GetMaterial(sNewfilename);
 			
 			if(pMaterial != pMaterialNotFoundMaterial)
 				return pMaterial;
@@ -1645,7 +1645,7 @@ namespace breathe
 
 						//math::cQuaternion q(mat[8], mat[9], -mat[10]);
 
-						//glLoadMatrixf(static_cast<float *>(q.GetMatrix()));
+						//glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
 
 
 						glMatrixMode(GL_MODELVIEW);
@@ -1710,7 +1710,7 @@ namespace breathe
 					{
 						layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
 
-						cTexture *t=pLevel->FindClosestCubeMap(pos);
+						cTexture* t=pLevel->FindClosestCubeMap(pos);
 
 						if(t)
 						{
@@ -1811,7 +1811,7 @@ namespace breathe
 
 						//math::cQuaternion q(mat[8], mat[9], -mat[10]);
 
-						//glLoadMatrixf(static_cast<float *>(q.GetMatrix()));
+						//glLoadMatrixf(static_cast<float*>(q.GetMatrix()));
 
 
 						glMatrixMode(GL_MODELVIEW);
@@ -2051,7 +2051,7 @@ namespace breathe
 
 		material::cMaterial* cRender::GetMaterial(const std::string& sFilename)
 		{
-			std::map<std::string, material::cMaterial * >::iterator iter=mMaterial.begin();
+			std::map<std::string, material::cMaterial*>::iterator iter=mMaterial.begin();
 
 			std::string temp = filesystem::GetFile(sFilename);
 			while(iter!=mMaterial.end())
@@ -2093,7 +2093,7 @@ namespace breathe
 
 		model::cStatic* cRender::CreateNewModel(std::string sName)
 		{
-			model::cStatic *pModel = mStatic[sName];
+			model::cStatic* pModel = mStatic[sName];
 
 			if(pModel)
 				return pModel;
@@ -2107,7 +2107,7 @@ namespace breathe
 		
 		model::cStatic* cRender::AddModel(std::string sNewfilename)
 		{
-			model::cStatic *pModel = mStatic[sNewfilename];
+			model::cStatic* pModel = mStatic[sNewfilename];
 
 			if(pModel)
 				return pModel;
@@ -2130,9 +2130,9 @@ namespace breathe
 			return NULL;
 		}
 
-		model::cStatic *cRender::GetModel(std::string sFilename)
+		model::cStatic* cRender::GetModel(std::string sFilename)
 		{
-			model::cStatic *pModel=mStatic[sFilename];
+			model::cStatic* pModel=mStatic[sFilename];
 			if(pModel)
 				return pModel;
 			
@@ -2233,7 +2233,7 @@ namespace breathe
 			}
 
 
-			float *fNormals=NULL;
+			float* fNormals=NULL;
 
 			//Calculate normals
 			for(iter=mStatic.begin();iter!=mStatic.end();iter++)
@@ -2308,7 +2308,7 @@ namespace breathe
 			
 			{
 				LOG.Success("Render", "ReloadTextures Atlases");
-				cTextureAtlas *pAtlas = NULL;
+				cTextureAtlas* pAtlas = NULL;
 				size_t n = vTextureAtlas.size();
 				for(size_t i = 0;i<n;i++)
 					vTextureAtlas[i]->Reload();
@@ -2316,7 +2316,7 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Misc Textures");
-				cTexture *pTexture = NULL;
+				cTexture* pTexture = NULL;
 				std::map<std::string, cTexture* >::iterator iter=mTexture.begin();
 				std::map<std::string, cTexture* >::iterator iterEnd=mTexture.end();
 				while(iter != iterEnd)
@@ -2331,9 +2331,9 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Materials");
-				material::cMaterial * pMaterial = NULL;
-				std::map<std::string, material::cMaterial *>::iterator iter=mMaterial.begin();
-				std::map<std::string, material::cMaterial *>::iterator iterEnd=mMaterial.end();
+				material::cMaterial* pMaterial = NULL;
+				std::map<std::string, material::cMaterial*>::iterator iter=mMaterial.begin();
+				std::map<std::string, material::cMaterial*>::iterator iterEnd=mMaterial.end();
 				while(iter != iterEnd)
 				{
 					pMaterial = iter->second;
@@ -2379,8 +2379,8 @@ namespace breathe
 				resolutions.clear();
 				iter = resolutions.end();
 
-				SDL_Rect **modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-				if(modes == (SDL_Rect **)0 || modes == (SDL_Rect **)-1)
+				SDL_Rect** modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+				if(modes == (SDL_Rect**)0 || modes == (SDL_Rect**)-1)
 				{
 					CONSOLE<<"No modes available"<<std::endl;
 					resolutions.push_back(resolution(640, 480));

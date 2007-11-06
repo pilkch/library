@@ -46,7 +46,7 @@ namespace breathe
 
 			// get a number from a data buffer to use on this host
 			char in[1024];
-			char *ptr=&in[40]; //this points into a previously received data buffer
+			char* ptr=&in[40]; //this points into a previously received data buffer
 			number=0;
 			number=SDLNet_Read32(ptr);
 			// number is now in your hosts byte order, ready to use. 

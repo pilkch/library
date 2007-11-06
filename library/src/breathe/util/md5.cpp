@@ -80,7 +80,7 @@ namespace breathe
 	bool cMD5::CheckString(char * input)
 	{
 		Start();
-			Update(&ctx, (unsigned char *)input, strlen(input));
+			Update(&ctx, (unsigned char*)input, strlen(input));
 		Finish(&ctx);
 
 		return true;
@@ -89,7 +89,7 @@ namespace breathe
 	bool cMD5::CheckFile(std::string input)
 	{
 		int i;
-		FILE *f;
+		FILE* f;
 		unsigned char buf[1000];
 
 		if(input.size()<2)

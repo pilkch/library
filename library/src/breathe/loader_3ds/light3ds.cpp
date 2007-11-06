@@ -4,6 +4,7 @@
 
 #include <list>
 #include <vector>
+#include <string>
 
 // Breathe
 #include <breathe/breathe.h>

@@ -13,10 +13,10 @@ namespace breathe
 			cFont(const std::string fname, unsigned int h);
 			~cFont();
       
-			void printf(float x, float y, const char *fmt, ...);
+			void printf(float x, float y, const char* fmt, ...);
 
 			float h;			///< Holds the height of the font.
-			GLuint * textures;	///< Holds the texture id's 
+			GLuint* textures;	///< Holds the texture id's 
 			GLuint list_base;	///< Holds the first display list id
 		};
 	}
