@@ -9,6 +9,8 @@ namespace breathe
 {
 	namespace gui
 	{
+		unsigned int GenerateID();
+
 		class cWindowManager
 		{
 		public:

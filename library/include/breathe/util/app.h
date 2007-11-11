@@ -57,6 +57,41 @@ namespace breathe
 		std::vector<SDL_Joystick*>vJoystick;
 
 	private:
+		class cConsoleWindow
+		{
+		public:
+			cConsoleWindow();
+			~cConsoleWindow();
+
+			void SetWindow(gui::cWindow* window);
+			gui::cWindow* GetWindow() const;
+			
+		private:
+			gui::cWindow* pWindow;
+		};
+		
+		class cKey
+		{
+		public:
+			//std::string sCommand;
+			//cKey(std::string command);
+
+			bool bVariable;
+			bool bRepeat;
+			bool bToggle;
+
+			bool bDown;
+			bool bCollected;
+
+			unsigned int uiCode;
+
+			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
+			
+			bool IsKeyDown();
+			void SetKeyDown(bool bConsole);
+			void SetKeyUp(bool bConsole);
+		};
+
 		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, char** argv);
 		void _Render(sampletime_t currentTime);
@@ -88,6 +123,7 @@ namespace breathe
 		void UpdateEvents(sampletime_t currentTime);
 
 		void OnKeyUp(SDL_keysym* keysym);
+		void OnKeyDown(SDL_keysym* keysym);
     		
 #ifdef BUILD_DEBUG
 		bool bDebug;
@@ -97,34 +133,12 @@ namespace breathe
 		bool bReturnCode;
 
 		std::string title;
-		
-		gui::cWindowManager window_manager;
-
 		std::vector<std::string>vArgs;
-		
-		
-		class cKey
-		{
-		public:
-			//std::string sCommand;
-			//cKey(std::string command);
-
-			bool bVariable;
-			bool bRepeat;
-			bool bToggle;
-
-			bool bDown;
-			bool bCollected;
-
-			unsigned int uiCode;
-
-			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
-			
-			bool IsKeyDown();
-			void SetKeyUp(bool bConsole);
-		};
 
 		std::map<unsigned int, cKey* >mKey;
+		
+		gui::cWindowManager window_manager;
+		cConsoleWindow consoleWindow;		
 	};
 
 
@@ -139,6 +153,20 @@ namespace breathe
 	inline bool cApp::_IsKeyDown(float fAmount)
 	{
 		return (fAmount > KEY_MIN || fAmount < -KEY_MIN);
+	}
+
+	
+
+	// This doesn't belong here
+	// TODO: Move to breathe/algorithm/gen.h
+	namespace vector
+	{
+		template <class T>
+		inline void push_back(std::vector<T>& v, size_t n, const T& value)
+		{
+			v.reserve(n);
+			for (size_t i = 0; i != n; i++) v.push_back(value);
+		}
 	}
 }
 

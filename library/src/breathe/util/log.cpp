@@ -335,7 +335,7 @@ namespace breathe
 		}
 
 		
-		void cConsoleBase::AddKey(unsigned int uiCode)
+		bool cConsoleBase::AddKey(unsigned int uiCode)
 		{
 			//Uint8* key = SDL_GetKeyState( NULL );
 			//key for shift, control, etc. modifiers
@@ -359,23 +359,22 @@ namespace breathe
 			SDLK_COMPOSE		= 314,		//Multi-key compose key
 			*/
 
-			if(SDLK_RETURN==uiCode || SDLK_KP_ENTER==uiCode)
+			if((SDLK_RETURN == uiCode) || (SDLK_KP_ENTER == uiCode))
 			{
 				ExecuteCommand(GetCurrentLine());
 
 				ClearCurrent();
 				uiCursorPosition=0;
 			}
+			else if((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode))
+				return false;
 
-			else if(SDLK_ESCAPE==uiCode || SDLK_BACKQUOTE==uiCode)
-				Hide();
-
-			else if(SDLK_DELETE==uiCode)
+			else if(SDLK_DELETE == uiCode)
 			{
 				if(uiCursorPosition<current.size())
 					current.erase(uiCursorPosition, 1);
 			}
-			else if(SDLK_BACKSPACE==uiCode)
+			else if(SDLK_BACKSPACE == uiCode)
 			{
 				if(uiCursorPosition > 0)
 				{
@@ -433,6 +432,8 @@ namespace breathe
 
 			//When we press a key we want to see where we are up to
 			uiCursorBlink = 0;
+
+			return true;
 		}
 	}
 }

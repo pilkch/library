@@ -9,26 +9,26 @@ namespace breathe
 	class constant_stack
 	{
 	public:
-		template <class T>
-		class iterator
-		{
-		public:
-			iterator(size_t i);
-		};
+		typedef std::vector<T> container_t;
+		typedef typename container_t::iterator iterator;
+		typedef typename container_t::reverse_iterator reverse_iterator;
 
 		constant_stack(size_t n);
 
 		void push_back(const T& rhs);
 
-		iterator<T> begin();
-		iterator<T> end();
+		iterator begin() { return elements.begin(); }
+		iterator end() { return elements.end(); }
+
+		reverse_iterator rbegin() { return elements.rbegin(); }
+		reverse_iterator rend() { return elements.rend(); }
 		
 		size_t size() const;
 
 		T& operator[](size_t i);
 
 	private:
-		std::vector<T> elements;
+		container_t elements;
 		size_t first;
 		size_t n;
 	};
@@ -49,18 +49,6 @@ namespace breathe
 			if (first >= n) first = 0;
 			elements[first++] = rhs;
 		}
-	}
-	
-	template <class T>
-	typename constant_stack<T>::iterator<T> constant_stack<T>::begin()
-	{
-		return elements.begin();
-	}
-
-	template <class T>
-	typename constant_stack<T>::iterator<T> constant_stack<T>::end()
-	{
-		return elements.end();
 	}
 	
 	template <class T>
@@ -234,7 +222,7 @@ namespace breathe
 			const std::string GetCurrentLine() const { return current; }
 			void ClearCurrent() { current = ""; }
 
-			void AddKey(unsigned int code);
+			bool AddKey(unsigned int code);
 			void ExecuteCommand(const std::string& command);
 
 			bool IsVisible() const { return bShow; }
@@ -251,6 +239,12 @@ namespace breathe
 				uiCursorPosition = 0;
 				ClearCurrent();
 			}
+
+			constant_stack<std::string>::iterator begin() { return lines.begin(); }
+			constant_stack<std::string>::iterator end() { return lines.end(); }
+
+			constant_stack<std::string>::reverse_iterator rbegin() { return lines.rbegin(); }
+			constant_stack<std::string>::reverse_iterator rend() { return lines.rend(); }
 
 		protected:
 			bool bShow;

@@ -191,16 +191,13 @@ int intersect_triangle(
 namespace breathe
 {
 	cApp::cApp(int argc, char **argv) :
-
 #ifdef BUILD_DEBUG
 		bDebug(true),
 #endif
-
 		bActive(true),
 		bDone(false),
 		bUpdatePhysics(true),
 		bStepPhysics(false),
-
 		bReturnCode(breathe::GOOD)
 	{
 		CONSOLE.SetApp(this);
@@ -396,293 +393,171 @@ namespace breathe
 			int nJoysticks = SDL_NumJoysticks();
 
 			std::ostringstream t;
-
 			t << "Joysticks found: ";
-
 			t << nJoysticks;
 
-
 			if(nJoysticks)
-
 			{
-
 				LOG.Success("SDL", t.str());
-
 				SDL_JoystickEventState(SDL_ENABLE);
 
-
 				for(int i=0; i < nJoysticks; i++ ) 
-
 				{
-
 					t.str("");
-
 					t << "Joystick(";
-
 					t << i;
-
 					t << ") ";
-
 					t << SDL_JoystickName(i);
-
 					LOG.Success("SDL", t.str());
-
 
 					//TODO: Create a list of joysticks, close them at the end of the program
-
 					SDL_Joystick *pJoystick = SDL_JoystickOpen(i);
 
-
 					t.str("");
-
 					t << "Buttons=";
-
 					t << SDL_JoystickNumButtons(pJoystick);
-
 					t << ", Axes=";
-
 					t << SDL_JoystickNumAxes(pJoystick);
-
 					t << ", Hats=";
-
 					t << SDL_JoystickNumHats(pJoystick);
-
 					t << ", Balls=";
-
 					t << SDL_JoystickNumBalls(pJoystick);
-
 					LOG.Success("SDL", t.str());
-
 					
-
 					vJoystick.push_back(pJoystick);
-
 				}
 
 			}
-
-			else
-
-        LOG.Error("SDL", t.str());
-
+			else LOG.Error("SDL", t.str());
 
 			/*if(nJoysticks)
-
 			{
-
 				SDL_Event event;
-
 				// Other initializtion code goes here 
-
-
 				// Start main game loop here 
 
-
 				while(SDL_PollEvent(&event))
+				{
+					switch(event.type)
+					{  
+						case SDL_KEYDOWN:
+							/* handle keyboard stuff here 				
+							break;
 
-				{  
+						case SDL_QUIT:
 
-						switch(event.type)
+						/* Set whatever flags are necessary to 
+						/* end the main game loop here 
 
-						{  
-
-								case SDL_KEYDOWN:
-
-								/* handle keyboard stuff here 				
-
-								break;
-
-
-								case SDL_QUIT:
-
-								/* Set whatever flags are necessary to 
-
-								/* end the main game loop here 
-
-								break;
+							break;
 
 
+						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion 
+							if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+							{
+								/* code goes here
+							}
+							break;
 
-								case SDL_JOYAXISMOTION:  /* Handle Joystick Motion 
-
-								if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
-
+						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+							if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+							{
+								if( event.jaxis.axis == 0) 
 								{
-
-									/* code goes here
-
+									/* Left-right movement code goes here
 								}
 
-								break;
-
-
-
-								case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
-
-								if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
-
+								if( event.jaxis.axis == 1) 
 								{
-
-										if( event.jaxis.axis == 0) 
-
-										{
-
-												/* Left-right movement code goes here
-
-										}
-
-
-										if( event.jaxis.axis == 1) 
-
-										{
-
-												/* Up-Down movement code goes here
-
-										}
-
+									/* Up-Down movement code goes here
 								}
+							}
+							break;
 
-								break;
+						case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
+							if ( event.jbutton.button == 0 ) 
+							{
+								/* code goes here
+							}
+							break;
 
-
-
-								case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
-
-								if ( event.jbutton.button == 0 ) 
-
-								{
-
-										/* code goes here
-
-								}
-
-								break;
-
-
-
-								case SDL_JOYHATMOTION:  /* Handle Hat Motion
-
-								if ( event.jhat.value & SDL_HAT_UP )
-
-								{
-
-										// Do up stuff here
-
-								}
-
-
-								if ( event.jhat.value & SDL_HAT_LEFT )
-
-								{
-
-										// Do left stuff here
-
-								}
-
-
-								if ( event.jhat.value & SDL_HAT_RIGHTDOWN )
-
-								{
-
-										// Do right and down together stuff here
-
-								}
-
-								break;
-
+						case SDL_JOYHATMOTION:  /* Handle Hat Motion
+							if ( event.jhat.value & SDL_HAT_UP )
+							{
+								// Do up stuff here
+							}
+							if ( event.jhat.value & SDL_HAT_LEFT )
+							{
+								// Do left stuff here
+							}
+							if ( event.jhat.value & SDL_HAT_RIGHTDOWN )
+							{
+								// Do right and down together stuff here
+							}
+							break;
 						}
-
 				}
 
-
 				// End loop here
-
 			}*/
-
 		}
 
-
 		std::string s = ("app.ico");
-
 		LOG.Success("SDL", "Setting caption to " + s);
-
 		SDL_WM_SetCaption(title.c_str(), s.c_str());
 
-
 		if(breathe::BAD==InitRender())
-
 			return breathe::BAD;
-
 
 		TTF_Init();
 
-
 		breathe::audio::Init();
-
-		
 
 		breathe::physics::Init();
 
-
 		if(breathe::BAD==LoadScene())
-
 			return breathe::BAD;
 
-
-
+	
 		window_manager.LoadTheme();
-
-
-		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(1, 0.05f, 0.75f, 0.2f, 0.2f);
-
-		pWindow0->AddChild(new breathe::gui::cStaticText(2, 0.05f, 0.05f, 0.1f, 0.1f));
-
-		pWindow0->AddChild(new breathe::gui::cStaticText(3, 0.05f, 0.5f, 0.1f, 0.1f));
-
-		pWindow0->AddChild(new breathe::gui::cButton(4, 0.5f, 0.05f, 0.1f, 0.1f));
-
+		
+		// Testing Window
+#ifdef BUILD_DEBUG
+		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.75f, 0.2f, 0.2f);
+		pWindow0->AddChild(new breathe::gui::cStaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.1f, 0.1f));		
+		pWindow0->AddChild(new breathe::gui::cStaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));		
+		pWindow0->AddChild(new breathe::gui::cButton(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
 		window_manager.AddChild(pWindow0);
-
-
-		//window_manager.AddChild(new breathe::gui::cWindow(3, 0.8f, 0.0f, 0.2f, 0.2f));
-
+#endif
+		
+		// Console Window
+		consoleWindow.SetWindow(new gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.2f, 0.2f));
+		window_manager.AddChild(consoleWindow.GetWindow());
+		consoleWindow.GetWindow()->Hide();
 
 
 		if(breathe::BAD==InitScene())
-
 			return breathe::BAD;
-
 
 
 		breathe::audio::StartAll();
 
-
 		// Setup mouse
-
 		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
 
 		//SDL_ShowCursor(SDL_DISABLE);
 
-
 		return breathe::GOOD;
-
 	}
 
-
 	bool cApp::DestroyApp()
-
 	{
-
 		SDL_ShowCursor(SDL_ENABLE);
-
 
 		breathe::audio::StopAll();
 
-
 		return breathe::GOOD;
-
 	}
-
 
 	bool cApp::InitRender()
 	{
@@ -771,6 +646,10 @@ namespace breathe
 					OnKeyUp(&event.key.keysym);
 					break;
 
+				case SDL_KEYDOWN:
+					OnKeyDown(&event.key.keysym);
+					break;
+
 				case SDL_MOUSEMOTION:
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP:
@@ -815,48 +694,60 @@ namespace breathe
 
 	void cApp::UpdateKeys(sampletime_t currentTime)
 	{
+		Uint8 *key = SDL_GetKeyState( NULL );
+		cKey* p;
+
+		std::map<unsigned int, cKey* >::iterator iter=mKey.begin();
+		while(iter != mKey.end())
 		{
-			Uint8 *key = SDL_GetKeyState( NULL );
-			cKey* p;
+			p = (iter->second);
 
-			std::map<unsigned int, cKey* >::iterator iter=mKey.begin();
-			while(iter != mKey.end())
+			//This key is pressed
+			if(key[p->uiCode])
 			{
-				p = (iter->second);
-
-				//This key is pressed
-				if(key[p->uiCode])
+				//This key can be held down
+				if(p->bRepeat)
 				{
-					//This key can be held down
-					if(p->bRepeat)
-					{
-						p->bDown=true;
-						p->bCollected=false;
-					}
-					//This key can only be pressed once
-					else
-					{
-						p->bDown=false;
-						p->bCollected=false;
-					}
+					p->bDown=true;
+					p->bCollected=false;
 				}
+				//This key can only be pressed once
 				else
+				{
 					p->bDown=false;
-
-				iter++;
+					p->bCollected=false;
+				}
 			}
+			else
+				p->bDown = false;
+
+			iter++;
+		}
+	}
+
+	void cApp::OnKeyDown(SDL_keysym *keysym)
+	{
+		unsigned int code = keysym->sym;
+
+		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+		if(iter != mKey.end()) iter->second->SetKeyDown(CONSOLE.IsVisible());
+		
+		if(CONSOLE.IsVisible()) {
+			// Remove key from list
+			IsKeyDown(code);
+			
+			if (!CONSOLE.AddKey(code)) ConsoleHide();
 		}
 	}
 
 	void cApp::OnKeyUp(SDL_keysym *keysym)
 	{
-		unsigned int code=keysym->sym;
+		unsigned int code = keysym->sym;
 
-		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
-		if(iter!=mKey.end())
-			iter->second->SetKeyUp(CONSOLE.IsVisible());
+		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+		if(iter != mKey.end()) iter->second->SetKeyUp(CONSOLE.IsVisible());
 
-		if(CONSOLE.IsVisible()) CONSOLE.AddKey(CONSOLE.IsVisible());
+		if(CONSOLE.IsVisible()) CONSOLE.AddKey(code);
 	}
 
 	void cApp::_UpdateInput(sampletime_t currentTime)
@@ -877,20 +768,17 @@ namespace breathe
 	{
 		SDL_ShowCursor(SDL_DISABLE);
 	}
-
+	
 	void cApp::ConsoleShow()
 	{
+		consoleWindow.GetWindow()->Show();
 		CONSOLE.Show();
 		CursorShow();
 	}
 
-	//Reckless Kelly
-	//Young Einstein
-	//Hair Spray
-	//Saint-Saens "Danse Macabre"
-
 	void cApp::ConsoleHide()
 	{
+		consoleWindow.GetWindow()->Hide();
 		CONSOLE.Hide();
 		CursorHide();
 	}
@@ -1095,6 +983,31 @@ namespace breathe
 		return bReturnCode;
 	}
 
+
+
+	// *** cConsoleWindow
+	cApp::cConsoleWindow::cConsoleWindow() :
+		pWindow(nullptr)
+	{
+	}
+
+	cApp::cConsoleWindow::~cConsoleWindow()
+	{
+		// Deleted by our window manager
+		pWindow = nullptr;
+	}
+
+	void cApp::cConsoleWindow::SetWindow(gui::cWindow* window)
+	{
+		pWindow = window;
+	}
+
+	gui::cWindow* cApp::cConsoleWindow::GetWindow() const
+	{
+		return pWindow;
+	}
+
+
 	// *** cKey
 	cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
 		uiCode(code),
@@ -1129,18 +1042,26 @@ namespace breathe
 		return false;
 	}
 
+	void cApp::cKey::SetKeyDown(bool bConsole)
+	{
+		bDown = true;
+		bCollected = false;
+	}
+
 	void cApp::cKey::SetKeyUp(bool bConsole)
 	{
-		if(bRepeat)
+		bDown = false;
+		bCollected = false;
+		
+		/*if(bRepeat)
 		{
-			bDown=false;
-			bCollected=false;
+			bDown = false;
+			bCollected = false;
 		}
 		else if(!bConsole)
 		{
-			bDown=true;
-			bCollected=false;
-		}
+			bDown = true;
+			bCollected = false;
+		}*/
 	}
 }
-

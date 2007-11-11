@@ -71,15 +71,7 @@ namespace breathe
 			friend class cWindowManager;
 		};
 
-		template <WIDGET_TYPE t>
-		class cWidgetTemplate : public cWidget
-		{
-		public:
-			cWidgetTemplate(unsigned int id, float x, float y, float width, float height) :
-				cWidget(id, t, x, y, width, height)
-			{
-			}
-		};
+		// *** cWidget
 		
 		inline void cWidget::Enable()
 		{
@@ -100,6 +92,18 @@ namespace breathe
 		{
 			bVisible = false;
 		}
+
+
+		
+		template <WIDGET_TYPE t>
+		class cWidgetTemplate : public cWidget
+		{
+		public:
+			cWidgetTemplate(unsigned int id, float x, float y, float width, float height) :
+				cWidget(id, t, x, y, width, height)
+			{
+			}
+		};
 
 		typedef cWidgetTemplate<WIDGET_WINDOW> cWindow;
 		typedef cWidgetTemplate<WIDGET_BUTTON> cButton;

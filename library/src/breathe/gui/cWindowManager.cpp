@@ -48,7 +48,14 @@
 namespace breathe
 {
 	namespace gui
-	{		
+	{
+		unsigned int nextID = 1;
+		
+		unsigned int GenerateID()
+		{
+			return nextID++;
+		}
+
 		render::material::cMaterial* pMaterial= NULL;
 
 		cWindowManager::cWindowManager()
