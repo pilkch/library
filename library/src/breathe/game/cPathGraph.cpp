@@ -291,3 +291,54 @@ namespace breathe
 		}
 	}
 }
+
+
+
+#ifdef BUILD_DEBUG
+#include <breathe/util/unittest.h>
+
+class cPathGraphUnitTest : protected breathe::util::cUnitTestBase
+{
+public:
+	cPathGraphUnitTest() :
+		cUnitTestBase("cPathGraphUnitTest")
+	{
+	}
+
+	void Test()
+	{
+		breathe::game::path::cPathGraph graph;
+
+		breathe::game::path::cPathNode* n0 = new breathe::game::path::cPathNode(1.0f, 1.0f, 0.0f);
+		breathe::game::path::cPathNode* n1 = new breathe::game::path::cPathNode(2.0f, 8.0f, 0.0f);
+		breathe::game::path::cPathNode* n2 = new breathe::game::path::cPathNode(3.0f, 1.0f, 0.0f);
+
+		breathe::game::path::cPathEdge* e0 = new breathe::game::path::cPathEdge(1.0f);
+		breathe::game::path::cPathEdge* e1 = new breathe::game::path::cPathEdge(2.0f);
+
+		graph.AddNode(n0);
+		graph.AddNode(n1);
+		graph.AddNode(n2);
+
+		graph.AddEdgeTwoWay(e0, n0, n1);
+		graph.AddEdgeTwoWay(e1, n1, n2);
+
+		breathe::game::path::node_list path;
+
+		graph.GetPath(breathe::math::cVec3(0.0f, 0.0f, 0.0f), breathe::math::cVec3(10.0f, 1.0f, 0.0f), path);
+
+		breathe::game::path::node_list_iterator iter = path.begin();
+		breathe::game::path::node_list_iterator iterEnd = path.end();
+
+		breathe::game::path::cPathNode* pNode = NULL;
+		while(iter != iterEnd)
+		{
+			pNode = *iter;
+			iter++;
+		}
+	}
+};
+
+cPathGraphUnitTest gPathGraphUnitTest;
+#endif //BUILD_DEBUG
+

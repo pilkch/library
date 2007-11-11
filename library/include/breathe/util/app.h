@@ -29,6 +29,14 @@ namespace breathe
 		bool IsKeyDown(unsigned int code);
 		bool IsKeyDownReset(unsigned int code);
 
+		bool IsMouseLeftButtonDown() const;
+		bool IsMouseRightButtonDown() const;
+		bool IsMouseScrollUp() const;
+		bool IsMouseScrollDown() const;
+
+		int GetMouseX() const;
+		int GetMouseY() const;
+
 		void CursorShow();
 		void CursorHide();
 
@@ -57,22 +65,26 @@ namespace breathe
 		std::vector<SDL_Joystick*>vJoystick;
 
 	private:
-		class cConsoleWindow
+		class cConsoleWindow : public gui::cWindow
 		{
 		public:
 			cConsoleWindow();
 			~cConsoleWindow();
-
-			void SetWindow(gui::cWindow* window);
-			gui::cWindow* GetWindow() const;
 			
 		private:
-			gui::cWindow* pWindow;
+			void _OnMouseEvent(int button, int state, int x, int y) {}
+			void _OnEvent(unsigned int id);
 		};
 		
 		class cKey
 		{
 		public:
+			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
+			
+			bool IsDown();
+			void SetDown(bool bConsole);
+			void SetUp(bool bConsole);
+
 			//std::string sCommand;
 			//cKey(std::string command);
 
@@ -84,17 +96,28 @@ namespace breathe
 			bool bCollected;
 
 			unsigned int uiCode;
+		};
 
-			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
+		class cMouse
+		{
+		public:
+			cMouse::cMouse() : x(0), y(0) { down.reset(); }
 			
-			bool IsKeyDown();
-			void SetKeyDown(bool bConsole);
-			void SetKeyUp(bool bConsole);
+			bool IsDown(bool bConsole, size_t button) const { assert(button < 10); return down[button]; }
+			bool IsUp(bool bConsole, size_t button) const { assert(button < 10); return !down[button]; }
+
+			int GetX() const { return x; }
+			int GetY() const { return y; }
+			
+			std::bitset<10> down;
+			int x;
+			int y;
 		};
 
 		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, char** argv);
 		void _Render(sampletime_t currentTime);
+
 
 		void _UpdateInput(sampletime_t currentTime);
 		bool _IsKeyDown(float fAmount);
@@ -105,25 +128,28 @@ namespace breathe
 		virtual void EndRender(sampletime_t currentTime) {}
 
 		// Pure virtual functions, these *have* to be overridden in your derived game class
-		virtual bool LoadScene()=0;
-		virtual bool InitScene()=0;
-		virtual bool DestroyScene()=0;
+		virtual bool LoadScene() = 0;
+		virtual bool InitScene() = 0;
+		virtual bool DestroyScene() = 0;
 
-		virtual void Update(sampletime_t currentTime)=0;
-		virtual void UpdatePhysics(sampletime_t currentTime)=0;
-		virtual void UpdateInput(sampletime_t currentTime)=0;
-		virtual void RenderScene(sampletime_t currentTime)=0;
-		virtual void RenderScreenSpace(sampletime_t currentTime)=0;
-		virtual void OnMouse(int button,int state,int x,int y)=0;
+		virtual void Update(sampletime_t currentTime) = 0;
+		virtual void UpdatePhysics(sampletime_t currentTime) = 0;
+		virtual void RenderScene(sampletime_t currentTime) = 0;
+		virtual void RenderScreenSpace(sampletime_t currentTime) = 0;
+		
+		virtual void UpdateInput(sampletime_t currentTime) = 0;
 
 		virtual void FullscreenSwitch()=0;
 		virtual bool Execute(const std::string& sCommand)=0;	
 
-		void UpdateKeys(sampletime_t currentTime);
-		void UpdateEvents(sampletime_t currentTime);
-
-		void OnKeyUp(SDL_keysym* keysym);
-		void OnKeyDown(SDL_keysym* keysym);
+		void _UpdateKeys(sampletime_t currentTime);
+		void _UpdateEvents(sampletime_t currentTime);
+		
+		void _OnKeyUp(SDL_keysym* keysym);
+		void _OnKeyDown(SDL_keysym* keysym);
+		void _OnMouseUp(int button, int x, int y);
+		void _OnMouseDown(int button, int x, int y);
+		void _OnMouseMove(int button, int x, int y);
     		
 #ifdef BUILD_DEBUG
 		bool bDebug;
@@ -136,9 +162,16 @@ namespace breathe
 		std::vector<std::string>vArgs;
 
 		std::map<unsigned int, cKey* >mKey;
+		cMouse mouse;
 		
 		gui::cWindowManager window_manager;
-		cConsoleWindow consoleWindow;		
+		cConsoleWindow* pConsoleWindow;
+		
+		
+	private:
+		// Forbidden
+		void _OnMouseEvent(int button, int state, int x, int y) {}
+		void OnMouse(int button,int state,int x,int y) {}
 	};
 
 

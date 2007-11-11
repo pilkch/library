@@ -13,12 +13,6 @@
 #include <map>
 #include <string>
 
-// Anything else
-#include <GL/Glee.h>
-#include <GL/glu.h>
-
-#include <SDL/SDL_image.h>
-
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
@@ -41,14 +35,15 @@
 #include <breathe/render/cRender.h>
 
 #include <breathe/gui/cWidget.h>
+#include <breathe/gui/cWindow.h>
 
 namespace breathe
 {
 	namespace gui
 	{
-		cWidget::cWidget(unsigned int _id, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
+		cWidget::cWidget(unsigned int _idControl, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
 			pParent(NULL),
-			id(_id),
+			idControl(_idControl),
 			type(_type),
 
 			x(_x),
@@ -58,6 +53,7 @@ namespace breathe
 
 			bEnabled(true),
 			bVisible(true),
+			bResizable(false),
 
 			minimum(0),
 			maximum(100),
@@ -81,15 +77,42 @@ namespace breathe
 			return true;
 		}
 		
-		cWidget* cWidget::FindChild(unsigned int _id)
+		cWidget* cWidget::FindChild(unsigned int _idControl)
 		{
-			if (_id == id) return this;
+			if (_idControl == idControl) return this;
 
 			size_t n = child.size();
-			for (size_t i = 0; i < n; i++)
-				child[i]->FindChild(_id);
+			cWidget* p = nullptr;
+			for (size_t i = 0; i < n; i++) {
+				p = child[i]->FindChild(_idControl);
+				if (p != nullptr) return p;
+			}
 
 			return NULL;
+		}
+		
+		bool cWidget::IsEnabled() const
+		{
+			if (pParent != nullptr) return pParent->IsEnabled() && bEnabled;
+			return bEnabled;
+		}
+
+		bool cWidget::IsVisible() const
+		{
+			if (pParent != nullptr) return pParent->IsVisible() && bVisible;
+			return bVisible;
+		}
+		
+		float cWidget::HorizontalRelativeToAbsolute(float n) const
+		{
+			if (pParent != nullptr) return (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
+			return n;
+		}
+		
+		float cWidget::VerticalRelativeToAbsolute(float n) const
+		{
+			if (pParent != nullptr) return (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
+			return n;
 		}
 
 		void cWidget::SetPosition(float _x, float _y)

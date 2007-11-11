@@ -19,11 +19,10 @@ namespace breathe
 
 			void LoadTheme();
 			void Render();
-
-			// Handles events such as clicking on a button, listview selection changed, 
-			// pulldownlist selection changed, input box keypress, etc.
-			virtual void DefaultEvent(unsigned int id) {}
-
+			
+			void OnMouseEvent(int button, int state, int x, int y);
+			void Update(sampletime_t currentTime);
+			
 			bool AddChild(cWindow* pChild);
 
 		private:
@@ -33,7 +32,8 @@ namespace breathe
 			void _RenderWindow(const cWidget& widget);
 			void _RenderButton(const cWidget& widget);
 			void _RenderStaticText(const cWidget& widget);
-			
+			void _RenderInput(const cWidget& widget);
+
 			std::vector<cWindow*> child;
 		};
 	}

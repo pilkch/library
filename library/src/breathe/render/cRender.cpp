@@ -671,7 +671,7 @@ namespace breathe
 		{
 			glPushMatrix();
 				glLoadIdentity();
-      	glTranslatef(x * 0.5f * float(uiWidth), y * 0.5f * float(uiHeight), 0.0f);
+      	glTranslatef(x * float(uiWidth), -y * float(uiHeight), 0.0f);
 		}
 
 		void cRender::PopScreenSpacePosition()
@@ -1347,6 +1347,30 @@ namespace breathe
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
 			return true;
+		}
+
+		cTexture* cRender::GetCurrentTexture0() const
+		{
+			assert(pCurrentMaterial != nullptr);
+			assert(pCurrentMaterial->vLayer.size() > 0);
+			
+			return pCurrentMaterial->vLayer[0]->pTexture;
+		}
+
+		cTexture* cRender::GetCurrentTexture1() const
+		{
+			assert(pCurrentMaterial != nullptr);
+			assert(pCurrentMaterial->vLayer.size() > 1);
+			
+			return pCurrentMaterial->vLayer[1]->pTexture;
+		}
+
+		cTexture* cRender::GetCurrentTexture2() const
+		{
+			assert(pCurrentMaterial != nullptr);
+			assert(pCurrentMaterial->vLayer.size() > 2);
+			
+			return pCurrentMaterial->vLayer[2]->pTexture;
 		}
 
 		bool cRender::ClearMaterial()
@@ -2407,6 +2431,18 @@ namespace breathe
 				std::sort(resolutions.begin(), resolutions.end(), ResolutionCompare);
 				iter = resolutions.begin();
 			}
+		}
+
+		
+		ApplyTexture::ApplyTexture(cTexture* texture)
+		{
+			pLastTexture = pRender->GetCurrentTexture0();
+			pRender->SetTexture0(texture);
+		}
+
+		ApplyTexture::~ApplyTexture()
+		{
+			pRender->SetTexture0(pLastTexture);
 		}
 	}
 }

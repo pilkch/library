@@ -7,10 +7,11 @@ namespace breathe
 	{
 		enum WIDGET_TYPE
 		{
-			WIDGET_WINDOW = 0,
+			WIDGET_UNKNOWN = 0,
+			WIDGET_WINDOW,
 			WIDGET_BUTTON,
 			WIDGET_STATICTEXT,
-			WIDGET_UNKNOWN = 0xFF
+			WIDGET_INPUT
 		};
 
 		// This is our base object.  
@@ -19,14 +20,18 @@ namespace breathe
 		class cWidget
 		{
 		public:
-			cWidget(unsigned int id, WIDGET_TYPE type, float x, float y, float width, float height);
-			~cWidget();
+			cWidget(unsigned int idControl, WIDGET_TYPE type, float x, float y, float width, float height);
+			virtual ~cWidget();
 
 			bool AddChild(cWidget* pChild);
-			cWidget* FindChild(unsigned int id);
+			cWidget* FindChild(unsigned int idControl);
 
-			unsigned int GetID() const { return id; }
+			unsigned int GetID() const { return idControl; }
 			WIDGET_TYPE GetType() const { return type; }
+			
+			float HorizontalRelativeToAbsolute(float n) const;
+			float VerticalRelativeToAbsolute(float n) const;
+
 			float GetX() const { return x; }
 			float GetY() const { return y; }
 			float GetWidth() const { return width; }
@@ -36,14 +41,17 @@ namespace breathe
 			int GetMaximum() const { return maximum; }
 			int GetValue() const { return value; }
 
-			bool IsEnabled() const { return bEnabled; }
-			bool IsVisible() const { return bVisible; }
+			bool IsEnabled() const;
+			bool IsVisible() const;
+			bool IsResizable() const { return bResizable; }
 
-			void Enable();
-			void Disable();
-			void Show();
-			void Hide();
-
+			void Enable() { bEnabled = true; }
+			void Disable() { bEnabled = false; }
+			void Show() { bVisible = true; }
+			void Hide() { bVisible = false; }
+			
+			void SetResizable() { bResizable = true; }
+			void SetFixedSize() { bResizable = false; }
 			void SetPosition(float x, float y);
 			void SetSize(float width, float height);
 
@@ -51,7 +59,7 @@ namespace breathe
 			std::vector<cWidget*> child;
 			cWidget* pParent;
 
-			unsigned int id;
+			unsigned int idControl;
 			WIDGET_TYPE type;
 
 			int minimum;
@@ -60,54 +68,31 @@ namespace breathe
 
 			float x;
 			float y;
-
+			
       float width;
 			float height;
 
 			bool bEnabled;
 			bool bVisible;
+			bool bResizable;
 
 
 			friend class cWindowManager;
 		};
-
-		// *** cWidget
-		
-		inline void cWidget::Enable()
-		{
-			bEnabled = true;
-		}
-
-		inline void cWidget::Disable()
-		{
-			bEnabled = false;
-		}
-		
-		inline void cWidget::Show()
-		{
-			bVisible = true;
-		}
-
-		inline void cWidget::Hide()
-		{
-			bVisible = false;
-		}
-
-
-		
+				
 		template <WIDGET_TYPE t>
 		class cWidgetTemplate : public cWidget
 		{
 		public:
-			cWidgetTemplate(unsigned int id, float x, float y, float width, float height) :
-				cWidget(id, t, x, y, width, height)
+			cWidgetTemplate(unsigned int idControl, float x, float y, float width, float height) :
+				cWidget(idControl, t, x, y, width, height)
 			{
 			}
 		};
-
-		typedef cWidgetTemplate<WIDGET_WINDOW> cWindow;
-		typedef cWidgetTemplate<WIDGET_BUTTON> cButton;
-		typedef cWidgetTemplate<WIDGET_STATICTEXT> cStaticText;
+		
+		typedef cWidgetTemplate<WIDGET_BUTTON> cWidget_Button;
+		typedef cWidgetTemplate<WIDGET_STATICTEXT> cWidget_StaticText;
+		typedef cWidgetTemplate<WIDGET_INPUT> cWidget_Input;
 	}
 }
 

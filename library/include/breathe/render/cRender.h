@@ -110,6 +110,9 @@ namespace breathe
 			cTexture* GetTexture(std::string sFilename);
 			cTexture* GetCubeMap(std::string sFilename);
 
+			cTexture* GetCurrentTexture0() const;
+			cTexture* GetCurrentTexture1() const;
+			cTexture* GetCurrentTexture2() const;
 
 			void SelectTextureUnit0();
 			void SelectTextureUnit1();
@@ -287,6 +290,19 @@ namespace breathe
 				return iter != resolutions.end();
 			}
 		}
+
+		class ApplyTexture
+		{
+		public:
+			explicit ApplyTexture(cTexture* texture);
+			~ApplyTexture();
+
+		private:
+			ApplyTexture();
+			NO_COPY(ApplyTexture);
+
+			cTexture* pLastTexture;
+		};
 	}
 }
 

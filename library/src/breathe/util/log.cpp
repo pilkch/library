@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <bitset>
 
 #include <sstream>
 
@@ -28,8 +29,11 @@
 #include <breathe/util/filesystem.h>
 
 #include <breathe/util/cTimer.h>
+
 #include <breathe/gui/cWidget.h>
+#include <breathe/gui/cWindow.h>
 #include <breathe/gui/cWindowManager.h>
+
 #include <breathe/util/app.h>
 
 
@@ -359,6 +363,11 @@ namespace breathe
 			SDLK_COMPOSE		= 314,		//Multi-key compose key
 			*/
 
+			// Early exit
+			if((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode))
+				return false;
+			
+			
 			if((SDLK_RETURN == uiCode) || (SDLK_KP_ENTER == uiCode))
 			{
 				ExecuteCommand(GetCurrentLine());
@@ -366,9 +375,6 @@ namespace breathe
 				ClearCurrent();
 				uiCursorPosition=0;
 			}
-			else if((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode))
-				return false;
-
 			else if(SDLK_DELETE == uiCode)
 			{
 				if(uiCursorPosition<current.size())

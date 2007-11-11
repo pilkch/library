@@ -125,6 +125,7 @@ int intersect_triangle(
 #include <map>
 #include <list>
 #include <set>
+#include <bitset>
 
 //FreeType Headers
 #include <freetype/ft2build.h>
@@ -179,6 +180,7 @@ int intersect_triangle(
 #include <breathe/game/cLevel.h>
 
 #include <breathe/gui/cWidget.h>
+#include <breathe/gui/cWindow.h>
 #include <breathe/gui/cWindowManager.h>
 
 #include <breathe/util/unittest.h>
@@ -198,25 +200,27 @@ namespace breathe
 		bDone(false),
 		bUpdatePhysics(true),
 		bStepPhysics(false),
-		bReturnCode(breathe::GOOD)
+		bReturnCode(breathe::GOOD),
+
+		pConsoleWindow(nullptr)
 	{
 		CONSOLE.SetApp(this);
 
 		_InitArguments(argc, argv);
 
-		srand(breathe::util::GetTime());
+		srand(time(NULL));
 
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
 		SCREEN<<"This is printed to the screen"<<std::endl;
-
+		
 		CONSOLE<<"1"<<std::endl;
 		CONSOLE<<"2"<<std::endl;
 		CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
-
+		
 		// get all files ending in .dll
 		CONSOLE<<"FileSystem Test"<<std::endl;
-
+		
 		breathe::filesystem::path dir_path(".");
 		/*directory_iterator end_it;
 		for(directory_iterator it(dir_path); it != end_it; ++it) {
@@ -235,8 +239,21 @@ namespace breathe
 
 		AddKeyNoRepeat(SDLK_ESCAPE);
 		AddKeyNoRepeat(SDLK_BACKQUOTE);
-		AddKeyNoRepeat(SDLK_INSERT);
 		AddKeyNoRepeat(SDLK_RETURN);
+
+#ifdef BUILD_DEBUG
+		AddKeyNoRepeat(SDLK_F1);
+		AddKeyNoRepeat(SDLK_F2);
+		AddKeyNoRepeat(SDLK_F3);
+		AddKeyNoRepeat(SDLK_F4);
+		AddKeyNoRepeat(SDLK_F5);
+		AddKeyNoRepeat(SDLK_F6);
+		AddKeyNoRepeat(SDLK_F7);
+		AddKeyNoRepeat(SDLK_F8);
+		AddKeyNoRepeat(SDLK_F9);
+		AddKeyNoRepeat(SDLK_F10);
+		AddKeyNoRepeat(SDLK_F11);
+#endif
 	}
 
 
@@ -245,7 +262,7 @@ namespace breathe
 		size_t nJoysticks = vJoystick.size();
 		for(size_t i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
-
+		
 		TTF_Quit();
 
 		LOG.Success("Destroy", "Audio");
@@ -272,22 +289,14 @@ namespace breathe
 	}
 
 	void cApp::_InitArguments(int argc, char **argv)
-
 	{
-
 		filesystem::SetThisExecutable(argv[0]);
 
-
-		int i=1;
-
+		int i = 1;
 		std::string s;
-
 		if(i<argc)
-
 		{
-
 			vArgs.push_back(argv[i]);
-
 			s=argv[i];
 		}
 
@@ -521,20 +530,25 @@ namespace breathe
 	
 		window_manager.LoadTheme();
 		
+		unsigned int n = breathe::gui::GenerateID();
+
 		// Testing Window
 #ifdef BUILD_DEBUG
-		breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.75f, 0.2f, 0.2f);
-		pWindow0->AddChild(new breathe::gui::cStaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.1f, 0.1f));		
-		pWindow0->AddChild(new breathe::gui::cStaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));		
-		pWindow0->AddChild(new breathe::gui::cButton(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
-		window_manager.AddChild(pWindow0);
+		/*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
+		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));		
+		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));		
+		pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
+		window_manager.AddChild(pWindow0);*/
 #endif
 		
 		// Console Window
-		consoleWindow.SetWindow(new gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.2f, 0.2f));
-		window_manager.AddChild(consoleWindow.GetWindow());
-		consoleWindow.GetWindow()->Hide();
+		
+		pConsoleWindow = new cConsoleWindow();
+		window_manager.AddChild(pConsoleWindow);
 
+		pConsoleWindow->Hide();
+		pConsoleWindow->SetResizable();
+		pConsoleWindow->AddChild(new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f));
 
 		if(breathe::BAD==InitScene())
 			return breathe::BAD;
@@ -620,7 +634,7 @@ namespace breathe
 		return breathe::GOOD;
 	}
 
-	void cApp::UpdateEvents(sampletime_t currentTime)
+	void cApp::_UpdateEvents(sampletime_t currentTime)
 	{
 		// handle the events in the queue 
 		while ( SDL_PollEvent( &event ) )
@@ -630,10 +644,8 @@ namespace breathe
 				case SDL_ACTIVEEVENT:
 					{
 						bActive=event.active.gain != 0;
-						if(bActive)
-							LOG.Success("Active", "Active");
-						else
-							LOG.Error("Active", "Inactive");
+						if(bActive) LOG.Success("Active", "Active");
+						else LOG.Error("Active", "Inactive");
 					}
 					break;
 
@@ -643,17 +655,28 @@ namespace breathe
 					break;
 
 				case SDL_KEYUP:
-					OnKeyUp(&event.key.keysym);
+					_OnKeyUp(&event.key.keysym);
 					break;
 
-				case SDL_KEYDOWN:
-					OnKeyDown(&event.key.keysym);
+				case SDL_KEYDOWN:		
+					_OnKeyDown(&event.key.keysym);
+					break;
+
+				case SDL_MOUSEBUTTONUP:
+					mouse.x = event.button.x;
+					mouse.y = event.button.y;
+					mouse.down[event.button.button] = true;
+					break;
+
+				case SDL_MOUSEBUTTONDOWN:
+					mouse.x = event.button.x;
+					mouse.y = event.button.y;
+					if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
 					break;
 
 				case SDL_MOUSEMOTION:
-				case SDL_MOUSEBUTTONDOWN:
-				case SDL_MOUSEBUTTONUP:
-					OnMouse(event.button.button, event.button.state, event.button.x, event.button.y);
+					mouse.x = event.button.x;
+					mouse.y = event.button.y;
 					break;
 
 				case SDL_QUIT:
@@ -687,12 +710,12 @@ namespace breathe
 		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 
 		if(iter!=mKey.end())
-			return iter->second->IsKeyDown();
+			return iter->second->IsDown();
 
 		return false;
 	}
 
-	void cApp::UpdateKeys(sampletime_t currentTime)
+	void cApp::_UpdateKeys(sampletime_t currentTime)
 	{
 		Uint8 *key = SDL_GetKeyState( NULL );
 		cKey* p;
@@ -723,14 +746,17 @@ namespace breathe
 
 			iter++;
 		}
+
+		
+		SDL_GetMouseState(&mouse.x, &mouse.y);
 	}
 
-	void cApp::OnKeyDown(SDL_keysym *keysym)
+	void cApp::_OnKeyDown(SDL_keysym *keysym)
 	{
 		unsigned int code = keysym->sym;
 
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if(iter != mKey.end()) iter->second->SetKeyDown(CONSOLE.IsVisible());
+		if(iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
 		
 		if(CONSOLE.IsVisible()) {
 			// Remove key from list
@@ -740,20 +766,50 @@ namespace breathe
 		}
 	}
 
-	void cApp::OnKeyUp(SDL_keysym *keysym)
+	void cApp::_OnKeyUp(SDL_keysym *keysym)
 	{
 		unsigned int code = keysym->sym;
 
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if(iter != mKey.end()) iter->second->SetKeyUp(CONSOLE.IsVisible());
+		if(iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
 
 		if(CONSOLE.IsVisible()) CONSOLE.AddKey(code);
 	}
+	
+	void cApp::_OnMouseUp(int button, int x, int y)
+	{
+		
+	}
+	
+	void cApp::_OnMouseDown(int button, int x, int y)
+	{
+		
+	}
+	
+	void cApp::_OnMouseMove(int button, int x, int y)
+	{
+		
+	}
+
 
 	void cApp::_UpdateInput(sampletime_t currentTime)
 	{
 #ifdef BUILD_DEBUG
-		if (IsKeyDown(SDLK_INSERT)) util::RunUnitTests();
+		if (IsKeyDown(SDLK_F1)) ToggleDebug();
+
+		if (IsKeyDown(SDLK_F2)) pRender->ReloadTextures();
+		if (IsKeyDown(SDLK_F3)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
+		if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
+		if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
+		if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
+		
+		if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
+		if (IsKeyDown(SDLK_F8)) {
+			bUpdatePhysics = false;
+			bStepPhysics = true;
+		}
+
+		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();		
 #endif
 
 		UpdateInput(currentTime);
@@ -771,14 +827,16 @@ namespace breathe
 	
 	void cApp::ConsoleShow()
 	{
-		consoleWindow.GetWindow()->Show();
+		assert(pConsoleWindow != nullptr);
+		pConsoleWindow->Show();
 		CONSOLE.Show();
 		CursorShow();
 	}
 
 	void cApp::ConsoleHide()
 	{
-		consoleWindow.GetWindow()->Hide();
+		assert(pConsoleWindow != nullptr);
+		pConsoleWindow->Hide();
 		CONSOLE.Hide();
 		CursorHide();
 	}
@@ -939,7 +997,7 @@ namespace breathe
 
       if(currentTime > fEventsNext)
 			{
-				UpdateEvents(currentTime);
+				_UpdateEvents(currentTime);
 				fEventsNext = currentTime + fEventsDelta;
 			}
 
@@ -947,7 +1005,7 @@ namespace breathe
 			{
 				// These have to be in this order or nothing gets collected
 				_UpdateInput(currentTime);
-				UpdateKeys(currentTime);
+				_UpdateKeys(currentTime);
 				fInputNext = currentTime + fInputDelta;
 			}
 
@@ -987,27 +1045,21 @@ namespace breathe
 
 	// *** cConsoleWindow
 	cApp::cConsoleWindow::cConsoleWindow() :
-		pWindow(nullptr)
+		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f)
 	{
 	}
 
 	cApp::cConsoleWindow::~cConsoleWindow()
 	{
-		// Deleted by our window manager
-		pWindow = nullptr;
 	}
 
-	void cApp::cConsoleWindow::SetWindow(gui::cWindow* window)
+	void cApp::cConsoleWindow::_OnEvent(unsigned int idControl)
 	{
-		pWindow = window;
+		int x = 0;
+		x++;
 	}
-
-	gui::cWindow* cApp::cConsoleWindow::GetWindow() const
-	{
-		return pWindow;
-	}
-
-
+	
+	
 	// *** cKey
 	cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
 		uiCode(code),
@@ -1021,7 +1073,7 @@ namespace breathe
 	{
 	}
 
-	bool cApp::cKey::IsKeyDown()
+	bool cApp::cKey::IsDown()
 	{
 		if(bDown)
 		{
@@ -1042,13 +1094,13 @@ namespace breathe
 		return false;
 	}
 
-	void cApp::cKey::SetKeyDown(bool bConsole)
+	void cApp::cKey::SetDown(bool bConsole)
 	{
 		bDown = true;
 		bCollected = false;
 	}
 
-	void cApp::cKey::SetKeyUp(bool bConsole)
+	void cApp::cKey::SetUp(bool bConsole)
 	{
 		bDown = false;
 		bCollected = false;
@@ -1063,5 +1115,37 @@ namespace breathe
 			bDown = true;
 			bCollected = false;
 		}*/
+	}
+
+	
+
+	bool cApp::IsMouseLeftButtonDown() const
+	{
+		return mouse.down[0];
+	}
+
+	bool cApp::IsMouseRightButtonDown() const
+	{
+		return mouse.down[2];
+	}
+	
+	bool cApp::IsMouseScrollDown() const
+	{
+		return mouse.down[4];
+	}
+
+	bool cApp::IsMouseScrollUp() const
+	{
+		return mouse.down[5];
+	}
+
+	int cApp::GetMouseX() const
+	{
+		return mouse.GetY();
+	}
+
+	int cApp::GetMouseY() const
+	{
+		return mouse.GetX();
 	}
 }
