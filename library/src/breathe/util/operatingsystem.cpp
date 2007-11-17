@@ -52,10 +52,10 @@ namespace breathe
 		{
 			std::string s = "Unknown " + GetOperatingSystemVersionString();
 
-#ifdef PLATFORM_WIN
+#ifdef __WIN__
 			int major = GetOperatingSystemVersionMajor();
 			int minor = GetOperatingSystemVersionMinor();
-
+			
 			if (4 == major)
 			{
 				if (0 == minor) s = "95";
@@ -64,13 +64,13 @@ namespace breathe
 			}
 			else if (5 == major)
 			{
-				if (0 = minor) s = "2000";
-				else if (1 = minor) s = "XP";
-				else if (2 = minor) s = "Server 2003";
+				if (0 == minor) s = "2000";
+				else if (1 == minor) s = "XP";
+				else if (2 == minor) s = "Server 2003";
 			}
 			else if (6 == major)
 			{
-				if (0 = minor) s = "Vista";
+				if (0 == minor) s = "Vista";
 			}
 
 			// Check if we are running in Wine
@@ -78,13 +78,7 @@ namespace breathe
 			if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Wine"), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 			{
 				RegCloseKey(hKey);
-				s += " Under Wine";
-			}
-			else
-			{
-				unicode_char szPath[MAX_PATH];
-				unicode_char* szPtr;
-				return (SearchPath(NULL, TEXT("explorer.exe"), NULL, MAX_PATH, szPath, &szPtr) == 0);
+				s += " under Wine";
 			}
 #endif
 
@@ -120,11 +114,11 @@ namespace breathe
 #ifdef __WIN__
 		std::string GetUserName()
 		{
-			breathe::string::unicode_char user[260];
+			breathe::char_t user[260];
 			user[0] = 0;
 
 			DWORD nSize=(DWORD)260;
-			if(GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string::string_t(user));
+			if(GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string_t(user));
 
 			if(getenv("USER") != 0) return std::string(getenv("USER"));
 			else if (getenv("USERNAME") != 0) return std::string(getenv("USERNAME"));

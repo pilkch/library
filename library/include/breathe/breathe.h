@@ -28,8 +28,7 @@
 #define NO_SDL
 #endif
 
-#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || \
-	defined(__LP64__)
+#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || defined(__LP64__)
 #error "This is a 64 bit compile, have fun!"
 #endif
 
@@ -82,6 +81,8 @@
 #include <crtdbg.h>
 #endif
 
+
+// *** Types
 #ifdef NO_SDL
 typedef unsigned char uint8_t;
 typedef long int uint32_t;
@@ -90,26 +91,24 @@ typedef long int uint32_t;
 #include <SDL/SDL.h>
 #endif
 
-typedef uint32_t sampletime_t;
+#ifndef nullptr
+#define nullptr NULL
+#endif
 
+
+// *** FluidStudios' memory leak detection
 #ifndef FIRESTARTER
-// FluidStudios' memory leak detection
 #include <breathe/util/mem.h>
 #endif
 
-#ifdef UNICODE
-#ifndef __WIN__
-	#define _TEXT(s) L##s
-	#define TEXT(s) _TEXT(s)
-#endif
-#else
-#ifndef __WIN__
-	#define TEXT(s) s
-#endif
-#endif
 
-#ifndef nullptr
-#define nullptr NULL
+#ifndef __WIN__
+#ifdef UNICODE
+#define _TEXT(s) L##s
+#define TEXT(s) _TEXT(s)
+#else
+#define TEXT(s) s
+#endif
 #endif
 
 #define NO_COPY(T) \
@@ -118,14 +117,31 @@ typedef uint32_t sampletime_t;
 	void operator=(const T&); \
 	public: 
 
-// Utility types, objects etc.
 
+// Utility types, objects etc.
 namespace breathe
 {
+	// Types
+	typedef uint32_t sampletime_t;
+
+	#ifdef __WIN__
+	const size_t size_wchar_t = 2;
+	#else
+	const size_t size_wchar_t = 4;
+	#endif
+
+	#ifdef UNICODE
+	typedef wchar_t char_t;
+	#else
+	typedef char char_t;
+	#endif
+
+
 	// Constants
 	const bool BAD = false;
 	const bool GOOD = true;
 	
+
 	// Safe deleting functions
 	template <class T>
 	inline void SAFE_DELETE(T& x)

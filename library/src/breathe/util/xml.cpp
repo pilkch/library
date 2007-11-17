@@ -194,7 +194,7 @@ namespace breathe
 
 							while(iter!=sData.end() && *iter!='/' && *iter!='>')
 							{
-								breathe::string::unicode_char c=*iter;
+								breathe::char_t c=*iter;
 								if(*iter == ' ')
 								{
 									p->AddAttribute(sAttributeName, "");
@@ -487,7 +487,7 @@ namespace breathe
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			if(iter != mAttribute.end())
 			{
-				breathe::string::unicode_char c;
+				breathe::char_t c;
 				std::stringstream stm(iter->second);
 				stm >> std::skipws;
 

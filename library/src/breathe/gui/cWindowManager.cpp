@@ -49,9 +49,7 @@
 namespace breathe
 {
 	namespace gui
-	{
-		unsigned int nextID = 1;
-			
+	{			
 		render::material::cMaterial* pMaterial = nullptr;
 		std::vector<render::cTexture*> textureBackground;
 
@@ -62,11 +60,6 @@ namespace breathe
 			BACKGROUND_DARKEST,
 			BACKGROUND_TEXT
 		};
-		
-		unsigned int GenerateID()
-		{
-			return nextID++;
-		}
 
 		cWindowManager::cWindowManager()
 		{

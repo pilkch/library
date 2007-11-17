@@ -5,6 +5,10 @@ namespace breathe
 {
 	namespace gui
 	{
+		typedef uint16_t id_t;
+		
+		id_t GenerateID();
+
 		enum WIDGET_TYPE
 		{
 			WIDGET_UNKNOWN = 0,
@@ -20,13 +24,13 @@ namespace breathe
 		class cWidget
 		{
 		public:
-			cWidget(unsigned int idControl, WIDGET_TYPE type, float x, float y, float width, float height);
+			cWidget(id_t idControl, WIDGET_TYPE type, float x, float y, float width, float height);
 			virtual ~cWidget();
 
 			bool AddChild(cWidget* pChild);
-			cWidget* FindChild(unsigned int idControl);
+			cWidget* FindChild(id_t idControl);
 
-			unsigned int GetID() const { return idControl; }
+			id_t GetID() const { return idControl; }
 			WIDGET_TYPE GetType() const { return type; }
 			
 			float HorizontalRelativeToAbsolute(float n) const;
@@ -59,7 +63,7 @@ namespace breathe
 			std::vector<cWidget*> child;
 			cWidget* pParent;
 
-			unsigned int idControl;
+			id_t idControl;
 			WIDGET_TYPE type;
 
 			int minimum;
@@ -84,7 +88,7 @@ namespace breathe
 		class cWidgetTemplate : public cWidget
 		{
 		public:
-			cWidgetTemplate(unsigned int idControl, float x, float y, float width, float height) :
+			cWidgetTemplate(id_t idControl, float x, float y, float width, float height) :
 				cWidget(idControl, t, x, y, width, height)
 			{
 			}

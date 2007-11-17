@@ -73,7 +73,7 @@ namespace breathe
 			
 		private:
 			void _OnMouseEvent(int button, int state, int x, int y) {}
-			void _OnEvent(unsigned int id);
+			void _OnEvent(gui::id_t id);
 		};
 		
 		class cKey

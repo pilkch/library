@@ -1,16 +1,12 @@
 #ifndef CWINDOW_MANAGER_H
 #define CWINDOW_MANAGER_H
 
-/*
-include shadows for gui with an alpha blend niceynicey.
-*/
+// TODO: include shadows for gui with an alpha blend niceynicey.  
 
 namespace breathe
 {
 	namespace gui
 	{
-		unsigned int GenerateID();
-
 		class cWindowManager
 		{
 		public:

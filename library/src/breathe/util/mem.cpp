@@ -192,7 +192,7 @@ static	const	unsigned int	paddingSize            = 4;
 #elif defined(__BEOS__)
 	#ifdef _DEBUG
 		#ifdef USE_ASSERT
-			extern void debugger(const breathe::string::unicode_char* message);
+			extern void debugger(const breathe::char_t* message);
 			#define	m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
 		#else
 			#define m_assert(x) {}

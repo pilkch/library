@@ -229,7 +229,7 @@ namespace breathe
 #pragma push_macro("FileExists")
 #undef FileExists
 #endif
-		bool FileExists(const breathe::string::string_t& sFilename)
+		bool FileExists(const breathe::string_t& sFilename)
 		{
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
@@ -254,7 +254,7 @@ namespace breathe
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #endif
-		bool CreateDirectory(const breathe::string::string_t& sFoldername)
+		bool CreateDirectory(const breathe::string_t& sFoldername)
 		{
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
@@ -275,7 +275,7 @@ namespace breathe
 #pragma push_macro("CreateFile")
 #undef CreateFile
 #endif
-		bool CreateFile(const breathe::string::string_t& sFilename)
+		bool CreateFile(const breathe::string_t& sFilename)
 		{
 #ifdef __WIN__
 #pragma pop_macro("CreateFile")

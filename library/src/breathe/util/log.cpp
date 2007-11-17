@@ -21,8 +21,8 @@
 #include <breathe/breathe.h>
 
 #if defined(BUILD_DEBUG) && defined(__WIN__)
-	#include <windows.h>
-#endif //BUILD_DEBUG && __WIN__
+#include <windows.h>
+#endif
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
@@ -126,7 +126,7 @@ namespace breathe
 #ifdef BUILD_DEBUG
 		void cLog::trace(const std::string& section)
 		{
-			breathe::string::string_t s = TEXT("<!> ") + breathe::string::ToString_t(section) + TEXT("\n");
+			breathe::string_t s = TEXT("<!> ") + breathe::string::ToString_t(section) + TEXT("\n");
 #ifdef __WIN__
 			OutputDebugString(s.c_str());
 #else

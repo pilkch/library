@@ -1053,7 +1053,7 @@ namespace breathe
 	{
 	}
 
-	void cApp::cConsoleWindow::_OnEvent(unsigned int idControl)
+	void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)
 	{
 		int x = 0;
 		x++;

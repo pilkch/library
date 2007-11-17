@@ -36,19 +36,19 @@ namespace breathe
 		std::string GetFileNoExtension(const std::string& sFilename);
 		std::string GetExtension(const std::string& sFilename);
 
-		bool FileExists(const breathe::string::string_t& sFilename);
-		bool CreateDirectory(const breathe::string::string_t& sFoldername);
-		bool CreateFile(const breathe::string::string_t& sFilename);
+		bool FileExists(const breathe::string_t& sFilename);
+		bool CreateDirectory(const breathe::string_t& sFoldername);
+		bool CreateFile(const breathe::string_t& sFilename);
 
 
 		// File Opening functions
 		// No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?  
 		// The idea is that we can search directories to find the file and then open the correct one. 
-		std::ifstream& OpenTextFileRead(const breathe::string::string_t& sFilename);
-		std::ifstream& OpenBinaryFileRead(const breathe::string::string_t& sFilename);
+		std::ifstream OpenTextFileRead(const breathe::string_t& sFilename);
+		std::ifstream OpenBinaryFileRead(const breathe::string_t& sFilename);
 
-		std::ofstream& OpenTextFileWrite(const breathe::string::string_t& sFilename);
-		std::ofstream& OpenBinaryFileWrite(const breathe::string::string_t& sFilename); 
+		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
+		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename); 
 
 
 

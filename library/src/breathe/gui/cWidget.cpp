@@ -41,7 +41,14 @@ namespace breathe
 {
 	namespace gui
 	{
-		cWidget::cWidget(unsigned int _idControl, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
+		id_t nextID = 1;
+
+		id_t GenerateID()
+		{
+			return nextID++;
+		}
+
+		cWidget::cWidget(id_t _idControl, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
 			pParent(NULL),
 			idControl(_idControl),
 			type(_type),
@@ -77,7 +84,7 @@ namespace breathe
 			return true;
 		}
 		
-		cWidget* cWidget::FindChild(unsigned int _idControl)
+		cWidget* cWidget::FindChild(id_t _idControl)
 		{
 			if (_idControl == idControl) return this;
 

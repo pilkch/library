@@ -3,23 +3,17 @@
 
 namespace breathe
 {
+	#ifdef UNICODE
+	typedef wchar_t char_t;
+	typedef std::wstring string_t;
+	#else
+	typedef char char_t;
+	typedef std::string string_t;
+	#endif
+
 	namespace string
 	{
-#ifdef __WIN__
-		const size_t size_wchar_t = 2;
-#else
-		const size_t size_wchar_t = 4;
-#endif
-
-#ifdef UNICODE
-		typedef wchar_t unicode_char;
-		typedef std::wstring string_t;
-#else
-		typedef char unicode_char;
-		typedef std::string string_t;
-#endif
-
-		bool IsWhiteSpace(breathe::string::unicode_char c);
+		bool IsWhiteSpace(breathe::char_t c);
 		
 		size_t CountOccurrences(const std::string& source, const std::string& find);
 		std::string Replace(const std::string& source, const std::string& find, const std::string& replace);

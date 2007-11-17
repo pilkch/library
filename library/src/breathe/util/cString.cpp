@@ -12,7 +12,7 @@ namespace breathe
 {
 	namespace string
 	{
-		bool IsWhiteSpace(unicode_char c)
+		bool IsWhiteSpace(char_t c)
 		{
 			// We regard space, tab, new line and carriage return characters as white space
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');

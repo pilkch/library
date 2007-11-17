@@ -47,7 +47,7 @@ namespace breathe
 {
 	namespace gui
 	{
-		cWindow::cWindow(unsigned int id, float x, float y, float width, float height) :
+		cWindow::cWindow(id_t id, float x, float y, float width, float height) :
 			cWidget(id, WIDGET_WINDOW, x, y, width, height)
 		{
 		}
