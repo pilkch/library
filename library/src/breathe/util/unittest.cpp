@@ -28,7 +28,7 @@ namespace breathe
 		std::list<cUnitTestBase*>* unittests = nullptr;
 
 
-		cUnitTestBase::cUnitTestBase(std::string component) :
+		cUnitTestBase::cUnitTestBase(const std::string& component) :
 			sComponent(component)
 		{
 			if (nullptr == unittests) unittests = new std::list<cUnitTestBase*>;
@@ -54,7 +54,7 @@ namespace breathe
 			else CONSOLE.Error("Unit Test", sComponent + " FAILED");
 		}
 			
-		void cUnitTestBase::SetFailed(std::string error)
+		void cUnitTestBase::SetFailed(const std::string& error)
 		{
 			CONSOLE.Error("Unit Test", sComponent + " " + error);
 			success = false;

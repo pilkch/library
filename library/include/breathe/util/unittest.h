@@ -10,13 +10,13 @@ namespace breathe
 		class cUnitTestBase
 		{
 		public:
-			cUnitTestBase(std::string component);
+			cUnitTestBase(const std::string& component);
 			virtual ~cUnitTestBase();
 
 			void Run();
 			
 		protected:
-			void SetFailed(std::string error);
+			void SetFailed(const std::string& error);
 
 		private:
 			virtual void Test() = 0;

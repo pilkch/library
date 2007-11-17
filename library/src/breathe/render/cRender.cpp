@@ -139,7 +139,7 @@ namespace breathe
 			};
 		}
 
-		bool cRender::FindExtension(std::string sExt)
+		bool cRender::FindExtension(const std::string& sExt)
 		{
 			std::ostringstream t;
 			t<<const_cast<const unsigned char*>(glGetString( GL_EXTENSIONS ));
@@ -930,7 +930,7 @@ namespace breathe
 
 
 
-		cTexture* cRender::AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas)
+		cTexture* cRender::AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas)
 		{
 			assert(sNewFilename != "");
 			assert(ATLAS_NONE != uiAtlas);
@@ -952,7 +952,7 @@ namespace breathe
 			return p;
 		}
 
-		cTexture* cRender::AddTexture(std::string sNewFilename)
+		cTexture* cRender::AddTexture(const std::string& sNewFilename)
 		{
 			assert(sNewFilename != "");
 			
@@ -986,7 +986,7 @@ namespace breathe
 			return p;
 		}
 
-		bool cRender::AddTextureNotFoundTexture(std::string sNewFilename)
+		bool cRender::AddTextureNotFoundTexture(const std::string& sNewFilename)
 		{
 			cTexture* p = new cTexture();
 
@@ -1014,7 +1014,7 @@ namespace breathe
 			return breathe::GOOD;
 		}
 
-		bool cRender::AddMaterialNotFoundTexture(std::string sNewFilename)
+		bool cRender::AddMaterialNotFoundTexture(const std::string& sNewFilename)
 		{
 			cTexture* p=new cTexture();
 
@@ -1052,7 +1052,7 @@ namespace breathe
 			return vTextureAtlas[atlas];
 		}
 
-		cTexture* cRender::GetTexture(std::string sNewFilename)
+		cTexture* cRender::GetTexture(const std::string& sNewFilename)
 		{			
 			std::map<std::string, cTexture* >::iterator iter = mTexture.find(sNewFilename);
 			if(iter != mTexture.end())
@@ -1069,7 +1069,7 @@ namespace breathe
 			return pVertexBufferObject;
 		}
 
-		cTexture* cRender::GetCubeMap(std::string sNewFilename)
+		cTexture* cRender::GetCubeMap(const std::string& sNewFilename)
 		{		
 			if(""==sNewFilename)
 				return NULL;
@@ -1082,7 +1082,7 @@ namespace breathe
 			return NULL;
 		}
 
-		cTexture* cRender::AddCubeMap(std::string sFilename)
+		cTexture* cRender::AddCubeMap(const std::string& sFilename)
 		{
 			/*TODO: Surface of 1x6 that holds the cubemap faces,
 			not actually used for rendering, just collecting each surface
@@ -1103,9 +1103,9 @@ namespace breathe
 
 			p=new cTexture();
 
-			mCubeMap[sFilename]=p;
+			mCubeMap[sFilename] = p;
 
-			p->sFilename=sFilename;
+			p->sFilename = sFilename;
 
 			GLuint cube_map_directions[6] = 
 			{
@@ -1137,15 +1137,15 @@ namespace breathe
 
 			std::stringstream s;
 
-			std::string sFile=breathe::filesystem::GetFileNoExtension(sFilename);
-			std::string sExt=breathe::filesystem::GetExtension(sFilename);
+			std::string sFile = breathe::filesystem::GetFileNoExtension(sFilename);
+			std::string sExt = breathe::filesystem::GetExtension(sFilename);
 			
 			for(i=0;i<6;i++)
 			{
-				s.str( "" );
+				s.str("");
 
 				s<<sFile<<"/"<<sFile<<i<<"."<<sExt;
-				sFilename=breathe::filesystem::FindFile(s.str());
+				std::string sFilename = breathe::filesystem::FindFile(s.str());
 
 				unsigned int mode=0;
 
@@ -1247,22 +1247,20 @@ namespace breathe
 			return p;
 		}
 
-		material::cMaterial* cRender::AddMaterialNotFoundMaterial(std::string sNewFilename)
+		material::cMaterial* cRender::AddMaterialNotFoundMaterial(const std::string& sNewFilename)
 		{
 			AddMaterialNotFoundTexture(sNewFilename);
 
-			sNewFilename=breathe::filesystem::FindFile(sNewFilename);
+			pMaterialNotFoundMaterial = new material::cMaterial("MaterialNotFound");
 
-			pMaterialNotFoundMaterial=new material::cMaterial("MaterialNotFound");
-
-			pMaterialNotFoundMaterial->vLayer[0]->sTexture=sNewFilename;
-			pMaterialNotFoundMaterial->vLayer[0]->pTexture=pMaterialNotFoundTexture;
-			pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode=TEXTURE_NORMAL;
+			pMaterialNotFoundMaterial->vLayer[0]->sTexture = breathe::filesystem::FindFile(sNewFilename);
+			pMaterialNotFoundMaterial->vLayer[0]->pTexture = pMaterialNotFoundTexture;
+			pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode = TEXTURE_NORMAL;
 
 			return pMaterialNotFoundMaterial;
 		}
 
-		material::cMaterial* cRender::AddMaterial(std::string sNewfilename)
+		material::cMaterial* cRender::AddMaterial(const std::string& sNewfilename)
 		{
 			if(""==sNewfilename)
 				return NULL;
@@ -2088,7 +2086,7 @@ namespace breathe
 			return pMaterialNotFoundMaterial;
 		}
 
-		material::cMaterial* cRender::AddPostRenderEffect(std::string sFilename)
+		material::cMaterial* cRender::AddPostRenderEffect(const std::string& sFilename)
 		{
 			material::cMaterial* pMaterial = AddMaterial(sFilename);
 			assert(pMaterial);
@@ -2115,7 +2113,7 @@ namespace breathe
 		}
 
 
-		model::cStatic* cRender::CreateNewModel(std::string sName)
+		model::cStatic* cRender::CreateNewModel(const std::string& sName)
 		{
 			model::cStatic* pModel = mStatic[sName];
 
@@ -2129,7 +2127,7 @@ namespace breathe
 			return pModel;
 		}
 		
-		model::cStatic* cRender::AddModel(std::string sNewfilename)
+		model::cStatic* cRender::AddModel(const std::string& sNewfilename)
 		{
 			model::cStatic* pModel = mStatic[sNewfilename];
 
@@ -2154,7 +2152,7 @@ namespace breathe
 			return NULL;
 		}
 
-		model::cStatic* cRender::GetModel(std::string sFilename)
+		model::cStatic* cRender::GetModel(const std::string& sFilename)
 		{
 			model::cStatic* pModel=mStatic[sFilename];
 			if(pModel)

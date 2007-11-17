@@ -93,7 +93,7 @@ namespace breathe
 	{
 	}
 
-	bool cLevel::LoadXML(std::string sNewFilename)
+	bool cLevel::LoadXML(const std::string& sNewFilename)
 	{
 		sFilename=sNewFilename;
 		bool bNodes=false;
@@ -162,7 +162,7 @@ namespace breathe
 		return breathe::GOOD;
 	}
 
-	bool cLevel::Load(std::string sNewFilename)
+	bool cLevel::Load(const std::string& sNewFilename)
 	{
 		bool bResult = breathe::GOOD;
 
@@ -195,7 +195,7 @@ namespace breathe
 		return bResult;
 	}
 
-	void cLevel::LoadNode(std::string sNewFilename)
+	void cLevel::LoadNode(const std::string& sNewFilename)
 	{
 		render::model::cStatic *p=pRender->AddModel("data/level/" + sNewFilename + "/mesh.3ds");
 		
@@ -250,7 +250,7 @@ namespace breathe
 			LOG.Error("Node", "Mesh not found " + sNewFilename);
 	}
 	
-	void cLevel::LoadCubemap(std::string line)
+	void cLevel::LoadCubemap(const std::string& line)
 	{
 		vCubemap.push_back(new cLevelCubemap());
 

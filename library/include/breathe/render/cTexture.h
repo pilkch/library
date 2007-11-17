@@ -26,7 +26,7 @@ namespace breathe
 			cTexture();
 			virtual ~cTexture();
 			
-			bool Load(std::string sFilename);
+			bool Load(const std::string& sFilename);
 
 			// pData <--> surface -> OpenGL texture
 			void CopyFromDataToSurface();
@@ -37,7 +37,7 @@ namespace breathe
 			void CopyFromSurfaceToTexture();
 
 
-			bool SaveToBMP(std::string sFilename);
+			bool SaveToBMP(const std::string& sFilename);
 			
 			void Transform(float& u, float& v);
 

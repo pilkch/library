@@ -30,7 +30,7 @@ namespace breathe
 			~cRender();
 
 		private:
-			bool FindExtension(std::string sExt);
+			bool FindExtension(const std::string& sExt);
 
 		public:
 			// Candidate for removal
@@ -93,22 +93,22 @@ namespace breathe
 
 			void TransformModels();
 
-			model::cStatic* AddModel(std::string sNewFilename);
-			model::cStatic* GetModel(std::string sNewFilename);
-			model::cStatic* CreateNewModel(std::string sName);
+			model::cStatic* AddModel(const std::string& sNewFilename);
+			model::cStatic* GetModel(const std::string& sNewFilename);
+			model::cStatic* CreateNewModel(const std::string& sName);
 
 			cVertexBufferObject* AddVertexBufferObject();
 
-			bool AddTextureNotFoundTexture(std::string sNewFilename);
-			bool AddMaterialNotFoundTexture(std::string sNewFilename);
+			bool AddTextureNotFoundTexture(const std::string& sNewFilename);
+			bool AddMaterialNotFoundTexture(const std::string& sNewFilename);
 
-			cTexture* AddCubeMap(std::string sFilename);
-			cTexture* AddTexture(std::string sNewFilename);
-			cTexture* AddTextureToAtlas(std::string sNewFilename, unsigned int uiAtlas);
+			cTexture* AddCubeMap(const std::string& sFilename);
+			cTexture* AddTexture(const std::string& sNewFilename);
+			cTexture* AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
 			
 			cTexture* GetTextureAtlas(ATLAS atlas);
-			cTexture* GetTexture(std::string sFilename);
-			cTexture* GetCubeMap(std::string sFilename);
+			cTexture* GetTexture(const std::string& sFilename);
+			cTexture* GetCubeMap(const std::string& sFilename);
 
 			cTexture* GetCurrentTexture0() const;
 			cTexture* GetCurrentTexture1() const;
@@ -118,17 +118,17 @@ namespace breathe
 			void SelectTextureUnit1();
 			void SelectTextureUnit2();
 
-			bool SetTexture0(std::string sTexture) { return SetTexture0(GetTexture(sTexture)); }
+			bool SetTexture0(const std::string& sTexture) { return SetTexture0(GetTexture(sTexture)); }
 			bool SetTexture0(ATLAS atlas);
 			bool SetTexture0(cTexture* pTexture);
-			bool SetTexture1(std::string sTexture) { return SetTexture1(GetTexture(sTexture)); }
+			bool SetTexture1(const std::string& sTexture) { return SetTexture1(GetTexture(sTexture)); }
 			bool SetTexture1(ATLAS atlas);
 			bool SetTexture1(cTexture* pTexture);
 
-			material::cMaterial* AddMaterial(std::string sFilename);
-			material::cMaterial* AddMaterialNotFoundMaterial(std::string sFilename);
+			material::cMaterial* AddMaterial(const std::string& sFilename);
+			material::cMaterial* AddMaterialNotFoundMaterial(const std::string& sFilename);
 			bool ClearMaterial();
-			bool SetMaterial(std::string sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
+			bool SetMaterial(const std::string& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
 			bool SetMaterial(material::cMaterial* pMaterial) { return SetMaterial(pMaterial, math::cVec3()); }
 			bool SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos);
 			
@@ -145,7 +145,7 @@ namespace breathe
 			
 			void ReloadTextures();
 
-			material::cMaterial* AddPostRenderEffect(std::string sFilename);
+			material::cMaterial* AddPostRenderEffect(const std::string& sFilename);
 			void RemovePostRenderEffect();
 
 		private:

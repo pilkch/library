@@ -106,11 +106,11 @@ namespace breathe
 			};
 		}
 		
-		cTexture *cTextureAtlas::AddTexture(std::string sFilename)
+		cTexture *cTextureAtlas::AddTexture(const std::string& sPath)
 		{
 			LOG.Success("Texture", "Loading " + sFilename);
 
-			sFilename=breathe::filesystem::FindFile(sFilename);
+			const std::string sFilename = breathe::filesystem::FindFile(sPath);
 		
 			// Load the texture
 			cTexture* pTexture = new cTexture();

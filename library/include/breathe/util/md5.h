@@ -54,7 +54,7 @@ namespace breathe
 		cMD5();
 
 		bool CheckString(char *input);
-		bool CheckFile(std::string);
+		bool CheckFile(const std::string&);
 
 		bool SetResultFromFormatted(char *input);
 

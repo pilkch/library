@@ -21,7 +21,7 @@ namespace breathe
 				cModel();
 				~cModel();
 
-				virtual int Load(std::string sFilename)=0;
+				virtual int Load(const std::string& sFilename)=0;
 			};
 		}
 	}

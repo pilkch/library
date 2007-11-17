@@ -12,7 +12,7 @@ namespace breathe
 		class Model3DSFile
 		{
 		public:
-			Model3DSFile( std::string src);
+			Model3DSFile(const std::string& src);
 			~Model3DSFile();
 
 			Model3DSChunk Child();

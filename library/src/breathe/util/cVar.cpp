@@ -28,7 +28,7 @@ namespace breathe
 	std::map<std::string, cVar<std::string>*> var::mVar;
 
 
-	cVar<std::string>* var::VarFind(std::string name)
+	cVar<std::string>* var::VarFind(const std::string& name)
 	{
 		std::map<std::string, cVar<std::string>*>::iterator iter=mVar.begin();
 
@@ -77,7 +77,7 @@ namespace breathe
 		}
 
 	private:
-		void TestVariable(std::string variable)
+		void TestVariable(const std::string& variable)
 		{
 			breathe::cVar<std::string>* p = var::VarFind(variable);
 			assert(p != NULL);

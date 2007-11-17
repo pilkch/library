@@ -19,7 +19,7 @@ namespace breathe
 			class cStatic : public cModel, protected math::cOctree
 			{
 			private:
-				int Load3DS(std::string sFilename);
+				int Load3DS(const std::string& sFilename);
 
 				void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);	
 				void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
@@ -51,7 +51,7 @@ namespace breathe
 				cStatic();
 				~cStatic();
 
-				int Load(std::string sFilename);
+				int Load(const std::string& sFilename);
 				void Update(sampletime_t currentTime);
 				unsigned int Render();
 				

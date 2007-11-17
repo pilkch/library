@@ -82,7 +82,7 @@ namespace breathe
 		{
 		}
 
-		void cConnectionTCP::Open(std::string host, uint32_t port)
+		void cConnectionTCP::Open(const std::string& host, uint32_t port)
 		{
 			/* Resolve the host we are connecting to */
 			if (SDLNet_ResolveHost(&ip, host.c_str(), port) < 0)
@@ -158,7 +158,7 @@ namespace breathe
 			return 0;
 		}
 
-		void cDownloadHTTP::Download(std::string _path)
+		void cDownloadHTTP::Download(const std::string& _path)
 		{
 			path = _path;
 			server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, "http://"), "/");

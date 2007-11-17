@@ -244,7 +244,7 @@ namespace breathe
 	{
 	public:
 		template <class T>
-		static void VarSet(std::string name, T value)
+		static void VarSet(const std::string& name, T value)
 		{
 			cVar<std::string>* pVar = VarFind(name);
 			if (pVar != nullptr) {
@@ -255,7 +255,7 @@ namespace breathe
 			mVar[name] = new cVar<std::string>(value);
 		}
 
-		static cVar<std::string>* VarFind(std::string name);
+		static cVar<std::string>* VarFind(const std::string& name);
 		static void PrintAll();
 
 	private:

@@ -46,7 +46,7 @@ namespace breathe
 		public:
 			cConnectionTCP();
 			
-			void Open(std::string host, uint32_t port);
+			void Open(const std::string& host, uint32_t port);
 			void Close();
 
 			IPaddress ip;
@@ -57,7 +57,7 @@ namespace breathe
 		class cDownloadHTTP : public breathe::util::cThread
 		{
 		public:
-			void Download(std::string path);
+			void Download(const std::string& path);
 			std::string GetContent() const;
 			
 

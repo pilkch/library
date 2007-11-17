@@ -55,7 +55,7 @@ namespace breathe
 				void CloneTo(cMesh* rhs);
 
 				void SetMaterial(material::cMaterial* pMaterial);
-				void SetMaterial(std::string sMaterial);
+				void SetMaterial(const std::string& sMaterial);
 				
 				cMeshData* pMeshData;
 

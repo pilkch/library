@@ -13,7 +13,7 @@ namespace breathe
 				cHeightmap();
 				~cHeightmap();
 
-				int Load(std::string sFilename);
+				int Load(const std::string& sFilename);
 				
 				float Height(int x, int y);
 				float Height(float x, float y);

@@ -86,7 +86,7 @@ namespace breathe
 		return true;
 	}
 
-	bool cMD5::CheckFile(std::string input)
+	bool cMD5::CheckFile(const std::string& input)
 	{
 		int i;
 		FILE* f;

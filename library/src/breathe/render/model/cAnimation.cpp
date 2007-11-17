@@ -52,7 +52,7 @@ namespace breathe
 				LOG.Error("Animation", "Don't use this class");
 			}		
 			
-			int cAnimation::Load(std::string sFilename)
+			int cAnimation::Load(const std::string& sFilename)
 			{
 				LOG.Error("Animation", "Don't use this class");
 

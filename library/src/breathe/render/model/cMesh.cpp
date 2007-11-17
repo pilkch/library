@@ -145,7 +145,7 @@ namespace breathe
 				pMaterial = pInMaterial;
 			}
 			
-			void cMesh::SetMaterial(std::string sInMaterial)
+			void cMesh::SetMaterial(const std::string& sInMaterial)
 			{
 				sMaterial = sInMaterial;
 				pMaterial = pRender->GetMaterial(sMaterial);

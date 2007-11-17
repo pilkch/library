@@ -85,14 +85,14 @@ namespace breathe
 				SAFE_DELETE_ARRAY(pNormal);
 			}
 			
-			int cHeightmap::Load(std::string sFilename)
+			int cHeightmap::Load(const std::string&)
 			{
 				SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, 1.0f);
 
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
-				sFilename=breathe::filesystem::FindFile("data/level/node00/heightmap.png");
+				std::string sFilename = breathe::filesystem::FindFile("data/level/node00/heightmap.png");
 
 				float fHighest = -math::cINFINITY;
 				float fLowest = math::cINFINITY;

@@ -52,7 +52,7 @@ namespace breathe
 			void Begin(unsigned int uiSegmentWidthPX, unsigned int uiSegmentSmallPX, unsigned int uiAtlasWidthPX);
 			void End();
 
-			cTexture *AddTexture(std::string sFilename);
+			cTexture *AddTexture(const std::string& sFilename);
 		};
 	}
 }

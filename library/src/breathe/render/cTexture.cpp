@@ -68,7 +68,7 @@ namespace breathe
 			SAFE_DELETE_ARRAY(pData);
 		}
 		
-		bool cTexture::Load(std::string inFilename)
+		bool cTexture::Load(const std::string& inFilename)
 		{
 			sFilename = inFilename;
 
@@ -197,7 +197,7 @@ namespace breathe
         std::memcpy(surface->pixels, pData, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
-		bool cTexture::SaveToBMP(std::string inFilename)
+		bool cTexture::SaveToBMP(const std::string& inFilename)
 		{
 			SDL_SaveBMP(surface, inFilename.c_str());
 			return breathe::GOOD;

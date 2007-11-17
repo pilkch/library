@@ -271,7 +271,7 @@ namespace breathe
 
 
 
-			int cStatic::Load3DS(std::string sFilename)
+			int cStatic::Load3DS(const std::string& sFilename)
 			{
 				iVersionFile=0;
 				iVersionMesh=0;
@@ -332,7 +332,7 @@ namespace breathe
 				return uiTriangles;
 			}
 
-			int cStatic::Load(std::string sFilename)
+			int cStatic::Load(const std::string& sFilename)
 			{
 				if(sFilename.find(".3ds"))
 					return Load3DS(sFilename);

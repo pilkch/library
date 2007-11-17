@@ -86,7 +86,7 @@ namespace breathe
 			void SetUp(bool bConsole);
 
 			//std::string sCommand;
-			//cKey(std::string command);
+			//cKey(const std::string& command);
 
 			bool bVariable;
 			bool bRepeat;

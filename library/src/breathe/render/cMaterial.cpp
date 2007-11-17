@@ -250,7 +250,7 @@ namespace breathe
 			}
 
 
-			cMaterial::cMaterial(std::string name) :
+			cMaterial::cMaterial(const std::string& name) :
 				bShadow_cast(true),
 				bShadow_receive(true),
 				bLight_receive(true),

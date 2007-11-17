@@ -123,12 +123,12 @@ namespace breathe
 		~cLevel();
 
 	private:
-		bool LoadXML(std::string sNewFilename);
+		bool LoadXML(const std::string& sNewFilename);
 
 	public:
-		bool Load(std::string sNewFilename);
-		void LoadNode(std::string sNewFilename);
-		void LoadCubemap(std::string sFilename);
+		bool Load(const std::string& sNewFilename);
+		void LoadNode(const std::string& sNewFilename);
+		void LoadCubemap(const std::string& sFilename);
 
 		void Update(sampletime_t currentTime);
 		unsigned int Render(sampletime_t currentTime);

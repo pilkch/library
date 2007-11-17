@@ -53,7 +53,7 @@ namespace breathe
 			class cMaterial
 			{
 			public:
-				cMaterial(std::string sName);
+				cMaterial(const std::string& sName);
 				~cMaterial();
 
 				//Rendering
