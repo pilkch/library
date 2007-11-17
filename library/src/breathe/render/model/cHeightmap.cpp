@@ -34,7 +34,8 @@
 #include <breathe/math/cColour.h>
 
 #include <breathe/util/base.h>
-#include <breathe/util/filesystem.h>
+
+#include <breathe/storage/filesystem.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>

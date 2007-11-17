@@ -326,4 +326,4 @@ namespace breathe
 
 extern breathe::logging::cScreen SCREEN;
 
-#endif
+#endif //CLOG_H

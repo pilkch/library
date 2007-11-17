@@ -14,7 +14,8 @@
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/operatingsystem.h>
-#include <breathe/util/md5.h>
+
+#include <breathe/algorithm/md5.h>
 
 #ifdef __WIN__
 #include <windows.h>

@@ -22,9 +22,9 @@
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
-
 #include <breathe/util/thread.h>
-#include <breathe/util/network.h>
+
+#include <breathe/communication/network.h>
 
 
 #define STR_LEN 512

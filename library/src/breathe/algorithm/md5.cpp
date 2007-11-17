@@ -43,7 +43,7 @@
 // Breathe
 #include <breathe/breathe.h>
 
-#include <breathe/util/md5.h>
+#include <breathe/algorithm/md5.h>
 
 namespace breathe
 {
@@ -376,22 +376,22 @@ namespace breathe
 		t << static_cast < unsigned short > (result[14]);
 		t << static_cast < unsigned short > (result[15]);
 		
-		sResult=t.str();
+		sResult = t.str();
 	}
 
 	bool cMD5::operator==(const cMD5 & rhs) const
 	{
-		return rhs.sResult==sResult;
+		return rhs.sResult == sResult;
 	}
 
 	bool cMD5::operator!=(const cMD5 & rhs) const
 	{
-		return rhs.sResult!=sResult;
+		return rhs.sResult != sResult;
 	}
 
 	bool cMD5::operator==(const std::string & rhs) const
 	{
-		return rhs==sResult;
+		return rhs == sResult;
 	}
 
 	bool cMD5::operator!=(const std::string & rhs) const

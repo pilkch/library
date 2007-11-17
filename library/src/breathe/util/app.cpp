@@ -146,10 +146,11 @@ int intersect_triangle(
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
-#include <breathe/util/filesystem.h>
 #include <breathe/util/cVar.h>
-#include <breathe/util/xml.h>
 #include <breathe/util/cTimer.h>
+
+#include <breathe/storage/filesystem.h>
+#include <breathe/storage/xml.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
@@ -186,7 +187,8 @@ int intersect_triangle(
 #include <breathe/util/unittest.h>
 #include <breathe/util/app.h>
 #include <breathe/util/thread.h>
-#include <breathe/util/network.h>
+
+#include <breathe/communication/network.h>
 
 #include <breathe/audio/audio.h>
 

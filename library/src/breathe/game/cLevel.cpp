@@ -30,8 +30,9 @@
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
-#include <breathe/util/filesystem.h>
-#include <breathe/util/xml.h>
+
+#include <breathe/storage/filesystem.h>
+#include <breathe/storage/xml.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>

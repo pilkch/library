@@ -13,11 +13,11 @@
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
 
-#include <breathe/util/filesystem.h>
+#include <breathe/storage/versionedfile.h>
 
 #ifndef FIRESTARTER
 #include <breathe/util/log.h>
-#include <breathe/util/md5.h>
+#include <breathe/algorithm/md5.h>
 #endif
 
 

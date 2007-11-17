@@ -40,7 +40,8 @@
 
 #include <breathe/util/base.h>
 
-#include <breathe/util/filesystem.h>
+#include <breathe/storage/filesystem.h>
+#include <breathe/storage/xml.h>
 
 
 
@@ -55,8 +56,6 @@
 #include <breathe/render/model/cStatic.h>
 
 #include <breathe/game/cLevel.h>
-
-#include <breathe/util/xml.h>
 
 namespace breathe
 {

@@ -22,7 +22,7 @@
 #include <breathe/util/log.h>
 #endif
 
-#include <breathe/util/xml.h>
+#include <breathe/storage/xml.h>
 
 #ifndef FIRESTARTER
 #include <breathe/math/math.h>

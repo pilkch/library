@@ -77,8 +77,18 @@
 
 
 // CRT's memory leak detection
-#if defined(BUILD_DEBUG) && defined(__WIN__)
+#ifdef __WIN__
+#include <windows.h>
+
+#ifdef BUILD_DEBUG
 #include <crtdbg.h>
+#endif
+
+#elif defined(UNICODE)
+#define _TEXT(s) L##s
+#define TEXT(s) _TEXT(s)
+#else
+#define TEXT(s) s
 #endif
 
 
@@ -101,15 +111,6 @@ typedef long int uint32_t;
 #include <breathe/util/mem.h>
 #endif
 
-
-#ifndef __WIN__
-#ifdef UNICODE
-#define _TEXT(s) L##s
-#define TEXT(s) _TEXT(s)
-#else
-#define TEXT(s) s
-#endif
-#endif
 
 #define NO_COPY(T) \
 	private: \
