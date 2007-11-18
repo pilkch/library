@@ -32,11 +32,12 @@ namespace breathe
 		void AddPhysicsObject(cPhysicsObject *pPhysicsObject);
 		void RemovePhysicsObject(cPhysicsObject *pPhysicsObject);
 		
-		size_t GetSize();
+		size_t size();
+		bool empty();
 
 		typedef std::list<cPhysicsObject * >::iterator iterator;
-		iterator GetObjectListBegin();
-		iterator GetObjectListEnd();
+		iterator begin();
+		iterator end();
 	}
 }
 

@@ -102,7 +102,7 @@ namespace breathe
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
-				if(pSource->IsValid())
+				if (pSource->IsValid())
 					pSource->Play();
 			};
 		}
@@ -116,14 +116,14 @@ namespace breathe
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
-				if(pSource->IsValid())
+				if (pSource->IsValid())
 					pSource->Play();
 			};
 		}
 
 		bool Init()
 		{
-			if(!alutInitWithoutContext(NULL, NULL))
+			if (!alutInitWithoutContext(NULL, NULL))
 				ReportError();
 
 			// Major minor version number
@@ -169,37 +169,37 @@ namespace breathe
 			// Surround sound
 			ALenum eBufferFormat = 0;
 			eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
-			if(eBufferFormat)
+			if (eBufferFormat)
 				LOG.Success("Audio", "8.1 Surround sound supported");
 			else
 			{
 				eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
-				if(eBufferFormat)
+				if (eBufferFormat)
 					LOG.Success("Audio", "7.1 Surround sound supported");
 				else
 				{
 					eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
-					if(eBufferFormat)
+					if (eBufferFormat)
 						LOG.Success("Audio", "6.1 Surround sound supported");
 					else
 					{
 						eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
-						if(eBufferFormat)
+						if (eBufferFormat)
 							LOG.Success("Audio", "5.1 Surround sound supported");
 						else
 						{
 							eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-							if(eBufferFormat)
+							if (eBufferFormat)
 								LOG.Success("Audio", "Quad Speaker Surround sound supported");
 							else
 							{
 								eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
-								if(eBufferFormat)
+								if (eBufferFormat)
 									LOG.Success("Audio", "Stereo sound supported");
 								else
 								{
 									eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
-									if(eBufferFormat)
+									if (eBufferFormat)
 										LOG.Success("Audio", "Mono sound supported");
 									else
 										LOG.Success("Audio", "Unknown sound setup");
@@ -267,7 +267,7 @@ namespace breathe
 
 		cAudioBuffer::~cAudioBuffer()
 		{
-			if(uiBuffer) alDeleteBuffers(1, &uiBuffer);
+			if (uiBuffer) alDeleteBuffers(1, &uiBuffer);
 		}
 
     void cAudioBuffer::Create(const std::string& sInFilename)
@@ -301,7 +301,7 @@ namespace breathe
 			ReportError();
 
 			// If this buffer is a looping buffer then we have to be a looping source
-			if(pBuffer->IsLooping())
+			if (pBuffer->IsLooping())
 				alSourcei(uiSource, AL_LOOPING, AL_TRUE);
 		}
 
@@ -343,7 +343,7 @@ namespace breathe
 
 		bool cAudioSource::IsPlaying() const
 		{
-			if(!IsValid()) return false;
+			if (!IsValid()) return false;
 
 			// If we have stopped playing this sound remove us from the list
 			ALint value = AL_PLAYING;

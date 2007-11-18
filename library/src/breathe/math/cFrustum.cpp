@@ -260,12 +260,12 @@ namespace breathe
 
 		bool cFrustum::PointInFrustum( float x, float y, float z )
 		{
-			if(m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= 0) return false;
-			if(m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= 0) return false;
-			if(m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= 0) return false;
-			if(m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= 0) return false;
-			if(m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= 0) return false;
-			if(m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= 0) return false;
+			if (m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= 0) return false;
+			if (m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= 0) return false;
+			if (m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= 0) return false;
+			if (m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= 0) return false;
+			if (m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= 0) return false;
+			if (m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= 0) return false;
 
 			return true;
 		}
@@ -273,12 +273,12 @@ namespace breathe
 		bool cFrustum::SphereInFrustum( float x, float y, float z, float radius )
 		{
 			// If the center of the sphere is farther away from the plane than the radius
-			if(m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= -radius ) return false;
-			if(m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= -radius ) return false;
-			if(m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= -radius ) return false;
-			if(m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= -radius ) return false;
-			if(m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= -radius ) return false;
-			if(m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= -radius ) return false;
+			if (m_Frustum[0][A] * x + m_Frustum[0][B] * y + m_Frustum[0][C] * z + m_Frustum[0][D] <= -radius ) return false;
+			if (m_Frustum[1][A] * x + m_Frustum[1][B] * y + m_Frustum[1][C] * z + m_Frustum[1][D] <= -radius ) return false;
+			if (m_Frustum[2][A] * x + m_Frustum[2][B] * y + m_Frustum[2][C] * z + m_Frustum[2][D] <= -radius ) return false;
+			if (m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= -radius ) return false;
+			if (m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= -radius ) return false;
+			if (m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= -radius ) return false;
 			
 			return true;
 		}
@@ -291,23 +291,23 @@ namespace breathe
 			// of a side, then we skip to the next side.  If we get to a plane that does NOT have
 			// a point in front of it, then it will return false.  
 
-			for(int i = 0; i < 6; i++ )
+			for (int i = 0; i < 6; i++ )
 			{
-				if(m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z - size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
 					continue;
-				if(m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
+				if (m_Frustum[i][A] * (x + size) + m_Frustum[i][B] * (y + size) + m_Frustum[i][C] * (z + size) + m_Frustum[i][D] > 0)
 					continue;
 
 				// Not in the frustum

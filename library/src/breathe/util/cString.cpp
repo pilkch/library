@@ -8,6 +8,8 @@
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
 
+#define WHITE_SPACE "\t\v\r\n"
+
 namespace breathe
 {
 	namespace string
@@ -24,7 +26,7 @@ namespace breathe
 			
 			size_t i = 0;
 			size_t j;
-			for(;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, n++)
+			for (;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, n++)
 				;
 
 			return n;
@@ -40,17 +42,68 @@ namespace breathe
 			while (getline(stm, field, sFind)) vOut.push_back(Trim(field));
 		}
 
+		void Split(const std::wstring& source, wchar_t sFind, std::vector<std::wstring>& vOut)
+		{
+			vOut.clear();
+
+			std::wstringstream stm(source);
+			std::wstring field;
+
+			while (getline(stm, field, sFind)) vOut.push_back(Trim(field));
+		}
+		
+		void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut)
+		{
+			vOut.clear();
+
+			std::stringstream stm(source);
+			std::string field;
+
+			while (getline(stm, field)) 
+				vOut.push_back(Trim(field));
+		}
+		
+		void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut)
+		{
+			vOut.clear();
+
+			std::wstringstream stm(source);
+			std::wstring field;
+
+			while (getline(stm, field)) 
+				vOut.push_back(Trim(field));
+		}
+
 		std::string Trim(const std::string& source)
 		{
-			std::string::size_type start = source.find_first_not_of(" \t\v");
-			return source.substr(start, std::string::npos);
+			std::string::size_type start = source.find_first_not_of(WHITE_SPACE);
+			std::string::size_type end = source.find_last_not_of(WHITE_SPACE);
+			return source.substr(start, end + 1);
+		}
+
+		std::wstring Trim(const std::wstring& source)
+		{
+			std::wstring::size_type start = source.find_first_not_of(TEXT(WHITE_SPACE));
+			std::wstring::size_type end = source.find_last_not_of(TEXT(WHITE_SPACE));
+			return source.substr(start, end + 1);
 		}
 
 		std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)
 		{
 			size_t j;
 			std::string temp(source);
-			for(;(j = temp.find(sFind)) != std::string::npos;)
+			for (;(j = temp.find(sFind)) != std::string::npos;)
+			{
+				temp.replace(j, sFind.length(), sReplace);
+			}
+			return temp;
+		}
+
+		std::wstring Replace(const std::wstring& source, const std::wstring& sFind, const std::wstring& sReplace)
+		{
+			size_t j;
+			std::wstring temp(source);
+			for (;(j = temp.find(sFind)) != std::wstring::npos;)
 			{
 				temp.replace(j, sFind.length(), sReplace);
 			}
@@ -60,7 +113,7 @@ namespace breathe
 		std::string StripLeading(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_not_of(find);
-			if(std::string::npos != i) {
+			if (std::string::npos != i) {
 				std::string temp(source);
 				return temp.erase(0, i);
 			}
@@ -71,8 +124,19 @@ namespace breathe
 		std::string StripTrailing(const std::string& source, const std::string& find)
 		{
 			std::string::size_type iEndOfContent = source.find_last_not_of(find);
-			if(std::string::npos != iEndOfContent) {
+			if (std::string::npos != iEndOfContent) {
 				std::string temp(source);
+				return temp.erase(iEndOfContent + 1);
+			}
+			
+			return source;
+		}
+		
+		std::wstring StripTrailing(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type iEndOfContent = source.find_last_not_of(find);
+			if (std::wstring::npos != iEndOfContent) {
+				std::wstring temp(source);
 				return temp.erase(iEndOfContent + 1);
 			}
 			
@@ -82,8 +146,19 @@ namespace breathe
 		std::string StripBefore(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_of(find);
-			if(std::string::npos != i) {
+			if (std::string::npos != i) {
 				std::string temp(source);
+				return temp.erase(0, i);
+			}
+
+			return source;
+		}
+
+		std::wstring StripBefore(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type i = source.find_first_of(find);
+			if (std::wstring::npos != i) {
+				std::wstring temp(source);
 				return temp.erase(0, i);
 			}
 
@@ -93,7 +168,7 @@ namespace breathe
 		std::string StripAfter(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_last_of(find);
-			if(std::string::npos != i) {
+			if (std::string::npos != i) {
 				std::string temp(source);
 				return temp.erase(i);
 			}
@@ -104,8 +179,17 @@ namespace breathe
 		std::string StripBeforeInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find(find);
-			if(std::string::npos != i) 
+			if (std::string::npos != i) 
 				return std::string(source.begin() + i + find.length(), source.end());
+
+			return source;
+		}
+
+		std::wstring StripBeforeInclusive(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type i = source.find(find);
+			if (std::wstring::npos != i) 
+				return std::wstring(source.begin() + i + find.length(), source.end());
 
 			return source;
 		}
@@ -113,9 +197,21 @@ namespace breathe
 		std::string StripAfterInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find_first_of(find);
-			if(std::string::npos != i) {
+			if (std::string::npos != i) {
 				std::string copy(source);
 				std::string::size_type len = find.length();
+				return copy.erase(i);
+			}
+
+			return source;
+		}
+
+		std::wstring StripAfterInclusive(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type i = source.find_first_of(find);
+			if (std::wstring::npos != i) {
+				std::wstring copy(source);
+				std::wstring::size_type len = find.length();
 				return copy.erase(i);
 			}
 
@@ -139,6 +235,83 @@ namespace breathe
 
 			return sOut;
 		}
+
+		
+		std::wstring ToWchar_t(const std::string& source)
+		{
+			/*std::wostringstream wstm;
+			const std::ctype<wchar_t>& ctfacet = std::use_facet< std::ctype<wchar_t> >(wstm.getloc());
+			size_t n = source.size();
+			size_t i = 0;
+			for (; i<n ; ++i) {
+				wchar_t c = ctfacet.widen(source[i]);
+				wstm<<c;
+			}
+			return wstm.str();*/
+
+			std::wstring result(source.size(), char(0)); 
+			typedef std::ctype<char_t> ctype_t; 
+			const ctype_t& ct = std::use_facet<ctype_t>(std::locale()); 
+			ct.widen(source.data(), source.data() + source.size(), &(*result.begin()));
+			return result;
+			
+			/*std::wstring temp;
+			temp.reserve(source.length());
+			size_t i = 0;
+			size_t n = source.length();
+			char_t c = 0;
+			while (i != n) {
+				c = source.widen();
+				temp.append(c);
+				i++;
+			}*/
+
+			//std::transform(source.begin(), source.end(), temp.begin(), (int(*)(int))std::ios::widen);
+			
+			/*const size_t len = source.length() + 1;
+			wchar_t* pTemp = new wchar_t[len];
+			mbstowcs(pTemp, source.data(), len);
+			std::wstring temp(pTemp);
+			SAFE_DELETE_ARRAY(pTemp);*/
+
+			//return temp;
+		}
+ 
+
+		std::string ToUTF8(const std::wstring& source) 
+		{ 
+				std::string result(source.size(), char(0)); 
+				typedef std::ctype<wchar_t> ctype_t; 
+				const ctype_t& ct = std::use_facet<ctype_t>(std::locale()); 
+				ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin())); 
+				return result; 
+		}
+
+		/*std::string ToUTF8(const std::wstring& source)
+		{
+			std::ostringstream stm;
+			const std::ctype<char>& ctfacet = std::use_facet< std::ctype<char> >(stm.getloc());
+			size_t n = source.length();
+			size_t i = 0;
+			for (; i<n ; ++i) {
+				wchar_t a = source[i];
+				wchar_t c = ctfacet.narrow(a, 0);
+				stm<<c;
+			}
+			return stm.str();
+
+			//std::string temp;
+			//temp.reserve(source.length());
+			//std::transform(source.begin(), source.end(), temp.begin(), (int(*)(int))std::ios::narrow);
+			
+			//const size_t len = source.length() + 1;
+			//char* pTemp = new char[len];
+			//wcstombs(pTemp, source.data(), len);
+			//std::string temp(pTemp);
+			//SAFE_DELETE_ARRAY(pTemp);
+
+			//return temp;
+		}*/
 
 		float ToFloat(const std::string& source)
 		{

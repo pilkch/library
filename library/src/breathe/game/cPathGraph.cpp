@@ -81,7 +81,7 @@ namespace breathe
 			
 			void cPathEdge::Update()
 			{
-				if(pNode0 && pNode1) fDistance = (*pNode0 - *pNode1).GetLength();
+				if (pNode0 && pNode1) fDistance = (*pNode0 - *pNode1).GetLength();
 			}
 
 
@@ -105,7 +105,7 @@ namespace breathe
 				while(iter != iterEnd)
 				{
 					fDistance = (*(*iter) - v3Point).GetLength();
-					if(fDistance < fClosest)
+					if (fDistance < fClosest)
 					{
 						fClosest = fDistance;
 						pNode = (*iter);
@@ -122,7 +122,7 @@ namespace breathe
 				std::vector<cPathNode*>::iterator iter = vNode.begin();
 				std::vector<cPathNode*>::iterator iterEnd = vNode.end();
 				while(iter != iterEnd)
-					if((*iter)->uiID == id)
+					if ((*iter)->uiID == id)
 						return *iter;
 
 				return NULL;
@@ -188,7 +188,7 @@ namespace breathe
 				lPathOut.push_back(pNodeCurrent);
 
 				// 1) The current node is the one we are looking for
-				if(pNodeCurrent == pNodeEnd) return true;
+				if (pNodeCurrent == pNodeEnd) return true;
 
 
 				// So far we have one visited node, pNodeCurrent
@@ -205,11 +205,11 @@ namespace breathe
 					cPathNode* pNodeTest = (pNode0 && (pNode0 != pNodeCurrent) && !mVisited[pNode0]) ? pNode0 : 
 						(pNode1 && (pNode1 != pNodeCurrent) && !mVisited[pNode1]) ? pNode1 : NULL;
 
-					if(pNodeTest)
+					if (pNodeTest)
 					{
 						// Recursively search this node
 						bool bFoundPath = _GetPath(pNodeTest, pNodeEnd, mVisited, lPathOut);
-						if(bFoundPath)
+						if (bFoundPath)
 						{
 							// 2) There is a valid path to pNodeEnd
 							return true;
@@ -278,11 +278,11 @@ namespace breathe
 				lPathOut.clear();
 
 				// 1)
-				if(empty()) return false;
+				if (empty()) return false;
 
 				// 2)
 				cPathNode* pNodeBegin = GetNode(v3Begin);
-				if((*pNodeBegin - v3Begin).GetLength() > (v3Begin - v3End).GetLength()) return true;
+				if ((*pNodeBegin - v3Begin).GetLength() > (v3Begin - v3End).GetLength()) return true;
 
 				cPathNode* pNodeEnd = GetNode(v3End);
 

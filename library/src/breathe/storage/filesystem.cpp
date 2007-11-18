@@ -29,164 +29,143 @@ namespace breathe
 {
 	namespace filesystem
 	{
-		void DetectByteOrderMark(const uint8_t* bytes)
+		std::vector<string_t> vDirectory;
+		string_t sExecutable = TEXT("");
+
+		void SetThisExecutable(const string_t& executable)
 		{
-			/*
-			UTF-8 EF BB BF
-			UTF-16 (big-endian) FE FF
-			UTF-16 (little-endian) FF FE
-			UTF-16BE, UTF-32BE (big-endian) No BOM!
-			UTF-16LE, UTF-32LE (little-endian) No BOM!
-			UTF-32 (big-endian) 00 00 FE FF
-			UTF-32 (little-endian) FF FE 00 00
-			SCSU (compression) 0E FE FF
-			*/
-		}
-
-
-		std::vector<std::string> vDirectory;
-		std::string sExecutable = "";
-
-		void SetThisExecutable(const std::string& executable)
-		{
-			sExecutable = GetPath(breathe::string::Replace(executable, "\\", "/"));
+			sExecutable = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
 			assert(sExecutable.length() > 0);
 		}
 
-		std::string GetThisApplicationDirectory()
+		string_t GetThisApplicationDirectory()
 		{
 			assert(sExecutable.length() > 0);
 			return sExecutable;
 		}
 
-		std::string GetPath(const std::string& sFilename)
+		string_t GetPath(const string_t& sFilename)
 		{
-			std::string p = "";
-			std::string s = sFilename;
+			string_t p = TEXT("");
+			string_t s = sFilename;
 
-			std::string::size_type i=s.find("/");;
-			while(i!=std::string::npos)
+			string_t::size_type i=s.find(TEXT("/"));;
+			while(i != string_t::npos)
 			{
 				i++;
-				p+=s.substr(0, i);
-				s=s.substr(i);
-				i=s.find("/");
+				p += s.substr(0, i);
+				s = s.substr(i);
+				i = s.find(TEXT("/"));
 			};
 
 			return p;
 		}
 
-		std::string GetFile(const std::string& sFilename)
+		string_t GetFile(const string_t& sFilename)
 		{
-			std::string::size_type i = sFilename.rfind("/");
+			string_t::size_type i = sFilename.rfind(TEXT("/"));
 
 			// We didn't find a folder, so just return the whole path
-			if(std::string::npos == i) return sFilename;
+			if (string_t::npos == i) return sFilename;
 
 			i++;
 			return sFilename.substr(i);
 		}
-		std::string GetFileNoExtension(const std::string& sFilename)
+		string_t GetFileNoExtension(const string_t& sFilename)
 		{
-			std::string::size_type i = sFilename.find("/");
-			std::string temp = sFilename;
-			while(i != std::string::npos)
+			string_t::size_type i = sFilename.find(TEXT("/"));
+			string_t temp = sFilename;
+			while(i != string_t::npos)
 			{
 				i++;
 				temp = temp.substr(i);
-				i = temp.find("/");
+				i = temp.find(TEXT("/"));
 			};
 
-			i = temp.find(".");;
-			if(i != std::string::npos)
-				return temp.substr(0, i);
+			i = temp.find(TEXT("."));
+			if (i != string_t::npos) return temp.substr(0, i);
 
-			return "";
+			return TEXT("");
 		}
-		std::string GetExtension(const std::string& sFilename)
+		string_t GetExtension(const string_t& sFilename)
 		{
-			std::string p="";
-			std::string s=sFilename;
+			string_t s=sFilename;
 
-			std::string::size_type i=s.find("/");;
-			while(i!=std::string::npos)
+			string_t::size_type i=s.find(TEXT("/"));;
+			while(i != string_t::npos)
 			{
 				i++;
 				s=s.substr(i);
-				i=s.find("/");
+				i=s.find(TEXT("/"));
 			};
 
-			if(i!=std::string::npos)
-				s=s.substr(i);
+			if (i != string_t::npos) s = s.substr(i);
 
-			i=s.find(".");;
-			while(i!=std::string::npos)
+			i = s.find(TEXT("."));
+			while(i!=string_t::npos)
 			{
 				i++;
-				s=s.substr(i);
-				i=s.find(".");
+				s = s.substr(i);
+				i = s.find(TEXT("."));
 			};
 
-			if(i!=std::string::npos)
-				p=s.substr(i);
-			else
-				p=s.substr(0);
-
-			return p;
+			if (i != string_t::npos) return s.substr(i);
+			
+			return s.substr(0);
 		}
 
 		
-		void AddDirectory(const std::string& sDirectory)
+		void AddDirectory(const string_t& sDirectory)
 		{
-			size_t i=0;
-			size_t n=vDirectory.size();
-			for(i=0;i<n;i++)
+			size_t i = 0;
+			size_t n = vDirectory.size();
+			for (i=0;i<n;i++)
 			{
-				if(vDirectory[i]==sDirectory)
+				if (vDirectory[i] == sDirectory)
 					return;
 			}
 
 			vDirectory.push_back(sDirectory);
 #ifndef FIRESTARTER
-			LOG.Success("FileSystem", "Added " + sDirectory);
+			LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + sDirectory));
 #endif
 		}
 
-		std::string FindFile(const std::string& sPath, const std::string& sFilename)
+		string_t FindFile(const string_t& sPath, const string_t& sFilename)
 		{
-			std::string temp = FindFile(sPath + sFilename);
+			string_t temp = FindFile(sPath + sFilename);
 			
-			if (filesystem::FileExists(breathe::string::ToString_t(temp))) return temp;
+			if (filesystem::FileExists(temp)) return temp;
 
 			//!breathe::filesystem::FileExists(breathe::string::ToString_t(pLayer->sTexture)))
 
 			return FindFile(sFilename);
 		}
 
-		std::string FindFile(const std::string& sFilename)
+		string_t FindFile(const string_t& sFilename)
 		{
-			if(""==sFilename)
-				return "";
+			if (TEXT("") == sFilename) return TEXT("");
 
 			//Check sFilename that was passed in
-			std::ifstream f(sFilename.c_str());
+			std::ifstream f;
+			f.open(breathe::string::ToUTF8(sFilename).c_str());
 
-			if(f.is_open())
+			if (f.is_open())
 			{
 				f.close();
 				return sFilename;
 			}
 
 			//Check for each directory+sFilename
-			std::vector<std::string>::iterator iter=vDirectory.begin();
+			std::vector<string_t>::iterator iter=vDirectory.begin();
 			while(iter!=vDirectory.end())
 			{
-				f.open(((*iter) + sFilename).c_str());
+				f.open(breathe::string::ToUTF8(breathe::string::ToString_t((*iter) + sFilename)).c_str());
 				
-				if(f.is_open())
+				if (f.is_open())
 				{
 					f.close();
-					return (*iter) + sFilename;
+					return breathe::string::ToString_t(*iter) + sFilename;
 				}
 
 				iter++;
@@ -194,34 +173,34 @@ namespace breathe
 			
 
 			//Check for each directory+sFilename-path
-			iter=vDirectory.begin();
-			std::string sFile=GetFile(sFilename);
-			while(iter!=vDirectory.end())
+			iter = vDirectory.begin();
+			string_t sFile = GetFile(sFilename);
+			while(iter != vDirectory.end())
 			{
-				f.open(((*iter) + sFile).c_str());
+				f.open(breathe::string::ToUTF8(((*iter) + sFile)).c_str());
 				
-				if(f.is_open())
+				if (f.is_open())
 				{
 					f.close();
-					return (*iter) + sFile;
+					return breathe::string::ToString_t(*iter) + sFile;
 				}
 
 				iter++;
 			};
 	    
 #ifndef FIRESTARTER
-			LOG.Error("FileSystem", "Not Found " + sFilename);
+			LOG.Error("FileSystem", breathe::string::ToUTF8(TEXT("Not Found ") + sFilename));
 #endif
 			return sFilename;
 		}
 
 #ifndef FIRESTARTER
-		std::string GetMD5(const std::string& sFilename)
+		string_t GetMD5(const string_t& sFilename)
 		{
 			cMD5 m;
-			m.CheckFile(sFilename.c_str());
+			m.CheckFile(breathe::string::ToUTF8(sFilename));
 
-			return m.GetResult();
+			return breathe::string::ToString_t(m.GetResult());
 		}
 #endif
 		
@@ -281,7 +260,7 @@ namespace breathe
 #pragma pop_macro("CreateFile")
 			
 			// Check if this file is already created so that we don't overwrite it
-			if(FileExists(sFilename))
+			if (FileExists(sFilename))
 				return true;
 
 			// File not found, we can now create the file
@@ -298,7 +277,7 @@ namespace breathe
 				FILE_ATTRIBUTE_NORMAL | // normal file
 				FILE_FLAG_OVERLAPPED,   // asynchronous I/O
 				NULL);                  // no attr. template
-			if(INVALID_HANDLE_VALUE != handle)
+			if (INVALID_HANDLE_VALUE != handle)
 			{
 				// This file is created
 				CloseHandle(handle);
@@ -315,7 +294,7 @@ namespace breathe
 
 		// ************************************************* path *************************************************
 
-		path::path(const std::string& file_or_directory)
+		path::path(const string_t& file_or_directory)
 		{
 			sPath = file_or_directory;
 		}
@@ -330,25 +309,25 @@ namespace breathe
 			return GetFile().length() == 0;
 		}
 
-		std::string path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
+		string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
 		{
 			assert(IsDirectory());
 			return filesystem::GetPath(sPath);
 		}
 
-		std::string path::GetFile() const // Returns just the file "file.txt"
+		string_t path::GetFile() const // Returns just the file "file.txt"
 		{
 			assert(IsFile());
 			return filesystem::GetFile(sPath);
 		}
 
-		std::string path::GetExtenstion() const // Returns just the extension ".txt"
+		string_t path::GetExtenstion() const // Returns just the extension ".txt"
 		{
 			assert(IsFile());
 			return filesystem::GetExtension(sPath);
 		}
 
-		std::string path::str() const // Returns the full path "/folder1/folder2/file.txt"
+		string_t path::str() const // Returns the full path "/folder1/folder2/file.txt"
 		{
 			return sPath;
 		}
@@ -370,7 +349,7 @@ namespace breathe
 			//TODO: Set ourselves to the current directory
 		}
 			
-		directory_iterator::directory_iterator(const std::string& directory)
+		directory_iterator::directory_iterator(const string_t& directory)
 		{
 			
 		}
@@ -383,9 +362,9 @@ namespace breathe
 		{
 		}
 
-		std::string directory_iterator::GetName() const
+		string_t directory_iterator::GetName() const
 		{
-			return "";
+			return TEXT("");
 		}
 
 		bool directory_iterator::HasChildren() const

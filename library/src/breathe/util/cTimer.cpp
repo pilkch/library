@@ -30,7 +30,7 @@ namespace breathe
 		void cTimer::Update(sampletime_t currentTime)
 		{
 			iCount++;
-			if((currentTime - lastTime) > fUpdateInterval)
+			if ((currentTime - lastTime) > fUpdateInterval)
 			{
 				fFPS = iCount / (currentTime - lastTime) * 1000.0f;
 				lastTime = currentTime;

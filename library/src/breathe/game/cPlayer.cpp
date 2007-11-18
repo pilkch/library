@@ -110,10 +110,10 @@ namespace breathe
 	void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
 	{
 		cPlayer* p = ((cPlayer*)data);
-		if( dGeomGetBody( g1 ) == p->body ) return;
+		if (dGeomGetBody( g1 ) == p->body ) return;
 
 		dContact c;
-		if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
+		if (dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
 			p->rayContact.SetContact(c.geom, p->geom, c.geom.depth);
 	}
 
@@ -121,48 +121,48 @@ namespace breathe
 	{
 		float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
 		
-		if(PLAYER_STATE_DRIVE == uiState)
+		if (PLAYER_STATE_DRIVE == uiState)
 		{
 			p = pSeat->pVehicle->m.GetPosition();
 		}
-		else if(PLAYER_STATE_PASSENGER == uiState)
+		else if (PLAYER_STATE_PASSENGER == uiState)
 		{
 			p = pSeat->pVehicle->m.GetPosition();
 		}
 #ifdef BUILD_DEBUG
-		else if(uiCameraMode == CAMERA_FIRSTPERSONFREE)
+		else if (uiCameraMode == CAMERA_FIRSTPERSONFREE)
 		{
-			if(fInputUp > math::cEPSILON || fInputDown > math::cEPSILON || 
+			if (fInputUp > math::cEPSILON || fInputDown > math::cEPSILON || 
 				fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON)
 			{	
 				float fDirection = fHorizontal + math::toRadians(90.0f);
 
-				if(fInputUp > math::cEPSILON && fInputUp > fInputDown)
+				if (fInputUp > math::cEPSILON && fInputUp > fInputDown)
 				{
-					if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+					if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
 						fDirection += math::toRadians(45.0f);
-					else if(fInputRight > math::cEPSILON)
+					else if (fInputRight > math::cEPSILON)
 						fDirection -= math::toRadians(45.0f);
 					
 					p.z += fSpeed * sinf(fVertical - math::toRadians(90.0f));
 				}
-				else if(fInputDown > math::cEPSILON)
+				else if (fInputDown > math::cEPSILON)
 				{
-					if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+					if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
 						fDirection += math::toRadians(125.0f);
-					else if(fInputRight > math::cEPSILON)
+					else if (fInputRight > math::cEPSILON)
 						fDirection -= math::toRadians(125.0f);
 					else
 						fDirection += math::toRadians(180.0f);
 
 					p.z += fSpeed * sinf(fVertical + math::toRadians(90.0f));
 				}
-				else if(fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+				else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
 				{
 					fDirection += math::toRadians(90.0f);
 					fSpeed *= fInputLeft;
 				}
-				else if(fInputRight > math::cEPSILON)
+				else if (fInputRight > math::cEPSILON)
 				{
 					fDirection -= math::toRadians(90.0f);
 					fSpeed *= fInputRight;
@@ -184,7 +184,7 @@ namespace breathe
 
 			RayCast();
 
-			if(rayContact.bContact)
+			if (rayContact.bContact)
 			{
 				// Push us out of whatever surface we are falling towards
 				// We want to negate the downwards motion with an upwards one and then 
@@ -206,7 +206,7 @@ namespace breathe
 					// Bias the inputs slightly so that walking forwards is fastest, then left/right 
 					// and then backwards is slowest to make for slightly more interesting gameplay
 					v.x *= 0.8f;
-					if(v.y < 0.0f) v.y *= 0.5f;
+					if (v.y < 0.0f) v.y *= 0.5f;
 
 					// We have a vector saying which direction to go but it is not in world coordinates, 
 					// add it to our current heading vector (A whole matrix is probably not needed, just
@@ -258,12 +258,12 @@ namespace breathe
 
 		physics::RemovePhysicsObject(this);
 
-		if(geom) {
+		if (geom) {
 			dGeomDestroy(geom);
 			geom = NULL;
 		}
 
-		if(bBody) {
+		if (bBody) {
       dBodyDestroy(body);
 			body = NULL;
 		}
@@ -272,7 +272,7 @@ namespace breathe
 
 		
 
-		if(geomRay)
+		if (geomRay)
 		{
 			dGeomDestroy(geomRay);
 			geomRay = 0;
@@ -284,7 +284,7 @@ namespace breathe
 		uiState = PLAYER_STATE_RUN;
 		
 #ifdef BUILD_DEBUG
-		if(uiCameraMode != CAMERA_FIRSTPERSONFREE)
+		if (uiCameraMode != CAMERA_FIRSTPERSONFREE)
 		{
 #endif
 			bBody = true;

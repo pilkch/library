@@ -86,20 +86,20 @@ namespace breathe
 			int i=0;
 			float a=0.0f, b=0.0f;
 
-			for(i=0; i<4; i++)
+			for (i=0; i<4; i++)
 			{
 				a+=(q1[i]-q2[i])*(q1[i]-q2[i]);
 				b+=(q1[i]+q2[i])*(q1[i]+q2[i]);
 			}
-			if(a > b) //then invert q2
+			if (a > b) //then invert q2
 				q2.Invert();
 
 			float cosom = q1[0]*q2[0] + q1[1]*q2[1] + q1[2]*q2[2] + q1[3]*q2[3];
 			double scaleQ1, scaleQ2;
 
-			if((1.0 + cosom) > 0.00000001)
+			if ((1.0 + cosom) > 0.00000001)
 			{
-				if((1.0 - cosom) > 0.00000001)
+				if ((1.0 - cosom) > 0.00000001)
 				{
 					float omega = acos(cosom);
 					float sinom = sin(omega);

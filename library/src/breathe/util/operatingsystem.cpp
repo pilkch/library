@@ -119,9 +119,9 @@ namespace breathe
 			user[0] = 0;
 
 			DWORD nSize=(DWORD)260;
-			if(GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string_t(user));
+			if (GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string_t(user));
 
-			if(getenv("USER") != 0) return std::string(getenv("USER"));
+			if (getenv("USER") != 0) return std::string(getenv("USER"));
 			else if (getenv("USERNAME") != 0) return std::string(getenv("USERNAME"));
 			
 			return std::string("<UNKNOWN>");

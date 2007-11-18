@@ -43,8 +43,6 @@ namespace breathe
 		void ConsoleShow();
 		void ConsoleHide();
 		void ConsoleExecute(const std::string& s);
-		
-		void SetTitle(const std::string& sTitle);
 
 #ifdef BUILD_DEBUG
 		bool IsDebug() const { return bDebug; }
@@ -150,6 +148,8 @@ namespace breathe
 		void _OnMouseUp(int button, int x, int y);
 		void _OnMouseDown(int button, int x, int y);
 		void _OnMouseMove(int button, int x, int y);
+
+		void _LoadSearchDirectories();
     		
 #ifdef BUILD_DEBUG
 		bool bDebug;
@@ -158,7 +158,6 @@ namespace breathe
 		bool bActive;
 		bool bReturnCode;
 
-		std::string title;
 		std::vector<std::string>vArgs;
 
 		std::map<unsigned int, cKey* >mKey;
@@ -176,11 +175,6 @@ namespace breathe
 
 
 	// *** Inlines
-
-	inline void cApp::SetTitle(const std::string& sTitle)
-	{
-		title = sTitle;
-	}
 	
 	// Convert from a float amount to a bool
 	inline bool cApp::_IsKeyDown(float fAmount)

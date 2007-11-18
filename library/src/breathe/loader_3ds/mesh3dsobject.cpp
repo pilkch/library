@@ -28,7 +28,7 @@ namespace breathe
 		{
 			bFoundFaces=bFoundVertices=bTextureCoords=bFoundMaterials=false;
 
-			for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+			for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 			{
 				switch(cc.ID())
 				{
@@ -76,7 +76,7 @@ namespace breathe
 			texturecoords = mesh.texturecoords;
 			faces = mesh.faces;
 			material_faces = mesh.material_faces;
-			sMaterial=mesh.sMaterial;
+			sMaterial = mesh.sMaterial;
 		}
 
 		void Mesh3DSObject::ParseLocalCoordinateSystem(Model3DSChunk c)
@@ -84,9 +84,9 @@ namespace breathe
 			// bottom row should be (0 , 0 , 0 , 1)
 
 			// populate matrix
-			for(int i = 0 ; i < 4 ; i++)
+			for (int i = 0 ; i < 4 ; i++)
 			{
-				for(int j = 0 ; j < 3 ; j++)
+				for (int j = 0 ; j < 3 ; j++)
 				{
 					matrix.m[i][j] = c.Float();
 				}
@@ -113,7 +113,7 @@ namespace breathe
 			t<<"n_vertices = " << n_vertices;
 			LOG.Success("c3ds", t.str());
 
-			for(int i = 0 ; i < n_vertices ; i++)
+			for (int i = 0 ; i < n_vertices ; i++)
 			{
 				v.x = fScale*c.Float();
 				v.y = fScale*c.Float();
@@ -136,7 +136,7 @@ namespace breathe
 			t<<"n_texcoords = " << n_texcoords;
 			LOG.Success("c3ds", t.str());
 
-			for(int i = 0 ; i < n_texcoords ; i++)
+			for (int i = 0 ; i < n_texcoords ; i++)
 			{
 				texcoord.u = c.Float();
 				texcoord.v = c.Float();
@@ -161,7 +161,7 @@ namespace breathe
 			t<<"n_faces = " << n_faces;
 			LOG.Success("c3ds", t.str());
 
-			for(i = 0 ; i < (unsigned int)(n_faces); i++)
+			for (i = 0 ; i < (unsigned int)(n_faces); i++)
 			{
 				face.a = c.Short();
 				face.b = c.Short();
@@ -176,7 +176,7 @@ namespace breathe
 
 			//c.Finish();
 
-			for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+			for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 			{
 				switch(cc.ID())
 				{
@@ -203,10 +203,10 @@ namespace breathe
 			LOG.Success("c3ds", "ParseFacesMaterials: " + sMaterial);
 
 			int n_faces = c.Short();
-			int f=0;
-			int i=0;
+			int f = 0;
+			int i = 0;
 
-			for(i = 0 ; i < n_faces ; i++)
+			for (i = 0 ; i < n_faces ; i++)
 			{
 				f = c.Short();
 				

@@ -91,10 +91,10 @@ namespace breathe
 		
 		void cWindowManager::OnMouseEvent(int button, int state, int x, int y)
 		{
-			/*if(button == 5 && state == SDL_PRESSED)
+			/*if (button == 5 && state == SDL_PRESSED)
 				pPlayer->ChangeItemUp();
 
-			if(button == 4 && state == SDL_PRESSED)
+			if (button == 4 && state == SDL_PRESSED)
 				pPlayer->ChangeItemDown();*/
 		}
 

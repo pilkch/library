@@ -106,12 +106,12 @@ namespace breathe
 
 		void cPhysicsObject::RemoveFromWorld()
 		{
-			if(geom) {
+			if (geom) {
 				dGeomDestroy(geom);
 				geom = NULL;
 			}
 
-			if(body) {
+			if (body) {
         dBodyDestroy(body);
 				body = NULL;
 			}
@@ -142,7 +142,7 @@ namespace breathe
 			dGeomSetPosition(geom, p.x, p.y, p.z);
 			dGeomSetRotation(geom, r);
 
-			if(bBody)
+			if (bBody)
 			{
 				body = dBodyCreate(physics::world);
 				dBodySetPosition(body, p.x, p.y, p.z);
@@ -160,7 +160,7 @@ namespace breathe
 			
 			InitCommon(pos, rot);
 
-			if(bBody)
+			if (bBody)
 			{
 				dMass mass;
 				dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
@@ -174,7 +174,7 @@ namespace breathe
 
 			InitCommon(pos, rot);
 
-			if(bBody)
+			if (bBody)
 			{
 				dMass mass;
 				dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
@@ -188,7 +188,7 @@ namespace breathe
 		
 			InitCommon(pos, rot);
 
-			if(bBody)
+			if (bBody)
 			{
 				dMass mass;
 				dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
@@ -202,7 +202,7 @@ namespace breathe
 
 			InitCommon(pos, rot);
 
-			if(bBody)
+			if (bBody)
 			{
 				dMass mass;
 				dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
@@ -289,15 +289,15 @@ namespace breathe
 
 			/*
       vertices_ = new D3DXVECTOR3[ vcount ];
-      for( size_t i = 0; i < vcount; ++i ) {
+      for (size_t i = 0; i < vcount; ++i ) {
         vertices_[i] = *(D3DXVECTOR3 const *)((int8_t *)verts + vstride * i);
       }
       indices_ = new int[ icount ];
-      for( size_t i = 0; i < icount; ++i ) {
+      for (size_t i = 0; i < icount; ++i ) {
         indices_[i] = inds[i];
       }
       normals_ = new D3DXVECTOR3[ icount/3 ];
-      for( size_t i = 0; i < icount; i += 3 ) {
+      for (size_t i = 0; i < icount; i += 3 ) {
         normals_[i/3] = NormalCalc( vertices_, &indices_[i] );
       }
 
@@ -319,12 +319,12 @@ namespace breathe
 
 		void cPhysicsObject::Update(sampletime_t currentTime)
 		{
-			if(bDynamic)
+			if (bDynamic)
 			{
 				dReal *p0;
 				dReal *r0;
 
-				if(bBody)
+				if (bBody)
 				{
 					p0=const_cast<dReal*>(dBodyGetPosition(body));
 					r0=const_cast<dReal*>(dBodyGetRotation(body));

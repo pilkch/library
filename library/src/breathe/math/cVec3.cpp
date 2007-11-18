@@ -87,22 +87,22 @@ namespace breathe
 			float scalefactor;
 			length=GetLength();
 
-			if(length==1 || length==0)			//return if length is 1 or 0
+			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
 			scalefactor = 1.0f/length;
 
-			if(cEPSILON>x && -cEPSILON<x)
+			if (cEPSILON>x && -cEPSILON<x)
 				x=0.0f;
 			else
         x *= scalefactor;
 
-			if(cEPSILON>y && -cEPSILON<y)
+			if (cEPSILON>y && -cEPSILON<y)
 				y=0.0f;
 			else
         y *= scalefactor;
 
-			if(cEPSILON>z && -cEPSILON<z)
+			if (cEPSILON>z && -cEPSILON<z)
 				z=0.0f;
 			else
         z *= scalefactor;
@@ -112,7 +112,7 @@ namespace breathe
 		{
 			float scalefactor;
 			
-			if(length==1 || length==0)			//return if length is 1 or 0
+			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
 			scalefactor = 1.0f/length;
@@ -259,7 +259,7 @@ namespace breathe
 		{
 			return (x==rhs.x && y==rhs.y && z==rhs.z);
 
-			if(x==rhs.x && y==rhs.y && z==rhs.z)
+			if (x==rhs.x && y==rhs.y && z==rhs.z)
 				return true;
 
 			return false;

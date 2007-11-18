@@ -82,7 +82,7 @@ namespace breathe
 		{
 			float denominator=normal.DotProduct((p2.normal).CrossProduct(p3.normal));
 													//scalar triple product of normals
-			if(denominator==0.0f)									//if zero
+			if (denominator==0.0f)									//if zero
 				return false;										//no intersection
 
 			cVec3 temp1, temp2, temp3;
@@ -107,10 +107,10 @@ namespace breathe
 
 		int cPlane::ClassifyPoint(const cVec3 & point) const
 		{
-			if(point.DotProduct(normal)+intercept==0.0f)
+			if (point.DotProduct(normal)+intercept==0.0f)
 				return POINT_ON_cPlane;
 
-			if(point.DotProduct(normal)+intercept>0.0f)
+			if (point.DotProduct(normal)+intercept>0.0f)
 				return POINT_IN_FRONT_OF_cPlane;
 
 			return POINT_BEHIND_cPlane;	//otherwise
@@ -129,7 +129,7 @@ namespace breathe
 
 		bool cPlane::operator ==(const cPlane & rhs) const
 		{
-			if(normal==rhs.normal && intercept==rhs.intercept)
+			if (normal==rhs.normal && intercept==rhs.intercept)
 				return true;
 
 			return false;

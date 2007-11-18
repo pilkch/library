@@ -20,28 +20,65 @@
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/unittest.h>
+#include <breathe/util/singleton.h>
 
 namespace breathe
 {
 	namespace util
 	{
-		std::list<cUnitTestBase*>* unittests = nullptr;
+		// *** cUnitTester
 
+		class cUnitTester
+		{
+		public:
+			cUnitTester() {}
+      virtual ~cUnitTester();
+
+			void AddUnitTest(cUnitTestBase* unittest);
+			void RunUnitTests();
+
+		private:
+			NO_COPY(cUnitTester);
+
+			std::list<cUnitTestBase*> unittests;
+		};
+		
+		cUnitTester::~cUnitTester()
+		{
+			unittests.clear();
+		}
+		
+		void cUnitTester::AddUnitTest(cUnitTestBase* unittest)
+		{
+			unittests.push_back(unittest);
+		}
+
+		void cUnitTester::RunUnitTests()
+		{
+			SCREEN<<"Running unit tests"<<std::endl;
+			
+			std::list<cUnitTestBase*>::iterator iter(unittests.begin());
+			std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
+
+			while (iter != iterEnd) {
+				(*iter)->Run();
+				iter++;
+			}
+
+			SCREEN<<"Finished running unit tests"<<std::endl;
+		}
+
+		typedef util::singleton<cUnitTester> cUnitTester_t;
+
+
+		// *** cUnitTestBase
 
 		cUnitTestBase::cUnitTestBase(const std::string& component) :
 			sComponent(component)
 		{
-			if (nullptr == unittests) unittests = new std::list<cUnitTestBase*>;
-
-			unittests->push_back(this);
+			cUnitTester_t::Get().AddUnitTest(this);
 		}
 		
-		cUnitTestBase::~cUnitTestBase()
-		{
-			unittests->remove(this);
-			if (unittests->empty()) SAFE_DELETE(unittests);
-		}
-
 		void cUnitTestBase::Run()
 		{
 			success = true;
@@ -60,15 +97,12 @@ namespace breathe
 			success = false;
 		}
 
+
+		// *** RunUnitTests
+
 		void RunUnitTests()
 		{
-			std::list<cUnitTestBase*>::iterator iter(unittests->begin());
-			std::list<cUnitTestBase*>::iterator iterEnd(unittests->end());
-
-			while (iter != iterEnd) {
-				(*iter)->Run();
-				iter++;
-			}
+			cUnitTester_t::Get().RunUnitTests();
 		}
 	}
 }

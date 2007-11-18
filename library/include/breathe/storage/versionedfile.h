@@ -5,11 +5,11 @@ namespace breathe
 {
 	namespace storage
 	{
-		bool OpenReadText(const std::string& sFilename, std::ifstream& file, uint16_t& version);
-		bool OpenReadBinary(const std::string& sFilename, std::ifstream& file, uint16_t& version);
+		bool OpenReadText(const string_t& filename, std::ifstream& file, uint16_t& version);
+		bool OpenReadBinary(const string_t& filename, std::ifstream& file, uint16_t& version);
 
-		bool OpenWriteText(const std::string& sFilename, std::ofstream& file, uint16_t version);
-		bool OpenWriteBinary(const std::string& sFilename, std::ofstream& file, uint16_t version);
+		bool OpenWriteText(const string_t& filename, std::ofstream& file, uint16_t version);
+		bool OpenWriteBinary(const string_t& filename, std::ofstream& file, uint16_t version);
 	}
 }
 

@@ -82,9 +82,9 @@ namespace breathe
 
 				float xx[ 4 ];
 				float yy[ 4 ];
-				for( int iz = 0; iz < 4; ++iz ) {
+				for (int iz = 0; iz < 4; ++iz ) {
 					const float* data2 = &pHeight[xp - 1 + (iz + yp - 1) * (uiWidth + 1)];
-					for( int ix = 0; ix < 4; ++ix ) {
+					for (int ix = 0; ix < 4; ++ix ) {
 						xx[ ix ] = data2[ ix ];
 					}
 					yy[ iz ] = Hermite4( x, xx );
@@ -97,10 +97,10 @@ namespace breathe
 				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
 				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
 
-				if(x < 0.0f) x = 0.0f;
-				if(y < 0.0f) y = 0.0f;
-				if(x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
-				if(y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
+				if (x < 0.0f) x = 0.0f;
+				if (y < 0.0f) y = 0.0f;
+				if (x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
+				if (y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
 
 				unsigned int xi = static_cast<unsigned int>(x);
 				unsigned int yi = static_cast<unsigned int>(y);
@@ -125,10 +125,10 @@ namespace breathe
 				x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
 				y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
 
-				if(x < 0.0f) x = 0.0f;
-				if(y < 0.0f) y = 0.0f;
-				if(x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
-				if(y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
+				if (x < 0.0f) x = 0.0f;
+				if (y < 0.0f) y = 0.0f;
+				if (x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
+				if (y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
 
 				unsigned int xi = static_cast<unsigned int>(x);
 				unsigned int yi = static_cast<unsigned int>(y);

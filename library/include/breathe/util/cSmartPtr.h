@@ -1,3 +1,6 @@
+#ifndef CSMARTPTR_H
+#define CSMARTPTR_H
+
 namespace breathe
 {
 	namespace util
@@ -140,3 +143,5 @@ namespace breathe
 		};
 	}
 }
+
+#endif //CSMARTPTR_H

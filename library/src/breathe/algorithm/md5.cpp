@@ -92,14 +92,14 @@ namespace breathe
 		FILE* f;
 		unsigned char buf[1000];
 
-		if(input.size()<2)
+		if (input.size()<2)
 		{
 			sprintf((char*)result, "");
 
 			return false;
 		}
 
-		if( ! ( f = fopen(input.c_str(), "rb" ) ) )
+		if (! ( f = fopen(input.c_str(), "rb" ) ) )
 		{
 			perror("fopen");
 			return false;
@@ -115,12 +115,12 @@ namespace breathe
 
 	unsigned char cMD5::h2d(unsigned char a, unsigned char b)
 	{
-		if(a >= 'A')
+		if (a >= 'A')
 			a = a - 'A' + 10;
 		else
 			a = a - '0';
 
-		if(b >= 'A')
+		if (b >= 'A')
 			b = b - 'A' + 10;
 		else
 			b = b - '0';
@@ -130,9 +130,9 @@ namespace breathe
 
 	bool cMD5::SetResultFromFormatted(char * input)
 	{
-		for(unsigned int i=0;i<32;i++)
+		for (unsigned int i=0;i<32;i++)
 		{
-			if(input[i]>'z' || input[i]<'0')
+			if (input[i]>'z' || input[i]<'0')
 				return false;
 		}
 
@@ -297,7 +297,7 @@ namespace breathe
 
 	void cMD5::Update( cMD5_Context *ctx, unsigned char *input, uint32_t length )
 	{
-		if( ! length ) return;
+		if (! length ) return;
 		
 		uint32_t left = ctx->total[0] & 0x3F;
 		uint32_t fill = 64 - left;
@@ -305,10 +305,10 @@ namespace breathe
 		ctx->total[0] += length;
 		ctx->total[0] &= 0xFFFFFFFF;
 
-		if( ctx->total[0] < length )
+		if (ctx->total[0] < length )
 			ctx->total[1]++;
 
-		if( left && length >= fill )
+		if (left && length >= fill )
 		{
 			std::memcpy(	(void *) (ctx->buffer + left),
 										(void *) input, fill );
@@ -325,7 +325,7 @@ namespace breathe
 			input  += 64;
 		}
 
-		if( length )
+		if (length )
 		{
 			std::memcpy(	(void *) (ctx->buffer + left), (void *) input, length );
 		}

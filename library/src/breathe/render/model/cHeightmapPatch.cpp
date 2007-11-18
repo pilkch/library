@@ -60,7 +60,7 @@ namespace breathe
 					return;
 
 				// If this triangle is not in a proper diamond, force split our base neighbor
-				if ( tri->BaseNeighbor && (tri->BaseNeighbor->BaseNeighbor != tri) )
+				if (tri->BaseNeighbor && (tri->BaseNeighbor->BaseNeighbor != tri) )
 					Split(tri->BaseNeighbor);
 
 				// Create children and link into mesh
@@ -68,7 +68,7 @@ namespace breathe
 				tri->RightChild = cHeightmap::AllocateTri();
 
 				// If creation failed, just exit.
-				if ( !tri->LeftChild )
+				if (!tri->LeftChild )
 					return;
 
 				// Fill in the information we can get from the parent (neighbor pointers)
@@ -107,7 +107,7 @@ namespace breathe
 				// Link our Base Neighbor to the new children
 				if (tri->BaseNeighbor != NULL)
 				{
-					if ( tri->BaseNeighbor->LeftChild )
+					if (tri->BaseNeighbor->LeftChild )
 					{
 						tri->BaseNeighbor->LeftChild->RightNeighbor = tri->RightChild;
 						tri->BaseNeighbor->RightChild->LeftNeighbor = tri->LeftChild;
@@ -139,7 +139,7 @@ namespace breathe
 				int centerX = (leftX + rightX)>>1; // Compute X coordinate of center of Hypotenuse
 				int centerY = (leftY + rightY)>>1; // Compute Y coord...
 
-				if ( node < (1<<VARIANCE_DEPTH) )
+				if (node < (1<<VARIANCE_DEPTH) )
 				{
 					// Extremely slow distance metric (sqrt is used).
 					// Replace this with a faster one!
@@ -151,7 +151,7 @@ namespace breathe
 					TriVariance = ((float)m_CurrentVariance[node] * MAP_SIZE * 2)/distance;	// Take both distance and variance into consideration
 				}
 
-				if ( (node >= (1<<VARIANCE_DEPTH)) ||	// IF we do not have variance info for this node, then we must have gotten here by splitting, so continue down to the lowest level.
+				if ((node >= (1<<VARIANCE_DEPTH)) ||	// IF we do not have variance info for this node, then we must have gotten here by splitting, so continue down to the lowest level.
 					(TriVariance > cHeightmap::gFrameVariance))	// OR if we are not below the variance tree, test for variance.
 				{
 					Split(tri);														// Split this triangle.
@@ -170,7 +170,7 @@ namespace breathe
 			//
 			void cHeightmapPatch::RecursRender( cTriTreeNode *tri, int leftX, int leftY, int rightX, int rightY, int apexX, int apexY )
 			{
-				if ( tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
+				if (tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
 				{
 					int centerX = (leftX + rightX)>>1;	// Compute X coordinate of center of Hypotenuse
 					int centerY = (leftY + rightY)>>1;	// Compute Y coord...
@@ -189,10 +189,10 @@ namespace breathe
 					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
-					if((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
+					if ((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
 						return;
 
-					if(cHeightmap::renderFog)
+					if (cHeightmap::renderFog)
 					{
 						//SetFogCoord(g_FogDepth, p[0].y);
 						//SetTextureCoord(p[0].x, p[0].z);
@@ -251,7 +251,7 @@ namespace breathe
 
 				// Since we're after speed and not perfect representations,
 				//    only calculate variance down to an 8x8 block
-				if ( (abs(leftX - rightX) >= 8) ||
+				if ((abs(leftX - rightX) >= 8) ||
 					(abs(leftY - rightY) >= 8) )
 				{
 					// Final Variance for this node is the max of it's own variance and that of it's children.
@@ -395,7 +395,7 @@ namespace breathe
 
 			void cHeightmapPatch::RecursRenderDebug( cTriTreeNode *tri, int leftX, int leftY, int rightX, int rightY, int apexX, int apexY )
 			{
-				if ( tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
+				if (tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
 				{
 					int centerX = (leftX + rightX)>>1;	// Compute X coordinate of center of Hypotenuse
 					int centerY = (leftY + rightY)>>1;	// Compute Y coord...
@@ -414,7 +414,7 @@ namespace breathe
 					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
-					if((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
+					if ((p[0] - cHeightmap::pFrustum->eye).DotProduct(plane.normal)>0.0f)
 						return;
 
 					float length=10.0f;
@@ -429,7 +429,7 @@ namespace breathe
 
 					glBegin( GL_TRIANGLES);
 
-					if(cHeightmap::renderFog)
+					if (cHeightmap::renderFog)
 					{
 						//unrolled for speed
 						// We want to render triangle strips
@@ -470,7 +470,7 @@ namespace breathe
 
 			void cHeightmapPatch::RecursAddTriangles( cTriTreeNode *tri, int leftX, int leftY, int rightX, int rightY, int apexX, int apexY )
 			{
-				if ( tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
+				if (tri->LeftChild )					// All non-leaf nodes have both children, so just check for one
 				{
 					int centerX = (leftX + rightX)>>1;	// Compute X coordinate of center of Hypotenuse
 					int centerY = (leftY + rightY)>>1;	// Compute Y coord...
@@ -605,7 +605,7 @@ namespace breathe
 				float fogY = 0;
 
 				// Check if the height of this vertex is greater than the depth (needs no fog)
-				if(height > depth)
+				if (height > depth)
 					fogY = 0;
 				// Otherwise, calculate the fog depth for the current vertex
 				else

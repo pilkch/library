@@ -104,7 +104,7 @@ namespace breathe
 			public:
 				bool IsDirty() const { return bIsDirty; }
 
-				void SetDirty() { bIsDirty = true; if(pParent) pParent->SetDirty(); }
+				void SetDirty() { bIsDirty = true; if (pParent) pParent->SetDirty(); }
 				void ClearDirty() { bIsDirty = false; }
 
 			private:
@@ -116,8 +116,8 @@ namespace breathe
 			public:
 				bool IsDirty() const { return uiDirty; }
 
-				void SetDirty() { uiDirty++; if(pParent) pParent->SetDirty(); }
-				void ClearDirty() { uiDirty--; if(pParent) pParent->ClearDirty(); }
+				void SetDirty() { uiDirty++; if (pParent) pParent->SetDirty(); }
+				void ClearDirty() { uiDirty--; if (pParent) pParent->ClearDirty(); }
 
 			private:
 				bool uiDirty;
@@ -130,7 +130,7 @@ namespace breathe
 				mTransparent.clear();
 
 				/*for each item in list
-					if(opaque)
+					if (opaque)
 						listOpaque.add(item);
 					else
 						mTransparent.add(fDistance, item);*/

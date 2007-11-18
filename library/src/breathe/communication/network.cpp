@@ -54,7 +54,7 @@ namespace breathe
 
 		bool Init()
 		{
-			if(SDLNet_Init()==-1) 
+			if (SDLNet_Init()==-1) 
 			{
 				std::ostringstream t;
 				t << "SDLNet_Init: " << SDLNet_GetError();

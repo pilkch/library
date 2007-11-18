@@ -115,8 +115,7 @@ typedef long int uint32_t;
 #define NO_COPY(T) \
 	private: \
 	T(const T&); \
-	void operator=(const T&); \
-	public: 
+	void operator=(const T&);
 
 
 // Utility types, objects etc.
@@ -126,9 +125,9 @@ namespace breathe
 	typedef uint32_t sampletime_t;
 
 	#ifdef __WIN__
-	const size_t size_wchar_t = 2;
+	#define SIZEOF_WCHAR_T 2
 	#else
-	const size_t size_wchar_t = 4;
+	#define SIZEOF_WCHAR_T 4
 	#endif
 
 	#ifdef UNICODE

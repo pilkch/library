@@ -63,7 +63,7 @@ namespace breathe
 
 		void cVertexBufferObject::Destroy()
 		{
-			if(bufferID)
+			if (bufferID)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER, 0);
 				glDeleteBuffersARB(1, &bufferID);
@@ -86,11 +86,11 @@ namespace breathe
 			pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
 			
 			uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
-			if(pTextureCoord.vData.size() > uiVertices)
+			if (pTextureCoord.vData.size() > uiVertices)
 			{
 				uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(math::cVec2));
 
-				if(pTextureCoord.vData.size()/2 > uiVertices)
+				if (pTextureCoord.vData.size()/2 > uiVertices)
 					uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(math::cVec2));
 			}
 
@@ -147,13 +147,13 @@ namespace breathe
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit0));
 
-			if(uiOffsetTextureUnit1)
+			if (uiOffsetTextureUnit1)
 			{
 				glClientActiveTextureARB(GL_TEXTURE1_ARB);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit1));
 				
-				if(uiOffsetTextureUnit2)
+				if (uiOffsetTextureUnit2)
 				{
 					glClientActiveTextureARB(GL_TEXTURE2_ARB);
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -171,9 +171,9 @@ namespace breathe
 		
 			glDisableClientState( GL_VERTEX_ARRAY );
 			
-			if(uiOffsetTextureUnit1)
+			if (uiOffsetTextureUnit1)
 			{
-				if(uiOffsetTextureUnit2)
+				if (uiOffsetTextureUnit2)
 				{
 					glClientActiveTexture( GL_TEXTURE2 );
 					glDisableClientState( GL_TEXTURE_COORD_ARRAY );

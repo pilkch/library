@@ -40,6 +40,8 @@ namespace breathe
 {
 	namespace physics
 	{
+		// *** Physics data
+
 		const float fInterval = 0.01f; // 0.01 * 1000ms = 10ms
 		const int iMaxContacts = 100;
 		const float fFriction = 2000.0f;
@@ -57,13 +59,15 @@ namespace breathe
 		dJointGroupID contactgroup = 0;
 		dGeomID ground = 0;
 
-
 		std::list<cPhysicsObject * >lPhysicsObject;
 
 		
-		size_t GetSize() { return lPhysicsObject.size(); }
-		iterator GetObjectListBegin() { return lPhysicsObject.begin(); }
-		iterator GetObjectListEnd() { return lPhysicsObject.end(); }
+		
+		// *** Functions
+
+		size_t size() { return lPhysicsObject.size(); }
+		iterator begin() { return lPhysicsObject.begin(); }
+		iterator end() { return lPhysicsObject.end(); }
 
 		// This wrapper is called by the physics library to get information
 		// about object collisions
@@ -136,7 +140,7 @@ namespace breathe
 			{
 				b = (*iter++)->body;
 
-				if(b)
+				if (b)
 				{
           dReal const * av = dBodyGetAngularVel( b );
 					dBodySetAngularVel( b, av[0] - av[0]*fDampTorque, av[1] - av[1]*fDampTorque, av[2] - av[2]*fDampTorque );
@@ -161,7 +165,7 @@ namespace breathe
 		void nearCallbackStatic(void *f, dGeomID o1, dGeomID o2)
 		{
 			//Ignore collisions between NULL geometry
-			if(!(o1 && o2))
+			if (!(o1 && o2))
 			{
 				LOG.Error("nearCallbackStatic", "NULL geometry");
 				return;
@@ -170,9 +174,9 @@ namespace breathe
 			//Ignore collisions between bodies that are connected by the same joint
 			dBodyID Body1 = NULL, Body2 = NULL;
 
-			if(o1) 
+			if (o1) 
 				Body1 = dGeomGetBody (o1);
-			if(o2) 
+			if (o2) 
 				Body2 = dGeomGetBody (o2);
 
 			if (Body1 && Body2 && dAreConnected (Body1, Body2))
@@ -201,7 +205,7 @@ namespace breathe
 		void nearCallbackDynamic(void *f, dGeomID o1, dGeomID o2)
 		{
 			//Ignore collisions between NULL geometry
-			if(!(o1 && o2))
+			if (!(o1 && o2))
 			{
 				LOG.Error("nearCallbackDynamic", "NULL geometry");
 				return;
@@ -210,9 +214,9 @@ namespace breathe
 			//Ignore collisions between bodies that are connected by the same joint
 			dBodyID Body1 = NULL, Body2 = NULL;
 
-			if(o1) 
+			if (o1) 
 				Body1 = dGeomGetBody (o1);
-			if(o2) 
+			if (o2) 
 				Body2 = dGeomGetBody (o2);
 
 			if (Body1 && Body2 && dAreConnected (Body1, Body2))

@@ -49,7 +49,7 @@ namespace breathe
 
 		while(iter!=mVar.end())
 		{
-			CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\"";
+			CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\""<<std::endl;
 			iter++;
 		};
 	}

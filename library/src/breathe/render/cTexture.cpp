@@ -185,7 +185,7 @@ namespace breathe
 		{
 			// Fill out the pData structure array, we use this for when we have to reload this data
 			// on a task switch or fullscreen mode change
-			if(NULL == pData)
+			if (NULL == pData)
 				pData = new unsigned char[uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4)];
 
 			std::memcpy(pData, surface->pixels, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
@@ -193,7 +193,7 @@ namespace breathe
 
 		void cTexture::CopyFromDataToSurface()
 		{
-			if(pData)
+			if (pData)
         std::memcpy(surface->pixels, pData, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
@@ -223,7 +223,7 @@ namespace breathe
 			// Bind so that the next operations happen on this texture
 			glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-			if(surface)
+			if (surface)
 			{
 				// Copy from surface to texture
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
@@ -308,7 +308,7 @@ namespace breathe
 
 
 			GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-			if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
+			if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 				LOG.Error("Texture", "Frame buffer status failed");
 
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);	// Unbind the FBO for now

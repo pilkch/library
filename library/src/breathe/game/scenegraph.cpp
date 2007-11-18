@@ -111,9 +111,9 @@ namespace breathe
 
 		void cSceneGraphNode::Update(sampletime_t currentTime)
 		{
-			if(NODE_INACTIVE!=uiStatus)
+			if (NODE_INACTIVE!=uiStatus)
 				uiStatus--;
-			if(NODE_UNLOAD==uiStatus)
+			if (NODE_UNLOAD==uiStatus)
 				Unload();
 		}
 

@@ -47,8 +47,8 @@ namespace breathe
 		fHeight = fInHeight;
 
 		fRadius = fWidth;
-		if(fInLength > fRadius) fRadius = fInLength;
-		if(fInHeight > fRadius) fRadius = fInHeight;
+		if (fInLength > fRadius) fRadius = fInLength;
+		if (fInHeight > fRadius) fRadius = fInHeight;
 
 		fRadius *= math::cSQUARE_ROOT_2;
 	}
@@ -67,7 +67,7 @@ namespace breathe
 
 	bool cObject::Collide(cObject& rhs)
 	{
-		if(cObjectSphere::Collide(rhs))
+		if (cObjectSphere::Collide(rhs))
 			return true;
 
 		

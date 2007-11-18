@@ -3,6 +3,8 @@
 
 namespace firestarter
 {
+	// http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+
 	// Returns the directory that Firestarter has been installed into
 	// "c:/program files/firestarter/"
 	// "/shared/firestarter/"

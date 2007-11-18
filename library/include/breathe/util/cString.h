@@ -24,7 +24,20 @@ namespace breathe
 		std::string StripBeforeInclusive(const std::string& source, const std::string& find);
 		std::string StripAfterInclusive(const std::string& source, const std::string& find);
 		void Split(const std::string& source, char find, std::vector<std::string>& vOut);
+		void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut);
 		std::string Trim(const std::string& source);
+
+		size_t CountOccurrences(const std::wstring& source, const std::wstring& find);
+		std::wstring Replace(const std::wstring& source, const std::wstring& find, const std::wstring& replace);
+		std::wstring StripLeading(const std::wstring& source, const std::wstring& find);
+		std::wstring StripTrailing(const std::wstring& source, const std::wstring& find);
+		std::wstring StripBefore(const std::wstring& source, const std::wstring& find);
+		std::wstring StripAfter(const std::wstring& source, const std::wstring& find);
+		std::wstring StripBeforeInclusive(const std::wstring& source, const std::wstring& find);
+		std::wstring StripAfterInclusive(const std::wstring& source, const std::wstring& find);
+		void Split(const std::wstring& source, wchar_t find, std::vector<std::wstring>& vOut);
+		void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut);
+		std::wstring Trim(const std::wstring& source);
 
 		std::string HTMLDecode(const std::string& source);
 		std::string HTMLEncode(const std::string& source);
@@ -33,32 +46,10 @@ namespace breathe
 		std::string ToUpper(const std::string& source);
 
 
-		inline std::wstring ToWchar_t(const std::string& source)
-		{
-			const size_t len = source.length() + 1;
-			wchar_t* pTemp = new wchar_t[len];
-			mbstowcs(pTemp, source.data(), len);
-			std::wstring temp(pTemp);
-			SAFE_DELETE_ARRAY(pTemp);
-
-			return temp;
-		}
-		
-		inline std::string ToUTF8(const std::string& source)
-		{
-			return source;
-		}
-
-		inline std::string ToUTF8(const std::wstring& source)
-		{
-			const size_t len = source.length() + 1;
-			char* pTemp = new char[len];
-			wcstombs(pTemp, source.data(), len);
-			std::string temp(pTemp);
-			SAFE_DELETE_ARRAY(pTemp);
-
-			return temp;
-		}
+		std::wstring ToWchar_t(const std::string& source);
+		inline std::wstring ToWchar_t(const std::wstring& source) { return source; }
+		std::string ToUTF8(const std::wstring& source);
+		inline std::string ToUTF8(const std::string& source) { return source; }
 
 #ifdef UNICODE
 		inline string_t ToString_t(const std::string& source) { return ToWchar_t(source); }

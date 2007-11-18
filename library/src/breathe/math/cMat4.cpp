@@ -45,7 +45,7 @@ namespace breathe
 
 		cMat4::cMat4(const cMat4 & rhs)
 		{
-			for(int i=0; i<16; i++)
+			for (int i=0; i<16; i++)
 				entries[i]=rhs.entries[i];
 		}
 
@@ -56,7 +56,7 @@ namespace breathe
 
 		void cMat4::SetEntry(int position, float value)
 		{
-			if(position>=0 && position<=15)
+			if (position>=0 && position<=15)
 				entries[position]=value;
 			//else
 				//"Illegal argument to cMat4::SetEntry()"
@@ -64,7 +64,7 @@ namespace breathe
 			
 		float cMat4::GetEntry(int position) const
 		{
-			if(position>=0 && position<=15)
+			if (position>=0 && position<=15)
 				return entries[position];
 			else
 			{
@@ -75,16 +75,16 @@ namespace breathe
 
 		cVec4 cMat4::GetRow(int position) const
 		{
-			if(position==0)
+			if (position==0)
 				return cVec4(entries[0], entries[4], entries[8], entries[12]);
 			
-			if(position==1)
+			if (position==1)
 				return cVec4(entries[1], entries[5], entries[9], entries[13]);
 			
-			if(position==2)
+			if (position==2)
 				return cVec4(entries[2], entries[6], entries[10], entries[14]);
 			
-			if(position==3)
+			if (position==3)
 				return cVec4(entries[3], entries[7], entries[11], entries[15]);
 
 			//"Illegal argument to cMat4::GetRow()"
@@ -93,16 +93,16 @@ namespace breathe
 
 		cVec4 cMat4::GetColumn(int position) const
 		{
-			if(position==0)
+			if (position==0)
 				return cVec4(entries[0], entries[1], entries[2], entries[3]);
 			
-			if(position==1)
+			if (position==1)
 				return cVec4(entries[4], entries[5], entries[6], entries[7]);
 			
-			if(position==2)
+			if (position==2)
 				return cVec4(entries[8], entries[9], entries[10], entries[11]);
 			
-			if(position==3)
+			if (position==3)
 				return cVec4(entries[12], entries[13], entries[14], entries[15]);
 
 			//"Illegal argument to cMat4::GetColumn()"
@@ -131,14 +131,14 @@ namespace breathe
 
 		void cMat4::LoadZero(void)
 		{
-			for(int entry=0; entry<16; entry++)
+			for (int entry=0; entry<16; entry++)
 				entries[entry]=0;
 		}
 
 		cMat4 cMat4::operator+(const cMat4 & rhs) const		//overloaded operators
 		{
 			cMat4 result;
-			for(int entry=0; entry<16; entry++)
+			for (int entry=0; entry<16; entry++)
 			{
 				result.SetEntry(entry, entries[entry]+rhs.GetEntry(entry));	//add entries
 			}
@@ -148,7 +148,7 @@ namespace breathe
 		cMat4 cMat4::operator-(const cMat4 & rhs) const		//overloaded operators
 		{
 			cMat4 result;
-			for(int entry=0; entry<16; entry++)
+			for (int entry=0; entry<16; entry++)
 			{
 				result.SetEntry(entry, entries[entry]-rhs.GetEntry(entry));	//subtract entries
 			}
@@ -184,7 +184,7 @@ namespace breathe
 		cMat4 cMat4::operator*(const float rhs) const
 		{
 			cMat4 result;
-			for(int entry=0; entry<16; entry++)
+			for (int entry=0; entry<16; entry++)
 			{
 				result.SetEntry(entry, entries[entry]*rhs);		//multiply entries by rhs
 			}
@@ -203,7 +203,7 @@ namespace breathe
 				
 			float temp=1/rhs;
 
-			for(int entry=0; entry<16; entry++)
+			for (int entry=0; entry<16; entry++)
 			{
 				result.SetEntry(entry, entries[entry]*temp);		//divide entries by rhs
 			}
@@ -212,9 +212,9 @@ namespace breathe
 
 		bool cMat4::operator==(const cMat4 & rhs) const
 		{
-			for(int i=0; i<16; i++)
+			for (int i=0; i<16; i++)
 			{
-				if(entries[i]!=rhs.entries[i])
+				if (entries[i]!=rhs.entries[i])
 					return false;
 			}
 			return true;
@@ -254,7 +254,7 @@ namespace breathe
 		{
 			cMat4 result(*this);
 
-			for(int i=0; i<16; i++)
+			for (int i=0; i<16; i++)
 				result.entries[i]=-result.entries[i];
 
 			return result;
@@ -446,7 +446,7 @@ namespace breathe
 					+entries[2]*result.GetEntry(2)
 					+entries[3]*result.GetEntry(3);
 
-			if(det==0.0f)
+			if (det==0.0f)
 			{
 				//"Non-Invertible Matrix sent to Invert()"
 				cMat4 id;
@@ -588,7 +588,7 @@ namespace breathe
 					+entries[2]*result.GetEntry(2)
 					+entries[3]*result.GetEntry(3);
 
-			if(det==0.0f)
+			if (det==0.0f)
 			{
 				//"Non-Invertible Matrix sent to GetInverseTranspose()"
 				cMat4 id;
@@ -692,7 +692,7 @@ namespace breathe
 			LoadZero();
 
 			//check for division by 0
-			if(left==right || top==bottom || n==f)
+			if (left==right || top==bottom || n==f)
 				return;
 
 			entries[0]=(2*n)/(right-left);
@@ -702,7 +702,7 @@ namespace breathe
 			entries[8]=(right+left)/(right-left);
 			entries[9]=(top+bottom)/(top-bottom);
 
-			if(f!=-1)
+			if (f!=-1)
 			{
 				entries[10]=-(f+n)/(f-n);
 			}
@@ -713,7 +713,7 @@ namespace breathe
 
 			entries[11]=-1;
 
-			if(f!=-1)
+			if (f!=-1)
 			{
 				entries[14]=-(2*f*n)/(f-n);
 			}

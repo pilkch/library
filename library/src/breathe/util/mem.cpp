@@ -794,7 +794,7 @@ void	*operator new(size_t reportedSize)
 
 	// ANSI says: loop continuously because the error handler could possibly free up some memory
 
-	for(;;)
+	for (;;)
 	{
 		// Try the allocation
 
@@ -852,7 +852,7 @@ void	*operator new[](size_t reportedSize)
 
 	// ANSI says: loop continuously because the error handler could possibly free up some memory
 
-	for(;;)
+	for (;;)
 	{
 		// Try the allocation
 
@@ -910,7 +910,7 @@ void	*operator new(size_t reportedSize, const char *sourceFile, int sourceLine)
 
 	// ANSI says: loop continuously because the error handler could possibly free up some memory
 
-	for(;;)
+	for (;;)
 	{
 		// Try the allocation
 
@@ -962,7 +962,7 @@ void	*operator new[](size_t reportedSize, const char *sourceFile, int sourceLine
 
 	// ANSI says: loop continuously because the error handler could possibly free up some memory
 
-	for(;;)
+	for (;;)
 	{
 		// Try the allocation
 

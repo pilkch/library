@@ -53,7 +53,7 @@ namespace breathe
 		
 		cPhysicsRayCast::~cPhysicsRayCast()
 		{
-			if(geomRay)
+			if (geomRay)
 			{
 				dGeomDestroy(geomRay);
 				geomRay = 0;

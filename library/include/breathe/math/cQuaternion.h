@@ -26,9 +26,9 @@ namespace breathe
 			//retrieve a value
 			float operator[](int index) const
 			{
-				if(0==index) return x;
-				if(1==index) return y;
-				if(2==index) return z;
+				if (0==index) return x;
+				if (1==index) return y;
+				if (2==index) return z;
 
 				return w;
 			}

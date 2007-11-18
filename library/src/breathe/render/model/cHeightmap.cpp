@@ -93,7 +93,7 @@ namespace breathe
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
-				std::string sFilename = breathe::filesystem::FindFile("data/level/node00/heightmap.png");
+				std::wstring sFilename = breathe::filesystem::FindFile(TEXT("data/level/node00/heightmap.png"));
 
 				float fHighest = -math::cINFINITY;
 				float fLowest = math::cINFINITY;
@@ -101,9 +101,9 @@ namespace breathe
 				// Load heightmap
 				{
 					cTexture* pTexture = new cTexture();
-					if(pTexture->Load(sFilename) == breathe::BAD)
+					if (pTexture->Load(breathe::string::ToUTF8(sFilename)) == breathe::BAD)
 					{
-						LOG.Error("Heightmap", "Failed to load " + sFilename);
+						LOG.Error("Heightmap", "Failed to load " + breathe::string::ToUTF8(sFilename));
 						return 0;
 					}
 
@@ -115,28 +115,28 @@ namespace breathe
 					float fRolling = 10.3f;
 
 					unsigned int uiCount = 0;
-					for(unsigned int h = 0; h < uiHeight; h++)
+					for (unsigned int h = 0; h < uiHeight; h++)
 					{
-						for(unsigned int w = 0; w < uiWidth; w++)
+						for (unsigned int w = 0; w < uiWidth; w++)
 						{
 							pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->pData[uiCount++];
 							//pHeight[w + (h * (uiWidth + 1))] = fScale*(sinf(fRolling*static_cast<float>(w)) + 
 							//	cosf(fRolling*static_cast<float>(h)));
 							
-							if(pHeight[w + (h * (uiWidth + 1))] > fHighest) fHighest = pHeight[w + (h * (uiWidth + 1))];
-							if(pHeight[w + (h * (uiWidth + 1))] < fLowest) fLowest = pHeight[w + (h * (uiWidth + 1))];
+							if (pHeight[w + (h * (uiWidth + 1))] > fHighest) fHighest = pHeight[w + (h * (uiWidth + 1))];
+							if (pHeight[w + (h * (uiWidth + 1))] < fLowest) fLowest = pHeight[w + (h * (uiWidth + 1))];
 						}
 					}
 
 					// Set the last extra row on the end
-					for(unsigned int h = 0; h < uiHeight; h++)
+					for (unsigned int h = 0; h < uiHeight; h++)
 					{
 						pHeight[uiWidth + (h * uiWidth) + h] = fScale*(sinf(fRolling*static_cast<float>(uiWidth)) + 
 							cosf(fRolling*static_cast<float>(h)));
 					}
 					
 					// Set the last extra row on the bottom
-					for(unsigned int w = 0; w < uiWidth; w++)
+					for (unsigned int w = 0; w < uiWidth; w++)
 					{
 						pHeight[(uiWidth * (uiHeight + 1)) + w] = fScale*(sinf(fRolling*static_cast<float>(w)) + 
 							cosf(fRolling*static_cast<float>(uiHeight)));
@@ -173,9 +173,9 @@ namespace breathe
 					
 					std::vector<math::cVec3>* normal_buffer = new std::vector<math::cVec3>[(uiWidth + 1) * (uiHeight + 1)];
 
-					for(unsigned int h = 0; h < uiHeight; h++)
+					for (unsigned int h = 0; h < uiHeight; h++)
 					{
-						for(unsigned int w = 0; w < uiWidth; w++)
+						for (unsigned int w = 0; w < uiWidth; w++)
 						{
 							// get the three vertices that make the faces
 							math::cVec3 p1(fWidthOfTile * w, fHeightOfTile * h, pHeight[w + (h * (uiWidth + 1))]);
@@ -196,12 +196,12 @@ namespace breathe
 					// Now loop through each vertex vector, and average out all the normals stored.
 					unsigned int i = 0;
 					
-					for(unsigned int h = 0; h < uiHeight; h++)
+					for (unsigned int h = 0; h < uiHeight; h++)
 					{
-						for(unsigned int w = 0; w < uiWidth; w++)
+						for (unsigned int w = 0; w < uiWidth; w++)
 						{
 							i = w + (h * (uiWidth + 1));
-							for(unsigned int j = 0; j < normal_buffer[i].size(); ++j )
+							for (unsigned int j = 0; j < normal_buffer[i].size(); ++j )
 								pNormal[i] += normal_buffer[i][j];
 					  
 							pNormal[i].Normalize();
@@ -216,9 +216,9 @@ namespace breathe
 
 				pVBO = pRender->AddVertexBufferObject();
 
-				for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
+				for (unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
 				{
-					for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
+					for (unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
 					{
 						float fX = (static_cast<float>(w * uiVBOStrideWidth) - fHalfWidth) * fWidthOfTile;
 						float fY = (static_cast<float>(h * uiVBOStrideHeight) - fHalfHeight) * fHeightOfTile;
@@ -241,17 +241,17 @@ namespace breathe
 
 
 				// Stretched Base Texture
-				if(pMaterial->vLayer.size() > 0)
+				if (!pMaterial->vLayer.empty())
 				{
 					cTexture* pTexture = pMaterial->vLayer[0]->pTexture;
-					if(pTexture)
+					if (pTexture != nullptr)
 					{
 						LOG.Success("Heightmap", "Adding base texture coordinates");
 
 						// Now at the detail texture coordinates so that they are after the base texture coordinates
-						for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
+						for (unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
 						{
-							for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
+							for (unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
 							{
 								float u1 = (float(w)) / float(uiWidth);
 								float v1 = (float(h)) / float(uiHeight);
@@ -273,10 +273,10 @@ namespace breathe
 				}
 
 				// Detail Texture
-				if(pMaterial->vLayer.size() > 1)
+				if (pMaterial->vLayer.size() > 1)
 				{
 					cTexture* pDetailTexture = pMaterial->vLayer[1]->pTexture;
-					if(pDetailTexture)
+					if (pDetailTexture)
 					{
 						float u1 = 0.0f;
 						float v1 = 0.0f;
@@ -289,9 +289,9 @@ namespace breathe
 						LOG.Success("Heightmap", "Adding detail texture coordinates");
 
 						// Now at the detail texture coordinates so that they are after the base texture coordinates
-						for(unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
+						for (unsigned int w = 0; w < uiWidth; w+=uiVBOStrideWidth)
 						{
-							for(unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
+							for (unsigned int h = 0; h < uiHeight; h+=uiVBOStrideHeight)
 							{
 								vTextureCoord.push_back(math::cVec2(u1, v1));
 								vTextureCoord.push_back(math::cVec2(u2, v1));
@@ -319,7 +319,7 @@ namespace breathe
 
 			unsigned int cHeightmap::Render()
 			{
-				if(pMaterial && pVBO)
+				if (pMaterial && pVBO)
 				{
 					pRender->SetMaterial(pMaterial);
 					pVBO->Render();

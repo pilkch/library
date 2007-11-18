@@ -48,7 +48,7 @@ namespace breathe
 				<< "end = (" << end << ") "
 				<< "chunkset_end = (" << chunkset_end << ")";
 			
-			if(0==id || -1==begin || end > chunkset_end)
+			if (0==id || -1==begin || end > chunkset_end)
 				LOG.Error("c3ds", t.str());
 			else
 				LOG.Success("c3ds", t.str());
@@ -179,7 +179,7 @@ namespace breathe
 		void Model3DSChunk::Finish()
 		{
 			file.seekg(end, std::ios::beg);// travel to next chunk
-			nRead=end;
+			nRead = end;
 		}
 
 		void Model3DSChunk::Goto(int iPosition)

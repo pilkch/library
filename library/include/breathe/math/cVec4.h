@@ -78,7 +78,7 @@ namespace breathe
 
 			operator cVec3 ()
 			{
-				if(w!=0)
+				if (w!=0)
 					return cVec3(x/w, y/w, z/w);
 				else
 					return cVec3(x, y, z);

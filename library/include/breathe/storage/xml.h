@@ -1,5 +1,5 @@
-#ifndef CXML_H
-#define CXML_H
+#ifndef XML_H
+#define XML_H
 
 #ifndef FIRESTARTER
 #include <breathe/math/math.h>
@@ -53,7 +53,7 @@ namespace breathe
 			bool GetAttribute(const std::string& sAttribute, T& value)
 			{
 				attribute_iterator iter = mAttribute.find(sAttribute);
-				if(iter != mAttribute.end())
+				if (iter != mAttribute.end())
 				{
 					std::stringstream stm(iter->second);
 					stm >> value;
@@ -207,4 +207,4 @@ namespace breathe
 	}
 }
 
-#endif //CXML_H
+#endif //XML_H

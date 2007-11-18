@@ -48,7 +48,7 @@ namespace breathe
 			float scalefactor;
 			length=GetLength();
 
-			if(length==1 || length==0)			//return if length is 1 or 0
+			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
 			scalefactor = 1.0f/length;
@@ -60,7 +60,7 @@ namespace breathe
 		{
 			float scalefactor;
 			
-			if(length==1 || length==0)			//return if length is 1 or 0
+			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
 			scalefactor = 1.0f/length;
@@ -121,7 +121,7 @@ namespace breathe
 
 		bool cVec2::operator==(const cVec2 & rhs) const
 		{
-			if(x==rhs.x && y==rhs.y)
+			if (x==rhs.x && y==rhs.y)
 				return true;
 
 			return false;

@@ -80,7 +80,7 @@ namespace breathe
 			float scalefactor;
 			length=GetLength();
 
-			if(length==1 || length==0)			//return if length is 1 or 0
+			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
 			scalefactor = 1.0f/length;
@@ -195,7 +195,7 @@ namespace breathe
 
 		cVec4 cVec4::operator / (const float rhs) const
 		{
-			if(rhs==0.0f) return cVec4(0.0f, 0.0f, 0.0f, 0.0f);	//cant divide by 0
+			if (rhs==0.0f) return cVec4(0.0f, 0.0f, 0.0f, 0.0f);	//cant divide by 0
 			
 			float newX=x / rhs;
 			float newY=y / rhs;
@@ -207,7 +207,7 @@ namespace breathe
 
 		bool cVec4::operator==(const cVec4 & rhs) const
 		{
-			if(x==rhs.x && y==rhs.y && z==rhs.z && w==rhs.w)
+			if (x==rhs.x && y==rhs.y && z==rhs.z && w==rhs.w)
 				return true;
 
 			return false;

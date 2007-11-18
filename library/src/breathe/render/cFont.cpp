@@ -58,7 +58,7 @@ namespace breathe
 			//into a bitmap.  This actually requires a couple of FreeType commands:
 
 			//Load the Glyph for our character.
-			if(FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT ))
+			if (FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT ))
 			{
 				LOG.Error("Font", "FT_Load_Glyph failed");
 				return;
@@ -66,7 +66,7 @@ namespace breathe
 
 			//Move the face's glyph into a Glyph object.
 			FT_Glyph glyph;
-			if(FT_Get_Glyph( face->glyph, &glyph ))
+			if (FT_Get_Glyph( face->glyph, &glyph ))
 			{
 				LOG.Error("Font", "FT_Get_Glyph failed");
 				return;
@@ -96,8 +96,8 @@ namespace breathe
 			//We use the ?: operator so that value which we use
 			//will be 0 if we are in the padding zone, and whatever
 			//is the the Freetype bitmap otherwise.
-			for(int j=0; j <height;j++) {
-				for(int i=0; i < width; i++){
+			for (int j=0; j <height;j++) {
+				for (int i=0; i < width; i++){
 					expanded_data[2*(i+j*width)]= expanded_data[2*(i+j*width)+1] = 
 						(i>=bitmap.width || j>=bitmap.rows) ?
 						0 : bitmap.buffer[i + bitmap.width*j];
@@ -106,7 +106,7 @@ namespace breathe
 
 
 			//Now we just setup some texture paramaters.
-				glBindTexture( GL_TEXTURE_2D, tex_base[ch]);
+			glBindTexture( GL_TEXTURE_2D, tex_base[ch]);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
@@ -120,7 +120,7 @@ namespace breathe
 			breathe::SAFE_DELETE_ARRAY(expanded_data);
 
 			//So now we can create the display list
-			glNewList(list_base+ch,GL_COMPILE);
+			glNewList(list_base + ch, GL_COMPILE);
 
 			glBindTexture(GL_TEXTURE_2D, tex_base[ch]);
 
@@ -142,8 +142,8 @@ namespace breathe
 			//the x and y variables, then when we draw the
 			//quad, we will only reference the parts of the texture
 			//that we contain the character itself.
-			float	x=(float)bitmap.width / (float)width,
-					y=(float)bitmap.rows / (float)height;
+			float	x = (float)bitmap.width / (float)width;
+			float y = (float)bitmap.rows / (float)height;
 
 			//Here we draw the texturemaped quads.
 			//The bitmap that we got from FreeType was not 
@@ -172,7 +172,7 @@ namespace breathe
 
 		cFont::cFont(const std::string fname, unsigned int h)
 		{
-			std::string sFilename = filesystem::FindFile(fname);
+			std::wstring sFilename = filesystem::FindFile(breathe::string::ToString_t(fname));
 
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];
@@ -194,9 +194,9 @@ namespace breathe
 			//This is where we load in the font information from the file.
 			//Of all the places where the code might die, this is the most likely,
 			//as FT_New_Face will die if the font file does not exist or is somehow broken.
-			if (FT_New_Face( library, sFilename.c_str(), 0, &face ))
+			if (FT_New_Face(library, breathe::string::ToUTF8(sFilename).c_str(), 0, &face ))
 			{
-				LOG.Error("Font", "FT_New_Face failed to load font \"" + sFilename + "\"");
+				LOG.Error("Font", "FT_New_Face failed to load font \"" + breathe::string::ToUTF8(sFilename) + "\"");
 				return;
 			}
 
@@ -213,7 +213,7 @@ namespace breathe
 			glGenTextures( 128, textures );
 
 			//This is where we actually create each of the fonts display lists.
-			for(unsigned char i=0;i<128;i++)
+			for (unsigned char i=0;i<128;i++)
 				make_dlist(face,i,list_base,textures);
 
 			//We don't need the face information now that the display
@@ -263,21 +263,21 @@ namespace breathe
 
 			const char* c = text;
 
-			for(;*c;c++)
+			for (;*c;c++)
 			{
-				if(*c=='\n')
+				if (*c=='\n')
 				{
 					std::string line;
-					for(const char* n=start_line;n<c;n++) 
+					for (const char* n=start_line;n<c;n++) 
 						line.append(1,*n);
 					lines.push_back(line);
 					start_line=c+1;
 				}
 			}
-			if(start_line) 
+			if (start_line) 
 			{
 				std::string line;
-				for(const char* n=start_line;n<c;n++) 
+				for (const char* n=start_line;n<c;n++) 
 					line.append(1,*n);
 				lines.push_back(line);
 			}
@@ -302,7 +302,8 @@ namespace breathe
 			//down by h. This is because when each character is
 			//draw it modifies the current matrix so that the next character
 			//will be drawn immediatly after it.  
-			for(unsigned int i=0;i<lines.size();i++) {
+			unsigned int n = lines.size();
+			for (unsigned int i=0;i<n;i++) {
 				
 
 				glPushMatrix();

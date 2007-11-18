@@ -105,7 +105,7 @@ namespace breathe
 			float maxWidth = 0, maxHeight = 0, maxDepth = 0;
 
 			// Return from this function if we passed in bad data
-			if(!pVertices || numberOfVerts <= 0) return;
+			if (!pVertices || numberOfVerts <= 0) return;
 
 			// Below we calculate the center point of the scene.  To do this, all you
 			// need to do is add up ALL the vertices, then divide that total by the
@@ -117,7 +117,7 @@ namespace breathe
 			// to use operator overloading just make a function called CVector AddVector(), etc...
 
 			// Go through all of the vertices and add them up to eventually find the center
-			for(int i = 0; i < numberOfVerts; i++)
+			for (int i = 0; i < numberOfVerts; i++)
 			{
 				// Add the current vertex to the center variable (Using operator overloading)
 				m_vCenter = m_vCenter + pVertices[i];
@@ -135,7 +135,7 @@ namespace breathe
 			// other.  Which ever one is higher, we then use that value for the cube width.
 
 			// Go through all of the vertices and find the max dimensions
-			for(i = 0; i < numberOfVerts; i++)
+			for (i = 0; i < numberOfVerts; i++)
 			{
 				// Get the current dimensions for this vertex.  We use the abs() function
 				// to get the absolute value because it might return a negative number.
@@ -144,13 +144,13 @@ namespace breathe
 				float currentDepth  = abs(pVertices[i].z - m_vCenter.z);	
 
 				// Check if the current width value is greater than the max width stored.
-				if(currentWidth  > maxWidth)	maxWidth  = currentWidth;
+				if (currentWidth  > maxWidth)	maxWidth  = currentWidth;
 
 				// Check if the current height value is greater than the max height stored.
-				if(currentHeight > maxHeight)	maxHeight = currentHeight;
+				if (currentHeight > maxHeight)	maxHeight = currentHeight;
 
 				// Check if the current depth value is greater than the max depth stored.
-				if(currentDepth > maxDepth)		maxDepth  = currentDepth;
+				if (currentDepth > maxDepth)		maxDepth  = currentDepth;
 			}
 
 			// Set the member variable dimensions to the max ones found.
@@ -160,11 +160,11 @@ namespace breathe
 			maxWidth *= 2;		maxHeight *= 2;		maxDepth *= 2;
 
 			// Check if the width is the highest value and assign that for the cube dimension
-			if(maxWidth > maxHeight && maxWidth > maxDepth)
+			if (maxWidth > maxHeight && maxWidth > maxDepth)
 				m_Width = maxWidth;
 
 			// Check if the height is the heighest value and assign that for the cube dimension
-			else if(maxHeight > maxWidth && maxHeight > maxDepth)
+			else if (maxHeight > maxWidth && maxHeight > maxDepth)
 				m_Width = maxHeight;
 
 			// Else it must be the depth or it's the same value as some of the other ones
@@ -255,7 +255,7 @@ namespace breathe
 			// no triangle found in this node's cube, then we ignore it and don't create a node.
 
 			// Check if the first node found some triangles in it
-			if(triangleCount)		
+			if (triangleCount)		
 			{
 				// Allocate memory for the triangles found in this node (tri's * 3 for vertices)
 				cVec3* pNodeVertices = new cVec3 [triangleCount * 3];
@@ -264,10 +264,10 @@ namespace breathe
 				int index = 0;
 
 				// Go through all the vertices and assign the vertices to the node's list
-				for(int i = 0; i < numberOfVerts; i++)
+				for (int i = 0; i < numberOfVerts; i++)
 				{
 					// If this current triangle is in the node, assign it's vertices to it
-					if(pList[i / 3])	
+					if (pList[i / 3])	
 					{
 						pNodeVertices[index] = pVertices[i];
 						index++;
@@ -326,7 +326,7 @@ namespace breathe
 			// Check if we have too many triangles in this node and we haven't subdivided
 			// above our max subdivisions.  If so, then we need to break this node into
 			// 8 more nodes (hence the word OCTree).  Both must be true to divide this node.
-			if( (numberOfTriangles > g_MaxTriangles) && (g_CurrentSubdivision < g_MaxSubdivisions) )
+			if ((numberOfTriangles > g_MaxTriangles) && (g_CurrentSubdivision < g_MaxSubdivisions) )
 			{
 				// Since we need to subdivide more we set the divided flag to true.
 				// This let's us know that this node does NOT have any vertices assigned to it,
@@ -367,41 +367,41 @@ namespace breathe
 				// we get to the 3rd vertex index of pVertices[] it will then be checking the
 				// 1st index of the pList*[] array.  We do this because we want a list of the
 				// triangles in the node, not the vertices.
-				for(int i = 0; i < numberOfVerts; i++)
+				for (int i = 0; i < numberOfVerts; i++)
 				{
 					// Create some variables to cut down the thickness of the code (easier to read)
 					cVec3 vPoint = pVertices[i];
 
 					// Check if the point lines within the TOP LEFT FRONT node
-					if( (vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
 						pList1[i / 3] = true;
 
 					// Check if the point lines within the TOP LEFT BACK node
-					if( (vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
 						pList2[i / 3] = true;
 
 					// Check if the point lines within the TOP RIGHT BACK node
-					if( (vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
 						pList3[i / 3] = true;
 
 					// Check if the point lines within the TOP RIGHT FRONT node
-					if( (vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
 						pList4[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM LEFT FRONT node
-					if( (vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
 						pList5[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM LEFT BACK node
-					if( (vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
 						pList6[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM RIGHT BACK node
-					if( (vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
 						pList7[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM RIGHT FRONT node
-					if( (vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
 						pList8[i / 3] = true;
 				}	
 
@@ -411,13 +411,13 @@ namespace breathe
 				int triCount5 = 0;	int triCount6 = 0;	int triCount7 = 0;	int triCount8 = 0;
 				
 				// Go through each of the lists and increase the triangle count for each node.
-				for(i = 0; i < numberOfTriangles; i++)  
+				for (i = 0; i < numberOfTriangles; i++)  
 				{
 					// Increase the triangle count for each node that has a "true" for the index i.
-					if(pList1[i])	triCount1++;	if(pList2[i])	triCount2++;
-					if(pList3[i])	triCount3++;	if(pList4[i])	triCount4++;
-					if(pList5[i])	triCount5++;	if(pList6[i])	triCount6++;
-					if(pList7[i])	triCount7++;	if(pList8[i])	triCount8++;
+					if (pList1[i])	triCount1++;	if (pList2[i])	triCount2++;
+					if (pList3[i])	triCount3++;	if (pList4[i])	triCount4++;
+					if (pList5[i])	triCount5++;	if (pList6[i])	triCount6++;
+					if (pList7[i])	triCount7++;	if (pList8[i])	triCount8++;
 				}
 			
 				// Next we do the dirty work.  We need to set up the new nodes with the triangles

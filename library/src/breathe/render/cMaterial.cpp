@@ -96,7 +96,7 @@ namespace breathe
 						char* infoLog = new char[infologLength];
 						glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
-						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("ERROR") != std::string::npos)
 						{
 							sInfo = string::Replace(sInfo, "\n", "<br>");
@@ -117,7 +117,7 @@ namespace breathe
 						char *infoLog = new char[infologLength];
 						glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
-						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("ERROR") != std::string::npos)
 						{
 							sInfo = string::Replace(sInfo, "\n", "<br>");
@@ -138,7 +138,7 @@ namespace breathe
 						char *infoLog = new char[infologLength];
 						glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
-						if(	sInfo.find("not been successfully compiled") != std::string::npos ||
+						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
 								sInfo.find("Warning") != std::string::npos)
 							LOG.Error("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
 						else
@@ -149,14 +149,14 @@ namespace breathe
 
 			void cShader::Init()
 			{
-				if("" != sShaderVertex)
+				if ("" != sShaderVertex)
 				{
 					uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
 
 					std::string buffer="";
 					std::string line="";
 					std::ifstream f(sShaderVertex.c_str());
-					if(f.is_open())
+					if (f.is_open())
 					{
 						while(!f.eof())
 						{
@@ -182,14 +182,14 @@ namespace breathe
 				}
 
 				
-				if("" != sShaderFragment)
+				if ("" != sShaderFragment)
 				{
 					uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
 
 					std::string buffer;
 					std::string line;
 					std::ifstream f(sShaderFragment.c_str());
-					if(f.is_open())
+					if (f.is_open())
 					{
 						while(!f.eof())
 						{
@@ -212,14 +212,14 @@ namespace breathe
 					}
 				}
 			
-				if(uiShaderVertex || uiShaderFragment)
+				if (uiShaderVertex || uiShaderFragment)
 				{
 					uiShaderProgram = glCreateProgram();
 
-					if(uiShaderVertex)
+					if (uiShaderVertex)
 						glAttachShader(uiShaderProgram, uiShaderVertex);
 
-					if(uiShaderFragment)
+					if (uiShaderFragment)
 						glAttachShader(uiShaderProgram, uiShaderFragment);
 
 					glLinkProgram(uiShaderProgram);
@@ -235,10 +235,10 @@ namespace breathe
 
 			void cShader::Destroy()
 			{
-				if(uiShaderFragment)
+				if (uiShaderFragment)
 					glDeleteShader(uiShaderFragment);
 
-				if(uiShaderVertex)
+				if (uiShaderVertex)
 					glDeleteShader(uiShaderVertex);
 
 				glDeleteProgram(uiShaderProgram);
@@ -274,7 +274,7 @@ namespace breathe
 				sName(name)
 			{				
 				unsigned int i=0;
-				for(i=0;i<nLayers;i++)
+				for (i=0;i<nLayers;i++)
 				{
 					vLayer.push_back(new cLayer());
 				}
@@ -283,7 +283,7 @@ namespace breathe
 			cMaterial::~cMaterial()
 			{
 				unsigned int i=0;
-				for(i=0;i<nLayers;i++)
+				for (i=0;i<nLayers;i++)
 					SAFE_DELETE(vLayer[i]);
 			}
 
@@ -291,11 +291,11 @@ namespace breathe
 			{
 				LOG.Success("Material", std::string("Loading ") + inFilename);
 
-				std::string sFilename = breathe::filesystem::FindFile(inFilename);
+				std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(inFilename));
 
-				std::string sPath = breathe::filesystem::GetPath(sFilename);
+				std::wstring sPath = breathe::filesystem::GetPath(sFilename);
 				
-				xml::cNode root(sFilename);
+				xml::cNode root(breathe::string::ToUTF8(sFilename));
 				xml::cNode::iterator iter(root);
 				
 				if (!iter) return breathe::BAD;
@@ -306,10 +306,10 @@ namespace breathe
 				//</material>
 
 				iter.FindChild("material");
-				if(!iter)
+				if (!iter)
 				{
-					LOG.Error("Material", std::string("Not Found ") + sFilename);
-					for(unsigned int i=0;i<nLayers;i++)
+					LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
+					for (unsigned int i=0;i<nLayers;i++)
 						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
 
 					return breathe::BAD;
@@ -318,18 +318,18 @@ namespace breathe
 				iter.GetAttribute("collide", bCollideTrimesh);
 					
 				std::string sValue;
-				if(iter.GetAttribute("sShaderVertex", sValue))
+				if (iter.GetAttribute("sShaderVertex", sValue))
 				{
-					if(pShader == nullptr) pShader = new cShader();
-					pShader->sShaderVertex = breathe::filesystem::FindFile(sPath, sValue);
+					if (pShader == nullptr) pShader = new cShader();
+					pShader->sShaderVertex = breathe::string::ToUTF8(breathe::filesystem::FindFile(sPath, breathe::string::ToString_t(sValue)));
 				}
-				if(iter.GetAttribute("sShaderFragment", sValue))
+				if (iter.GetAttribute("sShaderFragment", sValue))
 				{
-					if(pShader == nullptr) pShader = new cShader();
-					pShader->sShaderFragment = breathe::filesystem::FindFile(sPath, sValue);
+					if (pShader == nullptr) pShader = new cShader();
+					pShader->sShaderFragment = breathe::string::ToUTF8(breathe::filesystem::FindFile(sPath, breathe::string::ToString_t(sValue)));
 				}
 
-				if(pShader)
+				if (pShader)
 				{
 					iter.GetAttribute("cameraPos", pShader->bCameraPos);
 					
@@ -350,49 +350,49 @@ namespace breathe
 				while(iter && i < nLayers)
 				{
 					pLayer = vLayer[i];
-					if("layer" == iter.GetName())
+					if ("layer" == iter.GetName())
 					{
 						std::string sTexture;
-						if(iter.GetAttribute("sTexture", sTexture))
+						if (iter.GetAttribute("sTexture", sTexture))
 						{
 							// Try in the same directory as the material
-							pLayer->sTexture = breathe::filesystem::FindFile(sPath, sTexture);
+							pLayer->sTexture = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture)));
 						}
 
 						std::string sValue;
-						if(iter.GetAttribute("uiTextureMode", sValue))
+						if (iter.GetAttribute("uiTextureMode", sValue))
 						{
-							if(sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
-							else if(sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
-							else if(sValue == "TEXTURE_BLEND")				pLayer->uiTextureMode=TEXTURE_BLEND;
-							else if(sValue == "TEXTURE_DETAIL")				pLayer->uiTextureMode=TEXTURE_DETAIL;
-							else if(sValue == "TEXTURE_CUBEMAP")			pLayer->uiTextureMode=TEXTURE_CUBEMAP;
-							else if(sValue == "TEXTURE_POST_RENDER")	pLayer->uiTextureMode=TEXTURE_POST_RENDER;
+							if (sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
+							else if (sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
+							else if (sValue == "TEXTURE_BLEND")				pLayer->uiTextureMode=TEXTURE_BLEND;
+							else if (sValue == "TEXTURE_DETAIL")				pLayer->uiTextureMode=TEXTURE_DETAIL;
+							else if (sValue == "TEXTURE_CUBEMAP")			pLayer->uiTextureMode=TEXTURE_CUBEMAP;
+							else if (sValue == "TEXTURE_POST_RENDER")	pLayer->uiTextureMode=TEXTURE_POST_RENDER;
 						}
 
 						unsigned int uiTextureAtlas = ATLAS_NONE;
-						if(iter.GetAttribute("uiTextureAtlas", sValue))
+						if (iter.GetAttribute("uiTextureAtlas", sValue))
 						{
-							if(sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
-							else if(sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
-							else if(sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
-							else if(sValue == "ATLAS_VEHICLES")	uiTextureAtlas = ATLAS_VEHICLES;
-							else if(sValue == "ATLAS_PROPS")		uiTextureAtlas = ATLAS_PROPS;
-							else if(sValue == "ATLAS_WEAPONS")	uiTextureAtlas = ATLAS_WEAPONS;
-							else if(sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
+							if (sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
+							else if (sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
+							else if (sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
+							else if (sValue == "ATLAS_VEHICLES")	uiTextureAtlas = ATLAS_VEHICLES;
+							else if (sValue == "ATLAS_PROPS")		uiTextureAtlas = ATLAS_PROPS;
+							else if (sValue == "ATLAS_WEAPONS")	uiTextureAtlas = ATLAS_WEAPONS;
+							else if (sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
 						}
 
-						if(TEXTURE_CUBEMAP == pLayer->uiTextureMode)
+						if (TEXTURE_CUBEMAP == pLayer->uiTextureMode)
 						{
 							uiTextureAtlas = ATLAS_NONE;
 							LOG.Error("CUBEMAP", "CUBEMAP");
 						}
 						
-						if((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode))
+						if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode))
 						{
-							if(ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
+							if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 							
-							if(NULL == pLayer->pTexture)
+							if (NULL == pLayer->pTexture)
 							{
 								uiTextureAtlas = ATLAS_NONE;
 								pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
@@ -404,7 +404,7 @@ namespace breathe
 					iter++;
 				}
 
-				LOG.Success("Material", std::string("Loaded ") + sFilename);
+				LOG.Success("Material", breathe::string::ToUTF8(TEXT("Loaded ") + sFilename));
 				return breathe::GOOD;
 			}
 

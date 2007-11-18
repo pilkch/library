@@ -24,6 +24,7 @@ namespace breathe
 		reverse_iterator rend() { return elements.rend(); }
 		
 		size_t size() const;
+		bool empty() const;
 
 		T& operator[](size_t i);
 
@@ -55,6 +56,12 @@ namespace breathe
 	size_t constant_stack<T>::size() const
 	{
 		return elements.size();
+	}
+
+	template <class T>
+	bool constant_stack<T>::empty() const
+	{
+		return elements.empty();
 	}
 
 	template <class T>
@@ -314,7 +321,7 @@ namespace breathe
 				CONSOLE._AddLine(o);
 
 				// Add line to screen
-				//if(lLine.size()>CONSOLE_MAXLINES)
+				//if (lLine.size()>CONSOLE_MAXLINES)
 				//	lLine.pop_front();
 				
 				lLine.push_back(o);

@@ -78,7 +78,7 @@ namespace breathe
 			void cStatic::ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename)
 			{
 				std::ostringstream t;
-				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -119,7 +119,7 @@ namespace breathe
 				std::ostringstream t;
 				std::string obj_name = c.Str();
 				
-				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -155,7 +155,7 @@ namespace breathe
 			{
 				LOG.Success("3ds", "Edit material");
 				
-				for(loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+				for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -173,7 +173,7 @@ namespace breathe
 			{
 				std::string mat_name = c.Str();
 
-				if(mat_name.find(".mat") != std::string::npos)
+				if (mat_name.find(".mat") != std::string::npos)
 					LOG.Success("3ds", "Material: " + mat_name);
 				else
 					LOG.Error("3ds", "Invalid material: " + mat_name);
@@ -210,7 +210,7 @@ namespace breathe
 
 				loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName , c);
 
-				if(pMesh)
+				if (pMesh)
 				{
 					vMesh.push_back(new cMesh());
 
@@ -234,14 +234,17 @@ namespace breathe
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
-					pCurrentMesh->sMaterial=breathe::filesystem::FindFile(breathe::filesystem::GetPath(sFilename) + pMesh->sMaterial);
 
 					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
 					// try it, comment these lines out, it breaks.  I don't know why :(
-					char* c = (char*)(pCurrentMesh->sMaterial.c_str());
-					pCurrentMesh->sMaterial = c;
+					std::string temp(pMesh->sMaterial.c_str());
+					pMesh->sMaterial = temp;
 
-					for(face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
+					pCurrentMesh->sMaterial = breathe::string::ToUTF8(breathe::filesystem::FindFile(
+						breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + 
+						breathe::string::ToString_t(pMesh->sMaterial)));
+
+					for (face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
 					{
 						// 3ds files store faces as having 3 indexs in vertex arrays
 						f = vFaces[face];
@@ -286,7 +289,7 @@ namespace breathe
 				loader_3ds::Model3DSChunk root = file.Child();
 
 				std::ostringstream t;
-				for(loader_3ds::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
+				for (loader_3ds::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
 					{
@@ -335,7 +338,7 @@ namespace breathe
 
 			int cStatic::Load(const std::string& sFilename)
 			{
-				if(sFilename.find(".3ds"))
+				if (sFilename.find(".3ds"))
 					return Load3DS(sFilename);
 
 				return 0;
@@ -363,14 +366,14 @@ namespace breathe
 				// To do that we pass in our center point of the node and 1/2 it's width to our 
 				// CubeInFrustum() function.  This will return "true" if it is inside the frustum 
 				// (camera's view), otherwise return false.  
-				if(!pNode || frustum->CubeInFrustum(pNode->m_vCenter.x, pNode->m_vCenter.y, 
+				if (!pNode || frustum->CubeInFrustum(pNode->m_vCenter.x, pNode->m_vCenter.y, 
 					pNode->m_vCenter.z, pNode->m_Width / 2)) 
 						return 0;
 
 				unsigned int uiTriangles = 0;
 
 				// Check if this node is subdivided. If so, then we need to recurse and draw it's nodes
-				if(pNode->IsSubDivided())
+				if (pNode->IsSubDivided())
 				{
 
 					// Recurse to the bottom of these nodes and draw the end node's vertices
@@ -390,7 +393,7 @@ namespace breathe
 					g_TotalNodesDrawn++;
 
 					// Make sure we have valid vertices assigned to this node
-					if(!pNode->m_pVertices) return 0;
+					if (!pNode->m_pVertices) return 0;
 
 					// Render the world data with triangles
 					//glBegin(GL_TRIANGLES);
@@ -402,7 +405,7 @@ namespace breathe
 					//cVec3 *pVertices = pNode->m_pVertices;
 
 					// Go through all of the vertices (the number of triangles * 3)
-					//for(int i = 0; i < pNode->GetTriangleCount() * 3; i += 3)
+					//for (int i = 0; i < pNode->GetTriangleCount() * 3; i += 3)
 					//{
 						// Before we render the vertices we want to calculate the face normal
 						// of the current polygon.  That way when lighting is turned on we can

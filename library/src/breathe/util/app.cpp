@@ -187,6 +187,7 @@ int intersect_triangle(
 #include <breathe/util/unittest.h>
 #include <breathe/util/app.h>
 #include <breathe/util/thread.h>
+#include <breathe/util/lang.h>
 
 #include <breathe/communication/network.h>
 
@@ -207,6 +208,10 @@ namespace breathe
 		pConsoleWindow(nullptr)
 	{
 		CONSOLE.SetApp(this);
+		
+		_LoadSearchDirectories();
+		
+		util::LoadLanguageFile();
 
 		_InitArguments(argc, argv);
 
@@ -223,10 +228,10 @@ namespace breathe
 		// get all files ending in .dll
 		CONSOLE<<"FileSystem Test"<<std::endl;
 		
-		breathe::filesystem::path dir_path(".");
+		breathe::filesystem::path dir_path(TEXT("."));
 		/*directory_iterator end_it;
-		for(directory_iterator it(dir_path); it != end_it; ++it) {
-			if( !is_directory(it->status()) && extension(it->path()) == ".dll" ) {
+		for (directory_iterator it(dir_path); it != end_it; ++it) {
+			if (!is_directory(it->status()) && extension(it->path()) == ".dll" ) {
 				it->path().string();
 			}
 		}*/
@@ -262,7 +267,7 @@ namespace breathe
 	cApp::~cApp()
 	{
 		size_t nJoysticks = vJoystick.size();
-		for(size_t i = 0; i < nJoysticks; i++)
+		for (size_t i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
 		
 		TTF_Quit();
@@ -292,23 +297,44 @@ namespace breathe
 
 	void cApp::_InitArguments(int argc, char **argv)
 	{
-		filesystem::SetThisExecutable(argv[0]);
+		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
 		int i = 1;
 		std::string s;
-		if(i<argc)
+		if (i<argc)
 		{
 			vArgs.push_back(argv[i]);
 			s=argv[i];
 		}
 
-		for(i=2;i<argc;i++)
+		for (i=2;i<argc;i++)
 		{
 			vArgs.push_back(argv[i]);
 			s+=" " + std::string(argv[i]);
 		}
 
 		LOG.Success("Arguments", s);
+	}
+
+	void cApp::_LoadSearchDirectories()
+	{
+		breathe::xml::cNode root("config.xml");
+		breathe::xml::cNode::iterator iter(root);
+
+		if (!iter) return;
+
+		iter.FindChild("config");
+		if (!iter) return;
+
+		iter.FindChild("directory");
+		if (!iter) return;
+
+		while(iter)
+		{
+			std::string sDirectory;
+			if (iter.GetAttribute("path", sDirectory)) breathe::filesystem::AddDirectory(breathe::string::ToString_t(sDirectory));
+			iter.Next("directory");
+		};
 	}
 
 	bool cApp::InitApp()
@@ -328,29 +354,13 @@ namespace breathe
 			iter.FindChild("config");
 			if (!iter) return breathe::GOOD;
 
-			iter.FindChild("directory");
-			if (!iter) return breathe::GOOD;
-
-			while(iter)
-			{
-				std::string sDirectory;
-				if(iter.GetAttribute("path", sDirectory)) breathe::filesystem::AddDirectory(sDirectory);
-				iter.Next("directory");
-			};
-
-			iter = root;
-			if (!iter) return breathe::GOOD;
-
-			iter.FindChild("config");
-			if (!iter) return breathe::GOOD;
-
 			iter.FindChild("render");
 			while(iter)
 			{
 				std::ostringstream t;
 				unsigned int uiValue;
 
-				if(iter.GetAttribute("width", uiValue))
+				if (iter.GetAttribute("width", uiValue))
 				{
 					t.str("");
 					t<<"width = ";
@@ -359,7 +369,7 @@ namespace breathe
 					pRender->uiWidth = uiValue;
 				}
 
-				if(iter.GetAttribute("height", uiValue))
+				if (iter.GetAttribute("height", uiValue))
 				{
 					t.str("");
 					t<<"height = ";
@@ -368,7 +378,7 @@ namespace breathe
 					pRender->uiHeight = uiValue;
 				}
 
-				if(iter.GetAttribute("depth", uiValue))
+				if (iter.GetAttribute("depth", uiValue))
 				{
 					t.str("");
 					t<<"depth = ";
@@ -379,7 +389,7 @@ namespace breathe
 
 				bool bFullscreen;
 
-				if(iter.GetAttribute("fullscreen", bFullscreen))
+				if (iter.GetAttribute("fullscreen", bFullscreen))
 				{
 					LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
 					pRender->bFullscreen = bFullscreen;
@@ -390,12 +400,14 @@ namespace breathe
 		}
 
 		// Init SDL 
-		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
+		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
 		{
 			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
 			bReturnCode=breathe::BAD;
 			return breathe::BAD;
 		}
+		
+		SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
 
 		{
 
@@ -404,15 +416,14 @@ namespace breathe
 			int nJoysticks = SDL_NumJoysticks();
 
 			std::ostringstream t;
-			t << "Joysticks found: ";
-			t << nJoysticks;
+			t<<"Joysticks found: "<<nJoysticks;
 
-			if(nJoysticks)
+			if (nJoysticks)
 			{
 				LOG.Success("SDL", t.str());
 				SDL_JoystickEventState(SDL_ENABLE);
 
-				for(int i=0; i < nJoysticks; i++ ) 
+				for (int i=0; i < nJoysticks; i++ ) 
 				{
 					t.str("");
 					t << "Joystick(";
@@ -441,7 +452,7 @@ namespace breathe
 			}
 			else LOG.Error("SDL", t.str());
 
-			/*if(nJoysticks)
+			/*if (nJoysticks)
 			{
 				SDL_Event event;
 				// Other initializtion code goes here 
@@ -464,21 +475,21 @@ namespace breathe
 
 
 						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion 
-							if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
 							{
 								/* code goes here
 							}
 							break;
 
 						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
-							if ( ( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
 							{
-								if( event.jaxis.axis == 0) 
+								if (event.jaxis.axis == 0) 
 								{
 									/* Left-right movement code goes here
 								}
 
-								if( event.jaxis.axis == 1) 
+								if (event.jaxis.axis == 1) 
 								{
 									/* Up-Down movement code goes here
 								}
@@ -486,22 +497,22 @@ namespace breathe
 							break;
 
 						case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
-							if ( event.jbutton.button == 0 ) 
+							if (event.jbutton.button == 0 ) 
 							{
 								/* code goes here
 							}
 							break;
 
 						case SDL_JOYHATMOTION:  /* Handle Hat Motion
-							if ( event.jhat.value & SDL_HAT_UP )
+							if (event.jhat.value & SDL_HAT_UP )
 							{
 								// Do up stuff here
 							}
-							if ( event.jhat.value & SDL_HAT_LEFT )
+							if (event.jhat.value & SDL_HAT_LEFT )
 							{
 								// Do left stuff here
 							}
-							if ( event.jhat.value & SDL_HAT_RIGHTDOWN )
+							if (event.jhat.value & SDL_HAT_RIGHTDOWN )
 							{
 								// Do right and down together stuff here
 							}
@@ -512,12 +523,8 @@ namespace breathe
 				// End loop here
 			}*/
 		}
-
-		std::string s = ("app.ico");
-		LOG.Success("SDL", "Setting caption to " + s);
-		SDL_WM_SetCaption(title.c_str(), s.c_str());
-
-		if(breathe::BAD==InitRender())
+		
+		if (breathe::BAD==InitRender())
 			return breathe::BAD;
 
 		TTF_Init();
@@ -526,7 +533,7 @@ namespace breathe
 
 		breathe::physics::Init();
 
-		if(breathe::BAD==LoadScene())
+		if (breathe::BAD==LoadScene())
 			return breathe::BAD;
 
 	
@@ -552,7 +559,7 @@ namespace breathe
 		pConsoleWindow->SetResizable();
 		pConsoleWindow->AddChild(new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f));
 
-		if(breathe::BAD==InitScene())
+		if (breathe::BAD==InitScene())
 			return breathe::BAD;
 
 
@@ -577,7 +584,7 @@ namespace breathe
 
 	bool cApp::InitRender()
 	{
-		if(breathe::BAD == pRender->PreInit())
+		if (breathe::BAD == pRender->PreInit())
 		{
 			bReturnCode = breathe::BAD;
 			return breathe::BAD;
@@ -585,7 +592,7 @@ namespace breathe
 		
 		pRender->SetPerspective();
 
-		if(breathe::BAD == pRender->Init())
+		if (breathe::BAD == pRender->Init())
 			return breathe::BAD;
 
 		return breathe::GOOD;
@@ -601,7 +608,7 @@ namespace breathe
 	bool cApp::ToggleFullscreen()
 	{
 		// Destroy the old render
-		if(breathe::BAD==DestroyRender())
+		if (breathe::BAD==DestroyRender())
 		{
 			bReturnCode=breathe::BAD;
 			return breathe::BAD;
@@ -612,7 +619,7 @@ namespace breathe
 
 
 		// Create the new render
-		if(breathe::BAD==InitRender())
+		if (breathe::BAD==InitRender())
 		{
 			bReturnCode=breathe::BAD;
 			return breathe::BAD;
@@ -646,13 +653,13 @@ namespace breathe
 				case SDL_ACTIVEEVENT:
 					{
 						bActive=event.active.gain != 0;
-						if(bActive) LOG.Success("Active", "Active");
+						if (bActive) LOG.Success("Active", "Active");
 						else LOG.Error("Active", "Inactive");
 					}
 					break;
 
 				case SDL_VIDEORESIZE:
-					if(breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
+					if (breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
 						bDone=true;
 					break;
 
@@ -711,7 +718,7 @@ namespace breathe
 	{
 		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
 
-		if(iter!=mKey.end())
+		if (iter!=mKey.end())
 			return iter->second->IsDown();
 
 		return false;
@@ -728,10 +735,10 @@ namespace breathe
 			p = (iter->second);
 
 			//This key is pressed
-			if(key[p->uiCode])
+			if (key[p->uiCode])
 			{
 				//This key can be held down
-				if(p->bRepeat)
+				if (p->bRepeat)
 				{
 					p->bDown=true;
 					p->bCollected=false;
@@ -758,9 +765,9 @@ namespace breathe
 		unsigned int code = keysym->sym;
 
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if(iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
+		if (iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
 		
-		if(CONSOLE.IsVisible()) {
+		if (CONSOLE.IsVisible()) {
 			// Remove key from list
 			IsKeyDown(code);
 			
@@ -773,9 +780,9 @@ namespace breathe
 		unsigned int code = keysym->sym;
 
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if(iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
+		if (iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
 
-		if(CONSOLE.IsVisible()) CONSOLE.AddKey(code);
+		if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
 	}
 	
 	void cApp::_OnMouseUp(int button, int x, int y)
@@ -851,7 +858,7 @@ namespace breathe
 	//This is for executing one single line, cannot have ";"
 	void cApp::_ConsoleExecuteSingleCommand(const std::string& command)
 	{
-		CONSOLE<<command;
+		CONSOLE<<command<<std::endl;
 
 		std::string s(command);
 		std::string full(s);
@@ -866,7 +873,7 @@ namespace breathe
 			{
 				whitespace=s.find(" ");
 
-				if(std::string::npos==whitespace)
+				if (std::string::npos==whitespace)
 				{
 					parameter = s;
 					s = "";
@@ -877,32 +884,33 @@ namespace breathe
 					s = s.substr(whitespace+1);
 				}
 
-				if(parameter.length())
+				if (parameter.length())
 					args.push_back(parameter);
 			};
 		}
 
 
-		if(args.size())
+		if (!args.empty())
 		{
-			if("quit"==full || "exit"==full) bDone = true;
-			else if("var"==args[0]) var::PrintAll();
-			else if(GOOD==Execute(full))
+			if ("quit"==full || "exit"==full) bDone = true;
+			else if ("var"==args[0]) var::PrintAll();
+			else if (GOOD==Execute(full))
 			{
 
 			}
 
 #ifdef BUILD_DEBUG
-			else if(bDebug)
+			else if (bDebug)
 			{
 				std::string c="Line: [";
 
-				for(unsigned int a = 0;a < args.size(); a++)
+				unsigned int n = args.size();
+				for (unsigned int a = 0;a < n; a++)
 					c+="(" + args[a] + ")";
 
 				c+="]";
 
-				CONSOLE<<c;
+				CONSOLE<<c<<std::endl;
 			}
 #endif
 		}
@@ -912,7 +920,7 @@ namespace breathe
 	void cApp::ConsoleExecute(const std::string& command)
 	{
 		std::string s(command);
-		if("" != s)
+		if ("" != s)
 		{
 			//Take out all \n, each line should be finished with a ";" or it is not a valid line
 			s=string::Replace(s, "\n", " ");
@@ -926,7 +934,7 @@ namespace breathe
 			{
 				endofline = s.find(";");
 
-				if(std::string::npos==endofline)
+				if (std::string::npos==endofline)
 				{
 					line = s;
 					s = "";
@@ -937,7 +945,7 @@ namespace breathe
 					s = s.substr(endofline+1);
 				}
 
-				if(line.length())
+				if (line.length())
 					_ConsoleExecuteSingleCommand(line);	
 			};
 		}
@@ -997,13 +1005,13 @@ namespace breathe
 		{
 			currentTime = util::GetTime();
 
-      if(currentTime > fEventsNext)
+      if (currentTime > fEventsNext)
 			{
 				_UpdateEvents(currentTime);
 				fEventsNext = currentTime + fEventsDelta;
 			}
 
-			if(currentTime > fInputNext)
+			if (currentTime > fInputNext)
 			{
 				// These have to be in this order or nothing gets collected
 				_UpdateInput(currentTime);
@@ -1011,21 +1019,21 @@ namespace breathe
 				fInputNext = currentTime + fInputDelta;
 			}
 
-			if(bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
+			if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
 			{
 				UpdatePhysics(currentTime);
 				tPhysics.Update(currentTime);
 				fPhysicsNext = currentTime + fPhysicsDelta;
 			}
 
-			if(currentTime > fUpdateNext)
+			if (currentTime > fUpdateNext)
 			{
 				Update(currentTime);
 				tUpdate.Update(currentTime);
 				fUpdateNext = currentTime + fUpdateDelta;
 			}
 
-			if(!bDone && bActive)// && currentTime > fRenderNext)
+			if (!bDone && bActive)// && currentTime > fRenderNext)
 			{
 				_Render(currentTime);
 				tRender.Update(currentTime);
@@ -1077,14 +1085,14 @@ namespace breathe
 
 	bool cApp::cKey::IsDown()
 	{
-		if(bDown)
+		if (bDown)
 		{
-			if(bRepeat)
+			if (bRepeat)
 			{
 				bCollected=true;
 				return true;
 			}
-			else if(!bCollected)
+			else if (!bCollected)
 			{
 				bCollected=true;
 				return true;
@@ -1107,12 +1115,12 @@ namespace breathe
 		bDown = false;
 		bCollected = false;
 		
-		/*if(bRepeat)
+		/*if (bRepeat)
 		{
 			bDown = false;
 			bCollected = false;
 		}
-		else if(!bConsole)
+		else if (!bConsole)
 		{
 			bDown = true;
 			bCollected = false;

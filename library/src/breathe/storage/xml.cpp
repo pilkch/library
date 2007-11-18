@@ -43,7 +43,7 @@ namespace breathe
 
 			std::ifstream f(inFilename.c_str());
 
-			if(f.is_open())
+			if (f.is_open())
 			{
 				std::string sData;
 				std::string line;
@@ -73,8 +73,8 @@ namespace breathe
 
 		cNode::~cNode()
 		{
-			size_t n=vChild.size();
-			for(size_t i=0;i<n;i++)
+			size_t n = vChild.size();
+			for (size_t i=0;i<n;i++)
          SAFE_DELETE(vChild[i]);
 		}
 	
@@ -83,9 +83,9 @@ namespace breathe
 			std::string sData(data);
 			while(sData.length())
 			{
-				size_t length=sData.length();
-				size_t lsize=sData.size();
-				bool isEmpty=sData.empty();
+				size_t length = sData.length();
+				size_t lsize = sData.size();
+				bool isEmpty = sData.empty();
 
 				sData=string::StripLeading(string::StripLeading(sData, " "), "\t");
 
@@ -93,7 +93,7 @@ namespace breathe
 				{
 					size_t nEndComment=sData.find("-->");
 
-					if(nEndComment == std::string::npos)
+					if (nEndComment == std::string::npos)
 					{
 #ifndef FIRESTARTER
 						LOG.Error("XML", "Unterminated comment");
@@ -105,11 +105,11 @@ namespace breathe
 				}
 
 				std::string::size_type angleBracket=sData.find("<");
-				if(angleBracket != std::string::npos)
+				if (angleBracket != std::string::npos)
 				{
 					std::string sContent;
 					
-					if(angleBracket)
+					if (angleBracket)
 					{
 						//Content</name>
 						sContent = sData.substr(0, angleBracket);
@@ -118,21 +118,21 @@ namespace breathe
 					// example attribute="value"...
 					sData=string::StripLeading(sData.substr(angleBracket+1), " ");
 
-					if(sData[0] == '/')
+					if (sData[0] == '/')
 					{
 						// </name>
-						if(sContent.size() && sContent != "/>")
+						if (!sContent.empty() && sContent != "/>")
 						{
 							AddContent(sContent);
 						}
 
-						angleBracket=sData.find(">");
+						angleBracket = sData.find(">");
 
-						if(angleBracket != std::string::npos)
+						if (angleBracket != std::string::npos)
 						{
 							std::string sClose=string::StripTrailing(string::StripLeading(sData.substr(1, angleBracket-1), " "), " ");
 
-							if(sClose!=sName)
+							if (sClose!=sName)
 							{
 #ifndef FIRESTARTER
 								LOG.Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
@@ -157,7 +157,7 @@ namespace breathe
 
 					std::string::size_type n=sData.find_first_of(sSlashSpaceRightBracket);
 
-					if(std::string::npos != n)
+					if (std::string::npos != n)
 					{
 						// Collect name
 						std::string inName=string::StripTrailing(sData.substr(0, n), " ");
@@ -166,7 +166,7 @@ namespace breathe
 						sData=string::StripLeading(sData.substr(n), " ");
 
 						// Fill in attributes if any, and find the end of the opening tag
-						if('/' == sData[0])
+						if ('/' == sData[0])
 						{
 							// />
 							cNode* p=AddNode();
@@ -174,7 +174,7 @@ namespace breathe
 							p->sName=inName;
 
               n=sData.find(">");
-							if(std::string::npos==n)
+							if (std::string::npos==n)
 								return "";
               
 							sData=sData.substr(n+1);
@@ -195,7 +195,7 @@ namespace breathe
 							while(iter!=sData.end() && *iter!='/' && *iter!='>')
 							{
 								breathe::char_t c=*iter;
-								if(*iter == ' ')
+								if (*iter == ' ')
 								{
 									p->AddAttribute(sAttributeName, "");
 									sAttributeName = "";
@@ -203,10 +203,10 @@ namespace breathe
 									iter=sData.begin();
 									continue;
 								}
-								else if(*iter == '=')
+								else if (*iter == '=')
 								{
 									iter++;
-									if(iter!=sData.end() && *iter == '\"')
+									if (iter!=sData.end() && *iter == '\"')
 									{
 										sData.erase(sData.begin(), ++iter);
 										sData=string::StripLeading(sData, " ");
@@ -216,7 +216,7 @@ namespace breathe
 
 										while(std::string::npos!=nQuote)
 										{
-											if(nQuote<nSlashQuote)
+											if (nQuote<nSlashQuote)
 											{
 												// attribute="value"
 												p->AddAttribute(sAttributeName, sAttributeValue + sData.substr(0, nQuote));
@@ -248,7 +248,7 @@ namespace breathe
 								iter++;
 							};
 
-							if('>'==*iter)
+							if ('>'==*iter)
 							{
 								// >...
 								iter++;
@@ -288,10 +288,10 @@ namespace breathe
 		{
 			std::ofstream f(inFilename.c_str());
 
-			if(f.is_open())
+			if (f.is_open())
 			{
 				size_t n=vChild.size();
-				for(size_t i=0;i<n;i++)
+				for (size_t i=0;i<n;i++)
 					vChild[i]->WriteToFile(f, "");
 				f.close();
 			}
@@ -306,13 +306,13 @@ namespace breathe
 			assert(f.is_open());
 			
 			size_t i, n;
-			if(IsNameAndAttributesAndChildren())
+			if (IsNameAndAttributesAndChildren())
 			{
-				if(sName != "")
+				if (sName != "")
 				{
 					std::string sTag = sTab + "<" + sName;
 					attribute_iterator iter=mAttribute.begin();
-					for(;iter!=mAttribute.end();iter++)
+					for (;iter!=mAttribute.end();iter++)
 					{
 						if (iter->second.length() > 0)
               sTag += " " + iter->first + "=\"" + iter->second + "\"";
@@ -320,7 +320,7 @@ namespace breathe
 							sTag += " " + iter->first;
 					}
 
-					if(vChild.size() == 0)
+					if (vChild.size() == 0)
 					{
 						f<<sTag<<"/>"<<std::endl;
 						return;
@@ -336,12 +336,11 @@ namespace breathe
 				f<<sContentOnly;
 
 			n = vChild.size();
-			for(i=0;i<n;i++)
-				vChild[i]->WriteToFile(f, sTab + "\t");
+			for (i=0;i<n;i++) vChild[i]->WriteToFile(f, sTab + "\t");
 
 			if (sName != "")
 			{
-				if(vChild.size() == 0 || (vChild.size() > 0 && !vChild[0]->IsContentOnly()))
+				if (!vChild.empty() || (!vChild.empty() && !vChild[0]->IsContentOnly()))
 					f<<sTab<<"</"<<sName<<">"<<std::endl;
 				else
 					f<<"</"<<sName<<">"<<std::endl;
@@ -352,19 +351,17 @@ namespace breathe
 		void cNode::PrintToLog(const std::string& sTab)
 		{
 			size_t i, n;
-			if(IsNameAndAttributesAndChildren())
+			if (IsNameAndAttributesAndChildren())
 			{
-				if(sName != "")
+				if (sName != "")
 				{
 					std::string sTag = sTab + "&lt;" + sName;
 					attribute_iterator iter=mAttribute.begin();
-					for(;iter!=mAttribute.end();iter++)
+					for (;iter!=mAttribute.end();iter++)
 						sTag += " " + iter->first + "=\"" + iter->second + "\"";
 
-					if(vChild.size()>0)
-						sTag+="&gt;";
-					else			
-						sTag+="/&gt;";
+					if (!vChild.empty()) sTag+="&gt;";
+					else sTag+="/&gt;";
 
 #ifndef FIRESTARTER
 					LOG.Success("XML", sTag.c_str());
@@ -376,12 +373,11 @@ namespace breathe
 				LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
 #endif
 
-			n=vChild.size();
-			for(i=0;i<n;i++)
-				vChild[i]->PrintToLog(sTab + "&nbsp;");
+			n = vChild.size();
+			for (i=0;i<n;i++) vChild[i]->PrintToLog(sTab + "&nbsp;");
 
 #ifndef FIRESTARTER
-			if(vChild.size()>0 && sName != "")
+			if (!vChild.empty() && sName != "")
 				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
 #endif
 		}
@@ -389,19 +385,19 @@ namespace breathe
 
 		cNode* cNode::FirstChild()
 		{
-			if(vChild.size()) return vChild[0];
+			if (!vChild.empty()) return vChild[0];
 
 			return NULL;
 		}
 
 		cNode* cNode::FindChild(const std::string& sName)
 		{
-			if(vChild.size())
+			if (!vChild.empty())
 			{
 				cNode* p=vChild[0];
         while(p != nullptr)
 				{
-					if(sName == p->sName) return p;
+					if (sName == p->sName) return p;
 					p = p->pNext;
 				}
 			}
@@ -419,7 +415,7 @@ namespace breathe
 			cNode* p=pNext;
       while(p)
 			{
-				if(sName == p->sName) return p;
+				if (sName == p->sName) return p;
 				p=p->pNext;
 			};
 			
@@ -428,18 +424,18 @@ namespace breathe
 
 		cNode* cNode::AddNode()
 		{
-			cNode* p=new cNode(this);
-			if(vChild.size())
-				vChild.back()->pNext=p;
+			cNode* p = new cNode(this);
+			if (!vChild.empty()) vChild.back()->pNext = p;
+
 			vChild.push_back(p);
 			return p;
 		}
 	
 		void cNode::AddContent(const std::string& inContent)
 		{
-			cNode* p=AddNode();
+			cNode* p = AddNode();
 
-			if(p) {
+			if (p != nullptr) {
 				p->sContentOnly = string::StripTrailing(inContent, "\n\r\t");
 				p->bContentOnly = true;
 			}
@@ -459,7 +455,7 @@ namespace breathe
 		{
 			attribute_iterator iter = mAttribute.find(sAttribute);
 			attribute_iterator iterEnd = mAttribute.end();
-			if(iter != iterEnd)
+			if (iter != iterEnd)
 			{
 				value = iter->second;
 				return true;
@@ -471,7 +467,7 @@ namespace breathe
 		bool cNode::GetAttribute(const std::string& sAttribute, bool& value)
 		{
 			attribute_iterator iter = mAttribute.find(sAttribute);
-			if(iter != mAttribute.end())
+			if (iter != mAttribute.end())
 			{
 				value = breathe::string::ToBool(iter->second);
 
@@ -485,7 +481,7 @@ namespace breathe
 		{
 			assert(pValue != nullptr);
 			attribute_iterator iter = mAttribute.find(sAttribute);
-			if(iter != mAttribute.end())
+			if (iter != mAttribute.end())
 			{
 				breathe::char_t c;
 				std::stringstream stm(iter->second);
@@ -511,7 +507,7 @@ namespace breathe
 		bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value)
 		{
 			attribute_iterator iter = mAttribute.find(sAttribute);
-			if(iter != mAttribute.end())
+			if (iter != mAttribute.end())
 			{
 				std::vector<std::string> vSplit;
 				breathe::string::Split(iter->second, ',', vSplit);
@@ -529,7 +525,7 @@ namespace breathe
 		bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value)
 		{
 			attribute_iterator iter = mAttribute.find(sAttribute);
-			if(iter != mAttribute.end())
+			if (iter != mAttribute.end())
 			{
 				std::vector<std::string> vSplit;
 				breathe::string::Split(iter->second, ',', vSplit);

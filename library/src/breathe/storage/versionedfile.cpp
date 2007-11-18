@@ -29,44 +29,44 @@ namespace breathe
 {
 	namespace storage
 	{
-		bool OpenReadText(const std::string& sFilename, std::ifstream& file, uint16_t& version)
+		bool OpenReadText(const string_t& filename, std::ifstream& file, uint16_t& version)
 		{
 			version = 0;
 
-			file.open(sFilename.c_str(), std::ios::in);
+			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in);
 			if (!file.is_open()) return false;
 
 			file>>version;
 			return true;
 		}
 		
-		bool OpenReadBinary(const std::string& sFilename, std::ifstream& file, uint16_t& version)
+		bool OpenReadBinary(const string_t& filename, std::ifstream& file, uint16_t& version)
 		{
 			version = 0;
 
-			file.open(sFilename.c_str(), std::ios::in | std::ios::binary);
+			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
 			if (!file.is_open()) return false;
 
 			file.read((char*)&version, sizeof(version));
 			return true;
 		}
 
-		bool OpenWriteText(const std::string& sFilename, std::ofstream& file, uint16_t version)
+		bool OpenWriteText(const string_t& filename, std::ofstream& file, uint16_t version)
 		{
 			version = 0;
 
-			file.open(sFilename.c_str(), std::ios::out);
+			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::out);
 			if (!file.is_open()) return false;
 			
 			file<<version;
 			return true;
 		}
 
-		bool OpenWriteBinary(const std::string& sFilename, std::ofstream& file, uint16_t version)
+		bool OpenWriteBinary(const string_t& filename, std::ofstream& file, uint16_t version)
 		{
 			version = 0;
 
-			file.open(sFilename.c_str(), std::ios::in | std::ios::binary);
+			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
 			if (!file.is_open()) return false;
 
 			file.write((char*)&version, sizeof(version));

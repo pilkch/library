@@ -36,7 +36,7 @@ namespace breathe
 			LOG.Success("3ds", "Edit material");
 #endif
 			
-			for(Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+			for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 			{
 				switch(cc.ID())
 				{
@@ -55,7 +55,7 @@ namespace breathe
 			std::string mat_name = c.Str();
 
 #ifdef DEBUG3DS
-			if(mat_name.find(".mat") != string::npos)
+			if (mat_name.find(".mat") != string::npos)
 				LOG.Success("3ds", "Material: %s", mat_name.c_str());
 			else
 				LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
