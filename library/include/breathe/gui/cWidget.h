@@ -44,6 +44,12 @@ namespace breathe
 			int GetMinimum() const { return minimum; }
 			int GetMaximum() const { return maximum; }
 			int GetValue() const { return value; }
+			void SetMinimum(int inMinimum) { minimum = inMinimum; }
+			void SetMaximum(int inMaximum) { maximum = inMaximum; }
+			void SetValue(int inValue) { value = inValue; }
+
+			const string_t& GetText() const { return text; }
+			void SetText(const string_t& inText) { text = inText; }
 
 			bool IsEnabled() const;
 			bool IsVisible() const;
@@ -69,6 +75,8 @@ namespace breathe
 			int minimum;
 			int maximum;
 			int value;
+
+			breathe::string_t text;
 
 			float x;
 			float y;

@@ -1,6 +1,10 @@
 #ifndef CVEHICLE_H
 #define CVEHICLE_H
 
+/*
+http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
+*/
+
 namespace breathe
 {
 	class c3ds;

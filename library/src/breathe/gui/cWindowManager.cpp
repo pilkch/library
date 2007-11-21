@@ -42,6 +42,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
@@ -53,6 +54,7 @@ namespace breathe
 	{			
 		render::material::cMaterial* pMaterial = nullptr;
 		std::vector<render::cTexture*> textureBackground;
+		render::cFont* pFontWindowCaption = nullptr;
 
 		enum
 		{
@@ -71,6 +73,8 @@ namespace breathe
 			size_t n = child.size();
 			for (size_t i = 0; i < n; i++)
 				SAFE_DELETE(child[i]);
+
+			SAFE_DELETE(pFontWindowCaption);
 		}
 
 		void cWindowManager::LoadTheme()
@@ -87,6 +91,8 @@ namespace breathe
 			assert(textureBackground[1] != nullptr);
 			assert(textureBackground[2] != nullptr);
 			assert(textureBackground[3] != nullptr);
+
+			pFontWindowCaption = new render::cFont("osx_fonts/Lucida Grande.ttf", 32);
 		}
 		
 		void cWindowManager::OnMouseEvent(int button, int state, int x, int y)
@@ -111,7 +117,7 @@ namespace breathe
 			return true;
 		}
 
-		void cWindowManager::_RenderWindow(const cWidget& widget)
+		void cWindowManager::_RenderWindow(const cWindow& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
@@ -154,6 +160,11 @@ namespace breathe
 			pRender->RenderScreenSpaceRectangle(
 				widget.GetX(), widget.GetY() + bar_height, absolute_width, absolute_height - bar_height,
 				0.0f, 0.0f, width / 64.0f, height / 64.0f);
+
+			// Draw the caption if this window has one
+			if (widget.HasCaption()) {
+				pFontWindowCaption->printf(widget.GetX(), widget.GetY(), breathe::string::ToUTF8(widget.GetCaption()).c_str());
+			}
 		}
 
 		void cWindowManager::_RenderInput(const cWidget& widget)
@@ -173,15 +184,16 @@ namespace breathe
 			switch(widget.GetType())
 			{
 				case WIDGET_WINDOW:
-					_RenderWindow(widget);
+					_RenderWindow(static_cast<const cWindow&>(widget));
 					break;
 
 				case WIDGET_INPUT:
-					_RenderInput(widget);
+					//_RenderInput(widget);
 					break;
 					
 				default:
-					pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+					;
+					//pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 			};
 		}
 

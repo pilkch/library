@@ -48,9 +48,10 @@ namespace breathe
 {
 	namespace gui
 	{
-		cWindow::cWindow(id_t id, float x, float y, float width, float height) :
+		cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption) :
 			cWidget(id, WIDGET_WINDOW, x, y, width, height)
 		{
+			SetCaption(caption);
 		}
 
 		cWindow::~cWindow()

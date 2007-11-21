@@ -554,10 +554,8 @@ namespace breathe
 		
 		pConsoleWindow = new cConsoleWindow();
 		window_manager.AddChild(pConsoleWindow);
+		pConsoleWindow->InitConsoleWindow();
 
-		pConsoleWindow->Hide();
-		pConsoleWindow->SetResizable();
-		pConsoleWindow->AddChild(new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f));
 
 		if (breathe::BAD==InitScene())
 			return breathe::BAD;
@@ -641,6 +639,23 @@ namespace breathe
 		pRender->ReloadTextures();
 
 		return breathe::GOOD;
+	}
+	
+	void cApp::_Update(sampletime_t currentTime)
+	{
+		std::string s;
+		breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
+		breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
+
+		while (iter != iterEnd) {
+			s.append((*iter) + "\n");
+			iter++;
+		}
+		
+		pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
+
+		// Finally, call our derived update function
+		Update(currentTime);
 	}
 
 	void cApp::_UpdateEvents(sampletime_t currentTime)
@@ -1028,7 +1043,7 @@ namespace breathe
 
 			if (currentTime > fUpdateNext)
 			{
-				Update(currentTime);
+				_Update(currentTime);
 				tUpdate.Update(currentTime);
 				fUpdateNext = currentTime + fUpdateDelta;
 			}
@@ -1055,12 +1070,26 @@ namespace breathe
 
 	// *** cConsoleWindow
 	cApp::cConsoleWindow::cConsoleWindow() :
-		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f)
+		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console")),
+		pPrevious(nullptr),
+		pInput(nullptr)
 	{
 	}
 
 	cApp::cConsoleWindow::~cConsoleWindow()
 	{
+	}
+
+	void cApp::cConsoleWindow::InitConsoleWindow()
+	{
+		Hide();
+		SetResizable();
+
+		pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+		pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+
+		AddChild(pPrevious);
+		AddChild(pInput);
 	}
 
 	void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)

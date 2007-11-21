@@ -68,10 +68,18 @@ namespace breathe
 		public:
 			cConsoleWindow();
 			~cConsoleWindow();
+
+			void InitConsoleWindow();
+
+			gui::cWidget_StaticText& GetPrevious() { return *pPrevious; }
+			gui::cWidget_Input& GetInput() { return *pInput; }
 			
 		private:
 			void _OnMouseEvent(int button, int state, int x, int y) {}
 			void _OnEvent(gui::id_t id);
+
+			gui::cWidget_StaticText* pPrevious;
+			gui::cWidget_Input* pInput;
 		};
 		
 		class cKey
@@ -115,6 +123,7 @@ namespace breathe
 		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, char** argv);
 		void _Render(sampletime_t currentTime);
+		void _Update(sampletime_t currentTime);
 
 
 		void _UpdateInput(sampletime_t currentTime);

@@ -25,7 +25,7 @@ namespace breathe
 			void _RenderChildren(const cWidget& widget);
 			void _RenderWidget(const cWidget& widget);
 
-			void _RenderWindow(const cWidget& widget);
+			void _RenderWindow(const cWindow& widget);
 			void _RenderButton(const cWidget& widget);
 			void _RenderStaticText(const cWidget& widget);
 			void _RenderInput(const cWidget& widget);
