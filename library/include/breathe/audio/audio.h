@@ -1,5 +1,10 @@
-#ifndef CAUDIO_H
-#define CAUDIO_H
+#ifndef AUDIO_H
+#define AUDIO_H
+
+// Namespace functions: Global audio system create/destroy, 
+
+// Listener: Position of the player
+// 
 
 namespace breathe
 {
@@ -8,7 +13,8 @@ namespace breathe
 		#define AUDIO_MAX_BUFFERS 16
 
 		// Forward declaration
-		class cAudioSource;
+		class cSource;
+		class cBuffer;
 
 
 		bool Init();
@@ -19,37 +25,47 @@ namespace breathe
 
 		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity);
 
-		void Add(cAudioSource* pSource);
-		void Remove(cAudioSource* pSource);
-
+		void Add(cSource* pSource);
+		void Remove(cSource* pSource);
+		
+		cBuffer* CreateBuffer(const string_t& sFilename);
+		void DestroyBuffer(cBuffer* pBuffer);
+		
+		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject);
+		void DestroySource(cSource* pSource);
+		
 		void StartAll();
 		void StopAll();
 
 		// Buffer to hold the audio data
-		class cAudioBuffer
+		class cBuffer
 		{
 		public:
-			cAudioBuffer(const std::string& sFilename, bool bLooping=false);
-			~cAudioBuffer();
+			explicit cBuffer(const string_t& sFilename);
+			~cBuffer();
 
-			bool IsLooping() const { return bLooping; }
 			bool IsValid() const { return uiBuffer != 0; }
+
+			void Aquire() { ref++; }
+			void Release() { ref--; }
 
 			unsigned int uiBuffer;
 
 		private:
-			void Create(const std::string& sFilename);
+			NO_COPY(cBuffer);
 
-			bool bLooping;
-			std::string sFilename;
+			void Create(const string_t& sFilename);
+
+			int ref;
+			string_t sFilename;
 		};
 
 		// The sound object (Has pointer to node that it is attached to and a pointer to a buffer that it uses)
-		class cAudioSource
+		class cSource
 		{
 		public:
-			cAudioSource(cAudioBuffer* pBuffer, float fVolume=1.0f);
-			~cAudioSource();
+			explicit cSource(cBuffer* pBuffer, float fVolume=1.0f);
+			~cSource();
 
 			void Attach(cObject* pNodeParent);
 			void Remove();
@@ -58,20 +74,27 @@ namespace breathe
 			void Play();
 			void Stop();
 
+			bool IsLooping() const { return bLooping; }
 			bool IsValid() const;
 			bool IsPlaying() const;
 
 			void TransformTo2DSource();
 			void TransformTo3DSource();
 
+			void SetLooping();
+			void SetNonLooping();
+
 		private:
+			NO_COPY(cSource);
+
+			bool bLooping;
 			unsigned int uiSource;
 			float volume;
 			
-			cAudioBuffer* pBuffer;
+			cBuffer* pBuffer;
 			cObject* pNodeParent;
 			
-			void Create(cAudioBuffer* pBuffer);
+			void Create(cBuffer* pBuffer);
 		};
 
 		// Very simple wrapper for mixing two sounds together.  
@@ -83,7 +106,7 @@ namespace breathe
 		class cAudioSourceMix
 		{
 		public:
-			cAudioSourceMix(cAudioBuffer* pBuffer0, cAudioBuffer* pBuffer1, float fVolume0, float fVolume1);
+			explicit cAudioSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1);
 
 			void Attach(cObject* pNodeParent);
 			void Remove();
@@ -96,20 +119,22 @@ namespace breathe
 			bool IsPlaying() const;
 
 		private:
-			cAudioSource source0;
-			cAudioSource source1;
+			NO_COPY(cAudioSourceMix);
+
+			cSource source0;
+			cSource source1;
 		};
 
 		//	Another possible class is 
 		//	class cAudioSourceMixN
 		//	{
 		//	public:
-		//		AddSource(cAudioBuffer* pBuffer, float fVolume);
+		//		AddSource(cBuffer* pBuffer, float fVolume);
 		//	
 		//	private:
-		//		std::list<cAudioSource> lSource;
+		//		std::list<cSource> lSource;
 		//	};
 	}
 }
 
-#endif // CAUDIO_H
+#endif // AUDIO_H

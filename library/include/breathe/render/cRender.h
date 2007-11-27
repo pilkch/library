@@ -110,6 +110,7 @@ namespace breathe
 			cTexture* GetTexture(const std::string& sFilename);
 			cTexture* GetCubeMap(const std::string& sFilename);
 
+			material::cMaterial* GetCurrentMaterial() const;
 			cTexture* GetCurrentTexture0() const;
 			cTexture* GetCurrentTexture1() const;
 			cTexture* GetCurrentTexture2() const;
@@ -294,14 +295,27 @@ namespace breathe
 		class ApplyTexture
 		{
 		public:
-			explicit ApplyTexture(cTexture* texture);
+			explicit ApplyTexture(cTexture* pCurrent);
 			~ApplyTexture();
 
 		private:
 			ApplyTexture();
 			NO_COPY(ApplyTexture);
 
-			cTexture* pLastTexture;
+			cTexture* pLast;
+		};
+
+		class ApplyMaterial
+		{
+		public:
+			explicit ApplyMaterial(material::cMaterial* pCurrent);
+			~ApplyMaterial();
+
+		private:
+			ApplyMaterial();
+			NO_COPY(ApplyMaterial);
+
+			material::cMaterial* pLast;
 		};
 	}
 }

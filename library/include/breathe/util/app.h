@@ -5,6 +5,11 @@ namespace breathe
 {
 	const float KEY_MIN = 0.1f;
 
+	namespace render
+	{
+		class cFont;
+	}
+
 	class cApp
 	{
 	public:
@@ -61,6 +66,8 @@ namespace breathe
 		util::cTimer tRender;
 		
 		std::vector<SDL_Joystick*>vJoystick;
+
+		render::cFont* pFont;
 
 	private:
 		class cConsoleWindow : public gui::cWindow
@@ -174,8 +181,7 @@ namespace breathe
 		
 		gui::cWindowManager window_manager;
 		cConsoleWindow* pConsoleWindow;
-		
-		
+				
 	private:
 		// Forbidden
 		void _OnMouseEvent(int button, int state, int x, int y) {}

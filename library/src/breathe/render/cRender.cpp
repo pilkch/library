@@ -463,7 +463,6 @@ namespace breathe
 			else
 				glDisable(GL_LIGHTING);
 
-			ClearColour();
 			ClearMaterial();
 		}
 		
@@ -629,10 +628,9 @@ namespace breathe
 
 		void cRender::BeginScreenSpaceRendering()
 		{
-			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDisable(GL_LIGHTING);
 			
-			ClearColour();
 			ClearMaterial();
 
 
@@ -1347,11 +1345,16 @@ namespace breathe
 			return true;
 		}
 
+		material::cMaterial* cRender::GetCurrentMaterial() const
+		{
+			assert(pCurrentMaterial != nullptr);
+			return pCurrentMaterial;
+		}
+
 		cTexture* cRender::GetCurrentTexture0() const
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 0);
-			
 			return pCurrentMaterial->vLayer[0]->pTexture;
 		}
 
@@ -1359,7 +1362,6 @@ namespace breathe
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 1);
-			
 			return pCurrentMaterial->vLayer[1]->pTexture;
 		}
 
@@ -1367,15 +1369,14 @@ namespace breathe
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 2);
-			
 			return pCurrentMaterial->vLayer[2]->pTexture;
 		}
 
 		bool cRender::ClearMaterial()
 		{
-			unsigned int i=0;
-			unsigned int n=0;
-			unsigned int unit=GL_TEXTURE0;
+			unsigned int i = 0;
+			unsigned int n = 0;
+			unsigned int unit = GL_TEXTURE0;
 
 			material::cLayer* layerOld;
 
@@ -1387,8 +1388,8 @@ namespace breathe
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if (	TEXTURE_MASK==layerOld->uiTextureMode || 
-						TEXTURE_BLEND==layerOld->uiTextureMode)
+				if (TEXTURE_MASK == layerOld->uiTextureMode || 
+						TEXTURE_BLEND == layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 					glBlendFunc(GL_ONE, GL_ZERO);
@@ -1419,11 +1420,12 @@ namespace breathe
 					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 				}
 				
+				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 				//Set the current mode and texture
-				layerOld->uiTextureMode=TEXTURE_NONE;
+				layerOld->uiTextureMode = TEXTURE_NONE;
 				layerOld->pTexture = NULL;
 				layerOld->sTexture = "";
 			}
@@ -1432,10 +1434,9 @@ namespace breathe
 			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_LIGHTING);
 
-			bActiveShader=false;
+			bActiveShader = false;
 			
-			if (bCanShader)
-        glUseProgram(NULL);
+			if (bCanShader) glUseProgram(NULL);
 
 			pCurrentMaterial = NULL;
 
@@ -1891,7 +1892,7 @@ namespace breathe
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if (	TEXTURE_MASK==layerOld->uiTextureMode || 
+				if (TEXTURE_MASK==layerOld->uiTextureMode || 
 						TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -2168,10 +2169,10 @@ namespace breathe
 
 		void cRender::ClearColour()
 		{
-			bActiveColour=false;
+			bActiveColour = false;
 
 			colour.SetBlack();
-			colour.a=1.0f;
+			colour.a = 1.0f;
 
 			glColor4f(colour.r, colour.g, colour.b, colour.a);
 		}
@@ -2184,7 +2185,7 @@ namespace breathe
 		
 		void cRender::SetColour(const math::cColour& inColour)
 		{
-			bActiveColour=true;
+			bActiveColour = true;
 
 			colour = inColour;
 
@@ -2432,15 +2433,27 @@ namespace breathe
 		}
 
 		
-		ApplyTexture::ApplyTexture(cTexture* texture)
+		ApplyTexture::ApplyTexture(cTexture* pCurrent)
 		{
-			pLastTexture = pRender->GetCurrentTexture0();
-			pRender->SetTexture0(texture);
+			pLast = pRender->GetCurrentTexture0();
+			pRender->SetTexture0(pCurrent);
 		}
 
 		ApplyTexture::~ApplyTexture()
 		{
-			pRender->SetTexture0(pLastTexture);
+			pRender->SetTexture0(pLast);
+		}
+
+
+		ApplyMaterial::ApplyMaterial(material::cMaterial* pCurrent)
+		{
+			pLast = pRender->GetCurrentMaterial();
+			pRender->SetMaterial(pCurrent);
+		}
+
+		ApplyMaterial::~ApplyMaterial()
+		{
+			pRender->SetMaterial(pLast);
 		}
 	}
 }

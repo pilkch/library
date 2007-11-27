@@ -32,6 +32,37 @@ namespace breathe
 		std::vector<string_t> vDirectory;
 		string_t sExecutable = TEXT("");
 
+		string_t ExpandPath(const string_t& path)
+		{
+			// ""
+			if (path.empty()) return GetThisApplicationDirectory();
+
+			// "."
+			// ".********"
+			if ((path == TEXT(".")) || ((path.length() > 2) && path[0] == TEXT('.')) && (path[1] != TEXT('.')))
+        return path.substr(2);
+
+			string_t expanded = path;
+			string_t prefix = GetThisApplicationDirectory();
+			while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
+				expanded.erase(0, 3);
+				prefix = StripLastDirectory(prefix);
+			};
+
+			return prefix + expanded;
+		}
+
+		string_t StripLastDirectory(const string_t& path)
+		{
+			// if "folder1/folder2/folder3" return "folder1/folder2/"
+			// else ("folder1/folder2/" so ... ) return "folder1/"
+
+			string_t result(path);
+			if (breathe::string::EndsWith(path, TEXT("/"))) result = breathe::string::StripAfterLastInclusive(result, TEXT("/"));
+
+			return breathe::string::StripAfterLast(result, TEXT("/"));
+		}
+
 		void SetThisExecutable(const string_t& executable)
 		{
 			sExecutable = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
@@ -49,7 +80,7 @@ namespace breathe
 			string_t p = TEXT("");
 			string_t s = sFilename;
 
-			string_t::size_type i=s.find(TEXT("/"));;
+			string_t::size_type i = s.find(TEXT("/"));
 			while(i != string_t::npos)
 			{
 				i++;
@@ -117,17 +148,19 @@ namespace breathe
 		
 		void AddDirectory(const string_t& sDirectory)
 		{
+			string_t expanded = ExpandPath(sDirectory);
+
 			size_t i = 0;
 			size_t n = vDirectory.size();
 			for (i=0;i<n;i++)
 			{
-				if (vDirectory[i] == sDirectory)
+				if (vDirectory[i] == expanded)
 					return;
 			}
 
-			vDirectory.push_back(sDirectory);
+			vDirectory.push_back(expanded);
 #ifndef FIRESTARTER
-			LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + sDirectory));
+			LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + expanded));
 #endif
 		}
 

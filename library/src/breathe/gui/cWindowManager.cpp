@@ -92,7 +92,7 @@ namespace breathe
 			assert(textureBackground[2] != nullptr);
 			assert(textureBackground[3] != nullptr);
 
-			pFontWindowCaption = new render::cFont("osx_fonts/Lucida Grande.ttf", 32);
+			pFontWindowCaption = new render::cFont("osx_fonts/Lucida Grande.ttf", 10);
 		}
 		
 		void cWindowManager::OnMouseEvent(int button, int state, int x, int y)
@@ -163,7 +163,28 @@ namespace breathe
 
 			// Draw the caption if this window has one
 			if (widget.HasCaption()) {
-				pFontWindowCaption->printf(widget.GetX(), widget.GetY(), breathe::string::ToUTF8(widget.GetCaption()).c_str());
+				glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
+					pRender->ClearMaterial();
+
+					pRender->SelectTextureUnit0();
+
+					glMatrixMode(GL_TEXTURE);
+					glPushMatrix();
+						glLoadIdentity();
+						glMatrixMode(GL_MODELVIEW);
+
+						glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+						//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(), 
+						//	widget.GetWidth(), bar_height,
+						//	breathe::string::ToUTF8(widget.GetCaption()).c_str());
+						pFontWindowCaption->printfCenteredHorizontally(widget.GetX(), widget.GetY(), 
+							widget.GetWidth(),
+							breathe::string::ToUTF8(widget.GetCaption()).c_str());
+						
+						glMatrixMode(GL_TEXTURE);
+					glPopMatrix();
+				glPopAttrib();
 			}
 		}
 
@@ -179,6 +200,30 @@ namespace breathe
 				0.0f, 0.0f, absolute_width / 64.0f, absolute_height / 64.0f);
 		}
 
+		
+		/*void cWindowManager::_RenderStaticText(const cWidget& widget)
+		{
+			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
+			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
+			
+			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
+			pRender->RenderScreenSpaceRectangle(
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.HorizontalRelativeToAbsolute(widget.GetY()), 
+				absolute_width, absolute_height,
+				0.0f, 0.0f, absolute_width / 64.0f, absolute_height / 64.0f);
+
+			breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
+			breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
+			unsigned int y = 60;
+			while(iter != iterEnd)
+			{
+				pFont->printf(0, static_cast<float>(y), (*iter).c_str());
+				y += 30;
+
+				iter++;
+			};
+		}*/
+
 		void cWindowManager::_RenderWidget(const cWidget& widget)
 		{
 			switch(widget.GetType())
@@ -189,6 +234,10 @@ namespace breathe
 
 				case WIDGET_INPUT:
 					//_RenderInput(widget);
+					break;
+
+				case WIDGET_STATICTEXT:
+					//_RenderStaticText(widget);
 					break;
 					
 				default:
@@ -218,22 +267,23 @@ namespace breathe
 		{
 			assert(pMaterial != nullptr);
 
+			pRender->ClearMaterial();
 			pRender->SetMaterial(pMaterial);
 			
 			// Setup texture matrix
 			pRender->SelectTextureUnit0();
 			glMatrixMode(GL_TEXTURE);
 			glPushMatrix();
-			glLoadIdentity();
-			glScalef(1.0f, -1.0f, 1.0f);
-			glMatrixMode( GL_MODELVIEW );
+				glLoadIdentity();
+				glScalef(1.0f, -1.0f, 1.0f);
+				glMatrixMode(GL_MODELVIEW);
 
-			size_t n = child.size();
-			for (size_t i = 0; i < n; i++)
-				_RenderChildren(*child[i]);
+				size_t n = child.size();
+				for (size_t i = 0; i < n; i++)
+					_RenderChildren(*child[i]);
 
-			glMatrixMode( GL_TEXTURE );			// Select Texture
-			glPopMatrix();									// Pop The Matrix
+				glMatrixMode(GL_TEXTURE);
+			glPopMatrix();
 		}
 	}
 }

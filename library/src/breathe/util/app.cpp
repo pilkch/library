@@ -172,6 +172,7 @@ int intersect_triangle(
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/physics/physics.h>
 #include <breathe/physics/cContact.h>
@@ -205,9 +206,11 @@ namespace breathe
 		bStepPhysics(false),
 		bReturnCode(breathe::GOOD),
 
-		pConsoleWindow(nullptr)
+		pConsoleWindow(nullptr),
+		pFont(nullptr)
 	{
 		CONSOLE.SetApp(this);
+		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 		
 		_LoadSearchDirectories();
 		
@@ -266,6 +269,8 @@ namespace breathe
 
 	cApp::~cApp()
 	{
+		SAFE_DELETE(pFont);
+
 		size_t nJoysticks = vJoystick.size();
 		for (size_t i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
@@ -297,8 +302,6 @@ namespace breathe
 
 	void cApp::_InitArguments(int argc, char **argv)
 	{
-		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
-
 		int i = 1;
 		std::string s;
 		if (i<argc)
@@ -656,6 +659,9 @@ namespace breathe
 
 		// Finally, call our derived update function
 		Update(currentTime);
+
+		// Now update our other sub systems
+		breathe::audio::Update(currentTime);
 	}
 
 	void cApp::_UpdateEvents(sampletime_t currentTime)
@@ -976,6 +982,32 @@ namespace breathe
 				pRender->EndRenderScene();
 				pRender->BeginScreenSpaceRendering();
 					RenderScreenSpace(currentTime);
+					
+					#ifdef _DEBUG
+					if (!CONSOLE.IsVisible() && IsDebug())
+					{
+						pRender->SetColour(0.0f, 0.0f, 1.0f);
+						
+						float fPosition = 0.1f;
+						pFont->printf(0.05f, fPosition+=0.05f, "Physics Objects: %d", breathe::physics::size());
+
+						fPosition+=0.05f;
+						pFont->printf(0.05f, fPosition+=0.05f, "uiTriangles: %d", pRender->uiTriangles);
+						pFont->printf(0.05f, fPosition+=0.05f, "uiTextureChanges: %d", pRender->uiTextureChanges);
+						pFont->printf(0.05f, fPosition+=0.05f, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+						pFont->printf(0.05f, fPosition+=0.05f, "fRenderFPS: %.03f", tRender.GetFPS());
+						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+						pFont->printf(0.05f, fPosition+=0.05f, "currentTime: %d", currentTime);
+						
+						fPosition+=0.05f;
+						pFont->printf(0.05f, fPosition+=0.05f, "fRenderMPF: %.03f", tRender.GetMPF());
+						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+					}
+					#endif //_DEBUG
+
+
 					window_manager.Render();
 				pRender->EndScreenSpaceRendering();
 			pRender->End();

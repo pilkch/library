@@ -176,6 +176,22 @@ namespace breathe
 			return source;
 		}
 
+		std::string StripAfterLast(const std::string& source, const std::string& find)
+		{
+			std::string::size_type i = source.find_last_of(find);
+			if (std::string::npos != i) return source.substr(0, i + find.length());
+			
+			return source;
+		}
+
+		std::wstring StripAfterLast(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type i = source.find_last_of(find);
+			if (std::wstring::npos != i) return source.substr(0, i + find.length());
+
+			return source;
+		}
+
 		std::string StripBeforeInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find(find);
@@ -198,9 +214,9 @@ namespace breathe
 		{
 			std::string::size_type i = source.find_first_of(find);
 			if (std::string::npos != i) {
-				std::string copy(source);
+				std::string temp(source);
 				std::string::size_type len = find.length();
-				return copy.erase(i);
+				return temp.erase(i);
 			}
 
 			return source;
@@ -210,29 +226,86 @@ namespace breathe
 		{
 			std::wstring::size_type i = source.find_first_of(find);
 			if (std::wstring::npos != i) {
-				std::wstring copy(source);
+				std::wstring temp(source);
 				std::wstring::size_type len = find.length();
-				return copy.erase(i);
+				return temp.erase(i);
 			}
 
 			return source;
 		}
+
+		std::string StripAfterLastInclusive(const std::string& source, const std::string& find)
+		{
+			std::string::size_type i = source.find_last_of(find);
+			if (std::string::npos != i) return source.substr(0, i);
+			
+			return source;
+		}
+
+		std::wstring StripAfterLastInclusive(const std::wstring& source, const std::wstring& find)
+		{
+			std::wstring::size_type i = source.find_last_of(find);
+			if (std::wstring::npos != i) return source.substr(0, i);
+
+			return source;
+		}
+
+		bool BeginsWith(const std::string& source, const std::string& find)
+		{
+			if (source.length() < find.length()) return false;
+
+			return (source.substr(0, find.length()) == find);
+		}
+
+		bool BeginsWith(const std::wstring& source, const std::wstring& find)
+		{
+			if (source.length() < find.length()) return false;
+
+			return (source.substr(0, find.length()) == find);
+		}
+
+		bool EndsWith(const std::string& source, const std::string& find)
+		{
+			if (source.length() < find.length()) return false;
+
+			return (source.substr(source.length() - find.length()) == find);
+		}
+
+		bool EndsWith(const std::wstring& source, const std::wstring& find)
+		{
+			if (source.length() < find.length()) return false;
+
+			return (source.substr(source.length() - find.length()) == find);
+		}
+
+
+		// *** Conversion Functions
 		
 		std::string ToLower(const std::string& source)
 		{
 			std::string sOut(source);
-
-			transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
-
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
 			return sOut;
 		}
 
 		std::string ToUpper(const std::string& source)
 		{
 			std::string sOut(source);
+      std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
+			return sOut;
+		}
 
-      transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
+		std::wstring ToLower(const std::wstring& source)
+		{
+			std::wstring sOut(source);
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
+			return sOut;
+		}
 
+		std::wstring ToUpper(const std::wstring& source)
+		{
+			std::wstring sOut(source);
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
 			return sOut;
 		}
 

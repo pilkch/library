@@ -30,6 +30,9 @@ namespace breathe
 		string_t GetMD5(const string_t& sFilename);
 		string_t GetSHA1(const string_t& sFilename);
 #endif
+		
+		string_t StripLastDirectory(const string_t& path);
+		string_t ExpandPath(const string_t& path);
 
 		string_t GetPath(const string_t& sFilename);
 		string_t GetFile(const string_t& sFilename);

@@ -5,6 +5,7 @@
 */
 
 #include <cmath>
+#include <cassert>
 
 //Some STL headers
 #include <list>
@@ -151,10 +152,10 @@ namespace breathe
 			//so we need to link the texture to the quad
 			//so that the result will be properly aligned.
 			glBegin(GL_QUADS);
-			glTexCoord2d(0,0); glVertex2f(0, static_cast<float>(bitmap.rows));
-			glTexCoord2d(0,y); glVertex2f(0, 0);
-			glTexCoord2d(x,y); glVertex2f(static_cast<float>(bitmap.width), 0);
-			glTexCoord2d(x,0); glVertex2f(static_cast<float>(bitmap.width), static_cast<float>(bitmap.rows));
+				glTexCoord2d(0,0); glVertex2f(0, static_cast<float>(bitmap.rows));
+				glTexCoord2d(0,y); glVertex2f(0, 0);
+				glTexCoord2d(x,y); glVertex2f(static_cast<float>(bitmap.width), 0);
+				glTexCoord2d(x,0); glVertex2f(static_cast<float>(bitmap.width), static_cast<float>(bitmap.rows));
 			glEnd();
 			glPopMatrix();
 			glTranslatef(static_cast<float>(face->glyph->advance.x >> 6),0,0);
@@ -170,14 +171,16 @@ namespace breathe
 
 
 
-		cFont::cFont(const std::string fname, unsigned int h)
+		cFont::cFont(const std::string filename, unsigned int height) :
+			textures(nullptr),
+			list_base(0),
+
+			h(float(height))
 		{
-			std::wstring sFilename = filesystem::FindFile(breathe::string::ToString_t(fname));
+			std::wstring sFilename = filesystem::FindFile(breathe::string::ToString_t(filename));
 
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];
-
-			this->h=static_cast<float>(h);
 
 			//Create and initilize a freetype font library.
 			FT_Library library;
@@ -203,18 +206,16 @@ namespace breathe
 			//For some twisted reason, Freetype measures font size
 			//in terms of 1/64ths of pixels.  Thus, to make a font
 			//h pixels high, we need to request a size of h*64.
-			//(h << 6 is just a prettier way of writting h*64)
-			FT_Set_Char_Size( face, h << 6, h << 6, 96, 96);
+			FT_Set_Char_Size(face, height * 64, height * 64, 96, 96);
 
 			//Here we ask opengl to allocate resources for
 			//all the textures and displays lists which we
 			//are about to create.  
-			list_base=glGenLists(128);
-			glGenTextures( 128, textures );
+			list_base = glGenLists(128);
+			glGenTextures(128, textures);
 
 			//This is where we actually create each of the fonts display lists.
-			for (unsigned char i=0;i<128;i++)
-				make_dlist(face,i,list_base,textures);
+			for (unsigned char i=0;i<128;i++) make_dlist(face, i, list_base, textures);
 
 			//We don't need the face information now that the display
 			//lists have been created, so we free the assosiated resources.
@@ -226,109 +227,147 @@ namespace breathe
 
 		cFont::~cFont()
 		{
-			glDeleteLists(list_base, 128);
-			glDeleteTextures(128, textures);
+			if (list_base != 0) {
+				glDeleteLists(list_base, 128);
+				glDeleteTextures(128, textures);
+			}
+
 			SAFE_DELETE_ARRAY(textures);
+		}
+		
+		void cFont::_GetDimensions(const std::string& line, float& width, float& height) const
+		{
+			
 		}
 
 		///Much like Nehe's glPrint function, but modified to work
 		///with freetype fonts.
-		void cFont::printf(float x, float y, const char* fmt, ...)
+		void cFont::_print(float x, float y, const std::vector<std::string>& lines)
 		{
 			x *= pRender->uiWidth;
 			y *= pRender->uiHeight;
 
-			float uiHeight=h/.63f;						//We make the height about 1.5* that of
-			
-			char		text[256];								// Holds Our String
-			va_list		ap;										// Pointer To List Of Arguments
+			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
+				glDisable(GL_LIGHTING);
+					glEnable(GL_TEXTURE_2D);
+					glDisable(GL_DEPTH_TEST);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			if (fmt == NULL)									// If There's No Text
-				*text=0;											// Do Nothing
-			else {
-				va_start(ap, fmt);									// Parses The String For Variables
-						vsprintf(text, fmt, ap);						// And Converts Symbols To Actual Numbers
-				va_end(ap);											// Results Are Stored In Text
-			}
+					glListBase(list_base);
 
+					//This is where the text display actually happens.
+					//For each line of text we reset the modelview matrix
+					//so that the line's text will start in the correct position.
+					//Notice that we need to reset the matrix, rather than just translating
+					//down by h. This is because when each character is
+					//draw it modifies the current matrix so that the next character
+					//will be drawn immediatly after it.  
+					unsigned int n = lines.size();
+					unsigned int i = 0;
+					for (;i<n;i++) {
+						glPushMatrix();
+							glLoadIdentity();
+							glTranslatef(x, pRender->uiHeight - y - h, 0.0f);
+							glCallLists(static_cast<unsigned int>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str());
+						glPopMatrix();
+					}
 
-			//Here is some code to split the text that we have been
-			//given into a set of lines.
-			//This could be made much neater by using
-			//a regular expression library such as the one avliable from
-			//boost.org (I've only done it out by hand to avoid complicating
-			//this tutorial with unnecessary library dependencies).
-			const char* start_line=text;
-			std::vector<std::string> lines;
-
-			const char* c = text;
-
-			for (;*c;c++)
-			{
-				if (*c=='\n')
-				{
-					std::string line;
-					for (const char* n=start_line;n<c;n++) 
-						line.append(1,*n);
-					lines.push_back(line);
-					start_line=c+1;
-				}
-			}
-			if (start_line) 
-			{
-				std::string line;
-				for (const char* n=start_line;n<c;n++) 
-					line.append(1,*n);
-				lines.push_back(line);
-			}
-
-			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT);
-			glMatrixMode(GL_MODELVIEW);
-			glDisable(GL_LIGHTING);
-			glEnable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-			glListBase(list_base);
-
-			float modelview_matrix[16];	
-			glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix);
-
-			//This is where the text display actually happens.
-			//For each line of text we reset the modelview matrix
-			//so that the line's text will start in the correct position.
-			//Notice that we need to reset the matrix, rather than just translating
-			//down by h. This is because when each character is
-			//draw it modifies the current matrix so that the next character
-			//will be drawn immediatly after it.  
-			unsigned int n = lines.size();
-			for (unsigned int i=0;i<n;i++) {
-				
-
-				glPushMatrix();
-				glLoadIdentity();
-				glTranslatef(x,y-uiHeight*i,0);
-				glMultMatrixf(modelview_matrix);
-
-				//  The commented out raster position stuff can be useful if you need to
-				//  know the length of the text that you are creating.
-				//  If you decide to use it make sure to also uncomment the glBitmap command
-				//  in make_dlist().
-				//	glRasterPos2f(0,0);
-				glCallLists(static_cast<unsigned int>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str());
-				//	float rpos[4];
-				//	glGetFloatv(GL_CURRENT_RASTER_POSITION ,rpos);
-				//	float len=x-rpos[0];
-
-				glPopMatrix();
-			}
-
-			
-			glEnable(GL_DEPTH_TEST);
-
+				glEnable(GL_DEPTH_TEST);
 
 			glPopAttrib();
+		}
+
+		void cFont::printf(float x, float y, const char* fmt, ...)
+		{
+			if (fmt == nullptr) return;
+
+			assert(strlen(fmt) < 1024);
+			
+			char formatted[1024];								// Holds Our String
+			va_list ap;										// Pointer To List Of Arguments
+
+			va_start(ap, fmt);									// Parses The String For Variables
+				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
+			va_end(ap);											// Results Are Stored In Text
+
+			std::string text(formatted);
+
+			std::vector<std::string> lines;
+			breathe::string::SplitOnNewLines(text, lines);
+
+			_print(x, y, lines);
+		}
+
+		void cFont::printfCenteredHorizontally(float x, float y, float width, const char* fmt, ...)
+		{
+			if (fmt == nullptr) return;
+
+			assert(strlen(fmt) < 1024);
+			
+			char formatted[1024];								// Holds Our String
+			va_list ap;										// Pointer To List Of Arguments
+
+			va_start(ap, fmt);									// Parses The String For Variables
+				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
+			va_end(ap);											// Results Are Stored In Text
+
+			std::string text(formatted);
+
+			std::vector<std::string> lines;
+			breathe::string::SplitOnNewLines(text, lines);
+
+			size_t widest = 0;
+			size_t i = 0;
+			size_t n = lines.size();
+			while (i != n) {
+				//if (lines[i].length() * 
+				i++;
+			}
+
+			_print(x, y, lines);
+		}
+
+		void cFont::printfCenteredVertically(float x, float y, float height, const char* fmt, ...)
+		{
+			if (fmt == nullptr) return;
+
+			assert(strlen(fmt) < 1024);
+			
+			char formatted[1024];								// Holds Our String
+			va_list ap;										// Pointer To List Of Arguments
+
+			va_start(ap, fmt);									// Parses The String For Variables
+				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
+			va_end(ap);											// Results Are Stored In Text
+
+			std::string text(formatted);
+
+			std::vector<std::string> lines;
+			breathe::string::SplitOnNewLines(text, lines);
+
+			_print(x, y, lines);
+		}
+
+		void cFont::printfCenteredHorizontallyVertically(float x, float y, float width, float height, const char* fmt, ...)
+		{
+			if (fmt == nullptr) return;
+
+			assert(strlen(fmt) < 1024);
+			
+			char formatted[1024];								// Holds Our String
+			va_list ap;										// Pointer To List Of Arguments
+
+			va_start(ap, fmt);									// Parses The String For Variables
+				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
+			va_end(ap);											// Results Are Stored In Text
+
+			std::string text(formatted);
+
+			std::vector<std::string> lines;
+			breathe::string::SplitOnNewLines(text, lines);
+
+			_print(x, y, lines);
 		}
 	}
 }

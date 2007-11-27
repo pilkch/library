@@ -132,5 +132,18 @@ namespace breathe
 		{
 			
 		}
+
+
+		/*
+		cWidget_Input
+		
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		std::string currentline(CONSOLE.GetCurrentLine());
+		if (CONSOLE.uiCursorBlink>20) pFont->printf(0, 20, currentline.c_str());
+		else
+			pFont->printf(0, 20, (
+				currentline.substr(0, CONSOLE.uiCursorPosition) + "|" + 
+				currentline.substr(CONSOLE.uiCursorPosition)).c_str());
+		*/
 	}
 }

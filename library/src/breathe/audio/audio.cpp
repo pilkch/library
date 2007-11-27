@@ -1,5 +1,6 @@
 // Standard libraries
 #include <cmath>
+#include <cassert>
 
 #include <string>
 #include <iostream>
@@ -58,17 +59,65 @@ namespace breathe
 		ALboolean g_bEAX = false;
 		int iError = 0;
 
-		std::list<cAudioSource*> lAudioSource;
-		typedef std::list<cAudioSource*>::iterator iterator;
-		
-		void AddSource(cAudioSource* pSource)
+		std::map<string_t, cBuffer*> mAudioBuffer;
+		typedef std::map<string_t, cBuffer*> ::iterator buffer_iterator;
+
+		cBuffer* GetAudioBuffer(const string_t& sFilename)
+		{
+			cBuffer* pBuffer = mAudioBuffer[sFilename];
+
+			if (pBuffer != nullptr) return pBuffer;
+			
+			pBuffer = new cBuffer(sFilename);			
+			assert(pBuffer != nullptr);
+
+			mAudioBuffer[sFilename] = pBuffer;
+
+			return pBuffer;
+		}
+
+		std::list<cSource*> lAudioSource;
+		typedef std::list<cSource*>::iterator source_iterator;
+				
+		void AddSource(cSource* pSource)
 		{
 			lAudioSource.push_back(pSource);
 		}
 
-		void RemoveSource(cAudioSource* pSource)
+		void RemoveSource(cSource* pSource)
 		{
 			lAudioSource.remove(pSource);
+		}
+
+		
+		cBuffer* CreateBuffer(const string_t& sFilename)
+		{
+			return GetAudioBuffer(sFilename);
+		}
+
+		void DestroyBuffer(cBuffer* pBuffer)
+		{
+			
+		}
+		
+		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject)
+		{
+			assert(pBuffer != nullptr);
+
+			if (pBuffer->IsValid())
+			{
+				breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
+				pSource->Attach(pObject);
+				return pSource;
+			}
+			
+			LOG.Error("Audio", "Invalid buffer passed in to CreateSource");
+			return nullptr;
+		}
+
+		void DestroySource(cSource* pSource)
+		{
+
 		}
 
 		bool GetError()
@@ -79,7 +128,7 @@ namespace breathe
 
 		void ReportError()
 		{
-			printf("AL error: %d\n", iError);
+			if (iError != AL_NO_ERROR) SCREEN<<"AL error: "<<iError<<std::endl;
 		}
 
 		void GetAndReportError()
@@ -95,10 +144,10 @@ namespace breathe
 
 		void StartAll()
 		{
-			iterator iter = lAudioSource.begin();
-			iterator iterEnd = lAudioSource.end();
+			source_iterator iter = lAudioSource.begin();
+			source_iterator iterEnd = lAudioSource.end();
 
-			cAudioSource* pSource = NULL;
+			cSource* pSource = NULL;
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
@@ -109,10 +158,10 @@ namespace breathe
 
 		void StopAll()
 		{
-			iterator iter = lAudioSource.begin();
-			iterator iterEnd = lAudioSource.end();
+			source_iterator iter = lAudioSource.begin();
+			source_iterator iterEnd = lAudioSource.end();
 
-			cAudioSource* pSource = NULL;
+			cSource* pSource = NULL;
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
@@ -231,10 +280,10 @@ namespace breathe
 			SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up,
 				breathe::math::cVec3(0.0f, 0.0f, 0.0f));
 
-			iterator iter = lAudioSource.begin();
-			iterator iterEnd = lAudioSource.end();
+			source_iterator iter = lAudioSource.begin();
+			source_iterator iterEnd = lAudioSource.end();
 
-			cAudioSource* pSource = NULL;
+			cSource* pSource = NULL;
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
@@ -257,61 +306,87 @@ namespace breathe
 			alListenerfv(AL_ORIENTATION, listenerOri);
 		}
 		
-		// ********************************************** cAudioBuffer **********************************************
 
-		cAudioBuffer::cAudioBuffer(const std::string& sInFilename, bool bInLooping)
-			: uiBuffer(0), bLooping(bInLooping), sFilename()
+		// ********************************************** cBuffer **********************************************
+
+		cBuffer::cBuffer(const string_t& sInFilename) :
+			uiBuffer(0),
+			ref(0),
+			sFilename()
 		{
 			Create(sInFilename);
 		}
 
-		cAudioBuffer::~cAudioBuffer()
+		cBuffer::~cBuffer()
 		{
+			assert(ref == 0);
 			if (uiBuffer) alDeleteBuffers(1, &uiBuffer);
 		}
 
-    void cAudioBuffer::Create(const std::string& sInFilename)
+    void cBuffer::Create(const string_t& sInFilename)
 		{
 			sFilename = sInFilename;
-			uiBuffer = alutCreateBufferFromFile(sFilename.c_str());
+			uiBuffer = alutCreateBufferFromFile(breathe::string::ToUTF8(sFilename).c_str());
 			ReportError();
+			
+			if (uiBuffer == 0) SCREEN<<"Audio could not find file \""<<breathe::string::ToUTF8(sFilename)<<"\""<<std::endl;
+			else SCREEN<<"Audio found file \""<<breathe::string::ToUTF8(sFilename)<<"\" uiBuffer="<<uiBuffer<<std::endl;
 		}
+
 
 		// ********************************************** cAudioSound **********************************************
 
-		cAudioSource::cAudioSource(cAudioBuffer* pInBuffer, float fVolume)
-			: uiSource(0), pBuffer(NULL), pNodeParent(NULL), volume(fVolume)
+		cSource::cSource(cBuffer* pInBuffer, float fVolume) :
+			pBuffer(NULL),
+			bLooping(false),
+			pNodeParent(NULL),
+			uiSource(0),
+			volume(fVolume)
 		{
 			Create(pInBuffer);
 		}
 
-		cAudioSource::~cAudioSource()
+		cSource::~cSource()
 		{
+			assert(pBuffer != nullptr);
+
+			pBuffer->Release();
 			uiSource = 0;
 			pBuffer = NULL;
 			pNodeParent = NULL;
 		}
 
-    void cAudioSource::Create(cAudioBuffer* pInBuffer)
+    void cSource::Create(cBuffer* pInBuffer)
 		{
+			assert(pBuffer == nullptr);
+
 			pBuffer = pInBuffer;
+			pBuffer->Aquire();
 			alGenSources(1, &uiSource);
 			ReportError();
-			alSourcei (uiSource, AL_BUFFER, pInBuffer->uiBuffer);
+			alSourcei(uiSource, AL_BUFFER, pInBuffer->uiBuffer);
 			ReportError();
-
-			// If this buffer is a looping buffer then we have to be a looping source
-			if (pBuffer->IsLooping())
-				alSourcei(uiSource, AL_LOOPING, AL_TRUE);
 		}
 
-		void cAudioSource::Attach(cObject* pInNodeParent)
+		void cSource::SetLooping()
+		{
+			bLooping = true;
+			alSourcei(uiSource, AL_LOOPING, AL_TRUE);
+		}
+
+		void cSource::SetNonLooping()
+		{
+			bLooping = false;
+			alSourcei(uiSource, AL_LOOPING, AL_FALSE);
+		}
+
+		void cSource::Attach(cObject* pInNodeParent)
 		{
 			pNodeParent = pInNodeParent;
 			AddSource(this);
 		}
 		
-		void cAudioSource::Remove()
+		void cSource::Remove()
 		{
 			pNodeParent = NULL;
 			RemoveSource(this);
@@ -319,29 +394,29 @@ namespace breathe
 			uiSource = 0;
 		}
 
-		void cAudioSource::Play()
+		void cSource::Play()
 		{
 			printf("Playing source\n");
-			alSourcePlay (uiSource);
+			alSourcePlay(uiSource);
       ReportError();
 		}
 
-		void cAudioSource::Stop()
+		void cSource::Stop()
 		{
 			alSourceStop(uiSource);
 		}
 
-		void cAudioSource::Update()
+		void cSource::Update()
 		{
 			alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
 		}
 
-		bool cAudioSource::IsValid() const
+		bool cSource::IsValid() const
 		{
 			return uiSource && pBuffer && pNodeParent;
 		}
 
-		bool cAudioSource::IsPlaying() const
+		bool cSource::IsPlaying() const
 		{
 			if (!IsValid()) return false;
 
@@ -351,13 +426,13 @@ namespace breathe
 			return (AL_PLAYING == value);
 		}
 
-		void cAudioSource::TransformTo2DSource()
+		void cSource::TransformTo2DSource()
 		{
 			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
 			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 0.0);
 		}
 
-		void cAudioSource::TransformTo3DSource()
+		void cSource::TransformTo3DSource()
 		{
 			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
 			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 1.0);
@@ -472,7 +547,7 @@ namespace breathe
 
 
 		// For mixing two sounds together for a collision mostly
-		cAudioSourceMix::cAudioSourceMix(cAudioBuffer* pBuffer0, cAudioBuffer* pBuffer1, float fVolume0, float fVolume1) :
+		cAudioSourceMix::cAudioSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1) :
 			source0(pBuffer0, fVolume0),
 			source1(pBuffer1, fVolume1)
 		{
