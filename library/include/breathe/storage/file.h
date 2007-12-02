@@ -34,6 +34,8 @@ namespace breathe
 			BYTEORDER_SCSU
 		};
 
+		BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes);
+
 		template <class T>
 		class cFile
 		{

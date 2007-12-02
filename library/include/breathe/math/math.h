@@ -15,10 +15,35 @@ namespace breathe
 		extern const float cSQUARE_ROOT_2;
 		extern const float cEPSILON;
 		extern const float cINFINITY;
-		
-		template <class T> inline T clamp(T i, T lower, T upper)
+
+		#ifndef min
+		template <class T> inline T min(const T& i, const T& n)
+		{
+			return (i > n) ? n : i;
+		}
+		#endif
+
+		#ifndef max
+		template <class T> inline T max(const T& i, const T& n)
+		{
+			return (i < n) ? n : i;
+		}
+		#endif
+
+		template <class T> inline T min_max(const T& i, const T& lower, const T& upper)
 		{
 			return (i < lower) ? lower : (i > upper) ? upper : i;
+		}
+
+		
+		template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
+		{
+			return min_max(i, lower, upper);
+		}
+		
+		inline float clamp(float i)
+		{
+			return clamp(i, 0.0f, 1.0f);
 		}
 
 		inline float toDegrees(float x)
@@ -57,7 +82,7 @@ namespace breathe
 		}
 		
 		///This function gets the first power of 2 >= the int that we pass it.
-		inline int nextPowerOfTwo(int a )
+		inline int nextPowerOfTwo(int a)
 		{
 			int rval = 1;
 			while(rval < a) rval<<= 1;

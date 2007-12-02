@@ -71,34 +71,41 @@ namespace breathe
 			
 		private:
 			path();
+			NO_COPY(path);
 
 			string_t sPath;
 		};
 
-		class directory_iterator
+
+		class iterator_node
 		{
 		public:
-			directory_iterator();
-			directory_iterator(const string_t& directory);
-			directory_iterator(const directory_iterator& rhs);
-			~directory_iterator();
+			iterator_node() : pParent(nullptr) {}
+			
+			iterator_node* pParent;
+		};
+
+		class iterator
+		{
+		public:
+			iterator();
+			iterator(const string_t& directory);
+			iterator(const iterator& rhs);
+			~iterator();
 
 			string_t GetName() const;
 			bool HasChildren() const;
 
-			directory_iterator GetDirectoryIterator() const;
-			file_iterator GetFileIterator() const;
-
+			void GoToFirstChild();
+			
 			operator ++(int);
 			operator bool() const;
 
-			operator =(const directory_iterator& rhs);
-		};
+			operator =(const iterator& rhs);
 
-		class file_iterator
-		{
-		public:
-			file_iterator();
+		private:
+			path currentPath;
+			std::vector<string_t> paths;
 		};
 	}
 }

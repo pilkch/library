@@ -366,69 +366,60 @@ namespace breathe
 		}
 
 
-
-		// *********************************************** file_iterator ***********************************************
-
-		file_iterator::file_iterator()
-		{
-		}
-
-
-
-		// ********************************************* directory_iterator *********************************************
+		// ********************************************* iterator *********************************************
 		
-		directory_iterator::directory_iterator()
+		/*iterator::iterator()
 		{
 			//TODO: Set ourselves to the current directory
 		}
 			
-		directory_iterator::directory_iterator(const string_t& directory)
+		iterator::iterator(const string_t& directory)
 		{
 			
 		}
 
-		directory_iterator::directory_iterator(const directory_iterator& rhs)
+		iterator::iterator(const iterator& rhs)
 		{
 		}
 
-		directory_iterator::~directory_iterator()
+		iterator::~iterator()
 		{
 		}
 
-		string_t directory_iterator::GetName() const
+		string_t iterator::GetName() const
 		{
 			return TEXT("");
 		}
 
-		bool directory_iterator::HasChildren() const
+		bool iterator::HasChildren() const
 		{
 			return false;
 		}
 
-		directory_iterator directory_iterator::GetDirectoryIterator() const
+		iterator iterator::GetDirectoryIterator() const
 		{
-			return directory_iterator();
+			return iterator();
 		}
 
-		file_iterator directory_iterator::GetFileIterator() const
+		file_iterator iterator::GetFileIterator() const
 		{
 			return file_iterator();
 		}
 
 
-		directory_iterator::operator ++(int)
+		iterator::operator ++(int)
 		{
 			return *this;
 		}
 
-		directory_iterator::operator bool() const
+		iterator::operator bool() const
 		{
 			return false;
 		}
 
-		directory_iterator::operator =(const directory_iterator& rhs)
+		iterator::operator =(const iterator& rhs)
 		{
 			return *this;
-		}
+		}*/
 	}
 }

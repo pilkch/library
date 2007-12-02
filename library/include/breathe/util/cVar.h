@@ -244,7 +244,7 @@ namespace breathe
 	{
 	public:
 		template <class T>
-		static void VarSet(const std::string& name, T value)
+		static void VarSet(const std::string& name, const T& value)
 		{
 			cVar<std::string>* pVar = VarFind(name);
 			if (pVar != nullptr) {

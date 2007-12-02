@@ -13,7 +13,7 @@ namespace breathe
 		public:
 			cVertexBufferObjectArray() { uiOffset = 0; }
 
-			void SetData(std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
+			void SetData(const std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
 			T* GetData() { return vData.size() ? &vData[0] : NULL; }
 			unsigned int GetDataSize() { return vData.size(); }
 

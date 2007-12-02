@@ -16,8 +16,8 @@ namespace breathe
 		private:
 			singleton();          // ctor hidden
 			~singleton();          // dtor hidden
-			singleton(singleton const&);    // copy ctor hidden
-			singleton& operator=(singleton const&);  // assign op hidden
+			singleton(const singleton&);    // copy ctor hidden
+			singleton& operator=(const singleton&);  // assign op hidden
 		};
 	}
 }
