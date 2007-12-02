@@ -43,7 +43,7 @@ namespace breathe
 	public:
 		math::cVec3 v3Position;
 
-		std::string sFilename;
+		string_t sFilename;
 	};
 
 	class cLevelSpawn
@@ -62,22 +62,8 @@ namespace breathe
 
 	class cLevelNode : public cRenderable
 	{
-		cLevel *pLevel;
-
 	public:
-		unsigned int uiStatus;
-		
-		float fFogDistance;
-
-		math::cColour colourFog;
-
-		std::string sFilename;
-		std::string sName;
-		std::string sCRC;
-
-		std::vector<cLevelModel * >vModel;
-			
-		cLevelNode(cLevel *p, std::string sNewFilename);
+		cLevelNode(cLevel *p, const string_t& sNewFilename);
 		~cLevelNode();
 
 		void Load();
@@ -85,6 +71,23 @@ namespace breathe
 
 		void Update(sampletime_t currentTime);
 		unsigned int Render();
+
+
+		unsigned int uiStatus;
+		
+		float fFogDistance;
+
+		math::cColour colourFog;
+
+		string_t sFilename;
+		string_t sName;
+		std::string sCRC;
+
+		std::vector<cLevelModel * >vModel;
+
+  private:
+		cLevel *pLevel;
+		render::model::cStatic* pModel;
 	};
 
 	class cLevel : public cUpdateable
@@ -93,7 +96,7 @@ namespace breathe
 		// Global level information loaded from xml
 		float fWaterLevel;
 
-		std::string sFilename;
+		string_t sFilename;
 		
 		// Node Information loaded from xml
 		unsigned int uiNodeWidth;
@@ -108,7 +111,7 @@ namespace breathe
     cLevelNode* pCurrentNode;
 		unsigned int uiDisplayNodeName;
 
-		//std::map<std::string, render::model::cHeightmap*> mHeightmap;
+		//std::map<string_t, render::model::cHeightmap*> mHeightmap;
 
 		std::list<vehicle::cVehicle *> lVehicle;
 		std::list<physics::cPhysicsObject*> lPhysicsObject;
@@ -123,12 +126,12 @@ namespace breathe
 		~cLevel();
 
 	private:
-		bool LoadXML(const std::string& sNewFilename);
+		bool LoadXML(const string_t& sNewFilename);
 
 	public:
-		bool Load(const std::string& sNewFilename);
-		void LoadNode(const std::string& sNewFilename);
-		void LoadCubemap(const std::string& sFilename);
+		bool Load(const string_t& sNewFilename);
+		void LoadNode(const string_t& sNewFilename);
+		void LoadCubemap(const string_t& sFilename);
 
 		void Update(sampletime_t currentTime);
 		unsigned int Render(sampletime_t currentTime);

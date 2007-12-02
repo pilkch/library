@@ -64,6 +64,7 @@ namespace breathe
 			}
 
 			bool GetAttribute(const std::string& sAttribute, std::string& pValue);
+			bool GetAttribute(const std::string& sAttribute, std::wstring& pValue);
 			bool GetAttribute(const std::string& sAttribute, bool& pValue);
 			bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues);
 			
@@ -127,6 +128,8 @@ namespace breathe
 			std::string sContentOnly;
 
 			std::string ParseFromString(const std::string& sData, cNode* pPrevious);
+			
+			void LoadFromFile(const std::string& sFilename);
 			void WriteToFile(std::ofstream& file, const std::string& sTab);
 		};
 

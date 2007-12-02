@@ -95,6 +95,16 @@ namespace breathe
 				return *this;
 			}
 
+			cLogBase& operator<<(const std::wstring& t)
+			{
+				std::wostringstream o;
+				o<<t;
+
+				line += breathe::string::ToUTF8(o.str());
+
+				return *this;
+			}
+
 			cLogBase& operator<<(float t)
 			{
 				std::stringstream o;

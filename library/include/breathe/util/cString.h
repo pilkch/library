@@ -4,10 +4,10 @@
 namespace breathe
 {
 	#ifdef UNICODE
-	typedef wchar_t char_t;
+	typedef std::wstringstream stringstream_t;
 	typedef std::wstring string_t;
 	#else
-	typedef char char_t;
+	typedef std::stringstream stringstream_t;
 	typedef std::string string_t;
 	#endif
 

@@ -168,9 +168,7 @@ namespace breathe
 		{
 			string_t temp = FindFile(sPath + sFilename);
 			
-			if (filesystem::FileExists(temp)) return temp;
-
-			//!breathe::filesystem::FileExists(breathe::string::ToString_t(pLayer->sTexture)))
+			if (FileExists(temp)) return temp;
 
 			return FindFile(sFilename);
 		}
@@ -179,26 +177,19 @@ namespace breathe
 		{
 			if (TEXT("") == sFilename) return TEXT("");
 
-			//Check sFilename that was passed in
 			std::ifstream f;
-			f.open(breathe::string::ToUTF8(sFilename).c_str());
-
-			if (f.is_open())
-			{
-				f.close();
-				return sFilename;
-			}
 
 			//Check for each directory+sFilename
 			std::vector<string_t>::iterator iter=vDirectory.begin();
 			while(iter!=vDirectory.end())
 			{
-				f.open(breathe::string::ToUTF8(breathe::string::ToString_t((*iter) + sFilename)).c_str());
+				string_t filename = breathe::string::ToString_t((*iter) + sFilename);
+				f.open(breathe::string::ToUTF8(filename).c_str());
 				
 				if (f.is_open())
 				{
 					f.close();
-					return breathe::string::ToString_t(*iter) + sFilename;
+					return filename;
 				}
 
 				iter++;
@@ -210,20 +201,27 @@ namespace breathe
 			string_t sFile = GetFile(sFilename);
 			while(iter != vDirectory.end())
 			{
-				f.open(breathe::string::ToUTF8(((*iter) + sFile)).c_str());
+				string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
+				f.open(breathe::string::ToUTF8(filename).c_str());
 				
 				if (f.is_open())
 				{
 					f.close();
-					return breathe::string::ToString_t(*iter) + sFile;
+					return filename;
 				}
 
 				iter++;
 			};
+			
+			//Check sFilename that was passed in
+			f.open(breathe::string::ToUTF8(sFilename).c_str());
+
+			if (f.is_open())
+			{
+				f.close();
+				return sFilename;
+			}
 	    
-#ifndef FIRESTARTER
-			LOG.Error("FileSystem", breathe::string::ToUTF8(TEXT("Not Found ") + sFilename));
-#endif
 			return sFilename;
 		}
 

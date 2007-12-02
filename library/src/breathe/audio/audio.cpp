@@ -102,12 +102,21 @@ namespace breathe
 		
 		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject)
 		{
+			breathe::audio::cSource* pSource = CreateSourceAttachedToScreen(pBuffer);
+			assert(pSource != nullptr);
+
+			if (pSource->IsValid()) pSource->Attach(pObject);
+
+			return pSource;
+		}
+		
+		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer)
+		{
 			assert(pBuffer != nullptr);
 
 			if (pBuffer->IsValid())
 			{
 				breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
-				pSource->Attach(pObject);
 				return pSource;
 			}
 			
@@ -334,7 +343,7 @@ namespace breathe
 		}
 
 
-		// ********************************************** cAudioSound **********************************************
+		// ********************************************** cSound **********************************************
 
 		cSource::cSource(cBuffer* pInBuffer, float fVolume) :
 			pBuffer(NULL),
@@ -547,49 +556,49 @@ namespace breathe
 
 
 		// For mixing two sounds together for a collision mostly
-		cAudioSourceMix::cAudioSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1) :
+		cSourceMix::cSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1) :
 			source0(pBuffer0, fVolume0),
 			source1(pBuffer1, fVolume1)
 		{
 
 		}
 
-		void cAudioSourceMix::Attach(cObject* pNodeParent)
+		void cSourceMix::Attach(cObject* pNodeParent)
 		{
 			source0.Attach(pNodeParent);
 			source1.Attach(pNodeParent);
 		}
 		
-		void cAudioSourceMix::Remove()
+		void cSourceMix::Remove()
 		{
 			source0.Remove();
 			source1.Remove();
 		}
 		
-		void cAudioSourceMix::Update()
+		void cSourceMix::Update()
 		{
 			source0.Update();
 			source1.Update();
 		}
 		
-		void cAudioSourceMix::Play()
+		void cSourceMix::Play()
 		{
 			source0.Play();
 			source1.Play();
 		}
 		
-		void cAudioSourceMix::Stop()
+		void cSourceMix::Stop()
 		{
 			source0.Stop();
 			source1.Stop();
 		}
 		
-		bool cAudioSourceMix::IsValid() const
+		bool cSourceMix::IsValid() const
 		{
 			return source0.IsValid() && source1.IsValid();
 		}
 		
-		bool cAudioSourceMix::IsPlaying() const
+		bool cSourceMix::IsPlaying() const
 		{
 			return source0.IsPlaying() && source1.IsPlaying();
 		}

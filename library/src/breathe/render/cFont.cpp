@@ -171,13 +171,13 @@ namespace breathe
 
 
 
-		cFont::cFont(const std::string filename, unsigned int height) :
+		cFont::cFont(const string_t& filename, unsigned int height) :
 			textures(nullptr),
 			list_base(0),
 
 			h(float(height))
 		{
-			std::wstring sFilename = filesystem::FindFile(breathe::string::ToString_t(filename));
+			string_t sFilename = filesystem::FindFile(filename);
 
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];
@@ -235,14 +235,14 @@ namespace breathe
 			SAFE_DELETE_ARRAY(textures);
 		}
 		
-		void cFont::_GetDimensions(const std::string& line, float& width, float& height) const
+		void cFont::_GetDimensions(const string_t& line, float& width, float& height) const
 		{
 			
 		}
 
 		///Much like Nehe's glPrint function, but modified to work
 		///with freetype fonts.
-		void cFont::_print(float x, float y, const std::vector<std::string>& lines)
+		void cFont::_print(float x, float y, const std::vector<string_t>& lines)
 		{
 			x *= pRender->uiWidth;
 			y *= pRender->uiHeight;
@@ -269,7 +269,7 @@ namespace breathe
 						glPushMatrix();
 							glLoadIdentity();
 							glTranslatef(x, pRender->uiHeight - y - h, 0.0f);
-							glCallLists(static_cast<unsigned int>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str());
+              glCallLists(static_cast<unsigned int>(lines[i].length()), GL_UNSIGNED_BYTE, breathe::string::ToUTF8(lines[i]).c_str());
 						glPopMatrix();
 					}
 
@@ -291,9 +291,9 @@ namespace breathe
 				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
 			va_end(ap);											// Results Are Stored In Text
 
-			std::string text(formatted);
+      string_t text(breathe::string::ToString_t(formatted));
 
-			std::vector<std::string> lines;
+			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
 			_print(x, y, lines);
@@ -312,9 +312,9 @@ namespace breathe
 				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
 			va_end(ap);											// Results Are Stored In Text
 
-			std::string text(formatted);
+      string_t text(breathe::string::ToString_t(formatted));
 
-			std::vector<std::string> lines;
+			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
 			size_t widest = 0;
@@ -341,9 +341,9 @@ namespace breathe
 				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
 			va_end(ap);											// Results Are Stored In Text
 
-			std::string text(formatted);
+      string_t text(breathe::string::ToString_t(formatted));
 
-			std::vector<std::string> lines;
+			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
 			_print(x, y, lines);
@@ -362,9 +362,9 @@ namespace breathe
 				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
 			va_end(ap);											// Results Are Stored In Text
 
-			std::string text(formatted);
+      string_t text(breathe::string::ToString_t(formatted));
 
-			std::vector<std::string> lines;
+			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
 			_print(x, y, lines);

@@ -9,6 +9,7 @@
 #include <breathe/util/cString.h>
 
 #define WHITE_SPACE "\t\v\r\n"
+#define LWHITE_SPACE L"\t\v\r\n"
 
 namespace breathe
 {
@@ -83,8 +84,8 @@ namespace breathe
 
 		std::wstring Trim(const std::wstring& source)
 		{
-			std::wstring::size_type start = source.find_first_not_of(TEXT(WHITE_SPACE));
-			std::wstring::size_type end = source.find_last_not_of(TEXT(WHITE_SPACE));
+			std::wstring::size_type start = source.find_first_not_of(LWHITE_SPACE);
+			std::wstring::size_type end = source.find_last_not_of(LWHITE_SPACE);
 			return source.substr(start, end + 1);
 		}
 
@@ -312,42 +313,11 @@ namespace breathe
 		
 		std::wstring ToWchar_t(const std::string& source)
 		{
-			/*std::wostringstream wstm;
-			const std::ctype<wchar_t>& ctfacet = std::use_facet< std::ctype<wchar_t> >(wstm.getloc());
-			size_t n = source.size();
-			size_t i = 0;
-			for (; i<n ; ++i) {
-				wchar_t c = ctfacet.widen(source[i]);
-				wstm<<c;
-			}
-			return wstm.str();*/
-
-			std::wstring result(source.size(), char(0)); 
-			typedef std::ctype<char_t> ctype_t; 
-			const ctype_t& ct = std::use_facet<ctype_t>(std::locale()); 
+			std::wstring result(source.size(), char(0));
+			typedef std::ctype<wchar_t> ctype_t;
+			const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
 			ct.widen(source.data(), source.data() + source.size(), &(*result.begin()));
 			return result;
-			
-			/*std::wstring temp;
-			temp.reserve(source.length());
-			size_t i = 0;
-			size_t n = source.length();
-			char_t c = 0;
-			while (i != n) {
-				c = source.widen();
-				temp.append(c);
-				i++;
-			}*/
-
-			//std::transform(source.begin(), source.end(), temp.begin(), (int(*)(int))std::ios::widen);
-			
-			/*const size_t len = source.length() + 1;
-			wchar_t* pTemp = new wchar_t[len];
-			mbstowcs(pTemp, source.data(), len);
-			std::wstring temp(pTemp);
-			SAFE_DELETE_ARRAY(pTemp);*/
-
-			//return temp;
 		}
  
 

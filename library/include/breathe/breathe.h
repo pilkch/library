@@ -136,7 +136,6 @@ namespace breathe
 	typedef char char_t;
 	#endif
 
-
 	// Constants
 	const bool BAD = false;
 	const bool GOOD = true;

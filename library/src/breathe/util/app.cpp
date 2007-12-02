@@ -140,7 +140,9 @@ int intersect_triangle(
 #include <SDL/SDL_TTF.h>
 #include <SDL/SDL_net.h>
 
+#ifdef BUILD_PHYSICS_3D
 #include <ODE/ode.h>
+#endif
 
 #include <breathe/breathe.h>
 
@@ -174,12 +176,13 @@ int intersect_triangle(
 #include <breathe/render/cRender.h>
 #include <breathe/render/cFont.h>
 
+#ifdef BUILD_PHYSICS_3D
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
+#endif
 
+#ifdef BUILD_LEVEL
 #include <breathe/game/cLevel.h>
+#endif
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
@@ -245,7 +248,9 @@ namespace breathe
 
 		breathe::network::Init();
 
+#ifdef BUILD_LEVEL
 		pLevel=new cLevel();
+#endif
 
 		AddKeyNoRepeat(SDLK_ESCAPE);
 		AddKeyNoRepeat(SDLK_BACKQUOTE);
@@ -280,11 +285,15 @@ namespace breathe
 		LOG.Success("Destroy", "Audio");
 		breathe::audio::Destroy();
 
+#ifdef BUILD_LEVEL
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
-
+#endif
+		
+#ifdef BUILD_PHYSICS_3D
 		LOG.Success("Destroy", "Physics");
 		breathe::physics::Destroy();
+#endif
 
 		LOG.Success("Destroy", "Network");
 		breathe::network::Destroy();
@@ -321,6 +330,10 @@ namespace breathe
 
 	void cApp::_LoadSearchDirectories()
 	{
+		// Add a default directory
+		breathe::filesystem::AddDirectory(TEXT(""));
+
+		// Now load all the rest from the config file
 		breathe::xml::cNode root("config.xml");
 		breathe::xml::cNode::iterator iter(root);
 
@@ -534,7 +547,9 @@ namespace breathe
 
 		breathe::audio::Init();
 
+#ifdef BUILD_PHYSICS_3D
 		breathe::physics::Init();
+#endif
 
 		if (breathe::BAD==LoadScene())
 			return breathe::BAD;
@@ -989,7 +1004,9 @@ namespace breathe
 						pRender->SetColour(0.0f, 0.0f, 1.0f);
 						
 						float fPosition = 0.1f;
+#ifdef BUILD_PHYSICS_3D
 						pFont->printf(0.05f, fPosition+=0.05f, "Physics Objects: %d", breathe::physics::size());
+#endif
 
 						fPosition+=0.05f;
 						pFont->printf(0.05f, fPosition+=0.05f, "uiTriangles: %d", pRender->uiTriangles);
@@ -1026,7 +1043,11 @@ namespace breathe
 
 		sampletime_t currentTime = breathe::util::GetTime();
 
-		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * 1000.0f * physics::fInterval);
+#ifdef BUILD_PHYSICS_3D
+		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * physics::fInterval);
+#else
+		unsigned int uiPhysicsHz = 30;
+#endif
 		unsigned int uiUpdateHz = 30;
 		unsigned int uiTargetFramesPerSecond = 60;
 
@@ -1080,7 +1101,7 @@ namespace breathe
 				fUpdateNext = currentTime + fUpdateDelta;
 			}
 
-			if (!bDone && bActive)// && currentTime > fRenderNext)
+			if (bActive && !bDone)// && currentTime > fRenderNext)
 			{
 				_Render(currentTime);
 				tRender.Update(currentTime);

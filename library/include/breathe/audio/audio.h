@@ -32,6 +32,7 @@ namespace breathe
 		void DestroyBuffer(cBuffer* pBuffer);
 		
 		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject);
+		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer);
 		void DestroySource(cSource* pSource);
 		
 		void StartAll();
@@ -103,10 +104,10 @@ namespace breathe
 		// Volumes are 0.0f-1.0f, this number is multiplied by the normal level to get the actual volume,
 		// so numbers greater than 1.0f will give gain, less than 1.0f will soften the noise sound compared to what
 		// it sounds like normally
-		class cAudioSourceMix
+		class cSourceMix
 		{
 		public:
-			explicit cAudioSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1);
+			explicit cSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1);
 
 			void Attach(cObject* pNodeParent);
 			void Remove();
@@ -119,14 +120,14 @@ namespace breathe
 			bool IsPlaying() const;
 
 		private:
-			NO_COPY(cAudioSourceMix);
+			NO_COPY(cSourceMix);
 
 			cSource source0;
 			cSource source1;
 		};
 
 		//	Another possible class is 
-		//	class cAudioSourceMixN
+		//	class cSourceMixN
 		//	{
 		//	public:
 		//		AddSource(cBuffer* pBuffer, float fVolume);

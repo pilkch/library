@@ -36,11 +36,30 @@ namespace breathe
 	{
 		//cNode
 
-		cNode::cNode(const std::string& inFilename)
+		cNode::cNode(const std::string& inFilename) :
+			bContentOnly(false),
+			pNext(NULL),
+			pParent(NULL)
 		{
-			bContentOnly=false;
-			pParent=pNext=NULL;
+			LoadFromFile(inFilename);
+		}
 
+		cNode::cNode(cNode *inParent) :
+			bContentOnly(false),
+			pNext(NULL),
+			pParent(inParent)
+		{
+		}
+
+		cNode::~cNode()
+		{
+			size_t n = vChild.size();
+			for (size_t i=0;i<n;i++)
+         SAFE_DELETE(vChild[i]);
+		}
+
+		void cNode::LoadFromFile(const std::string& inFilename)
+		{
 			std::ifstream f(inFilename.c_str());
 
 			if (f.is_open())
@@ -62,20 +81,6 @@ namespace breathe
 			else
         LOG.Error("XML", inFilename + " not found");
 #endif
-		}
-
-		cNode::cNode(cNode *inParent)
-		{
-			bContentOnly=false;
-			pNext=NULL;
-			pParent=inParent;
-		}
-
-		cNode::~cNode()
-		{
-			size_t n = vChild.size();
-			for (size_t i=0;i<n;i++)
-         SAFE_DELETE(vChild[i]);
 		}
 	
 		std::string cNode::ParseFromString(const std::string& data, cNode* pPrevious)
@@ -458,6 +463,19 @@ namespace breathe
 			if (iter != iterEnd)
 			{
 				value = iter->second;
+				return true;
+			}
+
+			return false;
+		}
+	
+		bool cNode::GetAttribute(const std::string& sAttribute, std::wstring& value)
+		{
+			attribute_iterator iter = mAttribute.find(sAttribute);
+			attribute_iterator iterEnd = mAttribute.end();
+			if (iter != iterEnd)
+			{
+				value = breathe::string::ToWchar_t(iter->second);
 				return true;
 			}
 
