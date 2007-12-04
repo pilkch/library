@@ -23,7 +23,9 @@
 #include <SDL/SDL_image.h>
 
 
+#ifdef BUILD_PHYSICS_3D
 #include <ode/ode.h>
+#endif
 
 // Breathe
 #include <breathe/breathe.h>
@@ -51,9 +53,6 @@
 #include <breathe/render/model/cStatic.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -94,7 +93,7 @@ namespace breathe
 	{
 	}
 
-	bool cLevel::LoadXML(const std::string& sNewFilename)
+	bool cLevel::LoadXML(const string_t& sNewFilename)
 	{
 		sFilename=sNewFilename;
 		bool bNodes=false;
@@ -102,8 +101,8 @@ namespace breathe
 		cLevelSpawn *pSpawn;
 
 		{
-			LOG.Success("Level", "cLevelNode::Load " + sNewFilename);
-			breathe::xml::cNode root(sNewFilename);
+			LOG.Success("Level", "cLevelNode::Load " + breathe::string::ToUTF8(sNewFilename));
+			breathe::xml::cNode root(breathe::string::ToUTF8(sNewFilename));
 
 			breathe::xml::cNode::iterator iter(root);
 			if (!iter) return breathe::BAD;
@@ -129,7 +128,7 @@ namespace breathe
 							iter.FindChild("node");
 							while(iter)
 							{
-								std::string sPath;
+								string_t sPath;
 								if (iter.GetAttribute("path", sPath))
 									LoadNode(sPath);
 
@@ -163,7 +162,7 @@ namespace breathe
 		return breathe::GOOD;
 	}
 
-	bool cLevel::Load(const std::string& sNewFilename)
+	bool cLevel::Load(const string_t& sNewFilename)
 	{
 		bool bResult = breathe::GOOD;
 
@@ -196,13 +195,13 @@ namespace breathe
 		return bResult;
 	}
 
-	void cLevel::LoadNode(const std::string& sNewFilename)
+	void cLevel::LoadNode(const string_t& sNewFilename)
 	{
-		render::model::cStatic *p=pRender->AddModel("data/level/" + sNewFilename + "/mesh.3ds");
+		render::model::cStatic *p=pRender->AddModel(TEXT("data/level/") + sNewFilename + TEXT("/mesh.3ds"));
 		
 		if (p)
 		{
-			cLevelNode *pNode=new cLevelNode(this, "data/level/" + sNewFilename + "/");
+			cLevelNode *pNode=new cLevelNode(this, TEXT("data/level/") + sNewFilename + TEXT("/"));
 			pNode->Load();
 
 			/*
@@ -248,16 +247,16 @@ namespace breathe
 			vNode.push_back(pNode);
 		}
 		else
-			LOG.Error("Node", "Mesh not found " + sNewFilename);
+			LOG.Error("Node", "Mesh not found " + breathe::string::ToUTF8(sNewFilename));
 	}
 	
-	void cLevel::LoadCubemap(const std::string& line)
+	void cLevel::LoadCubemap(const string_t& line)
 	{
 		vCubemap.push_back(new cLevelCubemap());
 
 		cLevelCubemap *p=vCubemap.back();
 
-		std::stringstream stm(line);
+		stringstream_t stm(line);
 		stm >> p->sFilename;
 
 		stm >> p->v3Position.x;
@@ -565,13 +564,13 @@ namespace breathe
 	}
 
 
-	cLevelNode::cLevelNode(cLevel *p, std::string sNewFilename)
+  cLevelNode::cLevelNode(cLevel *p, const string_t& sNewFilename) :
+    uiStatus(0),
+    pModel(nullptr),
+    pLevel(p),
+    sFilename(sNewFilename)
 	{
-		uiStatus=0;
-
-		pLevel=p;
-
-		sFilename=sNewFilename;
+    pModel = pRender->GetModel(filesystem::FindFile(sFilename + TEXT("mesh.3ds")));
 	}
 
 	void cLevelNode::Load()
@@ -584,7 +583,7 @@ namespace breathe
 		bool bCubemaps=false;
 		
 
-		xml::cNode root(sFilename + "node.xml");
+		xml::cNode root(breathe::string::ToUTF8(sFilename) + "node.xml");
 
 		xml::cNode::iterator iter(root);
 		if (!iter) return;
@@ -617,7 +616,7 @@ namespace breathe
 							vModel.push_back(pModel);
 
 							// Pre load the mesh for this model
-							pModel->pModel = pRender->AddModel(sPath + "/mesh.3ds");
+							pModel->pModel = pRender->AddModel(breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds"));
 
 							iter.GetAttribute("position", pModel->p);
 
@@ -636,7 +635,7 @@ namespace breathe
 					iter.FindChild("cubemap");
 					while(iter)
 					{
-						std::string sPath;
+						string_t sPath;
 						if (iter.GetAttribute("texture", sPath))
 							pLevel->LoadCubemap(sPath);
 
@@ -670,7 +669,7 @@ namespace breathe
 	{
 		unsigned int uiTriangles = 0;
 
-		uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(sFilename + "mesh.3ds"));
+		uiTriangles += pRender->RenderStaticModel(pModel);
 
 		std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
 		std::vector<breathe::cLevelModel*>::iterator end = vModel.end();
@@ -679,7 +678,7 @@ namespace breathe
 		{
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
-				uiTriangles+=pRender->RenderStaticModel((*iter)->pModel);
+				uiTriangles += pRender->RenderStaticModel((*iter)->pModel);
 			glPopMatrix();
 
 			iter++;

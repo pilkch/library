@@ -131,7 +131,7 @@ namespace breathe
 			SAFE_DELETE(pFrameBuffer1);
 
 			LOG.Success("Delete", "Static Mesh");
-			std::map<std::string, render::model::cStatic*>::iterator iter=mStatic.begin();
+			std::map<string_t, render::model::cStatic*>::iterator iter=mStatic.begin();
 			while(iter!=mStatic.end())
 			{
 				SAFE_DELETE(iter->second);
@@ -280,6 +280,50 @@ namespace breathe
 			pSurface = nullptr;
 		}
 
+    float cRender::GetShaderVersion()
+    {
+			float fGLVersion = 0.0f;
+      {
+        std::string temp((const char*)glGetString(GL_VERSION));
+    			
+			  std::istringstream stm(temp);
+			  stm >> fGLVersion;
+      }
+
+      float fGLSLVersion = 0.0f;
+      if (fGLVersion >= 2.0f) {
+        const char* ptr = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+        if (ptr != nullptr) {
+          std::string temp(ptr);
+      		
+          std::istringstream stm(temp);
+			    stm >> fGLSLVersion;
+        }
+      }
+
+      // Shader Model 4.0
+      if (fGLSLVersion >= 4.0f) return fGLSLVersion;
+      if (FindExtension("GL_NV_gpu_program4") || FindExtension("GL_NV_geometry_program4") ||
+        FindExtension("GL_NV_vertex_program4") || FindExtension("GL_NV_fragment_program4") || 
+        FindExtension("GL_EXT_gpu_shader4") || FindExtension("GL_EXT_geometry_shader4")) return 4.0f;
+
+      // Shader Model 3.0
+      if (fGLSLVersion >= 3.0f) return fGLSLVersion;
+      if (FindExtension("GL_NV_vertex_program3") || FindExtension("GL_NV_fragment_program2") ||
+        FindExtension("GL_ATI_shader_texture_lod")) return 3.0f;
+
+      // Shader Model 2.0
+      if (fGLSLVersion >= 2.0f) return fGLSLVersion;
+
+      // Shader Model 1.0
+      if (fGLSLVersion >= 1.0f) return fGLSLVersion;
+      if (FindExtension("GL_ARB_shading_language_100")) return 1.0f;
+
+      // Shader Model before 1.0
+			return 0.0f;
+    }
+
 		bool cRender::Init()
 		{
 			std::ostringstream t;
@@ -346,43 +390,31 @@ namespace breathe
 			}
 
 
-			// GLSL Support
-			float fShaderVersion=0.0f;
-			char buffer[100]="";
-			strcpy(buffer, (char*)glGetString(GL_VERSION));	//GL_SHADING_LANGUAGE_VERSION
-				
-			std::stringstream stm(buffer);
+			// GLSL Version
+			float fShaderVersion = GetShaderVersion();
+      {
+        std::ostringstream stm;
+        stm<<fShaderVersion;
+        
+        if (fShaderVersion >= 1.0f) {
+          LOG.Success("Render", "Found Shader" + stm.str());
+				  bShader = bCanShader = true;
+        } else {
+				  LOG.Error("Render", "Not Found Shader1.1, version found is Shader" + stm.str());
+				  bShader = bCanShader = false;
+			  }
+      }
 			
-			stm >> fShaderVersion;
-			
-			if (fShaderVersion<2.0f)
-			{
-				LOG.Error("Render", "Not Found Shader2.0");
-				bCanShader=false;
-				bShader=false;
-			}
-			else
-			{
-				if (fShaderVersion<3.0f) LOG.Success("Render", "Found Shader3.0");
-				else LOG.Success("Render", "Found Shader2.0");
-				bCanShader = true;
-				bShader=bCanShader;
-			}
-			
-			if (bCanShader)
-				LOG.Success("Render", "Can use shaders, shaders turned on");
-			else
-				LOG.Success("Render", "Cannot use shaders, shaders turned off");
+			if (bCanShader) LOG.Success("Render", "Can use shaders, shaders turned on");
+			else LOG.Success("Render", "Cannot use shaders, shaders turned off");
 
 
 			// Frame Buffer Object Support
-			if (FindExtension("GL_EXT_framebuffer_object"))
-			{
+			if (FindExtension("GL_EXT_framebuffer_object")) {
 				LOG.Success("Render", "Found GL_EXT_framebuffer_object");
 				bCanFrameBufferObject = true;
 			}
-			else
-				LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
+			else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
 
 
 			
@@ -933,8 +965,8 @@ namespace breathe
 			assert(sNewFilename != "");
 			assert(ATLAS_NONE != uiAtlas);
 			
-			std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
-			std::wstring s = breathe::filesystem::GetFile(sFilename);
+			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t s = breathe::filesystem::GetFile(sFilename);
 
 			cTexture* p = vTextureAtlas[uiAtlas]->AddTexture(breathe::string::ToUTF8(sFilename));
 			if (p == nullptr || p == pTextureNotFoundTexture)
@@ -954,8 +986,8 @@ namespace breathe
 		{
 			assert(sNewFilename != "");
 			
-			std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
-			std::wstring s = breathe::filesystem::GetFile(sFilename);
+			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t s = breathe::filesystem::GetFile(sFilename);
 
 			
 			cTexture* p = GetTexture(breathe::string::ToUTF8(s));
@@ -988,7 +1020,7 @@ namespace breathe
 		{
 			cTexture* p = new cTexture();
 
-			std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 			
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
 			{
@@ -1016,7 +1048,7 @@ namespace breathe
 		{
 			cTexture* p=new cTexture();
 
-			std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 
 			LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
 			
@@ -1067,12 +1099,12 @@ namespace breathe
 			return pVertexBufferObject;
 		}
 
-		cTexture* cRender::GetCubeMap(const std::string& sNewFilename)
+		cTexture* cRender::GetCubeMap(const string_t& sNewFilename)
 		{		
-			if (""==sNewFilename)
+			if (TEXT("")==sNewFilename)
 				return NULL;
 			
-			std::map<std::string, cTexture*>::iterator iter=mCubeMap.find(sNewFilename);
+			std::map<string_t, cTexture*>::iterator iter=mCubeMap.find(sNewFilename);
 
 			if (mCubeMap.end()!=iter)
 				return iter->second;
@@ -1080,7 +1112,7 @@ namespace breathe
 			return NULL;
 		}
 
-		cTexture* cRender::AddCubeMap(const std::string& sFilename)
+		cTexture* cRender::AddCubeMap(const string_t& sFilename)
 		{
 			/*TODO: Surface of 1x6 that holds the cubemap faces,
 			not actually used for rendering, just collecting each surface
@@ -1092,7 +1124,7 @@ namespace breathe
 			};
 			*/
 
-			if (""==sFilename)
+			if (TEXT("")==sFilename)
 				return pTextureNotFoundTexture;
 
 			cTexture* p=mCubeMap[sFilename];
@@ -1103,7 +1135,7 @@ namespace breathe
 
 			mCubeMap[sFilename] = p;
 
-			p->sFilename = sFilename;
+			p->sFilename = breathe::string::ToUTF8(sFilename);
 
 			GLuint cube_map_directions[6] = 
 			{
@@ -1115,7 +1147,7 @@ namespace breathe
 				GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 			};
 
-			LOG.Success("Texture", "Loading CubeMap " + sFilename);
+			LOG.Success("Texture", "Loading CubeMap " + breathe::string::ToUTF8(sFilename));
 		
 			unsigned int i=0;
 			unsigned int uiTempTexture=0;
@@ -1135,15 +1167,15 @@ namespace breathe
 
 			std::stringstream s;
 
-			std::wstring sFile = breathe::filesystem::GetFileNoExtension(breathe::string::ToString_t(sFilename));
-			std::wstring sExt = breathe::filesystem::GetExtension(breathe::string::ToString_t(sFilename));
+			string_t sFile = breathe::filesystem::GetFileNoExtension(breathe::string::ToString_t(sFilename));
+			string_t sExt = breathe::filesystem::GetExtension(breathe::string::ToString_t(sFilename));
 			
 			for (i=0;i<6;i++)
 			{
 				s.str("");
 
 				s<<breathe::string::ToUTF8(sFile)<<"/"<<breathe::string::ToUTF8(sFile)<<i<<"."<<breathe::string::ToUTF8(sExt);
-				std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(s.str()));
+				string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(s.str()));
 
 				unsigned int mode=0;
 
@@ -1268,7 +1300,7 @@ namespace breathe
 			if (pMaterial != pMaterialNotFoundMaterial)
 				return pMaterial;
 			
-			std::wstring sFilename = filesystem::FindFile(breathe::string::ToString_t(sNewfilename));
+			string_t sFilename = filesystem::FindFile(breathe::string::ToString_t(sNewfilename));
 			pMaterial = new material::cMaterial(breathe::string::ToUTF8(sFilename));
 
 			if (breathe::BAD == pMaterial->Load(breathe::string::ToUTF8(sFilename)))
@@ -1539,9 +1571,11 @@ namespace breathe
 				layerNew = pMaterial->vLayer[i];
 				layerOld = &vLayer[i];
 
+#ifdef BUILD_LEVEL
 				//If this is a cubemap, set the material texture to the cubemap before we get there
 				if (TEXTURE_CUBEMAP==layerNew->uiTextureMode)
 					layerNew->pTexture=pLevel->FindClosestCubeMap(pos);
+#endif
 
 				//Activate the current texture unit
 				glActiveTexture(unit);
@@ -1550,7 +1584,7 @@ namespace breathe
 				if (layerOld->uiTextureMode!=layerNew->uiTextureMode)
 				{
 					//Undo last mode
-					if (	TEXTURE_MASK==layerOld->uiTextureMode ||
+					if (TEXTURE_MASK==layerOld->uiTextureMode ||
 							TEXTURE_BLEND==layerOld->uiTextureMode ||
 							TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
@@ -1729,6 +1763,7 @@ namespace breathe
 						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 						glEnable(GL_BLEND);
 					}
+#ifdef BUILD_LEVEL
 					else if (TEXTURE_CUBEMAP==layerOld->uiTextureMode)
 					{
 						layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
@@ -1753,6 +1788,7 @@ namespace breathe
 							glTexGeni(GL_R,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
 						}						
 					}
+#endif
 					else
 					{
 						glBlendFunc(GL_ONE, GL_ZERO);
@@ -2114,7 +2150,7 @@ namespace breathe
 		}
 
 
-		model::cStatic* cRender::CreateNewModel(const std::string& sName)
+		model::cStatic* cRender::CreateNewModel(const string_t& sName)
 		{
 			model::cStatic* pModel = mStatic[sName];
 
@@ -2128,8 +2164,9 @@ namespace breathe
 			return pModel;
 		}
 		
-		model::cStatic* cRender::AddModel(const std::string& sNewfilename)
+		model::cStatic* cRender::AddModel(const string_t& sFilename)
 		{
+			string_t sNewfilename(breathe::filesystem::FindFile(sFilename));
 			model::cStatic* pModel = mStatic[sNewfilename];
 
 			if (pModel)
@@ -2137,7 +2174,7 @@ namespace breathe
 			
 			pModel=new model::cStatic();
 
-			if (pModel->Load(sNewfilename))
+			if (pModel->Load(breathe::string::ToUTF8(sNewfilename)))
 			{
 				mStatic[sNewfilename]=pModel;
 
@@ -2153,15 +2190,24 @@ namespace breathe
 			return NULL;
 		}
 
-		model::cStatic* cRender::GetModel(const std::string& sFilename)
+		model::cStatic* cRender::GetModel(const string_t& sFilename)
 		{
-			model::cStatic* pModel=mStatic[sFilename];
+			LOG<<"Looking for "<<sFilename<<std::endl;
+			std::map<string_t, model::cStatic*>::iterator iter = mStatic.begin();
+			std::map<string_t, model::cStatic*>::iterator iterEnd = mStatic.end();
+			while (iter != iterEnd)
+			{
+				LOG<<"static["<<iter->first<<"]"<<std::endl;
+				iter++;
+			}
+
+			model::cStatic* pModel = mStatic[sFilename];
 			if (pModel)
 				return pModel;
 			
 			//std::cout<<"Couldn't find "<<sFilename<<std::endl;
 
-			return NULL;
+			return nullptr;
 		}
 
 		
@@ -2209,10 +2255,10 @@ namespace breathe
 			unsigned int triangle=0;
 
 			//Transform uv texture coordinates
-			std::map<std::string, model::cStatic*>::iterator iter=mStatic.begin();
+			std::map<string_t, model::cStatic*>::iterator iter=mStatic.begin();
 			for (;iter!=mStatic.end();iter++)
 			{
-				std::string sFilename = iter->first;
+				string_t sFilename = iter->first;
 				s=iter->second;
 				
 				assert(s);
@@ -2221,7 +2267,7 @@ namespace breathe
 
 				std::ostringstream sOut;
 				sOut<<static_cast<unsigned int>(nMeshes);
-				LOG.Success("Transform", "UV model=" + iter->first + " meshes=" + sOut.str());
+				LOG.Success("Transform", "UV model=" + breathe::string::ToUTF8(iter->first) + " meshes=" + sOut.str());
 
 				for (mesh=0;mesh<nMeshes;mesh++)
 				{
@@ -2261,7 +2307,7 @@ namespace breathe
 			//Calculate normals
 			for (iter=mStatic.begin();iter!=mStatic.end();iter++)
 			{
-				LOG.Success("Transform", "Normals " + iter->first);
+				LOG.Success("Transform", "Normals " + breathe::string::ToUTF8(iter->first));
 
 				s=iter->second;
 				
@@ -2300,7 +2346,7 @@ namespace breathe
 
 			for (iter=mStatic.begin();iter!=mStatic.end();iter++)
 			{
-				LOG.Success("Transform", "Optimising " + iter->first);
+				LOG.Success("Transform", "Optimising " + breathe::string::ToUTF8(iter->first));
 
 				s=iter->second;
 

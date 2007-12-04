@@ -7,7 +7,10 @@ namespace breathe
 	{
 		class cVehicle;
 
-		class cWheel : virtual public physics::cPhysicsObject, public physics::cPhysicsRayCast
+		class cWheel
+#ifdef BUILD_PHYSICS_3D
+			: virtual public physics::cPhysicsObject, public physics::cPhysicsRayCast
+#endif
 		{
 			cVehicle *pParent;
 

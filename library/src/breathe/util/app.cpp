@@ -1043,11 +1043,7 @@ namespace breathe
 
 		sampletime_t currentTime = breathe::util::GetTime();
 
-#ifdef BUILD_PHYSICS_3D
-		unsigned int uiPhysicsHz = (unsigned int)(1000.0f * physics::fInterval);
-#else
-		unsigned int uiPhysicsHz = 30;
-#endif
+    unsigned int uiPhysicsHz = physics::GetFrequencyHz();
 		unsigned int uiUpdateHz = 30;
 		unsigned int uiTargetFramesPerSecond = 60;
 

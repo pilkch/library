@@ -92,7 +92,7 @@ namespace breathe
 			assert(textureBackground[2] != nullptr);
 			assert(textureBackground[3] != nullptr);
 
-			pFontWindowCaption = new render::cFont("osx_fonts/Lucida Grande.ttf", 10);
+			pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
 		}
 		
 		void cWindowManager::OnMouseEvent(int button, int state, int x, int y)

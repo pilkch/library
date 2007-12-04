@@ -56,7 +56,10 @@ namespace breathe
 			}
 		};
 
-		class cVehicle : virtual public physics::cPhysicsObject
+		class cVehicle
+#ifdef BUILD_PHYSICS_3D
+			: virtual public physics::cPhysicsObject
+#endif
 		{
 		public:
 			bool bEngineOff;

@@ -37,9 +37,6 @@
 #include <breathe/render/model/cModel.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 namespace breathe
 {
@@ -128,8 +125,8 @@ namespace breathe
 			// where h is the stepsize. These values will give the same effect as a spring-and-damper 
 			// system simulated with implicit first order integration.
 
-			float fSuspensionStep = physics::fInterval * 1000.0f;
-			SetElasticity((fSuspensionStep * fSuspensionK) / ((fSuspensionStep * fSuspensionK) + fSuspensionU), 
+      float fSuspensionStep = static_cast<float>(physics::GetFrequencyHz());
+      SetElasticity((fSuspensionStep * fSuspensionK) / ((fSuspensionStep * fSuspensionK) + fSuspensionU), 
 										1.0f / ((fSuspensionStep * fSuspensionK) + fSuspensionU));
 		}
 

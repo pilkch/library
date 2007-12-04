@@ -237,12 +237,10 @@ namespace breathe
 
 					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
 					// try it, comment these lines out, it breaks.  I don't know why :(
-					std::string temp(pMesh->sMaterial.c_str());
-					pMesh->sMaterial = temp;
+					string_t temp = breathe::string::ToString_t(pMesh->Material());
 
 					pCurrentMesh->sMaterial = breathe::string::ToUTF8(breathe::filesystem::FindFile(
-						breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + 
-						breathe::string::ToString_t(pMesh->sMaterial)));
+						breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + temp));
 
 					for (face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
 					{

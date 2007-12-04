@@ -21,6 +21,8 @@
 // Breathe Headers
 #include <breathe/breathe.h>
 
+#include <breathe/util/cString.h>
+
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>

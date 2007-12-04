@@ -23,7 +23,9 @@
 #include <SDL/SDL_image.h>
 
 
+#ifdef BUILD_PHYSICS_3D
 #include <ode/ode.h>
+#endif
 
 // Breathe
 #include <breathe/breathe.h>
@@ -51,9 +53,6 @@
 #include <breathe/render/model/cStatic.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -121,7 +120,7 @@ namespace breathe
 		{
 			unsigned int uiTriangles = 0;
 
-			uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(sFilename + "mesh.3ds"));
+			uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
 
 			return uiTriangles;
 		}

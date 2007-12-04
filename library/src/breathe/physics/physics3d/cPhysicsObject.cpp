@@ -29,9 +29,6 @@
 #include <breathe/render/model/cModel.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 
 /*// Wedge 

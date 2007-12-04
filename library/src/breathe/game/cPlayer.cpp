@@ -9,10 +9,14 @@
 #include <list>
 #include <set>
 
-#include <ODE/ode.h>
+#ifdef BUILD_PHYSICS_3D
+#include <ode/ode.h>
+#endif
 
 
 #include <breathe/breathe.h>
+
+#include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -26,17 +30,16 @@
 #include <breathe/math/cColour.h>
 
 #include <breathe/util/base.h>
+
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
 
+
 #include <breathe/game/cLevel.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 #include <breathe/game/cPlayer.h>
 #include <breathe/game/cPetrolBowser.h>
@@ -48,17 +51,23 @@
 namespace breathe
 {
 	cPlayer::cPlayer() : 
-		physics::cUprightCapsule()
+#ifdef BUILD_PHYSICS_3D
+		physics::cUprightCapsule(),
+#endif
+
+		pSeat(NULL),
+		uiState(PLAYER_STATE_WALK)
 	{
+#ifdef BUILD_PHYSICS_3D		
 		bDynamic = true;
 		bBody = false;
 
+		fWeight = 80.0f;
+		
 		p.x = p.y = 0.0f;
-		p.z = 10.0f;
+    p.z = 10.0f;
+#endif
 
-		pSeat = NULL;
-
-		uiState = PLAYER_STATE_WALK;
 		
 #ifdef BUILD_RELEASE
 		uiCameraMode = CAMERA_FIRSTPERSON;
@@ -77,8 +86,6 @@ namespace breathe
 		fSpeedRun = 2.0f;
 		fSpeedSprint = 3.0f;
 
-		fWeight = 80.0f;
-
 		fDollars=0.0f;
 		
 		fVertical=0.0f;
@@ -87,7 +94,9 @@ namespace breathe
 
 	cPlayer::~cPlayer()
 	{
+#ifdef BUILD_PHYSICS_3D
 		physics::RemovePhysicsObject(this);
+#endif
 	}
 
 
@@ -97,6 +106,7 @@ namespace breathe
 	{
 		math::cVec3 dir = math::v3Down;
 
+#ifdef BUILD_PHYSICS_3D
 		rayContact.Clear();
 
 		rayContact.fDepth = fMaxDistance;
@@ -105,6 +115,7 @@ namespace breathe
 		dGeomRaySetLength(geomRay, fMaxDistance);
 		dSpaceCollide2(geomRay, (dGeomID)physics::spaceStatic, this, RayCastCallback);
 		dSpaceCollide2(geomRay, (dGeomID)physics::spaceDynamic, this, RayCastCallback);
+#endif
 	}
 
 	void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)

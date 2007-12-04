@@ -289,11 +289,13 @@ namespace breathe
 
 			bool cMaterial::Load(const std::string& inFilename)
 			{
-				LOG.Success("Material", std::string("Loading ") + inFilename);
+				LOG.Success("Material", std::string("Looking for ") + inFilename);
 
-				std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(inFilename));
+				string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(inFilename));
 
-				std::wstring sPath = breathe::filesystem::GetPath(sFilename);
+				LOG.Success("Material", std::string("Actually loading ") + breathe::string::ToUTF8(sFilename));
+
+				string_t sPath = breathe::filesystem::GetPath(sFilename);
 				
 				xml::cNode root(breathe::string::ToUTF8(sFilename));
 				xml::cNode::iterator iter(root);
@@ -321,12 +323,12 @@ namespace breathe
 				if (iter.GetAttribute("sShaderVertex", sValue))
 				{
 					if (pShader == nullptr) pShader = new cShader();
-					pShader->sShaderVertex = breathe::string::ToUTF8(breathe::filesystem::FindFile(sPath, breathe::string::ToString_t(sValue)));
+					pShader->sShaderVertex = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
 				}
 				if (iter.GetAttribute("sShaderFragment", sValue))
 				{
 					if (pShader == nullptr) pShader = new cShader();
-					pShader->sShaderFragment = breathe::string::ToUTF8(breathe::filesystem::FindFile(sPath, breathe::string::ToString_t(sValue)));
+					pShader->sShaderFragment = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
 				}
 
 				if (pShader)

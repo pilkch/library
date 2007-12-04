@@ -24,7 +24,10 @@ namespace breathe
 	const int CAMERA_FIRSTPERSONFREE = 3;
 #endif
 
-	class cPlayer : virtual public physics::cUprightCapsule
+	class cPlayer
+#ifdef BUILD_PHYSICS_3D
+		: virtual public physics::cUprightCapsule
+#endif
 	{
 	public:
 		vehicle::cSeat* pSeat;
@@ -71,10 +74,12 @@ namespace breathe
 		void ChangeItemUp();
 		void ChangeItemDown();
 
-	
+		
+#ifdef BUILD_PHYSICS_3D
 		// For raycasting to find out if we standing on anything when we are in walking mode
 		void RayCast();
 		static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
+#endif
 	};
 }
 

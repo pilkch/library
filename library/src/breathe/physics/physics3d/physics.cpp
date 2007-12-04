@@ -32,17 +32,26 @@
 #include <breathe/render/model/cModel.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 namespace breathe
 {
 	namespace physics
 	{
-		// *** Physics data
+    // *** Timing
+    const unsigned int uiFrequencyHz = 100;
+		const float fInterval = 1000.0f / uiFrequencyHz;
 
-		const float fInterval = 0.01f; // 0.01 * 1000ms = 10ms
+    unsigned int GetFrequencyHz()
+    {
+      return uiFrequencyHz;
+    }
+
+    float GetInterval()
+    {
+      return fInterval;
+    }
+
+		// *** Physics data
 		const int iMaxContacts = 100;
 		const float fFriction = 2000.0f;
 		const float fBounce = 0.003f;
@@ -158,7 +167,7 @@ namespace breathe
 			dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, NULL, &nearCallbackStatic);
 			//dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, NULL, &nearCallbackTrigger);
 
-			dWorldQuickStep(world, fInterval);
+			dWorldQuickStep(world, GetInterval() / 1000.0f);
 			dJointGroupEmpty(contactgroup);
 		}
 

@@ -110,7 +110,7 @@ namespace breathe
 		{
 			LOG.Success("Texture", "Loading " + sFilename);
 
-			const std::wstring sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sPath));
+			const string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sPath));
 		
 			// Load the texture
 			cTexture* pTexture = new cTexture();

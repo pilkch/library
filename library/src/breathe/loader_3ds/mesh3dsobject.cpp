@@ -216,28 +216,34 @@ namespace breathe
 			material_faces[sMaterial] = faces_applied;
 		}
 
-		const std::string &Mesh3DSObject::Name()
+		const std::string &Mesh3DSObject::Name() const
 		{
 			return name;
 		}
-		Mesh3DSMatrix Mesh3DSObject::Matrix()
+
+		const std::string &Mesh3DSObject::Material() const
+		{
+			return sMaterial;
+		}
+
+		Mesh3DSMatrix Mesh3DSObject::Matrix() const
 		{
 			return matrix;
 		}
 
-		const std::vector<Mesh3DSVertex> &Mesh3DSObject::Vertices()
+		const std::vector<Mesh3DSVertex> &Mesh3DSObject::Vertices() const
 		{
 			return vertices;
 		}
-		const std::vector<Mesh3DSTextureCoord> &Mesh3DSObject::TextureCoords()
+		const std::vector<Mesh3DSTextureCoord> &Mesh3DSObject::TextureCoords() const
 		{
 			return texturecoords;
 		}
-		const std::vector<Mesh3DSFace> &Mesh3DSObject::Faces()
+		const std::vector<Mesh3DSFace> &Mesh3DSObject::Faces() const
 		{
 			return faces;
 		}
-		const std::map<std::string , std::vector<int> > &Mesh3DSObject::Materials()
+		const std::map<std::string , std::vector<int> > &Mesh3DSObject::Materials() const
 		{
 			return material_faces;
 		}

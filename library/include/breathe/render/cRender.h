@@ -31,6 +31,7 @@ namespace breathe
 
 		private:
 			bool FindExtension(const std::string& sExt);
+      float GetShaderVersion();
 
 		public:
 			// Candidate for removal
@@ -93,22 +94,22 @@ namespace breathe
 
 			void TransformModels();
 
-			model::cStatic* AddModel(const std::string& sNewFilename);
-			model::cStatic* GetModel(const std::string& sNewFilename);
-			model::cStatic* CreateNewModel(const std::string& sName);
+			model::cStatic* AddModel(const string_t& sNewFilename);
+			model::cStatic* GetModel(const string_t& sNewFilename);
+			model::cStatic* CreateNewModel(const string_t& sName);
 
 			cVertexBufferObject* AddVertexBufferObject();
 
 			bool AddTextureNotFoundTexture(const std::string& sNewFilename);
 			bool AddMaterialNotFoundTexture(const std::string& sNewFilename);
 
-			cTexture* AddCubeMap(const std::string& sFilename);
+			cTexture* AddCubeMap(const string_t& sFilename);
 			cTexture* AddTexture(const std::string& sNewFilename);
 			cTexture* AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
 			
 			cTexture* GetTextureAtlas(ATLAS atlas);
 			cTexture* GetTexture(const std::string& sFilename);
-			cTexture* GetCubeMap(const std::string& sFilename);
+			cTexture* GetCubeMap(const string_t& sFilename);
 
 			material::cMaterial* GetCurrentMaterial() const;
 			cTexture* GetCurrentTexture0() const;
@@ -159,7 +160,7 @@ namespace breathe
 
 		public:
 			std::map<std::string, cTexture*> mTexture; //Map that contains filename, texture pairs
-			std::map<std::string, cTexture*> mCubeMap; //Map that contains filename, cubemap texture pairs
+			std::map<string_t, cTexture*> mCubeMap; //Map that contains filename, cubemap texture pairs
 
 
 			bool bRenderWireframe;
@@ -224,7 +225,7 @@ namespace breathe
 			SDL_Surface* pSurface;
 
 			//std::map<std::string, model::cAnimation*> mAnimation;
-			std::map<std::string, model::cStatic*> mStatic;
+			std::map<string_t, model::cStatic*> mStatic;
 
 		public:
 			void QueueAddOpaqueObject();

@@ -15,6 +15,8 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cString.h>
+
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
@@ -35,9 +37,6 @@
 #include <breathe/game/cLevel.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cContact.h>
-#include <breathe/physics/cRayCast.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 #include <breathe/game/cPlayer.h>
 #include <breathe/game/cPetrolBowser.h>

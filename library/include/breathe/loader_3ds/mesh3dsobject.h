@@ -37,18 +37,17 @@ namespace breathe
 			
 			void operator=(const Mesh3DSObject &mesh);
 
-			const std::string &Name();
-			Mesh3DSMatrix Matrix();	// adds last row (0,0,0,1)
+			const std::string &Name() const;
+			const std::string& Material() const;
+			Mesh3DSMatrix Matrix() const;	// adds last row (0,0,0,1)
 
-			const std::vector<Mesh3DSVertex> &Vertices();
-			const std::vector<Mesh3DSTextureCoord> &TextureCoords();
-			const std::vector<Mesh3DSFace> &Faces();
-			const std::map<std::string , std::vector<int> > &Materials();
+			const std::vector<Mesh3DSVertex> &Vertices() const;
+			const std::vector<Mesh3DSTextureCoord> &TextureCoords() const;
+			const std::vector<Mesh3DSFace> &Faces() const;
+			const std::map<std::string , std::vector<int> > &Materials() const;
 
 			bool bFoundVertices, bFoundFaces, bTextureCoords, bFoundMaterials;
-
-			std::string sMaterial;
-
+			
 		private:
 			
 			void ParseLocalCoordinateSystem(Model3DSChunk c);
@@ -59,6 +58,7 @@ namespace breathe
 			void ParseFacesMaterials(Model3DSChunk c);
 
 			std::string name;
+			std::string sMaterial;
 			Mesh3DSMatrix matrix;
 
 			std::vector<Mesh3DSVertex> vertices;
