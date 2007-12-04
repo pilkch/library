@@ -55,13 +55,17 @@ namespace breathe
 #endif
 
 	protected:
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		bool bStepPhysics;
 		bool bUpdatePhysics;
+#endif
 		bool bDone;
 
 		SDL_Event event;
 
-		util::cTimer tPhysics;
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    util::cTimer tPhysics;
+#endif
 		util::cTimer tUpdate;
 		util::cTimer tRender;
 		
@@ -147,7 +151,9 @@ namespace breathe
 		virtual bool DestroyScene() = 0;
 
 		virtual void Update(sampletime_t currentTime) = 0;
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		virtual void UpdatePhysics(sampletime_t currentTime) = 0;
+#endif
 		virtual void RenderScene(sampletime_t currentTime) = 0;
 		virtual void RenderScreenSpace(sampletime_t currentTime) = 0;
 		

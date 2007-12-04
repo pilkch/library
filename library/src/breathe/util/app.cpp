@@ -176,7 +176,7 @@ int intersect_triangle(
 #include <breathe/render/cRender.h>
 #include <breathe/render/cFont.h>
 
-#ifdef BUILD_PHYSICS_3D
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 #include <breathe/physics/physics.h>
 #endif
 
@@ -203,10 +203,12 @@ namespace breathe
 #ifdef BUILD_DEBUG
 		bDebug(true),
 #endif
-		bActive(true),
-		bDone(false),
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		bUpdatePhysics(true),
 		bStepPhysics(false),
+#endif
+		bActive(true),
+		bDone(false),
 		bReturnCode(breathe::GOOD),
 
 		pConsoleWindow(nullptr),
@@ -848,12 +850,13 @@ namespace breathe
 		if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
 		if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
 		
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
 		if (IsKeyDown(SDLK_F8)) {
 			bUpdatePhysics = false;
 			bStepPhysics = true;
 		}
-
+#endif
 		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();		
 #endif
 
@@ -1014,13 +1017,17 @@ namespace breathe
 						pFont->printf(0.05f, fPosition+=0.05f, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
 						pFont->printf(0.05f, fPosition+=0.05f, "fRenderFPS: %.03f", tRender.GetFPS());
 						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+#endif
 						pFont->printf(0.05f, fPosition+=0.05f, "currentTime: %d", currentTime);
 						
 						fPosition+=0.05f;
 						pFont->printf(0.05f, fPosition+=0.05f, "fRenderMPF: %.03f", tRender.GetMPF());
 						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+#endif
 					}
 					#endif //_DEBUG
 
@@ -1043,23 +1050,31 @@ namespace breathe
 
 		sampletime_t currentTime = breathe::util::GetTime();
 
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     unsigned int uiPhysicsHz = physics::GetFrequencyHz();
+#endif
 		unsigned int uiUpdateHz = 30;
 		unsigned int uiTargetFramesPerSecond = 60;
 
 		float fEventsDelta=1000.0f/30.0f; // Should be once every single loop?
 		float fInputDelta=1000.0f/30.0f;
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		float fPhysicsDelta=1000.0f/uiPhysicsHz;
+#endif
 		float fUpdateDelta=1000.0f/uiUpdateHz;
 		float fRenderDelta=1000.0f/uiTargetFramesPerSecond;
 
 		float fEventsNext=0.0f;
 		float fInputNext=0.0f;
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		float fPhysicsNext=0.0f;
+#endif
 		float fUpdateNext=0.0f;
 		float fRenderNext=0.0f;
 
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		tPhysics.Init(uiPhysicsHz);
+#endif
 		tUpdate.Init(uiUpdateHz);
 		tRender.Init(uiTargetFramesPerSecond);
 
@@ -1083,12 +1098,14 @@ namespace breathe
 				fInputNext = currentTime + fInputDelta;
 			}
 
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 			if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
 			{
 				UpdatePhysics(currentTime);
 				tPhysics.Update(currentTime);
 				fPhysicsNext = currentTime + fPhysicsDelta;
 			}
+#endif
 
 			if (currentTime > fUpdateNext)
 			{
