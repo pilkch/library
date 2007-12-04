@@ -53,6 +53,7 @@ namespace breathe
 			unsigned int uiBuffer;
 
 		private:
+      cBuffer();
 			NO_COPY(cBuffer);
 
 			void Create(const string_t& sFilename);
@@ -86,6 +87,7 @@ namespace breathe
 			void SetNonLooping();
 
 		private:
+      cSource();
 			NO_COPY(cSource);
 
 			bool bLooping;
@@ -120,6 +122,7 @@ namespace breathe
 			bool IsPlaying() const;
 
 		private:
+      cSourceMix();
 			NO_COPY(cSourceMix);
 
 			cSource source0;

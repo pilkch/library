@@ -117,6 +117,7 @@ namespace breathe
 			if (pBuffer->IsValid())
 			{
 				breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
+        AddSource(pSource);
 				return pSource;
 			}
 			
@@ -126,7 +127,7 @@ namespace breathe
 
 		void DestroySource(cSource* pSource)
 		{
-
+      
 		}
 
 		bool GetError()
@@ -292,6 +293,8 @@ namespace breathe
 			source_iterator iter = lAudioSource.begin();
 			source_iterator iterEnd = lAudioSource.end();
 
+      std::list<cSource*> listToRemove;
+
 			cSource* pSource = NULL;
 			while(iter != iterEnd)
 			{
@@ -302,8 +305,20 @@ namespace breathe
 					continue;
 				}
 				
-				lAudioSource.remove(pSource);
+        // Add it to the list of sources to remove, leave the removing until the end
+				listToRemove.push_back(pSource);
 			};
+
+
+			iter = listToRemove.begin();
+			iterEnd = listToRemove.end();
+
+			while(iter != iterEnd)
+			{
+				pSource = (*(iter++));
+        pSource->Remove();
+        SAFE_DELETE(pSource);
+      }
 		}
 
 		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity)
@@ -346,9 +361,9 @@ namespace breathe
 		// ********************************************** cSound **********************************************
 
 		cSource::cSource(cBuffer* pInBuffer, float fVolume) :
-			pBuffer(NULL),
+			pBuffer(nullptr),
 			bLooping(false),
-			pNodeParent(NULL),
+			pNodeParent(nullptr),
 			uiSource(0),
 			volume(fVolume)
 		{
@@ -360,9 +375,10 @@ namespace breathe
 			assert(pBuffer != nullptr);
 
 			pBuffer->Release();
+			pBuffer = nullptr;
+
 			uiSource = 0;
-			pBuffer = NULL;
-			pNodeParent = NULL;
+			pNodeParent = nullptr;
 		}
 
     void cSource::Create(cBuffer* pInBuffer)
@@ -405,7 +421,6 @@ namespace breathe
 
 		void cSource::Play()
 		{
-			printf("Playing source\n");
 			alSourcePlay(uiSource);
       ReportError();
 		}
@@ -417,12 +432,12 @@ namespace breathe
 
 		void cSource::Update()
 		{
-			alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
+      if (pNodeParent != nullptr) alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
 		}
 
 		bool cSource::IsValid() const
 		{
-			return uiSource && pBuffer && pNodeParent;
+			return uiSource && pBuffer;
 		}
 
 		bool cSource::IsPlaying() const
@@ -437,8 +452,8 @@ namespace breathe
 
 		void cSource::TransformTo2DSource()
 		{
-			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
-			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 0.0);
+			alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
+			alSourcef(uiSource, AL_ROLLOFF_FACTOR, 0.0);
 		}
 
 		void cSource::TransformTo3DSource()
