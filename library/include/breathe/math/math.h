@@ -16,20 +16,6 @@ namespace breathe
 		extern const float cEPSILON;
 		extern const float cINFINITY;
 
-		#ifndef min
-		template <class T> inline T min(const T& i, const T& n)
-		{
-			return (i > n) ? n : i;
-		}
-		#endif
-
-		#ifndef max
-		template <class T> inline T max(const T& i, const T& n)
-		{
-			return (i < n) ? n : i;
-		}
-		#endif
-
 		template <class T> inline T min_max(const T& i, const T& lower, const T& upper)
 		{
 			return (i < lower) ? lower : (i > upper) ? upper : i;
