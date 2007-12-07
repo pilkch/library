@@ -16,7 +16,7 @@
 #include <algorithm>
 
 // Anything else
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 #include <GL/glu.h>
 
 #include <SDL/SDL_image.h>
@@ -1468,7 +1468,7 @@ namespace breathe
 
 			bActiveShader = false;
 			
-			if (bCanShader) glUseProgram(NULL);
+			if (bCanShader) glUseProgram(0);
 
 			pCurrentMaterial = NULL;
 
@@ -2070,7 +2070,7 @@ namespace breathe
 
 			if (pMaterial->pShader && bShader)
 			{
-				bActiveShader=true;
+				bActiveShader = true;
 
 				glUseProgram(pMaterial->pShader->uiShaderProgram);
 
@@ -2098,10 +2098,9 @@ namespace breathe
 			}
 			else if (bActiveShader)
 			{
-				bActiveShader=false;
+				bActiveShader = false;
 				
-				if (bCanShader)
-					glUseProgram(NULL);
+				if (bCanShader) glUseProgram(0);
 			}
 			
 			pCurrentMaterial=pMaterial;

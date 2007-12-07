@@ -3,6 +3,9 @@
 
 #include <sstream>
 
+#undef Success
+#undef Error
+
 namespace breathe
 {
 	template <class T>

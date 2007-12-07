@@ -50,7 +50,7 @@
 #ifndef __APPLE__
 #define __APPLE__
 #endif
-#elif defined(_XENON) || \ 
+#elif defined(_XENON) || \
 	defined(SN_TARGET_PSP_HW) || \
 	defined(SN_TARGET_PS3)
 #error "This platform has not been built on yet"
@@ -105,12 +105,12 @@ typedef long int uint32_t;
 #define nullptr NULL
 #endif
 
-
+#ifdef __WIN__
 // *** FluidStudios' memory leak detection
 #ifndef FIRESTARTER
 #include <breathe/util/mem.h>
 #endif
-
+#endif
 
 #define NO_COPY(T) \
 	private: \
@@ -157,4 +157,4 @@ namespace breathe
 	}
 }
 
-#endif //BREATHE_H
+#endif //BREATHE_H

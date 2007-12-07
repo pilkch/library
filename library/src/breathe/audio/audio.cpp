@@ -287,8 +287,8 @@ namespace breathe
 
 		void Update(sampletime_t currentTime)
 		{
-			SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up,
-				breathe::math::cVec3(0.0f, 0.0f, 0.0f));
+      math::cVec3 position;
+      SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up, position);
 
 			source_iterator iter = lAudioSource.begin();
 			source_iterator iterEnd = lAudioSource.end();

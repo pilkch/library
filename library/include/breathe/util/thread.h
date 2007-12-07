@@ -51,7 +51,7 @@ namespace breathe
 			cMutex();
 			~cMutex();
 
-			friend cLockObject;
+			friend class cLockObject;
 
 		private:
 			void Lock();

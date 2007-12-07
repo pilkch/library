@@ -131,7 +131,7 @@ namespace breathe
 			material::cMaterial* AddMaterialNotFoundMaterial(const std::string& sFilename);
 			bool ClearMaterial();
 			bool SetMaterial(const std::string& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
-			bool SetMaterial(material::cMaterial* pMaterial) { return SetMaterial(pMaterial, math::cVec3()); }
+			bool SetMaterial(material::cMaterial* pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
 			bool SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos);
 			
 			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value);

@@ -120,7 +120,7 @@ namespace breathe
 		class cMouse
 		{
 		public:
-			cMouse::cMouse() : x(0), y(0) { down.reset(); }
+			cMouse() : x(0), y(0) { down.reset(); }
 			
 			bool IsDown(bool bConsole, size_t button) const { assert(button < 10); return down[button]; }
 			bool IsUp(bool bConsole, size_t button) const { assert(button < 10); return !down[button]; }
