@@ -405,8 +405,9 @@ namespace breathe
 		}
 
 
-		iterator::operator ++(int)
+		iterator  iterator::operator ++(int)
 		{
+      // TODO: iterate
 			return *this;
 		}
 
@@ -415,7 +416,7 @@ namespace breathe
 			return false;
 		}
 
-		iterator::operator =(const iterator& rhs)
+		iterator iterator::operator =(const iterator& rhs)
 		{
 			return *this;
 		}*/

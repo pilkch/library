@@ -41,6 +41,8 @@ namespace breathe
 
 		int GetMouseX() const;
 		int GetMouseY() const;
+		int GetMouseDeltaX() const;
+		int GetMouseDeltaY() const;
 
 		void CursorShow();
 		void CursorHide();

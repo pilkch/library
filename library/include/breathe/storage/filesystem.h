@@ -98,10 +98,10 @@ namespace breathe
 
 			void GoToFirstChild();
 			
-			operator ++(int);
 			operator bool() const;
 
-			operator =(const iterator& rhs);
+			iterator operator ++(int);
+			iterator operator =(const iterator& rhs);
 
 		private:
 			path currentPath;

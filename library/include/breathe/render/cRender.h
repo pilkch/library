@@ -233,7 +233,7 @@ namespace breathe
 
 		private:
 			cRender(const cRender&);
-			cRender& operator=(const cRender&);
+			cRender operator=(const cRender&);
 		};
 
 		namespace SETTINGS
@@ -262,9 +262,10 @@ namespace breathe
 				int GetWidth() const { return (*iter).GetWidth(); }
 				int GetHeight() const { return (*iter).GetHeight(); }
 
-				operator ++(int);
 				operator bool() const;
 				
+				iterator operator ++(int);
+
 			protected:
 				void GetResolutions(bool onlyWidescreen);
 
@@ -281,7 +282,7 @@ namespace breathe
 			}
 
 			
-			inline iterator::operator ++(int)
+			inline iterator iterator::operator ++(int)
 			{
 				iter++;
 				return *this;

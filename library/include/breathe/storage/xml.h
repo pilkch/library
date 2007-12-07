@@ -78,12 +78,12 @@ namespace breathe
 			public:
 				cIterator(const cIterator& rhs);
 				cIterator(const cNode& rhs);
-				cIterator& operator=(const cIterator& rhs);
-				cIterator& operator=(const cNode& rhs);
+				cIterator operator=(const cIterator& rhs);
+				cIterator operator=(const cNode& rhs);
 
 				operator bool() const;
 
-				operator++(int);
+				cIterator operator++(int);
 				void Next(const std::string& sName);
 				
 				void FirstChild();
@@ -146,13 +146,13 @@ namespace breathe
 		{
 		}
 
-		inline cNode::cIterator& cNode::cIterator::operator=(const cIterator& rhs)
+		inline cNode::cIterator cNode::cIterator::operator=(const cIterator& rhs)
 		{
 			pNode = rhs.pNode;
 			return *this;
 		}
 
-		inline cNode::cIterator& cNode::cIterator::operator=(const cNode& rhs)
+		inline cNode::cIterator cNode::cIterator::operator=(const cNode& rhs)
 		{
 			pNode = &const_cast<cNode&>(rhs);
 			return *this;
@@ -163,7 +163,7 @@ namespace breathe
 			return pNode != nullptr;
 		}
 
-		inline cNode::cIterator::operator++(int)
+    inline cNode::cIterator cNode::cIterator::operator++(int)
 		{
 			assert(pNode != nullptr);
 			pNode = pNode->GetNext();

@@ -13,7 +13,7 @@ namespace breathe
 			~Model3DSChunk();
 
 			/**bug : making 2 seperate file stream chunks = each other*/
-			void operator=(const Model3DSChunk &chunk);
+			Model3DSChunk operator=(const Model3DSChunk &chunk);
 
 			operator bool();
 

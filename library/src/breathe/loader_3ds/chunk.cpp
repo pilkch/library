@@ -67,7 +67,7 @@ namespace breathe
 
 		}
 
-		void Model3DSChunk::operator=(const Model3DSChunk &chunk)
+		Model3DSChunk Model3DSChunk::operator=(const Model3DSChunk &chunk)
 		{
 			int iPosition=chunk.file.tellg();
 
@@ -83,6 +83,8 @@ namespace breathe
 			id = chunk.id;
 			begin = chunk.begin;
 			end = chunk.end;
+
+      return *this;
 		}
 
 		Model3DSChunk::operator bool()
