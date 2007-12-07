@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>

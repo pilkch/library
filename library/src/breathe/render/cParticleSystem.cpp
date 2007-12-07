@@ -11,7 +11,7 @@
 #include <sstream>
 
 // OpenGL Headers
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 
 // SDL Headers
 #include <SDL/SDL.h>

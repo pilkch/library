@@ -137,7 +137,7 @@ int intersect_triangle(
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
-#include <SDL/SDL_TTF.h>
+#include <SDL/SDL_ttf.h>
 #include <SDL/SDL_net.h>
 
 #ifdef BUILD_PHYSICS_3D

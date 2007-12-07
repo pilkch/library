@@ -16,7 +16,7 @@
 #include <string>
 
 // Anything else
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 #include <GL/glu.h>
 
 #include <SDL/SDL_image.h>

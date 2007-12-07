@@ -14,7 +14,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 
 // Breathe
 #include <breathe/breathe.h>
