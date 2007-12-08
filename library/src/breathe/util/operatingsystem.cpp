@@ -56,7 +56,7 @@ namespace breathe
 #ifdef __WIN__
 			int major = GetOperatingSystemVersionMajor();
 			int minor = GetOperatingSystemVersionMinor();
-			
+
 			if (4 == major)
 			{
 				if (0 == minor) s = "95";
@@ -94,7 +94,6 @@ namespace breathe
 			GetVersionEx(&vi);
 			return vi.dwMajorVersion;
 #else
-#error "Unknown operating system"
 			return 0;
 #endif
 		}
@@ -107,7 +106,6 @@ namespace breathe
 			GetVersionEx(&vi);
 			return vi.dwMinorVersion;
 #else
-#error "Unknown operating system"
 			return 0;
 #endif
 		}
@@ -123,7 +121,7 @@ namespace breathe
 
 			if (getenv("USER") != 0) return std::string(getenv("USER"));
 			else if (getenv("USERNAME") != 0) return std::string(getenv("USERNAME"));
-			
+
 			return std::string("<UNKNOWN>");
 		}
 #endif

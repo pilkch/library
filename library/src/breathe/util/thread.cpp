@@ -19,7 +19,7 @@
 #include <windows.h>
 #endif
 
-#include <sdl/sdl.h>
+#include <SDL/SDL.h>
 
 // Breathe
 #include <breathe/breathe.h>

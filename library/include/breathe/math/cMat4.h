@@ -28,13 +28,13 @@ namespace breathe
 			float GetEntry(int position) const;
 			cVec4 GetRow(int position) const;
 			cVec4 GetColumn(int position) const;
-			
+
 			void LoadIdentity(void);
 			void LoadZero(void);
 
 
-			float & operator[](const int i) const;
-			
+			float& operator[](const int i) const;
+
 			//binary operators
 			cMat4 operator+(const cMat4 & rhs) const;
 			cMat4 operator-(const cMat4 & rhs) const;
@@ -55,7 +55,7 @@ namespace breathe
 			//unary operators
 			cMat4 operator-(void) const;
 			cMat4 operator+(void) const {return (*this);}
-			
+
 			//multiply a vector by this matrix
 			cVec4 operator*(const cVec4 rhs) const;
 
@@ -75,7 +75,7 @@ namespace breathe
 
 			void InverseTranslateVec3(cVec3 & rhs) const
 			{rhs=GetInverseTranslatedVec3(rhs);}
-			
+
 			cVec3 GetTranslatedVec3(const cVec3 & rhs) const;
 			cVec3 GetInverseTranslatedVec3(const cVec3 & rhs) const;
 

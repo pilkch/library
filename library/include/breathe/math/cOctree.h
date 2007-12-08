@@ -4,7 +4,7 @@
 namespace breathe
 {
 	namespace math
-	{		
+	{
 		// So we can tell which octant we are talking about
 		enum eOctreeNodes
 		{
@@ -47,7 +47,7 @@ namespace breathe
 			bool IsSubDivided() const {   return m_bSubDivided;	}
 
 			// This sets the initial width, height and depth for the whole scene
-			void GetSceneDimensions(cVec3* pVertices, int numberOfVerts);
+			void GetSceneDimensions(cVec3* pVertices, size_t numberOfVerts);
 
 			// This takes in the previous nodes center, width and which node ID that will be subdivided
 			cVec3 GetNewNodeCenter(const cVec3& vCenter, float width, int nodeID);
@@ -65,7 +65,7 @@ namespace breathe
 
 			// This initializes the data members
 			void create(cFrustum* newcFrustum);
-			
+
 		public:
 			cFrustum* frustum;
 
@@ -76,7 +76,7 @@ namespace breathe
 			float m_Width;
 
 			// This holds the amount of triangles stored in this node
-			int m_TriangleCount;
+			size_t m_TriangleCount;
 
 			// This is the center (X, Y, Z) point in this node
 			cVec3 m_vCenter;
@@ -85,7 +85,7 @@ namespace breathe
 			cVec3* m_pVertices;
 
 			// These are the eight nodes branching down from this current node
-			cOctree* m_pOctreeNodes[8];	
+			cOctree* m_pOctreeNodes[8];
 		};
 	}
 }

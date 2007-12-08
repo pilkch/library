@@ -29,7 +29,7 @@ namespace breathe
 			g_MaxTriangles=2000;
 			g_EndNodeCount=0;
 			g_TotalNodesDrawn=0;
-			
+
 
 			m_pVertices = NULL;
 
@@ -71,7 +71,7 @@ namespace breathe
 			m_bSubDivided = false;
 
 			// Set the dimensions of the box to false
-			m_Width = 0; 
+			m_Width = 0;
 
 			// Initialize the triangle count
 			m_TriangleCount = 0;
@@ -83,7 +83,7 @@ namespace breathe
 			m_pVertices = NULL;
 
 			// Set the sub nodes to NULL
-			std::memset(m_pOctreeNodes, 0, sizeof(m_pOctreeNodes));	
+			std::memset(m_pOctreeNodes, 0, sizeof(m_pOctreeNodes));
 		}
 
 
@@ -93,7 +93,7 @@ namespace breathe
 		/////
 		///////////////////////////////// cOctree \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::GetSceneDimensions(cVec3* pVertices, int numberOfVerts)
+		void cOctree::GetSceneDimensions(cVec3* pVertices, size_t numberOfVerts)
 		{
 			// We pass in the list of vertices and the vertex count to get the
 			// center point and width of the whole scene.  We use this information
@@ -117,7 +117,8 @@ namespace breathe
 			// to use operator overloading just make a function called CVector AddVector(), etc...
 
 			// Go through all of the vertices and add them up to eventually find the center
-			for (int i = 0; i < numberOfVerts; i++)
+      size_t i = 0;
+			for (i = 0; i < numberOfVerts; i++)
 			{
 				// Add the current vertex to the center variable (Using operator overloading)
 				m_vCenter = m_vCenter + pVertices[i];
@@ -126,7 +127,7 @@ namespace breathe
 			// Divide the total by the number of vertices to get the center point.
 			// We could have overloaded the / symbol but I chose not to because we rarely use it.
 			m_vCenter.x /= numberOfVerts;
-			m_vCenter.y /= numberOfVerts;	
+			m_vCenter.y /= numberOfVerts;
 			m_vCenter.z /= numberOfVerts;
 
 			// Now that we have the center point, we want to find the farthest distance from
@@ -139,9 +140,9 @@ namespace breathe
 			{
 				// Get the current dimensions for this vertex.  We use the abs() function
 				// to get the absolute value because it might return a negative number.
-				float currentWidth  = abs(pVertices[i].x - m_vCenter.x);	
-				float currentHeight = abs(pVertices[i].y - m_vCenter.y);		
-				float currentDepth  = abs(pVertices[i].z - m_vCenter.z);	
+				float currentWidth  = fabs(pVertices[i].x - m_vCenter.x);
+				float currentHeight = fabs(pVertices[i].y - m_vCenter.y);
+				float currentDepth  = fabs(pVertices[i].z - m_vCenter.z);
 
 				// Check if the current width value is greater than the max width stored.
 				if (currentWidth  > maxWidth)	maxWidth  = currentWidth;
@@ -160,16 +161,13 @@ namespace breathe
 			maxWidth *= 2;		maxHeight *= 2;		maxDepth *= 2;
 
 			// Check if the width is the highest value and assign that for the cube dimension
-			if (maxWidth > maxHeight && maxWidth > maxDepth)
-				m_Width = maxWidth;
+			if (maxWidth > maxHeight && maxWidth > maxDepth) m_Width = maxWidth;
 
 			// Check if the height is the heighest value and assign that for the cube dimension
-			else if (maxHeight > maxWidth && maxHeight > maxDepth)
-				m_Width = maxHeight;
+			else if (maxHeight > maxWidth && maxHeight > maxDepth) m_Width = maxHeight;
 
 			// Else it must be the depth or it's the same value as some of the other ones
-			else
-				m_Width = maxDepth;
+			else m_Width = maxDepth;
 		}
 
 
@@ -193,7 +191,7 @@ namespace breathe
 			cVec3 vCtr = vCenter;
 
 			// Switch on the ID to see which subdivided node we are finding the center
-			switch(nodeID)							
+			switch(nodeID)
 			{
 				case TOP_LEFT_FRONT:
 					// Calculate the center of this new node
@@ -255,7 +253,7 @@ namespace breathe
 			// no triangle found in this node's cube, then we ignore it and don't create a node.
 
 			// Check if the first node found some triangles in it
-			if (triangleCount)		
+			if (triangleCount)
 			{
 				// Allocate memory for the triangles found in this node (tri's * 3 for vertices)
 				cVec3* pNodeVertices = new cVec3 [triangleCount * 3];
@@ -267,7 +265,7 @@ namespace breathe
 				for (int i = 0; i < numberOfVerts; i++)
 				{
 					// If this current triangle is in the node, assign it's vertices to it
-					if (pList[i / 3])	
+					if (pList[i / 3])
 					{
 						pNodeVertices[index] = pVertices[i];
 						index++;
@@ -275,7 +273,7 @@ namespace breathe
 				}
 
 				// Now comes the initialization of the node.  First we allocate memory for
-				// our node and then get it's center point.  Depending on the nodeID, 
+				// our node and then get it's center point.  Depending on the nodeID,
 				// GetNewNodeCenter() knows which center point to pass back (TOP_LEFT_FRONT, etc..)
 
 				// Allocate a new node for this octree
@@ -283,7 +281,7 @@ namespace breathe
 
 				// Get the new node's center point depending on the nodexIndex (which of the 8 subdivided cubes).
 				cVec3 vNodeCenter = GetNewNodeCenter(vCenter, width, nodeID);
-				
+
 				// Below, before and after we recurse further down into the tree, we keep track
 				// of the level of subdivision that we are in.  This way we can restrict it.
 
@@ -315,7 +313,7 @@ namespace breathe
 			// subdivided too many levels or we divided all of the triangles up.
 
 			// Create a variable to hold the number of triangles
-			int numberOfTriangles = numberOfVerts / 3;
+			size_t numberOfTriangles = numberOfVerts / 3;
 
 			// Initialize this node's center point.  Now we know the center of this node.
 			m_vCenter = vCenter;
@@ -337,8 +335,8 @@ namespace breathe
 				// Create a list for each new node to store if a triangle should be stored in it's
 				// triangle list.  For each index it will be a true or false to tell us if that triangle
 				// is in the cube of that node.  Below we check every point to see where it's
-				// position is from the center (I.E. if it's above the center, to the left and 
-				// back it's the TOP_LEFT_BACK node).  Depending on the node we set the pList 
+				// position is from the center (I.E. if it's above the center, to the left and
+				// back it's the TOP_LEFT_BACK node).  Depending on the node we set the pList
 				// index to true.  This will tell us later which triangles go to which node.
 				// You might catch that this way will produce doubles in some nodes.  Some
 				// triangles will intersect more than 1 node right?  We won't split the triangles
@@ -353,13 +351,13 @@ namespace breathe
 				std::vector<bool> pList6(numberOfTriangles);		// BOTTOM_LEFT_BACK node list
 				std::vector<bool> pList7(numberOfTriangles);		// BOTTOM_RIGHT_BACK node list
 				std::vector<bool> pList8(numberOfTriangles);		// BOTTOM_RIGHT_FRONT node list
-			
+
 				// Create this variable to cut down the thickness of the code below (easier to read)
 				cVec3 vCtr = vCenter;
 
 				// Go through all of the vertices and check which node they belong too.  The way
 				// we do this is use the center of our current node and check where the point
-				// lies in relationship to the center.  For instance, if the point is 
+				// lies in relationship to the center.  For instance, if the point is
 				// above, left and back from the center point it's the TOP_LEFT_BACK node.
 				// You'll see we divide by 3 because there are 3 points in a triangle.
 				// If the vertex index 0 and 1 are in a node, 0 / 3 and 1 / 3 is 0 so it will
@@ -367,51 +365,52 @@ namespace breathe
 				// we get to the 3rd vertex index of pVertices[] it will then be checking the
 				// 1st index of the pList*[] array.  We do this because we want a list of the
 				// triangles in the node, not the vertices.
-				for (int i = 0; i < numberOfVerts; i++)
+        size_t i = 0;
+				for (i = 0; i < numberOfVerts; i++)
 				{
 					// Create some variables to cut down the thickness of the code (easier to read)
 					cVec3 vPoint = pVertices[i];
 
 					// Check if the point lines within the TOP LEFT FRONT node
-					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) )
 						pList1[i / 3] = true;
 
 					// Check if the point lines within the TOP LEFT BACK node
-					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) )
 						pList2[i / 3] = true;
 
 					// Check if the point lines within the TOP RIGHT BACK node
-					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z <= vCtr.z) )
 						pList3[i / 3] = true;
 
 					// Check if the point lines within the TOP RIGHT FRONT node
-					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y >= vCtr.y) && (vPoint.z >= vCtr.z) )
 						pList4[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM LEFT FRONT node
-					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) )
 						pList5[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM LEFT BACK node
-					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x <= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) )
 						pList6[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM RIGHT BACK node
-					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z <= vCtr.z) )
 						pList7[i / 3] = true;
 
 					// Check if the point lines within the BOTTOM RIGHT FRONT node
-					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) ) 
+					if ((vPoint.x >= vCtr.x) && (vPoint.y <= vCtr.y) && (vPoint.z >= vCtr.z) )
 						pList8[i / 3] = true;
-				}	
+				}
 
 				// Here we create a variable for each list that holds how many triangles
 				// were found for each of the 8 subdivided nodes.
 				int triCount1 = 0;	int triCount2 = 0;	int triCount3 = 0;	int triCount4 = 0;
 				int triCount5 = 0;	int triCount6 = 0;	int triCount7 = 0;	int triCount8 = 0;
-				
+
 				// Go through each of the lists and increase the triangle count for each node.
-				for (i = 0; i < numberOfTriangles; i++)  
+				for (i = 0; i < numberOfTriangles; i++)
 				{
 					// Increase the triangle count for each node that has a "true" for the index i.
 					if (pList1[i])	triCount1++;	if (pList2[i])	triCount2++;
@@ -419,7 +418,7 @@ namespace breathe
 					if (pList5[i])	triCount5++;	if (pList6[i])	triCount6++;
 					if (pList7[i])	triCount7++;	if (pList8[i])	triCount8++;
 				}
-			
+
 				// Next we do the dirty work.  We need to set up the new nodes with the triangles
 				// that are assigned to each node, along with the new center point of the node.
 				// Through recursion we subdivide this node into 8 more nodes.
@@ -537,7 +536,7 @@ bool test(const std::string& fileName, Set <class Polygon *>& polygons, TextureT
                         //	poly->setFlags(PF_FOGVOLUME | PF_NONBLOCKING, true);
                         //}
 
-                        
+
 
                         poly->setFlags(pflags, true);
 
@@ -572,7 +571,7 @@ bool test(const std::string& fileName, Set <class Polygon *>& polygons, TextureT
 						tok.next(NULL); // =
 						tok.next(str);  // flags
 						flags = atoi(str);
-												
+
 					} else if ((flags & PF_Invisible) == 0){
 						if (stricmp(str, "Vertex") == 0){
 							Vertex v = readVertex();
@@ -636,7 +635,7 @@ bool test(const std::string& fileName, Set <class Polygon *>& polygons, TextureT
 			}
 		}
 	}
-	
+
 	return true;
 }*/
 	}

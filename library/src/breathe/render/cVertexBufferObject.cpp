@@ -51,7 +51,7 @@ namespace breathe
 			uiOffsetTextureUnit1 = 0;
 			uiOffsetTextureUnit2 = 0;
 
-			bufferID = NULL;
+			bufferID = 0;
 		}
 
 		cVertexBufferObject::~cVertexBufferObject()
@@ -80,11 +80,11 @@ namespace breathe
 			size_t uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
 			size_t uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
 			size_t uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
-			
+
 			pVertex.uiOffset = 0 + 0;
 			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
 			pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
-			
+
 			uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
 			if (pTextureCoord.vData.size() > uiVertices)
 			{
@@ -128,18 +128,18 @@ namespace breathe
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 			glBufferDataARB(GL_ARRAY_BUFFER_ARB, vData.size() * sizeof(float), &vData[0], GL_STATIC_DRAW_ARB);
 		}
-		
+
 		unsigned int cVertexBufferObject::Render()
 		{
 			// TODO: Call this only once at start of rendering?  Not per vbo?
-			
+
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
 
 			// Index Array
 			//glEnableClientState( GL_NORMAL_ARRAY );
 			//glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
 			// Don't need this apparently? glIndexPointer(GL_UNSIGNED_SHORT, 0, BUFFER_OFFSET(pIndex.uiOffset));
-		
+
 			glEnableClientState( GL_NORMAL_ARRAY );
 			glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(pNormal.uiOffset));
 
@@ -152,7 +152,7 @@ namespace breathe
 				glClientActiveTextureARB(GL_TEXTURE1_ARB);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit1));
-				
+
 				if (uiOffsetTextureUnit2)
 				{
 					glClientActiveTextureARB(GL_TEXTURE2_ARB);
@@ -160,7 +160,7 @@ namespace breathe
 					glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit2));
 				}
 			}
-			
+
 
 			glEnableClientState( GL_VERTEX_ARRAY );
 			glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(pVertex.uiOffset));
@@ -168,9 +168,9 @@ namespace breathe
 				glDrawArrays(GL_TRIANGLES, 0, uiVertices);
 				//glDrawRangeElements( GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
 				//glDrawElements(GL_TRIANGLES, uiIndicies, GL_UNSIGNED_SHORT, BUFFER_OFFSET(pIndex.uiOffset));
-		
+
 			glDisableClientState( GL_VERTEX_ARRAY );
-			
+
 			if (uiOffsetTextureUnit1)
 			{
 				if (uiOffsetTextureUnit2)

@@ -154,7 +154,7 @@ namespace breathe
 
 			SetFromAxisAngle(axis, angle);
 		}
-		
+
 		void cQuaternion::SetFromODEQuaternion(float* q)
 		{
 			w=q[0];
@@ -183,7 +183,7 @@ namespace breathe
 			return result;
 		}
 
-		
+
 		cVec3 cQuaternion::GetEuler(void) const
 		{
 			float sqw = w*w;

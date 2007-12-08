@@ -63,12 +63,12 @@ namespace breathe
 {
 	namespace render
 	{
-		cRender::cRender() : 
+		cRender::cRender() :
 			bRenderWireframe(false),
 			bLight(true),
 			bCubemap(true),
 			bShader(true),
-			
+
 			bCanCubemap(false),
 			bCanShader(false),
 			bCanFrameBufferObject(false),
@@ -85,7 +85,7 @@ namespace breathe
 
 			pFrameBuffer0(nullptr),
 			pFrameBuffer1(nullptr),
-			
+
 			g_info(nullptr),
 			videoInfo(nullptr),
 			pSurface(nullptr)
@@ -115,7 +115,7 @@ namespace breathe
 
 			for (i=0;i<material::nLayers;i++)
 				vLayer.push_back(material::cLayer());
-			
+
 			pMaterialNotFoundMaterial=NULL;
 		}
 
@@ -190,7 +190,7 @@ namespace breathe
 
 		void cRender::SetPerspective()
 		{
-			// Protect against a divide by zero 
+			// Protect against a divide by zero
 			assert(uiHeight != 0);
 
 			// Height / width ratio
@@ -221,7 +221,7 @@ namespace breathe
 				LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
 				return breathe::BAD;
 			}
-			
+
 			if (bFullscreen)
 			{
 				LOG.Success("App", "Going to fullscreen");
@@ -234,7 +234,7 @@ namespace breathe
 			}
 
 
-			// This checks to see if surfaces can be stored in memory 
+			// This checks to see if surfaces can be stored in memory
 			if (videoInfo->hw_available )
 			{
 				uiFlags |= SDL_HWSURFACE;
@@ -247,7 +247,7 @@ namespace breathe
 				LOG.Error("SDL", "SOFTWARE SURFACE");
 			}
 
-			// This checks if hardware blits can be done 
+			// This checks if hardware blits can be done
 			if (videoInfo->blit_hw )
 				uiFlags |= SDL_HWACCEL;
 			else
@@ -256,13 +256,13 @@ namespace breathe
 				LOG.Error("SDL", "SOFTWARE BLIT");
 			}
 
-			// Sets up OpenGL double buffering 
+			// Sets up OpenGL double buffering
 			SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-			// get a SDL surface 
+			// get a SDL surface
 			pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
 
-			// Verify there is a surface 
+			// Verify there is a surface
 			if (!pSurface)
 			{
 				LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
@@ -285,7 +285,7 @@ namespace breathe
 			float fGLVersion = 0.0f;
       {
         std::string temp((const char*)glGetString(GL_VERSION));
-    			
+
 			  std::istringstream stm(temp);
 			  stm >> fGLVersion;
       }
@@ -296,7 +296,7 @@ namespace breathe
 
         if (ptr != nullptr) {
           std::string temp(ptr);
-      		
+
           std::istringstream stm(temp);
 			    stm >> fGLSLVersion;
         }
@@ -305,7 +305,7 @@ namespace breathe
       // Shader Model 4.0
       if (fGLSLVersion >= 4.0f) return fGLSLVersion;
       if (FindExtension("GL_NV_gpu_program4") || FindExtension("GL_NV_geometry_program4") ||
-        FindExtension("GL_NV_vertex_program4") || FindExtension("GL_NV_fragment_program4") || 
+        FindExtension("GL_NV_vertex_program4") || FindExtension("GL_NV_fragment_program4") ||
         FindExtension("GL_EXT_gpu_shader4") || FindExtension("GL_EXT_geometry_shader4")) return 4.0f;
 
       // Shader Model 3.0
@@ -334,7 +334,7 @@ namespace breathe
 			LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
 			LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
 			LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
-			
+
 
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
 
@@ -347,7 +347,7 @@ namespace breathe
 			}
 			else
 				LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
-			
+
 			{
 				CONSOLE<<"WIDESCREEN"<<std::endl;
 				SETTINGS::iterator iter;
@@ -395,7 +395,7 @@ namespace breathe
       {
         std::ostringstream stm;
         stm<<fShaderVersion;
-        
+
         if (fShaderVersion >= 1.0f) {
           LOG.Success("Render", "Found Shader" + stm.str());
 				  bShader = bCanShader = true;
@@ -404,7 +404,7 @@ namespace breathe
 				  bShader = bCanShader = false;
 			  }
       }
-			
+
 			if (bCanShader) LOG.Success("Render", "Can use shaders, shaders turned on");
 			else LOG.Success("Render", "Cannot use shaders, shaders turned off");
 
@@ -417,7 +417,7 @@ namespace breathe
 			else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
 
 
-			
+
 			glClearColor(1.0f, 0.0f, 1.0f, 0.0f);				// Clear The Background Color To Black
 			glClearDepth(1.0);									// Enables Clearing Of The Depth Buffer
 			glEnable(GL_DEPTH_TEST);							// Enable Depth Testing
@@ -431,14 +431,14 @@ namespace breathe
 			glShadeModel( GL_SMOOTH );
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 			glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-			
+
 
 			math::cColour LightAmbient(1.0f, 1.0f, 1.0f, 1.0f);
 			math::cColour LightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
 			math::cColour LightSpecular(1.0f, 1.0f, 1.0f, 1.0f);
 
 			math::cColour LightModelAmbient(0.2f, 0.2f, 0.2f, 1.0f);
-			
+
 			math::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
 			math::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -459,10 +459,10 @@ namespace breathe
 
 			glEnable( GL_COLOR_MATERIAL );
 			glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-	 
+
 			glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
 			glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
-			
+
 
 			return breathe::GOOD;
 		}
@@ -486,7 +486,7 @@ namespace breathe
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 			}
 
-			
+
 			if (bLight)
 			{
 				glLightfv (GL_LIGHT0, GL_POSITION, v4SunPosition);
@@ -497,14 +497,14 @@ namespace breathe
 
 			ClearMaterial();
 		}
-		
+
 		void cRender::BeginRenderToTexture(cTextureFrameBufferObject* pTexture)
 		{
 			glEnable(GL_TEXTURE_2D);
 
 			// First we bind the FBO so we can render to it
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTexture->uiFBO);
-			
+
 			// Save the view port and set it to the size of the texture
 			glPushAttrib(GL_VIEWPORT_BIT);
 			glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
@@ -564,7 +564,7 @@ namespace breathe
 		{
 			_EndRenderToScreen();
 		}
-		
+
 		void cRender::BeginRenderScene()
 		{
 			// If we are just rendering to the screen, no post rendering effects
@@ -576,12 +576,12 @@ namespace breathe
 		void cRender::EndRenderScene()
 		{
 			// Basically we render like this, if there are no post rendering effects,
-			// render straight to the screen.  
-			// If there is one rendering effect render to pFrameBuffer0 then to the screen.  
+			// render straight to the screen.
+			// If there is one rendering effect render to pFrameBuffer0 then to the screen.
 			// If there is more than one rendering effect, render to pFrameBuffer0,
 			// then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
 			// until n-1, for the last effect we render whichever FBO we last rendered to,
-			// to the screen.  
+			// to the screen.
 			size_t n = lPostRenderEffects.size();
 
 			// If we are just rendering to the screen, no post rendering effects
@@ -662,7 +662,7 @@ namespace breathe
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDisable(GL_LIGHTING);
-			
+
 			ClearMaterial();
 
 
@@ -684,10 +684,10 @@ namespace breathe
 				glMatrixMode(GL_MODELVIEW);
 				glPushMatrix();
 				glLoadIdentity();
-				
+
 				glMatrixMode(GL_MODELVIEW);
 		}
-		
+
 		void cRender::EndScreenSpaceRendering()
 		{
 				glMatrixMode( GL_MODELVIEW );		// Select Modelview
@@ -709,7 +709,7 @@ namespace breathe
 			glPopMatrix();
 		}
 
-		
+
 		void cRender::RenderMesh(model::cMesh* pMesh)
 		{
 			assert(pMesh);
@@ -730,7 +730,7 @@ namespace breathe
 			math::cVec3 n;
 
 			glBegin(GL_TRIANGLES);
-			
+
 				if (1==uiActiveUnits)
 					for (triangle=0;triangle<nTriangles;triangle++, vert+=9, texcoord+=6)
 					{
@@ -781,7 +781,7 @@ namespace breathe
 					}
 				else if (3==uiActiveUnits)
 					for (triangle=0;triangle<nTriangles;triangle++, vert+=9, texcoord+=6)
-					{							
+					{
 						glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
 						glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
 						glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
@@ -803,10 +803,10 @@ namespace breathe
 					//t << uiActiveUnits;
 					//LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
 				}
-				
+
 			glEnd();
 		}
-		
+
 		unsigned int cRender::RenderStaticModel(model::cStatic* p)
 		{
 			if (NULL==p)
@@ -830,7 +830,7 @@ namespace breathe
 				RenderMesh(vMesh[mesh]);
 				uiTriangles += vMesh[mesh]->pMeshData->uiTriangles;
 			}
-			
+
 			return uiTriangles;
 		}
 
@@ -863,11 +863,11 @@ namespace breathe
 		void cRender::RenderAxisReference(math::cVec3& position)
 		{
 			const float fWidth = 20.0f;
-			
+
 			glDisable(GL_COLOR_MATERIAL);
 			glDisable(GL_LIGHTING);
 			glDisable(GL_TEXTURE_2D);
-			
+
 				SetColour(1.0f, 0.0f, 0.0f);
     		glBegin(GL_LINES);
 					glVertex3f(position.x, position.y, position.z);
@@ -885,7 +885,7 @@ namespace breathe
 					glVertex3f(position.x, position.y, position.z);
 					glVertex3f(position.x, position.y, position.z + fWidth);
 				glEnd();
-				
+
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_LIGHTING);
 			glEnable(GL_COLOR_MATERIAL);
@@ -950,7 +950,7 @@ namespace breathe
 			for (i=0;i<nAtlas;i++)
     		vTextureAtlas[i]->Begin(uiSegmentWidthPX, uiSegmentSmallPX, uiAtlasWidthPX);
 		}
-		
+
 		void cRender::EndLoadingTextures()
 		{
 			unsigned int i=0;
@@ -964,7 +964,7 @@ namespace breathe
 		{
 			assert(sNewFilename != "");
 			assert(ATLAS_NONE != uiAtlas);
-			
+
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 			string_t s = breathe::filesystem::GetFile(sFilename);
 
@@ -974,7 +974,7 @@ namespace breathe
 				LOG.Error("Texture", breathe::string::ToUTF8(sFilename) + " pTextureNotFound");
 				return pTextureNotFoundTexture;
 			}
-			
+
 			std::ostringstream t;
 			t << p->uiTexture;
 			LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " " + t.str());
@@ -985,30 +985,30 @@ namespace breathe
 		cTexture* cRender::AddTexture(const std::string& sNewFilename)
 		{
 			assert(sNewFilename != "");
-			
+
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 			string_t s = breathe::filesystem::GetFile(sFilename);
 
-			
+
 			cTexture* p = GetTexture(breathe::string::ToUTF8(s));
 			if (p == nullptr)
 			{
 				assert(p != nullptr);
 				return pTextureNotFoundTexture;
 			}
-			
-			p=new cTexture();			
+
+			p=new cTexture();
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
 			{
 				LOG.Error("Render", "Failed to load " + breathe::string::ToUTF8(sFilename));
 				SAFE_DELETE(p);
 				return pTextureNotFoundTexture;
 			}
-			
+
 			p->Create();
 			p->CopyFromSurfaceToTexture();
-			
-			mTexture[breathe::string::ToUTF8(s)]=p;		
+
+			mTexture[breathe::string::ToUTF8(s)]=p;
 
 			std::ostringstream t;
 			t << p->uiTexture;
@@ -1021,20 +1021,21 @@ namespace breathe
 			cTexture* p = new cTexture();
 
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
-			
+
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
 			{
 				// Just assert, don't even try to come back from this situation
 				LOG.Error("Render", "Failed to load texture not found texture");
+        CONSOLE<<"cRender::AddTextureNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
 				assert(false);
 				SAFE_DELETE(p);
 				return breathe::BAD;
 			}
-			
+
 			p->Create();
 			p->CopyFromSurfaceToTexture();
 
-			mTexture[breathe::string::ToUTF8(sNewFilename)]=p;	
+			mTexture[breathe::string::ToUTF8(sNewFilename)]=p;
 			pTextureNotFoundTexture = p;
 
 			std::ostringstream t;
@@ -1051,16 +1052,17 @@ namespace breathe
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 
 			LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
-			
+
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
 			{
 				// Just assert, don't even try to come back from this situation
 				LOG.Error("Render", "Failed to load material not found texture");
+        CONSOLE<<"cRender::AddMaterialNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
 				assert(false);
 				SAFE_DELETE(p);
 				return breathe::BAD;
 			}
-			
+
 			p->Create();
 			p->CopyFromSurfaceToTexture();
 
@@ -1078,12 +1080,12 @@ namespace breathe
 		cTexture* cRender::GetTextureAtlas(ATLAS atlas)
 		{
 			assert(atlas < nAtlas);
-			
+
 			return vTextureAtlas[atlas];
 		}
 
 		cTexture* cRender::GetTexture(const std::string& sNewFilename)
-		{			
+		{
 			std::map<std::string, cTexture* >::iterator iter = mTexture.find(sNewFilename);
 			if (iter != mTexture.end())
 				return iter->second;
@@ -1100,10 +1102,10 @@ namespace breathe
 		}
 
 		cTexture* cRender::GetCubeMap(const string_t& sNewFilename)
-		{		
+		{
 			if (TEXT("")==sNewFilename)
 				return NULL;
-			
+
 			std::map<string_t, cTexture*>::iterator iter=mCubeMap.find(sNewFilename);
 
 			if (mCubeMap.end()!=iter)
@@ -1137,7 +1139,7 @@ namespace breathe
 
 			p->sFilename = breathe::string::ToUTF8(sFilename);
 
-			GLuint cube_map_directions[6] = 
+			GLuint cube_map_directions[6] =
 			{
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 				GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -1148,14 +1150,14 @@ namespace breathe
 			};
 
 			LOG.Success("Texture", "Loading CubeMap " + breathe::string::ToUTF8(sFilename));
-		
+
 			unsigned int i=0;
 			unsigned int uiTempTexture=0;
 
 			glEnable(GL_TEXTURE_CUBE_MAP);
 
 			glGenTextures(1, &p->uiTexture);
-			
+
 			glBindTexture(GL_TEXTURE_CUBE_MAP, p->uiTexture);
 
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1169,7 +1171,7 @@ namespace breathe
 
 			string_t sFile = breathe::filesystem::GetFileNoExtension(breathe::string::ToString_t(sFilename));
 			string_t sExt = breathe::filesystem::GetExtension(breathe::string::ToString_t(sFilename));
-			
+
 			for (i=0;i<6;i++)
 			{
 				s.str("");
@@ -1204,33 +1206,33 @@ namespace breathe
 					std::ostringstream t;
 					t << surface->format->BytesPerPixel;
 					LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
-					
+
 					return NULL;
 				}
 
 				{
 					int nHH = surface->h / 2;
 					int nPitch = surface->pitch;
-				
+
 					unsigned char* pBuf = new unsigned char[nPitch];
 					unsigned char* pSrc = (unsigned char*) surface->pixels;
 					unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
-				
+
 					while (nHH--)
 					{
 						std::memcpy(pBuf, pSrc, nPitch);
 						std::memcpy(pSrc, pDst, nPitch);
 						std::memcpy(pDst, pBuf, nPitch);
-				
+
 						pSrc += nPitch;
 						pDst -= nPitch;
 					};
-				
+
 					SAFE_DELETE_ARRAY(pBuf);
 				}
 
 
-				
+
 
 				// create one texture name
 				glGenTextures(1, &uiTempTexture);
@@ -1251,7 +1253,7 @@ namespace breathe
 				//Trilinear mipmapping.
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				
+
 				//build mipmaps
 				//gluBuild2DMipmaps(cube_map_directions[i], mode, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
 
@@ -1262,7 +1264,7 @@ namespace breathe
 				SDL_FreeSurface(surface);
 			}
 
-			
+
 			glDisable(GL_TEXTURE_CUBE_MAP);
 			glDisable(GL_TEXTURE_GEN_S);
 			glDisable(GL_TEXTURE_GEN_T);
@@ -1296,10 +1298,10 @@ namespace breathe
 				return NULL;
 
 			material::cMaterial* pMaterial = GetMaterial(sNewfilename);
-			
+
 			if (pMaterial != pMaterialNotFoundMaterial)
 				return pMaterial;
-			
+
 			string_t sFilename = filesystem::FindFile(breathe::string::ToString_t(sNewfilename));
 			pMaterial = new material::cMaterial(breathe::string::ToUTF8(sFilename));
 
@@ -1308,7 +1310,7 @@ namespace breathe
 				SAFE_DELETE(pMaterial);
 				pMaterial=pMaterialNotFoundMaterial;
 			}
-			
+
 			mMaterial[breathe::string::ToUTF8(filesystem::GetFile(sFilename))]=pMaterial;
 
 			return pMaterial;
@@ -1320,10 +1322,10 @@ namespace breathe
 			{
 				if (a.y>b.y)
 					return (atan((a.y-b.y)/(a.x-b.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
-				
+
 				return (-atan((a.y-b.y)/(b.x-a.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
 			}
-			
+
 
 			if (b.y>a.y)
 				return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
@@ -1331,7 +1333,7 @@ namespace breathe
 			return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 		}
 
-		
+
 		void cRender::SelectTextureUnit0()
 		{
 			glActiveTexture(GL_TEXTURE0);
@@ -1420,7 +1422,7 @@ namespace breathe
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if (TEXTURE_MASK == layerOld->uiTextureMode || 
+				if (TEXTURE_MASK == layerOld->uiTextureMode ||
 						TEXTURE_BLEND == layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1451,7 +1453,7 @@ namespace breathe
 
 					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 				}
-				
+
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1467,7 +1469,7 @@ namespace breathe
 			glDisable(GL_LIGHTING);
 
 			bActiveShader = false;
-			
+
 			if (bCanShader) glUseProgram(0);
 
 			pCurrentMaterial = NULL;
@@ -1489,7 +1491,7 @@ namespace breathe
 				assert(loc);
 				return false;
 			}
-			
+
 			glUniform1i(loc, value);
 			return true;
 		}
@@ -1506,7 +1508,7 @@ namespace breathe
 				assert(loc);
 				return false;
 			}
-			
+
 			glUniform1f(loc, value);
 			return true;
 		}
@@ -1523,7 +1525,7 @@ namespace breathe
 				assert(loc);
 				return false;
 			}
-			
+
 			glUniform3f(loc, value.x, value.y, value.z);
 			return true;
 		}
@@ -1565,7 +1567,7 @@ namespace breathe
 			uiActiveUnits=n;
 
 			unit=GL_TEXTURE0_ARB;
-			
+
 			for (i=0;i<n;i++, unit++)
 			{
 				layerNew = pMaterial->vLayer[i];
@@ -1653,7 +1655,7 @@ namespace breathe
 						glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
 						//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 						//glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-										
+
 						// Change the texture matrix so that we have more detail than normal texture
 						glMatrixMode(GL_TEXTURE);
 							glLoadIdentity();
@@ -1684,11 +1686,11 @@ namespace breathe
 						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
 
 
-						
+
 						glMatrixMode(GL_TEXTURE);
 						glPushMatrix();
 						glLoadIdentity();
-						
+
 						float y = -Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y), math::cVec2(pFrustum->target.x, pFrustum->target.y));
 						float x = -Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z), math::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
@@ -1696,7 +1698,7 @@ namespace breathe
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
 						glRotatef(x, 1.0f, 0.0f, 0.0f);
 
-						
+
 						//float mat[16];
 						//glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 
@@ -1710,7 +1712,7 @@ namespace breathe
 
 						glEnable(GL_TEXTURE_GEN_S);
 						glEnable(GL_TEXTURE_GEN_T);
-						glEnable(GL_TEXTURE_GEN_R); 
+						glEnable(GL_TEXTURE_GEN_R);
 
 						glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -1748,7 +1750,7 @@ namespace breathe
 				else if (layerOld->pTexture->uiTexture!=layerNew->pTexture->uiTexture)
 				{
 					uiTextureChanges++;
-					if (	TEXTURE_MASK==layerOld->uiTextureMode || 
+					if (	TEXTURE_MASK==layerOld->uiTextureMode ||
 							TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
@@ -1775,18 +1777,18 @@ namespace breathe
 							glDisable(GL_TEXTURE_2D);
 							glEnable(GL_TEXTURE_CUBE_MAP);
 							glBindTexture(GL_TEXTURE_CUBE_MAP, t->uiTexture);
-							
+
 							//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MULT);
 
 							glEnable(GL_TEXTURE_GEN_S);
 							glEnable(GL_TEXTURE_GEN_T);
-							glEnable(GL_TEXTURE_GEN_R); 
-							
+							glEnable(GL_TEXTURE_GEN_R);
+
 							glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
 							glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
 							glTexGeni(GL_R,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
-						}						
+						}
 					}
 #endif
 					else
@@ -1795,7 +1797,7 @@ namespace breathe
 						glDisable(GL_BLEND);
 					}
 
-					
+
 					//Set the current mode and texture
 					layerOld->uiTextureMode=layerNew->uiTextureMode;
 					layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
@@ -1803,7 +1805,7 @@ namespace breathe
 
 
 
-					
+
 					if (TEXTURE_NONE==layerOld->uiTextureMode)
 						glDisable(GL_TEXTURE_2D);
 					else if (TEXTURE_NORMAL==layerOld->uiTextureMode)
@@ -1820,7 +1822,7 @@ namespace breathe
 						glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 						glEnable(GL_BLEND);
 					}
-					else if (TEXTURE_BLEND==layerOld->uiTextureMode || 
+					else if (TEXTURE_BLEND==layerOld->uiTextureMode ||
 									TEXTURE_DETAIL==layerOld->uiTextureMode)
 					{
 						glEnable(GL_TEXTURE_2D);
@@ -1850,21 +1852,21 @@ namespace breathe
 						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
 
 
-						
+
 						glMatrixMode(GL_TEXTURE);
 						glPushMatrix();
 						glLoadIdentity();
-						
-						float y=-Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y), 
+
+						float y=-Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y),
 							math::cVec2(pFrustum->target.x, pFrustum->target.y));
-						float x=-Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z), 
+						float x=-Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z),
 							math::cVec2(pFrustum->target.y, pFrustum->target.z));
 						//std::cout<<y<<"\t"<<x<<"\n";
 
 						glRotatef(y, 0.0f, 1.0f, 0.0f);
 						glRotatef(x, 1.0f, 0.0f, 0.0f);
 
-						
+
 						//float mat[16];
 						//glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 
@@ -1878,7 +1880,7 @@ namespace breathe
 
 						glEnable(GL_TEXTURE_GEN_S);
 						glEnable(GL_TEXTURE_GEN_T);
-						glEnable(GL_TEXTURE_GEN_R); 
+						glEnable(GL_TEXTURE_GEN_R);
 
 						glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -1905,7 +1907,7 @@ namespace breathe
 
 
 
-				
+
 
 				// **************************************************************************************
 				// **************************************************************************************
@@ -1928,7 +1930,7 @@ namespace breathe
 				glActiveTexture(unit);
 
 				//Undo last mode
-				if (TEXTURE_MASK==layerOld->uiTextureMode || 
+				if (TEXTURE_MASK==layerOld->uiTextureMode ||
 						TEXTURE_BLEND==layerOld->uiTextureMode)
 				{
 					glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1961,7 +1963,7 @@ namespace breathe
 
 					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 				}
-				
+
 				glDisable(GL_TEXTURE_2D);
 
 				//Set the current mode and texture
@@ -1974,7 +1976,7 @@ namespace breathe
 			{
 				glActiveTexture(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
-				
+
 				if (TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
 				{
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
@@ -2004,7 +2006,7 @@ namespace breathe
 					glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[1]->pTexture->uiTexture);
 					//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 					//glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-									
+
 					// Now we want to enter the texture matrix.  This will allow us
 					// to change the tiling of the detail texture.
 					glMatrixMode(GL_TEXTURE);
@@ -2028,7 +2030,7 @@ namespace breathe
 						float a1[4] = {0.6f, 0.6f, 0.6f, 1.0f};
 						glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
 					}
-					
+
 					glActiveTexture(GL_TEXTURE0_ARB);
 					if (	TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour &&
 							!TEXTURE_DETAIL==vLayer[1].uiTextureMode)
@@ -2048,11 +2050,11 @@ namespace breathe
 				glActiveTexture(GL_TEXTURE2_ARB);
 				float a2[4] = {0.5f, 0.5f, 0.5f, 1.0f};
 				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a2);
-				
+
 				glActiveTexture(GL_TEXTURE1_ARB);
 				float a1[4] = {0.5f, 0.5f, 0.5f, 1.0f};
 				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
-				
+
 				glActiveTexture(GL_TEXTURE0_ARB);
 				if (TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
 				{
@@ -2099,10 +2101,10 @@ namespace breathe
 			else if (bActiveShader)
 			{
 				bActiveShader = false;
-				
+
 				if (bCanShader) glUseProgram(0);
 			}
-			
+
 			pCurrentMaterial=pMaterial;
 			return true;
 		}
@@ -2114,7 +2116,7 @@ namespace breathe
 			std::string temp = breathe::string::ToUTF8(filesystem::GetFile(breathe::string::ToString_t(sFilename)));
 			while(iter != mMaterial.end())
 			{
-				if (temp == iter->first) 
+				if (temp == iter->first)
 					return iter->second;
 				iter++;
 			}
@@ -2155,14 +2157,14 @@ namespace breathe
 
 			if (pModel)
 				return pModel;
-			
+
 			pModel = new model::cStatic();
-			
+
 			mStatic[sName] = pModel;
-			
+
 			return pModel;
 		}
-		
+
 		model::cStatic* cRender::AddModel(const string_t& sFilename)
 		{
 			string_t sNewfilename(breathe::filesystem::FindFile(sFilename));
@@ -2170,7 +2172,7 @@ namespace breathe
 
 			if (pModel)
 				return pModel;
-			
+
 			pModel=new model::cStatic();
 
 			if (pModel->Load(breathe::string::ToUTF8(sNewfilename)))
@@ -2182,7 +2184,7 @@ namespace breathe
 				for (i=0;i<n;i++)
 					AddMaterial(pModel->vMesh[i]->sMaterial);
 					//pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
-				
+
 				return pModel;
 			}
 
@@ -2203,13 +2205,13 @@ namespace breathe
 			model::cStatic* pModel = mStatic[sFilename];
 			if (pModel)
 				return pModel;
-			
+
 			//std::cout<<"Couldn't find "<<sFilename<<std::endl;
 
 			return nullptr;
 		}
 
-		
+
 
 
 		void cRender::ClearColour()
@@ -2227,7 +2229,7 @@ namespace breathe
 			math::cColour colour(r, g, b, 1.0f);
 			SetColour(colour);
 		}
-		
+
 		void cRender::SetColour(const math::cColour& inColour)
 		{
 			bActiveColour = true;
@@ -2259,9 +2261,9 @@ namespace breathe
 			{
 				string_t sFilename = iter->first;
 				s=iter->second;
-				
+
 				assert(s);
-				
+
 				nMeshes = s->vMesh.size();
 
 				std::ostringstream sOut;
@@ -2283,7 +2285,7 @@ namespace breathe
 							t = mat->vLayer[0]->pTexture;
 
 							if (NULL == t) t = GetTexture(mat->vLayer[0]->sTexture);
-						
+
 							if (t)
 							{
 								for (texcoord=0;texcoord<nTexcoords;texcoord+=2)
@@ -2309,11 +2311,11 @@ namespace breathe
 				LOG.Success("Transform", "Normals " + breathe::string::ToUTF8(iter->first));
 
 				s=iter->second;
-				
+
 				if (s)
 				{
 					nMeshes=s->vMesh.size();
-					
+
 					for (mesh=0;mesh<nMeshes;mesh++)
 					{
 						pMesh = s->vMesh[mesh];
@@ -2322,8 +2324,8 @@ namespace breathe
 						/*Init all vertex normals to zero
 
 						for all faces:
-							compute face normal  
-							  
+							compute face normal
+
 						for every vertex in every face:
 							add face normal to vertex normal
 							for all adjacent faces:
@@ -2353,9 +2355,9 @@ namespace breathe
 				{
 					nMeshes=s->vMesh.size();
 
-					for (uiPass=1; uiPass < nMeshes; uiPass++) 
+					for (uiPass=1; uiPass < nMeshes; uiPass++)
 					{
-						for (i=0; i < nMeshes-uiPass; i++) 
+						for (i=0; i < nMeshes-uiPass; i++)
 						{
 							uiMode0=GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
 
@@ -2369,11 +2371,11 @@ namespace breathe
 
 			LOG.Success("Render", "TransformModels returning");
 		}
-		
+
 		void cRender::ReloadTextures()
 		{
 			LOG.Success("Render", "ReloadTextures");
-			
+
 			{
 				LOG.Success("Render", "ReloadTextures Atlases");
 				cTextureAtlas* pAtlas = NULL;
@@ -2411,7 +2413,7 @@ namespace breathe
 						pMaterial->pShader->Destroy();
 						pMaterial->pShader->Init();
 					}
-          
+
 					iter++;
 				}
 			}
@@ -2477,7 +2479,7 @@ namespace breathe
 			}
 		}
 
-		
+
 		ApplyTexture::ApplyTexture(cTexture* pCurrent)
 		{
 			pLast = pRender->GetCurrentTexture0();

@@ -35,7 +35,7 @@ namespace breathe
 #ifdef DEBUG3DS
 			LOG.Success("3ds", "Edit material");
 #endif
-			
+
 			for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 			{
 				switch(cc.ID())
@@ -43,7 +43,7 @@ namespace breathe
 					case(0xa000):
 						NewMaterial(cc);
 					break;
-					
+
 					default:
 					break;
 				}

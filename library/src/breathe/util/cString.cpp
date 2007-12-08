@@ -20,11 +20,11 @@ namespace breathe
 			// We regard space, tab, new line and carriage return characters as white space
 			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
 		}
-		
+
 		size_t CountOccurrences(const std::string& source, const std::string& sFind)
 		{
 			size_t n = 0;
-			
+
 			size_t i = 0;
 			size_t j;
 			for (;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, n++)
@@ -52,7 +52,7 @@ namespace breathe
 
 			while (getline(stm, field, sFind)) vOut.push_back(Trim(field));
 		}
-		
+
 		void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut)
 		{
 			vOut.clear();
@@ -60,10 +60,10 @@ namespace breathe
 			std::stringstream stm(source);
 			std::string field;
 
-			while (getline(stm, field)) 
+			while (getline(stm, field))
 				vOut.push_back(Trim(field));
 		}
-		
+
 		void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut)
 		{
 			vOut.clear();
@@ -71,7 +71,7 @@ namespace breathe
 			std::wstringstream stm(source);
 			std::wstring field;
 
-			while (getline(stm, field)) 
+			while (getline(stm, field))
 				vOut.push_back(Trim(field));
 		}
 
@@ -121,7 +121,7 @@ namespace breathe
 
 			return source;
 		}
-		
+
 		std::string StripTrailing(const std::string& source, const std::string& find)
 		{
 			std::string::size_type iEndOfContent = source.find_last_not_of(find);
@@ -129,10 +129,10 @@ namespace breathe
 				std::string temp(source);
 				return temp.erase(iEndOfContent + 1);
 			}
-			
+
 			return source;
 		}
-		
+
 		std::wstring StripTrailing(const std::wstring& source, const std::wstring& find)
 		{
 			std::wstring::size_type iEndOfContent = source.find_last_not_of(find);
@@ -140,7 +140,7 @@ namespace breathe
 				std::wstring temp(source);
 				return temp.erase(iEndOfContent + 1);
 			}
-			
+
 			return source;
 		}
 
@@ -181,7 +181,7 @@ namespace breathe
 		{
 			std::string::size_type i = source.find_last_of(find);
 			if (std::string::npos != i) return source.substr(0, i + find.length());
-			
+
 			return source;
 		}
 
@@ -196,7 +196,7 @@ namespace breathe
 		std::string StripBeforeInclusive(const std::string& source, const std::string& find)
 		{
 			std::string::size_type i = source.find(find);
-			if (std::string::npos != i) 
+			if (std::string::npos != i)
 				return std::string(source.begin() + i + find.length(), source.end());
 
 			return source;
@@ -205,7 +205,7 @@ namespace breathe
 		std::wstring StripBeforeInclusive(const std::wstring& source, const std::wstring& find)
 		{
 			std::wstring::size_type i = source.find(find);
-			if (std::wstring::npos != i) 
+			if (std::wstring::npos != i)
 				return std::wstring(source.begin() + i + find.length(), source.end());
 
 			return source;
@@ -239,7 +239,7 @@ namespace breathe
 		{
 			std::string::size_type i = source.find_last_of(find);
 			if (std::string::npos != i) return source.substr(0, i);
-			
+
 			return source;
 		}
 
@@ -281,36 +281,36 @@ namespace breathe
 
 
 		// *** Conversion Functions
-		
+
 		std::string ToLower(const std::string& source)
 		{
 			std::string sOut(source);
-			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), tolower);
 			return sOut;
 		}
 
 		std::string ToUpper(const std::string& source)
 		{
 			std::string sOut(source);
-      std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
+      std::transform(sOut.begin(), sOut.end(), sOut.begin(), toupper);
 			return sOut;
 		}
 
 		std::wstring ToLower(const std::wstring& source)
 		{
 			std::wstring sOut(source);
-			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::tolower);
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), tolower);
 			return sOut;
 		}
 
 		std::wstring ToUpper(const std::wstring& source)
 		{
 			std::wstring sOut(source);
-			std::transform(sOut.begin(), sOut.end(), sOut.begin(), std::toupper);
+			std::transform(sOut.begin(), sOut.end(), sOut.begin(), toupper);
 			return sOut;
 		}
 
-		
+
 		std::wstring ToWchar_t(const std::string& source)
 		{
 			std::wstring result(source.size(), char(0));
@@ -319,15 +319,19 @@ namespace breathe
 			ct.widen(source.data(), source.data() + source.size(), &(*result.begin()));
 			return result;
 		}
- 
 
-		std::string ToUTF8(const std::wstring& source) 
-		{ 
-				std::string result(source.size(), char(0)); 
-				typedef std::ctype<wchar_t> ctype_t; 
-				const ctype_t& ct = std::use_facet<ctype_t>(std::locale()); 
-				ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin())); 
-				return result; 
+
+		std::string ToUTF8(const std::wstring& source)
+		{
+				std::string result(source.size(), char(0));
+				typedef std::ctype<wchar_t> ctype_t;
+				const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
+#ifdef __LINUX__
+        ct.narrow(source.data(), source.data() + source.size(), '0', &(*result.begin()));
+#else
+        ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin()));
+#endif
+				return result;
 		}
 
 		/*std::string ToUTF8(const std::wstring& source)
@@ -346,7 +350,7 @@ namespace breathe
 			//std::string temp;
 			//temp.reserve(source.length());
 			//std::transform(source.begin(), source.end(), temp.begin(), (int(*)(int))std::ios::narrow);
-			
+
 			//const size_t len = source.length() + 1;
 			//char* pTemp = new char[len];
 			//wcstombs(pTemp, source.data(), len);
@@ -363,7 +367,7 @@ namespace breathe
 			stm >> value;
 			return value;
 		}
-		
+
 		std::string HTMLDecode(const std::string& source)
 		{
 			std::string sOut(source);

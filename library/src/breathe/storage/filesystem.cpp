@@ -25,6 +25,15 @@
 #include <windows.h>
 #endif
 
+/*
+#ifdef __LINUX__
+  const size_t len = 255;
+  char pwd[len];
+  getcwd(pwd, len);
+  CONSOLE<<"pwd="<<pwd<<std::endl;
+#endif // __LINUX__
+*/
+
 namespace breathe
 {
 	namespace filesystem
@@ -141,11 +150,11 @@ namespace breathe
 			};
 
 			if (i != string_t::npos) return s.substr(i);
-			
+
 			return s.substr(0);
 		}
 
-		
+
 		void AddDirectory(const string_t& sDirectory)
 		{
 			string_t expanded = ExpandPath(sDirectory);
@@ -167,7 +176,7 @@ namespace breathe
 		string_t FindFile(const string_t& sPath, const string_t& sFilename)
 		{
 			string_t temp = FindFile(sPath + sFilename);
-			
+
 			if (FileExists(temp)) return temp;
 
 			return FindFile(sFilename);
@@ -175,7 +184,8 @@ namespace breathe
 
 		string_t FindFile(const string_t& sFilename)
 		{
-			if (TEXT("") == sFilename) return TEXT("");
+      CONSOLE<<"FindFile "<<sFilename<<std::endl;
+			if (TEXT("") == sFilename) return sFilename;
 
 			std::ifstream f;
 
@@ -184,8 +194,9 @@ namespace breathe
 			while(iter!=vDirectory.end())
 			{
 				string_t filename = breathe::string::ToString_t((*iter) + sFilename);
+        CONSOLE<<"Attempting to open "<<filename<<std::endl;
 				f.open(breathe::string::ToUTF8(filename).c_str());
-				
+
 				if (f.is_open())
 				{
 					f.close();
@@ -194,7 +205,7 @@ namespace breathe
 
 				iter++;
 			};
-			
+
 
 			//Check for each directory+sFilename-path
 			iter = vDirectory.begin();
@@ -202,8 +213,9 @@ namespace breathe
 			while(iter != vDirectory.end())
 			{
 				string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
+        CONSOLE<<"Attempting to open "<<filename<<std::endl;
 				f.open(breathe::string::ToUTF8(filename).c_str());
-				
+
 				if (f.is_open())
 				{
 					f.close();
@@ -212,16 +224,17 @@ namespace breathe
 
 				iter++;
 			};
-			
+
 			//Check sFilename that was passed in
 			f.open(breathe::string::ToUTF8(sFilename).c_str());
 
+        CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
 			if (f.is_open())
 			{
 				f.close();
 				return sFilename;
 			}
-	    
+
 			return sFilename;
 		}
 
@@ -234,7 +247,7 @@ namespace breathe
 			return breathe::string::ToString_t(m.GetResult());
 		}
 #endif
-		
+
 #ifdef __WIN__
 #pragma push_macro("FileExists")
 #undef FileExists
@@ -243,7 +256,7 @@ namespace breathe
 		{
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
-			
+
 			WIN32_FIND_DATA FindFileData;
 			HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
 			if (hFind != INVALID_HANDLE_VALUE)
@@ -268,7 +281,7 @@ namespace breathe
 		{
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
-			
+
 #ifdef UNICODE
 			return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryW(sFoldername.c_str(), NULL));
 #else
@@ -289,7 +302,7 @@ namespace breathe
 		{
 #ifdef __WIN__
 #pragma pop_macro("CreateFile")
-			
+
 			// Check if this file is already created so that we don't overwrite it
 			if (FileExists(sFilename))
 				return true;
@@ -314,7 +327,7 @@ namespace breathe
 				CloseHandle(handle);
 				return true;
 			}
-			
+
 			return false;
 #else
 			LOG.Error("CreateFile", "Not implemented on this platform");
@@ -334,7 +347,7 @@ namespace breathe
 		{
 			return GetFile().length() > 0;
 		}
-		
+
 		bool path::IsDirectory() const
 		{
 			return GetFile().length() == 0;
@@ -365,15 +378,15 @@ namespace breathe
 
 
 		// ********************************************* iterator *********************************************
-		
+
 		/*iterator::iterator()
 		{
 			//TODO: Set ourselves to the current directory
 		}
-			
+
 		iterator::iterator(const string_t& directory)
 		{
-			
+
 		}
 
 		iterator::iterator(const iterator& rhs)

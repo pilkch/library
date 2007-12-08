@@ -69,7 +69,7 @@ namespace breathe
 			{
 			}
 
-			
+
 			cShader::cShader() :
 				bCameraPos(false),
 
@@ -84,7 +84,7 @@ namespace breathe
 			{
 			}
 
-			
+
 			void cShader::CheckStatusVertex()
 			{
 				int infologLength = 0;
@@ -126,7 +126,7 @@ namespace breathe
 						SAFE_DELETE_ARRAY(infoLog);
 				}
 			}
-			
+
 			void cShader::CheckStatusProgram()
 			{
 				int infologLength = 0;
@@ -171,7 +171,7 @@ namespace breathe
 						const char* str=buffer.c_str();
 						glShaderSource(uiShaderVertex, 1, &str, NULL);
 						glCompileShader(uiShaderVertex);
-						
+
 						CheckStatusVertex();
 					}
 					else
@@ -181,7 +181,7 @@ namespace breathe
 					}
 				}
 
-				
+
 				if ("" != sShaderFragment)
 				{
 					uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -202,7 +202,7 @@ namespace breathe
 						const char* str=buffer.c_str();
 						glShaderSource(uiShaderFragment, 1, &str, NULL);
 						glCompileShader(uiShaderFragment);
-						
+
 						CheckStatusFragment();
 					}
 					else
@@ -211,7 +211,7 @@ namespace breathe
 						uiShaderFragment=0;
 					}
 				}
-			
+
 				if (uiShaderVertex || uiShaderFragment)
 				{
 					uiShaderProgram = glCreateProgram();
@@ -223,11 +223,11 @@ namespace breathe
 						glAttachShader(uiShaderProgram, uiShaderFragment);
 
 					glLinkProgram(uiShaderProgram);
-					
+
 					CheckStatusProgram();
 
 					glUseProgram(uiShaderProgram);
-					glUseProgram(NULL);
+					glUseProgram(0);
 
 					CheckStatusProgram();
 				}
@@ -242,7 +242,7 @@ namespace breathe
 					glDeleteShader(uiShaderVertex);
 
 				glDeleteProgram(uiShaderProgram);
-				
+
 				uiShaderFragment = 0;
 				uiShaderVertex = 0;
 				uiShaderProgram = 0;
@@ -258,21 +258,21 @@ namespace breathe
 				bCollideTrimesh(false),
 
 				chDustR(0),
-				chDustG(0), 
+				chDustG(0),
 				chDustB(0),
 
 				uiAudioScrape(0),
 				uiAudioBounce(0),
-				
+
 				fFriction(0.0f),
 				fBounce(0.0f),
 
 				fCorrugation(0.0f),
 
 				pShader(NULL),
-				
+
 				sName(name)
-			{				
+			{
 				unsigned int i=0;
 				for (i=0;i<nLayers;i++)
 				{
@@ -296,10 +296,10 @@ namespace breathe
 				LOG.Success("Material", std::string("Actually loading ") + breathe::string::ToUTF8(sFilename));
 
 				string_t sPath = breathe::filesystem::GetPath(sFilename);
-				
+
 				xml::cNode root(breathe::string::ToUTF8(sFilename));
 				xml::cNode::iterator iter(root);
-				
+
 				if (!iter) return breathe::BAD;
 
 				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
@@ -316,9 +316,9 @@ namespace breathe
 
 					return breathe::BAD;
 				}
-				
+
 				iter.GetAttribute("collide", bCollideTrimesh);
-					
+
 				std::string sValue;
 				if (iter.GetAttribute("sShaderVertex", sValue))
 				{
@@ -334,7 +334,7 @@ namespace breathe
 				if (pShader)
 				{
 					iter.GetAttribute("cameraPos", pShader->bCameraPos);
-					
+
 					iter.GetAttribute("texUnit0", pShader->bTexUnit0);
 					iter.GetAttribute("texUnit1", pShader->bTexUnit1);
 					iter.GetAttribute("texUnit2", pShader->bTexUnit2);
@@ -345,7 +345,7 @@ namespace breathe
 
 
 				iter.FirstChild();
-				
+
 				cLayer* pLayer = NULL;
 				size_t n = vLayer.size();
 				size_t i = 0;
@@ -389,11 +389,11 @@ namespace breathe
 							uiTextureAtlas = ATLAS_NONE;
 							LOG.Error("CUBEMAP", "CUBEMAP");
 						}
-						
+
 						if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode))
 						{
 							if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
-							
+
 							if (NULL == pLayer->pTexture)
 							{
 								uiTextureAtlas = ATLAS_NONE;

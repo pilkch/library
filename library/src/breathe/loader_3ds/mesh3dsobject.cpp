@@ -118,7 +118,7 @@ namespace breathe
 				v.x = fScale*c.Float();
 				v.y = fScale*c.Float();
 				v.z = fScale*c.Float();
-				
+
 				vertices.push_back(v);
 			}
 		}
@@ -127,7 +127,7 @@ namespace breathe
 			bTextureCoords=true;
 
 			int n_texcoords = c.Short();
-			
+
 			Mesh3DSTextureCoord texcoord;
 			texcoord.u=0;
 			texcoord.v=0;
@@ -140,14 +140,14 @@ namespace breathe
 			{
 				texcoord.u = c.Float();
 				texcoord.v = c.Float();
-				
+
 				texturecoords.push_back(texcoord);
 			}
 		}
 		void Mesh3DSObject::ParseFaces(Model3DSChunk c)
 		{
 			bFoundFaces=true;
-			
+
 			unsigned int i=0;
 
 			int n_faces = c.Short();
@@ -209,7 +209,7 @@ namespace breathe
 			for (i = 0 ; i < n_faces ; i++)
 			{
 				f = c.Short();
-				
+
 				faces_applied.push_back(f);
 			}
 

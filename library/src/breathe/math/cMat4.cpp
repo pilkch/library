@@ -49,9 +49,9 @@ namespace breathe
 				entries[i]=rhs.entries[i];
 		}
 
-		float & cMat4::operator[](const int i) const
+		float& cMat4::operator[](const int i) const
 		{
-			return (float)entries[i];
+			return const_cast<float&>(entries[i]);
 		}
 
 		void cMat4::SetEntry(int position, float value)
@@ -61,7 +61,7 @@ namespace breathe
 			//else
 				//"Illegal argument to cMat4::SetEntry()"
 		}
-			
+
 		float cMat4::GetEntry(int position) const
 		{
 			if (position>=0 && position<=15)
@@ -77,13 +77,13 @@ namespace breathe
 		{
 			if (position==0)
 				return cVec4(entries[0], entries[4], entries[8], entries[12]);
-			
+
 			if (position==1)
 				return cVec4(entries[1], entries[5], entries[9], entries[13]);
-			
+
 			if (position==2)
 				return cVec4(entries[2], entries[6], entries[10], entries[14]);
-			
+
 			if (position==3)
 				return cVec4(entries[3], entries[7], entries[11], entries[15]);
 
@@ -95,13 +95,13 @@ namespace breathe
 		{
 			if (position==0)
 				return cVec4(entries[0], entries[1], entries[2], entries[3]);
-			
+
 			if (position==1)
 				return cVec4(entries[4], entries[5], entries[6], entries[7]);
-			
+
 			if (position==2)
 				return cVec4(entries[8], entries[9], entries[10], entries[11]);
-			
+
 			if (position==3)
 				return cVec4(entries[12], entries[13], entries[14], entries[15]);
 
@@ -162,17 +162,17 @@ namespace breathe
 			result.SetEntry(4, (entries[0]*rhs.GetEntry(4))+(entries[4]*rhs.GetEntry(5))+(entries[8]*rhs.GetEntry(6))+(entries[12]*rhs.GetEntry(7)));
 			result.SetEntry(8, (entries[0]*rhs.GetEntry(8))+(entries[4]*rhs.GetEntry(9))+(entries[8]*rhs.GetEntry(10))+(entries[12]*rhs.GetEntry(11)));
 			result.SetEntry(12, (entries[0]*rhs.GetEntry(12))+(entries[4]*rhs.GetEntry(13))+(entries[8]*rhs.GetEntry(14))+(entries[12]*rhs.GetEntry(15)));
-			
+
 			result.SetEntry(1, (entries[1]*rhs.GetEntry(0))+(entries[5]*rhs.GetEntry(1))+(entries[9]*rhs.GetEntry(2))+(entries[13]*rhs.GetEntry(3)));
 			result.SetEntry(5, (entries[1]*rhs.GetEntry(4))+(entries[5]*rhs.GetEntry(5))+(entries[9]*rhs.GetEntry(6))+(entries[13]*rhs.GetEntry(7)));
 			result.SetEntry(9, (entries[1]*rhs.GetEntry(8))+(entries[5]*rhs.GetEntry(9))+(entries[9]*rhs.GetEntry(10))+(entries[13]*rhs.GetEntry(11)));
 			result.SetEntry(13, (entries[1]*rhs.GetEntry(12))+(entries[5]*rhs.GetEntry(13))+(entries[9]*rhs.GetEntry(14))+(entries[13]*rhs.GetEntry(15)));
-			
+
 			result.SetEntry(2, (entries[2]*rhs.GetEntry(0))+(entries[6]*rhs.GetEntry(1))+(entries[10]*rhs.GetEntry(2))+(entries[14]*rhs.GetEntry(3)));
 			result.SetEntry(6, (entries[2]*rhs.GetEntry(4))+(entries[6]*rhs.GetEntry(5))+(entries[10]*rhs.GetEntry(6))+(entries[14]*rhs.GetEntry(7)));
 			result.SetEntry(10, (entries[2]*rhs.GetEntry(8))+(entries[6]*rhs.GetEntry(9))+(entries[10]*rhs.GetEntry(10))+(entries[14]*rhs.GetEntry(11)));
 			result.SetEntry(14, (entries[2]*rhs.GetEntry(12))+(entries[6]*rhs.GetEntry(13))+(entries[10]*rhs.GetEntry(14))+(entries[14]*rhs.GetEntry(15)));
-			
+
 			result.SetEntry(3, (entries[3]*rhs.GetEntry(0))+(entries[7]*rhs.GetEntry(1))+(entries[11]*rhs.GetEntry(2))+(entries[15]*rhs.GetEntry(3)));
 			result.SetEntry(7, (entries[3]*rhs.GetEntry(4))+(entries[7]*rhs.GetEntry(5))+(entries[11]*rhs.GetEntry(6))+(entries[15]*rhs.GetEntry(7)));
 			result.SetEntry(11, (entries[3]*rhs.GetEntry(8))+(entries[7]*rhs.GetEntry(9))+(entries[11]*rhs.GetEntry(10))+(entries[15]*rhs.GetEntry(11)));
@@ -194,13 +194,13 @@ namespace breathe
 		cMat4 cMat4::operator/(const float rhs) const
 		{
 			cMat4 result;
-			
+
 			if (rhs==0.0f)										//cannot divide by zero
 			{
 				result.LoadZero();
 				return result;
 			}
-				
+
 			float temp=1/rhs;
 
 			for (int entry=0; entry<16; entry++)
@@ -314,7 +314,7 @@ namespace breathe
 		{
 			return cVec3(entries[0], entries[1], entries[2]);
 		}
-		
+
 		cVec3 cMat4::GetFront()
 		{
 			return cVec3(entries[4], entries[5], entries[6]);
@@ -336,7 +336,7 @@ namespace breathe
 		{
 			return cVec3(	(entries[0] + entries[4] + entries[8]),
 										(entries[1] + entries[5] + entries[9]),
-										(	entries[0] + entries[1] + 
+										(	entries[0] + entries[1] +
 											entries[4] + entries[5]));//entries[2] + entries[6] + entries[10]));
 		}
 
@@ -452,7 +452,7 @@ namespace breathe
 				cMat4 id;
 				return id;
 			}
-			
+
 			result=result/det;
 
 			//transpose matrix
@@ -471,7 +471,7 @@ namespace breathe
 		{
 			//set up temp matrix
 			cMat4 temp;
-			
+
 			temp.SetEntry( 0, entries[ 0]);
 			temp.SetEntry( 1, entries[ 4]);
 			temp.SetEntry( 2, entries[ 8]);
@@ -489,7 +489,7 @@ namespace breathe
 			temp.SetEntry(14, entries[11]);
 			temp.SetEntry(15, entries[15]);
 
-			return temp;	
+			return temp;
 		}
 
 		void cMat4::InvertTranspose(void)
@@ -594,7 +594,7 @@ namespace breathe
 				cMat4 id;
 				return id;
 			}
-			
+
 			result=result/det;
 
 			return result;
@@ -640,7 +640,7 @@ namespace breathe
 			entries[1]=(u.x)*(u.y)*(oneMinusCosAngle) + sinAngle*u.z;
 			entries[5]=(u.y)*(u.y) + cosAngle*(1-(u.y)*(u.y));
 			entries[9]=(u.y)*(u.z)*(oneMinusCosAngle) - sinAngle*u.x;
-			
+
 			entries[2]=(u.x)*(u.z)*(oneMinusCosAngle) - sinAngle*u.y;
 			entries[6]=(u.y)*(u.z)*(oneMinusCosAngle) + sinAngle*u.x;
 			entries[10]=(u.z)*(u.z) + cosAngle*(1-(u.z)*(u.z));

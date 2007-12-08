@@ -54,8 +54,8 @@ namespace breathe
 {
 	namespace audio
 	{
-		ALCcontext* Context = NULL;
-		ALCdevice* Device = NULL;
+		ALCcontext* Context = nullptr;
+		ALCdevice* Device = nullptr;
 		ALboolean g_bEAX = false;
 		int iError = 0;
 
@@ -67,8 +67,8 @@ namespace breathe
 			cBuffer* pBuffer = mAudioBuffer[sFilename];
 
 			if (pBuffer != nullptr) return pBuffer;
-			
-			pBuffer = new cBuffer(sFilename);			
+
+			pBuffer = new cBuffer(sFilename);
 			assert(pBuffer != nullptr);
 
 			mAudioBuffer[sFilename] = pBuffer;
@@ -78,7 +78,7 @@ namespace breathe
 
 		std::list<cSource*> lAudioSource;
 		typedef std::list<cSource*>::iterator source_iterator;
-				
+
 		void AddSource(cSource* pSource)
 		{
 			lAudioSource.push_back(pSource);
@@ -89,7 +89,7 @@ namespace breathe
 			lAudioSource.remove(pSource);
 		}
 
-		
+
 		cBuffer* CreateBuffer(const string_t& sFilename)
 		{
 			return GetAudioBuffer(sFilename);
@@ -97,9 +97,9 @@ namespace breathe
 
 		void DestroyBuffer(cBuffer* pBuffer)
 		{
-			
+
 		}
-		
+
 		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject)
 		{
 			breathe::audio::cSource* pSource = CreateSourceAttachedToScreen(pBuffer);
@@ -109,7 +109,7 @@ namespace breathe
 
 			return pSource;
 		}
-		
+
 		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer)
 		{
 			assert(pBuffer != nullptr);
@@ -120,14 +120,14 @@ namespace breathe
         AddSource(pSource);
 				return pSource;
 			}
-			
+
 			LOG.Error("Audio", "Invalid buffer passed in to CreateSource");
 			return nullptr;
 		}
 
 		void DestroySource(cSource* pSource)
 		{
-      
+
 		}
 
 		bool GetError()
@@ -205,7 +205,7 @@ namespace breathe
 			Device = alcOpenDevice((unsigned char*)initString);*/
 
 			Device = alcOpenDevice(NULL); // select the "default device"
-			if (Device == NULL)				
+			if (Device == NULL)
 				return breathe::BAD;
 
 			// Create our context
@@ -224,7 +224,7 @@ namespace breathe
 				other reverb parameters to get the reverb effect you want).
 			*/
 
-			
+
 			// Surround sound
 			ALenum eBufferFormat = 0;
 			eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
@@ -279,7 +279,8 @@ namespace breathe
 			Device=alcGetContextsDevice(Context);
 			alcMakeContextCurrent(NULL);
 			alcDestroyContext(Context);
-			alcCloseDevice(Device);
+
+      if (Device != nullptr) alcCloseDevice(Device);
 
 			if (!alutExit())
 				ReportError();
@@ -304,7 +305,7 @@ namespace breathe
 					pSource->Update();
 					continue;
 				}
-				
+
         // Add it to the list of sources to remove, leave the removing until the end
 				listToRemove.push_back(pSource);
 			};
@@ -329,7 +330,7 @@ namespace breathe
 			alListenerfv(AL_VELOCITY, velocity);
 			alListenerfv(AL_ORIENTATION, listenerOri);
 		}
-		
+
 
 		// ********************************************** cBuffer **********************************************
 
@@ -352,7 +353,7 @@ namespace breathe
 			sFilename = sInFilename;
 			uiBuffer = alutCreateBufferFromFile(breathe::string::ToUTF8(sFilename).c_str());
 			ReportError();
-			
+
 			if (uiBuffer == 0) SCREEN<<"Audio could not find file \""<<breathe::string::ToUTF8(sFilename)<<"\""<<std::endl;
 			else SCREEN<<"Audio found file \""<<breathe::string::ToUTF8(sFilename)<<"\" uiBuffer="<<uiBuffer<<std::endl;
 		}
@@ -410,7 +411,7 @@ namespace breathe
 			pNodeParent = pInNodeParent;
 			AddSource(this);
 		}
-		
+
 		void cSource::Remove()
 		{
 			pNodeParent = NULL;
@@ -465,104 +466,104 @@ namespace breathe
 	/*
 
 
-			// Load test.wav 
-			loadWAVFile(" test.wav",&format,&data,&size,&freq,&loop); 
-			if ((GetError())) 
-			{ 
-				DisplayALError("alutLoadWAVFile test.wav : ", error); 
-				alDeleteBuffers(NUM_BUFFERS, g_Buffers); 
-				return; 
-			} 
-			// Copy test.wav data into AL Buffer 0 
-			alBufferData(g_Buffers[0],format,data,size,freq); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alBufferData buffer 0 : ", error); 
-			alDeleteBuffers(NUM_BUFFERS, g_Buffers); 
-			return; 
-			} 
-			// Unload test.wav 
-			unloadWAV(format,data,size,freq); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alutUnloadWAV : ", error); 
-			return; 
-			} 
-			// Generate Sources 
-			alGenSources(1,source); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alGenSources 1 : ", error); 
-			return; 
-			} 
-			// Attach buffer 0 to source 
-			alSourcei(source[0], AL_BUFFER, g_Buffers[0]); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alSourcei AL_BUFFER 0 : ", error); 
-			} 
-			// Exit 
-			Context=alcGetCurrentContext(); 
-			Device=alcGetContextsDevice(Context); 
-			alcMakeContextCurrent(NULL); 
-			alcDestroyContext(Context); 
-			alcCloseDevice(Device); 
+			// Load test.wav
+			loadWAVFile(" test.wav",&format,&data,&size,&freq,&loop);
+			if ((GetError()))
+			{
+				DisplayALError("alutLoadWAVFile test.wav : ", error);
+				alDeleteBuffers(NUM_BUFFERS, g_Buffers);
+				return;
+			}
+			// Copy test.wav data into AL Buffer 0
+			alBufferData(g_Buffers[0],format,data,size,freq);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alBufferData buffer 0 : ", error);
+			alDeleteBuffers(NUM_BUFFERS, g_Buffers);
+			return;
+			}
+			// Unload test.wav
+			unloadWAV(format,data,size,freq);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alutUnloadWAV : ", error);
+			return;
+			}
+			// Generate Sources
+			alGenSources(1,source);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alGenSources 1 : ", error);
+			return;
+			}
+			// Attach buffer 0 to source
+			alSourcei(source[0], AL_BUFFER, g_Buffers[0]);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alSourcei AL_BUFFER 0 : ", error);
+			}
+			// Exit
+			Context=alcGetCurrentContext();
+			Device=alcGetContextsDevice(Context);
+			alcMakeContextCurrent(NULL);
+			alcDestroyContext(Context);
+			alcCloseDevice(Device);
 
 
 
 
 
 
-			// Set Listener 
-			ALfloat listenerPos[]={0.0,0.0,0.0}; 
-			ALfloat listenerVel[]={0.0,0.0,0.0}; 
-			ALfloat listenerOri[]={0.0,0.0,-1.0, 0.0,1.0,0.0}; 
-			// Position ... 
-			alListenerfv(AL_POSITION,listenerPos); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alListenerfv POSITION : ", error); 
-			return; 
-			} 
-			// Velocity ... 
-			alListenerfv(AL_VELOCITY,listenerVel); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alListenerfv VELOCITY : ", error); 
-			return; 
-			} 
-			// Orientation ... 
-			alListenerfv(AL_ORIENTATION,listenerOri); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			{ 
-			DisplayALError("alListenerfv ORIENTATION : ", error); 
-			return; 
+			// Set Listener
+			ALfloat listenerPos[]={0.0,0.0,0.0};
+			ALfloat listenerVel[]={0.0,0.0,0.0};
+			ALfloat listenerOri[]={0.0,0.0,-1.0, 0.0,1.0,0.0};
+			// Position ...
+			alListenerfv(AL_POSITION,listenerPos);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alListenerfv POSITION : ", error);
+			return;
+			}
+			// Velocity ...
+			alListenerfv(AL_VELOCITY,listenerVel);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alListenerfv VELOCITY : ", error);
+			return;
+			}
+			// Orientation ...
+			alListenerfv(AL_ORIENTATION,listenerOri);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			{
+			DisplayALError("alListenerfv ORIENTATION : ", error);
+			return;
 			}
 
 
 
 
 			// Set Source Properties
-			alGetError(); // clear error state 
-			alSourcef(source[0],AL_PITCH,1.0f); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			DisplayALError("alSourcef 0 AL_PITCH : \n", error); 
-			alGetError(); // clear error state 
-			alSourcef(source[0],AL_GAIN,1.0f); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
+			alGetError(); // clear error state
+			alSourcef(source[0],AL_PITCH,1.0f);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			DisplayALError("alSourcef 0 AL_PITCH : \n", error);
+			alGetError(); // clear error state
+			alSourcef(source[0],AL_GAIN,1.0f);
+			if ((error = alGetError()) != AL_NO_ERROR)
 			DisplayALError("alSourcef 0 AL_GAIN : \n", error);
 
-			alGetError(); // clear error state 
-			alSourcefv(source[0],AL_POSITION,source0Pos); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			DisplayALError("alSourcefv 0 AL_POSITION : \n", error); 
-			alGetError(); // clear error state 
-			alSourcefv(source[0],AL_VELOCITY,source0Vel); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
-			DisplayALError("alSourcefv 0 AL_VELOCITY : \n", error); 
-			alGetError(); // clear error state 
-			alSourcei(source[0],AL_LOOPING,AL_FALSE); 
-			if ((error = alGetError()) != AL_NO_ERROR) 
+			alGetError(); // clear error state
+			alSourcefv(source[0],AL_POSITION,source0Pos);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			DisplayALError("alSourcefv 0 AL_POSITION : \n", error);
+			alGetError(); // clear error state
+			alSourcefv(source[0],AL_VELOCITY,source0Vel);
+			if ((error = alGetError()) != AL_NO_ERROR)
+			DisplayALError("alSourcefv 0 AL_VELOCITY : \n", error);
+			alGetError(); // clear error state
+			alSourcei(source[0],AL_LOOPING,AL_FALSE);
+			if ((error = alGetError()) != AL_NO_ERROR)
 			DisplayALError("alSourcei 0 AL_LOOPING true: \n", error);
 		}*/
 
@@ -583,36 +584,36 @@ namespace breathe
 			source0.Attach(pNodeParent);
 			source1.Attach(pNodeParent);
 		}
-		
+
 		void cSourceMix::Remove()
 		{
 			source0.Remove();
 			source1.Remove();
 		}
-		
+
 		void cSourceMix::Update()
 		{
 			source0.Update();
 			source1.Update();
 		}
-		
+
 		void cSourceMix::Play()
 		{
 			source0.Play();
 			source1.Play();
 		}
-		
+
 		void cSourceMix::Stop()
 		{
 			source0.Stop();
 			source1.Stop();
 		}
-		
+
 		bool cSourceMix::IsValid() const
 		{
 			return source0.IsValid() && source1.IsValid();
 		}
-		
+
 		bool cSourceMix::IsPlaying() const
 		{
 			return source0.IsPlaying() && source1.IsPlaying();

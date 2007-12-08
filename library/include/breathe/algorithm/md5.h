@@ -1,6 +1,6 @@
 /*
  *  RFC 1321 compliant MD5 implementation
- *  
+ *
  *  Incorporated into:
  *  Various GPL projects by Christopher Pilkington
  *
@@ -34,11 +34,11 @@ namespace breathe
 		uint32_t state[4];
 		unsigned char buffer[64];
 	};
-	
+
 	class cMD5
 	{
 	private:
-		unsigned char cMD5::h2d(unsigned char a, unsigned char b);
+		unsigned char h2d(unsigned char a, unsigned char b);
 
 		cMD5_Context ctx;
 

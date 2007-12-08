@@ -31,7 +31,7 @@ namespace breathe
 
 		Camera3DS::Camera3DS()
 		{
-					
+
 		}
 
 		Camera3DS::~Camera3DS()
@@ -52,7 +52,7 @@ namespace breathe
 			p->target.x=p->targetIdeal.x= fScale * c.Float();
 			p->target.y=p->targetIdeal.y= fScale * c.Float();
 			p->target.z=p->targetIdeal.z= fScale * c.Float();
-			
+
 			float bank_angle= fScale * c.Float();
 			float focus= fScale * c.Float();
 
