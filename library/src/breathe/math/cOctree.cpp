@@ -177,7 +177,7 @@ namespace breathe
 		/////
 		///////////////////////////////// GET NEW NODE CENTER \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		cVec3 cOctree::GetNewNodeCenter(const cVec3& vCenter, float width, int nodeID)
+		cVec3 cOctree::GetNewNodeCenter(const cVec3& vCenter, float width, size_t nodeID)
 		{
 			// I created this function which takes an enum ID to see which node's center
 			// we need to calculate.  Once we find that we need to subdivide a node we find
@@ -245,8 +245,8 @@ namespace breathe
 		/////
 		///////////////////////////////// CREATE NEW NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, int numberOfVerts,
-					  					const cVec3& vCenter,	 float width,        int triangleCount, int nodeID)
+		void cOctree::CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, size_t numberOfVerts,
+      const cVec3& vCenter,	 float width, size_t triangleCount, size_t nodeID)
 		{
 			// This function helps us set up the new node that is being created.  We only
 			// want to create a new node if it found triangles in it's area.  If there were
@@ -259,10 +259,10 @@ namespace breathe
 				cVec3* pNodeVertices = new cVec3 [triangleCount * 3];
 
 				// Create an counter to count the current index of the new node vertices
-				int index = 0;
+				size_t index = 0;
 
 				// Go through all the vertices and assign the vertices to the node's list
-				for (int i = 0; i < numberOfVerts; i++)
+				for (size_t i = 0; i < numberOfVerts; i++)
 				{
 					// If this current triangle is in the node, assign it's vertices to it
 					if (pList[i / 3])
@@ -306,7 +306,7 @@ namespace breathe
 		/////
 		///////////////////////////////// CREATE NODE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-		void cOctree::CreateNode(const cVec3* pVertices, int numberOfVerts, const cVec3& vCenter, float width)
+		void cOctree::CreateNode(const cVec3* pVertices, size_t numberOfVerts, const cVec3& vCenter, float width)
 		{
 			// This is our main function that creates the octree.  We will recurse through
 			// this function until we finish subdividing.  Either this will be because we
@@ -406,8 +406,8 @@ namespace breathe
 
 				// Here we create a variable for each list that holds how many triangles
 				// were found for each of the 8 subdivided nodes.
-				int triCount1 = 0;	int triCount2 = 0;	int triCount3 = 0;	int triCount4 = 0;
-				int triCount5 = 0;	int triCount6 = 0;	int triCount7 = 0;	int triCount8 = 0;
+				size_t triCount1 = 0;	size_t triCount2 = 0;	size_t triCount3 = 0;	size_t triCount4 = 0;
+				size_t triCount5 = 0;	size_t triCount6 = 0;	size_t triCount7 = 0;	size_t triCount8 = 0;
 
 				// Go through each of the lists and increase the triangle count for each node.
 				for (i = 0; i < numberOfTriangles; i++)

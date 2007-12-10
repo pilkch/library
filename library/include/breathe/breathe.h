@@ -105,12 +105,14 @@ typedef long int uint32_t;
 #define nullptr NULL
 #endif
 
+#ifdef BUILD_DEBUG
 #ifdef __WIN__
 // *** FluidStudios' memory leak detection
 #ifndef FIRESTARTER
 #include <breathe/util/mem.h>
 #endif
 #endif
+#endif // BUILD_DEBUG
 
 #define NO_COPY(T) \
 	private: \

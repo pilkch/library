@@ -27,41 +27,41 @@ namespace breathe
 
 			// The current amount of subdivisions we are currently at.
 			// This is used to make sure we don't go over the max amount
-			int g_CurrentSubdivision;
+			size_t g_CurrentSubdivision;
 
-			int g_MaxSubdivisions;
-			int g_MaxTriangles;
-			int g_EndNodeCount;
-			int g_TotalNodesDrawn;
+			size_t g_MaxSubdivisions;
+			size_t g_MaxTriangles;
+			size_t g_EndNodeCount;
+			size_t g_TotalNodesDrawn;
 
 			// This returns the center of this node
-			cVec3 GetCenter() const {	 return m_vCenter;	}
+			cVec3 GetCenter() const {	return m_vCenter;	}
 
 			// This returns the triangle count stored in this node
-			int GetTriangleCount() const {   return m_TriangleCount;	}
+			size_t GetTriangleCount() const { return m_TriangleCount;	}
 
 			// This returns the widht of this node (since it's a cube the height and depth are the same)
-			float GetWidth() const {	 return m_Width;	}
+			float GetWidth() const { return m_Width; }
 
 				// This returns if this node is subdivided or not
-			bool IsSubDivided() const {   return m_bSubDivided;	}
+			bool IsSubDivided() const { return m_bSubDivided;	}
 
 			// This sets the initial width, height and depth for the whole scene
 			void GetSceneDimensions(cVec3* pVertices, size_t numberOfVerts);
 
 			// This takes in the previous nodes center, width and which node ID that will be subdivided
-			cVec3 GetNewNodeCenter(const cVec3& vCenter, float width, int nodeID);
+			cVec3 GetNewNodeCenter(const cVec3& vCenter, float width, size_t nodeID);
 
 			// This subdivides a node depending on the triangle and node width
-			void CreateNode(const cVec3* pVertices, int numberOfVerts, const cVec3& vCenter, float width);
+			void CreateNode(const cVec3* pVertices, size_t numberOfVerts, const cVec3& vCenter, float width);
 
 			// This cleans up the new subdivided node creation process, so our code isn't HUGE!
-			void CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, int numberOfVerts,
-				  				const cVec3& vCenter,	float width, int triangleCount, int nodeID);
+			void CreateNewNode(const cVec3* pVertices, std::vector<bool>& pList, size_t numberOfVerts,
+				  				const cVec3& vCenter,	float width, size_t triangleCount, size_t nodeID);
 
 			// This goes through each of the nodes and then draws the end nodes vertices.
 			// This function should be called by starting with the root node.
-			virtual unsigned int Render(cOctree *pNode) { return 0; }
+			virtual size_t Render(cOctree *pNode) { return 0; }
 
 			// This initializes the data members
 			void create(cFrustum* newcFrustum);

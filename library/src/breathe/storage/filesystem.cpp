@@ -184,8 +184,10 @@ namespace breathe
 
 		string_t FindFile(const string_t& sFilename)
 		{
+#ifdef __LINUX__
       CONSOLE<<"FindFile "<<sFilename<<std::endl;
-			if (TEXT("") == sFilename) return sFilename;
+#endif
+      if (TEXT("") == sFilename) return sFilename;
 
 			std::ifstream f;
 
@@ -194,8 +196,10 @@ namespace breathe
 			while(iter!=vDirectory.end())
 			{
 				string_t filename = breathe::string::ToString_t((*iter) + sFilename);
+#ifdef __LINUX__
         CONSOLE<<"Attempting to open "<<filename<<std::endl;
-				f.open(breathe::string::ToUTF8(filename).c_str());
+#endif
+        f.open(breathe::string::ToUTF8(filename).c_str());
 
 				if (f.is_open())
 				{
@@ -213,8 +217,10 @@ namespace breathe
 			while(iter != vDirectory.end())
 			{
 				string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
+#ifdef __LINUX__
         CONSOLE<<"Attempting to open "<<filename<<std::endl;
-				f.open(breathe::string::ToUTF8(filename).c_str());
+#endif
+        f.open(breathe::string::ToUTF8(filename).c_str());
 
 				if (f.is_open())
 				{
@@ -228,8 +234,10 @@ namespace breathe
 			//Check sFilename that was passed in
 			f.open(breathe::string::ToUTF8(sFilename).c_str());
 
-        CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
-			if (f.is_open())
+#ifdef __LINUX__
+      CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
+#endif
+      if (f.is_open())
 			{
 				f.close();
 				return sFilename;
