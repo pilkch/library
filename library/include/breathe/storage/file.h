@@ -31,7 +31,7 @@ namespace breathe
 			BYTEORDER_UTF16LE,
 			BYTEORDER_UTF32BE,
 			BYTEORDER_UTF32LE,
-			BYTEORDER_SCSU
+			BYTEORDER_INVALID
 		};
 
 		BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes);

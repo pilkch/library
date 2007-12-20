@@ -4,6 +4,11 @@
 namespace breathe
 {
 	const float KEY_MIN = 0.1f;
+  enum STATE_RETURN
+  {
+    STATE_POP_THIS_STATE = false,
+    STATE_KEEP_THIS_STATE = false
+  };
 
 	namespace render
 	{
@@ -56,7 +61,52 @@ namespace breathe
 		void ToggleDebug() { bDebug = !bDebug; }
 #endif
 
+    
+    class cAppState
+    {
+    public:
+      // functions used to transition between states
+	    void OnEntry() { _OnEntry(); }
+	    void OnExit() { _OnExit(); }
+      void OnPause() { _OnPause(); }
+      void OnResume() { _OnResume(); }
+
+		  void Update(sampletime_t currentTime) { _Update(currentTime); }
+		  void UpdateInput(sampletime_t currentTime) { _UpdateInput(currentTime); }
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+      void UpdatePhysics(sampletime_t currentTime) { _UpdatePhysics(currentTime); }
+#endif
+		  void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
+      void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
+
+    private:
+	    virtual void _OnEntry() {}
+	    virtual void _OnExit() {}
+	    virtual void _OnPause() {}
+	    virtual void _OnResume() {}
+
+      virtual void _Update(sampletime_t currentTime) {}
+		  virtual void _UpdateInput(sampletime_t currentTime) {}
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+		  virtual void _UpdatePhysics(sampletime_t currentTime) {}
+#endif
+		  virtual void _RenderScene(sampletime_t currentTime) {}
+		  virtual void _RenderScreenSpace(sampletime_t currentTime) {}
+    };
+
 	protected:
+    cAppState& GetCurrentState();
+    cAppState& GetParentState();
+
+    // Instantaneous
+    void PushState(cAppState* state);
+    void PopState();
+
+    // Deferred until we get back to the main cApp loop
+    void PushStateSoon(cAppState* state) { assert(pPushThisStateSoon == nullptr); pPushThisStateSoon = state; }
+    void PopStateSoon() { assert(bPopCurrentStateSoon == false); bPopCurrentStateSoon = true; }
+
+
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		bool bStepPhysics;
 		bool bUpdatePhysics;
@@ -135,12 +185,12 @@ namespace breathe
 
 		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, char** argv);
-		void _Render(sampletime_t currentTime);
 		void _Update(sampletime_t currentTime);
-
-
 		void _UpdateInput(sampletime_t currentTime);
-		bool _IsKeyDown(float fAmount);
+		void _Render(cApp::cAppState& state, sampletime_t currentTime);
+
+	  // Convert from a float amount to a bool
+		static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
 
 		// The render order is managed/automated by this class, so if you want to do anything special like 
 		// rendering to an FBO first or adding a timer in, you can do it by overriding these
@@ -151,16 +201,7 @@ namespace breathe
 		virtual bool LoadScene() = 0;
 		virtual bool InitScene() = 0;
 		virtual bool DestroyScene() = 0;
-
-		virtual void Update(sampletime_t currentTime) = 0;
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		virtual void UpdatePhysics(sampletime_t currentTime) = 0;
-#endif
-		virtual void RenderScene(sampletime_t currentTime) = 0;
-		virtual void RenderScreenSpace(sampletime_t currentTime) = 0;
 		
-		virtual void UpdateInput(sampletime_t currentTime) = 0;
-
 		virtual void FullscreenSwitch()=0;
 		virtual bool Execute(const std::string& sCommand)=0;	
 
@@ -189,23 +230,18 @@ namespace breathe
 		
 		gui::cWindowManager window_manager;
 		cConsoleWindow* pConsoleWindow;
-				
-	private:
+
+    std::list<cAppState*> states;
+
+  private:
+    bool bPopCurrentStateSoon;
+    cAppState* pPushThisStateSoon;
+    
 		// Forbidden
-		void _OnMouseEvent(int button, int state, int x, int y) {}
-		void OnMouse(int button,int state,int x,int y) {}
+		void _OnMouseEvent(int button, int state, int x, int y);
+		void OnMouse(int button,int state,int x,int y);
 	};
 
-
-	// *** Inlines
-	
-	// Convert from a float amount to a bool
-	inline bool cApp::_IsKeyDown(float fAmount)
-	{
-		return (fAmount > KEY_MIN || fAmount < -KEY_MIN);
-	}
-
-	
 
 	// This doesn't belong here
 	// TODO: Move to breathe/algorithm/gen.h

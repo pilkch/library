@@ -84,9 +84,9 @@ namespace breathe
 				if ((signature[0] == 0xEF) && (signature[1] == 0xBB) && (signature[2] == 0xBF)) return BYTEORDER_UTF8;
 				//SCSU (compression) 0E FE FF
 				if ((signature[0] == 0x0E) && (signature[1] == 0xFE) && (signature[2] == 0xFF)) {
-					SCREEN<<"Error unhandled file signature detected"<<std::endl;
+					SCREEN<<"Error unhandled file signature detected SCSU"<<std::endl;
 					assert(false);
-					return BYTEORDER_SCSU;
+					return BYTEORDER_INVALID;
 				}
 			}
 

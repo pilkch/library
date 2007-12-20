@@ -210,7 +210,9 @@ namespace breathe
 		bActive(true),
 		bDone(false),
 		bReturnCode(breathe::GOOD),
+    bPopCurrentStateSoon(false),
 
+    pPushThisStateSoon(nullptr),
 		pConsoleWindow(nullptr),
 		pFont(nullptr)
 	{
@@ -276,6 +278,8 @@ namespace breathe
 
 	cApp::~cApp()
 	{
+    while (!states.empty()) PopState();
+
 		SAFE_DELETE(pFont);
 
 		size_t nJoysticks = vJoystick.size();
@@ -663,6 +667,8 @@ namespace breathe
 	
 	void cApp::_Update(sampletime_t currentTime)
 	{
+		GetCurrentState().Update(currentTime);
+
 		std::string s;
 		breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
 		breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
@@ -673,9 +679,6 @@ namespace breathe
 		}
 		
 		pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
-
-		// Finally, call our derived update function
-		Update(currentTime);
 
 		// Now update our other sub systems
 		breathe::audio::Update(currentTime);
@@ -859,8 +862,13 @@ namespace breathe
 #endif
 		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();		
 #endif
+    
+		if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
 
-		UpdateInput(currentTime);
+    if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) ConsoleShow();
+
+
+		GetCurrentState().UpdateInput(currentTime);
 	}
 
 	void cApp::CursorShow()
@@ -990,16 +998,16 @@ namespace breathe
 		}
 	}*/
 
-	void cApp::_Render(sampletime_t currentTime)
+  void cApp::_Render(cApp::cAppState& state, sampletime_t currentTime)
 	{
 		BeginRender(currentTime);
 
 			pRender->Begin();
 				pRender->BeginRenderScene();
-					RenderScene(currentTime);
+					state.RenderScene(currentTime);
 				pRender->EndRenderScene();
 				pRender->BeginScreenSpaceRendering();
-					RenderScreenSpace(currentTime);
+					state.RenderScreenSpace(currentTime);
 					
 					#ifdef _DEBUG
 					if (!CONSOLE.IsVisible() && IsDebug())
@@ -1082,6 +1090,10 @@ namespace breathe
 
 		do
 		{
+      // If this fails we have a problem.  At all times we should either have 
+      // bDone == true or states has one or more states
+      assert(!states.empty());
+
 			currentTime = util::GetTime();
 
       if (currentTime > fEventsNext)
@@ -1098,14 +1110,17 @@ namespace breathe
 				fInputNext = currentTime + fInputDelta;
 			}
 
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-			if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
-			{
-				UpdatePhysics(currentTime);
-				tPhysics.Update(currentTime);
-				fPhysicsNext = currentTime + fPhysicsDelta;
-			}
-#endif
+      // We can change state during _UpdateInput
+      if (bPopCurrentStateSoon) {
+        PopState();
+        continue;
+      }
+
+      if (pPushThisStateSoon != nullptr) {
+        PushState(pPushThisStateSoon);
+        continue;
+      }
+
 
 			if (currentTime > fUpdateNext)
 			{
@@ -1114,9 +1129,33 @@ namespace breathe
 				fUpdateNext = currentTime + fUpdateDelta;
 			}
 
+      // We can change state during _Update
+      if (bPopCurrentStateSoon) {
+        PopState();
+        continue;
+      }
+
+      if (pPushThisStateSoon != nullptr) {
+        PushState(pPushThisStateSoon);
+        continue;
+      }
+
+
+      // State is constant from here on
+      cApp::cAppState& state = GetCurrentState();
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+			if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
+			{
+				_UpdatePhysics(state, currentTime);
+				tPhysics.Update(currentTime);
+				fPhysicsNext = currentTime + fPhysicsDelta;
+			}
+#endif
+
 			if (bActive && !bDone)// && currentTime > fRenderNext)
 			{
-				_Render(currentTime);
+				_Render(state, currentTime);
 				tRender.Update(currentTime);
 				fRenderNext = currentTime + fRenderDelta;
 			}
@@ -1253,4 +1292,55 @@ namespace breathe
 	{
 		return mouse.GetX();
 	}
+
+  cApp::cAppState& cApp::GetCurrentState()
+  {
+    assert(!states.empty());
+    return *states.back();
+  }
+  
+  cApp::cAppState& cApp::GetParentState()
+  {
+    assert(!states.empty());
+    std::list<cAppState*>::reverse_iterator iter = states.rbegin();
+    std::list<cAppState*>::reverse_iterator iterEnd = states.rend();
+
+    assert(iter != iterEnd);
+
+    iter++;
+
+    assert(iter != iterEnd);
+
+    return *(*iter);
+  }
+
+  void cApp::PushState(cApp::cAppState* state)
+  {
+    assert(state != nullptr);
+
+    bPopCurrentStateSoon = false;
+    pPushThisStateSoon = nullptr;
+
+    if (!states.empty()) GetCurrentState().OnPause();
+
+    states.push_back(state);
+
+    state->OnEntry();
+  }
+
+  void cApp::PopState()
+  {
+    assert(!states.empty());
+    
+    bPopCurrentStateSoon = false;
+
+    cAppState* pTemp = states.back();
+    pTemp->OnExit();
+    SAFE_DELETE(pTemp);
+
+    states.pop_back();    
+
+    if (states.empty()) bDone = true;
+    else GetCurrentState().OnResume();
+  }
 }
