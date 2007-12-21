@@ -277,9 +277,9 @@ namespace breathe
 
 			glPopAttrib();
 		}
-
-		void cFont::printf(float x, float y, const char* fmt, ...)
-		{
+    
+    void cFont::printf(float x, float y, const char* fmt, ...)
+    {
 			if (fmt == nullptr) return;
 
 			assert(strlen(fmt) < 1024);
@@ -297,23 +297,18 @@ namespace breathe
 			breathe::string::SplitOnNewLines(text, lines);
 
 			_print(x, y, lines);
+    }
+
+    void cFont::PrintAt(float x, float y, const string_t& text)
+		{
+			std::vector<string_t> lines;
+			breathe::string::SplitOnNewLines(text, lines);
+
+			_print(x, y, lines);
 		}
 
-		void cFont::printfCenteredHorizontally(float x, float y, float width, const char* fmt, ...)
+		void cFont::PrintCenteredHorizontally(float x, float y, float width, const string_t& text)
 		{
-			if (fmt == nullptr) return;
-
-			assert(strlen(fmt) < 1024);
-			
-			char formatted[1024];								// Holds Our String
-			va_list ap;										// Pointer To List Of Arguments
-
-			va_start(ap, fmt);									// Parses The String For Variables
-				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
-			va_end(ap);											// Results Are Stored In Text
-
-      string_t text(breathe::string::ToString_t(formatted));
-
 			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
@@ -328,42 +323,16 @@ namespace breathe
 			_print(x, y, lines);
 		}
 
-		void cFont::printfCenteredVertically(float x, float y, float height, const char* fmt, ...)
+		void cFont::PrintCenteredVertically(float x, float y, float height, const string_t& text)
 		{
-			if (fmt == nullptr) return;
-
-			assert(strlen(fmt) < 1024);
-			
-			char formatted[1024];								// Holds Our String
-			va_list ap;										// Pointer To List Of Arguments
-
-			va_start(ap, fmt);									// Parses The String For Variables
-				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
-			va_end(ap);											// Results Are Stored In Text
-
-      string_t text(breathe::string::ToString_t(formatted));
-
 			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 
 			_print(x, y, lines);
 		}
 
-		void cFont::printfCenteredHorizontallyVertically(float x, float y, float width, float height, const char* fmt, ...)
+		void cFont::PrintCenteredHorizontallyVertically(float x, float y, float width, float height, const string_t& text)
 		{
-			if (fmt == nullptr) return;
-
-			assert(strlen(fmt) < 1024);
-			
-			char formatted[1024];								// Holds Our String
-			va_list ap;										// Pointer To List Of Arguments
-
-			va_start(ap, fmt);									// Parses The String For Variables
-				vsprintf(formatted, fmt, ap);						// And Converts Symbols To Actual Numbers
-			va_end(ap);											// Results Are Stored In Text
-
-      string_t text(breathe::string::ToString_t(formatted));
-
 			std::vector<string_t> lines;
 			breathe::string::SplitOnNewLines(text, lines);
 

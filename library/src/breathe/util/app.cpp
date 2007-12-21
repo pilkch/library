@@ -1298,21 +1298,6 @@ namespace breathe
     assert(!states.empty());
     return *states.back();
   }
-  
-  cApp::cAppState& cApp::GetParentState()
-  {
-    assert(!states.empty());
-    std::list<cAppState*>::reverse_iterator iter = states.rbegin();
-    std::list<cAppState*>::reverse_iterator iterEnd = states.rend();
-
-    assert(iter != iterEnd);
-
-    iter++;
-
-    assert(iter != iterEnd);
-
-    return *(*iter);
-  }
 
   void cApp::PushState(cApp::cAppState* state)
   {
@@ -1320,10 +1305,16 @@ namespace breathe
 
     bPopCurrentStateSoon = false;
     pPushThisStateSoon = nullptr;
-
-    if (!states.empty()) GetCurrentState().OnPause();
+    
+    if (!states.empty()) {
+      cAppState* pParent = states.back();
+      pParent->OnPause();
+      state->SetParent(pParent);
+    }
 
     states.push_back(state);
+
+    CONSOLE<<"cApp::PushState States="<<states.size()<<std::endl;
 
     state->OnEntry();
   }
@@ -1336,11 +1327,14 @@ namespace breathe
 
     cAppState* pTemp = states.back();
     pTemp->OnExit();
+    int iResult = pTemp->GetResult();
     SAFE_DELETE(pTemp);
 
-    states.pop_back();    
+    states.pop_back();
+
+    CONSOLE<<"cApp::PopState States="<<states.size()<<std::endl;
 
     if (states.empty()) bDone = true;
-    else GetCurrentState().OnResume();
+    else GetCurrentState().OnResume(iResult);
   }
 }

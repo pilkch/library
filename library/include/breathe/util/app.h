@@ -65,11 +65,24 @@ namespace breathe
     class cAppState
     {
     public:
-      // functions used to transition between states
+      cAppState() : result(0), pParent(nullptr) {}
+
+      void SetParent(cAppState* _pParent) { assert(_pParent != nullptr); pParent = _pParent; }
+      cAppState* GetParent() { return pParent; }
+
+      void SetResult(int iResult) { result = iResult; }
+      int GetResult() const { return result; }
+
+      bool HasParent() const { return pParent != nullptr; }
+
+      // Functions used to transition between states
 	    void OnEntry() { _OnEntry(); }
 	    void OnExit() { _OnExit(); }
+
+      // Functions that deal with states being parented by other states, 
+      // the child runs and then returns a result to the parent
       void OnPause() { _OnPause(); }
-      void OnResume() { _OnResume(); }
+      void OnResume(int iResult) { _OnResume(iResult); }
 
 		  void Update(sampletime_t currentTime) { _Update(currentTime); }
 		  void UpdateInput(sampletime_t currentTime) { _UpdateInput(currentTime); }
@@ -83,7 +96,7 @@ namespace breathe
 	    virtual void _OnEntry() {}
 	    virtual void _OnExit() {}
 	    virtual void _OnPause() {}
-	    virtual void _OnResume() {}
+	    virtual void _OnResume(int iResult) {}
 
       virtual void _Update(sampletime_t currentTime) {}
 		  virtual void _UpdateInput(sampletime_t currentTime) {}
@@ -92,11 +105,13 @@ namespace breathe
 #endif
 		  virtual void _RenderScene(sampletime_t currentTime) {}
 		  virtual void _RenderScreenSpace(sampletime_t currentTime) {}
+
+      int result;
+      cAppState* pParent;
     };
 
 	protected:
     cAppState& GetCurrentState();
-    cAppState& GetParentState();
 
     // Instantaneous
     void PushState(cAppState* state);

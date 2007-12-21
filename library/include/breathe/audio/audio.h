@@ -1,10 +1,14 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+// http://www.devmaster.net/articles/openal-tutorials/
+// http://www.devmaster.net/articles/openal-tutorials/lesson8.php
+
 // Namespace functions: Global audio system create/destroy, 
 
+// Buffer: Sound data ready to play
 // Listener: Position of the player
-// 
+// Source: Position of an invisible object that plays a buffer
 
 namespace breathe
 {
@@ -31,7 +35,7 @@ namespace breathe
 		cBuffer* CreateBuffer(const string_t& sFilename);
 		void DestroyBuffer(cBuffer* pBuffer);
 		
-		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject);
+		cSource* CreateSourceAttachedToObject(cBuffer* pBuffer, cObject* pObject);
 		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer);
 		void DestroySource(cSource* pSource);
 		
@@ -85,6 +89,8 @@ namespace breathe
 
 			void SetLooping();
 			void SetNonLooping();
+
+      unsigned int GetSource() const { return uiSource; }
 
 		private:
       cSource();

@@ -16,10 +16,13 @@ namespace breathe
 			bool IsValid() const { return (textures != nullptr) && (list_base != 0);}
 			float GetHeight() const { return h; }
 
-			void printf(float x, float y, const char* fmt, ...);
-			void printfCenteredHorizontally(float x, float y, float width, const char* fmt, ...);
-			void printfCenteredVertically(float x, float y, float height, const char* fmt, ...);
-			void printfCenteredHorizontallyVertically(float x, float y, float height, float width, const char* fmt, ...);
+      // Use this only if you have to format a float/int etc.
+      void printf(float x, float y, const char* fmt, ...);
+
+      void PrintAt(float x, float y, const string_t& text);
+			void PrintCenteredHorizontally(float x, float y, float width, const string_t& text);
+			void PrintCenteredVertically(float x, float y, float height, const string_t& text);
+			void PrintCenteredHorizontallyVertically(float x, float y, float height, float width, const string_t& text);
 
 		private:
 			void _print(float x, float y, const std::vector<string_t>& lines);

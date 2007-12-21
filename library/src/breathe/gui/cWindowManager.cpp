@@ -178,9 +178,8 @@ namespace breathe
 						//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(), 
 						//	widget.GetWidth(), bar_height,
 						//	breathe::string::ToUTF8(widget.GetCaption()).c_str());
-						pFontWindowCaption->printfCenteredHorizontally(widget.GetX(), widget.GetY(), 
-							widget.GetWidth(),
-							breathe::string::ToUTF8(widget.GetCaption()).c_str());
+						pFontWindowCaption->PrintCenteredHorizontally(widget.GetX(), widget.GetY(), 
+							widget.GetWidth(), widget.GetCaption());
 						
 						glMatrixMode(GL_TEXTURE);
 					glPopMatrix();

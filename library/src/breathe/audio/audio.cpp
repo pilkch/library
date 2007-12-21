@@ -100,12 +100,18 @@ namespace breathe
 
 		}
 
-		cSource* CreateSource(cBuffer* pBuffer, cObject* pObject)
+		cSource* CreateSourceAttachedToObject(cBuffer* pBuffer, cObject* pObject)
 		{
-			breathe::audio::cSource* pSource = CreateSourceAttachedToScreen(pBuffer);
-			assert(pSource != nullptr);
+			assert(pBuffer != nullptr);
+      assert(pBuffer->IsValid());
 
-			if (pSource->IsValid()) pSource->Attach(pObject);
+			breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
+			assert(pSource != nullptr);
+      assert(pSource->IsValid());
+
+      AddSource(pSource);
+
+			pSource->Attach(pObject);
 
 			return pSource;
 		}
@@ -113,16 +119,22 @@ namespace breathe
 		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer)
 		{
 			assert(pBuffer != nullptr);
+      assert(pBuffer->IsValid());
 
-			if (pBuffer->IsValid())
-			{
-				breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
-        AddSource(pSource);
-				return pSource;
-			}
+			breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
+			assert(pSource != nullptr);
+      assert(pSource->IsValid());
 
-			LOG.Error("Audio", "Invalid buffer passed in to CreateSource");
-			return nullptr;
+      AddSource(pSource);
+      
+      unsigned int source = pSource->GetSource();
+      alSource3f(source, AL_POSITION, 0.0f, 0.0f, 0.0f);
+      alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+      alSource3f(source, AL_DIRECTION, 0.0f, 0.0f, 0.0f);
+      alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
+      alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+
+			return pSource;
 		}
 
 		void DestroySource(cSource* pSource)
