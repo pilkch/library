@@ -296,7 +296,7 @@ namespace breathe
 		SAFE_DELETE(pLevel);
 #endif
 		
-#ifdef BUILD_PHYSICS_3D
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		LOG.Success("Destroy", "Physics");
 		breathe::physics::Destroy();
 #endif
@@ -553,7 +553,7 @@ namespace breathe
 
 		breathe::audio::Init();
 
-#ifdef BUILD_PHYSICS_3D
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		breathe::physics::Init();
 #endif
 
@@ -870,6 +870,13 @@ namespace breathe
 
 		GetCurrentState().UpdateInput(currentTime);
 	}
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+  void cApp::_UpdatePhysics(cApp::cAppState& state, sampletime_t currentTime)
+  {
+		state.UpdatePhysics(currentTime);
+  }
+#endif
 
 	void cApp::CursorShow()
 	{

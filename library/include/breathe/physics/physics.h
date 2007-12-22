@@ -6,7 +6,8 @@ namespace breathe
 	namespace physics
 	{
     unsigned int GetFrequencyHz();
-    float GetInterval();
+    float GetTimeStep();
+    unsigned int GetIterations();
 
 		extern const int iMaxContacts;
 		extern const float fFriction;
@@ -23,13 +24,13 @@ namespace breathe
 		void Destroy();
 		void Update(sampletime_t currentTime);
 
-		void AddPhysicsObject(cPhysicsObject *pPhysicsObject);
-		void RemovePhysicsObject(cPhysicsObject *pPhysicsObject);
+		void AddPhysicsObject(cPhysicsObject* pPhysicsObject);
+		void RemovePhysicsObject(cPhysicsObject* pPhysicsObject);
 		
 		size_t size();
 		bool empty();
 
-		typedef std::list<cPhysicsObject * >::iterator iterator;
+		typedef std::list<cPhysicsObject*>::iterator iterator;
 		iterator begin();
 		iterator end();
 	}
@@ -38,7 +39,6 @@ namespace breathe
 #ifdef BUILD_PHYSICS_2D
 #include <breathe/physics/physics2d/physics.h>
 #include <breathe/physics/physics2d/cContact.h>
-#include <breathe/physics/physics2d/cRayCast.h>
 #include <breathe/physics/physics2d/cPhysicsObject.h>
 #elif defined(BUILD_PHYSICS_3D)
 #include <breathe/physics/physics3d/physics.h>

@@ -8,7 +8,15 @@ namespace breathe
 		class cTimer
 		{
 		public:
-			cTimer();
+			cTimer() :
+			  iCount(0),
+			  lastTime(0),
+
+			  fFPS(0.0f),
+        fUpdateInterval(0.0f),
+        fUpdateIntervalDivFPS(0.0f)
+		  {
+		  }
 			
 			void Init(unsigned int uiHz);
 			void Update(sampletime_t currentTime);

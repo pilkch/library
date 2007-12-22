@@ -21,6 +21,10 @@
 #error "Don't include mem.h directly, include breathe.h instead"
 #endif //CMEM_H
 
+#if defined(min) || defined(max)
+#error "Define NOMINMAX"
+#endif
+
 #ifndef BREATHE_H
 #define BREATHE_H
 

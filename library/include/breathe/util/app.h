@@ -202,6 +202,9 @@ namespace breathe
 		void _InitArguments(int argc, char** argv);
 		void _Update(sampletime_t currentTime);
 		void _UpdateInput(sampletime_t currentTime);
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    void _UpdatePhysics(cApp::cAppState& state, sampletime_t currentTime);
+#endif
 		void _Render(cApp::cAppState& state, sampletime_t currentTime);
 
 	  // Convert from a float amount to a bool
