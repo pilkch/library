@@ -52,7 +52,7 @@ namespace breathe
     float GetHeight() { return fHeight; }
 
     
-    const bool bCanSleep = true;
+    const bool bCanSleep = false;
 
     bool CanSleep() { return bCanSleep; }
 
@@ -81,24 +81,22 @@ namespace breathe
 		iterator begin() { return lPhysicsObject.begin(); }
 		iterator end() { return lPhysicsObject.end(); }
 
-    b2Body* border[4];
+    cPhysicsObject* border[4];
 
-    b2Body* GetBorder0() { return border[0]; }
-    b2Body* GetBorder1() { return border[1]; }
-    b2Body* GetBorder2() { return border[2]; }
-    b2Body* GetBorder3() { return border[3]; }
+    cPhysicsObject* GetBorder0() { return border[0]; }
+    cPhysicsObject* GetBorder1() { return border[1]; }
+    cPhysicsObject* GetBorder2() { return border[2]; }
+    cPhysicsObject* GetBorder3() { return border[3]; }
 
-		b2Body* CreateBoundingWall(float x, float y, float width, float height)
+		cPhysicsObject* CreateBoundingWall(float x, float y, float width, float height)
 		{
-      b2BoxDef boundingWallBoxDef;
-      boundingWallBoxDef.extents.Set(width, height);
-      boundingWallBoxDef.density = 0.0f;
+      cPhysicsObject* pObject = new cPhysicsObject;
 
-      b2BodyDef boundingWallBodyDef;
-      boundingWallBodyDef.position.Set(x, y);
-      boundingWallBodyDef.AddShape(&boundingWallBoxDef);
-
-      return breathe::physics::world->CreateBody(&boundingWallBodyDef);
+      pObject->fWeight = 0.0f;
+      pObject->SetDimensions(width, height);
+      pObject->CreateBox(breathe::math::cVec2(x, y));
+      
+      return pObject;
 		}
 
     void Init(float width, float height)
@@ -116,10 +114,10 @@ namespace breathe
       world = new b2World(aabb, gravity, CanSleep());
 
       // Bottom
-      border[0] = CreateBoundingWall(0.0f, -0.5f * fBorder, width, fBorder);
+      border[0] = CreateBoundingWall(width * 0.5f, -0.5f * fBorder, width * 0.5f, fBorder);
 
       // Top
-      border[1] = CreateBoundingWall(0.0f, height + 0.5f * fBorder, width, fBorder);
+      border[1] = CreateBoundingWall(width * 0.5f, height + 0.5f * fBorder, width * 0.5f, fBorder);
 
       // Left
       border[2] = CreateBoundingWall(-0.5f * fBorder, height * 0.5f, fBorder, height * 0.5f);
@@ -130,6 +128,13 @@ namespace breathe
 
 		void Destroy()
 		{
+
+
+      SAFE_DELETE(border[0]);
+      SAFE_DELETE(border[1]);
+      SAFE_DELETE(border[2]);
+      SAFE_DELETE(border[3]);
+
 			SAFE_DELETE(world);
 		}
 

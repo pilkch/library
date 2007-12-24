@@ -49,8 +49,6 @@ namespace breathe
 		fRadius = fWidth;
 		if (fInLength > fRadius) fRadius = fInLength;
 		if (fInHeight > fRadius) fRadius = fInHeight;
-
-		fRadius *= math::cSQUARE_ROOT_2;
 	}
 
 	void cObject::SetDimensions(float fInWidth, float fInHeight)
@@ -61,8 +59,6 @@ namespace breathe
 
 		fRadius = fWidth;
 		if (fInHeight > fRadius) fRadius = fInHeight;
-
-		fRadius *= math::cSQUARE_ROOT_2;
 	}
 	
 	// Collisions

@@ -671,19 +671,19 @@ namespace breathe
 
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
-        glTranslatef(fX, fY, 0.0f);
-        glRotatef(fRotation * math::c180_DIV_PI, 0.0f, 0.0f, 1.0f);
-
         float tX = fWidth * 0.5f * uiWidth;
         float tY = fHeight * 0.5f * uiHeight;
+        glTranslatef(fX + tX, fY + tY, 0.0f);
+        glRotatef(fRotation * math::c180_DIV_PI, 0.0f, 0.0f, 1.0f);
+
 
         float zPos = 0.0f;
         
         glBegin(GL_QUADS);
-          glTexCoord2f(0.0f,0.0f); glVertex3f(-tX, tY, zPos);
-          glTexCoord2f(0.0f,1.0f); glVertex3f(-tX, -tY, zPos);
-          glTexCoord2f(1.0f,1.0f); glVertex3f(tX, -tY, zPos);
-          glTexCoord2f(1.0f,0.0f); glVertex3f(tX, tY, zPos);
+          glTexCoord2f(0.0f, 0.0f); glVertex3f(-tX, tY, zPos);
+          glTexCoord2f(0.0f, 1.0f); glVertex3f(-tX, -tY, zPos);
+          glTexCoord2f(1.0f, 1.0f); glVertex3f(tX, -tY, zPos);
+          glTexCoord2f(1.0f, 0.0f); glVertex3f(tX, tY, zPos);
         glEnd();
       glPopMatrix();
     }

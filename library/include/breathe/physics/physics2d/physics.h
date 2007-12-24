@@ -12,10 +12,10 @@ namespace breathe
 
     b2World* GetWorld();
 
-    b2Body* GetBorder0();
-    b2Body* GetBorder1();
-    b2Body* GetBorder2();
-    b2Body* GetBorder3();
+    cPhysicsObject* GetBorder0();
+    cPhysicsObject* GetBorder1();
+    cPhysicsObject* GetBorder2();
+    cPhysicsObject* GetBorder3();
 
     bool CanSleep();
 	}
