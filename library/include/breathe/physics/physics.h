@@ -5,6 +5,14 @@ namespace breathe
 {
 	namespace physics
 	{
+#ifdef BUILD_PHYSICS_2D
+    typedef math::cVec2 physvec_t;
+    const math::cVec2 physveczero(0.0f, 0.0f);
+#elif defined(BUILD_PHYSICS_3D)
+    typedef math::cVec3 physvec_t;
+    const math::cVec3 physveczero(0.0f, 0.0f, 0.0f);
+#endif
+
     unsigned int GetFrequencyHz();
     float GetTimeStep();
     unsigned int GetIterations();
@@ -20,7 +28,6 @@ namespace breathe
 		class cPhysicsObject;
 
 		
-		void Init();
 		void Destroy();
 		void Update(sampletime_t currentTime);
 
@@ -39,12 +46,12 @@ namespace breathe
 #ifdef BUILD_PHYSICS_2D
 #include <breathe/physics/physics2d/physics.h>
 #include <breathe/physics/physics2d/cContact.h>
-#include <breathe/physics/physics2d/cPhysicsObject.h>
 #elif defined(BUILD_PHYSICS_3D)
 #include <breathe/physics/physics3d/physics.h>
 #include <breathe/physics/physics3d/cContact.h>
 #include <breathe/physics/physics3d/cRayCast.h>
-#include <breathe/physics/physics3d/cPhysicsObject.h>
 #endif
+
+#include <breathe/physics/cPhysicsObject.h>
 
 #endif //CPHYSICS_H

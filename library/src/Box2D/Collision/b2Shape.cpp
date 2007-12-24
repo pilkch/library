@@ -378,7 +378,7 @@ b2PolyShape::b2PolyShape(const b2ShapeDef* def, b2Body* body,
 		m_normals[i].Normalize();
 	}
 
-	// Ensure the polygon in convex. TODO_ERIN compute convex hull.
+	// Ensure the polygon is convex. TODO_ERIN compute convex hull.
 	for (int32 i = 0; i < m_vertexCount; ++i)
 	{
 		b2Assert(b2Cross(m_normals[i], m_normals[m_next[i]]) > 0.0f);

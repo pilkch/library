@@ -53,6 +53,10 @@ namespace breathe
 		//Position and rotation matrix
 		math::cMat4 m;
 
+    // For 2D
+		void SetDimensions(float fWidth, float fHeight);
+
+    // For 3D
 		void SetDimensions(float fWidth, float fLength, float fHeight);
 
 		float GetDistance(cObject& obj) const;

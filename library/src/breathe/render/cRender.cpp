@@ -26,6 +26,8 @@
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
+#include <breathe/util/cTimer.h>
+
 #include <breathe/storage/filesystem.h>
 
 #include <breathe/math/math.h>
@@ -83,8 +85,12 @@ namespace breathe
 
 			uiTriangles(0),
 
+			pCurrentMaterial(nullptr),
+			pLevel(nullptr),
 			pFrameBuffer0(nullptr),
 			pFrameBuffer1(nullptr),
+			pMaterialNotFoundTexture(nullptr),
+			pTextureNotFoundTexture(nullptr),
 
 			g_info(nullptr),
 			videoInfo(nullptr),
@@ -100,21 +106,13 @@ namespace breathe
 
 			v4SunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
+			pFrustum = new math::cFrustum();
 
-			pCurrentMaterial=NULL;
-			pLevel=NULL;
-
-			pFrustum=new math::cFrustum();
-
-			unsigned int i=0;
+			unsigned int i = 0;
 			for (i=0;i<nAtlas;i++)
     		vTextureAtlas.push_back(new cTextureAtlas(i));
 
-			pMaterialNotFoundTexture=NULL;
-			pTextureNotFoundTexture=NULL;
-
-			for (i=0;i<material::nLayers;i++)
-				vLayer.push_back(material::cLayer());
+			for (i=0;i<material::nLayers;i++) vLayer.push_back(material::cLayer());
 
 			pMaterialNotFoundMaterial=NULL;
 		}
@@ -125,6 +123,14 @@ namespace breathe
 
 			LOG.Success("Delete", "Frustum");
 			SAFE_DELETE(pFrustum);
+
+			unsigned int i = 0;
+			for (i=0;i<nAtlas;i++)
+    		SAFE_DELETE(vTextureAtlas[i]);
+      vTextureAtlas.clear();
+
+			vLayer.clear();
+
 
 			LOG.Success("Delete", "Frame Buffer Objects");
 			SAFE_DELETE(pFrameBuffer0);
@@ -657,6 +663,30 @@ namespace breathe
 				glVertex2f(fX, fY);
 			glEnd();
 		}
+		
+    void cRender::RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation)
+    {
+			fX *= uiWidth;
+			fY *= uiHeight;
+
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+        glTranslatef(fX, fY, 0.0f);
+        glRotatef(fRotation * math::c180_DIV_PI, 0.0f, 0.0f, 1.0f);
+
+        float tX = fWidth * 0.5f * uiWidth;
+        float tY = fHeight * 0.5f * uiHeight;
+
+        float zPos = 0.0f;
+        
+        glBegin(GL_QUADS);
+          glTexCoord2f(0.0f,0.0f); glVertex3f(-tX, tY, zPos);
+          glTexCoord2f(0.0f,1.0f); glVertex3f(-tX, -tY, zPos);
+          glTexCoord2f(1.0f,1.0f); glVertex3f(tX, -tY, zPos);
+          glTexCoord2f(1.0f,0.0f); glVertex3f(tX, tY, zPos);
+        glEnd();
+      glPopMatrix();
+    }
 
 		void cRender::BeginScreenSpaceRendering()
 		{
@@ -677,25 +707,32 @@ namespace breathe
 				// Setup projection matrix
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
-				glLoadIdentity();
-				glOrtho( 0, uiWidth, 0, uiHeight, -1, 1 );
+				  glLoadIdentity();
+				  glOrtho( 0, uiWidth * 2, 0, uiHeight * 2, -1, 1 );
 
-				// Setup modelview matrix
-				glMatrixMode(GL_MODELVIEW);
-				glPushMatrix();
-				glLoadIdentity();
-
-				glMatrixMode(GL_MODELVIEW);
+				  // Setup modelview matrix
+				  glMatrixMode(GL_MODELVIEW);
+				  glPushMatrix();
+            glTranslatef(float(uiWidth>>1), float(uiHeight>>1), 0.0f);
 		}
 
 		void cRender::EndScreenSpaceRendering()
 		{
-				glMatrixMode( GL_MODELVIEW );		// Select Modelview
-				glPopMatrix();									// Pop The Matrix
+				  glMatrixMode( GL_MODELVIEW );		// Select Modelview
+				  glPopMatrix();									// Pop The Matrix
 				glMatrixMode( GL_PROJECTION );	// Select Projection
 				glPopMatrix();									// Pop The Matrix
 			glPopAttrib();
 		}
+    
+    // In this mode y is 1..0
+		void cRender::BeginScreenSpaceWorldRendering()
+    {
+    }
+
+    void cRender::EndScreenSpaceWorldRendering()
+    {
+    }
 
 		void cRender::PushScreenSpacePosition(float x, float y)
 		{

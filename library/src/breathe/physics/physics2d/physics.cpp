@@ -45,6 +45,17 @@ namespace breathe
     float GetTimeStep() { return fTimeStep; }
     unsigned int GetIterations() { return uiIterations; }
 
+    float fWidth = 100.0f;
+    float fHeight = 100.0f;
+
+    float GetWidth() { return fWidth; }
+    float GetHeight() { return fHeight; }
+
+    
+    const bool bCanSleep = true;
+
+    bool CanSleep() { return bCanSleep; }
+
 		// *** Physics data
 		const int iMaxContacts = 100;
 		const float fFriction = 2000.0f;
@@ -64,32 +75,57 @@ namespace breathe
 		
 		// *** Functions
 
+    b2World* GetWorld() { return world; }
+
 		size_t size() { return lPhysicsObject.size(); }
 		iterator begin() { return lPhysicsObject.begin(); }
 		iterator end() { return lPhysicsObject.end(); }
 
-    b2World* GetWorld() { return world; }
+    b2Body* border[4];
 
-		void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ)
+    b2Body* GetBorder0() { return border[0]; }
+    b2Body* GetBorder1() { return border[1]; }
+    b2Body* GetBorder2() { return border[2]; }
+    b2Body* GetBorder3() { return border[3]; }
+
+		b2Body* CreateBoundingWall(float x, float y, float width, float height)
 		{
-			breathe::math::cVec3 p(posX, posY, posZ);
-			breathe::math::cVec3 n(nX, nY, nZ);
+      b2BoxDef boundingWallBoxDef;
+      boundingWallBoxDef.extents.Set(width, height);
+      boundingWallBoxDef.density = 0.0f;
 
-			n.Normalize();
+      b2BodyDef boundingWallBodyDef;
+      boundingWallBodyDef.position.Set(x, y);
+      boundingWallBodyDef.AddShape(&boundingWallBoxDef);
 
-
+      return breathe::physics::world->CreateBody(&boundingWallBodyDef);
 		}
 
-		void Init()
+    void Init(float width, float height)
 		{
-      b2AABB aabb;
-      aabb.minVertex.Set(-10.0f, -10.0f);
-      aabb.maxVertex.Set(10.0f, 10.0f);
+      fWidth = width;
+      fHeight = height;
 
-      b2Vec2 gravity(0.0f, fGravity);
-      bool doSleep = true;
-  
-      world = new b2World(aabb, gravity, doSleep);
+      float fBorder = 1.0f;
+
+      b2AABB aabb;
+      aabb.minVertex.Set(-fBorder, -fBorder);
+      aabb.maxVertex.Set(width + fBorder, height + fBorder);
+
+      b2Vec2 gravity(0.0f, fGravity);  
+      world = new b2World(aabb, gravity, CanSleep());
+
+      // Bottom
+      border[0] = CreateBoundingWall(0.0f, -0.5f * fBorder, width, fBorder);
+
+      // Top
+      border[1] = CreateBoundingWall(0.0f, height + 0.5f * fBorder, width, fBorder);
+
+      // Left
+      border[2] = CreateBoundingWall(-0.5f * fBorder, height * 0.5f, fBorder, height * 0.5f);
+
+      // Right
+      border[3] = CreateBoundingWall(width + 0.5f * fBorder, height * 0.5f, fBorder, height * 0.5f);
 		}
 
 		void Destroy()
@@ -110,6 +146,15 @@ namespace breathe
 		void Update(sampletime_t currentTime)
 		{
       world->Step(fTimeStep, uiIterations);
+
+      
+			iterator iter = lPhysicsObject.begin();
+			iterator iterEnd = lPhysicsObject.end();
+
+      while (iterEnd != iter) {
+        (*iter)->Update(currentTime);
+        iter++;
+			};
 
       /*for (uint32_t i = 0; i < 60; ++i)
       {

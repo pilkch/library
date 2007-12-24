@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 // Breathe
 #include <breathe/breathe.h>
@@ -20,9 +21,17 @@ namespace breathe
 	{
 		cVec2::cVec2(const float* rhs)
 		{
+      assert(rhs != nullptr);
+
 			x=*rhs;
 			y=*(rhs+1);
 		}
+		
+    cVec2::cVec2(const cVec3& rhs) :
+      x(rhs.x),
+      y(rhs.y)
+    {
+    }
 
 		void cVec2::Set(float newX, float newY)
 		{
@@ -113,8 +122,8 @@ namespace breathe
 
 		cVec2 cVec2::operator * (const float rhs) const
 		{
-			float newX=x * rhs;
-			float newY=y * rhs;
+			float newX = x * rhs;
+			float newY = y * rhs;
 
 			return cVec2(newX, newY);
 		}
@@ -134,20 +143,27 @@ namespace breathe
 
 		void cVec2::operator-=(const cVec2 & rhs)
 		{
-			x-=rhs.x;
-			y-=rhs.y;
+			x -= rhs.x;
+			y -= rhs.y;
 		}
 
 		void cVec2::operator*=(const float rhs)
 		{
-			x*=rhs;
-			y*=rhs;
+			x *= rhs;
+			y *= rhs;
 		}
 
 		void cVec2::operator/=(const float rhs)
 		{
-			x/=rhs;
-			y/=rhs;
+			x /= rhs;
+			y /= rhs;
 		}
+    
+    cVec2 cVec2::operator=(const cVec3& rhs)
+    {
+      x = rhs.x;
+      y = rhs.y;
+      return *this;
+    }
 	}
 }

@@ -59,7 +59,7 @@ namespace breathe
 			float fV;
 
 			SDL_Surface* surface;
-			unsigned char* pData;
+      std::vector<unsigned char> data;
 		};
 
 		inline void cTexture::Transform(float& u, float& v)

@@ -70,8 +70,13 @@ namespace breathe
 			void BeginRenderScene();
 			void EndRenderScene();
 
+      // In this mode y is 1..0
 			void BeginScreenSpaceRendering();
 			void EndScreenSpaceRendering();
+      
+      // In this mode y is 1..0
+			void BeginScreenSpaceWorldRendering();
+			void EndScreenSpaceWorldRendering();
 
 			void RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour);
 			void RenderAxisReference(float x, float y, float z);
@@ -81,6 +86,7 @@ namespace breathe
 			void RenderScreenSpaceRectangle(
 				float fX, float fY, float fWidth, float fHeight,
 				float fU, float fV, float fU2, float fV2);
+			void RenderScreenSpaceRectangleRotated(float x, float y, float fWidth, float fHeight, float fRotation);
 			
 			void RenderMesh(model::cMesh* pMesh);
 			unsigned int RenderStaticModel(model::cStatic* p);

@@ -98,7 +98,7 @@ namespace breathe
 			ground = dCreatePlane(spaceStatic, n.x, n.y, n.z, n.DotProduct(p));
 		}
 
-		void Init()
+		void Init(float posX, float posY, float posZ, float nX, float nY, float nZ)
 		{
 			breathe::physics::world = dWorldCreate();
 
@@ -119,6 +119,8 @@ namespace breathe
 			spaceDynamic=dHashSpaceCreate(0);
 
 			contactgroup = dJointGroupCreate(10000);
+
+      CreateGround(posX, posY, posZ, nX, nY, nZ);
 		}
 
 		void Destroy()

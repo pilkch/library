@@ -140,7 +140,9 @@ int intersect_triangle(
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_net.h>
 
-#ifdef BUILD_PHYSICS_3D
+#ifdef BUILD_PHYSICS_2D
+#include <Box2D/Box2D.h>
+#elif defined(BUILD_PHYSICS_3D)
 #include <ODE/ode.h>
 #endif
 
@@ -155,6 +157,7 @@ int intersect_triangle(
 #include <breathe/storage/xml.h>
 
 #include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
 #include <breathe/math/cMat4.h>
@@ -248,12 +251,12 @@ namespace breathe
 
 		SDL_ShowCursor(SDL_DISABLE);
 
-		pRender=new render::cRender();		
+		pRender = new render::cRender();		
 
 		breathe::network::Init();
 
 #ifdef BUILD_LEVEL
-		pLevel=new cLevel();
+		pLevel = new cLevel();
 #endif
 
 		AddKeyNoRepeat(SDLK_ESCAPE);
@@ -279,6 +282,17 @@ namespace breathe
 	cApp::~cApp()
 	{
     while (!states.empty()) PopState();
+
+    
+		std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
+		std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
+
+    while (iter != iterEnd) {
+      SAFE_DELETE(iter->second);
+      iter++;
+    }
+    mKey.clear();
+    assert(mKey.empty());
 
 		SAFE_DELETE(pFont);
 
@@ -361,6 +375,17 @@ namespace breathe
 
 	bool cApp::InitApp()
 	{
+    // Physics 2D has width, height
+    // Physics 3D has width, depth and infinite height
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    float physics_width = 500.0f;
+#if defined(BUILD_PHYSICS_2D)
+    float physics_height = 500.0f;
+#else
+    float physics_depth = 500.0f;
+#endif
+#endif
+
 		{
 			LOG.Success("Init", "Loading config.xml");
 
@@ -375,6 +400,8 @@ namespace breathe
 
 			iter.FindChild("config");
 			if (!iter) return breathe::GOOD;
+
+      breathe::xml::cNode::iterator config(iter);
 
 			iter.FindChild("render");
 			while(iter)
@@ -419,6 +446,23 @@ namespace breathe
 
 				iter.Next("render");
 			};
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+      iter = config;
+
+			iter.FindChild("physics");
+			while(iter)
+      {
+				iter.GetAttribute("width", physics_width);
+#if defined(BUILD_PHYSICS_2D)
+				iter.GetAttribute("height", physics_height);
+#else
+        iter.GetAttribute("depth", physics_depth);
+#endif
+
+				iter.Next("physics");
+      };
+#endif
 		}
 
 		// Init SDL 
@@ -553,8 +597,10 @@ namespace breathe
 
 		breathe::audio::Init();
 
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		breathe::physics::Init();
+#if defined(BUILD_PHYSICS_2D)
+		breathe::physics::Init(physics_width, physics_height);
+#elif defined(BUILD_PHYSICS_3D)
+		breathe::physics::Init(physics_width, physics_depth);
 #endif
 
 		if (breathe::BAD==LoadScene())
@@ -740,18 +786,34 @@ namespace breathe
 		}
 	}
 
+  void cApp::RemoveKey(unsigned int code)
+  {
+		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+
+    if (iter != mKey.end()) {
+      SAFE_DELETE(iter->second);
+      mKey.erase(iter);
+    }
+  }
+
 	void cApp::AddKeyRepeat(unsigned int code)
 	{
+    RemoveKey(code);
+
 		mKey[code] = new cKey(code, true, true, false);
 	}
 
 	void cApp::AddKeyNoRepeat(unsigned int code)
 	{
+    RemoveKey(code);
+
 		mKey[code] = new cKey(code, false, false, false);
 	}
 
 	void cApp::AddKeyToggle(unsigned int code)
 	{
+    RemoveKey(code);
+
 		mKey[code] = new cKey(code, false, false, true);
 	}
 

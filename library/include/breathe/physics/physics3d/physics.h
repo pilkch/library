@@ -10,8 +10,8 @@ namespace breathe
 		extern dSpaceID spaceDynamic;
 		extern dJointGroupID contactgroup;
 		extern dGeomID ground;
-
-		void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ);
+    
+		void Init(float posX, float posY, float posZ, float nX, float nY, float nZ);
 	}
 }
 

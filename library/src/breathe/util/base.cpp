@@ -52,6 +52,18 @@ namespace breathe
 
 		fRadius *= math::cSQUARE_ROOT_2;
 	}
+
+	void cObject::SetDimensions(float fInWidth, float fInHeight)
+	{
+		fWidth = fInWidth;
+		fLength = 0.0f;
+		fHeight = fInHeight;
+
+		fRadius = fWidth;
+		if (fInHeight > fRadius) fRadius = fInHeight;
+
+		fRadius *= math::cSQUARE_ROOT_2;
+	}
 	
 	// Collisions
 	bool cObjectSphere::Collide(cObjectSphere& rhs)

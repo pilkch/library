@@ -5,13 +5,16 @@ namespace breathe
 {
 	namespace math
 	{
+    class cVec3;
+
 		class cVec2
 		{
 		public:
 			inline cVec2() {}
-			inline cVec2(float newX, float newY) {x=newX;	y=newY;}
-			inline cVec2(const float * rhs);
-			inline cVec2(const cVec2 & rhs) {x=rhs.x;	y=rhs.y;}
+			cVec2(const float* rhs);
+			inline cVec2(float newX, float newY) { x=newX; y=newY; }
+			inline cVec2(const cVec2& rhs) { x=rhs.x; y=rhs.y; }
+			cVec2(const cVec3& rhs);
 
 			void Set(float newX, float newY);	//set member variables
 			
@@ -81,6 +84,9 @@ namespace breathe
 			//cast to pointer to a (float *) for glVertex3fv etc
 			operator float* () const {return (float*) this;}
 			operator const float* () const {return (const float*) this;}
+      
+			cVec2 operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this;}
+			cVec2 operator=(const cVec3& rhs);
 
 			//member variables
 
@@ -101,6 +107,8 @@ namespace breathe
 				};
 			};
 		};
+
+    const cVec2 v2Zero(0.0f, 0.0f);
 	}
 }
 

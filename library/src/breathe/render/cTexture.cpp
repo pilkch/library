@@ -46,26 +46,25 @@ namespace breathe
 {
 	namespace render
 	{
-		cTexture::cTexture()
-		{
-			uiTexture = 0;
+    cTexture::cTexture() :
+			uiTexture(0),
 
-			uiWidth = 0;
-			uiHeight = 0;
-			uiMode = TEXTURE_RGBA;
+			uiWidth(0),
+			uiHeight(0),
+			uiMode(TEXTURE_RGBA),
 
-			fScale=1.0f;
-			fU=0.0f;
-			fV=0.0f;
+			fScale(1.0f),
+			fU(0.0f),
+			fV(0.0f),
 			
-			pData=NULL;
-			surface=NULL;
+			surface(nullptr)
+     {
 		}
 
 		cTexture::~cTexture()
 		{
 			SDL_FreeSurface(surface);
-			SAFE_DELETE_ARRAY(pData);
+      data.clear();
 		}
 		
 		bool cTexture::Load(const std::string& inFilename)
@@ -185,16 +184,16 @@ namespace breathe
 		{
 			// Fill out the pData structure array, we use this for when we have to reload this data
 			// on a task switch or fullscreen mode change
-			if (NULL == pData)
-				pData = new unsigned char[uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4)];
+      if (data.empty()) data.resize(uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4), 0);
 
-			std::memcpy(pData, surface->pixels, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
+			std::memcpy(&data[0], surface->pixels, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
 		void cTexture::CopyFromDataToSurface()
 		{
-			if (pData)
-        std::memcpy(surface->pixels, pData, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
+			if (data.empty()) return;
+      
+      std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
 		bool cTexture::SaveToBMP(const std::string& inFilename)

@@ -254,6 +254,8 @@ namespace breathe
   private:
     bool bPopCurrentStateSoon;
     cAppState* pPushThisStateSoon;
+
+    void RemoveKey(unsigned int code);
     
 		// Forbidden
 		void _OnMouseEvent(int button, int state, int x, int y);
