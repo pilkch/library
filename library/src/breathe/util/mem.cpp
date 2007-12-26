@@ -259,6 +259,9 @@ static	const	char	*allocationTypes[] = {
 	"realloc", "delete", "delete[]", "free"
 };
 
+const	char* memoryLogFile = "log/memory.log";
+const	char* memoryLeakLogFile = "log/memory_leaks.log";
+
 static sAllocUnit* hashTable[hashSize];
 static sAllocUnit* reservoir;
 static unsigned int currentAllocationCount = 0;
@@ -270,8 +273,6 @@ static unsigned int sourceLine = 0;
 static bool staticDeinitTime = false;
 static sAllocUnit** reservoirBuffer      = NULL;
 static unsigned int	reservoirBufferSize    = 0;
-extern const char* memoryLogFile;
-extern const char* memoryLeakLogFile;
 static void		doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------

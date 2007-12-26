@@ -6,36 +6,24 @@ namespace breathe
   class cUndoRedoState
   {
   public:
-  cUndoRedoState(const std::string& title);
+    cUndoRedoState::cUndoRedoState(const breathe::string_t& title) :
+      _title(title)
+    {
+    }
 
-  const std::string& GetTitle() const;
+    const breathe::string_t& GetTitle() const { return _title; }
 
-  void Undo();
-  void Redo();
+    void cUndoRedoState::Undo() { _Undo(); }
+    void cUndoRedoState::Redo() { _Redo(); }
 
   private:
-  virtual void _Undo() = 0; 
-  virtual void _Redo() = 0;
+    virtual void _Undo() = 0; 
+    virtual void _Redo() = 0;
 
-  const std::string _title;
+    const breathe::string_t _title;
 
-  NO_COPY();
+    NO_COPY(cUndoRedoState);
   };
-
-  cUndoRedoState::cUndoRedoState(const std::string& title) :
-  _title(title)
-  {
-  }
-
-  void cUndoRedoState::Undo() 
-  {
-  _Undo();
-  }
-
-  void cUndoRedoState::Redo()
-  {
-  _Redo();
-  }
 
 
   // Don't call delete on any state that is passed into this class.  
@@ -43,76 +31,28 @@ namespace breathe
   class cUndoRedo
   {
   public:
-  ~cUndoRedo();
+    cUndoRedo() {}
+    ~cUndoRedo();
 
-  void push_back(cUndoRedoState* state);
+    void push_back(cUndoRedoState* state);
 
-  void Undo();
-  void Redo();
+    void Undo();
+    void Redo();
 
-  bool CanUndo() const { return !undo.empty(); }
-  bool CanRedo() const { return !redo.empty(); } 
+    bool CanUndo() const { return !undo.empty(); }
+    bool CanRedo() const { return !redo.empty(); } 
 
-  const std::string& GetUndoTitle() const { assert(CanUndo()); return undo.back()->GetTitle(); }
-  const std::string& GetRedoTitle() const { assert(CanRedo()); return redo.back()->GetTitle(); } 
+    const breathe::string_t& GetUndoTitle() const { assert(CanUndo()); return undo.back()->GetTitle(); }
+    const breathe::string_t& GetRedoTitle() const { assert(CanRedo()); return redo.back()->GetTitle(); } 
 
   private:
-  std::list<cUndoRedoState*> undo;
-  std::list<cUndoRedoState*> redo;
+    std::list<cUndoRedoState*> undo;
+    std::list<cUndoRedoState*> redo;
 
-  void ClearRedo();
+    void ClearRedo();
 
-  NO_COPY();
+    NO_COPY(cUndoRedo);
   };
-
-  cUndoRedo::~cUndoRedo()
-  {
-  while (!undo.empty()) { 
-  SAFE_DELETE(undo.back());
-  undo.pop_back();
-  };
-
-  ClearRedo();
-  }
-
-  void cUndoRedo::ClearRedo()
-  {   
-  while (!redo.empty()) {
-  SAFE_DELETE(redo.back());
-  redo.pop_back();
-  };
-  }
-
-  void cUndoRedo::push_back(cUndoRedoState* state)
-  {
-    undo.push_back(state);
-
-    ClearRedo();
-  }
-
-  void cUndoRedo::Undo()
-  {
-    assert(CanUndo());
-
-    cUndoRedoState* state = undo.back();
-    undo.pop_back();
-
-    state->Undo();
-
-    redo.push_back(state);
-  }
-
-  void cUndoRedo::Redo()
-  {
-    assert(CanRedo());
-
-    cUndoRedoState* state = redo.back();
-    redo.pop_back();
-
-    state->Redo();
-
-    undo.push_back(state);
-  }
 }
 
 #endif //UNDOREDO_H

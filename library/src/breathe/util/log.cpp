@@ -72,7 +72,6 @@ namespace breathe
 
 
 			filesystem::CreateDirectory(TEXT("log"));
-			filesystem::CreateDirectory(TEXT("log/mem"));
 			filesystem::CreateFile(strfilename);
 
 			CreateLog();
