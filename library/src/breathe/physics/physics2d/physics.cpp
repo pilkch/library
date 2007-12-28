@@ -52,7 +52,7 @@ namespace breathe
     float GetHeight() { return fHeight; }
 
     
-    const bool bCanSleep = false;
+    const bool bCanSleep = true;
 
     bool CanSleep() { return bCanSleep; }
 

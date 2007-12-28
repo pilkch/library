@@ -66,8 +66,10 @@ namespace breathe
 		void cPhysicsObject::RemoveFromWorld()
 		{
       RemovePhysicsObject(this);
-      GetWorld()->DestroyBody(body);
-      body = nullptr;
+      if (body != nullptr) {
+        GetWorld()->DestroyBody(body);
+        body = nullptr;
+      }
 		}
 
 		void cPhysicsObject::InitCommon(b2ShapeDef& shapeDef, const physvec_t& pos, const physvec_t& rot)
