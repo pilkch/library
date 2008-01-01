@@ -50,6 +50,7 @@ namespace breathe
       bool IsDynamic() const { return bDynamic; }
 
 #ifdef BUILD_PHYSICS_2D
+      void SetFriction(float friction) { assert(body == nullptr); fFriction = friction; }
       b2Body* GetBody() const { return body; }
 #else
       dBodyID GetBody() const { return body; }
@@ -63,7 +64,9 @@ namespace breathe
 		private:
  			void InitCommon(b2ShapeDef& shapeDef, const physvec_t& pos, const physvec_t& rot);
 
+#ifdef BUILD_PHYSICS_3D
 			virtual void UpdateComponents();
+#endif
 
       //object_type type;
 
@@ -71,6 +74,7 @@ namespace breathe
 			bool bDynamic;
 
 #ifdef BUILD_PHYSICS_2D
+      float fFriction;
       b2Body* body;
 #else
 			dBodyID body;

@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cmath>
 
 // writing on a text file
@@ -128,8 +129,6 @@ namespace breathe
 
 		void Destroy()
 		{
-
-
       SAFE_DELETE(border[0]);
       SAFE_DELETE(border[1]);
       SAFE_DELETE(border[2]);
@@ -150,9 +149,10 @@ namespace breathe
 
 		void Update(sampletime_t currentTime)
 		{
+      // Step the world
       world->Step(fTimeStep, uiIterations);
 
-      
+      // Now update our physics objects
 			iterator iter = lPhysicsObject.begin();
 			iterator iterEnd = lPhysicsObject.end();
 
@@ -160,13 +160,6 @@ namespace breathe
         (*iter)->Update(currentTime);
         iter++;
 			};
-
-      /*for (uint32_t i = 0; i < 60; ++i)
-      {
-        b2Vec2 position = body->GetOriginPosition();
-        float32_t rotation = body->GetRotation();
-        printf("%4.2f %4.2f %4.2f\n", position.x, position.y, rotation);
-      }*/
 		}
 	}
 }

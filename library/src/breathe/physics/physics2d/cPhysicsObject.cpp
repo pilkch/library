@@ -42,6 +42,8 @@ namespace breathe
 			bBody(true),
 			bDynamic(true),
 
+      fFriction(0.3f),
+
       body(nullptr)
 		{
 			fWeight=1.0f;
@@ -104,7 +106,7 @@ namespace breathe
       b2BoxDef shapeDef;
       shapeDef.extents.Set(fWidth, fHeight);
       shapeDef.density = fWeight;
-      shapeDef.friction = 0.3f;
+      shapeDef.friction = fFriction;
 
       InitCommon(shapeDef, pos, rot);
 		}
@@ -118,7 +120,7 @@ namespace breathe
       b2CircleDef shapeDef;
       shapeDef.radius = fRadius;
       shapeDef.density = fWeight;
-      shapeDef.friction = 0.3f; 
+      shapeDef.friction = fFriction;
 
       InitCommon(shapeDef, pos, rot);
 		}
@@ -134,7 +136,7 @@ namespace breathe
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
 
-      CreateSphere(pos, rot);
+      CreateBox(pos, rot);
 		}
 
 		void cPhysicsObject::Update(sampletime_t currentTime)
@@ -185,11 +187,6 @@ namespace breathe
 				m[15] =     1;*/
 			}
 
-			UpdateComponents();
-		}
-
-		void cPhysicsObject::UpdateComponents()
-		{
 			p = m.GetPosition();
 		}
 	}

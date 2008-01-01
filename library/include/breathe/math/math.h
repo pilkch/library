@@ -1,6 +1,21 @@
 #ifndef CMATH_H
 #define CMATH_H
 
+template <class T> inline T min(const T& a, const T& b)
+{
+  return (a < b) ? a : b;
+}
+
+template <class T> inline T max(const T& a, const T& b)
+{
+  return (a > b) ? a : b;
+}
+
+template <class T> inline T min_max(const T& i, const T& lower, const T& upper)
+{
+	return (i < lower) ? lower : (i > upper) ? upper : i;
+}
+
 namespace breathe
 {
 	namespace math
@@ -15,11 +30,6 @@ namespace breathe
 		extern const float cSQUARE_ROOT_2;
 		extern const float cEPSILON;
 		extern const float cINFINITY;
-
-		template <class T> inline T min_max(const T& i, const T& lower, const T& upper)
-		{
-			return (i < lower) ? lower : (i > upper) ? upper : i;
-		}
 
 		
 		template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
