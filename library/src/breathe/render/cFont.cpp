@@ -74,11 +74,11 @@ namespace breathe
 			}
 
 			//Convert the glyph to a bitmap.
-			FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1 );
-				FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
+			FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1 );
+      FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
 
 			//This reference will make accessing the bitmap easier
-			FT_Bitmap& bitmap=bitmap_glyph->bitmap;
+			FT_Bitmap& bitmap = bitmap_glyph->bitmap;
 
 			//Use our helper function to get the widths of
 			//the bitmap data that we will need in order to create
@@ -134,38 +134,38 @@ namespace breathe
 			//bitmap extends past the bottom of the line 
 			//(this is only true for characters like 'g' or 'y'.
 			glPushMatrix();
-			glTranslatef(0, static_cast<float>(bitmap_glyph->top-bitmap.rows),0);
+			  glTranslatef(0, - static_cast<float>(bitmap_glyph->top), 0);
 
-			//Now we need to account for the fact that many of
-			//our textures are filled with empty padding space.
-			//We figure what portion of the texture is used by 
-			//the actual character and store that information in 
-			//the x and y variables, then when we draw the
-			//quad, we will only reference the parts of the texture
-			//that we contain the character itself.
-			float	x = (float)bitmap.width / (float)width;
-			float y = (float)bitmap.rows / (float)height;
+			  //Now we need to account for the fact that many of
+			  //our textures are filled with empty padding space.
+			  //We figure what portion of the texture is used by 
+			  //the actual character and store that information in 
+			  //the x and y variables, then when we draw the
+			  //quad, we will only reference the parts of the texture
+			  //that we contain the character itself.
+			  float	x = static_cast<float>(bitmap.width) / static_cast<float>(width);
+			  float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
 
-			//Here we draw the texturemaped quads.
-			//The bitmap that we got from FreeType was not 
-			//oriented quite like we would like it to be,
-			//so we need to link the texture to the quad
-			//so that the result will be properly aligned.
-			glBegin(GL_QUADS);
-				glTexCoord2d(0,0); glVertex2f(0, static_cast<float>(bitmap.rows));
-				glTexCoord2d(0,y); glVertex2f(0, 0);
-				glTexCoord2d(x,y); glVertex2f(static_cast<float>(bitmap.width), 0);
-				glTexCoord2d(x,0); glVertex2f(static_cast<float>(bitmap.width), static_cast<float>(bitmap.rows));
-			glEnd();
+			  //Here we draw the texturemaped quads.
+			  //The bitmap that we got from FreeType was not 
+			  //oriented quite like we would like it to be,
+			  //so we need to link the texture to the quad
+			  //so that the result will be properly aligned.
+			  glBegin(GL_QUADS);
+				  glTexCoord2d(0.0f,  y);     glVertex2f(0.0f, static_cast<float>(bitmap.rows));
+				  glTexCoord2d(0.0f,  0.0f);  glVertex2f(0.0f, 0.0f);
+				  glTexCoord2d(x,     0.0f);  glVertex2f(static_cast<float>(bitmap.width), 0.0f);
+				  glTexCoord2d(x,     y);     glVertex2f(static_cast<float>(bitmap.width), static_cast<float>(bitmap.rows));
+			  glEnd();
 			glPopMatrix();
-			glTranslatef(static_cast<float>(face->glyph->advance.x >> 6),0,0);
+			glTranslatef(static_cast<float>(face->glyph->advance.x >> 6), 0, 0);
 
 
 			//increment the raster position as if we were a bitmap font.
 			//(only needed if you want to calculate text length)
 			//glBitmap(0,0,0,0,face->glyph->advance.x >> 6,0,NULL);
 
-			//Finnish the display list
+			//Finish the display list
 			glEndList();
 		}
 
@@ -244,9 +244,6 @@ namespace breathe
 		///with freetype fonts.
 		void cFont::_print(float x, float y, const std::vector<string_t>& lines)
 		{
-			x *= pRender->uiWidth;
-			y *= pRender->uiHeight;
-
 			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
 				glDisable(GL_LIGHTING);
 					glEnable(GL_TEXTURE_2D);
@@ -266,9 +263,9 @@ namespace breathe
 					unsigned int n = lines.size();
 					unsigned int i = 0;
 					for (;i<n;i++) {
-						glPushMatrix();
-							glLoadIdentity();
-							glTranslatef(x, pRender->uiHeight - y - h, 0.0f);
+            glPushMatrix();
+              glTranslatef(x, y, 0.0f);
+							glScalef(0.001f, 0.001f, 1.0f);
               glCallLists(static_cast<unsigned int>(lines[i].length()), GL_UNSIGNED_BYTE, breathe::string::ToUTF8(lines[i]).c_str());
 						glPopMatrix();
 					}

@@ -356,7 +356,7 @@ namespace breathe
 
 			{
 				CONSOLE<<"WIDESCREEN"<<std::endl;
-				SETTINGS::iterator iter;
+        SETTINGS::resolution::iterator iter;
 				iter.GetWidescreenResolutions();
 				while(iter)
 				{
@@ -473,6 +473,19 @@ namespace breathe
 			return breathe::GOOD;
 		}
 
+    
+    void cRender::EnableWireframe()
+    {
+      glDisable( GL_CULL_FACE );
+	    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    }
+	
+    void cRender::DisableWireframe()
+    {
+		  glEnable( GL_CULL_FACE );
+		  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    }
+
 		void cRender::_BeginRenderShared()
 		{
 			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -481,17 +494,8 @@ namespace breathe
 			glLoadIdentity();
 			glMultMatrixf(pFrustum->m);
 
-			if (bRenderWireframe)
-			{
-				glDisable( GL_CULL_FACE );
-				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-			}
-			else
-			{
-				glEnable( GL_CULL_FACE );
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-			}
-
+			if (bRenderWireframe) EnableWireframe();
+      else DisableWireframe();
 
 			if (bLight)
 			{
@@ -623,20 +627,13 @@ namespace breathe
 
 		void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
 		{
-			fWidth *= uiWidth;
-			fHeight *= uiHeight;
-			fX *= uiWidth;
-			fY = (1.0f - fY) * uiHeight;
-
+      const float fHalfWidth = fWidth * 0.5f;
+      const float fHalfHeight = fHeight * 0.5f;
 			glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(fX, fY - fHeight);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(fX + fWidth, fY - fHeight);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(fX + fWidth, fY);
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(fX, fY);
+				glTexCoord2f(0.0f, 0.0f); glVertex2f(fX - fHalfWidth, fY - fHalfHeight);
+				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fHalfWidth, fY - fHalfHeight);  
+				glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fHalfWidth, fY + fHalfHeight);
+				glTexCoord2f(0.0f, 1.0f); glVertex2f(fX - fHalfWidth, fY + fHalfHeight);
 			glEnd();
 		}
 
@@ -644,53 +641,59 @@ namespace breathe
 			float fX, float fY, float fWidth, float fHeight,
 			float fU, float fV, float fU2, float fV2)
 		{
-			fWidth *= uiWidth;
-			fHeight *= uiHeight;
-			fX *= uiWidth;
-			fY = (1.0f - fY) * uiHeight;
+			fV *= -1.0f;
+			fV2 *= -1.0f;
 
+      const float fHalfWidth = fWidth * 0.5f;
+      const float fHalfHeight = fHeight * 0.5f;
+			glBegin(GL_QUADS);
+				glTexCoord2f(fU, fV + fV2);       glVertex2f(fX - fHalfWidth, fY - fHalfHeight);
+        glTexCoord2f(fU + fU2, fV + fV2); glVertex2f(fX + fHalfWidth, fY - fHalfHeight);
+				glTexCoord2f(fU + fU2, fV);       glVertex2f(fX + fHalfWidth, fY + fHalfHeight);
+        glTexCoord2f(fU, fV);             glVertex2f(fX - fHalfWidth, fY + fHalfHeight);
+			glEnd();
+		}
+
+    void cRender::RenderScreenSpaceRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight)
+    {
+			glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex2f(fX, fY);
+				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fWidth, fY);  
+				glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fWidth, fY + fHeight);
+				glTexCoord2f(0.0f, 1.0f); glVertex2f(fX, fY + fHeight);
+			glEnd();
+    }
+
+		void cRender::RenderScreenSpaceRectangleTopLeftIsAt(
+			float fX, float fY, float fWidth, float fHeight,
+			float fU, float fV, float fU2, float fV2)
+    {
 			fV *= -1.0f;
 			fV2 *= -1.0f;
 
 			glBegin(GL_QUADS);
-				glTexCoord2f(fU, fV + fV2);
-				glVertex2f(fX, fY - fHeight);
-				glTexCoord2f(fU + fU2, fV + fV2);
-				glVertex2f(fX + fWidth, fY - fHeight);
-				glTexCoord2f(fU + fU2, fV);
-				glVertex2f(fX + fWidth, fY);
-				glTexCoord2f(fU, fV);
-				glVertex2f(fX, fY);
+				glTexCoord2f(fU, fV + fV2);       glVertex2f(fX, fY);
+        glTexCoord2f(fU + fU2, fV + fV2); glVertex2f(fX + fWidth, fY);
+				glTexCoord2f(fU + fU2, fV);       glVertex2f(fX + fWidth, fY + fHeight);
+        glTexCoord2f(fU, fV);             glVertex2f(fX, fY + fHeight);
 			glEnd();
-		}
+    }
 		
     void cRender::RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation)
     {
-			fX *= uiWidth;
-			fY *= uiHeight;
-
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
-        float tX = fWidth * 0.5f * uiWidth;
-        float tY = fHeight * 0.5f * uiHeight;
-        glTranslatef(fX + tX, fY + tY, 0.0f);
-        glRotatef(fRotation * math::c180_DIV_PI, 0.0f, 0.0f, 1.0f);
-
-
-        float zPos = 0.0f;
+        const float fHalfWidth = fWidth * 0.5f;
+        const float fHalfHeight = fHeight * 0.5f;
+        glTranslatef(fX, fY, 0.0f);
+        glRotatef(fRotation, 0.0f, 0.0f, 1.0f);
         
-        glBegin(GL_QUADS);
-          glTexCoord2f(0.0f, 0.0f); glVertex3f(-tX, tY, zPos);
-          glTexCoord2f(0.0f, 1.0f); glVertex3f(-tX, -tY, zPos);
-          glTexCoord2f(1.0f, 1.0f); glVertex3f(tX, -tY, zPos);
-          glTexCoord2f(1.0f, 0.0f); glVertex3f(tX, tY, zPos);
-        glEnd();
+        RenderScreenSpaceRectangle(0.0f, 0.0f, fWidth, fHeight);
       glPopMatrix();
     }
 
 		void cRender::BeginScreenSpaceRendering()
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDisable(GL_LIGHTING);
 
 			ClearMaterial();
@@ -708,41 +711,79 @@ namespace breathe
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
 				  glLoadIdentity();
-				  glOrtho( 0, uiWidth * 2, 0, uiHeight * 2, -1, 1 );
-
-				  // Setup modelview matrix
-				  glMatrixMode(GL_MODELVIEW);
-				  glPushMatrix();
-            glTranslatef(float(uiWidth>>1), float(uiHeight>>1), 0.0f);
+				  glOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+          
+          BeginScreenSpaceGuiRendering();
 		}
 
 		void cRender::EndScreenSpaceRendering()
 		{
-				  glMatrixMode( GL_MODELVIEW );		// Select Modelview
-				  glPopMatrix();									// Pop The Matrix
+          EndScreenSpaceGuiRendering();
 				glMatrixMode( GL_PROJECTION );	// Select Projection
 				glPopMatrix();									// Pop The Matrix
 			glPopAttrib();
 		}
+
+    void cRender::BeginScreenSpaceGuiRendering()
+    {
+      glFrontFace(GL_CW);
+			
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+				glLoadIdentity();
+				glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+
+			  // Setup modelview matrix
+			  glMatrixMode(GL_MODELVIEW);
+			  glPushMatrix();
+    }
+
+    void cRender::EndScreenSpaceGuiRendering()
+    {
+          glMatrixMode( GL_MODELVIEW );
+        glPopMatrix();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
+
+      glFrontFace(GL_CCW);
+    }
     
     // In this mode y is 1..0
-		void cRender::BeginScreenSpaceWorldRendering()
+		void cRender::BeginScreenSpaceWorldRendering(float fScale)
     {
+      glFrontFace(GL_CCW);
+
+      glMatrixMode(GL_PROJECTION); // Start modifying the projection matrix.
+			glPushMatrix();
+        glLoadIdentity();
+				glOrtho( 0, fScale, 0, fScale, -1, 1 );
+
+			  // Setup modelview matrix
+			  glMatrixMode(GL_MODELVIEW);
+			  glPushMatrix();
     }
 
     void cRender::EndScreenSpaceWorldRendering()
     {
+          glMatrixMode( GL_MODELVIEW );
+        glPopMatrix();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
+
+      glFrontFace(GL_CW);
     }
 
 		void cRender::PushScreenSpacePosition(float x, float y)
 		{
+      glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
-				glLoadIdentity();
-      	glTranslatef(x * float(uiWidth), -y * float(uiHeight), 0.0f);
+				//glLoadIdentity();
+      	glTranslatef(x, -y, 0.0f);
 		}
 
 		void cRender::PopScreenSpacePosition()
 		{
+      glMatrixMode(GL_MODELVIEW);
 			glPopMatrix();
 		}
 
@@ -1118,8 +1159,7 @@ namespace breathe
 		{
 			assert(atlas < nAtlas);
 
-			return vTextureAtlas[atlas];
-		}
+			return vTextureAtlas[atlas];		}
 
 		cTexture* cRender::GetTexture(const std::string& sNewFilename)
 		{
@@ -2473,7 +2513,7 @@ namespace breathe
 				return (lhs.GetHeight() > rhs.GetHeight() && lhs.GetWidth() > rhs.GetWidth());
 			}
 
-			iterator::iterator()
+      resolution::iterator::iterator()
 			{
 				iter = resolutions.end();
 			}
@@ -2481,7 +2521,7 @@ namespace breathe
 
 			const float fWideScreenRatio = 1.33333333333333333333333f;
 
-			void iterator::GetResolutions(bool onlyWidescreen)
+      void resolution::iterator::GetResolutions(bool onlyWidescreen)
 			{
 				resolutions.clear();
 				iter = resolutions.end();

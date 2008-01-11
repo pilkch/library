@@ -48,6 +48,11 @@
 #include <breathe/gui/cWindow.h>
 #include <breathe/gui/cWindowManager.h>
 
+const float fTextureWidth = 64.0f;
+const float fOneOverTextureWidth = 1.0f / fTextureWidth;
+
+float CreateTextureCoord(float value) { return value * fOneOverTextureWidth; }
+
 namespace breathe
 {
 	namespace gui
@@ -126,17 +131,17 @@ namespace breathe
 			const float bar_v = 0.04f;
 
 			// Draw the top left corner
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX(), widget.GetY(), 0.02f, bar_height,
 				0.0f, 0.0f, 0.05f, bar_v);
 			
 			// Draw the top right corner
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX() + absolute_width - 0.016f, widget.GetY(), 0.016f, bar_height,
 				0.187f, 0.0f, 0.049f, bar_v);
 
 			// Draw the top bar
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX() + 0.02f, widget.GetY(), absolute_width - 0.02f - 0.01f, bar_height,
 				0.18f, 0.0f, 0.01f, bar_v);
 			
@@ -148,7 +153,7 @@ namespace breathe
 
 			if (widget.IsResizable()) {
 				// TODO: Draw the bottom right corner
-				//pRender->RenderScreenSpaceRectangle(
+				//pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				//	widget.GetX() + 0.02f, widget.GetY(), absolute_width - 0.02f - 0.01f, 0.05f,
 				//	0.18f, 0.0f, 0.01f, 0.1f);
 			}
@@ -157,9 +162,9 @@ namespace breathe
 			float width = absolute_width;
 			float height = absolute_height - bar_height;
 			render::ApplyTexture apply(textureBackground[BACKGROUND_NORMAL]);
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX(), widget.GetY() + bar_height, absolute_width, absolute_height - bar_height,
-				0.0f, 0.0f, width / 64.0f, height / 64.0f);
+				0.0f, 0.0f, CreateTextureCoord(width), CreateTextureCoord(height));
 
 			// Draw the caption if this window has one
 			if (widget.HasCaption()) {
@@ -171,6 +176,7 @@ namespace breathe
 					glMatrixMode(GL_TEXTURE);
 					glPushMatrix();
 						glLoadIdentity();
+
 						glMatrixMode(GL_MODELVIEW);
 
 						glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -193,10 +199,10 @@ namespace breathe
 			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
 			
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.HorizontalRelativeToAbsolute(widget.GetY()), 
 				absolute_width, absolute_height,
-				0.0f, 0.0f, absolute_width / 64.0f, absolute_height / 64.0f);
+				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 		}
 
 		
@@ -206,21 +212,23 @@ namespace breathe
 			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
 			
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
-			pRender->RenderScreenSpaceRectangle(
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.HorizontalRelativeToAbsolute(widget.GetY()), 
 				absolute_width, absolute_height,
-				0.0f, 0.0f, absolute_width / 64.0f, absolute_height / 64.0f);
+				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 
-			breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
-			breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
-			unsigned int y = 60;
-			while(iter != iterEnd)
-			{
-				pFont->printf(0, static_cast<float>(y), (*iter).c_str());
-				y += 30;
+      pRender->BeginRenderingText();
+			  breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
+			  breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
+			  unsigned int y = 60;
+			  while(iter != iterEnd)
+			  {
+				  pFont->printf(0, static_cast<float>(y), (*iter).c_str());
+				  y += 30;
 
-				iter++;
-			};
+				  iter++;
+			  };
+      pRender->EndRenderingText();
 		}*/
 
 		void cWindowManager::_RenderWidget(const cWidget& widget)
@@ -241,7 +249,7 @@ namespace breathe
 					
 				default:
 					;
-					//pRender->RenderScreenSpaceRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+					//pRender->RenderScreenSpaceRectangleTopLeftIsAt(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 			};
 		}
 
@@ -275,11 +283,16 @@ namespace breathe
 			glPushMatrix();
 				glLoadIdentity();
 				glScalef(1.0f, -1.0f, 1.0f);
-				glMatrixMode(GL_MODELVIEW);
 
-				size_t n = child.size();
-				for (size_t i = 0; i < n; i++)
-					_RenderChildren(*child[i]);
+				glMatrixMode(GL_MODELVIEW);
+			  glPushMatrix();
+
+				  size_t n = child.size();
+				  for (size_t i = 0; i < n; i++)
+					  _RenderChildren(*child[i]);
+
+				  glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
 
 				glMatrixMode(GL_TEXTURE);
 			glPopMatrix();

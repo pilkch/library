@@ -74,7 +74,7 @@ namespace breathe
       }
 		}
 
-		void cPhysicsObject::InitCommon(b2ShapeDef& shapeDef, const physvec_t& pos, const physvec_t& rot)
+		void cPhysicsObject::InitCommon(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot)
 		{
       assert((fWidth * fHeight) > math::cEPSILON);
 
@@ -91,7 +91,10 @@ namespace breathe
         b2BodyDef bodyDef;
         bodyDef.position.Set(p.x, p.y);
         bodyDef.allowSleep = CanSleep();
-        bodyDef.AddShape(&shapeDef);
+
+        std::list<b2ShapeDef*>::iterator iter = lShapes.begin();
+        std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
+        while (iter != iterEnd) bodyDef.AddShape((*iter++));
 
         body = GetWorld()->CreateBody(&bodyDef);
 			}
@@ -108,7 +111,9 @@ namespace breathe
       shapeDef.density = fWeight;
       shapeDef.friction = fFriction;
 
-      InitCommon(shapeDef, pos, rot);
+      std::list<b2ShapeDef*> lShapes;
+      lShapes.push_back(&shapeDef);
+      InitCommon(lShapes, pos, rot);
 		}
 		
 		void cPhysicsObject::CreateSphere(const physvec_t& pos, const physvec_t& rot)
@@ -122,7 +127,9 @@ namespace breathe
       shapeDef.density = fWeight;
       shapeDef.friction = fFriction;
 
-      InitCommon(shapeDef, pos, rot);
+      std::list<b2ShapeDef*> lShapes;
+      lShapes.push_back(&shapeDef);
+      InitCommon(lShapes, pos, rot);
 		}
 
 		void cPhysicsObject::CreateCapsule(const physvec_t& pos, const physvec_t& rot)
@@ -138,6 +145,14 @@ namespace breathe
 
       CreateBox(pos, rot);
 		}
+    
+    void cPhysicsObject::CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot)
+    {
+      if ((fWidth * fHeight) < breathe::math::cEPSILON) fWidth = fHeight = 1.0f;
+
+      InitCommon(lShapes, pos, rot);
+    }
+
 
 		void cPhysicsObject::Update(sampletime_t currentTime)
 		{

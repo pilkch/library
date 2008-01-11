@@ -1083,33 +1083,36 @@ namespace breathe
 					{
 						pRender->SetColour(0.0f, 0.0f, 1.0f);
 						
+            const float dy = 0.03f;
 						float fPosition = 0.1f;
+
+            pRender->BeginRenderingText();
 #ifdef BUILD_PHYSICS_3D
-						pFont->printf(0.05f, fPosition+=0.05f, "Physics Objects: %d", breathe::physics::size());
+						  pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
 #endif
 
-						fPosition+=0.05f;
-						pFont->printf(0.05f, fPosition+=0.05f, "uiTriangles: %d", pRender->uiTriangles);
-						pFont->printf(0.05f, fPosition+=0.05f, "uiTextureChanges: %d", pRender->uiTextureChanges);
-						pFont->printf(0.05f, fPosition+=0.05f, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
-						pFont->printf(0.05f, fPosition+=0.05f, "fRenderFPS: %.03f", tRender.GetFPS());
-						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+						  fPosition += dy;
+						  pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
+						  pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
+						  pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+						  pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+						  pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+						  pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
 #endif
-						pFont->printf(0.05f, fPosition+=0.05f, "currentTime: %d", currentTime);
-						
-						fPosition+=0.05f;
-						pFont->printf(0.05f, fPosition+=0.05f, "fRenderMPF: %.03f", tRender.GetMPF());
-						pFont->printf(0.05f, fPosition+=0.05f, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+						  pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
+  						
+						  fPosition += dy;
+						  pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+						  pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-						pFont->printf(0.05f, fPosition+=0.05f, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+						  pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
 #endif
+            pRender->EndRenderingText();
 					}
 					#endif //_DEBUG
 
-
-					window_manager.Render();
+          window_manager.Render();
 				pRender->EndScreenSpaceRendering();
 			pRender->End();
 

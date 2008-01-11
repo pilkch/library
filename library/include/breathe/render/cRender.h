@@ -70,23 +70,32 @@ namespace breathe
 			void BeginRenderScene();
 			void EndRenderScene();
 
-      // In this mode y is 1..0
+      // In this mode x is 0..1, y is 1..0
 			void BeginScreenSpaceRendering();
 			void EndScreenSpaceRendering();
+      void BeginScreenSpaceGuiRendering();
+      void EndScreenSpaceGuiRendering();
       
-      // In this mode y is 1..0
-			void BeginScreenSpaceWorldRendering();
+      // In this mode x is -fScale..+fScale, y is +fScale..-fScale
+			void BeginScreenSpaceWorldRendering(float fScale);
 			void EndScreenSpaceWorldRendering();
 
 			void RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour);
 			void RenderAxisReference(float x, float y, float z);
 			void RenderAxisReference(math::cVec3& position);
 			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
-			void RenderScreenSpaceRectangle(float x, float y, float fWidth, float fHeight);
+
+			void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
 			void RenderScreenSpaceRectangle(
 				float fX, float fY, float fWidth, float fHeight,
 				float fU, float fV, float fU2, float fV2);
-			void RenderScreenSpaceRectangleRotated(float x, float y, float fWidth, float fHeight, float fRotation);
+
+			void RenderScreenSpaceRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight);
+			void RenderScreenSpaceRectangleTopLeftIsAt(
+				float fX, float fY, float fWidth, float fHeight,
+				float fU, float fV, float fU2, float fV2);
+
+			void RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation);
 			
 			void RenderMesh(model::cMesh* pMesh);
 			unsigned int RenderStaticModel(model::cStatic* p);
@@ -94,6 +103,13 @@ namespace breathe
 
 			void PushScreenSpacePosition(float x, float y);
 			void PopScreenSpacePosition();
+
+
+      void EnableWireframe();
+			void DisableWireframe();
+
+      void BeginRenderingText() { if (bRenderWireframe) DisableWireframe(); }
+			void EndRenderingText() { if (bRenderWireframe) EnableWireframe(); }
 
 
 			// *** Resources
@@ -252,31 +268,33 @@ namespace breathe
 				int GetWidth() const { return width; }
 				int GetHeight() const { return height; }
 
+        
+
+			  class iterator
+			  {
+			  public:
+				  void GetStandardResolutions() { GetResolutions(false); }
+				  void GetWidescreenResolutions() { GetResolutions(true); }
+
+				  iterator();
+
+				  int GetWidth() const { return (*iter).GetWidth(); }
+				  int GetHeight() const { return (*iter).GetHeight(); }
+
+				  operator bool() const;
+  				
+				  iterator operator ++(int);
+
+			  protected:
+				  void GetResolutions(bool onlyWidescreen);
+
+				  std::vector<resolution> resolutions;
+				  std::vector<resolution>::iterator iter;
+			  };
+
 			private:
 				int width;
 				int height;
-			};
-
-			class iterator
-			{
-			public:
-				void GetStandardResolutions() { GetResolutions(false); }
-				void GetWidescreenResolutions() { GetResolutions(true); }
-
-				iterator();
-
-				int GetWidth() const { return (*iter).GetWidth(); }
-				int GetHeight() const { return (*iter).GetHeight(); }
-
-				operator bool() const;
-				
-				iterator operator ++(int);
-
-			protected:
-				void GetResolutions(bool onlyWidescreen);
-
-				std::vector<resolution> resolutions;
-				std::vector<resolution>::iterator iter;
 			};
 
 			// *** Inlines
@@ -288,13 +306,13 @@ namespace breathe
 			}
 
 			
-			inline iterator iterator::operator ++(int)
+      inline resolution::iterator resolution::iterator::operator ++(int)
 			{
 				iter++;
 				return *this;
 			}
 
-			inline iterator::operator bool() const
+      inline resolution::iterator::operator bool() const
 			{
 				return iter != resolutions.end();
 			}

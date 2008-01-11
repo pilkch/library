@@ -25,10 +25,8 @@ namespace breathe
 
 			virtual void Update(sampletime_t currentTime);
 			
-#ifdef BUILD_PHYSICS_2D
-			void SetHeightmapSource(std::vector<float>& heightvalues, unsigned int uiWidth);
-#else
-			void SetHeightmapSource(std::vector<float>& heightvalues, unsigned int uiWidth, unsigned int uiHeight);
+#ifdef BUILD_PHYSICS_3D
+			void SetHeightmapSource(std::vector<float>& heightvalues, float fSegmentWidth, float fSegmentHeight);
 			void SetTrimeshSource(std::vector<float>& coords, std::vector<unsigned int>& indicies);
 #endif
 
@@ -36,8 +34,10 @@ namespace breathe
 			void CreateSphere(const physvec_t& pos, const physvec_t& rot = physveczero);
 			void CreateCapsule(const physvec_t& pos, const physvec_t& rot = physveczero);
 			void CreateCylinder(const physvec_t& pos, const physvec_t& rot = physveczero);
+#ifdef BUILD_PHYSICS_2D
+			void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
+#else
 			void CreateHeightmap(const physvec_t& pos, const physvec_t& rot = physveczero);
-#ifdef BUILD_PHYSICS_3D
 			void CreateTrimesh(const physvec_t& pos, const physvec_t& rot = physveczero);
 #endif
 
@@ -62,7 +62,7 @@ namespace breathe
 #endif
 
 		private:
- 			void InitCommon(b2ShapeDef& shapeDef, const physvec_t& pos, const physvec_t& rot);
+      void InitCommon(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot);
 
 #ifdef BUILD_PHYSICS_3D
 			virtual void UpdateComponents();
