@@ -54,10 +54,6 @@ namespace breathe
 			SetCaption(caption);
 		}
 
-		cWindow::~cWindow()
-		{
-		}
-
 		void cWindow::Update(sampletime_t currentTime)
 		{
 			

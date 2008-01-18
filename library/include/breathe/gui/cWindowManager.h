@@ -10,7 +10,10 @@ namespace breathe
 		class cWindowManager
 		{
 		public:
-			cWindowManager();
+      typedef std::list<cWindow*> child_list;
+      typedef child_list::iterator child_iterator;
+      typedef child_list::const_iterator child_const_iterator;
+
 			~cWindowManager();
 
 			void LoadTheme();
@@ -20,6 +23,7 @@ namespace breathe
 			void Update(sampletime_t currentTime);
 			
 			bool AddChild(cWindow* pChild);
+			bool RemoveChild(cWindow* pChild);
 
 		private:
 			void _RenderChildren(const cWidget& widget);
@@ -30,7 +34,7 @@ namespace breathe
 			void _RenderStaticText(const cWidget& widget);
 			void _RenderInput(const cWidget& widget);
 
-			std::vector<cWindow*> child;
+      child_list child;
 		};
 	}
 }

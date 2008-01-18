@@ -52,8 +52,6 @@ namespace breathe
 		void CursorShow();
 		void CursorHide();
 
-		void ConsoleShow();
-		void ConsoleHide();
 		void ConsoleExecute(const std::string& s);
 
 #ifdef BUILD_DEBUG
@@ -247,7 +245,6 @@ namespace breathe
 		cMouse mouse;
 		
 		gui::cWindowManager window_manager;
-		cConsoleWindow* pConsoleWindow;
 
     std::list<cAppState*> states;
 
@@ -260,6 +257,25 @@ namespace breathe
 		// Forbidden
 		void _OnMouseEvent(int button, int state, int x, int y);
 		void OnMouse(int button,int state,int x,int y);
+
+
+    class cAppStateConsole : public breathe::cApp::cAppState
+    {
+    public:
+      cAppStateConsole(cApp& _app) : app(_app), pConsoleWindow(nullptr) {}
+
+    private:
+	    void _OnEntry();
+	    void _OnExit();
+
+      void _Update(breathe::sampletime_t currentTime);
+	    void _UpdateInput(breathe::sampletime_t currentTime);
+      void _RenderScene(breathe::sampletime_t currentTime) { GetParent()->RenderScene(currentTime); }
+      void _RenderScreenSpace(breathe::sampletime_t currentTime) { GetParent()->RenderScreenSpace(currentTime); }
+
+      cApp& app;
+		  cConsoleWindow* pConsoleWindow;
+    };
 	};
 
 

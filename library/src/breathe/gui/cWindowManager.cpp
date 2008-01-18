@@ -69,15 +69,16 @@ namespace breathe
 			BACKGROUND_TEXT
 		};
 
-		cWindowManager::cWindowManager()
-		{
-		}
-
 		cWindowManager::~cWindowManager()
 		{
-			size_t n = child.size();
-			for (size_t i = 0; i < n; i++)
-				SAFE_DELETE(child[i]);
+      child_iterator iter = child.begin();
+      child_iterator iterEnd = child.end();
+      while (iter != iterEnd) {
+        SAFE_DELETE(*iter);
+
+        iter++;
+      }
+      child.clear();
 
 			SAFE_DELETE(pFontWindowCaption);
 		}
@@ -113,14 +114,24 @@ namespace breathe
 		{
 			//if ()
 		}
-			
+
 		bool cWindowManager::AddChild(cWindow* pChild)
 		{
+      assert(pChild != nullptr);
 			child.push_back(pChild);
 			pChild->pParent = nullptr;
 			
 			return true;
 		}
+    
+    bool cWindowManager::RemoveChild(cWindow* pChild)
+    {
+      assert(pChild != nullptr);
+			child.remove(pChild);
+      SAFE_DELETE(pChild);
+
+      return true;
+    }
 
 		void cWindowManager::_RenderWindow(const cWindow& widget)
 		{
@@ -131,7 +142,7 @@ namespace breathe
 			const float bar_v = 0.04f;
 
 			// Draw the top left corner
-			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
+			pRender->RenderScreenSpaceRectangle(
 				widget.GetX(), widget.GetY(), 0.02f, bar_height,
 				0.0f, 0.0f, 0.05f, bar_v);
 			
@@ -287,9 +298,13 @@ namespace breathe
 				glMatrixMode(GL_MODELVIEW);
 			  glPushMatrix();
 
-				  size_t n = child.size();
-				  for (size_t i = 0; i < n; i++)
-					  _RenderChildren(*child[i]);
+          child_const_iterator iter = child.begin();
+          child_const_iterator iterEnd = child.end();
+          while (iter != iterEnd) {
+            _RenderChildren(*(*iter));
+
+            iter++;
+          }
 
 				  glMatrixMode(GL_MODELVIEW);
         glPopMatrix();

@@ -216,7 +216,6 @@ namespace breathe
     bPopCurrentStateSoon(false),
 
     pPushThisStateSoon(nullptr),
-		pConsoleWindow(nullptr),
 		pFont(nullptr)
 	{
 		CONSOLE.SetApp(this);
@@ -619,13 +618,6 @@ namespace breathe
 		pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
 		window_manager.AddChild(pWindow0);*/
 #endif
-		
-		// Console Window
-		
-		pConsoleWindow = new cConsoleWindow();
-		window_manager.AddChild(pConsoleWindow);
-		pConsoleWindow->InitConsoleWindow();
-
 
 		if (breathe::BAD==InitScene())
 			return breathe::BAD;
@@ -714,17 +706,6 @@ namespace breathe
 	void cApp::_Update(sampletime_t currentTime)
 	{
 		GetCurrentState().Update(currentTime);
-
-		std::string s;
-		breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
-		breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
-
-		while (iter != iterEnd) {
-			s.append((*iter) + "\n");
-			iter++;
-		}
-		
-		pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
 
 		// Now update our other sub systems
 		breathe::audio::Update(currentTime);
@@ -870,12 +851,12 @@ namespace breathe
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
 		if (iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
 		
-		if (CONSOLE.IsVisible()) {
-			// Remove key from list
-			IsKeyDown(code);
-			
-			if (!CONSOLE.AddKey(code)) ConsoleHide();
-		}
+		//if (CONSOLE.IsVisible()) {
+		//	// Remove key from list
+		//	IsKeyDown(code);
+		//	
+		//	if (!CONSOLE.AddKey(code)) ConsoleHide();
+		//}
 	}
 
 	void cApp::_OnKeyUp(SDL_keysym *keysym)
@@ -885,7 +866,7 @@ namespace breathe
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
 		if (iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
 
-		if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
+		//if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
 	}
 	
 	void cApp::_OnMouseUp(int button, int x, int y)
@@ -927,7 +908,10 @@ namespace breathe
     
 		if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
 
-    if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) ConsoleShow();
+    if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) {
+      PushStateSoon(new cApp::cAppStateConsole(*this));
+      return;
+    }
 
 
 		GetCurrentState().UpdateInput(currentTime);
@@ -948,22 +932,6 @@ namespace breathe
 	void cApp::CursorHide()
 	{
 		SDL_ShowCursor(SDL_DISABLE);
-	}
-	
-	void cApp::ConsoleShow()
-	{
-		assert(pConsoleWindow != nullptr);
-		pConsoleWindow->Show();
-		CONSOLE.Show();
-		CursorShow();
-	}
-
-	void cApp::ConsoleHide()
-	{
-		assert(pConsoleWindow != nullptr);
-		pConsoleWindow->Hide();
-		CONSOLE.Hide();
-		CursorHide();
 	}
 
 	void cApp::ConsoleExecute(const std::string& command)
@@ -1408,5 +1376,52 @@ namespace breathe
 
     if (states.empty()) bDone = true;
     else GetCurrentState().OnResume(iResult);
+  }
+
+
+
+  
+  // *** cAppStateConsole
+
+	void breathe::cApp::cAppStateConsole::_OnEntry()
+  {
+    pConsoleWindow = new cConsoleWindow;
+    app.window_manager.AddChild(pConsoleWindow);
+		pConsoleWindow->InitConsoleWindow();
+
+		pConsoleWindow->Show();
+		CONSOLE.Show();
+		app.CursorShow();
+  }
+
+	void breathe::cApp::cAppStateConsole::_OnExit()
+  {
+		assert(pConsoleWindow != nullptr);
+		pConsoleWindow->Hide();
+    app.window_manager.RemoveChild(pConsoleWindow);
+		CONSOLE.Hide();
+		app.CursorHide();
+  }
+
+  void breathe::cApp::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
+  {
+		std::string s;
+		breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
+		breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
+
+		while (iter != iterEnd) {
+			s.append((*iter) + "\n");
+			iter++;
+		}
+
+    pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
+  }
+
+  void breathe::cApp::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
+  {
+    if (app.IsKeyDown(SDLK_BACKQUOTE) || app.IsKeyDown(SDLK_ESCAPE)) {
+		  app.PopStateSoon();
+      return;
+	  }
   }
 }

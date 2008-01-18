@@ -9,8 +9,7 @@ namespace breathe
 		{
 		public:
 			cWindow(id_t id, float x, float y, float width, float height, const string_t& caption);
-			virtual ~cWindow();
-			
+
 			void OnMouseEvent(int button, int state, int x, int y);
 			void Update(sampletime_t currentTime);
 
