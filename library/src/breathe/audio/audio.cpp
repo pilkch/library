@@ -343,6 +343,18 @@ namespace breathe
 			alListenerfv(AL_ORIENTATION, listenerOri);
 		}
 
+    void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename)
+    {
+	    breathe::audio::cBuffer* pBuffer = breathe::audio::CreateBuffer(sFilename);
+	    assert(pBuffer != nullptr);
+
+	    breathe::audio::cSource* pSource = breathe::audio::CreateSourceAttachedToScreen(pBuffer);
+	    assert(pSource != nullptr);
+
+	    pSource->Play();
+    }
+
+
 
 		// ********************************************** cBuffer **********************************************
 

@@ -279,7 +279,7 @@ namespace breathe
 	};
 
 
-	// This doesn't belong here
+	/*// This doesn't belong here
 	// TODO: Move to breathe/algorithm/gen.h
 	namespace vector
 	{
@@ -289,7 +289,7 @@ namespace breathe
 			v.reserve(n);
 			for (size_t i = 0; i != n; i++) v.push_back(value);
 		}
-	}
+	}*/
 }
 
 #endif //CAPP_H

@@ -625,13 +625,25 @@ namespace breathe
 		//
 		// 0.0f, 1.0f						1.0f, 1.0f
 
+    void cRender::RenderScreenSpacePolygon(float fX, float fY,
+        float fVertX0, float fVertY0, float fVertX1, float fVertY1, 
+        float fVertX2, float fVertY2, float fVertX3, float fVertY3)
+    {
+			glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex2f(fX + fVertX0, fY + fVertY0);
+				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fVertX1, fY + fVertY1);
+				glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fVertX2, fY + fVertY2);
+				glTexCoord2f(0.0f, 1.0f); glVertex2f(fX + fVertX3, fY + fVertY3);
+			glEnd();
+    }
+
 		void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
 		{
       const float fHalfWidth = fWidth * 0.5f;
       const float fHalfHeight = fHeight * 0.5f;
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f); glVertex2f(fX - fHalfWidth, fY - fHalfHeight);
-				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fHalfWidth, fY - fHalfHeight);  
+				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fHalfWidth, fY - fHalfHeight);
 				glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fHalfWidth, fY + fHalfHeight);
 				glTexCoord2f(0.0f, 1.0f); glVertex2f(fX - fHalfWidth, fY + fHalfHeight);
 			glEnd();

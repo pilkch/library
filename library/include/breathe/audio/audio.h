@@ -42,6 +42,9 @@ namespace breathe
 		void StartAll();
 		void StopAll();
 
+    
+    void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename);
+
 		// Buffer to hold the audio data
 		class cBuffer
 		{

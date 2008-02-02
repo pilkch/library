@@ -85,6 +85,10 @@ namespace breathe
 			void RenderAxisReference(math::cVec3& position);
 			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
 
+			void RenderScreenSpacePolygon(float fX, float fY,
+        float fVertX0, float fVertY0, float fVertX1, float fVertY1, 
+        float fVertX2, float fVertY2, float fVertX3, float fVertY3);
+
 			void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
 			void RenderScreenSpaceRectangle(
 				float fX, float fY, float fWidth, float fHeight,

@@ -94,7 +94,14 @@ namespace breathe
 
         std::list<b2ShapeDef*>::iterator iter = lShapes.begin();
         std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
-        while (iter != iterEnd) bodyDef.AddShape((*iter++));
+        b2ShapeDef* shape = nullptr;
+        while (iter != iterEnd) {
+          shape = *iter;
+          shape->restitution = 0.1f;
+          bodyDef.AddShape(shape);
+
+          iter++;
+        }
 
         body = GetWorld()->CreateBody(&bodyDef);
 			}
@@ -103,8 +110,6 @@ namespace breathe
 		void cPhysicsObject::CreateBox(const physvec_t& pos, const physvec_t& rot)
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
-
-      //type = object_type_box;
 
       b2BoxDef shapeDef;
       shapeDef.extents.Set(fWidth, fHeight);
@@ -119,8 +124,6 @@ namespace breathe
 		void cPhysicsObject::CreateSphere(const physvec_t& pos, const physvec_t& rot)
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
-
-      //type = object_type_sphere;
 
       b2CircleDef shapeDef;
       shapeDef.radius = fRadius;
@@ -145,6 +148,53 @@ namespace breathe
 
       CreateBox(pos, rot);
 		}
+		
+    void cPhysicsObject::CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos)
+    {
+      size_t n = heightvalues.size();
+      assert(n != 0);
+
+      fWidth = n * scale.x;
+      fHeight = math::cEPSILON;
+      fWeight = 0.0f;
+      bDynamic = false;
+
+      std::list<b2ShapeDef*> lShapes;
+      b2PolyDef* pShapeDef = nullptr;
+      float fHeightCurrent = math::cEPSILON;
+      float fHeightPrevious = heightvalues[0] * scale.y;
+      const float fWidthHalf = 0.5f * scale.x;
+      for (size_t i = 1; i < n; i++) {
+        fHeightCurrent = heightvalues[i] * scale.y;
+        if (fHeightCurrent > fHeight) fHeight = fHeightCurrent;
+
+        if (fHeightCurrent > 0.1f) {
+          pShapeDef = new b2PolyDef;
+          pShapeDef->vertexCount = 4;
+          pShapeDef->vertices[0].Set(-fWidthHalf, 0.0f);
+          pShapeDef->vertices[1].Set(+fWidthHalf, 0.0f);
+          pShapeDef->vertices[2].Set(+fWidthHalf, fHeightCurrent);
+          pShapeDef->vertices[3].Set(-fWidthHalf, fHeightPrevious);
+          pShapeDef->localPosition.x = scale.x * i;
+          pShapeDef->density = 0.0f;
+          pShapeDef->friction = fFriction;
+
+          lShapes.push_back(pShapeDef);
+        }
+
+        fHeightPrevious = fHeightCurrent;
+      }
+
+      InitCommon(lShapes, pos, physveczero);
+
+      // Now delete the shapes
+      std::list<b2ShapeDef*>::iterator iter = lShapes.begin();
+      std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
+      while (iter != iterEnd) {
+        SAFE_DELETE(*iter);
+        iter++;
+      }
+    }
     
     void cPhysicsObject::CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot)
     {

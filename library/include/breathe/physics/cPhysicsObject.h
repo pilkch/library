@@ -24,21 +24,17 @@ namespace breathe
 			virtual ~cPhysicsObject();
 
 			virtual void Update(sampletime_t currentTime);
-			
-#ifdef BUILD_PHYSICS_3D
-			void SetHeightmapSource(std::vector<float>& heightvalues, float fSegmentWidth, float fSegmentHeight);
-			void SetTrimeshSource(std::vector<float>& coords, std::vector<unsigned int>& indicies);
-#endif
 
 			void CreateBox(const physvec_t& pos, const physvec_t& rot = physveczero);
 			void CreateSphere(const physvec_t& pos, const physvec_t& rot = physveczero);
 			void CreateCapsule(const physvec_t& pos, const physvec_t& rot = physveczero);
 			void CreateCylinder(const physvec_t& pos, const physvec_t& rot = physveczero);
 #ifdef BUILD_PHYSICS_2D
+			void CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
 			void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
 #else
-			void CreateHeightmap(const physvec_t& pos, const physvec_t& rot = physveczero);
-			void CreateTrimesh(const physvec_t& pos, const physvec_t& rot = physveczero);
+			void CreateHeightmap(const std::vector<float>& heightvalues, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot = physveczero);
 #endif
 
 			void RemoveFromWorld();

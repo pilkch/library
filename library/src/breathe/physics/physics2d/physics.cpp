@@ -64,7 +64,7 @@ namespace breathe
 		const float fBounceVel = 0.00002f;
 		const float fERP = 0.8f;
 		const float fCFM = (float)(10e-5);
-		const float fGravity = -9.8f;
+		const float fGravity = -9.80665f;
 		const float fDampTorque = 0.05f;
 		const float fDampLinearVel = 0.001f;
 
