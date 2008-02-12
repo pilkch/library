@@ -680,14 +680,11 @@ namespace breathe
 			float fX, float fY, float fWidth, float fHeight,
 			float fU, float fV, float fU2, float fV2)
     {
-			fV *= -1.0f;
-			fV2 *= -1.0f;
-
 			glBegin(GL_QUADS);
-				glTexCoord2f(fU, fV + fV2);       glVertex2f(fX, fY);
-        glTexCoord2f(fU + fU2, fV + fV2); glVertex2f(fX + fWidth, fY);
-				glTexCoord2f(fU + fU2, fV);       glVertex2f(fX + fWidth, fY + fHeight);
-        glTexCoord2f(fU, fV);             glVertex2f(fX, fY + fHeight);
+				glTexCoord2f(fU, fV);       glVertex2f(fX, fY);
+        glTexCoord2f(fU + fU2, fV); glVertex2f(fX + fWidth, fY);
+				glTexCoord2f(fU + fU2, fV + fV2);       glVertex2f(fX + fWidth, fY + fHeight);
+        glTexCoord2f(fU, fV + fV2);             glVertex2f(fX, fY + fHeight);
 			glEnd();
     }
 		

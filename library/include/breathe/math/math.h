@@ -84,6 +84,13 @@ namespace breathe
 			while(rval < a) rval<<= 1;
 			return rval;
 		}
+
+    inline bool PointIsWithinBounds(float x, float y, float bounds_x, float bounds_y, float bounds_width, float bounds_height)
+    {
+      return 
+        ((x > bounds_x) && (x < (bounds_x + bounds_width))) &&
+        ((y > bounds_y) && (y < (bounds_y + bounds_height)));
+    }
 	}
 }
 

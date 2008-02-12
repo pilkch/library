@@ -53,7 +53,7 @@ namespace breathe
 		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
 		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename); 
 
-
+    uint32_t GetFileSize();
 
 
 		class path

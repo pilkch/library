@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cctype> // for toupper/tolower
 
 #include <string>
@@ -60,8 +61,7 @@ namespace breathe
 			std::stringstream stm(source);
 			std::string field;
 
-			while (getline(stm, field))
-				vOut.push_back(Trim(field));
+			while (getline(stm, field)) vOut.push_back(Trim(field));
 		}
 
 		void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut)
@@ -71,22 +71,33 @@ namespace breathe
 			std::wstringstream stm(source);
 			std::wstring field;
 
-			while (getline(stm, field))
-				vOut.push_back(Trim(field));
+			while (getline(stm, field)) vOut.push_back(Trim(field));
 		}
 
 		std::string Trim(const std::string& source)
 		{
 			std::string::size_type start = source.find_first_not_of(WHITE_SPACE);
 			std::string::size_type end = source.find_last_not_of(WHITE_SPACE);
-			return source.substr(start, end + 1);
+      if (start != std::string::npos) {
+        if (end != std::string::npos) return source.substr(start, end + 1);
+
+        return source.substr(start, source.length());
+      } else if (end != std::string::npos) return source.substr(end);
+      
+      return "";
 		}
 
 		std::wstring Trim(const std::wstring& source)
 		{
 			std::wstring::size_type start = source.find_first_not_of(LWHITE_SPACE);
 			std::wstring::size_type end = source.find_last_not_of(LWHITE_SPACE);
-			return source.substr(start, end + 1);
+      if (start != std::string::npos) {
+        if (end != std::string::npos) return source.substr(start, end + 1);
+
+        return source.substr(start, source.length());
+      } else if (end != std::string::npos) return source.substr(end);
+      
+      return L"";
 		}
 
 		std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)

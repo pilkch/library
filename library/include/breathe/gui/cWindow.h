@@ -8,18 +8,21 @@ namespace breathe
 		class cWindow : public cWidget
 		{
 		public:
-			cWindow(id_t id, float x, float y, float width, float height, const string_t& caption);
+			cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* pParent);
 
-			void OnMouseEvent(int button, int state, int x, int y);
+			void OnMouseEvent(int button, int state, float x, float y);
 			void Update(sampletime_t currentTime);
 
 			bool HasCaption() const { return !text.empty(); }
 			const string_t& GetCaption() const { return text; }
 			void SetCaption(const string_t& inText) { text = inText; }
+      int GetZDepth() const { return z; }
 
 		private:
-			virtual void _OnMouseEvent(int button, int state, int x, int y) = 0;
-			virtual void _OnEvent(id_t id) = 0;
+      virtual void _OnMouseEvent(int button, int state, float x, float y) {}
+      virtual void _OnEvent(id_t id) {}
+
+      int z;
 		};
 
 		/*

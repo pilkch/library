@@ -29,6 +29,8 @@ namespace breathe
 
 			bool AddChild(cWidget* pChild);
 			cWidget* FindChild(id_t idControl);
+      cWidget* FindChildAtPoint(float x, float y);
+      void SetParent(cWidget* _pParent) { pParent = _pParent; }
 
 			id_t GetID() const { return idControl; }
 			WIDGET_TYPE GetType() const { return type; }

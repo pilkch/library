@@ -48,15 +48,32 @@ namespace breathe
 {
 	namespace gui
 	{
-		cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption) :
-			cWidget(id, WIDGET_WINDOW, x, y, width, height)
+		cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent) :
+			cWidget(id, WIDGET_WINDOW, x, y, width, height),
+      z(0)
 		{
 			SetCaption(caption);
+      SetParent(_pParent);
+
+      if (pParent != nullptr) z = ((cWindow*)pParent)->GetZDepth() + 1;
 		}
 
 		void cWindow::Update(sampletime_t currentTime)
 		{
 			
 		}
+
+    void cWindow::OnMouseEvent(int button, int state, float x, float y)
+    {
+      if (button == SDL_BUTTON_LEFT) {
+        cWidget* p = FindChildAtPoint(x, y);
+        if (p != nullptr) std::cout<<breathe::string::ToUTF8(p->GetText());
+        else std::cout<<breathe::string::ToUTF8(GetText());
+
+        std::cout<<" "<<x<<","<<y<<std::endl;
+      }
+      
+      _OnMouseEvent(button, state, x, y);
+    }
 	}
 }

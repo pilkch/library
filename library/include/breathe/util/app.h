@@ -59,6 +59,7 @@ namespace breathe
 		void ToggleDebug() { bDebug = !bDebug; }
 #endif
 
+		gui::cWindowManager window_manager;
     
     class cAppState
     {
@@ -143,7 +144,6 @@ namespace breathe
 		{
 		public:
 			cConsoleWindow();
-			~cConsoleWindow();
 
 			void InitConsoleWindow();
 
@@ -243,8 +243,6 @@ namespace breathe
 
 		std::map<unsigned int, cKey* >mKey;
 		cMouse mouse;
-		
-		gui::cWindowManager window_manager;
 
     std::list<cAppState*> states;
 

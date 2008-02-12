@@ -280,8 +280,7 @@ namespace breathe
 
 	cApp::~cApp()
 	{
-    while (!states.empty()) PopState();
-
+    assert(states.empty());
     
 		std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
 		std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
@@ -743,17 +742,20 @@ namespace breathe
 					mouse.x = event.button.x;
 					mouse.y = event.button.y;
 					mouse.down[event.button.button] = true;
+          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:
 					mouse.x = event.button.x;
 					mouse.y = event.button.y;
 					if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
+          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
 					break;
 
 				case SDL_MOUSEMOTION:
 					mouse.x = event.button.x;
 					mouse.y = event.button.y;
+          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
 					break;
 
 				case SDL_QUIT:
@@ -1202,6 +1204,9 @@ namespace breathe
 			breathe::util::YieldThisThread();
 		}while (!bDone);
 
+    // Get rid of any states that we do have as they may try and operate on destructed/destructing objects later on
+    while (!states.empty()) states.pop_back();
+
 		LOG.Newline("DestroyScene");
 		DestroyScene();
 
@@ -1215,13 +1220,9 @@ namespace breathe
 
 	// *** cConsoleWindow
 	cApp::cConsoleWindow::cConsoleWindow() :
-		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console")),
+		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console"), nullptr),
 		pPrevious(nullptr),
 		pInput(nullptr)
-	{
-	}
-
-	cApp::cConsoleWindow::~cConsoleWindow()
 	{
 	}
 
@@ -1239,8 +1240,7 @@ namespace breathe
 
 	void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)
 	{
-		int x = 0;
-		x++;
+    std::cout<<"cApp::cConsoleWindow::_OnEvent"<<std::endl;
 	}
 	
 	

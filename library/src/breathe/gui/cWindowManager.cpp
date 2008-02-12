@@ -69,6 +69,11 @@ namespace breathe
 			BACKGROUND_TEXT
 		};
 
+    cWindowManager::cWindowManager() :
+      pEventWidgetMouseLeftButtonDown(nullptr)
+    {
+    }
+
 		cWindowManager::~cWindowManager()
 		{
       child_iterator iter = child.begin();
@@ -100,14 +105,35 @@ namespace breathe
 
 			pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
 		}
-		
-		void cWindowManager::OnMouseEvent(int button, int state, int x, int y)
-		{
-			/*if (button == 5 && state == SDL_PRESSED)
-				pPlayer->ChangeItemUp();
 
-			if (button == 4 && state == SDL_PRESSED)
-				pPlayer->ChangeItemDown();*/
+    cWindow* cWindowManager::_FindWindowUnderPoint(float x, float y)
+    {
+      cWindow* pWindow = nullptr;
+      child_iterator iter = child.begin();
+      child_iterator iterEnd = child.end();
+      cWindow* pTempWindow = nullptr;
+      while (iter != iterEnd) {
+        pTempWindow = (*iter);
+        if (math::PointIsWithinBounds(x, y,
+          pTempWindow->GetX(), pTempWindow->GetY(), pTempWindow->GetWidth(), pTempWindow->GetHeight())) {
+          if (pWindow == nullptr) pWindow = pTempWindow;
+          else if (pTempWindow->GetZDepth() > pWindow->GetZDepth()) pWindow = pTempWindow;
+        }
+        iter++;
+      }
+      return pWindow;
+    }
+		
+		void cWindowManager::OnMouseEvent(int button, int state, float x, float y)
+		{
+			cWindow* pWindow = _FindWindowUnderPoint(x, y);
+      if (pWindow != nullptr) {
+        float fScaleX = 1.0f / pWindow->GetWidth();
+        float fScaleY = 1.0f / pWindow->GetHeight();
+        float x2 = x * fScaleX;
+        float y2 = y * fScaleY;
+        pWindow->OnMouseEvent(button, state, x2, y2);
+      }
 		}
 
 		void cWindowManager::Update(sampletime_t currentTime)
@@ -136,16 +162,16 @@ namespace breathe
 		void cWindowManager::_RenderWindow(const cWindow& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
+			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 			
 			const float bar_height = 0.02f;
 			const float bar_v = 0.04f;
 
-			// Draw the top left corner
-			pRender->RenderScreenSpaceRectangle(
+      // Draw the top left corner
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX(), widget.GetY(), 0.02f, bar_height,
 				0.0f, 0.0f, 0.05f, bar_v);
-			
+
 			// Draw the top right corner
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX() + absolute_width - 0.016f, widget.GetY(), 0.016f, bar_height,
@@ -200,6 +226,8 @@ namespace breathe
 						
 						glMatrixMode(GL_TEXTURE);
 					glPopMatrix();
+
+          pRender->SetMaterial(pMaterial);
 				glPopAttrib();
 			}
 		}
@@ -207,24 +235,62 @@ namespace breathe
 		void cWindowManager::_RenderInput(const cWidget& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
+			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 			
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.HorizontalRelativeToAbsolute(widget.GetY()), 
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
 				absolute_width, absolute_height,
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 		}
 
-		
+		void cWindowManager::_RenderButton(const cWidget& widget)
+		{
+			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
+			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
+
+			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
+				absolute_width, absolute_height,
+				0.0083f, 0.073f, 0.08f, 0.045f);//CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
+
+      // Draw the text of this widget
+			glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
+				pRender->ClearMaterial();
+
+				pRender->SelectTextureUnit0();
+
+				glMatrixMode(GL_TEXTURE);
+				glPushMatrix();
+					glLoadIdentity();
+
+					glMatrixMode(GL_MODELVIEW);
+
+					glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+					//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(), 
+					//	widget.GetWidth(), bar_height,
+					//	breathe::string::ToUTF8(widget.GetCaption()).c_str());
+					pFontWindowCaption->PrintCenteredHorizontally(
+            widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
+						widget.HorizontalRelativeToAbsolute(widget.GetWidth()), 
+            widget.GetText());
+					
+					glMatrixMode(GL_TEXTURE);
+				glPopMatrix();
+        
+        pRender->SetMaterial(pMaterial);
+			glPopAttrib();
+		}
+
 		/*void cWindowManager::_RenderStaticText(const cWidget& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-			const float absolute_height = widget.HorizontalRelativeToAbsolute(widget.GetHeight());
+			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 			
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.HorizontalRelativeToAbsolute(widget.GetY()), 
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
 				absolute_width, absolute_height,
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 
@@ -248,6 +314,10 @@ namespace breathe
 			{
 				case WIDGET_WINDOW:
 					_RenderWindow(static_cast<const cWindow&>(widget));
+					break;
+
+        case WIDGET_BUTTON:
+					_RenderButton(static_cast<const cWidget_Button&>(widget));
 					break;
 
 				case WIDGET_INPUT:
@@ -293,9 +363,9 @@ namespace breathe
 			glMatrixMode(GL_TEXTURE);
 			glPushMatrix();
 				glLoadIdentity();
-				glScalef(1.0f, -1.0f, 1.0f);
+				//glScalef(1.0f, -1.0f, 1.0f);
 
-				glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW);
 			  glPushMatrix();
 
           child_const_iterator iter = child.begin();

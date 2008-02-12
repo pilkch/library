@@ -96,8 +96,21 @@ namespace breathe
 				if (p != nullptr) return p;
 			}
 
-			return NULL;
+			return nullptr;
 		}
+
+    cWidget* cWidget::FindChildAtPoint(float _x, float _y)
+    {
+			size_t n = child.size();
+			cWidget* p = nullptr;
+			for (size_t i = 0; i < n; i++) {
+        p = child[i];
+        if (math::PointIsWithinBounds(_x, _y, 
+          p->GetX(), p->GetY(), p->GetWidth(), p->GetHeight())) return p->FindChildAtPoint(_x, _y);
+			}
+
+			return this;
+    }
 		
 		bool cWidget::IsEnabled() const
 		{
@@ -113,13 +126,13 @@ namespace breathe
 		
 		float cWidget::HorizontalRelativeToAbsolute(float n) const
 		{
-			if (pParent != nullptr) return (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
+			if (pParent != nullptr) return pParent->GetX() + (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
 			return n;
 		}
 		
 		float cWidget::VerticalRelativeToAbsolute(float n) const
 		{
-			if (pParent != nullptr) return (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
+			if (pParent != nullptr) return pParent->GetY() + (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
 			return n;
 		}
 

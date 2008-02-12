@@ -14,18 +14,21 @@ namespace breathe
       typedef child_list::iterator child_iterator;
       typedef child_list::const_iterator child_const_iterator;
 
+      cWindowManager();
 			~cWindowManager();
 
 			void LoadTheme();
 			void Render();
 			
-			void OnMouseEvent(int button, int state, int x, int y);
+			void OnMouseEvent(int button, int state, float x, float y);
 			void Update(sampletime_t currentTime);
 			
 			bool AddChild(cWindow* pChild);
 			bool RemoveChild(cWindow* pChild);
 
 		private:
+      cWindow* _FindWindowUnderPoint(float x, float y);
+
 			void _RenderChildren(const cWidget& widget);
 			void _RenderWidget(const cWidget& widget);
 
@@ -35,6 +38,7 @@ namespace breathe
 			void _RenderInput(const cWidget& widget);
 
       child_list child;
+      cWidget* pEventWidgetMouseLeftButtonDown;
 		};
 	}
 }

@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -245,6 +247,17 @@ namespace breathe
 
 			return sFilename;
 		}
+    
+    uint32_t GetFileSize()
+    {
+      struct stat results;
+
+      if (stat("input.bin", &results) == 0)
+        return results.st_size;
+      
+      return 0;
+    }
+
 
 #ifndef FIRESTARTER
 		string_t GetMD5(const string_t& sFilename)
