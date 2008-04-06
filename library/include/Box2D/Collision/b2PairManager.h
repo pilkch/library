@@ -39,7 +39,7 @@ struct b2Pair
 	{
 		e_pairBuffered = 0x0001,
 		e_pairRemoved = 0x0002,
-		e_pairReceived = 0x0004,
+		e_pairReceived = 0x0004
 	};
 
 	void SetBuffered()		{ status |= e_pairBuffered; }

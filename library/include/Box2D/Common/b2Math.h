@@ -19,14 +19,18 @@
 #ifndef B2_MATH_H
 #define B2_MATH_H
 
-#include "b2Settings.h"
+#include <Box2D/Common/b2Settings.h>
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>
 
 inline bool b2IsValid(float x)
 {
-	return _finite(x) != 0;
+#ifdef __LINUX__
+  return finite(x) != 0;
+#else
+  return _finite(x) != 0;
+#endif
 }
 
 inline float32 b2InvSqrt(float32 x)

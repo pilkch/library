@@ -164,7 +164,7 @@ struct b2Body
 		e_islandFlag		= 0x0004,
 		e_sleepFlag			= 0x0008,
 		e_allowSleepFlag	= 0x0010,
-		e_destroyFlag		= 0x0020,
+		e_destroyFlag		= 0x0020
 	};
 
 	b2Body(const b2BodyDef* bd, b2World* world);

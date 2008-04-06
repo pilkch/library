@@ -721,9 +721,16 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 	typedef char GLcharARB;
 #endif
 
+#include <sys/types.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <ctype.h>
+
 #ifndef GL_EXT_timer_query
-	typedef signed long long GLint64EXT;
-	typedef unsigned long long GLuint64EXT;
+	typedef int64_t GLint64EXT;
+	typedef uint64_t GLuint64EXT;
 #endif
 
 /* Platform-specific */

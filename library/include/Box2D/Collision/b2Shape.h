@@ -39,7 +39,7 @@ enum b2ShapeType
 	e_boxShape,
 	e_polyShape,
 	e_meshShape,
-	e_shapeTypeCount,
+	e_shapeTypeCount
 };
 
 struct b2ShapeDef

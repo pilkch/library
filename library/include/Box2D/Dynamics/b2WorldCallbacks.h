@@ -24,7 +24,7 @@ struct b2Joint;
 enum b2BoundaryResponse
 {
 	b2_freezeBody,
-	b2_destroyBody,
+	b2_destroyBody
 };
 
 class b2WorldListener

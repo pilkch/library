@@ -40,7 +40,7 @@ static int32 ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 	if (distance1 <= 0.0f) vOut[numOut++] = vIn[1];
 
 	// If the points are on different sides of the plane
-	if (distance0 * distance1 < 0.0f)
+	if ((distance0 * distance1) < 0.0f)
 	{
 		// Find intersection point of edge and plane
 		float32 interp = distance0 / (distance0 - distance1);
