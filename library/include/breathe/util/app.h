@@ -56,7 +56,7 @@ namespace breathe
 
 #ifdef BUILD_DEBUG
 		bool IsDebug() const { return bDebug; }
-		void ToggleDebug() { bDebug = !bDebug; }
+		void ToggleDebug();
 #endif
 
 		gui::cWindowManager window_manager;

@@ -100,7 +100,10 @@ namespace breathe
   string_t LANG(const std::string& tag)
   {
     std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
-    if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+    if (iter != langtags.end()) {
+      CONSOLE<<"LANG["<<tag<<"]=\""<<breathe::string::ToString_t(iter->second)<<"\""<<std::endl;
+      return  breathe::string::ToString_t(iter->second);
+    }
 
     storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
     breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
@@ -110,7 +113,10 @@ namespace breathe
   string_t LANG(const std::wstring& tag)
   {
     std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
-    if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+    if (iter != langtags.end()) {
+      CONSOLE<<"LANG["<<tag<<"]=\""<<breathe::string::ToString_t(iter->second)<<"\""<<std::endl;
+      return  breathe::string::ToString_t(iter->second);
+    }
 
     storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
     breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
