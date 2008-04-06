@@ -27,38 +27,45 @@
 #include <windows.h>
 #endif
 
-/*
-#ifdef __LINUX__
-  const size_t len = 255;
-  char pwd[len];
-  getcwd(pwd, len);
-  CONSOLE<<"pwd="<<pwd<<std::endl;
-#endif // __LINUX__
-*/
-
 namespace breathe
 {
-	namespace filesystem
-	{
-		std::vector<string_t> vDirectory;
-		string_t sExecutable = TEXT("");
+  namespace filesystem
+  {
+    std::vector<string_t> vDirectory;
+    string_t sApplicationDirectory = TEXT("");
 
-		string_t ExpandPath(const string_t& path)
-		{
-			// ""
-			if (path.empty()) return GetThisApplicationDirectory();
+    string_t ExpandPath(const string_t& path)
+    {
+      printf("ExpandPath path=\"%s\"\n", path.c_str());
+
+      // ""
+      if (path.empty() || (TEXT("./") == path)) {
+        printf("ExpandPath 0 returning \"%s\"\n", GetThisApplicationDirectory().c_str());
+        return GetThisApplicationDirectory();
+      }
+
+      if (TEXT(".") == path) {
+        printf("ExpandPath 1 returning \"%s\"\n", breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/")).c_str());
+        return breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
+      }
 
 			// "."
 			// ".********"
-			if ((path == TEXT(".")) || ((path.length() > 2) && path[0] == TEXT('.')) && (path[1] != TEXT('.')))
-        return path.substr(2);
+      if ((path == TEXT(".")) || ((path.length() > 2) && path[0] == TEXT('.')) && (path[1] != TEXT('.'))) {
+        string_t expanded(path.substr(2));
+        printf("ExpandPath 2 returning \"%s\"\n", expanded.c_str());
+        return expanded;
+      }
 
 			string_t expanded = path;
 			string_t prefix = GetThisApplicationDirectory();
 			while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
 				expanded.erase(0, 3);
+        printf("ExpandPath prefix=\"%s\"\n", prefix.c_str());
 				prefix = StripLastDirectory(prefix);
 			};
+
+      printf("ExpandPath final prefix=\"%s\" expanded=\"%s\"\n", prefix.c_str(), expanded.c_str());
 
 			return prefix + expanded;
 		}
@@ -74,17 +81,32 @@ namespace breathe
 			return breathe::string::StripAfterLast(result, TEXT("/"));
 		}
 
-		void SetThisExecutable(const string_t& executable)
-		{
-			sExecutable = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
-			assert(sExecutable.length() > 0);
-		}
+    void SetThisExecutable(const string_t& executable)
+    {
+      CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
 
-		string_t GetThisApplicationDirectory()
-		{
-			assert(sExecutable.length() > 0);
-			return sExecutable;
-		}
+#ifdef __WIN__
+      sApplicationDirectory = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
+#else
+      const size_t len = 1024;
+      char pwd[len];
+      getcwd(pwd, len);
+      CONSOLE<<"SetThisExecutable pwd="<<pwd<<std::endl;
+      sApplicationDirectory = string_t(pwd);
+#endif
+
+      assert(sApplicationDirectory.length() > 0);
+
+      if (!breathe::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
+
+      CONSOLE<<"SetThisExecutable returning "<<sApplicationDirectory<<std::endl;
+    }
+
+    string_t GetThisApplicationDirectory()
+    {
+      assert(sApplicationDirectory.length() > 0);
+      return sApplicationDirectory;
+    }
 
 		string_t GetPath(const string_t& sFilename)
 		{
@@ -113,6 +135,7 @@ namespace breathe
 			i++;
 			return sFilename.substr(i);
 		}
+
 		string_t GetFileNoExtension(const string_t& sFilename)
 		{
 			string_t::size_type i = sFilename.find(TEXT("/"));
@@ -129,6 +152,7 @@ namespace breathe
 
 			return TEXT("");
 		}
+
 		string_t GetExtension(const string_t& sFilename)
 		{
 			string_t s=sFilename;
@@ -191,70 +215,51 @@ namespace breathe
 #endif
       if (TEXT("") == sFilename) return sFilename;
 
-			std::ifstream f;
-
-			//Check for each directory+sFilename
-			std::vector<string_t>::iterator iter=vDirectory.begin();
-			while(iter!=vDirectory.end())
-			{
-				string_t filename = breathe::string::ToString_t((*iter) + sFilename);
-#ifdef __LINUX__
+      // Check for each directory+sFilename
+      std::vector<string_t>::iterator iter=vDirectory.begin();
+      while(iter!=vDirectory.end()) {
+        string_t filename = breathe::string::ToString_t((*iter) + sFilename);
         CONSOLE<<"Attempting to open "<<filename<<std::endl;
-#endif
-        f.open(breathe::string::ToUTF8(filename).c_str());
+        if (FileExists(filename)) {
+          CONSOLE<<"Found "<<filename<<std::endl;
+          return filename;
+        }
 
-				if (f.is_open())
-				{
-					f.close();
-					return filename;
-				}
-
-				iter++;
-			};
+        iter++;
+      };
 
 
-			//Check for each directory+sFilename-path
-			iter = vDirectory.begin();
-			string_t sFile = GetFile(sFilename);
-			while(iter != vDirectory.end())
-			{
-				string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
-#ifdef __LINUX__
+      // Check for each directory+sFilename-path
+      iter = vDirectory.begin();
+      string_t sFile = GetFile(sFilename);
+      while(iter != vDirectory.end()) {
+        string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
         CONSOLE<<"Attempting to open "<<filename<<std::endl;
-#endif
-        f.open(breathe::string::ToUTF8(filename).c_str());
+        if (FileExists(filename)) {
+          CONSOLE<<"Found "<<filename<<std::endl;
+          return filename;
+        }
 
-				if (f.is_open())
-				{
-					f.close();
-					return filename;
-				}
+        iter++;
+      };
 
-				iter++;
-			};
-
-			//Check sFilename that was passed in
-			f.open(breathe::string::ToUTF8(sFilename).c_str());
-
-#ifdef __LINUX__
+      // Check sFilename that was passed in
       CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
-#endif
-      if (f.is_open())
-			{
-				f.close();
-				return sFilename;
-			}
+      if (FileExists(sFilename))
+      {
+        CONSOLE<<"Found "<<sFilename<<std::endl;
+        return sFilename;
+      }
 
-			return sFilename;
-		}
-    
-    uint32_t GetFileSize()
+      return sFilename;
+    }
+
+    uint64_t GetFileSize(const string_t& sFilename)
     {
       struct stat results;
 
-      if (stat("input.bin", &results) == 0)
-        return results.st_size;
-      
+      if (stat(sFilename.c_str(), &results) == 0) return results.st_size;
+
       return 0;
     }
 
@@ -273,47 +278,50 @@ namespace breathe
 #pragma push_macro("FileExists")
 #undef FileExists
 #endif
-		bool FileExists(const breathe::string_t& sFilename)
-		{
+    bool FileExists(const breathe::string_t& sFilename)
+    {
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
 
-			WIN32_FIND_DATA FindFileData;
-			HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
-			if (hFind != INVALID_HANDLE_VALUE)
-			{
-				FindClose(hFind);
-				return true;
-			}
+      WIN32_FIND_DATA FindFileData;
+      HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
+      if (hFind != INVALID_HANDLE_VALUE)
+      {
+        FindClose(hFind);
+        return true;
+      }
 
-			return false;
+      return false;
+#elif defined(__LINUX__)
+      return (0 == access(sFilename.c_str(), F_OK));
 #else
-			LOG.Error("FileExists", "Not implemented on this platform");
-			return false;
+      #error "FileExists not implemented on this platform"
 #endif
-		}
+    }
 
 
 #ifdef __WIN__
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #endif
-		bool CreateDirectory(const breathe::string_t& sFoldername)
-		{
+    bool CreateDirectory(const breathe::string_t& sFoldername)
+    {
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
 
 #ifdef UNICODE
-			return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryW(sFoldername.c_str(), NULL));
+      return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryW(sFoldername.c_str(), NULL));
 #else
-			return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryA(sFoldername.c_str(), NULL));
+      return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryA(sFoldername.c_str(), NULL));
 #endif // !UNICODE
 
+#elif defined(__LINUX__)
+      return (0 == mkdir(sFoldername.c_str(), S_IRWXU | S_IRWXG | S_IRWXO));
 #else
-			LOG.Error("CreateDirectory", "Not implemented on this platform");
-			return false;
+      #error "CreateDirectory not implemented on this platform"
+      return false;
 #endif
-		}
+    }
 
 #ifdef __WIN__
 #pragma push_macro("CreateFile")
@@ -350,8 +358,14 @@ namespace breathe
 			}
 
 			return false;
+#elif defined(__LINUX__)
+      std::ofstream file(sFilename.c_str());
+      bool bIsOpen = file.good();
+      file.close();
+
+      return bIsOpen;
 #else
-			LOG.Error("CreateFile", "Not implemented on this platform");
+      #error "CreateFile not implemented on this platform"
 			return false;
 #endif
 		}

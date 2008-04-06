@@ -347,7 +347,6 @@ namespace breathe
 				iter.FirstChild();
 
 				cLayer* pLayer = NULL;
-				size_t n = vLayer.size();
 				size_t i = 0;
 				while(iter && i < nLayers)
 				{

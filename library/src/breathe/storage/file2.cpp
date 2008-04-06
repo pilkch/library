@@ -109,64 +109,108 @@ namespace breathe
 
 			bytes = 0;
 			return BYTEORDER_UTF8;
-		}
+    }
 
-		void ReadText(const string_t& filename, std::vector<std::wstring>& contents)
-		{
-			// Get byte order and size
-			
-			size_t signature_bytes = 0;
-			BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
+    void ReadText(const string_t& filename, std::vector<std::wstring>& contents)
+    {
+      CONSOLE<<"ReadText "<<filename<<std::endl;
 
-			// Open as a test file for UTF8, binary for anything else
-			std::wifstream file;
-			if (BYTEORDER_UTF8 == byteOrder) file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in);
-			else file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
-			
-			// Seek to after the byte order mark
-			file.seekg(signature_bytes, std::ios::beg);
+      if (!filesystem::FileExists(filename)) {
+        CONSOLE<<"ReadText File not found "<<filename<<std::endl;
+        return;
+      }
 
-			if ((BYTEORDER_UTF8 == byteOrder) || (BYTEORDER_UTF32LE == byteOrder)) {
-				std::wstring line;
-				while (std::getline(file, line)) contents.push_back(line);
-			} else if (BYTEORDER_UTF16LE == byteOrder) {
-				std::wstring line;
-				const size_t bufferSize = 1024;
-				uint16_t buffer[bufferSize];
-				size_t n = 0;
-				size_t i = 0;
-				std::vector<std::wstring> lines;
-				while (file.good()) {
-					file.read((wchar_t *) buffer, bufferSize * sizeof(uint16_t));
-					n = file.gcount() / sizeof(uint16_t);
+      // Get byte order and size
+      size_t signature_bytes = 0;
+      BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
 
-					line.clear();
-					line.reserve(n);
-					n += n;
-					for (i = 0; i < n; i+=2) line += wchar_t(buffer[i]);
+      CONSOLE<<"ReadText ByteOrderMark Detected signature_bytes="<<signature_bytes<<std::endl;
+      // Open as a test file for UTF8, binary for anything else
+      if (BYTEORDER_UTF8 == byteOrder) {
+        std::wifstream file;
+        file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in);
 
-					lines.clear();
-					breathe::string::SplitOnNewLines(line, lines);
+        if (!file.good()) {
+          CONSOLE<<"ReadText File not opened"<<std::endl;
+          return;
+        }
 
-					n = lines.size();
-					for (i = 0; i < n; i++) contents.push_back(lines[i]);
-				}
-			} else {
-				SCREEN<<"Not handled"<<std::endl;
-				assert(false);
-				
-				// Swap
-				//size_t i = 0;
-				//for (;i<count; i++) buffer[i] = (buffer[i]<<8)|(buffer[i]>>8);
-						
-				//UTF-16 (big-endian) FE FF
-				//UTF-16BE, UTF-32BE (big-endian) No BOM!
-				//UTF-32 (big-endian) 00 00 FE FF
-				//SCSU (compression) 0E FE FF
-			}
+        CONSOLE<<"ReadText Seeking to "<<signature_bytes<<std::endl;
+        // Seek to after the byte order mark
+        file.seekg(signature_bytes, std::ios::beg);
 
-			file.close();
-		}
+        // Read contents of file
+        std::wstring line;
+        while (std::getline(file, line)) contents.push_back(line);
+
+        // Close the file
+        file.close();
+      } else {
+        std::ifstream file;
+        file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
+
+        if (!file.good()) {
+          CONSOLE<<"ReadText File not opened"<<std::endl;
+          return;
+        }
+
+        CONSOLE<<"ReadText Seeking to "<<signature_bytes<<std::endl;
+        // Seek to after the byte order mark
+        file.seekg(signature_bytes, std::ios::beg);
+
+        CONSOLE<<"ReadText Reading from file"<<std::endl;
+        if (BYTEORDER_UTF16LE == byteOrder) {
+          const size_t bufferSize = 1024;
+          char16_t buffer[bufferSize];
+          size_t n = 0;
+          size_t i = 0;
+          std::vector<std::wstring> lines;
+          std::wstring line;
+          while (file.good()) {
+            CONSOLE<<"ReadText Reading buffer"<<std::endl;
+            file.read((char*)&buffer[0], bufferSize * sizeof(char16_t));
+            CONSOLE<<"ReadText Finding how many read characters"<<std::endl;
+            n = file.gcount() / sizeof(uint16_t);
+
+            CONSOLE<<"ReadText Interpreting line"<<std::endl;
+            line.clear();
+            line.reserve(n);
+            for (i = 0; i < n; i++) line += wchar_t(buffer[i]);
+
+            CONSOLE<<"ReadText Adding line to lines"<<std::endl;
+            lines.clear();
+            breathe::string::SplitOnNewLines(line, lines);
+
+            CONSOLE<<"ReadText Adding lines to contents"<<std::endl;
+            n = lines.size();
+            for (i = 0; i < n; i++) {
+              CONSOLE<<"ReadText Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
+              contents.push_back(lines[i]);
+            }
+          }
+        } else if (BYTEORDER_UTF32LE == byteOrder) {
+          CONSOLE<<"ReadText ByteOrderMark BYTEORDER_UTF32LE Not handled"<<std::endl;
+          //while (std::getline(file, line)) contents.push_back(line);
+        } else {
+          CONSOLE<<"ReadText ByteOrderMark Not handled signature_bytes="<<signature_bytes<<std::endl;
+          assert(false);
+
+          // Swap
+          //size_t i = 0;
+          //for (;i<count; i++) buffer[i] = (buffer[i]<<8)|(buffer[i]>>8);
+
+          //UTF-16 (big-endian) FE FF
+          //UTF-16BE, UTF-32BE (big-endian) No BOM!
+          //UTF-32 (big-endian) 00 00 FE FF
+          //SCSU (compression) 0E FE FF
+        }
+
+        // Close the file
+        file.close();
+      }
+
+      CONSOLE<<"ReadText returning"<<std::endl;
+    }
 
 		
 		void AppendText(const string_t& filename, const std::string& contents)

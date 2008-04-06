@@ -26,7 +26,7 @@ namespace breathe
 		{
 		public:
 			cVertexBufferObject();
-			~cVertexBufferObject();
+			virtual ~cVertexBufferObject();
 
 			void Destroy();
 			void Init();

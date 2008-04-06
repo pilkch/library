@@ -3,13 +3,21 @@
 
 namespace breathe
 {
-	#ifdef UNICODE
-	typedef std::wstringstream stringstream_t;
-	typedef std::wstring string_t;
-	#else
-	typedef std::stringstream stringstream_t;
-	typedef std::string string_t;
-	#endif
+  #ifdef UNICODE
+  typedef std::wstringstream stringstream_t;
+  typedef std::wstring string_t;
+  #else
+  typedef std::stringstream stringstream_t;
+  typedef std::string string_t;
+  #endif
+
+  #if SIZEOF_WCHAR_T == 4
+  typedef std::wstring string16_t;
+  typedef std::basic_string<char32_t> string32_t;
+  #else
+  typedef std::basic_string<char16_t> string16_t;
+  typedef std::wstring string32_t;
+  #endif
 
 	namespace string
 	{

@@ -71,13 +71,13 @@ namespace breathe
 				LoadIdentity();
 			}
 
-			cQuaternion(float x0, float y0, float z0, float w0)
-			{
-				x=x0;
-				y=y0;
-				z=z0;
-				w=w0;
-			}
+      cQuaternion(float x0, float y0, float z0, float w0) :
+        w(w0),
+        x(x0),
+        y(y0),
+        z(z0)
+      {
+      }
 
 			//constructor - retrieves values from angle of rotation about x, y, z axes
 			cQuaternion(const cVec3 & v)
@@ -91,9 +91,10 @@ namespace breathe
 				Slerp(q1, q2, interpolation);
 			}
 
-			float w, x, y, z;
-		};
-	}
+      //TODO: Think about switching these around to (x, y, z, w)
+      float w, x, y, z;
+    };
+  }
 }
 
 #endif	//CQUATERNION_H

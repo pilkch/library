@@ -21,7 +21,7 @@ namespace breathe
 
 		VAR_READ_ONLY_IN_GAME=4,		// Can't change once in game.  For example: "sv_maxplayers" etc.  
 		VAR_READ_ONLY_IN_CONSOLE=8,	// Can't change once in console.  For example: "r_driver" etc.  
-		VAR_READ_ONLY=16,				// Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.  
+		VAR_READ_ONLY=16				// Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.  
 	};
 
 	template <class T>

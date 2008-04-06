@@ -202,7 +202,7 @@ int intersect_triangle(
 
 namespace breathe
 {
-	cApp::cApp(int argc, char **argv) :
+	cApp::cApp(int argc, const char **argv) :
 #ifdef BUILD_DEBUG
 		bDebug(true),
 #endif
@@ -220,10 +220,10 @@ namespace breathe
 	{
 		CONSOLE.SetApp(this);
 		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
-		
+
 		_LoadSearchDirectories();
-		
-		util::LoadLanguageFile();
+
+		util::LoadLanguageFiles();
 
 		_InitArguments(argc, argv);
 
@@ -232,14 +232,14 @@ namespace breathe
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
 		SCREEN<<"This is printed to the screen"<<std::endl;
-		
+
 		CONSOLE<<"1"<<std::endl;
 		CONSOLE<<"2"<<std::endl;
 		CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
-		
+
 		// get all files ending in .dll
 		CONSOLE<<"FileSystem Test"<<std::endl;
-		
+
 		breathe::filesystem::path dir_path(TEXT("."));
 		/*directory_iterator end_it;
 		for (directory_iterator it(dir_path); it != end_it; ++it) {
@@ -278,12 +278,12 @@ namespace breathe
 	}
 
 
-	cApp::~cApp()
-	{
+  cApp::~cApp()
+  {
     assert(states.empty());
-    
-		std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
-		std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
+
+    std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
+    std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
 
     while (iter != iterEnd) {
       SAFE_DELETE(iter->second);
@@ -327,7 +327,7 @@ namespace breathe
 		SDL_Quit();
 	}
 
-	void cApp::_InitArguments(int argc, char **argv)
+	void cApp::_InitArguments(int argc, const char **argv)
 	{
 		int i = 1;
 		std::string s;
@@ -905,9 +905,9 @@ namespace breathe
 			bStepPhysics = true;
 		}
 #endif
-		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();		
+		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();
 #endif
-    
+
 		if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
 
     if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) {
@@ -986,21 +986,19 @@ namespace breathe
 			}
 
 #ifdef BUILD_DEBUG
-			else if (bDebug)
-			{
-				std::string c="Line: [";
+      else if (bDebug) {
+        std::string c="Line: [";
 
-				unsigned int n = args.size();
-				for (unsigned int a = 0;a < n; a++)
-					c+="(" + args[a] + ")";
+        const size_t n = args.size();
+        for (size_t a = 0;a < n; a++) c+="(" + args[a] + ")";
 
-				c+="]";
+        c+="]";
 
-				CONSOLE<<c<<std::endl;
-			}
+        CONSOLE<<c<<std::endl;
+      }
 #endif
-		}
-	}
+    }
+  }
 
 	/*//This is for executing multiple lines of commands, seperated by ";"
 	void cApp::ConsoleExecute(const std::string& command)

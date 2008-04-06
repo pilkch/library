@@ -38,9 +38,10 @@ namespace breathe
 	};
 	
 	template <class T>
-	constant_stack<T>::constant_stack(size_t _n)
+	constant_stack<T>::constant_stack(size_t _n) :
+    first(0),
+    n(_n)
 	{
-		n = _n;
 		elements.reserve(n);
 	}
 	
@@ -81,12 +82,14 @@ namespace breathe
 			COLOUR_NORMAL = 0,
 			COLOUR_RED,
 			COLOUR_GREEN,
-			COLOUR_BLUE,
+			COLOUR_BLUE
 		};
 
 		class cLogBase
 		{
 		public:
+      virtual ~cLogBase() {}
+
 			template<typename T>
 			cLogBase& operator<<(const T& t)
 			{
@@ -222,12 +225,12 @@ namespace breathe
 		{
 		public:
 			cConsoleBase() :
+        uiCursorBlink(0),
+        uiCursorPosition(0),
+
 				bShow(false),
 
 				pApp(nullptr),
-
-				uiCursorBlink(0),
-				uiCursorPosition(0),
 
 				lines(10)
 			{

@@ -11,6 +11,7 @@ namespace breathe
 	{
 	public:
 		cObjectSphere();
+    virtual ~cObjectSphere() {}
 
 		void SetDimensions(float fRadius);
 
@@ -28,6 +29,8 @@ namespace breathe
 	class cUpdateable
 	{
 	public:
+    virtual ~cUpdateable() {}
+
 		virtual void Update(sampletime_t currentTime)=0;
 	};
 	

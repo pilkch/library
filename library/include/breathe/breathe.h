@@ -17,25 +17,30 @@
  *                                                                       *
  *************************************************************************/
 
-#ifdef CMEM_H
-#error "Don't include mem.h directly, include breathe.h instead"
-#endif //CMEM_H
-
-#if defined(min) || defined(max)
-#error "Define NOMINMAX"
-#endif
-
 #ifndef BREATHE_H
 #define BREATHE_H
 
+#ifdef CMEM_H
+#error "Don't include mem.h directly, include breathe.h instead"
+#endif // CMEM_H
+
 #ifdef FIRESTARTER
 #define NO_SDL
-#endif
+#endif // FIRESTARTER
 
-#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || defined(__LP64__)
+// Architecture
+#if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || defined(__LP64__) || defined(__amd64)
 #error "This is a 64 bit compile, have fun!"
 #endif
 
+#if defined(__hppa__) || \
+  defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+  (defined(__MIPS__) && defined(__MISPEB__)) || \
+  (defined(__APPLE__) && defined(__MACH__)) || \
+  defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+  defined(__sparc__)
+#error "Breathe does not support big endian systems, get a real computer (little endian x86)
+#endif
 
 // Operating System
 // Use the standard defines were possible:
@@ -62,16 +67,6 @@
 #error "Need some help identifying the platform!"
 #endif
 
-// Architecture
-#if defined(__hppa__) || \
-	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
-	(defined(__MIPS__) && defined(__MISPEB__)) || \
-	(defined(__APPLE__) && defined(__MACH__)) || \
-	defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
-	defined(__sparc__)
-#error "We don't support big endian systems, get a real computer (little endian x86)
-#endif
-
 // What type of build is this?
 #ifdef NDEBUG
 #define BUILD_RELEASE
@@ -79,6 +74,9 @@
 #define BUILD_DEBUG
 #endif
 
+#if defined(min) || defined(max)
+#error "For Visual Studio define NOMINMAX"
+#endif
 
 // CRT's memory leak detection
 #ifdef __WIN__
@@ -121,7 +119,7 @@ typedef long int uint32_t;
 #define NO_COPY(T) \
 	private: \
 	T(const T&); \
-	void operator=(const T&);
+	void operator=(const T&)
 
 
 // Utility types, objects etc.
@@ -132,8 +130,12 @@ namespace breathe
 
 	#ifdef __WIN__
 	#define SIZEOF_WCHAR_T 2
+  typedef wchar_t char16_t;
+  typedef uint32_t char32_t;
 	#else
 	#define SIZEOF_WCHAR_T 4
+  typedef uint16_t char16_t;
+  typedef wchar_t char32_t;
 	#endif
 
 	#ifdef UNICODE
@@ -150,14 +152,14 @@ namespace breathe
 	// Safe deleting functions
 	template <class T>
 	inline void SAFE_DELETE(T& x)
-	{ 
+	{
 		delete x;
 		x = NULL;
 	}
 
 	template <class T>
 	inline void SAFE_DELETE_ARRAY(T& x)
-	{ 
+	{
 		delete [] x;
 		x = NULL;
 	}

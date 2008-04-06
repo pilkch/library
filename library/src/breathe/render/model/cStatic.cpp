@@ -196,8 +196,8 @@ namespace breathe
 				p->target.y=p->targetIdeal.y= fScaleCamera * c.Float();
 				p->target.z=p->targetIdeal.z= fScaleCamera * c.Float();
 				
-				float bank_angle = fScaleCamera * c.Float();
-				float focus = fScaleCamera * c.Float();
+				//float bank_angle = fScaleCamera * c.Float();
+				//float focus = fScaleCamera * c.Float();
 
 				//vCamera.push_back(p);
 			}

@@ -23,7 +23,7 @@ namespace breathe
 		{
 		public:
 			cOctree();
-			~cOctree();
+			virtual ~cOctree();
 
 			// The current amount of subdivisions we are currently at.
 			// This is used to make sure we don't go over the max amount

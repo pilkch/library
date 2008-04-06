@@ -79,7 +79,7 @@ namespace breathe
 
 			size_t uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
 			size_t uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
-			size_t uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
+			//size_t uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
 
 			pVertex.uiOffset = 0 + 0;
 			pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
@@ -119,7 +119,7 @@ namespace breathe
 				vData.push_back(pNormal.vData[i].z);
 			}
 
-			size_t x = vData.size();
+			//size_t x = vData.size();
 			//glGenBuffersARB(1, &index_buf);
 			//glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
 			//glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, I_SIZ*sizeof(GLushort), tet_index, GL_STATIC_DRAW_ARB);

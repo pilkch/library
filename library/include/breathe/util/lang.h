@@ -8,14 +8,14 @@
 
 namespace breathe
 {
-	// Can pass in either UTF8 or unicode, however, you will always get back unicode
-	string_t LANG(const std::string& tag);
-	string_t LANG(const std::wstring& tag);
+  // Can pass in either UTF8 or unicode, however, you will always get back unicode
+  string_t LANG(const std::string& tag);
+  string_t LANG(const std::wstring& tag);
 
-	namespace util
-	{
-		void LoadLanguageFile();
-	}
+  namespace util
+  {
+    void LoadLanguageFiles();
+  }
 }
 
 #endif // LANG_H

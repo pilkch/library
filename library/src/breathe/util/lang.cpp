@@ -29,79 +29,91 @@
 
 namespace breathe
 {
-	std::map<std::wstring, std::wstring> langtags;
+  std::map<std::wstring, std::wstring> langtags;
 
-	namespace util
-	{
-		bool LastCharacterIsQuotationMark(const std::wstring& source)
-		{
-			return source[source.length() - 1] != TEXT('\"');
-		}
+  namespace util
+  {
+    bool LastCharacterIsQuotationMark(const std::wstring& source)
+    {
+      return source[source.length() - 1] != TEXT('\"');
+    }
 
-		void LoadLanguageFile(const std::string& filename)
-		{
-			std::vector<std::wstring> contents;
-			storage::ReadText(filesystem::FindFile(breathe::string::ToString_t(filename)), contents);
-			
-			std::wstring tag;
-			std::wstring value;
+    void LoadLanguageFile(const string_t& filename)
+    {
+      string_t actual_filename(filesystem::FindFile(filename));
+      CONSOLE<<"LoadLanguageFile "<<actual_filename<<std::endl;
 
-			std::wstring line;
+      std::vector<std::wstring> contents;
+      storage::ReadText(actual_filename, contents);
 
-			size_t i = 0;
-			size_t n = contents.size();
-			for (i = 0; i < n; i++)
-			{
-				line = contents[i];
-				tag = breathe::string::StripAfterInclusive(line, L" \"");
+      CONSOLE<<"LoadLanguageFile Text has been read"<<std::endl;
 
-				// Get a quotation marked value that can span multiple lines
-				value = breathe::string::StripBeforeInclusive(line, L" \"");
-				if (LastCharacterIsQuotationMark(line)) {
-					i++;
-					while ((i < n) && !line.empty() && LastCharacterIsQuotationMark(line)) {
-						line = contents[i];
-						value.append(L"\n" + line);
-						i++;
-					}
+      std::wstring tag;
+      std::wstring value;
 
-					i--;
-				}
-				
-				value = breathe::string::StripTrailing(value, L"\"");
-				
-				// Add tag
-				CONSOLE<<"Tag \""<<breathe::string::ToUTF8(tag)<<"\"=\""<<breathe::string::ToUTF8(value)<<"\""<<std::endl;
-				langtags[tag] = value;
-			}
-		}
+      std::wstring line;
 
-		void LoadLanguageFile()
-		{
-			assert(langtags.empty());
+      size_t i = 0;
+      const size_t n = contents.size();
+      for (i = 0; i < n; i++)
+      {
+        CONSOLE<<"LoadLanguageFile line "<<i<<std::endl;
+        CONSOLE<<"LoadLanguageFile Strip"<<std::endl;
+        line = contents[i];
+        tag = breathe::string::StripAfterInclusive(line, L" \"");
 
-			LoadLanguageFile("shared_lang.txt");
-			LoadLanguageFile("lang.txt");
-		}
-	}
-	
-	string_t LANG(const std::string& tag)
-	{
-		std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
-		if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+        CONSOLE<<"LoadLanguageFile Read quoted text"<<std::endl;
 
-		storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
-			breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
-		return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
-	}
+        // Get a quotation marked value that can span multiple lines
+        value = breathe::string::StripBeforeInclusive(line, L" \"");
+        if (LastCharacterIsQuotationMark(line)) {
+          i++;
+          while ((i < n) && !line.empty() && LastCharacterIsQuotationMark(line)) {
+            line = contents[i];
+            value.append(L"\n" + line);
+            i++;
+          }
 
-	string_t LANG(const std::wstring& tag)
-	{
-		std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
-		if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+          i--;
+        }
 
-		storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
-			breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
-		return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
-	}
+        CONSOLE<<"LoadLanguageFile Strip trailing"<<std::endl;
+        value = breathe::string::StripTrailing(value, L"\"");
+
+        // Add tag
+        CONSOLE<<"LoadLanguageFile Tag \""<<tag<<"\"=\""<<value<<"\""<<std::endl;
+        langtags[tag] = value;
+      }
+
+      CONSOLE<<"LoadLanguageFile returning"<<std::endl;
+    }
+
+    void LoadLanguageFiles()
+    {
+      assert(langtags.empty());
+
+      LoadLanguageFile(breathe::string::ToString_t(TEXT("shared_lang.txt")));
+      LoadLanguageFile(breathe::string::ToString_t(TEXT("lang.txt")));
+    }
+  }
+
+  string_t LANG(const std::string& tag)
+  {
+    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
+    if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+
+    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
+    breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
+    return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
+  }
+
+  string_t LANG(const std::wstring& tag)
+  {
+    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
+    if (iter != langtags.end()) return  breathe::string::ToString_t(iter->second);
+
+    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
+    breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
+    return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
+  }
 }

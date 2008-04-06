@@ -6,15 +6,13 @@ namespace breathe
   class cUndoRedoState
   {
   public:
-    cUndoRedoState::cUndoRedoState(const breathe::string_t& title) :
-      _title(title)
-    {
-    }
+    explicit cUndoRedoState(const breathe::string_t& title);
+    virtual ~cUndoRedoState() {}
 
     const breathe::string_t& GetTitle() const { return _title; }
 
-    void cUndoRedoState::Undo() { _Undo(); }
-    void cUndoRedoState::Redo() { _Redo(); }
+    void Undo() { _Undo(); }
+    void Redo() { _Redo(); }
 
   private:
     virtual void _Undo() = 0; 
@@ -53,6 +51,13 @@ namespace breathe
 
     NO_COPY(cUndoRedo);
   };
+
+  //TODO: Move this to the cpp file
+
+  inline cUndoRedoState::cUndoRedoState(const breathe::string_t& title) :
+    _title(title)
+  {
+  }
 }
 
 #endif //UNDOREDO_H

@@ -18,7 +18,7 @@ namespace breathe
 	class cApp
 	{
 	public:
-		cApp(int argc, char** argv);
+		cApp(int argc, const char** argv);
 		virtual ~cApp();
 
 		bool InitApp();
@@ -60,11 +60,12 @@ namespace breathe
 #endif
 
 		gui::cWindowManager window_manager;
-    
+
     class cAppState
     {
     public:
       cAppState() : result(0), pParent(nullptr) {}
+      virtual ~cAppState() {}
 
       void SetParent(cAppState* _pParent) { assert(_pParent != nullptr); pParent = _pParent; }
       cAppState* GetParent() { return pParent; }
@@ -157,12 +158,12 @@ namespace breathe
 			gui::cWidget_StaticText* pPrevious;
 			gui::cWidget_Input* pInput;
 		};
-		
+
 		class cKey
 		{
 		public:
 			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
-			
+
 			bool IsDown();
 			void SetDown(bool bConsole);
 			void SetUp(bool bConsole);
@@ -197,7 +198,7 @@ namespace breathe
 		};
 
 		void _ConsoleExecuteSingleCommand(const std::string& s);
-		void _InitArguments(int argc, char** argv);
+		void _InitArguments(int argc, const char** argv);
 		void _Update(sampletime_t currentTime);
 		void _UpdateInput(sampletime_t currentTime);
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
@@ -251,7 +252,7 @@ namespace breathe
     cAppState* pPushThisStateSoon;
 
     void RemoveKey(unsigned int code);
-    
+
 		// Forbidden
 		void _OnMouseEvent(int button, int state, int x, int y);
 		void OnMouse(int button,int state,int x,int y);
@@ -261,6 +262,7 @@ namespace breathe
     {
     public:
       cAppStateConsole(cApp& _app) : app(_app), pConsoleWindow(nullptr) {}
+      virtual ~cAppStateConsole() {}
 
     private:
 	    void _OnEntry();

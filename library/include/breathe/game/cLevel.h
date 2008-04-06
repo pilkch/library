@@ -93,6 +93,9 @@ namespace breathe
 	class cLevel : public cUpdateable
 	{
 	public:
+    cLevel();
+    ~cLevel();
+
 		// Global level information loaded from xml
 		float fWaterLevel;
 
@@ -121,9 +124,6 @@ namespace breathe
 		std::vector<cLevelSpawn*>vSpawn;
 		
 		std::vector<cLevelCubemap * >vCubemap;
-
-		cLevel();
-		~cLevel();
 
 	private:
 		bool LoadXML(const string_t& sNewFilename);

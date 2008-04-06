@@ -3,18 +3,18 @@
 
 namespace breathe
 {
-	namespace math
-	{
+  namespace math
+  {
     class cVec3;
 
-		class cVec2
-		{
-		public:
-			inline cVec2() {}
-			cVec2(const float* rhs);
-			inline cVec2(float newX, float newY) { x=newX; y=newY; }
-			inline cVec2(const cVec2& rhs) { x=rhs.x; y=rhs.y; }
-			cVec2(const cVec3& rhs);
+    class cVec2
+    {
+    public:
+      inline cVec2() : u(x), v(y) {}
+      cVec2(const float* rhs);
+      inline cVec2(float newX, float newY) : u(x), v(y) { x=newX; y=newY; }
+      inline cVec2(const cVec2& rhs) : u(x), v(y) { x=rhs.x; y=rhs.y; }
+      cVec2(const cVec3& rhs);
 
 			void Set(float newX, float newY);	//set member variables
 			
@@ -85,31 +85,22 @@ namespace breathe
 			operator float* () const {return (float*) this;}
 			operator const float* () const {return (const float*) this;}
       
-			cVec2 operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this;}
-			cVec2 operator=(const cVec3& rhs);
+      cVec2& operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this;}
+      cVec2& operator=(const cVec3& rhs);
 
-			//member variables
+      // member variables
 
-			// We do this so that x maps to u and y maps to v
-			// for use in texture mapping as well as position coords
-			union
-			{
-				struct
-				{
-					float x;
-					float y;
-				};
+      // We do this so that x maps to u and y maps to v
+      // for use in texture mapping as well as position coords
+      float x;
+      float y;
 
-				struct
-				{
-					float u;
-					float v;
-				};
-			};
-		};
+      float& u;
+      float& v;
+    };
 
     const cVec2 v2Zero(0.0f, 0.0f);
-	}
+  }
 }
 
 #endif	//CVEC2_H

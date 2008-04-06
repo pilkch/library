@@ -17,19 +17,23 @@
 
 namespace breathe
 {
-	namespace math
-	{
-		cVec2::cVec2(const float* rhs)
-		{
+  namespace math
+  {
+    cVec2::cVec2(const float* rhs) :
+      u(x),
+      v(y)
+    {
       assert(rhs != nullptr);
 
-			x=*rhs;
-			y=*(rhs+1);
-		}
-		
+      x=*rhs;
+      y=*(rhs+1);
+    }
+
     cVec2::cVec2(const cVec3& rhs) :
       x(rhs.x),
-      y(rhs.y)
+      y(rhs.y),
+      u(x),
+      v(y)
     {
     }
 
@@ -159,11 +163,11 @@ namespace breathe
 			y /= rhs;
 		}
     
-    cVec2 cVec2::operator=(const cVec3& rhs)
+    cVec2& cVec2::operator=(const cVec3& rhs)
     {
       x = rhs.x;
       y = rhs.y;
       return *this;
     }
-	}
+  }
 }
