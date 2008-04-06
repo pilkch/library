@@ -24,7 +24,7 @@
 #include <Box2D/Collision/b2Collision.h>
 #include <Box2D/Collision/b2Shape.h>
 
-#include <new.h>
+#include <new>
 
 int32 b2World::s_enablePositionCorrection = 1;
 int32 b2World::s_enableWarmStarting = 1;

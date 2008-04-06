@@ -19,7 +19,7 @@
 #include <Box2D/Dynamics/Contacts/b2CircleContact.h>
 #include <Box2D/Common/b2BlockAllocator.h>
 
-#include <new.h>
+#include <new>
 
 b2Contact* b2CircleContact::Create(b2Shape* shape1, b2Shape* shape2, b2BlockAllocator* allocator)
 {

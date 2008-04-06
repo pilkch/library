@@ -28,7 +28,7 @@
 #include <Box2D/Common/b2BlockAllocator.h>
 #include <Box2D/Collision/b2BroadPhase.h>
 
-#include <new.h>
+#include <new>
 
 b2Joint* b2Joint::Create(const b2JointDef* def, b2BlockAllocator* allocator)
 {
