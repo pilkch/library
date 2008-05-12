@@ -15,7 +15,7 @@
 #include <list>
 #include <set>
 
-#include <GL/Glee.h>
+#include <GL/GLee.h>
 
 
 #include <SDL/SDL.h>
@@ -79,7 +79,7 @@ namespace breathe
 
 	cLevel::cLevel() :
 		previousTime(0),
-			
+
 		fWaterLevel(1.0f),
 
 		pCurrentNode(nullptr)
@@ -106,7 +106,7 @@ namespace breathe
 
 			breathe::xml::cNode::iterator iter(root);
 			if (!iter) return breathe::BAD;
-			
+
 			iter.FindChild("level");
 			if (iter)
 			{
@@ -144,7 +144,7 @@ namespace breathe
 							{
 								pSpawn = new cLevelSpawn();
 								vSpawn.push_back(pSpawn);
-	
+
 								iter.GetAttribute("position", pSpawn->v3Position);
 								iter.GetAttribute("rotation", pSpawn->v3Rotation);
 
@@ -167,7 +167,7 @@ namespace breathe
 		bool bResult = breathe::GOOD;
 
 		LoadXML(sNewFilename);
-      
+
 
 		// We don't have any spawns yet, add a default one
 		if (vSpawn.empty()) {
@@ -198,7 +198,7 @@ namespace breathe
 	void cLevel::LoadNode(const string_t& sNewFilename)
 	{
 		render::model::cStatic *p=pRender->AddModel(TEXT("data/level/") + sNewFilename + TEXT("/mesh.3ds"));
-		
+
 		if (p)
 		{
 			cLevelNode *pNode=new cLevelNode(this, TEXT("data/level/") + sNewFilename + TEXT("/"));
@@ -218,9 +218,9 @@ namespace breathe
 				math::cVec3 objPos=p->vCamera[i]->target;
 
 				math::cVec3 objToCamProj(cam.x - objPos.x, 0.0f, cam.z - objPos.z);
-				
+
 				float angleCosine;
-				
+
 				math::cVec3 v3out;
 
 				objToCamProj.Normalize();
@@ -231,7 +231,7 @@ namespace breathe
 				float a=acosf(angleCosine)*math::c180_DIV_PI;
 
 				// perform the rotation. The if statement is used for stability reasons
-				// if the lookAt and objToCamProj vectors are too close together then 
+				// if the lookAt and objToCamProj vectors are too close together then
 				// |angleCosine| could be bigger than 1 due to lack of precision
 				if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
 					v3out.z=90.0f+a;
@@ -249,7 +249,7 @@ namespace breathe
 		else
 			LOG.Error("Node", "Mesh not found " + breathe::string::ToUTF8(sNewFilename));
 	}
-	
+
 	void cLevel::LoadCubemap(const string_t& line)
 	{
 		vCubemap.push_back(new cLevelCubemap());
@@ -264,8 +264,8 @@ namespace breathe
 		stm >> p->v3Position.z;
 	}
 
-	/*void cModel::staticMeshAddToWorld(int i, WORLD * world, 
-																							COLLISIONPACKET * collisionPacket, 
+	/*void cModel::staticMeshAddToWorld(int i, WORLD * world,
+																							COLLISIONPACKET * collisionPacket,
 																							float x, float y, float z)
 	{
 		if (i>-1 && i<animation.size())
@@ -298,11 +298,11 @@ namespace breathe
 				temp.p0.vx=t->p0.vx*ex+x;
 				temp.p0.vy=t->p0.vy*ey+y;
 				temp.p0.vz=t->p0.vz*ez+z;
-				
+
 				temp.p1.vx=t->p1.vx*ex+x;
 				temp.p1.vy=t->p1.vy*ey+y;
 				temp.p1.vz=t->p1.vz*ez+z;
-				
+
 				temp.p2.vx=t->p2.vx*ex+x;
 				temp.p2.vy=t->p2.vy*ey+y;
 				temp.p2.vz=t->p2.vz*ez+z;
@@ -319,14 +319,14 @@ namespace breathe
 		{
 			unsigned int currentX=static_cast<unsigned int>(pRender->pFrustum->eye.x/fNodeWidth);
 			unsigned int currentY=static_cast<unsigned int>(pRender->pFrustum->eye.y/fNodeWidth);
-			
+
 			unsigned int uiCurrentNode = currentY * uiNodeWidth + currentX;
 
 			if (uiCurrentNode < vNode.size())
 			{
 				cLevelNode* pNode = vNode[uiCurrentNode];
-				
-				// Have we changed nodes in the last time step?  
+
+				// Have we changed nodes in the last time step?
 				if (pNode && pCurrentNode != pNode)
 				{
 					if (pCurrentNode && (pCurrentNode->sName != pNode->sName))
@@ -342,7 +342,7 @@ namespace breathe
 			std::list<physics::cPhysicsObject *>::iterator iter=physics::begin();
 			std::list<physics::cPhysicsObject *>::iterator end=physics::end();
 
-			while(end != iter) 
+			while(end != iter)
 				(*iter++)->Update(currentTime);
 		}
 
@@ -357,10 +357,10 @@ namespace breathe
 				vNode[i]->Update(currentTime);
 		}
 
-		
+
 		{
 			vehicle::cVehicle *pVehicle=NULL;
-		
+
 			std::list<vehicle::cVehicle*>::iterator iter=lVehicle.begin();
 			while(iter != lVehicle.end())
 			{
@@ -384,14 +384,14 @@ namespace breathe
 		//n = vStatic.size();
 		//for (i=0;i<n;i++)
 		//	uiTriangles+=RenderStaticModel(vStatic[i]);));
-		
+
 		std::list<physics::cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
 		std::list<physics::cPhysicsObject*>::iterator end = lPhysicsObject.end();
 		while(end != iter)
 		{
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
-				
+
 				uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>((*iter++)->pModel));
 
 				//pRender->SetMaterial();
@@ -405,7 +405,7 @@ namespace breathe
 	{
 		unsigned int uiTriangles=0;
 		vehicle::cVehicle *pVehicle=NULL;
-		
+
 		std::list<vehicle::cVehicle *>::iterator iter=lVehicle.begin();
 		while(iter!=lVehicle.end())
 		{
@@ -423,13 +423,13 @@ namespace breathe
 					glMultMatrixf(pVehicle->lfWheel_->m);
 					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
-				
+
 				glPushMatrix();
 					glMultMatrixf(pVehicle->lrWheel_->m);
 					uiTriangles+=pRender->RenderStaticModel(static_cast<breathe::render::model::cStatic *>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
-				
-				
+
+
 				breathe::math::cMat4 r;
 				r.SetRotationZ(breathe::math::cPI);
 
@@ -455,7 +455,7 @@ namespace breathe
 		size_t i=rand()%(vSpawn.size());
 		return *vSpawn[i];
 	}
-		
+
 	cLevelSpawn cLevel::GetSpawn(math::cVec3 &p)
 	{
 		//Have to have a spawn in the level before calling this
@@ -555,7 +555,7 @@ namespace breathe
 		return v;
 	}
 
-	
+
 	cLevelSpawn::cLevelSpawn()
 		: v3Position(0.0f, 0.0f, 0.0f),
 			v3Rotation(1.0f, 0.0f, 0.0f)
@@ -576,18 +576,18 @@ namespace breathe
 	void cLevelNode::Load()
 	{
 		LOG.Success("LevelNode", "Load");
-			
-		uiStatus=NODE_ACTIVE;		
-		
+
+		uiStatus=NODE_ACTIVE;
+
 		bool bModels=false;
 		bool bCubemaps=false;
-		
+
 
 		xml::cNode root(breathe::string::ToUTF8(sFilename) + "node.xml");
 
 		xml::cNode::iterator iter(root);
 		if (!iter) return;
-			
+
 		iter.FindChild("node");
 		if (iter)
 		{
@@ -651,7 +651,7 @@ namespace breathe
 
 		LOG.Success("LevelNode", "Load returning");
 	}
-		
+
 	void cLevelNode::Unload()
 	{
 		uiStatus=NODE_INACTIVE;
@@ -673,7 +673,7 @@ namespace breathe
 
 		std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
 		std::vector<breathe::cLevelModel*>::iterator end = vModel.end();
-		
+
 		while(end != iter)
 		{
 			glPushMatrix();

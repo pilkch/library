@@ -126,7 +126,7 @@ namespace breathe
       assert(pSource->IsValid());
 
       AddSource(pSource);
-      
+
       unsigned int source = pSource->GetSource();
       alSource3f(source, AL_POSITION, 0.0f, 0.0f, 0.0f);
       alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
@@ -294,9 +294,8 @@ namespace breathe
 
       if (Device != nullptr) alcCloseDevice(Device);
 
-			if (!alutExit())
-				ReportError();
-		}
+      if (!alutExit()) ReportError();
+    }
 
 		void Update(sampletime_t currentTime)
 		{

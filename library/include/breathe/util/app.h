@@ -32,9 +32,9 @@ namespace breathe
 		bool ToggleFullscreen();
 		bool ResizeWindow(unsigned int w, unsigned int h);
 
-		void AddKeyRepeat(unsigned int code); // ie. for a key like wasd.  
-		void AddKeyNoRepeat(unsigned int code); // ie. for key like escape, enter, spacebar, etc.  
-		void AddKeyToggle(unsigned int code); // ie. tilde for console, either on or off, a press toggles.  
+		void AddKeyRepeat(unsigned int code); // ie. for a key like wasd.
+		void AddKeyNoRepeat(unsigned int code); // ie. for key like escape, enter, spacebar, etc.
+		void AddKeyToggle(unsigned int code); // ie. tilde for console, either on or off, a press toggles.
 
 		bool IsKeyDown(unsigned int code);
 		bool IsKeyDownReset(unsigned int code);
@@ -56,7 +56,7 @@ namespace breathe
 
 #ifdef BUILD_DEBUG
 		bool IsDebug() const { return bDebug; }
-		void ToggleDebug();
+		void ToggleDebug() { bDebug = !bDebug; }
 #endif
 
 		gui::cWindowManager window_manager;
@@ -79,7 +79,7 @@ namespace breathe
 	    void OnEntry() { _OnEntry(); }
 	    void OnExit() { _OnExit(); }
 
-      // Functions that deal with states being parented by other states, 
+      // Functions that deal with states being parented by other states,
       // the child runs and then returns a result to the parent
       void OnPause() { _OnPause(); }
       void OnResume(int iResult) { _OnResume(iResult); }
@@ -135,7 +135,7 @@ namespace breathe
 #endif
 		util::cTimer tUpdate;
 		util::cTimer tRender;
-		
+
 		std::vector<SDL_Joystick*>vJoystick;
 
 		render::cFont* pFont;
@@ -150,7 +150,7 @@ namespace breathe
 
 			gui::cWidget_StaticText& GetPrevious() { return *pPrevious; }
 			gui::cWidget_Input& GetInput() { return *pInput; }
-			
+
 		private:
 			void _OnMouseEvent(int button, int state, int x, int y) {}
 			void _OnEvent(gui::id_t id);
@@ -185,13 +185,13 @@ namespace breathe
 		{
 		public:
 			cMouse() : x(0), y(0) { down.reset(); }
-			
+
 			bool IsDown(bool bConsole, size_t button) const { assert(button < 10); return down[button]; }
 			bool IsUp(bool bConsole, size_t button) const { assert(button < 10); return !down[button]; }
 
 			int GetX() const { return x; }
 			int GetY() const { return y; }
-			
+
 			std::bitset<10> down;
 			int x;
 			int y;
@@ -209,7 +209,7 @@ namespace breathe
 	  // Convert from a float amount to a bool
 		static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
 
-		// The render order is managed/automated by this class, so if you want to do anything special like 
+		// The render order is managed/automated by this class, so if you want to do anything special like
 		// rendering to an FBO first or adding a timer in, you can do it by overriding these
 		virtual void BeginRender(sampletime_t currentTime) {}
 		virtual void EndRender(sampletime_t currentTime) {}
@@ -218,13 +218,13 @@ namespace breathe
 		virtual bool LoadScene() = 0;
 		virtual bool InitScene() = 0;
 		virtual bool DestroyScene() = 0;
-		
+
 		virtual void FullscreenSwitch()=0;
-		virtual bool Execute(const std::string& sCommand)=0;	
+		virtual bool Execute(const std::string& sCommand)=0;
 
 		void _UpdateKeys(sampletime_t currentTime);
 		void _UpdateEvents(sampletime_t currentTime);
-		
+
 		void _OnKeyUp(SDL_keysym* keysym);
 		void _OnKeyDown(SDL_keysym* keysym);
 		void _OnMouseUp(int button, int x, int y);
@@ -232,7 +232,7 @@ namespace breathe
 		void _OnMouseMove(int button, int x, int y);
 
 		void _LoadSearchDirectories();
-    		
+
 #ifdef BUILD_DEBUG
 		bool bDebug;
 #endif

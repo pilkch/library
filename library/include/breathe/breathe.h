@@ -47,7 +47,7 @@
 // __WIN__, __LINUX__, __APPLE__
 
 #if defined(WIN32) || defined(__WIN__) || \
-	defined(_MSC_VER) || defined(__CYGWIN32__) || defined(_BORLANDC_) || defined(__MINGW32__)
+  defined(_MSC_VER) || defined(__CYGWIN32__) || defined(_BORLANDC_) || defined(__MINGW32__)
 #ifndef __WIN__
 #define __WIN__
 #endif
@@ -60,8 +60,8 @@
 #define __APPLE__
 #endif
 #elif defined(_XENON) || \
-	defined(SN_TARGET_PSP_HW) || \
-	defined(SN_TARGET_PS3)
+  defined(SN_TARGET_PSP_HW) || \
+  defined(SN_TARGET_PS3)
 #error "This platform has not been built on yet"
 #else
 #error "Need some help identifying the platform!"
@@ -84,6 +84,14 @@
 
 #ifdef BUILD_DEBUG
 #include <crtdbg.h>
+#endif
+
+#if !defined(UNICODE) && !defined(_UNICODE)
+#error "Add UNICODE and _UNICODE to the build flags in your IDE"
+#endif // !UNICODE
+
+#ifdef _MBCS
+#error "_MBCS should not be defined by your IDE"
 #endif
 
 #elif defined(UNICODE)
@@ -117,52 +125,51 @@ typedef long int uint32_t;
 #endif // BUILD_DEBUG
 
 #define NO_COPY(T) \
-	private: \
-	T(const T&); \
-	void operator=(const T&)
-
+  private: \
+  T(const T&); \
+  void operator=(const T&)
 
 // Utility types, objects etc.
 namespace breathe
 {
-	// Types
-	typedef uint32_t sampletime_t;
+  // Types
+  typedef uint32_t sampletime_t;
 
-	#ifdef __WIN__
-	#define SIZEOF_WCHAR_T 2
+  #ifdef __WIN__
+  #define SIZEOF_WCHAR_T 2
   typedef wchar_t char16_t;
   typedef uint32_t char32_t;
-	#else
-	#define SIZEOF_WCHAR_T 4
+  #else
+  #define SIZEOF_WCHAR_T 4
   typedef uint16_t char16_t;
   typedef wchar_t char32_t;
-	#endif
+  #endif
 
-	#ifdef UNICODE
-	typedef wchar_t char_t;
-	#else
-	typedef char char_t;
-	#endif
+  #ifdef UNICODE
+  typedef wchar_t char_t;
+  #else
+  typedef char char_t;
+  #endif
 
-	// Constants
-	const bool BAD = false;
-	const bool GOOD = true;
-	
+  // Constants
+  const bool BAD = false;
+  const bool GOOD = true;
 
-	// Safe deleting functions
-	template <class T>
-	inline void SAFE_DELETE(T& x)
-	{
-		delete x;
-		x = NULL;
-	}
 
-	template <class T>
-	inline void SAFE_DELETE_ARRAY(T& x)
-	{
-		delete [] x;
-		x = NULL;
-	}
+  // Safe deleting functions
+  template <class T>
+  inline void SAFE_DELETE(T& x)
+  {
+    delete x;
+    x = NULL;
+  }
+
+  template <class T>
+  inline void SAFE_DELETE_ARRAY(T& x)
+  {
+    delete [] x;
+    x = NULL;
+  }
 }
 
 #endif //BREATHE_H

@@ -1,6 +1,9 @@
 #ifndef CPHYSICS3D_H
 #define CPHYSICS3D_H
 
+#error "Use Physics abstraction layer"
+#error "http://www.adrianboeing.com/pal/current/pal-latest.zip"
+
 namespace breathe
 {
 	namespace physics
@@ -10,7 +13,7 @@ namespace breathe
 		extern dSpaceID spaceDynamic;
 		extern dJointGroupID contactgroup;
 		extern dGeomID ground;
-    
+
 		void Init(float posX, float posY, float posZ, float nX, float nY, float nZ);
 	}
 }

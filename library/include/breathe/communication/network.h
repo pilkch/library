@@ -3,12 +3,13 @@
 
 namespace breathe
 {
-	namespace network
-	{
-		// Maximum Packet Size
-		const int MAXTCPLEN = 128;
+  namespace network
+  {
+    // Maximum Packet Size
+    const int MAXTCPLEN = 128;
 
-		
+    typedef uint16_t port_t;
+
 		// Outgoing Communication Packet
 		struct Packet_Message_Out {
 			Uint8	Packet_Length;		// Length of packet being sent
@@ -37,15 +38,27 @@ namespace breathe
 		** 11 - message from server to client
 		** 99 - logoff from client to server
 		*************************************************/
-		
+
 		bool Init();
 		void Destroy();
+
+
+
+    // For choosing a static port look at this list
+    // http://en.wikipedia.org/wiki/List_of_well-known_ports_(computing)
+
+    // Random dynamic port between 49152 and 65535
+    inline port_t GetDynamicPort()
+    {
+      return 49152 + math::random(16383);
+    }
+
 
 		class cConnectionTCP
 		{
 		public:
 			cConnectionTCP();
-			
+
 			void Open(const std::string& host, uint32_t port);
 			void Close();
 
@@ -53,13 +66,13 @@ namespace breathe
 			TCPsocket sd;
 		};
 
-		
+
 		class cDownloadHTTP : public breathe::util::cThread
 		{
 		public:
 			void Download(const std::string& path);
 			std::string GetContent() const;
-			
+
 
 		private:
 			int ThreadFunction();

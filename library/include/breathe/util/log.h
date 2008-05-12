@@ -25,7 +25,7 @@ namespace breathe
 
 		reverse_iterator rbegin() { return elements.rbegin(); }
 		reverse_iterator rend() { return elements.rend(); }
-		
+
 		size_t size() const;
 		bool empty() const;
 
@@ -36,7 +36,7 @@ namespace breathe
 		size_t first;
 		size_t n;
 	};
-	
+
 	template <class T>
 	constant_stack<T>::constant_stack(size_t _n) :
     first(0),
@@ -44,7 +44,7 @@ namespace breathe
 	{
 		elements.reserve(n);
 	}
-	
+
 	template <class T>
 	void constant_stack<T>::push_back(const T& rhs)
 	{
@@ -55,7 +55,7 @@ namespace breathe
 			elements[first++] = rhs;
 		}
 	}
-	
+
 	template <class T>
 	size_t constant_stack<T>::size() const
 	{
@@ -77,7 +77,7 @@ namespace breathe
 
 	namespace logging
 	{
-		enum 
+		enum
 		{
 			COLOUR_NORMAL = 0,
 			COLOUR_RED,
@@ -134,18 +134,18 @@ namespace breathe
 
 				return *this;
 			}
-			
+
 			cLogBase& operator<<(std::ostream& (* /*func*/)(std::ostream&))
 			{
 				_AddLine(line);
 
-				return *this; 
+				return *this;
 			}
 
 			//void precision ( unsigned long p );
 
 			void ClearLine() { line.clear(); }
-			
+
 
 			virtual void Success(const std::string& section, const std::string& text) = 0;
 			virtual void Error(const std::string& section, const std::string& text) = 0;
@@ -240,7 +240,7 @@ namespace breathe
 			unsigned int uiCursorPosition;
 
 			void SetApp(cApp* inApp) { pApp = inApp; }
-		
+
 			const constant_stack<std::string>& GetLines() const { return lines; }
 			const std::string GetCurrentLine() const { return current; }
 			void ClearCurrent() { current = ""; }
@@ -272,7 +272,7 @@ namespace breathe
 		protected:
 			bool bShow;
 			cApp* pApp;
-			
+
 			constant_stack<std::string> lines;
 			std::string current;
 		};
@@ -289,7 +289,7 @@ namespace breathe
 			~cConsole();
 
 			friend class cScreen;
-			
+
 			/*void Newline();
 			void Newline(const std::string& s1);
 			void Newline(const std::string& s1, const std::string& text);*/
@@ -339,7 +339,7 @@ namespace breathe
 				// Add line to screen
 				//if (lLine.size()>CONSOLE_MAXLINES)
 				//	lLine.pop_front();
-				
+
 				lLine.push_back(o);
 				ClearLine();
 			}
@@ -348,5 +348,18 @@ namespace breathe
 }
 
 extern breathe::logging::cScreen SCREEN;
+
+
+#ifndef NDEBUG
+void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line);
+
+#ifdef ASSERT
+#undef ASSERT
+#endif
+
+#define ASSERT(p) InformativeAssert(p, #p, __FILE__, __LINE__)
+#else
+#define ASSERT(...)
+#endif
 
 #endif //CLOG_H

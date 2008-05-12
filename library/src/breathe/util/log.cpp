@@ -86,7 +86,7 @@ namespace breathe
 		cLog::~cLog()
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
+
 			if (!logfile.is_open())
 				return;
 
@@ -95,7 +95,7 @@ namespace breathe
 		}
 
 		bool cLog::CreateLog()
-		{ 
+		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out);
 
 			if (!logfile.is_open())
@@ -141,10 +141,10 @@ namespace breathe
 		void cLog::Newline()
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
-			if (!logfile.is_open()) 
+
+			if (!logfile.is_open())
 				return;
-			
+
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
 			logfile.close();
 		}
@@ -154,12 +154,12 @@ namespace breathe
 			section = s1;
 
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
-			if (!logfile.is_open()) 
+
+			if (!logfile.is_open())
 				return;
 
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
-			
+
 			logfile.close();
 
 	#ifdef BUILD_DEBUG
@@ -172,8 +172,8 @@ namespace breathe
 			section = s1;
 
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
-			if (!logfile.is_open()) 
+
+			if (!logfile.is_open())
 				return;
 
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << text << endline;
@@ -187,12 +187,12 @@ namespace breathe
 		void cLog::Success(const std::string& section, const std::string& text)
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
-			if (!logfile.is_open()) 
+
+			if (!logfile.is_open())
 				return;
 
 			logfile << startline << startsuccesscolumn[scol] << section << endcolumn << startsuccesscolumn[scol] << text << endline;
-			
+
 			//Close the file
 			logfile.close();
 
@@ -206,12 +206,12 @@ namespace breathe
 		void cLog::Error(const std::string& section, const std::string& text)
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
-			
-			if (!logfile.is_open()) 
+
+			if (!logfile.is_open())
 				return;
 
 			logfile << startline << starterrorcolumn[ecol] << section << endcolumn << starterrorcolumn[ecol] << text << endline;
-			
+
 			logfile.close();
 
 			ecol=!ecol;
@@ -221,7 +221,7 @@ namespace breathe
 	#endif //BUILD_DEBUG
 		}
 
-		
+
 		/*void cLog::precision ( unsigned long p )
 		{
 			logfile << std::setprecision( p );
@@ -243,7 +243,7 @@ namespace breathe
 		{
 			if (lLine.size()>CONSOLE_MAXLINES)
 				lLine.pop_front();
-			
+
 			lLine.push_back("");
 		}
 
@@ -251,7 +251,7 @@ namespace breathe
 		{
 			if (lLine.size()>CONSOLE_MAXLINES)
 				lLine.pop_front();
-			
+
 			lLine.push_back(text);
 		}
 
@@ -259,7 +259,7 @@ namespace breathe
 		{
 			if (lLine.size()>CONSOLE_MAXLINES)
 				lLine.pop_front();
-			
+
 			lLine.push_back(text);
 		}
 
@@ -267,18 +267,18 @@ namespace breathe
 		{
 			if (lLine.size()>CONSOLE_MAXLINES)
 				lLine.pop_front();
-			
+
 			lLine.push_back(text);
 		}
 
 		void cConsole::Error(const std::string& section, const std::string& text)
 		{
 			if (lLine.size()>CONSOLE_MAXLINES)
-				lLine.pop_front(); 
-			
+				lLine.pop_front();
+
 			lLine.push_back(text);
 		}
-		
+
 		cConsole& cConsole::operator<<(const std::ostringstream& o)
 		{
 			//logfile << t;
@@ -299,7 +299,7 @@ namespace breathe
 		{
 
 		}
-			
+
 		/*void cScreen::Newline()
 		{
 
@@ -336,7 +336,7 @@ namespace breathe
 			pApp->ConsoleExecute(command);
 		}
 
-		
+
 		bool cConsoleBase::AddKey(unsigned int uiCode)
 		{
 			//Uint8* key = SDL_GetKeyState( NULL );
@@ -364,8 +364,8 @@ namespace breathe
 			// Early exit
 			if ((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode))
 				return false;
-			
-			
+
+
 			if ((SDLK_RETURN == uiCode) || (SDLK_KP_ENTER == uiCode))
 			{
 				ExecuteCommand(GetCurrentLine());
@@ -418,11 +418,11 @@ namespace breathe
 			else if (uiCode<300)
 			{
 				/*#include <SDL/SDL_keysym.h>
-					
+
 				if ((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9))
 				{
 					std::ostringstream t;
-					t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";				
+					t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";
 
 					ConsoleAddLine(t.str());
 				}*/
@@ -441,3 +441,13 @@ namespace breathe
 		}
 	}
 }
+
+#ifndef NDEBUG
+void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line)
+{
+  if (!b) return;
+
+  LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<":"<<line<<std::endl;
+  assert(b);
+}
+#endif

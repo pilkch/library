@@ -1,7 +1,7 @@
 /*
 
-antiportal: A polygon that is totally opaque, not rendered, but hiding models behind it, like in Farcry.  
-Can be walls that hide players etc. behind them. 
+antiportal: A polygon that is totally opaque, not rendered, but hiding models behind it, like in Farcry.
+Can be walls that hide players etc. behind them.
 
 <config>
 <input>
@@ -11,7 +11,7 @@ Can be walls that hide players etc. behind them.
 </onfoot>
 <invehicle>
 <key code="a" action="gearup" repeat="false"/>
-<key code="up" action="forward" repeat="true"/> 
+<key code="up" action="forward" repeat="true"/>
 </invehicle>
 </input>
 </config>
@@ -40,68 +40,68 @@ int intersect_triangle(
    double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
    double det,inv_det;
 
-   // find vectors for two edges sharing vert0 
+   // find vectors for two edges sharing vert0
 
    SUB(edge1, vert1, vert0);
    SUB(edge2, vert2, vert0);
 
-   // begin calculating determinant - also used to calculate U parameter 
+   // begin calculating determinant - also used to calculate U parameter
    CROSS(pvec, dir, edge2);
 
-   // if determinant is near zero, ray lies in plane of triangle 
+   // if determinant is near zero, ray lies in plane of triangle
    det = DOT(edge1, pvec);
 
-#ifdef TEST_CULL           // define TEST_CULL if culling is desired 
+#ifdef TEST_CULL           // define TEST_CULL if culling is desired
    if (det < EPSILON)
       return 0;
 
-   // calculate distance from vert0 to ray origin 
+   // calculate distance from vert0 to ray origin
    SUB(tvec, orig, vert0);
 
-   // calculate U parameter and test bounds 
+   // calculate U parameter and test bounds
    *u = DOT(tvec, pvec);
    if (*u < 0.0 || *u > det)
       return 0;
 
-   // prepare to test V parameter 
+   // prepare to test V parameter
    CROSS(qvec, tvec, edge1);
 
-    // calculate V parameter and test bounds 
+    // calculate V parameter and test bounds
    *v = DOT(dir, qvec);
    if (*v < 0.0 || *u + *v > det)
       return 0;
 
-   // calculate t, scale parameters, ray intersects triangle 
+   // calculate t, scale parameters, ray intersects triangle
    *t = DOT(edge2, qvec);
    inv_det = 1.0 / det;
    *t *= inv_det;
    *u *= inv_det;
    *v *= inv_det;
 
-#else                    // the non-culling branch 
+#else                    // the non-culling branch
    if (det > -EPSILON && det < EPSILON)
      return 0;
 
    inv_det = 1.0 / det;
 
-   // calculate distance from vert0 to ray origin 
+   // calculate distance from vert0 to ray origin
    SUB(tvec, orig, vert0);
 
-   // calculate U parameter and test bounds 
+   // calculate U parameter and test bounds
    *u = DOT(tvec, pvec) * inv_det;
    if (*u < 0.0 || *u > 1.0)
      return 0;
 
-   // prepare to test V parameter 
+   // prepare to test V parameter
    CROSS(qvec, tvec, edge1);
 
-   // calculate V parameter and test bounds 
+   // calculate V parameter and test bounds
    *v = DOT(dir, qvec) * inv_det;
 
    if (*v < 0.0 || *u + *v > 1.0)
      return 0;
 
-   // calculate t, ray intersects triangle 
+   // calculate t, ray intersects triangle
    *t = DOT(edge2, qvec) * inv_det;
 #endif
 
@@ -250,7 +250,7 @@ namespace breathe
 
 		SDL_ShowCursor(SDL_DISABLE);
 
-		pRender = new render::cRender();		
+		pRender = new render::cRender();
 
 		breathe::network::Init();
 
@@ -297,7 +297,7 @@ namespace breathe
 		size_t nJoysticks = vJoystick.size();
 		for (size_t i = 0; i < nJoysticks; i++)
       SDL_JoystickClose(vJoystick[i]);
-		
+
 		TTF_Quit();
 
 		LOG.Success("Destroy", "Audio");
@@ -307,7 +307,7 @@ namespace breathe
 		LOG.Success("Delete", "Level");
 		SAFE_DELETE(pLevel);
 #endif
-		
+
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		LOG.Success("Destroy", "Physics");
 		breathe::physics::Destroy();
@@ -318,8 +318,8 @@ namespace breathe
 
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
-		
-		LOG.Success("Delete", "Log");		
+
+		LOG.Success("Delete", "Log");
 
 		LOG.Success("Main", "Successfully exited");
 		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
@@ -463,21 +463,28 @@ namespace breathe
 #endif
 		}
 
-		// Init SDL 
+		// Init SDL
 		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
 		{
 			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
-			bReturnCode=breathe::BAD;
+			bReturnCode = breathe::BAD;
 			return breathe::BAD;
 		}
-		
-		SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
+
+    // Enable unicode
+    SDL_EnableUNICODE(1);
+
+    // Enable key repeat
+    SDL_EnableKeyRepeat(200, 20);
+
+    // Set our window caption and possibly the icon as well
+    SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
 
 		{
 
 			// Joysticks
 
-			int nJoysticks = SDL_NumJoysticks();
+			const int nJoysticks = SDL_NumJoysticks();
 
 			std::ostringstream t;
 			t<<"Joysticks found: "<<nJoysticks;
@@ -487,7 +494,7 @@ namespace breathe
 				LOG.Success("SDL", t.str());
 				SDL_JoystickEventState(SDL_ENABLE);
 
-				for (int i=0; i < nJoysticks; i++ ) 
+				for (int i=0; i < nJoysticks; i++)
 				{
 					t.str("");
 					t << "Joystick(";
@@ -509,7 +516,7 @@ namespace breathe
 					t << ", Balls=";
 					t << SDL_JoystickNumBalls(pJoystick);
 					LOG.Success("SDL", t.str());
-					
+
 					vJoystick.push_back(pJoystick);
 				}
 
@@ -519,41 +526,41 @@ namespace breathe
 			/*if (nJoysticks)
 			{
 				SDL_Event event;
-				// Other initializtion code goes here 
-				// Start main game loop here 
+				// Other initializtion code goes here
+				// Start main game loop here
 
 				while(SDL_PollEvent(&event))
 				{
 					switch(event.type)
-					{  
+					{
 						case SDL_KEYDOWN:
-							/* handle keyboard stuff here 				
+							/* handle keyboard stuff here
 							break;
 
 						case SDL_QUIT:
 
-						/* Set whatever flags are necessary to 
-						/* end the main game loop here 
+						/* Set whatever flags are necessary to
+						/* end the main game loop here
 
 							break;
 
 
-						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion 
-							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
 							{
 								/* code goes here
 							}
 							break;
 
 						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
-							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) ) 
+							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
 							{
-								if (event.jaxis.axis == 0) 
+								if (event.jaxis.axis == 0)
 								{
 									/* Left-right movement code goes here
 								}
 
-								if (event.jaxis.axis == 1) 
+								if (event.jaxis.axis == 1)
 								{
 									/* Up-Down movement code goes here
 								}
@@ -561,7 +568,7 @@ namespace breathe
 							break;
 
 						case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
-							if (event.jbutton.button == 0 ) 
+							if (event.jbutton.button == 0 )
 							{
 								/* code goes here
 							}
@@ -587,7 +594,7 @@ namespace breathe
 				// End loop here
 			}*/
 		}
-		
+
 		if (breathe::BAD==InitRender())
 			return breathe::BAD;
 
@@ -604,16 +611,16 @@ namespace breathe
 		if (breathe::BAD==LoadScene())
 			return breathe::BAD;
 
-	
+
 		window_manager.LoadTheme();
-		
+
 		unsigned int n = breathe::gui::GenerateID();
 
 		// Testing Window
 #ifdef BUILD_DEBUG
 		/*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
-		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));		
-		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));		
+		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));
+		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));
 		pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
 		window_manager.AddChild(pWindow0);*/
 #endif
@@ -648,7 +655,7 @@ namespace breathe
 			bReturnCode = breathe::BAD;
 			return breathe::BAD;
 		}
-		
+
 		pRender->SetPerspective();
 
 		if (breathe::BAD == pRender->Init())
@@ -686,7 +693,7 @@ namespace breathe
 
 		pRender->ReloadTextures();
 
-		return breathe::GOOD;		
+		return breathe::GOOD;
 	}
 
 	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
@@ -701,7 +708,7 @@ namespace breathe
 
 		return breathe::GOOD;
 	}
-	
+
 	void cApp::_Update(sampletime_t currentTime)
 	{
 		GetCurrentState().Update(currentTime);
@@ -712,7 +719,7 @@ namespace breathe
 
 	void cApp::_UpdateEvents(sampletime_t currentTime)
 	{
-		// handle the events in the queue 
+		// handle the events in the queue
 		while ( SDL_PollEvent( &event ) )
 		{
 			switch( event.type )
@@ -734,7 +741,7 @@ namespace breathe
 					_OnKeyUp(&event.key.keysym);
 					break;
 
-				case SDL_KEYDOWN:		
+				case SDL_KEYDOWN:
 					_OnKeyDown(&event.key.keysym);
 					break;
 
@@ -842,7 +849,7 @@ namespace breathe
 			iter++;
 		}
 
-		
+
 		SDL_GetMouseState(&mouse.x, &mouse.y);
 	}
 
@@ -852,11 +859,11 @@ namespace breathe
 
 		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
 		if (iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
-		
+
 		//if (CONSOLE.IsVisible()) {
 		//	// Remove key from list
 		//	IsKeyDown(code);
-		//	
+		//
 		//	if (!CONSOLE.AddKey(code)) ConsoleHide();
 		//}
 	}
@@ -870,20 +877,20 @@ namespace breathe
 
 		//if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
 	}
-	
+
 	void cApp::_OnMouseUp(int button, int x, int y)
 	{
-		
+
 	}
-	
+
 	void cApp::_OnMouseDown(int button, int x, int y)
 	{
-		
+
 	}
-	
+
 	void cApp::_OnMouseMove(int button, int x, int y)
 	{
-		
+
 	}
 
 
@@ -897,7 +904,7 @@ namespace breathe
 		if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
 		if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
 		if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
-		
+
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 		if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
 		if (IsKeyDown(SDLK_F8)) {
@@ -1030,7 +1037,7 @@ namespace breathe
 				}
 
 				if (line.length())
-					_ConsoleExecuteSingleCommand(line);	
+					_ConsoleExecuteSingleCommand(line);
 			};
 		}
 	}*/
@@ -1045,12 +1052,12 @@ namespace breathe
 				pRender->EndRenderScene();
 				pRender->BeginScreenSpaceRendering();
 					state.RenderScreenSpace(currentTime);
-					
+
 					#ifdef _DEBUG
 					if (!CONSOLE.IsVisible() && IsDebug())
 					{
 						pRender->SetColour(0.0f, 0.0f, 1.0f);
-						
+
             const float dy = 0.03f;
 						float fPosition = 0.1f;
 
@@ -1069,7 +1076,7 @@ namespace breathe
 						  pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
 #endif
 						  pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
-  						
+
 						  fPosition += dy;
 						  pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
 						  pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
@@ -1130,7 +1137,7 @@ namespace breathe
 
 		do
 		{
-      // If this fails we have a problem.  At all times we should either have 
+      // If this fails we have a problem.  At all times we should either have
       // bDone == true or states has one or more states
       assert(!states.empty());
 
@@ -1240,8 +1247,8 @@ namespace breathe
 	{
     std::cout<<"cApp::cConsoleWindow::_OnEvent"<<std::endl;
 	}
-	
-	
+
+
 	// *** cKey
 	cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
 		uiCode(code),
@@ -1249,7 +1256,7 @@ namespace breathe
 		bVariable(variable),
 		bRepeat(repeat),
 		bToggle(toggle),
-		
+
 		bDown(false),
 		bCollected(false)
 	{
@@ -1286,7 +1293,7 @@ namespace breathe
 	{
 		bDown = false;
 		bCollected = false;
-		
+
 		/*if (bRepeat)
 		{
 			bDown = false;
@@ -1299,7 +1306,7 @@ namespace breathe
 		}*/
 	}
 
-	
+
 
 	bool cApp::IsMouseLeftButtonDown() const
 	{
@@ -1310,7 +1317,7 @@ namespace breathe
 	{
 		return mouse.down[2];
 	}
-	
+
 	bool cApp::IsMouseScrollDown() const
 	{
 		return mouse.down[4];
@@ -1343,7 +1350,7 @@ namespace breathe
 
     bPopCurrentStateSoon = false;
     pPushThisStateSoon = nullptr;
-    
+
     if (!states.empty()) {
       cAppState* pParent = states.back();
       pParent->OnPause();
@@ -1360,7 +1367,7 @@ namespace breathe
   void cApp::PopState()
   {
     assert(!states.empty());
-    
+
     bPopCurrentStateSoon = false;
 
     cAppState* pTemp = states.back();
@@ -1378,7 +1385,7 @@ namespace breathe
 
 
 
-  
+
   // *** cAppStateConsole
 
 	void breathe::cApp::cAppStateConsole::_OnEntry()

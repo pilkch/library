@@ -52,7 +52,7 @@ namespace breathe
     float GetWidth() { return fWidth; }
     float GetHeight() { return fHeight; }
 
-    
+
     const bool bCanSleep = true;
 
     bool CanSleep() { return bCanSleep; }
@@ -72,8 +72,8 @@ namespace breathe
 
 		std::list<cPhysicsObject * >lPhysicsObject;
 
-		
-		
+
+
 		// *** Functions
 
     b2World* GetWorld() { return world; }
@@ -96,7 +96,7 @@ namespace breathe
       pObject->fWeight = 0.0f;
       pObject->SetDimensions(width, height);
       pObject->CreateBox(breathe::math::cVec2(x, y));
-      
+
       return pObject;
 		}
 
@@ -111,7 +111,7 @@ namespace breathe
       aabb.minVertex.Set(-fBorder, -fBorder);
       aabb.maxVertex.Set(width + fBorder, height + fBorder);
 
-      b2Vec2 gravity(0.0f, fGravity);  
+      b2Vec2 gravity(0.0f, fGravity);
       world = new b2World(aabb, gravity, CanSleep());
 
       // Bottom
@@ -141,7 +141,7 @@ namespace breathe
 		{
 			lPhysicsObject.push_back(pPhysicsObject);
 		}
-		
+
 		void RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
 		{
 			lPhysicsObject.remove(pPhysicsObject);

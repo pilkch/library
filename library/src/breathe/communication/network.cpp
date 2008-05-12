@@ -24,6 +24,8 @@
 #include <breathe/util/log.h>
 #include <breathe/util/thread.h>
 
+#include <breathe/math/math.h>
+
 #include <breathe/communication/network.h>
 
 
@@ -49,12 +51,12 @@ namespace breathe
 			char* ptr=&in[40]; //this points into a previously received data buffer
 			number=0;
 			number=SDLNet_Read32(ptr);
-			// number is now in your hosts byte order, ready to use. 
+			// number is now in your hosts byte order, ready to use.
 		*/
 
 		bool Init()
 		{
-			if (SDLNet_Init()==-1) 
+			if (SDLNet_Init()==-1)
 			{
 				std::ostringstream t;
 				t << "SDLNet_Init: " << SDLNet_GetError();
@@ -90,7 +92,7 @@ namespace breathe
 				fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
 				exit(EXIT_FAILURE);
 			}
-		 
+
 			/* Open a connection with the IP provided (listen on the host's port) */
 			if (!(sd = SDLNet_TCP_Open(&ip)))
 			{
@@ -105,7 +107,7 @@ namespace breathe
 		}
 
 
-		
+
 		// *** cDownloadHTTP
 
 		int cDownloadHTTP::ThreadFunction()
@@ -114,13 +116,13 @@ namespace breathe
 			content = "";
 
 			connection.Open(server, 80);
-			
+
 				char buffer[STR_LEN];
 				buffer[0] = 0;
 				int len;
 				unsigned long ulProgress = 0;
 
-				sprintf(buffer, 
+				sprintf(buffer,
 					"GET /%s HTTP/1.1" STR_END
 					"Host: %s" STR_END
 					"Range: bytes=%ld-" STR_END
@@ -167,7 +169,7 @@ namespace breathe
 
 			Run();
 		}
-    
+
 		std::string cDownloadHTTP::GetContent() const
 		{
 			return content;

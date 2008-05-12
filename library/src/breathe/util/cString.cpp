@@ -83,7 +83,7 @@ namespace breathe
 
         return source.substr(start, source.length());
       } else if (end != std::string::npos) return source.substr(end);
-      
+
       return "";
 		}
 
@@ -96,7 +96,7 @@ namespace breathe
 
         return source.substr(start, source.length());
       } else if (end != std::string::npos) return source.substr(end);
-      
+
       return L"";
 		}
 
@@ -227,7 +227,7 @@ namespace breathe
 			std::string::size_type i = source.find_first_of(find);
 			if (std::string::npos != i) {
 				std::string temp(source);
-				std::string::size_type len = find.length();
+				//std::string::size_type len = find.length();
 				return temp.erase(i);
 			}
 
@@ -239,7 +239,7 @@ namespace breathe
 			std::wstring::size_type i = source.find_first_of(find);
 			if (std::wstring::npos != i) {
 				std::wstring temp(source);
-				std::wstring::size_type len = find.length();
+				//std::wstring::size_type len = find.length();
 				return temp.erase(i);
 			}
 
