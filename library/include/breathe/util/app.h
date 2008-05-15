@@ -6,8 +6,8 @@ namespace breathe
 	const float KEY_MIN = 0.1f;
   enum STATE_RETURN
   {
-    STATE_POP_THIS_STATE = false,
-    STATE_KEEP_THIS_STATE = false
+    STATE_POP_THIS_STATE = 0,
+    STATE_KEEP_THIS_STATE = 1
   };
 
 	namespace render

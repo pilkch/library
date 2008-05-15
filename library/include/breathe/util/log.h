@@ -186,7 +186,7 @@ namespace breathe
 #ifdef BUILD_DEBUG
 			void trace(const std::string& section);
 			void trace(const std::string& section, const std::string& text);
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG
 
 			std::ofstream logfile;
 
@@ -350,16 +350,20 @@ namespace breathe
 extern breathe::logging::cScreen SCREEN;
 
 
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+
 #ifndef NDEBUG
-void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line);
+void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction);
 
 #ifdef ASSERT
 #undef ASSERT
 #endif
 
-#define ASSERT(p) InformativeAssert(p, #p, __FILE__, __LINE__)
+#define ASSERT(p) InformativeAssert(p, #p, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #else
 #define ASSERT(...)
 #endif
 
-#endif //CLOG_H
+#endif // CLOG_H

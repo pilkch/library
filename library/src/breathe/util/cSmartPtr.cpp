@@ -66,4 +66,4 @@ public:
 };
 
 cSmartPtrUnitTest gSmartPtrUnitTest;
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG

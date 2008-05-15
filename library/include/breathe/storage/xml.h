@@ -15,7 +15,7 @@ Identify and replace these in XML:
 &gt;	>
 &quot;	"
 &apos;	'
-change comments <!-- --> to comment object (bComment = true). 
+change comments <!-- --> to comment object (bComment = true).
 */
 
 namespace breathe
@@ -42,7 +42,7 @@ namespace breathe
 
 #ifdef BUILD_DEBUG
 			void PrintToLog(const std::string& sTab="");
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG
 
 			bool IsNameAndAttributesAndChildren() const { return !bContentOnly; }
 			bool IsContentOnly() const { return bContentOnly; }
@@ -67,7 +67,7 @@ namespace breathe
 			bool GetAttribute(const std::string& sAttribute, std::wstring& pValue);
 			bool GetAttribute(const std::string& sAttribute, bool& pValue);
 			bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues);
-			
+
 #ifndef FIRESTARTER
 			bool GetAttribute(const std::string& sAttribute, math::cVec3& pValue);
 			bool GetAttribute(const std::string& sAttribute, math::cColour& pValue);
@@ -85,7 +85,7 @@ namespace breathe
 
 				cIterator operator++(int);
 				void Next(const std::string& sName);
-				
+
 				void FirstChild();
 				void FindChild(const std::string& sName);
 
@@ -93,7 +93,7 @@ namespace breathe
 
 				template <class T>
 				bool GetAttribute(const std::string& sAttribute, T& value);
-				
+
 				bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues);
 
 			private:
@@ -107,7 +107,7 @@ namespace breathe
 		private:
 			cNode* GetNext();
 			cNode* GetNext(const std::string& sName);
-			
+
 			cNode* FirstChild();
 			cNode* FindChild(const std::string& sName);
 
@@ -128,14 +128,14 @@ namespace breathe
 			std::string sContentOnly;
 
 			std::string ParseFromString(const std::string& sData, cNode* pPrevious);
-			
+
 			void LoadFromFile(const std::string& sFilename);
 			void WriteToFile(std::ofstream& file, const std::string& sTab);
 		};
 
 
 		// *** Inlines
-		
+
 		inline cNode::cIterator::cIterator(const cIterator& rhs) :
 			pNode(rhs.pNode)
 		{
@@ -181,7 +181,7 @@ namespace breathe
 			assert(pNode != nullptr);
 			pNode = pNode->FirstChild();
 		}
-		
+
 		inline void cNode::cIterator::FindChild(const std::string& sName)
 		{
 			assert(pNode != nullptr);
@@ -200,7 +200,7 @@ namespace breathe
 			assert(pNode != nullptr);
 			return pNode->GetAttribute(sAttribute, value);
 		}
-		
+
 		inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues)
 		{
 			assert(pNode != nullptr);
@@ -210,4 +210,4 @@ namespace breathe
 	}
 }
 
-#endif //XML_H
+#endif // XML_H

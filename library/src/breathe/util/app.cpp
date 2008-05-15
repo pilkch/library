@@ -1053,8 +1053,8 @@ namespace breathe
 				pRender->BeginScreenSpaceRendering();
 					state.RenderScreenSpace(currentTime);
 
-					#ifdef _DEBUG
-					if (!CONSOLE.IsVisible() && IsDebug())
+#ifndef NDEBUG
+          if (IsDebug() && !CONSOLE.IsVisible())
 					{
 						pRender->SetColour(0.0f, 0.0f, 1.0f);
 
@@ -1085,7 +1085,7 @@ namespace breathe
 #endif
             pRender->EndRenderingText();
 					}
-					#endif //_DEBUG
+#endif
 
           window_manager.Render();
 				pRender->EndScreenSpaceRendering();

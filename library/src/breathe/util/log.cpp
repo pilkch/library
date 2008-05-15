@@ -142,8 +142,7 @@ namespace breathe
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-			if (!logfile.is_open())
-				return;
+			if (!logfile.is_open()) return;
 
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
 			logfile.close();
@@ -155,8 +154,7 @@ namespace breathe
 
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-			if (!logfile.is_open())
-				return;
+			if (!logfile.is_open()) return;
 
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
 
@@ -173,8 +171,7 @@ namespace breathe
 
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-			if (!logfile.is_open())
-				return;
+			if (!logfile.is_open()) return;
 
 			logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << text << endline;
 			logfile.close();
@@ -188,8 +185,7 @@ namespace breathe
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-			if (!logfile.is_open())
-				return;
+			if (!logfile.is_open()) return;
 
 			logfile << startline << startsuccesscolumn[scol] << section << endcolumn << startsuccesscolumn[scol] << text << endline;
 
@@ -207,8 +203,7 @@ namespace breathe
 		{
 			logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-			if (!logfile.is_open())
-				return;
+			if (!logfile.is_open()) return;
 
 			logfile << startline << starterrorcolumn[ecol] << section << endcolumn << starterrorcolumn[ecol] << text << endline;
 
@@ -443,11 +438,11 @@ namespace breathe
 }
 
 #ifndef NDEBUG
-void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line)
+void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction)
 {
   if (!b) return;
 
-  LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<":"<<line<<std::endl;
+  LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
   assert(b);
 }
 #endif

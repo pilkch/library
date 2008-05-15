@@ -60,19 +60,22 @@ namespace breathe
 
 		void cWindow::Update(sampletime_t currentTime)
 		{
-			
+
 		}
 
     void cWindow::OnMouseEvent(int button, int state, float x, float y)
     {
       if (button == SDL_BUTTON_LEFT) {
         cWidget* p = FindChildAtPoint(x, y);
-        if (p != nullptr) std::cout<<breathe::string::ToUTF8(p->GetText());
-        else std::cout<<breathe::string::ToUTF8(GetText());
+        if (p != nullptr) {
+          if (state != 0) p->OnLeftMouseDown(x, y);
+          else p->OnLeftMouseUp(x, y);
+          std::cout<<breathe::string::ToUTF8(p->GetText());
+        } else std::cout<<breathe::string::ToUTF8(GetText());
 
         std::cout<<" "<<x<<","<<y<<std::endl;
       }
-      
+
       _OnMouseEvent(button, state, x, y);
     }
 	}

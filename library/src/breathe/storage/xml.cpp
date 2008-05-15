@@ -388,7 +388,7 @@ namespace breathe
 				LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
 #endif
 		}
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG
 
 		cNode* cNode::FirstChild()
 		{

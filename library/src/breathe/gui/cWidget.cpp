@@ -1,7 +1,7 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // writing on a text file
 #include <iostream>
@@ -76,7 +76,7 @@ namespace breathe
 			for (size_t i = 0; i < n; i++)
 				SAFE_DELETE(child[i]);
 		}
-			
+
 		bool cWidget::AddChild(cWidget* pChild)
 		{
 			child.push_back(pChild);
@@ -84,10 +84,10 @@ namespace breathe
 
 			return true;
 		}
-		
-		cWidget* cWidget::FindChild(id_t _idControl)
+
+    cWidget* cWidget::FindChild(id_t _idControl) const
 		{
-			if (_idControl == idControl) return this;
+			if (_idControl == idControl) return const_cast<cWidget*>(this);
 
 			size_t n = child.size();
 			cWidget* p = nullptr;
@@ -99,19 +99,35 @@ namespace breathe
 			return nullptr;
 		}
 
-    cWidget* cWidget::FindChildAtPoint(float _x, float _y)
+    cWidget* cWidget::FindChildAtPoint(float _x, float _y) const
     {
 			size_t n = child.size();
 			cWidget* p = nullptr;
 			for (size_t i = 0; i < n; i++) {
         p = child[i];
-        if (math::PointIsWithinBounds(_x, _y, 
+        if (math::PointIsWithinBounds(_x, _y,
           p->GetX(), p->GetY(), p->GetWidth(), p->GetHeight())) return p->FindChildAtPoint(_x, _y);
 			}
 
-			return this;
+      return const_cast<cWidget*>(this);
     }
-		
+
+    void cWidget::SendCommandToParentWindow(id_t uiCommand)
+    {
+      cWidget* pParent = GetParent();
+      while (pParent != nullptr) {
+        if (pParent->IsAWindow()) {
+          cWindow* pParentWindow = (cWindow*)pParent;
+          pParentWindow->OnEvent(uiCommand);
+          return;
+        }
+
+        pParent = pParent->GetParent();
+      }
+
+      printf("cWidget::SendCommandToParentWindow FAILED Parent window not found\n");
+    }
+
 		bool cWidget::IsEnabled() const
 		{
 			if (pParent != nullptr) return pParent->IsEnabled() && bEnabled;
@@ -123,13 +139,13 @@ namespace breathe
 			if (pParent != nullptr) return pParent->IsVisible() && bVisible;
 			return bVisible;
 		}
-		
+
 		float cWidget::HorizontalRelativeToAbsolute(float n) const
 		{
 			if (pParent != nullptr) return pParent->GetX() + (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
 			return n;
 		}
-		
+
 		float cWidget::VerticalRelativeToAbsolute(float n) const
 		{
 			if (pParent != nullptr) return pParent->GetY() + (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
@@ -138,25 +154,53 @@ namespace breathe
 
 		void cWidget::SetPosition(float _x, float _y)
 		{
-			
+
 		}
 
-		void cWidget::SetSize(float _width, float _height)
-		{
-			
-		}
+    bool cWidget::GetEventHandler(event_t event, id_t& outID) const
+    {
+      std::map<event_t, id_t>::const_iterator iter = handlers.begin();
+      std::map<event_t, id_t>::const_iterator iterEnd = handlers.end();
+      while (iter != iterEnd) {
+        if (iter->first == event) {
+          outID = iter->second;
+          return true;
+        }
+      }
 
+      return false;
+    }
 
-		/*
-		cWidget_Input
-		
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		std::string currentline(CONSOLE.GetCurrentLine());
-		if (CONSOLE.uiCursorBlink>20) pFont->printf(0, 20, currentline.c_str());
-		else
-			pFont->printf(0, 20, (
-				currentline.substr(0, CONSOLE.uiCursorPosition) + "|" + 
-				currentline.substr(CONSOLE.uiCursorPosition)).c_str());
-		*/
-	}
+    void cWidget::CheckAndHandleEvent(event_t event)
+    {
+      id_t idOut;
+      if (!GetEventHandler(event, idOut)) return;
+
+      printf("Found event handler %d\n", idOut);
+      SendCommandToParentWindow(idOut);
+    }
+
+    /*
+    cWidget_Input
+
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    std::string currentline(CONSOLE.GetCurrentLine());
+    if (CONSOLE.uiCursorBlink>20) pFont->printf(0, 20, currentline.c_str());
+    else
+      pFont->printf(0, 20, (
+        currentline.substr(0, CONSOLE.uiCursorPosition) + "|" +
+        currentline.substr(CONSOLE.uiCursorPosition)).c_str());
+    */
+
+    // ** cWidget_Button
+    void cWidget_Button::_OnLeftMouseUp(float x, float y)
+    {
+      if (bCurrentlyClickingOnThisControl) {
+        printf("Clicking on control %d\n", idControl);
+        CheckAndHandleEvent(EVENT_CLICK_PRIMARY);
+      }
+
+      bCurrentlyClickingOnThisControl = false;
+    }
+  }
 }
