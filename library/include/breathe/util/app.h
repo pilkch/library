@@ -3,21 +3,23 @@
 
 namespace breathe
 {
-	const float KEY_MIN = 0.1f;
+  const float KEY_MIN = 0.1f;
   enum STATE_RETURN
   {
     STATE_POP_THIS_STATE = 0,
     STATE_KEEP_THIS_STATE = 1
   };
 
-	namespace render
-	{
-		class cFont;
-	}
+  const size_t STATE_CONSOLE = 0;
 
-	class cApp
-	{
-	public:
+  namespace render
+  {
+    class cFont;
+  }
+
+  class cApp
+  {
+  public:
 		cApp(int argc, const char** argv);
 		virtual ~cApp();
 
@@ -64,8 +66,10 @@ namespace breathe
     class cAppState
     {
     public:
-      cAppState() : result(0), pParent(nullptr) {}
+      explicit cAppState(size_t _uiState) : uiState(_uiState), result(0), pParent(nullptr) {}
       virtual ~cAppState() {}
+
+      size_t GetID() const { return uiState; }
 
       void SetParent(cAppState* _pParent) { assert(_pParent != nullptr); pParent = _pParent; }
       cAppState* GetParent() { return pParent; }
@@ -76,8 +80,8 @@ namespace breathe
       bool HasParent() const { return pParent != nullptr; }
 
       // Functions used to transition between states
-	    void OnEntry() { _OnEntry(); }
-	    void OnExit() { _OnExit(); }
+      void OnEntry() { _OnEntry(); }
+      void OnExit() { _OnExit(); }
 
       // Functions that deal with states being parented by other states,
       // the child runs and then returns a result to the parent
@@ -106,12 +110,13 @@ namespace breathe
 		  virtual void _RenderScene(sampletime_t currentTime) {}
 		  virtual void _RenderScreenSpace(sampletime_t currentTime) {}
 
+      size_t uiState;
       int result;
       cAppState* pParent;
     };
 
 	protected:
-    cAppState& GetCurrentState();
+    cAppState& GetCurrentState() const;
 
     // Instantaneous
     void PushState(cAppState* state);
@@ -261,7 +266,7 @@ namespace breathe
     class cAppStateConsole : public breathe::cApp::cAppState
     {
     public:
-      cAppStateConsole(cApp& _app) : app(_app), pConsoleWindow(nullptr) {}
+      cAppStateConsole(cApp& _app) : breathe::cApp::cAppState(STATE_CONSOLE), app(_app), pConsoleWindow(nullptr) {}
       virtual ~cAppStateConsole() {}
 
     private:

@@ -67,15 +67,13 @@ namespace breathe
       bool IsVisible() const;
       bool IsResizable() const { return bResizable; }
 
-      void Enable() { bEnabled = true; }
-      void Disable() { bEnabled = false; }
-      void Show() { bVisible = true; }
-      void Hide() { bVisible = false; }
+      void SetEnabled(bool _bEnabled) { bEnabled = _bEnabled; }
+      void SetVisible(bool _bVisible) { bEnabled = _bVisible; }
+      void SetResizable(bool _bResizable) { bResizable = _bResizable; }
 
-      void SetResizable() { bResizable = true; }
-      void SetFixedSize() { bResizable = false; }
       void SetPosition(float x, float y);
       void SetSize(float width, float height);
+      void SetSize(float x, float y, float width, float height) { _SetSize(x, y, width, height); }
 
       void OnLeftMouseDown(float x, float y) { _OnLeftMouseDown(x, y); }
       void OnLeftMouseUp(float x, float y) { _OnLeftMouseUp(x, y); }
@@ -84,9 +82,6 @@ namespace breathe
 
       bool IsAControl() const { return _IsAControl(); }
       bool IsAWindow() const { return _IsAWindow(); }
-
-
-      void SetSize(float x, float y, float width, float height) { _SetSize(x, y, width, height); }
 
       void SendCommandToParentWindow(id_t uiCommand);
 

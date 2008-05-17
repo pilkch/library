@@ -67,6 +67,11 @@ namespace breathe
     {
       if (button == SDL_BUTTON_LEFT) {
         cWidget* p = FindChildAtPoint(x, y);
+
+        while (p != nullptr && (!p->IsVisible() || !p->IsEnabled())) {
+          p = p->GetParent();
+        }
+
         if (p != nullptr) {
           if (state != 0) p->OnLeftMouseDown(x, y);
           else p->OnLeftMouseUp(x, y);

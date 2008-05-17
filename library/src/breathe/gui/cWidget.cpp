@@ -130,13 +130,13 @@ namespace breathe
 
 		bool cWidget::IsEnabled() const
 		{
-			if (pParent != nullptr) return pParent->IsEnabled() && bEnabled;
+      if (pParent != nullptr) return bEnabled && pParent->IsEnabled();
 			return bEnabled;
 		}
 
 		bool cWidget::IsVisible() const
 		{
-			if (pParent != nullptr) return pParent->IsVisible() && bVisible;
+      if (pParent != nullptr) return bVisible && pParent->IsVisible();
 			return bVisible;
 		}
 

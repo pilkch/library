@@ -1233,8 +1233,8 @@ namespace breathe
 
 	void cApp::cConsoleWindow::InitConsoleWindow()
 	{
-		Hide();
-		SetResizable();
+		SetVisible(false);
+		SetResizable(true);
 
 		pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
 		pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
@@ -1338,7 +1338,7 @@ namespace breathe
 		return mouse.GetX();
 	}
 
-  cApp::cAppState& cApp::GetCurrentState()
+  cApp::cAppState& cApp::GetCurrentState() const
   {
     assert(!states.empty());
     return *states.back();
@@ -1394,7 +1394,7 @@ namespace breathe
     app.window_manager.AddChild(pConsoleWindow);
 		pConsoleWindow->InitConsoleWindow();
 
-		pConsoleWindow->Show();
+		pConsoleWindow->SetVisible(true);
 		CONSOLE.Show();
 		app.CursorShow();
   }
@@ -1402,7 +1402,7 @@ namespace breathe
 	void breathe::cApp::cAppStateConsole::_OnExit()
   {
 		assert(pConsoleWindow != nullptr);
-		pConsoleWindow->Hide();
+		pConsoleWindow->SetVisible(false);
     app.window_manager.RemoveChild(pConsoleWindow);
 		CONSOLE.Hide();
 		app.CursorHide();
