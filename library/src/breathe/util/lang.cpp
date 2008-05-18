@@ -31,6 +31,8 @@ namespace breathe
 {
   std::map<std::wstring, std::wstring> langtags;
 
+  const std::wstring WCRLF(L"\r\n");
+
   namespace util
   {
     bool LastCharacterIsQuotationMark(const std::wstring& source)
@@ -105,8 +107,7 @@ namespace breathe
       return  breathe::string::ToString_t(iter->second);
     }
 
-    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
-    breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
+    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
     return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
   }
 
@@ -118,8 +119,7 @@ namespace breathe
       return  breathe::string::ToString_t(iter->second);
     }
 
-    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))),
-    breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"");
+    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
     return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
   }
 }

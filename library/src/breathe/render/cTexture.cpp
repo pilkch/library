@@ -56,7 +56,7 @@ namespace breathe
 			fScale(1.0f),
 			fU(0.0f),
 			fV(0.0f),
-			
+
 			surface(nullptr)
      {
 		}
@@ -66,7 +66,7 @@ namespace breathe
 			SDL_FreeSurface(surface);
       data.clear();
 		}
-		
+
 		bool cTexture::Load(const std::string& inFilename)
 		{
 			sFilename = inFilename;
@@ -81,7 +81,7 @@ namespace breathe
 				return breathe::BAD;
 			}
 
-			
+
 
 			//Check the format
 			if (8 == surface->format->BitsPerPixel)
@@ -96,13 +96,12 @@ namespace breathe
 			}
 			else if (24 == surface->format->BitsPerPixel)
 			{
-				LOG.Error("Texture", "RGB Image " + sFilename);
-				assert(24 != surface->format->BitsPerPixel);
+				CONSOLE.Error("Texture", sFilename + " is a 24 bit RGB image");
 				// Add alpha channel
 				SDL_PixelFormat format = {
-					NULL, 32, 4, 0, 0, 0, 0, 
-					0, 8, 16, 24, 
-					0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000, 
+					NULL, 32, 4, 0, 0, 0, 0,
+					0, 8, 16, 24,
+					0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
 					0, 255
 				};
 				SDL_Surface *pConvertedSurface = SDL_ConvertSurface(surface, &format, SDL_SWSURFACE);
@@ -111,39 +110,39 @@ namespace breathe
 			}
 			else if (32 == surface->format->BitsPerPixel)
 			{
-				LOG.Success("Texture", "RGBA Image " + sFilename);
+        LOG.Success("Texture", sFilename + " is a 32 bit RGBA image");
 				uiMode = TEXTURE_RGBA;
 
 				// Convert if BGR
 				if (surface->format->Rshift > surface->format->Bshift)
 				{
 					SDL_PixelFormat format = {
-						NULL, 32, 4, 0, 0, 0, 0, 
-						0, 8, 16, 24, 
-						0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000, 
+						NULL, 32, 4, 0, 0, 0, 0,
+						0, 8, 16, 24,
+						0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
 						0, 255};
 					SDL_Surface *pConvertedSurface = SDL_ConvertSurface(surface, &format, SDL_SWSURFACE);
 					SDL_FreeSurface(surface);
 					surface = pConvertedSurface;
 				}
-				
+
 				/*int nHH = surface->h / 2;
 				int nPitch = surface->pitch;
-			
+
 				unsigned char* pBuf = new unsigned char[nPitch];
 				unsigned char* pSrc = (unsigned char*) surface->pixels;
 				unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
-			
+
 				while (nHH--)
 				{
 					std::memcpy(pBuf, pSrc, nPitch);
 					std::memcpy(pSrc, pDst, nPitch);
 					std::memcpy(pDst, pBuf, nPitch);
-			
+
 					pSrc += nPitch;
 					pDst -= nPitch;
 				};
-			
+
 				SAFE_DELETE_ARRAY(pBuf);*/
 			}
 			else
@@ -168,7 +167,7 @@ namespace breathe
 
 			return breathe::GOOD;
 		}
-		
+
 		void cTexture::CopyFromSurfaceToData(unsigned int w, unsigned int h)
 		{
 			// Fill out the pData structure array, we use this for when we have to reload this data
@@ -192,7 +191,7 @@ namespace breathe
 		void cTexture::CopyFromDataToSurface()
 		{
 			if (data.empty()) return;
-      
+
       std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
@@ -206,7 +205,7 @@ namespace breathe
 		{
 			// Create new texture
 			glGenTextures(1, &uiTexture);
-			
+
 			// Bind so that the next operations happen on this texture
 			glBindTexture(GL_TEXTURE_2D, uiTexture);
 		}
@@ -229,7 +228,7 @@ namespace breathe
 
 				//Remove this line if there are artifacts
 				gluBuild2DMipmaps(GL_TEXTURE_2D, 4, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-				
+
 				// Settings to make the texture look a bit nicer when we do blit it to the screen
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -255,7 +254,7 @@ namespace breathe
 		}
 
 
-		
+
 		// *** Frame Buffer Object
 		cTextureFrameBufferObject::cTextureFrameBufferObject()
 		{
@@ -277,7 +276,7 @@ namespace breathe
 			glGenFramebuffersEXT(1, &uiFBO);
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
 
-			// Create the Render Buffer for Depth	
+			// Create the Render Buffer for Depth
 			glGenRenderbuffersEXT(1, &uiFBODepthBuffer);
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
@@ -286,7 +285,7 @@ namespace breathe
 			// Now setup a texture to render to
 			glGenTextures(1, &uiTexture);
 			glBindTexture(GL_TEXTURE_2D, uiTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, 
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0,
 				GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
