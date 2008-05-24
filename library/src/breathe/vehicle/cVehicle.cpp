@@ -98,19 +98,19 @@ attempting to make a "lollipop" style character model (character body
 floating over terrain through the aid of a repulsing ray pointed
 downwards), if you happen to need that as well.
 
-apply a force in each corner, the magnitude of which is a function 
-of how deep the ray has penetrated; this function determines your 
+apply a force in each corner, the magnitude of which is a function
+of how deep the ray has penetrated; this function determines your
 suspension.
 
-To accelerate, you apply a force in each corner that has a driving 
+To accelerate, you apply a force in each corner that has a driving
 wheel, in the direction of that wheel's "turn".
 
-To steer, you use an anisotropic friction model in a contact joint you 
-create for the ray intersection, or you just poke the corners of the box 
+To steer, you use an anisotropic friction model in a contact joint you
+create for the ray intersection, or you just poke the corners of the box
 using forces based on wheel heading.
 
-For slip, you can similarly measure sideways versus longitudinal 
-velocity, and total force applied per corner, to give you fishtailing, 
+For slip, you can similarly measure sideways versus longitudinal
+velocity, and total force applied per corner, to give you fishtailing,
 donuts, and all the rest of arcade car racing goodness.
 
 
@@ -145,9 +145,9 @@ good/solid-feeling arcade sim).
 
 Stop rolling over
 
-Implement the same workarounds that have been put in real cars. You'll need to implement 
-"anti-sway bars". In real vehicles, these were bars that linked each opposite suspension, 
-so that when one side is pressed down (when going in a curve), it also pressed down on the 
+Implement the same workarounds that have been put in real cars. You'll need to implement
+"anti-sway bars". In real vehicles, these were bars that linked each opposite suspension,
+so that when one side is pressed down (when going in a curve), it also pressed down on the
 suspension on the other side. This prevents the car from tilting over too much.
 
 
@@ -156,7 +156,7 @@ m_fTorqueOnDriveWheels =  m_fAccel * (1.0 - m_fClutch)	* LookupTorque(m_iRPM)
 																												* m_fDifferentialRatio ;			// Here I get the engine torque
 
 
-																												
+
 LIFT and DRAG
 
 D = 0.5 * cD * ro * A * v^2
@@ -164,17 +164,17 @@ L = 0.5 * cL * ro * A * v^2
 
 D = drag force
 L = lift force
-cD = coefficient of drag. it depends basically on the shape of the car. 
-Production cars have a cD of 0.3 - 0.4. For Formula cars it varies 
+cD = coefficient of drag. it depends basically on the shape of the car.
+Production cars have a cD of 0.3 - 0.4. For Formula cars it varies
 depending on the tracks: it goes about from 0.7 to 1.3
-cL = coefficient of lift. It can be positive (lift) or negative (load). 
-It's a value around 0.1. In Formula cars it varies from about -2 to -4. If 
+cL = coefficient of lift. It can be positive (lift) or negative (load).
+It's a value around 0.1. In Formula cars it varies from about -2 to -4. If
 cL is negative L is called downforce.
 ro = air density
 A = frontal area of the car (from 1.3 to 1.8 square meters)
 v = speed
 
-For an airplane, you want cL to be positive and L to point upwards. 
+For an airplane, you want cL to be positive and L to point upwards.
 For a race car, you want cL to be negative and L to point downwards :-)
 
 
@@ -204,7 +204,7 @@ void cPlayer::InitPhysics( CAR *car )
 	car->tractionforce = 0;
 	car->velocity_wc.x = 0;
 	car->velocity_wc.y = 0;
-	car->angularvelocity = 0;				
+	car->angularvelocity = 0;
 	car->steerangle = 0;
 	car->fwheelangle = 0;
 	car->rwheelangle = 0;
@@ -213,7 +213,7 @@ void cPlayer::InitPhysics( CAR *car )
 	car->gear = 1;
 	car->accelerator = 0;
 	car->brake=0.0f;					// amount of braking (input)  [0 .. 1.0]
-	car->handbraking=false;				
+	car->handbraking=false;
 	car->rwheelav = 0;
 	car->wfront = (car->cartype->mass * G * 0.5);
 	car->wrear  = (car->cartype->mass * G * 0.5);
@@ -226,7 +226,7 @@ void cPlayer::InitPhysics( CAR *car )
 
 	car->rwheelav=0.0f;				// rear wheel angular velocity (rad/s)
 	car->fwheelav=1.0f;				// front "  			"
-	
+
 	car->height=1.0f;					// actual height of car body
 	car->aimheight=1.0f;				// target height of body
 
@@ -261,29 +261,29 @@ void cPlayer::GearShifter( CAR *car )
 }
 
 
-	cartype->b = 85.0f*UNIT_SCALE;		// m			
-	cartype->c = 60.0f*UNIT_SCALE;		// m			
+	cartype->b = 85.0f*UNIT_SCALE;		// m
+	cartype->c = 60.0f*UNIT_SCALE;		// m
 	cartype->h = 1.0f;						// m
-	cartype->mass = 1500.0f;			// kg			
+	cartype->mass = 1500.0f;			// kg
 	cartype->inertia =1500.0f;			// kg.m
 	cartype->halfwidth = 0.86f;		// m
 	cartype->wheelradius = 0.33f;	// m
 
-	cartype->num_gears = 5;	
-	cartype->gearratio[0] = -3.5f;	
-	cartype->gearratio[1] = 3.5f;	
-	cartype->gearratio[2] = 2.2f;	
-	cartype->gearratio[3] = 1.5f;	
-	cartype->gearratio[4] = 1.1f;	
-	cartype->gearratio[5] = 0.94f;	
-	cartype->differentialratio = 3.6f;	
-	cartype->gearefficiency = 0.7f;	
+	cartype->num_gears = 5;
+	cartype->gearratio[0] = -3.5f;
+	cartype->gearratio[1] = 3.5f;
+	cartype->gearratio[2] = 2.2f;
+	cartype->gearratio[3] = 1.5f;
+	cartype->gearratio[4] = 1.1f;
+	cartype->gearratio[5] = 0.94f;
+	cartype->differentialratio = 3.6f;
+	cartype->gearefficiency = 0.7f;
 
 
 Garage:
 
-Everything costs money.  
-Parts are traded in.  
+Everything costs money.
+Parts are traded in.
 Twin turbo part is different part to single turbo part
 
 Inside wheels go slower than outside when turning
@@ -293,9 +293,9 @@ Rear Differential = Rear Wheel Drive
 Front Differential and Rear Differential = All Wheel Drive
 
 At the Flywheel
-The engine produces a torque at the flywheel. 
-That torque is mechanically increased by the gears in the transmission and/or differential, 
-resulting in a larger torque on the axle. That axle torque divided by the radius of the tire 
+The engine produces a torque at the flywheel.
+That torque is mechanically increased by the gears in the transmission and/or differential,
+resulting in a larger torque on the axle. That axle torque divided by the radius of the tire
 equals the force that pushes the car forward
 
 (Supercharger)->(Turbocharger)->Air Filter->Exhaust->Petrol->EngineCapacity->
@@ -328,7 +328,7 @@ fuel tank is empty.  Stock=0.6f of performance, Premium=0.75f of performance, Ra
 
 NOS (Blue Column Graph): Premium, Racing
 
-Inject worst NOS first: fNitrousPremium, then fNitrousRacing.  When fNitrousRacing is empty, fuel tank is empty.  
+Inject worst NOS first: fNitrousPremium, then fNitrousRacing.  When fNitrousRacing is empty, fuel tank is empty.
 Premium=1.7f of performance, Racing=2.2f of performance
 */
 
@@ -373,7 +373,7 @@ namespace breathe
 			properties.fDrag = 0.4257f;      // Drag constant (air resistance)
 			properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
 			properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
-						
+
 			properties.fWeight = fWeight;
 			properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
 			properties.fEngineSpeed = 800.0f; // RPM
@@ -394,7 +394,7 @@ namespace breathe
 		}
 
 		cVehicle::~cVehicle()
-		{	
+		{
 			while(vWheel.size())
 			{
 				// Deleted in physics list
@@ -426,22 +426,22 @@ namespace breathe
 
 			physics::AddPhysicsObject(this);
 
-			//Rear		
-			lrWheel_->Init(false, fWheelRadius, fWheelWeight, 
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
+			//Rear
+			lrWheel_->Init(false, fWheelRadius, fWheelWeight,
+				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
 				math::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
-			rrWheel_->Init(false, fWheelRadius, fWheelWeight, 
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
+			rrWheel_->Init(false, fWheelRadius, fWheelWeight,
+				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
 				math::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
 			//Front
-			lfWheel_->Init(true, fWheelRadius, fWheelWeight, 
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
+			lfWheel_->Init(true, fWheelRadius, fWheelWeight,
+				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
 				math::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 
-			rfWheel_->Init(true, fWheelRadius, fWheelWeight, 
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax, 
+			rfWheel_->Init(true, fWheelRadius, fWheelWeight,
+				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
 				math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 		}
 
@@ -465,7 +465,7 @@ namespace breathe
 		void cVehicle::Update(sampletime_t currentTime)
 		{
 			physics::cPhysicsObject::Update(currentTime);
-	
+
 			/*
 			Real rpm = FLT_MIN;
 
@@ -483,7 +483,7 @@ namespace breathe
 			{
 				(*i)->update(power,desired_rpm,brake);
 			}
-			
+
 			if (_antisway)
 			{
 				_swayLastUpdate += time;
@@ -498,28 +498,26 @@ namespace breathe
 			//eg. vPart[0]=turbo, vPart[1]=turbo, vPart[2]=tyres
 			std::vector<cPart *>::iterator iter=vPart.begin();
 			std::vector<cPart *>::iterator end=vPart.end();
-			while(iter!=end)
-				(*iter++)->Update();
+			while(iter!=end) (*iter++)->Update();
 
 
 			fSteer = fControl_Steer * fMaxSteer;
 			fSpeed = fControl_Accelerate * fMaxAcceleration * properties.GetCurrentGearRatio();
-			fBrake = fControl_Brake + fControl_Handbrake;
+			fBrake = (1.0f * fControl_Brake) + (0.1f * fControl_Handbrake);
 
-			if(fBrake>1.0f)
-				fBrake=1.0f;
+			if (fBrake > 1.0f) fBrake=1.0f;
 
 			fBrake *= fMaxBrake;
 
 			fVel = v.DotProduct(m.GetFront());
-			
+
 
 			//PHYSICS
 			/*
-			Basically you cast a ray from the centre position of the wheel(where it should be in its rest position) 
-			straight down. If the ray hits something and the distance from the contactpoint to the wheel-centre is within 
-			a certain range(for example 1.0 if the suspension length is 1.0) then apply a force at the wheel-centre using 
-			the ray's normal to get the force-direction and the distance to calculate the amount of force. Some damping 
+			Basically you cast a ray from the centre position of the wheel(where it should be in its rest position)
+			straight down. If the ray hits something and the distance from the contactpoint to the wheel-centre is within
+			a certain range(for example 1.0 if the suspension length is 1.0) then apply a force at the wheel-centre using
+			the ray's normal to get the force-direction and the distance to calculate the amount of force. Some damping
 			has to be applied as well to keep the car from oscillating too much.
 			Repeat this for every wheel/ray.
 
@@ -528,7 +526,7 @@ namespace breathe
 			Then comes the tricky part.
 			Applying friction force, driving force and drag.
 			Since the car hovers there is no friction at all so you have to fake wheel friction.
-			Driving force is a matter of pushing the car from behind and 
+			Driving force is a matter of pushing the car from behind and
 			apply proper torque on the turning axis to make the car steer.
 			Drag should be most simple as you damp the car's velocity based on it's speed.
 			*/
@@ -543,14 +541,14 @@ namespace breathe
 			private void applyAntiSwayBarForces()
 			{
 				amt=0;
-			
-				for(int i=0;i<4;i++){				
+
+				for(int i=0;i<4;i++){
 					Vector3 anchor2 = wheels[i].Joint.Anchor2;
 					Vector3 anchor1 = wheels[i].Joint.Anchor;
 					Vector3 axis = wheels[i].Joint.Axis2;
-					
+
 					displacement = Vector3.Dot(anchor1-anchor2,axis);
-					
+
 					if(displacement> 0){
 						amt = displacement * swayForce;
 						if(amt> swayForceLimit)
@@ -558,7 +556,7 @@ namespace breathe
 						wheels[i].Body.AddForce(-axis *amt); //downforce
 						wheels[i^1].Body.AddForce(axis *amt); //upforce
 					}
-				}		
+				}
  			}*/
 
 
@@ -580,14 +578,14 @@ namespace breathe
 			if(body)
 			{
 				// Aerodynamic Drag
-				// To simulate aerodynamic drag, it would be better to use the square of the velocity, 
-				// because that's how drag works in reality. The force should also be applied at the object's 
-				// aerodynamic center rather than at the body location. These may be the same, but 
-				// (especially if you're using geometry transforms) they may not be. The center of 
-				// the object's cross section would probably be close to the aerodynamic center, at least 
-				// for non-engineering purposes. In any case, dBodyAddForceAtRelPos? will allow you to 
-				// apply the force at a specific point in the body's frame of reference. 
-				
+				// To simulate aerodynamic drag, it would be better to use the square of the velocity,
+				// because that's how drag works in reality. The force should also be applied at the object's
+				// aerodynamic center rather than at the body location. These may be the same, but
+				// (especially if you're using geometry transforms) they may not be. The center of
+				// the object's cross section would probably be close to the aerodynamic center, at least
+				// for non-engineering purposes. In any case, dBodyAddForceAtRelPos? will allow you to
+				// apply the force at a specific point in the body's frame of reference.
+
 				// TODO: Use a lot more drag in water
 				float fDampTorque = 1.0f;
 				float fDampLinearVel = 1.0f;
@@ -621,12 +619,12 @@ namespace breathe
 		}
 
 		void cVehicle::UpdateInput()
-		{		
+		{
 			cPlayer *pPlayer=vSeat[0]->pPlayer;
 
 			if(NULL==pPlayer)
 				return;
-	    
+
 			if(pPlayer->bInputClutch)
 			{
 				fControl_Clutch+=0.1f;
@@ -641,7 +639,7 @@ namespace breathe
 			fControl_Brake = pPlayer->fInputDown;
 			if(pPlayer->fInputLeft > pPlayer->fInputRight) fControl_Steer = -1.0f * pPlayer->fInputLeft;
 			else fControl_Steer = pPlayer->fInputRight;
-			
+
 			if(pPlayer->bInputHandbrake) //Instant on
 				fControl_Handbrake=1.0f;
 			else

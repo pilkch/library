@@ -56,7 +56,7 @@ float CreateTextureCoord(float value) { return value * fOneOverTextureWidth; }
 namespace breathe
 {
 	namespace gui
-	{			
+	{
 		render::material::cMaterial* pMaterial = nullptr;
 		std::vector<render::cTexture*> textureBackground;
 		render::cFont* pFontWindowCaption = nullptr;
@@ -91,7 +91,7 @@ namespace breathe
 		void cWindowManager::LoadTheme()
 		{
 			pMaterial = pRender->AddMaterial("gui.mat");
-						
+
 			textureBackground.push_back(pRender->AddTexture("gui_background_normal.png"));
 			textureBackground.push_back(pRender->AddTexture("gui_background_darker.png"));
 			textureBackground.push_back(pRender->AddTexture("gui_background_darkest.png"));
@@ -123,8 +123,8 @@ namespace breathe
       }
       return pWindow;
     }
-		
-		void cWindowManager::OnMouseEvent(int button, int state, float x, float y)
+
+		bool cWindowManager::OnMouseEvent(int button, int state, float x, float y)
 		{
 			cWindow* pWindow = _FindWindowUnderPoint(x, y);
       if (pWindow != nullptr) {
@@ -133,7 +133,10 @@ namespace breathe
         float x2 = x * fScaleX;
         float y2 = y * fScaleY;
         pWindow->OnMouseEvent(button, state, x2, y2);
+		return true;
       }
+
+      return false;
 		}
 
 		void cWindowManager::Update(sampletime_t currentTime)
@@ -146,10 +149,10 @@ namespace breathe
       assert(pChild != nullptr);
 			child.push_back(pChild);
 			pChild->pParent = nullptr;
-			
+
 			return true;
 		}
-    
+
     bool cWindowManager::RemoveChild(cWindow* pChild)
     {
       assert(pChild != nullptr);
@@ -163,7 +166,7 @@ namespace breathe
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-			
+
 			const float bar_height = 0.02f;
 			const float bar_v = 0.04f;
 
@@ -181,11 +184,11 @@ namespace breathe
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
 				widget.GetX() + 0.02f, widget.GetY(), absolute_width - 0.02f - 0.01f, bar_height,
 				0.18f, 0.0f, 0.01f, bar_v);
-			
+
 			// TODO: Draw the caption
 
 			// TODO: Draw the close button
-						
+
 			// TODO: Draw the minimise and maximise buttons
 
 			if (widget.IsResizable()) {
@@ -218,12 +221,12 @@ namespace breathe
 
 						glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-						//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(), 
+						//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(),
 						//	widget.GetWidth(), bar_height,
 						//	breathe::string::ToUTF8(widget.GetCaption()).c_str());
-						pFontWindowCaption->PrintCenteredHorizontally(widget.GetX(), widget.GetY(), 
+						pFontWindowCaption->PrintCenteredHorizontally(widget.GetX(), widget.GetY(),
 							widget.GetWidth(), widget.GetCaption());
-						
+
 						glMatrixMode(GL_TEXTURE);
 					glPopMatrix();
 
@@ -236,10 +239,10 @@ namespace breathe
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-			
+
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
 				absolute_width, absolute_height,
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 		}
@@ -250,7 +253,7 @@ namespace breathe
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
 				absolute_width, absolute_height,
 				0.0083f, 0.073f, 0.08f, 0.045f);//CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 
@@ -268,17 +271,17 @@ namespace breathe
 
 					glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-					//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(), 
+					//pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(),
 					//	widget.GetWidth(), bar_height,
 					//	breathe::string::ToUTF8(widget.GetCaption()).c_str());
 					pFontWindowCaption->PrintCenteredHorizontally(
-            widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
-						widget.HorizontalRelativeToAbsolute(widget.GetWidth()), 
+            widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
+						widget.HorizontalRelativeToAbsolute(widget.GetWidth()),
             widget.GetText());
-					
+
 					glMatrixMode(GL_TEXTURE);
 				glPopMatrix();
-        
+
         pRender->SetMaterial(pMaterial);
 			glPopAttrib();
 		}
@@ -287,10 +290,10 @@ namespace breathe
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-			
+
 			render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
 			pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()), 
+				widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
 				absolute_width, absolute_height,
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 
@@ -327,7 +330,7 @@ namespace breathe
 				case WIDGET_STATICTEXT:
 					//_RenderStaticText(widget);
 					break;
-					
+
 				default:
 					;
 					//pRender->RenderScreenSpaceRectangleTopLeftIsAt(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
@@ -336,18 +339,18 @@ namespace breathe
 
 		void cWindowManager::_RenderChildren(const cWidget& widget)
 		{
-			if (false == widget.IsVisible()) return;			
-			
+			if (false == widget.IsVisible()) return;
+
 			_RenderWidget(widget);
-			
+
 			size_t n = widget.child.size();
 			if (n == 0) return;
-			
+
 			pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
-			
+
 				for (size_t i = 0; i < n; i++)
 					_RenderChildren(*widget.child[i]);
-			
+
 			pRender->PopScreenSpacePosition();
 		}
 
@@ -357,7 +360,7 @@ namespace breathe
 
 			pRender->ClearMaterial();
 			pRender->SetMaterial(pMaterial);
-			
+
 			// Setup texture matrix
 			pRender->SelectTextureUnit0();
 			glMatrixMode(GL_TEXTURE);

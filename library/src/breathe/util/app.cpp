@@ -745,25 +745,40 @@ namespace breathe
 					_OnKeyDown(&event.key.keysym);
 					break;
 
-				case SDL_MOUSEBUTTONUP:
+				case SDL_MOUSEBUTTONUP: {
 					mouse.x = event.button.x;
 					mouse.y = event.button.y;
 					mouse.down[event.button.button] = true;
-          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
+          const int button = event.button.button;
+          const int state = event.button.state;
+          const float x = event.button.x / float(pRender->uiWidth);
+          const float y = event.button.y / float(pRender->uiHeight);
+          if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
 					break;
+        }
 
-				case SDL_MOUSEBUTTONDOWN:
+				case SDL_MOUSEBUTTONDOWN: {
 					mouse.x = event.button.x;
 					mouse.y = event.button.y;
-					if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
-          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
+          if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
+          const int button = event.button.button;
+          const int state = event.button.state;
+          const float x = event.button.x / float(pRender->uiWidth);
+          const float y = event.button.y / float(pRender->uiHeight);
+          if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
 					break;
+        }
 
-				case SDL_MOUSEMOTION:
+				case SDL_MOUSEMOTION: {
 					mouse.x = event.button.x;
-					mouse.y = event.button.y;
-          window_manager.OnMouseEvent(event.button.button, event.button.state, event.button.x / float(pRender->uiWidth), event.button.y / float(pRender->uiHeight));
+          mouse.y = event.button.y;
+          const int button = event.button.button;
+          const int state = event.button.state;
+          const float x = event.button.x / float(pRender->uiWidth);
+          const float y = event.button.y / float(pRender->uiHeight);
+          if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
 					break;
+        }
 
 				case SDL_QUIT:
 					LOG.Success("SDL", "SDL_Quit: Quiting");

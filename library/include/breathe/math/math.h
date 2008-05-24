@@ -19,30 +19,56 @@ template <class T> inline T min_max(const T& i, const T& lower, const T& upper)
 
 namespace breathe
 {
-	namespace math
-	{
-		// Constants
+  namespace math
+  {
+    // Constants
 
-		extern const float cPI;
-		extern const float cPI_PI;
-		extern const float cPI_DIV_2;
-		extern const float cPI_DIV_180;
-		extern const float c180_DIV_PI;
+    const float cPI             = 3.14159265358979323846f;
+    const float cPI_PI          = 6.28318530717958647692f;
+    const float cPI_DIV_2       = 1.57079632679489661923f;
+    const float cPI_DIV_180     = 0.01745329251994329576f;
+    const float c180_DIV_PI     = 57.2957795130823208767f;
 
-		extern const float cSQUARE_ROOT_2;
-		extern const float cEPSILON;
-		extern const float cINFINITY;
+    const float cSQUARE_ROOT_2  = 1.41421356237309504880f;
 
+    const float cEPSILON        = 0.001f;//10e-6f //std::numeric_limits<float>::epsilon();
+    extern const float cINFINITY;
+
+
+    // http://www.racer.nl/tech/converting.htm
+
+    inline float kphTomph(float kph) { return kph * 1.609344f; }
+    inline float mphTokph(float mph) { return mph * 0.621371192f; }
 
     // Power/Torque
     // kW/Nm : hp/lb-ft
 
     inline float HPToKw(float hp) { return hp * 0.74569987158227022f; }
-    inline float KwToHP(float kw) { return kw * 1.34102209f; }
+    inline float KwToHP(float kW) { return kW * 1.34102209f; }
 
     inline float NmTolbft(float Nm) { return Nm * 1.3558179483314004f; }
     inline float lbftToNm(float lbft) { return lbft * 0.7375621f; }
 
+    // wheel torque = torque at the engine * gear ratio
+    // speed = rpm * gear ratio * circumference of the wheels
+
+    // power = torque * angular_speed
+    // angular_speed = 2 * pi * rotational_speed
+    // rotational_speed = revolutions per unit time.
+
+    // power (in kW) = torque (in Nm) * 2 * pi * rotational speed (in rpm) / 60000.0f
+    // where 60000.0f comes from 60 seconds per minute times 1000.0f watts per kilowatt.
+
+    // kW = Nm * 2 * pi * RPM / 60000;
+    // Nm = kW / (2 * pi * RPM / 60000);
+
+    const float c1_OVER_RPM_KW = 1.0f / 60000.0f;
+
+    inline float NmToKw(float Nm, float RPM) { return Nm * cPI_PI * RPM * c1_OVER_RPM_KW; }
+    inline float KwToNm(float kW, float RPM) { return kW / (cPI_PI * RPM * c1_OVER_RPM_KW); }
+
+    inline float RPMToRadiansPerSecond(float RPM) { return RPM * 0.10471976f; }
+    inline float RadiansPerSecondToRPM(float RadiansPerSecond) { return RadiansPerSecond * 9.5493f; }
 
     // Utility functions
 

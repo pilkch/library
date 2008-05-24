@@ -96,6 +96,8 @@ namespace breathe
 		  void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
       void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
 
+      void OnMouseEvent(int button, int state, float x, float y) { _OnMouseEvent(button, state, x, y); }
+
     private:
 	    virtual void _OnEntry() {}
 	    virtual void _OnExit() {}
@@ -109,6 +111,8 @@ namespace breathe
 #endif
 		  virtual void _RenderScene(sampletime_t currentTime) {}
 		  virtual void _RenderScreenSpace(sampletime_t currentTime) {}
+
+      virtual void _OnMouseEvent(int button, int state, float x, float y) {}
 
       size_t uiState;
       int result;
