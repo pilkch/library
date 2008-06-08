@@ -412,61 +412,92 @@ namespace breathe
 		}
 
 
-		// ********************************************* iterator *********************************************
+    // ********************************************* iterator *********************************************
 
-		/*iterator::iterator()
-		{
-			//TODO: Set ourselves to the current directory
-		}
+    iterator::iterator() :
+      i(0),
+      sParentFolder("")
+    {
+    }
 
-		iterator::iterator(const string_t& directory)
-		{
+    iterator::iterator(const string_t& directory)
+    {
+      i = 0;
+      sParentFolder = directory;
+      paths.clear();
 
-		}
+      //TODO: Get folder contents, fill paths
+      paths.push_back(TEXT("1"));
+      paths.push_back(TEXT("2"));
+      paths.push_back(TEXT("/home/chris/Dev"));
+    }
 
-		iterator::iterator(const iterator& rhs)
-		{
-		}
+    iterator::iterator(const iterator& rhs)
+    {
+      i = rhs.i;
+      sParentFolder = rhs.sParentFolder;
+      paths = rhs.paths;
+    }
 
-		iterator::~iterator()
-		{
-		}
+
+    iterator& iterator::operator++(int)
+    {
+      if (i < paths.size()) i++;
+
+      return *this;
+    }
+
+    iterator& iterator::operator=(const iterator& rhs)
+    {
+      i = rhs.i;
+      sParentFolder = rhs.sParentFolder;
+      paths = rhs.paths;
+
+      return *this;
+    }
+
+    bool iterator::operator==(const iterator& rhs)
+    {
+      return (sParentFolder == rhs.sParentFolder) && (paths.size() == rhs.paths.size());
+    }
+
+    bool iterator::operator!=(const iterator& rhs)
+    {
+      return !(*this == rhs);
+    }
 
 		string_t iterator::GetName() const
 		{
-			return TEXT("");
+      assert(i < paths.size());
+
+			return paths[i];
 		}
 
 		bool iterator::HasChildren() const
 		{
-			return false;
-		}
+			return !paths.empty();
+    }
 
-		iterator iterator::GetDirectoryIterator() const
+    bool iterator::IsFile() const
+    {
+      return !IsDirectory();
+    }
+
+    bool iterator::IsDirectory() const
+    {
+      assert(i < paths.size());
+      path p(paths[i]);
+      return p.IsDirectory();
+    }
+
+		/*iterator iterator::GetDirectoryIterator() const
 		{
-			return iterator();
+			return *this;
 		}
 
 		file_iterator iterator::GetFileIterator() const
 		{
 			return file_iterator();
-		}
-
-
-		iterator  iterator::operator ++(int)
-		{
-      // TODO: iterate
-			return *this;
-		}
-
-		iterator::operator bool() const
-		{
-			return false;
-		}
-
-		iterator iterator::operator =(const iterator& rhs)
-		{
-			return *this;
 		}*/
 	}
 }

@@ -150,23 +150,23 @@ namespace breathe
 		render::cFont* pFont;
 
 	private:
-		class cConsoleWindow : public gui::cWindow
-		{
-		public:
-			cConsoleWindow();
+    class cConsoleWindow : public gui::cModelessWindow
+    {
+    public:
+      cConsoleWindow();
 
-			void InitConsoleWindow();
+      void InitConsoleWindow();
 
-			gui::cWidget_StaticText& GetPrevious() { return *pPrevious; }
-			gui::cWidget_Input& GetInput() { return *pInput; }
+      gui::cWidget_StaticText& GetPrevious() { return *pPrevious; }
+      gui::cWidget_Input& GetInput() { return *pInput; }
 
-		private:
-			void _OnMouseEvent(int button, int state, int x, int y) {}
-			void _OnEvent(gui::id_t id);
+    private:
+      void _OnMouseEvent(int button, int state, int x, int y) {}
+      void _OnEvent(gui::id_t id);
 
-			gui::cWidget_StaticText* pPrevious;
-			gui::cWidget_Input* pInput;
-		};
+      gui::cWidget_StaticText* pPrevious;
+      gui::cWidget_Input* pInput;
+    };
 
 		class cKey
 		{

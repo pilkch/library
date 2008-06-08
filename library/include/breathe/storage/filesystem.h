@@ -30,7 +30,7 @@ namespace breathe
 		string_t GetMD5(const string_t& sFilename);
 		string_t GetSHA1(const string_t& sFilename);
 #endif
-		
+
 		string_t StripLastDirectory(const string_t& path);
 		string_t ExpandPath(const string_t& path);
 
@@ -45,13 +45,13 @@ namespace breathe
 
 
 		// File Opening functions
-		// No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?  
-		// The idea is that we can search directories to find the file and then open the correct one. 
+		// No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
+		// The idea is that we can search directories to find the file and then open the correct one.
 		std::ifstream OpenTextFileRead(const breathe::string_t& sFilename);
 		std::ifstream OpenBinaryFileRead(const breathe::string_t& sFilename);
 
 		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
-		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename); 
+		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
 
     uint32_t GetFileSize();
 
@@ -59,7 +59,7 @@ namespace breathe
 		class path
 		{
 		public:
-			path(const string_t& file_or_directory);
+      explicit path(const string_t& file_or_directory);
 
 			bool IsFile() const;
 			bool IsDirectory() const;
@@ -68,7 +68,7 @@ namespace breathe
 			string_t GetFile() const; // Returns just the file "file.txt"
 			string_t GetExtenstion() const; // Returns just the extension ".txt"
 			string_t str() const; // Returns the full path "/folder1/folder2/file.txt"
-			
+
 		private:
 			path();
 			NO_COPY(path);
@@ -77,37 +77,34 @@ namespace breathe
 		};
 
 
-		class iterator_node
-		{
-		public:
-			iterator_node() : pParent(nullptr) {}
-			
-			iterator_node* pParent;
-		};
+    class iterator
+    {
+    public:
+      iterator();
+      explicit iterator(const string_t& directory);
+      explicit iterator(const iterator& rhs);
 
-		class iterator
-		{
-		public:
-			iterator();
-			iterator(const string_t& directory);
-			iterator(const iterator& rhs);
-			~iterator();
+      bool IsFile() const;
+      bool IsDirectory() const;
 
-			string_t GetName() const;
-			bool HasChildren() const;
+      string_t GetParentFolder() const;
+      string_t GetName() const;
+      bool HasChildren() const;
 
-			void GoToFirstChild();
-			
-			operator bool() const;
+      void GoToFirstChild();
 
-			iterator operator ++(int);
-			iterator operator =(const iterator& rhs);
+      bool operator==(const iterator& rhs);
+      bool operator!=(const iterator& rhs);
 
-		private:
-			path currentPath;
-			std::vector<string_t> paths;
-		};
-	}
+      iterator& operator++(int);
+      iterator& operator=(const iterator& rhs);
+
+    private:
+      size_t i;
+      string_t sParentFolder;
+      std::vector<string_t> paths;
+    };
+  }
 }
 
 #endif //FILESYSTEM_H

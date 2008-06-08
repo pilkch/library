@@ -27,6 +27,7 @@
 #include <breathe/util/log.h>
 
 #include <breathe/storage/filesystem.h>
+#include <breathe/storage/xml.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -105,6 +106,47 @@ namespace breathe
 
 			pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
 		}
+
+    void cWindowManager::LoadGuiFromXML(const string_t& sFilename)
+    {
+      breathe::xml::cNode root(sFilename);
+      breathe::xml::cNode::iterator iter(root);
+
+      if (!iter) return;
+
+      iter.FindChild("gui");
+      if (!iter) return;
+
+      string_t sWindowType;
+      cWindow* pWindow = nullptr;
+      while (iter) {
+        pWindow = nullptr;
+        sWindowType = iter.GetName();
+
+        string_t sID;
+        id_t idWindow = 0;
+        if (iter.GetAttribute(TEXT("id"), sID)) idWindow = GetIDFromStringIdentifier(sID);
+        else idWindow = GenerateID();
+
+        if (sWindowType == TEXT("modelesswindow")) {
+//          pWindow = new cModelessWindow(idWindow, x, y, width, height, caption, pParent);
+        }
+
+        iter++;
+      };
+    }
+
+    id_t cWindowManager::GetIDFromStringIdentifier(const string_t& sIdentifier)
+    {
+      std::map<string_t, id_t>::iterator iter = stringIdentifierToID.begin();
+      std::map<string_t, id_t>::iterator iterEnd = stringIdentifierToID.end();
+      while (iter != iterEnd) {
+        if (iter->first == sIdentifier) return iter->second;
+        iter++;
+      }
+
+      return GenerateID();
+    }
 
     cWindow* cWindowManager::_FindWindowUnderPoint(float x, float y)
     {
@@ -235,7 +277,7 @@ namespace breathe
 			}
 		}
 
-		void cWindowManager::_RenderInput(const cWidget& widget)
+		void cWindowManager::_RenderInput(const cWidget_Input& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
@@ -247,7 +289,7 @@ namespace breathe
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 		}
 
-		void cWindowManager::_RenderButton(const cWidget& widget)
+		void cWindowManager::_RenderButton(const cWidget_Button& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
@@ -286,7 +328,7 @@ namespace breathe
 			glPopAttrib();
 		}
 
-		/*void cWindowManager::_RenderStaticText(const cWidget& widget)
+		void cWindowManager::_RenderStaticText(const cWidget_StaticText& widget)
 		{
 			const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
 			const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
@@ -297,19 +339,22 @@ namespace breathe
 				absolute_width, absolute_height,
 				0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
 
-      pRender->BeginRenderingText();
-			  breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
-			  breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
-			  unsigned int y = 60;
-			  while(iter != iterEnd)
-			  {
-				  pFont->printf(0, static_cast<float>(y), (*iter).c_str());
-				  y += 30;
+      render::cFont* pFont = widget.GetFont();
+      if (pFont == nullptr) pFont = pFontWindowCaption;
 
-				  iter++;
-			  };
+      pRender->BeginRenderingText();
+        breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
+        breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
+        unsigned int y = 60;
+        while(iter != iterEnd) {
+          pRender->SetColour(widget.GetColour());
+          pFont->printf(0, static_cast<float>(y), (*iter).c_str());
+          y += 30;
+
+          iter++;
+        };
       pRender->EndRenderingText();
-		}*/
+		}
 
 		void cWindowManager::_RenderWidget(const cWidget& widget)
 		{
@@ -328,7 +373,7 @@ namespace breathe
 					break;
 
 				case WIDGET_STATICTEXT:
-					//_RenderStaticText(widget);
+          _RenderStaticText(static_cast<const cWidget_StaticText&>(widget));
 					break;
 
 				default:

@@ -4,6 +4,7 @@
 
 #include <cstdarg>
 #include <cassert>
+#include <cmath>
 
 #include <list>
 #include <string>
@@ -18,6 +19,9 @@
 #include <fstream>
 #include <iomanip>
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+
 #include <breathe/breathe.h>
 
 #if defined(BUILD_DEBUG) && defined(__WIN__)
@@ -26,9 +30,35 @@
 
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
-#include <breathe/storage/filesystem.h>
-
+#include <breathe/util/cVar.h>
 #include <breathe/util/cTimer.h>
+
+#include <breathe/storage/filesystem.h>
+#include <breathe/storage/xml.h>
+
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cPlane.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cColour.h>
+#include <breathe/math/cFrustum.h>
+#include <breathe/math/cOctree.h>
+
+#include <breathe/util/base.h>
+#include <breathe/render/model/cMesh.h>
+
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
+
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>

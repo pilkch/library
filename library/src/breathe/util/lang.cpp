@@ -94,8 +94,8 @@ namespace breathe
     {
       assert(langtags.empty());
 
-      LoadLanguageFile(breathe::string::ToString_t(TEXT("shared_lang.txt")));
-      LoadLanguageFile(breathe::string::ToString_t(TEXT("lang.txt")));
+      LoadLanguageFile(TEXT("shared_lang.txt"));
+      LoadLanguageFile(TEXT("lang.txt"));
     }
   }
 
@@ -107,7 +107,7 @@ namespace breathe
       return  breathe::string::ToString_t(iter->second);
     }
 
-    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
+    storage::AppendText(filesystem::FindFile(TEXT("lang.txt")), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
     return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
   }
 
@@ -119,7 +119,7 @@ namespace breathe
       return  breathe::string::ToString_t(iter->second);
     }
 
-    storage::AppendText(filesystem::FindFile(breathe::string::ToString_t(TEXT("lang.txt"))), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
+    storage::AppendText(filesystem::FindFile(TEXT("lang.txt")), breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
     return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
   }
 }

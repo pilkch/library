@@ -6,26 +6,71 @@
 
 namespace breathe
 {
-	namespace render
-	{
-		const unsigned int MAX_TEXTURE_SIZE=1024;
+  namespace render
+  {
+    const unsigned int MAX_TEXTURE_SIZE=1024;
 
-		const unsigned int FBO_TEXTURE_WIDTH=1024;
-		const unsigned int FBO_TEXTURE_HEIGHT=1024;
+    const unsigned int FBO_TEXTURE_WIDTH=1024;
+    const unsigned int FBO_TEXTURE_HEIGHT=1024;
 
-		class cVertexBufferObject;
-		class cMaterial;
+    class cVertexBufferObject;
+    class cMaterial;
 
-		namespace model
-		{
-			class cMesh;
-			class cStatic;
-			class cAnimation;
-		}
+    namespace model
+    {
+      class cMesh;
+      class cStatic;
+      class cAnimation;
+    }
 
-		class cRender
-		{
-		public:
+    class cBatchModelContainer
+    {
+    public:
+      cBatchModelContainer() : fDistanceFromCamera(0.0f), pModel(nullptr) {}
+      cBatchModelContainer(model::cStatic* pModel, float fDistanceFromCamera);
+
+      static bool SortBackToFront(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs);
+      static bool SortFrontToBack(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs);
+
+      float fDistanceFromCamera;
+      model::cStatic* pModel;
+    };
+
+    class cBatchList
+    {
+    public:
+      typedef std::list<cBatchModelContainer*>::iterator iterator;
+      typedef std::list<cBatchModelContainer*>::const_iterator const_iterator;
+
+      void AddModel(model::cStatic* pModel, float fDistanceFromCamera);
+      void FinishAddingSortFrontToBack();
+      void FinishAddingSortBackToFront();
+
+    private:
+      std::vector<cBatchModelContainer*> models;
+
+      friend class cRender;
+    };
+
+    class cBatchController
+    {
+    public:
+      typedef std::map<cMaterial*, cBatchList*>::iterator iterator;
+      typedef std::map<cMaterial*, cBatchList*>::const_iterator const_iterator;
+
+      void AddModel(model::cStatic* pModel, float fDistanceFromCamera);
+      void FinishAdding();
+
+    private:
+      std::map<cMaterial*, cBatchList*> opaque;
+      std::map<cMaterial*, cBatchList*> transparent;
+
+      friend class cRender;
+    };
+
+    class cRender
+    {
+    public:
 			cRender();
 			~cRender();
 
@@ -36,7 +81,7 @@ namespace breathe
 		public:
 			// Candidate for removal
 			bool PreInit();
-			
+
 			bool Init();
 			void Destroy();
 
@@ -60,7 +105,7 @@ namespace breathe
 		public:
 			void Begin();
 			void End();
-			
+
 			void BeginRenderToScreen();
 			void EndRenderToScreen();
 
@@ -75,7 +120,7 @@ namespace breathe
 			void EndScreenSpaceRendering();
       void BeginScreenSpaceGuiRendering();
       void EndScreenSpaceGuiRendering();
-      
+
       // In this mode x is -fScale..+fScale, y is +fScale..-fScale
 			void BeginScreenSpaceWorldRendering(float fScale);
 			void EndScreenSpaceWorldRendering();
@@ -86,7 +131,7 @@ namespace breathe
 			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
 
 			void RenderScreenSpacePolygon(float fX, float fY,
-        float fVertX0, float fVertY0, float fVertX1, float fVertY1, 
+        float fVertX0, float fVertY0, float fVertX1, float fVertY1,
         float fVertX2, float fVertY2, float fVertX3, float fVertY3);
 
 			void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
@@ -100,7 +145,7 @@ namespace breathe
 				float fU, float fV, float fU2, float fV2);
 
 			void RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation);
-			
+
 			void RenderMesh(model::cMesh* pMesh);
 			unsigned int RenderStaticModel(model::cStatic* p);
 			unsigned int RenderStaticModel(model::cStatic* p, math::cColour& colour);
@@ -132,7 +177,7 @@ namespace breathe
 			cTexture* AddCubeMap(const string_t& sFilename);
 			cTexture* AddTexture(const std::string& sNewFilename);
 			cTexture* AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
-			
+
 			cTexture* GetTextureAtlas(ATLAS atlas);
 			cTexture* GetTexture(const std::string& sFilename);
 			cTexture* GetCubeMap(const string_t& sFilename);
@@ -159,7 +204,7 @@ namespace breathe
 			bool SetMaterial(const std::string& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
 			bool SetMaterial(material::cMaterial* pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
 			bool SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos);
-			
+
 			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value);
 			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value);
 			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value);
@@ -170,7 +215,7 @@ namespace breathe
 
 			material::cMaterial* GetMaterial(const std::string& sFilename);
 
-			
+
 			void ReloadTextures();
 
 			material::cMaterial* AddPostRenderEffect(const std::string& sFilename);
@@ -218,7 +263,7 @@ namespace breathe
 
 			cTexture* pTextureNotFoundTexture;
 			cTexture* pMaterialNotFoundTexture;
-			
+
 			material::cMaterial* pMaterialNotFoundMaterial;
 
 
@@ -236,7 +281,7 @@ namespace breathe
 			unsigned int uiSegmentSmallPX;
 			unsigned int uiAtlasWidthPX;
 
-			
+
 			bool bActiveColour;
 			bool bActiveShader;
 
@@ -244,7 +289,7 @@ namespace breathe
 			std::vector<material::cLayer>vLayer;
 
 			material::cMaterial* pCurrentMaterial;
-			
+
 			// Information about the current video settings
 			SDL_VideoInfo* g_info;
 			const SDL_VideoInfo* videoInfo;
@@ -272,7 +317,7 @@ namespace breathe
 				int GetWidth() const { return width; }
 				int GetHeight() const { return height; }
 
-        
+
 
 			  class iterator
 			  {
@@ -286,7 +331,7 @@ namespace breathe
 				  int GetHeight() const { return (*iter).GetHeight(); }
 
 				  operator bool() const;
-  				
+
 				  iterator operator ++(int);
 
 			  protected:
@@ -302,14 +347,14 @@ namespace breathe
 			};
 
 			// *** Inlines
-			
+
 			inline resolution::resolution(int _width, int _height) :
 				width(_width),
 				height(_height)
 			{
 			}
 
-			
+
       inline resolution::iterator resolution::iterator::operator ++(int)
 			{
 				iter++;

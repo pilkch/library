@@ -33,10 +33,10 @@
 namespace breathe
 {
 	namespace physics
-	{	
+	{
     cPhysicsObject::cPhysicsObject() :
       cObject(),
-        
+
       //type(object_type_box),
 
 			bBody(true),
@@ -106,7 +106,7 @@ namespace breathe
         body = GetWorld()->CreateBody(&bodyDef);
 			}
 		}
-		
+
 		void cPhysicsObject::CreateBox(const physvec_t& pos, const physvec_t& rot)
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
@@ -120,7 +120,7 @@ namespace breathe
       lShapes.push_back(&shapeDef);
       InitCommon(lShapes, pos, rot);
 		}
-		
+
 		void cPhysicsObject::CreateSphere(const physvec_t& pos, const physvec_t& rot)
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
@@ -148,7 +148,7 @@ namespace breathe
 
       CreateBox(pos, rot);
 		}
-		
+
     void cPhysicsObject::CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos)
     {
       size_t n = heightvalues.size();
@@ -161,30 +161,34 @@ namespace breathe
 
       std::list<b2ShapeDef*> lShapes;
       b2PolyDef* pShapeDef = nullptr;
+
+      const float fMinimumHeight = 1.0f;
       float fHeightCurrent = math::cEPSILON;
-      float fHeightPrevious = heightvalues[0] * scale.y;
+      float fHeightPrevious = fMinimumHeight + heightvalues[0] * scale.y;
       const float fWidthHalf = 0.5f * scale.x;
       for (size_t i = 1; i < n; i++) {
-        fHeightCurrent = heightvalues[i] * scale.y;
+        fHeightCurrent = fMinimumHeight + heightvalues[i] * scale.y;
+        if (fHeightCurrent < fMinimumHeight) fHeightCurrent = fMinimumHeight;
+
         if (fHeightCurrent > fHeight) fHeight = fHeightCurrent;
 
-        if (fHeightCurrent > 0.1f) {
-          pShapeDef = new b2PolyDef;
-          pShapeDef->vertexCount = 4;
-          pShapeDef->vertices[0].Set(-fWidthHalf, 0.0f);
-          pShapeDef->vertices[1].Set(+fWidthHalf, 0.0f);
-          pShapeDef->vertices[2].Set(+fWidthHalf, fHeightCurrent);
-          pShapeDef->vertices[3].Set(-fWidthHalf, fHeightPrevious);
-          pShapeDef->localPosition.x = scale.x * i;
-          pShapeDef->density = 0.0f;
-          pShapeDef->friction = fFriction;
+        pShapeDef = new b2PolyDef;
+        pShapeDef->vertexCount = 4;
+        pShapeDef->vertices[0].Set(-fWidthHalf, 0.0f);
+        pShapeDef->vertices[1].Set(+fWidthHalf, 0.0f);
+        pShapeDef->vertices[2].Set(+fWidthHalf, fHeightCurrent);
+        pShapeDef->vertices[3].Set(-fWidthHalf, fHeightPrevious);
+        pShapeDef->localPosition.x = scale.x * i;
+        pShapeDef->localPosition.y = -fMinimumHeight;
+        pShapeDef->density = 0.0f;
+        pShapeDef->friction = fFriction;
 
-          lShapes.push_back(pShapeDef);
-        }
+        lShapes.push_back(pShapeDef);
 
         fHeightPrevious = fHeightCurrent;
       }
 
+      const physvec_t newPosition = pos + physvec_t(0.0f, -fMinimumHeight);
       InitCommon(lShapes, pos, physveczero);
 
       // Now delete the shapes
@@ -195,7 +199,7 @@ namespace breathe
         iter++;
       }
     }
-    
+
     void cPhysicsObject::CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot)
     {
       if ((fWidth * fHeight) < breathe::math::cEPSILON) fWidth = fHeight = 1.0f;
@@ -217,7 +221,7 @@ namespace breathe
 					r0=const_cast<dReal*>(dBodyGetRotation(body));
 					const dReal *v0=dBodyGetLinearVel(body);
 					//const dReal *a0=dBodyGetAngularVel(body);
-					
+
 
 					v[0]=v0[0];
 					v[1]=v0[1];

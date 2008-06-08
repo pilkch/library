@@ -505,7 +505,7 @@ namespace breathe
 			fSpeed = fControl_Accelerate * fMaxAcceleration * properties.GetCurrentGearRatio();
 			fBrake = (1.0f * fControl_Brake) + (0.1f * fControl_Handbrake);
 
-			if (fBrake > 1.0f) fBrake=1.0f;
+			if (fBrake > 1.0f) fBrake = 1.0f;
 
 			fBrake *= fMaxBrake;
 
@@ -532,27 +532,26 @@ namespace breathe
 			*/
 
 
-			unsigned int i=0;
+			size_t i=0;
 
-			for(i=0;i<4;i++)
-				vWheel[i]->Update(currentTime);
+			for (i=0; i<4; i++) vWheel[i]->Update(currentTime);
 
 			/*
 			private void applyAntiSwayBarForces()
 			{
 				amt=0;
 
-				for(int i=0;i<4;i++){
+				for (size_t i=0;i<4;i++) {
 					Vector3 anchor2 = wheels[i].Joint.Anchor2;
 					Vector3 anchor1 = wheels[i].Joint.Anchor;
 					Vector3 axis = wheels[i].Joint.Axis2;
 
 					displacement = Vector3.Dot(anchor1-anchor2,axis);
 
-					if(displacement> 0){
+					if (displacement> 0) {
 						amt = displacement * swayForce;
-						if(amt> swayForceLimit)
-							amt = swayForceLimit;
+						if (amt > swayForceLimit) amt = swayForceLimit;
+
 						wheels[i].Body.AddForce(-axis *amt); //downforce
 						wheels[i^1].Body.AddForce(axis *amt); //upforce
 					}
@@ -601,38 +600,28 @@ namespace breathe
 		void cVehicle::FillUp(cPetrolBowser *pBowser)
 		{
 			float fSpace = fPetrolTankSize;
-			for(int i=0;i<PETROL_SIZE;i++)
-				fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
+			for (size_t i=0;i<PETROL_SIZE;i++) fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
 
-			cPlayer *p=vSeat[0]->pPlayer;
+			cPlayer *p = vSeat[0]->pPlayer;
 
-			if(pBowser->fPrice * fSpace < p->fDollars)
-			{
-				vPetrolTank[pBowser->uiType]+=fSpace;
-				p->fDollars-=pBowser->fPrice*fSpace;
-			}
-			else
-			{
-				vPetrolTank[pBowser->uiType]+=(p->fDollars/pBowser->fPrice);
+			if(pBowser->fPrice * fSpace < p->fDollars) {
+				vPetrolTank[pBowser->uiType] += fSpace;
+				p->fDollars -= pBowser->fPrice * fSpace;
+			} else {
+				vPetrolTank[pBowser->uiType] += (p->fDollars / pBowser->fPrice);
 				p->fDollars=0.0f;
 			}
 		}
 
-		void cVehicle::UpdateInput()
-		{
-			cPlayer *pPlayer=vSeat[0]->pPlayer;
+    void cVehicle::UpdateInput()
+    {
+      cPlayer *pPlayer=vSeat[0]->pPlayer;
+      if (nullptr == pPlayer) return;
 
-			if(NULL==pPlayer)
-				return;
-
-			if(pPlayer->bInputClutch)
-			{
-				fControl_Clutch+=0.1f;
-				if(fControl_Clutch>1.0f)
-					fControl_Clutch=1.0f;
-			}
-			else
-				fControl_Clutch*=0.9f;
+      if (pPlayer->bInputClutch) {
+        fControl_Clutch += 0.1f;
+        if(fControl_Clutch > 1.0f) fControl_Clutch = 1.0f;
+      } else fControl_Clutch *= 0.9f;
 
 
 			fControl_Accelerate = pPlayer->fInputUp;
@@ -640,26 +629,22 @@ namespace breathe
 			if(pPlayer->fInputLeft > pPlayer->fInputRight) fControl_Steer = -1.0f * pPlayer->fInputLeft;
 			else fControl_Steer = pPlayer->fInputRight;
 
-			if(pPlayer->bInputHandbrake) //Instant on
-				fControl_Handbrake=1.0f;
-			else
-				fControl_Handbrake=0.0f;
-		}
+      // Instant on
+      if (pPlayer->bInputHandbrake) fControl_Handbrake = 1.0f;
+      else fControl_Handbrake = 0.0f;
+    }
 
-		void cVehicle::AssignPlayer(cPlayer *p)
-		{
-			unsigned int i=0;
+    void cVehicle::AssignPlayer(cPlayer *p)
+    {
+      const size_t n = vSeat.size();
+      for(size_t i = 0;i<n;i++) {
+        cSeat* s = vSeat[i];
 
-			for(;i<vSeat.size();i++)
-			{
-				cSeat *s=vSeat[i];
-
-				if(!s->pPlayer)
-				{
-					vSeat[i]->AssignPlayer(p);
-					return;
-				}
-			}
-		}
-	}
+        if(!s->pPlayer) {
+          vSeat[i]->AssignPlayer(p);
+          return;
+        }
+      }
+    }
+  }
 }

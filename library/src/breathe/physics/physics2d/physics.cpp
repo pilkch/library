@@ -35,11 +35,11 @@
 
 namespace breathe
 {
-	namespace physics
-	{
+  namespace physics
+  {
     // *** Timing
     const unsigned int uiFrequencyHz = 60;
-		const float fTimeStep = 1.0f / uiFrequencyHz;
+    const float fTimeStep = 1.0f / uiFrequencyHz;
     const unsigned int uiIterations = 10;
 
     unsigned int GetFrequencyHz() { return uiFrequencyHz; }

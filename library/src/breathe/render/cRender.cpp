@@ -63,8 +63,64 @@ breathe::render::cRender* pRender = NULL;
 
 namespace breathe
 {
-	namespace render
-	{
+  namespace render
+  {
+    // *** cBatchController
+
+    void cBatchController::FinishAdding()
+    {
+      // Render all opaque front-to-back
+      // Render all transparent back-to-front
+
+      cBatchList* pList = nullptr;
+
+      // Opaque
+      iterator iter = opaque.begin();
+      iterator iterEnd = opaque.end();
+      while (iter != iterEnd) {
+        pList = iter->second;
+        pList->FinishAddingSortFrontToBack();
+
+        iter++;
+      };
+
+      // Transparent
+      iter = transparent.begin();
+      iterEnd = transparent.end();
+      while (iter != iterEnd) {
+        pList = iter->second;
+        pList->FinishAddingSortBackToFront();
+
+        iter++;
+      };
+    }
+
+    cBatchModelContainer::cBatchModelContainer(model::cStatic* _pModel, float _fDistanceFromCamera)
+     : fDistanceFromCamera(_fDistanceFromCamera), pModel(_pModel)
+    {}
+
+    bool cBatchModelContainer::SortBackToFront(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs)
+    {
+      return (lhs->fDistanceFromCamera > rhs->fDistanceFromCamera);
+    }
+
+    bool cBatchModelContainer::SortFrontToBack(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs)
+    {
+      return (lhs->fDistanceFromCamera < rhs->fDistanceFromCamera);
+    }
+
+    void cBatchList::FinishAddingSortFrontToBack()
+    {
+      std::sort(models.begin(), models.end(), cBatchModelContainer::SortFrontToBack);
+    }
+
+    void cBatchList::FinishAddingSortBackToFront()
+    {
+      std::sort(models.begin(), models.end(), cBatchModelContainer::SortBackToFront);
+    }
+
+    // *** cRender
+
 		cRender::cRender() :
 			bRenderWireframe(false),
 			bLight(true),
@@ -473,13 +529,13 @@ namespace breathe
 			return breathe::GOOD;
 		}
 
-    
+
     void cRender::EnableWireframe()
     {
       glDisable( GL_CULL_FACE );
 	    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     }
-	
+
     void cRender::DisableWireframe()
     {
 		  glEnable( GL_CULL_FACE );
@@ -626,7 +682,7 @@ namespace breathe
 		// 0.0f, 1.0f						1.0f, 1.0f
 
     void cRender::RenderScreenSpacePolygon(float fX, float fY,
-        float fVertX0, float fVertY0, float fVertX1, float fVertY1, 
+        float fVertX0, float fVertY0, float fVertX1, float fVertY1,
         float fVertX2, float fVertY2, float fVertX3, float fVertY3)
     {
 			glBegin(GL_QUADS);
@@ -670,7 +726,7 @@ namespace breathe
     {
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f); glVertex2f(fX, fY);
-				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fWidth, fY);  
+				glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fWidth, fY);
 				glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fWidth, fY + fHeight);
 				glTexCoord2f(0.0f, 1.0f); glVertex2f(fX, fY + fHeight);
 			glEnd();
@@ -687,7 +743,7 @@ namespace breathe
         glTexCoord2f(fU, fV + fV2);             glVertex2f(fX, fY + fHeight);
 			glEnd();
     }
-		
+
     void cRender::RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation)
     {
       glMatrixMode(GL_MODELVIEW);
@@ -696,7 +752,7 @@ namespace breathe
         const float fHalfHeight = fHeight * 0.5f;
         glTranslatef(fX, fY, 0.0f);
         glRotatef(fRotation, 0.0f, 0.0f, 1.0f);
-        
+
         RenderScreenSpaceRectangle(0.0f, 0.0f, fWidth, fHeight);
       glPopMatrix();
     }
@@ -721,7 +777,7 @@ namespace breathe
 				glPushMatrix();
 				  glLoadIdentity();
 				  glOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
-          
+
           BeginScreenSpaceGuiRendering();
 		}
 
@@ -736,7 +792,7 @@ namespace breathe
     void cRender::BeginScreenSpaceGuiRendering()
     {
       glFrontFace(GL_CW);
-			
+
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
 				glLoadIdentity();
@@ -756,7 +812,7 @@ namespace breathe
 
       glFrontFace(GL_CCW);
     }
-    
+
     // In this mode y is 1..0
 		void cRender::BeginScreenSpaceWorldRendering(float fScale)
     {
@@ -1168,7 +1224,8 @@ namespace breathe
 		{
 			assert(atlas < nAtlas);
 
-			return vTextureAtlas[atlas];		}
+			return vTextureAtlas[atlas];
+		}
 
 		cTexture* cRender::GetTexture(const std::string& sNewFilename)
 		{

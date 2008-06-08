@@ -1,7 +1,81 @@
 /*
 
-antiportal: A polygon that is totally opaque, not rendered, but hiding models behind it, like in Farcry.
-Can be walls that hide players etc. behind them.
+class cRender
+{
+  public:
+   void Render();
+
+   see if we can change void RenderModel(cModel* pModel) to void RenderModel(const cModel* pModel) etc.
+
+  private:
+   cBatchController batch;
+};
+
+void cRender::Render()
+{
+   // Opaque
+   cBatchController::const_iterator iter = batch.opaque.begin();
+   cBatchController::const_iterator iterEnd = batch.opaque.end();
+
+   while (iter != iterEnd) {
+      const cMaterial* pMaterial = iter->first;
+      SetMaterial(pMaterial);
+
+      const cBatchList* pItems = iter->second;
+
+      cBatchList::const_iterator iterBatch = pItems->models.begin();
+      cBatchList::const_iterator iterBatchEnd = pItems->models.end();
+      while (iterBatch != iterBatchEnd) {
+         const cModel* pModel = iterBatch->second;
+         RenderModel(pModel);
+
+         iterBatch++;
+};
+
+      iter++;
+};
+
+   // Transparent, already sorted
+   iter = batch.transparent.begin();
+   iterEnd = batch.transparent.end();
+
+   while (iter != iterEnd) {
+      const cMaterial* pMaterial = iter->first;
+      SetMaterial(pMaterial);
+
+      const cBatchList* pItems = iter->second;
+
+      cBatchList::const_iterator iterBatch = pItems->models.begin();
+      cBatchList::const_iterator iterBatchEnd = pItems->models.end();
+      while (iterBatch != iterBatchEnd) {
+         const cModel* pModel = iterBatch->second;
+         RenderModel(pModel);
+
+         iterBatch++;
+};
+
+      iter++;
+};
+}
+
+void cApp::Update()
+{
+   UpdateGame();
+   UpdateSceneGraph();
+   UpdateBatching();
+   UpdateSound();
+}
+
+void cApp::MainLoop()
+{
+   do {
+      if () UpdateInput();
+      if () UpdatePhysics();
+      if () Update();
+      if () Render();
+} while(...);
+}
+
 
 <config>
 <input>
@@ -1183,6 +1257,17 @@ namespace breathe
         continue;
       }
 
+      // State is constant from here on
+      cApp::cAppState& state = GetCurrentState();
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+      if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
+      {
+        _UpdatePhysics(state, currentTime);
+        tPhysics.Update(currentTime);
+        fPhysicsNext = currentTime + fPhysicsDelta;
+      }
+#endif
 
 			if (currentTime > fUpdateNext)
 			{
@@ -1201,19 +1286,6 @@ namespace breathe
         PushState(pPushThisStateSoon);
         continue;
       }
-
-
-      // State is constant from here on
-      cApp::cAppState& state = GetCurrentState();
-
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-			if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
-			{
-				_UpdatePhysics(state, currentTime);
-				tPhysics.Update(currentTime);
-				fPhysicsNext = currentTime + fPhysicsDelta;
-			}
-#endif
 
 			if (bActive && !bDone)// && currentTime > fRenderNext)
 			{
@@ -1238,30 +1310,42 @@ namespace breathe
 
 
 
-	// *** cConsoleWindow
-	cApp::cConsoleWindow::cConsoleWindow() :
-		gui::cWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console"), nullptr),
-		pPrevious(nullptr),
-		pInput(nullptr)
-	{
-	}
+  // *** cConsoleWindow
+  cApp::cConsoleWindow::cConsoleWindow() :
+    gui::cModelessWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console"), nullptr),
+    pPrevious(nullptr),
+    pInput(nullptr)
+  {
+    filesystem::iterator iter("/home/chris");
+    filesystem::iterator iterEnd;
 
-	void cApp::cConsoleWindow::InitConsoleWindow()
-	{
-		SetVisible(false);
-		SetResizable(true);
+    while (iter != iterEnd) {
+      if (iter.IsDirectory()) std::cout<<"directory "<<iter.GetName()<<std::endl;
+      else std::cout<<"file "<<iter.GetName()<<std::endl;
+      iter++;
+    }
+  }
 
-		pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
-		pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+  void cApp::cConsoleWindow::InitConsoleWindow()
+  {
+    SetVisible(false);
+    SetResizable(true);
 
-		AddChild(pPrevious);
-		AddChild(pInput);
-	}
+    math::cColour green(0.0f, 1.0f, 0.0f);
 
-	void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)
-	{
+    pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+    pPrevious->SetColour(green);
+    pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+    pInput->SetColour(green);
+
+    AddChild(pPrevious);
+    AddChild(pInput);
+  }
+
+  void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)
+  {
     std::cout<<"cApp::cConsoleWindow::_OnEvent"<<std::endl;
-	}
+  }
 
 
 	// *** cKey
@@ -1425,23 +1509,24 @@ namespace breathe
 
   void breathe::cApp::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
   {
-		std::string s;
-		breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
-		breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
+    std::string s;
+    /*breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
+    breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
 
-		while (iter != iterEnd) {
-			s.append((*iter) + "\n");
-			iter++;
-		}
+    while (iter != iterEnd) {
+      s.append((*iter) + "\n");
+      iter++;
+    }*/
 
+    s = "This is the console";
     pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
   }
 
   void breathe::cApp::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
   {
     if (app.IsKeyDown(SDLK_BACKQUOTE) || app.IsKeyDown(SDLK_ESCAPE)) {
-		  app.PopStateSoon();
+       app.PopStateSoon();
       return;
-	  }
+    }
   }
 }

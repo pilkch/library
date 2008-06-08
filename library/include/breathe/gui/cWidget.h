@@ -3,6 +3,11 @@
 
 namespace breathe
 {
+  namespace render
+  {
+    class cFont;
+  }
+
   namespace gui
   {
     typedef uint16_t id_t;
@@ -16,13 +21,18 @@ namespace breathe
       WIDGET_WINDOW,
       WIDGET_BUTTON,
       WIDGET_STATICTEXT,
-      WIDGET_INPUT
+      WIDGET_INPUT,
+      WIDGET_SLIDER_HORIZONTAL,
+      WIDGET_SLIDER_VERTICAL,
+      WIDGET_SCROLLBAR_HORIZONTAL,
+      WIDGET_SCROLLBAR_VERTICAL
     };
 
     enum EVENT_TYPE
     {
       EVENT_CLICK_PRIMARY = 0,
-      EVENT_CLICK_SECONDARY
+      EVENT_CLICK_SECONDARY,
+      EVENT_CHANGE_VALUE
     };
 
     // This is our base object.
@@ -154,9 +164,6 @@ namespace breathe
       }
     };
 
-    typedef cWidgetTemplate<WIDGET_STATICTEXT> cWidget_StaticText;
-    typedef cWidgetTemplate<WIDGET_INPUT> cWidget_Input;
-
 
     class cWidget_Button : public cWidget
     {
@@ -180,6 +187,100 @@ namespace breathe
 
       bool bCurrentlyClickingOnThisControl;
     };
+
+    class cWidget_SliderHorizontal : public cWidget
+    {
+    public:
+      cWidget_SliderHorizontal(id_t idControl, float x, float y, float width, float height) :
+        cWidget(idControl, WIDGET_SLIDER_HORIZONTAL, x, y, width, height),
+        bCurrentlyClickingOnThisControl(false)
+      {
+        HandleChangeValue(idControl);
+      }
+
+      void HandleChangeValue(id_t idToReturn)
+      {
+        HandleEvent(EVENT_CHANGE_VALUE, idToReturn);
+      }
+
+    private:
+      void _OnLeftMouseDown(float x, float y) { bCurrentlyClickingOnThisControl = true; }
+      void _OnLeftMouseUp(float x, float y);
+      void _OnMouseMove(float x, float y);
+      void _OnMouseOut(float x, float y) { bCurrentlyClickingOnThisControl = false; }
+
+      bool bCurrentlyClickingOnThisControl;
+      float fTempValue;
+    };
+
+    class cWidget_StaticText : public cWidget
+    {
+      public:
+      cWidget_StaticText(id_t idControl, float x, float y, float width, float height) :
+        cWidget(idControl, WIDGET_STATICTEXT, x, y, width, height),
+          pFont(nullptr)
+      {
+      }
+
+      render::cFont* GetFont() const
+      {
+        return pFont;
+      }
+
+      const math::cColour& GetColour() const
+      {
+        return colour;
+      }
+
+      void SetFont(render::cFont* _pFont)
+      {
+        pFont = _pFont;
+      }
+
+      void SetColour(const math::cColour& _colour)
+      {
+        colour = _colour;
+      }
+
+    private:
+      render::cFont* pFont;
+      math::cColour colour;
+    };
+
+    class cWidget_Input : public cWidget
+    {
+    public:
+      cWidget_Input(id_t idControl, float x, float y, float width, float height) :
+        cWidget(idControl, WIDGET_INPUT, x, y, width, height),
+        pFont(nullptr)
+      {
+      }
+
+      render::cFont* GetFont() const
+      {
+        return pFont;
+      }
+
+      const math::cColour& GetColour() const
+      {
+        return colour;
+      }
+
+      void SetFont(render::cFont* _pFont)
+      {
+        pFont = _pFont;
+      }
+
+      void SetColour(const math::cColour& _colour)
+      {
+        colour = _colour;
+      }
+
+    private:
+      render::cFont* pFont;
+      math::cColour colour;
+    };
+
   }
 }
 

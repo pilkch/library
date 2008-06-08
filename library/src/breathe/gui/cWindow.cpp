@@ -17,6 +17,9 @@
 #include <GL/GLee.h>
 #include <GL/glu.h>
 
+// OpenGL Headers
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 // Breathe
@@ -40,23 +43,29 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
 
 namespace breathe
 {
-	namespace gui
-	{
-		cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent) :
-			cWidget(id, WIDGET_WINDOW, x, y, width, height),
+  namespace gui
+  {
+    // *** cWindow
+
+    cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent, bool _bModeless, bool _bResizable) :
+      cWidget(id, WIDGET_WINDOW, x, y, width, height),
       z(0)
-		{
-			SetCaption(caption);
+    {
+      SetCaption(caption);
       SetParent(_pParent);
 
       if (pParent != nullptr) z = ((cWindow*)pParent)->GetZDepth() + 1;
-		}
+
+      bModeless = _bModeless;
+      bResizable = _bResizable;
+    }
 
 		void cWindow::Update(sampletime_t currentTime)
 		{
@@ -83,5 +92,21 @@ namespace breathe
 
       _OnMouseEvent(button, state, x, y);
     }
-	}
+
+
+    // *** cModelessWindow
+
+    cModelessWindow::cModelessWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* pParent) :
+      cWindow(id, x, y, width, height, caption, pParent, true, true)
+    {
+    }
+
+
+    // *** cModalDialog
+
+    cModalDialog::cModalDialog(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* pParent) :
+      cWindow(id, x, y, width, height, caption, pParent, false, false)
+    {
+    }
+  }
 }

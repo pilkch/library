@@ -18,6 +18,11 @@ namespace breathe
       ~cWindowManager();
 
       void LoadTheme();
+      void LoadGuiFromXML(const string_t& sFilename);
+
+      // Automatically adds a string with an automatically generated id if not found
+      id_t GetIDFromStringIdentifier(const string_t& sIdentifier);
+
       void Render();
 
       bool OnMouseEvent(int button, int state, float x, float y);
@@ -33,12 +38,13 @@ namespace breathe
       void _RenderWidget(const cWidget& widget);
 
       void _RenderWindow(const cWindow& widget);
-      void _RenderButton(const cWidget& widget);
-      void _RenderStaticText(const cWidget& widget);
-      void _RenderInput(const cWidget& widget);
+      void _RenderButton(const cWidget_Button& widget);
+      void _RenderStaticText(const cWidget_StaticText& widget);
+      void _RenderInput(const cWidget_Input& widget);
 
       child_list child;
       cWidget* pEventWidgetMouseLeftButtonDown;
+      std::map<string_t, id_t> stringIdentifierToID;
     };
   }
 }

@@ -13,6 +13,10 @@
 #include <map>
 #include <string>
 
+// OpenGL Headers
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+
 // Breathe
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
@@ -34,6 +38,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
@@ -183,7 +188,7 @@ namespace breathe
     /*
     cWidget_Input
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
     std::string currentline(CONSOLE.GetCurrentLine());
     if (CONSOLE.uiCursorBlink>20) pFont->printf(0, 20, currentline.c_str());
     else
@@ -201,6 +206,19 @@ namespace breathe
       }
 
       bCurrentlyClickingOnThisControl = false;
+    }
+
+
+    // ** cWidget_SliderHorizontal
+    void cWidget_SliderHorizontal::_OnLeftMouseUp(float x, float y)
+    {
+      value = int(100.0f * fTempValue);
+    }
+
+    void cWidget_SliderHorizontal::_OnMouseMove(float x, float y)
+    {
+      LOG<<"cWidget_SliderHorizontal::_OnMouseMove"<<std::endl;
+      fTempValue = x;
     }
   }
 }
