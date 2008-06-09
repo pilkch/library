@@ -32,9 +32,9 @@
 
 namespace breathe
 {
-	namespace storage
-	{
-		/*
+  namespace storage
+  {
+    /*
       From http://en.wikipedia.org/wiki/Byte-order_mark
 
 			DETECTED:
@@ -44,7 +44,7 @@ namespace breathe
 			UTF-32 (big-endian) 00 00 FE FF
 			UTF-32 (little-endian) FF FE 00 00
 			SCSU (compression) 0E FE FF
-			
+
 			NOT DETECTED:
 			UTF-16BE, UTF-32BE (big-endian) With no BOM
 			UTF-16LE, UTF-32LE (little-endian) With no BOM
@@ -56,7 +56,7 @@ namespace breathe
 		BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes)
 		{
 			bytes = 0;
-			
+
 			std::ifstream file;
 			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
 
@@ -78,11 +78,11 @@ namespace breathe
 				//UTF-32 (little-endian) FF FE 00 00
 				if ((signature[0] == 0xFF) && (signature[1] == 0xFE) && (signature[2] == 0x00) && (signature[3] == 0x00)) {
 					SCREEN<<"Error 32bit little endian file signature detected"<<std::endl;
-					assert(false); 
+          assert(false);
 					return BYTEORDER_UTF32LE;
 				}
 			}
-			
+
 			if (count >= 3) {
 				bytes = 3;
 				//UTF-8 EF BB BF
@@ -212,7 +212,7 @@ namespace breathe
       CONSOLE<<"ReadText returning"<<std::endl;
     }
 
-		
+
 		void AppendText(const string_t& filename, const std::string& contents)
 		{
 			//size_t signature_bytes = 0;
@@ -220,13 +220,13 @@ namespace breathe
 
 			std::ofstream file;
 			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
-	
+
 			file<<contents;
 			/*if (BYTEORDER_UTF8 == byteOrder)
 			{
-				
+
 			}*/
-			
+
 			file.close();
 		}
 

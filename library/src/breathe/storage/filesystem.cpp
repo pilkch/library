@@ -1,3 +1,7 @@
+#ifdef __LINUX__
+#include <dirent.h>
+#endif
+
 #include <sys/stat.h>
 
 #include <cstdio>
@@ -33,6 +37,7 @@ namespace breathe
   {
     std::vector<string_t> vDirectory;
     string_t sApplicationDirectory = TEXT("");
+    const string_t sFolderSeparator = TEXT("/");
 
     string_t ExpandPath(const string_t& path)
     {
@@ -49,37 +54,37 @@ namespace breathe
         return breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
       }
 
-			// "."
-			// ".********"
+      // "."
+      // ".********"
       if ((path == TEXT(".")) || ((path.length() > 2) && path[0] == TEXT('.')) && (path[1] != TEXT('.'))) {
         string_t expanded(path.substr(2));
         printf("ExpandPath 2 returning \"%s\"\n", expanded.c_str());
         return expanded;
       }
 
-			string_t expanded = path;
-			string_t prefix = GetThisApplicationDirectory();
-			while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
-				expanded.erase(0, 3);
+      string_t expanded = path;
+      string_t prefix = GetThisApplicationDirectory();
+      while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
+        expanded.erase(0, 3);
         printf("ExpandPath prefix=\"%s\"\n", prefix.c_str());
-				prefix = StripLastDirectory(prefix);
-			};
+        prefix = StripLastDirectory(prefix);
+      };
 
       printf("ExpandPath final prefix=\"%s\" expanded=\"%s\"\n", prefix.c_str(), expanded.c_str());
 
-			return prefix + expanded;
-		}
+      return prefix + expanded;
+    }
 
-		string_t StripLastDirectory(const string_t& path)
-		{
-			// if "folder1/folder2/folder3" return "folder1/folder2/"
-			// else ("folder1/folder2/" so ... ) return "folder1/"
+    string_t StripLastDirectory(const string_t& path)
+    {
+      // if "folder1/folder2/folder3" return "folder1/folder2/"
+      // else ("folder1/folder2/" so ... ) return "folder1/"
 
-			string_t result(path);
-			if (breathe::string::EndsWith(path, TEXT("/"))) result = breathe::string::StripAfterLastInclusive(result, TEXT("/"));
+      string_t result(path);
+      if (breathe::string::EndsWith(path, TEXT("/"))) result = breathe::string::StripAfterLastInclusive(result, TEXT("/"));
 
-			return breathe::string::StripAfterLast(result, TEXT("/"));
-		}
+      return breathe::string::StripAfterLast(result, TEXT("/"));
+    }
 
     void SetThisExecutable(const string_t& executable)
     {
@@ -108,108 +113,131 @@ namespace breathe
       return sApplicationDirectory;
     }
 
-		string_t GetPath(const string_t& sFilename)
-		{
-			string_t p = TEXT("");
-			string_t s = sFilename;
+    string_t GetPath(const string_t& sFilename)
+    {
+      string_t p = TEXT("");
+      string_t s = sFilename;
 
-			string_t::size_type i = s.find(TEXT("/"));
-			while(i != string_t::npos)
-			{
-				i++;
-				p += s.substr(0, i);
-				s = s.substr(i);
-				i = s.find(TEXT("/"));
-			};
+      string_t::size_type i = s.find(TEXT("/"));
+      while(i != string_t::npos)
+      {
+        i++;
+        p += s.substr(0, i);
+        s = s.substr(i);
+        i = s.find(TEXT("/"));
+      };
 
-			return p;
-		}
+      return p;
+    }
 
-		string_t GetFile(const string_t& sFilename)
-		{
-			string_t::size_type i = sFilename.rfind(TEXT("/"));
+    string_t GetFile(const string_t& sFilename)
+    {
+      string_t::size_type i = sFilename.rfind(TEXT("/"));
 
-			// We didn't find a folder, so just return the whole path
-			if (string_t::npos == i) return sFilename;
+      // We didn't find a folder, so just return the whole path
+      if (string_t::npos == i) return sFilename;
 
-			i++;
-			return sFilename.substr(i);
-		}
+      i++;
+      return sFilename.substr(i);
+    }
 
-		string_t GetFileNoExtension(const string_t& sFilename)
-		{
-			string_t::size_type i = sFilename.find(TEXT("/"));
-			string_t temp = sFilename;
-			while(i != string_t::npos)
-			{
-				i++;
-				temp = temp.substr(i);
-				i = temp.find(TEXT("/"));
-			};
+    string_t GetFileNoExtension(const string_t& sFilename)
+    {
+      string_t::size_type i = sFilename.find(TEXT("/"));
+      string_t temp = sFilename;
+      while(i != string_t::npos)
+      {
+        i++;
+        temp = temp.substr(i);
+        i = temp.find(TEXT("/"));
+      };
 
-			i = temp.find(TEXT("."));
-			if (i != string_t::npos) return temp.substr(0, i);
+      i = temp.find(TEXT("."));
+      if (i != string_t::npos) return temp.substr(0, i);
 
-			return TEXT("");
-		}
+      return TEXT("");
+    }
 
-		string_t GetExtension(const string_t& sFilename)
-		{
-			string_t s=sFilename;
+    string_t GetExtension(const string_t& sFilename)
+    {
+      string_t s=sFilename;
 
-			string_t::size_type i=s.find(TEXT("/"));;
-			while(i != string_t::npos)
-			{
-				i++;
-				s=s.substr(i);
-				i=s.find(TEXT("/"));
-			};
+      string_t::size_type i=s.find(TEXT("/"));;
+      while(i != string_t::npos)
+      {
+        i++;
+        s=s.substr(i);
+        i=s.find(TEXT("/"));
+      };
 
-			if (i != string_t::npos) s = s.substr(i);
+      if (i != string_t::npos) s = s.substr(i);
 
-			i = s.find(TEXT("."));
-			while(i!=string_t::npos)
-			{
-				i++;
-				s = s.substr(i);
-				i = s.find(TEXT("."));
-			};
+      i = s.find(TEXT("."));
+      while(i!=string_t::npos)
+      {
+        i++;
+        s = s.substr(i);
+        i = s.find(TEXT("."));
+      };
 
-			if (i != string_t::npos) return s.substr(i);
+      if (i != string_t::npos) return s.substr(i);
 
-			return s.substr(0);
-		}
+      return s.substr(0);
+    }
 
 
-		void AddDirectory(const string_t& sDirectory)
-		{
-			string_t expanded = ExpandPath(sDirectory);
+    void AddDirectory(const string_t& sDirectory)
+    {
+      string_t expanded = ExpandPath(sDirectory);
 
-			size_t i = 0;
-			size_t n = vDirectory.size();
-			for (i=0;i<n;i++)
-			{
-				if (vDirectory[i] == expanded)
-					return;
-			}
+      size_t i = 0;
+      size_t n = vDirectory.size();
+      for (i=0;i<n;i++)
+      {
+        if (vDirectory[i] == expanded)
+          return;
+      }
 
-			vDirectory.push_back(expanded);
+      vDirectory.push_back(expanded);
 #ifndef FIRESTARTER
-			LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + expanded));
+      LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + expanded));
 #endif
-		}
+    }
 
-		string_t FindFile(const string_t& sPath, const string_t& sFilename)
-		{
-			string_t temp = FindFile(sPath + sFilename);
+#ifdef __WIN__
+#pragma push_macro("FileExists")
+#undef FileExists
+#endif
+    bool FileExists(const breathe::string_t& sFilename)
+    {
+#ifdef __WIN__
+#pragma pop_macro("FileExists")
+      WIN32_FIND_DATA FindFileData;
+      HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
+      if (hFind != INVALID_HANDLE_VALUE) {
+        FindClose(hFind);
+        return true;
+      }
 
-			if (FileExists(temp)) return temp;
+      return false;
+#elif defined(__LINUX__)
+      return (0 == access(sFilename.c_str(), F_OK));
+#else
+#error "FileExists not implemented on this platform"
+#endif
+    }
 
-			return FindFile(sFilename);
-		}
+    string_t FindFile(const string_t& sPath, const string_t& sFilename)
+    {
+      string_t temp = FindFile(sPath + sFilename);
 
-		string_t FindFile(const string_t& sFilename)
-		{
+      if (FileExists(temp)) return temp;
+
+      return FindFile(sFilename);
+    }
+
+    string_t FindFile(const string_t& sFilename)
+    {
 #ifdef __LINUX__
       CONSOLE<<"FindFile "<<sFilename<<std::endl;
 #endif
@@ -265,40 +293,13 @@ namespace breathe
 
 
 #ifndef FIRESTARTER
-		string_t GetMD5(const string_t& sFilename)
-		{
-			cMD5 m;
-			m.CheckFile(breathe::string::ToUTF8(sFilename));
-
-			return breathe::string::ToString_t(m.GetResult());
-		}
-#endif
-
-#ifdef __WIN__
-#pragma push_macro("FileExists")
-#undef FileExists
-#endif
-    bool FileExists(const breathe::string_t& sFilename)
+    string_t GetMD5(const string_t& sFilename)
     {
-#ifdef __WIN__
-#pragma pop_macro("FileExists")
-
-      WIN32_FIND_DATA FindFileData;
-      HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
-      if (hFind != INVALID_HANDLE_VALUE)
-      {
-        FindClose(hFind);
-        return true;
-      }
-
-      return false;
-#elif defined(__LINUX__)
-      return (0 == access(sFilename.c_str(), F_OK));
-#else
-      #error "FileExists not implemented on this platform"
-#endif
+      cMD5 m;
+      m.CheckFile(breathe::string::ToUTF8(sFilename));
+      return breathe::string::ToString_t(m.GetResult());
     }
-
+#endif
 
 #ifdef __WIN__
 #pragma push_macro("CreateDirectory")
@@ -327,37 +328,36 @@ namespace breathe
 #pragma push_macro("CreateFile")
 #undef CreateFile
 #endif
-		bool CreateFile(const breathe::string_t& sFilename)
-		{
+    bool CreateFile(const breathe::string_t& sFilename)
+    {
 #ifdef __WIN__
 #pragma pop_macro("CreateFile")
 
-			// Check if this file is already created so that we don't overwrite it
-			if (FileExists(sFilename))
-				return true;
+      // Check if this file is already created so that we don't overwrite it
+      if (FileExists(sFilename)) return true;
 
-			// File not found, we can now create the file
+      // File not found, we can now create the file
 #ifdef UNICODE
-			HANDLE handle = ::CreateFileW(
+      HANDLE handle = ::CreateFileW(
 #else
-			HANDLE handle = ::CreateFileA(
+      HANDLE handle = ::CreateFileA(
 #endif
-				sFilename.c_str(),     // file to create
-				GENERIC_WRITE,          // open for writing
-				0,                      // do not share
-				NULL,                   // default security
-				CREATE_ALWAYS,          // overwrite existing
-				FILE_ATTRIBUTE_NORMAL | // normal file
-				FILE_FLAG_OVERLAPPED,   // asynchronous I/O
-				NULL);                  // no attr. template
-			if (INVALID_HANDLE_VALUE != handle)
-			{
-				// This file is created
-				CloseHandle(handle);
-				return true;
-			}
+        sFilename.c_str(),      // file to create
+        GENERIC_WRITE,          // open for writing
+        0,                      // do not share
+        NULL,                   // default security
+        CREATE_ALWAYS,          // overwrite existing
+        FILE_ATTRIBUTE_NORMAL | // normal file
+        FILE_FLAG_OVERLAPPED,   // asynchronous I/O
+        NULL                    // no attr. template
+      );
+      if (INVALID_HANDLE_VALUE != handle) {
+        // This file is created
+        CloseHandle(handle);
+        return true;
+      }
 
-			return false;
+      return false;
 #elif defined(__LINUX__)
       std::ofstream file(sFilename.c_str());
       bool bIsOpen = file.good();
@@ -366,74 +366,173 @@ namespace breathe
       return bIsOpen;
 #else
       #error "CreateFile not implemented on this platform"
-			return false;
+      return false;
 #endif
-		}
+    }
 
+    string_t MakeFilePath(const string_t& sDirectory, const string_t& sFile)
+    {
+      string_t sFullPath(sDirectory);
+      if (!breathe::string::EndsWith(sDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
+      return sFullPath + breathe::string::StripLeading(sFile, sFolderSeparator);
+    }
 
-		// ************************************************* path *************************************************
+    string_t MakeFilePath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile)
+    {
+      string_t sFullPath(sSubDirectory);
+      if (!breathe::string::EndsWith(sSubDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
+      return MakeFilePath(sDirectory, sFullPath + breathe::string::StripLeading(sFile, sFolderSeparator));
+    }
 
-		path::path(const string_t& file_or_directory)
-		{
-			sPath = file_or_directory;
-		}
+    // ************************************************* path *************************************************
 
-		bool path::IsFile() const
-		{
-			return GetFile().length() > 0;
-		}
+    path::path(const string_t& sDirectory) :
+      sPath(sDirectory)
+    {
+    }
 
-		bool path::IsDirectory() const
-		{
-			return GetFile().length() == 0;
-		}
+    path::path(const string_t& sDirectory, const string_t& sFile) :
+      sPath(MakeFilePath(sDirectory, sFile))
+    {
+    }
 
-		string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
-		{
-			assert(IsDirectory());
-			return filesystem::GetPath(sPath);
-		}
+    path::path(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile) :
+      sPath(MakeFilePath(sDirectory, sSubDirectory, sFile))
+    {
+    }
 
-		string_t path::GetFile() const // Returns just the file "file.txt"
-		{
-			assert(IsFile());
-			return filesystem::GetFile(sPath);
-		}
+    bool path::IsFile() const
+    {
+#ifdef __WIN__
+      WIN32_FIND_DATA FindFileData;
+      HANDLE hFind = FindFirstFile(sPath.c_str(), &FindFileData);
+      if (hFind != INVALID_HANDLE_VALUE) {
+        FindClose(hFind);
+        return true;
+      }
 
-		string_t path::GetExtenstion() const // Returns just the extension ".txt"
-		{
-			assert(IsFile());
-			return filesystem::GetExtension(sPath);
-		}
+      return false;
+#elif defined(__LINUX__)
+      struct stat _stat;
+      int result = lstat(sPath.c_str(), &_stat);
+      if (0 > result) {
+        std::cout<<"path::IsFile lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
+        return false;
+      }
+      return S_ISREG(_stat.st_mode);
+#else
+#error "path::IsFile not implemented on this platform"
+#endif
+    }
 
-		string_t path::str() const // Returns the full path "/folder1/folder2/file.txt"
-		{
-			return sPath;
-		}
+    bool path::IsDirectory() const
+    {
+#ifdef __WIN__
+      WIN32_FIND_DATA FindFileData;
+      HANDLE hFind = FindFirstFile(sPath.c_str(), &FindFileData);
+      if (hFind != INVALID_HANDLE_VALUE) {
+        FindClose(hFind);
+        return true;
+      }
+
+      return false;
+#elif defined(__LINUX__)
+      struct stat _stat;
+      int result = lstat(sPath.c_str(), &_stat);
+      if (0 > result) {
+        std::cout<<"path::IsDirectory lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
+        return false;
+      }
+      return S_ISDIR(_stat.st_mode);
+#else
+#error "path::IsDirectory not implemented on this platform"
+#endif
+    }
+
+    string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
+    {
+      assert(IsDirectory());
+      return filesystem::GetPath(sPath);
+    }
+
+    string_t path::GetFile() const // Returns just the file "file.txt"
+    {
+      assert(IsFile());
+      return filesystem::GetFile(sPath);
+    }
+
+    string_t path::GetExtenstion() const // Returns just the extension ".txt"
+    {
+      assert(IsFile());
+      return filesystem::GetExtension(sPath);
+    }
+
+    string_t path::GetFullPath() const // Returns the full path "/folder1/folder2/file.txt"
+    {
+      return sPath;
+    }
+
+    string_t GetCurrentDirectory()
+    {
+      char_t szDirectory[300];
+      getcwd(szDirectory, 300);
+      return string_t(szDirectory);
+    }
+
+    void ChangeToDirectory(const string_t& sDirectory)
+    {
+      chdir(sDirectory.c_str());
+    }
+
+    // ********************************************* cScopedDirectoryChange *********************************************
+
+    cScopedDirectoryChange::cScopedDirectoryChange(const string_t& sNewDirectory)
+    {
+      sPreviousDirectory = GetCurrentDirectory();
+      ChangeToDirectory(sNewDirectory);
+    }
+
+    cScopedDirectoryChange::~cScopedDirectoryChange()
+    {
+      ChangeToDirectory(sPreviousDirectory);
+    }
 
 
     // ********************************************* iterator *********************************************
 
     iterator::iterator() :
+      bIsEndIterator(true),
       i(0),
       sParentFolder("")
     {
     }
 
-    iterator::iterator(const string_t& directory)
+    iterator::iterator(const string_t& directory) :
+      bIsEndIterator(false),
+      i(0),
+      sParentFolder(directory)
     {
-      i = 0;
-      sParentFolder = directory;
-      paths.clear();
-
-      //TODO: Get folder contents, fill paths
-      paths.push_back(TEXT("1"));
-      paths.push_back(TEXT("2"));
-      paths.push_back(TEXT("/home/chris/Dev"));
+#ifdef __WIN__
+#error "iterator::iterator not implemented in windows"
+#elif defined(__LINUX__)
+      DIR* d = opendir(sParentFolder.c_str());
+      struct dirent* dirp;
+      if (d != nullptr) {
+        while ((dirp = readdir(d)) != NULL ) {
+          if ((0 != strcmp(".", dirp->d_name)) &&
+              (0 != strcmp("..", dirp->d_name)))
+            paths.push_back(dirp->d_name);
+        }
+      }
+      closedir(d);
+#else
+#error "iterator::iterator not implemented on this platform"
+#endif
     }
 
     iterator::iterator(const iterator& rhs)
     {
+      bIsEndIterator = true;
       i = rhs.i;
       sParentFolder = rhs.sParentFolder;
       paths = rhs.paths;
@@ -442,13 +541,18 @@ namespace breathe
 
     iterator& iterator::operator++(int)
     {
-      if (i < paths.size()) i++;
+      const size_t n = paths.size();
+      if (i < n) {
+        i++;
+        if (i == n) bIsEndIterator = true;
+      }
 
       return *this;
     }
 
     iterator& iterator::operator=(const iterator& rhs)
     {
+      bIsEndIterator = rhs.bIsEndIterator;
       i = rhs.i;
       sParentFolder = rhs.sParentFolder;
       paths = rhs.paths;
@@ -458,7 +562,8 @@ namespace breathe
 
     bool iterator::operator==(const iterator& rhs)
     {
-      return (sParentFolder == rhs.sParentFolder) && (paths.size() == rhs.paths.size());
+      // If we were never initialised or have iterator through our path lists
+      return ((!IsValid() && !rhs.IsValid()) || ((sParentFolder == rhs.sParentFolder) && (paths.size() == rhs.paths.size())));
     }
 
     bool iterator::operator!=(const iterator& rhs)
@@ -466,38 +571,40 @@ namespace breathe
       return !(*this == rhs);
     }
 
-		string_t iterator::GetName() const
-		{
-      assert(i < paths.size());
+    string_t iterator::GetFile() const
+    {
+      assert(IsValid());
+      return paths[i];
+    }
 
-			return paths[i];
-		}
+    string_t iterator::GetFullPath() const
+    {
+      assert(IsValid());
+      return MakeFilePath(sParentFolder, paths[i]);
+    }
 
-		bool iterator::HasChildren() const
-		{
-			return !paths.empty();
+    bool iterator::HasChildren() const
+    {
+      return !paths.empty();
+    }
+
+    bool iterator::IsValid() const
+    {
+      return (!bIsEndIterator && !paths.empty() && (i < paths.size()));
     }
 
     bool iterator::IsFile() const
     {
-      return !IsDirectory();
+      assert(IsValid());
+      path p(sParentFolder, paths[i]);
+      return p.IsFile();
     }
 
     bool iterator::IsDirectory() const
     {
-      assert(i < paths.size());
-      path p(paths[i]);
+      assert(IsValid());
+      path p(sParentFolder, paths[i]);
       return p.IsDirectory();
     }
-
-		/*iterator iterator::GetDirectoryIterator() const
-		{
-			return *this;
-		}
-
-		file_iterator iterator::GetFileIterator() const
-		{
-			return file_iterator();
-		}*/
-	}
+  }
 }

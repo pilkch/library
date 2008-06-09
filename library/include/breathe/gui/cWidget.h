@@ -218,7 +218,7 @@ namespace breathe
       public:
       cWidget_StaticText(id_t idControl, float x, float y, float width, float height) :
         cWidget(idControl, WIDGET_STATICTEXT, x, y, width, height),
-          pFont(nullptr)
+        pFont(nullptr)
       {
       }
 

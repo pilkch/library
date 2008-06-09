@@ -371,26 +371,24 @@ namespace breathe
 			//return temp;
 		}*/
 
-		float ToFloat(const std::string& source)
-		{
-			float value = 0.0f;
-			std::stringstream stm(source);
-			stm >> value;
-			return value;
-		}
+    float ToFloat(const string_t& source)
+    {
+      float value = 0.0f;
+      std::stringstream stm(source);
+      stm >> value;
+      return value;
+    }
 
-		std::string HTMLDecode(const std::string& source)
-		{
-			std::string sOut(source);
+    std::string HTMLDecode(const std::string& source)
+    {
+      std::string sOut(source);
+      return sOut;
+    }
 
-			return sOut;
-		}
-
-		std::string HTMLEncode(const std::string& source)
-		{
-			std::string sOut(source);
-
-			return sOut;
-		}
-	}
+    std::string HTMLEncode(const std::string& source)
+    {
+      std::string sOut(source);
+      return sOut;
+    }
+  }
 }

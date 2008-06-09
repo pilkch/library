@@ -1299,14 +1299,14 @@ namespace breathe
     // Get rid of any states that we do have as they may try and operate on destructed/destructing objects later on
     while (!states.empty()) states.pop_back();
 
-		LOG.Newline("DestroyScene");
-		DestroyScene();
+    LOG.Newline("DestroyScene");
+    DestroyScene();
 
-		LOG.Newline("DestroyApp");
-		DestroyApp();
+    LOG.Newline("DestroyApp");
+    DestroyApp();
 
-		return bReturnCode;
-	}
+    return bReturnCode;
+  }
 
 
 
@@ -1316,14 +1316,6 @@ namespace breathe
     pPrevious(nullptr),
     pInput(nullptr)
   {
-    filesystem::iterator iter("/home/chris");
-    filesystem::iterator iterEnd;
-
-    while (iter != iterEnd) {
-      if (iter.IsDirectory()) std::cout<<"directory "<<iter.GetName()<<std::endl;
-      else std::cout<<"file "<<iter.GetName()<<std::endl;
-      iter++;
-    }
   }
 
   void cApp::cConsoleWindow::InitConsoleWindow()
@@ -1487,24 +1479,24 @@ namespace breathe
 
   // *** cAppStateConsole
 
-	void breathe::cApp::cAppStateConsole::_OnEntry()
+  void breathe::cApp::cAppStateConsole::_OnEntry()
   {
     pConsoleWindow = new cConsoleWindow;
     app.window_manager.AddChild(pConsoleWindow);
-		pConsoleWindow->InitConsoleWindow();
+    pConsoleWindow->InitConsoleWindow();
 
-		pConsoleWindow->SetVisible(true);
-		CONSOLE.Show();
-		app.CursorShow();
+    pConsoleWindow->SetVisible(true);
+    CONSOLE.Show();
+    app.CursorShow();
   }
 
-	void breathe::cApp::cAppStateConsole::_OnExit()
+  void breathe::cApp::cAppStateConsole::_OnExit()
   {
-		assert(pConsoleWindow != nullptr);
-		pConsoleWindow->SetVisible(false);
+    assert(pConsoleWindow != nullptr);
+    pConsoleWindow->SetVisible(false);
     app.window_manager.RemoveChild(pConsoleWindow);
-		CONSOLE.Hide();
-		app.CursorHide();
+    CONSOLE.Hide();
+    app.CursorHide();
   }
 
   void breathe::cApp::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
@@ -1514,8 +1506,8 @@ namespace breathe
     breathe::constant_stack<std::string>::iterator iterEnd = CONSOLE.end();
 
     while (iter != iterEnd) {
-      s.append((*iter) + "\n");
-      iter++;
+    s.append((*iter) + "\n");
+    iter++;
     }*/
 
     s = "This is the console";
@@ -1525,7 +1517,7 @@ namespace breathe
   void breathe::cApp::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
   {
     if (app.IsKeyDown(SDLK_BACKQUOTE) || app.IsKeyDown(SDLK_ESCAPE)) {
-       app.PopStateSoon();
+      app.PopStateSoon();
       return;
     }
   }

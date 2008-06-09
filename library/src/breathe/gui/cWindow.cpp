@@ -67,10 +67,9 @@ namespace breathe
       bResizable = _bResizable;
     }
 
-		void cWindow::Update(sampletime_t currentTime)
-		{
-
-		}
+    void cWindow::Update(sampletime_t currentTime)
+    {
+    }
 
     void cWindow::OnMouseEvent(int button, int state, float x, float y)
     {

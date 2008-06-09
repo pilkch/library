@@ -14,9 +14,6 @@ namespace breathe
 {
 	namespace filesystem
 	{
-		class directory_iterator;
-		class file_iterator;
-
 		void SetThisExecutable(const string_t& executable);
 		string_t GetThisApplicationDirectory();
 
@@ -39,10 +36,9 @@ namespace breathe
 		string_t GetFileNoExtension(const string_t& sFilename);
 		string_t GetExtension(const string_t& sFilename);
 
-		bool FileExists(const breathe::string_t& sFilename);
-		bool CreateDirectory(const breathe::string_t& sFoldername);
-		bool CreateFile(const breathe::string_t& sFilename);
-
+    bool FileExists(const breathe::string_t& sFilename);
+    bool CreateDirectory(const breathe::string_t& sFoldername);
+    bool CreateFile(const breathe::string_t& sFilename);
 
 		// File Opening functions
 		// No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
@@ -55,26 +51,41 @@ namespace breathe
 
     uint32_t GetFileSize();
 
+    string_t GetCurrentDirectory();
+    void ChangeToDirectory(const string_t& sDirectory);
 
-		class path
-		{
-		public:
-      explicit path(const string_t& file_or_directory);
+    class cScopedDirectoryChange
+    {
+    public:
+      explicit cScopedDirectoryChange(const string_t& sNewDirectory);
+      ~cScopedDirectoryChange();
 
-			bool IsFile() const;
-			bool IsDirectory() const;
+    private:
+      string_t sPreviousDirectory;
+    };
 
-			string_t GetDirectory() const; // Returns just the directory "/folder1/folder2/"
-			string_t GetFile() const; // Returns just the file "file.txt"
-			string_t GetExtenstion() const; // Returns just the extension ".txt"
-			string_t str() const; // Returns the full path "/folder1/folder2/file.txt"
+    class path
+    {
+    public:
+      explicit path(const string_t& sDirectory);
+      explicit path(const string_t& sDirectory, const string_t& sFile);
+      explicit path(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
 
-		private:
-			path();
-			NO_COPY(path);
+      bool IsFile() const;
+      bool IsDirectory() const;
 
-			string_t sPath;
-		};
+      string_t GetDirectory() const; // Returns just the directory "/folder1/folder2/"
+      string_t GetFile() const; // Returns just the file "file.txt"
+      string_t GetExtenstion() const; // Returns just the extension ".txt"
+      string_t GetFullPath() const; // Returns the full path "/folder1/folder2/file.txt"
+      string_t str() const { return GetFullPath(); } // Returns the full path "/folder1/folder2/file.txt"
+
+    private:
+      path();
+      NO_COPY(path);
+
+      string_t sPath;
+    };
 
 
     class iterator
@@ -88,7 +99,9 @@ namespace breathe
       bool IsDirectory() const;
 
       string_t GetParentFolder() const;
-      string_t GetName() const;
+      string_t GetFile() const;
+      string_t GetFullPath() const; // Returns the full path "/folder1/folder2/file.txt"
+
       bool HasChildren() const;
 
       void GoToFirstChild();
@@ -100,6 +113,9 @@ namespace breathe
       iterator& operator=(const iterator& rhs);
 
     private:
+      bool IsValid() const;
+
+      bool bIsEndIterator;
       size_t i;
       string_t sParentFolder;
       std::vector<string_t> paths;

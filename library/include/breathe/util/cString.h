@@ -22,7 +22,7 @@ namespace breathe
 	namespace string
 	{
 		bool IsWhiteSpace(breathe::char_t c);
-		
+
 		size_t CountOccurrences(const std::string& source, const std::string& find);
 		std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
 		std::string StripLeading(const std::string& source, const std::string& find);
@@ -78,9 +78,9 @@ namespace breathe
 		inline string_t ToString_t(const std::wstring& source) { return ToUTF8(source); }
 #endif
 
-		inline bool ToBool(const std::string& source) { return ("false" != source); }
-		float ToFloat(const std::string& source);
-	}
+    inline bool ToBool(const string_t& source) { return (TEXT("false") != source) && (TEXT("0") != source); }
+    float ToFloat(const string_t& source);
+  }
 }
 
 #endif //CSTRING_H
