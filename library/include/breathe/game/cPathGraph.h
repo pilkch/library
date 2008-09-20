@@ -22,7 +22,7 @@ namespace breathe
 			{
 			public:
 				cPathNode();
-				cPathNode(math::cVec3& v);
+				explicit cPathNode(math::cVec3& v);
 				cPathNode(float x, float y, float z);
 				virtual ~cPathNode();
 
@@ -32,12 +32,12 @@ namespace breathe
 
 				std::vector<cPathEdge*> vEdge;
 			};
-			
+
 			class cPathEdge
 			{
 			public:
 				cPathEdge();
-				cPathEdge(float fWeight);
+        explicit cPathEdge(float fWeight);
 				virtual ~cPathEdge();
 
 				void Update();
@@ -62,7 +62,7 @@ namespace breathe
 
 				cPathNode* GetNode(const math::cVec3& v3Point);
 				//cPathNode* GetNode(const int id);
-				
+
 				void AddNode(cPathNode* node);
 				void AddEdgeOneWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
 				void AddEdgeTwoWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination);
@@ -76,9 +76,9 @@ namespace breathe
 				//void RemoveEdge(const int id);
 				//void RemoveNode(const cPathNode* node);
 				//void RemoveEdge(const cPathEdge* edge);
-				
+
 			private:
-				bool _GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, 
+				bool _GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd,
 					std::map<cPathNode*, bool>& mVisited, node_list& lPathOut);
 
 				std::vector<cPathNode*> vNode;

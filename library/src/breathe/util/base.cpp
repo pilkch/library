@@ -10,6 +10,7 @@
 #include <breathe/math/cVec4.h>
 #include <breathe/math/cMat4.h>
 #include <breathe/math/cPlane.h>
+#include <breathe/math/geometry.h>
 #include <breathe/math/cQuaternion.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
@@ -18,17 +19,6 @@
 
 namespace breathe
 {
-	// cObjectSphere
-	cObjectSphere::cObjectSphere()
-	{
-		fRadius = 1.0f;
-	}
-	
-	void cObjectSphere::SetDimensions(float fInRadius)
-	{
-		fRadius = fInRadius;
-	}
-
 	// cObject
 	cObject::cObject()
 	{
@@ -39,7 +29,6 @@ namespace breathe
 		fWeight=1.0f;
 	}
 
-	
 	void cObject::SetDimensions(float fInWidth, float fInLength, float fInHeight)
 	{
 		fWidth = fInWidth;
@@ -60,35 +49,23 @@ namespace breathe
 		fRadius = fWidth;
 		if (fInHeight > fRadius) fRadius = fInHeight;
 	}
-	
-	// Collisions
-	bool cObjectSphere::Collide(cObjectSphere& rhs)
-	{
-		return (GetDistance(rhs) < 0.0f);
-	}
-
-	float cObjectSphere::GetDistance(cObjectSphere& rhs) const
-	{
-		return math::sqrf(p.GetSquaredLength() + rhs.p.GetSquaredLength());
-	}
-
 
 	bool cObject::Collide(cObject& rhs)
 	{
-		if (cObjectSphere::Collide(rhs))
+		if (cSphere::Collide(rhs))
 			return true;
 
-		
+
 
 		return false;
 	}
 
 	float cObject::GetDistance(cObject& rhs) const
 	{
-		float fDistance = cObjectSphere::GetDistance(rhs);
-		
-		
-		
+		float fDistance = cSphere::GetDistance(rhs);
+
+
+
 		return fDistance;
 	}
 }

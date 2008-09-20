@@ -4,8 +4,8 @@
 // Breathe
 #include <breathe/breathe.h>
 
-#include "breathe/loader_3ds/light3dsobject.h"
-#include "breathe/loader_3ds/build3ds.h"
+#include <breathe/loader_3ds/light3dsobject.h>
+#include <breathe/loader_3ds/build3ds.h>
 
 namespace breathe
 {

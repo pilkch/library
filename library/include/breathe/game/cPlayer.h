@@ -30,37 +30,8 @@ namespace breathe
 #endif
 	{
 	public:
-		vehicle::cSeat* pSeat;
-		
 		cPlayer();
 		~cPlayer();
-
-		unsigned int uiState;
-
-		unsigned int uiCameraMode;
-
-		float fInputUp;
-		float fInputDown;
-		float fInputLeft;
-		float fInputRight;
-		
-		bool bInputHandbrake;
-		bool bInputClutch;
-
-		bool bInputJump;
-		bool bInputCrouch;
-
-
-		float fSpeedWalk;
-		float fSpeedRun;
-		float fSpeedSprint;
-
-		float fVertical, fHorizontal;
-
-		float fDollars;
-
-		//list of items
-		std::vector<cItem*>vItem;
 
 		void Update(sampletime_t currentTime);
 
@@ -74,12 +45,40 @@ namespace breathe
 		void ChangeItemUp();
 		void ChangeItemDown();
 
-		
+
 #ifdef BUILD_PHYSICS_3D
 		// For raycasting to find out if we standing on anything when we are in walking mode
 		void RayCast();
 		static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 #endif
+
+    unsigned int uiState;
+
+    unsigned int uiCameraMode;
+
+    float fInputUp;
+    float fInputDown;
+    float fInputLeft;
+    float fInputRight;
+
+    bool bInputHandbrake;
+    bool bInputClutch;
+
+    bool bInputJump;
+    bool bInputCrouch;
+
+
+    float fSpeedWalk;
+    float fSpeedRun;
+    float fSpeedSprint;
+
+    float fVertical, fHorizontal;
+
+    float fDollars;
+
+    //list of items
+    std::vector<cItem*>vItem;
+    vehicle::cSeat* pSeat;
 	};
 }
 

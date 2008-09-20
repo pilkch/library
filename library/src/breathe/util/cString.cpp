@@ -3,11 +3,18 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <algorithm>
 #include <sstream>
 
+// writing a text file
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/log.h>
 
 #define WHITE_SPACE "\t\v\r\n"
 #define LWHITE_SPACE L"\t\v\r\n"
@@ -369,7 +376,30 @@ namespace breathe
 			//SAFE_DELETE_ARRAY(pTemp);
 
 			//return temp;
-		}*/
+  }*/
+
+    string_t ToString(int value)
+    {
+      std::ostringstream s;
+      s << value;
+      return s.str();
+    }
+
+    string_t ToString(float value)
+    {
+      std::ostringstream s;
+      s << value;
+      return s.str();
+    }
+
+
+    int ToInt(const string_t& source)
+    {
+      int value = 0;
+      std::stringstream stm(source);
+      stm >> value;
+      return value;
+    }
 
     float ToFloat(const string_t& source)
     {
@@ -378,6 +408,34 @@ namespace breathe
       stm >> value;
       return value;
     }
+
+    // text to hex
+    // Converts a string containing a hexadecimal number to an unsigned integer
+    // eg. "FE1234" -> 16650804
+    // atoh : ASCII
+    // wtoh : UNICODE
+
+    uint32_t FromHexStringToUint32_t(const string_t& source)
+    {
+      uint32_t value = 0;
+
+      const size_t n = source.length();
+      for (size_t i = 0; i < n; i++) {
+        char_t c = source[i];
+        ASSERT(c != 0);
+
+        uint32_t digit;
+        if ((c >= TEXT('0')) && (c <= '9')) digit = uint32_t((c - TEXT('0')));
+        else if ((c >= TEXT('a')) && (c <= TEXT('f'))) digit = uint32_t((c - TEXT('a'))) + 10;
+        else if ((c >= TEXT('A')) && (c <= TEXT('F'))) digit = uint32_t((c - TEXT('A'))) + 10;
+        else break;
+
+        value = (value << 4) + digit;
+      }
+
+      return value;
+    }
+
 
     std::string HTMLDecode(const std::string& source)
     {

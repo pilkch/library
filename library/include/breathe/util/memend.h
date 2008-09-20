@@ -1,3 +1,5 @@
+#ifndef __LINUX__
+
 // Memory manager & tracking software
 //
 // Best viewed with 8-character tabs and (at least) 132 columns
@@ -43,4 +45,6 @@
 
 #ifdef	free
 #undef	free
+#endif
+
 #endif

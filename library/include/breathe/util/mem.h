@@ -1,3 +1,5 @@
+#ifndef __LINUX__
+
 // Memory manager & tracking software
 //
 // Best viewed with 8-character tabs and (at least) 132 columns
@@ -160,3 +162,4 @@ void	operator delete[](void *reportedAddress);
 #define	calloc(sz)	m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_calloc,sz)
 #define	realloc(ptr,sz)	m_reallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_realloc,sz,ptr)
 #define	free(ptr)	m_deallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_free,ptr)
+#endif

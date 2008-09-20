@@ -14,8 +14,8 @@
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
-#include "breathe/loader_3ds/build3ds.h"
-#include "breathe/loader_3ds/chunk.h"
+#include <breathe/loader_3ds/build3ds.h>
+#include <breathe/loader_3ds/chunk.h>
 
 namespace breathe
 {
@@ -28,7 +28,7 @@ namespace breathe
 		{
 #ifdef DEBUG3DS
 			std::ostringstream t;
-			
+
 			t<< "Model3DSChunk::Model3DSChunk()";
 			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
@@ -47,7 +47,7 @@ namespace breathe
 				<< "begin = (" << begin << ") "
 				<< "end = (" << end << ") "
 				<< "chunkset_end = (" << chunkset_end << ")";
-			
+
 			if (0==id || -1==begin || end > chunkset_end)
 				LOG.Error("c3ds", t.str());
 			else
@@ -95,7 +95,7 @@ namespace breathe
 			std::ostringstream t;
 			t	<<"Model3DSChunk::operator bool() @ " << curr_pos << "== "
 				<< ((0!=id) && (begin < chunkset_end) && (begin >= 0))
-				<< " ((0x0!=0x" << std::hex << id << ") && (" 
+				<< " ((0x0!=0x" << std::hex << id << ") && ("
 				<< std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
 			LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
@@ -174,7 +174,7 @@ namespace breathe
 #endif //DEBUG3DS
 
 			Finish();
-			
+
 			return Model3DSChunk(file , chunkset_end);
 		}
 

@@ -9,7 +9,7 @@
 #include <list>
 
 #ifdef BUILD_PHYSICS_3D
-#include <ODE/ode.h>
+#include <ode/ode.h>
 #endif
 
 #include <breathe/breathe.h>
@@ -26,6 +26,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>

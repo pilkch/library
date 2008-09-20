@@ -6,6 +6,7 @@
 // writing on a text file
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 // Breathe
 #include <breathe/breathe.h>
@@ -54,7 +55,7 @@ namespace breathe
 
 			file.seekg(0 , std::ios::end);
 			int ending = file.tellg();
-			
+
 #ifdef DEBUG3DS
 			std::ostringstream t;
 			t	<<"SEEK " << ending;

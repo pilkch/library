@@ -7,17 +7,19 @@
 #include <cmath>
 
 #include <list>
-#include <string>
 #include <vector>
 #include <map>
 #include <bitset>
 
+#include <string>
 #include <sstream>
 
-// writing on a text file
+// writing a text file
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include <boost/smart_ptr.hpp>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -28,6 +30,7 @@
 #include <windows.h>
 #endif
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/cVar.h>
@@ -46,6 +49,7 @@
 #include <breathe/math/cColour.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -63,6 +67,8 @@
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
 #include <breathe/gui/cWindowManager.h>
+
+#include <breathe/game/scenegraph.h>
 
 #include <breathe/util/app.h>
 
@@ -314,16 +320,31 @@ namespace breathe
 		}*/
 
 
-		// ***********************************************SCREEN*******************************************************
-		cScreen::cScreen()
-		{
+    // ***********************************************SCREEN*******************************************************
+    cScreen::cScreen()
+    {
+    }
 
-		}
+    cScreen::~cScreen()
+    {
+      {
+        std::vector<cGameMessage*>::iterator iter = message.begin();
+        std::vector<cGameMessage*>::iterator iterEnd = message.end();
+        for (;iter != iterEnd; iter++) SAFE_DELETE(*iter);
 
-		cScreen::~cScreen()
-		{
+        message.clear();
+      }
 
-		}
+      {
+        std::vector<cGameClosedCaption*>::iterator iter = closedCaption.begin();
+        std::vector<cGameClosedCaption*>::iterator iterEnd = closedCaption.end();
+        for (;iter != iterEnd; iter++) SAFE_DELETE(*iter);
+
+        closedCaption.clear();
+      }
+
+      lLine.clear();
+    }
 
 		/*void cScreen::Newline()
 		{

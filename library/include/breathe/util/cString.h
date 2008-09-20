@@ -78,9 +78,43 @@ namespace breathe
 		inline string_t ToString_t(const std::wstring& source) { return ToUTF8(source); }
 #endif
 
-    inline bool ToBool(const string_t& source) { return (TEXT("false") != source) && (TEXT("0") != source); }
+    inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
+    string_t ToString(int value);
+    string_t ToString(float value);
+
+    // returns true for anything other than "false" and "0"
+    inline bool ToBool(const string_t& source) { return ((TEXT("false") != source) && (TEXT("0") != source)); }
+    int ToInt(const string_t& source);
     float ToFloat(const string_t& source);
+
+    // text to hex
+    // Converts a string containing a hexadecimal number to an unsigned integer
+    // eg. "FE1234" -> 16650804
+    // atoh : ASCII
+    // wtoh : UNICODE
+
+    uint32_t FromHexStringToUint32_t(const string_t& source);
+
+
+    /*template <class T>
+    inline T ConvertFromHexDigit(char hex)
+    {
+      if (is_alpha(hex)) return hex - '0';
+      else if (isUpper(hex)) return hex - 'A' + 0xA;
+
+      return hex - 'a' + 0xa;
+    }
+
+    template <class T>
+    inline char ConvertToHexDigit(T value)
+    {
+      ASSERT(value < 16);
+
+      if (value < 10) return '0' + value;
+
+      return 'a' + value - 10;
+    }*/
   }
 }
 
-#endif //CSTRING_H
+#endif // CSTRING_H

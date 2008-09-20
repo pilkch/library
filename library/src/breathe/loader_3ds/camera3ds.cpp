@@ -1,6 +1,7 @@
 // writing on a text file
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <list>
 #include <vector>
@@ -15,12 +16,9 @@
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cMat4.h>
 #include <breathe/math/cFrustum.h>
+#include <breathe/math/geometry.h>
 
-#include "breathe/loader_3ds/build3ds.h"
-
-
-
-
+#include <breathe/loader_3ds/build3ds.h>
 #include <breathe/loader_3ds/camera3ds.h>
 
 namespace breathe

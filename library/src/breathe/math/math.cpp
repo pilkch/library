@@ -8,15 +8,6 @@
 #include <breathe/breathe.h>
 
 #include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/cColour.h>
 
 #ifdef max
 #undef max
@@ -27,5 +18,20 @@ namespace breathe
   namespace math
   {
     const float cINFINITY = std::numeric_limits<float>::max(); //1e30f //std::numeric_limits<float>::infinity();
+
+    cScopedPredictableRandom::cScopedPredictableRandom(uint32_t seed, uint32_t _maximum) :
+      fOneOver65536By65536(1.0f / (65536.0f * 65536.0f)),
+      maximum(_maximum)
+    {
+      // make random numbers and put them into the buffer
+      uint32_t s = seed;
+      for (size_t i = 0; i < 5; i++) {
+        s = (s * 29943829) - 1;
+        x[i] = s;
+      }
+
+      // randomise some more
+      //for (size_t i = 0; i < 19; i++) GetRandomNumber();
+    }
   }
 }

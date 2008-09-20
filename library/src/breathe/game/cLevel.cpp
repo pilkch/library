@@ -15,6 +15,8 @@
 #include <list>
 #include <set>
 
+#include <boost/shared_ptr.hpp>
+
 #include <GL/GLee.h>
 
 
@@ -46,6 +48,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -95,10 +98,12 @@ namespace breathe
 
 	bool cLevel::LoadXML(const string_t& sNewFilename)
 	{
-		sFilename=sNewFilename;
-		bool bNodes=false;
+    LOG<<"cLevel::LoadXML"<<std::endl;
+    sFilename = sNewFilename;
 
-		cLevelSpawn *pSpawn;
+		bool bNodes = false;
+
+		cLevelSpawn* pSpawn;
 
 		{
 			LOG.Success("Level", "cLevelNode::Load " + breathe::string::ToUTF8(sNewFilename));
@@ -212,7 +217,7 @@ namespace breathe
 				LOG.Success("Level", "Spawn");
 
 				vSpawn.push_back(new cLevelSpawn());
-				cLevelSpawn *pSpawn=vSpawn.back();
+				cLevelSpawn* pSpawn=vSpawn.back();
 
 				math::cVec3 cam=p->vCamera[i]->eye;
 				math::cVec3 objPos=p->vCamera[i]->target;
@@ -452,34 +457,31 @@ namespace breathe
 
 	cLevelSpawn cLevel::GetSpawn()
 	{
-		size_t i=rand()%(vSpawn.size());
+		size_t i = rand()%(vSpawn.size());
 		return *vSpawn[i];
 	}
 
-	cLevelSpawn cLevel::GetSpawn(math::cVec3 &p)
-	{
-		//Have to have a spawn in the level before calling this
-		size_t i=0;
-		size_t n=vSpawn.size();
+  cLevelSpawn cLevel::GetSpawn(const math::cVec3& p)
+  {
+    //Have to have a spawn in the level before calling this
+    const size_t n = vSpawn.size();
 
-		if (n<1) LOG.Error("Level", "No spawns defined");
+    if (n < 1) LOG.Error("Level", "No spawns defined");
 
-		float d=(vSpawn[0]->v3Position-p).GetLength();
-		float t=0.0f;
-		cLevelSpawn *s=vSpawn[0];
+    float d = (vSpawn[0]->v3Position - p).GetLength();
+    float t = 0.0f;
+    cLevelSpawn* s = vSpawn[0];
 
-    for (i=1;i<n;i++)
-		{
-			t=(vSpawn[i]->v3Position-p).GetLength();
-			if (t<d)
-			{
-				d=t;
-				s=vSpawn[i];
-			}
-		}
+    for (size_t i = 1; i < n; i++) {
+      t = (vSpawn[i]->v3Position - p).GetLength();
+      if (t<d) {
+        d = t;
+        s = vSpawn[i];
+      }
+    }
 
-		return *s;
-	}
+    return *s;
+  }
 
 	void cLevel::AddPhysicsObject(physics::cPhysicsObject *d)
 	{
@@ -564,7 +566,7 @@ namespace breathe
 	}
 
 
-  cLevelNode::cLevelNode(cLevel *p, const string_t& sNewFilename) :
+  cLevelNode::cLevelNode(cLevel* p, const string_t& sNewFilename) :
     uiStatus(0),
     pModel(nullptr),
     pLevel(p),

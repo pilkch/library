@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <sstream>
 
 // Breathe
 #include <breathe/breathe.h>

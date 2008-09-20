@@ -1,8 +1,6 @@
 #ifndef CLOG_H
 #define CLOG_H
 
-#include <sstream>
-
 #undef Success
 #undef Error
 
@@ -328,23 +326,93 @@ namespace breathe
 
 			const std::list<std::string>& GetLines() const;
 
-		private:
-			std::list<std::string> lLine;
+      void AddMessageInformative(const string_t& text);
+      void AddMessageWarning(const string_t& text);
+      void AddMessageError(const string_t& text);
 
-			void _AddLine(const std::string& o)
-			{
-				// Cascade output to console
-				CONSOLE._AddLine(o);
+      void AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life); // Which person is speaking, what they are saying
 
-				// Add line to screen
-				//if (lLine.size()>CONSOLE_MAXLINES)
-				//	lLine.pop_front();
+    private:
+      enum GAME_MESSAGE
+      {
+        GAME_MESSAGE_INFORMATIVE = 0,
+        GAME_MESSAGE_WARNING,
+        GAME_MESSAGE_ERROR
+      };
 
-				lLine.push_back(o);
-				ClearLine();
-			}
-		};
-	}
+      class cGameMessage
+      {
+      public:
+        cGameMessage(GAME_MESSAGE type, const string_t& text, uint32_t life);
+
+        GAME_MESSAGE GetType() const { return type; }
+        const string_t& GetText() const { return text; }
+        uint32_t GetLifeLeft() const { return life; }
+
+      private:
+        GAME_MESSAGE type;
+        const string_t text;
+        uint32_t life;
+      };
+
+      class cGameClosedCaption
+      {
+      public:
+        cGameClosedCaption(const string_t& actor, const string_t& text, uint32_t life);
+
+        const string_t& GetActor() const { return actor; }
+        const string_t& GetText() const { return text; }
+        uint32_t GetLifeLeft() const { return life; }
+
+      private:
+        const string_t actor;
+        const string_t text;
+        uint32_t life;
+      };
+
+      void _AddLine(const std::string& o)
+      {
+        // Cascade output to console
+        CONSOLE._AddLine(o);
+
+        // Add line to screen
+        //if (lLine.size()>CONSOLE_MAXLINES)
+        //  lLine.pop_front();
+
+        lLine.push_back(o);
+        ClearLine();
+      }
+
+      std::vector<cGameMessage*> message;
+      std::vector<cGameClosedCaption*> closedCaption;
+
+      std::list<std::string> lLine;
+    };
+
+    inline void cScreen::AddMessageInformative(const string_t& text)
+    {
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_INFORMATIVE, text, 50);
+      message.push_back(pMessage);
+    }
+
+    inline void cScreen::AddMessageWarning(const string_t& text)
+    {
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_WARNING, text, 50);
+      message.push_back(pMessage);
+    }
+
+    inline void cScreen::AddMessageError(const string_t& text)
+    {
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_ERROR, text, 50);
+      message.push_back(pMessage);
+    }
+
+    inline void cScreen::AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life)
+    {
+      cGameClosedCaption* pMessage = new cGameClosedCaption(actor, line, life);
+      closedCaption.push_back(pMessage);
+    }
+  }
 }
 
 extern breathe::logging::cScreen SCREEN;
