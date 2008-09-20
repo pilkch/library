@@ -4,7 +4,7 @@
 // http://www.devmaster.net/articles/openal-tutorials/
 // http://www.devmaster.net/articles/openal-tutorials/lesson8.php
 
-// Namespace functions: Global audio system create/destroy, 
+// Namespace functions: Global audio system create/destroy
 
 // Buffer: Sound data ready to play
 // Listener: Position of the player
@@ -12,37 +12,43 @@
 
 namespace breathe
 {
-	namespace audio
-	{
-		#define AUDIO_MAX_BUFFERS 16
+  namespace audio
+  {
+    const size_t AUDIO_MAX_BUFFERS = 16;
 
-		// Forward declaration
-		class cSource;
-		class cBuffer;
+    typedef char sample_t;
 
+    // Forward declaration
+    class cSource;
+    class cBuffer;
+    typedef cSmartPtr<cSource> cSourceRef;
+    typedef cSmartPtr<cBuffer> cBufferRef;
 
-		bool Init();
-		void Destroy();
-		void Update(sampletime_t currentTime);
+    bool Init();
+    void Destroy();
 
-		void Sleep();
+    void ReportError();
 
-		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity);
+    void Update(sampletime_t currentTime);
 
-		void Add(cSource* pSource);
-		void Remove(cSource* pSource);
-		
-		cBuffer* CreateBuffer(const string_t& sFilename);
-		void DestroyBuffer(cBuffer* pBuffer);
-		
-		cSource* CreateSourceAttachedToObject(cBuffer* pBuffer, cObject* pObject);
-		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer);
-		void DestroySource(cSource* pSource);
-		
+    void Sleep();
+
+    void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity);
+
+    void Add(cSourceRef pSource);
+    void Remove(cSourceRef pSource);
+
+    cBufferRef CreateBuffer(const string_t& sFilename);
+    void DestroyBuffer(cBufferRef pBuffer);
+
+    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer, cObject* pObject);
+    cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer);
+    void DestroySource(cSourceRef pSource);
+
 		void StartAll();
 		void StopAll();
 
-    
+
     void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename);
 
 		// Buffer to hold the audio data
@@ -54,9 +60,6 @@ namespace breathe
 
 			bool IsValid() const { return uiBuffer != 0; }
 
-			void Aquire() { ref++; }
-			void Release() { ref--; }
-
 			unsigned int uiBuffer;
 
 		private:
@@ -65,15 +68,15 @@ namespace breathe
 
 			void Create(const string_t& sFilename);
 
-			int ref;
 			string_t sFilename;
 		};
 
 		// The sound object (Has pointer to node that it is attached to and a pointer to a buffer that it uses)
 		class cSource
 		{
-		public:
-			explicit cSource(cBuffer* pBuffer, float fVolume=1.0f);
+    public:
+      explicit cSource(cBufferRef pBuffer);
+      cSource(cBufferRef pBuffer, float fVolume);
 			~cSource();
 
 			void Attach(cObject* pNodeParent);
@@ -90,6 +93,8 @@ namespace breathe
 			void TransformTo2DSource();
 			void TransformTo3DSource();
 
+      void SetVolume(float fVolume);
+      void SetPitch(float fPitch);
 			void SetLooping();
 			void SetNonLooping();
 
@@ -101,15 +106,51 @@ namespace breathe
 
 			bool bLooping;
 			unsigned int uiSource;
-			float volume;
-			
-			cBuffer* pBuffer;
+      float volume;
+      float pitch;
+
+      cBufferRef pBuffer;
 			cObject* pNodeParent;
-			
-			void Create(cBuffer* pBuffer);
+
+      void Create(cBufferRef pBuffer);
 		};
 
-		// Very simple wrapper for mixing two sounds together.  
+
+    class cSourceStream
+    {
+    public:
+      virtual ~cSourceStream() {}
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+
+    private:
+      virtual void _Update(sampletime_t currentTime) = 0;
+
+      cSource source;
+    };
+
+    class cSourceLoopedEffect : public cSourceStream
+    {
+    public:
+      void SetPitch(float fPitch);
+
+    private:
+      void _Update(sampletime_t currentTime);
+
+      float fPitch;
+    };
+
+    inline void cSourceLoopedEffect::SetPitch(float _fPitch)
+    {
+      fPitch = _fPitch;
+    }
+
+    inline void cSourceLoopedEffect::_Update(sampletime_t currentTime)
+    {
+
+    }
+
+
+		// Very simple wrapper for mixing two sounds together.
 		// You'll basically only do this on a collision between say wood and metal to make the collision
 		// sound more natural as opposed to sounding like only wood or only steel
 		// Volumes are 0.0f-1.0f, this number is multiplied by the normal level to get the actual volume,
@@ -118,7 +159,7 @@ namespace breathe
 		class cSourceMix
 		{
 		public:
-			explicit cSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1);
+      cSourceMix(cBufferRef pBuffer0, cBufferRef pBuffer1, float fVolume0, float fVolume1);
 
 			void Attach(cObject* pNodeParent);
 			void Remove();
@@ -138,14 +179,14 @@ namespace breathe
 			cSource source1;
 		};
 
-		//	Another possible class is 
+		//	Another possible class is
 		//	class cSourceMixN
 		//	{
 		//	public:
-		//		AddSource(cBuffer* pBuffer, float fVolume);
-		//	
+		//		AddSource(cBufferRef pBuffer, float fVolume);
+		//
 		//	private:
-		//		std::list<cSource> lSource;
+		//		std::list<cSourceRef> lSource;
 		//	};
 	}
 }

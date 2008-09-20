@@ -15,17 +15,17 @@
  *   dTRIMESH_OPCODE   - use the OPCODE trimesh engine
  *   dTRIMESH_GIMPACT  - use the GIMPACT trimesh engine
  *
- *   dUSE_MALLOC_FOR_ALLOCA (experimental)- 
- *                       Use malloc() instead of alloca(). Slower, 
- *                       but allows for larger systems and more 
+ *   dUSE_MALLOC_FOR_ALLOCA (experimental)-
+ *                       Use malloc() instead of alloca(). Slower,
+ *                       but allows for larger systems and more
  *                       graceful out-of-memory handling.
  ******************************************************************/
 
 #define dSINGLE
 /* #define dDOUBLE */
 
-#define dTRIMESH_ENABLED 1
-#define dTRIMESH_OPCODE 1
+/* #define dTRIMESH_ENABLED 1 */
+/* #define dTRIMESH_OPCODE 1 */
 
 /* #define dUSE_MALLOC_FOR_ALLOCA */
 

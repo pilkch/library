@@ -42,12 +42,12 @@ namespace breathe
 
 			std::list<cUnitTestBase*> unittests;
 		};
-		
+
 		cUnitTester::~cUnitTester()
-		{
+    {
 			unittests.clear();
 		}
-		
+
 		void cUnitTester::AddUnitTest(cUnitTestBase* unittest)
 		{
 			unittests.push_back(unittest);
@@ -56,9 +56,9 @@ namespace breathe
 		void cUnitTester::RunUnitTests()
 		{
 			SCREEN<<"Running unit tests"<<std::endl;
-			
+
 			std::list<cUnitTestBase*>::iterator iter(unittests.begin());
-			std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
+			const std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
 
 			while (iter != iterEnd) {
 				(*iter)->Run();
@@ -78,7 +78,7 @@ namespace breathe
 		{
 			cUnitTester_t::Get().AddUnitTest(this);
 		}
-		
+
 		void cUnitTestBase::Run()
 		{
 			success = true;
@@ -86,11 +86,11 @@ namespace breathe
 			CONSOLE.Success("Unit Test", "Running " + sComponent);
 
 			Test();
-			
+
 			if (true == success) CONSOLE.Success("Unit Test", sComponent + " Successfully completed");
 			else CONSOLE.Error("Unit Test", sComponent + " FAILED");
 		}
-			
+
 		void cUnitTestBase::SetFailed(const std::string& error)
 		{
 			CONSOLE.Error("Unit Test", sComponent + " " + error);

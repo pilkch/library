@@ -2,34 +2,42 @@
 #include <cmath>
 #include <cassert>
 
-#include <string>
-#include <iostream>
 #include <vector>
 #include <map>
 #include <list>
 #include <set>
 
 // writing on a text file
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <fstream>
+
+// Boost includes
+#include <boost/smart_ptr.hpp>
 
 // Other libraries
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alut.h>
 
+#include <SDL/SDL.h>
+
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
+
+#include <breathe/storage/filesystem.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cVec4.h>
 #include <breathe/math/cMat4.h>
+#include <breathe/math/geometry.h>
 #include <breathe/math/cPlane.h>
 #include <breathe/math/cQuaternion.h>
 #include <breathe/math/cFrustum.h>
@@ -54,60 +62,71 @@ namespace breathe
 {
 	namespace audio
 	{
-		ALCcontext* Context = nullptr;
-		ALCdevice* Device = nullptr;
+		ALCcontext* context = nullptr;
+		ALCdevice* device = nullptr;
 		ALboolean g_bEAX = false;
-		int iError = 0;
 
-		std::map<string_t, cBuffer*> mAudioBuffer;
-		typedef std::map<string_t, cBuffer*> ::iterator buffer_iterator;
+    std::map<string_t, cBufferRef> mAudioBuffer;
+    typedef std::map<string_t, cBufferRef> ::iterator buffer_iterator;
 
-		cBuffer* GetAudioBuffer(const string_t& sFilename)
+    std::list<cSourceRef> lAudioSource;
+    typedef std::list<cSourceRef>::iterator source_iterator;
+
+    cBufferRef GetAudioBuffer(const string_t& sFilename)
 		{
-			cBuffer* pBuffer = mAudioBuffer[sFilename];
+      //return nullptr;
 
+      cBufferRef pBuffer(mAudioBuffer[sFilename]);
 			if (pBuffer != nullptr) return pBuffer;
 
-			pBuffer = new cBuffer(sFilename);
-			assert(pBuffer != nullptr);
+      if (!filesystem::FileExists(sFilename)) {
+        SCREEN<<"GetAudioBuffer File not found \""<<sFilename<<"\""<<std::endl;
+        return pBuffer;
+      }
+
+      pBuffer = cBufferRef(new cBuffer(sFilename));
+      ASSERT(pBuffer != nullptr);
+      if (!pBuffer->IsValid()) {
+        SCREEN<<"GetAudioBuffer Buffer is invalid"<<std::endl;
+        //SAFE_DELETE(pBuffer);
+        pBuffer.reset();
+        return pBuffer;
+      }
 
 			mAudioBuffer[sFilename] = pBuffer;
 
 			return pBuffer;
 		}
 
-		std::list<cSource*> lAudioSource;
-		typedef std::list<cSource*>::iterator source_iterator;
-
-		void AddSource(cSource* pSource)
+    void AddSource(cSourceRef pSource)
 		{
 			lAudioSource.push_back(pSource);
 		}
 
-		void RemoveSource(cSource* pSource)
+    void RemoveSource(cSourceRef pSource)
 		{
 			lAudioSource.remove(pSource);
 		}
 
 
-		cBuffer* CreateBuffer(const string_t& sFilename)
+    cBufferRef CreateBuffer(const string_t& sFilename)
 		{
 			return GetAudioBuffer(sFilename);
 		}
 
-		void DestroyBuffer(cBuffer* pBuffer)
+    void DestroyBuffer(cBufferRef pBuffer)
 		{
 
 		}
 
-		cSource* CreateSourceAttachedToObject(cBuffer* pBuffer, cObject* pObject)
+    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer, cObject* pObject)
 		{
-			assert(pBuffer != nullptr);
-      assert(pBuffer->IsValid());
+      ASSERT(pBuffer != nullptr);
+      ASSERT(pBuffer->IsValid());
 
-			breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
-			assert(pSource != nullptr);
-      assert(pSource->IsValid());
+      cSourceRef pSource(new breathe::audio::cSource(pBuffer));
+      ASSERT(pSource != nullptr);
+      ASSERT(pSource->IsValid());
 
       AddSource(pSource);
 
@@ -116,14 +135,14 @@ namespace breathe
 			return pSource;
 		}
 
-		cSource* CreateSourceAttachedToScreen(cBuffer* pBuffer)
+    cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer)
 		{
-			assert(pBuffer != nullptr);
-      assert(pBuffer->IsValid());
+      ASSERT(pBuffer != nullptr);
+      ASSERT(pBuffer->IsValid());
 
-			breathe::audio::cSource* pSource = new breathe::audio::cSource(pBuffer);
-			assert(pSource != nullptr);
-      assert(pSource->IsValid());
+      cSourceRef pSource(new breathe::audio::cSource(pBuffer));
+      ASSERT(pSource != nullptr);
+      ASSERT(pSource->IsValid());
 
       AddSource(pSource);
 
@@ -137,27 +156,89 @@ namespace breathe
 			return pSource;
 		}
 
-		void DestroySource(cSource* pSource)
+    void DestroySource(cSourceRef pSource)
 		{
 
 		}
 
-		bool GetError()
-		{
-			iError = alGetError();
-			return (iError != AL_NO_ERROR);
-		}
+    void ReportError()
+    {
+      ALenum error = alGetError();
+      switch (error) {
+        case (AL_NO_ERROR):
+          SCREEN<<"audio::ReportError AL No error"<<std::endl;
+          break;
+        case (AL_INVALID_NAME):
+          SCREEN<<"audio::ReportError AL Invalid name parameter passed to OpenAL call"<<std::endl;
+          break;
+        case (AL_INVALID_ENUM):
+          SCREEN<<"audio::ReportError AL Invalid enum parameter passed to OpenAL call"<<std::endl;
+          break;
+        case (AL_INVALID_VALUE):
+          SCREEN<<"audio::ReportError AL Invalid parameter value passed to OpenAL call"<<std::endl;
+          break;
+        case (AL_INVALID_OPERATION):
+          SCREEN<<"audio::ReportError AL Illegal call"<<std::endl;
+          break;
+        case (AL_OUT_OF_MEMORY):
+          SCREEN<<"audio::ReportError AL OpenAL is out of memory"<<std::endl;
+          break;
+        default:
+          SCREEN<<"audio::ReportError AL Unknown error code "<<error<<std::endl;
+          break;
+      }
+      ASSERT(error == AL_NO_ERROR);
 
-		void ReportError()
-		{
-			if (iError != AL_NO_ERROR) SCREEN<<"AL error: "<<iError<<std::endl;
-		}
+      error = alcGetError(device);
+      switch (error) {
+        case ALC_NO_ERROR:
+          SCREEN<<"audio::ReportError ALC No error"<<std::endl;
+          break;
+        case ALC_INVALID_DEVICE:
+          SCREEN<<"audio::ReportError ALC Invalid device parameter passed to OpenAL call"<<std::endl;
+          break;
+        case ALC_INVALID_CONTEXT:
+          SCREEN<<"audio::ReportError ALC Invalid context parameter passed to OpenAL call"<<std::endl;
+          break;
+        case ALC_INVALID_ENUM:
+          SCREEN<<"audio::ReportError ALC Invalid enum parameter passed to OpenAL call"<<std::endl;
+          break;
+        case ALC_INVALID_VALUE:
+          SCREEN<<"audio::ReportError ALC Invalid parameter value passed to OpenAL call"<<std::endl;
+          break;
+        case ALC_OUT_OF_MEMORY:
+          SCREEN<<"audio::ReportError ALC OpenAL is out of memory"<<std::endl;
+          break;
+        default:
+          SCREEN<<"audio::ReportError ALC Unknown error code "<<error<<std::endl;
+          //SCREEN<<"audio::ReportError ALC Error "<<error<<":\""<<alcGetErrorString(error)<<"\""<<std::endl;
+          break;
+      }
+      ASSERT(error == ALC_NO_ERROR);
 
-		void GetAndReportError()
-		{
-			GetError();
-			ReportError();
-		}
+      error = alutGetError();
+      switch (error) {
+        case (ALUT_ERROR_NO_ERROR):
+          SCREEN<<"audio::ReportError ALUT No error"<<std::endl;
+          break;
+        case (ALUT_ERROR_INVALID_ENUM):
+          SCREEN<<"audio::ReportError ALUT Invalid enum parameter passed to OpenAL call"<<std::endl;
+          break;
+        case (ALUT_ERROR_INVALID_VALUE):
+          SCREEN<<"audio::ReportError ALUT Invalid enum parameter value to OpenAL call"<<std::endl;
+          break;
+        case (ALUT_ERROR_INVALID_OPERATION):
+          SCREEN<<"audio::ReportError ALUT Illegal call"<<std::endl;
+          break;
+        case (ALUT_ERROR_OUT_OF_MEMORY):
+          SCREEN<<"audio::ReportError ALUT OpenAL is out of memory"<<std::endl;
+          break;
+        default:
+          SCREEN<<"audio::ReportError ALUT Error "<<error<<":\""<<alutGetErrorString(error)<<"\""<<std::endl;
+          break;
+      }
+      ASSERT(error == ALUT_ERROR_NO_ERROR);
+    }
 
 		void Sleep()
 		{
@@ -169,7 +250,7 @@ namespace breathe
 			source_iterator iter = lAudioSource.begin();
 			source_iterator iterEnd = lAudioSource.end();
 
-			cSource* pSource = NULL;
+      cSourceRef pSource;
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
@@ -183,7 +264,7 @@ namespace breathe
 			source_iterator iter = lAudioSource.begin();
 			source_iterator iterEnd = lAudioSource.end();
 
-			cSource* pSource = NULL;
+      cSourceRef pSource;
 			while(iter != iterEnd)
 			{
 				pSource = (*(iter++));
@@ -192,109 +273,206 @@ namespace breathe
 			};
 		}
 
-		bool Init()
-		{
-			if (!alutInitWithoutContext(NULL, NULL))
-				ReportError();
+    bool Init()
+    {
+      LOG<<"Audio"<<std::endl;
 
-			// Major minor version number
-			ALint iMajor = alutGetMajorVersion();
-			ALint iMinor = alutGetMinorVersion();
-			std::ostringstream t;
-			t<<"OpenAL v";
-			t<<iMajor;
-			t<<".";
-			t<<iMinor;
-			LOG.Success("Audio", t.str());
-			printf("audio::Init %s\n", t.str().c_str());
+      bool bIsEnumerationExtension = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+      ReportError();
+
+      if (bIsEnumerationExtension) {
+        LOG<<"audio::Init Extension \"ALC_ENUMERATION_EXT\" is present"<<std::endl;
+        const char* szDeviceList = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+        ReportError();
+        if (szDeviceList == nullptr) LOG<<"audio::Init No devices found"<<std::endl;
+        else LOG<<szDeviceList<<std::endl;
+      } else LOG<<"audio::Init Extension \"ALC_ENUMERATION_EXT\" is not present"<<std::endl;
+
+#if 1
+      LOG<<"Audio alutInitWithoutContext"<<std::endl;
+      alutInitWithoutContext(NULL, NULL);
+      ReportError();
+
+      // Major minor version number
+      ALint iMajor = alutGetMajorVersion();
+      ALint iMinor = alutGetMinorVersion();
+      std::ostringstream t;
+      t<<"OpenAL v";
+      t<<iMajor;
+      t<<".";
+      t<<iMinor;
+      LOG<<"audio::Init Audio"<<t.str()<<std::endl;
+      ReportError();
 
 
-/*#ifdef __WIN__
-			char* initString = "DirectSound3D";
-#else
-			char* initString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
+#ifdef __WIN__
+      const char* szInitString = "DirectSound3D";
+#elif defined(__LINUX__)
+      const char* szInitString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
 #endif
-			Device = alcOpenDevice((unsigned char*)initString);*/
+      LOG<<"audio::Init Opening device \""<<szInitString<<"\""<<std::endl;
+      device = alcOpenDevice(szInitString);
+      ReportError();
+      if (device == NULL) {
+        LOG<<"audio::Init alcOpenDevice FAILED"<<std::endl;
 
-			Device = alcOpenDevice(NULL); // select the "default device"
-			if (Device == NULL)
-				return breathe::BAD;
+        // Ok, that failed, try the default device
+        device = alcOpenDevice(NULL); // select the "default device"
+        ReportError();
+        if (device == NULL) {
+          LOG<<"audio::Init alcOpenDevice FAILED, returning"<<std::endl;
+          return breathe::BAD;
+        }
+      }
 
-			// Create our context
-			Context=alcCreateContext(Device,NULL);
-			alcMakeContextCurrent(Context);
+      // Create our context
+      context = alcCreateContext(device, NULL);
+      ReportError();
+      if (context == NULL) {
+        alcCloseDevice(device);
+        ReportError();
+        LOG<<"audio::Init alcCreateContext FAILED, returning"<<std::endl;
+        return breathe::BAD;
+      }
 
-			// Check for EAX 2.0 support
-			g_bEAX = alIsExtensionPresent("EAX2.0");
-			ReportError();
-			printf("EAX is %ssupported\n", (g_bEAX ? "" : "not "));
+      alcMakeContextCurrent(context);
+      ReportError();
+#else
+      alutInit(NULL, NULL);
+      ReportError();
 
-			/*
-				Assuming g_bEAX == AL_TRUE after that code, then EAX 2.0 is available on
-				your soundcard.  Note that the reverb is muted by default (Room level ==
-				-10000mB), so you will need to change this value (and probably all the
-				other reverb parameters to get the reverb effect you want).
-			*/
+      // Major minor version number
+      ALint iMajor = alutGetMajorVersion();
+      ALint iMinor = alutGetMinorVersion();
+      std::ostringstream t;
+      t<<"OpenAL v";
+      t<<iMajor;
+      t<<".";
+      t<<iMinor;
+      LOG<<"audio::Init Audio"<<t.str()<<std::endl;
+      ReportError();
+
+      context = alcGetCurrentContext();
+      ReportError();
+      if (context == NULL) {
+        LOG<<"audio::Init alcGetCurrentContext FAILED, returning"<<std::endl;
+        return breathe::BAD;
+      }
+
+      // Now get the device from the context
+      device = alcGetContextsDevice(context);
+      ReportError();
+      if (device == NULL) {
+        LOG<<"audio::Init alcGetContextsDevice FAILED, returning"<<std::endl;
+        return breathe::BAD;
+      }
+#endif
 
 
-			// Surround sound
-			ALenum eBufferFormat = 0;
-			eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
-			if (eBufferFormat)
-				LOG.Success("Audio", "8.1 Surround sound supported");
-			else
-			{
-				eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
-				if (eBufferFormat)
-					LOG.Success("Audio", "7.1 Surround sound supported");
-				else
-				{
-					eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
-					if (eBufferFormat)
-						LOG.Success("Audio", "6.1 Surround sound supported");
-					else
-					{
-						eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
-						if (eBufferFormat)
-							LOG.Success("Audio", "5.1 Surround sound supported");
-						else
-						{
-							eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-							if (eBufferFormat)
-								LOG.Success("Audio", "Quad Speaker Surround sound supported");
-							else
-							{
-								eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
-								if (eBufferFormat)
-									LOG.Success("Audio", "Stereo sound supported");
-								else
-								{
-									eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
-									if (eBufferFormat)
-										LOG.Success("Audio", "Mono sound supported");
-									else
-										LOG.Success("Audio", "Unknown sound setup");
-								}
-							}
-						}
-					}
-				}
-			}
 
-			return breathe::GOOD;
-		}
+      // Check for EAX 2.0 support
+      LOG<<"audio::Init Checking for EAX 2.0"<<std::endl;
+      g_bEAX = alIsExtensionPresent("EAX2.0");
+      ReportError();
+      printf("EAX is %ssupported\n", (g_bEAX ? "" : "not "));
 
-		void Destroy()
-		{
-			// Exit
-			Context=alcGetCurrentContext();
-			Device=alcGetContextsDevice(Context);
-			alcMakeContextCurrent(NULL);
-			alcDestroyContext(Context);
+      /*
+        Assuming g_bEAX == AL_TRUE after that code, then EAX 2.0 is available on
+        your soundcard.  Note that the reverb is muted by default (Room level ==
+        -10000mB), so you will need to change this value (and probably all the
+        other reverb parameters to get the reverb effect you want).
+      */
 
-      if (Device != nullptr) alcCloseDevice(Device);
 
-      if (!alutExit()) ReportError();
+      // Surround sound
+      LOG<<"audio::Init Checking for surround sound"<<std::endl;
+      ALenum eBufferFormat = 0;
+#ifndef __LINUX__
+      eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "8.1 Surround sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "7.1 Surround sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "6.1 Surround sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "5.1 Surround sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "Quad Speaker Surround sound supported, returning");
+        return breathe::GOOD;
+      }
+#endif
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "Stereo sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
+      ReportError();
+      if (eBufferFormat) {
+        LOG.Success("Audio", "Mono sound supported, returning");
+        return breathe::GOOD;
+      }
+
+      LOG.Success("Audio", "Unknown sound setup, returning");
+      return breathe::BAD;
+    }
+
+    void Destroy()
+    {
+      while (!lAudioSource.empty()) {
+        cSourceRef pSource = lAudioSource.back();
+        ASSERT(pSource != nullptr);
+        pSource.reset();
+
+        lAudioSource.pop_back();
+      }
+
+      ASSERT(lAudioSource.empty());
+
+      context = alcGetCurrentContext();
+      ReportError();
+
+      device = alcGetContextsDevice(context);
+      ReportError();
+
+      alcMakeContextCurrent(NULL);
+      ReportError();
+
+      alcDestroyContext(context);
+      ReportError();
+
+      if (device != nullptr) {
+        alcCloseDevice(device);
+        ReportError();
+      }
+
+      alutExit();
+      ReportError();
     }
 
 		void Update(sampletime_t currentTime)
@@ -305,14 +483,14 @@ namespace breathe
 			source_iterator iter = lAudioSource.begin();
 			source_iterator iterEnd = lAudioSource.end();
 
-      std::list<cSource*> listToRemove;
+      std::list<cSourceRef> listToRemove;
 
-			cSource* pSource = NULL;
-			while(iter != iterEnd)
-			{
-				pSource = (*(iter++));
-				if (pSource->IsPlaying())
-				{
+      cSourceRef pSource;
+			for (; iter != iterEnd; iter++) {
+				pSource = (*(iter));
+        if (pSource == nullptr) continue;
+
+				if (pSource->IsPlaying()) {
 					pSource->Update();
 					continue;
 				}
@@ -325,32 +503,44 @@ namespace breathe
 			iter = listToRemove.begin();
 			iterEnd = listToRemove.end();
 
-			while(iter != iterEnd)
-			{
-				pSource = (*(iter++));
+      for (; iter != iterEnd; iter++) {
+				pSource = (*(iter));
+        ASSERT(pSource != nullptr);
         pSource->Remove();
-        SAFE_DELETE(pSource);
+        //SAFE_DELETE(pSource);
+        pSource.reset();
       }
 		}
 
-		void SetListener(math::cVec3& position, math::cVec3& lookat, math::cVec3& up, math::cVec3& velocity)
-		{
-			ALfloat listenerOri[]={lookat.x, lookat.y, lookat.z, up.x, up.y, up.z};
-
-			alListenerfv(AL_POSITION, position);
-			alListenerfv(AL_VELOCITY, velocity);
-			alListenerfv(AL_ORIENTATION, listenerOri);
-		}
+    void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity)
+    {
+      //LOG<<"SetListener"<<std::endl;
+      ALfloat listenerOri[] = { lookat.x, lookat.y, lookat.z, up.x, up.y, up.z };
+      alListenerfv(AL_POSITION, position);
+      //ReportError();
+      alListenerfv(AL_VELOCITY, velocity);
+      //ReportError();
+      alListenerfv(AL_ORIENTATION, listenerOri);
+      //ReportError();
+    }
 
     void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename)
     {
-	    breathe::audio::cBuffer* pBuffer = breathe::audio::CreateBuffer(sFilename);
-	    assert(pBuffer != nullptr);
+      cBufferRef pBuffer(breathe::audio::CreateBuffer(sFilename));
+      if (pBuffer == nullptr) {
+        SCREEN<<"CreateSoundAttachedToScreenPlayAndForget \""<<sFilename<<"\" pBuffer=NULL, returning"<<std::endl;
+        return;
+      }
+      ASSERT(pBuffer->IsValid());
 
-	    breathe::audio::cSource* pSource = breathe::audio::CreateSourceAttachedToScreen(pBuffer);
-	    assert(pSource != nullptr);
+      cSourceRef pSource(breathe::audio::CreateSourceAttachedToScreen(pBuffer));
+      if (pSource == nullptr) {
+        SCREEN<<"CreateSoundAttachedToScreenPlayAndForget \""<<sFilename<<"\" pSource=NULL, returning"<<std::endl;
+        return;
+      }
+      ASSERT(pSource->IsValid());
 
-	    pSource->Play();
+      pSource->Play();
     }
 
 
@@ -359,7 +549,6 @@ namespace breathe
 
 		cBuffer::cBuffer(const string_t& sInFilename) :
 			uiBuffer(0),
-			ref(0),
 			sFilename()
 		{
 			Create(sInFilename);
@@ -367,12 +556,16 @@ namespace breathe
 
 		cBuffer::~cBuffer()
 		{
-			assert(ref == 0);
-			if (uiBuffer) alDeleteBuffers(1, &uiBuffer);
+      LOG<<"cBuffer::~cBuffer"<<std::endl;
+			if (uiBuffer != 0) {
+        alDeleteBuffers(1, &uiBuffer);
+        ReportError();
+      }
 		}
 
     void cBuffer::Create(const string_t& sInFilename)
 		{
+      SCREEN<<"cBuffer::Create \""<<sInFilename<<"\""<<std::endl;
 			sFilename = sInFilename;
 			uiBuffer = alutCreateBufferFromFile(breathe::string::ToUTF8(sFilename).c_str());
 			ReportError();
@@ -384,38 +577,70 @@ namespace breathe
 
 		// ********************************************** cSound **********************************************
 
-		cSource::cSource(cBuffer* pInBuffer, float fVolume) :
-			pBuffer(nullptr),
+    cSource::cSource(cBufferRef pInBuffer) :
+      pBuffer(),
+      bLooping(false),
+      pNodeParent(nullptr),
+      uiSource(0),
+      volume(1.0f)
+    {
+      Create(pInBuffer);
+    }
+
+		cSource::cSource(cBufferRef pInBuffer, float fVolume) :
+			pBuffer(),
 			bLooping(false),
 			pNodeParent(nullptr),
 			uiSource(0),
-			volume(fVolume)
+      volume(fVolume)
 		{
 			Create(pInBuffer);
 		}
 
 		cSource::~cSource()
 		{
-			assert(pBuffer != nullptr);
-
-			pBuffer->Release();
-			pBuffer = nullptr;
+      SCREEN<<"cSource::~cSource"<<std::endl;
+      if (pBuffer != nullptr) {
+        SCREEN<<"cSource::~cSource Calling Release"<<std::endl;
+        SCREEN<<"cSource::~cSource Setting pBuffer to NULL"<<std::endl;
+			  //SAFE_DELETE(pBuffer);
+      }
 
 			uiSource = 0;
-			pNodeParent = nullptr;
+      pNodeParent = nullptr;
+      SCREEN<<"cSource::~cSource returning"<<std::endl;
 		}
 
-    void cSource::Create(cBuffer* pInBuffer)
-		{
-			assert(pBuffer == nullptr);
+    void cSource::Create(cBufferRef pInBuffer)
+    {
+      LOG<<"cSource::Create"<<std::endl;
+      ASSERT(pBuffer == nullptr);
+
+			ASSERT(pInBuffer != nullptr);
+      ASSERT(pInBuffer->IsValid());
 
 			pBuffer = pInBuffer;
-			pBuffer->Aquire();
 			alGenSources(1, &uiSource);
 			ReportError();
 			alSourcei(uiSource, AL_BUFFER, pInBuffer->uiBuffer);
 			ReportError();
 		}
+
+    void cSource::SetVolume(float fVolume)
+    {
+      volume = fVolume;
+      if (IsPlaying()) alSourcef(uiSource, AL_GAIN, volume);
+    }
+
+    void cSource::SetPitch(float fPitch)
+    {
+        // clamp in the range of 0.01 to 2.0
+      if ( fPitch < 0.01 ) fPitch = 0.01;
+      if ( fPitch > 2.0 ) fPitch = 2.0;
+      pitch = fPitch;
+
+      if (IsPlaying()) alSourcef(uiSource, AL_PITCH, pitch);
+    }
 
 		void cSource::SetLooping()
 		{
@@ -432,36 +657,54 @@ namespace breathe
 		void cSource::Attach(cObject* pInNodeParent)
 		{
 			pNodeParent = pInNodeParent;
-			AddSource(this);
+			AddSource(cSourceRef(this));
 		}
 
-		void cSource::Remove()
-		{
-			pNodeParent = NULL;
-			RemoveSource(this);
-			alDeleteSources(1, &uiSource);
-			uiSource = 0;
-		}
+    void cSource::Remove()
+    {
+      LOG<<"cSource::Remove"<<std::endl;
+      pNodeParent = NULL;
+
+      if (uiSource != 0) {
+        LOG<<"cSource::Remove Calling alDeleteSources with uiSource="<<uiSource<<std::endl;
+        //FIXME: This needs to be called
+        //alDeleteSources(1, &uiSource);
+        ReportError();
+        uiSource = 0;
+      }
+
+      // Now remove it from the list
+      //cSourceRef temp(this);
+      //RemoveSource(temp);
+      LOG<<"cSource::Remove returning"<<std::endl;
+    }
 
 		void cSource::Play()
-		{
+    {
+      LOG<<"cSource::Play"<<std::endl;
 			alSourcePlay(uiSource);
       ReportError();
 		}
 
 		void cSource::Stop()
-		{
-			alSourceStop(uiSource);
+    {
+      LOG<<"cSource::Stop"<<std::endl;
+      alSourceStop(uiSource);
+      ReportError();
 		}
 
 		void cSource::Update()
 		{
-      if (pNodeParent != nullptr) alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
+      if (pNodeParent != nullptr) {
+        //LOG<<"cSource::Update"<<std::endl;
+        alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
+        //ReportError();
+      }
 		}
 
 		bool cSource::IsValid() const
 		{
-			return uiSource && pBuffer;
+			return (uiSource != 0) && (pBuffer != nullptr);
 		}
 
 		bool cSource::IsPlaying() const
@@ -470,20 +713,28 @@ namespace breathe
 
 			// If we have stopped playing this sound remove us from the list
 			ALint value = AL_PLAYING;
+      //LOG<<"cSource::IsPlaying"<<std::endl;
 			alGetSourcei(uiSource, AL_SOURCE_STATE, &value);
+      //ReportError();
 			return (AL_PLAYING == value);
 		}
 
 		void cSource::TransformTo2DSource()
-		{
-			alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
-			alSourcef(uiSource, AL_ROLLOFF_FACTOR, 0.0);
+    {
+      LOG<<"cSource::TransformTo2DSource"<<std::endl;
+      alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
+      ReportError();
+      alSourcef(uiSource, AL_ROLLOFF_FACTOR, 0.0);
+      ReportError();
 		}
 
 		void cSource::TransformTo3DSource()
-		{
-			alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
-			alSourcef (uiSource, AL_ROLLOFF_FACTOR, 1.0);
+    {
+      LOG<<"cSource::TransformTo2DSource"<<std::endl;
+      alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
+      ReportError();
+      alSourcef (uiSource, AL_ROLLOFF_FACTOR, 1.0);
+      ReportError();
 		}
 
 	/*
@@ -526,11 +777,11 @@ namespace breathe
 			DisplayALError("alSourcei AL_BUFFER 0 : ", error);
 			}
 			// Exit
-			Context=alcGetCurrentContext();
-			Device=alcGetContextsDevice(Context);
+			context=alcGetCurrentContext();
+      device = alcGetContextsDevice(context);
 			alcMakeContextCurrent(NULL);
-			alcDestroyContext(Context);
-			alcCloseDevice(Device);
+			alcDestroyContext(context);
+			alcCloseDevice(device);
 
 
 
@@ -595,7 +846,7 @@ namespace breathe
 
 
 		// For mixing two sounds together for a collision mostly
-		cSourceMix::cSourceMix(cBuffer* pBuffer0, cBuffer* pBuffer1, float fVolume0, float fVolume1) :
+		cSourceMix::cSourceMix(cBufferRef pBuffer0, cBufferRef pBuffer1, float fVolume0, float fVolume1) :
 			source0(pBuffer0, fVolume0),
 			source1(pBuffer1, fVolume1)
 		{

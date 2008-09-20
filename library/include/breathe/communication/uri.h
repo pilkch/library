@@ -5,6 +5,10 @@ namespace breathe
 {
   namespace network
   {
+    void BuildWebSiteURL(string_t& sURL);
+    void BuildWebSiteProgramURL(string_t& sURL);
+    void BuildWebSiteProgramURLWithSubFolderOrFile(string_t& sURL, const string_t& sSubFolderOrFile);
+
     class cURI
     {
     public:

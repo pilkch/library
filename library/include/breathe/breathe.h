@@ -45,6 +45,8 @@
 // Operating System
 // Use the standard defines were possible:
 // __WIN__, __LINUX__, __APPLE__
+// as well as combination defines:
+// PLATFORM_LINUX_OR_UNIX
 
 #if defined(WIN32) || defined(__WIN__) || \
   defined(_MSC_VER) || defined(__CYGWIN32__) || defined(_BORLANDC_) || defined(__MINGW32__)
@@ -67,6 +69,10 @@
 #error "Need some help identifying the platform!"
 #endif
 
+#if defined(__LINUX__) || defined(__APPLE__)
+#define PLATFORM_LINUX_OR_UNIX
+#endif
+
 // What type of build is this?
 #ifdef NDEBUG
 #define BUILD_RELEASE
@@ -84,6 +90,12 @@
 
 #ifdef BUILD_DEBUG
 #include <crtdbg.h>
+#ifndef __GNUC__
+//#define _CRTDBG_MAP_ALLOC
+inline void *__cdecl operator new(size_t n, const char *fn, int l) { return ::operator new(n, 1, fn, l); }
+inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator delete(p, 1, fn, l); }
+#define new new(__FILE__,__LINE__)
+#endif
 #endif
 
 #if !defined(UNICODE) && !defined(_UNICODE)
@@ -106,6 +118,8 @@
 #ifdef NO_SDL
 typedef unsigned char uint8_t;
 typedef long int uint32_t;
+typedef long long int int64_t;
+typedef unsigned long long int uint64_t;
 #else
 // For our types (uint8_t, uint32_t, etc.)
 #include <SDL/SDL.h>
@@ -172,4 +186,4 @@ namespace breathe
   }
 }
 
-#endif //BREATHE_H
+#endif // BREATHE_H
