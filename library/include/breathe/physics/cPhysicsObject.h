@@ -35,10 +35,11 @@ namespace breathe
 #else
 			void CreateHeightmap(const std::vector<float>& heightvalues, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
       void CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies);
 #endif
 
 			void RemoveFromWorld();
-      
+
       void SetDynamic(bool bIsDynamic) { bDynamic = bIsDynamic; }
       void SetUseBody(bool bUseBody) { bBody = bUseBody; }
 
@@ -51,16 +52,21 @@ namespace breathe
 #else
       dBodyID GetBody() const { return body; }
       dGeomID GetGeom() const { return geom; }
+      void DestroyBody();
+      void DestroyGeom();
 
       //object_type GetType() const { return type; }
 
 			render::model::cModel *pModel;
 #endif
 
-		private:
+    private:
+#ifdef BUILD_PHYSICS_2D
       void InitCommon(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot);
+#endif
 
 #ifdef BUILD_PHYSICS_3D
+      void InitCommon(const physvec_t& pos, const physvec_t& rot);
 			virtual void UpdateComponents();
 #endif
 
@@ -87,4 +93,4 @@ namespace breathe
 #include <breathe/physics/physics3d/cPhysicsObject.h>
 #endif
 
-#endif //CPHYSICSOBJECT_H
+#endif // CPHYSICSOBJECT_H

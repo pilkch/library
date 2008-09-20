@@ -2,6 +2,9 @@
 #include <cmath>
 #include <cassert>
 
+#include <vector>
+#include <limits>
+
 // Breathe
 #include <breathe/breathe.h>
 
@@ -72,7 +75,7 @@ namespace breathe
 		void cVec2::SetLength(float length)
 		{
 			float scalefactor;
-			
+
 			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
@@ -101,7 +104,7 @@ namespace breathe
 
 		void cVec2::PackTo01()
 		{
-			(*this)=GetPackedTo01();	
+			(*this)=GetPackedTo01();
 		}
 
 		cVec2 cVec2::GetPackedTo01() const
@@ -111,7 +114,7 @@ namespace breathe
 			temp.Normalize();
 
 			temp=temp*0.5f+cVec2(0.5f, 0.5f);
-			
+
 			return temp;
 		}
 
@@ -162,7 +165,7 @@ namespace breathe
 			x /= rhs;
 			y /= rhs;
 		}
-    
+
     cVec2& cVec2::operator=(const cVec3& rhs)
     {
       x = rhs.x;

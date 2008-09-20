@@ -1,5 +1,5 @@
-#ifndef CPHYSICSOBJECT_H
-#define CPHYSICSOBJECT_H
+#ifndef CPHYSICS3DOBJECT_H
+#define CPHYSICS3DOBJECT_H
 
 namespace breathe
 {
@@ -7,7 +7,7 @@ namespace breathe
 	{
 		// *****************************************************************************************************
 		// Upright Capsule, use this for characters that cannot fall over
-		// Basically the same as a normal capsule, just with constraints that: 
+		// Basically the same as a normal capsule, just with constraints that:
 		// a) Stop the capsule tipping over
 		// b) Help the capsule up stairs by pushing the capsule up when we collide a ray in front of our feet
 		// *****************************************************************************************************
@@ -21,4 +21,4 @@ namespace breathe
 	}
 }
 
-#endif //CPHYSICSOBJECT_H
+#endif // CPHYSICS3DOBJECT_H

@@ -1,6 +1,9 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <vector>
+#include <limits>
+
 // Breathe
 #include <breathe/breathe.h>
 
@@ -18,7 +21,7 @@ namespace breathe
 {
 	namespace math
 	{
-		cPlane::cPlane(const cVec3& origin, const cVec3& normal) 
+		cPlane::cPlane(const cVec3& origin, const cVec3& normal)
 		{
 			this->normal = normal;
 			this->origin = origin;
@@ -40,13 +43,13 @@ namespace breathe
 			equation[3] = -(normal.x*origin.x+normal.y*origin.y+normal.z*origin.z);
 		}
 
-		bool cPlane::IsFrontFacingTo(const cVec3& direction) const 
+		bool cPlane::IsFrontFacingTo(const cVec3& direction) const
 		{
 			double dot = normal.DotProduct(direction);
 			return (dot <= 0);
 		}
-			
-		double cPlane::SignedDistanceTo(const cVec3& point) const 
+
+		double cPlane::SignedDistanceTo(const cVec3& point) const
 		{
 			return (point.DotProduct(normal)) + equation[3];
 		}

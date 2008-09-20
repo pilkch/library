@@ -3,161 +3,371 @@
 
 namespace breathe
 {
-	class cCamera;
-	class cObject;
+  class cCamera;
+  class cObject;
 
-	namespace render
-	{
-		class cRender;
-		class cTexture;
-	}
-
-	
-	namespace physics
-	{
-		class cPhysicsObject;
-	}
-
-	namespace vehicle
-	{
-		class cVehicle;
-	}
-
-	namespace scenegraph
-	{
-		class cSceneGraph;
-
-		class cSceneGraphModel : public cObject
-		{
-		public:
-			render::model::cStatic* pModel;
-
-			void Update(sampletime_t currentTime)
-			{
-				
-			}
-		};
-
-		class cSceneGraphCubemap
-		{
-		public:
-			math::cVec3 v3Position;
-
-			std::string sFilename;
-		};
-
-		class cSceneGraphSpawn
-		{
-		public:
-			cSceneGraphSpawn();
-
-			math::cVec3 v3Position;
-			math::cVec3 v3Rotation;
-		};
+  namespace render
+  {
+    class cRender;
+    class cTexture;
+    class cShader
+    {
+    public:
+    };
+  }
 
 
-		const unsigned int NODE_INACTIVE=0;
-		const unsigned int NODE_UNLOAD=1;
-		const unsigned int NODE_ACTIVE=20; //Seconds since the player has been in the vicinity
+  namespace physics
+  {
+    class cPhysicsObject;
+  }
 
-		class cSceneGraphNode : public cRenderable
-		{
-			cSceneGraph* pLevel;
+  namespace vehicle
+  {
+    class cVehicle;
+  }
 
-		public:
-			unsigned int uiStatus;
-			
-			float fFogDistance;
+  namespace scenegraph
+  {
+    class cSceneGraph;
 
-			math::cColour colourFog;
+    /*class cSceneGraphModel : public cObject
+    {
+    public:
+      render::model::cStaticRef pModel;
 
-			std::string sFilename;
-			std::string sName;
-			std::string sCRC;
+      void Update(sampletime_t currentTime)
+      {
 
-			std::vector<cSceneGraphModel*>vModel;
-				
-			cSceneGraphNode(cSceneGraph* p, std::string sNewFilename);
-			~cSceneGraphNode();
+      }
+    };
 
-			void Load();
-			void Unload();
+    class cSceneGraphCubemap
+    {
+    public:
+      math::cVec3 v3Position;
 
-			void Update(sampletime_t currentTime);
-			unsigned int Render();
-		};
-		
-		class cSceneGraph
-		{
-		public:
-			cSceneGraph();
+      std::string sFilename;
+    };
 
-		private:
-			std::list<cSceneGraphNode*> listOpaque;
-			std::map<float, cSceneGraphNode*> mTransparent;
+    class cSceneGraphSpawn
+    {
+    public:
+      cSceneGraphSpawn();
 
-			cSceneGraphNode* pRoot;
+      math::cVec3 v3Position;
+      math::cVec3 v3Rotation;
+    };
 
-			/*
-			class cSceneGraphNode
-			{
-			public:
-				bool IsDirty() const { return bIsDirty; }
 
-				void SetDirty() { bIsDirty = true; if (pParent) pParent->SetDirty(); }
-				void ClearDirty() { bIsDirty = false; }
+    const unsigned int NODE_INACTIVE=0;
+    const unsigned int NODE_UNLOAD=1;
+    const unsigned int NODE_ACTIVE=20; //Seconds since the player has been in the vicinity
 
-			private:
-				bool bIsDirty;
-			};
-			
-			class cSceneGraphNode
-			{
-			public:
-				bool IsDirty() const { return uiDirty; }
+    class cSceneNode : public cRenderable
+    {
+    public:
+      cSceneNode(cSceneGraph* p, std::string sNewFilename);
+      ~cSceneNode();
 
-				void SetDirty() { uiDirty++; if (pParent) pParent->SetDirty(); }
-				void ClearDirty() { uiDirty--; if (pParent) pParent->ClearDirty(); }
+      void Load();
+      void Unload();
 
-			private:
-				bool uiDirty;
-			};
-			*/
 
-			void Update()
-			{
-				listOpaque.clear();
-				mTransparent.clear();
+      unsigned int uiStatus;
 
-				/*for each item in list
-					if (opaque)
-						listOpaque.add(item);
-					else
-						mTransparent.add(fDistance, item);*/
-			}
+      float fFogDistance;
 
-			void Render()
-			{
-				unsigned int uiTriangles = 0;
+      math::cColour colourFog;
 
-				// Opaque first
-				{
-					std::list<cSceneGraphNode*>::iterator iter = listOpaque.begin();
-					std::list<cSceneGraphNode*>::iterator iterEnd = listOpaque.end();
-					while(iter != iterEnd)
-						uiTriangles += (*(iter++))->Render();
-				}
+      std::string sFilename;
+      std::string sName;
+      std::string sCRC;
 
-				// Transparent second
-				{
-					std::map<float, cSceneGraphNode*>::iterator iter = mTransparent.begin();
-					std::map<float, cSceneGraphNode*>::iterator iterEnd = mTransparent.end();
-					while(iter != iterEnd)
-						uiTriangles += (*(iter++)).second->Render();
-				}
-			}
-		};
-	}
+      std::vector<cSceneGraphModelRef>vModel;
+
+    private:
+      cSceneGraph* pLevel;
+    };*/
+
+    class cUpdateVisitor;
+    class cCullVisitor;
+    class cRenderVisitor;
+
+    class cStateSet
+    {
+    public:
+      enum PRIORITY
+      {
+        PRIORITY_HIGH3 = 0,
+        PRIORITY_HIGH2,
+        PRIORITY_HIGH1,
+        PRIORITY_HIGH0,
+        PRIORITY_DIFFUSE,
+        PRIORITY_TRANSPARENT,
+
+        // Helper states
+        PRIORITY_NORMAL = PRIORITY_DIFFUSE
+      };
+
+    private:
+      PRIORITY priority;
+    };
+
+    class cSceneNode;
+
+    typedef cSmartPtr<cSceneNode> cSceneNodeRef;
+
+    class cSceneNode
+    {
+    public:
+      cSceneNode();
+      virtual ~cSceneNode() {}
+
+      bool IsDirty() const { return bIsDirty; }
+
+      const math::cSphere& GetBoundingSphere() const { return boundingSphere; }
+      const math::cBox& GetBoundingBox() const { return boundingBox; }
+
+      void SetDirty() { bIsDirty = true; if (pParent != nullptr) pParent->SetDirty(); }
+
+      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
+      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
+
+    private:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+
+      bool bIsEnabled;
+      bool bIsDirty;
+
+      cSceneNodeRef pParent;
+
+      math::cSphere boundingSphere;
+      math::cBox boundingBox;
+    };
+
+    class cModelNode : public cSceneNode
+    {
+    public:
+
+    private:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+    };
+
+    class cLightNode : public cSceneNode
+    {
+    public:
+
+    private:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+    };
+
+    class cUpdateVisitor
+    {
+    public:
+      explicit cUpdateVisitor(cSceneGraph& scenegraph);
+
+      void Visit(cSceneNode& node) { printf("cUpdateVisitor::Visit cSceneNode\n"); }
+      void Visit(cModelNode& node) { printf("cUpdateVisitor::Visit cModelNode\n"); }
+      void Visit(cLightNode& node) { printf("cUpdateVisitor::Visit cLightNode\n"); }
+
+    private:
+
+    };
+
+    class cCullVisitor
+    {
+    public:
+      explicit cCullVisitor(cSceneGraph& scenegraph);
+
+      void Visit(cSceneNode& node) { printf("cCullVisitor::Visit cSceneNode\n"); }
+      void Visit(cModelNode& node) { printf("cCullVisitor::Visit cModelNode\n"); }
+      void Visit(cLightNode& node) { printf("cCullVisitor::Visit cLightNode\n"); }
+
+    private:
+      cSceneGraph& scenegraph;
+    };
+
+    class cRenderVisitor
+    {
+    public:
+      explicit cRenderVisitor(cSceneGraph& scenegraph);
+
+    private:
+      cSceneGraph& scenegraph;
+    };
+
+
+    // Octree for spatially representing the world
+    class cSpatialGraphNode
+    {
+    public:
+      cSpatialGraphNode() { memset(&pChild[0], 0, sizeof(cSpatialGraphNode*) * 8); }
+      virtual ~cSpatialGraphNode() {}
+
+      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
+      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
+
+    private:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+
+      cSpatialGraphNode* pChild[8];
+    };
+
+
+
+
+    class cScopedEnable
+    {
+    public:
+      explicit cScopedEnable(GLenum field);
+      ~cScopedEnable();
+
+    private:
+      GLenum field;
+    };
+
+    inline cScopedEnable::cScopedEnable(GLenum _field) :
+      field(_field)
+    {
+      glEnable(field);
+    }
+
+    inline cScopedEnable::~cScopedEnable()
+    {
+      glDisable(field);
+    }
+
+    class cScopedAttributes
+    {
+    public:
+      explicit cScopedAttributes(GLbitfield attribute);
+      ~cScopedAttributes();
+
+    private:
+      GLbitfield attributes;
+    };
+
+    inline cScopedAttributes::cScopedAttributes(GLbitfield _attribute) :
+      attributes(_attribute)
+    {
+      glPushAttrib(attributes);
+    }
+
+    inline cScopedAttributes::~cScopedAttributes()
+    {
+      glPopAttrib();
+    }
+
+
+
+
+    // State classes for keeping track of what state we are in.
+    // Default compiler generated copy constructors are fine for these simple classes.
+
+    class cStateBoolean
+    {
+    public:
+      cStateBoolean() : bHasValidValue(false), bTurnedOn(false) {}
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+    };
+
+    class cStateBooleanWithFloat
+    {
+    public:
+      cStateBooleanWithFloat() : bHasValidValue(false), bTurnedOn(false), fValue(0.0f) {}
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+      float fValue;
+    };
+
+    class cStateTexture
+    {
+    public:
+      cStateTexture() : bHasValidValue(false), bTurnedOn(false) {}
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+      render::cTextureRef pTexture;
+    };
+
+    class cStateShader
+    {
+    public:
+      cStateShader() : bHasValidValue(false), bTurnedOn(false) {}
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+      render::material::cShaderRef pShader;
+    };
+
+    class cStateList
+    {
+    private:
+      cStateBoolean alphablending;
+      cStateTexture texture;
+      cStateShader shader;
+    };
+
+    typedef cSmartPtr<cSceneNode> cGroupNodeRef;
+
+    class cRenderable
+    {
+    public:
+
+    };
+
+    typedef cSmartPtr<cRenderable> cRenderableRef;
+
+    class cRenderGraph
+    {
+    public:
+      friend class cCullVisitor;
+      friend class cRenderVisitor;
+
+      void AddRenderable(const cRenderableRef renderable);
+      void Clear();
+
+    private:
+      std::list<cRenderableRef> listOpaque;
+      std::map<float, cRenderableRef> mTransparent;
+    };
+
+    inline void cRenderGraph::Clear()
+    {
+      listOpaque.clear();
+      mTransparent.clear();
+    }
+
+    class cSceneGraph
+    {
+    public:
+      friend class cCullVisitor;
+      friend class cRenderVisitor;
+
+      cSceneGraph();
+
+      cGroupNodeRef GetRoot() const { return pRoot; }
+
+      void Update(sampletime_t currentTime);
+      void Cull(sampletime_t currentTime);
+      void Render(sampletime_t currentTime);
+
+    protected:
+      cRenderGraph& GetRenderGraph() { return renderGraph; }
+
+    private:
+      cRenderGraph renderGraph;
+      cGroupNodeRef pRoot;
+    };
+  }
 }
 
-#endif //SCENEGRAPH_H
+#endif // SCENEGRAPH_H

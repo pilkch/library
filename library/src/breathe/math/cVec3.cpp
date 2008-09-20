@@ -1,6 +1,9 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <vector>
+#include <limits>
+
 // Breathe
 #include <breathe/breathe.h>
 
@@ -27,19 +30,19 @@ namespace breathe
 			return temp_vector;
 		}
 
+		float cVec3::GetSquaredLength() const
+		{
+			return (x * x) + (y * y) + (z * z);
+		}
+
 		float cVec3::GetLength() const
-		{	
-			return sqrtf((x*x)+(y*y)+(z*z));
+		{
+			return sqrtf(GetSquaredLength());
 		}
 
 		float cVec3::GetMagnitude() const
-		{	
-			return GetLength(); 
-		}
-			
-		float cVec3::GetSquaredLength() const
-		{	
-			return (x*x)+(y*y)+(z*z);	
+		{
+			return GetLength();
 		}
 
 		bool cVec3::IsZeroVector() const
@@ -111,7 +114,7 @@ namespace breathe
 		void cVec3::SetLength(float length)
 		{
 			float scalefactor;
-			
+
 			if (length==1 || length==0)			//return if length is 1 or 0
 				return;
 
@@ -194,7 +197,7 @@ namespace breathe
 			rotMatrixRow1.x=(u.x)*(u.y)*(oneMinusCosAngle) + sinAngle*u.z;
 			rotMatrixRow1.y=(u.y)*(u.y) + cosAngle*(1-(u.y)*(u.y));
 			rotMatrixRow1.z=(u.y)*(u.z)*(oneMinusCosAngle) - sinAngle*u.x;
-			
+
 			rotMatrixRow2.x=(u.x)*(u.z)*(oneMinusCosAngle) - sinAngle*u.y;
 			rotMatrixRow2.y=(u.y)*(u.z)*(oneMinusCosAngle) + sinAngle*u.x;
 			rotMatrixRow2.z=(u.z)*(u.z) + cosAngle*(1-(u.z)*(u.z));
@@ -223,7 +226,7 @@ namespace breathe
 
 		void cVec3::PackTo01()
 		{
-			(*this)=GetPackedTo01();	
+			(*this)=GetPackedTo01();
 		}
 
 		cVec3 cVec3::GetPackedTo01() const
@@ -233,7 +236,7 @@ namespace breathe
 			temp.Normalize();
 
 			temp=temp*0.5f+cVec3(0.5f, 0.5f, 0.5f);
-			
+
 			return temp;
 		}
 

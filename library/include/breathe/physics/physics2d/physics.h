@@ -40,9 +40,9 @@ public:
 
 namespace breathe
 {
-	namespace physics
-	{
-		void Init(float width, float height);
+  namespace physics
+  {
+    void Init(float width, float height);
 
     float GetWidth();
     float GetHeight();
@@ -55,7 +55,7 @@ namespace breathe
     cPhysicsObject* GetBorder3();
 
     bool CanSleep();
-	}
+  }
 }
 
-#endif //CPHYSICS2D_H
+#endif // CPHYSICS2D_H

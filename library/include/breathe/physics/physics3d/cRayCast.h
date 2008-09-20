@@ -4,21 +4,21 @@
 namespace breathe
 {
 	namespace physics
-	{		
+	{
 		class cPhysicsRayCast
 		{
 		public:
-			dGeomID geomRay;
-			cContact rayContact;
-
 			cPhysicsRayCast();
-			~cPhysicsRayCast();
+			virtual ~cPhysicsRayCast();
 			void Create(float fLength);
 
 			virtual void RayCast()=0;
 			//static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
+
+      dGeomID geomRay;
+      cContact rayContact;
 		};
 	}
 }
 
-#endif //CPHYSICSRAYCAST_H
+#endif // CPHYSICSRAYCAST_H

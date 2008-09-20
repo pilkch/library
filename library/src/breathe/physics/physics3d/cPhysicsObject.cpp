@@ -10,6 +10,16 @@
 
 #include <ode/ode.h>
 
+// ODE_API dTriMeshDataID dGeomTriMeshDataCreate(void) { dTriMeshDataID a; return a; }
+// ODE_API void dGeomTriMeshDataDestroy(dTriMeshDataID g) {}
+// ODE_API void dGeomTriMeshDataSet(dTriMeshDataID g, int data_id, void* in_data) {}
+// ODE_API void* dGeomTriMeshDataGet(dTriMeshDataID g, int data_id) { return NULL; }
+// ODE_API void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans ) {}
+
+// ODE_API void dGeomTriMeshDataBuildSimple(dTriMeshDataID g,
+//                                           const dReal* Vertices, int VertexCount,
+//                                           const int* Indices, int IndexCount) {}
+// ODE_API dGeomID dCreateTriMesh(dSpaceID space, dTriMeshDataID Data, dTriCallback* Callback, dTriArrayCallback* ArrayCallback, dTriRayCallback* RayCallback) { return 0; }
 
 #include <breathe/breathe.h>
 
@@ -23,6 +33,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -31,23 +42,23 @@
 #include <breathe/physics/physics.h>
 
 
-/*// Wedge 
-float sPrefabVertsTriangle[ 6 ][ 3 ] = { 
-{ -0.5f , -0.5f , 0.5f }, 
-{ 0.5f , 0.5f , 0.5f }, 
-{ -0.5f , 0.5f , 0.5f }, 
-{ -0.5f , -0.5f , -0.5f }, 
-{ 0.5f , 0.5f , -0.5f }, 
-{ -0.5f , 0.5f , -0.5f } 
-}; 
+/*// Wedge
+float sPrefabVertsTriangle[ 6 ][ 3 ] = {
+  { -0.5f , -0.5f , 0.5f },
+  { 0.5f , 0.5f , 0.5f },
+  { -0.5f , 0.5f , 0.5f },
+  { -0.5f , -0.5f , -0.5f },
+  { 0.5f , 0.5f , -0.5f },
+  { -0.5f , 0.5f , -0.5f }
+};
 
-int sPrefabIndicesTriangle[ 6 ][ 3 ] = { 
-{ 0 , 3 , 1 }, 
-{ 1 , 3 , 4 }, 
-{ 3 , 0 , 5 }, 
-{ 5 , 0 , 2 }, 
-{ 2 , 1 , 5 }, 
-{ 1 , 4 , 5 }, 
+int sPrefabIndicesTriangle[ 6 ][ 3 ] = {
+  { 0 , 3 , 1 },
+  { 1 , 3 , 4 },
+  { 3 , 0 , 5 },
+  { 5 , 0 , 2 },
+  { 2 , 1 , 5 },
+  { 1 , 4 , 5 },
 };*/
 
 
@@ -66,7 +77,7 @@ const unsigned int uiDirectionZ = 3;
 namespace breathe
 {
 	namespace physics
-	{	
+	{
 		cPhysicsObject::cPhysicsObject()
 			: cObject()
 		{
@@ -76,7 +87,7 @@ namespace breathe
 			body=NULL;
 			geom=NULL;
 
-			
+
 
 			fWeight=1.0f;
 			fRadius=2.0f;
@@ -113,16 +124,17 @@ namespace breathe
 				body = NULL;
 			}
 		}
-		
-		void cPhysicsObject::SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies)
+
+#ifdef BUILD_PHYSICS_3D
+    void cPhysicsObject::SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies)
 		{
 			vCoords=coords;
 			vIndicies=indicies;
 		}
 
-		void cPhysicsObject::InitCommon(math::cVec3& pos, math::cVec3& rot)
+    void cPhysicsObject::InitCommon(const physvec_t& posOriginal, const physvec_t& rot)
 		{
-			pos.z+=fHeight;
+      math::cVec3 pos(posOriginal.x, posOriginal.y, posOriginal.z + fHeight);
 
 			m.LoadIdentity();
 			m.SetRotationZ(rot.z*math::cPI_DIV_180);
@@ -139,9 +151,8 @@ namespace breathe
 			dGeomSetPosition(geom, p.x, p.y, p.z);
 			dGeomSetRotation(geom, r);
 
-			if (bBody)
-			{
-				body = dBodyCreate(physics::world);
+			if (bBody) {
+				body = dBodyCreate(physics::GetWorld());
 				dBodySetPosition(body, p.x, p.y, p.z);
 				dBodySetRotation(body, r);
 				dBodySetAutoDisableFlag(body, 1);
@@ -149,68 +160,64 @@ namespace breathe
 				dGeomSetBody(geom, body);
 			}
 		}
-		
-		void cPhysicsObject::CreateBox(math::cVec3 pos, math::cVec3 rot)
+
+    void cPhysicsObject::CreateBox(const math::cVec3& pos, const math::cVec3& rot)
 		{
-			geom = dCreateBox(bDynamic ? physics::spaceDynamic : physics::spaceStatic, 
+      geom = dCreateBox(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(),
 				2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
-			
+
 			InitCommon(pos, rot);
 
-			if (bBody)
-			{
+			if (bBody) {
 				dMass mass;
 				dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
 				dBodySetMass(body, &mass);
 			}
-		}
-		
-		void cPhysicsObject::CreateSphere(math::cVec3 pos, math::cVec3 rot)
+    }
+
+		void cPhysicsObject::CreateSphere(const math::cVec3& pos, const math::cVec3& rot)
 		{
-			geom = dCreateSphere(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius);
+      geom = dCreateSphere(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius);
 
 			InitCommon(pos, rot);
 
-			if (bBody)
-			{
+			if (bBody) {
 				dMass mass;
 				dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
 				dBodySetMass(body, &mass);
 			}
 		}
 
-		void cPhysicsObject::CreateCapsule(math::cVec3 pos, math::cVec3 rot)
+    void cPhysicsObject::CreateCapsule(const math::cVec3& pos, const math::cVec3& rot)
 		{
-			geom = dCreateCapsule(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius, fLength);
-		
+      geom = dCreateCapsule(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
+
 			InitCommon(pos, rot);
 
-			if (bBody)
-			{
+			if (bBody) {
 				dMass mass;
 				dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
 				dBodySetMass(body, &mass);
 			}
 		}
 
-		void cPhysicsObject::CreateCylinder(math::cVec3 pos, math::cVec3 rot)
+    void cPhysicsObject::CreateCylinder(const math::cVec3& pos, const math::cVec3& rot)
 		{
-			geom = dCreateCylinder(bDynamic ? physics::spaceDynamic : physics::spaceStatic, fRadius, fLength);
+      geom = dCreateCylinder(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
 
 			InitCommon(pos, rot);
 
-			if (bBody)
-			{
+			if (bBody) {
 				dMass mass;
 				dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
 				dBodySetMass(body, &mass);
 			}
-		}
+    }
 
-		void cPhysicsObject::CreateTrimesh(math::cVec3 pos, math::cVec3 rot)
+    void cPhysicsObject::CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot)
 		{
-			bBody=false;
-			bDynamic=false;
+			bBody = false;
+			bDynamic = false;
 
 			m.LoadIdentity();
 			m.SetRotationZ(rot.z*math::cPI_DIV_180);
@@ -230,7 +237,7 @@ namespace breathe
 			v[2]=0.0f;
 
 
-			
+
 			Size[0] = 500.0f;
 			Size[1] = 500.0f;
 			Size[2] = 0.0f;
@@ -275,8 +282,8 @@ namespace breathe
 			dTriMeshDataID Data = dGeomTriMeshDataCreate();
 
 			dGeomTriMeshDataBuildSimple(Data, (dReal*)Vertices, VertexCount, Indices, IndexCount);
-			
-			geom = dCreateTriMesh(physics::spaceStatic, Data, NULL , NULL , NULL);
+
+      geom = dCreateTriMesh(physics::GetSpaceStatic(), Data, NULL , NULL , NULL);
 
 			dGeomSetBody(geom, 0);
 
@@ -299,20 +306,21 @@ namespace breathe
       }
 
 			id_, vertices_, (int)sizeof(D3DXVECTOR3), (int)vcount,
-      indices_, (int)icount, (int)sizeof(int)*3, 
-			normals_ 
+      indices_, (int)icount, (int)sizeof(int)*3,
+			normals_
 
-			const void* Vertices, int VertexStride, int VertexCount, 
+			const void* Vertices, int VertexStride, int VertexCount,
       const void* Indices, int IndexCount, int TriStride,
       const void* Normals
-      dGeomTriMeshDataBuildSingle1(Data, 
+      dGeomTriMeshDataBuildSingle1(Data,
 				(dReal*)Vertices, (int)sizeof(D3DXVECTOR3), VertexCount,
-        indices_, Indices, TriStride); 
+        indices_, Indices, TriStride);
 				//normals_ );*/
 
 
 			//dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
-		}
+    }
+#endif
 
 		void cPhysicsObject::Update(sampletime_t currentTime)
 		{
@@ -321,13 +329,12 @@ namespace breathe
 				dReal *p0;
 				dReal *r0;
 
-				if (bBody)
-				{
+				if (bBody) {
 					p0=const_cast<dReal*>(dBodyGetPosition(body));
 					r0=const_cast<dReal*>(dBodyGetRotation(body));
 					const dReal *v0=dBodyGetLinearVel(body);
 					//const dReal *a0=dBodyGetAngularVel(body);
-					
+
 
 					v[0]=v0[0];
 					v[1]=v0[1];
@@ -368,9 +375,25 @@ namespace breathe
 		void cPhysicsObject::UpdateComponents()
 		{
 			p=m.GetPosition();
-		}
+    }
 
+    void cPhysicsObject::DestroyBody()
+    {
+      if (body) {
+        dBodyDestroy(body);
+        body = NULL;
+      }
+    }
 
+    void cPhysicsObject::DestroyGeom()
+    {
+      if (geom) {
+        dGeomDestroy(geom);
+        geom = NULL;
+      }
+    }
+
+#if 1
 		// *****************************************************************************************************
 		// Upright Capsule
 		// *****************************************************************************************************
@@ -379,14 +402,15 @@ namespace breathe
 		{
 
 		}
-		
+
 		void cUprightCapsule::Update(sampletime_t currentTime)
 		{
 			// Stop the capsule from rotating forwards, backwards, left, right
-			dBodySetAngularVel(body, 0.0f, 0.0f, 0.0f);
-			dBodySetTorque(body, 0.0f, 0.0f, 0.0f);
-			
+			dBodySetAngularVel(GetBody(), 0.0f, 0.0f, 0.0f);
+      dBodySetTorque(GetBody(), 0.0f, 0.0f, 0.0f);
+
 			cPhysicsObject::Update(currentTime);
 		}
-	}
+#endif
+  }
 }

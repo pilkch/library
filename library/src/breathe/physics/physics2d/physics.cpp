@@ -26,6 +26,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -108,8 +109,8 @@ namespace breathe
       float fBorder = 1.0f;
 
       b2AABB aabb;
-      aabb.minVertex.Set(-fBorder, -fBorder);
-      aabb.maxVertex.Set(width + fBorder, height + fBorder);
+      aabb.lowerBound.Set(-fBorder, -fBorder);
+      aabb.upperBound.Set(width + fBorder, height + fBorder);
 
       b2Vec2 gravity(0.0f, fGravity);
       world = new b2World(aabb, gravity, CanSleep());

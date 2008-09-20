@@ -31,6 +31,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -47,7 +48,7 @@ namespace breathe
 		{
 			geomRay = 0;
 		}
-		
+
 		cPhysicsRayCast::~cPhysicsRayCast()
 		{
 			if (geomRay)

@@ -23,6 +23,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -91,6 +92,7 @@ namespace breathe
         b2BodyDef bodyDef;
         bodyDef.position.Set(p.x, p.y);
         bodyDef.allowSleep = CanSleep();
+        body = GetWorld()->CreateBody(&bodyDef);
 
         std::list<b2ShapeDef*>::iterator iter = lShapes.begin();
         std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
@@ -98,12 +100,12 @@ namespace breathe
         while (iter != iterEnd) {
           shape = *iter;
           shape->restitution = 0.1f;
-          bodyDef.AddShape(shape);
+          body->CreateShape(shape);
 
           iter++;
         }
 
-        body = GetWorld()->CreateBody(&bodyDef);
+        if (bDynamic) body->SetMassFromShapes();
 			}
 		}
 
@@ -111,8 +113,8 @@ namespace breathe
 		{
       if ((fWidth * fHeight) < math::cEPSILON) fWidth = fHeight = 1.0f;
 
-      b2BoxDef shapeDef;
-      shapeDef.extents.Set(fWidth, fHeight);
+      b2PolygonDef shapeDef;
+      shapeDef.SetAsBox(fWidth, fHeight);
       shapeDef.density = fWeight;
       shapeDef.friction = fFriction;
 
@@ -160,7 +162,7 @@ namespace breathe
       bDynamic = false;
 
       std::list<b2ShapeDef*> lShapes;
-      b2PolyDef* pShapeDef = nullptr;
+      b2PolygonDef* pShapeDef = nullptr;
 
       const float fMinimumHeight = 1.0f;
       float fHeightCurrent = math::cEPSILON;
@@ -172,14 +174,16 @@ namespace breathe
 
         if (fHeightCurrent > fHeight) fHeight = fHeightCurrent;
 
-        pShapeDef = new b2PolyDef;
-        pShapeDef->vertexCount = 4;
+        pShapeDef = new b2PolygonDef;
+        /*pShapeDef->vertexCount = 4;
         pShapeDef->vertices[0].Set(-fWidthHalf, 0.0f);
         pShapeDef->vertices[1].Set(+fWidthHalf, 0.0f);
         pShapeDef->vertices[2].Set(+fWidthHalf, fHeightCurrent);
-        pShapeDef->vertices[3].Set(-fWidthHalf, fHeightPrevious);
-        pShapeDef->localPosition.x = scale.x * i;
-        pShapeDef->localPosition.y = -fMinimumHeight;
+        pShapeDef->vertices[3].Set(-fWidthHalf, fHeightPrevious);*/
+        //pShapeDef->localPosition.x = scale.x * i;
+        //pShapeDef->localPosition.y = -fMinimumHeight;
+        b2Vec2 position(scale.x * i, -fMinimumHeight);
+        pShapeDef->SetAsBox(scale.x, fHeightCurrent, position, 0);
         pShapeDef->density = 0.0f;
         pShapeDef->friction = fFriction;
 

@@ -2,6 +2,9 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <vector>
+#include <limits>
+
 // Breathe
 #include <breathe/breathe.h>
 
@@ -22,7 +25,7 @@ namespace breathe
 	namespace math
 	{
 		//load the identity quaternion
-		void cQuaternion::LoadIdentity(void)
+		void cQuaternion::LoadIdentity()
 		{
 			x = y = z = 0.0f;
 			w=1.0f;

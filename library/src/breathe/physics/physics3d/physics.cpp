@@ -8,8 +8,9 @@
 #include <list>
 #include <vector>
 
-#include <ode/ode.h>
+//#include <opal/opal.h>
 
+#include <ode/ode.h>
 
 #include <breathe/breathe.h>
 
@@ -26,6 +27,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -70,9 +72,14 @@ namespace breathe
 
 		std::list<cPhysicsObject * >lPhysicsObject;
 
-		
-		
+
+
 		// *** Functions
+
+    dSpaceID GetSpaceStatic() { return spaceStatic; }
+    dSpaceID GetSpaceDynamic() { return spaceDynamic; }
+
+    dWorldID GetWorld() { return world; }
 
 		size_t size() { return lPhysicsObject.size(); }
 		iterator begin() { return lPhysicsObject.begin(); }
@@ -98,15 +105,15 @@ namespace breathe
 			ground = dCreatePlane(spaceStatic, n.x, n.y, n.z, n.DotProduct(p));
 		}
 
-		void Init(float posX, float posY, float posZ, float nX, float nY, float nZ)
+    void Init(float width, float height, float depth)
 		{
-			breathe::physics::world = dWorldCreate();
+			world = dWorldCreate();
 
 			dWorldSetGravity(world, 0, 0, fGravity);
 
 			// This function sets the depth of the surface layer around the world objects. Contacts are allowed to sink into
       // each other up to this depth. Setting it to a small value reduces the amount of jittering between contacting
-      // objects, the default value is 0. 	
+      // objects, the default value is 0.
 			dWorldSetContactSurfaceLayer(world, 0.001f);
 
 			dWorldSetERP(world, fERP);
@@ -120,19 +127,19 @@ namespace breathe
 
 			contactgroup = dJointGroupCreate(10000);
 
-      CreateGround(posX, posY, posZ, nX, nY, nZ);
+      //CreateGround(posX, posY, posZ, nX, nY, nZ);
 		}
 
 		void Destroy()
 		{
-			
+
 		}
 
 		void AddPhysicsObject(cPhysicsObject *pPhysicsObject)
 		{
 			lPhysicsObject.push_back(pPhysicsObject);
 		}
-		
+
 		void RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
 		{
 			lPhysicsObject.remove(pPhysicsObject);
@@ -149,7 +156,7 @@ namespace breathe
 			dBodyID b;
 			while(iterEnd != iter)
 			{
-				b = (*iter++)->body;
+				b = (*iter++)->GetBody();
 
 				if (b)
 				{
@@ -185,9 +192,9 @@ namespace breathe
 			//Ignore collisions between bodies that are connected by the same joint
 			dBodyID Body1 = NULL, Body2 = NULL;
 
-			if (o1) 
+			if (o1)
 				Body1 = dGeomGetBody (o1);
-			if (o2) 
+			if (o2)
 				Body2 = dGeomGetBody (o2);
 
 			if (Body1 && Body2 && dAreConnected (Body1, Body2))
@@ -225,9 +232,9 @@ namespace breathe
 			//Ignore collisions between bodies that are connected by the same joint
 			dBodyID Body1 = NULL, Body2 = NULL;
 
-			if (o1) 
+			if (o1)
 				Body1 = dGeomGetBody (o1);
-			if (o2) 
+			if (o2)
 				Body2 = dGeomGetBody (o2);
 
 			if (Body1 && Body2 && dAreConnected (Body1, Body2))

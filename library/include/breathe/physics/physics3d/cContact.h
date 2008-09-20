@@ -7,18 +7,13 @@ namespace breathe
 	{
 		class cContact
 		{
-			dContact contact;
-
 		public:
-			bool bContact;
 			cContact();
-
-			float fDepth;
 
 			dContact GetContact() const;
 
 			void SetContact(dContactGeom o1, dGeomID o2, float fContact);
-			
+
 			void Clear();
 			void SetFDSSlipCoefficient1(float fSlip1);
 			void SetFDSSlipCoefficient2(float fSlip2);
@@ -27,10 +22,16 @@ namespace breathe
 			void SetElasticity(float fERP, float fCFM);
 			void SetSuspensionKU(float fSuspensionK, float fSuspensionU);
 			void SetBounce(float fBounce, float fBounceVelocity);
-			
-			void CreateContact(float fContact);
+
+      void CreateContact(float fContact);
+
+      bool bContact;
+      float fDepth;
+
+    private:
+      dContact contact;
 		};
 	}
 }
 
-#endif //CPHYSICSCONTACT_H
+#endif // CPHYSICSCONTACT_H

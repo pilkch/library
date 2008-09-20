@@ -21,7 +21,7 @@ namespace breathe
       void LoadGuiFromXML(const string_t& sFilename);
 
       // Automatically adds a string with an automatically generated id if not found
-      id_t GetIDFromStringIdentifier(const string_t& sIdentifier);
+      id_t GetIDFromStringIdentifier(const string_t& stringIdentifier);
 
       void Render();
 

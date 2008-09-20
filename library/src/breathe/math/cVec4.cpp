@@ -1,6 +1,9 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <vector>
+#include <limits>
+
 // Breathe
 #include <breathe/breathe.h>
 
@@ -94,7 +97,7 @@ namespace breathe
 			float result;
 
 			result = x*rhs.x + y*rhs.y + z*rhs.z + w*rhs.z;
-				
+
 			return result;
 		}
 
@@ -196,7 +199,7 @@ namespace breathe
 		cVec4 cVec4::operator / (const float rhs) const
 		{
 			if (rhs==0.0f) return cVec4(0.0f, 0.0f, 0.0f, 0.0f);	//cant divide by 0
-			
+
 			float newX=x / rhs;
 			float newY=y / rhs;
 			float newZ=z / rhs;

@@ -15,7 +15,10 @@
 #include <list>
 #include <set>
 
-#include <GL/Glee.h>
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
+#include <GL/GLee.h>
 
 
 #include <SDL/SDL.h>
@@ -30,8 +33,11 @@
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
+#include <breathe/util/cTimer.h>
+#include <breathe/util/unittest.h>
 
 #include <breathe/storage/filesystem.h>
 #include <breathe/storage/xml.h>
@@ -46,6 +52,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -71,24 +78,138 @@
 
 const unsigned int uiNodeNameDisplayTime = 100;
 
+
 namespace breathe
 {
-	namespace scenegraph
-	{
-		cSceneGraph::cSceneGraph() :
-			pRoot(nullptr)
+  namespace scenegraph
+  {
+    cSceneNode::cSceneNode() :
+      bIsEnabled(true),
+      bIsDirty(true)
+    {
+    }
+
+    void cSceneNode::_Update(cUpdateVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Update(visitor);
+
+      visitor.Visit(*this);
+    }
+
+    void cSceneNode::_Cull(cCullVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Cull(visitor);
+
+      visitor.Visit(*this);
+    }
+
+
+    void cModelNode::_Update(cUpdateVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Update(visitor);
+
+      visitor.Visit(*this);
+    }
+
+    void cModelNode::_Cull(cCullVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Cull(visitor);
+
+      visitor.Visit(*this);
+    }
+
+
+    void cLightNode::_Update(cUpdateVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Update(visitor);
+
+      visitor.Visit(*this);
+    }
+
+    void cLightNode::_Cull(cCullVisitor& visitor)
+    {
+      //if (pChild != nullptr) pChild->Cull(visitor);
+
+      visitor.Visit(*this);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    cUpdateVisitor::cUpdateVisitor(cSceneGraph& scenegraph)
+    {
+      Visit(*scenegraph.GetRoot());
+    }
+
+    cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph) :
+      scenegraph(_scenegraph)
+    {
+      /*listOpaque.clear();
+      mTransparent.clear();
+
+      for each item in list
+      if (opaque)
+      listOpaque.add(item);
+      else
+      mTransparent.add(fDistance, item);*/
+
+      Visit(*scenegraph.GetRoot());
+    }
+
+
+    void cRenderGraph::AddRenderable(const cRenderableRef renderable)
+    {
+      listOpaque.push_back(renderable);
+    }
+
+
+    cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
+      scenegraph(_scenegraph)
+    {
+      unsigned int uiTriangles = 0;
+
+      // Opaque first
+      {
+        std::list<cRenderableRef>::iterator iter(scenegraph.GetRenderGraph().listOpaque.begin());
+        const std::list<cRenderableRef>::iterator iterEnd(scenegraph.GetRenderGraph().listOpaque.end());
+        while(iter != iterEnd) {
+          //uiTriangles += (*iter)->Render();
+          iter++;
+        }
+      }
+
+      // Transparent second
+      {
+        std::map<float, cRenderableRef>::iterator iter(scenegraph.GetRenderGraph().mTransparent.begin());
+        const std::map<float, cRenderableRef>::iterator iterEnd(scenegraph.GetRenderGraph().mTransparent.end());
+        while(iter != iterEnd) {
+          //uiTriangles += (iter->second)->Render();
+          iter++;
+        }
+      }
+    }
+
+
+		cSceneGraph::cSceneGraph()
 		{
 		}
-		
-		cSceneGraphSpawn::cSceneGraphSpawn()
+
+		/*cSceneGraphSpawn::cSceneGraphSpawn()
 			: v3Position(0.0f, 0.0f, 0.0f),
 				v3Rotation(1.0f, 0.0f, 0.0f)
 		{
 
-		}
+		}*/
 
 
-		cSceneGraphNode::cSceneGraphNode(cSceneGraph* p, std::string sNewFilename)
+		/*cSceneNode::cSceneNode(cSceneGraph* p, std::string sNewFilename)
 		{
 			uiStatus=0;
 
@@ -97,18 +218,18 @@ namespace breathe
 			sFilename=sNewFilename;
 		}
 
-		void cSceneGraphNode::Load()
+    void cSceneNode::Load()
 		{
 			LOG.Success("LevelNode", "Load");
 			LOG.Success("LevelNode", "Load returning");
 		}
-			
-		void cSceneGraphNode::Unload()
+
+    void cSceneNode::Unload()
 		{
 			uiStatus=NODE_INACTIVE;
 		}
 
-		void cSceneGraphNode::Update(sampletime_t currentTime)
+    void cSceneNode::Update(sampletime_t currentTime)
 		{
 			if (NODE_INACTIVE!=uiStatus)
 				uiStatus--;
@@ -116,13 +237,59 @@ namespace breathe
 				Unload();
 		}
 
-		unsigned int cSceneGraphNode::Render()
+    unsigned int cSceneNode::Render()
 		{
 			unsigned int uiTriangles = 0;
 
 			uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
 
 			return uiTriangles;
-		}
+    }*/
+
+    void cSceneGraph::Update(sampletime_t currentTime)
+    {
+      cUpdateVisitor visitor(*this);
+    }
+
+    void cSceneGraph::Cull(sampletime_t currentTime)
+    {
+      cCullVisitor visitor(*this);
+    }
+
+    void cSceneGraph::Render(sampletime_t currentTime)
+    {
+      cRenderVisitor visitor(*this);
+    }
+
+#ifdef BUILD_DEBUG
+    class cSceneGraphUnitTest : protected breathe::util::cUnitTestBase
+    {
+    public:
+      cSceneGraphUnitTest() :
+        cUnitTestBase("cSceneGraphUnitTest")
+      {
+        printf("cSceneGraphUnitTest\n");
+      }
+
+      void Test()
+      {
+        cModelNode model;
+
+        cLightNode light;
+        //model.AddChild(&light);
+
+        cSceneGraph scenegraph;
+        cSceneNodeRef pRoot = scenegraph.GetRoot();
+        //pRoot->AddChild(&model);
+
+        const sampletime_t currentTime = util::GetTime();
+        scenegraph.Update(currentTime);
+        scenegraph.Cull(currentTime);
+        scenegraph.Render(currentTime);
+      }
+    };
+
+    cSceneGraphUnitTest gSceneGraphUnitTest;
+#endif
 	}
 }
