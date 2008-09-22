@@ -1,4 +1,8 @@
 
+
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <breathe/game/entity.h>
 
 namespace game
