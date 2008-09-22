@@ -94,15 +94,18 @@ msg " in %s() File %s Line %d", __FUNCTION__, __FILE__,__LINE__);
 
 /* floating point data type, vector, matrix and quaternion types */
 
+#if defined(dSINGLE) && defined(dDOUBLE)
+#error You can only #define dSINGLE or dDOUBLE, not both.
+#endif
+
+#if !defined(dSINGLE) && !defined(dDOUBLE)
+#error You must #define dSINGLE or dDOUBLE
+#endif
+
 #if defined(dSINGLE)
 typedef float dReal;
-#ifdef dDOUBLE
-#error You can only #define dSINGLE or dDOUBLE, not both.
-#endif // dDOUBLE
 #elif defined(dDOUBLE)
 typedef double dReal;
-#else
-#error You must #define dSINGLE or dDOUBLE
 #endif
 
 
@@ -199,12 +202,12 @@ typedef dReal dQuaternion[4];
   ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
 
 
-// Use the error-checking memory allocation system.  Because this system uses heap
-//  (malloc) instead of stack (alloca), it is slower.  However, it allows you to
-//  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
-//  graceful manner
+/* Use the error-checking memory allocation system.  Because this system uses heap
+ * (malloc) instead of stack (alloca), it is slower.  However, it allows you to
+ *  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
+ *  graceful manner */
 
-// #define dUSE_MALLOC_FOR_ALLOCA
+/* #define dUSE_MALLOC_FOR_ALLOCA */
 
 #ifdef dUSE_MALLOC_FOR_ALLOCA
 enum {
