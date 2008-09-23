@@ -89,6 +89,46 @@ namespace breathe
     {
     }
 
+    void cSceneNode::UpdateBoundingVolumeAndSetNotDirty()
+    {
+      // We should only be calling this function on pRoot
+      ASSERT(pParent == nullptr);
+
+      // No point if we are not dirty
+      if (!bIsDirty) return;
+
+      boundingSphere.position = math::zero;
+      if (bHasRelativePosition) boundingSphere.position += relativePosition;
+
+      // Set our boundingSphere volume from our possible children as only a derived class will know how
+      boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+
+      // We have now updated our boundingSphere and we are not dirty any more
+      bDirty = false;
+    }
+
+    void cSceneNode::UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius()
+    {
+      // We should not be calling this function on pRoot or on a child that does not have a parent set
+      ASSERT(pParent != nullptr);
+
+      // No point if we are not dirty
+      if (!bIsDirty) return;
+
+      // If we are dirty our parents must also be dirty at this point
+      ASSERT(pParent->IsDirty());
+
+      // Set our boundingSphere position from our parent node plus our relative position if we have any
+      boundingSphere.position = pParent->GetBoundingSphere().position;
+      if (bHasRelativePosition) boundingSphere.position += relativePosition;
+
+      // Set our boundingSphere volume from our possible children as only a derived class will know how
+      boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+
+      // We have now updated our boundingSphere and we are not dirty any more
+      bDirty = false;
+    }
+
     void cSceneNode::_Update(cUpdateVisitor& visitor)
     {
       //if (pChild != nullptr) pChild->Update(visitor);
@@ -197,7 +237,8 @@ namespace breathe
     }
 
 
-		cSceneGraph::cSceneGraph()
+		cSceneGraph::cSceneGraph() :
+      bIsCullingEnabled(true)
 		{
 		}
 

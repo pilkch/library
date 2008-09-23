@@ -7,6 +7,9 @@
 #include <iostream>
 #include <fstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 
 #include <ode/ode.h>
 
@@ -22,6 +25,8 @@
 // ODE_API dGeomID dCreateTriMesh(dSpaceID space, dTriMeshDataID Data, dTriCallback* Callback, dTriArrayCallback* ArrayCallback, dTriRayCallback* RayCallback) { return 0; }
 
 #include <breathe/breathe.h>
+
+#include <breathe/util/cSmartPtr.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -63,12 +68,12 @@ int sPrefabIndicesTriangle[ 6 ][ 3 ] = {
 
 
 
-const int VertexCount=5;
-const int IndexCount=12;
+const int VertexCount = 5;
+const int IndexCount = 12;
 
 dVector3 Size;
 dVector3 Vertices[VertexCount];
-int Indices[IndexCount];
+dTriIndex Indices[IndexCount];
 
 const unsigned int uiDirectionX = 1;
 const unsigned int uiDirectionY = 2;
@@ -103,8 +108,6 @@ namespace breathe
 			v[2]=0;
 
 			m.LoadIdentity();
-
-			pModel=NULL;
 		}
 
 		cPhysicsObject::~cPhysicsObject()
@@ -278,10 +281,9 @@ namespace breathe
 			Indices[10] = 0;
 			Indices[11] = 4;
 
-
 			dTriMeshDataID Data = dGeomTriMeshDataCreate();
 
-			dGeomTriMeshDataBuildSimple(Data, (dReal*)Vertices, VertexCount, Indices, IndexCount);
+      dGeomTriMeshDataBuildSimple(Data, (const dReal*)Vertices, VertexCount, Indices, IndexCount);
 
       geom = dCreateTriMesh(physics::GetSpaceStatic(), Data, NULL , NULL , NULL);
 

@@ -10,31 +10,47 @@
 #undef FileExists
 #endif
 
+// TODO: Move this to a shared build.h, config.h etc.
+#define BREATHE_APPLICATION_NAME_LWR "crank"
+
 namespace breathe
 {
-	namespace filesystem
-	{
-		void SetThisExecutable(const string_t& executable);
-		string_t GetThisApplicationDirectory();
-
-		//Return the full filename "concrete.png" = "data/common/images/" + sFilename
-		string_t FindFile(const string_t& sFilename);
-		string_t FindFile(const string_t& sPath, const string_t& sFilename);
-
-		void AddDirectory(const string_t& sDirectory);
-
-#ifndef FIRESTARTER
-		string_t GetMD5(const string_t& sFilename);
-		string_t GetSHA1(const string_t& sFilename);
+  namespace filesystem
+  {
+    void SetThisExecutable(const string_t& executable);
+    string_t GetThisApplicationDirectory();
+    string_t GetApplicationSettingsDirectory(const string_t& sApplication);
+    inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(BREATHE_APPLICATION_NAME_LWR)); }
+    inline string_t GetBreatheSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("breathe")); }
+    string_t GetHomeDirectory();
+    string_t GetTempDirectory();
+#ifdef __APPLE__
+    string_t GetResourcesPath();
 #endif
 
-		string_t StripLastDirectory(const string_t& path);
-		string_t ExpandPath(const string_t& path);
+    uint32_t GetLastModifiedDate(const string_t& sFilename);
 
-		string_t GetPath(const string_t& sFilename);
-		string_t GetFile(const string_t& sFilename);
-		string_t GetFileNoExtension(const string_t& sFilename);
-		string_t GetExtension(const string_t& sFilename);
+    string_t GetCurrentDirectory();
+    void ChangeToDirectory(const string_t& sDirectory);
+
+    //Return the full filename "concrete.png" = "data/common/images/" + sFilename
+    string_t FindFile(const string_t& sFilename);
+    string_t FindFile(const string_t& sPath, const string_t& sFilename);
+
+    void AddDirectory(const string_t& sDirectory);
+
+#ifndef FIRESTARTER
+    string_t GetMD5(const string_t& sFilename);
+    string_t GetSHA1(const string_t& sFilename);
+#endif
+
+    string_t StripLastDirectory(const string_t& path);
+    string_t ExpandPath(const string_t& path);
+
+    string_t GetPath(const string_t& sFilename);
+    string_t GetFile(const string_t& sFilename);
+    string_t GetFileNoExtension(const string_t& sFilename);
+    string_t GetExtension(const string_t& sFilename);
 
     bool FileExists(const breathe::string_t& sFilename);
     bool CreateDirectory(const breathe::string_t& sFoldername);
@@ -49,10 +65,8 @@ namespace breathe
 		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
 		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
 
-    uint32_t GetFileSize();
+    uint64_t GetFileSize();
 
-    string_t GetCurrentDirectory();
-    void ChangeToDirectory(const string_t& sDirectory);
 
     class cScopedDirectoryChange
     {
@@ -120,7 +134,21 @@ namespace breathe
       string_t sParentFolder;
       std::vector<string_t> paths;
     };
+
+
+
+
+    void Create();
+    void Destroy();
+
+    void Mount(const string_t& sPath);
+    void MountHighPriority(const string_t& sPath);
+    void MountLowPriority(const string_t& sPath);
+
+    void Unmount(const string_t& sPath);
+
+    bool GetFile(const string_t& sFile, string_t& sFullPath);
   }
 }
 
-#endif //FILESYSTEM_H
+#endif // FILESYSTEM_H

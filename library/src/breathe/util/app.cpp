@@ -201,6 +201,9 @@ int intersect_triangle(
 #include <set>
 #include <bitset>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 //FreeType Headers
 #include <freetype/ft2build.h>
 #include <freetype/freetype.h>
@@ -217,11 +220,12 @@ int intersect_triangle(
 #ifdef BUILD_PHYSICS_2D
 #include <Box2D/Box2D.h>
 #elif defined(BUILD_PHYSICS_3D)
-#include <ODE/ode.h>
+#include <ode/ode.h>
 #endif
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/cVar.h>
@@ -240,6 +244,7 @@ int intersect_triangle(
 #include <breathe/math/cColour.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 
@@ -260,6 +265,8 @@ int intersect_triangle(
 #ifdef BUILD_LEVEL
 #include <breathe/game/cLevel.h>
 #endif
+
+#include <breathe/game/scenegraph.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>
@@ -295,6 +302,13 @@ namespace breathe
 		CONSOLE.SetApp(this);
 		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
+
+    filesystem::Create();
+
+    string_t sFullPath;
+    if (filesystem::GetFile("Current", sFullPath)) LOG<<"File exists at "<<sFullPath.c_str()<<std::endl;
+    else LOG<<"File does not exists"<<std::endl;
+
 		_LoadSearchDirectories();
 
 		util::LoadLanguageFiles();
@@ -302,6 +316,9 @@ namespace breathe
 		_InitArguments(argc, argv);
 
 		srand(time(NULL));
+
+    cSmartPtr<int> a;
+    ASSERT(a == nullptr);
 
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
@@ -357,8 +374,7 @@ namespace breathe
     assert(states.empty());
 
     std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
-    std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
-
+    const std::map<unsigned int, cKey*>::iterator iterEnd = mKey.end();
     while (iter != iterEnd) {
       SAFE_DELETE(iter->second);
       iter++;
@@ -368,9 +384,8 @@ namespace breathe
 
 		SAFE_DELETE(pFont);
 
-		size_t nJoysticks = vJoystick.size();
-		for (size_t i = 0; i < nJoysticks; i++)
-      SDL_JoystickClose(vJoystick[i]);
+		const size_t nJoysticks = vJoystick.size();
+		for (size_t i = 0; i < nJoysticks; i++) SDL_JoystickClose(vJoystick[i]);
 
 		TTF_Quit();
 
@@ -393,7 +408,11 @@ namespace breathe
 		LOG.Success("Delete", "Render");
 		SAFE_DELETE(pRender);
 
-		LOG.Success("Delete", "Log");
+    LOG.Success("Delete", "Log");
+    // Log is not actually deleted here, we were previously doing stuff like sending stats to the log
+
+    LOG.Success("Delete", "Filesystem");
+    filesystem::Destroy();
 
 		LOG.Success("Main", "Successfully exited");
 		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
@@ -405,16 +424,14 @@ namespace breathe
 	{
 		int i = 1;
 		std::string s;
-		if (i<argc)
-		{
+		if (i < argc) {
 			vArgs.push_back(argv[i]);
-			s=argv[i];
+			s = argv[i];
 		}
 
-		for (i=2;i<argc;i++)
-		{
+		for (i = 2; i < argc; i++) {
 			vArgs.push_back(argv[i]);
-			s+=" " + std::string(argv[i]);
+			s += " " + std::string(argv[i]);
 		}
 
 		LOG.Success("Arguments", s);
@@ -445,97 +462,94 @@ namespace breathe
 		};
 	}
 
+
+
+  // Physics 2D has width, height
+  // Physics 3D has width, depth and infinite height
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+  float physics_width = 500.0f;
+  float physics_height = 500.0f;
+#endif
+#if defined(BUILD_PHYSICS_3D)
+  float physics_depth = 500.0f;
+#endif
+
+  void cApp::LoadConfigXML()
+  {
+    LOG.Success("Init", "Loading config.xml");
+
+    breathe::xml::cNode root("config.xml");
+    breathe::xml::cNode::iterator iter(root);
+
+    if (!iter) {
+      bReturnCode=breathe::BAD;
+      return;
+    }
+
+    iter.FindChild("config");
+    if (!iter) return;
+
+    breathe::xml::cNode::iterator config(iter);
+
+    iter.FindChild("render");
+    while(iter) {
+      std::ostringstream t;
+      unsigned int uiValue;
+
+      if (iter.GetAttribute("width", uiValue)) {
+        t.str("");
+        t<<"width = ";
+        t<<uiValue;
+        LOG.Success("Config", t.str());
+        pRender->uiWidth = uiValue;
+      }
+
+      if (iter.GetAttribute("height", uiValue)) {
+        t.str("");
+        t<<"height = ";
+        t<<uiValue;
+        LOG.Success("Config", t.str());
+        pRender->uiHeight = uiValue;
+      }
+
+      if (iter.GetAttribute("depth", uiValue)) {
+        t.str("");
+        t<<"depth = ";
+        t<<uiValue;
+        LOG.Success("Config", t.str());
+        pRender->uiDepth = uiValue;
+      }
+
+      bool bFullscreen;
+
+      if (iter.GetAttribute("fullscreen", bFullscreen)) {
+        LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
+        pRender->bFullscreen = bFullscreen;
+      }
+
+      iter.Next("render");
+    };
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    iter = config;
+
+    iter.FindChild("physics");
+    while(iter) {
+      iter.GetAttribute("width", physics_width);
+#if defined(BUILD_PHYSICS_2D)
+      iter.GetAttribute("height", physics_height);
+#else
+      iter.GetAttribute("depth", physics_depth);
+#endif
+
+      iter.Next("physics");
+    };
+#endif
+  }
+
 	bool cApp::InitApp()
 	{
-    // Physics 2D has width, height
-    // Physics 3D has width, depth and infinite height
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    float physics_width = 500.0f;
-#if defined(BUILD_PHYSICS_2D)
-    float physics_height = 500.0f;
-#else
-    float physics_depth = 500.0f;
-#endif
-#endif
-
-		{
-			LOG.Success("Init", "Loading config.xml");
-
-			breathe::xml::cNode root("config.xml");
-			breathe::xml::cNode::iterator iter(root);
-
-			if (!iter)
-			{
-				bReturnCode=breathe::BAD;
-				return breathe::BAD;
-			}
-
-			iter.FindChild("config");
-			if (!iter) return breathe::GOOD;
-
-      breathe::xml::cNode::iterator config(iter);
-
-			iter.FindChild("render");
-			while(iter)
-			{
-				std::ostringstream t;
-				unsigned int uiValue;
-
-				if (iter.GetAttribute("width", uiValue))
-				{
-					t.str("");
-					t<<"width = ";
-					t<<uiValue;
-					LOG.Success("Config", t.str());
-					pRender->uiWidth = uiValue;
-				}
-
-				if (iter.GetAttribute("height", uiValue))
-				{
-					t.str("");
-					t<<"height = ";
-					t<<uiValue;
-					LOG.Success("Config", t.str());
-					pRender->uiHeight = uiValue;
-				}
-
-				if (iter.GetAttribute("depth", uiValue))
-				{
-					t.str("");
-					t<<"depth = ";
-					t<<uiValue;
-					LOG.Success("Config", t.str());
-					pRender->uiDepth = uiValue;
-				}
-
-				bool bFullscreen;
-
-				if (iter.GetAttribute("fullscreen", bFullscreen))
-				{
-					LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
-					pRender->bFullscreen = bFullscreen;
-				}
-
-				iter.Next("render");
-			};
-
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-      iter = config;
-
-			iter.FindChild("physics");
-			while(iter)
-      {
-				iter.GetAttribute("width", physics_width);
-#if defined(BUILD_PHYSICS_2D)
-				iter.GetAttribute("height", physics_height);
-#else
-        iter.GetAttribute("depth", physics_depth);
-#endif
-
-				iter.Next("physics");
-      };
-#endif
-		}
+    LoadConfigXML();
 
 		// Init SDL
 		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
@@ -563,13 +577,11 @@ namespace breathe
 			std::ostringstream t;
 			t<<"Joysticks found: "<<nJoysticks;
 
-			if (nJoysticks)
-			{
+			if (nJoysticks != 0) {
 				LOG.Success("SDL", t.str());
 				SDL_JoystickEventState(SDL_ENABLE);
 
-				for (int i=0; i < nJoysticks; i++)
-				{
+				for (int i=0; i < nJoysticks; i++) {
 					t.str("");
 					t << "Joystick(";
 					t << i;
@@ -594,8 +606,7 @@ namespace breathe
 					vJoystick.push_back(pJoystick);
 				}
 
-			}
-			else LOG.Error("SDL", t.str());
+			} else LOG.Error("SDL", t.str());
 
 			/*if (nJoysticks)
 			{
@@ -669,8 +680,7 @@ namespace breathe
 			}*/
 		}
 
-		if (breathe::BAD==InitRender())
-			return breathe::BAD;
+    if (breathe::BAD == InitRender()) return breathe::BAD;
 
 		TTF_Init();
 
@@ -679,19 +689,18 @@ namespace breathe
 #if defined(BUILD_PHYSICS_2D)
 		breathe::physics::Init(physics_width, physics_height);
 #elif defined(BUILD_PHYSICS_3D)
-		breathe::physics::Init(physics_width, physics_depth);
+		breathe::physics::Init(physics_width, physics_height, physics_depth);
 #endif
 
-		if (breathe::BAD==LoadScene())
-			return breathe::BAD;
+		if (breathe::BAD==LoadScene()) return breathe::BAD;
 
 
 		window_manager.LoadTheme();
 
 		unsigned int n = breathe::gui::GenerateID();
 
-		// Testing Window
 #ifdef BUILD_DEBUG
+    // Testing Window
 		/*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
 		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));
 		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));
@@ -699,97 +708,165 @@ namespace breathe
 		window_manager.AddChild(pWindow0);*/
 #endif
 
-		if (breathe::BAD==InitScene())
-			return breathe::BAD;
+    if (breathe::BAD == InitScene()) return breathe::BAD;
+
+    // This should be the first state added and it should not be added by the derived class, it should only be added here
+    if (!states.empty()) LOG.Error("cApp::InitApp", "No states should have be pushed yet");
+    ASSERT(states.empty());
+
+    cAppState* pAppState = _GetFirstAppState();
+    if (pAppState == nullptr) LOG.Error("cApp::InitApp", "_GetFirstAppState must be overridden and must return a valid state");
+    ASSERT(pAppState != nullptr);
+
+    // Add the state now
+    PushState(pAppState);
 
 
-		breathe::audio::StartAll();
+    breathe::audio::StartAll();
 
-		// Setup mouse
-		SDL_WarpMouse(pRender->uiWidth/2, pRender->uiHeight/2);
+    // Setup mouse
+    CursorWarpToMiddleOfScreen();
 
-		//SDL_ShowCursor(SDL_DISABLE);
+    //SDL_ShowCursor(SDL_DISABLE);
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	bool cApp::DestroyApp()
-	{
-		SDL_ShowCursor(SDL_ENABLE);
+  bool cApp::DestroyApp()
+  {
+    CursorShow();
 
-		breathe::audio::StopAll();
+    breathe::audio::StopAll();
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	bool cApp::InitRender()
-	{
-		if (breathe::BAD == pRender->PreInit())
-		{
-			bReturnCode = breathe::BAD;
-			return breathe::BAD;
-		}
+  bool cApp::InitRender()
+  {
+    if (breathe::BAD == pRender->PreInit())
+    {
+      bReturnCode = breathe::BAD;
+      return breathe::BAD;
+    }
 
-		pRender->SetPerspective();
+    pRender->SetPerspective();
 
-		if (breathe::BAD == pRender->Init())
-			return breathe::BAD;
+    if (breathe::BAD == pRender->Init())
+      return breathe::BAD;
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	bool cApp::DestroyRender()
-	{
-		pRender->Destroy();
+  bool cApp::DestroyRender()
+  {
+    pRender->Destroy();
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	bool cApp::ToggleFullscreen()
-	{
-		// Destroy the old render
-		if (breathe::BAD==DestroyRender())
-		{
-			bReturnCode=breathe::BAD;
-			return breathe::BAD;
-		}
+  bool cApp::ToggleFullscreen()
+  {
+    // Destroy the old render
+    if (breathe::BAD==DestroyRender())
+    {
+      bReturnCode=breathe::BAD;
+      return breathe::BAD;
+    }
 
-		// Toggle fullscreen
-		pRender->ToggleFullscreen();
+    // Toggle fullscreen
+    pRender->ToggleFullscreen();
 
 
-		// Create the new render
-		if (breathe::BAD==InitRender())
-		{
-			bReturnCode=breathe::BAD;
-			return breathe::BAD;
-		}
+    // Create the new render
+    if (breathe::BAD==InitRender())
+    {
+      bReturnCode=breathe::BAD;
+      return breathe::BAD;
+    }
 
-		pRender->ReloadTextures();
+    pRender->ReloadTextures();
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	bool cApp::ResizeWindow(unsigned int w, unsigned int h)
-	{
-		DestroyRender();
+  bool cApp::ResizeWindow(unsigned int w, unsigned int h)
+  {
+    DestroyRender();
 
-		pRender->uiWidth = w;
-		pRender->uiHeight = h;
+    pRender->uiWidth = w;
+    pRender->uiHeight = h;
 
-		InitRender();
-		pRender->ReloadTextures();
+    InitRender();
+    pRender->ReloadTextures();
 
-		return breathe::GOOD;
-	}
+    return breathe::GOOD;
+  }
 
-	void cApp::_Update(sampletime_t currentTime)
-	{
-		GetCurrentState().Update(currentTime);
+  void cApp::_Update(sampletime_t currentTime)
+  {
+    GetCurrentState().Update(currentTime);
 
-		// Now update our other sub systems
-		breathe::audio::Update(currentTime);
-	}
+    // Now update our other sub systems
+    breathe::audio::Update(currentTime);
+
+    scenegraph.Update(currentTime);
+    scenegraph.Cull(currentTime);
+  }
+
+  void cApp::_Render(cApp::cAppState& state, sampletime_t currentTime)
+  {
+    BeginRender(currentTime);
+
+      pRender->Begin();
+        pRender->BeginRenderScene();
+          state.RenderScene(currentTime);
+
+          scenegraph.Render(currentTime);
+
+        pRender->EndRenderScene();
+        pRender->BeginScreenSpaceRendering();
+          state.RenderScreenSpace(currentTime);
+
+      #ifndef NDEBUG
+          if (IsDebug() && !CONSOLE.IsVisible())
+          {
+            pRender->SetColour(0.0f, 0.0f, 1.0f);
+
+            const float dy = 0.03f;
+            float fPosition = 0.1f;
+
+            pRender->BeginRenderingText();
+      #ifdef BUILD_PHYSICS_3D
+            pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
+      #endif
+
+            fPosition += dy;
+            pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
+            pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
+            pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+            pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+            pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+      #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+            pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+      #endif
+            pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
+
+            fPosition += dy;
+            pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+            pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+      #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+            pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+      #endif
+            pRender->EndRenderingText();
+          }
+      #endif
+
+          window_manager.Render();
+        pRender->EndScreenSpaceRendering();
+      pRender->End();
+
+    EndRender(currentTime);
+  }
 
 	void cApp::_UpdateEvents(sampletime_t currentTime)
 	{
@@ -896,44 +973,38 @@ namespace breathe
 		mKey[code] = new cKey(code, false, false, true);
 	}
 
-	bool cApp::IsKeyDown(unsigned int code)
-	{
-		std::map<unsigned int, cKey* >::iterator iter=mKey.find(code);
+  bool cApp::IsKeyDown(unsigned int code) const
+  {
+    std::map<unsigned int, cKey*>::const_iterator iter = mKey.find(code);
+    const std::map<unsigned int, cKey*>::const_iterator iterEnd = mKey.end();
+    if (iter != iterEnd) return iter->second->IsDown();
 
-		if (iter!=mKey.end())
-			return iter->second->IsDown();
-
-		return false;
-	}
+    return false;
+  }
 
 	void cApp::_UpdateKeys(sampletime_t currentTime)
 	{
 		Uint8 *key = SDL_GetKeyState( NULL );
 		cKey* p;
 
-		std::map<unsigned int, cKey* >::iterator iter=mKey.begin();
-		while(iter != mKey.end())
-		{
+		std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
+    const std::map<unsigned int, cKey*>::const_iterator iterEnd = mKey.end();
+		while (iter != iterEnd) {
 			p = (iter->second);
 
 			//This key is pressed
-			if (key[p->uiCode])
-			{
+			if (key[p->uiCode]) {
 				//This key can be held down
-				if (p->bRepeat)
-				{
+				if (p->bRepeat) {
 					p->bDown=true;
 					p->bCollected=false;
 				}
 				//This key can only be pressed once
-				else
-				{
+				else {
 					p->bDown=false;
 					p->bCollected=false;
 				}
-			}
-			else
-				p->bDown = false;
+			} else p->bDown = false;
 
 			iter++;
 		}
@@ -1030,7 +1101,12 @@ namespace breathe
 	void cApp::CursorHide()
 	{
 		SDL_ShowCursor(SDL_DISABLE);
-	}
+  }
+
+  void cApp::CursorWarpToMiddleOfScreen()
+  {
+    SDL_WarpMouse(pRender->uiWidth / 2, pRender->uiHeight / 2);
+  }
 
 	void cApp::ConsoleExecute(const std::string& command)
 	{
@@ -1131,58 +1207,6 @@ namespace breathe
 		}
 	}*/
 
-  void cApp::_Render(cApp::cAppState& state, sampletime_t currentTime)
-	{
-		BeginRender(currentTime);
-
-			pRender->Begin();
-				pRender->BeginRenderScene();
-					state.RenderScene(currentTime);
-				pRender->EndRenderScene();
-				pRender->BeginScreenSpaceRendering();
-					state.RenderScreenSpace(currentTime);
-
-#ifndef NDEBUG
-          if (IsDebug() && !CONSOLE.IsVisible())
-					{
-						pRender->SetColour(0.0f, 0.0f, 1.0f);
-
-            const float dy = 0.03f;
-						float fPosition = 0.1f;
-
-            pRender->BeginRenderingText();
-#ifdef BUILD_PHYSICS_3D
-						  pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
-#endif
-
-						  fPosition += dy;
-						  pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
-						  pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
-						  pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
-						  pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
-						  pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-						  pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
-#endif
-						  pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
-
-						  fPosition += dy;
-						  pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
-						  pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-						  pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
-#endif
-            pRender->EndRenderingText();
-					}
-#endif
-
-          window_manager.Render();
-				pRender->EndScreenSpaceRendering();
-			pRender->End();
-
-		EndRender(currentTime);
-	}
-
 	bool cApp::Run()
 	{
 		LOG.Newline("Run");
@@ -1261,16 +1285,14 @@ namespace breathe
       cApp::cAppState& state = GetCurrentState();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-      if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext))
-      {
+      if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext)) {
         _UpdatePhysics(state, currentTime);
         tPhysics.Update(currentTime);
         fPhysicsNext = currentTime + fPhysicsDelta;
       }
 #endif
 
-			if (currentTime > fUpdateNext)
-			{
+			if (currentTime > fUpdateNext) {
 				_Update(currentTime);
 				tUpdate.Update(currentTime);
 				fUpdateNext = currentTime + fUpdateDelta;
@@ -1353,26 +1375,21 @@ namespace breathe
 	{
 	}
 
-	bool cApp::cKey::IsDown()
-	{
-		if (bDown)
-		{
-			if (bRepeat)
-			{
-				bCollected=true;
-				return true;
-			}
-			else if (!bCollected)
-			{
-				bCollected=true;
-				return true;
-			}
-      bDown=false;
-			bCollected=true;
-		}
+  bool cApp::cKey::IsDown() const
+  {
+    if (bDown) {
+      // If we are repeating this key or we have not collected it before then set ourselves to collected and return true
+      if (bRepeat || !bCollected) {
+        bCollected = true;
+        return true;
+      }
 
-		return false;
-	}
+      bDown = false;
+      bCollected = true;
+    }
+
+    return false;
+  }
 
 	void cApp::cKey::SetDown(bool bConsole)
 	{
@@ -1498,6 +1515,14 @@ namespace breathe
     CONSOLE.Hide();
     app.CursorHide();
   }
+
+  // Left and right shifts the cursor on the current typing in line
+  // Page up and down scrolls the view up and down
+  // Up and down shows history
+  // Auto complete with tab
+  // ma<tab>
+  // map <space has been inserted too>
+  // if more than one option then show all options as in linux
 
   void breathe::cApp::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
   {

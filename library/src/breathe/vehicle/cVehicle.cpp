@@ -9,10 +9,14 @@
 #include <list>
 #include <set>
 
-#include <ODE/ode.h>
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
+#include <ode/ode.h>
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
@@ -25,6 +29,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -366,7 +371,7 @@ namespace breathe
 			fControl_Handbrake=0.0f;
 
 			fPetrolTankSize=70.0f;
-			vPetrolTank.insert(0, PETROL_SIZE, 0.0f);
+			vPetrolTank.push_back(fPetrolTankSize);
 
 
 			// http://home.planet.nl/~monstrous/tutcar.html
@@ -574,8 +579,7 @@ namespace breathe
 
 			controller->SetControllerTorque(torque);*/
 
-			if(body)
-			{
+			if (HasBody()) {
 				// Aerodynamic Drag
 				// To simulate aerodynamic drag, it would be better to use the square of the velocity,
 				// because that's how drag works in reality. The force should also be applied at the object's
@@ -588,8 +592,8 @@ namespace breathe
 				// TODO: Use a lot more drag in water
 				float fDampTorque = 1.0f;
 				float fDampLinearVel = 1.0f;
-				dReal const * av = dBodyGetAngularVel( body );
-				dReal const * lv = dBodyGetLinearVel( body );
+        dReal const * av = dBodyGetAngularVel(GetBody());
+        dReal const * lv = dBodyGetLinearVel(GetBody());
 
 				// TODO: Check whether we are on our roof/side too
 				//dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );

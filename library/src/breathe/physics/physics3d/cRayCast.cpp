@@ -11,12 +11,16 @@
 #include <fstream>
 #include <sstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <ode/ode.h>
 
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/cVar.h>

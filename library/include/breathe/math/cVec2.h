@@ -17,7 +17,7 @@ namespace breathe
       cVec2(const cVec3& rhs);
 
 			void Set(float newX, float newY);	//set member variables
-			
+
 			//Accessors kept for compatibility
 			void SetX(float newX) {x = newX;}
 			void SetY(float newY) {y = newY;}
@@ -27,16 +27,16 @@ namespace breathe
 
 			void LoadZero(void);
 			void LoadOne(void);					//fill with (1, 1, 1)
-			
+
 			void Normalize();
 			cVec2 GetNormalized() const;
-			
+
 			void SetLength(float length);
 			cVec2 SetLength(float length) const;
 
 			float GetLength() const
 			{	return sqrtf((x*x)+(y*y));	}
-			
+
 			float GetSquaredLength() const
 			{	return (x*x)+(y*y);	}
 
@@ -56,7 +56,7 @@ namespace breathe
 			{	return cVec2(x - rhs.x, y - rhs.y);	}
 
 			cVec2 operator*(const float rhs) const;
-			
+
 			cVec2 operator/(const float rhs) const
 			{	return (rhs==0) ? cVec2(0.0f, 0.0f) : cVec2(x / rhs, y / rhs);	}
 
@@ -84,7 +84,7 @@ namespace breathe
 			//cast to pointer to a (float *) for glVertex3fv etc
 			operator float* () const {return (float*) this;}
 			operator const float* () const {return (const float*) this;}
-      
+
       cVec2& operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this;}
       cVec2& operator=(const cVec3& rhs);
 
@@ -103,4 +103,4 @@ namespace breathe
   }
 }
 
-#endif	//CVEC2_H
+#endif // CVEC2_H

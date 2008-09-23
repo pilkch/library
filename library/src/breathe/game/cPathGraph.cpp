@@ -5,6 +5,9 @@
 #include <list>
 #include <set>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <breathe/breathe.h>
 
 #include <breathe/math/math.h>

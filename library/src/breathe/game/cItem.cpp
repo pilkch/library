@@ -8,12 +8,17 @@
 #include <map>
 #include <list>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
+
 #ifdef BUILD_PHYSICS_3D
 #include <ode/ode.h>
 #endif
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
@@ -32,6 +37,8 @@
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cMaterial.h>
 
 
 #include <breathe/game/cLevel.h>

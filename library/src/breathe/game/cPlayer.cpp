@@ -9,6 +9,10 @@
 #include <list>
 #include <set>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
+
 #ifdef BUILD_PHYSICS_3D
 #include <ode/ode.h>
 #endif
@@ -16,6 +20,7 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
@@ -305,4 +310,22 @@ namespace breathe
 	{
 
 	}
+
+
+  bool cPlayer::InViewCone(const math::cVec3& vecSpot, float tolerance)
+  {
+    math::cVec3 lineOfSight(vecSpot - pos);
+
+    // Restrict to x/y axis only
+    lineOfSight.z = 0;
+
+    lineOfSight.Normalise();
+
+    const math::cVec3 facingDir = GetViewAngle();
+
+    const float flDot = lineOfSight.DotProduct(facingDir);
+    if (flDot > tolerance) return true;
+
+    return false;
+  }
 }

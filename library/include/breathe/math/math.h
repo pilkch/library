@@ -251,7 +251,15 @@ namespace breathe
     {
       return float(GetRandomNumber()) * fOneOver65536By65536;
     }
+
+
+    // This is for calling with cVec2, cVec3 or cVec4
+    template <class T>
+    inline float GetDistance(const T& from, const T& to)
+    {
+      return math::sqrt((from.GetSquaredLength() + to.GetSquaredLength()).GetLength());
+    }
 	}
 }
 
-#endif //CMATH_H
+#endif // CMATH_H

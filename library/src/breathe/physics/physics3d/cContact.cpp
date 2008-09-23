@@ -11,12 +11,16 @@
 #include <fstream>
 #include <sstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <ode/ode.h>
 
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/util/cVar.h>
@@ -145,7 +149,7 @@ namespace breathe
 		{
 			contact.geom.depth = fDepth;
 
-			dJointID j = dJointCreateContact(physics::GetWorld(), physics::contactgroup, &contact);
+			dJointID j = dJointCreateContact(physics::GetWorld(), physics::GetContactGroup(), &contact);
 			dJointAttach(j, dGeomGetBody(contact.geom.g1), dGeomGetBody(contact.geom.g2));
 		}
 	}

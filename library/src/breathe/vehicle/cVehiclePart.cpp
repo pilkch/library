@@ -10,11 +10,14 @@
 #include <list>
 #include <set>
 
-#include <ODE/ode.h>
+// Boost includes
+#include <boost/shared_ptr.hpp>
 
+#include <ode/ode.h>
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
@@ -27,6 +30,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -52,7 +56,7 @@ namespace breathe
 			uiType=VEHICLEPART_NONE;
 			fHealth=100;
 		}
-		
+
 		void cPart::Install(cVehicle *p)
 		{
 			pVehicle=p;
@@ -74,10 +78,10 @@ namespace breathe
 
 		void cPartTurboCharger::Update()
 		{
-			
+
 		}
 
-		
+
 
 		cPartSuperCharger::cPartSuperCharger()
 			: cPart()
@@ -91,10 +95,10 @@ namespace breathe
 
 
 		}
-		
+
 		void cPartSuperCharger::Update()
 		{
-			
+
 		}
 	}
 }

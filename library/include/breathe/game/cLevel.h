@@ -1,6 +1,9 @@
 #ifndef CLEVEL_H
 #define CLEVEL_H
 
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cMaterial.h>
+
 namespace breathe
 {
   enum MATERIAL
@@ -32,15 +35,13 @@ namespace breathe
     return MATERIAL(index);
   }
 
-  class cMaterial;
-
   class cSurface
   {
   public:
     MATERIAL material;
     float fFriction;
 
-    cMaterial* pMaterial;
+    render::material::cMaterialRef pMaterial;
   };
 
   // Gradient is the angle of the road in the usual travelling direction
@@ -123,7 +124,7 @@ namespace breathe
     {
     }
 
-    render::model::cStatic* pModel;
+    render::model::cStaticRef pModel;
   };
 
   class cLevelCubemap
@@ -174,8 +175,8 @@ namespace breathe
     std::vector<cLevelModel*> vModel;
 
   private:
-    cLevel *pLevel;
-    render::model::cStatic* pModel;
+    cLevel* pLevel;
+    render::model::cStaticRef pModel;
   };
 
   class cLevel : public cUpdateable
@@ -195,15 +196,15 @@ namespace breathe
     cLevelSpawn GetSpawn(const math::cVec3& p); //Get closest spawn to requested position
 
 
-    void AddVehicle(vehicle::cVehicle *v);
-    void RemoveVehicle(vehicle::cVehicle *v);
+    void AddVehicle(vehicle::cVehicle* v);
+    void RemoveVehicle(vehicle::cVehicle* v);
 
-    void AddPhysicsObject(physics::cPhysicsObject *d);
-    void RemovePhysicsObject(physics::cPhysicsObject *d);
+    void AddPhysicsObject(physics::cPhysicsObject* d);
+    void RemovePhysicsObject(physics::cPhysicsObject* d);
 
-    unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicle *pOwnVehicle);
+    unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicle* pOwnVehicle);
 
-    render::cTexture* FindClosestCubeMap(math::cVec3 pos);
+    render::cTextureRef FindClosestCubeMap(math::cVec3 pos);
 
     vehicle::cVehicle* FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
 
@@ -227,14 +228,14 @@ namespace breathe
 
     //std::map<string_t, render::model::cHeightmap*> mHeightmap;
 
-    std::list<vehicle::cVehicle *> lVehicle;
+    std::list<vehicle::cVehicle*> lVehicle;
     std::list<physics::cPhysicsObject*> lPhysicsObject;
 
     std::vector<cLevelNode*>vNode; //vModel.size()=uiWidth*uiHeight;
 
     std::vector<cLevelSpawn*>vSpawn;
 
-    std::vector<cLevelCubemap * >vCubemap;
+    std::vector<cLevelCubemap*>vCubemap;
 
   private:
     bool LoadXML(const string_t& sNewFilename);

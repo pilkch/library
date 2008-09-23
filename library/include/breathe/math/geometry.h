@@ -8,6 +8,8 @@ namespace breathe
     class cSphere
     {
     public:
+      friend class cCube;
+
       cSphere();
 
       void SetRadius(float fRadius);
@@ -16,9 +18,18 @@ namespace breathe
       float GetDistance(const cSphere& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
 
+      float_t GetHalfWidth() const { return fRadius; }
+      float_t GetWidth() const { return fRadius + fRadius; }
+
+      float_t GetHalfHeight() const { return fRadius; }
+      float_t GetHeight() const { return fRadius + fRadius; }
+
+      float_t GetHalfDepth() const { return fRadius; }
+      float_t GetDepth() const { return fRadius + fRadius; }
+
       // Position and size
-      cVec3 p;
-      float fRadius;
+      cVec3 position;
+      float_t fRadius;
     };
 
     inline cSphere::cSphere() :
@@ -50,10 +61,13 @@ namespace breathe
     }
 
 
-    class cBox
+
+    class cCube
     {
     public:
-      cBox();
+      cCube();
+      //cCube(const cCube& rhs);
+      cCube(const cSphere& rhs);
 
       void SetHalfWidth(float fHalfWidth);
 
@@ -62,20 +76,45 @@ namespace breathe
       float GetDistanceCentreToCentre(const cBox& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
 
+
+      float_t GetHalfWidth() const { return fHalfWidth; }
+      float_t GetWidth() const { return fHalfWidth + fHalfWidth; }
+
+      float_t GetHalfHeight() const { return fHalfWidth; }
+      float_t GetHeight() const { return fHalfWidth + fHalfWidth; }
+
+      float_t GetHalfDepth() const { return fHalfWidth; }
+      float_t GetDepth() const { return fHalfWidth + fHalfWidth; }
+
       // Position and size
-      cVec3 p;
+      cVec3 position;
       float fHalfWidth;
     };
 
-    inline cBox::cBox() :
+    inline cCube::cCube() :
       fHalfWidth(1.0f)
     {
     }
 
-    inline void cBox::SetHalfWidth(float _fHalfWidth)
+    //inline cCube::cCube(const cCube& rhs)
+    //{
+    //  position = rhs.position;
+    //  fHalfWidth = rhs.fHalfWidth;
+    //}
+
+    inline cCube::cCube(const cSphere& rhs)
+    {
+      position = rhs.position;
+      fHalfWidth = rhs.fRadius;
+    }
+
+    inline void cCube::SetHalfWidth(float _fHalfWidth)
     {
       fHalfWidth = _fHalfWidth;
     }
+
+
+    typedef cCube cBox;
 
 
     // -halfwidth, +halfwidth        +halfwidth, +halfwidth

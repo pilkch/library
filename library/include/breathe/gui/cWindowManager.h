@@ -49,4 +49,4 @@ namespace breathe
   }
 }
 
-#endif //CWINDOW_MANAGER_H
+#endif // CWINDOW_MANAGER_H

@@ -1,6 +1,12 @@
 #ifndef CPHYSICSOBJECT_H
 #define CPHYSICSOBJECT_H
 
+#ifdef BUILD_PHYSICS_3D
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
+#endif
+
 namespace breathe
 {
 	namespace physics
@@ -57,7 +63,7 @@ namespace breathe
 
       //object_type GetType() const { return type; }
 
-			render::model::cModel *pModel;
+			render::model::cStaticRef pModel;
 #endif
 
     private:

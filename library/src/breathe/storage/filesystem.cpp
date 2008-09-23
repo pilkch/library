@@ -1,5 +1,6 @@
 #ifdef __LINUX__
 #include <dirent.h>
+#include <pwd.h>
 #endif
 
 #include <sys/stat.h>
@@ -35,9 +36,139 @@ namespace breathe
 {
   namespace filesystem
   {
+    const size_t MAX_PATH_LEN = 1024;
+    const string_t sFolderSeparator = TEXT("/");
+
     std::vector<string_t> vDirectory;
     string_t sApplicationDirectory = TEXT("");
-    const string_t sFolderSeparator = TEXT("/");
+
+    void SetThisExecutable(const string_t& executable)
+    {
+      CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
+
+#ifdef __WIN__
+      sApplicationDirectory = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
+#else
+      sApplicationDirectory = GetCurrentDirectory();
+#endif
+
+      ASSERT(!sApplicationDirectory.empty());
+
+      if (!breathe::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
+
+      CONSOLE<<"SetThisExecutable returning "<<sApplicationDirectory<<std::endl;
+    }
+
+    string_t GetThisApplicationDirectory()
+    {
+      ASSERT(sApplicationDirectory.length() > 0);
+      return sApplicationDirectory;
+    }
+
+// breathe/src/linux/file.cpp
+// /home/chris/.breathe/breathe/profile.xml
+// /home/chris/.breathe/breathe/config.xml
+// /home/chris/.breathe/drive/
+
+// breathe/src/apple/file.cpp
+// /Users/Chris/.breathe/breathe/profile.xml
+// /Users/Chris/.breathe/breathe/config.xml
+// /Users/Chris/.breathe/drive/
+
+// breathe/src/windows/file.cpp
+// c:/User Settings/Chris/App Data/breathe/breathe/profile.xml
+// c:/User Settings/Chris/App Data/breathe/breathe/config.xml
+// c:/User Settings/Chris/App Data/breathe/drive/
+
+#ifdef __APPLE__
+    string_t GetApplicationSettingsDirectory(const string_t& sApplication)
+    {
+      ASSERT(sApplication != string_t(TEXT(BREATHE_APPLICATION_NAME_LWR)));
+      return GetHomeDirectory() + TEXT(".breathe/") + sApplication + TEXT("/");
+    }
+#endif
+
+#ifdef __LINUX__
+    string_t GetApplicationSettingsDirectory(const string_t& sApplication)
+    {
+      ASSERT(sApplication != string_t(TEXT(BREATHE_APPLICATION_NAME_LWR)));
+      return GetHomeDirectory() + TEXT(".breathe/") + sApplication + TEXT("/");
+    }
+
+    string_t GetTempDirectory()
+    {
+      //string_t sPath;
+      //if (GetTempDirectory123213()) return sPath;
+
+      // Last resort
+      return TEXT("/tmp/");
+    }
+#endif
+
+    string_t GetHomeDirectory()
+    {
+      string_t sPath;
+#ifdef WIN32
+      char szPath[MAX_PATH_LEN];
+      strcpy(szPath, exe_directory);
+      ASSERT(SHGetFolderPath(0, CSIDL_APPDATA|CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      sPath = string_t(szPath);
+#endif
+#ifdef BUILD_LINUX_UNIX
+      struct passwd *pw = getpwuid(getuid());
+      ASSERT(pw != nullptr);
+      sPath = string_t(pw->pw_dir);
+#endif
+      ASSERT(!sPath.empty());
+      return sPath;
+    }
+
+#ifdef __APPLE__
+    string_t GetBundlePath()
+    {
+      CFBundleRef mainBundle = CFBundleGetMainBundle();
+      ASSERT(mainBundle);
+
+      cCFURL mainBundleURL(CFBundleCopyBundleURL(mainBundle));
+      ASSERT(mainBundleURL.IsValid());
+
+      cCFString cfsPath(CFURLCopyFileSystemPath(mainBundleURL.ref, kCFURLPOSIXPathStyle));
+      ASSERT(cfsPath.IsValid());
+
+      return cfsPath.GetString_t();
+    }
+
+    string_t GetResourcesPath()
+    {
+      return GetBundlePath() + string_t("/Contents/Resources/");
+    }
+#endif
+
+    void ChangeDirectoryToExecutablePath(const char* argv0)
+    {
+      std::string exePath(argv0);
+      std::string::size_type last_pos = exePath.find_last_of ("\\/");
+      if (last_pos != std::string::npos) {
+        std::string exeDir = exePath.substr (0, last_pos);
+        std::cerr << "Chdir to " << exeDir << std::endl;
+        chdir(exeDir.c_str());
+      }
+    }
+
+
+
+
+    string_t GetCurrentDirectory()
+    {
+      char_t szDirectory[MAX_PATH_LEN];
+      getcwd(szDirectory, MAX_PATH_LEN);
+      return string_t(szDirectory);
+    }
+
+    void ChangeToDirectory(const string_t& sDirectory)
+    {
+      chdir(sDirectory.c_str());
+    }
 
     string_t ExpandPath(const string_t& path)
     {
@@ -84,33 +215,6 @@ namespace breathe
       if (breathe::string::EndsWith(path, TEXT("/"))) result = breathe::string::StripAfterLastInclusive(result, TEXT("/"));
 
       return breathe::string::StripAfterLast(result, TEXT("/"));
-    }
-
-    void SetThisExecutable(const string_t& executable)
-    {
-      CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
-
-#ifdef __WIN__
-      sApplicationDirectory = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
-#else
-      const size_t len = 1024;
-      char pwd[len];
-      getcwd(pwd, len);
-      CONSOLE<<"SetThisExecutable pwd="<<pwd<<std::endl;
-      sApplicationDirectory = string_t(pwd);
-#endif
-
-      assert(sApplicationDirectory.length() > 0);
-
-      if (!breathe::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
-
-      CONSOLE<<"SetThisExecutable returning "<<sApplicationDirectory<<std::endl;
-    }
-
-    string_t GetThisApplicationDirectory()
-    {
-      assert(sApplicationDirectory.length() > 0);
-      return sApplicationDirectory;
     }
 
     string_t GetPath(const string_t& sFilename)
@@ -191,13 +295,12 @@ namespace breathe
       string_t expanded = ExpandPath(sDirectory);
 
       size_t i = 0;
-      size_t n = vDirectory.size();
-      for (i=0;i<n;i++)
-      {
-        if (vDirectory[i] == expanded)
-          return;
+      const size_t n = vDirectory.size();
+      for (i = 0; i < n; i++) {
+        if (vDirectory[i] == expanded) return;
       }
 
+      ASSERT(breathe::string::EndsWith(expanded, TEXT("/")));
       vDirectory.push_back(expanded);
 #ifndef FIRESTARTER
       LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + expanded));
@@ -244,8 +347,9 @@ namespace breathe
       if (TEXT("") == sFilename) return sFilename;
 
       // Check for each directory+sFilename
-      std::vector<string_t>::iterator iter=vDirectory.begin();
-      while(iter!=vDirectory.end()) {
+      std::vector<string_t>::iterator iter = vDirectory.begin();
+      const std::vector<string_t>::iterator iterEnd = vDirectory.end();
+      while (iter != iterEnd) {
         string_t filename = breathe::string::ToString_t((*iter) + sFilename);
         CONSOLE<<"Attempting to open "<<filename<<std::endl;
         if (FileExists(filename)) {
@@ -257,19 +361,21 @@ namespace breathe
       };
 
 
+      // We used to check each directory + the filename without its directories, but that is quite useless.
+      // We now require that each program is more specific in its request and actually knows what a file will be called.
       // Check for each directory+sFilename-path
-      iter = vDirectory.begin();
-      string_t sFile = GetFile(sFilename);
-      while(iter != vDirectory.end()) {
-        string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
-        CONSOLE<<"Attempting to open "<<filename<<std::endl;
-        if (FileExists(filename)) {
-          CONSOLE<<"Found "<<filename<<std::endl;
-          return filename;
-        }
-
-        iter++;
-      };
+      // iter = vDirectory.begin();
+      // string_t sFile = GetFile(sFilename);
+      // while(iter != vDirectory.end()) {
+      //   string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
+      //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
+      //   if (FileExists(filename)) {
+      //     CONSOLE<<"Found "<<filename<<std::endl;
+      //     return filename;
+      //   }
+      //
+      //   iter++;
+      // };
 
       // Check sFilename that was passed in
       CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
@@ -317,7 +423,13 @@ namespace breathe
 #endif // !UNICODE
 
 #elif defined(__LINUX__)
-      return (0 == mkdir(sFoldername.c_str(), S_IRWXU | S_IRWXG | S_IRWXO));
+      // Create the directory
+      if (0 != mkdir(sFoldername.c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
+
+      // Set owner and group
+      struct passwd *pw = getpwuid(getuid());
+      ASSERT(pw != nullptr);
+      return (0 == chown(sFoldername.c_str(), pw->pw_uid, pw->pw_gid));
 #else
       #error "CreateDirectory not implemented on this platform"
       return false;
@@ -451,19 +563,19 @@ namespace breathe
 
     string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
     {
-      assert(IsDirectory());
+      ASSERT(IsDirectory());
       return filesystem::GetPath(sPath);
     }
 
     string_t path::GetFile() const // Returns just the file "file.txt"
     {
-      assert(IsFile());
+      ASSERT(IsFile());
       return filesystem::GetFile(sPath);
     }
 
     string_t path::GetExtenstion() const // Returns just the extension ".txt"
     {
-      assert(IsFile());
+      ASSERT(IsFile());
       return filesystem::GetExtension(sPath);
     }
 
@@ -472,17 +584,6 @@ namespace breathe
       return sPath;
     }
 
-    string_t GetCurrentDirectory()
-    {
-      char_t szDirectory[300];
-      getcwd(szDirectory, 300);
-      return string_t(szDirectory);
-    }
-
-    void ChangeToDirectory(const string_t& sDirectory)
-    {
-      chdir(sDirectory.c_str());
-    }
 
     // ********************************************* cScopedDirectoryChange *********************************************
 
@@ -573,13 +674,13 @@ namespace breathe
 
     string_t iterator::GetFile() const
     {
-      assert(IsValid());
+      ASSERT(IsValid());
       return paths[i];
     }
 
     string_t iterator::GetFullPath() const
     {
-      assert(IsValid());
+      ASSERT(IsValid());
       return MakeFilePath(sParentFolder, paths[i]);
     }
 
@@ -595,16 +696,272 @@ namespace breathe
 
     bool iterator::IsFile() const
     {
-      assert(IsValid());
+      ASSERT(IsValid());
       path p(sParentFolder, paths[i]);
       return p.IsFile();
     }
 
     bool iterator::IsDirectory() const
     {
-      assert(IsValid());
+      ASSERT(IsValid());
       path p(sParentFolder, paths[i]);
       return p.IsDirectory();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    enum PRIORITY
+    {
+      PRIORITY_LOW = 0,
+      PRIORITY_DEFAULT,
+      PRIORITY_HIGH
+    };
+
+
+   // ** cEntry
+   // cEntry is extensible by inheriting and overriding _GetFile();
+   // TODO: We don't actually have any classes that build upon cEntry
+   // For example: 7z, zip, rar, http, ftp, last.fm stream (MP3 served via http but requires login),
+   // 7z, zip, rar would be extracted to a temporary folder in the temp directory and that folder would then be mounted
+
+    class cEntry
+    {
+    public:
+      cEntry(const string_t& sFullPath, PRIORITY priority);
+      virtual ~cEntry() {}
+
+      const string_t& GetFullPath() const { return sFullPath; }
+      PRIORITY GetPriority() const { return priority; }
+      void SetPriority(PRIORITY _priority) { priority = _priority; }
+
+    // Returns true and sets sFullPath to the fullpath ie. "/home/chris/.breathe/shared/data/texture/testing.png" if found
+      bool GetFile(const string_t& sFile, string_t& sFullPath) const { return _GetFile(sFile, sFullPath); }
+
+    private:
+      virtual bool _GetFile(const string_t& sFile, string_t& sFullPath) const;
+
+      string_t sFullPath;
+      PRIORITY priority;
+    };
+
+    cEntry::cEntry(const string_t& _sFullPath, PRIORITY _priority) :
+      sFullPath(_sFullPath),
+      priority(_priority)
+    {
+    }
+
+    bool cEntry::_GetFile(const string_t& sFile, string_t& sOutFullPath) const
+    {
+      LOG<<"cEntry::_GetFile"<<std::endl;
+
+      // If the file doesn't exists return false;
+      if (!filesystem::FileExists(sFullPath + sFile)) {
+        LOG<<"cEntry::_GetFile File \""<<(sFullPath + sFile).c_str()<<"\" not found, returning false"<<std::endl;
+        return false;
+      }
+
+      // File exists, fill out the filename and return true
+      LOG<<"cEntry::_GetFile File \""<<(sFullPath + sFile).c_str()<<"\" found, returning true"<<std::endl;
+      sOutFullPath = sFullPath + sFile;
+      return true;
+    }
+
+
+    class cVirtualFileSystem
+    {
+    public:
+      ~cVirtualFileSystem();
+
+      void Create();
+      void Destroy();
+
+      void MountWithPriority(const string_t& sPath, PRIORITY priority);
+
+      void Unmount(const string_t& sPath);
+
+      bool GetFile(const string_t& sFile, string_t& sFullPath) const;
+
+    private:
+      void Sort();
+      static bool EntryCompare(const cEntry* lhs, const cEntry* rhs);
+
+      // Paths sorted by priority, front/begin is the highest priority, back/end is the lowest
+      std::vector<cEntry*> paths;
+    };
+
+    cVirtualFileSystem::~cVirtualFileSystem()
+    {
+      ASSERT(paths.empty());
+    }
+
+    void cVirtualFileSystem::Create()
+    {
+      ASSERT(paths.empty());
+    }
+
+    void cVirtualFileSystem::Destroy()
+    {
+      // Delete and remove each entry from the map
+      std::vector<cEntry*>::iterator iter = paths.begin();
+      const std::vector<cEntry*>::iterator iterEnd = paths.end();
+
+      while (iter != iterEnd) {
+        cEntry* pEntry = (*iter);
+        ASSERT(pEntry != nullptr);
+
+        SAFE_DELETE(pEntry);
+
+        iter++;
+      }
+
+      paths.clear();
+    }
+
+    // *** Comparison for sorting particles based on depth
+
+    inline bool cVirtualFileSystem::EntryCompare(const cEntry* lhs, const cEntry* rhs)
+    {
+      return (lhs->GetPriority() > rhs->GetPriority());
+    }
+
+    void cVirtualFileSystem::Sort()
+    {
+      std::sort(paths.begin(), paths.end(), cVirtualFileSystem::EntryCompare);
+    }
+
+    void cVirtualFileSystem::MountWithPriority(const string_t& sPath, PRIORITY priority)
+    {
+      // Find the current entry if there is one
+      std::vector<cEntry*>::iterator iter = paths.begin();
+      const std::vector<cEntry*>::iterator iterEnd = paths.end();
+
+      while (iter != iterEnd) {
+        cEntry* pEntry = (*iter);
+        ASSERT(pEntry != nullptr);
+
+        if (pEntry->GetFullPath() == sPath) break;
+
+        iter++;
+      };
+
+      // If we didn't find an entry, create a new entry and return
+      if (iter == iterEnd) {
+        // Create a new entry
+        cEntry* pEntry = new cEntry(sPath, priority);
+        paths.push_back(pEntry);
+      } else {
+        // We already have this element, set the priority and return
+        cEntry* pEntry = (*iter);
+        ASSERT(pEntry != nullptr);
+
+        pEntry->SetPriority(priority);
+      }
+
+      // Now that we have a valid entry we need to sort the list
+      Sort();
+    }
+
+    void cVirtualFileSystem::Unmount(const string_t& sPath)
+    {
+      // Find the current entry if there is one
+      std::vector<cEntry*>::iterator iter = paths.begin();
+      const std::vector<cEntry*>::iterator iterEnd = paths.end();
+
+      while (iter != iterEnd) {
+        cEntry* pEntry = (*iter);
+        ASSERT(pEntry != nullptr);
+
+        if (pEntry->GetFullPath() == sPath) break;
+
+        iter++;
+      };
+
+      // If we didn't find an entry, return
+      if (iter == iterEnd) return;
+
+      // Delete the data that this element points to
+      cEntry* pEntry = (*iter);
+      ASSERT(pEntry != nullptr);
+      SAFE_DELETE(pEntry);
+
+      // Now remove the actual map element
+      paths.erase(iter);
+    }
+
+    bool cVirtualFileSystem::GetFile(const string_t& sFile, string_t& sFullPath) const
+    {
+      LOG<<"cVirtualFileSystem::GetFile"<<std::endl;
+
+      // Check each entry in order from highest to lowest priority
+      std::vector<cEntry*>::const_iterator iter = paths.begin();
+      const std::vector<cEntry*>::const_iterator iterEnd = paths.end();
+
+      while (iter != iterEnd) {
+        cEntry* pEntry = (*iter);
+        ASSERT(pEntry != nullptr);
+
+        if (pEntry->GetFile(sFile, sFullPath)) return true;
+
+        iter++;
+      }
+
+      return false;
+    }
+
+    cVirtualFileSystem vfs;
+
+
+    // These are global functions that call the virtual file system versions
+
+    void Create()
+    {
+      vfs.Create();
+    }
+
+    void Destroy()
+    {
+      vfs.Destroy();
+    }
+
+    void Mount(const string_t& sPath)
+    {
+      vfs.MountWithPriority(sPath, PRIORITY_DEFAULT);
+    }
+
+    void MountHighPriority(const string_t& sPath)
+    {
+      vfs.MountWithPriority(sPath, PRIORITY_HIGH);
+    }
+
+    void MountLowPriority(const string_t& sPath)
+    {
+      vfs.MountWithPriority(sPath, PRIORITY_LOW);
+    }
+
+    void Unmount(const string_t& sPath)
+    {
+      vfs.Unmount(sPath);
+    }
+
+    bool GetFile(const string_t& sFile, string_t& sFullPath)
+    {
+      return vfs.GetFile(sFile, sFullPath);
     }
   }
 }

@@ -10,6 +10,8 @@ namespace breathe
 
     dWorldID GetWorld();
 
+    dJointGroupID GetContactGroup();
+
     void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ);
     void Init(float width, float height, float depth);
   }

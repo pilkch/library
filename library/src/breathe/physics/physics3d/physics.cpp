@@ -8,12 +8,16 @@
 #include <list>
 #include <vector>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 //#include <opal/opal.h>
 
 #include <ode/ode.h>
 
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
@@ -81,6 +85,8 @@ namespace breathe
 
     dWorldID GetWorld() { return world; }
 
+    dJointGroupID GetContactGroup() { return contactgroup; }
+
 		size_t size() { return lPhysicsObject.size(); }
 		iterator begin() { return lPhysicsObject.begin(); }
 		iterator end() { return lPhysicsObject.end(); }
@@ -107,6 +113,8 @@ namespace breathe
 
     void Init(float width, float height, float depth)
 		{
+      LOG<<"physics::Init"<<std::endl;
+
 			world = dWorldCreate();
 
 			dWorldSetGravity(world, 0, 0, fGravity);
@@ -122,12 +130,12 @@ namespace breathe
 			dWorldSetContactMaxCorrectingVel(world, 1.0f);
 			dWorldSetAutoDisableFlag(world, 1);
 
-			spaceStatic=dHashSpaceCreate(0);
-			spaceDynamic=dHashSpaceCreate(0);
+			spaceStatic = dHashSpaceCreate(0);
+			spaceDynamic = dHashSpaceCreate(0);
 
 			contactgroup = dJointGroupCreate(10000);
 
-      //CreateGround(posX, posY, posZ, nX, nY, nZ);
+      CreateGround(0.0f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f);
 		}
 
 		void Destroy()
@@ -147,19 +155,17 @@ namespace breathe
 
 		void Update(sampletime_t currentTime)
 		{
-			//First Iteration
-			//  apply one-size-fits-all rotational and linear dampening
+			// First Iteration
+			// apply one-size-fits-all rotational and linear dampening
 
 			iterator iter = lPhysicsObject.begin();
 			iterator iterEnd = lPhysicsObject.end();
 
 			dBodyID b;
-			while(iterEnd != iter)
-			{
+			while(iterEnd != iter) {
 				b = (*iter++)->GetBody();
 
-				if (b)
-				{
+				if (b != NULL) {
           dReal const * av = dBodyGetAngularVel( b );
 					dBodySetAngularVel( b, av[0] - av[0]*fDampTorque, av[1] - av[1]*fDampTorque, av[2] - av[2]*fDampTorque );
 					dReal const * lv = dBodyGetLinearVel( b );
@@ -180,84 +186,68 @@ namespace breathe
 			dJointGroupEmpty(contactgroup);
 		}
 
-		void nearCallbackStatic(void *f, dGeomID o1, dGeomID o2)
+		void nearCallbackStatic(void* f, dGeomID o1, dGeomID o2)
 		{
 			//Ignore collisions between NULL geometry
-			if (!(o1 && o2))
-			{
+			if (!(o1 && o2)) {
 				LOG.Error("nearCallbackStatic", "NULL geometry");
 				return;
 			}
 
 			//Ignore collisions between bodies that are connected by the same joint
-			dBodyID Body1 = NULL, Body2 = NULL;
+			dBodyID Body1 = NULL;
+      dBodyID Body2 = NULL;
 
-			if (o1)
-				Body1 = dGeomGetBody (o1);
-			if (o2)
-				Body2 = dGeomGetBody (o2);
+			if (o1) Body1 = dGeomGetBody (o1);
+			if (o2) Body2 = dGeomGetBody (o2);
 
-			if (Body1 && Body2 && dAreConnected (Body1, Body2))
-				return;
+			if (Body1 && Body2 && dAreConnected (Body1, Body2)) return;
 
-			int i, n;
 			const int N = iMaxContacts;
 			dContact contact[N];
 
-			n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
-			if (n > 0)
-			{
-				for (i=0; i<n; i++)
-				{
-					contact[i].surface.mode = dContactBounce;
-					contact[i].surface.mu = fFriction;
-					contact[i].surface.bounce = fBounce;
-					contact[i].surface.bounce_vel = fBounceVel;
+      const size_t n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
+      for (size_t i = 0; i < n; i++) {
+        contact[i].surface.mode = dContactBounce;
+        contact[i].surface.mu = fFriction;
+        contact[i].surface.bounce = fBounce;
+        contact[i].surface.bounce_vel = fBounceVel;
 
-					dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
-					dJointAttach(c, Body1, Body2);
-				}
+        dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
+        dJointAttach(c, Body1, Body2);
 			}
 		}
 
-		void nearCallbackDynamic(void *f, dGeomID o1, dGeomID o2)
+		void nearCallbackDynamic(void* f, dGeomID o1, dGeomID o2)
 		{
 			//Ignore collisions between NULL geometry
-			if (!(o1 && o2))
-			{
+			if (!(o1 && o2)) {
 				LOG.Error("nearCallbackDynamic", "NULL geometry");
 				return;
 			}
 
 			//Ignore collisions between bodies that are connected by the same joint
-			dBodyID Body1 = NULL, Body2 = NULL;
+			dBodyID Body1 = NULL;
+      dBodyID Body2 = NULL;
 
-			if (o1)
-				Body1 = dGeomGetBody (o1);
-			if (o2)
-				Body2 = dGeomGetBody (o2);
+			if (o1) Body1 = dGeomGetBody(o1);
+			if (o2) Body2 = dGeomGetBody(o2);
 
-			if (Body1 && Body2 && dAreConnected (Body1, Body2))
-				return;
+			if (Body1 && Body2 && dAreConnected(Body1, Body2)) return;
 
-			int i, n;
 			const int N = iMaxContacts;
 			dContact contact[N];
 
-			n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
-			if (n > 0)
-			{
-				for (i=0; i<n; i++)
-				{
-					contact[i].surface.mode = dContactBounce;
-					contact[i].surface.mu = fFriction;
-					contact[i].surface.bounce = fBounce;
-					contact[i].surface.bounce_vel = fBounceVel;
+			const size_t n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
+			for (size_t i = 0; i < n; i++) {
+        contact[i].surface.mode = dContactBounce;
+        contact[i].surface.mu = fFriction;
+        contact[i].surface.bounce = fBounce;
+        contact[i].surface.bounce_vel = fBounceVel;
 
-					dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
-					dJointAttach(c, Body1, Body2);
-				}
-			}
+        dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
+        dJointAttach(c, Body1, Body2);
+      }
 		}
 	}
 }

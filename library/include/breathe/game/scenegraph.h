@@ -1,6 +1,30 @@
 #ifndef SCENEGRAPH_H
 #define SCENEGRAPH_H
 
+// cSceneNode
+//     |
+//     v
+// cSwitchNode, cSequenceNode list<cSceneNodeRef> frame, cRenderableNode
+
+
+// cSceneNode pure virtual
+//     |
+//     v
+// cRenderableNode pure virtual
+//     |
+//     v
+// cRenderableParticleEffect
+
+
+// cRenderableNode
+//     |
+//     v
+// cRenderableGroupNode
+// {
+//   std::list<cRenderableNodeRef> children
+// }
+
+
 namespace breathe
 {
   class cCamera;
@@ -121,30 +145,57 @@ namespace breathe
     class cSceneNode
     {
     public:
+      friend class cUpdateVisitor;
+
       cSceneNode();
       virtual ~cSceneNode() {}
 
       bool IsDirty() const { return bIsDirty; }
-
-      const math::cSphere& GetBoundingSphere() const { return boundingSphere; }
-      const math::cBox& GetBoundingBox() const { return boundingBox; }
 
       void SetDirty() { bIsDirty = true; if (pParent != nullptr) pParent->SetDirty(); }
 
       void Update(cUpdateVisitor& visitor) { _Update(visitor); }
       void Cull(cCullVisitor& visitor) { _Cull(visitor); }
 
+      const math::cSphere& GetBoundingSphere() const { return boundingSphere; }
+      const math::cBox& GetBoundingBox() const { return boundingBox; }
+
+      // We call this from cSceneGraph::Update
+      void UpdateBoundingVolumeAndSetNotDirty();
+
+    protected:
+      // Only the derived classes can call use this constructor
+      cSceneNode();
+
+      float_t UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+
+      // Only the derived class will know how to get the radius from our possible children
+      virtual float_t _UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius() { return math::cEpsilon; }
+
     private:
-      virtual void _Update(cUpdateVisitor& visitor);
-      virtual void _Cull(cCullVisitor& visitor);
+      cSceneNode(const cSceneNode&); // Prevent copying
+      cSceneNode& operator=(const cSceneNode&); // Prevent copying
 
       bool bIsEnabled;
       bool bIsDirty;
 
       cSceneNodeRef pParent;
 
+      bool bHasRelativePosition;
+      math::cVec3 relativePosition;
+
       math::cSphere boundingSphere;
       math::cBox boundingBox;
+    };
+
+    class cGroupNode
+    {
+    public:
+      void AddChild(cSceneNodeRef pChild);
+      void RemoveChild(cSceneNodeRef pChild);
+
+    private:
+      std::vector<cSceneNodeRef> children;
     };
 
     class cModelNode : public cSceneNode
@@ -164,6 +215,26 @@ namespace breathe
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
     };
+
+    // Octree for spatially representing the world
+    class cSpatialGraphNode
+    {
+    public:
+      cSpatialGraphNode() { memset(&pChild[0], 0, sizeof(cSpatialGraphNode*) * 8); }
+      virtual ~cSpatialGraphNode() {}
+
+      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
+      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
+
+    private:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+
+      cSpatialGraphNode* pChild[8];
+    };
+
+
+
 
     class cUpdateVisitor
     {
@@ -187,7 +258,14 @@ namespace breathe
       void Visit(cModelNode& node) { printf("cCullVisitor::Visit cModelNode\n"); }
       void Visit(cLightNode& node) { printf("cCullVisitor::Visit cLightNode\n"); }
 
+      void Visit(cRenderableRef pRenderable)
+      {
+        AddRenderable(pRenderable);
+      }
+
     private:
+      void AddRenderable(cRenderableRef pRenderable) {}
+
       cSceneGraph& scenegraph;
     };
 
@@ -201,22 +279,6 @@ namespace breathe
     };
 
 
-    // Octree for spatially representing the world
-    class cSpatialGraphNode
-    {
-    public:
-      cSpatialGraphNode() { memset(&pChild[0], 0, sizeof(cSpatialGraphNode*) * 8); }
-      virtual ~cSpatialGraphNode() {}
-
-      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
-      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
-
-    private:
-      virtual void _Update(cUpdateVisitor& visitor);
-      virtual void _Cull(cCullVisitor& visitor);
-
-      cSpatialGraphNode* pChild[8];
-    };
 
 
 
@@ -356,6 +418,9 @@ namespace breathe
 
       cGroupNodeRef GetRoot() const { return pRoot; }
 
+      bool IsCullingEnabled() const { return bIsCullingEnabled; }
+      void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
+
       void Update(sampletime_t currentTime);
       void Cull(sampletime_t currentTime);
       void Render(sampletime_t currentTime);
@@ -364,6 +429,8 @@ namespace breathe
       cRenderGraph& GetRenderGraph() { return renderGraph; }
 
     private:
+      bool bIsCullingEnabled;
+
       cRenderGraph renderGraph;
       cGroupNodeRef pRoot;
     };
