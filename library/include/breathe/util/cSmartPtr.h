@@ -1,10 +1,17 @@
 #ifndef CSMARTPTR_H
 #define CSMARTPTR_H
 
+// Now using boost::smart_ptr directly
+// c++0x: Change this to something like
+//typedef boost::shared_ptr cSmartPtr;
+#define cSmartPtr boost::shared_ptr
+
 namespace breathe
 {
-	namespace util
-	{
+  namespace util
+  {
+
+#if 0
 		/*template <class T>
 		class cSmartPtr
 		{
@@ -43,8 +50,8 @@ namespace breathe
 				assert(refCount > 0);
 			}
 
-			explicit cSmartPtr(T* _ptr) : 
-				refCount(0), 
+			explicit cSmartPtr(T* _ptr) :
+				refCount(0),
 				ptr(_ptr)
 			{
 				assert(_ptr);
@@ -141,7 +148,8 @@ namespace breathe
 				refCount = 0;
 			}
 		};
+#endif
 	}
 }
 
-#endif //CSMARTPTR_H
+#endif // CSMARTPTR_H

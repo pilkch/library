@@ -1,13 +1,14 @@
 // Standard libraries
 #include <cassert>
-#include <string>
-
-#include <iostream>
-#include <fstream>
+#include <cmath>
 
 #include <list>
 #include <vector>
+
+#include <string>
 #include <sstream>
+#include <iostream>
+#include <fstream>
 
 // Other libraries
 #ifdef WIN32
@@ -105,74 +106,5 @@ namespace breathe
 		{
 			SDLNet_TCP_Close(sd);
 		}
-
-
-
-		// *** cDownloadHTTP
-
-		int cDownloadHTTP::ThreadFunction()
-		{
-			std::cout<<server<<" "<<path<<std::endl;
-			content = "";
-
-			connection.Open(server, 80);
-
-				char buffer[STR_LEN];
-				buffer[0] = 0;
-				int len;
-				unsigned long ulProgress = 0;
-
-				sprintf(buffer,
-					"GET /%s HTTP/1.1" STR_END
-					"Host: %s" STR_END
-					"Range: bytes=%ld-" STR_END
-					"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END
-					"Accept: */*" STR_END
-					"Accept-Language: en-us" STR_END
-					"Connection: Keep-Alive" STR_END
-					"" STR_END
-
-					, path.c_str(), server.c_str(), ulProgress);
-
-				len = strlen(buffer) + 1;
-				if (SDLNet_TCP_Send(connection.sd, (void *)buffer, len) < len)
-				{
-					fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-					exit(EXIT_FAILURE);
-				}
-
-				len = 1;
-				while (len > 0)
-				{
-					len = SDLNet_TCP_Recv(connection.sd, buffer, STR_LEN - 1);
-					if (len > 0)
-					{
-						buffer[len] = 0;
-						content += buffer;
-					}
-				}
-
-				std::cout<<"CONTENT"<<std::endl;
-				std::cout<<content<<std::endl;
-
-			connection.Close();
-
-			return 0;
-		}
-
-		void cDownloadHTTP::Download(const std::string& _path)
-		{
-			path = _path;
-			server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, "http://"), "/");
-			path = breathe::string::StripBeforeInclusive(_path, server + "/");
-			if (path.length() < 1) path = "/";
-
-			Run();
-		}
-
-		std::string cDownloadHTTP::GetContent() const
-		{
-			return content;
-		}
-	}
+  }
 }

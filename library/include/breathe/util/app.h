@@ -38,8 +38,8 @@ namespace breathe
 		void AddKeyNoRepeat(unsigned int code); // ie. for key like escape, enter, spacebar, etc.
 		void AddKeyToggle(unsigned int code); // ie. tilde for console, either on or off, a press toggles.
 
-		bool IsKeyDown(unsigned int code);
-		bool IsKeyDownReset(unsigned int code);
+		bool IsKeyDown(unsigned int code) const;
+    bool IsKeyDownReset(unsigned int code) const;
 
 		bool IsMouseLeftButtonDown() const;
 		bool IsMouseRightButtonDown() const;
@@ -53,6 +53,7 @@ namespace breathe
 
 		void CursorShow();
 		void CursorHide();
+    void CursorWarpToMiddleOfScreen();
 
 		void ConsoleExecute(const std::string& s);
 
@@ -97,6 +98,14 @@ namespace breathe
       void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
 
       void OnMouseEvent(int button, int state, float x, float y) { _OnMouseEvent(button, state, x, y); }
+
+    protected:
+      void AddMessageInformative(const string_t& text) { SCREEN.AddMessageInformative(text); }
+      void AddMessageWarning(const string_t& text) { SCREEN.AddMessageWarning(text); }
+      void AddMessageError(const string_t& text) { SCREEN.AddMessageError(text); }
+
+      // Which person is speaking, what they are saying
+      void AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life) { SCREEN.AddClosedCaption(actor, line, life); }
 
     private:
 	    virtual void _OnEntry() {}
@@ -149,6 +158,8 @@ namespace breathe
 
 		render::cFont* pFont;
 
+    scenegraph::cSceneGraph scenegraph;
+
 	private:
     class cConsoleWindow : public gui::cModelessWindow
     {
@@ -173,7 +184,7 @@ namespace breathe
 		public:
 			cKey(unsigned int code, bool variable, bool repeat, bool toggle);
 
-			bool IsDown();
+      bool IsDown() const;
 			void SetDown(bool bConsole);
 			void SetUp(bool bConsole);
 
@@ -182,12 +193,12 @@ namespace breathe
 
 			bool bVariable;
 			bool bRepeat;
-			bool bToggle;
+      bool bToggle;
 
-			bool bDown;
-			bool bCollected;
+      unsigned int uiCode;
 
-			unsigned int uiCode;
+      mutable bool bDown;
+      mutable bool bCollected;
 		};
 
 		class cMouse
@@ -206,6 +217,7 @@ namespace breathe
 			int y;
 		};
 
+    void LoadConfigXML();
 		void _ConsoleExecuteSingleCommand(const std::string& s);
 		void _InitArguments(int argc, const char** argv);
 		void _Update(sampletime_t currentTime);
@@ -257,15 +269,16 @@ namespace breathe
     std::list<cAppState*> states;
 
   private:
-    bool bPopCurrentStateSoon;
-    cAppState* pPushThisStateSoon;
-
     void RemoveKey(unsigned int code);
+
+    virtual cAppState* _GetFirstAppState() = 0;
 
 		// Forbidden
 		void _OnMouseEvent(int button, int state, int x, int y);
 		void OnMouse(int button,int state,int x,int y);
 
+    bool bPopCurrentStateSoon;
+    cAppState* pPushThisStateSoon;
 
     class cAppStateConsole : public breathe::cApp::cAppState
     {

@@ -5,262 +5,194 @@
 
 namespace breathe
 {
-	//	cVar
-	//	
-	//	name=The name of the cvar.  For example "sv_gravity".  
-	//	value=The value of the cvar.  For example "800.0".  
-	//	flags=The flags that specify how the cvar acts.  For example VAR_CLIENT | VAR_SERVER means that it will be saved to the client and server config files.  
-	//	
+  //  cVar
+  //
+  //  name=The name of the cvar.  For example "sv_gravity".
+  //  value=The value of the cvar.  For example "800.0".
+  //  flags=The flags that specify how the cvar acts.  For example VAR_CLIENT | VAR_SERVER means that it will be saved to the client and server config files.
+  //
 
-	enum VAR
-	{
-		VAR_NULL=0,
+  class cVar
+  {
+  public:
+    // Default 0 is session only (Not saved at all), read and write at any time
+    enum FLAGS {
+      FLAGS_NULL = 0,
 
-		VAR_SAVE_CL=1,				// Written to client.cfg
-		VAR_SAVE_SV=2,				// Written to server.cfg
+      FLAGS_SAVE_CLIENT = 1,          // Written to client.xml
+      FLAGS_SAVE_SERVER = 2,          // Written to server.xml
 
-		VAR_READ_ONLY_IN_GAME=4,		// Can't change once in game.  For example: "sv_maxplayers" etc.  
-		VAR_READ_ONLY_IN_CONSOLE=8,	// Can't change once in console.  For example: "r_driver" etc.  
-		VAR_READ_ONLY=16				// Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.  
-	};
+      FLAGS_READ_ONLY_IN_GAME = 4,    // Can't change once in game.  For example: "sv_maxplayers" etc.
+      FLAGS_READ_ONLY_IN_CONSOLE = 8, // Can't change once in console.  For example: "r_driver" etc.
+      FLAGS_READ_ONLY = 16            // Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.
+    };
 
-	template <class T>
-	class cVar
-	{
-	private:
-		//unsigned int uiFlags;
-	
-		T value;
+    cVar();
+    cVar(const cVar& rhs);
 
-	public:
-		cVar(const cVar<T>& rhs);
-		cVar(const T& value, unsigned int flags=VAR_NULL);
-		
-		template <class C>
-		cVar(const C& rhs)
-		{
-			value = rhs;
-		}
+    // Note: Implicit conversion from these types is ok
+    cVar(bool rhs) { SetValue(rhs); }
+    cVar(int rhs) { SetValue(rhs); }
+    cVar(float rhs) { SetValue(rhs); }
+    cVar(const char_t* rhs) { SetValue(rhs); }
+    cVar(const string_t& rhs) { SetValue(rhs); }
 
+    cVar& operator=(const cVar& rhs);
+    cVar& operator=(bool rhs) { SetValue(rhs); return *this; }
+    cVar& operator=(int rhs) { SetValue(rhs); return *this; }
+    cVar& operator=(float rhs) { SetValue(rhs); return *this; }
+    cVar& operator=(const char_t* rhs) { SetValue(rhs); return *this; }
+    cVar& operator=(const string_t& rhs) { SetValue(rhs); return *this; }
 
-		//Convert these types into value
-		cVar<T>& operator=(const cVar<T>& rhs);
+    bool SetValue(bool value);
+    bool SetValue(int value);
+    bool SetValue(float value);
+    bool SetValue(const char_t* value);
+    bool SetValue(const string_t& value);
 
-		template <class C>
-		cVar<T>& operator=(const C& rhs)
-		{
-			value = rhs;
-			return *this;
-		}
+    bool GetBool() const { return bValue; }
+    int GetInt() const { return iValue; }
+    float GetFloat() const { return fValue; }
+    const string_t& GetString() const { return sValue; }
 
-		//Convert value into these types
-		bool GetBool() const;
-		unsigned int GetUnsignedInt() const;
-		int GetInt() const;
-		float GetFloat() const;
-		std::string GetString() const;
+    bool IsReadOnlyAtTheMoment() const;
 
-	private:
-		cVar();
-	};
+  private:
+    FLAGS flags;
 
+    bool bValue;
+    int iValue;
+    float fValue;
+    string_t sValue;
+  };
 
-	
-	template <>
-	class cVar <std::string>
-	{
-	private:
-		//unsigned int uiFlags;
-	
-		std::string value;
+  inline cVar::cVar() :
+    flags(FLAGS_NULL)
+  {
+    SetValue(true);
+  }
 
-	public:
-		cVar(const cVar<std::string>& rhs);
-		cVar(const std::string& value, unsigned int flags=VAR_NULL);
-		
-		template <class C>
-		cVar(const C& rhs)
-		{
-			std::ostringstream t;
-			t<<rhs;
-			value = t.str();
-		}
+  inline cVar::cVar(const cVar& rhs)
+  {
+    flags = rhs.flags;
+    bValue = rhs.bValue;
+    iValue = rhs.iValue;
+    fValue = rhs.fValue;
+    sValue = rhs.sValue;
+  }
 
+  inline cVar& cVar::operator=(const cVar& rhs)
+  {
+    flags = rhs.flags;
+    bValue = rhs.bValue;
+    iValue = rhs.iValue;
+    fValue = rhs.fValue;
+    sValue = rhs.sValue;
 
-		//Convert these types into value
-		cVar<std::string>& operator=(const cVar<std::string>& rhs);
+    return *this;
+  }
 
-		template <class C>
-		cVar<std::string>& operator=(const C& rhs)
-		{
-			std::ostringstream t;
-			t<<rhs;
-			value = t.str();
-			return *this;
-		}
+  inline bool cVar::SetValue(bool value)
+  {
+    if (IsReadOnlyAtTheMoment()) return false;
 
-		//Convert value into these types
-		bool GetBool() const;
-		unsigned int GetUnsignedInt() const;
-		int GetInt() const;
-		float GetFloat() const;
-		std::string GetString() const;
+    bValue = value;
+    if (bValue) {
+      iValue = 1;
+      fValue = 1.0f;
+      sValue = TEXT("true");
+    } else {
+      iValue = 0;
+      fValue = 0.0f;
+      sValue = TEXT("false");
+    }
 
-	private:
-		cVar();
-	};
+    return true;
+  }
 
+  inline bool cVar::SetValue(int value)
+  {
+    if (IsReadOnlyAtTheMoment()) return false;
 
-	// *** Inlines
+    bValue = bool(value);
+    iValue = value;
+    fValue = float(value);
+    sValue = breathe::string::ToString(value);
 
-	
+    return true;
+  }
 
-	template <class T>
-	inline cVar<T>::cVar(const cVar<T>& rhs)
-	{
-		//uiFlags = rhs.uiFlags;
-		value = rhs.value;
-	}
+  inline bool cVar::SetValue(float value)
+  {
+    if (IsReadOnlyAtTheMoment()) return false;
 
-	template <class T>
-	inline cVar<T>::cVar(const T& rhs, unsigned int flags)
-	{
-		//uiFlags = rhs.uiFlags;
-		value = rhs;
-	}
+    bValue = bool(value);
+    iValue = int(value);
+    fValue = value;
+    sValue = breathe::string::ToString(value);
 
+    return true;
+  }
 
-	template <class T>
-	inline bool cVar<T>::GetBool() const
-	{
-		return (0 == value);
-	}
+  inline bool cVar::SetValue(const char_t* value)
+  {
+    const string_t sValueTemp(value);
+    return SetValue(sValueTemp);
+  }
 
-	template <class T>
-	inline unsigned int cVar<T>::GetUnsignedInt() const 
-	{
-		std::stringstream t(value);
-		unsigned int i;
-		t>>i;
-		return i;
-	}
-	
-	template <class T>
-	inline int cVar<T>::GetInt() const 
-	{
-		//std::stringstream t(value);
-		//int i;
-		//t>>i;
-		return (T)value;
-	}
+  inline bool cVar::SetValue(const string_t& value)
+  {
+    if (IsReadOnlyAtTheMoment()) return false;
 
-	template <class T>
-	inline float cVar<T>::GetFloat() const 
-	{
-		//std::stringstream t(value);
-		//float i;
-		//t>>i;
-		return (T)value;
-	}
-	
-	template <class T>
-	inline std::string cVar<T>::GetString() const 
-	{
-		//std::stringstream t(value);
-		//std::string i;
-		//t>>i;
-		return (T)value;
-	}
+    bValue = breathe::string::ToBool(value);
+    iValue = breathe::string::ToInt(value);
+    fValue = breathe::string::ToFloat(value);
+    sValue = value;
 
-	template <class T>
-	inline cVar<T>& cVar<T>::operator=(const cVar<T>& rhs)
-	{
-		value = rhs.value;
-		return *this;
-	}
+    return true;
+  }
 
-	// Specialised for std::string
-	
-	
-	template <>
-	inline cVar<std::string>::cVar(const cVar<std::string>& rhs)
-	{
-		//uiFlags = rhs.uiFlags;
-		value = rhs.value;
-	}
+  inline bool cVar::IsReadOnlyAtTheMoment() const
+  {
+    if (flags & FLAGS_READ_ONLY) return true;
+    //if ((flags & FLAGS_READ_ONLY_IN_CONSOLE) && pConsole->IsInConsole()) return true;
+    //if ((flags & FLAGS_READ_ONLY_IN_GAME) && pConsole->IsInGame()) return true;
 
-	/*template <>
-	inline cVar<std::string>::cVar(const std::string& rhs, unsigned int flags)
-	{
-		//uiFlags = rhs.uiFlags;
-		value = rhs;
-	}*/
+    return false;
+  }
 
-	
-	inline bool cVar<std::string>::GetBool() const
-	{
-		return (strcmp(value.c_str(), "true") == 0 || strcmp(value.c_str(), "1") == 0);
-	}
-
-	
-	inline unsigned int cVar<std::string>::GetUnsignedInt() const 
-	{
-		std::stringstream t(value);
-		unsigned int i = 0;
-		t>>i;
-		return i;
-	}
-	
-	inline int cVar<std::string>::GetInt() const 
-	{
-		std::stringstream t(value);
-		int i = 0;
-		t>>i;
-		return i;
-	}
-
-	inline float cVar<std::string>::GetFloat() const 
-	{
-		std::stringstream t(value);
-		float i = 0.0f;
-		t>>i;
-		return i;
-	}
-	
-	inline std::string cVar<std::string>::GetString() const 
-	{
-		return value;
-	}
-
-	inline cVar<std::string>& cVar<std::string>::operator=(const cVar<std::string>& rhs)
-	{
-		value = rhs.value;
-		return *this;
-	}
-
-
-	
-	class var
+	class var //cVarRegistry
 	{
 	public:
 		template <class T>
-		static void VarSet(const std::string& name, const T& value)
+		static void VarSet(const string_t& name, const T& value)
 		{
-			cVar<std::string>* pVar = VarFind(name);
+			cVar* pVar = VarFind(name);
 			if (pVar != nullptr) {
-				*pVar = value;
+				pVar->SetValue(value);
 				return;
 			}
 
-			mVar[name] = new cVar<std::string>(value);
-		}
+			mVar[name] = new cVar(value);
+    }
 
-		static cVar<std::string>* VarFind(const std::string& name);
-		static void PrintAll();
+    static void VarSet(const string_t& name, const char_t* value)
+    {
+      cVar* pVar = VarFind(name);
+      if (pVar != nullptr) {
+        pVar->SetValue(value);
+        return;
+      }
 
-	private:
-		static std::map<std::string, cVar<std::string>*> mVar;
-	};
+      mVar[name] = new cVar(value);
+    }
+
+    static cVar* VarFind(const string_t& name);
+    static void PrintAll();
+
+  private:
+    static std::map<string_t, cVar*> mVar;
+  };
 }
 
-#endif //CVAR_H
+#endif // CVAR_H

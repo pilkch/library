@@ -49,12 +49,12 @@
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
-#include <breathe/game/cLevel.h>
-
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+
+#include <breathe/game/cLevel.h>
 
 #include <breathe/audio/audio.h>
 

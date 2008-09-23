@@ -1,5 +1,5 @@
 #if defined (_MSC_VER) && _MSC_VER <= 1200  // MSVC++ 6.0
-#  pragma warning(disable: 4786)  
+#  pragma warning(disable: 4786)
 #endif
 
 #include <cassert>
@@ -25,17 +25,16 @@
 
 namespace breathe
 {
-	std::map<std::string, cVar<std::string>*> var::mVar;
+  std::map<string_t, cVar*> var::mVar;
 
 
-	cVar<std::string>* var::VarFind(const std::string& name)
+  cVar* var::VarFind(const string_t& name)
 	{
-		std::map<std::string, cVar<std::string>*>::iterator iter=mVar.begin();
+    std::map<string_t, cVar*>::iterator iter = mVar.begin();
+    const std::map<string_t, cVar*>::iterator iterEnd = mVar.end();
 
-		while(iter!=mVar.end())
-		{
-			if (name == iter->first)
-				return iter->second;
+		while (iter != iterEnd) {
+			if (name == iter->first) return iter->second;
 
 			iter++;
 		};
@@ -45,10 +44,10 @@ namespace breathe
 
 	void var::PrintAll()
 	{
-		std::map<std::string, cVar<std::string>* >::iterator iter=mVar.begin();
+    std::map<string_t, cVar*>::iterator iter = mVar.begin();
+    const std::map<string_t, cVar*>::iterator iterEnd = mVar.end();
 
-		while(iter!=mVar.end())
-		{
+		while (iter != iterEnd) {
 			CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\""<<std::endl;
 			iter++;
 		};
@@ -77,18 +76,17 @@ namespace breathe
 		}
 
 	private:
-		void TestVariable(const std::string& variable)
+    void TestVariable(const string_t& variable)
 		{
-			breathe::cVar<std::string>* p = var::VarFind(variable);
+			breathe::cVar* p = var::VarFind(variable);
 			assert(p != NULL);
 
-			std::string s = p->GetString();
-			bool b = p->GetBool();
-			unsigned int ui = p->GetUnsignedInt();
-			int i = p->GetInt();
-			float f = p->GetFloat();
+      bool b = p->GetBool();
+      int i = p->GetInt();
+      float f = p->GetFloat();
+      string_t s = p->GetString();
 
-			CONSOLE<<variable<<"=(\""<<s<<"\","<<b<<","<<ui<<","<<i<<","<<f<<")"<<std::endl;
+			CONSOLE<<variable<<"=(\""<<s<<"\","<<b<<","<<i<<","<<f<<")"<<std::endl;
 		}
 	};
 
