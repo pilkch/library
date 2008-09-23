@@ -12,14 +12,15 @@ namespace breathe
 
 		namespace model
 		{
-			class cMesh;
+      class cMesh;
+      typedef cSmartPtr<cMesh> cMeshRef;
 		}
 
 		class cParticle
 		{
 		public:
 			cParticle();
-			
+
 			static bool DepthCompare(const cParticle& lhs, const cParticle& rhs);
 
 			math::cVec3 p;
@@ -56,7 +57,7 @@ namespace breathe
 
 			math::cVec3 position;
 			math::cVec3 gravity;
-			
+
 			std::vector<cParticle> particles;
 
 		protected:
@@ -68,7 +69,7 @@ namespace breathe
 		};
 
 		// This particle system has a constant number of particles,
-		// as soon as a particle dies it is respawned, use it in situations such as 
+		// as soon as a particle dies it is respawned, use it in situations such as
 		// waterfalls, fire, car exhausts, smoke trails etc. where you want a constant
 		// stream of particles
 		class cParticleSystemBillboard : public cParticleSystem
@@ -83,13 +84,13 @@ namespace breathe
 
 			void SetParticleWidth(float fWidth);
 			void SetParticleHeight(float fHeight);
-			void SetMaterial(material::cMaterial* pMaterial);
+			void SetMaterial(material::cMaterialRef pMaterial);
 
-		private:			
+		private:
 			float fParticleWidth;
 			float fParticleHeight;
 
-			material::cMaterial* pMaterial;
+			material::cMaterialRef pMaterial;
 		};
 
 		class cParticleSystemMesh : public cParticleSystem
@@ -101,10 +102,10 @@ namespace breathe
 			void Update(sampletime_t currentTime);
 			unsigned int Render();
 
-			void SetMesh(model::cMesh* pMesh);
+			void SetMesh(model::cMeshRef pMesh);
 
 		private:
-			model::cMesh* pMesh;
+			model::cMeshRef pMesh;
 
 			void InitParticle(size_t uiParticle);
 		};
@@ -117,7 +118,7 @@ namespace breathe
 			life(0)
 		{
 		}
-		
+
 		inline void cParticle::SetDepth(float _depth)
 		{
 			depth = _depth;
@@ -157,4 +158,4 @@ namespace breathe
 	}
 }
 
-#endif //CPARTICLESYSTEM_H
+#endif // CPARTICLESYSTEM_H

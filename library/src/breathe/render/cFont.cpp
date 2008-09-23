@@ -15,6 +15,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
+// Boost includes
+#include <boost/shared_ptr.hpp>
 
 // FreeType Headers
 #include <freetype/ft2build.h>
@@ -93,15 +97,15 @@ namespace breathe
 			//Notice that we are using two channel bitmap (one for
 			//luminocity and one for alpha), but we assign
 			//both luminocity and alpha to the value that we
-			//find in the FreeType bitmap. 
+			//find in the FreeType bitmap.
 			//We use the ?: operator so that value which we use
 			//will be 0 if we are in the padding zone, and whatever
 			//is the the Freetype bitmap otherwise.
-			for (int j=0; j <height;j++) {
-				for (int i=0; i < width; i++){
-					expanded_data[2*(i+j*width)]= expanded_data[2*(i+j*width)+1] = 
-						(i>=bitmap.width || j>=bitmap.rows) ?
-						0 : bitmap.buffer[i + bitmap.width*j];
+			for (int j = 0; j <height;j++) {
+				for (int i = 0; i < width; i++){
+					expanded_data[2 * (i + j * width)]= expanded_data[2 * (i + j * width) + 1] =
+						((i >= bitmap.width) || (j >= bitmap.rows)) ?
+						0 : bitmap.buffer[i + bitmap.width * j];
 				}
 			}
 
@@ -131,15 +135,15 @@ namespace breathe
 			glTranslatef(static_cast<float>(bitmap_glyph->left), 0, 0);
 
 			//Now we move down a little in the case that the
-			//bitmap extends past the bottom of the line 
+			//bitmap extends past the bottom of the line
 			//(this is only true for characters like 'g' or 'y'.
 			glPushMatrix();
 			  glTranslatef(0, - static_cast<float>(bitmap_glyph->top), 0);
 
 			  //Now we need to account for the fact that many of
 			  //our textures are filled with empty padding space.
-			  //We figure what portion of the texture is used by 
-			  //the actual character and store that information in 
+			  //We figure what portion of the texture is used by
+			  //the actual character and store that information in
 			  //the x and y variables, then when we draw the
 			  //quad, we will only reference the parts of the texture
 			  //that we contain the character itself.
@@ -147,7 +151,7 @@ namespace breathe
 			  float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
 
 			  //Here we draw the texturemaped quads.
-			  //The bitmap that we got from FreeType was not 
+			  //The bitmap that we got from FreeType was not
 			  //oriented quite like we would like it to be,
 			  //so we need to link the texture to the quad
 			  //so that the result will be properly aligned.
@@ -210,7 +214,7 @@ namespace breathe
 
 			//Here we ask opengl to allocate resources for
 			//all the textures and displays lists which we
-			//are about to create.  
+			//are about to create.
 			list_base = glGenLists(128);
 			glGenTextures(128, textures);
 
@@ -234,10 +238,10 @@ namespace breathe
 
 			SAFE_DELETE_ARRAY(textures);
 		}
-		
+
 		void cFont::_GetDimensions(const string_t& line, float& width, float& height) const
 		{
-			
+
 		}
 
 		///Much like Nehe's glPrint function, but modified to work
@@ -259,7 +263,7 @@ namespace breathe
 					//Notice that we need to reset the matrix, rather than just translating
 					//down by h. This is because when each character is
 					//draw it modifies the current matrix so that the next character
-					//will be drawn immediatly after it.  
+					//will be drawn immediatly after it.
 					unsigned int n = lines.size();
 					unsigned int i = 0;
 					for (;i<n;i++) {
@@ -274,13 +278,13 @@ namespace breathe
 
 			glPopAttrib();
 		}
-    
+
     void cFont::printf(float x, float y, const char* fmt, ...)
     {
 			if (fmt == nullptr) return;
 
 			assert(strlen(fmt) < 1024);
-			
+
 			char formatted[1024];								// Holds Our String
 			va_list ap;										// Pointer To List Of Arguments
 
@@ -313,7 +317,7 @@ namespace breathe
 			size_t i = 0;
 			size_t n = lines.size();
 			while (i != n) {
-				//if (lines[i].length() * 
+				//if (lines[i].length() *
 				i++;
 			}
 

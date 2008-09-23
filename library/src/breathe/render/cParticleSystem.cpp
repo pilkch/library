@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <sstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // OpenGL Headers
 #include <GL/GLee.h>
 
@@ -21,6 +24,7 @@
 // Breathe Headers
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 
 #include <breathe/math/math.h>
@@ -29,6 +33,7 @@
 #include <breathe/math/cMat4.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 
@@ -44,7 +49,7 @@ namespace breathe
 {
 	namespace render
 	{
-		cParticleSystem::cParticleSystem(size_t uiMaxSize, 
+		cParticleSystem::cParticleSystem(size_t uiMaxSize,
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
 
 			uiSize(uiMaxSize),
@@ -63,7 +68,7 @@ namespace breathe
 		{
 			particles.clear();
 		}
-		
+
 		void cParticleSystem::Init()
 		{
 			size_t n = particles.size();
@@ -77,18 +82,19 @@ namespace breathe
 			for (size_t i = 0; i < n; i++)
 				particles[i].Kill();
 		}
-		
+
 		void cParticleSystem::InitParticle(unsigned int uiParticle)
 		{
 			assert(uiParticle < particles.size());
-			
+
 			cParticle* pParticle = &particles[uiParticle];
 			pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
 			pParticle->p.Set(0.0f, 0.0f, 0.0f);
 			pParticle->vel.Set(
-				math::randomMinusOneToPlusOne() * spawnVelocity.x, 
-				math::randomMinusOneToPlusOne() * spawnVelocity.y, 
-				math::randomMinusOneToPlusOne() * spawnVelocity.z);
+				math::randomMinusOneToPlusOne() * spawnVelocity.x,
+				math::randomMinusOneToPlusOne() * spawnVelocity.y,
+				math::randomMinusOneToPlusOne() * spawnVelocity.z
+      );
 		}
 
 		void cParticleSystem::Sort()
@@ -101,15 +107,14 @@ namespace breathe
 		}
 
 
-		cParticleSystemBillboard::cParticleSystemBillboard(unsigned int uiMaxSize, 
+		cParticleSystemBillboard::cParticleSystemBillboard(unsigned int uiMaxSize,
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax,
 			float fInParticleWidth, float fInParticleHeight) :
 
 			cParticleSystem(uiMaxSize, uiInLifeSpanMin, uiInLifeSpanMax),
 
 			fParticleWidth(fInParticleWidth),
-			fParticleHeight(fInParticleHeight),
-			pMaterial(NULL)
+			fParticleHeight(fInParticleHeight)
 		{
 		}
 
@@ -167,7 +172,7 @@ namespace breathe
 
 						uiParticlesRendered++;
 					}
-				
+
 				glEnd();
 			glPopMatrix();
 
@@ -183,8 +188,8 @@ namespace breathe
 		{
 			fParticleHeight = fHeight;
 		}
-		
-		void cParticleSystemBillboard::SetMaterial(material::cMaterial* pInMaterial)
+
+		void cParticleSystemBillboard::SetMaterial(material::cMaterialRef pInMaterial)
 		{
 			assert(pInMaterial);
 			pMaterial = pInMaterial;
@@ -195,30 +200,28 @@ namespace breathe
 
 		cParticleSystemMesh::cParticleSystemMesh(unsigned int uiMaxSize,
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
-			
-			cParticleSystem(uiMaxSize, uiInLifeSpanMin, uiInLifeSpanMax),
 
-			pMesh(NULL)
+			cParticleSystem(uiMaxSize, uiInLifeSpanMin, uiInLifeSpanMax)
 		{
-			
+
 		}
-		
+
 		void cParticleSystemMesh::InitParticle(unsigned int uiParticle)
 		{
-			assert(uiParticle < particles.size());
-			
+			ASSERT(uiParticle < particles.size());
+
 			cParticle* pParticle = &particles[uiParticle];
 			pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
 			pParticle->p.Set(0.0f, 0.0f, 0.0f);
 			pParticle->vel.Set(
-				math::randomMinusOneToPlusOne() * spawnVelocity.x, 
-				math::randomMinusOneToPlusOne() * spawnVelocity.y, 
+				math::randomMinusOneToPlusOne() * spawnVelocity.x,
+				math::randomMinusOneToPlusOne() * spawnVelocity.y,
 				math::randomMinusOneToPlusOne() * spawnVelocity.z);
 		}
 
-		void cParticleSystemMesh::SetMesh(model::cMesh* pInMesh)
+		void cParticleSystemMesh::SetMesh(model::cMeshRef pInMesh)
 		{
-			assert(pInMesh);
+			ASSERT(pInMesh != nullptr);
 			pMesh = pInMesh;
 		}
 
@@ -247,7 +250,7 @@ namespace breathe
 
 		unsigned int cParticleSystemMesh::Render()
 		{
-			assert(pMesh != NULL);
+			ASSERT(pMesh != NULL);
 
 			glPushMatrix();
 				glTranslatef(position.x, position.y, position.z);
@@ -268,7 +271,7 @@ namespace breathe
 
 					uiParticlesRendered++;
 				}
-				
+
 			glPopMatrix();
 
 			return uiParticlesRendered;

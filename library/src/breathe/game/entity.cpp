@@ -1,9 +1,19 @@
 
-
 // Boost includes
 #include <boost/shared_ptr.hpp>
 
 #include <breathe/game/entity.h>
+
+void cUpdateDirtyEntitiesVisitor::VisitDirtyEntitiesInThisList(sampletime_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd)
+{
+  while (iter != iterEnd) {
+    cEntity& entity = *iter;
+    if (entity.IsDirty()) {
+      entity.Update(currentTime);
+      entity.SetNotDirty();
+    }
+  }
+}
 
 namespace game
 {
