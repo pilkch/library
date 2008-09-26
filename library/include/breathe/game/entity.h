@@ -1,65 +1,67 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-class cUpdateDirtyEntitiesVisitor;
+#include <breathe/game/scenegraph.h>
 
-class cEntityBase
+namespace breathe
 {
-public:
-  friend class cUpdateDirtyEntitiesVisitor;
+  class cUpdateDirtyEntitiesVisitor;
 
-  cEntity();
-  virtual ~cEntityBase() {}
+  class cEntityBase
+  {
+  public:
+    friend class cUpdateDirtyEntitiesVisitor;
 
-  void SetSceneNode(cSceneNodeRef _pSceneNode);
+    cEntityBase();
+    virtual ~cEntityBase() {}
 
-  bool IsDirty() const { return bIsDirty; }
-  void SetDirty() { bIsDirty = true; }
+    void SetSceneNode(scenegraph::cSceneNodeRef _pSceneNode);
 
-  void SetRotation(const math::cQuaternion& rotation);
+    bool IsDirty() const { return bIsDirty; }
+    void SetDirty() { bIsDirty = true; }
 
-protected:
-  void Update(sampletime_t currentTime) { _Update(currentTime); }
-  void SetNotDirty() { ASSERT(IsDirty()); bIsDirty = false; }
+    void SetVisible(bool bVisible) { ASSERT(pSceneNode != nullptr); pSceneNode->SetVisible(bVisible); }
+    void SetPosition(const math::cVec3& position) { ASSERT(pSceneNode != nullptr); pSceneNode->SetPosition(position); }
+    void SetRotation(const math::cQuaternion& rotation) { ASSERT(pSceneNode != nullptr); pSceneNode->SetRotation(rotation); }
 
-  cSceneNodeRef pSceneNode;
+  protected:
+    void Update(sampletime_t currentTime) { _Update(currentTime); }
+    void SetNotDirty() { ASSERT(IsDirty()); bIsDirty = false; }
 
-private:
-  virtual void _Update(sampletime_t currentTime) {}
+    scenegraph::cSceneNodeRef pSceneNode;
 
-  bool bIsDirty;
-};
+  private:
+    virtual void _Update(sampletime_t currentTime) {}
 
-inline cEntity::cEntity() :
-  bIsDirty(false)
-{
-}
+    bool bIsDirty;
+  };
 
-inline void cEntityBase::SetSceneNode(cSceneNodeRef _pSceneNode)
-{
-  ASSERT(_pSceneNode != nullptr);
-  pSceneNode = _pSceneNode;
-}
+  inline cEntityBase::cEntityBase() :
+    bIsDirty(false)
+  {
+  }
 
-inline void cEntity::SetRotation(const math::cQuaternion& rotation)
-{
-  pNode->SetRotation(rotation);
-}
+  inline void cEntityBase::SetSceneNode(scenegraph::cSceneNodeRef _pSceneNode)
+  {
+    ASSERT(_pSceneNode != nullptr);
+    pSceneNode = _pSceneNode;
+  }
 
-typedef std::list<cEntity*> cEntityList;
-// Entities are stored in a flat std::list, so just iterator through each one
+  typedef std::list<cEntityBase*> cEntityList;
+  // Entities are stored in a flat std::list, so just iterator through each one
 
-class cUpdateDirtyEntitiesVisitor
-{
-public:
-  void VisitDirtyEntitiesInThisList(sampletime_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd);
-};
-
+  class cUpdateDirtyEntitiesVisitor
+  {
+  public:
+    void VisitDirtyEntitiesInThisList(sampletime_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd);
+  };
 
 
-namespace game
-{
-  cEntityBase* GetEntityByName(const string_t& name);
+
+  namespace game
+  {
+    cEntityBase* GetEntityByName(const string_t& name);
+  }
 }
 
 #endif // ENTITY_H

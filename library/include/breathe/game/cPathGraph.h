@@ -88,4 +88,4 @@ namespace breathe
 	}
 }
 
-#endif //CPATHGRAPH_H
+#endif // CPATHGRAPH_H

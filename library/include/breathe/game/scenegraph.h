@@ -24,6 +24,16 @@
 //   std::list<cRenderableNodeRef> children
 // }
 
+#include <breathe/breathe.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cQuaternion.h>
+
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
 
 namespace breathe
 {
@@ -32,8 +42,6 @@ namespace breathe
 
   namespace render
   {
-    class cRender;
-    class cTexture;
     class cShader
     {
     public:
@@ -147,12 +155,15 @@ namespace breathe
     public:
       friend class cUpdateVisitor;
 
-      cSceneNode();
       virtual ~cSceneNode() {}
 
       bool IsDirty() const { return bIsDirty; }
 
       void SetDirty() { bIsDirty = true; if (pParent != nullptr) pParent->SetDirty(); }
+
+      void SetVisible(bool bVisible);
+      void SetPosition(const math::cVec3& position);
+      void SetRotation(const math::cQuaternion& rotation);
 
       void Update(cUpdateVisitor& visitor) { _Update(visitor); }
       void Cull(cCullVisitor& visitor) { _Cull(visitor); }
@@ -167,32 +178,45 @@ namespace breathe
       // Only the derived classes can call use this constructor
       cSceneNode();
 
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
+
       float_t UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
 
       // Only the derived class will know how to get the radius from our possible children
-      virtual float_t _UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius() { return math::cEpsilon; }
+      virtual float_t _UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius() { return math::cEPSILON; }
 
     private:
       cSceneNode(const cSceneNode&); // Prevent copying
       cSceneNode& operator=(const cSceneNode&); // Prevent copying
 
-      bool bIsEnabled;
       bool bIsDirty;
 
-      cSceneNodeRef pParent;
+      bool bIsVisible;
 
       bool bHasRelativePosition;
       math::cVec3 relativePosition;
 
+      bool bHasRelativeRotation;
+      math::cQuaternion relativeRotation;
+
       math::cSphere boundingSphere;
       math::cBox boundingBox;
+
+      cSceneNodeRef pParent;
     };
 
-    class cGroupNode
+    class cGroupNode : public cSceneNode
     {
     public:
+      cGroupNode() {}
+
       void AddChild(cSceneNodeRef pChild);
       void RemoveChild(cSceneNodeRef pChild);
+
+    protected:
+      virtual void _Update(cUpdateVisitor& visitor);
+      virtual void _Cull(cCullVisitor& visitor);
 
     private:
       std::vector<cSceneNodeRef> children;
@@ -248,6 +272,9 @@ namespace breathe
     private:
 
     };
+
+    class cRenderable;
+    typedef cSmartPtr<cRenderable> cRenderableRef;
 
     class cCullVisitor
     {

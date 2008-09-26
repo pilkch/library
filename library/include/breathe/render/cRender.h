@@ -1,6 +1,18 @@
 #ifndef CRENDER_H
 #define CRENDER_H
 
+#include <breathe/math/math.h>
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cVec4.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/cColour.h>
+
+#include <breathe/render/cTexture.h>
+#include <breathe/render/model/cMesh.h>
+#include <breathe/render/model/cStatic.h>
+
 // FBO mipmaps
 //#define RENDER_GENERATEFBOMIPMAPS
 
@@ -8,32 +20,36 @@ namespace breathe
 {
   namespace render
   {
-    const unsigned int MAX_TEXTURE_SIZE=1024;
+    const unsigned int MAX_TEXTURE_SIZE = 1024;
 
-    const unsigned int FBO_TEXTURE_WIDTH=1024;
-    const unsigned int FBO_TEXTURE_HEIGHT=1024;
+    const unsigned int FBO_TEXTURE_WIDTH = 1024;
+    const unsigned int FBO_TEXTURE_HEIGHT = 1024;
 
     class cVertexBufferObject;
-    class cMaterial;
+    typedef cSmartPtr<cVertexBufferObject> cVertexBufferObjectRef;
 
     namespace model
     {
-      class cMesh;
-      class cStatic;
       class cAnimation;
+    }
+
+    namespace material
+    {
+      class cMaterial;
+      typedef cSmartPtr<cMaterial> cMaterialRef;
     }
 
     class cBatchModelContainer
     {
     public:
-      cBatchModelContainer() : fDistanceFromCamera(0.0f), pModel(nullptr) {}
-      cBatchModelContainer(model::cStatic* pModel, float fDistanceFromCamera);
+      cBatchModelContainer() : fDistanceFromCamera(0.0f) {}
+      cBatchModelContainer(model::cStaticRef pModel, float fDistanceFromCamera);
 
       static bool SortBackToFront(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs);
       static bool SortFrontToBack(const cBatchModelContainer* lhs, const cBatchModelContainer* rhs);
 
       float fDistanceFromCamera;
-      model::cStatic* pModel;
+      model::cStaticRef pModel;
     };
 
     class cBatchList
@@ -42,7 +58,7 @@ namespace breathe
       typedef std::list<cBatchModelContainer*>::iterator iterator;
       typedef std::list<cBatchModelContainer*>::const_iterator const_iterator;
 
-      void AddModel(model::cStatic* pModel, float fDistanceFromCamera);
+      void AddModel(model::cStaticRef pModel, float fDistanceFromCamera);
       void FinishAddingSortFrontToBack();
       void FinishAddingSortBackToFront();
 
@@ -55,15 +71,15 @@ namespace breathe
     class cBatchController
     {
     public:
-      typedef std::map<cMaterial*, cBatchList*>::iterator iterator;
-      typedef std::map<cMaterial*, cBatchList*>::const_iterator const_iterator;
+      typedef std::map<material::cMaterialRef, cBatchList*>::iterator iterator;
+      typedef std::map<material::cMaterialRef, cBatchList*>::const_iterator const_iterator;
 
-      void AddModel(model::cStatic* pModel, float fDistanceFromCamera);
+      void AddModel(model::cStaticRef pModel, float fDistanceFromCamera);
       void FinishAdding();
 
     private:
-      std::map<cMaterial*, cBatchList*> opaque;
-      std::map<cMaterial*, cBatchList*> transparent;
+      std::map<material::cMaterialRef, cBatchList*> opaque;
+      std::map<material::cMaterialRef, cBatchList*> transparent;
 
       friend class cRender;
     };
@@ -100,7 +116,7 @@ namespace breathe
 			void _BeginRenderToScreen();
 			void _EndRenderToScreen();
 
-			void _RenderPostRenderPass(material::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO);
+      void _RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pFBO);
 
 		public:
 			void Begin();
@@ -109,8 +125,8 @@ namespace breathe
 			void BeginRenderToScreen();
 			void EndRenderToScreen();
 
-			void BeginRenderToTexture(cTextureFrameBufferObject* pTexture);
-			void EndRenderToTexture(cTextureFrameBufferObject* pTexture);
+      void BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture);
+      void EndRenderToTexture(cTextureFrameBufferObjectRef pTexture);
 
 			void BeginRenderScene();
 			void EndRenderScene();
@@ -125,10 +141,10 @@ namespace breathe
 			void BeginScreenSpaceWorldRendering(float fScale);
 			void EndScreenSpaceWorldRendering();
 
-			void RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour);
+      void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
 			void RenderAxisReference(float x, float y, float z);
-			void RenderAxisReference(math::cVec3& position);
-			void RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax);
+			void RenderAxisReference(const math::cVec3& position);
+      void RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax);
 
 			void RenderScreenSpacePolygon(float fX, float fY,
         float fVertX0, float fVertY0, float fVertX1, float fVertY1,
@@ -146,9 +162,9 @@ namespace breathe
 
 			void RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation);
 
-			void RenderMesh(model::cMesh* pMesh);
-			unsigned int RenderStaticModel(model::cStatic* p);
-			unsigned int RenderStaticModel(model::cStatic* p, math::cColour& colour);
+      void RenderMesh(model::cMeshRef pMesh);
+      unsigned int RenderStaticModel(model::cStaticRef p);
+      unsigned int RenderStaticModel(model::cStaticRef p, const math::cColour& colour);
 
 			void PushScreenSpacePosition(float x, float y);
 			void PopScreenSpacePosition();
@@ -165,27 +181,27 @@ namespace breathe
 
 			void TransformModels();
 
-			model::cStatic* AddModel(const string_t& sNewFilename);
-			model::cStatic* GetModel(const string_t& sNewFilename);
-			model::cStatic* CreateNewModel(const string_t& sName);
+      model::cStaticRef AddModel(const string_t& sNewFilename);
+      model::cStaticRef GetModel(const string_t& sNewFilename);
+      model::cStaticRef CreateNewModel(const string_t& sName);
 
-			cVertexBufferObject* AddVertexBufferObject();
+      cVertexBufferObjectRef AddVertexBufferObject();
 
 			bool AddTextureNotFoundTexture(const std::string& sNewFilename);
 			bool AddMaterialNotFoundTexture(const std::string& sNewFilename);
 
-			cTexture* AddCubeMap(const string_t& sFilename);
-			cTexture* AddTexture(const std::string& sNewFilename);
-			cTexture* AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
+      cTextureRef AddCubeMap(const string_t& sFilename);
+      cTextureRef AddTexture(const std::string& sNewFilename);
+      cTextureRef AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
 
-			cTexture* GetTextureAtlas(ATLAS atlas);
-			cTexture* GetTexture(const std::string& sFilename);
-			cTexture* GetCubeMap(const string_t& sFilename);
+      cTextureRef GetTextureAtlas(ATLAS atlas);
+      cTextureRef GetTexture(const std::string& sFilename);
+      cTextureRef GetCubeMap(const string_t& sFilename);
 
-			material::cMaterial* GetCurrentMaterial() const;
-			cTexture* GetCurrentTexture0() const;
-			cTexture* GetCurrentTexture1() const;
-			cTexture* GetCurrentTexture2() const;
+      material::cMaterialRef GetCurrentMaterial() const;
+      cTextureRef GetCurrentTexture0() const;
+      cTextureRef GetCurrentTexture1() const;
+      cTextureRef GetCurrentTexture2() const;
 
 			void SelectTextureUnit0();
 			void SelectTextureUnit1();
@@ -193,45 +209,45 @@ namespace breathe
 
 			bool SetTexture0(const std::string& sTexture) { return SetTexture0(GetTexture(sTexture)); }
 			bool SetTexture0(ATLAS atlas);
-			bool SetTexture0(cTexture* pTexture);
+      bool SetTexture0(cTextureRef pTexture);
 			bool SetTexture1(const std::string& sTexture) { return SetTexture1(GetTexture(sTexture)); }
 			bool SetTexture1(ATLAS atlas);
-			bool SetTexture1(cTexture* pTexture);
+      bool SetTexture1(cTextureRef pTexture);
 
-			material::cMaterial* AddMaterial(const std::string& sFilename);
-			material::cMaterial* AddMaterialNotFoundMaterial(const std::string& sFilename);
+      material::cMaterialRef AddMaterial(const std::string& sFilename);
+      material::cMaterialRef AddMaterialNotFoundMaterial(const std::string& sFilename);
 			bool ClearMaterial();
 			bool SetMaterial(const std::string& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
-			bool SetMaterial(material::cMaterial* pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
-			bool SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos);
+      bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
+      bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
 
-			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value);
-			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value);
-			bool SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value);
+      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, int value);
+      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, float value);
+      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, const math::cVec3& value);
 
 			void ClearColour();
 			void SetColour(float r, float g, float b);
 			void SetColour(const math::cColour& inColour);
 
-			material::cMaterial* GetMaterial(const std::string& sFilename);
+      material::cMaterialRef GetMaterial(const std::string& sFilename);
 
 
 			void ReloadTextures();
 
-			material::cMaterial* AddPostRenderEffect(const std::string& sFilename);
+      material::cMaterialRef AddPostRenderEffect(const std::string& sFilename);
 			void RemovePostRenderEffect();
 
 		private:
-			std::list<material::cMaterial*> lPostRenderEffects;
-			cTextureFrameBufferObject* pFrameBuffer0;
-			cTextureFrameBufferObject* pFrameBuffer1;
+      std::list<material::cMaterialRef> lPostRenderEffects;
+      cTextureFrameBufferObjectRef pFrameBuffer0;
+      cTextureFrameBufferObjectRef pFrameBuffer1;
 
 
 
 
 		public:
-			std::map<std::string, cTexture*> mTexture; //Map that contains filename, texture pairs
-			std::map<string_t, cTexture*> mCubeMap; //Map that contains filename, cubemap texture pairs
+      std::map<std::string, cTextureRef> mTexture; //Map that contains filename, texture pairs
+      std::map<string_t, cTextureRef> mCubeMap; //Map that contains filename, cubemap texture pairs
 
 
 			bool bRenderWireframe;
@@ -258,19 +274,19 @@ namespace breathe
 
 			unsigned int uiActiveUnits;
 
-			math::cVec4 v4SunPosition;
+			math::cVec4 sunPosition;
 
 
-			cTexture* pTextureNotFoundTexture;
-			cTexture* pMaterialNotFoundTexture;
+      cTextureRef pTextureNotFoundTexture;
+      cTextureRef pMaterialNotFoundTexture;
 
-			material::cMaterial* pMaterialNotFoundMaterial;
+      material::cMaterialRef pMaterialNotFoundMaterial;
 
 
-			std::vector<render::cTextureAtlas*> vTextureAtlas; //Vector that contains texture atlases
-			std::map<std::string, material::cMaterial*> mMaterial;
+      std::vector<render::cTextureAtlasRef> vTextureAtlas; //Vector that contains texture atlases
+      std::map<std::string, material::cMaterialRef> mMaterial;
 
-			std::vector<cVertexBufferObject*>vVertexBufferObject;
+      std::vector<cVertexBufferObjectRef>vVertexBufferObject;
 
 
 			cLevel* pLevel;
@@ -288,15 +304,15 @@ namespace breathe
 			math::cColour colour;
 			std::vector<material::cLayer>vLayer;
 
-			material::cMaterial* pCurrentMaterial;
+      material::cMaterialRef pCurrentMaterial;
 
 			// Information about the current video settings
 			SDL_VideoInfo* g_info;
 			const SDL_VideoInfo* videoInfo;
 			SDL_Surface* pSurface;
 
-			//std::map<std::string, model::cAnimation*> mAnimation;
-			std::map<string_t, model::cStatic*> mStatic;
+			//std::map<std::string, model::cAnimationRef> mAnimation;
+      std::map<string_t, model::cStaticRef> mStatic;
 
 		public:
 			void QueueAddOpaqueObject();
@@ -370,31 +386,31 @@ namespace breathe
 		class ApplyTexture
 		{
 		public:
-			explicit ApplyTexture(cTexture* pCurrent);
+      explicit ApplyTexture(cTextureRef pCurrent);
 			~ApplyTexture();
 
 		private:
 			ApplyTexture();
 			NO_COPY(ApplyTexture);
 
-			cTexture* pLast;
+      cTextureRef pLast;
 		};
 
 		class ApplyMaterial
 		{
 		public:
-			explicit ApplyMaterial(material::cMaterial* pCurrent);
+      explicit ApplyMaterial(material::cMaterialRef pCurrent);
 			~ApplyMaterial();
 
 		private:
 			ApplyMaterial();
 			NO_COPY(ApplyMaterial);
 
-			material::cMaterial* pLast;
+      material::cMaterialRef pLast;
 		};
 	}
 }
 
 extern breathe::render::cRender* pRender;
 
-#endif //CRENDER_H
+#endif // CRENDER_H

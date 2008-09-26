@@ -1,6 +1,12 @@
 #ifndef CBASE_H
 #define CBASE_H
 
+#include <breathe/math/cVec2.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cQuaternion.h>
+#include <breathe/math/geometry.h>
+
 // Base Objects to derive game types from
 
 namespace breathe

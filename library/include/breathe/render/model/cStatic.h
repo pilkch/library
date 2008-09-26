@@ -1,6 +1,10 @@
 #ifndef CMODEL_STATIC_H
 #define CMODEL_STATIC_H
 
+#include <breathe/math/cOctree.h>
+
+#include <breathe/render/model/cModel.h>
+
 //TODO: USE OCTREE, NO MATTER WHAT, EVEN IF THERE ARE 2 TRIANGLES AND THEY BOTH GO IN THE ROOT NODE
 
 namespace breathe
@@ -15,15 +19,18 @@ namespace breathe
 	namespace render
 	{
 		namespace model
-		{
+    {
+      class cStatic;
+      typedef cSmartPtr<cStatic> cStaticRef;
+
 			class cStatic : public cModel, protected math::cOctree
 			{
 			private:
 				int Load3DS(const std::string& sFilename);
 
-				void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);	
+				void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);
 				void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
-				
+
 				void ParseMesh(const std::string &name, loader_3ds::Model3DSChunk c, std::string sFilename);
 				void ParseMaterial(loader_3ds::Model3DSChunk c);
 
@@ -41,12 +48,12 @@ namespace breathe
 
 				float fScale;
 
-				cMesh *pCurrentMesh;
+				cMeshRef pCurrentMesh;
 
 				bool bFoundMeshes, bFoundVertices, bFoundTextureCoords, bFoundMaterials;
 
 			public:
-				std::vector<cMesh*>vMesh; //A vector of all the meshes in this model
+				std::vector<cMeshRef>vMesh; //A vector of all the meshes in this model
 
 				cStatic();
 				~cStatic();
@@ -54,16 +61,18 @@ namespace breathe
 				int Load(const std::string& sFilename);
 				void Update(sampletime_t currentTime);
 				unsigned int Render();
-				
-				unsigned int Render(cOctree *pNode);
 
-				//void Split(unsigned int uiMesh, cModel_Static **pDest, unsigned int uiDest); //Which mesh to subtract, destination model
-				void CloneTo(cStatic* rhs);
+				unsigned int Render(cOctree* pNode);
 
-				cMesh* GetMesh(unsigned int index);
-			};
+				//void Split(unsigned int uiMesh, cModel_Static** pDest, unsigned int uiDest); //Which mesh to subtract, destination model
+				void CloneTo(cStaticRef rhs);
+
+				cMeshRef GetMesh(unsigned int index);
+      };
+
+      typedef cSmartPtr<cStatic> cStaticRef;
 		}
 	}
 }
 
-#endif //CMODEL_STATIC_H
+#endif // CMODEL_STATIC_H

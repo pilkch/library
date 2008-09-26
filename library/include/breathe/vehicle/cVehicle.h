@@ -1,118 +1,157 @@
 #ifndef CVEHICLE_H
 #define CVEHICLE_H
 
-/*
-http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
-*/
+// http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
 namespace breathe
 {
-	class c3ds;
+  class c3ds;
 
-	namespace vehicle
-	{
-		class cWheel;
-		class cSeat;
+  namespace vehicle
+  {
+    class cWheel;
+    class cSeat;
 
-		//Properties, change based on parts installed
-		class cVehicleProperties
-		{
-		public:
-			float fDrag;
-			float fRollResistance;
-			float fDownforce;
+    //Properties, change based on parts installed
+    class cVehicleProperties
+    {
+    public:
+      float fDrag;
+      float fRollResistance;
+      float fDownforce;
 
-			float fWeight;
-			float fBoost;
-			float fEngineSpeed;
-			float fTraction0;
-			float fTraction1;
-			float fTraction2;
-			float fTraction3;
-			
-			std::vector<float>vGearRatio; // 0=Reverse, 1=Neutral, 2=1st, 3=2nd, ...
-			int iGears; // Number of drive ratios
-			int iGearCurrent; // -1 = reverse, 0 = Neutral
-			
+      float fWeight;
+      float fBoost;
+      float fEngineSpeed;
+      float fTraction0;
+      float fTraction1;
+      float fTraction2;
+      float fTraction3;
 
-			float GetCurrentGearRatio() const
-			{
-				if((iGearCurrent >= -1) && (iGearCurrent < iGears + 2))
-					return vGearRatio[1 + iGearCurrent];
-				else
-					return 1.0f;
-			}
+      std::vector<float>vGearRatio; // 0=Reverse, 1=Neutral, 2=1st, 3=2nd, ...
+      int iGears; // Number of drive ratios
+      int iGearCurrent; // -1 = reverse, 0 = Neutral
 
-			void ShiftUp()
-			{
-				iGearCurrent++;
-				if(iGearCurrent > iGears) iGearCurrent = iGears;
-			}
 
-			void ShiftDown()
-			{
-				iGearCurrent--;
-				if(iGearCurrent < -1) iGearCurrent = -1;
-			}
-		};
+      float GetCurrentGearRatio() const
+      {
+        if((iGearCurrent >= -1) && (iGearCurrent < iGears + 2))
+          return vGearRatio[1 + iGearCurrent];
+        else
+          return 1.0f;
+      }
 
-		class cVehicle
+      void ShiftUp()
+      {
+        iGearCurrent++;
+        if(iGearCurrent > iGears) iGearCurrent = iGears;
+      }
+
+      void ShiftDown()
+      {
+        iGearCurrent--;
+        if(iGearCurrent < -1) iGearCurrent = -1;
+      }
+    };
+
+    class cVehicle
 #ifdef BUILD_PHYSICS_3D
-			: virtual public physics::cPhysicsObject
+      : virtual public physics::cPhysicsObject
 #endif
-		{
-		public:
-			bool bEngineOff;
-			bool bFourWheelDrive;
+    {
+    public:
+      typedef uint32_t id_t;
 
-			//0.0f..1.0f control inputs
-			float fControl_Accelerate;
-			float fControl_Brake;
-			float fControl_Steer; //- = left, + = right
-			float fControl_Handbrake;
-			float fControl_Clutch;
+      cVehicle();
+      ~cVehicle();
 
-			//Actual speed
-			float fSpeed;
-			float fSteer;
-			float fBrake;
-			float fVel;
+      void Init(cLevelSpawn p, unsigned int uiSeats);
+      void Update(uint32_t currentTime);
+      void UpdateInput();
 
-			cVehicleProperties properties;
+      void PhysicsInit(cLevelSpawn p);
+      void PhysicsDestroy();
 
-			float fPetrolTankSize; //Total size
-			std::vector<float>vPetrolTank;
+      void Spawn(cLevelSpawn p); //This is for spawning a car when it first comes into the level
 
-			std::vector<cPart*>vPart;
+      void FillUp(cPetrolBowser* pBowser);
 
-			std::vector<cWheel *>vWheel;
+      void AssignPlayer(cPlayer* p);
 
-			cWheel *lfWheel_;
-			cWheel *rfWheel_;
-			cWheel *lrWheel_;
-			cWheel *rrWheel_;
 
-			c3ds *pBody, *pMirror, *pMetal, *pGlass, *pWheel;
+      bool bEngineOff;
+      bool bFourWheelDrive;
 
-			std::vector<cSeat*> vSeat;
+      //0.0f..1.0f control inputs
+      float fControl_Accelerate;
+      float fControl_Brake;
+      float fControl_Steer; //- = left, + = right
+      float fControl_Handbrake;
+      float fControl_Clutch;
 
-			cVehicle();
-			~cVehicle();
+      //Actual speed
+      float fSpeed;
+      float fSteer;
+      float fBrake;
+      float fVel;
 
-			void Init(cLevelSpawn p, unsigned int uiSeats);
-			void Update(uint32_t currentTime);
-			void UpdateInput();
+      cVehicleProperties properties;
 
-			void PhysicsInit(cLevelSpawn p);
-			void PhysicsDestroy();
+      float fPetrolTankSize; //Total size
+      std::vector<float>vPetrolTank;
 
-			void Spawn(cLevelSpawn p); //This is for spawning a car when it first comes into the level
+      std::vector<cPart*>vPart;
 
-			void FillUp(cPetrolBowser *pBowser);
+      std::vector<cWheel*>vWheel;
 
-			void AssignPlayer(cPlayer *p);
-		};
-	}
+      cWheel* lfWheel_;
+      cWheel* rfWheel_;
+      cWheel* lrWheel_;
+      cWheel* rrWheel_;
+
+      c3ds* pBody;
+      c3ds* pMirror;
+      c3ds* *pMetal;
+      c3ds* *pGlass;
+      c3ds* *pWheel;
+
+      std::vector<cSeat*> vSeat;
+    };
+
+    /*// partsUnsorted is the collection of all parts
+    // partsSortedEngineToWheels is the collection of parts that go from the engine to the wheels
+    // Do not save or load anything from or to partsSortedEngineToWheels as it is not a complete list of the parts
+    class cVehicle
+    {
+    public:
+      void AddPart(cVehiclePart* part);
+      void RemovePart(cVehiclePart* part);
+
+      const std::list<cVehiclePart*>& GetPartList() const { return partsUnsorted; }
+
+    private:
+      void Sort();
+
+      std::list<cVehiclePart*> partsUnsorted;
+
+      // For internal use only
+      std::list<cVehiclePart*> partsSortedEngineToWheels;
+    };
+
+    inline void cVehicle::AddPart(cVehiclePart* part)
+    {
+      partsUnsorted.push_back(part);
+      if (part->IsEngineToWheels()) partsSortedEngineToWheels.push_back(part);
+
+      Sort();
+    }
+
+    inline void cVehicle::RemovePart(cVehiclePart* part)
+    {
+      partsUnsorted.remove(part);
+      partsSortedEngineToWheels.remove(part);
+    }*/
+  }
 }
 
-#endif //CVEHICLE_H
+#endif // CVEHICLE_H

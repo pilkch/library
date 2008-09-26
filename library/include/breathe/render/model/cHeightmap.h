@@ -14,12 +14,12 @@ namespace breathe
 				~cHeightmap();
 
 				int Load(const std::string& sFilename);
-				
+
 				float Height(int x, int y);
 				float Height(float x, float y);
-				
-				float Hermite4( float fFrac, const float * ptr );
-				
+
+				float Hermite4( float fFrac, const float* ptr );
+
 				math::cVec3 Normal(int x, int y);
 				math::cVec3 Normal(float x, float y);
 
@@ -42,15 +42,15 @@ namespace breathe
 				float fHeightOfTile;
 				float fScale;
 
-				cVertexBufferObject* pVBO;
+				cVertexBufferObjectRef pVBO;
 
-				//static breathe::math::cFrustum *pFrustum;
+				//static breathe::math::cFrustum* pFrustum;
 
 				std::string sMaterial;
-				material::cMaterial* pMaterial;
+				material::cMaterialRef pMaterial;
 			};
 
-			
+
 			inline float cHeightmap::Height(int x, int y)
 			{
 				x += uiWidth>>1;
@@ -73,7 +73,7 @@ namespace breathe
 			{
 				assert( x < 0.0f && y < 0.0f );
 				assert( x > fWidth && y > fLength );
-				
+
 				unsigned int xp = static_cast<unsigned int>(x);
 				unsigned int yp = static_cast<unsigned int>(y);
 
@@ -104,7 +104,7 @@ namespace breathe
 
 				unsigned int xi = static_cast<unsigned int>(x);
 				unsigned int yi = static_cast<unsigned int>(y);
-				
+
 				//   0---1
 				//   |   |
 				//   3---2
@@ -132,7 +132,7 @@ namespace breathe
 
 				unsigned int xi = static_cast<unsigned int>(x);
 				unsigned int yi = static_cast<unsigned int>(y);
-				
+
 				//   0---1
 				//   |   |
 				//   3---2
@@ -152,4 +152,4 @@ namespace breathe
 	}
 }
 
-#endif //CMODELHEIGHTMAP_H
+#endif // CMODELHEIGHTMAP_H

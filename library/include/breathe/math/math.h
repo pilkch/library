@@ -257,7 +257,7 @@ namespace breathe
     template <class T>
     inline float GetDistance(const T& from, const T& to)
     {
-      return math::sqrt((from.GetSquaredLength() + to.GetSquaredLength()).GetLength());
+      return math::sqrtf((from.GetSquaredLength() + to.GetSquaredLength()).GetLength());
     }
 	}
 }

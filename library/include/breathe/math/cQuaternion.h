@@ -1,11 +1,11 @@
-// a quaternion stores a rotation of t (ccw) about (a, b, c) (normalised) as:
-//x = sin(t/2) * a
-//y = sin(t/2) * b
-//z = sin(t/2) * c
-//w = cos(t/2)
-
 #ifndef CQUATERNION_H
 #define CQUATERNION_H
+
+// A quaternion stores a rotation of t (ccw) about (a, b, c) (normalised) as:
+// x = sin(t/2) * a
+// y = sin(t/2) * b
+// z = sin(t/2) * c
+// w = cos(t/2)
 
 namespace breathe
 {
@@ -38,7 +38,7 @@ namespace breathe
 			operator const float* () const {return (const float*) this;}
 
 			cQuaternion operator*(cQuaternion& q);
-					
+
 			//Invert the quaternion
 			void Invert();
 
@@ -47,7 +47,7 @@ namespace breathe
 
 			//set from angles of rotation about x, y, z axes
 			void SetFromAngles(const cVec3 & v);
-			
+
 			//set from axis-angle combination
 			void SetFromAxisAngle(const cVec3 & axis, float angle);
 
@@ -64,7 +64,7 @@ namespace breathe
 
 			cMat4 GetMatrix() const;
 
-			
+
 			//default constructor
 			cQuaternion()
 			{
@@ -97,4 +97,4 @@ namespace breathe
   }
 }
 
-#endif	//CQUATERNION_H
+#endif // CQUATERNION_H

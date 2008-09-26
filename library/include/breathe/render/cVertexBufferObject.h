@@ -44,11 +44,13 @@ namespace breathe
 			unsigned int uiOffsetTextureUnit1;
 			unsigned int uiOffsetTextureUnit2;
 
-			// Note: one buffer per cVertexBufferObject, 
+			// Note: one buffer per cVertexBufferObject,
 			// but with multiple offsets for each cVertexBufferObjectArray
 			GLuint bufferID;
 		};
+
+    typedef cSmartPtr<cVertexBufferObject> cVertexBufferObjectRef;
 	}
 }
 
-#endif //CVERTEXBUFFEROBJECT_H
+#endif // CVERTEXBUFFEROBJECT_H

@@ -1,6 +1,8 @@
 #ifndef COCTREE_H
 #define COCTREE_H
 
+#include <breathe/math/cFrustum.h>
+
 namespace breathe
 {
 	namespace math
@@ -61,7 +63,7 @@ namespace breathe
 
 			// This goes through each of the nodes and then draws the end nodes vertices.
 			// This function should be called by starting with the root node.
-			virtual size_t Render(cOctree *pNode) { return 0; }
+			virtual size_t Render(cOctree* pNode) { return 0; }
 
 			// This initializes the data members
 			void create(cFrustum* newcFrustum);
@@ -90,4 +92,4 @@ namespace breathe
 	}
 }
 
-#endif //COCTREE_H
+#endif // COCTREE_H

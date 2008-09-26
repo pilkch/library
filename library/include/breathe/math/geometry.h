@@ -56,8 +56,7 @@ namespace breathe
 
     inline float cSphere::GetDistanceCentreToCentre(const cSphere& rhs) const
     {
-      const cVec3 result(p.x - rhs.p.x, p.y - rhs.p.y, p.z - rhs.p.z);
-      return result.GetLength();
+      return (position - rhs.position).GetLength();
     }
 
 
@@ -71,9 +70,9 @@ namespace breathe
 
       void SetHalfWidth(float fHalfWidth);
 
-      bool Collide(const cBox& rhs);
-      float GetDistance(const cBox& rhs) const;
-      float GetDistanceCentreToCentre(const cBox& rhs) const;
+      bool Collide(const cCube& rhs);
+      float GetDistance(const cCube& rhs) const;
+      float GetDistanceCentreToCentre(const cCube& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
 
 
