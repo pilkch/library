@@ -3,25 +3,25 @@
 
 namespace breathe
 {
-	class c3ds;
+  class c3ds;
 
-	namespace vehicle
-	{
-		class cVehicle;
+  namespace vehicle
+  {
+    class cVehicle;
 
-		class cSeat
-		{
-		public:
-			cPlayer *pPlayer;
-			cVehicle *pVehicle;
+    class cSeat
+    {
+    public:
+      explicit cSeat(cVehicle* v);
+      ~cSeat() { EjectPlayer(); }
 
-			cSeat(cVehicle *v);
-			~cSeat();
+      void AssignPlayer(cPlayer* p);
+      void EjectPlayer();
 
-			void AssignPlayer(cPlayer *p);
-			void EjectPlayer();
-		};
-	}
+      cPlayer* pPlayer;
+      cVehicle* pVehicle;
+    };
+  }
 }
 
-#endif //CVEHICLESEAT_H
+#endif // CVEHICLESEAT_H
