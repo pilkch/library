@@ -14,6 +14,9 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <GL/GLee.h>
 #include <GL/glu.h>
@@ -36,6 +39,7 @@
 #include <breathe/math/cQuaternion.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -58,7 +62,7 @@ namespace breathe
 			fV(0.0f),
 
 			surface(nullptr)
-     {
+    {
 		}
 
 		cTexture::~cTexture()
@@ -67,7 +71,7 @@ namespace breathe
       data.clear();
 		}
 
-		bool cTexture::Load(const std::string& inFilename)
+    bool cTexture::Load(const string_t& inFilename)
 		{
 			sFilename = inFilename;
 
@@ -75,8 +79,7 @@ namespace breathe
 			surface = IMG_Load(sFilename.c_str());
 
 			// could not load filename
-			if (!surface)
-			{
+			if (surface == nullptr) {
 				LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
 				return breathe::BAD;
 			}
@@ -84,18 +87,13 @@ namespace breathe
 
 
 			//Check the format
-			if (8 == surface->format->BitsPerPixel)
-			{
+			if (8 == surface->format->BitsPerPixel) {
 				LOG.Success("Texture", "Greyscale Heightmap Image " + sFilename);
 				uiMode = TEXTURE_HEIGHTMAP;
-			}
-			else if (16 == surface->format->BitsPerPixel)
-			{
+			} else if (16 == surface->format->BitsPerPixel) {
 				LOG.Success("Texture", "Greyscale Heightmap Image " + sFilename);
 				uiMode = TEXTURE_HEIGHTMAP;
-			}
-			else if (24 == surface->format->BitsPerPixel)
-			{
+			} else if (24 == surface->format->BitsPerPixel) {
 				CONSOLE.Error("Texture", sFilename + " is a 24 bit RGB image");
 				// Add alpha channel
 				SDL_PixelFormat format = {
@@ -107,15 +105,12 @@ namespace breathe
 				SDL_Surface *pConvertedSurface = SDL_ConvertSurface(surface, &format, SDL_SWSURFACE);
 				SDL_FreeSurface(surface);
 				surface = pConvertedSurface;
-			}
-			else if (32 == surface->format->BitsPerPixel)
-			{
+			} else if (32 == surface->format->BitsPerPixel) {
         LOG.Success("Texture", sFilename + " is a 32 bit RGBA image");
 				uiMode = TEXTURE_RGBA;
 
 				// Convert if BGR
-				if (surface->format->Rshift > surface->format->Bshift)
-				{
+				if (surface->format->Rshift > surface->format->Bshift) {
 					SDL_PixelFormat format = {
 						NULL, 32, 4, 0, 0, 0, 0,
 						0, 8, 16, 24,
@@ -144,9 +139,7 @@ namespace breathe
 				};
 
 				SAFE_DELETE_ARRAY(pBuf);*/
-			}
-			else
-			{
+			} else {
 				std::ostringstream t;
 				t << surface->format->BitsPerPixel;
 				LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + sFilename);
@@ -181,6 +174,8 @@ namespace breathe
 
 		void cTexture::CopyFromSurfaceToData()
 		{
+      ASSERT(surface != nullptr);
+
 			// Fill out the pData structure array, we use this for when we have to reload this data
 			// on a task switch or fullscreen mode change
       if (data.empty()) data.resize(uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4), 0);
@@ -189,19 +184,21 @@ namespace breathe
 		}
 
 		void cTexture::CopyFromDataToSurface()
-		{
+    {
+      ASSERT(surface != nullptr);
+
 			if (data.empty()) return;
 
       std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
 		}
 
-		bool cTexture::SaveToBMP(const std::string& inFilename)
+    bool cTexture::SaveToBMP(const string_t& inFilename)
 		{
 			SDL_SaveBMP(surface, inFilename.c_str());
 			return breathe::GOOD;
 		}
 
-		void cTexture::Create()
+		void cTexture::_Create()
 		{
 			// Create new texture
 			glGenTextures(1, &uiTexture);
@@ -221,8 +218,7 @@ namespace breathe
 			// Bind so that the next operations happen on this texture
 			glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-			if (surface)
-			{
+			if (surface != nullptr) {
 				// Copy from surface to texture
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
 
@@ -270,7 +266,7 @@ namespace breathe
 			glDeleteTextures(1, &uiTexture);
 		}
 
-		void cTextureFrameBufferObject::Create()
+		void cTextureFrameBufferObject::_Create()
 		{
 			// Create FBO
 			glGenFramebuffersEXT(1, &uiFBO);
@@ -296,7 +292,7 @@ namespace breathe
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glGenerateMipmapEXT(GL_TEXTURE_2D);
-#endif //RENDER_GENERATEFBOMIPMAPS
+#endif // RENDER_GENERATEFBOMIPMAPS
 
 			// And attach it to the FBO so we can render to it
 			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
@@ -306,10 +302,9 @@ namespace breathe
 
 
 			GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-			if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-				LOG.Error("Texture", "Frame buffer status failed");
+			if (status != GL_FRAMEBUFFER_COMPLETE_EXT) LOG.Error("Texture", "Frame buffer status failed");
 
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);	// Unbind the FBO for now
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // Unbind the FBO for now
 		}
 	}
 }

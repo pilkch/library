@@ -84,9 +84,30 @@ namespace breathe
   namespace scenegraph
   {
     cSceneNode::cSceneNode() :
-      bIsEnabled(true),
-      bIsDirty(true)
+      bIsVisible(true),
+      bIsDirty(true),
+      bHasRelativePosition(false),
+      bHasRelativeRotation(false)
     {
+    }
+
+    void cSceneNode::SetVisible(bool bVisible)
+    {
+      bIsVisible = bVisible;
+    }
+
+    void cSceneNode::SetPosition(const math::cVec3& position)
+    {
+      bHasRelativePosition = true;
+      relativePosition = position;
+      SetDirty();
+    }
+
+    void cSceneNode::SetRotation(const math::cQuaternion& rotation)
+    {
+      bHasRelativeRotation = true;
+      relativeRotation = rotation;
+      SetDirty();
     }
 
     void cSceneNode::UpdateBoundingVolumeAndSetNotDirty()
@@ -97,23 +118,23 @@ namespace breathe
       // No point if we are not dirty
       if (!bIsDirty) return;
 
-      boundingSphere.position = math::zero;
+      boundingSphere.position = math::v3Zero;
       if (bHasRelativePosition) boundingSphere.position += relativePosition;
 
       // Set our boundingSphere volume from our possible children as only a derived class will know how
       boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
 
       // We have now updated our boundingSphere and we are not dirty any more
-      bDirty = false;
+      bIsDirty = false;
     }
 
-    void cSceneNode::UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius()
+    float_t cSceneNode::UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius()
     {
       // We should not be calling this function on pRoot or on a child that does not have a parent set
       ASSERT(pParent != nullptr);
 
       // No point if we are not dirty
-      if (!bIsDirty) return;
+      if (!bIsDirty) return boundingSphere.fRadius;
 
       // If we are dirty our parents must also be dirty at this point
       ASSERT(pParent->IsDirty());
@@ -126,7 +147,9 @@ namespace breathe
       boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
 
       // We have now updated our boundingSphere and we are not dirty any more
-      bDirty = false;
+      bIsDirty = false;
+
+      return boundingSphere.fRadius;
     }
 
     void cSceneNode::_Update(cUpdateVisitor& visitor)
@@ -144,18 +167,37 @@ namespace breathe
     }
 
 
+    void cGroupNode::_Update(cUpdateVisitor& visitor)
+    {
+      std::vector<cSceneNodeRef>::iterator iter(children.begin());
+      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+
+      while (iter != iterEnd) {
+        visitor.Visit(*(*iter));
+        iter++;
+      };
+    }
+
+    void cGroupNode::_Cull(cCullVisitor& visitor)
+    {
+      std::vector<cSceneNodeRef>::iterator iter(children.begin());
+      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+
+      while (iter != iterEnd) {
+        visitor.Visit(*(*iter));
+        iter++;
+      };
+    }
+
+
     void cModelNode::_Update(cUpdateVisitor& visitor)
     {
-      //if (pChild != nullptr) pChild->Update(visitor);
-
-      visitor.Visit(*this);
+      //visitor.Visit(*this);
     }
 
     void cModelNode::_Cull(cCullVisitor& visitor)
     {
-      //if (pChild != nullptr) pChild->Cull(visitor);
-
-      visitor.Visit(*this);
+      //visitor.Visit(*this);
     }
 
 
@@ -163,14 +205,14 @@ namespace breathe
     {
       //if (pChild != nullptr) pChild->Update(visitor);
 
-      visitor.Visit(*this);
+      //visitor.Visit(*this);
     }
 
     void cLightNode::_Cull(cCullVisitor& visitor)
     {
       //if (pChild != nullptr) pChild->Cull(visitor);
 
-      visitor.Visit(*this);
+      //visitor.Visit(*this);
     }
 
 
@@ -185,12 +227,16 @@ namespace breathe
 
     cUpdateVisitor::cUpdateVisitor(cSceneGraph& scenegraph)
     {
+      ASSERT(scenegraph.GetRoot() != nullptr);
       Visit(*scenegraph.GetRoot());
     }
 
     cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph) :
       scenegraph(_scenegraph)
     {
+      ASSERT(scenegraph.GetRoot() != nullptr);
+      Visit(*scenegraph.GetRoot());
+
       /*listOpaque.clear();
       mTransparent.clear();
 
@@ -199,8 +245,6 @@ namespace breathe
       listOpaque.add(item);
       else
       mTransparent.add(fDistance, item);*/
-
-      Visit(*scenegraph.GetRoot());
     }
 
 
@@ -213,6 +257,8 @@ namespace breathe
     cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
       scenegraph(_scenegraph)
     {
+      ASSERT(scenegraph.GetRoot() != nullptr);
+
       unsigned int uiTriangles = 0;
 
       // Opaque first
@@ -240,6 +286,7 @@ namespace breathe
 		cSceneGraph::cSceneGraph() :
       bIsCullingEnabled(true)
 		{
+      pRoot.reset(new cGroupNode);
 		}
 
 		/*cSceneGraphSpawn::cSceneGraphSpawn()

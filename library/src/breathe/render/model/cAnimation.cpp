@@ -12,9 +12,13 @@
 #include <iostream>
 #include <fstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/storage/filesystem.h>
@@ -29,6 +33,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -50,8 +55,8 @@ namespace breathe
 			cAnimation::~cAnimation()
 			{
 				LOG.Error("Animation", "Don't use this class");
-			}		
-			
+			}
+
 			int cAnimation::Load(const std::string& sFilename)
 			{
 				LOG.Error("Animation", "Don't use this class");

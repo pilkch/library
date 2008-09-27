@@ -344,7 +344,7 @@ namespace breathe
 
 				m=pParent->m*mPositionRel*mRotation*mContact;
 
-				p=m.GetPosition();
+				position = m.GetPosition();
 
 				v=pParent->v;
 
@@ -352,32 +352,32 @@ namespace breathe
 			}
 
 
-			if(rayContact.bContact) {
+			if (rayContact.bContact) {
 				// Traction will range from
 				// 0.0f (No contact)
 				// and
 				// 1.0f (We are at the boundary between no weight being put on the wheel/suspension and weight being applied)
 				// When we compress the springs and the tyre we still have fTraction=1.0f;
-				fTraction=1.0f;
+				fTraction = 1.0f;
 
-				float wheelAccel=pParent->fSpeed;
-				float wheelBrake=pParent->fBrake;
-				float wheelSlip=0.00001f * fabsf(pParent->fVel) * fabsf(pParent->fVel);
+				float wheelAccel = pParent->fSpeed;
+				float wheelBrake = pParent->fBrake;
+				float wheelSlip = 0.00001f * fabsf(pParent->fVel) * fabsf(pParent->fVel);
 
 				if(bFront) {
-					if (pParent->bFourWheelDrive) wheelAccel*=0.4f;
-					else wheelAccel=0.0f;
+					if (pParent->bFourWheelDrive) wheelAccel *= 0.4f;
+					else wheelAccel = 0.0f;
 
 					dir = (front + (right * pParent->fSteer)).GetNormalized();
 
-					wheelSlip*=fFrontSlip;
-					wheelBrake*=0.75f;
+					wheelSlip *= fFrontSlip;
+					wheelBrake *= 0.75f;
 				}
 				else {
-					if(pParent->bFourWheelDrive) wheelAccel*=0.6f;
+					if(pParent->bFourWheelDrive) wheelAccel *= 0.6f;
 
-					wheelSlip*=fRearSlip;
-					wheelBrake*=0.25;
+					wheelSlip *= fRearSlip;
+					wheelBrake *= 0.25;
 				}
 
 

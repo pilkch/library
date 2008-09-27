@@ -13,12 +13,16 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // OpenGL Headers
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
 // Breathe
 #include <breathe/breathe.h>
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 

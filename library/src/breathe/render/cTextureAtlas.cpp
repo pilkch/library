@@ -13,6 +13,9 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 
 // Anything else
 #include <GL/GLee.h>
@@ -37,6 +40,7 @@
 #include <breathe/math/cQuaternion.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -44,7 +48,7 @@
 #include <breathe/render/cRender.h>
 
 namespace breathe
-{	
+{
 	namespace render
 	{
 		cTextureAtlas::cTextureAtlas(unsigned int id)
@@ -57,7 +61,7 @@ namespace breathe
 
 			uiWidth=128;
 			uiHeight=128;
-			
+
 			uiAtlasWidthNSegments=1;
 			uiAtlasSegmentN=1;
 
@@ -75,13 +79,13 @@ namespace breathe
 			int nSrcPitch = src->pitch;
 			int nDstPitch = surface->pitch;
 			int nPixel=nDstPitch/surface->w;
-		
+
 			unsigned char* pSrc = (unsigned char*) src->pixels;
 			unsigned char* pDst = (unsigned char*) surface->pixels + y*nDstPitch+x*nPixel;
-		
+
 			unsigned int i=0;
 			unsigned int w=src->w;
-			
+
 			while (nH--)
 			{
 				for (i=0;i<w;i++)
@@ -98,34 +102,33 @@ namespace breathe
 					pDst+=4;
 					pSrc+=4;
 				}
-				
+
 				//std::memcpy(pDst, pSrc, nSrcPitch);
 
 				pSrc += nSrcPitch-src->w*4;
 				pDst += nDstPitch-src->w*4;
 			};
 		}
-		
-		cTexture *cTextureAtlas::AddTexture(const std::string& sPath)
+
+		cTextureRef cTextureAtlas::AddTexture(const std::string& sPath)
 		{
 			LOG.Success("Texture", "Loading " + sFilename);
 
 			const string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sPath));
-		
+
 			// Load the texture
-			cTexture* pTexture = new cTexture();
-			
-			if (pTexture->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
-			{
-				SAFE_DELETE(pTexture);
+			cTextureRef pTexture(new cTexture);
+
+			if (pTexture->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
+				pTexture.reset();
 				return pRender->pTextureNotFoundTexture;
 			}
 
 			// We have a valid texture, find a spot for it
 			unsigned int uiTextureWidth = pTexture->surface->w;
 			unsigned int uiTextureHeight = pTexture->surface->h;
-			bool bFound=false;
-			bool bGood=true;
+			bool bFound = false;
+			bool bGood = true;
 
 			unsigned int rowY=0;
 			unsigned int lineX=0;
@@ -139,12 +142,12 @@ namespace breathe
 			unsigned int foundY=0;
 
 			unsigned int uiOffset=0;
-			
-			rowY=0;
-			while(rowY<uiAtlasWidthNSegments && uiAtlasWidthNSegments-rowY>=requiredH && !bFound)
+
+			rowY = 0;
+			while (rowY<uiAtlasWidthNSegments && uiAtlasWidthNSegments-rowY>=requiredH && !bFound)
 			{
-				lineX=0;
-				while(lineX<uiAtlasWidthNSegments && uiAtlasWidthNSegments-lineX>=requiredW && !bFound)
+				lineX = 0;
+				while (lineX<uiAtlasWidthNSegments && uiAtlasWidthNSegments-lineX>=requiredW && !bFound)
 				{
 					// Set bGood to true
 					bGood=true;
@@ -194,20 +197,20 @@ namespace breathe
 				t << ")",
 				LOG.Error("Texture Atlas", t.str());
 
-				SAFE_DELETE(pTexture);
+				pTexture.reset();
 				return pRender->pTextureNotFoundTexture;
 			}
 
 			// Ok, we have found a spot to place this texture
 			// Place it
-			BlitSurface(pTexture->surface, foundX*uiSegmentWidthPX, foundY*uiSegmentWidthPX);
+			BlitSurface(pTexture->surface, foundX * uiSegmentWidthPX, foundY * uiSegmentWidthPX);
 
 			// Now we delete the texture
-			SAFE_DELETE(pTexture);
+			pTexture.reset();
 
 
 			// Now we return a texture that points to the right spot in the texture atlas
-			pTexture=new cTexture();
+			pTexture.reset(new cTexture);
 			pTexture->fScale=static_cast<float>(uiTextureWidth)/static_cast<float>(uiWidth);
 			pTexture->sFilename=this->sFilename;
 			pTexture->uiTexture=this->uiTexture;
@@ -232,7 +235,7 @@ namespace breathe
 			t << uiAtlasWidthNSegments*uiSegmentWidthPX;
 			t << ")";
 			LOG.Success("Texture Atlas", t.str());
-			
+
 			t.str("");
 			t << uiTexture;
 			LOG.Success("Texture", t.str());
@@ -250,16 +253,16 @@ namespace breathe
 
 			uiSegmentWidthPX=uiNewSegmentWidthPX;
 			uiSegmentSmallPX=uiNewSegmentSmallPX;
-			
+
 			uiWidth=uiHeight=uiNewAtlasWidthPX;
-			
+
 			uiAtlasWidthNSegments=uiNewAtlasWidthPX/uiNewSegmentWidthPX;
 			uiAtlasSegmentN=uiAtlasWidthNSegments*uiAtlasWidthNSegments;
 
 
 			vSegment.insert(vSegment.begin(), uiAtlasSegmentN, false);
 
-			
+
 			Uint32 rmask, gmask, bmask, amask;
 
 			/* SDL interprets each pixel as a 32-bit number, so our masks must depend
@@ -276,14 +279,12 @@ namespace breathe
 			amask = 0xff000000;
 #endif
 
-			surface = SDL_CreateRGBSurface(SDL_SWSURFACE, uiWidth, uiHeight, 32, 
+			surface = SDL_CreateRGBSurface(SDL_SWSURFACE, uiWidth, uiHeight, 32,
 				rmask, gmask, bmask, amask);
 
-			if (!surface)
-				LOG.Error("TextureAtlas", "Couldn't Create Texture");
-			else
-				SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 255, 0));
-			
+			if (!surface) LOG.Error("TextureAtlas", "Couldn't Create Texture");
+			else SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 255, 0));
+
 			Create();
 		}
 

@@ -115,6 +115,7 @@ namespace breathe
 		{
       LOG<<"physics::Init"<<std::endl;
 
+      dInitODE2(0);
 			world = dWorldCreate();
 
 			dWorldSetGravity(world, 0, 0, fGravity);
@@ -139,8 +140,15 @@ namespace breathe
 		}
 
 		void Destroy()
-		{
+    {
+      dJointGroupDestroy(contactgroup);
 
+      dSpaceDestroy(spaceDynamic);
+      dSpaceDestroy(spaceStatic);
+
+      dWorldDestroy(world);
+
+      dCloseODE();
 		}
 
 		void AddPhysicsObject(cPhysicsObject *pPhysicsObject)

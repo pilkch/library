@@ -116,16 +116,13 @@ namespace breathe
 			if (!iter) return breathe::BAD;
 
 			iter.FindChild("level");
-			if (iter)
-			{
+			if (iter) {
 				iter.GetAttribute("fWaterLevel", fWaterLevel);
 
 				iter.FirstChild();
 
-				while(iter)
-				{
-					if ("nodes" == iter.GetName())
-					{
+				while (iter) {
+					if ("nodes" == iter.GetName()) {
 						iter.GetAttribute("fWidth", fNodeWidth);
 						iter.GetAttribute("uiWidth", uiNodeWidth);
 						iter.GetAttribute("uiHeight", uiNodeHeight);
@@ -134,8 +131,7 @@ namespace breathe
 
 						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("node");
-							while(iter)
-							{
+							while (iter) {
 								string_t sPath;
 								if (iter.GetAttribute("path", sPath))
 									LoadNode(sPath);
@@ -143,13 +139,10 @@ namespace breathe
 								iter.Next("node");
 							};
 						iter = iterParent;
-					}
-					else if ("spawns" == iter.GetName())
-					{
+					} else if ("spawns" == iter.GetName()) {
 						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("spawn");
-							while(iter)
-							{
+							while(iter) {
 								pSpawn = new cLevelSpawn();
 								vSpawn.push_back(pSpawn);
 
@@ -189,13 +182,11 @@ namespace breathe
 		size_t i = 0;
 		size_t n = vCubemap.size();
 
-		if (0 == n)
-		{
+		if (0 == n) {
 			LOG.Error("Level", "No cubemaps defined");
 			//bResult = breathe::BAD;
 		}
-		else
-		{
+		else {
 			for (i=0;i<n;i++)
 				pRender->AddCubeMap(vCubemap[i]->sFilename);
 		}
@@ -211,10 +202,9 @@ namespace breathe
 			pNode->Load();
 
 			/*
-			size_t i=0;
-			size_t n=p->vCamera.size();
-			for (i=0;i<n;i++)
-			{
+			size_t i = 0;
+			const size_t n = p->vCamera.size();
+			for (i=0;i<n;i++) {
 				LOG.Success("Level", "Spawn");
 
 				vSpawn.push_back(new cLevelSpawn());
@@ -251,9 +241,7 @@ namespace breathe
 			}*/
 
 			vNode.push_back(pNode);
-		}
-		else
-			LOG.Error("Node", "Mesh not found " + breathe::string::ToUTF8(sNewFilename));
+		} else LOG.Error("Node", "Mesh not found " + breathe::string::ToUTF8(sNewFilename));
 	}
 
 	void cLevel::LoadCubemap(const string_t& line)
@@ -274,12 +262,9 @@ namespace breathe
 																							COLLISIONPACKET * collisionPacket,
 																							float x, float y, float z)
 	{
-		if (i>-1 && i<animation.size())
-		{
-			cModel_StaticMesh * m=&vStatic[i];
-
-			if (NULL==m)
-			{
+		if (i>-1 && i<animation.size()) {
+			cModel_StaticMesh* m = &vStatic[i];
+			if (nullptr == m) {
 				LOGFAIL("Model", "vStatic failed");
 				return;
 			}
@@ -297,8 +282,7 @@ namespace breathe
 			TRI_T2_N3_V3 * t;
 			TRI_COL temp;
 
-			for (f=0;f<m->uiTriangles;f++)
-			{
+			for (f=0;f<m->uiTriangles;f++) {
 				t=&m->mesh[f];
 
 				temp.p0.vx=t->p0.vx*ex+x;
@@ -328,13 +312,11 @@ namespace breathe
 
 			unsigned int uiCurrentNode = currentY * uiNodeWidth + currentX;
 
-			if (uiCurrentNode < vNode.size())
-			{
+			if (uiCurrentNode < vNode.size()) {
 				cLevelNode* pNode = vNode[uiCurrentNode];
 
 				// Have we changed nodes in the last time step?
-				if (pNode && pCurrentNode != pNode)
-				{
+				if (pNode && pCurrentNode != pNode) {
 					if (pCurrentNode && (pCurrentNode->sName != pNode->sName))
 						uiDisplayNodeName = uiNodeNameDisplayTime;
 
@@ -353,8 +335,7 @@ namespace breathe
 		}
 
 
-		if ((currentTime - previousTime)>1000.0f)
-		{
+		if ((currentTime - previousTime)>1000.0f) {
 			previousTime = currentTime;
 
 			size_t n = vNode.size();
@@ -367,9 +348,9 @@ namespace breathe
 		{
 			vehicle::cVehicle *pVehicle=NULL;
 
-			std::list<vehicle::cVehicle*>::iterator iter=lVehicle.begin();
-			while(iter != lVehicle.end())
-			{
+			std::list<vehicle::cVehicle*>::iterator iter = lVehicle.begin();
+			const std::list<vehicle::cVehicle*>::iterator iterEnd = lVehicle.end();
+			while (iter != iterEnd) {
 				(*iter)->Update(currentTime);
 				iter++;
 			};
@@ -407,19 +388,20 @@ namespace breathe
 
 	unsigned int cLevel::RenderVehicles(sampletime_t currentTime, vehicle::cVehicle *pOwnVehicle)
 	{
-		unsigned int uiTriangles=0;
-		vehicle::cVehicle *pVehicle=NULL;
+		unsigned int uiTriangles = 0;
+		vehicle::cVehicle* pVehicle = nullptr;
 
-		std::list<vehicle::cVehicle *>::iterator iter=lVehicle.begin();
-		while(iter!=lVehicle.end())
-		{
-			pVehicle=*iter;
+    std::list<vehicle::cVehicle*>::iterator iter = lVehicle.begin();
+		const std::list<vehicle::cVehicle*>::iterator iterEnd = lVehicle.end();
+		while (iter != iterEnd) {
+			pVehicle = *iter;
 
-			if ((NULL == pOwnVehicle) || (pVehicle != pOwnVehicle))
-			{
+			if ((nullptr == pOwnVehicle) || (pVehicle != pOwnVehicle)) {
+        breathe::math::cColour colour(1.0f, 0.0f, 0.0f);
+
 				glPushMatrix();
 					glMultMatrixf(pVehicle->m);
-					uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->pModel), breathe::math::cColour(1.0f, 0.0f, 0.0f));
+					uiTriangles += pRender->RenderStaticModel(breathe::render::model::cStaticRef(pVehicle->pModel), colour);
 				glPopMatrix();
 
 
@@ -444,7 +426,7 @@ namespace breathe
 
 				glPushMatrix();
 					glMultMatrixf(pVehicle->rrWheel_->m*r);
-          uiTriangles +=p Render->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
+          uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
 				glPopMatrix();
 			}
 
@@ -464,7 +446,6 @@ namespace breathe
   {
     //Have to have a spawn in the level before calling this
     const size_t n = vSpawn.size();
-
     if (n < 1) LOG.Error("Level", "No spawns defined");
 
     float d = (vSpawn[0]->v3Position - p).GetLength();
@@ -508,18 +489,18 @@ namespace breathe
 	render::cTextureRef cLevel::FindClosestCubeMap(math::cVec3 pos)
 	{
 		const size_t n = vCubemap.size();
-    if (n<1) return render::cTextureRef(nullptr);
+    if (n == 0) return render::cTextureRef();
 
 		cLevelCubemap *c = vCubemap[0];
-		float f=(vCubemap[0]->v3Position - pos).GetLength();
-		float a=0.0f;
+		float f = (vCubemap[0]->v3Position - pos).GetLength();
+		float a = 0.0f;
 
 		size_t i = 0;
 		for (i = 1; i < n; i++) {
-			a=(vCubemap[i]->v3Position - pos).GetLength();
+			a = (vCubemap[i]->v3Position - pos).GetLength();
 			if (a < f) {
-				c=vCubemap[i];
-				f=a;
+				c = vCubemap[i];
+				f = a;
 			}
 		}
 
@@ -538,10 +519,10 @@ namespace breathe
 		std::list<vehicle::cVehicle *>::iterator iter = lVehicle.begin();
 		const std::list<vehicle::cVehicle *>::iterator iterEnd = lVehicle.end();
 		while (iter != iterEnd) {
-			t=((*iter)->p - pos).GetLength();
+      t = ((*iter)->position - pos).GetLength();
 			if (t < d) {
-				d=t;
-				v=(*iter);
+				d = t;
+				v = (*iter);
 			}
 
 			iter++;
@@ -596,18 +577,16 @@ namespace breathe
 			} else if ("models" == iter.GetName()) {
 				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("model");
-					while(iter)
-					{
+					while(iter) {
 						std::string sPath;
-						if (iter.GetAttribute("path", sPath))
-						{
+						if (iter.GetAttribute("path", sPath)) {
 							cLevelModel* pModel = new cLevelModel();
 							vModel.push_back(pModel);
 
 							// Pre load the mesh for this model
 							pModel->pModel = pRender->AddModel(breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds"));
 
-							iter.GetAttribute("position", pModel->p);
+              iter.GetAttribute("position", pModel->position);
 
 							math::cVec3 v;
 							if (iter.GetAttribute("position", v)) pModel->m.SetTranslation(v);
@@ -616,8 +595,7 @@ namespace breathe
 						iter.Next("model");
 					};
 				iter = iterParent;
-			}
-			else if ("cubemaps" == iter.GetName()) {
+			} else if ("cubemaps" == iter.GetName()) {
 				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("cubemap");
 					while(iter) {
@@ -655,10 +633,8 @@ namespace breathe
 		uiTriangles += pRender->RenderStaticModel(pModel);
 
 		std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
-		const std::vector<breathe::cLevelModel*>::iterator end = vModel.end();
-
-		while (end != iter)
-		{
+		const std::vector<breathe::cLevelModel*>::iterator iterEnd = vModel.end();
+		while (iter != iterEnd) {
 			glPushMatrix();
 				glMultMatrixf((*iter)->m);
 				uiTriangles += pRender->RenderStaticModel((*iter)->pModel);

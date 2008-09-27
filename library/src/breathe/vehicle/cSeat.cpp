@@ -4,6 +4,9 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
 #include <vector>
 #include <map>
 #include <list>
@@ -18,6 +21,7 @@
 
 #include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/log.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -55,37 +59,40 @@
 
 namespace breathe
 {
-	namespace vehicle
-	{
-		cSeat::cSeat(cVehicle *v)
-		{
-			pPlayer=NULL;
-			pVehicle=v;
-		}
+  namespace vehicle
+  {
+    cSeat::cSeat(cVehicle* v)
+    {
+      pPlayer=NULL;
+      pVehicle=v;
+    }
 
-		cSeat::~cSeat()
-		{
+    void cSeat::AssignPlayer(cPlayer* p)
+    {
+      ASSERT(p != nullptr);
 
-		}
+      pPlayer = p;
+      p->pSeat = this;
 
-		void cSeat::AssignPlayer(cPlayer *p)
-		{
-			pPlayer=p;
-			p->pSeat=this;
+      if(pVehicle->vSeat[0] == this) pPlayer->ChangeStateToDriving();
+    }
 
-			if(pVehicle->vSeat[0] == this) pPlayer->ChangeStateToDriving();
-		}
+    void cSeat::EjectPlayer()
+    {
+      ASSERT(pPlayer != nullptr);
 
-		void cSeat::EjectPlayer()
-		{
-			cPlayer *p=pPlayer;
+      // Store the previous player for later
+      cPlayer* pPreviousPlayer = pPlayer;
 
-			pPlayer=NULL;
+      // Empty the seat
+      pPlayer = nullptr;
 
-			p->pSeat=NULL;
-			p->p=pVehicle->p+math::cVec3(0.0f, 0.0f, 3.0f);
+      // Make sure the player knows that he is not in the seat any more and move him out of it
+      pPreviousPlayer->pSeat = nullptr;
+      pPreviousPlayer->position = pVehicle->position + math::cVec3(0.0f, 0.0f, 3.0f);
 
-			p->ChangeStateToRunning();
-		}
-	}
+      // Set the state of the player to a pedestrian
+      pPreviousPlayer->ChangeStateToRunning();
+    }
+  }
 }

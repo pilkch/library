@@ -11,9 +11,13 @@
 #include <iostream>
 #include <fstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
@@ -29,7 +33,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
-
+#include <breathe/math/geometry.h>
 
 
 #include <breathe/util/base.h>
@@ -44,9 +48,9 @@
 #include <breathe/loader_3ds/mesh3ds.h>
 #include <breathe/loader_3ds/camera3ds.h>
 
-//Uses an Octree to partition the model
-//If all of the triangles can be contained within a small radius, 
-//then they are all added to the root node and there are no children
+// Uses an Octree to partition the model
+// If all of the triangles can be contained within a small radius,
+// then they are all added to the root node and there are no children
 namespace breathe
 {
 	namespace render
@@ -57,15 +61,15 @@ namespace breathe
 			int iVersionFile;
 			int iVersionMesh;
 
-			cStatic::cStatic()
-				: cModel(), cOctree()
+			cStatic::cStatic() :
+        cModel(),
+        cOctree()
 			{
 				bFoundMeshes=false;
 
 				uiTriangles=0;
 
 				uiCurrentMesh=0;
-				pCurrentMesh=NULL;
 
 				fScale=0.5f;
 			}
@@ -100,11 +104,11 @@ namespace breathe
 						case(0xafff):
 							ParseMaterial(cc);
 						break;
-						
+
 						case(0x4000):
 							ParseEditObject(cc, sFilename);
 						break;
-						
+
 						default:
 							t.str("");
 							t<<"Unknown type1 0x" << std::hex << cc.ID();
@@ -118,7 +122,7 @@ namespace breathe
 			{
 				std::ostringstream t;
 				std::string obj_name = c.Str();
-				
+
 				for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
@@ -126,15 +130,15 @@ namespace breathe
 						case(0x4100):
 							ParseMesh(obj_name, cc, sFilename);
 						break;
-						
+
 						case(0x4600):
 							ParseLight(obj_name, cc);
 						break;
-						
+
 						case(0x4700):
 							ParseCamera(cc);
 						break;
-						
+
 						default:
 							t.str("");
 							t<<"Unknown object 0x" << std::hex << cc.ID();
@@ -144,17 +148,17 @@ namespace breathe
 				}
 			}
 
-			
+
 			void cStatic::ParseLight(const std::string &name , loader_3ds::Model3DSChunk c)
 			{
 				LOG.Error("c3ds", "object light");
 			}
 
-			
+
 			void cStatic::ParseMaterial(loader_3ds::Model3DSChunk c)
 			{
 				LOG.Success("3ds", "Edit material");
-				
+
 				for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
 				{
 					switch(cc.ID())
@@ -162,7 +166,7 @@ namespace breathe
 						case(0xa000):
 							NewMaterial(cc);
 						break;
-						
+
 						default:
 						break;
 					}
@@ -195,7 +199,7 @@ namespace breathe
 				p->target.x=p->targetIdeal.x= fScaleCamera * c.Float();
 				p->target.y=p->targetIdeal.y= fScaleCamera * c.Float();
 				p->target.z=p->targetIdeal.z= fScaleCamera * c.Float();
-				
+
 				//float bank_angle = fScaleCamera * c.Float();
 				//float focus = fScaleCamera * c.Float();
 
@@ -209,10 +213,8 @@ namespace breathe
 				LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
 				loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName , c);
-
-				if (pMesh)
-				{
-					vMesh.push_back(new cMesh());
+				if (pMesh != nullptr) {
+					vMesh.push_back(cMeshRef(new cMesh));
 
 					pCurrentMesh = vMesh.back();
           pCurrentMesh->CreateNewMesh();
@@ -222,20 +224,20 @@ namespace breathe
 					unsigned int mesh=0;
 
 					loader_3ds::Mesh3DSFace f;
-					
+
 					std::string sMaterial;
-				
+
 
 					std::vector<loader_3ds::Mesh3DSVertex> vVertex = pMesh->Vertices();
 					std::vector<loader_3ds::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
 					std::vector<loader_3ds::Mesh3DSFace> vFaces = pMesh->Faces();
-					
+
 					pCurrentMesh->pMeshData->uiTriangles = (unsigned int)(vFaces.size());
 					uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
 					//vMaterial[uiCurrentMesh];
 
-					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself, 
+					// This is a hack because for some reason the string gets corrupted, so we copy it back to itself,
 					// try it, comment these lines out, it breaks.  I don't know why :(
 					string_t temp = breathe::string::ToString_t(pMesh->Material());
 
@@ -254,11 +256,11 @@ namespace breathe
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].x);
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].y);
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].z);
-						
+
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].x);
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].y);
 						pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].z);
-						
+
 						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].u);
 						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].v);
 						pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].u);
@@ -297,11 +299,11 @@ namespace breathe
 							t<<"File Version " << iVersionFile;
 							LOG.Success("c3ds", t.str());
 						break;
-						
+
 						case(0x3d3d):
 							ParseEditor3D(cc, sFilename);
 						break;
-						
+
 						case(0xb000):
 							t.str("");
 							t<<"Keyframe Information";
@@ -342,7 +344,7 @@ namespace breathe
 				return 0;
 			}
 
-			cMesh* cStatic::GetMesh(unsigned int index)
+			cMeshRef cStatic::GetMesh(unsigned int index)
 			{
 				assert(index < vMesh.size());
 
@@ -350,7 +352,7 @@ namespace breathe
 			}
 
 
-			unsigned int cStatic::Render(math::cOctree *pNode)
+			unsigned int cStatic::Render(math::cOctree* pNode)
 			{
 				// We should already have the octree created before we call this function.
 				// This only goes through the nodes that are in our frustum, then renders those
@@ -361,11 +363,11 @@ namespace breathe
 
 				// Make sure a valid node was passed in and make sure we actually need to render.
 				// We want to check if this node's cube is even in our frustum first.
-				// To do that we pass in our center point of the node and 1/2 it's width to our 
-				// CubeInFrustum() function.  This will return "true" if it is inside the frustum 
-				// (camera's view), otherwise return false.  
-				if (!pNode || frustum->CubeInFrustum(pNode->m_vCenter.x, pNode->m_vCenter.y, 
-					pNode->m_vCenter.z, pNode->m_Width / 2)) 
+				// To do that we pass in our center point of the node and 1/2 it's width to our
+				// CubeInFrustum() function.  This will return "true" if it is inside the frustum
+				// (camera's view), otherwise return false.
+				if (!pNode || frustum->CubeInFrustum(pNode->m_vCenter.x, pNode->m_vCenter.y,
+					pNode->m_vCenter.z, pNode->m_Width / 2))
 						return 0;
 
 				unsigned int uiTriangles = 0;
@@ -400,7 +402,7 @@ namespace breathe
 					//glColor3ub(0, 255, 0);
 
 					// Store the vertices in a local pointer to keep code more clean
-					//cVec3 *pVertices = pNode->m_pVertices;
+					//cVec3* pVertices = pNode->m_pVertices;
 
 					// Go through all of the vertices (the number of triangles * 3)
 					//for (int i = 0; i < pNode->GetTriangleCount() * 3; i += 3)
@@ -408,7 +410,7 @@ namespace breathe
 						// Before we render the vertices we want to calculate the face normal
 						// of the current polygon.  That way when lighting is turned on we can
 						// see the definition of the terrain more clearly.  In reality you wouldn't do this.
-						
+
 						// Here we get a vector from each side of the triangle
 						//cVec3 vVector1 = pVertices[i + 1] - pVertices[i];
 						//cVec3 vVector2 = pVertices[i + 2] - pVertices[i];
@@ -442,24 +444,23 @@ namespace breathe
 			unsigned int cStatic::Render()
 			{
 
-		    
+
 				return 0;
 			}
-			
+
 			void cStatic::Update(sampletime_t currentTime)
 			{
 
 			}
 
-			void cStatic::CloneTo(cStatic* rhs)
+			void cStatic::CloneTo(cStaticRef rhs)
 			{
 				rhs->vMesh.clear();
 
 				size_t i;
-				size_t n = vMesh.size();
-				for (i = 0; i < n; i++)
-				{
-					cMesh* pMesh = new cMesh();
+				const size_t n = vMesh.size();
+				for (i = 0; i < n; i++) {
+					cMeshRef pMesh(new cMesh);
 					vMesh[i]->CloneTo(pMesh);
 					rhs->vMesh.push_back(pMesh);
 				}

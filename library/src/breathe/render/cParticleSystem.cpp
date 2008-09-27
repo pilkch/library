@@ -1,6 +1,14 @@
 // Standard Library Headers
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 #include <cassert>
+
+// Writing to and from text files
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 // STL Headers
 #include <list>
@@ -8,7 +16,6 @@
 #include <string>
 #include <map>
 #include <algorithm>
-#include <sstream>
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
@@ -24,8 +31,9 @@
 // Breathe Headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/log.h>
+#include <breathe/util/cSmartPtr.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
@@ -60,8 +68,7 @@ namespace breathe
 			spawnVelocity(0.1f, 0.1f, 0.3f)
 		{
 			size_t i;
-			for (i = 0; i < uiSize; i++)
-				particles.push_back(cParticle());
+			for (i = 0; i < uiSize; i++) particles.push_back(cParticle());
 		}
 
 		cParticleSystem::~cParticleSystem()
@@ -72,15 +79,13 @@ namespace breathe
 		void cParticleSystem::Init()
 		{
 			size_t n = particles.size();
-			for (size_t i = 0; i < n; i++)
-				InitParticle(i);
+			for (size_t i = 0; i < n; i++) InitParticle(i);
 		}
 
 		void cParticleSystem::Clear()
 		{
 			size_t n = particles.size();
-			for (size_t i = 0; i < n; i++)
-				particles[i].Kill();
+			for (size_t i = 0; i < n; i++) particles[i].Kill();
 		}
 
 		void cParticleSystem::InitParticle(unsigned int uiParticle)
@@ -120,19 +125,16 @@ namespace breathe
 
 		void cParticleSystemBillboard::Update(sampletime_t currentTime)
 		{
-			std::vector<cParticle>::iterator iter = particles.begin();
-			std::vector<cParticle>::iterator iterEnd = particles.end();
 			unsigned int i = 0;
-			while (iter != iterEnd)
-			{
-				if (iter->IsAlive())
-				{
+
+			std::vector<cParticle>::iterator iter = particles.begin();
+			const std::vector<cParticle>::iterator iterEnd = particles.end();
+			while (iter != iterEnd) {
+				if (iter->IsAlive()) {
           iter->vel += gravity;
 					iter->p += iter->vel;
 					iter->DecrementLife();
-				}
-				else
-					InitParticle(i);
+				} else InitParticle(i);
 
 				iter++;
 				i++;
@@ -143,7 +145,7 @@ namespace breathe
 
 		unsigned int cParticleSystemBillboard::Render()
 		{
-			assert(pMaterial);
+			ASSERT(pMaterial);
 
 			pRender->SetMaterial(pMaterial);
       pRender->SetShaderConstant(pMaterial, "width", fParticleWidth);
@@ -156,9 +158,8 @@ namespace breathe
 
 					unsigned int uiParticlesRendered = 0;
 					cParticle* p = &particles[0];
-					size_t n = particles.size();
-					for (size_t i = 0; i < n; i++, p++)
-					{
+					const size_t n = particles.size();
+					for (size_t i = 0; i < n; i++, p++) {
 						if (!p->IsAlive()) continue;
 
 						glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f);
@@ -216,7 +217,8 @@ namespace breathe
 			pParticle->vel.Set(
 				math::randomMinusOneToPlusOne() * spawnVelocity.x,
 				math::randomMinusOneToPlusOne() * spawnVelocity.y,
-				math::randomMinusOneToPlusOne() * spawnVelocity.z);
+				math::randomMinusOneToPlusOne() * spawnVelocity.z
+      );
 		}
 
 		void cParticleSystemMesh::SetMesh(model::cMeshRef pInMesh)
@@ -227,19 +229,16 @@ namespace breathe
 
 		void cParticleSystemMesh::Update(sampletime_t currentTime)
 		{
+			unsigned int i = 0;
+
 			std::vector<cParticle>::iterator iter = particles.begin();
 			std::vector<cParticle>::iterator iterEnd = particles.end();
-			unsigned int i = 0;
-			while (iter != iterEnd)
-			{
-				if (iter->IsAlive())
-				{
+			while (iter != iterEnd) {
+				if (iter->IsAlive()) {
           iter->vel += gravity;
 					iter->p += iter->vel;
 					iter->DecrementLife();
-				}
-				else
-					InitParticle(i);
+				} else InitParticle(i);
 
 				iter++;
 				i++;
@@ -250,7 +249,7 @@ namespace breathe
 
 		unsigned int cParticleSystemMesh::Render()
 		{
-			ASSERT(pMesh != NULL);
+			ASSERT(pMesh != nullptr);
 
 			glPushMatrix();
 				glTranslatef(position.x, position.y, position.z);
@@ -259,9 +258,8 @@ namespace breathe
 
 				unsigned int uiParticlesRendered = 0;
 				cParticle* p = &particles[0];
-				size_t n = particles.size();
-				for (size_t i = 0; i < n; i++, p++)
-				{
+				const size_t n = particles.size();
+				for (size_t i = 0; i < n; i++, p++) {
 					if (!p->IsAlive()) continue;
 
 					glPushMatrix();

@@ -13,6 +13,9 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <GL/GLee.h>
 #include <GL/glu.h>

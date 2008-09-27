@@ -15,6 +15,9 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <GL/GLee.h>
 #include <GL/glu.h>
@@ -58,8 +61,8 @@ namespace breathe
 {
 	namespace gui
 	{
-		render::material::cMaterial* pMaterial = nullptr;
-		std::vector<render::cTexture*> textureBackground;
+		render::material::cMaterialRef pMaterial;
+    std::vector<render::cTextureRef> textureBackground;
 		render::cFont* pFontWindowCaption = nullptr;
 
 		enum

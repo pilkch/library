@@ -7,11 +7,13 @@
 #include <vector>
 #include <map>
 
-
 // writing on a text file
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+// Boost includes
+#include <boost/shared_ptr.hpp>
 
 
 #include <SDL/SDL.h>
@@ -35,9 +37,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
-
-
-
+#include <breathe/math/geometry.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -56,12 +56,10 @@ namespace breathe
 		{
 			cModel::cModel()
 			{
-
 			}
 
 			cModel::~cModel()
 			{
-
 			}
 		}
 	}

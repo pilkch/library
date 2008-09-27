@@ -9,6 +9,9 @@
 #include <iostream>
 #include <sstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <GL/Glee.h>
 
 #include <SDL/SDL.h>
@@ -33,6 +36,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 
 #include <breathe/util/base.h>
@@ -145,7 +149,7 @@ namespace breathe
 					// Replace this with a faster one!
 					float distance = 1.0f + sqrt(breathe::math::sqrf((float)centerX - cHeightmap::pFrustum->eye.x) +
 						breathe::math::sqrf((float)centerY - cHeightmap::pFrustum->eye.z) );
-					
+
 					// Egads!  A division too?  What's this world coming to!
 					// This should also be replaced with a faster operation.
 					TriVariance = ((float)m_CurrentVariance[node] * MAP_SIZE * 2)/distance;	// Take both distance and variance into consideration
@@ -155,7 +159,7 @@ namespace breathe
 					(TriVariance > cHeightmap::gFrameVariance))	// OR if we are not below the variance tree, test for variance.
 				{
 					Split(tri);														// Split this triangle.
-					
+
 					if (tri->LeftChild &&											// If this triangle was split, try to split it's children as well.
 						((abs(leftX - rightX) >= 3) || (abs(leftY - rightY) >= 3)))	// Tessellate all the way down to one vertex per height field entry
 					{
@@ -185,7 +189,7 @@ namespace breathe
 					p[0]=math::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
 					p[1]=math::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
 					p[2]=math::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
-					
+
 					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
@@ -226,7 +230,7 @@ namespace breathe
 			// ---------------------------------------------------------------------
 			// Computes Variance over the entire tree.  Does not examine node relationships.
 			//
-			unsigned char cHeightmapPatch::RecursComputeVariance( 
+			unsigned char cHeightmapPatch::RecursComputeVariance(
 				int leftX,  int leftY,  uin8_t leftZ,
 				int rightX, int rightY, uin8_t rightZ,
 				int apexX,  int apexY,  uint8_t apexZ,
@@ -365,7 +369,7 @@ namespace breathe
 				// Get patch's center point
 				int patchCenterX = (int)cHeightmap::scale*(m_WorldX + (PATCH_SIZE>>1));
 				int patchCenterY = (int)cHeightmap::scale*(m_WorldY + (PATCH_SIZE>>1));
-				
+
 				// Set visibility flag (orientation of both triangles must be counter clockwise)
 				m_isVisible = (orientation( eyeX,  eyeY,  rightX, rightY, patchCenterX, patchCenterY ) < 0) &&
 								(orientation( leftX, leftY, eyeX,   eyeY,   patchCenterX, patchCenterY ) < 0);
@@ -383,7 +387,7 @@ namespace breathe
 									m_WorldX+PATCH_SIZE,	m_WorldY,
 									m_WorldX,				m_WorldY,
 									1 );
-								
+
 				m_CurrentVariance = m_VarianceRight;
 				RecursTessellate(	&m_BaseRight,
 									m_WorldX+PATCH_SIZE,	m_WorldY,
@@ -410,7 +414,7 @@ namespace breathe
 					p[0]=math::cVec3(cHeightmap::scale*((float)leftX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(leftY *MAP_SIZE)+leftX],	cHeightmap::scale*((float)leftY + m_WorldY));
 					p[1]=math::cVec3(cHeightmap::scale*((float)rightX + m_WorldX), cHeightmap::scale*(float)m_HeightMap[(rightY*MAP_SIZE)+rightX],	cHeightmap::scale*((float)rightY + m_WorldY));
 					p[2]=math::cVec3(cHeightmap::scale*((float)apexX + m_WorldX),	cHeightmap::scale*(float)m_HeightMap[(apexY *MAP_SIZE)+apexX],	cHeightmap::scale*((float)apexY + m_WorldY));
-					
+
 					math::cPlane plane;
 					plane.SetFromPoints(p[0],p[1],p[2]);
 
@@ -422,8 +426,8 @@ namespace breathe
 
 					glBegin(GL_LINES);
 						glVertex3f(p[3].x, p[3].y, p[3].z);
-						glVertex3f(p[3].x+plane.normal.x*length, 
-							p[3].y+plane.normal.y*length, 
+						glVertex3f(p[3].x+plane.normal.x*length,
+							p[3].y+plane.normal.y*length,
 							p[3].z+plane.normal.z*length);
 					glEnd();
 
@@ -433,7 +437,7 @@ namespace breathe
 					{
 						//unrolled for speed
 						// We want to render triangle strips
-						//glBegin( GL_TRIANGLES);			
+						//glBegin( GL_TRIANGLES);
 
 							//SetFogCoord(g_FogDepth, p[0].y);
 							//SetTextureCoord(p[0].x, p[0].z);
@@ -446,7 +450,7 @@ namespace breathe
 							//SetFogCoord(g_FogDepth, p[2].y);
 							//SetTextureCoord(p[2].x, p[2].z);
 							glVertex3f(p[2].x, p[2].y, p[2].z);
-						
+
 						// Stop rendering triangle strips
 						//glEnd();
 					}
@@ -499,7 +503,7 @@ namespace breathe
 					triangle.point1.ux=p[1].x;
 					triangle.point1.fy=p[1].y;
 					triangle.point1.uz=p[1].z;
-					
+
 					triangle.point2.x=p[2].x;
 					triangle.point2.y=p[2].y;
 					triangle.point2.z=p[2].z;
@@ -518,7 +522,7 @@ namespace breathe
 					0,				PATCH_SIZE,
 					PATCH_SIZE,		0,
 					0,				0);
-				
+
 				RecursAddTriangles(	&m_BaseRight,
 					PATCH_SIZE,		0,
 					0,				PATCH_SIZE,
@@ -529,12 +533,12 @@ namespace breathe
 			// Render the mesh.
 			//
 			void cHeightmapPatch::Render()
-			{		
+			{
 				RecursRender (	&m_BaseLeft,
 					0,				PATCH_SIZE,
 					PATCH_SIZE,		0,
 					0,				0);
-				
+
 				RecursRender(	&m_BaseRight,
 					PATCH_SIZE,		0,
 					0,				PATCH_SIZE,
@@ -545,23 +549,23 @@ namespace breathe
 			{
 				// Store old matrix
 				//glPushMatrix();
-				
+
 				// Translate the patch to the proper world coordinates
 				//glTranslatef( (GLfloat)m_WorldX, 0, (GLfloat)m_WorldY );
 				//glBegin(GL_TRIANGLES);
-					
+
 					RecursRenderDebug(	&m_BaseLeft,
 						0,				PATCH_SIZE,
 						PATCH_SIZE,		0,
 						0,				0);
-					
+
 					RecursRenderDebug(	&m_BaseRight,
 						PATCH_SIZE,		0,
 						0,				PATCH_SIZE,
 						PATCH_SIZE,		PATCH_SIZE);
-				
+
 				//glEnd();
-				
+
 				// Restore the matrix
 				//glPopMatrix();
 			}
@@ -571,7 +575,7 @@ namespace breathe
 				// Find the (u, v) coordinate for the current vertex
 				float u = cHeightmap::oneOverScale*  (float)x / (float)cHeightmap::width;
 				float v = cHeightmap::oneOverScale* -(float)z / (float)cHeightmap::height;
-				
+
 				// Give OpenGL the current terrain texture coordinate for our height map
 				//glMultiTexCoord2fARB(GL_TEXTURE0_ARB, u, v);
 
@@ -622,7 +626,7 @@ namespace breathe
 
 				//SetTextureCoord(point1.ux, point1.uz);
 				glVertex3f(point1.x, point1.y, point1.z);
-				
+
 				//SetTextureCoord(point2.ux, point2.uz);
 				glVertex3f(point2.x, point2.y, point2.z);
 			}
@@ -636,7 +640,7 @@ namespace breathe
 				//SetFogCoord(g_FogDepth, point1.fy);
 				//SetTextureCoord(point1.ux, point1.uz);
 				glVertex3f(point1.x, point1.y, point1.z);
-				
+
 				//SetFogCoord(g_FogDepth, point2.fy);
 				//SetTextureCoord(point2.ux, point2.uz);
 				glVertex3f(point2.x, point2.y, point2.z);

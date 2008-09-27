@@ -36,11 +36,11 @@ public:
   void Test()
   {
     breathe::math::cSphere a;
-    a.p.Set(3.0f, 1.0f, 1.0f);
+    a.position.Set(3.0f, 1.0f, 1.0f);
     a.SetRadius(1.0f);
 
     breathe::math::cSphere b;
-    b.p.Set(7.0f, 1.0f, 1.0f);
+    b.position.Set(7.0f, 1.0f, 1.0f);
     b.SetRadius(1.0f);
 
     float f = 0.0f;

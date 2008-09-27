@@ -697,7 +697,7 @@ namespace breathe
 		{
       if (pNodeParent != nullptr) {
         //LOG<<"cSource::Update"<<std::endl;
-        alSourcefv(uiSource, AL_POSITION, pNodeParent->p);
+        alSourcefv(uiSource, AL_POSITION, pNodeParent->position);
         //ReportError();
       }
 		}

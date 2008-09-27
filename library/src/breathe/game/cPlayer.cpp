@@ -70,8 +70,8 @@ namespace breathe
 
 		fWeight = 80.0f;
 
-		p.x = p.y = 0.0f;
-    p.z = 10.0f;
+    position.x = position.y = 0.0f;
+    position.z = 10.0f;
 #endif
 
 
@@ -117,7 +117,7 @@ namespace breathe
 
 		rayContact.fDepth = fMaxDistance;
 
-		dGeomRaySet(geomRay, p.x, p.y, p.z, dir.x, dir.y, dir.z);
+    dGeomRaySet(geomRay, position.x, position.y, position.z, dir.x, dir.y, dir.z);
 		dGeomRaySetLength(geomRay, fMaxDistance);
 		dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
 		dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
@@ -138,14 +138,9 @@ namespace breathe
 	{
 		float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
 
-		if (PLAYER_STATE_DRIVE == uiState)
-		{
-			p = pSeat->pVehicle->m.GetPosition();
-		}
-		else if (PLAYER_STATE_PASSENGER == uiState)
-		{
-			p = pSeat->pVehicle->m.GetPosition();
-		}
+		if (PLAYER_STATE_DRIVE == uiState) position = pSeat->pVehicle->m.GetPosition();
+    else if (PLAYER_STATE_PASSENGER == uiState) position = pSeat->pVehicle->m.GetPosition();
+
 #ifdef BUILD_DEBUG
 		else if (uiCameraMode == CAMERA_FIRSTPERSONFREE)
 		{
@@ -161,7 +156,7 @@ namespace breathe
 					else if (fInputRight > math::cEPSILON)
             fDirection -= math::DegreesToRadians(45.0f);
 
-          p.z += fSpeed * sinf(fVertical - math::DegreesToRadians(90.0f));
+          position.z += fSpeed * sinf(fVertical - math::DegreesToRadians(90.0f));
 				}
 				else if (fInputDown > math::cEPSILON)
 				{
@@ -172,7 +167,7 @@ namespace breathe
 					else
             fDirection += math::DegreesToRadians(180.0f);
 
-          p.z += fSpeed * sinf(fVertical + math::DegreesToRadians(90.0f));
+          position.z += fSpeed * sinf(fVertical + math::DegreesToRadians(90.0f));
 				}
 				else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
 				{
@@ -188,10 +183,10 @@ namespace breathe
 				//float fUpDown = fInputUp - fInputDown;
 				//float fLeftRight = fInputLeft - fInputRight;
 
-				//p.x += fUpDown * cosf(fDirection);
-				//p.y += fLeftRight * sinf(fDirection);
-				p.x += fSpeed * cosf(fDirection);
-				p.y += fSpeed * sinf(fDirection);
+				//position.x += fUpDown * cosf(fDirection);
+				//position.y += fLeftRight * sinf(fDirection);
+        position.x += fSpeed * cosf(fDirection);
+        position.y += fSpeed * sinf(fDirection);
 			}
 		}
 #endif
@@ -244,7 +239,7 @@ namespace breathe
 				//dBodySetLinearVel(GetBody(), 0.0f, 0.0f, v0[2]);
 			}
 
-			p = m.GetPosition();
+      position = m.GetPosition();
 		}
 	}
 
@@ -292,7 +287,7 @@ namespace breathe
 		{
 #endif
       SetUseBody(true);
-			CreateCapsule(p);
+      CreateCapsule(position);
 			physics::AddPhysicsObject(this);
 
 			cPhysicsRayCast::Create(1.0f);
@@ -312,9 +307,9 @@ namespace breathe
 	}
 
 
-  bool cPlayer::InViewCone(const math::cVec3& vecSpot, float tolerance)
+  /*bool cPlayer::InViewCone(const math::cVec3& vecSpot, float tolerance)
   {
-    math::cVec3 lineOfSight(vecSpot - pos);
+    math::cVec3 lineOfSight(vecSpot - position);
 
     // Restrict to x/y axis only
     lineOfSight.z = 0;
@@ -327,5 +322,5 @@ namespace breathe
     if (flDot > tolerance) return true;
 
     return false;
-  }
+  }*/
 }

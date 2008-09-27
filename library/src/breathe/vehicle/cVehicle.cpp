@@ -156,9 +156,10 @@ so that when one side is pressed down (when going in a curve), it also pressed d
 suspension on the other side. This prevents the car from tilting over too much.
 
 
-m_fTorqueOnDriveWheels =  m_fAccel * (1.0 - m_fClutch)	* LookupTorque(m_iRPM)
-																												* m_fGearRatio[m_iGear]
-																												* m_fDifferentialRatio ;			// Here I get the engine torque
+m_fTorqueOnDriveWheels =
+  m_fAccel * (1.0 - m_fClutch)	* LookupTorque(m_iRPM) *
+  m_fGearRatio[m_iGear] *
+  m_fDifferentialRatio;
 
 
 
@@ -189,100 +190,96 @@ For a race car, you want cL to be negative and L to point downwards :-)
 
 void cPlayer::InitPhysics( CAR *car )
 {
-	G = 9.8f;
-	WHEELINERTIA	= 34.0f;
-	BRAKE_TORQUE	=  5000.0f;
-	DRAG			=  0.387f;
-	RESISTANCE		= 30.0f;
-	CA_R			=  1.2f;
-	CA_F			= 1.0f;
-	MAX_GRIP		=  10.0f;
-	TRACTION_FACTOR = 2.0f;
+  G = 9.8f;
+  WHEELINERTIA	= 34.0f;
+  BRAKE_TORQUE	=  5000.0f;
+  DRAG			=  0.387f;
+  RESISTANCE		= 30.0f;
+  CA_R			=  1.2f;
+  CA_F			= 1.0f;
+  MAX_GRIP		=  10.0f;
+  TRACTION_FACTOR = 2.0f;
 
-	std::memset(car, 0, sizeof(CAR) );
-	InitCarTypes();
-	SetCarType(&cartypes[0], &the_car);
+  std::memset(car, 0, sizeof(CAR) );
+  InitCarTypes();
+  SetCarType(&cartypes[0], &the_car);
 
-	car->position_wc.x = 0.0f;
-	car->position_wc.y = 0.0f;
-	car->angle = 0.0001f;
-	car->tractionforce = 0;
-	car->velocity_wc.x = 0;
-	car->velocity_wc.y = 0;
-	car->angularvelocity = 0;
-	car->steerangle = 0;
-	car->fwheelangle = 0;
-	car->rwheelangle = 0;
-	car->enginetorque = 190;	// N.m
-	car->rpm = 0;
-	car->gear = 1;
-	car->accelerator = 0;
-	car->brake=0.0f;					// amount of braking (input)  [0 .. 1.0]
-	car->handbraking=false;
-	car->rwheelav = 0;
-	car->wfront = (car->cartype->mass * G * 0.5);
-	car->wrear  = (car->cartype->mass * G * 0.5);
-	car->pitchangle=0.0f;				// actual pitch angle
-	car->aimpitchangle=0.0f;			// destination pitch angle
-	car->forcedpitchangle=0.0f;		// pitch angle due to wheels being at different heights
-	car->rollangle=0.0f;
-	car->aimrollangle=0.0f;
-	car->forcedrollangle=0.0f;
+  car->position_wc.x = 0.0f;
+  car->position_wc.y = 0.0f;
+  car->angle = 0.0001f;
+  car->tractionforce = 0;
+  car->velocity_wc.x = 0;
+  car->velocity_wc.y = 0;
+  car->angularvelocity = 0;
+  car->steerangle = 0;
+  car->fwheelangle = 0;
+  car->rwheelangle = 0;
+  car->enginetorque = 190;	// N.m
+  car->rpm = 0;
+  car->gear = 1;
+  car->accelerator = 0;
+  car->brake=0.0f;					// amount of braking (input)  [0 .. 1.0]
+  car->handbraking=false;
+  car->rwheelav = 0;
+  car->wfront = (car->cartype->mass * G * 0.5);
+  car->wrear  = (car->cartype->mass * G * 0.5);
+  car->pitchangle=0.0f;				// actual pitch angle
+  car->aimpitchangle=0.0f;			// destination pitch angle
+  car->forcedpitchangle=0.0f;		// pitch angle due to wheels being at different heights
+  car->rollangle=0.0f;
+  car->aimrollangle=0.0f;
+  car->forcedrollangle=0.0f;
 
-	car->rwheelav=0.0f;				// rear wheel angular velocity (rad/s)
-	car->fwheelav=1.0f;				// front "  			"
+  car->rwheelav=0.0f;				// rear wheel angular velocity (rad/s)
+  car->fwheelav=1.0f;				// front "  			"
 
-	car->height=1.0f;					// actual height of car body
-	car->aimheight=1.0f;				// target height of body
+  car->height=1.0f;					// actual height of car body
+  car->aimheight=1.0f;				// target height of body
 
-	for(unsigned int i=0;i<4;i++)
-		car->wheelheight[i]=1.0f;			// height per wheel
+  for(unsigned int i=0;i<4;i++)
+    car->wheelheight[i]=1.0f;			// height per wheel
 }
 
 float cPlayer::LookUpTorque( int rpm )
 {
-	// flat line 190Nm from 0 to 5000
-	// from 5000-6000 rpm the torque drops from 190Nm to zero
-	//
-	if(rpm < 5000)
-		return 390;
-	if(rpm < 6000)
-		return 390*(1000 - (rpm - 5000))*0.001;
-	else
-		return 0;
+  // flat line 190Nm from 0 to 5000
+  // from 5000-6000 rpm the torque drops from 190Nm to zero
+  //
+  if (rpm < 5000) return 390;
+  if (rpm < 6000) return 390*(1000 - (rpm - 5000))*0.001;
+
+  return 0;
 }
 
-void cPlayer::GearShifter( CAR *car )
+void cPlayer::GearShifter(CAR *car)
 {
-	// Automatic gear shifting
-	//
-	if(automatic)
-	{
-		if(car->rpm >= 4000 && car->gear < 5 && car->gear != 0 )
-			car->gear++;
-		if(car->rpm <= 2000 && car->gear > 1 )
-			car->gear--;
-	}
+  // Automatic gear shifting
+  //
+  if(automatic)
+  {
+    if (car->rpm >= 4000 && car->gear < 5 && car->gear != 0 ) car->gear++;
+    if (car->rpm <= 2000 && car->gear > 1 ) car->gear--;
+  }
 }
 
 
-	cartype->b = 85.0f*UNIT_SCALE;		// m
-	cartype->c = 60.0f*UNIT_SCALE;		// m
-	cartype->h = 1.0f;						// m
-	cartype->mass = 1500.0f;			// kg
-	cartype->inertia =1500.0f;			// kg.m
-	cartype->halfwidth = 0.86f;		// m
-	cartype->wheelradius = 0.33f;	// m
+  cartype->b = 85.0f*UNIT_SCALE;		// m
+  cartype->c = 60.0f*UNIT_SCALE;		// m
+  cartype->h = 1.0f;						// m
+  cartype->mass = 1500.0f;			// kg
+  cartype->inertia =1500.0f;			// kg.m
+  cartype->halfwidth = 0.86f;		// m
+  cartype->wheelradius = 0.33f;	// m
 
-	cartype->num_gears = 5;
-	cartype->gearratio[0] = -3.5f;
-	cartype->gearratio[1] = 3.5f;
-	cartype->gearratio[2] = 2.2f;
-	cartype->gearratio[3] = 1.5f;
-	cartype->gearratio[4] = 1.1f;
-	cartype->gearratio[5] = 0.94f;
-	cartype->differentialratio = 3.6f;
-	cartype->gearefficiency = 0.7f;
+  cartype->num_gears = 5;
+  cartype->gearratio[0] = -3.5f;
+  cartype->gearratio[1] = 3.5f;
+  cartype->gearratio[2] = 2.2f;
+  cartype->gearratio[3] = 1.5f;
+  cartype->gearratio[4] = 1.1f;
+  cartype->gearratio[5] = 0.94f;
+  cartype->differentialratio = 3.6f;
+  cartype->gearefficiency = 0.7f;
 
 
 Garage:
@@ -339,283 +336,283 @@ Premium=1.7f of performance, Racing=2.2f of performance
 
 namespace breathe
 {
-	namespace vehicle
-	{
-		cVehicle::cVehicle()
-			: physics::cPhysicsObject()
-		{
-			p.x = p.y = p.z = 0.0f;
-
-			pBody=NULL;
-			pMirror=NULL;
-			pMetal=NULL;
-			pGlass=NULL;
-			pWheel=NULL;
-
-
-			bFourWheelDrive=fourwheeldrive;
-
-			fRadius=w;
-
-			fWidth=w;
-			fLength=l;
-			fHeight=h;
-
-			fWeight=fMass;
-
-
-			fControl_Accelerate=0.0f;
-			fControl_Brake=0.0f;
-			fControl_Clutch=0.0f;
-			fControl_Steer=0.0f;
-			fControl_Handbrake=0.0f;
-
-			fPetrolTankSize=70.0f;
-			vPetrolTank.push_back(fPetrolTankSize);
-
-
-			// http://home.planet.nl/~monstrous/tutcar.html
-			properties.fDrag = 0.4257f;      // Drag constant (air resistance)
-			properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
-			properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
-
-			properties.fWeight = fWeight;
-			properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
-			properties.fEngineSpeed = 800.0f; // RPM
-			properties.fTraction0 = 1.0f;
-			properties.fTraction1 = 1.0f;
-			properties.fTraction2 = 1.0f;
-			properties.fTraction3 = 1.0f;
-
-			properties.vGearRatio.push_back(-1.0f); // Reverse
-			properties.vGearRatio.push_back(0.0f); // Neutral
-			properties.vGearRatio.push_back(1.0f); // 1st
-			properties.vGearRatio.push_back(1.6f); // 2nd
-			properties.vGearRatio.push_back(2.3f); // 3rd
-			properties.vGearRatio.push_back(3.4f); // 4th
-			properties.vGearRatio.push_back(5.0f); // 5th
-			properties.iGears = 5; // Number of drive ratios
-			properties.iGearCurrent = 1; //-1 = reverse, 0 = Neutral
-		}
-
-		cVehicle::~cVehicle()
-		{
-			while(vWheel.size())
-			{
-				// Deleted in physics list
-				//SAFE_DELETE(vWheel[vWheel.size()-1]);
-				vWheel.pop_back();
-			};
-
-			while(vSeat.size())
-			{
-				SAFE_DELETE(vSeat[vSeat.size()-1]);
-				vSeat.pop_back();
-			};
-
-			PhysicsDestroy();
-		}
-
-		void cVehicle::PhysicsDestroy()
-		{
-			physics::RemovePhysicsObject(this);
-			RemoveFromWorld();
-		}
-
-		void cVehicle::PhysicsInit(cLevelSpawn p)
-		{
-			p.v3Position+=math::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
-
-
-			CreateBox(p.v3Position, p.v3Rotation);
-
-			physics::AddPhysicsObject(this);
-
-			//Rear
-			lrWheel_->Init(false, fWheelRadius, fWheelWeight,
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
-				math::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
-
-			rrWheel_->Init(false, fWheelRadius, fWheelWeight,
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
-				math::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
-
-			//Front
-			lfWheel_->Init(true, fWheelRadius, fWheelWeight,
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
-				math::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
+  namespace vehicle
+  {
+    cVehicle::cVehicle()
+      : physics::cPhysicsObject()
+    {
+      position.Set(0.0f, 0.0f, 0.0f);
+
+      pBody=NULL;
+      pMirror=NULL;
+      pMetal=NULL;
+      pGlass=NULL;
+      pWheel=NULL;
+
+
+      bFourWheelDrive=fourwheeldrive;
+
+      fRadius=w;
+
+      fWidth=w;
+      fLength=l;
+      fHeight=h;
+
+      fWeight=fMass;
+
+
+      fControl_Accelerate=0.0f;
+      fControl_Brake=0.0f;
+      fControl_Clutch=0.0f;
+      fControl_Steer=0.0f;
+      fControl_Handbrake=0.0f;
+
+      fPetrolTankSize=70.0f;
+      vPetrolTank.push_back(fPetrolTankSize);
+
+
+      // http://home.planet.nl/~monstrous/tutcar.html
+      properties.fDrag = 0.4257f;      // Drag constant (air resistance)
+      properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
+      properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
+
+      properties.fWeight = fWeight;
+      properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
+      properties.fEngineSpeed = 800.0f; // RPM
+      properties.fTraction0 = 1.0f;
+      properties.fTraction1 = 1.0f;
+      properties.fTraction2 = 1.0f;
+      properties.fTraction3 = 1.0f;
+
+      properties.vGearRatio.push_back(-1.0f); // Reverse
+      properties.vGearRatio.push_back(0.0f); // Neutral
+      properties.vGearRatio.push_back(1.0f); // 1st
+      properties.vGearRatio.push_back(1.6f); // 2nd
+      properties.vGearRatio.push_back(2.3f); // 3rd
+      properties.vGearRatio.push_back(3.4f); // 4th
+      properties.vGearRatio.push_back(5.0f); // 5th
+      properties.iGears = 5; // Number of drive ratios
+      properties.iGearCurrent = 1; //-1 = reverse, 0 = Neutral
+    }
+
+    cVehicle::~cVehicle()
+    {
+      while(vWheel.size())
+      {
+        // Deleted in physics list
+        //SAFE_DELETE(vWheel[vWheel.size()-1]);
+        vWheel.pop_back();
+      };
+
+      while(vSeat.size())
+      {
+        SAFE_DELETE(vSeat[vSeat.size()-1]);
+        vSeat.pop_back();
+      };
+
+      PhysicsDestroy();
+    }
+
+    void cVehicle::PhysicsDestroy()
+    {
+      physics::RemovePhysicsObject(this);
+      RemoveFromWorld();
+    }
+
+    void cVehicle::PhysicsInit(cLevelSpawn p)
+    {
+      p.v3Position+=math::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
+
+
+      CreateBox(p.v3Position, p.v3Rotation);
+
+      physics::AddPhysicsObject(this);
+
+      //Rear
+      lrWheel_->Init(false, fWheelRadius, fWheelWeight,
+        fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
+        math::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
+
+      rrWheel_->Init(false, fWheelRadius, fWheelWeight,
+        fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
+        math::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
+
+      //Front
+      lfWheel_->Init(true, fWheelRadius, fWheelWeight,
+        fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
+        math::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 
-			rfWheel_->Init(true, fWheelRadius, fWheelWeight,
-				fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
-				math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
-		}
+      rfWheel_->Init(true, fWheelRadius, fWheelWeight,
+        fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
+        math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
+    }
 
-		void cVehicle::Init(cLevelSpawn p, unsigned int uiSeats)
-		{
-			unsigned int i=0;
+    void cVehicle::Init(cLevelSpawn p, unsigned int uiSeats)
+    {
+      unsigned int i=0;
 
-			for(i=0;i<uiSeats;i++)
-				vSeat.push_back(new cSeat(this));
+      for(i=0;i<uiSeats;i++)
+        vSeat.push_back(new cSeat(this));
 
-			for(i=0;i<4;i++)
-				vWheel.push_back(new cWheel(this));
+      for(i=0;i<4;i++)
+        vWheel.push_back(new cWheel(this));
 
-			lrWheel_=vWheel[0];
-			rrWheel_=vWheel[1];
-			lfWheel_=vWheel[2];
-			rfWheel_=vWheel[3];
-		}
+      lrWheel_=vWheel[0];
+      rrWheel_=vWheel[1];
+      lfWheel_=vWheel[2];
+      rfWheel_=vWheel[3];
+    }
 
 
-		void cVehicle::Update(sampletime_t currentTime)
-		{
-			physics::cPhysicsObject::Update(currentTime);
+    void cVehicle::Update(sampletime_t currentTime)
+    {
+      physics::cPhysicsObject::Update(currentTime);
 
-			/*
-			Real rpm = FLT_MIN;
+      /*
+      Real rpm = FLT_MIN;
 
-			for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
-			{
-				rpm = std::max(rpm,(*i)->getRPM());
-			}
+      for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
+      {
+        rpm = std::max(rpm,(*i)->getRPM());
+      }
 
-			_engine->update(time);
-			Real power = _engine->getPowerAtRPM(rpm);
-			Real desired_rpm = _engine->getDesiredRPM();
-			Real brake = _engine->getBrakeForce();
+      _engine->update(time);
+      Real power = _engine->getPowerAtRPM(rpm);
+      Real desired_rpm = _engine->getDesiredRPM();
+      Real brake = _engine->getBrakeForce();
 
-			for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
-			{
-				(*i)->update(power,desired_rpm,brake);
-			}
+      for (std::vector<Vehicle::Wheel*>::iterator i = b;i != e;i++)
+      {
+        (*i)->update(power,desired_rpm,brake);
+      }
 
-			if (_antisway)
-			{
-				_swayLastUpdate += time;
-				if  (_swayLastUpdate > _swayRate)
-				{
-					applyAntiSwayBarForces ();
-					_swayLastUpdate =Ogre::Real(0.0);
-				}
-			}*/
+      if (_antisway)
+      {
+        _swayLastUpdate += time;
+        if  (_swayLastUpdate > _swayRate)
+        {
+          applyAntiSwayBarForces ();
+          _swayLastUpdate =Ogre::Real(0.0);
+        }
+      }*/
 
-			//TODO: Run through the parts.  They are already in order in the vector
-			//eg. vPart[0]=turbo, vPart[1]=turbo, vPart[2]=tyres
-			std::vector<cPart *>::iterator iter=vPart.begin();
-			std::vector<cPart *>::iterator end=vPart.end();
-			while(iter!=end) (*iter++)->Update();
+      //TODO: Run through the parts.  They are already in order in the vector
+      //eg. vPart[0]=turbo, vPart[1]=turbo, vPart[2]=tyres
+      std::vector<cPart *>::iterator iter = vPart.begin();
+      const std::vector<cPart *>::iterator iterEnd = vPart.end();
+      while (iter != iterEnd) (*iter++)->Update(currentTime);
 
 
-			fSteer = fControl_Steer * fMaxSteer;
-			fSpeed = fControl_Accelerate * fMaxAcceleration * properties.GetCurrentGearRatio();
-			fBrake = (1.0f * fControl_Brake) + (0.1f * fControl_Handbrake);
+      fSteer = fControl_Steer * fMaxSteer;
+      fSpeed = fControl_Accelerate * fMaxAcceleration * properties.GetCurrentGearRatio();
+      fBrake = (1.0f * fControl_Brake) + (0.1f * fControl_Handbrake);
 
-			if (fBrake > 1.0f) fBrake = 1.0f;
+      if (fBrake > 1.0f) fBrake = 1.0f;
 
-			fBrake *= fMaxBrake;
+      fBrake *= fMaxBrake;
 
-			fVel = v.DotProduct(m.GetFront());
+      fVel = v.DotProduct(m.GetFront());
 
 
-			//PHYSICS
-			/*
-			Basically you cast a ray from the centre position of the wheel(where it should be in its rest position)
-			straight down. If the ray hits something and the distance from the contactpoint to the wheel-centre is within
-			a certain range(for example 1.0 if the suspension length is 1.0) then apply a force at the wheel-centre using
-			the ray's normal to get the force-direction and the distance to calculate the amount of force. Some damping
-			has to be applied as well to keep the car from oscillating too much.
-			Repeat this for every wheel/ray.
+      //PHYSICS
+      /*
+      Basically you cast a ray from the centre position of the wheel(where it should be in its rest position)
+      straight down. If the ray hits something and the distance from the contactpoint to the wheel-centre is within
+      a certain range(for example 1.0 if the suspension length is 1.0) then apply a force at the wheel-centre using
+      the ray's normal to get the force-direction and the distance to calculate the amount of force. Some damping
+      has to be applied as well to keep the car from oscillating too much.
+      Repeat this for every wheel/ray.
 
-			Basically you make the car hover.
+      Basically you make the car hover.
 
-			Then comes the tricky part.
-			Applying friction force, driving force and drag.
-			Since the car hovers there is no friction at all so you have to fake wheel friction.
-			Driving force is a matter of pushing the car from behind and
-			apply proper torque on the turning axis to make the car steer.
-			Drag should be most simple as you damp the car's velocity based on it's speed.
-			*/
+      Then comes the tricky part.
+      Applying friction force, driving force and drag.
+      Since the car hovers there is no friction at all so you have to fake wheel friction.
+      Driving force is a matter of pushing the car from behind and
+      apply proper torque on the turning axis to make the car steer.
+      Drag should be most simple as you damp the car's velocity based on it's speed.
+      */
 
 
-			size_t i=0;
+      size_t i=0;
 
-			for (i=0; i<4; i++) vWheel[i]->Update(currentTime);
+      for (i=0; i<4; i++) vWheel[i]->Update(currentTime);
 
-			/*
-			private void applyAntiSwayBarForces()
-			{
-				amt=0;
+      /*
+      private void applyAntiSwayBarForces()
+      {
+        amt=0;
 
-				for (size_t i=0;i<4;i++) {
-					Vector3 anchor2 = wheels[i].Joint.Anchor2;
-					Vector3 anchor1 = wheels[i].Joint.Anchor;
-					Vector3 axis = wheels[i].Joint.Axis2;
+        for (size_t i=0;i<4;i++) {
+          Vector3 anchor2 = wheels[i].Joint.Anchor2;
+          Vector3 anchor1 = wheels[i].Joint.Anchor;
+          Vector3 axis = wheels[i].Joint.Axis2;
 
-					displacement = Vector3.Dot(anchor1-anchor2,axis);
+          displacement = Vector3.Dot(anchor1-anchor2,axis);
 
-					if (displacement> 0) {
-						amt = displacement * swayForce;
-						if (amt > swayForceLimit) amt = swayForceLimit;
+          if (displacement> 0) {
+            amt = displacement * swayForce;
+            if (amt > swayForceLimit) amt = swayForceLimit;
 
-						wheels[i].Body.AddForce(-axis *amt); //downforce
-						wheels[i^1].Body.AddForce(axis *amt); //upforce
-					}
-				}
- 			}*/
+            wheels[i].Body.AddForce(-axis *amt); //downforce
+            wheels[i^1].Body.AddForce(axis *amt); //upforce
+          }
+        }
+      }*/
 
 
-			/*// drag
-			f32 dragConstant = 0.5f;
+      /*// drag
+      f32 dragConstant = 0.5f;
 
-			neV3 vel = carRigidBody->GetVelocity();
+      neV3 vel = carRigidBody->GetVelocity();
 
-			f32 dot = vel.Dot(body2World.rot[0]);
+      f32 dot = vel.Dot(body2World.rot[0]);
 
-			neV3 drag = dot * body2World.rot[0] * -dragConstant;
+      neV3 drag = dot * body2World.rot[0] * -dragConstant;
 
-			force += drag;
+      force += drag;
 
-			controller->SetControllerForce(force);
+      controller->SetControllerForce(force);
 
-			controller->SetControllerTorque(torque);*/
+      controller->SetControllerTorque(torque);*/
 
-			if (HasBody()) {
-				// Aerodynamic Drag
-				// To simulate aerodynamic drag, it would be better to use the square of the velocity,
-				// because that's how drag works in reality. The force should also be applied at the object's
-				// aerodynamic center rather than at the body location. These may be the same, but
-				// (especially if you're using geometry transforms) they may not be. The center of
-				// the object's cross section would probably be close to the aerodynamic center, at least
-				// for non-engineering purposes. In any case, dBodyAddForceAtRelPos? will allow you to
-				// apply the force at a specific point in the body's frame of reference.
+      if (HasBody()) {
+        // Aerodynamic Drag
+        // To simulate aerodynamic drag, it would be better to use the square of the velocity,
+        // because that's how drag works in reality. The force should also be applied at the object's
+        // aerodynamic center rather than at the body location. These may be the same, but
+        // (especially if you're using geometry transforms) they may not be. The center of
+        // the object's cross section would probably be close to the aerodynamic center, at least
+        // for non-engineering purposes. In any case, dBodyAddForceAtRelPos? will allow you to
+        // apply the force at a specific point in the body's frame of reference.
 
-				// TODO: Use a lot more drag in water
-				float fDampTorque = 1.0f;
-				float fDampLinearVel = 1.0f;
+        // TODO: Use a lot more drag in water
+        float fDampTorque = 1.0f;
+        float fDampLinearVel = 1.0f;
         dReal const * av = dBodyGetAngularVel(GetBody());
         dReal const * lv = dBodyGetLinearVel(GetBody());
 
-				// TODO: Check whether we are on our roof/side too
-				//dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
-				//dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
-			}
-		}
+        // TODO: Check whether we are on our roof/side too
+        //dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
+        //dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
+      }
+    }
 
-		void cVehicle::FillUp(cPetrolBowser *pBowser)
-		{
-			float fSpace = fPetrolTankSize;
-			for (size_t i=0;i<PETROL_SIZE;i++) fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
+    void cVehicle::FillUp(cPetrolBowser *pBowser)
+    {
+      float fSpace = fPetrolTankSize;
+      for (size_t i=0;i<PETROL_SIZE;i++) fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
 
-			cPlayer *p = vSeat[0]->pPlayer;
+      cPlayer *p = vSeat[0]->pPlayer;
 
-			if(pBowser->fPrice * fSpace < p->fDollars) {
-				vPetrolTank[pBowser->uiType] += fSpace;
-				p->fDollars -= pBowser->fPrice * fSpace;
-			} else {
-				vPetrolTank[pBowser->uiType] += (p->fDollars / pBowser->fPrice);
-				p->fDollars=0.0f;
-			}
-		}
+      if(pBowser->fPrice * fSpace < p->fDollars) {
+        vPetrolTank[pBowser->uiType] += fSpace;
+        p->fDollars -= pBowser->fPrice * fSpace;
+      } else {
+        vPetrolTank[pBowser->uiType] += (p->fDollars / pBowser->fPrice);
+        p->fDollars=0.0f;
+      }
+    }
 
     void cVehicle::UpdateInput()
     {
@@ -628,10 +625,10 @@ namespace breathe
       } else fControl_Clutch *= 0.9f;
 
 
-			fControl_Accelerate = pPlayer->fInputUp;
-			fControl_Brake = pPlayer->fInputDown;
-			if(pPlayer->fInputLeft > pPlayer->fInputRight) fControl_Steer = -1.0f * pPlayer->fInputLeft;
-			else fControl_Steer = pPlayer->fInputRight;
+      fControl_Accelerate = pPlayer->fInputUp;
+      fControl_Brake = pPlayer->fInputDown;
+      if(pPlayer->fInputLeft > pPlayer->fInputRight) fControl_Steer = -1.0f * pPlayer->fInputLeft;
+      else fControl_Steer = pPlayer->fInputRight;
 
       // Instant on
       if (pPlayer->bInputHandbrake) fControl_Handbrake = 1.0f;
@@ -652,3 +649,123 @@ namespace breathe
     }
   }
 }
+
+/*
+class cVehicle
+{
+  public:
+    void ConvertCarToWorldOrientation(const math::cVec3& from0, math::cVec3& toFinal) const { body->ConvertBodyToWorldOrientation(from0, toFinal); }
+   // Convert orientation 'from' from car coordinates (local)
+   // to world coordinates (into 'to')
+   // Order is reverse to YPR; RPY here (ZXY)
+
+    void ConvertCarToWorldCoords(const math::cVec3& from, math::cVec3& toFinal) const { body->ConvertBodyToWorldPos(from0, toFinal); }
+   // Convert vector 'from' from car coordinates (local)
+   // to world coordinates (into 'to')
+   // Should be used for coordinates, NOT orientations (a translation
+   // is used here as well as a rotation)
+
+    void ConvertWorldToCarOrientation(const math::cVec3& from0, math::cVec3& toFinal) const { body->ConvertWorldToBodyOrientation(from0, toFinal); }
+   // Convert vector 'from' from world coordinates (global)
+   // to car coordinates (into 'to')
+
+    void ConvertWorldToCarCoords(const math::cVec3& from, math::cVec3& toFinal) const { body->ConvertWorldToBodyPos(from0, toFinal); }
+   // Convert vector 'from' from car coordinates (local)
+   // to world coordinates (into 'to')
+   // Should be used for coordinates, NOT orientations (a translation
+   // is used here as well as a rotation)
+
+  private:
+    void CalculateForces();
+    void ApplyForces();
+
+    void ApplyRotations();
+    void ApplyAcceleration();
+};
+
+void cVehicle::CalculateForces()
+{
+  engine->CalcForces();
+  for (size_t i = 0;i < wheels; i++) susp[i]->CalcForces();
+  for (size_t i = 0;i < wheels; i++) wheel[i]->CalcForces();
+
+  body->CalcForces();
+}
+
+void cVehicle::ApplyForces()
+{
+  engine->ApplyForces();
+  for (size_t i = 0; i < wheels; i++) wheel[i]->ApplyForces();
+  body->ApplyForces();
+}
+
+void cVehicle::ApplyRotations()
+{
+  body->ApplyRotations();
+}
+
+// Look at the wheel forces and accelerate the car with the sum
+void cVehicle::ApplyAcceleration()
+{
+}
+
+void cVehicle::Update()
+{
+  //
+  // Calculate state of vehicle before calculating forces
+  //
+  // Calculate all forces on the car
+  //
+  CalculateForces();
+
+  //
+  // Now that all forces have been generated, apply
+  // them to get accelerations (translational/rotational)
+  //
+  ApplyForces();
+
+  // Rotational dynamics; 3 axes of rotation, 6 DOF
+  ApplyRotations();
+  ApplyAcceleration();
+
+
+   // After all forces & accelerations are done, deduce
+  // data for statistics
+
+
+  // Engine RPM is related to the rotation of the powered wheels,
+  // since they are physically connected, somewhat
+  // Take the minimal rotation
+  float_t minV=99999.0f;
+  float_t maxV = 0;
+  for (size_t i=0;i<wheels;i++)
+    if (wheel[i]->IsPowered()) {
+    if (wheel[i]->GetRotationV() > maxV) maxV=wheel[i]->GetRotationV();
+    if (wheel[i]->GetRotationV() < minV) minV=wheel[i]->GetRotationV();
+//qdbg("  rpm: wheel%d: rotV=%f\n",i,wheel[i]->GetRotationV());
+    }
+
+    engine->ApplyWheelRotation(maxV);
+
+  // Remember old location of car to check for hitting things
+    math::cVec3 timingPosBC,timingPosPreWC,timingPosPostWC;
+    timingPosBC.SetToZero();
+    body->ConvertBodyToWorldPos(&timingPosBC,&timingPosPreWC);
+
+  // Integrate step for all parts
+    body->Integrate();
+    engine->Integrate();
+    steer->Integrate();
+    for (i=0;i<wheels;i++) wheel[i]->Integrate();
+    for (i=0;i<wheels;i++) susp[i]->Integrate();
+
+  // Check if something was hit/crossed
+    body->ConvertBodyToWorldPos(&timingPosBC,&timingPosPostWC);
+
+    int ctl = RMGR->scene->curTimeLine[index];
+    if (RMGR->trackVRML->timeLine[ctl]->CrossesPlane(&timingPosPreWC, &timingPosPostWC)) {
+    // Notify scene of our achievement
+      RMGR->scene->TimeLineCrossed(this);
+    }
+}
+*/

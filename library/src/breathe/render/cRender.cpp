@@ -15,6 +15,9 @@
 #include <list>
 #include <algorithm>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 // Anything else
 #include <GL/GLee.h>
 #include <GL/glu.h>
@@ -28,6 +31,8 @@
 #include <breathe/util/log.h>
 #include <breathe/util/cTimer.h>
 
+#include <breathe/algorithm/algorithm.h>
+
 #include <breathe/storage/filesystem.h>
 
 #include <breathe/math/math.h>
@@ -40,6 +45,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 
@@ -57,7 +63,7 @@
 
 #include <breathe/game/cLevel.h>
 
-breathe::cVar<float> fDetailScale = 0.5f;
+breathe::cVar fDetailScale = 0.5f;
 
 breathe::render::cRender* pRender = NULL;
 
@@ -65,6 +71,86 @@ namespace breathe
 {
   namespace render
   {
+    class cDynamicShadowMap;
+
+    class cShadowMapGenerator
+    {
+    public:
+      void SetAmbientShadowColour(const math::cColour& colour) { ambientShadowColour = colour; }
+      void SetSunColour(const math::cColour& colour) { sunColour = colour; }
+      void SetSunPosition(const math::cVec3& position) { sunPosition = position; }
+
+      void Apply(cDynamicShadowMap& shadowMap);
+
+    private:
+      // Returns true if there is a collision between positionFrom and positionTo
+      bool DoesRayCollide(cDynamicShadowMap& shadowMap, const math::cVec3& positionFrom, const math::cVec3& positionTo);
+
+      math::cColour ambientShadowColour;
+      math::cColour sunColour;
+      math::cVec3 sunPosition;
+    };
+
+
+    // Generated from node local x, y so there may be artifacts at the edges between one node and the next as we don't take into account
+    // geometry/pixels in the next node
+    class cDynamicShadowMap
+    {
+    public:
+      typedef math::cColour pixel_t;
+
+      friend class cShadowMapGenerator;
+
+      void GenerateLighting(cShadowMapGenerator& generator);
+
+    private:
+      float fWidthUnitsPerPixel;
+      float fHeightUnitsPerPixel;
+      math::cVec3 position;
+      cContainer2D<pixel_t> pixels;
+    };
+
+
+    // Returns true if there is a collision between positionFrom and positionTo
+    bool cShadowMapGenerator::DoesRayCollide(cDynamicShadowMap& shadowMap, const math::cVec3& positionFrom, const math::cVec3& positionTo)
+    {
+      return true;
+    }
+
+    void cShadowMapGenerator::Apply(cDynamicShadowMap& shadowMap)
+    {
+      const size_t n = shadowMap.pixels.size();
+      const size_t width = shadowMap.pixels.GetWidth();
+      const size_t height = shadowMap.pixels.GetHeight();
+      float fZ = 10.0f;
+
+      // Generate lighting for each pixel
+      for (size_t y = 0; y < width; y++) {
+        for (size_t x = 0; x < width; x++) {
+          const size_t i = y * width + x;
+          cDynamicShadowMap::pixel_t& pixel = shadowMap.pixels.GetElement(x, y);
+
+          // All pixels start off as being the ambient shadow colour
+          pixel = ambientShadowColour;
+
+          // Add the sun colour as well if there is nothing in the way
+          if (!DoesRayCollide(shadowMap, shadowMap.position + math::cVec3(x * shadowMap.fWidthUnitsPerPixel, y * shadowMap.fHeightUnitsPerPixel, fZ), sunPosition)) pixel += sunColour;
+        }
+      }
+
+      // Gaussian blur the whole image to soften the edges of the shadowmap
+      // Blur horizontally
+      // Blur vertically
+    }
+
+
+
+    void cDynamicShadowMap::GenerateLighting(cShadowMapGenerator& generator)
+    {
+      generator.Apply(*this);
+    }
+
+
     // *** cBatchController
 
     void cBatchController::FinishAdding()
@@ -95,7 +181,7 @@ namespace breathe
       };
     }
 
-    cBatchModelContainer::cBatchModelContainer(model::cStatic* _pModel, float _fDistanceFromCamera)
+    cBatchModelContainer::cBatchModelContainer(model::cStaticRef _pModel, float _fDistanceFromCamera)
      : fDistanceFromCamera(_fDistanceFromCamera), pModel(_pModel)
     {}
 
@@ -134,23 +220,21 @@ namespace breathe
 			bActiveShader(false),
 			bActiveColour(false),
 
+#ifdef BUILD_DEBUG
+      bFullscreen(false),
+#else
 			bFullscreen(true),
+#endif
 			uiWidth(1024),
 			uiHeight(768),
 			uiDepth(32),
 
 			uiTriangles(0),
 
-			pCurrentMaterial(nullptr),
 			pLevel(nullptr),
-			pFrameBuffer0(nullptr),
-			pFrameBuffer1(nullptr),
-			pMaterialNotFoundTexture(nullptr),
-			pTextureNotFoundTexture(nullptr),
 
 			g_info(nullptr),
-			videoInfo(nullptr),
-			pSurface(nullptr)
+			videoInfo(nullptr)
 		{
 			pRender = this;
 
@@ -160,17 +244,20 @@ namespace breathe
 
 			uiActiveUnits=0;
 
-			v4SunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
+			sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
-			pFrustum = new math::cFrustum();
+			pFrustum = new math::cFrustum;
 
 			unsigned int i = 0;
-			for (i=0;i<nAtlas;i++)
-    		vTextureAtlas.push_back(new cTextureAtlas(i));
+			for (i=0;i<nAtlas;i++) {
+        cTextureAtlasRef pNewTextureAtlas(new cTextureAtlas(i));
+        vTextureAtlas.push_back(pNewTextureAtlas);
+      }
 
-			for (i=0;i<material::nLayers;i++) vLayer.push_back(material::cLayer());
-
-			pMaterialNotFoundMaterial=NULL;
+			for (i=0;i<material::nLayers;i++) {
+        material::cLayer layer;
+        vLayer.push_back(layer);
+      }
 		}
 
 		cRender::~cRender()
@@ -181,32 +268,31 @@ namespace breathe
 			SAFE_DELETE(pFrustum);
 
 			unsigned int i = 0;
-			for (i=0;i<nAtlas;i++)
-    		SAFE_DELETE(vTextureAtlas[i]);
+			for (i=0;i<nAtlas;i++) vTextureAtlas[i].reset();
       vTextureAtlas.clear();
 
 			vLayer.clear();
 
 
 			LOG.Success("Delete", "Frame Buffer Objects");
-			SAFE_DELETE(pFrameBuffer0);
-			SAFE_DELETE(pFrameBuffer1);
+			pFrameBuffer0.reset();
+			pFrameBuffer1.reset();
 
-			LOG.Success("Delete", "Static Mesh");
-			std::map<string_t, render::model::cStatic*>::iterator iter=mStatic.begin();
-			while(iter!=mStatic.end())
-			{
-				SAFE_DELETE(iter->second);
+      LOG.Success("Delete", "Static Mesh");
+      std::map<string_t, render::model::cStaticRef>::iterator iter = mStatic.begin();
+      const std::map<string_t, render::model::cStaticRef>::iterator iterEnd = mStatic.end();
+      while(iter != iterEnd) {
+				iter->second.reset();
 				iter++;
 			};
 		}
 
-		bool cRender::FindExtension(const std::string& sExt)
+    bool cRender::FindExtension(const string_t& sExt)
 		{
 			std::ostringstream t;
 			t<<const_cast<const unsigned char*>(glGetString( GL_EXTENSIONS ));
 
-			return (t.str().find(sExt) != std::string::npos);
+      return (t.str().find(sExt) != string_t::npos);
 		}
 
 		void cRender::ToggleFullscreen()
@@ -280,7 +366,7 @@ namespace breathe
 
 			if (!videoInfo)
 			{
-				LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
+        LOG.Error("SDL", string_t("Video query failed: ") + SDL_GetError());
 				return breathe::BAD;
 			}
 
@@ -327,7 +413,7 @@ namespace breathe
 			// Verify there is a surface
 			if (!pSurface)
 			{
-				LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
+        LOG.Error("SDL", string_t("Video mode set failed: ") + SDL_GetError());
 				return breathe::BAD;
 			}
 
@@ -392,10 +478,10 @@ namespace breathe
 			t << "Screen BPP: ";
 			t << (unsigned int)(pSurface->format->BitsPerPixel);
 			LOG.Success("Render", t.str());
-			LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
-			LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
-			LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
-			LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
+      LOG.Success("Render", string_t("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
+      LOG.Success("Render", string_t("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
+      LOG.Success("Render", string_t("Version    : ") + (char*)(glGetString( GL_VERSION )));
+      LOG.Success("Render", string_t("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
 
 
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
@@ -404,11 +490,11 @@ namespace breathe
 			t << iMaxTextureSize;
 			if (iMaxTextureSize>=MAX_TEXTURE_SIZE)
 			{
-				LOG.Success("Render", std::string("Max Texture Size : ") + t.str());
+        LOG.Success("Render", string_t("Max Texture Size : ") + t.str());
 				iMaxTextureSize=MAX_TEXTURE_SIZE;
 			}
 			else
-				LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
+        LOG.Error("Render", string_t("Max Texture Size : ") + t.str());
 
 			{
 				CONSOLE<<"WIDESCREEN"<<std::endl;
@@ -504,22 +590,22 @@ namespace breathe
 			math::cColour MaterialSpecular(1.0f, 1.0f, 1.0f, 1.0f);
 			math::cColour MaterialEmission(0.5f, 0.5f, 0.5f, 1.0f);
 
-			glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.000008f); //2.5f);
-			glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
-			glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f); //0.1f);
+			glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.000008f); //2.5f);
+			glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
+			glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f); //0.1f);
 
-			glLightfv(GL_LIGHT0, GL_POSITION, v4SunPosition );
+			glLightfv(GL_LIGHT0, GL_POSITION, sunPosition);
 
-			glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient );
-			glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse );
-			glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular );
+			glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
+			glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
+			glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
 
 			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightModelAmbient);
 
-			glEnable( GL_LIGHTING );
-			glEnable( GL_LIGHT0 );
+			glEnable(GL_LIGHTING);
+			glEnable(GL_LIGHT0);
 
-			glEnable( GL_COLOR_MATERIAL );
+			glEnable(GL_COLOR_MATERIAL);
 			glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 			glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
@@ -553,18 +639,15 @@ namespace breathe
 			if (bRenderWireframe) EnableWireframe();
       else DisableWireframe();
 
-			if (bLight)
-			{
-				glLightfv (GL_LIGHT0, GL_POSITION, v4SunPosition);
-				glEnable( GL_LIGHTING );
-			}
-			else
-				glDisable(GL_LIGHTING);
+			if (bLight) {
+				glLightfv(GL_LIGHT0, GL_POSITION, sunPosition);
+				glEnable(GL_LIGHTING);
+			} else glDisable(GL_LIGHTING);
 
 			ClearMaterial();
 		}
 
-		void cRender::BeginRenderToTexture(cTextureFrameBufferObject* pTexture)
+		void cRender::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
 		{
 			glEnable(GL_TEXTURE_2D);
 
@@ -578,7 +661,7 @@ namespace breathe
 			_BeginRenderShared();
 		}
 
-		void cRender::EndRenderToTexture(cTextureFrameBufferObject* pTexture)
+		void cRender::EndRenderToTexture(cTextureFrameBufferObjectRef pTexture)
 		{
 			// Restore old view port and set rendering back to default frame buffer
 			glPopAttrib();
@@ -610,7 +693,7 @@ namespace breathe
 			SDL_GL_SwapBuffers();
 		}
 
-		void cRender::_RenderPostRenderPass(material::cMaterial* pMaterial, cTextureFrameBufferObject* pFBO)
+    void cRender::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pFBO)
 		{
 			assert(pMaterial != nullptr);
 
@@ -659,7 +742,7 @@ namespace breathe
 
 			// We have just rendered to a texture, loop through the post render chain alternating
 			// rendering to pFrameBuffer0 and pFrameBuffer1
-			std::list<material::cMaterial*>::iterator iter = lPostRenderEffects.begin();
+      std::list<material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
 			size_t i = 0;
 			for (i = 0; i < n - 1; i++, iter++)
 			{
@@ -853,7 +936,7 @@ namespace breathe
 		}
 
 
-		void cRender::RenderMesh(model::cMesh* pMesh)
+    void cRender::RenderMesh(model::cMeshRef pMesh)
 		{
 			assert(pMesh);
 			assert(pMesh->pMeshData);
@@ -950,24 +1033,21 @@ namespace breathe
 			glEnd();
 		}
 
-		unsigned int cRender::RenderStaticModel(model::cStatic* p)
+    unsigned int cRender::RenderStaticModel(model::cStaticRef p)
 		{
-			if (NULL==p)
-				return 0;
+			if (nullptr == p) return 0;
 
 			unsigned int uiTriangles = 0;
 			unsigned int nMeshes = 0;
 
-			std::vector<model::cMesh*> vMesh=p->vMesh;
+      std::vector<model::cMeshRef> vMesh=p->vMesh;
 
 			nMeshes = static_cast<unsigned int>(vMesh.size());
 
-			for (size_t mesh=0;mesh<nMeshes;mesh++)
-			{
-				assert(vMesh[mesh]->pMeshData);
+			for (size_t mesh=0;mesh<nMeshes;mesh++) {
+				ASSERT(vMesh[mesh]->pMeshData);
 
-				if (NULL == vMesh[mesh]->pMaterial)
-					vMesh[mesh]->pMaterial = GetMaterial(vMesh[mesh]->sMaterial);
+				if (nullptr == vMesh[mesh]->pMaterial) vMesh[mesh]->pMaterial = GetMaterial(vMesh[mesh]->sMaterial);
 				SetMaterial(vMesh[mesh]->pMaterial);
 
 				RenderMesh(vMesh[mesh]);
@@ -977,7 +1057,7 @@ namespace breathe
 			return uiTriangles;
 		}
 
-		unsigned int cRender::RenderStaticModel(model::cStatic* p, math::cColour& colour)
+    unsigned int cRender::RenderStaticModel(model::cStaticRef p, const math::cColour& colour)
 		{
 			SetColour(colour);
 
@@ -988,7 +1068,7 @@ namespace breathe
 			return uiTriangles;
 		}
 
-		void cRender::RenderArrow(math::cVec3& from, math::cVec3& to, math::cColour& colour)
+    void cRender::RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour)
 		{
 			SetColour(colour);
     	glBegin(GL_LINES);
@@ -1003,7 +1083,7 @@ namespace breathe
 			RenderAxisReference(position);
 		}
 
-		void cRender::RenderAxisReference(math::cVec3& position)
+    void cRender::RenderAxisReference(const math::cVec3& position)
 		{
 			const float fWidth = 20.0f;
 
@@ -1034,7 +1114,7 @@ namespace breathe
 			glEnable(GL_COLOR_MATERIAL);
 		}
 
-		void cRender::RenderWireframeBox(math::cVec3& vMin, math::cVec3& vMax)
+    void cRender::RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax)
 		{
     	glBegin(GL_LINES);
 
@@ -1103,7 +1183,7 @@ namespace breathe
 
 
 
-		cTexture* cRender::AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas)
+    cTextureRef cRender::AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas)
 		{
 			assert(sNewFilename != "");
 			assert(ATLAS_NONE != uiAtlas);
@@ -1111,7 +1191,7 @@ namespace breathe
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 			string_t s = breathe::filesystem::GetFile(sFilename);
 
-			cTexture* p = vTextureAtlas[uiAtlas]->AddTexture(breathe::string::ToUTF8(sFilename));
+      cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(breathe::string::ToUTF8(sFilename));
 			if (p == nullptr || p == pTextureNotFoundTexture)
 			{
 				LOG.Error("Texture", breathe::string::ToUTF8(sFilename) + " pTextureNotFound");
@@ -1125,7 +1205,7 @@ namespace breathe
 			return p;
 		}
 
-		cTexture* cRender::AddTexture(const std::string& sNewFilename)
+    cTextureRef cRender::AddTexture(const string_t& sNewFilename)
 		{
 			assert(sNewFilename != "");
 
@@ -1133,18 +1213,18 @@ namespace breathe
 			string_t s = breathe::filesystem::GetFile(sFilename);
 
 
-			cTexture* p = GetTexture(breathe::string::ToUTF8(s));
+      cTextureRef p = GetTexture(breathe::string::ToUTF8(s));
 			if (p == nullptr)
 			{
 				assert(p != nullptr);
 				return pTextureNotFoundTexture;
 			}
 
-			p=new cTexture();
+      p = cTextureRef(new cTexture);
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
 			{
 				LOG.Error("Render", "Failed to load " + breathe::string::ToUTF8(sFilename));
-				SAFE_DELETE(p);
+				p.reset();
 				return pTextureNotFoundTexture;
 			}
 
@@ -1159,19 +1239,17 @@ namespace breathe
 			return p;
 		}
 
-		bool cRender::AddTextureNotFoundTexture(const std::string& sNewFilename)
+    bool cRender::AddTextureNotFoundTexture(const string_t& sNewFilename)
 		{
-			cTexture* p = new cTexture();
-
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 
-			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
-			{
+      cTextureRef p(new cTexture);
+			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
 				// Just assert, don't even try to come back from this situation
 				LOG.Error("Render", "Failed to load texture not found texture");
         CONSOLE<<"cRender::AddTextureNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
 				assert(false);
-				SAFE_DELETE(p);
+				p.reset();
 				return breathe::BAD;
 			}
 
@@ -1188,21 +1266,19 @@ namespace breathe
 			return breathe::GOOD;
 		}
 
-		bool cRender::AddMaterialNotFoundTexture(const std::string& sNewFilename)
+    bool cRender::AddMaterialNotFoundTexture(const string_t& sNewFilename)
 		{
-			cTexture* p=new cTexture();
-
 			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
 
 			LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
 
-			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
-			{
+      cTextureRef p(new cTexture);
+			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
 				// Just assert, don't even try to come back from this situation
 				LOG.Error("Render", "Failed to load material not found texture");
         CONSOLE<<"cRender::AddMaterialNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
 				assert(false);
-				SAFE_DELETE(p);
+				p.reset();
 				return breathe::BAD;
 			}
 
@@ -1220,44 +1296,41 @@ namespace breathe
 		}
 
 
-		cTexture* cRender::GetTextureAtlas(ATLAS atlas)
+    cTextureRef cRender::GetTextureAtlas(ATLAS atlas)
 		{
 			assert(atlas < nAtlas);
 
 			return vTextureAtlas[atlas];
 		}
 
-		cTexture* cRender::GetTexture(const std::string& sNewFilename)
+    cTextureRef cRender::GetTexture(const string_t& sNewFilename)
 		{
-			std::map<std::string, cTexture* >::iterator iter = mTexture.find(sNewFilename);
-			if (iter != mTexture.end())
-				return iter->second;
+      std::map<string_t, cTextureRef>::iterator iter = mTexture.find(sNewFilename);
+			if (iter != mTexture.end()) return iter->second;
 
 			return pTextureNotFoundTexture;
 		}
 
-		cVertexBufferObject* cRender::AddVertexBufferObject()
+    cVertexBufferObjectRef cRender::AddVertexBufferObject()
 		{
-			cVertexBufferObject* pVertexBufferObject = new cVertexBufferObject();
+      cVertexBufferObjectRef pVertexBufferObject(new cVertexBufferObject);
 			vVertexBufferObject.push_back(pVertexBufferObject);
 
 			return pVertexBufferObject;
 		}
 
-		cTexture* cRender::GetCubeMap(const string_t& sNewFilename)
+    cTextureRef cRender::GetCubeMap(const string_t& sNewFilename)
 		{
-			if (TEXT("")==sNewFilename)
-				return NULL;
+      if (TEXT("") == sNewFilename) return cTextureRef();
 
-			std::map<string_t, cTexture*>::iterator iter=mCubeMap.find(sNewFilename);
+      std::map<string_t, cTextureRef>::iterator iter=mCubeMap.find(sNewFilename);
 
-			if (mCubeMap.end()!=iter)
-				return iter->second;
+			if (mCubeMap.end() != iter) return iter->second;
 
-			return NULL;
+      return cTextureRef();
 		}
 
-		cTexture* cRender::AddCubeMap(const string_t& sFilename)
+    cTextureRef cRender::AddCubeMap(const string_t& sFilename)
 		{
 			/*TODO: Surface of 1x6 that holds the cubemap faces,
 			not actually used for rendering, just collecting each surface
@@ -1272,11 +1345,10 @@ namespace breathe
 			if (TEXT("")==sFilename)
 				return pTextureNotFoundTexture;
 
-			cTexture* p=mCubeMap[sFilename];
-			if (p)
-				return p;
+      cTextureRef p = mCubeMap[sFilename];
+			if (p) return p;
 
-			p=new cTexture();
+			p.reset(new cTexture);
 
 			mCubeMap[sFilename] = p;
 
@@ -1330,7 +1402,7 @@ namespace breathe
 				if (!surface)
 				{
 					LOG.Error("Texture", "Couldn't Load Texture " + breathe::string::ToUTF8(sFilename));
-					return NULL;
+					return cTextureRef();
 				}
 
 				if (surface->format->BytesPerPixel == 3) // RGB 24bit
@@ -1350,7 +1422,7 @@ namespace breathe
 					t << surface->format->BytesPerPixel;
 					LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
 
-					return NULL;
+          return cTextureRef();
 				}
 
 				{
@@ -1422,11 +1494,11 @@ namespace breathe
 			return p;
 		}
 
-		material::cMaterial* cRender::AddMaterialNotFoundMaterial(const std::string& sNewFilename)
+    material::cMaterialRef cRender::AddMaterialNotFoundMaterial(const string_t& sNewFilename)
 		{
 			AddMaterialNotFoundTexture(sNewFilename);
 
-			pMaterialNotFoundMaterial = new material::cMaterial("MaterialNotFound");
+			pMaterialNotFoundMaterial.reset(new material::cMaterial("MaterialNotFound"));
 
 			pMaterialNotFoundMaterial->vLayer[0]->sTexture = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename)));
 			pMaterialNotFoundMaterial->vLayer[0]->pTexture = pMaterialNotFoundTexture;
@@ -1435,26 +1507,22 @@ namespace breathe
 			return pMaterialNotFoundMaterial;
 		}
 
-		material::cMaterial* cRender::AddMaterial(const std::string& sNewfilename)
+    material::cMaterialRef cRender::AddMaterial(const string_t& sNewfilename)
 		{
-			if (""==sNewfilename)
-				return NULL;
+			if (""==sNewfilename) return material::cMaterialRef();
 
-			material::cMaterial* pMaterial = GetMaterial(sNewfilename);
+      material::cMaterialRef pMaterial = GetMaterial(sNewfilename);
 
-			if (pMaterial != pMaterialNotFoundMaterial)
-				return pMaterial;
+			if (pMaterial != pMaterialNotFoundMaterial) return pMaterial;
 
 			string_t sFilename = filesystem::FindFile(breathe::string::ToString_t(sNewfilename));
-			pMaterial = new material::cMaterial(breathe::string::ToUTF8(sFilename));
+			pMaterial.reset(new material::cMaterial(breathe::string::ToUTF8(sFilename)));
 
-			if (breathe::BAD == pMaterial->Load(breathe::string::ToUTF8(sFilename)))
-			{
-				SAFE_DELETE(pMaterial);
-				pMaterial=pMaterialNotFoundMaterial;
+			if (breathe::BAD == pMaterial->Load(breathe::string::ToUTF8(sFilename))) {
+				pMaterial = pMaterialNotFoundMaterial;
 			}
 
-			mMaterial[breathe::string::ToUTF8(filesystem::GetFile(sFilename))]=pMaterial;
+			mMaterial[breathe::string::ToUTF8(filesystem::GetFile(sFilename))] = pMaterial;
 
 			return pMaterial;
 		}
@@ -1502,7 +1570,7 @@ namespace breathe
 			return SetTexture1(GetTextureAtlas(atlas));
 		}
 
-		bool cRender::SetTexture0(cTexture* pTexture)
+    bool cRender::SetTexture0(cTextureRef pTexture)
 		{
 			assert(pTexture != nullptr);
 
@@ -1512,7 +1580,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetTexture1(cTexture* pTexture)
+    bool cRender::SetTexture1(cTextureRef pTexture)
 		{
 			assert(pTexture != nullptr);
 
@@ -1522,27 +1590,27 @@ namespace breathe
 			return true;
 		}
 
-		material::cMaterial* cRender::GetCurrentMaterial() const
+    material::cMaterialRef cRender::GetCurrentMaterial() const
 		{
 			assert(pCurrentMaterial != nullptr);
 			return pCurrentMaterial;
 		}
 
-		cTexture* cRender::GetCurrentTexture0() const
+    cTextureRef cRender::GetCurrentTexture0() const
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 0);
 			return pCurrentMaterial->vLayer[0]->pTexture;
 		}
 
-		cTexture* cRender::GetCurrentTexture1() const
+    cTextureRef cRender::GetCurrentTexture1() const
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 1);
 			return pCurrentMaterial->vLayer[1]->pTexture;
 		}
 
-		cTexture* cRender::GetCurrentTexture2() const
+    cTextureRef cRender::GetCurrentTexture2() const
 		{
 			assert(pCurrentMaterial != nullptr);
 			assert(pCurrentMaterial->vLayer.size() > 2);
@@ -1555,7 +1623,7 @@ namespace breathe
 			unsigned int n = 0;
 			unsigned int unit = GL_TEXTURE0;
 
-			material::cLayer* layerOld;
+      material::cLayer* layerOld;
 
 			for (i=n;i<material::nLayers;i++, unit++)
 			{
@@ -1603,7 +1671,7 @@ namespace breathe
 
 				//Set the current mode and texture
 				layerOld->uiTextureMode = TEXTURE_NONE;
-				layerOld->pTexture = NULL;
+				layerOld->pTexture.reset();
 				layerOld->sTexture = "";
 			}
 
@@ -1615,14 +1683,14 @@ namespace breathe
 
 			if (bCanShader) glUseProgram(0);
 
-			pCurrentMaterial = NULL;
+			pCurrentMaterial.reset();
 
 			ClearColour();
 
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, int value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, int value)
 		{
 			assert(pMaterial != nullptr);
 			assert(pMaterial->pShader != nullptr);
@@ -1639,7 +1707,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, float value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, float value)
 		{
 			assert(pMaterial != nullptr);
 			assert(pMaterial->pShader != nullptr);
@@ -1656,7 +1724,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetShaderConstant(material::cMaterial* pMaterial, std::string sConstant, math::cVec3& value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, const math::cVec3& value)
 		{
 			assert(pMaterial != nullptr);
 			assert(pMaterial->pShader != nullptr);
@@ -1673,7 +1741,7 @@ namespace breathe
 			return true;
 		}
 
-		bool cRender::SetMaterial(material::cMaterial* pMaterial, math::cVec3& pos)
+    bool cRender::SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos)
 		{
 			assert(pMaterial != nullptr);
 
@@ -1913,7 +1981,7 @@ namespace breathe
 					{
 						layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
 
-						cTexture* t=pLevel->FindClosestCubeMap(pos);
+            cTextureRef t=pLevel->FindClosestCubeMap(pos);
 
 						if (t)
 						{
@@ -2240,9 +2308,7 @@ namespace breathe
 					SetShaderConstant(pMaterial, "texUnit3", 3);
 
 				glEnable(GL_LIGHTING);
-			}
-			else if (bActiveShader)
-			{
+			} else if (bActiveShader) {
 				bActiveShader = false;
 
 				if (bCanShader) glUseProgram(0);
@@ -2252,36 +2318,33 @@ namespace breathe
 			return true;
 		}
 
-		material::cMaterial* cRender::GetMaterial(const std::string& sFilename)
+    material::cMaterialRef cRender::GetMaterial(const string_t& sFilename)
 		{
-			std::map<std::string, material::cMaterial*>::iterator iter=mMaterial.begin();
+      std::map<string_t, material::cMaterialRef>::iterator iter = mMaterial.begin();
+      std::map<string_t, material::cMaterialRef>::iterator iterEnd = mMaterial.end();
 
-			std::string temp = breathe::string::ToUTF8(filesystem::GetFile(breathe::string::ToString_t(sFilename)));
-			while(iter != mMaterial.end())
-			{
-				if (temp == iter->first)
-					return iter->second;
+      string_t temp = breathe::string::ToUTF8(filesystem::GetFile(breathe::string::ToString_t(sFilename)));
+      while(iter != iterEnd) {
+				if (temp == iter->first) return iter->second;
 				iter++;
 			}
 
 			return pMaterialNotFoundMaterial;
 		}
 
-		material::cMaterial* cRender::AddPostRenderEffect(const std::string& sFilename)
+    material::cMaterialRef cRender::AddPostRenderEffect(const string_t& sFilename)
 		{
-			material::cMaterial* pMaterial = AddMaterial(sFilename);
+      material::cMaterialRef pMaterial = AddMaterial(sFilename);
 			assert(pMaterial);
 			lPostRenderEffects.push_back(pMaterial);
 
-			if	(!pFrameBuffer0)
-			{
-				pFrameBuffer0 = new cTextureFrameBufferObject();
+			if	(!pFrameBuffer0) {
+				pFrameBuffer0.reset(new cTextureFrameBufferObject);
 				pFrameBuffer0->Create();
 			}
 
-			if (lPostRenderEffects.size() > 1 && !pFrameBuffer1)
-			{
-				pFrameBuffer1 = new cTextureFrameBufferObject();
+			if (lPostRenderEffects.size() > 1 && !pFrameBuffer1) {
+				pFrameBuffer1.reset(new cTextureFrameBufferObject);
 				pFrameBuffer1->Create();
 			}
 
@@ -2290,68 +2353,76 @@ namespace breathe
 
 		void cRender::RemovePostRenderEffect()
 		{
-			if	(!lPostRenderEffects.empty()) lPostRenderEffects.pop_back();
+			if (!lPostRenderEffects.empty()) lPostRenderEffects.pop_back();
 		}
 
 
-		model::cStatic* cRender::CreateNewModel(const string_t& sName)
+    model::cStaticRef cRender::CreateNewModel(const string_t& sName)
 		{
-			model::cStatic* pModel = mStatic[sName];
+      model::cStaticRef pModel = mStatic[sName];
+			if (pModel != nullptr) return pModel;
 
-			if (pModel)
-				return pModel;
-
-			pModel = new model::cStatic();
+			pModel.reset(new model::cStatic);
 
 			mStatic[sName] = pModel;
 
 			return pModel;
 		}
 
-		model::cStatic* cRender::AddModel(const string_t& sFilename)
+    model::cStaticRef cRender::AddModel(const string_t& sShortFilename)
 		{
-			string_t sNewfilename(breathe::filesystem::FindFile(sFilename));
-			model::cStatic* pModel = mStatic[sNewfilename];
+      model::cStaticRef pModel = GetModel(sShortFilename);
+			if (pModel != nullptr) return pModel;
 
-			if (pModel)
-				return pModel;
+			pModel.reset(new model::cStatic);
 
-			pModel=new model::cStatic();
+      string_t sNewfilename(breathe::filesystem::FindFile(sShortFilename));
+			if (pModel->Load(breathe::string::ToUTF8(sNewfilename))) {
+        mStatic[sNewfilename] = pModel;
 
-			if (pModel->Load(breathe::string::ToUTF8(sNewfilename)))
-			{
-				mStatic[sNewfilename]=pModel;
-
-				size_t i=0;
-				size_t n=pModel->vMesh.size();
-				for (i=0;i<n;i++)
-					AddMaterial(pModel->vMesh[i]->sMaterial);
+				const size_t n = pModel->vMesh.size();
+				for (size_t i = 0; i < n; i++) {
+          AddMaterial(pModel->vMesh[i]->sMaterial);
 					//pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
+        }
 
 				return pModel;
 			}
 
-			return NULL;
+      return model::cStaticRef();
 		}
 
-		model::cStatic* cRender::GetModel(const string_t& sFilename)
+    model::cStaticRef cRender::GetModel(const string_t& sFilename)
 		{
 			LOG<<"Looking for "<<sFilename<<std::endl;
-			std::map<string_t, model::cStatic*>::iterator iter = mStatic.begin();
-			std::map<string_t, model::cStatic*>::iterator iterEnd = mStatic.end();
-			while (iter != iterEnd)
-			{
-				LOG<<"static["<<iter->first<<"]"<<std::endl;
-				iter++;
-			}
+#ifndef NDEBUG
+      {
+        // Print out the current list of models
+        std::map<string_t, model::cStaticRef>::iterator iter = mStatic.begin();
+        std::map<string_t, model::cStaticRef>::iterator iterEnd = mStatic.end();
+        while (iter != iterEnd) {
+          LOG<<"static["<<iter->first<<"]"<<std::endl;
+          iter++;
+        }
+      }
+#endif
 
-			model::cStatic* pModel = mStatic[sFilename];
-			if (pModel)
-				return pModel;
+      std::map<string_t, model::cStaticRef>::iterator iter(mStatic.find(sFilename));
+      if (iter != mStatic.end()) {
+        model::cStaticRef pModel = iter->second;
+        if (pModel != nullptr) return pModel;
+      }
 
-			//std::cout<<"Couldn't find "<<sFilename<<std::endl;
 
-			return nullptr;
+      iter = mStatic.find(sFilename);
+      if (iter != mStatic.end()) {
+        model::cStaticRef pModel = iter->second;
+        if (pModel != nullptr) return pModel;
+      }
+
+			std::cout<<"Couldn't find "<<sFilename<<std::endl;
+
+      return model::cStaticRef();
 		}
 
 
@@ -2385,11 +2456,11 @@ namespace breathe
 
 		void cRender::TransformModels()
 		{
-			cTexture* t = NULL;
-			material::cMaterial* mat=NULL;
+      cTextureRef t;
+      material::cMaterialRef mat;
 
-			model::cStatic* s=NULL;
-			model::cMesh* pMesh;
+      model::cStaticRef s;
+      model::cMeshRef pMesh;
 			float* fTextureCoords=NULL;
 			size_t nMeshes=0;
 			unsigned int uiTriangles=0;
@@ -2399,50 +2470,42 @@ namespace breathe
 			unsigned int triangle=0;
 
 			//Transform uv texture coordinates
-			std::map<string_t, model::cStatic*>::iterator iter=mStatic.begin();
-			for (;iter!=mStatic.end();iter++)
-			{
+      std::map<string_t, model::cStaticRef>::iterator iter = mStatic.begin();
+      std::map<string_t, model::cStaticRef>::iterator iterEnd = mStatic.end();
+			while (iter != iterEnd) {
 				string_t sFilename = iter->first;
-				s=iter->second;
+				s = iter->second;
 
-				assert(s);
+        LOG.Success("cRender::TransformModels", "UV model=" + breathe::string::ToUTF8(sFilename));
+				ASSERT(s != nullptr);
 
 				nMeshes = s->vMesh.size();
 
 				std::ostringstream sOut;
 				sOut<<static_cast<unsigned int>(nMeshes);
-				LOG.Success("Transform", "UV model=" + breathe::string::ToUTF8(iter->first) + " meshes=" + sOut.str());
+        LOG.Success("cRender::TransformModels", "UV model=" + breathe::string::ToUTF8(sFilename) + " meshes=" + sOut.str());
 
-				for (mesh=0;mesh<nMeshes;mesh++)
-				{
+				for (mesh = 0; mesh < nMeshes; mesh++) {
 					pMesh = s->vMesh[mesh];
 					fTextureCoords = &pMesh->pMeshData->vTextureCoord[0];
 					nTexcoords = pMesh->pMeshData->vTextureCoord.size();
 
 					mat = GetMaterial(pMesh->sMaterial);
 
-					if (mat)
-					{
-						if (!mat->vLayer.empty())
-						{
+					if (mat != nullptr) {
+						if (!mat->vLayer.empty()) {
 							t = mat->vLayer[0]->pTexture;
 
-							if (NULL == t) t = GetTexture(mat->vLayer[0]->sTexture);
+							if (t == nullptr) t = GetTexture(mat->vLayer[0]->sTexture);
 
-							if (t)
-							{
-								for (texcoord=0;texcoord<nTexcoords;texcoord+=2)
-									t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-							}
-							else
-								LOG.Error("Transform", "Texture not found " + mat->vLayer[0]->sTexture);
-						}
-						else
-							LOG.Error("Transform", "Material doesn't have any layers");
-					}
-					else
-						LOG.Error("Transform", "Material not found " + pMesh->sMaterial);
+							if (t != nullptr) {
+								for (texcoord=0;texcoord<nTexcoords;texcoord+=2) t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
+							} else LOG.Error("Transform", "Texture not found " + mat->vLayer[0]->sTexture);
+						} else LOG.Error("Transform", "Material doesn't have any layers");
+					} else LOG.Error("Transform", "Material not found " + pMesh->sMaterial);
 				}
+
+        iter++;
 			}
 
 
@@ -2521,7 +2584,7 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Atlases");
-				cTextureAtlas* pAtlas = NULL;
+        cTextureAtlasRef pAtlas;
 				size_t n = vTextureAtlas.size();
 				for (size_t i = 0;i<n;i++)
 					vTextureAtlas[i]->Reload();
@@ -2529,9 +2592,9 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Misc Textures");
-				cTexture* pTexture = NULL;
-				std::map<std::string, cTexture* >::iterator iter=mTexture.begin();
-				std::map<std::string, cTexture* >::iterator iterEnd=mTexture.end();
+        cTextureRef pTexture;
+        std::map<string_t, cTextureRef>::iterator iter=mTexture.begin();
+        std::map<string_t, cTextureRef>::iterator iterEnd=mTexture.end();
 				while(iter != iterEnd)
 				{
 					pTexture = iter->second;
@@ -2544,9 +2607,9 @@ namespace breathe
 
 			{
 				LOG.Success("Render", "ReloadTextures Materials");
-				material::cMaterial* pMaterial = NULL;
-				std::map<std::string, material::cMaterial*>::iterator iter=mMaterial.begin();
-				std::map<std::string, material::cMaterial*>::iterator iterEnd=mMaterial.end();
+        material::cMaterialRef pMaterial;
+        std::map<string_t, material::cMaterialRef>::iterator iter=mMaterial.begin();
+        std::map<string_t, material::cMaterialRef>::iterator iterEnd=mMaterial.end();
 				while(iter != iterEnd)
 				{
 					pMaterial = iter->second;
@@ -2623,7 +2686,7 @@ namespace breathe
 		}
 
 
-		ApplyTexture::ApplyTexture(cTexture* pCurrent)
+    ApplyTexture::ApplyTexture(cTextureRef pCurrent)
 		{
 			pLast = pRender->GetCurrentTexture0();
 			pRender->SetTexture0(pCurrent);
@@ -2635,7 +2698,7 @@ namespace breathe
 		}
 
 
-		ApplyMaterial::ApplyMaterial(material::cMaterial* pCurrent)
+    ApplyMaterial::ApplyMaterial(material::cMaterialRef pCurrent)
 		{
 			pLast = pRender->GetCurrentMaterial();
 			pRender->SetMaterial(pCurrent);

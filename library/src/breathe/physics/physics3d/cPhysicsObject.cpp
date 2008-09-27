@@ -13,17 +13,6 @@
 
 #include <ode/ode.h>
 
-// ODE_API dTriMeshDataID dGeomTriMeshDataCreate(void) { dTriMeshDataID a; return a; }
-// ODE_API void dGeomTriMeshDataDestroy(dTriMeshDataID g) {}
-// ODE_API void dGeomTriMeshDataSet(dTriMeshDataID g, int data_id, void* in_data) {}
-// ODE_API void* dGeomTriMeshDataGet(dTriMeshDataID g, int data_id) { return NULL; }
-// ODE_API void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans ) {}
-
-// ODE_API void dGeomTriMeshDataBuildSimple(dTriMeshDataID g,
-//                                           const dReal* Vertices, int VertexCount,
-//                                           const int* Indices, int IndexCount) {}
-// ODE_API dGeomID dCreateTriMesh(dSpaceID space, dTriMeshDataID Data, dTriCallback* Callback, dTriArrayCallback* ArrayCallback, dTriRayCallback* RayCallback) { return 0; }
-
 #include <breathe/breathe.h>
 
 #include <breathe/util/cSmartPtr.h>
@@ -81,34 +70,20 @@ const unsigned int uiDirectionZ = 3;
 
 namespace breathe
 {
-	namespace physics
-	{
-		cPhysicsObject::cPhysicsObject()
-			: cObject()
-		{
-			bBody=true;
-			bDynamic=true;
-
-			body=NULL;
-			geom=NULL;
-
-
-
-			fWeight=1.0f;
-			fRadius=2.0f;
-
-
-
-			p[0]=0;
-			p[1]=0;
-			p[2]=0;
-
-			v[0]=0;
-			v[1]=0;
-			v[2]=0;
-
-			m.LoadIdentity();
-		}
+  namespace physics
+  {
+    cPhysicsObject::cPhysicsObject() :
+      bBody(true),
+      bDynamic(true),
+      body(NULL),
+      geom(NULL)
+    {
+      position.Set(0.0f, 0.0f, 0.0f);
+      v.Set(0.0f, 0.0f, 0.0f);
+      fWeight = 1.0f;
+      fRadius = 2.0f;
+      m.LoadIdentity();
+    }
 
 		cPhysicsObject::~cPhysicsObject()
 		{
@@ -149,14 +124,14 @@ namespace breathe
 
 			m.SetTranslation(pos);
 
-			p=pos;
+      position = pos;
 
-			dGeomSetPosition(geom, p.x, p.y, p.z);
+      dGeomSetPosition(geom, position.x, position.y, position.z);
 			dGeomSetRotation(geom, r);
 
 			if (bBody) {
 				body = dBodyCreate(physics::GetWorld());
-				dBodySetPosition(body, p.x, p.y, p.z);
+        dBodySetPosition(body, position.x, position.y, position.z);
 				dBodySetRotation(body, r);
 				dBodySetAutoDisableFlag(body, 1);
 
@@ -232,7 +207,7 @@ namespace breathe
 
 			m.SetTranslation(pos);
 
-			p=pos;
+      position = pos;
 
 			//Trimeshes are static for the moment
 			v[0]=0.0f;
@@ -289,7 +264,7 @@ namespace breathe
 
 			dGeomSetBody(geom, 0);
 
-			dGeomSetPosition(geom, p.x, p.y, p.z);
+      dGeomSetPosition(geom, position.x, position.y, position.z);
 			dGeomSetRotation(geom, r);
 
 
@@ -376,7 +351,7 @@ namespace breathe
 
 		void cPhysicsObject::UpdateComponents()
 		{
-			p=m.GetPosition();
+      position = m.GetPosition();
     }
 
     void cPhysicsObject::DestroyBody()

@@ -14,11 +14,15 @@
 #include <iostream>
 #include <fstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <GL/GLee.h>
 
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 #include <breathe/storage/filesystem.h>
@@ -32,6 +36,7 @@
 #include <breathe/math/cQuaternion.h>
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 

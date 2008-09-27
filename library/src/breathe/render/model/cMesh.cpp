@@ -13,6 +13,9 @@
 #include <fstream>
 #include <sstream>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <GL/GLee.h>
 
 #include <SDL/SDL.h>
@@ -23,6 +26,7 @@
 // Breathe
 #include <breathe/breathe.h>
 
+#include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
@@ -36,6 +40,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 
 
@@ -65,7 +70,7 @@ namespace breathe
 
 				uiTriangles(0),
 				uiTextures(0)
-			{				
+			{
 			}
 
 			cMeshData::~cMeshData()
@@ -75,7 +80,7 @@ namespace breathe
 				glDeleteBuffersARB(1, &uiTextureCoordBuffer);
 				glDeleteBuffersARB(1, &uiNormalBuffer);
 			}
-			
+
 			void cMeshData::CloneTo(cMeshData* rhs)
 			{
 				rhs->uiVertexBuffer = 0;
@@ -100,51 +105,50 @@ namespace breathe
 
 				glGenBuffersARB(1, &uiVertexBuffer);
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiVertexBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vVertex.size()*sizeof(float), &vVertex[0], GL_STATIC_DRAW_ARB );
-				
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vVertex.size() * sizeof(float), &vVertex[0], GL_STATIC_DRAW_ARB );
+
 				glGenBuffersARB(1, &uiIndexBuffer);
 				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, uiIndexBuffer);
-				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vIndex.size()*sizeof(unsigned int), &vIndex[0], GL_STATIC_DRAW_ARB );
+				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vIndex.size() * sizeof(unsigned int), &vIndex[0], GL_STATIC_DRAW_ARB );
 
 				glGenBuffersARB(1, &uiTextureCoordBuffer);
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiTextureCoordBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vTextureCoord.size()*sizeof(float), &vTextureCoord[0], GL_STATIC_DRAW_ARB );
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vTextureCoord.size() * sizeof(float), &vTextureCoord[0], GL_STATIC_DRAW_ARB );
 
 				glGenBuffersARB(1, &uiNormalBuffer);
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiNormalBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vNormal.size()*sizeof(float), &vNormal[0], GL_STATIC_DRAW_ARB );
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vNormal.size() * sizeof(float), &vNormal[0], GL_STATIC_DRAW_ARB );
 			}
 
 
       // *** cMesh
 
 			cMesh::cMesh() :
-				pMeshData(NULL),
-				pMaterial(NULL)
+				pMeshData(nullptr)
 			{
 			}
 
 			void cMesh::CreateNewMesh()
 			{
-				pMeshData = new cMeshData();
+				pMeshData = new cMeshData;
 			}
 
-			void cMesh::CloneTo(cMesh* rhs)
+      void cMesh::CloneTo(cMeshRef rhs)
 			{
-				rhs->pMeshData = new cMeshData();
+				rhs->pMeshData = new cMeshData;
 				pMeshData->CloneTo(rhs->pMeshData);
-				rhs->pMaterial = pMaterial;
-				rhs->sMaterial = sMaterial;
+        rhs->sMaterial = sMaterial;
+        rhs->pMaterial = pMaterial;
 			}
-			
-			void cMesh::SetMaterial(material::cMaterial* pInMaterial)
+
+			void cMesh::SetMaterial(material::cMaterialRef pInMaterial)
 			{
-				assert(pMaterial);
+				ASSERT(pMaterial);
 
 				sMaterial = pInMaterial->sName;
 				pMaterial = pInMaterial;
 			}
-			
+
 			void cMesh::SetMaterial(const std::string& sInMaterial)
 			{
 				sMaterial = sInMaterial;

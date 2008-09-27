@@ -1,3 +1,5 @@
+#include <cmath>
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -13,6 +15,7 @@
 #include <breathe/util/cString.h>
 #include <breathe/util/log.h>
 
+#include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cMat4.h>
 #include <breathe/math/cFrustum.h>

@@ -14,6 +14,9 @@
 #include <map>
 #include <string>
 
+// Boost includes
+#include <boost/shared_ptr.hpp>
+
 #include <GL/GLee.h>
 
 #include <SDL/SDL.h>
@@ -37,6 +40,7 @@
 #include <breathe/math/cFrustum.h>
 #include <breathe/math/cOctree.h>
 #include <breathe/math/cColour.h>
+#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 
@@ -64,7 +68,6 @@ namespace breathe
 		namespace material
 		{
 			cLayer::cLayer() :
-				pTexture(NULL),
 				uiTextureMode(TEXTURE_NONE)
 			{
 			}
@@ -88,12 +91,10 @@ namespace breathe
 			void cShader::CheckStatusVertex()
 			{
 				int infologLength = 0;
-				int charsWritten  = 0;
-
 				glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0)
-				{
+				if (infologLength > 0) {
 						char* infoLog = new char[infologLength];
+				    int charsWritten  = 0;
 						glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
 						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
@@ -109,12 +110,10 @@ namespace breathe
 			void cShader::CheckStatusFragment()
 			{
 				int infologLength = 0;
-				int charsWritten  = 0;
-
 				glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0)
-				{
+				if (infologLength > 0) {
 						char *infoLog = new char[infologLength];
+				    int charsWritten  = 0;
 						glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
 						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
@@ -130,12 +129,10 @@ namespace breathe
 			void cShader::CheckStatusProgram()
 			{
 				int infologLength = 0;
-				int charsWritten  = 0;
-
 				glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0)
-				{
+				if (infologLength > 0) {
 						char *infoLog = new char[infologLength];
+				    int charsWritten  = 0;
 						glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
 						std::string sInfo(infoLog);
 						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
@@ -149,17 +146,14 @@ namespace breathe
 
 			void cShader::Init()
 			{
-				if ("" != sShaderVertex)
-				{
+				if ("" != sShaderVertex) {
 					uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
 
 					std::string buffer="";
 					std::string line="";
 					std::ifstream f(sShaderVertex.c_str());
-					if (f.is_open())
-					{
-						while(!f.eof())
-						{
+					if (f.is_open()) {
+						while (!f.eof()) {
 							std::getline(f, line);
 
 							buffer+=line;
@@ -173,26 +167,21 @@ namespace breathe
 						glCompileShader(uiShaderVertex);
 
 						CheckStatusVertex();
-					}
-					else
-					{
+					} else {
 						LOG.Error("Material", std::string("Shader not found ") + sShaderVertex);
 						uiShaderVertex=0;
 					}
 				}
 
 
-				if ("" != sShaderFragment)
-				{
+				if ("" != sShaderFragment) {
 					uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
 
 					std::string buffer;
 					std::string line;
 					std::ifstream f(sShaderFragment.c_str());
-					if (f.is_open())
-					{
-						while(!f.eof())
-						{
+					if (f.is_open()) {
+						while (!f.eof()) {
 							std::getline(f, line);
 
 							buffer+=line;
@@ -204,23 +193,17 @@ namespace breathe
 						glCompileShader(uiShaderFragment);
 
 						CheckStatusFragment();
-					}
-					else
-					{
+					} else {
 						LOG.Error("Material", std::string("Shader not found ") + sShaderFragment);
 						uiShaderFragment=0;
 					}
 				}
 
-				if (uiShaderVertex || uiShaderFragment)
-				{
+				if (uiShaderVertex || uiShaderFragment) {
 					uiShaderProgram = glCreateProgram();
 
-					if (uiShaderVertex)
-						glAttachShader(uiShaderProgram, uiShaderVertex);
-
-					if (uiShaderFragment)
-						glAttachShader(uiShaderProgram, uiShaderFragment);
+					if (uiShaderVertex) glAttachShader(uiShaderProgram, uiShaderVertex);
+					if (uiShaderFragment) glAttachShader(uiShaderProgram, uiShaderFragment);
 
 					glLinkProgram(uiShaderProgram);
 
@@ -235,11 +218,8 @@ namespace breathe
 
 			void cShader::Destroy()
 			{
-				if (uiShaderFragment)
-					glDeleteShader(uiShaderFragment);
-
-				if (uiShaderVertex)
-					glDeleteShader(uiShaderVertex);
+				if (uiShaderFragment) glDeleteShader(uiShaderFragment);
+				if (uiShaderVertex) glDeleteShader(uiShaderVertex);
 
 				glDeleteProgram(uiShaderProgram);
 
@@ -273,18 +253,14 @@ namespace breathe
 
 				sName(name)
 			{
-				unsigned int i=0;
-				for (i=0;i<nLayers;i++)
-				{
-					vLayer.push_back(new cLayer());
-				}
+				unsigned int i = 0;
+				for (i=0;i<nLayers;i++) vLayer.push_back(new cLayer());
 			}
 
 			cMaterial::~cMaterial()
 			{
 				unsigned int i=0;
-				for (i=0;i<nLayers;i++)
-					SAFE_DELETE(vLayer[i]);
+				for (i=0;i<nLayers;i++) SAFE_DELETE(vLayer[i]);
 			}
 
 			bool cMaterial::Load(const std::string& inFilename)
@@ -308,8 +284,7 @@ namespace breathe
 				//</material>
 
 				iter.FindChild("material");
-				if (!iter)
-				{
+				if (!iter) {
 					LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
 					for (unsigned int i=0;i<nLayers;i++)
 						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
@@ -320,19 +295,16 @@ namespace breathe
 				iter.GetAttribute("collide", bCollideTrimesh);
 
 				std::string sValue;
-				if (iter.GetAttribute("sShaderVertex", sValue))
-				{
+				if (iter.GetAttribute("sShaderVertex", sValue)) {
 					if (pShader == nullptr) pShader = new cShader();
 					pShader->sShaderVertex = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
 				}
-				if (iter.GetAttribute("sShaderFragment", sValue))
-				{
+				if (iter.GetAttribute("sShaderFragment", sValue)) {
 					if (pShader == nullptr) pShader = new cShader();
 					pShader->sShaderFragment = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
 				}
 
-				if (pShader)
-				{
+				if (pShader != nullptr) {
 					iter.GetAttribute("cameraPos", pShader->bCameraPos);
 
 					iter.GetAttribute("texUnit0", pShader->bTexUnit0);
@@ -348,11 +320,9 @@ namespace breathe
 
 				cLayer* pLayer = NULL;
 				size_t i = 0;
-				while(iter && i < nLayers)
-				{
+				while (iter && i < nLayers) {
 					pLayer = vLayer[i];
-					if ("layer" == iter.GetName())
-					{
+					if ("layer" == iter.GetName()) {
 						std::string sTexture;
 						if (iter.GetAttribute("sTexture", sTexture))
 						{
@@ -361,8 +331,7 @@ namespace breathe
 						}
 
 						std::string sValue;
-						if (iter.GetAttribute("uiTextureMode", sValue))
-						{
+						if (iter.GetAttribute("uiTextureMode", sValue)) {
 							if (sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
 							else if (sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
 							else if (sValue == "TEXTURE_BLEND")				pLayer->uiTextureMode=TEXTURE_BLEND;
@@ -372,8 +341,7 @@ namespace breathe
 						}
 
 						unsigned int uiTextureAtlas = ATLAS_NONE;
-						if (iter.GetAttribute("uiTextureAtlas", sValue))
-						{
+						if (iter.GetAttribute("uiTextureAtlas", sValue)) {
 							if (sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
 							else if (sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
 							else if (sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
@@ -383,18 +351,15 @@ namespace breathe
 							else if (sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
 						}
 
-						if (TEXTURE_CUBEMAP == pLayer->uiTextureMode)
-						{
+						if (TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
 							uiTextureAtlas = ATLAS_NONE;
 							LOG.Error("CUBEMAP", "CUBEMAP");
 						}
 
-						if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode))
-						{
+						if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
 							if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 
-							if (NULL == pLayer->pTexture)
-							{
+							if (nullptr == pLayer->pTexture) {
 								uiTextureAtlas = ATLAS_NONE;
 								pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
 							}
