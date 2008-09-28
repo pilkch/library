@@ -13,7 +13,7 @@ namespace breathe
     {
     public:
       explicit cSeat(cVehicle* v);
-      ~cSeat() { EjectPlayer(); }
+      ~cSeat() { if (pPlayer != nullptr) EjectPlayer(); }
 
       void AssignPlayer(cPlayer* p);
       void EjectPlayer();

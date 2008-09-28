@@ -61,10 +61,11 @@ namespace breathe
 {
   namespace vehicle
   {
-    cSeat::cSeat(cVehicle* v)
+    cSeat::cSeat(cVehicle* v) :
+      pPlayer(nullptr)
     {
-      pPlayer=NULL;
-      pVehicle=v;
+      ASSERT(v != nullptr);
+      pVehicle = v;
     }
 
     void cSeat::AssignPlayer(cPlayer* p)
@@ -74,7 +75,7 @@ namespace breathe
       pPlayer = p;
       p->pSeat = this;
 
-      if(pVehicle->vSeat[0] == this) pPlayer->ChangeStateToDriving();
+      if (pVehicle->vSeat[0] == this) pPlayer->ChangeStateToDriving();
     }
 
     void cSeat::EjectPlayer()

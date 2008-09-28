@@ -18,6 +18,8 @@ namespace breathe
       float GetDistance(const cSphere& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
 
+      const cVec3& GetPosition() const { return position; }
+
       float_t GetHalfWidth() const { return fRadius; }
       float_t GetWidth() const { return fRadius + fRadius; }
 

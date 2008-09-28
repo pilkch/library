@@ -134,14 +134,14 @@ namespace breathe
     template <typename T> T intercept(T x, T x1, T y1, T slope) { return y1 - slope * (x1 - x); }
 
 
-		template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
-		{
-			return min_max(i, lower, upper);
-		}
+    template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
+    {
+      return min_max(i, lower, upper);
+    }
 
-		inline float clamp(float i)
-		{
-			return clamp(i, 0.0f, 1.0f);
+    inline float clamp(float i)
+    {
+      return clamp(i, 0.0f, 1.0f);
     }
 
     // Lineary interpolate from a to b using s = { 0..1 }
@@ -183,25 +183,25 @@ namespace breathe
         ((y > bounds_y) && (y < (bounds_y + bounds_height)));
     }
 
-		inline uint32_t random(uint32_t maximum)
-		{
-			return rand() % maximum;
-		}
+    inline uint32_t random(uint32_t maximum)
+    {
+      return rand() % maximum;
+    }
 
-		inline uint32_t random(uint32_t minimum, uint32_t maximum)
-		{
-			return minimum + rand() % maximum;
-		}
+    inline uint32_t random(uint32_t minimum, uint32_t maximum)
+    {
+      return minimum + rand() % maximum;
+    }
 
-		inline float randomZeroToOne()
-		{
-			return float(rand() % 10000) * 0.0001f;
-		}
+    inline float randomZeroToOne()
+    {
+      return float(rand() % 10000) * 0.0001f;
+    }
 
-		inline float randomMinusOneToPlusOne()
-		{
-			return -1.0f + float(rand() % 20000) * 0.0001f;
-		}
+    inline float randomMinusOneToPlusOne()
+    {
+      return -1.0f + float(rand() % 20000) * 0.0001f;
+    }
 
     class cScopedPredictableRandom
     {
@@ -257,9 +257,9 @@ namespace breathe
     template <class T>
     inline float GetDistance(const T& from, const T& to)
     {
-      return math::sqrtf((from.GetSquaredLength() + to.GetSquaredLength()).GetLength());
+      return (from - to).GetLength();
     }
-	}
+  }
 }
 
 #endif // CMATH_H

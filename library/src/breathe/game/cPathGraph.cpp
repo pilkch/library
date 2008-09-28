@@ -25,274 +25,300 @@
 
 namespace breathe
 {
-	namespace game
-	{
-		namespace path
-		{
-			cPathNode::cPathNode()
-			{
-				fWeight = 1.0f;
-			}
+  namespace game
+  {
+    namespace path
+    {
+      cNode::cNode()
+      {
+        fWeight = 1.0f;
+      }
 
-			cPathNode::cPathNode(math::cVec3& v)
-				: math::cVec3(v)
-			{
-				fWeight = 1.0f;
-			}
+      cNode::cNode(math::cVec3& v)
+        : math::cVec3(v)
+      {
+        fWeight = 1.0f;
+      }
 
-			cPathNode::cPathNode(float x, float y, float z)
-				: math::cVec3(x, y, z)
-			{
-				fWeight = 1.0f;
-			}
+      cNode::cNode(float x, float y, float z)
+        : math::cVec3(x, y, z)
+      {
+        fWeight = 1.0f;
+      }
 
-			cPathNode::~cPathNode()
-			{
-			}
+      cNode::~cNode()
+      {
+      }
 
-			void cPathNode::Update()
-			{
-				std::vector<cPathEdge*>::iterator iter = vEdge.begin();
-				std::vector<cPathEdge*>::iterator iterEnd = vEdge.end();
-				cPathEdge* pEdge = NULL;
-				while(iter != iterEnd)
-				{
-					pEdge = (*iter);
-					pEdge->fDistance = (*pEdge->pNode0 - *pEdge->pNode1).GetLength();
-				}
-			}
-
-
-
-			cPathEdge::cPathEdge()
-			{
-				fWeight = 1.0f;
-				fDistance = 1.0f;
-				pNode0 = pNode1 = NULL;
-			}
-
-			cPathEdge::cPathEdge(float weight)
-			{
-				fWeight = weight;
-				fDistance = 1.0f;
-				pNode0 = pNode1 = NULL;
-			}
-
-			cPathEdge::~cPathEdge()
-			{
-			}
-
-			void cPathEdge::Update()
-			{
-				if (pNode0 && pNode1) fDistance = (*pNode0 - *pNode1).GetLength();
-			}
-
-
-			cPathGraph::cPathGraph()
-			{
-			}
-
-			cPathGraph::~cPathGraph()
-			{
-			}
+      void cNode::Update()
+      {
+        std::vector<cEdge*>::iterator iter = vEdge.begin();
+        std::vector<cEdge*>::iterator iterEnd = vEdge.end();
+        cEdge* pEdge = NULL;
+        while(iter != iterEnd)
+        {
+          pEdge = (*iter);
+          pEdge->fDistance = (*pEdge->pNode0 - *pEdge->pNode1).GetLength();
+        }
+      }
 
 
 
-			cPathNode* cPathGraph::GetNode(const math::cVec3& v3Point)
-			{
-				std::vector<cPathNode*>::iterator iter = vNode.begin();
-				std::vector<cPathNode*>::iterator iterEnd = vNode.end();
-				float fClosest = math::cINFINITY;
-				cPathNode* pNode = NULL;
-				float fDistance = 0;
-				while(iter != iterEnd)
-				{
-					fDistance = (*(*iter) - v3Point).GetLength();
-					if (fDistance < fClosest)
-					{
-						fClosest = fDistance;
-						pNode = (*iter);
-					}
+      cEdge::cEdge()
+      {
+        fWeight = 1.0f;
+        fDistance = 1.0f;
+        pNode0 = pNode1 = NULL;
+      }
 
-					iter++;
-				}
+      cEdge::cEdge(float weight)
+      {
+        fWeight = weight;
+        fDistance = 1.0f;
+        pNode0 = pNode1 = NULL;
+      }
 
-				return pNode;
-			}
+      cEdge::~cEdge()
+      {
+      }
 
-			/*cPathNode* cPathGraph::GetNode(const int id)
-			{
-				std::vector<cPathNode*>::iterator iter = vNode.begin();
-				std::vector<cPathNode*>::iterator iterEnd = vNode.end();
-				while(iter != iterEnd)
-					if ((*iter)->uiID == id)
-						return *iter;
-
-				return NULL;
-			}*/
-
-			void cPathGraph::AddNode(cPathNode* node)
-			{
-				vNode.push_back(node);
-			}
+      void cEdge::Update()
+      {
+        if (pNode0 && pNode1) fDistance = (*pNode0 - *pNode1).GetLength();
+      }
 
 
-			void cPathGraph::AddEdgeOneWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination)
-			{
-				vEdge.push_back(edge);
-
-				// Set each node in our edge
-				edge->pNode0 = pNodeSource;
-				edge->pNode1 = pNodeDestination;
-
-				// Add this edge to the first node
-				edge->pNode0->vEdge.push_back(edge);
-			}
-
-			void cPathGraph::AddEdgeTwoWay(cPathEdge* edge, cPathNode* pNodeSource, cPathNode* pNodeDestination)
-			{
-				vEdge.push_back(edge);
-
-				// Set each node in our edge
-				edge->pNode0 = pNodeSource;
-				edge->pNode1 = pNodeDestination;
-
-				// Add this edge to the both nodes
-				edge->pNode0->vEdge.push_back(edge);
-				edge->pNode1->vEdge.push_back(edge);
-			}
-
-			/*void cPathGraph::AddEdgeOneWay(cPathEdge* edge, const int idSource, const int idDestination)
-			{
-				AddEdgeOneWay(edge, GetNode(idSource), GetNode(idDestination));
-			}
-
-			void cPathGraph::AddEdgeTwoWay(cPathEdge* edge, const int idSource, const int idDestination)
-			{
-				AddEdgeTwoWay(edge, GetNode(idSource), GetNode(idDestination));
-			}*/
-
-			// 1) if the current node if the end node:
-			// vPathOut = pNodeBegin;
-			// return true;
-
-			// 2) if there is a valid path:
-			// vPathOut = at least one node;
-			// return true;
-
-			// 3) if there is not a valid path:
-			// vPathOut = empty;
-			// return false;
-			bool cPathGraph::_GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd,
-				std::map<cPathNode*, bool>& mVisited, node_list& lPathOut)
-			{
-				cPathNode* pNodeCurrent = const_cast<cPathNode*>(pNodeBegin);
-
-				lPathOut.push_back(pNodeCurrent);
-
-				// 1) The current node is the one we are looking for
-				if (pNodeCurrent == pNodeEnd) return true;
 
 
-				// So far we have one visited node, pNodeCurrent
-				mVisited[pNodeCurrent] = true;
+      void cPathFinder::GetShortestPath(const cPathFinderPersonality& personality, const math::cVec3& start, const math::cVec3& finish, cPath& path) const
+      {
+        if (IsCloserToFinishThanClosestNode(personality, start, finish)) {
+        // We are finished
+          path.AddEndPoint(finish);
+          return;
+        }
 
-				std::vector<cPathEdge*>::iterator iter = vEdge.begin();
-				std::vector<cPathEdge*>::iterator iterEnd = vEdge.end();
-				while(iter != iterEnd)
-				{
-					cPathNode* pNode0 = (*iter)->pNode0;
-					cPathNode* pNode1 = (*iter)->pNode1;
+      // We don't have any other options, just try to go straight there
+        LOG<<"cPathFinder::GetShortestPath FAILED Trying to find the shortest path, just going straight to the finish"<<std::endl;
+        path.AddEndPoint(finish);
+      }
 
-					// pick whichever node is not null, doesn't equal null and hasn't been visited yet
-					cPathNode* pNodeTest = (pNode0 && (pNode0 != pNodeCurrent) && !mVisited[pNode0]) ? pNode0 :
-						(pNode1 && (pNode1 != pNodeCurrent) && !mVisited[pNode1]) ? pNode1 : NULL;
+      void cPathFinder::GetQuickestPath(const cPathFinderPersonality& personality, const math::cVec3& start, const math::cVec3& finish, cPath& path) const
+      {
+        if (IsCloserToFinishThanClosestNode(personality, start, finish)) {
+        // We are finished
+          path.AddEndPoint(finish);
+          return;
+        }
 
-					if (pNodeTest)
-					{
-						// Recursively search this node
-						bool bFoundPath = _GetPath(pNodeTest, pNodeEnd, mVisited, lPathOut);
-						if (bFoundPath)
-						{
-							// 2) There is a valid path to pNodeEnd
-							return true;
-						}
-					}
+      // We don't have any other options, just try to go straight there
+        LOG<<"cPathFinder::GetQuickestPath FAILED Trying to find the shortest path, just going straight to the finish"<<std::endl;
+        path.AddEndPoint(finish);
+      }
 
-					iter++;
-				}
 
-				// 3) No valid path to pNodeEnd
-				return false;
-			}
 
-			// 1) if the current node if the end node:
-			// vPathOut = pNodeBegin;
-			// return true;
 
-			// 2) if there is a valid path:
-			// vPathOut = at least one node;
-			// return true;
+      cPathGraph::cPathGraph()
+      {
+      }
 
-			// 3) if there is not a valid path:
-			// vPathOut = empty;
-			// return false;
-			bool cPathGraph::GetPath(const cPathNode* pNodeBegin, const cPathNode* pNodeEnd, node_list& lPathOut)
-			{
-				lPathOut.clear();
+      cPathGraph::~cPathGraph()
+      {
+      }
 
-				// Ok, we have to search, set up a vector the size of vNode that will say whether we have visited each node
-				std::map<cPathNode*, bool> mVisited;
 
-				std::vector<cPathNode*>::iterator iter = vNode.begin();
-				std::vector<cPathNode*>::iterator iterEnd = vNode.end();
-				while(iter != iterEnd)
-				{
-					mVisited[*iter] = false;
 
-					iter++;
-				}
+      cNode* cPathGraph::GetNode(const math::cVec3& v3Point)
+      {
+        std::vector<cNode*>::iterator iter = vNode.begin();
+        const std::vector<cNode*>::iterator iterEnd = vNode.end();
+        float fClosest = math::cINFINITY;
+        cNode* pNode = nullptr;
+        float fDistance = 0;
+        while (iter != iterEnd) {
+          fDistance = (*(*iter) - v3Point).GetLength();
+          if (fDistance < fClosest) {
+            fClosest = fDistance;
+            pNode = (*iter);
+          }
 
-				return _GetPath(pNodeBegin, pNodeEnd, mVisited, lPathOut);
-			}
+          iter++;
+        }
 
-			// This function gets a path from v3Begin to v3End if there is one.
-			// 1) if empty()
-			// vPathOut = empty;
-			// return false;
+        return pNode;
+      }
 
-			// 2) if distrance between v3Begin and v3End is less than the closest node:
-			// vPathOut = empty;
-			// return true;
+      /*cNode* cPathGraph::GetNodeById(const int id)
+      {
+        std::vector<cNode*>::iterator iter = vNode.begin();
+        const std::vector<cNode*>::iterator iterEnd = vNode.end();
+        while(iter != iterEnd) {
+          if ((*iter)->uiID == id) return *iter;
 
-			// 3) if the current node if the end node:
-			// vPathOut = pNodeBegin;
-			// return true;
+          iter=+;
+        }
 
-			// 4) if there is a valid path:
-			// vPathOut = at least one node;
-			// return true;
+        return nullptr;
+      }*/
 
-			// 5) if there is not a valid path:
-			// vPathOut = empty;
-			// return false;
-			bool cPathGraph::GetPath(const math::cVec3& v3Begin, const math::cVec3& v3End, node_list& lPathOut)
-			{
-				lPathOut.clear();
+      void cPathGraph::AddNode(cNode* node)
+      {
+        vNode.push_back(node);
+      }
 
-				// 1)
-				if (empty()) return false;
 
-				// 2)
-				cPathNode* pNodeBegin = GetNode(v3Begin);
-				if ((*pNodeBegin - v3Begin).GetLength() > (v3Begin - v3End).GetLength()) return true;
+      void cPathGraph::AddEdgeOneWay(cEdge* edge, cNode* pNodeSource, cNode* pNodeDestination)
+      {
+        vEdge.push_back(edge);
 
-				cPathNode* pNodeEnd = GetNode(v3End);
+        // Set each node in our edge
+        edge->pNode0 = pNodeSource;
+        edge->pNode1 = pNodeDestination;
 
-				return GetPath(pNodeBegin, pNodeEnd, lPathOut);
-			}
-		}
-	}
+        // Add this edge to the first node
+        edge->pNode0->vEdge.push_back(edge);
+      }
+
+      void cPathGraph::AddEdgeTwoWay(cEdge* edge, cNode* pNodeSource, cNode* pNodeDestination)
+      {
+        vEdge.push_back(edge);
+
+        // Set each node in our edge
+        edge->pNode0 = pNodeSource;
+        edge->pNode1 = pNodeDestination;
+
+        // Add this edge to the both nodes
+        edge->pNode0->vEdge.push_back(edge);
+        edge->pNode1->vEdge.push_back(edge);
+      }
+
+      /*void cPathGraph::AddEdgeOneWay(cEdge* edge, const int idSource, const int idDestination)
+      {
+        AddEdgeOneWay(edge, GetNode(idSource), GetNode(idDestination));
+      }
+
+      void cPathGraph::AddEdgeTwoWay(cEdge* edge, const int idSource, const int idDestination)
+      {
+        AddEdgeTwoWay(edge, GetNode(idSource), GetNode(idDestination));
+      }*/
+
+      // 1) if the current node if the end node:
+      // vPathOut = pNodeBegin;
+      // return true;
+
+      // 2) if there is a valid path:
+      // vPathOut = at least one node;
+      // return true;
+
+      // 3) if there is not a valid path:
+      // vPathOut = empty;
+      // return false;
+      bool cPathGraph::_GetPath(const cNode* pNodeBegin, const cNode* pNodeEnd, std::map<cNode*, bool>& mVisited, node_list& lPathOut)
+      {
+        cNode* pNodeCurrent = const_cast<cNode*>(pNodeBegin);
+
+        lPathOut.push_back(pNodeCurrent);
+
+        // 1) The current node is the one we are looking for
+        if (pNodeCurrent == pNodeEnd) return true;
+
+
+        // So far we have one visited node, pNodeCurrent
+        mVisited[pNodeCurrent] = true;
+
+        std::vector<cEdge*>::iterator iter = vEdge.begin();
+        const std::vector<cEdge*>::iterator iterEnd = vEdge.end();
+        while (iter != iterEnd) {
+          cNode* pNode0 = (*iter)->pNode0;
+          cNode* pNode1 = (*iter)->pNode1;
+
+          // pick whichever node is not null, doesn't equal null and hasn't been visited yet
+          cNode* pNodeTest = (pNode0 && (pNode0 != pNodeCurrent) && !mVisited[pNode0]) ? pNode0 :
+            (pNode1 && (pNode1 != pNodeCurrent) && !mVisited[pNode1]) ? pNode1 : NULL;
+
+          if (pNodeTest != nullptr) {
+            // Recursively search this node
+            bool bFoundPath = _GetPath(pNodeTest, pNodeEnd, mVisited, lPathOut);
+            if (bFoundPath) {
+              // 2) There is a valid path to pNodeEnd
+              return true;
+            }
+          }
+
+          iter++;
+        }
+
+        // 3) No valid path to pNodeEnd
+        return false;
+      }
+
+      // 1) if the current node if the end node:
+      // vPathOut = pNodeBegin;
+      // return true;
+
+      // 2) if there is a valid path:
+      // vPathOut = at least one node;
+      // return true;
+
+      // 3) if there is not a valid path:
+      // vPathOut = empty;
+      // return false;
+      bool cPathGraph::GetPath(const cNode* pNodeBegin, const cNode* pNodeEnd, node_list& lPathOut)
+      {
+        lPathOut.clear();
+
+        // Ok, we have to search, set up a vector the size of vNode that will say whether we have visited each node
+        std::map<cNode*, bool> mVisited;
+
+        std::vector<cNode*>::iterator iter = vNode.begin();
+        std::vector<cNode*>::iterator iterEnd = vNode.end();
+        while(iter != iterEnd) {
+          mVisited[*iter] = false;
+
+          iter++;
+        }
+
+        return _GetPath(pNodeBegin, pNodeEnd, mVisited, lPathOut);
+      }
+
+      // This function gets a path from v3Begin to v3End if there is one.
+      // 1) if empty()
+      // vPathOut = empty;
+      // return false;
+
+      // 2) if distrance between v3Begin and v3End is less than the closest node:
+      // vPathOut = empty;
+      // return true;
+
+      // 3) if the current node if the end node:
+      // vPathOut = pNodeBegin;
+      // return true;
+
+      // 4) if there is a valid path:
+      // vPathOut = at least one node;
+      // return true;
+
+      // 5) if there is not a valid path:
+      // vPathOut = empty;
+      // return false;
+      bool cPathGraph::GetPath(const math::cVec3& v3Begin, const math::cVec3& v3End, node_list& lPathOut)
+      {
+        lPathOut.clear();
+
+        // 1)
+        if (empty()) return false;
+
+        // 2)
+        cNode* pNodeBegin = GetNode(v3Begin);
+        if ((*pNodeBegin - v3Begin).GetLength() > (v3Begin - v3End).GetLength()) return true;
+
+        cNode* pNodeEnd = GetNode(v3End);
+
+        return GetPath(pNodeBegin, pNodeEnd, lPathOut);
+      }
+    }
+  }
 }
 
 
@@ -303,43 +329,43 @@ namespace breathe
 class cPathGraphUnitTest : protected breathe::util::cUnitTestBase
 {
 public:
-	cPathGraphUnitTest() :
-		cUnitTestBase("cPathGraphUnitTest")
-	{
-	}
+  cPathGraphUnitTest() :
+    cUnitTestBase("cPathGraphUnitTest")
+  {
+  }
 
-	void Test()
-	{
-		breathe::game::path::cPathGraph graph;
+  void Test()
+  {
+    breathe::game::path::cPathGraph graph;
 
-		breathe::game::path::cPathNode* n0 = new breathe::game::path::cPathNode(1.0f, 1.0f, 0.0f);
-		breathe::game::path::cPathNode* n1 = new breathe::game::path::cPathNode(2.0f, 8.0f, 0.0f);
-		breathe::game::path::cPathNode* n2 = new breathe::game::path::cPathNode(3.0f, 1.0f, 0.0f);
+    breathe::game::path::cNode* n0 = new breathe::game::path::cNode(1.0f, 1.0f, 0.0f);
+    breathe::game::path::cNode* n1 = new breathe::game::path::cNode(2.0f, 8.0f, 0.0f);
+    breathe::game::path::cNode* n2 = new breathe::game::path::cNode(3.0f, 1.0f, 0.0f);
 
-		breathe::game::path::cPathEdge* e0 = new breathe::game::path::cPathEdge(1.0f);
-		breathe::game::path::cPathEdge* e1 = new breathe::game::path::cPathEdge(2.0f);
+    breathe::game::path::cEdge* e0 = new breathe::game::path::cEdge(1.0f);
+    breathe::game::path::cEdge* e1 = new breathe::game::path::cEdge(2.0f);
 
-		graph.AddNode(n0);
-		graph.AddNode(n1);
-		graph.AddNode(n2);
+    graph.AddNode(n0);
+    graph.AddNode(n1);
+    graph.AddNode(n2);
 
-		graph.AddEdgeTwoWay(e0, n0, n1);
-		graph.AddEdgeTwoWay(e1, n1, n2);
+    graph.AddEdgeTwoWay(e0, n0, n1);
+    graph.AddEdgeTwoWay(e1, n1, n2);
 
-		breathe::game::path::node_list path;
+    breathe::game::path::node_list path;
 
-		graph.GetPath(breathe::math::cVec3(0.0f, 0.0f, 0.0f), breathe::math::cVec3(10.0f, 1.0f, 0.0f), path);
+    graph.GetPath(breathe::math::cVec3(0.0f, 0.0f, 0.0f), breathe::math::cVec3(10.0f, 1.0f, 0.0f), path);
 
-		breathe::game::path::node_list_iterator iter = path.begin();
-		breathe::game::path::node_list_iterator iterEnd = path.end();
+    breathe::game::path::node_list_iterator iter = path.begin();
+    breathe::game::path::node_list_iterator iterEnd = path.end();
 
-		breathe::game::path::cPathNode* pNode = NULL;
-		while(iter != iterEnd)
-		{
-			pNode = *iter;
-			iter++;
-		}
-	}
+    breathe::game::path::cNode* pNode = nullptr;
+    while(iter != iterEnd) {
+      pNode = *iter;
+
+      iter++;
+    }
+  }
 };
 
 cPathGraphUnitTest gPathGraphUnitTest;
