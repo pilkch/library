@@ -1,6 +1,19 @@
 #ifndef SCENEGRAPH_H
 #define SCENEGRAPH_H
 
+#include <breathe/breathe.h>
+#include <breathe/math/math.h>
+#include <breathe/math/cVec3.h>
+#include <breathe/math/cMat4.h>
+#include <breathe/math/cQuaternion.h>
+
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cRender.h>
+
+// http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph/trunk/src/osgUtil/Optimizer.cpp?format=txt
+
 // cSceneNode
 //     |
 //     v
@@ -23,17 +36,6 @@
 // {
 //   std::list<cRenderableNodeRef> children
 // }
-
-#include <breathe/breathe.h>
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cQuaternion.h>
-
-#include <breathe/render/cTexture.h>
-#include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 
 namespace breathe
 {
@@ -124,7 +126,6 @@ namespace breathe
 
     class cUpdateVisitor;
     class cCullVisitor;
-    class cRenderVisitor;
 
     class cStateSet
     {
@@ -222,23 +223,89 @@ namespace breathe
       std::vector<cSceneNodeRef> children;
     };
 
+    // Adds everything below this node to the list of 2D objects to be rendered, ie. HUD
+    class cProjection2D : public cSceneNode
+    {
+    public:
+      void SetChild(cSceneNodeRef _pChild) { pChild = _pChild; }
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      cSceneNodeRef pChild;
+    };
+
     class cModelNode : public cSceneNode
     {
     public:
 
     private:
-      virtual void _Update(cUpdateVisitor& visitor);
-      virtual void _Cull(cCullVisitor& visitor);
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
     };
 
-    class cLightNode : public cSceneNode
+    class cLightNode : cSceneNode
     {
     public:
 
     private:
-      virtual void _Update(cUpdateVisitor& visitor);
-      virtual void _Cull(cCullVisitor& visitor);
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      math::cColour colourAmbient;
+      math::cColour colourDiffuse;
+      float_t fMaximumDistanceRadius;
     };
+
+    class cSwitchNode : cSceneNode
+    {
+    public:
+      cSwitchNode() : index(0) {}
+
+      void SetIndex(size_t index);
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      size_t index;
+      std::vector<cSceneNodeRef> node;
+    };
+
+    inline void cSwitchNode::SetIndex(size_t _index)
+    {
+   // Make sure that we set our new index to a reasonable value
+      const size_t n = node.size();
+      ASSERT(n != 0);
+      ASSERT(_index < n);
+      index = _index;
+    }
+
+    class cLODNode : cSceneNode
+    {
+    public:
+      cLODNode() : index(0) {}
+
+      void SetLOD(size_t LOD);
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      size_t index;
+      std::vector<cSceneNodeRef> node;
+    };
+
+    inline void cLODNode::SetLOD(size_t LOD)
+    {
+      // Make sure that we set our new index to a reasonable value
+      const size_t n = node.size();
+      ASSERT(n != 0);
+      ASSERT(LOD < n);
+      index = LOD;
+    }
+
 
     // Octree for spatially representing the world
     class cSpatialGraphNode
@@ -296,6 +363,8 @@ namespace breathe
       cSceneGraph& scenegraph;
     };
 
+
+    // Render visitor does not visit cSceneGraph nodes, it visits the cRenderGraph nodes that have been collected
     class cRenderVisitor
     {
     public:
@@ -438,12 +507,13 @@ namespace breathe
     class cSceneGraph
     {
     public:
+      friend class cUpdateVisitor;
       friend class cCullVisitor;
       friend class cRenderVisitor;
 
       cSceneGraph();
 
-      cGroupNodeRef GetRoot() const { return pRoot; }
+      cGroupNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
 
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }

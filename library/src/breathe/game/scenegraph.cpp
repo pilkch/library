@@ -169,24 +169,64 @@ namespace breathe
 
     void cGroupNode::_Update(cUpdateVisitor& visitor)
     {
+      // If we don't have any children, return
+      if (children.empty()) return;
+
+      // Visit all child nodes
       std::vector<cSceneNodeRef>::iterator iter(children.begin());
       const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
-
       while (iter != iterEnd) {
+        ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
+
         iter++;
-      };
+      }
     }
 
     void cGroupNode::_Cull(cCullVisitor& visitor)
     {
+      // If we don't have any children, return
+      if (children.empty()) return;
+
+      // Visit all child nodes
       std::vector<cSceneNodeRef>::iterator iter(children.begin());
       const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
-
       while (iter != iterEnd) {
+        ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
+
         iter++;
-      };
+      }
+    }
+
+
+    void cProjection2D::_Update(cUpdateVisitor& visitor)
+    {
+      visitor.Visit(*pChild);
+    }
+
+    void cProjection2D::_Cull(cCullVisitor& visitor)
+    {
+      visitor.Visit(*pChild);
+    }
+
+
+    void cSwitchNode::_Update(cUpdateVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+    // Only visit the node that we require
+      visitor.Visit(*node[index]);
+    }
+
+    void cSwitchNode::_Cull(cCullVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+    // Only visit the node that we require
+      visitor.Visit(*node[index]);
     }
 
 
@@ -217,6 +257,24 @@ namespace breathe
 
 
 
+
+    void cLODNode::_Update(cUpdateVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+      // Only visit the node that we require
+      visitor.Visit(*node[index]);
+    }
+
+    void cLODNode::_Cull(cCullVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+    // Only visit the node that we require
+      visitor.Visit(*node[index]);
+    }
 
 
 

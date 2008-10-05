@@ -332,6 +332,160 @@ NOS (Blue Column Graph): Premium, Racing
 
 Inject worst NOS first: fNitrousPremium, then fNitrousRacing.  When fNitrousRacing is empty, fuel tank is empty.
 Premium=1.7f of performance, Racing=2.2f of performance
+
+
+
+
+
+
+
+
+
+
+// *** cFlamableTank
+// This is a generic tanks for carrying either petrol or nitrous oxide
+// It can contain a few different types of the thing it is carrying,
+// for petrol: Normal, High Octane, Racing
+// for nitrous oxide: Normal, High Octane, Racing
+enum TANK_CONTENTS
+{
+   TANK_CONTENTS_NORMAL = 0,
+   TANK_CONTENTS_HIGH_OCTANE,
+   TANK_CONTENTS_RACING
+};
+
+class cFlamableTank
+{
+  public:
+   void SetTypePetrol(float maxCapacityL);
+   void SetTypeNitrousOxide();
+
+   float GetMassKg() const; // This includes contents
+   float GetMassNotIncludingContentsKg() const; // This does include contents
+   float GetMassOfContentsKg() const; // Contents only
+
+   float GetContentsL(TANK_CONTENTS contentsType) const;
+
+   void EmptyAllContents();
+   void EmptyContents(TANK_CONTENTS contentsType);
+
+   bool BurnContentsL(TANK_CONTENTS contentsType, float amountL);
+
+  private:
+   bool bIsCarryingPetrol;
+   float fContentsLToKg; // For calculating how much a contents weighs
+   float fTankMassKg; // How much does this tank weigh empty?
+
+   float fMaxCapacityL; // How much total contents this car can carry in Litres
+
+   math::cVec3 position; // Position relative to the car
+
+   float contentsAmountL[3]; // How much of each type of contents in Litres
+};
+
+cFlamableTank::cFlamableTank() :
+   position(0.0f, 0.0f, 0.0f)
+{
+   SetTypePetrol(1.0f);
+}
+
+void cFlamableTank::SetTypePetrol(float maxCapacityL)
+{
+   bIsCarryingPetrol = true;
+   fContentsLToKg = 1.0f;
+   fMaxCapacityL = maxCapacityL;
+   fTankMassKg = fMaxCapacityL * 0.5f;
+
+   contentsAmountL[0] = contentsAmountL[1] = contentsAmountL[2] = 0.0f;
+}
+
+void cFlamableTank::SetTypeNitrousOxide()
+{
+   bIsCarryingPetrol = false;
+   fContentsLToKg = 0.1f;
+   fMaxCapacityL = 2.0f;
+   fTankMassKg = fMaxCapacityL * 0.5f;
+
+   contentsAmountL[0] = contentsAmountL[1] = contentsAmountL[2] = 0.0f;
+}
+
+float cFlamableTank::GetMassNotIncludingPetrolKg() const
+{
+   return fPetrolTankMassKg;
+}
+
+float cFlamableTank::GetMassOfPetrolKg() const
+{
+   float fTotalMassKg = 0.0f;
+
+   // Calculate the amount in Kg and add it to the total
+   fTotalMassKg += petrolAmountL[0] * fContentsLToKg;
+   fTotalMassKg += petrolAmountL[0] * fContentsLToKg;
+   fTotalMassKg += petrolAmountL[0] * fContentsLToKg;
+
+   return fTotalMassKg;
+}
+
+float cFlamableTank::GetMassKg() const
+{
+   return GetMassNotIncludingPetrolKg() + GetMassOfPetrolKg();
+}
+
+
+
+class cVehicle
+{
+  public:
+   float GetMassBodyKg() const;
+   float GetMassEngineKg() const;
+   float GetMassPetrolTankKg() const;
+
+   float GetMassNetKg() const; // Total of all components including turbo parts, wheels, crankshaft etc.
+   float GetMassGrossKg() const; // GetMassNetKg + petrol + nitrous oxide + passengers
+
+   cVec3 GetCentreOfGravity() const;
+
+  private:
+   float fMassKg;
+
+   cEngine engine;
+   cPetrolTank petrolTank;
+   cVehicleControlModule vcm; // Control module for driver aids for this vehicle
+};
+
+cVec3 GetCentreOfGravity() const
+{
+
+}
+
+float cVehicle::GetMassBodyKg() const
+{
+   return fMassKg;
+}
+
+float cVehicle::GetMassEngineKg() const
+{
+   return engine.GetMassKg();
+}
+
+float cVehicle::GetMassPetrolTankKg() const
+{
+   return petrolTank.GetMassKg();
+}
+
+
+// Total of all components including turbo parts, wheels, crankshaft etc.
+float cVehicle::GetMassNetKg() const
+{
+   return GetMassBodyKg() + GetMassEngineKg() + ...;
+}
+
+// GetMassNetKg + petrol + nitrous oxide + passengers
+float cVehicle::GetMassGrossKg() const
+{
+   return GetMassNetKg() + petrolTank.GetMassOfPetrolKg() + GetMa
+}
+
 */
 
 namespace breathe

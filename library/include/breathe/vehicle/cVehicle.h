@@ -1,6 +1,13 @@
 #ifndef CVEHICLE_H
 #define CVEHICLE_H
 
+// The Physics of Racing Series
+// http://www.miata.net/sport/Physics/
+
+// The Physics of Racing Series: Part 22 The Magic Formula Lateral Version
+// http://www.miata.net/sport/Physics/Part22.html
+
+
 // Backfiring (Actually called afterfire, backfiring is something else)
 
 // BOV = Blow Off Valve
