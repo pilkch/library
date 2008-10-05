@@ -1,6 +1,21 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+// Shared folder mirrors the directory structure of each program
+//
+// ~/Dev/shared/lang.h
+// ~/Dev/shared/lang_us.h
+// ~/Dev/shared/data/textures/
+//                   fonts/
+//                   materials/
+//
+// ~/Dev/drive/lang.h
+// ~/Dev/drive/lang_us.h
+// ~/Dev/drive/data/textures/
+//                  fonts/
+//                  materials/
+//
+
 #ifdef __WIN__
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
@@ -29,15 +44,11 @@ namespace breathe
 #endif
 
     uint32_t GetLastModifiedDate(const string_t& sFilename);
+    uint64_t GetFileSize();
 
     string_t GetCurrentDirectory();
     void ChangeToDirectory(const string_t& sDirectory);
 
-    //Return the full filename "concrete.png" = "data/common/images/" + sFilename
-    string_t FindFile(const string_t& sFilename);
-    string_t FindFile(const string_t& sPath, const string_t& sFilename);
-
-    void AddDirectory(const string_t& sDirectory);
 
 #ifndef FIRESTARTER
     string_t GetMD5(const string_t& sFilename);
@@ -65,7 +76,14 @@ namespace breathe
 		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
 		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
 
-    uint64_t GetFileSize();
+
+    void AddDirectory(const string_t& sDirectory);
+
+    // This is the prefered method as it will find files in $shared/data and $app/data as well as any other paths that have been added
+    bool FindResourceFile(const string_t& sFilename, string_t& sOutFilename);
+    bool FindResourceFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename);
+
+    bool FindFile(const string_t& sFilename, string_t& sOutFilename);
 
 
     class cScopedDirectoryChange

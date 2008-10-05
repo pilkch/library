@@ -1,6 +1,6 @@
 /*
  *  RFC 1321 compliant MD5 implementation
- *  
+ *
  *  Incorporated into:
  *  Various GPL projects by Christopher Pilkington
  *
@@ -24,10 +24,10 @@
 
 
 /*
- *	08/11/2004 Adapted by Christopher Pilkington
- *	-Operates within a class for easier access.  
- *	-Variety of ways of collecting the result: raw data, formatted string
- *	-Can check files or strings
+ * 08/11/2004 Adapted by Christopher Pilkington
+ *  - Operates within a class for easier access.
+ *  - Variety of ways of collecting the result: raw data, formatted string
+ *  - Can check files or strings
  */
 
 #include <cstdio>
@@ -246,7 +246,7 @@ namespace breathe
 				P( B, C, D, A, 12, 20, 0x8D2A4C8A );
 
 		#undef F
-			  
+
 		#define F(x,y,z) (x ^ y ^ z)
 
 				P( A, B, C, D,  5,  4, 0xFFFA3942 );
@@ -298,7 +298,7 @@ namespace breathe
 	void cMD5::Update( cMD5_Context *ctx, unsigned char *input, uint32_t length )
 	{
 		if (! length ) return;
-		
+
 		uint32_t left = ctx->total[0] & 0x3F;
 		uint32_t fill = 64 - left;
 
@@ -357,7 +357,7 @@ namespace breathe
 
 
 		std::ostringstream t;
-		
+
 		t << std::hex << std::setw(2) << std::setfill('0');
 		t << static_cast < unsigned short > (result[0]);
 		t << static_cast < unsigned short > (result[1]);
@@ -375,7 +375,7 @@ namespace breathe
 		t << static_cast < unsigned short > (result[13]);
 		t << static_cast < unsigned short > (result[14]);
 		t << static_cast < unsigned short > (result[15]);
-		
+
 		sResult = t.str();
 	}
 

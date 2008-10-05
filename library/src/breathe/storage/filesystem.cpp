@@ -223,8 +223,7 @@ namespace breathe
       string_t s = sFilename;
 
       string_t::size_type i = s.find(TEXT("/"));
-      while(i != string_t::npos)
-      {
+      while (i != string_t::npos) {
         i++;
         p += s.substr(0, i);
         s = s.substr(i);
@@ -249,8 +248,7 @@ namespace breathe
     {
       string_t::size_type i = sFilename.find(TEXT("/"));
       string_t temp = sFilename;
-      while(i != string_t::npos)
-      {
+      while (i != string_t::npos) {
         i++;
         temp = temp.substr(i);
         i = temp.find(TEXT("/"));
@@ -267,8 +265,7 @@ namespace breathe
       string_t s=sFilename;
 
       string_t::size_type i=s.find(TEXT("/"));;
-      while(i != string_t::npos)
-      {
+      while(i != string_t::npos) {
         i++;
         s=s.substr(i);
         i=s.find(TEXT("/"));
@@ -277,8 +274,7 @@ namespace breathe
       if (i != string_t::npos) s = s.substr(i);
 
       i = s.find(TEXT("."));
-      while(i!=string_t::npos)
-      {
+      while (i != string_t::npos) {
         i++;
         s = s.substr(i);
         i = s.find(TEXT("."));
@@ -330,31 +326,40 @@ namespace breathe
 #endif
     }
 
-    string_t FindFile(const string_t& sPath, const string_t& sFilename)
+    bool FindFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
     {
-      string_t temp = FindFile(sPath + sFilename);
+      sOutFilename.clear();
 
-      if (FileExists(temp)) return temp;
+      string_t temp;
+      FindFile(sPath + sFilename, temp);
 
-      return FindFile(sFilename);
+      if (FileExists(temp)) {
+        sOutFilename = temp;
+        return true;
+      }
+
+      return FindFile(sFilename, sOutFilename);
     }
 
-    string_t FindFile(const string_t& sFilename)
+    bool FindFile(const string_t& sFilename, string_t& sOutFilename)
     {
 #ifdef __LINUX__
       CONSOLE<<"FindFile "<<sFilename<<std::endl;
 #endif
-      if (TEXT("") == sFilename) return sFilename;
+      sOutFilename.clear();
+
+      if (TEXT("") == sFilename) return false;
 
       // Check for each directory+sFilename
       std::vector<string_t>::iterator iter = vDirectory.begin();
       const std::vector<string_t>::iterator iterEnd = vDirectory.end();
       while (iter != iterEnd) {
         string_t filename = breathe::string::ToString_t((*iter) + sFilename);
-        CONSOLE<<"Attempting to open "<<filename<<std::endl;
+        CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
         if (FileExists(filename)) {
-          CONSOLE<<"Found "<<filename<<std::endl;
-          return filename;
+          CONSOLE<<"FindFile Found "<<filename<<std::endl;
+          sOutFilename = filename;
+          return true;
         }
 
         iter++;
@@ -371,22 +376,36 @@ namespace breathe
       //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
       //   if (FileExists(filename)) {
       //     CONSOLE<<"Found "<<filename<<std::endl;
-      //     return filename;
+      //     sOutFilename = filename;
+      //     return true;
       //   }
       //
       //   iter++;
       // };
 
       // Check sFilename that was passed in
-      CONSOLE<<"Attempting to open "<<sFilename<<std::endl;
-      if (FileExists(sFilename))
-      {
-        CONSOLE<<"Found "<<sFilename<<std::endl;
-        return sFilename;
+      CONSOLE<<"FindFile Attempting to open "<<sFilename<<std::endl;
+      if (FileExists(sFilename)) {
+        CONSOLE<<"FindFileFound "<<sFilename<<std::endl;
+        sOutFilename = sFilename;
+        return true;
       }
 
-      return sFilename;
+      return false;
     }
+
+    bool FindResourceFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
+    {
+      const string_t sNewPath(sPath + TEXT("data/"));
+      return FindFile(sNewPath, sFilename, sOutFilename);
+    }
+
+    bool FindResourceFile(const string_t& sFilename, string_t& sOutFilename)
+    {
+      const string_t sNewFilename(TEXT("data/") + sFilename);
+      return FindFile(sNewFilename, sOutFilename);
+    }
+
 
     uint64_t GetFileSize(const string_t& sFilename)
     {

@@ -21,6 +21,8 @@ namespace breathe
         PROTOCOL_UNKNOWN
 
         /*
+        file://localhost/home/chris/file.txt
+
         lastfm
         shout
         musicsearch

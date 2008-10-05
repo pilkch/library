@@ -230,6 +230,7 @@ int intersect_triangle(
 #include <breathe/util/log.h>
 #include <breathe/util/cVar.h>
 #include <breathe/util/cTimer.h>
+#include <breathe/util/thread.h>
 
 #include <breathe/storage/filesystem.h>
 #include <breathe/storage/xml.h>
@@ -281,8 +282,232 @@ int intersect_triangle(
 
 #include <breathe/audio/audio.h>
 
+/*
+Automatic updates:
+Settings:
+Radio buttons:
+  () Check for updates
+  () Don''t check for updates
+
+If an update is found:
+Radio buttons:
+  () Download and apply it automatically
+  () Ask me if I would like to download and apply it
+
+  At program startup check for updates.
+  If an update is found start downloading it.
+
+
+  <require_package name="shared" version="1"/>
+
+  <add_folder name="data"/>
+  <add_file name="data/hello.txt"/>
+
+  <remove_file name="data/hello.txt"/>
+  <remove_folder_if_empty name="data"/>
+*/
+
 namespace breathe
 {
+  class cApplicationUpdaterListener;
+
+  class cApplicationUpdater : protected util::cThread
+  {
+  public:
+    enum RESULT
+    {
+      // Generic
+      RESULT_UNKNOWN = 0,
+      RESULT_CONNECTION_FAILED,
+
+      // Checking version only
+      RESULT_VERSION_IS_UP_TO_DATE,
+      RESULT_VERSION_IS_OUT_OF_DATE,
+
+      // Downloading an update only
+      RESULT_DOWNLOAD_FAILED,
+      RESULT_DOWNLOAD_COMPLETE
+    };
+
+    cApplicationUpdater();
+
+    void SetListener(cApplicationUpdaterListener* pListener);
+
+    // This starts a thread that downloads the file from the server and checks the result to see if there is a new version
+    // If there is a new version then pListener will be notified
+    void CheckIfUpdateIsAvailableInBackground();
+
+    // This just copies this executable to a new folder in the temp directory and places a .txt file there with the application location there
+    void DownloadUpdateInBackground();
+
+  private:
+    RESULT CheckIfUpdateIsAvailable();
+    RESULT DownloadUpdate();
+
+    void _ThreadFunction();
+
+    util::cMutex mutex;
+    bool bModeIsCheckIfUpdateIsAvailable; // This is for telling which mode we are in within the thread
+    cApplicationUpdaterListener* pListener;
+  };
+
+  cApplicationUpdater::cApplicationUpdater() :
+    pListener(nullptr)
+  {
+  }
+
+  void cApplicationUpdater::SetListener(cApplicationUpdaterListener* _pListener)
+  {
+    util::cLockObject lock(mutex);
+    pListener = _pListener;
+  }
+
+  void cApplicationUpdater::CheckIfUpdateIsAvailableInBackground()
+  {
+    if (IsRunning()) cThread::StopNow();
+
+    cThread::Run();
+  }
+
+  /*cApplicationUpdater::RESULT cApplicationUpdater::CheckIfUpdateIsAvailable()
+  {
+    // Connect
+    network::cDownloadHTTP download;
+
+    download.Open();
+    if (!download.IsConnected()) return RESULT_CONNECTION_FAILED;
+
+    // It is only expected to be a small file so even 128 will probably do
+    char buffer[128];
+
+    while (download.IsConnected()) {
+      download.Read(buffer);
+
+      TODO: Parse the file here
+      {
+        return RESULT_THERE_IS_A_NEW_VERSION_AVAILABLE;
+      }
+
+      util::YieldThisThread();
+    };
+
+    return RESULT_VERSION_IS_OUT_OF_DATE;
+  }
+
+  cApplicationUpdater::RESULT cApplicationUpdater::DownloadUpdate()
+  {
+    // Connect
+    cConnectionTCP connection;
+
+    connection.Open();
+    if (!connection.IsConnected()) return RESULT_CONNECTION_FAILED;
+
+    uint8_t buffer[1024];
+
+    while (connection.IsConnected()) {
+      connection.Read(buffer);
+
+      Download the file here
+      {
+        return RESULT_DOWNLOAD_COMPLETE;
+      }
+
+      Sleep();
+    };
+
+    return RESULT_DOWNLOAD_FAILED;
+  }
+
+  void cApplicationUpdater::_ThreadFunction()
+  {
+    LOG<<"cApplicationUpdater::_ThreadFunction"<<std::endl;
+
+    // Get the listener and the mode
+    cApplicationUpdaterListener* pTempListener = nullptr;
+    bool bTempModeIsCheckIfUpdateIsAvailable = true;
+    {
+      util::cLockObject lock(mutex);
+      pTempListener = pListener;
+      bTempModeIsCheckIfUpdateIsAvailable = bModeIsCheckIfUpdateIsAvailable;
+    }
+    ASSERT(pTempListener != nullptr);
+
+    RESULT result = RESULT_UNKNOWN;
+    if (bTempModeIsCheckIfUpdateIsAvailable) result = CheckIfUpdateIsAvailable();
+    else result = DownloadUpdate();
+
+    // Notify the listener
+    if (bTempModeIsCheckIfUpdateIsAvailable) pTempListener->_OnUpdateThreadFinished(result);
+    else pTempListener->_OnDownloadThreadFinished(result);
+
+    LOG<<"cApplicationUpdater::_ThreadFunction returning"<<std::endl;
+  }
+
+
+  class cApplicationUpdaterListener
+  {
+  public:
+    virtual ~cApplicationUpdaterListener() {}
+
+    void OnUpdateThreadFinished(cApplicationUpdater::RESULT result) { _OnUpdateThreadFinished(result); }
+    void OnDownloadThreadFinished(cApplicationUpdater::RESULT result) { _OnDownloadThreadFinished(result); }
+
+  private:
+    virtual void _OnUpdateThreadFinished(cApplicationUpdater::RESULT result) = 0;
+    virtual void _OnDownloadThreadFinished(cApplicationUpdater::RESULT result) = 0;
+  };
+
+  class cConsoleApplicationUpdateListener : public cApplicationUpdateListener
+  {
+  public:
+    cConsoleApplicationUpdateListener() : bIsVersionOutOfDate(true) {}
+
+    bool IsVersionOutOfDate() const { return result == cApplicationUpdater::RESULT_VERSION_IS_OUT_OF_DATE; }
+
+  private:
+    void _OnUpdateThreadFinished(cApplicationUpdater::RESULT _result) { result = _result; }
+    void _OnDownloadThreadFinished(cApplicationUpdater::RESULT _result) { result = _result; }
+
+    cApplicationUpdater::RESULT result;
+  };
+
+
+
+  void CheckIfNeedToUpdateApplication()
+  {
+    if (check for newer version setting is true) {
+      cConsoleApplicationUpdateListener listener;
+      cApplicationUpdater updater;
+
+      listener.ClearSuccess();
+      updater.SetListener(&listener);
+
+      updater.CheckIfUpdateIsAvailableInBackground();
+
+      std::cout<<"Checking for updates"<<std::endl;
+      while (updater.IsRunning()) {
+        std::cout<<".";
+        util::PauseThisThread(1000);
+      };
+
+      std::cout<<std::endl;
+
+      if (listener.IsVersionOutOfDate()) {
+        std::cout<<"The current version is out of date"<<std::endl;
+
+        if (download the latest version automatically setting is true)
+            // TODO:
+            // Download the latest version to /tmp
+            // Extract the files to a folder within /tmp
+            // Run the extracted executable
+
+            // We can now safely return, the newly extracted executable is running and will install itself
+          return;
+      }
+    } else std::cout<<"The current version is up to date"<<std::endl;
+  }
+  */
+
 	cApp::cApp(int argc, const char **argv) :
 #ifdef BUILD_DEBUG
 		bDebug(true),
@@ -339,11 +564,17 @@ namespace breathe
 			}
 		}*/
 
+
+
+    breathe::network::Init();
+
+
+    //CheckIfNeedToUpdateApplication();
+
+
 		SDL_ShowCursor(SDL_DISABLE);
 
 		pRender = new render::cRender();
-
-		breathe::network::Init();
 
 #ifdef BUILD_LEVEL
 		pLevel = new cLevel();
@@ -439,25 +670,25 @@ namespace breathe
 
 	void cApp::_LoadSearchDirectories()
 	{
-		// Add a default directory
-		breathe::filesystem::AddDirectory(TEXT(""));
-
 		// Now load all the rest from the config file
 		breathe::xml::cNode root("config.xml");
 		breathe::xml::cNode::iterator iter(root);
 
-		if (!iter) return;
+		if (!iter.IsValid()) return;
 
 		iter.FindChild("config");
-		if (!iter) return;
+    if (!iter.IsValid()) return;
 
 		iter.FindChild("directory");
-		if (!iter) return;
+    if (!iter.IsValid()) return;
 
-		while(iter)
-		{
+    while (iter.IsValid()) {
 			std::string sDirectory;
-			if (iter.GetAttribute("path", sDirectory)) breathe::filesystem::AddDirectory(breathe::string::ToString_t(sDirectory));
+			if (iter.GetAttribute("path", sDirectory)) {
+        LOG<<"Adding Directory "<<sDirectory<<std::endl;
+        breathe::filesystem::AddDirectory(breathe::string::ToString_t(sDirectory));
+      }
+
 			iter.Next("directory");
 		};
 	}
@@ -481,18 +712,18 @@ namespace breathe
     breathe::xml::cNode root("config.xml");
     breathe::xml::cNode::iterator iter(root);
 
-    if (!iter) {
+    if (!iter.IsValid()) {
       bReturnCode=breathe::BAD;
       return;
     }
 
     iter.FindChild("config");
-    if (!iter) return;
+    if (!iter.IsValid()) return;
 
     breathe::xml::cNode::iterator config(iter);
 
     iter.FindChild("render");
-    while(iter) {
+    while (iter.IsValid()) {
       std::ostringstream t;
       unsigned int uiValue;
 
@@ -534,7 +765,7 @@ namespace breathe
     iter = config;
 
     iter.FindChild("physics");
-    while(iter) {
+    while (iter.IsValid()) {
       iter.GetAttribute("width", physics_width);
 #if defined(BUILD_PHYSICS_2D)
       iter.GetAttribute("height", physics_height);

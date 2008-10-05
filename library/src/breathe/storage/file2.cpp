@@ -34,6 +34,15 @@ namespace breathe
 {
   namespace storage
   {
+    const string_t& sLINE_ENDING_UNIX_AND_LINUX = sLINE_ENDING_LF;
+    const string_t& sLINE_ENDING_WINDOWS = sLINE_ENDING_CRLF;
+
+#ifdef PLATFORM_LINUX_OR_UNIX
+    const string_t& sLINE_ENDING_NATIVE = sLINE_ENDING_UNIX_AND_LINUX;
+#else
+    const string_t& sLINE_ENDING_NATIVE = sLINE_ENDING_WINDOWS;
+#endif
+
     /*
       From http://en.wikipedia.org/wiki/Byte-order_mark
 

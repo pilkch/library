@@ -417,21 +417,4 @@ namespace breathe
 
 extern breathe::logging::cScreen SCREEN;
 
-
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
-
-#ifndef NDEBUG
-void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction);
-
-#ifdef ASSERT
-#undef ASSERT
-#endif
-
-#define ASSERT(p) InformativeAssert(p, #p, __FILE__, __LINE__, __PRETTY_FUNCTION__)
-#else
-#define ASSERT(...)
-#endif
-
 #endif // CLOG_H

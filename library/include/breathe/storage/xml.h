@@ -34,8 +34,8 @@ namespace breathe
 			typedef std::map<std::string, std::string>::iterator attribute_iterator;
 
 		public:
-			cNode(const std::string& inFilename);
-			cNode(cNode *inParent);
+      explicit cNode(const std::string& inFilename);
+			explicit cNode(cNode* inParent);
 			~cNode();
 
 			void SaveToFile(const std::string& inFilename);
@@ -77,11 +77,12 @@ namespace breathe
 			{
 			public:
 				cIterator(const cIterator& rhs);
-				cIterator(const cNode& rhs);
+        explicit cIterator(const cNode& rhs);
+
 				cIterator operator=(const cIterator& rhs);
 				cIterator operator=(const cNode& rhs);
 
-				operator bool() const;
+        bool IsValid() const;
 
 				cIterator operator++(int);
 				void Next(const std::string& sName);
@@ -92,14 +93,16 @@ namespace breathe
 				std::string GetName() const;
 
 				template <class T>
-				bool GetAttribute(const std::string& sAttribute, T& value);
+				bool GetAttribute(const std::string& sAttribute, T& value) const;
 
-				bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues);
+        bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
-			private:
+      private:
+        // Forbidden
+        cIterator();
+        operator bool() const;
+
 				cNode* pNode;
-
-				cIterator();
 			};
 
 			typedef cIterator iterator;
@@ -158,53 +161,53 @@ namespace breathe
 			return *this;
 		}
 
-		inline cNode::cIterator::operator bool() const
+		inline bool cNode::cIterator::IsValid() const
 		{
 			return pNode != nullptr;
 		}
 
     inline cNode::cIterator cNode::cIterator::operator++(int)
 		{
-			assert(pNode != nullptr);
+			ASSERT(pNode != nullptr);
 			pNode = pNode->GetNext();
 			return *this;
 		}
 
 		inline void cNode::cIterator::Next(const std::string& sName)
 		{
-			assert(pNode != nullptr);
+			ASSERT(pNode != nullptr);
 			pNode = pNode->GetNext(sName);
 		}
 
 		inline void cNode::cIterator::FirstChild()
 		{
-			assert(pNode != nullptr);
+      ASSERT(pNode != nullptr);
 			pNode = pNode->FirstChild();
 		}
 
 		inline void cNode::cIterator::FindChild(const std::string& sName)
 		{
-			assert(pNode != nullptr);
+      ASSERT(pNode != nullptr);
 			pNode = pNode->FindChild(sName);
 		}
 
 		inline std::string cNode::cIterator::GetName() const
 		{
-			assert(pNode != nullptr);
+      ASSERT(pNode != nullptr);
 			return pNode->GetName();
 		}
 
 		template <class T>
-		inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, T& value)
+    inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, T& value) const
 		{
-			assert(pNode != nullptr);
+      ASSERT(pNode != nullptr);
 			return pNode->GetAttribute(sAttribute, value);
 		}
 
-		inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues)
+		inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const
 		{
-			assert(pNode != nullptr);
-			assert(pValue != nullptr);
+      ASSERT(pNode != nullptr);
+      ASSERT(pValue != nullptr);
 			return pNode->GetAttribute(sAttribute, pValue, nValues);
 		}
 	}

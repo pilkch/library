@@ -12,8 +12,16 @@
 
 namespace breathe
 {
-	namespace storage
-	{
+  namespace storage
+  {
+    const string_t sLINE_ENDING_CRLF(TEXT("\r\n"));
+    const string_t sLINE_ENDING_LF(TEXT("\n"));
+
+    //const string_t& sLINE_ENDING_UNIX_AND_LINUX;
+    //const string_t& sLINE_ENDING_WINDOWS;
+
+    //const string_t& sLINE_ENDING_NATIVE;
+
 		/*
 			UTF-8 EF BB BF
 			UTF-16 (big-endian) FE FF
@@ -48,7 +56,7 @@ namespace breathe
 
 
 			T file;
-			
+
 		protected:
 			BYTEORDER byteOrder;
 
@@ -60,7 +68,7 @@ namespace breathe
 		{
 		public:
 			explicit cReadText(const string_t& filename, std::vector<string_t>& contents);
-			
+
 		private:
 			NO_COPY(cReadText);
 		};*/

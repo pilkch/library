@@ -3,171 +3,169 @@
 
 namespace breathe
 {
-	namespace util
-	{
-		class cLockObject;
+  namespace util
+  {
+    class cLockObject;
 
-		inline void PauseThisThread(uint32_t milliseconds)
-		{
-			SDL_Delay(milliseconds);
-		}
+    inline void PauseThisThread(uint32_t milliseconds)
+    {
+      SDL_Delay(milliseconds);
+    }
 
-		inline void YieldThisThread()
-		{
+    inline void YieldThisThread()
+    {
 #ifdef __WIN__
-			::Sleep(0);
-			SDL_Delay(0);
-			SDL_Delay(1);
+      ::Sleep(0);
+      SDL_Delay(0);
+      SDL_Delay(1);
 #else
-			sched_yield();
+      sched_yield();
 #endif
-		}
+    }
 
-		class cThread
-		{
-		public:
-			cThread();
-			virtual ~cThread();
+    class cThread
+    {
+    public:
+      cThread();
+      virtual ~cThread();
 
-			void Run();
-			void Wait();
-			void Kill();
+      void Run();
+      void Wait();
+      void StopNow();
 
-			bool IsRunning() const;
-			bool IsFinished() const;
+      bool IsRunning() const;
+      bool IsFinished() const;
 
-		private:
-			static int RunThreadFunction(void* pThis);
-			virtual int ThreadFunction() = 0;
+    private:
+      static int RunThreadFunction(void* pThis);
+      virtual int ThreadFunction() = 0;
 
-			SDL_Thread* thread;
+      SDL_Thread* thread;
 
-			NO_COPY(cThread);
-		};
+      NO_COPY(cThread);
+    };
 
-		class cMutex
-		{
-		public:
-			cMutex();
-			~cMutex();
+    class cMutex
+    {
+    public:
+      friend class cLockObject;
 
-			friend class cLockObject;
+      cMutex();
+      ~cMutex();
 
-		private:
-			void Lock();
-			void Unlock();
+    private:
+      void Lock();
+      void Unlock();
 
-			SDL_mutex* mutex;
+      SDL_mutex* mutex;
 
-			NO_COPY(cMutex);
-		};
+      NO_COPY(cMutex);
+    };
 
-		class cLockObject
-		{
-		public:
-			cLockObject(cMutex* mutex);
-			~cLockObject();
+    class cLockObject
+    {
+    public:
+      explicit cLockObject(cMutex& mutex);
+      ~cLockObject();
 
-		private:
-			cMutex* mutex;
+    private:
+      cMutex& mutex;
 
-			NO_COPY(cLockObject);
-		};
-
-		
-		// *** cThread
-
-		inline cThread::cThread() :
-			thread(NULL)
-		{
-		}
-
-		inline cThread::~cThread()
-		{
-			if (IsRunning()) Kill();
-		}
-
-		inline bool cThread::IsRunning() const
-		{
-			return thread != NULL;
-		}
-
-		inline bool cThread::IsFinished() const
-		{
-			return thread != NULL;
-		}
-
-		inline void cThread::Run()
-		{
-			thread = SDL_CreateThread(RunThreadFunction, this);
-		}
-		
-		inline void cThread::Wait()
-		{
-			assert(thread);
-			SDL_WaitThread(thread, NULL);
-			thread = NULL;
-		}
-
-		inline void cThread::Kill()
-		{
-			assert(thread);
-			SDL_KillThread(thread);
-			thread = NULL;
-		}
-
-		// Not the most elegant method, but it works
-		inline int cThread::RunThreadFunction(void* pData)
-		{
-			assert(pData);
-			cThread* pThis = static_cast<cThread*>(pData);
-			assert(pThis);
-			return pThis->ThreadFunction();
-		}
+      NO_COPY(cLockObject);
+    };
 
 
-		// *** cMutex
+    // *** cThread
 
-		inline cMutex::cMutex()
-		{
-			mutex = SDL_CreateMutex();
-			assert(mutex);
-		}
+    inline cThread::cThread() :
+      thread(NULL)
+    {
+    }
 
-		inline cMutex::~cMutex()
-		{
-			assert(mutex);
-			SDL_DestroyMutex(mutex);
-		}
+    inline cThread::~cThread()
+    {
+      if (IsRunning()) StopNow();
+    }
 
-		inline void cMutex::Lock()
-		{
-			assert(mutex);
-			SDL_mutexP(mutex);
-		}
+    inline bool cThread::IsRunning() const
+    {
+      return thread != NULL;
+    }
 
-		inline void cMutex::Unlock()
-		{
-			assert(mutex);
-			SDL_mutexV(mutex);
-		}
+    inline bool cThread::IsFinished() const
+    {
+      return thread != NULL;
+    }
+
+    inline void cThread::Run()
+    {
+      thread = SDL_CreateThread(RunThreadFunction, this);
+    }
+
+    inline void cThread::Wait()
+    {
+      ASSERT(thread != nullptr);
+      SDL_WaitThread(thread, NULL);
+      thread = NULL;
+    }
+
+    inline void cThread::StopNow()
+    {
+      ASSERT(thread != nullptr);
+      SDL_KillThread(thread);
+      thread = NULL;
+    }
+
+    // Not the most elegant method, but it works
+    inline int cThread::RunThreadFunction(void* pData)
+    {
+      ASSERT(pData != nullptr);
+      cThread* pThis = static_cast<cThread*>(pData);
+      ASSERT(pThis != nullptr);
+      return pThis->ThreadFunction();
+    }
 
 
-		// *** cLockObject
+    // *** cMutex
 
-		inline cLockObject::cLockObject(cMutex* _mutex) :
-			mutex(_mutex)
-		{
-			assert(mutex);
-			mutex->Lock();
-		}
+    inline cMutex::cMutex()
+    {
+      mutex = SDL_CreateMutex();
+      ASSERT(mutex != nullptr);
+    }
 
-		inline cLockObject::~cLockObject()
-		{
-			assert(mutex);
-			mutex->Unlock();
-		}
-	}
+    inline cMutex::~cMutex()
+    {
+      ASSERT(mutex != nullptr);
+      SDL_DestroyMutex(mutex);
+    }
+
+    inline void cMutex::Lock()
+    {
+      ASSERT(mutex != nullptr);
+      SDL_mutexP(mutex);
+    }
+
+    inline void cMutex::Unlock()
+    {
+      ASSERT(mutex != nullptr);
+      SDL_mutexV(mutex);
+    }
+
+
+    // *** cLockObject
+
+    inline cLockObject::cLockObject(cMutex& _mutex) :
+      mutex(_mutex)
+    {
+      mutex.Lock();
+    }
+
+    inline cLockObject::~cLockObject()
+    {
+      mutex.Unlock();
+    }
+  }
 }
 
-#endif //CTHREAD_H
+#endif // CTHREAD_H

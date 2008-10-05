@@ -184,6 +184,25 @@ namespace breathe
     delete [] x;
     x = NULL;
   }
+
+#ifndef NDEBUG
+  void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction);
+#endif
 }
+
+#ifdef ASSERT
+#undef ASSERT
+#endif
+
+#ifndef NDEBUG
+
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+
+#define ASSERT(p) breathe::InformativeAssert(p, #p, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#else
+#define ASSERT(...)
+#endif
 
 #endif // BREATHE_H

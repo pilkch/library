@@ -487,13 +487,3 @@ namespace breathe
 		}
 	}
 }
-
-#ifndef NDEBUG
-void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction)
-{
-  if (b) return;
-
-  LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-  assert(b);
-}
-#endif
