@@ -1,6 +1,34 @@
 #ifndef CVEHICLE_H
 #define CVEHICLE_H
 
+// Backfiring (Actually called afterfire, backfiring is something else)
+
+// BOV = Blow Off Valve
+// Here are the basic reasons for afterfire
+
+// 1. Atmo BOV. Makes you rich for a split second when you shift, all that fuel, not 100% burnt, goes into exh, hits the hot gasses in the exh tract, and explodes.
+// 2. Catless or free-er flowing exh on deceleration. I dont understand the mechanics of it, but free flowing exh's make backfire pop noises when decelerating in gear. (all cars will do this with an exh like that)
+
+// SPT exh is freeer flowing, I would imagine you are hearing this on deceleration? Or you have an atmo bov and its just poping in the exh, and you oculdnt hear it with the quiet stock muffler.
+// Mine does it all the time. TurboXS turboback exhaust, catless uppipe, stock ECU, stock boost, and stock turbo. On rev-match downshifts I get it; usually don't get too many otherwise.
+
+// Stock engine management uses tons of extra fuel, so it tends to do that a lot. Get a dyno-tune and it will increase power and decrease afterfires. :)
+
+// Get off the throttle and let engine braking take over. i.e. let the engine slow the car down. At first the engine will start to decelerate the car but it gets to a certain speed where it is no longer slowing down the car but sort of evens out to a neutral state. its not slowing or going faster. At that point if you apply enough throttle (not too much to make it accelerate) the car will start to afterfire. I do it all the time. On a Boost gauge its usually at 0. no vaccum or boost when afterfire occurs.
+
+
+
+// As it was explained to me, is that what happens is while you are accelerating, small amounts of unburnt and half burnt gas coat the cats, pipes, fiberglass and the walls of the muffler. When you let off the gas the car goes into DFCO mode (decelleration fuel cut off) which cuts all spark and all fuel going into the engine. So now the engine is pumping (oxygen filled) normal air through it. When you have O2 + fuel + heat you get small explosions in the tail pipe. Same reasons apply to the SRT.
+
+// A car backfires because unburned fuel is getting to the muffler. The heat of the exhause system causes the fuel to combust, thus a backfire.
+
+
+
+// BMW E36 Race Car:
+// "The whine is from the straight cut gears in the transmission versus helical gears used in normal transmissions."
+
+
+
 // http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
 namespace breathe

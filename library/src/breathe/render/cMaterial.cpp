@@ -263,20 +263,18 @@ namespace breathe
 				for (i=0;i<nLayers;i++) SAFE_DELETE(vLayer[i]);
 			}
 
-			bool cMaterial::Load(const std::string& inFilename)
+			bool cMaterial::Load(const string_t& inFilename)
 			{
 				LOG.Success("Material", std::string("Looking for ") + inFilename);
 
-				string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(inFilename));
-
-				LOG.Success("Material", std::string("Actually loading ") + breathe::string::ToUTF8(sFilename));
+        string_t sFilename = inFilename;
 
 				string_t sPath = breathe::filesystem::GetPath(sFilename);
 
 				xml::cNode root(breathe::string::ToUTF8(sFilename));
 				xml::cNode::iterator iter(root);
 
-				if (!iter) return breathe::BAD;
+        if (!iter.IsValid()) return breathe::BAD;
 
 				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
 				//	<layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
@@ -284,7 +282,7 @@ namespace breathe
 				//</material>
 
 				iter.FindChild("material");
-				if (!iter) {
+        if (!iter.IsValid()) {
 					LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
 					for (unsigned int i=0;i<nLayers;i++)
 						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
@@ -297,11 +295,17 @@ namespace breathe
 				std::string sValue;
 				if (iter.GetAttribute("sShaderVertex", sValue)) {
 					if (pShader == nullptr) pShader = new cShader();
-					pShader->sShaderVertex = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
+
+          if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderVertex)) {
+            LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+          }
 				}
 				if (iter.GetAttribute("sShaderFragment", sValue)) {
 					if (pShader == nullptr) pShader = new cShader();
-					pShader->sShaderFragment = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue)));
+
+          if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderFragment)) {
+            LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+          }
 				}
 
 				if (pShader != nullptr) {
@@ -318,16 +322,15 @@ namespace breathe
 
 				iter.FirstChild();
 
-				cLayer* pLayer = NULL;
+				cLayer* pLayer = nullptr;
 				size_t i = 0;
-				while (iter && i < nLayers) {
+        while ((iter.IsValid()) && (i < nLayers)) {
 					pLayer = vLayer[i];
 					if ("layer" == iter.GetName()) {
 						std::string sTexture;
-						if (iter.GetAttribute("sTexture", sTexture))
-						{
+						if (iter.GetAttribute("sTexture", sTexture)) {
 							// Try in the same directory as the material
-							pLayer->sTexture = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture)));
+              breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture), pLayer->sTexture);
 						}
 
 						std::string sValue;

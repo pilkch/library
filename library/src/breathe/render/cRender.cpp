@@ -65,7 +65,7 @@
 
 breathe::cVar fDetailScale = 0.5f;
 
-breathe::render::cRender* pRender = NULL;
+breathe::render::cRender* pRender = nullptr;
 
 namespace breathe
 {
@@ -1167,33 +1167,31 @@ namespace breathe
 			uiSegmentSmallPX=uiNewSegmentSmallPX;
 		}
 
-		void cRender::BeginLoadingTextures()
-		{
-			unsigned int i=0;
-			for (i=0;i<nAtlas;i++)
-    		vTextureAtlas[i]->Begin(uiSegmentWidthPX, uiSegmentSmallPX, uiAtlasWidthPX);
-		}
+    void cRender::BeginLoadingTextures()
+    {
+      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i]->Begin(uiSegmentWidthPX, uiSegmentSmallPX, uiAtlasWidthPX);
 
-		void cRender::EndLoadingTextures()
-		{
-			unsigned int i=0;
-			for (i=0;i<nAtlas;i++)
-    		vTextureAtlas[i]->End();
-		}
+      if (pTextureNotFoundTexture == nullptr) AddTextureNotFoundTexture("textures/texturenotfound.png");
+      if (pMaterialNotFoundMaterial == nullptr) AddMaterialNotFoundMaterial("textures/materialnotfound.png");
+    }
+
+    void cRender::EndLoadingTextures()
+    {
+      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i]->End();
+    }
 
 
 
     cTextureRef cRender::AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas)
 		{
-			assert(sNewFilename != "");
-			assert(ATLAS_NONE != uiAtlas);
+			ASSERT(sNewFilename != "");
+      ASSERT(ATLAS_NONE != uiAtlas);
 
-			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
-			string_t s = breathe::filesystem::GetFile(sFilename);
+      string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(breathe::string::ToUTF8(sFilename));
-			if (p == nullptr || p == pTextureNotFoundTexture)
-			{
+			if ((p == nullptr) || (p == pTextureNotFoundTexture)) {
 				LOG.Error("Texture", breathe::string::ToUTF8(sFilename) + " pTextureNotFound");
 				return pTextureNotFoundTexture;
 			}
@@ -1207,11 +1205,12 @@ namespace breathe
 
     cTextureRef cRender::AddTexture(const string_t& sNewFilename)
 		{
-			assert(sNewFilename != "");
+      ASSERT(sNewFilename != "");
 
-			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
+
 			string_t s = breathe::filesystem::GetFile(sFilename);
-
 
       cTextureRef p = GetTexture(breathe::string::ToUTF8(s));
 			if (p == nullptr)
@@ -1241,14 +1240,15 @@ namespace breathe
 
     bool cRender::AddTextureNotFoundTexture(const string_t& sNewFilename)
 		{
-			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       cTextureRef p(new cTexture);
 			if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
 				// Just assert, don't even try to come back from this situation
 				LOG.Error("Render", "Failed to load texture not found texture");
         CONSOLE<<"cRender::AddTextureNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
-				assert(false);
+				ASSERT(false);
 				p.reset();
 				return breathe::BAD;
 			}
@@ -1268,7 +1268,8 @@ namespace breathe
 
     bool cRender::AddMaterialNotFoundTexture(const string_t& sNewFilename)
 		{
-			string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename));
+			string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
 			LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
 
@@ -1392,7 +1393,8 @@ namespace breathe
 				s.str("");
 
 				s<<breathe::string::ToUTF8(sFile)<<"/"<<breathe::string::ToUTF8(sFile)<<i<<"."<<breathe::string::ToUTF8(sExt);
-				string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(s.str()));
+				string_t sFilename;
+        breathe::filesystem::FindResourceFile(breathe::string::ToString_t(s.str()), sFilename);
 
 				unsigned int mode=0;
 
@@ -1500,7 +1502,9 @@ namespace breathe
 
 			pMaterialNotFoundMaterial.reset(new material::cMaterial("MaterialNotFound"));
 
-			pMaterialNotFoundMaterial->vLayer[0]->sTexture = breathe::string::ToUTF8(breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename)));
+      string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
+			pMaterialNotFoundMaterial->vLayer[0]->sTexture = sFilename;
 			pMaterialNotFoundMaterial->vLayer[0]->pTexture = pMaterialNotFoundTexture;
 			pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode = TEXTURE_NORMAL;
 
@@ -1509,13 +1513,14 @@ namespace breathe
 
     material::cMaterialRef cRender::AddMaterial(const string_t& sNewfilename)
 		{
-			if (""==sNewfilename) return material::cMaterialRef();
+			if ("" == sNewfilename) return material::cMaterialRef();
 
       material::cMaterialRef pMaterial = GetMaterial(sNewfilename);
 
 			if (pMaterial != pMaterialNotFoundMaterial) return pMaterial;
 
-			string_t sFilename = filesystem::FindFile(breathe::string::ToString_t(sNewfilename));
+			string_t sFilename;
+      filesystem::FindResourceFile(breathe::string::ToString_t(sNewfilename), sFilename);
 			pMaterial.reset(new material::cMaterial(breathe::string::ToUTF8(sFilename)));
 
 			if (breathe::BAD == pMaterial->Load(breathe::string::ToUTF8(sFilename))) {
@@ -2376,14 +2381,14 @@ namespace breathe
 
 			pModel.reset(new model::cStatic);
 
-      string_t sNewfilename(breathe::filesystem::FindFile(sShortFilename));
+      string_t sNewfilename;
+      breathe::filesystem::FindResourceFile(sShortFilename, sNewfilename);
 			if (pModel->Load(breathe::string::ToUTF8(sNewfilename))) {
         mStatic[sNewfilename] = pModel;
 
 				const size_t n = pModel->vMesh.size();
 				for (size_t i = 0; i < n; i++) {
-          AddMaterial(pModel->vMesh[i]->sMaterial);
-					//pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
+					pModel->vMesh[i]->pMaterial = AddMaterial(pModel->vMesh[i]->sMaterial);
         }
 
 				return pModel;

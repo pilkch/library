@@ -115,14 +115,14 @@ namespace breathe
       breathe::xml::cNode root(sFilename);
       breathe::xml::cNode::iterator iter(root);
 
-      if (!iter) return;
+      if (!iter.IsValid()) return;
 
       iter.FindChild("gui");
-      if (!iter) return;
+      if (!iter.IsValid()) return;
 
       string_t sWindowType;
       cWindow* pWindow = nullptr;
-      while (iter) {
+      while (iter.IsValid()) {
         pWindow = nullptr;
         sWindowType = iter.GetName();
 

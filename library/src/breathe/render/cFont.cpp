@@ -175,13 +175,16 @@ namespace breathe
 
 
 
-		cFont::cFont(const string_t& filename, unsigned int height) :
+		cFont::cFont(const string_t& sNewFilename, unsigned int height) :
 			textures(nullptr),
 			list_base(0),
 
 			h(float(height))
-		{
-			string_t sFilename = filesystem::FindFile(filename);
+    {
+      string_t sFilename;
+      if (!breathe::filesystem::FindResourceFile(TEXT("fonts/"), sNewFilename, sFilename)) {
+        LOG<<"cLevel::LoadXML File "<<sNewFilename<<" not found in fonts/"<<std::endl;
+      }
 
 			//Allocate some memory to store the texture ids.
 			textures = new GLuint[128];

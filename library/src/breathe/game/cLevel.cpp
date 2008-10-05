@@ -101,27 +101,30 @@ namespace breathe
 
 	bool cLevel::LoadXML(const string_t& sNewFilename)
 	{
-    LOG<<"cLevel::LoadXML"<<std::endl;
-    sFilename = sNewFilename;
+    LOG<<"cLevel::LoadXML sNewFilename="<<sNewFilename<<std::endl;
+    if (!breathe::filesystem::FindResourceFile(TEXT("levels/"), sNewFilename, sFilename)) {
+      LOG<<"cLevel::LoadXML File "<<sNewFilename<<" not found in levels/"<<std::endl;
+    }
+    LOG<<"cLevel::LoadXML Resolved sFilename="<<sFilename<<std::endl;
 
 		bool bNodes = false;
 
 		cLevelSpawn* pSpawn;
 
 		{
-			LOG.Success("Level", "cLevelNode::Load " + breathe::string::ToUTF8(sNewFilename));
-			breathe::xml::cNode root(breathe::string::ToUTF8(sNewFilename));
+			LOG.Success("Level", "cLevelNode::Load " + breathe::string::ToUTF8(sFilename));
+      breathe::xml::cNode root(breathe::string::ToUTF8(sFilename));
 
 			breathe::xml::cNode::iterator iter(root);
-			if (!iter) return breathe::BAD;
+			if (!iter.IsValid()) return breathe::BAD;
 
 			iter.FindChild("level");
-			if (iter) {
+      if (iter.IsValid()) {
 				iter.GetAttribute("fWaterLevel", fWaterLevel);
 
 				iter.FirstChild();
 
-				while (iter) {
+        while (iter.IsValid()) {
 					if ("nodes" == iter.GetName()) {
 						iter.GetAttribute("fWidth", fNodeWidth);
 						iter.GetAttribute("uiWidth", uiNodeWidth);
@@ -131,7 +134,7 @@ namespace breathe
 
 						breathe::xml::cNode::iterator iterParent = iter;
 							iter.FindChild("node");
-							while (iter) {
+              while (iter.IsValid()) {
 								string_t sPath;
 								if (iter.GetAttribute("path", sPath))
 									LoadNode(sPath);
@@ -141,16 +144,18 @@ namespace breathe
 						iter = iterParent;
 					} else if ("spawns" == iter.GetName()) {
 						breathe::xml::cNode::iterator iterParent = iter;
-							iter.FindChild("spawn");
-							while(iter) {
-								pSpawn = new cLevelSpawn();
-								vSpawn.push_back(pSpawn);
 
-								iter.GetAttribute("position", pSpawn->v3Position);
-								iter.GetAttribute("rotation", pSpawn->v3Rotation);
+            iter.FindChild("spawn");
+            while (iter.IsValid()) {
+              pSpawn = new cLevelSpawn;
+              vSpawn.push_back(pSpawn);
 
-								iter.Next("spawn");
-							};
+              iter.GetAttribute("position", pSpawn->v3Position);
+              iter.GetAttribute("rotation", pSpawn->v3Rotation);
+
+              iter.Next("spawn");
+            };
+
 						iter = iterParent;
 					}
 
@@ -173,7 +178,7 @@ namespace breathe
 		// We don't have any spawns yet, add a default one
 		if (vSpawn.empty()) {
 			LOG.Error("Level", "No spawns defined");
-			cLevelSpawn *p = new cLevelSpawn();
+			cLevelSpawn *p = new cLevelSpawn;
 			p->v3Position = math::cVec3(0.0f, 0.0f, 0.0f);
 			p->v3Rotation = math::cVec3(0.0f, 0.0f, 90.0f);
 			vSpawn.push_back(p);
@@ -196,9 +201,9 @@ namespace breathe
 
 	void cLevel::LoadNode(const string_t& sNewFilename)
 	{
-		render::model::cStaticRef p = pRender->AddModel(TEXT("data/level/") + sNewFilename + TEXT("/mesh.3ds"));
+		render::model::cStaticRef p = pRender->AddModel(TEXT("level/") + sNewFilename + TEXT("/mesh.3ds"));
 		if (p != nullptr) {
-			cLevelNode* pNode = new cLevelNode(this, TEXT("data/level/") + sNewFilename + TEXT("/"));
+			cLevelNode* pNode = new cLevelNode(this, TEXT("level/") + sNewFilename + TEXT("/"));
 			pNode->Load();
 
 			/*
@@ -207,7 +212,7 @@ namespace breathe
 			for (i=0;i<n;i++) {
 				LOG.Success("Level", "Spawn");
 
-				vSpawn.push_back(new cLevelSpawn());
+				vSpawn.push_back(new cLevelSpawn);
 				cLevelSpawn* pSpawn=vSpawn.back();
 
 				math::cVec3 cam=p->vCamera[i]->eye;
@@ -246,9 +251,9 @@ namespace breathe
 
 	void cLevel::LoadCubemap(const string_t& line)
 	{
-		vCubemap.push_back(new cLevelCubemap());
+		vCubemap.push_back(new cLevelCubemap);
 
-		cLevelCubemap *p=vCubemap.back();
+		cLevelCubemap* p = vCubemap.back();
 
 		stringstream_t stm(line);
 		stm >> p->sFilename;
@@ -491,7 +496,7 @@ namespace breathe
 		const size_t n = vCubemap.size();
     if (n == 0) return render::cTextureRef();
 
-		cLevelCubemap *c = vCubemap[0];
+		cLevelCubemap* c = vCubemap[0];
 		float f = (vCubemap[0]->v3Position - pos).GetLength();
 		float a = 0.0f;
 
@@ -542,15 +547,18 @@ namespace breathe
 
   cLevelNode::cLevelNode(cLevel* p, const string_t& sNewFilename) :
     uiStatus(0),
-    pLevel(p),
-    sFilename(sNewFilename)
+    pLevel(p)
 	{
-    pModel = pRender->GetModel(filesystem::FindFile(sFilename + TEXT("mesh.3ds")));
+    LOG<<"cLevelNode::cLevelNode sNewFilename="<<sNewFilename<<std::endl;
+    if (!breathe::filesystem::FindResourceFile(TEXT("levels/") + sNewFilename, TEXT("mesh.3ds"), sFilename)) {
+      LOG<<"cLevel::LoadXML File mesh.3ds not found in levels/"<<sNewFilename<<std::endl;
+    }
+    pModel = pRender->GetModel(sFilename);
 	}
 
 	void cLevelNode::Load()
-	{
-		LOG.Success("LevelNode", "Load");
+  {
+    LOG<<"cLevelNode::Load sFilename="<<sFilename<<"node.xml"<<std::endl;
 
 		uiStatus = NODE_ACTIVE;
 
@@ -561,29 +569,30 @@ namespace breathe
 		xml::cNode root(breathe::string::ToUTF8(sFilename) + "node.xml");
 
 		xml::cNode::iterator iter(root);
-		if (!iter) return;
+    if (!iter.IsValid()) return;
 
 		iter.FindChild("node");
-		if (iter) {
+    if (iter.IsValid()) {
 			iter.GetAttribute("crc", sCRC);
 			iter.GetAttribute("name", sName);
 		}
 
 		iter.FirstChild();
-		while (iter) {
+    while (iter.IsValid()) {
 			if ("fog" == iter.GetName()) {
         iter.GetAttribute("colour", colourFog);
 				iter.GetAttribute("distance", fFogDistance);
 			} else if ("models" == iter.GetName()) {
 				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("model");
-					while(iter) {
+          while (iter.IsValid()) {
 						std::string sPath;
 						if (iter.GetAttribute("path", sPath)) {
-							cLevelModel* pModel = new cLevelModel();
+							cLevelModel* pModel = new cLevelModel;
 							vModel.push_back(pModel);
 
 							// Pre load the mesh for this model
+              LOG<<"cLevelNode::Load Loading mesh for model "<<breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds")<<std::endl;
 							pModel->pModel = pRender->AddModel(breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds"));
 
               iter.GetAttribute("position", pModel->position);
@@ -598,7 +607,7 @@ namespace breathe
 			} else if ("cubemaps" == iter.GetName()) {
 				breathe::xml::cNode::iterator iterParent = iter;
 					iter.FindChild("cubemap");
-					while(iter) {
+          while (iter.IsValid()) {
 						string_t sPath;
 						if (iter.GetAttribute("texture", sPath)) pLevel->LoadCubemap(sPath);
 

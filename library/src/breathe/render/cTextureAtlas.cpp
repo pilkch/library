@@ -114,7 +114,8 @@ namespace breathe
 		{
 			LOG.Success("Texture", "Loading " + sFilename);
 
-			const string_t sFilename = breathe::filesystem::FindFile(breathe::string::ToString_t(sPath));
+			string_t sFilename;
+      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), sFilename);
 
 			// Load the texture
 			cTextureRef pTexture(new cTexture);

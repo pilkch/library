@@ -93,7 +93,8 @@ namespace breathe
 				sMaterial = "grass.mat";
 				pMaterial = pRender->AddMaterial(sMaterial);
 
-				string_t sFilename = breathe::filesystem::FindFile(TEXT("data/level/node00/heightmap.png"));
+				string_t sFilename;
+        breathe::filesystem::FindResourceFile(TEXT("level/node00/heightmap.png"), sFilename);
 
 				float fHighest = -math::cINFINITY;
 				float fLowest = math::cINFINITY;

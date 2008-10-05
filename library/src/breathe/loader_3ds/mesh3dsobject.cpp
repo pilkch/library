@@ -193,19 +193,18 @@ namespace breathe
 
 		void Mesh3DSObject::ParseFacesMaterials(Model3DSChunk c)
 		{
-			bFoundMaterials=true;
+      sMaterial = c.Str();
 
-			sMaterial = c.Str();
-			std::vector<int> faces_applied;
+      LOG.Success("c3ds", "ParseFacesMaterials: " + sMaterial);
 
-			LOG.Success("c3ds", "ParseFacesMaterials: " + sMaterial);
+      bFoundMaterials = true;
 
-			int n_faces = c.Short();
-			int f = 0;
-			int i = 0;
+      const size_t n_faces = c.Short();
 
-			for (i = 0 ; i < n_faces ; i++)
-			{
+      int f = 0;
+
+      std::vector<int> faces_applied;
+			for (size_t i = 0 ; i < n_faces ; i++) {
 				f = c.Short();
 
 				faces_applied.push_back(f);

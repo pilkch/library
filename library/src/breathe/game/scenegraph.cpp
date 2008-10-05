@@ -259,12 +259,14 @@ namespace breathe
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
+      cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
+
       unsigned int uiTriangles = 0;
 
       // Opaque first
       {
-        std::list<cRenderableRef>::iterator iter(scenegraph.GetRenderGraph().listOpaque.begin());
-        const std::list<cRenderableRef>::iterator iterEnd(scenegraph.GetRenderGraph().listOpaque.end());
+        std::list<cRenderableRef>::iterator iter(rendergraph.listOpaque.begin());
+        const std::list<cRenderableRef>::iterator iterEnd(rendergraph.listOpaque.end());
         while(iter != iterEnd) {
           //uiTriangles += (*iter)->Render();
           iter++;
@@ -273,8 +275,8 @@ namespace breathe
 
       // Transparent second
       {
-        std::map<float, cRenderableRef>::iterator iter(scenegraph.GetRenderGraph().mTransparent.begin());
-        const std::map<float, cRenderableRef>::iterator iterEnd(scenegraph.GetRenderGraph().mTransparent.end());
+        std::map<float, cRenderableRef>::iterator iter(rendergraph.mTransparent.begin());
+        const std::map<float, cRenderableRef>::iterator iterEnd(rendergraph.mTransparent.end());
         while(iter != iterEnd) {
           //uiTriangles += (iter->second)->Render();
           iter++;

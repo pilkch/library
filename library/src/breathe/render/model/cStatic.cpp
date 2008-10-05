@@ -241,8 +241,9 @@ namespace breathe
 					// try it, comment these lines out, it breaks.  I don't know why :(
 					string_t temp = breathe::string::ToString_t(pMesh->Material());
 
-					pCurrentMesh->sMaterial = breathe::string::ToUTF8(breathe::filesystem::FindFile(
-						breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + temp));
+					breathe::filesystem::FindResourceFile(
+            breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + temp, pCurrentMesh->sMaterial
+          );
 
 					for (face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
 					{
