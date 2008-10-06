@@ -179,6 +179,15 @@ namespace breathe
     render::model::cStaticRef pModel;
   };
 
+  class cLevelLoader
+  {
+  public:
+    void Load(const string_t& sFilename);
+
+  private:
+    cLevel& level;
+  };
+
   class cLevel : public cUpdateable
   {
   public:
