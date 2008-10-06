@@ -277,8 +277,34 @@ namespace breathe
     }
 
 
+    void cPagedLODNodeChild::_Update(cUpdateVisitor& visitor)
+    {
+      visitor.Visit(terrain);
+      visitor.Visit(trees);
+      //visitor.Visit(grass);
+    }
+    void cPagedLODNodeChild::_Cull(cCullVisitor& visitor)
+    {
+      visitor.Visit(terrain);
+      visitor.Visit(trees);
+      //visitor.Visit(grass);
+    }
 
+    void cPagedLODNode::_Update(cUpdateVisitor& visitor)
+    {
+      loader.Update();
+    }
 
+    void cPagedLODNode::_Cull(cCullVisitor& visitor)
+    {
+      //std::vector<cGeometryNodeRef>::iterator iter(node.begin());
+      //const std::vector<cGeometryNodeRef>::iterator iter(node.end());
+      //while (iter != iterEnd) {
+      //  visitor.Visit(*(*iter));
+
+      //  iter++;
+      //}
+    }
 
 
 

@@ -12,6 +12,26 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
+// GeodeNode - leaf node from which Renderable leaves are hung - no child nodes, only child Renderables
+// BillboardNode
+// ParticleSystemNode
+// Renderables
+// StateSets
+
+// Possible Future Work:
+// ImposterNode - adds support for hierarchical image chaching
+// OccluderNode
+
+// Never:
+// SequenceNode - Automatically steps through children
+
+// GroupNode at the top containing the whole graph
+// GroupNodes, LODNodes, TransformNodes, SwitchNodes in the middle
+// GeodeNodes/BillboardNodes are the leaf nodes which contain...
+// Renderables which are leaves that contain the geometry and can be drawn.
+// StateSets attached to Nodes and Renderables, state inherits from parents too.
+
+// http://www.openscenegraph.org/documentation/VRLabLecture/HowToLearnAbout/Nodes.html
 // http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph/trunk/src/osgUtil/Optimizer.cpp?format=txt
 
 // cSceneNode
@@ -245,7 +265,7 @@ namespace breathe
       void _Cull(cCullVisitor& visitor);
     };
 
-    class cLightNode : cSceneNode
+    class cLightNode : public cSceneNode
     {
     public:
 
@@ -258,7 +278,7 @@ namespace breathe
       float_t fMaximumDistanceRadius;
     };
 
-    class cSwitchNode : cSceneNode
+    class cSwitchNode : public cSceneNode
     {
     public:
       cSwitchNode() : index(0) {}
@@ -282,7 +302,7 @@ namespace breathe
       index = _index;
     }
 
-    class cLODNode : cSceneNode
+    class cLODNode : public cSceneNode
     {
     public:
       cLODNode() : index(0) {}
@@ -306,6 +326,49 @@ namespace breathe
       index = LOD;
     }
 
+
+    class cPagedLODNodeLoader
+    {
+    public:
+      void Update() {}
+
+    private:
+      void LoadTerrainLOD0(size_t x, size_t y);
+      void LoadTerrainLOD1(size_t x, size_t y);
+      void LoadTerrainLOD2(size_t x, size_t y);
+
+      void LoadGrass(size_t x, size_t y);
+    };
+
+    class cPagedLODNodeChild : public cSceneNode
+    {
+    public:
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      cLODNode terrain; // Terrain heightmap
+      //std::vector<cGeometryNodeRef> grass; // One cGeometryNode for each grass
+      cLODNode trees; // Anything else gets added here such as trees
+    };
+
+    typedef cSmartPtr<cPagedLODNodeChild> cPagedLODNodeChildRef;
+
+    class cPagedLODNode : public cSceneNode
+    {
+    public:
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+
+      cPagedLODNodeLoader loader;
+      std::vector<cPagedLODNodeChildRef> node;
+
+      // TODO: Could try a quadtree
+      // cQuadTree<cPagedLODNodeChildRef> quadtree;
+    };
 
     // Octree for spatially representing the world
     class cSpatialGraphNode

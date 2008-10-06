@@ -80,17 +80,17 @@ namespace breathe
     HANDORIENTATION_DEFAULT = HANDORIENTATION_RIGHT
   };
 
-  inline HANDORIENTATION GetHandOrientation()
+  /*inline HANDORIENTATION GetHandOrientation()
   {
     int iValue;
     if (GetApplicationProfileSetting(TEXT("View"), TEXT("HandOrientation"), iValue)) {
       if (iValue == 0) return HANDORIENTATION_RIGHT;
       if (iValue == 1) return HANDORIENTATION_LEFT;
       if (iValue == 2) return HANDORIENTATION_CENTRE;
-    }
+}
 
     return HANDORIENTATION_DEFAULT;
-  }
+  }*/
 }
 
 #endif // SETTINGS_H

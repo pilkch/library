@@ -38,6 +38,8 @@ namespace breathe
     inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(BREATHE_APPLICATION_NAME_LWR)); }
     inline string_t GetBreatheSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("breathe")); }
     string_t GetHomeDirectory();
+    string_t GetHomeImagesDirectory();
+    string_t GetHomeMusicDirectory();
     string_t GetTempDirectory();
 #ifdef __APPLE__
     string_t GetResourcesPath();

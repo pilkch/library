@@ -1,10 +1,3 @@
-#ifdef __LINUX__
-#include <dirent.h>
-#include <pwd.h>
-#endif
-
-#include <sys/stat.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -17,6 +10,15 @@
 #include <vector>
 #include <fstream>
 
+#ifdef __LINUX__
+#include <dirent.h>
+#include <pwd.h>
+#elif defined(__WIN__)
+#include <windows.h>
+#endif
+
+#include <sys/stat.h>
+
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
 
@@ -27,10 +29,6 @@
 #include <breathe/algorithm/md5.h>
 #endif
 
-
-#ifdef __WIN__
-#include <windows.h>
-#endif
 
 namespace breathe
 {
@@ -111,13 +109,43 @@ namespace breathe
 #ifdef WIN32
       char szPath[MAX_PATH_LEN];
       strcpy(szPath, exe_directory);
-      ASSERT(SHGetFolderPath(0, CSIDL_APPDATA|CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      ASSERT(SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
 #endif
 #ifdef BUILD_LINUX_UNIX
-      struct passwd *pw = getpwuid(getuid());
-      ASSERT(pw != nullptr);
-      sPath = string_t(pw->pw_dir);
+      char* szHome = getenv("HOME");
+      if (szHome != nullptr) string_t(szHome);
+      else {
+        struct passwd *pw = getpwuid(getuid());
+        ASSERT(pw != nullptr);
+        sPath = string_t(pw->pw_dir);
+      }
+#endif
+      ASSERT(!sPath.empty());
+      return sPath;
+    }
+
+    string_t GetHomeImagesDirectory()
+    {
+      string_t sPath;
+#ifdef WIN32
+      char szPath[MAX_PATH_LEN];
+      strcpy(szPath, exe_directory);
+      ASSERT(SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      sPath = string_t(szPath);
+#endif
+      ASSERT(!sPath.empty());
+      return sPath;
+    }
+
+    string_t GetHomeMusicDirectory()
+    {
+      string_t sPath;
+#ifdef WIN32
+      char szPath[MAX_PATH_LEN];
+      strcpy(szPath, exe_directory);
+      ASSERT(SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      sPath = string_t(szPath);
 #endif
       ASSERT(!sPath.empty());
       return sPath;

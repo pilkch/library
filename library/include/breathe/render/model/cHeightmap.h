@@ -1,6 +1,20 @@
 #ifndef CMODELHEIGHTMAP_H
 #define CMODELHEIGHTMAP_H
 
+// Terrain
+// http://www.ogre3d.org/wiki/index.php/Practical_Application
+// http://freeworld3d.org/
+// http://www.freeworld3d.org/downloads.html
+// http://www.freeworld3d.org/tutorials/roadsystem.html
+// http://www.bundysoft.com/L3DT/
+// http://www.bundysoft.com/wiki/doku.php?id=tutorials:l3dt:roads
+// http://www.bundysoft.com/wiki/doku.php?id=tutorials:l3dt:bumpmap
+// http://www.bundysoft.com/wiki/doku.php?id=tutorials:l3dt:tips
+// http://www.bundysoft.com/wiki/doku.php?id=tutorials:l3dt:dead_rabit
+// http://www.bundysoft.com/wiki/doku.php?id=tutorials:l3dt:newclimate:02
+// http://images.google.com.au/images?q=road+cutting
+// http://www.swiftless.com/tutorials/terrain/terraintuts.html
+
 namespace breathe
 {
 	namespace render

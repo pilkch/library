@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <grp.h>
+#include <pwd.h>
 #endif
 
 #ifdef __WIN__
@@ -200,8 +201,14 @@ namespace breathe
 
     void GetUserName(string_t& sUserName)
     {
+      // Try the environment variables first
       if (GetEnvironmentVariable(TEXT("LOGNAME"), sUserName)) return;
       if (GetEnvironmentVariable(TEXT("USER"), sUserName)) return;
+
+      struct passwd *pw = getpwuid(getuid());
+      ASSERT(pw != nullptr);
+      sUserName.assign(pw->pw_name); // login name ie. "chris"
+      sUserName.assign(pw->pw_gecos); // Real name is. "Chris Pilkington"
 
       LOG<<"GetUserName GetEnvironmentVariable FAILED Finding LOGNAME or USER"<<std::endl;
     }

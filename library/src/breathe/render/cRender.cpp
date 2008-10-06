@@ -34,6 +34,7 @@
 #include <breathe/algorithm/algorithm.h>
 
 #include <breathe/storage/filesystem.h>
+#include <breathe/storage/settings.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -757,6 +758,45 @@ namespace breathe
 				_RenderPostRenderPass(*iter, (n==1 || ((i+1) % 2)) ? pFrameBuffer0 :pFrameBuffer1);
 		}
 
+    void cRender::SaveScreenShot()
+    {
+      int value = 0;
+      GetApplicationUserSetting(TEXT("ScreenShot"), TEXT("Count"), value);
+      SetApplicationUserSetting(TEXT("ScreenShot"), TEXT("Count"), value + 1);
+
+      stringstream_t o;
+      o<<filesystem::GetHomeImagesDirectory();
+      o<<TEXT("screenshot");
+      o<<value;
+      o<<TEXT(".bmp");
+      string_t sFilename(o.str());
+
+      SDL_Surface* screen = pSurface;
+      ASSERT(screen != nullptr);
+
+      if (!(screen->flags & SDL_OPENGL)) {
+        SDL_SaveBMP(screen, breathe::string::ToUTF8(sFilename).c_str());
+        return;
+      }
+
+      SDL_Surface* temp = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+      if (temp == nullptr) return;
+
+      unsigned char *pixels = (unsigned char *) malloc(3 * screen->w * screen->h);
+      if (pixels == nullptr) {
+        SDL_FreeSurface(temp);
+        return;
+      }
+
+      glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+      for (size_t i=0; i<screen->h; i++)
+        memcpy(((char *) temp->pixels) + temp->pitch * i, pixels + 3*screen->w * (screen->h-i-1), screen->w*3);
+      free(pixels);
+
+      SDL_SaveBMP(temp, breathe::string::ToUTF8(sFilename).c_str());
+      SDL_FreeSurface(temp);
+    }
 
 		// Our screen coordinates look like this
 		// 0.0f, 0.0f						1.0f, 0.0f

@@ -109,6 +109,8 @@ namespace breathe
 			void BeginLoadingTextures();
 			void EndLoadingTextures();
 
+      void SaveScreenShot();
+
 			// These are the actual calls, the previous may actually render to an FBO first
 		private:
 			void _BeginRenderShared();
