@@ -84,11 +84,71 @@ namespace breathe
   namespace scenegraph
   {
     cSceneNode::cSceneNode() :
+#ifdef BUILD_DEBUG
+      bIsShowingBoundingBox(false),
+#endif
       bIsVisible(true),
       bIsDirty(true),
       bHasRelativePosition(false),
       bHasRelativeRotation(false)
     {
+    }
+
+    // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
+    bool cSceneNode::IsWithinNode(cSceneNodeRef pNodeToFind) const
+    {
+      cSceneNodeRef pNode = GetParent();
+      while (pNode != nullptr) {
+        pNode = pNode->GetParent();
+        if (pNode == pNodeToFind) return true;
+      }
+
+      return false;
+    }
+
+    // Only called by a scenenode to another scenenode
+    void cSceneNode::AttachToParent(cSceneNodeRef _pParent)
+    {
+      if (pParent != nullptr) DetachFromParent();
+
+      pParent = _pParent;
+    }
+
+    void cSceneNode::SetDirty()
+    {
+      if (!bIsDirty) {
+        bIsDirty = true;
+        if (pParent != nullptr) pParent->SetDirty();
+      }
+    }
+
+    void cSceneNode::SetLocalPosition(const math::cVec3& position)
+    {
+      bHasRelativePosition = true;
+      relativePosition = position;
+      SetDirty();
+    }
+
+    void cSceneNode::SetLocalRotation(const math::cVec3& rotation)
+    {
+      bHasRelativeRotation = true;
+      relativeRotation = rotation;
+      SetDirty();
+    }
+
+    // If we don't have a parent return our relative position, else return our parent's global position + our own
+    math::cVec3 cSceneNode::GetGlobalPosition() const
+    {
+      if (pParent != nullptr) return pParent->GetGlobalPosition() + relativePosition;
+
+      return relativePosition;
+    }
+
+    void cSceneNode::GenerateBoundingVolume()
+    {
+      //TODO: Generate the bounding volume for this scenenode
+
+      bIsDirty = false;
     }
 
     void cSceneNode::SetVisible(bool bVisible)
@@ -334,7 +394,24 @@ namespace breathe
 
     void cRenderGraph::AddRenderable(const cRenderableRef renderable)
     {
-      listOpaque.push_back(renderable);
+      std::map<cRenderState*, cRenderableList*>::iterator iter(mOpaque.begin());
+      const std::map<cRenderState*, cRenderableList*>::iterator iterEnd(mOpaque.end());
+      while (iter != iterEnd) {
+        cRenderState* pState = iter->first;
+        ASSERT(pState != nullptr);
+
+        //if (*pState == renderable.state) {
+        //  cRenderableList* pList = iter->second;
+        //  pList->push_back(&renderable);
+        //  return;
+        //}
+
+        iter++;
+      }
+
+      //cRenderableList* pList = new cRenderableList;
+      //pList->push_back(&renderable);
+      //mOpaque[&renderable.state] = pList;
     }
 
 
@@ -347,10 +424,32 @@ namespace breathe
 
       unsigned int uiTriangles = 0;
 
+      /*iterator iter(mRenderables.begin());
+      const iterator iterEnd(mRenderables.end());
+      while (iter != iterEnd) {
+        cRenderState* pState = iter->first;
+        ASSERT(pState != nullptr);
+
+        cRenderableList* pList = iter->second;
+        ASSERT(pList != nullptr);
+
+        PushState(pState);
+        cRenderableList::iterator iterList(pList.begin());
+        const cRenderableList::iterator iterListEnd(pList.end());
+        while (iterList != iterListEnd) {
+          cRenderable* pRenderable = *iterList;
+          Render(pRenderable);
+          iterList++;
+        }
+        PopState(pState);
+
+        iter++;
+      }*/
+
       // Opaque first
       {
-        std::list<cRenderableRef>::iterator iter(rendergraph.listOpaque.begin());
-        const std::list<cRenderableRef>::iterator iterEnd(rendergraph.listOpaque.end());
+        std::map<cRenderState*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
+        const std::map<cRenderState*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
         while(iter != iterEnd) {
           //uiTriangles += (*iter)->Render();
           iter++;

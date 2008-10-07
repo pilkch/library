@@ -85,6 +85,26 @@ namespace breathe
   {
     class cSceneGraph;
 
+    class cRenderState
+    {
+    public:
+      cRenderState(const cRenderState& rhs);
+
+      cRenderState& operator=(const cRenderState& rhs);
+
+      bool operator==(const cRenderState& rhs);
+      bool operator!=(const cRenderState& rhs) { return !(*this == rhs); }
+    };
+
+    inline bool cRenderState::operator==(const cRenderState& rhs)
+    {
+      // To start with all states are equal
+      return true;
+    }
+
+
+
+
     /*class cSceneGraphModel : public cObject
     {
     public:
@@ -171,29 +191,59 @@ namespace breathe
 
     typedef cSmartPtr<cSceneNode> cSceneNodeRef;
 
+    // Uses a quaternion to work out world rotation
+    // Only call GenerateBoundingVolume at the very end of setting rotations and positions for all nodes
+
     class cSceneNode
     {
     public:
       friend class cUpdateVisitor;
+      friend class cCullVisitor;
 
       virtual ~cSceneNode() {}
 
-      bool IsDirty() const { return bIsDirty; }
+      bool IsWithinNode(cSceneNodeRef pNode) const; // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
 
-      void SetDirty() { bIsDirty = true; if (pParent != nullptr) pParent->SetDirty(); }
+      cSceneNodeRef GetParent() const { return pParent; }
+
+      void AttachChild(cSceneNode* pChild) { _AttachChild(pChild); }
+      void DetachFromParent() { pParent.reset(); }
+
+
+      bool IsEnabled() const { return bIsEnabled; }
+      void SetEnabled(bool _bIsEnabled) { bIsEnabled = _bIsEnabled; }
+
+      bool IsDirty() const { return bIsDirty; }
+      void SetDirty();
 
       void SetVisible(bool bVisible);
       void SetPosition(const math::cVec3& position);
       void SetRotation(const math::cQuaternion& rotation);
 
-      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
-      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
+      const math::cVec3& GetLocalPosition() const { return relativePosition; }
+      const math::cQuaternion& GetLocalRotation() const { return relativeRotation; }
+      void SetLocalPosition(const math::cVec3& position);
+      void SetLocalRotation(const math::cVec3& rotation);
+
+      math::cVec3 GetGlobalPosition() const; // Calculated base on the parents of this node
+
+      void SetScale(const math::cVec3& scale) { relativeScale = scale; }
+      const math::cVec3& GetScale() const { return relativeScale; }
+
 
       const math::cSphere& GetBoundingSphere() const { return boundingSphere; }
       const math::cBox& GetBoundingBox() const { return boundingBox; }
 
       // We call this from cSceneGraph::Update
       void UpdateBoundingVolumeAndSetNotDirty();
+
+#ifdef BUILD_DEBUG
+      const bool IsShowingBoundingBox() const;
+      void SetShowingBoundingBox(bool bShow) { bIsShowingBoundingBox = bShow; }
+#endif
+
+      void Update(cUpdateVisitor& visitor) { _Update(visitor); }
+      void Cull(cCullVisitor& visitor) { _Cull(visitor); }
 
     protected:
       // Only the derived classes can call use this constructor
@@ -211,9 +261,22 @@ namespace breathe
       cSceneNode(const cSceneNode&); // Prevent copying
       cSceneNode& operator=(const cSceneNode&); // Prevent copying
 
-      bool bIsDirty;
+      void GenerateBoundingVolume();
+
+      // This should be pure virtual?
+      virtual void _AttachChild(cSceneNode* pChild) {}
+
+      // Only called by a scenenode to another scenenode
+      void AttachToParent(cSceneNodeRef _pParent);
+
 
       bool bIsVisible;
+      bool bIsEnabled;
+
+      bool bIsDirty;
+
+      bool bUseIsDynamic;
+      bool bIsDynamic;
 
       bool bHasRelativePosition;
       math::cVec3 relativePosition;
@@ -221,10 +284,17 @@ namespace breathe
       bool bHasRelativeRotation;
       math::cQuaternion relativeRotation;
 
+      bool bUseRelativeScale;
+      math::cVec3 relativeScale;
+
+#ifdef BUILD_DEBUG
+      bool bIsShowingBoundingBox;
+#endif
+
       math::cSphere boundingSphere;
       math::cBox boundingBox;
 
-      cSceneNodeRef pParent;
+      cSceneNodeRef pParent; // Each node has exactly one parent, no more no less.  pRoot is the only exception, pRoot->pParent == nullptr;
     };
 
     class cGroupNode : public cSceneNode
@@ -557,13 +627,18 @@ namespace breathe
       void Clear();
 
     private:
-      std::list<cRenderableRef> listOpaque;
+      typedef std::list<cRenderable*> cRenderableList;
+
+      // Opaque (states : list of renderables with that state)
+      std::map<cRenderState*, cRenderableList*> mOpaque;
+
+      // Transparent (distance from the camera : renderable at that position)
       std::map<float, cRenderableRef> mTransparent;
     };
 
     inline void cRenderGraph::Clear()
     {
-      listOpaque.clear();
+      mOpaque.clear();
       mTransparent.clear();
     }
 
