@@ -49,8 +49,438 @@
 
 namespace breathe
 {
-	namespace vehicle
-	{
+  namespace vehicle
+  {
+    // Out is the state of the clutch when you are not touching the pedal at all.
+    // In is the state of the clutch when you have the clutch fully pushed in down to the floor.
+
+    class cClutch
+    {
+    public:
+      float_t GetClutchPushedInAmount0To1() const { ASSERT(fPushedInAmount0To1 >= 0.0f); ASSERT(fPushedInAmount0To1 <= 1.0f); return fPushedInAmount0To1; }
+      void SetPushedInAmount0To1(float_t _fPushedInAmount0To1) { ASSERT(_fPushedInAmount0To1 >= 0.0f); ASSERT(_fPushedInAmount0To1 <= 1.0f); fPushedInAmount0To1 = _fPushedInAmount0To1; }
+
+      float_t CalculateOutputTorqueNm(float_t fInputTorqueNm) const;
+
+    private:
+      void _Update(sampletime_t currentTime);
+
+      float_t fMaxTorqueNm; // Maximum torque the clutch can take before it slips.
+
+      float_t fPushedInAmount0To1; // How much is the clutch grabbing at the moment?  0.0f is not grabbing at all, 1.0f is fully grabbing.
+    };
+
+    inline float_t cClutch::CalculateOutputTorqueNm(float_t fInputTorqueNm) const
+    {
+      const float_t fCanHoldTorqueNm = fMaxTorqueNm * fPushedInAmount0To1;
+      fInputTorqueNm -= fCanHoldTorqueNm;
+
+      return max<float_t>(fInputTorqueNm, 0.0f);
+    }
+
+    class cGear
+    {
+    public:
+      explicit cGear(bool bIsNeutral);
+
+    // A valid gear is any gear that is neutral or reverse or neither, not both
+      bool IsValid() const { return !(IsNeutral() && IsReverse()); }
+
+      bool IsNeutral() const { return bIsNeutral; }
+      bool IsReverse() const { return fRatio < breathe::math::cEPSILON; }
+
+      float_t GetRatio() const { return fRatio; }
+      float_t GetInertia() const { return fInertia; }
+
+      void SetRatio(float_t fRatio);
+      void SetInertia(float_t fInertia);
+
+    private:
+      bool bIsNeutral;
+
+      float_t fRatio;
+      float_t fInertia;
+    };
+
+    inline cGear::cGear(bool _bIsNeutral) :
+      fRatio(1.0f),
+      fInertia(1.0f)
+    {
+      bIsNeutral = _bIsNeutral;
+
+      SetRatio(1.0f);
+    }
+
+    inline void cGear::SetRatio(float_t _fRatio)
+    {
+      // If we are not neutral then we can set our own ratio
+      fRatio = (bIsNeutral) ? 0.0f : _fRatio;
+    }
+
+    inline void cGear::SetInertia(float_t _fInertia)
+    {
+      fInertia = _fInertia;
+    }
+
+
+
+
+
+
+    // Each gear has a different inertia. As lower gears have more teeth and are larger, the lower gears also have bigger inertia values.
+    // They are given in Kg*m^2. Note that the inertia has a squared influence on the total drive train.
+
+    // float fAutomaticTotalTimeInMS =  (1.5f * timeClutchDelayMS) + (2.0f * timeShiftDelayMS) + (1.5f * timeClutchDelayMS);
+    // float fSemiAutomaticTotalTimeInMS =  timeClutchDelayMS + (1.5f * timeShiftDelayMS) + timeClutchDelayMS;
+    // float fManualTotalTimeInMS = timeShiftDelayMS; // Plus we have already pressed the clutch in and out ourselves (It is not included in this calculation)
+
+    // Each gearbox has:
+    // 0 or 1 reverse gears,
+    // 0 or 1 neutral gears,
+    // 1 to n forwards gears
+
+    // Gear order
+    // [r] [n] 1 [2] [3] [4] [5] [6] [..] [n]
+
+    class cGearbox
+    {
+    public:
+      friend class cGearboxController;
+
+      enum STATE
+      {
+        STATE_IN_GEAR = 0, // When we are in a gear already, the clutch may or may not be in at the moment
+        STATE_SHIFTING_GEAR // Currently the clutch is (probably) in and we are actually changing gear ie. between 1st and 2nd
+      };
+
+      cGearbox();
+
+      void AddGear(float ratio, float inertia);
+
+      float_t GetInputRPM() const { return fInputRPM; }
+
+      bool HasReverse() const { return bHasReverseGear; }
+      bool HasNeutral() const { return bHasNeutralGear; }
+
+      bool IsInReverse() const;
+      bool IsInNeutral() const;
+      bool IsInForwardsGear() const { return !(IsInReverse() || IsInNeutral()); }
+
+      STATE GetState() const { return state; }
+
+      // Total number of gears including reverse and neutral
+      size_t GetNumberOfGears() const { return gears.size(); }
+
+      // Return 0..n of all the gears, ie. if we have a reverse and currentGear == 0 then we are in reverse
+      size_t GetCurrentGearIndex() const { return currentGear; }
+
+      // Returns 1..n+1 of the forward gear we are currently in (For use in displaying to the user, ie. at the start line 1 will be displayed on the screen)
+      size_t GetCurrentGearNumber() const;
+
+      const cGear& GetCurrentGear() const;
+
+      float GetGearRatio(size_t gear) const;
+      float GetGearInertia(size_t gear) const;
+
+      void ShiftUp();
+      void ShiftDown();
+
+      void Update(sampletime_t currentTime);
+
+      cClutch clutch;
+
+    private:
+      void GetRatioAndInertia(size_t gear, float& ratio, float& inertia) const;
+
+      void _SetTargetGear(size_t gear);
+
+      //std::vector<cGear*> gears;
+
+      // First is ratio
+      // Second is inertia
+      std::map<float, float> gears;
+      bool bHasReverseGear;
+      bool bHasNeutralGear;
+
+      float timeShiftDelayMS; // How long each actual shift takes
+
+      size_t currentGear;
+      size_t targetGear;
+
+      STATE state;
+      sampletime_t stateEnteredTime;
+
+      float_t fInputRPM;
+    };
+
+    cGearbox::cGearbox() :
+      bHasReverseGear(false),
+      bHasNeutralGear(false),
+      state(STATE_IN_GEAR),
+      timeShiftDelayMS(200), // How long each shift takes
+      fInputRPM(1000.0f)
+    {
+    }
+
+    // Returns true if we have a reverse gear and we are in gear 0
+    bool cGearbox::IsInReverse() const
+    {
+      return bHasReverseGear && (currentGear == 0);
+    }
+
+    // Returns true if we:
+    // Have a neutral gear and no reverse and are in gear 0 or
+    // Have a neutral gear and a reverse gear and are in gear 1
+    bool cGearbox::IsInNeutral() const
+    {
+      return bHasNeutralGear && ((!bHasReverseGear && (currentGear == 0)) || (bHasReverseGear && (currentGear == 1)));
+    }
+
+    size_t cGearbox::GetCurrentGearNumber() const
+    {
+      ASSERT(IsInForwardsGear());
+      size_t gear = currentGear + 1; // + 1 because we are using this number for displaying remember so it will be 1..n+1 based not 0..n
+      if (bHasReverseGear) gear--;
+      if (bHasNeutralGear) gear--;
+
+      // This cannot equal 0 at the moment, it should be in the range of 1..n+1
+      ASSERT(gear != 0);
+      return gear;
+    }
+
+
+    void cGearbox::ShiftUp()
+    {
+      ASSERT(!gears.empty());
+      _SetTargetGear(targetGear + 1);
+    }
+
+    void cGearbox::ShiftDown()
+    {
+      ASSERT(!gears.empty());
+      if (targetGear != 0) _SetTargetGear(targetGear - 1);
+    }
+
+    void cGearbox::_SetTargetGear(size_t gear)
+    {
+      ASSERT(!gears.empty());
+      const size_t n = gears.size();
+      if (gear < n) targetGear = gear;
+      else if(n != 0) targetGear = n - 1;
+      else targetGear = 0;
+    }
+
+    void cGearbox::GetRatioAndInertia(size_t gear, float& ratio, float& inertia) const
+    {
+      ratio = 0.0f;
+      inertia = 0.0f;
+
+      size_t i = 0;
+      std::map<float, float>::const_iterator iter(gears.begin());
+      const std::map<float, float>::const_iterator iterEnd(gears.end());
+      while (iter != iterEnd) {
+        if (i == gear) {
+          ratio = iter->first;
+          inertia = iter->second;
+        }
+
+        i++;
+        iter++;
+      }
+    }
+
+    float cGearbox::GetGearRatio(size_t gear) const
+    {
+      float ratio;
+      float inertia;
+      GetRatioAndInertia(gear, ratio, inertia);
+
+      return ratio;
+    }
+
+    float cGearbox::GetGearInertia(size_t gear) const
+    {
+      float ratio;
+      float inertia;
+      GetRatioAndInertia(gear, ratio, inertia);
+
+      return inertia;
+    }
+
+    void cGearbox::Update(sampletime_t currentTime)
+    {
+      ASSERT(!gears.empty());
+
+      ASSERT(targetGear <= gears.size());
+      ASSERT(currentGear <= gears.size());
+
+      if (state == STATE_IN_GEAR) {
+        // If we are already in the gear that we want then return
+        if (targetGear == currentGear) return;
+
+        // We are in a gear other than the target gear, better start shifting
+
+      }
+    }
+
+
+
+
+    class cGearboxController
+    {
+    public:
+      explicit cGearboxController(cGearbox& gearbox);
+
+      void InjectInputClutch(float_t fValue0To1) { _InjectInputClutch(fValue0To1); }
+      void InjectInputChangeUp() { _InjectInputChangeUp(); }
+      void InjectInputChangeDown() { _InjectInputChangeDown(); }
+
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+
+    protected:
+      cGearbox& gearbox;
+
+    private:
+      virtual void _InjectInputClutch(float_t fValue0To1) {}
+      virtual void _InjectInputChangeUp() {}
+      virtual void _InjectInputChangeDown() {}
+
+      virtual void _Update(sampletime_t currentTime) = 0;
+    };
+
+    cGearboxController::cGearboxController(cGearbox& _gearbox) :
+      gearbox(_gearbox)
+    {
+    }
+
+
+
+    class cGearboxManual : public cGearboxController
+    {
+    public:
+      explicit cGearboxManual(cGearbox& gearbox);
+
+    private:
+      virtual void _InjectInputClutch(float_t fValue0To1);
+      virtual void _InjectInputChangeUp();
+      virtual void _InjectInputChangeDown();
+    };
+
+    cGearboxManual::cGearboxManual(cGearbox& _gearbox) :
+      cGearboxController(_gearbox)
+    {
+    }
+
+    void cGearboxManual::_InjectInputClutch(float_t fValue0To1)
+    {
+      gearbox.clutch.SetPushedInAmount0To1(fValue0To1);
+    }
+
+    void cGearboxManual::_InjectInputChangeUp()
+    {
+      gearbox.ShiftUp();
+    }
+
+    void cGearboxManual::_InjectInputChangeDown()
+    {
+      gearbox.ShiftDown();
+    }
+
+
+    class cGearboxAutomatic : public cGearboxController
+    {
+    public:
+      explicit cGearboxAutomatic(cGearbox& gearbox);
+
+      void SetChangeUpAtRPM(float_t fRPM) { fChangeUpAtRPM = fRPM; }
+      void SetChangeDownAtRPM(float_t fRPM) { fChangeDownAtRPM = fRPM; }
+
+    private:
+      virtual void _InjectInputChangeUp();
+      virtual void _InjectInputChangeDown();
+
+      void _Update(sampletime_t currentTime);
+
+      void InternalChangeUp();
+      void InternalChangeDown();
+      void HandlePotentialChanging();
+
+      size_t targetGearIndex;
+
+      float_t fChangeUpAtRPM; // At what RPM does the automatic transmission change up?
+      float_t fChangeDownAtRPM; // At what RPM does the automatic transmission change down?
+      sampletime_t timeClutchPushInDelayMS; // How long it takes to push the clutch in from fully let out
+      sampletime_t timeClutchLetOutDelayMS; // How long it takes to let the clutch out
+    };
+
+    cGearboxAutomatic::cGearboxAutomatic(cGearbox& _gearbox) :
+      cGearboxController(_gearbox),
+      targetGearIndex(0)
+    {
+    }
+
+    void cGearboxAutomatic::_InjectInputChangeUp()
+    {
+      if (!gearbox.IsInForwardsGear()) InternalChangeUp();
+    }
+
+    void cGearboxAutomatic::_InjectInputChangeDown()
+    {
+      if (gearbox.HasReverse() && !gearbox.IsInForwardsGear()) InternalChangeDown();
+    }
+
+    void cGearboxAutomatic::InternalChangeUp()
+    {
+      size_t i = gearbox.GetCurrentGearIndex();
+      const size_t n = gearbox.GetNumberOfGears();
+      i++;
+      if (i < n) targetGearIndex = i;
+    }
+
+    void cGearboxAutomatic::InternalChangeDown()
+    {
+      const size_t i = gearbox.GetCurrentGearIndex();
+      if (i != 0) targetGearIndex = i - 1;
+    }
+
+    void cGearboxAutomatic::HandlePotentialChanging()
+    {
+      const float_t fRPM = gearbox.GetInputRPM();
+
+      if (fRPM > fChangeUpAtRPM) InternalChangeUp();
+      else if (fRPM < fChangeDownAtRPM) InternalChangeDown();
+    }
+
+    void cGearboxAutomatic::_Update(sampletime_t currentTime)
+    {
+      cGearbox::STATE state = gearbox.GetState();
+
+      if (state == cGearbox::STATE_IN_GEAR) {
+        // If we are in reverse or neutral and we are not changing up or down then we have nothing to do, so return
+        if (gearbox.IsInReverse() || gearbox.IsInNeutral()) return;
+
+        HandlePotentialChanging();
+
+        // We are already in the target gear, there is nothing to do, so return
+        if (targetGearIndex == gearbox.GetCurrentGearIndex()) {
+          // TODO: We may also wish to rev the engine slightly if we are below stalling speed
+          gearbox.clutch.SetPushedInAmount0To1(0.0f);
+          return;
+        }
+      }
+
+      // Push the clutch in
+      gearbox.clutch.SetPushedInAmount0To1(1.0f);
+
+      // If we don't have the required amount of clutching then we are not ready to change, so return
+      if (gearbox.clutch.GetClutchPushedInAmount0To1() < 0.9f) return;
+
+      // We are ready to shift down
+      if (targetGearIndex > gearbox.GetCurrentGearIndex()) gearbox.ShiftUp();
+      else gearbox.ShiftDown();
+    }
+
+
 		cPart::cPart()
 		{
 			uiType=VEHICLEPART_NONE;

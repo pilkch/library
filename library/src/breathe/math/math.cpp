@@ -17,7 +17,7 @@ namespace breathe
 {
   namespace math
   {
-    const float cINFINITY = std::numeric_limits<float>::max(); //1e30f //std::numeric_limits<float>::infinity();
+    const float_t cINFINITY = std::numeric_limits<float>::max(); //1e30f //std::numeric_limits<float>::infinity();
 
     cScopedPredictableRandom::cScopedPredictableRandom(uint32_t seed, uint32_t _maximum) :
       fOneOver65536By65536(1.0f / (65536.0f * 65536.0f)),
