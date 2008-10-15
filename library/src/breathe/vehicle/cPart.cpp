@@ -51,6 +51,89 @@ namespace breathe
 {
   namespace vehicle
   {
+    cCurve::cCurve()
+    {
+      AddPoint(0.0f, 0.0f);
+    }
+
+    // x has to be >= 0.0f, it can however go past the last point in the list, it will become the new last point
+    // y can be any value it likes
+    void cCurve::AddPoint(float_t fX, float_t fY)
+    {
+      ASSERT(fX >= 0.0f);
+
+      points[fX] = fY;
+    }
+
+
+    float_t cCurve::GetYAtPointX(float_t fX) const
+    {
+      ASSERT(fX >= 0.0f);
+
+      float_t fX0 = 0.0f;
+      float_t fX1 = 0.0f;
+      float_t fY0 = 0.0f;
+      float_t fY1 = 0.0f;
+
+      std::map<float_t, float_t>::const_iterator iter(points.begin());
+      const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
+      while (iter != iterEnd) {
+        const float_t fCurrentX = iter->first;
+        const float_t fCurrentY = iter->second;
+
+        // Shuffle the previous values
+        fY0 = fY1;
+        fY1 = fCurrentY;
+
+        fX0 = fX1;
+        fX0 = fCurrentX;
+
+        if (fCurrentX > fX) {
+          // We have found the pair that we are between
+          break;
+        }
+
+        iter++;
+      };
+
+      return math::interpolate_linear(fX0, fY0, fX1, fY1, fX);
+    }
+/*
+    float_t cCurve::GetYAtPointX(float_t fX) const
+    {
+      // If we don't actually have any points then we can only return 0.0f
+      if (points.empty()) return 0.0f;
+
+      // If x is before 0.0f (The start of the graph) then we can't really compute much, so return 0.0f
+      if (fX < 0.0f) return 0.0f;
+
+      {
+        // If we have at least one point and x is after it then we can't really compute much, so return 0.0f
+        std::map<float_t, float_t>::const_reverse_iterator iter(points.rbegin());
+        ASSERT(iter != points.rend());
+        if (fX > iter->first) return 0.0f;
+      }
+
+      math::cVec2 last(-1.0f, 0.0f);
+      ASSERT(fX > last.x);
+
+      std::map<float_t, float_t>::const_iterator iter(points.begin());
+      const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
+      for (; iter != iterEnd; iter++) {
+        if (iter->first > fX) {
+          // We now have four points
+          //TODO: Actually get the point that lies between these points
+          return iter->second;
+        }
+
+        last.Set(iter->first, iter->second);
+      }
+
+      return 0.0f;
+    }*/
+
+
+
     // Out is the state of the clutch when you are not touching the pedal at all.
     // In is the state of the clutch when you have the clutch fully pushed in down to the floor.
 
@@ -70,7 +153,7 @@ namespace breathe
       float_t fPushedInAmount0To1; // How much is the clutch grabbing at the moment?  0.0f is not grabbing at all, 1.0f is fully grabbing.
     };
 
-    inline float_t cClutch::CalculateOutputTorqueNm(float_t fInputTorqueNm) const
+    float_t cClutch::CalculateOutputTorqueNm(float_t fInputTorqueNm) const
     {
       const float_t fCanHoldTorqueNm = fMaxTorqueNm * fPushedInAmount0To1;
       fInputTorqueNm -= fCanHoldTorqueNm;
@@ -102,7 +185,7 @@ namespace breathe
       float_t fInertia;
     };
 
-    inline cGear::cGear(bool _bIsNeutral) :
+    cGear::cGear(bool _bIsNeutral) :
       fRatio(1.0f),
       fInertia(1.0f)
     {
@@ -111,13 +194,13 @@ namespace breathe
       SetRatio(1.0f);
     }
 
-    inline void cGear::SetRatio(float_t _fRatio)
+    void cGear::SetRatio(float_t _fRatio)
     {
       // If we are not neutral then we can set our own ratio
       fRatio = (bIsNeutral) ? 0.0f : _fRatio;
     }
 
-    inline void cGear::SetInertia(float_t _fInertia)
+    void cGear::SetInertia(float_t _fInertia)
     {
       fInertia = _fInertia;
     }
@@ -481,55 +564,336 @@ namespace breathe
     }
 
 
-		cPart::cPart()
+		cPart::cPart(unsigned int _uiType) :
+      uiType(_uiType),
+      fHealth(100.0f)
 		{
-			uiType=VEHICLEPART_NONE;
-			fHealth=100;
 		}
 
 		void cPart::Install(cVehicle *p)
 		{
-			pVehicle=p;
+			pVehicle = p;
 		}
 
 
-		cPartTurboCharger::cPartTurboCharger()
-			: cPart()
+    // engine
+    // engine rpm
+    // engine rpm : torque nm curve
+
+    // engine_rpm -> superchargerrpm -> boostpsi
+    cPartEngine::cPartEngine() :
+      cPart(PART_ENGINE)
+    {
+      // Temporary torque curve for a Honda S2000
+      curveEngineRPMToTorqueNm.AddPoint(1000.0f, 140.0f);
+      curveEngineRPMToTorqueNm.AddPoint(2000.0f, 149.14f);
+      curveEngineRPMToTorqueNm.AddPoint(2200.0f, 145.07f);
+      curveEngineRPMToTorqueNm.AddPoint(2500.0f, 147.78f);
+      curveEngineRPMToTorqueNm.AddPoint(3000.0f, 169.50f);
+      curveEngineRPMToTorqueNm.AddPoint(3300.0f, 172.19f);
+      curveEngineRPMToTorqueNm.AddPoint(4000.0f, 169.50f);
+      curveEngineRPMToTorqueNm.AddPoint(4500.0f, 166.77f);
+      curveEngineRPMToTorqueNm.AddPoint(5600.0f, 172.19f);
+      curveEngineRPMToTorqueNm.AddPoint(5800.0f, 170.83f);
+      curveEngineRPMToTorqueNm.AddPoint(6000.0f, 168.12f);
+      curveEngineRPMToTorqueNm.AddPoint(6100.0f, 177.61f);
+      curveEngineRPMToTorqueNm.AddPoint(6200.0f, 186.42f);
+      curveEngineRPMToTorqueNm.AddPoint(6300.0f, 192.53f);
+      curveEngineRPMToTorqueNm.AddPoint(6500.0f, 195.92f);
+      curveEngineRPMToTorqueNm.AddPoint(6700.0f, 195.92f);
+      curveEngineRPMToTorqueNm.AddPoint(7000.0f, 195.24f);
+      curveEngineRPMToTorqueNm.AddPoint(7600.0f, 190.49f);
+      curveEngineRPMToTorqueNm.AddPoint(8000.0f, 184.39f);
+      curveEngineRPMToTorqueNm.AddPoint(8200.0f, 183.04f);
+      curveEngineRPMToTorqueNm.AddPoint(8300.0f, 146.43f);
+      curveEngineRPMToTorqueNm.AddPoint(9500.0f, 146.43f);
+    }
+
+    void cPartEngine::_Update(sampletime_t currentTime)
+    {
+      fTorqueNm = GetTorqueNmAtEngineRPM(fRPM);
+    }
+
+
+
+
+
+
+
+
+		cPartTurboCharger::cPartTurboCharger() :
+      cPart(PART_TURBOCHARGER)
 		{
-			uiType=VEHICLEPART_TURBOCHARGER;
-		}
-
-		void cPartTurboCharger::Install(cVehicle *p)
-		{
-			cPart::Install(p);
-
-
 		}
 
 		void cPartTurboCharger::_Update(sampletime_t currentTime)
 		{
+      // http://www.turbochargedpower.com/Turbo%20vs%20Blowers.htm
+      // http://www.hi-flow.com/HP4FAQSuper.htm
+      // http://en.wikipedia.org/wiki/Turbocharger
 
+      float_t fEngineExhaustpsi = 3.0f;
+      fRPM = GetTurboChargerRPMAtEngineExhaustpsi(fEngineExhaustpsi);
+      float_t outputboostpsi = GetBoostpsiAtTurboChargerRPM(fRPM);
 		}
 
 
 
-		cPartSuperCharger::cPartSuperCharger()
-			: cPart()
+		cPartSuperCharger::cPartSuperCharger() :
+      cPart(PART_SUPERCHARGER)
 		{
-			uiType=VEHICLEPART_SUPERCHARGER;
-		}
-
-		void cPartSuperCharger::Install(cVehicle *p)
-		{
-			cPart::Install(p);
-
-
 		}
 
     void cPartSuperCharger::_Update(sampletime_t currentTime)
-		{
-
+    {
+      // http://www.turbochargedpower.com/Turbo%20vs%20Blowers.htm
+      // http://www.hi-flow.com/HP4FAQSuper.htm
+      // http://en.wikipedia.org/wiki/Supercharger
+      float_t fEngineRPM = 1000.0f;
+      fRPM = fSuperChargerRPMToEngineRPMRatio * fEngineRPM;
+      float_t outputboostpsi = GetBoostpsiAtSuperChargerRPM(fRPM);
 		}
+
+
+
+
+    cVehicleControlModule::cVehicleControlModule() :
+      cPart(PART_CONTROL_MODULE),
+      fMaximumTCSSlipRatio(1.2f)
+    {
+    }
+
+    bool cVehicleControlModule::_IsValid() const
+    {
+      // Check that we have valid values
+      if (bAutomaticShifting && fAutomaticShiftingRPM < 0.0f) return false;
+      if (bRevLimiter && fRevLimitRPM < 0.0f) return false;
+
+      if (bAutomaticShifting && bRevLimiter) {
+        // Check that the transmission will shift before the rev limiter kicks in
+        if (fAutomaticShiftingRPM > fRevLimitRPM) return false;
+      }
+
+      if (bTractionControl) {
+        // Check that traction control is between 0.0f and 1.0f
+        if ((fTractionControl < 0.0f) || (fTractionControl > 1.0f)) return false;
+      }
+
+      if (bAntiLockBrakingSystem) {
+        // Check that ABS is between 0.0f and 1.0f
+        if ((fAntiLockBrakingSystem < 0.0f) || (fAntiLockBrakingSystem > 1.0f)) return false;
+      }
+
+      return true;
+    }
+
+    void cVehicleControlModule::GetSlowestAndFastestWheelSpeedsRPM(float_t& fSlowestWheel, float_t& fFastestWheel)
+    {
+      fSlowestWheel = math::cINFINITY;
+      fFastestWheel = -math::cINFINITY;
+      /*const size_t n = GetWheelCount();
+      for (size_t i = 0; i < n; i++) {
+        const float fWheelRPM = wheel[i].GetRPM();
+        if (fWheelRPM < fSlowestWheel) fSlowestWheel = fWheelRPM;
+        if (fWheelRPM > fFastestWheel) fFastestWheel = fWheelRPM;
+      }*/
+    }
+
+    void cVehicleControlModule::Update(sampletime_t currentTime)
+    {
+      /*const float_t fRPM = vehicle.GetRPM();
+      float_t fAccelerator0To1 = vehicle.GetAccelerator0To1();
+
+      // Rev Limiter
+      if (bRevLimiter) {
+        if (fRPM > fRevLimitRPM) fAccelerator0To1 = 0.0f;
+      }
+
+      // Automatic Shifting
+      if (bAutomaticShifting) {
+        if (fRPM > fAutomaticShiftingRPM) SetStateShiftUp(bAutomaticClutching);
+      }
+
+      // Traction Control
+      // The vehicle will allow slip up to a maximum of (1.0f - fTractionControl) * fMaximumTCSSlipRatio;
+      if (bTractionControl) {
+        float_t fAccelerator = GetInput0To1();
+        float_t fSlowestWheel = 0.0f;
+        float_t fFastestWheel = 0.0f;
+        GetSlowestAndFastestWheelSpeedsRPM(fSlowestWheel, fFastestWheel);
+
+        if (fSlowestWheel > 0.0f) {
+          const float_t fRatio = fFastestWheel / fSlowestWheel;
+          const float_t fMaximumAllowed = (1.0f - fTractionControl) * fMaximumTCSSlipRatio;
+          if (fRatio > fMaximumAllowed) fAccelerator = 0.0f;
+        }
+      }
+
+      // This will detect if any of the wheels are spinning subtantially less than the rest and actually let go of
+      // the brake on that wheel if it is applied
+      // float_t fLetGo = fAntiLockBrakingSystem;
+      if (bAntiLockBrakingSystem) {
+        float_t fAccelerator = GetInput0To1();
+        float_t fSlowestWheel = 0.0f;
+        float_t fFastestWheel = 0.0f;
+        GetSlowestAndFastestWheelSpeedsRPM(fSlowestWheel, fFastestWheel);
+
+        if (fSlowestWheel > 0.0f) {
+          const float_t fRatio = fFastestWheel / fSlowestWheel;
+          const float_t fMaximumAllowed = (1.0f - fAntiLockBrakingSystem) * fMaximumABSSlipRatio;
+          if (fRatio > fMaximumAllowed) {
+            const size_t n = GetWheelCount();
+            for (size_t i = 0; i < n; i++) {
+              const float_t fCurrentWheelRPM = GetWheelRPM(i);
+              if ((fCurrentWheelRPM / fFastestWheel) > fMaximumAllowed) {
+                fBrake[i] *= (1.0f - fAntiLockBrakingSystem);
+              }
+            }
+          }
+        }
+      }*/
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Requires GearRatio* gear ratios, i* inertia values
+    float cDriveTrain::GetEffectiveInertiaFor2Bodies1Gears() const
+    {
+      ASSERT(bodyInertia.size() == 2);
+      ASSERT(gearRatio.size() == 1);
+
+      const float GearRatio1 = gearRatio[0];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+
+      float Ei2 = (1.0f / (GearRatio1 * GearRatio1)) * i2;
+      float Ei1 = i1;
+
+      return Ei1 + Ei2;
+    }
+
+    float cDriveTrain::GetEffectiveInertiaFor3Bodies2Gears() const
+    {
+      ASSERT(bodyInertia.size() == 3);
+      ASSERT(gearRatio.size() == 2);
+
+      const float GearRatio1 = gearRatio[0];
+      const float GearRatio2 = gearRatio[1];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+      const float i3 = bodyInertia[2];
+
+      float Ei3 = GearRatio1 * (1.0f / (GearRatio2 * GearRatio2)) * i3;
+      float Ei2 = (1.0f / (GearRatio1 * GearRatio1)) * i2;
+      float Ei1 = i1;
+
+      return Ei1 + Ei2 + Ei3;
+    }
+
+    float cDriveTrain::GetEffectiveInertiaFor4Bodies3Gears() const
+    {
+      ASSERT(bodyInertia.size() == 4);
+      ASSERT(gearRatio.size() == 3);
+
+      const float GearRatio1 = gearRatio[0];
+      const float GearRatio2 = gearRatio[1];
+      const float GearRatio3 = gearRatio[2];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+      const float i3 = bodyInertia[2];
+      const float i4 = bodyInertia[3];
+
+      float Ei4 = GearRatio1 * GearRatio2 * (1.0f / (GearRatio3 * GearRatio3)) * i4;
+      float Ei3 = GearRatio1 * (1.0f / (GearRatio2 * GearRatio2)) * i3;
+      float Ei2 = (1.0f / (GearRatio1 * GearRatio1)) * i2;
+      float Ei1 = i1;
+
+      return Ei1 + Ei2 + Ei3 + Ei4;
+    }
+
+
+    float cDriveTrain::GetRotationalAccelerationFromTorqueFor2Bodies1Gears(float fTorque) const
+    {
+      ASSERT(bodyInertia.size() == 2);
+      ASSERT(gearRatio.size() == 1);
+
+      const float GearRatio1 = gearRatio[0];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+
+      return fTorque /
+          (i1 + (1.0f / (GearRatio1 * GearRatio1)) * i2);
+    }
+
+    float cDriveTrain::GetRotationalAccelerationFromTorqueFor3Bodies2Gears(float fTorque) const
+    {
+      ASSERT(bodyInertia.size() == 3);
+      ASSERT(gearRatio.size() == 2);
+
+      const float GearRatio1 = gearRatio[0];
+      const float GearRatio2 = gearRatio[1];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+      const float i3 = bodyInertia[2];
+
+      return fTorque /
+          (i1 + (1.0f / (GearRatio1 * GearRatio1)) * i2) +
+          (GearRatio1 * (1.0f / (GearRatio2 * GearRatio2)) * i3);
+    }
+
+    float cDriveTrain::GetRotationalAccelerationFromTorqueFor4Bodies3Gears(float fTorque) const
+    {
+      ASSERT(bodyInertia.size() == 4);
+      ASSERT(gearRatio.size() == 3);
+
+      const float GearRatio1 = gearRatio[0];
+      const float GearRatio2 = gearRatio[1];
+      const float GearRatio3 = gearRatio[2];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+      const float i3 = bodyInertia[2];
+      const float i4 = bodyInertia[3];
+
+      return fTorque /
+          (i1 + (1.0f / (GearRatio1 * GearRatio1)) * i2) +
+          (GearRatio1 * (1.0f / (GearRatio2 * GearRatio2)) * i3) +
+          (GearRatio1 * GearRatio2 * (1.0f / (GearRatio3 * GearRatio3)) * i4);
+    }
+
+    /*float cDriveTrain::GetRotationalAccelerationFromTorqueFor6Bodies5Gears(float fTorque) const
+    {
+      ASSERT(bodyInertia.size() == 6);
+      ASSERT(gearRatio.size() == 5);
+
+      const float GearRatio1 = gearRatio[0];
+      const float GearRatio2 = gearRatio[1];
+      const float GearRatio3 = gearRatio[2];
+      const float GearRatio4 = gearRatio[3];
+      const float GearRatio5 = gearRatio[4];
+      const float i1 = bodyInertia[0];
+      const float i2 = bodyInertia[1];
+      const float i3 = bodyInertia[2];
+      const float i4 = bodyInertia[3];
+      const float i5 = bodyInertia[4];
+      const float i6 = bodyInertia[5];
+
+      return fTorque /
+      (i1 + (1.0f / (GearRatio1 * GearRatio1)) * i2) +
+      (GearRatio1 * (1.0f / (GearRatio2 * GearRatio2)) * i3) +
+      (GearRatio1 * GearRatio2 * (1.0f / (GearRatio3 * GearRatio3)) * i4) +
+      (GearRatio1 * GearRatio2 * GearRatio3 * (1.0f / (GearRatio4 * GearRatio4)) * i5) +
+      (GearRatio1 * GearRatio2 * GearRatio3 * GearRatio4 * (1.0f / (GearRatio5 * GearRatio5)) * i6);
+    }*/
 	}
 }
 

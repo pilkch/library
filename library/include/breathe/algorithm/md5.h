@@ -40,7 +40,8 @@ namespace breathe
   public:
     cMD5();
 
-    bool CheckString(char *input);
+    bool CheckString(char* szInput);
+    bool CheckBuffer(char* pInput, size_t len);
     bool CheckFile(const std::string&);
 
     bool SetResultFromFormatted(char *input);

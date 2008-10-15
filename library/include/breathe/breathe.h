@@ -53,7 +53,7 @@
 #ifndef __WIN__
 #define __WIN__
 #endif
-#elif defined(__LINUX__) || defined(__linux__)
+#elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__LINUX__)
 #ifndef __LINUX__
 #define __LINUX__
 #endif
@@ -115,6 +115,13 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 
 
 // *** Types
+
+// Now taken directly from math.h/cmath because of a name clash
+// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
+//#ifndef float_t
+//typedef float float_t;
+//#endif
+
 #ifdef NO_SDL
 typedef unsigned char uint8_t;
 typedef long int uint32_t;

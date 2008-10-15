@@ -118,6 +118,107 @@ namespace breathe
     typedef cCube cBox;
 
 
+
+
+
+    class cLine3
+    {
+    public:
+      cVec3 from;
+      cVec3 to;
+    };
+
+
+
+
+    class cAABB3
+    {
+    public:
+#ifndef NDEBUG
+      bool IsValid() const { return (cornerMin.x <= cornerMax.x) && (cornerMin.y <= cornerMax.y) && (cornerMin.z <= cornerMax.z); }
+#endif
+
+      cVec3 GetCentre() const;
+      void AddToVolume(const cVec3& point);
+      void AddToVolume(const cLine3& line);
+      void AddToVolume(const cAABB3& box);
+
+      bool Intersect(const cVec3& point) const;
+      bool Intersect(const cLine3& line) const;
+      bool Intersect(const cAABB3& box) const;
+
+    private:
+      cVec3 cornerMin;
+      cVec3 cornerMax;
+    };
+
+    inline cVec3 cAABB3::GetCentre() const
+    {
+      return cVec3(
+        cornerMin.x + 0.5 * (cornerMax.x - cornerMin.x),
+        cornerMin.y + 0.5 * (cornerMax.y - cornerMin.y),
+        cornerMin.z + 0.5 * (cornerMax.z - cornerMin.z)
+      );
+    }
+
+    inline void cAABB3::AddToVolume(const cVec3& point)
+    {
+      ASSERT(IsValid());
+
+      if (point.x < cornerMin.x) cornerMin.x = point.x;
+      if (point.y < cornerMin.y) cornerMin.y = point.y;
+      if (point.z < cornerMin.z) cornerMin.z = point.z;
+
+      if (point.x > cornerMax.x) cornerMax.x = point.x;
+      if (point.y > cornerMax.y) cornerMax.y = point.y;
+      if (point.z > cornerMax.z) cornerMax.z = point.z;
+    }
+
+    inline void cAABB3::AddToVolume(const cLine3& line)
+    {
+      ASSERT(IsValid());
+
+      AddToVolume(line.from);
+      AddToVolume(line.to);
+    }
+
+    inline void cAABB3::AddToVolume(const cAABB3& box)
+    {
+      ASSERT(IsValid());
+      ASSERT(box.IsValid());
+
+      if (box.cornerMin.x < cornerMin.x) cornerMin.x = box.cornerMin.x;
+      if (box.cornerMin.y < cornerMin.y) cornerMin.y = box.cornerMin.y;
+      if (box.cornerMin.z < cornerMin.z) cornerMin.z = box.cornerMin.z;
+
+      if (box.cornerMax.x > cornerMax.x) cornerMax.x = box.cornerMax.x;
+      if (box.cornerMax.y > cornerMax.y) cornerMax.y = box.cornerMax.y;
+      if (box.cornerMax.z > cornerMax.z) cornerMax.z = box.cornerMax.z;
+    }
+
+    inline bool cAABB3::Intersect(const cVec3& point) const
+    {
+      return (
+        (point.x >= cornerMin.x) &&
+        (point.y >= cornerMin.y) &&
+        (point.z >= cornerMin.z) &&
+
+        (point.x <= cornerMax.x) &&
+        (point.y <= cornerMax.y) &&
+        (point.z <= cornerMax.z)
+      );
+    }
+
+    inline bool cAABB3::Intersect(const cLine3& line) const
+    {
+      return false;
+    }
+
+    inline bool cAABB3::Intersect(const cAABB3& box) const
+    {
+      return false;
+    }
+
     // -halfwidth, +halfwidth        +halfwidth, +halfwidth
     //
     //                         x, y

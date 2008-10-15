@@ -458,6 +458,38 @@ namespace breathe
     };
 
 
+    // 3D Spatial Nodes
+
+    // A quadtree node maintains either zero or four children, depending upon whether it is a leaf node or a regular node.
+    //class cQuadtreeNode
+    //{
+    //  public:
+    //  // A quadtree node maintains either zero or four children, depending upon whether it is a leaf node or a regular node.
+    //    bool IsValid() { return child.empty() || child.size() == 8; }
+    //
+    //  private:
+    //    std::vector<cQuadtreeNode*> child;
+    //};
+
+    // /*typedef cQuadtreeNode cBSPNode; // Indoors - Quake 3 style*/
+    //typedef cQuadtreeNode cOctreeNode; // Generic - outer space, terrain, buildings etc.
+    //typedef cOctreeNode cPagedLandscapeNode; // Heightmap octree - Battlefield series
+
+
+    // 2D Spatial Nodes
+
+    //class cScreenSpaceNode
+    //{
+    //public:
+    //  bool bHasMaterial;
+    //};
+
+    //class cRectangleNode
+    //{
+    //public:
+    //  cVec2 position;
+    //  cVec2 size;
+    //};
 
 
     class cUpdateVisitor
@@ -473,6 +505,27 @@ namespace breathe
 
     };
 
+
+
+    // http://lightfeather.de/news.php
+
+    //                                    cSceneNode
+    //                  cLODNode                                cPagedLODNode
+    //         cGeometryNode cGeometryNode      cPagedLODNodeChild cPagedLODNodeChild cPagedLODNodeChild cPagedLODNodeChild
+    //    cRenderable cRenderable         cGeometryNode cGeometryNode
+    //cRenderable cRenderable
+
+    enum RENDER_PRIORITY
+    {
+      RENDER_PRIORITY_FIRST = -3,
+      RENDER_PRIORITY_SECOND = -2,
+      RENDER_PRIORITY_THIRD = -1,
+      RENDER_PRIORITY_OPAQUE = 0,
+      RENDER_PRIORITY_NORMAL = 0,
+      RENDER_PRIORITY_TRANSPARENT,
+      RENDER_PRIORITY_LAST
+    };
+
     class cRenderable;
     typedef cSmartPtr<cRenderable> cRenderableRef;
 
@@ -483,7 +536,10 @@ namespace breathe
 
       void Visit(cSceneNode& node) { printf("cCullVisitor::Visit cSceneNode\n"); }
       void Visit(cModelNode& node) { printf("cCullVisitor::Visit cModelNode\n"); }
-      void Visit(cLightNode& node) { printf("cCullVisitor::Visit cLightNode\n"); }
+      void Visit(cLightNode& node)
+      {
+        AddLight(node);
+      }
 
       void Visit(cRenderableRef pRenderable)
       {
@@ -492,6 +548,7 @@ namespace breathe
 
     private:
       void AddRenderable(cRenderableRef pRenderable) {}
+      void AddLight(cLightNode& light) {}
 
       cSceneGraph& scenegraph;
     };
@@ -609,13 +666,22 @@ namespace breathe
 
     typedef cSmartPtr<cSceneNode> cGroupNodeRef;
 
+
     class cRenderable
     {
     public:
 
+
+    private:
+      bool bUseIsShadowCasting;
+      bool bIsShadowCasting;
+
+      bool bUseRenderPriority;
+      RENDER_PRIORITY renderPriority;
     };
 
     typedef cSmartPtr<cRenderable> cRenderableRef;
+
 
     class cRenderGraph
     {

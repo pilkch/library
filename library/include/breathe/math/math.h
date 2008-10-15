@@ -84,6 +84,15 @@ namespace breathe
     inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
     inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
 
+    // ^ = square
+    // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
+    inline float PaTopsi(float Pa) { return Pa * 6894.75728001037f; }
+    inline float psiToPa(float psi) { return psi * 0.000145037681f; }
+
+    inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
+    inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
+
+
     template<class T> bool IsPowerOf2(T value) { return (value & (~value + 1)) == value; }
 
     template<class T>
@@ -132,6 +141,57 @@ namespace breathe
 
     // Return f(x) for a line with slope through (x1, y1).
     template <typename T> T intercept(T x, T x1, T y1, T slope) { return y1 - slope * (x1 - x); }
+
+
+    // *** Interpolation
+
+    // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
+    // http://www.linuxlinks.com/article/20080510052539217/Games.html
+    // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
+
+    // ** Two points
+
+    // Return f(mu) for the linear interpolation between (x1, y1) and (x2, y2)
+    template <typename T>
+    T interpolate_linear(T x1, T y1, T x2, T y2, T mu)
+    {
+      return y1 + (y2 - y1) * (mu - x1) / (x2 - x1);
+    }
+
+    // Return f(mu) for the linear interpolation where y0, y1, y2, y3 are all equally spaced
+    template <typename T>
+    T interpolate_linear(T y1, T y2, T mu)
+    {
+      return y1 * (1.0f - mu) + (y2 * mu);
+    }
+
+    // Return f(mu) for the cosine interpolation where y0, y1, y2, y3 are all equally spaced
+    template <typename T>
+    T interpolate_cosine(T y1, T y2, T mu)
+    {
+      const T mu2 = (1.0f - cos(mu * cPI)) * 0.5f;
+      return (y1 * (1.0f - mu2) + y2 * mu2);
+    }
+
+
+    // ** Four points
+
+    // Return f(mu) for the cubic interpolation where y0, y1, y2, y3 are all equally spaced
+    template <typename T>
+    T interpolate_cubic(T y0, T y1, T y2, T y3, T mu)
+    {
+      const T a0 = y3 - y2 - y0 + y1;
+      const T a1 = y0 - y1 - a0;
+      const T a2 = y2 - y0;
+      const T a3 = y1;
+
+      return (
+        (a0 * cube(mu)) +
+        (a1 * square(mu)) +
+        (a2 * mu) +
+        (a3)
+      );
+    }
 
 
     template <class T> inline T clamp(const T& i, const T& lower, const T& upper)

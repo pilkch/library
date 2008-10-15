@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+#include <cmath>
 
 #include <list>
 #include <sstream>
