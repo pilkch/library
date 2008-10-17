@@ -75,7 +75,7 @@ namespace breathe
 
 
 		private:
-			int ThreadFunction();
+			void ThreadFunction();
 
 			std::string path;
 			std::string server;

@@ -136,8 +136,12 @@ namespace breathe
     void PopState();
 
     // Deferred until we get back to the main cApp loop
-    void PushStateSoon(cAppState* state) { assert(pPushThisStateSoon == nullptr); pPushThisStateSoon = state; }
-    void PopStateSoon() { assert(bPopCurrentStateSoon == false); bPopCurrentStateSoon = true; }
+    void PushStateSoon(cAppState* state) { ASSERT(pPushThisStateSoon == nullptr); pPushThisStateSoon = state; }
+    void PopStateSoon() { ASSERT(bPopCurrentStateSoon == false); bPopCurrentStateSoon = true; }
+
+    // This does both, it defers changing state until we get back to the main cApp loop,
+    // but it also pops the current state and pushes a new one
+    void PopStateAndPushNewStateSoon(cAppState* state) { PopStateSoon(); PushStateSoon(state); }
 
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
@@ -269,6 +273,10 @@ namespace breathe
     std::list<cAppState*> states;
 
   private:
+#ifdef BUILD_DEBUG
+    void SanityCheck();
+#endif
+
     void RemoveKey(unsigned int code);
 
     virtual cAppState* _GetFirstAppState() = 0;

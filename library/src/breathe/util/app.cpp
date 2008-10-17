@@ -183,6 +183,7 @@ int intersect_triangle(
 }
 */
 
+
 #include <cmath>
 #include <ctime>
 #include <cstdio>
@@ -527,6 +528,9 @@ namespace breathe
 		CONSOLE.SetApp(this);
 		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
+#ifdef BUILD_DEBUG
+    SanityCheck();
+#endif
 
     filesystem::Create();
 
@@ -541,9 +545,6 @@ namespace breathe
 		_InitArguments(argc, argv);
 
 		srand(time(NULL));
-
-    cSmartPtr<int> a;
-    ASSERT(a == nullptr);
 
 		LOG<<"This is printed to the log"<<std::endl;
 		CONSOLE<<"This is printed to the console"<<std::endl;
@@ -599,7 +600,6 @@ namespace breathe
 #endif
 	}
 
-
   cApp::~cApp()
   {
     assert(states.empty());
@@ -645,11 +645,44 @@ namespace breathe
     LOG.Success("Delete", "Filesystem");
     filesystem::Destroy();
 
-		LOG.Success("Main", "Successfully exited");
-		LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
+    LOG.Success("Main", "Successfully exited");
+    LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
 
-		SDL_Quit();
-	}
+    SDL_Quit();
+  }
+
+#ifdef BUILD_DEBUG
+  void cApp::SanityCheck()
+  {
+    ASSERT(sizeof(int) == 4);
+    ASSERT(sizeof(float) == 4);
+    // This test fails because on gcc/linux mathdefs.h defines float_t as double
+    //ASSERT(sizeof(float_t) == sizeof(float));
+    ASSERT(sizeof(double) >= 4);
+
+    ASSERT(sizeof(int8_t) == 1);
+    ASSERT(sizeof(uint8_t) == 1);
+    ASSERT(sizeof(uint16_t) == 2);
+    ASSERT(sizeof(int16_t) == 2);
+    ASSERT(sizeof(int32_t) == 4);
+    ASSERT(sizeof(uint32_t) == 4);
+    ASSERT(sizeof(int64_t) == 8);
+    ASSERT(sizeof(uint64_t) == 8);
+
+    ASSERT(sizeof(char) == 1);
+#ifdef __WIN__
+    ASSERT(sizeof(wchar_t) == 2);
+#else
+    ASSERT(sizeof(wchar_t) == 4);
+#endif
+    ASSERT(sizeof(char16_t) == 2);
+    ASSERT(sizeof(char32_t) == 4);
+
+    // Smart pointers that have not been initialised should point to nullptr
+    cSmartPtr<int> a;
+    ASSERT(a == nullptr);
+  }
+#endif
 
 	void cApp::_InitArguments(int argc, const char **argv)
 	{
@@ -1529,19 +1562,17 @@ namespace breathe
 				fUpdateNext = currentTime + fUpdateDelta;
 			}
 
+      bool bPushOrPopState = bPopCurrentStateSoon || (pPushThisStateSoon != nullptr);
+
       // We can change state during _Update
-      if (bPopCurrentStateSoon) {
-        PopState();
-        continue;
-      }
+      if (bPopCurrentStateSoon) PopState();
+      if (pPushThisStateSoon != nullptr) PushState(pPushThisStateSoon);
 
-      if (pPushThisStateSoon != nullptr) {
-        PushState(pPushThisStateSoon);
-        continue;
-      }
+      // If we changed state then we can go straight to the next iteration of this loop
+      if (bPushOrPopState) continue;
 
-			if (bActive && !bDone)// && currentTime > fRenderNext)
-			{
+      // TODO: Do we need this? && currentTime > fRenderNext)
+			if (bActive && !bDone) {
 				_Render(state, currentTime);
 				tRender.Update(currentTime);
 				fRenderNext = currentTime + fRenderDelta;

@@ -5,6 +5,12 @@ namespace breathe
 {
   namespace network
   {
+    // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
+    // if necessary add cHTTPDownloader::
+    // GetContentLengthFromHeader() const;
+    // GetContentLengthActual() const;
+    // Getresultcodeorsomething() const;
+
     class cDownloadHTTP : public breathe::util::cThread
     {
     public:

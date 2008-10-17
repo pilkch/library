@@ -14,6 +14,7 @@
 
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/unittest.h>
 
 #include <breathe/storage/filesystem.h>
 #include <breathe/storage/xml.h>
@@ -231,4 +232,53 @@ namespace breathe
     return false;
   }
 #endif // BUILD_SETTINGS_PROFILES
+
+
+#ifdef BUILD_DEBUG
+  class cSettingsUnitTest : protected util::cUnitTestBase
+  {
+  public:
+    cSettingsUnitTest() :
+      cUnitTestBase("cSettingsUnitTest")
+    {
+    }
+
+    void Test()
+    {
+      const string_t sTestProfile("TestProfile");
+
+      const string_t sTestSection("TestSection");
+      const string_t sTestSubSection("TestSubSection");
+      const string_t sTestValue("this is a settings string which is get and set in the settings");
+
+      bool bResult = false;
+      string_t sValue;
+
+#ifdef BUILD_SETTINGS_GLOBAL
+      SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestValue);
+      sValue.clear();
+      bResult = GetGlobalSettingsString(sTestSection, sTestSubSection, sValue);
+      ASSERT(bResult);
+      ASSERT(sValue == sTestValue);
+#endif
+
+      SetApplicationUserSetting(sTestSection, sTestSubSection, sTestValue);
+      sValue.clear();
+      bResult = GetApplicationUserSetting(sTestSection, sTestSubSection, sValue);
+      ASSERT(bResult);
+      ASSERT(sValue == sTestValue);
+
+#ifdef BUILD_SETTINGS_PROFILE
+      Create profile
+      SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestValue);
+      sValue.clear();
+      bResult = GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sValue);
+      ASSERT(bResult);
+      ASSERT(sValue == sTestValue);
+#endif
+    }
+  };
+
+  cSettingsUnitTest gSettingsUnitTest;
+#endif
 }

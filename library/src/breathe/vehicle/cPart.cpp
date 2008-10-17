@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <list>
@@ -19,6 +20,8 @@
 
 #include <breathe/util/cSmartPtr.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/unittest.h>
+#include <breathe/util/log.h>
 
 #include <breathe/math/math.h>
 #include <breathe/math/cVec2.h>
@@ -65,15 +68,16 @@ namespace breathe
       points[fX] = fY;
     }
 
-
-    float_t cCurve::GetYAtPointX(float_t fX) const
+    float_t cCurve::GetYAtPointX(float_t fMu) const
     {
-      ASSERT(fX >= 0.0f);
+      if (fMu < 0.0f) return 0.0f;
 
       float_t fX0 = 0.0f;
       float_t fX1 = 0.0f;
       float_t fY0 = 0.0f;
       float_t fY1 = 0.0f;
+
+      bool bFound = false;
 
       std::map<float_t, float_t>::const_iterator iter(points.begin());
       const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
@@ -82,56 +86,26 @@ namespace breathe
         const float_t fCurrentY = iter->second;
 
         // Shuffle the previous values
+        fX0 = fX1;
+        fX1 = fCurrentX;
+
         fY0 = fY1;
         fY1 = fCurrentY;
 
-        fX0 = fX1;
-        fX0 = fCurrentX;
-
-        if (fCurrentX > fX) {
+        if (fCurrentX > fMu) {
           // We have found the pair that we are between
+          bFound = true;
           break;
         }
 
         iter++;
       };
 
-      return math::interpolate_linear(fX0, fY0, fX1, fY1, fX);
+      if (!bFound) return 0.0f;
+
+      // Finally return the y value at our x value
+      return math::interpolate_linear(fX0, fY0, fX1, fY1, fMu);
     }
-/*
-    float_t cCurve::GetYAtPointX(float_t fX) const
-    {
-      // If we don't actually have any points then we can only return 0.0f
-      if (points.empty()) return 0.0f;
-
-      // If x is before 0.0f (The start of the graph) then we can't really compute much, so return 0.0f
-      if (fX < 0.0f) return 0.0f;
-
-      {
-        // If we have at least one point and x is after it then we can't really compute much, so return 0.0f
-        std::map<float_t, float_t>::const_reverse_iterator iter(points.rbegin());
-        ASSERT(iter != points.rend());
-        if (fX > iter->first) return 0.0f;
-      }
-
-      math::cVec2 last(-1.0f, 0.0f);
-      ASSERT(fX > last.x);
-
-      std::map<float_t, float_t>::const_iterator iter(points.begin());
-      const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
-      for (; iter != iterEnd; iter++) {
-        if (iter->first > fX) {
-          // We now have four points
-          //TODO: Actually get the point that lies between these points
-          return iter->second;
-        }
-
-        last.Set(iter->first, iter->second);
-      }
-
-      return 0.0f;
-    }*/
-
 
 
     // Out is the state of the clutch when you are not touching the pedal at all.
@@ -894,7 +868,53 @@ namespace breathe
       (GearRatio1 * GearRatio2 * GearRatio3 * (1.0f / (GearRatio4 * GearRatio4)) * i5) +
       (GearRatio1 * GearRatio2 * GearRatio3 * GearRatio4 * (1.0f / (GearRatio5 * GearRatio5)) * i6);
     }*/
-	}
+  }
+
+#ifdef BUILD_DEBUG
+  class cCurveUnitTest : protected util::cUnitTestBase
+  {
+    public:
+    cCurveUnitTest() :
+      cUnitTestBase("cCurveUnitTest")
+      {
+      }
+
+      void Test()
+      {
+        breathe::vehicle::cPartEngine engine;
+
+        for (breathe::sampletime_t currentTime = 0; currentTime < 1000; currentTime += 100) {
+          const float_t fRPM = float_t(currentTime);
+          engine.SetRPM(fRPM);
+
+          engine.Update(currentTime);
+
+          const float_t fTorqueNm = engine.GetTorqueNm();
+          LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
+        }
+
+        for (breathe::sampletime_t currentTime = 1000; currentTime < 10001; currentTime += 1000) {
+          const float_t fRPM = float_t(currentTime);
+          engine.SetRPM(fRPM);
+
+          engine.Update(currentTime);
+
+          const float_t fTorqueNm = engine.GetTorqueNm();
+          LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
+        }
+
+        sampletime_t currentTime = 1000;
+        engine.SetRPM(30000.0f);
+        engine.Update(currentTime);
+        ASSERT(engine.GetTorqueNm() < 0.1f);
+        engine.SetRPM(100000.0f);
+        engine.Update(currentTime);
+        ASSERT(engine.GetTorqueNm() < 0.1f);
+      }
+  };
+
+  cCurveUnitTest gCurveUnitTest;
+#endif
 }
 
 /*

@@ -146,22 +146,26 @@ namespace breathe
     // *** Interpolation
 
     // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
-    // http://www.linuxlinks.com/article/20080510052539217/Games.html
-    // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
 
     // ** Two points
 
-    // Return f(mu) for the linear interpolation between (x1, y1) and (x2, y2)
+    // Return f(mu) for the linear interpolation between (x1, y1) and (x2, y2) (where x1 and x2 are not equally spaced?)
+    // mu is between x1 and x2
     template <typename T>
     T interpolate_linear(T x1, T y1, T x2, T y2, T mu)
     {
+      ASSERT(mu >= x1);
+      ASSERT(mu <= x2);
       return y1 + (y2 - y1) * (mu - x1) / (x2 - x1);
     }
 
     // Return f(mu) for the linear interpolation where y0, y1, y2, y3 are all equally spaced
+    // mu is between 0.0f and 1.0f
     template <typename T>
     T interpolate_linear(T y1, T y2, T mu)
     {
+      ASSERT(mu >= 0.0f);
+      ASSERT(mu <= 1.0f);
       return y1 * (1.0f - mu) + (y2 * mu);
     }
 

@@ -38,7 +38,7 @@ namespace breathe
 
     private:
       static int RunThreadFunction(void* pThis);
-      virtual int ThreadFunction() = 0;
+      virtual void ThreadFunction() = 0;
 
       SDL_Thread* thread;
 
@@ -122,7 +122,10 @@ namespace breathe
       ASSERT(pData != nullptr);
       cThread* pThis = static_cast<cThread*>(pData);
       ASSERT(pThis != nullptr);
-      return pThis->ThreadFunction();
+      pThis->ThreadFunction();
+
+      // We don't really do this accurately, we just return 0 for every thread
+      return 0;
     }
 
 
