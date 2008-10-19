@@ -1108,6 +1108,8 @@ namespace breathe
             pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
             pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
             pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+
+            fPosition += dy;
             pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
             pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
       #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)

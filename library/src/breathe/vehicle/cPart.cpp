@@ -538,16 +538,16 @@ namespace breathe
     }
 
 
-		cPart::cPart(unsigned int _uiType) :
+    cPart::cPart(unsigned int _uiType) :
       uiType(_uiType),
       fHealth(100.0f)
-		{
-		}
+    {
+    }
 
-		void cPart::Install(cVehicle *p)
-		{
-			pVehicle = p;
-		}
+    void cPart::Install(cVehicle *p)
+    {
+      pVehicle = p;
+    }
 
 
     // engine
@@ -594,14 +594,13 @@ namespace breathe
 
 
 
+    cPartTurboCharger::cPartTurboCharger() :
+      cPart(PART_TURBO_CHARGER)
+    {
+    }
 
-		cPartTurboCharger::cPartTurboCharger() :
-      cPart(PART_TURBOCHARGER)
-		{
-		}
-
-		void cPartTurboCharger::_Update(sampletime_t currentTime)
-		{
+    void cPartTurboCharger::_Update(sampletime_t currentTime)
+    {
       // http://www.turbochargedpower.com/Turbo%20vs%20Blowers.htm
       // http://www.hi-flow.com/HP4FAQSuper.htm
       // http://en.wikipedia.org/wiki/Turbocharger
@@ -609,14 +608,15 @@ namespace breathe
       float_t fEngineExhaustpsi = 3.0f;
       fRPM = GetTurboChargerRPMAtEngineExhaustpsi(fEngineExhaustpsi);
       float_t outputboostpsi = GetBoostpsiAtTurboChargerRPM(fRPM);
-		}
+    }
 
 
-
-		cPartSuperCharger::cPartSuperCharger() :
-      cPart(PART_SUPERCHARGER)
-		{
-		}
+    cPartSuperCharger::cPartSuperCharger() :
+      cPart(PART_SUPER_CHARGER),
+      fRPM(1.0f),
+      fSuperChargerRPMToEngineRPMRatio(2.0f) // ie. 6:1 = 6.0f
+    {
+    }
 
     void cPartSuperCharger::_Update(sampletime_t currentTime)
     {
@@ -626,7 +626,7 @@ namespace breathe
       float_t fEngineRPM = 1000.0f;
       fRPM = fSuperChargerRPMToEngineRPMRatio * fEngineRPM;
       float_t outputboostpsi = GetBoostpsiAtSuperChargerRPM(fRPM);
-		}
+    }
 
 
 

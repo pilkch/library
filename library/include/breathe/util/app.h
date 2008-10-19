@@ -89,12 +89,12 @@ namespace breathe
       void OnPause() { _OnPause(); }
       void OnResume(int iResult) { _OnResume(iResult); }
 
-		  void Update(sampletime_t currentTime) { _Update(currentTime); }
-		  void UpdateInput(sampletime_t currentTime) { _UpdateInput(currentTime); }
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void UpdateInput(sampletime_t currentTime) { _UpdateInput(currentTime); }
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       void UpdatePhysics(sampletime_t currentTime) { _UpdatePhysics(currentTime); }
 #endif
-		  void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
+      void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
       void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
 
       void OnMouseEvent(int button, int state, float x, float y) { _OnMouseEvent(button, state, x, y); }
@@ -108,18 +108,18 @@ namespace breathe
       void AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life) { SCREEN.AddClosedCaption(actor, line, life); }
 
     private:
-	    virtual void _OnEntry() {}
-	    virtual void _OnExit() {}
-	    virtual void _OnPause() {}
-	    virtual void _OnResume(int iResult) {}
+      virtual void _OnEntry() {}
+      virtual void _OnExit() {}
+      virtual void _OnPause() {}
+      virtual void _OnResume(int iResult) {}
 
       virtual void _Update(sampletime_t currentTime) {}
-		  virtual void _UpdateInput(sampletime_t currentTime) {}
+      virtual void _UpdateInput(sampletime_t currentTime) {}
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		  virtual void _UpdatePhysics(sampletime_t currentTime) {}
+      virtual void _UpdatePhysics(sampletime_t currentTime) {}
 #endif
-		  virtual void _RenderScene(sampletime_t currentTime) {}
-		  virtual void _RenderScreenSpace(sampletime_t currentTime) {}
+      virtual void _RenderScene(sampletime_t currentTime) {}
+      virtual void _RenderScreenSpace(sampletime_t currentTime) {}
 
       virtual void _OnMouseEvent(int button, int state, float x, float y) {}
 
@@ -128,7 +128,7 @@ namespace breathe
       cAppState* pParent;
     };
 
-	protected:
+  protected:
     cAppState& GetCurrentState() const;
 
     // Instantaneous

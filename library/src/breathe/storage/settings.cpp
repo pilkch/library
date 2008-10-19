@@ -155,6 +155,18 @@ namespace breathe
   }
 
 
+
+  bool DoesApplicationUserSettingExist(const string_t& section, const string_t& subsection)
+  {
+    return false;
+  }
+
+  bool DoesApplicationUserSettingExist(const string_t& section, const string_t& subsection, const string_t& subsubsection)
+  {
+    return false;
+  }
+
+
   void RemoveApplicationUserSetting(const string_t& section, const string_t& subsection)
   {
   }

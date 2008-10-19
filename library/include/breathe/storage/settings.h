@@ -44,6 +44,9 @@ namespace breathe
   bool GetGlobalUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, int& value);
   bool GetGlobalUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, string_t& value);
 
+  bool DoesGlobalSettingExist(const string_t& section, const string_t& subsection);
+  bool DoesGlobalSettingExist(const string_t& section, const string_t& subsection, const string_t& subsubsection);
+
   void RemoveGlobalUserSetting(const string_t& section, const string_t& subsection);
   void RemoveGlobalUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection);
 #endif
@@ -65,6 +68,9 @@ namespace breathe
   bool GetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, int& value);
   bool GetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, string_t& value);
 
+  bool DoesApplicationUserSettingExist(const string_t& section, const string_t& subsection);
+  bool DoesApplicationUserSettingExist(const string_t& section, const string_t& subsection, const string_t& subsubsection);
+
   void RemoveApplicationUserSetting(const string_t& section, const string_t& subsection);
   void RemoveApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection);
 
@@ -85,6 +91,9 @@ namespace breathe
   bool GetApplicationProfileSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, bool& value);
   bool GetApplicationProfileSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, int& value);
   bool GetApplicationProfileSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, string_t& value);
+
+  bool DoesApplicationProfileSettingExist(const string_t& section, const string_t& subsection);
+  bool DoesApplicationProfileSettingExist(const string_t& section, const string_t& subsection, const string_t& subsubsection);
 
   void RemoveApplicationProfileSetting(const string_t& section, const string_t& subsection);
   void RemoveApplicationProfileSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection);

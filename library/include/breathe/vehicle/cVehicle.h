@@ -38,6 +38,8 @@
 
 // http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
+#include <breathe/vehicle/cPart.h>
+
 namespace breathe
 {
   class c3ds;

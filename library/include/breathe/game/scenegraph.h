@@ -497,9 +497,9 @@ namespace breathe
     public:
       explicit cUpdateVisitor(cSceneGraph& scenegraph);
 
-      void Visit(cSceneNode& node) { printf("cUpdateVisitor::Visit cSceneNode\n"); }
-      void Visit(cModelNode& node) { printf("cUpdateVisitor::Visit cModelNode\n"); }
-      void Visit(cLightNode& node) { printf("cUpdateVisitor::Visit cLightNode\n"); }
+      void Visit(cSceneNode& node) {}
+      void Visit(cModelNode& node) {}
+      void Visit(cLightNode& node) {}
 
     private:
 
@@ -507,7 +507,6 @@ namespace breathe
 
 
 
-    // http://lightfeather.de/news.php
 
     //                                    cSceneNode
     //                  cLODNode                                cPagedLODNode
@@ -534,8 +533,8 @@ namespace breathe
     public:
       explicit cCullVisitor(cSceneGraph& scenegraph);
 
-      void Visit(cSceneNode& node) { printf("cCullVisitor::Visit cSceneNode\n"); }
-      void Visit(cModelNode& node) { printf("cCullVisitor::Visit cModelNode\n"); }
+      void Visit(cSceneNode& node) {}
+      void Visit(cModelNode& node) {}
       void Visit(cLightNode& node)
       {
         AddLight(node);

@@ -39,19 +39,26 @@ namespace breathe
 
     // Parts directly related to the drive train
     const unsigned int PART_ENGINE = 0;
-    const unsigned int PART_SUPERCHARGER = 1;
-    const unsigned int PART_TURBOCHARGER = 2;
-    const unsigned int PART_GEARBOX = 3;
-    const unsigned int PART_CLUTCH = 4;
-    const unsigned int PART_DIFFERENTIAL = 5;
-    const unsigned int PART_DIFFERENTIAL_AWD_2ND_DIFFERENTIAL = 6;
-    const unsigned int PART_WHEELS = 7;
-    const unsigned int PART_TIRES = 8;
+    const unsigned int PART_CAMSHAFT = 1;
+    const unsigned int PART_CRANKSHAFT = 2;
+    const unsigned int PART_SUPER_CHARGER = 3;
+    const unsigned int PART_TURBO_CHARGER = 4;
+    const unsigned int PART_FLYWHEEL = 5;
+    const unsigned int PART_CLUTCH = 6;
+    const unsigned int PART_GEARBOX = 7;
+    const unsigned int PART_DIFFERENTIAL = 8;
+    const unsigned int PART_DIFFERENTIAL_AWD_2ND_DIFFERENTIAL = 9;
+    const unsigned int PART_WHEELS = 10;
+    const unsigned int PART_TIRES = 11;
 
     // Parts that relate more to the ride and dynamics of the vehicle
-    const unsigned int PART_SUPENSION = 9;
-    const unsigned int PART_BRAKES = 10;
-    const unsigned int PART_CONTROL_MODULE = 11;
+    const unsigned int PART_SUPENSION = 12;
+    const unsigned int PART_BRAKES = 13;
+    const unsigned int PART_PETROL_TANK = 14;
+
+    // The control module is a fictional part that basically controls the state of the car and acts as
+    // the controller/brains of the previously mentioned 'dumb' parts
+    const unsigned int PART_CONTROL_MODULE = 15;
 
     class cPart
     {
@@ -150,7 +157,7 @@ namespace breathe
       inline float_t GetBoostpsiAtSuperChargerRPM(float_t fSuperChargerRPM) const { return curveSuperChargerRPMToBoostpsi.GetYAtPointX(fSuperChargerRPM); }
 
       float_t fRPM;
-      float_t fSuperChargerRPMToEngineRPMRatio; // ie. 6:1 (6.0f)
+      float_t fSuperChargerRPMToEngineRPMRatio; // ie. 6:1 = 6.0f
       cCurve curveSuperChargerRPMToBoostpsi;
     };
 
