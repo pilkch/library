@@ -26,7 +26,9 @@ namespace breathe
 		size_t CountOccurrences(const std::string& source, const std::string& find);
 		std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
 		std::string StripLeading(const std::string& source, const std::string& find);
-		std::string StripTrailing(const std::string& source, const std::string& find);
+    std::string StripTrailing(const std::string& source, const std::string& find);
+    std::string StripLeadingWhiteSpace(const std::string& source);
+    std::string StripTrailingWhiteSpace(const std::string& source);
 		std::string StripBefore(const std::string& source, const std::string& find);
 		std::string StripAfter(const std::string& source, const std::string& find);
 		std::string StripAfterLast(const std::string& source, const std::string& find);
@@ -42,7 +44,9 @@ namespace breathe
 		size_t CountOccurrences(const std::wstring& source, const std::wstring& find);
 		std::wstring Replace(const std::wstring& source, const std::wstring& find, const std::wstring& replace);
 		std::wstring StripLeading(const std::wstring& source, const std::wstring& find);
-		std::wstring StripTrailing(const std::wstring& source, const std::wstring& find);
+    std::wstring StripTrailing(const std::wstring& source, const std::wstring& find);
+    std::wstring StripLeadingWhiteSpace(const std::wstring& source);
+    std::wstring StripTrailingWhiteSpace(const std::wstring& source);
 		std::wstring StripBefore(const std::wstring& source, const std::wstring& find);
 		std::wstring StripAfter(const std::wstring& source, const std::wstring& find);
 		std::wstring StripAfterLast(const std::wstring& source, const std::wstring& find);

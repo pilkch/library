@@ -114,13 +114,16 @@ namespace breathe
 
       std::wstring line;
 
-      size_t i = 0;
       const size_t n = contents.size();
-      for (i = 0; i < n; i++)
-      {
-        CONSOLE<<"LoadLanguageFile line "<<i<<std::endl;
+      for (size_t i = 0; i < n; i++) {
+        line = breathe::string::StripLeadingWhiteSpace(contents[i]);
+        CONSOLE<<"LoadLanguageFile contents["<<i<<"]=\""<<line<<"\""<<std::endl;
+
+        // If we have enough characters for a comment string and the first 2 characters
+        // are comment slashes then skip this line
+        if ((line.length() >= 2) && (line[0] == L'/') && (line[1] == L'/')) continue;
+
         CONSOLE<<"LoadLanguageFile Strip"<<std::endl;
-        line = contents[i];
         tag = breathe::string::StripAfterInclusive(line, L" \"");
 
         CONSOLE<<"LoadLanguageFile Read quoted text"<<std::endl;

@@ -394,10 +394,10 @@ namespace breathe
 
     void cRenderGraph::AddRenderable(const cRenderableRef renderable)
     {
-      std::map<cRenderState*, cRenderableList*>::iterator iter(mOpaque.begin());
-      const std::map<cRenderState*, cRenderableList*>::iterator iterEnd(mOpaque.end());
+      std::map<cStateSet*, cRenderableList*>::iterator iter(mOpaque.begin());
+      const std::map<cStateSet*, cRenderableList*>::iterator iterEnd(mOpaque.end());
       while (iter != iterEnd) {
-        cRenderState* pState = iter->first;
+        cStateSet* pState = iter->first;
         ASSERT(pState != nullptr);
 
         //if (*pState == renderable.state) {
@@ -427,7 +427,7 @@ namespace breathe
       /*iterator iter(mRenderables.begin());
       const iterator iterEnd(mRenderables.end());
       while (iter != iterEnd) {
-        cRenderState* pState = iter->first;
+        cStateSet* pState = iter->first;
         ASSERT(pState != nullptr);
 
         cRenderableList* pList = iter->second;
@@ -448,8 +448,8 @@ namespace breathe
 
       // Opaque first
       {
-        std::map<cRenderState*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
-        const std::map<cRenderState*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
+        std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
+        const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
         while(iter != iterEnd) {
           //uiTriangles += (*iter)->Render();
           iter++;

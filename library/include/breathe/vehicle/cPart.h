@@ -46,19 +46,20 @@ namespace breathe
     const unsigned int PART_FLYWHEEL = 5;
     const unsigned int PART_CLUTCH = 6;
     const unsigned int PART_GEARBOX = 7;
-    const unsigned int PART_DIFFERENTIAL = 8;
-    const unsigned int PART_DIFFERENTIAL_AWD_2ND_DIFFERENTIAL = 9;
-    const unsigned int PART_WHEELS = 10;
-    const unsigned int PART_TIRES = 11;
+    const unsigned int PART_DRIVESHAFT = 8;
+    const unsigned int PART_DIFFERENTIAL = 9;
+    const unsigned int PART_DIFFERENTIAL_AWD_2ND_DIFFERENTIAL = 10;
+    const unsigned int PART_WHEELS = 11;
+    const unsigned int PART_TIRES = 12;
 
     // Parts that relate more to the ride and dynamics of the vehicle
-    const unsigned int PART_SUPENSION = 12;
-    const unsigned int PART_BRAKES = 13;
-    const unsigned int PART_PETROL_TANK = 14;
+    const unsigned int PART_SUPENSION = 13;
+    const unsigned int PART_BRAKES = 14;
+    const unsigned int PART_PETROL_TANK = 15;
 
     // The control module is a fictional part that basically controls the state of the car and acts as
     // the controller/brains of the previously mentioned 'dumb' parts
-    const unsigned int PART_CONTROL_MODULE = 15;
+    const unsigned int PART_CONTROL_MODULE = 16;
 
     class cPart
     {

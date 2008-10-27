@@ -84,26 +84,8 @@ namespace breathe
   namespace scenegraph
   {
     class cSceneGraph;
-
-    class cRenderState
-    {
-    public:
-      cRenderState(const cRenderState& rhs);
-
-      cRenderState& operator=(const cRenderState& rhs);
-
-      bool operator==(const cRenderState& rhs);
-      bool operator!=(const cRenderState& rhs) { return !(*this == rhs); }
-    };
-
-    inline bool cRenderState::operator==(const cRenderState& rhs)
-    {
-      // To start with all states are equal
-      return true;
-    }
-
-
-
+    class cUpdateVisitor;
+    class cCullVisitor;
 
     /*class cSceneGraphModel : public cObject
     {
@@ -164,9 +146,6 @@ namespace breathe
       cSceneGraph* pLevel;
     };*/
 
-    class cUpdateVisitor;
-    class cCullVisitor;
-
     class cStateSet
     {
     public:
@@ -183,9 +162,42 @@ namespace breathe
         PRIORITY_NORMAL = PRIORITY_DIFFUSE
       };
 
+      cStateSet();
+      cStateSet(const cStateSet& rhs);
+
+      cStateSet& operator=(const cStateSet& rhs);
+
+      bool operator==(const cStateSet& rhs) const;
+      bool operator!=(const cStateSet& rhs) const { return !(*this == rhs); }
+
     private:
       PRIORITY priority;
+      render::material::cMaterialRef material;
     };
+
+    inline cStateSet::cStateSet() :
+      priority(PRIORITY_NORMAL)
+    {
+    }
+
+    inline cStateSet::cStateSet(const cStateSet& rhs) :
+      priority(rhs.priority),
+      material(rhs.material)
+    {
+    }
+
+    inline cStateSet& cStateSet::operator=(const cStateSet& rhs)
+    {
+      priority = rhs.priority;
+      material = rhs.material;
+
+      return *this;
+    }
+
+    inline bool cStateSet::operator==(const cStateSet& rhs) const
+    {
+      return (priority == rhs.priority) && (material == material);
+    }
 
     class cSceneNode;
 
@@ -286,6 +298,8 @@ namespace breathe
 
       bool bUseRelativeScale;
       math::cVec3 relativeScale;
+
+      cStateSet stateset;
 
 #ifdef BUILD_DEBUG
       bool bIsShowingBoundingBox;
@@ -695,7 +709,7 @@ namespace breathe
       typedef std::list<cRenderable*> cRenderableList;
 
       // Opaque (states : list of renderables with that state)
-      std::map<cRenderState*, cRenderableList*> mOpaque;
+      std::map<cStateSet*, cRenderableList*> mOpaque;
 
       // Transparent (distance from the camera : renderable at that position)
       std::map<float, cRenderableRef> mTransparent;

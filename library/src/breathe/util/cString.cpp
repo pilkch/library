@@ -21,13 +21,13 @@
 
 namespace breathe
 {
-	namespace string
-	{
-		bool IsWhiteSpace(char_t c)
-		{
-			// We regard space, tab, new line and carriage return characters as white space
-			return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
-		}
+  namespace string
+  {
+    bool IsWhiteSpace(char_t c)
+    {
+      // We regard space, tab, new line and carriage return characters as white space
+      return (c == TEXT(' ')) || (c == TEXT('\t')) || (c == TEXT('\n')) || (c == TEXT('\r'));
+    }
 
 		size_t CountOccurrences(const std::string& source, const std::string& sFind)
 		{
@@ -138,7 +138,18 @@ namespace breathe
 			}
 
 			return source;
-		}
+                                }
+
+    std::wstring StripLeading(const std::wstring& source, const std::wstring& find)
+    {
+      std::wstring::size_type i = source.find_first_not_of(find);
+      if (std::wstring::npos != i) {
+        std::wstring temp(source);
+        return temp.erase(0, i);
+      }
+
+      return source;
+    }
 
 		std::string StripTrailing(const std::string& source, const std::string& find)
 		{
@@ -161,6 +172,27 @@ namespace breathe
 
 			return source;
 		}
+
+
+    std::string StripLeadingWhiteSpace(const std::string& source)
+    {
+      return StripLeading(source, WHITE_SPACE);
+    }
+
+    std::wstring StripLeadingWhiteSpace(const std::wstring& source)
+    {
+      return StripLeading(source, LWHITE_SPACE);
+    }
+
+    std::string StripTrailingWhiteSpace(const std::string& source)
+    {
+      return StripTrailing(source, WHITE_SPACE);
+    }
+
+    std::wstring StripTrailingWhiteSpace(const std::wstring& source)
+    {
+      return StripTrailing(source, LWHITE_SPACE);
+    }
 
 		std::string StripBefore(const std::string& source, const std::string& find)
 		{
