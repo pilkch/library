@@ -2,6 +2,19 @@
 #define CWINDOW_MANAGER_H
 
 // TODO: include shadows for gui with an alpha blend niceynicey.
+// TODO: Be original, don''t use the mac os x controls,
+// TODO: use original solid black white and grey rectangles with rounded edges
+// TODO: alphablending
+// TODO: menu is black, white and grey, in game hud is team colour ie. blue vs red
+
+// For first version just have:
+// rectangle.png // stretchable
+
+// void DrawWindow(float_t x, float_t y, float_t width, float_t height)
+// {
+//    // Rectangle in the middle
+//   RenderRectangle(rectangle.png, x, y, width, height);
+// }
 
 namespace breathe
 {
@@ -31,6 +44,10 @@ namespace breathe
       bool AddChild(cWindow* pChild);
       bool RemoveChild(cWindow* pChild);
 
+      // For overriding the gui with team colours
+      void SetColourDefault() { colour.Set(0.5f, 0.5f, 0.5f, 0.5f); }
+      void SetColourRGB(const math::cColour& _colour) { colour.Set(_colour.r, _colour.g, _colour.b, 0.5f); }
+
     private:
       cWindow* _FindWindowUnderPoint(float x, float y);
 
@@ -45,6 +62,8 @@ namespace breathe
       child_list child;
       cWidget* pEventWidgetMouseLeftButtonDown;
       std::map<string_t, id_t> stringIdentifierToID;
+
+      math::cColour colour;
     };
   }
 }
