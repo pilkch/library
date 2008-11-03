@@ -1,6 +1,11 @@
 #ifndef CPLAYER_H
 #define CPLAYER_H
 
+#ifdef BUILD_PHYSICS_3D
+#include <breathe/physics/physics.h>
+#include <breathe/physics/cPhysicsObject.h>
+#endif
+
 namespace breathe
 {
   namespace vehicle

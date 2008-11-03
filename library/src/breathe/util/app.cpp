@@ -95,7 +95,7 @@ And then console is handled automatically, not configurable.  Cannot override ti
 
 #define EPSILON 0.000001
 #define CROSS(dest,v1,v2) \
-	        dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
+          dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
           dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
           dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
 
@@ -107,9 +107,9 @@ And then console is handled automatically, not configurable.  Cannot override ti
           dest[2]=v1[2]-v2[2];
 
 int intersect_triangle(
-			double orig[3], double dir[3],
-			double vert0[3], double vert1[3], double vert2[3],
-			double *t, double *u, double *v)
+      double orig[3], double dir[3],
+      double vert0[3], double vert1[3], double vert2[3],
+      double *t, double *u, double *v)
 {
    double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
    double det,inv_det;
@@ -509,24 +509,24 @@ namespace breathe
   }
   */
 
-	cApp::cApp(int argc, const char **argv) :
+  cApp::cApp(int argc, const char **argv) :
 #ifdef BUILD_DEBUG
-		bDebug(true),
+    bDebug(true),
 #endif
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		bUpdatePhysics(true),
-		bStepPhysics(false),
+    bUpdatePhysics(true),
+    bStepPhysics(false),
 #endif
-		bActive(true),
-		bDone(false),
-		bReturnCode(breathe::GOOD),
+    bActive(true),
+    bDone(false),
+    bReturnCode(breathe::GOOD),
     bPopCurrentStateSoon(false),
 
     pPushThisStateSoon(nullptr),
-		pFont(nullptr)
-	{
-		CONSOLE.SetApp(this);
-		filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
+    pFont(nullptr)
+  {
+    CONSOLE.SetApp(this);
+    filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
 #ifdef BUILD_DEBUG
     SanityCheck();
@@ -538,32 +538,32 @@ namespace breathe
     if (filesystem::GetFile("Current", sFullPath)) LOG<<"File exists at "<<sFullPath.c_str()<<std::endl;
     else LOG<<"File does not exists"<<std::endl;
 
-		_LoadSearchDirectories();
+    _LoadSearchDirectories();
 
-		util::LoadLanguageFiles();
+    util::LoadLanguageFiles();
 
-		_InitArguments(argc, argv);
+    _InitArguments(argc, argv);
 
-		srand(time(NULL));
+    srand(time(NULL));
 
-		LOG<<"This is printed to the log"<<std::endl;
-		CONSOLE<<"This is printed to the console"<<std::endl;
-		SCREEN<<"This is printed to the screen"<<std::endl;
+    LOG<<"This is printed to the log"<<std::endl;
+    CONSOLE<<"This is printed to the console"<<std::endl;
+    SCREEN<<"This is printed to the screen"<<std::endl;
 
-		CONSOLE<<"1"<<std::endl;
-		CONSOLE<<"2"<<std::endl;
-		CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
+    CONSOLE<<"1"<<std::endl;
+    CONSOLE<<"2"<<std::endl;
+    CONSOLE<<"1"<<"2"<<"3"<<"4"<<std::endl;
 
-		// get all files ending in .dll
-		CONSOLE<<"FileSystem Test"<<std::endl;
+    // get all files ending in .dll
+    CONSOLE<<"FileSystem Test"<<std::endl;
 
-		breathe::filesystem::path dir_path(TEXT("."));
-		/*directory_iterator end_it;
-		for (directory_iterator it(dir_path); it != end_it; ++it) {
-			if (!is_directory(it->status()) && extension(it->path()) == ".dll" ) {
-				it->path().string();
-			}
-		}*/
+    breathe::filesystem::path dir_path(TEXT("."));
+    /*directory_iterator end_it;
+    for (directory_iterator it(dir_path); it != end_it; ++it) {
+      if (!is_directory(it->status()) && extension(it->path()) == ".dll" ) {
+        it->path().string();
+      }
+    }*/
 
 
 
@@ -573,32 +573,32 @@ namespace breathe
     //CheckIfNeedToUpdateApplication();
 
 
-		SDL_ShowCursor(SDL_DISABLE);
+    SDL_ShowCursor(SDL_DISABLE);
 
-		pRender = new render::cRender();
+    pRender = new render::cRender();
 
 #ifdef BUILD_LEVEL
-		pLevel = new cLevel();
+    pLevel = new cLevel();
 #endif
 
-		AddKeyNoRepeat(SDLK_ESCAPE);
-		AddKeyNoRepeat(SDLK_BACKQUOTE);
-		AddKeyNoRepeat(SDLK_RETURN);
+    AddKeyNoRepeat(SDLK_ESCAPE);
+    AddKeyNoRepeat(SDLK_BACKQUOTE);
+    AddKeyNoRepeat(SDLK_RETURN);
 
 #ifdef BUILD_DEBUG
-		AddKeyNoRepeat(SDLK_F1);
-		AddKeyNoRepeat(SDLK_F2);
-		AddKeyNoRepeat(SDLK_F3);
-		AddKeyNoRepeat(SDLK_F4);
-		AddKeyNoRepeat(SDLK_F5);
-		AddKeyNoRepeat(SDLK_F6);
-		AddKeyNoRepeat(SDLK_F7);
-		AddKeyNoRepeat(SDLK_F8);
-		AddKeyNoRepeat(SDLK_F9);
-		AddKeyNoRepeat(SDLK_F10);
-		AddKeyNoRepeat(SDLK_F11);
+    AddKeyNoRepeat(SDLK_F1);
+    AddKeyNoRepeat(SDLK_F2);
+    AddKeyNoRepeat(SDLK_F3);
+    AddKeyNoRepeat(SDLK_F4);
+    AddKeyNoRepeat(SDLK_F5);
+    AddKeyNoRepeat(SDLK_F6);
+    AddKeyNoRepeat(SDLK_F7);
+    AddKeyNoRepeat(SDLK_F8);
+    AddKeyNoRepeat(SDLK_F9);
+    AddKeyNoRepeat(SDLK_F10);
+    AddKeyNoRepeat(SDLK_F11);
 #endif
-	}
+  }
 
   cApp::~cApp()
   {
@@ -613,31 +613,31 @@ namespace breathe
     mKey.clear();
     assert(mKey.empty());
 
-		SAFE_DELETE(pFont);
+    SAFE_DELETE(pFont);
 
-		const size_t nJoysticks = vJoystick.size();
-		for (size_t i = 0; i < nJoysticks; i++) SDL_JoystickClose(vJoystick[i]);
+    const size_t nJoysticks = vJoystick.size();
+    for (size_t i = 0; i < nJoysticks; i++) SDL_JoystickClose(vJoystick[i]);
 
-		TTF_Quit();
+    TTF_Quit();
 
-		LOG.Success("Destroy", "Audio");
-		breathe::audio::Destroy();
+    LOG.Success("Destroy", "Audio");
+    breathe::audio::Destroy();
 
 #ifdef BUILD_LEVEL
-		LOG.Success("Delete", "Level");
-		SAFE_DELETE(pLevel);
+    LOG.Success("Delete", "Level");
+    SAFE_DELETE(pLevel);
 #endif
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		LOG.Success("Destroy", "Physics");
-		breathe::physics::Destroy();
+    LOG.Success("Destroy", "Physics");
+    breathe::physics::Destroy();
 #endif
 
-		LOG.Success("Destroy", "Network");
-		breathe::network::Destroy();
+    LOG.Success("Destroy", "Network");
+    breathe::network::Destroy();
 
-		LOG.Success("Delete", "Render");
-		SAFE_DELETE(pRender);
+    LOG.Success("Delete", "Render");
+    SAFE_DELETE(pRender);
 
     LOG.Success("Delete", "Log");
     // Log is not actually deleted here, we were previously doing stuff like sending stats to the log
@@ -684,47 +684,47 @@ namespace breathe
   }
 #endif
 
-	void cApp::_InitArguments(int argc, const char **argv)
-	{
-		int i = 1;
-		std::string s;
-		if (i < argc) {
-			vArgs.push_back(argv[i]);
-			s = argv[i];
-		}
+  void cApp::_InitArguments(int argc, const char **argv)
+  {
+    int i = 1;
+    std::string s;
+    if (i < argc) {
+      vArgs.push_back(argv[i]);
+      s = argv[i];
+    }
 
-		for (i = 2; i < argc; i++) {
-			vArgs.push_back(argv[i]);
-			s += " " + std::string(argv[i]);
-		}
+    for (i = 2; i < argc; i++) {
+      vArgs.push_back(argv[i]);
+      s += " " + std::string(argv[i]);
+    }
 
-		LOG.Success("Arguments", s);
-	}
+    LOG.Success("Arguments", s);
+  }
 
-	void cApp::_LoadSearchDirectories()
-	{
-		// Now load all the rest from the config file
-		breathe::xml::cNode root("config.xml");
-		breathe::xml::cNode::iterator iter(root);
+  void cApp::_LoadSearchDirectories()
+  {
+    // Now load all the rest from the config file
+    breathe::xml::cNode root("config.xml");
+    breathe::xml::cNode::iterator iter(root);
 
-		if (!iter.IsValid()) return;
-
-		iter.FindChild("config");
     if (!iter.IsValid()) return;
 
-		iter.FindChild("directory");
+    iter.FindChild("config");
+    if (!iter.IsValid()) return;
+
+    iter.FindChild("directory");
     if (!iter.IsValid()) return;
 
     while (iter.IsValid()) {
-			std::string sDirectory;
-			if (iter.GetAttribute("path", sDirectory)) {
+      std::string sDirectory;
+      if (iter.GetAttribute("path", sDirectory)) {
         LOG<<"Adding Directory "<<sDirectory<<std::endl;
         breathe::filesystem::AddDirectory(breathe::string::ToString_t(sDirectory));
       }
 
-			iter.Next("directory");
-		};
-	}
+      iter.Next("directory");
+    };
+  }
 
 
 
@@ -811,17 +811,17 @@ namespace breathe
 #endif
   }
 
-	bool cApp::InitApp()
-	{
+  bool cApp::InitApp()
+  {
     LoadConfigXML();
 
-		// Init SDL
-		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
-		{
-			LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
-			bReturnCode = breathe::BAD;
-			return breathe::BAD;
-		}
+    // Init SDL
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
+    {
+      LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
+      bReturnCode = breathe::BAD;
+      return breathe::BAD;
+    }
 
     // Enable unicode
     SDL_EnableUNICODE(1);
@@ -832,144 +832,144 @@ namespace breathe
     // Set our window caption and possibly the icon as well
     SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
 
-		{
+    {
 
-			// Joysticks
+      // Joysticks
 
-			const int nJoysticks = SDL_NumJoysticks();
+      const int nJoysticks = SDL_NumJoysticks();
 
-			std::ostringstream t;
-			t<<"Joysticks found: "<<nJoysticks;
+      std::ostringstream t;
+      t<<"Joysticks found: "<<nJoysticks;
 
-			if (nJoysticks != 0) {
-				LOG.Success("SDL", t.str());
-				SDL_JoystickEventState(SDL_ENABLE);
+      if (nJoysticks != 0) {
+        LOG.Success("SDL", t.str());
+        SDL_JoystickEventState(SDL_ENABLE);
 
-				for (int i=0; i < nJoysticks; i++) {
-					t.str("");
-					t << "Joystick(";
-					t << i;
-					t << ") ";
-					t << SDL_JoystickName(i);
-					LOG.Success("SDL", t.str());
+        for (int i=0; i < nJoysticks; i++) {
+          t.str("");
+          t << "Joystick(";
+          t << i;
+          t << ") ";
+          t << SDL_JoystickName(i);
+          LOG.Success("SDL", t.str());
 
-					//TODO: Create a list of joysticks, close them at the end of the program
-					SDL_Joystick *pJoystick = SDL_JoystickOpen(i);
+          //TODO: Create a list of joysticks, close them at the end of the program
+          SDL_Joystick *pJoystick = SDL_JoystickOpen(i);
 
-					t.str("");
-					t << "Buttons=";
-					t << SDL_JoystickNumButtons(pJoystick);
-					t << ", Axes=";
-					t << SDL_JoystickNumAxes(pJoystick);
-					t << ", Hats=";
-					t << SDL_JoystickNumHats(pJoystick);
-					t << ", Balls=";
-					t << SDL_JoystickNumBalls(pJoystick);
-					LOG.Success("SDL", t.str());
+          t.str("");
+          t << "Buttons=";
+          t << SDL_JoystickNumButtons(pJoystick);
+          t << ", Axes=";
+          t << SDL_JoystickNumAxes(pJoystick);
+          t << ", Hats=";
+          t << SDL_JoystickNumHats(pJoystick);
+          t << ", Balls=";
+          t << SDL_JoystickNumBalls(pJoystick);
+          LOG.Success("SDL", t.str());
 
-					vJoystick.push_back(pJoystick);
-				}
+          vJoystick.push_back(pJoystick);
+        }
 
-			} else LOG.Error("SDL", t.str());
+      } else LOG.Error("SDL", t.str());
 
-			/*if (nJoysticks)
-			{
-				SDL_Event event;
-				// Other initializtion code goes here
-				// Start main game loop here
+      /*if (nJoysticks)
+      {
+        SDL_Event event;
+        // Other initializtion code goes here
+        // Start main game loop here
 
-				while(SDL_PollEvent(&event))
-				{
-					switch(event.type)
-					{
-						case SDL_KEYDOWN:
-							/* handle keyboard stuff here
-							break;
+        while(SDL_PollEvent(&event))
+        {
+          switch(event.type)
+          {
+            case SDL_KEYDOWN:
+              /* handle keyboard stuff here
+              break;
 
-						case SDL_QUIT:
+            case SDL_QUIT:
 
-						/* Set whatever flags are necessary to
-						/* end the main game loop here
+            /* Set whatever flags are necessary to
+            /* end the main game loop here
 
-							break;
+              break;
 
 
-						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
-							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
-							{
-								/* code goes here
-							}
-							break;
+            case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+              if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
+              {
+                /* code goes here
+              }
+              break;
 
-						case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
-							if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
-							{
-								if (event.jaxis.axis == 0)
-								{
-									/* Left-right movement code goes here
-								}
+            case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+              if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
+              {
+                if (event.jaxis.axis == 0)
+                {
+                  /* Left-right movement code goes here
+                }
 
-								if (event.jaxis.axis == 1)
-								{
-									/* Up-Down movement code goes here
-								}
-							}
-							break;
+                if (event.jaxis.axis == 1)
+                {
+                  /* Up-Down movement code goes here
+                }
+              }
+              break;
 
-						case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
-							if (event.jbutton.button == 0 )
-							{
-								/* code goes here
-							}
-							break;
+            case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
+              if (event.jbutton.button == 0 )
+              {
+                /* code goes here
+              }
+              break;
 
-						case SDL_JOYHATMOTION:  /* Handle Hat Motion
-							if (event.jhat.value & SDL_HAT_UP )
-							{
-								// Do up stuff here
-							}
-							if (event.jhat.value & SDL_HAT_LEFT )
-							{
-								// Do left stuff here
-							}
-							if (event.jhat.value & SDL_HAT_RIGHTDOWN )
-							{
-								// Do right and down together stuff here
-							}
-							break;
-						}
-				}
+            case SDL_JOYHATMOTION:  /* Handle Hat Motion
+              if (event.jhat.value & SDL_HAT_UP )
+              {
+                // Do up stuff here
+              }
+              if (event.jhat.value & SDL_HAT_LEFT )
+              {
+                // Do left stuff here
+              }
+              if (event.jhat.value & SDL_HAT_RIGHTDOWN )
+              {
+                // Do right and down together stuff here
+              }
+              break;
+            }
+        }
 
-				// End loop here
-			}*/
-		}
+        // End loop here
+      }*/
+    }
 
     if (breathe::BAD == InitRender()) return breathe::BAD;
 
-		TTF_Init();
+    TTF_Init();
 
-		breathe::audio::Init();
+    breathe::audio::Init();
 
 #if defined(BUILD_PHYSICS_2D)
-		breathe::physics::Init(physics_width, physics_height);
+    breathe::physics::Init(physics_width, physics_height);
 #elif defined(BUILD_PHYSICS_3D)
-		breathe::physics::Init(physics_width, physics_height, physics_depth);
+    breathe::physics::Init(physics_width, physics_height, physics_depth);
 #endif
 
-		if (breathe::BAD==LoadScene()) return breathe::BAD;
+    if (breathe::BAD==LoadScene()) return breathe::BAD;
 
 
-		window_manager.LoadTheme();
+    window_manager.LoadTheme();
 
-		unsigned int n = breathe::gui::GenerateID();
+    unsigned int n = breathe::gui::GenerateID();
 
 #ifdef BUILD_DEBUG
     // Testing Window
-		/*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
-		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));
-		pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));
-		pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
-		window_manager.AddChild(pWindow0);*/
+    /*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
+    pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));
+    pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));
+    pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
+    window_manager.AddChild(pWindow0);*/
 #endif
 
     if (breathe::BAD == InitScene()) return breathe::BAD;
@@ -1134,83 +1134,83 @@ namespace breathe
     EndRender(currentTime);
   }
 
-	void cApp::_UpdateEvents(sampletime_t currentTime)
-	{
-		// handle the events in the queue
-		while ( SDL_PollEvent( &event ) )
-		{
-			switch( event.type )
-			{
-				case SDL_ACTIVEEVENT:
-					{
-						bActive=event.active.gain != 0;
-						if (bActive) LOG.Success("Active", "Active");
-						else LOG.Error("Active", "Inactive");
-					}
-					break;
+  void cApp::_UpdateEvents(sampletime_t currentTime)
+  {
+    // handle the events in the queue
+    while ( SDL_PollEvent( &event ) )
+    {
+      switch( event.type )
+      {
+        case SDL_ACTIVEEVENT:
+          {
+            bActive=event.active.gain != 0;
+            if (bActive) LOG.Success("Active", "Active");
+            else LOG.Error("Active", "Inactive");
+          }
+          break;
 
-				case SDL_VIDEORESIZE:
-					if (breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
-						bDone=true;
-					break;
+        case SDL_VIDEORESIZE:
+          if (breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
+            bDone=true;
+          break;
 
-				case SDL_KEYUP:
-					_OnKeyUp(&event.key.keysym);
-					break;
+        case SDL_KEYUP:
+          _OnKeyUp(&event.key.keysym);
+          break;
 
-				case SDL_KEYDOWN:
-					_OnKeyDown(&event.key.keysym);
-					break;
+        case SDL_KEYDOWN:
+          _OnKeyDown(&event.key.keysym);
+          break;
 
-				case SDL_MOUSEBUTTONUP: {
-					mouse.x = event.button.x;
-					mouse.y = event.button.y;
-					mouse.down[event.button.button] = true;
+        case SDL_MOUSEBUTTONUP: {
+          mouse.x = event.button.x;
+          mouse.y = event.button.y;
+          mouse.down[event.button.button] = true;
           const int button = event.button.button;
           const int state = event.button.state;
           const float x = event.button.x / float(pRender->uiWidth);
           const float y = event.button.y / float(pRender->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
-					break;
+          break;
         }
 
-				case SDL_MOUSEBUTTONDOWN: {
-					mouse.x = event.button.x;
-					mouse.y = event.button.y;
+        case SDL_MOUSEBUTTONDOWN: {
+          mouse.x = event.button.x;
+          mouse.y = event.button.y;
           if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
           const int button = event.button.button;
           const int state = event.button.state;
           const float x = event.button.x / float(pRender->uiWidth);
           const float y = event.button.y / float(pRender->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
-					break;
+          break;
         }
 
-				case SDL_MOUSEMOTION: {
-					mouse.x = event.button.x;
+        case SDL_MOUSEMOTION: {
+          mouse.x = event.button.x;
           mouse.y = event.button.y;
           const int button = event.button.button;
           const int state = event.button.state;
           const float x = event.button.x / float(pRender->uiWidth);
           const float y = event.button.y / float(pRender->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
-					break;
+          break;
         }
 
-				case SDL_QUIT:
-					LOG.Success("SDL", "SDL_Quit: Quiting");
-					bDone=true;
-					break;
+        case SDL_QUIT:
+          LOG.Success("SDL", "SDL_Quit: Quiting");
+          bDone=true;
+          break;
 
-				default:
-					break;
-			}
-		}
-	}
+        default:
+          break;
+      }
+    }
+  }
 
   void cApp::RemoveKey(unsigned int code)
   {
-		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+    std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
 
     if (iter != mKey.end()) {
       SAFE_DELETE(iter->second);
@@ -1218,26 +1218,26 @@ namespace breathe
     }
   }
 
-	void cApp::AddKeyRepeat(unsigned int code)
-	{
+  void cApp::AddKeyRepeat(unsigned int code)
+  {
     RemoveKey(code);
 
-		mKey[code] = new cKey(code, true, true, false);
-	}
+    mKey[code] = new cKey(code, true, true, false);
+  }
 
-	void cApp::AddKeyNoRepeat(unsigned int code)
-	{
+  void cApp::AddKeyNoRepeat(unsigned int code)
+  {
     RemoveKey(code);
 
-		mKey[code] = new cKey(code, false, false, false);
-	}
+    mKey[code] = new cKey(code, false, false, false);
+  }
 
-	void cApp::AddKeyToggle(unsigned int code)
-	{
+  void cApp::AddKeyToggle(unsigned int code)
+  {
     RemoveKey(code);
 
-		mKey[code] = new cKey(code, false, false, true);
-	}
+    mKey[code] = new cKey(code, false, false, true);
+  }
 
   bool cApp::IsKeyDown(unsigned int code) const
   {
@@ -1248,100 +1248,100 @@ namespace breathe
     return false;
   }
 
-	void cApp::_UpdateKeys(sampletime_t currentTime)
-	{
-		Uint8 *key = SDL_GetKeyState( NULL );
-		cKey* p;
+  void cApp::_UpdateKeys(sampletime_t currentTime)
+  {
+    Uint8 *key = SDL_GetKeyState( NULL );
+    cKey* p;
 
-		std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
+    std::map<unsigned int, cKey*>::iterator iter = mKey.begin();
     const std::map<unsigned int, cKey*>::const_iterator iterEnd = mKey.end();
-		while (iter != iterEnd) {
-			p = (iter->second);
+    while (iter != iterEnd) {
+      p = (iter->second);
 
-			//This key is pressed
-			if (key[p->uiCode]) {
-				//This key can be held down
-				if (p->bRepeat) {
-					p->bDown=true;
-					p->bCollected=false;
-				}
-				//This key can only be pressed once
-				else {
-					p->bDown=false;
-					p->bCollected=false;
-				}
-			} else p->bDown = false;
+      //This key is pressed
+      if (key[p->uiCode]) {
+        //This key can be held down
+        if (p->bRepeat) {
+          p->bDown=true;
+          p->bCollected=false;
+        }
+        //This key can only be pressed once
+        else {
+          p->bDown=false;
+          p->bCollected=false;
+        }
+      } else p->bDown = false;
 
-			iter++;
-		}
-
-
-		SDL_GetMouseState(&mouse.x, &mouse.y);
-	}
-
-	void cApp::_OnKeyDown(SDL_keysym *keysym)
-	{
-		unsigned int code = keysym->sym;
-
-		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if (iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
-
-		//if (CONSOLE.IsVisible()) {
-		//	// Remove key from list
-		//	IsKeyDown(code);
-		//
-		//	if (!CONSOLE.AddKey(code)) ConsoleHide();
-		//}
-	}
-
-	void cApp::_OnKeyUp(SDL_keysym *keysym)
-	{
-		unsigned int code = keysym->sym;
-
-		std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
-		if (iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
-
-		//if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
-	}
-
-	void cApp::_OnMouseUp(int button, int x, int y)
-	{
-
-	}
-
-	void cApp::_OnMouseDown(int button, int x, int y)
-	{
-
-	}
-
-	void cApp::_OnMouseMove(int button, int x, int y)
-	{
-
-	}
+      iter++;
+    }
 
 
-	void cApp::_UpdateInput(sampletime_t currentTime)
-	{
+    SDL_GetMouseState(&mouse.x, &mouse.y);
+  }
+
+  void cApp::_OnKeyDown(SDL_keysym *keysym)
+  {
+    unsigned int code = keysym->sym;
+
+    std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+    if (iter != mKey.end()) iter->second->SetDown(CONSOLE.IsVisible());
+
+    //if (CONSOLE.IsVisible()) {
+    //  // Remove key from list
+    //  IsKeyDown(code);
+    //
+    //  if (!CONSOLE.AddKey(code)) ConsoleHide();
+    //}
+  }
+
+  void cApp::_OnKeyUp(SDL_keysym *keysym)
+  {
+    unsigned int code = keysym->sym;
+
+    std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
+    if (iter != mKey.end()) iter->second->SetUp(CONSOLE.IsVisible());
+
+    //if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
+  }
+
+  void cApp::_OnMouseUp(int button, int x, int y)
+  {
+
+  }
+
+  void cApp::_OnMouseDown(int button, int x, int y)
+  {
+
+  }
+
+  void cApp::_OnMouseMove(int button, int x, int y)
+  {
+
+  }
+
+
+  void cApp::_UpdateInput(sampletime_t currentTime)
+  {
 #ifdef BUILD_DEBUG
-		if (IsKeyDown(SDLK_F1)) ToggleDebug();
+    if (IsKeyDown(SDLK_F1)) ToggleDebug();
 
-		if (IsKeyDown(SDLK_F2)) pRender->ReloadTextures();
-		if (IsKeyDown(SDLK_F3)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
-		if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
-		if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
-		if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
+    if (IsKeyDown(SDLK_F2)) pRender->ReloadTextures();
+    if (IsKeyDown(SDLK_F3)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
+    if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
+    if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
+    if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
-		if (IsKeyDown(SDLK_F8)) {
-			bUpdatePhysics = false;
-			bStepPhysics = true;
-		}
+    if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
+    if (IsKeyDown(SDLK_F8)) {
+      bUpdatePhysics = false;
+      bStepPhysics = true;
+    }
 #endif
-		if (IsKeyDown(SDLK_F9)) util::RunUnitTests();
+    if (IsKeyDown(SDLK_F9)) util::RunUnitTests();
 #endif
 
-		if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
+    if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
 
     if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) {
       PushStateSoon(new cApp::cAppStateConsole(*this));
@@ -1349,24 +1349,24 @@ namespace breathe
     }
 
 
-		GetCurrentState().UpdateInput(currentTime);
-	}
+    GetCurrentState().UpdateInput(currentTime);
+  }
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
   void cApp::_UpdatePhysics(cApp::cAppState& state, sampletime_t currentTime)
   {
-		state.UpdatePhysics(currentTime);
+    state.UpdatePhysics(currentTime);
   }
 #endif
 
-	void cApp::CursorShow()
-	{
-		SDL_ShowCursor(SDL_ENABLE);
-	}
+  void cApp::CursorShow()
+  {
+    SDL_ShowCursor(SDL_ENABLE);
+  }
 
-	void cApp::CursorHide()
-	{
-		SDL_ShowCursor(SDL_DISABLE);
+  void cApp::CursorHide()
+  {
+    SDL_ShowCursor(SDL_DISABLE);
   }
 
   void cApp::CursorWarpToMiddleOfScreen()
@@ -1374,54 +1374,54 @@ namespace breathe
     SDL_WarpMouse(pRender->uiWidth / 2, pRender->uiHeight / 2);
   }
 
-	void cApp::ConsoleExecute(const std::string& command)
-	{
-		Execute(command);
-	}
+  void cApp::ConsoleExecute(const std::string& command)
+  {
+    Execute(command);
+  }
 
-	//This is for executing one single line, cannot have ";"
-	void cApp::_ConsoleExecuteSingleCommand(const std::string& command)
-	{
-		CONSOLE<<command<<std::endl;
+  //This is for executing one single line, cannot have ";"
+  void cApp::_ConsoleExecuteSingleCommand(const std::string& command)
+  {
+    CONSOLE<<command<<std::endl;
 
-		std::string s(command);
-		std::string full(s);
-		std::vector<std::string> args;
+    std::string s(command);
+    std::string full(s);
+    std::vector<std::string> args;
 
-		{
-			size_t whitespace;
-			std::string parameter;
+    {
+      size_t whitespace;
+      std::string parameter;
 
-			//We have a line, find the individual parts
-			while(s.length())
-			{
-				whitespace=s.find(" ");
+      //We have a line, find the individual parts
+      while(s.length())
+      {
+        whitespace=s.find(" ");
 
-				if (std::string::npos==whitespace)
-				{
-					parameter = s;
-					s = "";
-				}
-				else
-				{
-					parameter=s.substr(0, whitespace);
-					s = s.substr(whitespace+1);
-				}
+        if (std::string::npos==whitespace)
+        {
+          parameter = s;
+          s = "";
+        }
+        else
+        {
+          parameter=s.substr(0, whitespace);
+          s = s.substr(whitespace+1);
+        }
 
-				if (parameter.length())
-					args.push_back(parameter);
-			};
-		}
+        if (parameter.length())
+          args.push_back(parameter);
+      };
+    }
 
 
-		if (!args.empty())
-		{
-			if ("quit"==full || "exit"==full) bDone = true;
-			else if ("var"==args[0]) var::PrintAll();
-			else if (GOOD==Execute(full))
-			{
+    if (!args.empty())
+    {
+      if ("quit"==full || "exit"==full) bDone = true;
+      else if ("var"==args[0]) var::PrintAll();
+      else if (GOOD==Execute(full))
+      {
 
-			}
+      }
 
 #ifdef BUILD_DEBUG
       else if (bDebug) {
@@ -1438,103 +1438,103 @@ namespace breathe
     }
   }
 
-	/*//This is for executing multiple lines of commands, seperated by ";"
-	void cApp::ConsoleExecute(const std::string& command)
-	{
-		std::string s(command);
-		if ("" != s)
-		{
-			//Take out all \n, each line should be finished with a ";" or it is not a valid line
-			s=string::Replace(s, "\n", " ");
+  /*//This is for executing multiple lines of commands, seperated by ";"
+  void cApp::ConsoleExecute(const std::string& command)
+  {
+    std::string s(command);
+    if ("" != s)
+    {
+      //Take out all \n, each line should be finished with a ";" or it is not a valid line
+      s=string::Replace(s, "\n", " ");
 
-			//Split into std::strings that are all ended with ";"
-			size_t endofline;
-			std::string line;
-			std::string parameter;
+      //Split into std::strings that are all ended with ";"
+      size_t endofline;
+      std::string line;
+      std::string parameter;
 
-			while(s.length())
-			{
-				endofline = s.find(";");
+      while(s.length())
+      {
+        endofline = s.find(";");
 
-				if (std::string::npos==endofline)
-				{
-					line = s;
-					s = "";
-				}
-				else
-				{
-					line = s.substr(0, endofline);
-					s = s.substr(endofline+1);
-				}
+        if (std::string::npos==endofline)
+        {
+          line = s;
+          s = "";
+        }
+        else
+        {
+          line = s.substr(0, endofline);
+          s = s.substr(endofline+1);
+        }
 
-				if (line.length())
-					_ConsoleExecuteSingleCommand(line);
-			};
-		}
-	}*/
+        if (line.length())
+          _ConsoleExecuteSingleCommand(line);
+      };
+    }
+  }*/
 
-	bool cApp::Run()
-	{
-		LOG.Newline("Run");
+  bool cApp::Run()
+  {
+    LOG.Newline("Run");
 
-		bReturnCode = InitApp();
-		if (bReturnCode == BAD) return bReturnCode;
+    bReturnCode = InitApp();
+    if (bReturnCode == BAD) return bReturnCode;
 
     LOG.Newline("MainLoop");
 
-		sampletime_t currentTime = breathe::util::GetTime();
+    sampletime_t currentTime = breathe::util::GetTime();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     unsigned int uiPhysicsHz = physics::GetFrequencyHz();
 #endif
-		unsigned int uiUpdateHz = 30;
-		unsigned int uiTargetFramesPerSecond = 60;
+    unsigned int uiUpdateHz = 30;
+    unsigned int uiTargetFramesPerSecond = 60;
 
-		float fEventsDelta=1000.0f/30.0f; // Should be once every single loop?
-		float fInputDelta=1000.0f/30.0f;
+    float fEventsDelta=1000.0f/30.0f; // Should be once every single loop?
+    float fInputDelta=1000.0f/30.0f;
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		float fPhysicsDelta=1000.0f/uiPhysicsHz;
+    float fPhysicsDelta=1000.0f/uiPhysicsHz;
 #endif
-		float fUpdateDelta=1000.0f/uiUpdateHz;
-		float fRenderDelta=1000.0f/uiTargetFramesPerSecond;
+    float fUpdateDelta=1000.0f/uiUpdateHz;
+    float fRenderDelta=1000.0f/uiTargetFramesPerSecond;
 
-		float fEventsNext=0.0f;
-		float fInputNext=0.0f;
+    float fEventsNext=0.0f;
+    float fInputNext=0.0f;
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		float fPhysicsNext=0.0f;
+    float fPhysicsNext=0.0f;
 #endif
-		float fUpdateNext=0.0f;
-		float fRenderNext=0.0f;
+    float fUpdateNext=0.0f;
+    float fRenderNext=0.0f;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-		tPhysics.Init(uiPhysicsHz);
+    tPhysics.Init(uiPhysicsHz);
 #endif
-		tUpdate.Init(uiUpdateHz);
-		tRender.Init(uiTargetFramesPerSecond);
+    tUpdate.Init(uiUpdateHz);
+    tRender.Init(uiTargetFramesPerSecond);
 
-		//TODO: Activate window so that it is on top as soon as we start
+    //TODO: Activate window so that it is on top as soon as we start
 
-		do
-		{
+    do
+    {
       // If this fails we have a problem.  At all times we should either have
       // bDone == true or states has one or more states
       assert(!states.empty());
 
-			currentTime = util::GetTime();
+      currentTime = util::GetTime();
 
       if (currentTime > fEventsNext)
-			{
-				_UpdateEvents(currentTime);
-				fEventsNext = currentTime + fEventsDelta;
-			}
+      {
+        _UpdateEvents(currentTime);
+        fEventsNext = currentTime + fEventsDelta;
+      }
 
-			if (currentTime > fInputNext)
-			{
-				// These have to be in this order or nothing gets collected
-				_UpdateInput(currentTime);
-				_UpdateKeys(currentTime);
-				fInputNext = currentTime + fInputDelta;
-			}
+      if (currentTime > fInputNext)
+      {
+        // These have to be in this order or nothing gets collected
+        _UpdateInput(currentTime);
+        _UpdateKeys(currentTime);
+        fInputNext = currentTime + fInputDelta;
+      }
 
       // We can change state during _UpdateInput
       if (bPopCurrentStateSoon) {
@@ -1558,11 +1558,11 @@ namespace breathe
       }
 #endif
 
-			if (currentTime > fUpdateNext) {
-				_Update(currentTime);
-				tUpdate.Update(currentTime);
-				fUpdateNext = currentTime + fUpdateDelta;
-			}
+      if (currentTime > fUpdateNext) {
+        _Update(currentTime);
+        tUpdate.Update(currentTime);
+        fUpdateNext = currentTime + fUpdateDelta;
+      }
 
       bool bPushOrPopState = bPopCurrentStateSoon || (pPushThisStateSoon != nullptr);
 
@@ -1574,13 +1574,13 @@ namespace breathe
       if (bPushOrPopState) continue;
 
       // TODO: Do we need this? && currentTime > fRenderNext)
-			if (bActive && !bDone) {
-				_Render(state, currentTime);
-				tRender.Update(currentTime);
-				fRenderNext = currentTime + fRenderDelta;
-			}
-			breathe::util::YieldThisThread();
-		}while (!bDone);
+      if (bActive && !bDone) {
+        _Render(state, currentTime);
+        tRender.Update(currentTime);
+        fRenderNext = currentTime + fRenderDelta;
+      }
+      breathe::util::YieldThisThread();
+    }while (!bDone);
 
     // Get rid of any states that we do have as they may try and operate on destructed/destructing objects later on
     while (!states.empty()) states.pop_back();
@@ -1626,18 +1626,18 @@ namespace breathe
   }
 
 
-	// *** cKey
-	cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
-		uiCode(code),
+  // *** cKey
+  cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
+    uiCode(code),
 
-		bVariable(variable),
-		bRepeat(repeat),
-		bToggle(toggle),
+    bVariable(variable),
+    bRepeat(repeat),
+    bToggle(toggle),
 
-		bDown(false),
-		bCollected(false)
-	{
-	}
+    bDown(false),
+    bCollected(false)
+  {
+  }
 
   bool cApp::cKey::IsDown() const
   {
@@ -1655,60 +1655,60 @@ namespace breathe
     return false;
   }
 
-	void cApp::cKey::SetDown(bool bConsole)
-	{
-		bDown = true;
-		bCollected = false;
-	}
+  void cApp::cKey::SetDown(bool bConsole)
+  {
+    bDown = true;
+    bCollected = false;
+  }
 
-	void cApp::cKey::SetUp(bool bConsole)
-	{
-		bDown = false;
-		bCollected = false;
+  void cApp::cKey::SetUp(bool bConsole)
+  {
+    bDown = false;
+    bCollected = false;
 
-		/*if (bRepeat)
-		{
-			bDown = false;
-			bCollected = false;
-		}
-		else if (!bConsole)
-		{
-			bDown = true;
-			bCollected = false;
-		}*/
-	}
+    /*if (bRepeat)
+    {
+      bDown = false;
+      bCollected = false;
+    }
+    else if (!bConsole)
+    {
+      bDown = true;
+      bCollected = false;
+    }*/
+  }
 
 
 
-	bool cApp::IsMouseLeftButtonDown() const
-	{
-		return mouse.down[0];
-	}
+  bool cApp::IsMouseLeftButtonDown() const
+  {
+    return mouse.down[0];
+  }
 
-	bool cApp::IsMouseRightButtonDown() const
-	{
-		return mouse.down[2];
-	}
+  bool cApp::IsMouseRightButtonDown() const
+  {
+    return mouse.down[2];
+  }
 
-	bool cApp::IsMouseScrollDown() const
-	{
-		return mouse.down[4];
-	}
+  bool cApp::IsMouseScrollDown() const
+  {
+    return mouse.down[4];
+  }
 
-	bool cApp::IsMouseScrollUp() const
-	{
-		return mouse.down[5];
-	}
+  bool cApp::IsMouseScrollUp() const
+  {
+    return mouse.down[5];
+  }
 
-	int cApp::GetMouseX() const
-	{
-		return mouse.GetY();
-	}
+  int cApp::GetMouseX() const
+  {
+    return mouse.GetY();
+  }
 
-	int cApp::GetMouseY() const
-	{
-		return mouse.GetX();
-	}
+  int cApp::GetMouseY() const
+  {
+    return mouse.GetX();
+  }
 
   cApp::cAppState& cApp::GetCurrentState() const
   {

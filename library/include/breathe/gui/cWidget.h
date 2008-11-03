@@ -10,10 +10,22 @@ namespace breathe
 
   namespace gui
   {
-    typedef uint16_t id_t;
-    typedef uint16_t event_t;
+    enum EVENT
+    {
+      EVENT_OPEN_WINDOW,
+      EVENT_DESTROY_WINDOW,
+      EVENT_ACTIVATE_WINDOW,
+      EVENT_DEACTIVATE_WINDOW,
+      EVENT_KEY_DOWN,
+      EVENT_KEY_UP,
+      EVENT_MOUSE_DOWN,
+      EVENT_MOUSE_UP,
+      EVENT_MOUSE_MOVE,
+      EVENT_CONTROL_CHANGE_VALUE
+    };
 
-    id_t GenerateID();
+    const size_t MOUSE_BUTTON_PRIMARY = 0;
+    const size_t MOUSE_BUTTON_SECONDARY = 1;
 
     enum WIDGET_TYPE
     {
@@ -28,12 +40,50 @@ namespace breathe
       WIDGET_SCROLLBAR_VERTICAL
     };
 
-    enum EVENT_TYPE
+    typedef uint16_t id_t;
+
+    id_t GenerateID();
+
+    class cWidget;
+
+    class cEvent
     {
-      EVENT_CLICK_PRIMARY = 0,
-      EVENT_CLICK_SECONDARY,
-      EVENT_CHANGE_VALUE
+    public:
+      explicit cEvent(EVENT eventType);
+
+      EVENT GetType() const { return eventType; }
+
+      cWidget& GetWidget() const;
+      size_t GetKeyboardButton() const { ASSERT(bHasKeyboardButton); return keyboardButton; }
+      size_t GetMouseButton() const { ASSERT(bHasMouseButton); return mouseButton; }
+      const math::cVec2& GetMousePosition() const { ASSERT(bHasMousePosition); return mousePosition; }
+
+    protected:
+      void SetWidget(cWidget* _pWidget) { ASSERT(_pWidget != nullptr); pWidget = _pWidget; }
+      void SetKeyboardButton(size_t _keyboardButton) { bHasKeyboardButton = true; keyboardButton = _keyboardButton; }
+      void SetMouseButton(size_t _mouseButton) { bHasMouseButton = true; mouseButton = _mouseButton; }
+      void SetMousePosition(const math::cVec2& _mousePosition) { bHasMousePosition = true; mousePosition = _mousePosition; }
+
+    private:
+      const EVENT eventType;
+
+      // The cWidget that this event is regarding (If any, are there any events with no cWidget?)
+      cWidget* pWidget;
+
+      // A keyboard button if there is one
+      bool bHasKeyboardButton;
+      size_t keyboardButton;
+
+      // A mouse button if there is one
+      bool bHasMouseButton;
+      size_t mouseButton;
+
+      // A mouse position if there is one
+      bool bHasMousePosition;
+      math::cVec2 mousePosition;
     };
+
+
 
     // This is our base object.
     // Windows as well as controls are derived from it.
@@ -97,10 +147,10 @@ namespace breathe
 
     protected:
       // Setup an event handler
-      void HandleEvent(event_t event, id_t idToReturn) { handlers[event] = idToReturn; }
+      void HandleEvent(EVENT event, id_t idToReturn) { handlers[event] = idToReturn; }
 
       // If we have an event handler for this event then handle it
-      void CheckAndHandleEvent(event_t event);
+      void CheckAndHandleEvent(EVENT event);
 
       std::vector<cWidget*> child;
       cWidget* pParent;
@@ -125,12 +175,12 @@ namespace breathe
       bool bResizable;
 
       // event, eventHandler for calling back
-      //std::map<event_t, cEventHandler*> handler;
-      std::map<event_t, id_t> handlers;
+      //std::map<EVENT, cEventHandler*> handler;
+      std::map<EVENT, id_t> handlers;
 
     private:
       // Find out which id is returned on which event for this control
-      bool GetEventHandler(event_t event, id_t& outID) const;
+      bool GetEventHandler(EVENT event, id_t& outID) const;
 
       virtual bool _IsAControl() const { return true; }
       virtual bool _IsAWindow() const { return false; }
@@ -177,7 +227,7 @@ namespace breathe
 
       void HandleClickPrimary(id_t idToReturn)
       {
-        HandleEvent(EVENT_CLICK_PRIMARY, idToReturn);
+        HandleEvent(EVENT_MOUSE_DOWN, idToReturn);
       }
 
     private:
@@ -200,7 +250,7 @@ namespace breathe
 
       void HandleChangeValue(id_t idToReturn)
       {
-        HandleEvent(EVENT_CHANGE_VALUE, idToReturn);
+        HandleEvent(EVENT_CONTROL_CHANGE_VALUE, idToReturn);
       }
 
     private:
@@ -281,6 +331,25 @@ namespace breathe
       math::cColour colour;
     };
 
+
+    // Inlines
+
+    // cEvent
+
+    inline cEvent::cEvent(EVENT _eventType) :
+      eventType(_eventType),
+      pWidget(nullptr),
+      bHasKeyboardButton(false),
+      bHasMouseButton(false),
+      bHasMousePosition(false)
+    {
+    }
+
+    inline cWidget& cEvent::GetWidget() const
+    {
+      ASSERT(pWidget != nullptr);
+      return *pWidget;
+    }
   }
 }
 

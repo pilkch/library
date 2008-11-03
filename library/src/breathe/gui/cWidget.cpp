@@ -49,74 +49,77 @@
 
 namespace breathe
 {
-	namespace gui
-	{
-		id_t nextID = 1;
+  namespace gui
+  {
+    id_t nextID = 1;
 
-		id_t GenerateID()
-		{
-			return nextID++;
-		}
+    id_t GenerateID()
+    {
+      return nextID++;
+    }
 
-		cWidget::cWidget(id_t _idControl, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
-			pParent(NULL),
-			idControl(_idControl),
-			type(_type),
 
-			x(_x),
-			y(_y),
-			width(_width),
-			height(_height),
+    // cWidget
 
-			bEnabled(true),
-			bVisible(true),
-			bResizable(false),
+    cWidget::cWidget(id_t _idControl, WIDGET_TYPE _type, float _x, float _y, float _width, float _height) :
+      pParent(NULL),
+      idControl(_idControl),
+      type(_type),
 
-			minimum(0),
-			maximum(100),
-			value(0)
-		{
+      x(_x),
+      y(_y),
+      width(_width),
+      height(_height),
 
-		}
+      bEnabled(true),
+      bVisible(true),
+      bResizable(false),
 
-		cWidget::~cWidget()
-		{
-			size_t n = child.size();
-			for (size_t i = 0; i < n; i++)
-				SAFE_DELETE(child[i]);
-		}
+      minimum(0),
+      maximum(100),
+      value(0)
+    {
 
-		bool cWidget::AddChild(cWidget* pChild)
-		{
-			child.push_back(pChild);
-			pChild->pParent = this;
+    }
 
-			return true;
-		}
+    cWidget::~cWidget()
+    {
+      size_t n = child.size();
+      for (size_t i = 0; i < n; i++)
+        SAFE_DELETE(child[i]);
+    }
+
+    bool cWidget::AddChild(cWidget* pChild)
+    {
+      child.push_back(pChild);
+      pChild->pParent = this;
+
+      return true;
+    }
 
     cWidget* cWidget::FindChild(id_t _idControl) const
-		{
-			if (_idControl == idControl) return const_cast<cWidget*>(this);
+    {
+      if (_idControl == idControl) return const_cast<cWidget*>(this);
 
-			size_t n = child.size();
-			cWidget* p = nullptr;
-			for (size_t i = 0; i < n; i++) {
-				p = child[i]->FindChild(_idControl);
-				if (p != nullptr) return p;
-			}
+      size_t n = child.size();
+      cWidget* p = nullptr;
+      for (size_t i = 0; i < n; i++) {
+        p = child[i]->FindChild(_idControl);
+        if (p != nullptr) return p;
+      }
 
-			return nullptr;
-		}
+      return nullptr;
+    }
 
     cWidget* cWidget::FindChildAtPoint(float _x, float _y) const
     {
-			size_t n = child.size();
-			cWidget* p = nullptr;
-			for (size_t i = 0; i < n; i++) {
+      size_t n = child.size();
+      cWidget* p = nullptr;
+      for (size_t i = 0; i < n; i++) {
         p = child[i];
         if (math::PointIsWithinBounds(_x, _y,
           p->GetX(), p->GetY(), p->GetWidth(), p->GetHeight())) return p->FindChildAtPoint(_x, _y);
-			}
+      }
 
       return const_cast<cWidget*>(this);
     }
@@ -137,39 +140,39 @@ namespace breathe
       printf("cWidget::SendCommandToParentWindow FAILED Parent window not found\n");
     }
 
-		bool cWidget::IsEnabled() const
-		{
-      if (pParent != nullptr) return bEnabled && pParent->IsEnabled();
-			return bEnabled;
-		}
-
-		bool cWidget::IsVisible() const
-		{
-      if (pParent != nullptr) return bVisible && pParent->IsVisible();
-			return bVisible;
-		}
-
-		float cWidget::HorizontalRelativeToAbsolute(float n) const
-		{
-			if (pParent != nullptr) return pParent->GetX() + (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
-			return n;
-		}
-
-		float cWidget::VerticalRelativeToAbsolute(float n) const
-		{
-			if (pParent != nullptr) return pParent->GetY() + (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
-			return n;
-		}
-
-		void cWidget::SetPosition(float _x, float _y)
-		{
-
-		}
-
-    bool cWidget::GetEventHandler(event_t event, id_t& outID) const
+    bool cWidget::IsEnabled() const
     {
-      std::map<event_t, id_t>::const_iterator iter = handlers.begin();
-      std::map<event_t, id_t>::const_iterator iterEnd = handlers.end();
+      if (pParent != nullptr) return bEnabled && pParent->IsEnabled();
+      return bEnabled;
+    }
+
+    bool cWidget::IsVisible() const
+    {
+      if (pParent != nullptr) return bVisible && pParent->IsVisible();
+      return bVisible;
+    }
+
+    float cWidget::HorizontalRelativeToAbsolute(float n) const
+    {
+      if (pParent != nullptr) return pParent->GetX() + (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
+      return n;
+    }
+
+    float cWidget::VerticalRelativeToAbsolute(float n) const
+    {
+      if (pParent != nullptr) return pParent->GetY() + (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
+      return n;
+    }
+
+    void cWidget::SetPosition(float _x, float _y)
+    {
+
+    }
+
+    bool cWidget::GetEventHandler(EVENT event, id_t& outID) const
+    {
+      std::map<EVENT, id_t>::const_iterator iter = handlers.begin();
+      std::map<EVENT, id_t>::const_iterator iterEnd = handlers.end();
       while (iter != iterEnd) {
         if (iter->first == event) {
           outID = iter->second;
@@ -180,7 +183,7 @@ namespace breathe
       return false;
     }
 
-    void cWidget::CheckAndHandleEvent(event_t event)
+    void cWidget::CheckAndHandleEvent(EVENT event)
     {
       id_t idOut;
       if (!GetEventHandler(event, idOut)) return;
@@ -206,7 +209,7 @@ namespace breathe
     {
       if (bCurrentlyClickingOnThisControl) {
         printf("Clicking on control %d\n", idControl);
-        CheckAndHandleEvent(EVENT_CLICK_PRIMARY);
+        CheckAndHandleEvent(EVENT_MOUSE_UP);
       }
 
       bCurrentlyClickingOnThisControl = false;

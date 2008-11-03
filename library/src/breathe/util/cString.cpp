@@ -410,6 +410,13 @@ namespace breathe
 			//return temp;
   }*/
 
+    string_t ToString(unsigned int value)
+    {
+      std::ostringstream s;
+      s << value;
+      return s.str();
+    }
+
     string_t ToString(int value)
     {
       std::ostringstream s;
@@ -424,6 +431,13 @@ namespace breathe
       return s.str();
     }
 
+    unsigned int ToUnsignedInt(const string_t& source)
+    {
+      unsigned int value = 0;
+      std::stringstream stm(source);
+      stm >> value;
+      return value;
+    }
 
     int ToInt(const string_t& source)
     {

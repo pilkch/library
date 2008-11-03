@@ -64,8 +64,6 @@ namespace breathe
     class cPart
     {
     public:
-      typedef uint32_t id_t;
-
       virtual ~cPart() {}
 
       void Install(cVehicle* p);
@@ -73,8 +71,9 @@ namespace breathe
 
       bool IsValid() const { return _IsValid(); }
 
-      unsigned int uiType;
       id_t uniqueID;
+
+      unsigned int uiType;
       float fHealth; //Starts at 100.0f and gradually goes down
 
       cVehicle* pVehicle;
@@ -88,6 +87,20 @@ namespace breathe
     private:
       virtual bool _IsValid() const { return true; }
       virtual void _Update(sampletime_t currentTime)=0;
+    };
+
+    enum ENGINE_TYPE
+    {
+      ENGINE_TYPE_FOUR_CYLINDER_INLINE,
+      ENGINE_TYPE_FOUR_CYLINDER_V,
+      ENGINE_TYPE_FOUR_CYLINDER_BOXER,
+      ENGINE_TYPE_SIX_CYLINDER_INLINE,
+      ENGINE_TYPE_SIX_CYLINDER_V,
+      ENGINE_TYPE_SIX_CYLINDER_BOXER,
+      ENGINE_TYPE_EIGHT_CYLINDER_V,
+      ENGINE_TYPE_TEN_CYLINDER_V,
+      ENGINE_TYPE_TWELVE_CYLINDER_V,
+      ENGINE_TYPE_SIXTEEN_CYLINDER_W
     };
 
     // engine
@@ -108,6 +121,7 @@ namespace breathe
 
       inline float_t GetTorqueNmAtEngineRPM(float_t fEngineRPM) const { return curveEngineRPMToTorqueNm.GetYAtPointX(fEngineRPM); }
 
+      ENGINE_TYPE type;
       float_t fRPM;
       float_t fTorqueNm;
       cCurve curveEngineRPMToTorqueNm;

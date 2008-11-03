@@ -55,6 +55,47 @@ namespace breathe
 {
   namespace gui
   {
+    class cDerivedWindow : public cWindow
+    {
+    public:
+
+    private:
+      void OnEvent(const cEvent& event);
+    };
+
+    void cDerivedWindow::OnEvent(const cEvent& event)
+    {
+      switch (event.GetType()) {
+        case EVENT_MOUSE_DOWN: {
+          cWidget& widget = event.GetWidget();
+          size_t button = event.GetMouseButton();
+          const math::cVec2& position = event.GetMousePosition();
+          //DoStuff();
+          break;
+        }
+        case EVENT_MOUSE_UP: {
+          cWidget& widget = event.GetWidget();
+          size_t button = event.GetMouseButton();
+          const math::cVec2& position = event.GetMousePosition();
+          //DoStuff();
+          break;
+        }
+        case EVENT_CONTROL_CHANGE_VALUE: {
+          size_t button = event.GetMouseButton();
+          if (button == MOUSE_BUTTON_PRIMARY) {
+            cWidget& widget = event.GetWidget();
+            switch (widget.GetID()) {
+              case 100: {
+                //CmOk();
+                break;
+              }
+            }
+          }
+          break;
+        }
+      };
+    }
+
     // *** cWindow
 
     cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent, bool _bModeless, bool _bResizable) :

@@ -1,8 +1,12 @@
 #ifndef CLEVEL_H
 #define CLEVEL_H
 
+#include <breathe/util/base.h>
+
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cMaterial.h>
+#include <breathe/render/model/cModel.h>
+#include <breathe/render/model/cStatic.h>
 
 namespace breathe
 {

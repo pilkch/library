@@ -3,6 +3,7 @@
 
 #include <breathe/math/cOctree.h>
 
+#include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 
 //TODO: USE OCTREE, NO MATTER WHAT, EVEN IF THERE ARE 2 TRIANGLES AND THEY BOTH GO IN THE ROOT NODE

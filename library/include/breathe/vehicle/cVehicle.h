@@ -38,7 +38,15 @@
 
 // http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
+#include <breathe/game/cLevel.h>
+#include <breathe/game/cPetrolBowser.h>
+#include <breathe/game/cPlayer.h>
+
 #include <breathe/vehicle/cPart.h>
+
+#ifdef BUILD_PHYSICS_3D
+#include <breathe/physics/physics.h>
+#endif
 
 namespace breathe
 {
@@ -46,6 +54,8 @@ namespace breathe
 
   namespace vehicle
   {
+    typedef uint32_t id_t;
+
     class cWheel;
     class cSeat;
 
@@ -53,23 +63,6 @@ namespace breathe
     class cVehicleProperties
     {
     public:
-      float fDrag;
-      float fRollResistance;
-      float fDownforce;
-
-      float fWeight;
-      float fBoost;
-      float fEngineSpeed;
-      float fTraction0;
-      float fTraction1;
-      float fTraction2;
-      float fTraction3;
-
-      std::vector<float>vGearRatio; // 0=Reverse, 1=Neutral, 2=1st, 3=2nd, ...
-      int iGears; // Number of drive ratios
-      int iGearCurrent; // -1 = reverse, 0 = Neutral
-
-
       float GetCurrentGearRatio() const
       {
         if((iGearCurrent >= -1) && (iGearCurrent < iGears + 2))
@@ -89,6 +82,26 @@ namespace breathe
         iGearCurrent--;
         if(iGearCurrent < -1) iGearCurrent = -1;
       }
+
+
+      float fDrag;
+      float fRollResistance;
+      float fDownforce;
+
+      float fWeight;
+      float fBoost;
+      float fEngineSpeed;
+      float fTraction0;
+      float fTraction1;
+      float fTraction2;
+      float fTraction3;
+
+      std::vector<float>vGearRatio; // 0=Reverse, 1=Neutral, 2=1st, 3=2nd, ...
+      int iGears; // Number of drive ratios
+      int iGearCurrent; // -1 = reverse, 0 = Neutral
+
+      math::cColour bodyColourDiffuse;
+      //math::cColour bodyColourSpecular;
     };
 
     class cVehicle
@@ -97,8 +110,6 @@ namespace breathe
 #endif
     {
     public:
-      typedef uint32_t id_t;
-
       cVehicle();
       ~cVehicle();
 
@@ -115,6 +126,8 @@ namespace breathe
 
       void AssignPlayer(cPlayer* p);
 
+
+      id_t uniqueID;
 
       bool bEngineOff;
       bool bFourWheelDrive;
