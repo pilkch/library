@@ -14,6 +14,11 @@
 #include <map>
 #include <stack>
 
+// Boost headers
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/microsec_time_clock.hpp>
+
+// Breathe headers
 #include <breathe/breathe.h>
 
 #include <breathe/util/cString.h>
@@ -30,56 +35,33 @@
 
 namespace breathe
 {
-  namespace locale
-  {
-    int GetTimeZoneOffset()
-    {
-      /*int    tm_wday;    // days since Sunday [0-6]
-      struct tm {
-        int    tm_sec;        // seconds after the minute [0-60]
-        int    tm_min;        // minutes after the hour [0-59]
-        int    tm_hour;    // hours since midnight [0-23]
-        int    tm_mday;    // day of the month [1-31]
-        int    tm_mon;        // months since January [0-11]
-        int    tm_year;    // years since 1900
-        int    tm_wday;    // days since Sunday [0-6]
-        int    tm_yday;    // days since January 1 [0-365]
-        int    tm_isdst;    // Daylight Savings Time flag
-        long    tm_gmtoff;    // offset from CUT in seconds
-        char    *tm_zone;    // timezone abbreviation
-      };*/
-
-      return 0;
-    }
-  }
-
-
   class cLangContext
   {
-    public:
-      cLangContext();
+  public:
+    cLangContext();
 
-      void SetPlayerName(const string_t& playername);
-      void Update(sampletime_t currentTime);
+    void SetPlayerName(const string_t& playername);
+    void Update(sampletime_t currentTime);
 
-    private:
-      string_t playername;
+  private:
+    string_t playername;
 
-      bool bUsesKMH;
-      bool bUsesCelsius;
+    bool bUsesKMH;
+    bool bUsesCelsius;
 
-      int iTimeZoneOffset;
-      datetime::cDateTime datetime;
+    datetime::cDateTime datetime;
   };
 
-  cLangContext::cLangContext()
+  cLangContext::cLangContext() :
+    playername(TEXT("UNKOWN NAME")),
+    bUsesKMH(true),
+    bUsesCelsius(true)
   {
-    iTimeZoneOffset = breathe::locale::GetTimeZoneOffset();
   }
 
   void cLangContext::Update(sampletime_t currentTime)
   {
-    datetime.SetDateTimeFromSeconds(currentTime);
+    datetime.SetFromUniversalTimeNow();
   }
 
 

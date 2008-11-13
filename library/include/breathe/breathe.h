@@ -136,6 +136,9 @@ typedef unsigned long long int uint64_t;
 #include <SDL/SDL.h>
 #endif
 
+typedef float float32_t; // For reading/writing to and from files/network
+typedef double float64_t; // For reading/writing to and from files/network
+
 #ifndef nullptr
 #define nullptr NULL
 #endif
