@@ -16,15 +16,23 @@ namespace breathe
     public:
       cDownloadHTTP();
 
-      void Download(const std::string& path);
-      const std::string& GetContent() const { assert(IsSuccessfulDownload()); return content; }
+      enum METHOD {
+        METHOD_GET,
+        METHOD_POST
+      };
+
+      // Deprecated 2008, use Download(path, METHOD_GET); instead
+      //void Download(const std::string& path);
+      void Download(const std::string& path, METHOD method);
+
+      const std::string& GetContent() const { ASSERT(IsSuccessfulDownload()); return content; }
 
       bool IsSuccessfulDownload() const { return false; }
       bool IsFailedDownload() const { return false; }
 
     private:
       int ThreadFunction();
-      std::string CreateRequest(uint32_t progress) const;
+      std::string CreateRequest() const;
       void ParseHeader(const char* header);
       std::string Decode(const std::string& encodedString);
       std::string Encode(const std::string& rawString);
@@ -80,8 +88,7 @@ namespace breathe
       };
 
 
-      enum STATE
-      {
+      enum STATE {
         STATE_BEFORE_DOWNLOADING = 0,
         STATE_DOWNLOADING,
         STATE_FINISHED,
@@ -95,47 +102,16 @@ namespace breathe
       uint32_t progress;
       std::string content;
 
+      METHOD method;
       breathe::network::cURI uri;
       breathe::network::cConnectionTCP connection;
     };
 
     inline cDownloadHTTP::cDownloadHTTP() :
+      method(METHOD_GET),
       status(status_before_downloading),
       progress(0)
     {
-    }
-
-    inline std::string cDownloadHTTP::CreateRequest() const
-    {
-      request = "";
-
-      std::ostringstream o;
-      o  <<"GET /"<<uri.GetPath()<<" HTTP/1.1" STR_END
-          <<"Host: "<<uri.GetServer()<< STR_END
-          <<"Range: bytes="<<progress<<"-" STR_END
-          <<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END
-          <<"Accept: */*" STR_END
-          <<"Accept-Language: en-us" STR_END
-          <<"Connection: Keep-Alive" STR_END
-          <<"" STR_END;
-      return o.str();
-
-   /*   char header[STR_LEN];
-             header[0] = 0;
-
-             sprintf(header,
-             "GET /%s HTTP/1.1" STR_END
-             "Host: %s" STR_END
-             "Range: bytes=%ld-" STR_END
-             "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END*/
-  //   "Accept: */*" STR_END
-  /*   "Accept-Language: en-us" STR_END
-             "Connection: Keep-Alive" STR_END
-             "" STR_END
-
-             , path.c_str(), server.c_str(), progress);
-
-             request = std::string(header);*/
     }
 
     inline int cDownloadHTTP::ThreadFunction()
@@ -147,9 +123,8 @@ namespace breathe
 
       {
         // Send header
-        std::string request(CreateRequest());
-        if (!connection.Send(request))
-        {
+        std::string request(CreateRequest(method));
+        if (!connection.Send(request)) {
           std::stderr<<"SDLNet_TCP_Send: "<<SDLNet_GetError()<<std::endl;
           exit(EXIT_FAILURE);
         }
@@ -160,14 +135,12 @@ namespace breathe
       char buffer[STR_LEN];
       buffer[0] = 0;
 
-      do
-      {
+      do {
         if (!connection.Recv(header, STR_LEN)) break;
 
         ParseHeader(header);
         len = SDLNet_TCP_Recv(connection.sd, buffer, STR_LEN - 1);
-        if (len > 0)
-        {
+        if (len > 0) {
           buffer[len] = 0;
           content += buffer;
         }
@@ -183,13 +156,13 @@ namespace breathe
 
     inline std::string cDownloadHTTP::Decode(const std::string& encodedString)
     {
-      std::size_t encodedLen = encodedString.size();
       const char* encStr = encodedString.c_str();
       std::string decodedString;
-      const char* tmpStr = NULL;
+      const char* tmpStr = nullptr;
       std::size_t cnt = 0;
 
       // Reserve enough space for the worst case.
+      const std::size_t encodedLen = encodedString.size();
       decodedString.reserve(encodedLen);
 
       // Run down the length of the encoded string, examining each
@@ -261,13 +234,17 @@ namespace breathe
       return encodedString;
     }
 
-    inline void cDownloadHTTP::Download(const std::string& full_uri)
+    inline void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method)
     {
+      if (IsRunning()) return;
+
       // Start downloading at the beginning
       progress = 0;
 
       // Parse the uri
       uri.Parse(full_uri);
+
+      method = _method;
 
       // Now we are ready to download the file
       Run();

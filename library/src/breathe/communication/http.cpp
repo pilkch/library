@@ -62,52 +62,87 @@ namespace breathe
 
     // *** cDownloadHTTP
 
-		int cDownloadHTTP::ThreadFunction()
-		{
-			std::cout<<server<<" "<<path<<std::endl;
-			content = "";
+    inline std::string cDownloadHTTP::CreateRequest() const
+    {
+      std::ostringstream o;
 
-			connection.Open(server, 80);
+      if (method == METHOD_GET) o<<"GET";
+      else o<<"POST";
 
-				char buffer[STR_LEN];
-				buffer[0] = 0;
-				int len;
-				unsigned long ulProgress = 0;
+      o<<" /"<<uri.GetPath()<<" HTTP/1.1" STR_END;
 
-				sprintf(buffer,
-					"GET /%s HTTP/1.1" STR_END
-					"Host: %s" STR_END
-					"Range: bytes=%ld-" STR_END
-					"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END
-					"Accept: */*" STR_END
-					"Accept-Language: en-us" STR_END
-					"Connection: Keep-Alive" STR_END
-					"" STR_END
+      o<<"Host: "<<uri.GetServer()<< STR_END;
+      o<<"Range: bytes="<<progress<<"-" STR_END;
+      o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END;
+      o<<"Accept: */*" STR_END;
+      o<<"Accept-Language: en-us" STR_END;
+      o<<"Connection: Keep-Alive" STR_END;
+      o<<STR_END;
 
-					, path.c_str(), server.c_str(), ulProgress);
+      if (method == METHOD_POST) {
+        const size_t content_length = 10;
 
-				len = strlen(buffer) + 1;
-				if (!connection.Send(buffer, len)) {
-					fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-					exit(EXIT_FAILURE);
-				}
+        o<<"Content-Type: application/x-www-form-urlencoded" STR_END;
+        o<<"Content-Length: "<<content_length<<STR_END;
+        o<<STR_END;
+        o<<"home=Cosby&favorite+flavor=flies"<<STR_END;
+      }
 
-				len = 1;
-				while (len > 0) {
-					len = connection.Recv(buffer, STR_LEN - 1);
-					if (len > 0) {
-						buffer[len] = 0;
-						content += buffer;
-					}
-				}
+      o<<STR_END;
 
-				std::cout<<"CONTENT"<<std::endl;
-				std::cout<<content<<std::endl;
+      return o.str();
 
-			connection.Close();
+   /*   char header[STR_LEN];
+      header[0] = 0;
 
-			return 0;
-		}
+      sprintf(header,
+      "GET /%s HTTP/1.1" STR_END
+      "Host: %s" STR_END
+      "Range: bytes=%ld-" STR_END
+      "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END*/
+  //   "Accept: */*" STR_END
+  /*   "Accept-Language: en-us" STR_END
+      "Connection: Keep-Alive" STR_END
+      "" STR_END
+
+      , path.c_str(), server.c_str(), progress);
+
+      request = std::string(header);*/
+    }
+
+    int cDownloadHTTP::ThreadFunction()
+    {
+      std::cout<<server<<" "<<path<<std::endl;
+      content = "";
+
+      connection.Open(server, 80);
+
+        unsigned long ulProgress = 0;
+
+        std::string buffer(CreateRequest());
+
+        size_t len = strlen(buffer) + 1;
+        if (!connection.Send(buffer, len)) {
+          fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+          exit(EXIT_FAILURE);
+        }
+
+        len = 1;
+        while (len > 0) {
+          len = connection.Recv(buffer, STR_LEN - 1);
+          if (len > 0) {
+            buffer[len] = 0;
+            content += buffer;
+          }
+        }
+
+        std::cout<<"CONTENT"<<std::endl;
+        std::cout<<content<<std::endl;
+
+      connection.Close();
+
+      return 0;
+    }
 
     inline void cDownloadHTTP::Download(const std::string& _path)
     {
@@ -117,6 +152,6 @@ namespace breathe
       if (path.length() < 1) path = "/";
 
       Run();
-	}
+    }
   }
 }
