@@ -14,7 +14,7 @@ namespace breathe
     public:
       typedef uint16_t port_t;
 
-      typedef enum {
+      typedef enum PROTOCOL {
         PROTOCOL_HTTP = 0,
         PROTOCOL_HTTPS,
         PROTOCOL_FTP,
@@ -35,7 +35,7 @@ namespace breathe
         ftps
         ftpx
         */
-      } PROTOCOL;
+      };
 
       cURI();
       cURI(const cURI& uri);
@@ -50,15 +50,15 @@ namespace breathe
       bool IsValidPassword() const { return IsValidUsername() && bIsValidPassword; }
       bool IsValidServer() const { return bIsValidServer; }
       bool IsValidPort() const { return (port != 0); }
-      bool IsValidPath() const { return bIsValidPath; }
+      bool IsValidPath() const { return true; } // TODO: This obviously doesn't do anything
 
-      PROTOCOL GetProtocol() const { return PROTOCOL; }
+      PROTOCOL GetProtocol() const { return protocol; }
       const string_t& GetUsername() const { return username; }
       const string_t& GetPassword() const { return password; }
       const string_t& GetServer() const { return server; }
       port_t GetPort() const { return port; }
       const string_t& GetRelativePath() const { return relativePath; }
-      const string_t& GetFullURI() const;
+      string_t GetFullURI() const;
 
       static string_t GetStringFromProtocol(PROTOCOL protocol);
       static PROTOCOL GetProtocolFromString(const string_t& protocol);
@@ -158,7 +158,7 @@ namespace breathe
       return "unknown";
     }
 
-    inline PROTOCOL cURI::GetProtocolFromString(const string_t& protocol)
+    inline cURI::PROTOCOL cURI::GetProtocolFromString(const string_t& protocol)
     {
       const string_t lowerProtocol(breathe::string::ToLower(protocol));
       if (lowerProtocol == "http") return PROTOCOL_HTTP;
@@ -168,16 +168,16 @@ namespace breathe
       return PROTOCOL_UNKNOWN;
     }
 
-    inline port_t cURI::GetPortFromProtocol(PROTOCOL protocol)
+    inline port_t cURI::GetPortFromProtocol(cURI::PROTOCOL protocol)
     {
-      if (PROTOCOL == PROTOCOL_HTTP) return 80;
-      if (PROTOCOL == PROTOCOL_HTTPS) return 443;
-      if (PROTOCOL == PROTOCOL_FTP) return 21;
+      if (protocol == PROTOCOL_HTTP) return 80;
+      if (protocol == PROTOCOL_HTTPS) return 443;
+      if (protocol == PROTOCOL_FTP) return 21;
 
       return 0;
     }
 
-    inline const string_t& cURI::GetFullURI() const
+    inline string_t cURI::GetFullURI() const
     {
       ASSERT(IsValidProtocol());
       ASSERT(IsValidServer());
@@ -198,12 +198,41 @@ namespace breathe
 
       // If this is not the default port then we want to add ":80" after a http server for example
       port_t port = GetPort();
-      if (port != GetPortFromProtocol()) full_uri += ":" + port;
+      if (port != GetPortFromProtocol(protocol)) full_uri += ":" + port;
 
       full_uri += "/" + GetRelativePath();
 
       return full_uri;
     }
+
+
+
+
+    // ** cRequestStringBuilder
+    // Example:
+    /*
+    cRequestStringBuilder builder("/path/to/resource.php");
+    builder.AddFormVariableAndValue("name", "Chris");
+    builder.AddFormVariableAndValue("colour", "blue");
+
+    std::string request(builder.GetRequestString());
+    */
+
+    class cRequestStringBuilder
+    {
+    public:
+      explicit cRequestStringBuilder(const std::string& uri);
+
+      std::string AddFormVariableAndValue(const std::string& variable, const std::string& value);
+
+      std::string GetRequestString() const;
+
+    private:
+      std::string EncodeString(const std::string& unencoded);
+
+      std::string uri;
+      std::map<std::string, std::string> variables;
+    };
   }
 }
 

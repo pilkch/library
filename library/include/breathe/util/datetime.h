@@ -28,11 +28,13 @@ namespace breathe
       uint8_t GetSeconds() const { ASSERT(IsValid()); return datetime.time_of_day().seconds(); }
       uint16_t GetMilliSeconds() const;
 
+      // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
+      uint32_t GetMillisecondsSinceMidnight() const;
+
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
       string_t GetISO8601UTCString() const;
       bool SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset); // Returns true and sets offset if there is one
 
-      void SetFromBuildDate();
       void SetFromLocalTimeNow() { datetime = GetLocalTimeNow(); }
       void SetFromUniversalTimeNow() { datetime = GetUniversalTime(); }
 
