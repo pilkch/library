@@ -225,7 +225,8 @@ namespace breathe
 
       std::string AddFormVariableAndValue(const std::string& variable, const std::string& value);
 
-      std::string GetRequestString() const;
+      std::string GetRequestStringForMethodGet() const;
+      std::string GetRequestStringForMethodPost(std::string& outVariables) const;
 
     private:
       std::string EncodeString(const std::string& unencoded);

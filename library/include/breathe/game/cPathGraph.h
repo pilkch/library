@@ -2,6 +2,8 @@
 #define CPATHGRAPH_H
 
 // Path Graph for Dijkstra algorithm
+// TODO: Use Boost.Graph instead of doing all the work ourselves
+// http://www.boost.org/doc/libs/1_37_0/libs/graph/doc/quick_tour.html
 
 namespace breathe
 {

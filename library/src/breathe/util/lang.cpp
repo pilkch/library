@@ -49,7 +49,7 @@ namespace breathe
     bool bUsesKMH;
     bool bUsesCelsius;
 
-    datetime::cDateTime datetime;
+    util::cDateTime datetime;
   };
 
   cLangContext::cLangContext() :

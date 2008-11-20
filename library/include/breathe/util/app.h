@@ -308,19 +308,6 @@ namespace breathe
       cConsoleWindow* pConsoleWindow;
     };
   };
-
-
-  /*// This doesn't belong here
-  // TODO: Move to breathe/algorithm/gen.h
-  namespace vector
-  {
-    template <class T>
-    inline void push_back(std::vector<T>& v, size_t n, const T& value)
-    {
-      v.reserve(n);
-      for (size_t i = 0; i != n; i++) v.push_back(value);
-    }
-  }*/
 }
 
-#endif //CAPP_H
+#endif // CAPP_H

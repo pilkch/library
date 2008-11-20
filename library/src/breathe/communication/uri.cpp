@@ -71,7 +71,7 @@ namespace breathe
       return encoded.str();
     }
 
-    std::string cRequestStringBuilder::GetRequestString() const
+    std::string cRequestStringBuilder::GetRequestStringForMethodGet() const
     {
       // If we don't have any variables, then we only need the uri and can return
       if (variables.empty()) return uri;
@@ -96,6 +96,40 @@ namespace breathe
 
         iter++;
       }
+
+      return o.str();
+    }
+
+    std::string cRequestStringBuilder::GetRequestStringForMethodPost(std::string& outVariables) const
+    {
+      outVariables.clear();
+
+      // If we don't have any variables, then we only need the uri and can return
+      if (variables.empty()) return uri;
+
+      // Ok, we have variables, we need to use the uri and add all the variables
+      std::ostringstream o;
+      o<<uri<<'?';
+
+      std::map<std::string, std::string>::const_iterator iter(variables.begin());
+      const std::map<std::string, std::string>::const_iterator iterEnd(variables.end());
+
+      // Add the first one
+      if (iter != iterEnd) {
+        o<<iter->first<<'='<<iter->second;
+
+        iter++;
+      }
+
+      // Add a '&' to split this variable from the previous one, and then add this variable
+      while (iter != iterEnd) {
+        o<<'&'<<iter->first<<'='<<iter->second;
+
+        iter++;
+      }
+
+      outVariables = o.str();
+      return uri;
     }
   }
 }

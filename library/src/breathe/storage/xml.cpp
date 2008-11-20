@@ -43,7 +43,7 @@ namespace breathe
     {
     }
 
-    cNode::cNode(const std::string& inFilename) :
+    cNode::cNode(const string_t& inFilename) :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pNext(NULL),
       pParent(NULL)
@@ -51,7 +51,7 @@ namespace breathe
       LoadFromFile(inFilename);
     }
 
-    cNode::cNode(cNode *inParent) :
+    cNode::cNode(cNode* inParent) :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pNext(NULL),
       pParent(inParent)
@@ -65,7 +65,7 @@ namespace breathe
          SAFE_DELETE(vChild[i]);
     }
 
-    void cNode::LoadFromFile(const std::string& inFilename)
+    void cNode::LoadFromFile(const string_t& inFilename)
     {
       LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
       std::ifstream f(inFilename.c_str());

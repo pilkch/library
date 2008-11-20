@@ -30,7 +30,7 @@
 
 namespace breathe
 {
-  namespace datetime
+  namespace util
   {
     // Defaults to local time now
     cDateTime::cDateTime()

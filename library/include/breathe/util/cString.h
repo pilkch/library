@@ -104,11 +104,11 @@ namespace breathe
     uint32_t FromHexStringToUint32_t(const string_t& source);
 
 
-    /*template <class T>
+    template <class T>
     inline T ConvertFromHexDigit(char hex)
     {
-      if (is_alpha(hex)) return hex - '0';
-      else if (isUpper(hex)) return hex - 'A' + 0xA;
+      if (isalpha(hex)) return hex - '0';
+      else if (isupper(hex)) return hex - 'A' + 0xA;
 
       return hex - 'a' + 0xa;
     }
@@ -121,7 +121,7 @@ namespace breathe
       if (value < 10) return '0' + value;
 
       return 'a' + value - 10;
-    }*/
+    }
   }
 }
 

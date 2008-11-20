@@ -106,14 +106,6 @@ namespace breathe
       return false;
     }
 
-    // Only called by a scenenode to another scenenode
-    void cSceneNode::AttachToParent(cSceneNodeRef _pParent)
-    {
-      if (pParent != nullptr) DetachFromParent();
-
-      pParent = _pParent;
-    }
-
     void cSceneNode::SetDirty()
     {
       if (!bIsDirty) {
@@ -535,6 +527,60 @@ namespace breathe
     }
 
 #ifdef BUILD_DEBUG
+    int counter = 0;
+
+
+    class cSceneNodeUnitTest : public cSceneNode
+    {
+    public:
+      cSceneNodeUnitTest();
+      ~cSceneNodeUnitTest();
+
+    private:
+      typedef std::list<cSceneNodeRef>::iterator iterator;
+
+#ifdef BUILD_DEBUG
+      bool _IsParentOfChild(cSceneNodeRef pChild) const;
+#endif
+      void _AttachChild(cSceneNodeRef pChild);
+      void _DetachChild(cSceneNodeRef pChild);
+
+      std::list<cSceneNodeRef> children;
+    };
+
+    cSceneNodeUnitTest::cSceneNodeUnitTest()
+    {
+      LOG<<"cSceneNodeUnitTest::cSceneNodeUnitTest"<<std::endl;
+      counter++;
+    }
+
+    cSceneNodeUnitTest::~cSceneNodeUnitTest()
+    {
+      LOG<<"cSceneNodeUnitTest::~cSceneNodeUnitTest"<<std::endl;
+      counter--;
+    }
+
+#ifdef BUILD_DEBUG
+    bool cSceneNodeUnitTest::_IsParentOfChild(cSceneNodeRef pChild) const
+    {
+      std::list<cSceneNodeRef>::const_iterator iter = std::find(children.begin(), children.end(), pChild);
+      return (iter != children.end());
+    }
+#endif
+
+    void cSceneNodeUnitTest::_AttachChild(cSceneNodeRef pChild)
+    {
+      children.push_back(pChild);
+    }
+
+    void cSceneNodeUnitTest::_DetachChild(cSceneNodeRef pChild)
+    {
+      children.remove(pChild);
+    }
+
+
+
+
     class cSceneGraphUnitTest : protected breathe::util::cUnitTestBase
     {
     public:
@@ -546,23 +592,237 @@ namespace breathe
 
       void Test()
       {
+        counter = 0;
+
         cModelNode model;
 
         cLightNode light;
-        //model.AddChild(&light);
-
         cSceneGraph scenegraph;
         cSceneNodeRef pRoot = scenegraph.GetRoot();
-        //pRoot->AddChild(&model);
 
-        const sampletime_t currentTime = util::GetTime();
-        scenegraph.Update(currentTime);
-        scenegraph.Cull(currentTime);
-        scenegraph.Render(currentTime);
+        {
+          // We build a structure that looks like this:
+          //       root
+          //     a
+          //   b
+          // c
+
+          if (counter != 0) {
+            breathe::stringstream_t o;
+            o<<TEXT("cSceneGraphUnitTest FAILED No nodes added, counter should equal 0, counter=")<<counter;
+            SetFailed(o.str());
+          }
+
+          cSceneNodeRef a(new cSceneNodeUnitTest);
+          pRoot->AttachChild(a);
+
+          if (counter != 1) {
+            breathe::stringstream_t o;
+            o<<TEXT("cSceneGraphUnitTest FAILED Added a, counter should equal 1, counter=")<<counter;
+            SetFailed(o.str());
+          }
+
+          cSceneNodeRef b(new cSceneNodeUnitTest);
+          a->AttachChild(b);
+
+          if (counter != 2) {
+            breathe::stringstream_t o;
+            o<<TEXT("cSceneGraphUnitTest FAILED Added b, counter should equal 2, counter=")<<counter;
+            SetFailed(o.str());
+          }
+
+          {
+            cSceneNodeRef c(new cSceneNodeUnitTest);
+            b->AttachChild(c);
+
+            if (counter != 3) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED c attached to b, counter should equal 3, counter=")<<counter;
+              SetFailed(o.str());
+            }
+
+
+            {
+              // Now we add to the structure to create something like this:
+              //       root
+              //     a
+              //   b   d
+              // c       e
+
+              cSceneNodeRef d(new cSceneNodeUnitTest);
+              a->AttachChild(d);
+
+              if (counter != 4) {
+                breathe::stringstream_t o;
+                o<<TEXT("cSceneGraphUnitTest FAILED d attached to a, counter should equal 4, counter=")<<counter;
+                SetFailed(o.str());
+              }
+
+              cSceneNodeRef e(new cSceneNodeUnitTest);
+              d->AttachChild(e);
+
+              if (counter != 5) {
+                breathe::stringstream_t o;
+                o<<TEXT("cSceneGraphUnitTest FAILED e attached to d, counter should equal 5, counter=")<<counter;
+                SetFailed(o.str());
+              }
+
+
+              // Now we detach b and c to to create something like this:
+              //       root
+              //     a
+              //       d            b
+              //         e        c
+
+              a->DetachChildForUseLater(b);
+
+              // Even though we detached two nodes nothing should have been destroyed or created, we should still have the same amount
+              if (counter != 5) {
+                breathe::stringstream_t o;
+                o<<TEXT("cSceneGraphUnitTest FAILED b detached from a, counter should equal 5, counter=")<<counter;
+                SetFailed(o.str());
+              }
+
+              // Now we attach b and c to to create something like this:
+              //       root
+              //     a      b
+              //       d      c
+              //         e
+
+              pRoot->AttachChild(b);
+
+              if (counter != 5) {
+                breathe::stringstream_t o;
+                o<<TEXT("cSceneGraphUnitTest FAILED b attached to root, counter should equal 5, counter=")<<counter;
+                SetFailed(o.str());
+              }
+            }
+
+            // Now we test d and e falling out of scope but not deleting as the scenegraph still references d which references e
+            //       root
+            //     a      b
+            //              c
+
+            // d and e are still referenced, nothing should have been added or deleted
+            if (counter != 5) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED e has fallen out of scope but should not affect the counter, counter should equal 5, counter=")<<counter;
+              SetFailed(o.str());
+            }
+
+
+            // Now we delete d and e from the scenegraph and if they are not referenced anywhere else they will be deleted automatically
+            //       root
+            //     a      b
+            //              c
+            /*a->DeleteChildRecursively(d);
+
+            // Now we should have just 4 objects left
+            if (counter != 3) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED d and e deleted recursively from a, counter should equal 3, counter=")<<counter;
+              SetFailed(o.str());
+            }*/
+          }
+
+          // Now we test c falling out of scope but not deleting as the scenegraph still references it
+          //       root
+          //     a      b
+          //              c
+
+          // c is still referenced, nothing should have been added or deleted
+          if (counter != 3) {
+            breathe::stringstream_t o;
+            o<<TEXT("cSceneGraphUnitTest FAILED c has fallen out of scope, counter should equal 3, counter=")<<counter;
+            SetFailed(o.str());
+          }
+
+          {
+            // Now we add f, g and h to a
+            //       root
+            //     a      b
+            //   f
+            // g   h
+
+            cSceneNodeRef f(new cSceneNodeUnitTest);
+            a->AttachChild(f);
+
+            if (counter != 4) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED f attached to a, counter should equal 4, counter=")<<counter;
+              SetFailed(o.str());
+            }
+
+            cSceneNodeRef g(new cSceneNodeUnitTest);
+            f->AttachChild(g);
+
+            if (counter != 5) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED g attached to f, counter should equal 5, counter=")<<counter;
+              SetFailed(o.str());
+            }
+
+            cSceneNodeRef h(new cSceneNodeUnitTest);
+            f->AttachChild(h);
+
+            if (counter != 6) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED h attached to f, counter should equal 6, counter=")<<counter;
+              SetFailed(o.str());
+            }
+
+
+
+
+            //model.AddChild(&light);
+
+            //pRoot->AddChild(&model);
+
+            const sampletime_t currentTime = util::GetTime();
+            scenegraph.Update(currentTime);
+            scenegraph.Cull(currentTime);
+            scenegraph.Render(currentTime);
+
+
+
+
+
+
+
+
+
+            // Now we delete all children of a recursively
+            //       root
+            //     a      b
+            a->DeleteAllChildrenRecursively();
+
+            // Still referenced by variables f, g and h
+            if (counter != 6) {
+              breathe::stringstream_t o;
+              o<<TEXT("cSceneGraphUnitTest FAILED Children of a deleted recursively, counter should equal 6, counter=")<<counter;
+              SetFailed(o.str());
+            }
+          }
+
+          // Ok, now f, g and h have fallen out of scope and been deleted
+          // Now we should have just 4 objects left
+          if (counter != 3) {
+            breathe::stringstream_t o;
+            o<<TEXT("cSceneGraphUnitTest FAILED f, g and h have now fallen out of scope, counter should equal 3, counter=")<<counter;
+            SetFailed(o.str());
+          }
+        }
+
+        // Now the whole scenegraph has fallen out of scope so our counter should be 0 again
+        if (counter != 0) {
+          breathe::stringstream_t o;
+          o<<TEXT("cSceneGraphUnitTest FAILED All children of the scenegraph have now fallen out of scope, counter should equal 0, counter=")<<counter;
+          SetFailed(o.str());
+        }
       }
     };
 
     cSceneGraphUnitTest gSceneGraphUnitTest;
 #endif
-	}
+  }
 }

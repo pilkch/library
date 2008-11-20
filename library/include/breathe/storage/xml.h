@@ -35,11 +35,11 @@ namespace breathe
 
     public:
       cNode();
-      explicit cNode(const std::string& inFilename);
+      explicit cNode(const string_t& inFilename);
       explicit cNode(cNode* inParent);
       ~cNode();
 
-      void SaveToFile(const std::string& inFilename);
+      void SaveToFile(const string_t& inFilename);
 
 #ifdef BUILD_DEBUG
       void PrintToLog(const std::string& sTab="");
@@ -143,7 +143,7 @@ namespace breathe
 
       std::string ParseFromString(const std::string& sData, cNode* pPrevious);
 
-      void LoadFromFile(const std::string& sFilename);
+      void LoadFromFile(const string_t& sFilename);
       void WriteToFile(std::ofstream& file, const std::string& sTab);
     };
 

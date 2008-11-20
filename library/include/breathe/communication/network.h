@@ -10,37 +10,37 @@ namespace breathe
 
     typedef uint16_t port_t;
 
-		// Outgoing Communication Packet
-		struct Packet_Message_Out {
-			Uint8	Packet_Length;		// Length of packet being sent
-			Uint8	Packet_Type;
-			char	Message[126];		// message, null terminated
-		};
+    // Outgoing Communication Packet
+    struct Packet_Message_Out {
+      Uint8 Packet_Length;  // Length of packet being sent
+      Uint8 Packet_Type;
+      char Message[126];    // message, null terminated
+    };
 
-		// Incoming Communication Packets
-		//  Two packets are required, the first is always one byte long
-		//  and contains the size of the following packet plus itself
-		struct Packet_Sizer {
-			Uint8	Packet_Length;		// Length of next packet
-		};
+    // Incoming Communication Packets
+    //  Two packets are required, the first is always one byte long
+    //  and contains the size of the following packet plus itself
+    struct Packet_Sizer {
+      Uint8 Packet_Length;  // Length of next packet
+    };
 
-		struct Packet_Message_In {
-			Uint8	Packet_Type;
-			char	Message[126];		// message, null terminated
-		};
+    struct Packet_Message_In {
+      Uint8 Packet_Type;
+      char Message[126];    // message, null terminated
+    };
 
-		/*************************************************
-		** Type - use
-		**  1 - login from client to server
-		**  2 - login confirmed from server to client
-		**  3 - login failed from server to client
-		** 10 - message from client to server
-		** 11 - message from server to client
-		** 99 - logoff from client to server
-		*************************************************/
+    /*************************************************
+    ** Type - use
+    **  1 - login from client to server
+    **  2 - login confirmed from server to client
+    **  3 - login failed from server to client
+    ** 10 - message from client to server
+    ** 11 - message from server to client
+    ** 99 - logoff from client to server
+    *************************************************/
 
-		bool Init();
-		void Destroy();
+    bool Init();
+    void Destroy();
 
 
 
@@ -54,36 +54,24 @@ namespace breathe
     }
 
 
-		class cConnectionTCP
-		{
-		public:
-			cConnectionTCP();
+    class cConnectionTCP
+    {
+    public:
+      cConnectionTCP();
 
-			void Open(const std::string& host, uint32_t port);
-			void Close();
+      void Open(const std::string& host, uint32_t port);
+      void Close();
 
-			IPaddress ip;
-			TCPsocket sd;
-		};
+      bool IsOpen() const;
 
+      size_t Send(const void* buffer, size_t len);
+      size_t Recv(void* buffer, size_t len);
 
-		class cDownloadHTTP : public breathe::util::cThread
-		{
-		public:
-			void Download(const std::string& path);
-			std::string GetContent() const;
-
-
-		private:
-			void ThreadFunction();
-
-			std::string path;
-			std::string server;
-			std::string content;
-
-			breathe::network::cConnectionTCP connection;
-		};
-	}
+    private:
+      IPaddress ip;
+      TCPsocket sd;
+    };
+  }
 }
 
-#endif //CNETWORK_H
+#endif // CNETWORK_H

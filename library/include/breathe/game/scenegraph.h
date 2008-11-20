@@ -212,14 +212,22 @@ namespace breathe
       friend class cUpdateVisitor;
       friend class cCullVisitor;
 
-      virtual ~cSceneNode() {}
+      virtual ~cSceneNode();
 
+#ifndef NDEBUG
       bool IsWithinNode(cSceneNodeRef pNode) const; // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
+
+      // Checks that pChild is stored within our children
+      // TODO: Implement this function
+      bool IsParentOfChild(const cSceneNodeRef pChild) const { return false; }
+#endif
 
       cSceneNodeRef GetParent() const { return pParent; }
 
-      void AttachChild(cSceneNode* pChild) { _AttachChild(pChild); }
-      void DetachFromParent() { pParent.reset(); }
+      void AttachChild(cSceneNodeRef pChild); // Calls the virtual _AttachChild so that a scenegraph can choose how to add it or even not add it at all
+      void DetachChildForUseLater(cSceneNodeRef pChild); // Doesn't touch children of pChild, just detaches from the scenegraph, so you can still reference pChild and reinsert it later
+      void DeleteChildRecursively(cSceneNodeRef pChild); // Removes pChild from the scenegraph and also calls DeleteAllChildrenRecursively on each of the children of pChild
+      void DeleteAllChildrenRecursively() { _DeleteAllChildrenRecursively(); }
 
 
       bool IsEnabled() const { return bIsEnabled; }
@@ -275,11 +283,10 @@ namespace breathe
 
       void GenerateBoundingVolume();
 
-      // This should be pure virtual?
-      virtual void _AttachChild(cSceneNode* pChild) {}
-
-      // Only called by a scenenode to another scenenode
-      void AttachToParent(cSceneNodeRef _pParent);
+      virtual void _AttachChild(cSceneNodeRef pChild) {}
+      virtual void _DetachChild(cSceneNodeRef pChild) {}
+      virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
+      virtual void _DeleteAllChildrenRecursively() {}
 
 
       bool bIsVisible;
@@ -310,6 +317,42 @@ namespace breathe
 
       cSceneNodeRef pParent; // Each node has exactly one parent, no more no less.  pRoot is the only exception, pRoot->pParent == nullptr;
     };
+
+    inline cSceneNode::~cSceneNode()
+    {
+      DeleteAllChildrenRecursively();
+    }
+
+    inline void cSceneNode::AttachChild(cSceneNodeRef pChild)
+    {
+      ASSERT(!IsParentOfChild(pChild));
+
+      _AttachChild(pChild);
+
+      pChild->pParent.reset(this);
+    }
+
+    inline void cSceneNode::DetachChildForUseLater(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DetachChild(pChild);
+
+      pChild->pParent.reset();
+    }
+
+    inline void cSceneNode::DeleteChildRecursively(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DeleteChildRecursively(pChild);
+
+      pChild->pParent.reset();
+    }
+
+
 
     class cGroupNode : public cSceneNode
     {

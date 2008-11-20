@@ -1,5 +1,7 @@
-#ifndef CDOWNLOADHTTP_H
-#define CDOWNLOADHTTP_H
+#ifndef CFEED_H
+#define CFEED_H
+
+#include <breathe/util/datetime.h>
 
 namespace breathe
 {
@@ -14,7 +16,7 @@ namespace breathe
     public:
       friend class cFeedDownloader;
 
-      const cDateTime& GetDate() const { return date; }
+      const util::cDateTime& GetDate() const { return date; }
       const std::string& GetTitle() const { return title; }
       const std::string& GetContent() const { return content; }
 
@@ -24,8 +26,7 @@ namespace breathe
       std::string title;
       std::string url;
       std::string uniqueid;
-      cDateTime date;
-      std::string title;
+      util::cDateTime date;
       std::string content;
     };
 
@@ -34,6 +35,7 @@ namespace breathe
     public:
       ~cFeedDownloader();
 
+      typedef std::list<cFeedArticle*>::iterator iterator;
       typedef std::list<cFeedArticle*>::const_iterator const_iterator;
 
       const_iterator ArticlesBegin() { return articles.begin(); }
@@ -55,7 +57,16 @@ namespace breathe
 
     inline void cFeedDownloader::Clear()
     {
-      for each article SAFE_DELETE();
+      iterator iter(articles.begin());
+      const iterator iterEnd(articles.end());
+      while (iter != iterEnd) {
+        SAFE_DELETE(*iter);
+        iter++;
+      }
+
+      articles.clear();
     }
   }
 }
+
+#endif // CFEED_H

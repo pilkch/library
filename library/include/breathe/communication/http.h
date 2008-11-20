@@ -1,10 +1,14 @@
 #ifndef CDOWNLOADHTTP_H
 #define CDOWNLOADHTTP_H
 
+#include <breathe/communication/uri.h>
+
 namespace breathe
 {
   namespace network
   {
+    typedef std::vector<uint8_t*> buffer_t;
+
     // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
     // if necessary add cHTTPDownloader::
     // GetContentLengthFromHeader() const;
@@ -31,7 +35,7 @@ namespace breathe
       bool IsFailedDownload() const { return false; }
 
     private:
-      int ThreadFunction();
+      void ThreadFunction();
       std::string CreateRequest() const;
       void ParseHeader(const char* header);
       std::string Decode(const std::string& encodedString);
@@ -109,129 +113,10 @@ namespace breathe
 
     inline cDownloadHTTP::cDownloadHTTP() :
       method(METHOD_GET),
-      status(status_before_downloading),
+      state(STATE_BEFORE_DOWNLOADING),
+      status(STATUS_UNKNOWN),
       progress(0)
     {
-    }
-
-    inline int cDownloadHTTP::ThreadFunction()
-    {
-      std::cout<<server<<" "<<path<<std::endl;
-      content = "";
-
-      connection.Open(server, 80);
-
-      {
-        // Send header
-        std::string request(CreateRequest(method));
-        if (!connection.Send(request)) {
-          std::stderr<<"SDLNet_TCP_Send: "<<SDLNet_GetError()<<std::endl;
-          exit(EXIT_FAILURE);
-        }
-      }
-
-      int len = 0;
-
-      char buffer[STR_LEN];
-      buffer[0] = 0;
-
-      do {
-        if (!connection.Recv(header, STR_LEN)) break;
-
-        ParseHeader(header);
-        len = SDLNet_TCP_Recv(connection.sd, buffer, STR_LEN - 1);
-        if (len > 0) {
-          buffer[len] = 0;
-          content += buffer;
-        }
-      } while (len > 0);
-
-      std::cout<<"CONTENT"<<std::endl;
-      std::cout<<content<<std::endl;
-
-      connection.Close();
-
-      return 0;
-    }
-
-    inline std::string cDownloadHTTP::Decode(const std::string& encodedString)
-    {
-      const char* encStr = encodedString.c_str();
-      std::string decodedString;
-      const char* tmpStr = nullptr;
-      std::size_t cnt = 0;
-
-      // Reserve enough space for the worst case.
-      const std::size_t encodedLen = encodedString.size();
-      decodedString.reserve(encodedLen);
-
-      // Run down the length of the encoded string, examining each
-      // character.  If it's a %, we discard it, read in the next two
-      // characters, convert their hex value to a char, and write
-      // that to the decoded string.  Anything else, we just copy over.
-      for (std::size_t i = 0; i < encodedLen; ++i) {
-        char curChar = encStr[i];
-
-        if ('+' == curChar) {
-          if (tmpStr != NULL) {
-            decodedString.append(tmpStr, cnt);
-            tmpStr = NULL;
-            cnt = 0;
-          }
-          PUSH_BACK_CHAR(decodedString, ' ');
-        } else if ('%' == curChar) {
-          if (tmpStr != NULL) {
-            decodedString.append(tmpStr, cnt);
-            tmpStr = NULL;
-            cnt = 0;
-          }
-          if (i + 2 < encodedLen && isHexDigit(encStr[i + 1]) && isHexDigit(encStr[i + 2])) {
-            unsigned int value;
-
-            value = convertHexDigit(encStr[++i]);
-            value = (value * 0x10) + convertHexDigit(encStr[++i]);
-            PUSH_BACK_CHAR(decodedString, static_cast<char>(value));
-          } else {
-            LOG<<"cHTTP::Decode invalid %-escapes in " + encodedString;
-        // TODO: What do we do now?
-          }
-        } else {
-          if (cnt == 0) tmpStr = encStr + i;
-          ++cnt;
-        }
-      }
-      if (tmpStr != NULL) {
-        decodedString.append(tmpStr, cnt);
-        cnt = 0;
-        tmpStr = NULL;
-      }
-
-      return decodedString;
-    }
-
-    inline std::string cDownloadHTTP::Encode(const std::string& rawString)
-    {
-      std::size_t rawLen = rawString.size();
-      std::string encodedString;
-      char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
-
-      encodedString.reserve(rawLen);
-
-      for (std::size_t i = 0; i < rawLen; ++i) {
-        char curChar = rawString[i];
-
-        if (curChar == ' ') encodedString += '+';
-        else if (isAlpha(curChar) || isDigit(curChar) || isSpecial(curChar)) encodedString += curChar;
-        else {
-          unsigned int temp = static_cast<unsigned int>(curChar);
-
-          encodingBuffer[1] = convertToHexDigit(temp / 0x10);
-          encodingBuffer[2] = convertToHexDigit(temp % 0x10);
-          encodedString += encodingBuffer;
-        }
-      }
-
-      return encodedString;
     }
 
     inline void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method)

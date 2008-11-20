@@ -3,6 +3,16 @@
 
 namespace breathe
 {
+  namespace vector
+  {
+    template <class T>
+    inline void push_back(std::vector<T>& v, const size_t n, const T& value)
+    {
+      v.reserve(n);
+      for (size_t i = 0; i != n; i++) v.push_back(value);
+    }
+  }
+
   template <class T>
   class cContainer2D
   {

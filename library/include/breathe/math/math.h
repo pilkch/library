@@ -44,6 +44,8 @@ namespace breathe
     // Utility functions
 
     // http://www.racer.nl/tech/converting.htm
+    // TODO: Consider using Boost.Units library
+    // http://www.boost.org/doc/libs/1_37_0/doc/html/boost_units.html
 
     inline float kphTomph(float kph) { return kph * 1.609344f; }
     inline float mphTokph(float mph) { return mph * 0.621371192f; }

@@ -5,7 +5,7 @@
 
 namespace breathe
 {
-  namespace datetime
+  namespace util
   {
     const int cSecondsInADay = 86400;
 

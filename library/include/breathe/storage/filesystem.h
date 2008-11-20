@@ -1,6 +1,14 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/doc/index.htm
+// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/file_size.cpp
+// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/simple_ls.cpp
+
+// Just add these links to filesystem.h and next time there is a problem
+// there convert over to boost::filesystem
+
+
 // Shared folder mirrors the directory structure of each program
 //
 // ~/Dev/shared/lang.h

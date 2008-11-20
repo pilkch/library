@@ -10,19 +10,19 @@ namespace breathe
     class cUnitTestBase
     {
     public:
-      cUnitTestBase(const std::string& component);
+      cUnitTestBase(const string_t& component);
       virtual ~cUnitTestBase() {}
 
       void Run();
-			
+
     protected:
-      void SetFailed(const std::string& error);
+      void SetFailed(const string_t& error);
 
     private:
       virtual void Test() = 0;
 
       bool success;
-      std::string sComponent;
+      string_t sComponent;
 
     private:
       cUnitTestBase();
@@ -33,6 +33,6 @@ namespace breathe
   }
 }
 
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG
 
-#endif //UNITEST_H
+#endif // UNITEST_H
