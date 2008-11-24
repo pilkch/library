@@ -170,12 +170,23 @@ namespace breathe
     }
 
 
-    float cQuaternion::GetAngle(void) const
+    void cQuaternion::GetODEQuaternion(float* q) const
+    {
+      ASSERT(q != nullptr);
+
+      q[0] = w;
+      q[1] = x;
+      q[2] = y;
+      q[3] = z;
+    }
+
+
+    float cQuaternion::GetAngle() const
     {
       return 2.0f * acos(w);
     }
 
-    cVec3 cQuaternion::GetAxis(void) const
+    cVec3 cQuaternion::GetAxis() const
     {
       const double angle = GetAngle();
       const float scale = 1.0f / (sin((float)angle * 0.5f));
@@ -186,7 +197,7 @@ namespace breathe
     }
 
 
-    cVec3 cQuaternion::GetEuler(void) const
+    cVec3 cQuaternion::GetEuler() const
     {
       const float sqw = w * w;
       const float sqx = x * x;

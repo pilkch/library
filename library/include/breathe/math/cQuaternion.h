@@ -88,6 +88,9 @@ namespace breathe
       // Set from ODE style quaternion (w, x, y, z)
       void SetFromODEQuaternion(const float* q);
 
+      // Gets an ODE Quaternion from our values
+      void GetODEQuaternion(float* q) const;
+
       cQuaternion& operator=(const cQuaternion& rhs);
 
       cQuaternion operator+(const cQuaternion& rhs) const;
