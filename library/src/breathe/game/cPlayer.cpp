@@ -212,7 +212,7 @@ namespace breathe
 				{
 					// Get a unit vector that represents which way the player is heading
 					math::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
-					v.Normalize();
+					v.Normalise();
 
 					// Bias the inputs slightly so that walking forwards is fastest, then left/right
 					// and then backwards is slowest to make for slightly more interesting gameplay

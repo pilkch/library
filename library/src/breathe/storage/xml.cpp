@@ -43,6 +43,13 @@ namespace breathe
     {
     }
 
+    cNode::cNode(cNode* inParent) :
+      type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
+      pNext(NULL),
+      pParent(inParent)
+    {
+    }
+
     cNode::cNode(const string_t& inFilename) :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pNext(NULL),
@@ -51,18 +58,25 @@ namespace breathe
       LoadFromFile(inFilename);
     }
 
-    cNode::cNode(cNode* inParent) :
-      type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
-      pNext(NULL),
-      pParent(inParent)
-    {
-    }
-
     cNode::~cNode()
     {
+      Clear();
+    }
+
+    void cNode::Clear()
+    {
+      type = TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN;
+
+      pParent = nullptr;
+      pNext = nullptr;
+
       size_t n = vChild.size();
-      for (size_t i=0;i<n;i++)
-         SAFE_DELETE(vChild[i]);
+      for (size_t i=0;i<n;i++) SAFE_DELETE(vChild[i]);
+
+      sName.clear();
+      mAttribute.clear();
+
+      sContentOnly.clear();
     }
 
     void cNode::LoadFromFile(const string_t& inFilename)
@@ -147,11 +161,15 @@ namespace breathe
           }
 
           // example attribute="value"...
-          sData=string::StripLeading(sData.substr(angleBracket+1), " ");
+          sData = string::StripLeading(sData.substr(angleBracket+1), " ");
 
           if (sData[0] == '/') {
             // </name>
-            if (!sContent.empty() && sContent != "/>") AddContent(sContent);
+            if (!sContent.empty() && sContent != "/>") {
+              cNode* pNode = CreateNodeAsChildAndAppend();
+              ASSERT(pNode != nullptr);
+              pNode->SetTypeContentOnly(sContent);
+            }
 
             angleBracket = sData.find(">");
 
@@ -186,7 +204,7 @@ namespace breathe
             // attribute="value"...
             sData = string::StripLeading(sData.substr(n), " ");
 
-            cNode* p = AddNode();
+            cNode* p = CreateNodeAsChildAndAppend();
 
             LOG<<"Found node "<<inName<<std::endl;
             p->sName = inName;
@@ -275,7 +293,7 @@ namespace breathe
         else
         {
           // No tags, just content for the parent tag (this)
-          cNode* p=AddNode();
+          cNode* p = CreateNodeAsChildAndAppend();
 
           p->type = TYPE_CONTENT_ONLY;
           p->sContentOnly += string::StripTrailingWhiteSpace(sData);
@@ -389,11 +407,9 @@ namespace breathe
 
     cNode* cNode::FindChild(const std::string& sName)
     {
-      if (!vChild.empty())
-      {
+      if (!vChild.empty()) {
         cNode* p=vChild[0];
-        while(p != nullptr)
-        {
+        while (p != nullptr) {
           if (sName == p->sName) return p;
           p = p->pNext;
         }
@@ -409,33 +425,47 @@ namespace breathe
 
     cNode* cNode::GetNext(const std::string& sName)
     {
-      cNode* p=pNext;
-      while(p)
-      {
+      cNode* p = pNext;
+      while (p != nullptr) {
         if (sName == p->sName) return p;
-        p=p->pNext;
+        p = p->pNext;
       };
 
       return NULL;
     }
 
-    cNode* cNode::AddNode()
+    cNode* cNode::CreateNode()
     {
-      cNode* p = new cNode(this);
-      if (!vChild.empty()) vChild.back()->pNext = p;
-
-      vChild.push_back(p);
-      return p;
+      cNode* pNode = new cNode;
+      return pNode;
     }
 
-    void cNode::AddContent(const std::string& inContent)
+    cNode* cNode::CreateNodeAsChildAndAppend()
     {
-      cNode* p = AddNode();
+      cNode* pChild = new cNode(this);
+      AppendChild(pChild);
+      return pChild;
+    }
 
-      if (p != nullptr) {
-        p->sContentOnly = string::StripTrailingWhiteSpace(inContent);
-        p->type = TYPE_CONTENT_ONLY;
-      }
+    void cNode::AppendChild(element* pChild)
+    {
+      ASSERT(pChild != nullptr);
+
+      if (!vChild.empty()) vChild.back()->pNext = pChild;
+
+      vChild.push_back(pChild);
+    }
+
+    void cNode::SetTypeElement(const std::string& inName)
+    {
+      sName = string::StripTrailingWhiteSpace(inName);
+      type = TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN;
+    }
+
+    void cNode::SetTypeContentOnly(const std::string& inContent)
+    {
+      sContentOnly = string::StripTrailingWhiteSpace(inContent);
+      type = TYPE_CONTENT_ONLY;
     }
 
     std::string cNode::GetName() const
@@ -445,15 +475,14 @@ namespace breathe
 
     void cNode::AddAttribute(const std::string& inAttribute, const std::string& inValue)
     {
-      mAttribute[inAttribute]=inValue;
+      mAttribute[inAttribute] = inValue;
     }
 
     bool cNode::GetAttribute(const std::string& sAttribute, std::string& value)
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
       attribute_iterator iterEnd = mAttribute.end();
-      if (iter != iterEnd)
-      {
+      if (iter != iterEnd) {
         value = iter->second;
         return true;
       }
@@ -465,8 +494,7 @@ namespace breathe
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
       attribute_iterator iterEnd = mAttribute.end();
-      if (iter != iterEnd)
-      {
+      if (iter != iterEnd) {
         value = breathe::string::ToWchar_t(iter->second);
         return true;
       }
@@ -477,8 +505,7 @@ namespace breathe
     bool cNode::GetAttribute(const std::string& sAttribute, bool& value)
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
-      if (iter != mAttribute.end())
-      {
+      if (iter != mAttribute.end()) {
         value = breathe::string::ToBool(iter->second);
 
         return true;
@@ -491,8 +518,7 @@ namespace breathe
     {
       assert(pValue != nullptr);
       attribute_iterator iter = mAttribute.find(sAttribute);
-      if (iter != mAttribute.end())
-      {
+      if (iter != mAttribute.end()) {
         breathe::char_t c;
         std::stringstream stm(iter->second);
         stm >> std::skipws;
@@ -517,8 +543,7 @@ namespace breathe
     bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value)
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
-      if (iter != mAttribute.end())
-      {
+      if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
         breathe::string::Split(iter->second, ',', vSplit);
 
@@ -535,8 +560,7 @@ namespace breathe
     bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value)
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
-      if (iter != mAttribute.end())
-      {
+      if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
         breathe::string::Split(iter->second, ',', vSplit);
 
@@ -551,5 +575,20 @@ namespace breathe
       return false;
     }
 #endif
+
+
+    bool reader::ReadFromFile(document& doc, const string_t& filename) const
+    {
+      doc.Clear();
+
+      return false;
+    }
+
+    bool writer::WriteToFile(const document& doc, const string_t& filename) const
+    {
+      
+
+      return false;
+    }
   }
 }

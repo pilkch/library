@@ -7,8 +7,9 @@
 #include <iostream>
 #include <fstream>
 
-#include <list>
 #include <vector>
+#include <list>
+#include <map>
 #include <sstream>
 
 // Other libraries
@@ -62,14 +63,14 @@ namespace breathe
 
     // *** cDownloadHTTP
 
-    inline std::string cDownloadHTTP::CreateRequest() const
+    std::string cDownloadHTTP::CreateRequest() const
     {
       std::ostringstream o;
 
       if (method == METHOD_GET) o<<"GET";
       else o<<"POST";
 
-      o<<" /"<<uri.GetPath()<<" HTTP/1.1" STR_END;
+      o<<" /"<<uri.GetRelativePath()<<" HTTP/1.1" STR_END;
 
       o<<"Host: "<<uri.GetServer()<< STR_END;
       o<<"Range: bytes="<<progress<<"-" STR_END;
@@ -110,41 +111,139 @@ namespace breathe
       request = std::string(header);*/
     }
 
-    int cDownloadHTTP::ThreadFunction()
+    void cDownloadHTTP::ThreadFunction()
     {
-      std::cout<<server<<" "<<path<<std::endl;
+      std::cout<<uri.GetServer()<<" "<<uri.GetRelativePath()<<std::endl;
       content = "";
 
-      connection.Open(server, 80);
+      connection.Open(uri.GetServer(), 80);
 
-        unsigned long ulProgress = 0;
-
-        std::string buffer(CreateRequest());
-
-        size_t len = strlen(buffer) + 1;
-        if (!connection.Send(buffer, len)) {
-          fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+      {
+        // Send header
+        std::string request(CreateRequest());
+        size_t len = request.length() + 1;
+        size_t sent = connection.Send(request.data(), len);
+        if (sent != len) {
+          LOG<<"SDLNet_TCP_Send: "<<SDLNet_GetError()<<std::endl;
           exit(EXIT_FAILURE);
         }
+      }
 
-        len = 1;
-        while (len > 0) {
-          len = connection.Recv(buffer, STR_LEN - 1);
-          if (len > 0) {
-            buffer[len] = 0;
-            content += buffer;
-          }
+      size_t len = 0;
+
+      char buffer[STR_LEN - 1];
+      buffer[0] = 0;
+
+      do {
+        len = connection.Recv(buffer, STR_LEN - 1);
+        if (len == 0) break;
+
+        buffer[len] = 0;
+
+        ParseHeader(buffer);
+
+        len = connection.Recv(buffer, STR_LEN - 1);
+        if (len > 0) {
+          buffer[len] = 0;
+          content += buffer;
         }
+      } while (len > 0);
 
-        std::cout<<"CONTENT"<<std::endl;
-        std::cout<<content<<std::endl;
+      LOG<<"CONTENT"<<std::endl;
+      LOG<<content<<std::endl;
 
       connection.Close();
-
-      return 0;
     }
 
-    inline void cDownloadHTTP::Download(const std::string& _path)
+    std::string cDownloadHTTP::Decode(const std::string& encodedString)
+    {
+      const char* encStr = encodedString.c_str();
+      std::string decodedString;
+      const char* tmpStr = nullptr;
+      std::size_t cnt = 0;
+
+      // Reserve enough space for the worst case.
+      const std::size_t encodedLen = encodedString.size();
+      decodedString.reserve(encodedLen);
+
+      // Run down the length of the encoded string, examining each
+      // character.  If it's a %, we discard it, read in the next two
+      // characters, convert their hex value to a char, and write
+      // that to the decoded string.  Anything else, we just copy over.
+      for (std::size_t i = 0; i < encodedLen; ++i) {
+        char curChar = encStr[i];
+
+        if ('+' == curChar) {
+          if (tmpStr != NULL) {
+            decodedString.append(tmpStr, cnt);
+            tmpStr = NULL;
+            cnt = 0;
+          }
+          decodedString += ' ';
+        } else if ('%' == curChar) {
+          if (tmpStr != NULL) {
+            decodedString.append(tmpStr, cnt);
+            tmpStr = NULL;
+            cnt = 0;
+          }
+
+          if ((i + 2 < encodedLen) && ishexdigit(encStr[i + 1]) && ishexdigit(encStr[i + 2])) {
+            char s[3];
+            s[0] = encStr[i++];
+            s[1] = encStr[i++];
+            s[0] = 0;
+            uint32_t value = breathe::string::FromHexStringToUint32_t(s);
+            decodedString += static_cast<char>(value);
+          } else {
+            LOG<<"cHTTP::Decode invalid %-escapes in " + encodedString;
+            // TODO: What do we do now?
+          }
+        } else {
+          if (cnt == 0) tmpStr = encStr + i;
+          ++cnt;
+        }
+      }
+      if (tmpStr != NULL) {
+        decodedString.append(tmpStr, cnt);
+        cnt = 0;
+        tmpStr = NULL;
+      }
+
+      return decodedString;
+    }
+
+    bool isspecial(char c)
+    {
+      return false;
+    }
+
+    std::string cDownloadHTTP::Encode(const std::string& rawString)
+    {
+      char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
+
+      std::size_t rawLen = rawString.size();
+
+      std::string encodedString;
+      encodedString.reserve(rawLen);
+
+      for (std::size_t i = 0; i < rawLen; ++i) {
+        char curChar = rawString[i];
+
+        if (curChar == ' ') encodedString += '+';
+        else if (isalpha(curChar) || isdigit(curChar) || isspecial(curChar)) encodedString += curChar;
+        else {
+          unsigned int temp = static_cast<unsigned int>(curChar);
+
+          encodingBuffer[1] = breathe::string::ConvertToHexDigit(temp / 0x10);
+          encodingBuffer[2] = breathe::string::ConvertToHexDigit(temp % 0x10);
+          encodedString += encodingBuffer;
+        }
+      }
+
+      return encodedString;
+    }
+
+    /*void cDownloadHTTP::Download(const std::string& _path)
     {
       path = _path;
       server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, "http://"), "/");
@@ -152,6 +251,10 @@ namespace breathe
       if (path.length() < 1) path = "/";
 
       Run();
+    }*/
+
+    void cDownloadHTTP::ParseHeader(const char* szHeader)
+    {
     }
   }
 }

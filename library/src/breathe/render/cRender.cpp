@@ -1004,7 +1004,7 @@ namespace breathe
 						v1.Set(&fVertices[vert+3]);
 						v2.Set(&fVertices[vert+6]);
 						n.Cross(v0-v2, v2-v1);
-						n.Normalize();
+                n.Normalise();
 
 						glNormal3f(n.x, n.y, n.z);
 
@@ -1024,7 +1024,7 @@ namespace breathe
 						v1.Set(&fVertices[vert+3]);
 						v2.Set(&fVertices[vert+6]);
 						n.Cross(v0-v2, v2-v1);
-						n.Normalize();
+                                                                                n.Normalise();
 
 						glNormal3f(n.x, n.y, n.z);
 						glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
@@ -2584,7 +2584,7 @@ namespace breathe
 											add adjacentface normal to vertex normal
 
 						for all vertex normals:
-							normalize vertex normal*/
+                                                                                normalise vertex normal*/
 					}
 				}
 			}

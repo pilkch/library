@@ -27,8 +27,8 @@ namespace breathe
     T& GetElement(size_t i) { ASSERT(i < elements.size()); return elements[i]; }
     T& GetElement(size_t x, size_t y) { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
 
-    T& GetElementConst(size_t i) const { ASSERT(i < elements.size()); return elements[i]; }
-    T& GetElementConst(size_t x, size_t y) const { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
+    const T& GetElement(size_t i) const { ASSERT(i < elements.size()); return elements[i]; }
+    const T& GetElement(size_t x, size_t y) const { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
 
   private:
     size_t width;
@@ -38,19 +38,28 @@ namespace breathe
 
 
   template<class T>
+  inline cContainer2D<T>::cContainer2D(size_t _width, size_t _height) :
+    width(_width),
+    height(_height),
+    elements(_width * _height)
+  {
+  }
+
+
+  template<class T>
   class cCircularBuffer
   {
-    public:
-      cCircularBuffer();
+  public:
+    cCircularBuffer();
 
-      void push_back(T& t);
-      size_t size() const { return data.size(); }
+    void push_back(T& t);
+    size_t size() const { return data.size(); }
 
-      T& operator[](size_t i);
+    T& operator[](size_t i);
 
-    private:
-      size_t at;
-      std::vector<T> data;
+  private:
+    size_t at;
+    std::vector<T> data;
   };
 
   template<class T>

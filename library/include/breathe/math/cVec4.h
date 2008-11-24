@@ -16,13 +16,13 @@ namespace breathe
 			~cVec4() {}	//empty
 
 			void Set(float newX, float newY, float newZ, float newW);	//set member variables
-			
+
 			//accessors kept for compatability
 			void SetX(float newX) {x = newX;}
 			void SetY(float newY) {y = newY;}
 			void SetZ(float newZ) {z = newZ;}
 			void SetW(float newW) {w = newW;}
-			
+
 			float GetX() const {return x;}	//public accessor functions
 			float GetY() const {return y;}	//inline, const
 			float GetZ() const {return z;}
@@ -33,13 +33,13 @@ namespace breathe
 
 			float GetLength() const
 			{	return sqrtf((x*x)+(y*y)+(z*z));	}
-			
+
 			float GetSquaredLength() const
 			{	return (x*x)+(y*y)+(z*z);	}
 
 			//vector algebra
 			float DotProduct(const cVec4 & rhs) const;
-			void Normalize();
+			void Normalise();
 
 			//rotations
 			void RotateX(double angle);
@@ -50,8 +50,9 @@ namespace breathe
 			cVec4 GetRotatedZ(double angle) const;
 			void RotateAxis(double angle, const cVec3 & axis);
 			cVec4 GetRotatedAxis(double angle, const cVec3 & axis) const;
-			
-			cVec4 lerp(const cVec4 & v2, float factor);
+
+      // Linear Interpolation
+      cVec4 lerp(const cVec4& v2, float factor);
 
 			//binary operators
 			cVec4 operator+(const cVec4 & rhs) const;	//overloaded operators

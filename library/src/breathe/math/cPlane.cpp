@@ -35,7 +35,7 @@ namespace breathe
 		cPlane::cPlane(const cVec3& p1,const cVec3& p2,const cVec3& p3)
 		{
 			normal = (p2-p1).CrossProduct(p3-p1);
-			normal.Normalize();
+			normal.Normalise();
 			origin = p1;
 			equation[0] = normal.x;
 			equation[1] = normal.y;
@@ -69,12 +69,12 @@ namespace breathe
 		{
 			normal=(p1-p0).CrossProduct(p2-p0);
 
-			normal.Normalize();
+                                                normal.Normalise();
 
 			CalculateIntercept(p0);
 		}
 
-		void cPlane::Normalize()
+                                void cPlane::Normalise()
 		{
 			float normalLength=normal.GetLength();
 			normal/=normalLength;
@@ -123,7 +123,7 @@ namespace breathe
 		{
 			cPlane result;
 			result.normal=normal*factor + p2.normal*(1.0f-factor);
-			result.normal.Normalize();
+                                                result.normal.Normalise();
 
 			result.intercept=intercept*factor + p2.intercept*(1.0f-factor);
 

@@ -106,7 +106,7 @@ namespace breathe
 			breathe::math::cVec3 p(posX, posY, posZ);
 			breathe::math::cVec3 n(nX, nY, nZ);
 
-			n.Normalize();
+                                                n.Normalise();
 
 			ground = dCreatePlane(spaceStatic, n.x, n.y, n.z, n.DotProduct(p));
 		}

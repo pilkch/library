@@ -19,33 +19,33 @@ namespace breathe
 			inline void Set(float newX, float newY, float newZ) { x=newX; y=newY; z=newZ; }
 			inline void Set(const float *rhs) { x=rhs[0]; y=rhs[1]; z=rhs[2]; }
 
-			inline float GetX() const {return x;}	
+			inline float GetX() const {return x;}
 			inline float GetY() const {return y;}
 			inline float GetZ() const {return z;}
-			
+
 			bool IsZeroVector() const;
 
 			inline void LoadZero() { x=y=z=0.0f; }
 			void LoadOne();					//fill with (1, 1, 1)
 			void Negate();
-			
+
 			//vector algebra
 			void Cross(const cVec3 & a, const cVec3 & b);
 			cVec3 CrossProduct(const cVec3 & rhs) const;
-			
+
 			inline float DotProduct(const cVec3 & rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
-			
-			
-			void Normalize();
-			cVec3 GetNormalized() const;
-			
+
+
+			void Normalise();
+			cVec3 GetNormalised() const;
+
 			void SetLength(float length);
 			cVec3 SetLength(float length) const;
 
 			float GetLength() const;
 
 			float GetMagnitude() const;
-			
+
 			float GetSquaredLength() const;
 
 			//rotations
@@ -66,8 +66,8 @@ namespace breathe
 			void PackTo01();
 			cVec3 GetPackedTo01() const;
 
-			//linear interpolate
-			cVec3 lerp(const cVec3 & v2, float factor);
+      // Linear interpolation
+      cVec3 lerp(const cVec3& v2, float factor);
 
 			cVec3 GetEdgeVector(cVec3 & point2);
 
@@ -83,7 +83,7 @@ namespace breathe
 			{
 				return cVec3(rhs*v.x, rhs*v.y, rhs*v.z);
 			}
-			
+
 			cVec3 operator/(const float rhs) const
 			{	return (rhs==0) ? cVec3(0.0f, 0.0f, 0.0f) : cVec3(x / rhs, y / rhs, z / rhs);	}
 
@@ -103,7 +103,7 @@ namespace breathe
 			void operator-=(const cVec3 & rhs);
 			void operator*=(const float rhs);
 			void operator/=(const float rhs);
-			
+
 			inline void operator=(const cVec3 &rhs) { x=rhs.x; y=rhs.y; z=rhs.z; }
 
 
@@ -141,7 +141,7 @@ namespace breathe
 
     inline bool PointIsWithinBounds(const cVec3& v, const cVec3& minimum, const cVec3& maximum)
     {
-      return 
+      return
         ((v.x >= minimum.x) && (v.x <= maximum.x)) &&
         ((v.y >= minimum.y) && (v.y <= maximum.y)) &&
         ((v.z >= minimum.z) && (v.z <= maximum.z));
@@ -149,4 +149,4 @@ namespace breathe
 	}
 }
 
-#endif	//CVEC3_H
+#endif	// CVEC3_H

@@ -160,7 +160,7 @@ namespace breathe
 
 				// calculate interpolated ground height
 				//return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
-				return (h0 + xfrac*(h1-h0) + yfrac*(h3-h0)).GetNormalized();
+				return (h0 + xfrac*(h1-h0) + yfrac*(h3-h0)).GetNormalised();
 			}
 		}
 	}

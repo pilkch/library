@@ -116,7 +116,7 @@ namespace breathe
     template <typename T> T clip(T value, T low, T high) { return max(min(value, high), low); }
 
     // True if VALUE is in the range LOW--HIGH.
-    template <typename T> bool is_in_range(T value, T low, T high) { return (value >= low) && (value <= high); }
+    template <typename T> bool IsInRange(T value, T low, T high) { return (value >= low) && (value <= high); }
 
     // Return LOW or HIGH, whichever is closer to VALUE.
     template <typename T> T closer(T value, T low, T  high) { return (std::abs(value - low) < std::abs(value - high)) ? low : high; }
@@ -146,6 +146,8 @@ namespace breathe
 
 
     // *** Interpolation
+
+    template <class T> inline T lerp(T a, T b, T mu) { return a + ((b - a) * mu); }
 
     // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
 

@@ -58,7 +58,7 @@ namespace breathe
 			y=1.0f;
 		}
 
-		void cVec2::Normalize()
+                                void cVec2::Normalise()
 		{
 			float length;
 			float scalefactor;
@@ -93,11 +93,11 @@ namespace breathe
 			return result;
 		}
 
-		cVec2 cVec2::GetNormalized() const
+                                cVec2 cVec2::GetNormalised() const
 		{
 			cVec2 result(*this);
 
-			result.Normalize();
+                                                result.Normalise();
 
 			return result;
 		}
@@ -111,7 +111,7 @@ namespace breathe
 		{
 			cVec2 temp(*this);
 
-			temp.Normalize();
+                                                temp.Normalise();
 
 			temp=temp*0.5f+cVec2(0.5f, 0.5f);
 

@@ -7,9 +7,16 @@
 #include <iostream>
 #include <fstream>
 
-#include <list>
 #include <vector>
+#include <list>
+#include <map>
 #include <sstream>
+
+// Boost headers
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/microsec_time_clock.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
 
 // Other libraries
 #ifdef WIN32
@@ -39,13 +46,7 @@ namespace breathe
   {
     void cFeedDownloader::ParseAtomFeed(const std::string& sContent)
     {
-      make sure that cXML::cXML() takes const string_t& or (const std::string& and const std::wstring&)
-
-      in namespace xml:
-      typedef cNode cXML;
-      cXML xml(sContent);
-
-      should change constructor to take no parameters
+      /*should change constructor to take no parameters
       then we call:
       CreateFromUTF8(const std::string& sBuffer);
       CreateFromString(const string_t& sBuffer);
@@ -66,42 +67,42 @@ namespace breathe
       if (!iter.IsValid()) return;
 
       while (iter.IsValid()) {
-          breathe::xml::cNode::iterator entry(iter);
+        breathe::xml::cNode::iterator entry(iter);
 
-          cFeedArticle* pArticle = new cFeedArticle;
+        cFeedArticle* pArticle = new cFeedArticle;
 
-          iter.FirstChild();
-          while (iter.IsValid()) {
-            if (iter.GetName() == "title") pArticle->title = iter.GetContent();
-            else if (iter.GetName() == "link") iter.GetAttribute("href", pArticle->url);
-            else if (iter.GetName() == "id") pArticle->uniqueid = iter.GetContent();
-            else if (iter.GetName() == "updated") pArticle->date = iter.GetContent();
-            else if (iter.GetName() == "summary") pArticle->content = iter.GetContent();
+        iter.FirstChild();
+        while (iter.IsValid()) {
+          if (iter.GetName() == "title") pArticle->title = iter.GetContent();
+          else if (iter.GetName() == "link") iter.GetAttribute("href", pArticle->url);
+          else if (iter.GetName() == "id") pArticle->uniqueid = iter.GetContent();
+          else if (iter.GetName() == "updated") pArticle->date = iter.GetContent();
+          else if (iter.GetName() == "summary") pArticle->content = iter.GetContent();
 
-            iter.Next();
-          };
+          iter.Next();
+        };
 
-          articles.push_back(pArticle);
+        articles.push_back(pArticle);
 
-          iter.Next("entry");
-      };
+        iter.Next("entry");
+      };*/
     }
 
     void cFeedDownloader::DownloadFeed(const string_t& sURL)
     {
-      Clear();
+      /*Clear();
 
       cHTTPDownloader downloader;
 
       downloader.Download(sURL);
 
       while (downloader.IsConnected()) {
-          yield;
+        Yield();
       };
 
       if (!downloader.IsSuccessfulDownload()) return;
 
-      ParseAtomFeed(downloader.GetContent());
+      ParseAtomFeed(downloader.GetContent());*/
     }
   }
 }

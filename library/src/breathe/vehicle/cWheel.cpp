@@ -129,7 +129,7 @@ extern float fBBB;
 
 		f = vel;
 
-		f.Normalize();
+		f.Normalise();
 
 		f *= -2.0f;
 
@@ -183,7 +183,7 @@ extern float fBBB;
                              vel2 );
 
         vecSubtract( pos2, pos1, posDiff );
-        springLen = vecNormalize( posDiff );
+        springLen = vecNormalise( posDiff );
 
         vecSubtract( vel2, vel1, velDiff );
         springVel = dotProduct( velDiff, posDiff );
@@ -258,7 +258,7 @@ namespace breathe
 
 		void cWheel::RayCast()
 		{
-			math::cVec3 dir=-pParent->m.GetUp().GetNormalized();
+                                  math::cVec3 dir=-pParent->m.GetUp().GetNormalised();
 
 			rayContact.Clear();
 
@@ -320,9 +320,9 @@ namespace breathe
 			RayCast();
 
 			// Set up the vectors to use when working out wheel rotation and position
-			math::cVec3 right=pParent->m.GetRight().GetNormalized();
-			math::cVec3 front=pParent->m.GetFront().GetNormalized();
-			math::cVec3 up=pParent->m.GetUp().GetNormalized();
+                                                math::cVec3 right=pParent->m.GetRight().GetNormalised();
+                                                math::cVec3 front=pParent->m.GetFront().GetNormalised();
+                                                math::cVec3 up=pParent->m.GetUp().GetNormalised();
 			math::cVec3 down=-up;
 
 			math::cVec3 dir=front;
@@ -368,7 +368,7 @@ namespace breathe
 					if (pParent->bFourWheelDrive) wheelAccel *= 0.4f;
 					else wheelAccel = 0.0f;
 
-					dir = (front + (right * pParent->fSteer)).GetNormalized();
+                                                                                dir = (front + (right * pParent->fSteer)).GetNormalised();
 
 					wheelSlip *= fFrontSlip;
 					wheelBrake *= 0.75f;

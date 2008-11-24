@@ -33,7 +33,7 @@ namespace breathe
 
     void cQuaternion::Normalise()
     {
-      float magnitude = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
+      const float magnitude = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
       x *= magnitude;
       y *= magnitude;
       z *= magnitude;
@@ -46,7 +46,7 @@ namespace breathe
       x = -x;
       y = -y;
       z = -z;
-      // Note: w=w;
+      //w = w; // Note: w does not change
     }
 
     cQuaternion cQuaternion::Inverse() const
@@ -63,24 +63,24 @@ namespace breathe
     void cQuaternion::SetFromAngles(const cVec3& v)
     {
       float angle = v.z * 0.5f;
-      double sy = sin(angle);
-      double cy = cos(angle);
+      const double sy = sin(angle);
+      const double cy = cos(angle);
 
       angle = v.y * 0.5f;
-      double sp = sin(angle);
-      double cp = cos(angle);
+      const double sp = sin(angle);
+      const double cp = cos(angle);
 
       angle = v.x * 0.5f;
-      double sr = sin(angle);
-      double cr = sin(angle);
+      const double sr = sin(angle);
+      const double cr = sin(angle);
 
-      double crcp = cr*cp;
-      double srsp = sr*sp;
+      const double crcp = cr * cp;
+      const double srsp = sr * sp;
 
-      x = (float)(sr*cp*cy - cr*sp*sy);
-      y = (float)(cr*sp*cy - sr*cp*sy);
-      z = (float)(crcp*sy - srsp*cy);
-      w = (float)(crcp*cy - srsp*sy);
+      x = (float)(sr * cp * cy - cr * sp * sy);
+      y = (float)(cr * sp * cy - sr * cp * sy);
+      z = (float)(crcp * sy - srsp * cy);
+      w = (float)(crcp * cy - srsp * sy);
     }
 
     void cQuaternion::Slerp(const cQuaternion & q1, const cQuaternion& q2Original, float interpolation)
@@ -141,7 +141,7 @@ namespace breathe
 
     void cQuaternion::SetFromAxisAngle(const cVec3 & axis, float angle)
     {
-      cVec3 normAxis=axis.GetNormalized();
+      cVec3 normAxis = axis.GetNormalised();
 
       const float sinHalfAngle = sin((float)(angle/2.0));
       const float cosHalfAngle = cos((float)(angle/2.0));
@@ -156,17 +156,17 @@ namespace breathe
     {
       cVec3 axis = source.CrossProduct(destination);
 
-      const float angle = acos(source.GetNormalized().DotProduct(destination.GetNormalized()));
+      const float angle = acos(source.GetNormalised().DotProduct(destination.GetNormalised()));
 
       SetFromAxisAngle(axis, angle);
     }
 
     void cQuaternion::SetFromODEQuaternion(const float* q)
     {
-      w = q[0];
       x = q[1];
       y = q[2];
       z = q[3];
+      w = q[0];
     }
 
 
@@ -202,42 +202,19 @@ namespace breathe
 
     cMat4 cQuaternion::GetMatrix() const
     {
-      double x2,y2,z2,w2,xy,yz,xz,wx,wy,wz;
-      //double xx,yy,zz;
+      const double x2 = x * x;
+      const double y2 = y * y;
+      const double z2 = z * z;
+      const double w2 = w * w;
 
-      x2 = x*x;
-      y2 = y*y;
-      z2 = z*z;
-      w2 = w*w;
-
-      xy = x * y;
-      xz = x * z;
-      yz = y * z;
-      wx = w * x;
-      wy = w * y;
-      wz = w * z;
+      const double xy = x * y;
+      const double xz = x * z;
+      const double yz = y * z;
+      const double wx = w * x;
+      const double wy = w * y;
+      const double wz = w * z;
 
       cMat4 mat;
-      /*mat[0] = w2 + x2 -y2 - z2;
-      mat[1] = 2 * (xy + wz);
-      mat[2] = 2 * (xz - wy);
-      mat[3] = 0.0;
-
-      mat[4] = 2 * (xy - wz);
-      mat[5] = w2 - x2 + y2 - z2;
-      mat[6] = 2 * (yz + wx);
-      mat[7] = 0.0;
-
-      mat[8] = 2 * (xz + wy);
-      mat[9] = 2 * (yz - wx);
-      mat[10] = w2 - x2 - y2 + z2;
-      mat[11] = 0.0;
-
-      mat[12] = 0.0;
-      mat[13] = 0.0;
-      mat[14] = 0.0;
-      mat[15] = 1.0;*/
-
 
       mat[ 0] = 1.0f - 2.0f * ( y * y + z * z );
       mat[ 1] = 2.0f * (x * y + z * w);
@@ -254,9 +231,9 @@ namespace breathe
       mat[10] = 1.0f - 2.0f * ( x * x + y * y );
       mat[11] = 0.0f;
 
-      mat[12] = 0;
-      mat[13] = 0;
-      mat[14] = 0;
+      mat[12] = 0.0f;
+      mat[13] = 0.0f;
+      mat[14] = 0.0f;
       mat[15] = 1.0f;
 
       /*printf( "GetMatrix()\n"

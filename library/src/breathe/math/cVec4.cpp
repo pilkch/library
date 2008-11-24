@@ -77,7 +77,7 @@ namespace breathe
 			w=1.0f;
 		}
 
-		void cVec4::Normalize()
+                                void cVec4::Normalise()
 		{
 			float length;
 			float scalefactor;

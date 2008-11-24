@@ -331,7 +331,7 @@ namespace breathe
 				//		normal = normal + polygons(j).normal
 				//	}
 				//
-				//	vertices(i).normal = normalize(normal) // no need to divide by the total number of polygons since normalizing it will void that anyway
+				//	vertices(i).normal = Normalise(normal) // no need to divide by the total number of polygons since normalising it will void that anyway
 				//}
 
 				return uiTriangles;
@@ -419,8 +419,8 @@ namespace breathe
 						// Then we need to get the cross product of those 2 vectors (The normal's direction)
 						//cVec3 vNormal = Cross(vVector1, vVector2);
 
-						// Now we normalize the normal so it is a unit vector (length of 1)
-						//vNormal = Normalize(vNormal);
+						// Now we normalise the normal so it is a unit vector (length of 1)
+						//vNormal = normalise(vNormal);
 
 						// Pass in the normal for this triangle so we can see better depth in the scene
 						//glNormal3f(vNormal.x, vNormal.y, vNormal.z);

@@ -84,7 +84,7 @@ namespace breathe
 			return result;
 		}
 
-		void cVec3::Normalize()
+                                void cVec3::Normalise()
 		{
 			float length;
 			float scalefactor;
@@ -133,11 +133,11 @@ namespace breathe
 			return result;
 		}
 
-		cVec3 cVec3::GetNormalized() const
+                                cVec3 cVec3::GetNormalised() const
 		{
 			cVec3 result(*this);
 
-			result.Normalize();
+                                                result.Normalise();
 
 			return result;
 		}
@@ -180,7 +180,7 @@ namespace breathe
 
 		cVec3 cVec3::GetRotatedAxis(double angle, const cVec3 & axis) const
 		{
-			cVec3 u=axis.GetNormalized();
+                                  cVec3 u=axis.GetNormalised();
 
 			cVec3 rotMatrixRow0, rotMatrixRow1, rotMatrixRow2;
 
@@ -233,7 +233,7 @@ namespace breathe
 		{
 			cVec3 temp(*this);
 
-			temp.Normalize();
+                                                temp.Normalise();
 
 			temp=temp*0.5f+cVec3(0.5f, 0.5f, 0.5f);
 

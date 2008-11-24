@@ -5,6 +5,7 @@
 #include <breathe/math/math.h>
 #include <breathe/math/cVec3.h>
 #include <breathe/math/cColour.h>
+#include <breathe/util/cString.h>
 #endif
 
 /*
@@ -18,10 +19,18 @@ Identify and replace these in XML:
 change comments <!-- --> to comment object (bComment = true).
 */
 
+// TODO: Rip out SaveToFile, LoadFromFile, replace with reader and writer
+
 namespace breathe
 {
   namespace xml
   {
+    class cNode;
+
+    typedef cNode document;
+    typedef cNode element;
+    typedef cNode node;
+
     // Can be made up of either
     // a) cNode with sName
     // b) cNode with sName, vChild
@@ -35,9 +44,16 @@ namespace breathe
 
     public:
       cNode();
-      explicit cNode(const string_t& inFilename);
       explicit cNode(cNode* inParent);
+      explicit cNode(const string_t& inFilename);
       ~cNode();
+
+      cNode* CreateElement(const std::string& name); // This element is owned by the caller of this function
+      cNode* CreateTextNode(const std::string& text); // This element is owned by the caller of this function
+      cNode* CreateCommentNode(const std::string& text); // This element is owned by the caller of this function
+
+      void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
+      void AddAttribute(const std::string& name, const std::string& value);
 
       void SaveToFile(const string_t& inFilename);
 
@@ -76,6 +92,8 @@ namespace breathe
       bool GetAttribute(const std::string& sAttribute, math::cColour& pValue);
 #endif
 
+      void Clear();
+
       class cIterator
       {
       public:
@@ -111,24 +129,22 @@ namespace breathe
       typedef cIterator iterator;
 
     private:
+      cNode* CreateNode();
+      cNode* CreateNodeAsChildAndAppend();
+
       cNode* GetNext();
       cNode* GetNext(const std::string& sName);
 
       cNode* FirstChild();
       cNode* FindChild(const std::string& sName);
 
-      cNode* AddNode();
-      void AddAttribute(const std::string& inAttribute, const std::string& inValue);
-      void AddContent(const std::string& inContent);
+      void SetTypeElement(const std::string& name);
+      void SetTypeContentOnly(const std::string& text);
 
+      std::string ParseFromString(const std::string& sData, cNode* pPrevious);
 
-      std::vector<cNode*> vChild;
-
-      cNode* pParent;
-      cNode* pNext;
-
-      std::string sName;
-      std::map<std::string, std::string> mAttribute; // One of each attribute
+      void LoadFromFile(const string_t& sFilename);
+      void WriteToFile(std::ofstream& file, const std::string& sTab);
 
       enum TYPE
       {
@@ -138,17 +154,36 @@ namespace breathe
         TYPE_CONTENT_ONLY
       };
 
+
       TYPE type;
+
+      cNode* pParent;
+      cNode* pNext;
+
+      std::vector<cNode*> vChild;
+
+      std::string sName;
+      std::map<std::string, std::string> mAttribute; // One of each attribute
+
       std::string sContentOnly;
-
-      std::string ParseFromString(const std::string& sData, cNode* pPrevious);
-
-      void LoadFromFile(const string_t& sFilename);
-      void WriteToFile(std::ofstream& file, const std::string& sTab);
     };
 
 
     // *** Inlines
+
+    inline cNode* cNode::CreateElement(const std::string& name)
+    {
+      cNode* pNode = new cNode;
+      pNode->SetTypeElement(name);
+      return pNode;
+    }
+
+    inline cNode* cNode::CreateTextNode(const std::string& text)
+    {
+      cNode* pNode = new cNode;
+      pNode->SetTypeContentOnly(text);
+      return pNode;
+    }
 
     inline cNode::cIterator::cIterator(const cIterator& rhs) :
       pNode(rhs.pNode)
@@ -224,7 +259,19 @@ namespace breathe
 
 
 
-    typedef cNode cXML;
+
+    class reader
+    {
+    public:
+      bool ReadFromFile(document& doc, const string_t& filename) const;
+    };
+
+
+    class writer
+    {
+    public:
+      bool WriteToFile(const document& doc, const string_t& filename) const;
+    };
   }
 }
 

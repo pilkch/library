@@ -202,7 +202,7 @@ namespace breathe
 							for (unsigned int j = 0; j < normal_buffer[i].size(); ++j )
 								pNormal[i] += normal_buffer[i][j];
 
-							pNormal[i].Normalize();
+                                                                                pNormal[i].Normalise();
 						}
 					}
 

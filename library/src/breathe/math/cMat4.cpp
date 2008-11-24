@@ -625,7 +625,7 @@ namespace breathe
 
 		void cMat4::SetRotationAxis(const double angle, const cVec3 & axis)
 		{
-			cVec3 u=axis.GetNormalized();
+                                  cVec3 u=axis.GetNormalised();
 
 			float sinAngle=sin((float)angle);
 			float cosAngle=cos((float)angle);
@@ -792,11 +792,11 @@ namespace breathe
 			cVec3 x,y,z;
 			cMat4 m0,m1;
 			z = eye - dir;
-			z.Normalize();
+                                                z.Normalise();
 			x.Cross(up, z);
-			x.Normalize();
+                                                x.Normalise();
 			y.Cross(z,x);
-			y.Normalize();
+                                                y.Normalise();
 			m0.entries[0] = x.x; m0.entries[4] = x.y; m0.entries[8] = x.z; m0.entries[12] = 0.0;
 			m0.entries[1] = y.x; m0.entries[5] = y.y; m0.entries[9] = y.z; m0.entries[13] = 0.0;
 			m0.entries[2] = z.x; m0.entries[6] = z.y; m0.entries[10] = z.z; m0.entries[14] = 0.0;

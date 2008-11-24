@@ -30,7 +30,7 @@ namespace breathe
 			TOP		= 3,		// The TOP side of the frustum
 			BACK	= 4,		// The BACK	side of the frustum
 			FRONT	= 5			// The FRONT side of the frustum
-		}; 
+		};
 
 		// Like above, instead of saying a number for the ABC and D of the plane, we
 		// want to be more descriptive.
@@ -42,7 +42,7 @@ namespace breathe
 			D = 3		// The distance the plane is from the origin
 		};
 
-		
+
 		cFrustum::cFrustum()
 		{
 			target.x=0.0f;
@@ -78,13 +78,13 @@ namespace breathe
 
 
 
-		void cFrustum::NormalizePlane(float frustum[6][4], int side)
+		void cFrustum::NormalisePlane(float frustum[6][4], int side)
 		{
 			// Here we calculate the magnitude of the normal to the plane (point A B C)
 			// Remember that (A, B, C) is that same thing as the normal's (X, Y, Z).
 			// To calculate magnitude you use the equation:  magnitude = sqrt( x^2 + y^2 + z^2)
-			float magnitude = sqrtf(	frustum[side][A] * frustum[side][A] + 
-																							frustum[side][B] * frustum[side][B] + 
+			float magnitude = sqrtf(	frustum[side][A] * frustum[side][A] +
+																							frustum[side][B] * frustum[side][B] +
 																							frustum[side][C] * frustum[side][C] );
 
 			// Then we divide the plane's values by it's magnitude.
@@ -92,12 +92,12 @@ namespace breathe
 			frustum[side][A] /= magnitude;
 			frustum[side][B] /= magnitude;
 			frustum[side][C] /= magnitude;
-			frustum[side][D] /= magnitude; 
+			frustum[side][D] /= magnitude;
 		}
 
 
 		//-----------------------------------------------------------------------------
-		// Name : updateViewMatrix() 
+		// Name : updateViewMatrix()
 		// Desc : Builds a view matrix suitable for OpenGL.
 		//
 		// Here's what the final view matrix should look like:
@@ -125,10 +125,10 @@ namespace breathe
 
 
 			right=target.CrossProduct(up);
-			right.Normalize();
+			right.Normalise();
 
 			up=right.CrossProduct(target);
-			up.Normalize();
+			up.Normalise();
 
 
 			modl[0] =  right.x;
@@ -191,7 +191,7 @@ namespace breathe
 			clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
 			clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
 			clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
-			
+
 			// Now we actually want to get the sides of the frustum.  To do this we take
 			// the clipping planes we received above and extract the sides from them.
 
@@ -202,10 +202,10 @@ namespace breathe
 			m_Frustum[RIGHT][D] = clip[15] - clip[12];
 
 			// Now that we have a normal (A,B,C) and a distance (D) to the plane,
-			// we want to normalize that normal and distance.
+			// we want to normalise that normal and distance.
 
-			// Normalize the RIGHT side
-			NormalizePlane(m_Frustum, RIGHT);
+			// normalise the RIGHT side
+                                                NormalisePlane(m_Frustum, RIGHT);
 
 			// This will extract the LEFT side of the frustum
 			m_Frustum[LEFT][A] = clip[ 3] + clip[ 0];
@@ -213,8 +213,8 @@ namespace breathe
 			m_Frustum[LEFT][C] = clip[11] + clip[ 8];
 			m_Frustum[LEFT][D] = clip[15] + clip[12];
 
-			// Normalize the LEFT side
-			NormalizePlane(m_Frustum, LEFT);
+			// Normalise the LEFT side
+			NormalisePlane(m_Frustum, LEFT);
 
 			// This will extract the BOTTOM side of the frustum
 			m_Frustum[BOTTOM][A] = clip[ 3] + clip[ 1];
@@ -222,8 +222,8 @@ namespace breathe
 			m_Frustum[BOTTOM][C] = clip[11] + clip[ 9];
 			m_Frustum[BOTTOM][D] = clip[15] + clip[13];
 
-			// Normalize the BOTTOM side
-			NormalizePlane(m_Frustum, BOTTOM);
+			// Normalise the BOTTOM side
+			NormalisePlane(m_Frustum, BOTTOM);
 
 			// This will extract the TOP side of the frustum
 			m_Frustum[TOP][A] = clip[ 3] - clip[ 1];
@@ -231,8 +231,8 @@ namespace breathe
 			m_Frustum[TOP][C] = clip[11] - clip[ 9];
 			m_Frustum[TOP][D] = clip[15] - clip[13];
 
-			// Normalize the TOP side
-			NormalizePlane(m_Frustum, TOP);
+			// Normalise the TOP side
+			NormalisePlane(m_Frustum, TOP);
 
 			// This will extract the BACK side of the frustum
 			m_Frustum[BACK][A] = clip[ 3] - clip[ 2];
@@ -240,8 +240,8 @@ namespace breathe
 			m_Frustum[BACK][C] = clip[11] - clip[10];
 			m_Frustum[BACK][D] = clip[15] - clip[14];
 
-			// Normalize the BACK side
-			NormalizePlane(m_Frustum, BACK);
+			// Normalise the BACK side
+			NormalisePlane(m_Frustum, BACK);
 
 			// This will extract the FRONT side of the frustum
 			m_Frustum[FRONT][A] = clip[ 3] + clip[ 2];
@@ -249,8 +249,8 @@ namespace breathe
 			m_Frustum[FRONT][C] = clip[11] + clip[10];
 			m_Frustum[FRONT][D] = clip[15] + clip[14];
 
-			// Normalize the FRONT side
-			NormalizePlane(m_Frustum, FRONT);
+			// Normalise the FRONT side
+			NormalisePlane(m_Frustum, FRONT);
 		}
 
 		// The code below will allow us to make checks within the frustum.  For example,
@@ -279,7 +279,7 @@ namespace breathe
 			if (m_Frustum[3][A] * x + m_Frustum[3][B] * y + m_Frustum[3][C] * z + m_Frustum[3][D] <= -radius ) return false;
 			if (m_Frustum[4][A] * x + m_Frustum[4][B] * y + m_Frustum[4][C] * z + m_Frustum[4][D] <= -radius ) return false;
 			if (m_Frustum[5][A] * x + m_Frustum[5][B] * y + m_Frustum[5][C] * z + m_Frustum[5][D] <= -radius ) return false;
-			
+
 			return true;
 		}
 
@@ -289,7 +289,7 @@ namespace breathe
 			// and half the length.  Think of it like a radius.  Then we checking each point
 			// in the cube and seeing if it is inside the frustum.  If a point is found in front
 			// of a side, then we skip to the next side.  If we get to a plane that does NOT have
-			// a point in front of it, then it will return false.  
+			// a point in front of it, then it will return false.
 
 			for (int i = 0; i < 6; i++ )
 			{

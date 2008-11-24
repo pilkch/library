@@ -220,14 +220,12 @@ namespace breathe
 
 				math::cVec3 objToCamProj(cam.x - objPos.x, 0.0f, cam.z - objPos.z);
 
-				float angleCosine;
+				objToCamProj.Normalise();
 
-				math::cVec3 v3out;
+        math::cVec3 v3out;
 
-				objToCamProj.Normalize();
-
-				// compute the angle
-				angleCosine = cam.DotProduct(objToCamProj);
+        // compute the angle
+        float angleCosine = cam.DotProduct(objToCamProj);
 
 				float a=acosf(angleCosine)*math::c180_DIV_PI;
 

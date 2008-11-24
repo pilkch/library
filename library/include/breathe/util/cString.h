@@ -2,6 +2,7 @@
 #define CSTRING_H
 
 // http://www.cppreference.com/wiki/io/io_flags
+// http://www.cppreference.com/wiki/c/string/start
 
 namespace breathe
 {
@@ -20,6 +21,11 @@ namespace breathe
   typedef std::basic_string<char16_t> string16_t;
   typedef std::wstring string32_t;
   #endif
+
+  // http://www.cppreference.com/wiki/c/string/isxdigit
+  // returns true if (A-F, a-f, or 0-9)
+  inline bool ishexdigit(char c) { return isxdigit(c) == 1; }
+  inline bool ishexdigit(wchar_t c) { return isxdigit(c) == 1; }
 
   namespace string
   {
