@@ -1,6 +1,8 @@
 #ifndef CAPP_H
 #define CAPP_H
 
+#include <breathe/game/scenegraph.h>
+
 namespace breathe
 {
   const float KEY_MIN = 0.1f;

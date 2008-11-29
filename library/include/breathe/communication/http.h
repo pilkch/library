@@ -1,6 +1,9 @@
 #ifndef CDOWNLOADHTTP_H
 #define CDOWNLOADHTTP_H
 
+#include <breathe/util/thread.h>
+
+#include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 
 namespace breathe
@@ -18,12 +21,12 @@ namespace breathe
     class cDownloadHTTP : public breathe::util::cThread
     {
     public:
-      cDownloadHTTP();
-
       enum METHOD {
         METHOD_GET,
         METHOD_POST
       };
+
+      cDownloadHTTP();
 
       // Deprecated 2008, use Download(path, METHOD_GET); instead
       //void Download(const std::string& path);

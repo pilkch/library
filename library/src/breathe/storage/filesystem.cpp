@@ -54,7 +54,7 @@ namespace breathe
 
       if (!breathe::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
 
-      CONSOLE<<"SetThisExecutable returning "<<sApplicationDirectory<<std::endl;
+      CONSOLE<<"SetThisExecutable application directory="<<sApplicationDirectory<<", returning"<<std::endl;
     }
 
     string_t GetThisApplicationDirectory()

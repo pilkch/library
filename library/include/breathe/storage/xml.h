@@ -41,6 +41,7 @@ namespace breathe
     {
     private:
       typedef std::map<std::string, std::string>::iterator attribute_iterator;
+      typedef std::map<std::string, std::string>::const_iterator const_attribute_iterator;
 
     public:
       cNode();
@@ -55,7 +56,7 @@ namespace breathe
       void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
       void AddAttribute(const std::string& name, const std::string& value);
 
-      void SaveToFile(const string_t& inFilename);
+      void SaveToFile(const string_t& inFilename) const;
 
 #ifdef BUILD_DEBUG
       void PrintToLog(const std::string& sTab="");
@@ -67,6 +68,7 @@ namespace breathe
       bool IsContentOnly() const { return type == TYPE_CONTENT_ONLY; }
 
       std::string GetName() const;
+      std::string GetContent() const;
 
       template <class T>
       bool GetAttribute(const std::string& sAttribute, T& value)
@@ -112,6 +114,7 @@ namespace breathe
         void FindChild(const std::string& sName);
 
         std::string GetName() const;
+        std::string GetContent() const;
 
         template <class T>
         bool GetAttribute(const std::string& sAttribute, T& value) const;
@@ -144,7 +147,7 @@ namespace breathe
       std::string ParseFromString(const std::string& sData, cNode* pPrevious);
 
       void LoadFromFile(const string_t& sFilename);
-      void WriteToFile(std::ofstream& file, const std::string& sTab);
+      void WriteToFile(std::ofstream& file, const std::string& sTab) const;
 
       enum TYPE
       {
@@ -243,6 +246,12 @@ namespace breathe
       return pNode->GetName();
     }
 
+    inline std::string cNode::cIterator::GetContent() const
+    {
+      ASSERT(pNode != nullptr);
+      return pNode->GetContent();
+    }
+
     template <class T>
     inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, T& value) const
     {
@@ -264,6 +273,7 @@ namespace breathe
     {
     public:
       bool ReadFromFile(document& doc, const string_t& filename) const;
+      bool ReadFromString(document& doc, const string_t& input) const;
     };
 
 
@@ -271,6 +281,7 @@ namespace breathe
     {
     public:
       bool WriteToFile(const document& doc, const string_t& filename) const;
+      bool WriteToString(const document& doc, string_t& output) const;
     };
   }
 }

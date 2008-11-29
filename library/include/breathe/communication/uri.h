@@ -9,11 +9,11 @@ namespace breathe
     void BuildWebSiteProgramURL(string_t& sURL);
     void BuildWebSiteProgramURLWithSubFolderOrFile(string_t& sURL, const string_t& sSubFolderOrFile);
 
+    typedef uint16_t port_t;
+
     class cURI
     {
     public:
-      typedef uint16_t port_t;
-
       typedef enum PROTOCOL {
         PROTOCOL_HTTP = 0,
         PROTOCOL_HTTPS,

@@ -7,16 +7,16 @@ namespace breathe
 
   class cConsole
   {
-    public:
-      void ProcessCommand(const string_t& command);
+  public:
+    void ProcessCommand(const string_t& command);
 
-    private:
-      void ProcessCommand_ls(const std::list<string_t>& arguments);
-      void ProcessCommand_cd(const std::list<string_t>& arguments);
+  private:
+    void ProcessCommand_ls(const std::list<string_t>& arguments);
+    void ProcessCommand_cd(const std::list<string_t>& arguments);
 
-      void AddLine(const string_t& line);
+    void AddLine(const string_t& line);
 
-      string_t currentDirectory;
+    string_t currentDirectory;
   };
 
   void ProcessCommand_ls(const std::list<string_t>& arguments)

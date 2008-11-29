@@ -1,6 +1,8 @@
 #ifndef CMESH_H
 #define CMESH_H
 
+#include <breathe/util/cSmartPtr.h>
+
 namespace breathe
 {
 	namespace render

@@ -121,11 +121,39 @@ namespace breathe
 
 
 
+    // Two points that specify a straight line
     class cLine3
     {
+      public:
+        cLine3();
+        cLine3(const cVec3& origin, const cVec3& destination);
+
+        void SetPoints(const cVec3& origin, const cVec3& destination);
+
+        const cVec3& GetOrigin() const { return origin; }
+        const cVec3& GetDestination() const { return destination; }
+
+      private:
+        cVec3 origin;
+        cVec3 destination;
+    };
+
+    // A point and direction to travel from that point, the ray itself is infinite length
+    class cRay3
+    {
     public:
-      cVec3 from;
-      cVec3 to;
+      cRay3();
+      cRay3(const cVec3& origin, const cVec3& destination);
+
+      void SetOrigin(const cVec3& origin, const cVec3& destination);
+      void SetDirection(const cVec3& direction);
+
+      const cVec3& GetOrigin() const { return origin; }
+      const cVec3& GetDirection() const { return direction; }
+
+    private:
+      cVec3 origin;
+      cVec3 direction;
     };
 
 
@@ -178,8 +206,8 @@ namespace breathe
     {
       ASSERT(IsValid());
 
-      AddToVolume(line.from);
-      AddToVolume(line.to);
+      AddToVolume(line.GetOrigin());
+      AddToVolume(line.GetDestination());
     }
 
     inline void cAABB3::AddToVolume(const cAABB3& box)

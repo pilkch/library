@@ -45,7 +45,7 @@ namespace breathe
 
     string_t textureBase;
     string_t textureDetail;
-    breathe::cContainer2D<float> heightmap;
+    breathe::cDynamicContainer2D<float> heightmap;
   };
 
   cTerrain::cTerrain(size_t lengthPerSide) :

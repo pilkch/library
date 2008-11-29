@@ -108,7 +108,7 @@ namespace breathe
       float fWidthUnitsPerPixel;
       float fHeightUnitsPerPixel;
       math::cVec3 position;
-      cContainer2D<pixel_t> pixels;
+      cDynamicContainer2D<pixel_t> pixels;
     };
 
 

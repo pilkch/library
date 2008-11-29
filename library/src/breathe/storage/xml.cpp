@@ -305,7 +305,7 @@ namespace breathe
     }
 
 
-    void cNode::SaveToFile(const std::string& inFilename)
+    void cNode::SaveToFile(const std::string& inFilename) const
     {
       std::ofstream f(inFilename.c_str());
 
@@ -320,7 +320,7 @@ namespace breathe
 #endif
     }
 
-    void cNode::WriteToFile(std::ofstream& f, const std::string& sTab)
+    void cNode::WriteToFile(std::ofstream& f, const std::string& sTab) const
     {
       ASSERT(f.is_open());
 
@@ -330,12 +330,13 @@ namespace breathe
       if (IsNameAndAttributesAndChildren()) {
         if (sName != "") {
           std::string sTag = sTab + "<" + sName;
-          attribute_iterator iter=mAttribute.begin();
-          for (;iter!=mAttribute.end();iter++) {
-            if (iter->second.length() > 0)
-              sTag += " " + iter->first + "=\"" + iter->second + "\"";
-            else
-              sTag += " " + iter->first;
+          const_attribute_iterator iter = mAttribute.begin();
+          const const_attribute_iterator iterEnd = mAttribute.end();
+          while (iter != iterEnd) {
+            if (iter->second.length() > 0) sTag += " " + iter->first + "=\"" + iter->second + "\"";
+            else sTag += " " + iter->first;
+
+            iter++;
           }
 
           if (vChild.size() == 0) {
@@ -473,6 +474,11 @@ namespace breathe
       return sName;
     }
 
+    std::string cNode::GetContent() const
+    {
+      return sContentOnly;
+    }
+
     void cNode::AddAttribute(const std::string& inAttribute, const std::string& inValue)
     {
       mAttribute[inAttribute] = inValue;
@@ -581,12 +587,24 @@ namespace breathe
     {
       doc.Clear();
 
+      //doc.LoadFromFile(filename);
+
       return false;
     }
 
+    bool reader::ReadFromString(document& doc, const string_t& content) const
+    {
+      doc.Clear();
+
+      //doc.LoadFromString(content);
+
+      return false;
+    }
+
+
     bool writer::WriteToFile(const document& doc, const string_t& filename) const
     {
-      
+      doc.SaveToFile(filename);
 
       return false;
     }
