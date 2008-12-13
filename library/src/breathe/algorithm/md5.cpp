@@ -31,6 +31,7 @@
  */
 
 #include <cstdio>
+#include <cstring>
 
 // writing on a text file
 #include <iostream>
@@ -404,10 +405,10 @@ namespace breathe
 		return sResult;
 	}
 
-	std::string cMD5::GetResultFormatted() const
-	{
-		char temp[17];
-		strcpy(temp, (char*)result);
-		return std::string(temp);
-	}
+  std::string cMD5::GetResultFormatted() const
+  {
+    char temp[17];
+    std::strcpy(temp, (char*)result);
+    return std::string(temp);
+  }
 }

@@ -88,7 +88,7 @@ namespace breathe
 			for (size_t i = 0; i < n; i++) particles[i].Kill();
 		}
 
-		void cParticleSystem::InitParticle(unsigned int uiParticle)
+		void cParticleSystem::InitParticle(size_t uiParticle)
 		{
 			assert(uiParticle < particles.size());
 

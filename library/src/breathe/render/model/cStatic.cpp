@@ -353,7 +353,7 @@ namespace breathe
 			}
 
 
-			unsigned int cStatic::Render(math::cOctree* pNode)
+        size_t cStatic::Render(math::cOctree* pNode)
 			{
 				// We should already have the octree created before we call this function.
 				// This only goes through the nodes that are in our frustum, then renders those
@@ -371,7 +371,7 @@ namespace breathe
 					pNode->m_vCenter.z, pNode->m_Width / 2))
 						return 0;
 
-				unsigned int uiTriangles = 0;
+        size_t uiTriangles = 0;
 
 				// Check if this node is subdivided. If so, then we need to recurse and draw it's nodes
 				if (pNode->IsSubDivided())
@@ -442,12 +442,12 @@ namespace breathe
 				return uiTriangles;
 			}
 
-			unsigned int cStatic::Render()
-			{
-
-
-				return 0;
-			}
+        size_t cStatic::Render()
+        {
+  
+  
+          return 0;
+        }
 
 			void cStatic::Update(sampletime_t currentTime)
 			{

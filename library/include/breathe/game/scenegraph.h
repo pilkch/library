@@ -501,7 +501,7 @@ namespace breathe
     class cSpatialGraphNode
     {
     public:
-      cSpatialGraphNode() { memset(&pChild[0], 0, sizeof(cSpatialGraphNode*) * 8); }
+      cSpatialGraphNode();
       virtual ~cSpatialGraphNode() {}
 
       void Update(cUpdateVisitor& visitor) { _Update(visitor); }

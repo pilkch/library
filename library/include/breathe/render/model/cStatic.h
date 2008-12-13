@@ -61,9 +61,9 @@ namespace breathe
 
 				int Load(const std::string& sFilename);
 				void Update(sampletime_t currentTime);
-				unsigned int Render();
+        size_t Render();
 
-				unsigned int Render(cOctree* pNode);
+        size_t Render(cOctree* pNode);
 
 				//void Split(unsigned int uiMesh, cModel_Static** pDest, unsigned int uiDest); //Which mesh to subtract, destination model
 				void CloneTo(cStaticRef rhs);
@@ -72,8 +72,8 @@ namespace breathe
       };
 
       typedef cSmartPtr<cStatic> cStaticRef;
-		}
-	}
+    }
+  }
 }
 
 #endif // CMODEL_STATIC_H

@@ -2,18 +2,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
 
-#include <string>
-
-// writing on a text file
-#include <iostream>
-#include <fstream>
-
-#include <sstream>
 #include <vector>
 #include <map>
 #include <list>
 #include <set>
+
+#include <string>
+#include <sstream>
+
+// writing on a text file
+#include <iostream>
+#include <fstream>
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
@@ -359,6 +360,11 @@ namespace breathe
     }
 
 
+
+    cSpatialGraphNode::cSpatialGraphNode()
+    {
+      memset(&pChild[0], 0, sizeof(cSpatialGraphNode*) * 8);
+    }
 
 
     cUpdateVisitor::cUpdateVisitor(cSceneGraph& scenegraph)

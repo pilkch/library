@@ -2,12 +2,14 @@
 #include <cstdlib>
 #include <cmath>
 #include <cassert>
+#include <cstring>
 
+#include <vector>
 #include <list>
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <vector>
 #include <fstream>
 
 #ifdef __LINUX__

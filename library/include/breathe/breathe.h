@@ -30,7 +30,7 @@
 
 // Architecture
 #if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || defined(__LP64__) || defined(__amd64)
-#error "This is a 64 bit compile, have fun!"
+#define BUILD_PLATFORM_64
 #endif
 
 #if defined(__hppa__) || \
@@ -39,7 +39,7 @@
   (defined(__APPLE__) && defined(__MACH__)) || \
   defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
   defined(__sparc__)
-#error "Breathe does not support big endian systems, get a real computer (little endian x86)
+#error "Breathe does not support big endian systems, get a real computer (little endian x86)"
 #endif
 
 // Operating System
@@ -134,6 +134,9 @@ typedef unsigned long long int uint64_t;
 #else
 // For our types (uint8_t, uint32_t, etc.)
 #include <SDL/SDL.h>
+#ifdef BUILD_PLATFORM_64
+#include <stdint.h>
+#endif
 #endif
 
 typedef float float32_t; // For reading/writing to and from files/network
