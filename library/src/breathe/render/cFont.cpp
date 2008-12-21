@@ -1,8 +1,6 @@
-/*
-	A quick and simple opengl font library that uses GNU freetype2, written
-	and distributed as part of a tutorial for nehe.gamedev.net.
-	Sven Olsen, 2003
-*/
+// A quick and simple opengl font library that uses GNU freetype2, written
+// and distributed as part of a tutorial for nehe.gamedev.net.
+// Sven Olsen, 2003
 
 #include <cmath>
 #include <cassert>
@@ -175,15 +173,16 @@ namespace breathe
 
 
 
-		cFont::cFont(const string_t& sNewFilename, unsigned int height) :
-			textures(nullptr),
-			list_base(0),
+    cFont::cFont(const string_t& sNewFilename, unsigned int height) :
+    textures(nullptr),
+      list_base(0),
 
-			h(float(height))
+      h(float(height))
     {
       string_t sFilename;
       if (!breathe::filesystem::FindResourceFile(TEXT("fonts/"), sNewFilename, sFilename)) {
-        LOG<<"cLevel::LoadXML File "<<sNewFilename<<" not found in fonts/"<<std::endl;
+        LOG<<"cFont::cFont File "<<sNewFilename<<" not found in fonts/"<<std::endl;
+        return;
       }
 
 			//Allocate some memory to store the texture ids.

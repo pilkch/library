@@ -15,7 +15,7 @@ namespace breathe
     cEntityBase();
     virtual ~cEntityBase() {}
 
-    void SetSceneNode(scenegraph::cSceneNodeRef _pSceneNode);
+    void SetSceneNode(scenegraph3d::cSceneNodeRef _pSceneNode);
 
     bool IsDirty() const { return bIsDirty; }
     void SetDirty() { bIsDirty = true; }
@@ -28,7 +28,7 @@ namespace breathe
     void Update(sampletime_t currentTime) { _Update(currentTime); }
     void SetNotDirty() { ASSERT(IsDirty()); bIsDirty = false; }
 
-    scenegraph::cSceneNodeRef pSceneNode;
+    scenegraph3d::cSceneNodeRef pSceneNode;
 
   private:
     virtual void _Update(sampletime_t currentTime) {}
@@ -41,7 +41,7 @@ namespace breathe
   {
   }
 
-  inline void cEntityBase::SetSceneNode(scenegraph::cSceneNodeRef _pSceneNode)
+  inline void cEntityBase::SetSceneNode(scenegraph3d::cSceneNodeRef _pSceneNode)
   {
     ASSERT(_pSceneNode != nullptr);
     pSceneNode = _pSceneNode;

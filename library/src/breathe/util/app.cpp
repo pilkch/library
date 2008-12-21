@@ -1096,7 +1096,7 @@ namespace breathe
 
           scenegraph2D.Render(currentTime);
 
-      #ifndef NDEBUG
+      #ifdef BUILD_DEBUG
           if (IsDebug() && !CONSOLE.IsVisible())
           {
             pRender->SetColour(0.0f, 0.0f, 1.0f);
