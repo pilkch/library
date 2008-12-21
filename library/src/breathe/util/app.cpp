@@ -1075,6 +1075,9 @@ namespace breathe
 
     scenegraph.Update(currentTime);
     scenegraph.Cull(currentTime);
+
+    scenegraph2D.Update(currentTime);
+    scenegraph2D.Cull(currentTime);
   }
 
   void cApp::_Render(cApp::cAppState& state, sampletime_t currentTime)
@@ -1090,6 +1093,8 @@ namespace breathe
         pRender->EndRenderScene();
         pRender->BeginScreenSpaceRendering();
           state.RenderScreenSpace(currentTime);
+
+          scenegraph2D.Render(currentTime);
 
       #ifndef NDEBUG
           if (IsDebug() && !CONSOLE.IsVisible())
