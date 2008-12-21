@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <SDL/SDL.h>
 
 // Breathe

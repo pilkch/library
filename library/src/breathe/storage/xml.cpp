@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <cassert>
+#include <cstring>
 
 // writing on a text file
 #include <iostream>
@@ -529,9 +530,9 @@ namespace breathe
         std::stringstream stm(iter->second);
         stm >> std::skipws;
 
-        std::string s(iter->second);
-        char sz[100];
-        strcpy(sz, s.c_str());
+        //std::string s(iter->second);
+        //char sz[100];
+        //std::strcpy(sz, s.c_str());
 
         size_t i = 0;
         while (i != nValues) {

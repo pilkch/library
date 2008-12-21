@@ -13,6 +13,7 @@ inline T max(const T& a, const T& b)
   return (a > b) ? a : b;
 }
 
+// TODO: Rename this clamp
 template <class T>
 inline T min_max(const T& i, const T& lower, const T& upper)
 {
@@ -326,6 +327,15 @@ namespace breathe
     inline float GetDistance(const T& from, const T& to)
     {
       return (from - to).GetLength();
+    }
+
+
+    // This is for calling with int, float or double
+    template <class T>
+    inline bool IsApproximatelyEqual(const T& lhs, const T& rhs)
+    {
+      const T temp(lhs - rhs);
+      return (temp > -cEPSILON) && (temp < cEPSILON);
     }
   }
 }

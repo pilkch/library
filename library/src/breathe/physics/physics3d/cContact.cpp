@@ -1,5 +1,6 @@
 // Basic standard library includes
 #include <cmath>
+#include <cstring>
 
 // STL
 #include <list>

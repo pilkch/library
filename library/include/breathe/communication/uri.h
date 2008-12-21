@@ -14,7 +14,7 @@ namespace breathe
     class cURI
     {
     public:
-      typedef enum PROTOCOL {
+      enum PROTOCOL {
         PROTOCOL_HTTP = 0,
         PROTOCOL_HTTPS,
         PROTOCOL_FTP,

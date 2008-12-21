@@ -2,6 +2,7 @@
 #define CAPP_H
 
 #include <breathe/game/scenegraph.h>
+#include <breathe/game/scenegraph2d.h>
 
 namespace breathe
 {
@@ -164,7 +165,8 @@ namespace breathe
 
     render::cFont* pFont;
 
-    scenegraph::cSceneGraph scenegraph;
+    scenegraph3d::cSceneGraph scenegraph;
+    scenegraph2d::cSceneGraph scenegraph2D;
 
   private:
     class cConsoleWindow : public gui::cModelessWindow

@@ -67,7 +67,7 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
-#include <breathe/game/scenegraph.h>
+#include <breathe/game/scenegraph2d.h>
 
 #include <breathe/game/cLevel.h>
 #include <breathe/game/cPlayer.h>
@@ -77,12 +77,9 @@
 #include <breathe/vehicle/cSeat.h>
 #include <breathe/vehicle/cVehicle.h>
 
-const unsigned int uiNodeNameDisplayTime = 100;
-
-
 namespace breathe
 {
-  namespace scenegraph3d
+  namespace scenegraph2d
   {
     cSceneNode::cSceneNode() :
 #ifdef BUILD_DEBUG
@@ -253,17 +250,6 @@ namespace breathe
     }
 
 
-    void cProjection2D::_Update(cUpdateVisitor& visitor)
-    {
-      visitor.Visit(*pChild);
-    }
-
-    void cProjection2D::_Cull(cCullVisitor& visitor)
-    {
-      visitor.Visit(*pChild);
-    }
-
-
     void cSwitchNode::_Update(cUpdateVisitor& visitor)
     {
       if (node.empty()) return;
@@ -291,72 +277,6 @@ namespace breathe
     void cModelNode::_Cull(cCullVisitor& visitor)
     {
       //visitor.Visit(*this);
-    }
-
-
-    void cLightNode::_Update(cUpdateVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Update(visitor);
-
-      //visitor.Visit(*this);
-    }
-
-    void cLightNode::_Cull(cCullVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Cull(visitor);
-
-      //visitor.Visit(*this);
-    }
-
-
-
-
-    void cLODNode::_Update(cUpdateVisitor& visitor)
-    {
-      if (node.empty()) return;
-      ASSERT(index < node.size());
-
-      // Only visit the node that we require
-      visitor.Visit(*node[index]);
-    }
-
-    void cLODNode::_Cull(cCullVisitor& visitor)
-    {
-      if (node.empty()) return;
-      ASSERT(index < node.size());
-
-    // Only visit the node that we require
-      visitor.Visit(*node[index]);
-    }
-
-
-    void cPagedLODNodeChild::_Update(cUpdateVisitor& visitor)
-    {
-      visitor.Visit(terrain);
-      visitor.Visit(trees);
-      //visitor.Visit(grass);
-    }
-    void cPagedLODNodeChild::_Cull(cCullVisitor& visitor)
-    {
-      visitor.Visit(terrain);
-      visitor.Visit(trees);
-      //visitor.Visit(grass);
-    }
-
-    void cPagedLODNode::_Update(cUpdateVisitor& visitor)
-    {
-      loader.Update();
-    }
-
-    void cPagedLODNode::_Cull(cCullVisitor& visitor)
-    {
-      //std::vector<cGeometryNodeRef>::iterator iter(node.begin());
-      //const std::vector<cGeometryNodeRef>::iterator iter(node.end());
-      //while (iter != iterEnd) {
-      //  visitor.Visit(*(*iter));
-
-      //  iter++;
-      //}
     }
 
 
@@ -610,7 +530,6 @@ namespace breathe
 
         cModelNode model;
 
-        cLightNode light;
         cSceneGraph scenegraph;
         cSceneNodeRef pRoot = scenegraph.GetRoot();
 
@@ -787,8 +706,6 @@ namespace breathe
 
 
 
-
-            //model.AddChild(&light);
 
             //pRoot->AddChild(&model);
 

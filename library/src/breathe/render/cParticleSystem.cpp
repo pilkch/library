@@ -112,7 +112,7 @@ namespace breathe
 		}
 
 
-		cParticleSystemBillboard::cParticleSystemBillboard(unsigned int uiMaxSize,
+		cParticleSystemBillboard::cParticleSystemBillboard(size_t uiMaxSize,
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax,
 			float fInParticleWidth, float fInParticleHeight) :
 
@@ -199,7 +199,7 @@ namespace breathe
 
 
 
-		cParticleSystemMesh::cParticleSystemMesh(unsigned int uiMaxSize,
+		cParticleSystemMesh::cParticleSystemMesh(size_t uiMaxSize,
 			unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
 
 			cParticleSystem(uiMaxSize, uiInLifeSpanMin, uiInLifeSpanMax)
@@ -207,7 +207,7 @@ namespace breathe
 
 		}
 
-		void cParticleSystemMesh::InitParticle(unsigned int uiParticle)
+		void cParticleSystemMesh::InitParticle(size_t uiParticle)
 		{
 			ASSERT(uiParticle < particles.size());
 

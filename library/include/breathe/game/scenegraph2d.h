@@ -1,5 +1,5 @@
-#ifndef SCENEGRAPH_H
-#define SCENEGRAPH_H
+#ifndef SCENEGRAPH2D_H
+#define SCENEGRAPH2D_H
 
 #include <breathe/breathe.h>
 #include <breathe/math/math.h>
@@ -12,27 +12,7 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
-// GeodeNode - leaf node from which Renderable leaves are hung - no child nodes, only child Renderables
-// BillboardNode
-// ParticleSystemNode
-// Renderables
-// StateSets
-
-// Possible Future Work:
-// ImposterNode - adds support for hierarchical image chaching
-// OccluderNode
-
-// Never:
-// SequenceNode - Automatically steps through children
-
-// GroupNode at the top containing the whole graph
-// GroupNodes, LODNodes, TransformNodes, SwitchNodes in the middle
-// GeodeNodes/BillboardNodes are the leaf nodes which contain...
-// Renderables which are leaves that contain the geometry and can be drawn.
-// StateSets attached to Nodes and Renderables, state inherits from parents too.
-
-// http://www.openscenegraph.org/documentation/VRLabLecture/HowToLearnAbout/Nodes.html
-// http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph/trunk/src/osgUtil/Optimizer.cpp?format=txt
+#include <breathe/game/scenegraph.h>
 
 // cSceneNode
 //     |
@@ -59,219 +39,11 @@
 
 namespace breathe
 {
-  class cCamera;
-  class cObject;
-
-  namespace render
-  {
-    class cShader
-    {
-    public:
-    };
-  }
-
-
-  namespace physics
-  {
-    class cPhysicsObject;
-  }
-
-  namespace vehicle
-  {
-    class cVehicle;
-  }
-
-  namespace scenegraph_common
-  {
-    class cScopedEnable
-    {
-    public:
-      explicit cScopedEnable(GLenum field);
-      ~cScopedEnable();
-
-    private:
-      GLenum field;
-    };
-
-    inline cScopedEnable::cScopedEnable(GLenum _field) :
-      field(_field)
-    {
-      glEnable(field);
-    }
-
-    inline cScopedEnable::~cScopedEnable()
-    {
-      glDisable(field);
-    }
-
-
-    class cScopedAttributes
-    {
-    public:
-      explicit cScopedAttributes(GLbitfield attribute);
-      ~cScopedAttributes();
-
-    private:
-      GLbitfield attributes;
-    };
-
-    inline cScopedAttributes::cScopedAttributes(GLbitfield _attribute) :
-      attributes(_attribute)
-    {
-      glPushAttrib(attributes);
-    }
-
-    inline cScopedAttributes::~cScopedAttributes()
-    {
-      glPopAttrib();
-    }
-
-
-
-
-    // State classes for keeping track of what state we are in.
-    // Default compiler generated copy constructors are fine for these simple classes.
-
-    class cStateBoolean
-    {
-    public:
-      cStateBoolean() : bHasValidValue(false), bTurnedOn(false) {}
-
-      bool operator==(const cStateBoolean& rhs) const;
-      bool operator!=(const cStateBoolean& rhs) const { return !(*this == rhs); }
-
-      bool bHasValidValue;
-      bool bTurnedOn;
-    };
-
-    inline bool cStateBoolean::operator==(const cStateBoolean& rhs) const
-    {
-      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn);
-    }
-
-
-    class cStateBooleanWithFloat
-    {
-    public:
-      cStateBooleanWithFloat() : bHasValidValue(false), bTurnedOn(false), fValue(0.0f) {}
-
-      bool operator==(const cStateBooleanWithFloat& rhs) const;
-      bool operator!=(const cStateBooleanWithFloat& rhs) const { return !(*this == rhs); }
-
-      bool bHasValidValue;
-      bool bTurnedOn;
-      float fValue;
-    };
-
-    inline bool cStateBooleanWithFloat::operator==(const cStateBooleanWithFloat& rhs) const
-    {
-      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (math::IsApproximatelyEqual(fValue, rhs.fValue));
-    }
-
-
-    class cStateTexture
-    {
-    public:
-      cStateTexture() : bHasValidValue(false), bTurnedOn(false) {}
-
-      bool operator==(const cStateTexture& rhs) const;
-      bool operator!=(const cStateTexture& rhs) const { return !(*this == rhs); }
-
-      bool bHasValidValue;
-      bool bTurnedOn;
-      render::cTextureRef pTexture;
-    };
-
-    inline bool cStateTexture::operator==(const cStateTexture& rhs) const
-    {
-      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (pTexture == rhs.pTexture);
-    }
-
-
-    class cStateShader
-    {
-    public:
-      cStateShader() : bHasValidValue(false), bTurnedOn(false) {}
-
-      bool operator==(const cStateShader& rhs) const;
-      bool operator!=(const cStateShader& rhs) const { return !(*this == rhs); }
-
-      bool bHasValidValue;
-      bool bTurnedOn;
-      render::material::cShaderRef pShader;
-    };
-
-    inline bool cStateShader::operator==(const cStateShader& rhs) const
-    {
-      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (pShader == rhs.pShader);
-    }
-  }
-
-  namespace scenegraph3d
+  namespace scenegraph2d
   {
     class cSceneGraph;
     class cUpdateVisitor;
     class cCullVisitor;
-
-    /*class cSceneGraphModel : public cObject
-    {
-    public:
-      render::model::cStaticRef pModel;
-
-      void Update(sampletime_t currentTime)
-      {
-
-      }
-    };
-
-    class cSceneGraphCubemap
-    {
-    public:
-      math::cVec3 v3Position;
-
-      std::string sFilename;
-    };
-
-    class cSceneGraphSpawn
-    {
-    public:
-      cSceneGraphSpawn();
-
-      math::cVec3 v3Position;
-      math::cVec3 v3Rotation;
-    };
-
-
-    const unsigned int NODE_INACTIVE=0;
-    const unsigned int NODE_UNLOAD=1;
-    const unsigned int NODE_ACTIVE=20; //Seconds since the player has been in the vicinity
-
-    class cSceneNode : public cRenderable
-    {
-    public:
-      cSceneNode(cSceneGraph* p, std::string sNewFilename);
-      ~cSceneNode();
-
-      void Load();
-      void Unload();
-
-
-      unsigned int uiStatus;
-
-      float fFogDistance;
-
-      math::cColour colourFog;
-
-      std::string sFilename;
-      std::string sName;
-      std::string sCRC;
-
-      std::vector<cSceneGraphModelRef>vModel;
-
-    private:
-      cSceneGraph* pLevel;
-    };*/
-
 
     class cStateSet
     {
@@ -508,18 +280,6 @@ namespace breathe
       std::vector<cSceneNodeRef> children;
     };
 
-    // Adds everything below this node to the list of 2D objects to be rendered, ie. HUD
-    class cProjection2D : public cSceneNode
-    {
-    public:
-      void SetChild(cSceneNodeRef _pChild) { pChild = _pChild; }
-
-    private:
-      void _Update(cUpdateVisitor& visitor);
-      void _Cull(cCullVisitor& visitor);
-
-      cSceneNodeRef pChild;
-    };
 
     class cModelNode : public cSceneNode
     {
@@ -530,18 +290,6 @@ namespace breathe
       void _Cull(cCullVisitor& visitor);
     };
 
-    class cLightNode : public cSceneNode
-    {
-    public:
-
-    private:
-      void _Update(cUpdateVisitor& visitor);
-      void _Cull(cCullVisitor& visitor);
-
-      math::cColour colourAmbient;
-      math::cColour colourDiffuse;
-      float_t fMaximumDistanceRadius;
-    };
 
     class cSwitchNode : public cSceneNode
     {
@@ -567,75 +315,8 @@ namespace breathe
       index = _index;
     }
 
-    class cLODNode : public cSceneNode
-    {
-    public:
-      cLODNode() : index(0) {}
 
-      void SetLOD(size_t LOD);
-
-    private:
-      void _Update(cUpdateVisitor& visitor);
-      void _Cull(cCullVisitor& visitor);
-
-      size_t index;
-      std::vector<cSceneNodeRef> node;
-    };
-
-    inline void cLODNode::SetLOD(size_t LOD)
-    {
-      // Make sure that we set our new index to a reasonable value
-      const size_t n = node.size();
-      ASSERT(n != 0);
-      ASSERT(LOD < n);
-      index = LOD;
-    }
-
-
-    class cPagedLODNodeLoader
-    {
-    public:
-      void Update() {}
-
-    private:
-      void LoadTerrainLOD0(size_t x, size_t y);
-      void LoadTerrainLOD1(size_t x, size_t y);
-      void LoadTerrainLOD2(size_t x, size_t y);
-
-      void LoadGrass(size_t x, size_t y);
-    };
-
-    class cPagedLODNodeChild : public cSceneNode
-    {
-    public:
-
-    private:
-      void _Update(cUpdateVisitor& visitor);
-      void _Cull(cCullVisitor& visitor);
-
-      cLODNode terrain; // Terrain heightmap
-      //std::vector<cGeometryNodeRef> grass; // One cGeometryNode for each grass
-      cLODNode trees; // Anything else gets added here such as trees
-    };
-
-    typedef cSmartPtr<cPagedLODNodeChild> cPagedLODNodeChildRef;
-
-    class cPagedLODNode : public cSceneNode
-    {
-    public:
-
-    private:
-      void _Update(cUpdateVisitor& visitor);
-      void _Cull(cCullVisitor& visitor);
-
-      cPagedLODNodeLoader loader;
-      std::vector<cPagedLODNodeChildRef> node;
-
-      // TODO: Could try a quadtree
-      // cQuadTree<cPagedLODNodeChildRef> quadtree;
-    };
-
-    // Octree for spatially representing the world
+    // Quadtree for spatially representing the world
     class cSpatialGraphNode
     {
     public:
@@ -649,26 +330,8 @@ namespace breathe
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
 
-      cSpatialGraphNode* pChild[8];
+      cSpatialGraphNode* pChild[4];
     };
-
-
-    // 3D Spatial Nodes
-
-    // A quadtree node maintains either zero or four children, depending upon whether it is a leaf node or a regular node.
-    //class cQuadtreeNode
-    //{
-    //  public:
-    //  // A quadtree node maintains either zero or four children, depending upon whether it is a leaf node or a regular node.
-    //    bool IsValid() { return child.empty() || child.size() == 8; }
-    //
-    //  private:
-    //    std::vector<cQuadtreeNode*> child;
-    //};
-
-    // /*typedef cQuadtreeNode cBSPNode; // Indoors - Quake 3 style*/
-    //typedef cQuadtreeNode cOctreeNode; // Generic - outer space, terrain, buildings etc.
-    //typedef cOctreeNode cPagedLandscapeNode; // Heightmap octree - Battlefield series
 
 
     // 2D Spatial Nodes
@@ -694,20 +357,12 @@ namespace breathe
 
       void Visit(cSceneNode& node) {}
       void Visit(cModelNode& node) {}
-      void Visit(cLightNode& node) {}
 
     private:
 
     };
 
 
-
-
-    //                                    cSceneNode
-    //                  cLODNode                                cPagedLODNode
-    //         cGeometryNode cGeometryNode      cPagedLODNodeChild cPagedLODNodeChild cPagedLODNodeChild cPagedLODNodeChild
-    //    cRenderable cRenderable         cGeometryNode cGeometryNode
-    //cRenderable cRenderable
 
     enum RENDER_PRIORITY
     {
@@ -730,10 +385,6 @@ namespace breathe
 
       void Visit(cSceneNode& node) {}
       void Visit(cModelNode& node) {}
-      void Visit(cLightNode& node)
-      {
-        AddLight(node);
-      }
 
       void Visit(cRenderableRef pRenderable)
       {
@@ -742,7 +393,6 @@ namespace breathe
 
     private:
       void AddRenderable(cRenderableRef pRenderable) {}
-      void AddLight(cLightNode& light) {}
 
       cSceneGraph& scenegraph;
     };
@@ -837,4 +487,4 @@ namespace breathe
   }
 }
 
-#endif // SCENEGRAPH_H
+#endif // SCENEGRAPH2D_H
