@@ -20,49 +20,49 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		Material3DS::Material3DS()
-		{
+  namespace loader_3ds
+  {
+    Material3DS::Material3DS()
+    {
 
-		}
-		Material3DS::~Material3DS()
-		{
+    }
+    Material3DS::~Material3DS()
+    {
 
-		}
+    }
 
-		void Material3DS::Parse(Model3DSChunk c)
-		{
+    void Material3DS::Parse(Model3DSChunk c)
+    {
 #ifdef DEBUG3DS
-			LOG.Success("3ds", "Edit material");
+      LOG.Success("3ds", "Edit material");
 #endif
 
-			for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-			{
-				switch(cc.ID())
-				{
-					case(0xa000):
-						NewMaterial(cc);
-					break;
+      for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
+      {
+        switch(cc.ID())
+        {
+          case(0xa000):
+            NewMaterial(cc);
+          break;
 
-					default:
-					break;
-				}
-			}
-		}
+          default:
+          break;
+        }
+      }
+    }
 
-		void Material3DS::NewMaterial(Model3DSChunk c)
-		{
-			std::string mat_name = c.Str();
+    void Material3DS::NewMaterial(Model3DSChunk c)
+    {
+      std::string mat_name = c.Str();
 
 #ifdef DEBUG3DS
-			if (mat_name.find(".mat") != string::npos)
-				LOG.Success("3ds", "Material: %s", mat_name.c_str());
-			else
-				LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
+      if (mat_name.find(".mat") != string::npos)
+        LOG.Success("3ds", "Material: %s", mat_name.c_str());
+      else
+        LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
 #endif
 
-			materials.push_back(mat_name);
-		}
-	}
+      materials.push_back(mat_name);
+    }
+  }
 }

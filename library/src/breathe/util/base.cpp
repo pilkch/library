@@ -19,53 +19,53 @@
 
 namespace breathe
 {
-	// cObject
-	cObject::cObject()
-	{
-		fWidth=1.0f;
-		fHeight=1.0f;
-		fLength=1.0f;
+  // cObject
+  cObject::cObject()
+  {
+    fWidth=1.0f;
+    fHeight=1.0f;
+    fLength=1.0f;
 
-		fWeight=1.0f;
-	}
+    fWeight=1.0f;
+  }
 
-	void cObject::SetDimensions(float fInWidth, float fInLength, float fInHeight)
-	{
-		fWidth = fInWidth;
-		fLength = fInLength;
-		fHeight = fInHeight;
+  void cObject::SetDimensions(float fInWidth, float fInLength, float fInHeight)
+  {
+    fWidth = fInWidth;
+    fLength = fInLength;
+    fHeight = fInHeight;
 
-		fRadius = fWidth;
-		if (fInLength > fRadius) fRadius = fInLength;
-		if (fInHeight > fRadius) fRadius = fInHeight;
-	}
+    fRadius = fWidth;
+    if (fInLength > fRadius) fRadius = fInLength;
+    if (fInHeight > fRadius) fRadius = fInHeight;
+  }
 
-	void cObject::SetDimensions(float fInWidth, float fInHeight)
-	{
-		fWidth = fInWidth;
-		fLength = 0.0f;
-		fHeight = fInHeight;
+  void cObject::SetDimensions(float fInWidth, float fInHeight)
+  {
+    fWidth = fInWidth;
+    fLength = 0.0f;
+    fHeight = fInHeight;
 
-		fRadius = fWidth;
-		if (fInHeight > fRadius) fRadius = fInHeight;
-	}
+    fRadius = fWidth;
+    if (fInHeight > fRadius) fRadius = fInHeight;
+  }
 
-	bool cObject::Collide(cObject& rhs)
-	{
-		if (cSphere::Collide(rhs))
-			return true;
-
-
-
-		return false;
-	}
-
-	float cObject::GetDistance(cObject& rhs) const
-	{
-		float fDistance = cSphere::GetDistance(rhs);
+  bool cObject::Collide(cObject& rhs)
+  {
+    if (cSphere::Collide(rhs))
+      return true;
 
 
 
-		return fDistance;
-	}
+    return false;
+  }
+
+  float cObject::GetDistance(cObject& rhs) const
+  {
+    float fDistance = cSphere::GetDistance(rhs);
+
+
+
+    return fDistance;
+  }
 }

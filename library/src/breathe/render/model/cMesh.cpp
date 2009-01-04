@@ -56,104 +56,104 @@
 
 namespace breathe
 {
-	namespace render
-	{
-		namespace model
-		{
+  namespace render
+  {
+    namespace model
+    {
       // *** cMeshData
 
-			cMeshData::cMeshData() :
-				uiVertexBuffer(0),
-				uiIndexBuffer(0),
-				uiNormalBuffer(0),
-				uiTextureCoordBuffer(0),
+      cMeshData::cMeshData() :
+        uiVertexBuffer(0),
+        uiIndexBuffer(0),
+        uiNormalBuffer(0),
+        uiTextureCoordBuffer(0),
 
-				uiTriangles(0),
-				uiTextures(0)
-			{
-			}
+        uiTriangles(0),
+        uiTextures(0)
+      {
+      }
 
-			cMeshData::~cMeshData()
-			{
-				glDeleteBuffersARB(1, &uiVertexBuffer);
-				glDeleteBuffersARB(1, &uiIndexBuffer);
-				glDeleteBuffersARB(1, &uiTextureCoordBuffer);
-				glDeleteBuffersARB(1, &uiNormalBuffer);
-			}
+      cMeshData::~cMeshData()
+      {
+        glDeleteBuffersARB(1, &uiVertexBuffer);
+        glDeleteBuffersARB(1, &uiIndexBuffer);
+        glDeleteBuffersARB(1, &uiTextureCoordBuffer);
+        glDeleteBuffersARB(1, &uiNormalBuffer);
+      }
 
-			void cMeshData::CloneTo(cMeshData* rhs)
-			{
-				rhs->uiVertexBuffer = 0;
-				rhs->uiIndexBuffer = 0;
-				rhs->uiNormalBuffer = 0;
-				rhs->uiTextureCoordBuffer = 0;
+      void cMeshData::CloneTo(cMeshData* rhs)
+      {
+        rhs->uiVertexBuffer = 0;
+        rhs->uiIndexBuffer = 0;
+        rhs->uiNormalBuffer = 0;
+        rhs->uiTextureCoordBuffer = 0;
 
-				rhs->uiTriangles = uiTriangles;
-				rhs->uiTextures = uiTextures;
+        rhs->uiTriangles = uiTriangles;
+        rhs->uiTextures = uiTextures;
 
-				rhs->vIndex = vIndex;
+        rhs->vIndex = vIndex;
 
-				rhs->vVertex = vVertex;
-				rhs->vNormal = vNormal;
-				rhs->vTextureCoord = vTextureCoord;
-			}
+        rhs->vVertex = vVertex;
+        rhs->vNormal = vNormal;
+        rhs->vTextureCoord = vTextureCoord;
+      }
 
-			void cMeshData::CreateVBO()
-			{
-				glEnable(GL_TEXTURE_2D);
+      void cMeshData::CreateVBO()
+      {
+        glEnable(GL_TEXTURE_2D);
 
 
-				glGenBuffersARB(1, &uiVertexBuffer);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiVertexBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vVertex.size() * sizeof(float), &vVertex[0], GL_STATIC_DRAW_ARB );
+        glGenBuffersARB(1, &uiVertexBuffer);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiVertexBuffer);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, vVertex.size() * sizeof(float), &vVertex[0], GL_STATIC_DRAW_ARB );
 
-				glGenBuffersARB(1, &uiIndexBuffer);
-				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, uiIndexBuffer);
-				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vIndex.size() * sizeof(unsigned int), &vIndex[0], GL_STATIC_DRAW_ARB );
+        glGenBuffersARB(1, &uiIndexBuffer);
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, uiIndexBuffer);
+        glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vIndex.size() * sizeof(unsigned int), &vIndex[0], GL_STATIC_DRAW_ARB );
 
-				glGenBuffersARB(1, &uiTextureCoordBuffer);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiTextureCoordBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vTextureCoord.size() * sizeof(float), &vTextureCoord[0], GL_STATIC_DRAW_ARB );
+        glGenBuffersARB(1, &uiTextureCoordBuffer);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiTextureCoordBuffer);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, vTextureCoord.size() * sizeof(float), &vTextureCoord[0], GL_STATIC_DRAW_ARB );
 
-				glGenBuffersARB(1, &uiNormalBuffer);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiNormalBuffer);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, vNormal.size() * sizeof(float), &vNormal[0], GL_STATIC_DRAW_ARB );
-			}
+        glGenBuffersARB(1, &uiNormalBuffer);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, uiNormalBuffer);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, vNormal.size() * sizeof(float), &vNormal[0], GL_STATIC_DRAW_ARB );
+      }
 
 
       // *** cMesh
 
-			cMesh::cMesh() :
-				pMeshData(nullptr)
-			{
-			}
+      cMesh::cMesh() :
+        pMeshData(nullptr)
+      {
+      }
 
-			void cMesh::CreateNewMesh()
-			{
-				pMeshData = new cMeshData;
-			}
+      void cMesh::CreateNewMesh()
+      {
+        pMeshData = new cMeshData;
+      }
 
       void cMesh::CloneTo(cMeshRef rhs)
-			{
-				rhs->pMeshData = new cMeshData;
-				pMeshData->CloneTo(rhs->pMeshData);
+      {
+        rhs->pMeshData = new cMeshData;
+        pMeshData->CloneTo(rhs->pMeshData);
         rhs->sMaterial = sMaterial;
         rhs->pMaterial = pMaterial;
-			}
+      }
 
-			void cMesh::SetMaterial(material::cMaterialRef pInMaterial)
-			{
-				ASSERT(pMaterial);
+      void cMesh::SetMaterial(material::cMaterialRef pInMaterial)
+      {
+        ASSERT(pMaterial);
 
-				sMaterial = pInMaterial->sName;
-				pMaterial = pInMaterial;
-			}
+        sMaterial = pInMaterial->sName;
+        pMaterial = pInMaterial;
+      }
 
-			void cMesh::SetMaterial(const std::string& sInMaterial)
-			{
-				sMaterial = sInMaterial;
-				pMaterial = pRender->GetMaterial(sMaterial);
-			}
-		}
-	}
+      void cMesh::SetMaterial(const std::string& sInMaterial)
+      {
+        sMaterial = sInMaterial;
+        pMaterial = pRender->GetMaterial(sMaterial);
+      }
+    }
+  }
 }

@@ -43,31 +43,31 @@
 
 namespace breathe
 {
-	namespace render
-	{
-		namespace model
-		{
-			cAnimation::cAnimation() : cModel()
-			{
-				LOG.Error("Animation", "Don't use this class");
-			}
+  namespace render
+  {
+    namespace model
+    {
+      cAnimation::cAnimation() : cModel()
+      {
+        LOG.Error("Animation", "Don't use this class");
+      }
 
-			cAnimation::~cAnimation()
-			{
-				LOG.Error("Animation", "Don't use this class");
-			}
+      cAnimation::~cAnimation()
+      {
+        LOG.Error("Animation", "Don't use this class");
+      }
 
-			int cAnimation::Load(const std::string& sFilename)
-			{
-				LOG.Error("Animation", "Don't use this class");
+      int cAnimation::Load(const std::string& sFilename)
+      {
+        LOG.Error("Animation", "Don't use this class");
 
-				return 0;
-			}
+        return 0;
+      }
 
-			void cAnimation::Update(sampletime_t currentTime)
-			{
-				LOG.Error("Animation", "Don't use this class");
-			}
-		}
-	}
+      void cAnimation::Update(sampletime_t currentTime)
+      {
+        LOG.Error("Animation", "Don't use this class");
+      }
+    }
+  }
 }

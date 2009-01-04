@@ -63,320 +63,320 @@
 
 namespace breathe
 {
-	namespace render
-	{
-		namespace material
-		{
-			cLayer::cLayer() :
-				uiTextureMode(TEXTURE_NONE)
-			{
-			}
+  namespace render
+  {
+    namespace material
+    {
+      cLayer::cLayer() :
+        uiTextureMode(TEXTURE_NONE)
+      {
+      }
 
 
-			cShader::cShader() :
-				bCameraPos(false),
+      cShader::cShader() :
+        bCameraPos(false),
 
-				bTexUnit0(false),
-				bTexUnit1(false),
-				bTexUnit2(false),
-				bTexUnit3(false),
+        bTexUnit0(false),
+        bTexUnit1(false),
+        bTexUnit2(false),
+        bTexUnit3(false),
 
-				uiShaderVertex(0),
-				uiShaderFragment(0),
-				uiShaderProgram(0)
-			{
-			}
-
-
-			void cShader::CheckStatusVertex()
-			{
-				int infologLength = 0;
-				glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0) {
-						char* infoLog = new char[infologLength];
-				    int charsWritten  = 0;
-						glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
-						std::string sInfo(infoLog);
-						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
-								sInfo.find("ERROR") != std::string::npos)
-						{
-							sInfo = string::Replace(sInfo, "\n", "<br>");
-							LOG.Error("Material", std::string("Vertex Shader") + sShaderVertex + std::string(": ") + sInfo);
-						}
-						SAFE_DELETE_ARRAY(infoLog);
-				}
-			}
-
-			void cShader::CheckStatusFragment()
-			{
-				int infologLength = 0;
-				glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0) {
-						char *infoLog = new char[infologLength];
-				    int charsWritten  = 0;
-						glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
-						std::string sInfo(infoLog);
-						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
-								sInfo.find("ERROR") != std::string::npos)
-						{
-							sInfo = string::Replace(sInfo, "\n", "<br>");
-							LOG.Error("Material", std::string("Fragment Shader ") + sShaderFragment + ": " + sInfo);
-						}
-						SAFE_DELETE_ARRAY(infoLog);
-				}
-			}
-
-			void cShader::CheckStatusProgram()
-			{
-				int infologLength = 0;
-				glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
-				if (infologLength > 0) {
-						char *infoLog = new char[infologLength];
-				    int charsWritten  = 0;
-						glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
-						std::string sInfo(infoLog);
-						if (	sInfo.find("not been successfully compiled") != std::string::npos ||
-								sInfo.find("Warning") != std::string::npos)
-							LOG.Error("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
-						else
-							LOG.Success("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
-						SAFE_DELETE_ARRAY(infoLog);
-				}
-			}
-
-			void cShader::Init()
-			{
-				if ("" != sShaderVertex) {
-					uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
-
-					std::string buffer="";
-					std::string line="";
-					std::ifstream f(sShaderVertex.c_str());
-					if (f.is_open()) {
-						while (!f.eof()) {
-							std::getline(f, line);
-
-							buffer+=line;
-							buffer+="\n";
-
-							line="";
-						};
-
-						const char* str=buffer.c_str();
-						glShaderSource(uiShaderVertex, 1, &str, NULL);
-						glCompileShader(uiShaderVertex);
-
-						CheckStatusVertex();
-					} else {
-						LOG.Error("Material", std::string("Shader not found ") + sShaderVertex);
-						uiShaderVertex=0;
-					}
-				}
+        uiShaderVertex(0),
+        uiShaderFragment(0),
+        uiShaderProgram(0)
+      {
+      }
 
 
-				if ("" != sShaderFragment) {
-					uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
+      void cShader::CheckStatusVertex()
+      {
+        int infologLength = 0;
+        glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
+        if (infologLength > 0) {
+            char* infoLog = new char[infologLength];
+            int charsWritten  = 0;
+            glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
+            std::string sInfo(infoLog);
+            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
+                sInfo.find("ERROR") != std::string::npos)
+            {
+              sInfo = string::Replace(sInfo, "\n", "<br>");
+              LOG.Error("Material", std::string("Vertex Shader") + sShaderVertex + std::string(": ") + sInfo);
+            }
+            SAFE_DELETE_ARRAY(infoLog);
+        }
+      }
 
-					std::string buffer;
-					std::string line;
-					std::ifstream f(sShaderFragment.c_str());
-					if (f.is_open()) {
-						while (!f.eof()) {
-							std::getline(f, line);
+      void cShader::CheckStatusFragment()
+      {
+        int infologLength = 0;
+        glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
+        if (infologLength > 0) {
+            char *infoLog = new char[infologLength];
+            int charsWritten  = 0;
+            glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
+            std::string sInfo(infoLog);
+            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
+                sInfo.find("ERROR") != std::string::npos)
+            {
+              sInfo = string::Replace(sInfo, "\n", "<br>");
+              LOG.Error("Material", std::string("Fragment Shader ") + sShaderFragment + ": " + sInfo);
+            }
+            SAFE_DELETE_ARRAY(infoLog);
+        }
+      }
 
-							buffer+=line;
-							buffer+="\n";
-						};
+      void cShader::CheckStatusProgram()
+      {
+        int infologLength = 0;
+        glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
+        if (infologLength > 0) {
+            char *infoLog = new char[infologLength];
+            int charsWritten  = 0;
+            glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
+            std::string sInfo(infoLog);
+            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
+                sInfo.find("Warning") != std::string::npos)
+              LOG.Error("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
+            else
+              LOG.Success("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
+            SAFE_DELETE_ARRAY(infoLog);
+        }
+      }
 
-						const char* str=buffer.c_str();
-						glShaderSource(uiShaderFragment, 1, &str, NULL);
-						glCompileShader(uiShaderFragment);
+      void cShader::Init()
+      {
+        if ("" != sShaderVertex) {
+          uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
 
-						CheckStatusFragment();
-					} else {
-						LOG.Error("Material", std::string("Shader not found ") + sShaderFragment);
-						uiShaderFragment=0;
-					}
-				}
+          std::string buffer="";
+          std::string line="";
+          std::ifstream f(sShaderVertex.c_str());
+          if (f.is_open()) {
+            while (!f.eof()) {
+              std::getline(f, line);
 
-				if (uiShaderVertex || uiShaderFragment) {
-					uiShaderProgram = glCreateProgram();
+              buffer+=line;
+              buffer+="\n";
 
-					if (uiShaderVertex) glAttachShader(uiShaderProgram, uiShaderVertex);
-					if (uiShaderFragment) glAttachShader(uiShaderProgram, uiShaderFragment);
+              line="";
+            };
 
-					glLinkProgram(uiShaderProgram);
+            const char* str=buffer.c_str();
+            glShaderSource(uiShaderVertex, 1, &str, NULL);
+            glCompileShader(uiShaderVertex);
 
-					CheckStatusProgram();
-
-					glUseProgram(uiShaderProgram);
-					glUseProgram(0);
-
-					CheckStatusProgram();
-				}
-			}
-
-			void cShader::Destroy()
-			{
-				if (uiShaderFragment) glDeleteShader(uiShaderFragment);
-				if (uiShaderVertex) glDeleteShader(uiShaderVertex);
-
-				glDeleteProgram(uiShaderProgram);
-
-				uiShaderFragment = 0;
-				uiShaderVertex = 0;
-				uiShaderProgram = 0;
-			}
+            CheckStatusVertex();
+          } else {
+            LOG.Error("Material", std::string("Shader not found ") + sShaderVertex);
+            uiShaderVertex=0;
+          }
+        }
 
 
-			cMaterial::cMaterial(const std::string& name) :
-				bShadow_cast(true),
-				bShadow_receive(true),
-				bLight_receive(true),
-				bLight_transmit(true),
+        if ("" != sShaderFragment) {
+          uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
 
-				bCollideTrimesh(false),
+          std::string buffer;
+          std::string line;
+          std::ifstream f(sShaderFragment.c_str());
+          if (f.is_open()) {
+            while (!f.eof()) {
+              std::getline(f, line);
 
-				chDustR(0),
-				chDustG(0),
-				chDustB(0),
+              buffer+=line;
+              buffer+="\n";
+            };
 
-				uiAudioScrape(0),
-				uiAudioBounce(0),
+            const char* str=buffer.c_str();
+            glShaderSource(uiShaderFragment, 1, &str, NULL);
+            glCompileShader(uiShaderFragment);
 
-				fFriction(0.0f),
-				fBounce(0.0f),
+            CheckStatusFragment();
+          } else {
+            LOG.Error("Material", std::string("Shader not found ") + sShaderFragment);
+            uiShaderFragment=0;
+          }
+        }
 
-				fCorrugation(0.0f),
+        if (uiShaderVertex || uiShaderFragment) {
+          uiShaderProgram = glCreateProgram();
 
-				pShader(NULL),
+          if (uiShaderVertex) glAttachShader(uiShaderProgram, uiShaderVertex);
+          if (uiShaderFragment) glAttachShader(uiShaderProgram, uiShaderFragment);
 
-				sName(name)
-			{
-				unsigned int i = 0;
-				for (i=0;i<nLayers;i++) vLayer.push_back(new cLayer());
-			}
+          glLinkProgram(uiShaderProgram);
 
-			cMaterial::~cMaterial()
-			{
-				unsigned int i=0;
-				for (i=0;i<nLayers;i++) SAFE_DELETE(vLayer[i]);
-			}
+          CheckStatusProgram();
 
-			bool cMaterial::Load(const string_t& inFilename)
-			{
-				LOG.Success("Material", std::string("Looking for ") + inFilename);
+          glUseProgram(uiShaderProgram);
+          glUseProgram(0);
+
+          CheckStatusProgram();
+        }
+      }
+
+      void cShader::Destroy()
+      {
+        if (uiShaderFragment) glDeleteShader(uiShaderFragment);
+        if (uiShaderVertex) glDeleteShader(uiShaderVertex);
+
+        glDeleteProgram(uiShaderProgram);
+
+        uiShaderFragment = 0;
+        uiShaderVertex = 0;
+        uiShaderProgram = 0;
+      }
+
+
+      cMaterial::cMaterial(const std::string& name) :
+        bShadow_cast(true),
+        bShadow_receive(true),
+        bLight_receive(true),
+        bLight_transmit(true),
+
+        bCollideTrimesh(false),
+
+        chDustR(0),
+        chDustG(0),
+        chDustB(0),
+
+        uiAudioScrape(0),
+        uiAudioBounce(0),
+
+        fFriction(0.0f),
+        fBounce(0.0f),
+
+        fCorrugation(0.0f),
+
+        pShader(NULL),
+
+        sName(name)
+      {
+        unsigned int i = 0;
+        for (i=0;i<nLayers;i++) vLayer.push_back(new cLayer());
+      }
+
+      cMaterial::~cMaterial()
+      {
+        unsigned int i=0;
+        for (i=0;i<nLayers;i++) SAFE_DELETE(vLayer[i]);
+      }
+
+      bool cMaterial::Load(const string_t& inFilename)
+      {
+        LOG.Success("Material", std::string("Looking for ") + inFilename);
 
         string_t sFilename = inFilename;
 
-				string_t sPath = breathe::filesystem::GetPath(sFilename);
+        string_t sPath = breathe::filesystem::GetPath(sFilename);
 
-				xml::cNode root(breathe::string::ToUTF8(sFilename));
-				xml::cNode::iterator iter(root);
+        xml::cNode root(breathe::string::ToUTF8(sFilename));
+        xml::cNode::iterator iter(root);
 
         if (!iter.IsValid()) return breathe::BAD;
 
-				//<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
-				//	<layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
-				//	<layer sTexture="concrete_normalmap.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
-				//</material>
+        //<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
+        //  <layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
+        //  <layer sTexture="concrete_normalmap.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
+        //</material>
 
-				iter.FindChild("material");
+        iter.FindChild("material");
         if (!iter.IsValid()) {
-					LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
-					for (unsigned int i=0;i<nLayers;i++)
-						vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
+          LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
+          for (unsigned int i=0;i<nLayers;i++)
+            vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
 
-					return breathe::BAD;
-				}
+          return breathe::BAD;
+        }
 
-				iter.GetAttribute("collide", bCollideTrimesh);
+        iter.GetAttribute("collide", bCollideTrimesh);
 
-				std::string sValue;
-				if (iter.GetAttribute("sShaderVertex", sValue)) {
-					if (pShader == nullptr) pShader = new cShader();
+        std::string sValue;
+        if (iter.GetAttribute("sShaderVertex", sValue)) {
+          if (pShader == nullptr) pShader = new cShader();
 
           if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderVertex)) {
             LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
           }
-				}
-				if (iter.GetAttribute("sShaderFragment", sValue)) {
-					if (pShader == nullptr) pShader = new cShader();
+        }
+        if (iter.GetAttribute("sShaderFragment", sValue)) {
+          if (pShader == nullptr) pShader = new cShader();
 
           if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderFragment)) {
             LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
           }
-				}
+        }
 
-				if (pShader != nullptr) {
-					iter.GetAttribute("cameraPos", pShader->bCameraPos);
+        if (pShader != nullptr) {
+          iter.GetAttribute("cameraPos", pShader->bCameraPos);
 
-					iter.GetAttribute("texUnit0", pShader->bTexUnit0);
-					iter.GetAttribute("texUnit1", pShader->bTexUnit1);
-					iter.GetAttribute("texUnit2", pShader->bTexUnit2);
-					iter.GetAttribute("texUnit3", pShader->bTexUnit3);
+          iter.GetAttribute("texUnit0", pShader->bTexUnit0);
+          iter.GetAttribute("texUnit1", pShader->bTexUnit1);
+          iter.GetAttribute("texUnit2", pShader->bTexUnit2);
+          iter.GetAttribute("texUnit3", pShader->bTexUnit3);
 
-					pShader->Init();
-				}
+          pShader->Init();
+        }
 
 
-				iter.FirstChild();
+        iter.FirstChild();
 
-				cLayer* pLayer = nullptr;
-				size_t i = 0;
+        cLayer* pLayer = nullptr;
+        size_t i = 0;
         while ((iter.IsValid()) && (i < nLayers)) {
-					pLayer = vLayer[i];
-					if ("layer" == iter.GetName()) {
-						std::string sTexture;
-						if (iter.GetAttribute("sTexture", sTexture)) {
-							// Try in the same directory as the material
+          pLayer = vLayer[i];
+          if ("layer" == iter.GetName()) {
+            std::string sTexture;
+            if (iter.GetAttribute("sTexture", sTexture)) {
+              // Try in the same directory as the material
               breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture), pLayer->sTexture);
-						}
+            }
 
-						std::string sValue;
-						if (iter.GetAttribute("uiTextureMode", sValue)) {
-							if (sValue == "TEXTURE_NORMAL")						pLayer->uiTextureMode=TEXTURE_NORMAL;
-							else if (sValue == "TEXTURE_MASK")					pLayer->uiTextureMode=TEXTURE_MASK;
-							else if (sValue == "TEXTURE_BLEND")				pLayer->uiTextureMode=TEXTURE_BLEND;
-							else if (sValue == "TEXTURE_DETAIL")				pLayer->uiTextureMode=TEXTURE_DETAIL;
-							else if (sValue == "TEXTURE_CUBEMAP")			pLayer->uiTextureMode=TEXTURE_CUBEMAP;
-							else if (sValue == "TEXTURE_POST_RENDER")	pLayer->uiTextureMode=TEXTURE_POST_RENDER;
-						}
+            std::string sValue;
+            if (iter.GetAttribute("uiTextureMode", sValue)) {
+              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode=TEXTURE_NORMAL;
+              else if (sValue == "TEXTURE_MASK")          pLayer->uiTextureMode=TEXTURE_MASK;
+              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode=TEXTURE_BLEND;
+              else if (sValue == "TEXTURE_DETAIL")        pLayer->uiTextureMode=TEXTURE_DETAIL;
+              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode=TEXTURE_CUBEMAP;
+              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode=TEXTURE_POST_RENDER;
+            }
 
-						unsigned int uiTextureAtlas = ATLAS_NONE;
-						if (iter.GetAttribute("uiTextureAtlas", sValue)) {
-							if (sValue == "ATLAS_LANDSCAPE")			uiTextureAtlas = ATLAS_LANDSCAPE;
-							else if (sValue == "ATLAS_BUILDING")	uiTextureAtlas = ATLAS_BUILDING;
-							else if (sValue == "ATLAS_FOLIAGE")	uiTextureAtlas = ATLAS_FOLIAGE;
-							else if (sValue == "ATLAS_VEHICLES")	uiTextureAtlas = ATLAS_VEHICLES;
-							else if (sValue == "ATLAS_PROPS")		uiTextureAtlas = ATLAS_PROPS;
-							else if (sValue == "ATLAS_WEAPONS")	uiTextureAtlas = ATLAS_WEAPONS;
-							else if (sValue == "ATLAS_EFFECTS")	uiTextureAtlas = ATLAS_EFFECTS;
-						}
+            unsigned int uiTextureAtlas = ATLAS_NONE;
+            if (iter.GetAttribute("uiTextureAtlas", sValue)) {
+              if (sValue == "ATLAS_LANDSCAPE")      uiTextureAtlas = ATLAS_LANDSCAPE;
+              else if (sValue == "ATLAS_BUILDING")  uiTextureAtlas = ATLAS_BUILDING;
+              else if (sValue == "ATLAS_FOLIAGE")  uiTextureAtlas = ATLAS_FOLIAGE;
+              else if (sValue == "ATLAS_VEHICLES")  uiTextureAtlas = ATLAS_VEHICLES;
+              else if (sValue == "ATLAS_PROPS")    uiTextureAtlas = ATLAS_PROPS;
+              else if (sValue == "ATLAS_WEAPONS")  uiTextureAtlas = ATLAS_WEAPONS;
+              else if (sValue == "ATLAS_EFFECTS")  uiTextureAtlas = ATLAS_EFFECTS;
+            }
 
-						if (TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
-							uiTextureAtlas = ATLAS_NONE;
-							LOG.Error("CUBEMAP", "CUBEMAP");
-						}
+            if (TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
+              uiTextureAtlas = ATLAS_NONE;
+              LOG.Error("CUBEMAP", "CUBEMAP");
+            }
 
-						if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
-							if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
+            if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
+              if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 
-							if (nullptr == pLayer->pTexture) {
-								uiTextureAtlas = ATLAS_NONE;
-								pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
-							}
-						}
-					}
+              if (nullptr == pLayer->pTexture) {
+                uiTextureAtlas = ATLAS_NONE;
+                pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
+              }
+            }
+          }
 
-					i++;
-					iter++;
-				}
+          i++;
+          iter++;
+        }
 
-				LOG.Success("Material", breathe::string::ToUTF8(TEXT("Loaded ") + sFilename));
-				return breathe::GOOD;
-			}
+        LOG.Success("Material", breathe::string::ToUTF8(TEXT("Loaded ") + sFilename));
+        return breathe::GOOD;
+      }
 
-		}
-	}
+    }
+  }
 }

@@ -25,44 +25,44 @@
 class cSmartPtrTestClass
 {
 public:
-	cSmartPtrTestClass(int iValue)
-	{
-		value = iValue;
-	}
+  cSmartPtrTestClass(int iValue)
+  {
+    value = iValue;
+  }
 
-	int value;
+  int value;
 
-	void FunctionA()
-	{
-		std::cout<<"cSmartPtrTestClass::FunctionA"<<std::endl;
-	}
+  void FunctionA()
+  {
+    std::cout<<"cSmartPtrTestClass::FunctionA"<<std::endl;
+  }
 
-	void FunctionB(std::string sParameter)
-	{
-		std::cout<<"cSmartPtrTestClass::FunctionB sParameter="<<sParameter<<std::endl;
-	}
+  void FunctionB(std::string sParameter)
+  {
+    std::cout<<"cSmartPtrTestClass::FunctionB sParameter="<<sParameter<<std::endl;
+  }
 };
 
 class cSmartPtrUnitTest : protected breathe::util::cUnitTestBase
 {
 public:
-	cSmartPtrUnitTest() :
-		cUnitTestBase("cSmartPtrUnitTest")
-	{
-	}
+  cSmartPtrUnitTest() :
+    cUnitTestBase("cSmartPtrUnitTest")
+  {
+  }
 
-	void Test()
-	{
-		breathe::util::cSmartPtr<cSmartPtrTestClass> c(new cSmartPtrTestClass(100));
-		c->FunctionA();
-		c->FunctionB("Chris");
+  void Test()
+  {
+    breathe::util::cSmartPtr<cSmartPtrTestClass> c(new cSmartPtrTestClass(100));
+    c->FunctionA();
+    c->FunctionB("Chris");
 
 
 
-		{
-			//breathe::UTIL::cSmartPtr<cSmartPtrTestClass>::reference ref(c);
-		}
-	}
+    {
+      //breathe::UTIL::cSmartPtr<cSmartPtrTestClass>::reference ref(c);
+    }
+  }
 };
 
 cSmartPtrUnitTest gSmartPtrUnitTest;

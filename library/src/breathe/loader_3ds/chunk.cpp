@@ -19,180 +19,180 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		int nRead=0;
+  namespace loader_3ds
+  {
+    int nRead=0;
 
-		Model3DSChunk::Model3DSChunk(std::ifstream &infile , int csend)
-		: file(infile) , chunkset_end(csend)
-		{
+    Model3DSChunk::Model3DSChunk(std::ifstream &infile , int csend)
+    : file(infile) , chunkset_end(csend)
+    {
 #ifdef DEBUG3DS
-			std::ostringstream t;
+      std::ostringstream t;
 
-			t<< "Model3DSChunk::Model3DSChunk()";
-			LOG.Success("c3ds", t.str());
+      t<< "Model3DSChunk::Model3DSChunk()";
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			begin = file.tellg();
+      begin = file.tellg();
 
-			unsigned int nPos=nRead;
+      unsigned int nPos=nRead;
 
-			id=Short() & 0x0000ffff;
+      id=Short() & 0x0000ffff;
 
-			end=Int()+begin;	// compute absolute position
-
-#ifdef DEBUG3DS
-			t.str("");
-			t	<< "(" << nPos << ") id = (0x" << std::hex << id << ") " << std::dec
-				<< "begin = (" << begin << ") "
-				<< "end = (" << end << ") "
-				<< "chunkset_end = (" << chunkset_end << ")";
-
-			if (0==id || -1==begin || end > chunkset_end)
-				LOG.Error("c3ds", t.str());
-			else
-				LOG.Success("c3ds", t.str());
-#endif //DEBUG3DS
-		}
-
-		Model3DSChunk::Model3DSChunk(const Model3DSChunk &chunk)
-		: file(chunk.file) ,
-			chunkset_end(chunk.chunkset_end) ,
-			id(chunk.id) , begin(chunk.begin) , end(chunk.end)
-		{
-
-		}
-		Model3DSChunk::~Model3DSChunk()
-		{
-
-		}
-
-		Model3DSChunk Model3DSChunk::operator=(const Model3DSChunk &chunk)
-		{
-			int iPosition=chunk.file.tellg();
+      end=Int()+begin;  // compute absolute position
 
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t	<<"SEEK " << iPosition;
-			LOG.Success("c3ds", t.str());
+      t.str("");
+      t  << "(" << nPos << ") id = (0x" << std::hex << id << ") " << std::dec
+        << "begin = (" << begin << ") "
+        << "end = (" << end << ") "
+        << "chunkset_end = (" << chunkset_end << ")";
+
+      if (0==id || -1==begin || end > chunkset_end)
+        LOG.Error("c3ds", t.str());
+      else
+        LOG.Success("c3ds", t.str());
+#endif //DEBUG3DS
+    }
+
+    Model3DSChunk::Model3DSChunk(const Model3DSChunk &chunk)
+    : file(chunk.file) ,
+      chunkset_end(chunk.chunkset_end) ,
+      id(chunk.id) , begin(chunk.begin) , end(chunk.end)
+    {
+
+    }
+    Model3DSChunk::~Model3DSChunk()
+    {
+
+    }
+
+    Model3DSChunk Model3DSChunk::operator=(const Model3DSChunk &chunk)
+    {
+      int iPosition=chunk.file.tellg();
+
+#ifdef DEBUG3DS
+      std::ostringstream t;
+      t  <<"SEEK " << iPosition;
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			file.seekg(iPosition, std::ios::beg);
+      file.seekg(iPosition, std::ios::beg);
 
-			chunkset_end = chunk.chunkset_end;
-			id = chunk.id;
-			begin = chunk.begin;
-			end = chunk.end;
+      chunkset_end = chunk.chunkset_end;
+      id = chunk.id;
+      begin = chunk.begin;
+      end = chunk.end;
 
       return *this;
-		}
+    }
 
-		Model3DSChunk::operator bool()
-		{
-			int curr_pos = file.tellg();
+    Model3DSChunk::operator bool()
+    {
+      int curr_pos = file.tellg();
 
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t	<<"Model3DSChunk::operator bool() @ " << curr_pos << "== "
-				<< ((0!=id) && (begin < chunkset_end) && (begin >= 0))
-				<< " ((0x0!=0x" << std::hex << id << ") && ("
-				<< std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
-			LOG.Success("c3ds", t.str());
+      std::ostringstream t;
+      t  <<"Model3DSChunk::operator bool() @ " << curr_pos << "== "
+        << ((0!=id) && (begin < chunkset_end) && (begin >= 0))
+        << " ((0x0!=0x" << std::hex << id << ") && ("
+        << std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			return (0!=id) && (begin < chunkset_end) && (begin >= 0);
-		}
+      return (0!=id) && (begin < chunkset_end) && (begin >= 0);
+    }
 
-		unsigned int Model3DSChunk::ID()
-		{
-			return id;
-		}
+    unsigned int Model3DSChunk::ID()
+    {
+      return id;
+    }
 
-		short Model3DSChunk::Short()
-		{
-			short s = 0;
-			file.read((char*)&s , 2);
+    short Model3DSChunk::Short()
+    {
+      short s = 0;
+      file.read((char*)&s , 2);
 
-			nRead+=2;
+      nRead+=2;
 
-			return s;
-		}
+      return s;
+    }
 
-		int Model3DSChunk::Int()
-		{
-			int i;
-			file.read((char*)&i , 4);
+    int Model3DSChunk::Int()
+    {
+      int i;
+      file.read((char*)&i , 4);
 
-			nRead+=4;
+      nRead+=4;
 
-			return i;
-		}
+      return i;
+    }
 
-		float Model3DSChunk::Float()
-		{
-			float f;
-			file.read((char*)&f , 4);
+    float Model3DSChunk::Float()
+    {
+      float f;
+      file.read((char*)&f , 4);
 
-			nRead+=4;
+      nRead+=4;
 
-			return f;
-		}
+      return f;
+    }
 
-		std::string Model3DSChunk::Str()
-		{
-			std::string s;
-			char c;
+    std::string Model3DSChunk::Str()
+    {
+      std::string s;
+      char c;
 
-			do
-			{
-				file.read(&c , 1);
-				s += c;
+      do
+      {
+        file.read(&c , 1);
+        s += c;
 
-				nRead++;
+        nRead++;
 
-			}while(c != '\0');
+      }while(c != '\0');
 
-			return s;
-		}
+      return s;
+    }
 
-		Model3DSChunk Model3DSChunk::Child()
-		{
+    Model3DSChunk Model3DSChunk::Child()
+    {
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t << "Child() end = (" << end << ")";
-			LOG.Success("c3ds", t.str());
+      std::ostringstream t;
+      t << "Child() end = (" << end << ")";
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			return Model3DSChunk(file , end);
-		}
-		Model3DSChunk Model3DSChunk::Sibling()
-		{
+      return Model3DSChunk(file , end);
+    }
+    Model3DSChunk Model3DSChunk::Sibling()
+    {
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t	<<"SEEK " << end;
-			LOG.Success("c3ds", t.str());
+      std::ostringstream t;
+      t  <<"SEEK " << end;
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			Finish();
+      Finish();
 
-			return Model3DSChunk(file , chunkset_end);
-		}
+      return Model3DSChunk(file , chunkset_end);
+    }
 
-		void Model3DSChunk::Finish()
-		{
-			file.seekg(end, std::ios::beg);// travel to next chunk
-			nRead = end;
-		}
+    void Model3DSChunk::Finish()
+    {
+      file.seekg(end, std::ios::beg);// travel to next chunk
+      nRead = end;
+    }
 
-		void Model3DSChunk::Goto(int iPosition)
-		{
-			file.seekg(iPosition, std::ios::beg);// travel to iPosition
-			nRead=iPosition;
-		}
+    void Model3DSChunk::Goto(int iPosition)
+    {
+      file.seekg(iPosition, std::ios::beg);// travel to iPosition
+      nRead=iPosition;
+    }
 
-		int Model3DSChunk::Position()
-		{
-			return nRead;
-		}
-	}
+    int Model3DSChunk::Position()
+    {
+      return nRead;
+    }
+  }
 }

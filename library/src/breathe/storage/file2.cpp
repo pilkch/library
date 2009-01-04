@@ -46,78 +46,78 @@ namespace breathe
     /*
       From http://en.wikipedia.org/wiki/Byte-order_mark
 
-			DETECTED:
-			UTF-8 EF BB BF
-			UTF-16 (big-endian) FE FF
-			UTF-16 (little-endian) FF FE
-			UTF-32 (big-endian) 00 00 FE FF
-			UTF-32 (little-endian) FF FE 00 00
-			SCSU (compression) 0E FE FF
+      DETECTED:
+      UTF-8 EF BB BF
+      UTF-16 (big-endian) FE FF
+      UTF-16 (little-endian) FF FE
+      UTF-32 (big-endian) 00 00 FE FF
+      UTF-32 (little-endian) FF FE 00 00
+      SCSU (compression) 0E FE FF
 
-			NOT DETECTED:
-			UTF-16BE, UTF-32BE (big-endian) With no BOM
-			UTF-16LE, UTF-32LE (little-endian) With no BOM
-      UTF-7	2B 2F 76 and one of the following bytes: [ 38 | 39 | 2B | 2F ]
+      NOT DETECTED:
+      UTF-16BE, UTF-32BE (big-endian) With no BOM
+      UTF-16LE, UTF-32LE (little-endian) With no BOM
+      UTF-7  2B 2F 76 and one of the following bytes: [ 38 | 39 | 2B | 2F ]
       UTF-EBCDIC DD 73 66 73
       BOCU-1 FB EE 28
-		*/
+    */
 
-		BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes)
-		{
-			bytes = 0;
+    BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes)
+    {
+      bytes = 0;
 
-			std::ifstream file;
-			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
+      std::ifstream file;
+      file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
 
-			// Default to UTF8 which will be changed if it is not UTF8
-			uint8_t signature[4] = { 0x88, 0x88, 0x88, 0x88 };
-			file.read((char*)signature, 4);
-			size_t count = file.gcount();
-			file.close();
+      // Default to UTF8 which will be changed if it is not UTF8
+      uint8_t signature[4] = { 0x88, 0x88, 0x88, 0x88 };
+      file.read((char*)signature, 4);
+      size_t count = file.gcount();
+      file.close();
 
-			if (count >= 4) {
-				bytes = 4;
-				//UTF-32 (big-endian) 00 00 FE FF
-				if ((signature[0] == 0x00) && (signature[1] == 0x00) && (signature[2] == 0xFE) && (signature[3] == 0xFF))  {
-					SCREEN<<"Error 32bit big endian file signature detected"<<std::endl;
-					assert(false);
-					return BYTEORDER_UTF32BE;
-				}
-
-				//UTF-32 (little-endian) FF FE 00 00
-				if ((signature[0] == 0xFF) && (signature[1] == 0xFE) && (signature[2] == 0x00) && (signature[3] == 0x00)) {
-					SCREEN<<"Error 32bit little endian file signature detected"<<std::endl;
+      if (count >= 4) {
+        bytes = 4;
+        //UTF-32 (big-endian) 00 00 FE FF
+        if ((signature[0] == 0x00) && (signature[1] == 0x00) && (signature[2] == 0xFE) && (signature[3] == 0xFF))  {
+          SCREEN<<"Error 32bit big endian file signature detected"<<std::endl;
           assert(false);
-					return BYTEORDER_UTF32LE;
-				}
-			}
+          return BYTEORDER_UTF32BE;
+        }
 
-			if (count >= 3) {
-				bytes = 3;
-				//UTF-8 EF BB BF
-				if ((signature[0] == 0xEF) && (signature[1] == 0xBB) && (signature[2] == 0xBF)) return BYTEORDER_UTF8;
-				//SCSU (compression) 0E FE FF
-				if ((signature[0] == 0x0E) && (signature[1] == 0xFE) && (signature[2] == 0xFF)) {
-					SCREEN<<"Error unhandled file signature detected SCSU"<<std::endl;
-					assert(false);
-					return BYTEORDER_INVALID;
-				}
-			}
+        //UTF-32 (little-endian) FF FE 00 00
+        if ((signature[0] == 0xFF) && (signature[1] == 0xFE) && (signature[2] == 0x00) && (signature[3] == 0x00)) {
+          SCREEN<<"Error 32bit little endian file signature detected"<<std::endl;
+          assert(false);
+          return BYTEORDER_UTF32LE;
+        }
+      }
 
-			if (count >= 2) {
-				bytes = 2;
-				//UTF-16 (big-endian) FE FF
-				if ((signature[0] == 0xFE) && (signature[1] == 0xFF)) {
-					SCREEN<<"Error big endian file signature detected"<<std::endl;
-					assert(false);
-					return BYTEORDER_UTF16BE;
-				}
-				//UTF-16 (little-endian) FF FE
-				if ((signature[0] == 0xFF) && (signature[1] == 0xFE)) return BYTEORDER_UTF16LE;
-			}
+      if (count >= 3) {
+        bytes = 3;
+        //UTF-8 EF BB BF
+        if ((signature[0] == 0xEF) && (signature[1] == 0xBB) && (signature[2] == 0xBF)) return BYTEORDER_UTF8;
+        //SCSU (compression) 0E FE FF
+        if ((signature[0] == 0x0E) && (signature[1] == 0xFE) && (signature[2] == 0xFF)) {
+          SCREEN<<"Error unhandled file signature detected SCSU"<<std::endl;
+          assert(false);
+          return BYTEORDER_INVALID;
+        }
+      }
 
-			bytes = 0;
-			return BYTEORDER_UTF8;
+      if (count >= 2) {
+        bytes = 2;
+        //UTF-16 (big-endian) FE FF
+        if ((signature[0] == 0xFE) && (signature[1] == 0xFF)) {
+          SCREEN<<"Error big endian file signature detected"<<std::endl;
+          assert(false);
+          return BYTEORDER_UTF16BE;
+        }
+        //UTF-16 (little-endian) FF FE
+        if ((signature[0] == 0xFF) && (signature[1] == 0xFE)) return BYTEORDER_UTF16LE;
+      }
+
+      bytes = 0;
+      return BYTEORDER_UTF8;
     }
 
     // NOTE: This function does not actually convert between encodings properly,
@@ -211,26 +211,26 @@ namespace breathe
     }
 
 
-		void AppendText(const string_t& filename, const std::string& contents)
-		{
-			//size_t signature_bytes = 0;
-			//BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
+    void AppendText(const string_t& filename, const std::string& contents)
+    {
+      //size_t signature_bytes = 0;
+      //BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
 
-			std::ofstream file;
-			file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
+      std::ofstream file;
+      file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
 
-			file<<contents;
-			/*if (BYTEORDER_UTF8 == byteOrder)
-			{
+      file<<contents;
+      /*if (BYTEORDER_UTF8 == byteOrder)
+      {
 
-			}*/
+      }*/
 
-			file.close();
-		}
+      file.close();
+    }
 
-		void AppendText(const string_t& filename, const std::wstring& contents)
-		{
-			AppendText(filename, breathe::string::ToUTF8(contents));
-		}
-	}
+    void AppendText(const string_t& filename, const std::wstring& contents)
+    {
+      AppendText(filename, breathe::string::ToUTF8(contents));
+    }
+  }
 }

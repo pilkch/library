@@ -56,19 +56,19 @@
 
 namespace breathe
 {
-	cPlayer::cPlayer() :
+  cPlayer::cPlayer() :
 #ifdef BUILD_PHYSICS_3D
-		physics::cUprightCapsule(),
+    physics::cUprightCapsule(),
 #endif
 
-		pSeat(NULL),
-		uiState(PLAYER_STATE_WALK)
-	{
+    pSeat(NULL),
+    uiState(PLAYER_STATE_WALK)
+  {
 #ifdef BUILD_PHYSICS_3D
-		SetDynamic(true);
-		SetUseBody(false);
+    SetDynamic(true);
+    SetUseBody(false);
 
-		fWeight = 80.0f;
+    fWeight = 80.0f;
 
     position.x = position.y = 0.0f;
     position.z = 10.0f;
@@ -76,235 +76,235 @@ namespace breathe
 
 
 #ifdef BUILD_RELEASE
-		uiCameraMode = CAMERA_FIRSTPERSON;
+    uiCameraMode = CAMERA_FIRSTPERSON;
 #else
-		uiCameraMode = CAMERA_FIRSTPERSONFREE;
+    uiCameraMode = CAMERA_FIRSTPERSONFREE;
 #endif
 
-		// Movement
-		fInputUp = fInputDown = fInputLeft = fInputRight = 0.0f;
+    // Movement
+    fInputUp = fInputDown = fInputLeft = fInputRight = 0.0f;
 
-		bInputHandbrake = bInputClutch = false;
+    bInputHandbrake = bInputClutch = false;
 
-		bInputJump = bInputCrouch = false;
+    bInputJump = bInputCrouch = false;
 
-		fSpeedWalk = 1.0f;
-		fSpeedRun = 2.0f;
-		fSpeedSprint = 3.0f;
+    fSpeedWalk = 1.0f;
+    fSpeedRun = 2.0f;
+    fSpeedSprint = 3.0f;
 
-		fDollars=0.0f;
+    fDollars=0.0f;
 
-		fVertical=0.0f;
-		fHorizontal=0.0f;
-	}
+    fVertical=0.0f;
+    fHorizontal=0.0f;
+  }
 
-	cPlayer::~cPlayer()
-	{
+  cPlayer::~cPlayer()
+  {
 #ifdef BUILD_PHYSICS_3D
-		physics::RemovePhysicsObject(this);
+    physics::RemovePhysicsObject(this);
 #endif
-	}
+  }
 
 
-	const float fMaxDistance = 2.5f;
+  const float fMaxDistance = 2.5f;
 
-	void cPlayer::RayCast()
-	{
-		math::cVec3 dir = math::v3Down;
+  void cPlayer::RayCast()
+  {
+    math::cVec3 dir = math::v3Down;
 
 #ifdef BUILD_PHYSICS_3D
-		rayContact.Clear();
+    rayContact.Clear();
 
-		rayContact.fDepth = fMaxDistance;
+    rayContact.fDepth = fMaxDistance;
 
     dGeomRaySet(geomRay, position.x, position.y, position.z, dir.x, dir.y, dir.z);
-		dGeomRaySetLength(geomRay, fMaxDistance);
-		dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
-		dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
+    dGeomRaySetLength(geomRay, fMaxDistance);
+    dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
+    dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
 #endif
-	}
+  }
 
-	void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
-	{
-		cPlayer* p = ((cPlayer*)data);
-		if (dGeomGetBody( g1 ) == p->GetBody()) return;
+  void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
+  {
+    cPlayer* p = ((cPlayer*)data);
+    if (dGeomGetBody( g1 ) == p->GetBody()) return;
 
-		dContact c;
-		if (dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
-			p->rayContact.SetContact(c.geom, p->GetGeom(), c.geom.depth);
-	}
+    dContact c;
+    if (dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
+      p->rayContact.SetContact(c.geom, p->GetGeom(), c.geom.depth);
+  }
 
-	void cPlayer::Update(sampletime_t currentTime)
-	{
-		float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+  void cPlayer::Update(sampletime_t currentTime)
+  {
+    float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
 
-		if (PLAYER_STATE_DRIVE == uiState) position = pSeat->pVehicle->m.GetPosition();
+    if (PLAYER_STATE_DRIVE == uiState) position = pSeat->pVehicle->m.GetPosition();
     else if (PLAYER_STATE_PASSENGER == uiState) position = pSeat->pVehicle->m.GetPosition();
 
 #ifdef BUILD_DEBUG
-		else if (uiCameraMode == CAMERA_FIRSTPERSONFREE)
-		{
-			if (fInputUp > math::cEPSILON || fInputDown > math::cEPSILON ||
-				fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON)
-			{
+    else if (uiCameraMode == CAMERA_FIRSTPERSONFREE)
+    {
+      if (fInputUp > math::cEPSILON || fInputDown > math::cEPSILON ||
+        fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON)
+      {
         float fDirection = fHorizontal + math::DegreesToRadians(90.0f);
 
-				if (fInputUp > math::cEPSILON && fInputUp > fInputDown)
-				{
-					if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-						fDirection += math::DegreesToRadians(45.0f);
-					else if (fInputRight > math::cEPSILON)
+        if (fInputUp > math::cEPSILON && fInputUp > fInputDown)
+        {
+          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+            fDirection += math::DegreesToRadians(45.0f);
+          else if (fInputRight > math::cEPSILON)
             fDirection -= math::DegreesToRadians(45.0f);
 
           position.z += fSpeed * sinf(fVertical - math::DegreesToRadians(90.0f));
-				}
-				else if (fInputDown > math::cEPSILON)
-				{
-					if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-						fDirection += math::DegreesToRadians(125.0f);
-					else if (fInputRight > math::cEPSILON)
+        }
+        else if (fInputDown > math::cEPSILON)
+        {
+          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+            fDirection += math::DegreesToRadians(125.0f);
+          else if (fInputRight > math::cEPSILON)
             fDirection -= math::DegreesToRadians(125.0f);
-					else
+          else
             fDirection += math::DegreesToRadians(180.0f);
 
           position.z += fSpeed * sinf(fVertical + math::DegreesToRadians(90.0f));
-				}
-				else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-				{
+        }
+        else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
+        {
           fDirection += math::DegreesToRadians(90.0f);
-					fSpeed *= fInputLeft;
-				}
-				else if (fInputRight > math::cEPSILON)
-				{
+          fSpeed *= fInputLeft;
+        }
+        else if (fInputRight > math::cEPSILON)
+        {
           fDirection -= math::DegreesToRadians(90.0f);
-					fSpeed *= fInputRight;
-				}
+          fSpeed *= fInputRight;
+        }
 
-				//float fUpDown = fInputUp - fInputDown;
-				//float fLeftRight = fInputLeft - fInputRight;
+        //float fUpDown = fInputUp - fInputDown;
+        //float fLeftRight = fInputLeft - fInputRight;
 
-				//position.x += fUpDown * cosf(fDirection);
-				//position.y += fLeftRight * sinf(fDirection);
+        //position.x += fUpDown * cosf(fDirection);
+        //position.y += fLeftRight * sinf(fDirection);
         position.x += fSpeed * cosf(fDirection);
         position.y += fSpeed * sinf(fDirection);
-			}
-		}
+      }
+    }
 #endif
     else if (HasBody()) {
-			physics::cUprightCapsule::Update(currentTime);
+      physics::cUprightCapsule::Update(currentTime);
 
-			RayCast();
+      RayCast();
 
-			if (rayContact.bContact)
-			{
-				// Push us out of whatever surface we are falling towards
-				// We want to negate the downwards motion with an upwards one and then
-				// add a little bit, enough to get out of the surface
-				{
+      if (rayContact.bContact)
+      {
+        // Push us out of whatever surface we are falling towards
+        // We want to negate the downwards motion with an upwards one and then
+        // add a little bit, enough to get out of the surface
+        {
           const dReal* pos = dBodyGetPosition(GetBody());
           dBodySetPosition(GetBody(), pos[0], pos[1], pos[2] + /*0.03f * rayContact.fDepth*/ + math::cEPSILON);
 
           const dReal* vel = dBodyGetLinearVel(GetBody());
           dBodySetLinearVel(GetBody(), vel[0], vel[1], ((vel[2] < 0.0f) ? 0.0f : vel[2]) + math::cEPSILON);
-				}
+        }
 
-				// Handle the actual movement
-				{
-					// Get a unit vector that represents which way the player is heading
-					math::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
-					v.Normalise();
+        // Handle the actual movement
+        {
+          // Get a unit vector that represents which way the player is heading
+          math::cVec3 v(fInputRight - fInputLeft, fInputUp - fInputDown, 0.0f);
+          v.Normalise();
 
-					// Bias the inputs slightly so that walking forwards is fastest, then left/right
-					// and then backwards is slowest to make for slightly more interesting gameplay
-					v.x *= 0.8f;
-					if (v.y < 0.0f) v.y *= 0.5f;
+          // Bias the inputs slightly so that walking forwards is fastest, then left/right
+          // and then backwards is slowest to make for slightly more interesting gameplay
+          v.x *= 0.8f;
+          if (v.y < 0.0f) v.y *= 0.5f;
 
-					// We have a vector saying which direction to go but it is not in world coordinates,
-					// add it to our current heading vector (A whole matrix is probably not needed, just
-					// makes it a lot easier)
-					math::cMat4 m;
-					m.SetRotationEuler(0.0f, 0.0f, fHorizontal);
+          // We have a vector saying which direction to go but it is not in world coordinates,
+          // add it to our current heading vector (A whole matrix is probably not needed, just
+          // makes it a lot easier)
+          math::cMat4 m;
+          m.SetRotationEuler(0.0f, 0.0f, fHorizontal);
 
-					// Multiply our movement vector by our speed
-					v = m.GetRotatedVec3(v) * fSpeed * 50.0f;
+          // Multiply our movement vector by our speed
+          v = m.GetRotatedVec3(v) * fSpeed * 50.0f;
 
-					// Get our current velocity add our movement velocity
+          // Get our current velocity add our movement velocity
           const dReal* vel = dBodyGetLinearVel(GetBody());
           dBodySetLinearVel(GetBody(), v.x, v.y, vel[2]+v.z);
-				}
-			}
-			else
-			{
-				//const dReal* v0 = dBodyGetLinearVel(GetBody());
-				//dBodySetLinearVel(GetBody(), 0.0f, 0.0f, v0[2]);
-			}
+        }
+      }
+      else
+      {
+        //const dReal* v0 = dBodyGetLinearVel(GetBody());
+        //dBodySetLinearVel(GetBody(), 0.0f, 0.0f, v0[2]);
+      }
 
       position = m.GetPosition();
-		}
-	}
+    }
+  }
 
-	bool cPlayer::IsInACar() const
-	{
-		return (NULL != pSeat);
-	}
+  bool cPlayer::IsInACar() const
+  {
+    return (NULL != pSeat);
+  }
 
-	bool cPlayer::IsDriving() const
-	{
-		return ((NULL != pSeat) && (this == pSeat->pVehicle->vSeat[0]->pPlayer));
-	}
+  bool cPlayer::IsDriving() const
+  {
+    return ((NULL != pSeat) && (this == pSeat->pVehicle->vSeat[0]->pPlayer));
+  }
 
-	bool cPlayer::IsThirdPersonCamera() const
-	{
+  bool cPlayer::IsThirdPersonCamera() const
+  {
 #ifdef BUILD_RELEASE
-		return (uiCameraMode == CAMERA_THIRDPERSON);
+    return (uiCameraMode == CAMERA_THIRDPERSON);
 #else
-		return (uiCameraMode == CAMERA_THIRDPERSON) || (uiCameraMode == CAMERA_THIRDPERSONFREE);
+    return (uiCameraMode == CAMERA_THIRDPERSON) || (uiCameraMode == CAMERA_THIRDPERSONFREE);
 #endif
-	}
+  }
 
 
-	void cPlayer::ChangeStateToDriving()
-	{
-		uiState = PLAYER_STATE_DRIVE;
+  void cPlayer::ChangeStateToDriving()
+  {
+    uiState = PLAYER_STATE_DRIVE;
 
-		physics::RemovePhysicsObject(this);
+    physics::RemovePhysicsObject(this);
 
     DestroyGeom();
-		DestroyBody();
+    DestroyBody();
 
-		if (geomRay) {
-			dGeomDestroy(geomRay);
-			geomRay = 0;
-		}
-	}
+    if (geomRay) {
+      dGeomDestroy(geomRay);
+      geomRay = 0;
+    }
+  }
 
-	void cPlayer::ChangeStateToRunning()
-	{
-		uiState = PLAYER_STATE_RUN;
+  void cPlayer::ChangeStateToRunning()
+  {
+    uiState = PLAYER_STATE_RUN;
 
 #ifdef BUILD_DEBUG
-		if (uiCameraMode != CAMERA_FIRSTPERSONFREE)
-		{
+    if (uiCameraMode != CAMERA_FIRSTPERSONFREE)
+    {
 #endif
       SetUseBody(true);
       CreateCapsule(position);
-			physics::AddPhysicsObject(this);
+      physics::AddPhysicsObject(this);
 
-			cPhysicsRayCast::Create(1.0f);
+      cPhysicsRayCast::Create(1.0f);
 #ifdef BUILD_DEBUG
-		}
+    }
 #endif
-	}
+  }
 
-	void cPlayer::ChangeItemUp()
-	{
+  void cPlayer::ChangeItemUp()
+  {
 
-	}
+  }
 
-	void cPlayer::ChangeItemDown()
-	{
+  void cPlayer::ChangeItemDown()
+  {
 
-	}
+  }
 
 
   /*bool cPlayer::InViewCone(const math::cVec3& vecSpot, float tolerance)

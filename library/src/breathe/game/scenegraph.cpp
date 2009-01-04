@@ -474,55 +474,55 @@ namespace breathe
     }
 
 
-		cSceneGraph::cSceneGraph() :
+    cSceneGraph::cSceneGraph() :
       bIsCullingEnabled(true)
-		{
+    {
       pRoot.reset(new cGroupNode);
-		}
+    }
 
-		/*cSceneGraphSpawn::cSceneGraphSpawn()
-			: v3Position(0.0f, 0.0f, 0.0f),
-				v3Rotation(1.0f, 0.0f, 0.0f)
-		{
+    /*cSceneGraphSpawn::cSceneGraphSpawn()
+      : v3Position(0.0f, 0.0f, 0.0f),
+        v3Rotation(1.0f, 0.0f, 0.0f)
+    {
 
-		}*/
+    }*/
 
 
-		/*cSceneNode::cSceneNode(cSceneGraph* p, std::string sNewFilename)
-		{
-			uiStatus=0;
+    /*cSceneNode::cSceneNode(cSceneGraph* p, std::string sNewFilename)
+    {
+      uiStatus=0;
 
-			pLevel=p;
+      pLevel=p;
 
-			sFilename=sNewFilename;
-		}
+      sFilename=sNewFilename;
+    }
 
     void cSceneNode::Load()
-		{
-			LOG.Success("LevelNode", "Load");
-			LOG.Success("LevelNode", "Load returning");
-		}
+    {
+      LOG.Success("LevelNode", "Load");
+      LOG.Success("LevelNode", "Load returning");
+    }
 
     void cSceneNode::Unload()
-		{
-			uiStatus=NODE_INACTIVE;
-		}
+    {
+      uiStatus=NODE_INACTIVE;
+    }
 
     void cSceneNode::Update(sampletime_t currentTime)
-		{
-			if (NODE_INACTIVE!=uiStatus)
-				uiStatus--;
-			if (NODE_UNLOAD==uiStatus)
-				Unload();
-		}
+    {
+      if (NODE_INACTIVE!=uiStatus)
+        uiStatus--;
+      if (NODE_UNLOAD==uiStatus)
+        Unload();
+    }
 
     unsigned int cSceneNode::Render()
-		{
-			unsigned int uiTriangles = 0;
+    {
+      unsigned int uiTriangles = 0;
 
-			uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
+      uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
 
-			return uiTriangles;
+      return uiTriangles;
     }*/
 
     void cSceneGraph::Update(sampletime_t currentTime)

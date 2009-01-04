@@ -9,16 +9,16 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		Light3DSObject::Light3DSObject(const std::string &nname)
-		: name(nname)
-		{
+  namespace loader_3ds
+  {
+    Light3DSObject::Light3DSObject(const std::string &nname)
+    : name(nname)
+    {
 
-		}
-		Light3DSObject::~Light3DSObject()
-		{
+    }
+    Light3DSObject::~Light3DSObject()
+    {
 
-		}
-	}
+    }
+  }
 }

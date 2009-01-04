@@ -40,131 +40,131 @@ namespace breathe
     {
     }
 
-		void cVec2::Set(float newX, float newY)
-		{
-			x=newX;
-			y=newY;
-		}
+    void cVec2::Set(float newX, float newY)
+    {
+      x=newX;
+      y=newY;
+    }
 
-		void cVec2::LoadZero(void)
-		{
-			x=0.0f;
-			y=0.0f;
-		}
+    void cVec2::LoadZero(void)
+    {
+      x=0.0f;
+      y=0.0f;
+    }
 
-		void cVec2::LoadOne(void)
-		{
-			x=1.0f;
-			y=1.0f;
-		}
+    void cVec2::LoadOne(void)
+    {
+      x=1.0f;
+      y=1.0f;
+    }
 
                                 void cVec2::Normalise()
-		{
-			float length;
-			float scalefactor;
-			length=GetLength();
+    {
+      float length;
+      float scalefactor;
+      length=GetLength();
 
-			if (length==1 || length==0)			//return if length is 1 or 0
-				return;
+      if (length==1 || length==0)      //return if length is 1 or 0
+        return;
 
-			scalefactor = 1.0f/length;
-			x *= scalefactor;
-			y *= scalefactor;
-		}
+      scalefactor = 1.0f/length;
+      x *= scalefactor;
+      y *= scalefactor;
+    }
 
-		void cVec2::SetLength(float length)
-		{
-			float scalefactor;
+    void cVec2::SetLength(float length)
+    {
+      float scalefactor;
 
-			if (length==1 || length==0)			//return if length is 1 or 0
-				return;
+      if (length==1 || length==0)      //return if length is 1 or 0
+        return;
 
-			scalefactor = 1.0f/length;
-			x *= scalefactor;
-			y *= scalefactor;
-		}
+      scalefactor = 1.0f/length;
+      x *= scalefactor;
+      y *= scalefactor;
+    }
 
-		cVec2 cVec2::SetLength(float length) const
-		{
-			cVec2 result(*this);
+    cVec2 cVec2::SetLength(float length) const
+    {
+      cVec2 result(*this);
 
-			result.SetLength(length);
+      result.SetLength(length);
 
-			return result;
-		}
+      return result;
+    }
 
                                 cVec2 cVec2::GetNormalised() const
-		{
-			cVec2 result(*this);
+    {
+      cVec2 result(*this);
 
                                                 result.Normalise();
 
-			return result;
-		}
+      return result;
+    }
 
-		void cVec2::PackTo01()
-		{
-			(*this)=GetPackedTo01();
-		}
+    void cVec2::PackTo01()
+    {
+      (*this)=GetPackedTo01();
+    }
 
-		cVec2 cVec2::GetPackedTo01() const
-		{
-			cVec2 temp(*this);
+    cVec2 cVec2::GetPackedTo01() const
+    {
+      cVec2 temp(*this);
 
                                                 temp.Normalise();
 
-			temp=temp*0.5f+cVec2(0.5f, 0.5f);
+      temp=temp*0.5f+cVec2(0.5f, 0.5f);
 
-			return temp;
-		}
+      return temp;
+    }
 
-		cVec2 cVec2::lerp(const cVec2 & v2, float factor)
-		{
-			cVec2 result;
+    cVec2 cVec2::lerp(const cVec2 & v2, float factor)
+    {
+      cVec2 result;
 
-			result=(*this)*factor + v2*(1.0f-factor);
+      result=(*this)*factor + v2*(1.0f-factor);
 
-			return result;
-		}
+      return result;
+    }
 
-		cVec2 cVec2::operator * (const float rhs) const
-		{
-			float newX = x * rhs;
-			float newY = y * rhs;
+    cVec2 cVec2::operator * (const float rhs) const
+    {
+      float newX = x * rhs;
+      float newY = y * rhs;
 
-			return cVec2(newX, newY);
-		}
+      return cVec2(newX, newY);
+    }
 
-		bool cVec2::operator==(const cVec2 & rhs) const
-		{
-			if (x==rhs.x && y==rhs.y)
-				return true;
+    bool cVec2::operator==(const cVec2 & rhs) const
+    {
+      if (x==rhs.x && y==rhs.y)
+        return true;
 
-			return false;
-		}
+      return false;
+    }
 
-		bool cVec2::operator!=(const cVec2 & rhs) const
-		{
-			return !((*this)==rhs);
-		}
+    bool cVec2::operator!=(const cVec2 & rhs) const
+    {
+      return !((*this)==rhs);
+    }
 
-		void cVec2::operator-=(const cVec2 & rhs)
-		{
-			x -= rhs.x;
-			y -= rhs.y;
-		}
+    void cVec2::operator-=(const cVec2 & rhs)
+    {
+      x -= rhs.x;
+      y -= rhs.y;
+    }
 
-		void cVec2::operator*=(const float rhs)
-		{
-			x *= rhs;
-			y *= rhs;
-		}
+    void cVec2::operator*=(const float rhs)
+    {
+      x *= rhs;
+      y *= rhs;
+    }
 
-		void cVec2::operator/=(const float rhs)
-		{
-			x /= rhs;
-			y /= rhs;
-		}
+    void cVec2::operator/=(const float rhs)
+    {
+      x /= rhs;
+      y /= rhs;
+    }
 
     cVec2& cVec2::operator=(const cVec3& rhs)
     {

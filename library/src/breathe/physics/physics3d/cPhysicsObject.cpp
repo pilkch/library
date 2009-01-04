@@ -85,190 +85,190 @@ namespace breathe
       m.LoadIdentity();
     }
 
-		cPhysicsObject::~cPhysicsObject()
-		{
-			RemoveFromWorld();
-		}
+    cPhysicsObject::~cPhysicsObject()
+    {
+      RemoveFromWorld();
+    }
 
-		void cPhysicsObject::RemoveFromWorld()
-		{
-			if (geom) {
-				dGeomDestroy(geom);
-				geom = NULL;
-			}
+    void cPhysicsObject::RemoveFromWorld()
+    {
+      if (geom) {
+        dGeomDestroy(geom);
+        geom = NULL;
+      }
 
-			if (body) {
+      if (body) {
         dBodyDestroy(body);
-				body = NULL;
-			}
-		}
+        body = NULL;
+      }
+    }
 
 #ifdef BUILD_PHYSICS_3D
     void cPhysicsObject::SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies)
-		{
-			vCoords=coords;
-			vIndicies=indicies;
-		}
+    {
+      vCoords=coords;
+      vIndicies=indicies;
+    }
 
     void cPhysicsObject::InitCommon(const physvec_t& posOriginal, const physvec_t& rot)
-		{
+    {
       math::cVec3 pos(posOriginal.x, posOriginal.y, posOriginal.z + fHeight);
 
-			m.LoadIdentity();
-			m.SetRotationZ(rot.z*math::cPI_DIV_180);
+      m.LoadIdentity();
+      m.SetRotationZ(rot.z*math::cPI_DIV_180);
 
-			dMatrix3 r;
-			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
+      dMatrix3 r;
+      r[0] = m[0];    r[1] = m[4];    r[2] = m[8];    r[3] = 0;
+      r[4] = m[1];    r[5] = m[5];    r[6] = m[9];    r[7] = 0;
+      r[8] = m[2];    r[9] = m[6];    r[10] = m[10];  r[11] = 0;
 
-			m.SetTranslation(pos);
+      m.SetTranslation(pos);
 
       position = pos;
 
       dGeomSetPosition(geom, position.x, position.y, position.z);
-			dGeomSetRotation(geom, r);
+      dGeomSetRotation(geom, r);
 
-			if (bBody) {
-				body = dBodyCreate(physics::GetWorld());
+      if (bBody) {
+        body = dBodyCreate(physics::GetWorld());
         dBodySetPosition(body, position.x, position.y, position.z);
-				dBodySetRotation(body, r);
-				dBodySetAutoDisableFlag(body, 1);
+        dBodySetRotation(body, r);
+        dBodySetAutoDisableFlag(body, 1);
 
-				dGeomSetBody(geom, body);
-			}
-		}
-
-    void cPhysicsObject::CreateBox(const math::cVec3& pos, const math::cVec3& rot)
-		{
-      geom = dCreateBox(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(),
-				2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
-
-			InitCommon(pos, rot);
-
-			if (bBody) {
-				dMass mass;
-				dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
-				dBodySetMass(body, &mass);
-			}
+        dGeomSetBody(geom, body);
+      }
     }
 
-		void cPhysicsObject::CreateSphere(const math::cVec3& pos, const math::cVec3& rot)
-		{
+    void cPhysicsObject::CreateBox(const math::cVec3& pos, const math::cVec3& rot)
+    {
+      geom = dCreateBox(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(),
+        2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
+
+      InitCommon(pos, rot);
+
+      if (bBody) {
+        dMass mass;
+        dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
+        dBodySetMass(body, &mass);
+      }
+    }
+
+    void cPhysicsObject::CreateSphere(const math::cVec3& pos, const math::cVec3& rot)
+    {
       geom = dCreateSphere(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius);
 
-			InitCommon(pos, rot);
+      InitCommon(pos, rot);
 
-			if (bBody) {
-				dMass mass;
-				dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
-				dBodySetMass(body, &mass);
-			}
-		}
+      if (bBody) {
+        dMass mass;
+        dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
+        dBodySetMass(body, &mass);
+      }
+    }
 
     void cPhysicsObject::CreateCapsule(const math::cVec3& pos, const math::cVec3& rot)
-		{
+    {
       geom = dCreateCapsule(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
 
-			InitCommon(pos, rot);
+      InitCommon(pos, rot);
 
-			if (bBody) {
-				dMass mass;
-				dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
-				dBodySetMass(body, &mass);
-			}
-		}
+      if (bBody) {
+        dMass mass;
+        dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
+        dBodySetMass(body, &mass);
+      }
+    }
 
     void cPhysicsObject::CreateCylinder(const math::cVec3& pos, const math::cVec3& rot)
-		{
+    {
       geom = dCreateCylinder(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
 
-			InitCommon(pos, rot);
+      InitCommon(pos, rot);
 
-			if (bBody) {
-				dMass mass;
-				dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
-				dBodySetMass(body, &mass);
-			}
+      if (bBody) {
+        dMass mass;
+        dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
+        dBodySetMass(body, &mass);
+      }
     }
 
     void cPhysicsObject::CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot)
-		{
-			bBody = false;
-			bDynamic = false;
+    {
+      bBody = false;
+      bDynamic = false;
 
-			m.LoadIdentity();
-			m.SetRotationZ(rot.z*math::cPI_DIV_180);
+      m.LoadIdentity();
+      m.SetRotationZ(rot.z*math::cPI_DIV_180);
 
-			dMatrix3 r;
-			r[0] = m[0];		r[1] = m[4];		r[2] = m[8];		r[3] = 0;
-			r[4] = m[1];		r[5] = m[5];		r[6] = m[9];		r[7] = 0;
-			r[8] = m[2];		r[9] = m[6];		r[10] = m[10];	r[11] = 0;
+      dMatrix3 r;
+      r[0] = m[0];    r[1] = m[4];    r[2] = m[8];    r[3] = 0;
+      r[4] = m[1];    r[5] = m[5];    r[6] = m[9];    r[7] = 0;
+      r[8] = m[2];    r[9] = m[6];    r[10] = m[10];  r[11] = 0;
 
-			m.SetTranslation(pos);
+      m.SetTranslation(pos);
 
       position = pos;
 
-			//Trimeshes are static for the moment
-			v[0]=0.0f;
-			v[1]=0.0f;
-			v[2]=0.0f;
+      //Trimeshes are static for the moment
+      v[0]=0.0f;
+      v[1]=0.0f;
+      v[2]=0.0f;
 
 
 
-			Size[0] = 500.0f;
-			Size[1] = 500.0f;
-			Size[2] = 0.0f;
+      Size[0] = 500.0f;
+      Size[1] = 500.0f;
+      Size[2] = 0.0f;
 
-			Vertices[0][0] = -Size[0];
-			Vertices[0][1] = -Size[1];
-			Vertices[0][2] = Size[2];
+      Vertices[0][0] = -Size[0];
+      Vertices[0][1] = -Size[1];
+      Vertices[0][2] = Size[2];
 
-			Vertices[1][0] = Size[0];
-			Vertices[1][1] = -Size[1];
-			Vertices[1][2] = Size[2];
+      Vertices[1][0] = Size[0];
+      Vertices[1][1] = -Size[1];
+      Vertices[1][2] = Size[2];
 
-			Vertices[2][0] = Size[0];
-			Vertices[2][1] = Size[1];
-			Vertices[2][2] = Size[2];
+      Vertices[2][0] = Size[0];
+      Vertices[2][1] = Size[1];
+      Vertices[2][2] = Size[2];
 
-			Vertices[3][0] = -Size[0];
-			Vertices[3][1] = Size[1];
-			Vertices[3][2] = Size[2];
+      Vertices[3][0] = -Size[0];
+      Vertices[3][1] = Size[1];
+      Vertices[3][2] = Size[2];
 
-			Vertices[4][0] = 0;
-			Vertices[4][1] = 0;
-			Vertices[4][2] = 0;
+      Vertices[4][0] = 0;
+      Vertices[4][1] = 0;
+      Vertices[4][2] = 0;
 
-			Indices[0] = 0;
-			Indices[1] = 1;
-			Indices[2] = 4;
+      Indices[0] = 0;
+      Indices[1] = 1;
+      Indices[2] = 4;
 
-			Indices[3] = 1;
-			Indices[4] = 2;
-			Indices[5] = 4;
+      Indices[3] = 1;
+      Indices[4] = 2;
+      Indices[5] = 4;
 
-			Indices[6] = 2;
-			Indices[7] = 3;
-			Indices[8] = 4;
+      Indices[6] = 2;
+      Indices[7] = 3;
+      Indices[8] = 4;
 
-			Indices[9] = 3;
-			Indices[10] = 0;
-			Indices[11] = 4;
+      Indices[9] = 3;
+      Indices[10] = 0;
+      Indices[11] = 4;
 
-			dTriMeshDataID Data = dGeomTriMeshDataCreate();
+      dTriMeshDataID Data = dGeomTriMeshDataCreate();
 
       dGeomTriMeshDataBuildSimple(Data, (const dReal*)Vertices, VertexCount, Indices, IndexCount);
 
       geom = dCreateTriMesh(physics::GetSpaceStatic(), Data, NULL , NULL , NULL);
 
-			dGeomSetBody(geom, 0);
+      dGeomSetBody(geom, 0);
 
       dGeomSetPosition(geom, position.x, position.y, position.z);
-			dGeomSetRotation(geom, r);
+      dGeomSetRotation(geom, r);
 
 
-			/*
+      /*
       vertices_ = new D3DXVECTOR3[ vcount ];
       for (size_t i = 0; i < vcount; ++i ) {
         vertices_[i] = *(D3DXVECTOR3 const *)((int8_t *)verts + vstride * i);
@@ -282,75 +282,75 @@ namespace breathe
         normals_[i/3] = NormalCalc( vertices_, &indices_[i] );
       }
 
-			id_, vertices_, (int)sizeof(D3DXVECTOR3), (int)vcount,
+      id_, vertices_, (int)sizeof(D3DXVECTOR3), (int)vcount,
       indices_, (int)icount, (int)sizeof(int)*3,
-			normals_
+      normals_
 
-			const void* Vertices, int VertexStride, int VertexCount,
+      const void* Vertices, int VertexStride, int VertexCount,
       const void* Indices, int IndexCount, int TriStride,
       const void* Normals
       dGeomTriMeshDataBuildSingle1(Data,
-				(dReal*)Vertices, (int)sizeof(D3DXVECTOR3), VertexCount,
+        (dReal*)Vertices, (int)sizeof(D3DXVECTOR3), VertexCount,
         indices_, Indices, TriStride);
-				//normals_ );*/
+        //normals_ );*/
 
 
-			//dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
+      //dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
     }
 #endif
 
-		void cPhysicsObject::Update(sampletime_t currentTime)
-		{
-			if (bDynamic)
-			{
-				dReal *p0;
-				dReal *r0;
+    void cPhysicsObject::Update(sampletime_t currentTime)
+    {
+      if (bDynamic)
+      {
+        dReal *p0;
+        dReal *r0;
 
-				if (bBody) {
-					p0=const_cast<dReal*>(dBodyGetPosition(body));
-					r0=const_cast<dReal*>(dBodyGetRotation(body));
-					const dReal *v0=dBodyGetLinearVel(body);
-					//const dReal *a0=dBodyGetAngularVel(body);
+        if (bBody) {
+          p0=const_cast<dReal*>(dBodyGetPosition(body));
+          r0=const_cast<dReal*>(dBodyGetRotation(body));
+          const dReal *v0=dBodyGetLinearVel(body);
+          //const dReal *a0=dBodyGetAngularVel(body);
 
 
-					v[0]=v0[0];
-					v[1]=v0[1];
-					v[2]=v0[2];
-				}
-				else
-				{
-					p0=const_cast<dReal*>(dGeomGetPosition(geom));
-					r0=const_cast<dReal*>(dGeomGetRotation(geom));
+          v[0]=v0[0];
+          v[1]=v0[1];
+          v[2]=v0[2];
+        }
+        else
+        {
+          p0=const_cast<dReal*>(dGeomGetPosition(geom));
+          r0=const_cast<dReal*>(dGeomGetRotation(geom));
 
-					//Trimeshes are static for the moment
-					v[0]=0.0f;
-					v[1]=0.0f;
-					v[2]=0.0f;
-				}
+          //Trimeshes are static for the moment
+          v[0]=0.0f;
+          v[1]=0.0f;
+          v[2]=0.0f;
+        }
 
-				m[0]  =     r0[0];
-				m[1]  =     r0[4];
-				m[2]  =     r0[8];
-				m[3]  =     0;
-				m[4]  =     r0[1];
-				m[5]  =     r0[5];
-				m[6]  =     r0[9];
-				m[7]  =     0;
-				m[8]  =     r0[2];
-				m[9]  =     r0[6];
-				m[10] =     r0[10];
-				m[11] =     0;
-				m[12] =     p0[0];
-				m[13] =     p0[1];
-				m[14] =     p0[2];
-				m[15] =     1;
-			}
+        m[0]  =     r0[0];
+        m[1]  =     r0[4];
+        m[2]  =     r0[8];
+        m[3]  =     0;
+        m[4]  =     r0[1];
+        m[5]  =     r0[5];
+        m[6]  =     r0[9];
+        m[7]  =     0;
+        m[8]  =     r0[2];
+        m[9]  =     r0[6];
+        m[10] =     r0[10];
+        m[11] =     0;
+        m[12] =     p0[0];
+        m[13] =     p0[1];
+        m[14] =     p0[2];
+        m[15] =     1;
+      }
 
-			UpdateComponents();
-		}
+      UpdateComponents();
+    }
 
-		void cPhysicsObject::UpdateComponents()
-		{
+    void cPhysicsObject::UpdateComponents()
+    {
       position = m.GetPosition();
     }
 
@@ -371,23 +371,23 @@ namespace breathe
     }
 
 #if 1
-		// *****************************************************************************************************
-		// Upright Capsule
-		// *****************************************************************************************************
-		cUprightCapsule::cUprightCapsule()
-			: cPhysicsObject()
-		{
+    // *****************************************************************************************************
+    // Upright Capsule
+    // *****************************************************************************************************
+    cUprightCapsule::cUprightCapsule()
+      : cPhysicsObject()
+    {
 
-		}
+    }
 
-		void cUprightCapsule::Update(sampletime_t currentTime)
-		{
-			// Stop the capsule from rotating forwards, backwards, left, right
-			dBodySetAngularVel(GetBody(), 0.0f, 0.0f, 0.0f);
+    void cUprightCapsule::Update(sampletime_t currentTime)
+    {
+      // Stop the capsule from rotating forwards, backwards, left, right
+      dBodySetAngularVel(GetBody(), 0.0f, 0.0f, 0.0f);
       dBodySetTorque(GetBody(), 0.0f, 0.0f, 0.0f);
 
-			cPhysicsObject::Update(currentTime);
-		}
+      cPhysicsObject::Update(currentTime);
+    }
 #endif
   }
 }

@@ -157,7 +157,7 @@ suspension on the other side. This prevents the car from tilting over too much.
 
 
 m_fTorqueOnDriveWheels =
-  m_fAccel * (1.0 - m_fClutch)	* LookupTorque(m_iRPM) *
+  m_fAccel * (1.0 - m_fClutch) * LookupTorque(m_iRPM) *
   m_fGearRatio[m_iGear] *
   m_fDifferentialRatio;
 
@@ -191,13 +191,13 @@ For a race car, you want cL to be negative and L to point downwards :-)
 void cPlayer::InitPhysics( CAR *car )
 {
   G = 9.8f;
-  WHEELINERTIA	= 34.0f;
-  BRAKE_TORQUE	=  5000.0f;
-  DRAG			=  0.387f;
-  RESISTANCE		= 30.0f;
-  CA_R			=  1.2f;
-  CA_F			= 1.0f;
-  MAX_GRIP		=  10.0f;
+  WHEELINERTIA = 34.0f;
+  BRAKE_TORQUE =  5000.0f;
+  DRAG         =  0.387f;
+  RESISTANCE   = 30.0f;
+  CA_R         =  1.2f;
+  CA_F         = 1.0f;
+  MAX_GRIP     =  10.0f;
   TRACTION_FACTOR = 2.0f;
 
   std::memset(car, 0, sizeof(CAR) );
@@ -214,30 +214,29 @@ void cPlayer::InitPhysics( CAR *car )
   car->steerangle = 0;
   car->fwheelangle = 0;
   car->rwheelangle = 0;
-  car->enginetorque = 190;	// N.m
+  car->enginetorque = 190; // N.m
   car->rpm = 0;
   car->gear = 1;
   car->accelerator = 0;
-  car->brake=0.0f;					// amount of braking (input)  [0 .. 1.0]
+  car->brake=0.0f;         // amount of braking (input)  [0 .. 1.0]
   car->handbraking=false;
   car->rwheelav = 0;
   car->wfront = (car->cartype->mass * G * 0.5);
   car->wrear  = (car->cartype->mass * G * 0.5);
-  car->pitchangle=0.0f;				// actual pitch angle
-  car->aimpitchangle=0.0f;			// destination pitch angle
-  car->forcedpitchangle=0.0f;		// pitch angle due to wheels being at different heights
+  car->pitchangle=0.0f;       // actual pitch angle
+  car->aimpitchangle=0.0f;    // destination pitch angle
+  car->forcedpitchangle=0.0f; // pitch angle due to wheels being at different heights
   car->rollangle=0.0f;
   car->aimrollangle=0.0f;
   car->forcedrollangle=0.0f;
 
-  car->rwheelav=0.0f;				// rear wheel angular velocity (rad/s)
-  car->fwheelav=1.0f;				// front "  			"
+  car->rwheelav=0.0f;        // rear wheel angular velocity (rad/s)
+  car->fwheelav=1.0f;        // front "        "
 
-  car->height=1.0f;					// actual height of car body
-  car->aimheight=1.0f;				// target height of body
+  car->height=1.0f;          // actual height of car body
+  car->aimheight=1.0f;        // target height of body
 
-  for(unsigned int i=0;i<4;i++)
-    car->wheelheight[i]=1.0f;			// height per wheel
+  for(unsigned int i=0;i<4;i++) car->wheelheight[i]=1.0f; // height for each wheel
 }
 
 float cPlayer::LookUpTorque( int rpm )
@@ -263,13 +262,13 @@ void cPlayer::GearShifter(CAR *car)
 }
 
 
-  cartype->b = 85.0f*UNIT_SCALE;		// m
-  cartype->c = 60.0f*UNIT_SCALE;		// m
-  cartype->h = 1.0f;						// m
-  cartype->mass = 1500.0f;			// kg
-  cartype->inertia =1500.0f;			// kg.m
-  cartype->halfwidth = 0.86f;		// m
-  cartype->wheelradius = 0.33f;	// m
+  cartype->b = 85.0f*UNIT_SCALE; // m
+  cartype->c = 60.0f*UNIT_SCALE; // m
+  cartype->h = 1.0f;             // m
+  cartype->mass = 1500.0f;       // kg
+  cartype->inertia =1500.0f;     // kg.m
+  cartype->halfwidth = 0.86f;    // m
+  cartype->wheelradius = 0.33f;  // m
 
   cartype->num_gears = 5;
   cartype->gearratio[0] = -3.5f;

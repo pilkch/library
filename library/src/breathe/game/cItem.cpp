@@ -49,14 +49,14 @@
 
 namespace breathe
 {
-	cItem::cItem()
-		: cUpdateable()
-	{
+  cItem::cItem()
+    : cUpdateable()
+  {
 
-	}
+  }
 
-	cItem::~cItem()
-	{
+  cItem::~cItem()
+  {
 
-	}
+  }
 }

@@ -46,27 +46,27 @@
 
 namespace breathe
 {
-	namespace physics
-	{
-		cPhysicsRayCast::cPhysicsRayCast()
-		{
-			geomRay = 0;
-		}
+  namespace physics
+  {
+    cPhysicsRayCast::cPhysicsRayCast()
+    {
+      geomRay = 0;
+    }
 
-		cPhysicsRayCast::~cPhysicsRayCast()
-		{
-			if (geomRay)
-			{
-				dGeomDestroy(geomRay);
-				geomRay = 0;
-			}
-		}
+    cPhysicsRayCast::~cPhysicsRayCast()
+    {
+      if (geomRay)
+      {
+        dGeomDestroy(geomRay);
+        geomRay = 0;
+      }
+    }
 
-		void cPhysicsRayCast::Create(float fLength)
-		{
-			rayContact.Clear();
+    void cPhysicsRayCast::Create(float fLength)
+    {
+      rayContact.Clear();
 
-			geomRay = dCreateRay(0, fLength);
-		}
-	}
+      geomRay = dCreateRay(0, fLength);
+    }
+  }
 }

@@ -58,30 +58,30 @@ namespace breathe
 
     bool CanSleep() { return bCanSleep; }
 
-		// *** Physics data
-		const int iMaxContacts = 100;
-		const float fFriction = 2000.0f;
-		const float fBounce = 0.003f;
-		const float fBounceVel = 0.00002f;
-		const float fERP = 0.8f;
-		const float fCFM = (float)(10e-5);
-		const float fGravity = -9.80665f;
-		const float fDampTorque = 0.05f;
-		const float fDampLinearVel = 0.001f;
+    // *** Physics data
+    const int iMaxContacts = 100;
+    const float fFriction = 2000.0f;
+    const float fBounce = 0.003f;
+    const float fBounceVel = 0.00002f;
+    const float fERP = 0.8f;
+    const float fCFM = (float)(10e-5);
+    const float fGravity = -9.80665f;
+    const float fDampTorque = 0.05f;
+    const float fDampLinearVel = 0.001f;
 
     b2World* world;
 
-		std::list<cPhysicsObject * >lPhysicsObject;
+    std::list<cPhysicsObject * >lPhysicsObject;
 
 
 
-		// *** Functions
+    // *** Functions
 
     b2World* GetWorld() { return world; }
 
-		size_t size() { return lPhysicsObject.size(); }
-		iterator begin() { return lPhysicsObject.begin(); }
-		iterator end() { return lPhysicsObject.end(); }
+    size_t size() { return lPhysicsObject.size(); }
+    iterator begin() { return lPhysicsObject.begin(); }
+    iterator end() { return lPhysicsObject.end(); }
 
     cPhysicsObject* border[4];
 
@@ -90,8 +90,8 @@ namespace breathe
     cPhysicsObject* GetBorder2() { return border[2]; }
     cPhysicsObject* GetBorder3() { return border[3]; }
 
-		cPhysicsObject* CreateBoundingWall(float x, float y, float width, float height)
-		{
+    cPhysicsObject* CreateBoundingWall(float x, float y, float width, float height)
+    {
       cPhysicsObject* pObject = new cPhysicsObject;
 
       pObject->fWeight = 0.0f;
@@ -99,10 +99,10 @@ namespace breathe
       pObject->CreateBox(breathe::math::cVec2(x, y));
 
       return pObject;
-		}
+    }
 
     void Init(float width, float height)
-		{
+    {
       fWidth = width;
       fHeight = height;
 
@@ -126,41 +126,41 @@ namespace breathe
 
       // Right
       border[3] = CreateBoundingWall(width + 0.5f * fBorder, height * 0.5f, fBorder, height * 0.5f);
-		}
+    }
 
-		void Destroy()
-		{
+    void Destroy()
+    {
       SAFE_DELETE(border[0]);
       SAFE_DELETE(border[1]);
       SAFE_DELETE(border[2]);
       SAFE_DELETE(border[3]);
 
-			SAFE_DELETE(world);
-		}
+      SAFE_DELETE(world);
+    }
 
-		void AddPhysicsObject(cPhysicsObject *pPhysicsObject)
-		{
-			lPhysicsObject.push_back(pPhysicsObject);
-		}
+    void AddPhysicsObject(cPhysicsObject *pPhysicsObject)
+    {
+      lPhysicsObject.push_back(pPhysicsObject);
+    }
 
-		void RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
-		{
-			lPhysicsObject.remove(pPhysicsObject);
-		}
+    void RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
+    {
+      lPhysicsObject.remove(pPhysicsObject);
+    }
 
-		void Update(sampletime_t currentTime)
-		{
+    void Update(sampletime_t currentTime)
+    {
       // Step the world
       world->Step(fTimeStep, uiIterations);
 
       // Now update our physics objects
-			iterator iter = lPhysicsObject.begin();
-			iterator iterEnd = lPhysicsObject.end();
+      iterator iter = lPhysicsObject.begin();
+      iterator iterEnd = lPhysicsObject.end();
 
       while (iterEnd != iter) {
         (*iter)->Update(currentTime);
         iter++;
-			};
-		}
-	}
+      };
+    }
+  }
 }

@@ -6,16 +6,16 @@
 
 namespace breathe
 {
-	cPetrolBowser::cPetrolBowser(unsigned int type, float price)
-	{
-		uiType=type;
-		fPrice=price;
+  cPetrolBowser::cPetrolBowser(unsigned int type, float price)
+  {
+    uiType=type;
+    fPrice=price;
 
-		fHealth=1.0f; //Just a tap and it will explode
-	}
+    fHealth=1.0f; //Just a tap and it will explode
+  }
 
-	cPetrolBowser::~cPetrolBowser()
-	{
-		
-	}
+  cPetrolBowser::~cPetrolBowser()
+  {
+    
+  }
 }

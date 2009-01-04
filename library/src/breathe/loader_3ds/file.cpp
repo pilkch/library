@@ -19,58 +19,58 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		Model3DSFile::Model3DSFile(const std::string& src)
-			: file(src.c_str(), std::ios::binary)
-		{
+  namespace loader_3ds
+  {
+    Model3DSFile::Model3DSFile(const std::string& src)
+      : file(src.c_str(), std::ios::binary)
+    {
 
-		}
+    }
 
-		Model3DSFile::~Model3DSFile()
-		{
-			file.close();
-		}
+    Model3DSFile::~Model3DSFile()
+    {
+      file.close();
+    }
 
-		Model3DSChunk Model3DSFile::Child()
-		{
+    Model3DSChunk Model3DSFile::Child()
+    {
 #ifdef DEBUG3DS
-			LOG.Success("c3ds", "SEEK 0");
+      LOG.Success("c3ds", "SEEK 0");
 #endif //DEBUG3DS
 
-			file.seekg(0, std::ios::beg);
-			return Model3DSChunk(file , FileSize(file));
-		}
+      file.seekg(0, std::ios::beg);
+      return Model3DSChunk(file , FileSize(file));
+    }
 
-		int Model3DSFile::FileSize(std::ifstream &file)
-		{
-			int curr_pos = file.tellg();
-
-#ifdef DEBUG3DS
-			LOG.Success("c3ds", "SEEK 0");
-#endif //DEBUG3DS
-
-			file.seekg(0, std::ios::beg);
-			int beginning = file.tellg();
-
-			file.seekg(0 , std::ios::end);
-			int ending = file.tellg();
+    int Model3DSFile::FileSize(std::ifstream &file)
+    {
+      int curr_pos = file.tellg();
 
 #ifdef DEBUG3DS
-			std::ostringstream t;
-			t	<<"SEEK " << ending;
-			LOG.Success("c3ds", t.str());
+      LOG.Success("c3ds", "SEEK 0");
 #endif //DEBUG3DS
 
-			file.seekg(curr_pos, std::ios::beg);
+      file.seekg(0, std::ios::beg);
+      int beginning = file.tellg();
+
+      file.seekg(0 , std::ios::end);
+      int ending = file.tellg();
 
 #ifdef DEBUG3DS
-			t.str("");
-			t	<<"SEEK " << curr_pos;
-			LOG.Success("c3ds", t.str());
+      std::ostringstream t;
+      t  <<"SEEK " << ending;
+      LOG.Success("c3ds", t.str());
 #endif //DEBUG3DS
 
-			return ending - beginning;
-		}
-	}
+      file.seekg(curr_pos, std::ios::beg);
+
+#ifdef DEBUG3DS
+      t.str("");
+      t  <<"SEEK " << curr_pos;
+      LOG.Success("c3ds", t.str());
+#endif //DEBUG3DS
+
+      return ending - beginning;
+    }
+  }
 }

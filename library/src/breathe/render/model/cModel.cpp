@@ -50,17 +50,17 @@
 
 namespace breathe
 {
-	namespace render
-	{
-		namespace model
-		{
-			cModel::cModel()
-			{
-			}
+  namespace render
+  {
+    namespace model
+    {
+      cModel::cModel()
+      {
+      }
 
-			cModel::~cModel()
-			{
-			}
-		}
-	}
+      cModel::~cModel()
+      {
+      }
+    }
+  }
 }
