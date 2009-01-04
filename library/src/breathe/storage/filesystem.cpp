@@ -97,13 +97,41 @@ namespace breathe
 
     string_t GetTempDirectory()
     {
-      //string_t sPath;
-      //if (GetTempDirectory123213()) return sPath;
+#ifdef P_tmpdir
+      // On some systems this is defined for us
+      return P_tmpdir;
+#endif
+
+      std::string sPath;
+      if (GetEnvironmentVariable("TMPDIR", sPath)) return sPath;
 
       // Last resort
-      return TEXT("/tmp/");
+      return "/tmp";
+    }
+
+    bool DeleteFile(const breathe::string_t& sFilename)
+    {
+      return (unlink(sFilename.c_str()) == 0);
+    }
+
+    bool DeleteDirectory(const breathe::string_t& sFoldername)
+    {
+      return (rmdir(sFoldername.c_str()) == 0);
     }
 #endif
+
+    // This is where we don't want to destroy the creation time etc. of the destination file,
+    // also if the destination file is a link to another file it won't destroy the link,
+    // it will actually write to the linked to file
+    void CopyContentsOfFile(const breathe::string_t& sFrom, const breathe::string_t& sTo)
+    {
+      std::ifstream i(sFrom.c_str());
+      std::ofstream o(sTo.c_str());
+
+      char c = '\0';
+
+      while (i.get(c)) o.put(c);
+    }
 
     string_t GetHomeDirectory()
     {

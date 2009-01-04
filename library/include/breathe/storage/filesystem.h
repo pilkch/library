@@ -77,14 +77,19 @@ namespace breathe
     bool CreateDirectory(const breathe::string_t& sFoldername);
     bool CreateFile(const breathe::string_t& sFilename);
 
-		// File Opening functions
-		// No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
-		// The idea is that we can search directories to find the file and then open the correct one.
-		std::ifstream OpenTextFileRead(const breathe::string_t& sFilename);
-		std::ifstream OpenBinaryFileRead(const breathe::string_t& sFilename);
+    bool DeleteFile(const breathe::string_t& sFilename);
+    bool DeleteDirectory(const breathe::string_t& sFoldername);
 
-		std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
-		std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
+    void CopyContentsOfFile(const breathe::string_t& sFrom, const breathe::string_t& sTo);
+
+    // File Opening functions
+    // No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
+    // The idea is that we can search directories to find the file and then open the correct one.
+    std::ifstream OpenTextFileRead(const breathe::string_t& sFilename);
+    std::ifstream OpenBinaryFileRead(const breathe::string_t& sFilename);
+
+    std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
+    std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
 
 
     void AddDirectory(const string_t& sDirectory);
