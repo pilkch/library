@@ -10,65 +10,65 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		class Model3DSChunk;
-		class Light3DSObject;
-		class Mesh3DSObject;
-	}
+  namespace loader_3ds
+  {
+    class Model3DSChunk;
+    class Light3DSObject;
+    class Mesh3DSObject;
+  }
 
-	namespace render
-	{
-		namespace model
+  namespace render
+  {
+    namespace model
     {
       class cStatic;
       typedef cSmartPtr<cStatic> cStaticRef;
 
-			class cStatic : public cModel, protected math::cOctree
-			{
-			private:
-				int Load3DS(const std::string& sFilename);
+      class cStatic : public cModel, protected math::cOctree
+      {
+      private:
+        int Load3DS(const std::string& sFilename);
 
-				void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);
-				void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
+        void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);
+        void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
 
-				void ParseMesh(const std::string &name, loader_3ds::Model3DSChunk c, std::string sFilename);
-				void ParseMaterial(loader_3ds::Model3DSChunk c);
+        void ParseMesh(const std::string &name, loader_3ds::Model3DSChunk c, std::string sFilename);
+        void ParseMaterial(loader_3ds::Model3DSChunk c);
 
-				void ParseCamera(loader_3ds::Model3DSChunk c);
-				void ParseLight(const std::string &name, loader_3ds::Model3DSChunk c);
+        void ParseCamera(loader_3ds::Model3DSChunk c);
+        void ParseLight(const std::string &name, loader_3ds::Model3DSChunk c);
 
-				void NewMaterial(loader_3ds::Model3DSChunk c);
+        void NewMaterial(loader_3ds::Model3DSChunk c);
 
-				/*
-				std::vector<loader_3ds::Light3DSObject> lights;
-				std::vector<loader_3ds::Mesh3DSObject> meshes;*/
-				std::vector<std::string> vMaterial;
+        /*
+        std::vector<loader_3ds::Light3DSObject> lights;
+        std::vector<loader_3ds::Mesh3DSObject> meshes;*/
+        std::vector<std::string> vMaterial;
 
-				unsigned int uiCurrentMesh;
+        unsigned int uiCurrentMesh;
 
-				float fScale;
+        float fScale;
 
-				cMeshRef pCurrentMesh;
+        cMeshRef pCurrentMesh;
 
-				bool bFoundMeshes, bFoundVertices, bFoundTextureCoords, bFoundMaterials;
+        bool bFoundMeshes, bFoundVertices, bFoundTextureCoords, bFoundMaterials;
 
-			public:
-				std::vector<cMeshRef>vMesh; //A vector of all the meshes in this model
+      public:
+        std::vector<cMeshRef>vMesh; //A vector of all the meshes in this model
 
-				cStatic();
-				~cStatic();
+        cStatic();
+        ~cStatic();
 
-				int Load(const std::string& sFilename);
-				void Update(sampletime_t currentTime);
+        int Load(const std::string& sFilename);
+        void Update(sampletime_t currentTime);
         size_t Render();
 
         size_t Render(cOctree* pNode);
 
-				//void Split(unsigned int uiMesh, cModel_Static** pDest, unsigned int uiDest); //Which mesh to subtract, destination model
-				void CloneTo(cStaticRef rhs);
+        //void Split(unsigned int uiMesh, cModel_Static** pDest, unsigned int uiDest); //Which mesh to subtract, destination model
+        void CloneTo(cStaticRef rhs);
 
-				cMeshRef GetMesh(unsigned int index);
+        cMeshRef GetMesh(unsigned int index);
       };
 
       typedef cSmartPtr<cStatic> cStaticRef;

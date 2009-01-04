@@ -3,18 +3,18 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		class Light3DSObject
-		{
-		public:
-			Light3DSObject(const std::string &nname);
-			~Light3DSObject();
-		private:
+  namespace loader_3ds
+  {
+    class Light3DSObject
+    {
+    public:
+      Light3DSObject(const std::string &nname);
+      ~Light3DSObject();
+    private:
 
-			std::string name;
-		};
-	}
+      std::string name;
+    };
+  }
 }
 
 #endif

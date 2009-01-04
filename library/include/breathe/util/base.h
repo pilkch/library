@@ -11,77 +11,77 @@
 
 namespace breathe
 {
-	// This can be used for generic things such as the audio, renderer, game etc.
-	// Pure virtual
-	class cUpdateable
-	{
-	public:
+  // This can be used for generic things such as the audio, renderer, game etc.
+  // Pure virtual
+  class cUpdateable
+  {
+  public:
     virtual ~cUpdateable() {}
 
-		virtual void Update(sampletime_t currentTime)=0;
-	};
+    virtual void Update(sampletime_t currentTime)=0;
+  };
 
-	// This is for in game objects that have a physical presence in the world such as the player,
-	// vehicles, level pieces etc.
-	// Instead of having a separate class for each bounding type,
-	// we list them all here and have a different collide for each one
-	// Pure virtual
+  // This is for in game objects that have a physical presence in the world such as the player,
+  // vehicles, level pieces etc.
+  // Instead of having a separate class for each bounding type,
+  // we list them all here and have a different collide for each one
+  // Pure virtual
   class cObject : virtual public cUpdateable, public math::cSphere
-	{
-	public:
-		cObject();
+  {
+  public:
+    cObject();
     virtual ~cObject() {}
 
-		// Box for very general collision and culling
-		float fWidth, fLength, fHeight;
-		float fWeight;
+    // Box for very general collision and culling
+    float fWidth, fLength, fHeight;
+    float fWeight;
 
-		//Position and rotation
-		//float r[12];
+    // Position and rotation
+    //float r[12];
 
-		math::cVec3 v;
+    math::cVec3 v;
 
-		//Position and rotation matrix
-		math::cMat4 m;
+    // Position and rotation matrix
+    math::cMat4 m;
 
     // For 2D
-		void SetDimensions(float fWidth, float fHeight);
+    void SetDimensions(float fWidth, float fHeight);
 
     // For 3D
-		void SetDimensions(float fWidth, float fLength, float fHeight);
+    void SetDimensions(float fWidth, float fLength, float fHeight);
 
-		float GetDistance(cObject& obj) const;
-		bool Collide(cObject& obj);
-	};
+    float GetDistance(cObject& obj) const;
+    bool Collide(cObject& obj);
+  };
 
-	typedef cObject cRenderable;
+  typedef cObject cRenderable;
 
-	class cScenegraphNode : public virtual cObject
-	{
-	public:
-		math::cMat4 mOffset;
-	};
+  class cScenegraphNode : public virtual cObject
+  {
+  public:
+    math::cMat4 mOffset;
+  };
 
-	class cOctreeNode : public virtual cObject
-	{
-	public:
+  class cOctreeNode : public virtual cObject
+  {
+  public:
 
-	};
+  };
 
-	class cNode : public cScenegraphNode, public cOctreeNode
-	{
-	public:
+  class cNode : public cScenegraphNode, public cOctreeNode
+  {
+  public:
 
-	};
+  };
 
-	/*app
-		scenegraph
-	cull
-		octree
-	sort
-		sort states (texture, shader)
-		transparent
-	draw
+  /*app
+    scenegraph
+  cull
+    octree
+  sort
+    sort states (texture, shader)
+    transparent
+  draw
 
 
 

@@ -10,20 +10,20 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		class Light3DS
-		{
-		public:
-			Light3DS();
-			~Light3DS();
+  namespace loader_3ds
+  {
+    class Light3DS
+    {
+    public:
+      Light3DS();
+      ~Light3DS();
 
-			void Parse(const std::string &name , Model3DSChunk c);
+      void Parse(const std::string &name , Model3DSChunk c);
 
-		private:
-			std::vector<Light3DSObject> lights;
-		};
-	}
+    private:
+      std::vector<Light3DSObject> lights;
+    };
+  }
 }
 
 #endif

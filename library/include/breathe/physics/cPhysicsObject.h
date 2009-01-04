@@ -9,8 +9,8 @@
 
 namespace breathe
 {
-	namespace physics
-	{
+  namespace physics
+  {
     /*enum object_type
     {
       object_type_box = 0,
@@ -23,28 +23,28 @@ namespace breathe
 #endif
     };*/
 
-		class cPhysicsObject : virtual public cObject
-		{
-		public:
-			cPhysicsObject();
-			virtual ~cPhysicsObject();
+    class cPhysicsObject : virtual public cObject
+    {
+    public:
+      cPhysicsObject();
+      virtual ~cPhysicsObject();
 
-			virtual void Update(sampletime_t currentTime);
+      virtual void Update(sampletime_t currentTime);
 
-			void CreateBox(const physvec_t& pos, const physvec_t& rot = physveczero);
-			void CreateSphere(const physvec_t& pos, const physvec_t& rot = physveczero);
-			void CreateCapsule(const physvec_t& pos, const physvec_t& rot = physveczero);
-			void CreateCylinder(const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateBox(const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateSphere(const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateCapsule(const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateCylinder(const physvec_t& pos, const physvec_t& rot = physveczero);
 #ifdef BUILD_PHYSICS_2D
-			void CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
-			void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
+      void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
 #else
-			void CreateHeightmap(const std::vector<float>& heightvalues, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateHeightmap(const std::vector<float>& heightvalues, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
       void CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot = physveczero);
       void SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies);
 #endif
 
-			void RemoveFromWorld();
+      void RemoveFromWorld();
 
       void SetDynamic(bool bIsDynamic) { bDynamic = bIsDynamic; }
       void SetUseBody(bool bUseBody) { bBody = bUseBody; }
@@ -63,7 +63,7 @@ namespace breathe
 
       //object_type GetType() const { return type; }
 
-			render::model::cStaticRef pModel;
+      render::model::cStaticRef pModel;
 #endif
 
     private:
@@ -73,26 +73,26 @@ namespace breathe
 
 #ifdef BUILD_PHYSICS_3D
       void InitCommon(const physvec_t& pos, const physvec_t& rot);
-			virtual void UpdateComponents();
+      virtual void UpdateComponents();
 #endif
 
       //object_type type;
 
       bool bBody;
-			bool bDynamic;
+      bool bDynamic;
 
 #ifdef BUILD_PHYSICS_2D
       float fFriction;
       b2Body* body;
 #else
-			dBodyID body;
-			dGeomID geom;
+      dBodyID body;
+      dGeomID geom;
 
-			std::vector<float> vCoords;
-			std::vector<unsigned int> vIndicies;
+      std::vector<float> vCoords;
+      std::vector<unsigned int> vIndicies;
 #endif
     };
-	}
+  }
 }
 
 #ifdef BUILD_PHYSICS_3D

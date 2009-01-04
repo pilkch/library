@@ -31,122 +31,122 @@
 #error "Include cBreathe.h, do not include this file"
 #endif //CMEM_H
 
-#ifndef	CMEM_H
-#define	CMEM_H
+#ifndef CMEM_H
+#define CMEM_H
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // For systems that don't have the __FUNCTION__ variable, we can just define it here
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #ifndef __FUNCTION__
-#define	__FUNCTION__ "??"
+#define __FUNCTION__ "??"
 #endif //__FUNCTION__
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-typedef	struct tag_au
+typedef struct tag_au
 {
-	size_t		actualSize;
-	size_t		reportedSize;
-	void		*actualAddress;
-	void		*reportedAddress;
-	char		sourceFile[40];
-	char		sourceFunc[40];
-	unsigned int	sourceLine;
-	unsigned int	allocationType;
-	bool		breakOnDealloc;
-	bool		breakOnRealloc;
-	unsigned int	allocationNumber;
-	struct tag_au	*next;
-	struct tag_au	*prev;
+  size_t actualSize;
+  size_t reportedSize;
+  void* actualAddress;
+  void* reportedAddress;
+  char sourceFile[40];
+  char sourceFunc[40];
+  unsigned int sourceLine;
+  unsigned int allocationType;
+  bool breakOnDealloc;
+  bool breakOnRealloc;
+  unsigned int allocationNumber;
+  struct tag_au* next;
+  struct tag_au* prev;
 } sAllocUnit;
 
-typedef	struct stats
+typedef struct stats
 {
-	unsigned int	totalReportedMemory;
-	unsigned int	totalActualMemory;
-	unsigned int	peakReportedMemory;
-	unsigned int	peakActualMemory;
-	unsigned int	accumulatedReportedMemory;
-	unsigned int	accumulatedActualMemory;
-	unsigned int	accumulatedAllocUnitCount;
-	unsigned int	totalAllocUnitCount;
-	unsigned int	peakAllocUnitCount;
+  unsigned int totalReportedMemory;
+  unsigned int totalActualMemory;
+  unsigned int peakReportedMemory;
+  unsigned int peakActualMemory;
+  unsigned int accumulatedReportedMemory;
+  unsigned int accumulatedActualMemory;
+  unsigned int accumulatedAllocUnitCount;
+  unsigned int totalAllocUnitCount;
+  unsigned int peakAllocUnitCount;
 } sMStats;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // External constants
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-extern	const	unsigned int	m_alloc_unknown;
-extern	const	unsigned int	m_alloc_new;
-extern	const	unsigned int	m_alloc_new_array;
-extern	const	unsigned int	m_alloc_malloc;
-extern	const	unsigned int	m_alloc_calloc;
-extern	const	unsigned int	m_alloc_realloc;
-extern	const	unsigned int	m_alloc_delete;
-extern	const	unsigned int	m_alloc_delete_array;
-extern	const	unsigned int	m_alloc_free;
+extern const unsigned int m_alloc_unknown;
+extern const unsigned int m_alloc_new;
+extern const unsigned int m_alloc_new_array;
+extern const unsigned int m_alloc_malloc;
+extern const unsigned int m_alloc_calloc;
+extern const unsigned int m_alloc_realloc;
+extern const unsigned int m_alloc_delete;
+extern const unsigned int m_alloc_delete_array;
+extern const unsigned int m_alloc_free;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Used by the macros
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void		m_setOwner(const char *file, const unsigned int line, const char *func);
+void    m_setOwner(const char *file, const unsigned int line, const char *func);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Allocation breakpoints
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-bool		&m_breakOnRealloc(void *reportedAddress);
-bool		&m_breakOnDealloc(void *reportedAddress);
+bool    &m_breakOnRealloc(void *reportedAddress);
+bool    &m_breakOnDealloc(void *reportedAddress);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // The meat of the memory tracking software
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void		*m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-			     const unsigned int allocationType, const size_t reportedSize);
-void		*m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-			       const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
-void		m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-			      const unsigned int deallocationType, const void *reportedAddress);
+void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
+           const unsigned int allocationType, const size_t reportedSize);
+void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
+             const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
+void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
+            const unsigned int deallocationType, const void *reportedAddress);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Utilitarian functions
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-bool		m_validateAddress(const void *reportedAddress);
-bool		m_validateAllocUnit(const sAllocUnit *allocUnit);
-bool		m_validateAllAllocUnits();
+bool    m_validateAddress(const void *reportedAddress);
+bool    m_validateAllocUnit(const sAllocUnit *allocUnit);
+bool    m_validateAllAllocUnits();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Unused RAM calculations
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int	m_calcUnused(const sAllocUnit *allocUnit);
-unsigned int	m_calcAllUnused();
+unsigned int m_calcUnused(const sAllocUnit *allocUnit);
+unsigned int m_calcAllUnused();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Logging and reporting
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void		m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix = "");
-void		m_dumpMemoryReport(const char *filename = "memreport.log", const bool overwrite = true);
-sMStats		m_getMemoryStatistics();
+void m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix = "");
+void m_dumpMemoryReport(const char *filename = "memreport.log", const bool overwrite = true);
+sMStats m_getMemoryStatistics();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Variations of global operators new & delete
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void	*operator new(size_t reportedSize);
-void	*operator new[](size_t reportedSize);
-void	*operator new(size_t reportedSize, const char *sourceFile, int sourceLine);
-void	*operator new[](size_t reportedSize, const char *sourceFile, int sourceLine);
-void	operator delete(void *reportedAddress);
-void	operator delete[](void *reportedAddress);
+void* operator new(size_t reportedSize);
+void* operator new[](size_t reportedSize);
+void* operator new(size_t reportedSize, const char *sourceFile, int sourceLine);
+void* operator new[](size_t reportedSize, const char *sourceFile, int sourceLine);
+void operator delete(void *reportedAddress);
+void operator delete[](void *reportedAddress);
 
 #endif // CMEM_H
 
@@ -156,10 +156,10 @@ void	operator delete[](void *reportedAddress);
 
 #include <breathe/util/memend.h>
 
-#define	new		(m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? NULL : new
-#define	delete		(m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? m_setOwner("",0,"") : delete
-#define	malloc(sz)	m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_malloc,sz)
-#define	calloc(sz)	m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_calloc,sz)
-#define	realloc(ptr,sz)	m_reallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_realloc,sz,ptr)
-#define	free(ptr)	m_deallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_free,ptr)
+#define new (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? NULL : new
+#define delete (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? m_setOwner("",0,"") : delete
+#define malloc(sz) m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_malloc,sz)
+#define calloc(sz) m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_calloc,sz)
+#define realloc(ptr,sz) m_reallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_realloc,sz,ptr)
+#define free(ptr) m_deallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_free,ptr)
 #endif

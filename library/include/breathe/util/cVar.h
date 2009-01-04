@@ -161,19 +161,19 @@ namespace breathe
     return false;
   }
 
-	class var //cVarRegistry
-	{
-	public:
-		template <class T>
-		static void VarSet(const string_t& name, const T& value)
-		{
-			cVar* pVar = VarFind(name);
-			if (pVar != nullptr) {
-				pVar->SetValue(value);
-				return;
-			}
+  class var //cVarRegistry
+  {
+  public:
+    template <class T>
+    static void VarSet(const string_t& name, const T& value)
+    {
+      cVar* pVar = VarFind(name);
+      if (pVar != nullptr) {
+        pVar->SetValue(value);
+        return;
+      }
 
-			mVar[name] = new cVar(value);
+      mVar[name] = new cVar(value);
     }
 
     static void VarSet(const string_t& name, const char_t* value)

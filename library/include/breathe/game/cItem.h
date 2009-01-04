@@ -3,14 +3,14 @@
 
 namespace breathe
 {
-	class cItem : virtual public physics::cPhysicsObject
-	{
-	public:
-		/*cLevel *pLevel;*/
+  class cItem : virtual public physics::cPhysicsObject
+  {
+  public:
+    /*cLevel *pLevel;*/
     
-		cItem();
-		~cItem();
-	};
+    cItem();
+    ~cItem();
+  };
 }
 
-#endif //CITEM_H
+#endif // CITEM_H

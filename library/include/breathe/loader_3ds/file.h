@@ -7,22 +7,22 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		class Model3DSFile
-		{
-		public:
-			Model3DSFile(const std::string& src);
-			~Model3DSFile();
+  namespace loader_3ds
+  {
+    class Model3DSFile
+    {
+    public:
+      Model3DSFile(const std::string& src);
+      ~Model3DSFile();
 
-			Model3DSChunk Child();
+      Model3DSChunk Child();
 
-		private:
-			static int FileSize(std::ifstream &file);
-			
-			std::ifstream file;
-		};
-	}
+    private:
+      static int FileSize(std::ifstream &file);
+      
+      std::ifstream file;
+    };
+  }
 }
 
 #endif

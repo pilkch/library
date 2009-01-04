@@ -45,75 +45,75 @@ namespace breathe
     cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer);
     void DestroySource(cSourceRef pSource);
 
-		void StartAll();
-		void StopAll();
+    void StartAll();
+    void StopAll();
 
 
     void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename);
 
-		// Buffer to hold the audio data
-		class cBuffer
-		{
-		public:
-			explicit cBuffer(const string_t& sFilename);
-			~cBuffer();
+    // Buffer to hold the audio data
+    class cBuffer
+    {
+    public:
+      explicit cBuffer(const string_t& sFilename);
+      ~cBuffer();
 
-			bool IsValid() const { return uiBuffer != 0; }
+      bool IsValid() const { return uiBuffer != 0; }
 
-			unsigned int uiBuffer;
+      unsigned int uiBuffer;
 
-		private:
+    private:
       cBuffer();
-			NO_COPY(cBuffer);
+      NO_COPY(cBuffer);
 
-			void Create(const string_t& sFilename);
+      void Create(const string_t& sFilename);
 
-			string_t sFilename;
-		};
+      string_t sFilename;
+    };
 
-		// The sound object (Has pointer to node that it is attached to and a pointer to a buffer that it uses)
-		class cSource
-		{
+    // The sound object (Has pointer to node that it is attached to and a pointer to a buffer that it uses)
+    class cSource
+    {
     public:
       explicit cSource(cBufferRef pBuffer);
       cSource(cBufferRef pBuffer, float fVolume);
-			~cSource();
+      ~cSource();
 
-			void Attach(cObject* pNodeParent);
-			void Remove();
-			void Update();
+      void Attach(cObject* pNodeParent);
+      void Remove();
+      void Update();
 
-			void Play();
-			void Stop();
+      void Play();
+      void Stop();
 
-			bool IsLooping() const { return bLooping; }
-			bool IsValid() const;
-			bool IsPlaying() const;
+      bool IsLooping() const { return bLooping; }
+      bool IsValid() const;
+      bool IsPlaying() const;
 
-			void TransformTo2DSource();
-			void TransformTo3DSource();
+      void TransformTo2DSource();
+      void TransformTo3DSource();
 
       void SetVolume(float fVolume);
       void SetPitch(float fPitch);
-			void SetLooping();
-			void SetNonLooping();
+      void SetLooping();
+      void SetNonLooping();
 
       unsigned int GetSource() const { return uiSource; }
 
-		private:
+    private:
       cSource();
-			NO_COPY(cSource);
+      NO_COPY(cSource);
 
-			bool bLooping;
-			unsigned int uiSource;
+      bool bLooping;
+      unsigned int uiSource;
       float volume;
       float pitch;
 
       cBufferRef pBuffer;
-			cObject* pNodeParent;
+      cObject* pNodeParent;
 
       void Create(cBufferRef pBuffer);
-		};
+    };
 
 
     class cSourceStream
@@ -150,45 +150,45 @@ namespace breathe
     }
 
 
-		// Very simple wrapper for mixing two sounds together.
-		// You'll basically only do this on a collision between say wood and metal to make the collision
-		// sound more natural as opposed to sounding like only wood or only steel
-		// Volumes are 0.0f-1.0f, this number is multiplied by the normal level to get the actual volume,
-		// so numbers greater than 1.0f will give gain, less than 1.0f will soften the noise sound compared to what
-		// it sounds like normally
-		class cSourceMix
-		{
-		public:
+    // Very simple wrapper for mixing two sounds together.
+    // You'll basically only do this on a collision between say wood and metal to make the collision
+    // sound more natural as opposed to sounding like only wood or only steel
+    // Volumes are 0.0f-1.0f, this number is multiplied by the normal level to get the actual volume,
+    // so numbers greater than 1.0f will give gain, less than 1.0f will soften the noise sound compared to what
+    // it sounds like normally
+    class cSourceMix
+    {
+    public:
       cSourceMix(cBufferRef pBuffer0, cBufferRef pBuffer1, float fVolume0, float fVolume1);
 
-			void Attach(cObject* pNodeParent);
-			void Remove();
-			void Update();
+      void Attach(cObject* pNodeParent);
+      void Remove();
+      void Update();
 
-			void Play();
-			void Stop();
+      void Play();
+      void Stop();
 
-			bool IsValid() const;
-			bool IsPlaying() const;
+      bool IsValid() const;
+      bool IsPlaying() const;
 
-		private:
+    private:
       cSourceMix();
-			NO_COPY(cSourceMix);
+      NO_COPY(cSourceMix);
 
-			cSource source0;
-			cSource source1;
-		};
+      cSource source0;
+      cSource source1;
+    };
 
-		//	Another possible class is
-		//	class cSourceMixN
-		//	{
-		//	public:
-		//		AddSource(cBufferRef pBuffer, float fVolume);
-		//
-		//	private:
-		//		std::list<cSourceRef> lSource;
-		//	};
-	}
+    //  Another possible class is
+    //  class cSourceMixN
+    //  {
+    //  public:
+    //    AddSource(cBufferRef pBuffer, float fVolume);
+    //
+    //  private:
+    //    std::list<cSourceRef> lSource;
+    //  };
+  }
 }
 
 #endif // AUDIO_H

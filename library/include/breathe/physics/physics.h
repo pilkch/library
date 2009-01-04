@@ -7,8 +7,8 @@
 
 namespace breathe
 {
-	namespace physics
-	{
+  namespace physics
+  {
 #ifdef BUILD_PHYSICS_2D
     typedef math::cVec2 physvec_t;
     const math::cVec2 physveczero(0.0f, 0.0f);
@@ -21,30 +21,30 @@ namespace breathe
     float GetTimeStep();
     unsigned int GetIterations();
 
-		extern const int iMaxContacts;
-		extern const float fFriction;
-		extern const float fBounce;
-		extern const float fBounceVel;
-		extern const float fERP;
-		extern const float fCFM;
-		extern const float fGravity;
+    extern const int iMaxContacts;
+    extern const float fFriction;
+    extern const float fBounce;
+    extern const float fBounceVel;
+    extern const float fERP;
+    extern const float fCFM;
+    extern const float fGravity;
 
-		class cPhysicsObject;
+    class cPhysicsObject;
 
-		
-		void Destroy();
-		void Update(sampletime_t currentTime);
+    
+    void Destroy();
+    void Update(sampletime_t currentTime);
 
-		void AddPhysicsObject(cPhysicsObject* pPhysicsObject);
-		void RemovePhysicsObject(cPhysicsObject* pPhysicsObject);
-		
-		size_t size();
-		bool empty();
+    void AddPhysicsObject(cPhysicsObject* pPhysicsObject);
+    void RemovePhysicsObject(cPhysicsObject* pPhysicsObject);
+    
+    size_t size();
+    bool empty();
 
-		typedef std::list<cPhysicsObject*>::iterator iterator;
-		iterator begin();
-		iterator end();
-	}
+    typedef std::list<cPhysicsObject*>::iterator iterator;
+    iterator begin();
+    iterator end();
+  }
 }
 
 #ifdef BUILD_PHYSICS_2D
@@ -58,4 +58,4 @@ namespace breathe
 
 #include <breathe/physics/cPhysicsObject.h>
 
-#endif //CPHYSICS_H
+#endif // CPHYSICS_H

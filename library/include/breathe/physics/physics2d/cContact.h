@@ -3,10 +3,10 @@
 
 namespace breathe
 {
-	namespace physics
-	{
+  namespace physics
+  {
 
-	}
+  }
 }
 
-#endif //CPHYSICSCONTACT_H
+#endif // CPHYSICSCONTACT_H

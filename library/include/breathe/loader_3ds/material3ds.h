@@ -7,22 +7,22 @@
 
 namespace breathe
 {
-	namespace loader_3ds
-	{
-		class Material3DS
-		{
-		public:
-			std::vector<std::string> materials;
+  namespace loader_3ds
+  {
+    class Material3DS
+    {
+    public:
+      std::vector<std::string> materials;
 
-			Material3DS();
-			~Material3DS();
+      Material3DS();
+      ~Material3DS();
 
-			void Parse(Model3DSChunk c);
+      void Parse(Model3DSChunk c);
 
-		private:
-			void NewMaterial(Model3DSChunk c);
-		};
-	}
+    private:
+      void NewMaterial(Model3DSChunk c);
+    };
+  }
 }
 
 #endif

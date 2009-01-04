@@ -23,28 +23,28 @@
 // Copyright 2000, Fluid Studios, Inc., all rights reserved.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#ifdef	new
-#undef	new
+#ifdef new
+#undef new
 #endif
 
-#ifdef	delete
-#undef	delete
+#ifdef delete
+#undef delete
 #endif
 
-#ifdef	malloc
-#undef	malloc
+#ifdef malloc
+#undef malloc
 #endif
 
-#ifdef	calloc
-#undef	calloc
+#ifdef calloc
+#undef calloc
 #endif
 
-#ifdef	realloc
-#undef	realloc
+#ifdef  realloc
+#undef  realloc
 #endif
 
-#ifdef	free
-#undef	free
+#ifdef  free
+#undef  free
 #endif
 
 #endif

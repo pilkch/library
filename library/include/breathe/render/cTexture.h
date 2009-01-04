@@ -86,8 +86,8 @@ namespace breathe
       cTextureFrameBufferObject();
       ~cTextureFrameBufferObject();
 
-      unsigned int uiFBO;             // Our handle to the FBO
-      unsigned int uiFBODepthBuffer;	// Our handle to the depth render buffer
+      unsigned int uiFBO;            // Our handle to the FBO
+      unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
 
     private:
       void _Create();
