@@ -16,6 +16,8 @@ namespace breathe
 
     string_t GetUserName();
 
+    bool GetEnvironmentVariable(const string_t& sEnvironmentVariable, string_t& sValue);
+
 #ifdef __WIN__
     inline void OpenWebPage(const string_t& sWebPageURL)
     {

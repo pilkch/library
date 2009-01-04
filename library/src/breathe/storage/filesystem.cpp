@@ -23,6 +23,7 @@
 
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
+#include <breathe/util/operatingsystem.h>
 
 #include <breathe/storage/filesystem.h>
 
@@ -103,7 +104,7 @@ namespace breathe
 #endif
 
       std::string sPath;
-      if (GetEnvironmentVariable("TMPDIR", sPath)) return sPath;
+      if (operatingsystem::GetEnvironmentVariable("TMPDIR", sPath)) return sPath;
 
       // Last resort
       return "/tmp";
