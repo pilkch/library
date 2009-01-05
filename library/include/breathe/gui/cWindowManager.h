@@ -54,6 +54,10 @@ namespace breathe
       void _RenderChildren(const cWidget& widget);
       void _RenderWidget(const cWidget& widget);
 
+      // This is just for the first version to get something rendered, don't worry about texturing, just draw
+      // a plain solid colour filled rectangle with a border
+      void _RenderRectangle(float x, float y, float width, float height);
+
       void _RenderWindow(const cWindow& widget);
       void _RenderButton(const cWidget_Button& widget);
       void _RenderStaticText(const cWidget_StaticText& widget);
