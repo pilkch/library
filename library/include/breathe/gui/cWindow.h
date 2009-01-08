@@ -17,6 +17,10 @@ namespace breathe
       void SetCaption(const string_t& inText) { text = inText; }
       int GetZDepth() const { return z; }
 
+      float GetTitleBarHeightAbsolute() const;
+
+      bool AddChildToContainer(cWidget* pChild);
+
     protected:
       cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* pParent, bool bModeless, bool bResizable);
 
@@ -30,6 +34,7 @@ namespace breathe
       bool _IsAWindow() const { return true; }
 
       int z;
+      cWidget_InvisibleContainer* pChildContainer;
     };
 
     // *** A normal modeless window, resizable, can call AddModalDialog, can call AddModelessWindow

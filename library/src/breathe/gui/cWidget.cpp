@@ -152,15 +152,27 @@ namespace breathe
       return bVisible;
     }
 
+    float cWidget::GetXAbsolute() const
+    {
+      if (pParent != nullptr) return (pParent->GetXAbsolute() + HorizontalRelativeToAbsolute(x));
+      return HorizontalRelativeToAbsolute(x);
+    }
+
+    float cWidget::GetYAbsolute() const
+    {
+      if (pParent != nullptr) return (pParent->GetYAbsolute() + VerticalRelativeToAbsolute(y));
+      return VerticalRelativeToAbsolute(y);
+    }
+
     float cWidget::HorizontalRelativeToAbsolute(float n) const
     {
-      if (pParent != nullptr) return pParent->GetX() + (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
+      if (pParent != nullptr) return (n * pParent->HorizontalRelativeToAbsolute(pParent->GetWidth()));
       return n;
     }
 
     float cWidget::VerticalRelativeToAbsolute(float n) const
     {
-      if (pParent != nullptr) return pParent->GetY() + (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
+      if (pParent != nullptr) return (n * pParent->VerticalRelativeToAbsolute(pParent->GetHeight()));
       return n;
     }
 

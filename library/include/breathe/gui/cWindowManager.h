@@ -36,7 +36,7 @@ namespace breathe
       // Automatically adds a string with an automatically generated id if not found
       id_t GetIDFromStringIdentifier(const string_t& stringIdentifier);
 
-      void Render();
+      void Render() const;
 
       bool OnMouseEvent(int button, int state, float x, float y);
       void Update(sampletime_t currentTime);
@@ -44,24 +44,24 @@ namespace breathe
       bool AddChild(cWindow* pChild);
       bool RemoveChild(cWindow* pChild);
 
-      // For overriding the gui with team colours
+      // For overriding the gui with team colours for example
       void SetColourDefault() { colour.Set(0.5f, 0.5f, 0.5f, 0.5f); }
       void SetColourRGB(const math::cColour& _colour) { colour.Set(_colour.r, _colour.g, _colour.b, 0.5f); }
 
     private:
-      cWindow* _FindWindowUnderPoint(float x, float y);
+      cWindow* _FindWindowUnderPoint(float x, float y) const;
 
-      void _RenderChildren(const cWidget& widget);
-      void _RenderWidget(const cWidget& widget);
+      void _RenderChildren(const cWidget& widget) const;
+      void _RenderWidget(const cWidget& widget) const;
 
       // This is just for the first version to get something rendered, don't worry about texturing, just draw
       // a plain solid colour filled rectangle with a border
-      void _RenderRectangle(float x, float y, float width, float height);
+      void _RenderRectangle(float x, float y, float width, float height) const;
 
-      void _RenderWindow(const cWindow& widget);
-      void _RenderButton(const cWidget_Button& widget);
-      void _RenderStaticText(const cWidget_StaticText& widget);
-      void _RenderInput(const cWidget_Input& widget);
+      void _RenderWindow(const cWindow& widget) const;
+      void _RenderButton(const cWidget_Button& widget) const;
+      void _RenderStaticText(const cWidget_StaticText& widget) const;
+      void _RenderInput(const cWidget_Input& widget) const;
 
       child_list child;
       cWidget* pEventWidgetMouseLeftButtonDown;

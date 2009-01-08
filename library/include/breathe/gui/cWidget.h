@@ -31,6 +31,7 @@ namespace breathe
     {
       WIDGET_UNKNOWN = 0,
       WIDGET_WINDOW,
+      WIDGET_INVISIBLE_CONTAINER, // For positioning children of the container without having to draw anything
       WIDGET_BUTTON,
       WIDGET_STATICTEXT,
       WIDGET_INPUT,
@@ -105,13 +106,17 @@ namespace breathe
       id_t GetID() const { return idControl; }
       WIDGET_TYPE GetType() const { return type; }
 
-      float HorizontalRelativeToAbsolute(float n) const;
-      float VerticalRelativeToAbsolute(float n) const;
-
+      // Relative
       float GetX() const { return x; }
       float GetY() const { return y; }
       float GetWidth() const { return width; }
       float GetHeight() const { return height; }
+
+      // Absolute
+      float GetXAbsolute() const;
+      float GetYAbsolute() const;
+      float HorizontalRelativeToAbsolute(float n) const;
+      float VerticalRelativeToAbsolute(float n) const;
 
       int GetMinimum() const { return minimum; }
       int GetMaximum() const { return maximum; }
@@ -213,6 +218,9 @@ namespace breathe
       {
       }
     };
+
+
+    typedef cWidgetTemplate<WIDGET_INVISIBLE_CONTAINER> cWidget_InvisibleContainer;
 
 
     class cWidget_Button : public cWidget

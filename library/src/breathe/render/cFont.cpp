@@ -54,23 +54,24 @@ namespace breathe
 {
   namespace render
   {
-    ///Create a display list coresponding to the give character.
-    void make_dlist(FT_Face face, char ch, GLuint list_base, GLuint* tex_base )
+    // Create a display list coresponding to the give character.
+    void make_dlist(FT_Face face, char ch, GLuint list_base, GLuint* tex_base, float& outWidth, float& outHeight)
     {
-      //The first thing we do is get FreeType to render our character
-      //into a bitmap.  This actually requires a couple of FreeType commands:
+      outWidth = 0.0f;
+      outHeight = 0.0f;
 
-      //Load the Glyph for our character.
-      if (FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT ))
-      {
+      // The first thing we do is get FreeType to render our character
+      // into a bitmap.  This actually requires a couple of FreeType commands:
+
+      // Load the Glyph for our character.
+      if (FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT )) {
         LOG.Error("Font", "FT_Load_Glyph failed");
         return;
       }
 
-      //Move the face's glyph into a Glyph object.
+      // Move the face's glyph into a Glyph object.
       FT_Glyph glyph;
-      if (FT_Get_Glyph( face->glyph, &glyph ))
-      {
+      if (FT_Get_Glyph( face->glyph, &glyph )) {
         LOG.Error("Font", "FT_Get_Glyph failed");
         return;
       }
@@ -88,48 +89,48 @@ namespace breathe
       int width = math::nextPowerOfTwo(bitmap.width);
       int height = math::nextPowerOfTwo(bitmap.rows);
 
-      //Allocate memory for the texture data.
+      // Allocate memory for the texture data.
       GLubyte* expanded_data = new GLubyte[ 2 * width * height];
 
-      //Here we fill in the data for the expanded bitmap.
-      //Notice that we are using two channel bitmap (one for
-      //luminocity and one for alpha), but we assign
-      //both luminocity and alpha to the value that we
-      //find in the FreeType bitmap.
-      //We use the ?: operator so that value which we use
-      //will be 0 if we are in the padding zone, and whatever
-      //is the the Freetype bitmap otherwise.
+      // Here we fill in the data for the expanded bitmap.
+      // Notice that we are using two channel bitmap (one for
+      // luminocity and one for alpha), but we assign
+      // both luminocity and alpha to the value that we
+      // find in the FreeType bitmap.
+      // We use the ?: operator so that value which we use
+      // will be 0 if we are in the padding zone, and whatever
+      // is the the Freetype bitmap otherwise.
       for (int j = 0; j <height;j++) {
         for (int i = 0; i < width; i++){
-          expanded_data[2 * (i + j * width)]= expanded_data[2 * (i + j * width) + 1] =
+          expanded_data[2 * (i + j * width)] = expanded_data[2 * (i + j * width) + 1] =
             ((i >= bitmap.width) || (j >= bitmap.rows)) ?
             0 : bitmap.buffer[i + bitmap.width * j];
         }
       }
 
 
-      //Now we just setup some texture paramaters.
+      // Now we just setup some texture paramaters.
       glBindTexture( GL_TEXTURE_2D, tex_base[ch]);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
-      //Here we actually create the texture itself, notice
-      //that we are using GL_LUMINANCE_ALPHA to indicate that
-      //we are using 2 channel data.
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-          0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data );
+      // Here we actually create the texture itself, notice
+      // that we are using GL_LUMINANCE_ALPHA to indicate that
+      // we are using 2 channel data.
+      glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height,
+        0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data );
 
-      //With the texture created, we don't need to expanded data anymore
+      // With the texture created, we don't need to expanded data anymore
       breathe::SAFE_DELETE_ARRAY(expanded_data);
 
-      //So now we can create the display list
+      // So now we can create the display list
       glNewList(list_base + ch, GL_COMPILE);
 
       glBindTexture(GL_TEXTURE_2D, tex_base[ch]);
 
-      //first we need to move over a little so that
-      //the character has the right amount of space
-      //between it and the one before it.
+      // First we need to move over a little so that
+      // the character has the right amount of space
+      // between it and the one before it.
       glTranslatef(static_cast<float>(bitmap_glyph->left), 0, 0);
 
       //Now we move down a little in the case that the
@@ -169,6 +170,9 @@ namespace breathe
 
       //Finish the display list
       glEndList();
+
+      outWidth = static_cast<float>(face->glyph->advance.x >> 6);
+      outHeight = static_cast<float>(face->glyph->advance.y >> 6);
     }
 
 
@@ -185,49 +189,55 @@ namespace breathe
         return;
       }
 
-      //Allocate some memory to store the texture ids.
-      textures = new GLuint[128];
-
-      //Create and initilize a freetype font library.
+      // Create and initilize a freetype font library.
       FT_Library library;
-      if (FT_Init_FreeType( &library ))
-      {
+      if (FT_Init_FreeType(&library)) {
         LOG.Error("Font", "FT_Init_FreeType failed");
         return;
       }
 
-      //The object in which Freetype holds information on a given
-      //font is called a "face".
+      // The object in which Freetype holds information on a given
+      // font is called a "face".
       FT_Face face = NULL;
 
-      //This is where we load in the font information from the file.
-      //Of all the places where the code might die, this is the most likely,
-      //as FT_New_Face will die if the font file does not exist or is somehow broken.
-      if (FT_New_Face(library, breathe::string::ToUTF8(sFilename).c_str(), 0, &face ))
-      {
+      // This is where we load in the font information from the file.
+      // Of all the places where the code might die, this is the most likely,
+      // as FT_New_Face will die if the font file does not exist or is somehow broken.
+      if (FT_New_Face(library, breathe::string::ToUTF8(sFilename).c_str(), 0, &face )) {
         LOG.Error("Font", "FT_New_Face failed to load font \"" + breathe::string::ToUTF8(sFilename) + "\"");
         return;
       }
 
-      //For some twisted reason, Freetype measures font size
-      //in terms of 1/64ths of pixels.  Thus, to make a font
-      //h pixels high, we need to request a size of h*64.
+      // For some twisted reason, Freetype measures font size
+      // in terms of 1/64ths of pixels.  Thus, to make a font
+      // h pixels high, we need to request a size of h*64.
       FT_Set_Char_Size(face, height * 64, height * 64, 96, 96);
 
-      //Here we ask opengl to allocate resources for
-      //all the textures and displays lists which we
-      //are about to create.
-      list_base = glGenLists(128);
-      glGenTextures(128, textures);
 
-      //This is where we actually create each of the fonts display lists.
-      for (unsigned char i=0;i<128;i++) make_dlist(face, i, list_base, textures);
+      const size_t n = 128;
 
-      //We don't need the face information now that the display
-      //lists have been created, so we free the assosiated resources.
+      // Allocate some memory to store the texture ids.
+      textures = new GLuint[n];
+
+      // Here we ask opengl to allocate resources for
+      // all the textures and displays lists which we
+      // are about to create.
+      list_base = glGenLists(n);
+      glGenTextures(n, textures);
+
+      breathe::vector::push_back(fGlyphWidth, n, 0.0f);
+      breathe::vector::push_back(fGlyphHeight, n, 0.0f);
+
+      // This is where we actually create each of the fonts display lists.
+      for (size_t i = 0; i < n; i++) {
+        make_dlist(face, i, list_base, textures, fGlyphWidth[i], fGlyphHeight[i]);
+      }
+
+      // We don't need the face information now that the display
+      // lists have been created, so we free the assosiated resources.
       FT_Done_Face(face);
 
-      //Ditto for the library.
+      // Ditto for the library.
       FT_Done_FreeType(library);
     }
 
@@ -243,11 +253,51 @@ namespace breathe
 
     void cFont::_GetDimensions(const string_t& line, float& width, float& height) const
     {
+      width = math::cEPSILON;
+      height = math::cEPSILON;
 
+      float characterWidth = 0.0f;
+      float characterHeight = 0.0f;
+
+      const size_t n = line.size();
+      for (size_t i = 0; i < n; i++) {
+        // Get the character that this is
+        ASSERT(line[i] >= 0);
+        size_t c = size_t(line[i]);
+
+        // Now lookup the character in the array of widths and heights
+        characterWidth = fGlyphWidth[c];
+        characterHeight = fGlyphHeight[c];
+
+        // Add the characterWidth and if it is the new tallest then set our current tallest to us
+        width += characterWidth;
+        if (characterHeight > height) height = characterHeight;
+      }
+
+      // I'm not sure why 1000?  This seems to work and look nice but I don't have a clue what
+      // the right value is/where it is from, I thought I wouldn't have to do anything to this number, we could just use it directly?
+      const float fOneOver1000 = 1.0f / 1000;
+      width *= fOneOver1000;
+      height *= fOneOver1000;
     }
 
-    ///Much like Nehe's glPrint function, but modified to work
-    ///with freetype fonts.
+    void cFont::_GetDimensions(const std::vector<string_t> lines, float& width, float& height) const
+    {
+      width = math::cEPSILON;
+      height = math::cEPSILON;
+
+      float lineWidth = 0.0f;
+      float lineHeight = 0.0f;
+
+      const size_t n = lines.size();
+      for (size_t i = 0; i < n; i++) {
+        _GetDimensions(lines[i], lineWidth, lineHeight);
+        if (lineWidth > width) width = lineWidth;
+        if (lineHeight > height) height = lineHeight;
+      }
+    }
+
+    // Much like Nehe's glPrint function, but modified to work with freetype fonts.
     void cFont::_print(float x, float y, const std::vector<string_t>& lines)
     {
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
@@ -266,9 +316,8 @@ namespace breathe
           //down by h. This is because when each character is
           //draw it modifies the current matrix so that the next character
           //will be drawn immediatly after it.
-          unsigned int n = lines.size();
-          unsigned int i = 0;
-          for (;i<n;i++) {
+          const size_t n = lines.size();
+          for (size_t i = 0; i < n; i++) {
             glPushMatrix();
               glTranslatef(x, y, 0.0f);
               glScalef(0.001f, 0.001f, 1.0f);
@@ -285,21 +334,18 @@ namespace breathe
     {
       if (fmt == nullptr) return;
 
-      assert(strlen(fmt) < 1024);
+      ASSERT(strlen(fmt) < 1024);
 
-      char formatted[1024];                // Holds Our String
-      va_list ap;                    // Pointer To List Of Arguments
+      char formatted[1024];            // Holds Our String
+      va_list ap;                      // Pointer To List Of Arguments
 
-      va_start(ap, fmt);                  // Parses The String For Variables
-        vsprintf(formatted, fmt, ap);            // And Converts Symbols To Actual Numbers
+      va_start(ap, fmt);               // Parses The String For Variables
+        vsprintf(formatted, fmt, ap);  // And Converts Symbols To Actual Numbers
       va_end(ap);                      // Results Are Stored In Text
 
       string_t text(breathe::string::ToString_t(formatted));
 
-      std::vector<string_t> lines;
-      breathe::string::SplitOnNewLines(text, lines);
-
-      _print(x, y, lines);
+      PrintAt(x, y, text);
     }
 
     void cFont::PrintAt(float x, float y, const string_t& text)
@@ -315,13 +361,13 @@ namespace breathe
       std::vector<string_t> lines;
       breathe::string::SplitOnNewLines(text, lines);
 
-      size_t widest = 0;
-      size_t i = 0;
-      size_t n = lines.size();
-      while (i != n) {
-        //if (lines[i].length() *
-        i++;
-      }
+      x += width * 0.5f;
+
+      float w;
+      float h;
+      _GetDimensions(lines, w, h);
+
+      x -= w * 0.5f;
 
       _print(x, y, lines);
     }
@@ -331,6 +377,14 @@ namespace breathe
       std::vector<string_t> lines;
       breathe::string::SplitOnNewLines(text, lines);
 
+      y += height * 0.5f;
+
+      float w;
+      float h;
+      _GetDimensions(lines, w, h);
+
+      y -= h * 0.5f;
+
       _print(x, y, lines);
     }
 
@@ -338,6 +392,16 @@ namespace breathe
     {
       std::vector<string_t> lines;
       breathe::string::SplitOnNewLines(text, lines);
+
+      x += width * 0.5f;
+      y += height * 0.5f;
+
+      float w;
+      float h;
+      _GetDimensions(lines, w, h);
+
+      x -= w * 0.5f;
+      y -= h * 0.5f;
 
       _print(x, y, lines);
     }

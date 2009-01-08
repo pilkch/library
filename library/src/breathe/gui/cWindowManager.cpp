@@ -107,7 +107,10 @@ namespace breathe
       ASSERT(textureBackground[2] != nullptr);
       ASSERT(textureBackground[3] != nullptr);
 
-      pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
+      //pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
+      breathe::string_t sFilename;
+      breathe::filesystem::FindResourceFile("fonts/pricedown.ttf", sFilename);
+      pFontWindowCaption = new breathe::render::cFont(sFilename, 32);
     }
 
     void cWindowManager::LoadGuiFromXML(const string_t& sFilename)
@@ -151,11 +154,11 @@ namespace breathe
       return GenerateID();
     }
 
-    cWindow* cWindowManager::_FindWindowUnderPoint(float x, float y)
+    cWindow* cWindowManager::_FindWindowUnderPoint(float x, float y) const
     {
       cWindow* pWindow = nullptr;
-      child_iterator iter = child.begin();
-      child_iterator iterEnd = child.end();
+      child_const_iterator iter = child.begin();
+      child_const_iterator iterEnd = child.end();
       cWindow* pTempWindow = nullptr;
       while (iter != iterEnd) {
         pTempWindow = (*iter);
@@ -166,6 +169,7 @@ namespace breathe
         }
         iter++;
       }
+
       return pWindow;
     }
 
@@ -220,6 +224,10 @@ namespace breathe
     {
       ASSERT(pChild != nullptr);
       child.remove(pChild);
+
+      // Ok, now that it has been removed from the window manager it does not exist any more so we delete it.
+      // This operation is recursive, every child of pChild will also be deleted.  Any external references
+      // will be invalid after this.
       SAFE_DELETE(pChild);
 
       return true;
@@ -227,72 +235,45 @@ namespace breathe
 
     // This is just for the first version to get something rendered, don't worry about texturing, just draw
     // a plain solid colour filled rectangle with a border
-    void cWindowManager::_RenderRectangle(float x, float y, float width, float height)
+    void cWindowManager::_RenderRectangle(float fX, float fY, float fWidth, float fHeight) const
     {
-      float w = width;
-      float h = height;
+      static const math::cColour box(0.4f, 0.4f, 0.4f);
+      static const math::cColour upperBorder(0.6f, 0.6f, 0.6f);
+      static const math::cColour lowerBorder(0.3f, 0.3f, 0.3f);
 
-      glColor3f(0.4f, 0.4f, 0.4f);
-
-      glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x+w, y);
-        glVertex2f(x+w, y+h);
-        glVertex2f(x, y+h);
-      glEnd();
-
-
-      // Draw an outline around the button with width 3
-      glLineWidth(3);
-
-      glColor3f(0.6f, 0.6f, 0.6f);
-
-      glBegin(GL_LINE_STRIP);
-        glVertex2f(x+w, y);
-        glVertex2f(x, y);
-        glVertex2f(x, y+h);
-      glEnd();
-
-      glColor3f(0.3f, 0.3f, 0.3f);
-
-      glBegin(GL_LINE_STRIP);
-        glVertex2f(x, y+h);
-        glVertex2f(x+w, y+h);
-        glVertex2f(x+w, y);
-      glEnd();
-
-      glLineWidth(1);
+      pRender->RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(fX, fY, fWidth, fHeight, box, upperBorder, lowerBorder);
     }
 
-    void cWindowManager::_RenderWindow(const cWindow& widget)
+    void cWindowManager::_RenderWindow(const cWindow& widget) const
     {
       const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
       const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 
-      const float bar_height = 0.02f;
-      const float bar_v = 0.04f;
+      const float absolute_bar_height = widget.VerticalRelativeToAbsolute(widget.GetTitleBarHeightAbsolute());
 
       // Draw the top bar
-      _RenderRectangle(widget.GetX(), widget.GetY(), absolute_width, bar_height);
+      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_bar_height);
 
       // Draw the rest of the window
-      _RenderRectangle(widget.GetX(), widget.GetY() + bar_height, absolute_width, absolute_height - bar_height);
+      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute() + absolute_bar_height, absolute_width, absolute_height - absolute_bar_height);
 
       /*
 
+      const float bar_v = 0.04f;
+
       // Draw the top left corner
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetX(), widget.GetY(), 0.02f, bar_height,
+        widget.GetXAbsolute(), widget.GetYAbsolute(), 0.02f, bar_height,
         0.0f, 0.0f, 0.05f, bar_v);
 
       // Draw the top right corner
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetX() + absolute_width - 0.016f, widget.GetY(), 0.016f, bar_height,
+        widget.GetXAbsolute() + absolute_width - 0.016f, widget.GetYAbsolute(), 0.016f, bar_height,
         0.187f, 0.0f, 0.049f, bar_v);
 
       // Draw the top bar
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetX() + 0.02f, widget.GetY(), absolute_width - 0.02f - 0.01f, bar_height,
+        widget.GetXAbsolute() + 0.02f, widget.GetYAbsolute(), absolute_width - 0.02f - 0.01f, bar_height,
         0.18f, 0.0f, 0.01f, bar_v);
 
       // TODO: Draw the caption
@@ -304,7 +285,7 @@ namespace breathe
       if (widget.IsResizable()) {
         // TODO: Draw the bottom right corner
         //pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        //  widget.GetX() + 0.02f, widget.GetY(), absolute_width - 0.02f - 0.01f, 0.05f,
+        //  widget.GetXAbsolute() + 0.02f, widget.GetYAbsolute(), absolute_width - 0.02f - 0.01f, 0.05f,
         //  0.18f, 0.0f, 0.01f, 0.1f);
       }
 
@@ -313,7 +294,7 @@ namespace breathe
       float height = absolute_height - bar_height;
       render::ApplyTexture apply(textureBackground[BACKGROUND_NORMAL]);
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetX(), widget.GetY() + bar_height, absolute_width, absolute_height - bar_height,
+        widget.GetXAbsolute(), widget.GetYAbsolute() + bar_height, absolute_width, absolute_height - bar_height,
         0.0f, 0.0f, CreateTextureCoord(width), CreateTextureCoord(height));*/
 
       // Draw the caption if this window has one
@@ -331,10 +312,10 @@ namespace breathe
 
             glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-            //pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(),
+            //pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetXAbsolute(), widget.GetYAbsolute(),
             //  widget.GetWidth(), bar_height,
             //  breathe::string::ToUTF8(widget.GetCaption()).c_str());
-            pFontWindowCaption->PrintCenteredHorizontally(widget.GetX(), widget.GetY(),
+            pFontWindowCaption->PrintCenteredHorizontally(widget.GetXAbsolute(), widget.GetYAbsolute(),
               widget.GetWidth(), widget.GetCaption());
 
             glMatrixMode(GL_TEXTURE);
@@ -347,29 +328,29 @@ namespace breathe
       }
     }
 
-    void cWindowManager::_RenderInput(const cWidget_Input& widget)
+    void cWindowManager::_RenderInput(const cWidget_Input& widget) const
     {
       const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
       const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 
-      _RenderRectangle(widget.GetX(), widget.GetY(), absolute_width, absolute_height);
+      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
 
       /*render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
+        widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
         absolute_width, absolute_height,
         0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));*/
     }
 
-    void cWindowManager::_RenderButton(const cWidget_Button& widget)
+    void cWindowManager::_RenderButton(const cWidget_Button& widget) const
     {
       const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
       const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 
-      _RenderRectangle(widget.GetX(), widget.GetY(), absolute_width, absolute_height);
+      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
 
       /*pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
+        widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
         absolute_width, absolute_height,
         0.0083f, 0.073f, 0.08f, 0.045f);//CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
       */
@@ -388,13 +369,11 @@ namespace breathe
 
           glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-          //pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(),
-          //  widget.GetWidth(), bar_height,
-          //  breathe::string::ToUTF8(widget.GetCaption()).c_str());
-          pFontWindowCaption->PrintCenteredHorizontally(
-            widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
-            widget.HorizontalRelativeToAbsolute(widget.GetWidth()),
-            widget.GetText());
+          pFontWindowCaption->PrintCenteredHorizontallyVertically(
+            widget.GetXAbsolute(), widget.GetYAbsolute(),
+            absolute_width, absolute_height,
+            widget.GetText()
+          );
 
           glMatrixMode(GL_TEXTURE);
         glPopMatrix();
@@ -405,16 +384,16 @@ namespace breathe
       pRender->ClearMaterial();
     }
 
-    void cWindowManager::_RenderStaticText(const cWidget_StaticText& widget)
+    void cWindowManager::_RenderStaticText(const cWidget_StaticText& widget) const
     {
       const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
       const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
 
-      _RenderRectangle(widget.GetX(), widget.GetY(), absolute_width, absolute_height);
+      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
 
       /*render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
       pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.HorizontalRelativeToAbsolute(widget.GetX()), widget.VerticalRelativeToAbsolute(widget.GetY()),
+        widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
         absolute_width, absolute_height,
         0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
       */
@@ -438,7 +417,7 @@ namespace breathe
       pRender->ClearMaterial();
     }
 
-    void cWindowManager::_RenderWidget(const cWidget& widget)
+    void cWindowManager::_RenderWidget(const cWidget& widget) const
     {
       switch(widget.GetType())
       {
@@ -460,55 +439,41 @@ namespace breathe
 
         default:
           ;
-          //pRender->RenderScreenSpaceRectangleTopLeftIsAt(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+          //pRender->RenderScreenSpaceRectangleTopLeftIsAt(widget.GetXAbsolute(), widget.GetYAbsolute(), widget.GetWidth(), widget.GetHeight());
       };
     }
 
-    void cWindowManager::_RenderChildren(const cWidget& widget)
+    void cWindowManager::_RenderChildren(const cWidget& widget) const
     {
       if (false == widget.IsVisible()) return;
 
       _RenderWidget(widget);
 
-      size_t n = widget.child.size();
+      const size_t n = widget.child.size();
       if (n == 0) return;
 
-      pRender->PushScreenSpacePosition(widget.GetX(), widget.GetY());
-
-        for (size_t i = 0; i < n; i++)
-          _RenderChildren(*widget.child[i]);
-
-      pRender->PopScreenSpacePosition();
+      for (size_t i = 0; i < n; i++) _RenderChildren(*widget.child[i]);
     }
 
-    void cWindowManager::Render()
+    void cWindowManager::Render() const
     {
       ASSERT(pMaterial != nullptr);
 
       pRender->ClearMaterial();
-      //pRender->SetMaterial(pMaterial);
 
-      // Setup texture matrix
-      //pRender->SelectTextureUnit0();
-      //glMatrixMode(GL_TEXTURE);
+      glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
         glLoadIdentity();
 
+        child_const_iterator iter = child.begin();
+        child_const_iterator iterEnd = child.end();
+        while (iter != iterEnd) {
+          _RenderChildren(*(*iter));
+
+          iter++;
+        }
+
         glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-
-          child_const_iterator iter = child.begin();
-          child_const_iterator iterEnd = child.end();
-          while (iter != iterEnd) {
-            _RenderChildren(*(*iter));
-
-            iter++;
-          }
-
-          glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-
-        glMatrixMode(GL_TEXTURE);
       glPopMatrix();
     }
   }

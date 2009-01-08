@@ -27,10 +27,13 @@ namespace breathe
     private:
       void _print(float x, float y, const std::vector<string_t>& lines);
       void _GetDimensions(const string_t& line, float& width, float& height) const;
+      void _GetDimensions(const std::vector<string_t> lines, float& width, float& height) const;
 
       float h;          // < Holds the height of the font.
       GLuint* textures; // < Holds the texture id's 
       GLuint list_base; // < Holds the first display list id
+      std::vector<float> fGlyphWidth;
+      std::vector<float> fGlyphHeight;
     };
   }
 }

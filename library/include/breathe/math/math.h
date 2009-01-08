@@ -26,12 +26,11 @@ namespace breathe
   namespace math
   {
     // Constants
-
-    const float_t cPI               = 3.14159265358979323846f;
+    const float_t cPI               = 3.1415926535897932384626433832795f;
     const float_t c2_PI             = 6.28318530717958647692f;
     const float_t cPI_DIV_2         = 1.57079632679489661923f;
-    const float_t cPI_DIV_180       = 0.01745329251994329576f;
-    const float_t c180_DIV_PI       = 57.2957795130823208767f;
+    const float_t cPI_DIV_180       = 0.0174532925199432957692369076848861f;
+    const float_t c180_DIV_PI       = 57.2957795130823208767981548141052f;
 
     const float_t c4_DIV_3          = 4.0f / 3.0f;
     const float_t cSQUARE_ROOT_OF_2 = 1.41421356237309504880f;

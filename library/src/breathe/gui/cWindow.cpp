@@ -55,6 +55,8 @@ namespace breathe
 {
   namespace gui
   {
+    const float WINDOW_TITLE_BAR_HEIGHT_ABSOLUTE = 0.025f;
+
     class cDerivedWindow : public cWindow
     {
     public:
@@ -100,7 +102,8 @@ namespace breathe
 
     cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent, bool _bModeless, bool _bResizable) :
       cWidget(id, WIDGET_WINDOW, x, y, width, height),
-      z(0)
+      z(0),
+      pChildContainer(nullptr)
     {
       SetCaption(caption);
       SetParent(_pParent);
@@ -109,6 +112,20 @@ namespace breathe
 
       bModeless = _bModeless;
       bResizable = _bResizable;
+
+      pChildContainer = new cWidget_InvisibleContainer(GenerateID(), 0.0f, GetTitleBarHeightAbsolute(), 1.0f, 1.0f - GetTitleBarHeightAbsolute());
+      AddChild(pChildContainer);
+    }
+
+    bool cWindow::AddChildToContainer(cWidget* pChild)
+    {
+      ASSERT(pChildContainer != nullptr);
+      return pChildContainer->AddChild(pChild);
+    }
+
+    float cWindow::GetTitleBarHeightAbsolute() const
+    {
+      return WINDOW_TITLE_BAR_HEIGHT_ABSOLUTE;
     }
 
     void cWindow::Update(sampletime_t currentTime)

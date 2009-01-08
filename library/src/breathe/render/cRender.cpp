@@ -817,6 +817,41 @@ namespace breathe
       glEnd();
     }
 
+    // Render a solid filled rectangle with one colour and no texturing and a separately coloured border
+    void cRender::RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& boxColour, const math::cColour& upperBorderColour, const math::cColour& lowerBorderColour)
+    {
+      glColor3f(boxColour.r, boxColour.g, boxColour.b);
+
+      glBegin(GL_QUADS);
+        glVertex2f(fX, fY);
+        glVertex2f(fX + fWidth, fY);
+        glVertex2f(fX + fWidth, fY + fHeight);
+        glVertex2f(fX, fY + fHeight);
+      glEnd();
+
+
+      // Draw an outline around the button with width 3
+      glLineWidth(3);
+
+      glColor3f(upperBorderColour.r, upperBorderColour.g, upperBorderColour.b);
+
+      glBegin(GL_LINE_STRIP);
+        glVertex2f(fX + fWidth, fY);
+        glVertex2f(fX, fY);
+        glVertex2f(fX, fY + fHeight);
+      glEnd();
+
+      glColor3f(lowerBorderColour.r, lowerBorderColour.g, lowerBorderColour.b);
+
+      glBegin(GL_LINE_STRIP);
+        glVertex2f(fX, fY + fHeight);
+        glVertex2f(fX + fWidth, fY + fHeight);
+        glVertex2f(fX + fWidth, fY);
+      glEnd();
+
+      glLineWidth(1);
+    }
+
     void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
     {
       const float fHalfWidth = fWidth * 0.5f;
