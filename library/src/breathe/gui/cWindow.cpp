@@ -57,15 +57,16 @@ namespace breathe
   {
     const float WINDOW_TITLE_BAR_HEIGHT_ABSOLUTE = 0.025f;
 
+    // This is just a quick test to make sure that a derived window compiles correctly at all times
     class cDerivedWindow : public cWindow
     {
     public:
 
     private:
-      void OnEvent(const cEvent& event);
+      void _OnEvent(const cEvent& event);
     };
 
-    void cDerivedWindow::OnEvent(const cEvent& event)
+    void cDerivedWindow::_OnEvent(const cEvent& event)
     {
       switch (event.GetType()) {
         case EVENT_MOUSE_DOWN: {
@@ -134,23 +135,29 @@ namespace breathe
 
     void cWindow::OnMouseEvent(int button, int state, float x, float y)
     {
-      if (button == SDL_BUTTON_LEFT) {
-        cWidget* p = FindChildAtPoint(x, y);
+      LOG<<"cWindow::OnMouseEvent "<<x<<", "<<y<<std::endl;
 
-        while (p != nullptr && (!p->IsVisible() || !p->IsEnabled())) {
+      if (button == SDL_BUTTON_LEFT) {
+        LOG<<"cWindow::OnMouseEvent SDL_BUTTON_LEFT"<<std::endl;
+
+        cWidget* p = FindChildAtPoint(x, y);
+        if (p != nullptr) LOG<<"cWindow::OnMouseEvent "<<breathe::string::ToUTF8(p->GetText())<<" visible="<<p->IsVisible()<<" enabled="<<p->IsEnabled()<<std::endl;
+
+        while ((p != nullptr) && (!p->IsVisible() || !p->IsEnabled())) {
           p = p->GetParent();
+          if (p != nullptr) LOG<<"cWindow::OnMouseEvent "<<breathe::string::ToUTF8(p->GetText())<<" visible="<<p->IsVisible()<<" enabled="<<p->IsEnabled()<<std::endl;
         }
+
+        if (p != nullptr) LOG<<"cWindow::OnMouseEvent "<<breathe::string::ToUTF8(p->GetText())<<" visible="<<p->IsVisible()<<" enabled="<<p->IsEnabled()<<std::endl;
 
         if (p != nullptr) {
           if (state != 0) p->OnLeftMouseDown(x, y);
           else p->OnLeftMouseUp(x, y);
-          std::cout<<breathe::string::ToUTF8(p->GetText());
-        } else std::cout<<breathe::string::ToUTF8(GetText());
-
-        std::cout<<" "<<x<<","<<y<<std::endl;
+          LOG<<"cWindow::OnMouseEvent "<<breathe::string::ToUTF8(p->GetText())<<std::endl;
+        } else LOG<<"cWindow::OnMouseEvent "<<breathe::string::ToUTF8(GetText())<<std::endl;
       }
 
-      _OnMouseEvent(button, state, x, y);
+      //_OnEvent(button, state, x, y);
     }
 
 

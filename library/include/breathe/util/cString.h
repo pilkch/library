@@ -92,6 +92,7 @@ namespace breathe
 
     inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
     string_t ToString(unsigned int value);
+    string_t ToString(size_t value);
     string_t ToString(int value);
     string_t ToString(float value);
 

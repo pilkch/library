@@ -8,7 +8,7 @@ namespace breathe
     class cWindow : public cWidget
     {
     public:
-      void OnEvent(id_t idEvent) { _OnEvent(idEvent); }
+      void OnEvent(const cEvent& event) { _OnEvent(event); }
       void OnMouseEvent(int button, int state, float x, float y);
       void Update(sampletime_t currentTime);
 
@@ -27,8 +27,7 @@ namespace breathe
       bool bModeless;
 
     private:
-      virtual void _OnEvent(id_t idEvent) { printf("cWindow::_OnEvent %d\n", idEvent); }
-      virtual void _OnMouseEvent(int button, int state, float x, float y) { printf("cWindow::_OnMouseEvent %d\n", button); }
+      virtual void _OnEvent(const cEvent& event) { LOG<<"cWindow::_OnEvent Has not been overridden in the deriving class"<<std::endl; }
 
       bool _IsAControl() const { return false; }
       bool _IsAWindow() const { return true; }

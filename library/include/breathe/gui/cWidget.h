@@ -50,6 +50,8 @@ namespace breathe
     class cEvent
     {
     public:
+      friend class cWidget;
+
       explicit cEvent(EVENT eventType);
 
       EVENT GetType() const { return eventType; }
@@ -98,8 +100,8 @@ namespace breathe
       //TODO: Don't have AddChild here!  Only goes on Sizer
 
       bool AddChild(cWidget* pChild);
-      cWidget* FindChild(id_t idControl) const;
-      cWidget* FindChildAtPoint(float x, float y) const;
+      cWidget* FindChild(id_t idControl);
+      cWidget* FindChildAtPoint(float absoluteX, float absoluteY);
       void SetParent(cWidget* _pParent) { pParent = _pParent; }
       cWidget* GetParent() const { return pParent; }
 
@@ -115,6 +117,8 @@ namespace breathe
       // Absolute
       float GetXAbsolute() const;
       float GetYAbsolute() const;
+      float GetWidthAbsolute() const;
+      float GetHeightAbsolute() const;
       float HorizontalRelativeToAbsolute(float n) const;
       float VerticalRelativeToAbsolute(float n) const;
 
@@ -133,7 +137,7 @@ namespace breathe
       bool IsResizable() const { return bResizable; }
 
       void SetEnabled(bool _bEnabled) { bEnabled = _bEnabled; }
-      void SetVisible(bool _bVisible) { bEnabled = _bVisible; }
+      void SetVisible(bool _bVisible) { bVisible = _bVisible; }
       void SetResizable(bool _bResizable) { bResizable = _bResizable; }
 
       void SetPosition(float x, float y);
@@ -148,7 +152,7 @@ namespace breathe
       bool IsAControl() const { return _IsAControl(); }
       bool IsAWindow() const { return _IsAWindow(); }
 
-      void SendCommandToParentWindow(id_t uiCommand);
+      void SendEventToParentWindow(const cEvent& event);
 
     protected:
       // Setup an event handler

@@ -177,11 +177,7 @@ namespace breathe
     {
       cWindow* pWindow = _FindWindowUnderPoint(x, y);
       if (pWindow != nullptr) {
-        float fScaleX = 1.0f / pWindow->GetWidth();
-        float fScaleY = 1.0f / pWindow->GetHeight();
-        float x2 = x * fScaleX;
-        float y2 = y * fScaleY;
-        pWindow->OnMouseEvent(button, state, x2, y2);
+        pWindow->OnMouseEvent(button, state, x, y);
         return true;
       }
 
@@ -445,7 +441,7 @@ namespace breathe
 
     void cWindowManager::_RenderChildren(const cWidget& widget) const
     {
-      if (false == widget.IsVisible()) return;
+      if (!widget.IsVisible()) return;
 
       _RenderWidget(widget);
 

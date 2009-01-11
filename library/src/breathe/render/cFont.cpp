@@ -253,8 +253,8 @@ namespace breathe
 
     void cFont::_GetDimensions(const string_t& line, float& width, float& height) const
     {
-      width = math::cEPSILON;
-      height = math::cEPSILON;
+      width = 0.0f;
+      height = 0.0f;
 
       float characterWidth = 0.0f;
       float characterHeight = 0.0f;
@@ -269,7 +269,7 @@ namespace breathe
         characterWidth = fGlyphWidth[c];
         characterHeight = fGlyphHeight[c];
 
-        // Add the characterWidth and if it is the new tallest then set our current tallest to us
+        // Add the characterWidth and if this is the tallest character so far then set our current tallest character to us
         width += characterWidth;
         if (characterHeight > height) height = characterHeight;
       }
@@ -283,8 +283,8 @@ namespace breathe
 
     void cFont::_GetDimensions(const std::vector<string_t> lines, float& width, float& height) const
     {
-      width = math::cEPSILON;
-      height = math::cEPSILON;
+      width = 0.0f;
+      height = 0.0f;
 
       float lineWidth = 0.0f;
       float lineHeight = 0.0f;
@@ -292,8 +292,10 @@ namespace breathe
       const size_t n = lines.size();
       for (size_t i = 0; i < n; i++) {
         _GetDimensions(lines[i], lineWidth, lineHeight);
+
+        // Add the lineHeight and if this is the widest line so far then set our current widest line to us
         if (lineWidth > width) width = lineWidth;
-        if (lineHeight > height) height = lineHeight;
+        height += lineHeight;
       }
     }
 

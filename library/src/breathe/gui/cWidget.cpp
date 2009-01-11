@@ -97,12 +97,13 @@ namespace breathe
       return true;
     }
 
-    cWidget* cWidget::FindChild(id_t _idControl) const
+    cWidget* cWidget::FindChild(id_t _idControl)
     {
-      if (_idControl == idControl) return const_cast<cWidget*>(this);
+      if (_idControl == idControl) return this;
 
-      size_t n = child.size();
       cWidget* p = nullptr;
+
+      const size_t n = child.size();
       for (size_t i = 0; i < n; i++) {
         p = child[i]->FindChild(_idControl);
         if (p != nullptr) return p;
@@ -111,33 +112,38 @@ namespace breathe
       return nullptr;
     }
 
-    cWidget* cWidget::FindChildAtPoint(float _x, float _y) const
+    cWidget* cWidget::FindChildAtPoint(float absoluteX, float absoluteY)
     {
-      size_t n = child.size();
+      LOG<<"cWidget::FindChildAtPoint "<<absoluteX<<", "<<absoluteY<<", ("<<GetXAbsolute()<<", "<<GetYAbsolute()<<"), ("<<GetWidthAbsolute()<<", "<<GetHeightAbsolute()<<")"<<std::endl;
+
       cWidget* p = nullptr;
+
+      // Let's see if we can find a widget that is higher up and still contains the coordinate
+      const size_t n = child.size();
       for (size_t i = 0; i < n; i++) {
         p = child[i];
-        if (math::PointIsWithinBounds(_x, _y,
-          p->GetX(), p->GetY(), p->GetWidth(), p->GetHeight())) return p->FindChildAtPoint(_x, _y);
+        if (math::PointIsWithinBounds(absoluteX, absoluteY,
+          p->GetXAbsolute(), p->GetYAbsolute(), p->GetWidthAbsolute(), p->GetHeightAbsolute())) return p->FindChildAtPoint(absoluteX, absoluteY);
       }
 
-      return const_cast<cWidget*>(this);
+      return this;
     }
 
-    void cWidget::SendCommandToParentWindow(id_t uiCommand)
+    void cWidget::SendEventToParentWindow(const cEvent& event)
     {
       cWidget* pParent = GetParent();
       while (pParent != nullptr) {
         if (pParent->IsAWindow()) {
           cWindow* pParentWindow = (cWindow*)pParent;
-          pParentWindow->OnEvent(uiCommand);
+          LOG<<"cWidget::SendEventToParentWindow Sending event to parent window"<<std::endl;
+          pParentWindow->OnEvent(event);
           return;
         }
 
         pParent = pParent->GetParent();
       }
 
-      printf("cWidget::SendCommandToParentWindow FAILED Parent window not found\n");
+      printf("cWidget::SendEventToParentWindow FAILED Parent window not found\n");
     }
 
     bool cWidget::IsEnabled() const
@@ -162,6 +168,16 @@ namespace breathe
     {
       if (pParent != nullptr) return (pParent->GetYAbsolute() + VerticalRelativeToAbsolute(y));
       return VerticalRelativeToAbsolute(y);
+    }
+
+    float cWidget::GetWidthAbsolute() const
+    {
+      return VerticalRelativeToAbsolute(width);
+    }
+
+    float cWidget::GetHeightAbsolute() const
+    {
+      return VerticalRelativeToAbsolute(height);
     }
 
     float cWidget::HorizontalRelativeToAbsolute(float n) const
@@ -197,11 +213,21 @@ namespace breathe
 
     void cWidget::CheckAndHandleEvent(EVENT event)
     {
-      id_t idOut;
-      if (!GetEventHandler(event, idOut)) return;
+      LOG<<"cWidget::CheckAndHandleEvent"<<std::endl;
 
-      printf("Found event handler %d\n", idOut);
-      SendCommandToParentWindow(idOut);
+      //id_t idOut;
+      //if (!GetEventHandler(event, idOut)) return;
+
+      //LOG<<"Found event handler "<<idOut<<std::endl;
+      //SendCommandToParentWindow(idOut);
+
+
+      cEvent e(event);
+      e.SetWidget(this);
+      e.SetMouseButton(MOUSE_BUTTON_PRIMARY); // TODO: This is incorrect, it should actually accept this value as a parameter
+      const math::cVec2 point(0.0f, 0.0f); // TODO: This is incorrect, it should actually accept this value as a parameter
+      e.SetMousePosition(point);
+      SendEventToParentWindow(e);
     }
 
     /*
@@ -219,10 +245,10 @@ namespace breathe
     // ** cWidget_Button
     void cWidget_Button::_OnLeftMouseUp(float x, float y)
     {
-      if (bCurrentlyClickingOnThisControl) {
-        printf("Clicking on control %d\n", idControl);
+      //if (bCurrentlyClickingOnThisControl) {
+        LOG<<"cWidget_Button::_OnLeftMouseUp Clicking on control "<<idControl<<std::endl;
         CheckAndHandleEvent(EVENT_MOUSE_UP);
-      }
+      //}
 
       bCurrentlyClickingOnThisControl = false;
     }

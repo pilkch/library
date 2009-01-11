@@ -410,25 +410,32 @@ namespace breathe
       //return temp;
   }*/
 
-    string_t ToString(unsigned int value)
+    template <class T>
+    inline string_t ToString(T value)
     {
       std::ostringstream s;
       s << value;
       return s.str();
+    }
+
+    string_t ToString(unsigned int value)
+    {
+      return ToString<unsigned int>(value);
+    }
+
+    string_t ToString(size_t value)
+    {
+      return ToString<size_t>(value);
     }
 
     string_t ToString(int value)
     {
-      std::ostringstream s;
-      s << value;
-      return s.str();
+      return ToString<int>(value);
     }
 
     string_t ToString(float value)
     {
-      std::ostringstream s;
-      s << value;
-      return s.str();
+      return ToString<float>(value);
     }
 
     unsigned int ToUnsignedInt(const string_t& source)
