@@ -22,6 +22,7 @@ namespace breathe
       bool AddChildToContainer(cWidget* pChild);
 
     protected:
+      // This is the standard window constructor that can only be called by derived classes
       cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* pParent, bool bModeless, bool bResizable);
 
       bool bModeless;
