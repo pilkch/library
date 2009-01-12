@@ -5,16 +5,16 @@ namespace breathe
 {
   namespace vector
   {
+    // This is just a convenience function (Is there already a way to do this without resorting to .begin()?)
     template <class T>
     inline void push_back(std::vector<T>& v, const size_t n, const T& value)
     {
       v.insert(v.begin(), n, value);
-      //v.reserve(n);
-      //for (size_t i = 0; i != n; i++) v.push_back(value);
     }
   }
 
 
+  // Creates a vector style stack out of any container
   template <class T>
   class constant_stack
   {
@@ -23,7 +23,7 @@ namespace breathe
     typedef typename container_t::iterator iterator;
     typedef typename container_t::reverse_iterator reverse_iterator;
 
-    constant_stack(size_t n);
+    explicit constant_stack(size_t n);
 
     void push_back(const T& rhs);
 
@@ -37,6 +37,7 @@ namespace breathe
     bool empty() const;
 
     T& operator[](size_t i);
+    const T& operator[](size_t i) const;
 
   private:
     container_t elements;
@@ -56,8 +57,7 @@ namespace breathe
   void constant_stack<T>::push_back(const T& rhs)
   {
     if (elements.size() < n) elements.push_back(rhs);
-    else
-    {
+    else {
       if (first >= n) first = 0;
       elements[first++] = rhs;
     }
@@ -76,13 +76,22 @@ namespace breathe
   }
 
   template <class T>
+  const T& constant_stack<T>::operator[](size_t i) const
+  {
+    ASSERT(i < elements.size());
+    return elements[(first + i) % n];
+  }
+
+  template <class T>
   T& constant_stack<T>::operator[](size_t i)
   {
-    assert(i < elements.size());
+    ASSERT(i < elements.size());
     return elements[(first + i) % n];
   }
 
 
+  // Creates a vector that can be indexed into with x, y coordinates as well as normal i indexing
+  // The dimensions must be known at compile time
   template <class T, size_t width, size_t height>
   class cContainer2D
   {
@@ -115,6 +124,8 @@ namespace breathe
   }
 
 
+  // Creates a vector that can be indexed into with x, y coordinates as well as normal i indexing
+  // The dimensions are not known at compile time
   template <class T>
   class cDynamicContainer2D
   {
@@ -172,6 +183,7 @@ namespace breathe
   }
 
 
+  // Basically a vector that wraps around, items can be added but not removed, once an item is pushed back the buffer will forever be + 1 bigger
   template<class T>
   class cCircularBuffer
   {
