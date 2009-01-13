@@ -1096,9 +1096,10 @@ namespace breathe
 
           scenegraph2D.Render(currentTime);
 
+          window_manager.Render();
+
       #ifdef BUILD_DEBUG
-          if (IsDebug() && !CONSOLE.IsVisible())
-          {
+          if (IsDebug() && !CONSOLE.IsVisible()) {
             pRender->SetColour(0.0f, 0.0f, 1.0f);
 
             const float dy = 0.03f;
@@ -1132,7 +1133,6 @@ namespace breathe
           }
       #endif
 
-          window_manager.Render();
         pRender->EndScreenSpaceRendering();
       pRender->End();
 
