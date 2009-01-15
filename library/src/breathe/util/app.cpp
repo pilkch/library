@@ -1086,19 +1086,19 @@ namespace breathe
 
       pRender->Begin();
         pRender->BeginRenderScene();
-          state.RenderScene(currentTime);
-
           scenegraph.Render(currentTime);
+
+          state.RenderScene(currentTime);
 
         pRender->EndRenderScene();
         pRender->BeginScreenSpaceRendering();
-          state.RenderScreenSpace(currentTime);
-
           scenegraph2D.Render(currentTime);
+
+          state.RenderScreenSpace(currentTime);
 
           window_manager.Render();
 
-      #ifdef BUILD_DEBUG
+#ifdef BUILD_DEBUG
           if (IsDebug() && !CONSOLE.IsVisible()) {
             pRender->SetColour(0.0f, 0.0f, 1.0f);
 
@@ -1131,7 +1131,7 @@ namespace breathe
       #endif
             pRender->EndRenderingText();
           }
-      #endif
+#endif
 
         pRender->EndScreenSpaceRendering();
       pRender->End();

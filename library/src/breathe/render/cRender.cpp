@@ -341,7 +341,7 @@ namespace breathe
     void cRender::SetPerspective()
     {
       // Protect against a divide by zero
-      assert(uiHeight != 0);
+      ASSERT(uiHeight != 0);
 
       // Height / width ratio
       GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
@@ -424,7 +424,7 @@ namespace breathe
 
     void cRender::Destroy()
     {
-      assert(pSurface != nullptr);
+      ASSERT(pSurface != nullptr);
 
       SDL_FreeSurface(pSurface);
       pSurface = nullptr;
@@ -697,7 +697,7 @@ namespace breathe
 
     void cRender::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pFBO)
     {
-      assert(pMaterial != nullptr);
+      ASSERT(pMaterial != nullptr);
 
       BeginScreenSpaceRendering();
         SetMaterial(pMaterial);
@@ -739,15 +739,14 @@ namespace breathe
       if (n == 0) return;
 
       // Ok, we actually want to do some exciting post render effects
-      assert(pFrameBuffer0);
+      ASSERT(pFrameBuffer0 != nullptr);
       EndRenderToTexture(pFrameBuffer0);
 
       // We have just rendered to a texture, loop through the post render chain alternating
       // rendering to pFrameBuffer0 and pFrameBuffer1
       std::list<material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
       size_t i = 0;
-      for (i = 0; i < n - 1; i++, iter++)
-      {
+      for (; i < n - 1; i++, iter++) {
         BeginRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
           _RenderPostRenderPass(*iter, ((i+1) % 2) ? pFrameBuffer0 : pFrameBuffer1);
         EndRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
@@ -1014,8 +1013,8 @@ namespace breathe
 
     void cRender::RenderMesh(model::cMeshRef pMesh)
     {
-      assert(pMesh);
-      assert(pMesh->pMeshData);
+      ASSERT(pMesh != nullptr);
+      ASSERT(pMesh->pMeshData);
 
       float* fVertices=&pMesh->pMeshData->vVertex[0];
       float* fTextureCoords=&pMesh->pMeshData->vTextureCoord[0];
@@ -1190,6 +1189,22 @@ namespace breathe
       glEnable(GL_COLOR_MATERIAL);
     }
 
+    void cRender::RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2)
+    {
+      math::cVec3 n;
+      n.Cross(v0 - v2, v2 - v1);
+      n.Normalise();
+
+      glBegin(GL_TRIANGLES);
+
+        glNormal3f(n.x, n.y, n.z);
+
+        glVertex3f(v0.x, v0.y, v0.z);
+        glVertex3f(v1.x, v1.y, v1.z);
+        glVertex3f(v2.x, v2.y, v2.z);
+      glEnd();
+    }
+
     void cRender::RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax)
     {
       glBegin(GL_LINES);
@@ -1291,7 +1306,7 @@ namespace breathe
       cTextureRef p = GetTexture(breathe::string::ToUTF8(s));
       if (p == nullptr)
       {
-        assert(p != nullptr);
+        ASSERT(p != nullptr);
         return pTextureNotFoundTexture;
       }
 
@@ -1354,7 +1369,7 @@ namespace breathe
         // Just assert, don't even try to come back from this situation
         LOG.Error("Render", "Failed to load material not found texture");
         CONSOLE<<"cRender::AddMaterialNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
-        assert(false);
+        ASSERT(false);
         p.reset();
         return breathe::BAD;
       }
@@ -1375,7 +1390,7 @@ namespace breathe
 
     cTextureRef cRender::GetTextureAtlas(ATLAS atlas)
     {
-      assert(atlas < nAtlas);
+      ASSERT(atlas < nAtlas);
 
       return vTextureAtlas[atlas];
     }
@@ -1653,7 +1668,7 @@ namespace breathe
 
     bool cRender::SetTexture0(cTextureRef pTexture)
     {
-      assert(pTexture != nullptr);
+      ASSERT(pTexture != nullptr);
 
       //Activate the correct texture unit
       glActiveTexture(GL_TEXTURE0);
@@ -1663,7 +1678,7 @@ namespace breathe
 
     bool cRender::SetTexture1(cTextureRef pTexture)
     {
-      assert(pTexture != nullptr);
+      ASSERT(pTexture != nullptr);
 
       //Activate the correct texture unit
       glActiveTexture(GL_TEXTURE1);
@@ -1673,28 +1688,28 @@ namespace breathe
 
     material::cMaterialRef cRender::GetCurrentMaterial() const
     {
-      assert(pCurrentMaterial != nullptr);
+      ASSERT(pCurrentMaterial != nullptr);
       return pCurrentMaterial;
     }
 
     cTextureRef cRender::GetCurrentTexture0() const
     {
-      assert(pCurrentMaterial != nullptr);
-      assert(pCurrentMaterial->vLayer.size() > 0);
+      ASSERT(pCurrentMaterial != nullptr);
+      ASSERT(pCurrentMaterial->vLayer.size() > 0);
       return pCurrentMaterial->vLayer[0]->pTexture;
     }
 
     cTextureRef cRender::GetCurrentTexture1() const
     {
-      assert(pCurrentMaterial != nullptr);
-      assert(pCurrentMaterial->vLayer.size() > 1);
+      ASSERT(pCurrentMaterial != nullptr);
+      ASSERT(pCurrentMaterial->vLayer.size() > 1);
       return pCurrentMaterial->vLayer[1]->pTexture;
     }
 
     cTextureRef cRender::GetCurrentTexture2() const
     {
-      assert(pCurrentMaterial != nullptr);
-      assert(pCurrentMaterial->vLayer.size() > 2);
+      ASSERT(pCurrentMaterial != nullptr);
+      ASSERT(pCurrentMaterial->vLayer.size() > 2);
       return pCurrentMaterial->vLayer[2]->pTexture;
     }
 
@@ -1773,14 +1788,13 @@ namespace breathe
 
     bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, int value)
     {
-      assert(pMaterial != nullptr);
-      assert(pMaterial->pShader != nullptr);
+      ASSERT(pMaterial != nullptr);
+      ASSERT(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
-      if (loc == -1)
-      {
+      if (loc == -1) {
         LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
-        assert(loc);
+        ASSERT(loc > 0);
         return false;
       }
 
@@ -1790,14 +1804,13 @@ namespace breathe
 
     bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, float value)
     {
-      assert(pMaterial != nullptr);
-      assert(pMaterial->pShader != nullptr);
+      ASSERT(pMaterial != nullptr);
+      ASSERT(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
-      if (loc == -1)
-      {
+      if (loc == -1) {
         LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
-        assert(loc);
+        ASSERT(loc > 0);
         return false;
       }
 
@@ -1811,10 +1824,9 @@ namespace breathe
       assert(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
-      if (loc == -1)
-      {
+      if (loc == -1) {
         LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
-        assert(loc);
+        ASSERT(loc > 0);
         return false;
       }
 
@@ -1824,7 +1836,7 @@ namespace breathe
 
     bool cRender::SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos)
     {
-      assert(pMaterial != nullptr);
+      ASSERT(pMaterial != nullptr);
 
       if (pCurrentMaterial == pMaterial)
       {
@@ -2416,7 +2428,7 @@ namespace breathe
     material::cMaterialRef cRender::AddPostRenderEffect(const string_t& sFilename)
     {
       material::cMaterialRef pMaterial = AddMaterial(sFilename);
-      assert(pMaterial);
+      ASSERT(pMaterial != nullptr);
       lPostRenderEffects.push_back(pMaterial);
 
       if  (!pFrameBuffer0) {

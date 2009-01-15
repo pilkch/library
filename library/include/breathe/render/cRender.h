@@ -143,6 +143,7 @@ namespace breathe
       void BeginScreenSpaceWorldRendering(float fScale);
       void EndScreenSpaceWorldRendering();
 
+      void RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2);
       void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
       void RenderAxisReference(float x, float y, float z);
       void RenderAxisReference(const math::cVec3& position);
