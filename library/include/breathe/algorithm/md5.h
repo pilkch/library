@@ -40,17 +40,17 @@ namespace breathe
   public:
     cMD5();
 
-    bool CheckString(char* szInput);
-    bool CheckBuffer(char* pInput, size_t len);
-    bool CheckFile(const std::string&);
+    bool CheckString(const char* szInput);
+    bool CheckBuffer(const char* pInput, size_t len);
+    bool CheckFile(const std::string& sFilename);
 
-    bool SetResultFromFormatted(char *input);
+    bool SetResultFromFormatted(const char* szMD5Hash);
 
-    bool operator==(const cMD5 & rhs) const;
-    bool operator!=(const cMD5 & rhs) const;
+    bool operator==(const cMD5& rhs) const;
+    bool operator!=(const cMD5& rhs) const;
 
-    bool operator==(const std::string & rhs) const;
-    bool operator!=(const std::string & rhs) const;
+    bool operator==(const std::string& rhs) const;
+    bool operator!=(const std::string& rhs) const;
 
     std::string GetResult() const;
     std::string GetResultFormatted() const;
@@ -61,9 +61,9 @@ namespace breathe
     cMD5_Context ctx;
 
     void Start();
-    void Update(cMD5_Context *ctx, unsigned char *input, uint32_t length);
-    void Finish(cMD5_Context *ctx);
-    void Process(cMD5_Context *ctx, unsigned char data[64]);
+    void Update(cMD5_Context* ctx, unsigned char* pInput, uint32_t length);
+    void Finish(cMD5_Context* ctx);
+    void Process(cMD5_Context* ctx, unsigned char data[64]);
 
     unsigned char result[16]; //Raw result
     std::string sResult; //Result formatted

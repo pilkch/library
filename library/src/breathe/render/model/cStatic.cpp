@@ -82,10 +82,8 @@ namespace breathe
       void cStatic::ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename)
       {
         std::ostringstream t;
-        for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-        {
-          switch(cc.ID())
-          {
+        for (loader_3ds::Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
+          switch(cc.ID()) {
             case(0x3d3e):
               t.str("");
               iVersionMesh=cc.Int();
@@ -123,10 +121,8 @@ namespace breathe
         std::ostringstream t;
         std::string obj_name = c.Str();
 
-        for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-        {
-          switch(cc.ID())
-          {
+        for (loader_3ds::Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
+          switch(cc.ID()) {
             case(0x4100):
               ParseMesh(obj_name, cc, sFilename);
             break;
@@ -159,10 +155,8 @@ namespace breathe
       {
         LOG.Success("3ds", "Edit material");
 
-        for (loader_3ds::Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-        {
-          switch(cc.ID())
-          {
+        for (loader_3ds::Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
+          switch(cc.ID())  {
             case(0xa000):
               NewMaterial(cc);
             break;
@@ -266,9 +260,9 @@ namespace breathe
 
       int cStatic::Load3DS(const std::string& sFilename)
       {
-        iVersionFile=0;
-        iVersionMesh=0;
-        fScale=1.0f;
+        iVersionFile = 0;
+        iVersionMesh = 0;
+        fScale = 1.0f;
 
         LOG.Success("c3ds", "Loading " + sFilename);
 
@@ -278,10 +272,8 @@ namespace breathe
         loader_3ds::Model3DSChunk root = file.Child();
 
         std::ostringstream t;
-        for (loader_3ds::Model3DSChunk cc = root.Child() ; cc ; cc = cc.Sibling())
-        {
-          switch(cc.ID())
-          {
+        for (loader_3ds::Model3DSChunk cc = root.Child(); cc.IsValid(); cc = cc.Sibling()) {
+          switch(cc.ID()) {
             case(0x0002):
               t.str("");
               iVersionFile=cc.Int();

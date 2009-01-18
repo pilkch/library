@@ -37,8 +37,7 @@ namespace breathe
       LOG.Success("3ds", "Edit material");
 #endif
 
-      for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-      {
+      for (Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
         switch(cc.ID())
         {
           case(0xa000):

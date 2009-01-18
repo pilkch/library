@@ -92,23 +92,23 @@ namespace breathe
       return *this;
     }
 
-    Model3DSChunk::operator bool()
+    bool Model3DSChunk::IsValid() const
     {
 #ifdef DEBUG3DS
       int curr_pos = file.tellg();
 
       std::ostringstream t;
       t  <<"Model3DSChunk::operator bool() @ " << curr_pos << "== "
-        << ((0!=id) && (begin < chunkset_end) && (begin >= 0))
+        << ((0 != id) && (begin < chunkset_end) && (begin >= 0))
         << " ((0x0!=0x" << std::hex << id << ") && ("
         << std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
       LOG.Success("c3ds", t.str());
 #endif // DEBUG3DS
 
-      return (0!=id) && (begin < chunkset_end) && (begin >= 0);
+      return (0 != id) && (begin < chunkset_end) && (begin >= 0);
     }
 
-    unsigned int Model3DSChunk::ID()
+    unsigned int Model3DSChunk::ID() const
     {
       return id;
     }
@@ -118,7 +118,7 @@ namespace breathe
       short s = 0;
       file.read((char*)&s , 2);
 
-      nRead+=2;
+      nRead += 2;
 
       return s;
     }
@@ -128,7 +128,7 @@ namespace breathe
       int i;
       file.read((char*)&i , 4);
 
-      nRead+=4;
+      nRead += 4;
 
       return i;
     }
@@ -138,7 +138,7 @@ namespace breathe
       float f;
       file.read((char*)&f , 4);
 
-      nRead+=4;
+      nRead += 4;
 
       return f;
     }
@@ -148,14 +148,13 @@ namespace breathe
       std::string s;
       char c;
 
-      do
-      {
-        file.read(&c , 1);
+      do {
+        file.read(&c, 1);
         s += c;
 
         nRead++;
 
-      }while(c != '\0');
+      } while(c != '\0');
 
       return s;
     }

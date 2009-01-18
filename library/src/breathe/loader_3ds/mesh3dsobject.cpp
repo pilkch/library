@@ -26,8 +26,7 @@ namespace breathe
     {
       bFoundFaces=bFoundVertices=bTextureCoords=bFoundMaterials=false;
 
-      for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-      {
+      for (Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
         switch(cc.ID())
         {
           case(0x4160):
@@ -174,10 +173,8 @@ namespace breathe
 
       //c.Finish();
 
-      for (Model3DSChunk cc = c.Child() ; cc ; cc = cc.Sibling())
-      {
-        switch(cc.ID())
-        {
+      for (Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
+        switch(cc.ID()) {
           case(0x4130):
             ParseFacesMaterials(cc);
           break;

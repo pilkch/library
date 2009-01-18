@@ -1108,29 +1108,29 @@ namespace breathe
             float fPosition = 0.1f;
 
             pRender->BeginRenderingText();
-      #ifdef BUILD_PHYSICS_3D
-            pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
-      #endif
+#ifdef BUILD_PHYSICS_3D
+              pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
+#endif
 
-            fPosition += dy;
-            pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
-            pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
-            pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+              fPosition += dy;
+              pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
+              pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
+              pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
 
-            fPosition += dy;
-            pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
-            pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
-      #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-            pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
-      #endif
-            pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
+              fPosition += dy;
+              pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+              pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+              pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+#endif
+              pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
 
-            fPosition += dy;
-            pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
-            pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
-      #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-            pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
-      #endif
+              fPosition += dy;
+              pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+              pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+              pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+#endif
             pRender->EndRenderingText();
           }
 #endif

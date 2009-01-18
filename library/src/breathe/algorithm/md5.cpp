@@ -78,10 +78,10 @@ namespace breathe
     std::memset(result, 0, sizeof(result));
   }
 
-  bool cMD5::CheckString(char * input)
+  bool cMD5::CheckString(const char* szInput)
   {
     Start();
-      Update(&ctx, (unsigned char*)input, strlen(input));
+      Update(&ctx, (unsigned char*)szInput, strlen(szInput));
     Finish(&ctx);
 
     return true;
@@ -122,32 +122,31 @@ namespace breathe
     return (a & 0xF) * 16 + (b & 0xF);
   }
 
-  bool cMD5::SetResultFromFormatted(const char * input)
+  bool cMD5::SetResultFromFormatted(const char*szMD5Hash)
   {
-    for (unsigned int i=0;i<32;i++) {
-      if (input[i]>'z' || input[i]<'0')
-        return false;
+    for (size_t i = 0; i < 32; i++) {
+      if (szMD5Hash[i]>'z' || szMD5Hash[i]<'0') return false;
     }
 
-    result[0]   = h2d(input[0],   input[1]);
-    result[1]   = h2d(input[2],   input[3]);
-    result[2]   = h2d(input[4],   input[5]);
-    result[3]   = h2d(input[6],   input[7]);
+    result[0]   = h2d(szMD5Hash[0],   szMD5Hash[1]);
+    result[1]   = h2d(szMD5Hash[2],   szMD5Hash[3]);
+    result[2]   = h2d(szMD5Hash[4],   szMD5Hash[5]);
+    result[3]   = h2d(szMD5Hash[6],   szMD5Hash[7]);
 
-    result[4]   = h2d(input[8],   input[9]);
-    result[5]   = h2d(input[10],  input[11]);
-    result[6]   = h2d(input[12],  input[13]);
-    result[7]   = h2d(input[14],  input[15]);
+    result[4]   = h2d(szMD5Hash[8],   szMD5Hash[9]);
+    result[5]   = h2d(szMD5Hash[10],  szMD5Hash[11]);
+    result[6]   = h2d(szMD5Hash[12],  szMD5Hash[13]);
+    result[7]   = h2d(szMD5Hash[14],  szMD5Hash[15]);
 
-    result[8]   = h2d(input[16],  input[17]);
-    result[9]   = h2d(input[18],  input[19]);
-    result[10]  = h2d(input[20],  input[21]);
-    result[11]  = h2d(input[22],  input[23]);
+    result[8]   = h2d(szMD5Hash[16],  szMD5Hash[17]);
+    result[9]   = h2d(szMD5Hash[18],  szMD5Hash[19]);
+    result[10]  = h2d(szMD5Hash[20],  szMD5Hash[21]);
+    result[11]  = h2d(szMD5Hash[22],  szMD5Hash[23]);
 
-    result[12]  = h2d(input[24],  input[25]);
-    result[13]  = h2d(input[26],  input[27]);
-    result[14]  = h2d(input[28],  input[29]);
-    result[15]  = h2d(input[30],  input[31]);
+    result[12]  = h2d(szMD5Hash[24],  szMD5Hash[25]);
+    result[13]  = h2d(szMD5Hash[26],  szMD5Hash[27]);
+    result[14]  = h2d(szMD5Hash[28],  szMD5Hash[29]);
+    result[15]  = h2d(szMD5Hash[30],  szMD5Hash[31]);
 
     return true;
   }
@@ -286,9 +285,9 @@ namespace breathe
     ctx->state[3] += D;
   }
 
-  void cMD5::Update( cMD5_Context *ctx, unsigned char *input, uint32_t length )
+  void cMD5::Update(cMD5_Context* ctx, unsigned char* pInput, uint32_t length)
   {
-    if (! length ) return;
+    if (length == 0) return;
 
     uint32_t left = ctx->total[0] & 0x3F;
     uint32_t fill = 64 - left;
@@ -296,29 +295,24 @@ namespace breathe
     ctx->total[0] += length;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < length )
-      ctx->total[1]++;
+    if (ctx->total[0] < length) ctx->total[1]++;
 
-    if (left && length >= fill )
-    {
-      std::memcpy(  (void *) (ctx->buffer + left),
-                    (void *) input, fill );
-      Process( ctx, ctx->buffer );
+    if ((left != 0) && (length >= fill)) {
+      std::memcpy( (void *)(ctx->buffer + left), (void *)pInput, fill);
+      Process(ctx, ctx->buffer);
       length -= fill;
-      input  += fill;
+      pInput  += fill;
       left = 0;
     }
 
-    while( length >= 64 )
-    {
-      Process( ctx, input );
+    while(length >= 64) {
+      Process(ctx, pInput);
       length -= 64;
-      input  += 64;
+      pInput  += 64;
     }
 
-    if (length )
-    {
-      std::memcpy(  (void *) (ctx->buffer + left), (void *) input, length );
+    if (length != 0) {
+      std::memcpy((void*)(ctx->buffer + left), (void*)pInput, length);
     }
   }
 
