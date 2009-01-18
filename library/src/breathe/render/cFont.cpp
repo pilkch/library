@@ -64,7 +64,7 @@ namespace breathe
       // into a bitmap.  This actually requires a couple of FreeType commands:
 
       // Load the Glyph for our character.
-      if (FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT )) {
+      if (FT_Load_Glyph( face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT )) {
         LOG.Error("Font", "FT_Load_Glyph failed");
         return;
       }
@@ -110,23 +110,24 @@ namespace breathe
 
 
       // Now we just setup some texture paramaters.
-      glBindTexture( GL_TEXTURE_2D, tex_base[ch]);
+      ASSERT(ch >= 0);
+      const size_t index = size_t(ch);
+      glBindTexture(GL_TEXTURE_2D, tex_base[index]);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
       // Here we actually create the texture itself, notice
       // that we are using GL_LUMINANCE_ALPHA to indicate that
       // we are using 2 channel data.
-      glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-        0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data );
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data);
 
       // With the texture created, we don't need to expanded data anymore
       breathe::SAFE_DELETE_ARRAY(expanded_data);
 
       // So now we can create the display list
-      glNewList(list_base + ch, GL_COMPILE);
+      glNewList(list_base + index, GL_COMPILE);
 
-      glBindTexture(GL_TEXTURE_2D, tex_base[ch]);
+      glBindTexture(GL_TEXTURE_2D, tex_base[index]);
 
       // First we need to move over a little so that
       // the character has the right amount of space
@@ -178,10 +179,9 @@ namespace breathe
 
 
     cFont::cFont(const string_t& sNewFilename, unsigned int height) :
-    textures(nullptr),
-      list_base(0),
-
-      h(float(height))
+      h(float(height)),
+      textures(nullptr),
+      list_base(0)
     {
       string_t sFilename;
       if (!breathe::filesystem::FindResourceFile(TEXT("fonts/"), sNewFilename, sFilename)) {

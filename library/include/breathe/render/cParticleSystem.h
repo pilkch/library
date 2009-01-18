@@ -53,10 +53,10 @@ namespace breathe
       unsigned int uiLifeSpanMin;
       unsigned int uiLifeSpanMax;
 
-      math::cVec3 spawnVelocity;
-
       math::cVec3 position;
       math::cVec3 gravity;
+
+      math::cVec3 spawnVelocity;
 
       std::vector<cParticle> particles;
 

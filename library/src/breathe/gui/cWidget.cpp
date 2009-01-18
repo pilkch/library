@@ -66,6 +66,10 @@ namespace breathe
       idControl(_idControl),
       type(_type),
 
+      minimum(0),
+      maximum(100),
+      value(0),
+
       x(_x),
       y(_y),
       width(_width),
@@ -73,11 +77,7 @@ namespace breathe
 
       bEnabled(true),
       bVisible(true),
-      bResizable(false),
-
-      minimum(0),
-      maximum(100),
-      value(0)
+      bResizable(false)
     {
 
     }

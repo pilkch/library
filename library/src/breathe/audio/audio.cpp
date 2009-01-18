@@ -578,21 +578,21 @@ namespace breathe
     // ********************************************** cSound **********************************************
 
     cSource::cSource(cBufferRef pInBuffer) :
-      pBuffer(),
       bLooping(false),
-      pNodeParent(nullptr),
       uiSource(0),
-      volume(1.0f)
+      volume(1.0f),
+      pBuffer(),
+      pNodeParent(nullptr)
     {
       Create(pInBuffer);
     }
 
     cSource::cSource(cBufferRef pInBuffer, float fVolume) :
-      pBuffer(),
       bLooping(false),
-      pNodeParent(nullptr),
       uiSource(0),
-      volume(fVolume)
+      volume(fVolume),
+      pBuffer(),
+      pNodeParent(nullptr)
     {
       Create(pInBuffer);
     }

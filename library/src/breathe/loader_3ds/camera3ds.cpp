@@ -32,12 +32,10 @@ namespace breathe
 
     Camera3DS::Camera3DS()
     {
-
     }
 
     Camera3DS::~Camera3DS()
     {
-
     }
 
     void Camera3DS::Parse(Model3DSChunk c)
@@ -54,8 +52,8 @@ namespace breathe
       p->target.y=p->targetIdeal.y= fScale * c.Float();
       p->target.z=p->targetIdeal.z= fScale * c.Float();
 
-      float bank_angle= fScale * c.Float();
-      float focus= fScale * c.Float();
+      //float bank_angle= fScale * c.Float();
+      //float focus= fScale * c.Float();
 
       //vCamera.push_back(p);
     }

@@ -9196,7 +9196,7 @@ GLuint __GLeeLink_GLX_MESA_agp_offset(void)
 {
     GLint nLinked=0;
 #ifdef __GLEE_GLX_MESA_agp_offset
-    if ((pglXGetAGPOffsetMESA = (PFNGLXGETAGPOFFSETMESAPROC) __GLeeGetProcAddress("glXGetAGPOffsetMESA"))!=0) nLinked++;
+    if ((pglXGetAGPOffsetMESA = (PFNGLXGETAGPOFFSETMESAPROC) __GLeeGetProcAddress("glXGetAGPOffsetMESA")) != 0) nLinked++;
 #endif
     if (nLinked==1) return GLEE_LINK_COMPLETE;
     if (nLinked==0) return GLEE_LINK_FAIL;

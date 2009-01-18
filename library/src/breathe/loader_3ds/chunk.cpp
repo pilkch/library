@@ -23,23 +23,26 @@ namespace breathe
   {
     int nRead=0;
 
-    Model3DSChunk::Model3DSChunk(std::ifstream &infile , int csend)
-    : file(infile) , chunkset_end(csend)
+    Model3DSChunk::Model3DSChunk(std::ifstream &infile , int csend) :
+      file(infile),
+      chunkset_end(csend)
     {
 #ifdef DEBUG3DS
       std::ostringstream t;
 
       t<< "Model3DSChunk::Model3DSChunk()";
       LOG.Success("c3ds", t.str());
-#endif //DEBUG3DS
+#endif // DEBUG3DS
 
       begin = file.tellg();
 
-      unsigned int nPos=nRead;
+#ifdef DEBUG3DS
+      unsigned int nPos = nRead;
+#endif
 
       id=Short() & 0x0000ffff;
 
-      end=Int()+begin;  // compute absolute position
+      end=Int()+begin;  // Compute absolute position
 
 #ifdef DEBUG3DS
       t.str("");
@@ -52,13 +55,15 @@ namespace breathe
         LOG.Error("c3ds", t.str());
       else
         LOG.Success("c3ds", t.str());
-#endif //DEBUG3DS
+#endif // DEBUG3DS
     }
 
-    Model3DSChunk::Model3DSChunk(const Model3DSChunk &chunk)
-    : file(chunk.file) ,
-      chunkset_end(chunk.chunkset_end) ,
-      id(chunk.id) , begin(chunk.begin) , end(chunk.end)
+    Model3DSChunk::Model3DSChunk(const Model3DSChunk &chunk) :
+      file(chunk.file),
+      begin(chunk.begin),
+      end(chunk.end),
+      chunkset_end(chunk.chunkset_end),
+      id(chunk.id)
     {
 
     }
@@ -75,7 +80,7 @@ namespace breathe
       std::ostringstream t;
       t  <<"SEEK " << iPosition;
       LOG.Success("c3ds", t.str());
-#endif //DEBUG3DS
+#endif // DEBUG3DS
 
       file.seekg(iPosition, std::ios::beg);
 
@@ -89,16 +94,16 @@ namespace breathe
 
     Model3DSChunk::operator bool()
     {
+#ifdef DEBUG3DS
       int curr_pos = file.tellg();
 
-#ifdef DEBUG3DS
       std::ostringstream t;
       t  <<"Model3DSChunk::operator bool() @ " << curr_pos << "== "
         << ((0!=id) && (begin < chunkset_end) && (begin >= 0))
         << " ((0x0!=0x" << std::hex << id << ") && ("
         << std::dec << begin << " < " << chunkset_end << ") && (" << begin << ">= 0))";
       LOG.Success("c3ds", t.str());
-#endif //DEBUG3DS
+#endif // DEBUG3DS
 
       return (0!=id) && (begin < chunkset_end) && (begin >= 0);
     }

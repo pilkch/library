@@ -168,7 +168,7 @@ namespace breathe
       void UpdateBoundingVolumeAndSetNotDirty();
 
 #ifdef BUILD_DEBUG
-      const bool IsShowingBoundingBox() const;
+      bool IsShowingBoundingBox() const;
       void SetShowingBoundingBox(bool bShow) { bIsShowingBoundingBox = bShow; }
 #endif
 
@@ -198,6 +198,9 @@ namespace breathe
       virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
       virtual void _DeleteAllChildrenRecursively() {}
 
+#ifdef BUILD_DEBUG
+      bool bIsShowingBoundingBox;
+#endif
 
       bool bIsVisible;
       bool bIsEnabled;
@@ -217,11 +220,6 @@ namespace breathe
       math::cVec3 relativeScale;
 
       cStateSet stateset;
-
-#ifdef BUILD_DEBUG
-      bool bIsShowingBoundingBox;
-#endif
-
       math::cSphere boundingSphere;
       math::cBox boundingBox;
 

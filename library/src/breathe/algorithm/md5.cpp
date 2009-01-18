@@ -33,7 +33,7 @@
 #include <cstdio>
 #include <cstring>
 
-// writing on a text file
+// Writing to and from a text file
 #include <iostream>
 #include <fstream>
 
@@ -48,16 +48,16 @@
 
 namespace breathe
 {
-  #define GET_UINT32(n,b,i)                              \
-  {                                                      \
-    (n) = ( (uint32_t) (b)[(i)    ]       )              \
-        | ( (uint32_t) (b)[(i) + 1] <<  8 )              \
-        | ( (uint32_t) (b)[(i) + 2] << 16 )              \
+  #define GET_UINT32(n,b,i)                             \
+  {                                                     \
+    (n) = ( (uint32_t) (b)[(i)    ]       )             \
+        | ( (uint32_t) (b)[(i) + 1] <<  8 )             \
+        | ( (uint32_t) (b)[(i) + 2] << 16 )             \
         | ( (uint32_t) (b)[(i) + 3] << 24 );            \
   }
 
-  #define PUT_UINT32(n,b,i)                              \
-  {                                                      \
+  #define PUT_UINT32(n,b,i)                             \
+  {                                                     \
     (b)[(i)    ] = (unsigned char) ( (n)       );       \
     (b)[(i) + 1] = (unsigned char) ( (n) >>  8 );       \
     (b)[(i) + 2] = (unsigned char) ( (n) >> 16 );       \
@@ -89,24 +89,21 @@ namespace breathe
 
   bool cMD5::CheckFile(const std::string& input)
   {
-    int i;
-    FILE* f;
-    unsigned char buf[1000];
-
-    if (input.size()<2)
-    {
-      sprintf((char*)result, "");
+    if (input.size()<2) {
+      result[0] = 0;
 
       return false;
     }
 
-    if (! ( f = fopen(input.c_str(), "rb" ) ) )
-    {
+    FILE* f;
+    if (! ( f = fopen(input.c_str(), "rb" ) ) ) {
       perror("fopen");
       return false;
     }
 
     Start();
+      int i;
+      unsigned char buf[1000];
       while( ( i = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
         Update( &ctx, buf, i );
     Finish(&ctx);
@@ -116,39 +113,34 @@ namespace breathe
 
   unsigned char cMD5::h2d(unsigned char a, unsigned char b)
   {
-    if (a >= 'A')
-      a = a - 'A' + 10;
-    else
-      a = a - '0';
+    if (a >= 'A') a = a - 'A' + 10;
+    else a = a - '0';
 
-    if (b >= 'A')
-      b = b - 'A' + 10;
-    else
-      b = b - '0';
+    if (b >= 'A') b = b - 'A' + 10;
+    else b = b - '0';
 
-    return (a & 0xF) * 16 + (b & 0xF );
+    return (a & 0xF) * 16 + (b & 0xF);
   }
 
-  bool cMD5::SetResultFromFormatted(char * input)
+  bool cMD5::SetResultFromFormatted(const char * input)
   {
-    for (unsigned int i=0;i<32;i++)
-    {
+    for (unsigned int i=0;i<32;i++) {
       if (input[i]>'z' || input[i]<'0')
         return false;
     }
 
-    result[0]    = h2d(input[0],    input[1]);
-    result[1]    = h2d(input[2],    input[3]);
-    result[2]    = h2d(input[4],    input[5]);
-    result[3]    = h2d(input[6],    input[7]);
+    result[0]   = h2d(input[0],   input[1]);
+    result[1]   = h2d(input[2],   input[3]);
+    result[2]   = h2d(input[4],   input[5]);
+    result[3]   = h2d(input[6],   input[7]);
 
-    result[4]    = h2d(input[8],    input[9]);
-    result[5]    = h2d(input[10],  input[11]);
-    result[6]    = h2d(input[12],  input[13]);
-    result[7]    = h2d(input[14],  input[15]);
+    result[4]   = h2d(input[8],   input[9]);
+    result[5]   = h2d(input[10],  input[11]);
+    result[6]   = h2d(input[12],  input[13]);
+    result[7]   = h2d(input[14],  input[15]);
 
-    result[8]    = h2d(input[16],  input[17]);
-    result[9]    = h2d(input[18],  input[19]);
+    result[8]   = h2d(input[16],  input[17]);
+    result[9]   = h2d(input[18],  input[19]);
     result[10]  = h2d(input[20],  input[21]);
     result[11]  = h2d(input[22],  input[23]);
 
@@ -156,8 +148,6 @@ namespace breathe
     result[13]  = h2d(input[26],  input[27]);
     result[14]  = h2d(input[28],  input[29]);
     result[15]  = h2d(input[30],  input[31]);
-
-    result[16]=0;
 
     return true;
   }
@@ -173,7 +163,7 @@ namespace breathe
     ctx.state[3] = 0x10325476;
   }
 
-  void cMD5::Process( cMD5_Context *ctx, unsigned char data[64] )
+  void cMD5::Process(cMD5_Context* ctx, unsigned char data[64])
   {
     uint32_t X[16], A, B, C, D;
 

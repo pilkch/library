@@ -70,16 +70,16 @@ namespace breathe
     {
       switch (event.GetType()) {
         case EVENT_MOUSE_DOWN: {
-          cWidget& widget = event.GetWidget();
-          size_t button = event.GetMouseButton();
-          const math::cVec2& position = event.GetMousePosition();
+          //cWidget& widget = event.GetWidget();
+          //size_t button = event.GetMouseButton();
+          //const math::cVec2& position = event.GetMousePosition();
           //DoStuff();
           break;
         }
         case EVENT_MOUSE_UP: {
-          cWidget& widget = event.GetWidget();
-          size_t button = event.GetMouseButton();
-          const math::cVec2& position = event.GetMousePosition();
+          //cWidget& widget = event.GetWidget();
+          //size_t button = event.GetMouseButton();
+          //const math::cVec2& position = event.GetMousePosition();
           //DoStuff();
           break;
         }

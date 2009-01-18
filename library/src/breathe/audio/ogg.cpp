@@ -121,7 +121,7 @@ namespace breathe
 
       for (size_t i = 0; i < BUFFER_NUMBER; i++) {
         if (!RefillBuffer(buffers[i])) {
-          printf("cOggStream::playback RefillBuffer buffer[%d] FAILED, returning false\n", i);
+          LOG<<"cOggStream::playback RefillBuffer buffer["<<i<<"] FAILED, returning false"<<std::endl;
           return false;
         }
       }
@@ -168,10 +168,9 @@ namespace breathe
       char pcm[BUFFER_SIZE];
       int section;
 
-      int size = 0;
       int result = 0;
-      while (size < BUFFER_SIZE)
-      {
+      size_t size = 0;
+      while (size < BUFFER_SIZE) {
         result = ov_read(&oggStream, pcm + size, BUFFER_SIZE - size, 0, 2, 1, &section);
 
         if (result > 0) size += result;

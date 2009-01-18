@@ -264,19 +264,19 @@ namespace breathe
       bool bCanFrameBufferObject;
 
       bool bFullscreen;
-      unsigned int uiWidth;
-      unsigned int uiHeight;
-      unsigned int uiDepth;
+      size_t uiWidth;
+      size_t uiHeight;
+      size_t uiDepth;
 
       unsigned int uiFlags;
 
-      int iMaxTextureSize;
+      size_t iMaxTextureSize;
 
-      unsigned int uiTextureChanges;
-      unsigned int uiTextureModeChanges;
-      unsigned int uiTriangles;
+      size_t uiTextureChanges;
+      size_t uiTextureModeChanges;
+      size_t uiTriangles;
 
-      unsigned int uiActiveUnits;
+      size_t uiActiveUnits;
 
       math::cVec4 sunPosition;
 
@@ -297,9 +297,9 @@ namespace breathe
       math::cFrustum* pFrustum;
 
     private:
-      unsigned int uiSegmentWidthPX;
-      unsigned int uiSegmentSmallPX;
-      unsigned int uiAtlasWidthPX;
+      size_t uiSegmentWidthPX;
+      size_t uiSegmentSmallPX;
+      size_t uiAtlasWidthPX;
 
 
       bool bActiveColour;
@@ -323,8 +323,7 @@ namespace breathe
       void QueueAddTransparentObject();
 
     private:
-      cRender(const cRender&);
-      cRender operator=(const cRender&);
+      NO_COPY(cRender);
     };
 
     namespace SETTINGS

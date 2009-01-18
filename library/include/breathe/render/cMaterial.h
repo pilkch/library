@@ -69,6 +69,11 @@ namespace breathe
         string_t sShaderVertex;
         string_t sShaderFragment;
 
+        bool bTexUnit0;
+        bool bTexUnit1;
+        bool bTexUnit2;
+        bool bTexUnit3;
+
         unsigned int uiShaderVertex;
         unsigned int uiShaderFragment;
 
@@ -76,11 +81,6 @@ namespace breathe
         unsigned int uiShaderProgram;
 
         bool bCameraPos;
-
-        bool bTexUnit0;
-        bool bTexUnit1;
-        bool bTexUnit2;
-        bool bTexUnit3;
       };
 
       typedef cSmartPtr<cShader> cShaderRef;
@@ -92,38 +92,38 @@ namespace breathe
         explicit cMaterial(const string_t& sName);
         ~cMaterial();
 
-        //Rendering
+        bool Load(const string_t& sNewFilename);
+
+        // Rendering
         uint8_t chDustR;
         uint8_t chDustG;
         uint8_t chDustB;
 
         std::vector<cLayer*>vLayer;
-        //0=Diffuse
-        //1+=Either none, detail, cubemap or bumpmap
+        // 0=Diffuse
+        // 1+=Either none, detail, cubemap or bumpmap
 
-        //Audio
-        unsigned int uiAudioScrape;
-        unsigned int uiAudioBounce;
-
-        //Lightmap Generation
+        // Lightmap Generation
         bool bShadow_cast;
         bool bShadow_receive;
         bool bLight_receive;
         bool bLight_transmit;
 
-        //Physics
+        // Audio
+        unsigned int uiAudioScrape;
+        unsigned int uiAudioBounce;
+
+        // Physics
         bool bCollideTrimesh;
 
         float fFriction;
         float fBounce;
 
-        float fCorrugation; //0.0f=none, 1.0f=very bouncy (stairs etc.)
+        float fCorrugation; // 0.0f=none, 1.0f=very bouncy (stairs etc.)
 
         string_t sName;
 
         cShader* pShader;
-
-        bool Load(const string_t& sNewFilename);
       };
 
       typedef cSmartPtr<cMaterial> cMaterialRef;

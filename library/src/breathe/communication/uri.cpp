@@ -41,7 +41,7 @@ namespace breathe
     {
     }
 
-    std::string cRequestStringBuilder::AddFormVariableAndValue(const std::string& variable, const std::string& value)
+    void cRequestStringBuilder::AddFormVariableAndValue(const std::string& variable, const std::string& value)
     {
       variables[EncodeString(variable)] = EncodeString(value);
     }
@@ -49,7 +49,7 @@ namespace breathe
     // a-z, A-Z, 0-9 -> not encoded
     // ' ' -> '+';
     // any thing else -> &xx where xx is the ascii code
-    std::string cRequestStringBuilder::EncodeString(const std::string& unencoded)
+    std::string cRequestStringBuilder::EncodeString(const std::string& unencoded) const
     {
       std::ostringstream encoded;
 

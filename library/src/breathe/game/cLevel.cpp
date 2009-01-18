@@ -84,11 +84,9 @@ namespace breathe
   std::string s=breathe::filesystem::GetMD5(sFilename);*/
 
   cLevel::cLevel() :
-    previousTime(0),
-
     fWaterLevel(1.0f),
-
-    pCurrentNode(nullptr)
+    pCurrentNode(nullptr),
+    previousTime(0)
   {
     pRender->pLevel = this;
 
@@ -106,8 +104,6 @@ namespace breathe
       LOG<<"cLevel::LoadXML File "<<sNewFilename<<" not found in levels/"<<std::endl;
     }
     LOG<<"cLevel::LoadXML Resolved sFilename="<<sFilename<<std::endl;
-
-    bool bNodes = false;
 
     cLevelSpawn* pSpawn;
 
@@ -349,12 +345,13 @@ namespace breathe
 
 
     {
-      vehicle::cVehicle *pVehicle=NULL;
+      vehicle::cVehicle *pVehicle = nullptr;
 
       std::list<vehicle::cVehicle*>::iterator iter = lVehicle.begin();
       const std::list<vehicle::cVehicle*>::iterator iterEnd = lVehicle.end();
       while (iter != iterEnd) {
-        (*iter)->Update(currentTime);
+        pVehicle = (*iter);
+        pVehicle->Update(currentTime);
         iter++;
       };
     }
@@ -559,9 +556,6 @@ namespace breathe
     LOG<<"cLevelNode::Load sFilename="<<sFilename<<"node.xml"<<std::endl;
 
     uiStatus = NODE_ACTIVE;
-
-    bool bModels = false;
-    bool bCubemaps = false;
 
 
     xml::cNode root(breathe::string::ToUTF8(sFilename) + "node.xml");

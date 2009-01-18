@@ -39,22 +39,22 @@ namespace breathe
 
     cNode::cNode() :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
-      pNext(NULL),
-      pParent(nullptr)
+      pParent(nullptr),
+      pNext(nullptr)
     {
     }
 
     cNode::cNode(cNode* inParent) :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
-      pNext(NULL),
-      pParent(inParent)
+      pParent(inParent),
+      pNext(nullptr)
     {
     }
 
     cNode::cNode(const string_t& inFilename) :
       type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
-      pNext(NULL),
-      pParent(NULL)
+      pParent(nullptr),
+      pNext(nullptr)
     {
       LoadFromFile(inFilename);
     }
@@ -112,10 +112,6 @@ namespace breathe
     {
       std::string sData(data);
       while (sData.length()) {
-        size_t length = sData.length();
-        size_t lsize = sData.size();
-        bool isEmpty = sData.empty();
-
         sData = string::StripLeadingWhiteSpace(sData);
 
         // XML declaration
@@ -221,12 +217,10 @@ namespace breathe
               // attribute="value">
               std::string::iterator iter=sData.begin();
 
-              bool bInValue=false;
               std::string sAttributeName;
               std::string sAttributeValue;
 
               while(iter!=sData.end() && *iter!='/' && *iter!='>') {
-                breathe::char_t c=*iter;
                 if (*iter == ' ') {
                   p->AddAttribute(sAttributeName, "");
                   sAttributeName = "";

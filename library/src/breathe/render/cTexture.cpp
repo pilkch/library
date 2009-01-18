@@ -76,7 +76,7 @@ namespace breathe
     {
       sFilename = inFilename;
 
-      unsigned int mode = 0;
+      //unsigned int mode = 0;
       surface = IMG_Load(sFilename.c_str());
 
       // could not load filename

@@ -57,12 +57,8 @@
 namespace breathe
 {
   cPlayer::cPlayer() :
-#ifdef BUILD_PHYSICS_3D
-    physics::cUprightCapsule(),
-#endif
-
-    pSeat(NULL),
-    uiState(PLAYER_STATE_WALK)
+    uiState(PLAYER_STATE_WALK),
+    pSeat(nullptr)
   {
 #ifdef BUILD_PHYSICS_3D
     SetDynamic(true);
@@ -142,40 +138,26 @@ namespace breathe
     else if (PLAYER_STATE_PASSENGER == uiState) position = pSeat->pVehicle->m.GetPosition();
 
 #ifdef BUILD_DEBUG
-    else if (uiCameraMode == CAMERA_FIRSTPERSONFREE)
-    {
+    else if (uiCameraMode == CAMERA_FIRSTPERSONFREE) {
       if (fInputUp > math::cEPSILON || fInputDown > math::cEPSILON ||
-        fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON)
-      {
+        fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON) {
         float fDirection = fHorizontal + math::DegreesToRadians(90.0f);
 
-        if (fInputUp > math::cEPSILON && fInputUp > fInputDown)
-        {
-          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-            fDirection += math::DegreesToRadians(45.0f);
-          else if (fInputRight > math::cEPSILON)
-            fDirection -= math::DegreesToRadians(45.0f);
+        if (fInputUp > math::cEPSILON && fInputUp > fInputDown) {
+          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight) fDirection += math::DegreesToRadians(45.0f);
+          else if (fInputRight > math::cEPSILON) fDirection -= math::DegreesToRadians(45.0f);
 
           position.z += fSpeed * sinf(fVertical - math::DegreesToRadians(90.0f));
-        }
-        else if (fInputDown > math::cEPSILON)
-        {
-          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-            fDirection += math::DegreesToRadians(125.0f);
-          else if (fInputRight > math::cEPSILON)
-            fDirection -= math::DegreesToRadians(125.0f);
-          else
-            fDirection += math::DegreesToRadians(180.0f);
+        } else if (fInputDown > math::cEPSILON) {
+          if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight) fDirection += math::DegreesToRadians(125.0f);
+          else if (fInputRight > math::cEPSILON) fDirection -= math::DegreesToRadians(125.0f);
+          else fDirection += math::DegreesToRadians(180.0f);
 
           position.z += fSpeed * sinf(fVertical + math::DegreesToRadians(90.0f));
-        }
-        else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight)
-        {
+        } else if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight) {
           fDirection += math::DegreesToRadians(90.0f);
           fSpeed *= fInputLeft;
-        }
-        else if (fInputRight > math::cEPSILON)
-        {
+        } else if (fInputRight > math::cEPSILON) {
           fDirection -= math::DegreesToRadians(90.0f);
           fSpeed *= fInputRight;
         }
@@ -195,8 +177,7 @@ namespace breathe
 
       RayCast();
 
-      if (rayContact.bContact)
-      {
+      if (rayContact.bContact) {
         // Push us out of whatever surface we are falling towards
         // We want to negate the downwards motion with an upwards one and then
         // add a little bit, enough to get out of the surface
@@ -232,9 +213,7 @@ namespace breathe
           const dReal* vel = dBodyGetLinearVel(GetBody());
           dBodySetLinearVel(GetBody(), v.x, v.y, vel[2]+v.z);
         }
-      }
-      else
-      {
+      } else {
         //const dReal* v0 = dBodyGetLinearVel(GetBody());
         //dBodySetLinearVel(GetBody(), 0.0f, 0.0f, v0[2]);
       }
@@ -283,8 +262,7 @@ namespace breathe
     uiState = PLAYER_STATE_RUN;
 
 #ifdef BUILD_DEBUG
-    if (uiCameraMode != CAMERA_FIRSTPERSONFREE)
-    {
+    if (uiCameraMode != CAMERA_FIRSTPERSONFREE) {
 #endif
       SetUseBody(true);
       CreateCapsule(position);

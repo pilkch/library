@@ -428,9 +428,9 @@ namespace breathe
 
       cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
 
-      unsigned int uiTriangles = 0;
+      /*unsigned int uiTriangles = 0;
 
-      /*iterator iter(mRenderables.begin());
+      iterator iter(mRenderables.begin());
       const iterator iterEnd(mRenderables.end());
       while (iter != iterEnd) {
         cStateSet* pState = iter->first;

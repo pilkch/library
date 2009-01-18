@@ -81,6 +81,13 @@ namespace breathe
     class cVehicle;
   }
 
+  namespace sky
+  {
+    class cSkySystem;
+  }
+
+  typedef cSmartPtr<sky::cSkySystem> cSkySystemRef;
+
   namespace scenegraph_common
   {
     class cScopedEnable
@@ -396,7 +403,7 @@ namespace breathe
       void UpdateBoundingVolumeAndSetNotDirty();
 
 #ifdef BUILD_DEBUG
-      const bool IsShowingBoundingBox() const;
+      bool IsShowingBoundingBox() const;
       void SetShowingBoundingBox(bool bShow) { bIsShowingBoundingBox = bShow; }
 #endif
 
@@ -427,6 +434,10 @@ namespace breathe
       virtual void _DeleteAllChildrenRecursively() {}
 
 
+#ifdef BUILD_DEBUG
+      bool bIsShowingBoundingBox;
+#endif
+
       bool bIsVisible;
       bool bIsEnabled;
 
@@ -445,10 +456,6 @@ namespace breathe
       math::cVec3 relativeScale;
 
       cStateSet stateset;
-
-#ifdef BUILD_DEBUG
-      bool bIsShowingBoundingBox;
-#endif
 
       math::cSphere boundingSphere;
       math::cBox boundingBox;
@@ -807,6 +814,12 @@ namespace breathe
       mTransparent.clear();
     }
 
+
+
+
+    // NOTE: A restriction on the scenegraph at the moment is that every camera must use the same skysystem.
+    // It is impossible to have a video camera on another planet in the galaxy with one sky and then also view a planet with another sky
+
     class cSceneGraph
     {
     public:
@@ -817,6 +830,7 @@ namespace breathe
       cSceneGraph();
 
       cGroupNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
+      cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
 
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
@@ -833,6 +847,7 @@ namespace breathe
 
       cRenderGraph renderGraph;
       cGroupNodeRef pRoot;
+      cSkySystemRef pSkySystem;
     };
   }
 }

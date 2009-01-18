@@ -186,6 +186,8 @@ namespace breathe
   class cLevelLoader
   {
   public:
+    explicit cLevelLoader(cLevel& level);
+
     void Load(const string_t& sFilename);
 
   private:

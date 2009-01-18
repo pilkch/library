@@ -83,20 +83,20 @@ namespace breathe
 
     inline cURI::cURI() :
       bIsValidProtocol(false),
+      protocol(PROTOCOL_UNKNOWN),
       bIsValidUsername(false),
       bIsValidPassword(false),
       bIsValidServer(false),
-      protocol(PROTOCOL_UNKNOWN),
       port(0)
     {
     }
 
     inline cURI::cURI(const string_t& full_uri) :
       bIsValidProtocol(false),
+      protocol(PROTOCOL_UNKNOWN),
       bIsValidUsername(false),
       bIsValidPassword(false),
       bIsValidServer(false),
-      protocol(PROTOCOL_UNKNOWN),
       port(0)
     {
       _Parse(full_uri);
@@ -119,6 +119,8 @@ namespace breathe
       server = rhs.server;
       port = rhs.port;
       relativePath = rhs.relativePath;
+
+      return *this;
     }
 
     inline void cURI::_Clear()
@@ -223,13 +225,13 @@ namespace breathe
     public:
       explicit cRequestStringBuilder(const std::string& uri);
 
-      std::string AddFormVariableAndValue(const std::string& variable, const std::string& value);
+      void AddFormVariableAndValue(const std::string& variable, const std::string& value);
 
       std::string GetRequestStringForMethodGet() const;
       std::string GetRequestStringForMethodPost(std::string& outVariables) const;
 
     private:
-      std::string EncodeString(const std::string& unencoded);
+      std::string EncodeString(const std::string& unencoded) const;
 
       std::string uri;
       std::map<std::string, std::string> variables;

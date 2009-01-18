@@ -57,9 +57,7 @@ namespace breathe
 {
   namespace render
   {
-    cParticleSystem::cParticleSystem(size_t uiMaxSize,
-      unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
-
+    cParticleSystem::cParticleSystem(size_t uiMaxSize, unsigned int uiInLifeSpanMin, unsigned int uiInLifeSpanMax) :
       uiSize(uiMaxSize),
       uiLifeSpanMin(uiInLifeSpanMin),
       uiLifeSpanMax(uiInLifeSpanMax),

@@ -208,73 +208,61 @@ namespace breathe
 
       void cStatic::ParseMesh(const std::string &sName , loader_3ds::Model3DSChunk c, std::string sFilename)
       {
-        bFoundMeshes=true;
+        bFoundMeshes = true;
 
         LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
 
-        loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName , c);
-        if (pMesh != nullptr) {
-          vMesh.push_back(cMeshRef(new cMesh));
+        loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName, c);
+        if (pMesh == nullptr) return;
 
-          pCurrentMesh = vMesh.back();
-          pCurrentMesh->CreateNewMesh();
+        vMesh.push_back(cMeshRef(new cMesh));
 
+        pCurrentMesh = vMesh.back();
+        pCurrentMesh->CreateNewMesh();
 
-          unsigned int face=0;
-          unsigned int mesh=0;
+        std::vector<loader_3ds::Mesh3DSVertex> vVertex = pMesh->Vertices();
+        std::vector<loader_3ds::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
+        std::vector<loader_3ds::Mesh3DSFace> vFaces = pMesh->Faces();
 
-          loader_3ds::Mesh3DSFace f;
+        pCurrentMesh->pMeshData->uiTriangles = (unsigned int)(vFaces.size());
+        uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
 
-          std::string sMaterial;
+        //vMaterial[uiCurrentMesh];
 
+        // This is a hack because for some reason the string gets corrupted, so we copy it back to itself,
+        // try it, comment these lines out, it breaks.  I don't know why :(
+        string_t sMeshMaterialName = breathe::string::ToString_t(pMesh->Material());
 
-          std::vector<loader_3ds::Mesh3DSVertex> vVertex = pMesh->Vertices();
-          std::vector<loader_3ds::Mesh3DSTextureCoord> vTextureCoord = pMesh->TextureCoords();
-          std::vector<loader_3ds::Mesh3DSFace> vFaces = pMesh->Faces();
+        breathe::filesystem::FindResourceFile(
+          breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + sMeshMaterialName, pCurrentMesh->sMaterial
+        );
 
-          pCurrentMesh->pMeshData->uiTriangles = (unsigned int)(vFaces.size());
-          uiTriangles += pCurrentMesh->pMeshData->uiTriangles;
+        for (size_t face = 0; face < pCurrentMesh->pMeshData->uiTriangles; face++) {
+          // 3ds files store faces as having 3 indexs in vertex arrays
+          const loader_3ds::Mesh3DSFace& f = vFaces[face];
 
-          //vMaterial[uiCurrentMesh];
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].x);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].y);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].z);
 
-          // This is a hack because for some reason the string gets corrupted, so we copy it back to itself,
-          // try it, comment these lines out, it breaks.  I don't know why :(
-          string_t temp = breathe::string::ToString_t(pMesh->Material());
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].x);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].y);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].z);
 
-          breathe::filesystem::FindResourceFile(
-            breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + temp, pCurrentMesh->sMaterial
-          );
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].x);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].y);
+          pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].z);
 
-          for (face=0;face<pCurrentMesh->pMeshData->uiTriangles;face++)
-          {
-            // 3ds files store faces as having 3 indexs in vertex arrays
-            f = vFaces[face];
-
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].x);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].y);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.a].z);
-
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].x);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].y);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.b].z);
-
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].x);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].y);
-            pCurrentMesh->pMeshData->vVertex.push_back(fScale * vVertex[f.c].z);
-
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].u);
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].v);
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].u);
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].v);
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].u);
-            pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].v);
-          }
-
-          uiCurrentMesh++;
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].u);
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.a].v);
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].u);
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.b].v);
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].u);
+          pCurrentMesh->pMeshData->vTextureCoord.push_back(vTextureCoord[f.c].v);
         }
+
+        uiCurrentMesh++;
       }
-
-
 
       int cStatic::Load3DS(const std::string& sFilename)
       {

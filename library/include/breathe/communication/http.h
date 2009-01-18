@@ -115,10 +115,10 @@ namespace breathe
     };
 
     inline cDownloadHTTP::cDownloadHTTP() :
-      method(METHOD_GET),
-      state(STATE_BEFORE_DOWNLOADING),
       status(STATUS_UNKNOWN),
-      progress(0)
+      state(STATE_BEFORE_DOWNLOADING),
+      progress(0),
+      method(METHOD_GET)
     {
     }
 

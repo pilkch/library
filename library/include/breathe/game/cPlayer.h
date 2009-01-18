@@ -15,18 +15,18 @@ namespace breathe
 
   class cItem;
 
-  const int PLAYER_STATE_DEAD=0;
-  const int PLAYER_STATE_WALK=1;
-  const int PLAYER_STATE_RUN=2;
-  const int PLAYER_STATE_SPRINT=3;
-  const int PLAYER_STATE_DRIVE=4;
-  const int PLAYER_STATE_PASSENGER=5;
+  const size_t PLAYER_STATE_DEAD = 0;
+  const size_t PLAYER_STATE_WALK = 1;
+  const size_t PLAYER_STATE_RUN = 2;
+  const size_t PLAYER_STATE_SPRINT = 3;
+  const size_t PLAYER_STATE_DRIVE = 4;
+  const size_t PLAYER_STATE_PASSENGER = 5;
 
-  const int CAMERA_FIRSTPERSON = 0;
-  const int CAMERA_THIRDPERSON = 1;
+  const size_t CAMERA_FIRSTPERSON = 0;
+  const size_t CAMERA_THIRDPERSON = 1;
 #ifdef BUILD_DEBUG
-  const int CAMERA_THIRDPERSONFREE = 2;
-  const int CAMERA_FIRSTPERSONFREE = 3;
+  const size_t CAMERA_THIRDPERSONFREE = 2;
+  const size_t CAMERA_FIRSTPERSONFREE = 3;
 #endif
 
 
@@ -127,9 +127,9 @@ namespace breathe
     static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 #endif
 
-    unsigned int uiState;
+    size_t uiState;
 
-    unsigned int uiCameraMode;
+    size_t uiCameraMode;
 
     float fInputUp;
     float fInputDown;

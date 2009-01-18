@@ -210,7 +210,7 @@ namespace breathe
         }
 
         // Create VBO
-        float* p = &pHeight[0];
+        //float* p = &pHeight[0];
 
         pVBO = pRender->AddVertexBufferObject();
 

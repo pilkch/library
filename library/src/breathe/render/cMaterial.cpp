@@ -74,8 +74,6 @@ namespace breathe
 
 
       cShader::cShader() :
-        bCameraPos(false),
-
         bTexUnit0(false),
         bTexUnit1(false),
         bTexUnit2(false),
@@ -83,7 +81,9 @@ namespace breathe
 
         uiShaderVertex(0),
         uiShaderFragment(0),
-        uiShaderProgram(0)
+        uiShaderProgram(0),
+
+        bCameraPos(false)
       {
       }
 
@@ -230,28 +230,28 @@ namespace breathe
 
 
       cMaterial::cMaterial(const std::string& name) :
+        chDustR(0),
+        chDustG(0),
+        chDustB(0),
+
         bShadow_cast(true),
         bShadow_receive(true),
         bLight_receive(true),
         bLight_transmit(true),
 
-        bCollideTrimesh(false),
-
-        chDustR(0),
-        chDustG(0),
-        chDustB(0),
-
         uiAudioScrape(0),
         uiAudioBounce(0),
+
+        bCollideTrimesh(false),
 
         fFriction(0.0f),
         fBounce(0.0f),
 
         fCorrugation(0.0f),
 
-        pShader(NULL),
+        sName(name),
 
-        sName(name)
+        pShader(NULL)
       {
         unsigned int i = 0;
         for (i=0;i<nLayers;i++) vLayer.push_back(new cLayer());

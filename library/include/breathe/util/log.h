@@ -168,6 +168,7 @@ namespace breathe
         lines(10)
       {
       }
+      virtual ~cConsoleBase() {}
 
       unsigned int uiCursorBlink;
       unsigned int uiCursorPosition;
@@ -208,6 +209,9 @@ namespace breathe
 
       constant_stack<std::string> lines;
       std::string current;
+
+    private:
+      NO_COPY(cConsoleBase);
     };
   }
 

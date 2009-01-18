@@ -510,20 +510,23 @@ namespace breathe
   */
 
   cApp::cApp(int argc, const char **argv) :
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    bStepPhysics(false),
+    bUpdatePhysics(true),
+#endif
+    bDone(false),
+    pFont(nullptr),
+
 #ifdef BUILD_DEBUG
     bDebug(true),
 #endif
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    bUpdatePhysics(true),
-    bStepPhysics(false),
-#endif
-    bActive(true),
-    bDone(false),
-    bReturnCode(breathe::GOOD),
-    bPopCurrentStateSoon(false),
 
-    pPushThisStateSoon(nullptr),
-    pFont(nullptr)
+
+    bActive(true),
+    bReturnCode(breathe::GOOD),
+
+    bPopCurrentStateSoon(false),
+    pPushThisStateSoon(nullptr)
   {
     CONSOLE.SetApp(this);
     filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
@@ -883,47 +886,47 @@ namespace breathe
           switch(event.type)
           {
             case SDL_KEYDOWN:
-              /* handle keyboard stuff here
+              // handle keyboard stuff here
               break;
 
             case SDL_QUIT:
 
-            /* Set whatever flags are necessary to
-            /* end the main game loop here
+            // Set whatever flags are necessary to
+            // end the main game loop here
 
               break;
 
 
-            case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+            case SDL_JOYAXISMOTION:  // Handle Joystick Motion
               if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
               {
-                /* code goes here
+                // code goes here
               }
               break;
 
-            case SDL_JOYAXISMOTION:  /* Handle Joystick Motion
+            case SDL_JOYAXISMOTION:  // Handle Joystick Motion
               if (( event.jaxis.value < -3200 ) || (event.jaxis.value > 3200 ) )
               {
                 if (event.jaxis.axis == 0)
                 {
-                  /* Left-right movement code goes here
+                  // Left-right movement code goes here
                 }
 
                 if (event.jaxis.axis == 1)
                 {
-                  /* Up-Down movement code goes here
+                  // Up-Down movement code goes here
                 }
               }
               break;
 
-            case SDL_JOYBUTTONDOWN:  /* Handle Joystick Button Presses
+            case SDL_JOYBUTTONDOWN:  // Handle Joystick Button Presses
               if (event.jbutton.button == 0 )
               {
-                /* code goes here
+                // code goes here
               }
               break;
 
-            case SDL_JOYHATMOTION:  /* Handle Hat Motion
+            case SDL_JOYHATMOTION:  // Handle Hat Motion
               if (event.jhat.value & SDL_HAT_UP )
               {
                 // Do up stuff here
@@ -961,11 +964,10 @@ namespace breathe
 
     window_manager.LoadTheme();
 
-    unsigned int n = breathe::gui::GenerateID();
-
 #ifdef BUILD_DEBUG
     // Testing Window
-    /*breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
+    /*unsigned int n = breathe::gui::GenerateID();
+    breathe::gui::cWindow* pWindow0 = new breathe::gui::cWindow(breathe::gui::GenerateID(), 0.7f, 0.75f, 0.2f, 0.2f);
     pWindow0->AddChild(new breathe::gui::cWidget_StaticText(n, 0.05f, 0.05f, 0.1f, 0.1f));
     pWindow0->AddChild(new breathe::gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.5f, 0.1f, 0.1f));
     pWindow0->AddChild(new breathe::gui::cWidget_Button(breathe::gui::GenerateID(), 0.5f, 0.05f, 0.1f, 0.1f));
@@ -1633,11 +1635,11 @@ namespace breathe
 
   // *** cKey
   cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
-    uiCode(code),
-
     bVariable(variable),
     bRepeat(repeat),
     bToggle(toggle),
+
+    uiCode(code),
 
     bDown(false),
     bCollected(false)

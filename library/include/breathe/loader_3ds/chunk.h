@@ -8,14 +8,11 @@ namespace breathe
     class Model3DSChunk
     {
     public:
-      Model3DSChunk(std::ifstream &infile , int csend);
+      Model3DSChunk(std::ifstream &infile, int csend);
       Model3DSChunk(const Model3DSChunk &chunk);
       ~Model3DSChunk();
 
-      /**bug : making 2 seperate file stream chunks = each other*/
-      Model3DSChunk operator=(const Model3DSChunk &chunk);
-
-      operator bool();
+      bool IsValid() const;
 
       unsigned int ID();
 
@@ -32,12 +29,18 @@ namespace breathe
       int Position();
 
     private:
-      std::ifstream &file;
-      
-      int begin, end, chunkset_end;
+      Model3DSChunk operator=(const Model3DSChunk &rhs); // Forbidden
+
+      operator bool(); // Forbidden
+
+      std::ifstream& file;
+
+      int begin;
+      int end;
+      int chunkset_end;
       int id;
     };
   }
 }
 
-#endif //CHUNK_H
+#endif // CHUNK_H

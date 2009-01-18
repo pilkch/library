@@ -121,15 +121,15 @@ namespace breathe
 
     void cShadowMapGenerator::Apply(cDynamicShadowMap& shadowMap)
     {
-      const size_t n = shadowMap.pixels.size();
+      //const size_t n = shadowMap.pixels.size();
       const size_t width = shadowMap.pixels.GetWidth();
       const size_t height = shadowMap.pixels.GetHeight();
       float fZ = 10.0f;
 
       // Generate lighting for each pixel
-      for (size_t y = 0; y < width; y++) {
+      for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
-          const size_t i = y * width + x;
+          //const size_t i = y * width + x;
           cDynamicShadowMap::pixel_t& pixel = shadowMap.pixels.GetElement(x, y);
 
           // All pixels start off as being the ambient shadow colour
@@ -211,6 +211,7 @@ namespace breathe
 
     cRender::cRender() :
       bRenderWireframe(false),
+
       bLight(true),
       bCubemap(true),
       bShader(true),
@@ -219,14 +220,12 @@ namespace breathe
       bCanShader(false),
       bCanFrameBufferObject(false),
 
-      bActiveShader(false),
-      bActiveColour(false),
-
 #ifdef BUILD_DEBUG
       bFullscreen(false),
 #else
       bFullscreen(true),
 #endif
+
       uiWidth(1024),
       uiHeight(768),
       uiDepth(32),
@@ -234,6 +233,9 @@ namespace breathe
       uiTriangles(0),
 
       pLevel(nullptr),
+
+      bActiveColour(false),
+      bActiveShader(false),
 
       g_info(nullptr),
       videoInfo(nullptr)
@@ -485,18 +487,17 @@ namespace breathe
       LOG.Success("Render", string_t("Version    : ") + (char*)(glGetString( GL_VERSION )));
       LOG.Success("Render", string_t("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
 
-
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iMaxTextureSize);
+      GLint iValue = 0;
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
+      ASSERT(iValue >= 0);
+      iMaxTextureSize = iValue;
 
       t.str("");
       t << iMaxTextureSize;
-      if (iMaxTextureSize>=MAX_TEXTURE_SIZE)
-      {
+      if (iMaxTextureSize >= MAX_TEXTURE_SIZE) {
         LOG.Success("Render", string_t("Max Texture Size : ") + t.str());
         iMaxTextureSize=MAX_TEXTURE_SIZE;
-      }
-      else
-        LOG.Error("Render", string_t("Max Texture Size : ") + t.str());
+      } else LOG.Error("Render", string_t("Max Texture Size : ") + t.str());
 
       {
         CONSOLE<<"WIDESCREEN"<<std::endl;
@@ -782,7 +783,7 @@ namespace breathe
       SDL_Surface* temp = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
       if (temp == nullptr) return;
 
-      unsigned char *pixels = (unsigned char *) malloc(3 * screen->w * screen->h);
+      unsigned char* pixels = (unsigned char*)malloc(3 * screen->w * screen->h);
       if (pixels == nullptr) {
         SDL_FreeSurface(temp);
         return;
@@ -790,8 +791,10 @@ namespace breathe
 
       glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
-      for (size_t i=0; i<screen->h; i++)
-        memcpy(((char *) temp->pixels) + temp->pitch * i, pixels + 3*screen->w * (screen->h-i-1), screen->w*3);
+      ASSERT(screen->h >= 0);
+      const size_t n = screen->h;
+      for (size_t i = 0; i < n; i++) memcpy(((char*)temp->pixels) + temp->pitch * i, pixels + 3 * screen->w * (screen->h-i - 1), screen->w * 3);
+
       free(pixels);
 
       SDL_SaveBMP(temp, breathe::string::ToUTF8(sFilename).c_str());
@@ -906,8 +909,8 @@ namespace breathe
     {
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
-        const float fHalfWidth = fWidth * 0.5f;
-        const float fHalfHeight = fHeight * 0.5f;
+        //const float fHalfWidth = fWidth * 0.5f;
+        //const float fHalfHeight = fHeight * 0.5f;
         glTranslatef(fX, fY, 0.0f);
         glRotatef(fRotation, 0.0f, 0.0f, 1.0f);
 
@@ -1022,7 +1025,7 @@ namespace breathe
       unsigned int triangle=0;
       unsigned int texcoord=0;
       unsigned int vert=0;
-      unsigned int mesh=0;
+      //unsigned int mesh=0;
       unsigned int nTriangles = pMesh->pMeshData->uiTriangles;
 
       math::cVec3 v0;
@@ -2556,11 +2559,11 @@ namespace breathe
       model::cMeshRef pMesh;
       float* fTextureCoords=NULL;
       size_t nMeshes=0;
-      unsigned int uiTriangles=0;
+      //unsigned int uiTriangles=0;
       size_t nTexcoords=0;
       unsigned int mesh=0;
       unsigned int texcoord=0;
-      unsigned int triangle=0;
+      //unsigned int triangle=0;
 
       //Transform uv texture coordinates
       std::map<string_t, model::cStaticRef>::iterator iter = mStatic.begin();
@@ -2642,26 +2645,22 @@ namespace breathe
       unsigned int uiPass=0;
       unsigned int i=0;
       unsigned int uiMode0=0;
-      unsigned int uiMode1=0;
+      //unsigned int uiMode1=0;
 
-      for (iter=mStatic.begin();iter!=mStatic.end();iter++)
-      {
+      for (iter = mStatic.begin(); iter != mStatic.end(); iter++) {
         LOG.Success("Transform", "Optimising " + breathe::string::ToUTF8(iter->first));
 
-        s=iter->second;
+        s = iter->second;
 
-        if (s)
-        {
-          nMeshes=s->vMesh.size();
+        if (s != nullptr) {
+          nMeshes = s->vMesh.size();
 
-          for (uiPass=1; uiPass < nMeshes; uiPass++)
-          {
-            for (i=0; i < nMeshes-uiPass; i++)
-            {
+          for (uiPass = 1; uiPass < nMeshes; uiPass++) {
+            for (i = 0; i < nMeshes - uiPass; i++) {
               uiMode0=GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
 
               //x[i] > x[i+1]
-              if (TEXTURE_MASK==uiMode0 || TEXTURE_BLEND==uiMode0)
+              if ((TEXTURE_MASK == uiMode0) || (TEXTURE_BLEND == uiMode0))
                 std::swap(s->vMesh[i], s->vMesh[i+1]);
             }
           }

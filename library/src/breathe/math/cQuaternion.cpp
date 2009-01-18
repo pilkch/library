@@ -213,7 +213,7 @@ namespace breathe
 
     cMat4 cQuaternion::GetMatrix() const
     {
-      const double x2 = x * x;
+      /*const double x2 = x * x;
       const double y2 = y * y;
       const double z2 = z * z;
       const double w2 = w * w;
@@ -223,7 +223,7 @@ namespace breathe
       const double yz = y * z;
       const double wx = w * x;
       const double wy = w * y;
-      const double wz = w * z;
+      const double wz = w * z;*/
 
       cMat4 mat;
 

@@ -246,7 +246,7 @@ namespace breathe
 
       // "."
       // ".********"
-      if ((path == TEXT(".")) || ((path.length() > 2) && path[0] == TEXT('.')) && (path[1] != TEXT('.'))) {
+      if ((path == TEXT(".")) || (((path.length() > 2) && (path[0] == TEXT('.'))) && (path[1] != TEXT('.')))) {
         string_t expanded(path.substr(2));
         printf("ExpandPath 2 returning \"%s\"\n", expanded.c_str());
         return expanded;
