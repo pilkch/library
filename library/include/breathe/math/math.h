@@ -239,9 +239,14 @@ namespace breathe
       return rval;
     }
 
-    inline bool AreApproximatelyEqual(float a, float b)
+    inline bool AreApproximatelyEqual(float_t a, float_t b)
     {
       return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
+    }
+
+    inline bool IsApproximatelyZero(float_t value)
+    {
+      return ((value < cEPSILON) && (value > -cEPSILON));
     }
 
     inline bool PointIsWithinBounds(float x, float y, float bounds_x, float bounds_y, float bounds_width, float bounds_height)

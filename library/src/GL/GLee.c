@@ -9338,10 +9338,10 @@ void __GLeeWriteError(const char * errorStr)
 	GLeeErrorString[255]='\0';
 }
 
-int __GLeeGetVersionNumber(char *versionStr)
+int __GLeeGetVersionNumber(const char* versionStr)
 {
-	int major=(int)versionStr[0]-(int)'0';
-	int minor=(int)versionStr[2]-(int)'0';
+	int major = (int)versionStr[0] - (int)'0';
+	int minor = (int)versionStr[2] - (int)'0';
 	return major<<8 | minor;
 }
 
@@ -9531,7 +9531,7 @@ GLEE_EXTERN GLboolean GLeeInit()
 		return GL_FALSE;
 	}
 
-	version=__GLeeGetVersionNumber((char *)glGetString(GL_VERSION));
+	version = __GLeeGetVersionNumber((const char*)glGetString(GL_VERSION));
 
 	__GLeeInited = GL_TRUE;
 

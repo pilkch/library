@@ -1,6 +1,7 @@
 // Standard libraries
 #include <cassert>
 #include <cmath>
+#include <memory.h>
 
 #include <list>
 #include <vector>
@@ -87,13 +88,13 @@ namespace breathe
 
     void cConnectionTCP::Open(const std::string& host, uint32_t port)
     {
-      /* Resolve the host we are connecting to */
+      // Resolve the host we are connecting to
       if (SDLNet_ResolveHost(&ip, host.c_str(), port) < 0) {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
       }
 
-      /* Open a connection with the IP provided (listen on the host's port) */
+      // Open a connection with the IP provided (listen on the host's port)
       if (!(sd = SDLNet_TCP_Open(&ip))) {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -117,7 +118,10 @@ namespace breathe
     {
       // I'm not sure why, but SDLNet_TCP_Send doesn't take a const void* which
       // is painful as it probably doesn't change the data anyway
-      int sentBytes = SDLNet_TCP_Send(sd, (void*)buffer, len);
+      char* pBuffer = new char[len];
+      memcpy(pBuffer, buffer, len);
+      int sentBytes = SDLNet_TCP_Send(sd, pBuffer, len);
+      SAFE_DELETE_ARRAY(pBuffer);
 
       // If sentBytes is less than 0, return 0, else return sentBytes
       return (sentBytes < 0) ? 0 : size_t(sentBytes);
@@ -125,8 +129,6 @@ namespace breathe
 
     size_t cConnectionTCP::Recv(void* buffer, size_t len)
     {
-      // I'm not sure why, but SDLNet_TCP_Send doesn't take a const void* which
-      // is painful as it probably doesn't change the data anyway
       int recvBytes = SDLNet_TCP_Recv(sd, buffer, len);
 
       // If recvBytes is less than 0, return 0, else return recvBytes
