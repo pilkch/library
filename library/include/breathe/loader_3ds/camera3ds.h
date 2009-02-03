@@ -17,14 +17,14 @@ namespace breathe
     class Camera3DS
     {
     public:
-      std::vector<render::cCamera * > vCamera;
-
       Camera3DS();
       ~Camera3DS();
 
       void Parse(Model3DSChunk c);
+
+      std::vector<render::cCamera*> vCamera;
     };
   }
 }
 
-#endif //CAMERA3DS_H
+#endif // CAMERA3DS_H

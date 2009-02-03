@@ -84,6 +84,7 @@ namespace breathe
   namespace sky
   {
     class cSkySystem;
+    class cSkyDomeAtmosphereRenderer;
   }
 
   typedef cSmartPtr<sky::cSkySystem> cSkySystemRef;
@@ -703,6 +704,8 @@ namespace breathe
       void Visit(cModelNode& node) {}
       void Visit(cLightNode& node) {}
 
+      void Visit(sky::cSkyDomeAtmosphereRenderer& node);
+
     private:
 
     };
@@ -746,6 +749,8 @@ namespace breathe
       {
         AddRenderable(pRenderable);
       }
+
+      void Visit(sky::cSkyDomeAtmosphereRenderer& node);
 
     private:
       void AddRenderable(cRenderableRef pRenderable) {}
@@ -818,7 +823,8 @@ namespace breathe
 
 
     // NOTE: A restriction on the scenegraph at the moment is that every camera must use the same skysystem.
-    // It is impossible to have a video camera on another planet in the galaxy with one sky and then also view a planet with another sky
+    // It is impossible to have a video camera on another planet in the galaxy with one sky and then also view a planet with another sky,
+    // but I don't think that is incredibly limiting and if that behaviour was required you would probably be better off building two scenegraphs anyway.
 
     class cSceneGraph
     {
@@ -828,6 +834,8 @@ namespace breathe
       friend class cRenderVisitor;
 
       cSceneGraph();
+
+      void Create();
 
       cGroupNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }

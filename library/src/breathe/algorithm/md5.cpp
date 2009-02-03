@@ -81,7 +81,7 @@ namespace breathe
   bool cMD5::CheckString(const char* szInput)
   {
     Start();
-      Update(&ctx, (unsigned char*)szInput, strlen(szInput));
+      Update(&ctx, (unsigned char*)szInput, uint32_t(strlen(szInput)));
     Finish(&ctx);
 
     return true;
@@ -96,16 +96,18 @@ namespace breathe
     }
 
     FILE* f;
-    if (! ( f = fopen(input.c_str(), "rb" ) ) ) {
+    if (!(f = fopen(input.c_str(), "rb" ))) {
       perror("fopen");
       return false;
     }
 
     Start();
-      int i;
+      size_t i;
       unsigned char buf[1000];
-      while( ( i = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
-        Update( &ctx, buf, i );
+      while ((i = fread(buf, 1, sizeof(buf), f )) > 0) {
+        uint32_t iSmaller = uint32_t(i);
+        Update(&ctx, buf, iSmaller);
+      }
     Finish(&ctx);
 
     return true;
@@ -113,13 +115,13 @@ namespace breathe
 
   unsigned char cMD5::h2d(unsigned char a, unsigned char b)
   {
-    if (a >= 'A') a = a - 'A' + 10;
-    else a = a - '0';
+    if (a >= (unsigned char)('A')) a = a - (unsigned char)('A') + (unsigned char)(10);
+    else a = a - (unsigned char)('0');
 
-    if (b >= 'A') b = b - 'A' + 10;
-    else b = b - '0';
+    if (b >= (unsigned char)('A')) b = b - (unsigned char)('A') + (unsigned char)(10);
+    else b = b - (unsigned char)('0');
 
-    return (a & 0xF) * 16 + (b & 0xF);
+    return (a & (unsigned char)(0xF)) * (unsigned char)(16) + (b & (unsigned char)(0xF));
   }
 
   bool cMD5::SetResultFromFormatted(const char*szMD5Hash)

@@ -52,11 +52,6 @@
 #include <breathe/vehicle/cSeat.h>
 #include <breathe/vehicle/cVehicle.h>
 
-#if (_MSC_VER >= 1300) && (WINVER < 0x0500)
-#pragma warning(disable:4305)
-#pragma warning(disable:4244)
-#endif
-
 namespace breathe
 {
   namespace vehicle

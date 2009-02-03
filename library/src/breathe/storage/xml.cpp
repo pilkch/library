@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstring>
 
-// writing on a text file
+// Writing to and from text files
 #include <iostream>
 #include <fstream>
 
@@ -83,11 +83,11 @@ namespace breathe
     void cNode::LoadFromFile(const string_t& inFilename)
     {
       LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
-      std::ifstream f(inFilename.c_str());
+      std::ifstream f(breathe::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
 #ifndef FIRESTARTER
-        LOG.Error("XML", inFilename + " not found, returning");
+        LOG.Error("XML", breathe::string::ToUTF8(inFilename) + " not found, returning");
         CONSOLE<<"XML "<<inFilename<<" not found, returning"<<std::endl;
 #endif
         LOG<<"XML "<<inFilename<<" not found, returning"<<std::endl;
@@ -300,9 +300,9 @@ namespace breathe
     }
 
 
-    void cNode::SaveToFile(const std::string& inFilename) const
+    void cNode::SaveToFile(const string_t& inFilename) const
     {
-      std::ofstream f(inFilename.c_str());
+      std::ofstream f(breathe::string::ToUTF8(inFilename).c_str());
 
       if (f.is_open()) {
         const size_t n = vChild.size();
@@ -311,7 +311,7 @@ namespace breathe
         f.close();
       }
 #ifndef FIRESTARTER
-      else LOG.Error("XML", inFilename + " not found");
+      else LOG.Error("XML", breathe::string::ToUTF8(inFilename) + " not found");
 #endif
     }
 
@@ -507,7 +507,7 @@ namespace breathe
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = breathe::string::ToBool(iter->second);
+        value = breathe::string::ToBool(breathe::string::ToString_t(iter->second));
 
         return true;
       }
@@ -520,13 +520,9 @@ namespace breathe
       assert(pValue != nullptr);
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        breathe::char_t c;
+        char c;
         std::stringstream stm(iter->second);
         stm >> std::skipws;
-
-        //std::string s(iter->second);
-        //char sz[100];
-        //std::strcpy(sz, s.c_str());
 
         size_t i = 0;
         while (i != nValues) {
@@ -548,9 +544,9 @@ namespace breathe
         std::vector<std::string> vSplit;
         breathe::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.x = breathe::string::ToFloat(vSplit[0]);
-        if (vSplit.size() > 1) value.y = breathe::string::ToFloat(vSplit[1]);
-        if (vSplit.size() > 2) value.z = breathe::string::ToFloat(vSplit[2]);
+        if (vSplit.size() > 0) value.x = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[0]));
+        if (vSplit.size() > 1) value.y = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[1]));
+        if (vSplit.size() > 2) value.z = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[2]));
 
         return true;
       }
@@ -565,10 +561,10 @@ namespace breathe
         std::vector<std::string> vSplit;
         breathe::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.r = breathe::string::ToFloat(vSplit[0]);
-        if (vSplit.size() > 1) value.g = breathe::string::ToFloat(vSplit[1]);
-        if (vSplit.size() > 2) value.b = breathe::string::ToFloat(vSplit[2]);
-        if (vSplit.size() > 3) value.a = breathe::string::ToFloat(vSplit[3]);
+        if (vSplit.size() > 0) value.r = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[0]));
+        if (vSplit.size() > 1) value.g = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[1]));
+        if (vSplit.size() > 2) value.b = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[2]));
+        if (vSplit.size() > 3) value.a = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[3]));
 
         return true;
       }

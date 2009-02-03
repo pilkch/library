@@ -4,6 +4,7 @@
 #undef Success
 #undef Error
 
+#include <breathe/util/cString.h>
 #include <breathe/algorithm/algorithm.h>
 
 namespace breathe

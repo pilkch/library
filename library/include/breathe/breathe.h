@@ -80,6 +80,10 @@
 #define BUILD_DEBUG
 #endif
 
+#if !defined(UNICODE) && !defined(_UNICODE)
+#error "Add UNICODE and _UNICODE to the build flags in your CMakeLists.txt file"
+#endif // !UNICODE
+
 #if defined(min) || defined(max)
 #error "For Visual Studio define NOMINMAX"
 #endif
@@ -97,10 +101,6 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define new new(__FILE__,__LINE__)
 #endif
 #endif
-
-#if !defined(UNICODE) && !defined(_UNICODE)
-#error "Add UNICODE and _UNICODE to the build flags in your IDE"
-#endif // !UNICODE
 
 #ifdef _MBCS
 #error "_MBCS should not be defined by your IDE"

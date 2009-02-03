@@ -27,7 +27,7 @@ namespace breathe
         cHeightmap();
         ~cHeightmap();
 
-        int Load(const std::string& sFilename);
+        int Load(const string_t& sFilename);
 
         float Height(int x, int y);
         float Height(float x, float y);
@@ -60,7 +60,7 @@ namespace breathe
 
         //static breathe::math::cFrustum* pFrustum;
 
-        std::string sMaterial;
+        string_t sMaterial;
         material::cMaterialRef pMaterial;
       };
 

@@ -21,8 +21,8 @@ namespace breathe
 {
   namespace loader_3ds
   {
-    Model3DSFile::Model3DSFile(const std::string& src)
-      : file(src.c_str(), std::ios::binary)
+    Model3DSFile::Model3DSFile(const string_t& src)
+      : file(breathe::string::ToUTF8(src).c_str(), std::ios::binary)
     {
 
     }

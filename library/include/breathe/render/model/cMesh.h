@@ -1,6 +1,7 @@
 #ifndef CMESH_H
 #define CMESH_H
 
+#include <breathe/util/cString.h>
 #include <breathe/util/cSmartPtr.h>
 
 namespace breathe
@@ -31,7 +32,7 @@ namespace breathe
         cMeshData();
         ~cMeshData();
 
-        void CloneTo(cMeshData* rhs);
+        void CopyFrom(const cMeshData& rhs);
         void CreateVBO();
 
 
@@ -50,7 +51,7 @@ namespace breathe
         std::vector<float> vTextureCoord;
       };
 
-      //Static Mesh
+      // Static Mesh
       class cMesh
       {
       public:
@@ -58,14 +59,14 @@ namespace breathe
 
         void CreateNewMesh();
 
-        void CloneTo(cMeshRef rhs);
+        void CopyFrom(const cMeshRef rhs);
 
         void SetMaterial(material::cMaterialRef pMaterial);
-        void SetMaterial(const std::string& sMaterial);
+        void SetMaterial(const string_t& sMaterial);
 
         cMeshData* pMeshData;
 
-        std::string sMaterial;
+        string_t sMaterial;
         material::cMaterialRef pMaterial;
       };
     }

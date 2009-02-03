@@ -10,7 +10,7 @@
 #include <string>
 #include <memory>
 
-// writing on a text file
+// Reading and writing to files
 #include <iostream>
 #include <fstream>
 
@@ -48,15 +48,15 @@ namespace breathe
   {
     #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-    cVertexBufferObject::cVertexBufferObject()
+    cVertexBufferObject::cVertexBufferObject() :
+      uiVertices(0),
+
+      uiOffsetTextureUnit0(0),
+      uiOffsetTextureUnit1(0),
+      uiOffsetTextureUnit2(0),
+
+      bufferID(0)
     {
-      uiVertices = 0;
-
-      uiOffsetTextureUnit0 = 0;
-      uiOffsetTextureUnit1 = 0;
-      uiOffsetTextureUnit2 = 0;
-
-      bufferID = 0;
     }
 
     cVertexBufferObject::~cVertexBufferObject()
@@ -68,8 +68,7 @@ namespace breathe
 
     void cVertexBufferObject::Destroy()
     {
-      if (bufferID)
-      {
+      if (bufferID != 0) {
         glBindBufferARB(GL_ARRAY_BUFFER, 0);
         glDeleteBuffersARB(1, &bufferID);
       }
@@ -80,7 +79,7 @@ namespace breathe
       // Create a big array that holds all of the data
       // Set the buffer data to this big array
       // Assign offsets for our arrays
-      uiVertices = static_cast<unsigned int>(pVertex.vData.size());
+      uiVertices = static_cast<size_t>(pVertex.vData.size());
 
       size_t uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
       size_t uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
@@ -91,34 +90,29 @@ namespace breathe
       pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
 
       uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
-      if (pTextureCoord.vData.size() > uiVertices)
-      {
+      if (pTextureCoord.vData.size() > uiVertices) {
         uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(math::cVec2));
 
-        if (pTextureCoord.vData.size()/2 > uiVertices)
-          uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(math::cVec2));
+        if (pTextureCoord.vData.size() / 2 > uiVertices) uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(math::cVec2));
       }
 
-      std::vector<float>vData;
+      std::vector<float> vData;
       size_t i = 0;
       /*vData.resize(  uiVertexSize + uiTextureCoordSize + uiNormalSize);
       memcpy(&vData[pVertex.uiOffset],        &pVertex.vData[0], uiVertexSize);
       memcpy(&vData[pTextureCoord.uiOffset],  &pTextureCoord.vData[0], uiTextureCoordSize);
       memcpy(&vData[pNormal.uiOffset],        &pNormal.vData[0], uiNormalSize);*/
 
-      for (i =0;i<pVertex.vData.size(); i++)
-      {
+      for (i = 0; i < pVertex.vData.size(); i++) {
         vData.push_back(pVertex.vData[i].x);
         vData.push_back(pVertex.vData[i].y);
         vData.push_back(pVertex.vData[i].z);
       }
-      for (i =0;i<pTextureCoord.vData.size(); i++)
-      {
+      for (i = 0; i < pTextureCoord.vData.size(); i++) {
         vData.push_back(pTextureCoord.vData[i].u);
         vData.push_back(pTextureCoord.vData[i].v);
       }
-      for (i =0;i<pNormal.vData.size(); i++)
-      {
+      for (i = 0; i < pNormal.vData.size(); i++) {
         vData.push_back(pNormal.vData[i].x);
         vData.push_back(pNormal.vData[i].y);
         vData.push_back(pNormal.vData[i].z);
@@ -134,7 +128,7 @@ namespace breathe
       glBufferDataARB(GL_ARRAY_BUFFER_ARB, vData.size() * sizeof(float), &vData[0], GL_STATIC_DRAW_ARB);
     }
 
-    unsigned int cVertexBufferObject::Render()
+    size_t cVertexBufferObject::Render()
     {
       // TODO: Call this only once at start of rendering?  Not per vbo?
 
@@ -152,14 +146,12 @@ namespace breathe
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit0));
 
-      if (uiOffsetTextureUnit1)
-      {
+      if (uiOffsetTextureUnit1 != 0) {
         glClientActiveTextureARB(GL_TEXTURE1_ARB);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit1));
 
-        if (uiOffsetTextureUnit2)
-        {
+        if (uiOffsetTextureUnit2 != 0) {
           glClientActiveTextureARB(GL_TEXTURE2_ARB);
           glEnableClientState(GL_TEXTURE_COORD_ARRAY);
           glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit2));
@@ -176,10 +168,8 @@ namespace breathe
 
       glDisableClientState( GL_VERTEX_ARRAY );
 
-      if (uiOffsetTextureUnit1)
-      {
-        if (uiOffsetTextureUnit2)
-        {
+      if (uiOffsetTextureUnit1 != 0) {
+        if (uiOffsetTextureUnit2 != 0) {
           glClientActiveTexture( GL_TEXTURE2 );
           glDisableClientState( GL_TEXTURE_COORD_ARRAY );
         }

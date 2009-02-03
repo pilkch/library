@@ -109,7 +109,7 @@ namespace breathe
 
     {
       LOG.Success("Level", "cLevelNode::Load " + breathe::string::ToUTF8(sFilename));
-      breathe::xml::cNode root(breathe::string::ToUTF8(sFilename));
+      breathe::xml::cNode root(sFilename);
 
       breathe::xml::cNode::iterator iter(root);
       if (!iter.IsValid()) return breathe::BAD;
@@ -558,7 +558,7 @@ namespace breathe
     uiStatus = NODE_ACTIVE;
 
 
-    xml::cNode root(breathe::string::ToUTF8(sFilename) + "node.xml");
+    xml::cNode root(sFilename + TEXT("node.xml"));
 
     xml::cNode::iterator iter(root);
     if (!iter.IsValid()) return;

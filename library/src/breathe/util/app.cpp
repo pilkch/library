@@ -509,7 +509,7 @@ namespace breathe
   }
   */
 
-  cApp::cApp(int argc, const char **argv) :
+  cApp::cApp(int argc, const char* const* argv) :
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     bStepPhysics(false),
     bUpdatePhysics(true),
@@ -528,6 +528,9 @@ namespace breathe
     bPopCurrentStateSoon(false),
     pPushThisStateSoon(nullptr)
   {
+    // Set our cout to use the system locale (What does it use by default?)
+    std::cout.imbue(std::locale(""));
+
     CONSOLE.SetApp(this);
     filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
@@ -538,7 +541,7 @@ namespace breathe
     filesystem::Create();
 
     string_t sFullPath;
-    if (filesystem::GetFile("Current", sFullPath)) LOG<<"File exists at "<<sFullPath.c_str()<<std::endl;
+    if (filesystem::GetFile(TEXT("Current"), sFullPath)) LOG<<"File exists at "<<breathe::string::ToUTF8(sFullPath).c_str()<<std::endl;
     else LOG<<"File does not exists"<<std::endl;
 
     _LoadSearchDirectories();
@@ -687,7 +690,7 @@ namespace breathe
   }
 #endif
 
-  void cApp::_InitArguments(int argc, const char **argv)
+  void cApp::_InitArguments(int argc, const char* const* argv)
   {
     int i = 1;
     std::string s;
@@ -707,7 +710,7 @@ namespace breathe
   void cApp::_LoadSearchDirectories()
   {
     // Now load all the rest from the config file
-    breathe::xml::cNode root("config.xml");
+    breathe::xml::cNode root(TEXT("config.xml"));
     breathe::xml::cNode::iterator iter(root);
 
     if (!iter.IsValid()) return;
@@ -745,7 +748,7 @@ namespace breathe
   {
     LOG.Success("Init", "Loading config.xml");
 
-    breathe::xml::cNode root("config.xml");
+    breathe::xml::cNode root(TEXT("config.xml"));
     breathe::xml::cNode::iterator iter(root);
 
     if (!iter.IsValid()) {
@@ -975,6 +978,9 @@ namespace breathe
 #endif
 
     if (breathe::BAD == InitScene()) return breathe::BAD;
+
+
+    scenegraph.Create();
 
     // This should be the first state added and it should not be added by the derived class, it should only be added here
     if (!states.empty()) LOG.Error("cApp::InitApp", "No states should have be pushed yet");

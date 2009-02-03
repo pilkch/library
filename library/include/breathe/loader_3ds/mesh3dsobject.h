@@ -31,25 +31,25 @@ namespace breathe
     class Mesh3DSObject
     {
     public:
-      Mesh3DSObject(const std::string &nname , Model3DSChunk c);
-      Mesh3DSObject(const Mesh3DSObject &mesh);
+      Mesh3DSObject(const string_t& nname, Model3DSChunk c);
+      Mesh3DSObject(const Mesh3DSObject& mesh);
       ~Mesh3DSObject();
-      
+
       void operator=(const Mesh3DSObject &mesh);
 
-      const std::string &Name() const;
-      const std::string& Material() const;
+      const string_t& Name() const;
+      const string_t& Material() const;
       Mesh3DSMatrix Matrix() const; // adds last row (0,0,0,1)
 
       const std::vector<Mesh3DSVertex> &Vertices() const;
       const std::vector<Mesh3DSTextureCoord> &TextureCoords() const;
       const std::vector<Mesh3DSFace> &Faces() const;
-      const std::map<std::string , std::vector<int> > &Materials() const;
+      const std::map<string_t, std::vector<int> > &Materials() const;
 
       bool bFoundVertices, bFoundFaces, bTextureCoords, bFoundMaterials;
-      
+
     private:
-      
+
       void ParseLocalCoordinateSystem(Model3DSChunk c);
       void ParseVertices(Model3DSChunk c);
       void ParseTextureCoords(Model3DSChunk c);
@@ -57,14 +57,14 @@ namespace breathe
 
       void ParseFacesMaterials(Model3DSChunk c);
 
-      std::string name;
-      std::string sMaterial;
+      string_t name;
+      string_t sMaterial;
       Mesh3DSMatrix matrix;
 
       std::vector<Mesh3DSVertex> vertices;
       std::vector<Mesh3DSTextureCoord> texturecoords;
       std::vector<Mesh3DSFace> faces;
-      std::map<std::string , std::vector<int> > material_faces;
+      std::map<string_t, std::vector<int> > material_faces;
     };
   }
 }

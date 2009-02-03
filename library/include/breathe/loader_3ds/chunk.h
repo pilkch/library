@@ -22,7 +22,7 @@ namespace breathe
       short Short();
       int Int();
       float Float();
-      std::string Str();
+      string_t Str();
 
       Model3DSChunk Child();
       Model3DSChunk Sibling();

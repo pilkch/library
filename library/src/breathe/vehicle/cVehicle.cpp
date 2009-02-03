@@ -52,11 +52,6 @@
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
-#if (_MSC_VER >= 1300) && (WINVER < 0x0500)
-#pragma warning(disable:4305)
-#pragma warning(disable:4244)
-#endif
-
 bool fourwheeldrive=false;
 
 float fMaxAcceleration=500.0f;
@@ -740,10 +735,10 @@ namespace breathe
         // apply the force at a specific point in the body's frame of reference.
 
         // TODO: Use a lot more drag in water
-        float fDampTorque = 1.0f;
-        float fDampLinearVel = 1.0f;
-        dReal const * av = dBodyGetAngularVel(GetBody());
-        dReal const * lv = dBodyGetLinearVel(GetBody());
+        //float fDampTorque = 1.0f;
+        //float fDampLinearVel = 1.0f;
+        //dReal const * av = dBodyGetAngularVel(GetBody());
+        //dReal const * lv = dBodyGetLinearVel(GetBody());
 
         // TODO: Check whether we are on our roof/side too
         //dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );

@@ -183,9 +183,9 @@ namespace breathe
     inline cVec3 cAABB3::GetCentre() const
     {
       return cVec3(
-        cornerMin.x + 0.5 * (cornerMax.x - cornerMin.x),
-        cornerMin.y + 0.5 * (cornerMax.y - cornerMin.y),
-        cornerMin.z + 0.5 * (cornerMax.z - cornerMin.z)
+        cornerMin.x + 0.5f * (cornerMax.x - cornerMin.x),
+        cornerMin.y + 0.5f * (cornerMax.y - cornerMin.y),
+        cornerMin.z + 0.5f * (cornerMax.z - cornerMin.z)
       );
     }
 

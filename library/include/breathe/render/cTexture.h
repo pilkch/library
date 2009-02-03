@@ -54,7 +54,7 @@ namespace breathe
 
       unsigned int uiTextureAtlas;
       unsigned int uiTexture;
-      std::string sFilename;
+      string_t sFilename;
 
       unsigned int uiWidth;
       unsigned int uiHeight;

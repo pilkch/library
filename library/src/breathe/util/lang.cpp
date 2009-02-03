@@ -139,9 +139,9 @@ namespace breathe
       ASSERT(langtags.empty());
 
       string_t actual_filename;
-      filesystem::FindFile("lang.txt", actual_filename);
+      filesystem::FindFile(TEXT("lang.txt"), actual_filename);
       LoadLanguageFile(actual_filename);
-      filesystem::FindFile("shared_lang.txt", actual_filename);
+      filesystem::FindFile(TEXT("shared_lang.txt"), actual_filename);
       LoadLanguageFile(actual_filename);
     }
   }

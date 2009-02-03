@@ -83,17 +83,17 @@ namespace breathe
     {
       success = true;
 
-      CONSOLE.Success("Unit Test", "Running " + sComponent);
+      CONSOLE.Success("Unit Test", "Running " + breathe::string::ToUTF8(sComponent));
 
       Test();
 
-      if (true == success) CONSOLE.Success("Unit Test", sComponent + " Successfully completed");
-      else CONSOLE.Error("Unit Test", sComponent + " FAILED");
+      if (true == success) CONSOLE.Success("Unit Test", breathe::string::ToUTF8(sComponent) + " Successfully completed");
+      else CONSOLE.Error("Unit Test", breathe::string::ToUTF8(sComponent) + " FAILED");
     }
 
-                                void cUnitTestBase::SetFailed(const string_t& error)
+    void cUnitTestBase::SetFailed(const string_t& error)
     {
-      CONSOLE.Error("Unit Test", sComponent + " " + error);
+      CONSOLE.Error("Unit Test", breathe::string::ToUTF8(sComponent) + " " + breathe::string::ToUTF8(error));
       success = false;
     }
 

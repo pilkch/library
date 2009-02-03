@@ -634,10 +634,10 @@ namespace breathe
 
     void cSource::SetPitch(float fPitch)
     {
-        // clamp in the range of 0.01 to 2.0
-      if ( fPitch < 0.01 ) fPitch = 0.01;
-      if ( fPitch > 2.0 ) fPitch = 2.0;
-      pitch = fPitch;
+      // Clamp in the range of 0.01f to 2.0f because apparently that is all AL_PITCH is good for
+      ASSERT(fPitch > 0.0f);
+      ASSERT(fPitch <= 2.0f);
+      pitch = math::clamp(fPitch, 0.01f, 2.0f);
 
       if (IsPlaying()) alSourcef(uiSource, AL_PITCH, pitch);
     }

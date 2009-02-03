@@ -18,9 +18,9 @@ namespace breathe
       Mesh3DS();
       ~Mesh3DS();
 
-      void Parse(const std::string &name , Model3DSChunk c);
+      void Parse(const string_t& name, Model3DSChunk c);
 
-      const std::vector<Mesh3DSObject> &Meshes();
+      const std::vector<Mesh3DSObject>& Meshes();
 
       bool bFoundMeshes;
 

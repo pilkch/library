@@ -12,12 +12,12 @@ namespace breathe
     class Material3DS
     {
     public:
-      std::vector<std::string> materials;
-
       Material3DS();
       ~Material3DS();
 
       void Parse(Model3DSChunk c);
+
+      std::vector<string_t> materials;
 
     private:
       void NewMaterial(Model3DSChunk c);

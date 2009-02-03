@@ -50,7 +50,7 @@ namespace breathe
     // Random dynamic port between 49152 and 65535
     inline port_t GetDynamicPort()
     {
-      return 49152 + math::random(16383);
+      return port_t(49152) + port_t(math::random(16383));
     }
 
 
@@ -59,7 +59,7 @@ namespace breathe
     public:
       cConnectionTCP();
 
-      void Open(const std::string& host, uint32_t port);
+      void Open(const std::string& host, port_t port);
       void Close();
 
       bool IsOpen() const;

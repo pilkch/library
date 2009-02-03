@@ -66,6 +66,7 @@
 #include <breathe/game/cLevel.h>
 
 breathe::cVar fDetailScale = 0.5f;
+const float fMaximumViewDistance = 3000.0f;
 
 breathe::render::cRender* pRender = nullptr;
 
@@ -291,155 +292,21 @@ namespace breathe
       };
     }
 
-    bool cRender::FindExtension(const string_t& sExt)
+    bool cRender::FindExtension(const string_t& sExt) const
     {
       std::ostringstream t;
       t<<const_cast<const unsigned char*>(glGetString( GL_EXTENSIONS ));
 
-      return (t.str().find(sExt) != string_t::npos);
+      return (breathe::string::ToString_t(t.str()).find(sExt) != string_t::npos);
     }
 
-    void cRender::ToggleFullscreen()
-    {
-      bFullscreen = !bFullscreen;
-
-      if (bFullscreen)
-      {
-#ifdef BUILD_DEBUG
-        uiWidth = 1024;
-        uiHeight = 768;
-        return;
-#endif
-
-        if (uiWidth<1280)
-        {
-          if (uiWidth<1024)
-          {
-            if (uiWidth<800)
-            {
-              uiWidth = 640;
-              uiHeight = 480;
-            }
-            else
-            {
-              uiWidth = 800;
-              uiHeight = 600;
-            }
-          }
-          else
-          {
-            uiWidth = 1024;
-            uiHeight = 768;
-          }
-        }
-        else
-        {
-          uiWidth = 1600;
-          uiHeight = 1280;
-        }
-      }
-    }
-
-    void cRender::SetPerspective()
-    {
-      // Protect against a divide by zero
-      ASSERT(uiHeight != 0);
-
-      // Height / width ratio
-      GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
-
-      // Setup our viewport
-      glViewport(0, 0, ( GLint )uiWidth, ( GLint )uiHeight);
-
-      // change to the projection matrix and set our viewing volume
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-
-      // Set our perspective
-      gluPerspective(45.0f, ratio, 0.1f, 1000.0f);
-
-      // Make sure we're changing the model view and not the projection
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-    }
-
-    bool cRender::PreInit()
-    {
-      // Fetch the video info
-      videoInfo = SDL_GetVideoInfo();
-
-      if (!videoInfo)
-      {
-        LOG.Error("SDL", string_t("Video query failed: ") + SDL_GetError());
-        return breathe::BAD;
-      }
-
-      if (bFullscreen)
-      {
-        LOG.Success("App", "Going to fullscreen");
-        uiFlags |= SDL_FULLSCREEN;
-      }
-      else
-      {
-        LOG.Success("App", "Going to windowed");
-        uiFlags &= ~SDL_FULLSCREEN;
-      }
-
-
-      // This checks to see if surfaces can be stored in memory
-      if (videoInfo->hw_available )
-      {
-        uiFlags |= SDL_HWSURFACE;
-        uiFlags &= ~SDL_SWSURFACE;
-      }
-      else
-      {
-        uiFlags |= SDL_SWSURFACE;
-        uiFlags &= ~SDL_HWSURFACE;
-        LOG.Error("SDL", "SOFTWARE SURFACE");
-      }
-
-      // This checks if hardware blits can be done
-      if (videoInfo->blit_hw )
-        uiFlags |= SDL_HWACCEL;
-      else
-      {
-        uiFlags &= ~SDL_HWACCEL;
-        LOG.Error("SDL", "SOFTWARE BLIT");
-      }
-
-      // Sets up OpenGL double buffering
-      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-      // get a SDL surface
-      pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
-
-      // Verify there is a surface
-      if (!pSurface)
-      {
-        LOG.Error("SDL", string_t("Video mode set failed: ") + SDL_GetError());
-        return breathe::BAD;
-      }
-
-      return breathe::GOOD;
-    }
-
-    void cRender::Destroy()
-    {
-      ASSERT(pSurface != nullptr);
-
-      SDL_FreeSurface(pSurface);
-      pSurface = nullptr;
-    }
-
-    float cRender::GetShaderVersion()
+    float cRender::GetShaderVersion() const
     {
       float fGLVersion = 0.0f;
       {
         std::string temp((const char*)glGetString(GL_VERSION));
 
-        std::istringstream stm(temp);
-        stm >> fGLVersion;
+        fGLVersion = breathe::string::ToFloat(breathe::string::ToString_t(temp));
       }
 
       float fGLSLVersion = 0.0f;
@@ -456,24 +323,75 @@ namespace breathe
 
       // Shader Model 4.0
       if (fGLSLVersion >= 4.0f) return fGLSLVersion;
-      if (FindExtension("GL_NV_gpu_program4") || FindExtension("GL_NV_geometry_program4") ||
-        FindExtension("GL_NV_vertex_program4") || FindExtension("GL_NV_fragment_program4") ||
-        FindExtension("GL_EXT_gpu_shader4") || FindExtension("GL_EXT_geometry_shader4")) return 4.0f;
+      if (FindExtension(TEXT("GL_NV_gpu_program4")) || FindExtension(TEXT("GL_NV_geometry_program4")) ||
+        FindExtension(TEXT("GL_NV_vertex_program4")) || FindExtension(TEXT("GL_NV_fragment_program4")) ||
+        FindExtension(TEXT("GL_EXT_gpu_shader4")) || FindExtension(TEXT("GL_EXT_geometry_shader4"))) return 4.0f;
 
       // Shader Model 3.0
       if (fGLSLVersion >= 3.0f) return fGLSLVersion;
-      if (FindExtension("GL_NV_vertex_program3") || FindExtension("GL_NV_fragment_program2") ||
-        FindExtension("GL_ATI_shader_texture_lod")) return 3.0f;
+      if (FindExtension(TEXT("GL_NV_vertex_program3")) || FindExtension(TEXT("GL_NV_fragment_program2")) ||
+        FindExtension(TEXT("GL_ATI_shader_texture_lod"))) return 3.0f;
 
       // Shader Model 2.0
       if (fGLSLVersion >= 2.0f) return fGLSLVersion;
 
       // Shader Model 1.0
       if (fGLSLVersion >= 1.0f) return fGLSLVersion;
-      if (FindExtension("GL_ARB_shading_language_100")) return 1.0f;
+      if (FindExtension(TEXT("GL_ARB_shading_language_100"))) return 1.0f;
 
       // Shader Model before 1.0
       return 0.0f;
+    }
+
+    bool cRender::PreInit()
+    {
+      // Fetch the video info
+      videoInfo = SDL_GetVideoInfo();
+
+      if (videoInfo == nullptr) {
+        LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
+        return breathe::BAD;
+      }
+
+      if (bFullscreen) {
+        LOG.Success("App", "Going to fullscreen");
+        uiFlags |= SDL_FULLSCREEN;
+      } else {
+        LOG.Success("App", "Going to windowed");
+        uiFlags &= ~SDL_FULLSCREEN;
+      }
+
+
+      // This checks to see if surfaces can be stored in memory
+      if (videoInfo->hw_available ) {
+        uiFlags |= SDL_HWSURFACE;
+        uiFlags &= ~SDL_SWSURFACE;
+      } else {
+        uiFlags |= SDL_SWSURFACE;
+        uiFlags &= ~SDL_HWSURFACE;
+        LOG.Error("SDL", "SOFTWARE SURFACE");
+      }
+
+      // This checks if hardware blits can be done
+      if (videoInfo->blit_hw ) uiFlags |= SDL_HWACCEL;
+      else {
+        uiFlags &= ~SDL_HWACCEL;
+        LOG.Error("SDL", "SOFTWARE BLIT");
+      }
+
+      // Sets up OpenGL double buffering
+      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+      // get a SDL surface
+      pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
+
+      // Verify there is a surface
+      if (pSurface == nullptr) {
+        LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
+        return breathe::BAD;
+      }
+
+      return breathe::GOOD;
     }
 
     bool cRender::Init()
@@ -482,10 +400,10 @@ namespace breathe
       t << "Screen BPP: ";
       t << (unsigned int)(pSurface->format->BitsPerPixel);
       LOG.Success("Render", t.str());
-      LOG.Success("Render", string_t("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
-      LOG.Success("Render", string_t("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
-      LOG.Success("Render", string_t("Version    : ") + (char*)(glGetString( GL_VERSION )));
-      LOG.Success("Render", string_t("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
+      LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
+      LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
+      LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
+      LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
 
       GLint iValue = 0;
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
@@ -495,9 +413,9 @@ namespace breathe
       t.str("");
       t << iMaxTextureSize;
       if (iMaxTextureSize >= MAX_TEXTURE_SIZE) {
-        LOG.Success("Render", string_t("Max Texture Size : ") + t.str());
+        LOG.Success("Render", std::string("Max Texture Size : ") + t.str());
         iMaxTextureSize=MAX_TEXTURE_SIZE;
-      } else LOG.Error("Render", string_t("Max Texture Size : ") + t.str());
+      } else LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
 
       {
         CONSOLE<<"WIDESCREEN"<<std::endl;
@@ -519,23 +437,18 @@ namespace breathe
       }
 
 
-      if (FindExtension("GL_ARB_multitexture"))
-        LOG.Success("Render", "Found GL_ARB_multitexture");
-      else
-      {
+      if (FindExtension(TEXT("GL_ARB_multitexture"))) LOG.Success("Render", "Found GL_ARB_multitexture");
+      else {
         LOG.Error("Render", "Not Found GL_ARB_multitexture");
         return false;
       }
 
 
       // Cube Map Support
-      if (FindExtension("GL_ARB_texture_cube_map"))
-      {
+      if (FindExtension(TEXT("GL_ARB_texture_cube_map"))) {
         LOG.Success("Render", "Found GL_ARB_texture_cube_map");
         bCanCubemap = true;
-      }
-      else
-      {
+      } else {
         LOG.Error("Render", "Not Found GL_ARB_texture_cube_map");
         return false;
       }
@@ -561,7 +474,7 @@ namespace breathe
 
 
       // Frame Buffer Object Support
-      if (FindExtension("GL_EXT_framebuffer_object")) {
+      if (FindExtension(TEXT("GL_EXT_framebuffer_object"))) {
         LOG.Success("Render", "Found GL_EXT_framebuffer_object");
         bCanFrameBufferObject = true;
       }
@@ -618,22 +531,84 @@ namespace breathe
       return breathe::GOOD;
     }
 
+    void cRender::Destroy()
+    {
+      ASSERT(pSurface != nullptr);
+
+      SDL_FreeSurface(pSurface);
+      pSurface = nullptr;
+    }
+
+    void cRender::ToggleFullscreen()
+    {
+      bFullscreen = !bFullscreen;
+
+      if (bFullscreen) {
+#ifdef BUILD_DEBUG
+        uiWidth = 1024;
+        uiHeight = 768;
+        return;
+#endif
+
+        if (uiWidth<1280) {
+          if (uiWidth<1024) {
+            if (uiWidth<800) {
+              uiWidth = 640;
+              uiHeight = 480;
+            } else {
+              uiWidth = 800;
+              uiHeight = 600;
+            }
+          }
+          else {
+            uiWidth = 1024;
+            uiHeight = 768;
+          }
+        } else {
+          uiWidth = 1600;
+          uiHeight = 1280;
+        }
+      }
+    }
+
+    void cRender::SetPerspective()
+    {
+      // Protect against a divide by zero
+      ASSERT(uiHeight != 0);
+
+      // Height / width ratio
+      GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
+
+      // Setup our viewport
+      glViewport(0, 0, ( GLint )uiWidth, ( GLint )uiHeight);
+
+      // change to the projection matrix and set our viewing volume
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+
+      // Set our perspective
+      gluPerspective(45.0f, ratio, 0.1f, fMaximumViewDistance);
+
+      // Make sure we're changing the model view and not the projection
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+    }
 
     void cRender::EnableWireframe()
     {
-      glDisable( GL_CULL_FACE );
-      glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+      glDisable(GL_CULL_FACE);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
     void cRender::DisableWireframe()
     {
-      glEnable( GL_CULL_FACE );
-      glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+      glEnable(GL_CULL_FACE);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     void cRender::_BeginRenderShared()
     {
-      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
@@ -676,7 +651,7 @@ namespace breathe
         glGenerateMipmapEXT(GL_TEXTURE_2D);
 
       glBindTexture(GL_TEXTURE_2D, 0);
-#endif //RENDER_GENERATEFBOMIPMAPS
+#endif // RENDER_GENERATEFBOMIPMAPS
 
       glDisable(GL_TEXTURE_2D);
     }
@@ -852,6 +827,16 @@ namespace breathe
       glEnd();
 
       glLineWidth(1);
+    }
+
+    void cRender::RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& colour0, const math::cColour& colour1, const math::cColour& colour2, const math::cColour& colour3)
+    {
+      glBegin(GL_QUADS);
+        glColor3f(colour0.r, colour0.g, colour0.b); glVertex2f(fX, fY);
+        glColor3f(colour1.r, colour1.g, colour1.b); glVertex2f(fX + fWidth, fY);
+        glColor3f(colour2.r, colour2.g, colour2.b); glVertex2f(fX + fWidth, fY + fHeight);
+        glColor3f(colour3.r, colour3.g, colour3.b); glVertex2f(fX, fY + fHeight);
+      glEnd();
     }
 
     void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
@@ -1265,8 +1250,8 @@ namespace breathe
     {
       for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i]->Begin(uiSegmentWidthPX, uiSegmentSmallPX, uiAtlasWidthPX);
 
-      if (pTextureNotFoundTexture == nullptr) AddTextureNotFoundTexture("textures/texturenotfound.png");
-      if (pMaterialNotFoundMaterial == nullptr) AddMaterialNotFoundMaterial("textures/materialnotfound.png");
+      if (pTextureNotFoundTexture == nullptr) AddTextureNotFoundTexture(TEXT("textures/texturenotfound.png"));
+      if (pMaterialNotFoundMaterial == nullptr) AddMaterialNotFoundMaterial(TEXT("textures/materialnotfound.png"));
     }
 
     void cRender::EndLoadingTextures()
@@ -1278,13 +1263,13 @@ namespace breathe
 
     cTextureRef cRender::AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas)
     {
-      ASSERT(sNewFilename != "");
+      ASSERT(sNewFilename != TEXT(""));
       ASSERT(ATLAS_NONE != uiAtlas);
 
       string_t sFilename;
       breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
-      cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(breathe::string::ToUTF8(sFilename));
+      cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
       if ((p == nullptr) || (p == pTextureNotFoundTexture)) {
         LOG.Error("Texture", breathe::string::ToUTF8(sFilename) + " pTextureNotFound");
         return pTextureNotFoundTexture;
@@ -1299,23 +1284,21 @@ namespace breathe
 
     cTextureRef cRender::AddTexture(const string_t& sNewFilename)
     {
-      ASSERT(sNewFilename != "");
+      ASSERT(sNewFilename != TEXT(""));
 
       string_t sFilename;
       breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       string_t s = breathe::filesystem::GetFile(sFilename);
 
-      cTextureRef p = GetTexture(breathe::string::ToUTF8(s));
-      if (p == nullptr)
-      {
+      cTextureRef p = GetTexture(s);
+      if (p == nullptr) {
         ASSERT(p != nullptr);
         return pTextureNotFoundTexture;
       }
 
       p = cTextureRef(new cTexture);
-      if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD)
-      {
+      if (p->Load(sFilename) != breathe::GOOD) {
         LOG.Error("Render", "Failed to load " + breathe::string::ToUTF8(sFilename));
         p.reset();
         return pTextureNotFoundTexture;
@@ -1324,11 +1307,11 @@ namespace breathe
       p->Create();
       p->CopyFromSurfaceToTexture();
 
-      mTexture[breathe::string::ToUTF8(s)]=p;
+      mTexture[s]=p;
 
       std::ostringstream t;
       t << p->uiTexture;
-      LOG.Success("Texture", "Texture " + breathe::string::ToUTF8(s) + " uiTexture=" + t.str());
+      LOG.Success("Texture", "Texture " + breathe::string::ToUTF8(s) + " uiTexture=" + breathe::string::ToUTF8(t.str()));
       return p;
     }
 
@@ -1338,7 +1321,7 @@ namespace breathe
       breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       cTextureRef p(new cTexture);
-      if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
+      if (p->Load(sFilename) != breathe::GOOD) {
         // Just assert, don't even try to come back from this situation
         LOG.Error("Render", "Failed to load texture not found texture");
         CONSOLE<<"cRender::AddTextureNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
@@ -1350,7 +1333,7 @@ namespace breathe
       p->Create();
       p->CopyFromSurfaceToTexture();
 
-      mTexture[breathe::string::ToUTF8(sNewFilename)]=p;
+      mTexture[sNewFilename]=p;
       pTextureNotFoundTexture = p;
 
       std::ostringstream t;
@@ -1368,7 +1351,7 @@ namespace breathe
       LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
 
       cTextureRef p(new cTexture);
-      if (p->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
+      if (p->Load(sFilename) != breathe::GOOD) {
         // Just assert, don't even try to come back from this situation
         LOG.Error("Render", "Failed to load material not found texture");
         CONSOLE<<"cRender::AddMaterialNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
@@ -1380,7 +1363,7 @@ namespace breathe
       p->Create();
       p->CopyFromSurfaceToTexture();
 
-      mTexture[breathe::string::ToUTF8(sNewFilename)]=p;
+      mTexture[sNewFilename]=p;
       pMaterialNotFoundTexture = p;
 
       std::ostringstream t;
@@ -1447,7 +1430,7 @@ namespace breathe
 
       mCubeMap[sFilename] = p;
 
-      p->sFilename = breathe::string::ToUTF8(sFilename);
+      p->sFilename = sFilename;
 
       GLuint cube_map_directions[6] =
       {
@@ -1594,7 +1577,7 @@ namespace breathe
     {
       AddMaterialNotFoundTexture(sNewFilename);
 
-      pMaterialNotFoundMaterial.reset(new material::cMaterial("MaterialNotFound"));
+      pMaterialNotFoundMaterial.reset(new material::cMaterial(TEXT("MaterialNotFound")));
 
       string_t sFilename;
       breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
@@ -1607,7 +1590,7 @@ namespace breathe
 
     material::cMaterialRef cRender::AddMaterial(const string_t& sNewfilename)
     {
-      if ("" == sNewfilename) return material::cMaterialRef();
+      if (TEXT("") == sNewfilename) return material::cMaterialRef();
 
       material::cMaterialRef pMaterial = GetMaterial(sNewfilename);
 
@@ -1615,13 +1598,13 @@ namespace breathe
 
       string_t sFilename;
       filesystem::FindResourceFile(breathe::string::ToString_t(sNewfilename), sFilename);
-      pMaterial.reset(new material::cMaterial(breathe::string::ToUTF8(sFilename)));
+      pMaterial.reset(new material::cMaterial(sFilename));
 
-      if (breathe::BAD == pMaterial->Load(breathe::string::ToUTF8(sFilename))) {
+      if (breathe::BAD == pMaterial->Load(sFilename)) {
         pMaterial = pMaterialNotFoundMaterial;
       }
 
-      mMaterial[breathe::string::ToUTF8(filesystem::GetFile(sFilename))] = pMaterial;
+      mMaterial[filesystem::GetFile(sFilename)] = pMaterial;
 
       return pMaterial;
     }
@@ -1771,7 +1754,7 @@ namespace breathe
         //Set the current mode and texture
         layerOld->uiTextureMode = TEXTURE_NONE;
         layerOld->pTexture.reset();
-        layerOld->sTexture = "";
+        layerOld->sTexture = TEXT("");
       }
 
       glActiveTexture(GL_TEXTURE0);
@@ -1789,14 +1772,14 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, int value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, int value)
     {
       ASSERT(pMaterial != nullptr);
       ASSERT(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
         ASSERT(loc > 0);
         return false;
       }
@@ -1805,14 +1788,14 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, float value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, float value)
     {
       ASSERT(pMaterial != nullptr);
       ASSERT(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
         ASSERT(loc > 0);
         return false;
       }
@@ -1821,14 +1804,14 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const string_t& sConstant, const math::cVec3& value)
+    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, const math::cVec3& value)
     {
       assert(pMaterial != nullptr);
       assert(pMaterial->pShader != nullptr);
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", pMaterial->sName + " Couldn't set " + sConstant);
+        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
         ASSERT(loc > 0);
         return false;
       }
@@ -2419,7 +2402,7 @@ namespace breathe
       std::map<string_t, material::cMaterialRef>::iterator iter = mMaterial.begin();
       std::map<string_t, material::cMaterialRef>::iterator iterEnd = mMaterial.end();
 
-      string_t temp = breathe::string::ToUTF8(filesystem::GetFile(breathe::string::ToString_t(sFilename)));
+      string_t temp = filesystem::GetFile(sFilename);
       while(iter != iterEnd) {
         if (temp == iter->first) return iter->second;
         iter++;
@@ -2474,7 +2457,7 @@ namespace breathe
 
       string_t sNewfilename;
       breathe::filesystem::FindResourceFile(sShortFilename, sNewfilename);
-      if (pModel->Load(breathe::string::ToUTF8(sNewfilename))) {
+      if (pModel->Load(sNewfilename)) {
         mStatic[sNewfilename] = pModel;
 
         const size_t n = pModel->vMesh.size();
@@ -2516,7 +2499,7 @@ namespace breathe
         if (pModel != nullptr) return pModel;
       }
 
-      std::cout<<"Couldn't find "<<sFilename<<std::endl;
+      std::cout<<"Couldn't find "<<breathe::string::ToUTF8(sFilename)<<std::endl;
 
       return model::cStaticRef();
     }
@@ -2596,9 +2579,9 @@ namespace breathe
 
               if (t != nullptr) {
                 for (texcoord=0;texcoord<nTexcoords;texcoord+=2) t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-              } else LOG.Error("Transform", "Texture not found " + mat->vLayer[0]->sTexture);
+              } else LOG.Error("Transform", "Texture not found " + breathe::string::ToUTF8(mat->vLayer[0]->sTexture));
             } else LOG.Error("Transform", "Material doesn't have any layers");
-          } else LOG.Error("Transform", "Material not found " + pMesh->sMaterial);
+          } else LOG.Error("Transform", "Material not found " + breathe::string::ToUTF8(pMesh->sMaterial));
         }
 
         iter++;
@@ -2701,13 +2684,11 @@ namespace breathe
         LOG.Success("Render", "ReloadTextures Materials");
         material::cMaterialRef pMaterial;
         std::map<string_t, material::cMaterialRef>::iterator iter=mMaterial.begin();
-        std::map<string_t, material::cMaterialRef>::iterator iterEnd=mMaterial.end();
-        while(iter != iterEnd)
-        {
+        const std::map<string_t, material::cMaterialRef>::iterator iterEnd=mMaterial.end();
+        while (iter != iterEnd) {
           pMaterial = iter->second;
 
-          if (pMaterial->pShader)
-          {
+          if (pMaterial->pShader != nullptr) {
             pMaterial->pShader->Destroy();
             pMaterial->pShader->Init();
           }
@@ -2718,9 +2699,8 @@ namespace breathe
 
       {
         LOG.Success("Render", "ReloadTextures Vertex Buffer Objects");
-        size_t n = vVertexBufferObject.size();
-        for (size_t i = 0; i<n; i++)
-        {
+        const size_t n = vVertexBufferObject.size();
+        for (size_t i = 0; i < n; i++) {
           vVertexBufferObject[i]->Destroy();
           vVertexBufferObject[i]->Init();
         }

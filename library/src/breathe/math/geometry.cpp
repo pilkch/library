@@ -29,7 +29,7 @@ class cSphereUnitTest : protected breathe::util::cUnitTestBase
 {
 public:
   cSphereUnitTest() :
-    cUnitTestBase("cSphereUnitTest")
+    cUnitTestBase(TEXT("cSphereUnitTest"))
   {
   }
 

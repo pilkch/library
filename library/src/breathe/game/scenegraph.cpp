@@ -12,12 +12,17 @@
 #include <string>
 #include <sstream>
 
-// writing on a text file
 #include <iostream>
 #include <fstream>
 
-// Boost includes
+// Boost headers
 #include <boost/shared_ptr.hpp>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/microsec_time_clock.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
+
 
 #include <GL/GLee.h>
 
@@ -68,6 +73,7 @@
 #include <breathe/render/cRender.h>
 
 #include <breathe/game/scenegraph.h>
+#include <breathe/game/skysystem.h>
 
 #include <breathe/game/cLevel.h>
 #include <breathe/game/cPlayer.h>
@@ -452,6 +458,41 @@ namespace breathe
         iter++;
       }*/
 
+      if (scenegraph.pSkySystem != nullptr) {
+        // Sky first
+        glPushMatrix();
+          glMatrixMode(GL_MODELVIEW);
+          glLoadIdentity();
+          glMultMatrixf(pRender->pFrustum->m);
+
+          pRender->SelectTextureUnit0();
+
+          // Set our texture
+          if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
+
+          const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
+          const size_t n = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetNumberOfVertices();
+
+          glBegin(GL_TRIANGLE_STRIP);
+            for (size_t i = 0; i < n; i++) {
+              glTexCoord2f(pVertices[i].u, pVertices[i].v);
+              glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+            }
+          glEnd();
+
+          glMatrixMode(GL_MODELVIEW);
+          glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+          glBegin(GL_TRIANGLE_STRIP);
+            for (size_t i = 0; i < n; i++) {
+              glTexCoord2f(pVertices[i].u, pVertices[i].v);
+              glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+            }
+          glEnd();
+
+        glPopMatrix();
+      }
+
+
       // Opaque first
       {
         std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
@@ -478,6 +519,13 @@ namespace breathe
       bIsCullingEnabled(true)
     {
       pRoot.reset(new cGroupNode);
+      pSkySystem.reset(new sky::cSkySystem);
+    }
+
+    void cSceneGraph::Create()
+    {
+      pSkySystem->GetSkyDomeAtmosphereRenderer().CreateTexture();
+      pSkySystem->GetSkyDomeAtmosphereRenderer().CreateGeometry(800.0f);
     }
 
     /*cSceneGraphSpawn::cSceneGraphSpawn()
@@ -527,6 +575,8 @@ namespace breathe
 
     void cSceneGraph::Update(sampletime_t currentTime)
     {
+      pSkySystem->GetSkyDomeAtmosphereRenderer().Update();
+
       cUpdateVisitor visitor(*this);
     }
 
@@ -599,7 +649,7 @@ namespace breathe
     {
     public:
       cSceneGraphUnitTest() :
-        cUnitTestBase("cSceneGraphUnitTest")
+        cUnitTestBase(TEXT("cSceneGraphUnitTest"))
       {
         printf("cSceneGraphUnitTest\n");
       }

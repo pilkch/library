@@ -45,17 +45,17 @@ namespace breathe
       for (size_t i = 0; i < BUFFER_NUMBER; i++) buffers[i] = 0;
     }
 
-    void cOggStream::Open(const std::string& path)
+    void cOggStream::Open(const string_t& path)
     {
-      printf("cOggStream::Open %s\n", path.c_str());
+      LOG<<"cOggStream::Open "<<path<<std::endl;
 
-      if(!(oggFile = fopen(path.c_str(), "rb"))) printf("cOggStream::Open Could not open Ogg file %s\n", path.c_str());
+      if(!(oggFile = fopen(breathe::string::ToUTF8(path).c_str(), "rb"))) LOG<<"cOggStream::Open Could not open Ogg file "<<path<<std::endl;
 
       int result = ov_open(oggFile, &oggStream, NULL, 0);
       if (result < 0) {
         fclose(oggFile);
 
-        printf("cOggStream::Open Could not open Ogg stream %s result=%d\n", path.c_str(), result);
+        LOG<<"cOggStream::Open Could not open Ogg stream "<<path<<" result="<<result<<std::endl;
       }
 
       vorbisInfo = ov_info(&oggStream, -1);
@@ -75,7 +75,7 @@ namespace breathe
       alSourcef(source, AL_ROLLOFF_FACTOR, 0.0);
       alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
 
-      printf("cOggStream::Open %s successfully opened, returning\n", path.c_str());
+      LOG<<"cOggStream::Open "<<path<<" successfully opened, returning"<<std::endl;
     }
 
     void cOggStream::Release()
@@ -171,7 +171,7 @@ namespace breathe
       int result = 0;
       size_t size = 0;
       while (size < BUFFER_SIZE) {
-        result = ov_read(&oggStream, pcm + size, BUFFER_SIZE - size, 0, 2, 1, &section);
+        result = ov_read(&oggStream, pcm + size, BUFFER_SIZE + size, 0, 2, 1, &section);
 
         if (result > 0) size += result;
         else {

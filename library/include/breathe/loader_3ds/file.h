@@ -12,14 +12,14 @@ namespace breathe
     class Model3DSFile
     {
     public:
-      Model3DSFile(const std::string& src);
+      explicit Model3DSFile(const string_t& src);
       ~Model3DSFile();
 
       Model3DSChunk Child();
 
     private:
-      static int FileSize(std::ifstream &file);
-      
+      static int FileSize(std::ifstream& file);
+
       std::ifstream file;
     };
   }

@@ -27,23 +27,23 @@ namespace breathe
       class cStatic : public cModel, protected math::cOctree
       {
       private:
-        int Load3DS(const std::string& sFilename);
+        int Load3DS(const string_t& sFilename);
 
-        void ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename);
-        void ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename);
+        void ParseEditor3D(loader_3ds::Model3DSChunk c, const string_t& sFilename);
+        void ParseEditObject(loader_3ds::Model3DSChunk c, const string_t& sFilename);
 
-        void ParseMesh(const std::string &name, loader_3ds::Model3DSChunk c, std::string sFilename);
+        void ParseMesh(const string_t& name, loader_3ds::Model3DSChunk c, const string_t& sFilename);
         void ParseMaterial(loader_3ds::Model3DSChunk c);
 
         void ParseCamera(loader_3ds::Model3DSChunk c);
-        void ParseLight(const std::string &name, loader_3ds::Model3DSChunk c);
+        void ParseLight(const string_t& name, loader_3ds::Model3DSChunk c);
 
         void NewMaterial(loader_3ds::Model3DSChunk c);
 
         /*
         std::vector<loader_3ds::Light3DSObject> lights;
         std::vector<loader_3ds::Mesh3DSObject> meshes;*/
-        std::vector<std::string> vMaterial;
+        std::vector<string_t> vMaterial;
 
         unsigned int uiCurrentMesh;
 
@@ -59,14 +59,14 @@ namespace breathe
         cStatic();
         ~cStatic();
 
-        int Load(const std::string& sFilename);
+        int Load(const string_t& sFilename);
         void Update(sampletime_t currentTime);
         size_t Render();
 
         size_t Render(cOctree* pNode);
 
         //void Split(unsigned int uiMesh, cModel_Static** pDest, unsigned int uiDest); //Which mesh to subtract, destination model
-        void CloneTo(cStaticRef rhs);
+        void CopyFrom(const cStaticRef rhs);
 
         cMeshRef GetMesh(unsigned int index);
       };

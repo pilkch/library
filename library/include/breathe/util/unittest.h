@@ -10,7 +10,7 @@ namespace breathe
     class cUnitTestBase
     {
     public:
-      cUnitTestBase(const string_t& component);
+      explicit cUnitTestBase(const string_t& component);
       virtual ~cUnitTestBase() {}
 
       void Run();

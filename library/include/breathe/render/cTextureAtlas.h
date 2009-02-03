@@ -40,7 +40,7 @@ namespace breathe
       void Begin(unsigned int uiSegmentWidthPX, unsigned int uiSegmentSmallPX, unsigned int uiAtlasWidthPX);
       void End();
 
-      cTextureRef AddTexture(const std::string& sFilename);
+      cTextureRef AddTexture(const string_t& sFilename);
 
 
       unsigned int uiSegmentSmallPX; // An image this width or smaller is considered small

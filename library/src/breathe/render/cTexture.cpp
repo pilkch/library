@@ -77,11 +77,11 @@ namespace breathe
       sFilename = inFilename;
 
       //unsigned int mode = 0;
-      surface = IMG_Load(sFilename.c_str());
+      surface = IMG_Load(breathe::string::ToUTF8(sFilename).c_str());
 
       // could not load filename
       if (surface == nullptr) {
-        LOG.Error("Texture", "Couldn't Load Texture " + sFilename);
+        LOG.Error("Texture", "Couldn't Load Texture " + breathe::string::ToUTF8(sFilename));
         return breathe::BAD;
       }
 
@@ -89,13 +89,13 @@ namespace breathe
 
       //Check the format
       if (8 == surface->format->BitsPerPixel) {
-        LOG.Success("Texture", "Greyscale Heightmap Image " + sFilename);
+        LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
         uiMode = TEXTURE_HEIGHTMAP;
       } else if (16 == surface->format->BitsPerPixel) {
-        LOG.Success("Texture", "Greyscale Heightmap Image " + sFilename);
+        LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
         uiMode = TEXTURE_HEIGHTMAP;
       } else if (24 == surface->format->BitsPerPixel) {
-        CONSOLE.Error("Texture", sFilename + " is a 24 bit RGB image");
+        CONSOLE.Error("Texture", breathe::string::ToUTF8(sFilename) + " is a 24 bit RGB image");
         // Add alpha channel
         SDL_PixelFormat format = {
           NULL, 32, 4, 0, 0, 0, 0,
@@ -107,7 +107,7 @@ namespace breathe
         SDL_FreeSurface(surface);
         surface = pConvertedSurface;
       } else if (32 == surface->format->BitsPerPixel) {
-        LOG.Success("Texture", sFilename + " is a 32 bit RGBA image");
+        LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " is a 32 bit RGBA image");
         uiMode = TEXTURE_RGBA;
 
         // Convert if BGR
@@ -143,7 +143,7 @@ namespace breathe
       } else {
         std::ostringstream t;
         t << surface->format->BitsPerPixel;
-        LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + sFilename);
+        LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + breathe::string::ToUTF8(sFilename));
         return breathe::BAD;
       }
 
@@ -155,7 +155,7 @@ namespace breathe
         t<<uiWidth;
         t<<"x";
         t<<uiHeight;
-        LOG.Success("Texture", t.str());
+        LOG.Success("Texture", breathe::string::ToUTF8(t.str()));
       }
       CopyFromSurfaceToData(surface->w, surface->h);
 
@@ -195,7 +195,7 @@ namespace breathe
 
     bool cTexture::SaveToBMP(const string_t& inFilename)
     {
-      SDL_SaveBMP(surface, inFilename.c_str());
+      SDL_SaveBMP(surface, breathe::string::ToUTF8(inFilename).c_str());
       return breathe::GOOD;
     }
 
@@ -282,8 +282,7 @@ namespace breathe
       // Now setup a texture to render to
       glGenTextures(1, &uiTexture);
       glBindTexture(GL_TEXTURE_2D, uiTexture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

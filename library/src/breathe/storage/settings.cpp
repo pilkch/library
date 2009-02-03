@@ -251,17 +251,17 @@ namespace breathe
   {
   public:
     cSettingsUnitTest() :
-      cUnitTestBase("cSettingsUnitTest")
+      cUnitTestBase(TEXT("cSettingsUnitTest"))
     {
     }
 
     void Test()
     {
-      const string_t sTestProfile("TestProfile");
+      const string_t sTestProfile(TEXT("TestProfile"));
 
-      const string_t sTestSection("TestSection");
-      const string_t sTestSubSection("TestSubSection");
-      const string_t sTestValue("this is a settings string which is get and set in the settings");
+      const string_t sTestSection(TEXT("TestSection"));
+      const string_t sTestSubSection(TEXT("TestSubSection"));
+      const string_t sTestValue(TEXT("this is a settings string which is get and set in the settings"));
 
       bool bResult = false;
       string_t sValue;

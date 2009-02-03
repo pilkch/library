@@ -56,10 +56,6 @@
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
-#if (_MSC_VER >= 1300) && (WINVER < 0x0500)
-#pragma warning(disable:4305)
-#pragma warning(disable:4244)
-#endif
 
 #ifndef BUILD_EDITOR
 extern float fAAA;
@@ -91,7 +87,7 @@ extern float fBBB;
     //if (dot <= 0.7f)
     //  continue;
 
-    neV3 f = depth * lineNormal * -k ;//* dot;
+    neV3 f = depth * lineNormal * -k ;// dot;
 
     force += f;
 
@@ -498,10 +494,10 @@ namespace breathe
 
 
         // Rolling Drag
-        float fDampTorque = 100.0f;
-        float fDampLinearVel = 100.0f;
-        dReal const * av = dBodyGetAngularVel( pParent->GetBody() );
-        dReal const * lv = dBodyGetLinearVel( pParent->GetBody() );
+        //float fDampTorque = 100.0f;
+        //float fDampLinearVel = 100.0f;
+        //dReal const * av = dBodyGetAngularVel( pParent->GetBody() );
+        //dReal const * lv = dBodyGetLinearVel( pParent->GetBody() );
 
         // TODO: Check whether we are on our roof/side too
         //dBodyAddTorque( pParent->GetBody(), -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );

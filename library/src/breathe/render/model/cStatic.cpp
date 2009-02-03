@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-// writing on a text file
+// Writing to and from a text file
 #include <iostream>
 #include <fstream>
 
@@ -79,7 +79,7 @@ namespace breathe
 
       }
 
-      void cStatic::ParseEditor3D(loader_3ds::Model3DSChunk c, std::string sFilename)
+      void cStatic::ParseEditor3D(loader_3ds::Model3DSChunk c, const string_t& sFilename)
       {
         std::ostringstream t;
         for (loader_3ds::Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
@@ -116,10 +116,10 @@ namespace breathe
         }
       }
 
-      void cStatic::ParseEditObject(loader_3ds::Model3DSChunk c, std::string sFilename)
+      void cStatic::ParseEditObject(loader_3ds::Model3DSChunk c, const string_t& sFilename)
       {
         std::ostringstream t;
-        std::string obj_name = c.Str();
+        string_t obj_name = c.Str();
 
         for (loader_3ds::Model3DSChunk cc = c.Child(); cc.IsValid(); cc = cc.Sibling()) {
           switch(cc.ID()) {
@@ -145,7 +145,7 @@ namespace breathe
       }
 
 
-      void cStatic::ParseLight(const std::string &name , loader_3ds::Model3DSChunk c)
+      void cStatic::ParseLight(const string_t& name , loader_3ds::Model3DSChunk c)
       {
         LOG.Error("c3ds", "object light");
       }
@@ -169,12 +169,10 @@ namespace breathe
 
       void cStatic::NewMaterial(loader_3ds::Model3DSChunk c)
       {
-        std::string mat_name = c.Str();
+        string_t mat_name(breathe::string::ToString_t(c.Str()));
 
-        if (mat_name.find(".mat") != std::string::npos)
-          LOG.Success("3ds", "Material: " + mat_name);
-        else
-          LOG.Error("3ds", "Invalid material: " + mat_name);
+        if (mat_name.find(TEXT(".mat")) != string_t::npos) LOG.Success("3ds", "Material: " + breathe::string::ToUTF8(mat_name));
+        else LOG.Error("3ds", "Invalid material: " + breathe::string::ToUTF8(mat_name));
 
         vMaterial.push_back(mat_name);
       }
@@ -200,11 +198,11 @@ namespace breathe
         //vCamera.push_back(p);
       }
 
-      void cStatic::ParseMesh(const std::string &sName , loader_3ds::Model3DSChunk c, std::string sFilename)
+      void cStatic::ParseMesh(const string_t& sName , loader_3ds::Model3DSChunk c, const string_t& sFilename)
       {
         bFoundMeshes = true;
 
-        LOG.Success("c3ds", "Mesh3DS::Parse(" + sName + ")");
+        LOG.Success("c3ds", "Mesh3DS::Parse(" + breathe::string::ToUTF8(sName) + ")");
 
         loader_3ds::Mesh3DSObject* pMesh = new loader_3ds::Mesh3DSObject(sName, c);
         if (pMesh == nullptr) return;
@@ -258,13 +256,13 @@ namespace breathe
         uiCurrentMesh++;
       }
 
-      int cStatic::Load3DS(const std::string& sFilename)
+      int cStatic::Load3DS(const string_t& sFilename)
       {
         iVersionFile = 0;
         iVersionMesh = 0;
         fScale = 1.0f;
 
-        LOG.Success("c3ds", "Loading " + sFilename);
+        LOG.Success("c3ds", "Loading " + breathe::string::ToUTF8(sFilename));
 
 
         loader_3ds::Model3DSFile file(sFilename);
@@ -317,10 +315,9 @@ namespace breathe
         return uiTriangles;
       }
 
-      int cStatic::Load(const std::string& sFilename)
+      int cStatic::Load(const string_t& sFilename)
       {
-        if (sFilename.find(".3ds"))
-          return Load3DS(sFilename);
+        if (sFilename.find(TEXT(".3ds"))) return Load3DS(sFilename);
 
         return 0;
       }
@@ -422,28 +419,28 @@ namespace breathe
         return uiTriangles;
       }
 
-        size_t cStatic::Render()
-        {
-  
-  
-          return 0;
-        }
+      size_t cStatic::Render()
+      {
+
+
+        return 0;
+      }
 
       void cStatic::Update(sampletime_t currentTime)
       {
 
       }
 
-      void cStatic::CloneTo(cStaticRef rhs)
+      void cStatic::CopyFrom(const cStaticRef rhs)
       {
-        rhs->vMesh.clear();
+        vMesh.clear();
 
         size_t i;
-        const size_t n = vMesh.size();
+        const size_t n = rhs->vMesh.size();
         for (i = 0; i < n; i++) {
           cMeshRef pMesh(new cMesh);
-          vMesh[i]->CloneTo(pMesh);
-          rhs->vMesh.push_back(pMesh);
+          pMesh->CopyFrom(rhs->vMesh[i]);
+          vMesh.push_back(pMesh);
         }
       }
     }

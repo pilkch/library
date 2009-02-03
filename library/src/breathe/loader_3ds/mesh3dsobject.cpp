@@ -21,7 +21,7 @@ namespace breathe
   {
     const float fScale=0.1f;
 
-    Mesh3DSObject::Mesh3DSObject(const std::string &nname , Model3DSChunk c)
+    Mesh3DSObject::Mesh3DSObject(const string_t& nname , Model3DSChunk c)
     : name(nname)
     {
       bFoundFaces=bFoundVertices=bTextureCoords=bFoundMaterials=false;
@@ -192,7 +192,7 @@ namespace breathe
     {
       sMaterial = c.Str();
 
-      LOG.Success("c3ds", "ParseFacesMaterials: " + sMaterial);
+      LOG.Success("c3ds", "ParseFacesMaterials: " + breathe::string::ToUTF8(sMaterial));
 
       bFoundMaterials = true;
 
@@ -210,12 +210,12 @@ namespace breathe
       material_faces[sMaterial] = faces_applied;
     }
 
-    const std::string &Mesh3DSObject::Name() const
+    const string_t& Mesh3DSObject::Name() const
     {
       return name;
     }
 
-    const std::string &Mesh3DSObject::Material() const
+    const string_t& Mesh3DSObject::Material() const
     {
       return sMaterial;
     }
@@ -225,19 +225,19 @@ namespace breathe
       return matrix;
     }
 
-    const std::vector<Mesh3DSVertex> &Mesh3DSObject::Vertices() const
+    const std::vector<Mesh3DSVertex>& Mesh3DSObject::Vertices() const
     {
       return vertices;
     }
-    const std::vector<Mesh3DSTextureCoord> &Mesh3DSObject::TextureCoords() const
+    const std::vector<Mesh3DSTextureCoord>& Mesh3DSObject::TextureCoords() const
     {
       return texturecoords;
     }
-    const std::vector<Mesh3DSFace> &Mesh3DSObject::Faces() const
+    const std::vector<Mesh3DSFace>& Mesh3DSObject::Faces() const
     {
       return faces;
     }
-    const std::map<std::string , std::vector<int> > &Mesh3DSObject::Materials() const
+    const std::map<string_t, std::vector<int> >& Mesh3DSObject::Materials() const
     {
       return material_faces;
     }

@@ -18,7 +18,7 @@ namespace breathe
       Light3DS();
       ~Light3DS();
 
-      void Parse(const std::string &name , Model3DSChunk c);
+      void Parse(const string_t& name, Model3DSChunk c);
 
     private:
       std::vector<Light3DSObject> lights;

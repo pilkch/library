@@ -48,7 +48,7 @@ namespace breathe
     const std::map<string_t, cVar*>::iterator iterEnd = mVar.end();
 
     while (iter != iterEnd) {
-      CONSOLE<<iter->first + " \"" + (iter->second)->GetString() + "\""<<std::endl;
+      CONSOLE<<breathe::string::ToUTF8(iter->first) + " \"" + breathe::string::ToUTF8((iter->second)->GetString()) + "\""<<std::endl;
       iter++;
     };
   }
@@ -58,21 +58,21 @@ namespace breathe
   {
   public:
     cVarUnitTest() :
-      cUnitTestBase("cVarUnitTest")
+      cUnitTestBase(TEXT("cVarUnitTest"))
     {
     }
 
     void Test()
     {
-      var::VarSet("bool", true);
-      var::VarSet("int", 180);
-      var::VarSet("float", 123.45f);
-      var::VarSet("string", "this is a string");
+      var::VarSet(TEXT("bool"), true);
+      var::VarSet(TEXT("int"), 180);
+      var::VarSet(TEXT("float"), 123.45f);
+      var::VarSet(TEXT("string"), TEXT("this is a string"));
 
-      TestVariable("bool");
-      TestVariable("int");
-      TestVariable("float");
-      TestVariable("string");
+      TestVariable(TEXT("bool"));
+      TestVariable(TEXT("int"));
+      TestVariable(TEXT("float"));
+      TestVariable(TEXT("string"));
     }
 
   private:

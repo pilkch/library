@@ -4,13 +4,17 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <map>
 #include <algorithm>
 #include <sstream>
+#include <iterator>    // for back_inserter
 
 // writing a text file
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+
+#include <locale>
 
 #include <breathe/breathe.h>
 #include <breathe/util/cString.h>
@@ -23,6 +27,79 @@ namespace breathe
 {
   namespace string
   {
+    class cToUpper
+    {
+    public:
+      explicit cToUpper(const std::locale& l) : loc(l) {}
+
+      char operator() (char c) const { return std::toupper(c,loc); }
+      wchar_t operator() (wchar_t c) const { return std::toupper(c,loc); }
+
+    private:
+      std::locale const& loc;
+    };
+
+    class cToLower
+    {
+    public:
+      explicit cToLower(const std::locale& l) : loc(l) {}
+
+      char operator() (char c) const { return std::tolower(c,loc); }
+      wchar_t operator() (wchar_t c) const { return std::tolower(c,loc); }
+
+    private:
+      std::locale const& loc;
+    };
+
+    class cLocalisedStringTransformer
+    {
+    public:
+      cLocalisedStringTransformer();
+
+      // Other Possible functions
+      // bool isspace(c, loc);
+      // bool isupper(c, loc);
+      // bool islower(c, loc);
+      // bool isalpha(c, loc);
+      // bool isdigit(c, loc);
+      // bool ispunct(c, loc);
+      // bool isxdigit(c, loc);
+      // bool isalnum(c, loc);
+
+      template <class T>
+      inline T ToLower(const T& source) const
+      {
+        T sOut;
+        std::transform(source.begin(), source.end(), std::back_inserter(sOut), lower);
+        return sOut;
+      }
+
+      template <class T>
+      inline T ToUpper(const T& source) const
+      {
+        T sOut;
+        std::transform(source.begin(), source.end(), std::back_inserter(sOut), upper);
+        return sOut;
+      }
+
+    private:
+      std::locale loc_c;
+
+      cToUpper upper;
+      cToLower lower;
+    };
+
+    cLocalisedStringTransformer::cLocalisedStringTransformer() :
+      loc_c("C"),
+      upper(loc_c),
+      lower(loc_c)
+    {
+    }
+
+    cLocalisedStringTransformer gLocalisedStringTransformer;
+
+
+
     bool IsWhiteSpace(char_t c)
     {
       // We regard space, tab, new line and carriage return characters as white space
@@ -334,30 +411,22 @@ namespace breathe
 
     std::string ToLower(const std::string& source)
     {
-      std::string sOut(source);
-      std::transform(sOut.begin(), sOut.end(), sOut.begin(), tolower);
-      return sOut;
-    }
-
-    std::string ToUpper(const std::string& source)
-    {
-      std::string sOut(source);
-      std::transform(sOut.begin(), sOut.end(), sOut.begin(), toupper);
-      return sOut;
+      return gLocalisedStringTransformer.ToLower(source);
     }
 
     std::wstring ToLower(const std::wstring& source)
     {
-      std::wstring sOut(source);
-      std::transform(sOut.begin(), sOut.end(), sOut.begin(), tolower);
-      return sOut;
+      return gLocalisedStringTransformer.ToLower(source);
+    }
+
+    std::string ToUpper(const std::string& source)
+    {
+      return gLocalisedStringTransformer.ToUpper(source);
     }
 
     std::wstring ToUpper(const std::wstring& source)
     {
-      std::wstring sOut(source);
-      std::transform(sOut.begin(), sOut.end(), sOut.begin(), toupper);
-      return sOut;
+      return gLocalisedStringTransformer.ToUpper(source);
     }
 
 
@@ -413,7 +482,7 @@ namespace breathe
     template <class T>
     inline string_t ToString(T value)
     {
-      std::ostringstream s;
+      ostringstream_t s;
       s << value;
       return s.str();
     }
@@ -441,7 +510,7 @@ namespace breathe
     unsigned int ToUnsignedInt(const string_t& source)
     {
       unsigned int value = 0;
-      std::stringstream stm(source);
+      istringstream_t stm(source);
       stm >> value;
       return value;
     }
@@ -449,7 +518,7 @@ namespace breathe
     int ToInt(const string_t& source)
     {
       int value = 0;
-      std::stringstream stm(source);
+      istringstream_t stm(source);
       stm >> value;
       return value;
     }
@@ -457,7 +526,7 @@ namespace breathe
     float ToFloat(const string_t& source)
     {
       float value = 0.0f;
-      std::stringstream stm(source);
+      istringstream_t stm(source);
       stm >> value;
       return value;
     }
@@ -468,19 +537,20 @@ namespace breathe
     // atoh : ASCII
     // wtoh : UNICODE
 
-    uint32_t FromHexStringToUint32_t(const string_t& source)
+    template <class T, class C>
+    uint32_t GenericFromHexStringToUint32_t(const T& source)
     {
       uint32_t value = 0;
 
       const size_t n = source.length();
       for (size_t i = 0; i < n; i++) {
-        char_t c = source[i];
+        C c = source[i];
         ASSERT(c != 0);
 
         uint32_t digit;
-        if ((c >= TEXT('0')) && (c <= '9')) digit = uint32_t((c - TEXT('0')));
-        else if ((c >= TEXT('a')) && (c <= TEXT('f'))) digit = uint32_t((c - TEXT('a'))) + 10;
-        else if ((c >= TEXT('A')) && (c <= TEXT('F'))) digit = uint32_t((c - TEXT('A'))) + 10;
+        if ((c >= C('0')) && (c <= '9')) digit = uint32_t((c - C('0')));
+        else if ((c >= C('a')) && (c <= C('f'))) digit = uint32_t((c - C('a'))) + 10;
+        else if ((c >= C('A')) && (c <= C('F'))) digit = uint32_t((c - C('A'))) + 10;
         else break;
 
         value = (value << 4) + digit;
@@ -489,17 +559,100 @@ namespace breathe
       return value;
     }
 
+    uint32_t FromHexStringToUint32_t(const std::string& source)
+    {
+      return GenericFromHexStringToUint32_t<std::string, char>(source);
+    }
+
+    uint32_t FromHexStringToUint32_t(const std::wstring& source)
+    {
+      return GenericFromHexStringToUint32_t<std::wstring, wchar_t>(source);
+    }
+
+
+    struct cSpecialCharacter
+    {
+      std::string text;
+      int entityCode;
+    };
+
+    const cSpecialCharacter specialCharactersArray[] = {
+      { "quot", 34 },    { "amp", 38 },     { "lt", 60 },      { "gt", 62 },      { "nbsp", 160 },
+      { "iexcl", 161 },  { "cent", 162 },   { "pound", 163 },  { "curren", 164 }, { "yen", 165 },
+      { "brvbar", 166 }, { "sect", 167 },   { "um", 168 },     { "copy", 169 },   { "ordf", 170 },
+      { "laquo", 171 },  { "not", 172 },    { "shy", 173 },    { "reg", 174 },    { "macr", 175 },
+      { "deg", 176 },    { "plusmn", 177 }, { "sup2", 178 },   { "sup3", 179 },   { "acute", 180 },
+      { "micro", 181 },  { "para", 182 },   { "middot", 183 }, { "cedil", 184 },  { "sup1", 185 },
+      { "ordm", 186 },   { "raquo", 187 },  { "frac14", 188 }, { "frac12", 189 }, { "frac34", 190 },
+      { "iquest", 191 }, { "Agrave", 192 }, { "Aacute", 193 }, { "Acirc", 194 },  { "Atilde", 195 },
+      { "Auml", 196 },   { "Aring", 197 },  { "AElig", 198 },  { "Ccedil", 199 }, { "Egrave", 200 },
+      { "Eacute", 201 }, { "Ecirc", 202 },  { "Euml", 203 },   { "Igrave", 204 }, { "Iacute", 205 },
+      { "Icirc", 206 },  { "Iuml", 207 },   { "ETH", 208 },    { "Ntilde", 209 }, { "Ograve", 210 },
+      { "Oacute", 211 }, { "Ocirc", 212 },  { "Otilde", 213 }, { "Ouml", 214 },   { "times", 215 },
+      { "Oslash", 216 }, { "Ugrave", 217 }, { "Uacute", 218 }, { "Ucirc", 219 },  { "Uuml", 220 },
+      { "Yacute", 221 }, { "THORN", 222 },  { "szlig", 223 },  { "agrave", 224 }, { "aacute", 225 },
+      { "acirc", 226 },  { "atilde", 227 }, { "auml", 228 },   { "aring", 229 },  { "aelig", 230 },
+      { "ccedil", 231 }, { "egrave", 232 }, { "eacute", 233 }, { "ecirc", 234 },  { "euml", 235 },
+      { "igrave", 236 }, { "iacute", 237 }, { "icirc", 238 },  { "iuml", 239 },   { "eth", 240 },
+      { "ntilde", 241 }, { "ograve", 242 }, { "oacute", 243 }, { "ocirc", 244 },  { "otilde", 245 },
+      { "ouml", 246 },   { "divide", 247 }, { "oslash", 248 }, { "ugrave", 249 }, { "uacute", 250 },
+      { "ucirc", 251 },  { "uuml", 252 },   { "yacute", 253 }, { "thorn", 254 },  { "yuml", 255 }
+    };
+
+    class cSpecialCharacterEncoder
+    {
+    public:
+      cSpecialCharacterEncoder();
+
+      std::string HTMLDecode(const std::string& source);
+      std::string HTMLEncode(const std::string& source);
+
+    private:
+      std::map<int, std::string> entityCodeToString;
+      std::map<std::string, int> stringToEntityCode;
+    };
+
+    cSpecialCharacterEncoder::cSpecialCharacterEncoder()
+    {
+      // Build entityCodeToString and stringToEntityCode from specialCharactersArray
+      const size_t n = sizeof(specialCharactersArray) / sizeof(cSpecialCharacter);
+      for (size_t i = 0; i < n; i++) {
+        entityCodeToString[specialCharactersArray[i].entityCode] = specialCharactersArray[i].text;
+        stringToEntityCode[specialCharactersArray[i].text] = specialCharactersArray[i].entityCode;
+      }
+    }
+
+    std::string cSpecialCharacterEncoder::HTMLDecode(const std::string& source)
+    {
+      std::ostringstream o;
+
+      // TODO: Do stuff :)
+      o<<source;
+
+      return o.str();
+    }
+
+    std::string cSpecialCharacterEncoder::HTMLEncode(const std::string& source)
+    {
+      std::ostringstream o;
+
+      // TODO: Do stuff :)
+      o<<source;
+
+      return o.str();
+    }
+
+    cSpecialCharacterEncoder gSpecialCharacterEncoder;
+
 
     std::string HTMLDecode(const std::string& source)
     {
-      std::string sOut(source);
-      return sOut;
+      return gSpecialCharacterEncoder.HTMLDecode(source);
     }
 
     std::string HTMLEncode(const std::string& source)
     {
-      std::string sOut(source);
-      return sOut;
+      return gSpecialCharacterEncoder.HTMLEncode(source);
     }
   }
 }

@@ -18,7 +18,8 @@ namespace breathe
       cDateTime(int year, int month, int day, int hour, int minute, int second);
       cDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
-      bool IsValid() const { return (!datetime.date().is_special()) && (!datetime.time_of_day().is_special());  }
+      // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
+      bool IsValid() const { return !datetime.is_not_a_date_time(); /*(!datetime.date().is_special()) && (!datetime.time_of_day().is_special());*/  }
 
       uint16_t GetYear() const { ASSERT(IsValid()); return datetime.date().year(); }
       uint8_t GetMonth() const { ASSERT(IsValid()); return datetime.date().month(); }

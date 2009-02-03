@@ -86,11 +86,11 @@ namespace breathe
         SAFE_DELETE_ARRAY(pNormal);
       }
 
-      int cHeightmap::Load(const std::string&)
+      int cHeightmap::Load(const string_t& /*sFilename*/)
       {
         SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, 1.0f);
 
-        sMaterial = "grass.mat";
+        sMaterial = TEXT("grass.mat");
         pMaterial = pRender->AddMaterial(sMaterial);
 
         string_t sFilename;
@@ -102,7 +102,7 @@ namespace breathe
         // Load heightmap
         {
           cTextureRef pTexture(new cTexture);
-          if (pTexture->Load(breathe::string::ToUTF8(sFilename)) == breathe::BAD) {
+          if (pTexture->Load(sFilename) == breathe::BAD) {
             LOG.Error("Heightmap", "Failed to load " + breathe::string::ToUTF8(sFilename));
             return 0;
           }

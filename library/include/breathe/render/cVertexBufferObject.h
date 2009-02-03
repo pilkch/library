@@ -13,14 +13,24 @@ namespace breathe
     public:
       cVertexBufferObjectArray() { uiOffset = 0; }
 
-      void SetData(const std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
-      T* GetData() { return vData.size() ? &vData[0] : NULL; }
-      unsigned int GetDataSize() { return vData.size(); }
+      size_t GetDataSize() const { return vData.size(); }
 
-      unsigned int uiOffset;
+      void SetOffset(size_t uiOffset);
+
+      T* GetData() { return vData.size() ? &vData[0] : nullptr; }
+      void SetData(const std::vector<T>& inData) { vData.assign(inData.begin(), inData.end()); }
+
+      size_t uiOffset;
 
       std::vector<T> vData;
     };
+
+    template <class T>
+    inline void cVertexBufferObjectArray<T>::SetOffset(size_t _uiOffset)
+    {
+      ASSERT(_uiOffset < vData.size());
+      uiOffset = _uiOffset;
+    }
 
     class cVertexBufferObject : protected cRenderable
     {
@@ -30,7 +40,7 @@ namespace breathe
 
       void Destroy();
       void Init();
-      unsigned int Render();
+      size_t Render();
       void Update(sampletime_t currentTime) {}
 
       cVertexBufferObjectArray<math::cVec3> pVertex;
@@ -38,11 +48,11 @@ namespace breathe
       cVertexBufferObjectArray<math::cVec2> pTextureCoord;
 
     private:
-      unsigned int uiVertices;
+      size_t uiVertices;
 
-      unsigned int uiOffsetTextureUnit0;
-      unsigned int uiOffsetTextureUnit1;
-      unsigned int uiOffsetTextureUnit2;
+      size_t uiOffsetTextureUnit0;
+      size_t uiOffsetTextureUnit1;
+      size_t uiOffsetTextureUnit2;
 
       // Note: one buffer per cVertexBufferObject,
       // but with multiple offsets for each cVertexBufferObjectArray

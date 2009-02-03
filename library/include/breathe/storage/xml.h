@@ -113,8 +113,12 @@ namespace breathe
         void FirstChild();
         void FindChild(const std::string& sName);
 
-        std::string GetName() const;
-        std::string GetContent() const;
+        cIterator GetFirstChild() const;
+        cIterator GetChild(const std::string& sName) const;
+
+        std::string GetName() const; // Get the name of this node
+        std::string GetContent() const; // Get the content of this node
+        std::string GetChildContent() const; // Get the content of the (only) child of this node
 
         template <class T>
         bool GetAttribute(const std::string& sAttribute, T& value) const;
@@ -240,6 +244,22 @@ namespace breathe
       pNode = pNode->FindChild(sName);
     }
 
+    inline cNode::cIterator::cIterator cNode::cIterator::GetFirstChild() const
+    {
+      cIterator iter(*this);
+      iter.FirstChild();
+
+      return iter;
+    }
+
+    inline cNode::cIterator::cIterator cNode::cIterator::GetChild(const std::string& sName) const
+    {
+      cIterator iter(*this);
+      iter.FindChild(sName);
+
+      return iter;
+    }
+
     inline std::string cNode::cIterator::GetName() const
     {
       ASSERT(pNode != nullptr);
@@ -250,6 +270,17 @@ namespace breathe
     {
       ASSERT(pNode != nullptr);
       return pNode->GetContent();
+    }
+
+    inline std::string cNode::cIterator::GetChildContent() const
+    {
+      ASSERT(pNode != nullptr);
+      cIterator iter(*this);
+      iter.FirstChild();
+      if (!iter.IsValid()) return "";
+
+      // Ok, we have a child, let's get it's content
+      return iter.GetContent();
     }
 
     template <class T>
@@ -269,20 +300,30 @@ namespace breathe
 
 
 
-    class reader
+    class cReader
     {
     public:
       bool ReadFromFile(document& doc, const string_t& filename) const;
-      bool ReadFromString(document& doc, const string_t& input) const;
+      bool ReadFromString(document& doc, const std::string& input) const { return ReadFromString(doc, breathe::string::ToWchar_t(input)); }
+      bool ReadFromString(document& doc, const std::wstring& input) const;
     };
 
 
-    class writer
+    class cWriter
     {
     public:
       bool WriteToFile(const document& doc, const string_t& filename) const;
-      bool WriteToString(const document& doc, string_t& output) const;
+      bool WriteToString(const document& doc, std::string& output) const;
+      bool WriteToString(const document& doc, std::wstring& output) const;
     };
+
+    inline bool cWriter::WriteToString(const document& doc, std::string& output) const
+    {
+      std::wstring temp(breathe::string::ToWchar_t(output));
+      bool bResult = WriteToString(doc, temp);
+      output = breathe::string::ToUTF8(temp);
+      return bResult;
+    }
   }
 }
 

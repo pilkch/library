@@ -4,7 +4,7 @@
 #include <cstdarg>
 #include <cassert>
 
-// writing on a text file
+// Writing to and from text files
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-// Boost includes
+// Boost Includes
 #include <boost/shared_ptr.hpp>
 
 #include <GL/GLee.h>
@@ -101,7 +101,7 @@ namespace breathe
                 sInfo.find("ERROR") != std::string::npos)
             {
               sInfo = string::Replace(sInfo, "\n", "<br>");
-              LOG.Error("Material", std::string("Vertex Shader") + sShaderVertex + std::string(": ") + sInfo);
+              LOG.Error("Material", std::string("Vertex Shader") + breathe::string::ToUTF8(sShaderVertex) + std::string(": ") + sInfo);
             }
             SAFE_DELETE_ARRAY(infoLog);
         }
@@ -120,7 +120,7 @@ namespace breathe
                 sInfo.find("ERROR") != std::string::npos)
             {
               sInfo = string::Replace(sInfo, "\n", "<br>");
-              LOG.Error("Material", std::string("Fragment Shader ") + sShaderFragment + ": " + sInfo);
+              LOG.Error("Material", std::string("Fragment Shader ") + breathe::string::ToUTF8(sShaderFragment) + ": " + sInfo);
             }
             SAFE_DELETE_ARRAY(infoLog);
         }
@@ -137,21 +137,21 @@ namespace breathe
             std::string sInfo(infoLog);
             if (  sInfo.find("not been successfully compiled") != std::string::npos ||
                 sInfo.find("Warning") != std::string::npos)
-              LOG.Error("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
+              LOG.Error("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
             else
-              LOG.Success("Material", std::string("Program ") + sShaderVertex + " " + sShaderFragment + ": " + infoLog);
+              LOG.Success("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
             SAFE_DELETE_ARRAY(infoLog);
         }
       }
 
       void cShader::Init()
       {
-        if ("" != sShaderVertex) {
+        if (TEXT("") != sShaderVertex) {
           uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
 
-          std::string buffer="";
-          std::string line="";
-          std::ifstream f(sShaderVertex.c_str());
+          std::string buffer = "";
+          std::string line = "";
+          std::ifstream f(breathe::string::ToUTF8(sShaderVertex).c_str());
           if (f.is_open()) {
             while (!f.eof()) {
               std::getline(f, line);
@@ -168,18 +168,18 @@ namespace breathe
 
             CheckStatusVertex();
           } else {
-            LOG.Error("Material", std::string("Shader not found ") + sShaderVertex);
+            LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderVertex));
             uiShaderVertex=0;
           }
         }
 
 
-        if ("" != sShaderFragment) {
+        if (TEXT("") != sShaderFragment) {
           uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
 
           std::string buffer;
           std::string line;
-          std::ifstream f(sShaderFragment.c_str());
+          std::ifstream f(breathe::string::ToUTF8(sShaderFragment).c_str());
           if (f.is_open()) {
             while (!f.eof()) {
               std::getline(f, line);
@@ -194,7 +194,7 @@ namespace breathe
 
             CheckStatusFragment();
           } else {
-            LOG.Error("Material", std::string("Shader not found ") + sShaderFragment);
+            LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderFragment));
             uiShaderFragment=0;
           }
         }
@@ -229,7 +229,7 @@ namespace breathe
       }
 
 
-      cMaterial::cMaterial(const std::string& name) :
+      cMaterial::cMaterial(const string_t& name) :
         chDustR(0),
         chDustG(0),
         chDustB(0),
@@ -265,13 +265,13 @@ namespace breathe
 
       bool cMaterial::Load(const string_t& inFilename)
       {
-        LOG.Success("Material", std::string("Looking for ") + inFilename);
+        LOG.Success("Material", std::string("Looking for ") + breathe::string::ToUTF8(inFilename));
 
         string_t sFilename = inFilename;
 
         string_t sPath = breathe::filesystem::GetPath(sFilename);
 
-        xml::cNode root(breathe::string::ToUTF8(sFilename));
+        xml::cNode root(sFilename);
         xml::cNode::iterator iter(root);
 
         if (!iter.IsValid()) return breathe::BAD;

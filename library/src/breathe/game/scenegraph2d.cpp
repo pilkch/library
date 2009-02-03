@@ -519,7 +519,7 @@ namespace breathe
     {
     public:
       cSceneGraphUnitTest() :
-        cUnitTestBase("cSceneGraphUnitTest")
+        cUnitTestBase(TEXT("cSceneGraphUnitTest"))
       {
         printf("cSceneGraphUnitTest\n");
       }

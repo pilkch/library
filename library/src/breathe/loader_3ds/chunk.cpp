@@ -143,20 +143,20 @@ namespace breathe
       return f;
     }
 
-    std::string Model3DSChunk::Str()
+    string_t Model3DSChunk::Str()
     {
-      std::string s;
+      ostringstream_t o;
       char c;
 
       do {
         file.read(&c, 1);
-        s += c;
+        o<<c;
 
         nRead++;
 
-      } while(c != '\0');
+      } while (c != '\0');
 
-      return s;
+      return o.str();
     }
 
     Model3DSChunk Model3DSChunk::Child()

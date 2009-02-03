@@ -110,17 +110,17 @@ namespace breathe
       };
     }
 
-    cTextureRef cTextureAtlas::AddTexture(const std::string& sPath)
+    cTextureRef cTextureAtlas::AddTexture(const string_t& sPath)
     {
-      LOG.Success("Texture", "Loading " + sFilename);
+      LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sPath));
 
       string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), sFilename);
+      breathe::filesystem::FindResourceFile(sPath, sFilename);
 
       // Load the texture
       cTextureRef pTexture(new cTexture);
 
-      if (pTexture->Load(breathe::string::ToUTF8(sFilename)) != breathe::GOOD) {
+      if (pTexture->Load(sFilename) != breathe::GOOD) {
         pTexture.reset();
         return pRender->pTextureNotFoundTexture;
       }
@@ -145,33 +145,26 @@ namespace breathe
       unsigned int uiOffset=0;
 
       rowY = 0;
-      while (rowY<uiAtlasWidthNSegments && uiAtlasWidthNSegments-rowY>=requiredH && !bFound)
-      {
+      while (rowY<uiAtlasWidthNSegments && uiAtlasWidthNSegments-rowY>=requiredH && !bFound) {
         lineX = 0;
-        while (lineX<uiAtlasWidthNSegments && uiAtlasWidthNSegments-lineX>=requiredW && !bFound)
-        {
+        while (lineX<uiAtlasWidthNSegments && uiAtlasWidthNSegments-lineX>=requiredW && !bFound) {
           // Set bGood to true
           bGood=true;
           countH=0;
           uiOffset=rowY*uiAtlasWidthNSegments+lineX;
 
-          for (countH=0;countH<requiredH;countH++)
-          {
-            for (countW=0;countW<requiredW;countW++)
-            {
+          for (countH=0;countH<requiredH;countH++) {
+            for (countW=0;countW<requiredW;countW++) {
               // bGood = true if this vSegment has not been filled yet
               bGood = (false == vSegment[uiOffset + countH*uiAtlasWidthNSegments+countW]);
-              if (!bGood)
-                break;
+              if (!bGood) break;
             }
 
-            if (!bGood)
-              break;
+            if (!bGood) break;
           }
 
           // If bGood is still true then we have found a valid position for this texture
-          if (bGood)
-          {
+          if (bGood) {
             bFound=true;
             foundX=lineX;
             foundY=rowY;
@@ -188,8 +181,7 @@ namespace breathe
       };
 
       // If we haven't found a spot, return
-      if (!bFound)
-      {
+      if (!bFound) {
         std::ostringstream t;
         t << "Couldn't find position for texture " + breathe::string::ToUTF8(sFilename) + " (";
         t << uiAtlasWidthNSegments*uiSegmentWidthPX;
@@ -246,8 +238,7 @@ namespace breathe
 
     void cTextureAtlas::Begin(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX)
     {
-      if (surface)
-      {
+      if (surface != nullptr) {
         LOG.Error("TextureAtlas", "Already has a surface");
         return;
       }

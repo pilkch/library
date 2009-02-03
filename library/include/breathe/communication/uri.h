@@ -39,11 +39,11 @@ namespace breathe
 
       cURI();
       cURI(const cURI& uri);
-      explicit cURI(const string_t& full_uri);
+      explicit cURI(const std::string& full_uri);
 
       cURI& operator=(const cURI& uri);
 
-      void Parse(const string_t& full_uri) { _Clear(); _Parse(full_uri); }
+      void Parse(const std::string& full_uri) { _Clear(); _Parse(full_uri); }
 
       bool IsValidProtocol() const { return bIsValidProtocol; }
       bool IsValidUsername() const { return bIsValidUsername; }
@@ -53,32 +53,32 @@ namespace breathe
       bool IsValidPath() const { return true; } // TODO: This obviously doesn't do anything
 
       PROTOCOL GetProtocol() const { return protocol; }
-      const string_t& GetUsername() const { return username; }
-      const string_t& GetPassword() const { return password; }
-      const string_t& GetServer() const { return server; }
+      const std::string& GetUsername() const { return username; }
+      const std::string& GetPassword() const { return password; }
+      const std::string& GetServer() const { return server; }
       port_t GetPort() const { return port; }
-      const string_t& GetRelativePath() const { return relativePath; }
-      string_t GetFullURI() const;
+      const std::string& GetRelativePath() const { return relativePath; }
+      std::string GetFullURI() const;
 
-      static string_t GetStringFromProtocol(PROTOCOL protocol);
-      static PROTOCOL GetProtocolFromString(const string_t& protocol);
+      static std::string GetStringFromProtocol(PROTOCOL protocol);
+      static PROTOCOL GetProtocolFromString(const std::string& protocol);
       static port_t GetPortFromProtocol(PROTOCOL protocol);
 
     private:
       void _Clear();
-      void _Parse(const string_t& full_uri);
-      PROTOCOL _GetProtocol(const string_t& strProtocol) const;
+      void _Parse(const std::string& full_uri);
+      PROTOCOL _GetProtocol(const std::string& strProtocol) const;
 
       bool bIsValidProtocol;
       PROTOCOL protocol;
       bool bIsValidUsername;
-      string_t username;
+      std::string username;
       bool bIsValidPassword;
-      string_t password;
+      std::string password;
       bool bIsValidServer;
-      string_t server;
+      std::string server;
       port_t port;
-      string_t relativePath;
+      std::string relativePath;
     };
 
     inline cURI::cURI() :
@@ -91,7 +91,7 @@ namespace breathe
     {
     }
 
-    inline cURI::cURI(const string_t& full_uri) :
+    inline cURI::cURI(const std::string& full_uri) :
       bIsValidProtocol(false),
       protocol(PROTOCOL_UNKNOWN),
       bIsValidUsername(false),
@@ -133,11 +133,11 @@ namespace breathe
       port = 0;
     }
 
-    inline void cURI::_Parse(const string_t& full_uri)
+    inline void cURI::_Parse(const std::string& full_uri)
     {
       if (full_uri.length() == 0) return;
 
-      string_t strProtocol = breathe::string::StripAfterInclusive(full_uri, "://");
+      std::string strProtocol = breathe::string::StripAfterInclusive(full_uri, "://");
       PROTOCOL tempProtocol = GetProtocolFromString(strProtocol);
       if (tempProtocol == PROTOCOL_UNKNOWN) return;
 
@@ -151,7 +151,7 @@ namespace breathe
     }
 
 
-    inline string_t cURI::GetStringFromProtocol(PROTOCOL protocol)
+    inline std::string cURI::GetStringFromProtocol(PROTOCOL protocol)
     {
       if (protocol == PROTOCOL_HTTP) return "http";
       if (protocol == PROTOCOL_HTTPS) return "https";
@@ -160,9 +160,9 @@ namespace breathe
       return "unknown";
     }
 
-    inline cURI::PROTOCOL cURI::GetProtocolFromString(const string_t& protocol)
+    inline cURI::PROTOCOL cURI::GetProtocolFromString(const std::string& protocol)
     {
-      const string_t lowerProtocol(breathe::string::ToLower(protocol));
+      const std::string lowerProtocol(breathe::string::ToLower(protocol));
       if (lowerProtocol == "http") return PROTOCOL_HTTP;
       if (lowerProtocol == "https") return PROTOCOL_HTTPS;
       if (lowerProtocol == "ftp") return PROTOCOL_FTP;
@@ -179,13 +179,13 @@ namespace breathe
       return 0;
     }
 
-    inline string_t cURI::GetFullURI() const
+    inline std::string cURI::GetFullURI() const
     {
       ASSERT(IsValidProtocol());
       ASSERT(IsValidServer());
       ASSERT(IsValidPort());
 
-      string_t full_uri(GetStringFromProtocol(protocol) + "://");
+      std::string full_uri(GetStringFromProtocol(protocol) + "://");
 
       // Add a username if we have one as well as a password if we have a username and password
       if (IsValidUsername()) {

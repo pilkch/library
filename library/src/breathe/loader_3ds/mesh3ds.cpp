@@ -27,12 +27,7 @@ namespace breathe
       bFoundMeshes=false;
     }
 
-    Mesh3DS::~Mesh3DS()
-    {
-
-    }
-
-    void Mesh3DS::Parse(const std::string &name , Model3DSChunk c)
+    void Mesh3DS::Parse(const string_t& name , Model3DSChunk c)
     {
       bFoundMeshes=true;
 

@@ -36,17 +36,17 @@ namespace breathe
     string_t GetOperatingSystemNameString()
     {
 #if defined(__WIN__)
-      return "Windows";
+      return TEXT("Windows");
 #elif defined(__LINUX__)
-      return "Linux";
+      return TEXT("Linux");
 #elif defined(__APPLE__)
   #if defined(__MACOSX__)
-      return "MacOSX";
+      return TEXT("MacOS X");
   #else
-      return "MacOS Unknown";
+      return TEXT("MacOS Unknown");
   #endif
 #else
-      return "Unknown";
+      return TEXT("Unknown");
 #endif
     }
 
@@ -79,14 +79,14 @@ namespace breathe
       int minor = 0;
       GetOperatingSystemVersion(major, minor);
 
-      std::ostringstream o;
-      o<<major<<"."<<minor;
+      ostringstream_t o;
+      o<<major<<TEXT(".")<<minor;
       return o.str();
     }
 
     string_t GetOperatingSystemFullString()
     {
-      string_t s = "Unknown " + GetOperatingSystemVersionString();
+      string_t s = TEXT("Unknown ") + GetOperatingSystemVersionString();
 
 #ifdef __WIN__
       int major = GetOperatingSystemVersionMajor();
@@ -114,7 +114,7 @@ namespace breathe
       }
 #endif
 
-      return GetOperatingSystemNameString() + " " + s;
+      return GetOperatingSystemNameString() + TEXT(" ") + s;
     }
 
 #ifdef __WIN__
@@ -144,8 +144,8 @@ namespace breathe
       int pid = fork();
       if (pid != 0) return;
 
-      char_t** szCommandAndParameters = nullptr;
-      //makeargv(sCommand.c_str(), &szCommandAndParameters);
+      char** szCommandAndParameters = nullptr;
+      //makeargv(breathe::string::ToUTF8(sCommand).c_str(), &szCommandAndParameters);
       execv(szCommandAndParameters[0], &szCommandAndParameters[0]);
 
       for (size_t i = 0; szCommandAndParameters[i] != nullptr; i++) LOG<<"ExecuteCommand FAILED "<<szCommandAndParameters[i]<<std::endl;
@@ -158,7 +158,7 @@ namespace breathe
     bool RunCommandLineProcess(const string_t& sCommandLine)
     {
       LOG<<"RunCommandLineProcess: "<<sCommandLine<<std::endl;
-      int result = system(sCommandLine.c_str());
+      int result = system(breathe::string::ToUTF8(sCommandLine).c_str());
       if (result == -1) LOG<<"RunCommandLineProcess system FAILED result="<<strerror(errno)<<std::endl;
       return (WIFEXITED(result) && WEXITSTATUS(result) == 0);
     }
@@ -179,24 +179,24 @@ namespace breathe
       if (IsOSKDE()) sCommand = TEXT("kfmclient exec \"") + sWebPageURL + TEXT("\"");
       else sCommand = TEXT("gnome-open \"") + sWebPageURL + TEXT("\"");
 
-      system(sCommand.c_str());
+      system(breathe::string::ToUTF8(sCommand).c_str());
     }
 
     void GetComputerName(string_t& sComputerName)
     {
-      sComputerName.reserve(MAX_STRING_LENGTH);
-      sComputerName.clear();
-      gethostname(&sComputerName[0], MAX_STRING_LENGTH);
+      char szComputerName[MAX_STRING_LENGTH];
+      gethostname(szComputerName, MAX_STRING_LENGTH);
+      sComputerName = breathe::string::ToString_t(szComputerName);
     }
 
     bool GetEnvironmentVariable(const string_t& sEnvironmentVariable, string_t& sValue)
     {
       sValue.clear();
 
-      const char_t* szResult = getenv(sEnvironmentVariable.c_str());
+      const char* szResult = getenv(breathe::string::ToUTF8(sEnvironmentVariable).c_str());
       if (szResult == nullptr) return false;
 
-      sValue = szResult;
+      sValue = breathe::string::ToString_t(szResult);
       return true;
     }
 
@@ -208,8 +208,8 @@ namespace breathe
 
       struct passwd *pw = getpwuid(getuid());
       ASSERT(pw != nullptr);
-      sUserName.assign(pw->pw_name); // login name ie. "chris"
-      sUserName.assign(pw->pw_gecos); // Real name is. "Chris Pilkington"
+      sUserName.assign(breathe::string::ToString_t(pw->pw_name)); // login name ie. "chris"
+      sUserName.assign(breathe::string::ToString_t(pw->pw_gecos)); // Real name is. "Chris Pilkington"
 
       LOG<<"GetUserName GetEnvironmentVariable FAILED Finding LOGNAME or USER"<<std::endl;
     }
@@ -223,7 +223,8 @@ namespace breathe
 
     bool IsUserRoot()
     {
-      const string_t sUser(getenv("USER"));
+      string_t sUser;
+      GetEnvironmentVariable(TEXT("USER"), sUser);
       return ((getuid() == 0) || (sUser == TEXT("root")) == 0); // Check if we are root
     }
 
@@ -247,7 +248,7 @@ namespace breathe
         struct group* grp = getgrgid(group_list[i]);
         LOG<<"IsUserAdministrator "<<(int)group_list[i]<<":"<<grp->gr_name<<std::endl;
 
-        if (string_t(grp->gr_name) == TEXT("admin")) return true;
+        if (breathe::string::ToString_t(grp->gr_name) == TEXT("admin")) return true;
       }
 
       return false;

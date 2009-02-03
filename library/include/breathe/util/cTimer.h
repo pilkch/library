@@ -17,7 +17,7 @@ namespace breathe
         fUpdateIntervalDivFPS(0.0f)
       {
       }
-      
+
       void Init(unsigned int uiHz);
       void Update(sampletime_t currentTime);
 
@@ -39,10 +39,10 @@ namespace breathe
     
     inline sampletime_t GetTime()
     {
-      //return the milliseconds since we started
+      // Return the milliseconds since we started
       return SDL_GetTicks();
     }
   }
 }
 
-#endif //CTIMER_H
+#endif // CTIMER_H

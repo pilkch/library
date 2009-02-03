@@ -256,6 +256,25 @@ namespace breathe
         ((y > bounds_y) && (y < (bounds_y + bounds_height)));
     }
 
+    // This is for calling with cVec2, cVec3 or cVec4
+    template <class T>
+    inline float GetDistance(const T& from, const T& to)
+    {
+      return (from - to).GetLength();
+    }
+
+
+    // This is for calling with int, float or double
+    template <class T>
+    inline bool IsApproximatelyEqual(const T& lhs, const T& rhs)
+    {
+      const T temp(lhs - rhs);
+      return (temp > -cEPSILON) && (temp < cEPSILON);
+    }
+
+
+    // *** Random Number Generation
+
     inline uint32_t random(uint32_t maximum)
     {
       return rand() % maximum;
@@ -266,15 +285,26 @@ namespace breathe
       return minimum + rand() % maximum;
     }
 
-    inline float randomZeroToOne()
+    inline float randomZeroToOnef()
     {
       return float(rand() % 10000) * 0.0001f;
     }
 
-    inline float randomMinusOneToPlusOne()
+    inline float randomMinusOneToPlusOnef()
     {
       return -1.0f + float(rand() % 20000) * 0.0001f;
     }
+
+    inline float randomf(float fMax)
+    {
+      return fMax * randomZeroToOnef();
+    }
+
+    inline float randomf(float fMin, float fMax)
+    {
+      return fMin + randomf(fMax - fMin);
+    }
+
 
     class cScopedPredictableRandom
     {
@@ -323,23 +353,6 @@ namespace breathe
     inline float cScopedPredictableRandom::GetRandomNumber0To1() const
     {
       return float(GetRandomNumber()) * fOneOver65536By65536;
-    }
-
-
-    // This is for calling with cVec2, cVec3 or cVec4
-    template <class T>
-    inline float GetDistance(const T& from, const T& to)
-    {
-      return (from - to).GetLength();
-    }
-
-
-    // This is for calling with int, float or double
-    template <class T>
-    inline bool IsApproximatelyEqual(const T& lhs, const T& rhs)
-    {
-      const T temp(lhs - rhs);
-      return (temp > -cEPSILON) && (temp < cEPSILON);
     }
   }
 }

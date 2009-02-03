@@ -109,7 +109,7 @@ namespace breathe
       stringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
-      o<<to_iso_string(datetime);
+      o<<breathe::string::ToString_t(to_iso_string(datetime));
 
       // "Z"
       // OR
@@ -138,7 +138,7 @@ namespace breathe
       stringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
-      o<<to_iso_string(datetime);
+      o<<breathe::string::ToString_t(to_iso_string(datetime));
 
       // "Z"
       o<<TEXT("Z");
@@ -172,7 +172,7 @@ namespace breathe
       const string_t after = rhs.substr(zOrPlusOrMinus + 1);
 
       // 19980717T140855,10
-      datetime = boost::posix_time::from_iso_string(before);
+      datetime = boost::posix_time::from_iso_string(breathe::string::ToUTF8(before));
 
       // We have a Z character so this is non timezone UTC time, return false to indicate that we don't have a timezone
       if (character == TEXT('Z')) return false;

@@ -90,12 +90,13 @@ namespace breathe
       cRender();
       ~cRender();
 
+      bool IsWireFrame() const { return bRenderWireframe; }
+
     private:
-      bool FindExtension(const std::string& sExt);
+      bool FindExtension(const string_t& sExt);
       float GetShaderVersion();
 
     public:
-      // Candidate for removal
       bool PreInit();
 
       bool Init();
@@ -120,6 +121,9 @@ namespace breathe
 
       void _RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pFBO);
 
+      void BeginScreenSpaceGuiRendering();
+      void EndScreenSpaceGuiRendering();
+
     public:
       void Begin();
       void End();
@@ -136,23 +140,17 @@ namespace breathe
       // In this mode x is 0..1, y is 1..0
       void BeginScreenSpaceRendering();
       void EndScreenSpaceRendering();
-      void BeginScreenSpaceGuiRendering();
-      void EndScreenSpaceGuiRendering();
 
       // In this mode x is -fScale..+fScale, y is +fScale..-fScale
       void BeginScreenSpaceWorldRendering(float fScale);
       void EndScreenSpaceWorldRendering();
 
-      void RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2);
-      void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
-      void RenderAxisReference(float x, float y, float z);
-      void RenderAxisReference(const math::cVec3& position);
-      void RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax);
-
       void RenderScreenSpacePolygon(float fX, float fY,
         float fVertX0, float fVertY0, float fVertX1, float fVertY1,
         float fVertX2, float fVertY2, float fVertX3, float fVertY3);
       void RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& boxColour, const math::cColour& upperBorderColour, const math::cColour& lowerBorderColour);
+
+      void RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& colour0, const math::cColour& colour1, const math::cColour& colour2, const math::cColour& colour3);
 
       void RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight);
       void RenderScreenSpaceRectangle(
@@ -165,6 +163,12 @@ namespace breathe
         float fU, float fV, float fU2, float fV2);
 
       void RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation);
+
+      void RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2);
+      void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
+      void RenderAxisReference(float x, float y, float z);
+      void RenderAxisReference(const math::cVec3& position);
+      void RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderMesh(model::cMeshRef pMesh);
       unsigned int RenderStaticModel(model::cStaticRef p);
@@ -191,15 +195,15 @@ namespace breathe
 
       cVertexBufferObjectRef AddVertexBufferObject();
 
-      bool AddTextureNotFoundTexture(const std::string& sNewFilename);
-      bool AddMaterialNotFoundTexture(const std::string& sNewFilename);
+      bool AddTextureNotFoundTexture(const string_t& sNewFilename);
+      bool AddMaterialNotFoundTexture(const string_t& sNewFilename);
 
       cTextureRef AddCubeMap(const string_t& sFilename);
-      cTextureRef AddTexture(const std::string& sNewFilename);
-      cTextureRef AddTextureToAtlas(const std::string& sNewFilename, unsigned int uiAtlas);
+      cTextureRef AddTexture(const string_t& sNewFilename);
+      cTextureRef AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas);
 
       cTextureRef GetTextureAtlas(ATLAS atlas);
-      cTextureRef GetTexture(const std::string& sFilename);
+      cTextureRef GetTexture(const string_t& sFilename);
       cTextureRef GetCubeMap(const string_t& sFilename);
 
       material::cMaterialRef GetCurrentMaterial() const;
@@ -211,17 +215,17 @@ namespace breathe
       void SelectTextureUnit1();
       void SelectTextureUnit2();
 
-      bool SetTexture0(const std::string& sTexture) { return SetTexture0(GetTexture(sTexture)); }
+      bool SetTexture0(const string_t& sTexture) { return SetTexture0(GetTexture(sTexture)); }
       bool SetTexture0(ATLAS atlas);
       bool SetTexture0(cTextureRef pTexture);
-      bool SetTexture1(const std::string& sTexture) { return SetTexture1(GetTexture(sTexture)); }
+      bool SetTexture1(const string_t& sTexture) { return SetTexture1(GetTexture(sTexture)); }
       bool SetTexture1(ATLAS atlas);
       bool SetTexture1(cTextureRef pTexture);
 
-      material::cMaterialRef AddMaterial(const std::string& sFilename);
-      material::cMaterialRef AddMaterialNotFoundMaterial(const std::string& sFilename);
+      material::cMaterialRef AddMaterial(const string_t& sFilename);
+      material::cMaterialRef AddMaterialNotFoundMaterial(const string_t& sFilename);
       bool ClearMaterial();
-      bool SetMaterial(const std::string& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
+      bool SetMaterial(const string_t& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
       bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
       bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
 
@@ -233,12 +237,12 @@ namespace breathe
       void SetColour(float r, float g, float b);
       void SetColour(const math::cColour& inColour);
 
-      material::cMaterialRef GetMaterial(const std::string& sFilename);
+      material::cMaterialRef GetMaterial(const string_t& sFilename);
 
 
       void ReloadTextures();
 
-      material::cMaterialRef AddPostRenderEffect(const std::string& sFilename);
+      material::cMaterialRef AddPostRenderEffect(const string_t& sFilename);
       void RemovePostRenderEffect();
 
     private:
@@ -250,7 +254,7 @@ namespace breathe
 
 
     public:
-      std::map<std::string, cTextureRef> mTexture; //Map that contains filename, texture pairs
+      std::map<string_t, cTextureRef> mTexture; //Map that contains filename, texture pairs
       std::map<string_t, cTextureRef> mCubeMap; //Map that contains filename, cubemap texture pairs
 
 
@@ -288,9 +292,9 @@ namespace breathe
 
 
       std::vector<render::cTextureAtlasRef> vTextureAtlas; //Vector that contains texture atlases
-      std::map<std::string, material::cMaterialRef> mMaterial;
+      std::map<string_t, material::cMaterialRef> mMaterial;
 
-      std::vector<cVertexBufferObjectRef>vVertexBufferObject;
+      std::vector<cVertexBufferObjectRef> vVertexBufferObject;
 
 
       cLevel* pLevel;
@@ -315,7 +319,7 @@ namespace breathe
       const SDL_VideoInfo* videoInfo;
       SDL_Surface* pSurface;
 
-      //std::map<std::string, model::cAnimationRef> mAnimation;
+      //std::map<string_t, model::cAnimationRef> mAnimation;
       std::map<string_t, model::cStaticRef> mStatic;
 
     public:

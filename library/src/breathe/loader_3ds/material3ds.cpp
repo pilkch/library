@@ -52,13 +52,11 @@ namespace breathe
 
     void Material3DS::NewMaterial(Model3DSChunk c)
     {
-      std::string mat_name = c.Str();
+      string_t mat_name = c.Str();
 
 #ifdef DEBUG3DS
-      if (mat_name.find(".mat") != string::npos)
-        LOG.Success("3ds", "Material: %s", mat_name.c_str());
-      else
-        LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
+      if (mat_name.find(".mat") != string_t::npos) LOG.Success("3ds", "Material: %s", mat_name.c_str());
+      else LOG.Error("3ds", "Invalid material: %s", mat_name.c_str());
 #endif
 
       materials.push_back(mat_name);

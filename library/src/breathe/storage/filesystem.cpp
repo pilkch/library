@@ -100,34 +100,34 @@ namespace breathe
     {
 #ifdef P_tmpdir
       // On some systems this is defined for us
-      return P_tmpdir;
+      return breathe::string::ToString_t(P_tmpdir);
 #endif
 
-      std::string sPath;
-      if (operatingsystem::GetEnvironmentVariable("TMPDIR", sPath)) return sPath;
+      string_t sPath;
+      if (operatingsystem::GetEnvironmentVariable(TEXT("TMPDIR"), sPath)) return sPath;
 
       // Last resort
-      return "/tmp";
+      return TEXT("/tmp");
     }
 
-    bool DeleteFile(const breathe::string_t& sFilename)
+    bool DeleteFile(const string_t& sFilename)
     {
-      return (unlink(sFilename.c_str()) == 0);
+      return (unlink(breathe::string::ToUTF8(sFilename).c_str())== 0);
     }
 
-    bool DeleteDirectory(const breathe::string_t& sFoldername)
+    bool DeleteDirectory(const string_t& sFoldername)
     {
-      return (rmdir(sFoldername.c_str()) == 0);
+      return (rmdir(breathe::string::ToUTF8(sFoldername).c_str()) == 0);
     }
 #endif
 
     // This is where we don't want to destroy the creation time etc. of the destination file,
     // also if the destination file is a link to another file it won't destroy the link,
     // it will actually write to the linked to file
-    void CopyContentsOfFile(const breathe::string_t& sFrom, const breathe::string_t& sTo)
+    void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo)
     {
-      std::ifstream i(sFrom.c_str());
-      std::ofstream o(sTo.c_str());
+      std::ifstream i(breathe::string::ToUTF8(sFrom).c_str());
+      std::ofstream o(breathe::string::ToUTF8(sTo).c_str());
 
       char c = '\0';
 
@@ -219,28 +219,28 @@ namespace breathe
 
     string_t GetCurrentDirectory()
     {
-      char_t szDirectory[MAX_PATH_LEN];
+      char szDirectory[MAX_PATH_LEN];
       getcwd(szDirectory, MAX_PATH_LEN);
-      return string_t(szDirectory);
+      return breathe::string::ToString_t(szDirectory);
     }
 
     void ChangeToDirectory(const string_t& sDirectory)
     {
-      chdir(sDirectory.c_str());
+      chdir(breathe::string::ToUTF8(sDirectory).c_str());
     }
 
     string_t ExpandPath(const string_t& path)
     {
-      printf("ExpandPath path=\"%s\"\n", path.c_str());
+      LOG<<"ExpandPath path=\""<<path<<"\""<<std::endl;
 
       // ""
       if (path.empty() || (TEXT("./") == path)) {
-        printf("ExpandPath 0 returning \"%s\"\n", GetThisApplicationDirectory().c_str());
+        LOG<<"ExpandPath 0 returning \""<<GetThisApplicationDirectory()<<"\""<<std::endl;
         return GetThisApplicationDirectory();
       }
 
       if (TEXT(".") == path) {
-        printf("ExpandPath 1 returning \"%s\"\n", breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/")).c_str());
+        LOG<<"ExpandPath 1 returning \""<<breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"))<<"\""<<std::endl;
         return breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
       }
 
@@ -248,7 +248,7 @@ namespace breathe
       // ".********"
       if ((path == TEXT(".")) || (((path.length() > 2) && (path[0] == TEXT('.'))) && (path[1] != TEXT('.')))) {
         string_t expanded(path.substr(2));
-        printf("ExpandPath 2 returning \"%s\"\n", expanded.c_str());
+        LOG<<"ExpandPath 2 returning \""<<expanded<<"\""<<std::endl;
         return expanded;
       }
 
@@ -256,11 +256,11 @@ namespace breathe
       string_t prefix = GetThisApplicationDirectory();
       while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
-        printf("ExpandPath prefix=\"%s\"\n", prefix.c_str());
+        LOG<<"ExpandPath prefix=\""<<prefix<<"\""<<std::endl;
         prefix = StripLastDirectory(prefix);
       };
 
-      printf("ExpandPath final prefix=\"%s\" expanded=\"%s\"\n", prefix.c_str(), expanded.c_str());
+      LOG<<"ExpandPath final prefix=\""<<expanded<<"\" expanded=\""<<expanded<<"\""<<std::endl;
 
       return prefix + expanded;
     }
@@ -366,7 +366,7 @@ namespace breathe
 #pragma push_macro("FileExists")
 #undef FileExists
 #endif
-    bool FileExists(const breathe::string_t& sFilename)
+    bool FileExists(const string_t& sFilename)
     {
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
@@ -379,7 +379,7 @@ namespace breathe
 
       return false;
 #elif defined(__LINUX__)
-      return (0 == access(sFilename.c_str(), F_OK));
+      return (0 == access(breathe::string::ToUTF8(sFilename).c_str(), F_OK));
 #else
 #error "FileExists not implemented on this platform"
 #endif
@@ -470,7 +470,7 @@ namespace breathe
     {
       struct stat results;
 
-      if (stat(sFilename.c_str(), &results) == 0) return results.st_size;
+      if (stat(breathe::string::ToUTF8(sFilename).c_str(), &results) == 0) return results.st_size;
 
       return 0;
     }
@@ -489,7 +489,7 @@ namespace breathe
 #pragma push_macro("CreateDirectory")
 #undef CreateDirectory
 #endif
-    bool CreateDirectory(const breathe::string_t& sFoldername)
+    bool CreateDirectory(const string_t& sFoldername)
     {
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
@@ -502,12 +502,12 @@ namespace breathe
 
 #elif defined(__LINUX__)
       // Create the directory
-      if (0 != mkdir(sFoldername.c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
+      if (0 != mkdir(breathe::string::ToUTF8(sFoldername).c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
 
       // Set owner and group
       struct passwd *pw = getpwuid(getuid());
       ASSERT(pw != nullptr);
-      return (0 == chown(sFoldername.c_str(), pw->pw_uid, pw->pw_gid));
+      return (0 == chown(breathe::string::ToUTF8(sFoldername).c_str(), pw->pw_uid, pw->pw_gid));
 #else
       #error "CreateDirectory not implemented on this platform"
       return false;
@@ -518,7 +518,7 @@ namespace breathe
 #pragma push_macro("CreateFile")
 #undef CreateFile
 #endif
-    bool CreateFile(const breathe::string_t& sFilename)
+    bool CreateFile(const string_t& sFilename)
     {
 #ifdef __WIN__
 #pragma pop_macro("CreateFile")
@@ -549,7 +549,7 @@ namespace breathe
 
       return false;
 #elif defined(__LINUX__)
-      std::ofstream file(sFilename.c_str());
+      std::ofstream file(breathe::string::ToUTF8(sFilename).c_str());
       bool bIsOpen = file.good();
       file.close();
 
@@ -604,9 +604,9 @@ namespace breathe
       return false;
 #elif defined(__LINUX__)
       struct stat _stat;
-      int result = lstat(sPath.c_str(), &_stat);
+      int result = lstat(breathe::string::ToUTF8(sPath).c_str(), &_stat);
       if (0 > result) {
-        std::cout<<"path::IsFile lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
+        LOG<<"path::IsFile lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
         return false;
       }
       return S_ISREG(_stat.st_mode);
@@ -628,9 +628,9 @@ namespace breathe
       return false;
 #elif defined(__LINUX__)
       struct stat _stat;
-      int result = lstat(sPath.c_str(), &_stat);
+      int result = lstat(breathe::string::ToUTF8(sPath).c_str(), &_stat);
       if (0 > result) {
-        std::cout<<"path::IsDirectory lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
+        LOG<<"path::IsDirectory lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
         return false;
       }
       return S_ISDIR(_stat.st_mode);
@@ -682,7 +682,7 @@ namespace breathe
     iterator::iterator() :
       bIsEndIterator(true),
       i(0),
-      sParentFolder("")
+      sParentFolder(TEXT(""))
     {
     }
 
@@ -694,13 +694,13 @@ namespace breathe
 #ifdef __WIN__
 #error "iterator::iterator not implemented in windows"
 #elif defined(__LINUX__)
-      DIR* d = opendir(sParentFolder.c_str());
+      DIR* d = opendir(breathe::string::ToUTF8(sParentFolder).c_str());
       struct dirent* dirp;
       if (d != nullptr) {
         while ((dirp = readdir(d)) != NULL ) {
           if ((0 != strcmp(".", dirp->d_name)) &&
               (0 != strcmp("..", dirp->d_name)))
-            paths.push_back(dirp->d_name);
+            paths.push_back(breathe::string::ToString_t(dirp->d_name));
         }
       }
       closedir(d);

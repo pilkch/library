@@ -94,12 +94,12 @@ namespace breathe
 
     void cWindowManager::LoadTheme()
     {
-      pMaterial = pRender->AddMaterial("gui.mat");
+      pMaterial = pRender->AddMaterial(TEXT("gui.mat"));
 
-      textureBackground.push_back(pRender->AddTexture("gui_background_normal.png"));
-      textureBackground.push_back(pRender->AddTexture("gui_background_darker.png"));
-      textureBackground.push_back(pRender->AddTexture("gui_background_darkest.png"));
-      textureBackground.push_back(pRender->AddTexture("gui_background_text.png"));
+      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_normal.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_darker.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_darkest.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_text.png")));
 
       ASSERT(pMaterial != nullptr);
       ASSERT(textureBackground[0] != nullptr);
@@ -109,7 +109,7 @@ namespace breathe
 
       //pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
       breathe::string_t sFilename;
-      breathe::filesystem::FindResourceFile("fonts/pricedown.ttf", sFilename);
+      breathe::filesystem::FindResourceFile(TEXT("fonts/pricedown.ttf"), sFilename);
       pFontWindowCaption = new breathe::render::cFont(sFilename, 32);
     }
 
@@ -127,12 +127,13 @@ namespace breathe
       cWindow* pWindow = nullptr;
       while (iter.IsValid()) {
         pWindow = nullptr;
-        sWindowType = iter.GetName();
+        sWindowType = breathe::string::ToString_t(iter.GetName());
 
         string_t sID;
         id_t idWindow = 0;
-        if (iter.GetAttribute(TEXT("id"), sID)) idWindow = GetIDFromStringIdentifier(sID);
-        else idWindow = GenerateID();
+        if (iter.GetAttribute("id", sID)) {
+          idWindow = GetIDFromStringIdentifier(sID);
+        } else idWindow = GenerateID();
 
         if (sWindowType == TEXT("modelesswindow")) {
 //          pWindow = new cModelessWindow(idWindow, x, y, width, height, caption, pParent);

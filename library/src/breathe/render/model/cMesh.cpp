@@ -81,21 +81,21 @@ namespace breathe
         glDeleteBuffersARB(1, &uiNormalBuffer);
       }
 
-      void cMeshData::CloneTo(cMeshData* rhs)
+      void cMeshData::CopyFrom(const cMeshData& rhs)
       {
-        rhs->uiVertexBuffer = 0;
-        rhs->uiIndexBuffer = 0;
-        rhs->uiNormalBuffer = 0;
-        rhs->uiTextureCoordBuffer = 0;
+        uiVertexBuffer = 0;
+        uiIndexBuffer = 0;
+        uiNormalBuffer = 0;
+        uiTextureCoordBuffer = 0;
 
-        rhs->uiTriangles = uiTriangles;
-        rhs->uiTextures = uiTextures;
+        uiTriangles = rhs.uiTriangles;
+        uiTextures = rhs.uiTextures;
 
-        rhs->vIndex = vIndex;
+        vIndex = rhs.vIndex;
 
-        rhs->vVertex = vVertex;
-        rhs->vNormal = vNormal;
-        rhs->vTextureCoord = vTextureCoord;
+        vVertex = rhs.vVertex;
+        vNormal = rhs.vNormal;
+        vTextureCoord = rhs.vTextureCoord;
       }
 
       void cMeshData::CreateVBO()
@@ -133,12 +133,13 @@ namespace breathe
         pMeshData = new cMeshData;
       }
 
-      void cMesh::CloneTo(cMeshRef rhs)
+      void cMesh::CopyFrom(const cMeshRef rhs)
       {
-        rhs->pMeshData = new cMeshData;
-        pMeshData->CloneTo(rhs->pMeshData);
-        rhs->sMaterial = sMaterial;
-        rhs->pMaterial = pMaterial;
+        ASSERT(rhs != nullptr);
+        pMeshData = new cMeshData;
+        pMeshData->CopyFrom(*rhs->pMeshData);
+        sMaterial = rhs->sMaterial;
+        pMaterial = rhs->pMaterial;
       }
 
       void cMesh::SetMaterial(material::cMaterialRef pInMaterial)
@@ -149,7 +150,7 @@ namespace breathe
         pMaterial = pInMaterial;
       }
 
-      void cMesh::SetMaterial(const std::string& sInMaterial)
+      void cMesh::SetMaterial(const string_t& sInMaterial)
       {
         sMaterial = sInMaterial;
         pMaterial = pRender->GetMaterial(sMaterial);

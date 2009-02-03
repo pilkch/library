@@ -273,8 +273,8 @@ namespace breathe
     cGearbox::cGearbox() :
       bHasReverseGear(false),
       bHasNeutralGear(false),
-      state(STATE_IN_GEAR),
       timeShiftDelayMS(200), // How long each shift takes
+      state(STATE_IN_GEAR),
       fInputRPM(1000.0f)
     {
     }
@@ -607,7 +607,7 @@ namespace breathe
 
       float_t fEngineExhaustpsi = 3.0f;
       fRPM = GetTurboChargerRPMAtEngineExhaustpsi(fEngineExhaustpsi);
-      float_t outputboostpsi = GetBoostpsiAtTurboChargerRPM(fRPM);
+      //float_t outputboostpsi = GetBoostpsiAtTurboChargerRPM(fRPM);
     }
 
 
@@ -625,7 +625,7 @@ namespace breathe
       // http://en.wikipedia.org/wiki/Supercharger
       float_t fEngineRPM = 1000.0f;
       fRPM = fSuperChargerRPMToEngineRPMRatio * fEngineRPM;
-      float_t outputboostpsi = GetBoostpsiAtSuperChargerRPM(fRPM);
+      //float_t outputboostpsi = GetBoostpsiAtSuperChargerRPM(fRPM);
     }
 
 
@@ -873,9 +873,9 @@ namespace breathe
 #ifdef BUILD_DEBUG
   class cCurveUnitTest : protected util::cUnitTestBase
   {
-    public:
+  public:
     cCurveUnitTest() :
-      cUnitTestBase("cCurveUnitTest")
+      cUnitTestBase(TEXT("cCurveUnitTest"))
       {
       }
 

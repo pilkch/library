@@ -1,6 +1,8 @@
 #ifndef LIGHT3DSOBJECT_H
 #define LIGHT3DSOBJECT_H
 
+#include <breathe/util/cString.h>
+
 namespace breathe
 {
   namespace loader_3ds
@@ -8,11 +10,11 @@ namespace breathe
     class Light3DSObject
     {
     public:
-      Light3DSObject(const std::string &nname);
+      explicit Light3DSObject(const string_t& nname);
       ~Light3DSObject();
-    private:
 
-      std::string name;
+    private:
+      string_t name;
     };
   }
 }

@@ -23,7 +23,7 @@ namespace breathe
   class cApp
   {
   public:
-    cApp(int argc, const char** argv);
+    cApp(int argc, const char* const* argv);
     virtual ~cApp();
 
     bool InitApp();
@@ -227,7 +227,7 @@ namespace breathe
 
     void LoadConfigXML();
     void _ConsoleExecuteSingleCommand(const std::string& s);
-    void _InitArguments(int argc, const char** argv);
+    void _InitArguments(int argc, const char* const* argv);
     void _Update(sampletime_t currentTime);
     void _UpdateInput(sampletime_t currentTime);
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)

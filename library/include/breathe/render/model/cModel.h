@@ -21,7 +21,7 @@ namespace breathe
         cModel();
         ~cModel();
 
-        virtual int Load(const std::string& sFilename)=0;
+        virtual int Load(const string_t& sFilename)=0;
 
         unsigned int uiTriangles;
       };

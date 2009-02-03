@@ -35,6 +35,8 @@
 
 #include <breathe/math/math.h>
 
+#include <breathe/storage/xml.h>
+
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 #include <breathe/communication/http.h>
@@ -44,51 +46,103 @@ namespace breathe
 {
   namespace network
   {
-    void cFeedDownloader::ParseAtomFeed(const std::string& sContent)
+    void cFeed::ParseAtomFeed(const std::string& sContent)
     {
-      /*should change constructor to take no parameters
-      then we call:
-      CreateFromUTF8(const std::string& sBuffer);
-      CreateFromString(const string_t& sBuffer);
-      CreateFromFile(const string_t& sFilename);
+      LOG<<"cFeed::ParseAtomFeed"<<std::endl;
+
+      Clear();
+
+      xml::cNode root;
+
+      xml::reader r;
+      if (!r.ReadFromString(root, sContent)) {
+        LOG<<"cFeed::ParseAtomFeed XML Could not be read from string, returning"<<std::endl;
+        return;
+      }
 
       // Now load all the rest from the config file
-      xml::cXML root;
-      root.CreateFromUTF8(content);
-      if (!root.IsValid()) return;
-
       xml::cNode::iterator iter(root);
-      if (!iter.IsValid()) return;
+
+      if (!iter.IsValid()) {
+        LOG<<"cFeed::ParseAtomFeed XML document not found, returning"<<std::endl;
+        return;
+      }
 
       iter.FindChild("feed");
-      if (!iter.IsValid()) return;
+      if (!iter.IsValid()) {
+        LOG<<"cFeed::ParseAtomFeed feed node not found, returning"<<std::endl;
+        return;
+      }
+
+      std::string sXMLNameSpace;
+      if (iter.GetAttribute("xmlns", sXMLNameSpace)) {
+        LOG<<"cFeed::ParseAtomFeed xmlns found \""<<sXMLNameSpace<<"\""<<std::endl;
+        ASSERT(sXMLNameSpace == "http://www.w3.org/2005/Atom");
+      }
+
+      xml::cNode::iterator iterTitle(iter.GetChild("title"));
+      if (iterTitle.IsValid()) {
+        title = iterTitle.GetChildContent();
+        LOG<<"cFeed::ParseAtomFeed title found \""<<title<<"\""<<std::endl;
+      }
 
       iter.FindChild("entry");
-      if (!iter.IsValid()) return;
+      if (!iter.IsValid()) {
+        LOG<<"cFeed::ParseAtomFeed entry node not found, returning"<<std::endl;
+        return;
+      }
 
       while (iter.IsValid()) {
-        breathe::xml::cNode::iterator entry(iter);
-
         cFeedArticle* pArticle = new cFeedArticle;
 
-        iter.FirstChild();
-        while (iter.IsValid()) {
-          if (iter.GetName() == "title") pArticle->title = iter.GetContent();
-          else if (iter.GetName() == "link") iter.GetAttribute("href", pArticle->url);
-          else if (iter.GetName() == "id") pArticle->uniqueid = iter.GetContent();
-          else if (iter.GetName() == "updated") pArticle->date = iter.GetContent();
-          else if (iter.GetName() == "summary") pArticle->content = iter.GetContent();
+        xml::cNode::iterator iterId(iter.GetChild("id"));
+        if (iterId.IsValid()) {
+          pArticle->id = iterId.GetChildContent();
+          //LOG<<"cFeed::ParseAtomFeed id found \""<<pArticle->id<<"\""<<std::endl;
+        }
 
-          iter.Next();
-        };
+        xml::cNode::iterator iterTitle(iter.GetChild("title"));
+        if (iterTitle.IsValid()) {
+          pArticle->title = iterTitle.GetChildContent();
+          //LOG<<"cFeed::ParseAtomFeed title found \""<<pArticle->title<<"\""<<std::endl;
+        }
+
+        xml::cNode::iterator iterDate(iter.GetChild("updated"));
+        if (iterDate.IsValid()) {
+          pArticle->date = iterDate.GetChildContent();
+          //LOG<<"cFeed::ParseAtomFeed id found \""<<pArticle->date<<"\""<<std::endl;
+        }
+
+        xml::cNode::iterator iterSummary(iter.GetChild("summary"));
+        if (iterSummary.IsValid()) {
+          pArticle->summary = iterSummary.GetChildContent();
+          //LOG<<"cFeed::ParseAtomFeed summary found \""<<pArticle->summary<<"\""<<std::endl;
+        }
+
+        xml::cNode::iterator iterLink(iter.GetChild("link"));
+        if (iterLink.IsValid()) {
+          iterLink.GetAttribute("rel", pArticle->link.rel);
+          iterLink.GetAttribute("type", pArticle->link.type);
+          iterLink.GetAttribute("href", pArticle->link.href);
+          //LOG<<"cFeed::ParseAtomFeed link found \""<<pArticle->link.rel<<"\" \""<<pArticle->link.type<<"\" \""<<pArticle->link.href<<"\""<<std::endl;
+        }
+
+        xml::cNode::iterator iterContent(iter.GetChild("content"));
+        if (iterContent.IsValid()) {
+          iterContent.GetAttribute("type", pArticle->content.type);
+          iterContent.GetAttribute("src", pArticle->content.src);
+          //LOG<<"cFeed::ParseAtomFeed content found \""<<pArticle->content.type<<"\" \""<<pArticle->content.src<<"\""<<std::endl;
+        }
 
         articles.push_back(pArticle);
 
         iter.Next("entry");
-      };*/
+      };
+
+      LOG<<"cFeed::ParseAtomFeed returning"<<std::endl;
     }
 
-    void cFeedDownloader::DownloadFeed(const string_t& sURL)
+    void cFeed::DownloadFeed(const string_t& sURL)
     {
       /*Clear();
 

@@ -8,11 +8,19 @@
 namespace breathe
 {
   #ifdef UNICODE
-  typedef std::wstringstream stringstream_t;
+  typedef std::wostringstream ostringstream_t;
+  typedef std::wistringstream istringstream_t;
   typedef std::wstring string_t;
+
+  // TODO: Remove this
+  typedef std::wstringstream stringstream_t;
   #else
-  typedef std::stringstream stringstream_t;
+  typedef std::ostringstream ostringstream_t;
+  typedef std::istringstream istringstream_t;
   typedef std::string string_t;
+
+  // TODO: Remove this
+  typedef std::stringstream stringstream_t;
   #endif
 
   #if SIZEOF_WCHAR_T == 4
@@ -109,16 +117,25 @@ namespace breathe
     // atoh : ASCII
     // wtoh : UNICODE
 
-    uint32_t FromHexStringToUint32_t(const string_t& source);
-
+    uint32_t FromHexStringToUint32_t(const std::string& source);
+    uint32_t FromHexStringToUint32_t(const std::wstring& source);
 
     template <class T>
     inline T ConvertFromHexDigit(char hex)
     {
-      if (isalpha(hex)) return hex - '0';
-      else if (isupper(hex)) return hex - 'A' + 0xA;
+      if (isalpha(hex)) return T(hex) - T('0');
+      else if (isupper(hex)) return T(hex) - T('a') + T(0xA);
 
-      return hex - 'a' + 0xa;
+      return T(hex) - T('a') + T(0xa);
+    }
+
+    template <class T>
+    inline T ConvertFromHexDigit(wchar_t hex)
+    {
+      if (isalpha(hex)) return T(hex) - T('0');
+      else if (isupper(hex)) return T(hex) - T('a') + T(0xA);
+
+      return T(hex) - T('a') + T(0xa);
     }
 
     template <class T>
@@ -126,9 +143,9 @@ namespace breathe
     {
       ASSERT(value < 16);
 
-      if (value < 10) return '0' + value;
+      if (value < T(10)) return '0' + char(value);
 
-      return 'a' + value - 10;
+      return 'a' + char(value) - char(10);
     }
   }
 }

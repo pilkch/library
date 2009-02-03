@@ -88,15 +88,15 @@ namespace breathe
 
     void cParticleSystem::InitParticle(size_t uiParticle)
     {
-      assert(uiParticle < particles.size());
+      ASSERT(uiParticle < particles.size());
 
       cParticle* pParticle = &particles[uiParticle];
       pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
       pParticle->p.Set(0.0f, 0.0f, 0.0f);
       pParticle->vel.Set(
-        math::randomMinusOneToPlusOne() * spawnVelocity.x,
-        math::randomMinusOneToPlusOne() * spawnVelocity.y,
-        math::randomMinusOneToPlusOne() * spawnVelocity.z
+        math::randomMinusOneToPlusOnef() * spawnVelocity.x,
+        math::randomMinusOneToPlusOnef() * spawnVelocity.y,
+        math::randomMinusOneToPlusOnef() * spawnVelocity.z
       );
     }
 
@@ -143,7 +143,7 @@ namespace breathe
 
     unsigned int cParticleSystemBillboard::Render()
     {
-      ASSERT(pMaterial);
+      ASSERT(pMaterial != nullptr);
 
       pRender->SetMaterial(pMaterial);
       pRender->SetShaderConstant(pMaterial, "width", fParticleWidth);
@@ -190,7 +190,7 @@ namespace breathe
 
     void cParticleSystemBillboard::SetMaterial(material::cMaterialRef pInMaterial)
     {
-      assert(pInMaterial);
+      ASSERT(pInMaterial != nullptr);
       pMaterial = pInMaterial;
     }
 
@@ -213,9 +213,9 @@ namespace breathe
       pParticle->SetLife(math::random(uiLifeSpanMin, uiLifeSpanMax));
       pParticle->p.Set(0.0f, 0.0f, 0.0f);
       pParticle->vel.Set(
-        math::randomMinusOneToPlusOne() * spawnVelocity.x,
-        math::randomMinusOneToPlusOne() * spawnVelocity.y,
-        math::randomMinusOneToPlusOne() * spawnVelocity.z
+        math::randomMinusOneToPlusOnef() * spawnVelocity.x,
+        math::randomMinusOneToPlusOnef() * spawnVelocity.y,
+        math::randomMinusOneToPlusOnef() * spawnVelocity.z
       );
     }
 

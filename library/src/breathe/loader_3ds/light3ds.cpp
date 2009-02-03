@@ -20,7 +20,7 @@ namespace breathe
 {
   namespace loader_3ds
   {
-    void Light3DS::Parse(const std::string &name , Model3DSChunk c)
+    void Light3DS::Parse(const string_t& name, Model3DSChunk c)
     {
       LOG.Error("c3ds", "object light");
     }
