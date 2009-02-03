@@ -93,8 +93,8 @@ namespace breathe
       bool IsWireFrame() const { return bRenderWireframe; }
 
     private:
-      bool FindExtension(const string_t& sExt);
-      float GetShaderVersion();
+      bool FindExtension(const string_t& sExt) const;
+      float GetShaderVersion() const;
 
     public:
       bool PreInit();

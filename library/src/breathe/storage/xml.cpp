@@ -574,7 +574,7 @@ namespace breathe
 #endif
 
 
-    bool reader::ReadFromFile(document& doc, const string_t& filename) const
+    bool cReader::ReadFromFile(document& doc, const string_t& filename) const
     {
       doc.Clear();
 
@@ -583,7 +583,7 @@ namespace breathe
       return false;
     }
 
-    bool reader::ReadFromString(document& doc, const string_t& content) const
+    bool cReader::ReadFromString(document& doc, const string_t& content) const
     {
       doc.Clear();
 
@@ -593,7 +593,7 @@ namespace breathe
     }
 
 
-    bool writer::WriteToFile(const document& doc, const string_t& filename) const
+    bool cWriter::WriteToFile(const document& doc, const string_t& filename) const
     {
       doc.SaveToFile(filename);
 

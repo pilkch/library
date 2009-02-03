@@ -26,10 +26,10 @@ namespace breathe
 
   cWorldXMLReader::RESULT cWorldXMLReader::ReadFromFile(const string_t& filename)
   {
-    xml::reader r;
+    xml::cReader reader;
 
     xml::document doc;
-    r.ReadFromFile(doc, filename);
+    reader.ReadFromFile(doc, filename);
 
     return RESULT_ERROR_FILE_NOT_FOUND;
   }
@@ -67,8 +67,8 @@ namespace breathe
     }*/
 
     // Now actually write the xml to filename
-    xml::writer w;
-    w.WriteToFile(doc, filename);
+    xml::cWriter writer;
+    writer.WriteToFile(doc, filename);
 
     return RESULT_ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING;
   }

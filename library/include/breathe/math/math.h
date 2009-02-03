@@ -35,8 +35,8 @@ namespace breathe
     const float_t c4_DIV_3          = 4.0f / 3.0f;
     const float_t cSQUARE_ROOT_OF_2 = 1.41421356237309504880f;
 
-    const float_t cEPSILON          = 0.001f;//10e-6f //std::numeric_limits<float>::epsilon();
-    extern const float_t cINFINITY;
+    const float_t cEPSILON          = 0.0001f; //10e-6f; //std::numeric_limits<float>::epsilon();
+    extern const float_t cINFINITY; // 3.3e+38f;
 
     inline float RadiansToDegrees(float x) { return x * c180_DIV_PI; }
     inline float DegreesToRadians(float x) { return x * cPI_DIV_180; }
