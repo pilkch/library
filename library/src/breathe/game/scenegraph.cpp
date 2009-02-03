@@ -459,6 +459,30 @@ namespace breathe
       }*/
 
       if (scenegraph.pSkySystem != nullptr) {
+        // http://www.flipcode.com/archives/Sky_Domes.shtml
+
+        // Positions of all the sky bodies and clouds are computed.
+        // From the position of the sun, all the colors for the bodies, clouds, and frame buffer are computed
+        // Frame buffer is cleared with the computed sky color
+        // Z buffer writes are disabled
+        // Render all sky clouds that are marked as being a star layer (a simple texture with dots for stars)
+        // Render all sky bodies
+        // Render all sky clouds that are clouds and not stars
+
+        // Cloud layers are blended onto the frame buffer.
+
+        // In the case of sky bodies such as the sun, they are not blended, but required an alpha component so the texture does not overdraw
+        // elements of the dome that are not part of the actual sun.
+
+        // The moon has to be rendered in 2 passes. First, from the moon texture, which also has an alpha component, a mask is generated that has alpha
+        // values of 1.0 for texels inside the moon and alpha values of 0.0 for texels outside the moon. This mask is rendered onto the dome without blending
+        // using the current sky color. This is done to remove any stars that might appear behind the moon. Next, the actual moon texture is blended onto the
+        // sky dome. The reason it is blended is because during the day, the moon will show a bit of blue or red hue of the sky.
+
+        // Although not a real sky body, the code supports drawing of flares around the sun. These are done by creating duplicate sky
+        // body like the sun, but using a flare texture instead of the sun texture. Flares are blended onto the sky dome.
+
+
         // Sky first
         glPushMatrix();
           glMatrixMode(GL_MODELVIEW);

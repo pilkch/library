@@ -1,12 +1,15 @@
 #ifndef CVEC3_H
 #define CVEC3_H
 
+#include <breathe/math/cVec2.h>
+
 namespace breathe
 {
   namespace math
   {
     // Forward declaration
     class cQuaternion;
+    class cVec2;
 
     class cVec3
     {
@@ -19,15 +22,19 @@ namespace breathe
       inline void Set(float newX, float newY, float newZ) { x=newX; y=newY; z=newZ; }
       inline void Set(const float *rhs) { x=rhs[0]; y=rhs[1]; z=rhs[2]; }
 
-      inline float GetX() const {return x;}
-      inline float GetY() const {return y;}
-      inline float GetZ() const {return z;}
+      inline float GetX() const { return x; }
+      inline float GetY() const { return y; }
+      inline float GetZ() const { return z; }
+
+      inline cVec2 GetXY() const { return cVec2(x, y); }
+
+      inline void Clear() { x = y = z = 0.0f; }
+
+      inline void SetZero() { x = y = z = 0.0f; }
+      void SetOne();          // fill with (1, 1, 1)
+      void Negate();
 
       bool IsZeroVector() const;
-
-      inline void LoadZero() { x=y=z=0.0f; }
-      void LoadOne();          // fill with (1, 1, 1)
-      void Negate();
 
       // vector algebra
       void Cross(const cVec3 & a, const cVec3 & b);

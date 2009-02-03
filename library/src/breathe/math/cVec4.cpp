@@ -61,7 +61,8 @@ namespace breathe
       w=newW;
     }
 
-    void cVec4::LoadZero(void)
+    // TODO: Inline this
+    void cVec4::SetZero(void)
     {
       x=0.0f;
       y=0.0f;
@@ -69,7 +70,8 @@ namespace breathe
       w=0.0f;
     }
 
-    void cVec4::LoadOne(void)
+    // TODO: Inline this
+    void cVec4::SetOne(void)
     {
       x=1.0f;
       y=1.0f;
@@ -77,7 +79,7 @@ namespace breathe
       w=1.0f;
     }
 
-                                void cVec4::Normalise()
+    void cVec4::Normalise()
     {
       float length;
       float scalefactor;

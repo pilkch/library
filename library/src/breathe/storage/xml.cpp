@@ -539,6 +539,8 @@ namespace breathe
 #ifndef FIRESTARTER
     bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value)
     {
+      value.SetZero();
+
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
@@ -556,6 +558,10 @@ namespace breathe
 
     bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value)
     {
+      value.Clear();
+
+      value.a = 1.0f;
+
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;

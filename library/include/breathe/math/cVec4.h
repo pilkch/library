@@ -13,23 +13,26 @@ namespace breathe
       cVec4(const float * rhs);
       cVec4(const cVec4 & rhs);
       cVec4(const cVec3 & rhs); // convert v3d to v4d
-      ~cVec4() {} // empty
 
       void Set(float newX, float newY, float newZ, float newW); // set member variables
 
       // accessors kept for compatability
-      void SetX(float newX) {x = newX;}
-      void SetY(float newY) {y = newY;}
-      void SetZ(float newZ) {z = newZ;}
-      void SetW(float newW) {w = newW;}
+      inline void SetX(float newX) { x = newX; }
+      inline void SetY(float newY) { y = newY; }
+      inline void SetZ(float newZ) { z = newZ; }
+      inline void SetW(float newW) { w = newW; }
 
-      float GetX() const {return x;} // public accessor functions
-      float GetY() const {return y;} // inline, const
-      float GetZ() const {return z;}
-      float GetW() const {return w;}
+      inline float GetX() const { return x; } // public accessor functions
+      inline float GetY() const { return y; } // inline, const
+      inline float GetZ() const { return z; }
+      inline float GetW() const { return w; }
 
-      void LoadZero(void);
-      void LoadOne(void);
+      inline cVec3 GetXYZ() const { return cVec3(x, y, z); }
+
+      inline void Clear() { x = y = z = w = 0.0f; }
+
+      void SetZero(void);
+      void SetOne(void);
 
       float GetLength() const
       {  return sqrtf((x*x)+(y*y)+(z*z)); }

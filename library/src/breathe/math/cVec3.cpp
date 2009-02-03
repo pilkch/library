@@ -52,7 +52,8 @@ namespace breathe
               z<cEPSILON && z>-cEPSILON);
     }
 
-    void cVec3::LoadOne(void)
+    // TODO: Inline this
+    void cVec3::SetOne(void)
     {
       x=1.0f;
       y=1.0f;

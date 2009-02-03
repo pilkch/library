@@ -86,10 +86,131 @@ namespace breathe
     const float cSkyDome::fTimeBetweenUpdates = 1.0f;
 
 
+    // *** cSkySystem
+
     cSkySystem::cSkySystem() :
       skyDomeAtmosphereRenderer(*this)
     {
     }
+
+    cSkySystem::~cSkySystem()
+    {
+      Clear();
+    }
+
+    void cSkySystem::Clear()
+    {
+      {
+        std::list<cBird*>::iterator iter = birds.begin();
+        const std::list<cBird*>::iterator iterEnd = birds.end();
+
+        while (iter != iterEnd) {
+          delete *iter;
+          iter++;
+        };
+
+        birds.clear();
+      }
+      {
+        std::list<cCloud*>::iterator iter = clouds.begin();
+        const std::list<cCloud*>::iterator iterEnd = clouds.end();
+
+        while (iter != iterEnd) {
+          delete *iter;
+          iter++;
+        };
+
+        clouds.clear();
+      }
+      {
+        std::list<cAircraft*>::iterator iter = aircraft.begin();
+        const std::list<cAircraft*>::iterator iterEnd = aircraft.end();
+
+        while (iter != iterEnd) {
+          delete *iter;
+          iter++;
+        };
+
+        aircraft.clear();
+      }
+
+      {
+        std::map<string_t, cStar*>::iterator iter = stars.begin();
+        const std::map<string_t, cStar*>::iterator iterEnd = stars.end();
+
+        while (iter != iterEnd) {
+          delete iter->second;
+          iter++;
+        };
+
+        stars.clear();
+      }
+
+      {
+        std::map<string_t, cPlanet*>::iterator iter = planets.begin();
+        const std::map<string_t, cPlanet*>::iterator iterEnd = planets.end();
+
+        while (iter != iterEnd) {
+          delete iter->second;
+          iter++;
+        };
+
+        stars.clear();
+      }
+    }
+
+    cStarOrPlanet* cSkySystem::GetInterStellarBody(const string_t& sName) const
+    {
+      {
+        std::map<string_t, cStar*>::const_iterator iter = stars.begin();
+        const std::map<string_t, cStar*>::const_iterator iterEnd = stars.end();
+
+        while (iter != iterEnd) {
+          if (sName == iter->first) return iter->second;
+          iter++;
+        };
+      }
+
+      {
+        std::map<string_t, cPlanet*>::const_iterator iter = planets.begin();
+        const std::map<string_t, cPlanet*>::const_iterator iterEnd = planets.end();
+
+        while (iter != iterEnd) {
+          if (sName == iter->first) return iter->second;
+          iter++;
+        };
+      }
+
+      return nullptr;
+    }
+
+    math::cVec3 cSkySystem::GetSphericalPositionFromRelativeLocalPositionForAnObjectWithinTheAtmosphere(const math::cVec3& relativePosition) const
+    {
+      const math::cVec2 xy(relativePosition.GetXY());
+      const float_t fDistanceFromViewer = xy.GetLength();
+      const float_t z = relativePosition.z - (0.0001f * math::squared(fDistanceFromViewer));
+
+      return math::cVec3(relativePosition.x, relativePosition.y, z);
+    }
+
+
+    // *** cSkySystemLoader
+
+    void cSkySystemLoader::LoadFromFile(cSkySystem& sky, const string_t& sFilename) const
+    {
+      sky.Clear();
+
+      xml::document doc;
+
+      xml::cReader reader;
+      if (!reader.ReadFromFile(doc, sFilename)) {
+          LOG<<"cSkySystemLoader::LoadFromFile \""<<sFilename<<"\" could not be loaded, returning"<<std::endl;
+          return;
+      }
+    }
+
+
+    // *** cSkyDomeAtmosphereRenderer
 
     cSkyDomeAtmosphereRenderer::cSkyDomeAtmosphereRenderer(cSkySystem& _sky) :
       sky(_sky),

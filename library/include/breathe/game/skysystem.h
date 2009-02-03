@@ -249,11 +249,13 @@ namespace breathe
     {
     public:
       cSkySystem();
+      ~cSkySystem();
 
       void SetNextWeatherTransition(float_t fStartInThisManyMS, float_t );
 
       cSkyDomeAtmosphereRenderer& GetSkyDomeAtmosphereRenderer() { return skyDomeAtmosphereRenderer; }
 
+      void Clear();
 
       void SetPlanetRadius(float_t fObserverPlanetRadius); // This is for the observing planet
       void SetAtmosphereRadius(float_t fAtmosphereRadius); // This is for the observing planet
@@ -262,13 +264,25 @@ namespace breathe
       void AddCloud(const math::cVec3& position, const math::cQuaternion& rotation, float_t fSpeedKPH);
       void AddAircraft(const math::cVec3& position, const math::cQuaternion& rotation, float_t fSpeedKPH);
 
-      void AddStar(const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
-      void AddPlanet(const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
+      void AddStar(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
+      void AddPlanet(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
 
-      void AddSun(const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddStar(position, fDiameterKM, colour); }
-      void AddMoon(const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddPlanet(position, fDiameterKM, colour); }
+      void AddSun(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddStar(sName, position, fDiameterKM, colour); }
+      void AddMoon(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddPlanet(sName, position, fDiameterKM, colour); }
+
+
+      void SetInterStellarBodySphericalCoordinates(const string_t& sName, const cSphericalCoordinate& sphericalCoordinates);
+      void SetInterStellarBodyColour(const string_t& sName, const math::cColour& colour);
+      void SetInterStellarBodyDiameterKM(const string_t& sName, float_t fDiameterKM);
+
+      void SetPrimarySun(const string_t& sName) { sPrimarySun = sName; }
 
     private:
+      cStarOrPlanet* GetInterStellarBody(const string_t& sName) const;
+
+      // This is just for relatively close stuff such as birds, clouds and aircraft
+      math::cVec3 GetSphericalPositionFromRelativeLocalPositionForAnObjectWithinTheAtmosphere(const math::cVec3& relativePosition) const;
+
       cSkyState skyState;
       std::map<float_t, cSkyState> daySkyStates;
 
@@ -284,8 +298,10 @@ namespace breathe
       std::list<cCloud*> clouds;
       std::list<cAircraft*> aircraft;
 
-      std::vector<cStar*> stars;
-      std::vector<cPlanet*> planets;
+      string_t sPrimarySun;
+
+      std::map<string_t, cStar*> stars;
+      std::map<string_t, cPlanet*> planets;
     };
 
     inline void cSkySystem::AddBird(const math::cVec3& position, const math::cQuaternion& rotation)
@@ -326,6 +342,17 @@ namespace breathe
 
     // t = current_time / next_transition_time
     // skyState.fRain0To1 = mix(skyState.fRain0To1, weatherState.fRain0To1, t);
+
+
+    // This is not automatic, each application must manually call this or optionally create the skystem programmatically
+
+    class cSkySystemLoader
+    {
+    public:
+      cSkySystemLoader();
+
+      void LoadFromFile(cSkySystem& sky, const string_t& sFilename) const;
+    };
 
 
     class cFlare

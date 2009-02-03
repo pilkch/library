@@ -10,28 +10,29 @@ namespace breathe
     public:
       // constructors
       cColour(float newR = 0.0f, float newG = 0.0f, float newB = 0.0f, float newA=0.0f);
-      cColour(const float* rhs);
+      explicit cColour(const float* rhs);
       cColour(const cColour& rhs);
-      ~cColour() {} // empty
 
       void Set(float newR, float newG, float newB, float newA); // set member variables
-      
+
       // accessors kept for compatability
-      void SetR(float newR) {r = newR;}
-      void SetG(float newG) {g = newG;}
-      void SetB(float newB) {b = newB;}
-      void SetA(float newA) {a = newA;}
-      
-      float GetR() const {return r;} // public accessor functions
-      float GetG() const {return g;} // inline, const
-      float GetB() const {return b;}
-      float GetA() const {return a;}
+      inline void SetR(float newR) { r = newR; }
+      inline void SetG(float newG) { g = newG; }
+      inline void SetB(float newB) { b = newB; }
+      inline void SetA(float newA) { a = newA; }
+
+      inline float GetR() const { return r; } // public accessor functions
+      inline float GetG() const { return g; } // inline, const
+      inline float GetB() const { return b; }
+      inline float GetA() const { return a; }
+
+      inline void Clear() { r = g = b = a = 0.0f; }
+
+      inline void SetBlack(void) { r = g = b = a = 1.0f; }
+      inline void SetWhite(void) { r = g = b = a = 0.0f; }
+      inline void SetGrey(float fShade) { r = g = b = a = fShade; Clamp(); }
 
       void Clamp(void); // clamp all components to [0,1]
-
-      void SetBlack(void) {r=g=b=a=1.0f;}
-      void SetWhite(void) {r=g=b=a=0.0f;}
-      void SetGrey(float shade) {r=g=b=a=shade; Clamp();}
 
       // linear interpolate
       cColour lerp(const cColour & c2, float factor);
