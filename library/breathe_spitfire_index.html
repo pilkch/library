@@ -1,5 +1,5 @@
 <html>
-	<head><title>Breathe Game Engine</title></head>
+	<head><title>Breathe Game Engine and Spitfire Utility Library</title></head>
 	<body>
 		<h3>
 			Chris Pilkington<br />
@@ -58,9 +58,39 @@
 			BUILD_LEVEL<br />
 		</p>
 
+		<h3>Spitfire Utility Library</h3>
+		<p>
+			algorithm<br/>
+			math<br/>
+			platform<br/>
+			storage<br/>
+			util<br/>
+		</p>
+		<p>
+			Spitfire provides all the basic functionality required for an application.  It doesn't have any dependencies on third party libraries (Apart from native OS libraries) and doesn't force you to say, derive your application from a base class or structure your code in a particular way.  Because it is so loosely coupled, you can easily just use the parts of Spitfire that you need and nothing more, and it can be used in any type of application; service, gui, fullscreen game or wxWidgets/Qt/GTK.
+		</p>
+
+		<h3>Breathe Game Engine</h3>
+		<p>
+			audio<br/>
+			communication<br/>
+			game<br/>
+			gui<br/>
+			loader_3ds<br/>
+			physics<br/>
+			render<br/>
+			vehicle<br/>
+		</p>
+		<p>
+			 Breathe makes heavy use of spitfire for basic functionality such as string utilities, filesystem functions and math library.  It then extends these to add a scenegraph, OpenGL rendering and OpenAL audio to create a game engine.  Breathe is only meant for game programming (Or at least applications that use SDL and create an OpenGL context for example editors) and is much more heavy handed in how you can use its classes.  They often derive from the SDL thread wrapper cThread and assume that you want to use the various third party libraries, locking you in.  Breathe started out as (And still is) a monolithic game engine library containing all of the Spitfire classes as well.  There is still some overlap, but in the future the split will be more pronounced and we will have two separate libraries.  Eventualy all Spitfire classes will be in their own namespace ("spitfire") and the transformation will be complete.
+		</p>
+
+		<strong>TODO: Draw relationship diagram from sheet of paper</strong>
+
+
 		<h3>Credit</h3>
 		<p>
-			The breathe part of the library is created by me, Christopher Pilkington.  <br />
+			Breathe and Spitfire are created by me, Christopher Pilkington.  <br />
 			For the parts that are not mine, I try to keep an up to date list of any third party libraries that I use.  <br />
 			I only use libraries that are license under either the GPL, LGPL or similar and am eternally grateful for the high quality ease of use and generosity of the open source community.
 		</p>
