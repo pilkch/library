@@ -1,7 +1,9 @@
 #ifndef CTEXTURE_H
 #define CTEXTURE_H
 
-#include <breathe/util/cSmartPtr.h>
+#include <breathe/breathe.h>
+
+#include <spitfire/util/cSmartPtr.h>
 
 struct SDL_Surface;
 

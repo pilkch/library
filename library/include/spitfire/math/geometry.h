@@ -1,7 +1,7 @@
 #ifndef CGEOMETRY_H
 #define CGEOMETRY_H
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

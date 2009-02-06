@@ -2,12 +2,12 @@
 
 #include <SDL/SDL.h>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cTimer.h>
+#include <spitfire/util/cTimer.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {
@@ -21,7 +21,7 @@ namespace breathe
 
       lastTime = GetTime();
     }
-    
+
     void cTimer::Update(sampletime_t currentTime)
     {
       iCount++;

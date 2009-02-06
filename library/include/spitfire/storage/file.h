@@ -10,7 +10,12 @@
 #undef FileExists
 #endif
 
-namespace breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+
+namespace spitfire
 {
   namespace storage
   {

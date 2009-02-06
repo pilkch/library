@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cassert>
 
-// writing on a text file
+// Reading and writing text files
 #include <iostream>
 #include <fstream>
 
@@ -14,15 +14,16 @@
 #include <map>
 #include <stack>
 
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
 #ifdef BUILD_DEBUG
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/unittest.h>
-#include <breathe/util/singleton.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/unittest.h>
+#include <spitfire/util/singleton.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {
@@ -83,17 +84,17 @@ namespace breathe
     {
       success = true;
 
-      CONSOLE.Success("Unit Test", "Running " + breathe::string::ToUTF8(sComponent));
+      CONSOLE.Success("Unit Test", "Running " + spitfire::string::ToUTF8(sComponent));
 
       Test();
 
-      if (true == success) CONSOLE.Success("Unit Test", breathe::string::ToUTF8(sComponent) + " Successfully completed");
-      else CONSOLE.Error("Unit Test", breathe::string::ToUTF8(sComponent) + " FAILED");
+      if (true == success) CONSOLE.Success("Unit Test", spitfire::string::ToUTF8(sComponent) + " Successfully completed");
+      else CONSOLE.Error("Unit Test", spitfire::string::ToUTF8(sComponent) + " FAILED");
     }
 
     void cUnitTestBase::SetFailed(const string_t& error)
     {
-      CONSOLE.Error("Unit Test", breathe::string::ToUTF8(sComponent) + " " + breathe::string::ToUTF8(error));
+      CONSOLE.Error("Unit Test", spitfire::string::ToUTF8(sComponent) + " " + spitfire::string::ToUTF8(error));
       success = false;
     }
 
@@ -107,4 +108,4 @@ namespace breathe
   }
 }
 
-#endif //BUILD_DEBUG
+#endif // BUILD_DEBUG

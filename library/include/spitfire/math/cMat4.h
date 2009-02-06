@@ -1,7 +1,7 @@
 #ifndef CMAT4_H
 #define CMAT4_H
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

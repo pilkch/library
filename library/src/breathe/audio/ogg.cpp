@@ -6,7 +6,6 @@
 #include <vector>
 #include <list>
 
-// writing on a text file
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -18,17 +17,17 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/util/cSmartPtr.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/geometry.h>
+
 #include <breathe/util/thread.h>
-
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/geometry.h>
-
 #include <breathe/util/base.h>
 
 #include <breathe/audio/audio.h>

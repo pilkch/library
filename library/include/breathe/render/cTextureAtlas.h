@@ -3,6 +3,8 @@
 
 struct SDL_Surface;
 
+#include <breathe/breathe.h>
+
 namespace breathe
 {
   namespace render

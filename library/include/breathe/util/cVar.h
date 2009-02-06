@@ -1,8 +1,6 @@
 #ifndef CVAR_H
 #define CVAR_H
 
-#include <sstream>
-
 namespace breathe
 {
   //  cVar

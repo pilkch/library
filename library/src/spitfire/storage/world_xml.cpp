@@ -7,9 +7,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <breathe/storage/world_xml.h>
+#include <spitfire/storage/world_xml.h>
 
-namespace breathe
+namespace spitfire
 {
   cWorldXMLData::~cWorldXMLData()
   {

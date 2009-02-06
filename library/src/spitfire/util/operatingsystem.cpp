@@ -12,11 +12,11 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/operatingsystem.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/operatingsystem.h>
 
-#include <breathe/algorithm/md5.h>
+#include <spitfire/algorithm/md5.h>
 
 #ifdef __LINUX__
 #include <errno.h>
@@ -29,7 +29,7 @@
 #include <windows.h>
 #endif
 
-namespace breathe
+namespace spitfire
 {
   namespace operatingsystem
   {

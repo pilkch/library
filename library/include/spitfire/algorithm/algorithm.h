@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-namespace breathe
+namespace spitfire
 {
   namespace vector
   {

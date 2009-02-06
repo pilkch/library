@@ -1,7 +1,7 @@
 #ifndef OPERATINGSYSTEM_H
 #define OPERATINGSYSTEM_H
 
-namespace breathe
+namespace spitfire
 {
   namespace operatingsystem
   {

@@ -23,13 +23,13 @@
 // Copyright 2000, Fluid Studios, Inc., all rights reserved.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#ifndef BREATHE_H
-#error "Include cBreathe.h, do not include this file"
-#endif //BREATHE_H
+#ifndef SPITFIRE_H
+#error "Include spitfire.h, do not include this file directly"
+#endif // SPITFIRE_H
 
 #ifdef CMEM_H
-#error "Include cBreathe.h, do not include this file"
-#endif //CMEM_H
+#error "Include spitfire.h, do not include this file directly"
+#endif // CMEM_H
 
 #ifndef CMEM_H
 #define CMEM_H
@@ -154,7 +154,7 @@ void operator delete[](void *reportedAddress);
 // Macros -- "Kids, please don't try this at home. We're trained professionals here." :)
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#include <breathe/util/memend.h>
+#include <spitfire/util/memend.h>
 
 #define new (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? NULL : new
 #define delete (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? m_setOwner("",0,"") : delete

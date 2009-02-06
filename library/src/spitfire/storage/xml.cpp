@@ -15,23 +15,24 @@
 #include <map>
 #include <stack>
 
-#include <breathe/breathe.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cString.h>
-
-#ifndef FIRESTARTER
-#include <breathe/util/log.h>
-#endif
-
-#include <breathe/storage/xml.h>
+#include <spitfire/util/cString.h>
 
 #ifndef FIRESTARTER
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cColour.h>
+#include <spitfire/util/log.h>
 #endif
 
-namespace breathe
+#include <spitfire/storage/xml.h>
+
+#ifndef FIRESTARTER
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cColour.h>
+#endif
+
+namespace spitfire
 {
   namespace xml
   {
@@ -83,11 +84,11 @@ namespace breathe
     void cNode::LoadFromFile(const string_t& inFilename)
     {
       LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
-      std::ifstream f(breathe::string::ToUTF8(inFilename).c_str());
+      std::ifstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
 #ifndef FIRESTARTER
-        LOG.Error("XML", breathe::string::ToUTF8(inFilename) + " not found, returning");
+        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning");
         CONSOLE<<"XML "<<inFilename<<" not found, returning"<<std::endl;
 #endif
         LOG<<"XML "<<inFilename<<" not found, returning"<<std::endl;
@@ -302,7 +303,7 @@ namespace breathe
 
     void cNode::SaveToFile(const string_t& inFilename) const
     {
-      std::ofstream f(breathe::string::ToUTF8(inFilename).c_str());
+      std::ofstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (f.is_open()) {
         const size_t n = vChild.size();
@@ -311,7 +312,7 @@ namespace breathe
         f.close();
       }
 #ifndef FIRESTARTER
-      else LOG.Error("XML", breathe::string::ToUTF8(inFilename) + " not found");
+      else LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found");
 #endif
     }
 
@@ -496,7 +497,7 @@ namespace breathe
       attribute_iterator iter = mAttribute.find(sAttribute);
       attribute_iterator iterEnd = mAttribute.end();
       if (iter != iterEnd) {
-        value = breathe::string::ToWchar_t(iter->second);
+        value = spitfire::string::ToWchar_t(iter->second);
         return true;
       }
 
@@ -507,7 +508,7 @@ namespace breathe
     {
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = breathe::string::ToBool(breathe::string::ToString_t(iter->second));
+        value = spitfire::string::ToBool(spitfire::string::ToString_t(iter->second));
 
         return true;
       }
@@ -544,11 +545,11 @@ namespace breathe
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
-        breathe::string::Split(iter->second, ',', vSplit);
+        spitfire::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.x = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[0]));
-        if (vSplit.size() > 1) value.y = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[1]));
-        if (vSplit.size() > 2) value.z = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[2]));
+        if (vSplit.size() > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
+        if (vSplit.size() > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
+        if (vSplit.size() > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
 
         return true;
       }
@@ -565,12 +566,12 @@ namespace breathe
       attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
-        breathe::string::Split(iter->second, ',', vSplit);
+        spitfire::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.r = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[0]));
-        if (vSplit.size() > 1) value.g = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[1]));
-        if (vSplit.size() > 2) value.b = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[2]));
-        if (vSplit.size() > 3) value.a = breathe::string::ToFloat(breathe::string::ToString_t(vSplit[3]));
+        if (vSplit.size() > 0) value.r = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
+        if (vSplit.size() > 1) value.g = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
+        if (vSplit.size() > 2) value.b = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
+        if (vSplit.size() > 3) value.a = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
 
         return true;
       }

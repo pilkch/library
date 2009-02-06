@@ -1,11 +1,13 @@
 #ifndef SKY_H
 #define SKY_H
 
-#include <breathe/util/datetime.h>
+#include <spitfire/util/datetime.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+
+#include <breathe/breathe.h>
 
 namespace breathe
 {

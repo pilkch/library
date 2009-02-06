@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-// Boost Includes
+// Boost headers
 #include <boost/shared_ptr.hpp>
 
 #include <GL/GLee.h>
@@ -24,30 +24,32 @@
 #include <SDL/SDL_image.h>
 
 
-// Breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/xml.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cOctree.h>
+#include <spitfire/math/cColour.h>
+#include <spitfire/math/geometry.h>
+
+
+// Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/cColour.h>
-#include <breathe/math/geometry.h>
-
 #include <breathe/util/base.h>
-
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/xml.h>
-
-
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>

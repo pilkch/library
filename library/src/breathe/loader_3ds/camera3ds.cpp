@@ -1,6 +1,5 @@
 #include <cmath>
 
-// writing on a text file
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -9,17 +8,20 @@
 #include <vector>
 #include <string>
 
-// Breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/geometry.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
-
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/geometry.h>
 
 #include <breathe/loader_3ds/build3ds.h>
 #include <breathe/loader_3ds/camera3ds.h>

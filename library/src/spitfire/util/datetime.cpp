@@ -7,7 +7,7 @@
 #include <list>
 #include <algorithm>
 
-// Writing a text file
+// Reading and writing text files
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -19,16 +19,16 @@
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
 
-// Breathe headers
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/math/math.h>
+#include <spitfire/math/math.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/datetime.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/datetime.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {
@@ -109,7 +109,7 @@ namespace breathe
       stringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
-      o<<breathe::string::ToString_t(to_iso_string(datetime));
+      o<<spitfire::string::ToString_t(to_iso_string(datetime));
 
       // "Z"
       // OR
@@ -138,7 +138,7 @@ namespace breathe
       stringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
-      o<<breathe::string::ToString_t(to_iso_string(datetime));
+      o<<spitfire::string::ToString_t(to_iso_string(datetime));
 
       // "Z"
       o<<TEXT("Z");
@@ -172,16 +172,16 @@ namespace breathe
       const string_t after = rhs.substr(zOrPlusOrMinus + 1);
 
       // 19980717T140855,10
-      datetime = boost::posix_time::from_iso_string(breathe::string::ToUTF8(before));
+      datetime = boost::posix_time::from_iso_string(spitfire::string::ToUTF8(before));
 
       // We have a Z character so this is non timezone UTC time, return false to indicate that we don't have a timezone
       if (character == TEXT('Z')) return false;
 
       // +/-hhmm
-      int hours = breathe::string::ToUnsignedInt(after.substr(0, 1));
+      int hours = spitfire::string::ToUnsignedInt(after.substr(0, 1));
       if (character == TEXT('-')) hours = -hours;
 
-      int minutes = breathe::string::ToUnsignedInt(after.substr(2, 3));
+      int minutes = spitfire::string::ToUnsignedInt(after.substr(2, 3));
 
       offset = boost::posix_time::time_duration(hours, minutes, 0, 0);
       return true;

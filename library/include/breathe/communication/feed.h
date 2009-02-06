@@ -1,7 +1,9 @@
 #ifndef CFEED_H
 #define CFEED_H
 
-#include <breathe/util/datetime.h>
+#include <spitfire/util/datetime.h>
+
+#include <breathe/breathe.h>
 
 namespace breathe
 {

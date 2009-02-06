@@ -9,21 +9,20 @@
 #include <sstream>
 #include <iterator>    // for back_inserter
 
-// writing a text file
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 
 #include <locale>
 
-#include <breathe/breathe.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <spitfire/spitfire.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
 
 #define WHITE_SPACE "\t\v\r\n"
 #define LWHITE_SPACE L"\t\v\r\n"
 
-namespace breathe
+namespace spitfire
 {
   namespace string
   {
@@ -575,6 +574,26 @@ namespace breathe
       std::string text;
       int entityCode;
     };
+
+
+    // Also note: hex and decimal
+    // Only list decimal in source code, generate hex encodings as well
+    // std::map<int, std::string> decimalToStringEncodings;
+    // std::map<std::string, int> stringToDecimalEncodings;
+    //
+    // &#38; // Decimal
+    // &#x26; // Hex
+    //
+    // Both represent '&' character
+    //
+    // int GetDecimalValue()
+    // {
+    //   value = get value;
+    //
+    //   if (x) return hexToDecimal(value);
+    //
+    //   return value;
+    // }
 
     const cSpecialCharacter specialCharactersArray[] = {
       { "quot", 34 },    { "amp", 38 },     { "lt", 60 },      { "gt", 62 },      { "nbsp", 160 },

@@ -12,24 +12,25 @@
 #include <sstream>
 #include <fstream>
 
-#include <breathe/breathe.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/unittest.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/unittest.h>
 
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/xml.h>
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/xml.h>
 
 #ifndef FIRESTARTER
-#include <breathe/util/log.h>
+#include <spitfire/util/log.h>
 #endif
 
 
-namespace breathe
+namespace spitfire
 {
 #ifdef BUILD_SETTINGS_GLOBAL
   // Shared between applications, per user
   // Uses IPC, the first application starts the IPC server and then other applications query the IPC server
-  // Stored in "~/.breathe/preferences.xml"
+  // Stored in "~/.spitfire/preferences.xml"
   // ie.
   void SetGlobalUserSetting(const string_t& section, const string_t& subsection, bool value)
   {
@@ -97,7 +98,7 @@ namespace breathe
 #endif
 
   // Per application, per user
-  // Stored in "~/.breathe/$application/preferences.xml"
+  // Stored in "~/.spitfire/$application/preferences.xml"
   // ie. Resolution, Fullscreen, Draw Distance, Language
   void SetApplicationUserSetting(const string_t& section, const string_t& subsection, bool value)
   {
@@ -177,7 +178,7 @@ namespace breathe
 
 #ifdef BUILD_SETTINGS_PROFILES
   // Per profile
-  // Stored in "~/.breathe/$application/profiles/$profile.xml"
+  // Stored in "~/.spitfire/$application/profiles/$profile.xml"
   // ie. Does the user like to be left or right handed?  What gender is the user?  Name, colour, keys
   void SetApplicationProfileSetting(const string_t& section, const string_t& subsection, bool value)
   {

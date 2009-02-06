@@ -1,6 +1,8 @@
 #ifndef CMODEL_H
 #define CMODEL_H
 
+#include <breathe/breathe.h>
+
 #include <breathe/util/base.h>
 
 namespace breathe

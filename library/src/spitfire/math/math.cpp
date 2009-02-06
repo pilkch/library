@@ -4,16 +4,16 @@
 #include <vector>
 #include <limits>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
 
-#include <breathe/math/math.h>
+#include <spitfire/math/math.h>
 
 #ifdef max
 #undef max
 #endif
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

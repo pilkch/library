@@ -9,23 +9,23 @@
 #include <fstream>
 #include <sstream>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/geometry.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/geometry.h>
 
 
 #ifdef BUILD_DEBUG
 
-#include <breathe/util/unittest.h>
+#include <spitfire/util/unittest.h>
 
-class cSphereUnitTest : protected breathe::util::cUnitTestBase
+class cSphereUnitTest : protected spitfire::util::cUnitTestBase
 {
 public:
   cSphereUnitTest() :
@@ -35,11 +35,11 @@ public:
 
   void Test()
   {
-    breathe::math::cSphere a;
+    spitfire::math::cSphere a;
     a.position.Set(3.0f, 1.0f, 1.0f);
     a.SetRadius(1.0f);
 
-    breathe::math::cSphere b;
+    spitfire::math::cSphere b;
     b.position.Set(7.0f, 1.0f, 1.0f);
     b.SetRadius(1.0f);
 
@@ -47,11 +47,11 @@ public:
 
     // Should be approximately 2.0f
     f = a.GetDistance(b);
-    ASSERT(breathe::math::AreApproximatelyEqual(f, 2.0f));
+    ASSERT(spitfire::math::AreApproximatelyEqual(f, 2.0f));
 
     // Should be approximately 4.0f
     f = a.GetDistanceCentreToCentre(b);
-    ASSERT(breathe::math::AreApproximatelyEqual(f, 4.0f));
+    ASSERT(spitfire::math::AreApproximatelyEqual(f, 4.0f));
 
 
     // Should not collide

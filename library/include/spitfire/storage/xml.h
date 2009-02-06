@@ -2,10 +2,10 @@
 #define XML_H
 
 #ifndef FIRESTARTER
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cColour.h>
-#include <breathe/util/cString.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cColour.h>
 #endif
 
 /*
@@ -21,7 +21,7 @@ change comments <!-- --> to comment object (bComment = true).
 
 // TODO: Rip out SaveToFile, LoadFromFile, replace with reader and writer
 
-namespace breathe
+namespace spitfire
 {
   namespace xml
   {
@@ -304,7 +304,7 @@ namespace breathe
     {
     public:
       bool ReadFromFile(document& doc, const string_t& filename) const;
-      bool ReadFromString(document& doc, const std::string& input) const { return ReadFromString(doc, breathe::string::ToWchar_t(input)); }
+      bool ReadFromString(document& doc, const std::string& input) const { return ReadFromString(doc, spitfire::string::ToWchar_t(input)); }
       bool ReadFromString(document& doc, const std::wstring& input) const;
     };
 
@@ -319,9 +319,9 @@ namespace breathe
 
     inline bool cWriter::WriteToString(const document& doc, std::string& output) const
     {
-      std::wstring temp(breathe::string::ToWchar_t(output));
+      std::wstring temp(spitfire::string::ToWchar_t(output));
       bool bResult = WriteToString(doc, temp);
-      output = breathe::string::ToUTF8(temp);
+      output = spitfire::string::ToUTF8(temp);
       return bResult;
     }
   }

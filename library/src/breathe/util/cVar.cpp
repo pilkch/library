@@ -1,10 +1,5 @@
-#if defined (_MSC_VER) && _MSC_VER <= 1200  // MSVC++ 6.0
-#  pragma warning(disable: 4786)
-#endif
-
 #include <cassert>
 
-// writing on a text file
 #include <iostream>
 #include <fstream>
 
@@ -15,13 +10,17 @@
 #include <iterator>
 #include <vector>
 
-// Breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/unittest.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
 #include <breathe/util/cVar.h>
-#include <breathe/util/unittest.h>
 
 namespace breathe
 {

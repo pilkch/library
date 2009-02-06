@@ -1,7 +1,7 @@
 #ifndef CCRC_H
 #define CCRC_H
 
-namespace breathe
+namespace spitfire
 {
   class cCRC
   {

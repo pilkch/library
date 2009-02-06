@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cassert>
 
-// writing on a text file
 #include <iostream>
 #include <fstream>
 
@@ -18,22 +17,21 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
 
-// Breathe headers
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cString.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/lang.h>
+#include <spitfire/util/datetime.h>
 
 #ifndef FIRESTARTER
-#include <breathe/util/log.h>
+#include <spitfire/util/log.h>
 #endif
 
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/file.h>
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/file.h>
 
-#include <breathe/util/lang.h>
-#include <breathe/util/datetime.h>
-
-namespace breathe
+namespace spitfire
 {
   class cLangContext
   {
@@ -98,7 +96,7 @@ namespace breathe
 
       const size_t n = contents.size();
       for (size_t i = 0; i < n; i++) {
-        line = breathe::string::StripLeadingWhiteSpace(contents[i]);
+        line = spitfire::string::StripLeadingWhiteSpace(contents[i]);
         CONSOLE<<"LoadLanguageFile contents["<<i<<"]=\""<<line<<"\""<<std::endl;
 
         // If we have enough characters for a comment string and the first 2 characters
@@ -106,12 +104,12 @@ namespace breathe
         if ((line.length() >= 2) && (line[0] == L'/') && (line[1] == L'/')) continue;
 
         CONSOLE<<"LoadLanguageFile Strip"<<std::endl;
-        tag = breathe::string::StripAfterInclusive(line, L" \"");
+        tag = spitfire::string::StripAfterInclusive(line, L" \"");
 
         CONSOLE<<"LoadLanguageFile Read quoted text"<<std::endl;
 
         // Get a quotation marked value that can span multiple lines
-        value = breathe::string::StripBeforeInclusive(line, L" \"");
+        value = spitfire::string::StripBeforeInclusive(line, L" \"");
         if (LastCharacterIsQuotationMark(line)) {
           i++;
           while ((i < n) && !line.empty() && LastCharacterIsQuotationMark(line)) {
@@ -124,7 +122,7 @@ namespace breathe
         }
 
         CONSOLE<<"LoadLanguageFile Strip trailing"<<std::endl;
-        value = breathe::string::StripTrailing(value, L"\"");
+        value = spitfire::string::StripTrailing(value, L"\"");
 
         // Add tag
         CONSOLE<<"LoadLanguageFile Tag \""<<tag<<"\"=\""<<value<<"\""<<std::endl;
@@ -148,29 +146,29 @@ namespace breathe
 
   string_t LANG(const std::string& tag)
   {
-    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
+    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(spitfire::string::ToWchar_t(tag));
     if (iter != langtags.end()) {
-      CONSOLE<<"LANG["<<tag<<"]=\""<<breathe::string::ToString_t(iter->second)<<"\""<<std::endl;
-      return  breathe::string::ToString_t(iter->second);
+      CONSOLE<<"LANG["<<tag<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
+      return  spitfire::string::ToString_t(iter->second);
     }
 
     string_t sFilename;
     filesystem::FindFile(TEXT("lang.txt"), sFilename);
-    storage::AppendText(sFilename, breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
-    return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
+    storage::AppendText(sFilename, spitfire::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
+    return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
   }
 
   string_t LANG(const std::wstring& tag)
   {
-    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(breathe::string::ToWchar_t(tag));
+    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(spitfire::string::ToWchar_t(tag));
     if (iter != langtags.end()) {
-      CONSOLE<<"LANG["<<tag<<"]=\""<<breathe::string::ToString_t(iter->second)<<"\""<<std::endl;
-      return  breathe::string::ToString_t(iter->second);
+      CONSOLE<<"LANG["<<tag<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
+      return  spitfire::string::ToString_t(iter->second);
     }
 
     string_t sFilename;
     filesystem::FindFile(TEXT("lang.txt"), sFilename);
-    storage::AppendText(sFilename, breathe::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
-    return TEXT("LANG TAG NOT FOUND ") + breathe::string::ToString_t(tag);
+    storage::AppendText(sFilename, spitfire::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
+    return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
   }
 }

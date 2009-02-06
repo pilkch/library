@@ -1,13 +1,13 @@
 #ifndef CRENDER_H
 #define CRENDER_H
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cColour.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cColour.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/model/cMesh.h>

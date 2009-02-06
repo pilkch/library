@@ -2,28 +2,30 @@
 
 #include <vector>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/cColour.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cOctree.h>
+#include <spitfire/math/cColour.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {
-    cMat4::cMat4(float e0, float e1, float e2, float e3,
-              float e4, float e5, float e6, float e7,
-              float e8, float e9, float e10, float e11,
-              float e12, float e13, float e14, float e15)
+    cMat4::cMat4(
+      float e0, float e1, float e2, float e3,
+      float e4, float e5, float e6, float e7,
+      float e8, float e9, float e10, float e11,
+      float e12, float e13, float e14, float e15
+    )
     {
       entries[0]=e0;
       entries[1]=e1;

@@ -1,7 +1,7 @@
 #ifndef CQUATERNION_H
 #define CQUATERNION_H
 
-#include <breathe/math/cMat4.h>
+#include <spitfire/math/cMat4.h>
 
 // https://svn.ncsa.uiuc.edu/svn/mworlds/musiverse_text/server/ogre/OgreQuaternion.cpp
 
@@ -14,7 +14,7 @@
 // TODO: Look at moving to at least wrapping Boost.Quaternion
 // http://www.boost.org/doc/libs/1_37_0/libs/math/doc/quaternion/html/index.html
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

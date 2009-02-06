@@ -1,7 +1,7 @@
 #ifndef CFRUSTUM_H
 #define CFRUSTUM_H
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

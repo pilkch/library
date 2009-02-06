@@ -1,5 +1,3 @@
-
-// writing on a text file
 #include <iostream>
 #include <fstream>
 
@@ -8,11 +6,14 @@
 #include <sstream>
 
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+
+// Breathe headers
+#include <breathe/breathe.h>
 
 #include <breathe/loader_3ds/mesh3ds.h>
 #include <breathe/loader_3ds/build3ds.h>

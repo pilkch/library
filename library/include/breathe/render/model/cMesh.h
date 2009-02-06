@@ -1,8 +1,10 @@
 #ifndef CMESH_H
 #define CMESH_H
 
-#include <breathe/util/cString.h>
-#include <breathe/util/cSmartPtr.h>
+#include <breathe/breathe.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/cSmartPtr.h>
 
 namespace breathe
 {

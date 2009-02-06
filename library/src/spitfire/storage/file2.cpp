@@ -14,15 +14,16 @@
 #include <fstream>
 #include <algorithm>
 
-#include <breathe/breathe.h>
-#include <breathe/util/cString.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
+#include <spitfire/util/cString.h>
 
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/file.h>
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/file.h>
 
 #ifndef FIRESTARTER
-#include <breathe/util/log.h>
-#include <breathe/algorithm/md5.h>
+#include <spitfire/util/log.h>
+#include <spitfire/algorithm/md5.h>
 #endif
 
 
@@ -30,7 +31,7 @@
 #include <windows.h>
 #endif
 
-namespace breathe
+namespace spitfire
 {
   namespace storage
   {
@@ -67,7 +68,7 @@ namespace breathe
       bytes = 0;
 
       std::ifstream file;
-      file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
+      file.open(spitfire::string::ToUTF8(filename).c_str(), std::ios::in | std::ios::binary);
 
       // Default to UTF8 which will be changed if it is not UTF8
       uint8_t signature[4] = { 0x88, 0x88, 0x88, 0x88 };
@@ -144,7 +145,7 @@ namespace breathe
 
         CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
         lines.clear();
-        breathe::string::SplitOnNewLines(line, lines);
+        spitfire::string::SplitOnNewLines(line, lines);
 
         CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
         n = lines.size();
@@ -171,7 +172,7 @@ namespace breathe
       CONSOLE<<"ReadText ByteOrderMark Detected signature_bytes="<<signature_bytes<<std::endl;
 
       std::ifstream file;
-      file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::in);
+      file.open(spitfire::string::ToUTF8(filename).c_str(), std::ios::in);
 
       if (!file.good()) {
         CONSOLE<<"ReadText File not opened"<<std::endl;
@@ -217,7 +218,7 @@ namespace breathe
       //BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
 
       std::ofstream file;
-      file.open(breathe::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
+      file.open(spitfire::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
 
       file<<contents;
       /*if (BYTEORDER_UTF8 == byteOrder)
@@ -230,7 +231,7 @@ namespace breathe
 
     void AppendText(const string_t& filename, const std::wstring& contents)
     {
-      AppendText(filename, breathe::string::ToUTF8(contents));
+      AppendText(filename, spitfire::string::ToUTF8(contents));
     }
   }
 }

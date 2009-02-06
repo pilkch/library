@@ -5,22 +5,17 @@
 #include <vector>
 #include <limits>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cQuaternion.h>
-/*#include "breathe/cPlane.h"
-#include "breathe/cCollision.h"
-#include "breathe/cFrustum.h"
-#include "breathe/cOctree.h"
-#include "breathe/cColour.h"*/
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cQuaternion.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

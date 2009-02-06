@@ -90,7 +90,8 @@
 #include <unistd.h>
 #endif
 
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- If you're like me, it's hard to gain trust in foreign code. This memory manager will try to INDUCE your code to crash (for
@@ -195,7 +196,7 @@ static  const  unsigned int  paddingSize            = 4;
 #elif defined(__BEOS__)
   #ifndef NDEBUG
     #ifdef USE_ASSERT
-      extern void debugger(const breathe::char_t* message);
+      extern void debugger(const spitfire::char_t* message);
       #define  m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
     #else
       #define m_assert(x) {}

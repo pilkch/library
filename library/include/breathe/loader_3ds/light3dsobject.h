@@ -1,7 +1,9 @@
 #ifndef LIGHT3DSOBJECT_H
 #define LIGHT3DSOBJECT_H
 
-#include <breathe/util/cString.h>
+#include <spitfire/util/cString.h>
+
+#include <breathe/breathe.h>
 
 namespace breathe
 {

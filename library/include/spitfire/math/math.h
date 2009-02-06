@@ -21,7 +21,7 @@ inline T min_max(const T& i, const T& lower, const T& upper)
 }
 
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

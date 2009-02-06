@@ -1,7 +1,9 @@
 #ifndef CMODEL_STATIC_H
 #define CMODEL_STATIC_H
 
-#include <breathe/math/cOctree.h>
+#include <spitfire/math/cOctree.h>
+
+#include <breathe/breathe.h>
 
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>

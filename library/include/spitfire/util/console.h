@@ -1,7 +1,12 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-namespace breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+
+namespace spitfire
 {
   // Do not get a choice of colours, only green text, black background, preferably with a courier/terminal style font
 
@@ -53,7 +58,7 @@ namespace breathe
       iter++;
     }
 
-    AddLine(breathe::string::Trim(line));
+    AddLine(spitfire::string::Trim(line));
   }
 
   void ProcessCommand_cd(const std::list<string_t>& arguments)
@@ -79,7 +84,7 @@ namespace breathe
     if (command.empty()) return;
 
     std::list<string_t> elements;
-    breathe::string::Split(command);
+    spitfire::string::Split(command);
     if (elements.empty()) return;
 
     const string_t first_word = elements.front();

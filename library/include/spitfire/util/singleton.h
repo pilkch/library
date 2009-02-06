@@ -1,7 +1,7 @@
 #ifndef SINGLETON_H
 #define SINGLETON_H
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {

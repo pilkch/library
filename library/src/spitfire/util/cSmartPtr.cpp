@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cassert>
 
-// writing on a text file
+// Reading and writing text files
 #include <iostream>
 #include <fstream>
 
@@ -14,13 +14,14 @@
 #include <map>
 #include <stack>
 
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
 #ifdef BUILD_DEBUG
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/unittest.h>
-#include <breathe/util/cSmartPtr.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/unittest.h>
+#include <spitfire/util/cSmartPtr.h>
 
 class cSmartPtrTestClass
 {
@@ -43,7 +44,7 @@ public:
   }
 };
 
-class cSmartPtrUnitTest : protected breathe::util::cUnitTestBase
+class cSmartPtrUnitTest : protected spitfire::util::cUnitTestBase
 {
 public:
   cSmartPtrUnitTest() :
@@ -53,14 +54,14 @@ public:
 
   void Test()
   {
-    breathe::util::cSmartPtr<cSmartPtrTestClass> c(new cSmartPtrTestClass(100));
+    spitfire::util::cSmartPtr<cSmartPtrTestClass> c(new cSmartPtrTestClass(100));
     c->FunctionA();
     c->FunctionB("Chris");
 
 
 
     {
-      //breathe::UTIL::cSmartPtr<cSmartPtrTestClass>::reference ref(c);
+      //spitfire::util::cSmartPtr<cSmartPtrTestClass>::reference ref(c);
     }
   }
 };

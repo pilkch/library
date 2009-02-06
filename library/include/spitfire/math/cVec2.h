@@ -1,7 +1,7 @@
 #ifndef CVEC2_H
 #define CVEC2_H
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

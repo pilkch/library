@@ -6,9 +6,9 @@
 #define PRIVATE_BUFFER_SIZE  1024
 #endif
 
-#include <breathe/include/algorithm/crc.h>
+#include <spitfire/include/algorithm/crc.h>
 
-namespace breathe
+namespace spitfire
 {
   // Global objects
   const std::streamsize buffer_size = PRIVATE_BUFFER_SIZE;

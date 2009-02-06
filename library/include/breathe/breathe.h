@@ -22,4 +22,9 @@
 
 #include <spitfire/spitfire.h>
 
+namespace breathe
+{
+  using namespace spitfire;
+}
+
 #endif // BREATHE_H

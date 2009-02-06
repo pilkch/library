@@ -1,15 +1,15 @@
 #ifndef UNDOREDO_H
 #define UNDOREDO_H
 
-namespace breathe
+namespace spitfire
 {
   class cUndoRedoState
   {
   public:
-    explicit cUndoRedoState(const breathe::string_t& title);
+    explicit cUndoRedoState(const string_t& title);
     virtual ~cUndoRedoState() {}
 
-    const breathe::string_t& GetTitle() const { return _title; }
+    const string_t& GetTitle() const { return _title; }
 
     void Undo() { _Undo(); }
     void Redo() { _Redo(); }
@@ -18,7 +18,7 @@ namespace breathe
     virtual void _Undo() = 0; 
     virtual void _Redo() = 0;
 
-    const breathe::string_t _title;
+    const string_t _title;
 
     NO_COPY(cUndoRedoState);
   };
@@ -40,8 +40,8 @@ namespace breathe
     bool CanUndo() const { return !undo.empty(); }
     bool CanRedo() const { return !redo.empty(); } 
 
-    const breathe::string_t& GetUndoTitle() const { assert(CanUndo()); return undo.back()->GetTitle(); }
-    const breathe::string_t& GetRedoTitle() const { assert(CanRedo()); return redo.back()->GetTitle(); } 
+    const string_t& GetUndoTitle() const { assert(CanUndo()); return undo.back()->GetTitle(); }
+    const string_t& GetRedoTitle() const { assert(CanRedo()); return redo.back()->GetTitle(); }
 
   private:
     std::list<cUndoRedoState*> undo;
@@ -54,10 +54,10 @@ namespace breathe
 
   //TODO: Move this to the cpp file
 
-  inline cUndoRedoState::cUndoRedoState(const breathe::string_t& title) :
+  inline cUndoRedoState::cUndoRedoState(const string_t& title) :
     _title(title)
   {
   }
 }
 
-#endif //UNDOREDO_H
+#endif // UNDOREDO_H

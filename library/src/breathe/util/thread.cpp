@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cassert>
 
-// writing on a text file
 #include <iostream>
 #include <fstream>
 
@@ -21,7 +20,10 @@
 
 #include <SDL/SDL.h>
 
-// Breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
 #include <breathe/util/thread.h>
 

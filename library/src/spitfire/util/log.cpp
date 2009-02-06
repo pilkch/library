@@ -1,7 +1,3 @@
-#if defined (_MSC_VER) && _MSC_VER <= 1200 // MSVC++ 6.0
-# pragma warning(disable: 4786)
-#endif
-
 #include <cstdarg>
 #include <cassert>
 #include <cmath>
@@ -14,7 +10,7 @@
 #include <string>
 #include <sstream>
 
-// writing a text file
+// Reading and writing text files
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -24,32 +20,32 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
-#include <breathe/breathe.h>
+//#if defined(BUILD_DEBUG) && defined(__WIN__)
+//#include <windows.h>
+//#endif
 
-#if defined(BUILD_DEBUG) && defined(__WIN__)
-#include <windows.h>
-#endif
+// Breathe Includes
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cSmartPtr.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/cVar.h>
-#include <breathe/util/cTimer.h>
+#include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/cTimer.h>
 
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/xml.h>
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/xml.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cColour.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/geometry.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cColour.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cOctree.h>
+#include <spitfire/math/geometry.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -79,11 +75,11 @@
 const int CONSOLE_MAXLINES = 50;
 
 
-breathe::logging::cLog LOG;
-breathe::logging::cConsole CONSOLE;
-breathe::logging::cScreen SCREEN;
+spitfire::logging::cLog LOG;
+spitfire::logging::cConsole CONSOLE;
+spitfire::logging::cScreen SCREEN;
 
-namespace breathe
+namespace spitfire
 {
   namespace logging
   {
@@ -121,7 +117,7 @@ namespace breathe
 
     cLog::~cLog()
     {
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open())
         return;
@@ -132,7 +128,7 @@ namespace breathe
 
     bool cLog::CreateLog()
     {
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out);
 
       if (!logfile.is_open())
         return false;
@@ -160,11 +156,11 @@ namespace breathe
 #ifdef BUILD_DEBUG
     void cLog::trace(const std::string& section)
     {
-      breathe::string_t s = TEXT("<!> ") + breathe::string::ToString_t(section) + TEXT("\n");
+      spitfire::string_t s = TEXT("<!> ") + spitfire::string::ToString_t(section) + TEXT("\n");
 #ifdef __WIN__
       OutputDebugString(s.c_str());
 #else
-      printf(breathe::string::ToUTF8(s).c_str());
+      printf(spitfire::string::ToUTF8(s).c_str());
 #endif
     }
 
@@ -176,7 +172,7 @@ namespace breathe
 
     void cLog::Newline()
     {
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
 
@@ -188,7 +184,7 @@ namespace breathe
     {
       section = s1;
 
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
 
@@ -205,7 +201,7 @@ namespace breathe
     {
       section = s1;
 
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
 
@@ -219,7 +215,7 @@ namespace breathe
 
     void cLog::Success(const std::string& section, const std::string& text)
     {
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
 
@@ -237,7 +233,7 @@ namespace breathe
 
     void cLog::Error(const std::string& section, const std::string& text)
     {
-      logfile.open(breathe::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
+      logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
 

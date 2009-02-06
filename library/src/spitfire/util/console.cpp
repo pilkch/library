@@ -1,6 +1,6 @@
-#include <breathe/util/console.h>
+#include <spitfire/util/console.h>
 
-namespace breathe
+namespace spitfire
 {
   // Do not get a choice of colours, only green text, black background, preferably with a courier/terminal style font
 
@@ -38,7 +38,7 @@ namespace breathe
       iter++;
     }
 
-    AddLine(breathe::string::Trim(line));
+    AddLine(spitfire::string::Trim(line));
   }
 
   void cConsole::ProcessCommand_cd(const std::list<string_t>& arguments)
@@ -64,7 +64,7 @@ namespace breathe
     if (command.empty()) return;
 
     std::list<string_t> elements;
-    breathe::string::Split(command);
+    spitfire::string::Split(command);
     if (elements.empty()) return;
 
     const string_t first_word = elements.front();

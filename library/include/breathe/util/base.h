@@ -1,11 +1,13 @@
 #ifndef CBASE_H
 #define CBASE_H
 
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/geometry.h>
+#include <breathe/breathe.h>
+
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/geometry.h>
 
 // Base Objects to derive game types from
 

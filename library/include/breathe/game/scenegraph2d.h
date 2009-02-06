@@ -2,10 +2,11 @@
 #define SCENEGRAPH2D_H
 
 #include <breathe/breathe.h>
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cQuaternion.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cQuaternion.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>

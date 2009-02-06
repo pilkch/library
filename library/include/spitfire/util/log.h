@@ -4,10 +4,10 @@
 #undef Success
 #undef Error
 
-#include <breathe/util/cString.h>
-#include <breathe/algorithm/algorithm.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/algorithm/algorithm.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace logging
   {
@@ -40,7 +40,7 @@ namespace breathe
         std::wostringstream o;
         o<<t;
 
-        line += breathe::string::ToUTF8(o.str());
+        line += spitfire::string::ToUTF8(o.str());
 
         return *this;
       }
@@ -124,7 +124,7 @@ namespace breathe
 
       std::ofstream logfile;
 
-      breathe::string_t strfilename;
+      string_t strfilename;
 
       bool scol;
       bool ecol;
@@ -146,13 +146,15 @@ namespace breathe
   }
 }
 
-extern breathe::logging::cLog LOG;
-
+extern spitfire::logging::cLog LOG;
 
 namespace breathe
 {
   class cApp;
+}
 
+namespace spitfire
+{
   namespace util
   {
     class cConsoleBase
@@ -174,7 +176,7 @@ namespace breathe
       unsigned int uiCursorBlink;
       unsigned int uiCursorPosition;
 
-      void SetApp(cApp* inApp) { pApp = inApp; }
+      void SetApp(breathe::cApp* inApp) { pApp = inApp; }
 
       const constant_stack<std::string>& GetLines() const { return lines; }
       const std::string GetCurrentLine() const { return current; }
@@ -206,7 +208,7 @@ namespace breathe
 
     protected:
       bool bShow;
-      cApp* pApp;
+      breathe::cApp* pApp;
 
       constant_stack<std::string> lines;
       std::string current;
@@ -249,9 +251,9 @@ namespace breathe
   }
 }
 
-extern breathe::logging::cConsole CONSOLE;
+extern spitfire::logging::cConsole CONSOLE;
 
-namespace breathe
+namespace spitfire
 {
   namespace logging
   {
@@ -355,6 +357,6 @@ namespace breathe
   }
 }
 
-extern breathe::logging::cScreen SCREEN;
+extern spitfire::logging::cScreen SCREEN;
 
 #endif // CLOG_H

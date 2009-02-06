@@ -21,19 +21,20 @@
 
 #include <sys/stat.h>
 
-#include <breathe/breathe.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/operatingsystem.h>
+// Spitfire Includes
+#include <spitfire/spitfire.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/operatingsystem.h>
 
-#include <breathe/storage/filesystem.h>
+#include <spitfire/storage/filesystem.h>
 
 #ifndef FIRESTARTER
-#include <breathe/util/log.h>
-#include <breathe/algorithm/md5.h>
+#include <spitfire/util/log.h>
+#include <spitfire/algorithm/md5.h>
 #endif
 
 
-namespace breathe
+namespace spitfire
 {
   namespace filesystem
   {
@@ -48,14 +49,14 @@ namespace breathe
       CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
 
 #ifdef __WIN__
-      sApplicationDirectory = GetPath(breathe::string::Replace(executable, TEXT("\\"), TEXT("/")));
+      sApplicationDirectory = GetPath(spitfire::string::Replace(executable, TEXT("\\"), TEXT("/")));
 #else
       sApplicationDirectory = GetCurrentDirectory();
 #endif
 
       ASSERT(!sApplicationDirectory.empty());
 
-      if (!breathe::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
+      if (!spitfire::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
 
       CONSOLE<<"SetThisExecutable application directory="<<sApplicationDirectory<<", returning"<<std::endl;
     }
@@ -66,41 +67,41 @@ namespace breathe
       return sApplicationDirectory;
     }
 
-// breathe/src/linux/file.cpp
-// /home/chris/.breathe/breathe/profile.xml
-// /home/chris/.breathe/breathe/config.xml
-// /home/chris/.breathe/drive/
+// spitfire/src/linux/file.cpp
+// /home/chris/.spitfire/spitfire/profile.xml
+// /home/chris/.spitfire/spitfire/config.xml
+// /home/chris/.spitfire/drive/
 
-// breathe/src/apple/file.cpp
-// /Users/Chris/.breathe/breathe/profile.xml
-// /Users/Chris/.breathe/breathe/config.xml
-// /Users/Chris/.breathe/drive/
+// spitfire/src/apple/file.cpp
+// /Users/Chris/.spitfire/spitfire/profile.xml
+// /Users/Chris/.spitfire/spitfire/config.xml
+// /Users/Chris/.spitfire/drive/
 
-// breathe/src/windows/file.cpp
-// c:/User Settings/Chris/App Data/breathe/breathe/profile.xml
-// c:/User Settings/Chris/App Data/breathe/breathe/config.xml
-// c:/User Settings/Chris/App Data/breathe/drive/
+// spitfire/src/windows/file.cpp
+// c:/User Settings/Chris/App Data/spitfire/spitfire/profile.xml
+// c:/User Settings/Chris/App Data/spitfire/spitfire/config.xml
+// c:/User Settings/Chris/App Data/spitfire/drive/
 
 #ifdef __APPLE__
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
-      ASSERT(sApplication != string_t(TEXT(BREATHE_APPLICATION_NAME_LWR)));
-      return GetHomeDirectory() + TEXT(".breathe/") + sApplication + TEXT("/");
+      ASSERT(sApplication != string_t(TEXT(SPITFIRE_APPLICATION_NAME_LWR)));
+      return GetHomeDirectory() + TEXT(".spitfire/") + sApplication + TEXT("/");
     }
 #endif
 
 #ifdef __LINUX__
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
-      ASSERT(sApplication != string_t(TEXT(BREATHE_APPLICATION_NAME_LWR)));
-      return GetHomeDirectory() + TEXT(".breathe/") + sApplication + TEXT("/");
+      ASSERT(sApplication != string_t(TEXT(SPITFIRE_APPLICATION_NAME_LWR)));
+      return GetHomeDirectory() + TEXT(".spitfire/") + sApplication + TEXT("/");
     }
 
     string_t GetTempDirectory()
     {
 #ifdef P_tmpdir
       // On some systems this is defined for us
-      return breathe::string::ToString_t(P_tmpdir);
+      return spitfire::string::ToString_t(P_tmpdir);
 #endif
 
       string_t sPath;
@@ -112,12 +113,12 @@ namespace breathe
 
     bool DeleteFile(const string_t& sFilename)
     {
-      return (unlink(breathe::string::ToUTF8(sFilename).c_str())== 0);
+      return (unlink(spitfire::string::ToUTF8(sFilename).c_str())== 0);
     }
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
-      return (rmdir(breathe::string::ToUTF8(sFoldername).c_str()) == 0);
+      return (rmdir(spitfire::string::ToUTF8(sFoldername).c_str()) == 0);
     }
 #endif
 
@@ -126,8 +127,8 @@ namespace breathe
     // it will actually write to the linked to file
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo)
     {
-      std::ifstream i(breathe::string::ToUTF8(sFrom).c_str());
-      std::ofstream o(breathe::string::ToUTF8(sTo).c_str());
+      std::ifstream i(spitfire::string::ToUTF8(sFrom).c_str());
+      std::ofstream o(spitfire::string::ToUTF8(sTo).c_str());
 
       char c = '\0';
 
@@ -221,12 +222,12 @@ namespace breathe
     {
       char szDirectory[MAX_PATH_LEN];
       getcwd(szDirectory, MAX_PATH_LEN);
-      return breathe::string::ToString_t(szDirectory);
+      return spitfire::string::ToString_t(szDirectory);
     }
 
     void ChangeToDirectory(const string_t& sDirectory)
     {
-      chdir(breathe::string::ToUTF8(sDirectory).c_str());
+      chdir(spitfire::string::ToUTF8(sDirectory).c_str());
     }
 
     string_t ExpandPath(const string_t& path)
@@ -240,8 +241,8 @@ namespace breathe
       }
 
       if (TEXT(".") == path) {
-        LOG<<"ExpandPath 1 returning \""<<breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"))<<"\""<<std::endl;
-        return breathe::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
+        LOG<<"ExpandPath 1 returning \""<<spitfire::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"))<<"\""<<std::endl;
+        return spitfire::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
       }
 
       // "."
@@ -254,7 +255,7 @@ namespace breathe
 
       string_t expanded = path;
       string_t prefix = GetThisApplicationDirectory();
-      while (breathe::string::BeginsWith(expanded, TEXT("../"))) {
+      while (spitfire::string::BeginsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
         LOG<<"ExpandPath prefix=\""<<prefix<<"\""<<std::endl;
         prefix = StripLastDirectory(prefix);
@@ -271,9 +272,9 @@ namespace breathe
       // else ("folder1/folder2/" so ... ) return "folder1/"
 
       string_t result(path);
-      if (breathe::string::EndsWith(path, TEXT("/"))) result = breathe::string::StripAfterLastInclusive(result, TEXT("/"));
+      if (spitfire::string::EndsWith(path, TEXT("/"))) result = spitfire::string::StripAfterLastInclusive(result, TEXT("/"));
 
-      return breathe::string::StripAfterLast(result, TEXT("/"));
+      return spitfire::string::StripAfterLast(result, TEXT("/"));
     }
 
     string_t GetPath(const string_t& sFilename)
@@ -355,10 +356,10 @@ namespace breathe
         if (vDirectory[i] == expanded) return;
       }
 
-      ASSERT(breathe::string::EndsWith(expanded, TEXT("/")));
+      ASSERT(spitfire::string::EndsWith(expanded, TEXT("/")));
       vDirectory.push_back(expanded);
 #ifndef FIRESTARTER
-      LOG.Success("FileSystem", breathe::string::ToUTF8(TEXT("Added ") + expanded));
+      LOG.Success("FileSystem", spitfire::string::ToUTF8(TEXT("Added ") + expanded));
 #endif
     }
 
@@ -379,7 +380,7 @@ namespace breathe
 
       return false;
 #elif defined(__LINUX__)
-      return (0 == access(breathe::string::ToUTF8(sFilename).c_str(), F_OK));
+      return (0 == access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK));
 #else
 #error "FileExists not implemented on this platform"
 #endif
@@ -413,7 +414,7 @@ namespace breathe
       std::vector<string_t>::iterator iter = vDirectory.begin();
       const std::vector<string_t>::iterator iterEnd = vDirectory.end();
       while (iter != iterEnd) {
-        string_t filename = breathe::string::ToString_t((*iter) + sFilename);
+        string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
         CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
         if (FileExists(filename)) {
           CONSOLE<<"FindFile Found "<<filename<<std::endl;
@@ -431,7 +432,7 @@ namespace breathe
       // iter = vDirectory.begin();
       // string_t sFile = GetFile(sFilename);
       // while(iter != vDirectory.end()) {
-      //   string_t filename = breathe::string::ToString_t(breathe::string::ToString_t((*iter) + sFilename));
+      //   string_t filename = spitfire::string::ToString_t(spitfire::string::ToString_t((*iter) + sFilename));
       //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
       //   if (FileExists(filename)) {
       //     CONSOLE<<"Found "<<filename<<std::endl;
@@ -470,7 +471,7 @@ namespace breathe
     {
       struct stat results;
 
-      if (stat(breathe::string::ToUTF8(sFilename).c_str(), &results) == 0) return results.st_size;
+      if (stat(spitfire::string::ToUTF8(sFilename).c_str(), &results) == 0) return results.st_size;
 
       return 0;
     }
@@ -480,8 +481,8 @@ namespace breathe
     string_t GetMD5(const string_t& sFilename)
     {
       cMD5 m;
-      m.CheckFile(breathe::string::ToUTF8(sFilename));
-      return breathe::string::ToString_t(m.GetResult());
+      m.CheckFile(spitfire::string::ToUTF8(sFilename));
+      return spitfire::string::ToString_t(m.GetResult());
     }
 #endif
 
@@ -502,12 +503,12 @@ namespace breathe
 
 #elif defined(__LINUX__)
       // Create the directory
-      if (0 != mkdir(breathe::string::ToUTF8(sFoldername).c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
+      if (0 != mkdir(spitfire::string::ToUTF8(sFoldername).c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
 
       // Set owner and group
       struct passwd *pw = getpwuid(getuid());
       ASSERT(pw != nullptr);
-      return (0 == chown(breathe::string::ToUTF8(sFoldername).c_str(), pw->pw_uid, pw->pw_gid));
+      return (0 == chown(spitfire::string::ToUTF8(sFoldername).c_str(), pw->pw_uid, pw->pw_gid));
 #else
       #error "CreateDirectory not implemented on this platform"
       return false;
@@ -549,7 +550,7 @@ namespace breathe
 
       return false;
 #elif defined(__LINUX__)
-      std::ofstream file(breathe::string::ToUTF8(sFilename).c_str());
+      std::ofstream file(spitfire::string::ToUTF8(sFilename).c_str());
       bool bIsOpen = file.good();
       file.close();
 
@@ -563,15 +564,15 @@ namespace breathe
     string_t MakeFilePath(const string_t& sDirectory, const string_t& sFile)
     {
       string_t sFullPath(sDirectory);
-      if (!breathe::string::EndsWith(sDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
-      return sFullPath + breathe::string::StripLeading(sFile, sFolderSeparator);
+      if (!spitfire::string::EndsWith(sDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
+      return sFullPath + spitfire::string::StripLeading(sFile, sFolderSeparator);
     }
 
     string_t MakeFilePath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile)
     {
       string_t sFullPath(sSubDirectory);
-      if (!breathe::string::EndsWith(sSubDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
-      return MakeFilePath(sDirectory, sFullPath + breathe::string::StripLeading(sFile, sFolderSeparator));
+      if (!spitfire::string::EndsWith(sSubDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
+      return MakeFilePath(sDirectory, sFullPath + spitfire::string::StripLeading(sFile, sFolderSeparator));
     }
 
     // ************************************************* path *************************************************
@@ -604,7 +605,7 @@ namespace breathe
       return false;
 #elif defined(__LINUX__)
       struct stat _stat;
-      int result = lstat(breathe::string::ToUTF8(sPath).c_str(), &_stat);
+      int result = lstat(spitfire::string::ToUTF8(sPath).c_str(), &_stat);
       if (0 > result) {
         LOG<<"path::IsFile lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
         return false;
@@ -628,7 +629,7 @@ namespace breathe
       return false;
 #elif defined(__LINUX__)
       struct stat _stat;
-      int result = lstat(breathe::string::ToUTF8(sPath).c_str(), &_stat);
+      int result = lstat(spitfire::string::ToUTF8(sPath).c_str(), &_stat);
       if (0 > result) {
         LOG<<"path::IsDirectory lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
         return false;
@@ -694,13 +695,13 @@ namespace breathe
 #ifdef __WIN__
 #error "iterator::iterator not implemented in windows"
 #elif defined(__LINUX__)
-      DIR* d = opendir(breathe::string::ToUTF8(sParentFolder).c_str());
+      DIR* d = opendir(spitfire::string::ToUTF8(sParentFolder).c_str());
       struct dirent* dirp;
       if (d != nullptr) {
         while ((dirp = readdir(d)) != NULL ) {
           if ((0 != strcmp(".", dirp->d_name)) &&
               (0 != strcmp("..", dirp->d_name)))
-            paths.push_back(breathe::string::ToString_t(dirp->d_name));
+            paths.push_back(spitfire::string::ToString_t(dirp->d_name));
         }
       }
       closedir(d);
@@ -828,7 +829,7 @@ namespace breathe
       PRIORITY GetPriority() const { return priority; }
       void SetPriority(PRIORITY _priority) { priority = _priority; }
 
-    // Returns true and sets sFullPath to the fullpath ie. "/home/chris/.breathe/shared/data/texture/testing.png" if found
+    // Returns true and sets sFullPath to the fullpath ie. "/home/chris/.spitfire/shared/data/texture/testing.png" if found
       bool GetFile(const string_t& sFile, string_t& sFullPath) const { return _GetFile(sFile, sFullPath); }
 
     private:

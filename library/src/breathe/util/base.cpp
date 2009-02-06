@@ -2,18 +2,22 @@
 
 #include <string>
 
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/geometry.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cColour.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/geometry.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cColour.h>
+
+// Breathe headers
+#include <breathe/breathe.h>
 
 #include <breathe/util/base.h>
 

@@ -6,7 +6,7 @@
 //typedef boost::shared_ptr cSmartPtr;
 #define cSmartPtr boost::shared_ptr
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {

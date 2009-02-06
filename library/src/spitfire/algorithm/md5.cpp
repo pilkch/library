@@ -42,11 +42,11 @@
 #include <iomanip>
 
 // Breathe
-#include <breathe/breathe.h>
+#include <spitfire/spitfire.h>
 
-#include <breathe/algorithm/md5.h>
+#include <spitfire/algorithm/md5.h>
 
-namespace breathe
+namespace spitfire
 {
   #define GET_UINT32(n,b,i)                             \
   {                                                     \

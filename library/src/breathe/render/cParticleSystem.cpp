@@ -1,4 +1,4 @@
-// Standard Library Headers
+// Standard Library headers
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -10,38 +10,41 @@
 #include <fstream>
 #include <sstream>
 
-// STL Headers
+// STL headers
 #include <list>
 #include <vector>
 #include <string>
 #include <map>
 #include <algorithm>
 
-// Boost includes
+// Boost headers
 #include <boost/shared_ptr.hpp>
 
-// OpenGL Headers
+// OpenGL headers
 #include <GL/GLee.h>
 
-// SDL Headers
+// SDL headers
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
-// Breathe Headers
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/cSmartPtr.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cColour.h>
+#include <spitfire/math/geometry.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
-
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
-#include <breathe/util/cSmartPtr.h>
-
-#include <breathe/math/math.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cColour.h>
-#include <breathe/math/geometry.h>
 
 #include <breathe/util/base.h>
 

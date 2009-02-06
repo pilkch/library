@@ -1,9 +1,9 @@
 #ifndef CVEC3_H
 #define CVEC3_H
 
-#include <breathe/math/cVec2.h>
+#include <spitfire/math/cVec2.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

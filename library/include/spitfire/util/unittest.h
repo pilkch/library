@@ -3,7 +3,7 @@
 
 #if !defined NDEBUG || defined(BUILD_DEBUG)
 
-namespace breathe
+namespace spitfire
 {
   namespace util
   {

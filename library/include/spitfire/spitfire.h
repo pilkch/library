@@ -222,7 +222,4 @@ namespace spitfire
 #define ASSERT(...)
 #endif
 
-// For the moment this ensures that all code works as it always has
-namespace breathe = spitfire;
-
 #endif // SPITFIRE_H

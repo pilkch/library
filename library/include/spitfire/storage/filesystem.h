@@ -31,17 +31,17 @@
 #endif
 
 // TODO: Move this to a shared build.h, config.h etc.
-#define BREATHE_APPLICATION_NAME_LWR "crank"
+#define SPITFIRE_APPLICATION_NAME_LWR "crank"
 
-namespace breathe
+namespace spitfire
 {
   namespace filesystem
   {
     void SetThisExecutable(const string_t& executable);
     string_t GetThisApplicationDirectory();
     string_t GetApplicationSettingsDirectory(const string_t& sApplication);
-    inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(BREATHE_APPLICATION_NAME_LWR)); }
-    inline string_t GetBreatheSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("breathe")); }
+    inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(SPITFIRE_APPLICATION_NAME_LWR)); }
+    inline string_t GetSpitfireSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("spitfire")); }
     string_t GetHomeDirectory();
     string_t GetHomeImagesDirectory();
     string_t GetHomeMusicDirectory();
@@ -70,23 +70,23 @@ namespace breathe
     string_t GetFileNoExtension(const string_t& sFilename);
     string_t GetExtension(const string_t& sFilename);
 
-    bool FileExists(const breathe::string_t& sFilename);
-    bool CreateDirectory(const breathe::string_t& sFoldername);
-    bool CreateFile(const breathe::string_t& sFilename);
+    bool FileExists(const string_t& sFilename);
+    bool CreateDirectory(const string_t& sFoldername);
+    bool CreateFile(const string_t& sFilename);
 
-    bool DeleteFile(const breathe::string_t& sFilename);
-    bool DeleteDirectory(const breathe::string_t& sFoldername);
+    bool DeleteFile(const string_t& sFilename);
+    bool DeleteDirectory(const string_t& sFoldername);
 
-    void CopyContentsOfFile(const breathe::string_t& sFrom, const breathe::string_t& sTo);
+    void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo);
 
     // File Opening functions
     // No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
     // The idea is that we can search directories to find the file and then open the correct one.
-    std::ifstream OpenTextFileRead(const breathe::string_t& sFilename);
-    std::ifstream OpenBinaryFileRead(const breathe::string_t& sFilename);
+    std::ifstream OpenTextFileRead(const string_t& sFilename);
+    std::ifstream OpenBinaryFileRead(const string_t& sFilename);
 
-    std::ofstream OpenTextFileWrite(const breathe::string_t& sFilename);
-    std::ofstream OpenBinaryFileWrite(const breathe::string_t& sFilename);
+    std::ofstream OpenTextFileWrite(const string_t& sFilename);
+    std::ofstream OpenBinaryFileWrite(const string_t& sFilename);
 
 
     void AddDirectory(const string_t& sDirectory);

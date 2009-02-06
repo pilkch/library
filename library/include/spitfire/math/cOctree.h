@@ -1,9 +1,9 @@
 #ifndef COCTREE_H
 #define COCTREE_H
 
-#include <breathe/math/cFrustum.h>
+#include <spitfire/math/cFrustum.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace math
   {

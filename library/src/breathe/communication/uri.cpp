@@ -20,15 +20,18 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 
-// Breathe
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+
+#include <spitfire/math/math.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
 #include <breathe/util/thread.h>
-
-#include <breathe/math/math.h>
-
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 

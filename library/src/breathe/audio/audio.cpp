@@ -7,7 +7,6 @@
 #include <list>
 #include <set>
 
-// writing on a text file
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -23,26 +22,26 @@
 
 #include <SDL/SDL.h>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cSmartPtr.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
 
-#include <breathe/storage/filesystem.h>
+#include <spitfire/storage/filesystem.h>
 
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/geometry.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/cColour.h>
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/geometry.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cOctree.h>
+#include <spitfire/math/cColour.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -124,7 +123,7 @@ namespace breathe
       ASSERT(pBuffer != nullptr);
       ASSERT(pBuffer->IsValid());
 
-      cSourceRef pSource(new breathe::audio::cSource(pBuffer));
+      cSourceRef pSource(new cSource(pBuffer));
       ASSERT(pSource != nullptr);
       ASSERT(pSource->IsValid());
 
@@ -140,7 +139,7 @@ namespace breathe
       ASSERT(pBuffer != nullptr);
       ASSERT(pBuffer->IsValid());
 
-      cSourceRef pSource(new breathe::audio::cSource(pBuffer));
+      cSourceRef pSource(new cSource(pBuffer));
       ASSERT(pSource != nullptr);
       ASSERT(pSource->IsValid());
 
@@ -524,16 +523,16 @@ namespace breathe
       //ReportError();
     }
 
-    void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename)
+    void CreateSoundAttachedToScreenPlayAndForget(const string_t& sFilename)
     {
-      cBufferRef pBuffer(breathe::audio::CreateBuffer(sFilename));
+      cBufferRef pBuffer(CreateBuffer(sFilename));
       if (pBuffer == nullptr) {
         SCREEN<<"CreateSoundAttachedToScreenPlayAndForget \""<<sFilename<<"\" pBuffer=NULL, returning"<<std::endl;
         return;
       }
       ASSERT(pBuffer->IsValid());
 
-      cSourceRef pSource(breathe::audio::CreateSourceAttachedToScreen(pBuffer));
+      cSourceRef pSource(CreateSourceAttachedToScreen(pBuffer));
       if (pSource == nullptr) {
         SCREEN<<"CreateSoundAttachedToScreenPlayAndForget \""<<sFilename<<"\" pSource=NULL, returning"<<std::endl;
         return;

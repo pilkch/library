@@ -5,13 +5,13 @@
 
 #include <string>
 
-// Breathe
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
-#include <breathe/util/cString.h>
-#include <breathe/util/undoredo.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/undoredo.h>
 
-namespace breathe
+namespace spitfire
 {
   cUndoRedo::~cUndoRedo()
   {
@@ -24,7 +24,7 @@ namespace breathe
   }
 
   void cUndoRedo::ClearRedo()
-  {   
+  {
     while (!redo.empty()) {
       SAFE_DELETE(redo.back());
       redo.pop_back();

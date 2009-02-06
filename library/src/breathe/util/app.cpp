@@ -224,30 +224,37 @@ int intersect_triangle(
 #include <ode/ode.h>
 #endif
 
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/cString.h>
+#include <spitfire/util/log.h>
+#include <spitfire/util/cTimer.h>
+#include <spitfire/util/unittest.h>
+#include <spitfire/util/lang.h>
+
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/xml.h>
+
+#include <spitfire/math/math.h>
+#include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
+#include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat4.h>
+#include <spitfire/math/cPlane.h>
+#include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/cColour.h>
+#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cOctree.h>
+#include <spitfire/math/geometry.h>
+
+// Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/cSmartPtr.h>
-#include <breathe/util/cString.h>
-#include <breathe/util/log.h>
+#include <breathe/util/app.h>
 #include <breathe/util/cVar.h>
-#include <breathe/util/cTimer.h>
 #include <breathe/util/thread.h>
-
-#include <breathe/storage/filesystem.h>
-#include <breathe/storage/xml.h>
-
-#include <breathe/math/math.h>
-#include <breathe/math/cVec2.h>
-#include <breathe/math/cVec3.h>
-#include <breathe/math/cVec4.h>
-#include <breathe/math/cMat4.h>
-#include <breathe/math/cPlane.h>
-#include <breathe/math/cQuaternion.h>
-#include <breathe/math/cColour.h>
-#include <breathe/math/cFrustum.h>
-#include <breathe/math/cOctree.h>
-#include <breathe/math/geometry.h>
-
 #include <breathe/util/base.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -269,15 +276,6 @@ int intersect_triangle(
 #endif
 
 #include <breathe/game/scenegraph.h>
-
-#include <breathe/gui/cWidget.h>
-#include <breathe/gui/cWindow.h>
-#include <breathe/gui/cWindowManager.h>
-
-#include <breathe/util/unittest.h>
-#include <breathe/util/app.h>
-#include <breathe/util/thread.h>
-#include <breathe/util/lang.h>
 
 #include <breathe/communication/network.h>
 
@@ -546,7 +544,7 @@ namespace breathe
 
     _LoadSearchDirectories();
 
-    util::LoadLanguageFiles();
+    spitfire::util::LoadLanguageFiles();
 
     _InitArguments(argc, argv);
 
@@ -1351,7 +1349,7 @@ namespace breathe
       bStepPhysics = true;
     }
 #endif
-    if (IsKeyDown(SDLK_F9)) util::RunUnitTests();
+    if (IsKeyDown(SDLK_F9)) spitfire::util::RunUnitTests();
 #endif
 
     if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
@@ -1495,7 +1493,7 @@ namespace breathe
 
     LOG.Newline("MainLoop");
 
-    sampletime_t currentTime = breathe::util::GetTime();
+    sampletime_t currentTime = spitfire::util::GetTime();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     unsigned int uiPhysicsHz = physics::GetFrequencyHz();
@@ -1533,7 +1531,7 @@ namespace breathe
       // bDone == true or states has one or more states
       assert(!states.empty());
 
-      currentTime = util::GetTime();
+      currentTime = spitfire::util::GetTime();
 
       if (currentTime > fEventsNext)
       {

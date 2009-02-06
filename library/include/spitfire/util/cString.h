@@ -5,7 +5,7 @@
 // http://www.cppreference.com/wiki/c/string/start
 // http://www.i18nguy.com/unicode/c-unicode.html
 
-namespace breathe
+namespace spitfire
 {
   #ifdef UNICODE
   typedef std::wostringstream ostringstream_t;
@@ -38,7 +38,7 @@ namespace breathe
 
   namespace string
   {
-    bool IsWhiteSpace(breathe::char_t c);
+    bool IsWhiteSpace(char_t c);
 
     size_t CountOccurrences(const std::string& source, const std::string& find);
     std::string Replace(const std::string& source, const std::string& find, const std::string& replace);

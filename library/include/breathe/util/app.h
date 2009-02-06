@@ -1,8 +1,14 @@
 #ifndef CAPP_H
 #define CAPP_H
 
+#include <breathe/breathe.h>
+
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/scenegraph2d.h>
+
+#include <breathe/gui/cWidget.h>
+#include <breathe/gui/cWindow.h>
+#include <breathe/gui/cWindowManager.h>
 
 namespace breathe
 {
@@ -156,10 +162,10 @@ namespace breathe
     SDL_Event event;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    util::cTimer tPhysics;
+    spitfire::util::cTimer tPhysics;
 #endif
-    util::cTimer tUpdate;
-    util::cTimer tRender;
+    spitfire::util::cTimer tUpdate;
+    spitfire::util::cTimer tRender;
 
     std::vector<SDL_Joystick*>vJoystick;
 

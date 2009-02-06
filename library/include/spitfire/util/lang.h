@@ -1,8 +1,8 @@
 #ifndef LANG_H
 #define LANG_H
 
-// Standard global tags: breathe::LANG("L__MainMenu")
-// Application specific tags: breathe::LANG("L_Application")
+// Standard global tags: spitfire::LANG("L__MainMenu")
+// Application specific tags: spitfire::LANG("L_Application")
 // Note: Double __ is global, single _ is local to the application
 
 // Internally we use wstring and then we return string_t
@@ -14,7 +14,7 @@
 // http://library.gnome.org/devel/gdp-style-guide/stable/gnome-glossary-button-types.html.en
 // http://library.gnome.org/devel/gdp-style-guide/stable/gnome-glossary-generic-terms.html.en
 
-// Breathe Style Guide
+// Spitfire Style Guide
 //
 // Use:
 // Folder
@@ -27,7 +27,7 @@
 // Directory
 // Login
 
-namespace breathe
+namespace spitfire
 {
   // Can pass in either UTF8 or unicode, however, you will always get back unicode
   string_t LANG(const std::string& tag);
