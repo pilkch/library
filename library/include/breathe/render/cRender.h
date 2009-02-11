@@ -168,7 +168,10 @@ namespace breathe
       void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
       void RenderAxisReference(float x, float y, float z);
       void RenderAxisReference(const math::cVec3& position);
+      void RenderBox(const math::cVec3& vMin, const math::cVec3& vMax);
       void RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax);
+
+      void RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderMesh(model::cMeshRef pMesh);
       unsigned int RenderStaticModel(model::cStaticRef p);

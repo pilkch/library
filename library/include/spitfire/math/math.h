@@ -272,6 +272,13 @@ namespace spitfire
       return (temp > -cEPSILON) && (temp < cEPSILON);
     }
 
+    inline float_t Atan2Degrees(float_t x, float_t y)
+    {
+      if ((fabs(x) < cEPSILON) && (fabs(y) < cEPSILON)) return 0.0f;
+
+      return RadiansToDegrees(atan2(x, y));
+    }
+
 
     // *** Random Number Generation
 

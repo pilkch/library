@@ -931,6 +931,7 @@ namespace breathe
     void cRender::EndScreenSpaceRendering()
     {
           EndScreenSpaceGuiRendering();
+
         glMatrixMode( GL_PROJECTION );  // Select Projection
         glPopMatrix();                  // Pop The Matrix
       glPopAttrib();
@@ -948,6 +949,8 @@ namespace breathe
         // Setup modelview matrix
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
+          // TODO: Uncomment this for console what is going on? ???????????????
+          //glLoadIdentity();
     }
 
     void cRender::EndScreenSpaceGuiRendering()
@@ -1191,6 +1194,78 @@ namespace breathe
         glVertex3f(v0.x, v0.y, v0.z);
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
+      glEnd();
+    }
+
+    void cRender::RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax)
+    {
+      glBegin(GL_QUADS);
+
+        // Bottom Square
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMax.y, vMin.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
+
+        // Side Edges
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMax.y, vMin.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMax.y, vMax.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
+
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
+
+        /*glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
+
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMin.x, vMax.y, vMax.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMin.x, vMax.y, vMin.z);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);*/
+
+        // Upper Square
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMin.x, vMax.y, vMax.z);
+
+      glEnd();
+    }
+
+    void cRender::RenderBox(const math::cVec3& vMin, const math::cVec3& vMax)
+    {
+      glBegin(GL_QUADS);
+
+        // Bottom Square
+        glVertex3f(vMin.x, vMin.y, vMin.z);
+        glVertex3f(vMax.x, vMin.y, vMin.z);
+        glVertex3f(vMax.x, vMax.y, vMin.z);
+        glVertex3f(vMin.x, vMax.y, vMin.z);
+
+        // Side Edges
+        /*glVertex3f(vMin.x, vMin.y, vMin.z);
+        glVertex3f(vMin.x, vMin.y, vMax.z);
+
+        glVertex3f(vMax.x, vMin.y, vMin.z);
+        glVertex3f(vMax.x, vMin.y, vMax.z);
+
+        glVertex3f(vMin.x, vMax.y, vMin.z);
+        glVertex3f(vMin.x, vMax.y, vMax.z);
+
+        glVertex3f(vMax.x, vMax.y, vMin.z);
+        glVertex3f(vMax.x, vMax.y, vMax.z);*/
+
+        // Upper Square
+        glVertex3f(vMin.x, vMin.y, vMax.z);
+        glVertex3f(vMin.x, vMax.y, vMax.z);
+        glVertex3f(vMax.x, vMax.y, vMax.z);
+        glVertex3f(vMax.x, vMin.y, vMax.z);
+
       glEnd();
     }
 

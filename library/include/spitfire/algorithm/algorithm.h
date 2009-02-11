@@ -1,6 +1,13 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
+// TODO: Future
+// Now using boost::circular_buffer directly
+// c++0x: Change this to something like
+//typedef boost::circular_buffer cCircularBuffer;
+// Although I can't find a working version of boost::circular_buffer so I am not using it for the moment
+// #define cCircularBuffer boost::circular_buffer
+
 namespace spitfire
 {
   namespace vector
@@ -183,12 +190,13 @@ namespace spitfire
   }
 
 
-  // Basically a vector that wraps around, items can be added but not removed, once an item is pushed back the buffer will forever be + 1 bigger
+  // Basically a vector that wraps around, items can be added but not removed, once an item is pushed back the at member is incremented
+  // and rolled over.  Once a cCircularBuffer has been created it is a fixed size.
   template<class T>
   class cCircularBuffer
   {
   public:
-    cCircularBuffer();
+    explicit cCircularBuffer(size_t nElements);
 
     void push_back(T& t);
     size_t size() const { return data.size(); }
@@ -201,8 +209,9 @@ namespace spitfire
   };
 
   template<class T>
-  inline cCircularBuffer<T>::cCircularBuffer() :
-    at(0)
+  inline cCircularBuffer<T>::cCircularBuffer(size_t nElements) :
+    at(0),
+    data(nElements)
   {
   }
 

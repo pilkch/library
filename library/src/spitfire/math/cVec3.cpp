@@ -47,9 +47,20 @@ namespace spitfire
 
     bool cVec3::IsZeroVector() const
     {
-      return (x<cEPSILON && x>-cEPSILON &&
-              y<cEPSILON && y>-cEPSILON &&
-              z<cEPSILON && z>-cEPSILON);
+      return (
+        (x < cEPSILON) && (x > -cEPSILON) &&
+        (y < cEPSILON) && (y > -cEPSILON) &&
+        (z < cEPSILON) && (z > -cEPSILON)
+      );
+    }
+
+    bool cVec3::IsWithinBounds(const cVec3& minimum, const cVec3& maximum) const
+    {
+      return (
+        (x >= minimum.x) && (x <= maximum.x) &&
+        (y >= minimum.y) && (y <= maximum.y) &&
+        (z >= minimum.z) && (z <= maximum.z)
+      );
     }
 
     // TODO: Inline this

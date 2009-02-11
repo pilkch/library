@@ -26,6 +26,8 @@ namespace spitfire
   namespace xml
   {
     class cNode;
+    class cReader;
+    class cWriter;
 
     typedef cNode document;
     typedef cNode element;
@@ -44,6 +46,9 @@ namespace spitfire
       typedef std::map<std::string, std::string>::const_iterator const_attribute_iterator;
 
     public:
+      friend class cReader;
+      friend class cWriter;
+
       cNode();
       explicit cNode(cNode* inParent);
       explicit cNode(const string_t& inFilename);
@@ -56,7 +61,9 @@ namespace spitfire
       void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
       void AddAttribute(const std::string& name, const std::string& value);
 
-      void SaveToFile(const string_t& inFilename) const;
+      bool LoadFromString(const std::string& sData);
+      bool LoadFromFile(const string_t& sFilename);
+      bool SaveToFile(const string_t& inFilename) const;
 
 #ifdef BUILD_DEBUG
       void PrintToLog(const std::string& sTab="");
@@ -150,7 +157,6 @@ namespace spitfire
 
       std::string ParseFromString(const std::string& sData, cNode* pPrevious);
 
-      void LoadFromFile(const string_t& sFilename);
       void WriteToFile(std::ofstream& file, const std::string& sTab) const;
 
       enum TYPE
@@ -304,8 +310,8 @@ namespace spitfire
     {
     public:
       bool ReadFromFile(document& doc, const string_t& filename) const;
-      bool ReadFromString(document& doc, const std::string& input) const { return ReadFromString(doc, spitfire::string::ToWchar_t(input)); }
-      bool ReadFromString(document& doc, const std::wstring& input) const;
+      bool ReadFromString(document& doc, const std::string& input) const;
+      bool ReadFromString(document& doc, const std::wstring& input) const { return ReadFromString(doc, spitfire::string::ToUTF8(input)); }
     };
 
 

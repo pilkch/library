@@ -72,8 +72,8 @@ namespace spitfire
       pParent = nullptr;
       pNext = nullptr;
 
-      size_t n = vChild.size();
-      for (size_t i=0;i<n;i++) SAFE_DELETE(vChild[i]);
+      const size_t n = vChild.size();
+      for (size_t i = 0; i < n; i++) SAFE_DELETE(vChild[i]);
 
       sName.clear();
       mAttribute.clear();
@@ -81,18 +81,24 @@ namespace spitfire
       sContentOnly.clear();
     }
 
-    void cNode::LoadFromFile(const string_t& inFilename)
+    bool cNode::LoadFromString(const std::string& sData)
+    {
+      ParseFromString(sData, nullptr);
+
+      return (!sData.empty());
+    }
+
+    bool cNode::LoadFromFile(const string_t& inFilename)
     {
       LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
       std::ifstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
 #ifndef FIRESTARTER
-        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning");
-        CONSOLE<<"XML "<<inFilename<<" not found, returning"<<std::endl;
+        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning false");
+        CONSOLE<<"XML "<<inFilename<<" not found, returning false"<<std::endl;
 #endif
-        LOG<<"XML "<<inFilename<<" not found, returning"<<std::endl;
-        return;
+        return false;
       }
 
       std::string sData;
@@ -105,8 +111,8 @@ namespace spitfire
       }
       f.close();
 
-      LOG<<"XML "<<inFilename<<" contains \""<<sData<<"\""<<std::endl;
-      ParseFromString(sData, nullptr);
+      LOG<<"XML "<<inFilename<<" contains \""<<sData<<"\", returning"<<std::endl;
+      return LoadFromString(sData);
     }
 
     std::string cNode::ParseFromString(const std::string& data, cNode* pPrevious)
@@ -301,7 +307,7 @@ namespace spitfire
     }
 
 
-    void cNode::SaveToFile(const string_t& inFilename) const
+    bool cNode::SaveToFile(const string_t& inFilename) const
     {
       std::ofstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
@@ -310,10 +316,14 @@ namespace spitfire
         for (size_t i=0;i<n;i++) vChild[i]->WriteToFile(f, "");
 
         f.close();
+
+        return true;
       }
+
 #ifndef FIRESTARTER
-      else LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found");
+        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning false");
 #endif
+      return false;
     }
 
     void cNode::WriteToFile(std::ofstream& f, const std::string& sTab) const
@@ -585,26 +595,20 @@ namespace spitfire
     {
       doc.Clear();
 
-      //doc.LoadFromFile(filename);
-
-      return false;
+      return doc.LoadFromFile(filename);
     }
 
-    bool cReader::ReadFromString(document& doc, const string_t& content) const
+    bool cReader::ReadFromString(document& doc, const std::string& content) const
     {
       doc.Clear();
 
-      //doc.LoadFromString(content);
-
-      return false;
+      return doc.LoadFromString(content);
     }
 
 
     bool cWriter::WriteToFile(const document& doc, const string_t& filename) const
     {
-      doc.SaveToFile(filename);
-
-      return false;
+      return doc.SaveToFile(filename);
     }
   }
 }

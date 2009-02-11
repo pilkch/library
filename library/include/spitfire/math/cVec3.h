@@ -36,6 +36,8 @@ namespace spitfire
 
       bool IsZeroVector() const;
 
+      bool IsWithinBounds(const cVec3& minimum, const cVec3& maximum) const;
+
       // vector algebra
       void Cross(const cVec3 & a, const cVec3 & b);
       cVec3 CrossProduct(const cVec3 & rhs) const;
@@ -144,15 +146,6 @@ namespace spitfire
     const cVec3 v3Right(-1.0f, 0.0f, 0.0f);
     const cVec3 v3Front(0.0f, 1.0f, 0.0f);
     const cVec3 v3Back(0.0f, -1.0f, 0.0f);
-
-
-    inline bool PointIsWithinBounds(const cVec3& v, const cVec3& minimum, const cVec3& maximum)
-    {
-      return
-        ((v.x >= minimum.x) && (v.x <= maximum.x)) &&
-        ((v.y >= minimum.y) && (v.y <= maximum.y)) &&
-        ((v.z >= minimum.z) && (v.z <= maximum.z));
-    }
   }
 }
 
