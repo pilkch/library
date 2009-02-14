@@ -3,11 +3,16 @@
 
 #include <spitfire/util/datetime.h>
 
+#include <spitfire/algorithm/algorithm.h>
+
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
+#include <spitfire/math/cSphericalCoordinate.h>
 
 #include <breathe/breathe.h>
+
+#include <breathe/render/cParticleSystem.h>
 
 namespace breathe
 {
@@ -25,52 +30,6 @@ namespace breathe
     // http://es.geocities.com/kenchoweb/skydomes_en.pdf
     // http://www.flipcode.com/archives/Sky_Domes.shtml
 
-    // From:
-    // http://stellarium.svn.sourceforge.net/viewvc/stellarium/trunk/stellarium/src/modules/Atmosphere.hpp?revision=3381&view=markup
-    // http://stellarium.svn.sourceforge.net/viewvc/stellarium/trunk/stellarium/src/modules/Atmosphere.cpp?revision=3381&view=markup
-
-    class cSphericalCoordinate
-    {
-    public:
-      cSphericalCoordinate() {}
-      cSphericalCoordinate(float_t _rasc, float_t _decl, float_t _distance) : rasc(_rasc), decl(_decl), distance(_distance) {}
-
-      float_t rasc;
-      float_t decl;
-      float_t distance;
-    };
-
-    inline float_t atan2Deg(float_t x, float_t y)
-    {
-      if ((fabs(x) < math::cEPSILON) && (fabs(y) < math::cEPSILON)) return 0.0f;
-
-      return math::RadiansToDegrees(atan2(x, y));
-    }
-
-    inline void EulerPositionToSphericalCoordinates(const math::cVec3& positionEuler, cSphericalCoordinate& spherical)
-    {
-      const float_t x = positionEuler.x;
-      const float_t y = positionEuler.y;
-      const float_t z = positionEuler.z;
-
-      spherical.distance = sqrtf(x * x + y * y + z * z);
-      spherical.rasc = atan2Deg(y, x);
-      spherical.decl = atan2Deg(z, sqrtf(x * x + y * y));
-    }
-
-    inline void SphericalCoordinatesToEulerPosition(const cSphericalCoordinate& spherical, math::cVec3& positionEuler)
-    {
-      const float_t rasc = spherical.rasc;
-      const float_t decl = spherical.decl;
-      const float_t distance = spherical.distance;
-  
-      positionEuler.x = distance * cos(math::DegreesToRadians(rasc)) * cos(math::DegreesToRadians(decl));
-      positionEuler.y = distance * sin(math::DegreesToRadians(rasc)) * cos(math::DegreesToRadians(decl));
-      positionEuler.z = distance * sin(math::DegreesToRadians(decl));
-    }
-
-
-
 
     class cSkyDome;
 
@@ -84,8 +43,9 @@ namespace breathe
 
       void CreateTexture();
       void CreateGeometry(float fAtmosphereRadius);
+      void CreateParticleSystems();
 
-      void Update();
+      void Update(sampletime_t currentTime);
 
 
       struct cVertex {
@@ -96,7 +56,10 @@ namespace breathe
       const cVertex* GetVertices() const { return pVertices; }
       size_t GetNumberOfVertices() const { return nVertices; }
 
-      breathe::render::cTextureRef GetTexture() { return pTexture; }
+      render::cTextureRef GetTexture() { return pTexture; }
+
+      render::cParticleSystemBillboard* GetStarParticleSystem() { return pStarParticleSystem; }
+      render::cParticleSystemMesh* GetPlanetParticleSystem() { return pPlanetParticleSystem; }
 
     private:
       math::cVec2 GetTextureCoordinateFromPosition(const math::cVec3& position) const;
@@ -113,6 +76,8 @@ namespace breathe
 
       render::cTextureFrameBufferObjectRef pTexture;
 
+      render::cParticleSystemBillboard* pStarParticleSystem;
+      render::cParticleSystemMesh* pPlanetParticleSystem;
     };
 
     inline void cSkyDomeAtmosphereRenderer::ClearDome()
@@ -128,9 +93,11 @@ namespace breathe
       return math::cVec2(position.x, position.y);
     }
 
-    inline void cSkyDomeAtmosphereRenderer::Update()
+    inline void cSkyDomeAtmosphereRenderer::Update(sampletime_t currentTime)
     {
       GenerateTexture();
+      pStarParticleSystem->Update(currentTime);
+      pPlanetParticleSystem->Update(currentTime);
     }
 
 
@@ -140,8 +107,21 @@ namespace breathe
     class cStarOrPlanet
     {
     public:
-      float_t GetDistanceKM() const { return fDistanceKM; }
-      void SetDistanceKM(float_t _fDistanceKM) { fDistanceKM = _fDistanceKM; }
+      cStarOrPlanet();
+
+      void SetSphericalCoordinatesKM(const math::cSphericalCoordinate& sphericalCoordinatesKM) { positionKM = sphericalCoordinatesKM; }
+
+      math::cVec3 GetEulerPosition() const { return positionKM.GetEulerPosition(); }
+
+      float_t GetDistanceKM() const { return positionKM.GetDistance(); }
+      void SetDistanceKM(float_t fDistanceKM) { positionKM.SetDistance(fDistanceKM); }
+
+      float_t GetRotationZDegrees() const { return positionKM.GetRotationZDegrees(); }
+      void SetRotationZDegrees(float_t fRotationZDegrees) { positionKM.SetRotationZDegrees(fRotationZDegrees); }
+
+      // Non-standard, these functions convert to more sensible(?) values
+      float_t GetPitchDegrees() const { return positionKM.GetPitchDegrees(); }
+      void SetPitchDegrees(float_t fPitchDegrees) { positionKM.SetPitchDegrees(fPitchDegrees); }
 
       float_t GetDiameterKM() const { return fDiameterKM; }
       void SetDiameterKM(float_t _fDiameterKM) { fDiameterKM = _fDiameterKM; }
@@ -149,13 +129,25 @@ namespace breathe
       const math::cColour& GetColour() const { return colour; }
       void SetColour(const math::cColour& _colour) { colour = _colour; }
 
-      float_t GetBrightness() const { return (1.0f / fDistanceKM); }
+      float_t GetBrightness() const { return (1.0f / positionKM.GetDistance()); }
 
     private:
-      float_t fDistanceKM;
+      math::cSphericalCoordinate positionKM;
+
+      // Starting point in the sky
+      math::cSphericalCoordinate startingPositionKM;
+
       float_t fDiameterKM;
       math::cColour colour;
     };
+
+    inline cStarOrPlanet::cStarOrPlanet() :
+      positionKM(100.0f, 0.0f, 0.0f),
+      startingPositionKM(100.0f, 0.0f, 0.0f),
+      fDiameterKM(10000.0f),
+      colour(1.0f, 0.0f, 0.0f)
+    {
+    }
 
     typedef cStarOrPlanet cStar;
     typedef cStarOrPlanet cPlanet;
@@ -253,31 +245,43 @@ namespace breathe
       cSkySystem();
       ~cSkySystem();
 
-      void SetNextWeatherTransition(float_t fStartInThisManyMS, float_t );
-
       cSkyDomeAtmosphereRenderer& GetSkyDomeAtmosphereRenderer() { return skyDomeAtmosphereRenderer; }
 
+      void Create();
       void Clear();
 
-      void SetPlanetRadius(float_t fObserverPlanetRadius); // This is for the observing planet
-      void SetAtmosphereRadius(float_t fAtmosphereRadius); // This is for the observing planet
+      void SetNextWeatherTransition(float_t fStartInThisManyMS, float_t );
+
+      void SetPlanetRadius(float_t fObserverPlanetRadius); // This is for the observing planet, ie. the one you are standing on, usually the Earth
+      void SetAtmosphereRadius(float_t fObserverAtmosphereRadius); // This is for the observing planet, ie. the one you are standing on, usually the Earth
 
       void AddBird(const math::cVec3& position, const math::cQuaternion& rotation);
       void AddCloud(const math::cVec3& position, const math::cQuaternion& rotation, float_t fSpeedKPH);
       void AddAircraft(const math::cVec3& position, const math::cQuaternion& rotation, float_t fSpeedKPH);
 
-      void AddStar(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
-      void AddPlanet(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
+      void AddStar(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
+      void AddPlanet(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour);
 
-      void AddSun(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddStar(sName, position, fDiameterKM, colour); }
-      void AddMoon(const string_t& sName, const cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddPlanet(sName, position, fDiameterKM, colour); }
+      void AddSun(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddStar(sName, position, fDiameterKM, colour); }
+      void AddMoon(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour) { AddPlanet(sName, position, fDiameterKM, colour); }
 
 
-      void SetInterStellarBodySphericalCoordinates(const string_t& sName, const cSphericalCoordinate& sphericalCoordinates);
+      void SetInterStellarBodySphericalCoordinates(const string_t& sName, const math::cSphericalCoordinate& sphericalCoordinates);
       void SetInterStellarBodyColour(const string_t& sName, const math::cColour& colour);
       void SetInterStellarBodyDiameterKM(const string_t& sName, float_t fDiameterKM);
 
       void SetPrimarySun(const string_t& sName) { sPrimarySun = sName; }
+
+
+      std::map<string_t, cStar*>::const_iterator StarsBegin() const { return stars.begin(); }
+      const std::map<string_t, cStar*>::const_iterator StarsEnd() const { return stars.end(); }
+
+      std::map<string_t, cPlanet*>::const_iterator PlanetsBegin() const { return planets.begin(); }
+      const std::map<string_t, cPlanet*>::const_iterator PlanetsEnd() const { return planets.end(); }
+
+      render::cParticleSystemBillboard* GetStarParticleSystem() { return skyDomeAtmosphereRenderer.GetStarParticleSystem(); }
+      //render::cParticleSystemBillboard* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
+      render::cParticleSystemMesh* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
 
     private:
       cStarOrPlanet* GetInterStellarBody(const string_t& sName) const;
@@ -294,7 +298,7 @@ namespace breathe
       cSkyDomeAtmosphereRenderer skyDomeAtmosphereRenderer;
 
       float_t fObserverPlanetRadius;
-      float_t fAtmosphereRadius;
+      float_t fObserverAtmosphereRadius;
 
       std::list<cBird*> birds;
       std::list<cCloud*> clouds;
@@ -305,6 +309,43 @@ namespace breathe
       std::map<string_t, cStar*> stars;
       std::map<string_t, cPlanet*> planets;
     };
+
+    inline void cSkySystem::Create()
+    {
+      skyDomeAtmosphereRenderer.CreateTexture();
+      skyDomeAtmosphereRenderer.CreateGeometry(800.0f);
+      skyDomeAtmosphereRenderer.CreateParticleSystems();
+    }
+
+    inline void cSkySystem::AddStar(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour)
+    {
+      // Get the old star of the same name if possible
+      cStar* pStar = stars[sName];
+      if (pStar == nullptr) {
+        pStar = new cStar;
+        stars[sName] = pStar;
+      }
+
+      // Set our parameters
+      pStar->SetSphericalCoordinatesKM(position);
+      pStar->SetDiameterKM(fDiameterKM);
+      pStar->SetColour(colour);
+    }
+
+    inline void cSkySystem::AddPlanet(const string_t& sName, const math::cSphericalCoordinate& position, float_t fDiameterKM, const math::cColour& colour)
+    {
+      // Get the old planet of the same name if possible
+      cPlanet* pPlanet = planets[sName];
+      if (pPlanet == nullptr) {
+        pPlanet = new cPlanet;
+        planets[sName] = pPlanet;
+      }
+
+      // Set our parameters
+      pPlanet->SetSphericalCoordinatesKM(position);
+      pPlanet->SetDiameterKM(fDiameterKM);
+      pPlanet->SetColour(colour);
+    }
 
     inline void cSkySystem::AddBird(const math::cVec3& position, const math::cQuaternion& rotation)
     {
@@ -351,8 +392,6 @@ namespace breathe
     class cSkySystemLoader
     {
     public:
-      cSkySystemLoader();
-
       void LoadFromFile(cSkySystem& sky, const string_t& sFilename) const;
     };
 

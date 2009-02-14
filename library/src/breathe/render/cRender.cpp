@@ -1213,20 +1213,20 @@ namespace breathe
         glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
         glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
 
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
-
-        /*glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMax.x, vMax.y, vMin.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMax.x, vMax.y, vMax.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
         glTexCoord2f(0.0f, 1.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
+
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMin.z);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(vMax.x, vMin.y, vMax.z);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(vMin.x, vMin.y, vMin.z);
 
         glTexCoord2f(1.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
         glTexCoord2f(1.0f, 1.0f); glVertex3f(vMin.x, vMax.y, vMax.z);
         glTexCoord2f(0.0f, 1.0f); glVertex3f(vMin.x, vMax.y, vMin.z);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);*/
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMin.z);
 
         // Upper Square
         glTexCoord2f(0.0f, 0.0f); glVertex3f(vMin.x, vMin.y, vMax.z);
@@ -1343,7 +1343,7 @@ namespace breathe
       ASSERT(ATLAS_NONE != uiAtlas);
 
       string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
+      breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
       if ((p == nullptr) || (p == pTextureNotFoundTexture)) {
@@ -1363,7 +1363,7 @@ namespace breathe
       ASSERT(sNewFilename != TEXT(""));
 
       string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
+      breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename), sFilename);
 
       string_t s = breathe::filesystem::GetFile(sFilename);
 
@@ -2549,14 +2549,14 @@ namespace breathe
 
     model::cStaticRef cRender::GetModel(const string_t& sFilename)
     {
-      LOG<<"Looking for "<<sFilename<<std::endl;
+      LOG<<"cRender::GetModel Looking for "<<sFilename<<std::endl;
 #ifndef NDEBUG
       {
         // Print out the current list of models
         std::map<string_t, model::cStaticRef>::iterator iter = mStatic.begin();
         std::map<string_t, model::cStaticRef>::iterator iterEnd = mStatic.end();
         while (iter != iterEnd) {
-          LOG<<"static["<<iter->first<<"]"<<std::endl;
+          LOG<<"cRender::GetModel static["<<iter->first<<"]"<<std::endl;
           iter++;
         }
       }
@@ -2575,7 +2575,7 @@ namespace breathe
         if (pModel != nullptr) return pModel;
       }
 
-      std::cout<<"Couldn't find "<<breathe::string::ToUTF8(sFilename)<<std::endl;
+      LOG<<"cRender::GetModel Couldn't find "<<breathe::string::ToUTF8(sFilename)<<std::endl;
 
       return model::cStaticRef();
     }

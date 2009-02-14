@@ -393,6 +393,57 @@ namespace breathe
       }
     }
 
+
+    class cScopedEnable
+    {
+    public:
+      explicit cScopedEnable(GLenum field);
+      ~cScopedEnable();
+
+    private:
+      cScopedEnable(); // Forbidden
+      NO_COPY(cScopedEnable); // Forbidden
+
+      GLenum field;
+    };
+
+    inline cScopedEnable::cScopedEnable(GLenum _field) :
+      field(_field)
+    {
+      glEnable(field);
+    }
+
+    inline cScopedEnable::~cScopedEnable()
+    {
+      glDisable(field);
+    }
+
+
+    class cScopedAttributes
+    {
+    public:
+      explicit cScopedAttributes(GLbitfield attribute);
+      ~cScopedAttributes();
+
+    private:
+      cScopedAttributes(); // Forbidden
+      NO_COPY(cScopedAttributes); // Forbidden
+
+      GLbitfield attributes;
+    };
+
+    inline cScopedAttributes::cScopedAttributes(GLbitfield _attribute) :
+      attributes(_attribute)
+    {
+      glPushAttrib(attributes);
+    }
+
+    inline cScopedAttributes::~cScopedAttributes()
+    {
+      glPopAttrib();
+    }
+
+
     class ApplyTexture
     {
     public:
@@ -400,8 +451,8 @@ namespace breathe
       ~ApplyTexture();
 
     private:
-      ApplyTexture();
-      NO_COPY(ApplyTexture);
+      ApplyTexture(); // Forbidden
+      NO_COPY(ApplyTexture); // Forbidden
 
       cTextureRef pLast;
     };
@@ -413,8 +464,8 @@ namespace breathe
       ~ApplyMaterial();
 
     private:
-      ApplyMaterial();
-      NO_COPY(ApplyMaterial);
+      ApplyMaterial(); // Forbidden
+      NO_COPY(ApplyMaterial); // Forbidden
 
       material::cMaterialRef pLast;
     };

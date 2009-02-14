@@ -296,17 +296,29 @@ namespace breathe
 
         std::string sValue;
         if (iter.GetAttribute("sShaderVertex", sValue)) {
-          if (pShader == nullptr) pShader = new cShader();
+          LOG<<"cMaterial::Load Vertex shader found \""<<sValue<<"\""<<std::endl;
 
+          if (pShader == nullptr) pShader = new cShader;
+
+          // Try in the same directory as the material
           if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderVertex)) {
-            LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+            // Failed, let's try the default shader directory
+            if (!breathe::filesystem::FindResourceFile(TEXT("shaders/"), breathe::string::ToString_t(sValue), pShader->sShaderVertex)) {
+              LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+            }
           }
         }
         if (iter.GetAttribute("sShaderFragment", sValue)) {
-          if (pShader == nullptr) pShader = new cShader();
+          LOG<<"cMaterial::Load Fragment shader found \""<<sValue<<"\""<<std::endl;
 
+          if (pShader == nullptr) pShader = new cShader;
+
+          // Try in the same directory as the material
           if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sValue), pShader->sShaderFragment)) {
-            LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+            // Failed, let's try the default shader directory
+            if (!breathe::filesystem::FindResourceFile(TEXT("shaders/"), breathe::string::ToString_t(sValue), pShader->sShaderFragment)) {
+              LOG.Error("Material", std::string("Shader Not Found ") + breathe::string::ToUTF8(sPath) + breathe::string::ToUTF8(sValue));
+            }
           }
         }
 
@@ -332,8 +344,15 @@ namespace breathe
             std::string sTexture;
             if (iter.GetAttribute("sTexture", sTexture)) {
               // Try in the same directory as the material
-              breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture), pLayer->sTexture);
+              if (!breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sPath), breathe::string::ToString_t(sTexture), pLayer->sTexture)) {
+                // Failed, let's try the default texture directory
+                if (!breathe::filesystem::FindResourceFile(TEXT("textures/"), breathe::string::ToString_t(sTexture), pLayer->sTexture)) {
+                  pLayer->sTexture = breathe::string::ToString_t(sTexture);
+                }
+              }
             }
+
+            LOG<<"material Loading texture \""<<pLayer->sTexture<<"\""<<std::endl;
 
             std::string sValue;
             if (iter.GetAttribute("uiTextureMode", sValue)) {

@@ -29,11 +29,9 @@ namespace breathe
 
     void ReportError();
 
-    void Update(sampletime_t currentTime);
+    void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
 
     void Sleep();
-
-    void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity);
 
     void Add(cSourceRef pSource);
     void Remove(cSourceRef pSource);

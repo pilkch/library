@@ -27,12 +27,13 @@ namespace breathe
       math::cVec3 vel;
 
       bool IsAlive() const;
+
       void SetLife(unsigned int life);
       void DecrementLife();
       void Kill();
 
-      void SetDepth(float depth);
       float GetDepth() const;
+      void SetDepth(float depth);
 
     private:
       unsigned int life;
@@ -42,30 +43,34 @@ namespace breathe
     class cParticleSystem : public cRenderable
     {
     public:
-      cParticleSystem(size_t uiMaxSize,
-        unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
+      cParticleSystem(size_t uiMaxSize, unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
       virtual ~cParticleSystem();
 
       void Sort();
+
+      void SetPosition(const math::cVec3& _position) { position = _position; }
+      void SetGravity(const math::cVec3& _gravity) { gravity = _gravity; }
 
       // Parameters
       size_t uiSize;
       unsigned int uiLifeSpanMin;
       unsigned int uiLifeSpanMax;
 
-      math::cVec3 position;
-      math::cVec3 gravity;
-
       math::cVec3 spawnVelocity;
 
       std::vector<cParticle> particles;
 
     protected:
-      virtual void InitParticle(size_t uiParticle);
+      void InitParticle(size_t uiParticle) { _InitParticle(uiParticle); }
+
+      math::cVec3 position;
+      math::cVec3 gravity;
 
     private:
       void Init();
       void Clear();
+
+      virtual void _InitParticle(size_t uiParticle);
     };
 
     // This particle system has a constant number of particles,
@@ -96,8 +101,7 @@ namespace breathe
     class cParticleSystemMesh : public cParticleSystem
     {
     public:
-      cParticleSystemMesh(size_t uiMaxSize,
-        unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
+      cParticleSystemMesh(size_t uiMaxSize, unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 
       void Update(sampletime_t currentTime);
       unsigned int Render();
@@ -105,9 +109,9 @@ namespace breathe
       void SetMesh(model::cMeshRef pMesh);
 
     private:
-      model::cMeshRef pMesh;
+      void _InitParticle(size_t uiParticle);
 
-      void InitParticle(size_t uiParticle);
+      model::cMeshRef pMesh;
     };
 
     // ************************************** Inlines **************************************

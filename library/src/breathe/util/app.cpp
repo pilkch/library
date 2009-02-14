@@ -1077,7 +1077,7 @@ namespace breathe
     GetCurrentState().Update(currentTime);
 
     // Now update our other sub systems
-    breathe::audio::Update(currentTime);
+    breathe::audio::Update(currentTime, pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up);
 
     scenegraph.Update(currentTime);
     scenegraph.Cull(currentTime);

@@ -64,9 +64,9 @@ namespace breathe
       uiSize(uiMaxSize),
       uiLifeSpanMin(uiInLifeSpanMin),
       uiLifeSpanMax(uiInLifeSpanMax),
+      spawnVelocity(0.1f, 0.1f, 0.3f),
       position(0.0f, 0.0f, 0.0f),
-      gravity(0.0f, 0.0f, -0.005f),
-      spawnVelocity(0.1f, 0.1f, 0.3f)
+      gravity(0.0f, 0.0f, -0.005f)
     {
       size_t i;
       for (i = 0; i < uiSize; i++) particles.push_back(cParticle());
@@ -89,7 +89,7 @@ namespace breathe
       for (size_t i = 0; i < n; i++) particles[i].Kill();
     }
 
-    void cParticleSystem::InitParticle(size_t uiParticle)
+    void cParticleSystem::_InitParticle(size_t uiParticle)
     {
       ASSERT(uiParticle < particles.size());
 
@@ -146,6 +146,7 @@ namespace breathe
 
     unsigned int cParticleSystemBillboard::Render()
     {
+      LOG<<"cParticleSystemBillboard::Render p=("<<position.x<<","<<position.y<<","<<position.z<<") n="<<particles.size()<<std::endl;
       ASSERT(pMaterial != nullptr);
 
       pRender->SetMaterial(pMaterial);
@@ -158,18 +159,18 @@ namespace breathe
         glBegin(GL_QUADS);
 
           unsigned int uiParticlesRendered = 0;
-          cParticle* p = &particles[0];
+          const cParticle* p = &particles[0];
           const size_t n = particles.size();
           for (size_t i = 0; i < n; i++, p++) {
             if (!p->IsAlive()) continue;
 
-            glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 1.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f( GL_TEXTURE0, 1.0f, 1.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f( GL_TEXTURE0, 1.0f, 0.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
 
             uiParticlesRendered++;
@@ -208,7 +209,7 @@ namespace breathe
 
     }
 
-    void cParticleSystemMesh::InitParticle(size_t uiParticle)
+    void cParticleSystemMesh::_InitParticle(size_t uiParticle)
     {
       ASSERT(uiParticle < particles.size());
 

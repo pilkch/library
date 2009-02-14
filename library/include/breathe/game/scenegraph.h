@@ -92,50 +92,8 @@ namespace breathe
 
   namespace scenegraph_common
   {
-    class cScopedEnable
-    {
-    public:
-      explicit cScopedEnable(GLenum field);
-      ~cScopedEnable();
-
-    private:
-      GLenum field;
-    };
-
-    inline cScopedEnable::cScopedEnable(GLenum _field) :
-      field(_field)
-    {
-      glEnable(field);
-    }
-
-    inline cScopedEnable::~cScopedEnable()
-    {
-      glDisable(field);
-    }
-
-
-    class cScopedAttributes
-    {
-    public:
-      explicit cScopedAttributes(GLbitfield attribute);
-      ~cScopedAttributes();
-
-    private:
-      GLbitfield attributes;
-    };
-
-    inline cScopedAttributes::cScopedAttributes(GLbitfield _attribute) :
-      attributes(_attribute)
-    {
-      glPushAttrib(attributes);
-    }
-
-    inline cScopedAttributes::~cScopedAttributes()
-    {
-      glPopAttrib();
-    }
-
-
+    // Every node must have a unique name, this is for generating a name when none has been specified.
+    string_t SceneNodeGenerateUniqueName();
 
 
     // State classes for keeping track of what state we are in.
@@ -361,6 +319,9 @@ namespace breathe
 
       virtual ~cSceneNode();
 
+      const string_t& GetUniqueName() const { return sUniqueName; }
+      void SetUniqueName(const string_t& _sUniqueName) { sUniqueName = _sUniqueName; }
+
 #ifndef NDEBUG
       bool IsWithinNode(cSceneNodeRef pNode) const; // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
 
@@ -435,6 +396,8 @@ namespace breathe
       virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
       virtual void _DeleteAllChildrenRecursively() {}
 
+
+      string_t sUniqueName; // This is only for debugging purposes
 
 #ifdef BUILD_DEBUG
       bool bIsShowingBoundingBox;

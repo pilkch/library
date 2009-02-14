@@ -403,12 +403,14 @@ namespace spitfire
 
     bool FindFile(const string_t& sFilename, string_t& sOutFilename)
     {
-#ifdef __LINUX__
       CONSOLE<<"FindFile "<<sFilename<<std::endl;
-#endif
+
       sOutFilename.clear();
 
-      if (TEXT("") == sFilename) return false;
+      if (sFilename.empty()) {
+        CONSOLE<<"FindFile No file specified "<<sFilename<<" returning false"<<std::endl;
+        return false;
+      }
 
       // Check for each directory+sFilename
       std::vector<string_t>::iterator iter = vDirectory.begin();
@@ -417,7 +419,7 @@ namespace spitfire
         string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
         CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
         if (FileExists(filename)) {
-          CONSOLE<<"FindFile Found "<<filename<<std::endl;
+          CONSOLE<<"FindFile Found "<<filename<<" returning true"<<std::endl;
           sOutFilename = filename;
           return true;
         }
@@ -446,17 +448,18 @@ namespace spitfire
       // Check sFilename that was passed in
       CONSOLE<<"FindFile Attempting to open "<<sFilename<<std::endl;
       if (FileExists(sFilename)) {
-        CONSOLE<<"FindFileFound "<<sFilename<<std::endl;
+        CONSOLE<<"FindFileFound "<<sFilename<<" returning true"<<std::endl;
         sOutFilename = sFilename;
         return true;
       }
 
+      CONSOLE<<"FindFile "<<sFilename<<" returning false"<<std::endl;
       return false;
     }
 
     bool FindResourceFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
     {
-      const string_t sNewPath(sPath + TEXT("data/"));
+      const string_t sNewPath(TEXT("data/") + sPath);
       return FindFile(sNewPath, sFilename, sOutFilename);
     }
 

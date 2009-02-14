@@ -198,6 +198,23 @@ namespace breathe
 
     // *** cSkySystemLoader
 
+    /*
+    <skysystem>
+      <sun id="sun" primary="" spherical_coordinates="800000.0, 10.0, 3.0" diameterKM="300000" colour="1.0, 1.0, 0.0"/>
+      <moon id="moon" spherical_position="30000.0, 10.0, 4.0" diameterKM="10000" colour="1.0, 1.0, 1.0"/>
+
+      <state time0to1="0.0">
+        <gradient height="0.3" start_colour="0.0, 0.0, 1.0"/>
+        <gradient height="0.7" colour="0.0, 0.0, 1.0"/>
+      </state>
+      <state time0to1="0.3">
+        <gradient height="0.3" start_colour="0.0, 0.0, 1.0"/>
+        <gradient height="0.7" colour="0.0, 0.0, 1.0"/>
+      </state>
+      ...
+    </skysystem>
+    */
+
     void cSkySystemLoader::LoadFromFile(cSkySystem& sky, const string_t& sFilename) const
     {
       sky.Clear();
@@ -209,6 +226,48 @@ namespace breathe
           LOG<<"cSkySystemLoader::LoadFromFile \""<<sFilename<<"\" could not be loaded, returning"<<std::endl;
           return;
       }
+
+      xml::cNode::iterator iter(doc);
+
+      if (!iter.IsValid()) return;
+
+      iter.FindChild("skysystem");
+      if (!iter.IsValid()) return;
+
+      // Look for sun nodes
+      {
+        xml::cNode::iterator iterSun(iter);
+
+        iterSun.FindChild("sun");
+        while (iterSun.IsValid()) {
+          string_t sID;
+          math::cSphericalCoordinate spherical_coordinates;
+          float_t fDiameterKM;
+          math::cColour colour;
+
+          iterSun.GetAttribute("id", sID);
+
+          {
+            math::cVec3 values;
+            if (iterSun.GetAttribute("spherical_coordinates", values)) {
+              spherical_coordinates.SetDistance(values.x);
+              spherical_coordinates.SetPitchDegrees(values.y);
+              spherical_coordinates.SetRotationZDegrees(values.z);
+            }
+          }
+
+          iterSun.GetAttribute("diameterKM", fDiameterKM);
+          iterSun.GetAttribute("colour", colour);
+
+          sky.AddSun(sID, spherical_coordinates, fDiameterKM, colour);
+
+          iterSun.Next("sun");
+        };
+      }
+
+      // TODO: Look for planet nodes etc.
+
+      LOG<<"cSkySystemLoader::LoadFromFile \""<<sFilename<<"\" loaded, returning"<<std::endl;
     }
 
 
@@ -237,8 +296,8 @@ namespace breathe
       const float dtheta = 15.0f;
       const float dphi = 15.0f;
 
-      const float dthetaRadians = breathe::math::DegreesToRadians(dtheta);
-      const float dphiRadians = breathe::math::DegreesToRadians(dphi);
+      const float dthetaRadians = math::DegreesToRadians(dtheta);
+      const float dphiRadians = math::DegreesToRadians(dphi);
 
       // Initialize our Vertex array
       nVertices = size_t((360.0f / dtheta) * (90.0f / dphi) * 4.0f);
@@ -258,10 +317,10 @@ namespace breathe
       size_t n = 0;
       for (size_t phi = 0; phi <= 90 - size_t(dphi); phi += size_t(dphi)) {
 
-        const float phiRadians = breathe::math::DegreesToRadians(phi);
+        const float phiRadians = math::DegreesToRadians(phi);
 
         for (size_t theta = 0; theta <= 360 - size_t(dtheta); theta += size_t(dtheta)) {
-          const float thetaRadians = breathe::math::DegreesToRadians(theta);
+          const float thetaRadians = math::DegreesToRadians(theta);
 
           // Calculate the vertex at phi, theta
           pVertices[n].x = fAtmosphereRadius * sinf(phiRadians) * cosf(thetaRadians);
@@ -274,14 +333,14 @@ namespace breathe
           vz = pVertices[n].z;
 
           // Normalize the vector
-          mag = (float)sqrt(breathe::math::squared(vx) + breathe::math::squared(vy) + breathe::math::squared(vz));
+          mag = (float)sqrt(math::squared(vx) + math::squared(vy) + math::squared(vz));
           vx /= mag;
           vy /= mag;
           vz /= mag;
 
           // Calculate the spherical texture coordinates
-          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(breathe::math::cPI * 2)) + 0.5f;
-          pVertices[n].v = vTile * (float)(asinf(vy) / breathe::math::cPI) + 0.5f;
+          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(math::cPI * 2)) + 0.5f;
+          pVertices[n].v = vTile * (float)(asinf(vy) / math::cPI) + 0.5f;
           n++;
 
           // Calculate the vertex at phi+dphi, theta
@@ -294,13 +353,13 @@ namespace breathe
           vy = pVertices[n].y;
           vz = pVertices[n].z;
 
-          mag = (float)sqrt(breathe::math::squared(vx)+breathe::math::squared(vy)+breathe::math::squared(vz));
+          mag = (float)sqrt(math::squared(vx) + math::squared(vy) + math::squared(vz));
           vx /= mag;
           vy /= mag;
           vz /= mag;
 
-          pVertices[n].u = hTile * (float)(atan2(vx, vz) / breathe::math::c2_PI) + 0.5f;
-          pVertices[n].v = vTile * (float)(asinf(vy) / breathe::math::cPI) + 0.5f;
+          pVertices[n].u = hTile * (float)(atan2(vx, vz) / math::c2_PI) + 0.5f;
+          pVertices[n].v = vTile * (float)(asinf(vy) / math::cPI) + 0.5f;
           n++;
 
           // Calculate the vertex at phi, theta+dtheta
@@ -313,13 +372,13 @@ namespace breathe
           vy = pVertices[n].y;
           vz = pVertices[n].z;
 
-          mag = (float)sqrt(breathe::math::squared(vx) + breathe::math::squared(vy) + breathe::math::squared(vz));
+          mag = (float)sqrt(math::squared(vx) + math::squared(vy) + math::squared(vz));
           vx /= mag;
           vy /= mag;
           vz /= mag;
 
-          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(breathe::math::cPI * 2)) + 0.5f;
-          pVertices[n].v = vTile * (float)(asinf(vy) / breathe::math::cPI) + 0.5f;
+          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(math::cPI * 2)) + 0.5f;
+          pVertices[n].v = vTile * (float)(asinf(vy) / math::cPI) + 0.5f;
           n++;
 
           // Calculate the vertex at phi+dphi, theta+dtheta
@@ -332,13 +391,13 @@ namespace breathe
           vy = pVertices[n].y;
           vz = pVertices[n].z;
 
-          mag = (float)sqrt(breathe::math::squared(vx) + breathe::math::squared(vy) + breathe::math::squared(vz));
+          mag = (float)sqrt(math::squared(vx) + math::squared(vy) + math::squared(vz));
           vx /= mag;
           vy /= mag;
           vz /= mag;
 
-          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(breathe::math::cPI * 2)) + 0.5f;
-          pVertices[n].v = vTile * (float)(asinf(vy) / breathe::math::cPI) + 0.5f;
+          pVertices[n].u = hTile * (float)(atan2(vx, vz)/(math::cPI * 2)) + 0.5f;
+          pVertices[n].v = vTile * (float)(asinf(vy) / math::cPI) + 0.5f;
           n++;
         }
       }
@@ -407,6 +466,28 @@ namespace breathe
         pRender->EndScreenSpaceRendering();
 
       pRender->EndRenderToTexture(pTexture);
+    }
+
+    void cSkyDomeAtmosphereRenderer::CreateParticleSystems()
+    {
+      string_t sFilename;
+
+      pStarParticleSystem = new render::cParticleSystemBillboard(100);
+      sFilename = TEXT("materials/cloud_billboard.mat");
+      pRender->AddMaterial(sFilename);
+      pStarParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
+
+
+      //pPlanetParticleSystem = new render::cParticleSystemBillboard(100);
+      pPlanetParticleSystem = new render::cParticleSystemMesh(100);
+      sFilename = TEXT("materials/cloud_billboard.mat");
+      pRender->AddMaterial(sFilename);
+      //pPlanetParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
+      breathe::render::model::cStaticRef pModel(pRender->AddModel(TEXT("models/crate/mesh.3ds")));
+      ASSERT(pModel != nullptr);
+      pPlanetParticleSystem->SetMesh(pModel->GetMesh(0));
+      const math::cVec3 position(100.0f, 0.0f, 0.0f);
+      pPlanetParticleSystem->SetPosition(position);
     }
   }
 }

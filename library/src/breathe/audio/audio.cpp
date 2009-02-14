@@ -51,9 +51,6 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
-
-#include <breathe/game/cLevel.h>
 
 #include <breathe/audio/audio.h>
 
@@ -474,10 +471,25 @@ namespace breathe
       ReportError();
     }
 
-    void Update(sampletime_t currentTime)
+    void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity)
     {
-      math::cVec3 position;
-      SetListener(pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up, position);
+      //LOG<<"SetListener"<<std::endl;
+      ALfloat listenerOri[] = { lookat.x, lookat.y, lookat.z, up.x, up.y, up.z };
+      alListenerfv(AL_POSITION, position);
+      //ReportError();
+      alListenerfv(AL_VELOCITY, velocity);
+      //ReportError();
+      alListenerfv(AL_ORIENTATION, listenerOri);
+      //ReportError();
+    }
+
+    void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp)
+    {
+      static math::cVec3 positionPrevious = listenerPosition;
+
+      const math::cVec3 listenerVelocity = listenerPosition - positionPrevious;
+
+      SetListener(listenerPosition, listenerTarget, listenerUp, listenerVelocity);
 
       source_iterator iter = lAudioSource.begin();
       source_iterator iterEnd = lAudioSource.end();
@@ -509,18 +521,6 @@ namespace breathe
         //SAFE_DELETE(pSource);
         pSource.reset();
       }
-    }
-
-    void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity)
-    {
-      //LOG<<"SetListener"<<std::endl;
-      ALfloat listenerOri[] = { lookat.x, lookat.y, lookat.z, up.x, up.y, up.z };
-      alListenerfv(AL_POSITION, position);
-      //ReportError();
-      alListenerfv(AL_VELOCITY, velocity);
-      //ReportError();
-      alListenerfv(AL_ORIENTATION, listenerOri);
-      //ReportError();
     }
 
     void CreateSoundAttachedToScreenPlayAndForget(const string_t& sFilename)

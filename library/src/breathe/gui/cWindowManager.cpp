@@ -98,10 +98,10 @@ namespace breathe
     {
       pMaterial = pRender->AddMaterial(TEXT("gui.mat"));
 
-      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_normal.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_darker.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_darkest.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("gui_background_text.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_normal.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_darker.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_darkest.png")));
+      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_text.png")));
 
       ASSERT(pMaterial != nullptr);
       ASSERT(textureBackground[0] != nullptr);
