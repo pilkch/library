@@ -1,3 +1,4 @@
+#include <cstring> // For memcpy
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -44,6 +45,7 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cRender.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 namespace breathe
@@ -51,6 +53,8 @@ namespace breathe
   namespace render
   {
     #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+    // *** cVertexBufferObject
 
     cVertexBufferObject::cVertexBufferObject() :
       uiVertices(0),
@@ -188,6 +192,218 @@ namespace breathe
       glDisableClientState( GL_NORMAL_ARRAY );
 
       return 0;
+    }
+
+
+
+
+    // *** cStaticVertexBuffer
+
+    cStaticVertexBuffer::cStaticVertexBuffer() :
+      bIsCompiled(false),
+      vertex_size(0),
+      texturecoordinate_size(0),
+      indices_size(0),
+      bufferID(0)
+    {
+    }
+
+    void cStaticVertexBuffer::SetVertices(const std::vector<float>& _vertices)
+    {
+      ASSERT(!IsCompiled());
+
+      vertices = _vertices;
+      vertex_size = vertices.size() * sizeof(GLfloat);
+    }
+
+    void cStaticVertexBuffer::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
+    {
+      ASSERT(!IsCompiled());
+
+      textureCoordinates = _textureCoordinates;
+      texturecoordinate_size = textureCoordinates.size() * sizeof(GLfloat);
+    }
+
+    void cStaticVertexBuffer::SetIndices(const std::vector<uint16_t>& _indices)
+    {
+      ASSERT(!IsCompiled());
+
+      indices = _indices;
+      indices_size = indices.size() * sizeof(GLushort);
+    }
+
+    void cStaticVertexBuffer::Compile()
+    {
+      ASSERT(!IsCompiled());
+
+      LOG<<"cStaticVertexBuffer::Compile glGetError="<<pRender->GetErrorString()<<std::endl;
+
+      // Create a new buffer
+      glGenBuffersARB(1, &bufferID);
+      LOG<<"cStaticVertexBuffer::Compile glGenBuffers glGetError="<<pRender->GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+      ASSERT(bufferID != 0);
+
+      // Bbind the buffer object to use
+      glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+
+      // Allocate enough memory for the whole buffer
+      // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
+      glBufferData(GL_ARRAY_BUFFER, vertex_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
+
+      glEnableClientState(GL_VERTEX_ARRAY);
+        // Describe to OpenGL where the vertex data is in the buffer
+        glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
+      glDisableClientState(GL_VERTEX_ARRAY);
+
+      if (texturecoordinate_size != 0) {
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+          // Describe to OpenGL where the texture coordinate data is in the buffer
+          glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      }
+
+      // Set the buffer data
+      GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+      ASSERT(pVoid != nullptr);
+
+        float* pBuffer = (float*)pVoid;
+
+        // Transfer the vertex data to the VBO
+        memcpy(pBuffer, vertices.data(), vertex_size);
+
+        // Append texture coordinates data to vertex data
+        if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size()], textureCoordinates.data(), texturecoordinate_size);
+
+      glUnmapBuffer(GL_ARRAY_BUFFER);
+
+
+      // Index buffer
+
+      // create index buffer
+      //glGenBuffers(1, &cubeIBO);
+      //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
+
+      // For constrast, instead of glBufferSubData and glMapBuffer,
+      // we can directly supply the data in one-shot
+      //glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUMBER_OF_CUBE_INDICES*sizeof(GLubyte), s_cubeIndices, GL_STATIC_DRAW);
+
+
+      // We are now finished and are ready to unbind
+
+      // Unbind the buffer
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+      // Disable vertex and texture coordinate information
+      if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+
+      bIsCompiled = true;
+    }
+
+    void cStaticVertexBuffer::Destroy()
+    {
+      //glDeleteBuffers(1, &cubeIBO);
+      glDeleteBuffers(1, &bufferID);
+    }
+
+    void cStaticVertexBuffer::Bind()
+    {
+      ASSERT(IsCompiled());
+
+      // Activate the VBOs to draw
+      glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+      //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
+
+      // Enable vertex information
+      glEnableClientState(GL_VERTEX_ARRAY);
+
+      // Describe to OpenGL where the vertex data is in the buffer
+      glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
+
+      // Enable texture coordinate information
+      if (texturecoordinate_size != 0) {
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        // Describe to OpenGL where the texture coordinate data is in the buffer
+        glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+      }
+    }
+
+    void cStaticVertexBuffer::Unbind()
+    {
+      ASSERT(IsCompiled());
+
+      // Disable vertex and texture coordinate information
+      if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+
+      // Unbind the buffer
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void cStaticVertexBuffer::RenderGeometry(GLenum geometryType)
+    {
+      ASSERT(IsCompiled());
+
+    #if 1
+      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+      const size_t nVertices = vertices.size() / 3;
+      glDrawArrays(geometryType, 0, nVertices);
+      //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
+    #else
+      // This is just for testing, immediate mode (yuk!)
+      glBegin(geometryType);
+
+        const size_t n = vertices.size();
+        size_t v = 0;
+        size_t t = 0;
+        if (texturecoordinate_size != 0) {
+          while (v < n) {
+            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]); glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v++;
+            v++;
+            v++;
+
+            t++;
+            t++;
+          };
+        } else {
+          while (v < n) {
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v++;
+            v++;
+            v++;
+          };
+        }
+
+      glEnd();
+    #endif
+    }
+
+    void cStaticVertexBuffer::RenderLines()
+    {
+      RenderGeometry(GL_LINES);
+    }
+
+    void cStaticVertexBuffer::RenderTriangles()
+    {
+      RenderGeometry(GL_TRIANGLES);
+    }
+
+    void cStaticVertexBuffer::RenderTriangleStrip()
+    {
+      RenderGeometry(GL_TRIANGLE_STRIP);
+    }
+
+    void cStaticVertexBuffer::RenderQuads()
+    {
+      RenderGeometry(GL_QUADS);
+    }
+
+    void cStaticVertexBuffer::RenderQuadStrip()
+    {
+      RenderGeometry(GL_QUAD_STRIP);
     }
   }
 }
