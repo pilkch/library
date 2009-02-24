@@ -189,7 +189,7 @@ returned by glGetString(GL_VERSION) are loaded.
 However, GLee 5.0 and above can load additional extension and core 
 functions using the GLeeForceLink function:
 
-	GLint GLeeForceLink(const char * extensionName)
+  GLint GLeeForceLink(const char * extensionName)
 
 For example, GLeeForceLink("GL_ARB_point_parameters") will attempt to 
 load the ARB_point_parameters function. 
@@ -197,7 +197,7 @@ load the ARB_point_parameters function.
 For core functions, you can use the GL version string for the version 
 you wish to initialise. For example, GLeeForceLink( "GL_VERSION_2_0" ) 
 will attempt to initialise OpenGL 2.0 core functions. 
-	
+  
 Return Value:
   GLEE_LINK_COMPLETE is returned if all functions were 
   successfully linked.
@@ -266,17 +266,17 @@ CHANGES
 5.2   : OS-X support
 
 5.1   : Fixed some ansi-C compatibility issues. 
-		New GLeeGen version
-		Added 5 new GL extensions and 1 new WGL extension. 
+    New GLeeGen version
+    Added 5 new GL extensions and 1 new WGL extension. 
 
 5.04  : Added the latest extensions
 
 5.03  : Some minor compatibility fixes. 
 
-		Malloc.h no longer used. 
-		
-		GLee no longer fails if platform-specific (GLX or WGL) extensions 
-		could not be loaded (a problem with some cards apparently).
+    Malloc.h no longer used. 
+    
+    GLee no longer fails if platform-specific (GLX or WGL) extensions 
+    could not be loaded (a problem with some cards apparently).
 
 5.02  : Changed extension querying variable system. Removed GLEE_ENABLED() 
         extension checking macro introduced in 5.00, since it is no longer 
@@ -315,7 +315,7 @@ CHANGES
 
 2.1   : Added the OpenGL shading language extensions: 
         ARB_shader_objects, ARB_vertex_shader and ARB_fragment_shader. 
-		
+    
 2.01  : Fixed missing description comment in header
         Fixed include guard
 
