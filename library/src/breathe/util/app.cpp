@@ -840,7 +840,7 @@ namespace breathe
 
       // Joysticks
 
-      const int nJoysticks = SDL_NumJoysticks();
+      const size_t nJoysticks = SDL_NumJoysticks();
 
       std::ostringstream t;
       t<<"Joysticks found: "<<nJoysticks;
@@ -849,7 +849,7 @@ namespace breathe
         LOG.Success("SDL", t.str());
         SDL_JoystickEventState(SDL_ENABLE);
 
-        for (int i=0; i < nJoysticks; i++) {
+        for (size_t i = 0; i < nJoysticks; i++) {
           t.str("");
           t << "Joystick(";
           t << i;
@@ -858,7 +858,8 @@ namespace breathe
           LOG.Success("SDL", t.str());
 
           //TODO: Create a list of joysticks, close them at the end of the program
-          SDL_Joystick *pJoystick = SDL_JoystickOpen(i);
+          SDL_Joystick* pJoystick = SDL_JoystickOpen(i);
+          ASSERT(pJoystick != nullptr);
 
           t.str("");
           t << "Buttons=";

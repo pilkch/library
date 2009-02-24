@@ -9,6 +9,10 @@
 #include <spitfire/math/cQuaternion.h>
 #include <spitfire/math/cColour.h>
 
+#include <breathe/game/cLevel.h>
+
+#include <breathe/render/cTexture.h>
+#include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cStatic.h>
@@ -91,6 +95,9 @@ namespace breathe
       ~cRender();
 
       bool IsWireFrame() const { return bRenderWireframe; }
+
+      string_t GetErrorString() const;
+      string_t GetErrorString(GLenum error) const;
 
     private:
       bool FindExtension(const string_t& sExt) const;

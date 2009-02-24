@@ -16,6 +16,5 @@ namespace spitfire
 {
   namespace math
   {
-
   }
 }

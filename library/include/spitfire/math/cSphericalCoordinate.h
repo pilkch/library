@@ -2,6 +2,7 @@
 #define CSPHERICALCOORDINATE_H
 
 #include <spitfire/math/cVec3.h>
+#include <spitfire/math/cQuaternion.h>
 
 namespace spitfire
 {
@@ -24,6 +25,8 @@ namespace spitfire
 
       void AssignFromEulerPosition(const cVec3& positionEuler);
       cVec3 GetEulerPosition() const;
+
+      cQuaternion GetRotation() const; // This returns an OpenGL friendly rotation with the sphericalcoordinate vertical rotation inverted (For OpenGL compatibility)
 
       float_t GetDistance() const { return values.x; } // fRadialDistance
       void SetDistance(float_t _fRadialDistance) { values.x = _fRadialDistance; } // fRadialDistance
@@ -86,6 +89,16 @@ namespace spitfire
       positionEuler.z = fRadialDistance * sin(DegreesToRadians(fZenithDegrees));
 
       return positionEuler;
+    }
+
+    // This returns an OpenGL friendly rotation with the sphericalcoordinate vertical rotation inverted (For OpenGL compatibility)
+    inline cQuaternion cSphericalCoordinate::GetRotation() const
+    {
+      cVec3 r(0.0f, GetPitchDegrees(), GetRotationZDegrees());
+
+      cQuaternion q(r);
+
+      return q;
     }
   }
 }

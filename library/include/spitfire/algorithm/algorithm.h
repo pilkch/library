@@ -8,11 +8,15 @@
 // Although I can't find a working version of boost::circular_buffer so I am not using it for the moment
 // #define cCircularBuffer boost::circular_buffer
 
+// In general it would be great if we could get rid of this whole file and just use STL/Boost/TR1 classes only, but
+// I haven't found replacements for everything just yet, waiting for C++0x.
+
 namespace spitfire
 {
   namespace vector
   {
     // This is just a convenience function (Is there already a way to do this without resorting to .begin()?)
+    // I think we can just call insert directly, is this really needed?
     template <class T>
     inline void push_back(std::vector<T>& v, const size_t n, const T& value)
     {

@@ -130,7 +130,6 @@ namespace spitfire
       const size_t bufferSize = 1024;
       T buffer[bufferSize];
       size_t n = 0;
-      size_t i = 0;
       std::wstring line;
       while (file.good()) {
         CONSOLE<<"ReadStringsFromFile Reading buffer"<<std::endl;
@@ -141,7 +140,7 @@ namespace spitfire
         CONSOLE<<"ReadStringsFromFile Interpreting line"<<std::endl;
         line.clear();
         line.reserve(n);
-        for (i = 0; i < n; i++) line += wchar_t(buffer[i]);
+        for (size_t i = 0; i < n; i++) line += wchar_t(buffer[i]);
 
         CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
         lines.clear();
@@ -149,7 +148,7 @@ namespace spitfire
 
         CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
         n = lines.size();
-        for (i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
           CONSOLE<<"ReadStringsFromFile Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
           contents.push_back(lines[i]);
         }

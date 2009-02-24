@@ -293,6 +293,26 @@ namespace breathe
       };
     }
 
+    string_t cRender::GetErrorString(GLenum error) const
+    {
+      switch (error) {
+        case GL_NO_ERROR: return TEXT("GL_NO_ERROR");
+        case GL_INVALID_ENUM: return TEXT("GL_INVALID_ENUM");
+        case GL_INVALID_VALUE: return TEXT("GL_INVALID_VALUE");
+        case GL_INVALID_OPERATION: return TEXT("GL_INVALID_OPERATION");
+        case GL_STACK_OVERFLOW: return TEXT("GL_STACK_OVERFLOW");
+        case GL_STACK_UNDERFLOW: return TEXT("GL_STACK_UNDERFLOW");
+        case GL_OUT_OF_MEMORY: return TEXT("GL_OUT_OF_MEMORY");
+      };
+
+      return TEXT("Unknown error");
+    }
+
+    string_t cRender::GetErrorString() const
+    {
+      return GetErrorString(glGetError());
+    }
+
     bool cRender::FindExtension(const string_t& sExt) const
     {
       std::ostringstream t;
@@ -346,6 +366,8 @@ namespace breathe
 
     bool cRender::PreInit()
     {
+      LOG<<"cRender::PreInit"<<std::endl;
+
       // Fetch the video info
       videoInfo = SDL_GetVideoInfo();
 
@@ -368,22 +390,26 @@ namespace breathe
         uiFlags |= SDL_HWSURFACE;
         uiFlags &= ~SDL_SWSURFACE;
       } else {
+        LOG.Error("SDL", "SOFTWARE SURFACE");
         uiFlags |= SDL_SWSURFACE;
         uiFlags &= ~SDL_HWSURFACE;
-        LOG.Error("SDL", "SOFTWARE SURFACE");
       }
 
       // This checks if hardware blits can be done
-      if (videoInfo->blit_hw ) uiFlags |= SDL_HWACCEL;
+      if (videoInfo->blit_hw) uiFlags |= SDL_HWACCEL;
       else {
-        uiFlags &= ~SDL_HWACCEL;
         LOG.Error("SDL", "SOFTWARE BLIT");
+        uiFlags &= ~SDL_HWACCEL;
       }
 
       // Sets up OpenGL double buffering
-      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+      SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-      // get a SDL surface
+      // We definitely want the OpenGL flag for SDL_SetVideoMode
+      ASSERT(uiFlags & SDL_OPENGL);
+
+      // Create an SDL surface
+      LOG<<"cRender::PreInit Calling SDL_SetVideoMode"<<std::endl;
       pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
 
       // Verify there is a surface
@@ -397,6 +423,8 @@ namespace breathe
 
     bool cRender::Init()
     {
+      LOG<<"cRender::Init"<<std::endl;
+
       std::ostringstream t;
       t << "Screen BPP: ";
       t << (unsigned int)(pSurface->format->BitsPerPixel);
@@ -528,6 +556,14 @@ namespace breathe
       glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
       glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
 
+
+      if (!GLeeInit()) {
+        LOG.Error("cRender::Init", "GLeeInit Failed");
+        LOG<<GLeeGetErrorString()<<std::endl;
+      } else {
+        LOG.Success("cRender::Init", "GLeeInit Succeeded");
+        LOG<<GLeeGetErrorString()<<std::endl;
+      }
 
       return breathe::GOOD;
     }
@@ -1855,7 +1891,7 @@ namespace breathe
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1871,7 +1907,7 @@ namespace breathe
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1887,7 +1923,7 @@ namespace breathe
 
       GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("Shader", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set " + sConstant);
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }

@@ -26,6 +26,9 @@ namespace spitfire
       inline float GetB() const { return b; }
       inline float GetA() const { return a; }
 
+      float GetGreyScale() const;
+      float GetLuminance0To1() const;
+
       inline void Clear() { r = g = b = a = 0.0f; }
 
       inline void SetBlack(void) { r = g = b = a = 1.0f; }

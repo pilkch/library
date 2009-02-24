@@ -15,6 +15,7 @@
 #ifdef __LINUX__
 #include <dirent.h>
 #include <pwd.h>
+#include <errno.h>
 #elif defined(__WIN__)
 #include <windows.h>
 #endif
@@ -369,6 +370,7 @@ namespace spitfire
 #endif
     bool FileExists(const string_t& sFilename)
     {
+      LOG<<"FileExists \""<<sFilename<<"\""<<std::endl;
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
       WIN32_FIND_DATA FindFileData;
@@ -380,7 +382,23 @@ namespace spitfire
 
       return false;
 #elif defined(__LINUX__)
-      return (0 == access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK));
+      //int iValue = access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK);
+      //if (iValue == 0) {
+      //  LOG<<"FileExists returning true"<<std::endl;
+      //  return true;
+      //}
+
+      //if (errno == ENOENT) {
+      //  LOG<<"FileExists ENOENT returning false"<<std::endl;
+      //  return false;
+      //}
+
+      //if (errno == EACCES) LOG<<"FileExists EACCES"<<std::endl;
+
+      //LOG<<"FileExists returning true"<<std::endl;
+      //return true;
+
+      return (access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK) == 0);
 #else
 #error "FileExists not implemented on this platform"
 #endif
@@ -403,7 +421,7 @@ namespace spitfire
 
     bool FindFile(const string_t& sFilename, string_t& sOutFilename)
     {
-      CONSOLE<<"FindFile "<<sFilename<<std::endl;
+      CONSOLE<<"FindFile \""<<sFilename<<"\""<<std::endl;
 
       sOutFilename.clear();
 

@@ -24,7 +24,7 @@
 //#include <windows.h>
 //#endif
 
-// Breathe Includes
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>

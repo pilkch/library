@@ -21,7 +21,7 @@ namespace spitfire
 {
   namespace math
   {
-    cVec3 cVec3::GetEdgeVector(cVec3 & point2)
+    cVec3 cVec3::GetEdgeVector(cVec3 & point2) const
     {
       cVec3 temp_vector;
       temp_vector.x = x - point2.x;
@@ -96,41 +96,30 @@ namespace spitfire
       return result;
     }
 
-                                void cVec3::Normalise()
+    void cVec3::Normalise()
     {
-      float length;
-      float scalefactor;
-      length=GetLength();
-
-      if (length==1 || length==0)      //return if length is 1 or 0
+      float length = GetLength();
+      if ((length == 1.0f) || (length == 0.0f))      //return if length is 1 or 0
         return;
 
-      scalefactor = 1.0f/length;
+      const float scalefactor = 1.0f / length;
 
-      if (cEPSILON>x && -cEPSILON<x)
-        x=0.0f;
-      else
-        x *= scalefactor;
+      if (cEPSILON>x && -cEPSILON<x) x = 0.0f;
+      else x *= scalefactor;
 
-      if (cEPSILON>y && -cEPSILON<y)
-        y=0.0f;
-      else
-        y *= scalefactor;
+      if (cEPSILON>y && -cEPSILON<y) y = 0.0f;
+      else y *= scalefactor;
 
-      if (cEPSILON>z && -cEPSILON<z)
-        z=0.0f;
-      else
-        z *= scalefactor;
+      if (cEPSILON>z && -cEPSILON<z) z = 0.0f;
+      else z *= scalefactor;
     }
 
     void cVec3::SetLength(float length)
     {
-      float scalefactor;
-
-      if (length==1 || length==0)      //return if length is 1 or 0
+      if ((length == 1.0f) || (length == 0.0f))      //return if length is 1 or 0
         return;
 
-      scalefactor = 1.0f/length;
+      const float scalefactor = 1.0f / length;
       x *= scalefactor;
       y *= scalefactor;
       z *= scalefactor;
@@ -145,32 +134,36 @@ namespace spitfire
       return result;
     }
 
-                                cVec3 cVec3::GetNormalised() const
+    cVec3 cVec3::GetNormalised() const
     {
       cVec3 result(*this);
 
-                                                result.Normalise();
+      result.Normalise();
 
       return result;
     }
 
     cVec3 cVec3::GetRotatedX(double angle) const
     {
-      return cVec3(  x,
-            y*cos((float)angle) - z*sin((float)angle),
-            y*sin((float)angle) + z*cos((float)angle));
+      return cVec3(
+        x,
+        y * cos((float)angle) - z * sin((float)angle),
+        y * sin((float)angle) + z * cos((float)angle)
+      );
     }
 
     void cVec3::RotateX(double angle)
     {
-      (*this)=GetRotatedX(angle);
+      (*this) = GetRotatedX(angle);
     }
 
     cVec3 cVec3::GetRotatedY(double angle) const
     {
-      return cVec3(  x*cos((float)angle) + z*sin((float)angle),
-                    y,
-                    -x*sin((float)angle) + z*cos((float)angle));
+      return cVec3(
+        x * cos((float)angle) + z * sin((float)angle),
+        y,
+        -x * sin((float)angle) + z * cos((float)angle)
+      );
     }
 
     void cVec3::RotateY(double angle)
@@ -180,9 +173,11 @@ namespace spitfire
 
     cVec3 cVec3::GetRotatedZ(double angle) const
     {
-      return cVec3(  x*cos((float)angle) - y*sin((float)angle),
-                    x*sin((float)angle) + y*cos((float)angle),
-                    z);
+      return cVec3(
+        x * cos((float)angle) - y * sin((float)angle),
+        x * sin((float)angle) + y * cos((float)angle),
+        z
+      );
     }
 
     void cVec3::RotateZ(double angle)
@@ -192,7 +187,7 @@ namespace spitfire
 
     cVec3 cVec3::GetRotatedAxis(double angle, const cVec3 & axis) const
     {
-                                  cVec3 u=axis.GetNormalised();
+      cVec3 u=axis.GetNormalised();
 
       cVec3 rotMatrixRow0, rotMatrixRow1, rotMatrixRow2;
 
@@ -231,7 +226,7 @@ namespace spitfire
       RotateAxis(rhs.GetAngle(), rhs.GetAxis());
     }
 
-    cVec3 cVec3::GetRotatedByQuaternion(const cQuaternion & rhs)
+    cVec3 cVec3::GetRotatedByQuaternion(const cQuaternion & rhs) const
     {
       return cVec3(GetRotatedAxis(rhs.GetAngle(), rhs.GetAxis()));
     }
@@ -245,65 +240,60 @@ namespace spitfire
     {
       cVec3 temp(*this);
 
-                                                temp.Normalise();
+      temp.Normalise();
 
-      temp=temp*0.5f+cVec3(0.5f, 0.5f, 0.5f);
+      temp = temp * 0.5f + cVec3(0.5f, 0.5f, 0.5f);
 
       return temp;
     }
 
-    cVec3 cVec3::lerp(const cVec3 & v2, float factor)
+    cVec3 cVec3::lerp(const cVec3 & v2, float factor) const
     {
       cVec3 result;
 
-      result=(*this)*factor + v2*(1.0f-factor);
+      result = ((*this) * factor) + (v2 * (1.0f - factor));
 
       return result;
     }
 
     cVec3 cVec3::operator*(const float rhs) const
     {
-      float newX=x * rhs;
-      float newY=y * rhs;
-      float newZ=z * rhs;
+      float newX = x * rhs;
+      float newY = y * rhs;
+      float newZ = z * rhs;
 
       return cVec3(newX, newY, newZ);
     }
 
     bool cVec3::operator==(const cVec3 & rhs) const
     {
-      return (x==rhs.x && y==rhs.y && z==rhs.z);
-
-      if (x==rhs.x && y==rhs.y && z==rhs.z)
-        return true;
-
-      return false;
+      return ((x == rhs.x) && (y==rhs.y) && (z==rhs.z));
     }
 
     bool cVec3::operator!=(const cVec3 & rhs) const
     {
-      return !((*this)==rhs);
+      return !((x == rhs.x) && (y==rhs.y) && (z==rhs.z));
     }
 
     void cVec3::operator-=(const cVec3 & rhs)
     {
-      x-=rhs.x;
-      y-=rhs.y;
-      z-=rhs.z;
+      x -= rhs.x;
+      y -= rhs.y;
+      z -= rhs.z;
     }
 
     void cVec3::operator*=(const float rhs)
     {
-      x*=rhs;
-      y*=rhs;
-      z*=rhs;
+      x *= rhs;
+      y *= rhs;
+      z *= rhs;
     }
 
     void cVec3::operator/=(const float rhs)
     {
-      x/=rhs;
-      y/=rhs;
-      z/=rhs;
+      x /= rhs;
+      y /= rhs;
+      z /= rhs;
     }
   }
 }

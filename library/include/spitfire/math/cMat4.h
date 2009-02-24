@@ -10,12 +10,14 @@ namespace spitfire
     class cMat4
     {
     public:
-      cMat4(float e0=1.0f, float e1=0.0f, float e2=0.0f, float e3=0.0f,
-            float e4=0.0f, float e5=1.0f, float e6=0.0f, float e7=0.0f,
-            float e8=0.0f, float e9=0.0f, float e10=1.0f, float e11=0.0f,
-            float e12=0.0f, float e13=0.0f, float e14=0.0f, float e15=1.0f);
-      cMat4(const cMat4 & rhs);
-      ~cMat4() {} //empty
+      cMat4(
+        float e0=1.0f, float e1=0.0f, float e2=0.0f, float e3=0.0f,
+        float e4=0.0f, float e5=1.0f, float e6=0.0f, float e7=0.0f,
+        float e8=0.0f, float e9=0.0f, float e10=1.0f, float e11=0.0f,
+        float e12=0.0f, float e13=0.0f, float e14=0.0f, float e15=1.0f
+      );
+      cMat4(const cMat4& rhs);
+      ~cMat4() {}
 
       cVec3 GetRight();
       cVec3 GetFront();

@@ -10,7 +10,8 @@
 #include <vector>
 #include <fstream>
 
-#include <breathe/breathe.h>
+// Spitfire headers
+#include <spitfire/spitfire.h>
 
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
@@ -121,11 +122,11 @@ namespace spitfire
     string_t GetUserName()
     {
       const int MAX_LENGTH = 260;
-      breathe::char_t user[MAX_LENGTH];
+      spitfire::char_t user[MAX_LENGTH];
       user[0] = 0;
 
       DWORD nSize = (DWORD)MAX_LENGTH;
-      if (GetComputerName(user, &nSize)) return breathe::string::ToUTF8(breathe::string_t(user));
+      if (GetComputerName(user, &nSize)) return spitfire::string::ToUTF8(spitfire::string_t(user));
 
       if (getenv("USER") != 0) return string_t(getenv("USER"));
       else if (getenv("USERNAME") != 0) return string_t(getenv("USERNAME"));
@@ -145,7 +146,7 @@ namespace spitfire
       if (pid != 0) return;
 
       char** szCommandAndParameters = nullptr;
-      //makeargv(breathe::string::ToUTF8(sCommand).c_str(), &szCommandAndParameters);
+      //makeargv(spitfire::string::ToUTF8(sCommand).c_str(), &szCommandAndParameters);
       execv(szCommandAndParameters[0], &szCommandAndParameters[0]);
 
       for (size_t i = 0; szCommandAndParameters[i] != nullptr; i++) LOG<<"ExecuteCommand FAILED "<<szCommandAndParameters[i]<<std::endl;
@@ -158,7 +159,7 @@ namespace spitfire
     bool RunCommandLineProcess(const string_t& sCommandLine)
     {
       LOG<<"RunCommandLineProcess: "<<sCommandLine<<std::endl;
-      int result = system(breathe::string::ToUTF8(sCommandLine).c_str());
+      int result = system(spitfire::string::ToUTF8(sCommandLine).c_str());
       if (result == -1) LOG<<"RunCommandLineProcess system FAILED result="<<strerror(errno)<<std::endl;
       return (WIFEXITED(result) && WEXITSTATUS(result) == 0);
     }
@@ -179,24 +180,24 @@ namespace spitfire
       if (IsOSKDE()) sCommand = TEXT("kfmclient exec \"") + sWebPageURL + TEXT("\"");
       else sCommand = TEXT("gnome-open \"") + sWebPageURL + TEXT("\"");
 
-      system(breathe::string::ToUTF8(sCommand).c_str());
+      system(spitfire::string::ToUTF8(sCommand).c_str());
     }
 
     void GetComputerName(string_t& sComputerName)
     {
       char szComputerName[MAX_STRING_LENGTH];
       gethostname(szComputerName, MAX_STRING_LENGTH);
-      sComputerName = breathe::string::ToString_t(szComputerName);
+      sComputerName = spitfire::string::ToString_t(szComputerName);
     }
 
     bool GetEnvironmentVariable(const string_t& sEnvironmentVariable, string_t& sValue)
     {
       sValue.clear();
 
-      const char* szResult = getenv(breathe::string::ToUTF8(sEnvironmentVariable).c_str());
+      const char* szResult = getenv(spitfire::string::ToUTF8(sEnvironmentVariable).c_str());
       if (szResult == nullptr) return false;
 
-      sValue = breathe::string::ToString_t(szResult);
+      sValue = spitfire::string::ToString_t(szResult);
       return true;
     }
 
@@ -208,8 +209,8 @@ namespace spitfire
 
       struct passwd *pw = getpwuid(getuid());
       ASSERT(pw != nullptr);
-      sUserName.assign(breathe::string::ToString_t(pw->pw_name)); // login name ie. "chris"
-      sUserName.assign(breathe::string::ToString_t(pw->pw_gecos)); // Real name is. "Chris Pilkington"
+      sUserName.assign(spitfire::string::ToString_t(pw->pw_name)); // login name ie. "chris"
+      sUserName.assign(spitfire::string::ToString_t(pw->pw_gecos)); // Real name is. "Chris Pilkington"
 
       LOG<<"GetUserName GetEnvironmentVariable FAILED Finding LOGNAME or USER"<<std::endl;
     }
@@ -248,7 +249,7 @@ namespace spitfire
         struct group* grp = getgrgid(group_list[i]);
         LOG<<"IsUserAdministrator "<<(int)group_list[i]<<":"<<grp->gr_name<<std::endl;
 
-        if (breathe::string::ToString_t(grp->gr_name) == TEXT("admin")) return true;
+        if (spitfire::string::ToString_t(grp->gr_name) == TEXT("admin")) return true;
       }
 
       return false;

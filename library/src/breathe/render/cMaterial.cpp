@@ -20,7 +20,6 @@
 #include <GL/GLee.h>
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 
@@ -92,65 +91,111 @@ namespace breathe
 
       void cShader::CheckStatusVertex()
       {
+        LOG<<"cShader::CheckStatusVertex Last error="<<pRender->GetErrorString()<<std::endl;
+
         int infologLength = 0;
         glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
+        LOG<<"cShader::CheckStatusVertex glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+        infologLength = 1024;
         if (infologLength > 0) {
-            char* infoLog = new char[infologLength];
-            int charsWritten  = 0;
-            glGetShaderInfoLog(uiShaderVertex, infologLength, &charsWritten, infoLog);
-            std::string sInfo(infoLog);
-            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
-                sInfo.find("ERROR") != std::string::npos)
-            {
-              sInfo = string::Replace(sInfo, "\n", "<br>");
-              LOG.Error("Material", std::string("Vertex Shader") + breathe::string::ToUTF8(sShaderVertex) + std::string(": ") + sInfo);
-            }
-            SAFE_DELETE_ARRAY(infoLog);
+          char* infoLog = new char[infologLength];
+          glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
+          std::string sInfo(infoLog);
+          LOG<<"cShader::CheckStatusVertex "<<sInfo<<std::endl;
+          if (
+            sInfo.find("not been successfully compiled") != std::string::npos ||
+            sInfo.find("ERROR") != std::string::npos
+          )
+          {
+            sInfo = string::Replace(sInfo, "\n", "<br>");
+            LOG.Error("Material", std::string("Vertex Shader") + breathe::string::ToUTF8(sShaderVertex) + std::string(": ") + sInfo);
+          }
+          SAFE_DELETE_ARRAY(infoLog);
         }
+
+        LOG<<"cShader::CheckStatusVertex returning"<<std::endl;
       }
 
       void cShader::CheckStatusFragment()
       {
+        LOG<<"cShader::CheckStatusFragment Last error="<<pRender->GetErrorString()<<std::endl;
+
         int infologLength = 0;
         glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
+        LOG<<"cShader::CheckStatusFragment glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+        infologLength = 1024;
         if (infologLength > 0) {
-            char *infoLog = new char[infologLength];
-            int charsWritten  = 0;
-            glGetShaderInfoLog(uiShaderFragment, infologLength, &charsWritten, infoLog);
-            std::string sInfo(infoLog);
-            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
-                sInfo.find("ERROR") != std::string::npos)
-            {
-              sInfo = string::Replace(sInfo, "\n", "<br>");
-              LOG.Error("Material", std::string("Fragment Shader ") + breathe::string::ToUTF8(sShaderFragment) + ": " + sInfo);
-            }
-            SAFE_DELETE_ARRAY(infoLog);
+          char *infoLog = new char[infologLength];
+          glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
+          std::string sInfo(infoLog);
+          LOG<<"cShader::CheckStatusFragment "<<sInfo<<std::endl;
+          if (
+            sInfo.find("not been successfully compiled") != std::string::npos ||
+            sInfo.find("ERROR") != std::string::npos
+          )
+          {
+            sInfo = string::Replace(sInfo, "\n", "<br>");
+            LOG.Error("Material", std::string("Fragment Shader ") + breathe::string::ToUTF8(sShaderFragment) + ": " + sInfo);
+          }
+          SAFE_DELETE_ARRAY(infoLog);
         }
+
+        LOG<<"cShader::CheckStatusFragment returning"<<std::endl;
       }
 
       void cShader::CheckStatusProgram()
       {
+        LOG<<"cShader::CheckStatusProgram Last error="<<pRender->GetErrorString()<<std::endl;
+
         int infologLength = 0;
         glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
+        LOG<<"cShader::CheckStatusProgram glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+        infologLength = 1024;
         if (infologLength > 0) {
-            char *infoLog = new char[infologLength];
-            int charsWritten  = 0;
-            glGetProgramInfoLog(uiShaderProgram, infologLength, &charsWritten, infoLog);
-            std::string sInfo(infoLog);
-            if (  sInfo.find("not been successfully compiled") != std::string::npos ||
-                sInfo.find("Warning") != std::string::npos)
-              LOG.Error("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
-            else
-              LOG.Success("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
-            SAFE_DELETE_ARRAY(infoLog);
+          char *infoLog = new char[infologLength];
+          glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
+          std::string sInfo(infoLog);
+          LOG<<"cShader::CheckStatusProgram "<<sInfo<<std::endl;
+          if (
+            sInfo.find("not been successfully compiled") != std::string::npos ||
+            sInfo.find("Warning") != std::string::npos
+          ) {
+            LOG.Error("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
+          } else {
+            LOG.Success("Material", std::string("Program ") + breathe::string::ToUTF8(sShaderVertex) + " " + breathe::string::ToUTF8(sShaderFragment) + ": " + infoLog);
+          }
+          SAFE_DELETE_ARRAY(infoLog);
         }
+
+        LOG<<"cShader::CheckStatusProgram returning"<<std::endl;
+      }
+
+      bool cShader::IsCompiledVertex() const
+      {
+        GLint value = GL_FALSE;
+        glGetShaderiv(uiShaderVertex, GL_COMPILE_STATUS, &value);
+        return (value == GL_TRUE);
+      }
+
+      bool cShader::IsCompiledFragment() const
+      {
+        GLint value = GL_FALSE;
+        glGetShaderiv(uiShaderFragment, GL_COMPILE_STATUS, &value);
+        return (value == GL_TRUE);
+      }
+
+      bool cShader::IsCompiledProgram() const
+      {
+        GLint value = GL_FALSE;
+        glGetProgramiv(uiShaderProgram, GL_LINK_STATUS, &value);
+        return (value == GL_TRUE);
       }
 
       void cShader::Init()
       {
-        if (TEXT("") != sShaderVertex) {
-          uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
+        LOG<<"cShader::Init glGetError="<<pRender->GetErrorString()<<std::endl;
 
+        if (!sShaderVertex.empty()) {
           std::string buffer = "";
           std::string line = "";
           std::ifstream f(breathe::string::ToUTF8(sShaderVertex).c_str());
@@ -158,27 +203,35 @@ namespace breathe
             while (!f.eof()) {
               std::getline(f, line);
 
-              buffer+=line;
-              buffer+="\n";
+              buffer += line;
+              buffer += "\n";
 
-              line="";
+              line = "";
             };
 
-            const char* str=buffer.c_str();
-            glShaderSource(uiShaderVertex, 1, &str, NULL);
-            glCompileShader(uiShaderVertex);
+            LOG<<"cShader::Init Vertex "<<pRender->GetErrorString()<<" "<<pRender->GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
 
+            uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
+            LOG<<"cShader::Init Vertex shader glGetError="<<pRender->GetErrorString()<<std::endl;
+            ASSERT(uiShaderVertex != 0);
+
+            const char* str = buffer.c_str();
+            glShaderSource(uiShaderVertex, 1, &str, NULL);
             CheckStatusVertex();
+
+            glCompileShader(uiShaderVertex);
+            CheckStatusVertex();
+
+            if (IsCompiledVertex()) LOG.Success("cShader::Init", std::string("Vertex shader ") + breathe::string::ToUTF8(sShaderVertex) + ": Compiled");
+            else LOG.Error("cShader::Init", std::string("Vertex shader ") + breathe::string::ToUTF8(sShaderVertex) + ": Not compiled");
           } else {
             LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderVertex));
-            uiShaderVertex=0;
+            uiShaderVertex = 0;
           }
         }
 
 
-        if (TEXT("") != sShaderFragment) {
-          uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
-
+        if (!sShaderFragment.empty()) {
           std::string buffer;
           std::string line;
           std::ifstream f(breathe::string::ToUTF8(sShaderFragment).c_str());
@@ -186,34 +239,53 @@ namespace breathe
             while (!f.eof()) {
               std::getline(f, line);
 
-              buffer+=line;
-              buffer+="\n";
+              buffer += line;
+              buffer += "\n";
             };
 
-            const char* str=buffer.c_str();
-            glShaderSource(uiShaderFragment, 1, &str, NULL);
-            glCompileShader(uiShaderFragment);
+            LOG<<"cShader::Init Fragment shader=\""<<buffer<<"\""<<std::endl;
 
+            uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
+            LOG<<"cShader::Init Fragment shader glGetError="<<pRender->GetErrorString()<<std::endl;
+            ASSERT(uiShaderFragment != 0);
+
+            const char* str = buffer.c_str();
+            glShaderSource(uiShaderFragment, 1, &str, NULL);
             CheckStatusFragment();
+
+            glCompileShader(uiShaderFragment);
+            CheckStatusFragment();
+
+            if (IsCompiledFragment()) LOG.Success("cShader::Init", std::string("Fragment shader ") + breathe::string::ToUTF8(sShaderFragment) + ": Compiled");
+            else LOG.Error("cShader::Init", std::string("Fragment shader ") + breathe::string::ToUTF8(sShaderFragment) + ": Not compiled");
           } else {
             LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderFragment));
-            uiShaderFragment=0;
+            uiShaderFragment = 0;
           }
         }
 
-        if (uiShaderVertex || uiShaderFragment) {
+        if (IsCompiledVertex() || IsCompiledFragment()) {
           uiShaderProgram = glCreateProgram();
+          LOG<<"cShader::Init program glGetError="<<pRender->GetErrorString()<<std::endl;
+          CheckStatusProgram();
+          ASSERT(uiShaderFragment != 0);
 
-          if (uiShaderVertex) glAttachShader(uiShaderProgram, uiShaderVertex);
-          if (uiShaderFragment) glAttachShader(uiShaderProgram, uiShaderFragment);
+          if (IsCompiledVertex()) {
+            glAttachShader(uiShaderProgram, uiShaderVertex);
+            CheckStatusProgram();
+          }
+          if (IsCompiledFragment()) {
+            glAttachShader(uiShaderProgram, uiShaderFragment);
+            CheckStatusProgram();
+          }
 
           glLinkProgram(uiShaderProgram);
-
           CheckStatusProgram();
 
           glUseProgram(uiShaderProgram);
-          glUseProgram(0);
+          CheckStatusProgram();
 
+          glUseProgram(0);
           CheckStatusProgram();
         }
       }

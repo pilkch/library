@@ -216,24 +216,217 @@ namespace breathe
       //std::vector<cSun> sun;
     };
 
+
+
+
+
+
+    class cWeatherStateTemplate
+    {
+    public:
+      sampletime_t durationMinimumMS;
+      sampletime_t durationMaximumMS;
+
+      math::cColour ambientColour; // This is mixed with the day/night cycle ambientColour
+
+      bool bIsThundering;
+      sampletime_t thunderFrequencyMinimumMS;
+      sampletime_t thunderFrequencyMaximumMS;
+      float_t thunderVolume0To1;
+
+      bool bIsLightning;
+      bool bIsLightningAccompaniedByThunder; // This allows lightning to generate a thunder clap as it strikes
+      sampletime_t lightningFrequencyMinimumMS;
+      sampletime_t lightningFrequencyMaximumMS;
+
+      size_t cloudsMimimum;
+      size_t cloudsMaximum;
+
+      bool bIsRaining;
+      float_t fRainingAmount0To1;
+
+      bool bIsSnowing;
+      float_t fSnowingAmount0To1;
+
+      bool bIsFoggy;
+      float_t fFogDistanceMinimumm;
+      float_t fFogDistanceMaximumm;
+      math::cColour fogColour;
+
+      std::map<string_t, float_t> nextStateAndProbability;
+    };
+
     class cWeatherState
     {
     public:
-      float_t fLight0To2; // 0..2 * fBrightness of the sun/sky at the moment
-      float_t fRain0To1;
-      float_t fSnowing0To1;
-      float_t fDustStorm0To1;
-      float_t fThunder0To1;
-      float_t fLightningStorm0To1;
+      void SetFromRatioOfTwoStates(float_t fRatio0, const cWeatherState& state0, float_t fRatio1, const cWeatherState& state1);
+
+      sampletime_t timeThisStateStarts;
+      sampletime_t timeThisStateEnds;
+
+      math::cColour ambientColour; // This is mixed with the day/night cycle ambientColour
+
+      bool bIsThundering;
+      sampletime_t thunderFrequencyMinimumMS;
+      sampletime_t thunderFrequencyMaximumMS;
+      float_t thunderVolume0To1;
+
+      bool bIsLightning;
+      bool bIsLightningAccompaniedByThunder; // This allows lightning to generate a thunder clap as it strikes
+      sampletime_t lightningFrequencyMinimumMS;
+      sampletime_t lightningFrequencyMaximumMS;
+
+      size_t cloudsMimimum;
+      size_t cloudsMaximum;
+
+      bool bIsRaining;
+      float_t fRainingAmount0To1;
+
+      bool bIsSnowing;
+      float_t fSnowingAmount0To1;
+
+      bool bIsFoggy;
+      float_t fFogDistance;
+      math::cColour fogColour;
     };
 
-    class cWeatherTransition
+    inline void cWeatherState::SetFromRatioOfTwoStates(float_t fRatio0, const cWeatherState& state0, float_t fRatio1, const cWeatherState& state1)
+    {
+      ambientColour = (state0.ambientColour * fRatio0) + (state1.ambientColour * fRatio1);
+
+      bIsThundering = (fRatio0 > 0.9f) ? state0.bIsThundering : state1.bIsThundering;
+      thunderFrequencyMinimumMS = (state0.thunderFrequencyMinimumMS * fRatio0) + (state1.thunderFrequencyMinimumMS * fRatio1);
+      thunderFrequencyMaximumMS = (state0.thunderFrequencyMaximumMS * fRatio0) + (state1.thunderFrequencyMaximumMS * fRatio1);
+      thunderVolume0To1 = (state0.thunderVolume0To1 * fRatio0) + (state1.thunderVolume0To1 * fRatio1);
+
+      bIsLightning = (fRatio0 > 0.9f) ? state0.bIsLightning : state1.bIsLightning;
+      bIsLightningAccompaniedByThunder = (fRatio0 > 0.9f) ? state0.bIsLightningAccompaniedByThunder : state1.bIsLightningAccompaniedByThunder;
+      lightningFrequencyMinimumMS = (state0.lightningFrequencyMinimumMS * fRatio0) + (state1.lightningFrequencyMinimumMS * fRatio1);
+      lightningFrequencyMaximumMS = (state0.lightningFrequencyMaximumMS * fRatio0) + (state1.lightningFrequencyMaximumMS * fRatio1);
+
+      cloudsMimimum = (state0.cloudsMimimum * fRatio0) + (state1.cloudsMimimum * fRatio1);
+      cloudsMaximum = (state0.cloudsMaximum * fRatio0) + (state1.cloudsMaximum * fRatio1);
+
+      bIsRaining = (fRatio0 > 0.9f) ? state0.bIsRaining : state1.bIsRaining;
+      fRainingAmount0To1 = (state0.fRainingAmount0To1 * fRatio0) + (state1.fRainingAmount0To1 * fRatio1);
+
+      bIsFoggy = (fRatio0 > 0.9f) ? state0.bIsFoggy : state1.bIsFoggy;
+      fFogDistance = (state0.fFogDistance * fRatio0) + (state1.fFogDistance * fRatio1);
+      fogColour = (state0.fogColour * fRatio0) + (state1.fogColour * fRatio1);
+    }
+
+
+    // ** cWeatherManager
+
+    // At any point in time our state looks like this:
+    // states[0] .. currentState .. states[1] .. states[2] ...
+    // When currentTime >= states[1].startTime we pop states[0] and make sure that states still has at least 2 states in it.
+    // If states.size() < 2 then we add a new random state after it
+    //
+    // t = current_time / next_transition_time
+    // skyState.fRain0To1 = mix(skyState.fRain0To1, weatherState.fRain0To1, t);
+
+    class cWeatherManager
     {
     public:
-      cWeatherState state;
-      float_t fStartsInThisManyMS;
-      float_t fDurationMS;
+      bool IsValid() const { return (states.size() >= 2); }
+
+      void SetStatesPaused() { bIsStatesCycling = false; }
+      void SetStatesCycling() { bIsStatesCycling = true; }
+
+      void Update(sampletime_t currentTime);
+
+    private:
+      const cWeatherState& GetState0() const;
+      const cWeatherState& GetState1() const;
+
+      void CalculateRatioOfEachState(sampletime_t currentTime, float_t& fRatio0, float_t& fRatio1) const;
+
+      void PlaySoundThunderNormal();
+      void PlaySoundThunderLoud();
+      void PlaySoundWindNormal();
+      void PlaySoundWindStrong();
+
+      void AddLightningFlash(const math::cVec3& position);
+      void AddCloud(const math::cVec3& position, const math::cColour& colour);
+      void AddRainbow(const math::cVec3& point0, const math::cVec3& point1);
+
+      void SetFogNone();
+      void SetFogDistance();
+
+      // Are we cycling through the states or just staying with the current one?
+      // This is useful for a cut scene where it is meant to be raining or showing a level that is always snowing
+      bool bIsStatesCycling;
+
+      // This is a default state, if no states are loaded then we default to this one
+      cWeatherState defaultState;
+
+      // This is the templates of possible states for random selection
+      std::map<string_t, cWeatherStateTemplate> statetemplates;
+
+      // This is the list of future states
+      std::list<cWeatherState> states;
+
+      // This is the actual state right now, it is positioned at some point between states[0] and states[1] depending on the time
+      cWeatherState currentState;
     };
+
+    inline const cWeatherState& cWeatherManager::GetState0() const
+    {
+      ASSERT(!states.empty());
+      return states.front();
+    }
+
+    inline const cWeatherState& cWeatherManager::GetState1() const
+    {
+      ASSERT(states.size() >= 2);
+      std::list<cWeatherState>::const_iterator iter = states.begin();
+      const std::list<cWeatherState>::const_iterator iterEnd = states.end();
+      ASSERT(iter != iterEnd);
+      iter++;
+
+      ASSERT(iter != iterEnd);
+      return *iter;
+    }
+
+    inline void cWeatherManager::CalculateRatioOfEachState(sampletime_t currentTime, float_t& fRatio0, float_t& fRatio1) const
+    {
+      ASSERT(IsValid());
+
+      fRatio0 = 1.0f;
+      fRatio1 = 0.0f;
+
+      currentTime -= currentState.timeThisStateStarts;
+
+      const sampletime_t duration = (currentState.timeThisStateEnds - currentState.timeThisStateStarts);
+
+      ASSERT(duration != 0);
+
+      const float_t fRatioThroughCurrentState = float_t(currentTime) / float_t(duration);
+
+      const float_t fRatioToStartTransitionAt = 0.75f;
+
+      if (fRatioThroughCurrentState > fRatioToStartTransitionAt) {
+        // We are in the transition stage, transition from fRatio0 = 1.0f, fRatio1 = 0.0f to fRatio0 = 0.0f, fRatio1 = 1.0f
+        const float_t fRatioThroughTransition = (fRatioThroughCurrentState - fRatioToStartTransitionAt) / (1.0f - fRatioToStartTransitionAt);
+
+        fRatio0 = (1.0f - fRatioThroughTransition);
+        fRatio1 = fRatioThroughTransition;
+      }
+    }
+
+    inline void cWeatherManager::Update(sampletime_t currentTime)
+    {
+      float_t fRatio0 = 1.0f;
+      float_t fRatio1 = 0.0f;
+      CalculateRatioOfEachState(currentTime, fRatio0, fRatio0);
+
+      const cWeatherState& state0 = GetState0();
+      const cWeatherState& state1 = GetState1();
+
+      currentState.SetFromRatioOfTwoStates(fRatio0, state0, fRatio1, state1);
+    }
+
 
     // All stars have the same texture, the only thing that changes is the perceived diameter and colour
     // All planets have the same texture, the only thing that changes is the perceived diameter and colour
@@ -292,8 +485,7 @@ namespace breathe
       cSkyState skyState;
       std::map<float_t, cSkyState> daySkyStates;
 
-      cWeatherState weatherState;
-      std::list<cWeatherTransition> weatherTransitions;
+      cWeatherManager weatherManager;
 
       cSkyDomeAtmosphereRenderer skyDomeAtmosphereRenderer;
 
@@ -383,8 +575,6 @@ namespace breathe
       aircraft.push_back(pAircraft);
     }
 
-    // t = current_time / next_transition_time
-    // skyState.fRain0To1 = mix(skyState.fRain0To1, weatherState.fRain0To1, t);
 
 
     // This is not automatic, each application must manually call this or optionally create the skystem programmatically

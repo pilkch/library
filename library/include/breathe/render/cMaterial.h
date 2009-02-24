@@ -66,6 +66,10 @@ namespace breathe
         void CheckStatusFragment();
         void CheckStatusProgram();
 
+        bool IsCompiledVertex() const;
+        bool IsCompiledFragment() const;
+        bool IsCompiledProgram() const;
+
         string_t sShaderVertex;
         string_t sShaderFragment;
 

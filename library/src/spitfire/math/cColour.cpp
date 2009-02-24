@@ -60,43 +60,41 @@ namespace spitfire
 
     void cColour::Clamp()
     {
-      if (r>1.0f)
-        r=1.0f;
-      if (r<0.0f)
-        r=0.0f;
-
-      if (g>1.0f)
-        g=1.0f;
-      if (g<0.0f)
-        g=0.0f;
-
-      if (b>1.0f)
-        b=1.0f;
-      if (b<0.0f)
-        b=0.0f;
-
-      if (a>1.0f)
-        a=1.0f;
-      if (a<0.0f)
-        a=0.0f;
+      clamp(r);
+      clamp(g);
+      clamp(b);
+      clamp(a);
     }
 
     cColour cColour::lerp(const cColour & c2, float factor)
     {
       cColour result;
-      result=(*this)*factor + c2*(1.0f-factor);
+      result = ((*this) * factor) + (c2 * (1.0f - factor));
 
       return result;
     }
 
+    // http://en.wikipedia.org/wiki/Grayscale
+    // From Wikipedia:
+    // GreyScale = 0.3 R + 0.59 G + 0.11 B;
+
+    float cColour::GetGreyScale() const
+    {
+      return (0.3f * r) + (0.59f * g) + (0.11f * b);
+    }
+
+    // http://en.wikipedia.org/wiki/Luma_(video)
+    // http://en.wikipedia.org/wiki/Luminance_(relative)
+    // From Wikipedia:
+    // Y = 0.2126 R + 0.7152 G + 0.0722 B;
+    float cColour::GetLuminance0To1() const
+    {
+      return (0.2126f * r) + (0.7152f * g) + (0.0722f * b);
+    }
+
     cColour cColour::operator +(const cColour & rhs) const
     {
-      cColour result;
-
-      result.r=r+rhs.r;
-      result.g=g+rhs.g;
-      result.b=b+rhs.b;
-      result.a=a+rhs.a;
+      cColour result(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 
       result.Clamp();
 
@@ -105,12 +103,7 @@ namespace spitfire
 
     cColour cColour::operator -(const cColour & rhs) const
     {
-      cColour result;
-
-      result.r=r-rhs.r;
-      result.g=g-rhs.g;
-      result.b=b-rhs.b;
-      result.a=a-rhs.a;
+      cColour result(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a);
 
       result.Clamp();
 
@@ -119,12 +112,7 @@ namespace spitfire
 
     cColour cColour::operator *(const cColour & rhs) const
     {
-      cColour result;
-
-      result.r=r*rhs.r;
-      result.g=g*rhs.g;
-      result.b=b*rhs.b;
-      result.a=a*rhs.a;
+      cColour result(r * rhs.r, g * rhs.g, b * rhs.b, a * rhs.a);
 
       result.Clamp();
 
@@ -133,12 +121,7 @@ namespace spitfire
 
     cColour cColour::operator /(const cColour & rhs) const
     {
-      cColour result;
-
-      result.r=r/rhs.r;
-      result.g=g/rhs.g;
-      result.b=b/rhs.b;
-      result.a=a/rhs.a;
+      cColour result(r / rhs.r, g / rhs.g, b / rhs.b, a / rhs.a);
 
       result.Clamp();
 

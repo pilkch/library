@@ -41,7 +41,7 @@
 #include <sstream>
 #include <iomanip>
 
-// Breathe
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/algorithm/md5.h>
