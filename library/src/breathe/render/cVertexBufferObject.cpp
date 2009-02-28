@@ -204,6 +204,7 @@ namespace breathe
       vertex_size(0),
       texturecoordinate_size(0),
       indices_size(0),
+      nTextureUnits(0),
       bufferID(0)
     {
     }
@@ -236,10 +237,18 @@ namespace breathe
     {
       ASSERT(!IsCompiled());
 
-      LOG<<"cStaticVertexBuffer::Compile glGetError="<<pRender->GetErrorString()<<std::endl;
+      const size_t nVertices = vertices.size() / 3;
+      const size_t nTextureCoordinates = textureCoordinates.size() / 2;
+      ASSERT(nVertices != 0);
+      if (nTextureCoordinates == (nVertices + nVertices + nVertices)) nTextureUnits = 3;
+      else if (nTextureCoordinates == (nVertices + nVertices)) nTextureUnits = 2;
+      else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
+      else nTextureUnits = 0;
+
+      LOG<<"cStaticVertexBuffer::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<pRender->GetErrorString()<<std::endl;
 
       // Create a new buffer
-      glGenBuffersARB(1, &bufferID);
+      glGenBuffers(1, &bufferID);
       LOG<<"cStaticVertexBuffer::Compile glGenBuffers glGetError="<<pRender->GetErrorString()<<", bufferID="<<bufferID<<std::endl;
       ASSERT(bufferID != 0);
 
@@ -258,7 +267,7 @@ namespace breathe
       if (texturecoordinate_size != 0) {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
           // Describe to OpenGL where the texture coordinate data is in the buffer
-          glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+          glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
 
@@ -321,10 +330,26 @@ namespace breathe
       glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
 
       // Enable texture coordinate information
-      if (texturecoordinate_size != 0) {
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      if (texturecoordinate_size > 0) {
+        //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         // Describe to OpenGL where the texture coordinate data is in the buffer
-        glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+        //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+
+        glActiveTexture(GL_TEXTURE0_ARB);
+        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+
+        // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
+        // 4 * 1 texture coordinates for every point, sending them all in one texture unit
+        // if (texturecoordinate_size > 1) {
+        //   glActiveTexture(GL_TEXTURE1_ARB);
+        //   glClientActiveTextureARB(GL_TEXTURE1_ARB);
+        //   glEnable(GL_TEXTURE_2D);
+        //   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + (2 * sizeof(GL_FLOAT))));
+        // }
       }
     }
 
@@ -356,24 +381,28 @@ namespace breathe
         const size_t n = vertices.size();
         size_t v = 0;
         size_t t = 0;
-        if (texturecoordinate_size != 0) {
+        if (nTextureUnits == 2) {
+          // Multitexturing
+          while (v < n) {
+            ... This is wrong!
+            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]); glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v += 3;
+            t += 4;
+          };
+        } else if (nTextureUnits == 1) {
+          // Single texturing
           while (v < n) {
             glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]); glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
 
-            v++;
-            v++;
-            v++;
-
-            t++;
-            t++;
+            v += 3;
+            t += 2;
           };
         } else {
           while (v < n) {
             glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
 
-            v++;
-            v++;
-            v++;
+            v += 3;
           };
         }
 

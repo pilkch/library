@@ -377,7 +377,7 @@ namespace breathe
     const std::list<physics::cPhysicsObject*>::iterator end = lPhysicsObject.end();
     while (end != iter) {
       glPushMatrix();
-        glMultMatrixf((*iter)->m);
+        glMultMatrixf((*iter)->m.GetOpenGLMatrix());
 
         uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>((*iter++)->pModel));
 
@@ -402,18 +402,18 @@ namespace breathe
         breathe::math::cColour colour(1.0f, 0.0f, 0.0f);
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->m);
+          glMultMatrixf(pVehicle->m.GetOpenGLMatrix());
           uiTriangles += pRender->RenderStaticModel(breathe::render::model::cStaticRef(pVehicle->pModel), colour);
         glPopMatrix();
 
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->lfWheel_->m);
+          glMultMatrixf(pVehicle->lfWheel_->m.GetOpenGLMatrix());
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->lrWheel_->m);
+          glMultMatrixf(pVehicle->lrWheel_->m.GetOpenGLMatrix());
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
@@ -422,12 +422,12 @@ namespace breathe
         r.SetRotationZ(breathe::math::cPI);
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->rfWheel_->m*r);
+          glMultMatrixf((pVehicle->rfWheel_->m * r).GetOpenGLMatrix());
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->rrWheel_->m*r);
+          glMultMatrixf((pVehicle->rrWheel_->m * r).GetOpenGLMatrix());
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
       }
@@ -639,7 +639,7 @@ namespace breathe
     const std::vector<breathe::cLevelModel*>::iterator iterEnd = vModel.end();
     while (iter != iterEnd) {
       glPushMatrix();
-        glMultMatrixf((*iter)->m);
+        glMultMatrixf((*iter)->m.GetOpenGLMatrix());
         uiTriangles += pRender->RenderStaticModel((*iter)->pModel);
       glPopMatrix();
 

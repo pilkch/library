@@ -447,10 +447,6 @@ namespace breathe
       //mOpaque[&renderable.state] = pList;
     }
 
-
-    render::cTextureRef pTextureStar;
-    render::cTextureRef pTexturePlanet;
-
     cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
       scenegraph(_scenegraph)
     {
@@ -483,6 +479,7 @@ namespace breathe
       }*/
 
       if (scenegraph.pSkySystem != nullptr) {
+
         // http://www.flipcode.com/archives/Sky_Domes.shtml
 
         // Positions of all the sky bodies and clouds are computed.
@@ -506,119 +503,67 @@ namespace breathe
         // Although not a real sky body, the code supports drawing of flares around the sun. These are done by creating duplicate sky
         // body like the sun, but using a flare texture instead of the sun texture. Flares are blended onto the sky dome.
 
-
-        // Sky first
+        glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
-          glMatrixMode(GL_MODELVIEW);
           glLoadIdentity();
-          glMultMatrixf(pRender->pFrustum->m);
+          glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrix());
 
-          pRender->SelectTextureUnit0();
+          // Sky first
+          glMatrixMode(GL_MODELVIEW);
+          glPushMatrix();
+            const spitfire::math::cQuaternion rotation(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetRotationSun());
+            const math::cVec3 axis(rotation.GetAxis());
+            glRotatef(spitfire::math::RadiansToDegrees(rotation.GetAngle()), axis.x, axis.y, axis.z);
 
-          // Set our texture
-          if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
+            pRender->SelectTextureUnit0();
 
-          {
-            const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
-            const size_t n = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetNumberOfVertices();
+            // Set our texture
+            if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
 
-            // Render the top half of the sphere
-            glBegin(GL_TRIANGLE_STRIP);
-              for (size_t i = 0; i < n; i++) {
-                glTexCoord2f(pVertices[i].u, pVertices[i].v);
-                glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
-              }
-            glEnd();
+            {
+              const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
+              const size_t n = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetNumberOfVertices();
 
-            // Flip 180 degrees and render the bottom half of the sphere
+              // Render the top half of the sphere
+              glBegin(GL_TRIANGLE_STRIP);
+                for (size_t i = 0; i < n; i++) {
+                  glTexCoord2f(pVertices[i].u, pVertices[i].v);
+                  glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+                }
+              glEnd();
+
+              // Flip 180 degrees and render the bottom half of the sphere
+              glMatrixMode(GL_MODELVIEW);
+              glPushMatrix();
+                glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+
+                glBegin(GL_TRIANGLE_STRIP);
+                  for (size_t i = 0; i < n; i++) {
+                    glTexCoord2f(pVertices[i].u, pVertices[i].v);
+                    glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+                  }
+                glEnd();
+
+                glMatrixMode(GL_MODELVIEW);
+              glPopMatrix();
+            }
+
             glMatrixMode(GL_MODELVIEW);
-            glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-            glBegin(GL_TRIANGLE_STRIP);
-              for (size_t i = 0; i < n; i++) {
-                glTexCoord2f(pVertices[i].u, pVertices[i].v);
-                glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
-              }
-            glEnd();
-          }
-
-        glPopMatrix();
+          glPopMatrix();
 
 
-        // Render the stars and planets
-        glPushMatrix();
+          // Render the stars and planets
+          render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
+          pParticleSystemPlanets->Update(spitfire::util::GetTime());
+          pParticleSystemPlanets->Render();
+
+          pRender->ClearMaterial();
+
+          render::cParticleSystemCustomBillboard* pParticleSystemStars = scenegraph.pSkySystem->GetStarParticleSystem();
+          pParticleSystemStars->Update(spitfire::util::GetTime());
+          pParticleSystemStars->Render();
+
           glMatrixMode(GL_MODELVIEW);
-          glLoadIdentity();
-          glMultMatrixf(pRender->pFrustum->m);
-
-          pRender->SelectTextureUnit0();
-
-          // Set our texture
-          if (!pRender->IsWireFrame()) pRender->SetTexture0(pTextureStar);
-
-
-          const math::cVec3 vMin(-1.0f, -1.0f, -1.0f);
-          const math::cVec3 vMax(1.0f, 1.0f, 1.0f);
-
-          {
-            std::map<string_t, sky::cStar*>::const_iterator iter = scenegraph.pSkySystem->StarsBegin();
-            const std::map<string_t, sky::cStar*>::const_iterator iterEnd = scenegraph.pSkySystem->StarsEnd();
-
-            while (iter != iterEnd) {
-              glPushMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glLoadIdentity();
-                glMultMatrixf(pRender->pFrustum->m);
-
-                //glRotatef(iter->second->GetRotationZDegrees(), 0.0f, 0.0f, 1.0f);
-                //glRotatef(iter->second->GetPitchDegrees(), 0.0f, 1.0f, 0.0f);
-
-                //glTranslatef(0.0f, 3.0f, 0.0f);
-
-                pRender->RenderBoxTextured(vMin, vMax);
-              glPopMatrix();
-
-              iter++;
-            }
-          }
-
-          pRender->SelectTextureUnit0();
-
-          // Set our texture
-          if (!pRender->IsWireFrame()) pRender->SetTexture0(pTexturePlanet);
-
-          {
-            std::map<string_t, sky::cPlanet*>::const_iterator iter = scenegraph.pSkySystem->PlanetsBegin();
-            const std::map<string_t, sky::cPlanet*>::const_iterator iterEnd = scenegraph.pSkySystem->PlanetsEnd();
-
-            while (iter != iterEnd) {
-              glPushMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glLoadIdentity();
-
-                const math::cVec3 position(iter->second->GetEulerPosition());
-                glTranslatef(position.x, position.y, position.z);
-
-                //glRotatef(iter->second->GetPitchDegrees(), 0.0f, 1.0f, 0.0f);
-                //glRotatef(iter->second->GetRotationZDegrees(), 0.0f, 0.0f, 1.0f);
-
-                pRender->RenderBoxTextured(vMin, vMax);
-                pRender->RenderAxisReference(math::v3Zero);
-              glPopMatrix();
-
-              iter++;
-            }
-          }
-
-          render::cParticleSystemBillboard* pParticleSystem = nullptr;
-
-          pParticleSystem = scenegraph.pSkySystem->GetStarParticleSystem();
-          pParticleSystem->Update(spitfire::util::GetTime());
-          pParticleSystem->Render();
-
-          render::cParticleSystemMesh* pParticleSystem2 = scenegraph.pSkySystem->GetPlanetParticleSystem();
-          pParticleSystem2->Update(spitfire::util::GetTime());
-          pParticleSystem2->Render();
-
         glPopMatrix();
       }
 
@@ -654,10 +599,6 @@ namespace breathe
 
     void cSceneGraph::Create()
     {
-      // TODO: Remove
-      pTextureStar = pRender->AddTexture(TEXT("textures/beach_ball.png"));
-      pTexturePlanet = pRender->AddTexture(TEXT("textures/crate.png"));
-
       string_t sFullPath;
       spitfire::filesystem::FindResourceFile(TEXT("skysystem.xml"), sFullPath);
 
@@ -717,6 +658,8 @@ namespace breathe
       pSkySystem->GetSkyDomeAtmosphereRenderer().Update(currentTime);
 
       cUpdateVisitor visitor(*this);
+
+      pRender->SetClearColour(backgroundColour);
     }
 
     void cSceneGraph::Cull(sampletime_t currentTime)

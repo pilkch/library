@@ -804,6 +804,9 @@ namespace breathe
       cGroupNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
 
+      void SetBackgroundColour(const math::cColour& colour) { backgroundColour = colour; }
+      void SetAmbientLight(const math::cColour& colour) { ambientLightColour = colour; }
+
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
@@ -816,6 +819,8 @@ namespace breathe
 
     private:
       bool bIsCullingEnabled;
+      math::cColour backgroundColour;
+      math::cColour ambientLightColour;
 
       cRenderGraph renderGraph;
       cGroupNodeRef pRoot;

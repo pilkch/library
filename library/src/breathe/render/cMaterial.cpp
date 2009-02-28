@@ -437,7 +437,8 @@ namespace breathe
             }
 
             unsigned int uiTextureAtlas = ATLAS_NONE;
-            if (iter.GetAttribute("uiTextureAtlas", sValue)) {
+            // TODO: The texture atlas code is broken so we assume ATLAS_NONE until it is fixed
+            /*if (iter.GetAttribute("uiTextureAtlas", sValue)) {
               if (sValue == "ATLAS_LANDSCAPE")      uiTextureAtlas = ATLAS_LANDSCAPE;
               else if (sValue == "ATLAS_BUILDING")  uiTextureAtlas = ATLAS_BUILDING;
               else if (sValue == "ATLAS_FOLIAGE")  uiTextureAtlas = ATLAS_FOLIAGE;
@@ -445,7 +446,7 @@ namespace breathe
               else if (sValue == "ATLAS_PROPS")    uiTextureAtlas = ATLAS_PROPS;
               else if (sValue == "ATLAS_WEAPONS")  uiTextureAtlas = ATLAS_WEAPONS;
               else if (sValue == "ATLAS_EFFECTS")  uiTextureAtlas = ATLAS_EFFECTS;
-            }
+            }*/
 
             if (TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
               uiTextureAtlas = ATLAS_NONE;

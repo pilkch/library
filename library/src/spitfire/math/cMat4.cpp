@@ -344,12 +344,12 @@ namespace spitfire
 
     cVec3 cMat4::GetTranslatedVec3(const cVec3 & rhs) const
     {
-      return cVec3(rhs.x+entries[12], rhs.y+entries[13], rhs.z+entries[14]);
+      return cVec3(rhs.x + entries[12], rhs.y + entries[13], rhs.z + entries[14]);
     }
 
     cVec3 cMat4::GetInverseTranslatedVec3(const cVec3 & rhs) const
     {
-      return cVec3(rhs.x-entries[12], rhs.y-entries[13], rhs.z-entries[14]);
+      return cVec3(rhs.x - entries[12], rhs.y - entries[13], rhs.z - entries[14]);
     }
 
     void cMat4::Invert(void)

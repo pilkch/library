@@ -142,7 +142,8 @@ namespace breathe
 
     bool cAnimation::LoadFromFile(const string_t& sFullFilename)
     {
-      return (model.Load(breathe::string::ToUTF8(sFullFilename).c_str()) == 0);
+      //return (model.Load(breathe::string::ToUTF8(sFullFilename).c_str()) == 0);
+      return false;
     }
   }
 }

@@ -112,6 +112,8 @@ namespace breathe
       GLsizeiptr texturecoordinate_size;
       GLsizeiptr indices_size;
 
+      size_t nTextureUnits;
+
       // Note: one buffer per cVertexBufferObject,
       // but with multiple offsets for each cVertexBufferObjectArray
       GLuint bufferID;

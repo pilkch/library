@@ -85,19 +85,43 @@ namespace breathe
 {
   namespace sky
   {
-    const float cSkyDome::fTimeBetweenUpdates = 1.0f;
+    const float cSkySystem::fTimeBetweenUpdates = 1.0f;
 
 
     // *** cSkySystem
 
     cSkySystem::cSkySystem() :
-      skyDomeAtmosphereRenderer(*this)
+      skyDomeAtmosphereRenderer(*this),
+      fTimeLastUpdated(0.0f)
     {
+      StartFromCurrentLocalEarthTime();
     }
 
     cSkySystem::~cSkySystem()
     {
       Clear();
+    }
+
+    void cSkySystem::StartFromCurrentLocalEarthTime()
+    {
+      util::cDateTime datetime;
+      ASSERT(datetime.IsValid());
+
+      int hours = datetime.GetHours();
+      int minutes = datetime.GetMinutes();
+      int seconds = datetime.GetSeconds();
+
+      const int totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+      const float fRatioOfTotalDay = float(totalSeconds) / float(util::cSecondsInADay);
+      const float fTimeIncrementBetweenUpdates = 10.0f / fTimeBetweenUpdates;
+      StartFromTimeAndIncrement0To1(fRatioOfTotalDay, fTimeIncrementBetweenUpdates);
+    }
+
+    void cSkySystem::StartFromTimeAndIncrement0To1(float _fTime0To1, float _fTimeIncrement0To1)
+    {
+      fDayNightCycleTime0To1 = _fTime0To1;
+      fTimeIncrement0To1 = _fTimeIncrement0To1;
     }
 
     void cSkySystem::Clear()
@@ -286,7 +310,7 @@ namespace breathe
       pTexture->Create();
     }
 
-    void cSkyDomeAtmosphereRenderer::CreateGeometry(float fAtmosphereRadius)
+    void cSkyDomeAtmosphereRenderer::CreateGeometry()
     {
       ClearDome();
 
@@ -447,12 +471,12 @@ namespace breathe
 
           std::vector<math::cColour> colourTop;
           std::vector<math::cColour> colourBottom;
-          colourTop.push_back(math::cColour(1.0f, 0.0f, 0.0f, 1.0f));
-          colourBottom.push_back(math::cColour(0.0f, 1.0f, 0.0f, 1.0f));
-          colourTop.push_back(math::cColour(0.0f, 1.0f, 0.0f, 1.0f));
+          colourTop.push_back(math::cColour(1.0f, 1.0f, 0.0f, 1.0f));
           colourBottom.push_back(math::cColour(0.0f, 1.0f, 1.0f, 1.0f));
           colourTop.push_back(math::cColour(0.0f, 1.0f, 1.0f, 1.0f));
-          colourBottom.push_back(math::cColour(1.0f, 1.0f, 0.0f, 1.0f));
+          colourBottom.push_back(math::cColour(0.0f, 1.0f, 0.0f, 1.0f));
+          colourTop.push_back(math::cColour(0.0f, 1.0f, 0.0f, 1.0f));
+          colourBottom.push_back(math::cColour(1.0f, 0.0f, 0.0f, 1.0f));
 
           const size_t n = colourTop.size();
           ASSERT(n != 0);
@@ -472,22 +496,176 @@ namespace breathe
     {
       string_t sFilename;
 
-      pStarParticleSystem = new render::cParticleSystemBillboard(100);
-      sFilename = TEXT("materials/cloud_billboard.mat");
+      const math::cVec3 position(0.0f, 0.0f, 0.0f);
+      const math::cVec3 gravity(0.0f, 0.0f, -1.0f);
+
+
+      pStarParticleSystem = new render::cParticleSystemCustomBillboard();
+      sFilename = TEXT("materials/star_billboard.mat");
       pRender->AddMaterial(sFilename);
       pStarParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
 
+      pStarParticleSystem->SetPosition(position);
+      pStarParticleSystem->SetGravity(gravity);
 
-      //pPlanetParticleSystem = new render::cParticleSystemBillboard(100);
-      pPlanetParticleSystem = new render::cParticleSystemMesh(100);
-      sFilename = TEXT("materials/cloud_billboard.mat");
+      pPlanetParticleSystem = new render::cParticleSystemCustomBillboard;
+      sFilename = TEXT("materials/planet_billboard.mat");
       pRender->AddMaterial(sFilename);
-      //pPlanetParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
-      breathe::render::model::cStaticRef pModel(pRender->AddModel(TEXT("models/crate/mesh.3ds")));
-      ASSERT(pModel != nullptr);
-      pPlanetParticleSystem->SetMesh(pModel->GetMesh(0));
-      const math::cVec3 position(100.0f, 0.0f, 0.0f);
+      pPlanetParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
+
       pPlanetParticleSystem->SetPosition(position);
+      pPlanetParticleSystem->SetGravity(gravity);
+
+
+
+      // Add the primary sun
+      {
+        render::cParticleCustom particle;
+
+        spitfire::math::cSphericalCoordinate s;
+
+        s.SetDistance(fStarLayerRadius);
+        s.SetZenithDegrees(0.0f);
+        s.SetRotationZDegrees(90.0f);
+        s.SetPitchDegrees(0.0f);
+
+        const spitfire::math::cVec3 position(s.GetEulerPosition());
+        particle.p.Set(position);
+
+        particle.fWidth = 180.0f;
+        particle.fHeight = particle.fWidth;
+        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+
+        particle.SetLife(100);
+
+        pStarParticleSystem->particles.push_back(particle);
+      }
+
+
+      // Add the primary moon
+      {
+        render::cParticleCustom particle;
+
+        spitfire::math::cSphericalCoordinate s;
+
+        s.SetDistance(fPlanetLayerRadius);
+        s.SetZenithDegrees(45.0f);
+        s.SetRotationZDegrees(45.0f);
+        s.SetPitchDegrees(45.0f);
+
+        const spitfire::math::cVec3 position(s.GetEulerPosition());
+        particle.p.Set(position);
+
+        particle.fWidth = 50.0f;
+        particle.fHeight = particle.fWidth;
+        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+
+        particle.SetLife(100);
+
+        pPlanetParticleSystem->particles.push_back(particle);
+      }
+
+
+
+      for (size_t i = 0; i < 4000; i++) {
+        render::cParticleCustom particle;
+
+        spitfire::math::cSphericalCoordinate s;
+
+        s.SetDistance(fStarLayerRadius);
+        s.SetZenithDegrees(spitfire::math::randomf(360.0f));
+        s.SetRotationZDegrees(spitfire::math::randomf(360.0f));
+        s.SetPitchDegrees(spitfire::math::randomf(360.0f));
+
+        const spitfire::math::cVec3 position(s.GetEulerPosition());
+        particle.p.Set(position);
+
+        particle.fWidth = spitfire::math::randomf(4.0f, 6.0f);
+        particle.fHeight = particle.fWidth;
+        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+
+        particle.SetLife(100);
+
+        pStarParticleSystem->particles.push_back(particle);
+      }
+
+      for (size_t i = 0; i < 100; i++) {
+        render::cParticleCustom particle;
+
+        spitfire::math::cSphericalCoordinate s;
+
+        s.SetDistance(fPlanetLayerRadius);
+        s.SetZenithDegrees(spitfire::math::randomf(360.0f));
+        s.SetRotationZDegrees(spitfire::math::randomf(360.0f));
+        s.SetPitchDegrees(spitfire::math::randomf(360.0f));
+
+        const spitfire::math::cVec3 position(s.GetEulerPosition());
+        particle.p.Set(position);
+
+        particle.fWidth = spitfire::math::randomf(5.0f);
+        particle.fHeight = particle.fWidth;
+        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+
+        particle.SetLife(100);
+
+        pPlanetParticleSystem->particles.push_back(particle);
+      }
+    }
+
+
+    void cSkyDomeAtmosphereRenderer::Update(sampletime_t currentTime)
+    {
+      LOG<<"cSkyDomeAtmosphereRenderer::Update"<<std::endl;
+
+
+      if (fCurrentTime - fTimeLastUpdated > fTimeBetweenUpdates) {
+        fTimeLastUpdated = fCurrentTime;
+        fDayNightCycleTime0To1 += fTimeIncrement0To1;
+        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 -= 1.0f;
+
+        const int totalSeconds = int(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
+        const int hours = totalSeconds / 3600;
+        const int minutes = (totalSeconds / 60) + (totalSeconds % 3600);
+        const int seconds = totalSeconds % 60;
+        LOG<<"SkyDome time="<<hours<<":"<<minutes<<":"<<seconds<<std::endl;
+      }
+
+      const float_t t = float_t(currentTime) / 60000.0f; //0.125f;
+
+      // Set the position of the sun to match the time of day
+      ASSERT(pStarParticleSystem != nullptr);
+      ASSERT(!pStarParticleSystem->particles.empty());
+      render::cParticleCustom& sun = pStarParticleSystem->particles[0];
+
+      spitfire::math::cSphericalCoordinate s;
+
+      s.SetDistance(fPlanetLayerRadius);
+      s.SetZenithDegrees(0.0f);
+      s.SetRotationZDegrees(90.0f);
+      s.SetPitchDegrees(t * 360.0f);
+
+      sun.p = s.GetEulerPosition();
+
+
+      spitfire::math::cQuaternion q1;
+      spitfire::math::cQuaternion q2;
+
+      // If we are in the second half of the rotation then we want to swap the quaternions and come back the other way
+      if (t <= 0.5f) {
+        q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
+        q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(179.99999f));
+      } else {
+        q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(180.00001f));
+        q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
+      }
+
+      // 2x because we halved the full rotation into two halves
+      rotationSun.Slerp(q1, q2, 2.0f * t);
+
+
+      GenerateTexture();
+      pStarParticleSystem->Update(currentTime);
+      pPlanetParticleSystem->Update(currentTime);
     }
   }
 }

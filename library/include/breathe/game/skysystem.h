@@ -18,6 +18,10 @@ namespace breathe
 {
   namespace sky
   {
+    const float_t fAtmosphereRadius = 800.0f;
+    const float_t fStarLayerRadius = 700.0f; // This is how far out the layer of stars is around us, ie. just on the inside of the atmosphere so that they will be rendered slightly later
+    const float_t fPlanetLayerRadius = 600.0f; // This is how far out the layer of planets is around us, ie. just on the inside of the star so that they will be rendered slightly later
+
     // Of interest is getxyYValuev
     // http://stellarium.svn.sourceforge.net/viewvc/stellarium/trunk/stellarium/src/modules/Skylight.hpp?revision=3521&view=markup
     // http://stellarium.svn.sourceforge.net/viewvc/stellarium/trunk/stellarium/src/modules/Skylight.cpp?revision=3381&view=markup
@@ -30,10 +34,6 @@ namespace breathe
     // http://es.geocities.com/kenchoweb/skydomes_en.pdf
     // http://www.flipcode.com/archives/Sky_Domes.shtml
 
-
-    class cSkyDome;
-
-
     class cSkyDomeAtmosphereRenderer
     {
     public:
@@ -42,11 +42,13 @@ namespace breathe
       bool IsValid() const { return (pTexture != nullptr); }
 
       void CreateTexture();
-      void CreateGeometry(float fAtmosphereRadius);
+      void CreateGeometry();
       void CreateParticleSystems();
 
       void Update(sampletime_t currentTime);
 
+
+      spitfire::math::cQuaternion GetRotationSun() const { return rotationSun; }
 
       struct cVertex {
         float x, y, z;
@@ -58,12 +60,10 @@ namespace breathe
 
       render::cTextureRef GetTexture() { return pTexture; }
 
-      render::cParticleSystemBillboard* GetStarParticleSystem() { return pStarParticleSystem; }
-      render::cParticleSystemMesh* GetPlanetParticleSystem() { return pPlanetParticleSystem; }
+      render::cParticleSystemCustomBillboard* GetStarParticleSystem() { return pStarParticleSystem; }
+      render::cParticleSystemCustomBillboard* GetPlanetParticleSystem() { return pPlanetParticleSystem; }
 
     private:
-      math::cVec2 GetTextureCoordinateFromPosition(const math::cVec3& position) const;
-
       void ClearDome();
 
       void GenerateDome(float fAtmosphereRadius);
@@ -71,13 +71,15 @@ namespace breathe
 
       cSkySystem& sky;
 
+      spitfire::math::cQuaternion rotationSun;
+
       cVertex* pVertices;
       size_t nVertices;
 
       render::cTextureFrameBufferObjectRef pTexture;
 
-      render::cParticleSystemBillboard* pStarParticleSystem;
-      render::cParticleSystemMesh* pPlanetParticleSystem;
+      render::cParticleSystemCustomBillboard* pStarParticleSystem;
+      render::cParticleSystemCustomBillboard* pPlanetParticleSystem;
     };
 
     inline void cSkyDomeAtmosphereRenderer::ClearDome()
@@ -87,19 +89,6 @@ namespace breathe
 
       nVertices = 0;
     }
-
-    inline math::cVec2 cSkyDomeAtmosphereRenderer::GetTextureCoordinateFromPosition(const math::cVec3& position) const
-    {
-      return math::cVec2(position.x, position.y);
-    }
-
-    inline void cSkyDomeAtmosphereRenderer::Update(sampletime_t currentTime)
-    {
-      GenerateTexture();
-      pStarParticleSystem->Update(currentTime);
-      pPlanetParticleSystem->Update(currentTime);
-    }
-
 
 
 
@@ -427,11 +416,17 @@ namespace breathe
       currentState.SetFromRatioOfTwoStates(fRatio0, state0, fRatio1, state1);
     }
 
+    class cTimeOfDay
+    {
+    public:
+    };
 
     // All stars have the same texture, the only thing that changes is the perceived diameter and colour
     // All planets have the same texture, the only thing that changes is the perceived diameter and colour
     // Suns and moons are really just planets and are added as such, they get no special treatment
-
+    //
+    // CurrentTime -> Compute SunPosition
+    // SunPosition -> cSkyDomeNodeRender - sky overall brightness, including overcast effects, as well as each sky pixel colour
     class cSkySystem
     {
     public:
@@ -442,6 +437,9 @@ namespace breathe
 
       void Create();
       void Clear();
+
+      void StartFromCurrentLocalEarthTime();
+      void StartFromTimeAndIncrement0To1(float fTime0To1, float fTimeIncrement0To1);
 
       void SetNextWeatherTransition(float_t fStartInThisManyMS, float_t );
 
@@ -472,9 +470,8 @@ namespace breathe
       std::map<string_t, cPlanet*>::const_iterator PlanetsBegin() const { return planets.begin(); }
       const std::map<string_t, cPlanet*>::const_iterator PlanetsEnd() const { return planets.end(); }
 
-      render::cParticleSystemBillboard* GetStarParticleSystem() { return skyDomeAtmosphereRenderer.GetStarParticleSystem(); }
-      //render::cParticleSystemBillboard* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
-      render::cParticleSystemMesh* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
+      render::cParticleSystemCustomBillboard* GetStarParticleSystem() { return skyDomeAtmosphereRenderer.GetStarParticleSystem(); }
+      render::cParticleSystemCustomBillboard* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
 
     private:
       cStarOrPlanet* GetInterStellarBody(const string_t& sName) const;
@@ -500,12 +497,24 @@ namespace breathe
 
       std::map<string_t, cStar*> stars;
       std::map<string_t, cPlanet*> planets;
+
+
+      // Timing
+      float fTimeLastUpdated;
+      static const float fTimeBetweenUpdates;
+
+      float fDayNightCycleTime0To1; // 0.0f to 1.0f so we can represent any amount of time, ie. not 24 hours
+      float fTimeIncrement0To1; // 0.0f to 1.0f how much to add to fDayNightCycleTime0To1 each update
+
+      std::vector<cTimeOfDay> transitionTimes;
     };
 
     inline void cSkySystem::Create()
     {
+      StartFromCurrentLocalEarthTime();
+
       skyDomeAtmosphereRenderer.CreateTexture();
-      skyDomeAtmosphereRenderer.CreateGeometry(800.0f);
+      skyDomeAtmosphereRenderer.CreateGeometry();
       skyDomeAtmosphereRenderer.CreateParticleSystems();
     }
 
@@ -586,97 +595,6 @@ namespace breathe
     };
 
 
-    class cFlare
-    {
-    public:
-      float_t distanceFromParent;
-      math::cColour colour;
-      render::cTextureRef texture;
-    };
-
-    class cLensFlare
-    {
-    public:
-
-
-    private:
-      math::cVec3 position;
-
-      std::vector<cFlare> flares;
-    };
-
-    class cTimeOfDay
-    {
-    public:
-    };
-
-    // CurrentTime -> Compute SunPosition
-    // SunPosition -> cSkyDomeNodeRender - sky overall brightness, including overcast effects, as well as each sky pixel colour
-    class cSkyDome
-    {
-    public:
-      cSkyDome();
-
-      void StartFromCurrentLocalEarthTime();
-      void StartFromTimeAndIncrement0To1(float fTime0To1, float fTimeIncrement0To1);
-
-      void Update(float fCurrentTime);
-
-    private:
-      float fTimeLastUpdated;
-      static const float fTimeBetweenUpdates;
-
-      float fDayNightCycleTime0To1; // 0.0f to 1.0f so we can represent any amount of time, ie. not 24 hours
-      float fTimeIncrement0To1; // 0.0f to 1.0f how much to add to fDayNightCycleTime0To1 each update
-
-      std::vector<cTimeOfDay> transitionTimes;
-    };
-
-    inline cSkyDome::cSkyDome() :
-      fTimeLastUpdated(0.0f)
-    {
-      StartFromCurrentLocalEarthTime();
-    }
-
-    inline void cSkyDome::StartFromCurrentLocalEarthTime()
-    {
-      util::cDateTime datetime;
-      ASSERT(datetime.IsValid());
-
-      int hours = datetime.GetHours();
-      int minutes = datetime.GetMinutes();
-      int seconds = datetime.GetSeconds();
-
-      const int totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-
-      const float fRatioOfTotalDay = float(totalSeconds) / float(util::cSecondsInADay);
-      const float fTimeIncrementBetweenUpdates = 10.0f / fTimeBetweenUpdates;
-      StartFromTimeAndIncrement0To1(fRatioOfTotalDay, fTimeIncrementBetweenUpdates);
-    }
-
-    inline void cSkyDome::StartFromTimeAndIncrement0To1(float _fTime0To1, float _fTimeIncrement0To1)
-    {
-      fDayNightCycleTime0To1 = _fTime0To1;
-      fTimeIncrement0To1 = _fTimeIncrement0To1;
-    }
-
-    inline void cSkyDome::Update(float fCurrentTime)
-    {
-      if (fCurrentTime - fTimeLastUpdated > fTimeBetweenUpdates) {
-        fTimeLastUpdated = fCurrentTime;
-        fDayNightCycleTime0To1 += fTimeIncrement0To1;
-        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 -= 1.0f;
-
-        const int totalSeconds = int(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
-        const int hours = totalSeconds / 3600;
-        const int minutes = (totalSeconds / 60) + (totalSeconds % 3600);
-        const int seconds = totalSeconds % 60;
-        LOG<<"SkyDome time="<<hours<<":"<<minutes<<":"<<seconds<<std::endl;
-      }
-    }
-
-
-
 
     //               cSceneNode
     //                 |
@@ -709,4 +627,3 @@ namespace breathe
 }
 
 #endif // SKY_H
-

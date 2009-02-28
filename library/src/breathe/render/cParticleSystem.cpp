@@ -34,6 +34,7 @@
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/cTimer.h>
 
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
@@ -149,9 +150,15 @@ namespace breathe
       LOG<<"cParticleSystemBillboard::Render p=("<<position.x<<","<<position.y<<","<<position.z<<") n="<<particles.size()<<std::endl;
       ASSERT(pMaterial != nullptr);
 
+      if (pMaterial->pShader == nullptr) return 0;
+
       pRender->SetMaterial(pMaterial);
+
       pRender->SetShaderConstant(pMaterial, "width", fParticleWidth);
       pRender->SetShaderConstant(pMaterial, "height", fParticleHeight);
+
+      //pRender->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
+      //pRender->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
 
       glPushMatrix();
         glTranslatef(position.x, position.y, position.z);
@@ -164,6 +171,7 @@ namespace breathe
           for (size_t i = 0; i < n; i++, p++) {
             if (!p->IsAlive()) continue;
 
+#if 1
             glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
             glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
@@ -172,6 +180,17 @@ namespace breathe
             glVertex3f(p->p.x, p->p.y, p->p.z);
             glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
             glVertex3f(p->p.x, p->p.y, p->p.z);
+#else
+            // For testing
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
+#endif
 
             uiParticlesRendered++;
           }
@@ -275,6 +294,109 @@ namespace breathe
       glPopMatrix();
 
       return uiParticlesRendered;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    cParticleSystemCustomBillboard::cParticleSystemCustomBillboard() :
+      position(0.0f, 0.0f, 0.0f),
+      gravity(0.0f, 0.0f, -0.005f)
+    {
+    }
+
+    cParticleSystemCustomBillboard::~cParticleSystemCustomBillboard()
+    {
+      Clear();
+    }
+
+    void cParticleSystemCustomBillboard::Clear()
+    {
+      particles.clear();
+      sorted.clear();
+    }
+
+    void cParticleSystemCustomBillboard::Sort()
+    {
+      size_t n = particles.size();
+      for (size_t i = 0; i < n; i++)
+        particles[i].SetDepth((position + particles[i].p - pRender->pFrustum->eye).GetLength());
+
+      // Dodgy hack because sorting wrecks the order and for this class we need to know the order
+      sorted = particles;
+      std::sort(sorted.begin(), sorted.end(), cParticleCustom::DepthCompare);
+    }
+
+
+
+    unsigned int cParticleSystemCustomBillboard::Render()
+    {
+      LOG<<"cParticleSystemCustomBillboard::Render p=("<<position.x<<","<<position.y<<","<<position.z<<") n="<<sorted.size()<<std::endl;
+      ASSERT(pMaterial != nullptr);
+      ASSERT(pMaterial->pShader != nullptr);
+
+      pRender->SetMaterial(pMaterial);
+
+      glPushMatrix();
+        glTranslatef(position.x, position.y, position.z);
+
+
+        unsigned int uiParticlesRendered = 0;
+        const cParticleCustom* p = &sorted[0];
+        const size_t n = sorted.size();
+        for (size_t i = 0; i < n; i++, p++) {
+          pRender->SetShaderConstant(pMaterial, "width", p->fWidth);
+          pRender->SetShaderConstant(pMaterial, "height", p->fHeight);
+
+          glBegin(GL_QUADS);
+#if 1
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+            glVertex3f(p->p.x, p->p.y, p->p.z);
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+            glVertex3f(p->p.x, p->p.y, p->p.z);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+            glVertex3f(p->p.x, p->p.y, p->p.z);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+            glVertex3f(p->p.x, p->p.y, p->p.z);
+#else
+            // For testing
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
+            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
+#endif
+
+          glEnd();
+
+          uiParticlesRendered++;
+        }
+
+      glPopMatrix();
+
+      return uiParticlesRendered;
+    }
+
+    void cParticleSystemCustomBillboard::SetMaterial(material::cMaterialRef pInMaterial)
+    {
+      ASSERT(pInMaterial != nullptr);
+      pMaterial = pInMaterial;
     }
   }
 }

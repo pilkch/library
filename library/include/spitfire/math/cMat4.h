@@ -89,7 +89,7 @@ namespace spitfire
       void InvertTranspose(void);
       cMat4 GetInverseTranspose(void);
 
-      //set to perform an operation on space - removes other entries
+      // Set to perform an operation on space - removes other entries
       void SetTranslation(const cVec3 & translation);
       void SetScale(const cVec3 & scaleFactor);
       void SetUniformScale(const float scaleFactor);
@@ -110,9 +110,8 @@ namespace spitfire
         SetRotationPartEuler((float)rotations.x, (float)rotations.y, (float)rotations.z);
       }
 
-      //cast to pointer to a (float*) for glGetFloatv etc
-      operator float* () const {return (float*) this;}
-      operator const float* () const {return (const float*) this;}
+      // Get a pointer to a (float*) for glMultMatrixf etc
+      const float* GetOpenGLMatrix() const { return &entries[0]; }
 
       void LookAt(const cVec3& eye,const cVec3& dir,const cVec3& up);
 
@@ -122,4 +121,4 @@ namespace spitfire
   }
 }
 
-#endif //CMAT4_H
+#endif // CMAT4_H

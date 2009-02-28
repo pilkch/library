@@ -43,25 +43,15 @@ namespace spitfire
 
     private:
       cVec3 values; // (Radial Distance, Zenith in Degrees, Azimuth in Degrees)
-
-      //float_t fRadialDistance;
-      //float_t fZenithDegrees;
-      //float_t fAzimuthDegrees;
     };
 
     inline cSphericalCoordinate::cSphericalCoordinate() :
       values(1.0f, 0.0f, 0.0f)
-      //fRadialDistance(1.0f),
-      //fZenithDegrees(0.0f),
-      //fAzimuthDegrees(0.0f)
     {
     }
 
     inline cSphericalCoordinate::cSphericalCoordinate(float_t fRadialDistance, float_t fZenithDegrees, float_t fAzimuthDegrees) :
       values(fRadialDistance, fZenithDegrees, fAzimuthDegrees)
-      //fRadialDistance(_fRadialDistance),
-      //fZenithDegrees(_fZenithDegrees),
-      //fAzimuthDegrees(_fAzimuthDegrees)
     {
     }
 

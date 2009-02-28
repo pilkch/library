@@ -81,7 +81,7 @@ namespace breathe
       void SetAnimationBlendWeightLegs0To1(float_t fBlendWeightFirst0To1, float_t fBlendWeightSecond0To1) { part[PART_LEGS].SetAnimationBlendWeight0To1(fBlendWeightFirst0To1, fBlendWeightSecond0To1); }
 
       //cModelRef pModel;
-      Md3 model;
+      cMd3 model;
 
     private:
       static const size_t PART_HEAD = 0;
@@ -94,4 +94,3 @@ namespace breathe
 }
 
 #endif // CMD3_H
-

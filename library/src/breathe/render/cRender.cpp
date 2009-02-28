@@ -511,7 +511,7 @@ namespace breathe
 
 
 
-      glClearColor(1.0f, 0.0f, 1.0f, 0.0f);        // Clear The Background Color To Black
+      glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a); // Clear the background to our requested colour
       glClearDepth(1.0);                  // Enables Clearing Of The Depth Buffer
       glEnable(GL_DEPTH_TEST);              // Enable Depth Testing
       glDepthFunc(GL_LEQUAL);
@@ -649,7 +649,7 @@ namespace breathe
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      glMultMatrixf(pFrustum->m);
+      glMultMatrixf(pFrustum->m.GetOpenGLMatrix());
 
       if (bRenderWireframe) EnableWireframe();
       else DisableWireframe();
@@ -1942,6 +1942,9 @@ namespace breathe
         return true;
       }
 
+      // We shouldn't have to do this, but SetMaterial is broken
+      ClearMaterial();
+
       uiTextureModeChanges++;
       //uiTextureChanges
 
@@ -2061,7 +2064,6 @@ namespace breathe
             // Change the texture matrix so that we have more detail than normal texture
             glMatrixMode(GL_TEXTURE);
               glLoadIdentity();
-              glScalef(fDetailScale.GetFloat(), fDetailScale.GetFloat(), 1);
               glMatrixMode(GL_MODELVIEW);
 
               // General Switches

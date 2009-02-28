@@ -78,6 +78,8 @@ namespace breathe
 
     bool cTexture::Load(const string_t& inFilename)
     {
+      LOG<<"cTexture::Load \""<<inFilename<<"\""<<std::endl;
+
       sFilename = inFilename;
 
       //unsigned int mode = 0;
@@ -85,6 +87,9 @@ namespace breathe
 
       // could not load filename
       if (surface == nullptr) {
+        if (spitfire::filesystem::FileExists(sFilename)) LOG.Success("Texture", "Texture " + breathe::string::ToUTF8(sFilename) + " exists");
+        else LOG.Error("Texture", "Texture " + breathe::string::ToUTF8(sFilename) + " doesn't exist");
+
         LOG.Error("Texture", "Couldn't Load Texture " + breathe::string::ToUTF8(sFilename));
         return breathe::BAD;
       }
