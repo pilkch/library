@@ -152,10 +152,10 @@ namespace spitfire
     size_t GetHeight() const { return height; }
 
     T& GetElement(size_t i) { ASSERT(i < elements.size()); return elements[i]; }
-    T& GetElement(size_t x, size_t y) { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
-
     const T& GetElement(size_t i) const { ASSERT(i < elements.size()); return elements[i]; }
-    const T& GetElement(size_t x, size_t y) const { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
+
+    T& GetElement(size_t x, size_t y) { ASSERT((y * width) + x < elements.size()); return elements[(y * width) + x]; }
+    const T& GetElement(size_t x, size_t y) const { ASSERT((y * width) + x < elements.size()); return elements[(y * width) + x]; }
 
     T& operator[](size_t i) { return GetElement(i); }
     const T& operator[](size_t i) const { return GetElement(i); }

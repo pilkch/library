@@ -14,15 +14,23 @@ namespace breathe
       public:
         cTerrainHeightMapLoader();
 
+        void LoadFromFile(const string_t& sFilename);
+
         float GetHeight(float x, float y) const;
+
+      private:
+        // How many tiles in each direction
+        size_t width;
+        size_t height;
+
+        // Width of each tile
+        float fWidthOrHeightOfEachTile;
+
+        // Vertical scale
+        float fScaleZ;
+
+        cDynamicContainer2D<float> heightmap;
       };
-
-      // *** Inlines
-
-      inline float cTerrainHeightMapLoader::GetHeight(float x, float y) const
-      {
-        return (2.0f * sinf(0.05f * x)) + (2.0f * cosf(0.05f * y));
-      }
     }
   }
 }

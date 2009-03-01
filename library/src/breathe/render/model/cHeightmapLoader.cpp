@@ -46,7 +46,6 @@
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 #include <breathe/render/cVertexBufferObject.h>
 
@@ -62,157 +61,94 @@ namespace breathe
   {
     namespace model
     {
-      cTerrainHeightMapLoader::cTerrainHeightMapLoader()
+       // Lower scale = smaller hills but smoother due to higher resolution, larger scale = higher range of hills, but less resolution which means more jagged transitions
+      cTerrainHeightMapLoader::cTerrainHeightMapLoader() :
+        width(0),
+        height(0),
+
+        fWidthOrHeightOfEachTile(1.0f),
+        fScaleZ(1.0f),
+        heightmap(1, 1)
       {
       }
 
-      /*cHeightmap::cHeightmap()
+      void cTerrainHeightMapLoader::LoadFromFile(const string_t& sFilename)
       {
-        uiTriangles = 0;
-
-        // How many tiles in each direction
-        uiWidth = 0;
-        uiHeight = 0;
-
-        // Width of each tile
-        fWidthOfTile = 1.0f;
-        fHeightOfTile = 1.0f;
-
-        // Vertical scale
-        fScale = 0.5f;
-
-        pNormal = nullptr;
-        pHeight = nullptr;
-      }
-
-      cHeightmap::~cHeightmap()
-      {
-        SAFE_DELETE(pHeight);
-        SAFE_DELETE_ARRAY(pNormal);
-      }
-
-      int cHeightmap::Load(const string_t&) // sFilename
-      {
-        SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, 1.0f);
-
-        sMaterial = TEXT("grass.mat");
-        pMaterial = pRender->AddMaterial(sMaterial);
-
-        string_t sFilename;
-        breathe::filesystem::FindResourceFile(TEXT("level/node00/heightmap.png"), sFilename);
-
-        float fHighest = -math::cINFINITY;
-        float fLowest = math::cINFINITY;
+        width = 0;
+        height = 0;
 
         // Load heightmap
         {
           cTextureRef pTexture(new cTexture);
           if (pTexture->Load(sFilename) == breathe::BAD) {
-            LOG.Error("Heightmap", "Failed to load " + breathe::string::ToUTF8(sFilename));
-            return 0;
+            LOG.Error("Heightmap", "cTerrainHeightMapLoader::LoadFromFile Failed to load " + breathe::string::ToUTF8(sFilename));
+            return;
           }
 
-          uiWidth = pTexture->uiWidth;
-          uiHeight = pTexture->uiHeight;
+          width = pTexture->uiWidth;
+          height = pTexture->uiHeight;
 
-          pHeight = new float[(uiWidth + 1) * (uiHeight + 1)];
+          float fHighest = -math::cINFINITY;
+          float fLowest = math::cINFINITY;
 
-          float fRolling = 10.3f;
+          cDynamicContainer2D<float> newHeightmap(width + 1, height + 1);
 
-          unsigned int uiCount = 0;
-          for (unsigned int h = 0; h < uiHeight; h++) {
-            for (unsigned int w = 0; w < uiWidth; w++) {
-              pHeight[w + (h * (uiWidth + 1))] = fScale * pTexture->data[uiCount++];
-              //pHeight[w + (h * (uiWidth + 1))] = fScale*(sinf(fRolling*static_cast<float>(w)) +
-              //  cosf(fRolling*static_cast<float>(h)));
+          size_t uiCount = 0;
+          for (size_t h = 0; h < height; h++) {
+            for (size_t w = 0; w < width; w++) {
+              const float fValue = fScaleZ * pTexture->data[uiCount++];
 
-              if (pHeight[w + (h * (uiWidth + 1))] > fHighest) fHighest = pHeight[w + (h * (uiWidth + 1))];
-              if (pHeight[w + (h * (uiWidth + 1))] < fLowest) fLowest = pHeight[w + (h * (uiWidth + 1))];
+              newHeightmap.GetElement(w, h) = fValue;
+
+              if (fValue > fHighest) fHighest = fValue;
+              if (fValue < fLowest) fLowest = fValue;
             }
           }
 
-          // Set the last extra row on the end
-          for (unsigned int h = 0; h < uiHeight; h++)
-          {
-            pHeight[uiWidth + (h * uiWidth) + h] = fScale * (sinf(fRolling * static_cast<float>(uiWidth)) +
-              cosf(fRolling * static_cast<float>(h)));
+          // Set the last extra column on the end
+          for (size_t h = 0; h < height; h++) {
+            newHeightmap.GetElement(width, h) = newHeightmap.GetElement(width - 1, h);
           }
 
           // Set the last extra row on the bottom
-          for (unsigned int w = 0; w < uiWidth; w++)
-          {
-            pHeight[(uiWidth * (uiHeight + 1)) + w] = fScale * (sinf(fRolling * static_cast<float>(w)) +
-              cosf(fRolling * static_cast<float>(uiHeight)));
+          for (size_t w = 0; w < width; w++) {
+            newHeightmap.GetElement(w, height) = newHeightmap.GetElement(w, height - 1);
           }
 
           // Set the last extra element
-          pHeight[(uiWidth + 1) * (uiHeight + 1)] = fScale * (sinf(fRolling * static_cast<float>(uiWidth+1)) +
-              cosf(fRolling * static_cast<float>(uiHeight+1)));
+          newHeightmap.GetElement(width, height) = newHeightmap.GetElement(width - 1, height - 1);
+
+          heightmap = newHeightmap;
         }
+      }
 
+      float cTerrainHeightMapLoader::GetHeight(float x, float y) const
+      {
+        x /=  fWidthOrHeightOfEachTile;
+        y /=  fWidthOrHeightOfEachTile;
 
+        if (x < 0.0f) x = 0.0f;
+        if (y < 0.0f) y = 0.0f;
+        if (x > static_cast<float>(width)) x = static_cast<float>(width);
+        if (y > static_cast<float>(height)) y = static_cast<float>(height);
 
+        const size_t xi = static_cast<size_t>(x);
+        const size_t yi = static_cast<size_t>(y);
 
-        unsigned int uiVBOStrideWidth = 8;
-        unsigned int uiVBOStrideHeight = 8;
+        //   0---1
+        //   |   |
+        //   3---2
 
-        fWidthOfTile = pLevel->fNodeWidth / uiWidth / uiVBOStrideWidth;
-        fHeightOfTile = pLevel->fNodeWidth / uiHeight / uiVBOStrideHeight;
+        const float h0 = heightmap.GetElement(xi, yi); // This value
+        const float h1 = heightmap.GetElement(xi + 1, yi); // The adjacent value in this row
+        const float h3 = heightmap.GetElement(xi, yi + 1); // The adjacent value in the next row
 
-        unsigned int uiVBOWidth = uiWidth/uiVBOStrideWidth;
-        unsigned int uiVBOHeight = uiHeight/uiVBOStrideHeight;
+        const float xfrac = x - static_cast<float>(xi);
+        const float yfrac = y - static_cast<float>(yi);
 
-        float fHalfWidth = static_cast<float>(uiWidth) * 0.5f;
-        float fHalfHeight = static_cast<float>(uiHeight) * 0.5f;
-        float fHTW = fWidthOfTile * 0.5f * uiVBOWidth;
-        float fHTH = fHeightOfTile * 0.5f * uiVBOHeight;
-        float fHTW2 = fWidthOfTile * uiVBOWidth;
-        float fHTH2 = fHeightOfTile * uiVBOHeight;
-
-
-        // Fill out normals
-        {
-          pNormal = new math::cVec3[(uiWidth + 1) * (uiHeight + 1)];
-
-          std::vector<math::cVec3>* normal_buffer = new std::vector<math::cVec3>[(uiWidth + 1) * (uiHeight + 1)];
-
-          for (unsigned int h = 0; h < uiHeight; h++)
-          {
-            for (unsigned int w = 0; w < uiWidth; w++)
-            {
-              // get the three vertices that make the faces
-              math::cVec3 p1(fWidthOfTile * w, fHeightOfTile * h, pHeight[w + (h * (uiWidth + 1))]);
-              math::cVec3 p2(fWidthOfTile * (w + 1), fHeightOfTile * h, pHeight[w + 1 + (h * (uiWidth + 1))]);
-              math::cVec3 p3(fWidthOfTile * w, fHeightOfTile * (h + 1), pHeight[w + ((h + 1) * (uiWidth + 1))]);
-
-              math::cVec3 v1 = p2 - p1;
-              math::cVec3 v2 = p3 - p1;
-              math::cVec3 normal = v1.CrossProduct( v2 );
-
-              // Store the face's normal for each of the vertices that make up the face.
-              normal_buffer[w + (h * (uiWidth + 1))].push_back( normal );
-              normal_buffer[w + 1 + (h * (uiWidth + 1))].push_back( normal );
-              normal_buffer[w + ((h + 1) * (uiWidth + 1))].push_back( normal );
-            }
-          }
-
-          // Now loop through each vertex vector, and average out all the normals stored.
-          unsigned int i = 0;
-
-          for (unsigned int h = 0; h < uiHeight; h++)
-          {
-            for (unsigned int w = 0; w < uiWidth; w++)
-            {
-              i = w + (h * (uiWidth + 1));
-              for (unsigned int j = 0; j < normal_buffer[i].size(); ++j )
-                pNormal[i] += normal_buffer[i][j];
-
-                                                                                pNormal[i].Normalise();
-            }
-          }
-
-          SAFE_DELETE_ARRAY(normal_buffer);
-        }*/
+        // Calculate interpolated ground height
+        return 4.0f + (h0 + xfrac * (h1 - h0) + yfrac * (h3 - h0));
+      }
     }
   }
 }

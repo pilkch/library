@@ -68,13 +68,11 @@ namespace breathe
 
       void cTerrain::Create(const cTerrainHeightMapLoader& loader)
       {
-        const float fDetailRepeat = 2.0f;
-
-        const size_t n = 10;
-        const size_t fScale = 10.0f;
+        // NOTE: We don't want to access outside the buffer so go one less than the size of the buffer
+        const size_t n = 511;
+        const size_t fScale = 1.0f;
         const float fDiffuseTextureScale = 1.0f / float(n);
-        const float fPositionX = float(n) * -0.5f * fScale;
-        const float fPositionY = float(n) * -0.5f * fScale;
+        const float fDetailRepeat = 2.0f;
 
         std::vector<float> vertices;
         std::vector<float> textureCoordinates;
@@ -82,8 +80,8 @@ namespace breathe
 
         for (size_t y = 0; y < n; y++) {
           for (size_t x = 0; x < n; x++) {
-            const float fX = fPositionX + float(x) * fScale;
-            const float fY = fPositionY + float(y) * fScale;
+            const float fX = float(x) * fScale;
+            const float fY = float(y) * fScale;
 
             textureCoordinates.push_back(float(x) * fDiffuseTextureScale);
             textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
