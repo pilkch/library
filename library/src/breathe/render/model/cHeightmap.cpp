@@ -64,7 +64,190 @@ namespace breathe
   {
     namespace model
     {
-      cHeightmap::cHeightmap()
+      // *** cTerrain
+
+      void cTerrain::Create(const cTerrainHeightMapLoader& loader)
+      {
+        const float fDetailRepeat = 2.0f;
+
+        const size_t n = 10;
+        const size_t fScale = 10.0f;
+        const float fDiffuseTextureScale = 1.0f / float(n);
+        const float fPositionX = float(n) * -0.5f * fScale;
+        const float fPositionY = float(n) * -0.5f * fScale;
+
+        std::vector<float> vertices;
+        std::vector<float> textureCoordinates;
+        std::vector<uint16_t> indices;
+
+        for (size_t y = 0; y < n; y++) {
+          for (size_t x = 0; x < n; x++) {
+            const float fX = fPositionX + float(x) * fScale;
+            const float fY = fPositionY + float(y) * fScale;
+
+            textureCoordinates.push_back(float(x) * fDiffuseTextureScale);
+            textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
+            textureCoordinates.push_back(0.0f);
+            textureCoordinates.push_back(0.0f);
+            vertices.push_back(fX);
+            vertices.push_back(fY);
+            vertices.push_back(loader.GetHeight(fX, fY));
+
+            textureCoordinates.push_back((float(x) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
+            textureCoordinates.push_back(fDetailRepeat);
+            textureCoordinates.push_back(0.0f);
+            vertices.push_back(fX + fScale);
+            vertices.push_back(fY);
+            vertices.push_back(loader.GetHeight(fX + fScale, fY));
+
+            textureCoordinates.push_back((float(x) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back((float(y) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back(fDetailRepeat);
+            textureCoordinates.push_back(fDetailRepeat);
+            vertices.push_back(fX + fScale);
+            vertices.push_back(fY + fScale);
+            vertices.push_back(loader.GetHeight(fX + fScale, fY + fScale));
+
+            textureCoordinates.push_back(float(x) * fDiffuseTextureScale);
+            textureCoordinates.push_back((float(y) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back(0.0f);
+            textureCoordinates.push_back(fDetailRepeat);
+            vertices.push_back(fX);
+            vertices.push_back(fY + fScale);
+            vertices.push_back(loader.GetHeight(fX, fY + fScale));
+          }
+        }
+
+        vbo.SetVertices(vertices);
+        vbo.SetTextureCoordinates(textureCoordinates);
+        //vbo.SetIndices(indices);
+        vbo.Compile();
+
+
+        const spitfire::string_t sFilename(TEXT("materials/terrain.mat"));
+        pRender->AddMaterial(sFilename);
+        pMaterial = pRender->GetMaterial(sFilename);
+      }
+
+      void cTerrain::Update(spitfire::sampletime_t currentTime)
+      {
+      }
+
+      void cTerrain::Render(spitfire::sampletime_t currentTime)
+      {
+        pRender->SetMaterial(pMaterial);
+
+        vbo.Bind();
+
+          vbo.RenderQuads();
+
+        vbo.Unbind();
+      }
+
+
+
+      // *** cGrass
+
+      void cGrass::Create(const cTerrainHeightMapLoader& loader)
+      {
+        const size_t nSegments = 10;
+        const size_t nDensity = 10;
+        const size_t fTerrainScale = 10.0f;
+        const float fPositionX = float(nSegments) * -0.5f * fTerrainScale;
+        const float fPositionY = float(nSegments) * -0.5f * fTerrainScale;
+
+        const float fMinimumSize = 2.0f;
+        const float fMaximumSize = 5.0f;
+
+        std::vector<float> vertices;
+        std::vector<float> textureCoordinates;
+        std::vector<uint16_t> indices;
+
+        for (size_t y = 0; y < nSegments; y++) {
+          for (size_t x = 0; x < nSegments; x++) {
+            for (size_t i = 0; i < nDensity; i++) {
+              const float fX = fPositionX + (float(x) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
+              const float fY = fPositionY + (float(y) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
+              const float fZ = loader.GetHeight(fX, fY);
+
+              const float fHalfWidth = spitfire::math::randomf(fMinimumSize, fMaximumSize);
+              const float fHeight = fHalfWidth + fHalfWidth;
+
+              float fRotationZDegrees = (180.0f * spitfire::math::randomMinusOneToPlusOnef());
+
+              const size_t nRotationsPerElement = 6;
+              const float fRotationPerElement = 360.0f / float(nRotationsPerElement);
+
+              for (size_t i = 0; i < nRotationsPerElement; i++, fRotationZDegrees += fRotationPerElement) {
+                spitfire::math::cQuaternion rotation;
+                rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(fRotationZDegrees));
+
+                const spitfire::math::cMat4 mat = rotation.GetMatrix();
+
+                spitfire::math::cVec3 left(-fHalfWidth, 0.0f, 0.0f);
+                left = mat.GetRotatedVec3(left);
+
+                spitfire::math::cVec3 right(fHalfWidth, 0.0f, 0.0f);
+                right = mat.GetRotatedVec3(right);
+
+                textureCoordinates.push_back(0.0f);
+                textureCoordinates.push_back(0.0f);
+                vertices.push_back(fX + left.x);
+                vertices.push_back(fY + left.y);
+                vertices.push_back(fZ + fHeight);
+
+                textureCoordinates.push_back(1.0f);
+                textureCoordinates.push_back(0.0f);
+                vertices.push_back(fX + right.x);
+                vertices.push_back(fY + right.y);
+                vertices.push_back(fZ + fHeight);
+
+                textureCoordinates.push_back(1.0f);
+                textureCoordinates.push_back(1.0f);
+                vertices.push_back(fX + right.x);
+                vertices.push_back(fY + right.y);
+                vertices.push_back(fZ);
+
+                textureCoordinates.push_back(0.0f);
+                textureCoordinates.push_back(1.0f);
+                vertices.push_back(fX + left.x);
+                vertices.push_back(fY + left.y);
+                vertices.push_back(fZ);
+              }
+            }
+          }
+        }
+
+        vbo.SetVertices(vertices);
+        vbo.SetTextureCoordinates(textureCoordinates);
+        //vbo.SetIndices(indices);
+        vbo.Compile();
+
+
+        const spitfire::string_t sFilename(TEXT("materials/vegetation_grass.mat"));
+        pRender->AddMaterial(sFilename);
+        pMaterial = pRender->GetMaterial(sFilename);
+      }
+
+      void cGrass::Update(spitfire::sampletime_t currentTime)
+      {
+      }
+
+      void cGrass::Render(spitfire::sampletime_t currentTime)
+      {
+        pRender->SetMaterial(pMaterial);
+
+        vbo.Bind();
+
+          vbo.RenderQuads();
+
+        vbo.Unbind();
+      }
+
+
+
+      /*cHeightmap::cHeightmap()
       {
         uiTriangles = 0;
 
@@ -89,7 +272,7 @@ namespace breathe
         SAFE_DELETE_ARRAY(pNormal);
       }
 
-      int cHeightmap::Load(const string_t& /*sFilename*/)
+      int cHeightmap::Load(const string_t&) // sFilename
       {
         SetDimensions(pLevel->fNodeWidth, pLevel->fNodeWidth, 1.0f);
 
@@ -332,7 +515,7 @@ namespace breathe
       void cHeightmap::Update(sampletime_t currentTime)
       {
 
-      }
+      }*/
     }
   }
 }

@@ -124,6 +124,22 @@ namespace breathe
       fTimeIncrement0To1 = _fTimeIncrement0To1;
     }
 
+    void cSkySystem::Update(sampletime_t currentTime)
+    {
+      float fCurrentTime = float(currentTime);
+      if ((fCurrentTime - fTimeLastUpdated) > fTimeBetweenUpdates) {
+        fTimeLastUpdated = fCurrentTime;
+        fDayNightCycleTime0To1 += fTimeIncrement0To1;
+        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 -= 1.0f;
+
+        const int totalSeconds = int(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
+        const int hours = totalSeconds / 3600;
+        const int minutes = (totalSeconds / 60) + (totalSeconds % 3600);
+        const int seconds = totalSeconds % 60;
+        LOG<<"cSkySystem::Update time="<<hours<<":"<<minutes<<":"<<seconds<<std::endl;
+      }
+    }
+
     void cSkySystem::Clear()
     {
       {
@@ -617,18 +633,8 @@ namespace breathe
     {
       LOG<<"cSkyDomeAtmosphereRenderer::Update"<<std::endl;
 
-
-      if (fCurrentTime - fTimeLastUpdated > fTimeBetweenUpdates) {
-        fTimeLastUpdated = fCurrentTime;
-        fDayNightCycleTime0To1 += fTimeIncrement0To1;
-        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 -= 1.0f;
-
-        const int totalSeconds = int(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
-        const int hours = totalSeconds / 3600;
-        const int minutes = (totalSeconds / 60) + (totalSeconds % 3600);
-        const int seconds = totalSeconds % 60;
-        LOG<<"SkyDome time="<<hours<<":"<<minutes<<":"<<seconds<<std::endl;
-      }
+      // TODO: This should be called from else where
+      sky.Update(currentTime);
 
       const float_t t = float_t(currentTime) / 60000.0f; //0.125f;
 

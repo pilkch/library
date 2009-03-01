@@ -236,6 +236,8 @@ namespace breathe
 
       pLevel(nullptr),
 
+      clearColour(1.0f, 0.0f, 1.0f, 1.0f),
+
       bActiveColour(false),
       bActiveShader(false),
 
@@ -645,6 +647,10 @@ namespace breathe
 
     void cRender::_BeginRenderShared()
     {
+#ifndef BUILD_DEBUG
+      // If we are in a release build then use the colour specified
+      glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
+#endif
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
       glMatrixMode(GL_MODELVIEW);

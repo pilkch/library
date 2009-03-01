@@ -234,6 +234,7 @@ namespace breathe
 
       material::cMaterialRef AddMaterial(const string_t& sFilename);
       material::cMaterialRef AddMaterialNotFoundMaterial(const string_t& sFilename);
+      material::cMaterialRef GetMaterial(const string_t& sFilename);
       bool ClearMaterial();
       bool SetMaterial(const string_t& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
       bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
@@ -247,8 +248,7 @@ namespace breathe
       void SetColour(float r, float g, float b);
       void SetColour(const math::cColour& inColour);
 
-      material::cMaterialRef GetMaterial(const string_t& sFilename);
-
+      void SetClearColour(const math::cColour& inColour) { clearColour = inColour; }
 
       void ReloadTextures();
 
@@ -315,6 +315,7 @@ namespace breathe
       size_t uiSegmentSmallPX;
       size_t uiAtlasWidthPX;
 
+      math::cColour clearColour;
 
       bool bActiveColour;
       bool bActiveShader;

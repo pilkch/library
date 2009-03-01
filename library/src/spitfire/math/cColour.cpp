@@ -20,13 +20,29 @@ namespace spitfire
 {
   namespace math
   {
-    cColour::cColour(float newR, float newG, float newB, float newA)
+    cColour::cColour() :
+      r(0.0f),
+      g(0.0f),
+      b(0.0f),
+      a(1.0f)
     {
-      r=newR;
-      g=newG;
-      b=newB;
-      a=newA;
+    }
 
+    cColour::cColour(float newR, float newG, float newB) :
+      r(newR),
+      g(newG),
+      b(newB),
+      a(1.0f)
+    {
+      Clamp();
+    }
+
+    cColour::cColour(float newR, float newG, float newB, float newA) :
+      r(newR),
+      g(newG),
+      b(newB),
+      a(newA)
+    {
       Clamp();
     }
 
@@ -40,20 +56,20 @@ namespace spitfire
       Clamp();
     }
 
-    cColour::cColour(const cColour& rhs)
+    cColour::cColour(const cColour& rhs) :
+      r(rhs.r),
+      g(rhs.g),
+      b(rhs.b),
+      a(rhs.a)
     {
-      r=rhs.r;
-      g=rhs.g;
-      b=rhs.b;
-      a=rhs.a;
     }
 
     void cColour::Set(float newR, float newG, float newB, float newA)
     {
-      r=newR;
-      g=newG;
-      b=newB;
-      a=newA;
+      r = newR;
+      g = newG;
+      b = newB;
+      a = newA;
 
       Clamp();
     }

@@ -591,7 +591,8 @@ namespace breathe
 
 
     cSceneGraph::cSceneGraph() :
-      bIsCullingEnabled(true)
+      bIsCullingEnabled(true),
+      backgroundColour(0.0f, 0.0f, 1.0f)
     {
       pRoot.reset(new cGroupNode);
       pSkySystem.reset(new sky::cSkySystem);

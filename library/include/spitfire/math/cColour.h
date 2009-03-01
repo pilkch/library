@@ -8,8 +8,9 @@ namespace spitfire
     class cColour
     {
     public:
-      // constructors
-      cColour(float newR = 0.0f, float newG = 0.0f, float newB = 0.0f, float newA=0.0f);
+      cColour(); // Defaults to 0.0f, 0.0f, 0.0f, 1.0f
+      cColour(float newR, float newG, float newB); // Alpha defaults to 1.0f
+      cColour(float newR, float newG, float newB, float newA);
       explicit cColour(const float* rhs);
       cColour(const cColour& rhs);
 

@@ -438,6 +438,8 @@ namespace breathe
       void Create();
       void Clear();
 
+      void Update(sampletime_t currentTime);
+
       void StartFromCurrentLocalEarthTime();
       void StartFromTimeAndIncrement0To1(float fTime0To1, float fTimeIncrement0To1);
 

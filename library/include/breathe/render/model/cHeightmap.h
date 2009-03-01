@@ -1,7 +1,12 @@
 #ifndef CMODELHEIGHTMAP_H
 #define CMODELHEIGHTMAP_H
 
-// Terrain
+#include <breathe/render/cVertexBufferObject.h>
+#include <breathe/render/model/cHeightmapLoader.h>
+
+// TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
+// NOTE: cTerrain and cGrass are purely for rendering, no collision detection etc.
+
 // http://www.ogre3d.org/wiki/index.php/Practical_Application
 // http://freeworld3d.org/
 // http://www.freeworld3d.org/downloads.html
@@ -21,7 +26,34 @@ namespace breathe
   {
     namespace model
     {
-      class cHeightmap : public cModel
+      class cTerrain
+      {
+      public:
+        void Create(const cTerrainHeightMapLoader& loader);
+
+        void Update(spitfire::sampletime_t currentTime);
+        void Render(spitfire::sampletime_t currentTime);
+
+      private:
+        cStaticVertexBuffer vbo;
+        material::cMaterialRef pMaterial;
+      };
+
+      class cGrass
+      {
+      public:
+        void Create(const cTerrainHeightMapLoader& loader);
+
+        void Update(spitfire::sampletime_t currentTime);
+        void Render(spitfire::sampletime_t currentTime);
+
+      private:
+        cStaticVertexBuffer vbo;
+        material::cMaterialRef pMaterial;
+      };
+
+
+      /*class cHeightmap : public cModel
       {
       public:
         cHeightmap();
@@ -106,33 +138,33 @@ namespace breathe
         return Hermite4(y, yy);
       }
 
-      /*inline float cHeightmap::Height(float x, float y)
-      {
-        x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
-        y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
+      // inline float cHeightmap::Height(float x, float y)
+      // {
+      //   x += static_cast<float>(uiWidth>>1) * fWidthOfTile * 8;
+      //   y += static_cast<float>(uiHeight>>1) * fHeightOfTile * 8;
 
-        if (x < 0.0f) x = 0.0f;
-        if (y < 0.0f) y = 0.0f;
-        if (x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
-        if (y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
+      //   if (x < 0.0f) x = 0.0f;
+      //   if (y < 0.0f) y = 0.0f;
+      //   if (x >= static_cast<float>(uiWidth)) x = static_cast<float>(uiWidth-1);
+      //   if (y >= static_cast<float>(uiHeight)) y = static_cast<float>(uiHeight-1);
 
-        unsigned int xi = static_cast<unsigned int>(x);
-        unsigned int yi = static_cast<unsigned int>(y);
+      //   unsigned int xi = static_cast<unsigned int>(x);
+      //   unsigned int yi = static_cast<unsigned int>(y);
 
-        //   0---1
-        //   |   |
-        //   3---2
+      //   //   0---1
+      //   //   |   |
+      //   //   3---2
 
-        float h0 = pHeight[xi + (yi * static_cast<unsigned int>(uiWidth + 1))];
-        float h1 = pHeight[xi+1 + (yi * static_cast<unsigned int>(uiWidth + 1))];
-        float h3 = pHeight[xi + ((yi+1) * static_cast<unsigned int>(uiWidth + 1))];
+      //   float h0 = pHeight[xi + (yi * static_cast<unsigned int>(uiWidth + 1))];
+      //   float h1 = pHeight[xi+1 + (yi * static_cast<unsigned int>(uiWidth + 1))];
+      //   float h3 = pHeight[xi + ((yi+1) * static_cast<unsigned int>(uiWidth + 1))];
 
-        float  xfrac = x - static_cast<float>(xi);
-        float yfrac = y - static_cast<float>(yi);
+      //   float  xfrac = x - static_cast<float>(xi);
+      //   float yfrac = y - static_cast<float>(yi);
 
-        // calculate interpolated ground height
-        return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
-      }*/
+      //   // calculate interpolated ground height
+      //   return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
+      // }
 
       inline math::cVec3 cHeightmap::Normal(float x, float y)
       {
@@ -161,7 +193,7 @@ namespace breathe
         // calculate interpolated ground height
         //return 4.0f + (h0 + xfrac*(h1-h0) + yfrac*(h3-h0));
         return (h0 + xfrac*(h1-h0) + yfrac*(h3-h0)).GetNormalised();
-      }
+      }*/
     }
   }
 }
