@@ -129,8 +129,8 @@ namespace breathe
 
         if (x < 0.0f) x = 0.0f;
         if (y < 0.0f) y = 0.0f;
-        if (x > static_cast<float>(width)) x = static_cast<float>(width);
-        if (y > static_cast<float>(height)) y = static_cast<float>(height);
+        if (x >= static_cast<float>(width)) x = static_cast<float>(width - 1);
+        if (y >= static_cast<float>(height)) y = static_cast<float>(height - 1);
 
         const size_t xi = static_cast<size_t>(x);
         const size_t yi = static_cast<size_t>(y);
@@ -148,6 +148,45 @@ namespace breathe
 
         // Calculate interpolated ground height
         return 4.0f + (h0 + xfrac * (h1 - h0) + yfrac * (h3 - h0));
+      }
+
+      math::cVec3 cTerrainHeightMapLoader::GetNormalOfTriangle(const math::cVec3& p0, const math::cVec3& p1, const math::cVec3& p2) const
+      {
+        const math::cVec3 v0 = p1 - p0;
+        const math::cVec3 v1 = p2 - p0;
+
+        return v0.CrossProduct(v1);
+      }
+
+      math::cVec3 cTerrainHeightMapLoader::GetNormal(float x, float y) const
+      {
+        x /=  fWidthOrHeightOfEachTile;
+        y /=  fWidthOrHeightOfEachTile;
+
+        // Get the height of the target point and the 4 heights in a cross shape around the target
+        const math::cVec3 points[] = {
+          // First column
+          math::cVec3(x - 1.0f, y, GetHeight(x - 1.0f, y)),
+
+          // Second column
+          math::cVec3(x, y - 1.0f, GetHeight(x, y - 1.0f)),
+          math::cVec3(x, y, GetHeight(x, y)),
+          math::cVec3(x, y + 1.0f, GetHeight(x, y + 1.0f)),
+
+          // Third column
+          math::cVec3(x + 1.0f, y, GetHeight(x + 1.0f, y)),
+        };
+
+        spitfire::math::cVec3 normal;
+
+        normal += GetNormalOfTriangle(points[0], points[2], points[1]);
+        normal += GetNormalOfTriangle(points[0], points[2], points[3]);
+        normal += GetNormalOfTriangle(points[4], points[2], points[1]);
+        normal += GetNormalOfTriangle(points[4], points[2], points[3]);
+
+        normal.Normalise();
+
+        return normal;
       }
     }
   }

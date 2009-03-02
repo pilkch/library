@@ -2822,7 +2822,7 @@ namespace breathe
         const size_t n = vVertexBufferObject.size();
         for (size_t i = 0; i < n; i++) {
           vVertexBufferObject[i]->Destroy();
-          vVertexBufferObject[i]->Init();
+          vVertexBufferObject[i]->Compile();
         }
       }
     }

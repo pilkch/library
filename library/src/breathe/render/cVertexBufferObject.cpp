@@ -54,146 +54,19 @@ namespace breathe
   {
     #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-    // *** cVertexBufferObject
 
-    cVertexBufferObject::cVertexBufferObject() :
-      uiVertices(0),
-
-      uiOffsetTextureUnit0(0),
-      uiOffsetTextureUnit1(0),
-      uiOffsetTextureUnit2(0),
-
-      bufferID(0)
-    {
-    }
-
-    cVertexBufferObject::~cVertexBufferObject()
-    {
-      uiVertices = 0;
-
-      Destroy();
-    }
-
-    void cVertexBufferObject::Destroy()
-    {
-      if (bufferID != 0) {
-        glBindBufferARB(GL_ARRAY_BUFFER, 0);
-        glDeleteBuffersARB(1, &bufferID);
-      }
-    }
-
-    void cVertexBufferObject::Init()
-    {
-      // Create a big array that holds all of the data
-      // Set the buffer data to this big array
-      // Assign offsets for our arrays
-      uiVertices = static_cast<size_t>(pVertex.vData.size());
-
-      size_t uiVertexSize = pVertex.vData.size() * sizeof(math::cVec3);
-      size_t uiTextureCoordSize = pTextureCoord.vData.size() * sizeof(math::cVec2);
-      //size_t uiNormalSize = pNormal.vData.size() * sizeof(math::cVec3);
-
-      pVertex.uiOffset = 0 + 0;
-      pTextureCoord.uiOffset = pVertex.uiOffset + uiVertexSize;
-      pNormal.uiOffset = pTextureCoord.uiOffset + uiTextureCoordSize;
-
-      uiOffsetTextureUnit0 = pTextureCoord.uiOffset;
-      if (pTextureCoord.vData.size() > uiVertices) {
-        uiOffsetTextureUnit1 = uiOffsetTextureUnit0 + (uiVertices * sizeof(math::cVec2));
-
-        if (pTextureCoord.vData.size() / 2 > uiVertices) uiOffsetTextureUnit2 = uiOffsetTextureUnit1 + (uiVertices * sizeof(math::cVec2));
-      }
-
-      std::vector<float> vData;
-      size_t i = 0;
-      /*vData.resize(  uiVertexSize + uiTextureCoordSize + uiNormalSize);
-      memcpy(&vData[pVertex.uiOffset],        &pVertex.vData[0], uiVertexSize);
-      memcpy(&vData[pTextureCoord.uiOffset],  &pTextureCoord.vData[0], uiTextureCoordSize);
-      memcpy(&vData[pNormal.uiOffset],        &pNormal.vData[0], uiNormalSize);*/
-
-      for (i = 0; i < pVertex.vData.size(); i++) {
-        vData.push_back(pVertex.vData[i].x);
-        vData.push_back(pVertex.vData[i].y);
-        vData.push_back(pVertex.vData[i].z);
-      }
-      for (i = 0; i < pTextureCoord.vData.size(); i++) {
-        vData.push_back(pTextureCoord.vData[i].u);
-        vData.push_back(pTextureCoord.vData[i].v);
-      }
-      for (i = 0; i < pNormal.vData.size(); i++) {
-        vData.push_back(pNormal.vData[i].x);
-        vData.push_back(pNormal.vData[i].y);
-        vData.push_back(pNormal.vData[i].z);
-      }
-
-      //size_t x = vData.size();
-      //glGenBuffersARB(1, &index_buf);
-      //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
-      //glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, I_SIZ*sizeof(GLushort), tet_index, GL_STATIC_DRAW_ARB);
-
-      glGenBuffersARB(1, &bufferID);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-      glBufferDataARB(GL_ARRAY_BUFFER_ARB, vData.size() * sizeof(float), &vData[0], GL_STATIC_DRAW_ARB);
-    }
-
-    size_t cVertexBufferObject::Render()
-    {
-      // TODO: Call this only once at start of rendering?  Not per vbo?
-
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, bufferID);
-
-      // Index Array
-      //glEnableClientState( GL_NORMAL_ARRAY );
-      //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
-      // Don't need this apparently? glIndexPointer(GL_UNSIGNED_SHORT, 0, BUFFER_OFFSET(pIndex.uiOffset));
-
-      glEnableClientState( GL_NORMAL_ARRAY );
-      glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(pNormal.uiOffset));
-
-      glClientActiveTextureARB(GL_TEXTURE0_ARB);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit0));
-
-      if (uiOffsetTextureUnit1 != 0) {
-        glClientActiveTextureARB(GL_TEXTURE1_ARB);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit1));
-
-        if (uiOffsetTextureUnit2 != 0) {
-          glClientActiveTextureARB(GL_TEXTURE2_ARB);
-          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-          glTexCoordPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(uiOffsetTextureUnit2));
-        }
-      }
+    // TODO: Add index arrays and use GL_TRIANGLE_STRIPS
 
 
-      glEnableClientState( GL_VERTEX_ARRAY );
-      glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(pVertex.uiOffset));
+    // Index Array
+    //glEnableClientState( GL_NORMAL_ARRAY );
+    //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
+    // Don't need this apparently? glIndexPointer(GL_UNSIGNED_SHORT, 0, BUFFER_OFFSET(pIndex.uiOffset));
 
-        glDrawArrays(GL_TRIANGLES, 0, uiVertices);
-        //glDrawRangeElements( GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
-        //glDrawElements(GL_TRIANGLES, uiIndicies, GL_UNSIGNED_SHORT, BUFFER_OFFSET(pIndex.uiOffset));
 
-      glDisableClientState( GL_VERTEX_ARRAY );
 
-      if (uiOffsetTextureUnit1 != 0) {
-        if (uiOffsetTextureUnit2 != 0) {
-          glClientActiveTexture( GL_TEXTURE2 );
-          glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-        }
-
-        glClientActiveTexture( GL_TEXTURE1 );
-        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-      }
-
-      glClientActiveTexture( GL_TEXTURE0 );
-      glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-
-      glDisableClientState( GL_NORMAL_ARRAY );
-
-      return 0;
-    }
-
+    //glDrawRangeElements( GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
+    //glDrawElements(GL_TRIANGLES, uiIndicies, GL_UNSIGNED_SHORT, BUFFER_OFFSET(pIndex.uiOffset));
 
 
 
@@ -202,6 +75,7 @@ namespace breathe
     cStaticVertexBuffer::cStaticVertexBuffer() :
       bIsCompiled(false),
       vertex_size(0),
+      normal_size(0),
       texturecoordinate_size(0),
       indices_size(0),
       nTextureUnits(0),
@@ -215,6 +89,14 @@ namespace breathe
 
       vertices = _vertices;
       vertex_size = vertices.size() * sizeof(GLfloat);
+    }
+
+    void cStaticVertexBuffer::SetNormals(const std::vector<float>& _normals)
+    {
+      ASSERT(!IsCompiled());
+
+      normals = _normals;
+      normal_size = normals.size() * sizeof(GLfloat);
     }
 
     void cStaticVertexBuffer::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
@@ -257,17 +139,24 @@ namespace breathe
 
       // Allocate enough memory for the whole buffer
       // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
-      glBufferData(GL_ARRAY_BUFFER, vertex_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
 
       glEnableClientState(GL_VERTEX_ARRAY);
         // Describe to OpenGL where the vertex data is in the buffer
         glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
       glDisableClientState(GL_VERTEX_ARRAY);
 
+      if (normal_size != 0) {
+        glEnableClientState(GL_NORMAL_ARRAY);
+          // Describe to OpenGL where the normal data is in the buffer
+          glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+        glDisableClientState(GL_NORMAL_ARRAY);
+      }
+
       if (texturecoordinate_size != 0) {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
           // Describe to OpenGL where the texture coordinate data is in the buffer
-          glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+          glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
 
@@ -280,8 +169,11 @@ namespace breathe
         // Transfer the vertex data to the VBO
         memcpy(pBuffer, vertices.data(), vertex_size);
 
-        // Append texture coordinates data to vertex data
-        if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size()], textureCoordinates.data(), texturecoordinate_size);
+        // Append normal data to vertex data
+        if (normal_size != 0) memcpy(&pBuffer[vertices.size()], normals.data(), normal_size);
+
+        // Append texture coordinates data to vertex data and normal data
+        if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], textureCoordinates.data(), texturecoordinate_size);
 
       glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -302,8 +194,13 @@ namespace breathe
       // Unbind the buffer
       glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-      // Disable vertex and texture coordinate information
+      // Disable texture coordinate information
       if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+      // Disable normal information
+      if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
+
+      // Disable vertex information
       glDisableClientState(GL_VERTEX_ARRAY);
 
       bIsCompiled = true;
@@ -329,17 +226,24 @@ namespace breathe
       // Describe to OpenGL where the vertex data is in the buffer
       glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
 
+      // Enable normal information
+      if (normal_size > 0) {
+        // Describe to OpenGL where the normal coordinate data is in the buffer
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+      }
+
       // Enable texture coordinate information
       if (texturecoordinate_size > 0) {
         //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         // Describe to OpenGL where the texture coordinate data is in the buffer
-        //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+        //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
 
         glActiveTexture(GL_TEXTURE0_ARB);
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
         glEnable(GL_TEXTURE_2D);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
 
         // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
         // 4 * 1 texture coordinates for every point, sending them all in one texture unit
@@ -348,7 +252,7 @@ namespace breathe
         //   glClientActiveTextureARB(GL_TEXTURE1_ARB);
         //   glEnable(GL_TEXTURE_2D);
         //   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + (2 * sizeof(GL_FLOAT))));
+        //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size +(2 * sizeof(GL_FLOAT))));
         // }
       }
     }
@@ -357,8 +261,13 @@ namespace breathe
     {
       ASSERT(IsCompiled());
 
-      // Disable vertex and texture coordinate information
+      // Disable texture coordinate information
       if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+      // Disable normal information
+      if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
+
+      // Disable vertex information
       glDisableClientState(GL_VERTEX_ARRAY);
 
       // Unbind the buffer

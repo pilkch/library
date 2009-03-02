@@ -11,6 +11,7 @@
 
 #include <breathe/game/cLevel.h>
 
+#include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cTexture.h>
@@ -28,9 +29,6 @@ namespace breathe
 
     const unsigned int FBO_TEXTURE_WIDTH = 1024;
     const unsigned int FBO_TEXTURE_HEIGHT = 1024;
-
-    class cVertexBufferObject;
-    typedef cSmartPtr<cVertexBufferObject> cVertexBufferObjectRef;
 
     namespace model
     {
