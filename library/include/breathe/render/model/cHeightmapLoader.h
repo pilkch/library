@@ -20,6 +20,7 @@ namespace breathe
         math::cVec3 GetNormal(float x, float y) const;
 
       private:
+        void Smooth();
         math::cVec3 GetNormalOfTriangle(const math::cVec3& p0, const math::cVec3& p1, const math::cVec3& p2) const;
 
         // How many tiles in each direction

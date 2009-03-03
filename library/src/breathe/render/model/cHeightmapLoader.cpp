@@ -120,6 +120,31 @@ namespace breathe
 
           heightmap = newHeightmap;
         }
+
+        for (size_t i = 0; i < 10; i++) Smooth();
+      }
+
+      void cTerrainHeightMapLoader::Smooth()
+      {
+        cDynamicContainer2D<float> smoothed(width + 1, height + 1);
+
+        float fHeights[5];
+
+        for (size_t y = 0; y < width + 1; y++) {
+          for (size_t x = 0; x < height + 1; x++) {
+            fHeights[0] = fHeights[1] = fHeights[2] = fHeights[3] = fHeights[4] = heightmap.GetElement(x, y);
+
+            if (x != 0) fHeights[0] = heightmap.GetElement(x - 1, y);
+            if (y != height) fHeights[1] = heightmap.GetElement(x, y + 1);
+            if (y != 0) fHeights[3] = heightmap.GetElement(x, y - 1);
+            if (x != width) fHeights[4] = heightmap.GetElement(x + 1, y);
+
+            const float fAverageHeightOfSurrounding = 0.25f * (fHeights[0] + fHeights[1] + fHeights[3] + fHeights[4]);
+            smoothed.GetElement(x, y) = 0.5f * (fHeights[2] + fAverageHeightOfSurrounding);
+          }
+        }
+
+        heightmap = smoothed;
       }
 
       float cTerrainHeightMapLoader::GetHeight(float x, float y) const

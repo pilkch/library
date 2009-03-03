@@ -572,7 +572,7 @@ namespace breathe
       {
         std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
         const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
-        while(iter != iterEnd) {
+        while (iter != iterEnd) {
           //uiTriangles += (*iter)->Render();
           iter++;
         }
@@ -582,7 +582,7 @@ namespace breathe
       {
         std::map<float, cRenderableRef>::iterator iter(rendergraph.mTransparent.begin());
         const std::map<float, cRenderableRef>::iterator iterEnd(rendergraph.mTransparent.end());
-        while(iter != iterEnd) {
+        while (iter != iterEnd) {
           //uiTriangles += (iter->second)->Render();
           iter++;
         }

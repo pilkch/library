@@ -56,8 +56,6 @@
 #include <breathe/render/model/cHeightmapPatch.h>
 #include <breathe/render/model/cHeightmap.h>
 
-#include <breathe/game/cLevel.h>
-
 namespace breathe
 {
   namespace render
@@ -167,25 +165,31 @@ namespace breathe
 
       // *** cGrass
 
-      void cGrass::Create(const cTerrainHeightMapLoader& loader)
+      void cGrass::Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
-        const size_t nSegments = 51;
-        const size_t nDensity = 5;
         const size_t fTerrainScale = 10.0f;
+        const size_t nDensity = 10;
+        const size_t nStartX = fOffsetX / fTerrainScale;
+        const size_t nStartY = fOffsetY / fTerrainScale;
+        const size_t nEndX = (fOffsetX + fWidth) / fTerrainScale;
+        const size_t nEndY = (fOffsetY + fHeight) / fTerrainScale;
 
         const float fMinimumSize = 2.0f;
         const float fMaximumSize = 5.0f;
+
+        const float fMinimumGrassAltitude = 100.0f;
 
         std::vector<float> vertices;
         std::vector<float> textureCoordinates;
         std::vector<uint16_t> indices;
 
-        for (size_t y = 0; y < nSegments; y++) {
-          for (size_t x = 0; x < nSegments; x++) {
+        for (size_t y = nStartX; y < nEndX; y++) {
+          for (size_t x = nStartY; x < nEndY; x++) {
             for (size_t i = 0; i < nDensity; i++) {
               const float fX = (float(x) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fY = (float(y) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fZ = loader.GetHeight(fX, fY);
+              if (fZ < fMinimumGrassAltitude) continue;
 
               const float fHalfWidth = spitfire::math::randomf(fMinimumSize, fMaximumSize);
               const float fHeight = fHalfWidth + fHalfWidth;
