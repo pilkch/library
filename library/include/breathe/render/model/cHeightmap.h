@@ -39,18 +39,33 @@ namespace breathe
         material::cMaterialRef pMaterial;
       };
 
-      class cGrass
+      class cGrassStatic
       {
       public:
         void Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
-        void Update(spitfire::sampletime_t currentTime);
+        void Update(spitfire::sampletime_t currentTime) {}
         void Render(spitfire::sampletime_t currentTime);
 
       private:
         cStaticVertexBuffer vbo;
         material::cMaterialRef pMaterial;
       };
+
+      class cGrassAnimated
+      {
+      public:
+        void Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
+
+        void Update(spitfire::sampletime_t currentTime) {}
+        void Render(spitfire::sampletime_t currentTime);
+
+      private:
+        cStaticVertexBuffer vbo;
+        material::cMaterialRef pMaterial;
+      };
+
+      typedef cGrassAnimated cGrass;
     }
   }
 }

@@ -7,6 +7,9 @@
 
 // Internally we use wstring and then we return string_t
 
+// British Empire vs. American spelling
+// http://en.wikipedia.org/wiki/American_and_British_English_spelling_differences
+
 // Style Guide
 //
 // I like the gnome guidelines

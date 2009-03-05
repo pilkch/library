@@ -82,9 +82,6 @@ const unsigned int uiNodeNameDisplayTime = 100;
 
 namespace breathe
 {
-  /*
-  std::string s=breathe::filesystem::GetMD5(sFilename);*/
-
   cLevel::cLevel() :
     fWaterLevel(1.0f),
     pCurrentNode(nullptr),

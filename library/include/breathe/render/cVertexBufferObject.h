@@ -16,6 +16,7 @@ namespace breathe
 
       void SetVertices(const std::vector<float>& vertices);
       void SetNormals(const std::vector<float>& normals);
+      void SetColours(const std::vector<float>& colours);
       void SetTextureCoordinates(const std::vector<float>& textureCoordinates);
       void SetIndices(const std::vector<uint16_t>& indices);
 
@@ -38,11 +39,13 @@ namespace breathe
 
       std::vector<float> vertices;
       std::vector<float> normals;
+      std::vector<float> colours;
       std::vector<float> textureCoordinates;
       std::vector<uint16_t> indices;
 
       GLsizeiptr vertex_size;
       GLsizeiptr normal_size;
+      GLsizeiptr colour_size;
       GLsizeiptr texturecoordinate_size;
       GLsizeiptr indices_size;
 

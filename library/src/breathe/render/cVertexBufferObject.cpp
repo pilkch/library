@@ -76,6 +76,7 @@ namespace breathe
       bIsCompiled(false),
       vertex_size(0),
       normal_size(0),
+      colour_size(0),
       texturecoordinate_size(0),
       indices_size(0),
       nTextureUnits(0),
@@ -97,6 +98,14 @@ namespace breathe
 
       normals = _normals;
       normal_size = normals.size() * sizeof(GLfloat);
+    }
+
+    void cStaticVertexBuffer::SetColours(const std::vector<float>& _colours)
+    {
+      ASSERT(!IsCompiled());
+
+      colours = _colours;
+      colour_size = colours.size() * sizeof(GLfloat);
     }
 
     void cStaticVertexBuffer::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
@@ -139,7 +148,7 @@ namespace breathe
 
       // Allocate enough memory for the whole buffer
       // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
-      glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
 
       glEnableClientState(GL_VERTEX_ARRAY);
         // Describe to OpenGL where the vertex data is in the buffer
@@ -153,10 +162,17 @@ namespace breathe
         glDisableClientState(GL_NORMAL_ARRAY);
       }
 
+      if (colour_size != 0) {
+        glEnableClientState(GL_COLOR_ARRAY);
+          // Describe to OpenGL where the colour data is in the buffer
+          glColorPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+        glDisableClientState(GL_COLOR_ARRAY);
+      }
+
       if (texturecoordinate_size != 0) {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
           // Describe to OpenGL where the texture coordinate data is in the buffer
-          glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+          glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
 
@@ -172,8 +188,11 @@ namespace breathe
         // Append normal data to vertex data
         if (normal_size != 0) memcpy(&pBuffer[vertices.size()], normals.data(), normal_size);
 
-        // Append texture coordinates data to vertex data and normal data
-        if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], textureCoordinates.data(), texturecoordinate_size);
+        // Append colour data to vertex data and normal data
+        if (colour_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], colours.data(), colour_size);
+
+        // Append texture coordinates data to vertex data and normal data and colour data
+        if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size() + colours.size()], textureCoordinates.data(), texturecoordinate_size);
 
       glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -196,6 +215,9 @@ namespace breathe
 
       // Disable texture coordinate information
       if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+      // Disable colour information
+      if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
 
       // Disable normal information
       if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
@@ -233,17 +255,24 @@ namespace breathe
         glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
       }
 
+      // Enable colour information
+      if (colour_size > 0) {
+        // Describe to OpenGL where the colour coordinate data is in the buffer
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      }
+
       // Enable texture coordinate information
       if (texturecoordinate_size > 0) {
         //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         // Describe to OpenGL where the texture coordinate data is in the buffer
-        //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+        //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
 
         glActiveTexture(GL_TEXTURE0_ARB);
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
         glEnable(GL_TEXTURE_2D);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
 
         // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
         // 4 * 1 texture coordinates for every point, sending them all in one texture unit
@@ -252,7 +281,7 @@ namespace breathe
         //   glClientActiveTextureARB(GL_TEXTURE1_ARB);
         //   glEnable(GL_TEXTURE_2D);
         //   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size +(2 * sizeof(GL_FLOAT))));
+        //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size colour_size + (2 * sizeof(GL_FLOAT))));
         // }
       }
     }
@@ -263,6 +292,9 @@ namespace breathe
 
       // Disable texture coordinate information
       if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+      // Disable colour information
+      if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
 
       // Disable normal information
       if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
