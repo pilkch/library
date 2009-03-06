@@ -2,7 +2,7 @@
 #define CMODELHEIGHTMAP_H
 
 #include <breathe/render/cVertexBufferObject.h>
-#include <breathe/render/model/cHeightmapLoader.h>
+#include <breathe/game/cHeightmapLoader.h>
 
 // TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
 // NOTE: cTerrain and cGrass are purely for rendering, no collision detection etc.
@@ -29,7 +29,7 @@ namespace breathe
       class cTerrain
       {
       public:
-        void Create(const cTerrainHeightMapLoader& loader);
+        void Create(const game::cTerrainHeightMapLoader& loader);
 
         void Update(spitfire::sampletime_t currentTime);
         void Render(spitfire::sampletime_t currentTime);
@@ -42,7 +42,7 @@ namespace breathe
       class cGrassStatic
       {
       public:
-        void Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
+        void Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
         void Update(spitfire::sampletime_t currentTime) {}
         void Render(spitfire::sampletime_t currentTime);
@@ -55,7 +55,7 @@ namespace breathe
       class cGrassAnimated
       {
       public:
-        void Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
+        void Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
         void Update(spitfire::sampletime_t currentTime) {}
         void Render(spitfire::sampletime_t currentTime);

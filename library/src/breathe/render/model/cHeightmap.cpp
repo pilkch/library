@@ -64,7 +64,7 @@ namespace breathe
     {
       // *** cTerrain
 
-      void cTerrain::Create(const cTerrainHeightMapLoader& loader)
+      void cTerrain::Create(const game::cTerrainHeightMapLoader& loader)
       {
         // NOTE: We don't want to access outside the buffer so go one less than the size of the buffer
         const size_t n = 511;
@@ -165,7 +165,7 @@ namespace breathe
 
       // *** cGrassStatic
 
-      void cGrassStatic::Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
+      void cGrassStatic::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
         const size_t nDensity = 10;
@@ -264,7 +264,7 @@ namespace breathe
 
       // *** cGrassAnimated
 
-      void cGrassAnimated::Create(const cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
+      void cGrassAnimated::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
         const size_t nDensity = 10;

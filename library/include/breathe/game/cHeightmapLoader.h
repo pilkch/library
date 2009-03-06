@@ -1,42 +1,39 @@
-#ifndef CMODELHEIGHTMAPLOADER_H
-#define CMODELHEIGHTMAPLOADER_H
+#ifndef CHEIGHTMAPLOADER_H
+#define CHEIGHTMAPLOADER_H
 
 // TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
 
 namespace breathe
 {
-  namespace render
+  namespace game
   {
-    namespace model
+    class cTerrainHeightMapLoader
     {
-      class cTerrainHeightMapLoader
-      {
-      public:
-        cTerrainHeightMapLoader();
+    public:
+      cTerrainHeightMapLoader();
 
-        void LoadFromFile(const string_t& sFilename);
+      void LoadFromFile(const string_t& sFilename);
 
-        float GetHeight(float x, float y) const;
-        math::cVec3 GetNormal(float x, float y) const;
+      float GetHeight(float x, float y) const;
+      math::cVec3 GetNormal(float x, float y) const;
 
-      private:
-        void Smooth();
-        math::cVec3 GetNormalOfTriangle(const math::cVec3& p0, const math::cVec3& p1, const math::cVec3& p2) const;
+    private:
+      void Smooth();
+      math::cVec3 GetNormalOfTriangle(const math::cVec3& p0, const math::cVec3& p1, const math::cVec3& p2) const;
 
-        // How many tiles in each direction
-        size_t width;
-        size_t height;
+      // How many tiles in each direction
+      size_t width;
+      size_t height;
 
-        // Width of each tile
-        float fWidthOrHeightOfEachTile;
+      // Width of each tile
+      float fWidthOrHeightOfEachTile;
 
-        // Vertical scale
-        float fScaleZ;
+      // Vertical scale
+      float fScaleZ;
 
-        cDynamicContainer2D<float> heightmap;
-      };
-    }
+      cDynamicContainer2D<float> heightmap;
+    };
   }
 }
 
-#endif // CMODELHEIGHTMAPLOADER_H
+#endif // CHEIGHTMAPLOADER_H
