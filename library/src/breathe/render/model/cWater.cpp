@@ -144,7 +144,7 @@ namespace breathe
         pRender->SetMaterial(pMaterial);
 
         float fCurrentTime = float(currentTime);
-        pRender->SetShaderConstant(pMaterial, "time", fCurrentTime);
+        pRender->SetShaderConstant(pMaterial, "fCurrentTime", fCurrentTime);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

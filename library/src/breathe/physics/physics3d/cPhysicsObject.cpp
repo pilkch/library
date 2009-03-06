@@ -217,7 +217,7 @@ namespace breathe
 
       position = pos;
 
-      //Trimeshes are static for the moment
+      // Trimeshes are static for the moment
       v[0]=0.0f;
       v[1]=0.0f;
       v[2]=0.0f;
