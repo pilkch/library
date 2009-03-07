@@ -215,30 +215,40 @@ namespace breathe
       // NOTE: Actual heightmap doesn't seem to be working at the moment so we use a trimesh instead
 
 #if 1
-      const float fPositionZ = 200.0f;
-
-      const spitfire::math::cVec3 a(0.0f, 0.0f, fPositionZ);
-      const spitfire::math::cVec3 b(scale.x * float(width), scale.y * float(length), fPositionZ);
+      // TODO: Shared indices
+      const float fScale = scale.x;
 
       std::vector<spitfire::math::cVec3> tempVertices;
       std::vector<uint32_t> tempIndices;
+      tempVertices.reserve(length * width * 4);
+      tempIndices.reserve(length * width * 6);
 
-      tempVertices.push_back(spitfire::math::cVec3(a.x, a.y, a.z));
+      size_t index = 0;
+      for (size_t y = 0; y < length; y++) {
+        for (size_t x = 0; x < width; x++) {
+          const float fX = float(x) * fScale;
+          const float fY = float(y) * fScale;
 
-      tempVertices.push_back(spitfire::math::cVec3(b.x, a.y, a.z));
+          tempVertices.push_back(spitfire::math::cVec3(fX, fY, loader.GetHeight(fX, fY)));
 
-      tempVertices.push_back(spitfire::math::cVec3(b.x, b.y, b.z));
+          tempVertices.push_back(spitfire::math::cVec3(fX + fScale, fY, loader.GetHeight(fX + fScale, fY)));
 
-      tempVertices.push_back(spitfire::math::cVec3(a.x, b.y, a.z));
+          tempVertices.push_back(spitfire::math::cVec3(fX + fScale, fY + fScale, loader.GetHeight(fX + fScale, fY + fScale)));
+
+          tempVertices.push_back(spitfire::math::cVec3(fX, fY + fScale, loader.GetHeight(fX, fY + fScale)));
 
 
-      tempIndices.push_back(0);
-      tempIndices.push_back(1);
-      tempIndices.push_back(2);
+          tempIndices.push_back(index + 0);
+          tempIndices.push_back(index + 1);
+          tempIndices.push_back(index + 2);
 
-      tempIndices.push_back(2);
-      tempIndices.push_back(3);
-      tempIndices.push_back(0);
+          tempIndices.push_back(index + 2);
+          tempIndices.push_back(index + 3);
+          tempIndices.push_back(index + 0);
+
+          index += 4;
+        }
+      }
 
       CreateTrimesh(tempVertices, tempIndices, pos, rot);
 

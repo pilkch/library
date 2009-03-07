@@ -176,13 +176,14 @@ namespace breathe
         b = (*iter++)->GetBody();
 
         if (b != NULL) {
-          dReal const * av = dBodyGetAngularVel( b );
-          dBodySetAngularVel( b, av[0] - av[0]*fDampTorque, av[1] - av[1]*fDampTorque, av[2] - av[2]*fDampTorque );
-          dReal const * lv = dBodyGetLinearVel( b );
-          dBodySetLinearVel( b, lv[0] - lv[0]*fDampLinearVel, lv[1] - lv[1]*fDampLinearVel, lv[2] - lv[2]*fDampLinearVel );
+          dReal const* av = dBodyGetAngularVel(b);
+          dBodySetAngularVel(b, av[0] - av[0] * fDampTorque, av[1] - av[1] * fDampTorque, av[2] - av[2] * fDampTorque);
+          dReal const* lv = dBodyGetLinearVel(b);
+          dBodySetLinearVel(b, lv[0] - lv[0] * fDampLinearVel, lv[1] - lv[1] * fDampLinearVel, lv[2] - lv[2] * fDampLinearVel);
         }
       };
 
+      // For triggers
       // Was using an object with this code
       // dSpaceCollide(spaceDynamic, this, nearCallbackDynamic);
       // dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, this, &nearCallbackStatic);
@@ -190,6 +191,8 @@ namespace breathe
 
       dSpaceCollide(spaceDynamic, NULL, nearCallbackDynamic);
       dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, NULL, &nearCallbackStatic);
+
+      // For triggers
       //dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, NULL, &nearCallbackTrigger);
 
       dWorldQuickStep(world, GetInterval() / 1000.0f);

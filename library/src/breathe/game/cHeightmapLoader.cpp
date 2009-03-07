@@ -82,9 +82,6 @@ namespace breathe
         width = pTexture->uiWidth;
         height = pTexture->uiHeight;
 
-        float fHighest = -math::cINFINITY;
-        float fLowest = math::cINFINITY;
-
         cDynamicContainer2D<float> newHeightmap(width + 1, height + 1);
 
         size_t uiCount = 0;
@@ -93,9 +90,6 @@ namespace breathe
             const float fValue = fScaleZ * pTexture->data[uiCount++];
 
             newHeightmap.GetElement(w, h) = fValue;
-
-            if (fValue > fHighest) fHighest = fValue;
-            if (fValue < fLowest) fLowest = fValue;
           }
         }
 
