@@ -318,43 +318,17 @@ namespace breathe
       vIndices.push_back(0);
 
 
-      dTriMeshDataID Data = dGeomTriMeshDataCreate();
+      dTriMeshDataID trimeshData = dGeomTriMeshDataCreate();
 
-      dGeomTriMeshDataBuildSimple(Data, (const dReal*)vVertices.data(), VertexCount, vIndices.data(), IndexCount);
+      dGeomTriMeshDataBuildSingle(
+        trimeshData,
+        (const void*)vVertices.data(), 4 * sizeof(dReal), (int)VertexCount, // Faces
+        (const void*)vIndices.data(), (int)IndexCount, 3 * sizeof(uint32_t) // Indices
+      );
 
-      geom = dCreateTriMesh(physics::GetSpaceStatic(), Data, NULL , NULL , NULL);
+      geom = dCreateTriMesh(physics::GetSpaceStatic(), trimeshData, NULL , NULL , NULL);
 
       InitCommon(pos, rot);
-
-
-      /*
-      vertices_ = new D3DXVECTOR3[ vcount ];
-      for (size_t i = 0; i < vcount; ++i ) {
-        vertices_[i] = *(D3DXVECTOR3 const *)((int8_t *)verts + vstride * i);
-      }
-      indices_ = new int[ icount ];
-      for (size_t i = 0; i < icount; ++i ) {
-        indices_[i] = inds[i];
-      }
-      normals_ = new D3DXVECTOR3[ icount/3 ];
-      for (size_t i = 0; i < icount; i += 3 ) {
-        normals_[i/3] = NormalCalc( vertices_, &indices_[i] );
-      }
-
-      id_, vertices_, (int)sizeof(D3DXVECTOR3), (int)vcount,
-      indices_, (int)icount, (int)sizeof(int)*3,
-      normals_
-
-      const void* Vertices, int VertexStride, int VertexCount,
-      const void* Indices, int IndexCount, int TriStride,
-      const void* Normals
-      dGeomTriMeshDataBuildSingle1(Data,
-        (dReal*)Vertices, (int)sizeof(D3DXVECTOR3), VertexCount,
-        indices_, Indices, TriStride);
-        //normals_ );*/
-
-
-      //dGeomTriMeshDataBuildSingle( pTriMeshData , &m_Vertices[ 0 ] , 3 * sizeof(float) , m_Vertices.GetCount() , &m_Indices[ 0 ] , m_Indices.GetCount(), 3 * sizeof( int ) );
     }
 #endif
 

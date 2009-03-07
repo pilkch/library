@@ -46,7 +46,7 @@ namespace breathe
   namespace physics
   {
     // *** Timing
-    const unsigned int uiFrequencyHz = 100;
+    const unsigned int uiFrequencyHz = 20;
     const float fInterval = 1000.0f / uiFrequencyHz;
 
     unsigned int GetFrequencyHz()
@@ -76,7 +76,7 @@ namespace breathe
     dJointGroupID contactgroup = 0;
     dGeomID ground = 0;
 
-    std::list<cPhysicsObject * >lPhysicsObject;
+    std::list<cPhysicsObject*> lPhysicsObject;
 
 
 
@@ -138,7 +138,7 @@ namespace breathe
 
       contactgroup = dJointGroupCreate(10000);
 
-      CreateGround(0.0f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f);
+      //CreateGround(0.0f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f);
     }
 
     void Destroy()

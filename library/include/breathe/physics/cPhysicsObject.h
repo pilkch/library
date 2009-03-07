@@ -94,7 +94,7 @@ namespace breathe
       float* pHeightfieldData;
 
       std::vector<float> vVertices;
-      std::vector<unsigned int> vIndices;
+      std::vector<uint32_t> vIndices;
 #endif
     };
   }
