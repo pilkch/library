@@ -212,11 +212,35 @@ namespace breathe
 
     void cPhysicsObject::CreateHeightmap(const game::cTerrainHeightMapLoader& loader, size_t width, size_t length, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot)
     {
-#if 1
-      // NOTE: This doesn't seem to be working at the moment.
-      ASSERT(false);
+      // NOTE: Actual heightmap doesn't seem to be working at the moment so we use a trimesh instead
 
-      // CreateTrimesh();
+#if 1
+      const float fPositionZ = 200.0f;
+
+      const spitfire::math::cVec3 a(0.0f, 0.0f, fPositionZ);
+      const spitfire::math::cVec3 b(scale.x * float(width), scale.y * float(length), fPositionZ);
+
+      std::vector<spitfire::math::cVec3> tempVertices;
+      std::vector<uint32_t> tempIndices;
+
+      tempVertices.push_back(spitfire::math::cVec3(a.x, a.y, a.z));
+
+      tempVertices.push_back(spitfire::math::cVec3(b.x, a.y, a.z));
+
+      tempVertices.push_back(spitfire::math::cVec3(b.x, b.y, b.z));
+
+      tempVertices.push_back(spitfire::math::cVec3(a.x, b.y, a.z));
+
+
+      tempIndices.push_back(0);
+      tempIndices.push_back(1);
+      tempIndices.push_back(2);
+
+      tempIndices.push_back(2);
+      tempIndices.push_back(3);
+      tempIndices.push_back(0);
+
+      CreateTrimesh(tempVertices, tempIndices, pos, rot);
 
 #else
       DestroyHeightfield();
@@ -267,10 +291,10 @@ namespace breathe
 #endif
     }
 
-    void cPhysicsObject::CreateTrimesh(const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot)
+    void cPhysicsObject::CreateTrimesh(const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot)
     {
-      vVertices.clear();
-      vIndices.clear();
+      vVertices = coords;
+      vIndices = indices;
 
       bBody = false;
       bDynamic = false;
@@ -280,49 +304,14 @@ namespace breathe
       v[1] = 0.0f;
       v[2] = 0.0f;
 
-      const float fPositionZ = 200.0f;
-
-      const spitfire::math::cVec3 a(0.0f, 0.0f, fPositionZ);
-      const spitfire::math::cVec3 b(200.0f, 200.0f, fPositionZ);
-
-      const int VertexCount = 4;
-      const int IndexCount = 6;
-
-      vVertices.push_back(a.x);
-      vVertices.push_back(a.y);
-      vVertices.push_back(a.z);
-      vVertices.push_back(0.0f); // Dummy because apparently dVector3 is 4 floats
-
-      vVertices.push_back(b.x);
-      vVertices.push_back(a.y);
-      vVertices.push_back(a.z);
-      vVertices.push_back(0.0f); // Dummy because apparently dVector3 is 4 floats
-
-      vVertices.push_back(b.x);
-      vVertices.push_back(b.y);
-      vVertices.push_back(b.z);
-      vVertices.push_back(0.0f); // Dummy because apparently dVector3 is 4 floats
-
-      vVertices.push_back(a.x);
-      vVertices.push_back(b.y);
-      vVertices.push_back(a.z);
-      vVertices.push_back(0.0f); // Dummy because apparently dVector3 is 4 floats
-
-
-      vIndices.push_back(0);
-      vIndices.push_back(1);
-      vIndices.push_back(2);
-
-      vIndices.push_back(2);
-      vIndices.push_back(3);
-      vIndices.push_back(0);
-
-
       dTriMeshDataID trimeshData = dGeomTriMeshDataCreate();
+
+      const int VertexCount = vVertices.size();
+      const int IndexCount = vIndices.size();
 
       dGeomTriMeshDataBuildSingle(
         trimeshData,
-        (const void*)vVertices.data(), 4 * sizeof(dReal), (int)VertexCount, // Faces
+        (const void*)vVertices.data(), sizeof(spitfire::math::cVec3), (int)VertexCount, // Faces
         (const void*)vIndices.data(), (int)IndexCount, 3 * sizeof(uint32_t) // Indices
       );
 

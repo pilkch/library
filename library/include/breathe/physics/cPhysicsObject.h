@@ -93,7 +93,7 @@ namespace breathe
       dHeightfieldDataID heightfield;
       float* pHeightfieldData;
 
-      std::vector<float> vVertices;
+      std::vector<spitfire::math::cVec3> vVertices;
       std::vector<uint32_t> vIndices;
 #endif
     };
