@@ -627,11 +627,11 @@ namespace spitfire
 
     void cMat4::SetRotationAxis(const double angle, const cVec3 & axis)
     {
-                                  cVec3 u=axis.GetNormalised();
+      const cVec3 u = axis.GetNormalised();
 
-      float sinAngle=sin((float)angle);
-      float cosAngle=cos((float)angle);
-      float oneMinusCosAngle=1.0f-cosAngle;
+      const float sinAngle = sin((float)angle);
+      const float cosAngle = cos((float)angle);
+      const float oneMinusCosAngle = 1.0f - cosAngle;
 
       LoadIdentity();
 

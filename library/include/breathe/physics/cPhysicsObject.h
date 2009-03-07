@@ -2,6 +2,7 @@
 #define CPHYSICSOBJECT_H
 
 #ifdef BUILD_PHYSICS_3D
+#include <breathe/game/cHeightmapLoader.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
@@ -39,9 +40,8 @@ namespace breathe
       void CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
       void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
 #else
-      void CreateHeightmap(const std::vector<float>& heightvalues, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
-      void CreateTrimesh(const std::vector<float>& coords, const std::vector<unsigned int>& indicies, const physvec_t& pos, const physvec_t& rot = physveczero);
-      void SetTrimeshSource(std::vector<float> &coords, std::vector<unsigned int> &indicies);
+      void CreateHeightmap(const game::cTerrainHeightMapLoader& loader, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateTrimesh(const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot = physveczero);
 #endif
 
       void RemoveFromWorld();
@@ -60,6 +60,8 @@ namespace breathe
       dGeomID GetGeom() const { return geom; }
       void DestroyBody();
       void DestroyGeom();
+
+      void DestroyHeightfield();
 
       //object_type GetType() const { return type; }
 
@@ -88,8 +90,11 @@ namespace breathe
       dBodyID body;
       dGeomID geom;
 
-      std::vector<float> vCoords;
-      std::vector<unsigned int> vIndicies;
+      dHeightfieldDataID heightfield;
+      float* pHeightfieldData;
+
+      std::vector<float> vVertices;
+      std::vector<unsigned int> vIndices;
 #endif
     };
   }

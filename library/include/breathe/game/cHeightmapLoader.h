@@ -1,6 +1,8 @@
 #ifndef CHEIGHTMAPLOADER_H
 #define CHEIGHTMAPLOADER_H
 
+#include <spitfire/algorithm/algorithm.h>
+
 // TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
 
 namespace breathe

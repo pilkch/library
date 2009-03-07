@@ -81,7 +81,7 @@ namespace spitfire
       cVec3 GetTranslatedVec3(const cVec3 & rhs) const;
       cVec3 GetInverseTranslatedVec3(const cVec3 & rhs) const;
 
-      //Other methods
+      // Other methods
       void Invert(void);
       cMat4 GetInverse(void);
       void Transpose(void);
