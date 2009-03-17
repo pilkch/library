@@ -430,7 +430,6 @@ namespace breathe
 
     void cModelNode::_Update(cUpdateVisitor& visitor)
     {
-      //visitor.Visit(*this);
     }
 
     void cModelNode::_Cull(cCullVisitor& visitor)
@@ -439,11 +438,21 @@ namespace breathe
     }
 
 
+    void cAnimationNode::_Update(cUpdateVisitor& visitor)
+    {
+      const sampletime_t currentTime = spitfire::util::GetTime();
+      animation.model.Update(currentTime);
+    }
+
+    void cAnimationNode::_Cull(cCullVisitor& visitor)
+    {
+      visitor.Visit(&animation.model, GetAbsoluteMatrix());
+    }
+
+
     void cLightNode::_Update(cUpdateVisitor& visitor)
     {
       //if (pChild != nullptr) pChild->Update(visitor);
-
-      //visitor.Visit(*this);
     }
 
     void cLightNode::_Cull(cCullVisitor& visitor)
@@ -547,7 +556,18 @@ namespace breathe
       scenegraph.GetRenderGraph().AddRenderable(pStateSet, matAbsolutePositionAndRotation);
     }
 
+    void cCullVisitor::Visit(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
+    {
+      scenegraph.GetRenderGraph().AddMD3Model(pModel, matAbsolutePositionAndRotation);
+    }
 
+    void cRenderGraph::AddMD3Model(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
+    {
+      cRenderGraphMd3Pair pair;
+      pair.pModel = pModel;
+      pair.matAbsolutePositionAndRotation = matAbsolutePositionAndRotation;
+      md3Models.push_back(pair);
+    }
 
     void cRenderGraph::AddRenderable(cStateSet* pNewStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
     {
@@ -770,6 +790,24 @@ namespace breathe
                 pVbo->Unbind();
 
               UnApplyStateSet(*pStateSet);
+
+              iter++;
+            }
+          }
+
+          // MD3 Models, ideally this would not be a special case
+          {
+            const sampletime_t currentTime = spitfire::util::GetTime();
+            std::list<cRenderGraphMd3Pair>::iterator iter(rendergraph.md3Models.begin());
+            const std::list<cRenderGraphMd3Pair>::iterator iterEnd(rendergraph.md3Models.end());
+            while (iter != iterEnd) {
+              glMatrixMode(GL_MODELVIEW);
+              glPushMatrix();
+                glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrix());
+                pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
+                (*iter).pModel->Render(currentTime);
+              glMatrixMode(GL_MODELVIEW);
+              glPopMatrix();
 
               iter++;
             }

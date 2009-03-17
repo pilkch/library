@@ -52,6 +52,37 @@ namespace breathe
       }
     }
 
+    cComponent* cGameObject::GetComponentIfEnabled(COMPONENT componentType) const
+    {
+      cComponent* pComponent = GetComponentIfEnabledOrDisabled(componentType);
+      if ((pComponent != nullptr) && !pComponent->IsEnabled()) pComponent = nullptr;
+
+      return pComponent;
+    }
+
+    cComponent* cGameObject::GetComponentIfEnabledOrDisabled(COMPONENT componentType) const
+    {
+      std::map<COMPONENT, cComponent*>::const_iterator iter = components.begin();
+      const std::map<COMPONENT, cComponent*>::const_iterator iterEnd = components.end();
+      while (iter != iterEnd) {
+        if (iter->first == componentType) return iter->second;
+
+        iter++;
+      }
+
+      return nullptr;
+    }
+
+    bool cGameObject::IsComponentPresentAndEnabled(COMPONENT componentType) const
+    {
+      return (GetComponentIfEnabled(componentType) != nullptr);
+    }
+
+    bool cGameObject::IsComponentPresentAndEnabledOrDisabled(COMPONENT componentType) const
+    {
+      return (GetComponentIfEnabledOrDisabled(componentType) != nullptr);
+    }
+
     void cGameObject::Update(spitfire::sampletime_t currentTime)
     {
       // These components are already sorted in order of priority
@@ -97,6 +128,13 @@ namespace breathe
       ASSERT(pPhysicsObject != nullptr);
       object.SetPositionRelative(pPhysicsObject->GetPositionAbsolute());
       object.SetRotationRelative(pPhysicsObject->GetRotationAbsolute());
+    }
+
+    void cAnimationComponent::_Update(spitfire::sampletime_t currentTime)
+    {
+      //ASSERT(pNode != nullptr);
+      //pNode->SetRelativePosition(object.GetPositionRelative());
+      //pNode->SetRelativeRotation(object.GetRotationRelative());
     }
 
     void cRenderComponent::_Update(spitfire::sampletime_t currentTime)

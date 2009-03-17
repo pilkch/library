@@ -31,6 +31,7 @@ namespace breathe
       COMPONENT_ITEM_CONTAINER, // Contains items, an inventory
       COMPONENT_AUDIOSOURCE,
       COMPONENT_TEAM,
+      COMPONENT_ANIMATION, // This is a wrapper for md3 animation, it requires a COMPONENT_RENDERABLE:cRenderableComponent that is pointing to a cAnimationNode
       COMPONENT_USER_NORMAL_PRIORITY_0,
       COMPONENT_USER_NORMAL_PRIORITY_1,
       COMPONENT_USER_NORMAL_PRIORITY_2,
@@ -66,8 +67,10 @@ namespace breathe
     class cComponent
     {
     public:
-      explicit cComponent(cGameObject& _object) : object(_object) {}
+      explicit cComponent(cGameObject& _object) : object(_object), bIsEnabled(true) {}
       virtual ~cComponent() {}
+
+      bool IsEnabled() const { return bIsEnabled; }
 
       void Update(spitfire::sampletime_t currentTime) { _Update(currentTime); }
 
@@ -76,6 +79,8 @@ namespace breathe
 
     private:
       virtual void _Update(spitfire::sampletime_t currentTime) {}
+
+      bool bIsEnabled;
     };
 
     class cGameObject
@@ -89,8 +94,8 @@ namespace breathe
       void AddComponent(COMPONENT componentType, cComponent* pComponent);
       void RemoveAllComponents();
 
-      cComponent* GetComponentIfEnabled(COMPONENT componentType);
-      cComponent* GetComponentIfEnabledOrDisabled(COMPONENT componentType);
+      cComponent* GetComponentIfEnabled(COMPONENT componentType) const;
+      cComponent* GetComponentIfEnabledOrDisabled(COMPONENT componentType) const;
 
       bool IsComponentPresentAndEnabled(COMPONENT componentType) const;
       bool IsComponentPresentAndEnabledOrDisabled(COMPONENT componentType) const;
@@ -115,7 +120,6 @@ namespace breathe
       spitfire::math::cVec3 positionRelative;
       spitfire::math::cQuaternion rotationRelative;
 
-      std::map<COMPONENT, bool> componentEnabled;
       std::map<COMPONENT, cComponent*> components;
     };
 
@@ -182,12 +186,23 @@ namespace breathe
       spitfire::string_t sTeam;
     };
 
+
+    class cAnimationComponent : public cComponent
+    {
+    public:
+      cAnimationComponent(cGameObject& _object) : cComponent(_object) {}
+
+    private:
+      void _Update(spitfire::sampletime_t currentTime);
+    };
+
     class cRenderComponent : public cComponent
     {
     public:
       cRenderComponent(cGameObject& _object) : cComponent(_object) {}
 
       void SetSceneNode(scenegraph3d::cSceneNodeRef _pNode) { pNode = _pNode; }
+      scenegraph3d::cSceneNodeRef GetSceneNode() const { return pNode; }
 
     private:
       void _Update(spitfire::sampletime_t currentTime);

@@ -13,6 +13,11 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 
+// TODO: We have to remove this, there has to be a better way of doing this?
+#include <breathe/render/model/cMd3.h>
+
+
+
 // GeodeNode - leaf node from which Renderable leaves are hung - no child nodes, only child Renderables
 // BillboardNode
 // ParticleSystemNode
@@ -563,6 +568,18 @@ namespace breathe
 
     typedef cSmartPtr<cModelNode> cModelNodeRef;
 
+    class cAnimationNode : public cSceneNode
+    {
+    public:
+      character::cAnimation animation;
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+    };
+
+    typedef cSmartPtr<cAnimationNode> cAnimationNodeRef;
+
     class cLightNode : public cSceneNode
     {
     public:
@@ -725,7 +742,15 @@ namespace breathe
     {
     public:
       cStateSet* pStateSet;
-      spitfire::math::cMat4& matAbsolutePositionAndRotation;
+      spitfire::math::cMat4 matAbsolutePositionAndRotation;
+    };
+
+      // TODO: We have to remove this, there has to be a better way of doing this?
+    class cRenderGraphMd3Pair
+    {
+    public:
+      character::cMd3* pModel;
+      spitfire::math::cMat4 matAbsolutePositionAndRotation;
     };
 
     class cRenderGraph
@@ -734,10 +759,16 @@ namespace breathe
       friend class cCullVisitor;
       friend class cRenderVisitor;
 
+      // TODO: We have to remove this, there has to be a better way of doing this?
+      void AddMD3Model(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
+
       void AddRenderable(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
       void Clear();
 
     private:
+      // TODO: We have to remove this, there has to be a better way of doing this?
+      std::list<cRenderGraphMd3Pair> md3Models;
+
       typedef std::list<spitfire::math::cMat4> cRenderableList;
 
       // Opaque (states : list of renderables with that state)
@@ -751,6 +782,7 @@ namespace breathe
     {
       mOpaque.clear();
       mTransparent.clear();
+      md3Models.clear();
     }
 
 
@@ -762,6 +794,7 @@ namespace breathe
       void Visit(cSceneNode& node) { node.Update(*this); }
       void Visit(cGroupNode& node) { node.Update(*this); }
       void Visit(cModelNode& node) { node.Update(*this); }
+      void Visit(cAnimationNode& node) { node.Update(*this); }
 
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
 
@@ -786,6 +819,10 @@ namespace breathe
       void Visit(cSceneNode& node) { node.Cull(*this); }
       void Visit(cGroupNode& node) { node.Cull(*this); }
       void Visit(cModelNode& node) { node.Cull(*this); }
+      void Visit(cAnimationNode& node) { node.Cull(*this); }
+
+      // TODO: We have to remove this, there has to be a better way of doing this?
+      void Visit(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
 
       void Visit(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);

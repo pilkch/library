@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <iostream>
 #include <fstream>
 
@@ -23,8 +25,8 @@ namespace breathe
   {
     const float fScale = 0.1f;
 
-    Mesh3DSObject::Mesh3DSObject(const string_t& nname , Model3DSChunk c)
-    : name(nname)
+    Mesh3DSObject::Mesh3DSObject(const string_t& nname , Model3DSChunk c) :
+      name(nname)
     {
       bFoundFaces=bFoundVertices=bTextureCoords=bFoundMaterials=false;
 
@@ -65,11 +67,10 @@ namespace breathe
     {
     }
 
-    void Mesh3DSObject::operator=(const Mesh3DSObject &mesh)
+    void Mesh3DSObject::operator=(const Mesh3DSObject& mesh)
     {
       name = mesh.name;
-      memcpy(matrix, mesh.matrix, 16 * sizeof(float));
-
+      matrix = mesh.matrix;
       vertices = mesh.vertices;
       texturecoords = mesh.texturecoords;
       faces = mesh.faces;
@@ -79,15 +80,14 @@ namespace breathe
 
     void Mesh3DSObject::ParseLocalCoordinateSystem(Model3DSChunk c)
     {
-      // Bottom row should always be (0 , 0 , 0 , 1)
-
       // Populate matrix
-      for (int i = 0 ; i < 4 ; i++) {
-        for (int j = 0 ; j < 3 ; j++) {
+      for (size_t i = 0 ; i < 4 ; i++) {
+        for (size_t j = 0 ; j < 3 ; j++) {
           matrix.m[i][j] = c.Float();
         }
       }
 
+      // Bottom row should always be (0 , 0 , 0 , 1) as in the identity matrix
       matrix.m[0][3] = 0;
       matrix.m[1][3] = 0;
       matrix.m[2][3] = 0;
@@ -113,20 +113,19 @@ namespace breathe
     }
     void Mesh3DSObject::ParseTextureCoords(Model3DSChunk c)
     {
-      bTextureCoords=true;
+      bTextureCoords = true;
 
-      int n_texcoords = c.Short();
+      size_t n_texcoords = c.Short();
 
       Mesh3DSTextureCoord texcoord;
-      texcoord.u=0;
-      texcoord.v=0;
+      texcoord.u = 0;
+      texcoord.v = 0;
 
       std::ostringstream t;
       t<<"n_texcoords = " << n_texcoords;
       LOG.Success("c3ds", t.str());
 
-      for (int i = 0 ; i < n_texcoords ; i++)
-      {
+      for (size_t i = 0 ; i < n_texcoords ; i++) {
         texcoord.u = c.Float();
         texcoord.v = c.Float();
 
@@ -135,22 +134,20 @@ namespace breathe
     }
     void Mesh3DSObject::ParseFaces(Model3DSChunk c)
     {
-      bFoundFaces=true;
+      bFoundFaces = true;
 
-      unsigned int i=0;
-
-      int n_faces = c.Short();
+      size_t n_faces = c.Short();
 
       Mesh3DSFace face;
-      face.a=0;
-      face.b=0;
-      face.c=0;
+      face.a = 0;
+      face.b = 0;
+      face.c = 0;
 
       std::ostringstream t;
       t<<"n_faces = " << n_faces;
       LOG.Success("c3ds", t.str());
 
-      for (i = 0 ; i < (unsigned int)(n_faces); i++)
+      for (size_t i = 0 ; i < n_faces; i++)
       {
         face.a = c.Short();
         face.b = c.Short();
@@ -221,14 +218,17 @@ namespace breathe
     {
       return vertices;
     }
+
     const std::vector<Mesh3DSTextureCoord>& Mesh3DSObject::TextureCoords() const
     {
       return texturecoords;
     }
+
     const std::vector<Mesh3DSFace>& Mesh3DSObject::Faces() const
     {
       return faces;
     }
+
     const std::map<string_t, std::vector<int> >& Mesh3DSObject::Materials() const
     {
       return material_faces;
