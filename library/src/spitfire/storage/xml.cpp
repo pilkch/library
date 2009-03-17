@@ -118,7 +118,7 @@ namespace spitfire
     std::string cNode::ParseFromString(const std::string& data, cNode* pPrevious)
     {
       std::string sData(data);
-      while (sData.length()) {
+      while (!sData.empty()) {
         sData = string::StripLeadingWhiteSpace(sData);
 
         // XML declaration
@@ -275,8 +275,7 @@ namespace spitfire
               {
                 // >...
                 iter++;
-                if (sAttributeName != "")
-                {
+                if (!sAttributeName.empty()) {
                   // attribute>
                   p->AddAttribute(sAttributeName, sAttributeValue);
                   sAttributeName = "";
@@ -334,12 +333,12 @@ namespace spitfire
       f<<"<?xml version=\"1.0\"?>"<<std::endl;
 
       if (IsNameAndAttributesAndChildren()) {
-        if (sName != "") {
+        if (!sName.empty()) {
           std::string sTag = sTab + "<" + sName;
           const_attribute_iterator iter = mAttribute.begin();
           const const_attribute_iterator iterEnd = mAttribute.end();
           while (iter != iterEnd) {
-            if (iter->second.length() > 0) sTag += " " + iter->first + "=\"" + iter->second + "\"";
+            if (!iter->second.empty()) sTag += " " + iter->first + "=\"" + iter->second + "\"";
             else sTag += " " + iter->first;
 
             iter++;
@@ -361,7 +360,7 @@ namespace spitfire
       const size_t n = vChild.size();
       for (size_t i=0;i<n;i++) vChild[i]->WriteToFile(f, sTab + "\t");
 
-      if (sName != "") {
+      if (!sName.empty()) {
         if (!vChild.empty() || (!vChild.empty() && !vChild[0]->IsContentOnly()))
           f<<sTab<<"</"<<sName<<">"<<std::endl;
         else
@@ -375,7 +374,7 @@ namespace spitfire
       size_t i, n;
       if (IsNameAndAttributesAndChildren())
       {
-        if (sName != "")
+        if (!sName.empty())
         {
           std::string sTag = sTab + "&lt;" + sName;
           attribute_iterator iter=mAttribute.begin();
@@ -399,7 +398,7 @@ namespace spitfire
       for (i=0;i<n;i++) vChild[i]->PrintToLog(sTab + "&nbsp;");
 
 #ifndef FIRESTARTER
-      if (!vChild.empty() && sName != "")
+      if (!vChild.empty() && !sName.empty())
         LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
 #endif
     }
@@ -591,14 +590,14 @@ namespace spitfire
 #endif
 
 
-    bool cReader::ReadFromFile(document& doc, const string_t& filename) const
+    bool reader::ReadFromFile(document& doc, const string_t& filename) const
     {
       doc.Clear();
 
       return doc.LoadFromFile(filename);
     }
 
-    bool cReader::ReadFromString(document& doc, const std::string& content) const
+    bool reader::ReadFromString(document& doc, const std::string& content) const
     {
       doc.Clear();
 
@@ -606,7 +605,7 @@ namespace spitfire
     }
 
 
-    bool cWriter::WriteToFile(const document& doc, const string_t& filename) const
+    bool writer::WriteToFile(const document& doc, const string_t& filename) const
     {
       return doc.SaveToFile(filename);
     }

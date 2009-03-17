@@ -17,8 +17,11 @@
 
 #include <boost/smart_ptr.hpp>
 
+// OpenGL headers
+#include <GL/GLee.h>
+
+// SDL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 
 //#if defined(BUILD_DEBUG) && defined(__WIN__)
 //#include <windows.h>

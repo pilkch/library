@@ -20,129 +20,119 @@ namespace spitfire
 {
   namespace math
   {
-    cMat4::cMat4(
-      float e0, float e1, float e2, float e3,
-      float e4, float e5, float e6, float e7,
-      float e8, float e9, float e10, float e11,
-      float e12, float e13, float e14, float e15
-    )
+    cMat4::cMat4()
     {
-      entries[0]=e0;
-      entries[1]=e1;
-      entries[2]=e2;
-      entries[3]=e3;
-      entries[4]=e4;
-      entries[5]=e5;
-      entries[6]=e6;
-      entries[7]=e7;
-      entries[8]=e8;
-      entries[9]=e9;
-      entries[10]=e10;
-      entries[11]=e11;
-      entries[12]=e12;
-      entries[13]=e13;
-      entries[14]=e14;
-      entries[15]=e15;
+      LoadIdentity();
     }
 
     cMat4::cMat4(const cMat4 & rhs)
     {
-      for (int i=0; i<16; i++)
-        entries[i]=rhs.entries[i];
+      SetFromMatrix(rhs);
     }
 
-    float& cMat4::operator[](const int i) const
+    float& cMat4::operator[](const size_t i) const
     {
       return const_cast<float&>(entries[i]);
     }
 
-    void cMat4::SetEntry(int position, float value)
+    void cMat4::SetEntry(size_t position, float value)
     {
-      if (position>=0 && position<=15)
-        entries[position]=value;
-      //else
-        //"Illegal argument to cMat4::SetEntry()"
+      if (position < 16) entries[position] = value;
+      //else "Illegal argument to cMat4::SetEntry()"
     }
 
-    float cMat4::GetEntry(int position) const
+    float cMat4::GetEntry(size_t position) const
     {
-      if (position>=0 && position<=15)
-        return entries[position];
-      else
-      {
+      if (position < 16) return entries[position];
+      else {
         //"Illegal argument to cMat4::GetEntry()"
         return 0;
       }
     }
 
-    cVec4 cMat4::GetRow(int position) const
+    cVec4 cMat4::GetRow(size_t position) const
     {
-      if (position==0)
-        return cVec4(entries[0], entries[4], entries[8], entries[12]);
+      if (position == 0) return cVec4(entries[0], entries[4], entries[8], entries[12]);
 
-      if (position==1)
-        return cVec4(entries[1], entries[5], entries[9], entries[13]);
+      if (position == 1) return cVec4(entries[1], entries[5], entries[9], entries[13]);
 
-      if (position==2)
-        return cVec4(entries[2], entries[6], entries[10], entries[14]);
+      if (position == 2) return cVec4(entries[2], entries[6], entries[10], entries[14]);
 
-      if (position==3)
-        return cVec4(entries[3], entries[7], entries[11], entries[15]);
+      if (position == 3) return cVec4(entries[3], entries[7], entries[11], entries[15]);
 
-      //"Illegal argument to cMat4::GetRow()"
+      // "Illegal argument to cMat4::GetRow()"
       return cVec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    cVec4 cMat4::GetColumn(int position) const
+    cVec4 cMat4::GetColumn(size_t position) const
     {
-      if (position==0)
-        return cVec4(entries[0], entries[1], entries[2], entries[3]);
+      if (position == 0) return cVec4(entries[0], entries[1], entries[2], entries[3]);
 
-      if (position==1)
+      if (position == 1)
         return cVec4(entries[4], entries[5], entries[6], entries[7]);
 
-      if (position==2)
-        return cVec4(entries[8], entries[9], entries[10], entries[11]);
+      if (position == 2) return cVec4(entries[8], entries[9], entries[10], entries[11]);
 
-      if (position==3)
-        return cVec4(entries[12], entries[13], entries[14], entries[15]);
+      if (position == 3) return cVec4(entries[12], entries[13], entries[14], entries[15]);
 
-      //"Illegal argument to cMat4::GetColumn()"
+      // "Illegal argument to cMat4::GetColumn()"
       return cVec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     void cMat4::LoadIdentity(void)
     {
-      entries[0]=1.0f;
-      entries[1]=0;
-      entries[2]=0;
-      entries[3]=0;
-      entries[4]=0;
-      entries[5]=1.0f;
-      entries[6]=0;
-      entries[7]=0;
-      entries[8]=0;
-      entries[9]=0;
-      entries[10]=1.0f;
-      entries[11]=0;
-      entries[12]=0;
-      entries[13]=0;
-      entries[14]=0;
-      entries[15]=1.0f;
+      entries[0] = 1.0f;
+      entries[1] = 0;
+      entries[2] = 0;
+      entries[3] = 0;
+      entries[4] = 0;
+      entries[5] = 1.0f;
+      entries[6] = 0;
+      entries[7] = 0;
+      entries[8] = 0;
+      entries[9] = 0;
+      entries[10] = 1.0f;
+      entries[11] = 0;
+      entries[12] = 0;
+      entries[13] = 0;
+      entries[14] = 0;
+      entries[15] = 1.0f;
     }
 
     void cMat4::LoadZero(void)
     {
-      for (int entry=0; entry<16; entry++)
-        entries[entry]=0;
+      for (size_t entry = 0; entry < 16; entry++) entries[entry] = 0;
+    }
+
+    void cMat4::ClearRotation()
+    {
+      // Load identity matrix, but only for the rotation part
+      entries[0] = 1.0f;
+      entries[1] = 0.0f;
+      entries[2] = 0.0f;
+
+      entries[4] = 0.0f;
+      entries[5] = 1.0f;
+      entries[6] = 0.0f;
+
+      entries[8] = 0.0f;
+      entries[9] = 0.0f;
+      entries[10] = 1.0f;
+    }
+
+    void cMat4::ClearTranslation()
+    {
+      // Load identity matrix, but only for the translation part
+      entries[12] = 0.0f;
+      entries[13] = 0.0f;
+      entries[14] = 0.0f;
     }
 
     cMat4 cMat4::operator+(const cMat4 & rhs) const    //overloaded operators
     {
       cMat4 result;
-      for (int entry=0; entry<16; entry++)
-      {
-        result.SetEntry(entry, entries[entry]+rhs.GetEntry(entry));  //add entries
+      for (size_t entry = 0; entry < 16; entry++) {
+        result.SetEntry(entry, entries[entry] + rhs.GetEntry(entry));  //add entries
       }
       return result;
     }
@@ -150,9 +140,9 @@ namespace spitfire
     cMat4 cMat4::operator-(const cMat4 & rhs) const    //overloaded operators
     {
       cMat4 result;
-      for (int entry=0; entry<16; entry++)
+      for (size_t entry = 0; entry < 16; entry++)
       {
-        result.SetEntry(entry, entries[entry]-rhs.GetEntry(entry));  //subtract entries
+        result.SetEntry(entry, entries[entry] - rhs.GetEntry(entry));  //subtract entries
       }
       return result;
     }
@@ -186,7 +176,7 @@ namespace spitfire
     cMat4 cMat4::operator*(const float rhs) const
     {
       cMat4 result;
-      for (int entry=0; entry<16; entry++)
+      for (size_t entry=0; entry<16; entry++)
       {
         result.SetEntry(entry, entries[entry]*rhs);    //multiply entries by rhs
       }
@@ -205,7 +195,7 @@ namespace spitfire
 
       float temp=1/rhs;
 
-      for (int entry=0; entry<16; entry++)
+      for (size_t entry=0; entry<16; entry++)
       {
         result.SetEntry(entry, entries[entry]*temp);    //divide entries by rhs
       }
@@ -214,7 +204,7 @@ namespace spitfire
 
     bool cMat4::operator==(const cMat4 & rhs) const
     {
-      for (int i=0; i<16; i++)
+      for (size_t i=0; i<16; i++)
       {
         if (entries[i]!=rhs.entries[i])
           return false;
@@ -222,69 +212,41 @@ namespace spitfire
       return true;
     }
 
-    bool cMat4::operator!=(const cMat4 & rhs) const
+    bool cMat4::operator!=(const cMat4& rhs) const
     {
-      return !((*this)==rhs);
+      return !((*this) == rhs);
     }
 
-    void cMat4::operator+=(const cMat4 & rhs)
+    void cMat4::operator+=(const cMat4& rhs)
     {
-      (*this)=(*this)+rhs;
+      (*this) = (*this) + rhs;
     }
 
-    void cMat4::operator-=(const cMat4 & rhs)
+    void cMat4::operator-=(const cMat4& rhs)
     {
-      (*this)=(*this)-rhs;
+      (*this) = (*this) - rhs;
     }
 
-    void cMat4::operator*=(const cMat4 & rhs)
+    void cMat4::operator*=(const cMat4& rhs)
     {
-      (*this)=(*this)*rhs;
+      (*this) = (*this) * rhs;
     }
 
     void cMat4::operator*=(const float rhs)
     {
-      (*this)=(*this)*rhs;
+      (*this) = (*this) * rhs;
     }
 
     void cMat4::operator/=(const float rhs)
     {
-      (*this)=(*this)/rhs;
+      (*this) = (*this) / rhs;
     }
 
     cMat4 cMat4::operator-(void) const
     {
       cMat4 result(*this);
 
-      for (int i=0; i<16; i++)
-        result.entries[i]=-result.entries[i];
-
-      return result;
-    }
-
-    cVec4 cMat4::operator*(const cVec4 rhs) const
-    {
-      cVec4 result;
-
-      result.SetX(    entries[0]*rhs.GetX()
-                    +  entries[4]*rhs.GetY()
-                    +  entries[8]*rhs.GetZ()
-                    +  entries[12]*rhs.GetW());
-
-      result.SetY(    entries[1]*rhs.GetX()
-                    +  entries[5]*rhs.GetY()
-                    +  entries[9]*rhs.GetZ()
-                    +  entries[13]*rhs.GetW());
-
-      result.SetZ(    entries[2]*rhs.GetX()
-                    +  entries[6]*rhs.GetY()
-                    +  entries[10]*rhs.GetZ()
-                    +  entries[14]*rhs.GetW());
-
-      result.SetW(    entries[3]*rhs.GetX()
-                    +  entries[7]*rhs.GetY()
-                    +  entries[11]*rhs.GetZ()
-                    +  entries[15]*rhs.GetW());
+      for (size_t i = 0; i < 16; i++) result.entries[i] = -result.entries[i];
 
       return result;
     }
@@ -293,53 +255,84 @@ namespace spitfire
     {
       cVec3 result;
 
-      result.x=(entries[0]*rhs.x + entries[4]*rhs.y + entries[8]*rhs.z);
-      result.y=(entries[1]*rhs.x + entries[5]*rhs.y + entries[9]*rhs.z);
-      result.z=(entries[2]*rhs.x + entries[6]*rhs.y + entries[10]*rhs.z);
+      result.x = (entries[0] * rhs.x) + (entries[4] * rhs.y) + (entries[8] * rhs.z);
+      result.y = (entries[1] * rhs.x) + (entries[5] * rhs.y) + (entries[9] * rhs.z);
+      result.z = (entries[2] * rhs.x) + (entries[6] * rhs.y) + (entries[10] * rhs.z);
 
       return result;
     }
 
-    cVec3 cMat4::GetInverseRotatedVec3(const cVec3 & rhs) const
+    cVec4 cMat4::GetRotatedVec4(const cVec4& rhs) const
+    {
+      cVec4 result;
+
+      result.x = (entries[0] * rhs.GetX()) + (entries[4] * rhs.GetY()) + (entries[8] * rhs.GetZ()) + (entries[12] * rhs.GetW());
+      result.y = (entries[1] * rhs.GetX()) + (entries[5] * rhs.GetY()) + (entries[9] * rhs.GetZ()) + (entries[13] * rhs.GetW());
+      result.z = (entries[2] * rhs.GetX()) + (entries[6] * rhs.GetY()) + (entries[10] * rhs.GetZ()) + (entries[14] * rhs.GetW());
+      result.w = (entries[3] * rhs.GetX()) + (entries[7] * rhs.GetY()) + (entries[11] * rhs.GetZ()) + (entries[15] * rhs.GetW());
+
+      return result;
+    }
+
+    cVec3 cMat4::GetInverseRotatedVec3(const cVec3& rhs) const
     {
       cVec3 result;
 
-      //rotate by transpose:
-      result.x=(entries[0]*rhs.x + entries[1]*rhs.y + entries[2]*rhs.z);
-      result.y=(entries[4]*rhs.x + entries[5]*rhs.y + entries[6]*rhs.z);
-      result.z=(entries[8]*rhs.x + entries[9]*rhs.y + entries[10]*rhs.z);
+      // Rotate by transpose
+      result.x = (entries[0] * rhs.x) + (entries[1] * rhs.y) + (entries[2] * rhs.z);
+      result.y = (entries[4] * rhs.x) + (entries[5] * rhs.y) + (entries[6] * rhs.z);
+      result.z = (entries[8] * rhs.x) + (entries[9] * rhs.y) + (entries[10] * rhs.z);
 
       return result;
     }
 
-    cVec3 cMat4::GetRight()
+    cVec4 cMat4::GetInverseRotatedVec4(const cVec4& rhs) const
+    {
+      cVec4 result;
+
+      // Rotate by transpose
+      result.x = (entries[0] * rhs.x) + (entries[1] * rhs.y) + (entries[2] * rhs.z) + (entries[3] * rhs.w);
+      result.y = (entries[4] * rhs.x) + (entries[5] * rhs.y) + (entries[6] * rhs.z) + (entries[7] * rhs.w);
+      result.z = (entries[8] * rhs.x) + (entries[9] * rhs.y) + (entries[10] * rhs.z) + (entries[11] * rhs.w);
+      result.w = (entries[12] * rhs.x) + (entries[13] * rhs.y) + (entries[14] * rhs.z) + (entries[15] * rhs.w);
+
+      return result;
+    }
+
+    cVec3 cMat4::GetRight() const
     {
       return cVec3(entries[0], entries[1], entries[2]);
     }
 
-    cVec3 cMat4::GetFront()
+    cVec3 cMat4::GetFront() const
     {
       return cVec3(entries[4], entries[5], entries[6]);
     }
 
-    cVec3 cMat4::GetUp()
+    cVec3 cMat4::GetUp() const
     {
       return cVec3(entries[8], entries[9], entries[10]);
     }
 
     // Returned in absolute units
-    cVec3 cMat4::GetPosition()
+    cVec3 cMat4::GetPosition() const
     {
       return cVec3(entries[12], entries[13], entries[14]);
     }
 
     // Returned in degrees
-    cVec3 cMat4::GetRotation()
+    cQuaternion cMat4::GetRotation() const
     {
-      return cVec3(  (entries[0] + entries[4] + entries[8]),
-                    (entries[1] + entries[5] + entries[9]),
-                    (  entries[0] + entries[1] +
-                      entries[4] + entries[5]));//entries[2] + entries[6] + entries[10]));
+      const math::cVec3 r(
+        entries[0] + entries[4] + entries[8],
+        entries[1] + entries[5] + entries[9],
+        entries[0] + entries[1] + entries[4] + entries[5]
+      ); //entries[2] + entries[6] + entries[10]));
+
+      cQuaternion q;
+      q.SetFromAngles(r);
+
+      return q;
     }
 
     cVec3 cMat4::GetTranslatedVec3(const cVec3 & rhs) const
@@ -352,19 +345,15 @@ namespace spitfire
       return cVec3(rhs.x - entries[12], rhs.y - entries[13], rhs.z - entries[14]);
     }
 
-    void cMat4::Invert(void)
+    void cMat4::Invert()
     {
-      *this=GetInverse();
+      *this = GetInverse();
     }
 
-    cMat4 cMat4::GetInverse(void)
+    cMat4 cMat4::GetInverse() const
     {
-      cMat4 result;
-
-      float tmp[12];                        //temporary pair storage
-      float det;                          //determinant
-
-      //calculate pairs for first 8 elements (cofactors)
+      // Calculate pairs for first 8 elements (cofactors)
+      float tmp[12]; //temporary pair storage
       tmp[0] = entries[10] * entries[15];
       tmp[1] = entries[11] * entries[14];
       tmp[2] = entries[9] * entries[15];
@@ -378,7 +367,8 @@ namespace spitfire
       tmp[10] = entries[8] * entries[13];
       tmp[11] = entries[9] * entries[12];
 
-      //calculate first 8 elements (cofactors)
+      // Calculate first 8 elements (cofactors)
+      cMat4 result;
       result.SetEntry(0,    tmp[0]*entries[5] + tmp[3]*entries[6] + tmp[4]*entries[7]
               -  tmp[1]*entries[5] - tmp[2]*entries[6] - tmp[5]*entries[7]);
 
@@ -403,7 +393,7 @@ namespace spitfire
       result.SetEntry(7,    tmp[4]*entries[0] + tmp[9]*entries[1] + tmp[10]*entries[2]
               -  tmp[5]*entries[0] - tmp[8]*entries[1] - tmp[11]*entries[2]);
 
-      //calculate pairs for second 8 elements (cofactors)
+      // Calculate pairs for second 8 elements (cofactors)
       tmp[0] = entries[2]*entries[7];
       tmp[1] = entries[3]*entries[6];
       tmp[2] = entries[1]*entries[7];
@@ -417,7 +407,7 @@ namespace spitfire
       tmp[10] = entries[0]*entries[5];
       tmp[11] = entries[1]*entries[4];
 
-      //calculate second 8 elements (cofactors)
+      // Calculate second 8 elements (cofactors)
       result.SetEntry(8,    tmp[0]*entries[13] + tmp[3]*entries[14] + tmp[4]*entries[15]
               -  tmp[1]*entries[13] - tmp[2]*entries[14] - tmp[5]*entries[15]);
 
@@ -442,38 +432,37 @@ namespace spitfire
       result.SetEntry(15,    tmp[10]*entries[10] + tmp[4]*entries[8] + tmp[9]*entries[9]
               -  tmp[8]*entries[9] - tmp[11]*entries[10] - tmp[5]*entries[8]);
 
-      // calculate determinant
-      det  =   entries[0]*result.GetEntry(0)
-          +entries[1]*result.GetEntry(1)
-          +entries[2]*result.GetEntry(2)
-          +entries[3]*result.GetEntry(3);
-
-      if (det==0.0f)
-      {
-        //"Non-Invertible Matrix sent to Invert()"
-        cMat4 id;
-        return id;
+      // Calculate determinant
+      const float determinant =
+        entries[0] * result.GetEntry(0) +
+        entries[1] * result.GetEntry(1) +
+        entries[2] * result.GetEntry(2) +
+        entries[3] * result.GetEntry(3)
+      ;
+      if (determinant == 0.0f) {
+        // "Non-Invertible Matrix sent to Invert()"
+        cMat4 identity;
+        return identity;
       }
 
-      result=result/det;
+      result = result / determinant;
 
-      //transpose matrix
+      // Transpose matrix
       result.Transpose();
 
       return result;
     }
 
 
-    void cMat4::Transpose(void)
+    void cMat4::Transpose()
     {
-      *this=GetTranspose();
+      *this = GetTranspose();
     }
 
-    cMat4 cMat4::GetTranspose(void)
+    cMat4 cMat4::GetTranspose() const
     {
-      //set up temp matrix
+      // Set up temp matrix
       cMat4 temp;
-
       temp.SetEntry( 0, entries[ 0]);
       temp.SetEntry( 1, entries[ 4]);
       temp.SetEntry( 2, entries[ 8]);
@@ -494,19 +483,15 @@ namespace spitfire
       return temp;
     }
 
-    void cMat4::InvertTranspose(void)
+    void cMat4::InvertTranspose()
     {
-      *this=GetInverseTranspose();
+      *this = GetInverseTranspose();
     }
 
-    cMat4 cMat4::GetInverseTranspose(void)
+    cMat4 cMat4::GetInverseTranspose() const
     {
-      cMat4 result;
-
+      // Calculate pairs for first 8 elements (cofactors)
       float tmp[12];                        //temporary pair storage
-      float det;                          //determinant
-
-      //calculate pairs for first 8 elements (cofactors)
       tmp[0] = entries[10] * entries[15];
       tmp[1] = entries[11] * entries[14];
       tmp[2] = entries[9] * entries[15];
@@ -520,7 +505,8 @@ namespace spitfire
       tmp[10] = entries[8] * entries[13];
       tmp[11] = entries[9] * entries[12];
 
-      //calculate first 8 elements (cofactors)
+      // Calculate first 8 elements (cofactors)
+      cMat4 result;
       result.SetEntry(0,    tmp[0]*entries[5] + tmp[3]*entries[6] + tmp[4]*entries[7]
               -  tmp[1]*entries[5] - tmp[2]*entries[6] - tmp[5]*entries[7]);
 
@@ -545,7 +531,7 @@ namespace spitfire
       result.SetEntry(7,    tmp[4]*entries[0] + tmp[9]*entries[1] + tmp[10]*entries[2]
               -  tmp[5]*entries[0] - tmp[8]*entries[1] - tmp[11]*entries[2]);
 
-      //calculate pairs for second 8 elements (cofactors)
+      // Calculate pairs for second 8 elements (cofactors)
       tmp[0] = entries[2]*entries[7];
       tmp[1] = entries[3]*entries[6];
       tmp[2] = entries[1]*entries[7];
@@ -559,7 +545,7 @@ namespace spitfire
       tmp[10] = entries[0]*entries[5];
       tmp[11] = entries[1]*entries[4];
 
-      //calculate second 8 elements (cofactors)
+      // Calculate second 8 elements (cofactors)
       result.SetEntry(8,    tmp[0]*entries[13] + tmp[3]*entries[14] + tmp[4]*entries[15]
               -  tmp[1]*entries[13] - tmp[2]*entries[14] - tmp[5]*entries[15]);
 
@@ -584,20 +570,20 @@ namespace spitfire
       result.SetEntry(15,    tmp[10]*entries[10] + tmp[4]*entries[8] + tmp[9]*entries[9]
               -  tmp[8]*entries[9] - tmp[11]*entries[10] - tmp[5]*entries[8]);
 
-      // calculate determinant
-      det  =   entries[0]*result.GetEntry(0)
-          +entries[1]*result.GetEntry(1)
-          +entries[2]*result.GetEntry(2)
-          +entries[3]*result.GetEntry(3);
-
-      if (det==0.0f)
-      {
-        //"Non-Invertible Matrix sent to GetInverseTranspose()"
-        cMat4 id;
-        return id;
+      // Calculate determinant
+      const float determinant =
+        entries[0] * result.GetEntry(0) +
+        entries[1] * result.GetEntry(1) +
+        entries[2] * result.GetEntry(2) +
+        entries[3] * result.GetEntry(3)
+      ;
+      if (determinant == 0.0f) {
+        // "Non-Invertible Matrix sent to GetInverseTranspose()"
+        cMat4 identity;
+        return identity;
       }
 
-      result=result/det;
+      result = result / determinant;
 
       return result;
     }
@@ -613,27 +599,29 @@ namespace spitfire
     {
       LoadIdentity();
 
-      entries[0]=scaleFactor.x;
-      entries[5]=scaleFactor.y;
-      entries[10]=scaleFactor.z;
+      entries[0] = scaleFactor.x;
+      entries[5] = scaleFactor.y;
+      entries[10] = scaleFactor.z;
     }
 
     void cMat4::SetUniformScale(const float scaleFactor)
     {
       LoadIdentity();
 
-      entries[0]=entries[5]=entries[10]=scaleFactor;
+      entries[0] = scaleFactor;
+      entries [5] = scaleFactor;
+      entries[10] = scaleFactor;
     }
 
     void cMat4::SetRotationAxis(const double angle, const cVec3 & axis)
     {
+      LoadIdentity();
+
       const cVec3 u = axis.GetNormalised();
 
       const float sinAngle = sin((float)angle);
       const float cosAngle = cos((float)angle);
       const float oneMinusCosAngle = 1.0f - cosAngle;
-
-      LoadIdentity();
 
       entries[0]=(u.x)*(u.x) + cosAngle*(1-(u.x)*(u.x));
       entries[4]=(u.x)*(u.y)*(oneMinusCosAngle) - sinAngle*u.z;
@@ -688,14 +676,12 @@ namespace spitfire
       SetRotationPartEuler(angleX, angleY, angleZ);
     }
 
-    void cMat4::SetPerspective(  float left, float right, float bottom,
-                    float top, float n, float f)
+    void cMat4::SetPerspective(float left, float right, float bottom, float top, float n, float f)
     {
       LoadZero();
 
-      //check for division by 0
-      if (left==right || top==bottom || n==f)
-        return;
+      // Check for division by 0
+      if ((left == right) || (top == bottom) || (n==f)) return;
 
       entries[0]=(2*n)/(right-left);
 
@@ -704,10 +690,7 @@ namespace spitfire
       entries[8]=(right+left)/(right-left);
       entries[9]=(top+bottom)/(top-bottom);
 
-      if (f!=-1)
-      {
-        entries[10]=-(f+n)/(f-n);
-      }
+      if (f != -1) entries[10] = -(f + n) / (f - n);
       else    //if f==-1, use an infinite far plane
       {
         entries[10]=-1;
@@ -715,10 +698,7 @@ namespace spitfire
 
       entries[11]=-1;
 
-      if (f!=-1)
-      {
-        entries[14]=-(2*f*n)/(f-n);
-      }
+      if (f != -1) entries[14] = -(2 * f * n) / (f - n);
       else    //if f==-1, use an infinite far plane
       {
         entries[14]=-2*n;
@@ -741,8 +721,7 @@ namespace spitfire
       SetPerspective(left, right, bottom, top, n, f);
     }
 
-    void cMat4::SetOrtho(  float left, float right, float bottom,
-                  float top, float n, float f)
+    void cMat4::SetOrtho(float left, float right, float bottom, float top, float n, float f)
     {
       LoadIdentity();
 
@@ -759,9 +738,9 @@ namespace spitfire
 
     void cMat4::SetTranslationPart(const cVec3 & translation)
     {
-      entries[12]=translation.x;
-      entries[13]=translation.y;
-      entries[14]=translation.z;
+      entries[12] = translation.x;
+      entries[13] = translation.y;
+      entries[14] = translation.z;
     }
 
     void cMat4::SetRotationPartEuler(const double angleX, const double angleY, const double angleZ)
@@ -794,17 +773,44 @@ namespace spitfire
       cVec3 x,y,z;
       cMat4 m0,m1;
       z = eye - dir;
-                                                z.Normalise();
+      z.Normalise();
       x.Cross(up, z);
-                                                x.Normalise();
+      x.Normalise();
       y.Cross(z,x);
-                                                y.Normalise();
+      y.Normalise();
       m0.entries[0] = x.x; m0.entries[4] = x.y; m0.entries[8] = x.z; m0.entries[12] = 0.0;
       m0.entries[1] = y.x; m0.entries[5] = y.y; m0.entries[9] = y.z; m0.entries[13] = 0.0;
       m0.entries[2] = z.x; m0.entries[6] = z.y; m0.entries[10] = z.z; m0.entries[14] = 0.0;
       m0.entries[3] = 0.0; m0.entries[7] = 0.0; m0.entries[11] = 0.0; m0.entries[15] = 1.0;
       m1.SetTranslation(-eye);
       *this = m0 * m1;
+    }
+
+    void cMat4::SetRotationPart(const cQuaternion& rhs)
+    {
+      const cMat4 mat(rhs.GetMatrix());
+
+      entries[0] = mat.entries[0];
+      entries[1] = mat.entries[1];
+      entries[2] = mat.entries[2];
+
+      entries[4] = mat.entries[4];
+      entries[5] = mat.entries[5];
+      entries[6] = mat.entries[6];
+
+      entries[8] = mat.entries[8];
+      entries[9] = mat.entries[9];
+      entries[10] = mat.entries[10];
+    }
+
+    void cMat4::SetFromQuaternion(const cQuaternion& rhs)
+    {
+      SetFromMatrix(rhs.GetMatrix());
+    }
+
+    void cMat4::SetFromMatrix(const cMat4& rhs)
+    {
+      for (size_t i = 0; i < 16; i++) entries[i] = rhs.entries[i];
     }
   }
 }

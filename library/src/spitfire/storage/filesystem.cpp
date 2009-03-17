@@ -419,70 +419,98 @@ namespace spitfire
       return FindFile(sFilename, sOutFilename);
     }
 
-    bool FindFile(const string_t& sFilename, string_t& sOutFilename)
+    bool FindFile(const string_t& sInFilename, string_t& sOutFilename)
     {
-      CONSOLE<<"FindFile \""<<sFilename<<"\""<<std::endl;
+      CONSOLE<<"FindFile \""<<sInFilename<<"\""<<std::endl;
+      char sz[1024];
+      strcpy(sz, spitfire::string::ToUTF8(sInFilename).data());
+      std::cout<<"FindFile sz=\""<<sz<<"\""<<std::endl;
 
       sOutFilename.clear();
 
-      if (sFilename.empty()) {
-        CONSOLE<<"FindFile No file specified "<<sFilename<<" returning false"<<std::endl;
+      if (sInFilename.empty()) {
+        CONSOLE<<"FindFile No file specified "<<sInFilename<<" returning false"<<std::endl;
         return false;
       }
 
-      // Check for each directory+sFilename
-      std::vector<string_t>::iterator iter = vDirectory.begin();
-      const std::vector<string_t>::iterator iterEnd = vDirectory.end();
-      while (iter != iterEnd) {
-        string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
-        CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
-        if (FileExists(filename)) {
-          CONSOLE<<"FindFile Found "<<filename<<" returning true"<<std::endl;
-          sOutFilename = filename;
+      // Check if the filename that was passed in is an absolute path
+      CONSOLE<<"FindFile Attempting to open "<<sInFilename<<std::endl;
+      if (sInFilename[0] == TEXT('/')) {
+        if (FileExists(sInFilename)) {
+          CONSOLE<<"FindFileFound "<<sInFilename<<" returning true"<<std::endl;
+          sOutFilename = sInFilename;
           return true;
         }
 
-        iter++;
-      };
-
-
-      // We used to check each directory + the filename without its directories, but that is quite useless.
-      // We now require that each program is more specific in its request and actually knows what a file will be called.
-      // Check for each directory+sFilename-path
-      // iter = vDirectory.begin();
-      // string_t sFile = GetFile(sFilename);
-      // while(iter != vDirectory.end()) {
-      //   string_t filename = spitfire::string::ToString_t(spitfire::string::ToString_t((*iter) + sFilename));
-      //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
-      //   if (FileExists(filename)) {
-      //     CONSOLE<<"Found "<<filename<<std::endl;
-      //     sOutFilename = filename;
-      //     return true;
-      //   }
-      //
-      //   iter++;
-      // };
-
-      // Check sFilename that was passed in
-      CONSOLE<<"FindFile Attempting to open "<<sFilename<<std::endl;
-      if (FileExists(sFilename)) {
-        CONSOLE<<"FindFileFound "<<sFilename<<" returning true"<<std::endl;
-        sOutFilename = sFilename;
-        return true;
+        CONSOLE<<"FindFile "<<sInFilename<<" returning false"<<std::endl;
+        return false;
       }
 
-      CONSOLE<<"FindFile "<<sFilename<<" returning false"<<std::endl;
+      string_t sFilename(sInFilename);
+      while (!sFilename.empty()) {
+        // Check for each directory+sFilename
+        std::vector<string_t>::iterator iter = vDirectory.begin();
+        const std::vector<string_t>::iterator iterEnd = vDirectory.end();
+        while (iter != iterEnd) {
+          string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
+          CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
+          if (FileExists(filename)) {
+            CONSOLE<<"FindFile Found "<<filename<<" returning true"<<std::endl;
+            sOutFilename = filename;
+            return true;
+          }
+
+          iter++;
+        };
+
+
+        // We used to check each directory + the filename without its directories, but that is quite useless.
+        // We now require that each program is more specific in its request and actually knows what a file will be called.
+        // Check for each directory+sFilename-path
+        // iter = vDirectory.begin();
+        // string_t sFile = GetFile(sFilename);
+        // while(iter != vDirectory.end()) {
+        //   string_t filename = spitfire::string::ToString_t(spitfire::string::ToString_t((*iter) + sFilename));
+        //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
+        //   if (FileExists(filename)) {
+        //     CONSOLE<<"Found "<<filename<<std::endl;
+        //     sOutFilename = filename;
+        //     return true;
+        //   }
+        //
+        //   iter++;
+        // };
+
+        // Check sFilename that was passed in
+        CONSOLE<<"FindFile Attempting to open "<<sFilename<<std::endl;
+        if (FileExists(sFilename)) {
+          CONSOLE<<"FindFileFound "<<sFilename<<" returning true"<<std::endl;
+          sOutFilename = sFilename;
+          return true;
+        }
+
+        // Ok, that didn't work, let's try without the first directory
+        const size_t nBefore = sFilename.length();
+        sFilename = spitfire::string::StripBeforeInclusive(sFilename, TEXT("/"));
+        if (nBefore == sFilename.length()) break;
+      }
+
+      CONSOLE<<"FindFile "<<sInFilename<<" returning false"<<std::endl;
       return false;
     }
 
     bool FindResourceFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
     {
+      if (FindFile(sPath, sFilename, sOutFilename)) return true;
+
       const string_t sNewPath(TEXT("data/") + sPath);
       return FindFile(sNewPath, sFilename, sOutFilename);
     }
 
     bool FindResourceFile(const string_t& sFilename, string_t& sOutFilename)
     {
+      if (FindFile(sFilename, sOutFilename)) return true;
+
       const string_t sNewFilename(TEXT("data/") + sFilename);
       return FindFile(sNewFilename, sOutFilename);
     }

@@ -26,7 +26,7 @@ namespace spitfire
 
   cWorldXMLReader::RESULT cWorldXMLReader::ReadFromFile(const string_t& filename)
   {
-    xml::cReader reader;
+    xml::reader reader;
 
     xml::document doc;
     reader.ReadFromFile(doc, filename);
@@ -67,7 +67,7 @@ namespace spitfire
     }*/
 
     // Now actually write the xml to filename
-    xml::cWriter writer;
+    xml::writer writer;
     writer.WriteToFile(doc, filename);
 
     return RESULT_ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING;

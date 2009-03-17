@@ -81,34 +81,35 @@ namespace spitfire
       intercept/=normalLength;
     }
 
-    bool cPlane::Intersect3(const cPlane & p2, const cPlane & p3, cVec3 & result)//find point of intersection of 3 planes
+    // Find point of intersection of 3 planes
+    bool cPlane::Intersect3(const cPlane& p2, const cPlane& p3, cVec3& result) const
     {
-      float denominator=normal.DotProduct((p2.normal).CrossProduct(p3.normal));
-                          //scalar triple product of normals
-      if (denominator==0.0f)                  //if zero
-        return false;                    //no intersection
+      // Scalar triple product of normals
+      const float denominator = normal.DotProduct((p2.normal).CrossProduct(p3.normal));
 
-      cVec3 temp1, temp2, temp3;
-      temp1=(p2.normal.CrossProduct(p3.normal))*intercept;
-      temp2=(p3.normal.CrossProduct(normal))*p2.intercept;
-      temp3=(normal.CrossProduct(p2.normal))*p3.intercept;
+      // If zero, there is no intersection
+      if (denominator == 0.0f) return false;
 
-      result=(temp1+temp2+temp3)/(-denominator);
+      const cVec3 temp1 = (p2.normal.CrossProduct(p3.normal)) * intercept;
+      const cVec3 temp2 = (p3.normal.CrossProduct(normal)) * p2.intercept;
+      const cVec3 temp3 = (normal.CrossProduct(p2.normal)) * p3.intercept;
+
+      result = (temp1 + temp2 + temp3) / (-denominator);
 
       return true;
     }
 
-    cVec3 cPlane::GetReflected(cVec3 v)
+    cVec3 cPlane::GetReflected(cVec3 v) const
     {
-      return cVec3(-2.0f*(v.DotProduct(normal)*normal + v));
+      return cVec3(-2.0f * (v.DotProduct(normal) * normal + v));
     }
 
-    float cPlane::DistancePoint(const cVec3 & point) const
+    float cPlane::DistancePoint(const cVec3& point) const
     {
       return point.DotProduct(normal)+intercept;
     }
 
-    int cPlane::ClassifyPoint(const cVec3 & point) const
+    int cPlane::ClassifyPoint(const cVec3& point) const
     {
       if (point.DotProduct(normal)+intercept==0.0f)
         return POINT_ON_cPlane;
@@ -119,28 +120,25 @@ namespace spitfire
       return POINT_BEHIND_cPlane;  //otherwise
     }
 
-    cPlane cPlane::lerp(const cPlane & p2, float factor)
+    cPlane cPlane::lerp(const cPlane& p2, float factor) const
     {
       cPlane result;
-      result.normal=normal*factor + p2.normal*(1.0f-factor);
-                                                result.normal.Normalise();
+      result.normal = normal * factor + p2.normal * (1.0f - factor);
+      result.normal.Normalise();
 
-      result.intercept=intercept*factor + p2.intercept*(1.0f-factor);
+      result.intercept = intercept * factor + p2.intercept * (1.0f - factor);
 
       return result;
     }
 
-    bool cPlane::operator ==(const cPlane & rhs) const
+    bool cPlane::operator ==(const cPlane& rhs) const
     {
-      if (normal==rhs.normal && intercept==rhs.intercept)
-        return true;
-
-      return false;
+      return ((normal == rhs.normal) && (intercept == rhs.intercept));
     }
 
-    bool cPlane::operator !=(const cPlane & rhs) const
+    bool cPlane::operator !=(const cPlane& rhs) const
     {
-      return!((*this)==rhs);
+      return !((*this) == rhs);
     }
   }
 }
