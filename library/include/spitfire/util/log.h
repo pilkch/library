@@ -150,7 +150,7 @@ extern spitfire::logging::cLog LOG;
 
 namespace breathe
 {
-  class cApp;
+  class cApplication;
 }
 
 namespace spitfire
@@ -176,7 +176,7 @@ namespace spitfire
       unsigned int uiCursorBlink;
       unsigned int uiCursorPosition;
 
-      void SetApp(breathe::cApp* inApp) { pApp = inApp; }
+      void SetApp(breathe::cApplication* inApp) { pApp = inApp; }
 
       const constant_stack<std::string>& GetLines() const { return lines; }
       const std::string GetCurrentLine() const { return current; }
@@ -208,7 +208,7 @@ namespace spitfire
 
     protected:
       bool bShow;
-      breathe::cApp* pApp;
+      breathe::cApplication* pApp;
 
       constant_stack<std::string> lines;
       std::string current;

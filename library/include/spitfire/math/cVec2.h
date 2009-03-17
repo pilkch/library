@@ -11,7 +11,7 @@ namespace spitfire
     {
     public:
       inline cVec2() : u(x), v(y) {}
-      cVec2(const float* rhs);
+      explicit cVec2(const float* rhs);
       inline cVec2(float newX, float newY) : u(x), v(y) { x=newX; y=newY; }
       inline cVec2(const cVec2& rhs) : u(x), v(y) { x=rhs.x; y=rhs.y; }
       cVec2(const cVec3& rhs);

@@ -26,8 +26,8 @@ namespace spitfire
   namespace xml
   {
     class cNode;
-    class cReader;
-    class cWriter;
+    class reader;
+    class writer;
 
     typedef cNode document;
     typedef cNode element;
@@ -46,8 +46,8 @@ namespace spitfire
       typedef std::map<std::string, std::string>::const_iterator const_attribute_iterator;
 
     public:
-      friend class cReader;
-      friend class cWriter;
+      friend class reader;
+      friend class writer;
 
       cNode();
       explicit cNode(cNode* inParent);
@@ -306,7 +306,7 @@ namespace spitfire
 
 
 
-    class cReader
+    class reader
     {
     public:
       bool ReadFromFile(document& doc, const string_t& filename) const;
@@ -315,7 +315,7 @@ namespace spitfire
     };
 
 
-    class cWriter
+    class writer
     {
     public:
       bool WriteToFile(const document& doc, const string_t& filename) const;
@@ -323,7 +323,7 @@ namespace spitfire
       bool WriteToString(const document& doc, std::wstring& output) const;
     };
 
-    inline bool cWriter::WriteToString(const document& doc, std::string& output) const
+    inline bool writer::WriteToString(const document& doc, std::string& output) const
     {
       std::wstring temp(spitfire::string::ToWchar_t(output));
       bool bResult = WriteToString(doc, temp);

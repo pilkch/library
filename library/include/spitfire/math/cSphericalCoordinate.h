@@ -86,7 +86,8 @@ namespace spitfire
     {
       cVec3 r(0.0f, GetPitchDegrees(), GetRotationZDegrees());
 
-      cQuaternion q(r);
+      cQuaternion q;
+      q.SetFromAngles(r);
 
       return q;
     }

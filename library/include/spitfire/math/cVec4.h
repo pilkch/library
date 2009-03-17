@@ -8,11 +8,11 @@ namespace spitfire
     class cVec4
     {
     public:
-      // constructors
+      // Constructors
       cVec4(float newX = 0.0f, float newY = 0.0f, float newZ = 0.0f, float newW=0.0f);
-      cVec4(const float * rhs);
-      cVec4(const cVec4 & rhs);
-      cVec4(const cVec3 & rhs); // convert v3d to v4d
+      explicit cVec4(const float* rhs);
+      cVec4(const cVec4& rhs);
+      explicit cVec4(const cVec3& rhs); // convert cVec3 to cVec4
 
       void Set(float newX, float newY, float newZ, float newW); // set member variables
 

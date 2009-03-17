@@ -43,10 +43,10 @@ namespace spitfire
       }
 
       // Retrieves values from angle of rotation about x, y, z axes
-      cQuaternion(const cVec3& angleOfRotationAboutXYZ)
-      {
-        SetFromAngles(angleOfRotationAboutXYZ);
-      }
+      //explicit cQuaternion(const cVec3& angleOfRotationAboutXYZ)
+      //{
+      //  SetFromAngles(angleOfRotationAboutXYZ);
+      //}
 
       // Retrieves values from linear interpolation betwwen 2 quaternions
       cQuaternion(const cQuaternion& q1, const cQuaternion& q2, float interpolation)
@@ -69,18 +69,28 @@ namespace spitfire
       cQuaternion Inverse() const;
       cQuaternion Conjugate() const;
 
-      // Set from 2 quaternions
+      // Set spherical linear interpolated quaternion between q1 and q2, with respect to t
       // If the second is backwards, that is ok
       void Slerp(const cQuaternion& q1, const cQuaternion& q2, const float interpolation);
 
       // Invert the quaternion
       void Invert();
 
+      void SetFromQuaternion(const cQuaternion& rhs)
+      {
+        x = rhs.x;
+        y = rhs.y;
+        z = rhs.z;
+        w = rhs.w;
+      }
+
+      void SetFromMatrix(const cMat4& rhs);
+
       // Set from angles of rotation about x, y, z axes
       void SetFromAngles(const cVec3& v);
 
       // Set from axis-angle combination
-      void SetFromAxisAngle(const cVec3& axis, float angle);
+      void SetFromAxisAngle(const cVec3& axis, float fAngleRadians);
 
       // Set from vectors (source and destination)
       void SetFromVectors(const cVec3& source, const cVec3& destination);
@@ -97,8 +107,21 @@ namespace spitfire
       cQuaternion operator-(const cQuaternion& rhs) const;
       cQuaternion operator*(const cQuaternion& rhs) const;
 
+      // TODO: Why don't these work?
+      //void operator+=(const cQuaternion& rhs) { (*this) = (*this) + rhs; }
+      //void operator-=(const cQuaternion& rhs) { (*this) = (*this) - rhs; }
+      void operator*=(const cQuaternion& rhs) { (*this) = (*this) * rhs; }
 
-      // TODO: Think about switching these around to (w, x, y, z)?  Which is more common?
+      // TODO: Remove these
+      void SlerpForMD3(const cQuaternion& q1, const cQuaternion& q2, float t);
+
+      // This takes in an array of 16 floats to fill in a 4x4 homogeneous matrix from a quaternion
+      cMat4 GetMD3Matrix() const;
+
+      // This takes a 3x3 or 4x4 matrix and converts it to a quaternion, depending on rowColumnCount
+      void SetFromMD3Matrix(const float* pMatrix, int rowColumnCount);
+
+
       float x;
       float y;
       float z;
@@ -109,11 +132,7 @@ namespace spitfire
 
     inline cQuaternion& cQuaternion::operator=(const cQuaternion& rhs)
     {
-      x = rhs.x;
-      y = rhs.y;
-      z = rhs.z;
-      w = rhs.w;
-
+      SetFromQuaternion(rhs);
       return *this;
     }
 
@@ -130,10 +149,10 @@ namespace spitfire
     inline cQuaternion cQuaternion::operator*(const cQuaternion& rhs) const
     {
       cQuaternion q(
-        w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y, // x
-        w * rhs.y + y * rhs.w + z * rhs.x - x * rhs.z, // y
-        w * rhs.z + z * rhs.w + x * rhs.y - y * rhs.x, // z
-        w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z  // w
+        (w * rhs.x) + (x * rhs.w) + (y * rhs.z) - (z * rhs.y), // x
+        (w * rhs.y) + (y * rhs.w) + (z * rhs.x) - (x * rhs.z), // y
+        (w * rhs.z) + (z * rhs.w) + (x * rhs.y) - (y * rhs.x), // z
+        (w * rhs.w) - (x * rhs.x) - (y * rhs.y) - (z * rhs.z)  // w
       );
 
       return q;
