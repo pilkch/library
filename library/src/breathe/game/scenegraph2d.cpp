@@ -17,12 +17,13 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
+// OpenGL headers
 #include <GL/GLee.h>
 
-
+// SDL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 
@@ -71,14 +72,6 @@
 
 #include <breathe/game/scenegraph2d.h>
 
-#include <breathe/game/cLevel.h>
-#include <breathe/game/cPlayer.h>
-#include <breathe/game/cPetrolBowser.h>
-#include <breathe/vehicle/cPart.h>
-#include <breathe/vehicle/cWheel.h>
-#include <breathe/vehicle/cSeat.h>
-#include <breathe/vehicle/cVehicle.h>
-
 namespace breathe
 {
   namespace scenegraph2d
@@ -114,24 +107,24 @@ namespace breathe
       }
     }
 
-    void cSceneNode::SetLocalPosition(const math::cVec3& position)
+    void cSceneNode::SetRelativePosition(const math::cVec3& position)
     {
       bHasRelativePosition = true;
       relativePosition = position;
       SetDirty();
     }
 
-    void cSceneNode::SetLocalRotation(const math::cVec3& rotation)
+    void cSceneNode::SetRelativeRotation(const math::cQuaternion& rotation)
     {
       bHasRelativeRotation = true;
       relativeRotation = rotation;
       SetDirty();
     }
 
-    // If we don't have a parent return our relative position, else return our parent's global position + our own
-    math::cVec3 cSceneNode::GetGlobalPosition() const
+    // If we don't have a parent return our relative position, else return our parent's absolute position + our own
+    math::cVec3 cSceneNode::GetAbsolutePosition() const
     {
-      if (pParent != nullptr) return pParent->GetGlobalPosition() + relativePosition;
+      if (pParent != nullptr) return pParent->GetAbsolutePosition() + relativePosition;
 
       return relativePosition;
     }
@@ -146,20 +139,6 @@ namespace breathe
     void cSceneNode::SetVisible(bool bVisible)
     {
       bIsVisible = bVisible;
-    }
-
-    void cSceneNode::SetPosition(const math::cVec3& position)
-    {
-      bHasRelativePosition = true;
-      relativePosition = position;
-      SetDirty();
-    }
-
-    void cSceneNode::SetRotation(const math::cQuaternion& rotation)
-    {
-      bHasRelativeRotation = true;
-      relativeRotation = rotation;
-      SetDirty();
     }
 
     void cSceneNode::UpdateBoundingVolumeAndSetNotDirty()

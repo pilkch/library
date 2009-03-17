@@ -12,7 +12,8 @@
 #include <set>
 
 // Boost headers
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <ode/ode.h>
 

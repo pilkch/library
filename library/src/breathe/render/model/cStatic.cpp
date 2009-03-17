@@ -227,9 +227,13 @@ namespace breathe
         // try it, comment these lines out, it breaks.  I don't know why :(
         string_t sMeshMaterialName = breathe::string::ToString_t(pMesh->Material());
 
-        breathe::filesystem::FindResourceFile(
+        if (!breathe::filesystem::FindFile(
           breathe::filesystem::GetPath(breathe::string::ToString_t(sFilename)) + sMeshMaterialName, pCurrentMesh->sMaterial
-        );
+        )) {
+          if (!breathe::filesystem::FindFile(sMeshMaterialName, pCurrentMesh->sMaterial)) {
+            breathe::filesystem::FindFile(TEXT("materials/") + sMeshMaterialName, pCurrentMesh->sMaterial);
+          }
+        }
 
         for (size_t face = 0; face < pCurrentMesh->pMeshData->uiTriangles; face++) {
           // 3ds files store faces as having 3 indexs in vertex arrays

@@ -57,7 +57,7 @@ namespace breathe
 
       xml::cNode root;
 
-      xml::cReader reader;
+      xml::reader reader;
       if (!reader.ReadFromString(root, sContent)) {
         LOG<<"cFeed::ParseAtomFeed XML Could not be read from string, returning"<<std::endl;
         return;

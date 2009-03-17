@@ -17,18 +17,18 @@
 
 // Boost headers
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
 
-
+// OpenGL headers
 #include <GL/GLee.h>
 
-
+// SDL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 
@@ -261,7 +261,7 @@ namespace breathe
 
       xml::document doc;
 
-      xml::cReader reader;
+      xml::reader reader;
       if (!reader.ReadFromFile(doc, sFilename)) {
           LOG<<"cSkySystemLoader::LoadFromFile \""<<sFilename<<"\" could not be loaded, returning"<<std::endl;
           return;

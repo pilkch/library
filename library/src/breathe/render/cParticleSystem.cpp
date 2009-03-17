@@ -25,7 +25,6 @@
 
 // SDL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 // Spitfire headers
@@ -154,8 +153,8 @@ namespace breathe
 
       pRender->SetMaterial(pMaterial);
 
-      pRender->SetShaderConstant(pMaterial, "width", fParticleWidth);
-      pRender->SetShaderConstant(pMaterial, "height", fParticleHeight);
+      pRender->SetShaderConstant("width", fParticleWidth);
+      pRender->SetShaderConstant("height", fParticleHeight);
 
       //pRender->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
       //pRender->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
@@ -358,8 +357,8 @@ namespace breathe
         const cParticleCustom* p = &sorted[0];
         const size_t n = sorted.size();
         for (size_t i = 0; i < n; i++, p++) {
-          pRender->SetShaderConstant(pMaterial, "width", p->fWidth);
-          pRender->SetShaderConstant(pMaterial, "height", p->fHeight);
+          pRender->SetShaderConstant("width", p->fWidth);
+          pRender->SetShaderConstant("height", p->fHeight);
 
           glBegin(GL_QUADS);
 #if 1

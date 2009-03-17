@@ -15,13 +15,12 @@
 // Boost headers
 #include <boost/shared_ptr.hpp>
 
-// Anything else
+// OpenGL headers
 #include <GL/GLee.h>
 #include <GL/glu.h>
 
 // OpenGL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 // Spitfire headers

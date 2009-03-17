@@ -17,18 +17,18 @@
 
 // Boost headers
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
 
-
+// OpenGL headers
 #include <GL/GLee.h>
 
-
+// SDL headers
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 
@@ -79,14 +79,6 @@
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/skysystem.h>
 
-#include <breathe/game/cLevel.h>
-#include <breathe/game/cPlayer.h>
-#include <breathe/game/cPetrolBowser.h>
-#include <breathe/vehicle/cPart.h>
-#include <breathe/vehicle/cWheel.h>
-#include <breathe/vehicle/cSeat.h>
-#include <breathe/vehicle/cVehicle.h>
-
 const unsigned int uiNodeNameDisplayTime = 100;
 
 
@@ -111,6 +103,68 @@ namespace breathe
 
   namespace scenegraph3d
   {
+    void cStateSet::Clear()
+    {
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+
+      priority = PRIORITY_NORMAL;
+
+      alphablending.Clear();
+      texture[0].Clear();
+      texture[1].Clear();
+      texture[2].Clear();
+      shader.Clear();
+      vertexBufferObject.Clear();
+    }
+
+    void cStateSet::SetStateFromMaterial(render::material::cMaterialRef pMaterial)
+    {
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+      ASSERT(pMaterial != nullptr);
+
+      alphablending.Clear();
+      texture[0].Clear();
+      texture[1].Clear();
+      texture[2].Clear();
+      shader.Clear();
+
+
+
+      const size_t nTextures = pMaterial->vLayer.size();
+
+      // NOTE: These intentionally fall through and collect the textures below them
+      switch (nTextures) {
+        case 3: {
+          if (pMaterial->vLayer[2]->pTexture != nullptr) {
+            texture[2].bHasValidValue = true;
+            texture[2].bTurnedOn = true;
+            texture[2].pTexture = pMaterial->vLayer[2]->pTexture;
+          }
+        }
+        case 2: {
+          if (pMaterial->vLayer[1]->pTexture != nullptr) {
+            texture[1].bHasValidValue = true;
+            texture[1].bTurnedOn = true;
+            texture[1].pTexture = pMaterial->vLayer[1]->pTexture;
+          }
+        }
+        case 1: {
+          if (pMaterial->vLayer[0]->pTexture != nullptr) {
+            texture[0].bHasValidValue = true;
+            texture[0].bTurnedOn = true;
+            texture[0].pTexture = pMaterial->vLayer[0]->pTexture;
+          }
+        }
+      }
+
+      if (pMaterial->pShader != nullptr) {
+        shader.bHasValidValue = true;
+        shader.bTurnedOn = true;
+        shader.pShader = pMaterial->pShader;
+      }
+    }
+
+
     cSceneNode::cSceneNode() :
 #ifdef BUILD_DEBUG
       bIsShowingBoundingBox(false),
@@ -142,26 +196,40 @@ namespace breathe
       }
     }
 
-    void cSceneNode::SetLocalPosition(const math::cVec3& position)
+    void cSceneNode::SetRelativePosition(const math::cVec3& position)
     {
       bHasRelativePosition = true;
       relativePosition = position;
       SetDirty();
     }
 
-    void cSceneNode::SetLocalRotation(const math::cVec3& rotation)
+    void cSceneNode::SetRelativeRotation(const math::cQuaternion& rotation)
     {
       bHasRelativeRotation = true;
       relativeRotation = rotation;
       SetDirty();
     }
 
-    // If we don't have a parent return our relative position, else return our parent's global position + our own
-    math::cVec3 cSceneNode::GetGlobalPosition() const
+    // If we don't have a parent return our relative position, else return our parent's absolute position + our own
+    spitfire::math::cMat4 cSceneNode::GetAbsoluteMatrix() const
     {
-      if (pParent != nullptr) return pParent->GetGlobalPosition() + relativePosition;
+      spitfire::math::cMat4 mat;
+      if (bHasRelativeRotation) mat.SetRotationPart(relativeRotation);
+      if (bHasRelativePosition) mat.SetTranslationPart(relativePosition);
 
-      return relativePosition;
+      if (pParent != nullptr) mat = pParent->GetAbsoluteMatrix() * mat;
+
+      return mat;
+    }
+
+    spitfire::math::cVec3 cSceneNode::GetAbsolutePosition() const
+    {
+      return GetAbsoluteMatrix().GetPosition();
+    }
+
+    spitfire::math::cQuaternion cSceneNode::GetAbsoluteRotation() const
+    {
+      return GetAbsoluteMatrix().GetRotation();
     }
 
     void cSceneNode::GenerateBoundingVolume()
@@ -174,20 +242,6 @@ namespace breathe
     void cSceneNode::SetVisible(bool bVisible)
     {
       bIsVisible = bVisible;
-    }
-
-    void cSceneNode::SetPosition(const math::cVec3& position)
-    {
-      bHasRelativePosition = true;
-      relativePosition = position;
-      SetDirty();
-    }
-
-    void cSceneNode::SetRotation(const math::cQuaternion& rotation)
-    {
-      bHasRelativeRotation = true;
-      relativeRotation = rotation;
-      SetDirty();
     }
 
     void cSceneNode::UpdateBoundingVolumeAndSetNotDirty()
@@ -246,6 +300,70 @@ namespace breathe
       visitor.Visit(*this);
     }
 
+    void cSceneNode::AttachChild(cSceneNodeRef pChild)
+    {
+      ASSERT(!IsParentOfChild(pChild));
+
+      _AttachChild(pChild);
+
+      pChild->pParent = shared_from_this();
+    }
+
+    void cSceneNode::DetachChildForUseLater(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DetachChild(pChild);
+
+      pChild->pParent.reset();
+    }
+
+    void cSceneNode::DeleteChildRecursively(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DeleteChildRecursively(pChild);
+
+      pChild->pParent.reset();
+    }
+
+
+
+
+    void cGroupNode::_AttachChild(cSceneNodeRef pChild)
+    {
+      children.push_back(pChild);
+    }
+
+    void cGroupNode::_DetachChild(cSceneNodeRef pChild)
+    {
+      children.remove(pChild);
+    }
+
+    void cGroupNode::_DeleteChildRecursively(cSceneNodeRef pChild)
+    {
+      pChild->DeleteAllChildrenRecursively();
+    }
+
+    void cGroupNode::_DeleteAllChildrenRecursively()
+    {
+      // If we don't have any children, return
+      if (children.empty()) return;
+
+      // Visit all child nodes
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
+      while (iter != iterEnd) {
+        ASSERT(*iter != nullptr);
+        (*iter)->DeleteAllChildrenRecursively();
+
+        iter++;
+      }
+
+      children.clear();
+    }
 
     void cGroupNode::_Update(cUpdateVisitor& visitor)
     {
@@ -253,8 +371,8 @@ namespace breathe
       if (children.empty()) return;
 
       // Visit all child nodes
-      std::vector<cSceneNodeRef>::iterator iter(children.begin());
-      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
       while (iter != iterEnd) {
         ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
@@ -269,8 +387,8 @@ namespace breathe
       if (children.empty()) return;
 
       // Visit all child nodes
-      std::vector<cSceneNodeRef>::iterator iter(children.begin());
-      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
       while (iter != iterEnd) {
         ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
@@ -296,7 +414,7 @@ namespace breathe
       if (node.empty()) return;
       ASSERT(index < node.size());
 
-    // Only visit the node that we require
+      // Only visit the node that we require
       visitor.Visit(*node[index]);
     }
 
@@ -305,7 +423,7 @@ namespace breathe
       if (node.empty()) return;
       ASSERT(index < node.size());
 
-    // Only visit the node that we require
+      // Only visit the node that we require
       visitor.Visit(*node[index]);
     }
 
@@ -317,7 +435,7 @@ namespace breathe
 
     void cModelNode::_Cull(cCullVisitor& visitor)
     {
-      //visitor.Visit(*this);
+      visitor.Visit(&stateset, GetAbsoluteMatrix());
     }
 
 
@@ -424,8 +542,14 @@ namespace breathe
       mTransparent.add(fDistance, item);*/
     }
 
+    void cCullVisitor::Visit(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
+    {
+      scenegraph.GetRenderGraph().AddRenderable(pStateSet, matAbsolutePositionAndRotation);
+    }
 
-    void cRenderGraph::AddRenderable(const cRenderableRef renderable)
+
+
+    void cRenderGraph::AddRenderable(cStateSet* pNewStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
     {
       std::map<cStateSet*, cRenderableList*>::iterator iter(mOpaque.begin());
       const std::map<cStateSet*, cRenderableList*>::iterator iterEnd(mOpaque.end());
@@ -433,19 +557,83 @@ namespace breathe
         cStateSet* pState = iter->first;
         ASSERT(pState != nullptr);
 
-        //if (*pState == renderable.state) {
-        //  cRenderableList* pList = iter->second;
-        //  pList->push_back(&renderable);
-        //  return;
-        //}
+        if (*pState == *pNewStateSet) {
+          // We found at least one other renderable with the same state as us so we will add to the list for that state
+          cRenderableList* pList = iter->second;
+          pList->push_back(matAbsolutePositionAndRotation);
+          return;
+        }
 
         iter++;
       }
 
-      //cRenderableList* pList = new cRenderableList;
-      //pList->push_back(&renderable);
-      //mOpaque[&renderable.state] = pList;
+      cRenderableList* pList = new cRenderableList;
+      pList->push_back(matAbsolutePositionAndRotation);
+      mOpaque[pNewStateSet] = pList;
     }
+
+
+
+
+
+    void cRenderVisitor::ApplyStateSet(cStateSet& stateSet)
+    {
+      size_t n = render::MAX_TEXTURE_UNITS;
+      size_t unit = 0;
+
+      unit = GL_TEXTURE0_ARB;
+
+      const bool bIsAlphaBlending = stateSet.alphablending.IsValidAndTurnedOn();
+
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+        if (bIsAlphaBlending) {
+          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+          glEnable(GL_BLEND);
+        }
+
+        if (stateSet.texture[i].IsValidAndTurnedOn()) {
+          glBindTexture(GL_TEXTURE_2D, stateSet.texture[i].pTexture->uiTexture);
+        }
+      }
+
+      if (stateSet.shader.IsValidAndTurnedOn()) pRender->BindShader(stateSet.shader.pShader);
+    }
+
+    void cRenderVisitor::UnApplyStateSet(cStateSet& stateSet)
+    {
+      size_t n = render::MAX_TEXTURE_UNITS;
+      size_t unit = 0;
+
+      unit = GL_TEXTURE0_ARB;
+
+      const bool bIsAlphaBlending = stateSet.alphablending.IsValidAndTurnedOn();
+
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+        if (bIsAlphaBlending) {
+          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          glBlendFunc(GL_ONE, GL_ZERO);
+          glDisable(GL_BLEND);
+        }
+
+        if (stateSet.texture[i].IsValidAndTurnedOn()) {
+          glBindTexture(GL_TEXTURE_2D, 0);
+          glDisable(GL_TEXTURE_2D);
+        }
+      }
+
+      if (stateSet.shader.IsValidAndTurnedOn()) pRender->UnBindShader();
+
+      glActiveTexture(GL_TEXTURE0_ARB);
+      glEnable(GL_TEXTURE_2D);
+    }
+
 
     cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
       scenegraph(_scenegraph)
@@ -453,30 +641,6 @@ namespace breathe
       ASSERT(scenegraph.GetRoot() != nullptr);
 
       cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
-
-      /*unsigned int uiTriangles = 0;
-
-      iterator iter(mRenderables.begin());
-      const iterator iterEnd(mRenderables.end());
-      while (iter != iterEnd) {
-        cStateSet* pState = iter->first;
-        ASSERT(pState != nullptr);
-
-        cRenderableList* pList = iter->second;
-        ASSERT(pList != nullptr);
-
-        PushState(pState);
-        cRenderableList::iterator iterList(pList.begin());
-        const cRenderableList::iterator iterListEnd(pList.end());
-        while (iterList != iterListEnd) {
-          cRenderable* pRenderable = *iterList;
-          Render(pRenderable);
-          iterList++;
-        }
-        PopState(pState);
-
-        iter++;
-      }*/
 
       if (scenegraph.pSkySystem != nullptr) {
 
@@ -568,25 +732,61 @@ namespace breathe
       }
 
 
-      // Opaque first
-      {
-        std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
-        const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
-        while (iter != iterEnd) {
-          //uiTriangles += (*iter)->Render();
-          iter++;
-        }
-      }
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+        glLoadIdentity();
+        glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrix());
 
-      // Transparent second
-      {
-        std::map<float, cRenderableRef>::iterator iter(rendergraph.mTransparent.begin());
-        const std::map<float, cRenderableRef>::iterator iterEnd(rendergraph.mTransparent.end());
-        while (iter != iterEnd) {
-          //uiTriangles += (iter->second)->Render();
-          iter++;
-        }
-      }
+          pRender->ClearMaterial();
+
+          // Opaque first
+          {
+            std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
+            const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
+            while (iter != iterEnd) {
+              cStateSet* pStateSet = iter->first;
+              cRenderGraph::cRenderableList* pRenderableList = iter->second;
+
+              ApplyStateSet(*pStateSet);
+
+                render::cVertexBufferObjectRef pVbo = pStateSet->vertexBufferObject.pVertexBufferObject;
+                pVbo->Bind();
+
+                  cRenderGraph::cRenderableList::iterator renderableIter((*pRenderableList).begin());
+                  const cRenderGraph::cRenderableList::iterator renderableIterEnd((*pRenderableList).end());
+
+                  while (renderableIter != renderableIterEnd) {
+                    glMatrixMode(GL_MODELVIEW);
+                    glPushMatrix();
+                      glMultMatrixf((*renderableIter).GetOpenGLMatrix());
+                      pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
+                      pVbo->RenderQuads();
+
+                      glMatrixMode(GL_MODELVIEW);
+                    glPopMatrix();
+
+                    renderableIter++;
+                  }
+                pVbo->Unbind();
+
+              UnApplyStateSet(*pStateSet);
+
+              iter++;
+            }
+          }
+
+          // Transparent second
+          {
+            std::map<float, cRenderGraphTransparentPair>::iterator iter(rendergraph.mTransparent.begin());
+            const std::map<float, cRenderGraphTransparentPair>::iterator iterEnd(rendergraph.mTransparent.end());
+            while (iter != iterEnd) {
+              //uiTriangles += (iter->second)->Render();
+              iter++;
+            }
+          }
+
+        glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
     }
 
 
@@ -665,6 +865,7 @@ namespace breathe
 
     void cSceneGraph::Cull(sampletime_t currentTime)
     {
+      renderGraph.Clear();
       cCullVisitor visitor(*this);
     }
 

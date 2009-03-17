@@ -14,9 +14,10 @@
 // Boost headers
 #include <boost/shared_ptr.hpp>
 
+// OpenGL headers
+#include <GL/GLee.h>
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 

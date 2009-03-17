@@ -24,13 +24,13 @@
 namespace breathe
 {
   // cObject
-  cObject::cObject()
-  {
-    fWidth=1.0f;
-    fHeight=1.0f;
-    fLength=1.0f;
+  cObject::cObject() :
+    fWidth(1.0f),
+    fLength(1.0f),
+    fHeight(1.0f),
 
-    fWeight=1.0f;
+    fWeight(1.0f)
+  {
   }
 
   void cObject::SetDimensions(float fInWidth, float fInLength, float fInHeight)
@@ -68,7 +68,7 @@ namespace breathe
   {
     float fDistance = cSphere::GetDistance(rhs);
 
-
+    // TODO: Extra stuff :)
 
     return fDistance;
   }
