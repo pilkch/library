@@ -152,7 +152,7 @@ namespace breathe
 
       do {
         file.read(&c, 1);
-        o<<c;
+        if (c != '\0') o<<c;
 
         nRead++;
 

@@ -58,7 +58,7 @@ void cRender::Render()
 };
 }
 
-void cApp::Update()
+void cApplication::Update()
 {
    UpdateGame();
    UpdateSceneGraph();
@@ -66,7 +66,7 @@ void cApp::Update()
    UpdateSound();
 }
 
-void cApp::MainLoop()
+void cApplication::MainLoop()
 {
    do {
       if () UpdateInput();
@@ -204,6 +204,7 @@ int intersect_triangle(
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 //FreeType Headers
 #include <freetype/ft2build.h>
@@ -212,8 +213,10 @@ int intersect_triangle(
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
+// OpenGL headers
+#include <GL/GLee.h>
+
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_net.h>
@@ -507,7 +510,7 @@ namespace breathe
   }
   */
 
-  cApp::cApp(int argc, const char* const* argv) :
+  cApplication::cApplication(int argc, const char* const* argv) :
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     bStepPhysics(false),
     bUpdatePhysics(true),
@@ -604,7 +607,7 @@ namespace breathe
 #endif
   }
 
-  cApp::~cApp()
+  cApplication::~cApplication()
   {
     assert(states.empty());
 
@@ -656,7 +659,7 @@ namespace breathe
   }
 
 #ifdef BUILD_DEBUG
-  void cApp::SanityCheck()
+  void cApplication::SanityCheck()
   {
     ASSERT(sizeof(int) == 4);
     ASSERT(sizeof(float) == 4);
@@ -688,7 +691,7 @@ namespace breathe
   }
 #endif
 
-  void cApp::_InitArguments(int argc, const char* const* argv)
+  void cApplication::_InitArguments(int argc, const char* const* argv)
   {
     int i = 1;
     std::string s;
@@ -705,7 +708,7 @@ namespace breathe
     LOG.Success("Arguments", s);
   }
 
-  void cApp::_LoadSearchDirectories()
+  void cApplication::_LoadSearchDirectories()
   {
     // Now load all the rest from the config file
     breathe::xml::cNode root(TEXT("config.xml"));
@@ -742,7 +745,7 @@ namespace breathe
   float physics_depth = 500.0f;
 #endif
 
-  void cApp::LoadConfigXML()
+  void cApplication::LoadConfigXML()
   {
     LOG.Success("Init", "Loading config.xml");
 
@@ -815,7 +818,7 @@ namespace breathe
 #endif
   }
 
-  bool cApp::InitApp()
+  bool cApplication::InitApp()
   {
     LoadConfigXML();
 
@@ -982,11 +985,11 @@ namespace breathe
     scenegraph.Create();
 
     // This should be the first state added and it should not be added by the derived class, it should only be added here
-    if (!states.empty()) LOG.Error("cApp::InitApp", "No states should have be pushed yet");
+    if (!states.empty()) LOG.Error("cApplication::InitApp", "No states should have be pushed yet");
     ASSERT(states.empty());
 
     cAppState* pAppState = _GetFirstAppState();
-    if (pAppState == nullptr) LOG.Error("cApp::InitApp", "_GetFirstAppState must be overridden and must return a valid state");
+    if (pAppState == nullptr) LOG.Error("cApplication::InitApp", "_GetFirstAppState must be overridden and must return a valid state");
     ASSERT(pAppState != nullptr);
 
     // Add the state now
@@ -1003,7 +1006,7 @@ namespace breathe
     return breathe::GOOD;
   }
 
-  bool cApp::DestroyApp()
+  bool cApplication::DestroyApp()
   {
     CursorShow();
 
@@ -1012,7 +1015,7 @@ namespace breathe
     return breathe::GOOD;
   }
 
-  bool cApp::InitRender()
+  bool cApplication::InitRender()
   {
     if (breathe::BAD == pRender->PreInit())
     {
@@ -1028,14 +1031,14 @@ namespace breathe
     return breathe::GOOD;
   }
 
-  bool cApp::DestroyRender()
+  bool cApplication::DestroyRender()
   {
     pRender->Destroy();
 
     return breathe::GOOD;
   }
 
-  bool cApp::ToggleFullscreen()
+  bool cApplication::ToggleFullscreen()
   {
     // Destroy the old render
     if (breathe::BAD==DestroyRender())
@@ -1060,7 +1063,7 @@ namespace breathe
     return breathe::GOOD;
   }
 
-  bool cApp::ResizeWindow(unsigned int w, unsigned int h)
+  bool cApplication::ResizeWindow(unsigned int w, unsigned int h)
   {
     DestroyRender();
 
@@ -1073,7 +1076,7 @@ namespace breathe
     return breathe::GOOD;
   }
 
-  void cApp::_Update(sampletime_t currentTime)
+  void cApplication::_Update(sampletime_t currentTime)
   {
     GetCurrentState().Update(currentTime);
 
@@ -1087,7 +1090,7 @@ namespace breathe
     scenegraph2D.Cull(currentTime);
   }
 
-  void cApp::_Render(cApp::cAppState& state, sampletime_t currentTime)
+  void cApplication::_Render(cApplication::cAppState& state, sampletime_t currentTime)
   {
     BeginRender(currentTime);
 
@@ -1146,7 +1149,7 @@ namespace breathe
     EndRender(currentTime);
   }
 
-  void cApp::_UpdateEvents(sampletime_t currentTime)
+  void cApplication::_UpdateEvents(sampletime_t currentTime)
   {
     // handle the events in the queue
     while ( SDL_PollEvent( &event ) )
@@ -1220,7 +1223,7 @@ namespace breathe
     }
   }
 
-  void cApp::RemoveKey(unsigned int code)
+  void cApplication::RemoveKey(unsigned int code)
   {
     std::map<unsigned int, cKey* >::iterator iter = mKey.find(code);
 
@@ -1230,28 +1233,28 @@ namespace breathe
     }
   }
 
-  void cApp::AddKeyRepeat(unsigned int code)
+  void cApplication::AddKeyRepeat(unsigned int code)
   {
     RemoveKey(code);
 
     mKey[code] = new cKey(code, true, true, false);
   }
 
-  void cApp::AddKeyNoRepeat(unsigned int code)
+  void cApplication::AddKeyNoRepeat(unsigned int code)
   {
     RemoveKey(code);
 
     mKey[code] = new cKey(code, false, false, false);
   }
 
-  void cApp::AddKeyToggle(unsigned int code)
+  void cApplication::AddKeyToggle(unsigned int code)
   {
     RemoveKey(code);
 
     mKey[code] = new cKey(code, false, false, true);
   }
 
-  bool cApp::IsKeyDown(unsigned int code) const
+  bool cApplication::IsKeyDown(unsigned int code) const
   {
     std::map<unsigned int, cKey*>::const_iterator iter = mKey.find(code);
     const std::map<unsigned int, cKey*>::const_iterator iterEnd = mKey.end();
@@ -1260,7 +1263,7 @@ namespace breathe
     return false;
   }
 
-  void cApp::_UpdateKeys(sampletime_t currentTime)
+  void cApplication::_UpdateKeys(sampletime_t currentTime)
   {
     Uint8 *key = SDL_GetKeyState( NULL );
     cKey* p;
@@ -1291,7 +1294,7 @@ namespace breathe
     SDL_GetMouseState(&mouse.x, &mouse.y);
   }
 
-  void cApp::_OnKeyDown(SDL_keysym *keysym)
+  void cApplication::_OnKeyDown(SDL_keysym *keysym)
   {
     unsigned int code = keysym->sym;
 
@@ -1306,7 +1309,7 @@ namespace breathe
     //}
   }
 
-  void cApp::_OnKeyUp(SDL_keysym *keysym)
+  void cApplication::_OnKeyUp(SDL_keysym *keysym)
   {
     unsigned int code = keysym->sym;
 
@@ -1316,23 +1319,23 @@ namespace breathe
     //if (CONSOLE.IsVisible()) CONSOLE.AddKey(code);
   }
 
-  void cApp::_OnMouseUp(int button, int x, int y)
+  void cApplication::_OnMouseUp(int button, int x, int y)
   {
 
   }
 
-  void cApp::_OnMouseDown(int button, int x, int y)
+  void cApplication::_OnMouseDown(int button, int x, int y)
   {
 
   }
 
-  void cApp::_OnMouseMove(int button, int x, int y)
+  void cApplication::_OnMouseMove(int button, int x, int y)
   {
 
   }
 
 
-  void cApp::_UpdateInput(sampletime_t currentTime)
+  void cApplication::_UpdateInput(sampletime_t currentTime)
   {
 #ifdef BUILD_DEBUG
     if (IsKeyDown(SDLK_F1)) ToggleDebug();
@@ -1356,7 +1359,7 @@ namespace breathe
     if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
 
     if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) {
-      PushStateSoon(new cApp::cAppStateConsole(*this));
+      PushStateSoon(new cApplication::cAppStateConsole(*this));
       return;
     }
 
@@ -1365,34 +1368,34 @@ namespace breathe
   }
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-  void cApp::_UpdatePhysics(cApp::cAppState& state, sampletime_t currentTime)
+  void cApplication::_UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime)
   {
     state.UpdatePhysics(currentTime);
   }
 #endif
 
-  void cApp::CursorShow()
+  void cApplication::CursorShow()
   {
     SDL_ShowCursor(SDL_ENABLE);
   }
 
-  void cApp::CursorHide()
+  void cApplication::CursorHide()
   {
     SDL_ShowCursor(SDL_DISABLE);
   }
 
-  void cApp::CursorWarpToMiddleOfScreen()
+  void cApplication::CursorWarpToMiddleOfScreen()
   {
     SDL_WarpMouse(pRender->uiWidth / 2, pRender->uiHeight / 2);
   }
 
-  void cApp::ConsoleExecute(const std::string& command)
+  void cApplication::ConsoleExecute(const std::string& command)
   {
     Execute(command);
   }
 
   //This is for executing one single line, cannot have ";"
-  void cApp::_ConsoleExecuteSingleCommand(const std::string& command)
+  void cApplication::_ConsoleExecuteSingleCommand(const std::string& command)
   {
     CONSOLE<<command<<std::endl;
 
@@ -1451,7 +1454,7 @@ namespace breathe
   }
 
   /*//This is for executing multiple lines of commands, seperated by ";"
-  void cApp::ConsoleExecute(const std::string& command)
+  void cApplication::ConsoleExecute(const std::string& command)
   {
     std::string s(command);
     if ("" != s)
@@ -1485,7 +1488,7 @@ namespace breathe
     }
   }*/
 
-  bool cApp::Run()
+  bool cApplication::Run()
   {
     LOG.Newline("Run");
 
@@ -1560,7 +1563,7 @@ namespace breathe
       }
 
       // State is constant from here on
-      cApp::cAppState& state = GetCurrentState();
+      cApplication::cAppState& state = GetCurrentState();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext)) {
@@ -1609,14 +1612,14 @@ namespace breathe
 
 
   // *** cConsoleWindow
-  cApp::cConsoleWindow::cConsoleWindow() :
+  cApplication::cConsoleWindow::cConsoleWindow() :
     gui::cModelessWindow(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.4f, 0.4f, LANG("L__Console"), nullptr),
     pPrevious(nullptr),
     pInput(nullptr)
   {
   }
 
-  void cApp::cConsoleWindow::InitConsoleWindow()
+  void cApplication::cConsoleWindow::InitConsoleWindow()
   {
     SetVisible(false);
     SetResizable(true);
@@ -1632,14 +1635,14 @@ namespace breathe
     AddChild(pInput);
   }
 
-  void cApp::cConsoleWindow::_OnEvent(gui::id_t idControl)
+  void cApplication::cConsoleWindow::_OnEvent(gui::id_t idControl)
   {
-    std::cout<<"cApp::cConsoleWindow::_OnEvent"<<std::endl;
+    std::cout<<"cApplication::cConsoleWindow::_OnEvent"<<std::endl;
   }
 
 
   // *** cKey
-  cApp::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
+  cApplication::cKey::cKey(unsigned int code, bool variable, bool repeat, bool toggle) :
     bVariable(variable),
     bRepeat(repeat),
     bToggle(toggle),
@@ -1651,7 +1654,7 @@ namespace breathe
   {
   }
 
-  bool cApp::cKey::IsDown() const
+  bool cApplication::cKey::IsDown() const
   {
     if (bDown) {
       // If we are repeating this key or we have not collected it before then set ourselves to collected and return true
@@ -1667,13 +1670,13 @@ namespace breathe
     return false;
   }
 
-  void cApp::cKey::SetDown(bool bConsole)
+  void cApplication::cKey::SetDown(bool bConsole)
   {
     bDown = true;
     bCollected = false;
   }
 
-  void cApp::cKey::SetUp(bool bConsole)
+  void cApplication::cKey::SetUp(bool bConsole)
   {
     bDown = false;
     bCollected = false;
@@ -1692,43 +1695,43 @@ namespace breathe
 
 
 
-  bool cApp::IsMouseLeftButtonDown() const
+  bool cApplication::IsMouseLeftButtonDown() const
   {
     return mouse.down[0];
   }
 
-  bool cApp::IsMouseRightButtonDown() const
+  bool cApplication::IsMouseRightButtonDown() const
   {
     return mouse.down[2];
   }
 
-  bool cApp::IsMouseScrollDown() const
+  bool cApplication::IsMouseScrollDown() const
   {
     return mouse.down[4];
   }
 
-  bool cApp::IsMouseScrollUp() const
+  bool cApplication::IsMouseScrollUp() const
   {
     return mouse.down[5];
   }
 
-  int cApp::GetMouseX() const
+  int cApplication::GetMouseX() const
   {
     return mouse.GetY();
   }
 
-  int cApp::GetMouseY() const
+  int cApplication::GetMouseY() const
   {
     return mouse.GetX();
   }
 
-  cApp::cAppState& cApp::GetCurrentState() const
+  cApplication::cAppState& cApplication::GetCurrentState() const
   {
     assert(!states.empty());
     return *states.back();
   }
 
-  void cApp::PushState(cApp::cAppState* state)
+  void cApplication::PushState(cApplication::cAppState* state)
   {
     assert(state != nullptr);
 
@@ -1743,12 +1746,12 @@ namespace breathe
 
     states.push_back(state);
 
-    CONSOLE<<"cApp::PushState States="<<states.size()<<std::endl;
+    CONSOLE<<"cApplication::PushState States="<<states.size()<<std::endl;
 
     state->OnEntry();
   }
 
-  void cApp::PopState()
+  void cApplication::PopState()
   {
     assert(!states.empty());
 
@@ -1761,7 +1764,7 @@ namespace breathe
 
     states.pop_back();
 
-    CONSOLE<<"cApp::PopState States="<<states.size()<<std::endl;
+    CONSOLE<<"cApplication::PopState States="<<states.size()<<std::endl;
 
     if (states.empty()) bDone = true;
     else GetCurrentState().OnResume(iResult);
@@ -1772,7 +1775,7 @@ namespace breathe
 
   // *** cAppStateConsole
 
-  void breathe::cApp::cAppStateConsole::_OnEntry()
+  void breathe::cApplication::cAppStateConsole::_OnEntry()
   {
     pConsoleWindow = new cConsoleWindow;
     app.window_manager.AddChild(pConsoleWindow);
@@ -1783,7 +1786,7 @@ namespace breathe
     app.CursorShow();
   }
 
-  void breathe::cApp::cAppStateConsole::_OnExit()
+  void breathe::cApplication::cAppStateConsole::_OnExit()
   {
     assert(pConsoleWindow != nullptr);
     pConsoleWindow->SetVisible(false);
@@ -1800,7 +1803,7 @@ namespace breathe
   // map <space has been inserted too>
   // if more than one option then show all options as in linux
 
-  void breathe::cApp::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
+  void breathe::cApplication::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
   {
     std::string s;
     /*breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
@@ -1815,7 +1818,7 @@ namespace breathe
     pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
   }
 
-  void breathe::cApp::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
+  void breathe::cApplication::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
   {
     if (app.IsKeyDown(SDLK_BACKQUOTE) || app.IsKeyDown(SDLK_ESCAPE)) {
       app.PopStateSoon();

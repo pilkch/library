@@ -721,7 +721,7 @@ namespace breathe
       BeginScreenSpaceRendering();
         SetMaterial(pMaterial);
         glBindTexture(GL_TEXTURE_2D, pFBO->uiTexture);
-        RenderScreenSpaceRectangle(0.0f, 0.0f, 1.0f, 1.0f);
+        RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
       EndScreenSpaceRendering();
     }
 
@@ -1708,9 +1708,9 @@ namespace breathe
 
     material::cMaterialRef cRender::AddMaterial(const string_t& sNewfilename)
     {
-      if (TEXT("") == sNewfilename) return material::cMaterialRef();
+      if (sNewfilename.empty()) return material::cMaterialRef();
 
-      material::cMaterialRef pMaterial = GetMaterial(sNewfilename);
+      material::cMaterialRef pMaterial = _GetMaterial(sNewfilename);
 
       if (pMaterial != pMaterialNotFoundMaterial) return pMaterial;
 
@@ -1727,19 +1727,36 @@ namespace breathe
       return pMaterial;
     }
 
+    material::cMaterialRef cRender::GetMaterial(const string_t& sFilename)
+    {
+      AddMaterial(sFilename);
+      return _GetMaterial(sFilename);
+    }
+
+    material::cMaterialRef cRender::_GetMaterial(const string_t& sFilename)
+    {
+      std::map<string_t, material::cMaterialRef>::iterator iter = mMaterial.begin();
+      std::map<string_t, material::cMaterialRef>::iterator iterEnd = mMaterial.end();
+
+      string_t temp = filesystem::GetFile(sFilename);
+      while(iter != iterEnd) {
+        if (temp == iter->first) return iter->second;
+        iter++;
+      }
+
+      return pMaterialNotFoundMaterial;
+    }
+
     float Angle(const math::cVec2 & a, const math::cVec2 & b)
     {
-      if (a.x>b.x)
-      {
-        if (a.y>b.y)
-          return (atan((a.y-b.y)/(a.x-b.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
+      if (a.x > b.x) {
+        if (a.y > b.y) return (atan((a.y-b.y)/(a.x-b.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
 
         return (-atan((a.y-b.y)/(b.x-a.x)) + math::cPI_DIV_180 * 90.0f) * math::c180_DIV_PI;
       }
 
 
-      if (b.y>a.y)
-        return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
+      if (b.y > a.y) return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
 
       return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
     }
@@ -1881,7 +1898,7 @@ namespace breathe
 
       bActiveShader = false;
 
-      if (bCanShader) glUseProgram(0);
+      if (bCanShader && (pCurrentShader != nullptr)) UnBindShader();
 
       pCurrentMaterial.reset();
 
@@ -1890,14 +1907,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, int value)
+    bool cRender::SetShaderConstant(const std::string& sConstant, int value)
     {
-      ASSERT(pMaterial != nullptr);
-      ASSERT(pMaterial->pShader != nullptr);
+      ASSERT(pCurrentShader != nullptr);
 
-      GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+      GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1906,14 +1922,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, float value)
+    bool cRender::SetShaderConstant(const std::string& sConstant, float value)
     {
-      ASSERT(pMaterial != nullptr);
-      ASSERT(pMaterial->pShader != nullptr);
+      ASSERT(pCurrentShader != nullptr);
 
-      GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+      GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1922,14 +1937,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, const math::cVec3& value)
+    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec3& value)
     {
-      assert(pMaterial != nullptr);
-      assert(pMaterial->pShader != nullptr);
+      ASSERT(pCurrentShader != nullptr);
 
-      GLint loc = glGetUniformLocation(pMaterial->pShader->uiShaderProgram, sConstant.c_str());
+      GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pMaterial->sName) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1937,6 +1951,45 @@ namespace breathe
       glUniform3f(loc, value.x, value.y, value.z);
       return true;
     }
+
+
+    void cRender::BindShader(cShaderRef pShader)
+    {
+      ASSERT(pShader != nullptr);
+
+      glUseProgram(pShader->uiShaderProgram);
+
+      pCurrentShader = pShader;
+
+      // TODO: We also need some more variables within our post render shaders such as
+      // brightness: HDR, Top Gear Shader, Night Vision
+      // exposure: HDR, Top Gear Shader
+      // sunPosition: Car Shader, shadows, this could be light[0] though
+
+      if (pShader->bCameraPos) SetShaderConstant("cameraPos", pFrustum->eye);
+      if (pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
+      if (pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
+      if (pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);
+      if (pShader->bTexUnit3) SetShaderConstant("texUnit3", 3);
+
+      // TODO: Is this needed?
+      //glEnable(GL_LIGHTING);
+
+      bActiveShader = true;
+    }
+
+    void cRender::UnBindShader()
+    {
+      bActiveShader = false;
+
+      // TODO: Is this needed?
+      //glDisable(GL_LIGHTING);
+
+      glUseProgram(0);
+
+      pCurrentShader.reset();
+    }
+
 
     bool cRender::SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos)
     {
@@ -2484,51 +2537,28 @@ namespace breathe
       {
         bActiveShader = true;
 
-        glUseProgram(pMaterial->pShader->uiShaderProgram);
+        BindShader(pMaterial->pShader);
 
         // TODO: We also need some more variables within our post render shaders such as
         // brightness: HDR, Top Gear Shader, Night Vision
         // exposure: HDR, Top Gear Shader
         // sunPosition: Car Shader, shadows, grass
 
-        if (pMaterial->pShader->bCameraPos)
-          SetShaderConstant(pMaterial, "cameraPos", pFrustum->eye);
-
-        if (uiActiveUnits>0 && pMaterial->pShader->bTexUnit0)
-          SetShaderConstant(pMaterial, "texUnit0", 0);
-
-        if (uiActiveUnits>1 && pMaterial->pShader->bTexUnit1)
-          SetShaderConstant(pMaterial, "texUnit1", 1);
-
-        if (uiActiveUnits>2 && pMaterial->pShader->bTexUnit2)
-          SetShaderConstant(pMaterial, "texUnit2", 2);
-
-        if (uiActiveUnits>3 && pMaterial->pShader->bTexUnit3)
-          SetShaderConstant(pMaterial, "texUnit3", 3);
+        if (pMaterial->pShader->bCameraPos) SetShaderConstant("cameraPos", pFrustum->eye);
+        if (uiActiveUnits>0 && pMaterial->pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
+        if (uiActiveUnits>1 && pMaterial->pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
+        if (uiActiveUnits>2 && pMaterial->pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);
+        if (uiActiveUnits>3 && pMaterial->pShader->bTexUnit3) SetShaderConstant("texUnit3", 3);
 
         glEnable(GL_LIGHTING);
       } else if (bActiveShader) {
         bActiveShader = false;
 
-        if (bCanShader) glUseProgram(0);
+        if (bCanShader && (pMaterial->pShader != nullptr)) UnBindShader();
       }
 
       pCurrentMaterial=pMaterial;
       return true;
-    }
-
-    material::cMaterialRef cRender::GetMaterial(const string_t& sFilename)
-    {
-      std::map<string_t, material::cMaterialRef>::iterator iter = mMaterial.begin();
-      std::map<string_t, material::cMaterialRef>::iterator iterEnd = mMaterial.end();
-
-      string_t temp = filesystem::GetFile(sFilename);
-      while(iter != iterEnd) {
-        if (temp == iter->first) return iter->second;
-        iter++;
-      }
-
-      return pMaterialNotFoundMaterial;
     }
 
     material::cMaterialRef cRender::AddPostRenderEffect(const string_t& sFilename)

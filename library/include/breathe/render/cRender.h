@@ -25,10 +25,12 @@ namespace breathe
 {
   namespace render
   {
-    const unsigned int MAX_TEXTURE_SIZE = 1024;
+    const size_t MAX_TEXTURE_UNITS = 3;
 
-    const unsigned int FBO_TEXTURE_WIDTH = 1024;
-    const unsigned int FBO_TEXTURE_HEIGHT = 1024;
+    const size_t MAX_TEXTURE_SIZE = 1024;
+
+    const size_t FBO_TEXTURE_WIDTH = 1024;
+    const size_t FBO_TEXTURE_HEIGHT = 1024;
 
     namespace model
     {
@@ -230,6 +232,14 @@ namespace breathe
       bool SetTexture1(ATLAS atlas);
       bool SetTexture1(cTextureRef pTexture);
 
+      void BindShader(cShaderRef pShader);
+      void UnBindShader();
+
+      bool SetShaderConstant(const std::string& sConstant, int value);
+      bool SetShaderConstant(const std::string& sConstant, float value);
+      bool SetShaderConstant(const std::string& sConstant, const math::cVec3& value);
+
+
       material::cMaterialRef AddMaterial(const string_t& sFilename);
       material::cMaterialRef AddMaterialNotFoundMaterial(const string_t& sFilename);
       material::cMaterialRef GetMaterial(const string_t& sFilename);
@@ -238,9 +248,6 @@ namespace breathe
       bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
       bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
 
-      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, int value);
-      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, float value);
-      bool SetShaderConstant(material::cMaterialRef pMaterial, const std::string& sConstant, const math::cVec3& value);
 
       void ClearColour();
       void SetColour(float r, float g, float b);
@@ -254,6 +261,8 @@ namespace breathe
       void RemovePostRenderEffect();
 
     private:
+      material::cMaterialRef _GetMaterial(const string_t& sFilename);
+
       std::list<material::cMaterialRef> lPostRenderEffects;
       cTextureFrameBufferObjectRef pFrameBuffer0;
       cTextureFrameBufferObjectRef pFrameBuffer1;
@@ -322,6 +331,7 @@ namespace breathe
       std::vector<material::cLayer>vLayer;
 
       material::cMaterialRef pCurrentMaterial;
+      cShaderRef pCurrentShader;
 
       // Information about the current video settings
       SDL_VideoInfo* g_info;

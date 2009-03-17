@@ -148,15 +148,15 @@ namespace breathe
       void SetDirty();
 
       void SetVisible(bool bVisible);
-      void SetPosition(const math::cVec3& position);
-      void SetRotation(const math::cQuaternion& rotation);
+      void SetPosition(const math::cVec3& position) { SetRelativePosition(position); }
+      void SetRotation(const math::cQuaternion& rotation) { SetRelativeRotation(rotation); }
 
-      const math::cVec3& GetLocalPosition() const { return relativePosition; }
-      const math::cQuaternion& GetLocalRotation() const { return relativeRotation; }
-      void SetLocalPosition(const math::cVec3& position);
-      void SetLocalRotation(const math::cVec3& rotation);
+      const math::cVec3& GetRelativePosition() const { return relativePosition; }
+      const math::cQuaternion& GetRelativeRotation() const { return relativeRotation; }
+      void SetRelativePosition(const math::cVec3& position);
+      void SetRelativeRotation(const math::cQuaternion& rotation);
 
-      math::cVec3 GetGlobalPosition() const; // Calculated base on the parents of this node
+      math::cVec3 GetAbsolutePosition() const; // Calculated base on the parents of this node
 
       void SetScale(const math::cVec3& scale) { relativeScale = scale; }
       const math::cVec3& GetScale() const { return relativeScale; }

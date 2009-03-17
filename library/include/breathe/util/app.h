@@ -1,5 +1,5 @@
-#ifndef CAPP_H
-#define CAPP_H
+#ifndef CAPPLICATION_H
+#define CAPPLICATION_H
 
 #include <breathe/breathe.h>
 
@@ -26,11 +26,11 @@ namespace breathe
     class cFont;
   }
 
-  class cApp
+  class cApplication
   {
   public:
-    cApp(int argc, const char* const* argv);
-    virtual ~cApp();
+    cApplication(int argc, const char* const* argv);
+    virtual ~cApplication();
 
     bool InitApp();
     bool DestroyApp();
@@ -144,11 +144,11 @@ namespace breathe
     void PushState(cAppState* state);
     void PopState();
 
-    // Deferred until we get back to the main cApp loop
+    // Deferred until we get back to the main cApplication loop
     void PushStateSoon(cAppState* state) { ASSERT(pPushThisStateSoon == nullptr); pPushThisStateSoon = state; }
     void PopStateSoon() { ASSERT(bPopCurrentStateSoon == false); bPopCurrentStateSoon = true; }
 
-    // This does both, it defers changing state until we get back to the main cApp loop,
+    // This does both, it defers changing state until we get back to the main cApplication loop,
     // but it also pops the current state and pushes a new one
     void PopStateAndPushNewStateSoon(cAppState* state) { PopStateSoon(); PushStateSoon(state); }
 
@@ -237,9 +237,9 @@ namespace breathe
     void _Update(sampletime_t currentTime);
     void _UpdateInput(sampletime_t currentTime);
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    void _UpdatePhysics(cApp::cAppState& state, sampletime_t currentTime);
+    void _UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime);
 #endif
-    void _Render(cApp::cAppState& state, sampletime_t currentTime);
+    void _Render(cApplication::cAppState& state, sampletime_t currentTime);
 
     // Convert from a float amount to a bool
     static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
@@ -299,10 +299,10 @@ namespace breathe
     bool bPopCurrentStateSoon;
     cAppState* pPushThisStateSoon;
 
-    class cAppStateConsole : public breathe::cApp::cAppState
+    class cAppStateConsole : public breathe::cApplication::cAppState
     {
     public:
-      cAppStateConsole(cApp& _app) : breathe::cApp::cAppState(STATE_CONSOLE), app(_app), pConsoleWindow(nullptr) {}
+      cAppStateConsole(cApplication& _app) : breathe::cApplication::cAppState(STATE_CONSOLE), app(_app), pConsoleWindow(nullptr) {}
       virtual ~cAppStateConsole() {}
 
     private:
@@ -314,10 +314,10 @@ namespace breathe
       void _RenderScene(breathe::sampletime_t currentTime) { GetParent()->RenderScene(currentTime); }
       void _RenderScreenSpace(breathe::sampletime_t currentTime) { GetParent()->RenderScreenSpace(currentTime); }
 
-      cApp& app;
+      cApplication& app;
       cConsoleWindow* pConsoleWindow;
     };
   };
 }
 
-#endif // CAPP_H
+#endif // CAPPLICATION_H

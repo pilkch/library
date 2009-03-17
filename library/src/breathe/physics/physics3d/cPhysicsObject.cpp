@@ -80,11 +80,7 @@ namespace breathe
       heightfield(NULL),
       pHeightfieldData(nullptr)
     {
-      position.Set(0.0f, 0.0f, 0.0f);
-      v.Set(0.0f, 0.0f, 0.0f);
-      fWeight = 1.0f;
       fRadius = 2.0f;
-      m.LoadIdentity();
     }
 
     cPhysicsObject::~cPhysicsObject()
@@ -130,17 +126,15 @@ namespace breathe
     {
       math::cVec3 pos(posOriginal.x, posOriginal.y, posOriginal.z + fHeight);
 
-      m.LoadIdentity();
-      m.SetRotationX(rot.x * math::cPI_DIV_180);
-      m.SetRotationY(rot.y * math::cPI_DIV_180);
-      m.SetRotationZ(rot.z * math::cPI_DIV_180);
+      rotation.LoadIdentity();
+      rotation.SetFromAngles(rot * math::cPI_DIV_180);
+
+      const math::cMat4 m = rotation.GetMatrix();
 
       dMatrix3 r;
       r[0] = m[0];    r[1] = m[4];    r[2] = m[8];    r[3] = 0;
       r[4] = m[1];    r[5] = m[5];    r[6] = m[9];    r[7] = 0;
       r[8] = m[2];    r[9] = m[6];    r[10] = m[10];  r[11] = 0;
-
-      m.SetTranslation(pos);
 
       position = pos;
 
@@ -339,7 +333,7 @@ namespace breathe
 
         if (bBody) {
           p0 = const_cast<dReal*>(dBodyGetPosition(body));
-          r0 = const_cast<dReal*>(dBodyGetRotation(body));
+          r0 = const_cast<dReal*>(dBodyGetQuaternion(body));
           const dReal* v0 = dBodyGetLinearVel(body);
           //const dReal *a0=dBodyGetAngularVel(body);
 
@@ -348,7 +342,9 @@ namespace breathe
           v[2] = v0[2];
         } else {
           p0 = const_cast<dReal*>(dGeomGetPosition(geom));
-          r0 = const_cast<dReal*>(dGeomGetRotation(geom));
+          dQuaternion q;
+          dGeomGetQuaternion(geom, q);
+          r0 = const_cast<dReal*>(q);
 
           // These are static for the moment
           v[0] = 0.0f;
@@ -356,30 +352,9 @@ namespace breathe
           v[2] = 0.0f;
         }
 
-        m[0]  = r0[0];
-        m[1]  = r0[4];
-        m[2]  = r0[8];
-        m[3]  = 0;
-        m[4]  = r0[1];
-        m[5]  = r0[5];
-        m[6]  = r0[9];
-        m[7]  = 0;
-        m[8]  = r0[2];
-        m[9]  = r0[6];
-        m[10] = r0[10];
-        m[11] = 0;
-        m[12] = p0[0];
-        m[13] = p0[1];
-        m[14] = p0[2];
-        m[15] = 1;
+        position.Set(p0[0], p0[1], p0[2]);
+        rotation.SetFromODEQuaternion(r0);
       }
-
-      UpdateComponents();
-    }
-
-    void cPhysicsObject::UpdateComponents()
-    {
-      position = m.GetPosition();
     }
 
 #if 1

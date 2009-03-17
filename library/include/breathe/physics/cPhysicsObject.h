@@ -52,6 +52,9 @@ namespace breathe
       bool HasBody() const { return bBody; }
       bool IsDynamic() const { return bDynamic; }
 
+      physvec_t GetPositionAbsolute() const { return position; }
+      physrotation_t GetRotationAbsolute() const { return rotation; }
+
 #ifdef BUILD_PHYSICS_2D
       void SetFriction(float friction) { assert(body == nullptr); fFriction = friction; }
       b2Body* GetBody() const { return body; }
@@ -64,18 +67,20 @@ namespace breathe
       void DestroyHeightfield();
 
       //object_type GetType() const { return type; }
-
-      render::model::cStaticRef pModel;
 #endif
+
+      void AddLinearForce(const physvec_t& force);
+      void AddAngularForce(const physvec_t& force);
+
+      physvec_t GetClosestPointOnObject(const physvec_t& point) const;
 
     private:
 #ifdef BUILD_PHYSICS_2D
-      void InitCommon(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot);
+      void InitCommon(const std::list<b2ShapeDef*>& lShapes, const physvec_t& pos, const physvec_t& rot);
 #endif
 
 #ifdef BUILD_PHYSICS_3D
       void InitCommon(const physvec_t& pos, const physvec_t& rot);
-      virtual void UpdateComponents();
 #endif
 
       //object_type type;
@@ -97,6 +102,8 @@ namespace breathe
       std::vector<uint32_t> vIndices;
 #endif
     };
+
+    typedef cSmartPtr<cPhysicsObject> cPhysicsObjectRef;
   }
 }
 

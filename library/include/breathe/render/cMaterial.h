@@ -7,9 +7,78 @@ namespace breathe
 
   namespace render
   {
+    /*class cVertexProgram
+    {
+    public:
+      void SetNamedValue(const string_t& variable, float value) { values_float[variable] = value; }
+      void SetNamedValue(const string_t& variable, const math::cVec2& value) { values_cVec2[variable] = value; }
+      void SetNamedValue(const string_t& variable, const math::cVec3& value) { values_cVec3[variable] = value; }
+      void SetNamedValue(const string_t& variable, const math::cVec4& value) { values_cVec4[variable] = value; }
+      void SetNamedValue(const string_t& variable, const math::cColour& value) { values_cColour[variable] = value; }
+
+    private:
+      void PassValuesToProgram();
+      void PassFloatValueToProgram(const string_t& name, float value);
+
+      std::map<string_t, float> values_float;
+      std::map<string_t, math::cVec2> values_cVec2;
+      std::map<string_t, math::cVec3> values_cVec3;
+      std::map<string_t, math::cVec4> values_cVec4;
+      std::map<string_t, math::cColour> values_cColour;
+    };
+
+    cVertexProgram::PassValuesToProgram()
+    {
+      std::map<string_t, float>::iterator iter(values_float.begin());
+      const std::map<string_t, float>::iterator iterEnd(variables_float.end());
+
+      while (iter != iterEnd) {
+        PassFloatToProgram(iter->first, iter->second);
+        iter++;
+      }
+    }
+    */
+
+    // A cShader is a combination of a either one or zero vertex program and one or zero fragment program
+    class cShader
+    {
+    public:
+      cShader();
+
+      void Init();
+      void Destroy();
+
+      void CheckStatusVertex();
+      void CheckStatusFragment();
+      void CheckStatusProgram();
+
+      bool IsCompiledVertex() const;
+      bool IsCompiledFragment() const;
+      bool IsCompiledProgram() const;
+
+      string_t sShaderVertex;
+      string_t sShaderFragment;
+
+      bool bTexUnit0;
+      bool bTexUnit1;
+      bool bTexUnit2;
+      bool bTexUnit3;
+
+      unsigned int uiShaderVertex;
+      unsigned int uiShaderFragment;
+
+      // Combined resource id
+      unsigned int uiShaderProgram;
+
+      bool bCameraPos;
+    };
+
+    typedef cSmartPtr<cShader> cShaderRef;
+
+
     namespace material
     {
-      const unsigned int nLayers=3;
+      const size_t nLayers = 3;
 
       class cLayer
       {
@@ -20,75 +89,6 @@ namespace breathe
         unsigned int uiTextureMode;
         string_t sTexture;
       };
-
-      /*class cVertexProgram
-      {
-      public:
-        void SetNamedValue(const string_t& variable, float value) { values_float[variable] = value; }
-        void SetNamedValue(const string_t& variable, const math::cVec2& value) { values_cVec2[variable] = value; }
-        void SetNamedValue(const string_t& variable, const math::cVec3& value) { values_cVec3[variable] = value; }
-        void SetNamedValue(const string_t& variable, const math::cVec4& value) { values_cVec4[variable] = value; }
-        void SetNamedValue(const string_t& variable, const math::cColour& value) { values_cColour[variable] = value; }
-
-      private:
-        void PassValuesToProgram();
-        void PassFloatValueToProgram(const string_t& name, float value);
-
-        std::map<string_t, float> values_float;
-        std::map<string_t, math::cVec2> values_cVec2;
-        std::map<string_t, math::cVec3> values_cVec3;
-        std::map<string_t, math::cVec4> values_cVec4;
-        std::map<string_t, math::cColour> values_cColour;
-      };
-
-      cVertexProgram::PassValuesToProgram()
-      {
-        std::map<string_t, float>::iterator iter(values_float.begin());
-        const std::map<string_t, float>::iterator iterEnd(variables_float.end());
-
-        while (iter != iterEnd) {
-          PassFloatToProgram(iter->first, iter->second);
-          iter++;
-        }
-      }
-      */
-
-      // A cShader is a combination of a either one or zero vertex program and one or zero fragment program
-      class cShader
-      {
-      public:
-        cShader();
-
-        void Init();
-        void Destroy();
-
-        void CheckStatusVertex();
-        void CheckStatusFragment();
-        void CheckStatusProgram();
-
-        bool IsCompiledVertex() const;
-        bool IsCompiledFragment() const;
-        bool IsCompiledProgram() const;
-
-        string_t sShaderVertex;
-        string_t sShaderFragment;
-
-        bool bTexUnit0;
-        bool bTexUnit1;
-        bool bTexUnit2;
-        bool bTexUnit3;
-
-        unsigned int uiShaderVertex;
-        unsigned int uiShaderFragment;
-
-        // Combined resource id
-        unsigned int uiShaderProgram;
-
-        bool bCameraPos;
-      };
-
-      typedef cSmartPtr<cShader> cShaderRef;
-
 
       class cMaterial
       {
@@ -127,7 +127,7 @@ namespace breathe
 
         string_t sName;
 
-        cShader* pShader;
+        cShaderRef pShader;
       };
 
       typedef cSmartPtr<cMaterial> cMaterialRef;

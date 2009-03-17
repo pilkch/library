@@ -12,9 +12,11 @@ namespace breathe
 #ifdef BUILD_PHYSICS_2D
     typedef math::cVec2 physvec_t;
     const math::cVec2 physveczero(0.0f, 0.0f);
+    typedef float_t physrotation_t;
 #elif defined(BUILD_PHYSICS_3D)
     typedef math::cVec3 physvec_t;
     const math::cVec3 physveczero(0.0f, 0.0f, 0.0f);
+    typedef math::cQuaternion physrotation_t;
 #endif
 
     unsigned int GetFrequencyHz();
@@ -30,18 +32,19 @@ namespace breathe
     extern const float fGravity;
 
     class cPhysicsObject;
+    typedef cSmartPtr<cPhysicsObject> cPhysicsObjectRef;
 
-    
+
     void Destroy();
     void Update(sampletime_t currentTime);
 
-    void AddPhysicsObject(cPhysicsObject* pPhysicsObject);
-    void RemovePhysicsObject(cPhysicsObject* pPhysicsObject);
-    
+    void AddPhysicsObject(cPhysicsObjectRef pPhysicsObject);
+    void RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject);
+
     size_t size();
     bool empty();
 
-    typedef std::list<cPhysicsObject*>::iterator iterator;
+    typedef std::list<cPhysicsObjectRef>::iterator iterator;
     iterator begin();
     iterator end();
   }

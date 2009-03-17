@@ -77,7 +77,7 @@ namespace breathe
       }
     }
 
-    void cPhysicsObject::InitCommon(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot)
+    void cPhysicsObject::InitCommon(const std::list<b2ShapeDef*>& lShapes, const physvec_t& pos, const physvec_t& rot)
     {
       assert((fWidth * fHeight) > math::cEPSILON);
 
@@ -89,20 +89,19 @@ namespace breathe
 
       m.SetTranslation(p);
 
-      if (bBody)
-      {
+      if (bBody) {
         b2BodyDef bodyDef;
         bodyDef.position.Set(p.x, p.y);
         bodyDef.allowSleep = CanSleep();
         body = GetWorld()->CreateBody(&bodyDef);
 
         std::list<b2ShapeDef*>::iterator iter = lShapes.begin();
-        std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
-        b2ShapeDef* shape = nullptr;
+        const std::list<b2ShapeDef*>::iterator iterEnd = lShapes.end();
+        b2ShapeDef* pShape = nullptr;
         while (iter != iterEnd) {
-          shape = *iter;
-          shape->restitution = 0.1f;
-          body->CreateShape(shape);
+          pShape = *iter;
+          pShape->restitution = 0.1f;
+          body->CreateShape(pShape);
 
           iter++;
         }

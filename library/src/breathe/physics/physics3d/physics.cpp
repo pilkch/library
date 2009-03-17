@@ -67,8 +67,8 @@ namespace breathe
     const float fERP = 0.8f;
     const float fCFM = (float)(10e-5);
     const float fGravity = -9.80665f;
-    const float fDampTorque = 0.05f;
-    const float fDampLinearVel = 0.001f;
+    const float fDampTorque = 0.02f;
+    const float fDampLinearVel = 0.02f;
 
     dWorldID world = 0;
     dSpaceID spaceStatic = 0;
@@ -76,7 +76,7 @@ namespace breathe
     dJointGroupID contactgroup = 0;
     dGeomID ground = 0;
 
-    std::list<cPhysicsObject*> lPhysicsObject;
+    std::list<cPhysicsObjectRef> lPhysicsObject;
 
 
 
@@ -138,7 +138,7 @@ namespace breathe
 
       contactgroup = dJointGroupCreate(10000);
 
-      //CreateGround(0.0f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f);
+      CreateGround(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     void Destroy()
@@ -153,12 +153,12 @@ namespace breathe
       dCloseODE();
     }
 
-    void AddPhysicsObject(cPhysicsObject *pPhysicsObject)
+    void AddPhysicsObject(cPhysicsObjectRef pPhysicsObject)
     {
       lPhysicsObject.push_back(pPhysicsObject);
     }
 
-    void RemovePhysicsObject(cPhysicsObject *pPhysicsObject)
+    void RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject)
     {
       lPhysicsObject.remove(pPhysicsObject);
     }

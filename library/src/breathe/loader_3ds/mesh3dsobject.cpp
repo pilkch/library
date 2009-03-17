@@ -21,7 +21,7 @@ namespace breathe
 {
   namespace loader_3ds
   {
-    const float fScale=0.1f;
+    const float fScale = 0.1f;
 
     Mesh3DSObject::Mesh3DSObject(const string_t& nname , Model3DSChunk c)
     : name(nname)
@@ -63,13 +63,12 @@ namespace breathe
 
     Mesh3DSObject::~Mesh3DSObject()
     {
-
     }
 
     void Mesh3DSObject::operator=(const Mesh3DSObject &mesh)
     {
       name = mesh.name;
-      //float matrix[4][4];
+      memcpy(matrix, mesh.matrix, 16 * sizeof(float));
 
       vertices = mesh.vertices;
       texturecoords = mesh.texturecoords;
@@ -80,13 +79,11 @@ namespace breathe
 
     void Mesh3DSObject::ParseLocalCoordinateSystem(Model3DSChunk c)
     {
-      // bottom row should be (0 , 0 , 0 , 1)
+      // Bottom row should always be (0 , 0 , 0 , 1)
 
-      // populate matrix
-      for (int i = 0 ; i < 4 ; i++)
-      {
-        for (int j = 0 ; j < 3 ; j++)
-        {
+      // Populate matrix
+      for (int i = 0 ; i < 4 ; i++) {
+        for (int j = 0 ; j < 3 ; j++) {
           matrix.m[i][j] = c.Float();
         }
       }
@@ -99,24 +96,17 @@ namespace breathe
 
     void Mesh3DSObject::ParseVertices(Model3DSChunk c)
     {
-      bFoundVertices=true;
+      bFoundVertices = true;
 
-      int n_vertices = c.Short();
+      const size_t n_vertices = c.Short();
+
+      LOG<<"c3ds n_vertices = "<<n_vertices<<std::endl;
 
       Mesh3DSVertex v;
-      v.x=0;
-      v.y=0;
-      v.z=0;
-
-      std::ostringstream t;
-      t<<"n_vertices = " << n_vertices;
-      LOG.Success("c3ds", t.str());
-
-      for (int i = 0 ; i < n_vertices ; i++)
-      {
-        v.x = fScale*c.Float();
-        v.y = fScale*c.Float();
-        v.z = fScale*c.Float();
+      for (size_t i = 0 ; i < n_vertices ; i++) {
+        v.x = fScale * c.Float();
+        v.y = fScale * c.Float();
+        v.z = fScale * c.Float();
 
         vertices.push_back(v);
       }

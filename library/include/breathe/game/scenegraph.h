@@ -63,15 +63,6 @@ namespace breathe
   class cCamera;
   class cObject;
 
-  namespace render
-  {
-    class cShader
-    {
-    public:
-    };
-  }
-
-
   namespace physics
   {
     class cPhysicsObject;
@@ -104,6 +95,10 @@ namespace breathe
     public:
       cStateBoolean() : bHasValidValue(false), bTurnedOn(false) {}
 
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; }
+
       bool operator==(const cStateBoolean& rhs) const;
       bool operator!=(const cStateBoolean& rhs) const { return !(*this == rhs); }
 
@@ -121,6 +116,10 @@ namespace breathe
     {
     public:
       cStateBooleanWithFloat() : bHasValidValue(false), bTurnedOn(false), fValue(0.0f) {}
+
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; fValue = 0.0f; }
 
       bool operator==(const cStateBooleanWithFloat& rhs) const;
       bool operator!=(const cStateBooleanWithFloat& rhs) const { return !(*this == rhs); }
@@ -141,6 +140,10 @@ namespace breathe
     public:
       cStateTexture() : bHasValidValue(false), bTurnedOn(false) {}
 
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; pTexture.reset(); }
+
       bool operator==(const cStateTexture& rhs) const;
       bool operator!=(const cStateTexture& rhs) const { return !(*this == rhs); }
 
@@ -160,17 +163,47 @@ namespace breathe
     public:
       cStateShader() : bHasValidValue(false), bTurnedOn(false) {}
 
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; pShader.reset(); }
+
       bool operator==(const cStateShader& rhs) const;
       bool operator!=(const cStateShader& rhs) const { return !(*this == rhs); }
 
       bool bHasValidValue;
       bool bTurnedOn;
-      render::material::cShaderRef pShader;
+      render::cShaderRef pShader;
     };
 
     inline bool cStateShader::operator==(const cStateShader& rhs) const
     {
       return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (pShader == rhs.pShader);
+    }
+
+
+    class cStateVertexBufferObject
+    {
+    public:
+      cStateVertexBufferObject() : bHasValidValue(false), bTurnedOn(false) {}
+
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; pVertexBufferObject.reset(); }
+
+      void SetEnabled(bool bEnable) { bTurnedOn = bEnable; }
+      void SetVertexBufferObject(render::cVertexBufferObjectRef _pVertexBufferObject) { pVertexBufferObject = _pVertexBufferObject; }
+
+      bool operator==(const cStateVertexBufferObject& rhs) const;
+      bool operator!=(const cStateVertexBufferObject& rhs) const { return !(*this == rhs); }
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+      render::cVertexBufferObjectRef pVertexBufferObject;
+    };
+
+    inline bool cStateVertexBufferObject::operator==(const cStateVertexBufferObject& rhs) const
+    {
+      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (pVertexBufferObject == rhs.pVertexBufferObject);
     }
   }
 
@@ -179,6 +212,22 @@ namespace breathe
     class cSceneGraph;
     class cUpdateVisitor;
     class cCullVisitor;
+
+
+    enum RENDER_PRIORITY
+    {
+      RENDER_PRIORITY_FIRST = -3,
+      RENDER_PRIORITY_SECOND = -2,
+      RENDER_PRIORITY_THIRD = -1,
+      RENDER_PRIORITY_OPAQUE = 0,
+      RENDER_PRIORITY_NORMAL = 0,
+      RENDER_PRIORITY_TRANSPARENT,
+      RENDER_PRIORITY_LAST
+    };
+
+
+
+
 
     /*class cSceneGraphModel : public cObject
     {
@@ -243,6 +292,9 @@ namespace breathe
     class cStateSet
     {
     public:
+      friend class cRenderGraph;
+      friend class cRenderVisitor;
+
       enum PRIORITY
       {
         PRIORITY_HIGH3 = 0,
@@ -264,44 +316,67 @@ namespace breathe
       bool operator==(const cStateSet& rhs) const;
       bool operator!=(const cStateSet& rhs) const { return !(*this == rhs); }
 
+      scenegraph_common::cStateVertexBufferObject& GetVertexBufferObject() { return vertexBufferObject; }
+      const scenegraph_common::cStateVertexBufferObject& GetVertexBufferObject() const { return vertexBufferObject; }
+
+      // TEMPORARY*******************************************************************************************
+      void SetStateFromMaterial(render::material::cMaterialRef pMaterial);
+
     private:
+      void Clear();
+
       PRIORITY priority;
-      render::material::cMaterialRef material;
 
       scenegraph_common::cStateBoolean alphablending;
-      scenegraph_common::cStateTexture texture;
+      scenegraph_common::cStateTexture texture[render::MAX_TEXTURE_UNITS];
       scenegraph_common::cStateShader shader;
+      scenegraph_common::cStateVertexBufferObject vertexBufferObject;
+
+      // in order of sorting
+      // bool bUseIsShadowCasting;
+      // bool bIsShadowCasting;
+      // bool bUseRenderPriority;
     };
 
-    inline cStateSet::cStateSet() :
-      priority(PRIORITY_NORMAL)
+    inline cStateSet::cStateSet()
     {
+      Clear();
     }
 
     inline cStateSet::cStateSet(const cStateSet& rhs) :
       priority(rhs.priority),
-      material(rhs.material),
       alphablending(rhs.alphablending),
-      texture(rhs.texture),
-      shader(rhs.shader)
+      shader(rhs.shader),
+      vertexBufferObject(rhs.vertexBufferObject)
     {
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+
+      texture[0] = rhs.texture[0];
+      texture[1] = rhs.texture[1];
+      texture[2] = rhs.texture[2];
     }
 
     inline cStateSet& cStateSet::operator=(const cStateSet& rhs)
     {
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+
       priority = rhs.priority;
-      material = rhs.material;
       alphablending = rhs.alphablending;
-      texture = rhs.texture;
+      texture[0] = rhs.texture[0];
+      texture[1] = rhs.texture[1];
+      texture[2] = rhs.texture[2];
       shader = rhs.shader;
+      vertexBufferObject = rhs.vertexBufferObject;
 
       return *this;
     }
 
     inline bool cStateSet::operator==(const cStateSet& rhs) const
     {
-      return (priority == rhs.priority) && (material == material) &&
-        (alphablending == rhs.alphablending) && (texture == rhs.texture) && (shader == rhs.shader);
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+
+      return (priority == rhs.priority) && (alphablending == rhs.alphablending)
+        && (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) && (shader == rhs.shader) && (vertexBufferObject == rhs.vertexBufferObject);
     }
 
     class cSceneNode;
@@ -311,7 +386,7 @@ namespace breathe
     // Uses a quaternion to work out world rotation
     // Only call GenerateBoundingVolume at the very end of setting rotations and positions for all nodes
 
-    class cSceneNode
+    class cSceneNode : public boost::enable_shared_from_this<cSceneNode>
     {
     public:
       friend class cUpdateVisitor;
@@ -345,15 +420,16 @@ namespace breathe
       void SetDirty();
 
       void SetVisible(bool bVisible);
-      void SetPosition(const math::cVec3& position);
-      void SetRotation(const math::cQuaternion& rotation);
+      void SetPosition(const math::cVec3& position) { SetRelativePosition(position); }
+      void SetRotation(const math::cQuaternion& rotation) { SetRelativeRotation(rotation); }
 
-      const math::cVec3& GetLocalPosition() const { return relativePosition; }
-      const math::cQuaternion& GetLocalRotation() const { return relativeRotation; }
-      void SetLocalPosition(const math::cVec3& position);
-      void SetLocalRotation(const math::cVec3& rotation);
+      const math::cVec3& GetRelativePosition() const { return relativePosition; }
+      const math::cQuaternion& GetRelativeRotation() const { return relativeRotation; }
+      void SetRelativePosition(const math::cVec3& position);
+      void SetRelativeRotation(const math::cQuaternion& rotation);
 
-      math::cVec3 GetGlobalPosition() const; // Calculated base on the parents of this node
+      math::cVec3 GetAbsolutePosition() const; // Calculated based on the parents of this node
+      math::cQuaternion GetAbsoluteRotation() const; // Calculated based on the parents of this node
 
       void SetScale(const math::cVec3& scale) { relativeScale = scale; }
       const math::cVec3& GetScale() const { return relativeScale; }
@@ -373,9 +449,14 @@ namespace breathe
       void Update(cUpdateVisitor& visitor) { _Update(visitor); }
       void Cull(cCullVisitor& visitor) { _Cull(visitor); }
 
+      cStateSet& GetStateSet() { return stateset; }
+      const cStateSet& GetStateSet() const { return stateset; }
+
     protected:
       // Only the derived classes can call use this constructor
       cSceneNode();
+
+      math::cMat4 GetAbsoluteMatrix() const;
 
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
@@ -384,17 +465,6 @@ namespace breathe
 
       // Only the derived class will know how to get the radius from our possible children
       virtual float_t _UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius() { return math::cEPSILON; }
-
-    private:
-      cSceneNode(const cSceneNode&); // Prevent copying
-      cSceneNode& operator=(const cSceneNode&); // Prevent copying
-
-      void GenerateBoundingVolume();
-
-      virtual void _AttachChild(cSceneNodeRef pChild) {}
-      virtual void _DetachChild(cSceneNodeRef pChild) {}
-      virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
-      virtual void _DeleteAllChildrenRecursively() {}
 
 
       string_t sUniqueName; // This is only for debugging purposes
@@ -426,6 +496,17 @@ namespace breathe
       math::cBox boundingBox;
 
       cSceneNodeRef pParent; // Each node has exactly one parent, no more no less.  pRoot is the only exception, pRoot->pParent == nullptr;
+
+    private:
+      cSceneNode(const cSceneNode&); // Prevent copying
+      cSceneNode& operator=(const cSceneNode&); // Prevent copying
+
+      void GenerateBoundingVolume();
+
+      virtual void _AttachChild(cSceneNodeRef pChild) {}
+      virtual void _DetachChild(cSceneNodeRef pChild) {}
+      virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
+      virtual void _DeleteAllChildrenRecursively() {}
     };
 
     inline cSceneNode::~cSceneNode()
@@ -433,52 +514,30 @@ namespace breathe
       DeleteAllChildrenRecursively();
     }
 
-    inline void cSceneNode::AttachChild(cSceneNodeRef pChild)
-    {
-      ASSERT(!IsParentOfChild(pChild));
-
-      _AttachChild(pChild);
-
-      pChild->pParent.reset(this);
-    }
-
-    inline void cSceneNode::DetachChildForUseLater(cSceneNodeRef pChild)
-    {
-      ASSERT(pChild != nullptr);
-      ASSERT(IsParentOfChild(pChild));
-
-      _DetachChild(pChild);
-
-      pChild->pParent.reset();
-    }
-
-    inline void cSceneNode::DeleteChildRecursively(cSceneNodeRef pChild)
-    {
-      ASSERT(pChild != nullptr);
-      ASSERT(IsParentOfChild(pChild));
-
-      _DeleteChildRecursively(pChild);
-
-      pChild->pParent.reset();
-    }
-
 
 
     class cGroupNode : public cSceneNode
     {
     public:
+      typedef std::list<cSceneNodeRef>::iterator child_iterator;
+      typedef std::list<cSceneNodeRef>::const_iterator child_const_iterator;
+
       cGroupNode() {}
 
-      void AddChild(cSceneNodeRef pChild);
-      void RemoveChild(cSceneNodeRef pChild);
-
     protected:
+      virtual void _AttachChild(cSceneNodeRef pChild);
+      virtual void _DetachChild(cSceneNodeRef pChild);
+      virtual void _DeleteChildRecursively(cSceneNodeRef pChild);
+      virtual void _DeleteAllChildrenRecursively();
+
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
 
     private:
-      std::vector<cSceneNodeRef> children;
+      std::list<cSceneNodeRef> children;
     };
+
+    typedef cSmartPtr<cGroupNode> cGroupNodeRef;
 
     // Adds everything below this node to the list of 2D objects to be rendered, ie. HUD
     class cProjection2D : public cSceneNode
@@ -501,6 +560,8 @@ namespace breathe
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
     };
+
+    typedef cSmartPtr<cModelNode> cModelNodeRef;
 
     class cLightNode : public cSceneNode
     {
@@ -659,14 +720,48 @@ namespace breathe
     //};
 
 
+
+    class cRenderGraphTransparentPair
+    {
+    public:
+      cStateSet* pStateSet;
+      spitfire::math::cMat4& matAbsolutePositionAndRotation;
+    };
+
+    class cRenderGraph
+    {
+    public:
+      friend class cCullVisitor;
+      friend class cRenderVisitor;
+
+      void AddRenderable(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
+      void Clear();
+
+    private:
+      typedef std::list<spitfire::math::cMat4> cRenderableList;
+
+      // Opaque (states : list of renderables with that state)
+      std::map<cStateSet*, cRenderableList*> mOpaque;
+
+      // Transparent (distance from the camera : renderable at that position)
+      std::map<float, cRenderGraphTransparentPair> mTransparent;
+    };
+
+    inline void cRenderGraph::Clear()
+    {
+      mOpaque.clear();
+      mTransparent.clear();
+    }
+
+
     class cUpdateVisitor
     {
     public:
       explicit cUpdateVisitor(cSceneGraph& scenegraph);
 
-      void Visit(cSceneNode& node) {}
-      void Visit(cModelNode& node) {}
-      void Visit(cLightNode& node) {}
+      void Visit(cSceneNode& node) { node.Update(*this); }
+      void Visit(cGroupNode& node) { node.Update(*this); }
+      void Visit(cModelNode& node) { node.Update(*this); }
 
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
 
@@ -683,43 +778,19 @@ namespace breathe
     //    cRenderable cRenderable         cGeometryNode cGeometryNode
     //cRenderable cRenderable
 
-    enum RENDER_PRIORITY
-    {
-      RENDER_PRIORITY_FIRST = -3,
-      RENDER_PRIORITY_SECOND = -2,
-      RENDER_PRIORITY_THIRD = -1,
-      RENDER_PRIORITY_OPAQUE = 0,
-      RENDER_PRIORITY_NORMAL = 0,
-      RENDER_PRIORITY_TRANSPARENT,
-      RENDER_PRIORITY_LAST
-    };
-
-    class cRenderable;
-    typedef cSmartPtr<cRenderable> cRenderableRef;
-
     class cCullVisitor
     {
     public:
       explicit cCullVisitor(cSceneGraph& scenegraph);
 
-      void Visit(cSceneNode& node) {}
-      void Visit(cModelNode& node) {}
-      void Visit(cLightNode& node)
-      {
-        AddLight(node);
-      }
+      void Visit(cSceneNode& node) { node.Cull(*this); }
+      void Visit(cGroupNode& node) { node.Cull(*this); }
+      void Visit(cModelNode& node) { node.Cull(*this); }
 
-      void Visit(cRenderableRef pRenderable)
-      {
-        AddRenderable(pRenderable);
-      }
-
+      void Visit(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
 
     private:
-      void AddRenderable(cRenderableRef pRenderable) {}
-      void AddLight(cLightNode& light) {}
-
       cSceneGraph& scenegraph;
     };
 
@@ -731,57 +802,11 @@ namespace breathe
       explicit cRenderVisitor(cSceneGraph& scenegraph);
 
     private:
+      void ApplyStateSet(cStateSet& stateSet);
+      void UnApplyStateSet(cStateSet& stateSet);
+
       cSceneGraph& scenegraph;
     };
-
-
-
-
-
-
-    typedef cSmartPtr<cSceneNode> cGroupNodeRef;
-
-
-    class cRenderable
-    {
-    public:
-
-
-    private:
-      bool bUseIsShadowCasting;
-      bool bIsShadowCasting;
-
-      bool bUseRenderPriority;
-      RENDER_PRIORITY renderPriority;
-    };
-
-    typedef cSmartPtr<cRenderable> cRenderableRef;
-
-
-    class cRenderGraph
-    {
-    public:
-      friend class cCullVisitor;
-      friend class cRenderVisitor;
-
-      void AddRenderable(const cRenderableRef renderable);
-      void Clear();
-
-    private:
-      typedef std::list<cRenderable*> cRenderableList;
-
-      // Opaque (states : list of renderables with that state)
-      std::map<cStateSet*, cRenderableList*> mOpaque;
-
-      // Transparent (distance from the camera : renderable at that position)
-      std::map<float, cRenderableRef> mTransparent;
-    };
-
-    inline void cRenderGraph::Clear()
-    {
-      mOpaque.clear();
-      mTransparent.clear();
-    }
 
 
 
@@ -801,7 +826,7 @@ namespace breathe
 
       void Create();
 
-      cGroupNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
+      cSceneNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
 
       void SetBackgroundColour(const math::cColour& colour) { backgroundColour = colour; }
@@ -823,7 +848,7 @@ namespace breathe
       math::cColour ambientLightColour;
 
       cRenderGraph renderGraph;
-      cGroupNodeRef pRoot;
+      cSceneNodeRef pRoot;
       cSkySystemRef pSkySystem;
     };
   }

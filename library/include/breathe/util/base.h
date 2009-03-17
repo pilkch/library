@@ -34,17 +34,15 @@ namespace breathe
     cObject();
     virtual ~cObject() {}
 
+    // Rotation
+    math::cQuaternion rotation;
+
+    // Velocity
+    math::cVec3 v;
+
     // Box for very general collision and culling
     float fWidth, fLength, fHeight;
     float fWeight;
-
-    // Position and rotation
-    //float r[12];
-
-    math::cVec3 v;
-
-    // Position and rotation matrix
-    math::cMat4 m;
 
     // For 2D
     void SetDimensions(float fWidth, float fHeight);

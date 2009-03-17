@@ -13,10 +13,10 @@
 // Boost includes
 #include <boost/shared_ptr.hpp>
 
+// OpenGL headers
 #include <GL/GLee.h>
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 // Spitfire headers
@@ -168,16 +168,16 @@ namespace breathe
       void cGrassStatic::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
-        const size_t nDensity = 10;
+        const size_t nDensity = 4;
         const size_t nStartX = fOffsetX / fTerrainScale;
         const size_t nStartY = fOffsetY / fTerrainScale;
         const size_t nEndX = (fOffsetX + fWidth) / fTerrainScale;
         const size_t nEndY = (fOffsetY + fHeight) / fTerrainScale;
 
-        const float fMinimumSize = 2.0f;
-        const float fMaximumSize = 5.0f;
+        const float fMinimumSize = 1.0f;
+        const float fMaximumSize = 2.0f;
 
-        const float fMinimumGrassAltitude = 100.0f;
+        //const float fMinimumGrassAltitude = 100.0f;
 
         std::vector<float> vertices;
         std::vector<float> textureCoordinates;
@@ -189,7 +189,7 @@ namespace breathe
               const float fX = (float(x) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fY = (float(y) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fZ = loader.GetHeight(fX, fY);
-              if (fZ < fMinimumGrassAltitude) continue;
+              //if (fZ < fMinimumGrassAltitude) continue;
 
               const float fHalfWidth = spitfire::math::randomf(fMinimumSize, fMaximumSize);
               const float fHeight = fHalfWidth + fHalfWidth;
@@ -267,16 +267,16 @@ namespace breathe
       void cGrassAnimated::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
-        const size_t nDensity = 10;
+        const size_t nDensity = 4;
         const size_t nStartX = fOffsetX / fTerrainScale;
         const size_t nStartY = fOffsetY / fTerrainScale;
         const size_t nEndX = (fOffsetX + fWidth) / fTerrainScale;
         const size_t nEndY = (fOffsetY + fHeight) / fTerrainScale;
 
-        const float fMinimumSize = 2.0f;
-        const float fMaximumSize = 5.0f;
+        const float fMinimumSize = 1.0f;
+        const float fMaximumSize = 2.0f;
 
-        const float fMinimumGrassAltitude = 100.0f;
+        //const float fMinimumGrassAltitude = 100.0f;
 
 #if 1
         const size_t nSegments = 8;
@@ -299,7 +299,7 @@ namespace breathe
               const float fX = (float(x) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fY = (float(y) * fTerrainScale) + (fTerrainScale * spitfire::math::randomMinusOneToPlusOnef());
               const float fZ = loader.GetHeight(fX, fY);
-              if (fZ < fMinimumGrassAltitude) continue;
+              //if (fZ < fMinimumGrassAltitude) continue;
 
               const float fHalfWidth = spitfire::math::randomf(fMinimumSize, fMaximumSize);
               const float fHeight = fHalfWidth + fHalfWidth;
@@ -392,7 +392,7 @@ namespace breathe
         pRender->SetMaterial(pMaterial);
 
         float fCurrentTime = 0.0005f * float(currentTime);
-        pRender->SetShaderConstant(pMaterial, "time", fCurrentTime);
+        pRender->SetShaderConstant("time", fCurrentTime);
 
         vbo.Bind();
 
