@@ -32,37 +32,37 @@ namespace spitfire
 
       inline void Clear() { r = g = b = a = 0.0f; }
 
-      inline void SetBlack(void) { r = g = b = a = 1.0f; }
-      inline void SetWhite(void) { r = g = b = a = 0.0f; }
+      inline void SetBlack() { r = g = b = a = 1.0f; }
+      inline void SetWhite() { r = g = b = a = 0.0f; }
       inline void SetGrey(float fShade) { r = g = b = a = fShade; Clamp(); }
 
-      void Clamp(void); // clamp all components to [0,1]
+      void Clamp(); // clamp all components to [0,1]
 
       // linear interpolate
-      cColour lerp(const cColour & c2, float factor);
+      cColour lerp(const cColour& c2, float factor);
 
       // binary operators
-      cColour operator+(const cColour & rhs) const;
-      cColour operator-(const cColour & rhs) const;
-      cColour operator*(const cColour & rhs) const;
-      cColour operator/(const cColour & rhs) const;
+      cColour operator+(const cColour& rhs) const;
+      cColour operator-(const cColour& rhs) const;
+      cColour operator*(const cColour& rhs) const;
+      cColour operator/(const cColour& rhs) const;
       cColour operator*(const float rhs) const;
       cColour operator/(const float rhs) const;
 
-      bool operator==(const cColour & rhs) const;
-      bool operator!=(const cColour & rhs) const;
+      bool operator==(const cColour& rhs) const;
+      bool operator!=(const cColour& rhs) const;
 
       // self-add etc
-      cColour operator+=(const cColour & rhs);
-      cColour operator-=(const cColour & rhs);
-      cColour operator*=(const cColour & rhs);
-      cColour operator/=(const cColour & rhs);
+      cColour operator+=(const cColour& rhs);
+      cColour operator-=(const cColour& rhs);
+      cColour operator*=(const cColour& rhs);
+      cColour operator/=(const cColour& rhs);
       cColour operator*=(const float rhs);
       cColour operator/=(const float rhs);
 
       // unary operators
-      cColour operator-(void) const {return cColour(-r,-g, -b, -a);}
-      cColour operator+(void) const {return (*this);}
+      cColour operator-() const {return cColour(-r,-g, -b, -a);}
+      cColour operator+() const {return (*this);}
 
       // cast to pointer to float for glColor4fv etc
       operator float* () const {return (float*) this;}
@@ -77,4 +77,4 @@ namespace spitfire
   }
 }
 
-#endif //CCOLOUR_H
+#endif // CCOLOUR_H

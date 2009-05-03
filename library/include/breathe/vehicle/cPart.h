@@ -1,6 +1,8 @@
 #ifndef CVEHICLEPART_H
 #define CVEHICLEPART_H
 
+#include <spitfire/math/cCurve.h>
+
 namespace breathe
 {
   class c3ds;
@@ -8,30 +10,6 @@ namespace breathe
   namespace vehicle
   {
     class cVehicle;
-
-    // This can contain any mapping from x:y
-    // In an editor or if you were to graph this on paper,
-    // x would go from left (0.0f) to right (n)
-    // y would go from bottom (0.0f) to top (n)
-    // When x is < 0.0f or x is > n, y is 0.0f
-    //
-    // Typical uses are:
-    // engineRPM : torqueNm
-    // superchargerRPM: boostpsi
-    // turbochargerRPM: boostpsi
-    // speed : downforce // Or is this a simpler relationship?  downforce = speed^2
-    class cCurve
-    {
-    public:
-      cCurve();
-
-      void AddPoint(float_t fX, float_t fY);
-      float_t GetYAtPointX(float_t fX) const;
-
-    private:
-      std::map<float_t, float_t> points;
-    };
-
 
     // Types for all of the parts that can be used in a car
     // These are for internal use only and should not be loaded from a file etc.
@@ -124,7 +102,7 @@ namespace breathe
       ENGINE_TYPE type;
       float_t fRPM;
       float_t fTorqueNm;
-      cCurve curveEngineRPMToTorqueNm;
+      spitfire::math::cCurve curveEngineRPMToTorqueNm;
     };
 
     // turbo charger inputs:
@@ -145,8 +123,8 @@ namespace breathe
       inline float_t GetBoostpsiAtTurboChargerRPM(float_t fTurboChargerRPM) const { return curveBoostpsiAtTurboChargerRPM.GetYAtPointX(fTurboChargerRPM); }
 
       float_t fRPM;
-      cCurve curveTurboChargerRPMAtEngineExhaustpsi;
-      cCurve curveBoostpsiAtTurboChargerRPM;
+      spitfire::math::cCurve curveTurboChargerRPMAtEngineExhaustpsi;
+      spitfire::math::cCurve curveBoostpsiAtTurboChargerRPM;
     };
 
 
@@ -173,7 +151,7 @@ namespace breathe
 
       float_t fRPM;
       float_t fSuperChargerRPMToEngineRPMRatio; // ie. 6:1 = 6.0f
-      cCurve curveSuperChargerRPMToBoostpsi;
+      spitfire::math::cCurve curveSuperChargerRPMToBoostpsi;
     };
 
 

@@ -54,13 +54,6 @@ namespace spitfire
       explicit cNode(const string_t& inFilename);
       ~cNode();
 
-      cNode* CreateElement(const std::string& name); // This element is owned by the caller of this function
-      cNode* CreateTextNode(const std::string& text); // This element is owned by the caller of this function
-      cNode* CreateCommentNode(const std::string& text); // This element is owned by the caller of this function
-
-      void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
-      void AddAttribute(const std::string& name, const std::string& value);
-
       bool LoadFromString(const std::string& sData);
       bool LoadFromFile(const string_t& sFilename);
       bool SaveToFile(const string_t& inFilename) const;
@@ -68,6 +61,22 @@ namespace spitfire
 #ifdef BUILD_DEBUG
       void PrintToLog(const std::string& sTab="");
 #endif // BUILD_DEBUG
+
+      cNode* CreateElement(const std::string& name); // This element is owned by the caller of this function
+      cNode* CreateTextNode(const std::string& text); // This element is owned by the caller of this function
+      cNode* CreateCommentNode(const std::string& text); // This element is owned by the caller of this function
+
+      void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
+      void AddAttribute(const std::string& sAttribute, const std::string& value);
+      void AddAttribute(const std::string& sAttribute, const std::wstring& value);
+      void AddAttribute(const std::string& sAttribute, const bool value);
+      void AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
+
+#ifndef FIRESTARTER
+      void AddAttribute(const std::string& sAttribute, const math::cVec3& value);
+      void AddAttribute(const std::string& sAttribute, const math::cQuaternion& value);
+      void AddAttribute(const std::string& sAttribute, const math::cColour& value);
+#endif
 
       bool IsXMLDeclarationOnly() const { return type == TYPE_XML_DELCARATION; }
       bool IsCommentOnly() const { return type == TYPE_COMMENT; }
@@ -78,11 +87,10 @@ namespace spitfire
       std::string GetContent() const;
 
       template <class T>
-      bool GetAttribute(const std::string& sAttribute, T& value)
+      bool GetAttribute(const std::string& sAttribute, T& value) const
       {
-        attribute_iterator iter = mAttribute.find(sAttribute);
-        if (iter != mAttribute.end())
-        {
+        const_attribute_iterator iter = mAttribute.find(sAttribute);
+        if (iter != mAttribute.end()) {
           std::stringstream stm(iter->second);
           stm >> value;
           return true;
@@ -91,14 +99,15 @@ namespace spitfire
         return false;
       }
 
-      bool GetAttribute(const std::string& sAttribute, std::string& pValue);
-      bool GetAttribute(const std::string& sAttribute, std::wstring& pValue);
-      bool GetAttribute(const std::string& sAttribute, bool& pValue);
-      bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues);
+      bool GetAttribute(const std::string& sAttribute, std::string& value) const;
+      bool GetAttribute(const std::string& sAttribute, std::wstring& value) const;
+      bool GetAttribute(const std::string& sAttribute, bool& value) const;
+      bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
 #ifndef FIRESTARTER
-      bool GetAttribute(const std::string& sAttribute, math::cVec3& pValue);
-      bool GetAttribute(const std::string& sAttribute, math::cColour& pValue);
+      bool GetAttribute(const std::string& sAttribute, math::cVec3& value) const;
+      bool GetAttribute(const std::string& sAttribute, math::cQuaternion& value) const;
+      bool GetAttribute(const std::string& sAttribute, math::cColour& value) const;
 #endif
 
       void Clear();

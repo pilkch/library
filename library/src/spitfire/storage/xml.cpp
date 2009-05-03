@@ -29,6 +29,7 @@
 #ifndef FIRESTARTER
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
+#include <spitfire/math/cQuaternion.h>
 #include <spitfire/math/cColour.h>
 #endif
 
@@ -311,8 +312,11 @@ namespace spitfire
       std::ofstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (f.is_open()) {
+        // Write the header
+        f<<"<?xml version=\"1.0\"?>"<<std::endl;
+
         const size_t n = vChild.size();
-        for (size_t i=0;i<n;i++) vChild[i]->WriteToFile(f, "");
+        for (size_t i = 0;i < n; i++) vChild[i]->WriteToFile(f, "");
 
         f.close();
 
@@ -328,9 +332,6 @@ namespace spitfire
     void cNode::WriteToFile(std::ofstream& f, const std::string& sTab) const
     {
       ASSERT(f.is_open());
-
-      // Write the header
-      f<<"<?xml version=\"1.0\"?>"<<std::endl;
 
       if (IsNameAndAttributesAndChildren()) {
         if (!sName.empty()) {
@@ -358,7 +359,7 @@ namespace spitfire
         f<<sContentOnly;
 
       const size_t n = vChild.size();
-      for (size_t i=0;i<n;i++) vChild[i]->WriteToFile(f, sTab + "\t");
+      for (size_t i = 0; i < n; i++) vChild[i]->WriteToFile(f, sTab + "  ");
 
       if (!sName.empty()) {
         if (!vChild.empty() || (!vChild.empty() && !vChild[0]->IsContentOnly()))
@@ -484,15 +485,91 @@ namespace spitfire
       return sContentOnly;
     }
 
-    void cNode::AddAttribute(const std::string& inAttribute, const std::string& inValue)
+
+    void cNode::AddAttribute(const std::string& sAttribute, const std::string& value)
     {
-      mAttribute[inAttribute] = inValue;
+      mAttribute[sAttribute] = value;
     }
 
-    bool cNode::GetAttribute(const std::string& sAttribute, std::string& value)
+    void cNode::AddAttribute(const std::string& sAttribute, const std::wstring& value)
     {
-      attribute_iterator iter = mAttribute.find(sAttribute);
-      attribute_iterator iterEnd = mAttribute.end();
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(value);
+    }
+
+    void cNode::AddAttribute(const std::string& sAttribute, const bool value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
+    }
+
+    void cNode::AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues)
+    {
+      ASSERT(pValue != nullptr);
+
+      std::ostringstream o;
+
+      size_t i = 0;
+      for (; i < nValues; i++) {
+        o<<pValue[i];
+      };
+
+      for (; i < nValues; i++) {
+        o<<", ";
+        o<<pValue[i];
+      };
+
+      mAttribute[sAttribute] = o.str();
+    }
+
+#ifndef FIRESTARTER
+    void cNode::AddAttribute(const std::string& sAttribute, const math::cVec3& value)
+    {
+      std::ostringstream o;
+
+      o<<value.x;
+      o<<", ";
+      o<<value.y;
+      o<<", ";
+      o<<value.z;
+
+      mAttribute[sAttribute] = o.str();
+    }
+
+    void cNode::AddAttribute(const std::string& sAttribute, const math::cQuaternion& value)
+    {
+      std::ostringstream o;
+
+      o<<value.x;
+      o<<", ";
+      o<<value.y;
+      o<<", ";
+      o<<value.z;
+      o<<", ";
+      o<<value.w;
+
+      mAttribute[sAttribute] = o.str();
+    }
+
+    void cNode::AddAttribute(const std::string& sAttribute, const math::cColour& value)
+    {
+      std::ostringstream o;
+
+      o<<value.r;
+      o<<", ";
+      o<<value.g;
+      o<<", ";
+      o<<value.b;
+      o<<", ";
+      o<<value.a;
+
+      mAttribute[sAttribute] = o.str();
+    }
+#endif
+
+
+    bool cNode::GetAttribute(const std::string& sAttribute, std::string& value) const
+    {
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      const_attribute_iterator iterEnd = mAttribute.end();
       if (iter != iterEnd) {
         value = iter->second;
         return true;
@@ -501,10 +578,10 @@ namespace spitfire
       return false;
     }
 
-    bool cNode::GetAttribute(const std::string& sAttribute, std::wstring& value)
+    bool cNode::GetAttribute(const std::string& sAttribute, std::wstring& value) const
     {
-      attribute_iterator iter = mAttribute.find(sAttribute);
-      attribute_iterator iterEnd = mAttribute.end();
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      const_attribute_iterator iterEnd = mAttribute.end();
       if (iter != iterEnd) {
         value = spitfire::string::ToWchar_t(iter->second);
         return true;
@@ -513,9 +590,9 @@ namespace spitfire
       return false;
     }
 
-    bool cNode::GetAttribute(const std::string& sAttribute, bool& value)
+    bool cNode::GetAttribute(const std::string& sAttribute, bool& value) const
     {
-      attribute_iterator iter = mAttribute.find(sAttribute);
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         value = spitfire::string::ToBool(spitfire::string::ToString_t(iter->second));
 
@@ -525,10 +602,10 @@ namespace spitfire
       return false;
     }
 
-    bool cNode::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues)
+    bool cNode::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const
     {
-      assert(pValue != nullptr);
-      attribute_iterator iter = mAttribute.find(sAttribute);
+      ASSERT(pValue != nullptr);
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         char c;
         std::stringstream stm(iter->second);
@@ -547,18 +624,19 @@ namespace spitfire
     }
 
 #ifndef FIRESTARTER
-    bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value)
+    bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value) const
     {
       value.SetZero();
 
-      attribute_iterator iter = mAttribute.find(sAttribute);
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
         spitfire::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
-        if (vSplit.size() > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
-        if (vSplit.size() > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
+        const size_t n = vSplit.size();
+        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
+        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
+        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
 
         return true;
       }
@@ -566,21 +644,43 @@ namespace spitfire
       return false;
     }
 
-    bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value)
+    bool cNode::GetAttribute(const std::string& sAttribute, math::cQuaternion& value) const
+    {
+      value.LoadIdentity();
+
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      if (iter != mAttribute.end()) {
+        std::vector<std::string> vSplit;
+        spitfire::string::Split(iter->second, ',', vSplit);
+
+        const size_t n = vSplit.size();
+        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
+        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
+        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
+        if (n > 3) value.w = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
+
+        return true;
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, math::cColour& value) const
     {
       value.Clear();
 
       value.a = 1.0f;
 
-      attribute_iterator iter = mAttribute.find(sAttribute);
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         std::vector<std::string> vSplit;
         spitfire::string::Split(iter->second, ',', vSplit);
 
-        if (vSplit.size() > 0) value.r = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
-        if (vSplit.size() > 1) value.g = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
-        if (vSplit.size() > 2) value.b = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
-        if (vSplit.size() > 3) value.a = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
+        const size_t n = vSplit.size();
+        if (n > 0) value.r = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
+        if (n > 1) value.g = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
+        if (n > 2) value.b = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
+        if (n > 3) value.a = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
 
         return true;
       }

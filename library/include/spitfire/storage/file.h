@@ -78,6 +78,7 @@ namespace spitfire
       NO_COPY(cReadText);
     };*/
 
+    void ReadText(const string_t& filename, std::vector<std::string>& contents);
     void ReadText(const string_t& filename, std::vector<std::wstring>& contents);
     void AppendText(const string_t& filename, const std::string& contents);
     void AppendText(const string_t& filename, const std::wstring& contents);

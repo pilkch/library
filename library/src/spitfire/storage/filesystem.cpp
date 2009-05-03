@@ -79,9 +79,19 @@ namespace spitfire
 // /Users/Chris/.spitfire/drive/
 
 // spitfire/src/windows/file.cpp
-// c:/User Settings/Chris/App Data/spitfire/spitfire/profile.xml
-// c:/User Settings/Chris/App Data/spitfire/spitfire/config.xml
-// c:/User Settings/Chris/App Data/spitfire/drive/
+// C:/User Settings/Chris/App Data/.spitfire/spitfire/profile.xml
+// C:/User Settings/Chris/App Data/.spitfire/spitfire/config.xml
+// C:/User Settings/Chris/App Data/.spitfire/drive/
+
+// C:/Documents and Settings/Chris/App Data/.spitfire/spitfire/profile.xml
+// C:/Documents and Settings/Chris/App Data/.spitfire/spitfire/config.xml
+// C:/Documents and Settings/Chris/App Data/.spitfire/drive/
+
+// C:/Users/Chris/.spitfire/spitfire/profile.xml
+// C:/Users/Chris/.spitfire/spitfire/config.xml
+// C:/Users/Chris/.spitfire/drive/
+
+
 
 #ifdef __APPLE__
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
@@ -323,13 +333,13 @@ namespace spitfire
 
     string_t GetExtension(const string_t& sFilename)
     {
-      string_t s=sFilename;
+      string_t s = sFilename;
 
-      string_t::size_type i=s.find(TEXT("/"));;
+      string_t::size_type i = s.find(TEXT("/"));;
       while(i != string_t::npos) {
         i++;
-        s=s.substr(i);
-        i=s.find(TEXT("/"));
+        s = s.substr(i);
+        i = s.find(TEXT("/"));
       };
 
       if (i != string_t::npos) s = s.substr(i);

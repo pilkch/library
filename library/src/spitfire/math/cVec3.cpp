@@ -21,7 +21,7 @@ namespace spitfire
 {
   namespace math
   {
-    cVec3 cVec3::GetEdgeVector(cVec3 & point2) const
+    cVec3 cVec3::GetEdgeVector(const cVec3& point2) const
     {
       cVec3 temp_vector;
       temp_vector.x = x - point2.x;
@@ -78,14 +78,14 @@ namespace spitfire
       z=-z;
     }
 
-    void cVec3::Cross(const cVec3 & a, const cVec3 & b)
+    void cVec3::Cross(const cVec3& a, const cVec3& b)
     {
       x = a.y*b.z - a.z*b.y;
       y = a.z*b.x - a.x*b.z;
       z = a.x*b.y - a.y*b.x;
     }
 
-    cVec3 cVec3::CrossProduct(const cVec3 & rhs) const
+    cVec3 cVec3::CrossProduct(const cVec3& rhs) const
     {
       cVec3 result;
 
@@ -98,28 +98,36 @@ namespace spitfire
 
     void cVec3::Normalise()
     {
-      float length = GetLength();
-      if ((length == 1.0f) || (length == 0.0f))      //return if length is 1 or 0
-        return;
+      const float fLength = GetLength();
 
-      const float scalefactor = 1.0f / length;
+      // Return if length is 1 or 0
+      if ((fLength == 1.0f) || (fLength == 0.0f)) return;
 
-      if (cEPSILON>x && -cEPSILON<x) x = 0.0f;
+      const float scalefactor = 1.0f / fLength;
+
+      if ((cEPSILON > x) && (-cEPSILON < x)) x = 0.0f;
       else x *= scalefactor;
 
-      if (cEPSILON>y && -cEPSILON<y) y = 0.0f;
+      if ((cEPSILON > y) && (-cEPSILON < y)) y = 0.0f;
       else y *= scalefactor;
 
-      if (cEPSILON>z && -cEPSILON<z) z = 0.0f;
+      if ((cEPSILON > z) && (-cEPSILON < z)) z = 0.0f;
       else z *= scalefactor;
     }
 
-    void cVec3::SetLength(float length)
+    void cVec3::SetLength(float fLength)
     {
-      if ((length == 1.0f) || (length == 0.0f))      //return if length is 1 or 0
-        return;
+      // Return if length is 1 or 0
+      if (fLength == 1.0f) return;
 
-      const float scalefactor = 1.0f / length;
+      if (fLength == 0.0f) {
+        x = 0.0f;
+        y = 0.0f;
+        z = 0.0f;
+        return;
+      }
+
+      const float scalefactor = 1.0f / fLength;
       x *= scalefactor;
       y *= scalefactor;
       z *= scalefactor;
@@ -185,55 +193,56 @@ namespace spitfire
       (*this)=GetRotatedZ(angle);
     }
 
-    cVec3 cVec3::GetRotatedAxis(double angle, const cVec3 & axis) const
+    cVec3 cVec3::GetRotatedAxis(double angle, const cVec3& axis) const
     {
-      cVec3 u=axis.GetNormalised();
+      const cVec3 u = axis.GetNormalised();
 
-      cVec3 rotMatrixRow0, rotMatrixRow1, rotMatrixRow2;
+      const float sinAngle = sin((float)angle);
+      const float cosAngle = cos((float)angle);
+      const float oneMinusCosAngle = 1.0f - cosAngle;
+
+      cVec3 rotMatrixRow0;
+      rotMatrixRow0.x = (u.x) * (u.x) + cosAngle * (1.0f - (u.x * u.x));
+      rotMatrixRow0.y = (u.x) * (u.y) * (oneMinusCosAngle) - sinAngle * u.z;
+      rotMatrixRow0.z = (u.x) * (u.z) * (oneMinusCosAngle) + sinAngle * u.y;
+
+      cVec3 rotMatrixRow1;
+      rotMatrixRow1.x = (u.x) * (u.y) * (oneMinusCosAngle) + sinAngle * u.z;
+      rotMatrixRow1.y = (u.y) * (u.y) + cosAngle * (1.0f - (u.y * u.y));
+      rotMatrixRow1.z = (u.y) * (u.z) * (oneMinusCosAngle) - sinAngle * u.x;
+
+      cVec3 rotMatrixRow2;
+      rotMatrixRow2.x = (u.x) * (u.z) * (oneMinusCosAngle) - sinAngle * u.y;
+      rotMatrixRow2.y = (u.y) * (u.z) * (oneMinusCosAngle) + sinAngle * u.x;
+      rotMatrixRow2.z = (u.z) * (u.z) + cosAngle * (1.0f - (u.z * u.z));
 
       cVec3 result;
 
-      float sinAngle=sin((float)angle);
-      float cosAngle=cos((float)angle);
-      float oneMinusCosAngle=1.0f-cosAngle;
-
-      rotMatrixRow0.x=(u.x)*(u.x) + cosAngle*(1-(u.x)*(u.x));
-      rotMatrixRow0.y=(u.x)*(u.y)*(oneMinusCosAngle) - sinAngle*u.z;
-      rotMatrixRow0.z=(u.x)*(u.z)*(oneMinusCosAngle) + sinAngle*u.y;
-
-      rotMatrixRow1.x=(u.x)*(u.y)*(oneMinusCosAngle) + sinAngle*u.z;
-      rotMatrixRow1.y=(u.y)*(u.y) + cosAngle*(1-(u.y)*(u.y));
-      rotMatrixRow1.z=(u.y)*(u.z)*(oneMinusCosAngle) - sinAngle*u.x;
-
-      rotMatrixRow2.x=(u.x)*(u.z)*(oneMinusCosAngle) - sinAngle*u.y;
-      rotMatrixRow2.y=(u.y)*(u.z)*(oneMinusCosAngle) + sinAngle*u.x;
-      rotMatrixRow2.z=(u.z)*(u.z) + cosAngle*(1-(u.z)*(u.z));
-
-      result.x=this->DotProduct(rotMatrixRow0);
-      result.y=this->DotProduct(rotMatrixRow1);
-      result.z=this->DotProduct(rotMatrixRow2);
+      result.x = DotProduct(rotMatrixRow0);
+      result.y = DotProduct(rotMatrixRow1);
+      result.z = DotProduct(rotMatrixRow2);
 
       return result;
     }
 
-    void cVec3::RotateAxis(double angle, const cVec3 & axis)
+    void cVec3::RotateAxis(double angle, const cVec3& axis)
     {
       (*this)=GetRotatedAxis(angle, axis);
     }
 
-    void cVec3::RotateByQuaternion(const cQuaternion & rhs)
+    void cVec3::RotateByQuaternion(const cQuaternion& rhs)
     {
       RotateAxis(rhs.GetAngle(), rhs.GetAxis());
     }
 
-    cVec3 cVec3::GetRotatedByQuaternion(const cQuaternion & rhs) const
+    cVec3 cVec3::GetRotatedByQuaternion(const cQuaternion& rhs) const
     {
       return cVec3(GetRotatedAxis(rhs.GetAngle(), rhs.GetAxis()));
     }
 
     void cVec3::PackTo01()
     {
-      (*this)=GetPackedTo01();
+      (*this) = GetPackedTo01();
     }
 
     cVec3 cVec3::GetPackedTo01() const
@@ -247,7 +256,7 @@ namespace spitfire
       return temp;
     }
 
-    cVec3 cVec3::lerp(const cVec3 & v2, float factor) const
+    cVec3 cVec3::lerp(const cVec3& v2, float factor) const
     {
       cVec3 result;
 
@@ -265,17 +274,17 @@ namespace spitfire
       return cVec3(newX, newY, newZ);
     }
 
-    bool cVec3::operator==(const cVec3 & rhs) const
+    bool cVec3::operator==(const cVec3& rhs) const
     {
       return ((x == rhs.x) && (y==rhs.y) && (z==rhs.z));
     }
 
-    bool cVec3::operator!=(const cVec3 & rhs) const
+    bool cVec3::operator!=(const cVec3& rhs) const
     {
       return !((x == rhs.x) && (y==rhs.y) && (z==rhs.z));
     }
 
-    void cVec3::operator-=(const cVec3 & rhs)
+    void cVec3::operator-=(const cVec3& rhs)
     {
       x -= rhs.x;
       y -= rhs.y;

@@ -213,6 +213,7 @@ namespace breathe
 
     cRender::cRender() :
       bRenderWireframe(false),
+      bRenderGui(true),
 
       bLight(true),
       bCubemap(true),
@@ -655,7 +656,7 @@ namespace breathe
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      glMultMatrixf(pFrustum->m.GetOpenGLMatrix());
+      glMultMatrixf(pFrustum->m.GetOpenGLMatrixPointer());
 
       if (bRenderWireframe) EnableWireframe();
       else DisableWireframe();

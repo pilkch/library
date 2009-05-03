@@ -37,6 +37,9 @@ namespace breathe
       cTexture();
       virtual ~cTexture();
 
+      size_t GetWidth() const { return uiWidth; }
+      size_t GetHeight() const { return uiHeight; }
+
       bool Load(const string_t& sFilename);
 
       // pData <--> surface -> OpenGL texture

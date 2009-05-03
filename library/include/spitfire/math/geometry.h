@@ -12,6 +12,7 @@ namespace spitfire
 
       cSphere();
 
+      void SetPosition(const cVec3& position);
       void SetRadius(float fRadius);
 
       bool Collide(const cSphere& rhs);
@@ -20,6 +21,7 @@ namespace spitfire
 
       const cVec3& GetPosition() const { return position; }
 
+      float_t GetRadius() const { return fRadius; }
       float_t GetHalfWidth() const { return fRadius; }
       float_t GetWidth() const { return fRadius + fRadius; }
 
@@ -37,6 +39,11 @@ namespace spitfire
     inline cSphere::cSphere() :
       fRadius(1.0f)
     {
+    }
+
+    inline void cSphere::SetPosition(const cVec3& _position)
+    {
+      position = _position;
     }
 
     inline void cSphere::SetRadius(float _fRadius)
@@ -119,23 +126,25 @@ namespace spitfire
 
 
 
-
+    class cAABB3;
+    class cPlane;
 
     // Two points that specify a straight line
     class cLine3
     {
-      public:
-        cLine3();
-        cLine3(const cVec3& origin, const cVec3& destination);
+    public:
+      cLine3();
+      cLine3(const cVec3& origin, const cVec3& destination);
 
-        void SetPoints(const cVec3& origin, const cVec3& destination);
+      void SetPoints(const cVec3& origin, const cVec3& destination);
 
-        const cVec3& GetOrigin() const { return origin; }
-        const cVec3& GetDestination() const { return destination; }
+      const cVec3& GetOrigin() const { return origin; }
+      const cVec3& GetDestination() const { return destination; }
+      cVec3 GetTangent() const;
 
-      private:
-        cVec3 origin;
-        cVec3 destination;
+    private:
+      cVec3 origin;
+      cVec3 destination;
     };
 
     // A point and direction to travel from that point, the ray itself is infinite length
@@ -143,18 +152,31 @@ namespace spitfire
     {
     public:
       cRay3();
-      cRay3(const cVec3& origin, const cVec3& destination);
 
-      void SetOrigin(const cVec3& origin, const cVec3& destination);
-      void SetDirection(const cVec3& direction);
+      void SetOriginAndDirection(const cVec3& origin, const cVec3& direction);
+      void SetLength(float_t length);
 
       const cVec3& GetOrigin() const { return origin; }
       const cVec3& GetDirection() const { return direction; }
+      const float_t& GetLength() const { return length; }
+
+      bool CollideWithPlane(const cPlane& rhs, float& fDepth) const;
+      bool CollideWithAABB(const cAABB3& rhs, float& fDepth) const;
+      bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
+      bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
 
     private:
       cVec3 origin;
       cVec3 direction;
+      float_t length;
     };
+
+    inline cRay3::cRay3() :
+      origin(v3Zero),
+      direction(v3Down),
+      length(100000.0f) // Just a big enough number to get to the other side of the scene
+    {
+    }
 
 
 
@@ -237,15 +259,19 @@ namespace spitfire
       );
     }
 
-    inline bool cAABB3::Intersect(const cLine3& line) const
+    inline bool cAABB3::Intersect(const cAABB3& rhs) const
     {
+      const cVec3 p1(GetCentre());
+      const cVec3 p2(rhs.GetCentre());
+      const cVec3 d(GetCentre() - rhs.GetCentre());
+
+      if (fabs(d.x) < 0.5 * (p1.x + p2.x)) return true;
+      if (fabs(d.y) < 0.5 * (p1.y + p2.y)) return true;
+      if (fabs(d.z) < 0.5 * (p1.z + p2.z)) return true;
+
       return false;
     }
 
-    inline bool cAABB3::Intersect(const cAABB3& box) const
-    {
-      return false;
-    }
 
     // -halfwidth, +halfwidth        +halfwidth, +halfwidth
     //

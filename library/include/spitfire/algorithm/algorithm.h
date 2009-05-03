@@ -115,9 +115,9 @@ namespace spitfire
     size_t GetHeight() const { return height; }
 
     T& GetElement(size_t i) { ASSERT(i < elements.size()); return elements[i]; }
-    T& GetElement(size_t x, size_t y) { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
-
     const T& GetElement(size_t i) const { ASSERT(i < elements.size()); return elements[i]; }
+
+    T& GetElement(size_t x, size_t y) { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
     const T& GetElement(size_t x, size_t y) const { ASSERT(y * width + x < elements.size()); return elements[y * width + x]; }
 
     T& operator[](size_t i) { return GetElement(i); }
@@ -145,6 +145,8 @@ namespace spitfire
     cDynamicContainer2D(size_t width, size_t height);
 
     cDynamicContainer2D& operator=(const cDynamicContainer2D& rhs);
+
+    void RemoveAllEntriesAndSetNewSize(size_t width, size_t height);
 
     size_t size() const { return width * height; }
 
@@ -191,6 +193,16 @@ namespace spitfire
     elements = rhs.elements;
 
     return *this;
+  }
+
+  template<class T>
+  void cDynamicContainer2D<T>::RemoveAllEntriesAndSetNewSize(size_t _width, size_t _height)
+  {
+    width = _width;
+    height = _height;
+    std::vector<T> replacement(width * height);
+    elements = replacement;
+    ASSERT(elements.size() == (width * height));
   }
 
 

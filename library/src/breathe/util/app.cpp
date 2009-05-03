@@ -518,10 +518,11 @@ namespace breathe
     bDone(false),
     pFont(nullptr),
 
+    pWorld(nullptr),
+
 #ifdef BUILD_DEBUG
     bDebug(true),
 #endif
-
 
     bActive(true),
     bReturnCode(breathe::GOOD),
@@ -637,7 +638,8 @@ namespace breathe
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     LOG.Success("Destroy", "Physics");
-    breathe::physics::Destroy();
+    pWorld->Destroy();
+    SAFE_DELETE(pWorld);
 #endif
 
     LOG.Success("Destroy", "Network");
@@ -840,7 +842,6 @@ namespace breathe
     SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
 
     {
-
       // Joysticks
 
       const size_t nJoysticks = SDL_NumJoysticks();
@@ -958,13 +959,15 @@ namespace breathe
 
     breathe::audio::Init();
 
+    pWorld = new physics::cWorld;
+
 #if defined(BUILD_PHYSICS_2D)
-    breathe::physics::Init(physics_width, physics_height);
+    pWorld->Init(physics_width, physics_height);
 #elif defined(BUILD_PHYSICS_3D)
-    breathe::physics::Init(physics_width, physics_height, physics_depth);
+    pWorld->Init(physics_width, physics_height, physics_depth);
 #endif
 
-    if (breathe::BAD==LoadScene()) return breathe::BAD;
+    if (breathe::BAD == LoadScene()) return breathe::BAD;
 
 
     window_manager.LoadTheme();
@@ -1017,16 +1020,14 @@ namespace breathe
 
   bool cApplication::InitRender()
   {
-    if (breathe::BAD == pRender->PreInit())
-    {
+    if (breathe::BAD == pRender->PreInit()) {
       bReturnCode = breathe::BAD;
       return breathe::BAD;
     }
 
     pRender->SetPerspective();
 
-    if (breathe::BAD == pRender->Init())
-      return breathe::BAD;
+    if (breathe::BAD == pRender->Init()) return breathe::BAD;
 
     return breathe::GOOD;
   }
@@ -1041,8 +1042,7 @@ namespace breathe
   bool cApplication::ToggleFullscreen()
   {
     // Destroy the old render
-    if (breathe::BAD==DestroyRender())
-    {
+    if (breathe::BAD == DestroyRender()) {
       bReturnCode=breathe::BAD;
       return breathe::BAD;
     }
@@ -1052,8 +1052,7 @@ namespace breathe
 
 
     // Create the new render
-    if (breathe::BAD==InitRender())
-    {
+    if (breathe::BAD == InitRender()) {
       bReturnCode=breathe::BAD;
       return breathe::BAD;
     }
@@ -1106,7 +1105,7 @@ namespace breathe
 
           state.RenderScreenSpace(currentTime);
 
-          window_manager.Render();
+          if (pRender->bRenderGui) window_manager.Render();
 
 #ifdef BUILD_DEBUG
           if (IsDebug() && !CONSOLE.IsVisible()) {
@@ -1117,7 +1116,7 @@ namespace breathe
 
             pRender->BeginRenderingText();
 #ifdef BUILD_PHYSICS_3D
-              pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", breathe::physics::size());
+              pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->size());
 #endif
 
               fPosition += dy;
@@ -1344,16 +1343,17 @@ namespace breathe
     if (IsKeyDown(SDLK_F3)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
     if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
     if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
-    if (IsKeyDown(SDLK_F6)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
+    if (IsKeyDown(SDLK_F6)) pRender->bRenderGui = !pRender->bRenderGui;
+    if (IsKeyDown(SDLK_F7)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    if (IsKeyDown(SDLK_F7)) bUpdatePhysics = !bUpdatePhysics;
-    if (IsKeyDown(SDLK_F8)) {
+    if (IsKeyDown(SDLK_F8)) bUpdatePhysics = !bUpdatePhysics;
+    if (IsKeyDown(SDLK_F9)) {
       bUpdatePhysics = false;
       bStepPhysics = true;
     }
 #endif
-    if (IsKeyDown(SDLK_F9)) spitfire::util::RunUnitTests();
+    if (IsKeyDown(SDLK_F10)) spitfire::util::RunUnitTests();
 #endif
 
     if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
@@ -1500,7 +1500,7 @@ namespace breathe
     sampletime_t currentTime = spitfire::util::GetTime();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    unsigned int uiPhysicsHz = physics::GetFrequencyHz();
+    size_t uiPhysicsHz = pWorld->GetFrequencyHz();
 #endif
     unsigned int uiUpdateHz = 30;
     unsigned int uiTargetFramesPerSecond = 60;

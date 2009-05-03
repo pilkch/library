@@ -26,6 +26,11 @@ namespace breathe
     class cFont;
   }
 
+  namespace physics
+  {
+    class cWorld;
+  }
+
   class cApplication
   {
   public:
@@ -173,6 +178,10 @@ namespace breathe
 
     scenegraph3d::cSceneGraph scenegraph;
     scenegraph2d::cSceneGraph scenegraph2D;
+
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    breathe::physics::cWorld* pWorld;
+#endif
 
   private:
     class cConsoleWindow : public gui::cModelessWindow

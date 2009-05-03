@@ -86,6 +86,7 @@ namespace breathe
 
     void cStaticVertexBuffer::SetVertices(const std::vector<float>& _vertices)
     {
+      ASSERT(!_vertices.empty());
       ASSERT(!IsCompiled());
 
       vertices = _vertices;
@@ -94,6 +95,7 @@ namespace breathe
 
     void cStaticVertexBuffer::SetNormals(const std::vector<float>& _normals)
     {
+      ASSERT(!_normals.empty());
       ASSERT(!IsCompiled());
 
       normals = _normals;
@@ -102,6 +104,7 @@ namespace breathe
 
     void cStaticVertexBuffer::SetColours(const std::vector<float>& _colours)
     {
+      ASSERT(!_colours.empty());
       ASSERT(!IsCompiled());
 
       colours = _colours;
@@ -110,6 +113,7 @@ namespace breathe
 
     void cStaticVertexBuffer::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
     {
+      ASSERT(!_textureCoordinates.empty());
       ASSERT(!IsCompiled());
 
       textureCoordinates = _textureCoordinates;
@@ -118,6 +122,7 @@ namespace breathe
 
     void cStaticVertexBuffer::SetIndices(const std::vector<uint16_t>& _indices)
     {
+      ASSERT(!_indices.empty());
       ASSERT(!IsCompiled());
 
       indices = _indices;

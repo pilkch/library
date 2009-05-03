@@ -6,11 +6,4 @@
 //typedef boost::shared_ptr cSmartPtr;
 #define cSmartPtr boost::shared_ptr
 
-namespace spitfire
-{
-  namespace util
-  {
-  }
-}
-
 #endif // CSMARTPTR_H

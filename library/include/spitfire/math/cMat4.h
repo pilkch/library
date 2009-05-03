@@ -36,7 +36,11 @@ namespace spitfire
       void ClearTranslation();
 
 
-      float& operator[](const size_t i) const;
+      const float& operator[](const size_t i) const;
+      float& operator[](const size_t i);
+
+      const float& GetValue(const size_t x, const size_t y) const;
+      float& GetValue(const size_t x, const size_t y);
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;
@@ -120,7 +124,12 @@ namespace spitfire
       }
 
       // Get a pointer to a (float*) for glMultMatrixf etc
-      const float* GetOpenGLMatrix() const { return &entries[0]; }
+      const float* GetOpenGLMatrixPointer() const { return &entries[0]; }
+
+      // Set from a pointer to a (float*) from
+      // glGetFloatv(GL_PROJECTION_MATRIX, proj);
+      // glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+      void SetFromOpenGLMatrix(const float* pEntries);
 
       void LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up);
 

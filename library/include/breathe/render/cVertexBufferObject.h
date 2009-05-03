@@ -13,6 +13,7 @@ namespace breathe
       cStaticVertexBuffer();
 
       bool IsCompiled() const { return bIsCompiled; }
+      size_t GetApproximateTriangleCount() const { return vertices.size() / 4; }
 
       void SetVertices(const std::vector<float>& vertices);
       void SetNormals(const std::vector<float>& normals);

@@ -116,6 +116,15 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 
 // *** Types
 
+// Apparently Visual Studio doesn't have ssize_t
+#ifdef __WIN__
+#ifdef BUILD_PLATFORM_64
+typedef int64_t ssize_t;
+#else
+typedef int32_t ssize_t;
+#endif
+#endif
+
 // Now taken directly from math.h/cmath because of a name clash
 // Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
 //#ifndef float_t

@@ -276,6 +276,7 @@ namespace breathe
 
 
       bool bRenderWireframe;
+      bool bRenderGui;
       bool bLight;
       bool bCubemap;
       bool bShader;

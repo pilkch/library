@@ -70,7 +70,7 @@ namespace breathe
       // Each line is at 1m, thick lines at 10m
 
       cGridRenderer::cGridRenderer() :
-        distanceBetweenEachLineInMeters(1)
+        distanceBetweenEachLineInMeters(10)
       {
       }
 

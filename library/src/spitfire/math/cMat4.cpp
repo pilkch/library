@@ -30,37 +30,53 @@ namespace spitfire
       SetFromMatrix(rhs);
     }
 
-    float& cMat4::operator[](const size_t i) const
+    const float& cMat4::operator[](const size_t i) const
     {
-      return const_cast<float&>(entries[i]);
+      ASSERT(i < 16);
+      return entries[i];
+    }
+
+    float& cMat4::operator[](const size_t i)
+    {
+      ASSERT(i < 16);
+      return entries[i];
+    }
+
+    const float& cMat4::GetValue(const size_t x, const size_t y) const
+    {
+      ASSERT(x < 4);
+      ASSERT(y < 4);
+      return entries[(y * 4) + x];
+    }
+
+    float& cMat4::GetValue(const size_t x, const size_t y)
+    {
+      ASSERT(x < 4);
+      ASSERT(y < 4);
+      return entries[(y * 4) + x];
     }
 
     void cMat4::SetEntry(size_t position, float value)
     {
-      if (position < 16) entries[position] = value;
-      //else "Illegal argument to cMat4::SetEntry()"
+      ASSERT(position < 16);
+      entries[position] = value;
     }
 
     float cMat4::GetEntry(size_t position) const
     {
-      if (position < 16) return entries[position];
-      else {
-        //"Illegal argument to cMat4::GetEntry()"
-        return 0;
-      }
+      ASSERT(position < 16);
+      return entries[position];
     }
 
     cVec4 cMat4::GetRow(size_t position) const
     {
-      if (position == 0) return cVec4(entries[0], entries[4], entries[8], entries[12]);
+      switch (position) {
+        case 0: return cVec4(entries[0], entries[4], entries[8], entries[12]);
+        case 1: return cVec4(entries[1], entries[5], entries[9], entries[13]);
+        case 2: return cVec4(entries[2], entries[6], entries[10], entries[14]);
+        case 3: return cVec4(entries[3], entries[7], entries[11], entries[15]);
+      };
 
-      if (position == 1) return cVec4(entries[1], entries[5], entries[9], entries[13]);
-
-      if (position == 2) return cVec4(entries[2], entries[6], entries[10], entries[14]);
-
-      if (position == 3) return cVec4(entries[3], entries[7], entries[11], entries[15]);
-
-      // "Illegal argument to cMat4::GetRow()"
       return cVec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
@@ -82,20 +98,20 @@ namespace spitfire
     void cMat4::LoadIdentity(void)
     {
       entries[0] = 1.0f;
-      entries[1] = 0;
-      entries[2] = 0;
-      entries[3] = 0;
-      entries[4] = 0;
+      entries[1] = 0.0f;
+      entries[2] = 0.0f;
+      entries[3] = 0.0f;
+      entries[4] = 0.0f;
       entries[5] = 1.0f;
-      entries[6] = 0;
-      entries[7] = 0;
-      entries[8] = 0;
-      entries[9] = 0;
+      entries[6] = 0.0f;
+      entries[7] = 0.0f;
+      entries[8] = 0.0f;
+      entries[9] = 0.0f;
       entries[10] = 1.0f;
-      entries[11] = 0;
-      entries[12] = 0;
-      entries[13] = 0;
-      entries[14] = 0;
+      entries[11] = 0.0f;
+      entries[12] = 0.0f;
+      entries[13] = 0.0f;
+      entries[14] = 0.0f;
       entries[15] = 1.0f;
     }
 
@@ -140,8 +156,7 @@ namespace spitfire
     cMat4 cMat4::operator-(const cMat4 & rhs) const    //overloaded operators
     {
       cMat4 result;
-      for (size_t entry = 0; entry < 16; entry++)
-      {
+      for (size_t entry = 0; entry < 16; entry++) {
         result.SetEntry(entry, entries[entry] - rhs.GetEntry(entry));  //subtract entries
       }
       return result;
@@ -176,8 +191,7 @@ namespace spitfire
     cMat4 cMat4::operator*(const float rhs) const
     {
       cMat4 result;
-      for (size_t entry=0; entry<16; entry++)
-      {
+      for (size_t entry=0; entry < 16; entry++) {
         result.SetEntry(entry, entries[entry]*rhs);    //multiply entries by rhs
       }
       return result;
@@ -187,28 +201,26 @@ namespace spitfire
     {
       cMat4 result;
 
-      if (rhs==0.0f)                    //cannot divide by zero
-      {
+      if (rhs == 0.0f) {                   //cannot divide by zero
         result.LoadZero();
         return result;
       }
 
-      float temp=1/rhs;
+      const float temp = 1.0f / rhs;
 
-      for (size_t entry=0; entry<16; entry++)
-      {
-        result.SetEntry(entry, entries[entry]*temp);    //divide entries by rhs
+      for (size_t entry=0; entry < 16; entry++) {
+        result.SetEntry(entry, entries[entry] * temp);    //divide entries by rhs
       }
+
       return result;
     }
 
     bool cMat4::operator==(const cMat4 & rhs) const
     {
-      for (size_t i=0; i<16; i++)
-      {
-        if (entries[i]!=rhs.entries[i])
-          return false;
+      for (size_t i=0; i < 16; i++) {
+        if (entries[i]!=rhs.entries[i]) return false;
       }
+
       return true;
     }
 
@@ -699,24 +711,21 @@ namespace spitfire
       entries[11]=-1;
 
       if (f != -1) entries[14] = -(2 * f * n) / (f - n);
-      else    //if f==-1, use an infinite far plane
-      {
+      else {  //if f==-1, use an infinite far plane
         entries[14]=-2*n;
       }
     }
 
     void cMat4::SetPerspective(float fovy, float aspect, float n, float f)
     {
-      float left, right, top, bottom;
+      // Convert fov from degrees to radians
+      fovy *= 0.017453295f;
 
-      //convert fov from degrees to radians
-      fovy*=0.017453295f;
+      float top = n * (float)tan(double(fovy * 0.5f));
+      float bottom = -top;
 
-      top=n*(float)tan(double(fovy/2.0f));
-      bottom=-top;
-
-      left=aspect*bottom;
-      right=aspect*top;
+      float left = aspect * bottom;
+      float right = aspect * top;
 
       SetPerspective(left, right, bottom, top, n, f);
     }
@@ -745,27 +754,27 @@ namespace spitfire
 
     void cMat4::SetRotationPartEuler(const double angleX, const double angleY, const double angleZ)
     {
-      double cr = cos((float)angleX );
-      double sr = sin((float)angleX );
-      double cp = cos((float)angleY );
-      double sp = sin((float)angleY );
-      double cy = cos((float)angleZ );
-      double sy = sin((float)angleZ );
+      const double cr = cos((float)angleX );
+      const double sr = sin((float)angleX );
+      const double cp = cos((float)angleY );
+      const double sp = sin((float)angleY );
+      const double cy = cos((float)angleZ );
+      const double sy = sin((float)angleZ );
 
-      entries[0] = ( float )( cp*cy );
-      entries[1] = ( float )( cp*sy );
-      entries[2] = ( float )( -sp );
+      entries[0] = float( cp*cy );
+      entries[1] = float( cp*sy );
+      entries[2] = float( -sp );
 
-      double srsp = sr*sp;
-      double crsp = cr*sp;
+      const double srsp = sr * sp;
+      const double crsp = cr * sp;
 
-      entries[4] = ( float )( srsp*cy-cr*sy );
-      entries[5] = ( float )( srsp*sy+cr*cy );
-      entries[6] = ( float )( sr*cp );
+      entries[4] = float( srsp*cy-cr*sy );
+      entries[5] = float( srsp*sy+cr*cy );
+      entries[6] = float( sr*cp );
 
-      entries[8] = ( float )( crsp*cy+sr*sy );
-      entries[9] = ( float )( crsp*sy-sr*cy );
-      entries[10] = ( float )( cr*cp );
+      entries[8] = float( crsp*cy+sr*sy );
+      entries[9] = float( crsp*sy-sr*cy );
+      entries[10] = float( cr*cp );
     }
 
     void cMat4::LookAt(const cVec3 &eye,const cVec3 &dir,const cVec3 &up)
@@ -811,6 +820,12 @@ namespace spitfire
     void cMat4::SetFromMatrix(const cMat4& rhs)
     {
       for (size_t i = 0; i < 16; i++) entries[i] = rhs.entries[i];
+    }
+
+    void cMat4::SetFromOpenGLMatrix(const float* pEntries)
+    {
+      ASSERT(pEntries != nullptr);
+      for (size_t i = 0; i < 16; i++) entries[i] = pEntries[i];
     }
   }
 }

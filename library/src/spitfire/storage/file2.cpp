@@ -126,38 +126,48 @@ namespace spitfire
     template <class T>
     void ReadStringsFromLittleEndianFile(std::ifstream& file, std::vector<std::wstring>& contents)
     {
-      std::vector<std::wstring> lines;
       const size_t bufferSize = 1024;
       T buffer[bufferSize];
-      size_t n = 0;
-      std::wstring line;
+      std::wostringstream o;
       while (file.good()) {
         CONSOLE<<"ReadStringsFromFile Reading buffer"<<std::endl;
         file.read((char*)&buffer[0], bufferSize * sizeof(T));
         CONSOLE<<"ReadStringsFromFile Finding how many read characters"<<std::endl;
-        n = file.gcount() / sizeof(T);
+        const size_t n = file.gcount() / sizeof(T);
 
         CONSOLE<<"ReadStringsFromFile Interpreting line"<<std::endl;
-        line.clear();
-        line.reserve(n);
-        for (size_t i = 0; i < n; i++) line += wchar_t(buffer[i]);
-
-        CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
-        lines.clear();
-        spitfire::string::SplitOnNewLines(line, lines);
-
-        CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
-        n = lines.size();
-        for (size_t i = 0; i < n; i++) {
-          CONSOLE<<"ReadStringsFromFile Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
-          contents.push_back(lines[i]);
-        }
+        for (size_t i = 0; i < n; i++) o<<wchar_t(buffer[i]);
       }
+
+      CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
+      std::vector<std::wstring> lines;
+      spitfire::string::SplitOnNewLines(o.str(), lines);
+
+      CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
+      const size_t n = lines.size();
+      for (size_t i = 0; i < n; i++) {
+        CONSOLE<<"ReadStringsFromFile Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
+        contents.push_back(lines[i]);
+      }
+    }
+
+    void ReadText(const string_t& filename, std::vector<std::string>& contents)
+    {
+      contents.clear();
+
+      std::vector<std::wstring> temp;
+      ReadText(filename, temp);
+
+      const size_t n = temp.size();
+      contents.reserve(n);
+      for (size_t i = 0; i < n; i++) contents.push_back(spitfire::string::ToUTF8(temp[i]));
     }
 
     void ReadText(const string_t& filename, std::vector<std::wstring>& contents)
     {
       CONSOLE<<"ReadText "<<filename<<std::endl;
+
+      contents.clear();
 
       if (!filesystem::FileExists(filename)) {
         CONSOLE<<"ReadText File not found "<<filename<<std::endl;

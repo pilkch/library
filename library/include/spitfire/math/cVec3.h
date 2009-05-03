@@ -39,10 +39,10 @@ namespace spitfire
       bool IsWithinBounds(const cVec3& minimum, const cVec3& maximum) const;
 
       // vector algebra
-      void Cross(const cVec3 & a, const cVec3 & b);
-      cVec3 CrossProduct(const cVec3 & rhs) const;
+      void Cross(const cVec3& a, const cVec3& b);
+      cVec3 CrossProduct(const cVec3& rhs) const;
 
-      inline float DotProduct(const cVec3 & rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
+      inline float DotProduct(const cVec3& rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
 
 
       void Normalise();
@@ -64,12 +64,12 @@ namespace spitfire
       cVec3 GetRotatedY(double angle) const;
       void RotateZ(double angle);
       cVec3 GetRotatedZ(double angle) const;
-      void RotateAxis(double angle, const cVec3 & axis);
-      cVec3 GetRotatedAxis(double angle, const cVec3 & axis) const;
+      void RotateAxis(double angle, const cVec3& axis);
+      cVec3 GetRotatedAxis(double angle, const cVec3& axis) const;
 
       // Rotate a vector by a cQuaternion
-      void RotateByQuaternion(const cQuaternion & rhs);
-      cVec3 GetRotatedByQuaternion(const cQuaternion & rhs) const;
+      void RotateByQuaternion(const cQuaternion& rhs);
+      cVec3 GetRotatedByQuaternion(const cQuaternion& rhs) const;
 
       // Pack to [0,1] for color
       void PackTo01();
@@ -78,7 +78,7 @@ namespace spitfire
       // Linear interpolation
       cVec3 lerp(const cVec3& v2, float factor) const;
 
-      cVec3 GetEdgeVector(cVec3& point2) const;
+      cVec3 GetEdgeVector(const cVec3& point2) const;
 
       // Overloaded operators
       // Binary operators
@@ -109,14 +109,14 @@ namespace spitfire
       void operator+=(const cVec3& rhs)
       { x += rhs.x;  y += rhs.y;  z += rhs.z; }
 
-      void operator-=(const cVec3 & rhs);
+      void operator-=(const cVec3& rhs);
       void operator*=(const float rhs);
       void operator/=(const float rhs);
 
-      inline void operator=(const cVec3 &rhs) { x=rhs.x; y=rhs.y; z=rhs.z; }
+      inline void operator=(const cVec3& rhs) { x=rhs.x; y=rhs.y; z=rhs.z; }
 
 
-      void operator*=(const cVec3 & rhs)
+      void operator*=(const cVec3& rhs)
       { x *= rhs.x; y *= rhs.y; z *= rhs.z; }
 
       // Unary operators
@@ -127,12 +127,11 @@ namespace spitfire
       operator float* () const { return (float*) this; }
       operator const float* () const { return (const float*) this; }
 
-      float &operator[](int i)
+      float& operator[](int i)
       {
         return ((0==i) ? x : ((1==i) ? y : z));
       }
 
-      // member variables
       float x;
       float y;
       float z;

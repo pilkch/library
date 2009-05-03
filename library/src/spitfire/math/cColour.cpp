@@ -76,13 +76,13 @@ namespace spitfire
 
     void cColour::Clamp()
     {
-      clamp(r);
-      clamp(g);
-      clamp(b);
-      clamp(a);
+      r = clamp(r, 0.0f, 1.0f);
+      g = clamp(g, 0.0f, 1.0f);
+      b = clamp(b, 0.0f, 1.0f);
+      a = clamp(a, 0.0f, 1.0f);
     }
 
-    cColour cColour::lerp(const cColour & c2, float factor)
+    cColour cColour::lerp(const cColour& c2, float factor)
     {
       cColour result;
       result = ((*this) * factor) + (c2 * (1.0f - factor));
@@ -108,7 +108,7 @@ namespace spitfire
       return (0.2126f * r) + (0.7152f * g) + (0.0722f * b);
     }
 
-    cColour cColour::operator +(const cColour & rhs) const
+    cColour cColour::operator +(const cColour& rhs) const
     {
       cColour result(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 
@@ -117,7 +117,7 @@ namespace spitfire
       return result;
     }
 
-    cColour cColour::operator -(const cColour & rhs) const
+    cColour cColour::operator -(const cColour& rhs) const
     {
       cColour result(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a);
 
@@ -126,7 +126,7 @@ namespace spitfire
       return result;
     }
 
-    cColour cColour::operator *(const cColour & rhs) const
+    cColour cColour::operator *(const cColour& rhs) const
     {
       cColour result(r * rhs.r, g * rhs.g, b * rhs.b, a * rhs.a);
 
@@ -135,7 +135,7 @@ namespace spitfire
       return result;
     }
 
-    cColour cColour::operator /(const cColour & rhs) const
+    cColour cColour::operator /(const cColour& rhs) const
     {
       cColour result(r / rhs.r, g / rhs.g, b / rhs.b, a / rhs.a);
 
@@ -172,7 +172,7 @@ namespace spitfire
       return result;
     }
 
-    bool cColour::operator ==(const cColour & rhs) const
+    bool cColour::operator ==(const cColour& rhs) const
     {
       if (r != rhs.r)
         return false;
@@ -186,33 +186,33 @@ namespace spitfire
       return true;
     }
 
-    bool cColour::operator !=(const cColour & rhs) const
+    bool cColour::operator !=(const cColour& rhs) const
     {
       return !((*this)==rhs);
     }
 
-    cColour cColour::operator +=(const cColour & rhs)
+    cColour cColour::operator +=(const cColour& rhs)
     {
       (*this)=(*this)+rhs;
 
       return (*this);
     }
 
-    cColour cColour::operator -=(const cColour & rhs)
+    cColour cColour::operator -=(const cColour& rhs)
     {
       (*this)=(*this)-rhs;
 
       return (*this);
     }
 
-    cColour cColour::operator *=(const cColour & rhs)
+    cColour cColour::operator *=(const cColour& rhs)
     {
       (*this)=(*this)*rhs;
 
       return (*this);
     }
 
-    cColour cColour::operator /=(const cColour & rhs)
+    cColour cColour::operator /=(const cColour& rhs)
     {
       (*this)=(*this)/rhs;
 

@@ -26,6 +26,7 @@
 #include <spitfire/util/unittest.h>
 
 #include <spitfire/math/math.h>
+#include <spitfire/math/units.h>
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cVec4.h>
@@ -876,49 +877,49 @@ namespace breathe
   }
 
 #ifdef BUILD_DEBUG
-  class cCurveUnitTest : protected util::cUnitTestBase
+  class cTorqueCurveUnitTest : protected util::cUnitTestBase
   {
   public:
-    cCurveUnitTest() :
-      cUnitTestBase(TEXT("cCurveUnitTest"))
-      {
+    cTorqueCurveUnitTest() :
+      cUnitTestBase(TEXT("cTorqueCurveUnitTest"))
+    {
+    }
+
+    void Test()
+    {
+      breathe::vehicle::cPartEngine engine;
+
+      for (breathe::sampletime_t currentTime = 0; currentTime < 1000; currentTime += 100) {
+        const float_t fRPM = float_t(currentTime);
+        engine.SetRPM(fRPM);
+
+        engine.Update(currentTime);
+
+        const float_t fTorqueNm = engine.GetTorqueNm();
+        LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
       }
 
-      void Test()
-      {
-        breathe::vehicle::cPartEngine engine;
+      for (breathe::sampletime_t currentTime = 1000; currentTime < 10001; currentTime += 1000) {
+        const float_t fRPM = float_t(currentTime);
+        engine.SetRPM(fRPM);
 
-        for (breathe::sampletime_t currentTime = 0; currentTime < 1000; currentTime += 100) {
-          const float_t fRPM = float_t(currentTime);
-          engine.SetRPM(fRPM);
-
-          engine.Update(currentTime);
-
-          const float_t fTorqueNm = engine.GetTorqueNm();
-          LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
-        }
-
-        for (breathe::sampletime_t currentTime = 1000; currentTime < 10001; currentTime += 1000) {
-          const float_t fRPM = float_t(currentTime);
-          engine.SetRPM(fRPM);
-
-          engine.Update(currentTime);
-
-          const float_t fTorqueNm = engine.GetTorqueNm();
-          LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
-        }
-
-        sampletime_t currentTime = 1000;
-        engine.SetRPM(30000.0f);
         engine.Update(currentTime);
-        ASSERT(engine.GetTorqueNm() < 0.1f);
-        engine.SetRPM(100000.0f);
-        engine.Update(currentTime);
-        ASSERT(engine.GetTorqueNm() < 0.1f);
+
+        const float_t fTorqueNm = engine.GetTorqueNm();
+        LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
       }
+
+      sampletime_t currentTime = 1000;
+      engine.SetRPM(30000.0f);
+      engine.Update(currentTime);
+      ASSERT(engine.GetTorqueNm() < 0.1f);
+      engine.SetRPM(100000.0f);
+      engine.Update(currentTime);
+      ASSERT(engine.GetTorqueNm() < 0.1f);
+    }
   };
 
-  cCurveUnitTest gCurveUnitTest;
+  cTorqueCurveUnitTest gTorqueCurveUnitTest;
 #endif
 }
 

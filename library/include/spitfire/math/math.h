@@ -1,6 +1,36 @@
 #ifndef CMATH_H
 #define CMATH_H
 
+// e^(i*pi) + 1 = 0
+// e^(i*z) = cos(z) + i*sin(z)
+// cos(z) = ( e^(i*z) + e^(-i*z) ) / 2
+// sin(z) = ( e^(i*z) - e^(-i*z) ) / (2*i)
+// sum(n=0 to k)(z^n) = ( 1-z^(k+1) ) / (1-z)
+// sine rule: a/sin(A) = b/sin(B) = c/sin(C)
+// cos(a)*cos(a) + sin(a)*sin(a) = 1
+// sin(-t) = -sin(t)
+// cos(-t) = cos(t)
+// tan(-t) = -tan(t)
+// sin(pi-t) = sin(t)
+// cos(pi-t) = -cos(t)
+// tan(pi-t) = -tan(t)
+// sin(s+t) = sin(s)*cos(t) + cos(s)*sin(t)
+// cos(s+t) = cos(s)*cos(t) - sin(s)*sin(t)
+// sin(s-t) = sin(s)*cos(t) - cos(s)*sin(t)
+// cos(s-t) = cos(s)*cos(t) + sin(s)*sin(t)
+// sin(2*t) = 2*sin(t)*cos(t)
+// cos(2*t) = cos(2*t) - sin(2*t) = 2*cos(2*t) - 1 = 1 - 2*sin(2*t)
+// sin(t/2) = ±sqrt((1 - cos(t)) / 2)
+// cos(t/2) = ±sqrt((1 + cos(t)) / 2)
+// sin(s) + sin(t) = 2 * sin((s+t)/2) * cos((s-t)/2)
+// sin(s) - sin(t) = 2 * sin((s-t)/2) * cos((s+t)/2)
+// cos(s) + cos(t) = 2 * cos((s+t)/2) * cos((s-t)/2)
+// cos(s) - cos(t) = -2 * sin((s+t)/2) * sin((s-t)/2)
+// sin(s)*cos(t) = ( sin(s+t) + sin(s-t) ) / 2
+// cos(s)*cos(t) = ( cos(s+t) + cos(s-t) ) / 2
+// sin(s)*sin(t) = ( cos(s-t) - cos(s+t) ) / 2
+
+
 template <class T>
 inline T min(const T& a, const T& b)
 {
@@ -13,86 +43,46 @@ inline T max(const T& a, const T& b)
   return (a > b) ? a : b;
 }
 
-// TODO: Rename this clamp
-template <class T>
-inline T min_max(const T& i, const T& lower, const T& upper)
-{
-  return (i < lower) ? lower : (i > upper) ? upper : i;
-}
-
 
 namespace spitfire
 {
   namespace math
   {
     // Constants
-    const float_t cPI               = 3.1415926535897932384626433832795f;
+    const float_t cPI               = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679f;
     const float_t c2_PI             = 6.28318530717958647692f;
+    const float_t cPI_SQUARED       = cPI * cPI;
     const float_t cPI_DIV_2         = 1.57079632679489661923f;
-    const float_t cPI_DIV_180       = 0.0174532925199432957692369076848861f;
-    const float_t c180_DIV_PI       = 57.2957795130823208767981548141052f;
+    const float_t cPI_DIV_180       = cPI / 180.0f;
+    const float_t c180_DIV_PI       = 180.0f / cPI;
 
     const float_t c4_DIV_3          = 4.0f / 3.0f;
-    const float_t cSQUARE_ROOT_OF_2 = 1.41421356237309504880f;
+    const float_t cSQUARE_ROOT_OF_2 = 1.4142135623730950488016887242097f;
+    const float_t cSQUARE_ROOT_OF_3 = 1.7320508075688772935274463415059f;
 
     const float_t cEPSILON          = 0.0001f; //10e-6f; //std::numeric_limits<float>::epsilon();
     extern const float_t cINFINITY; // 3.3e+38f;
 
+    const float_t cE               = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274f;
+    // euler constant
+    const float_t cGAMMA           = 0.57721566490153286060651209008240243104215933593992359880576723488486772677766467093694706329174674f;
+    // golden ratio = (1+sqrt(5))/2
+    const float_t cPHI             = 1.6180339887498948482045868343656381177203091798057628621354486227052604628189024497072072041893911374f;
+    // 1/log(2)
+    const float_t cINV_LOG2        = 1.44269504088896340735992468100189213742664595415298593413544940693110921918118507988552662289350f;
+    // ln(10)
+    const float_t cLN10            = 2.3025850929940456840179914546843642076011014886287729760333279009675726096773524802359972050895982983f;
+    // ln(pi)
+    const float_t cLNPI            = 1.1447298858494001741434273513530587116472948129153115715136230714721377698848260797836232702754897077f;
+    // lg(e)
+    const float_t cLOG2E           = 1.44269504088896340736f;
+    // log(e)
+    const float_t cLOG10E          = 0.434294481903251827651f;
+    // ln(2)
+    const float_t cLN2             = 0.693147180559945309417f;
+
     inline float RadiansToDegrees(float x) { return x * c180_DIV_PI; }
     inline float DegreesToRadians(float x) { return x * cPI_DIV_180; }
-
-    // Utility functions
-
-    // http://www.racer.nl/tech/converting.htm
-    // TODO: Consider using Boost.Units library
-    // http://www.boost.org/doc/libs/1_37_0/doc/html/boost_units.html
-
-    inline float kphTomph(float kph) { return kph * 1.609344f; }
-    inline float mphTokph(float mph) { return mph * 0.621371192f; }
-
-    // Power/Torque
-    // kW/Nm : hp/lb-ft
-
-    inline float HPToKw(float hp) { return hp * 0.74569987158227022f; }
-    inline float KwToHP(float kW) { return kW * 1.34102209f; }
-
-    inline float NmTolbft(float Nm) { return Nm * 1.3558179483314004f; }
-    inline float lbftToNm(float lbft) { return lbft * 0.7375621f; }
-
-    // wheel torque = torque at the engine * gear ratio
-    // speed = rpm * gear ratio * circumference of the wheels
-
-    // power = torque * angular_speed
-    // angular_speed = 2 * pi * rotational_speed
-    // rotational_speed = revolutions per unit time.
-
-    // power (in kW) = torque (in Nm) * 2 * pi * rotational speed (in rpm) / 60000.0f
-    // where 60000.0f comes from 60 seconds per minute times 1000.0f watts per kilowatt.
-
-    // kW = Nm * 2 * pi * RPM / 60000;
-    // Nm = kW / (2 * pi * RPM / 60000);
-
-    const float c1_OVER_RPM_KW = 1.0f / 60000.0f;
-
-    inline float NmToKw(float Nm, float RPM) { return Nm * c2_PI * RPM * c1_OVER_RPM_KW; }
-    inline float KwToNm(float kW, float RPM) { return kW / (c2_PI * RPM * c1_OVER_RPM_KW); }
-
-    inline float RPMToRadiansPerSecond(float RPM) { return RPM * 0.10471976f; }
-    inline float RadiansPerSecondToRPM(float RadiansPerSecond) { return RadiansPerSecond * 9.5493f; }
-
-    inline float rad_sToRPM(float rad_s) { return rad_s * 30.0f / cPI; }
-    inline float rpm_to_rad_s(float rpm) { return rpm * cPI / 30.0f; }
-
-    inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
-    inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
-
-    // ^ = square
-    // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
-    inline float PaTopsi(float Pa) { return Pa * 6894.75728001037f; }
-    inline float psiToPa(float psi) { return psi * 0.000145037681f; }
-
-    inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
-    inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
 
 
     template<class T> bool IsPowerOf2(T value) { return (value & (~value + 1)) == value; }
@@ -111,6 +101,17 @@ namespace spitfire
 
     // Return -1, 0, 1 for VALUE < 0, == 0, > 0, respectively.
     template <typename T> T sign(T value) { return value == 0 ? 0 : (value > 0 ? 1 : -1); }
+
+    // Round a to nearest int
+    template <typename T> T round(T value) { return ((value) > 0 ? int(value + 0.5) : -int(0.5 - value)); }
+
+    // Performs a fast round on a float
+    inline int round(const float_t f)
+    {
+      // Add a magical cookie to the float to transform its bits into its rounded integer representation
+      // http://www.d6.com/users/checker/pdfs/gdmfp.pdf
+      return int(double(f + 6755399441055744.L));
+    }
 
     // Clip VALUE to the range LOW--HIGH.
     template <typename T> T clip(T value, T low, T high) { return max(min(value, high), low); }
@@ -204,12 +205,7 @@ namespace spitfire
 
     template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
     {
-      return min_max(i, lower, upper);
-    }
-
-    inline float clamp(float i)
-    {
-      return clamp(i, 0.0f, 1.0f);
+      return (i < lower) ? lower : (i > upper) ? upper : i;
     }
 
     // Lineary interpolate from a to b using s = { 0..1 }
@@ -232,14 +228,14 @@ namespace spitfire
     }
 
     // This function gets the first power of 2 >= the int that we pass it.
-    inline int nextPowerOfTwo(int a)
+    inline int NextPowerOfTwo(int a)
     {
       int rval = 1;
       while(rval < a) rval<<= 1;
       return rval;
     }
 
-    inline bool AreApproximatelyEqual(float_t a, float_t b)
+    inline bool IsApproximatelyEqual(float_t a, float_t b)
     {
       return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
     }

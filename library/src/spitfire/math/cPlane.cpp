@@ -21,64 +21,49 @@ namespace spitfire
 {
   namespace math
   {
-    cPlane::cPlane(const cVec3& origin, const cVec3& normal)
+    cPlane::cPlane() :
+      normal(),
+      intercept(0.0f)
     {
-      this->normal = normal;
-      this->origin = origin;
-      equation[0] = normal.x;
-      equation[1] = normal.y;
-      equation[2] = normal.z;
-      equation[3] = -(normal.x*origin.x+normal.y*origin.y+normal.z*origin.z);
     }
 
-    // Construct from triangle:
-    cPlane::cPlane(const cVec3& p1,const cVec3& p2,const cVec3& p3)
+    cPlane::cPlane(const cVec3& newNormal, float newIntercept) :
+      normal(newNormal),
+      intercept(newIntercept)
     {
-      normal = (p2-p1).CrossProduct(p3-p1);
-      normal.Normalise();
-      origin = p1;
-      equation[0] = normal.x;
-      equation[1] = normal.y;
-      equation[2] = normal.z;
-      equation[3] = -(normal.x*origin.x+normal.y*origin.y+normal.z*origin.z);
     }
 
-    bool cPlane::IsFrontFacingTo(const cVec3& direction) const
+    // Plane from a triangle
+    cPlane::cPlane(const cVec3& p0, const cVec3& p1, const cVec3& p2)
     {
-      double dot = normal.DotProduct(direction);
-      return (dot <= 0);
+      normal = (p1 - p0).CrossProduct(p2 - p0);
+
+      const double length = normal.GetLength();
+
+      normal /= length;
+      intercept = p0.DotProduct(normal);
     }
-
-    double cPlane::SignedDistanceTo(const cVec3& point) const
-    {
-      return (point.DotProduct(normal)) + equation[3];
-    }
-
-
-
-
-
 
     cPlane::cPlane(const cPlane & rhs)
     {
-      normal=rhs.normal;
-      intercept=rhs.intercept;
+      normal = rhs.normal;
+      intercept = rhs.intercept;
     }
 
     void cPlane::SetFromPoints(const cVec3 & p0, const cVec3 & p1, const cVec3 & p2)
     {
-      normal=(p1-p0).CrossProduct(p2-p0);
+      normal = (p1 - p0).CrossProduct(p2 - p0);
 
-                                                normal.Normalise();
+      normal.Normalise();
 
       CalculateIntercept(p0);
     }
 
-                                void cPlane::Normalise()
+    void cPlane::Normalise()
     {
-      float normalLength=normal.GetLength();
-      normal/=normalLength;
-      intercept/=normalLength;
+      const float normalLength = normal.GetLength();
+      normal /= normalLength;
+      intercept /= normalLength;
     }
 
     // Find point of intersection of 3 planes
@@ -99,25 +84,28 @@ namespace spitfire
       return true;
     }
 
-    cVec3 cPlane::GetReflected(cVec3 v) const
+    cVec3 cPlane::GetReflected(const cVec3& v) const
     {
       return cVec3(-2.0f * (v.DotProduct(normal) * normal + v));
     }
 
-    float cPlane::DistancePoint(const cVec3& point) const
+    bool cPlane::IsFrontFacingToDirection(const cVec3& direction) const
     {
-      return point.DotProduct(normal)+intercept;
+      return (normal.DotProduct(direction) <= 0.0);
     }
 
-    int cPlane::ClassifyPoint(const cVec3& point) const
+    float cPlane::GetDistanceToPoint(const cVec3& point) const
     {
-      if (point.DotProduct(normal)+intercept==0.0f)
-        return POINT_ON_cPlane;
+      return point.DotProduct(normal) + intercept;
+    }
 
-      if (point.DotProduct(normal)+intercept>0.0f)
-        return POINT_IN_FRONT_OF_cPlane;
+    PLANE_POINT_CLASSIFICATION cPlane::ClassifyPoint(const cVec3& point) const
+    {
+      if ((point.DotProduct(normal) + intercept) == 0.0f) return PLANE_POINT_CLASSIFICATION_POINT_ON_PLANE;
 
-      return POINT_BEHIND_cPlane;  //otherwise
+      if ((point.DotProduct(normal) + intercept) > 0.0f) return PLANE_POINT_CLASSIFICATION_POINT_IN_FRONT_OF_PLANE;
+
+      return PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE;
     }
 
     cPlane cPlane::lerp(const cPlane& p2, float factor) const
@@ -130,6 +118,7 @@ namespace spitfire
 
       return result;
     }
+
 
     bool cPlane::operator ==(const cPlane& rhs) const
     {
