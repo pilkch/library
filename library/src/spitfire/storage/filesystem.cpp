@@ -12,15 +12,20 @@
 #include <sstream>
 #include <fstream>
 
+// Boost Includes
+#include <boost/filesystem/operations.hpp>
+
 #ifdef __LINUX__
 #include <dirent.h>
 #include <pwd.h>
 #include <errno.h>
+
+// TODO: Remove these
+#include <sys/stat.h>
 #elif defined(__WIN__)
 #include <windows.h>
 #endif
 
-#include <sys/stat.h>
 
 // Spitfire Includes
 #include <spitfire/spitfire.h>
@@ -383,35 +388,9 @@ namespace spitfire
       LOG<<"FileExists \""<<sFilename<<"\""<<std::endl;
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
-      WIN32_FIND_DATA FindFileData;
-      HANDLE hFind = FindFirstFile(sFilename.c_str(), &FindFileData);
-      if (hFind != INVALID_HANDLE_VALUE) {
-        FindClose(hFind);
-        return true;
-      }
-
-      return false;
-#elif defined(__LINUX__)
-      //int iValue = access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK);
-      //if (iValue == 0) {
-      //  LOG<<"FileExists returning true"<<std::endl;
-      //  return true;
-      //}
-
-      //if (errno == ENOENT) {
-      //  LOG<<"FileExists ENOENT returning false"<<std::endl;
-      //  return false;
-      //}
-
-      //if (errno == EACCES) LOG<<"FileExists EACCES"<<std::endl;
-
-      //LOG<<"FileExists returning true"<<std::endl;
-      //return true;
-
-      return (access(spitfire::string::ToUTF8(sFilename).c_str(), F_OK) == 0);
-#else
-#error "FileExists not implemented on this platform"
 #endif
+      boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return boost::filesystem::exists(file);
     }
 
     bool FindFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
@@ -634,6 +613,15 @@ namespace spitfire
       return MakeFilePath(sDirectory, sFullPath + spitfire::string::StripLeading(sFile, sFolderSeparator));
     }
 
+
+    // ************************************************* cFilePathParser *************************************************
+
+    cFilePathParser::cFilePathParser(const string_t& sFilePath)
+    {
+      ASSERT(false);
+    }
+
+
     // ************************************************* path *************************************************
 
     path::path(const string_t& sDirectory) :
@@ -653,50 +641,14 @@ namespace spitfire
 
     bool path::IsFile() const
     {
-#ifdef __WIN__
-      WIN32_FIND_DATA FindFileData;
-      HANDLE hFind = FindFirstFile(sPath.c_str(), &FindFileData);
-      if (hFind != INVALID_HANDLE_VALUE) {
-        FindClose(hFind);
-        return true;
-      }
-
-      return false;
-#elif defined(__LINUX__)
-      struct stat _stat;
-      int result = lstat(spitfire::string::ToUTF8(sPath).c_str(), &_stat);
-      if (0 > result) {
-        LOG<<"path::IsFile lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
-        return false;
-      }
-      return S_ISREG(_stat.st_mode);
-#else
-#error "path::IsFile not implemented on this platform"
-#endif
+      boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (boost::filesystem::exists(file) && boost::filesystem::is_regular(file));
     }
 
     bool path::IsDirectory() const
     {
-#ifdef __WIN__
-      WIN32_FIND_DATA FindFileData;
-      HANDLE hFind = FindFirstFile(sPath.c_str(), &FindFileData);
-      if (hFind != INVALID_HANDLE_VALUE) {
-        FindClose(hFind);
-        return true;
-      }
-
-      return false;
-#elif defined(__LINUX__)
-      struct stat _stat;
-      int result = lstat(spitfire::string::ToUTF8(sPath).c_str(), &_stat);
-      if (0 > result) {
-        LOG<<"path::IsDirectory lstat FAILED returned "<<result<<" for file "<<sPath<<std::endl;
-        return false;
-      }
-      return S_ISDIR(_stat.st_mode);
-#else
-#error "path::IsDirectory not implemented on this platform"
-#endif
+      boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (boost::filesystem::exists(file) && boost::filesystem::is_directory(file));
     }
 
     string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"

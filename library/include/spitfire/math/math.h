@@ -85,7 +85,6 @@ namespace spitfire
     inline float DegreesToRadians(float x) { return x * cPI_DIV_180; }
 
 
-    template<class T> bool IsPowerOf2(T value) { return (value & (~value + 1)) == value; }
 
     template<class T>
     T GetLog2(T value)
@@ -111,6 +110,20 @@ namespace spitfire
       // Add a magical cookie to the float to transform its bits into its rounded integer representation
       // http://www.d6.com/users/checker/pdfs/gdmfp.pdf
       return int(double(f + 6755399441055744.L));
+    }
+
+    inline float_t RoundDown(float_t fValue)
+    {
+      //return int(fValue);
+
+      return floorf(fValue);
+    }
+
+    inline float_t RoundUp(float_t fValue)
+    {
+      //return int(fValue) + 1;
+
+      return ceilf(fValue);
     }
 
     // Clip VALUE to the range LOW--HIGH.
@@ -234,6 +247,8 @@ namespace spitfire
       while(rval < a) rval<<= 1;
       return rval;
     }
+
+    template<class T> inline bool IsPowerOf2(T value) { return (value & (~value + 1)) == value; }
 
     inline bool IsApproximatelyEqual(float_t a, float_t b)
     {

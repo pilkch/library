@@ -1,10 +1,10 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-// If we run into problems we should switch over to boost::filesystem
 // http://www.boost.org/doc/libs/1_37_0/libs/filesystem/doc/index.htm
 // http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/file_size.cpp
 // http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/simple_ls.cpp
+// http://www.ibm.com/developerworks/aix/library/au-boostfs/index.html
 
 // Shared folder mirrors the directory structure of each program
 //
@@ -43,8 +43,10 @@ namespace spitfire
     inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(SPITFIRE_APPLICATION_NAME_LWR)); }
     inline string_t GetSpitfireSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("spitfire")); }
     string_t GetHomeDirectory();
+    string_t GetHomeDesktopDirectory();
     string_t GetHomeImagesDirectory();
     string_t GetHomeMusicDirectory();
+    string_t GetHomeDownloadsDirectory();
     string_t GetTempDirectory();
 #ifdef __APPLE__
     string_t GetResourcesPath();
@@ -107,6 +109,25 @@ namespace spitfire
     private:
       string_t sPreviousDirectory;
     };
+
+
+
+    class cFilePathParser
+    {
+    public:
+      explicit cFilePathParser(const string_t& sFilePath);
+
+      size_t GetFolderCount() const { return vFolderNames.size(); }
+      const string_t& GetFolder(size_t index) { ASSERT(index < GetFolderCount()); return vFolderNames[index]; }
+
+      bool IsFile() const { return !sFileName.empty(); }
+      const string_t& GetFile() const { ASSERT(IsFile()); return sFileName; }
+
+    private:
+      std::vector<string_t> vFolderNames;
+      string_t sFileName;
+    };
+
 
     class path
     {

@@ -90,6 +90,7 @@ namespace breathe
       const std::map<COMPONENT, cComponent*>::iterator iterEnd = components.end();
       while (iter != iterEnd) {
         cComponent* pComponent = iter->second;
+        ASSERT(pComponent != nullptr);
         pComponent->Update(currentTime);
 
         iter++;
@@ -101,11 +102,13 @@ namespace breathe
 
     void cGameObjectCollection::Add(cGameObjectRef pGameObject)
     {
+      ASSERT(pGameObject != nullptr);
       gameobjects.push_back(pGameObject);
     }
 
     void cGameObjectCollection::Remove(cGameObjectRef pGameObject)
     {
+      ASSERT(pGameObject != nullptr);
       gameobjects.remove(pGameObject);
     }
 
@@ -114,6 +117,7 @@ namespace breathe
       std::list<cGameObjectRef>::iterator iter = gameobjects.begin();
       const std::list<cGameObjectRef>::iterator iterEnd = gameobjects.end();
       while (iter != iterEnd) {
+        ASSERT((*iter) != nullptr);
         (*iter)->Update(currentTime);
 
         iter++;

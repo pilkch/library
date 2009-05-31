@@ -13,7 +13,8 @@ namespace spitfire
     //typedef boost::quantity<boost::length> cLength;
     //typedef boost::quantity<boost::force> cForce;
     //typedef boost::quantity<boost::torque> cTorque;
-    //typedef boost::quantity<boost::volume> cVolume;    //typedef boost::quantity<boost::area> cArea;
+    //typedef boost::quantity<boost::volume> cVolume;
+    //typedef boost::quantity<boost::area> cArea;
     //typedef boost::quantity<boost::time> cTime;
 
 
@@ -106,8 +107,8 @@ namespace spitfire
       float GetKiloGrams() const { return fValueKg; }
       float GetTons() const { return fValueKg * 0.001f; }
 
-      float GetWatts() const { return KiloGramsToWatts(fValueKg); }
-      float GetKiloWatts() const { return KiloGramsToKiloWatts(fValueKg); }
+      //float GetWatts() const { return KiloGramsToWatts(fValueKg); }
+      //float GetKiloWatts() const { return KiloGramsToKiloWatts(fValueKg); }
 
       float GetPounds() const { return KiloGramsToPounds(fValueKg); }
 
@@ -115,9 +116,9 @@ namespace spitfire
 
 
       void SetFromKiloGrams(float fKg) { fValueKg = fKg; }
-      void SetFromKiloWatts(float fKW) { fValueKg = KiloWattsToKiloGrams(fKW); }
+      //void SetFromKiloWatts(float fKW) { fValueKg = KiloWattsToKiloGrams(fKW); }
 
-      void SetFromHorsepower(float fHP) { fValueKg = HorsePowerToKiloGrams(fHP); }
+      //void SetFromHorsepower(float fHP) { fValueKg = HorsePowerToKiloGrams(fHP); }
 
 
       cTorque GetTorqueAtRPM(float fRPM) const;
@@ -165,14 +166,16 @@ namespace spitfire
     inline cTorque cForce::GetTorqueAtRPM(float fRPM) const
     {
       cTorque f;
-      f.SetFromNewtonMeters(KwToNm(GetKiloWatts(), fRPM));
+      ASSERT(false);
+      //f.SetFromNewtonMeters(KwToNm(GetKiloWatts(), fRPM));
       return f;
     }
 
     inline cForce cTorque::GetForceAtRPM(float fRPM) const
     {
       cForce f;
-      f.SetFromKiloWatts(NmToKw(GetNewtonMeters(), fRPM));
+      ASSERT(false);
+      //f.SetFromKiloWatts(NmToKw(GetNewtonMeters(), fRPM));
       return f;
     }
   }

@@ -15,9 +15,15 @@
 
 #include <locale>
 
+#include <iconv.h>
+#include <errno.h>
+
 #include <spitfire/spitfire.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
+
+// Test strings
+// http://www.columbia.edu/kermit/utf8.html
 
 #define WHITE_SPACE "\t\v\r\n"
 #define LWHITE_SPACE L"\t\v\r\n"
@@ -427,6 +433,118 @@ namespace spitfire
     {
       return gLocalisedStringTransformer.ToUpper(source);
     }
+
+
+
+
+    /*
+    // This doesn't seem to work correctly, it needs more debugging and testing
+    const size_t nBufferLength = 10;
+
+    // http://www.manpagez.com/man/3/iconv_open/
+    // http://www.manpagez.com/man/3/iconv/
+
+    template <class I, class O, class OS, class OT>
+    void ConvertString(const I& sIn, O& sOut, const char* szInFormat, const char* szOutFormat)
+    {
+      //LOG<<"ConvertString szIn=\""<<sIn<<"\""<<std::endl;
+
+      sOut[0] = 0;
+
+      iconv_t i = iconv_open(szOutFormat, szInFormat);
+      if (i == (iconv_t) -1) {
+        //if (errno == EINVAL) LOG<<"ConvertString iconv_open FAILED Conversion from ISO-8859-1 to UTF-8 not available"<<std::endl;
+        //else LOG<<"ConvertString iconv_open FAILED Unknown reason "<<errno<<std::endl;
+
+        return;
+      }
+
+      const size_t inLength = sIn.length();
+      size_t fromlen = inLength;
+
+      char* szIn = const_cast<char*>((const char*)sIn.data());
+
+      // This is our output stream
+      OS o;
+
+      // Temporary buffer for storing each part of the conversion
+      OT* szBuffer = new OT[nBufferLength];
+
+      size_t nRead = 0;
+      while (nRead < inLength) {
+        szBuffer[0] = 0;
+
+        char* szOut = (char*)szBuffer;
+        size_t outLength = nBufferLength;
+
+        fromlen = inLength - nRead;
+
+        //LOG<<"ConvertString BEFORE fromlen="<<fromlen<<", outLength="<<outLength<<", szBuffer=\""<<szBuffer<<"\", szIn=\""<<szIn<<"\", szOut=\""<<szOut<<"\""<<std::endl;
+
+        const size_t iconv_value = iconv(i, &szIn, &fromlen, &szOut, &outLength);
+        if (iconv_value == size_t(-1)) {
+          if (errno == E2BIG) {
+            // We handle this case, so not really an error
+            //LOG<<"ConvertString iconv FAILED \"There is not sufficient room at *outbuf\"");
+            //break;
+          } else if (errno == EILSEQ) {
+              //LOG<<"ConvertString iconv FAILED \"An invalid multibyte sequence has been encountered in the input\""<<std::endl;
+              break;
+          } else if (errno == EINVAL) {
+              //LOG<<"ConvertString iconv FAILED \"An  incomplete  multibyte  sequence  has been encountered in the input\""<<std::endl;
+              break;
+          } else {
+              //LOG<<"ConvertString iconv FAILED Could not convert string, error: "<<errno<<std::endl;
+              break;
+          }
+        }
+
+        //LOG<<"ConvertString AFTER fromlen="<<fromlen<<", outLength="<<outLength<<", szBuffer=\""<<szBuffer<<"\", szIn=\""<<szIn<<"\", szOut=\""<<szOut<<"\""<<std::endl;
+
+        // Make sure that the string is null terminated
+        if (outLength == 0) szOut[0] = 0;
+
+        nRead += fromlen;
+
+        o<<szBuffer;
+      }
+
+      delete [] szBuffer;
+
+      iconv_close(i);
+
+      sOut = o.str();
+    }
+
+    std::string ToUTF8(const std::wstring& source)
+    {
+      std::string result;
+
+    #ifdef __WIN__
+      ConvertString<std::wstring, std::string, std::ostringstream, char>(source, result, "UTF-16LE", "UTF-8");
+    #else
+      ConvertString<std::wstring, std::string, std::ostringstream, char>(source, result, "UTF-32LE", "UTF-8");
+    #endif
+
+      return result;
+    }
+
+    std::wstring ToWchar_t(const std::string& source)
+    {
+      // This doesn't work yet, ConvertString needs to be fixed
+      ASSERT(false);
+
+      std::wstring result;
+
+    #ifdef __WIN__
+      ConvertString<std::string, std::wstring, std::wostringstream, wchar_t>(source, result, "UTF-8", "UTF-16LE");
+    #else
+      ConvertString<std::string, std::wstring, std::wostringstream, wchar_t>(source, result, "UTF-8", "UTF-32LE");
+    #endif
+
+      return result;
+    }*/
+
 
 
     std::wstring ToWchar_t(const std::string& source)
