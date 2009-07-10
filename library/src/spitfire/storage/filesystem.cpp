@@ -33,6 +33,7 @@
 #include <spitfire/util/operatingsystem.h>
 
 #include <spitfire/storage/filesystem.h>
+#include <spitfire/platform/pipe.h>
 
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>
@@ -151,6 +152,7 @@ namespace spitfire
       while (i.get(c)) o.put(c);
     }
 
+
     string_t GetHomeDirectory()
     {
       string_t sPath;
@@ -160,13 +162,27 @@ namespace spitfire
       ASSERT(SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
 #endif
-#ifdef BUILD_LINUX_UNIX
-      char* szHome = getenv("HOME");
-      if (szHome != nullptr) string_t(szHome);
-      else {
-        struct passwd *pw = getpwuid(getuid());
-        ASSERT(pw != nullptr);
-        sPath = string_t(pw->pw_dir);
+#ifdef PLATFORM_LINUX_OR_UNIX
+      sPath = TEXT("/opt");
+
+      // Try getpwuid
+      struct passwd* pw = nullptr;
+      setpwent();
+      pw = getpwuid(getuid());
+      endpwent();
+
+      if (pw != nullptr) {
+        // We have a valid password entity
+        sPath = string::ToString_t(pw->pw_dir);
+      } else {
+        // Try XDG
+        std::string sData = platform::PipeReadToString(TEXT("xdg-user-dir"));
+        if (sData != "") sPath = string::ToString_t(sData);
+        else {
+          // Try environment variable
+          string_t sValue;
+          if (operatingsystem::GetEnvironmentVariable(TEXT("HOME"), sValue)) sPath = sValue;
+        }
       }
 #endif
       ASSERT(!sPath.empty());

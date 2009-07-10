@@ -31,12 +31,21 @@ namespace spitfire
 
   void SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
   {
-    putenv(spitfire::string::ToCString(sVariable), spitfire::string::ToCString(sValue));
+    bool bOverwrite = true;
+    int iOverwrite = bOverwrite ? 1 : 0;
+    int result = setenv(spitfire::string::ToCString(sVariable), spitfire::string::ToCString(sValue), iOverwrite);
+    if (result != 0) LOG<<"SetEnvironmentVariable setenv FAILED "<<result<<std::endl;
+    else {
+      // Also export this variable
+      //putenv(spitfire::string::ToCString(sVariable));
+      putenv(spitfire::string::ToCString(sVariable), spitfire::string::ToCString(sValue));
+    }
   }
 
   void RemoveEnvironmentVariable(const string_t& sVariable)
   {
-    unsetenv(spitfire::string::ToCString(sVariable));
+    int reseult = unsetenv(ToCString(sVariable));
+    if (result != 0) LOG<<"RemoveEnvironmentVariable unsetenv FAILED "<<result<<std::endl;
   }
 #endif
 }
