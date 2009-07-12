@@ -64,6 +64,7 @@ namespace spitfire
     }
 #endif
 
+    bool IsUserAdministrator();
     bool IsUserRoot();
 
     inline uint32_t GetCurrentProcessId()

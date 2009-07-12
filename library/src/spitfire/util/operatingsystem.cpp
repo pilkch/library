@@ -222,15 +222,8 @@ namespace spitfire
       LOG<<"GetUserHome GetEnvironmentVariable FAILED Finding HOME"<<std::endl;
     }
 
-    bool IsUserRoot()
-    {
-      string_t sUser;
-      GetEnvironmentVariable(TEXT("USER"), sUser);
-      return ((getuid() == 0) || (sUser == TEXT("root")) == 0); // Check if we are root
-    }
 
-
-    // ** LIsUserAdministrator
+    // ** IsUserAdministrator
     // Returns true if the user is a member of group admin
 
     bool IsUserAdministrator()
@@ -253,6 +246,11 @@ namespace spitfire
       }
 
       return false;
+    }
+
+    bool IsUserRoot()
+    {
+      return (getuid() == 0); // If getuid is 0 then we are root
     }
 #endif
 
