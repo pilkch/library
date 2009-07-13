@@ -30,6 +30,8 @@
 // Directory
 // Login
 
+#include <spitfire/util/cString.h>
+
 namespace spitfire
 {
   // Can pass in either UTF8 or unicode, however, you will always get back unicode

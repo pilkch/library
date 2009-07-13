@@ -1,6 +1,8 @@
 #ifndef CSTRING_H
 #define CSTRING_H
 
+#include <spitfire/spitfire.h>
+
 // http://www.cppreference.com/wiki/io/io_flags
 // http://www.cppreference.com/wiki/c/string/start
 // http://www.i18nguy.com/unicode/c-unicode.html
