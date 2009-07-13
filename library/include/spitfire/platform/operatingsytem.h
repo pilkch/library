@@ -4,24 +4,28 @@
 namespace spitfire
 {
 #ifdef __WIN__
-  void GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
+  // *** Environment variables
+
+  inline void GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
   {
-    tchar szValue[LSTR];
-      ::GetEnvironmentVariable(spitfire::string::ToCString(sVariable), szValue, LSTR);
-      sValue = szValue;
+    tchar szValue[1024];
+    GetEnvironmentVariable(spitfire::string::ToCString(sVariable), szValue, 1024);
+    sValue = szValue;
   }
 
-  void SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
+  inline void SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
   {
-      ::SetEnvironmentVariable(spitfire::string::ToCString(sVariable), spitfire::string::ToCString(sValue));
+    SetEnvironmentVariable(spitfire::string::ToCString(sVariable), spitfire::string::ToCString(sValue));
   }
 
-  void RemoveEnvironmentVariable(const string_t& sVariable)
+  inline void RemoveEnvironmentVariable(const string_t& sVariable)
   {
-      ::SetEnvironmentVariable(spitfire::string::ToCString(sVariable), nullptr);
+    SetEnvironmentVariable(spitfire::string::ToCString(sVariable), nullptr);
   }
 #elif defined(PLATFORM_LINUX_OR_UNIX)
-  void GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
+  // *** Environment variables
+
+  inline void GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
   {
     sValue.clear();
 
@@ -29,7 +33,7 @@ namespace spitfire
     if (szValue != nullptr) sValue = szValue;
   }
 
-  void SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
+  inline void SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
   {
     bool bOverwrite = true;
     int iOverwrite = bOverwrite ? 1 : 0;
@@ -42,11 +46,49 @@ namespace spitfire
     }
   }
 
-  void RemoveEnvironmentVariable(const string_t& sVariable)
+  inline void RemoveEnvironmentVariable(const string_t& sVariable)
   {
-    int reseult = unsetenv(ToCString(sVariable));
+    int result = unsetenv(ToCString(sVariable));
     if (result != 0) LOG<<"RemoveEnvironmentVariable unsetenv FAILED "<<result<<std::endl;
   }
+
+
+   // *** Linux specific version functions
+
+   inline bool IsRunningInGnome()
+   {
+      return (getenv("GNOME_DESKTOP_SESSION_ID") != nullptr);
+   }
+
+   inline bool IsRunningInKDE()
+   {
+      return (getenv("KDE_FULL_SESSION") != nullptr);
+   }
+
+
+   // *** Open functions
+
+   inline void OpenFile(const string_t& sFullPath)
+   {
+      string_t sCommand = (IsRunningInKDE()) ? TEXT("kfmclient exec ") : TEXT("gnome-open ");
+      sCommand += sFullPath;
+      system(ToUTF8(sCommand).c_str());
+   }
+
+   inline void OpenTextFile(const string_t& sFullPath)
+   {
+      OpenFile(sFullPath);
+   }
+
+   inline void OpenFolder(const string_t& sFullPath)
+   {
+      OpenFile(sFullPath);
+   }
+
+   inline void OpenWebPage(const string_t& sURL)
+   {
+      OpenFile(sURL);
+   }
 #endif
 }
 
