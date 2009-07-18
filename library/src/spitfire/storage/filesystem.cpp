@@ -30,10 +30,11 @@
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 #include <spitfire/util/cString.h>
-#include <spitfire/util/operatingsystem.h>
+
+#include <spitfire/platform/operatingsystem.h>
+#include <spitfire/platform/pipe.h>
 
 #include <spitfire/storage/filesystem.h>
-#include <spitfire/platform/pipe.h>
 
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>
