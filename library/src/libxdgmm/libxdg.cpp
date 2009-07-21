@@ -1,10 +1,10 @@
 // Standard headers
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
-
-#include <cassert>
 
 // libxdgmm headers
 #include <libxdgmm/libxdg.h>
@@ -14,6 +14,124 @@
 
 namespace xdg
 {
+  // *** cPipeIn
+
+  class cPipeIn {
+  public:
+    explicit cPipeIn(const std::string& sCommandLine);
+    ~cPipeIn();
+
+    bool Open(const std::string& sCommandLine);
+    int Close();
+
+    bool IsOpen() const;
+    bool IsDataReady() const;
+
+    size_t GetBytesReady() const;
+    size_t Read(void* Buffer, size_t Length);
+
+  private:
+    FILE* fhPipe;
+    int fd;
+  };
+
+  cPipeIn::cPipeIn(const std::string& sCommandLine) :
+    fhPipe(nullptr),
+    fd(-1)
+  {
+    Open(sCommandLine);
+  }
+
+  cPipeIn::~cPipeIn()
+  {
+    Close();
+  }
+
+  bool cPipeIn::Open(const std::string& sCommandLine)
+  {
+    Close();
+
+    fhPipe = popen(sCommandLine.c_str(), "r");
+    if (fhPipe == nullptr) {
+      //std::cout<<"cPipeIn::Open popen FAILED, returning false"<<std::endl;
+      fd = -1;
+      return false;
+    }
+    fd = fileno(fhPipe);
+    //if (fd == -1) std::cout<<"cPipeIn::Open fd=-1"<<std::endl;
+    fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
+
+    //std::cout<<"cPipeIn::Open returning true"<<std::endl;
+    return true;
+  }
+
+  int cPipeIn::Close()
+  {
+    int iReturnValueOfCommand = 0;
+
+    if (fhPipe != nullptr) {
+      iReturnValueOfCommand = pclose(fhPipe);
+      fhPipe = nullptr;
+    }
+
+    fd = -1;
+
+    return iReturnValueOfCommand;
+  }
+
+  bool cPipeIn::IsOpen() const
+  {
+    return (fhPipe != nullptr);
+  }
+
+  bool cPipeIn::IsDataReady() const
+  {
+    assert(IsOpen());
+    int iSelectResult = 0;
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(fd, &readfds);
+    timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    iSelectResult = select(int(fd) + 1, &readfds, NULL, NULL, &tv);
+
+    //std::cout<<"cPipeIn::IsDataReady returning "<<(iSelectResult > 0)<<std::endl;
+    return (iSelectResult > 0);
+  }
+
+  size_t cPipeIn::GetBytesReady() const
+  {
+    u_long nBytesReady = 0;
+    int n = 0;
+    if (ioctl(fd, FIONREAD, &n) == -1) {
+      //std::cout<<"cPipeIn::GetBytesReady ioctl error"<<std::endl;
+    } else {
+      //std::cout<<"cPipeIn::GetBytesReady ioctl returned "<<n<<std::endl;
+      nBytesReady = n;
+    }
+    assert(int(nBytesReady) >= 0);
+    //std::cout<<"cPipeIn::GetBytesReady returning "<<nBytesReady<<std::endl;
+    return nBytesReady;
+  }
+
+  size_t cPipeIn::Read(void* Buffer, size_t Length)
+  {
+    int nRead = read(fd, Buffer, Length);
+    if (nRead < 0) {
+      //std::cout<<"cPipeIn::Read FAILED: "<<nRead<<std::endl;
+      nRead = 0;
+    }
+    if (size_t(nRead) < Length) {
+      //std::cout<<"cPipeIn::Read errno="<<errno<<std::endl;
+      //std::cout<<"cPipeIn::Read nRead "<<nRead<<" < Length "<<Length<<std::endl;
+    }
+    return size_t(nRead);
+  }
+
+
+
   bool GetEnvironmentVariable(const std::string& sVariable, std::string& sValue)
   {
     sValue.clear();
@@ -33,28 +151,6 @@ namespace xdg
   }
 
 
-  std::string GetDirectoryErrorString(int result)
-  {
-    // TODO: Actually fill out these errors
-    /*switch (result) {
-      case 1: {
-        return "Error in command line syntax";
-      }
-      case 2: {
-        return "One of the files passed on the command line did not exist";
-      }
-      case 3: {
-        return "A required tool could not be found";
-      }
-      case 4: {
-        return "The action failed";
-      }
-    };*/
-
-    return "";
-  }
-
-
   // TODO: There are more of these to add
   // xdg-user-dir --help
 
@@ -68,7 +164,7 @@ namespace xdg
   // XDG_VIDEOS_DIR=/home/chris/
 
 
-  int GetDataHome(std::string& directory)
+  void GetDataHome(std::string& directory)
   {
     directory.clear();
 
@@ -76,11 +172,9 @@ namespace xdg
       std::string home;
       if (GetEnvironmentVariable("HOME", home)) directory = home + "/.local/share";
     }
-
-    return 0;
   }
 
-  int GetConfigHome(std::string& directory)
+  void GetConfigHome(std::string& directory)
   {
     directory.clear();
 
@@ -88,8 +182,6 @@ namespace xdg
       std::string home;
       if (GetEnvironmentVariable("HOME", home)) directory = home + "/.config";
     }
-
-    return 0;
   }
 
 

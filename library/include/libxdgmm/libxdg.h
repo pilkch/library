@@ -31,17 +31,15 @@
 
 namespace xdg
 {
+  // For checking if xdg executables are actually present
   bool IsInstalled();
 
 
-  // Directory location functions
-  std::string GetDirectoryErrorString(int result);
-
   // "The base directory relative to which user specific data files should be stored"
-  int GetDataHome(std::string& directory);
+  void GetDataHome(std::string& directory);
 
   // "The base directory relative to which user specific configuration files should be stored"
-  int GetConfigHome(std::string& directory);
+  void GetConfigHome(std::string& directory);
 
 
   // Opening files, folders and URLs
