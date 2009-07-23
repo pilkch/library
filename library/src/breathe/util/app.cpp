@@ -205,6 +205,8 @@ int intersect_triangle(
 // Boost includes
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 //FreeType Headers
 #include <freetype/ft2build.h>
@@ -236,6 +238,7 @@ int intersect_triangle(
 #include <spitfire/util/cTimer.h>
 #include <spitfire/util/unittest.h>
 #include <spitfire/util/lang.h>
+#include <spitfire/util/thread.h>
 
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/xml.h>
@@ -257,7 +260,6 @@ int intersect_triangle(
 
 #include <breathe/util/app.h>
 #include <breathe/util/cVar.h>
-#include <breathe/util/thread.h>
 #include <breathe/util/base.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -825,8 +827,7 @@ namespace breathe
     LoadConfigXML();
 
     // Init SDL
-    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 )
-    {
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 ) {
       LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
       bReturnCode = breathe::BAD;
       return breathe::BAD;
@@ -1635,7 +1636,7 @@ namespace breathe
     AddChild(pInput);
   }
 
-  void cApplication::cConsoleWindow::_OnEvent(gui::id_t idControl)
+  void cApplication::cConsoleWindow::_OnEvent(const gui::cEvent& event)
   {
     std::cout<<"cApplication::cConsoleWindow::_OnEvent"<<std::endl;
   }

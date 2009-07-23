@@ -181,8 +181,6 @@ namespace spitfire
   typedef uint32_t char32_t;
   #else
   #define SIZEOF_WCHAR_T 4
-  typedef uint16_t char16_t;
-  typedef wchar_t char32_t;
   #endif
 
   #ifdef UNICODE

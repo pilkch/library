@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include <string>
+#include <vector>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

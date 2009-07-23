@@ -61,9 +61,9 @@ namespace spitfire
     cMD5_Context ctx;
 
     void Start();
-    void Update(cMD5_Context* ctx, unsigned char* pInput, uint32_t length);
+    void Update(cMD5_Context* ctx, const unsigned char* pInput, uint32_t length);
     void Finish(cMD5_Context* ctx);
-    void Process(cMD5_Context* ctx, unsigned char data[64]);
+    void Process(cMD5_Context* ctx, const unsigned char data[64]);
 
     unsigned char result[16]; //Raw result
     std::string sResult; //Result formatted

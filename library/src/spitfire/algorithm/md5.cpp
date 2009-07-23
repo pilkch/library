@@ -164,7 +164,7 @@ namespace spitfire
     ctx.state[3] = 0x10325476;
   }
 
-  void cMD5::Process(cMD5_Context* ctx, unsigned char data[64])
+  void cMD5::Process(cMD5_Context* ctx, const unsigned char data[64])
   {
     uint32_t X[16], A, B, C, D;
 
@@ -287,7 +287,7 @@ namespace spitfire
     ctx->state[3] += D;
   }
 
-  void cMD5::Update(cMD5_Context* ctx, unsigned char* pInput, uint32_t length)
+  void cMD5::Update(cMD5_Context* ctx, const unsigned char* pInput, uint32_t length)
   {
     if (length == 0) return;
 

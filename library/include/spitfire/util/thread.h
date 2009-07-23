@@ -1,9 +1,7 @@
 #ifndef CTHREAD_H
 #define CTHREAD_H
 
-#error "This is now generally deprecated in favour of Spitfire threads which use Boost"
-
-namespace breathe
+namespace spitfire
 {
   namespace util
   {
@@ -11,18 +9,12 @@ namespace breathe
 
     inline void SleepThisThread(uint32_t milliseconds)
     {
-      SDL_Delay(milliseconds);
+      boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
     }
 
     inline void YieldThisThread()
     {
-#ifdef __WIN__
-      ::Sleep(0);
-      SDL_Delay(0);
-      SDL_Delay(1);
-#else
-      sched_yield();
-#endif
+      boost::this_thread::yield();
     }
 
     class cThread
@@ -42,7 +34,7 @@ namespace breathe
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
 
-      SDL_Thread* thread;
+      boost::thread* pThread;
 
       NO_COPY(cThread);
     };
@@ -52,11 +44,11 @@ namespace breathe
     public:
       friend class cLockObject;
 
-      cMutex();
-      ~cMutex();
+      cMutex() {}
+      ~cMutex() {}
 
     private:
-      SDL_mutex* mutex;
+      boost::mutex mutex;
 
       NO_COPY(cMutex);
     };
@@ -65,10 +57,9 @@ namespace breathe
     {
     public:
       explicit cLockObject(cMutex& mutex);
-      ~cLockObject();
 
     private:
-      cMutex& mutex;
+      boost::mutex::scoped_lock lock;
 
       NO_COPY(cLockObject);
     };
@@ -77,7 +68,7 @@ namespace breathe
     // *** cThread
 
     inline cThread::cThread() :
-      thread(nullptr)
+      pThread(nullptr)
     {
     }
 
@@ -88,35 +79,27 @@ namespace breathe
 
     inline bool cThread::IsRunning() const
     {
-      return (thread != nullptr);
+      return (pThread != nullptr);
     }
 
     inline bool cThread::IsFinished() const
     {
-      return (thread != nullptr);
-    }
-
-    inline void cThread::Run()
-    {
-      thread = SDL_CreateThread(RunThreadFunction, this);
+      return (pThread != nullptr);
     }
 
     inline void cThread::WaitUntilFinished()
     {
-      LOG<<"cThread::WaitUntilFinished"<<std::endl;
-      ASSERT(thread != nullptr);
-      SDL_WaitThread(thread, NULL);
-      thread = nullptr;
-      LOG<<"cThread::WaitUntilFinished returning"<<std::endl;
+      ASSERT(pThread != nullptr);
+      pThread->join();
+      SAFE_DELETE(pThread);
     }
 
     inline void cThread::StopNow()
     {
-      LOG<<"cThread::StopNow"<<std::endl;
-      ASSERT(thread != nullptr);
-      SDL_KillThread(thread);
-      thread = nullptr;
-      LOG<<"cThread::StopNow returning"<<std::endl;
+      ASSERT(pThread != nullptr);
+      pThread->interrupt();
+      pThread->join();
+      SAFE_DELETE(pThread);
     }
 
     // Not the most elegant method, but it works
@@ -132,34 +115,11 @@ namespace breathe
     }
 
 
-    // *** cMutex
-
-    inline cMutex::cMutex()
-    {
-      mutex = SDL_CreateMutex();
-      ASSERT(mutex != nullptr);
-    }
-
-    inline cMutex::~cMutex()
-    {
-      ASSERT(mutex != nullptr);
-      SDL_DestroyMutex(mutex);
-    }
-
-
     // *** cLockObject
 
     inline cLockObject::cLockObject(cMutex& _mutex) :
-      mutex(_mutex)
+      lock(_mutex.mutex)
     {
-      ASSERT(mutex.mutex != nullptr);
-      SDL_mutexP(mutex.mutex);
-    }
-
-    inline cLockObject::~cLockObject()
-    {
-      ASSERT(mutex.mutex != nullptr);
-      SDL_mutexV(mutex.mutex);
     }
   }
 }

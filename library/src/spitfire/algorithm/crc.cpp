@@ -6,7 +6,7 @@
 #define PRIVATE_BUFFER_SIZE  1024
 #endif
 
-#include <spitfire/include/algorithm/crc.h>
+#include <spitfire/algorithm/crc.h>
 
 namespace spitfire
 {

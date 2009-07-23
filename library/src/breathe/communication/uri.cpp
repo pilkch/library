@@ -12,6 +12,10 @@
 #include <map>
 #include <sstream>
 
+// Boost headers
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
@@ -25,13 +29,13 @@
 
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
+#include <spitfire/util/thread.h>
 
 #include <spitfire/math/math.h>
 
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/thread.h>
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 

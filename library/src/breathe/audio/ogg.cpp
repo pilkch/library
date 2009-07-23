@@ -12,6 +12,8 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <ogg/ogg.h>
 
@@ -20,6 +22,7 @@
 #include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
+#include <spitfire/util/thread.h>
 
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec2.h>
@@ -27,7 +30,6 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/geometry.h>
 
-#include <breathe/util/thread.h>
 #include <breathe/util/base.h>
 
 #include <breathe/audio/audio.h>

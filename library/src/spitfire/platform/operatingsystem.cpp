@@ -270,8 +270,7 @@ namespace spitfire
     string_t GetUserDataDirectory()
     {
       std::string sFullPath;
-      int result = xdg::GetDataHome(sFullPath);
-      if (result != 0) LOG<<"xdg::GetDataHome returned "<<xdg::GetDirectoryErrorString(result)<<std::endl;
+      xdg::GetDataHome(sFullPath);
 
       return string::ToString_t(sFullPath) + LANG("L_Application");
     }

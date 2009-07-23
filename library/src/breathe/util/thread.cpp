@@ -27,6 +27,8 @@
 #include <breathe/breathe.h>
 #include <breathe/util/thread.h>
 
+#error "This is now generally deprecated in favour of Spitfire threads which use Boost"
+
 namespace breathe
 {
   namespace util

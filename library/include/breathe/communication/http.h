@@ -1,7 +1,7 @@
 #ifndef CDOWNLOADHTTP_H
 #define CDOWNLOADHTTP_H
 
-#include <breathe/util/thread.h>
+#include <spitfire/util/thread.h>
 
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>

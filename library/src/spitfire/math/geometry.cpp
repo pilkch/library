@@ -157,6 +157,77 @@ namespace spitfire
 
       return true;
     }
+
+
+
+    void cLineGenerator::GenerateLine(int x0, int y0, int x1, int y1)
+    {
+      points.clear();
+
+      // We want to try going left to right if possible, if the coordinates are going right to left, swap them
+      if (x0 > x1) {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+      }
+
+      int Dx = x1 - x0;
+      int Dy = y1 - y0;
+      bool bIsSteep = (abs(Dy) >= abs(Dx)) != 0;
+      if (bIsSteep) {
+        std::swap(x0, y0);
+        std::swap(x1, y1);
+        // Recompute Dx, Dy after swap
+        Dx = x1 - x0;
+        Dy = y1 - y0;
+      }
+      int xstep = 1;
+      if (Dx < 0) {
+        xstep = -1;
+        Dx = -Dx;
+      }
+      int ystep = 1;
+      if (Dy < 0) {
+        ystep = -1;
+        Dy = -Dy;
+      }
+      int TwoDy = 2 * Dy;
+      int TwoDyTwoDx = TwoDy - (2 * Dx); // (2 * Dy) - (2 * Dx)
+      int error = TwoDy - Dx; // (2 * Dy) - Dx
+      int y = y0;
+      int xVisit = 0;
+      int yVisit = 0;
+      bool bHasVisitedLastPoint = false; // This tells us if we have been to x1, y1
+      for (int x = x0; x != x1; x += xstep) {
+        xVisit = x;
+        yVisit = y;
+
+        if (bIsSteep) std::swap(xVisit, yVisit);
+
+        // If this is the last point set our flag
+        if ((xVisit == x1) && (yVisit == y1)) bHasVisitedLastPoint = true;
+
+        // Visit this point
+        cVec2 p(xVisit, yVisit);
+        points.push_back(p);
+
+        // Next
+        if (error > 0) {
+          error += TwoDyTwoDx; // error += 2*Dy - 2*Dx;
+          y += ystep;
+        } else {
+          error += TwoDy; // error += 2*Dy;
+        }
+      }
+
+      // Make sure that we always visit the last point too
+      if (!bHasVisitedLastPoint) {
+        if (bIsSteep) std::swap(x1, y1);
+
+        cVec2 p(x1, y1);
+        points.push_back(p);
+      }
+    }
+
   }
 }
 
@@ -217,4 +288,128 @@ public:
 };
 
 cSphereUnitTest gSphereUnitTest;
+
+
+
+
+
+class cLineGeneratorUnitTest : protected spitfire::util::cUnitTestBase
+{
+public:
+  cLineGeneratorUnitTest() :
+    cUnitTestBase(TEXT("cLineGeneratorUnitTest"))
+  {
+  }
+
+  void Test()
+  {
+    {
+      spitfire::math::cLineGenerator generator;
+      generator.GenerateLine(-10, -10, 10, 10);
+
+      std::vector<spitfire::math::cVec2> points;
+
+      points.push_back(spitfire::math::cVec2(-10, -10));
+      points.push_back(spitfire::math::cVec2(-9, -9));
+      points.push_back(spitfire::math::cVec2(-8, -8));
+      points.push_back(spitfire::math::cVec2(-7, -7));
+      points.push_back(spitfire::math::cVec2(-6, -6));
+      points.push_back(spitfire::math::cVec2(-5, -5));
+      points.push_back(spitfire::math::cVec2(-4, -4));
+      points.push_back(spitfire::math::cVec2(-3, -3));
+      points.push_back(spitfire::math::cVec2(-2, -2));
+      points.push_back(spitfire::math::cVec2(-1, -1));
+      points.push_back(spitfire::math::cVec2(0, 0));
+      points.push_back(spitfire::math::cVec2(1, 1));
+      points.push_back(spitfire::math::cVec2(2, 2));
+      points.push_back(spitfire::math::cVec2(3, 3));
+      points.push_back(spitfire::math::cVec2(4, 4));
+      points.push_back(spitfire::math::cVec2(5, 5));
+      points.push_back(spitfire::math::cVec2(6, 6));
+      points.push_back(spitfire::math::cVec2(7, 7));
+      points.push_back(spitfire::math::cVec2(8, 8));
+      points.push_back(spitfire::math::cVec2(9, 9));
+      points.push_back(spitfire::math::cVec2(10, 10));
+
+      // NOTE: This only works because we have specified exact coordinates
+      ASSERT(points == generator.GetPoints());
+    }
+    {
+      spitfire::math::cLineGenerator generator;
+      generator.GenerateLine(10, 10, -10, -10);
+
+      std::vector<spitfire::math::cVec2> points;
+
+      points.push_back(spitfire::math::cVec2(-10, -10));
+      points.push_back(spitfire::math::cVec2(-9, -9));
+      points.push_back(spitfire::math::cVec2(-8, -8));
+      points.push_back(spitfire::math::cVec2(-7, -7));
+      points.push_back(spitfire::math::cVec2(-6, -6));
+      points.push_back(spitfire::math::cVec2(-5, -5));
+      points.push_back(spitfire::math::cVec2(-4, -4));
+      points.push_back(spitfire::math::cVec2(-3, -3));
+      points.push_back(spitfire::math::cVec2(-2, -2));
+      points.push_back(spitfire::math::cVec2(-1, -1));
+      points.push_back(spitfire::math::cVec2(0, 0));
+      points.push_back(spitfire::math::cVec2(1, 1));
+      points.push_back(spitfire::math::cVec2(2, 2));
+      points.push_back(spitfire::math::cVec2(3, 3));
+      points.push_back(spitfire::math::cVec2(4, 4));
+      points.push_back(spitfire::math::cVec2(5, 5));
+      points.push_back(spitfire::math::cVec2(6, 6));
+      points.push_back(spitfire::math::cVec2(7, 7));
+      points.push_back(spitfire::math::cVec2(8, 8));
+      points.push_back(spitfire::math::cVec2(9, 9));
+      points.push_back(spitfire::math::cVec2(10, 10));
+
+      // NOTE: This only works because we have specified exact coordinates
+      ASSERT(points == generator.GetPoints());
+    }
+    {
+      spitfire::math::cLineGenerator generator;
+      generator.GenerateLine(0, 0, 10, 5);
+
+      std::vector<spitfire::math::cVec2> points;
+
+      points.push_back(spitfire::math::cVec2(0, 0));
+      points.push_back(spitfire::math::cVec2(1, 0));
+      points.push_back(spitfire::math::cVec2(2, 1));
+      points.push_back(spitfire::math::cVec2(3, 1));
+      points.push_back(spitfire::math::cVec2(4, 2));
+      points.push_back(spitfire::math::cVec2(5, 2));
+      points.push_back(spitfire::math::cVec2(6, 3));
+      points.push_back(spitfire::math::cVec2(7, 3));
+      points.push_back(spitfire::math::cVec2(8, 4));
+      points.push_back(spitfire::math::cVec2(9, 4));
+      points.push_back(spitfire::math::cVec2(10, 5));
+
+      // NOTE: This only works because we have specified exact coordinates
+      ASSERT(points == generator.GetPoints());
+    }
+    {
+      spitfire::math::cLineGenerator generator;
+      generator.GenerateLine(0, 0, 5, 10);
+
+      std::vector<spitfire::math::cVec2> points;
+
+      points.push_back(spitfire::math::cVec2(0, 0));
+      points.push_back(spitfire::math::cVec2(0, 1));
+      points.push_back(spitfire::math::cVec2(1, 2));
+      points.push_back(spitfire::math::cVec2(1, 3));
+      points.push_back(spitfire::math::cVec2(2, 4));
+      points.push_back(spitfire::math::cVec2(2, 5));
+      points.push_back(spitfire::math::cVec2(3, 6));
+      points.push_back(spitfire::math::cVec2(3, 7));
+      points.push_back(spitfire::math::cVec2(4, 8));
+      points.push_back(spitfire::math::cVec2(4, 9));
+      points.push_back(spitfire::math::cVec2(5, 10));
+
+      // NOTE: This only works because we have specified exact coordinates
+      ASSERT(points == generator.GetPoints());
+    }
+  }
+};
+
+cLineGeneratorUnitTest gLineGeneratorUnitTest;
+
 #endif // BUILD_DEBUG

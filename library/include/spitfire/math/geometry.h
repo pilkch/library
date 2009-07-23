@@ -5,6 +5,16 @@ namespace spitfire
 {
   namespace math
   {
+    // This is for 2 dimensions
+    class cCircle
+    {
+    public:
+      // Position and size
+      cVec2 position;
+      float_t fRadius;
+    };
+
+    // This is for 3 dimensions
     class cSphere
     {
     public:
@@ -317,6 +327,26 @@ namespace spitfire
       bottom = std::min(bottom, rhs.bottom);
       return *this;
     }
+
+
+
+
+    // Bresenham Line Algorithm
+    // http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+    // The Bresenham line algorithm is an algorithm which determines which points in an n-dimensional raster should be plotted in order to form a close approximation to a straight line between two given points.
+    // Wu's algorithm is an improvement in terms of quality (Supporting antialiasing), however for most purposes we actually prefer a hard edge, boolean "is the point in the line, yes/no".
+
+    class cLineGenerator
+    {
+    public:
+      void GenerateLine(const math::cVec2& start, const math::cVec2& end) { GenerateLine(int(start.x), int(start.y), int(end.x), int(end.y)); }
+      void GenerateLine(int x0, int y0, int x1, int y1);
+
+      const std::vector<cVec2>& GetPoints() const { return points; }
+
+    private:
+      std::vector<cVec2> points;
+    };
   }
 }
 

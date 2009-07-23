@@ -38,8 +38,8 @@
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 #include <spitfire/util/cString.h>
-#include <spitfire/util/operatingsystem.h>
 
+#include <spitfire/platform/operatingsystem.h>
 #include <spitfire/platform/pipe.h>
 
 #ifndef FIRESTARTER
@@ -84,14 +84,18 @@ namespace spitfire
       return true;
     }
 
-    void cPipeIn::Close()
+    int cPipeIn::Close()
     {
+      int iReturnValueOfCommand = 0;
+
       if (fhPipe != nullptr) {
-        pclose(fhPipe);
+        iReturnValueOfCommand = pclose(fhPipe);
         fhPipe = nullptr;
       }
 
       fd = -1;
+
+      return iReturnValueOfCommand;
     }
 
     bool cPipeIn::IsOpen() const
@@ -183,14 +187,18 @@ namespace spitfire
       return true;
     }
 
-    void cPipeOut::Close()
+    int cPipeOut::Close()
     {
+      int iReturnValueOfCommand = 0;
+
       if (fhPipe != nullptr) {
-        pclose(fhPipe);
+        iReturnValueOfCommand = pclose(fhPipe);
         fhPipe = nullptr;
       }
 
       fd = -1;
+
+      return iReturnValueOfCommand;
     }
 
     bool cPipeOut::IsOpen() const
@@ -284,8 +292,10 @@ namespace spitfire
       return true;
     }
 
-    void cPipeInOut::Close()
+    int cPipeInOut::Close()
     {
+      int iReturnValueOfCommand = 0;
+
       if (outfp != -1) {
 #ifndef NDEBUG
         int iOut = close(outfp);
@@ -295,7 +305,10 @@ namespace spitfire
 #endif
       }
 
-      if (outfp != -1) {
+
+      if (infp != -1) {
+        // TODO: can we get the return value of the process we are reading?
+        // iReturnValueOfCommand = ...;
 #ifndef NDEBUG
         int iIn = close(infp);
         LOG<<"cPipeInOut::Close closed read end "<<iIn<<std::endl;
@@ -306,6 +319,8 @@ namespace spitfire
 
       infp = -1;
       outfp = -1;
+
+      return iReturnValueOfCommand;
     }
 
     bool cPipeInOut::IsOpen() const

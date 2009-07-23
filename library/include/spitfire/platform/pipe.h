@@ -9,11 +9,11 @@ namespace spitfire
 
     class cPipeIn {
     public:
-      explicit cPipeIn(const string_t& szCommandLine);
+      explicit cPipeIn(const string_t& sCommandLine);
       ~cPipeIn();
 
-      bool Open(const string_t& szCommandLine);
-      void Close();
+      bool Open(const string_t& sCommandLine);
+      int Close();
 
       bool IsOpen() const;
       bool IsDataReady() const;
@@ -31,11 +31,11 @@ namespace spitfire
 
     class cPipeOut {
     public:
-      explicit cPipeOut(const string_t& szCommandLine);
+      explicit cPipeOut(const string_t& sCommandLine);
       ~cPipeOut();
 
-      bool Open(const string_t& szCommandLine);
-      void Close();
+      bool Open(const string_t& sCommandLine);
+      int Close();
 
       bool IsOpen() const;
 
@@ -52,11 +52,11 @@ namespace spitfire
 
     class cPipeInOut {
     public:
-      explicit cPipeInOut(const string_t& szCommandLine);
+      explicit cPipeInOut(const string_t& sCommandLine);
       ~cPipeInOut();
 
-      bool Open(const string_t& szCommandLine);
-      void Close();
+      bool Open(const string_t& sCommandLine);
+      int Close();
 
       bool IsOpen() const;
       bool IsDataReady() const;

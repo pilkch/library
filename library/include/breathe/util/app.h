@@ -196,7 +196,7 @@ namespace breathe
 
     private:
       void _OnMouseEvent(int button, int state, int x, int y) {}
-      void _OnEvent(gui::id_t id);
+      void _OnEvent(const gui::cEvent& event);
 
       gui::cWidget_StaticText* pPrevious;
       gui::cWidget_Input* pInput;

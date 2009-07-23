@@ -13,6 +13,8 @@
 #include <sstream>
 
 // Boost headers
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
@@ -31,6 +33,7 @@
 
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
+#include <spitfire/util/thread.h>
 
 #include <spitfire/math/math.h>
 
@@ -39,7 +42,6 @@
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/thread.h>
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 #include <breathe/communication/http.h>
