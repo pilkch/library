@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <string>
+#include <sstream>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
@@ -132,6 +135,44 @@ namespace xdg
 
 
 
+  std::string ReadPipeToString(const std::string& sCommandLine)
+  {
+    //std::cout<<"ReadPipeToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
+
+    // Create a pipe
+    cPipeIn pipe(sCommandLine);
+    if (!pipe.IsOpen()) {
+      //std::cout<<"ReadPipeToString pipe is closed"<<std::endl;
+      return "";
+    }
+
+    // We keep a single working string
+    std::ostringstream o;
+
+    while (pipe.IsDataReady()) {
+      // Read the control code
+      const size_t n = pipe.GetBytesReady();
+      //std::cout<<"ReadPipeToString "<<n<<" bytes ready"<<std::endl;
+      if (n != 0) {
+        char szText[n];
+        if (pipe.Read(szText, sizeof(szText)) == 0) {
+          //std::cout<<"ReadPipeToString Process terminated without graceful exit"<<std::endl;
+          break;
+        }
+
+        szText[n] = 0;
+
+        o<<szText;
+      }
+    }
+
+    //std::cout<<"ReadPipeToString Read \""<<o.str()<<"\""<<std::endl;
+
+    return o.str();
+  }
+
+
+
   bool GetEnvironmentVariable(const std::string& sVariable, std::string& sValue)
   {
     sValue.clear();
@@ -164,7 +205,17 @@ namespace xdg
   // XDG_VIDEOS_DIR=/home/chris/
 
 
-  void GetDataHome(std::string& directory)
+  void GetHomeDirectory(std::string& directory)
+  {
+    directory = ReadPipeToString("xdg-user-dir");
+
+    if (directory.empty()) {
+      std::string home;
+      if (GetEnvironmentVariable("HOME", home)) directory = home;
+    }
+  }
+
+  void GetDataHomeDirectory(std::string& directory)
   {
     directory.clear();
 
@@ -174,7 +225,7 @@ namespace xdg
     }
   }
 
-  void GetConfigHome(std::string& directory)
+  void GetConfigHomeDirectory(std::string& directory)
   {
     directory.clear();
 

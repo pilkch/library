@@ -175,19 +175,6 @@ namespace spitfire
   // Types
   typedef uint32_t sampletime_t;
 
-  #ifdef __WIN__
-  #define SIZEOF_WCHAR_T 2
-  typedef wchar_t char16_t;
-  typedef uint32_t char32_t;
-  #else
-  #define SIZEOF_WCHAR_T 4
-  #endif
-
-  #ifdef UNICODE
-  typedef wchar_t char_t;
-  #else
-  typedef char char_t;
-  #endif
 
   // Constants
   const bool BAD = false;

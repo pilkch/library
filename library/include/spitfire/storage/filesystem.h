@@ -1,9 +1,10 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/doc/index.htm
-// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/file_size.cpp
-// http://www.boost.org/doc/libs/1_37_0/libs/filesystem/example/simple_ls.cpp
+// http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm
+// http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm#tutorial
+// http://www.boost.org/doc/libs/1_39_0/libs/filesystem/example/file_size.cpp
+// http://www.boost.org/doc/libs/1_39_0/libs/filesystem/example/simple_ls.cpp
 // http://www.ibm.com/developerworks/aix/library/au-boostfs/index.html
 
 // Shared folder mirrors the directory structure of each program
@@ -30,8 +31,9 @@
 #undef FileExists
 #endif
 
-// TODO: Move this to a shared build.h, config.h etc.
-#define SPITFIRE_APPLICATION_NAME_LWR "crank"
+#ifndef SPITFIRE_APPLICATION_NAME_LWR
+#error "SPITFIRE_APPLICATION_NAME_LWR must be defined"
+#endif
 
 namespace spitfire
 {
@@ -43,6 +45,7 @@ namespace spitfire
     inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(SPITFIRE_APPLICATION_NAME_LWR)); }
     inline string_t GetSpitfireSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("spitfire")); }
     string_t GetHomeDirectory();
+    string_t GetHomeConfigurationFilesDirectory();
     string_t GetHomeDesktopDirectory();
     string_t GetHomeImagesDirectory();
     string_t GetHomeMusicDirectory();
@@ -73,8 +76,9 @@ namespace spitfire
     string_t GetExtension(const string_t& sFilename);
 
     bool FileExists(const string_t& sFilename);
-    bool CreateDirectory(const string_t& sFoldername);
+    bool DirectoryExists(const string_t& sFoldername);
     bool CreateFile(const string_t& sFilename);
+    bool CreateDirectory(const string_t& sFoldername);
 
     bool DeleteFile(const string_t& sFilename);
     bool DeleteDirectory(const string_t& sFoldername);
@@ -199,6 +203,9 @@ namespace spitfire
     void Unmount(const string_t& sPath);
 
     bool GetFile(const string_t& sFile, string_t& sFullPath);
+
+
+    bool UnzipFileToFolder(const string_t& sFullPathToZipFile, const string_t& sFullPathToExtractFilesTo);
   }
 }
 

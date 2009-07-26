@@ -36,10 +36,13 @@ namespace xdg
 
 
   // "The base directory relative to which user specific data files should be stored"
-  void GetDataHome(std::string& directory);
+  void GetHomeDirectory(std::string& directory);
+
+  // "The base directory relative to which user specific data files should be stored"
+  void GetDataHomeDirectory(std::string& directory);
 
   // "The base directory relative to which user specific configuration files should be stored"
-  void GetConfigHome(std::string& directory);
+  void GetConfigHomeDirectory(std::string& directory);
 
 
   // Opening files, folders and URLs

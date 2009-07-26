@@ -106,7 +106,7 @@ namespace spitfire
     {
       ASSERT(IsValid());
 
-      stringstream_t o;
+      ostringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
       o<<spitfire::string::ToString_t(to_iso_string(datetime));
@@ -135,7 +135,7 @@ namespace spitfire
     {
       ASSERT(IsValid());
 
-      stringstream_t o;
+      ostringstream_t o;
 
       // "YYYYMMDDTHHMMSS,fffffffff"
       o<<spitfire::string::ToString_t(to_iso_string(datetime));

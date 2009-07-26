@@ -1,3 +1,4 @@
+// Standard headers
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,8 +13,8 @@
 #include <sstream>
 #include <fstream>
 
-// Boost Includes
-#include <boost/filesystem/operations.hpp>
+// Boost headers
+#include <boost/filesystem.hpp>
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -26,8 +27,10 @@
 #include <windows.h>
 #endif
 
+// xdg headers
+#include <libxdgmm/libxdg.h>
 
-// Spitfire Includes
+// Spitfire headers
 #include <spitfire/spitfire.h>
 #include <spitfire/util/cString.h>
 
@@ -71,7 +74,7 @@ namespace spitfire
 
     string_t GetThisApplicationDirectory()
     {
-      ASSERT(sApplicationDirectory.length() > 0);
+      ASSERT(!sApplicationDirectory.empty());
       return sApplicationDirectory;
     }
 
@@ -100,24 +103,19 @@ namespace spitfire
 
 
 
-#ifdef __APPLE__
+#if defined(__LINUX__) || defined(__APPLE__)
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
-      ASSERT(sApplication != string_t(TEXT(SPITFIRE_APPLICATION_NAME_LWR)));
-      return GetHomeDirectory() + TEXT(".spitfire/") + sApplication + TEXT("/");
+      return GetHomeConfigurationFilesDirectory() + TEXT("/") + sApplication + TEXT("/");
     }
 #endif
 
 #ifdef __LINUX__
-    string_t GetApplicationSettingsDirectory(const string_t& sApplication)
-    {
-      ASSERT(sApplication != string_t(TEXT(SPITFIRE_APPLICATION_NAME_LWR)));
-      return GetHomeDirectory() + TEXT(".spitfire/") + sApplication + TEXT("/");
-    }
-
     string_t GetTempDirectory()
     {
 #ifdef P_tmpdir
+      ASSERT(P_tmpdir != nullptr);
+      ASSERT(P_tmpdir[0] != 0);
       // On some systems this is defined for us
       return spitfire::string::ToString_t(P_tmpdir);
 #endif
@@ -131,12 +129,17 @@ namespace spitfire
 
     bool DeleteFile(const string_t& sFilename)
     {
-      return (unlink(spitfire::string::ToUTF8(sFilename).c_str())== 0);
+      std::cout<<"DeleteFile \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      boost::filesystem::remove(file);
+      return !FileExists(sFilename);
     }
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
-      return (rmdir(spitfire::string::ToUTF8(sFoldername).c_str()) == 0);
+      std::cout<<"DeleteDirectory \""<<spitfire::string::ToUTF8(sFoldername)<<"\""<<std::endl;
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
+      return (boost::filesystem::remove_all(file) != 0);
     }
 #endif
 
@@ -177,17 +180,20 @@ namespace spitfire
         sPath = string::ToString_t(pw->pw_dir);
       } else {
         // Try XDG
-        std::string sData = platform::PipeReadToString(TEXT("xdg-user-dir"));
-        if (sData != "") sPath = string::ToString_t(sData);
-        else {
-          // Try environment variable
-          string_t sValue;
-          if (operatingsystem::GetEnvironmentVariable(TEXT("HOME"), sValue)) sPath = sValue;
-        }
+        std::string sDirectory;
+        xdg::GetHomeDirectory(sDirectory);
+        sPath = string::ToString_t(sDirectory);
       }
 #endif
       ASSERT(!sPath.empty());
       return sPath;
+    }
+
+    string_t GetHomeConfigurationFilesDirectory()
+    {
+      std::string sDirectory;
+      xdg::GetConfigHomeDirectory(sDirectory);
+      return string::ToString_t(sDirectory);
     }
 
     string_t GetHomeImagesDirectory()
@@ -402,12 +408,24 @@ namespace spitfire
 #endif
     bool FileExists(const string_t& sFilename)
     {
-      LOG<<"FileExists \""<<sFilename<<"\""<<std::endl;
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
 #endif
-      boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
       return boost::filesystem::exists(file);
+    }
+
+#ifdef __WIN__
+#pragma push_macro("DirectoryExists")
+#undef DirectoryExists
+#endif
+    bool DirectoryExists(const string_t& sFolderName)
+    {
+#ifdef __WIN__
+#pragma pop_macro("DirectoryExists")
+#endif
+      const boost::filesystem::path folder(spitfire::string::ToUTF8(sFolderName));
+      return boost::filesystem::exists(folder);
     }
 
     bool FindFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
@@ -524,11 +542,9 @@ namespace spitfire
 
     uint64_t GetFileSize(const string_t& sFilename)
     {
-      struct stat results;
-
-      if (stat(spitfire::string::ToUTF8(sFilename).c_str(), &results) == 0) return results.st_size;
-
-      return 0;
+      ASSERT(FileExists(sFilename));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return boost::filesystem::file_size(file);
     }
 
 
@@ -549,25 +565,9 @@ namespace spitfire
     {
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
-
-#ifdef UNICODE
-      return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryW(sFoldername.c_str(), NULL));
-#else
-      return (ERROR_PATH_NOT_FOUND != ::CreateDirectoryA(sFoldername.c_str(), NULL));
-#endif // !UNICODE
-
-#elif defined(__LINUX__)
-      // Create the directory
-      if (0 != mkdir(spitfire::string::ToUTF8(sFoldername).c_str(), S_IRWXU | S_IRWXG | S_IRWXO)) return false;
-
-      // Set owner and group
-      struct passwd *pw = getpwuid(getuid());
-      ASSERT(pw != nullptr);
-      return (0 == chown(spitfire::string::ToUTF8(sFoldername).c_str(), pw->pw_uid, pw->pw_gid));
-#else
-      #error "CreateDirectory not implemented on this platform"
-      return false;
 #endif
+
+      return boost::filesystem::create_directories(sFoldername);
     }
 
 #ifdef __WIN__
@@ -578,42 +578,30 @@ namespace spitfire
     {
 #ifdef __WIN__
 #pragma pop_macro("CreateFile")
+#endif
 
       // Check if this file is already created so that we don't overwrite it
       if (FileExists(sFilename)) return true;
 
       // File not found, we can now create the file
-#ifdef UNICODE
-      HANDLE handle = ::CreateFileW(
-#else
-      HANDLE handle = ::CreateFileA(
-#endif
-        sFilename.c_str(),      // file to create
-        GENERIC_WRITE,          // open for writing
-        0,                      // do not share
-        NULL,                   // default security
-        CREATE_ALWAYS,          // overwrite existing
-        FILE_ATTRIBUTE_NORMAL | // normal file
-        FILE_FLAG_OVERLAPPED,   // asynchronous I/O
-        NULL                    // no attr. template
-      );
-      if (INVALID_HANDLE_VALUE != handle) {
-        // This file is created
-        CloseHandle(handle);
-        return true;
-      }
-
-      return false;
-#elif defined(__LINUX__)
       std::ofstream file(spitfire::string::ToUTF8(sFilename).c_str());
       bool bIsOpen = file.good();
       file.close();
 
       return bIsOpen;
-#else
-      #error "CreateFile not implemented on this platform"
-      return false;
-#endif
+    }
+
+    bool UnzipFileToFolder(const string_t& sFullPathToZipFile, const string_t& sFullPathToExtractFilesTo)
+    {
+      // I know this is a hack, but it is the easiest and one of the most portable around
+      // The only platform this won't work on is stupid Windows
+      // NOTE: We should be using 7-zip, Boost iostreams or zlib but those are all much more complex compared to this
+      ostringstream_t o;
+      o<<"unzip ";
+      o<<"\""<<sFullPathToZipFile<<"\"";
+      o<<" -d ";
+      o<<"\""<<sFullPathToExtractFilesTo<<"\"";
+      return (system(spitfire::string::ToUTF8(o.str()).c_str()) == 0);
     }
 
     string_t MakeFilePath(const string_t& sDirectory, const string_t& sFile)
@@ -658,13 +646,13 @@ namespace spitfire
 
     bool path::IsFile() const
     {
-      boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
       return (boost::filesystem::exists(file) && boost::filesystem::is_regular(file));
     }
 
     bool path::IsDirectory() const
     {
-      boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
       return (boost::filesystem::exists(file) && boost::filesystem::is_directory(file));
     }
 
@@ -940,7 +928,7 @@ namespace spitfire
       paths.clear();
     }
 
-    // *** Comparison for sorting particles based on depth
+    // *** Comparison for sorting entries based on priority
 
     inline bool cVirtualFileSystem::EntryCompare(const cEntry* lhs, const cEntry* rhs)
     {
