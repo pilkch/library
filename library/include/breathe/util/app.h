@@ -13,8 +13,7 @@
 namespace breathe
 {
   const float KEY_MIN = 0.1f;
-  enum STATE_RETURN
-  {
+  enum STATE_RETURN {
     STATE_POP_THIS_STATE = 0,
     STATE_KEEP_THIS_STATE = 1
   };
@@ -34,6 +33,9 @@ namespace breathe
   class cApplication
   {
   public:
+    // TODO: This is just for testing, remove it
+    breathe::render::cTextureFrameBufferObjectRef pTestFBOTexture;
+
     cApplication(int argc, const char* const* argv);
     virtual ~cApplication();
 
@@ -75,6 +77,11 @@ namespace breathe
     bool IsDebug() const { return bDebug; }
     void ToggleDebug() { bDebug = !bDebug; }
 #endif
+
+
+    render::material::cMaterialRef AddPostRenderEffect(const string_t& sFilename);
+    void RemovePostRenderEffect();
+
 
     gui::cWindowManager window_manager;
 
@@ -249,6 +256,7 @@ namespace breathe
     void _UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime);
 #endif
     void _Render(cApplication::cAppState& state, sampletime_t currentTime);
+    void _RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime);
 
     // Convert from a float amount to a bool
     static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
@@ -291,6 +299,11 @@ namespace breathe
 
     // TODO: Change to std::stack?
     std::list<cAppState*> states;
+
+
+    std::list<render::material::cMaterialRef> lPostRenderEffects;
+    render::cTextureFrameBufferObjectRef pFrameBuffer0;
+    render::cTextureFrameBufferObjectRef pFrameBuffer1;
 
   private:
 #ifdef BUILD_DEBUG

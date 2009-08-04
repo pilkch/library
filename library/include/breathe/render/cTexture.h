@@ -37,6 +37,8 @@ namespace breathe
       cTexture();
       virtual ~cTexture();
 
+      bool IsValid() const { return _IsValid(); }
+
       size_t GetWidth() const { return uiWidth; }
       size_t GetHeight() const { return uiHeight; }
 
@@ -51,9 +53,9 @@ namespace breathe
       void CopyFromSurfaceToTexture();
 
 
-      bool SaveToBMP(const string_t& sFilename);
+      bool SaveToBMP(const string_t& sFilename) const;
 
-      void Transform(float& u, float& v);
+      void Transform(float& u, float& v) const;
 
       void Create() { _Create(); }
       void Destroy();
@@ -76,13 +78,14 @@ namespace breathe
       std::vector<unsigned char> data;
 
     private:
+      virtual bool _IsValid() const { return (uiTexture != 0); }
       virtual void _Create();
     };
 
-    inline void cTexture::Transform(float& u, float& v)
+    inline void cTexture::Transform(float& u, float& v) const
     {
-      u = u * fScale + fU;
-      v = v * fScale + fV;
+      u = (u * fScale) + fU;
+      v = (v * fScale) + fV;
     }
 
 
@@ -98,6 +101,7 @@ namespace breathe
       unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
 
     private:
+      bool _IsValid() const { return (uiTexture != 0) && (uiFBO != 0) && (uiFBODepthBuffer != 0); }
       void _Create();
     };
 

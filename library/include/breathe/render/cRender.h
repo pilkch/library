@@ -132,17 +132,11 @@ namespace breathe
       void EndScreenSpaceGuiRendering();
 
     public:
-      void Begin();
-      void End();
-
       void BeginRenderToScreen();
       void EndRenderToScreen();
 
       void BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture);
       void EndRenderToTexture(cTextureFrameBufferObjectRef pTexture);
-
-      void BeginRenderScene();
-      void EndRenderScene();
 
       // In this mode x is 0..1, y is 1..0
       void BeginScreenSpaceRendering();
@@ -257,15 +251,8 @@ namespace breathe
 
       void ReloadTextures();
 
-      material::cMaterialRef AddPostRenderEffect(const string_t& sFilename);
-      void RemovePostRenderEffect();
-
     private:
       material::cMaterialRef _GetMaterial(const string_t& sFilename);
-
-      std::list<material::cMaterialRef> lPostRenderEffects;
-      cTextureFrameBufferObjectRef pFrameBuffer0;
-      cTextureFrameBufferObjectRef pFrameBuffer1;
 
 
 
@@ -485,6 +472,43 @@ namespace breathe
       NO_COPY(ApplyMaterial); // Forbidden
 
       material::cMaterialRef pLast;
+    };
+
+
+
+    class cRenderToScreen
+    {
+    public:
+      cRenderToScreen();
+      ~cRenderToScreen();
+
+    private:
+      NO_COPY(cRenderToScreen); // Forbidden
+    };
+
+
+    class cRenderToTexture
+    {
+    public:
+      explicit cRenderToTexture(cTextureFrameBufferObjectRef pTexture);
+      ~cRenderToTexture();
+
+    private:
+      cRenderToTexture(); // Forbidden
+      NO_COPY(cRenderToTexture); // Forbidden
+
+      cTextureFrameBufferObjectRef pTexture;
+    };
+
+
+    class cRenderScreenSpace
+    {
+    public:
+      cRenderScreenSpace();
+      ~cRenderScreenSpace();
+
+    private:
+      NO_COPY(cRenderScreenSpace); // Forbidden
     };
   }
 }

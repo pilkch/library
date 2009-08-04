@@ -1030,11 +1030,18 @@ namespace breathe
 
     if (breathe::BAD == pRender->Init()) return breathe::BAD;
 
+    pTestFBOTexture.reset(new breathe::render::cTextureFrameBufferObject);
+    pTestFBOTexture->Create();
+
     return breathe::GOOD;
   }
 
   bool cApplication::DestroyRender()
   {
+    LOG.Success("Delete", "Frame Buffer Objects");
+    pFrameBuffer0.reset();
+    pFrameBuffer1.reset();
+
     pRender->Destroy();
 
     return breathe::GOOD;
@@ -1090,92 +1097,202 @@ namespace breathe
     scenegraph2D.Cull(currentTime);
   }
 
+
+
+  render::material::cMaterialRef cApplication::AddPostRenderEffect(const string_t& sFilename)
+  {
+    render::material::cMaterialRef pMaterial = pRender->AddMaterial(sFilename);
+    ASSERT(pMaterial != nullptr);
+    lPostRenderEffects.push_back(pMaterial);
+
+    // If we have never used a post render effect before
+    if (pFrameBuffer0 == nullptr) {
+      pFrameBuffer0.reset(new render::cTextureFrameBufferObject);
+      pFrameBuffer0->Create();
+    }
+
+    // If we have never used more than one post render effect before
+    if ((lPostRenderEffects.size() > 1) && (pFrameBuffer1 == nullptr)) {
+      pFrameBuffer1.reset(new render::cTextureFrameBufferObject);
+      pFrameBuffer1->Create();
+    }
+
+    return pMaterial;
+  }
+
+  void cApplication::RemovePostRenderEffect()
+  {
+    if (!lPostRenderEffects.empty()) lPostRenderEffects.pop_back();
+  }
+
+
+  void cApplication::_RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime)
+  {
+    scenegraph2D.Render(currentTime);
+
+    state.RenderScreenSpace(currentTime);
+
+    if (pRender->bRenderGui) window_manager.Render();
+
+#ifdef BUILD_DEBUG
+    if (IsDebug() && !CONSOLE.IsVisible()) {
+      pRender->SetColour(0.0f, 0.0f, 1.0f);
+
+      const float dy = 0.03f;
+      float fPosition = 0.1f;
+
+      pRender->BeginRenderingText();
+#ifdef BUILD_PHYSICS_3D
+        pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->size());
+#endif
+
+        fPosition += dy;
+        pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
+        pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
+        pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+
+        fPosition += dy;
+        pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+        pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+        pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+#endif
+        pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
+
+        fPosition += dy;
+        pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+        pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+        pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+#endif
+      pRender->EndRenderingText();
+    }
+#endif
+  }
+
   void cApplication::_Render(cApplication::cAppState& state, sampletime_t currentTime)
   {
     BeginRender(currentTime);
 
-      pRender->Begin();
-        pRender->BeginRenderScene();
+      if (lPostRenderEffects.empty()) {
+        render::cRenderToScreen screen;
+
+        scenegraph.Render(currentTime);
+
+        state.RenderScene(currentTime);
+
+        {
+          render::cRenderScreenSpace screenspace;
+
+          _RenderScreenSpaceScene(state, currentTime);
+        }
+      } else {
+        {
+          render::cRenderToTexture texture(pTestFBOTexture);
+
           scenegraph.Render(currentTime);
 
           state.RenderScene(currentTime);
 
-        pRender->EndRenderScene();
-        pRender->BeginScreenSpaceRendering();
-          scenegraph2D.Render(currentTime);
+/*
 
-          state.RenderScreenSpace(currentTime);
 
-          if (pRender->bRenderGui) window_manager.Render();
+    void cRender::BeginRenderScene()
+    {
+      // If we are just rendering to the screen, no post rendering effects
+      if () return;
 
-#ifdef BUILD_DEBUG
-          if (IsDebug() && !CONSOLE.IsVisible()) {
-            pRender->SetColour(0.0f, 0.0f, 1.0f);
+      BeginRenderToTexture(pFrameBuffer0);
+    }
 
-            const float dy = 0.03f;
-            float fPosition = 0.1f;
+    void cRender::EndRenderScene()
+    {
+      // Basically we render like this, if there are no post rendering effects,
+      // render straight to the screen.
+      // If there is one rendering effect render to pFrameBuffer0 then to the screen.
+      // If there is more than one rendering effect, render to pFrameBuffer0,
+      // then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
+      // until n-1, for the last effect we render whichever FBO we last rendered to,
+      // to the screen.
+      size_t n = lPostRenderEffects.size();
 
-            pRender->BeginRenderingText();
-#ifdef BUILD_PHYSICS_3D
-              pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->size());
+      // If we are just rendering to the screen, no post rendering effects
+      if (n == 0) return;
+
+      // Ok, we actually want to do some exciting post render effects
+      ASSERT(pFrameBuffer0 != nullptr);
+      EndRenderToTexture(pFrameBuffer0);
+
+#if 1
+      // Finally draw our texture to the screen, we don't end rendering to the screen in this function,
+      // from now on in our rendering process we use exactly the same method as non-FBO rendering
+      _BeginRenderToScreen();
+        std::list<material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
+        ASSERT(iter != lPostRenderEffects.end());
+        _RenderPostRenderPass(*iter, pFrameBuffer0);// : pFrameBuffer1);
+#else
+      // We have just rendered to a texture, loop through the post render chain alternating
+      // rendering to pFrameBuffer0 and pFrameBuffer1
+      std::list<material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
+      size_t i = 0;
+      for (; i < n - 1; i++, iter++) {
+        BeginRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
+          _RenderPostRenderPass(*iter, ((i+1) % 2) ? pFrameBuffer0 : pFrameBuffer1);
+        EndRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
+      }
+
+      // Finally draw our texture to the screen, we don't end rendering to the screen in this function,
+      // from now on in our rendering process we use exactly the same method as non-FBO rendering
+      _BeginRenderToScreen();
+        _RenderPostRenderPass(*iter, (n==1 || ((i+1) % 2)) ? pFrameBuffer0 :pFrameBuffer1);
 #endif
+    }
+*/
+        }
 
-              fPosition += dy;
-              pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
-              pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
-              pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+        render::cRenderToScreen screen;
 
-              fPosition += dy;
-              pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
-              pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-              pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
-#endif
-              pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
+        {
+          render::cRenderScreenSpace screenspace;
 
-              fPosition += dy;
-              pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
-              pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-              pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
-#endif
-            pRender->EndRenderingText();
-          }
-#endif
+          pRender->ClearMaterial();
+          glBindTexture(GL_TEXTURE_2D, pTestFBOTexture->uiTexture);
+          pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
 
-        pRender->EndScreenSpaceRendering();
-      pRender->End();
+          _RenderScreenSpaceScene(state, currentTime);
+        }
+      }
 
     EndRender(currentTime);
   }
 
   void cApplication::_UpdateEvents(sampletime_t currentTime)
   {
-    // handle the events in the queue
-    while ( SDL_PollEvent( &event ) )
-    {
-      switch( event.type )
-      {
-        case SDL_ACTIVEEVENT:
-          {
+    // Handle the events in the queue
+    while (SDL_PollEvent(&event)) {
+      switch (event.type) {
+        case SDL_ACTIVEEVENT: {
             bActive=event.active.gain != 0;
             if (bActive) LOG.Success("Active", "Active");
             else LOG.Error("Active", "Inactive");
-          }
           break;
+        }
 
-        case SDL_VIDEORESIZE:
+        case SDL_VIDEORESIZE: {
           if (breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
             bDone=true;
           break;
+        }
 
-        case SDL_KEYUP:
+        case SDL_KEYUP: {
           _OnKeyUp(&event.key.keysym);
           break;
+        }
 
-        case SDL_KEYDOWN:
+        case SDL_KEYDOWN: {
           _OnKeyDown(&event.key.keysym);
           break;
+        }
 
         case SDL_MOUSEBUTTONUP: {
           mouse.x = event.button.x;
@@ -1212,10 +1329,11 @@ namespace breathe
           break;
         }
 
-        case SDL_QUIT:
+        case SDL_QUIT: {
           LOG.Success("SDL", "SDL_Quit: Quiting");
-          bDone=true;
+          bDone = true;
           break;
+        }
 
         default:
           break;

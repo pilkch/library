@@ -283,10 +283,6 @@ namespace breathe
       vLayer.clear();
 
 
-      LOG.Success("Delete", "Frame Buffer Objects");
-      pFrameBuffer0.reset();
-      pFrameBuffer1.reset();
-
       LOG.Success("Delete", "Static Mesh");
       std::map<string_t, render::model::cStaticRef>::iterator iter = mStatic.begin();
       const std::map<string_t, render::model::cStaticRef>::iterator iterEnd = mStatic.end();
@@ -617,10 +613,10 @@ namespace breathe
       ASSERT(uiHeight != 0);
 
       // Height / width ratio
-      GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
+      const GLfloat ratio = (GLfloat)uiWidth / (GLfloat)uiHeight;
 
       // Setup our viewport
-      glViewport(0, 0, ( GLint )uiWidth, ( GLint )uiHeight);
+      glViewport(0, 0, (GLint)uiWidth, (GLint)uiHeight);
 
       // change to the projection matrix and set our viewing volume
       glMatrixMode(GL_PROJECTION);
@@ -671,12 +667,14 @@ namespace breathe
 
     void cRender::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
+      ASSERT(pTexture->IsValid());
+
       glEnable(GL_TEXTURE_2D);
 
       // First we bind the FBO so we can render to it
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTexture->uiFBO);
 
-      // Save the view port and set it to the size of the texture
+      // Save the view port settings and set it to the size of the texture
       glPushAttrib(GL_VIEWPORT_BIT);
       glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
 
@@ -685,7 +683,7 @@ namespace breathe
 
     void cRender::EndRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
-      // Restore old view port and set rendering back to default frame buffer
+      // Restore old view port settings and set rendering back to default frame buffer
       glPopAttrib();
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
@@ -715,67 +713,28 @@ namespace breathe
       SDL_GL_SwapBuffers();
     }
 
-    void cRender::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pFBO)
+    void cRender::BeginRenderToScreen()
     {
-      ASSERT(pMaterial != nullptr);
-
-      BeginScreenSpaceRendering();
-        SetMaterial(pMaterial);
-        glBindTexture(GL_TEXTURE_2D, pFBO->uiTexture);
-        RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
-      EndScreenSpaceRendering();
+      _BeginRenderToScreen();
     }
 
-    void cRender::Begin()
-    {
-      if (lPostRenderEffects.empty()) _BeginRenderToScreen();
-    }
-
-    void cRender::End()
+    void cRender::EndRenderToScreen()
     {
       _EndRenderToScreen();
     }
 
-    void cRender::BeginRenderScene()
+    void cRender::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pTexture)
     {
-      // If we are just rendering to the screen, no post rendering effects
-      if (lPostRenderEffects.empty()) return;
+      ASSERT(pMaterial != nullptr);
+      ASSERT(pTexture != nullptr);
+      ASSERT(pTexture->IsValid());
 
-      BeginRenderToTexture(pFrameBuffer0);
-    }
-
-    void cRender::EndRenderScene()
-    {
-      // Basically we render like this, if there are no post rendering effects,
-      // render straight to the screen.
-      // If there is one rendering effect render to pFrameBuffer0 then to the screen.
-      // If there is more than one rendering effect, render to pFrameBuffer0,
-      // then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
-      // until n-1, for the last effect we render whichever FBO we last rendered to,
-      // to the screen.
-      size_t n = lPostRenderEffects.size();
-
-      // If we are just rendering to the screen, no post rendering effects
-      if (n == 0) return;
-
-      // Ok, we actually want to do some exciting post render effects
-      ASSERT(pFrameBuffer0 != nullptr);
-      EndRenderToTexture(pFrameBuffer0);
-
-      // We have just rendered to a texture, loop through the post render chain alternating
-      // rendering to pFrameBuffer0 and pFrameBuffer1
-      std::list<material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
-      size_t i = 0;
-      for (; i < n - 1; i++, iter++) {
-        BeginRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
-          _RenderPostRenderPass(*iter, ((i+1) % 2) ? pFrameBuffer0 : pFrameBuffer1);
-        EndRenderToTexture((i % 2) ? pFrameBuffer0 : pFrameBuffer1);
-      }
-
-      // Finally draw our texture to the screen, we don't end rendering to the screen in this function,
-      // from now on in our rendering process we use exactly the same method as non-FBO rendering
-      _BeginRenderToScreen();
-        _RenderPostRenderPass(*iter, (n==1 || ((i+1) % 2)) ? pFrameBuffer0 :pFrameBuffer1);
+      BeginScreenSpaceRendering();
+        SetMaterial(pMaterial);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+        RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+      EndScreenSpaceRendering();
     }
 
     void cRender::SaveScreenShot()
@@ -784,40 +743,40 @@ namespace breathe
       GetApplicationUserSetting(TEXT("ScreenShot"), TEXT("Count"), value);
       SetApplicationUserSetting(TEXT("ScreenShot"), TEXT("Count"), value + 1);
 
-      stringstream_t o;
+      ostringstream_t o;
       o<<filesystem::GetHomeImagesDirectory();
       o<<TEXT("screenshot");
       o<<value;
       o<<TEXT(".bmp");
-      string_t sFilename(o.str());
 
-      SDL_Surface* screen = pSurface;
-      ASSERT(screen != nullptr);
+      const string_t sFilename = o.str();
 
-      if (!(screen->flags & SDL_OPENGL)) {
-        SDL_SaveBMP(screen, breathe::string::ToUTF8(sFilename).c_str());
+      SDL_Surface* pScreenSurface = pSurface;
+      ASSERT(pScreenSurface != nullptr);
+
+      if (!(pScreenSurface->flags & SDL_OPENGL)) {
+        SDL_SaveBMP(pScreenSurface, breathe::string::ToUTF8(sFilename).c_str());
         return;
       }
 
-      SDL_Surface* temp = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
-      if (temp == nullptr) return;
+      SDL_Surface* pTempSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, pScreenSurface->w, pScreenSurface->h, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+      if (pTempSurface == nullptr) return;
 
-      unsigned char* pixels = (unsigned char*)malloc(3 * screen->w * screen->h);
-      if (pixels == nullptr) {
-        SDL_FreeSurface(temp);
-        return;
-      }
+      // TODO: Can we use new/delete please?
+      unsigned char* pPixels = (unsigned char*)malloc(3 * pScreenSurface->w * pScreenSurface->h);
+      ASSERT(pPixels != nullptr);
 
-      glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+      glReadPixels(0, 0, pScreenSurface->w, pScreenSurface->h, GL_RGB, GL_UNSIGNED_BYTE, pPixels);
 
-      ASSERT(screen->h >= 0);
-      const size_t n = screen->h;
-      for (size_t i = 0; i < n; i++) memcpy(((char*)temp->pixels) + temp->pitch * i, pixels + 3 * screen->w * (screen->h-i - 1), screen->w * 3);
+      ASSERT(pScreenSurface->h >= 0);
+      const size_t n = pScreenSurface->h;
+      for (size_t i = 0; i < n; i++) memcpy(((char*)pTempSurface->pixels) + pTempSurface->pitch * i, pPixels + 3 * pScreenSurface->w * (pScreenSurface->h-i - 1), pScreenSurface->w * 3);
 
-      free(pixels);
+      free(pPixels);
+      pPixels = nullptr;
 
-      SDL_SaveBMP(temp, breathe::string::ToUTF8(sFilename).c_str());
-      SDL_FreeSurface(temp);
+      SDL_SaveBMP(pTempSurface, breathe::string::ToUTF8(sFilename).c_str());
+      SDL_FreeSurface(pTempSurface);
     }
 
     // Our screen coordinates look like this
@@ -915,10 +874,10 @@ namespace breathe
     void cRender::RenderScreenSpaceRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight)
     {
       glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(fX, fY);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fWidth, fY);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fWidth, fY + fHeight);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(fX, fY + fHeight);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(fX, fY);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f(fX + fWidth, fY);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f(fX + fWidth, fY + fHeight);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(fX, fY + fHeight);
       glEnd();
     }
 
@@ -927,10 +886,10 @@ namespace breathe
       float fU, float fV, float fU2, float fV2)
     {
       glBegin(GL_QUADS);
-        glTexCoord2f(fU, fV);       glVertex2f(fX, fY);
-        glTexCoord2f(fU + fU2, fV); glVertex2f(fX + fWidth, fY);
-        glTexCoord2f(fU + fU2, fV + fV2);       glVertex2f(fX + fWidth, fY + fHeight);
-        glTexCoord2f(fU, fV + fV2);             glVertex2f(fX, fY + fHeight);
+        glTexCoord2f(fU, fV);             glVertex2f(fX, fY);
+        glTexCoord2f(fU + fU2, fV);       glVertex2f(fX + fWidth, fY);
+        glTexCoord2f(fU + fU2, fV + fV2); glVertex2f(fX + fWidth, fY + fHeight);
+        glTexCoord2f(fU, fV + fV2);       glVertex2f(fX, fY + fHeight);
       glEnd();
     }
 
@@ -954,30 +913,39 @@ namespace breathe
       ClearMaterial();
 
 
+      glFrontFace(GL_CW);
+
       // Our screen coordinates look like this
-      // 0.0f, 1.0f            1.0f, 1.0f
-      //
-      //
       // 0.0f, 0.0f            1.0f, 0.0f
+      //
+      //
+      // 0.0f, 1.0f            1.0f, 1.0f
 
-      glPushAttrib(GL_TRANSFORM_BIT);
+      // Setup projection matrix
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
 
-        // Setup projection matrix
-        glMatrixMode(GL_PROJECTION);
+        glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
           glLoadIdentity();
-          glOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
-
-          BeginScreenSpaceGuiRendering();
     }
 
     void cRender::EndScreenSpaceRendering()
     {
-          EndScreenSpaceGuiRendering();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
 
-        glMatrixMode( GL_PROJECTION );  // Select Projection
-        glPopMatrix();                  // Pop The Matrix
-      glPopAttrib();
+      glMatrixMode(GL_PROJECTION);  // Select Projection
+      glPopMatrix();                  // Pop The Matrix
+
+      // TODO: Can we remove glCullFace and glEnable here?
+      glCullFace(GL_BACK);
+      glFrontFace(GL_CCW);
+      glEnable(GL_CULL_FACE);
+
+      glEnable(GL_LIGHTING);
     }
 
     void cRender::BeginScreenSpaceGuiRendering()
@@ -1014,7 +982,7 @@ namespace breathe
       glMatrixMode(GL_PROJECTION); // Start modifying the projection matrix.
       glPushMatrix();
         glLoadIdentity();
-        glOrtho( 0, fScale, 0, fScale, -1, 1 );
+        glOrtho(0.0f, fScale, fScale, 0.0f, -1.0f, 1.0f);
 
         // Setup modelview matrix
         glMatrixMode(GL_MODELVIEW);
@@ -1023,7 +991,7 @@ namespace breathe
 
     void cRender::EndScreenSpaceWorldRendering()
     {
-          glMatrixMode( GL_MODELVIEW );
+          glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
@@ -1051,12 +1019,12 @@ namespace breathe
       ASSERT(pMesh != nullptr);
       ASSERT(pMesh->pMeshData);
 
-      float* fVertices=&pMesh->pMeshData->vVertex[0];
-      float* fTextureCoords=&pMesh->pMeshData->vTextureCoord[0];
+      const float* fVertices = &pMesh->pMeshData->vVertex[0];
+      const float* fTextureCoords = &pMesh->pMeshData->vTextureCoord[0];
 
-      unsigned int triangle=0;
-      unsigned int texcoord=0;
-      unsigned int vert=0;
+      unsigned int triangle = 0;
+      unsigned int texcoord = 0;
+      unsigned int vert = 0;
       //unsigned int mesh=0;
       unsigned int nTriangles = pMesh->pMeshData->uiTriangles;
 
@@ -2562,30 +2530,6 @@ namespace breathe
       return true;
     }
 
-    material::cMaterialRef cRender::AddPostRenderEffect(const string_t& sFilename)
-    {
-      material::cMaterialRef pMaterial = AddMaterial(sFilename);
-      ASSERT(pMaterial != nullptr);
-      lPostRenderEffects.push_back(pMaterial);
-
-      if  (!pFrameBuffer0) {
-        pFrameBuffer0.reset(new cTextureFrameBufferObject);
-        pFrameBuffer0->Create();
-      }
-
-      if (lPostRenderEffects.size() > 1 && !pFrameBuffer1) {
-        pFrameBuffer1.reset(new cTextureFrameBufferObject);
-        pFrameBuffer1->Create();
-      }
-
-      return pMaterial;
-    }
-
-    void cRender::RemovePostRenderEffect()
-    {
-      if (!lPostRenderEffects.empty()) lPostRenderEffects.pop_back();
-    }
-
 
     model::cStaticRef cRender::CreateNewModel(const string_t& sName)
     {
@@ -2930,6 +2874,46 @@ namespace breathe
     ApplyMaterial::~ApplyMaterial()
     {
       pRender->SetMaterial(pLast);
+    }
+
+
+
+
+
+    cRenderToScreen::cRenderToScreen()
+    {
+      pRender->BeginRenderToScreen();
+    }
+
+    cRenderToScreen::~cRenderToScreen()
+    {
+      pRender->EndRenderToScreen();
+    }
+
+
+
+
+    cRenderToTexture::cRenderToTexture(cTextureFrameBufferObjectRef _pTexture) :
+      pTexture(_pTexture)
+    {
+      pRender->BeginRenderToTexture(pTexture);
+    }
+
+    cRenderToTexture::~cRenderToTexture()
+    {
+      pRender->EndRenderToTexture(pTexture);
+    }
+
+
+
+    cRenderScreenSpace::cRenderScreenSpace()
+    {
+      pRender->BeginScreenSpaceRendering();
+    }
+
+    cRenderScreenSpace::~cRenderScreenSpace()
+    {
+      pRender->EndScreenSpaceRendering();
     }
   }
 }

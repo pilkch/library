@@ -202,8 +202,9 @@ namespace breathe
       std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
     }
 
-    bool cTexture::SaveToBMP(const string_t& inFilename)
+    bool cTexture::SaveToBMP(const string_t& inFilename) const
     {
+      ASSERT(surface != nullptr);
       SDL_SaveBMP(surface, breathe::string::ToUTF8(inFilename).c_str());
       return breathe::GOOD;
     }
@@ -282,10 +283,16 @@ namespace breathe
       glGenFramebuffersEXT(1, &uiFBO);
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
 
+
+
       // Create the Render Buffer for Depth
       glGenRenderbuffersEXT(1, &uiFBODepthBuffer);
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
       glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+
+      // Attach the depth render buffer to the FBO as it's depth attachment
+      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
+
 
 
       // Now setup a texture to render to
@@ -306,12 +313,12 @@ namespace breathe
       // And attach it to the FBO so we can render to it
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
 
-      // Attach the depth render buffer to the FBO as it's depth attachment
-      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
-
 
       GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-      if (status != GL_FRAMEBUFFER_COMPLETE_EXT) LOG.Error("Texture", "Frame buffer status failed");
+      if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+        LOG.Error("Texture", "Frame buffer status failed");
+        ASSERT(status == GL_FRAMEBUFFER_COMPLETE_EXT);
+      }
 
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // Unbind the FBO for now
     }
