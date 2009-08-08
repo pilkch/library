@@ -33,9 +33,6 @@ namespace breathe
   class cApplication
   {
   public:
-    // TODO: This is just for testing, remove it
-    breathe::render::cTextureFrameBufferObjectRef pTestFBOTexture;
-
     cApplication(int argc, const char* const* argv);
     virtual ~cApplication();
 
@@ -115,6 +112,8 @@ namespace breathe
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       void UpdatePhysics(sampletime_t currentTime) { _UpdatePhysics(currentTime); }
 #endif
+
+      void PreRender(sampletime_t currentTime) { _PreRender(currentTime); }
       void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
       void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
 
@@ -139,6 +138,10 @@ namespace breathe
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       virtual void _UpdatePhysics(sampletime_t currentTime) {}
 #endif
+
+      // Override to create dynamic textures, do last minute changes to the scene graph, etc.
+      // For example we can override this function and render to texture for dynamic cubemaps, spheremaps, precalculated shadow maps, etc.
+      virtual void _PreRender(sampletime_t currentTime) {}
       virtual void _RenderScene(sampletime_t currentTime) {}
       virtual void _RenderScreenSpace(sampletime_t currentTime) {}
 
@@ -250,21 +253,7 @@ namespace breathe
     void LoadConfigXML();
     void _ConsoleExecuteSingleCommand(const std::string& s);
     void _InitArguments(int argc, const char* const* argv);
-    void _Update(sampletime_t currentTime);
-    void _UpdateInput(sampletime_t currentTime);
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    void _UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime);
-#endif
-    void _Render(cApplication::cAppState& state, sampletime_t currentTime);
-    void _RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime);
-
-    // Convert from a float amount to a bool
-    static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
-
-    // The render order is managed/automated by this class, so if you want to do anything special like
-    // rendering to an FBO first or adding a timer in, you can do it by overriding these
-    virtual void BeginRender(sampletime_t currentTime) {}
-    virtual void EndRender(sampletime_t currentTime) {}
+    void _LoadSearchDirectories();
 
     // Pure virtual functions, these *have* to be overridden in your derived game class
     virtual bool LoadScene() = 0;
@@ -273,6 +262,9 @@ namespace breathe
 
     virtual void FullscreenSwitch()=0;
     virtual bool Execute(const std::string& sCommand)=0;
+
+    // Convert from a float amount to a bool
+    static bool _IsKeyDown(float fAmount) { return (fAmount > KEY_MIN || fAmount < -KEY_MIN); }
 
     void _UpdateKeys(sampletime_t currentTime);
     void _UpdateEvents(sampletime_t currentTime);
@@ -283,7 +275,17 @@ namespace breathe
     void _OnMouseDown(int button, int x, int y);
     void _OnMouseMove(int button, int x, int y);
 
-    void _LoadSearchDirectories();
+
+    void _Update(sampletime_t currentTime);
+    void _UpdateInput(sampletime_t currentTime);
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+    void _UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime);
+#endif
+
+    // Main rendering function, basically controls the rendering process from rendering to textures, using those textures to render a scene and applying those textures to the screen
+    void _Render(cApplication::cAppState& state, sampletime_t currentTime);
+    void _RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime);
+
 
 #ifdef BUILD_DEBUG
     bool bDebug;

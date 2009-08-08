@@ -1030,9 +1030,6 @@ namespace breathe
 
     if (breathe::BAD == pRender->Init()) return breathe::BAD;
 
-    pTestFBOTexture.reset(new breathe::render::cTextureFrameBufferObject);
-    pTestFBOTexture->Create();
-
     return breathe::GOOD;
   }
 
@@ -1103,6 +1100,7 @@ namespace breathe
   {
     render::material::cMaterialRef pMaterial = pRender->AddMaterial(sFilename);
     ASSERT(pMaterial != nullptr);
+
     lPostRenderEffects.push_back(pMaterial);
 
     // If we have never used post render effects before we have to create our FBO textures
@@ -1171,78 +1169,95 @@ namespace breathe
 
   void cApplication::_Render(cApplication::cAppState& state, sampletime_t currentTime)
   {
-    BeginRender(currentTime);
-      const size_t n = lPostRenderEffects.size();
-      if (n == 0) {
-        render::cRenderToScreen screen;
+    // TODO: Remove RenderScene entirely and do everything through scenegraphs
+
+    /*
+    cHumanEyeExposureControl exposure;
+
+    exposure.Update(currentTime, fSceneBrightness0To1);
+
+    cShaderConstants constants;
+
+    constants.SetValue(TEXT("scene_brightness"), fSceneBrightness);
+    constants.SetValue(TEXT("eye_perceived_brightness"), exposure.GetPerceivedBrightness0To1());
+    constants.SetValue(TEXT("eye_velocity"), fEyeVelocity);cHumanEyeExposureControl exposure;
+
+    pRender->SetMaterial(*iter, constants);
+    */
+
+
+    // This can be overridden, allowing the user to create their own render to textures
+    state.PreRender(currentTime);
+
+    const size_t n = lPostRenderEffects.size();
+    if (n == 0) {
+      render::cRenderToScreen screen;
+
+      scenegraph.Render(currentTime);
+
+      state.RenderScene(currentTime);
+
+      {
+        render::cRenderScreenSpace screenspace;
+
+        _RenderScreenSpaceScene(state, currentTime);
+      }
+    } else {
+
+      ASSERT(pFrameBuffer0 != nullptr);
+      ASSERT(pFrameBuffer1 != nullptr);
+
+      // Ok, we actually want to do some exciting post render effects
+      // If there is one rendering effect render to pFrameBuffer0 then to the screen.
+      // If there is more than one rendering effect, render to pFrameBuffer0,
+      // then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
+      // until n-1, for the last effect we render whichever FBO we last rendered to, gets rendered to the screen.
+
+      {
+        render::cRenderToTexture texture(pFrameBuffer0);
 
         scenegraph.Render(currentTime);
 
         state.RenderScene(currentTime);
+      }
+
+      // We have just rendered to a texture, loop through the post render chain alternating
+      // rendering to pFrameBuffer0 and pFrameBuffer1
+      std::list<render::material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
+      for (size_t i = 1; i < n; i++, iter++) {
+        // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+        swap(pFrameBuffer0, pFrameBuffer1);
+
+        // Start rendering to the first buffer
+        render::cRenderToTexture texture(pFrameBuffer0);
 
         {
+          // Draw our texture back to the other texture
           render::cRenderScreenSpace screenspace;
 
-          _RenderScreenSpaceScene(state, currentTime);
-        }
-      } else {
-
-        ASSERT(pFrameBuffer0 != nullptr);
-        ASSERT(pFrameBuffer1 != nullptr);
-
-        // Ok, we actually want to do some exciting post render effects
-        // If there is one rendering effect render to pFrameBuffer0 then to the screen.
-        // If there is more than one rendering effect, render to pFrameBuffer0,
-        // then render pFrameBuffer0 to pFrameBuffer1, pFrameBuffer1 to pFrameBuffer0 ...
-        // until n-1, for the last effect we render whichever FBO we last rendered to, gets rendered to the screen.
-
-        {
-          render::cRenderToTexture texture(pFrameBuffer0);
-
-          scenegraph.Render(currentTime);
-
-          state.RenderScene(currentTime);
-        }
-
-        // We have just rendered to a texture, loop through the post render chain alternating
-        // rendering to pFrameBuffer0 and pFrameBuffer1
-        std::list<render::material::cMaterialRef>::iterator iter = lPostRenderEffects.begin();
-        for (size_t i = 1; i < n; i++, iter++) {
-          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
-          swap(pFrameBuffer0, pFrameBuffer1);
-
-          // Start rendering to the first buffer
-          render::cRenderToTexture texture(pFrameBuffer0);
-
-          {
-            // Draw our texture back to the other texture
-            render::cRenderScreenSpace screenspace;
-
-            pRender->SetMaterial(*iter);
-            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
-          }
-        }
-
-
-        render::cRenderToScreen screen;
-
-        {
-          // Finally draw our texture to the screen, we don't end rendering to the screen in this function,
-          // from now on in our rendering process we use exactly the same method as non-FBO rendering
-          render::cRenderScreenSpace screenspace;
-
-          ASSERT(iter != lPostRenderEffects.end());
           pRender->SetMaterial(*iter);
-          glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
+          glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
           pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
-
-          // Now we can render any text, gui, etc. that we want to see over the top of any scene post render effects
-          _RenderScreenSpaceScene(state, currentTime);
         }
       }
 
-    EndRender(currentTime);
+
+      render::cRenderToScreen screen;
+
+      {
+        // Finally draw our texture to the screen, we don't end rendering to the screen in this function,
+        // from now on in our rendering process we use exactly the same method as non-FBO rendering
+        render::cRenderScreenSpace screenspace;
+
+        ASSERT(iter != lPostRenderEffects.end());
+        pRender->SetMaterial(*iter);
+        glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
+        pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+
+        // Now we can render any text, gui, etc. that we want to see over the top of any scene post render effects
+        _RenderScreenSpaceScene(state, currentTime);
+      }
+    }
   }
 
   void cApplication::_UpdateEvents(sampletime_t currentTime)

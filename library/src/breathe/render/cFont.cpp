@@ -65,8 +65,7 @@ namespace breathe
       outWidth = 0.0f;
       outHeight = 0.0f;
 
-      // The first thing we do is get FreeType to render our character
-      // into a bitmap.  This actually requires a couple of FreeType commands:
+      // The first thing we do is get FreeType to render our character into a bitmap.  This actually requires a couple of FreeType commands:
 
       // Load the Glyph for our character.
       if (FT_Load_Glyph( face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT )) {
@@ -81,21 +80,19 @@ namespace breathe
         return;
       }
 
-      //Convert the glyph to a bitmap.
+      // Convert the glyph to a bitmap.
       FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1 );
       FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
 
-      //This reference will make accessing the bitmap easier
+      // This reference will make accessing the bitmap easier
       FT_Bitmap& bitmap = bitmap_glyph->bitmap;
 
-      //Use our helper function to get the widths of
-      //the bitmap data that we will need in order to create
-      //our texture.
-      int width = math::nextPowerOfTwo(bitmap.width);
-      int height = math::nextPowerOfTwo(bitmap.rows);
+      // Use our helper function to get the widths of the bitmap data that we will need in order to create our texture.
+      int width = math::NextPowerOfTwo(bitmap.width);
+      int height = math::NextPowerOfTwo(bitmap.rows);
 
       // Allocate memory for the texture data.
-      GLubyte* expanded_data = new GLubyte[ 2 * width * height];
+      GLubyte* expanded_data = new GLubyte[2 * width * height];
 
       // Here we fill in the data for the expanded bitmap.
       // Notice that we are using two channel bitmap (one for
@@ -105,11 +102,10 @@ namespace breathe
       // We use the ?: operator so that value which we use
       // will be 0 if we are in the padding zone, and whatever
       // is the the Freetype bitmap otherwise.
-      for (int j = 0; j <height;j++) {
+      for (int j = 0; j <height; j++) {
         for (int i = 0; i < width; i++){
           expanded_data[2 * (i + j * width)] = expanded_data[2 * (i + j * width) + 1] =
-            ((i >= bitmap.width) || (j >= bitmap.rows)) ?
-            0 : bitmap.buffer[i + bitmap.width * j];
+            ((i >= bitmap.width) || (j >= bitmap.rows)) ? 0 : bitmap.buffer[i + bitmap.width * j];
         }
       }
 
@@ -139,27 +135,27 @@ namespace breathe
       // between it and the one before it.
       glTranslatef(static_cast<float>(bitmap_glyph->left), 0, 0);
 
-      //Now we move down a little in the case that the
-      //bitmap extends past the bottom of the line
-      //(this is only true for characters like 'g' or 'y'.
+      // Now we move down a little in the case that the
+      // bitmap extends past the bottom of the line
+      // (this is only true for characters like 'g' or 'y'.
       glPushMatrix();
         glTranslatef(0, - static_cast<float>(bitmap_glyph->top), 0);
 
-        //Now we need to account for the fact that many of
-        //our textures are filled with empty padding space.
-        //We figure what portion of the texture is used by
-        //the actual character and store that information in
-        //the x and y variables, then when we draw the
-        //quad, we will only reference the parts of the texture
-        //that we contain the character itself.
-        float  x = static_cast<float>(bitmap.width) / static_cast<float>(width);
+        // Now we need to account for the fact that many of
+        // our textures are filled with empty padding space.
+        // We figure what portion of the texture is used by
+        // the actual character and store that information in
+        // the x and y variables, then when we draw the
+        // quad, we will only reference the parts of the texture
+        // that we contain the character itself.
+        float x = static_cast<float>(bitmap.width) / static_cast<float>(width);
         float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
 
-        //Here we draw the texturemaped quads.
-        //The bitmap that we got from FreeType was not
-        //oriented quite like we would like it to be,
-        //so we need to link the texture to the quad
-        //so that the result will be properly aligned.
+        // Here we draw the texturemaped quads.
+        // The bitmap that we got from FreeType was not
+        // oriented quite like we would like it to be,
+        // so we need to link the texture to the quad
+        // so that the result will be properly aligned.
         glBegin(GL_QUADS);
           glTexCoord2d(0.0f,  y);     glVertex2f(0.0f, static_cast<float>(bitmap.rows));
           glTexCoord2d(0.0f,  0.0f);  glVertex2f(0.0f, 0.0f);
@@ -170,11 +166,11 @@ namespace breathe
       glTranslatef(static_cast<float>(face->glyph->advance.x >> 6), 0, 0);
 
 
-      //increment the raster position as if we were a bitmap font.
-      //(only needed if you want to calculate text length)
+      // Increment the raster position as if we were a bitmap font.
+      // (only needed if you want to calculate text length)
       //glBitmap(0,0,0,0,face->glyph->advance.x >> 6,0,NULL);
 
-      //Finish the display list
+      // Finish the display list
       glEndList();
 
       outWidth = static_cast<float>(face->glyph->advance.x >> 6);

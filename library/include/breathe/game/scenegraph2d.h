@@ -1,7 +1,9 @@
 #ifndef SCENEGRAPH2D_H
 #define SCENEGRAPH2D_H
 
-#include <breathe/breathe.h>
+#include <spitfire/spitfire.h>
+
+#include <spitfire/algorithm/algorithm.h>
 
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
@@ -12,6 +14,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cFont.h>
 
 #include <breathe/game/scenegraph.h>
 
@@ -117,7 +120,7 @@ namespace breathe
     // Uses a quaternion to work out world rotation
     // Only call GenerateBoundingVolume at the very end of setting rotations and positions for all nodes
 
-    class cSceneNode
+    class cSceneNode : public boost::enable_shared_from_this<cSceneNode>
     {
     public:
       friend class cUpdateVisitor;
@@ -128,9 +131,8 @@ namespace breathe
 #ifndef NDEBUG
       bool IsWithinNode(cSceneNodeRef pNode) const; // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
 
-      // Checks that pChild is stored within our children
-      // TODO: Implement this function
-      bool IsParentOfChild(const cSceneNodeRef pChild) const { return false; }
+      // Checks that pChild is one of our direct children
+      bool IsParentOfChild(const cSceneNodeRef pChild) const;
 #endif
 
       cSceneNodeRef GetParent() const { return pParent; }
@@ -232,35 +234,6 @@ namespace breathe
       DeleteAllChildrenRecursively();
     }
 
-    inline void cSceneNode::AttachChild(cSceneNodeRef pChild)
-    {
-      ASSERT(!IsParentOfChild(pChild));
-
-      _AttachChild(pChild);
-
-      pChild->pParent.reset(this);
-    }
-
-    inline void cSceneNode::DetachChildForUseLater(cSceneNodeRef pChild)
-    {
-      ASSERT(pChild != nullptr);
-      ASSERT(IsParentOfChild(pChild));
-
-      _DetachChild(pChild);
-
-      pChild->pParent.reset();
-    }
-
-    inline void cSceneNode::DeleteChildRecursively(cSceneNodeRef pChild)
-    {
-      ASSERT(pChild != nullptr);
-      ASSERT(IsParentOfChild(pChild));
-
-      _DeleteChildRecursively(pChild);
-
-      pChild->pParent.reset();
-    }
-
 
 
     class cGroupNode : public cSceneNode
@@ -298,6 +271,10 @@ namespace breathe
       void SetIndex(size_t index);
 
     private:
+#ifdef BUILD_DEBUG
+      bool _IsParentOfChild(const cSceneNodeRef pChild) const;
+#endif
+
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
 
@@ -326,6 +303,10 @@ namespace breathe
       void Cull(cCullVisitor& visitor) { _Cull(visitor); }
 
     private:
+#ifdef BUILD_DEBUG
+      bool _IsParentOfChild(const cSceneNodeRef pChild) const;
+#endif
+
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
 
@@ -347,6 +328,36 @@ namespace breathe
     //  cVec2 position;
     //  cVec2 size;
     //};
+
+    // Draws a 2d string of text with a specified font
+    class cTextNode : public cSceneNode
+    {
+    public:
+      void SetFont(render::cFontRef _pFont) { pFont = _pFont; }
+      void SetText(const string_t& _sText) { sText = _sText; }
+
+    private:
+      render::cFontRef pFont;
+      string_t sText;
+    };
+
+    // Draws a 2d graph with a fixed number of points
+    class cGraphNode : public cSceneNode
+    {
+    public:
+      explicit cGraphNode(size_t nPoints);
+
+      float_t GetDistanceBetweenEachPoint() const { return fDistanceBetweenEachPoint; }
+      void SetDistanceBetweenEachPoint(float_t _fDistanceBetweenEachPoint) { fDistanceBetweenEachPoint = _fDistanceBetweenEachPoint; }
+
+    private:
+      float_t fDistanceBetweenEachPoint;
+      spitfire::cCircularBuffer<float> points;
+    };
+
+
+
+
 
 
     class cUpdateVisitor

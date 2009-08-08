@@ -9,38 +9,39 @@
 
 namespace spitfire
 {
+  #ifdef __WIN__
+  #define SIZEOF_WCHAR_T 2
+  typedef wchar_t char16_t;
+  typedef uint32_t char32_t;
+  typedef std::basic_string<char16_t> string16_t;
+  typedef std::wstring string32_t;
+  #else
+  #define SIZEOF_WCHAR_T 4
+  typedef std::wstring string16_t;
+  typedef std::basic_string<char32_t> string32_t;
+  #endif
+
   #ifdef UNICODE
+  typedef wchar_t char_t;
   typedef std::wostringstream ostringstream_t;
   typedef std::wistringstream istringstream_t;
   typedef std::wstring string_t;
-
-  // TODO: Remove this
-  typedef std::wstringstream stringstream_t;
   #else
+  typedef char char_t;
   typedef std::ostringstream ostringstream_t;
   typedef std::istringstream istringstream_t;
   typedef std::string string_t;
-
-  // TODO: Remove this
-  typedef std::stringstream stringstream_t;
   #endif
 
-  #if SIZEOF_WCHAR_T == 4
-  typedef std::wstring string16_t;
-  typedef std::basic_string<char32_t> string32_t;
-  #else
-  typedef std::basic_string<char16_t> string16_t;
-  typedef std::wstring string32_t;
-  #endif
-
-  // http://www.cppreference.com/wiki/c/string/isxdigit
-  // returns true if (A-F, a-f, or 0-9)
-  inline bool ishexdigit(char c) { return isxdigit(c) == 1; }
-  inline bool ishexdigit(wchar_t c) { return isxdigit(c) == 1; }
 
   namespace string
   {
     bool IsWhiteSpace(char_t c);
+
+    // http://www.cppreference.com/wiki/c/string/isxdigit
+    // returns true if (A-F, a-f, or 0-9)
+    inline bool IsHexDigit(char c) { return (isxdigit(c) == 1); }
+    inline bool IsHexDigit(wchar_t c) { return (isxdigit(c) == 1); }
 
     size_t CountOccurrences(const std::string& source, const std::string& find);
     std::string Replace(const std::string& source, const std::string& find, const std::string& replace);

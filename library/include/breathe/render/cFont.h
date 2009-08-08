@@ -6,8 +6,8 @@ namespace breathe
   namespace render
   {
     // This holds all of the information related to any
-    // freetype font that we want to create.  
-    class cFont 
+    // freetype font that we want to create.
+    class cFont
     {
     public:
       cFont(const string_t& filename, unsigned int height);
@@ -30,11 +30,13 @@ namespace breathe
       void _GetDimensions(const std::vector<string_t> lines, float& width, float& height) const;
 
       float h;          // < Holds the height of the font.
-      GLuint* textures; // < Holds the texture id's 
+      GLuint* textures; // < Holds the texture id's
       GLuint list_base; // < Holds the first display list id
       std::vector<float> fGlyphWidth;
       std::vector<float> fGlyphHeight;
     };
+
+    typedef cSmartPtr<cFont> cFontRef;
   }
 }
 

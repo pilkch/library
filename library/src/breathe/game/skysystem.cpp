@@ -583,7 +583,7 @@ namespace breathe
 
 
 
-      for (size_t i = 0; i < 4000; i++) {
+      for (size_t i = 0; i < 1000; i++) {
         render::cParticleCustom particle;
 
         spitfire::math::cSphericalCoordinate s;
@@ -656,18 +656,11 @@ namespace breathe
       spitfire::math::cQuaternion q1;
       spitfire::math::cQuaternion q2;
 
-      // If we are in the second half of the rotation then we want to swap the quaternions and come back the other way
-      if (t <= 0.5f) {
-        q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
-        q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(179.99999f));
-      } else {
-        q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(180.00001f));
-        q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
-      }
+      q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(180.00001f));
+      q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
 
       // 2x because we halved the full rotation into two halves
       rotationSun.Slerp(q1, q2, 2.0f * t);
-
 
       GenerateTexture();
       pStarParticleSystem->Update(currentTime);

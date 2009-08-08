@@ -3,11 +3,30 @@
 
 namespace breathe
 {
-  class cLevel;
-
   namespace render
   {
-    /*class cVertexProgram
+    class cShaderConstants
+    {
+    public:
+      void SetValue(const string_t& sName, int value) { mInt[sName] = value; }
+      void SetValue(const string_t& sName, float value) { mFloat[sName] = value; }
+      void SetValue(const string_t& sName, const math::cVec2& value) { mVec2[sName] = value; }
+      void SetValue(const string_t& sName, const math::cVec3& value) { mVec3[sName] = value; }
+
+    private:
+      std::map<string_t, int> mInt;
+      std::map<string_t, float> mFloat;
+      std::map<string_t, math::cVec2> mVec2;
+      std::map<string_t, math::cVec3> mVec3;
+    };
+
+    // void cRender::SetMaterial(material::cMaterialRef pMaterial);
+    // void cRender::SetMaterial(material::cMaterialRef pMaterial, const cShaderConstants& shaderConstants);
+
+
+
+    /*
+    class cVertexProgram
     {
     public:
       void SetNamedValue(const string_t& variable, float value) { values_float[variable] = value; }

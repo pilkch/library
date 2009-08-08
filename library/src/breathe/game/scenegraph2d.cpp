@@ -99,6 +99,11 @@ namespace breathe
       return false;
     }
 
+    bool cSceneNode::IsParentOfChild(const cSceneNodeRef pChild) const
+    {
+      return ((pChild != nullptr) && (pChild->GetParent() == shared_from_this()));
+    }
+
     void cSceneNode::SetDirty()
     {
       if (!bIsDirty) {
@@ -196,6 +201,38 @@ namespace breathe
 
       visitor.Visit(*this);
     }
+
+    void cSceneNode::AttachChild(cSceneNodeRef pChild)
+    {
+      ASSERT(!IsParentOfChild(pChild));
+
+      _AttachChild(pChild);
+
+      pChild->pParent = shared_from_this();
+    }
+
+    void cSceneNode::DetachChildForUseLater(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DetachChild(pChild);
+
+      pChild->pParent.reset();
+    }
+
+    void cSceneNode::DeleteChildRecursively(cSceneNodeRef pChild)
+    {
+      ASSERT(pChild != nullptr);
+      ASSERT(IsParentOfChild(pChild));
+
+      _DeleteChildRecursively(pChild);
+
+      pChild->pParent.reset();
+    }
+
+
+
 
 
     void cGroupNode::_Update(cUpdateVisitor& visitor)
@@ -502,7 +539,7 @@ namespace breathe
       cSceneGraphUnitTest() :
         cUnitTestBase(TEXT("cSceneGraphUnitTest"))
       {
-        printf("cSceneGraphUnitTest\n");
+        printf("cSceneGraphUnitTest 2d\n");
       }
 
       void Test()
@@ -522,7 +559,7 @@ namespace breathe
           // c
 
           if (counter != 0) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED No nodes added, counter should equal 0, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -531,7 +568,7 @@ namespace breathe
           pRoot->AttachChild(a);
 
           if (counter != 1) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED Added a, counter should equal 1, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -540,7 +577,7 @@ namespace breathe
           a->AttachChild(b);
 
           if (counter != 2) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED Added b, counter should equal 2, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -550,7 +587,7 @@ namespace breathe
             b->AttachChild(c);
 
             if (counter != 3) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED c attached to b, counter should equal 3, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -567,7 +604,7 @@ namespace breathe
               a->AttachChild(d);
 
               if (counter != 4) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED d attached to a, counter should equal 4, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -576,7 +613,7 @@ namespace breathe
               d->AttachChild(e);
 
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED e attached to d, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -592,7 +629,7 @@ namespace breathe
 
               // Even though we detached two nodes nothing should have been destroyed or created, we should still have the same amount
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED b detached from a, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -606,7 +643,7 @@ namespace breathe
               pRoot->AttachChild(b);
 
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED b attached to root, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -619,7 +656,7 @@ namespace breathe
 
             // d and e are still referenced, nothing should have been added or deleted
             if (counter != 5) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED e has fallen out of scope but should not affect the counter, counter should equal 5, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -633,7 +670,7 @@ namespace breathe
 
             // Now we should have just 4 objects left
             if (counter != 3) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED d and e deleted recursively from a, counter should equal 3, counter=")<<counter;
               SetFailed(o.str());
             }*/
@@ -646,7 +683,7 @@ namespace breathe
 
           // c is still referenced, nothing should have been added or deleted
           if (counter != 3) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED c has fallen out of scope, counter should equal 3, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -662,7 +699,7 @@ namespace breathe
             a->AttachChild(f);
 
             if (counter != 4) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED f attached to a, counter should equal 4, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -671,7 +708,7 @@ namespace breathe
             f->AttachChild(g);
 
             if (counter != 5) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED g attached to f, counter should equal 5, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -680,7 +717,7 @@ namespace breathe
             f->AttachChild(h);
 
             if (counter != 6) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED h attached to f, counter should equal 6, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -710,7 +747,7 @@ namespace breathe
 
             // Still referenced by variables f, g and h
             if (counter != 6) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED Children of a deleted recursively, counter should equal 6, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -719,7 +756,7 @@ namespace breathe
           // Ok, now f, g and h have fallen out of scope and been deleted
           // Now we should have just 4 objects left
           if (counter != 3) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED f, g and h have now fallen out of scope, counter should equal 3, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -727,7 +764,7 @@ namespace breathe
 
         // Now the whole scenegraph has fallen out of scope so our counter should be 0 again
         if (counter != 0) {
-          breathe::stringstream_t o;
+          ostringstream_t o;
           o<<TEXT("cSceneGraphUnitTest FAILED All children of the scenegraph have now fallen out of scope, counter should equal 0, counter=")<<counter;
           SetFailed(o.str());
         }

@@ -12,6 +12,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/model/cHeightmap.h>
 
 // TODO: We have to remove this, there has to be a better way of doing this?
 #include <breathe/render/model/cMd3.h>
@@ -405,9 +406,8 @@ namespace breathe
 #ifndef NDEBUG
       bool IsWithinNode(cSceneNodeRef pNode) const; // Determines whether this node is in the scene graph, ie. whether it's ultimate ancestor is the root scene node.
 
-      // Checks that pChild is stored within our children
-      // TODO: Implement this function
-      bool IsParentOfChild(const cSceneNodeRef pChild) const { return false; }
+      // Checks that pChild is one of our direct children
+      bool IsParentOfChild(const cSceneNodeRef pChild) const;
 #endif
 
       cSceneNodeRef GetParent() const { return pParent; }
@@ -601,6 +601,9 @@ namespace breathe
       void SetIndex(size_t index);
 
     private:
+      void _AttachChild(cSceneNodeRef pNode);
+      void _DetachChild(cSceneNodeRef pChild);
+
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
 
@@ -610,7 +613,7 @@ namespace breathe
 
     inline void cSwitchNode::SetIndex(size_t _index)
     {
-   // Make sure that we set our new index to a reasonable value
+      // Make sure that we set our new index to a reasonable value
       const size_t n = node.size();
       ASSERT(n != 0);
       ASSERT(_index < n);
@@ -624,7 +627,12 @@ namespace breathe
 
       void SetLOD(size_t LOD);
 
+      size_t GetNumberOfChildren() const { return node.size(); }
+
     private:
+      void _AttachChild(cSceneNodeRef pNode);
+      void _DetachChild(cSceneNodeRef pChild);
+
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
 
@@ -641,31 +649,32 @@ namespace breathe
       index = LOD;
     }
 
+    typedef cSmartPtr<cLODNode> cLODNodeRef;
 
-    class cPagedLODNodeLoader
-    {
-    public:
-      void Update() {}
-
-    private:
-      void LoadTerrainLOD0(size_t x, size_t y);
-      void LoadTerrainLOD1(size_t x, size_t y);
-      void LoadTerrainLOD2(size_t x, size_t y);
-
-      void LoadGrass(size_t x, size_t y);
-    };
 
     class cPagedLODNodeChild : public cSceneNode
     {
     public:
+      void Create(size_t x, size_t y);
+
+      void LoadAndSetTerrainLOD0();
+      void LoadAndSetTerrainLOD1();
+      void LoadAndSetTerrainLOD2();
+
+      void LoadGrass();
+      void UnloadGrass();
 
     private:
+      void LoadTerrainLOD(size_t index, size_t nWidthOrHeight);
+
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
 
-      cLODNode terrain; // Terrain heightmap
+      game::cTerrainHeightMap loader;
+
+      cLODNodeRef terrain; // Terrain heightmap
       //std::vector<cGeometryNodeRef> grass; // One cGeometryNode for each grass
-      cLODNode trees; // Anything else gets added here such as trees
+      cLODNodeRef trees; // Anything else gets added here such as trees
     };
 
     typedef cSmartPtr<cPagedLODNodeChild> cPagedLODNodeChildRef;
@@ -673,17 +682,23 @@ namespace breathe
     class cPagedLODNode : public cSceneNode
     {
     public:
+      void SetNumberOfNodes(size_t width, size_t height);
+
+      void Clear();
 
     private:
       void _Update(cUpdateVisitor& visitor);
       void _Cull(cCullVisitor& visitor);
 
-      cPagedLODNodeLoader loader;
       std::vector<cPagedLODNodeChildRef> node;
 
       // TODO: Could try a quadtree
       // cQuadTree<cPagedLODNodeChildRef> quadtree;
     };
+
+    typedef cSmartPtr<cPagedLODNode> cPagedLODNodeRef;
+
+
 
     // Octree for spatially representing the world
     class cSpatialGraphNode
@@ -793,7 +808,10 @@ namespace breathe
 
       void Visit(cSceneNode& node) { node.Update(*this); }
       void Visit(cGroupNode& node) { node.Update(*this); }
+      void Visit(cSwitchNode& node) { node.Update(*this); }
+      void Visit(cLODNode& node) { node.Update(*this); }
       void Visit(cModelNode& node) { node.Update(*this); }
+      void Visit(cPagedLODNode& node) { node.Update(*this); }
       void Visit(cAnimationNode& node) { node.Update(*this); }
 
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
@@ -818,7 +836,10 @@ namespace breathe
 
       void Visit(cSceneNode& node) { node.Cull(*this); }
       void Visit(cGroupNode& node) { node.Cull(*this); }
+      void Visit(cSwitchNode& node) { node.Cull(*this); }
+      void Visit(cLODNode& node) { node.Cull(*this); }
       void Visit(cModelNode& node) { node.Cull(*this); }
+      void Visit(cPagedLODNode& node) { node.Cull(*this); }
       void Visit(cAnimationNode& node) { node.Cull(*this); }
 
       // TODO: We have to remove this, there has to be a better way of doing this?
@@ -826,6 +847,8 @@ namespace breathe
 
       void Visit(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
+
+      const spitfire::math::cVec3& GetCameraPosition() const { return pRender->pFrustum->eye; }
 
     private:
       cSceneGraph& scenegraph;

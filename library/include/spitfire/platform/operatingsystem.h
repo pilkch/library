@@ -6,6 +6,22 @@ namespace spitfire
   namespace operatingsystem
   {
 #ifdef __WIN__
+    //void AddLaunchIconToDesktop(); // We intentionally do not try to add a application icon to a Windows desktop because that looks tacky
+    void AddLaunchIconToPanel();
+    void AddLaunchIconToMenu();
+#elif defined(__GTK__)
+    //void AddLaunchIconToDesktop(); // We intentionally do not try to add a application icon to a gtk desktop because that looks tacky
+    void AddLaunchIconToPanel();
+    void AddLaunchIconToMenu();
+#elif defined(__APPLE__)
+    //void AddLaunchIconToDesktop(); // We intentionally do not try to add a application icon to a mac desktop because that is never done by anyone
+    void AddLaunchIconToPanel();
+    //void AddLaunchIconToMenu(); // We intentionally do not try to add a application to /Applications
+#endif
+
+
+
+#ifdef __WIN__
     // *** Environment variables
 
     inline bool GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)

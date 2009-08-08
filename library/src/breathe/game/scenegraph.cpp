@@ -188,6 +188,11 @@ namespace breathe
       return false;
     }
 
+    bool cSceneNode::IsParentOfChild(const cSceneNodeRef pChild) const
+    {
+      return ((pChild != nullptr) && (pChild->GetParent() == shared_from_this()));
+    }
+
     void cSceneNode::SetDirty()
     {
       if (!bIsDirty) {
@@ -409,23 +414,6 @@ namespace breathe
     }
 
 
-    void cSwitchNode::_Update(cUpdateVisitor& visitor)
-    {
-      if (node.empty()) return;
-      ASSERT(index < node.size());
-
-      // Only visit the node that we require
-      visitor.Visit(*node[index]);
-    }
-
-    void cSwitchNode::_Cull(cCullVisitor& visitor)
-    {
-      if (node.empty()) return;
-      ASSERT(index < node.size());
-
-      // Only visit the node that we require
-      visitor.Visit(*node[index]);
-    }
 
 
     void cModelNode::_Update(cUpdateVisitor& visitor)
@@ -463,7 +451,45 @@ namespace breathe
     }
 
 
+    void cSwitchNode::_AttachChild(cSceneNodeRef pChild)
+    {
+      node.push_back(pChild);
+    }
 
+    void cSwitchNode::_DetachChild(cSceneNodeRef pChild)
+    {
+      ASSERT(false);
+      //node.remove(pChild);
+    }
+
+    void cSwitchNode::_Update(cUpdateVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+      // Only visit the node that we require
+      visitor.Visit(*node[index]);
+    }
+
+    void cSwitchNode::_Cull(cCullVisitor& visitor)
+    {
+      if (node.empty()) return;
+      ASSERT(index < node.size());
+
+      // Only visit the node that we require
+      visitor.Visit(*node[index]);
+    }
+
+    void cLODNode::_AttachChild(cSceneNodeRef pChild)
+    {
+      node.push_back(pChild);
+    }
+
+    void cLODNode::_DetachChild(cSceneNodeRef pChild)
+    {
+      ASSERT(false);
+      //node.remove(pChild);
+    }
 
     void cLODNode::_Update(cUpdateVisitor& visitor)
     {
@@ -484,34 +510,161 @@ namespace breathe
     }
 
 
+
+    void cPagedLODNodeChild::Create(size_t x, size_t y)
+    {
+      ASSERT(x < 100);
+      ASSERT(y < 100);
+
+      spitfire::ostringstream_t o;
+      o<<"models/terrain_";
+      if (x < 10) o<<"0";
+      o<<x;
+      o<<"_";
+      if (y < 10) o<<"0";
+      o<<y;
+      o<<".png";
+
+      LOG<<"Looking for file \""<<o.str()<<"\""<<std::endl;
+
+      spitfire::string_t sFilename;
+      filesystem::FindResourceFile(o.str(), sFilename);
+      loader.LoadFromFile(sFilename);
+
+      terrain.reset(new cLODNode);
+      //grass.reset(new cLODNode);
+      trees.reset(new cLODNode);
+
+      // We need at least one level of detail
+      LoadAndSetTerrainLOD0();
+
+      AttachChild(terrain);
+      terrain->SetRelativePosition(spitfire::math::cVec3(float(x) * 512.0f, float(y) * 512.0f, 0.0f));
+
+      AttachChild(trees);
+    }
+
+    void cPagedLODNodeChild::LoadTerrainLOD(size_t index, size_t nWidthOrHeight)
+    {
+      // If we have not already loaded this level of detail then we have to load it
+      if (terrain->GetNumberOfChildren() < (index + 1)) {
+        render::model::cTerrain terrainCreator;
+        terrainCreator.Create(loader, nWidthOrHeight);
+
+
+        cModelNodeRef pNode(new cModelNode);
+
+        scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+        stateset.SetStateFromMaterial(terrainCreator.GetMaterial());
+
+        scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+        vertexBufferObject.pVertexBufferObject = terrainCreator.GetVBO();
+        vertexBufferObject.SetEnabled(true);
+        vertexBufferObject.bHasValidValue = true;
+
+        terrain->AttachChild(pNode);
+      }
+
+      ASSERT(terrain->GetNumberOfChildren() != 4);
+    }
+
+    void cPagedLODNodeChild::LoadAndSetTerrainLOD0()
+    {
+      LoadTerrainLOD(0, 16);
+
+      terrain->SetLOD(0);
+    }
+
+    void cPagedLODNodeChild::LoadAndSetTerrainLOD1()
+    {
+      // We need to make sure that the previous levels of detail have been loaded
+      LoadAndSetTerrainLOD0();
+
+      LoadTerrainLOD(1, 32);
+
+      terrain->SetLOD(1);
+    }
+
+    void cPagedLODNodeChild::LoadAndSetTerrainLOD2()
+    {
+      // We need to make sure that the previous levels of detail have been loaded
+      LoadAndSetTerrainLOD0();
+      LoadAndSetTerrainLOD1();
+
+      LoadTerrainLOD(2, 64);
+
+      terrain->SetLOD(2);
+    }
+
     void cPagedLODNodeChild::_Update(cUpdateVisitor& visitor)
     {
-      visitor.Visit(terrain);
-      visitor.Visit(trees);
-      //visitor.Visit(grass);
+      LOG<<"cPagedLODNodeChild::_Update"<<std::endl;
+
+      visitor.Visit(*terrain);
+      visitor.Visit(*trees);
+      //visitor.Visit(*grass);
     }
+
     void cPagedLODNodeChild::_Cull(cCullVisitor& visitor)
     {
-      visitor.Visit(terrain);
-      visitor.Visit(trees);
-      //visitor.Visit(grass);
+      LOG<<"cPagedLODNodeChild::_Cull"<<std::endl;
+
+      const float_t fLength = (visitor.GetCameraPosition() - terrain->GetAbsolutePosition()).GetLength();
+      if (fLength < 1000.0f) LoadAndSetTerrainLOD2();
+      else if (fLength < 1800.0f) LoadAndSetTerrainLOD1();
+      else LoadAndSetTerrainLOD0();
+
+      if (fLength < 2500.0f) {
+        visitor.Visit(*terrain);
+
+        if (fLength < 1000.0f) {
+          visitor.Visit(*trees);
+
+          if (fLength < 650.0f) {
+            //visitor.Visit(*grass);
+          }
+        }
+      }
+    }
+
+
+    void cPagedLODNode::Clear()
+    {
+      node.clear();
+    }
+
+    void cPagedLODNode::SetNumberOfNodes(size_t width, size_t height)
+    {
+      Clear();
+
+      const size_t n = width * height;
+      spitfire::vector::push_back(node, n, cPagedLODNodeChildRef());
+
+      for (size_t y = 0; y < height; y++) {
+        for (size_t x = 0; x < width; x++) {
+          const size_t i = (y * width) + x;
+          node[i].reset(new cPagedLODNodeChild);
+          node[i]->Create(x, y);
+          AttachChild(node[i]);
+        }
+      }
     }
 
     void cPagedLODNode::_Update(cUpdateVisitor& visitor)
     {
-      loader.Update();
+      // Visit each node
+      const size_t n = node.size();
+      for (size_t i = 0; i < n; i++) visitor.Visit(*node[i]);
     }
 
     void cPagedLODNode::_Cull(cCullVisitor& visitor)
     {
-      //std::vector<cGeometryNodeRef>::iterator iter(node.begin());
-      //const std::vector<cGeometryNodeRef>::iterator iter(node.end());
-      //while (iter != iterEnd) {
-      //  visitor.Visit(*(*iter));
-
-      //  iter++;
-      //}
+      // Visit each node
+      const size_t n = node.size();
+      for (size_t i = 0; i < n; i++) visitor.Visit(*node[i]);
     }
+
+
 
 
 
@@ -527,6 +680,9 @@ namespace breathe
     void cSpatialGraphNode::_Cull(cCullVisitor& visitor)
     {
     }
+
+
+
 
 
     cUpdateVisitor::cUpdateVisitor(cSceneGraph& scenegraph)
@@ -662,100 +818,12 @@ namespace breathe
 
       cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
 
-      if (scenegraph.pSkySystem != nullptr) {
-
-        // http://www.flipcode.com/archives/Sky_Domes.shtml
-
-        // Positions of all the sky bodies and clouds are computed.
-        // From the position of the sun, all the colors for the bodies, clouds, and frame buffer are computed
-        // Frame buffer is cleared with the computed sky color
-        // Z buffer writes are disabled
-        // Render all sky clouds that are marked as being a star layer (a simple texture with dots for stars)
-        // Render all sky bodies
-        // Render all sky clouds that are clouds and not stars
-
-        // Cloud layers are blended onto the frame buffer.
-
-        // In the case of sky bodies such as the sun, they are not blended, but required an alpha component so the texture does not overdraw
-        // elements of the dome that are not part of the actual sun.
-
-        // The moon has to be rendered in 2 passes. First, from the moon texture, which also has an alpha component, a mask is generated that has alpha
-        // values of 1.0 for texels inside the moon and alpha values of 0.0 for texels outside the moon. This mask is rendered onto the dome without blending
-        // using the current sky color. This is done to remove any stars that might appear behind the moon. Next, the actual moon texture is blended onto the
-        // sky dome. The reason it is blended is because during the day, the moon will show a bit of blue or red hue of the sky.
-
-        // Although not a real sky body, the code supports drawing of flares around the sun. These are done by creating duplicate sky
-        // body like the sun, but using a flare texture instead of the sun texture. Flares are blended onto the sky dome.
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-          glLoadIdentity();
-          glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrix());
-
-          // Sky first
-          glMatrixMode(GL_MODELVIEW);
-          glPushMatrix();
-            const spitfire::math::cQuaternion rotation(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetRotationSun());
-            const math::cVec3 axis(rotation.GetAxis());
-            glRotatef(spitfire::math::RadiansToDegrees(rotation.GetAngle()), axis.x, axis.y, axis.z);
-
-            pRender->SelectTextureUnit0();
-
-            // Set our texture
-            if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
-
-            {
-              const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
-              const size_t n = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetNumberOfVertices();
-
-              // Render the top half of the sphere
-              glBegin(GL_TRIANGLE_STRIP);
-                for (size_t i = 0; i < n; i++) {
-                  glTexCoord2f(pVertices[i].u, pVertices[i].v);
-                  glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
-                }
-              glEnd();
-
-              // Flip 180 degrees and render the bottom half of the sphere
-              glMatrixMode(GL_MODELVIEW);
-              glPushMatrix();
-                glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-
-                glBegin(GL_TRIANGLE_STRIP);
-                  for (size_t i = 0; i < n; i++) {
-                    glTexCoord2f(pVertices[i].u, pVertices[i].v);
-                    glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
-                  }
-                glEnd();
-
-                glMatrixMode(GL_MODELVIEW);
-              glPopMatrix();
-            }
-
-            glMatrixMode(GL_MODELVIEW);
-          glPopMatrix();
-
-
-          // Render the stars and planets
-          render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
-          pParticleSystemPlanets->Update(spitfire::util::GetTime());
-          pParticleSystemPlanets->Render();
-
-          pRender->ClearMaterial();
-
-          render::cParticleSystemCustomBillboard* pParticleSystemStars = scenegraph.pSkySystem->GetStarParticleSystem();
-          pParticleSystemStars->Update(spitfire::util::GetTime());
-          pParticleSystemStars->Render();
-
-          glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-      }
-
+      size_t uiTriangles = 0;
 
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
         glLoadIdentity();
-        glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrix());
+        glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
 
           pRender->ClearMaterial();
 
@@ -778,12 +846,14 @@ namespace breathe
                   while (renderableIter != renderableIterEnd) {
                     glMatrixMode(GL_MODELVIEW);
                     glPushMatrix();
-                      glMultMatrixf((*renderableIter).GetOpenGLMatrix());
+                      glMultMatrixf((*renderableIter).GetOpenGLMatrixPointer());
                       pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
                       pVbo->RenderQuads();
 
                       glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();
+
+                    uiTriangles += pVbo->GetApproximateTriangleCount();
 
                     renderableIter++;
                   }
@@ -803,7 +873,7 @@ namespace breathe
             while (iter != iterEnd) {
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
-                glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrix());
+                glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrixPointer());
                 pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
                 (*iter).pModel->Render(currentTime);
               glMatrixMode(GL_MODELVIEW);
@@ -812,6 +882,83 @@ namespace breathe
               iter++;
             }
           }
+
+
+
+
+
+
+
+          // Render the sky
+          // We do this lastish to avoid redraw (Hopefully the sky will be mostly occluded and we will only have to draw sky for part of the screen)
+          // Another way to do this is first:
+          // glDepthMask(GL_FALSE);
+          // DrawSky();
+          // glDepthMask(GL_TRUE);
+          // ... Draw everything else
+          if (scenegraph.pSkySystem != nullptr) {
+
+            pRender->ClearMaterial();
+
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+              glLoadIdentity();
+              glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
+
+              // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
+              glTranslatef(pRender->pFrustum->eye.x, pRender->pFrustum->eye.y, pRender->pFrustum->eye.z);
+
+              glMatrixMode(GL_MODELVIEW);
+              glPushMatrix();
+                const spitfire::math::cQuaternion rotation(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetRotationSun());
+                const math::cVec3 axis(rotation.GetAxis());
+                glRotatef(spitfire::math::RadiansToDegrees(rotation.GetAngle()), axis.x, axis.y, axis.z);
+
+                pRender->SelectTextureUnit0();
+
+                // Set our texture
+                if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
+
+                {
+                  const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
+                  const size_t n = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetNumberOfVertices();
+
+                  // Render the top half of the sphere
+                  glBegin(GL_TRIANGLE_STRIP);
+                    for (size_t i = 0; i < n; i++) {
+                      glTexCoord2f(pVertices[i].u, pVertices[i].v);
+                      glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+                    }
+                  glEnd();
+
+                  // Flip 180 degrees and render the bottom half of the sphere
+                  glMatrixMode(GL_MODELVIEW);
+                  glPushMatrix();
+                    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+
+                    glBegin(GL_TRIANGLE_STRIP);
+                      for (size_t i = 0; i < n; i++) {
+                        glTexCoord2f(pVertices[i].u, pVertices[i].v);
+                        glVertex3f(pVertices[i].x, pVertices[i].y, -pVertices[i].z);
+                      }
+                    glEnd();
+
+                    glMatrixMode(GL_MODELVIEW);
+                  glPopMatrix();
+                }
+
+                glMatrixMode(GL_MODELVIEW);
+              glPopMatrix();
+
+              glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+
+            pRender->ClearMaterial();
+          }
+
+
+
+
 
           // Transparent second
           {
@@ -823,8 +970,41 @@ namespace breathe
             }
           }
 
+
+
+
+
+
+          // Render the stars and planets
+          // TODO: This is really slow at the moment, probably because every particle could potentially move every single frame so we can't optimise at all, we can't just throw everything into a static vbo and be done with it unfortunately
+          if (scenegraph.pSkySystem != nullptr) {
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+              glLoadIdentity();
+              glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
+
+              // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
+              glTranslatef(pRender->pFrustum->eye.x, pRender->pFrustum->eye.y, pRender->pFrustum->eye.z);
+
+              render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
+              pParticleSystemPlanets->Update(spitfire::util::GetTime());
+              pParticleSystemPlanets->Render();
+
+              pRender->ClearMaterial();
+
+              render::cParticleSystemCustomBillboard* pParticleSystemStars = scenegraph.pSkySystem->GetStarParticleSystem();
+              pParticleSystemStars->Update(spitfire::util::GetTime());
+              pParticleSystemStars->Render();
+
+              glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+          }
+
         glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
+
+
+      pRender->uiTriangles += uiTriangles;
     }
 
 
@@ -833,11 +1013,12 @@ namespace breathe
       backgroundColour(0.0f, 0.0f, 1.0f)
     {
       pRoot.reset(new cGroupNode);
-      pSkySystem.reset(new sky::cSkySystem);
     }
 
     void cSceneGraph::Create()
     {
+      pSkySystem.reset(new sky::cSkySystem);
+
       string_t sFullPath;
       spitfire::filesystem::FindResourceFile(TEXT("skysystem.xml"), sFullPath);
 
@@ -894,10 +1075,11 @@ namespace breathe
 
     void cSceneGraph::Update(sampletime_t currentTime)
     {
-      pSkySystem->GetSkyDomeAtmosphereRenderer().Update(currentTime);
+      if (pSkySystem != nullptr) pSkySystem->GetSkyDomeAtmosphereRenderer().Update(currentTime);
 
       cUpdateVisitor visitor(*this);
 
+      // TODO: Huh?  Do we need this?  Do we need this here?
       pRender->SetClearColour(backgroundColour);
     }
 
@@ -925,9 +1107,6 @@ namespace breathe
     private:
       typedef std::list<cSceneNodeRef>::iterator iterator;
 
-#ifdef BUILD_DEBUG
-      bool _IsParentOfChild(cSceneNodeRef pChild) const;
-#endif
       void _AttachChild(cSceneNodeRef pChild);
       void _DetachChild(cSceneNodeRef pChild);
 
@@ -945,14 +1124,6 @@ namespace breathe
       LOG<<"cSceneNodeUnitTest::~cSceneNodeUnitTest"<<std::endl;
       counter--;
     }
-
-#ifdef BUILD_DEBUG
-    bool cSceneNodeUnitTest::_IsParentOfChild(cSceneNodeRef pChild) const
-    {
-      std::list<cSceneNodeRef>::const_iterator iter = std::find(children.begin(), children.end(), pChild);
-      return (iter != children.end());
-    }
-#endif
 
     void cSceneNodeUnitTest::_AttachChild(cSceneNodeRef pChild)
     {
@@ -973,7 +1144,7 @@ namespace breathe
       cSceneGraphUnitTest() :
         cUnitTestBase(TEXT("cSceneGraphUnitTest"))
       {
-        printf("cSceneGraphUnitTest\n");
+        printf("cSceneGraphUnitTest 3d\n");
       }
 
       void Test()
@@ -994,7 +1165,7 @@ namespace breathe
           // c
 
           if (counter != 0) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED No nodes added, counter should equal 0, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -1003,7 +1174,7 @@ namespace breathe
           pRoot->AttachChild(a);
 
           if (counter != 1) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED Added a, counter should equal 1, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -1012,7 +1183,7 @@ namespace breathe
           a->AttachChild(b);
 
           if (counter != 2) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED Added b, counter should equal 2, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -1022,7 +1193,7 @@ namespace breathe
             b->AttachChild(c);
 
             if (counter != 3) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED c attached to b, counter should equal 3, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1039,7 +1210,7 @@ namespace breathe
               a->AttachChild(d);
 
               if (counter != 4) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED d attached to a, counter should equal 4, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -1048,7 +1219,7 @@ namespace breathe
               d->AttachChild(e);
 
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED e attached to d, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -1064,7 +1235,7 @@ namespace breathe
 
               // Even though we detached two nodes nothing should have been destroyed or created, we should still have the same amount
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED b detached from a, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -1078,7 +1249,7 @@ namespace breathe
               pRoot->AttachChild(b);
 
               if (counter != 5) {
-                breathe::stringstream_t o;
+                ostringstream_t o;
                 o<<TEXT("cSceneGraphUnitTest FAILED b attached to root, counter should equal 5, counter=")<<counter;
                 SetFailed(o.str());
               }
@@ -1091,7 +1262,7 @@ namespace breathe
 
             // d and e are still referenced, nothing should have been added or deleted
             if (counter != 5) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED e has fallen out of scope but should not affect the counter, counter should equal 5, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1105,7 +1276,7 @@ namespace breathe
 
             // Now we should have just 4 objects left
             if (counter != 3) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED d and e deleted recursively from a, counter should equal 3, counter=")<<counter;
               SetFailed(o.str());
             }*/
@@ -1118,7 +1289,7 @@ namespace breathe
 
           // c is still referenced, nothing should have been added or deleted
           if (counter != 3) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED c has fallen out of scope, counter should equal 3, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -1134,7 +1305,7 @@ namespace breathe
             a->AttachChild(f);
 
             if (counter != 4) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED f attached to a, counter should equal 4, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1143,7 +1314,7 @@ namespace breathe
             f->AttachChild(g);
 
             if (counter != 5) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED g attached to f, counter should equal 5, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1152,7 +1323,7 @@ namespace breathe
             f->AttachChild(h);
 
             if (counter != 6) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED h attached to f, counter should equal 6, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1184,7 +1355,7 @@ namespace breathe
 
             // Still referenced by variables f, g and h
             if (counter != 6) {
-              breathe::stringstream_t o;
+              ostringstream_t o;
               o<<TEXT("cSceneGraphUnitTest FAILED Children of a deleted recursively, counter should equal 6, counter=")<<counter;
               SetFailed(o.str());
             }
@@ -1193,7 +1364,7 @@ namespace breathe
           // Ok, now f, g and h have fallen out of scope and been deleted
           // Now we should have just 4 objects left
           if (counter != 3) {
-            breathe::stringstream_t o;
+            ostringstream_t o;
             o<<TEXT("cSceneGraphUnitTest FAILED f, g and h have now fallen out of scope, counter should equal 3, counter=")<<counter;
             SetFailed(o.str());
           }
@@ -1201,7 +1372,7 @@ namespace breathe
 
         // Now the whole scenegraph has fallen out of scope so our counter should be 0 again
         if (counter != 0) {
-          breathe::stringstream_t o;
+          ostringstream_t o;
           o<<TEXT("cSceneGraphUnitTest FAILED All children of the scenegraph have now fallen out of scope, counter should equal 0, counter=")<<counter;
           SetFailed(o.str());
         }
