@@ -262,11 +262,14 @@ namespace breathe
 
 
 
+
+
     // *** Frame Buffer Object
-    cTextureFrameBufferObject::cTextureFrameBufferObject()
+    cTextureFrameBufferObject::cTextureFrameBufferObject() :
+      uiFBO(0),
+      uiFBODepthBuffer(0),
+      bIsUsingMipMaps(true)
     {
-      uiFBO = 0;
-      uiFBODepthBuffer = 0;
       uiMode = TEXTURE_FRAMEBUFFEROBJECT;
     }
 
@@ -298,17 +301,28 @@ namespace breathe
       // Now setup a texture to render to
       glGenTextures(1, &uiTexture);
       glBindTexture(GL_TEXTURE_2D, uiTexture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+      GLenum internal = GL_RGBA8;
+      GLenum type = GL_UNSIGNED_BYTE;
+
+      // We want all FBO textures to be 16bit as we will get more precision hopefully
+      internal = GL_RGBA16F_ARB; // This seems good enough and won't use twice as much(!) memory as 32bit
+      //internal = GL_RGBA32F_ARB;
+      type = GL_FLOAT;
+
+      glTexImage2D(GL_TEXTURE_2D, 0, internal, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, GL_RGBA, type, NULL);
+
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-#ifdef RENDER_GENERATEFBOMIPMAPS
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glGenerateMipmapEXT(GL_TEXTURE_2D);
-#endif // RENDER_GENERATEFBOMIPMAPS
+      if (bIsUsingMipMaps) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        glGenerateMipmapEXT(GL_TEXTURE_2D);
+      }
 
       // And attach it to the FBO so we can render to it
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
@@ -321,6 +335,30 @@ namespace breathe
       }
 
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // Unbind the FBO for now
+    }
+
+    void cTextureFrameBufferObject::GenerateMipMapsIfRequired()
+    {
+      if (bIsUsingMipMaps) {
+        glBindTexture(GL_TEXTURE_2D, uiTexture);
+
+          glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+      }
+    }
+
+    void cTextureFrameBufferObject::SelectMipMapLevelOfDetail(float fLevelOfDetail)
+    {
+      ASSERT(bIsUsingMipMaps);
+
+      #ifdef MAX_TEXTURE_LOD_BIAS
+      // fLevelOfDetail must be in the range of -MAX_TEXTURE_LOD_BIAS..MAX_TEXTURE_LOD_BIAS
+      ASSERT(fLevelOfDetail < MAX_TEXTURE_LOD_BIAS);
+      ASSERT(fLevelOfDetail > -MAX_TEXTURE_LOD_BIAS);
+      #endif
+
+      glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, fLevelOfDetail);
     }
   }
 }

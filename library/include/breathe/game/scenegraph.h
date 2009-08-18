@@ -8,6 +8,7 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 
+#include <breathe/render/camera.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
@@ -832,7 +833,7 @@ namespace breathe
     class cCullVisitor
     {
     public:
-      explicit cCullVisitor(cSceneGraph& scenegraph);
+      cCullVisitor(const render::cCamera& camera, cSceneGraph& scenegraph);
 
       void Visit(cSceneNode& node) { node.Cull(*this); }
       void Visit(cGroupNode& node) { node.Cull(*this); }
@@ -848,9 +849,10 @@ namespace breathe
       void Visit(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
       void Visit(sky::cSkyDomeAtmosphereRenderer& node);
 
-      const spitfire::math::cVec3& GetCameraPosition() const { return pRender->pFrustum->eye; }
+      const spitfire::math::cVec3& GetCameraPosition() const { return camera.GetEyePosition(); }
 
     private:
+      const render::cCamera& camera;
       cSceneGraph& scenegraph;
     };
 
@@ -896,7 +898,7 @@ namespace breathe
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
       void Update(sampletime_t currentTime);
-      void Cull(sampletime_t currentTime);
+      void Cull(const render::cCamera& camera, sampletime_t currentTime);
       void Render(sampletime_t currentTime);
 
     protected:

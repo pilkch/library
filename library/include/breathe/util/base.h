@@ -41,8 +41,11 @@ namespace breathe
     math::cVec3 v;
 
     // Box for very general collision and culling
-    float fWidth, fLength, fHeight;
-    float fWeight;
+    float fWidth;
+    float fLength;
+    float fHeight;
+
+    float fWeightKg;
 
     // For 2D
     void SetDimensions(float fWidth, float fHeight);

@@ -31,10 +31,6 @@
 #undef FileExists
 #endif
 
-#ifndef SPITFIRE_APPLICATION_NAME_LWR
-#error "SPITFIRE_APPLICATION_NAME_LWR must be defined"
-#endif
-
 namespace spitfire
 {
   namespace filesystem

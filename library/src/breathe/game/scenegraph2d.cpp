@@ -319,7 +319,8 @@ namespace breathe
       Visit(*scenegraph.GetRoot());
     }
 
-    cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph) :
+    cCullVisitor::cCullVisitor(const render::cCamera& _camera, cSceneGraph& _scenegraph) :
+      camera(_camera),
       scenegraph(_scenegraph)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
@@ -468,9 +469,9 @@ namespace breathe
       cUpdateVisitor visitor(*this);
     }
 
-    void cSceneGraph::Cull(sampletime_t currentTime)
+    void cSceneGraph::Cull(const render::cCamera& camera, sampletime_t currentTime)
     {
-      cCullVisitor visitor(*this);
+      cCullVisitor visitor(camera, *this);
     }
 
     void cSceneGraph::Render(sampletime_t currentTime)
@@ -728,8 +729,10 @@ namespace breathe
             //pRoot->AddChild(&model);
 
             const sampletime_t currentTime = util::GetTime();
+            render::cCamera camera;
+
             scenegraph.Update(currentTime);
-            scenegraph.Cull(currentTime);
+            scenegraph.Cull(camera, currentTime);
             scenegraph.Render(currentTime);
 
 

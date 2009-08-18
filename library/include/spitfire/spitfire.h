@@ -20,6 +20,14 @@
 #ifndef SPITFIRE_H
 #define SPITFIRE_H
 
+#ifndef SPITFIRE_APPLICATION_NAME
+#error "SPITFIRE_APPLICATION_NAME must be defined"
+#endif
+
+#ifndef SPITFIRE_APPLICATION_NAME_LWR
+#error "SPITFIRE_APPLICATION_NAME_LWR must be defined"
+#endif
+
 #ifdef CMEM_H
 #error "Don't include mem.h directly, include spitfire.h instead"
 #endif // CMEM_H

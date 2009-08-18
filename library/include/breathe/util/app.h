@@ -10,6 +10,8 @@
 #include <breathe/gui/cWindow.h>
 #include <breathe/gui/cWindowManager.h>
 
+#include <breathe/render/camera.h>
+
 namespace breathe
 {
   const float KEY_MIN = 0.1f;
@@ -74,6 +76,13 @@ namespace breathe
     bool IsDebug() const { return bDebug; }
     void ToggleDebug() { bDebug = !bDebug; }
 #endif
+
+    bool IsBlurPostRenderEffect() const { return bIsBlurPostRenderEffect; }
+    void SetBlurPostRenderEffect(bool _bIsBlurPostRenderEffect);
+
+
+    bool IsHDRBloomPostRenderEffect() const { return bIsHDRBloomPostRenderEffect; }
+    void SetHDRBloomPostRenderEffect(bool _bIsHDRBloomPostRenderEffect);
 
 
     render::material::cMaterialRef AddPostRenderEffect(const string_t& sFilename);
@@ -186,6 +195,8 @@ namespace breathe
 
     render::cFont* pFont;
 
+    render::cCamera camera;
+
     scenegraph3d::cSceneGraph scenegraph;
     scenegraph2d::cSceneGraph scenegraph2D;
 
@@ -291,6 +302,9 @@ namespace breathe
     bool bDebug;
 #endif
 
+    bool bIsBlurPostRenderEffect;
+    bool bIsHDRBloomPostRenderEffect;
+
     bool bActive;
     bool bReturnCode;
 
@@ -303,14 +317,12 @@ namespace breathe
     std::list<cAppState*> states;
 
 
-    std::list<render::material::cMaterialRef> lPostRenderEffects;
-    render::cTextureFrameBufferObjectRef pFrameBuffer0;
-    render::cTextureFrameBufferObjectRef pFrameBuffer1;
-
   private:
 #ifdef BUILD_DEBUG
     void SanityCheck();
 #endif
+
+    void CreateFBOTextures();
 
     void RemoveKey(unsigned int code);
 
@@ -319,6 +331,14 @@ namespace breathe
     // Forbidden
     void _OnMouseEvent(int button, int state, int x, int y);
     void OnMouse(int button,int state,int x,int y);
+
+
+    std::list<render::material::cMaterialRef> lPostRenderEffects;
+    render::cTextureFrameBufferObjectRef pFrameBuffer0;
+    render::cTextureFrameBufferObjectRef pFrameBuffer1;
+
+    render::cTextureFrameBufferObjectRef pHDRBloomExposureFrameBuffer;
+
 
     bool bPopCurrentStateSoon;
     cAppState* pPushThisStateSoon;

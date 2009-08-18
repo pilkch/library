@@ -512,6 +512,9 @@ namespace breathe
   }
   */
 
+  render::material::cMaterialRef pGaussianBlurMaterial;
+  render::material::cMaterialRef pHDRBloomMaterial;
+
   cApplication::cApplication(int argc, const char* const* argv) :
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     bStepPhysics(false),
@@ -525,6 +528,9 @@ namespace breathe
 #ifdef BUILD_DEBUG
     bDebug(true),
 #endif
+
+    bIsBlurPostRenderEffect(false),
+    bIsHDRBloomPostRenderEffect(false),
 
     bActive(true),
     bReturnCode(breathe::GOOD),
@@ -986,6 +992,14 @@ namespace breathe
     if (breathe::BAD == InitScene()) return breathe::BAD;
 
 
+    pGaussianBlurMaterial = pRender->AddMaterial(TEXT("postrender/gaussian_blur_two_pass.mat"));
+    ASSERT(pGaussianBlurMaterial != nullptr);
+
+    pHDRBloomMaterial = pRender->AddMaterial(TEXT("postrender/bloom.mat"));
+    ASSERT(pHDRBloomMaterial != nullptr);
+
+
+
     scenegraph.Create();
 
     // This should be the first state added and it should not be added by the derived class, it should only be added here
@@ -1039,6 +1053,8 @@ namespace breathe
     pFrameBuffer0.reset();
     pFrameBuffer1.reset();
 
+    pHDRBloomExposureFrameBuffer.reset();
+
     pRender->Destroy();
 
     return breathe::GOOD;
@@ -1082,27 +1098,26 @@ namespace breathe
 
   void cApplication::_Update(sampletime_t currentTime)
   {
+    // Update our current state
     GetCurrentState().Update(currentTime);
 
+    // NOTE: The current state needs to have set this camera correctly by now
+    pRender->SetFrustum(camera.CreateFrustumFromCamera());
+
     // Now update our other sub systems
-    breathe::audio::Update(currentTime, pRender->pFrustum->eye, pRender->pFrustum->target, pRender->pFrustum->up);
+    breathe::audio::Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
 
     scenegraph.Update(currentTime);
-    scenegraph.Cull(currentTime);
+    scenegraph.Cull(camera, currentTime);
 
     scenegraph2D.Update(currentTime);
-    scenegraph2D.Cull(currentTime);
+    scenegraph2D.Cull(camera, currentTime);
   }
 
 
 
-  render::material::cMaterialRef cApplication::AddPostRenderEffect(const string_t& sFilename)
+  void cApplication::CreateFBOTextures()
   {
-    render::material::cMaterialRef pMaterial = pRender->AddMaterial(sFilename);
-    ASSERT(pMaterial != nullptr);
-
-    lPostRenderEffects.push_back(pMaterial);
-
     // If we have never used post render effects before we have to create our FBO textures
     if (pFrameBuffer0 == nullptr) {
       pFrameBuffer0.reset(new render::cTextureFrameBufferObject);
@@ -1113,6 +1128,16 @@ namespace breathe
       pFrameBuffer1.reset(new render::cTextureFrameBufferObject);
       pFrameBuffer1->Create();
     }
+  }
+
+  render::material::cMaterialRef cApplication::AddPostRenderEffect(const string_t& sFilename)
+  {
+    render::material::cMaterialRef pMaterial = pRender->AddMaterial(sFilename);
+    ASSERT(pMaterial != nullptr);
+
+    lPostRenderEffects.push_back(pMaterial);
+
+    CreateFBOTextures();
 
     return pMaterial;
   }
@@ -1120,6 +1145,27 @@ namespace breathe
   void cApplication::RemovePostRenderEffect()
   {
     if (!lPostRenderEffects.empty()) lPostRenderEffects.pop_back();
+  }
+
+  void cApplication::SetBlurPostRenderEffect(bool _bIsBlurPostRenderEffect)
+  {
+    bIsBlurPostRenderEffect = _bIsBlurPostRenderEffect;
+
+    if (bIsBlurPostRenderEffect) CreateFBOTextures();
+  }
+
+  void cApplication::SetHDRBloomPostRenderEffect(bool _bIsHDRBloomPostRenderEffect)
+  {
+    bIsHDRBloomPostRenderEffect = _bIsHDRBloomPostRenderEffect;
+
+    if (bIsHDRBloomPostRenderEffect) {
+      CreateFBOTextures();
+
+      if (pHDRBloomExposureFrameBuffer == nullptr) {
+        pHDRBloomExposureFrameBuffer.reset(new render::cTextureFrameBufferObject);
+        pHDRBloomExposureFrameBuffer->Create();
+      }
+    }
   }
 
 
@@ -1185,25 +1231,11 @@ namespace breathe
     pRender->SetMaterial(*iter, constants);
     */
 
-
     // This can be overridden, allowing the user to create their own render to textures
     state.PreRender(currentTime);
 
     const size_t n = lPostRenderEffects.size();
-    if (n == 0) {
-      render::cRenderToScreen screen;
-
-      scenegraph.Render(currentTime);
-
-      state.RenderScene(currentTime);
-
-      {
-        render::cRenderScreenSpace screenspace;
-
-        _RenderScreenSpaceScene(state, currentTime);
-      }
-    } else {
-
+    if ((n != 0) || bIsBlurPostRenderEffect || bIsHDRBloomPostRenderEffect) {
       ASSERT(pFrameBuffer0 != nullptr);
       ASSERT(pFrameBuffer1 != nullptr);
 
@@ -1220,6 +1252,115 @@ namespace breathe
 
         state.RenderScene(currentTime);
       }
+
+
+      // Gaussian blur
+      if (bIsBlurPostRenderEffect) {
+        // First blur horizontally (Blur will occur in the horizontal direction)
+        {
+
+          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+          swap(pFrameBuffer0, pFrameBuffer1);
+
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pFrameBuffer0);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            pRender->SetMaterial(pGaussianBlurMaterial);
+
+            pRender->SetShaderConstant("texture_width", 1024.0f);
+            pRender->SetShaderConstant("texture_height", 1024.0f);
+            pRender->SetShaderConstant("direction", 0.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pRender->SetShaderConstant("kernel_size", 2.0f);
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+
+        // Now blur vertically (Blur will occur in the vertical direction)
+        {
+
+          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+          swap(pFrameBuffer0, pFrameBuffer1);
+
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pFrameBuffer0);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            pRender->SetMaterial(pGaussianBlurMaterial);
+
+            pRender->SetShaderConstant("texture_width", 1024.0f);
+            pRender->SetShaderConstant("texture_height", 1024.0f);
+            pRender->SetShaderConstant("direction", 1.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pRender->SetShaderConstant("kernel_size", 2.0f);
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+      }
+
+
+      // HDR Bloom
+      if (bIsHDRBloomPostRenderEffect) {
+        ASSERT(pHDRBloomExposureFrameBuffer != nullptr);
+
+        // First make a copy to our texture with 1x1 mipmapping
+        {
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pHDRBloomExposureFrameBuffer);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+
+        // Now apply our HDR bloom
+        {
+
+          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+          swap(pFrameBuffer0, pFrameBuffer1);
+
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pFrameBuffer0);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            pRender->SetMaterial(pHDRBloomMaterial);
+
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
+
+
+            // For HDR bloom we need to get the exposure from the second texture
+            pRender->SelectTextureUnit1();
+
+            glBindTexture(GL_TEXTURE_2D, pHDRBloomExposureFrameBuffer->uiTexture);
+
+            // Select the lowest mipmap level of detail, this seems to correctly select 1x1
+            pHDRBloomExposureFrameBuffer->SelectMipMapLevelOfDetail(10.0f); // Also try -1.0f, +1.0f etc.
+
+            pRender->SelectTextureUnit0();
+
+
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+      }
+
 
       // We have just rendered to a texture, loop through the post render chain alternating
       // rendering to pFrameBuffer0 and pFrameBuffer1
@@ -1249,12 +1390,26 @@ namespace breathe
         // from now on in our rendering process we use exactly the same method as non-FBO rendering
         render::cRenderScreenSpace screenspace;
 
-        ASSERT(iter != lPostRenderEffects.end());
-        pRender->SetMaterial(*iter);
+        // If we have one more post render effect to go then we do that now
+        if (iter != lPostRenderEffects.end()) pRender->SetMaterial(*iter);
+
         glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
         pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
 
         // Now we can render any text, gui, etc. that we want to see over the top of any scene post render effects
+        _RenderScreenSpaceScene(state, currentTime);
+      }
+    } else {
+      // Normal rendering, straight to the screen
+      render::cRenderToScreen screen;
+
+      scenegraph.Render(currentTime);
+
+      state.RenderScene(currentTime);
+
+      {
+        render::cRenderScreenSpace screenspace;
+
         _RenderScreenSpaceScene(state, currentTime);
       }
     }

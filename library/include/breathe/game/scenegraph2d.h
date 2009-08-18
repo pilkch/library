@@ -391,7 +391,7 @@ namespace breathe
     class cCullVisitor
     {
     public:
-      explicit cCullVisitor(cSceneGraph& scenegraph);
+      explicit cCullVisitor(const render::cCamera& camera, cSceneGraph& scenegraph);
 
       void Visit(cSceneNode& node) {}
       void Visit(cModelNode& node) {}
@@ -404,6 +404,7 @@ namespace breathe
     private:
       void AddRenderable(cRenderableRef pRenderable) {}
 
+      const render::cCamera& camera;
       cSceneGraph& scenegraph;
     };
 
@@ -482,7 +483,7 @@ namespace breathe
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
       void Update(sampletime_t currentTime);
-      void Cull(sampletime_t currentTime);
+      void Cull(const render::cCamera& camera, sampletime_t currentTime);
       void Render(sampletime_t currentTime);
 
     protected:

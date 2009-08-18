@@ -691,7 +691,8 @@ namespace breathe
       Visit(*scenegraph.GetRoot());
     }
 
-    cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph) :
+    cCullVisitor::cCullVisitor(const render::cCamera& _camera, cSceneGraph& _scenegraph) :
+      camera(_camera),
       scenegraph(_scenegraph)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
@@ -823,7 +824,7 @@ namespace breathe
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
         glLoadIdentity();
-        glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
+        glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
 
           pRender->ClearMaterial();
 
@@ -848,7 +849,7 @@ namespace breathe
                     glPushMatrix();
                       glMultMatrixf((*renderableIter).GetOpenGLMatrixPointer());
                       pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
-                      pVbo->RenderQuads();
+                      pVbo->RenderTriangles();
 
                       glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();
@@ -903,10 +904,10 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
               glLoadIdentity();
-              glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
+              glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
 
               // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
-              glTranslatef(pRender->pFrustum->eye.x, pRender->pFrustum->eye.y, pRender->pFrustum->eye.z);
+              glTranslatef(pRender->GetFrustum().eye.x, pRender->GetFrustum().eye.y, pRender->GetFrustum().eye.z);
 
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
@@ -981,10 +982,10 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
               glLoadIdentity();
-              glMultMatrixf(pRender->pFrustum->m.GetOpenGLMatrixPointer());
+              glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
 
               // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
-              glTranslatef(pRender->pFrustum->eye.x, pRender->pFrustum->eye.y, pRender->pFrustum->eye.z);
+              glTranslatef(pRender->GetFrustum().eye.x, pRender->GetFrustum().eye.y, pRender->GetFrustum().eye.z);
 
               render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
               pParticleSystemPlanets->Update(spitfire::util::GetTime());
@@ -1083,10 +1084,10 @@ namespace breathe
       pRender->SetClearColour(backgroundColour);
     }
 
-    void cSceneGraph::Cull(sampletime_t currentTime)
+    void cSceneGraph::Cull(const render::cCamera& camera, sampletime_t currentTime)
     {
       renderGraph.Clear();
-      cCullVisitor visitor(*this);
+      cCullVisitor visitor(camera, *this);
     }
 
     void cSceneGraph::Render(sampletime_t currentTime)
@@ -1336,8 +1337,10 @@ namespace breathe
             //pRoot->AddChild(&model);
 
             const sampletime_t currentTime = util::GetTime();
+            render::cCamera camera;
+
             scenegraph.Update(currentTime);
-            scenegraph.Cull(currentTime);
+            scenegraph.Cull(camera, currentTime);
             scenegraph.Render(currentTime);
 
 

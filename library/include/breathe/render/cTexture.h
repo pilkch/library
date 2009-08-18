@@ -97,12 +97,18 @@ namespace breathe
       cTextureFrameBufferObject();
       ~cTextureFrameBufferObject();
 
+      void GenerateMipMapsIfRequired();
+
+      void SelectMipMapLevelOfDetail(float fLevelOfDetail);
+
       unsigned int uiFBO;            // Our handle to the FBO
       unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
 
     private:
       bool _IsValid() const { return (uiTexture != 0) && (uiFBO != 0) && (uiFBODepthBuffer != 0); }
       void _Create();
+
+      bool bIsUsingMipMaps;
     };
 
     typedef cSmartPtr<cTexture> cTextureRef;
