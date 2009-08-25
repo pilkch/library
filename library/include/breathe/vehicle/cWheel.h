@@ -9,11 +9,11 @@ namespace breathe
 
     class cWheel
 #ifdef BUILD_PHYSICS_3D
-      : virtual public physics::cPhysicsObject, public physics::cPhysicsRayCast
+      : public physics::cPhysicsRayCast
 #endif
     {
     public:
-      explicit cWheel(cVehicle *p);
+      cWheel(cVehicle *p, physics::cWorld* pWorld);
 
       void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU,
         float fSNormal, float fSMin, float fSMax, const math::cVec3& pos);
@@ -40,6 +40,9 @@ namespace breathe
 
     private:
       cVehicle* pParent;
+
+      float fRadius;
+      float fWeight;
     };
   }
 }

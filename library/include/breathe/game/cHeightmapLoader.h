@@ -3,21 +3,30 @@
 
 #include <spitfire/algorithm/algorithm.h>
 
+#include <spitfire/math/geometry.h>
+
 // TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
 
 namespace breathe
 {
   namespace game
   {
-    class cTerrainHeightMapLoader
+    class cTerrainHeightMap
     {
     public:
-      cTerrainHeightMapLoader();
+      cTerrainHeightMap();
 
       void LoadFromFile(const string_t& sFilename);
+      void SaveToFile(const string_t& sFilename) const;
+
+      void GetDimensions(size_t& width, size_t& height) const;
 
       float GetHeight(float x, float y) const;
+      void SetHeight(float x, float y, float fValue);
+
       math::cVec3 GetNormal(float x, float y) const;
+
+      bool CollideWithRayVerySlowFunction(const math::cRay3& ray, float& fDepth) const;
 
     private:
       void Smooth();

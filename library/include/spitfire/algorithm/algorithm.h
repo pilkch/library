@@ -24,6 +24,46 @@ namespace spitfire
     }
   }
 
+  namespace algorithm
+  {
+    // If std::sort would just take userdata we could remove this function
+    template <class RandomAccessIterator, class Compare, class UserData>
+    void SortWithUserData(RandomAccessIterator first, const RandomAccessIterator last, Compare comp, const UserData& userData)
+    {
+      RandomAccessIterator current = first;
+      RandomAccessIterator next = first;
+      next++;
+
+      size_t n = 0;
+      {
+        RandomAccessIterator count = first;
+        while (count != last) {
+          n++;
+
+          count++;
+        }
+      }
+
+      bool bIsSorted = false; // Flag to stop unnecessary passes, flase when swap occurs
+      for (size_t pass = 1; (pass < n) && !bIsSorted; ++pass) {
+        bIsSorted = true;
+
+        RandomAccessIterator passCurrent = current;
+        RandomAccessIterator passNext = next;
+        for(; (passCurrent != last) && (passNext != last); passCurrent++, passNext++) {
+          // Compare both values and swap if necessary
+          if (comp(*passCurrent, *passNext, userData)) {
+            std::iter_swap(passCurrent, passNext); // Should this be swap(*passCurrent, *passNext)?
+            bIsSorted = false;
+          }
+        }
+
+        current++;
+        next++;
+      }
+    }
+  }
+
 
   // Creates a vector style stack out of any container
   template <class T>

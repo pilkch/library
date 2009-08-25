@@ -3,6 +3,7 @@
 
 #include <breathe/render/cVertexBufferObject.h>
 #include <breathe/game/cHeightmapLoader.h>
+#include <breathe/game/scenegraph.h>
 
 // TODO: Rename heightmap to terrain?  It's a little bit of both at the moment
 // NOTE: cTerrain and cGrass are purely for rendering, no collision detection etc.
@@ -29,20 +30,26 @@ namespace breathe
       class cTerrain
       {
       public:
-        void Create(const game::cTerrainHeightMapLoader& loader);
+        void Create(const game::cTerrainHeightMap& loader, const size_t nWidthOrHeight);
+
+        // TODO: REMOVE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*********************!!!!!!!!
+        void Create(const game::cTerrainHeightMap& loader) { Create(loader, 512); }
 
         void Update(spitfire::sampletime_t currentTime);
         void Render(spitfire::sampletime_t currentTime);
 
+        cVertexBufferObjectRef GetVBO() const { return pVBO; }
+        material::cMaterialRef GetMaterial() const { return pMaterial; }
+
       private:
-        cStaticVertexBuffer vbo;
+        cVertexBufferObjectRef pVBO;
         material::cMaterialRef pMaterial;
       };
 
       class cGrassStatic
       {
       public:
-        void Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
+        void Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
         void Update(spitfire::sampletime_t currentTime) {}
         void Render(spitfire::sampletime_t currentTime);
@@ -55,7 +62,7 @@ namespace breathe
       class cGrassAnimated
       {
       public:
-        void Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
+        void Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
         void Update(spitfire::sampletime_t currentTime) {}
         void Render(spitfire::sampletime_t currentTime);

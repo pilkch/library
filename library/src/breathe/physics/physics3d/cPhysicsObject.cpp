@@ -9,6 +9,7 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 
 #include <ode/ode.h>
@@ -122,7 +123,7 @@ namespace breathe
     }
 
 #ifdef BUILD_PHYSICS_3D
-    void cPhysicsObject::InitCommon(const physvec_t& posOriginal, const physvec_t& rot)
+    void cPhysicsObject::InitCommon(cWorld* pWorld, const physvec_t& posOriginal, const physvec_t& rot)
     {
       math::cVec3 pos(posOriginal.x, posOriginal.y, posOriginal.z + fHeight);
 
@@ -142,69 +143,71 @@ namespace breathe
       dGeomSetRotation(geom, r);
 
       if (bBody) {
-        body = dBodyCreate(physics::GetWorld());
+        body = dBodyCreate(pWorld->GetWorld());
         dBodySetPosition(body, position.x, position.y, position.z);
         dBodySetRotation(body, r);
         dBodySetAutoDisableFlag(body, 1);
 
         dGeomSetBody(geom, body);
+
+        pWorld->AddPhysicsObject(shared_from_this());
       }
     }
 
-    void cPhysicsObject::CreateBox(const math::cVec3& pos, const math::cVec3& rot)
+    void cPhysicsObject::CreateBox(cWorld* pWorld, const math::cVec3& pos, const math::cVec3& rot)
     {
-      geom = dCreateBox(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(),
+      geom = dCreateBox(bDynamic ? pWorld->GetSpaceDynamic() : pWorld->GetSpaceStatic(),
         2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
 
       if (bBody) {
         dMass mass;
-        dMassSetBoxTotal(&mass, fWeight, 2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
+        dMassSetBoxTotal(&mass, fWeightKg, 2.0f * fWidth, 2.0f * fLength, 2.0f * fHeight);
         dBodySetMass(body, &mass);
       }
     }
 
-    void cPhysicsObject::CreateSphere(const math::cVec3& pos, const math::cVec3& rot)
+    void cPhysicsObject::CreateSphere(cWorld* pWorld, const math::cVec3& pos, const math::cVec3& rot)
     {
-      geom = dCreateSphere(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius);
+      geom = dCreateSphere(bDynamic ? pWorld->GetSpaceDynamic() : pWorld->GetSpaceStatic(), fRadius);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
 
       if (bBody) {
         dMass mass;
-        dMassSetSphereTotal(&mass, fWeight, 2.0f*fRadius);
+        dMassSetSphereTotal(&mass, fWeightKg, 2.0f * fRadius);
         dBodySetMass(body, &mass);
       }
     }
 
-    void cPhysicsObject::CreateCapsule(const math::cVec3& pos, const math::cVec3& rot)
+    void cPhysicsObject::CreateCapsule(cWorld* pWorld, const math::cVec3& pos, const math::cVec3& rot)
     {
-      geom = dCreateCapsule(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
+      geom = dCreateCapsule(bDynamic ? pWorld->GetSpaceDynamic() : pWorld->GetSpaceStatic(), fRadius, fLength);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
 
       if (bBody) {
         dMass mass;
-        dMassSetCapsuleTotal(&mass, fWeight, uiDirectionX, 2.0f*fRadius, fLength);
+        dMassSetCapsuleTotal(&mass, fWeightKg, uiDirectionX, 2.0f*fRadius, fLength);
         dBodySetMass(body, &mass);
       }
     }
 
-    void cPhysicsObject::CreateCylinder(const math::cVec3& pos, const math::cVec3& rot)
+    void cPhysicsObject::CreateCylinder(cWorld* pWorld, const math::cVec3& pos, const math::cVec3& rot)
     {
-      geom = dCreateCylinder(bDynamic ? physics::GetSpaceDynamic() : physics::GetSpaceStatic(), fRadius, fLength);
+      geom = dCreateCylinder(bDynamic ? pWorld->GetSpaceDynamic() : pWorld->GetSpaceStatic(), fRadius, fLength);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
 
       if (bBody) {
         dMass mass;
-        dMassSetCylinderTotal(&mass, fWeight, uiDirectionX, 2.0f * fRadius, fLength);
+        dMassSetCylinderTotal(&mass, fWeightKg, uiDirectionX, 2.0f * fRadius, fLength);
         dBodySetMass(body, &mass);
       }
     }
 
-    void cPhysicsObject::CreateHeightmap(const game::cTerrainHeightMapLoader& loader, size_t width, size_t length, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot)
+    void cPhysicsObject::CreateHeightmap(cWorld* pWorld, const game::cTerrainHeightMap& loader, size_t width, size_t length, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot)
     {
       // NOTE: Actual heightmap doesn't seem to be working at the moment so we use a trimesh instead
 
@@ -244,7 +247,7 @@ namespace breathe
         }
       }
 
-      CreateTrimesh(tempVertices, tempIndices, pos, rot);
+      CreateTrimesh(pWorld, tempVertices, tempIndices, pos, rot);
 
 #else
       DestroyHeightfield();
@@ -288,14 +291,14 @@ namespace breathe
       dGeomHeightfieldDataSetBounds(heightfield, 0.0f, 1000.0f);
 
       int movable = 1; // 1 = true, 0 = false
-      geom = dCreateHeightfield(physics::GetSpaceStatic(), heightfield, movable);
+      geom = dCreateHeightfield(pWorld->GetSpaceStatic(), heightfield, movable);
       ASSERT(geom != 0);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
 #endif
     }
 
-    void cPhysicsObject::CreateTrimesh(const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot)
+    void cPhysicsObject::CreateTrimesh(cWorld* pWorld, const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot)
     {
       vVertices = coords;
       vIndices = indices;
@@ -319,21 +322,69 @@ namespace breathe
         (const void*)vIndices.data(), (int)IndexCount, 3 * sizeof(uint32_t) // Indices
       );
 
-      geom = dCreateTriMesh(physics::GetSpaceStatic(), trimeshData, NULL , NULL , NULL);
+      geom = dCreateTriMesh(pWorld->GetSpaceStatic(), trimeshData, NULL , NULL , NULL);
 
-      InitCommon(pos, rot);
+      InitCommon(pWorld, pos, rot);
     }
 #endif
+
+
+    void cPhysicsObject::AddForceRelativeToWorldKg(const physvec_t& forceKg)
+    {
+      dBodyAddForce(body, forceKg.x, forceKg.y, forceKg.z);
+    }
+
+    void cPhysicsObject::AddTorqueRelativeToWorldNm(const physvec_t& torqueNm)
+    {
+      dBodyAddTorque(body, torqueNm.x, torqueNm.y, torqueNm.z);
+    }
+
+    void cPhysicsObject::AddForceRelativeToObjectKg(const physvec_t& forceKg)
+    {
+      dBodyAddRelForce(body, forceKg.x, forceKg.y, forceKg.z);
+    }
+
+    void cPhysicsObject::AddTorqueRelativeToObjectNm(const physvec_t& torqueNm)
+    {
+      /*// Get our current rotation
+      breathe::math::cQuaternion qOriginal;
+      qOriginal.SetFromODEQuaternion(dBodyGetQuaternion(body));
+
+      // Find our desired rotation (Current but with x=0, y=0)
+      breathe::math::cQuaternion qDesired = qOriginal;
+      qDesired.x = 0.0f;
+      qDesired.y = 0.0f;
+      float quat_len = sqrt(qDesired.z * qDesired.z + qDesired.w * qDesired.w);
+      qDesired.z /= quat_len;
+      qDesired.w /= quat_len;
+
+      // Set our rotation to a rotation in between these two quaternions
+      breathe::math::cQuaternion qInterpolated;
+      qInterpolated.Slerp(qOriginal, qDesired, 0.1f);
+      dReal values[4];
+      qInterpolated.GetODEQuaternion(values);
+      dBodySetQuaternion(body, values);
+
+      // Get rid of our x,y angular velocity as well
+      const dReal* rot = dBodyGetAngularVel(body);
+      dBodySetAngularVel(body, 0.0f, 0.0f, rot[2]);*/
+
+
+      dBodyAddRelTorque(body, torqueNm.x, torqueNm.y, torqueNm.z);
+    }
+
 
     void cPhysicsObject::Update(sampletime_t currentTime)
     {
       if (bDynamic) {
-        dReal* p0 = nullptr;
-        dReal* r0 = nullptr;
+        const dReal* p0 = nullptr;
+        const dReal* r0 = nullptr;
+
+        dQuaternion q;
 
         if (bBody) {
-          p0 = const_cast<dReal*>(dBodyGetPosition(body));
-          r0 = const_cast<dReal*>(dBodyGetQuaternion(body));
+          p0 = dBodyGetPosition(body);
+          r0 = dBodyGetQuaternion(body);
           const dReal* v0 = dBodyGetLinearVel(body);
           //const dReal *a0=dBodyGetAngularVel(body);
 
@@ -341,10 +392,9 @@ namespace breathe
           v[1] = v0[1];
           v[2] = v0[2];
         } else {
-          p0 = const_cast<dReal*>(dGeomGetPosition(geom));
-          dQuaternion q;
+          p0 = dGeomGetPosition(geom);
           dGeomGetQuaternion(geom, q);
-          r0 = const_cast<dReal*>(q);
+          r0 = q;
 
           // These are static for the moment
           v[0] = 0.0f;
@@ -352,6 +402,8 @@ namespace breathe
           v[2] = 0.0f;
         }
 
+        ASSERT(p0 != nullptr);
+        ASSERT(r0 != nullptr);
         position.Set(p0[0], p0[1], p0[2]);
         rotation.SetFromODEQuaternion(r0);
       }
@@ -361,17 +413,18 @@ namespace breathe
     // *****************************************************************************************************
     // Upright Capsule
     // *****************************************************************************************************
-    cUprightCapsule::cUprightCapsule()
-      : cPhysicsObject()
+    cUprightCapsule::cUprightCapsule(cWorld* pWorld) :
+      cPhysicsRayCast(pWorld)
     {
-
     }
 
     void cUprightCapsule::Update(sampletime_t currentTime)
     {
+      ASSERT(HasBody());
+
       // Stop the capsule from rotating forwards, backwards, left, right
-      dBodySetAngularVel(GetBody(), 0.0f, 0.0f, 0.0f);
-      dBodySetTorque(GetBody(), 0.0f, 0.0f, 0.0f);
+      //dBodySetAngularVel(GetBody(), 0.0f, 0.0f, 0.0f);
+      //dBodySetTorque(GetBody(), 0.0f, 0.0f, 0.0f);
 
       cPhysicsObject::Update(currentTime);
     }

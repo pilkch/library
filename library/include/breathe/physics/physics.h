@@ -19,34 +19,45 @@ namespace breathe
     typedef math::cQuaternion physrotation_t;
 #endif
 
-    unsigned int GetFrequencyHz();
-    float GetTimeStep();
-    unsigned int GetIterations();
-
-    extern const int iMaxContacts;
-    extern const float fFriction;
-    extern const float fBounce;
-    extern const float fBounceVel;
-    extern const float fERP;
-    extern const float fCFM;
-    extern const float fGravity;
-
     class cPhysicsObject;
     typedef cSmartPtr<cPhysicsObject> cPhysicsObjectRef;
 
-
-    void Destroy();
-    void Update(sampletime_t currentTime);
-
-    void AddPhysicsObject(cPhysicsObjectRef pPhysicsObject);
-    void RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject);
-
-    size_t size();
-    bool empty();
-
     typedef std::list<cPhysicsObjectRef>::iterator iterator;
-    iterator begin();
-    iterator end();
+
+    class cWorld
+    {
+    public:
+      size_t GetFrequencyHz() const;
+      float GetInterval() const;
+      size_t GetIterations() const;
+
+      void Destroy();
+      void Update(sampletime_t currentTime);
+
+      void AddPhysicsObject(cPhysicsObjectRef pPhysicsObject);
+      void RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject);
+
+      size_t size() const;
+      bool empty() const;
+
+      iterator begin();
+      iterator end();
+
+#ifdef BUILD_PHYSICS_3D
+      dSpaceID GetSpaceStatic();
+      dSpaceID GetSpaceDynamic();
+
+      dWorldID GetWorld();
+
+      dJointGroupID GetContactGroup();
+
+      void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ);
+      void Init(float width, float height, float depth);
+#endif
+
+    private:
+      std::list<cPhysicsObjectRef> lPhysicsObject;
+    };
   }
 }
 
@@ -54,7 +65,6 @@ namespace breathe
 #include <breathe/physics/physics2d/physics.h>
 #include <breathe/physics/physics2d/cContact.h>
 #elif defined(BUILD_PHYSICS_3D)
-#include <breathe/physics/physics3d/physics.h>
 #include <breathe/physics/physics3d/cContact.h>
 #include <breathe/physics/physics3d/cRayCast.h>
 #endif

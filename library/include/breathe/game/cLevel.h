@@ -97,7 +97,6 @@ namespace breathe
   }
 
 
-  class cCamera;
   class cObject;
 
   namespace render
@@ -107,14 +106,10 @@ namespace breathe
   }
 
 
-  namespace physics
-  {
-    class cPhysicsObject;
-  }
-
   namespace vehicle
   {
     class cVehicle;
+    typedef cSmartPtr<cVehicle> cVehicleRef;
   }
 
   class cLevel;
@@ -211,17 +206,14 @@ namespace breathe
     cLevelSpawn GetSpawn(const math::cVec3& p); //Get closest spawn to requested position
 
 
-    void AddVehicle(vehicle::cVehicle* v);
-    void RemoveVehicle(vehicle::cVehicle* v);
+    void AddVehicle(vehicle::cVehicleRef v);
+    void RemoveVehicle(vehicle::cVehicleRef v);
 
-    void AddPhysicsObject(physics::cPhysicsObject* d);
-    void RemovePhysicsObject(physics::cPhysicsObject* d);
-
-    unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicle* pOwnVehicle);
+    unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicleRef pOwnVehicle);
 
     render::cTextureRef FindClosestCubeMap(math::cVec3 pos);
 
-    vehicle::cVehicle* FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
+    vehicle::cVehicleRef FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
 
     // Global level information loaded from xml
     float fWaterLevel;
@@ -243,8 +235,7 @@ namespace breathe
 
     //std::map<string_t, render::model::cHeightmap*> mHeightmap;
 
-    std::list<vehicle::cVehicle*> lVehicle;
-    std::list<physics::cPhysicsObject*> lPhysicsObject;
+    std::list<vehicle::cVehicleRef> lVehicle;
 
     std::vector<cLevelNode*>vNode; //vModel.size()=uiWidth*uiHeight;
 

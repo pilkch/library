@@ -14,6 +14,7 @@
 
 // Boost headers
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <ode/ode.h>
 
@@ -494,11 +495,14 @@ namespace breathe
 {
   namespace vehicle
   {
-    cVehicle::cVehicle()
-      : physics::cPhysicsObject()
+    cVehicleRef cVehicle::Create()
     {
-      position.Set(0.0f, 0.0f, 0.0f);
+      cVehicleRef ptr(new cVehicle);
+      return ptr;
+    }
 
+    cVehicle::cVehicle()
+    {
       pBody=NULL;
       pMirror=NULL;
       pMetal=NULL;
@@ -507,14 +511,6 @@ namespace breathe
 
 
       bFourWheelDrive=fourwheeldrive;
-
-      fRadius=w;
-
-      fWidth=w;
-      fLength=l;
-      fHeight=h;
-
-      fWeight=fMass;
 
 
       fControl_Accelerate=0.0f;
@@ -532,7 +528,7 @@ namespace breathe
       properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
       properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
 
-      properties.fWeight = fWeight;
+      properties.fWeight = 1600.0f;
       properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
       properties.fEngineSpeed = 800.0f; // RPM
       properties.fTraction0 = 1.0f;
@@ -553,36 +549,32 @@ namespace breathe
 
     cVehicle::~cVehicle()
     {
-      while(vWheel.size())
-      {
+      for (size_t i = 0; i < vWheel.size(); i++) {
         // Deleted in physics list
-        //SAFE_DELETE(vWheel[vWheel.size()-1]);
-        vWheel.pop_back();
+        //SAFE_DELETE(vWheel[i]);
       };
 
-      while(vSeat.size())
-      {
-        SAFE_DELETE(vSeat[vSeat.size()-1]);
-        vSeat.pop_back();
+      for (size_t i = 0; i < vSeat.size(); i++) {
+        //SAFE_DELETE(vSeat[i]);
       };
 
-      PhysicsDestroy();
+      //PhysicsDestroy();
     }
 
     void cVehicle::PhysicsDestroy()
     {
-      physics::RemovePhysicsObject(this);
-      RemoveFromWorld();
+      //physics::RemovePhysicsObject(shared_from_this());
+      //RemoveFromWorld();
     }
 
     void cVehicle::PhysicsInit(cLevelSpawn p)
     {
-      p.v3Position+=math::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
+      p.v3Position += math::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
 
 
-      CreateBox(p.v3Position, p.v3Rotation);
+      //CreateBox(p.v3Position, p.v3Rotation);
 
-      physics::AddPhysicsObject(this);
+      //physics::AddPhysicsObject(shared_from_this());
 
       //Rear
       lrWheel_->Init(false, fWheelRadius, fWheelWeight,
@@ -603,26 +595,26 @@ namespace breathe
         math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
     }
 
-    void cVehicle::Init(cLevelSpawn p, unsigned int uiSeats)
+    void cVehicle::Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld)
     {
       unsigned int i=0;
 
-      for(i=0;i<uiSeats;i++)
-        vSeat.push_back(new cSeat(this));
+      for(i=0;i<uiSeats;i++) vSeat.push_back(new cSeat(this));
 
-      for(i=0;i<4;i++)
-        vWheel.push_back(new cWheel(this));
+      for (i=0;i<4;i++) vWheel.push_back(new cWheel(this, pWorld));
 
-      lrWheel_=vWheel[0];
-      rrWheel_=vWheel[1];
-      lfWheel_=vWheel[2];
-      rfWheel_=vWheel[3];
+      lrWheel_ = vWheel[0];
+      rrWheel_ = vWheel[1];
+      lfWheel_ = vWheel[2];
+      rfWheel_ = vWheel[3];
     }
 
 
     void cVehicle::Update(sampletime_t currentTime)
     {
-      physics::cPhysicsObject::Update(currentTime);
+      return;
+
+      //physics::cPhysicsObject::Update(currentTime);
 
       /*
       Real rpm = FLT_MIN;
@@ -654,8 +646,8 @@ namespace breathe
 
       //TODO: Run through the parts.  They are already in order in the vector
       //eg. vPart[0]=turbo, vPart[1]=turbo, vPart[2]=tyres
-      std::vector<cPart *>::iterator iter = vPart.begin();
-      const std::vector<cPart *>::iterator iterEnd = vPart.end();
+      std::vector<cPart*>::iterator iter = vPart.begin();
+      const std::vector<cPart*>::iterator iterEnd = vPart.end();
       while (iter != iterEnd) (*iter++)->Update(currentTime);
 
 
@@ -667,7 +659,7 @@ namespace breathe
 
       fBrake *= fMaxBrake;
 
-      fVel = v.DotProduct(m.GetFront());
+      //fVel = v.DotProduct(rotation.GetMatrix().GetFront());
 
 
       //PHYSICS
@@ -732,7 +724,7 @@ namespace breathe
 
       controller->SetControllerTorque(torque);*/
 
-      if (HasBody()) {
+//      if (HasBody()) {
         // Aerodynamic Drag
         // To simulate aerodynamic drag, it would be better to use the square of the velocity,
         // because that's how drag works in reality. The force should also be applied at the object's
@@ -751,7 +743,7 @@ namespace breathe
         // TODO: Check whether we are on our roof/side too
         //dBodyAddTorque( body, -av[0]*av[0]*fDampTorque, -av[1]*av[1]*fDampTorque, -av[2]*av[2]*fDampTorque );
         //dBodyAddForce( body, -lv[0]*lv[0]*fDampLinearVel, -lv[1]*lv[1]*fDampLinearVel, -lv[2]*lv[2]*fDampLinearVel );
-      }
+  //    }
     }
 
     void cVehicle::FillUp(cPetrolBowser *pBowser)

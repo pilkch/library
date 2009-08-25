@@ -194,7 +194,7 @@ namespace breathe
             cnt = 0;
           }
 
-          if ((i + 2 < encodedLen) && ishexdigit(encStr[i + 1]) && ishexdigit(encStr[i + 2])) {
+          if ((i + 2 < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
             char s[3];
             s[0] = encStr[i++];
             s[1] = encStr[i++];
@@ -219,7 +219,7 @@ namespace breathe
       return decodedString;
     }
 
-    bool isspecial(char c)
+    bool IsSpecialCharacter(char c)
     {
       return false;
     }
@@ -237,7 +237,7 @@ namespace breathe
         char curChar = rawString[i];
 
         if (curChar == ' ') encodedString += '+';
-        else if (isalpha(curChar) || isdigit(curChar) || isspecial(curChar)) encodedString += curChar;
+        else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
         else {
           unsigned int temp = static_cast<unsigned int>(curChar);
 
@@ -262,6 +262,7 @@ namespace breathe
 
     void cDownloadHTTP::ParseHeader(const char* szHeader)
     {
+      ASSERT(false);
     }
   }
 }

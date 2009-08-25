@@ -151,17 +151,17 @@ namespace breathe
 
       void SetVisible(bool bVisible);
       void SetPosition(const math::cVec3& position) { SetRelativePosition(position); }
-      void SetRotation(const math::cQuaternion& rotation) { SetRelativeRotation(rotation); }
+      void SetRotation(float_t rotation) { SetRelativeRotation(rotation); }
 
       const math::cVec3& GetRelativePosition() const { return relativePosition; }
-      const math::cQuaternion& GetRelativeRotation() const { return relativeRotation; }
+      float_t GetRelativeRotation() const { return relativeRotation; }
       void SetRelativePosition(const math::cVec3& position);
-      void SetRelativeRotation(const math::cQuaternion& rotation);
+      void SetRelativeRotation(float_t rotation);
 
       math::cVec3 GetAbsolutePosition() const; // Calculated base on the parents of this node
 
       void SetScale(const math::cVec3& scale) { relativeScale = scale; }
-      const math::cVec3& GetScale() const { return relativeScale; }
+      const math::cVec2& GetScale() const { return relativeScale; }
 
 
       const math::cSphere& GetBoundingSphere() const { return boundingSphere; }
@@ -217,10 +217,10 @@ namespace breathe
       math::cVec3 relativePosition;
 
       bool bHasRelativeRotation;
-      math::cQuaternion relativeRotation;
+      float_t relativeRotation;
 
       bool bUseRelativeScale;
-      math::cVec3 relativeScale;
+      math::cVec2 relativeScale;
 
       cStateSet stateset;
       math::cSphere boundingSphere;
@@ -341,6 +341,36 @@ namespace breathe
       string_t sText;
     };
 
+    class cLineBufferNode : public cSceneNode
+    {
+    public:
+      void AddLine(const math::cVec2& p0, const math::cVec2& p1);
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+
+      // These are stored in pairs, ie. 0-1 is first line, 2-3 is second line, 4-5 is third line, etc.
+      std::vector<math::cVec2> vertices;
+    };
+
+
+    class cGeometryBufferNode : public cSceneNode
+    {
+    public:
+      void AddTriangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& p2, const math::cVec2& uv0, const math::cVec2& uv1, const math::cVec2& uv2);
+      void AddRectangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& p2, const math::cVec2& p3, const math::cVec2& uv0, const math::cVec2& uv1, const math::cVec2& uv2, const math::cVec2& uv3);
+      void AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& uv0, const math::cVec2& uv1);
+      void AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p1);
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+
+      // There should be a 1 to 1 mapping of vertices to textureCoordinates
+      std::vector<math::cVec2> vertices;
+      std::vector<math::cVec2> textureCoordinates;
+    };
+
+
     // Draws a 2d graph with a fixed number of points
     class cGraphNode : public cSceneNode
     {
@@ -351,6 +381,8 @@ namespace breathe
       void SetDistanceBetweenEachPoint(float_t _fDistanceBetweenEachPoint) { fDistanceBetweenEachPoint = _fDistanceBetweenEachPoint; }
 
     private:
+      void _Update(cUpdateVisitor& visitor);
+
       float_t fDistanceBetweenEachPoint;
       spitfire::cCircularBuffer<float> points;
     };
@@ -365,6 +397,7 @@ namespace breathe
     public:
       explicit cUpdateVisitor(cSceneGraph& scenegraph);
 
+      // TODO: Remove these, require explicit types, same for cull visitor
       void Visit(cSceneNode& node) {}
       void Visit(cModelNode& node) {}
 

@@ -103,6 +103,7 @@ namespace breathe
       float_t fRPM;
       float_t fTorqueNm;
       spitfire::math::cCurve curveEngineRPMToTorqueNm;
+      float_t fCompressionRatio; // This might be for example 9.0:1 which is fCompressionRatio = 9.0f / 1.0f;
     };
 
     // turbo charger inputs:
@@ -153,7 +154,6 @@ namespace breathe
       float_t fSuperChargerRPMToEngineRPMRatio; // ie. 6:1 = 6.0f
       spitfire::math::cCurve curveSuperChargerRPMToBoostpsi;
     };
-
 
 
     class cBrakes

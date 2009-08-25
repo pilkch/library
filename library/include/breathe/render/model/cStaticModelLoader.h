@@ -3,42 +3,45 @@
 
 namespace breathe
 {
-  namespace game
+  namespace render
   {
-    class cStaticModelMesh
+    namespace model
     {
-    public:
-      void Clear();
+      class cStaticModelMesh
+      {
+      public:
+        void Clear();
 
-      std::vector<float_t> vertices;
-      std::vector<float_t> textureCoordinates;
-      std::vector<float_t> normals;
-      std::vector<size_t> indices;
+        std::vector<float_t> vertices;
+        std::vector<float_t> textureCoordinates;
+        std::vector<float_t> normals;
+        std::vector<size_t> indices;
 
-      string_t sMaterial;
-    };
+        string_t sMaterial;
+      };
 
-    class cStaticModel
-    {
-    public:
-      ~cStaticModel() { Clear(); }
+      class cStaticModel
+      {
+      public:
+        ~cStaticModel() { Clear(); }
 
-      void Clear();
+        void Clear();
 
-      std::vector<cStaticModelMesh*> mesh;
-    };
+        std::vector<cStaticModelMesh*> mesh;
+      };
 
-    class cStaticModelLoader
-    {
-    public:
-      bool Load(const string_t& sFilename, cStaticModel& model) const;
-    };
+      class cStaticModelLoader
+      {
+      public:
+        bool Load(const string_t& sFilename, cStaticModel& model) const;
+      };
 
-    class cStaticModelWriter
-    {
-    public:
-      bool Save(const string_t& sFilename, const cStaticModel& model) const;
-    };
+      class cStaticModelWriter
+      {
+      public:
+        bool Save(const string_t& sFilename, const cStaticModel& model) const;
+      };
+    }
   }
 }
 

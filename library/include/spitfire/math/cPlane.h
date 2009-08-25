@@ -1,6 +1,8 @@
 #ifndef CPLANE_H
 #define CPLANE_H
 
+#include <spitfire/math/cVec3.h>
+
 namespace spitfire
 {
   namespace math

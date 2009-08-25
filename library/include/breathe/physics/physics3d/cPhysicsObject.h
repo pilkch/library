@@ -14,7 +14,7 @@ namespace breathe
     class cUprightCapsule : virtual public cPhysicsObject, public cPhysicsRayCast
     {
     public:
-      cUprightCapsule();
+      explicit cUprightCapsule(cWorld* pWorld);
 
       void Update(sampletime_t currentTime);
     };

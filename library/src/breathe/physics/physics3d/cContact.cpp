@@ -13,6 +13,7 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 // Anything else
 #include <ode/ode.h>
@@ -45,7 +46,8 @@ namespace breathe
 {
   namespace physics
   {
-    cContact::cContact()
+    cContact::cContact(cWorld* _pWorld) :
+      pWorld(_pWorld)
     {
       Clear();
     }
@@ -128,7 +130,7 @@ namespace breathe
       // where h is the stepsize. These values will give the same effect as a spring-and-damper
       // system simulated with implicit first order integration.
 
-      float fSuspensionStep = static_cast<float>(physics::GetFrequencyHz());
+      float fSuspensionStep = static_cast<float>(pWorld->GetFrequencyHz());
       SetElasticity(
         (fSuspensionStep * fSuspensionK) / ((fSuspensionStep * fSuspensionK) + fSuspensionU),
         1.0f / ((fSuspensionStep * fSuspensionK) + fSuspensionU)
@@ -147,7 +149,7 @@ namespace breathe
     {
       contact.geom.depth = fDepth;
 
-      dJointID j = dJointCreateContact(physics::GetWorld(), physics::GetContactGroup(), &contact);
+      dJointID j = dJointCreateContact(pWorld->GetWorld(), pWorld->GetContactGroup(), &contact);
       dJointAttach(j, dGeomGetBody(contact.geom.g1), dGeomGetBody(contact.geom.g2));
     }
   }

@@ -8,7 +8,7 @@ namespace breathe
     class cContact
     {
     public:
-      cContact();
+      explicit cContact(cWorld* pWorld);
 
       dContact GetContact() const;
 
@@ -29,6 +29,7 @@ namespace breathe
       float fDepth;
 
     private:
+      cWorld* pWorld;
       dContact contact;
     };
   }

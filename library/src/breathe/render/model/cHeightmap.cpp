@@ -10,8 +10,9 @@
 #include <iostream>
 #include <sstream>
 
-// Boost includes
+// Boost headers
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 // OpenGL headers
 #include <GL/GLee.h>
@@ -64,13 +65,16 @@ namespace breathe
     {
       // *** cTerrain
 
-      void cTerrain::Create(const game::cTerrainHeightMapLoader& loader)
+      void cTerrain::Create(const game::cTerrainHeightMap& loader, const size_t nWidthOrHeight)
       {
-        // NOTE: We don't want to access outside the buffer so go one less than the size of the buffer
-        const size_t n = 511;
-        const size_t fScale = 1.0f;
+        ASSERT(nWidthOrHeight != 0);
+
+        // NOTE: We don't want to access outside the buffer so go one less than the dimensions of the buffer
+        const size_t n = nWidthOrHeight - 1;
+        const float fScale = 512.0f / n;
         const float fDiffuseTextureScale = 1.0f / float(n);
-        const float fDetailRepeat = 2.0f;
+        const float fDetailRepeat = 0.25f;
+        const float fHalfTerrainWidthOrHeight = 256.0f;
 
         math::cVec3 normal;
 
@@ -84,12 +88,14 @@ namespace breathe
             const float fX = float(x) * fScale;
             const float fY = float(y) * fScale;
 
+            // Triangle 0
+
             textureCoordinates.push_back(float(x) * fDiffuseTextureScale);
             textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
             textureCoordinates.push_back(0.0f);
             textureCoordinates.push_back(0.0f);
-            vertices.push_back(fX);
-            vertices.push_back(fY);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY);
             vertices.push_back(loader.GetHeight(fX, fY));
             normal = loader.GetNormal(fX, fY);
             normals.push_back(normal.x);
@@ -100,8 +106,35 @@ namespace breathe
             textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
             textureCoordinates.push_back(fDetailRepeat);
             textureCoordinates.push_back(0.0f);
-            vertices.push_back(fX + fScale);
-            vertices.push_back(fY);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX + fScale);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY);
+            vertices.push_back(loader.GetHeight(fX + fScale, fY));
+            normal = loader.GetNormal(fX + fScale, fY);
+            normals.push_back(normal.x);
+            normals.push_back(normal.y);
+            normals.push_back(normal.z);
+
+            textureCoordinates.push_back(float(x) * fDiffuseTextureScale);
+            textureCoordinates.push_back((float(y) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back(0.0f);
+            textureCoordinates.push_back(fDetailRepeat);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY + fScale);
+            vertices.push_back(loader.GetHeight(fX, fY + fScale));
+            normal = loader.GetNormal(fX, fY + fScale);
+            normals.push_back(normal.x);
+            normals.push_back(normal.y);
+            normals.push_back(normal.z);
+
+
+            // Triangle 1
+
+            textureCoordinates.push_back((float(x) + 1.0f) * fDiffuseTextureScale);
+            textureCoordinates.push_back(float(y) * fDiffuseTextureScale);
+            textureCoordinates.push_back(fDetailRepeat);
+            textureCoordinates.push_back(0.0f);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX + fScale);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY);
             vertices.push_back(loader.GetHeight(fX + fScale, fY));
             normal = loader.GetNormal(fX + fScale, fY);
             normals.push_back(normal.x);
@@ -112,8 +145,8 @@ namespace breathe
             textureCoordinates.push_back((float(y) + 1.0f) * fDiffuseTextureScale);
             textureCoordinates.push_back(fDetailRepeat);
             textureCoordinates.push_back(fDetailRepeat);
-            vertices.push_back(fX + fScale);
-            vertices.push_back(fY + fScale);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX + fScale);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY + fScale);
             vertices.push_back(loader.GetHeight(fX + fScale, fY + fScale));
             normal = loader.GetNormal(fX + fScale, fY + fScale);
             normals.push_back(normal.x);
@@ -124,8 +157,8 @@ namespace breathe
             textureCoordinates.push_back((float(y) + 1.0f) * fDiffuseTextureScale);
             textureCoordinates.push_back(0.0f);
             textureCoordinates.push_back(fDetailRepeat);
-            vertices.push_back(fX);
-            vertices.push_back(fY + fScale);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fX);
+            vertices.push_back(-fHalfTerrainWidthOrHeight + fY + fScale);
             vertices.push_back(loader.GetHeight(fX, fY + fScale));
             normal = loader.GetNormal(fX, fY + fScale);
             normals.push_back(normal.x);
@@ -134,11 +167,14 @@ namespace breathe
           }
         }
 
-        vbo.SetVertices(vertices);
-        vbo.SetNormals(normals);
-        vbo.SetTextureCoordinates(textureCoordinates);
-        //vbo.SetIndices(indices);
-        vbo.Compile();
+
+        pVBO.reset(new render::cVertexBufferObject);
+
+        pVBO->SetVertices(vertices);
+        pVBO->SetNormals(normals);
+        pVBO->SetTextureCoordinates(textureCoordinates);
+        //pVBO->SetIndices(indices);
+        pVBO->Compile();
 
 
         const spitfire::string_t sFilename(TEXT("materials/terrain.mat"));
@@ -154,18 +190,18 @@ namespace breathe
       {
         pRender->SetMaterial(pMaterial);
 
-        vbo.Bind();
+        pVBO->Bind();
 
-          vbo.RenderQuads();
+          pVBO->RenderQuads();
 
-        vbo.Unbind();
+        pVBO->Unbind();
       }
 
 
 
       // *** cGrassStatic
 
-      void cGrassStatic::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
+      void cGrassStatic::Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
         const size_t nDensity = 4;
@@ -264,7 +300,7 @@ namespace breathe
 
       // *** cGrassAnimated
 
-      void cGrassAnimated::Create(const game::cTerrainHeightMapLoader& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
+      void cGrassAnimated::Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight)
       {
         const size_t fTerrainScale = 10.0f;
         const size_t nDensity = 4;

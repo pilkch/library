@@ -60,60 +60,6 @@ namespace breathe
 {
   namespace vehicle
   {
-    cCurve::cCurve()
-    {
-      AddPoint(0.0f, 0.0f);
-    }
-
-    // x has to be >= 0.0f, it can however go past the last point in the list, it will become the new last point
-    // y can be any value it likes
-    void cCurve::AddPoint(float_t fX, float_t fY)
-    {
-      ASSERT(fX >= 0.0f);
-
-      points[fX] = fY;
-    }
-
-    float_t cCurve::GetYAtPointX(float_t fMu) const
-    {
-      if (fMu < 0.0f) return 0.0f;
-
-      float_t fX0 = 0.0f;
-      float_t fX1 = 0.0f;
-      float_t fY0 = 0.0f;
-      float_t fY1 = 0.0f;
-
-      bool bFound = false;
-
-      std::map<float_t, float_t>::const_iterator iter(points.begin());
-      const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
-      while (iter != iterEnd) {
-        const float_t fCurrentX = iter->first;
-        const float_t fCurrentY = iter->second;
-
-        // Shuffle the previous values
-        fX0 = fX1;
-        fX1 = fCurrentX;
-
-        fY0 = fY1;
-        fY1 = fCurrentY;
-
-        if (fCurrentX > fMu) {
-          // We have found the pair that we are between
-          bFound = true;
-          break;
-        }
-
-        iter++;
-      };
-
-      if (!bFound) return 0.0f;
-
-      // Finally return the y value at our x value
-      return math::interpolate_linear(fX0, fY0, fX1, fY1, fMu);
-    }
-
-
     // Out is the state of the clutch when you are not touching the pedal at all.
     // In is the state of the clutch when you have the clutch fully pushed in down to the floor.
 
@@ -140,6 +86,10 @@ namespace breathe
 
       return max<float_t>(fInputTorqueNm, 0.0f);
     }
+
+
+
+    // http://en.wikipedia.org/wiki/Gear_ratios
 
     class cGear
     {
@@ -1289,6 +1239,14 @@ It is important to note that determining the validity range of the parameters in
 
 
 
+
+
+Statically, the size, shape, and pressure distribution are functions of many things,[1] the most important of which are the load on the tyre and the inflation pressure:
+
+    * The larger the load on the tire, the larger the contact patch.
+    * The larger the inflation pressure, the smaller the contact patch.
+
+Unfortunately, these two properties are not linearly proportional to the area of the contact. Put another way, a 10% change in load or inflation pressure won't usually result in a 10% change in the contact patch.[2] This makes intuitive sense, because while you can alter the load or pressure freely, the contact patch size will always be limited by the tyre geometry.
 
 */
 

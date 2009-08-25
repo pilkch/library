@@ -80,7 +80,6 @@ namespace breathe
       void SetAnimationBlendWeightTorso0To1(float_t fBlendWeightFirst0To1, float_t fBlendWeightSecond0To1) { part[PART_TORSO].SetAnimationBlendWeight0To1(fBlendWeightFirst0To1, fBlendWeightSecond0To1); }
       void SetAnimationBlendWeightLegs0To1(float_t fBlendWeightFirst0To1, float_t fBlendWeightSecond0To1) { part[PART_LEGS].SetAnimationBlendWeight0To1(fBlendWeightFirst0To1, fBlendWeightSecond0To1); }
 
-      //cModelRef pModel;
       cMd3 model;
 
     private:

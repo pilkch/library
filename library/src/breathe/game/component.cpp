@@ -52,35 +52,14 @@ namespace breathe
       }
     }
 
-    cComponent* cGameObject::GetComponentIfEnabled(COMPONENT componentType) const
-    {
-      cComponent* pComponent = GetComponentIfEnabledOrDisabled(componentType);
-      if ((pComponent != nullptr) && !pComponent->IsEnabled()) pComponent = nullptr;
-
-      return pComponent;
-    }
-
-    cComponent* cGameObject::GetComponentIfEnabledOrDisabled(COMPONENT componentType) const
-    {
-      std::map<COMPONENT, cComponent*>::const_iterator iter = components.begin();
-      const std::map<COMPONENT, cComponent*>::const_iterator iterEnd = components.end();
-      while (iter != iterEnd) {
-        if (iter->first == componentType) return iter->second;
-
-        iter++;
-      }
-
-      return nullptr;
-    }
-
     bool cGameObject::IsComponentPresentAndEnabled(COMPONENT componentType) const
     {
-      return (GetComponentIfEnabled(componentType) != nullptr);
+      return (GetComponentIfEnabled<cComponent>(componentType) != nullptr);
     }
 
     bool cGameObject::IsComponentPresentAndEnabledOrDisabled(COMPONENT componentType) const
     {
-      return (GetComponentIfEnabledOrDisabled(componentType) != nullptr);
+      return (GetComponentIfEnabledOrDisabled<cComponent>(componentType) != nullptr);
     }
 
     void cGameObject::Update(spitfire::sampletime_t currentTime)
@@ -132,6 +111,57 @@ namespace breathe
       ASSERT(pPhysicsObject != nullptr);
       object.SetPositionRelative(pPhysicsObject->GetPositionAbsolute());
       object.SetRotationRelative(pPhysicsObject->GetRotationAbsolute());
+    }
+
+
+
+    cVehicleComponent::cVehicleComponent(cGameObject& _object, VEHICLE_TYPE _type) :
+      cComponent(_object),
+      type(_type),
+      fInputUp(0.0f),
+      fInputDown(0.0f),
+      fInputLeft(0.0f),
+      fInputRight(0.0f)
+    {
+    }
+
+    void cVehicleComponent::_Update(spitfire::sampletime_t currentTime)
+    {
+      cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
+      if (pPhysicsComponent == nullptr) return;
+
+      physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
+      if (pPhysicsObject == nullptr) return;
+
+      switch (type) {
+        case VEHICLE_TYPE_CAR: {
+          break;
+        }
+        case VEHICLE_TYPE_PLANE: {
+          break;
+        }
+        case VEHICLE_TYPE_HELICOPTER: {
+          if (fInputDown > 0.01f) {
+            // This is more of a break than an actual go down method
+            fInputUp = 0.0f;
+          }
+          if (fInputUp > 0.01f) {
+            breathe::math::cVec3 forceKg(fInputUp * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
+            pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+          }
+
+          if (fInputLeft > 0.01f) {
+            breathe::math::cVec3 torqueNm(fInputLeft * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+          }
+          if (fInputRight > 0.01f) {
+            breathe::math::cVec3 torqueNm(fInputRight * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+          }
+
+          break;
+        }
+      };
     }
 
     void cAnimationComponent::_Update(spitfire::sampletime_t currentTime)

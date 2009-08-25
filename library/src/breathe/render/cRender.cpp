@@ -255,8 +255,6 @@ namespace breathe
 
       sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
-      pFrustum = new math::cFrustum;
-
       unsigned int i = 0;
       for (i=0;i<nAtlas;i++) {
         cTextureAtlasRef pNewTextureAtlas(new cTextureAtlas(i));
@@ -272,9 +270,6 @@ namespace breathe
     cRender::~cRender()
     {
       //TODO: Delete materials and shader objects and atlases etc.
-
-      LOG.Success("Delete", "Frustum");
-      SAFE_DELETE(pFrustum);
 
       unsigned int i = 0;
       for (i=0;i<nAtlas;i++) vTextureAtlas[i].reset();
@@ -652,7 +647,7 @@ namespace breathe
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      glMultMatrixf(pFrustum->m.GetOpenGLMatrixPointer());
+      glMultMatrixf(frustum.m.GetOpenGLMatrixPointer());
 
       if (bRenderWireframe) EnableWireframe();
       else DisableWireframe();
@@ -687,13 +682,7 @@ namespace breathe
       glPopAttrib();
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-#ifdef RENDER_GENERATEFBOMIPMAPS
-      glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
-
-        glGenerateMipmapEXT(GL_TEXTURE_2D);
-
-      glBindTexture(GL_TEXTURE_2D, 0);
-#endif // RENDER_GENERATEFBOMIPMAPS
+      pTexture->GenerateMipMapsIfRequired();
 
       glDisable(GL_TEXTURE_2D);
     }
@@ -1935,7 +1924,7 @@ namespace breathe
       // exposure: HDR, Top Gear Shader
       // sunPosition: Car Shader, shadows, this could be light[0] though
 
-      if (pShader->bCameraPos) SetShaderConstant("cameraPos", pFrustum->eye);
+      if (pShader->bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
       if (pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
       if (pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
       if (pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);
@@ -2123,8 +2112,8 @@ namespace breathe
             glPushMatrix();
             glLoadIdentity();
 
-            float y = -Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y), math::cVec2(pFrustum->target.x, pFrustum->target.y));
-            float x = -Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z), math::cVec2(pFrustum->target.y, pFrustum->target.z));
+            float y = -Angle(math::cVec2(frustum.eye.x, frustum.eye.y), math::cVec2(frustum.target.x, frustum.target.y));
+            float x = -Angle(math::cVec2(frustum.eye.y, frustum.eye.z), math::cVec2(frustum.target.y, frustum.target.z));
             //std::cout<<y<<"\t"<<x<<"\n";
 
             glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -2289,10 +2278,8 @@ namespace breathe
             glPushMatrix();
             glLoadIdentity();
 
-            float y=-Angle(math::cVec2(pFrustum->eye.x, pFrustum->eye.y),
-              math::cVec2(pFrustum->target.x, pFrustum->target.y));
-            float x=-Angle(math::cVec2(pFrustum->eye.y, pFrustum->eye.z),
-              math::cVec2(pFrustum->target.y, pFrustum->target.z));
+            float y = -Angle(math::cVec2(frustum.eye.x, frustum.eye.y), math::cVec2(frustum.target.x, frustum.target.y));
+            float x = -Angle(math::cVec2(frustum.eye.y, frustum.eye.z), math::cVec2(frustum.target.y, frustum.target.z));
             //std::cout<<y<<"\t"<<x<<"\n";
 
             glRotatef(y, 0.0f, 1.0f, 0.0f);
@@ -2513,7 +2500,7 @@ namespace breathe
         // exposure: HDR, Top Gear Shader
         // sunPosition: Car Shader, shadows, grass
 
-        if (pMaterial->pShader->bCameraPos) SetShaderConstant("cameraPos", pFrustum->eye);
+        if (pMaterial->pShader->bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
         if (uiActiveUnits>0 && pMaterial->pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
         if (uiActiveUnits>1 && pMaterial->pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
         if (uiActiveUnits>2 && pMaterial->pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);

@@ -13,6 +13,7 @@
 
 // Boost headers
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <ode/ode.h>
 
@@ -218,8 +219,8 @@ namespace breathe
     float fFrontSlip=0.0001f;
     float fRearSlip=0.001f;
 
-    cWheel::cWheel(cVehicle *parent)
-      : physics::cPhysicsObject()
+    cWheel::cWheel(cVehicle *parent, physics::cWorld* pWorld) :
+      physics::cPhysicsRayCast(pWorld)
     {
       pParent=parent;
 
@@ -258,7 +259,7 @@ namespace breathe
 
     void cWheel::RayCast()
     {
-                                  math::cVec3 dir=-pParent->m.GetUp().GetNormalised();
+      /*const math::cVec3 dir = -pParent->rotation.GetMatrix().GetUp().GetNormalised();
 
       rayContact.Clear();
 
@@ -267,7 +268,7 @@ namespace breathe
       dGeomRaySet(geomRay, v3SuspensionTop.x, v3SuspensionTop.y, v3SuspensionTop.z, dir.x, dir.y, dir.z);
       dGeomRaySetLength(geomRay, fSuspensionMax);
       dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
-      dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
+      dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);*/
     }
 
     void cWheel::RayCastCallback(void* data, dGeomID g1, dGeomID g2 )
@@ -276,11 +277,11 @@ namespace breathe
       ASSERT(p != nullptr);
       ASSERT(p->pParent != nullptr);
 
-      if (dGeomGetBody(g1) == p->pParent->GetBody()) return;
+/*      if (dGeomGetBody(g1) == p->pParent->GetBody()) return;
 
       dContact c;
       if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
-        p->rayContact.SetContact(c.geom, p->pParent->GetGeom(), c.geom.depth);
+        p->rayContact.SetContact(c.geom, p->pParent->GetGeom(), c.geom.depth);*/
     }
 
 
@@ -319,11 +320,12 @@ namespace breathe
       // Find out if this wheel is even touching anything
       RayCast();
 
+#if 0
       // Set up the vectors to use when working out wheel rotation and position
-                                                math::cVec3 right=pParent->m.GetRight().GetNormalised();
-                                                math::cVec3 front=pParent->m.GetFront().GetNormalised();
-                                                math::cVec3 up=pParent->m.GetUp().GetNormalised();
-      math::cVec3 down=-up;
+      math::cVec3 right = pParent->rotation.GetMatrix().GetRight().GetNormalised();
+      math::cVec3 front = pParent->rotation.GetMatrix().GetFront().GetNormalised();
+      math::cVec3 up = pParent->rotation.GetMatrix().GetUp().GetNormalised();
+      math::cVec3 down = -up;
 
       math::cVec3 dir=front;
 
@@ -334,21 +336,23 @@ namespace breathe
         mPositionRel.SetTranslation(v3SuspensionTopRel);
 
         math::cMat4 mRotation;
-        if(bFront)
-          mRotation.SetRotationZ(-atan2(pParent->fSteer, 1.0f));
+        if(bFront) mRotation.SetRotationZ(-atan2(pParent->fSteer, 1.0f));
 
 
 
         math::cMat4 mContact;
-        mContact.SetTranslation((fContact-fRadius)*math::v3Down);
+        mContact.SetTranslation((fContact - fRadius) * math::v3Down);
 
-        m=pParent->m*mPositionRel*mRotation*mContact;
+        math::cMat4 matRotationAndPosition = pParent->rotation.GetMatrix();
+        matRotationAndPosition.SetTranslationPart(pParent->position);
+        const math::cMat4 m = matRotationAndPosition * mPositionRel * mRotation * mContact;
 
         position = m.GetPosition();
+        rotation = m.GetRotation();
 
-        v=pParent->v;
+        v = pParent->v;
 
-        v3SuspensionTop = (pParent->m*mPositionRel).GetPosition();
+        v3SuspensionTop = (m * mPositionRel).GetPosition();
       }
 
 
@@ -507,6 +511,7 @@ namespace breathe
         //dBodyAddTorque( pParent->GetBody(), -av[0]*fDampTorque, -av[1]*fDampTorque, -av[2]*fDampTorque );
         //dBodyAddForce( pParent->GetBody(), -lv[0]*fDampLinearVel, -lv[1]*fDampLinearVel, -lv[2]*fDampLinearVel );
       } else fTraction=0.0f;
+#endif
     }
   }
 }

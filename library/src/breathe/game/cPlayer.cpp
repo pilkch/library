@@ -9,8 +9,9 @@
 #include <list>
 #include <set>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
+// Boost headers
+#include <boost/smart_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 
 #ifdef BUILD_PHYSICS_3D
@@ -59,18 +60,32 @@
 
 namespace breathe
 {
-  cPlayer::cPlayer() :
-    uiState(PLAYER_STATE_WALK),
+#ifdef BUILD_PHYSICS_3D
+  cBipedPhysicsObject::cBipedPhysicsObject(physics::cWorld* pWorld) :
+    physics::cUprightCapsule(pWorld)
+  {
+  }
+
+  // For raycasting to find out if we standing on anything when we are in walking mode
+  void cBipedPhysicsObject::RayCast()
+  {
+  }
+
+  void cBipedPhysicsObject::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
+  {
+  }
+#endif
+
+  cPlayer::cPlayer(physics::cWorld* pWorld) :
+    biped(pWorld),
+    state(STATE_WALK),
     pSeat(nullptr)
   {
 #ifdef BUILD_PHYSICS_3D
-    SetDynamic(true);
-    SetUseBody(false);
+    //SetUseBody(false);
 
-    fWeight = 80.0f;
-
-    position.x = position.y = 0.0f;
-    position.z = 10.0f;
+    biped.fWeightKg = 80.0f;
+    biped.position.Set(0.0f, 0.0f, 10.0f);
 #endif
 
 
@@ -91,21 +106,22 @@ namespace breathe
     fSpeedRun = 2.0f;
     fSpeedSprint = 3.0f;
 
-    fDollars=0.0f;
+    fDollars = 0.0f;
 
-    fVertical=0.0f;
-    fHorizontal=0.0f;
+    fVertical = 0.0f;
+    fHorizontal = 0.0f;
   }
 
   cPlayer::~cPlayer()
   {
 #ifdef BUILD_PHYSICS_3D
-    physics::RemovePhysicsObject(this);
+    // TODO: This doesn't make sense as while physics has a smart pointer to this, it will never be deleted so we will never get here
+    // physics::RemovePhysicsObject(this);
 #endif
   }
 
 
-  const float fMaxDistance = 2.5f;
+/*  const float fMaxDistance = 2.5f;
 
   void cPlayer::RayCast()
   {
@@ -118,33 +134,39 @@ namespace breathe
 
     dGeomRaySet(geomRay, position.x, position.y, position.z, dir.x, dir.y, dir.z);
     dGeomRaySetLength(geomRay, fMaxDistance);
-    dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
-    dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
+    //dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceStatic(), this, RayCastCallback);
+    //dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);
 #endif
   }
 
   void cPlayer::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
   {
     cPlayer* p = ((cPlayer*)data);
-    if (dGeomGetBody( g1 ) == p->GetBody()) return;
+    if (dGeomGetBody(g1) == p->GetBody()) return;
 
     dContact c;
-    if (dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
+    if (dCollide(g2, g1, 1, &c.geom, sizeof(c)) == 1 && c.geom.depth < p->rayContact.fDepth)
       p->rayContact.SetContact(c.geom, p->GetGeom(), c.geom.depth);
   }
+*/
 
   void cPlayer::Update(sampletime_t currentTime)
   {
-    float fSpeed = (PLAYER_STATE_WALK == uiState ? fSpeedWalk : (PLAYER_STATE_RUN == uiState ? fSpeedRun : fSpeedSprint));
+    // biped.Update(currentTime);
 
-    if (PLAYER_STATE_DRIVE == uiState) position = pSeat->pVehicle->m.GetPosition();
-    else if (PLAYER_STATE_PASSENGER == uiState) position = pSeat->pVehicle->m.GetPosition();
+    float fSpeed = ((STATE_WALK == state) ? fSpeedWalk : ((STATE_RUN == state) ? fSpeedRun : fSpeedSprint));
+
+    //if (STATE_DRIVE == state) position = pSeat->pVehicle->position;
+    //else if (STATE_PASSENGER == state) position = pSeat->pVehicle->position;
 
 #ifdef BUILD_DEBUG
-    else if (uiCameraMode == CAMERA_FIRSTPERSONFREE) {
-      if (fInputUp > math::cEPSILON || fInputDown > math::cEPSILON ||
-        fInputLeft > math::cEPSILON || fInputRight > math::cEPSILON) {
+    /*else*/ if (uiCameraMode == CAMERA_FIRSTPERSONFREE) {
+      if (
+        (fInputUp > math::cEPSILON) || (fInputDown > math::cEPSILON) ||
+        (fInputLeft > math::cEPSILON) || (fInputRight > math::cEPSILON)
+      ) {
         float fDirection = fHorizontal + math::DegreesToRadians(90.0f);
+        fSpeed = 10.0f;
 
         if (fInputUp > math::cEPSILON && fInputUp > fInputDown) {
           if (fInputLeft > math::cEPSILON && fInputLeft > fInputRight) fDirection += math::DegreesToRadians(45.0f);
@@ -165,20 +187,21 @@ namespace breathe
           fSpeed *= fInputRight;
         }
 
-        //float fUpDown = fInputUp - fInputDown;
-        //float fLeftRight = fInputLeft - fInputRight;
-
-        //position.x += fUpDown * cosf(fDirection);
-        //position.y += fLeftRight * sinf(fDirection);
         position.x += fSpeed * cosf(fDirection);
         position.y += fSpeed * sinf(fDirection);
       }
     }
 #endif
+#if 0
     else if (HasBody()) {
       physics::cUprightCapsule::Update(currentTime);
 
-      RayCast();
+      dBodySetPosition(GetBody(), 20.0f, 20.0f, 20.0f);
+
+      //const dReal* pos = dBodyGetPosition(GetBody());
+
+
+      /*RayCast();
 
       if (rayContact.bContact) {
         // Push us out of whatever surface we are falling towards
@@ -186,7 +209,7 @@ namespace breathe
         // add a little bit, enough to get out of the surface
         {
           const dReal* pos = dBodyGetPosition(GetBody());
-          dBodySetPosition(GetBody(), pos[0], pos[1], pos[2] + /*0.03f * rayContact.fDepth*/ + math::cEPSILON);
+          dBodySetPosition(GetBody(), pos[0], pos[1], pos[2] + (0.03f * rayContact.fDepth) + math::cEPSILON);
 
           const dReal* vel = dBodyGetLinearVel(GetBody());
           dBodySetLinearVel(GetBody(), vel[0], vel[1], ((vel[2] < 0.0f) ? 0.0f : vel[2]) + math::cEPSILON);
@@ -214,15 +237,19 @@ namespace breathe
 
           // Get our current velocity add our movement velocity
           const dReal* vel = dBodyGetLinearVel(GetBody());
-          dBodySetLinearVel(GetBody(), v.x, v.y, vel[2]+v.z);
+          dBodySetLinearVel(GetBody(), v.x, v.y, vel[2] + v.z);
+
+          position = m.GetPosition();
         }
       } else {
         //const dReal* v0 = dBodyGetLinearVel(GetBody());
         //dBodySetLinearVel(GetBody(), 0.0f, 0.0f, v0[2]);
       }
 
-      position = m.GetPosition();
+      //dBodySetPosition(GetBody(), 20.0f, 20.0f, 20.0f);
+      //position.Set(20.0f, 20.0f, 10.0f);//m.GetPosition();*/
     }
+#endif
   }
 
   bool cPlayer::IsInACar() const
@@ -247,31 +274,33 @@ namespace breathe
 
   void cPlayer::ChangeStateToDriving()
   {
-    uiState = PLAYER_STATE_DRIVE;
+    state = STATE_DRIVE;
 
-    physics::RemovePhysicsObject(this);
+    // TODO: This doesn't make sense as while physics has a smart pointer to this, it will never be deleted so we will never get here
+    //physics::RemovePhysicsObject(this);
 
-    DestroyGeom();
-    DestroyBody();
+    biped.DestroyGeom();
+    biped.DestroyBody();
 
-    if (geomRay) {
-      dGeomDestroy(geomRay);
-      geomRay = 0;
+    if (biped.geomRay) {
+      dGeomDestroy(biped.geomRay);
+      biped.geomRay = 0;
     }
   }
 
   void cPlayer::ChangeStateToRunning()
   {
-    uiState = PLAYER_STATE_RUN;
+    state = STATE_RUN;
 
 #ifdef BUILD_DEBUG
     if (uiCameraMode != CAMERA_FIRSTPERSONFREE) {
 #endif
-      SetUseBody(true);
-      CreateCapsule(position);
-      physics::AddPhysicsObject(this);
+      //SetUseBody(true);
+      //CreateCapsule(pWorld, position);
+      // TODO: This doesn't make sense as while physics has a smart pointer to this, it will never be deleted so we will never get here
+      // pWorld->AddPhysicsObject(this);
 
-      cPhysicsRayCast::Create(1.0f);
+      //cPhysicsRayCast::Create(1.0f);
 #ifdef BUILD_DEBUG
     }
 #endif

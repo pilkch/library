@@ -1,6 +1,7 @@
 #ifndef CFRUSTUM_H
 #define CFRUSTUM_H
 
+#include <spitfire/math/cMat4.h>
 #include <spitfire/math/cPlane.h>
 #include <spitfire/math/geometry.h>
 

@@ -9,6 +9,7 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 //#include <opal/opal.h>
 
@@ -49,16 +50,6 @@ namespace breathe
     const unsigned int uiFrequencyHz = 20;
     const float fInterval = 1000.0f / uiFrequencyHz;
 
-    unsigned int GetFrequencyHz()
-    {
-      return uiFrequencyHz;
-    }
-
-    float GetInterval()
-    {
-      return fInterval;
-    }
-
     // *** Physics data
     const int iMaxContacts = 100;
     const float fFriction = 2000.0f;
@@ -76,22 +67,30 @@ namespace breathe
     dJointGroupID contactgroup = 0;
     dGeomID ground = 0;
 
-    std::list<cPhysicsObjectRef> lPhysicsObject;
 
 
+    // *** World
 
-    // *** Functions
+    size_t cWorld::GetFrequencyHz() const
+    {
+      return uiFrequencyHz;
+    }
 
-    dSpaceID GetSpaceStatic() { return spaceStatic; }
-    dSpaceID GetSpaceDynamic() { return spaceDynamic; }
+    float cWorld::GetInterval() const
+    {
+      return fInterval;
+    }
 
-    dWorldID GetWorld() { return world; }
+    dSpaceID cWorld::GetSpaceStatic() { return spaceStatic; }
+    dSpaceID cWorld::GetSpaceDynamic() { return spaceDynamic; }
 
-    dJointGroupID GetContactGroup() { return contactgroup; }
+    dWorldID cWorld::GetWorld() { return world; }
 
-    size_t size() { return lPhysicsObject.size(); }
-    iterator begin() { return lPhysicsObject.begin(); }
-    iterator end() { return lPhysicsObject.end(); }
+    dJointGroupID cWorld::GetContactGroup() { return contactgroup; }
+
+    size_t cWorld::size() const { return lPhysicsObject.size(); }
+    iterator cWorld::begin() { return lPhysicsObject.begin(); }
+    iterator cWorld::end() { return lPhysicsObject.end(); }
 
     // This wrapper is called by the physics library to get information
     // about object collisions
@@ -103,7 +102,7 @@ namespace breathe
     void nearCallbackDynamic(dGeomID o1, dGeomID o2);
 
 
-    void CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ)
+    void cWorld::CreateGround(float posX, float posY, float posZ, float nX, float nY, float nZ)
     {
       breathe::math::cVec3 p(posX, posY, posZ);
       breathe::math::cVec3 n(nX, nY, nZ);
@@ -113,9 +112,9 @@ namespace breathe
       ground = dCreatePlane(spaceStatic, n.x, n.y, n.z, n.DotProduct(p));
     }
 
-    void Init(float width, float height, float depth)
+    void cWorld::Init(float width, float height, float depth)
     {
-      LOG<<"physics::Init"<<std::endl;
+      LOG<<"physics::cWorld::Init"<<std::endl;
 
       dInitODE2(0);
       world = dWorldCreate();
@@ -141,8 +140,10 @@ namespace breathe
       CreateGround(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
-    void Destroy()
+    void cWorld::Destroy()
     {
+      lPhysicsObject.clear();
+
       dJointGroupDestroy(contactgroup);
 
       dSpaceDestroy(spaceDynamic);
@@ -153,35 +154,38 @@ namespace breathe
       dCloseODE();
     }
 
-    void AddPhysicsObject(cPhysicsObjectRef pPhysicsObject)
+    void cWorld::AddPhysicsObject(cPhysicsObjectRef pPhysicsObject)
     {
       lPhysicsObject.push_back(pPhysicsObject);
     }
 
-    void RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject)
+    void cWorld::RemovePhysicsObject(cPhysicsObjectRef pPhysicsObject)
     {
       lPhysicsObject.remove(pPhysicsObject);
     }
 
-    void Update(sampletime_t currentTime)
+    void cWorld::Update(sampletime_t currentTime)
     {
-      // First Iteration
-      // apply one-size-fits-all rotational and linear dampening
+      {
+        // First Iteration
+        // Generic rotational and linear dampening
 
-      iterator iter = lPhysicsObject.begin();
-      iterator iterEnd = lPhysicsObject.end();
+        iterator iter = lPhysicsObject.begin();
+        const iterator iterEnd = lPhysicsObject.end();
+        while(iterEnd != iter) {
+          ASSERT((*iter)->HasBody());
 
-      dBodyID b;
-      while(iterEnd != iter) {
-        b = (*iter++)->GetBody();
+          dBodyID b = (*iter)->GetBody();
+          if (b != NULL) {
+            dReal const* av = dBodyGetAngularVel(b);
+            dBodySetAngularVel(b, av[0] - av[0] * fDampTorque, av[1] - av[1] * fDampTorque, av[2] - av[2] * fDampTorque);
+            dReal const* lv = dBodyGetLinearVel(b);
+            dBodySetLinearVel(b, lv[0] - lv[0] * fDampLinearVel, lv[1] - lv[1] * fDampLinearVel, lv[2] - lv[2] * fDampLinearVel);
+          }
 
-        if (b != NULL) {
-          dReal const* av = dBodyGetAngularVel(b);
-          dBodySetAngularVel(b, av[0] - av[0] * fDampTorque, av[1] - av[1] * fDampTorque, av[2] - av[2] * fDampTorque);
-          dReal const* lv = dBodyGetLinearVel(b);
-          dBodySetLinearVel(b, lv[0] - lv[0] * fDampLinearVel, lv[1] - lv[1] * fDampLinearVel, lv[2] - lv[2] * fDampLinearVel);
-        }
-      };
+          iter++;
+        };
+      }
 
       // For triggers
       // Was using an object with this code
@@ -197,6 +201,19 @@ namespace breathe
 
       dWorldQuickStep(world, GetInterval() / 1000.0f);
       dJointGroupEmpty(contactgroup);
+
+
+
+
+      {
+        std::list<cPhysicsObjectRef>::iterator iter = lPhysicsObject.begin();
+        const std::list<cPhysicsObjectRef>::iterator iterEnd = lPhysicsObject.end();
+        while (iter != iterEnd) {
+          (*iter)->Update(currentTime);
+
+          iter++;
+        }
+      }
     }
 
     void nearCallbackStatic(void* f, dGeomID o1, dGeomID o2)

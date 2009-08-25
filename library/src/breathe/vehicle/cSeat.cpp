@@ -13,7 +13,8 @@
 #include <set>
 
 // Boost headers
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <ode/ode.h>
 
@@ -89,7 +90,7 @@ namespace breathe
 
       // Make sure the player knows that he is not in the seat any more and move him out of it
       pPreviousPlayer->pSeat = nullptr;
-      pPreviousPlayer->position = pVehicle->position + math::cVec3(0.0f, 0.0f, 3.0f);
+      //pPreviousPlayer->position = pVehicle->position + math::cVec3(0.0f, 0.0f, 3.0f);
 
       // Set the state of the player to a pedestrian
       pPreviousPlayer->ChangeStateToRunning();

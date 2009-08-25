@@ -226,6 +226,8 @@ namespace spitfire
 
     void cQuaternion::SetFromODEQuaternion(const float* q)
     {
+      ASSERT(q != nullptr);
+
       x = q[1];
       y = q[2];
       z = q[3];
@@ -237,10 +239,10 @@ namespace spitfire
     {
       ASSERT(q != nullptr);
 
-      q[0] = w;
       q[1] = x;
       q[2] = y;
       q[3] = z;
+      q[0] = w;
     }
 
 

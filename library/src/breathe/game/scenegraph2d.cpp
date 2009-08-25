@@ -119,7 +119,7 @@ namespace breathe
       SetDirty();
     }
 
-    void cSceneNode::SetRelativeRotation(const math::cQuaternion& rotation)
+    void cSceneNode::SetRelativeRotation(float_t rotation)
     {
       bHasRelativeRotation = true;
       relativeRotation = rotation;
@@ -313,6 +313,76 @@ namespace breathe
     }
 
 
+
+    void cLineBufferNode::_Update(cUpdateVisitor& visitor)
+    {
+      visitor.Visit(*this);
+    }
+
+    void cLineBufferNode::AddLine(const math::cVec2& p0, const math::cVec2& p1)
+    {
+      vertices.push_back(p0);
+      vertices.push_back(p1);
+    }
+
+
+
+    void cGeometryBufferNode::_Update(cUpdateVisitor& visitor)
+    {
+      visitor.Visit(*this);
+    }
+
+    void cGeometryBufferNode::AddTriangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& p2, const math::cVec2& uv0, const math::cVec2& uv1, const math::cVec2& uv2)
+    {
+      vertices.push_back(p0);
+      vertices.push_back(p1);
+      vertices.push_back(p2);
+
+      textureCoordinates.push_back(uv0);
+      textureCoordinates.push_back(uv1);
+      textureCoordinates.push_back(uv2);
+    }
+
+    void cGeometryBufferNode::AddRectangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& p2, const math::cVec2& p3, const math::cVec2& uv0, const math::cVec2& uv1, const math::cVec2& uv2, const math::cVec2& uv3)
+    {
+      ... todo check this
+      ASSERT(false);
+      AddTriangle(p0, p1, p2, uv0, uv1, uv2);
+      AddTriangle(p1, p2, p3, uv1, uv2, uv3);
+    }
+
+    void cGeometryBufferNode::AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p3, const math::cVec2& uv0, const math::cVec2& uv3)
+    {
+      ... todo check this
+      ASSERT(false);
+      const math::cVec2 p1(p0.x, p3.y);
+      const math::cVec2 p2(p3.x, p0.y);
+
+      const math::cVec2 uv1(uv0.x, uv3.y);
+      const math::cVec2 uv2(uv3.x, uv0.y);
+
+      AddRectangle(p0, p1, p2, p3, uv0, uv1, uv2, uv3);
+    }
+
+    void cGeometryBufferNode::AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p1)
+    {
+      ... todo check this
+      ASSERT(false);
+      const math::cVec2 uv0(0.0f, 1.0f);
+      const math::cVec2 uv1(0.0f, 1.0f);
+      AddAxisAlignedRectangle(p0, p1, uv0, uv1);
+    }
+
+
+
+    void cGraphNode::_Update(cUpdateVisitor& visitor)
+    {
+      visitor.Visit(*this);
+    }
+
+
+
+
     cUpdateVisitor::cUpdateVisitor(cSceneGraph& scenegraph)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
@@ -357,6 +427,33 @@ namespace breathe
       //cRenderableList* pList = new cRenderableList;
       //pList->push_back(&renderable);
       //mOpaque[&renderable.state] = pList;
+
+
+      //cLineBufferNode
+      //glBegin(GL_LINES);
+      //  const size_t n = pNode->vertices.size();
+      //  ASSERT(n % 2); // Make sure that the number of vertices is divisible by 2
+      //  for(size_t i = 0; i < n; i += 2) {
+      //    glVertex2f(vertices[i].x, vertices[i].y);
+      //    glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
+      //  }
+      //glEnd();
+
+      //cGeometryBufferNode
+      //glBegin(GL_TRIANGLES);
+      //  const size_t n = pNode->vertices.size();
+      //  // There should be a 1 to 1 mapping of vertices to textureCoordinates
+      //  ASSERT(n % 3); // Make sure that the number of vertices is divisible by 3
+      //  ASSERT(n == pNode->textureCoordinates.size()); // Make sure that the number of vertices and textureCoordinates are the same
+      //  for(size_t i = 0; i < n; i += 3) {
+      //    glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+      //    texturecoordinates(textureCoordinates[i].x, textureCoordinates[i].y, textureCoordinates[i].z);
+      //    glVertex3f(vertices[i + 1].x, vertices[i + 1].y, vertices[i + 1].z);
+      //    texturecoordinates(textureCoordinates[i + 1].x, textureCoordinates[i + 1].y, textureCoordinates[i + 1].z);
+      //    glVertex3f(vertices[i + 2].x, vertices[i + 2].y, vertices[i + 2].z);
+      //    texturecoordinates(textureCoordinates[i + 2].x, textureCoordinates[i + 2].y, textureCoordinates[i + 2].z);
+      //  }
+      //glEnd();
     }
 
 

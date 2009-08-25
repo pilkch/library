@@ -12,6 +12,7 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 // Anything else
 #include <ode/ode.h>
@@ -45,15 +46,15 @@ namespace breathe
 {
   namespace physics
   {
-    cPhysicsRayCast::cPhysicsRayCast()
+    cPhysicsRayCast::cPhysicsRayCast(cWorld* pWorld) :
+      rayContact(pWorld)
     {
       geomRay = 0;
     }
 
     cPhysicsRayCast::~cPhysicsRayCast()
     {
-      if (geomRay)
-      {
+      if (geomRay) {
         dGeomDestroy(geomRay);
         geomRay = 0;
       }

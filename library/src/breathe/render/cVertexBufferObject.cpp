@@ -330,8 +330,9 @@ namespace breathe
         if (nTextureUnits == 2) {
           // Multitexturing
           while (v < n) {
-            ... This is wrong!
-            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]); glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+            glMultiTexCoord2fARB(GL_TEXTURE0_ARB, textureCoordinates[t], textureCoordinates[t + 1]);
+            glMultiTexCoord2fARB(GL_TEXTURE1_ARB, textureCoordinates[t + 2], textureCoordinates[t + 3]);
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
 
             v += 3;
             t += 4;
@@ -339,7 +340,8 @@ namespace breathe
         } else if (nTextureUnits == 1) {
           // Single texturing
           while (v < n) {
-            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]); glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]);
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
 
             v += 3;
             t += 2;
@@ -377,6 +379,158 @@ namespace breathe
     }
 
     void cStaticVertexBuffer::RenderQuadStrip()
+    {
+      RenderGeometry(GL_QUAD_STRIP);
+    }
+
+
+
+
+    // *** cDynamicVertexBuffer
+
+    cDynamicVertexBuffer::cDynamicVertexBuffer() :
+      bIsCompiled(false),
+      vertex_size(0),
+      normal_size(0),
+      colour_size(0),
+      texturecoordinate_size(0),
+      indices_size(0),
+      nTextureUnits(0)
+    {
+    }
+
+    void cDynamicVertexBuffer::SetVertices(const std::vector<float>& _vertices)
+    {
+      bIsCompiled = false;
+
+      vertices = _vertices;
+      vertex_size = vertices.size() * sizeof(GLfloat);
+    }
+
+    void cDynamicVertexBuffer::SetNormals(const std::vector<float>& _normals)
+    {
+      bIsCompiled = false;
+
+      normals = _normals;
+      normal_size = normals.size() * sizeof(GLfloat);
+    }
+
+    void cDynamicVertexBuffer::SetColours(const std::vector<float>& _colours)
+    {
+      bIsCompiled = false;
+
+      colours = _colours;
+      colour_size = colours.size() * sizeof(GLfloat);
+    }
+
+    void cDynamicVertexBuffer::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
+    {
+      bIsCompiled = false;
+
+      textureCoordinates = _textureCoordinates;
+      texturecoordinate_size = textureCoordinates.size() * sizeof(GLfloat);
+    }
+
+    void cDynamicVertexBuffer::SetIndices(const std::vector<uint16_t>& _indices)
+    {
+      bIsCompiled = false;
+
+      indices = _indices;
+      indices_size = indices.size() * sizeof(GLushort);
+    }
+
+    void cDynamicVertexBuffer::Compile()
+    {
+      ASSERT(!IsCompiled());
+
+      const size_t nVertices = vertices.size() / 3;
+      const size_t nTextureCoordinates = textureCoordinates.size() / 2;
+      ASSERT(nVertices != 0);
+      if (nTextureCoordinates == (nVertices + nVertices + nVertices)) nTextureUnits = 3;
+      else if (nTextureCoordinates == (nVertices + nVertices)) nTextureUnits = 2;
+      else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
+      else nTextureUnits = 0;
+
+      LOG<<"cDynamicVertexBuffer::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<std::endl;
+
+      bIsCompiled = true;
+    }
+
+    void cDynamicVertexBuffer::Destroy()
+    {
+      bIsCompiled = false;
+    }
+
+    void cDynamicVertexBuffer::Bind()
+    {
+      ASSERT(IsCompiled());
+    }
+
+    void cDynamicVertexBuffer::Unbind()
+    {
+      ASSERT(IsCompiled());
+    }
+
+    void cDynamicVertexBuffer::RenderGeometry(GLenum geometryType)
+    {
+      ASSERT(IsCompiled());
+
+      glBegin(geometryType);
+
+        const size_t n = vertices.size();
+        size_t v = 0;
+        size_t t = 0;
+        if (nTextureUnits == 2) {
+          // Multitexturing
+          while (v < n) {
+            glMultiTexCoord2fARB(GL_TEXTURE0_ARB, textureCoordinates[t], textureCoordinates[t + 1]);
+            glMultiTexCoord2fARB(GL_TEXTURE1_ARB, textureCoordinates[t + 2], textureCoordinates[t + 3]);
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v += 3;
+            t += 4;
+          };
+        } else if (nTextureUnits == 1) {
+          // Single texturing
+          while (v < n) {
+            glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]);
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v += 3;
+            t += 2;
+          };
+        } else {
+          while (v < n) {
+            glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
+
+            v += 3;
+          };
+        }
+
+      glEnd();
+    }
+
+    void cDynamicVertexBuffer::RenderLines()
+    {
+      RenderGeometry(GL_LINES);
+    }
+
+    void cDynamicVertexBuffer::RenderTriangles()
+    {
+      RenderGeometry(GL_TRIANGLES);
+    }
+
+    void cDynamicVertexBuffer::RenderTriangleStrip()
+    {
+      RenderGeometry(GL_TRIANGLE_STRIP);
+    }
+
+    void cDynamicVertexBuffer::RenderQuads()
+    {
+      RenderGeometry(GL_QUADS);
+    }
+
+    void cDynamicVertexBuffer::RenderQuadStrip()
     {
       RenderGeometry(GL_QUAD_STRIP);
     }

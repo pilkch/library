@@ -106,8 +106,7 @@ namespace breathe
     void cParticleSystem::Sort()
     {
       size_t n = particles.size();
-      for (size_t i = 0; i < n; i++)
-        particles[i].SetDepth((position + particles[i].p - pRender->pFrustum->eye).GetLength());
+      for (size_t i = 0; i < n; i++) particles[i].SetDepth((position + particles[i].p - pRender->GetFrustum().eye).GetLength());
 
       std::sort(particles.begin(), particles.end(), cParticle::DepthCompare);
     }
@@ -332,7 +331,7 @@ namespace breathe
     {
       size_t n = particles.size();
       for (size_t i = 0; i < n; i++)
-        particles[i].SetDepth((position + particles[i].p - pRender->pFrustum->eye).GetLength());
+        particles[i].SetDepth((position + particles[i].p - pRender->GetFrustum().eye).GetLength());
 
       // Dodgy hack because sorting wrecks the order and for this class we need to know the order
       sorted = particles;

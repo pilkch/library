@@ -215,7 +215,10 @@ namespace breathe
           CheckStatusVertex();
 
           if (IsCompiledVertex()) LOG.Success("cShader::Init", std::string("Vertex shader ") + breathe::string::ToUTF8(sShaderVertex) + ": Compiled");
-          else LOG.Error("cShader::Init", std::string("Vertex shader ") + breathe::string::ToUTF8(sShaderVertex) + ": Not compiled");
+          else {
+            LOG.Error("cShader::Init", std::string("Vertex shader ") + breathe::string::ToUTF8(sShaderVertex) + ": Not compiled");
+            ASSERT(false);
+          }
         } else {
           LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderVertex));
           uiShaderVertex = 0;
@@ -249,7 +252,10 @@ namespace breathe
           CheckStatusFragment();
 
           if (IsCompiledFragment()) LOG.Success("cShader::Init", std::string("Fragment shader ") + breathe::string::ToUTF8(sShaderFragment) + ": Compiled");
-          else LOG.Error("cShader::Init", std::string("Fragment shader ") + breathe::string::ToUTF8(sShaderFragment) + ": Not compiled");
+          else {
+            LOG.Error("cShader::Init", std::string("Fragment shader ") + breathe::string::ToUTF8(sShaderFragment) + ": Not compiled");
+            ASSERT(false);
+          }
         } else {
           LOG.Error("Material", std::string("Shader not found ") + breathe::string::ToUTF8(sShaderFragment));
           uiShaderFragment = 0;

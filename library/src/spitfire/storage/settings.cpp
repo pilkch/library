@@ -258,6 +258,8 @@ namespace spitfire
 
     void Test()
     {
+      // TODO: Fix this test, it is totally broken, none of these functions have been implemented
+
       const string_t sTestProfile(TEXT("TestProfile"));
 
       const string_t sTestSection(TEXT("TestSection"));
@@ -271,14 +273,14 @@ namespace spitfire
       SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestValue);
       sValue.clear();
       bResult = GetGlobalSettingsString(sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult);
+      ASSERT(bResult != false);
       ASSERT(sValue == sTestValue);
 #endif
 
       SetApplicationUserSetting(sTestSection, sTestSubSection, sTestValue);
       sValue.clear();
       bResult = GetApplicationUserSetting(sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult);
+      ASSERT(bResult != false);
       ASSERT(sValue == sTestValue);
 
 #ifdef BUILD_SETTINGS_PROFILE
@@ -286,7 +288,7 @@ namespace spitfire
       SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestValue);
       sValue.clear();
       bResult = GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult);
+      ASSERT(bResult != false);
       ASSERT(sValue == sTestValue);
 #endif
     }

@@ -24,7 +24,7 @@ namespace breathe
 #endif
     };*/
 
-    class cPhysicsObject : virtual public cObject
+    class cPhysicsObject : virtual public cObject, public boost::enable_shared_from_this<cPhysicsObject>
     {
     public:
       cPhysicsObject();
@@ -32,16 +32,16 @@ namespace breathe
 
       virtual void Update(sampletime_t currentTime);
 
-      void CreateBox(const physvec_t& pos, const physvec_t& rot = physveczero);
-      void CreateSphere(const physvec_t& pos, const physvec_t& rot = physveczero);
-      void CreateCapsule(const physvec_t& pos, const physvec_t& rot = physveczero);
-      void CreateCylinder(const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateBox(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateSphere(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateCapsule(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateCylinder(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);
 #ifdef BUILD_PHYSICS_2D
-      void CreateHeightmap(const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
-      void CreateCombinedShapes(std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateHeightmap(cWorld* pWorld, const std::vector<float>& heightvalues, const physvec_t& scale, const physvec_t& pos);
+      void CreateCombinedShapes(cWorld* pWorld, std::list<b2ShapeDef*> lShapes, const physvec_t& pos, const physvec_t& rot = physveczero);
 #else
-      void CreateHeightmap(const game::cTerrainHeightMapLoader& loader, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
-      void CreateTrimesh(const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateHeightmap(cWorld* pWorld, const game::cTerrainHeightMap& loader, size_t width, size_t height, const physvec_t& scale, const physvec_t& pos, const physvec_t& rot = physveczero);
+      void CreateTrimesh(cWorld* pWorld, const std::vector<spitfire::math::cVec3>& coords, const std::vector<unsigned int>& indices, const physvec_t& pos, const physvec_t& rot = physveczero);
 #endif
 
       void RemoveFromWorld();
@@ -69,18 +69,25 @@ namespace breathe
       //object_type GetType() const { return type; }
 #endif
 
-      void AddLinearForce(const physvec_t& force);
-      void AddAngularForce(const physvec_t& force);
+      float_t GetWeightKg() const { return fWeightKg; }
+
+
+      void AddForceRelativeToWorldKg(const physvec_t& forceKg);
+      void AddTorqueRelativeToWorldNm(const physvec_t& torqueNm);
+
+      void AddForceRelativeToObjectKg(const physvec_t& forceKg);
+      void AddTorqueRelativeToObjectNm(const physvec_t& torqueNm);
+
 
       physvec_t GetClosestPointOnObject(const physvec_t& point) const;
 
     private:
 #ifdef BUILD_PHYSICS_2D
-      void InitCommon(const std::list<b2ShapeDef*>& lShapes, const physvec_t& pos, const physvec_t& rot);
+      void InitCommon(cWorld* pWorld, const std::list<b2ShapeDef*>& lShapes, const physvec_t& pos, const physvec_t& rot);
 #endif
 
 #ifdef BUILD_PHYSICS_3D
-      void InitCommon(const physvec_t& pos, const physvec_t& rot);
+      void InitCommon(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot);
 #endif
 
       //object_type type;

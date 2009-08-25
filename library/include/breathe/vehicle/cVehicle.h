@@ -104,16 +104,20 @@ namespace breathe
       //math::cColour bodyColourSpecular;
     };
 
-    class cVehicle
-#ifdef BUILD_PHYSICS_3D
-      : virtual public physics::cPhysicsObject
-#endif
+    class cVehicle;
+    typedef cSmartPtr<cVehicle> cVehicleRef;
+
+    class cVehicle :
+      public boost::enable_shared_from_this<cVehicle>
     {
-    public:
+    private:
       cVehicle();
+
+    public:
+      static cVehicleRef Create();
       ~cVehicle();
 
-      void Init(cLevelSpawn p, unsigned int uiSeats);
+      void Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld);
       void Update(uint32_t currentTime);
       void UpdateInput();
 

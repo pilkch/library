@@ -158,8 +158,37 @@ namespace spitfire
 
 
 
+      float aspect = 1.3333f;
+      float zNear = 1.0f;
+      float zFar = 1000.0f;
+
+      const float h = 1.0f / tan(0.5f * DegreesToRadians(fov));
+      float neg_depth = zNear - zFar;
+
+
       cMat4 matProjection;
-      matProjection[0]  = 1.29904f;
+
+      matProjection[0] = h / aspect;
+      matProjection[1] = 0.0f;
+      matProjection[2] = 0.0f;
+      matProjection[3] = 0.0f;
+
+      matProjection[4] = 0.0f;
+      matProjection[5] = h;
+      matProjection[6] = 0.0f;
+      matProjection[7] = 0.0f;
+
+      matProjection[8] = 0.0f;
+      matProjection[9] = 0.0f;
+      matProjection[10] = (zFar + zNear) / neg_depth;
+      matProjection[11] = -1.0f;
+
+      matProjection[12] = 0.0f;
+      matProjection[13] = 0.0f;
+      matProjection[14] = 2.0f * (zNear * zFar) / neg_depth;
+      matProjection[15] = 0.0f;
+
+      /*matProjection[0]  = 1.29904f;
       matProjection[1]  =  0.000000f;
       matProjection[2]  =  0.000000f;
       matProjection[3]  =  0.000000f;
@@ -174,7 +203,7 @@ namespace spitfire
       matProjection[12] =  0.000000f;
       matProjection[13] =  0.000000f;
       matProjection[14] =  -2.00200f;
-      matProjection[15] =  0.000000f;
+      matProjection[15] =  0.000000f;*/
 
 
       cMat4 matModelView;
@@ -233,8 +262,8 @@ namespace spitfire
 
     bool cFrustum::CubeInFrustum(float x, float y, float z, float size) const
     {
-      // Basically, what is going on is, that we are given the center of the cube,
-      // and half the length.  Think of it like a radius.  Then we are checking each point
+      // Basically, we are given the center of the cube, and half the length.
+      // Think of half the length as being like a radius.  Then we check each point
       // in the cube and seeing if it is inside the frustum.  If a point is found in front
       // of a side, then we skip to the next side.  If we get to a plane that does NOT have
       // a point in front of it, then it will return false.

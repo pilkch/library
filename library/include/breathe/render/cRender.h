@@ -8,6 +8,7 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 #include <spitfire/math/cColour.h>
+#include <spitfire/math/cFrustum.h>
 
 #include <breathe/game/cLevel.h>
 
@@ -17,9 +18,6 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cStatic.h>
-
-// FBO mipmaps
-//#define RENDER_GENERATEFBOMIPMAPS
 
 namespace breathe
 {
@@ -296,16 +294,20 @@ namespace breathe
       material::cMaterialRef pMaterialNotFoundMaterial;
 
 
-      std::vector<render::cTextureAtlasRef> vTextureAtlas; //Vector that contains texture atlases
+      std::vector<render::cTextureAtlasRef> vTextureAtlas; // Vector that contains texture atlases
       std::map<string_t, material::cMaterialRef> mMaterial;
 
       std::vector<cVertexBufferObjectRef> vVertexBufferObject;
 
 
       cLevel* pLevel;
-      math::cFrustum* pFrustum;
+
+      const math::cFrustum& GetFrustum() { return frustum; }
+      void SetFrustum(const math::cFrustum& _frustum) { frustum = _frustum; }
 
     private:
+      math::cFrustum frustum;
+
       size_t uiSegmentWidthPX;
       size_t uiSegmentSmallPX;
       size_t uiAtlasWidthPX;

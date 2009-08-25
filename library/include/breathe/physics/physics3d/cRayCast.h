@@ -8,11 +8,12 @@ namespace breathe
     class cPhysicsRayCast
     {
     public:
-      cPhysicsRayCast();
+      explicit cPhysicsRayCast(cWorld* pWorld);
       virtual ~cPhysicsRayCast();
+
       void Create(float fLength);
 
-      virtual void RayCast()=0;
+      virtual void RayCast() = 0;
       //static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 
       dGeomID geomRay;

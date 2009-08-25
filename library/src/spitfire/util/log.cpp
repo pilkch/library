@@ -110,20 +110,13 @@ namespace spitfire
       filesystem::CreateFile(strfilename);
 
       CreateLog();
-
-#ifdef BUILD_DEBUG
-      Success("Build", "Debug");
-#else
-      Success("Build", "Release");
-#endif //BUILD_DEBUG
     }
 
     cLog::~cLog()
     {
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
-      if (!logfile.is_open())
-        return;
+      if (!logfile.is_open()) return;
 
       logfile << endtable << "\t\t</center>\n\t</body>" << std::endl << "</html>";
       logfile.close();
@@ -133,8 +126,7 @@ namespace spitfire
     {
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out);
 
-      if (!logfile.is_open())
-        return false;
+      if (!logfile.is_open()) return false;
 
       logfile << "<html>" << std::endl;
       logfile << t << "<head>" << std::endl;
@@ -252,10 +244,11 @@ namespace spitfire
     }
 
 
-    /*void cLog::precision ( unsigned long p )
-    {
-      logfile << std::setprecision( p );
-    }*/
+    // //TODO: Do we need this one?
+    // void cLog::precision(unsigned long p)
+    // {
+    //   logfile << std::setprecision(p);
+    // }
 
 
     // ***********************************************CONSOLE*******************************************************
@@ -266,7 +259,6 @@ namespace spitfire
 
     cConsole::~cConsole()
     {
-
     }
 
     /*void cConsole::Newline()
@@ -375,6 +367,8 @@ namespace spitfire
 
   namespace util
   {
+    // TODO: Console should not be here
+
     void cConsoleBase::ExecuteCommand(const std::string& command)
     {
       assert(pApp != nullptr);
@@ -407,45 +401,32 @@ namespace spitfire
       */
 
       // Early exit
-      if ((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode))
-        return false;
+      if ((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode)) return false;
 
 
-      if ((SDLK_RETURN == uiCode) || (SDLK_KP_ENTER == uiCode))
-      {
+      if ((SDLK_RETURN == uiCode) || (SDLK_KP_ENTER == uiCode)) {
         ExecuteCommand(GetCurrentLine());
 
         ClearCurrent();
         uiCursorPosition=0;
-      }
-      else if (SDLK_DELETE == uiCode)
-      {
+      } else if (SDLK_DELETE == uiCode) {
         if (uiCursorPosition<current.size())
           current.erase(uiCursorPosition, 1);
-      }
-      else if (SDLK_BACKSPACE == uiCode)
-      {
+      } else if (SDLK_BACKSPACE == uiCode) {
         if (uiCursorPosition > 0)
         {
           current.erase(uiCursorPosition-1, 1);
           uiCursorPosition--;
         }
-      }
-      else if (SDLK_LEFT==uiCode)
-      {
+      } else if (SDLK_LEFT==uiCode) {
         if (uiCursorPosition > 0)
           uiCursorPosition--;
       }
 
-      else if (SDLK_RIGHT==uiCode)
-      {
-        if (uiCursorPosition<current.size())
-          uiCursorPosition++;
-      }
-      else if (SDLK_HOME==uiCode)
-        uiCursorPosition=0;
-      else if (SDLK_END==uiCode)
-        uiCursorPosition=current.size();
+      else if (SDLK_RIGHT==uiCode) {
+        if (uiCursorPosition<current.size()) uiCursorPosition++;
+      } else if (SDLK_HOME==uiCode) uiCursorPosition=0;
+      else if (SDLK_END==uiCode) uiCursorPosition=current.size();
 
       else if (SDLK_TAB==uiCode)
         ; //TODO: Autocomplete
@@ -460,12 +441,10 @@ namespace spitfire
       else if (SDLK_PAGEDOWN==uiCode)
         ; //TODO: History of all console items
 
-      else if (uiCode<300)
-      {
+      else if (uiCode<300) {
         /*#include <SDL/SDL_keysym.h>
 
-        if ((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9))
-        {
+        if ((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9)) {
           std::ostringstream t;
           t<<"unmapped key: "<<uiCode<<" ("<<static_cast<unsigned char>(uiCode)<<")";
 

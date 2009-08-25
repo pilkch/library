@@ -14,15 +14,15 @@
 #include <list>
 #include <set>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
+// Boost headers
+#include <boost/smart_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 
 #include <GL/GLee.h>
 
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <SDL/SDL_image.h>
 
 
@@ -248,7 +248,7 @@ namespace breathe
 
     cLevelCubemap* p = vCubemap.back();
 
-    stringstream_t stm(line);
+    istringstream_t stm(line);
     stm >> p->sFilename;
 
     stm >> p->v3Position.x;
@@ -302,7 +302,7 @@ namespace breathe
 
   void cLevel::Update(sampletime_t currentTime)
   {
-    //TODO: Calculate the current nodes
+    /*//TODO: Calculate the current nodes
     if (pRender->pFrustum->eye.x > 0.0f && pRender->pFrustum->eye.y > 0.0f)
     {
       unsigned int currentX=static_cast<unsigned int>(pRender->pFrustum->eye.x/fNodeWidth);
@@ -322,35 +322,24 @@ namespace breathe
           pCurrentNode = pNode;
         }
       }
-    }
+    }*/
 
-    {
-      std::list<physics::cPhysicsObject *>::iterator iter=physics::begin();
-      std::list<physics::cPhysicsObject *>::iterator end=physics::end();
-
-      while(end != iter)
-        (*iter++)->Update(currentTime);
-    }
-
-
-    if ((currentTime - previousTime)>1000.0f) {
+    if ((currentTime - previousTime) > 1000.0f) {
       previousTime = currentTime;
 
-      size_t n = vNode.size();
-      size_t i = 0;
-      for (i=0;i<n;i++)
-        vNode[i]->Update(currentTime);
+      const size_t n = vNode.size();
+      for (size_t i = 0; i < n; i++) vNode[i]->Update(currentTime);
     }
 
 
     {
-      vehicle::cVehicle *pVehicle = nullptr;
+      vehicle::cVehicleRef pVehicle;
 
-      std::list<vehicle::cVehicle*>::iterator iter = lVehicle.begin();
-      const std::list<vehicle::cVehicle*>::iterator iterEnd = lVehicle.end();
+      std::list<vehicle::cVehicleRef>::iterator iter = lVehicle.begin();
+      const std::list<vehicle::cVehicleRef>::iterator iterEnd = lVehicle.end();
       while (iter != iterEnd) {
-        pVehicle = (*iter);
-        pVehicle->Update(currentTime);
+        pVehicle = *iter;
+        //pVehicle->Update(currentTime);
         iter++;
       };
     }
@@ -366,32 +355,16 @@ namespace breathe
     const size_t n = vNode.size();
     for (i=0;i<n;i++) uiTriangles += vNode[i]->Render();
 
-    //n = vStatic.size();
-    //for (i=0;i<n;i++)
-    //  uiTriangles+=RenderStaticModel(vStatic[i]);));
-
-    std::list<physics::cPhysicsObject*>::iterator iter = lPhysicsObject.begin();
-    const std::list<physics::cPhysicsObject*>::iterator end = lPhysicsObject.end();
-    while (end != iter) {
-      glPushMatrix();
-        glMultMatrixf((*iter)->m.GetOpenGLMatrix());
-
-        uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>((*iter++)->pModel));
-
-        //pRender->SetMaterial();
-      glPopMatrix();
-    }
-
     return uiTriangles;
   }
 
-  unsigned int cLevel::RenderVehicles(sampletime_t currentTime, vehicle::cVehicle *pOwnVehicle)
+  unsigned int cLevel::RenderVehicles(sampletime_t currentTime, vehicle::cVehicleRef pOwnVehicle)
   {
     unsigned int uiTriangles = 0;
-    vehicle::cVehicle* pVehicle = nullptr;
+    /*vehicle::cVehicleRef pVehicle;
 
-    std::list<vehicle::cVehicle*>::iterator iter = lVehicle.begin();
-    const std::list<vehicle::cVehicle*>::iterator iterEnd = lVehicle.end();
+    std::list<vehicle::cVehicleRef>::iterator iter = lVehicle.begin();
+    const std::list<vehicle::cVehicleRef>::iterator iterEnd = lVehicle.end();
     while (iter != iterEnd) {
       pVehicle = *iter;
 
@@ -399,18 +372,30 @@ namespace breathe
         breathe::math::cColour colour(1.0f, 0.0f, 0.0f);
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->m.GetOpenGLMatrix());
+          {
+            spitfire::math::cMat4 mat(pVehicle->rotation.GetMatrix());
+            mat.SetTranslationPart(pVehicle->position);
+            glMultMatrixf(mat.GetOpenGLMatrix());
+          }
           uiTriangles += pRender->RenderStaticModel(breathe::render::model::cStaticRef(pVehicle->pModel), colour);
         glPopMatrix();
 
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->lfWheel_->m.GetOpenGLMatrix());
+          {
+            spitfire::math::cMat4 mat(pVehicle->lfWheel_->rotation.GetMatrix());
+            mat.SetTranslationPart(pVehicle->lfWheel_->position);
+            glMultMatrixf(mat.GetOpenGLMatrix());
+          }
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
         glPushMatrix();
-          glMultMatrixf(pVehicle->lrWheel_->m.GetOpenGLMatrix());
+          {
+            spitfire::math::cMat4 mat(pVehicle->lrWheel_->rotation.GetMatrix());
+            mat.SetTranslationPart(pVehicle->lrWheel_->position);
+            glMultMatrixf(mat.GetOpenGLMatrix());
+          }
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
@@ -419,18 +404,26 @@ namespace breathe
         r.SetRotationZ(breathe::math::cPI);
 
         glPushMatrix();
-          glMultMatrixf((pVehicle->rfWheel_->m * r).GetOpenGLMatrix());
+          {
+            spitfire::math::cMat4 mat(pVehicle->rfWheel_->rotation.GetMatrix());
+            mat.SetTranslationPart(pVehicle->rfWheel_->position);
+            glMultMatrixf((mat * r).GetOpenGLMatrix());
+          }
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
 
         glPushMatrix();
-          glMultMatrixf((pVehicle->rrWheel_->m * r).GetOpenGLMatrix());
+          {
+            spitfire::math::cMat4 mat(pVehicle->rrWheel_->rotation.GetMatrix());
+            mat.SetTranslationPart(pVehicle->rrWheel_->position);
+            glMultMatrixf((mat * r).GetOpenGLMatrix());
+          }
           uiTriangles += pRender->RenderStaticModel(static_cast<breathe::render::model::cStaticRef>(pVehicle->lfWheel_->pModel));
         glPopMatrix();
       }
 
       iter++;
-    };
+    };*/
 
     return uiTriangles;
   }
@@ -462,25 +455,12 @@ namespace breathe
     return *s;
   }
 
-  void cLevel::AddPhysicsObject(physics::cPhysicsObject *d)
-  {
-    physics::AddPhysicsObject(d);
-    lPhysicsObject.push_back(d);
-  }
-
-  void cLevel::RemovePhysicsObject(physics::cPhysicsObject *d)
-  {
-    physics::RemovePhysicsObject(d);
-    lPhysicsObject.remove(d);
-  }
-
-
-  void cLevel::AddVehicle(vehicle::cVehicle *v)
+  void cLevel::AddVehicle(vehicle::cVehicleRef v)
   {
     lVehicle.push_back(v);
   }
 
-  void cLevel::RemoveVehicle(vehicle::cVehicle *v)
+  void cLevel::RemoveVehicle(vehicle::cVehicleRef v)
   {
     lVehicle.remove(v);
   }
@@ -506,17 +486,17 @@ namespace breathe
     return pRender->GetCubeMap(c->sFilename);
   }
 
-  vehicle::cVehicle* cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
+  vehicle::cVehicleRef cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
   {
-    if (lVehicle.empty()) return nullptr;
+    breathe::vehicle::cVehicleRef v;
 
+    if (lVehicle.empty()) return v;
 
-    float d = fMaxDistance;
+    /*float d = fMaxDistance;
     float t = fMaxDistance;
-    breathe::vehicle::cVehicle* v = nullptr;
 
-    std::list<vehicle::cVehicle *>::iterator iter = lVehicle.begin();
-    const std::list<vehicle::cVehicle *>::iterator iterEnd = lVehicle.end();
+    std::list<vehicle::cVehicleRef>::iterator iter = lVehicle.begin();
+    const std::list<vehicle::cVehicleRef>::iterator iterEnd = lVehicle.end();
     while (iter != iterEnd) {
       t = ((*iter)->position - pos).GetLength();
       if (t < d) {
@@ -525,7 +505,7 @@ namespace breathe
       }
 
       iter++;
-    }
+    }*/
 
     return v;
   }
@@ -589,7 +569,7 @@ namespace breathe
               iter.GetAttribute("position", pModel->position);
 
               math::cVec3 v;
-              if (iter.GetAttribute("position", v)) pModel->m.SetTranslation(v);
+              if (iter.GetAttribute("position", v)) pModel->position = v;
             }
 
             iter.Next("model");
@@ -635,9 +615,14 @@ namespace breathe
     std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
     const std::vector<breathe::cLevelModel*>::iterator iterEnd = vModel.end();
     while (iter != iterEnd) {
+      const breathe::cLevelModel* pModel = (*iter);
       glPushMatrix();
-        glMultMatrixf((*iter)->m.GetOpenGLMatrix());
-        uiTriangles += pRender->RenderStaticModel((*iter)->pModel);
+        {
+          spitfire::math::cMat4 mat(pModel->rotation.GetMatrix());
+          mat.SetTranslationPart(pModel->position);
+          glMultMatrixf((mat).GetOpenGLMatrixPointer());
+        }
+        uiTriangles += pRender->RenderStaticModel(pModel->pModel);
       glPopMatrix();
 
       iter++;

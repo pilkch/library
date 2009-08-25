@@ -97,6 +97,8 @@ namespace breathe
       cWidget(id_t idControl, WIDGET_TYPE type, float x, float y, float width, float height);
       virtual ~cWidget();
 
+      bool operator==(const cWidget& rhs) const { return (idControl == rhs.idControl); }
+
       //TODO: Don't have AddChild here!  Only goes on Sizer
 
       bool AddChild(cWidget* pChild);

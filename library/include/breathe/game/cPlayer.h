@@ -15,19 +15,23 @@ namespace breathe
 
   class cItem;
 
-  const size_t PLAYER_STATE_DEAD = 0;
-  const size_t PLAYER_STATE_WALK = 1;
-  const size_t PLAYER_STATE_RUN = 2;
-  const size_t PLAYER_STATE_SPRINT = 3;
-  const size_t PLAYER_STATE_DRIVE = 4;
-  const size_t PLAYER_STATE_PASSENGER = 5;
+  enum STATE {
+    STATE_DEAD,
+    STATE_WALK,
+    STATE_RUN,
+    STATE_SPRINT,
+    STATE_DRIVE,
+    STATE_PASSENGER
+  };
 
-  const size_t CAMERA_FIRSTPERSON = 0;
-  const size_t CAMERA_THIRDPERSON = 1;
+  enum CAMERA {
+    CAMERA_FIRSTPERSON,
+    CAMERA_THIRDPERSON
 #ifdef BUILD_DEBUG
-  const size_t CAMERA_THIRDPERSONFREE = 2;
-  const size_t CAMERA_FIRSTPERSONFREE = 3;
+    , CAMERA_THIRDPERSONFREE,
+    CAMERA_FIRSTPERSONFREE
 #endif
+  };
 
 
   // Valid types:
@@ -98,14 +102,23 @@ namespace breathe
   // else if (map overrides) use those settings.
   // else set defaults
 
-
-  class cPlayer
 #ifdef BUILD_PHYSICS_3D
-    : virtual public physics::cUprightCapsule
-#endif
+  class cBipedPhysicsObject :
+    public physics::cUprightCapsule
   {
   public:
-    cPlayer();
+    explicit cBipedPhysicsObject(physics::cWorld* pWorld);
+
+    // For raycasting to find out if we standing on anything when we are in walking mode
+    void RayCast();
+    static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
+  };
+#endif
+
+  class cPlayer
+  {
+  public:
+    explicit cPlayer(physics::cWorld* pWorld);
     ~cPlayer();
 
     void Update(sampletime_t currentTime);
@@ -120,16 +133,16 @@ namespace breathe
     void ChangeItemUp();
     void ChangeItemDown();
 
+    // TODO: Remove this and use a gameobject instead
+    spitfire::math::cVec3 position;
 
 #ifdef BUILD_PHYSICS_3D
-    // For raycasting to find out if we standing on anything when we are in walking mode
-    void RayCast();
-    static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
+    cBipedPhysicsObject biped;
 #endif
 
-    size_t uiState;
+    STATE state;
 
-    size_t uiCameraMode;
+    CAMERA uiCameraMode;
 
     float fInputUp;
     float fInputDown;
@@ -147,7 +160,8 @@ namespace breathe
     float fSpeedRun;
     float fSpeedSprint;
 
-    float fVertical, fHorizontal;
+    float fVertical;
+    float fHorizontal;
 
     float fDollars;
 
