@@ -72,7 +72,7 @@ namespace spitfire
     }
 
     void OpenFolder(const string_t& sFullPath);
-    void OpenWebPage(const string_t& sURL);
+    void OpenWebPage(const string_t& sWebPageURL);
 
     void GetOperatingSystemVersion(int& major, int& minor);
 
@@ -81,7 +81,14 @@ namespace spitfire
     string_t GetOperatingSystemFullString();
 
 
-    void ExecuteCommandLine(const string_t& sCommandLine);
+    // Run a command line in the background
+    // We have no way of finding out the result
+    void ExecuteCommand(const string_t& sCommand);
+
+    // Run a command line and wait for it to finish
+    // return false on failure
+    bool RunCommandLineProcess(const string_t& sCommandLine);
+
 
     string_t GetUserName();
 

@@ -1,4 +1,6 @@
 // Standard headers
+#include <string.h>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -165,8 +167,20 @@ namespace spitfire
       strcpy(szPath, exe_directory);
       ASSERT(SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
-#endif
-#ifdef PLATFORM_LINUX_OR_UNIX
+#elif defined(__APPLE__)
+      FSRef dataFolderRef;
+      OSErr theError = FSFindFolder(kUserDomain, kCurrentUserFolderType, kCreateFolder, &dataFolderRef);
+      if (theError != noErr) {
+        LOG<<"GetHomeDirectory FSFindFolder FAILED"<<std::endl;
+        string_t sUser = GetUserName();
+        sPath = TEXT("/Users/") + sUser;
+      } else {
+        char szPath[MAX_PATH_LEN];
+        szPath[0] = 0;
+        FSRefMakePath(&dataFolderRef, (UInt8*)szPath, 200);
+        sPath = spitfire::string::ToString_t(szPath);
+      }
+#elif defined(PLATFORM_LINUX_OR_UNIX)
       sPath = TEXT("/opt");
 
       // Try getpwuid
@@ -692,6 +706,57 @@ namespace spitfire
     {
       ChangeToDirectory(sPreviousDirectory);
     }
+
+    #ifdef __LINUX__
+    // Linux does not define strlcpy
+    void strlcpy(char* szDestination, const char* szSource, size_t len)
+    {
+      // NOTE: This doesn't actually check length
+      strcpy(szDestination, szSource);
+    }
+    #endif
+
+    // ********************************************* cScopedTemporaryFolder *********************************************
+    cScopedTemporaryFolder::cScopedTemporaryFolder()
+    {
+      LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder"<<std::endl;
+
+    #ifdef __WIN__
+      char_t szTempPath[MAX_PATH_LEN];
+      ::GetTempPath(MAX_PATH_LEN, szTempPath);
+
+      // GetTempFileName
+      // http://msdn.microsoft.com/en-us/library/aa364991.aspx
+      // Creates a name for a temporary file
+      // If a unique file name is generated, an empty file is created and the handle to it is released; otherwise, only a file name is generated
+      char_t szTempFolderPath[MAX_PATH_LEN];
+      ::GetTempFileName(szTempPath, TEXT("tmp"), 0, szTempFolderPath);
+
+      sTemporarySubFolder = szTempFolderPath;
+    #else
+      spitfire::filesystem::path p(TEXT(P_tmpdir), TEXT("0XXXXXX"));
+
+      char szTempFolderPath[MAX_PATH_LEN];
+      strlcpy(szTempFolderPath, spitfire::string::ToUTF8(p.GetFullPath()).c_str(), MAX_PATH_LEN);
+      mkdtemp(szTempFolderPath);
+
+      sTemporarySubFolder = spitfire::string::ToString_t(szTempFolderPath);
+    #endif
+
+      if (!DirectoryExists(sTemporarySubFolder)) {
+          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<sTemporarySubFolder<<"\""<<std::endl;
+          CreateDirectory(sTemporarySubFolder);
+      }
+    }
+
+    cScopedTemporaryFolder::~cScopedTemporaryFolder()
+    {
+      LOG<<"cScopedTemporaryFolder::~cScopedTemporaryFolder"<<std::endl;
+      ASSERT(DirectoryExists(sTemporarySubFolder));
+
+      DeleteDirectory(sTemporarySubFolder);
+    }
+
 
 
     // ********************************************* iterator *********************************************

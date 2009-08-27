@@ -216,6 +216,8 @@ namespace spitfire
 #ifdef __LINUX__
     const size_t MAX_STRING_LENGTH = 512;
 
+    // Run a command line in the background
+    // We have no way of finding out the result
     void ExecuteCommand(const string_t& sCommand)
     {
       LOG<<"ExecuteCommand "<<sCommand<<std::endl;
@@ -311,6 +313,9 @@ namespace spitfire
     //  LOG<<"GetUserHome GetEnvironmentVariable FAILED Finding HOME"<<std::endl;
     //}
 
+
+
+
     void RevealInFinder(const string_t& sFilePath)
     {
       // TODO: Is this a constant in a header somewhere?
@@ -361,6 +366,22 @@ Bail:
       FSRef fsr;
       FSPathMakeRef((UInt8*)szFilePath, &fsr, NULL);
       LSOpenFSRef(&fsr, NULL);
+    }
+
+    void OpenWebPage(const string_t& sWebPageURL)
+    {
+      ICInstance icInstance;
+      OSType psiSignature = uint32_t('Psi ');
+      OSStatus error = ICStart( &icInstance, psiSignature );
+      if (error == noErr) {
+        ConstStr255Param hint = 0x0;
+        const char* data = spitfire::string::ToUTF8(sWebPageURL).get();
+        long length = url.length();
+        long start = 0;
+        long end = length;
+        ICLaunchURL(icInstance, hint, data, length, &start, &end);
+        ICStop(icInstance);
+      }
     }
 
     void GetComputerName(const string_t& sComputerName)

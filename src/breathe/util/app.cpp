@@ -1185,6 +1185,10 @@ namespace breathe
       float fPosition = 0.1f;
 
       pRender->BeginRenderingText();
+
+        const math::cVec3& position = camera.GetEyePosition();
+        pFont->printf(0.05f, fPosition += dy, "Position: %.03f, %.03f, %.03f", position.x, position.y, position.z);
+
 #ifdef BUILD_PHYSICS_3D
         pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->size());
 #endif

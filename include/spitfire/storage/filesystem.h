@@ -63,6 +63,17 @@ namespace spitfire
     string_t GetSHA1(const string_t& sFilename);
 #endif
 
+
+    // Permissions
+
+    void SetFileExecutableForThisUser(const string_t& sFilename);
+    void SetFileExecutableForEveryone(const string_t& sFilename);
+    void SetFileReadAndWriteAccessForThisUser(const string_t& sFilename);
+    void SetFileReadAndWriteAccessForEveryone(const string_t& sFilename);
+    void SetFolderReadAndWriteAccessForThisUserRecursively(const string_t& sFolder);
+    void SetFolderReadAndWriteAccessForEveryoneRecursively(const string_t& sFolder);
+
+
     string_t StripLastDirectory(const string_t& path);
     string_t ExpandPath(const string_t& path);
 
@@ -108,6 +119,18 @@ namespace spitfire
 
     private:
       string_t sPreviousDirectory;
+    };
+
+    class cScopedTemporaryFolder
+    {
+    public:
+      cScopedTemporaryFolder();
+      ~cScopedTemporaryFolder();
+
+      const string_t& GetFolder() const { return sTemporarySubFolder; }
+
+    private:
+      string_t sTemporarySubFolder;
     };
 
 

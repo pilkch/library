@@ -1,6 +1,8 @@
 #ifndef SINGLETON_H
 #define SINGLETON_H
 
+// TODO: Move this to algorithm/
+
 namespace spitfire
 {
   namespace util
@@ -8,7 +10,8 @@ namespace spitfire
     template <class T>
     class singleton {
     public:
-      static T& Get() {
+      static T& Get()
+      {
         static T _instance;
         return _instance;
       }

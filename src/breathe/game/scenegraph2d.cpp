@@ -345,7 +345,7 @@ namespace breathe
 
     void cGeometryBufferNode::AddRectangle(const math::cVec2& p0, const math::cVec2& p1, const math::cVec2& p2, const math::cVec2& p3, const math::cVec2& uv0, const math::cVec2& uv1, const math::cVec2& uv2, const math::cVec2& uv3)
     {
-      ... todo check this
+      // TODO: check this
       ASSERT(false);
       AddTriangle(p0, p1, p2, uv0, uv1, uv2);
       AddTriangle(p1, p2, p3, uv1, uv2, uv3);
@@ -353,7 +353,7 @@ namespace breathe
 
     void cGeometryBufferNode::AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p3, const math::cVec2& uv0, const math::cVec2& uv3)
     {
-      ... todo check this
+      // TODO: check this
       ASSERT(false);
       const math::cVec2 p1(p0.x, p3.y);
       const math::cVec2 p2(p3.x, p0.y);
@@ -366,7 +366,7 @@ namespace breathe
 
     void cGeometryBufferNode::AddAxisAlignedRectangle(const math::cVec2& p0, const math::cVec2& p1)
     {
-      ... todo check this
+      // TODO: check this
       ASSERT(false);
       const math::cVec2 uv0(0.0f, 1.0f);
       const math::cVec2 uv1(0.0f, 1.0f);
