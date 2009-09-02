@@ -7,6 +7,9 @@ namespace spitfire
   {
     class cLockObject;
 
+    void SetMainThread();
+    bool IsMainThread();
+
     inline void SleepThisThread(uint32_t milliseconds)
     {
       boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));

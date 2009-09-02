@@ -122,6 +122,21 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 
+// Thread local storage
+// NOTE: This is only for POD types
+// http://en.wikipedia.org/wiki/Thread-local_storage
+
+// Again Visual Studio does it's own thing
+#ifdef _MSC_VER
+#define THREAD_LOCAL __declspec( thread )
+#else
+#define THREAD_LOCAL __thread
+#endif
+
+// This is basically for documenting that a static/global variable is shared between threads (It shouldn't be used much at all, THREAD_LOCAL should basically be the default)
+#define THREAD_GLOBAL
+
+
 // *** Types
 
 // Now taken directly from math.h/cmath because of a name clash

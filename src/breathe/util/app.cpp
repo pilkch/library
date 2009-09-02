@@ -544,6 +544,9 @@ namespace breathe
     CONSOLE.SetApp(this);
     filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
+    // Set our main thread identifier so that when we call IsMainThread later it will work correctly
+    spitfire::util::SetMainThread();
+
 #ifdef BUILD_DEBUG
     SanityCheck();
 #endif

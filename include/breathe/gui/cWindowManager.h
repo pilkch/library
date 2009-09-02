@@ -45,8 +45,8 @@ namespace breathe
       bool RemoveChild(cWindow* pChild);
 
       // For overriding the gui with team colours for example
-      void SetColourDefault() { colour.Set(0.5f, 0.5f, 0.5f, 0.5f); }
-      void SetColourRGB(const math::cColour& _colour) { colour.Set(_colour.r, _colour.g, _colour.b, 0.5f); }
+      void SetColourDefault() { colour.SetRGBA(0.5f, 0.5f, 0.5f, 0.5f); }
+      void SetColourRGB(const math::cColour& _colour) { colour.SetRGBA(_colour.r, _colour.g, _colour.b, 0.5f); }
 
     private:
       cWindow* _FindWindowUnderPoint(float x, float y) const;

@@ -173,8 +173,8 @@ namespace breathe
       void RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderMesh(model::cMeshRef pMesh);
-      unsigned int RenderStaticModel(model::cStaticRef p);
-      unsigned int RenderStaticModel(model::cStaticRef p, const math::cColour& colour);
+      size_t RenderStaticModel(model::cStaticRef p);
+      size_t RenderStaticModel(model::cStaticRef p, const math::cColour& colour);
 
       void PushScreenSpacePosition(float x, float y);
       void PopScreenSpacePosition();

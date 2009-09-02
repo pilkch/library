@@ -550,7 +550,7 @@ namespace breathe
 
         particle.fWidth = 180.0f;
         particle.fHeight = particle.fWidth;
-        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+        particle.colour.SetRGB(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f));
 
         particle.SetLife(100);
 
@@ -574,7 +574,7 @@ namespace breathe
 
         particle.fWidth = 50.0f;
         particle.fHeight = particle.fWidth;
-        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+        particle.colour.SetRGB(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f));
 
         particle.SetLife(100);
 
@@ -598,7 +598,7 @@ namespace breathe
 
         particle.fWidth = spitfire::math::randomf(4.0f, 6.0f);
         particle.fHeight = particle.fWidth;
-        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+        particle.colour.SetRGB(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f));
 
         particle.SetLife(100);
 
@@ -620,7 +620,7 @@ namespace breathe
 
         particle.fWidth = spitfire::math::randomf(5.0f);
         particle.fHeight = particle.fWidth;
-        particle.colour.Set(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), 1.0f);
+        particle.colour.SetRGB(spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f), spitfire::math::randomf(1.0f));
 
         particle.SetLife(100);
 

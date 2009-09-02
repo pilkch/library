@@ -1,99 +1,114 @@
 <html>
-	<head><title>Breathe Game Engine and Spitfire Utility Library</title></head>
-	<body>
-		<h3>
-			Chris Pilkington<br />
-			Copyright (C) 2005-2007<br />
-			<a href="http://chris.iluo.net/">http://chris.iluo.net/</a>
-		</h3>
+  <head><title>Breathe Game Engine and Spitfire Utility Library</title></head>
+  <body>
+    <h3>
+      Chris Pilkington<br />
+      Copyright (C) 2005-2007<br />
+      <a href="http://chris.iluo.net/">http://chris.iluo.net/</a>
+    </h3>
 
-		<h3>License</h3>
-		<p>
-			This library is free software; you can redistribute it and/or<br />
-			modify it under the terms of the GNU Lesser General Public<br />
-			License as published by the Free Software Foundation; either<br />
-			version 2.1 of the License, or (at your option) any later version.
-		</p>
-		<p>
-			This library is distributed in the hope that it will be useful,<br />
-			but WITHOUT ANY WARRANTY; without even the implied warranty of<br />
-			MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU<br />
-			Lesser General Public License for more details.
-		</p>
-		<p>
-			You should have received a copy of the GNU Lesser General Public<br />
-			License along with this library; if not, write to the Free Software<br />
-			Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA<br />
-		</p>
+    <h3>License</h3>
+    <p>
+      This library is free software; you can redistribute it and/or<br />
+      modify it under the terms of the GNU Lesser General Public<br />
+      License as published by the Free Software Foundation; either<br />
+      version 2.1 of the License, or (at your option) any later version.
+    </p>
+    <p>
+      This library is distributed in the hope that it will be useful,<br />
+      but WITHOUT ANY WARRANTY; without even the implied warranty of<br />
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU<br />
+      Lesser General Public License for more details.
+    </p>
+    <p>
+      You should have received a copy of the GNU Lesser General Public<br />
+      License along with this library; if not, write to the Free Software<br />
+      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA<br />
+    </p>
 
-		<h3>Building on Linux (Fedora 8 used)</h3>
-		<p>
-			Create a new autoconf/automake project<br />
-			Use yum to get all required libraries such as<br />
-			<ul>
-				<li>yum install SDL-devel</li>
-				<li>yum install SDL-image</li>
-				<li>yum install SDL-ttf</li>
-				<li>yum install SDL-net</li>
-			</ul>
-		</p>
+    <h3>Getting a copy of the project on Linux (Fedora 8 used)</h3>
+    <p>
+      Pull this project:<br />
+      yum install git<br />
+      OR<br />
+      sudo apt-get install git-core<br />
 
-		<h3>Usage</h3>
-		<p>
-			Put the whole library folder somewhere on your hard drive.<br />
-			Add to your build paths:<br />
-			library/include<br />
-			library/src<br />
-			library/lib<br />
-			Include required files from the library, add any required lib files to the project<br />
-			Setup any required build flags<br />
-			Compile
-		<p>
+      mkdir library<br />
+      cd library<br />
 
-		<h3>Build Flags</h3>
-		<p>
-			UNICODE<br />
-			BUILD_PHYSICS_3D<br />
-			BUILD_PHYSICS_2D<br />
-			BUILD_LEVEL<br />
-		</p>
+      git clone git://breathe.git.sourceforge.net/gitroot/breathe/breathe<br />
+      OR<br />
+      git clone ssh://pilkch@breathe.git.sourceforge.net/gitroot/breathe/breathe<br />
+    </p>
 
-		<h3>Spitfire Utility Library</h3>
-		<p>
-			algorithm<br/>
-			math<br/>
-			platform<br/>
-			storage<br/>
-			util<br/>
-		</p>
-		<p>
-			Spitfire provides all the basic functionality required for an application.  It doesn't have any dependencies on third party libraries (Apart from native OS libraries) and doesn't force you to say, derive your application from a base class or structure your code in a particular way.  Because it is so loosely coupled, you can easily just use the parts of Spitfire that you need and nothing more, and it can be used in any type of application; service, gui, fullscreen game or wxWidgets/Qt/GTK.
-		</p>
+    <h3>Building on Linux (Fedora 8 used)</h3>
+    <p>
+      Use a cmake file as used in Sudoku and Drive<br />
+      Use yum to get all required libraries such as<br />
+      <ul>
+        <li>yum install SDL-devel</li>
+        <li>yum install SDL-image</li>
+        <li>yum install SDL-ttf</li>
+        <li>yum install SDL-net</li>
+      </ul>
+    </p>
 
-		<h3>Breathe Game Engine</h3>
-		<p>
-			audio<br/>
-			communication<br/>
-			game<br/>
-			gui<br/>
-			loader_3ds<br/>
-			physics<br/>
-			render<br/>
-			vehicle<br/>
-		</p>
-		<p>
-			 Breathe makes heavy use of spitfire for basic functionality such as string utilities, filesystem functions and math library.  It then extends these to add a scenegraph, OpenGL rendering and OpenAL audio to create a game engine.  Breathe is only meant for game programming (Or at least applications that use SDL and create an OpenGL context for example editors) and is much more heavy handed in how you can use its classes.  They often derive from the SDL thread wrapper cThread and assume that you want to use the various third party libraries, locking you in.  Breathe started out as (And still is) a monolithic game engine library containing all of the Spitfire classes as well.  There is still some overlap, but in the future the split will be more pronounced and we will have two separate libraries.  Eventualy all Spitfire classes will be in their own namespace ("spitfire") and the transformation will be complete.
-		</p>
+    <h3>Usage</h3>
+    <p>
+      Put the whole library folder somewhere on your hard drive.<br />
+      Add to your build paths:<br />
+      library/include<br />
+      library/src<br />
+      library/lib<br />
+      Include required files from the library, add any required lib files to the project<br />
+      Setup any required build flags<br />
+      Compile
+    <p>
 
-		<strong>TODO: Draw relationship diagram from sheet of paper</strong>
+    <h3>Build Flags</h3>
+    <p>
+      UNICODE<br />
+      BUILD_PHYSICS_3D<br />
+      BUILD_PHYSICS_2D<br />
+      BUILD_LEVEL<br />
+    </p>
+
+    <h3>Spitfire Utility Library</h3>
+    <p>
+      algorithm<br/>
+      math<br/>
+      platform<br/>
+      storage<br/>
+      util<br/>
+    </p>
+    <p>
+      Spitfire provides all the basic functionality required for an application.  It doesn't have any dependencies on third party libraries (Apart from native OS libraries) and doesn't force you to say, derive your application from a base class or structure your code in a particular way.  Because it is so loosely coupled, you can easily just use the parts of Spitfire that you need and nothing more, and it can be used in any type of application; service, gui, fullscreen game or wxWidgets/Qt/GTK.
+    </p>
+
+    <h3>Breathe Game Engine</h3>
+    <p>
+      audio<br/>
+      communication<br/>
+      game<br/>
+      gui<br/>
+      loader_3ds<br/>
+      physics<br/>
+      render<br/>
+      vehicle<br/>
+    </p>
+    <p>
+       Breathe makes heavy use of spitfire for basic functionality such as string utilities, filesystem functions and math library.  It then extends these to add a scenegraph, OpenGL rendering and OpenAL audio to create a game engine.  Breathe is only meant for game programming (Or at least applications that use SDL and create an OpenGL context for example editors) and is much more heavy handed in how you can use its classes.  They often derive from the SDL thread wrapper cThread and assume that you want to use the various third party libraries, locking you in.  Breathe started out as (And still is) a monolithic game engine library containing all of the Spitfire classes as well.  There is still some overlap, but in the future the split will be more pronounced and we will have two separate libraries.  Eventualy all Spitfire classes will be in their own namespace ("spitfire") and the transformation will be complete.
+    </p>
+
+    <strong>TODO: Draw relationship diagram from sheet of paper</strong>
 
 
-		<h3>Credit</h3>
-		<p>
-			Breathe and Spitfire are created by me, Christopher Pilkington.  <br />
-			For the parts that are not mine, I try to keep an up to date list of any third party libraries that I use.  <br />
-			I only use libraries that are license under either the GPL, LGPL or similar and am eternally grateful for the high quality ease of use and generosity of the open source community.
-		</p>
+    <h3>Credit</h3>
+    <p>
+      Breathe and Spitfire are created by me, Christopher Pilkington.  <br />
+      For the parts that are not mine, I try to keep an up to date list of any third party libraries that I use.  <br />
+      I only use libraries that are license under either the GPL, LGPL or similar and am eternally grateful for the high quality ease of use and generosity of the open source community.
+    </p>
 
     <p>
       Box2D<br />
@@ -102,43 +117,43 @@
       <a href="http://www.gphysics.com/">http://www.gphysics.com/</a>
     </p>
 
-		<p>
-			Open Dynamics Engine<br />
-			Copyright (C) 2001-2003 Russell L. Smith<br />
-			All rights reserved<br />
+    <p>
+      Open Dynamics Engine<br />
+      Copyright (C) 2001-2003 Russell L. Smith<br />
+      All rights reserved<br />
       <a href="http://www.q12.org/">http://www.q12.org/</a>
-		</p>
+    </p>
 
-			SDL - Simple DirectMedia Layer<br />
-			Copyright (C) 1997-2006 Sam Lantinga<br />
-			Sam Lantinga<br />
+      SDL - Simple DirectMedia Layer<br />
+      Copyright (C) 1997-2006 Sam Lantinga<br />
+      Sam Lantinga<br />
       <a href="http://www.libsdl.org/">http://www.libsdl.org/</a>
-		</p>
+    </p>
 
-			FreeType
-			Copyright 1996-2001, 2006 by<br />
-			David Turner, Robert Wilhelm, and Werner Lemberg<br />
+      FreeType
+      Copyright 1996-2001, 2006 by<br />
+      David Turner, Robert Wilhelm, and Werner Lemberg<br />
       <a href="http://www.freetype.org/">http://www.freetype.org/</a>
-		</p>
+    </p>
 
-		<p>
-			3DS File Loader<br />
-			genjix@gmail.com<br />
+    <p>
+      3DS File Loader<br />
+      genjix@gmail.com<br />
       <a href="http://sourceforge.net/projects/scene3ds">http://sourceforge.net/projects/scene3ds</a><br />
       <a href="http://www.gamedev.net/community/forums/topic.asp?topic_id=313126">http://www.gamedev.net/community/forums/topic.asp?topic_id=313126</a>
-		</p>
+    </p>
 
-		<p>
-			MD5 RFC 1321 compliant MD5 implementation<br />
-			Copyright (C) 2001-2003 Christophe Devine
-		</p>
+    <p>
+      MD5 RFC 1321 compliant MD5 implementation<br />
+      Copyright (C) 2001-2003 Christophe Devine
+    </p>
 
-		<p>
-			Memory manager & tracking software<br />
-			Paul Nettle<br />
-			Copyright 2000, Fluid Studios<br />
-			All rights reserved<br />
+    <p>
+      Memory manager &amp; tracking software<br />
+      Paul Nettle<br />
+      Copyright 2000, Fluid Studios<br />
+      All rights reserved<br />
       <a href="http://www.FluidStudios.com">http://www.FluidStudios.com</a>
-		</p>
-	</body>
+    </p>
+  </body>
 </html>

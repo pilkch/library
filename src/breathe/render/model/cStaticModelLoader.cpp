@@ -88,8 +88,10 @@ namespace breathe
         bool Save(const string_t& sFilename, const cStaticModel& model) const;
 
       private:
+        bool SkipJunk(const std::string& sFirstToken) const;
+
         bool LoadMaterialList(const string_t& sFilename, std::map<string_t, string_t>& materials) const;
-        size_t LoadMesh(const std::vector<std::string> lines, size_t i, const size_t n, cStaticModelMesh& mesh) const;
+        size_t LoadMesh(const std::vector<std::string> lines, size_t i, const size_t n, std::vector<float>& vertices, std::vector<float>& textureCoordinates, std::vector<float>& normals, cStaticModelMesh& mesh) const;
       };
 
 
@@ -123,14 +125,17 @@ namespace breathe
 
       // *** cFileFormatOBJ
 
-      size_t cFileFormatOBJ::LoadMesh(const std::vector<std::string> lines, size_t i, const size_t n, cStaticModelMesh& mesh) const
+      bool cFileFormatOBJ::SkipJunk(const std::string& sFirstToken) const
       {
+        return (sFirstToken == "#") || (sFirstToken == "mtllib");
+      }
+
+      size_t cFileFormatOBJ::LoadMesh(const std::vector<std::string> lines, size_t i, const size_t n, std::vector<float>& vertices, std::vector<float>& textureCoordinates, std::vector<float>& normals, cStaticModelMesh& mesh) const
+      {
+        LOG<<"cFileFormatOBJ::LoadMesh i="<<i<<" n="<<n<<std::endl;
+
         mesh.Clear();
 
-
-        std::vector<float> vertices;
-        std::vector<float> textureCoordinates;
-        std::vector<float> normals;
 
         std::vector<float> verticesIndices;
         std::vector<float> textureCoordinatesIndices;
@@ -143,8 +148,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "o") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"o\""<<std::endl;
@@ -163,8 +168,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "v") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"v\""<<std::endl;
@@ -187,8 +192,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "vt") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"vt\""<<std::endl;
@@ -211,8 +216,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "vn") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"vn\""<<std::endl;
@@ -236,8 +241,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "usemtl") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"usemtl\""<<std::endl;
@@ -260,8 +265,8 @@ namespace breathe
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "s") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"s\""<<std::endl;
@@ -280,13 +285,12 @@ namespace breathe
         }
 
         // Read faces into indices
-        std::vector<std::string> faces;
         for (; i < n; i++) {
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
-          // Skip comment lines
-          if (tokens[0] == "#") continue;
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "f") {
             LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"f\""<<std::endl;
@@ -304,7 +308,10 @@ namespace breathe
             for (size_t j = 0; j < k; j++) {
               std::vector<std::string> elements;
               spitfire::string::Split(tokens[j + 1], '/', elements);
-              if (elements.empty()) continue;
+              if (elements.empty()) {
+                LOG<<"Pushing back \""<<tokens[j + 1]<<"\""<<std::endl;
+                elements.push_back(tokens[j + 1]);
+              }
 
               const size_t l = elements.size();
               ASSERT(l >= 1);
@@ -330,85 +337,101 @@ namespace breathe
               }
             }
           }
-
-
-
-
-
-          // Now convert from indices into vertices, texture coordinates and normals into actual vertices, texture coordinates and normals
-          const size_t verticesSize = vertices.size();
-          const size_t textureCoordinatesSize = textureCoordinates.size();
-          const size_t normalsSize = normals.size();
-
-          const size_t verticesIndicesSize = verticesIndices.size();
-          const size_t textureCoordinatesIndicesSize = textureCoordinatesIndices.size();
-          const size_t normalsIndicesSize = normalsIndices.size();
-          LOG<<"Before Vertices="<<verticesIndicesSize<<", TextureCoordinates="<<textureCoordinatesIndicesSize<<", Normals="<<normalsIndicesSize<<std::endl;
-
-          // Convert indices to vertices
-          if (verticesIndicesSize != 0) {
-            std::vector<float_t> tempVertices;
-
-            for (size_t i = 0; i < verticesIndicesSize; i++) {
-              const size_t index = verticesIndices[i];
-              ASSERT(index != 0);
-
-              for (size_t offset = 3 * (index - 1); offset < (3 * (index - 1)) + 3; offset++) {
-                LOG<<"offset="<<offset<<std::endl;
-                ASSERT(offset < verticesSize);
-                LOG<<"vertices["<<offset<<"]="<<vertices[offset]<<std::endl;
-                tempVertices.push_back(vertices[offset]);
-              }
-            }
-
-            mesh.vertices = tempVertices;
-          }
-
-          // Convert indices to texture coordinates
-          if (textureCoordinatesIndicesSize != 0) {
-            std::vector<float_t> tempTextureCoordinates;
-
-            for (size_t i = 0; i < textureCoordinatesIndicesSize; i++) {
-              const size_t index = textureCoordinatesIndices[i];
-              ASSERT(index != 0);
-
-              for (size_t offset = 2 * (index - 1); offset < (2 * (index - 1)) + 2; offset++) {
-                LOG<<"offset="<<offset<<std::endl;
-                ASSERT(offset < textureCoordinatesSize);
-                LOG<<"textureCoordinates["<<offset<<"]="<<textureCoordinates[offset]<<std::endl;
-                tempTextureCoordinates.push_back(textureCoordinates[offset]);
-              }
-            }
-
-            mesh.textureCoordinates = tempTextureCoordinates;
-          }
-
-          // Convert indices to normals
-          if (normalsIndicesSize != 0) {
-            std::vector<float_t> tempNormals;
-
-            for (size_t i = 0; i < normalsIndicesSize; i++) {
-              const size_t index = normalsIndices[i];
-              ASSERT(index != 0);
-
-              for (size_t offset = 3 * (index - 1); offset < (3 * (index - 1)) + 3; offset++) {
-                LOG<<"offset="<<offset<<std::endl;
-                ASSERT(offset < normalsSize);
-                LOG<<"normals["<<offset<<"]="<<normals[offset]<<std::endl;
-                tempNormals.push_back(normals[offset]);
-              }
-            }
-
-            mesh.normals = tempNormals;
-          }
-
-          {
-            const size_t a = mesh.vertices.size();
-            const size_t b = mesh.textureCoordinates.size();
-            const size_t c = mesh.normals.size();
-            LOG<<"Before Vertices="<<a<<", TextureCoordinates="<<b<<", Normals="<<c<<std::endl;
-          }
         }
+
+
+
+
+        // Now convert from indices into vertices, texture coordinates and normals into actual vertices, texture coordinates and normals
+        const size_t verticesSize = vertices.size();
+        const size_t textureCoordinatesSize = textureCoordinates.size();
+        const size_t normalsSize = normals.size();
+
+        const size_t verticesIndicesSize = verticesIndices.size();
+        const size_t textureCoordinatesIndicesSize = textureCoordinatesIndices.size();
+        const size_t normalsIndicesSize = normalsIndices.size();
+        LOG<<"Before Vertices="<<verticesSize<<", TextureCoordinates="<<textureCoordinatesSize<<", Normals="<<normalsSize<<" VerticesIndices="<<verticesIndicesSize<<", TextureCoordinatesIndices="<<textureCoordinatesIndicesSize<<", NormalsIndices="<<normalsIndicesSize<<std::endl;
+
+        // Convert indices to vertices
+        if (verticesIndicesSize != 0) {
+          std::vector<float_t> tempVertices;
+
+          for (size_t i = 0; i < verticesIndicesSize; i++) {
+            size_t index = verticesIndices[i];
+            if (index != 0) index--;
+
+            for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {
+              //LOG<<"offset="<<offset<<std::endl;
+              if (offset >= verticesSize) {
+                LOG<<"index="<<index<<" offset="<<offset<<" verticesSize="<<verticesSize<<std::endl;
+                ASSERT(offset < verticesSize);
+              }
+              ASSERT(offset < verticesSize);
+              //LOG<<"vertices["<<offset<<"]="<<vertices[offset]<<std::endl;
+              tempVertices.push_back(vertices[offset]);
+            }
+          }
+
+          mesh.vertices = tempVertices;
+        }
+
+
+        // Convert indices to texture coordinates
+        if (textureCoordinatesIndicesSize != 0) {
+          std::vector<float_t> tempTextureCoordinates;
+
+          for (size_t i = 0; i < textureCoordinatesIndicesSize; i++) {
+            size_t index = textureCoordinatesIndices[i];
+            if (index != 0) index--;
+
+            for (size_t offset = 2 * index; offset < (2 * index) + 2; offset++) {
+              //LOG<<"offset="<<offset<<std::endl;
+              ASSERT(offset < textureCoordinatesSize);
+              //LOG<<"textureCoordinates["<<offset<<"]="<<textureCoordinates[offset]<<std::endl;
+              tempTextureCoordinates.push_back(textureCoordinates[offset]);
+            }
+          }
+
+          mesh.textureCoordinates = tempTextureCoordinates;
+        }
+
+        // We always want to have enough texture coordinates so we invent more if needed
+        // This is just a hack so that we never have to disable texturing, but the model should
+        // really include enough texture coordinates instead
+        const size_t nVertices = mesh.vertices.size() / 3;
+        for (size_t iTextureCoordinate = mesh.textureCoordinates.size() / 2; iTextureCoordinate < nVertices; iTextureCoordinate++) {
+          mesh.textureCoordinates.push_back(math::randomZeroToOnef());
+          mesh.textureCoordinates.push_back(math::randomZeroToOnef());
+        }
+
+
+        // Convert indices to normals
+        if (normalsIndicesSize != 0) {
+          std::vector<float_t> tempNormals;
+
+          for (size_t i = 0; i < normalsIndicesSize; i++) {
+            size_t index = normalsIndices[i];
+            if (index != 0) index--;
+
+            for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {
+              //LOG<<"offset="<<offset<<std::endl;
+              ASSERT(offset < normalsSize);
+              //LOG<<"normals["<<offset<<"]="<<normals[offset]<<std::endl;
+              tempNormals.push_back(normals[offset]);
+            }
+          }
+
+          mesh.normals = tempNormals;
+        }
+
+        {
+          const size_t a = mesh.vertices.size();
+          const size_t b = mesh.textureCoordinates.size();
+          const size_t c = mesh.normals.size();
+          LOG<<"After Vertices="<<a<<", TextureCoordinates="<<b<<", Normals="<<c<<std::endl;
+        }
+
+        LOG<<"cFileFormatOBJ::LoadMesh returning"<<std::endl;
 
         return i;
       }
@@ -448,11 +471,24 @@ namespace breathe
 
         if (lines.empty()) return false;
 
+        std::vector<float> vertices;
+        std::vector<float> textureCoordinates;
+        std::vector<float> normals;
+
         const size_t n = lines.size();
         for (size_t i = 0; i < n; i++) {
+          std::vector<std::string> tokens;
+          spitfire::string::Split(lines[i], ' ', tokens);
+          if (tokens.empty()) continue;
+
+          // Skip anything we can't parse
+          if (SkipJunk(tokens[0])) continue;
+
+
+          // Ok, we might have a valid mesh
           cStaticModelMesh* pMesh = new cStaticModelMesh;
 
-          i = LoadMesh(lines, i, n, *pMesh);
+          i = LoadMesh(lines, i, n, vertices, textureCoordinates, normals, *pMesh);
 
           if (pMesh->vertices.empty()) SAFE_DELETE(pMesh);
           else {
@@ -471,6 +507,9 @@ namespace breathe
             // Add the mesh to the mesh list
             model.mesh.push_back(pMesh);
           }
+
+          // This is a dodgy hack to avoid incrementing i, which would accidentally skip the first "v" of the next model
+          if (i != 0) i--;
         }
 
         const size_t nMeshes = model.mesh.size();

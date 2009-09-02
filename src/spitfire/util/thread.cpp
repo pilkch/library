@@ -27,6 +27,33 @@ namespace spitfire
 {
   namespace util
   {
+    boost::thread::id idThreadMain;
+
+    //pthread_t idThreadMain = 0;
+
+    void SetMainThread()
+    {
+      ASSERT(idThreadMain == boost::thread::id());
+      idThreadMain = boost::this_thread::get_id();
+
+      //ASSERT(idThreadMain == 0);
+      //idThreadMain = pthread_self();
+    }
+
+    bool IsMainThread()
+    {
+      ASSERT(idThreadMain != boost::thread::id());
+      const boost::thread::id idThread = boost::this_thread::get_id();
+      return (idThread == idThreadMain);
+
+      //ASSERT(idThreadMain != 0);
+      //const pthread_t idThread = pthread_self();
+      //return (pthread_equal(idThread, idThreadMain) != 0);
+    }
+
+
+    // *** cThread
+
     void cThread::Run()
     {
       cThread* pThis = this;

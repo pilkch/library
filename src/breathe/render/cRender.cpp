@@ -255,13 +255,12 @@ namespace breathe
 
       sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
-      unsigned int i = 0;
-      for (i=0;i<nAtlas;i++) {
+      for (size_t i = 0; i < nAtlas; i++) {
         cTextureAtlasRef pNewTextureAtlas(new cTextureAtlas(i));
         vTextureAtlas.push_back(pNewTextureAtlas);
       }
 
-      for (i=0;i<material::nLayers;i++) {
+      for (size_t i = 0; i < material::nLayers; i++) {
         material::cLayer layer;
         vLayer.push_back(layer);
       }
@@ -271,8 +270,7 @@ namespace breathe
     {
       //TODO: Delete materials and shader objects and atlases etc.
 
-      unsigned int i = 0;
-      for (i=0;i<nAtlas;i++) vTextureAtlas[i].reset();
+      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i].reset();
       vTextureAtlas.clear();
 
       vLayer.clear();
@@ -310,7 +308,7 @@ namespace breathe
     bool cRender::FindExtension(const string_t& sExt) const
     {
       std::ostringstream t;
-      t<<const_cast<const unsigned char*>(glGetString( GL_EXTENSIONS ));
+      t<<const_cast<const unsigned char*>(glGetString(GL_EXTENSIONS));
 
       return (breathe::string::ToString_t(t.str()).find(sExt) != string_t::npos);
     }
@@ -535,11 +533,11 @@ namespace breathe
 
       glLightfv(GL_LIGHT0, GL_POSITION, sunPosition);
 
-      glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
-      glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-      glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
+      glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient.GetPointerConst());
+      glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse.GetPointerConst());
+      glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular.GetPointerConst());
 
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightModelAmbient);
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightModelAmbient.GetPointerConst());
 
       glEnable(GL_LIGHTING);
       glEnable(GL_LIGHT0);
@@ -547,8 +545,8 @@ namespace breathe
       glEnable(GL_COLOR_MATERIAL);
       glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-      glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
-      glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission);
+      glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular.GetPointerConst());
+      glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission.GetPointerConst());
 
 
       if (!GLeeInit()) {
@@ -1100,7 +1098,7 @@ namespace breathe
       glEnd();
     }
 
-    unsigned int cRender::RenderStaticModel(model::cStaticRef p)
+    size_t cRender::RenderStaticModel(model::cStaticRef p)
     {
       if (nullptr == p) return 0;
 
@@ -1124,11 +1122,11 @@ namespace breathe
       return uiTriangles;
     }
 
-    unsigned int cRender::RenderStaticModel(model::cStaticRef p, const math::cColour& colour)
+    size_t cRender::RenderStaticModel(model::cStaticRef p, const math::cColour& colour)
     {
       SetColour(colour);
 
-      unsigned int uiTriangles = RenderStaticModel(p);
+      size_t uiTriangles = RenderStaticModel(p);
 
       ClearColour();
 
@@ -2340,8 +2338,7 @@ namespace breathe
 
       unit = GL_TEXTURE0_ARB + n;
 
-      for (i=n;i<material::nLayers;i++, unit++)
-      {
+      for (i = n;i < material::nLayers;i++, unit++) {
         layerNew = pMaterial->vLayer[i];
         layerOld = &vLayer[i];
 
@@ -2349,15 +2346,13 @@ namespace breathe
         glActiveTexture(unit);
 
         //Undo last mode
-        if (TEXTURE_MASK==layerOld->uiTextureMode ||
-            TEXTURE_BLEND==layerOld->uiTextureMode)
-        {
+        if (
+          (TEXTURE_MASK == layerOld->uiTextureMode) ||
+          (TEXTURE_BLEND == layerOld->uiTextureMode)) {
           glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
           glBlendFunc(GL_ONE, GL_ZERO);
           glDisable(GL_BLEND);
-        }
-        else if (TEXTURE_DETAIL==layerOld->uiTextureMode)
-        {
+        } else if (TEXTURE_DETAIL == layerOld->uiTextureMode) {
           // Change the texture matrix so that we have more detail than normal texture
           glMatrixMode(GL_TEXTURE);
             glLoadIdentity();
@@ -2366,9 +2361,7 @@ namespace breathe
           // General Switches
           glDisable(GL_BLEND);
           //glEnable(GL_LIGHTING);
-        }
-        else if (TEXTURE_CUBEMAP==layerOld->uiTextureMode)
-        {
+        } else if (TEXTURE_CUBEMAP == layerOld->uiTextureMode) {
           glMatrixMode(GL_TEXTURE);
           glPopMatrix();
 
@@ -2398,12 +2391,10 @@ namespace breathe
 
         if (TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
         {
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
+          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
 
           glColor4f(colour.r, colour.g, colour.b, colour.a);
-        }
-        else
-        {
+        } else {
           float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
           glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
         }
@@ -2454,7 +2445,7 @@ namespace breathe
           if (  TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour &&
               !TEXTURE_DETAIL==vLayer[1].uiTextureMode)
           {
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
             glColor4f(colour.r, colour.g, colour.b, colour.a);
           }
           else
@@ -2477,7 +2468,7 @@ namespace breathe
         glActiveTexture(GL_TEXTURE0_ARB);
         if (TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
         {
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour);
+          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
 
           glColor4f(colour.r, colour.g, colour.b, colour.a);
         }

@@ -14,7 +14,14 @@ namespace spitfire
       explicit cColour(const float* rhs);
       cColour(const cColour& rhs);
 
-      void Set(float newR, float newG, float newB, float newA); // set member variables
+      inline void Clear() { r = g = b = a = 0.0f; }
+
+      void SetRGB(float newR, float newG, float newB); // Set values, a is set to 1.0f
+      void SetRGBA(float newR, float newG, float newB, float newA); // Set values
+
+      inline void SetBlack() { r = g = b = a = 1.0f; }
+      inline void SetWhite() { r = g = b = a = 0.0f; }
+      inline void SetGrey(float fShade) { r = g = b = a = fShade; Clamp(); }
 
       // accessors kept for compatability
       inline void SetR(float newR) { r = newR; }
@@ -30,16 +37,10 @@ namespace spitfire
       float GetGreyScale() const;
       float GetLuminance0To1() const;
 
-      inline void Clear() { r = g = b = a = 0.0f; }
-
-      inline void SetBlack() { r = g = b = a = 1.0f; }
-      inline void SetWhite() { r = g = b = a = 0.0f; }
-      inline void SetGrey(float fShade) { r = g = b = a = fShade; Clamp(); }
-
       void Clamp(); // clamp all components to [0,1]
 
       // linear interpolate
-      cColour lerp(const cColour& c2, float factor);
+      cColour lerp(const cColour& c2, float factor) const;
 
       // binary operators
       cColour operator+(const cColour& rhs) const;
@@ -61,14 +62,13 @@ namespace spitfire
       cColour operator/=(const float rhs);
 
       // unary operators
-      cColour operator-() const {return cColour(-r,-g, -b, -a);}
-      cColour operator+() const {return (*this);}
+      cColour operator-() const { return cColour(-r, -g, -b, -a); }
+      cColour operator+() const { return (*this); }
 
-      // cast to pointer to float for glColor4fv etc
-      operator float* () const {return (float*) this;}
-      operator const float* () const {return (const float*) this;}
+      // Get a pointer to float for glColor4fv etc.
+      const float* GetPointerConst() const { return (const float*)this; }
 
-      // member variables
+
       float r;
       float g;
       float b;
