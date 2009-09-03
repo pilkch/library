@@ -124,6 +124,63 @@ namespace spitfire
       lock(_mutex.mutex)
     {
     }
+
+
+
+#if 0
+    // Do we even need signal objects?  Can't we simulate them with a mutex, a lock and a bit of data (bool bIsSignalled)?
+
+    // http://www.boost.org/doc/libs/1_40_0/doc/html/thread/synchronization.html#thread.synchronization.condvar_ref
+
+    class cSignalObject
+    {
+    public:
+      explicit cSignalObject(cMutex& mutex);
+
+      bool IsSignalled();
+
+      void Signal();
+      void Reset();
+
+      void WaitSignalForever();
+
+      bool WaitSignalTimeOut(uint32_t uTimeOutMS);
+
+    private:
+      cMutex& mutex;
+
+      boost::condition_variable condition;
+    };
+
+    cSignalObject::cSignalObject(cMutex& _mutex) :
+      mutex(_mutex)
+    {
+    }
+
+    bool cSignalObject::IsSignalled()
+    {
+      return WaitSignalTimeOut(0);
+    }
+
+    void cSignalObject::Signal()
+    {
+      condition.notify_all();
+    }
+
+    void cSignalObject::WaitSignalForever()
+    {
+        boost::unique_lock<boost::mutex> lock(mut);
+
+        cond.wait(lock);
+    }
+
+    void cSignalObject::WaitSignalTimeOut(uint32_t uTimeOutMS)
+    {
+      boost::unique_lock<boost::mutex> lock(mut);
+
+      cond.timed_wait(lock, boost::duration_type const& rel_time);
+    }
+#endif
   }
 }
 

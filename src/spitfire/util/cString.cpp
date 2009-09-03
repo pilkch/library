@@ -791,5 +791,112 @@ namespace spitfire
     {
       return gSpecialCharacterEncoder.HTMLEncode(source);
     }
+
+
+    // http://en.wikipedia.org/wiki/Binary_prefix#IEC_standard_prefixes
+    string_t GetIECStringFromBytes(uint64_t nBytes)
+    {
+      // If less than 1024 then default to "bytes"
+      string_t sSuffix = TEXT(" Bytes");
+
+      /*
+      // NOTE: These are too big to fit into 64 bits, needs 128 bits upto (340282366920938463463374607431768211456) to represent them, probably not a problem, tera bytes and peta bytes are just becoming normal as of 2009, we still have exabytes after that before we run out of space in 64 bits
+      if (nBytes >= 1208925819614629174706176) {
+        nBytes /= 1208925819614629174706176;
+        sSuffix = TEXT("YiB");
+      } else if (nBytes >= 1180591620717411303424) {
+        nBytes /= 1180591620717411303424;
+        sSuffix = TEXT("ZiB");
+      } else*/ if (nBytes >= 1152921504606846976) {
+        nBytes /= 1152921504606846976;
+        sSuffix = TEXT(" EiB");
+      } else if (nBytes >= 1125899906842624) {
+        nBytes /= 1125899906842624;
+        sSuffix = TEXT(" PiB");
+      } else if (nBytes >= 1099511627776) {
+        nBytes /= 1099511627776;
+        sSuffix = TEXT(" TiB");
+      } else if (nBytes >= 1073741824) {
+        nBytes /= 1073741824;
+        sSuffix = TEXT(" GiB");
+      } else if (nBytes >= 1048576) {
+        nBytes /= 1048576;
+        sSuffix = TEXT(" MiB");
+      } else if (nBytes >= 1024) {
+        nBytes /= 1024;
+        sSuffix = TEXT(" KiB");
+      }
+
+      return string::ToString(nBytes) + sSuffix;
+    }
+
+
+
+    /*// Case is insignificant.
+    // Punctuation and symbols are significant for sorting.
+    // Digit sub-strings are sorted by numeric value rather than as characters.
+    SORT Compare(const string_t& sA, const string_t& sB)
+    {
+      const string_t sLowerA = ToLower(sA);
+      const string_t sLowerB = ToLower(sB);
+
+      if (sLowerA == sLowerB) return SORT_A_IS_EQUAL_TO_B;
+
+      sort = SORT_A_IS_LESS_THAN_B;
+
+      const size_t nA = sLowerA.length();
+      const size_t nB = sLowerB.length();
+      for (size_t i = 0, size_t j = 0; (i < nA) && (j < nB); i++, j++) {
+        const char_t cA = sLowerA[i];
+        const char_t cB = sLowerB[j];
+
+        if ( != sLowerB[j]) {
+          ...
+        }
+        ...
+      }
+
+      return SORT_A_IS_LESS_THAN_B;
+    }*/
   }
 }
+
+
+#ifdef BUILD_DEBUG
+#include <spitfire/util/log.h>
+#include <spitfire/util/unittest.h>
+
+class cStringUnitTest : protected spitfire::util::cUnitTestBase
+{
+public:
+  cStringUnitTest() :
+    cUnitTestBase(TEXT("cStringUnitTest"))
+  {
+  }
+
+  void Test()
+  {
+    ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1023) == TEXT("1023 Bytes"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1024) == TEXT("1 KiB"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1048575) == TEXT("1023 KiB"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1048576) == TEXT("1 MiB"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1073741823) == TEXT("1023 MiB"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1073741824) == TEXT("1 GiB"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1099511627775) == TEXT("1023 GiB"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1099511627776) == TEXT("1 TiB"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1125899906842623) == TEXT("1023 TiB"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1125899906842624) == TEXT("1 PiB"));
+    ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846975) == TEXT("1023 PiB"));
+
+    ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846976) == TEXT("1 EiB"));
+  }
+};
+
+cStringUnitTest gStringUnitTest;
+#endif // BUILD_DEBUG
