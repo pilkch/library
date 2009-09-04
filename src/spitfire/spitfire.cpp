@@ -19,12 +19,12 @@
 namespace spitfire
 {
 #ifndef NDEBUG
-  void InformativeAssert(bool bResult, const char* szAssert, const char* szFile, int line, const char* szFunction)
+  void InformativeAssert(bool bIsResultTrue, const char* szAssert, const char* szFile, const char* szFunction, size_t line)
   {
-    if (bResult) return;
+    if (bIsResultTrue) return;
 
     LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-    assert(bResult);
+    assert(bIsResultTrue);
   }
 #endif
 }

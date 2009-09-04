@@ -37,6 +37,14 @@ namespace spitfire
       float GetGreyScale() const;
       float GetLuminance0To1() const;
 
+
+      // Hue, saturation, luminance
+      // http://en.wikipedia.org/wiki/HSL_and_HSV
+
+      void GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const;
+      void SetRGBFromHSL(float fHue, float fSaturation, float fLuminance);
+
+
       void Clamp(); // clamp all components to [0,1]
 
       // linear interpolate
@@ -73,6 +81,9 @@ namespace spitfire
       float g;
       float b;
       float a;
+
+    private:
+      float HueToRGBForSetRGBFromHSL(float f1, float f2, float hue) const;
     };
   }
 }

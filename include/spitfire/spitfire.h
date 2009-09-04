@@ -220,7 +220,7 @@ namespace spitfire
   }
 
 #ifndef NDEBUG
-  void InformativeAssert(bool b, const char* szAssert, const char* szFile, int line, const char* szFunction);
+  void InformativeAssert(bool b, const char* szAssert, const char* szFile, const char* szFunction, size_t line);
 #endif
 }
 
@@ -234,7 +234,7 @@ namespace spitfire
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
-#define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #else
 #define ASSERT(...)
 #endif

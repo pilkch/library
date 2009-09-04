@@ -48,10 +48,10 @@ namespace spitfire
 
     cColour::cColour(const float* rhs)
     {
-      r=*rhs;
-      g=*(rhs+1);
-      b=*(rhs+2);
-      a=*(rhs+3);
+      r = rhs[0];
+      g = rhs[1];
+      b = rhs[2];
+      a = rhs[3];
 
       Clamp();
     }
@@ -64,7 +64,17 @@ namespace spitfire
     {
     }
 
-    void cColour::Set(float newR, float newG, float newB, float newA)
+    void cColour::SetRGB(float newR, float newG, float newB)
+    {
+      r = newR;
+      g = newG;
+      b = newB;
+      a = 1.0f;
+
+      Clamp();
+    }
+
+    void cColour::SetRGBA(float newR, float newG, float newB, float newA)
     {
       r = newR;
       g = newG;
@@ -82,12 +92,9 @@ namespace spitfire
       a = clamp(a, 0.0f, 1.0f);
     }
 
-    cColour cColour::lerp(const cColour& c2, float factor)
+    cColour cColour::lerp(const cColour& c2, float factor) const
     {
-      cColour result;
-      result = ((*this) * factor) + (c2 * (1.0f - factor));
-
-      return result;
+      return ((*this) * factor) + (c2 * (1.0f - factor));
     }
 
     // http://en.wikipedia.org/wiki/Grayscale
@@ -148,10 +155,10 @@ namespace spitfire
     {
       cColour result;
 
-      result.r=r*rhs;
-      result.g=g*rhs;
-      result.b=b*rhs;
-      result.a=a*rhs;
+      result.r = r * rhs;
+      result.g = g * rhs;
+      result.b = b * rhs;
+      result.a = a * rhs;
 
       result.Clamp();
 
@@ -162,10 +169,11 @@ namespace spitfire
     {
       cColour result;
 
-      result.r=r/rhs;
-      result.g=g/rhs;
-      result.b=b/rhs;
-      result.a=a/rhs;
+      const float fOneOverRhs = rhs / 1.0f;
+      result.r = r * fOneOverRhs;
+      result.g = g * fOneOverRhs;
+      result.b = b * fOneOverRhs;
+      result.a = a * fOneOverRhs;
 
       result.Clamp();
 
@@ -174,54 +182,45 @@ namespace spitfire
 
     bool cColour::operator ==(const cColour& rhs) const
     {
-      if (r != rhs.r)
-        return false;
-      if (g != rhs.g)
-        return false;
-      if (b != rhs.b)
-        return false;
-      if (a != rhs.a)
-        return false;
-
-      return true;
+      return ((r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a));
     }
 
     bool cColour::operator !=(const cColour& rhs) const
     {
-      return !((*this)==rhs);
+      return !((*this) == rhs);
     }
 
     cColour cColour::operator +=(const cColour& rhs)
     {
-      (*this)=(*this)+rhs;
+      (*this) = (*this) + rhs;
 
       return (*this);
     }
 
     cColour cColour::operator -=(const cColour& rhs)
     {
-      (*this)=(*this)-rhs;
+      (*this) = (*this) - rhs;
 
       return (*this);
     }
 
     cColour cColour::operator *=(const cColour& rhs)
     {
-      (*this)=(*this)*rhs;
+      (*this) = (*this) * rhs;
 
       return (*this);
     }
 
     cColour cColour::operator /=(const cColour& rhs)
     {
-      (*this)=(*this)/rhs;
+      (*this) = (*this) / rhs;
 
       return (*this);
     }
 
     cColour cColour::operator *=(const float rhs)
     {
-      (*this)=(*this)*rhs;
+      (*this) = (*this) * rhs;
 
       return (*this);
     }
@@ -229,9 +228,79 @@ namespace spitfire
 
     cColour cColour::operator /=(const float rhs)
     {
-      (*this)=(*this)/rhs;
+      (*this) = (*this) / rhs;
 
       return (*this);
+    }
+
+
+    // Hue, saturation, luminance
+    // http://en.wikipedia.org/wiki/HSL_and_HSV
+
+    void cColour::GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const
+    {
+      float fmin = min(min(r, g), b);    //Min. value of RGB
+      float fmax = max(max(r, g), b);    //Max. value of RGB
+      float delta = fmax - fmin;             //Delta RGB value
+
+      fLuminance = (fmax + fmin) / 2.0; // Luminance
+
+      if (delta == 0.0) { //This is a gray, no chroma...
+        fHue = 0.0;  // Hue
+        fSaturation = 0.0;  // Saturation
+      } else {            //Chromatic data...
+        if (fLuminance < 0.5)
+          fSaturation = delta / (fmax + fmin); // Saturation
+        else
+          fSaturation = delta / (2.0 - fmax - fmin); // Saturation
+
+        float deltaR = (((fmax - r) / 6.0) + (delta / 2.0)) / delta;
+        float deltaG = (((fmax - g) / 6.0) + (delta / 2.0)) / delta;
+        float deltaB = (((fmax - b) / 6.0) + (delta / 2.0)) / delta;
+
+        if (r == fmax)
+          fHue = deltaB - deltaG; // Hue
+        else if (g == fmax)
+          fHue = (1.0 / 3.0) + deltaR - deltaB; // Hue
+        else if (b == fmax)
+          fHue = (2.0 / 3.0) + deltaG - deltaR; // Hue
+
+        if (fHue < 0.0) fHue += 1.0; // Hue
+        else if (fHue > 1.0) fHue -= 1.0; // Hue
+      }
+    }
+
+
+
+    float cColour::HueToRGBForSetRGBFromHSL(float f1, float f2, float fHue) const
+    {
+      if (fHue < 0.0) fHue += 1.0;
+      else if (fHue > 1.0) fHue -= 1.0;
+
+      float res = 0.0f;
+      if ((6.0 * fHue) < 1.0) res = f1 + (f2 - f1) * 6.0 * fHue;
+      else if ((2.0 * fHue) < 1.0) res = f2;
+      else if ((3.0 * fHue) < 2.0) res = f1 + (f2 - f1) * ((2.0 / 3.0) - fHue) * 6.0;
+      else res = f1;
+
+      return res;
+    }
+
+    void cColour::SetRGBFromHSL(float fHue, float fSaturation, float fLuminance)
+    {
+      if (fSaturation == 0.0f) SetRGB(fLuminance, fLuminance, fLuminance); // Luminance
+      else {
+        float f2;
+
+        if (fLuminance < 0.5f) f2 = fLuminance * (1.0f + fSaturation);
+        else f2 = (fLuminance + fSaturation) - (fSaturation * fLuminance);
+
+        float f1 = 2.0f * fHue - f2;
+
+        r = HueToRGBForSetRGBFromHSL(f1, f2, fHue + (1.0f / 3.0f));
+        g = HueToRGBForSetRGBFromHSL(f1, f2, fHue);
+        b = HueToRGBForSetRGBFromHSL(f1, f2, fHue - (1.0f / 3.0f));
+      }
     }
   }
 }

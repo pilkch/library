@@ -596,11 +596,12 @@ namespace spitfire
       //return temp;
   }*/
 
+
     template <class T>
     inline string_t ToString(T value)
     {
       ostringstream_t s;
-      s << value;
+      s<<value;
       return s.str();
     }
 
@@ -624,31 +625,33 @@ namespace spitfire
       return ToString<float>(value);
     }
 
+
+    template <class T>
+    inline T FromString(const string_t& source)
+    {
+      T value = T(0);
+      istringstream_t stm(source);
+      stm>>value;
+      return value;
+    }
+
     unsigned int ToUnsignedInt(const string_t& source)
     {
-      unsigned int value = 0;
-      istringstream_t stm(source);
-      stm >> value;
-      return value;
+      return FromString<unsigned int>(source);
     }
 
     int ToInt(const string_t& source)
     {
-      int value = 0;
-      istringstream_t stm(source);
-      stm >> value;
-      return value;
+      return FromString<int>(source);
     }
 
     float ToFloat(const string_t& source)
     {
-      float value = 0.0f;
-      istringstream_t stm(source);
-      stm >> value;
-      return value;
+      return FromString<float>(source);
     }
 
-    // text to hex
+
+    // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
     // eg. "FE1234" -> 16650804
     // atoh : ASCII
@@ -793,41 +796,56 @@ namespace spitfire
     }
 
 
+
+    // Format nBytes using IEC standard prefixes, KiB, MiB, GiB, ... using multiples of 1024. I.e., binary "bytes".
     // http://en.wikipedia.org/wiki/Binary_prefix#IEC_standard_prefixes
     string_t GetIECStringFromBytes(uint64_t nBytes)
     {
-      // If less than 1024 then default to "bytes"
-      string_t sSuffix = TEXT(" Bytes");
+      const string_t suffixes[] = {
+        TEXT("Bytes"), TEXT("KiB"), TEXT("MiB"),
+        TEXT("GiB"), TEXT("TiB"), TEXT("PiB"),
+        TEXT("EiB"), TEXT("ZiB"), TEXT("YiB")
+      };
 
-      /*
-      // NOTE: These are too big to fit into 64 bits, needs 128 bits upto (340282366920938463463374607431768211456) to represent them, probably not a problem, tera bytes and peta bytes are just becoming normal as of 2009, we still have exabytes after that before we run out of space in 64 bits
-      if (nBytes >= 1208925819614629174706176) {
-        nBytes /= 1208925819614629174706176;
-        sSuffix = TEXT("YiB");
-      } else if (nBytes >= 1180591620717411303424) {
-        nBytes /= 1180591620717411303424;
-        sSuffix = TEXT("ZiB");
-      } else*/ if (nBytes >= 1152921504606846976) {
-        nBytes /= 1152921504606846976;
-        sSuffix = TEXT(" EiB");
-      } else if (nBytes >= 1125899906842624) {
-        nBytes /= 1125899906842624;
-        sSuffix = TEXT(" PiB");
-      } else if (nBytes >= 1099511627776) {
-        nBytes /= 1099511627776;
-        sSuffix = TEXT(" TiB");
-      } else if (nBytes >= 1073741824) {
-        nBytes /= 1073741824;
-        sSuffix = TEXT(" GiB");
-      } else if (nBytes >= 1048576) {
-        nBytes /= 1048576;
-        sSuffix = TEXT(" MiB");
-      } else if (nBytes >= 1024) {
-        nBytes /= 1024;
-        sSuffix = TEXT(" KiB");
+      const size_t nSuffixes = 9;
+
+      uint64_t ix = 0;
+      uint64_t factor = 1;
+
+      const uint64_t step = 1024;
+
+      while (((nBytes / factor) >= step) && (ix < nSuffixes)) {
+        factor *= step;
+        ix++;
       }
 
-      return string::ToString(nBytes) + sSuffix;
+      uint64_t integral = nBytes / factor;    // Integral part of reduced nBytes
+      uint64_t remainder = nBytes - (integral * factor); // Remainder.
+      // Convert remainder to a decimal fraction
+      double fraction  = double(remainder) / double(factor);
+
+      ostringstream_t o;
+
+      o<<ToString(integral);
+
+      // TODO: Do we even use this?
+      if (remainder == 0) {
+        //o<<TEXT(".0");
+      } else if (integral < 10) { // Append two digits from the fraction
+        int dec = int(fraction * 100);
+        o<<TEXT(".");
+        o<<((dec < 10) ? TEXT("0") : TEXT(""));
+        o<<ToString(dec);
+      } else if (integral < 100) { // Append one digit from the fraction
+        int dec = int(fraction * 10);
+        o<<TEXT(".");
+        o<<ToString(dec);
+      }
+
+      o<<" ";
+      o<<suffixes[ix];
+
+      return o.str();
     }
 
 

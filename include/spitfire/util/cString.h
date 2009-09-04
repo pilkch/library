@@ -10,12 +10,14 @@
 namespace spitfire
 {
   #ifdef __WIN__
+  static_assert(sizeof(wchar_t) == 2, "We expect wchar_t to be 16 bits");
   #define SIZEOF_WCHAR_T 2
   typedef wchar_t char16_t;
   typedef uint32_t char32_t;
   typedef std::basic_string<char16_t> string16_t;
   typedef std::wstring string32_t;
   #else
+  static_assert(sizeof(wchar_t) == 4, "We expect wchar_t to be 32 bits");
   #define SIZEOF_WCHAR_T 4
   typedef std::wstring string16_t;
   typedef std::basic_string<char32_t> string32_t;
