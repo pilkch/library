@@ -179,81 +179,11 @@ namespace breathe
       vSpawn.push_back(p);
     }
 
-    size_t i = 0;
-    size_t n = vCubemap.size();
-
-    if (0 == n) {
-      LOG.Error("Level", "No cubemaps defined");
-      //bResult = breathe::BAD;
-    }
-    else {
-      for (i=0;i<n;i++)
-        pRender->AddCubeMap(vCubemap[i]->sFilename);
-    }
-
     return bResult;
   }
 
   void cLevel::LoadNode(const string_t& sNewFilename)
   {
-    render::model::cStaticRef p = pRender->AddModel(TEXT("level/") + sNewFilename + TEXT("/mesh.3ds"));
-    if (p != nullptr) {
-      cLevelNode* pNode = new cLevelNode(this, TEXT("level/") + sNewFilename + TEXT("/"));
-      pNode->Load();
-
-      /*
-      size_t i = 0;
-      const size_t n = p->vCamera.size();
-      for (i=0;i<n;i++) {
-        LOG.Success("Level", "Spawn");
-
-        vSpawn.push_back(new cLevelSpawn);
-        cLevelSpawn* pSpawn=vSpawn.back();
-
-        math::cVec3 cam=p->vCamera[i]->eye;
-        math::cVec3 objPos=p->vCamera[i]->target;
-
-        math::cVec3 objToCamProj(cam.x - objPos.x, 0.0f, cam.z - objPos.z);
-
-        objToCamProj.Normalise();
-
-        math::cVec3 v3out;
-
-        // compute the angle
-        float angleCosine = cam.DotProduct(objToCamProj);
-
-        float a=acosf(angleCosine)*math::c180_DIV_PI;
-
-        // perform the rotation. The if statement is used for stability reasons
-        // if the lookAt and objToCamProj vectors are too close together then
-        // |angleCosine| could be bigger than 1 due to lack of precision
-        if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-          v3out.z=90.0f+a;
-        else
-          v3out.z=-90.0f;
-
-        pSpawn->v3Rotation=v3out;
-        pSpawn->v3Position=p->vCamera[i]->eye;
-        LOG.Error("Level", "Upate in 3ds and remove this");
-        pSpawn->v3Position.z=-1.5f;
-      }*/
-
-      vNode.push_back(pNode);
-    } else LOG.Error("Node", "Mesh not found " + breathe::string::ToUTF8(sNewFilename));
-  }
-
-  void cLevel::LoadCubemap(const string_t& line)
-  {
-    vCubemap.push_back(new cLevelCubemap);
-
-    cLevelCubemap* p = vCubemap.back();
-
-    istringstream_t stm(line);
-    stm >> p->sFilename;
-
-    stm >> p->v3Position.x;
-    stm >> p->v3Position.y;
-    stm >> p->v3Position.z;
   }
 
   /*void cModel::staticMeshAddToWorld(int i, WORLD * world,
@@ -465,27 +395,6 @@ namespace breathe
     lVehicle.remove(v);
   }
 
-  render::cTextureRef cLevel::FindClosestCubeMap(math::cVec3 pos)
-  {
-    const size_t n = vCubemap.size();
-    if (n == 0) return render::cTextureRef();
-
-    cLevelCubemap* c = vCubemap[0];
-    float f = (vCubemap[0]->v3Position - pos).GetLength();
-    float a = 0.0f;
-
-    size_t i = 0;
-    for (i = 1; i < n; i++) {
-      a = (vCubemap[i]->v3Position - pos).GetLength();
-      if (a < f) {
-        c = vCubemap[i];
-        f = a;
-      }
-    }
-
-    return pRender->GetCubeMap(c->sFilename);
-  }
-
   vehicle::cVehicleRef cLevel::FindClosestVehicle(math::cVec3 pos, float fMaxDistance)
   {
     breathe::vehicle::cVehicleRef v;
@@ -527,7 +436,6 @@ namespace breathe
     if (!breathe::filesystem::FindResourceFile(TEXT("levels/") + sNewFilename, TEXT("mesh.3ds"), sFilename)) {
       LOG<<"cLevel::LoadXML File mesh.3ds not found in levels/"<<sNewFilename<<std::endl;
     }
-    pModel = pRender->GetModel(sFilename);
   }
 
   void cLevelNode::Load()
@@ -559,32 +467,9 @@ namespace breathe
           while (iter.IsValid()) {
             std::string sPath;
             if (iter.GetAttribute("path", sPath)) {
-              cLevelModel* pModel = new cLevelModel;
-              vModel.push_back(pModel);
-
-              // Pre load the mesh for this model
-              LOG<<"cLevelNode::Load Loading mesh for model "<<breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds")<<std::endl;
-              pModel->pModel = pRender->AddModel(breathe::string::ToString_t(sPath) + TEXT("/mesh.3ds"));
-
-              iter.GetAttribute("position", pModel->position);
-
-              math::cVec3 v;
-              if (iter.GetAttribute("position", v)) pModel->position = v;
             }
 
             iter.Next("model");
-          };
-        iter = iterParent;
-      } else if ("cubemaps" == iter.GetName()) {
-        breathe::xml::cNode::iterator iterParent = iter;
-          iter.FindChild("cubemap");
-          while (iter.IsValid()) {
-            string_t sPath;
-            if (iter.GetAttribute("texture", sPath)) pLevel->LoadCubemap(sPath);
-
-            //TODO: position="10.0, 10.0, 0.0"
-
-            iter.Next("cubemap");
           };
         iter = iterParent;
       }
@@ -609,24 +494,6 @@ namespace breathe
   unsigned int cLevelNode::Render()
   {
     unsigned int uiTriangles = 0;
-
-    uiTriangles += pRender->RenderStaticModel(pModel);
-
-    std::vector<breathe::cLevelModel*>::iterator iter = vModel.begin();
-    const std::vector<breathe::cLevelModel*>::iterator iterEnd = vModel.end();
-    while (iter != iterEnd) {
-      const breathe::cLevelModel* pModel = (*iter);
-      glPushMatrix();
-        {
-          spitfire::math::cMat4 mat(pModel->rotation.GetMatrix());
-          mat.SetTranslationPart(pModel->position);
-          glMultMatrixf((mat).GetOpenGLMatrixPointer());
-        }
-        uiTriangles += pRender->RenderStaticModel(pModel->pModel);
-      glPopMatrix();
-
-      iter++;
-    }
 
     return uiTriangles;
   }

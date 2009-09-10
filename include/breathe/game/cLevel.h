@@ -6,7 +6,6 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/model/cModel.h>
-#include <breathe/render/model/cStatic.h>
 
 namespace breathe
 {
@@ -115,25 +114,6 @@ namespace breathe
   class cLevel;
 
 
-
-  class cLevelModel : public cObject
-  {
-  public:
-    void Update(sampletime_t currentTime)
-    {
-    }
-
-    render::model::cStaticRef pModel;
-  };
-
-  class cLevelCubemap
-  {
-  public:
-    math::cVec3 v3Position;
-
-    string_t sFilename;
-  };
-
   class cLevelSpawn
   {
   public:
@@ -171,11 +151,8 @@ namespace breathe
     string_t sName;
     std::string sCRC;
 
-    std::vector<cLevelModel*> vModel;
-
   private:
     cLevel* pLevel;
-    render::model::cStaticRef pModel;
   };
 
   class cLevelLoader
@@ -197,7 +174,6 @@ namespace breathe
 
     bool Load(const string_t& sNewFilename);
     void LoadNode(const string_t& sNewFilename);
-    void LoadCubemap(const string_t& sFilename);
 
     void Update(sampletime_t currentTime);
     unsigned int Render(sampletime_t currentTime);
@@ -210,8 +186,6 @@ namespace breathe
     void RemoveVehicle(vehicle::cVehicleRef v);
 
     unsigned int RenderVehicles(sampletime_t currentTime, vehicle::cVehicleRef pOwnVehicle);
-
-    render::cTextureRef FindClosestCubeMap(math::cVec3 pos);
 
     vehicle::cVehicleRef FindClosestVehicle(math::cVec3 pos, float fMaxDistance);
 
@@ -240,8 +214,6 @@ namespace breathe
     std::vector<cLevelNode*>vNode; //vModel.size()=uiWidth*uiHeight;
 
     std::vector<cLevelSpawn*>vSpawn;
-
-    std::vector<cLevelCubemap*>vCubemap;
 
   private:
     bool LoadXML(const string_t& sNewFilename);

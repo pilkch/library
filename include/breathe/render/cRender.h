@@ -17,7 +17,6 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/model/cMesh.h>
-#include <breathe/render/model/cStatic.h>
 
 namespace breathe
 {
@@ -48,7 +47,7 @@ namespace breathe
       typedef cSmartPtr<cMaterial> cMaterialRef;
     }
 
-    class cBatchModelContainer
+    /*class cBatchModelContainer
     {
     public:
       cBatchModelContainer() : fDistanceFromCamera(0.0f) {}
@@ -91,7 +90,7 @@ namespace breathe
       std::map<material::cMaterialRef, cBatchList*> transparent;
 
       friend class cRender;
-    };
+    };*/
 
     class cRender
     {
@@ -183,8 +182,6 @@ namespace breathe
       void RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderMesh(model::cMeshRef pMesh);
-      size_t RenderStaticModel(model::cStaticRef p);
-      size_t RenderStaticModel(model::cStaticRef p, const math::cColour& colour);
 
       void PushScreenSpacePosition(float x, float y);
       void PopScreenSpacePosition();
@@ -200,10 +197,6 @@ namespace breathe
       // *** Resources
 
       void TransformModels();
-
-      model::cStaticRef AddModel(const string_t& sNewFilename);
-      model::cStaticRef GetModel(const string_t& sNewFilename);
-      model::cStaticRef CreateNewModel(const string_t& sName);
 
       cVertexBufferObjectRef AddVertexBufferObject();
 
@@ -348,9 +341,6 @@ namespace breathe
       SDL_VideoInfo* g_info;
       const SDL_VideoInfo* videoInfo;
       SDL_Surface* pSurface;
-
-      //std::map<string_t, model::cAnimationRef> mAnimation;
-      std::map<string_t, model::cStaticRef> mStatic;
 
     public:
       void QueueAddOpaqueObject();

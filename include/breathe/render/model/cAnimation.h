@@ -148,7 +148,7 @@ namespace breathe
         int Load(const string_t& sFilename);
         void Update(sampletime_t currentTime);
 
-        std::vector<cStatic*> vFrame; // A vector of all the statics in this model
+        //std::vector<cStatic*> vFrame; // A vector of all the statics in this model
       };
     }
   }

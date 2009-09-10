@@ -46,7 +46,6 @@
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
-#include <breathe/render/model/cStatic.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -162,7 +161,7 @@ namespace breathe
       ALenum error = alGetError();
       switch (error) {
         case (AL_NO_ERROR):
-          SCREEN<<"audio::ReportError AL No error"<<std::endl;
+          //SCREEN<<"audio::ReportError AL No error"<<std::endl;
           break;
         case (AL_INVALID_NAME):
           SCREEN<<"audio::ReportError AL Invalid name parameter passed to OpenAL call"<<std::endl;
@@ -188,7 +187,7 @@ namespace breathe
       error = alcGetError(device);
       switch (error) {
         case ALC_NO_ERROR:
-          SCREEN<<"audio::ReportError ALC No error"<<std::endl;
+          //SCREEN<<"audio::ReportError ALC No error"<<std::endl;
           break;
         case ALC_INVALID_DEVICE:
           SCREEN<<"audio::ReportError ALC Invalid device parameter passed to OpenAL call"<<std::endl;
@@ -215,7 +214,7 @@ namespace breathe
       error = alutGetError();
       switch (error) {
         case (ALUT_ERROR_NO_ERROR):
-          SCREEN<<"audio::ReportError ALUT No error"<<std::endl;
+          //SCREEN<<"audio::ReportError ALUT No error"<<std::endl;
           break;
         case (ALUT_ERROR_INVALID_ENUM):
           SCREEN<<"audio::ReportError ALUT Invalid enum parameter passed to OpenAL call"<<std::endl;
@@ -475,9 +474,9 @@ namespace breathe
     {
       //LOG<<"SetListener"<<std::endl;
       ALfloat listenerOri[] = { lookat.x, lookat.y, lookat.z, up.x, up.y, up.z };
-      alListenerfv(AL_POSITION, position);
+      alListenerfv(AL_POSITION, position.GetPointerConst());
       //ReportError();
-      alListenerfv(AL_VELOCITY, velocity);
+      alListenerfv(AL_VELOCITY, velocity.GetPointerConst());
       //ReportError();
       alListenerfv(AL_ORIENTATION, listenerOri);
       //ReportError();
@@ -696,7 +695,7 @@ namespace breathe
     {
       if (pNodeParent != nullptr) {
         //LOG<<"cSource::Update"<<std::endl;
-        alSourcefv(uiSource, AL_POSITION, pNodeParent->position);
+        alSourcefv(uiSource, AL_POSITION, pNodeParent->position.GetPointerConst());
         //ReportError();
       }
     }

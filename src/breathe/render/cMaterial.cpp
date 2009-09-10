@@ -58,7 +58,6 @@
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
-#include <breathe/render/model/cStatic.h>
 
 #include <breathe/game/cLevel.h>
 
@@ -360,7 +359,7 @@ namespace breathe
     namespace material
     {
       cLayer::cLayer() :
-        uiTextureMode(TEXTURE_NONE)
+        uiTextureMode(TEXTURE_MODE::TEXTURE_NONE)
       {
       }
 
@@ -488,13 +487,13 @@ namespace breathe
 
             std::string sValue;
             if (iter.GetAttribute("uiTextureMode", sValue)) {
-              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode = TEXTURE_NORMAL;
-              else if (sValue == "TEXTURE_MASK")         pLayer->uiTextureMode = TEXTURE_MASK;
-              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode = TEXTURE_BLEND;
-              else if (sValue == "TEXTURE_DETAIL")       pLayer->uiTextureMode = TEXTURE_DETAIL;
-              else if (sValue == "TEXTURE_SPECULAR")     pLayer->uiTextureMode = TEXTURE_SPECULAR;
-              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode = TEXTURE_CUBEMAP;
-              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode = TEXTURE_POST_RENDER;
+              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_NORMAL;
+              else if (sValue == "TEXTURE_MASK")         pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_MASK;
+              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_BLEND;
+              else if (sValue == "TEXTURE_DETAIL")       pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_DETAIL;
+              else if (sValue == "TEXTURE_SPECULAR")     pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_SPECULAR;
+              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_CUBEMAP;
+              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_POST_RENDER;
             }
 
             unsigned int uiTextureAtlas = ATLAS_NONE;
@@ -509,12 +508,12 @@ namespace breathe
               else if (sValue == "ATLAS_EFFECTS")  uiTextureAtlas = ATLAS_EFFECTS;
             }*/
 
-            if (TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
+            if (TEXTURE_MODE::TEXTURE_CUBEMAP == pLayer->uiTextureMode) {
               uiTextureAtlas = ATLAS_NONE;
               LOG.Error("CUBEMAP", "CUBEMAP");
             }
 
-            if ((TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
+            if ((TEXTURE_MODE::TEXTURE_CUBEMAP != pLayer->uiTextureMode) && (TEXTURE_MODE::TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
               if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 
               if (nullptr == pLayer->pTexture) {

@@ -55,7 +55,6 @@
 
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
-#include <breathe/render/model/cStatic.h>
 
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
