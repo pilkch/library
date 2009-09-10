@@ -87,22 +87,57 @@ namespace spitfire
         return sOut;
       }
 
+      template <class T, class C, class O>
+      inline T FormatTime(uint32_t hours, uint32_t minutes, uint32_t seconds) const
+      {
+        O o;
+
+        /*
+        if (hours < 10) o<<"0";
+        o<<hours;
+
+        o<<":";
+        if (minutes < 10) o<<"0";
+        o<<minutes;
+
+        o<<":";
+        if (seconds < 10) o<<"0";
+        o<<seconds;
+        */
+
+        // http://wiki.forum.nokia.com/index.php/CS001143_-_Converting_date_and_time_to_string_in_Open_C%2B%2B
+
+        // Get the time_put facet
+        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (loc);
+
+        tm now;
+
+        // We don't care about the other fields for this formatting, perhaps we should set them too though just in case?
+        now.tm_hour = hours;
+        now.tm_min = minutes;
+        now.tm_sec = seconds;
+
+        // http://www.cplusplus.com/reference/clibrary/ctime/strftime/
+        tmput.put(o, o, ' ', &now, 'X');
+
+        return o.str();
+      }
+
     private:
-      std::locale loc_c;
+      std::locale loc;
 
       cToUpper upper;
       cToLower lower;
     };
 
     cLocalisedStringTransformer::cLocalisedStringTransformer() :
-      loc_c("C"),
-      upper(loc_c),
-      lower(loc_c)
+      loc("C"),
+      upper(loc),
+      lower(loc)
     {
     }
 
     cLocalisedStringTransformer gLocalisedStringTransformer;
-
 
 
     bool IsWhiteSpace(char_t c)
@@ -434,6 +469,12 @@ namespace spitfire
       return gLocalisedStringTransformer.ToUpper(source);
     }
 
+
+
+    string_t FormatTime(uint32_t hours, uint32_t minutes, uint32_t seconds)
+    {
+      return gLocalisedStringTransformer.FormatTime<string_t, char_t, ostringstream_t>(hours, minutes, seconds);
+    }
 
 
 

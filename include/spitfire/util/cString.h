@@ -154,6 +154,9 @@ namespace spitfire
     }
 
 
+    string_t FormatTime(uint32_t hours, uint32_t minutes, uint32_t seconds);
+
+
     // http://en.wikipedia.org/wiki/Binary_prefix#IEC_standard_prefixes
     string_t GetIECStringFromBytes(uint64_t nBytes);
 

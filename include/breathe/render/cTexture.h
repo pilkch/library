@@ -16,17 +16,22 @@ namespace breathe
   {
     // ** Texture modes for materials
 
-    const unsigned int TEXTURE_NONE = 0;
-    const unsigned int TEXTURE_NORMAL = 1;
-    const unsigned int TEXTURE_MASK = 2;
-    const unsigned int TEXTURE_BLEND = 3;
-    const unsigned int TEXTURE_DETAIL = 4;
-    const unsigned int TEXTURE_CUBEMAP = 5;
-    const unsigned int TEXTURE_POST_RENDER = 6;
+    enum class TEXTURE_MODE {
+      TEXTURE_NONE,
+      TEXTURE_NORMAL,
+      TEXTURE_MASK,
+      TEXTURE_BLEND,
+      TEXTURE_DETAIL,
+      TEXTURE_SPECULAR,
+      TEXTURE_CUBEMAP,
+      TEXTURE_POST_RENDER
+    };
 
-    const unsigned int TEXTURE_RGBA = 0;
-    const unsigned int TEXTURE_HEIGHTMAP = 1;
-    const unsigned int TEXTURE_FRAMEBUFFEROBJECT = 2;
+    enum class TEXTURE_TYPE {
+      TEXTURE_RGBA,
+      TEXTURE_HEIGHTMAP,
+      TEXTURE_FRAMEBUFFEROBJECT
+    };
 
 
     // ** cTexture
@@ -41,6 +46,9 @@ namespace breathe
 
       size_t GetWidth() const { return uiWidth; }
       size_t GetHeight() const { return uiHeight; }
+
+      void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
+      void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
 
       bool Load(const string_t& sFilename);
 
@@ -66,9 +74,12 @@ namespace breathe
       unsigned int uiTexture;
       string_t sFilename;
 
+    protected:
       unsigned int uiWidth;
       unsigned int uiHeight;
-      unsigned int uiMode;
+
+    public:
+      TEXTURE_TYPE uiType;
 
       float fScale;
       float fU;
@@ -88,14 +99,19 @@ namespace breathe
       v = (v * fScale) + fV;
     }
 
-
     // ** cTextureFrameBufferObject
+
+    const size_t DEFAULT_FBO_TEXTURE_WIDTH = 1024;
+    const size_t DEFAULT_FBO_TEXTURE_HEIGHT = 1024;
 
     class cTextureFrameBufferObject : public cTexture
     {
     public:
       cTextureFrameBufferObject();
       ~cTextureFrameBufferObject();
+
+      bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBEMAP); }
+      void SetModeCubeMap();
 
       void GenerateMipMapsIfRequired();
 
@@ -109,7 +125,10 @@ namespace breathe
       void _Create();
 
       bool bIsUsingMipMaps;
+
+      TEXTURE_MODE uiMode;
     };
+
 
     typedef cSmartPtr<cTexture> cTextureRef;
     typedef cSmartPtr<cTextureFrameBufferObject> cTextureFrameBufferObjectRef;

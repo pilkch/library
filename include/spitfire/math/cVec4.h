@@ -72,23 +72,22 @@ namespace spitfire
       void operator*=(const float rhs);
       void operator/=(const float rhs);
 
-      //unary operators
+      // Unary operators
       cVec4 operator-(void) const {return cVec4(-x, -y, -z, -w);}
       cVec4 operator+(void) const {return (*this);}
 
-      //cast to pointer to float for glVertex4fv etc
-      operator float* () const {return (float*) this;}
-      operator const float* () const {return (const float*) this;}
+      // Cast to pointer to float for glVertex4fv etc
+      const float* GetPointerConst() const { return (const float*)this; }
 
-      operator cVec3 ()
+      cVec3 GetVec3() const
       {
-        if (w!=0)
-          return cVec3(x/w, y/w, z/w);
-        else
-          return cVec3(x, y, z);
+        if (w == 0.0f) return cVec3(x, y, z);
+
+        const float fOneOverW = 1.0f / w;
+        return cVec3(x * fOneOverW, y * fOneOverW, z * fOneOverW);
       }
 
-      //member variables
+      // Member variables
       float x;
       float y;
       float z;

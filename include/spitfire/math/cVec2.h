@@ -81,9 +81,8 @@ namespace spitfire
       cVec2 operator-(void) const { return cVec2(-x, -y); }
       cVec2 operator+(void) const { return *this; }
 
-      //cast to pointer to a (float *) for glVertex3fv etc
-      operator float* () const { return (float*) this; }
-      operator const float* () const { return (const float*) this; }
+      // Cast to pointer to a (float *) for glVertex3fv etc
+      const float* GetPointerConst() const { return (const float*)this; }
 
       cVec2& operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this; }
       cVec2& operator=(const cVec3& rhs);

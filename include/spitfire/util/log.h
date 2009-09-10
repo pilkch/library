@@ -11,6 +11,11 @@ namespace spitfire
 {
   namespace logging
   {
+    bool IsLogging();
+
+    void TurnOnLogging();
+    void TurnOffLogging();
+
     enum
     {
       COLOUR_NORMAL = 0,

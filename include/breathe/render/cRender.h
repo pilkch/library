@@ -24,11 +24,18 @@ namespace breathe
   namespace render
   {
     const size_t MAX_TEXTURE_UNITS = 3;
-
     const size_t MAX_TEXTURE_SIZE = 1024;
 
-    const size_t FBO_TEXTURE_WIDTH = 1024;
-    const size_t FBO_TEXTURE_HEIGHT = 1024;
+
+    enum class CUBE_MAP_FACE {
+      CUBE_MAP_FACE_POSITIVE_X,
+      CUBE_MAP_FACE_NEGATIVE_X,
+      CUBE_MAP_FACE_POSITIVE_Y,
+      CUBE_MAP_FACE_NEGATIVE_Y,
+      CUBE_MAP_FACE_POSITIVE_Z,
+      CUBE_MAP_FACE_NEGATIVE_Z
+    };
+
 
     namespace model
     {
@@ -136,6 +143,9 @@ namespace breathe
       void BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture);
       void EndRenderToTexture(cTextureFrameBufferObjectRef pTexture);
 
+      void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture, CUBE_MAP_FACE face);
+      void EndRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture);
+
       // In this mode x is 0..1, y is 1..0
       void BeginScreenSpaceRendering();
       void EndScreenSpaceRendering();
@@ -229,17 +239,23 @@ namespace breathe
 
       bool SetShaderConstant(const std::string& sConstant, int value);
       bool SetShaderConstant(const std::string& sConstant, float value);
+      bool SetShaderConstant(const std::string& sConstant, const math::cVec2& value);
       bool SetShaderConstant(const std::string& sConstant, const math::cVec3& value);
+      bool SetShaderConstant(const std::string& sConstant, const math::cVec4& value);
 
 
       material::cMaterialRef AddMaterial(const string_t& sFilename);
       material::cMaterialRef AddMaterialNotFoundMaterial(const string_t& sFilename);
       material::cMaterialRef GetMaterial(const string_t& sFilename);
+
+      // SetMaterial and ClearMaterial are deprecated, use cApplyMaterial class or if need be, use ApplyMaterial/UnApplyMaterial instead
       bool ClearMaterial();
       bool SetMaterial(const string_t& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
       bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
       bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
 
+      bool ApplyMaterial(material::cMaterialRef pMaterial);
+      bool UnApplyMaterial(material::cMaterialRef pMaterial);
 
       void ClearColour();
       void SetColour(float r, float g, float b);
@@ -305,6 +321,8 @@ namespace breathe
       const math::cFrustum& GetFrustum() { return frustum; }
       void SetFrustum(const math::cFrustum& _frustum) { frustum = _frustum; }
 
+      void SetShaderConstants(const cShaderConstants& _shaderConstants) { shaderConstants = _shaderConstants; }
+
     private:
       math::cFrustum frustum;
 
@@ -322,6 +340,9 @@ namespace breathe
 
       material::cMaterialRef pCurrentMaterial;
       cShaderRef pCurrentShader;
+
+
+      cShaderConstants shaderConstants;
 
       // Information about the current video settings
       SDL_VideoInfo* g_info;
@@ -466,14 +487,15 @@ namespace breathe
     class ApplyMaterial
     {
     public:
-      explicit ApplyMaterial(material::cMaterialRef pCurrent);
+      explicit ApplyMaterial(material::cMaterialRef pMaterial);
       ~ApplyMaterial();
 
     private:
       ApplyMaterial(); // Forbidden
       NO_COPY(ApplyMaterial); // Forbidden
 
-      material::cMaterialRef pLast;
+      //material::cMaterialRef pLast;
+      material::cMaterialRef pMaterial;
     };
 
 
@@ -498,6 +520,20 @@ namespace breathe
     private:
       cRenderToTexture(); // Forbidden
       NO_COPY(cRenderToTexture); // Forbidden
+
+      cTextureFrameBufferObjectRef pTexture;
+    };
+
+
+    class cRenderToCubeMapTexture
+    {
+    public:
+      cRenderToCubeMapTexture(cTextureFrameBufferObjectRef pTexture, CUBE_MAP_FACE face);
+      ~cRenderToCubeMapTexture();
+
+    private:
+      cRenderToCubeMapTexture(); // Forbidden
+      NO_COPY(cRenderToCubeMapTexture); // Forbidden
 
       cTextureFrameBufferObjectRef pTexture;
     };

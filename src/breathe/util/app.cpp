@@ -281,6 +281,7 @@ int intersect_triangle(
 #endif
 
 #include <breathe/game/scenegraph.h>
+#include <breathe/game/skysystem.h>
 
 #include <breathe/communication/network.h>
 
@@ -1224,19 +1225,26 @@ namespace breathe
   {
     // TODO: Remove RenderScene entirely and do everything through scenegraphs
 
-    /*
-    cHumanEyeExposureControl exposure;
+    //cHumanEyeExposureControl exposure;
 
-    exposure.Update(currentTime, fSceneBrightness0To1);
+    //exposure.Update(currentTime, fSceneBrightness0To1);
 
-    cShaderConstants constants;
+    render::cShaderConstants shaderConstants;
+    const math::cColour& ambientColour = scenegraph.GetAmbientColour();
+    const math::cVec4 ambientColourAsVec4(ambientColour.r, ambientColour.g, ambientColour.b, ambientColour.a);
+    shaderConstants.SetValue(TEXT("ambientColour"), ambientColourAsVec4);
 
-    constants.SetValue(TEXT("scene_brightness"), fSceneBrightness);
-    constants.SetValue(TEXT("eye_perceived_brightness"), exposure.GetPerceivedBrightness0To1());
-    constants.SetValue(TEXT("eye_velocity"), fEyeVelocity);cHumanEyeExposureControl exposure;
+    const math::cVec3& lightPosition = scenegraph.GetSkySystem()->GetPrimarySunPosition();
+    shaderConstants.SetValue(TEXT("lightPosition"), lightPosition);
 
-    pRender->SetMaterial(*iter, constants);
-    */
+    pRender->SetShaderConstants(shaderConstants);
+
+    //constants.SetValue(TEXT("scene_brightness"), fSceneBrightness);
+    //constants.SetValue(TEXT("eye_perceived_brightness"), exposure.GetPerceivedBrightness0To1());
+    //constants.SetValue(TEXT("eye_velocity"), fEyeVelocity);cHumanEyeExposureControl exposure;
+
+    //pRender->SetMaterial(*iter, constants);
+
 
     // This can be overridden, allowing the user to create their own render to textures
     state.PreRender(currentTime);
@@ -1255,63 +1263,9 @@ namespace breathe
       {
         render::cRenderToTexture texture(pFrameBuffer0);
 
-        scenegraph.Render(currentTime);
+        scenegraph.Render(currentTime, pRender->GetFrustum());
 
         state.RenderScene(currentTime);
-      }
-
-
-      // Gaussian blur
-      if (bIsBlurPostRenderEffect) {
-        // First blur horizontally (Blur will occur in the horizontal direction)
-        {
-
-          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
-          swap(pFrameBuffer0, pFrameBuffer1);
-
-          // Start rendering to the first buffer
-          render::cRenderToTexture texture(pFrameBuffer0);
-
-          {
-            // Draw our texture back to the other texture
-            render::cRenderScreenSpace screenspace;
-
-            pRender->SetMaterial(pGaussianBlurMaterial);
-
-            pRender->SetShaderConstant("texture_width", 1024.0f);
-            pRender->SetShaderConstant("texture_height", 1024.0f);
-            pRender->SetShaderConstant("direction", 0.0f); // 0.0 for horizontal pass, 1.0 for vertical
-            pRender->SetShaderConstant("kernel_size", 2.0f);
-
-            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
-          }
-        }
-
-        // Now blur vertically (Blur will occur in the vertical direction)
-        {
-
-          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
-          swap(pFrameBuffer0, pFrameBuffer1);
-
-          // Start rendering to the first buffer
-          render::cRenderToTexture texture(pFrameBuffer0);
-
-          {
-            // Draw our texture back to the other texture
-            render::cRenderScreenSpace screenspace;
-
-            pRender->SetMaterial(pGaussianBlurMaterial);
-
-            pRender->SetShaderConstant("texture_width", 1024.0f);
-            pRender->SetShaderConstant("texture_height", 1024.0f);
-            pRender->SetShaderConstant("direction", 1.0f); // 0.0 for horizontal pass, 1.0 for vertical
-            pRender->SetShaderConstant("kernel_size", 2.0f);
-
-            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
-          }
-        }
       }
 
 
@@ -1335,7 +1289,6 @@ namespace breathe
 
         // Now apply our HDR bloom
         {
-
           // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
           swap(pFrameBuffer0, pFrameBuffer1);
 
@@ -1363,6 +1316,60 @@ namespace breathe
             pRender->SelectTextureUnit0();
 
 
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+      }
+
+
+      // Gaussian blur
+      if (bIsBlurPostRenderEffect) {
+        const float fKernelSize = 0.5f;
+
+        // First blur horizontally (Blur will occur in the horizontal direction)
+        {
+          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+          swap(pFrameBuffer0, pFrameBuffer1);
+
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pFrameBuffer0);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            pRender->SetMaterial(pGaussianBlurMaterial);
+
+            pRender->SetShaderConstant("texture_width", 1024.0f);
+            pRender->SetShaderConstant("texture_height", 1024.0f);
+            pRender->SetShaderConstant("direction", 0.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pRender->SetShaderConstant("kernel_size", fKernelSize);
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
+            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          }
+        }
+
+        // Now blur vertically (Blur will occur in the vertical direction)
+        {
+          // Ok, let's swap the fbo pointers over so that at all times pFrameBuffer0 contains the buffer that we are about to render to or have just rendered to
+          swap(pFrameBuffer0, pFrameBuffer1);
+
+          // Start rendering to the first buffer
+          render::cRenderToTexture texture(pFrameBuffer0);
+
+          {
+            // Draw our texture back to the other texture
+            render::cRenderScreenSpace screenspace;
+
+            pRender->SetMaterial(pGaussianBlurMaterial);
+
+            pRender->SetShaderConstant("texture_width", 1024.0f);
+            pRender->SetShaderConstant("texture_height", 1024.0f);
+            pRender->SetShaderConstant("direction", 1.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pRender->SetShaderConstant("kernel_size", fKernelSize);
+
+            glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
             pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
           }
         }
@@ -1410,7 +1417,7 @@ namespace breathe
       // Normal rendering, straight to the screen
       render::cRenderToScreen screen;
 
-      scenegraph.Render(currentTime);
+      scenegraph.Render(currentTime, pRender->GetFrustum());
 
       state.RenderScene(currentTime);
 
@@ -1613,13 +1620,16 @@ namespace breathe
   {
 #ifdef BUILD_DEBUG
     if (IsKeyDown(SDLK_F1)) ToggleDebug();
+    if (IsKeyDown(SDLK_F2)) {
+      if (spitfire::logging::IsLogging()) spitfire::logging::TurnOffLogging();
+      else spitfire::logging::TurnOnLogging();
+    }
 
-    if (IsKeyDown(SDLK_F2)) pRender->ReloadTextures();
-    if (IsKeyDown(SDLK_F3)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
-    if (IsKeyDown(SDLK_F4)) pRender->bCubemap = !pRender->bCubemap;
-    if (IsKeyDown(SDLK_F5)) pRender->bLight = !pRender->bLight;
-    if (IsKeyDown(SDLK_F6)) pRender->bRenderGui = !pRender->bRenderGui;
-    if (IsKeyDown(SDLK_F7)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
+    if (IsKeyDown(SDLK_F3)) pRender->bRenderGui = !pRender->bRenderGui;
+    if (IsKeyDown(SDLK_F4)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
+    if (IsKeyDown(SDLK_F5)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
+    if (IsKeyDown(SDLK_F6)) pRender->bCubemap = !pRender->bCubemap;
+    if (IsKeyDown(SDLK_F7)) pRender->bLight = !pRender->bLight;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     if (IsKeyDown(SDLK_F8)) bUpdatePhysics = !bUpdatePhysics;
@@ -1628,7 +1638,9 @@ namespace breathe
       bStepPhysics = true;
     }
 #endif
-    if (IsKeyDown(SDLK_F10)) spitfire::util::RunUnitTests();
+
+    if (IsKeyDown(SDLK_F10)) pRender->ReloadTextures();
+    if (IsKeyDown(SDLK_F11)) spitfire::util::RunUnitTests();
 #endif
 
     if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();

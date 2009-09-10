@@ -85,7 +85,7 @@ namespace breathe
 {
   namespace sky
   {
-    const float cSkySystem::fTimeBetweenUpdates = 1.0f;
+    const float cSkySystem::fTimeBetweenUpdates = 100.0f;
 
 
     // *** cSkySystem
@@ -114,7 +114,7 @@ namespace breathe
       const int totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
 
       const float fRatioOfTotalDay = float(totalSeconds) / float(util::cSecondsInADay);
-      const float fTimeIncrementBetweenUpdates = 10.0f / fTimeBetweenUpdates;
+      const float fTimeIncrementBetweenUpdates = 1.0f / fTimeBetweenUpdates;
       StartFromTimeAndIncrement0To1(fRatioOfTotalDay, fTimeIncrementBetweenUpdates);
     }
 
@@ -130,13 +130,60 @@ namespace breathe
       if ((fCurrentTime - fTimeLastUpdated) > fTimeBetweenUpdates) {
         fTimeLastUpdated = fCurrentTime;
         fDayNightCycleTime0To1 += fTimeIncrement0To1;
-        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 -= 1.0f;
+        if (fDayNightCycleTime0To1 > 1.0f) fDayNightCycleTime0To1 = fmodf(fDayNightCycleTime0To1, 1.0f);
 
-        const int totalSeconds = int(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
-        const int hours = totalSeconds / 3600;
-        const int minutes = (totalSeconds / 60) + (totalSeconds % 3600);
-        const int seconds = totalSeconds % 60;
-        LOG<<"cSkySystem::Update time="<<hours<<":"<<minutes<<":"<<seconds<<std::endl;
+        uint64_t totalSeconds = uint64_t(fDayNightCycleTime0To1 * 24.0f * 3600.0f);
+
+        const uint64_t hours = totalSeconds / 3600;
+        totalSeconds -= (hours * 3600);
+
+        const uint64_t minutes = totalSeconds / 60;
+        totalSeconds -= (minutes * 60);
+
+        const uint64_t seconds = totalSeconds;
+
+        ASSERT(hours < 24);
+        ASSERT(minutes < 60);
+        ASSERT(seconds < 60);
+
+        LOG<<"cSkySystem::Update time="<<string::FormatTime(hours, minutes, seconds)<<std::endl;
+
+
+        skyDomeAtmosphereRenderer.Update(currentTime);
+
+
+        // Set the ambient colour based on both the day light and weather
+        //ambientColour = dayLightManager.GetAmbientColour() * weatherManager.GetAmbientColour();
+
+
+        //ambientColour = 0.5f * (skyDomeAtmosphereRenderer.GetAmbientColour() + weatherManager.GetAmbientColour());
+
+
+        math::cColour skyAmbientColour(1.0f, 1.0f, 1.0f);
+        math::cColour weatherAmbientColour(1.0f, 1.0f, 1.0f);
+
+        skyAmbientColour.SetRGB(fDayNightCycleTime0To1, 1.0f - fDayNightCycleTime0To1, -1.0f + (2.0f * fDayNightCycleTime0To1));
+
+        // Night time
+        if ((fDayNightCycleTime0To1 > 0.875f) && (fDayNightCycleTime0To1 < 0.125f)) skyAmbientColour.SetRGB(0.4f, 0.4f, 0.6f);
+
+        // Sunrise
+        if ((fDayNightCycleTime0To1 > 0.125f) && (fDayNightCycleTime0To1 < 0.375f)) skyAmbientColour.SetRGB(1.0f, 0.5f, 0.6f);
+
+        // Day time
+        if ((fDayNightCycleTime0To1 > 0.375f) && (fDayNightCycleTime0To1 < 0.625f)) skyAmbientColour.SetRGB(0.8f, 0.8f, 1.0f);
+
+        // Sunset
+        if ((fDayNightCycleTime0To1 > 0.625f) && (fDayNightCycleTime0To1 < 0.875)) skyAmbientColour.SetRGB(1.0f, 0.8f, 0.75f);
+
+        ambientColour = 0.5f * (skyAmbientColour + weatherAmbientColour);
+
+
+        // Update primary sun position
+        std::map<string_t, cStar*>::const_iterator iter = stars.find(sPrimarySun);
+        if (iter != stars.end()) {
+          primarySunPosition = iter->second->GetEulerPosition();
+        }
       }
     }
 
@@ -545,8 +592,7 @@ namespace breathe
         s.SetRotationZDegrees(90.0f);
         s.SetPitchDegrees(0.0f);
 
-        const spitfire::math::cVec3 position(s.GetEulerPosition());
-        particle.p.Set(position);
+        particle.p = s.GetEulerPosition();
 
         particle.fWidth = 180.0f;
         particle.fHeight = particle.fWidth;
@@ -569,8 +615,7 @@ namespace breathe
         s.SetRotationZDegrees(45.0f);
         s.SetPitchDegrees(45.0f);
 
-        const spitfire::math::cVec3 position(s.GetEulerPosition());
-        particle.p.Set(position);
+        particle.p = s.GetEulerPosition();
 
         particle.fWidth = 50.0f;
         particle.fHeight = particle.fWidth;
@@ -593,8 +638,7 @@ namespace breathe
         s.SetRotationZDegrees(spitfire::math::randomf(360.0f));
         s.SetPitchDegrees(spitfire::math::randomf(360.0f));
 
-        const spitfire::math::cVec3 position(s.GetEulerPosition());
-        particle.p.Set(position);
+        particle.p = s.GetEulerPosition();
 
         particle.fWidth = spitfire::math::randomf(4.0f, 6.0f);
         particle.fHeight = particle.fWidth;
@@ -615,8 +659,7 @@ namespace breathe
         s.SetRotationZDegrees(spitfire::math::randomf(360.0f));
         s.SetPitchDegrees(spitfire::math::randomf(360.0f));
 
-        const spitfire::math::cVec3 position(s.GetEulerPosition());
-        particle.p.Set(position);
+        particle.p = s.GetEulerPosition();
 
         particle.fWidth = spitfire::math::randomf(5.0f);
         particle.fHeight = particle.fWidth;
@@ -632,9 +675,6 @@ namespace breathe
     void cSkyDomeAtmosphereRenderer::Update(sampletime_t currentTime)
     {
       LOG<<"cSkyDomeAtmosphereRenderer::Update"<<std::endl;
-
-      // TODO: This should be called from else where
-      sky.Update(currentTime);
 
       const float_t t = float_t(currentTime) / 60000.0f; //0.125f;
 

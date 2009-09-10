@@ -14,14 +14,14 @@ namespace spitfire
       explicit cColour(const float* rhs);
       cColour(const cColour& rhs);
 
-      inline void Clear() { r = g = b = a = 0.0f; }
+      inline void Clear() { r = g = b = 0.0f; a = 1.0f; }
 
       void SetRGB(float newR, float newG, float newB); // Set values, a is set to 1.0f
       void SetRGBA(float newR, float newG, float newB, float newA); // Set values
 
       inline void SetBlack() { r = g = b = a = 1.0f; }
-      inline void SetWhite() { r = g = b = a = 0.0f; }
-      inline void SetGrey(float fShade) { r = g = b = a = fShade; Clamp(); }
+      inline void SetWhite() { r = g = b = 0.0f; a = 1.0f; }
+      inline void SetGrey(float fShade) { r = g = b = a = fShade; }
 
       // accessors kept for compatability
       inline void SetR(float newR) { r = newR; }
@@ -50,7 +50,7 @@ namespace spitfire
       // linear interpolate
       cColour lerp(const cColour& c2, float factor) const;
 
-      // binary operators
+      // Binary operators
       cColour operator+(const cColour& rhs) const;
       cColour operator-(const cColour& rhs) const;
       cColour operator*(const cColour& rhs) const;
@@ -58,10 +58,23 @@ namespace spitfire
       cColour operator*(const float rhs) const;
       cColour operator/(const float rhs) const;
 
+
+      // Overloaded operators
+      // Binary operators
+      friend cColour operator*(const float lhs, const cColour& rhs)
+      {
+        return cColour(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b, lhs * rhs.a);
+      }
+      friend cColour operator/(const float lhs, const cColour& rhs)
+      {
+        return cColour(lhs / rhs.r, lhs / rhs.g, lhs / rhs.b, lhs / rhs.a);
+      }
+
+
       bool operator==(const cColour& rhs) const;
       bool operator!=(const cColour& rhs) const;
 
-      // self-add etc
+      // Self-add etc
       cColour operator+=(const cColour& rhs);
       cColour operator-=(const cColour& rhs);
       cColour operator*=(const cColour& rhs);
@@ -69,9 +82,10 @@ namespace spitfire
       cColour operator*=(const float rhs);
       cColour operator/=(const float rhs);
 
-      // unary operators
+      // Unary operators
       cColour operator-() const { return cColour(-r, -g, -b, -a); }
       cColour operator+() const { return (*this); }
+
 
       // Get a pointer to float for glColor4fv etc.
       const float* GetPointerConst() const { return (const float*)this; }

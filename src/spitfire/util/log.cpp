@@ -86,6 +86,24 @@ namespace spitfire
 {
   namespace logging
   {
+    bool bIsLogging = true;
+
+    bool IsLogging()
+    {
+      return bIsLogging;
+    }
+
+    void TurnOnLogging()
+    {
+      bIsLogging = true;
+    }
+
+    void TurnOffLogging()
+    {
+      bIsLogging = false;
+    }
+
+
     // ***********************************************LOG*******************************************************
 
     cLog::cLog() :
@@ -151,6 +169,8 @@ namespace spitfire
 #ifdef BUILD_DEBUG
     void cLog::trace(const std::string& section)
     {
+      if (!bIsLogging) return;
+
       spitfire::string_t s = TEXT("<!> ") + spitfire::string::ToString_t(section) + TEXT("\n");
 #ifdef __WIN__
       OutputDebugString(s.c_str());
@@ -167,6 +187,8 @@ namespace spitfire
 
     void cLog::Newline()
     {
+      if (!bIsLogging) return;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -177,6 +199,8 @@ namespace spitfire
 
     void cLog::Newline(const std::string& s1)
     {
+      if (!bIsLogging) return;
+
       section = s1;
 
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
@@ -194,6 +218,8 @@ namespace spitfire
 
     void cLog::Newline(const std::string& s1, const std::string& text)
     {
+      if (!bIsLogging) return;
+
       section = s1;
 
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
@@ -210,6 +236,8 @@ namespace spitfire
 
     void cLog::Success(const std::string& section, const std::string& text)
     {
+      if (!bIsLogging) return;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -228,6 +256,8 @@ namespace spitfire
 
     void cLog::Error(const std::string& section, const std::string& text)
     {
+      if (!bIsLogging) return;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -408,7 +438,7 @@ namespace spitfire
         ExecuteCommand(GetCurrentLine());
 
         ClearCurrent();
-        uiCursorPosition=0;
+        uiCursorPosition = 0;
       } else if (SDLK_DELETE == uiCode) {
         if (uiCursorPosition<current.size())
           current.erase(uiCursorPosition, 1);
@@ -418,30 +448,30 @@ namespace spitfire
           current.erase(uiCursorPosition-1, 1);
           uiCursorPosition--;
         }
-      } else if (SDLK_LEFT==uiCode) {
+      } else if (SDLK_LEFT == uiCode) {
         if (uiCursorPosition > 0)
           uiCursorPosition--;
       }
 
-      else if (SDLK_RIGHT==uiCode) {
+      else if (SDLK_RIGHT == uiCode) {
         if (uiCursorPosition<current.size()) uiCursorPosition++;
-      } else if (SDLK_HOME==uiCode) uiCursorPosition=0;
-      else if (SDLK_END==uiCode) uiCursorPosition=current.size();
+      } else if (SDLK_HOME == uiCode) uiCursorPosition = 0;
+      else if (SDLK_END == uiCode) uiCursorPosition = current.size();
 
-      else if (SDLK_TAB==uiCode)
+      else if (SDLK_TAB == uiCode)
         ; //TODO: Autocomplete
-      else if (SDLK_CLEAR==uiCode)
-        current="";
-      else if (SDLK_UP==uiCode)
+      else if (SDLK_CLEAR == uiCode)
+        current = "";
+      else if (SDLK_UP == uiCode)
         ; //TODO: History of typed in items
-      else if (SDLK_DOWN==uiCode)
+      else if (SDLK_DOWN == uiCode)
         ; //TODO: History of typed in items
-      else if (SDLK_PAGEUP==uiCode)
+      else if (SDLK_PAGEUP == uiCode)
         ; //TODO: History of all console items
-      else if (SDLK_PAGEDOWN==uiCode)
+      else if (SDLK_PAGEDOWN == uiCode)
         ; //TODO: History of all console items
 
-      else if (uiCode<300) {
+      else if (uiCode < 300) {
         /*#include <SDL/SDL_keysym.h>
 
         if ((uiCode<SDLK_a || uiCode>SDLK_z) && (uiCode<SDLK_0 || uiCode>SDLK_9)) {

@@ -8,55 +8,37 @@ namespace breathe
     class cShaderConstants
     {
     public:
+      cShaderConstants() {}
+      cShaderConstants(const cShaderConstants& rhs) { Assign(rhs); }
+
+      cShaderConstants& operator=(const cShaderConstants& rhs) { Assign(rhs); return *this; }
+
+      int GetValueInt(const string_t& sName) const;
+      float GetValueFloat(const string_t& sName) const;
+      math::cVec2 GetValueVec2(const string_t& sName) const;
+      math::cVec3 GetValueVec3(const string_t& sName) const;
+      math::cVec4 GetValueVec4(const string_t& sName) const;
+
       void SetValue(const string_t& sName, int value) { mInt[sName] = value; }
       void SetValue(const string_t& sName, float value) { mFloat[sName] = value; }
       void SetValue(const string_t& sName, const math::cVec2& value) { mVec2[sName] = value; }
       void SetValue(const string_t& sName, const math::cVec3& value) { mVec3[sName] = value; }
+      void SetValue(const string_t& sName, const math::cVec4& value) { mVec4[sName] = value; }
 
     private:
+      void Assign(const cShaderConstants& rhs);
+
       std::map<string_t, int> mInt;
       std::map<string_t, float> mFloat;
       std::map<string_t, math::cVec2> mVec2;
       std::map<string_t, math::cVec3> mVec3;
+      std::map<string_t, math::cVec4> mVec4;
     };
 
     // void cRender::SetMaterial(material::cMaterialRef pMaterial);
     // void cRender::SetMaterial(material::cMaterialRef pMaterial, const cShaderConstants& shaderConstants);
 
 
-
-    /*
-    class cVertexProgram
-    {
-    public:
-      void SetNamedValue(const string_t& variable, float value) { values_float[variable] = value; }
-      void SetNamedValue(const string_t& variable, const math::cVec2& value) { values_cVec2[variable] = value; }
-      void SetNamedValue(const string_t& variable, const math::cVec3& value) { values_cVec3[variable] = value; }
-      void SetNamedValue(const string_t& variable, const math::cVec4& value) { values_cVec4[variable] = value; }
-      void SetNamedValue(const string_t& variable, const math::cColour& value) { values_cColour[variable] = value; }
-
-    private:
-      void PassValuesToProgram();
-      void PassFloatValueToProgram(const string_t& name, float value);
-
-      std::map<string_t, float> values_float;
-      std::map<string_t, math::cVec2> values_cVec2;
-      std::map<string_t, math::cVec3> values_cVec3;
-      std::map<string_t, math::cVec4> values_cVec4;
-      std::map<string_t, math::cColour> values_cColour;
-    };
-
-    cVertexProgram::PassValuesToProgram()
-    {
-      std::map<string_t, float>::iterator iter(values_float.begin());
-      const std::map<string_t, float>::iterator iterEnd(variables_float.end());
-
-      while (iter != iterEnd) {
-        PassFloatToProgram(iter->first, iter->second);
-        iter++;
-      }
-    }
-    */
 
     // A cShader is a combination of a either one or zero vertex program and one or zero fragment program
     class cShader
@@ -78,18 +60,21 @@ namespace breathe
       string_t sShaderVertex;
       string_t sShaderFragment;
 
-      bool bTexUnit0;
-      bool bTexUnit1;
-      bool bTexUnit2;
-      bool bTexUnit3;
-
       unsigned int uiShaderVertex;
       unsigned int uiShaderFragment;
 
       // Combined resource id
       unsigned int uiShaderProgram;
 
+
+      // Which uniforms should we send to the shader?
+      bool bTexUnit0;
+      bool bTexUnit1;
+      bool bTexUnit2;
+      bool bTexUnit3;
       bool bCameraPos;
+      bool bAmbientColour;
+      bool bLightPosition;
     };
 
     typedef cSmartPtr<cShader> cShaderRef;
@@ -104,10 +89,15 @@ namespace breathe
       public:
         cLayer();
 
+        void CloneTo(cLayer& destination) const;
+
         cTextureRef pTexture;
-        unsigned int uiTextureMode;
+        TEXTURE_MODE uiTextureMode;
         string_t sTexture;
       };
+
+      class cMaterial;
+      typedef cSmartPtr<cMaterial> cMaterialRef;
 
       class cMaterial
       {
@@ -117,12 +107,14 @@ namespace breathe
 
         bool Load(const string_t& sNewFilename);
 
+        void CloneTo(cMaterialRef pDestination);
+
         // Rendering
         uint8_t chDustR;
         uint8_t chDustG;
         uint8_t chDustB;
 
-        std::vector<cLayer*>vLayer;
+        std::vector<cLayer*> vLayer;
         // 0=Diffuse
         // 1+=Either none, detail, cubemap or bumpmap
 
@@ -148,8 +140,6 @@ namespace breathe
 
         cShaderRef pShader;
       };
-
-      typedef cSmartPtr<cMaterial> cMaterialRef;
     }
   }
 }

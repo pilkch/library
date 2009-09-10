@@ -66,17 +66,74 @@ namespace breathe
 {
   namespace render
   {
-    cShader::cShader() :
-      bTexUnit0(false),
-      bTexUnit1(false),
-      bTexUnit2(false),
-      bTexUnit3(false),
+    // *** cShaderConstants
 
+    void cShaderConstants::Assign(const cShaderConstants& rhs)
+    {
+      mInt = rhs.mInt;
+      mFloat = rhs.mFloat;
+      mVec2 = rhs.mVec2;
+      mVec3 = rhs.mVec3;
+      mVec4 = rhs.mVec4;
+    }
+
+    int cShaderConstants::GetValueInt(const string_t& sName) const
+    {
+      std::map<string_t, int>::const_iterator iter(mInt.find(sName));
+      ASSERT(iter != mInt.end());
+
+      return iter->second;
+    }
+
+    float cShaderConstants::GetValueFloat(const string_t& sName) const
+    {
+      std::map<string_t, float>::const_iterator iter(mFloat.find(sName));
+      ASSERT(iter != mFloat.end());
+
+      return iter->second;
+    }
+
+    math::cVec2 cShaderConstants::GetValueVec2(const string_t& sName) const
+    {
+      std::map<string_t, math::cVec2>::const_iterator iter(mVec2.find(sName));
+      ASSERT(iter != mVec2.end());
+
+      return iter->second;
+    }
+
+    math::cVec3 cShaderConstants::GetValueVec3(const string_t& sName) const
+    {
+      std::map<string_t, math::cVec3>::const_iterator iter(mVec3.find(sName));
+      ASSERT(iter != mVec3.end());
+
+      return iter->second;
+    }
+
+    math::cVec4 cShaderConstants::GetValueVec4(const string_t& sName) const
+    {
+      std::map<string_t, math::cVec4>::const_iterator iter(mVec4.find(sName));
+      ASSERT(iter != mVec4.end());
+
+      return iter->second;
+    }
+
+
+
+
+    // *** cShader
+
+    cShader::cShader() :
       uiShaderVertex(0),
       uiShaderFragment(0),
       uiShaderProgram(0),
 
-      bCameraPos(false)
+      bTexUnit0(false),
+      bTexUnit1(false),
+      bTexUnit2(false),
+      bTexUnit3(false),
+      bCameraPos(false),
+      bAmbientColour(false),
+      bLightPosition(false)
     {
     }
 
@@ -397,6 +454,8 @@ namespace breathe
 
         if (pShader != nullptr) {
           iter.GetAttribute("cameraPos", pShader->bCameraPos);
+          iter.GetAttribute("ambientColour", pShader->bAmbientColour);
+          iter.GetAttribute("lightPosition", pShader->bLightPosition);
 
           iter.GetAttribute("texUnit0", pShader->bTexUnit0);
           iter.GetAttribute("texUnit1", pShader->bTexUnit1);
@@ -429,12 +488,13 @@ namespace breathe
 
             std::string sValue;
             if (iter.GetAttribute("uiTextureMode", sValue)) {
-              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode=TEXTURE_NORMAL;
-              else if (sValue == "TEXTURE_MASK")          pLayer->uiTextureMode=TEXTURE_MASK;
-              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode=TEXTURE_BLEND;
-              else if (sValue == "TEXTURE_DETAIL")        pLayer->uiTextureMode=TEXTURE_DETAIL;
-              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode=TEXTURE_CUBEMAP;
-              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode=TEXTURE_POST_RENDER;
+              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode = TEXTURE_NORMAL;
+              else if (sValue == "TEXTURE_MASK")         pLayer->uiTextureMode = TEXTURE_MASK;
+              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode = TEXTURE_BLEND;
+              else if (sValue == "TEXTURE_DETAIL")       pLayer->uiTextureMode = TEXTURE_DETAIL;
+              else if (sValue == "TEXTURE_SPECULAR")     pLayer->uiTextureMode = TEXTURE_SPECULAR;
+              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode = TEXTURE_CUBEMAP;
+              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode = TEXTURE_POST_RENDER;
             }
 
             unsigned int uiTextureAtlas = ATLAS_NONE;

@@ -60,7 +60,7 @@ namespace breathe
 
       uiWidth(0),
       uiHeight(0),
-      uiMode(TEXTURE_RGBA),
+      uiType(TEXTURE_RGBA),
 
       fScale(1.0f),
       fU(0.0f),
@@ -99,10 +99,10 @@ namespace breathe
       //Check the format
       if (8 == surface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
-        uiMode = TEXTURE_HEIGHTMAP;
+        uiType = TEXTURE_HEIGHTMAP;
       } else if (16 == surface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
-        uiMode = TEXTURE_HEIGHTMAP;
+        uiType = TEXTURE_HEIGHTMAP;
       } else if (24 == surface->format->BitsPerPixel) {
         CONSOLE.Error("Texture", breathe::string::ToUTF8(sFilename) + " is a 24 bit RGB image");
         // Add alpha channel
@@ -117,7 +117,7 @@ namespace breathe
         surface = pConvertedSurface;
       } else if (32 == surface->format->BitsPerPixel) {
         LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " is a 32 bit RGBA image");
-        uiMode = TEXTURE_RGBA;
+        uiType = TEXTURE_RGBA;
 
         // Convert if BGR
         if (surface->format->Rshift > surface->format->Bshift) {
@@ -188,9 +188,9 @@ namespace breathe
 
       // Fill out the pData structure array, we use this for when we have to reload this data
       // on a task switch or fullscreen mode change
-      if (data.empty()) data.resize(uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4), 0);
+      if (data.empty()) data.resize(uiWidth * uiHeight * (uiType == TEXTURE_HEIGHTMAP ? 1 : 4), 0);
 
-      std::memcpy(&data[0], surface->pixels, uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(&data[0], surface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_HEIGHTMAP ? 1 : 4));
     }
 
     void cTexture::CopyFromDataToSurface()
@@ -199,7 +199,7 @@ namespace breathe
 
       if (data.empty()) return;
 
-      std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiMode == TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_HEIGHTMAP ? 1 : 4));
     }
 
     bool cTexture::SaveToBMP(const string_t& inFilename) const
@@ -268,69 +268,147 @@ namespace breathe
     cTextureFrameBufferObject::cTextureFrameBufferObject() :
       uiFBO(0),
       uiFBODepthBuffer(0),
-      bIsUsingMipMaps(true)
+      bIsUsingMipMaps(true),
+      uiMode(TEXTURE_NORMAL)
     {
-      uiMode = TEXTURE_FRAMEBUFFEROBJECT;
+      uiType = TEXTURE_FRAMEBUFFEROBJECT;
+      uiWidth = DEFAULT_FBO_TEXTURE_WIDTH;
+      uiHeight = DEFAULT_FBO_TEXTURE_HEIGHT;
     }
 
     cTextureFrameBufferObject::~cTextureFrameBufferObject()
     {
       glDeleteFramebuffersEXT(1, &uiFBO);
       glDeleteRenderbuffersEXT(1, &uiFBODepthBuffer);
+
+      // Unbind this texture if it is bound
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
       glDeleteTextures(1, &uiTexture);
+    }
+
+    void cTextureFrameBufferObject::SetModeCubeMap()
+    {
+      uiMode = TEXTURE_CUBEMAP;
     }
 
     void cTextureFrameBufferObject::_Create()
     {
+      // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.282D.29.2C_mipmaps
+      // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.28Cubemap.29
+
+      // Only allow square FBO textures at the moment
+      ASSERT(uiWidth == uiHeight);
+
       // Create FBO
       glGenFramebuffersEXT(1, &uiFBO);
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
+
+
+      if (uiMode != TEXTURE_CUBEMAP) {
+        // Now setup a texture to render to
+        glGenTextures(1, &uiTexture);
+        glBindTexture(GL_TEXTURE_2D, uiTexture);
+
+        GLenum internal = GL_RGBA8;
+        GLenum type = GL_UNSIGNED_BYTE;
+
+        // We want all FBO textures to be 16bit as we will get more precision hopefully
+        internal = GL_RGBA16F_ARB; // This seems good enough and won't use twice as much(!) memory as 32bit
+        //internal = GL_RGBA32F_ARB;
+        type = GL_FLOAT;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, NULL);
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+        if (bIsUsingMipMaps) {
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+          //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+          glGenerateMipmapEXT(GL_TEXTURE_2D);
+        }
+
+        // And attach it to the FBO so we can render to it
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
+      } else {
+        // Now setup a texture to render to
+        glGenTextures(1, &uiTexture);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, uiTexture);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // NULL means reserve texture memory, but texels are undefined
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+
+        // Attach one of the faces of the Cubemap texture to this FBO
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
+      }
 
 
 
       // Create the Render Buffer for Depth
       glGenRenderbuffersEXT(1, &uiFBODepthBuffer);
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
-      glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+      glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, uiWidth, uiHeight);
 
       // Attach the depth render buffer to the FBO as it's depth attachment
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
 
 
 
-      // Now setup a texture to render to
-      glGenTextures(1, &uiTexture);
-      glBindTexture(GL_TEXTURE_2D, uiTexture);
-
-      GLenum internal = GL_RGBA8;
-      GLenum type = GL_UNSIGNED_BYTE;
-
-      // We want all FBO textures to be 16bit as we will get more precision hopefully
-      internal = GL_RGBA16F_ARB; // This seems good enough and won't use twice as much(!) memory as 32bit
-      //internal = GL_RGBA32F_ARB;
-      type = GL_FLOAT;
-
-      glTexImage2D(GL_TEXTURE_2D, 0, internal, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT, 0, GL_RGBA, type, NULL);
-
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-      if (bIsUsingMipMaps) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        glGenerateMipmapEXT(GL_TEXTURE_2D);
-      }
-
-      // And attach it to the FBO so we can render to it
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
-
-
+      // Check our status to make sure that we have a complete and ready to use FBO
       GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
       if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-        LOG.Error("Texture", "Frame buffer status failed");
+        string_t sError = TEXT("UNKNOWN ERROR");
+
+        switch (status) {
+          case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT");
+            break;
+          }
+          case GL_FRAMEBUFFER_UNSUPPORTED_EXT: {
+            sError = TEXT("GL_FRAMEBUFFER_UNSUPPORTED_EXT");
+            break;
+          }
+          case GL_INVALID_FRAMEBUFFER_OPERATION_EXT: {
+            sError = TEXT("GL_INVALID_FRAMEBUFFER_OPERATION_EXT");
+            break;
+          }
+        }
+
+        LOG<<"cTextureFrameBufferObject::_Create FAILED status="<<sError<<std::endl;
         ASSERT(status == GL_FRAMEBUFFER_COMPLETE_EXT);
       }
 

@@ -34,7 +34,6 @@ namespace spitfire
       b(newB),
       a(1.0f)
     {
-      Clamp();
     }
 
     cColour::cColour(float newR, float newG, float newB, float newA) :
@@ -43,7 +42,6 @@ namespace spitfire
       b(newB),
       a(newA)
     {
-      Clamp();
     }
 
     cColour::cColour(const float* rhs)
@@ -52,8 +50,6 @@ namespace spitfire
       g = rhs[1];
       b = rhs[2];
       a = rhs[3];
-
-      Clamp();
     }
 
     cColour::cColour(const cColour& rhs) :
@@ -70,8 +66,6 @@ namespace spitfire
       g = newG;
       b = newB;
       a = 1.0f;
-
-      Clamp();
     }
 
     void cColour::SetRGBA(float newR, float newG, float newB, float newA)
@@ -80,8 +74,6 @@ namespace spitfire
       g = newG;
       b = newB;
       a = newA;
-
-      Clamp();
     }
 
     void cColour::Clamp()
@@ -117,27 +109,17 @@ namespace spitfire
 
     cColour cColour::operator +(const cColour& rhs) const
     {
-      cColour result(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
-
-      result.Clamp();
-
-      return result;
+      return cColour(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
     }
 
     cColour cColour::operator -(const cColour& rhs) const
     {
-      cColour result(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a);
-
-      result.Clamp();
-
-      return result;
+      return cColour(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a);
     }
 
     cColour cColour::operator *(const cColour& rhs) const
     {
       cColour result(r * rhs.r, g * rhs.g, b * rhs.b, a * rhs.a);
-
-      result.Clamp();
 
       return result;
     }
@@ -145,8 +127,6 @@ namespace spitfire
     cColour cColour::operator /(const cColour& rhs) const
     {
       cColour result(r / rhs.r, g / rhs.g, b / rhs.b, a / rhs.a);
-
-      result.Clamp();
 
       return result;
     }
@@ -160,8 +140,6 @@ namespace spitfire
       result.b = b * rhs;
       result.a = a * rhs;
 
-      result.Clamp();
-
       return result;
     }
 
@@ -174,8 +152,6 @@ namespace spitfire
       result.g = g * fOneOverRhs;
       result.b = b * fOneOverRhs;
       result.a = a * fOneOverRhs;
-
-      result.Clamp();
 
       return result;
     }

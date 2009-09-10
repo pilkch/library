@@ -342,7 +342,7 @@ namespace breathe
 
     unsigned int cParticleSystemCustomBillboard::Render()
     {
-      LOG<<"cParticleSystemCustomBillboard::Render p=("<<position.x<<","<<position.y<<","<<position.z<<") n="<<sorted.size()<<std::endl;
+      //LOG<<"cParticleSystemCustomBillboard::Render p=("<<position.x<<","<<position.y<<","<<position.z<<") n="<<sorted.size()<<std::endl;
       ASSERT(pMaterial != nullptr);
       ASSERT(pMaterial->pShader != nullptr);
 

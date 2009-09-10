@@ -24,7 +24,15 @@ namespace breathe
     {
     }
 
-    //void cCamera::SetLookAtCamera(const math::cVec3& positionEye, const math::cVec3& positionLookAtPoint);
+    void cCamera::SetLookAtCamera(const spitfire::math::cVec3& _positionEye, const spitfire::math::cVec3& _positionLookAtPoint)
+    {
+      positionEye = _positionEye;
+
+      positionLookAtPoint = _positionLookAtPoint;
+
+      // This is wrong if the camera can "roll"
+      directionUp = spitfire::math::v3Up;
+    }
 
     void cCamera::SetFirstPersonCamera(const spitfire::math::cVec3& _positionEye, const spitfire::math::cQuaternion& rotation)
     {
@@ -33,6 +41,7 @@ namespace breathe
       spitfire::math::cMat4 matRotation = rotation.GetMatrix();
       positionLookAtPoint = _positionEye - (matRotation * spitfire::math::cVec3(0.0f, 1.0f, 200.0f));
 
+      // This is wrong if the camera can "roll"
       directionUp = spitfire::math::v3Up;
     }
 
@@ -55,6 +64,8 @@ namespace breathe
       positionEye = (matObject * matRotationOfEye).GetPosition();
 
 
+      // This is wrong if the camera can "roll"
+
       //directionUp = spitfire::math::v3Up;
       directionUp = matRotationOfObject.GetUp();
     }
@@ -66,6 +77,7 @@ namespace breathe
       spitfire::math::cMat4 matRotation = (rotationOfObject * rotationOfViewRelativeToRotationOfObject).GetMatrix();
       positionEye = positionOfObject - (matRotation * spitfire::math::cVec3(0.0f, 1.0f, 25.0f));
 
+      // This is wrong if the camera can "roll"
       directionUp = spitfire::math::v3Up;
     }
 
@@ -76,9 +88,7 @@ namespace breathe
       frustum.targetIdeal = positionLookAtPoint;
       frustum.eyeIdeal = positionEye;
 
-//#ifdef BUILD_FIRST_PERSON
       frustum.Update();
-//#endif
 
       return frustum;
     }

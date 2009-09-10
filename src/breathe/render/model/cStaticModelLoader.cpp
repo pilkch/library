@@ -134,9 +134,6 @@ namespace breathe
       {
         LOG<<"cFileFormatOBJ::LoadMesh i="<<i<<" n="<<n<<std::endl;
 
-        mesh.Clear();
-
-
         std::vector<float> verticesIndices;
         std::vector<float> textureCoordinatesIndices;
         std::vector<float> normalsIndices;
@@ -163,7 +160,7 @@ namespace breathe
           //}
         }
 
-        // Read vertices
+        // Read vertices, textureCoordinates and normals
         for (; i < n; i++) {
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
@@ -171,67 +168,43 @@ namespace breathe
           // Skip anything we can't parse
           if (SkipJunk(tokens[0])) continue;
 
-          if (tokens[0] != "v") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"v\""<<std::endl;
+          const std::string sType = tokens[0];
+          if (sType == "v") {
+            // Vertex
+            if (tokens.size() != 4) {
+              LOG<<"unexpected number of arguments to \"v\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            }
+
+            if (tokens.size() == 4) {
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+            }
+          } else if (sType == "vt") {
+            // Texture Coordinate
+            if (tokens.size() != 3) {
+              LOG<<"unexpected number of arguments to \"vt\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            }
+
+            if (tokens.size() == 3) {
+              textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
+              textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
+            }
+          } else if (sType == "vn") {
+            // Normal
+            if (tokens.size() != 4) {
+              LOG<<"unexpected number of arguments to \"vn\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            }
+
+            if (tokens.size() == 4) {
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+            }
+          } else {
+            // Unknown
+            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"v\" or \"vt\" or \"vn\""<<std::endl;
             break;
-          }
-
-          if (tokens.size() != 4) {
-            LOG<<"unexpected number of arguments to \"v\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
-          }
-
-          if (tokens.size() == 4) {
-            vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-            vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-            vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
-          }
-        }
-
-        // Read texture coordinates
-        for (; i < n; i++) {
-          spitfire::string::Split(lines[i], ' ', tokens);
-          if (tokens.empty()) continue;
-
-          // Skip anything we can't parse
-          if (SkipJunk(tokens[0])) continue;
-
-          if (tokens[0] != "vt") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"vt\""<<std::endl;
-            break;
-          }
-
-          if (tokens.size() != 3) {
-            LOG<<"unexpected number of arguments to \"vt\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
-          }
-
-          if (tokens.size() == 3) {
-            textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-            textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-          }
-        }
-
-        // Read normals
-        for (; i < n; i++) {
-          LOG<<"lines["<<i<<"] = \""<<lines[i]<<"\""<<std::endl;
-          spitfire::string::Split(lines[i], ' ', tokens);
-          if (tokens.empty()) continue;
-
-          // Skip anything we can't parse
-          if (SkipJunk(tokens[0])) continue;
-
-          if (tokens[0] != "vn") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"vn\""<<std::endl;
-            break;
-          }
-
-          if (tokens.size() != 4) {
-            LOG<<"unexpected number of arguments to \"vn\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
-          }
-
-          if (tokens.size() == 4) {
-            normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-            normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-            normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
           }
         }
 
@@ -297,6 +270,11 @@ namespace breathe
             break;
           }
 
+          if (tokens.size() == 3) {
+            LOG<<"This is a line (2 vertices) not a face, we don't support lines for \"f\", skipping lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            continue;
+          }
+
           if (tokens.size() != 4) {
             LOG<<"unexpected number of arguments to \"f\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
             ASSERT(false);
@@ -323,17 +301,21 @@ namespace breathe
               item++;
 
               if (l >= 2) {
-                size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
-                if (value == 0) value = 1;
-                textureCoordinatesIndices.push_back(value);
-                item++;
+                if (!elements[item].empty()) {
+                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
+                  if (value == 0) value = 1;
+                  textureCoordinatesIndices.push_back(value);
+                  item++;
+                }
               }
 
               if (l >= 3) {
-                size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
-                if (value == 0) value = 1;
-                normalsIndices.push_back(value);
-                item++;
+                if (!elements[item].empty()) {
+                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
+                  if (value == 0) value = 1;
+                  normalsIndices.push_back(value);
+                  item++;
+                }
               }
             }
           }
@@ -450,8 +432,15 @@ namespace breathe
       // usemtl (null)
       // OR
       // usemtl Material.001_rubbish_bin.png
+      // OR
+      // usemtl rubbish_bin
 
       // s off
+      // OR
+      // s 1
+      // OR
+      // s 2 etc.
+
       // f 1 2 3
       // OR
       // f 65//1 1//1 2//1
@@ -471,6 +460,9 @@ namespace breathe
 
         if (lines.empty()) return false;
 
+        string_t sDefaultMaterial = spitfire::filesystem::GetFileNoExtension(sFilename);
+        LOG<<"cFileFormatOBJ::Load sDefaultMaterial=\""<<sDefaultMaterial<<"\""<<std::endl;
+
         std::vector<float> vertices;
         std::vector<float> textureCoordinates;
         std::vector<float> normals;
@@ -487,6 +479,9 @@ namespace breathe
 
           // Ok, we might have a valid mesh
           cStaticModelMesh* pMesh = new cStaticModelMesh;
+
+          // Default our material to the default mesh material
+          pMesh->sMaterial = sDefaultMaterial;
 
           i = LoadMesh(lines, i, n, vertices, textureCoordinates, normals, *pMesh);
 

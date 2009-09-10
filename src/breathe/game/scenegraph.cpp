@@ -598,7 +598,7 @@ namespace breathe
 
     void cPagedLODNodeChild::_Update(cUpdateVisitor& visitor)
     {
-      LOG<<"cPagedLODNodeChild::_Update"<<std::endl;
+      //LOG<<"cPagedLODNodeChild::_Update"<<std::endl;
 
       visitor.Visit(*terrain);
       visitor.Visit(*trees);
@@ -607,7 +607,7 @@ namespace breathe
 
     void cPagedLODNodeChild::_Cull(cCullVisitor& visitor)
     {
-      LOG<<"cPagedLODNodeChild::_Cull"<<std::endl;
+      //LOG<<"cPagedLODNodeChild::_Cull"<<std::endl;
 
       const float_t fLength = (visitor.GetCameraPosition() - terrain->GetAbsolutePosition()).GetLength();
       if (fLength < 1000.0f) LoadAndSetTerrainLOD2();
@@ -812,7 +812,7 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
+    cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph, const math::cFrustum& frustum) :
       scenegraph(_scenegraph)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
@@ -824,7 +824,7 @@ namespace breathe
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
         glLoadIdentity();
-        glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
+        glMultMatrixf(frustum.m.GetOpenGLMatrixPointer());
 
           pRender->ClearMaterial();
 
@@ -1076,7 +1076,10 @@ namespace breathe
 
     void cSceneGraph::Update(sampletime_t currentTime)
     {
-      if (pSkySystem != nullptr) pSkySystem->GetSkyDomeAtmosphereRenderer().Update(currentTime);
+      if (pSkySystem != nullptr) {
+        pSkySystem->Update(currentTime);
+        ambientColour = pSkySystem->GetAmbientColour();
+      }
 
       cUpdateVisitor visitor(*this);
 
@@ -1090,9 +1093,9 @@ namespace breathe
       cCullVisitor visitor(camera, *this);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime)
+    void cSceneGraph::Render(sampletime_t currentTime, const math::cFrustum& frustum)
     {
-      cRenderVisitor visitor(*this);
+      cRenderVisitor visitor(*this, frustum);
     }
 
 #ifdef BUILD_DEBUG
@@ -1341,7 +1344,7 @@ namespace breathe
 
             scenegraph.Update(currentTime);
             scenegraph.Cull(camera, currentTime);
-            scenegraph.Render(currentTime);
+            scenegraph.Render(currentTime, pRender->GetFrustum());
 
 
 

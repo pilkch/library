@@ -124,12 +124,11 @@ namespace spitfire
       cVec3 operator+(void) const { return *this; }
 
       // Cast to pointer to a (float *) for glVertex3fv etc
-      operator float* () const { return (float*) this; }
-      operator const float* () const { return (const float*) this; }
+      const float* GetPointerConst() const { return (const float*)this; }
 
       float& operator[](int i)
       {
-        return ((0==i) ? x : ((1==i) ? y : z));
+        return ((0 == i) ? x : ((1 == i) ? y : z));
       }
 
       float x;

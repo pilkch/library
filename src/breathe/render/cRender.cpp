@@ -531,7 +531,7 @@ namespace breathe
       glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00002f); //0.25f);
       glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f); //0.1f);
 
-      glLightfv(GL_LIGHT0, GL_POSITION, sunPosition);
+      glLightfv(GL_LIGHT0, GL_POSITION, sunPosition.GetPointerConst());
 
       glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient.GetPointerConst());
       glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse.GetPointerConst());
@@ -651,7 +651,7 @@ namespace breathe
       else DisableWireframe();
 
       if (bLight) {
-        glLightfv(GL_LIGHT0, GL_POSITION, sunPosition);
+        glLightfv(GL_LIGHT0, GL_POSITION, sunPosition.GetPointerConst());
         glEnable(GL_LIGHTING);
       } else glDisable(GL_LIGHTING);
 
@@ -661,6 +661,7 @@ namespace breathe
     void cRender::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
       ASSERT(pTexture->IsValid());
+      ASSERT(!pTexture->IsModeCubeMap());
 
       glEnable(GL_TEXTURE_2D);
 
@@ -669,7 +670,7 @@ namespace breathe
 
       // Save the view port settings and set it to the size of the texture
       glPushAttrib(GL_VIEWPORT_BIT);
-      glViewport(0, 0, FBO_TEXTURE_WIDTH, FBO_TEXTURE_HEIGHT);
+      glViewport(0, 0, pTexture->GetWidth(), pTexture->GetHeight());
 
       _BeginRenderShared();
     }
@@ -683,6 +684,40 @@ namespace breathe
       pTexture->GenerateMipMapsIfRequired();
 
       glDisable(GL_TEXTURE_2D);
+    }
+
+    void cRender::BeginRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture, CUBE_MAP_FACE face)
+    {
+      ASSERT(pTexture->IsValid());
+      ASSERT(pTexture->IsModeCubeMap());
+
+      glEnable(GL_TEXTURE_2D);
+
+      // First we bind the FBO so we can render to it
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTexture->uiFBO);
+
+
+      GLenum openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+      if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_X) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_POSITIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_POSITIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+
+      // Bind the actual face we want to render to
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, openGLFace, pTexture->uiTexture, 0);
+
+
+      // Save the view port settings and set it to the size of the texture
+      glPushAttrib(GL_VIEWPORT_BIT);
+      glViewport(0, 0, pTexture->GetWidth(), pTexture->GetHeight());
+
+      _BeginRenderShared();
+    }
+
+    void cRender::EndRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture)
+    {
+      EndRenderToTexture(pTexture);
     }
 
     void cRender::_BeginRenderToScreen()
@@ -1893,6 +1928,21 @@ namespace breathe
       return true;
     }
 
+    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec2& value)
+    {
+      ASSERT(pCurrentShader != nullptr);
+
+      GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+      if (loc == -1) {
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        ASSERT(loc > 0);
+        return false;
+      }
+
+      glUniform2f(loc, value.x, value.y);
+      return true;
+    }
+
     bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec3& value)
     {
       ASSERT(pCurrentShader != nullptr);
@@ -1905,6 +1955,21 @@ namespace breathe
       }
 
       glUniform3f(loc, value.x, value.y, value.z);
+      return true;
+    }
+
+    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec4& value)
+    {
+      ASSERT(pCurrentShader != nullptr);
+
+      GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+      if (loc == -1) {
+        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        ASSERT(loc > 0);
+        return false;
+      }
+
+      glUniform4f(loc, value.x, value.y, value.z, value.w);
       return true;
     }
 
@@ -1923,6 +1988,12 @@ namespace breathe
       // sunPosition: Car Shader, shadows, this could be light[0] though
 
       if (pShader->bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
+      if (pShader->bAmbientColour) {
+        SetShaderConstant("ambientColour", shaderConstants.GetValueVec4(TEXT("ambientColour")));
+      }
+      if (pShader->bLightPosition) {
+        SetShaderConstant("lightPosition", shaderConstants.GetValueVec3(TEXT("lightPosition")));
+      }
       if (pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
       if (pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
       if (pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);
@@ -1944,6 +2015,224 @@ namespace breathe
       glUseProgram(0);
 
       pCurrentShader.reset();
+    }
+
+
+    bool cRender::ApplyMaterial(material::cMaterialRef pMaterial)
+    {
+      ASSERT(pMaterial != nullptr);
+
+      uiTextureModeChanges++;
+      //uiTextureChanges;
+
+      uint32_t unit = GL_TEXTURE0_ARB;
+
+      const size_t n = pMaterial->vLayer.size();
+
+      // We must have at least one layer
+      ASSERT(n != 0);
+
+      // Iterate through and apply each layer
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+
+        // TODO: Can we remove this?  Do we need it for anything ever?
+        uiActiveUnits = n;
+
+        material::cLayer* pLayer = pMaterial->vLayer[i];
+        ASSERT(pLayer != nullptr);
+
+        ASSERT(pLayer->pTexture != nullptr);
+
+        ASSERT(pLayer->uiTextureMode != TEXTURE_NONE);
+        ASSERT(pLayer->uiTextureMode != TEXTURE_POST_RENDER);
+
+        switch (pLayer->uiTextureMode) {
+          case TEXTURE_NONE: {
+            glDisable(GL_TEXTURE_2D);
+            break;
+          }
+
+          case TEXTURE_NORMAL:
+          case TEXTURE_MASK:
+          case TEXTURE_BLEND: {
+            // We now do masking and blending in shaders so this is greatly simplified
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
+            break;
+          }
+
+          case TEXTURE_DETAIL: {
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
+
+            // Change the texture matrix so that we have more detail than normal texture
+            glMatrixMode(GL_TEXTURE);
+            glPushMatrix();
+              glLoadIdentity();
+              glMatrixMode(GL_MODELVIEW);
+
+            break;
+          }
+
+          case TEXTURE_CUBEMAP: {
+            if (!bCubemap) {
+              // What to do?
+              ASSERT(false);
+            }
+
+
+            glDisable(GL_TEXTURE_2D);
+            glEnable(GL_TEXTURE_CUBE_MAP);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, pLayer->pTexture->uiTexture);
+
+            glMatrixMode(GL_TEXTURE);
+            glPushMatrix();
+              glLoadIdentity();
+
+#if 0
+              float y = -Angle(spitfire::math::cVec2(frustum.eye.x, frustum.eye.y), spitfire::math::cVec2(frustum.target.x, frustum.target.y));
+              float x = -Angle(spitfire::math::cVec2(frustum.eye.y, frustum.eye.z), spitfire::math::cVec2(frustum.target.y, frustum.target.z));
+              //std::cout<<y<<"\t"<<x<<"\n";
+
+              glRotatef(y, 0.0f, 1.0f, 0.0f);
+              glRotatef(x, 1.0f, 0.0f, 0.0f);
+#elif 0
+              float mat[16];
+              glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+
+              math::cQuaternion q(mat[8], mat[9], -mat[10]);
+
+              glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
+#endif
+
+              glMatrixMode(GL_MODELVIEW);
+
+
+              glEnable(GL_TEXTURE_GEN_S);
+              glEnable(GL_TEXTURE_GEN_T);
+              glEnable(GL_TEXTURE_GEN_R);
+
+              glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+
+            break;
+          }
+
+          default: {
+            LOG<<"cRender::ApplyMaterial Unknown texture type "<<pLayer->uiTextureMode<<std::endl;
+            ASSERT(false);
+          }
+        }
+      }
+
+      if ((pMaterial->pShader != nullptr) && bShader) {
+        bActiveShader = true;
+
+        BindShader(pMaterial->pShader);
+
+        glEnable(GL_LIGHTING);
+      }
+
+      pCurrentMaterial = pMaterial;
+
+      return true;
+    }
+
+    bool cRender::UnApplyMaterial(material::cMaterialRef pMaterial)
+    {
+      ASSERT(pMaterial != nullptr);
+
+      uint32_t unit = GL_TEXTURE0_ARB;
+
+      const size_t n = pMaterial->vLayer.size();
+
+      // We must have at least one layer
+      ASSERT(n != 0);
+
+      // Iterate through and unapply each layer
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+
+        // TODO: Can we remove this?  Do we need it for anything ever?
+        uiActiveUnits = n;
+
+        material::cLayer* pLayer = pMaterial->vLayer[i];
+        ASSERT(pLayer != nullptr);
+
+        ASSERT(pLayer->pTexture != nullptr);
+
+        ASSERT(pLayer->uiTextureMode != TEXTURE_NONE);
+        ASSERT(pLayer->uiTextureMode != TEXTURE_POST_RENDER);
+
+        switch (pLayer->uiTextureMode) {
+          case TEXTURE_NONE: {
+            glDisable(GL_TEXTURE_2D);
+            break;
+          }
+
+          case TEXTURE_NORMAL:
+          case TEXTURE_MASK:
+          case TEXTURE_BLEND: {
+            // We now do masking and blending in shaders so this is greatly simplified
+            glDisable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            break;
+          }
+
+          case TEXTURE_DETAIL: {
+              glDisable(GL_TEXTURE_2D);
+              glBindTexture(GL_TEXTURE_2D, 0);
+
+              // Change the texture matrix so that we have more detail than normal texture
+              glMatrixMode(GL_TEXTURE);
+              glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+          }
+
+          case TEXTURE_CUBEMAP: {
+            if (!bCubemap) {
+              // What to do?
+              ASSERT(false);
+            }
+
+
+              glDisable(GL_TEXTURE_GEN_R);
+              glDisable(GL_TEXTURE_GEN_T);
+              glDisable(GL_TEXTURE_GEN_S);
+
+
+              glMatrixMode(GL_TEXTURE);
+              glPopMatrix();
+
+            glMatrixMode(GL_MODELVIEW);
+
+            glDisable(GL_TEXTURE_CUBE_MAP);
+            glEnable(GL_TEXTURE_2D);
+
+            break;
+          }
+
+          default: {
+            LOG<<"cRender::UnApplyMaterial Unknown texture type "<<pLayer->uiTextureMode<<std::endl;
+            ASSERT(false);
+          }
+        }
+      }
+
+      // UnApply shader
+      if (bActiveShader) {
+        bActiveShader = false;
+
+        if (bCanShader && (pMaterial->pShader != nullptr)) UnBindShader();
+      }
+
+      return false;
     }
 
 
@@ -2087,9 +2376,9 @@ namespace breathe
           }
           else if (TEXTURE_CUBEMAP==layerOld->uiTextureMode)
           {
-            //Assume we got one we shouldn't be here if we didn't
-            //It is possible if there are NO cubemaps in the whole level,
-            //so make sure we load one already
+            // Assume we got one we shouldn't be here if we didn't
+            // It is possible if there are NO cubemaps in the whole level,
+            // so make sure we load one already
             glDisable(GL_TEXTURE_2D);
             glEnable(GL_TEXTURE_CUBE_MAP);
             glBindTexture(GL_TEXTURE_CUBE_MAP, layerOld->pTexture->uiTexture);
@@ -2486,17 +2775,6 @@ namespace breathe
 
         BindShader(pMaterial->pShader);
 
-        // TODO: We also need some more variables within our post render shaders such as
-        // brightness: HDR, Top Gear Shader, Night Vision
-        // exposure: HDR, Top Gear Shader
-        // sunPosition: Car Shader, shadows, grass
-
-        if (pMaterial->pShader->bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
-        if (uiActiveUnits>0 && pMaterial->pShader->bTexUnit0) SetShaderConstant("texUnit0", 0);
-        if (uiActiveUnits>1 && pMaterial->pShader->bTexUnit1) SetShaderConstant("texUnit1", 1);
-        if (uiActiveUnits>2 && pMaterial->pShader->bTexUnit2) SetShaderConstant("texUnit2", 2);
-        if (uiActiveUnits>3 && pMaterial->pShader->bTexUnit3) SetShaderConstant("texUnit3", 3);
-
         glEnable(GL_LIGHTING);
       } else if (bActiveShader) {
         bActiveShader = false;
@@ -2843,15 +3121,18 @@ namespace breathe
     }
 
 
-    ApplyMaterial::ApplyMaterial(material::cMaterialRef pCurrent)
+    ApplyMaterial::ApplyMaterial(material::cMaterialRef _pMaterial)
     {
-      pLast = pRender->GetCurrentMaterial();
-      pRender->SetMaterial(pCurrent);
+      //pLast = pRender->GetCurrentMaterial();
+      //pRender->SetMaterial(pCurrent);
+      pMaterial = _pMaterial;
+      pRender->ApplyMaterial(pMaterial);
     }
 
     ApplyMaterial::~ApplyMaterial()
     {
-      pRender->SetMaterial(pLast);
+      //pRender->SetMaterial(pLast);
+      pRender->UnApplyMaterial(pMaterial);
     }
 
 
@@ -2870,7 +3151,6 @@ namespace breathe
 
 
 
-
     cRenderToTexture::cRenderToTexture(cTextureFrameBufferObjectRef _pTexture) :
       pTexture(_pTexture)
     {
@@ -2880,6 +3160,19 @@ namespace breathe
     cRenderToTexture::~cRenderToTexture()
     {
       pRender->EndRenderToTexture(pTexture);
+    }
+
+
+
+    cRenderToCubeMapTexture::cRenderToCubeMapTexture(cTextureFrameBufferObjectRef _pTexture, CUBE_MAP_FACE face) :
+      pTexture(_pTexture)
+    {
+      pRender->BeginRenderToCubeMapTextureFace(pTexture, face);
+    }
+
+    cRenderToCubeMapTexture::~cRenderToCubeMapTexture()
+    {
+      pRender->EndRenderToCubeMapTextureFace(pTexture);
     }
 
 

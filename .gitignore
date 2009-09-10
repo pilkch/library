@@ -2,6 +2,10 @@
 .svn
 ._*
 ~$*
+*~
 .*.swp
+*.pbxuser
+*.perspectivev3
+*.mode1v3
 Thumbs.db
 include/spitfire/platform/apple.h

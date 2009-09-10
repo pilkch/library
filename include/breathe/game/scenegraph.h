@@ -861,7 +861,7 @@ namespace breathe
     class cRenderVisitor
     {
     public:
-      explicit cRenderVisitor(cSceneGraph& scenegraph);
+      explicit cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum);
 
     private:
       void ApplyStateSet(cStateSet& stateSet);
@@ -891,15 +891,18 @@ namespace breathe
       cSceneNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
 
+      const math::cColour& GetBackgroundColour() const { return backgroundColour; }
+      const math::cColour& GetAmbientColour() const { return ambientColour; }
+
       void SetBackgroundColour(const math::cColour& colour) { backgroundColour = colour; }
-      void SetAmbientLight(const math::cColour& colour) { ambientLightColour = colour; }
+      void SetAmbientColour(const math::cColour& colour) { ambientColour = colour; }
 
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
       void Update(sampletime_t currentTime);
       void Cull(const render::cCamera& camera, sampletime_t currentTime);
-      void Render(sampletime_t currentTime);
+      void Render(sampletime_t currentTime, const math::cFrustum& frustum);
 
     protected:
       cRenderGraph& GetRenderGraph() { return renderGraph; }
@@ -907,7 +910,7 @@ namespace breathe
     private:
       bool bIsCullingEnabled;
       math::cColour backgroundColour;
-      math::cColour ambientLightColour;
+      math::cColour ambientColour;
 
       cRenderGraph renderGraph;
       cSceneNodeRef pRoot;

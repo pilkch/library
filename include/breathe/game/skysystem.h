@@ -501,6 +501,10 @@ namespace breathe
       render::cParticleSystemCustomBillboard* GetStarParticleSystem() { return skyDomeAtmosphereRenderer.GetStarParticleSystem(); }
       render::cParticleSystemCustomBillboard* GetPlanetParticleSystem() { return skyDomeAtmosphereRenderer.GetPlanetParticleSystem(); }
 
+
+      const math::cVec3& GetPrimarySunPosition() const { return primarySunPosition; }
+      const math::cColour& GetAmbientColour() const { return ambientColour; }
+
     private:
       cStarOrPlanet* GetInterStellarBody(const string_t& sName) const;
 
@@ -535,6 +539,9 @@ namespace breathe
       float fTimeIncrement0To1; // 0.0f to 1.0f how much to add to fDayNightCycleTime0To1 each update
 
       std::vector<cTimeOfDay> transitionTimes;
+
+      math::cVec3 primarySunPosition;
+      math::cColour ambientColour;
     };
 
     inline void cSkySystem::Create()
@@ -611,7 +618,6 @@ namespace breathe
       pAircraft->SetSpeedMetresPerSecond(fSpeedMPS);
       aircraft.push_back(pAircraft);
     }
-
 
 
     // This is not automatic, each application must manually call this or optionally create the skystem programmatically
