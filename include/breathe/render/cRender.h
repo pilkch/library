@@ -239,6 +239,7 @@ namespace breathe
 
       material::cMaterialRef AddMaterial(const string_t& sFilename);
       material::cMaterialRef AddMaterialNotFoundMaterial(const string_t& sFilename);
+      material::cMaterialRef AddMaterialAsAlias(const string_t& sFilename, const string_t& sAlias);
       material::cMaterialRef GetMaterial(const string_t& sFilename);
 
       // SetMaterial and ClearMaterial are deprecated, use cApplyMaterial class or if need be, use ApplyMaterial/UnApplyMaterial instead

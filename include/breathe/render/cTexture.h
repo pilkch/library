@@ -23,7 +23,7 @@ namespace breathe
       TEXTURE_BLEND,
       TEXTURE_DETAIL,
       TEXTURE_SPECULAR,
-      TEXTURE_CUBEMAP,
+      TEXTURE_CUBE_MAP,
       TEXTURE_POST_RENDER
     };
 
@@ -80,6 +80,7 @@ namespace breathe
 
     public:
       TEXTURE_TYPE uiType;
+      TEXTURE_MODE uiMode;
 
       float fScale;
       float fU;
@@ -110,7 +111,7 @@ namespace breathe
       cTextureFrameBufferObject();
       ~cTextureFrameBufferObject();
 
-      bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBEMAP); }
+      bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBE_MAP); }
       void SetModeCubeMap();
 
       void GenerateMipMapsIfRequired();
@@ -125,8 +126,6 @@ namespace breathe
       void _Create();
 
       bool bIsUsingMipMaps;
-
-      TEXTURE_MODE uiMode;
     };
 
 

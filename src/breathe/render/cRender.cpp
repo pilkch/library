@@ -1674,6 +1674,33 @@ namespace breathe
       return pMaterial;
     }
 
+    material::cMaterialRef cRender::AddMaterialAsAlias(const string_t& sNewfilename, const string_t& sAlias)
+    {
+      LOG<<"cRender::AddMaterialAsAlias sNewfilename=\""<<sNewfilename<<"\""<<std::endl;
+      if (sNewfilename.empty()) {
+        LOG<<"cRender::AddMaterialAsAlias sNewfilename is empty, returning"<<std::endl;
+        return material::cMaterialRef();
+      }
+
+      string_t sFilename;
+      filesystem::FindResourceFile(breathe::string::ToString_t(sNewfilename), sFilename);
+
+      LOG<<"cRender::AddMaterialAsAlias sFilename=\""<<sFilename<<"\""<<std::endl;
+
+      material::cMaterialRef pMaterial(new material::cMaterial(sFilename));
+
+      if (breathe::BAD == pMaterial->Load(sFilename)) {
+        LOG<<"cRender::AddMaterialAsAlias FAILED to load material"<<std::endl;
+        pMaterial = pMaterialNotFoundMaterial;
+      }
+
+      mMaterial[sAlias] = pMaterial;
+
+      LOG<<"cRender::AddMaterialAsAlias returning"<<std::endl;
+
+      return pMaterial;
+    }
+
     material::cMaterialRef cRender::GetMaterial(const string_t& sFilename)
     {
       AddMaterial(sFilename);
@@ -1813,7 +1840,7 @@ namespace breathe
 
           //glEnable(GL_LIGHTING);
         }
-        else if (TEXTURE_MODE::TEXTURE_CUBEMAP==layerOld->uiTextureMode)
+        else if (TEXTURE_MODE::TEXTURE_CUBE_MAP==layerOld->uiTextureMode)
         {
           glMatrixMode(GL_TEXTURE);
           glPopMatrix();
@@ -2033,7 +2060,7 @@ namespace breathe
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_CUBEMAP: {
+          case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
             if (!bCubemap) {
               // What to do?
               ASSERT(false);
@@ -2151,7 +2178,7 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
           }
 
-          case TEXTURE_MODE::TEXTURE_CUBEMAP: {
+          case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
             if (!bCubemap) {
               // What to do?
               ASSERT(false);
@@ -2219,10 +2246,10 @@ namespace breathe
       {
         layerNew = pMaterial->vLayer[i];
 
-        if (TEXTURE_MODE::TEXTURE_NONE==layerNew->uiTextureMode || (TEXTURE_MODE::TEXTURE_CUBEMAP==layerNew->uiTextureMode && !bCubemap))
+        if (TEXTURE_MODE::TEXTURE_NONE==layerNew->uiTextureMode || (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerNew->uiTextureMode && !bCubemap))
           n = i;
 
-        //if ((TEXTURE_MODE::TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_MODE::TEXTURE_CUBEMAP!=layerNew->uiTextureMode) || (TEXTURE_MODE::TEXTURE_CUBEMAP==layerNew->uiTextureMode && bCubemap))
+        //if ((TEXTURE_MODE::TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_MODE::TEXTURE_CUBE_MAP != layerNew->uiTextureMode) || (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerNew->uiTextureMode && bCubemap))
         //  n = i;
       }
 
@@ -2253,7 +2280,7 @@ namespace breathe
             glBlendFunc(GL_ONE, GL_ZERO);
             glDisable(GL_BLEND);
           }
-          else if (TEXTURE_MODE::TEXTURE_CUBEMAP==layerOld->uiTextureMode)
+          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
           {
             glMatrixMode(GL_TEXTURE);
             glPopMatrix();
@@ -2324,7 +2351,7 @@ namespace breathe
               glDisable(GL_BLEND);
               glEnable(GL_LIGHTING);
           }
-          else if (TEXTURE_MODE::TEXTURE_CUBEMAP==layerOld->uiTextureMode)
+          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
           {
             // Assume we got one we shouldn't be here if we didn't
             // It is possible if there are NO cubemaps in the whole level,
@@ -2462,7 +2489,7 @@ namespace breathe
             glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
             glEnable(GL_BLEND);
           }
-          else if (TEXTURE_MODE::TEXTURE_CUBEMAP==layerOld->uiTextureMode)
+          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
           {
             //Assume we got one we shouldn't be here if we didn't
             //It is possible if there are NO cubemaps in the whole level,
@@ -2572,7 +2599,7 @@ namespace breathe
           // General Switches
           glDisable(GL_BLEND);
           //glEnable(GL_LIGHTING);
-        } else if (TEXTURE_MODE::TEXTURE_CUBEMAP == layerOld->uiTextureMode) {
+        } else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode) {
           glMatrixMode(GL_TEXTURE);
           glPopMatrix();
 

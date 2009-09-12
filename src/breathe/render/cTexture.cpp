@@ -61,6 +61,7 @@ namespace breathe
       uiWidth(0),
       uiHeight(0),
       uiType(TEXTURE_TYPE::TEXTURE_RGBA),
+      uiMode(TEXTURE_MODE::TEXTURE_NORMAL),
 
       fScale(1.0f),
       fU(0.0f),
@@ -268,10 +269,11 @@ namespace breathe
     cTextureFrameBufferObject::cTextureFrameBufferObject() :
       uiFBO(0),
       uiFBODepthBuffer(0),
-      bIsUsingMipMaps(true),
-      uiMode(TEXTURE_MODE::TEXTURE_NORMAL)
+      bIsUsingMipMaps(true)
     {
       uiType = TEXTURE_TYPE::TEXTURE_FRAMEBUFFEROBJECT;
+      uiMode = TEXTURE_MODE::TEXTURE_NORMAL;
+
       uiWidth = DEFAULT_FBO_TEXTURE_WIDTH;
       uiHeight = DEFAULT_FBO_TEXTURE_HEIGHT;
     }
@@ -289,7 +291,7 @@ namespace breathe
 
     void cTextureFrameBufferObject::SetModeCubeMap()
     {
-      uiMode = TEXTURE_MODE::TEXTURE_CUBEMAP;
+      uiMode = TEXTURE_MODE::TEXTURE_CUBE_MAP;
     }
 
     void cTextureFrameBufferObject::_Create()
@@ -305,7 +307,7 @@ namespace breathe
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
 
 
-      if (uiMode != TEXTURE_MODE::TEXTURE_CUBEMAP) {
+      if (uiMode != TEXTURE_MODE::TEXTURE_CUBE_MAP) {
         // Now setup a texture to render to
         glGenTextures(1, &uiTexture);
         glBindTexture(GL_TEXTURE_2D, uiTexture);

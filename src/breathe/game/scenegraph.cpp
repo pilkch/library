@@ -773,7 +773,46 @@ namespace breathe
         }
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
-          glBindTexture(GL_TEXTURE_2D, stateSet.texture[i].pTexture->uiTexture);
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+             // Cube map texture
+
+            glEnable(GL_TEXTURE_CUBE_MAP);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, stateSet.texture[i].pTexture->uiTexture);
+
+            glMatrixMode(GL_TEXTURE);
+            glPushMatrix();
+              glLoadIdentity();
+
+#if 0
+              float y = -Angle(spitfire::math::cVec2(frustum.eye.x, frustum.eye.y), spitfire::math::cVec2(frustum.target.x, frustum.target.y));
+              float x = -Angle(spitfire::math::cVec2(frustum.eye.y, frustum.eye.z), spitfire::math::cVec2(frustum.target.y, frustum.target.z));
+              //std::cout<<y<<"\t"<<x<<"\n";
+
+              glRotatef(y, 0.0f, 1.0f, 0.0f);
+              glRotatef(x, 1.0f, 0.0f, 0.0f);
+#elif 0
+              float mat[16];
+              glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+
+              math::cQuaternion q(mat[8], mat[9], -mat[10]);
+
+              glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
+#endif
+
+              glMatrixMode(GL_MODELVIEW);
+
+
+              glEnable(GL_TEXTURE_GEN_S);
+              glEnable(GL_TEXTURE_GEN_T);
+              glEnable(GL_TEXTURE_GEN_R);
+
+              glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+          } else {
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, stateSet.texture[i].pTexture->uiTexture);
+          }
         }
       }
 
@@ -800,8 +839,24 @@ namespace breathe
         }
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
-          glBindTexture(GL_TEXTURE_2D, 0);
-          glDisable(GL_TEXTURE_2D);
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+             // Cube map texture
+
+              glDisable(GL_TEXTURE_GEN_R);
+              glDisable(GL_TEXTURE_GEN_T);
+              glDisable(GL_TEXTURE_GEN_S);
+
+
+              glMatrixMode(GL_TEXTURE);
+              glPopMatrix();
+
+            glMatrixMode(GL_MODELVIEW);
+
+            glDisable(GL_TEXTURE_CUBE_MAP);
+          } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+          }
         }
       }
 
