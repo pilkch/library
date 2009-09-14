@@ -714,8 +714,9 @@ namespace breathe
             }
 
             if (tokens.size() == 3) {
+              // The y coordinate always seems to be flipped, ie. 1..0 instead of 0..1, so we cater for that by flipping it again
               textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-              textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
+              textureCoordinates.push_back(1.0f - spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
             }
           } else if (sType == "vn") {
             // Normal

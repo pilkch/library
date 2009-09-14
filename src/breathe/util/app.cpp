@@ -1,82 +1,5 @@
 /*
 
-class cRender
-{
-  public:
-   void Render();
-
-   see if we can change void RenderModel(cModel* pModel) to void RenderModel(const cModel* pModel) etc.
-
-  private:
-   cBatchController batch;
-};
-
-void cRender::Render()
-{
-   // Opaque
-   cBatchController::const_iterator iter = batch.opaque.begin();
-   cBatchController::const_iterator iterEnd = batch.opaque.end();
-
-   while (iter != iterEnd) {
-      const cMaterial* pMaterial = iter->first;
-      SetMaterial(pMaterial);
-
-      const cBatchList* pItems = iter->second;
-
-      cBatchList::const_iterator iterBatch = pItems->models.begin();
-      cBatchList::const_iterator iterBatchEnd = pItems->models.end();
-      while (iterBatch != iterBatchEnd) {
-         const cModel* pModel = iterBatch->second;
-         RenderModel(pModel);
-
-         iterBatch++;
-};
-
-      iter++;
-};
-
-   // Transparent, already sorted
-   iter = batch.transparent.begin();
-   iterEnd = batch.transparent.end();
-
-   while (iter != iterEnd) {
-      const cMaterial* pMaterial = iter->first;
-      SetMaterial(pMaterial);
-
-      const cBatchList* pItems = iter->second;
-
-      cBatchList::const_iterator iterBatch = pItems->models.begin();
-      cBatchList::const_iterator iterBatchEnd = pItems->models.end();
-      while (iterBatch != iterBatchEnd) {
-         const cModel* pModel = iterBatch->second;
-         RenderModel(pModel);
-
-         iterBatch++;
-};
-
-      iter++;
-};
-}
-
-void cApplication::Update()
-{
-   UpdateGame();
-   UpdateSceneGraph();
-   UpdateBatching();
-   UpdateSound();
-}
-
-void cApplication::MainLoop()
-{
-   do {
-      if () UpdateInput();
-      if () UpdatePhysics();
-      if () Update();
-      if () Render();
-} while(...);
-}
-
-
 <config>
 <input>
 <onfoot>
@@ -94,89 +17,72 @@ And then console is handled automatically, not configurable.  Cannot override ti
 
 
 #define EPSILON 0.000001
-#define CROSS(dest,v1,v2) \
-          dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
-          dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
-          dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
-
-#define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2])
-
-#define SUB(dest,v1,v2) \
-          dest[0]=v1[0]-v2[0]; \
-          dest[1]=v1[1]-v2[1]; \
-          dest[2]=v1[2]-v2[2];
 
 int intersect_triangle(
-      double orig[3], double dir[3],
-      double vert0[3], double vert1[3], double vert2[3],
+      const math::cVec3& orig, const math::cVec3& dir,
+      const math::cVec3& vert0, const math::cVec3& vert1, const math::cVec3& vert2,
       double *t, double *u, double *v)
 {
-   double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
-   double det,inv_det;
+  // Find vectors for two edges sharing vert0
 
-   // find vectors for two edges sharing vert0
+  math::cVec3 edge1 = vert1 - vert0;
+  math::cVec3 edge2 = vert2 - vert0;
 
-   SUB(edge1, vert1, vert0);
-   SUB(edge2, vert2, vert0);
+  // Begin calculating determinant - also used to calculate U parameter
+  math::cVec3 pvec = dir.CrossProduct(edge2);
 
-   // begin calculating determinant - also used to calculate U parameter
-   CROSS(pvec, dir, edge2);
+  // if determinant is near zero, ray lies in plane of triangle
+  double det = edge1.DotProduct(pvec);
 
-   // if determinant is near zero, ray lies in plane of triangle
-   det = DOT(edge1, pvec);
+  math::cVec3 tvec;
+  math::cVec3 qvec;
 
-#ifdef TEST_CULL           // define TEST_CULL if culling is desired
-   if (det < EPSILON)
-      return 0;
+#ifdef TEST_CULL
+  if (det < EPSILON) return 0;
 
-   // calculate distance from vert0 to ray origin
-   SUB(tvec, orig, vert0);
+  // Calculate distance from vert0 to ray origin
+  tvec = orig - vert0;
 
-   // calculate U parameter and test bounds
-   *u = DOT(tvec, pvec);
-   if (*u < 0.0 || *u > det)
-      return 0;
+  // calculate U parameter and test bounds
+  *u = tvec.DotProduct(pvec);
+  if (*u < 0.0 || *u > det) return 0;
 
-   // prepare to test V parameter
-   CROSS(qvec, tvec, edge1);
+  // prepare to test V parameter
+  qvec = tvec.CrossProduct(edge1);
 
-    // calculate V parameter and test bounds
-   *v = DOT(dir, qvec);
-   if (*v < 0.0 || *u + *v > det)
-      return 0;
+  // calculate V parameter and test bounds
+  *v = dir.DotProduct(qvec);
+  if (*v < 0.0 || *u + *v > det) return 0;
 
-   // calculate t, scale parameters, ray intersects triangle
-   *t = DOT(edge2, qvec);
-   inv_det = 1.0 / det;
-   *t *= inv_det;
-   *u *= inv_det;
-   *v *= inv_det;
+  // calculate t, scale parameters, ray intersects triangle
+  *t = edge2.DotProduct(qvec);
+  double inv_det = 1.0 / det;
+  *t *= inv_det;
+  *u *= inv_det;
+  *v *= inv_det;
 
 #else                    // the non-culling branch
-   if (det > -EPSILON && det < EPSILON)
-     return 0;
+   if (det > -EPSILON && det < EPSILON) return 0;
 
-   inv_det = 1.0 / det;
+   double inv_det = 1.0 / det;
 
    // calculate distance from vert0 to ray origin
-   SUB(tvec, orig, vert0);
+   tvec = orig - vert0;
 
    // calculate U parameter and test bounds
-   *u = DOT(tvec, pvec) * inv_det;
-   if (*u < 0.0 || *u > 1.0)
-     return 0;
+   *u = tvec.DotProduct(pvec) * inv_det;
+   if (*u < 0.0 || *u > 1.0) return 0;
 
    // prepare to test V parameter
-   CROSS(qvec, tvec, edge1);
+   qvec = tvec.CrossProduct(edge1);
 
    // calculate V parameter and test bounds
-   *v = DOT(dir, qvec) * inv_det;
+   *v = dir.DotProduct(qvec) * inv_det;
 
-   if (*v < 0.0 || *u + *v > 1.0)
-     return 0;
+   if (*v < 0.0 || *u + *v > 1.0) return 0;
 
    // calculate t, ray intersects triangle
-   *t = DOT(edge2, qvec) * inv_det;
+   *t = edge2.DotProduct(qvec) * inv_det;
 #endif
 
    return 1;
