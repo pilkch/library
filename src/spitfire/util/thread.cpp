@@ -59,10 +59,15 @@ namespace spitfire
       cThread* pThis = this;
       pThread = new boost::thread(boost::bind(&cThread::RunThreadFunction, pThis));
     }
+
+
+
+    // *** cSignalObject
   }
 }
 
 #ifdef BUILD_DEBUG
+
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
@@ -79,7 +84,7 @@ void cDerivedThreadForUnitTest::ThreadFunction()
 {
   for (size_t i = 0; i < 10; i++) {
     std::cout<<"cDerivedThreadForUnitTest::ThreadFunction "<<i<<std::endl;
-    spitfire::util::SleepThisThread(1000);
+    spitfire::util::SleepThisThreadMS(1000);
   }
 }
 
@@ -100,7 +105,7 @@ public:
 
     for (size_t i = 0; i < 20; i++) {
       std::cout<<"Test "<<i<<std::endl;
-      spitfire::util::SleepThisThread(500);
+      spitfire::util::SleepThisThreadMS(500);
     }
 
     thread.WaitUntilFinished();
@@ -108,4 +113,5 @@ public:
 };
 
 cThreadUnitTest gThreadUnitTest;
+
 #endif // BUILD_DEBUG

@@ -6,11 +6,12 @@ namespace spitfire
   namespace util
   {
     class cLockObject;
+    class cSignalObject;
 
     void SetMainThread();
     bool IsMainThread();
 
-    inline void SleepThisThread(uint32_t milliseconds)
+    inline void SleepThisThreadMS(uint32_t milliseconds)
     {
       boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
     }
@@ -46,6 +47,7 @@ namespace spitfire
     {
     public:
       friend class cLockObject;
+      friend class cSignalObject;
 
       cMutex() {}
       ~cMutex() {}
@@ -127,15 +129,12 @@ namespace spitfire
 
 
 
-#if 0
-    // Do we even need signal objects?  Can't we simulate them with a mutex, a lock and a bit of data (bool bIsSignalled)?
-
-    // http://www.boost.org/doc/libs/1_40_0/doc/html/thread/synchronization.html#thread.synchronization.condvar_ref
+    // We should definitely use the boost signals2 library when it is ready, this is inefficient, not pretty code!
 
     class cSignalObject
     {
     public:
-      explicit cSignalObject(cMutex& mutex);
+      explicit cSignalObject();
 
       bool IsSignalled();
 
@@ -144,43 +143,66 @@ namespace spitfire
 
       void WaitSignalForever();
 
-      bool WaitSignalTimeOut(uint32_t uTimeOutMS);
+      bool WaitSignalTimeOutMS(uint32_t uTimeOutMS);
 
     private:
-      cMutex& mutex;
-
-      boost::condition_variable condition;
+      cMutex mutex;
+      bool bIsSignalled; // NOTE: With a real signalobject we should not have to use this
     };
 
-    cSignalObject::cSignalObject(cMutex& _mutex) :
-      mutex(_mutex)
+    inline cSignalObject::cSignalObject() :
+      bIsSignalled(false)
     {
     }
 
-    bool cSignalObject::IsSignalled()
+    inline bool cSignalObject::IsSignalled()
     {
-      return WaitSignalTimeOut(0);
+      cLockObject lock(mutex);
+
+      return bIsSignalled;
     }
 
-    void cSignalObject::Signal()
+    inline void cSignalObject::Signal()
     {
-      condition.notify_all();
+      cLockObject lock(mutex);
+
+      bIsSignalled = true;
     }
 
-    void cSignalObject::WaitSignalForever()
+    inline void cSignalObject::Reset()
     {
-        boost::unique_lock<boost::mutex> lock(mut);
+      cLockObject lock(mutex);
 
-        cond.wait(lock);
+      bIsSignalled = false;
     }
 
-    void cSignalObject::WaitSignalTimeOut(uint32_t uTimeOutMS)
+    inline void cSignalObject::WaitSignalForever()
     {
-      boost::unique_lock<boost::mutex> lock(mut);
-
-      cond.timed_wait(lock, boost::duration_type const& rel_time);
+      WaitSignalTimeOutMS(0xFFFFFFFF);
     }
-#endif
+
+    // This is our ghetto signal waiting mechanism, it is probably vulnerable to deadlocks and all sorts of other nasty stuff
+    inline bool cSignalObject::WaitSignalTimeOutMS(uint32_t uTimeOutMS)
+    {
+      // Early exit if we are already signalled
+      if (IsSignalled()) return true;
+
+      const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+
+      uint64_t uTimePassed = 0;
+      while (uTimePassed <= uTimeOutMS) {
+        if (IsSignalled()) return true;
+
+        SleepThisThreadMS(50);
+        YieldThisThread();
+
+        boost::posix_time::time_duration timePassed = boost::posix_time::microsec_clock::local_time() - start;
+
+        uTimePassed = timePassed.total_milliseconds();
+      }
+
+      return false;
+    }
   }
 }
 

@@ -144,6 +144,7 @@ int intersect_triangle(
 #include <spitfire/util/cTimer.h>
 #include <spitfire/util/unittest.h>
 #include <spitfire/util/lang.h>
+#include <spitfire/util/process.h>
 #include <spitfire/util/thread.h>
 
 #include <spitfire/storage/filesystem.h>
@@ -453,6 +454,7 @@ namespace breathe
 
     // Set our main thread identifier so that when we call IsMainThread later it will work correctly
     spitfire::util::SetMainThread();
+    spitfire::util::cRunOnMainThreadQueue::Create();
 
 #ifdef BUILD_DEBUG
     SanityCheck();
@@ -541,13 +543,18 @@ namespace breathe
 
     SAFE_DELETE(pFont);
 
-    const size_t nJoysticks = vJoystick.size();
-    for (size_t i = 0; i < nJoysticks; i++) SDL_JoystickClose(vJoystick[i]);
-
     TTF_Quit();
 
     LOG.Success("Destroy", "Audio");
     breathe::audio::Destroy();
+
+
+    LOG.Success("Destroy", "Joystick");
+    const size_t nJoysticks = vJoystick.size();
+    for (size_t i = 0; i < nJoysticks; i++) SDL_JoystickClose(vJoystick[i]);
+
+    SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+
 
 #ifdef BUILD_LEVEL
     LOG.Success("Delete", "Level");
@@ -571,6 +578,8 @@ namespace breathe
 
     LOG.Success("Delete", "Filesystem");
     filesystem::Destroy();
+
+    spitfire::util::cRunOnMainThreadQueue::Destroy();
 
     LOG.Success("Main", "Successfully exited");
     LOG.Newline("Main", "return " + bReturnCode ? "true" : "false");
@@ -743,8 +752,8 @@ namespace breathe
     LoadConfigXML();
 
     // Init SDL
-    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) < 0 ) {
-      LOG.Error("SDL", std::string("SDL initialisation failed: ") + SDL_GetError());
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
+      LOG.Error("SDL", std::string("SDL_Init for video FAILED error=") + SDL_GetError());
       bReturnCode = breathe::BAD;
       return breathe::BAD;
     }
@@ -760,6 +769,12 @@ namespace breathe
 
     {
       // Joysticks
+
+      if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
+        LOG.Error("SDL", std::string("SDL_InitSubSystem for joysticks FAILED error=") + SDL_GetError());
+        bReturnCode = breathe::BAD;
+        return breathe::BAD;
+      }
 
       const size_t nJoysticks = SDL_NumJoysticks();
 
@@ -1140,7 +1155,8 @@ namespace breathe
     const math::cVec4 ambientColourAsVec4(ambientColour.r, ambientColour.g, ambientColour.b, ambientColour.a);
     shaderConstants.SetValue(TEXT("ambientColour"), ambientColourAsVec4);
 
-    const math::cVec3& lightPosition = scenegraph.GetSkySystem()->GetPrimarySunPosition();
+    //const math::cVec3& lightPosition = scenegraph.GetSkySystem()->GetPrimarySunPosition();
+    const math::cVec3 lightPosition(100.0f, 100.0f, 100.0f);
     shaderConstants.SetValue(TEXT("lightPosition"), lightPosition);
 
     pRender->SetShaderConstants(shaderConstants);
@@ -1770,6 +1786,8 @@ namespace breathe
         _Update(currentTime);
         tUpdate.Update(currentTime);
         fUpdateNext = currentTime + fUpdateDelta;
+
+        spitfire::util::cRunOnMainThreadQueue::UpdateFromMainThread();
       }
 
       bool bPushOrPopState = bPopCurrentStateSoon || (pPushThisStateSoon != nullptr);
@@ -1787,8 +1805,9 @@ namespace breathe
         tRender.Update(currentTime);
         fRenderNext = currentTime + fRenderDelta;
       }
+
       breathe::util::YieldThisThread();
-    }while (!bDone);
+    } while (!bDone);
 
     // Get rid of any states that we do have as they may try and operate on destructed/destructing objects later on
     while (!states.empty()) states.pop_back();
