@@ -1,6 +1,12 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include <spitfire/spitfire.h>
+
+#include <spitfire/util/cSmartPtr.h>
+
+#include <spitfire/math/cVec3.h>
+
 // http://www.devmaster.net/articles/openal-tutorials/
 // http://www.devmaster.net/articles/openal-tutorials/lesson8.php
 
@@ -14,8 +20,6 @@ namespace breathe
 {
   namespace audio
   {
-    const size_t AUDIO_MAX_BUFFERS = 16;
-
     typedef char sample_t;
 
     // Forward declaration
@@ -31,15 +35,13 @@ namespace breathe
 
     void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
 
-    void Sleep();
-
     void Add(cSourceRef pSource);
     void Remove(cSourceRef pSource);
 
     cBufferRef CreateBuffer(const string_t& sFilename);
     void DestroyBuffer(cBufferRef pBuffer);
 
-    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer, cObject* pObject);
+    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer);
     cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer);
     void DestroySource(cSourceRef pSource);
 
@@ -69,7 +71,7 @@ namespace breathe
       string_t sFilename;
     };
 
-    // The sound object (Has pointer to node that it is attached to and a pointer to a buffer that it uses)
+    // The sound object (Has a pointer to a buffer that it uses)
     class cSource
     {
     public:
@@ -77,19 +79,20 @@ namespace breathe
       cSource(cBufferRef pBuffer, float fVolume);
       ~cSource();
 
-      void Attach(cObject* pNodeParent);
-      void Remove();
       void Update();
 
       void Play();
       void Stop();
 
+      void Remove();
+
       bool IsLooping() const { return bLooping; }
       bool IsValid() const;
       bool IsPlaying() const;
 
-      void TransformTo2DSource();
-      void TransformTo3DSource();
+      void SetIsAttachedToScreen();
+
+      void SetPosition(const spitfire::math::cVec3& position);
 
       void SetVolume(float fVolume);
       void SetPitch(float fPitch);
@@ -108,7 +111,6 @@ namespace breathe
       float pitch;
 
       cBufferRef pBuffer;
-      cObject* pNodeParent;
 
       void Create(cBufferRef pBuffer);
     };
@@ -159,7 +161,6 @@ namespace breathe
     public:
       cSourceMix(cBufferRef pBuffer0, cBufferRef pBuffer1, float fVolume0, float fVolume1);
 
-      void Attach(cObject* pNodeParent);
       void Remove();
       void Update();
 

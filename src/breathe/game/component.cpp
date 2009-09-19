@@ -106,6 +106,31 @@ namespace breathe
 
     // *** Common components
 
+    void cAudioSourceComponent::AddSource(audio::cSourceRef pSource)
+    {
+      sources.push_back(pSource);
+    }
+
+    void cAudioSourceComponent::RemoveSource(audio::cSourceRef pSource)
+    {
+      std::vector<audio::cSourceRef>::iterator iter = sources.begin();
+      const std::vector<audio::cSourceRef>::iterator iterEnd = sources.end();
+      while (iter != iterEnd) {
+        if (*iter == pSource) sources.erase(iter);
+
+        iter++;
+      }
+    }
+
+    void cAudioSourceComponent::_Update(spitfire::sampletime_t currentTime)
+    {
+      const size_t n = sources.size();
+      for (size_t i = 0; i < n; i++) {
+        sources[i]->SetPosition(object.GetPositionAbsolute());
+      }
+    }
+
+
     void cPhysicsComponent::_Update(spitfire::sampletime_t currentTime)
     {
       ASSERT(pPhysicsObject != nullptr);

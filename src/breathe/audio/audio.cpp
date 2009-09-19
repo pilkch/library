@@ -57,6 +57,11 @@ namespace breathe
 {
   namespace audio
   {
+    const float fRollOffFactor = 2.0f;
+    const float fDopplerFactor = 1.0f;
+    const float fDopplerVelocity = 2200.0f;
+
+
     ALCcontext* context = nullptr;
     ALCdevice* device = nullptr;
     ALboolean g_bEAX = false;
@@ -114,7 +119,7 @@ namespace breathe
 
     }
 
-    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer, cObject* pObject)
+    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer)
     {
       ASSERT(pBuffer != nullptr);
       ASSERT(pBuffer->IsValid());
@@ -124,8 +129,6 @@ namespace breathe
       ASSERT(pSource->IsValid());
 
       AddSource(pSource);
-
-      pSource->Attach(pObject);
 
       return pSource;
     }
@@ -141,12 +144,7 @@ namespace breathe
 
       AddSource(pSource);
 
-      unsigned int source = pSource->GetSource();
-      alSource3f(source, AL_POSITION, 0.0f, 0.0f, 0.0f);
-      alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-      alSource3f(source, AL_DIRECTION, 0.0f, 0.0f, 0.0f);
-      alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
-      alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+      pSource->SetIsAttachedToScreen();
 
       return pSource;
     }
@@ -182,7 +180,6 @@ namespace breathe
           SCREEN<<"audio::ReportError AL Unknown error code "<<error<<std::endl;
           break;
       }
-      ASSERT(error == AL_NO_ERROR);
 
       error = alcGetError(device);
       switch (error) {
@@ -209,35 +206,28 @@ namespace breathe
           //SCREEN<<"audio::ReportError ALC Error "<<error<<":\""<<alcGetErrorString(error)<<"\""<<std::endl;
           break;
       }
-      ASSERT(error == ALC_NO_ERROR);
 
       error = alutGetError();
       switch (error) {
-        case (ALUT_ERROR_NO_ERROR):
+        case ALUT_ERROR_NO_ERROR:
           //SCREEN<<"audio::ReportError ALUT No error"<<std::endl;
           break;
-        case (ALUT_ERROR_INVALID_ENUM):
+        case ALUT_ERROR_INVALID_ENUM:
           SCREEN<<"audio::ReportError ALUT Invalid enum parameter passed to OpenAL call"<<std::endl;
           break;
-        case (ALUT_ERROR_INVALID_VALUE):
+        case ALUT_ERROR_INVALID_VALUE:
           SCREEN<<"audio::ReportError ALUT Invalid enum parameter value to OpenAL call"<<std::endl;
           break;
-        case (ALUT_ERROR_INVALID_OPERATION):
+        case ALUT_ERROR_INVALID_OPERATION:
           SCREEN<<"audio::ReportError ALUT Illegal call"<<std::endl;
           break;
-        case (ALUT_ERROR_OUT_OF_MEMORY):
+        case ALUT_ERROR_OUT_OF_MEMORY:
           SCREEN<<"audio::ReportError ALUT OpenAL is out of memory"<<std::endl;
           break;
         default:
-          SCREEN<<"audio::ReportError ALUT Error "<<error<<":\""<<alutGetErrorString(error)<<"\""<<std::endl;
+          SCREEN<<"audio::ReportError ALUT Unknown error code "<<error<<":\""<<alutGetErrorString(error)<<"\""<<std::endl;
           break;
       }
-      ASSERT(error == ALUT_ERROR_NO_ERROR);
-    }
-
-    void Sleep()
-    {
-      alutSleep (3);
     }
 
     void StartAll()
@@ -268,11 +258,78 @@ namespace breathe
       };
     }
 
+    static const int indentation = 4;
+    static const int maxmimumWidth = 79;
+
+    static void printChar(int c, int *width)
+    {
+       putchar(c);
+       *width = ((c == '\n') ? 0 : ((*width) + 1));
+    }
+
+    static void indent(int *width)
+    {
+       int i;
+       for (i = 0; i < indentation; i++)
+           printChar(' ', width);
+    }
+
+    static void printExtensions(const char *header, char separator, const char *extensions)
+    {
+       int width = 0, start = 0, end = 0;
+
+       printf("<!> Run - audio::Init %s: ", header);
+       if (extensions == NULL || extensions[0] == '\0')
+           return;
+
+       indent(&width);
+       while (1) {
+           if(extensions[end] == separator || extensions[end] == '\0') {
+               if(width + end - start + 2 > maxmimumWidth) {
+                   printChar('\n', &width);
+                   printf("<!> Run - audio::Init %s: ", header);
+                   indent(&width);
+               }
+
+               while(start < end) {
+                   printChar(extensions[start], &width);
+                   start++;
+               }
+
+               if(extensions[end] == '\0')
+                   break;
+
+               start++;
+               end++;
+               if(extensions[end] == '\0')
+                   break;
+
+               printChar(',', &width);
+               printChar(' ', &width);
+            }
+            end++;
+        }
+        printChar('\n', &width);
+    }
+
     bool Init()
     {
       LOG<<"Audio"<<std::endl;
 
-      bool bIsEnumerationExtension = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+#if 1
+      device = alcOpenDevice(NULL);
+      ReportError();
+      ASSERT(device != nullptr);
+
+      context = alcCreateContext(device, NULL);
+      ReportError();
+      ASSERT(context != nullptr);
+
+      alcMakeContextCurrent(context);
+      ReportError();
+#endif
+
+      bool bIsEnumerationExtension = (alcIsExtensionPresent(NULL, (const ALCchar*)"ALC_ENUMERATION_EXT") == AL_TRUE);
       ReportError();
 
       if (bIsEnumerationExtension) {
@@ -283,9 +340,10 @@ namespace breathe
         else LOG<<szDeviceList<<std::endl;
       } else LOG<<"audio::Init Extension \"ALC_ENUMERATION_EXT\" is not present"<<std::endl;
 
+
 #if 1
-      LOG<<"Audio alutInitWithoutContext"<<std::endl;
-      alutInitWithoutContext(NULL, NULL);
+      LOG<<"audio::Init alutInitWithoutContext"<<std::endl;
+      alutInitWithoutContext(nullptr, nullptr);
       ReportError();
 
       // Major minor version number
@@ -296,32 +354,60 @@ namespace breathe
       t<<iMajor;
       t<<".";
       t<<iMinor;
-      LOG<<"audio::Init Audio"<<t.str()<<std::endl;
+      LOG<<"audio::Init Audio "<<t.str()<<std::endl;
       ReportError();
 
 
-#ifdef __WIN__
-      const char* szInitString = "DirectSound3D";
-#elif defined(__LINUX__)
-      const char* szInitString = "'((direction \"write\")) '((devices '(alsa sdl native null)))";
-#endif
-      LOG<<"audio::Init Opening device \""<<szInitString<<"\""<<std::endl;
-      device = alcOpenDevice(szInitString);
+      printExtensions("ALC extensions", ' ', alcGetString(device, ALC_EXTENSIONS));
       ReportError();
+
+      LOG<<"audio::Init OpenAL vendor string: "<<alGetString(AL_VENDOR)<<std::endl;
+      LOG<<"audio::Init OpenAL renderer string: "<<alGetString(AL_RENDERER)<<std::endl;
+      LOG<<"audio::Init OpenAL version string: "<<alGetString(AL_VERSION)<<std::endl;
+      printExtensions("OpenAL extensions", ' ', alGetString(AL_EXTENSIONS));
+      ReportError();
+
+
+      const ALCchar* szDefaultDevice = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+      ReportError();
+      if (szDefaultDevice != nullptr) {
+        LOG<<"audio::Init Default device found "<<szDefaultDevice<<std::endl;
+        LOG<<"audio::Init Opening device \""<<szDefaultDevice<<"\""<<std::endl;
+        device = alcOpenDevice(szDefaultDevice);
+        ReportError();
+      }
+
       if (device == NULL) {
-        LOG<<"audio::Init alcOpenDevice FAILED"<<std::endl;
-
-        // Ok, that failed, try the default device
-        device = alcOpenDevice(NULL); // select the "default device"
+#ifdef __WIN__
+        const char* szInitString = "DirectSound3D";
+#elif defined(__LINUX__)
+        const char* szInitString = nullptr;
+#endif
+        LOG<<"audio::Init Opening device \""<<szInitString<<"\""<<std::endl;
+        device = alcOpenDevice(szInitString);
         ReportError();
         if (device == NULL) {
-          LOG<<"audio::Init alcOpenDevice FAILED, returning"<<std::endl;
-          return breathe::BAD;
+          LOG<<"audio::Init alcOpenDevice FAILED"<<std::endl;
+
+          // Ok, that failed, try the default device
+          device = alcOpenDevice(NULL); // select the "default device"
+          ReportError();
+          if (device == NULL) {
+            LOG<<"audio::Init alcOpenDevice FAILED, returning"<<std::endl;
+            return breathe::BAD;
+          }
         }
       }
 
       // Create our context
-      context = alcCreateContext(device, NULL);
+      LOG<<"audio::Init Creating context"<<std::endl;
+      const ALCint attributes[] = {
+        //ALC_FREQUENCY, 44100, // The rate of audio playback.
+        //ALC_REFRESH, 4096, // The size (in bytes) of each chunk sent to the device.
+        //ALC_SYNC, AL_TRUE, // Keep the context in sync?
+        0, 0
+      };
+      context = alcCreateContext(device, attributes);
       ReportError();
       if (context == NULL) {
         alcCloseDevice(device);
@@ -330,10 +416,16 @@ namespace breathe
         return breathe::BAD;
       }
 
+      LOG<<"audio::Init Making context current"<<std::endl;
       alcMakeContextCurrent(context);
       ReportError();
+
+      LOG<<"audio::Init Setting context to processing"<<std::endl;
+      alcProcessContext(context);
+      ReportError();
 #else
-      alutInit(NULL, NULL);
+      LOG<<"audio::Init alutInit"<<std::endl;
+      alutInit(nullptr, nullptr);
       ReportError();
 
       // Major minor version number
@@ -344,45 +436,41 @@ namespace breathe
       t<<iMajor;
       t<<".";
       t<<iMinor;
-      LOG<<"audio::Init Audio"<<t.str()<<std::endl;
+      LOG<<"audio::Init Audio "<<t.str()<<std::endl;
       ReportError();
+
 
       context = alcGetCurrentContext();
       ReportError();
       if (context == NULL) {
+        alcCloseDevice(device);
+        ReportError();
         LOG<<"audio::Init alcGetCurrentContext FAILED, returning"<<std::endl;
         return breathe::BAD;
       }
 
-      // Now get the device from the context
-      device = alcGetContextsDevice(context);
-      ReportError();
-      if (device == NULL) {
-        LOG<<"audio::Init alcGetContextsDevice FAILED, returning"<<std::endl;
-        return breathe::BAD;
-      }
-#endif
 
+      LOG<<"audio::Init Making context current"<<std::endl;
+      alcMakeContextCurrent(context);
+      ReportError();
+#endif
 
 
       // Check for EAX 2.0 support
       LOG<<"audio::Init Checking for EAX 2.0"<<std::endl;
       g_bEAX = alIsExtensionPresent("EAX2.0");
       ReportError();
-      printf("EAX is %ssupported\n", (g_bEAX ? "" : "not "));
+      LOG<<"audio::Init EAX "<<(g_bEAX ? "is" : "is not")<<" supported"<<std::endl;
 
-      /*
-        Assuming g_bEAX == AL_TRUE after that code, then EAX 2.0 is available on
-        your soundcard.  Note that the reverb is muted by default (Room level ==
-        -10000mB), so you will need to change this value (and probably all the
-        other reverb parameters to get the reverb effect you want).
-      */
+      // Assuming g_bEAX == AL_TRUE after that code, then EAX 2.0 is available on your soundcard.
+      // Note that the reverb is muted by default (Room level == -10000mB), so you will need
+      // to change this value (and probably all the other reverb parameters to get the reverb effect you want).
 
 
       // Surround sound
       LOG<<"audio::Init Checking for surround sound"<<std::endl;
       ALenum eBufferFormat = 0;
-#ifndef __LINUX__
+
       eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
       ReportError();
       if (eBufferFormat) {
@@ -417,7 +505,7 @@ namespace breathe
         LOG.Success("Audio", "Quad Speaker Surround sound supported, returning");
         return breathe::GOOD;
       }
-#endif
+
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
       ReportError();
@@ -432,6 +520,12 @@ namespace breathe
         LOG.Success("Audio", "Mono sound supported, returning");
         return breathe::GOOD;
       }
+
+
+      // Setup OpenAL parameters
+      alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+      alDopplerFactor(fDopplerFactor);
+      alDopplerVelocity(fDopplerVelocity);
 
       LOG.Success("Audio", "Unknown sound setup, returning");
       return breathe::BAD;
@@ -473,23 +567,27 @@ namespace breathe
     void SetListener(const math::cVec3& position, const math::cVec3& lookat, const math::cVec3& up, const math::cVec3& velocity)
     {
       //LOG<<"SetListener"<<std::endl;
-      ALfloat listenerOri[] = { lookat.x, lookat.y, lookat.z, up.x, up.y, up.z };
       alListenerfv(AL_POSITION, position.GetPointerConst());
       //ReportError();
       alListenerfv(AL_VELOCITY, velocity.GetPointerConst());
       //ReportError();
+      const ALfloat listenerOri[] = {
+        lookat.x, lookat.y, lookat.z,
+        up.x, up.y, up.z
+      };
       alListenerfv(AL_ORIENTATION, listenerOri);
       //ReportError();
     }
 
     void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp)
     {
+      // Update listener
       static math::cVec3 positionPrevious = listenerPosition;
-
       const math::cVec3 listenerVelocity = listenerPosition - positionPrevious;
-
       SetListener(listenerPosition, listenerTarget, listenerUp, listenerVelocity);
 
+
+      // Find any sources that need removing (Either NULL or finished playing)
       source_iterator iter = lAudioSource.begin();
       source_iterator iterEnd = lAudioSource.end();
 
@@ -510,16 +608,32 @@ namespace breathe
       };
 
 
+      // Remove any sources that need removing
+      LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
+
       iter = listToRemove.begin();
       iterEnd = listToRemove.end();
-
       for (; iter != iterEnd; iter++) {
         pSource = (*(iter));
         ASSERT(pSource != nullptr);
         pSource->Remove();
-        //SAFE_DELETE(pSource);
-        pSource.reset();
+
+        source_iterator currentSourcesIter = lAudioSource.begin();
+        const source_iterator currentSourcesIterEnd = lAudioSource.end();
+        while (currentSourcesIter != currentSourcesIterEnd) {
+          if (pSource == *currentSourcesIter) {
+            lAudioSource.erase(currentSourcesIter);
+            break;
+          }
+
+          currentSourcesIter++;
+        }
       }
+
+
+      // Sleep to let other threads do some work
+      const uint32_t milliseconds = 10;
+      alutSleep(0.001f * float(milliseconds));
     }
 
     void CreateSoundAttachedToScreenPlayAndForget(const string_t& sFilename)
@@ -565,7 +679,15 @@ namespace breathe
     {
       SCREEN<<"cBuffer::Create \""<<sInFilename<<"\""<<std::endl;
       sFilename = sInFilename;
+
+#if 0
       uiBuffer = alutCreateBufferFromFile(breathe::string::ToUTF8(sFilename).c_str());
+#else
+      ALfloat frequency = 100;
+      ALfloat phase = 250;
+      ALfloat duration = 5000;
+      uiBuffer = alutCreateBufferWaveform(ALUT_WAVEFORM_SINE, frequency, phase, duration);
+#endif
       ReportError();
 
       if (uiBuffer == 0) SCREEN<<"Audio could not find file \""<<breathe::string::ToUTF8(sFilename)<<"\""<<std::endl;
@@ -579,8 +701,8 @@ namespace breathe
       bLooping(false),
       uiSource(0),
       volume(1.0f),
-      pBuffer(),
-      pNodeParent(nullptr)
+      pitch(1.0f),
+      pBuffer()
     {
       Create(pInBuffer);
     }
@@ -589,8 +711,8 @@ namespace breathe
       bLooping(false),
       uiSource(0),
       volume(fVolume),
-      pBuffer(),
-      pNodeParent(nullptr)
+      pitch(1.0f),
+      pBuffer()
     {
       Create(pInBuffer);
     }
@@ -605,7 +727,6 @@ namespace breathe
       }
 
       uiSource = 0;
-      pNodeParent = nullptr;
       SCREEN<<"cSource::~cSource returning"<<std::endl;
     }
 
@@ -618,16 +739,24 @@ namespace breathe
       ASSERT(pInBuffer->IsValid());
 
       pBuffer = pInBuffer;
+
       alGenSources(1, &uiSource);
       ReportError();
+
       alSourcei(uiSource, AL_BUFFER, pInBuffer->uiBuffer);
+      ReportError();
+
+      // Set parameters
+      alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
+      ReportError();
+      alSourcef(uiSource, AL_ROLLOFF_FACTOR, fRollOffFactor);
       ReportError();
     }
 
     void cSource::SetVolume(float fVolume)
     {
       volume = fVolume;
-      if (IsPlaying()) alSourcef(uiSource, AL_GAIN, volume);
+      if (IsPlaying()) alSourcef(uiSource, AL_GAIN, 10.0f * volume);
     }
 
     void cSource::SetPitch(float fPitch)
@@ -652,16 +781,9 @@ namespace breathe
       alSourcei(uiSource, AL_LOOPING, AL_FALSE);
     }
 
-    void cSource::Attach(cObject* pInNodeParent)
-    {
-      pNodeParent = pInNodeParent;
-      AddSource(cSourceRef(this));
-    }
-
     void cSource::Remove()
     {
       LOG<<"cSource::Remove"<<std::endl;
-      pNodeParent = NULL;
 
       if (uiSource != 0) {
         LOG<<"cSource::Remove Calling alDeleteSources with uiSource="<<uiSource<<std::endl;
@@ -682,6 +804,11 @@ namespace breathe
       LOG<<"cSource::Play"<<std::endl;
       alSourcePlay(uiSource);
       ReportError();
+
+      SetVolume(volume);
+      SetPitch(pitch);
+      if (bLooping) SetLooping();
+      else SetNonLooping();
     }
 
     void cSource::Stop()
@@ -693,11 +820,13 @@ namespace breathe
 
     void cSource::Update()
     {
-      if (pNodeParent != nullptr) {
-        //LOG<<"cSource::Update"<<std::endl;
-        alSourcefv(uiSource, AL_POSITION, pNodeParent->position.GetPointerConst());
-        //ReportError();
-      }
+    }
+
+    void cSource::SetPosition(const spitfire::math::cVec3& position)
+    {
+      //LOG<<"cSource::SetPosition"<<std::endl;
+      alSourcefv(uiSource, AL_POSITION, position.GetPointerConst());
+      //ReportError();
     }
 
     bool cSource::IsValid() const
@@ -709,7 +838,6 @@ namespace breathe
     {
       if (!IsValid()) return false;
 
-      // If we have stopped playing this sound remove us from the list
       ALint value = AL_PLAYING;
       //LOG<<"cSource::IsPlaying"<<std::endl;
       alGetSourcei(uiSource, AL_SOURCE_STATE, &value);
@@ -717,23 +845,21 @@ namespace breathe
       return (AL_PLAYING == value);
     }
 
-    void cSource::TransformTo2DSource()
+    void cSource::SetIsAttachedToScreen()
     {
       LOG<<"cSource::TransformTo2DSource"<<std::endl;
-      alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
+      alSource3f(uiSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
       ReportError();
-      alSourcef(uiSource, AL_ROLLOFF_FACTOR, 0.0);
+      alSource3f(uiSource, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+      ReportError();
+      alSource3f(uiSource, AL_DIRECTION, 0.0f, 0.0f, 0.0f);
+      ReportError();
+      alSourcef(uiSource, AL_ROLLOFF_FACTOR, 0.0f);
+      ReportError();
+      alSourcei(uiSource, AL_SOURCE_RELATIVE, AL_TRUE);
       ReportError();
     }
 
-    void cSource::TransformTo3DSource()
-    {
-      LOG<<"cSource::TransformTo2DSource"<<std::endl;
-      alSourcei (uiSource, AL_SOURCE_RELATIVE, AL_FALSE);
-      ReportError();
-      alSourcef (uiSource, AL_ROLLOFF_FACTOR, 1.0);
-      ReportError();
-    }
 
   /*
 
@@ -849,12 +975,6 @@ namespace breathe
       source1(pBuffer1, fVolume1)
     {
 
-    }
-
-    void cSourceMix::Attach(cObject* pNodeParent)
-    {
-      source0.Attach(pNodeParent);
-      source1.Attach(pNodeParent);
     }
 
     void cSourceMix::Remove()

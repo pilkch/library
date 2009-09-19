@@ -10,6 +10,8 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/audio/audio.h>
+
 #include <breathe/game/scenegraph.h>
 
 #include <breathe/physics/physics.h>
@@ -111,6 +113,9 @@ namespace breathe
 
       const string_t& GetName() const { return sName; }
       void SetName(const string_t& _sName) { sName = _sName; }
+
+      spitfire::math::cVec3 GetPositionAbsolute() const { return positionRelative; }
+      spitfire::math::cQuaternion GetRotationAbsolute() const { return rotationRelative; }
 
       const spitfire::math::cVec3& GetPositionRelative() const { return positionRelative; }
       void SetPositionRelative(const spitfire::math::cVec3& _positionRelative) { positionRelative = _positionRelative; }
@@ -298,6 +303,14 @@ namespace breathe
     {
     public:
       explicit cAudioSourceComponent(cGameObject& _object) : cComponent(_object) {}
+
+      void AddSource(audio::cSourceRef pSource);
+      void RemoveSource(audio::cSourceRef pSource);
+
+    private:
+      void _Update(spitfire::sampletime_t currentTime);
+
+      std::vector<audio::cSourceRef> sources;
     };
 
     class cTeamComponent : public cComponent
