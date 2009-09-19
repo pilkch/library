@@ -368,6 +368,7 @@ namespace breathe
 
 
 #ifdef BUILD_DEBUG
+    friend class cGameUnitTest;
     cGameUnitTest* pGameUnitTest; // Only used if/when the application wants it
 #endif
   };

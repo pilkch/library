@@ -115,6 +115,7 @@ namespace breathe
       texture[2].Clear();
       shader.Clear();
       vertexBufferObject.Clear();
+      geometryType = scenegraph_common::GEOMETRY_TYPE::DEFAULT;
     }
 
     void cStateSet::SetStateFromMaterial(render::material::cMaterialRef pMaterial)
@@ -291,20 +292,6 @@ namespace breathe
       return boundingSphere.fRadius;
     }
 
-    void cSceneNode::_Update(cUpdateVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Update(visitor);
-
-      visitor.Visit(*this);
-    }
-
-    void cSceneNode::_Cull(cCullVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Cull(visitor);
-
-      visitor.Visit(*this);
-    }
-
     void cSceneNode::AttachChild(cSceneNodeRef pChild)
     {
       ASSERT(!IsParentOfChild(pChild));
@@ -337,22 +324,24 @@ namespace breathe
 
 
 
-    void cGroupNode::_AttachChild(cSceneNodeRef pChild)
+    // These are the default behaviours of the attach/detach/delete child functions
+
+    void cSceneNode::_AttachChild(cSceneNodeRef pChild)
     {
       children.push_back(pChild);
     }
 
-    void cGroupNode::_DetachChild(cSceneNodeRef pChild)
+    void cSceneNode::_DetachChild(cSceneNodeRef pChild)
     {
       children.remove(pChild);
     }
 
-    void cGroupNode::_DeleteChildRecursively(cSceneNodeRef pChild)
+    void cSceneNode::_DeleteChildRecursively(cSceneNodeRef pChild)
     {
       pChild->DeleteAllChildrenRecursively();
     }
 
-    void cGroupNode::_DeleteAllChildrenRecursively()
+    void cSceneNode::_DeleteAllChildrenRecursively()
     {
       // If we don't have any children, return
       if (children.empty()) return;
@@ -370,7 +359,7 @@ namespace breathe
       children.clear();
     }
 
-    void cGroupNode::_Update(cUpdateVisitor& visitor)
+    void cSceneNode::_Update(cUpdateVisitor& visitor)
     {
       // If we don't have any children, return
       if (children.empty()) return;
@@ -386,7 +375,7 @@ namespace breathe
       }
     }
 
-    void cGroupNode::_Cull(cCullVisitor& visitor)
+    void cSceneNode::_Cull(cCullVisitor& visitor)
     {
       // If we don't have any children, return
       if (children.empty()) return;
@@ -401,15 +390,20 @@ namespace breathe
         iter++;
       }
     }
+
 
 
     void cProjection2D::_Update(cUpdateVisitor& visitor)
     {
+      cSceneNode::_Update(visitor);
+
       visitor.Visit(*pChild);
     }
 
     void cProjection2D::_Cull(cCullVisitor& visitor)
     {
+      cSceneNode::_Cull(visitor);
+
       visitor.Visit(*pChild);
     }
 
@@ -418,33 +412,44 @@ namespace breathe
 
     void cModelNode::_Update(cUpdateVisitor& visitor)
     {
+      cSceneNode::_Update(visitor);
     }
 
     void cModelNode::_Cull(cCullVisitor& visitor)
     {
+      cSceneNode::_Cull(visitor);
+
       visitor.Visit(&stateset, GetAbsoluteMatrix());
     }
 
 
     void cAnimationNode::_Update(cUpdateVisitor& visitor)
     {
+      cSceneNode::_Update(visitor);
+
       const sampletime_t currentTime = spitfire::util::GetTime();
       animation.model.Update(currentTime);
     }
 
     void cAnimationNode::_Cull(cCullVisitor& visitor)
     {
+      cSceneNode::_Cull(visitor);
+
       visitor.Visit(&animation.model, GetAbsoluteMatrix());
     }
 
 
     void cLightNode::_Update(cUpdateVisitor& visitor)
     {
+      cSceneNode::_Update(visitor);
+
       //if (pChild != nullptr) pChild->Update(visitor);
     }
 
     void cLightNode::_Cull(cCullVisitor& visitor)
     {
+      cSceneNode::_Cull(visitor);
+
       //if (pChild != nullptr) pChild->Cull(visitor);
 
       //visitor.Visit(*this);
@@ -479,6 +484,7 @@ namespace breathe
       // Only visit the node that we require
       visitor.Visit(*node[index]);
     }
+
 
     void cLODNode::_AttachChild(cSceneNodeRef pChild)
     {
@@ -903,8 +909,21 @@ namespace breathe
                     glMatrixMode(GL_MODELVIEW);
                     glPushMatrix();
                       glMultMatrixf((*renderableIter).GetOpenGLMatrixPointer());
+
+#ifdef BUILD_DEBUG
                       pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
-                      pVbo->RenderTriangles();
+#endif
+
+                      switch (pStateSet->geometryType) {
+                        case scenegraph_common::GEOMETRY_TYPE::TRIANGLES: {
+                          pVbo->RenderTriangles();
+                          break;
+                        }
+                        case scenegraph_common::GEOMETRY_TYPE::QUADS: {
+                          pVbo->RenderQuads();
+                          break;
+                        }
+                      };
 
                       glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();

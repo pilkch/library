@@ -106,6 +106,180 @@
 namespace breathe
 {
 #ifdef BUILD_DEBUG
+
+  void CreateCrate(render::cVertexBufferObjectRef& pCrateVBO, render::material::cMaterialRef& pCrateMaterial)
+  {
+    std::vector<float> vertices;
+    std::vector<float> textureCoordinates;
+    //std::vector<uint16_t> indices;
+
+    const float_t fHalfSize = 0.5f;
+    const spitfire::math::cVec3 vMin(-fHalfSize, -fHalfSize, -fHalfSize);
+    const spitfire::math::cVec3 vMax(fHalfSize, fHalfSize, fHalfSize);
+
+    // Bottom Square
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+    // Side Squares
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMin.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMin.z);
+
+    // Upper Square
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(0.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMin.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(1.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMax.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    textureCoordinates.push_back(0.0f);
+    textureCoordinates.push_back(1.0f);
+    vertices.push_back(vMin.x);
+    vertices.push_back(vMax.y);
+    vertices.push_back(vMax.z);
+
+    pCrateVBO.reset(new breathe::render::cVertexBufferObject);
+    pCrateVBO->SetVertices(vertices);
+    pCrateVBO->SetTextureCoordinates(textureCoordinates);
+    //pCrateVBO->SetIndices(indices);
+    pCrateVBO->Compile();
+
+
+    const spitfire::string_t sFilename(TEXT("materials/crate.mat"));
+    pCrateMaterial = pRender->GetMaterial(sFilename);
+  }
+
+
   cGameUnitTest::cGameUnitTest(cApplication& _app) :
     app(_app)
   {
@@ -117,6 +291,127 @@ namespace breathe
 
   bool cGameUnitTest::Init()
   {
+    // Create our scenenodes attached to a new group node
+    breathe::scenegraph3d::cGroupNodeRef pGroupNode(new breathe::scenegraph3d::cGroupNode);
+
+    // Attach our group node to the scenegraph root node
+    {
+      breathe::scenegraph3d::cSceneNodeRef pRoot = app.scenegraph.GetRoot();
+      breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
+      pRootAsGroupNode->AttachChild(pGroupNode);
+    }
+
+
+
+
+    // Create two crates, the first is rotated and positioned relative to the group node, the second is rotated and positioned relative to the first.
+    // Then create a spiral of crates
+    {
+      render::cVertexBufferObjectRef pCrateVBO;
+      render::material::cMaterialRef pCrateMaterial;
+
+      CreateCrate(pCrateVBO, pCrateMaterial);
+
+      {
+        // Create the first crate
+        breathe::scenegraph3d::cModelNodeRef pNodeCrate0(new breathe::scenegraph3d::cModelNode);
+        {
+          spitfire::math::cQuaternion rotation;
+          rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(10.0f));
+
+          pNodeCrate0->SetRelativePosition(spitfire::math::cVec3(10.0f, 10.0f, 1.0f));
+          pNodeCrate0->SetRelativeRotation(rotation);
+
+          breathe::scenegraph3d::cStateSet& stateset = pNodeCrate0->GetStateSet();
+          stateset.SetStateFromMaterial(pCrateMaterial);
+          stateset.SetGeometryTypeQuads();
+
+          breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetEnabled(true);
+          vertexBufferObject.bHasValidValue = true;
+
+          pGroupNode->AttachChild(pNodeCrate0);
+        }
+
+
+        {
+          // Create the second crate
+          breathe::scenegraph3d::cModelNodeRef pNodeCrate1(new breathe::scenegraph3d::cModelNode);
+
+          spitfire::math::cQuaternion rotation;
+          rotation.SetFromAxisAngle(spitfire::math::v3Front, spitfire::math::DegreesToRadians(30.0f));
+
+          pNodeCrate1->SetRelativePosition(spitfire::math::cVec3(0.0f, 0.0f, 3.0f));
+          pNodeCrate1->SetRelativeRotation(rotation);
+
+          breathe::scenegraph3d::cStateSet& stateset = pNodeCrate1->GetStateSet();
+          stateset.SetStateFromMaterial(pCrateMaterial);
+          stateset.SetGeometryTypeQuads();
+
+          breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetEnabled(true);
+          vertexBufferObject.bHasValidValue = true;
+
+          // Child of the first crate
+          pNodeCrate0->AttachChild(pNodeCrate1);
+        }
+      }
+
+      // Create a spiral of crates, note, each crate is positioned and rotated relatively to the crate before it
+      {
+        breathe::scenegraph3d::cModelNodeRef pNodeFirst(new breathe::scenegraph3d::cModelNode);
+        {
+          pNodeFirst->SetRelativePosition(spitfire::math::cVec3(30.0f, 10.0f, 1.0f));
+
+          breathe::scenegraph3d::cStateSet& stateset = pNodeFirst->GetStateSet();
+          stateset.SetStateFromMaterial(pCrateMaterial);
+          stateset.SetGeometryTypeQuads();
+
+          breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetEnabled(true);
+          vertexBufferObject.bHasValidValue = true;
+
+          pGroupNode->AttachChild(pNodeFirst);
+        }
+
+        breathe::scenegraph3d::cModelNodeRef pNodePrevious = pNodeFirst;
+
+        const size_t n = 30;
+        for (size_t i = 0; i < n; i++) {
+          breathe::scenegraph3d::cModelNodeRef pNodeCurrent(new breathe::scenegraph3d::cModelNode);
+
+          spitfire::math::cQuaternion rotation;
+          rotation.SetFromAxisAngle(spitfire::math::v3Front, spitfire::math::DegreesToRadians(15.0f));
+
+          pNodeCurrent->SetRelativePosition(spitfire::math::cVec3(0.0f, 0.5f, 1.0f));
+          pNodeCurrent->SetRelativeRotation(rotation);
+
+          breathe::scenegraph3d::cStateSet& stateset = pNodeCurrent->GetStateSet();
+          stateset.SetStateFromMaterial(pCrateMaterial);
+          stateset.SetGeometryTypeQuads();
+
+          breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetEnabled(true);
+          vertexBufferObject.bHasValidValue = true;
+
+          // Child of the previous crate
+          pNodePrevious->AttachChild(pNodeCurrent);
+
+          pNodePrevious = pNodeCurrent;
+        }
+      }
+    }
+
+
+
+    // Create a grid to get an idea of how big the world is
+    grid.Create();
+    grid.SetResolutionInMeters(1);
+
     return true;
   }
 
@@ -143,7 +438,7 @@ namespace breathe
   void cGameUnitTest::RenderScene(breathe::sampletime_t currentTime)
   {
     {
-      // Draw an array of boxes
+      // Draw an array of boxes unfortunately because they are all different, unless we have a colour attribute on a scenenode? we have to do this dynamically instead of through the scenegraph.
       breathe::render::material::cMaterialRef pMaterial(pRender->GetMaterial(TEXT("materials/coloured_texture.mat")));
       if (pMaterial == nullptr) {
         LOG.Error("cGame::cSudokuStatePlaying::_RenderScene", "coloured_texture.mat not found");
@@ -155,11 +450,11 @@ namespace breathe
       glEnable(GL_TEXTURE_2D);
       pRender->SetMaterial(pMaterial);
 
-        breathe::math::cVec3 colour(1.0f, 0.0f, 0.0f);
+        spitfire::math::cVec3 colour(1.0f, 0.0f, 0.0f);
 
         const float fHalfWidth = 1.0f;
-        const breathe::math::cVec3 vMin(-fHalfWidth, -fHalfWidth, -fHalfWidth);
-        const breathe::math::cVec3 vMax(fHalfWidth, fHalfWidth, fHalfWidth);
+        const spitfire::math::cVec3 vMin(-fHalfWidth, -fHalfWidth, -fHalfWidth);
+        const spitfire::math::cVec3 vMax(fHalfWidth, fHalfWidth, fHalfWidth);
 
         const size_t n = 10;
         for (size_t z = 0; z < n; z++) {
@@ -184,6 +479,10 @@ namespace breathe
 
       pRender->ClearMaterial();
     }
+
+
+    // Render our grid
+    grid.Render(currentTime);
   }
 
   void cGameUnitTest::RenderScreenSpace(sampletime_t currentTime)

@@ -212,6 +212,15 @@ namespace breathe
     {
       return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (pVertexBufferObject == rhs.pVertexBufferObject);
     }
+
+
+    enum class GEOMETRY_TYPE {
+      TRIANGLES,
+      QUADS,
+
+      // Helper states
+      DEFAULT = TRIANGLES
+    };
   }
 
   namespace scenegraph3d
@@ -221,8 +230,7 @@ namespace breathe
     class cCullVisitor;
 
 
-    enum RENDER_PRIORITY
-    {
+    enum RENDER_PRIORITY {
       RENDER_PRIORITY_FIRST = -3,
       RENDER_PRIORITY_SECOND = -2,
       RENDER_PRIORITY_THIRD = -1,
@@ -302,8 +310,7 @@ namespace breathe
       friend class cRenderGraph;
       friend class cRenderVisitor;
 
-      enum PRIORITY
-      {
+      enum PRIORITY {
         PRIORITY_HIGH3 = 0,
         PRIORITY_HIGH2,
         PRIORITY_HIGH1,
@@ -329,6 +336,9 @@ namespace breathe
       // TEMPORARY*******************************************************************************************
       void SetStateFromMaterial(render::material::cMaterialRef pMaterial);
 
+      void SetGeometryTypeTriangles() { geometryType = scenegraph_common::GEOMETRY_TYPE::TRIANGLES; }
+      void SetGeometryTypeQuads() { geometryType = scenegraph_common::GEOMETRY_TYPE::QUADS; }
+
     private:
       void Clear();
 
@@ -338,6 +348,7 @@ namespace breathe
       scenegraph_common::cStateTexture texture[render::MAX_TEXTURE_UNITS];
       scenegraph_common::cStateShader shader;
       scenegraph_common::cStateVertexBufferObject vertexBufferObject;
+      scenegraph_common::GEOMETRY_TYPE geometryType;
 
       // in order of sorting
       // bool bUseIsShadowCasting;
@@ -354,7 +365,8 @@ namespace breathe
       priority(rhs.priority),
       alphablending(rhs.alphablending),
       shader(rhs.shader),
-      vertexBufferObject(rhs.vertexBufferObject)
+      vertexBufferObject(rhs.vertexBufferObject),
+      geometryType(rhs.geometryType)
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
@@ -374,6 +386,7 @@ namespace breathe
       texture[2] = rhs.texture[2];
       shader = rhs.shader;
       vertexBufferObject = rhs.vertexBufferObject;
+      geometryType = rhs.geometryType;
 
       return *this;
     }
@@ -383,7 +396,7 @@ namespace breathe
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
       return (priority == rhs.priority) && (alphablending == rhs.alphablending)
-        && (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) && (shader == rhs.shader) && (vertexBufferObject == rhs.vertexBufferObject);
+        && (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) && (shader == rhs.shader) && (vertexBufferObject == rhs.vertexBufferObject) && (geometryType == rhs.geometryType);
     }
 
     class cSceneNode;
@@ -398,6 +411,9 @@ namespace breathe
     public:
       friend class cUpdateVisitor;
       friend class cCullVisitor;
+
+      typedef std::list<cSceneNodeRef>::iterator child_iterator;
+      typedef std::list<cSceneNodeRef>::const_iterator child_const_iterator;
 
       virtual ~cSceneNode();
 
@@ -509,10 +525,13 @@ namespace breathe
 
       void GenerateBoundingVolume();
 
-      virtual void _AttachChild(cSceneNodeRef pChild) {}
-      virtual void _DetachChild(cSceneNodeRef pChild) {}
-      virtual void _DeleteChildRecursively(cSceneNodeRef pChild) {}
-      virtual void _DeleteAllChildrenRecursively() {}
+      // NOTE: If you override any of these methods you should override all of them
+      virtual void _AttachChild(cSceneNodeRef pChild);
+      virtual void _DetachChild(cSceneNodeRef pChild);
+      virtual void _DeleteChildRecursively(cSceneNodeRef pChild);
+      virtual void _DeleteAllChildrenRecursively();
+
+      std::list<cSceneNodeRef> children;
     };
 
     inline cSceneNode::~cSceneNode()
@@ -521,29 +540,9 @@ namespace breathe
     }
 
 
-
-    class cGroupNode : public cSceneNode
-    {
-    public:
-      typedef std::list<cSceneNodeRef>::iterator child_iterator;
-      typedef std::list<cSceneNodeRef>::const_iterator child_const_iterator;
-
-      cGroupNode() {}
-
-    protected:
-      virtual void _AttachChild(cSceneNodeRef pChild);
-      virtual void _DetachChild(cSceneNodeRef pChild);
-      virtual void _DeleteChildRecursively(cSceneNodeRef pChild);
-      virtual void _DeleteAllChildrenRecursively();
-
-      virtual void _Update(cUpdateVisitor& visitor);
-      virtual void _Cull(cCullVisitor& visitor);
-
-    private:
-      std::list<cSceneNodeRef> children;
-    };
-
+    class cGroupNode : public cSceneNode {};
     typedef cSmartPtr<cGroupNode> cGroupNodeRef;
+
 
     // Adds everything below this node to the list of 2D objects to be rendered, ie. HUD
     class cProjection2D : public cSceneNode

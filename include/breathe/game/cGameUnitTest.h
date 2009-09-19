@@ -3,6 +3,8 @@
 
 #include <breathe/util/app.h>
 
+#include <breathe/render/model/cGrid.h>
+
 namespace breathe
 {
   class cApplication;
@@ -26,6 +28,8 @@ namespace breathe
 
   private:
     cApplication& app;
+
+    render::model::cGridRenderer grid;
   };
 #endif
 }
