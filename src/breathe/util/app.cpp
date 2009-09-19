@@ -445,6 +445,10 @@ namespace breathe
 
     bPopCurrentStateSoon(false),
     pPushThisStateSoon(nullptr)
+
+#ifdef BUILD_DEBUG
+    , pGameUnitTest(nullptr)
+#endif
   {
     // Set our cout to use the system locale (What does it use by default?)
     std::cout.imbue(std::locale(""));
@@ -951,6 +955,13 @@ namespace breathe
 
   bool cApplication::DestroyApp()
   {
+#ifdef BUILD_DEBUG
+    if (pGameUnitTest != nullptr) {
+      pGameUnitTest->Destroy();
+      SAFE_DELETE(pGameUnitTest);
+    }
+#endif
+
     CursorShow();
 
     breathe::audio::StopAll();
@@ -1021,8 +1032,26 @@ namespace breathe
     return breathe::GOOD;
   }
 
+#ifdef BUILD_DEBUG
+  void cApplication::CreateGameUnitTest()
+  {
+    LOG<<"cApplication::CreateGameUnitTest"<<std::endl;
+
+    // If we have already created our game unittest then we can reuse it
+    if (pGameUnitTest != nullptr) return;
+
+    pGameUnitTest = new cGameUnitTest(*this);
+
+    pGameUnitTest->Init();
+  }
+#endif
+
   void cApplication::_Update(sampletime_t currentTime)
   {
+#ifdef BUILD_DEBUG
+    if (pGameUnitTest != nullptr) pGameUnitTest->Update(currentTime);
+#endif
+
     // Update our current state
     GetCurrentState().Update(currentTime);
 
@@ -1096,6 +1125,11 @@ namespace breathe
 
   void cApplication::_RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime)
   {
+#ifdef BUILD_DEBUG
+    if (pGameUnitTest != nullptr) pGameUnitTest->RenderScreenSpace(currentTime);
+#endif
+
+
     scenegraph2D.Render(currentTime);
 
     state.RenderScreenSpace(currentTime);
@@ -1168,6 +1202,10 @@ namespace breathe
     //pRender->SetMaterial(*iter, constants);
 
 
+#ifdef BUILD_DEBUG
+    if (pGameUnitTest != nullptr) pGameUnitTest->PreRender(currentTime);
+#endif
+
     // This can be overridden, allowing the user to create their own render to textures
     state.PreRender(currentTime);
 
@@ -1186,6 +1224,10 @@ namespace breathe
         render::cRenderToTexture texture(pFrameBuffer0);
 
         scenegraph.Render(currentTime, pRender->GetFrustum());
+
+#ifdef BUILD_DEBUG
+        if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
+#endif
 
         state.RenderScene(currentTime);
       }
@@ -1340,6 +1382,10 @@ namespace breathe
       render::cRenderToScreen screen;
 
       scenegraph.Render(currentTime, pRender->GetFrustum());
+
+#ifdef BUILD_DEBUG
+      if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
+#endif
 
       state.RenderScene(currentTime);
 
@@ -1553,16 +1599,18 @@ namespace breathe
     if (IsKeyDown(SDLK_F6)) pRender->bCubemap = !pRender->bCubemap;
     if (IsKeyDown(SDLK_F7)) pRender->bLight = !pRender->bLight;
 
+    if (IsKeyDown(SDLK_F8)) CreateGameUnitTest();
+
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    if (IsKeyDown(SDLK_F8)) bUpdatePhysics = !bUpdatePhysics;
-    if (IsKeyDown(SDLK_F9)) {
+    if (IsKeyDown(SDLK_F9)) bUpdatePhysics = !bUpdatePhysics;
+    if (IsKeyDown(SDLK_F10)) {
       bUpdatePhysics = false;
       bStepPhysics = true;
     }
 #endif
 
-    if (IsKeyDown(SDLK_F10)) pRender->ReloadTextures();
-    if (IsKeyDown(SDLK_F11)) spitfire::util::RunUnitTests();
+    if (IsKeyDown(SDLK_F11)) pRender->ReloadTextures();
+    if (IsKeyDown(SDLK_F12)) spitfire::util::RunUnitTests();
 #endif
 
     if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
@@ -1579,6 +1627,10 @@ namespace breathe
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
   void cApplication::_UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime)
   {
+#ifdef BUILD_DEBUG
+    if (pGameUnitTest != nullptr) pGameUnitTest->UpdatePhysics(currentTime);
+#endif
+
     state.UpdatePhysics(currentTime);
   }
 #endif

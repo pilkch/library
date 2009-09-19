@@ -3,6 +3,7 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/game/cGameUnitTest.h>
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/scenegraph2d.h>
 
@@ -76,6 +77,8 @@ namespace breathe
 #ifdef BUILD_DEBUG
     bool IsDebug() const { return bDebug; }
     void ToggleDebug() { bDebug = !bDebug; }
+
+    void CreateGameUnitTest();
 #endif
 
     bool IsBlurPostRenderEffect() const { return bIsBlurPostRenderEffect; }
@@ -362,6 +365,11 @@ namespace breathe
       cApplication& app;
       cConsoleWindow* pConsoleWindow;
     };
+
+
+#ifdef BUILD_DEBUG
+    cGameUnitTest* pGameUnitTest; // Only used if/when the application wants it
+#endif
   };
 }
 
