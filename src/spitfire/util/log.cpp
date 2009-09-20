@@ -131,6 +131,8 @@ namespace spitfire
 
     cLog::~cLog()
     {
+      std::ofstream logfile;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -141,6 +143,8 @@ namespace spitfire
 
     bool cLog::CreateLog()
     {
+      std::ofstream logfile;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out);
 
       if (!logfile.is_open()) return false;
@@ -188,6 +192,8 @@ namespace spitfire
     {
       if (!bIsLogging) return;
 
+      std::ofstream logfile;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -201,6 +207,8 @@ namespace spitfire
       if (!bIsLogging) return;
 
       section = s1;
+
+      std::ofstream logfile;
 
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
@@ -221,6 +229,8 @@ namespace spitfire
 
       section = s1;
 
+      std::ofstream logfile;
+
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
       if (!logfile.is_open()) return;
@@ -236,6 +246,8 @@ namespace spitfire
     void cLog::Success(const std::string& section, const std::string& text)
     {
       if (!bIsLogging) return;
+
+      std::ofstream logfile;
 
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
@@ -256,6 +268,8 @@ namespace spitfire
     void cLog::Error(const std::string& section, const std::string& text)
     {
       if (!bIsLogging) return;
+
+      std::ofstream logfile;
 
       logfile.open(spitfire::string::ToUTF8(strfilename).c_str(), std::ios::out | std::ios::app);
 
@@ -338,6 +352,16 @@ namespace spitfire
       std::cout<<o.str()<<std::endl;
       return *this;
     }*/
+
+    void cConsole::_AddLine(const std::string& o)
+    {
+      // Cascade output to log file
+      LOG._AddLine(o);
+
+      lines.push_back(o);
+      std::cout<<o<<std::endl;
+      ClearLine();
+    }
 
 
     // ***********************************************SCREEN*******************************************************

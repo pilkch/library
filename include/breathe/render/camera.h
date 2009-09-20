@@ -20,6 +20,7 @@ namespace breathe
       void SetFieldOfViewDegrees(float_t _fFOVDegrees) { fFOVDegrees = _fFOVDegrees; }
 
       void SetLookAtCamera(const spitfire::math::cVec3& positionEye, const spitfire::math::cVec3& positionLookAtPoint);
+      void SetLookAtCameraZoomToFillScreen(const spitfire::math::cVec3& positionEye, const spitfire::math::cVec3& positionOfObject, float_t fDiameterOfObjectMeters);
       void SetFirstPersonCamera(const spitfire::math::cVec3& positionEye, const spitfire::math::cQuaternion& rotation);
       void SetThirdPersonCamera(const spitfire::math::cVec3& positionOfObject, const spitfire::math::cQuaternion& rotationOfObject);
       void SetThirdPersonCamera(const spitfire::math::cVec3& positionOfObject, const spitfire::math::cQuaternion& rotationOfObject, const spitfire::math::cQuaternion& rotationOfViewRelativeToRotationOfObject);

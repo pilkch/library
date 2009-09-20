@@ -294,6 +294,7 @@ namespace breathe
 
     void cSceneNode::AttachChild(cSceneNodeRef pChild)
     {
+      ASSERT(pChild != nullptr);
       ASSERT(!IsParentOfChild(pChild));
 
       _AttachChild(pChild);

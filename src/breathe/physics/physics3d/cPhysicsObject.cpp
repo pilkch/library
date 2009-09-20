@@ -98,7 +98,7 @@ namespace breathe
 
     void cPhysicsObject::DestroyBody()
     {
-      if (body) {
+      if (body != NULL) {
         dBodyDestroy(body);
         body = NULL;
       }
@@ -106,7 +106,7 @@ namespace breathe
 
     void cPhysicsObject::DestroyGeom()
     {
-      if (geom) {
+      if (geom != NULL) {
         dGeomDestroy(geom);
         geom = NULL;
       }
@@ -114,7 +114,7 @@ namespace breathe
 
     void cPhysicsObject::DestroyHeightfield()
     {
-      if (heightfield) {
+      if (heightfield != NULL) {
         dGeomHeightfieldDataDestroy(heightfield);
         heightfield = NULL;
       }

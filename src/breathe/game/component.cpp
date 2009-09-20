@@ -15,6 +15,8 @@
 
 #include <ode/ode.h>
 
+#include <spitfire/util/log.h>
+
 #include <breathe/game/component.h>
 
 namespace breathe
@@ -140,17 +142,341 @@ namespace breathe
 
 
 
-    cVehicleComponent::cVehicleComponent(cGameObject& _object, VEHICLE_TYPE _type) :
-      cComponent(_object),
-      type(_type),
-      fInputUp(0.0f),
-      fInputDown(0.0f),
-      fInputLeft(0.0f),
-      fInputRight(0.0f)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+}
+    // TODO: Move this somewhere better
+
+    breathe::render::cVertexBufferObjectRef pVehicleVBO;
+    breathe::render::material::cMaterialRef pVehicleVBOMaterial;
+
+    void CreateVehicleVBO()
+    {
+      std::vector<float> vertices;
+      std::vector<float> textureCoordinates;
+      std::vector<uint16_t> indices;
+
+
+      const breathe::math::cVec3 vMin(-1.0f, -1.0f, -1.0f);
+      const breathe::math::cVec3 vMax(1.0f, 1.0f, 1.0f);
+
+      // Bottom Square
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      // Side Squares
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      // Upper Square
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      pVehicleVBO.reset(new breathe::render::cVertexBufferObject);
+      pVehicleVBO->SetVertices(vertices);
+      pVehicleVBO->SetTextureCoordinates(textureCoordinates);
+      //pVehicleVBO->SetIndices(indices);
+      pVehicleVBO->Compile();
+
+
+      const spitfire::string_t sFilename(TEXT("materials/crate.mat"));
+      pVehicleVBOMaterial = pRender->GetMaterial(sFilename);
+      ASSERT(pVehicleVBOMaterial != nullptr);
+    }
+
+
+    breathe::game::cGameObjectRef CreateVehicle(breathe::physics::cWorld* pWorld, breathe::scenegraph3d::cSceneGraph& scenegraph, breathe::game::cGameObjectCollection& gameobjects, const breathe::math::cVec3& position)
+    {
+      LOG<<"CreateVehicle"<<std::endl;
+
+      breathe::game::cGameObjectRef pVehicle(new breathe::game::cGameObject);
+
+      //breathe::string_t sFilename;
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel = pRender->GetModel(sFilename);
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
+
+      // Test crate
+      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
+      pPhysicsObject->fWeightKg = 10.0f;
+
+      pPhysicsObject->CreateBox(pWorld, position);
+
+
+      breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
+      pNode->SetRelativePosition(position);
+      pNode->SetRelativeRotation(spitfire::math::cQuaternion());
+
+      breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+      stateset.SetStateFromMaterial(pVehicleVBOMaterial);
+
+      breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+      vertexBufferObject.pVertexBufferObject = pVehicleVBO;
+      vertexBufferObject.SetEnabled(true);
+      vertexBufferObject.bHasValidValue = true;
+
+      // Attach to the root node
+      breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
+      breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
+      pRootAsGroupNode->AttachChild(pNode);
+
+
+
+
+      breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
+      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+
+      breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
+      pRenderComponent->SetSceneNode(pNode);
+      pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+
+      breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
+      pVehicleComponent->SetHelicopter();
+      pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+
+      gameobjects.Add(pVehicle);
+
+
+
+
+
+
+      //LOG.Success("Game", "Set Vehicle Model");
+      //breathe::string_t sFilename;
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel = pRender->GetModel(sFilename);
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel= //pRender->GetModel(sFilename);
+
+
+
+
+      //breathe::vehicle::cVehicleRef pVehicle(breathe::vehicle::cVehicle::Create());
+
+      //pVehicle->Init(s, 1);
+      //pVehicle->PhysicsInit(s);
+
+      //pLevel->AddVehicle(pVehicle);
+
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel=pRender->GetModel(sFilename);
+
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[1]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[2]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[3]->pModel=pRender->GetModel(sFilename);
+
+      return pVehicle;
+    }
+
+
+namespace breathe
+{
+  namespace game
+  {
+    cVehicleBase::cVehicleBase(cGameObject& _object, TYPE _type) :
+      object(_object),
+
+      fInputAccelerator0To1(0.0f),
+      fInputBrake0To1(0.0f),
+      fInputForward0To1(0.0f),
+      fInputBackward0To1(0.0f),
+      fInputLeft0To1(0.0f),
+      fInputRight0To1(0.0f),
+      fInputHandBrake0To1(0.0f),
+      fInputClutch0To1(0.0f),
+      bIsInputChangeGearUp(false),
+      bIsInputChangeGearDown(false),
+      fInputYawLeft0To1(0.0f),
+      fInputYawRight0To1(0.0f),
+
+      type(_type)
     {
     }
 
-    void cVehicleComponent::_Update(spitfire::sampletime_t currentTime)
+
+
+
+    class cVehicleHelicopter : public cVehicleBase
+    {
+    public:
+      cVehicleHelicopter(cGameObject& object);
+
+    private:
+      virtual void _Update(sampletime_t currentTime);
+    };
+
+    cVehicleHelicopter::cVehicleHelicopter(cGameObject& _object) :
+      cVehicleBase(_object, TYPE::HELICOPTER)
+    {
+    }
+
+    void cVehicleHelicopter::_Update(sampletime_t currentTime)
     {
       cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
       if (pPhysicsComponent == nullptr) return;
@@ -158,36 +484,104 @@ namespace breathe
       physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
       if (pPhysicsObject == nullptr) return;
 
-      switch (type) {
-        case VEHICLE_TYPE_CAR: {
-          break;
-        }
-        case VEHICLE_TYPE_PLANE: {
-          break;
-        }
-        case VEHICLE_TYPE_HELICOPTER: {
-          if (fInputDown > 0.01f) {
-            // This is more of a break than an actual go down method
-            fInputUp = 0.0f;
-          }
-          if (fInputUp > 0.01f) {
-            breathe::math::cVec3 forceKg(fInputUp * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
-            pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
-          }
 
-          if (fInputLeft > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputLeft * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-          }
-          if (fInputRight > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputRight * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-          }
+      if (fInputAccelerator0To1 > 0.01f) {
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+      }
+      if (fInputBrake0To1 > 0.01f) {
+        // This is more of a brake than an actual go down method
+        fInputAccelerator0To1 = 0.0f;
+      }
 
-          break;
-        }
-      };
+
+      const float_t fPitchRollFactor = 0.001f;
+      if (fInputForward0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputForward0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputBackward0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Front);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Front);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+
+      if (fInputYawLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputYawRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+
+
+      // Set values back to defaults for next time
+      fInputAccelerator0To1 = 0.0f;
+      fInputBrake0To1 = 0.0f;
+      fInputForward0To1 = 0.0f;
+      fInputBackward0To1 = 0.0f;
+      fInputLeft0To1 = 0.0f;
+      fInputRight0To1 = 0.0f;
+      fInputYawLeft0To1 = 0.0f;
+      fInputYawRight0To1 = 0.0f;
     }
+
+
+    cVehicleComponent::cVehicleComponent(cGameObject& _object) :
+      cComponent(_object),
+      pVehicle(nullptr)
+    {
+    }
+
+    cVehicleComponent::~cVehicleComponent()
+    {
+      SAFE_DELETE(pVehicle);
+    }
+
+    void cVehicleComponent::SetCar()
+    {
+      SAFE_DELETE(pVehicle);
+
+      ASSERT(false);
+      //pVehicle = new cVehicleCar;
+    }
+
+    void cVehicleComponent::SetPlane()
+    {
+      SAFE_DELETE(pVehicle);
+
+      ASSERT(false);
+      //pVehicle = new cVehiclePlane;
+    }
+
+    void cVehicleComponent::SetHelicopter()
+    {
+      SAFE_DELETE(pVehicle);
+
+      pVehicle = new cVehicleHelicopter(object);
+    }
+
+    void cVehicleComponent::_Update(sampletime_t currentTime)
+    {
+      ASSERT(pVehicle != nullptr);
+
+      pVehicle->Update(currentTime);
+    }
+
+
+
+
+
 
     void cAnimationComponent::_Update(spitfire::sampletime_t currentTime)
     {

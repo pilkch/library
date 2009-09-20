@@ -3,9 +3,9 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/game/cGameUnitTest.h>
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/scenegraph2d.h>
+#include <breathe/game/cGameUnitTest.h>
 
 #include <breathe/gui/cWidget.h>
 #include <breathe/gui/cWindow.h>

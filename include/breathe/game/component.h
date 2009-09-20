@@ -268,36 +268,130 @@ namespace breathe
     };
 
 
-    enum VEHICLE_TYPE {
-      VEHICLE_TYPE_CAR,
-      VEHICLE_TYPE_PLANE,
-      VEHICLE_TYPE_HELICOPTER,
+
+    class cVehicleComponent;
+
+    class cVehicleBase
+    {
+    public:
+      enum class TYPE {
+        CAR,
+        PLANE,
+        HELICOPTER,
+      };
+
+      explicit cVehicleBase(cGameObject& object, TYPE type);
+      virtual ~cVehicleBase() {}
+
+      bool IsCar() const { return (type == TYPE::CAR); }
+      bool IsPlane() const { return (type == TYPE::PLANE); }
+      bool IsHelicopter() const { return (type == TYPE::HELICOPTER); }
+
+
+      // General Keyboard/Mouse/Joystick Inputs
+      void SetInputAccelerator0To1(float_t fInput0To1) { fInputAccelerator0To1 = fInput0To1; }
+      void SetInputBrake0To1(float_t fInput0To1) { fInputBrake0To1 = fInput0To1; }
+      void SetInputForward0To1(float_t fInput0To1) { fInputForward0To1 = fInput0To1; }
+      void SetInputBackward0To1(float_t fInput0To1) { fInputBackward0To1 = fInput0To1; }
+      void SetInputLeft0To1(float_t fInput0To1) { fInputLeft0To1 = fInput0To1; }
+      void SetInputRight0To1(float_t fInput0To1) { fInputRight0To1 = fInput0To1; }
+
+      // Car Specific
+      void SetInputHandBrake0To1(float_t fInput0To1) { fInputHandBrake0To1 = fInput0To1; }
+      void SetInputClutch0To1(float_t fInput0To1) { fInputClutch0To1 = fInput0To1; }
+      void SetInputChangeGearUp() { bIsInputChangeGearUp = true; }
+      void SetInputChangeGearDown() { bIsInputChangeGearDown = true; }
+
+      // Plane Specific
+
+      // Helicopter Specific
+
+      // Plane and Helicopter Specific
+      void SetInputYawLeft0To1(float_t fInput0To1) { fInputYawLeft0To1 = fInput0To1; }
+      void SetInputYawRight0To1(float_t fInput0To1) { fInputYawRight0To1 = fInput0To1; }
+
+
+
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+
+    protected:
+      cGameObject& object;
+
+      // General Keyboard/Mouse/Joystick Inputs
+      float_t fInputAccelerator0To1;
+      float_t fInputBrake0To1;
+      float_t fInputForward0To1;
+      float_t fInputBackward0To1;
+      float_t fInputLeft0To1;
+      float_t fInputRight0To1;
+
+      // Car Specific
+      float_t fInputHandBrake0To1;
+      float_t fInputClutch0To1;
+      bool bIsInputChangeGearUp;
+      bool bIsInputChangeGearDown;
+
+      // Plane Specific
+
+      // Helicopter Specific
+
+
+      // Plane and Helicopter Specific
+      float_t fInputYawLeft0To1;
+      float_t fInputYawRight0To1;
+
+    private:
+      virtual void _Update(sampletime_t currentTime) {}
+
+      TYPE type;
     };
 
     class cVehicleComponent : public cComponent
     {
     public:
-      cVehicleComponent(cGameObject& _object, VEHICLE_TYPE _type);
+      friend class cVehicleBase;
 
-      void SetTypeCar() { type = VEHICLE_TYPE_CAR; }
-      void SetTypePlane() { type = VEHICLE_TYPE_PLANE; }
-      void SetTypeHelicopter() { type = VEHICLE_TYPE_HELICOPTER; }
+      explicit cVehicleComponent(cGameObject& _object);
+      ~cVehicleComponent();
 
-      void SetInputUp(float _fInputUp) { fInputUp = _fInputUp; }
-      void SetInputDown(float _fInputDown) { fInputDown = _fInputDown; }
-      void SetInputLeft(float _fInputLeft) { fInputLeft = _fInputLeft; }
-      void SetInputRight(float _fInputRight) { fInputRight = _fInputRight; }
+      bool IsCar() const { ASSERT(pVehicle != nullptr); return pVehicle->IsCar(); }
+      bool IsPlane() const { ASSERT(pVehicle != nullptr); return pVehicle->IsPlane(); }
+      bool IsHelicopter() const { ASSERT(pVehicle != nullptr); return pVehicle->IsHelicopter(); }
+
+      void SetCar();
+      void SetPlane();
+      void SetHelicopter();
+
+
+      // General Keyboard/Mouse/Joystick Inputs
+      void SetInputAccelerator0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputAccelerator0To1(fInput0To1); }
+      void SetInputBrake0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputBrake0To1(fInput0To1); }
+      void SetInputForward0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputForward0To1(fInput0To1); }
+      void SetInputBackward0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputBackward0To1(fInput0To1); }
+      void SetInputLeft0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputLeft0To1(fInput0To1); }
+      void SetInputRight0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputRight0To1(fInput0To1); }
+
+      // Car Specific
+      void SetInputHandBrake0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputHandBrake0To1(fInput0To1); }
+      void SetInputClutch0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputClutch0To1(fInput0To1); }
+      void SetInputChangeGearUp() { ASSERT(pVehicle != nullptr); pVehicle->SetInputChangeGearUp(); }
+      void SetInputChangeGearDown() { ASSERT(pVehicle != nullptr); pVehicle->SetInputChangeGearDown(); }
+
+      // Plane Specific
+
+      // Helicopter Specific
+
+      // Plane and Helicopter Specific
+      void SetInputYawLeft0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputYawLeft0To1(fInput0To1); }
+      void SetInputYawRight0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputYawRight0To1(fInput0To1); }
 
     private:
-      void _Update(spitfire::sampletime_t currentTime);
+      void _Update(sampletime_t currentTime);
 
-      VEHICLE_TYPE type;
-
-      float fInputUp;
-      float fInputDown;
-      float fInputLeft;
-      float fInputRight;
+      cVehicleBase* pVehicle;
     };
+
+
 
     class cAudioSourceComponent : public cComponent
     {

@@ -5,6 +5,7 @@
 #undef Error
 
 #include <spitfire/util/cString.h>
+
 #include <spitfire/algorithm/algorithm.h>
 
 namespace spitfire
@@ -127,8 +128,6 @@ namespace spitfire
       void trace(const std::string& section, const std::string& text);
 #endif // BUILD_DEBUG
 
-      std::ofstream logfile;
-
       string_t strfilename;
 
       bool scol;
@@ -243,15 +242,7 @@ namespace spitfire
       void Error(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
 
     private:
-      void _AddLine(const std::string& o)
-      {
-        // Cascade output to log file
-        LOG._AddLine(o);
-
-        lines.push_back(o);
-        std::cout<<o<<std::endl;
-        ClearLine();
-      }
+      void _AddLine(const std::string& o);
     };
   }
 }

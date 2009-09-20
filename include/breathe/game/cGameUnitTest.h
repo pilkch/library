@@ -29,6 +29,11 @@ namespace breathe
   private:
     cApplication& app;
 
+    // For testing various materials
+    float fSlabRotation;
+    std::vector<breathe::scenegraph3d::cSceneNodeRef> vTestSlab;
+
+    // For scaling and measuring the scene
     render::model::cGridRenderer grid;
   };
 #endif

@@ -142,9 +142,21 @@ namespace breathe
 
     void cWorld::Destroy()
     {
+      dJointGroupDestroy(contactgroup);
+
+
+      {
+        iterator iter = lPhysicsObject.begin();
+        const iterator iterEnd = lPhysicsObject.end();
+        while (iter != iterEnd) {
+          (*iter)->RemoveFromWorld();
+
+          iter++;
+        }
+      }
+
       lPhysicsObject.clear();
 
-      dJointGroupDestroy(contactgroup);
 
       dSpaceDestroy(spaceDynamic);
       dSpaceDestroy(spaceStatic);

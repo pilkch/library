@@ -86,6 +86,7 @@
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
 #include <breathe/render/cFont.h>
+#include <breathe/render/cParticleSystem.h>
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 #include <breathe/physics/physics.h>
@@ -106,6 +107,8 @@
 namespace breathe
 {
 #ifdef BUILD_DEBUG
+  breathe::render::cParticleSystemBillboard* pFire = nullptr;
+  breathe::render::cParticleSystemMesh* pCrate = nullptr;
 
   void CreateCrate(render::cVertexBufferObjectRef& pCrateVBO, render::material::cMaterialRef& pCrateMaterial)
   {
@@ -280,8 +283,31 @@ namespace breathe
   }
 
 
+  /*void AddTestSlab(const breathe::string_t& sModel, const breathe::string_t& sMaterial)
+  {
+    breathe::string_t sFilename;
+    breathe::filesystem::FindResourceFile(sMaterial, sFilename);
+    pRender->AddMaterial(sFilename);
+
+    breathe::filesystem::FindResourceFile(TEXT("props/static/test_slab/mesh.3ds"), sFilename);
+
+    breathe::render::model::cStaticRef pModel = pRender->GetModel(sFilename);
+    ASSERT(pModel != nullptr);
+
+    breathe::render::model::cStaticRef pCloned = pRender->CreateNewModel(sModel);
+    ASSERT(pCloned != nullptr);
+
+    pCloned->CopyFrom(pModel);
+
+    pCloned->vMesh[0]->SetMaterial(sMaterial);
+    breathe::render::material::cMaterialRef pMaterial = pCloned->vMesh[0]->pMaterial;
+
+    vTestSlab.push_back(pCloned);
+  }*/
+
   cGameUnitTest::cGameUnitTest(cApplication& _app) :
-    app(_app)
+    app(_app),
+    fSlabRotation(0.0f)
   {
   }
 
@@ -407,6 +433,54 @@ namespace breathe
     }
 
 
+    // Create slabs for testing materials (*cough* Half-life 2 materials test level)
+    /*pRender->AddModel(TEXT("props/static/test_slab/mesh.3ds"));
+
+    breathe::scenegraph3d::cModelNodeRef pNodeFirst(new breathe::scenegraph3d::cModelNode);
+
+    pNodeFirst->SetRelativePosition(spitfire::math::cVec3(30.0f, 10.0f, 1.0f));
+
+    breathe::scenegraph3d::cStateSet& stateset = pNodeFirst->GetStateSet();
+    stateset.SetStateFromMaterial(pCrateMaterial);
+    stateset.SetGeometryTypeQuads();
+
+    breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+    vertexBufferObject.pVertexBufferObject = pCrateVBO;
+    vertexBufferObject.SetEnabled(true);
+    vertexBufferObject.bHasValidValue = true;
+
+    pGroupNode->AttachChild(pNodeFirst);
+
+    vTestSlab.push_back(pNodeFirst);
+    */
+
+    // pRender->SetMaterial(vTestSlab[i]->vMesh[0]->sMaterial);
+    // pRender->RenderMesh(vTestSlab[i]->vMesh[0]);
+
+    //AddTestSlab(TEXT("test_carcubemap"), TEXT("materials/car_paint.mat"));
+    //AddTestSlab(TEXT("test_normalmap"), TEXT("materials/stonewall_normalmap.mat"));
+    //AddTestSlab(TEXT("test_brick"), TEXT("materials/brick.mat"));
+    //AddTestSlab(TEXT("test_crate"), TEXT("materials/crate.mat"));
+    //AddTestSlab(TEXT("test_beach_ball"), TEXT("materials/beach_ball.mat"));
+    //AddTestSlab(TEXT("test_pavement"), TEXT("materials/pavement.mat"));
+    //AddTestSlab(TEXT("test_concrete"), TEXT("materials/concrete.mat"));
+    //AddTestSlab(TEXT("test_vegetation_grass"), TEXT("materials/vegetation_grass.mat"));
+    //AddTestSlab(TEXT("test_road"), TEXT("materials/road.mat"));
+
+
+
+    // Particle systems
+    pFire = new breathe::render::cParticleSystemBillboard(100);
+    string_t sFilename;
+    breathe::filesystem::FindResourceFile(TEXT("materials/cloud_billboard.mat"), sFilename);
+    pFire->SetMaterial(pRender->GetMaterial(sFilename));
+
+    pCrate = new breathe::render::cParticleSystemMesh(30);
+    breathe::filesystem::FindResourceFile(TEXT("props/static/crate/mesh.3ds"), sFilename);
+    //breathe::render::model::cStaticRef pModel(pRender->GetModel(sFilename));
+    //ASSERT(pModel != nullptr);
+    //pCrate->SetMesh(pModel->GetMesh(0));
+
 
     // Create a grid to get an idea of how big the world is
     grid.Create();
@@ -418,16 +492,39 @@ namespace breathe
 
   bool cGameUnitTest::Destroy()
   {
+    spitfire::SAFE_DELETE(pFire);
+    spitfire::SAFE_DELETE(pCrate);
+
     return true;
   }
 
   void cGameUnitTest::Update(sampletime_t currentTime)
   {
+    fSlabRotation += 1.0f;
+
+    // Clamp to 0..360
+    fSlabRotation = fmod(fSlabRotation, 360.0f);
+
+    const size_t n = vTestSlab.size();
+    for (size_t i = 0; i < n; i++) {
+      spitfire::math::cQuaternion rotation;
+      rotation.SetFromAxisAngle(spitfire::math::v3Front, spitfire::math::DegreesToRadians(fSlabRotation));
+
+      vTestSlab[i]->SetRelativeRotation(rotation);
+    }
   }
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
   void cGameUnitTest::UpdatePhysics(sampletime_t currentTime)
   {
+    // Particle Systems
+    //pFire->SetPosition(pTestSphere->position);
+    //pFire->position.z += 4.0f;
+
+    if (app.bUpdatePhysics) {
+      pFire->Update(currentTime);
+      pCrate->Update(currentTime);
+    } else pFire->Sort();
   }
 #endif
 
@@ -479,6 +576,10 @@ namespace breathe
 
       pRender->ClearMaterial();
     }
+
+
+    pFire->Render();
+    pCrate->Render();
 
 
     // Render our grid
