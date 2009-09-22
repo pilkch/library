@@ -9,7 +9,7 @@ namespace breathe
 
   namespace vehicle
   {
-    class cVehicle;
+    class cVehicle2;
 
     // Types for all of the parts that can be used in a car
     // These are for internal use only and should not be loaded from a file etc.
@@ -44,7 +44,7 @@ namespace breathe
     public:
       virtual ~cPart() {}
 
-      void Install(cVehicle* p);
+      void Install(cVehicle2* p);
       void Update(sampletime_t currentTime) { _Update(currentTime); }
 
       bool IsValid() const { return _IsValid(); }
@@ -54,7 +54,7 @@ namespace breathe
       unsigned int uiType;
       float fHealth; //Starts at 100.0f and gradually goes down
 
-      cVehicle* pVehicle;
+      cVehicle2* pVehicle;
 
       c3ds* pModelNew;
       c3ds* pModelBroken;

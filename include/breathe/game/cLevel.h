@@ -107,8 +107,8 @@ namespace breathe
 
   namespace vehicle
   {
-    class cVehicle;
-    typedef cSmartPtr<cVehicle> cVehicleRef;
+    class cVehicle2;
+    typedef cSmartPtr<cVehicle2> cVehicleRef;
   }
 
   class cLevel;

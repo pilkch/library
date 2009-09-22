@@ -500,7 +500,7 @@ namespace breathe
     {
     }
 
-    void cPart::Install(cVehicle *p)
+    void cPart::Install(cVehicle2* p)
     {
       pVehicle = p;
     }

@@ -21,6 +21,10 @@ namespace spitfire
     inline float kphTomph(float kph) { return kph * 1.609344f; }
     inline float mphTokph(float mph) { return mph * 0.621371192f; }
 
+    // 1 international knot = 1 nautical mile per hour (exactly) = 1.852 kilometres per hour (exactly)
+    inline float kphToknots(float kph) { return kph * 0.539956803f; }
+    inline float knotsTokph(float knots) { return knots * 1.852f; }
+
     // Power/Torque
     // kW/Nm : hp/lb-ft
 
@@ -76,6 +80,10 @@ namespace spitfire
     //inline float HorsePowerToKiloGrams(float fHP) { return fHP * 1.0f; }
     //inline float KiloWattsToKiloGrams(float fKw) { return fKw * 0.0025f; }
     inline float KiloMetersPerHourToMilesPerHour(float fKPH) { return kphTomph(fKPH); }
+
+    // 1 nautical mile (exactly) = 1.852 kilometres (exactly)
+    inline float KilometersToNauticalMiles(float Kilometers) { return Kilometers * 0.539956803f; }
+    inline float NauticalMilesToKilometers(float NauticalMiles) { return NauticalMiles * 1.852f; }
 
 
 

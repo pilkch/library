@@ -61,7 +61,7 @@ namespace breathe
 {
   namespace vehicle
   {
-    cSeat::cSeat(cVehicle* v) :
+    cSeat::cSeat(cVehicle2* v) :
       pPlayer(nullptr)
     {
       ASSERT(v != nullptr);

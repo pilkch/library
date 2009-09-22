@@ -299,7 +299,7 @@ namespace breathe
       // Draw the caption if this window has one
       if (widget.HasCaption()) {
         glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
-          pRender->ClearMaterial();
+          pRender->ApplyMaterial(pMaterial);
 
           pRender->SelectTextureUnit0();
 
@@ -320,7 +320,7 @@ namespace breathe
             glMatrixMode(GL_TEXTURE);
           glPopMatrix();
 
-          pRender->SetMaterial(pMaterial);
+          pRender->ApplyMaterial(pMaterial);
         glPopAttrib();
 
         pRender->ClearMaterial();
@@ -356,7 +356,7 @@ namespace breathe
 
       // Draw the text of this widget
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
-        pRender->ClearMaterial();
+        pRender->UnApplyMaterial(pMaterial);
 
         pRender->SelectTextureUnit0();
 
@@ -377,7 +377,7 @@ namespace breathe
           glMatrixMode(GL_TEXTURE);
         glPopMatrix();
 
-        pRender->SetMaterial(pMaterial);
+        pRender->ApplyMaterial(pMaterial);
       glPopAttrib();
 
       pRender->ClearMaterial();

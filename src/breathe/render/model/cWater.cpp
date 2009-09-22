@@ -140,7 +140,7 @@ namespace breathe
 
       void cWater::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->SetMaterial(pMaterial);
+        render::ApplyMaterial apply(pMaterial);
 
         float fCurrentTime = float(currentTime);
         pRender->SetShaderConstant("fCurrentTime", fCurrentTime);

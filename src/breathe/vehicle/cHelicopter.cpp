@@ -1,0 +1,647 @@
+// Standard library includes
+#include <cmath>
+
+#include <vector>
+#include <list>
+#include <map>
+
+#include <sstream>
+
+// Boost includes
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
+#include <GL/GLee.h>
+
+#include <ode/ode.h>
+
+
+#include <spitfire/util/log.h>
+
+#include <spitfire/storage/filesystem.h>
+
+
+#include <breathe/game/component.h>
+
+#include <breathe/vehicle/cHelicopter.h>
+
+
+#include <breathe/render/model/cStaticModelLoader.h>
+
+
+// CH-47A
+//
+// Engine power 2x(1800 to 2,796 kW)
+// Gross weight 15,000 kg
+// Max cargo weight 12,700 kg
+// 3 crew, up to 55 passengers
+// Length 30.1 m
+// Fuselage Width 2.2 m
+// Height 5.7 m
+// Rotor diameter 18.3 m
+// Hoist and cargo hook
+// Max speed 315 km/h
+// Cruising speed 220 km/h
+// Range 741 km
+// Rate of climb 10.1 m/s
+
+class cChinookFactory
+{
+public:
+  cChinookFactory();
+
+  void CreateChinook(breathe::scenegraph3d::cGroupNodeRef, breathe::render::cTextureFrameBufferObjectRef& pCubeMapTexture);
+
+private:
+  size_t iChinook;
+};
+
+cChinookFactory::cChinookFactory() :
+  iChinook(0)
+{
+}
+
+void cChinookFactory::CreateChinook(breathe::scenegraph3d::cGroupNodeRef pGroupNode, breathe::render::cTextureFrameBufferObjectRef& pCubeMapTexture)
+{
+  pCubeMapTexture.reset();
+
+
+  std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+
+#if 1
+  spitfire::string_t sFilename;
+  breathe::filesystem::FindResourceFile(TEXT("models/chinook/body.obj"), sFilename);
+
+  spitfire::string_t sBodyMaterialFilename = breathe::filesystem::GetPath(sFilename) + TEXT("body.mat");
+
+  spitfire::string_t sDiffuseTextureFilename;
+  breathe::filesystem::FindResourceFile(TEXT("models/chinook/body.png"), sDiffuseTextureFilename);
+#else
+  spitfire::string_t sFilename;
+  breathe::filesystem::FindResourceFile(TEXT("models/sphere/sphere.obj"), sFilename);
+
+  spitfire::string_t sBodyMaterialFilename = breathe::filesystem::GetPath(sFilename) + TEXT("sphere.mat");
+
+  spitfire::string_t sDiffuseTextureFilename;
+  breathe::filesystem::FindResourceFile(TEXT("models/sphere/sphere.png"), sDiffuseTextureFilename);
+#endif
+
+  spitfire::string_t sGlossAndMetallicTextureFilename;
+  breathe::filesystem::FindResourceFile(TEXT("models/sphere/gloss_and_metallic.png"), sGlossAndMetallicTextureFilename);
+
+  spitfire::string_t sCarPaintMaterialFilename;
+  breathe::filesystem::FindResourceFile(TEXT("materials/car_paint.mat"), sCarPaintMaterialFilename);
+
+  breathe::render::model::cStaticModelSceneNodeFactory factory;
+  factory.LoadFromFile(sFilename, meshes);
+
+  breathe::render::model::cStaticModel model;
+
+  breathe::render::model::cStaticModelLoader loader;
+  loader.Load(sFilename, model);
+
+  const size_t nMeshes = model.mesh.size();
+  for (size_t iMesh = 0; iMesh < nMeshes; iMesh++) {
+    breathe::render::model::cStaticModelSceneNodeFactoryItem item;
+
+    item.pVBO.reset(new breathe::render::cVertexBufferObject);
+
+    item.pVBO->SetVertices(model.mesh[iMesh]->vertices);
+    item.pVBO->SetTextureCoordinates(model.mesh[iMesh]->textureCoordinates);
+
+    item.pVBO->Compile();
+
+    LOG<<"sMaterial=\""<<model.mesh[iMesh]->sMaterial<<"\""<<std::endl;
+    LOG<<"sCarPaintMaterialFilename=\""<<sCarPaintMaterialFilename<<"\""<<std::endl;
+    LOG<<"sBodyMaterialFilename=\""<<sBodyMaterialFilename<<"\""<<std::endl;
+    if (model.mesh[iMesh]->sMaterial == sBodyMaterialFilename) {
+      const spitfire::string_t sAlias = TEXT("chinook") + spitfire::string::ToString(iChinook);
+      item.pMaterial = pRender->AddMaterialAsAlias(sCarPaintMaterialFilename, sAlias);
+      const size_t n = item.pMaterial->vLayer.size();
+      for (size_t i = 0; i < n; i++) {
+        if (i == 0) {
+          item.pMaterial->vLayer[i]->pTexture = pRender->AddTexture(sDiffuseTextureFilename);
+        } else if (i == 1) {
+          item.pMaterial->vLayer[i]->pTexture = pRender->AddTexture(sGlossAndMetallicTextureFilename);
+        } else if (item.pMaterial->vLayer[i]->uiTextureMode == breathe::render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+          // Cast shared_ptr from a normal cTextureRef to a cTextureFrameBufferObjectRef
+          pCubeMapTexture.reset(new breathe::render::cTextureFrameBufferObject);
+
+          // Create our cubemap texture
+          pCubeMapTexture->SetModeCubeMap();
+          pCubeMapTexture->SetWidth(256);
+          pCubeMapTexture->SetHeight(256);
+
+          pCubeMapTexture->Create();
+
+          // Set the texture on the material to this new cubemap texture
+          item.pMaterial->vLayer[i]->pTexture = pCubeMapTexture;
+        }
+      }
+    } else {
+      item.pMaterial = pRender->AddMaterial(model.mesh[iMesh]->sMaterial);
+    }
+
+    meshes.push_back(item);
+  }
+
+
+  // We should have a valid cubemap texture by now
+  ASSERT(pCubeMapTexture != nullptr);
+
+  factory.CreateSceneNodeAttachedTo(meshes, pGroupNode);
+}
+
+
+namespace breathe
+{
+  namespace vehicle
+  {
+    void cVehicleFactory::CreateHelicopter(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, cVehicle& vehicle) const
+    {
+      LOG<<"cVehicleFactory::CreateHelicopter"<<std::endl;
+
+        cChinookFactory factory;
+
+
+
+        breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
+
+        factory.CreateChinook(pNode, pCubeMapTexture);
+        ASSERT(pCubeMapTexture != nullptr);
+
+
+
+
+        pNode->SetRelativePosition(position);
+        pNode->SetRelativeRotation(rotation);
+
+
+
+
+        vehicle.Create(gameobjects, pNode, pCubeMapTexture);
+
+        breathe::game::cGameObjectRef pVehicle = vehicle.GetGameObject();
+
+        pVehicle->SetPositionRelative(position);
+
+
+
+
+        //breathe::string_t sFilename;
+        //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+        //pVehicle->pModel = pRender->GetModel(sFilename);
+        //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+        //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
+
+        // Test crate
+        breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
+        pPhysicsObject->fWeightKg = 10000.0f;
+
+        pPhysicsObject->CreateBox(pWorld, position);
+
+
+        //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
+        //pNode->SetRelativePosition(position);
+        //pNode->SetRelativeRotation(spitfire::math::cQuaternion());
+
+        //breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+        //stateset.SetStateFromMaterial(pVehicleVBOMaterial);
+
+        //breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+        //vertexBufferObject.pVertexBufferObject = pVehicleVBO;
+        //vertexBufferObject.SetEnabled(true);
+        //vertexBufferObject.bHasValidValue = true;
+
+        // Attach to the root node
+        //breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
+        //breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
+        //pRootAsGroupNode->AttachChild(pNode);
+
+
+
+
+        breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
+        pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+        pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+
+        //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
+        //pRenderComponent->SetSceneNode(pNode);
+        //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+
+        breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
+        pVehicleComponent->SetHelicopter();
+        pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {
+          // Create this rotor node
+          spitfire::string_t sFilename;
+          breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
+
+          breathe::render::model::cStaticModelSceneNodeFactory factory;
+
+          std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+          factory.LoadFromFile(sFilename, meshes);
+
+          const float x = 0.0f;
+          const float y = -10.4f;
+          const float z = 8.5f;
+
+          breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
+          pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
+
+          //spitfire::math::cQuaternion rotation;
+          //rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(45.0f));
+          //pNodeRotor->SetRelativeRotation(rotation);
+
+          factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
+
+          pNode->AttachChild(pNodeRotor);
+        }
+        {
+          // Create this rotor node
+          spitfire::string_t sFilename;
+          breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
+
+          breathe::render::model::cStaticModelSceneNodeFactory factory;
+
+          std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+          factory.LoadFromFile(sFilename, meshes);
+
+          const float x = 0.0f;
+          const float y = 10.0f;
+          const float z = 10.5f;
+
+          breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
+          pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
+
+          spitfire::math::cQuaternion rotation;
+          rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(180.0f));
+          pNodeRotor->SetRelativeRotation(rotation);
+
+          factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
+
+          pNode->AttachChild(pNodeRotor);
+        }
+    }
+  }
+}
+
+
+
+
+    // helicopter snowboarders to the peak of a mountain (Where they just stand there and wave back)
+
+
+
+
+    // TODO: Move this somewhere better
+
+    breathe::render::cVertexBufferObjectRef pVehicleVBO;
+    breathe::render::material::cMaterialRef pVehicleVBOMaterial;
+
+    void CreateVehicleVBO()
+    {
+      std::vector<float> vertices;
+      std::vector<float> textureCoordinates;
+      std::vector<uint16_t> indices;
+
+
+      const breathe::math::cVec3 vMin(-1.0f, -1.0f, -1.0f);
+      const breathe::math::cVec3 vMax(1.0f, 1.0f, 1.0f);
+
+      // Bottom Square
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      // Side Squares
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMin.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMin.z);
+
+      // Upper Square
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(0.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMin.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(1.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMax.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      textureCoordinates.push_back(0.0f);
+      textureCoordinates.push_back(1.0f);
+      vertices.push_back(vMin.x);
+      vertices.push_back(vMax.y);
+      vertices.push_back(vMax.z);
+
+      pVehicleVBO.reset(new breathe::render::cVertexBufferObject);
+      pVehicleVBO->SetVertices(vertices);
+      pVehicleVBO->SetTextureCoordinates(textureCoordinates);
+      //pVehicleVBO->SetIndices(indices);
+      pVehicleVBO->Compile();
+
+
+      const spitfire::string_t sFilename(TEXT("materials/crate.mat"));
+      pVehicleVBOMaterial = pRender->GetMaterial(sFilename);
+      ASSERT(pVehicleVBOMaterial != nullptr);
+    }
+
+
+    breathe::game::cGameObjectRef CreateVehicle(breathe::physics::cWorld* pWorld, breathe::scenegraph3d::cSceneGraph& scenegraph, breathe::game::cGameObjectCollection& gameobjects, const breathe::math::cVec3& position)
+    {
+      LOG<<"CreateVehicle"<<std::endl;
+
+      breathe::game::cGameObjectRef pVehicle(new breathe::game::cGameObject);
+
+      //breathe::string_t sFilename;
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel = pRender->GetModel(sFilename);
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
+
+      // Test crate
+      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
+      pPhysicsObject->fWeightKg = 10.0f;
+
+      pPhysicsObject->CreateBox(pWorld, position);
+
+
+      breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
+      pNode->SetRelativePosition(position);
+      pNode->SetRelativeRotation(spitfire::math::cQuaternion());
+
+      breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+      stateset.SetStateFromMaterial(pVehicleVBOMaterial);
+
+      breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+      vertexBufferObject.pVertexBufferObject = pVehicleVBO;
+      vertexBufferObject.SetEnabled(true);
+      vertexBufferObject.bHasValidValue = true;
+
+      // Attach to the root node
+      breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
+      breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
+      pRootAsGroupNode->AttachChild(pNode);
+
+
+
+
+      breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
+      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+
+      breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
+      pRenderComponent->SetSceneNode(pNode);
+      pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+
+      breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
+      pVehicleComponent->SetHelicopter();
+      pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+
+      gameobjects.Add(pVehicle);
+
+
+
+
+
+
+      //LOG.Success("Game", "Set Vehicle Model");
+      //breathe::string_t sFilename;
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel = pRender->GetModel(sFilename);
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel= //pRender->GetModel(sFilename);
+
+
+
+
+      //breathe::vehicle::cVehicleRef pVehicle(breathe::vehicle::cVehicle::Create());
+
+      //pVehicle->Init(s, 1);
+      //pVehicle->PhysicsInit(s);
+
+      //pLevel->AddVehicle(pVehicle);
+
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel=pRender->GetModel(sFilename);
+
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[1]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[2]->pModel=pRender->GetModel(sFilename);
+      //pVehicle->vWheel[3]->pModel=pRender->GetModel(sFilename);
+
+      return pVehicle;
+    }
+
+
+namespace breathe
+{
+  namespace game
+  {
+    cVehicleHelicopter::cVehicleHelicopter(cGameObject& _object) :
+      cVehicleBase(_object, TYPE::HELICOPTER)
+    {
+    }
+
+    void cVehicleHelicopter::_Update(sampletime_t currentTime)
+    {
+      cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
+      if (pPhysicsComponent == nullptr) return;
+
+      physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
+      if (pPhysicsObject == nullptr) return;
+
+
+      if (fInputAccelerator0To1 > 0.01f) {
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+      }
+      if (fInputBrake0To1 > 0.01f) {
+        // This is more of a brake than an actual go down method
+        fInputAccelerator0To1 = 0.0f;
+      }
+
+
+      const float_t fPitchRollFactor = 0.0005f;
+      if (fInputForward0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputForward0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputBackward0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Front);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Front);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+
+      if (fInputYawLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputYawRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+
+
+      // Set values back to defaults for next time
+      fInputAccelerator0To1 = 0.0f;
+      fInputBrake0To1 = 0.0f;
+      fInputForward0To1 = 0.0f;
+      fInputBackward0To1 = 0.0f;
+      fInputLeft0To1 = 0.0f;
+      fInputRight0To1 = 0.0f;
+      fInputYawLeft0To1 = 0.0f;
+      fInputYawRight0To1 = 0.0f;
+    }
+  }
+}

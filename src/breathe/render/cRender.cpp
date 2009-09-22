@@ -212,16 +212,6 @@ namespace breathe
     // *** cRender
 
     cRender::cRender() :
-      bRenderWireframe(false),
-      bRenderGui(true),
-
-      bLight(true),
-      bCubemap(true),
-      bShader(true),
-
-      bCanCubemap(false),
-      bCanShader(false),
-      bCanFrameBufferObject(false),
 
 #ifdef BUILD_DEBUG
       bFullscreen(false),
@@ -235,12 +225,23 @@ namespace breathe
 
       uiTriangles(0),
 
-      pLevel(nullptr),
+      bIsCubemappingSupported(false),
+      bIsShaderSupported(false),
+      bIsRenderingToFrameBufferObjectSupported(false),
+      bIsFSAASupported(false),
+
+      bIsRenderWireframe(false),
+      bIsRenderGui(true),
+      bIsLightingEnabled(true),
+      bIsCubemappingEnabled(false),
+      bIsRenderWithShadersEnabled(false),
+      bIsFSAAEnabled(false),
+
+      uiFSAASampleLevel(8),
+
 
       clearColour(1.0f, 0.0f, 1.0f, 1.0f),
-
-      bActiveColour(false),
-      bActiveShader(false),
+      bIsActiveColour(false),
 
       g_info(nullptr),
       videoInfo(nullptr)
@@ -250,8 +251,6 @@ namespace breathe
       uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
 
       iMaxTextureSize=0;
-
-      uiActiveUnits=0;
 
       sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
@@ -391,6 +390,25 @@ namespace breathe
       // We definitely want the OpenGL flag for SDL_SetVideoMode
       ASSERT(uiFlags & SDL_OPENGL);
 
+
+
+      bIsFSAASupported = (GL_ARB_multisample != 0);
+      if (bIsFSAASupported) {
+        // Only sample at 2, 4, 8 or 16
+        if (uiFSAASampleLevel > 16) uiFSAASampleLevel = 16;
+        else if (uiFSAASampleLevel > 8) uiFSAASampleLevel = 8;
+        else if (uiFSAASampleLevel > 4) uiFSAASampleLevel = 4;
+        else uiFSAASampleLevel = 2;
+
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, uiFSAASampleLevel);
+      }
+
+
+
+
+
+
       // Create an SDL surface
       LOG<<"cRender::PreInit Calling SDL_SetVideoMode"<<std::endl;
       pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
@@ -401,7 +419,62 @@ namespace breathe
         return breathe::BAD;
       }
 
+
+
+
+
+      bIsFSAAEnabled = false;
+
+      if (bIsFSAASupported) {
+        if (!IsMultiSampling()) {
+            bIsFSAAEnabled = false;
+        } else {
+            size_t uiActualSampleLevel = GetMultiSampleLevel();
+            if (uiFSAASampleLevel != uiActualSampleLevel) {
+              LOG<<"cRender::PreInit Requested sample level is "<<uiFSAASampleLevel<<", actual sample level is "<<uiActualSampleLevel<<std::endl;
+            }
+
+            if ((uiActualSampleLevel == 2) || (uiActualSampleLevel == 4) || (uiActualSampleLevel == 8) || (uiActualSampleLevel == 16)) bIsFSAAEnabled = true;
+        }
+      }
+
       return breathe::GOOD;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    bool cRender::IsMultiSampling() const
+    {
+      GLint iBuffers = 0;
+      glGetIntegerv(GL_SAMPLE_BUFFERS_ARB, &iBuffers);
+
+      return (iBuffers != 0);
+    }
+
+    size_t cRender::GetMultiSampleLevel() const
+    {
+      ASSERT(IsMultiSampling());
+
+      GLint iSampleLevel = 0;
+      glGetIntegerv(GL_SAMPLES_ARB, &iSampleLevel);
+
+      if (iSampleLevel < 0) iSampleLevel = 0;
+
+      return size_t(iSampleLevel);
     }
 
     bool cRender::Init()
@@ -459,7 +532,7 @@ namespace breathe
       // Cube Map Support
       if (FindExtension(TEXT("GL_ARB_texture_cube_map"))) {
         LOG.Success("Render", "Found GL_ARB_texture_cube_map");
-        bCanCubemap = true;
+        bIsCubemappingSupported = true;
       } else {
         LOG.Error("Render", "Not Found GL_ARB_texture_cube_map");
         return false;
@@ -474,21 +547,21 @@ namespace breathe
 
         if (fShaderVersion >= 1.0f) {
           LOG.Success("Render", "Found Shader" + stm.str());
-          bShader = bCanShader = true;
+          bIsShaderSupported = true;
         } else {
           LOG.Error("Render", "Not Found Shader1.1, version found is Shader" + stm.str());
-          bShader = bCanShader = false;
+          bIsShaderSupported = false;
         }
       }
 
-      if (bCanShader) LOG.Success("Render", "Can use shaders, shaders turned on");
+      if (bIsShaderSupported) LOG.Success("Render", "Can use shaders, shaders turned on");
       else LOG.Success("Render", "Cannot use shaders, shaders turned off");
 
 
       // Frame Buffer Object Support
       if (FindExtension(TEXT("GL_EXT_framebuffer_object"))) {
         LOG.Success("Render", "Found GL_EXT_framebuffer_object");
-        bCanFrameBufferObject = true;
+        bIsRenderingToFrameBufferObjectSupported = true;
       }
       else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
 
@@ -634,19 +707,26 @@ namespace breathe
 #endif
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+      if (bIsFSAAEnabled) glEnable(GL_MULTISAMPLE_ARB);
+
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       glMultMatrixf(frustum.m.GetOpenGLMatrixPointer());
 
-      if (bRenderWireframe) EnableWireframe();
+      if (bIsRenderWireframe) EnableWireframe();
       else DisableWireframe();
 
-      if (bLight) {
+      if (bIsLightingEnabled) {
         glLightfv(GL_LIGHT0, GL_POSITION, sunPosition.GetPointerConst());
         glEnable(GL_LIGHTING);
       } else glDisable(GL_LIGHTING);
 
       ClearMaterial();
+    }
+
+    void cRender::_EndRenderShared()
+    {
+      if (bIsFSAAEnabled) glDisable(GL_MULTISAMPLE_ARB);
     }
 
     void cRender::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
@@ -668,6 +748,8 @@ namespace breathe
 
     void cRender::EndRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
+      _EndRenderShared();
+
       // Restore old view port settings and set rendering back to default frame buffer
       glPopAttrib();
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -723,6 +805,8 @@ namespace breathe
 
     void cRender::_EndRenderToScreen()
     {
+      _EndRenderShared();
+
       SDL_GL_SwapBuffers();
     }
 
@@ -743,10 +827,11 @@ namespace breathe
       ASSERT(pTexture->IsValid());
 
       BeginScreenSpaceRendering();
-        SetMaterial(pMaterial);
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
-        RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+        ApplyMaterial(pMaterial);
+          glEnable(GL_TEXTURE_2D);
+          glBindTexture(GL_TEXTURE_2D, pTexture->uiTexture);
+          RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+        UnApplyMaterial(pMaterial);
       EndScreenSpaceRendering();
     }
 
@@ -1029,99 +1114,7 @@ namespace breathe
 
     void cRender::RenderMesh(model::cMeshRef pMesh)
     {
-      ASSERT(pMesh != nullptr);
-      ASSERT(pMesh->pMeshData);
-
-      const float* fVertices = &pMesh->pMeshData->vVertex[0];
-      const float* fTextureCoords = &pMesh->pMeshData->vTextureCoord[0];
-
-      unsigned int triangle = 0;
-      unsigned int texcoord = 0;
-      unsigned int vert = 0;
-      //unsigned int mesh=0;
-      unsigned int nTriangles = pMesh->pMeshData->uiTriangles;
-
-      math::cVec3 v0;
-      math::cVec3 v1;
-      math::cVec3 v2;
-      math::cVec3 n;
-
-      glBegin(GL_TRIANGLES);
-
-        if (1==uiActiveUnits)
-          for (triangle=0;triangle<nTriangles;triangle++, vert+=9, texcoord+=6)
-          {
-            v0.Set(&fVertices[vert]);
-            v1.Set(&fVertices[vert+3]);
-            v2.Set(&fVertices[vert+6]);
-            n.Cross(v0-v2, v2-v1);
-                n.Normalise();
-
-            glNormal3f(n.x, n.y, n.z);
-
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-          }
-        else if (2==uiActiveUnits)
-          for (triangle=0;triangle<nTriangles;triangle++, vert+=9, texcoord+=6)
-          {
-            v0.Set(&fVertices[vert]);
-            v1.Set(&fVertices[vert+3]);
-            v2.Set(&fVertices[vert+6]);
-            n.Cross(v0-v2, v2-v1);
-                                                                                n.Normalise();
-
-            glNormal3f(n.x, n.y, n.z);
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-            //n.Cross(v1-v0, v0-v2);
-
-            //glNormal3f(n.x, n.y, n.z);
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-            //n.Cross(v2-v1, v1-v0);
-
-            //glNormal3f(n.x, n.y, n.z);
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-          }
-        else if (3==uiActiveUnits)
-          for (triangle=0;triangle<nTriangles;triangle++, vert+=9, texcoord+=6)
-          {
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-            glVertex3f(fVertices[vert], fVertices[vert+1], fVertices[vert+2]);
-
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord+2], fTextureCoords[texcoord+3]);
-            glVertex3f(fVertices[vert+3], fVertices[vert+4], fVertices[vert+5]);
-
-            glMultiTexCoord2f( GL_TEXTURE0, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glMultiTexCoord2f( GL_TEXTURE1, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glMultiTexCoord2f( GL_TEXTURE2, fTextureCoords[texcoord+4], fTextureCoords[texcoord+5]);
-            glVertex3f(fVertices[vert+6], fVertices[vert+7], fVertices[vert+8]);
-          }
-        else if (bCubemap)
-        {
-          //std::ostringstream t;
-          //t << uiActiveUnits;
-          //LOG.Error("RenderStaticModel", "Invalid texture unit count " + t.str());
-        }
-
-      glEnd();
+      ASSERT(false);
     }
 
     void cRender::RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour)
@@ -1870,9 +1863,7 @@ namespace breathe
       glEnable(GL_TEXTURE_2D);
       glDisable(GL_LIGHTING);
 
-      bActiveShader = false;
-
-      if (bCanShader && (pCurrentShader != nullptr)) UnBindShader();
+      if (bIsShaderSupported && (pCurrentShader != nullptr)) UnBindShader();
 
       pCurrentMaterial.reset();
 
@@ -1984,14 +1975,10 @@ namespace breathe
 
       // TODO: Is this needed?
       //glEnable(GL_LIGHTING);
-
-      bActiveShader = true;
     }
 
     void cRender::UnBindShader()
     {
-      bActiveShader = false;
-
       // TODO: Is this needed?
       //glDisable(GL_LIGHTING);
 
@@ -2020,17 +2007,8 @@ namespace breathe
         // Activate the current texture unit
         glActiveTexture(unit);
 
-
-        // TODO: Can we remove this?  Do we need it for anything ever?
-        uiActiveUnits = n;
-
         material::cLayer* pLayer = pMaterial->vLayer[i];
         ASSERT(pLayer != nullptr);
-
-        ASSERT(pLayer->pTexture != nullptr);
-
-        ASSERT(pLayer->uiTextureMode != TEXTURE_MODE::TEXTURE_NONE);
-        ASSERT(pLayer->uiTextureMode != TEXTURE_MODE::TEXTURE_POST_RENDER);
 
         switch (pLayer->uiTextureMode) {
           case TEXTURE_MODE::TEXTURE_NONE: {
@@ -2061,13 +2039,12 @@ namespace breathe
           }
 
           case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
-            if (!bCubemap) {
+            if (!bIsCubemappingEnabled) {
               // What to do?
               ASSERT(false);
             }
 
 
-            glDisable(GL_TEXTURE_2D);
             glEnable(GL_TEXTURE_CUBE_MAP);
             glBindTexture(GL_TEXTURE_CUBE_MAP, pLayer->pTexture->uiTexture);
 
@@ -2105,6 +2082,14 @@ namespace breathe
             break;
           }
 
+
+          case TEXTURE_MODE::TEXTURE_POST_RENDER: {
+            glEnable(GL_TEXTURE_2D);
+            // TODO: Automatically fill this with a valid texture?
+            //glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
+            break;
+          }
+
           default: {
             LOG<<"cRender::ApplyMaterial Unknown texture type"<<std::endl;
             ASSERT(false);
@@ -2112,15 +2097,14 @@ namespace breathe
         }
       }
 
-      if ((pMaterial->pShader != nullptr) && bShader) {
-        bActiveShader = true;
-
+      if (bIsShaderSupported && (pMaterial->pShader != nullptr)) {
         BindShader(pMaterial->pShader);
-
-        glEnable(GL_LIGHTING);
       }
 
       pCurrentMaterial = pMaterial;
+
+      // Set the activate texture unit to the first one as that is what everyone is expecting
+      glActiveTexture(GL_TEXTURE0_ARB);
 
       return true;
     }
@@ -2141,17 +2125,8 @@ namespace breathe
         // Activate the current texture unit
         glActiveTexture(unit);
 
-
-        // TODO: Can we remove this?  Do we need it for anything ever?
-        uiActiveUnits = n;
-
         material::cLayer* pLayer = pMaterial->vLayer[i];
         ASSERT(pLayer != nullptr);
-
-        ASSERT(pLayer->pTexture != nullptr);
-
-        ASSERT(pLayer->uiTextureMode != TEXTURE_MODE::TEXTURE_NONE);
-        ASSERT(pLayer->uiTextureMode != TEXTURE_MODE::TEXTURE_POST_RENDER);
 
         switch (pLayer->uiTextureMode) {
           case TEXTURE_MODE::TEXTURE_NONE: {
@@ -2179,7 +2154,7 @@ namespace breathe
           }
 
           case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
-            if (!bCubemap) {
+            if (!bIsCubemappingSupported) {
               // What to do?
               ASSERT(false);
             }
@@ -2196,8 +2171,14 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
 
             glDisable(GL_TEXTURE_CUBE_MAP);
-            glEnable(GL_TEXTURE_2D);
 
+            break;
+          }
+
+
+          case TEXTURE_MODE::TEXTURE_POST_RENDER: {
+            glDisable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, 0);
             break;
           }
 
@@ -2209,537 +2190,22 @@ namespace breathe
       }
 
       // UnApply shader
-      if (bActiveShader) {
-        bActiveShader = false;
-
-        if (bCanShader && (pMaterial->pShader != nullptr)) UnBindShader();
+      if ((pMaterial->pShader != nullptr) && bIsShaderSupported) {
+        UnBindShader();
       }
+
+
+      // Set the activate texture unit to the first one as that is what everyone is expectingpMaterial
+      glActiveTexture(GL_TEXTURE0_ARB);
 
       return false;
-    }
-
-
-    bool cRender::SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos)
-    {
-      ASSERT(pMaterial != nullptr);
-
-      if (pCurrentMaterial == pMaterial)
-      {
-        // Update camera possibly?
-        return true;
-      }
-
-      // We shouldn't have to do this, but SetMaterial is broken
-      ClearMaterial();
-
-      uiTextureModeChanges++;
-      //uiTextureChanges
-
-      unsigned int i=0;
-      unsigned int n=material::nLayers;
-      unsigned int unit=0;
-
-      material::cLayer* layerOld;
-      material::cLayer* layerNew;
-
-      for (i=0;i<n;i++)
-      {
-        layerNew = pMaterial->vLayer[i];
-
-        if (TEXTURE_MODE::TEXTURE_NONE==layerNew->uiTextureMode || (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerNew->uiTextureMode && !bCubemap))
-          n = i;
-
-        //if ((TEXTURE_MODE::TEXTURE_NONE!=layerNew->uiTextureMode && TEXTURE_MODE::TEXTURE_CUBE_MAP != layerNew->uiTextureMode) || (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerNew->uiTextureMode && bCubemap))
-        //  n = i;
-      }
-
-      //if (0 == n)
-      //  LOG.Error("Render", "No layers to render");
-
-      uiActiveUnits=n;
-
-      unit=GL_TEXTURE0_ARB;
-
-      for (i=0;i<n;i++, unit++)
-      {
-        layerNew = pMaterial->vLayer[i];
-        layerOld = &vLayer[i];
-
-        //Activate the current texture unit
-        glActiveTexture(unit);
-
-        //Different mode, probably means different texture, change mode and bind it anyway
-        if (layerOld->uiTextureMode!=layerNew->uiTextureMode)
-        {
-          //Undo last mode
-          if (TEXTURE_MODE::TEXTURE_MASK==layerOld->uiTextureMode ||
-              TEXTURE_MODE::TEXTURE_BLEND==layerOld->uiTextureMode ||
-              TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
-          {
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            glBlendFunc(GL_ONE, GL_ZERO);
-            glDisable(GL_BLEND);
-          }
-          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
-          {
-            glMatrixMode(GL_TEXTURE);
-            glPopMatrix();
-
-            glMatrixMode(GL_MODELVIEW);
-
-            glDisable(GL_TEXTURE_CUBE_MAP);
-
-            glDisable(GL_TEXTURE_GEN_R);
-            glDisable(GL_TEXTURE_GEN_T);
-            glDisable(GL_TEXTURE_GEN_S);
-
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
-            glEnable(GL_TEXTURE_2D);
-          }
-
-          //Set the current mode and texture
-          layerOld->uiTextureMode=layerNew->uiTextureMode;
-          layerOld->pTexture=layerNew->pTexture;
-
-          if (layerOld->pTexture == nullptr) continue;
-
-          if (TEXTURE_MODE::TEXTURE_NONE==layerOld->uiTextureMode)
-            glDisable(GL_TEXTURE_2D);
-          else if (TEXTURE_MODE::TEXTURE_NORMAL==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-          }
-          else if (TEXTURE_MODE::TEXTURE_MASK==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            glEnable(GL_BLEND);
-          }
-          else if (TEXTURE_MODE::TEXTURE_BLEND==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-            glEnable(GL_BLEND);
-          }
-          else if (TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
-          {
-            glActiveTexture(GL_TEXTURE0_ARB);
-            //glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-            //glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
-
-            glActiveTexture(GL_TEXTURE1_ARB);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-            //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-            //glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-
-            // Change the texture matrix so that we have more detail than normal texture
-            glMatrixMode(GL_TEXTURE);
-              glLoadIdentity();
-              glMatrixMode(GL_MODELVIEW);
-
-              // General Switches
-              glDisable(GL_BLEND);
-              glEnable(GL_LIGHTING);
-          }
-          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
-          {
-            // Assume we got one we shouldn't be here if we didn't
-            // It is possible if there are NO cubemaps in the whole level,
-            // so make sure we load one already
-            glDisable(GL_TEXTURE_2D);
-            glEnable(GL_TEXTURE_CUBE_MAP);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, layerOld->pTexture->uiTexture);
-
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
-
-
-
-            glMatrixMode(GL_TEXTURE);
-            glPushMatrix();
-            glLoadIdentity();
-
-            float y = -Angle(math::cVec2(frustum.eye.x, frustum.eye.y), math::cVec2(frustum.target.x, frustum.target.y));
-            float x = -Angle(math::cVec2(frustum.eye.y, frustum.eye.z), math::cVec2(frustum.target.y, frustum.target.z));
-            //std::cout<<y<<"\t"<<x<<"\n";
-
-            glRotatef(y, 0.0f, 1.0f, 0.0f);
-            glRotatef(x, 1.0f, 0.0f, 0.0f);
-
-
-            //float mat[16];
-            //glGetFloatv(GL_MODELVIEW_MATRIX, mat);
-
-            //math::cQuaternion q(mat[8], mat[9], -mat[10]);
-
-            //glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
-
-
-            glMatrixMode(GL_MODELVIEW);
-
-
-            glEnable(GL_TEXTURE_GEN_S);
-            glEnable(GL_TEXTURE_GEN_T);
-            glEnable(GL_TEXTURE_GEN_R);
-
-            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-          }
-          else if (TEXTURE_MODE::TEXTURE_POST_RENDER!=layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-          }
-
-          if (0==unit)
-          {
-            if (n>1)
-            {
-              glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            }
-            else
-            {
-              glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            }
-          }
-        }
-
-
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        //Same Mode, just change texture
-        else if (layerOld->pTexture->uiTexture!=layerNew->pTexture->uiTexture)
-        {
-          uiTextureChanges++;
-          if (TEXTURE_MODE::TEXTURE_MASK==layerOld->uiTextureMode ||
-              TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
-          {
-            layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
-            glBindTexture(GL_TEXTURE_2D, layerNew->pTexture->uiTexture);
-          }
-          else if (TEXTURE_MODE::TEXTURE_BLEND==layerOld->uiTextureMode)
-          {
-            layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
-            glBindTexture(GL_TEXTURE_2D, layerNew->pTexture->uiTexture);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-            glEnable(GL_BLEND);
-          } else {
-            glBlendFunc(GL_ONE, GL_ZERO);
-            glDisable(GL_BLEND);
-          }
-
-
-          //Set the current mode and texture
-          layerOld->uiTextureMode=layerNew->uiTextureMode;
-          layerOld->pTexture->uiTexture=layerNew->pTexture->uiTexture;
-
-
-
-
-
-          if (TEXTURE_MODE::TEXTURE_NONE==layerOld->uiTextureMode)
-            glDisable(GL_TEXTURE_2D);
-          else if (TEXTURE_MODE::TEXTURE_NORMAL==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-          }
-          else if (TEXTURE_MODE::TEXTURE_MASK==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            glEnable(GL_BLEND);
-          }
-          else if (TEXTURE_MODE::TEXTURE_BLEND==layerOld->uiTextureMode ||
-                  TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-            glEnable(GL_BLEND);
-          }
-          else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode)
-          {
-            //Assume we got one we shouldn't be here if we didn't
-            //It is possible if there are NO cubemaps in the whole level,
-            //so make sure we load one already
-            glDisable(GL_TEXTURE_2D);
-            glEnable(GL_TEXTURE_CUBE_MAP);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, layerOld->pTexture->uiTexture);
-
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
-
-
-
-            glMatrixMode(GL_TEXTURE);
-            glPushMatrix();
-            glLoadIdentity();
-
-            float y = -Angle(math::cVec2(frustum.eye.x, frustum.eye.y), math::cVec2(frustum.target.x, frustum.target.y));
-            float x = -Angle(math::cVec2(frustum.eye.y, frustum.eye.z), math::cVec2(frustum.target.y, frustum.target.z));
-            //std::cout<<y<<"\t"<<x<<"\n";
-
-            glRotatef(y, 0.0f, 1.0f, 0.0f);
-            glRotatef(x, 1.0f, 0.0f, 0.0f);
-
-
-            //float mat[16];
-            //glGetFloatv(GL_MODELVIEW_MATRIX, mat);
-
-            //math::cQuaternion q(mat[8], mat[9], -mat[10]);
-
-            //glLoadMatrixf(static_cast<float*>(q.GetMatrix()));
-
-
-            glMatrixMode(GL_MODELVIEW);
-
-
-            glEnable(GL_TEXTURE_GEN_S);
-            glEnable(GL_TEXTURE_GEN_T);
-            glEnable(GL_TEXTURE_GEN_R);
-
-            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-          }
-          else
-          {
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, layerOld->pTexture->uiTexture);
-          }
-
-          if (0==unit)
-          {
-            if (n>1)
-            {
-              glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            }
-            else
-            {
-              glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            }
-          }
-        }
-
-
-
-
-
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-        // **************************************************************************************
-      }
-
-      unit = GL_TEXTURE0_ARB + n;
-
-      for (i = n;i < material::nLayers;i++, unit++) {
-        layerNew = pMaterial->vLayer[i];
-        layerOld = &vLayer[i];
-
-        //Activate the current texture unit
-        glActiveTexture(unit);
-
-        //Undo last mode
-        if (
-          (TEXTURE_MODE::TEXTURE_MASK == layerOld->uiTextureMode) ||
-          (TEXTURE_MODE::TEXTURE_BLEND == layerOld->uiTextureMode)) {
-          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-          glBlendFunc(GL_ONE, GL_ZERO);
-          glDisable(GL_BLEND);
-        } else if (TEXTURE_MODE::TEXTURE_DETAIL == layerOld->uiTextureMode) {
-          // Change the texture matrix so that we have more detail than normal texture
-          glMatrixMode(GL_TEXTURE);
-            glLoadIdentity();
-          glMatrixMode(GL_MODELVIEW);
-
-          // General Switches
-          glDisable(GL_BLEND);
-          //glEnable(GL_LIGHTING);
-        } else if (TEXTURE_MODE::TEXTURE_CUBE_MAP == layerOld->uiTextureMode) {
-          glMatrixMode(GL_TEXTURE);
-          glPopMatrix();
-
-          glMatrixMode(GL_MODELVIEW);
-
-          glDisable(GL_TEXTURE_CUBE_MAP);
-
-          glDisable(GL_TEXTURE_GEN_R);
-          glDisable(GL_TEXTURE_GEN_T);
-          glDisable(GL_TEXTURE_GEN_S);
-
-          glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-        }
-
-        glDisable(GL_TEXTURE_2D);
-
-        //Set the current mode and texture
-        layerOld->uiTextureMode = TEXTURE_MODE::TEXTURE_NONE;
-      }
-
-
-
-      if (1==uiActiveUnits)
-      {
-        glActiveTexture(GL_TEXTURE0_ARB);
-        glEnable(GL_TEXTURE_2D);
-
-        if (TEXTURE_MODE::TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
-        {
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
-
-          glColor4f(colour.r, colour.g, colour.b, colour.a);
-        } else {
-          float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
-        }
-      }
-      else if (2==uiActiveUnits)
-      {
-        if (TEXTURE_MODE::TEXTURE_DETAIL==pMaterial->vLayer[1]->uiTextureMode)
-        {
-          // TEXTURE-UNIT #0
-          glActiveTexture(GL_TEXTURE0_ARB);
-          glEnable(GL_TEXTURE_2D);
-          glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[0]->pTexture->uiTexture);
-          //glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-          //glTexEnvf (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
-
-          // TEXTURE-UNIT #1
-          glActiveTexture(GL_TEXTURE1_ARB);
-          glEnable(GL_TEXTURE_2D);
-          glBindTexture(GL_TEXTURE_2D, pMaterial->vLayer[1]->pTexture->uiTexture);
-          //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-          //glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-
-          // Now we want to enter the texture matrix.  This will allow us
-          // to change the tiling of the detail texture.
-          glMatrixMode(GL_TEXTURE);
-
-            // Reset the current matrix and apply our chosen scale value
-            glLoadIdentity();
-            glScalef(fDetailScale.GetFloat(), fDetailScale.GetFloat(), 1);
-
-            // Leave the texture matrix and set us back in the model view matrix
-            glMatrixMode(GL_MODELVIEW);
-
-            // General Switches
-            glDisable(GL_BLEND);
-            //glDisable(GL_LIGHTING);
-        }
-        else
-        {
-          {
-            glActiveTexture(GL_TEXTURE1_ARB);
-
-            float a1[4] = {0.6f, 0.6f, 0.6f, 1.0f};
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
-          }
-
-          glActiveTexture(GL_TEXTURE0_ARB);
-          if (TEXTURE_MODE::TEXTURE_NORMAL == vLayer[0].uiTextureMode && bActiveColour &&
-              TEXTURE_MODE::TEXTURE_DETAIL != vLayer[1].uiTextureMode)
-          {
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
-            glColor4f(colour.r, colour.g, colour.b, colour.a);
-          }
-          else
-          {
-            float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
-          }
-        }
-      }
-      else if (3==uiActiveUnits)
-      {
-        glActiveTexture(GL_TEXTURE2_ARB);
-        float a2[4] = {0.5f, 0.5f, 0.5f, 1.0f};
-        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a2);
-
-        glActiveTexture(GL_TEXTURE1_ARB);
-        float a1[4] = {0.5f, 0.5f, 0.5f, 1.0f};
-        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a1);
-
-        glActiveTexture(GL_TEXTURE0_ARB);
-        if (TEXTURE_MODE::TEXTURE_NORMAL==vLayer[0].uiTextureMode && bActiveColour)
-        {
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colour.GetPointerConst());
-
-          glColor4f(colour.r, colour.g, colour.b, colour.a);
-        }
-        else
-        {
-          float a0[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-          glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, a0);
-        }
-      }
-      //else disable none of them
-
-      if (pMaterial->pShader && bShader)
-      {
-        bActiveShader = true;
-
-        BindShader(pMaterial->pShader);
-
-        glEnable(GL_LIGHTING);
-      } else if (bActiveShader) {
-        bActiveShader = false;
-
-        if (bCanShader && (pMaterial->pShader != nullptr)) UnBindShader();
-      }
-
-      pCurrentMaterial=pMaterial;
-      return true;
     }
 
 
 
     void cRender::ClearColour()
     {
-      bActiveColour = false;
+      bIsActiveColour = false;
 
       colour.SetBlack();
       colour.a = 1.0f;
@@ -2755,7 +2221,7 @@ namespace breathe
 
     void cRender::SetColour(const math::cColour& inColour)
     {
-      bActiveColour = true;
+      bIsActiveColour = true;
 
       colour = inColour;
 
@@ -3001,14 +2467,12 @@ namespace breathe
     ApplyMaterial::ApplyMaterial(material::cMaterialRef _pMaterial)
     {
       //pLast = pRender->GetCurrentMaterial();
-      //pRender->SetMaterial(pCurrent);
       pMaterial = _pMaterial;
       pRender->ApplyMaterial(pMaterial);
     }
 
     ApplyMaterial::~ApplyMaterial()
     {
-      //pRender->SetMaterial(pLast);
       pRender->UnApplyMaterial(pMaterial);
     }
 

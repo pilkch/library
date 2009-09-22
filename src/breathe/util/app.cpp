@@ -1134,7 +1134,7 @@ namespace breathe
 
     state.RenderScreenSpace(currentTime);
 
-    if (pRender->bRenderGui) window_manager.Render();
+    if (pRender->bIsRenderGui) window_manager.Render();
 
 #ifdef BUILD_DEBUG
     if (IsDebug() && !CONSOLE.IsVisible()) {
@@ -1263,7 +1263,7 @@ namespace breathe
             // Draw our texture back to the other texture
             render::cRenderScreenSpace screenspace;
 
-            pRender->SetMaterial(pHDRBloomMaterial);
+            render::ApplyMaterial apply(pHDRBloomMaterial);
 
 
             glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
@@ -1302,7 +1302,7 @@ namespace breathe
             // Draw our texture back to the other texture
             render::cRenderScreenSpace screenspace;
 
-            pRender->SetMaterial(pGaussianBlurMaterial);
+            render::ApplyMaterial apply(pGaussianBlurMaterial);
 
             pRender->SetShaderConstant("texture_width", 1024.0f);
             pRender->SetShaderConstant("texture_height", 1024.0f);
@@ -1326,7 +1326,7 @@ namespace breathe
             // Draw our texture back to the other texture
             render::cRenderScreenSpace screenspace;
 
-            pRender->SetMaterial(pGaussianBlurMaterial);
+            render::ApplyMaterial apply(pGaussianBlurMaterial);
 
             pRender->SetShaderConstant("texture_width", 1024.0f);
             pRender->SetShaderConstant("texture_height", 1024.0f);
@@ -1354,7 +1354,7 @@ namespace breathe
           // Draw our texture back to the other texture
           render::cRenderScreenSpace screenspace;
 
-          pRender->SetMaterial(*iter);
+          render::ApplyMaterial apply(*iter);
           glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
           pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
         }
@@ -1369,10 +1369,13 @@ namespace breathe
         render::cRenderScreenSpace screenspace;
 
         // If we have one more post render effect to go then we do that now
-        if (iter != lPostRenderEffects.end()) pRender->SetMaterial(*iter);
+        if (iter != lPostRenderEffects.end()) pRender->ApplyMaterial(*iter);
 
         glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
         pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+
+        // Clear up our material
+        if (iter != lPostRenderEffects.end()) pRender->UnApplyMaterial(*iter);
 
         // Now we can render any text, gui, etc. that we want to see over the top of any scene post render effects
         _RenderScreenSpaceScene(state, currentTime);
@@ -1593,11 +1596,11 @@ namespace breathe
       else spitfire::logging::TurnOnLogging();
     }
 
-    if (IsKeyDown(SDLK_F3)) pRender->bRenderGui = !pRender->bRenderGui;
-    if (IsKeyDown(SDLK_F4)) pRender->bRenderWireframe = !pRender->bRenderWireframe;
-    if (IsKeyDown(SDLK_F5)) pRender->bShader = pRender->bCanShader && !pRender->bShader;
-    if (IsKeyDown(SDLK_F6)) pRender->bCubemap = !pRender->bCubemap;
-    if (IsKeyDown(SDLK_F7)) pRender->bLight = !pRender->bLight;
+    if (IsKeyDown(SDLK_F3)) pRender->bIsRenderGui = !pRender->bIsRenderGui;
+    if (IsKeyDown(SDLK_F4)) pRender->bIsRenderWireframe = !pRender->bIsRenderWireframe;
+    if (IsKeyDown(SDLK_F5)) pRender->bIsRenderWithShadersEnabled = pRender->bIsShaderSupported && !pRender->bIsRenderWithShadersEnabled;
+    if (IsKeyDown(SDLK_F6)) pRender->bIsCubemappingEnabled = !pRender->bIsCubemappingEnabled;
+    if (IsKeyDown(SDLK_F7)) pRender->bIsLightingEnabled = !pRender->bIsLightingEnabled;
 
     if (IsKeyDown(SDLK_F8)) CreateGameUnitTest();
 

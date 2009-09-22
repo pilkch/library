@@ -5,7 +5,7 @@ namespace breathe
 {
   namespace vehicle
   {
-    class cVehicle;
+    class cVehicle2;
 
     class cWheel
 #ifdef BUILD_PHYSICS_3D
@@ -13,7 +13,7 @@ namespace breathe
 #endif
     {
     public:
-      cWheel(cVehicle *p, physics::cWorld* pWorld);
+      cWheel(cVehicle2* p, physics::cWorld* pWorld);
 
       void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU,
         float fSNormal, float fSMin, float fSMax, const math::cVec3& pos);
@@ -39,7 +39,7 @@ namespace breathe
       math::cVec3 v3SuspensionTop;
 
     private:
-      cVehicle* pParent;
+      cVehicle2* pParent;
 
       float fRadius;
       float fWeight;

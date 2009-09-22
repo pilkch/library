@@ -543,9 +543,8 @@ namespace breathe
         return;
       }
 
-      pRender->ClearMaterial();
-      glEnable(GL_TEXTURE_2D);
-      pRender->SetMaterial(pMaterial);
+      {
+        breathe::render::ApplyMaterial apply(pMaterial);
 
         spitfire::math::cVec3 colour(1.0f, 0.0f, 0.0f);
 
@@ -573,8 +572,7 @@ namespace breathe
             }
           }
         }
-
-      pRender->ClearMaterial();
+      }
     }
 
 

@@ -104,18 +104,18 @@ namespace breathe
       //math::cColour bodyColourSpecular;
     };
 
-    class cVehicle;
-    typedef cSmartPtr<cVehicle> cVehicleRef;
+    class cVehicle2;
+    typedef cSmartPtr<cVehicle2> cVehicleRef;
 
-    class cVehicle :
-      public boost::enable_shared_from_this<cVehicle>
+    class cVehicle2 :
+      public boost::enable_shared_from_this<cVehicle2>
     {
     private:
-      cVehicle();
+      cVehicle2();
 
     public:
       static cVehicleRef Create();
-      ~cVehicle();
+      ~cVehicle2();
 
       void Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld);
       void Update(uint32_t currentTime);

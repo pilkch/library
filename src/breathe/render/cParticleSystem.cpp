@@ -150,51 +150,54 @@ namespace breathe
 
       if (pMaterial->pShader == nullptr) return 0;
 
-      pRender->SetMaterial(pMaterial);
+      size_t uiParticlesRendered = 0;
 
-      pRender->SetShaderConstant("width", fParticleWidth);
-      pRender->SetShaderConstant("height", fParticleHeight);
+      {
+        breathe::render::ApplyMaterial apply(pMaterial);
 
-      //pRender->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
-      //pRender->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
+        pRender->SetShaderConstant("width", fParticleWidth);
+        pRender->SetShaderConstant("height", fParticleHeight);
 
-      glPushMatrix();
-        glTranslatef(position.x, position.y, position.z);
+        //pRender->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
+        //pRender->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
 
-        glBegin(GL_QUADS);
+        glPushMatrix();
+          glTranslatef(position.x, position.y, position.z);
 
-          unsigned int uiParticlesRendered = 0;
-          const cParticle* p = &particles[0];
-          const size_t n = particles.size();
-          for (size_t i = 0; i < n; i++, p++) {
-            if (!p->IsAlive()) continue;
+          glBegin(GL_QUADS);
+
+            const cParticle* p = &particles[0];
+            const size_t n = particles.size();
+            for (size_t i = 0; i < n; i++, p++) {
+              if (!p->IsAlive()) continue;
 
 #if 1
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
 #else
-            // For testing
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
-            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
-            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
-            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
-            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
+              // For testing
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+              glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+              glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+              glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+              glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
 #endif
 
-            uiParticlesRendered++;
-          }
+              uiParticlesRendered++;
+            }
 
-        glEnd();
-      glPopMatrix();
+          glEnd();
+        glPopMatrix();
+      }
 
       return uiParticlesRendered;
     }
@@ -273,21 +276,23 @@ namespace breathe
       glPushMatrix();
         glTranslatef(position.x, position.y, position.z);
 
-        if (pMesh->pMaterial) pRender->SetMaterial(pMesh->pMaterial);
+        if (pMesh->pMaterial) pRender->ApplyMaterial(pMesh->pMaterial);
 
-        unsigned int uiParticlesRendered = 0;
-        cParticle* p = &particles[0];
-        const size_t n = particles.size();
-        for (size_t i = 0; i < n; i++, p++) {
-          if (!p->IsAlive()) continue;
+          unsigned int uiParticlesRendered = 0;
+          cParticle* p = &particles[0];
+          const size_t n = particles.size();
+          for (size_t i = 0; i < n; i++, p++) {
+            if (!p->IsAlive()) continue;
 
-          glPushMatrix();
-            glTranslatef(p->p.x, p->p.y, p->p.z);
-            pRender->RenderMesh(pMesh);
-          glPopMatrix();
+            glPushMatrix();
+              glTranslatef(p->p.x, p->p.y, p->p.z);
+              pRender->RenderMesh(pMesh);
+            glPopMatrix();
 
-          uiParticlesRendered++;
-        }
+            uiParticlesRendered++;
+          }
+
+        if (pMesh->pMaterial) pRender->UnApplyMaterial(pMesh->pMaterial);
 
       glPopMatrix();
 
@@ -346,47 +351,50 @@ namespace breathe
       ASSERT(pMaterial != nullptr);
       ASSERT(pMaterial->pShader != nullptr);
 
-      pRender->SetMaterial(pMaterial);
+      size_t uiParticlesRendered = 0;
 
-      glPushMatrix();
-        glTranslatef(position.x, position.y, position.z);
+      {
+        render::ApplyMaterial apply(pMaterial);
+
+        glPushMatrix();
+          glTranslatef(position.x, position.y, position.z);
 
 
-        unsigned int uiParticlesRendered = 0;
-        const cParticleCustom* p = &sorted[0];
-        const size_t n = sorted.size();
-        for (size_t i = 0; i < n; i++, p++) {
-          pRender->SetShaderConstant("width", p->fWidth);
-          pRender->SetShaderConstant("height", p->fHeight);
+          const cParticleCustom* p = &sorted[0];
+          const size_t n = sorted.size();
+          for (size_t i = 0; i < n; i++, p++) {
+            pRender->SetShaderConstant("width", p->fWidth);
+            pRender->SetShaderConstant("height", p->fHeight);
 
-          glBegin(GL_QUADS);
+            glBegin(GL_QUADS);
 #if 1
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
-            glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+              glVertex3f(p->p.x, p->p.y, p->p.z);
 #else
-            // For testing
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
-            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
-            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
-            glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
-            glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
-            glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
+              // For testing
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+              glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z + 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+              glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z + 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+              glVertex3f(p->p.x + 10.0f, p->p.y, p->p.z - 10.0f);
+              glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+              glVertex3f(p->p.x - 10.0f, p->p.y, p->p.z - 10.0f);
 #endif
 
-          glEnd();
+            glEnd();
 
-          uiParticlesRendered++;
-        }
+            uiParticlesRendered++;
+          }
 
-      glPopMatrix();
+        glPopMatrix();
+      }
 
       return uiParticlesRendered;
     }

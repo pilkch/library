@@ -98,7 +98,10 @@ namespace breathe
       cRender();
       ~cRender();
 
-      bool IsWireFrame() const { return bRenderWireframe; }
+      bool IsWireFrame() const { return bIsRenderWireframe; }
+
+      bool IsMultiSampling() const;
+      size_t GetMultiSampleLevel() const;
 
       string_t GetErrorString() const;
       string_t GetErrorString(GLenum error) const;
@@ -126,6 +129,7 @@ namespace breathe
       // These are the actual calls, the previous may actually render to an FBO first
     private:
       void _BeginRenderShared();
+      void _EndRenderShared();
 
       void _BeginRenderToScreen();
       void _EndRenderToScreen();
@@ -190,8 +194,8 @@ namespace breathe
       void EnableWireframe();
       void DisableWireframe();
 
-      void BeginRenderingText() { if (bRenderWireframe) DisableWireframe(); }
-      void EndRenderingText() { if (bRenderWireframe) EnableWireframe(); }
+      void BeginRenderingText() { if (bIsRenderWireframe) DisableWireframe(); }
+      void EndRenderingText() { if (bIsRenderWireframe) EnableWireframe(); }
 
 
       // *** Resources
@@ -244,9 +248,9 @@ namespace breathe
 
       // SetMaterial and ClearMaterial are deprecated, use cApplyMaterial class or if need be, use ApplyMaterial/UnApplyMaterial instead
       bool ClearMaterial();
-      bool SetMaterial(const string_t& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
-      bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
-      bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
+      //bool SetMaterial(const string_t& sMaterial) { return SetMaterial(GetMaterial(sMaterial)); }
+      //bool SetMaterial(material::cMaterialRef pMaterial) { math::cVec3 pos; return SetMaterial(pMaterial, pos); }
+      //bool SetMaterial(material::cMaterialRef pMaterial, const math::cVec3& pos);
 
       bool ApplyMaterial(material::cMaterialRef pMaterial);
       bool UnApplyMaterial(material::cMaterialRef pMaterial);
@@ -270,16 +274,6 @@ namespace breathe
       std::map<string_t, cTextureRef> mCubeMap; //Map that contains filename, cubemap texture pairs
 
 
-      bool bRenderWireframe;
-      bool bRenderGui;
-      bool bLight;
-      bool bCubemap;
-      bool bShader;
-
-      bool bCanCubemap;
-      bool bCanShader;
-      bool bCanFrameBufferObject;
-
       bool bFullscreen;
       size_t uiWidth;
       size_t uiHeight;
@@ -293,7 +287,19 @@ namespace breathe
       size_t uiTextureModeChanges;
       size_t uiTriangles;
 
-      size_t uiActiveUnits;
+      bool bIsCubemappingSupported;
+      bool bIsShaderSupported;
+      bool bIsRenderingToFrameBufferObjectSupported;
+      bool bIsFSAASupported;
+
+      bool bIsRenderWireframe;
+      bool bIsRenderGui;
+      bool bIsLightingEnabled;
+      bool bIsCubemappingEnabled;
+      bool bIsRenderWithShadersEnabled;
+      bool bIsFSAAEnabled;
+
+      unsigned int uiFSAASampleLevel;
 
       math::cVec4 sunPosition;
 
@@ -310,8 +316,6 @@ namespace breathe
       std::vector<cVertexBufferObjectRef> vVertexBufferObject;
 
 
-      cLevel* pLevel;
-
       const math::cFrustum& GetFrustum() { return frustum; }
       void SetFrustum(const math::cFrustum& _frustum) { frustum = _frustum; }
 
@@ -326,9 +330,7 @@ namespace breathe
 
       math::cColour clearColour;
 
-      bool bActiveColour;
-      bool bActiveShader;
-
+      bool bIsActiveColour;
       math::cColour colour;
       std::vector<material::cLayer>vLayer;
 

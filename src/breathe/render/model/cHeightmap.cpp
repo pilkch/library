@@ -188,7 +188,7 @@ namespace breathe
 
       void cTerrain::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->SetMaterial(pMaterial);
+        render::ApplyMaterial apply(pMaterial);
 
         pVBO->Bind();
 
@@ -288,7 +288,7 @@ namespace breathe
 
       void cGrassStatic::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->SetMaterial(pMaterial);
+        render::ApplyMaterial apply(pMaterial);
 
         vbo.Bind();
 
@@ -425,7 +425,7 @@ namespace breathe
 
       void cGrassAnimated::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->SetMaterial(pMaterial);
+        render::ApplyMaterial apply(pMaterial);
 
         float fCurrentTime = 0.0005f * float(currentTime);
         pRender->SetShaderConstant("time", fCurrentTime);

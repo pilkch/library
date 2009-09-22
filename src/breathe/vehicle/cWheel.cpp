@@ -219,7 +219,7 @@ namespace breathe
     float fFrontSlip=0.0001f;
     float fRearSlip=0.001f;
 
-    cWheel::cWheel(cVehicle *parent, physics::cWorld* pWorld) :
+    cWheel::cWheel(cVehicle2* parent, physics::cWorld* pWorld) :
       physics::cPhysicsRayCast(pWorld)
     {
       pParent=parent;

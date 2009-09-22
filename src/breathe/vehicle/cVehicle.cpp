@@ -41,25 +41,21 @@
 #include <breathe/breathe.h>
 
 #include <breathe/util/base.h>
+
+#include <breathe/game/cLevel.h>
+#include <breathe/game/cPlayer.h>
+
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
-
-#include <breathe/game/cLevel.h>
-
 #include <breathe/physics/physics.h>
 
-#include <breathe/game/cPlayer.h>
 #include <breathe/game/cPetrolBowser.h>
 #include <breathe/vehicle/cPart.h>
 #include <breathe/vehicle/cWheel.h>
 #include <breathe/vehicle/cSeat.h>
 #include <breathe/vehicle/cVehicle.h>
-
-#include <breathe/util/base.h>
-#include <breathe/render/model/cModel.h>
-#include <breathe/render/model/cStatic.h>
 
 bool fourwheeldrive=false;
 
@@ -495,13 +491,13 @@ namespace breathe
 {
   namespace vehicle
   {
-    cVehicleRef cVehicle::Create()
+    cVehicleRef cVehicle2::Create()
     {
-      cVehicleRef ptr(new cVehicle);
+      cVehicleRef ptr(new cVehicle2);
       return ptr;
     }
 
-    cVehicle::cVehicle()
+    cVehicle2::cVehicle2()
     {
       pBody=NULL;
       pMirror=NULL;
@@ -547,7 +543,7 @@ namespace breathe
       properties.iGearCurrent = 1; //-1 = reverse, 0 = Neutral
     }
 
-    cVehicle::~cVehicle()
+    cVehicle2::~cVehicle2()
     {
       for (size_t i = 0; i < vWheel.size(); i++) {
         // Deleted in physics list
@@ -561,13 +557,13 @@ namespace breathe
       //PhysicsDestroy();
     }
 
-    void cVehicle::PhysicsDestroy()
+    void cVehicle2::PhysicsDestroy()
     {
       //physics::RemovePhysicsObject(shared_from_this());
       //RemoveFromWorld();
     }
 
-    void cVehicle::PhysicsInit(cLevelSpawn p)
+    void cVehicle2::PhysicsInit(cLevelSpawn p)
     {
       p.v3Position += math::cVec3(0.0f, 0.0f, 2.0f * (fSuspensionMax+fWheelRadius));
 
@@ -595,7 +591,7 @@ namespace breathe
         math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
     }
 
-    void cVehicle::Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld)
+    void cVehicle2::Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld)
     {
       unsigned int i=0;
 
@@ -610,7 +606,7 @@ namespace breathe
     }
 
 
-    void cVehicle::Update(sampletime_t currentTime)
+    void cVehicle2::Update(sampletime_t currentTime)
     {
       return;
 
@@ -746,7 +742,7 @@ namespace breathe
   //    }
     }
 
-    void cVehicle::FillUp(cPetrolBowser *pBowser)
+    void cVehicle2::FillUp(cPetrolBowser *pBowser)
     {
       float fSpace = fPetrolTankSize;
       for (size_t i=0;i<PETROL_SIZE;i++) fSpace-=static_cast<unsigned int>(vPetrolTank[i]);
@@ -762,7 +758,7 @@ namespace breathe
       }
     }
 
-    void cVehicle::UpdateInput()
+    void cVehicle2::UpdateInput()
     {
       cPlayer *pPlayer=vSeat[0]->pPlayer;
       if (nullptr == pPlayer) return;
@@ -783,7 +779,7 @@ namespace breathe
       else fControl_Handbrake = 0.0f;
     }
 
-    void cVehicle::AssignPlayer(cPlayer *p)
+    void cVehicle2::AssignPlayer(cPlayer *p)
     {
       const size_t n = vSeat.size();
       for(size_t i = 0;i<n;i++) {

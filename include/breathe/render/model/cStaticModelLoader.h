@@ -1,6 +1,10 @@
 #ifndef CSTATICMODELLOADER_H
 #define CSTATICMODELLOADER_H
 
+#include <breathe/game/scenegraph.h>
+
+#include <breathe/render/cMaterial.h>
+#include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/model/cStatic.h>
 
 namespace breathe
@@ -19,6 +23,26 @@ namespace breathe
       {
       public:
         bool Save(const string_t& sFilename, const cStaticModel& model) const;
+      };
+
+
+
+
+
+
+      class cStaticModelSceneNodeFactoryItem
+      {
+      public:
+        breathe::render::cVertexBufferObjectRef pVBO;
+        breathe::render::material::cMaterialRef pMaterial;
+      };
+
+      class cStaticModelSceneNodeFactory
+      {
+      public:
+        void LoadFromFile(const spitfire::string_t& sFilename, std::vector<cStaticModelSceneNodeFactoryItem>& meshes) const;
+
+        void CreateSceneNodeAttachedTo(std::vector<cStaticModelSceneNodeFactoryItem>& meshes, breathe::scenegraph3d::cGroupNodeRef pGroupNode) const;
       };
     }
   }

@@ -13,6 +13,7 @@
 
 // Boost includes
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 // OpenGL headers
 #include <GL/GLee.h>
@@ -1067,6 +1068,53 @@ namespace breathe
         LOG<<"cStaticModelLoader::Load Format is not supported \""<<sFilename<<"\""<<std::endl;
         ASSERT(false);
         return false;
+      }
+
+
+
+      void cStaticModelSceneNodeFactory::LoadFromFile(const spitfire::string_t& sFilename, std::vector<cStaticModelSceneNodeFactoryItem>& meshes) const
+      {
+        meshes.clear();
+      
+      
+        breathe::render::model::cStaticModel model;
+      
+        breathe::render::model::cStaticModelLoader loader;
+        loader.Load(sFilename, model);
+      
+        const size_t nMeshes = model.mesh.size();
+        for (size_t iMesh = 0; iMesh < nMeshes; iMesh++) {
+          cStaticModelSceneNodeFactoryItem item;
+      
+          item.pVBO.reset(new breathe::render::cVertexBufferObject);
+      
+          item.pVBO->SetVertices(model.mesh[iMesh]->vertices);
+          item.pVBO->SetTextureCoordinates(model.mesh[iMesh]->textureCoordinates);
+      
+          item.pVBO->Compile();
+      
+          item.pMaterial = pRender->AddMaterial(model.mesh[iMesh]->sMaterial);
+
+          meshes.push_back(item);
+        }
+      }
+
+      void cStaticModelSceneNodeFactory::CreateSceneNodeAttachedTo(std::vector<cStaticModelSceneNodeFactoryItem>& meshes, breathe::scenegraph3d::cGroupNodeRef pGroupNode) const
+      {
+        const size_t n = meshes.size();
+        for (size_t i = 0; i < n; i++) {
+          breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
+      
+          breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+          stateset.SetStateFromMaterial(meshes[i].pMaterial);
+      
+          breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+          vertexBufferObject.pVertexBufferObject = meshes[i].pVBO;
+          vertexBufferObject.SetEnabled(true);
+          vertexBufferObject.bHasValidValue = true;
+      
+          pGroupNode->AttachChild(pNode);
+        }
       }
     }
   }

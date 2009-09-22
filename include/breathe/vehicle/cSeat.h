@@ -7,19 +7,19 @@ namespace breathe
 
   namespace vehicle
   {
-    class cVehicle;
+    class cVehicle2;
 
     class cSeat
     {
     public:
-      explicit cSeat(cVehicle* v);
+      explicit cSeat(cVehicle2* v);
       ~cSeat() { if (pPlayer != nullptr) EjectPlayer(); }
 
       void AssignPlayer(cPlayer* p);
       void EjectPlayer();
 
       cPlayer* pPlayer;
-      cVehicle* pVehicle;
+      cVehicle2* pVehicle;
     };
   }
 }

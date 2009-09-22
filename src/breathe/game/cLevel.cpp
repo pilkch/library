@@ -87,8 +87,6 @@ namespace breathe
     pCurrentNode(nullptr),
     previousTime(0)
   {
-    pRender->pLevel = this;
-
     uiDisplayNodeName = uiNodeNameDisplayTime;
   }
 
