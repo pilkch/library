@@ -45,6 +45,25 @@
 // Range 741 km
 // Rate of climb 10.1 m/s
 
+
+
+// Pickup crates, deliver, drop crates with parachutes, for food aid drop
+// Pickup people, rescue from bushfire, burning building, stranded on houses in flooded areas, at sea on air craft carrier, sinking ship, oil rig, capsized yacht
+// Build bridge, place spire onto top of tall building
+// Drop water onto fire to put it out, in barrels, tanks, sack of water that is filled up at creeks/ocean/lakes
+// Fly tourists through a valley for sight seeing tour
+// Fly under bridge/through tunnel/buildings
+// Have a building with a hole in the middle that can be flown through
+// Crop dust a field, deliver a tractor to a farm on a hill
+// Rescue plane crash survivors from snow capped mountains
+// helicopter snowboarders to the peak of a mountain (Where they just stand there and wave back)
+
+
+
+// Do the sky colour settings, load from xml file
+
+
+
 class cChinookFactory
 {
 public:
@@ -302,8 +321,6 @@ namespace breathe
 
 
 
-
-    // helicopter snowboarders to the peak of a mountain (Where they just stand there and wave back)
 
 
 

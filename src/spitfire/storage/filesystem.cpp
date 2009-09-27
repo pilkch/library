@@ -131,7 +131,7 @@ namespace spitfire
 
     bool DeleteFile(const string_t& sFilename)
     {
-      std::cout<<"DeleteFile \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
+      CONSOLE<<"DeleteFile \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
       boost::filesystem::remove(file);
       return !FileExists(sFilename);
@@ -139,7 +139,7 @@ namespace spitfire
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
-      std::cout<<"DeleteDirectory \""<<spitfire::string::ToUTF8(sFoldername)<<"\""<<std::endl;
+      CONSOLE<<"DeleteDirectory \""<<spitfire::string::ToUTF8(sFoldername)<<"\""<<std::endl;
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
       return (boost::filesystem::remove_all(file) != 0);
     }
@@ -462,7 +462,7 @@ namespace spitfire
       CONSOLE<<"FindFile \""<<sInFilename<<"\""<<std::endl;
       char sz[1024];
       strcpy(sz, spitfire::string::ToUTF8(sInFilename).data());
-      std::cout<<"FindFile sz=\""<<sz<<"\""<<std::endl;
+      CONSOLE<<"FindFile sz=\""<<sz<<"\""<<std::endl;
 
       sOutFilename.clear();
 

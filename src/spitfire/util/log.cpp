@@ -72,7 +72,7 @@
 
 
 
-#define t "\t"
+#define t "  "
 
 const int CONSOLE_MAXLINES = 50;
 
@@ -85,7 +85,7 @@ namespace spitfire
 {
   namespace logging
   {
-    bool bIsLogging = true;
+    bool bIsLogging = false;
 
     bool IsLogging()
     {
@@ -137,7 +137,9 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << endtable << "\t\t</center>\n\t</body>" << std::endl << "</html>";
+      logfile<<endtable<<t<<t<<"</center>"<<std::endl;
+      logfile<<t<<"</body>"<<std::endl;
+      logfile<<"</html>"<<std::endl;
       logfile.close();
     }
 
@@ -174,11 +176,16 @@ namespace spitfire
     {
       if (!bIsLogging) return;
 
-      spitfire::string_t s = TEXT("<!> ") + spitfire::string::ToString_t(section) + TEXT("\n");
+      string_t s = TEXT("<!> ") + spitfire::string::ToString_t(section);
 #ifdef __WIN__
+      s += TEXT("\n");
       OutputDebugString(s.c_str());
 #else
-      printf(spitfire::string::ToUTF8(s).c_str());
+#ifdef UNICODE
+      std::wcout<<s<<std::endl;
+#else
+      std::cout<<s<<std::endl;
+#endif
 #endif
     }
 
@@ -349,7 +356,8 @@ namespace spitfire
       //logfile << t;
       LOG.Success(LOG.section, o.str());
 
-      std::cout<<o.str()<<std::endl;
+      if (bIsLogging) std::cout<<o.str()<<std::endl;
+
       return *this;
     }*/
 
@@ -359,7 +367,9 @@ namespace spitfire
       LOG._AddLine(o);
 
       lines.push_back(o);
-      std::cout<<o<<std::endl;
+
+      if (bIsLogging) std::cout<<o<<std::endl;
+
       ClearLine();
     }
 

@@ -893,7 +893,7 @@ namespace breathe
 
     TTF_Init();
 
-    breathe::audio::Init();
+    breathe::audio::Init(audio::DRIVER::DRIVER_SDLMIXER);
 
     pWorld = new physics::cWorld;
 
@@ -943,7 +943,7 @@ namespace breathe
     PushState(pAppState);
 
 
-    breathe::audio::StartAll();
+    breathe::audio::GetManager()->StartAll();
 
     // Setup mouse
     CursorWarpToMiddleOfScreen();
@@ -964,7 +964,7 @@ namespace breathe
 
     CursorShow();
 
-    breathe::audio::StopAll();
+    breathe::audio::GetManager()->StopAll();
 
     return breathe::GOOD;
   }
@@ -1059,7 +1059,7 @@ namespace breathe
     pRender->SetFrustum(camera.CreateFrustumFromCamera());
 
     // Now update our other sub systems
-    breathe::audio::Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
+     breathe::audio::GetManager()->Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
 
     scenegraph.Update(currentTime);
     scenegraph.Cull(camera, currentTime);

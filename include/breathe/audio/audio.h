@@ -7,11 +7,6 @@
 
 #include <spitfire/math/cVec3.h>
 
-// http://www.devmaster.net/articles/openal-tutorials/
-// http://www.devmaster.net/articles/openal-tutorials/lesson8.php
-
-// Namespace functions: Global audio system create/destroy
-
 // Buffer: Sound data ready to play
 // Listener: Position of the player
 // Source: Position of an invisible object that plays a buffer
@@ -23,98 +18,196 @@ namespace breathe
     typedef char sample_t;
 
     // Forward declaration
+    class cManager;
+
+    class cListener;
     class cSource;
     class cBuffer;
     typedef cSmartPtr<cSource> cSourceRef;
     typedef cSmartPtr<cBuffer> cBufferRef;
 
-    bool Init();
+    enum class DRIVER {
+#ifdef BUILD_AUDIO_OPENAL
+      DRIVER_OPENAL,
+#endif
+#ifdef BUILD_AUDIO_SDLMIXER
+      DRIVER_SDLMIXER,
+#endif
+
+#ifdef BUILD_AUDIO_OPENAL
+      DRIVER_DEFAULT = DRIVER_OPENAL
+#else
+      DRIVER_DEFAULT = DRIVER_SDLMIXER
+#endif
+    };
+
+    bool Init(DRIVER driver);
     void Destroy();
 
-    void ReportError();
+    cManager* GetManager();
 
-    void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
+    class cManager
+    {
+    public:
+      virtual ~cManager() {}
 
-    void Add(cSourceRef pSource);
-    void Remove(cSourceRef pSource);
+      bool Init() { return _Init(); }
+      void Destroy() { return _Destroy(); }
 
-    cBufferRef CreateBuffer(const string_t& sFilename);
-    void DestroyBuffer(cBufferRef pBuffer);
+      cBufferRef CreateBuffer(const string_t& sFilename) { return _CreateBuffer(sFilename); }
+      void DestroyBuffer(cBufferRef pBuffer) { _DestroyBuffer(pBuffer); }
 
-    cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer);
-    cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer);
-    void DestroySource(cSourceRef pSource);
+      cSourceRef CreateSourceAttachedToObject(cBufferRef pBuffer) { return _CreateSourceAttachedToObject(pBuffer); }
+      cSourceRef CreateSourceAttachedToScreen(cBufferRef pBuffer) { return _CreateSourceAttachedToScreen(pBuffer); }
+      void DestroySource(cSourceRef pSource) { _DestroySource(pSource); }
 
-    void StartAll();
-    void StopAll();
+      void AddSource(cSourceRef pSource) { _AddSource(pSource); }
+      void RemoveSource(cSourceRef pSource) { _RemoveSource(pSource); }
+
+      void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename) { _CreateSoundAttachedToScreenPlayAndForget(sFilename); }
+
+      void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
+
+      void StartAll() { _StartAll(); }
+      void StopAll() { _StopAll(); }
+
+    protected:
+      std::list<cSourceRef> sources;
+
+      std::map<string_t, audio::cBufferRef> mAudioBuffer;
+      typedef std::map<string_t, audio::cBufferRef> ::iterator buffer_iterator;
+
+      std::list<audio::cSourceRef> lAudioSource;
+      typedef std::list<audio::cSourceRef>::iterator source_iterator;
+
+    private:
+      virtual bool _Init() = 0;
+      virtual void _Destroy() = 0;
+
+      virtual cBufferRef _CreateBuffer(const string_t& sFilename) = 0;
+      virtual void _DestroyBuffer(cBufferRef pBuffer) = 0;
+
+      virtual cSourceRef _CreateSourceAttachedToObject(cBufferRef pBuffer) = 0;
+      virtual cSourceRef _CreateSourceAttachedToScreen(cBufferRef pBuffer) = 0;
+      virtual void _DestroySource(cSourceRef pSource) = 0;
+
+      virtual void _AddSource(cSourceRef pSource) {}
+      virtual void _RemoveSource(cSourceRef pSource) {}
+
+      virtual void _CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename) {}
+
+      virtual void _Update(sampletime_t currentTime, const cListener& listener) = 0;
+
+      virtual void _StartAll() {}
+      virtual void _StopAll() {}
+    };
 
 
-    void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename);
+
+    class cListener
+    {
+    public:
+      cListener(const math::cVec3& position, const math::cVec3& target, const math::cVec3& up);
+
+      const math::cVec3& GetPosition() const { return position; }
+      const math::cVec3& GetTarget() const { return target; }
+      const math::cVec3& GetUp() const { return up; }
+
+    private:
+      math::cVec3 position;
+      math::cVec3 target; // TODO: Rename this one
+      math::cVec3 up;
+    };
+
 
     // Buffer to hold the audio data
     class cBuffer
     {
     public:
-      explicit cBuffer(const string_t& sFilename);
-      ~cBuffer();
+      cBuffer() {}
+      virtual ~cBuffer() {}
 
-      bool IsValid() const { return uiBuffer != 0; }
-
-      unsigned int uiBuffer;
+      bool IsValid() const { return _IsValid(); }
 
     private:
-      cBuffer();
       NO_COPY(cBuffer);
 
-      void Create(const string_t& sFilename);
-
-      string_t sFilename;
+      virtual bool _IsValid() const = 0;
     };
 
     // The sound object (Has a pointer to a buffer that it uses)
     class cSource
     {
     public:
-      explicit cSource(cBufferRef pBuffer);
-      cSource(cBufferRef pBuffer, float fVolume);
-      ~cSource();
+      cSource() {}
+      virtual ~cSource() {}
 
-      void Update();
+      bool IsLooping() const { return _IsLooping(); }
+      bool IsValid() const { return _IsValid(); }
+      bool IsPlaying() const { return _IsPlaying(); }
 
-      void Play();
-      void Stop();
+      bool IsAttachedToScreen() const { return bIsAttachedToScreen; }
+      void SetIsAttachedToScreen() { _SetIsAttachedToScreen(); }
 
-      void Remove();
+      const math::cVec3& GetPosition() const { ASSERT(!IsAttachedToScreen()); return position; }
+      float_t GetDistanceToListenerMeters() const { ASSERT(!IsAttachedToScreen()); return fDistanceToListenerMeters; }
 
-      bool IsLooping() const { return bLooping; }
-      bool IsValid() const;
-      bool IsPlaying() const;
+      void SetPosition(const spitfire::math::cVec3& position) { _SetPosition(position); }
 
-      void SetIsAttachedToScreen();
+      void SetVolume(float fVolume) { _SetVolume(fVolume); }
+      void SetPitch(float fPitch) { _SetPitch(fPitch); }
+      void SetLooping() { _SetLooping(); }
+      void SetNonLooping() { _SetNonLooping(); }
 
-      void SetPosition(const spitfire::math::cVec3& position);
+      void Update(sampletime_t currentTime, const cListener& listener);
 
-      void SetVolume(float fVolume);
-      void SetPitch(float fPitch);
-      void SetLooping();
-      void SetNonLooping();
+      void Play() { _Play(); }
+      void Stop() { _Stop(); }
 
-      unsigned int GetSource() const { return uiSource; }
+      void Remove() { _Remove(); }
+
+
+      static bool DistanceFromListenerCompare(const cSourceRef lhs, const cSourceRef rhs);
+
+
+    protected:
+      bool bIsAttachedToScreen;
+
+      math::cVec3 position;
+
+      float_t fDistanceToListenerMeters;
 
     private:
-      cSource();
       NO_COPY(cSource);
 
-      bool bLooping;
-      unsigned int uiSource;
-      float volume;
-      float pitch;
+      virtual bool _IsLooping() const = 0;
+      virtual bool _IsValid() const = 0;
+      virtual bool _IsPlaying() const = 0;
 
-      cBufferRef pBuffer;
+      virtual void _SetIsAttachedToScreen() = 0;
 
-      void Create(cBufferRef pBuffer);
+      virtual void _SetPosition(const spitfire::math::cVec3& position) = 0;
+
+      virtual void _SetVolume(float fVolume) = 0;
+      virtual void _SetPitch(float fPitch) = 0;
+      virtual void _SetLooping() = 0;
+      virtual void _SetNonLooping() = 0;
+
+      virtual void _Update(sampletime_t currentTime, const cListener& listener) = 0;
+
+      virtual void _Play() = 0;
+      virtual void _Stop() = 0;
+
+      virtual void _Remove() = 0;
     };
 
+
+
+
+
+
+
+/*
 
     class cSourceStream
     {
@@ -125,7 +218,7 @@ namespace breathe
     private:
       virtual void _Update(sampletime_t currentTime) = 0;
 
-      cSource source;
+      cSourceRef source;
     };
 
     class cSourceLoopedEffect : public cSourceStream
@@ -174,8 +267,8 @@ namespace breathe
       cSourceMix();
       NO_COPY(cSourceMix);
 
-      cSource source0;
-      cSource source1;
+      cSourceRef source0;
+      cSourceRef source1;
     };
 
     //  Another possible class is
@@ -186,7 +279,7 @@ namespace breathe
     //
     //  private:
     //    std::list<cSourceRef> lSource;
-    //  };
+    //  };*/
   }
 }
 

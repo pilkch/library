@@ -16,7 +16,7 @@ const size_t BUFFER_NUMBER = 4;
 
 namespace breathe
 {
-  namespace audio
+  namespace openal
   {
     class cOggStream
     {

@@ -15,9 +15,15 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
+// Other libraries
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alut.h>
+
 #include <ogg/ogg.h>
 
-#include <breathe/breathe.h>
+// Spitfire
+#include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
@@ -30,14 +36,18 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/geometry.h>
 
+// Breathe
+#include <breathe/breathe.h>
+
 #include <breathe/util/base.h>
 
 #include <breathe/audio/audio.h>
+#include <breathe/audio/audio_openal.h>
 #include <breathe/audio/ogg.h>
 
 namespace breathe
 {
-  namespace audio
+  namespace openal
   {
     cOggStream::cOggStream() :
       source(0),
