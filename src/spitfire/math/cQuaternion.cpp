@@ -29,6 +29,7 @@ namespace spitfire
     void cQuaternion::Normalise()
     {
       const float magnitude = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
+
       x *= magnitude;
       y *= magnitude;
       z *= magnitude;
@@ -42,16 +43,6 @@ namespace spitfire
       y = -y;
       z = -z;
       //w = w; // Note: w does not change
-    }
-
-    cQuaternion cQuaternion::Inverse() const
-    {
-      return cQuaternion(-x, -y, -z, w);
-    }
-
-    cQuaternion cQuaternion::Conjugate() const
-    {
-      return cQuaternion(-x, -y, -z, w);
     }
 
     // Set a quaternion from angles of rotation about x, y, z
@@ -275,6 +266,21 @@ namespace spitfire
         (atan2(2.0f * (x*y + z*w),(sqx - sqy - sqz + sqw)) * c180_DIV_PI)
       );
     }
+
+    cVec3 cQuaternion::GetRotatedVector(const cVec3& value) const
+    {
+      cQuaternion qtemp;
+
+      qtemp.x = value.x;
+      qtemp.y = value.y;
+      qtemp.z = value.z;
+      qtemp.w = 0;
+
+      const cQuaternion qout = (*this) * qtemp * GetConjugate();
+
+      return cVec3(qout.x, qout.y, qout.z);
+    }
+
 
     cMat4 cQuaternion::GetMatrix() const
     {

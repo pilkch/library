@@ -125,8 +125,9 @@ namespace breathe
       const cListener listener(listenerPosition, listenerTarget, listenerUp);
 
 
-      std::list<cSourceRef>::iterator iter = sources.begin();
-      const std::list<cSourceRef>::iterator iterEnd = sources.end();
+      std::list<cSourceRef>::iterator iter = lAudioSource.begin();
+      const std::list<cSourceRef>::iterator iterEnd = lAudioSource.end();
+      std::cout<<"uSources="<<lAudioSource.size()<<std::endl;
       while (iter != iterEnd) {
         (*iter)->Update(currentTime, listener);
 
@@ -135,7 +136,7 @@ namespace breathe
 
 
       // Sort in order of distance from the listener
-      sources.sort(cSource::DistanceFromListenerCompare);
+      lAudioSource.sort(cSource::DistanceFromListenerCompare);
 
 
       _Update(currentTime, listener);
@@ -165,7 +166,7 @@ namespace breathe
 
     void cSource::Update(sampletime_t currentTime, const cListener& listener)
     {
-      fDistanceToListenerMeters = (listener.GetPosition() - position).GetLength();
+      fDistanceFromListenerMeters = (listener.GetPosition() - position).GetLength();
 
       _Update(currentTime, listener);
     }

@@ -145,9 +145,9 @@ namespace spitfire
     }
 #endif
 
-    // This is where we don't want to destroy the creation time etc. of the destination file,
-    // also if the destination file is a link to another file it won't destroy the link,
-    // it will actually write to the linked to file
+    // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
+    // file is a link to another file it won't destroy the link, it will actually write to the linked to file.
+    // NOTE: This is very very slow, only reading one character at a time, this could take minutes even on a few GB file?
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo)
     {
       std::ifstream i(spitfire::string::ToUTF8(sFrom).c_str());

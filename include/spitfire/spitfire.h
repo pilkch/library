@@ -47,7 +47,10 @@
   (defined(__APPLE__) && defined(__MACH__)) || \
   defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
   defined(__sparc__)
-#error "Spitfire does not support big endian systems, get a real computer (little endian x86)"
+#warning "Building big endian, this will probably be broken in many, many places"
+#define BUILD_ENDIAN_BIG
+#else
+#define BUILD_ENDIAN_LITTLE
 #endif
 
 // Operating System

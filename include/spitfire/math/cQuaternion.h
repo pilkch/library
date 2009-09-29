@@ -66,8 +66,10 @@ namespace spitfire
 
       cMat4 GetMatrix() const;
 
-      cQuaternion Inverse() const;
-      cQuaternion Conjugate() const;
+      cVec3 GetRotatedVector(const cVec3& value) const;
+
+      cQuaternion GetInverse() const;
+      cQuaternion GetConjugate() const;
 
       // Set spherical linear interpolated quaternion between q1 and q2, with respect to t
       // If the second is backwards, that is ok
@@ -103,14 +105,19 @@ namespace spitfire
 
       cQuaternion& operator=(const cQuaternion& rhs);
 
-      cQuaternion operator+(const cQuaternion& rhs) const;
-      cQuaternion operator-(const cQuaternion& rhs) const;
+      cQuaternion operator-() const;
+
       cQuaternion operator*(const cQuaternion& rhs) const;
 
-      // TODO: Why don't these work?
+      void operator*=(const cQuaternion& rhs) { (*this) = (*this) * rhs; }
+
+      // Commented out as these are not intuitive
+      //cQuaternion operator+(const cQuaternion& rhs) const;
+      //cQuaternion operator-(const cQuaternion& rhs) const;
       //void operator+=(const cQuaternion& rhs) { (*this) = (*this) + rhs; }
       //void operator-=(const cQuaternion& rhs) { (*this) = (*this) - rhs; }
-      void operator*=(const cQuaternion& rhs) { (*this) = (*this) * rhs; }
+
+
 
       // TODO: Remove these
       void SlerpForMD3(const cQuaternion& q1, const cQuaternion& q2, float t);
@@ -136,15 +143,32 @@ namespace spitfire
       return *this;
     }
 
-    inline cQuaternion cQuaternion::operator+(const cQuaternion& rhs) const
+    // These are all the same thing
+    inline cQuaternion cQuaternion::GetInverse() const
     {
-      return cQuaternion(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+      return cQuaternion(-x, -y, -z, w);
     }
 
-    inline cQuaternion cQuaternion::operator-(const cQuaternion& rhs) const
+    inline cQuaternion cQuaternion::GetConjugate() const
     {
-      return cQuaternion(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+      return cQuaternion(-x, -y, -z, w);
     }
+
+    inline cQuaternion cQuaternion::operator-() const
+    {
+      return cQuaternion(-x, -y, -z, w);
+    }
+
+    // Commented out as these are not intuitive
+    //inline cQuaternion cQuaternion::operator+(const cQuaternion& rhs) const
+    //{
+    //  return cQuaternion(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+    //}
+
+    //inline cQuaternion cQuaternion::operator-(const cQuaternion& rhs) const
+    //{
+    //  return cQuaternion(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+    //}
 
     inline cQuaternion cQuaternion::operator*(const cQuaternion& rhs) const
     {

@@ -72,8 +72,6 @@ namespace breathe
       void StopAll() { _StopAll(); }
 
     protected:
-      std::list<cSourceRef> sources;
-
       std::map<string_t, audio::cBufferRef> mAudioBuffer;
       typedef std::map<string_t, audio::cBufferRef> ::iterator buffer_iterator;
 
@@ -150,7 +148,7 @@ namespace breathe
       void SetIsAttachedToScreen() { _SetIsAttachedToScreen(); }
 
       const math::cVec3& GetPosition() const { ASSERT(!IsAttachedToScreen()); return position; }
-      float_t GetDistanceToListenerMeters() const { ASSERT(!IsAttachedToScreen()); return fDistanceToListenerMeters; }
+      float_t GetDistanceToListenerMeters() const { ASSERT(!IsAttachedToScreen()); return fDistanceFromListenerMeters; }
 
       void SetPosition(const spitfire::math::cVec3& position) { _SetPosition(position); }
 
@@ -175,7 +173,7 @@ namespace breathe
 
       math::cVec3 position;
 
-      float_t fDistanceToListenerMeters;
+      float_t fDistanceFromListenerMeters;
 
     private:
       NO_COPY(cSource);
