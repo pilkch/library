@@ -244,18 +244,17 @@ namespace spitfire
 
     cVec3 cQuaternion::GetAxis() const
     {
-      const double angle = GetAngle();
-      const float scale = 1.0f / (sin((float)angle * 0.5f));
+      const float angle = GetAngle();
+      ASSERT(angle != 0.0f);
+      const float scale = 1.0f / sin(angle * 0.5f);
 
-      cVec3 result(scale * x, scale * y, scale * z);
-
-      return result;
+      return cVec3(scale * x, scale * y, scale * z);
     }
 
 
     cVec3 cQuaternion::GetEuler() const
     {
-      const float sqw = w * w;
+      /*const float sqw = w * w;
       const float sqx = x * x;
       const float sqy = y * y;
       const float sqz = z * z;
@@ -264,7 +263,35 @@ namespace spitfire
         (atan2(2.0f * (y*z + x*w) , (-sqx - sqy + sqz + sqw)) * c180_DIV_PI),
         (asin(-2.0f * (x*z - y*w)) * c180_DIV_PI),
         (atan2(2.0f * (x*y + z*w),(sqx - sqy - sqz + sqw)) * c180_DIV_PI)
-      );
+      );*/
+
+      const float sqw = w * w;
+      const float sqx = x * x;
+      const float sqy = y * y;
+      const float sqz = z * z;
+      const float unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+      const float test = (x * y) + (z * w);
+
+      float heading = 0.0f;
+      float attitude = 0.0f;
+      float bank = 0.0f;
+
+      if (test > 0.499f * unit) { // singularity at north pole
+        heading = 2.0f * atan2(x, w);
+        attitude = math::cPI / 2.0f;
+        bank = 0.0f;
+      } else if (test < -0.499f * unit) { // singularity at south pole
+        heading = -2.0f * atan2(x, w);
+        attitude = -math::cPI / 2.0f;
+        bank = 0.0f;
+      } else {
+        ASSERT(unit != 0.0f);
+        heading = atan2(2.0f * y * w - 2.0f * x * z, sqx - sqy - sqz + sqw);
+        attitude = asin(2.0f * test / unit);
+        bank = atan2(2.0f * x * w - 2.0f * y * z, -sqx + sqy - sqz + sqw);
+      }
+
+      return cVec3(bank, heading, attitude);
     }
 
     cVec3 cQuaternion::GetRotatedVector(const cVec3& value) const

@@ -368,7 +368,7 @@ namespace breathe
 
 
       // This checks to see if surfaces can be stored in memory
-      if (videoInfo->hw_available ) {
+      if (videoInfo->hw_available) {
         uiFlags |= SDL_HWSURFACE;
         uiFlags &= ~SDL_SWSURFACE;
       } else {
@@ -485,10 +485,10 @@ namespace breathe
       t << "Screen BPP: ";
       t << (unsigned int)(pSurface->format->BitsPerPixel);
       LOG.Success("Render", t.str());
-      LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString( GL_VENDOR )));
-      LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString( GL_RENDERER )));
-      LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString( GL_VERSION )));
-      LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString( GL_EXTENSIONS )));
+      LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString(GL_VENDOR)));
+      LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString(GL_RENDERER)));
+      LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString(GL_VERSION)));
+      LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString(GL_EXTENSIONS)));
 
       GLint iValue = 0;
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
@@ -503,21 +503,13 @@ namespace breathe
       } else LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
 
       {
-        CONSOLE<<"WIDESCREEN"<<std::endl;
-        SETTINGS::resolution::iterator iter;
-        iter.GetWidescreenResolutions();
-        while(iter)
-        {
-          CONSOLE<<iter.GetWidth()<<"x"<<iter.GetHeight()<<std::endl;
-          iter++;
-        };
+        CONSOLE<<"Resolutions"<<std::endl;
+        std::vector<resolution> resolutions = GetAvailableScreenResolutions();
 
-        CONSOLE<<"STANDARD"<<std::endl;
-        iter.GetStandardResolutions();
-        while(iter)
-        {
-          CONSOLE<<iter.GetWidth()<<"x"<<iter.GetHeight()<<std::endl;
-          iter++;
+        const size_t n = resolutions.size();
+        for (size_t i = 0; i < n; i++) {
+          const resolution& r = resolutions[i];
+          std::cout<<r.GetWidth()<<"x"<<r.GetHeight()<<"x"<<r.GetColourDepth()<<" "<<(r.IsWideScreen() ? "widescreen" : "standard")<<std::endl;
         };
       }
 
@@ -562,22 +554,25 @@ namespace breathe
       if (FindExtension(TEXT("GL_EXT_framebuffer_object"))) {
         LOG.Success("Render", "Found GL_EXT_framebuffer_object");
         bIsRenderingToFrameBufferObjectSupported = true;
-      }
-      else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
+      } else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
 
 
 
-      glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a); // Clear the background to our requested colour
-      glClearDepth(1.0);                  // Enables Clearing Of The Depth Buffer
-      glEnable(GL_DEPTH_TEST);              // Enable Depth Testing
+      // Clear the background to our requested colour
+      glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
+
+     // Enable clearing Of The depth buffer
+      glClearDepth(1.0);
+
+      glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LEQUAL);
 
-      glCullFace( GL_BACK );
-      glFrontFace( GL_CCW );
-      glEnable( GL_CULL_FACE );
+      glCullFace(GL_BACK);
+      glFrontFace(GL_CCW);
+      glEnable(GL_CULL_FACE);
 
-      glEnable( GL_TEXTURE_2D );
-      glShadeModel( GL_SMOOTH );
+      glEnable(GL_TEXTURE_2D);
+      glShadeModel(GL_SMOOTH);
       glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
       glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
@@ -877,6 +872,117 @@ namespace breathe
       SDL_FreeSurface(pTempSurface);
     }
 
+
+    void cRender::BeginScreenSpaceRendering()
+    {
+      glDisable(GL_LIGHTING);
+
+      ClearMaterial();
+
+
+      glFrontFace(GL_CW);
+
+      // Our screen coordinates look like this
+      // 0.0f, 0.0f            1.0f, 0.0f
+      //
+      //
+      // 0.0f, 1.0f            1.0f, 1.0f
+
+      // Setup projection matrix
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+          glLoadIdentity();
+    }
+
+    void cRender::EndScreenSpaceRendering()
+    {
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+
+      glMatrixMode(GL_PROJECTION);  // Select Projection
+      glPopMatrix();                  // Pop The Matrix
+
+      // TODO: Can we remove glCullFace and glEnable here?
+      glCullFace(GL_BACK);
+      glFrontFace(GL_CCW);
+      glEnable(GL_CULL_FACE);
+
+      glEnable(GL_LIGHTING);
+    }
+
+    void cRender::BeginScreenSpaceGuiRendering()
+    {
+      glFrontFace(GL_CW);
+
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+
+        // Setup modelview matrix
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+          // TODO: Uncomment this for console what is going on? ???????????????
+          //glLoadIdentity();
+    }
+
+    void cRender::EndScreenSpaceGuiRendering()
+    {
+          glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
+
+      glFrontFace(GL_CCW);
+    }
+
+    // In this mode y is 1..0
+    void cRender::BeginScreenSpaceWorldRendering(float fScale)
+    {
+      glFrontFace(GL_CCW);
+
+      glMatrixMode(GL_PROJECTION); // Start modifying the projection matrix.
+      glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0.0f, fScale, fScale, 0.0f, -1.0f, 1.0f);
+
+        // Setup modelview matrix
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+    }
+
+    void cRender::EndScreenSpaceWorldRendering()
+    {
+          glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
+
+      glFrontFace(GL_CW);
+    }
+
+    void cRender::PushScreenSpacePosition(float x, float y)
+    {
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+        //glLoadIdentity();
+        glTranslatef(x, -y, 0.0f);
+    }
+
+    void cRender::PopScreenSpacePosition()
+    {
+      glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
+    }
+
+
+    // *** Screen space rendering
+
     // Our screen coordinates look like this
     // 0.0f, 0.0f            1.0f, 0.0f
     //
@@ -1004,113 +1110,26 @@ namespace breathe
       glPopMatrix();
     }
 
-    void cRender::BeginScreenSpaceRendering()
+    void cRender::RenderScreenSpaceLines(const std::vector<math::cVec2>& points)
     {
-      glDisable(GL_LIGHTING);
-
-      ClearMaterial();
-
-
-      glFrontFace(GL_CW);
-
-      // Our screen coordinates look like this
-      // 0.0f, 0.0f            1.0f, 0.0f
-      //
-      //
-      // 0.0f, 1.0f            1.0f, 1.0f
-
-      // Setup projection matrix
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-          glLoadIdentity();
+      glBegin(GL_LINE_STRIP);
+        const size_t n = points.size();
+        ASSERT(n != 0);
+        for (size_t i = 0; i < n; i++) glVertex2f(points[i].x, points[i].y);
+      glEnd();
     }
 
-    void cRender::EndScreenSpaceRendering()
+
+    // *** World space rendering
+
+    void cRender::RenderLines(const std::vector<math::cVec3>& points)
     {
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-
-      glMatrixMode(GL_PROJECTION);  // Select Projection
-      glPopMatrix();                  // Pop The Matrix
-
-      // TODO: Can we remove glCullFace and glEnable here?
-      glCullFace(GL_BACK);
-      glFrontFace(GL_CCW);
-      glEnable(GL_CULL_FACE);
-
-      glEnable(GL_LIGHTING);
+      glBegin(GL_LINES);
+        const size_t n = points.size();
+        ASSERT(n != 0);
+        for (size_t i = 0; i < n; i++) glVertex3f(points[i].x, points[i].y, points[i].z);
+      glEnd();
     }
-
-    void cRender::BeginScreenSpaceGuiRendering()
-    {
-      glFrontFace(GL_CW);
-
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
-
-        // Setup modelview matrix
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-          // TODO: Uncomment this for console what is going on? ???????????????
-          //glLoadIdentity();
-    }
-
-    void cRender::EndScreenSpaceGuiRendering()
-    {
-          glMatrixMode( GL_MODELVIEW );
-        glPopMatrix();
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-
-      glFrontFace(GL_CCW);
-    }
-
-    // In this mode y is 1..0
-    void cRender::BeginScreenSpaceWorldRendering(float fScale)
-    {
-      glFrontFace(GL_CCW);
-
-      glMatrixMode(GL_PROJECTION); // Start modifying the projection matrix.
-      glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0f, fScale, fScale, 0.0f, -1.0f, 1.0f);
-
-        // Setup modelview matrix
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-    }
-
-    void cRender::EndScreenSpaceWorldRendering()
-    {
-          glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-
-      glFrontFace(GL_CW);
-    }
-
-    void cRender::PushScreenSpacePosition(float x, float y)
-    {
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-        //glLoadIdentity();
-        glTranslatef(x, -y, 0.0f);
-    }
-
-    void cRender::PopScreenSpacePosition()
-    {
-      glMatrixMode(GL_MODELVIEW);
-      glPopMatrix();
-    }
-
 
     void cRender::RenderMesh(model::cMeshRef pMesh)
     {
@@ -1824,7 +1843,7 @@ namespace breathe
           glBlendFunc(GL_ONE, GL_ZERO);
           glDisable(GL_BLEND);
         }
-        else if (  TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
+        else if (TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
         {
           // Reset the texture matrix
           glMatrixMode(GL_TEXTURE);
@@ -2401,55 +2420,99 @@ namespace breathe
       }
     }
 
-    namespace SETTINGS
+
+
+
+
+    resolution::resolution() :
+      width(640),
+      height(480),
+      colourDepth(32)
     {
-      bool ResolutionCompare(const resolution& lhs, const resolution& rhs)
-      {
-        return (lhs.GetHeight() > rhs.GetHeight() && lhs.GetWidth() > rhs.GetWidth());
-      }
-
-      resolution::iterator::iterator()
-      {
-        iter = resolutions.end();
-      }
-
-
-      const float fWideScreenRatio = 1.33333333333333333333333f;
-
-      void resolution::iterator::GetResolutions(bool onlyWidescreen)
-      {
-        resolutions.clear();
-        iter = resolutions.end();
-
-        SDL_Rect** modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-        if (modes == (SDL_Rect**)0 || modes == (SDL_Rect**)-1)
-        {
-          CONSOLE<<"No modes available"<<std::endl;
-          resolutions.push_back(resolution(640, 480));
-        }
-        else if (onlyWidescreen)
-        {
-          for (int i=0;modes[i];++i)
-          {
-            float ratio = static_cast<float>(modes[i]->w)/static_cast<float>(modes[i]->h);
-            if (ratio > fWideScreenRatio)
-              resolutions.push_back(resolution(modes[i]->w, modes[i]->h));
-          }
-        }
-        else
-        {
-          for (int i=0;modes[i];++i)
-          {
-            float ratio = static_cast<float>(modes[i]->w)/static_cast<float>(modes[i]->h);
-            if (ratio < fWideScreenRatio + math::cEPSILON)
-              resolutions.push_back(resolution(modes[i]->w, modes[i]->h));
-          }
-        }
-
-        std::sort(resolutions.begin(), resolutions.end(), ResolutionCompare);
-        iter = resolutions.begin();
-      }
     }
+
+    void resolution::SetResolution(size_t _width, size_t _height, size_t _colourDepth)
+    {
+      width = _width;
+      height = _height;
+      colourDepth = _colourDepth;
+    }
+
+    bool resolution::IsWideScreen() const
+    {
+      const float fWideScreenRatio = 16.0f / 9.0f;
+
+      const float fRatio = (float(width) / float(height));
+
+      return (fRatio >= fWideScreenRatio);
+    }
+
+    bool resolution::ResolutionCompare(const resolution& lhs, const resolution& rhs)
+    {
+      if (lhs.IsWideScreen() > rhs.IsWideScreen()) return true;
+      if (lhs.GetColourDepth() > rhs.GetColourDepth()) return true;
+
+      if (lhs.GetWidth() > rhs.GetWidth()) return true;
+
+      return (lhs.GetHeight() > rhs.GetHeight());
+    }
+
+
+
+    resolution cRender::GetCurrentScreenResolution() const
+    {
+      const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
+      ASSERT(pVideoInfo != nullptr);
+      ASSERT(pVideoInfo->vfmt != nullptr);
+      const int iCurrentWidth = pVideoInfo->current_w;
+      const int iCurrentHeight = pVideoInfo->current_h;
+      const int iCurrentColourDepthInBits = pVideoInfo->vfmt->BitsPerPixel;
+
+      resolution r;
+
+      ASSERT(iCurrentWidth >= 0);
+      ASSERT(iCurrentHeight >= 0);
+      ASSERT(iCurrentColourDepthInBits >= 0);
+      r.SetResolution(size_t(iCurrentWidth), size_t(iCurrentHeight), size_t(iCurrentColourDepthInBits));
+
+      return r;
+    }
+
+    std::vector<resolution> cRender::GetAvailableScreenResolutions() const
+    {
+      std::vector<resolution> resolutions;
+
+      const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
+      ASSERT(pVideoInfo != nullptr);
+      ASSERT(pVideoInfo->vfmt != nullptr);
+      const int iCurrentWidth = pVideoInfo->current_w;
+      const int iCurrentHeight = pVideoInfo->current_h;
+      const int iCurrentColourDepthInBits = pVideoInfo->vfmt->BitsPerPixel;
+
+      ASSERT(iCurrentWidth >= 0);
+      ASSERT(iCurrentHeight >= 0);
+      ASSERT(iCurrentColourDepthInBits >= 0);
+
+      SDL_Rect** modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+      if (modes == (SDL_Rect**)0 || modes == (SDL_Rect**)-1) {
+        CONSOLE<<"No modes available"<<std::endl;
+        resolution r;
+        r.SetResolution(size_t(iCurrentWidth), size_t(iCurrentHeight), size_t(iCurrentColourDepthInBits));
+        resolutions.push_back(r);
+      } else {
+        for (size_t i = 0; modes[i] != nullptr; i++) {
+          resolution r;
+          r.SetResolution(size_t(modes[i]->w), size_t(modes[i]->h), size_t(iCurrentColourDepthInBits));
+          resolutions.push_back(r);
+        }
+      }
+
+      std::sort(resolutions.begin(), resolutions.end(), resolution::ResolutionCompare);
+
+      return resolutions;
+    }
+
+
 
 
     ApplyTexture::ApplyTexture(cTextureRef pCurrent)

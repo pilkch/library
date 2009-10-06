@@ -32,6 +32,11 @@ namespace spitfire
 
       cRay3 CreatePickingRay() const;
 
+      void SetLookAtPoint(const math::cVec3& lookAtPoint) { targetIdeal = lookAtPoint; }
+      void SetEyePosition(const math::cVec3& eyePosition) { eyeIdeal = eyePosition; }
+      void SetEyeUp(const math::cVec3& eyeUp) { upIdeal = eyeUp; }
+      void SetEyeRight(const math::cVec3& eyeRight) { rightIdeal = eyeRight; }
+
       float fov;
 
       cVec3 target;

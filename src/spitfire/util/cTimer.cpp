@@ -11,25 +11,79 @@ namespace spitfire
 {
   namespace util
   {
-    void cTimer::Init(unsigned int uiHz)
+    const float fOneOverOneThousand = 1.0f / 1000.0f;
+
+    cTimer::cTimer() :
+      iCount(0),
+      lastTime(0),
+      beginTime(0),
+      endTime(0),
+
+      bIsLockedFPS(true),
+      fFPS(0.0f),
+      fMPF(0.0f),
+      fUpdateInterval(0.0f),
+      fUpdateIntervalDivFPS(0.0f)
     {
-      iCount=0;
-
-      fFPS = (float)uiHz;
-      fUpdateInterval = 2000.0f;
-      fUpdateIntervalDivFPS = 2000.0f/uiHz;
-
-      lastTime = GetTime();
     }
 
-    void cTimer::Update(sampletime_t currentTime)
+    void cTimer::InitWithLockedFPS(unsigned int uiHz)
     {
+      iCount = 0;
+
+      fFPS = float_t(uiHz);
+      fMPF = 1000.0f / fFPS;
+      fUpdateInterval = 100.0f;
+      fUpdateIntervalDivFPS = fUpdateInterval / 1000.0f;
+
+      lastTime = GetTime();
+      beginTime = lastTime;
+      endTime = lastTime;
+    }
+
+    void cTimer::InitWithUnspecifiedFPS()
+    {
+      iCount = 0;
+
+      bIsLockedFPS = false;
+      fFPS = 0.0f;
+      fMPF = 0.0f;
+      fUpdateInterval = 0.0f;
+      fUpdateIntervalDivFPS = 0.0f;
+
+      lastTime = GetTime();
+      beginTime = lastTime;
+      endTime = lastTime;
+    }
+
+
+    void cTimer::Begin(sampletime_t currentTime)
+    {
+      beginTime = currentTime;
+    }
+
+    void cTimer::End(sampletime_t currentTime)
+    {
+      endTime = currentTime;
+
+
       iCount++;
-      if ((currentTime - lastTime) > fUpdateInterval)
-      {
-        fFPS = (iCount * ((currentTime - lastTime) / 1000.0f));
+      fTimeMS += float(endTime - beginTime);
+
+      if (bIsLockedFPS) {
+        // Update only every interval
+        if ((currentTime - lastTime) > fUpdateInterval) {
+          fFPS = (iCount * ((currentTime - lastTime) * fUpdateIntervalDivFPS));
+          fMPF = endTime - beginTime;
+          lastTime = currentTime;
+          iCount = 0;
+        }
+      } else {
+        // Update every single call
+        fFPS = 1000.0f / (currentTime - lastTime);
+        fMPF = endTime - beginTime;
         lastTime = currentTime;
-        iCount=0;
+        iCount = 0;
       }
     }
   }

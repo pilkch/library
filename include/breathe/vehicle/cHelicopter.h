@@ -71,7 +71,7 @@ namespace breathe
     class cVehicleHelicopter : public cVehicleBase
     {
     public:
-      cVehicleHelicopter(cGameObject& object);
+      explicit cVehicleHelicopter(cGameObject& object);
 
     private:
       virtual void _Update(sampletime_t currentTime);

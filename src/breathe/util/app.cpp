@@ -930,6 +930,52 @@ namespace breathe
 
 
     scenegraph.Create();
+    scenegraph2D.Create();
+
+#ifdef BUILD_DEBUG
+    {
+      // Add the frames per second graph to the scenegraph
+      scenegraph2d::cSceneNodeRef pRoot = scenegraph2D.GetRoot();
+      scenegraph2d::cGroupNode* pRootAsGroupNode = static_cast<scenegraph2d::cGroupNode*>(pRoot.get());
+
+      const size_t nPoints = 100;
+      const float_t fRangeMax = 30.0f;
+
+      {
+        pFPSRenderGraph.reset(new scenegraph2d::cGraphNode(nPoints));
+
+        pFPSRenderGraph->SetRangeMax(fRangeMax);
+
+        scenegraph2d::cStateSet& stateset = pFPSRenderGraph->GetStateSet();
+        stateset.SetColour(math::cColour(1.0f, 0.0f, 0.0f));
+
+        pRootAsGroupNode->AttachChild(pFPSRenderGraph);
+      }
+
+      {
+        pFPSUpdateGraph.reset(new scenegraph2d::cGraphNode(nPoints));
+
+        pFPSUpdateGraph->SetRangeMax(fRangeMax);
+
+        scenegraph2d::cStateSet& stateset = pFPSUpdateGraph->GetStateSet();
+        stateset.SetColour(math::cColour(0.0f, 1.0f, 0.0f));
+
+        pRootAsGroupNode->AttachChild(pFPSUpdateGraph);
+      }
+
+      {
+        pFPSPhysicsGraph.reset(new scenegraph2d::cGraphNode(nPoints));
+
+        pFPSPhysicsGraph->SetRangeMax(fRangeMax);
+
+        scenegraph2d::cStateSet& stateset = pFPSPhysicsGraph->GetStateSet();
+        stateset.SetColour(math::cColour(0.0f, 0.0f, 1.0f));
+
+        pRootAsGroupNode->AttachChild(pFPSPhysicsGraph);
+      }
+    }
+#endif
+
 
     // This should be the first state added and it should not be added by the derived class, it should only be added here
     if (!states.empty()) LOG.Error("cApplication::InitApp", "No states should have be pushed yet");
@@ -1055,17 +1101,23 @@ namespace breathe
     // Update our current state
     GetCurrentState().Update(currentTime);
 
+#ifdef BUILD_DEBUG
+    pFPSRenderGraph->AddPoint(tRender.GetMPF());
+    pFPSUpdateGraph->AddPoint(tUpdate.GetMPF());
+    pFPSPhysicsGraph->AddPoint(tPhysics.GetMPF());
+#endif
+
     // NOTE: The current state needs to have set this camera correctly by now
     pRender->SetFrustum(camera.CreateFrustumFromCamera());
 
     // Now update our other sub systems
-     breathe::audio::GetManager()->Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
+    breathe::audio::GetManager()->Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
 
     scenegraph.Update(currentTime);
-    scenegraph.Cull(camera, currentTime);
+    scenegraph.Cull(currentTime, camera);
 
     scenegraph2D.Update(currentTime);
-    scenegraph2D.Cull(camera, currentTime);
+    scenegraph2D.Cull(currentTime, camera);
   }
 
 
@@ -1145,6 +1197,8 @@ namespace breathe
 
       pRender->BeginRenderingText();
 
+        pFont->printf(0.05f, fPosition += dy, "Log: %s", spitfire::logging::IsLogging() ? "on" : "off");
+
         const math::cVec3& position = camera.GetEyePosition();
         pFont->printf(0.05f, fPosition += dy, "Position: %.03f, %.03f, %.03f", position.x, position.y, position.z);
 
@@ -1158,17 +1212,25 @@ namespace breathe
         pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
 
         fPosition += dy;
-        pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
-        pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
-#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-        pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
-#endif
         pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
 
         fPosition += dy;
+        pRender->SetColour(1.0f, 0.0f, 0.0f);
+        pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+        pRender->SetColour(0.0f, 1.0f, 0.0f);
+        pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+        pRender->SetColour(0.0f, 0.0f, 1.0f);
+        pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+#endif
+
+        fPosition += dy;
+        pRender->SetColour(1.0f, 0.0f, 0.0f);
         pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+        pRender->SetColour(0.0f, 1.0f, 0.0f);
         pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
+        pRender->SetColour(0.0f, 0.0f, 1.0f);
         pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
 #endif
       pRender->EndRenderingText();
@@ -1767,7 +1829,6 @@ namespace breathe
     size_t uiPhysicsHz = pWorld->GetFrequencyHz();
 #endif
     unsigned int uiUpdateHz = 30;
-    unsigned int uiTargetFramesPerSecond = 60;
 
     float fEventsDelta = 1000.0f / 30.0f; // Should be once every single loop?
     float fInputDelta = 1000.0f / 30.0f;
@@ -1775,7 +1836,6 @@ namespace breathe
     float fPhysicsDelta = 1000.0f / uiPhysicsHz;
 #endif
     float fUpdateDelta = 1000.0f / uiUpdateHz;
-    float fRenderDelta = 1000.0f / uiTargetFramesPerSecond;
 
     float fEventsNext = 0.0f;
     float fInputNext = 0.0f;
@@ -1783,13 +1843,12 @@ namespace breathe
     float fPhysicsNext = 0.0f;
 #endif
     float fUpdateNext = 0.0f;
-    float fRenderNext = 0.0f;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-    tPhysics.Init(uiPhysicsHz);
+    tPhysics.InitWithLockedFPS(uiPhysicsHz);
 #endif
-    tUpdate.Init(uiUpdateHz);
-    tRender.Init(uiTargetFramesPerSecond);
+    tUpdate.InitWithLockedFPS(uiUpdateHz);
+    tRender.InitWithUnspecifiedFPS();
 
     //TODO: Activate window so that it is on top as soon as we start
 
@@ -1831,15 +1890,17 @@ namespace breathe
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext)) {
-        _UpdatePhysics(state, currentTime);
-        tPhysics.Update(currentTime);
+        tPhysics.Begin(spitfire::util::GetTime());
+          _UpdatePhysics(state, spitfire::util::GetTime());
+        tPhysics.End(spitfire::util::GetTime());
         fPhysicsNext = currentTime + fPhysicsDelta;
       }
 #endif
 
       if (currentTime > fUpdateNext) {
-        _Update(currentTime);
-        tUpdate.Update(currentTime);
+        tUpdate.Begin(spitfire::util::GetTime());
+          _Update(spitfire::util::GetTime());
+        tUpdate.End(spitfire::util::GetTime());
         fUpdateNext = currentTime + fUpdateDelta;
 
         spitfire::util::cRunOnMainThreadQueue::UpdateFromMainThread();
@@ -1856,9 +1917,9 @@ namespace breathe
 
       // TODO: Do we need this? && currentTime > fRenderNext)
       if (bActive && !bDone) {
-        _Render(state, currentTime);
-        tRender.Update(currentTime);
-        fRenderNext = currentTime + fRenderDelta;
+        tRender.Begin(spitfire::util::GetTime());
+          _Render(state, spitfire::util::GetTime());
+        tRender.End(spitfire::util::GetTime());
       }
 
       breathe::util::YieldThisThread();

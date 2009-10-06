@@ -13,9 +13,10 @@ namespace breathe
       cCamera();
 
       float_t GetFieldOfViewDegrees() const { return fFOVDegrees; }
-      const spitfire::math::cVec3& GetEyePosition() const { return positionEye; }
       const spitfire::math::cVec3& GetLookAtPoint() const { return positionLookAtPoint; }
+      const spitfire::math::cVec3& GetEyePosition() const { return positionEye; }
       const spitfire::math::cVec3& GetUpDirection() const { return directionUp; }
+      const spitfire::math::cVec3& GetRightDirection() const { return directionRight; }
 
       void SetFieldOfViewDegrees(float_t _fFOVDegrees) { fFOVDegrees = _fFOVDegrees; }
 
@@ -29,9 +30,10 @@ namespace breathe
 
     private:
       float_t fFOVDegrees;
-      spitfire::math::cVec3 positionEye;
       spitfire::math::cVec3 positionLookAtPoint;
+      spitfire::math::cVec3 positionEye;
       spitfire::math::cVec3 directionUp;
+      spitfire::math::cVec3 directionRight;
     };
   }
 }

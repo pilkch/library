@@ -165,6 +165,29 @@ namespace breathe
     }
 
 
+    class cStateColour
+    {
+    public:
+      cStateColour() : bHasValidValue(false), bTurnedOn(false) {}
+
+      bool IsValidAndTurnedOn() const { return (bHasValidValue && bTurnedOn); }
+
+      void Clear() { bHasValidValue = false; bTurnedOn = false; colour.Clear(); }
+
+      bool operator==(const cStateColour& rhs) const;
+      bool operator!=(const cStateColour& rhs) const { return !(*this == rhs); }
+
+      bool bHasValidValue;
+      bool bTurnedOn;
+      math::cColour colour;
+    };
+
+    inline bool cStateColour::operator==(const cStateColour& rhs) const
+    {
+      return (bHasValidValue == rhs.bHasValidValue) && (bTurnedOn == rhs.bTurnedOn) && (colour == rhs.colour);
+    }
+
+
     class cStateShader
     {
     public:
@@ -197,12 +220,19 @@ namespace breathe
 
       void Clear() { bHasValidValue = false; bTurnedOn = false; pVertexBufferObject.reset(); }
 
+      bool HasValidValue() const { return bHasValidValue; }
+      void SetHasValidValue(bool _bHasValidValue) { bHasValidValue = _bHasValidValue; }
+
+      bool IsEnabled() const { return bTurnedOn; }
       void SetEnabled(bool bEnable) { bTurnedOn = bEnable; }
+
+      render::cVertexBufferObjectRef GetVertexBufferObject() const { return pVertexBufferObject; }
       void SetVertexBufferObject(render::cVertexBufferObjectRef _pVertexBufferObject) { pVertexBufferObject = _pVertexBufferObject; }
 
       bool operator==(const cStateVertexBufferObject& rhs) const;
       bool operator!=(const cStateVertexBufferObject& rhs) const { return !(*this == rhs); }
 
+    private:
       bool bHasValidValue;
       bool bTurnedOn;
       render::cVertexBufferObjectRef pVertexBufferObject;
@@ -215,6 +245,8 @@ namespace breathe
 
 
     enum class GEOMETRY_TYPE {
+      POINTS,
+      LINES,
       TRIANGLES,
       QUADS,
 
@@ -228,18 +260,6 @@ namespace breathe
     class cSceneGraph;
     class cUpdateVisitor;
     class cCullVisitor;
-
-
-    enum RENDER_PRIORITY {
-      RENDER_PRIORITY_FIRST = -3,
-      RENDER_PRIORITY_SECOND = -2,
-      RENDER_PRIORITY_THIRD = -1,
-      RENDER_PRIORITY_OPAQUE = 0,
-      RENDER_PRIORITY_NORMAL = 0,
-      RENDER_PRIORITY_TRANSPARENT,
-      RENDER_PRIORITY_LAST
-    };
-
 
 
 
@@ -310,16 +330,15 @@ namespace breathe
       friend class cRenderGraph;
       friend class cRenderVisitor;
 
-      enum PRIORITY {
-        PRIORITY_HIGH3 = 0,
-        PRIORITY_HIGH2,
-        PRIORITY_HIGH1,
-        PRIORITY_HIGH0,
-        PRIORITY_DIFFUSE,
-        PRIORITY_TRANSPARENT,
-
-        // Helper states
-        PRIORITY_NORMAL = PRIORITY_DIFFUSE
+      enum class PRIORITY {
+        FIRST = -3,
+        SECOND = -2,
+        THIRD = -1,
+        OPAQUE = 0,
+        DIFFUSE = 0,
+        NORMAL = 0,
+        TRANSPARENT,
+        LAST
       };
 
       cStateSet();
@@ -340,6 +359,7 @@ namespace breathe
       void SetGeometryTypeQuads() { geometryType = scenegraph_common::GEOMETRY_TYPE::QUADS; }
 
     private:
+      void Assign(const cStateSet& rhs);
       void Clear();
 
       PRIORITY priority;
@@ -361,21 +381,18 @@ namespace breathe
       Clear();
     }
 
-    inline cStateSet::cStateSet(const cStateSet& rhs) :
-      priority(rhs.priority),
-      alphablending(rhs.alphablending),
-      shader(rhs.shader),
-      vertexBufferObject(rhs.vertexBufferObject),
-      geometryType(rhs.geometryType)
+    inline cStateSet::cStateSet(const cStateSet& rhs)
     {
-      ASSERT(render::MAX_TEXTURE_UNITS == 3);
-
-      texture[0] = rhs.texture[0];
-      texture[1] = rhs.texture[1];
-      texture[2] = rhs.texture[2];
+      Assign(rhs);
     }
 
     inline cStateSet& cStateSet::operator=(const cStateSet& rhs)
+    {
+      Assign(rhs);
+      return *this;
+    }
+
+    inline void cStateSet::Assign(const cStateSet& rhs)
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
@@ -387,16 +404,17 @@ namespace breathe
       shader = rhs.shader;
       vertexBufferObject = rhs.vertexBufferObject;
       geometryType = rhs.geometryType;
-
-      return *this;
     }
 
     inline bool cStateSet::operator==(const cStateSet& rhs) const
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
-      return (priority == rhs.priority) && (alphablending == rhs.alphablending)
-        && (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) && (shader == rhs.shader) && (vertexBufferObject == rhs.vertexBufferObject) && (geometryType == rhs.geometryType);
+      return (
+        (priority == rhs.priority) && (alphablending == rhs.alphablending) &&
+        (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) &&
+        (shader == rhs.shader) && (vertexBufferObject == rhs.vertexBufferObject) && (geometryType == rhs.geometryType)
+      );
     }
 
     class cSceneNode;
@@ -832,7 +850,7 @@ namespace breathe
     class cCullVisitor
     {
     public:
-      cCullVisitor(const render::cCamera& camera, cSceneGraph& scenegraph);
+      cCullVisitor(cSceneGraph& scenegraph, const render::cCamera& camera);
 
       void Visit(cSceneNode& node) { node.Cull(*this); }
       void Visit(cGroupNode& node) { node.Cull(*this); }
@@ -851,8 +869,8 @@ namespace breathe
       const spitfire::math::cVec3& GetCameraPosition() const { return camera.GetEyePosition(); }
 
     private:
-      const render::cCamera& camera;
       cSceneGraph& scenegraph;
+      const render::cCamera& camera;
     };
 
 
@@ -860,19 +878,17 @@ namespace breathe
     class cRenderVisitor
     {
     public:
-      explicit cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum);
+      cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum);
 
     private:
       void ApplyStateSet(cStateSet& stateSet);
       void UnApplyStateSet(cStateSet& stateSet);
-
-      cSceneGraph& scenegraph;
     };
 
 
 
 
-    // NOTE: A restriction on the scenegraph at the moment is that every camera must use the same skysystem.
+    // NOTE: One restriction on the scenegraph at the moment is that every camera must use the same skysystem.
     // It is impossible to have a video camera on another planet in the galaxy with one sky and then also view a planet with another sky,
     // but I don't think that is incredibly limiting and if that behaviour was required you would probably be better off building two scenegraphs anyway.
 
@@ -900,7 +916,7 @@ namespace breathe
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
       void Update(sampletime_t currentTime);
-      void Cull(const render::cCamera& camera, sampletime_t currentTime);
+      void Cull(sampletime_t currentTime, const render::cCamera& camera);
       void Render(sampletime_t currentTime, const math::cFrustum& frustum);
 
     protected:

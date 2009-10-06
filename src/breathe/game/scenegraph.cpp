@@ -107,7 +107,7 @@ namespace breathe
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
-      priority = PRIORITY_NORMAL;
+      priority = PRIORITY::NORMAL;
 
       alphablending.Clear();
       texture[0].Clear();
@@ -565,9 +565,9 @@ namespace breathe
         stateset.SetStateFromMaterial(terrainCreator.GetMaterial());
 
         scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-        vertexBufferObject.pVertexBufferObject = terrainCreator.GetVBO();
+        vertexBufferObject.SetVertexBufferObject(terrainCreator.GetVBO());
         vertexBufferObject.SetEnabled(true);
-        vertexBufferObject.bHasValidValue = true;
+        vertexBufferObject.SetHasValidValue(true);
 
         terrain->AttachChild(pNode);
       }
@@ -698,9 +698,9 @@ namespace breathe
       Visit(*scenegraph.GetRoot());
     }
 
-    cCullVisitor::cCullVisitor(const render::cCamera& _camera, cSceneGraph& _scenegraph) :
-      camera(_camera),
-      scenegraph(_scenegraph)
+    cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph, const render::cCamera& _camera) :
+      scenegraph(_scenegraph),
+      camera(_camera)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
       Visit(*scenegraph.GetRoot());
@@ -724,6 +724,7 @@ namespace breathe
     {
       scenegraph.GetRenderGraph().AddMD3Model(pModel, matAbsolutePositionAndRotation);
     }
+
 
     void cRenderGraph::AddMD3Model(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation)
     {
@@ -874,14 +875,13 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph, const math::cFrustum& frustum) :
-      scenegraph(_scenegraph)
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
-      cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
-
       size_t uiTriangles = 0;
+
+      cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
 
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
@@ -900,7 +900,7 @@ namespace breathe
 
               ApplyStateSet(*pStateSet);
 
-                render::cVertexBufferObjectRef pVbo = pStateSet->vertexBufferObject.pVertexBufferObject;
+                render::cVertexBufferObjectRef pVbo = pStateSet->vertexBufferObject.GetVertexBufferObject();
                 pVbo->Bind();
 
                   cRenderGraph::cRenderableList::iterator renderableIter((*pRenderableList).begin());
@@ -1162,10 +1162,10 @@ namespace breathe
       pRender->SetClearColour(backgroundColour);
     }
 
-    void cSceneGraph::Cull(const render::cCamera& camera, sampletime_t currentTime)
+    void cSceneGraph::Cull(sampletime_t currentTime, const render::cCamera& camera)
     {
       renderGraph.Clear();
-      cCullVisitor visitor(camera, *this);
+      cCullVisitor visitor(*this, camera);
     }
 
     void cSceneGraph::Render(sampletime_t currentTime, const math::cFrustum& frustum)
@@ -1418,7 +1418,7 @@ namespace breathe
             render::cCamera camera;
 
             scenegraph.Update(currentTime);
-            scenegraph.Cull(camera, currentTime);
+            scenegraph.Cull(currentTime, camera);
             scenegraph.Render(currentTime, pRender->GetFrustum());
 
 

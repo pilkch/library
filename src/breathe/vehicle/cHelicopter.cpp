@@ -64,23 +64,23 @@
 
 
 
-class cChinookFactory
+class cHelicopterFactory
 {
 public:
-  cChinookFactory();
+  cHelicopterFactory();
 
   void CreateChinook(breathe::scenegraph3d::cGroupNodeRef, breathe::render::cTextureFrameBufferObjectRef& pCubeMapTexture);
 
 private:
-  size_t iChinook;
+  size_t nChinooks;
 };
 
-cChinookFactory::cChinookFactory() :
-  iChinook(0)
+cHelicopterFactory::cHelicopterFactory() :
+  nChinooks(0)
 {
 }
 
-void cChinookFactory::CreateChinook(breathe::scenegraph3d::cGroupNodeRef pGroupNode, breathe::render::cTextureFrameBufferObjectRef& pCubeMapTexture)
+void cHelicopterFactory::CreateChinook(breathe::scenegraph3d::cGroupNodeRef pGroupNode, breathe::render::cTextureFrameBufferObjectRef& pCubeMapTexture)
 {
   pCubeMapTexture.reset();
 
@@ -134,7 +134,7 @@ void cChinookFactory::CreateChinook(breathe::scenegraph3d::cGroupNodeRef pGroupN
     LOG<<"sCarPaintMaterialFilename=\""<<sCarPaintMaterialFilename<<"\""<<std::endl;
     LOG<<"sBodyMaterialFilename=\""<<sBodyMaterialFilename<<"\""<<std::endl;
     if (model.mesh[iMesh]->sMaterial == sBodyMaterialFilename) {
-      const spitfire::string_t sAlias = TEXT("chinook") + spitfire::string::ToString(iChinook);
+      const spitfire::string_t sAlias = TEXT("chinook") + spitfire::string::ToString(nChinooks);
       item.pMaterial = pRender->AddMaterialAsAlias(sCarPaintMaterialFilename, sAlias);
       const size_t n = item.pMaterial->vLayer.size();
       for (size_t i = 0; i < n; i++) {
@@ -180,7 +180,7 @@ namespace breathe
     {
       LOG<<"cVehicleFactory::CreateHelicopter"<<std::endl;
 
-        cChinookFactory factory;
+        cHelicopterFactory factory;
 
 
 
@@ -266,7 +266,7 @@ namespace breathe
 
 
         {
-          // Create this rotor node
+          // Create the front rotor
           spitfire::string_t sFilename;
           breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
 
@@ -276,7 +276,7 @@ namespace breathe
           factory.LoadFromFile(sFilename, meshes);
 
           const float x = 0.0f;
-          const float y = -10.4f;
+          const float y = 10.4f;
           const float z = 8.5f;
 
           breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
@@ -291,7 +291,7 @@ namespace breathe
           pNode->AttachChild(pNodeRotor);
         }
         {
-          // Create this rotor node
+          // Create the rear rotor
           spitfire::string_t sFilename;
           breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
 
@@ -301,7 +301,7 @@ namespace breathe
           factory.LoadFromFile(sFilename, meshes);
 
           const float x = 0.0f;
-          const float y = 10.0f;
+          const float y = -10.0f;
           const float z = 10.5f;
 
           breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
@@ -531,9 +531,9 @@ namespace breathe
       stateset.SetStateFromMaterial(pVehicleVBOMaterial);
 
       breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-      vertexBufferObject.pVertexBufferObject = pVehicleVBO;
+      vertexBufferObject.SetVertexBufferObject(pVehicleVBO);
       vertexBufferObject.SetEnabled(true);
-      vertexBufferObject.bHasValidValue = true;
+      vertexBufferObject.SetHasValidValue(true);
 
       // Attach to the root node
       breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
@@ -596,6 +596,96 @@ namespace breathe
 {
   namespace game
   {
+    class cEngineAudio
+    {
+    public:
+      ~cEngineAudio();
+
+      //void AddSample(audio::cBufferRef pBuffer, float_t fNaturalRPM);
+      void SetSource(audio::cSourceRef _pSource, float_t _fNaturalRPM) { pSource = _pSource; fNaturalRPM = _fNaturalRPM; }
+
+      void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
+      void SetAccelerator0To1(float_t _fAccelerator0To1) { fAccelerator0To1 = _fAccelerator0To1; }
+
+      void Update(sampletime_t currentTime);
+
+    private:
+      /*class cEngineAudioSample;
+      cEngineAudioSample GetClosestMatchToRPM();
+
+      class cEngineAudioSample
+      {
+      public:
+        audio::cBufferRef pBuffer;
+        float_t fNaturalRPM;
+
+      private:
+        void Assign(const cEngineAudioSample& rhs);
+      };
+
+      std::vector<cEngineAudioSample*> samples;*/
+
+      float_t fNaturalRPM;
+      audio::cSourceRef pSource;
+
+      float_t fRPM;
+      float_t fAccelerator0To1;
+    };
+
+
+    cEngineAudio::~cEngineAudio()
+    {
+      //.. delete all samples
+      //for (size_t i = 0; i < n; i++) {
+      //  ...
+      //}
+    }
+
+    /*void cEngineAudio::AddSample(audio::cBufferRef pBuffer, float_t fNaturalRPM)
+    {
+      ...
+    }
+
+    cEngineAudio::cEngineAudioSample cEngineAudio::GetClosestMatchToRPM()
+    {
+      cEngineAudioSample sampleClosest;
+
+      const size_t n = samples.size();
+
+      // Set our closest to the first sample
+      ASSERT(n != 0);
+      sampleClosest = *samples[0];
+
+      float_t fDistanceToClosest = fabs(fRPM - sampleClosest.fNaturalRPM);
+
+      for (size_t i = 1; i < n; i++) {
+        const float_t fDistanceToCurrent = fabs(fRPM - samples[i]->fNaturalRPM);
+        if (fDistanceToCurrent < fDistanceToClosest) {
+          sampleClosest = *samples[i];
+          fDistanceToClosest = fDistanceToCurrent;
+        }
+      }
+
+      return sampleClosest;
+    }*/
+
+    void cEngineAudio::Update(sampletime_t currentTime)
+    {
+      // We want this in the range of 0.5f .. 1.5f
+      pSource->SetPitch(1.0f + sinf(0.001f * currentTime));
+
+      //cEngineAudioSample sample = GetClosestMatchToRPM();
+      //
+      //ASSERT(sample.fNaturalRPM != 0.0f);
+      //pSource->SetPitch(fRPM / sample.fNaturalRPM);
+    }
+
+
+
+
+
+
+
     cVehicleHelicopter::cVehicleHelicopter(cGameObject& _object) :
       cVehicleBase(_object, TYPE::HELICOPTER)
     {
@@ -622,11 +712,11 @@ namespace breathe
 
       const float_t fPitchRollFactor = 0.0005f;
       if (fInputForward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputForward0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
+        breathe::math::cVec3 torqueNm(fInputForward0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
         pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputBackward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
+        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
         pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputLeft0To1 > 0.01f) {

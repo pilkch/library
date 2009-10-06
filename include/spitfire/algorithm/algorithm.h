@@ -254,10 +254,13 @@ namespace spitfire
   public:
     explicit cCircularBuffer(size_t nElements);
 
-    void push_back(T& t);
+    void push_back(const T& t);
     size_t size() const { return data.size(); }
 
     T& operator[](size_t i);
+    const T& operator[](size_t i) const;
+
+    void SetAllItemsToValue(const T& value);
 
   private:
     size_t at;
@@ -269,6 +272,7 @@ namespace spitfire
     at(0),
     data(nElements)
   {
+    ASSERT(nElements != 0);
   }
 
   template<class T>
@@ -276,6 +280,31 @@ namespace spitfire
   {
     const size_t n = (at + i) % data.size();
     return data[n];
+  }
+
+  template<class T>
+  inline const T& cCircularBuffer<T>::operator[](size_t i) const
+  {
+    const size_t n = (at + i) % data.size();
+    return data[n];
+  }
+
+  template<class T>
+  inline void cCircularBuffer<T>::push_back(const T& t)
+  {
+    // Set the current item to t (This item will become the last element when we increment)
+    data[at] = t;
+
+    at++;
+
+    if (at >= data.size()) at = 0;
+  }
+
+  template<class T>
+  inline void cCircularBuffer<T>::SetAllItemsToValue(const T& value)
+  {
+    const size_t n = data.size();
+    for (size_t i = 0; i < n; i++) data[i] = value;
   }
 }
 

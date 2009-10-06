@@ -92,6 +92,31 @@ namespace breathe
       friend class cRender;
     };*/
 
+    class resolution
+    {
+    public:
+      friend class cRender;
+
+      resolution();
+
+      size_t GetWidth() const { return width; }
+      size_t GetHeight() const { return height; }
+
+      size_t GetColourDepth() const { return colourDepth; }
+
+      bool IsWideScreen() const;
+
+      static bool ResolutionCompare(const resolution& lhs, const resolution& rhs);
+
+    protected:
+      void SetResolution(size_t width, size_t height, size_t colourDepth);
+
+    private:
+      size_t width;
+      size_t height;
+      size_t colourDepth;
+    };
+
     class cRender
     {
     public:
@@ -111,6 +136,9 @@ namespace breathe
       float GetShaderVersion() const;
 
     public:
+      resolution GetCurrentScreenResolution() const;
+      std::vector<resolution> GetAvailableScreenResolutions() const;
+
       bool PreInit();
 
       bool Init();
@@ -176,7 +204,10 @@ namespace breathe
 
       void RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation);
 
+      void RenderScreenSpaceLines(const std::vector<math::cVec2>& points);
+
       void RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2);
+      void RenderLines(const std::vector<math::cVec3>& points);
       void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
       void RenderAxisReference(float x, float y, float z);
       void RenderAxisReference(const math::cVec3& position);
@@ -353,65 +384,6 @@ namespace breathe
       NO_COPY(cRender);
     };
 
-    namespace SETTINGS
-    {
-      class resolution
-      {
-      public:
-        resolution(int width, int height);
-
-        int GetWidth() const { return width; }
-        int GetHeight() const { return height; }
-
-
-
-        class iterator
-        {
-        public:
-          void GetStandardResolutions() { GetResolutions(false); }
-          void GetWidescreenResolutions() { GetResolutions(true); }
-
-          iterator();
-
-          int GetWidth() const { return (*iter).GetWidth(); }
-          int GetHeight() const { return (*iter).GetHeight(); }
-
-          operator bool() const;
-
-          iterator operator ++(int);
-
-        protected:
-          void GetResolutions(bool onlyWidescreen);
-
-          std::vector<resolution> resolutions;
-          std::vector<resolution>::iterator iter;
-        };
-
-      private:
-        int width;
-        int height;
-      };
-
-      // *** Inlines
-
-      inline resolution::resolution(int _width, int _height) :
-        width(_width),
-        height(_height)
-      {
-      }
-
-
-      inline resolution::iterator resolution::iterator::operator ++(int)
-      {
-        iter++;
-        return *this;
-      }
-
-      inline resolution::iterator::operator bool() const
-      {
-        return iter != resolutions.end();
-      }
-    }
 
 
     class cScopedEnable

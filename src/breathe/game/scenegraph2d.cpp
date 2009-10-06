@@ -76,6 +76,22 @@ namespace breathe
 {
   namespace scenegraph2d
   {
+    void cStateSet::Clear()
+    {
+      ASSERT(render::MAX_TEXTURE_UNITS == 3);
+
+      priority = PRIORITY::NORMAL;
+
+      alphablending.Clear();
+      colour.Clear();
+      texture[0].Clear();
+      texture[1].Clear();
+      texture[2].Clear();
+      geometryType = scenegraph_common::GEOMETRY_TYPE::DEFAULT;
+    }
+
+
+
     cSceneNode::cSceneNode() :
 #ifdef BUILD_DEBUG
       bIsShowingBoundingBox(false),
@@ -188,22 +204,9 @@ namespace breathe
       return boundingSphere.fRadius;
     }
 
-    void cSceneNode::_Update(cUpdateVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Update(visitor);
-
-      visitor.Visit(*this);
-    }
-
-    void cSceneNode::_Cull(cCullVisitor& visitor)
-    {
-      //if (pChild != nullptr) pChild->Cull(visitor);
-
-      visitor.Visit(*this);
-    }
-
     void cSceneNode::AttachChild(cSceneNodeRef pChild)
     {
+      ASSERT(pChild != nullptr);
       ASSERT(!IsParentOfChild(pChild));
 
       _AttachChild(pChild);
@@ -234,15 +237,49 @@ namespace breathe
 
 
 
+    // These are the default behaviours of the attach/detach/delete child functions
 
-    void cGroupNode::_Update(cUpdateVisitor& visitor)
+    void cSceneNode::_AttachChild(cSceneNodeRef pChild)
+    {
+      children.push_back(pChild);
+    }
+
+    void cSceneNode::_DetachChild(cSceneNodeRef pChild)
+    {
+      children.remove(pChild);
+    }
+
+    void cSceneNode::_DeleteChildRecursively(cSceneNodeRef pChild)
+    {
+      pChild->DeleteAllChildrenRecursively();
+    }
+
+    void cSceneNode::_DeleteAllChildrenRecursively()
     {
       // If we don't have any children, return
       if (children.empty()) return;
 
       // Visit all child nodes
-      std::vector<cSceneNodeRef>::iterator iter(children.begin());
-      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
+      while (iter != iterEnd) {
+        ASSERT(*iter != nullptr);
+        (*iter)->DeleteAllChildrenRecursively();
+
+        iter++;
+      }
+
+      children.clear();
+    }
+
+    void cSceneNode::_Update(cUpdateVisitor& visitor)
+    {
+      // If we don't have any children, return
+      if (children.empty()) return;
+
+      // Visit all child nodes
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
       while (iter != iterEnd) {
         ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
@@ -251,14 +288,14 @@ namespace breathe
       }
     }
 
-    void cGroupNode::_Cull(cCullVisitor& visitor)
+    void cSceneNode::_Cull(cCullVisitor& visitor)
     {
       // If we don't have any children, return
       if (children.empty()) return;
 
       // Visit all child nodes
-      std::vector<cSceneNodeRef>::iterator iter(children.begin());
-      const std::vector<cSceneNodeRef>::iterator iterEnd(children.end());
+      child_iterator iter(children.begin());
+      const child_iterator iterEnd(children.end());
       while (iter != iterEnd) {
         ASSERT(*iter != nullptr);
         visitor.Visit(*(*iter));
@@ -266,6 +303,10 @@ namespace breathe
         iter++;
       }
     }
+
+
+
+
 
 
     void cSwitchNode::_Update(cUpdateVisitor& visitor)
@@ -375,10 +416,43 @@ namespace breathe
 
 
 
+    cGraphNode::cGraphNode(size_t nPoints) :
+      fDistanceBetweenEachPoint(1.0f / float_t(nPoints - 1)),
+      fMax(100.0f),
+      points(nPoints)
+    {
+    }
+
+    void cGraphNode::AddPoint(float_t fValue)
+    {
+      points.push_back(fValue);
+    }
+
     void cGraphNode::_Update(cUpdateVisitor& visitor)
     {
-      visitor.Visit(*this);
+      cSceneNode::_Update(visitor);
+
+      vertexBuffer.Clear();
+
+      const float_t fOneOverMax = 1.0f / fMax;
+
+      const size_t n = points.size();
+      for (size_t i = 0; i < n; i++) {
+        vertexBuffer.AddPoint(math::cVec2(fDistanceBetweenEachPoint * float_t(i), 1.0f - (fOneOverMax * points[i])));
+      }
     }
+
+    void cGraphNode::_Cull(cCullVisitor& visitor)
+    {
+      cSceneNode::_Cull(visitor);
+
+      visitor.Visit(&stateset, &vertexBuffer);
+    }
+
+
+
+
+
 
 
 
@@ -389,9 +463,10 @@ namespace breathe
       Visit(*scenegraph.GetRoot());
     }
 
-    cCullVisitor::cCullVisitor(const render::cCamera& _camera, cSceneGraph& _scenegraph) :
-      camera(_camera),
-      scenegraph(_scenegraph)
+
+    cCullVisitor::cCullVisitor(cSceneGraph& _scenegraph, const render::cCamera& _camera) :
+      scenegraph(_scenegraph),
+      camera(_camera)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
       Visit(*scenegraph.GetRoot());
@@ -406,107 +481,199 @@ namespace breathe
       mTransparent.add(fDistance, item);*/
     }
 
-
-    void cRenderGraph::AddRenderable(const cRenderableRef renderable)
+    void cCullVisitor::Visit(cStateSet* pStateSet, const cVertexBuffer* pVertexBuffer)
     {
-      std::map<cStateSet*, cRenderableList*>::iterator iter(mOpaque.begin());
-      const std::map<cStateSet*, cRenderableList*>::iterator iterEnd(mOpaque.end());
-      while (iter != iterEnd) {
-        cStateSet* pState = iter->first;
-        ASSERT(pState != nullptr);
-
-        //if (*pState == renderable.state) {
-        //  cRenderableList* pList = iter->second;
-        //  pList->push_back(&renderable);
-        //  return;
-        //}
-
-        iter++;
-      }
-
-      //cRenderableList* pList = new cRenderableList;
-      //pList->push_back(&renderable);
-      //mOpaque[&renderable.state] = pList;
-
-
-      //cLineBufferNode
-      //glBegin(GL_LINES);
-      //  const size_t n = pNode->vertices.size();
-      //  ASSERT(n % 2); // Make sure that the number of vertices is divisible by 2
-      //  for(size_t i = 0; i < n; i += 2) {
-      //    glVertex2f(vertices[i].x, vertices[i].y);
-      //    glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
-      //  }
-      //glEnd();
-
-      //cGeometryBufferNode
-      //glBegin(GL_TRIANGLES);
-      //  const size_t n = pNode->vertices.size();
-      //  // There should be a 1 to 1 mapping of vertices to textureCoordinates
-      //  ASSERT(n % 3); // Make sure that the number of vertices is divisible by 3
-      //  ASSERT(n == pNode->textureCoordinates.size()); // Make sure that the number of vertices and textureCoordinates are the same
-      //  for(size_t i = 0; i < n; i += 3) {
-      //    glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
-      //    texturecoordinates(textureCoordinates[i].x, textureCoordinates[i].y, textureCoordinates[i].z);
-      //    glVertex3f(vertices[i + 1].x, vertices[i + 1].y, vertices[i + 1].z);
-      //    texturecoordinates(textureCoordinates[i + 1].x, textureCoordinates[i + 1].y, textureCoordinates[i + 1].z);
-      //    glVertex3f(vertices[i + 2].x, vertices[i + 2].y, vertices[i + 2].z);
-      //    texturecoordinates(textureCoordinates[i + 2].x, textureCoordinates[i + 2].y, textureCoordinates[i + 2].z);
-      //  }
-      //glEnd();
+      scenegraph.GetRenderGraph().AddRenderable(pStateSet, pVertexBuffer);
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& _scenegraph) :
-      scenegraph(_scenegraph)
+
+
+    void cRenderVisitor::ApplyStateSet(cStateSet& stateSet)
+    {
+      size_t n = render::MAX_TEXTURE_UNITS;
+      size_t unit = 0;
+
+      unit = GL_TEXTURE0_ARB;
+
+      const bool bIsAlphaBlending = stateSet.alphablending.IsValidAndTurnedOn();
+      const bool bIsColour = stateSet.colour.IsValidAndTurnedOn();
+
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+        if (bIsAlphaBlending) {
+          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+          glEnable(GL_BLEND);
+        }
+
+        if (bIsColour) {
+          glColor4f(stateSet.colour.colour.r, stateSet.colour.colour.g, stateSet.colour.colour.b, stateSet.colour.colour.a);
+        }
+
+        if (stateSet.texture[i].IsValidAndTurnedOn()) {
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+             // Cube map texture
+
+            glEnable(GL_TEXTURE_CUBE_MAP);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, stateSet.texture[i].pTexture->uiTexture);
+
+            glMatrixMode(GL_TEXTURE);
+            glPushMatrix();
+              glLoadIdentity();
+
+#if 0
+              float y = -Angle(spitfire::math::cVec2(frustum.eye.x, frustum.eye.y), spitfire::math::cVec2(frustum.target.x, frustum.target.y));
+              float x = -Angle(spitfire::math::cVec2(frustum.eye.y, frustum.eye.z), spitfire::math::cVec2(frustum.target.y, frustum.target.z));
+              //std::cout<<y<<"\t"<<x<<"\n";
+
+              glRotatef(y, 0.0f, 1.0f, 0.0f);
+              glRotatef(x, 1.0f, 0.0f, 0.0f);
+#elif 0
+              float mat[16];
+              glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+
+              math::cQuaternion q(mat[8], mat[9], -mat[10]);
+
+              glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
+#endif
+
+              glMatrixMode(GL_MODELVIEW);
+
+
+              glEnable(GL_TEXTURE_GEN_S);
+              glEnable(GL_TEXTURE_GEN_T);
+              glEnable(GL_TEXTURE_GEN_R);
+
+              glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+              glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+          } else {
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, stateSet.texture[i].pTexture->uiTexture);
+          }
+        }
+      }
+    }
+
+    void cRenderVisitor::UnApplyStateSet(cStateSet& stateSet)
+    {
+      size_t n = render::MAX_TEXTURE_UNITS;
+      size_t unit = 0;
+
+      unit = GL_TEXTURE0_ARB;
+
+      const bool bIsAlphaBlending = stateSet.alphablending.IsValidAndTurnedOn();
+      const bool bIsColour = stateSet.colour.IsValidAndTurnedOn();
+
+      for (size_t i = 0; i < n; i++, unit++) {
+        // Activate the current texture unit
+        glActiveTexture(unit);
+
+        if (bIsAlphaBlending) {
+          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          glBlendFunc(GL_ONE, GL_ZERO);
+          glDisable(GL_BLEND);
+        }
+
+        if (bIsColour) glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        if (stateSet.texture[i].IsValidAndTurnedOn()) {
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+             // Cube map texture
+
+              glDisable(GL_TEXTURE_GEN_R);
+              glDisable(GL_TEXTURE_GEN_T);
+              glDisable(GL_TEXTURE_GEN_S);
+
+
+              glMatrixMode(GL_TEXTURE);
+              glPopMatrix();
+
+            glMatrixMode(GL_MODELVIEW);
+
+            glDisable(GL_TEXTURE_CUBE_MAP);
+          } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+          }
+        }
+      }
+
+      glActiveTexture(GL_TEXTURE0_ARB);
+      glEnable(GL_TEXTURE_2D);
+    }
+
+
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
       cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
 
-      /*unsigned int uiTriangles = 0;
-
-      iterator iter(mRenderables.begin());
-      const iterator iterEnd(mRenderables.end());
-      while (iter != iterEnd) {
-        cStateSet* pState = iter->first;
-        ASSERT(pState != nullptr);
-
-        cRenderableList* pList = iter->second;
-        ASSERT(pList != nullptr);
-
-        PushState(pState);
-        cRenderableList::iterator iterList(pList.begin());
-        const cRenderableList::iterator iterListEnd(pList.end());
-        while (iterList != iterListEnd) {
-          cRenderable* pRenderable = *iterList;
-          Render(pRenderable);
-          iterList++;
-        }
-        PopState(pState);
-
-        iter++;
-      }*/
-
-      // Opaque first
       {
-        std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iter(rendergraph.mOpaque.begin());
-        const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
+        std::vector<cRenderGraph::cRenderablePair>::iterator iter(rendergraph.items.begin());
+        const std::vector<cRenderGraph::cRenderablePair>::iterator iterEnd(rendergraph.items.end());
         while(iter != iterEnd) {
-          //uiTriangles += (*iter)->Render();
+          cStateSet* pStateSet = iter->first;
+          const cVertexBuffer* pVertexBuffer = iter->second;
+
+          const std::vector<float>& vertices = pVertexBuffer->GetVertices();
+          //const std::vector<float>& textureCoordinates = pVertexBuffer->GetTextureCoordinates();
+
+          switch (pStateSet->geometryType) {
+            case scenegraph_common::GEOMETRY_TYPE::LINES:
+            default: {
+              std::vector<math::cVec2> points;
+              const size_t n = vertices.size();
+              ASSERT(math::IsDivisibleByTwo(n));
+              for (size_t i = 0; (i + 1) < n; i += 2) {
+                points.push_back(math::cVec2(vertices[i], vertices[i + 1]));
+              }
+
+              ApplyStateSet(*pStateSet);
+                pRender->RenderScreenSpaceLines(points);
+              UnApplyStateSet(*pStateSet);
+              break;
+            }
+            /*case : {
+              ASSERT(vertices.size() == 8);
+              ASSERT(textureCoordinates.size() == 8);
+              pRender->RenderScreenSpacePolygon(
+                vertices[0], vertices[1], textureCoordinates[0], textureCoordinates[1],
+                vertices[2], vertices[3], textureCoordinates[2], textureCoordinates[3],
+                vertices[4], vertices[5], textureCoordinates[4], textureCoordinates[5],
+                vertices[6], vertices[7], textureCoordinates[6], textureCoordinates[7]
+              );
+            }*/
+          }
+
+          //uiTriangles += 2;
+
           iter++;
         }
       }
 
-      // Transparent second
-      {
-        std::map<float, cRenderableRef>::iterator iter(rendergraph.mTransparent.begin());
-        const std::map<float, cRenderableRef>::iterator iterEnd(rendergraph.mTransparent.end());
-        while(iter != iterEnd) {
-          //uiTriangles += (iter->second)->Render();
-          iter++;
-        }
-      }
+
+
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+        glLoadIdentity();
+
+        std::vector<math::cVec2> points;
+
+        points.push_back(math::cVec2(0.0f, 0.0f));
+        points.push_back(math::cVec2(0.1f, 0.1f));
+        points.push_back(math::cVec2(0.2f, -0.1f));
+        points.push_back(math::cVec2(0.5f, 0.5f));
+        points.push_back(math::cVec2(1.0f, 1.0f));
+
+        pRender->RenderScreenSpaceLines(points);
+
+        glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
     }
 
 
@@ -566,15 +733,18 @@ namespace breathe
       cUpdateVisitor visitor(*this);
     }
 
-    void cSceneGraph::Cull(const render::cCamera& camera, sampletime_t currentTime)
+    void cSceneGraph::Cull(sampletime_t currentTime, const render::cCamera& camera)
     {
-      cCullVisitor visitor(camera, *this);
+      renderGraph.Clear();
+      cCullVisitor visitor(*this, camera);
     }
 
     void cSceneGraph::Render(sampletime_t currentTime)
     {
       cRenderVisitor visitor(*this);
     }
+
+
 
 #ifdef BUILD_DEBUG
     int counter = 0;
@@ -829,7 +999,7 @@ namespace breathe
             render::cCamera camera;
 
             scenegraph.Update(currentTime);
-            scenegraph.Cull(camera, currentTime);
+            scenegraph.Cull(currentTime, camera);
             scenegraph.Render(currentTime);
 
 

@@ -157,7 +157,7 @@ namespace breathe
     void cPhysicsObject::CreateBox(cWorld* pWorld, const math::cVec3& pos, const math::cVec3& rot)
     {
       geom = dCreateBox(bDynamic ? pWorld->GetSpaceDynamic() : pWorld->GetSpaceStatic(),
-        2.0f*fWidth, 2.0f*fLength, 2.0f*fHeight);
+        2.0f * fWidth, 2.0f * fLength, 2.0f * fHeight);
 
       InitCommon(pWorld, pos, rot);
 

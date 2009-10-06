@@ -240,6 +240,8 @@ namespace spitfire
       return ::sqrtf(x);
     }
 
+    template <class T> inline bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
+
     // This function gets the first power of 2 >= the int that we pass it.
     inline int NextPowerOfTwo(int a)
     {
@@ -248,7 +250,7 @@ namespace spitfire
       return rval;
     }
 
-    template<class T> inline bool IsPowerOf2(T value) { return (value & (~value + 1)) == value; }
+    template<class T> inline bool IsPowerOfTwo(T value) { return (value & (~value + 1)) == value; }
 
     inline bool IsApproximatelyEqual(float_t a, float_t b)
     {

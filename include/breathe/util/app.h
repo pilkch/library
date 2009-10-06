@@ -368,6 +368,10 @@ namespace breathe
 
 
 #ifdef BUILD_DEBUG
+    scenegraph2d::cGraphNodeRef pFPSRenderGraph;
+    scenegraph2d::cGraphNodeRef pFPSUpdateGraph;
+    scenegraph2d::cGraphNodeRef pFPSPhysicsGraph;
+
     friend class cGameUnitTest;
     cGameUnitTest* pGameUnitTest; // Only used if/when the application wants it
 #endif

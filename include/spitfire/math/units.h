@@ -44,7 +44,7 @@ namespace spitfire
     // power (in kW) = torque (in Nm) * 2 * pi * rotational speed (in rpm) / 60000.0f
     // where 60000.0f comes from 60 seconds per minute times 1000.0f watts per kilowatt.
 
-    // kW = Nm * 2 * pi * RPM / 60000;
+    // kW = Nm * (2 * pi * RPM / 60000);
     // Nm = kW / (2 * pi * RPM / 60000);
 
     const float c1_OVER_RPM_KW = 1.0f / 60000.0f;
@@ -58,6 +58,7 @@ namespace spitfire
     inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
     inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
 
+    // http://en.wikipedia.org/wiki/Pounds_per_square_inch
     // ^ = square
     // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
     inline float PaTopsi(float Pa) { return Pa * 6894.75728001037f; }
@@ -65,8 +66,6 @@ namespace spitfire
 
     inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
     inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
-
-
 
 
 

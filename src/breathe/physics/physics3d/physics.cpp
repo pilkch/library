@@ -205,33 +205,40 @@ namespace breathe
       // dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, this, &nearCallbackStatic);
       // dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, this, &nearCallbackTrigger);
 
+      std::cout<<"cWorld::Update Calling dSpaceCollide"<<std::endl;
       dSpaceCollide(spaceDynamic, NULL, nearCallbackDynamic);
+      std::cout<<"cWorld::Update Calling dSpaceCollide2"<<std::endl;
       dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, NULL, &nearCallbackStatic);
 
       // For triggers
       //dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, NULL, &nearCallbackTrigger);
 
+      std::cout<<"cWorld::Update Calling dWorldQuickStep"<<std::endl;
       dWorldQuickStep(world, GetInterval() / 1000.0f);
+      std::cout<<"cWorld::Update Calling dJointGroupEmpty"<<std::endl;
       dJointGroupEmpty(contactgroup);
 
 
 
 
+      std::cout<<"cWorld::Update Updating each object"<<std::endl;
       {
-        std::list<cPhysicsObjectRef>::iterator iter = lPhysicsObject.begin();
-        const std::list<cPhysicsObjectRef>::iterator iterEnd = lPhysicsObject.end();
+        iterator iter = lPhysicsObject.begin();
+        const iterator iterEnd = lPhysicsObject.end();
         while (iter != iterEnd) {
           (*iter)->Update(currentTime);
 
           iter++;
         }
       }
+
+      std::cout<<"cWorld::Update returning"<<std::endl;
     }
 
     void nearCallbackStatic(void* f, dGeomID o1, dGeomID o2)
     {
       //Ignore collisions between NULL geometry
-      if (!(o1 && o2)) {
+      if ((o1 == 0) && (o2 == 0)) {
         LOG.Error("nearCallbackStatic", "NULL geometry");
         return;
       }
@@ -240,10 +247,10 @@ namespace breathe
       dBodyID Body1 = NULL;
       dBodyID Body2 = NULL;
 
-      if (o1) Body1 = dGeomGetBody (o1);
-      if (o2) Body2 = dGeomGetBody (o2);
+      if (o1 != 0) Body1 = dGeomGetBody (o1);
+      if (o2 != 0) Body2 = dGeomGetBody (o2);
 
-      if (Body1 && Body2 && dAreConnected (Body1, Body2)) return;
+      if ((Body1 != 0) && (Body2 != 0) && dAreConnected (Body1, Body2)) return;
 
       const int N = iMaxContacts;
       dContact contact[N];
@@ -263,7 +270,7 @@ namespace breathe
     void nearCallbackDynamic(void* f, dGeomID o1, dGeomID o2)
     {
       //Ignore collisions between NULL geometry
-      if (!(o1 && o2)) {
+      if ((o1 == 0) && (o2 == 0)) {
         LOG.Error("nearCallbackDynamic", "NULL geometry");
         return;
       }
@@ -272,10 +279,10 @@ namespace breathe
       dBodyID Body1 = NULL;
       dBodyID Body2 = NULL;
 
-      if (o1) Body1 = dGeomGetBody(o1);
-      if (o2) Body2 = dGeomGetBody(o2);
+      if (o1 != 0) Body1 = dGeomGetBody(o1);
+      if (o2 != 0) Body2 = dGeomGetBody(o2);
 
-      if (Body1 && Body2 && dAreConnected(Body1, Body2)) return;
+      if ((Body1 != 0) && (Body2 != 0) && dAreConnected(Body1, Body2)) return;
 
       const int N = iMaxContacts;
       dContact contact[N];

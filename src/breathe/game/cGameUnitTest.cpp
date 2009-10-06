@@ -353,9 +353,9 @@ namespace breathe
           stateset.SetGeometryTypeQuads();
 
           breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetVertexBufferObject(pCrateVBO);
           vertexBufferObject.SetEnabled(true);
-          vertexBufferObject.bHasValidValue = true;
+          vertexBufferObject.SetHasValidValue(true);
 
           pGroupNode->AttachChild(pNodeCrate0);
         }
@@ -376,9 +376,9 @@ namespace breathe
           stateset.SetGeometryTypeQuads();
 
           breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetVertexBufferObject(pCrateVBO);
           vertexBufferObject.SetEnabled(true);
-          vertexBufferObject.bHasValidValue = true;
+          vertexBufferObject.SetHasValidValue(true);
 
           // Child of the first crate
           pNodeCrate0->AttachChild(pNodeCrate1);
@@ -396,9 +396,9 @@ namespace breathe
           stateset.SetGeometryTypeQuads();
 
           breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetVertexBufferObject(pCrateVBO);
           vertexBufferObject.SetEnabled(true);
-          vertexBufferObject.bHasValidValue = true;
+          vertexBufferObject.SetHasValidValue(true);
 
           pGroupNode->AttachChild(pNodeFirst);
         }
@@ -420,9 +420,9 @@ namespace breathe
           stateset.SetGeometryTypeQuads();
 
           breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-          vertexBufferObject.pVertexBufferObject = pCrateVBO;
+          vertexBufferObject.SetVertexBufferObject(pCrateVBO);
           vertexBufferObject.SetEnabled(true);
-          vertexBufferObject.bHasValidValue = true;
+          vertexBufferObject.SetHasValidValue(true);
 
           // Child of the previous crate
           pNodePrevious->AttachChild(pNodeCurrent);
