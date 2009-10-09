@@ -201,10 +201,34 @@ namespace breathe
 
       pVehicle = new cVehicleHelicopter(object);
     }
+/*
+...
+class cLevelOrWhatever
+{
+public:
+   float_t GetAmbientAirPressureKPA() const;
+   float_t GetAmbientAirTemperatureDegreesCelcius() const;
+
+private:
+   math::cCurve timeOfDayToTemperatureDegreesCelciusCurve;
+};
+
+void cLevelOrWhatever::Load()
+{
+  // 25C at midday, 15C at 6am and 6pm, 10C overnight
+  timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(0.0f, 10.0f);
+  timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(0.25f, 15.0f);
+  timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(0.5f, 25.0f);
+  timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(0.25f, 15.0f);
+  timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(1.0f, 10.0f);
+}*/
 
     void cVehicleComponent::_Update(sampletime_t currentTime)
     {
       ASSERT(pVehicle != nullptr);
+
+      //pVehicle->SetAmbientAirPressureKPA(cLevelOrWhatever.GetAmbientAirPressureKPA());
+      //pVehicle->SetAmbientAirTemperatureDegreesCelcius(cLevelOrWhatever.GetAmbientAirTemperatureDegreesCelcius());
 
       pVehicle->Update(currentTime);
     }

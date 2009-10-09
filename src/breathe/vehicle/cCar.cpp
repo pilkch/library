@@ -18,6 +18,7 @@
 
 #include <spitfire/util/log.h>
 
+#include <spitfire/math/units.h>
 #include <spitfire/storage/filesystem.h>
 
 
@@ -63,31 +64,42 @@ namespace breathe
         fRPM *= 0.99f;
 
         fRPM = spitfire::math::clamp(fRPM, 1000.0f, 5000.0f);
+
+
+/*
+        // I know, in a real engine each of the four stages of an internal combustion engine are constantly taking place at a different place on each cylinder
+        // We greatly simplify this by saying that the four stages happen instantaneously and "firing" happens to each cylinder in turn, so we should get similar
+        // fuel economy etc. without doing the correct calculations.
+
+        // Basically, milliseconds between each firing = (RPM -> revs per second) / cylinders
+
+        const sampletime_t timeBetweenEachFiring = ...;
+
+        if (currentTime >= nextFiring) {
+          // Control the air fuel mix
+          1 petrol : 16 air or something?
+
+          ... use up some petrol
+
+
+          nextFiring = currentTime + timeBetweenEachFiring;
+        }*/
+      }
+
+      void cInterCooler::Update(sampletime_t currentTime)
+      {
+        // TODO: Use fAmbientAirPressureKPA and fAmbientAirTemperatureDegreesCelcius
+
+        //fOutputPressureKPA = fInputPressureKPA;
+        //fOutputTemperatureDegreesCelcius = fInputTemperatureDegreesCelcius - cooling from fCarVelocityKPH;
       }
 
 
 
-      class cTurbo
+
+      void cTurboCharger::Update(sampletime_t currentTime)
       {
-      public:
-        void SetMinimumBlowOffPressureKPA(float_t _fMinimumBlowOffPressureKPA) { fMinimumBlowOffPressureKPA = _fMinimumBlowOffPressureKPA; }
-        void SetSource(breathe::audio::cSourceRef _pSource) { pSource = _pSource; }
-
-        float_t GetPressureKPA() const { return fPressureKPA; }
-
-        void Update(spitfire::sampletime_t currentTime);
-
-      private:
-        float_t fMinimumBlowOffPressureKPA;
-        breathe::audio::cSourceRef pSource;
-
-        float_t fRPM;
-        float_t fPressureKPA;
-      };
-
-      void cTurbo::Update(spitfire::sampletime_t currentTime)
-      {
-        if ((fRPM < fBlowOffPoint) || (fAccelerator0To1 > 0.3f)) {
+        /*if ((fRPM < fBlowOffPoint) || (fAccelerator0To1 > 0.3f)) {
           // If there is not enough rpm or the accelerator is being applied then we do not blow off
           pSource->SetVolume(0.0f);
         } else {
@@ -96,22 +108,26 @@ namespace breathe
 
           // As the rpm increases the volume goes up exponentially
           if (fLoudnessFactor0To1 > math::cEPSILON) {
-            pSource->SetVolume(1.0f + (fHighRPMLoudnessFactor0To1 * math::Squared(fRPM)));
+            pSource->SetVolume(1.0f + (fHighRPMLoudnessFactor0To1 * math::squared(fRPM)));
           }
-        }
+        }*/
       }
 
 
 
-
-
-
-
-
-      void cCar::Update(sampletime_t currentTime)
+      float_t cWheel::GetWheelSpeedKPH() const
       {
-        engine.Update(currentTime);
-        turbo.Update(currentTime);
+        // 17 inch rim, 3 cm tire
+        const float fRadiusOfTireCentimeters = math::InchesToCentimeters(17.0f) + 3.0f;
+
+        const float fSpeedCentimetersPerMinute = ((2.0f * math::cPI * fRadiusOfTireCentimeters) * fRPM);
+        const float fSpeedKPH = fSpeedCentimetersPerMinute * (60.0 / 100000.0f); // 60 minutes in an hour, 100000 cm in a kilometer
+
+        return fSpeedKPH;
+      }
+
+      void cWheel::Update(sampletime_t currentTime)
+      {
       }
     }
   }
@@ -586,81 +602,177 @@ namespace breathe
 
 namespace breathe
 {
-   namespace game
-   {
-      cVehicleCar::cVehicleCar(cGameObject& _object) :
-         cVehicleBase(_object, TYPE::CAR)
+  namespace game
+  {
+    cVehicleCar::cVehicleCar(cGameObject& _object) :
+        cVehicleBase(_object, TYPE::CAR)
+    {
+    }
+
+    void cVehicleCar::_Update(sampletime_t currentTime)
+    {
+      engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
+      engine.Update(currentTime);
+
+      // Update the engine first
+      engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
+      engine.SetInputPressureKPA(fEngineInputAirPressureKPA);
+      engine.SetInputTemperatureDegreesCelcius(fEngineInputAirTemperatureDegreesCelcius);
+
+      engine.Update(currentTime);
+
+      fEngineInputAirPressureKPA = fAmbientAirPressureKPA;
+      fEngineInputAirTemperatureDegreesCelcius = fAmbientAirTemperatureDegreesCelcius;
+/*
       {
+        // Update each super charger
+        const size_t n = superChargers.size();
+        for (size_t i = 0; i < n; i++) {
+          superChargers[i].SetEngineRPM(engine.GetRPM());
+          superChargers[i].SetAmbientAirPressureKPA(fAmbientAirPressureKPA);
+          superChargers[i].SetAmbientAirTemperatureDegreesCelcius(fAmbientAirTemperatureDegreesCelcius);
+
+          superChargers[i].Update(currentTime);
+
+          // Add to the combined output air pressure
+          fEngineInputAirPressureKPA += superChargers[i].GetOutputPressureKPA();
+          fEngineInputAirTemperatureDegreesCelcius = max(fEngineInputAirTemperatureDegreesCelcius, superChargers[i].GetOutputTemperatureDegreesCelcius());
+        }
       }
 
-      void cVehicleCar::_Update(sampletime_t currentTime)
-      {
-         engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
-         engine.Update(currentTime);
+      if (!turboChargers.empty()) {
+        // Update each turbo charger
+        const size_t n = turboChargers.size();
 
-         const float_t fEngineRPM = engine.GetRPM();
-         const float_t fNaturalEngineRPM = 1000.0f;
-         ASSERT(pSourceEngine != nullptr);
-         pSourceEngine->SetPitch(fEngineRPM / fNaturalEngineRPM);
+        // Split the pressure between each turbo equally, I don't know how realistic this is for two differently sized turbos, you might want more exhaust going to the larger one?
+        ASSERT(n != 0);
+        const float_t fSplitEngineExhaustPressureKPA = engine.GetExhaustPressureKPA() / n;
 
+        for (size_t i = 0; i < n; i++) {
+          turboChargers[i].SetEngineExhaustPressureKPA(fSplitEngineExhaustPressureKPA);
+          turboChargers[i].SetEngineExhaustTemperatureDegreesCelcius(engine.GetExhaustTemperatureDegreesCelcius());
 
-         /*if (fInputBrake0To1 > 0.01f) {
-            // This is more of a brake than an actual go down method
-            fInputAccelerator0To1 = 0.0f;
-         }
+          turboChargers[i].Update(currentTime);
 
-         if (fInputLeft0To1 > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-         }
-         if (fInputRight0To1 > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-         }
-
-         if (fInputHandBrake0To1 > 0.01f) {
-         }
-
-         if (fInputClutch0To1 > 0.01f) {
-         }*/
-
-
-         cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
-         if (pPhysicsComponent == nullptr) return;
-
-         physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
-         if (pPhysicsObject == nullptr) return;
-
-
-
-
-         // JUST FOR TESTING
-         if (fInputAccelerator0To1 > 0.01f) {
-            breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
-            pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
-         }
-         if (fInputBrake0To1 > 0.01f) {
-            // This is more of a brake than an actual go down method
-            fInputAccelerator0To1 = 0.0f;
-         }
-
-         if (fInputLeft0To1 > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-         }
-         if (fInputRight0To1 > 0.01f) {
-            breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
-            pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
-         }
-
-
-         // Set values back to defaults for next time
-         fInputAccelerator0To1 = 0.0f;
-         fInputBrake0To1 = 0.0f;
-         fInputLeft0To1 = 0.0f;
-         fInputRight0To1 = 0.0f;
-         fInputHandBrake0To1 = 0.0f;
-         fInputClutch0To1 = 0.0f;
+          // Add to the combined output air pressure
+          fEngineInputAirPressureKPA += turboChargers[i].GetOutputPressureKPA();
+          fEngineInputAirTemperatureDegreesCelcius = max(fEngineInputAirTemperatureDegreesCelcius, turboChargers[i].GetOutputTemperatureDegreesCelcius());
+        }
       }
-   }
+
+      {
+        // Pass the engine input air through each intercooler and perform any cooling
+        const size_t n = interCoolers.size();
+        for (size_t i = 0; i < n; i++) {
+          interCoolers[i].SetCarVelocityKPH(fVelocityKPH);
+          interCoolers[i].SetAmbientAirPressureKPA(fAmbientAirPressureKPA);
+          interCoolers[i].SetAmbientAirTemperatureDegreesCelcius(fAmbientAirTemperatureDegreesCelcius);
+          interCoolers[i].SetInputPressureKPA(fEngineInputAirPressureKPA);
+          interCoolers[i].SetInputTemperatureDegreesCelcius(fEngineInputAirTemperatureDegreesCelcius);
+
+          interCoolers[i].Update(currentTime);
+
+          // Set our input air pressure and temperature to whatever the intercooler is putting out
+          fEngineInputAirPressureKPA = interCoolers[i].GetOutputPressureKPA();
+          fEngineInputAirTemperatureDegreesCelcius = interCoolers[i].GetOutputTemperatureDegreesCelcius();
+        }
+      }*/
+
+      // TODO: gearbox, clutch, differential, suspension, tires
+
+      {
+        // Update wheels
+        // TODO: Go through gearbox, clutch, differential first
+        const float_t fRPM = engine.GetRPM();
+        const float_t fTorqueNm = engine.GetTorqueNm();
+
+        if (IsAWD() || IsRWD()) {
+          wheels[WHEEL_REAR_LEFT].SetRPM(fRPM);
+          wheels[WHEEL_REAR_LEFT].SetTorqueNm(fTorqueNm);
+          wheels[WHEEL_REAR_RIGHT].SetRPM(fRPM);
+          wheels[WHEEL_REAR_RIGHT].SetTorqueNm(fTorqueNm);
+        }
+
+        if (IsAWD() || IsFWD()) {
+          wheels[WHEEL_FRONT_LEFT].SetRPM(fRPM);
+          wheels[WHEEL_FRONT_LEFT].SetTorqueNm(fTorqueNm);
+          wheels[WHEEL_FRONT_RIGHT].SetRPM(fRPM);
+          wheels[WHEEL_FRONT_RIGHT].SetTorqueNm(fTorqueNm);
+        }
+
+        const size_t n = wheels.size();
+        for (size_t i = 0; i < n; i++) {
+          wheels[i].Update(currentTime);
+        }
+      }
+
+
+
+
+
+      const float_t fEngineRPM = engine.GetRPM();
+      const float_t fNaturalEngineRPM = 1000.0f;
+      ASSERT(pSourceEngine != nullptr);
+      pSourceEngine->SetPitch(fEngineRPM / fNaturalEngineRPM);
+
+
+      /*if (fInputBrake0To1 > 0.01f) {
+        // This is more of a brake than an actual go down method
+        fInputAccelerator0To1 = 0.0f;
+      }
+
+      if (fInputLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+      if (fInputHandBrake0To1 > 0.01f) {
+      }
+
+      if (fInputClutch0To1 > 0.01f) {
+      }*/
+
+
+      cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
+      if (pPhysicsComponent == nullptr) return;
+
+      physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
+      if (pPhysicsObject == nullptr) return;
+
+
+
+
+      // JUST FOR TESTING
+      if (fInputAccelerator0To1 > 0.01f) {
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+      }
+      if (fInputBrake0To1 > 0.01f) {
+        // This is more of a brake than an actual go down method
+        fInputAccelerator0To1 = 0.0f;
+      }
+
+      if (fInputLeft0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+      if (fInputRight0To1 > 0.01f) {
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+      }
+
+
+      // Set values back to defaults for next time
+      fInputAccelerator0To1 = 0.0f;
+      fInputBrake0To1 = 0.0f;
+      fInputLeft0To1 = 0.0f;
+      fInputRight0To1 = 0.0f;
+      fInputHandBrake0To1 = 0.0f;
+      fInputClutch0To1 = 0.0f;
+    }
+  }
 }

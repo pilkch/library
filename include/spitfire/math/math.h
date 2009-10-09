@@ -232,7 +232,7 @@ namespace spitfire
 
     inline float squared(float x)
     {
-      return x * x;
+      return (x * x);
     }
 
     inline float sqrtf(float x)

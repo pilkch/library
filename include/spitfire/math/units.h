@@ -58,6 +58,13 @@ namespace spitfire
     inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
     inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
 
+
+
+    // http://en.wikipedia.org/wiki/Kelvin
+    inline float KelvinToDegreesCelcius(float fKelvin) { return fKelvin - 273.15f; }
+    inline float DegreesCelciusToKelvin(float fDegreesCelcius) { return fDegreesCelcius + 273.15f; }
+
+
     // http://en.wikipedia.org/wiki/Pounds_per_square_inch
     // ^ = square
     // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
@@ -67,9 +74,44 @@ namespace spitfire
     inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
     inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
 
+    // http://en.wikipedia.org/wiki/Density_of_air
+    // http://en.wikipedia.org/wiki/ISO_1
+    const float cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
+    const float cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f;
+    const float cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f;
+
+    // http://en.wikipedia.org/wiki/Density_of_air#Altitude
+    // returns density of air in kg/m3 for the given altitude in meters
+    inline float GetDensityOfAirKgPerCubicMeterForAltitudeMeters(float fAltitudeMeters)
+    {
+      const float h = fAltitudeMeters;
+      const float T0 = 288.15f; // sea level standard temperature T0 = 288.15 K
+      const float L = 0.0065f; // temperature lapse rate L = 0.0065 K/m
+      const float T = T0 - (L * h);
+
+      const float p0 = 101325.0f; // sea level standard atmospheric pressure p0 = 101325 Pa
+      const float g = 9.80665f; // Earth-surface gravitational acceleration g = 9.80665 m/s2.
+      const float M = 0.0289644f; // molar mass of dry air M = 0.0289644 kg/mol
+      const float R = 8.31447f; // universal gas constant R = 8.31447 J/(mol·K)
+      const float p = p0 * (pow(1.0f - ((L * h) / T0), (g * M) / (R * L)));
+
+      return (p * M) / (R * T);
+    }
+
+    // http://en.wikipedia.org/wiki/Density_of_air#Temperature_and_pressure
+    inline float GetDensityOfAirKgPerCubicMeterForPressureKPAAndTemperatureDegreesCelcius(float fPressureKPA, float fTemperatureDegreesCelcius)
+    {
+      const float p = 1000.0f * fPressureKPA; // absolute pressure (must be in Pa not KPA)
+      const float R = 287.05f; // specific gas constant for dry air is 287.05 J/(kg·K) in SI units
+      const float T = DegreesCelciusToKelvin(fTemperatureDegreesCelcius); // absolute temperature
+
+      return (p / (R * T));
+    }
 
 
 
+    inline float CentimetersToInches(float fCentimeters) { return fCentimeters * 0.393700787401575f; }
+    inline float InchesToCentimeters(float fInches) { return fInches * 2.54f; }
     inline float MetersToFeet(float fMeters) { return fMeters * 3.2808399f; }
     inline float MetersToMiles(float fMeters) { return fMeters * 0.000621371192f; }
     //inline float KiloGramsToWatts(float fKg) { return fKg * 0.0025f; }
