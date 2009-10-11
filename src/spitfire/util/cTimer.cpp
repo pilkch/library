@@ -15,9 +15,9 @@ namespace spitfire
 
     cTimer::cTimer() :
       iCount(0),
-      lastTime(0),
-      beginTime(0),
-      endTime(0),
+      lastTimeMS(0.0f),
+      beginTimeMS(0.0f),
+      endTimeMS(0.0f),
 
       bIsLockedFPS(true),
       fFPS(0.0f),
@@ -36,9 +36,9 @@ namespace spitfire
       fUpdateInterval = 100.0f;
       fUpdateIntervalDivFPS = fUpdateInterval / 1000.0f;
 
-      lastTime = GetTime();
-      beginTime = lastTime;
-      endTime = lastTime;
+      lastTimeMS = GetTimeMS();
+      beginTimeMS = lastTimeMS;
+      endTimeMS = lastTimeMS;
     }
 
     void cTimer::InitWithUnspecifiedFPS()
@@ -51,38 +51,40 @@ namespace spitfire
       fUpdateInterval = 0.0f;
       fUpdateIntervalDivFPS = 0.0f;
 
-      lastTime = GetTime();
-      beginTime = lastTime;
-      endTime = lastTime;
+      lastTimeMS = GetTimeMS();
+      beginTimeMS = lastTimeMS;
+      endTimeMS = lastTimeMS;
     }
 
 
-    void cTimer::Begin(sampletime_t currentTime)
+    void cTimer::Begin()
     {
-      beginTime = currentTime;
+      beginTimeMS = float(GetTimeMS());
     }
 
-    void cTimer::End(sampletime_t currentTime)
+    void cTimer::End()
     {
-      endTime = currentTime;
+      const float currentTime = float(GetTimeMS());
+
+      endTimeMS = currentTime;
 
 
       iCount++;
-      fTimeMS += float(endTime - beginTime);
+      fTimeMS += endTimeMS - beginTimeMS;
 
       if (bIsLockedFPS) {
         // Update only every interval
-        if ((currentTime - lastTime) > fUpdateInterval) {
-          fFPS = (iCount * ((currentTime - lastTime) * fUpdateIntervalDivFPS));
-          fMPF = endTime - beginTime;
-          lastTime = currentTime;
+        if ((currentTime - lastTimeMS) > fUpdateInterval) {
+          fFPS = (iCount * ((currentTime - lastTimeMS) * fUpdateIntervalDivFPS));
+          fMPF = endTimeMS - beginTimeMS;
+          lastTimeMS = currentTime;
           iCount = 0;
         }
       } else {
         // Update every single call
-        fFPS = 1000.0f / (currentTime - lastTime);
-        fMPF = endTime - beginTime;
-        lastTime = currentTime;
+        fFPS = 1000.0f / (currentTime - lastTimeMS);
+        fMPF = endTimeMS - beginTimeMS;
+        lastTimeMS = currentTime;
         iCount = 0;
       }
     }

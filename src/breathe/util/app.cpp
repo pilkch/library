@@ -1096,16 +1096,14 @@ namespace breathe
   {
 #ifdef BUILD_DEBUG
     if (pGameUnitTest != nullptr) pGameUnitTest->Update(currentTime);
-#endif
 
-    // Update our current state
-    GetCurrentState().Update(currentTime);
-
-#ifdef BUILD_DEBUG
     pFPSRenderGraph->AddPoint(tRender.GetMPF());
     pFPSUpdateGraph->AddPoint(tUpdate.GetMPF());
     pFPSPhysicsGraph->AddPoint(tPhysics.GetMPF());
 #endif
+
+    // Update our current state
+    GetCurrentState().Update(currentTime);
 
     // NOTE: The current state needs to have set this camera correctly by now
     pRender->SetFrustum(camera.CreateFrustumFromCamera());
@@ -1823,7 +1821,7 @@ namespace breathe
 
     LOG.Newline("MainLoop");
 
-    sampletime_t currentTime = spitfire::util::GetTime();
+    sampletime_t currentTime = spitfire::util::GetTimeMS();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     size_t uiPhysicsHz = pWorld->GetFrequencyHz();
@@ -1852,22 +1850,19 @@ namespace breathe
 
     //TODO: Activate window so that it is on top as soon as we start
 
-    do
-    {
+    do {
       // If this fails we have a problem.  At all times we should either have
       // bDone == true or states has one or more states
       assert(!states.empty());
 
-      currentTime = spitfire::util::GetTime();
+      currentTime = spitfire::util::GetTimeMS();
 
-      if (currentTime > fEventsNext)
-      {
+      if (currentTime > fEventsNext) {
         _UpdateEvents(currentTime);
         fEventsNext = currentTime + fEventsDelta;
       }
 
-      if (currentTime > fInputNext)
-      {
+      if (currentTime > fInputNext) {
         // These have to be in this order or nothing gets collected
         _UpdateInput(currentTime);
         _UpdateKeys(currentTime);
@@ -1890,17 +1885,17 @@ namespace breathe
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
       if (bStepPhysics || (bUpdatePhysics && currentTime > fPhysicsNext)) {
-        tPhysics.Begin(spitfire::util::GetTime());
-          _UpdatePhysics(state, spitfire::util::GetTime());
-        tPhysics.End(spitfire::util::GetTime());
+        tPhysics.Begin();
+          _UpdatePhysics(state, currentTime);
+        tPhysics.End();
         fPhysicsNext = currentTime + fPhysicsDelta;
       }
 #endif
 
       if (currentTime > fUpdateNext) {
-        tUpdate.Begin(spitfire::util::GetTime());
-          _Update(spitfire::util::GetTime());
-        tUpdate.End(spitfire::util::GetTime());
+        tUpdate.Begin();
+          _Update(currentTime);
+        tUpdate.End();
         fUpdateNext = currentTime + fUpdateDelta;
 
         spitfire::util::cRunOnMainThreadQueue::UpdateFromMainThread();
@@ -1917,9 +1912,9 @@ namespace breathe
 
       // TODO: Do we need this? && currentTime > fRenderNext)
       if (bActive && !bDone) {
-        tRender.Begin(spitfire::util::GetTime());
-          _Render(state, spitfire::util::GetTime());
-        tRender.End(spitfire::util::GetTime());
+        tRender.Begin();
+          _Render(state, currentTime);
+        tRender.End();
       }
 
       breathe::util::YieldThisThread();

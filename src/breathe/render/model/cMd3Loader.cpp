@@ -1042,7 +1042,7 @@ namespace breathe
       if (!pModel->animations.size()) return;
 
       // Get the current time in milliseconds
-      const float time = spitfire::util::GetTime();
+      const float time = spitfire::util::GetTimeMS();
 
       // Find the time that has elapsed since the last time that was stored
       float elapsedTime = time - pModel->lastTime;

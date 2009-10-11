@@ -28,7 +28,7 @@ namespace breathe
     {
     public:
       size_t GetFrequencyHz() const;
-      float GetInterval() const;
+      float GetIntervalMS() const;
       size_t GetIterations() const;
 
       void Destroy();

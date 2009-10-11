@@ -13,8 +13,8 @@ namespace spitfire
       void InitWithLockedFPS(unsigned int uiHz);
       void InitWithUnspecifiedFPS();
 
-      void Begin(sampletime_t currentTime);
-      void End(sampletime_t currentTime);
+      void Begin();
+      void End();
 
       // Milliseconds per frame
       inline float GetMPF() const { return fMPF; }
@@ -26,9 +26,9 @@ namespace spitfire
       int iCount;
       float fTimeMS;
 
-      uint32_t lastTime;
-      uint32_t beginTime;
-      uint32_t endTime;
+      float lastTimeMS;
+      float beginTimeMS;
+      float endTimeMS;
 
       bool bIsLockedFPS;
       float fFPS;
@@ -37,7 +37,7 @@ namespace spitfire
       float fUpdateIntervalDivFPS;
     };
 
-    inline sampletime_t GetTime()
+    inline sampletime_t GetTimeMS()
     {
       // Return the milliseconds since we started
       return SDL_GetTicks();

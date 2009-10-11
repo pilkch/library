@@ -48,7 +48,7 @@ namespace breathe
   {
     // *** Timing
     const unsigned int uiFrequencyHz = 20;
-    const float fInterval = 1000.0f / uiFrequencyHz;
+    const float fIntervalMS = 1000.0f / uiFrequencyHz;
 
     // *** Physics data
     const int iMaxContacts = 100;
@@ -76,9 +76,9 @@ namespace breathe
       return uiFrequencyHz;
     }
 
-    float cWorld::GetInterval() const
+    float cWorld::GetIntervalMS() const
     {
-      return fInterval;
+      return fIntervalMS;
     }
 
     dSpaceID cWorld::GetSpaceStatic() { return spaceStatic; }
@@ -117,6 +117,16 @@ namespace breathe
       LOG<<"physics::cWorld::Init"<<std::endl;
 
       dInitODE2(0);
+
+      const char* szExtensions = dGetConfiguration();
+      std::cout<<"physics::cWorld::Init Extensions \""<<szExtensions<<"\""<<std::endl;
+
+      // ODE_single_precision
+      // ODE_double_precision
+      // ODE_EXT_no_debug
+      // ODE_EXT_trimesh
+
+
       world = dWorldCreate();
 
       dWorldSetGravity(world, 0, 0, fGravity);
@@ -130,7 +140,7 @@ namespace breathe
       dWorldSetCFM(world, fCFM);
 
       dWorldSetContactMaxCorrectingVel(world, 1.0f);
-      dWorldSetAutoDisableFlag(world, 1);
+      dWorldSetAutoDisableFlag(world, 0);
 
       spaceStatic = dHashSpaceCreate(0);
       spaceDynamic = dHashSpaceCreate(0);
@@ -205,23 +215,23 @@ namespace breathe
       // dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, this, &nearCallbackStatic);
       // dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, this, &nearCallbackTrigger);
 
-      std::cout<<"cWorld::Update Calling dSpaceCollide"<<std::endl;
+      //std::cout<<"cWorld::Update Calling dSpaceCollide"<<std::endl;
       dSpaceCollide(spaceDynamic, NULL, nearCallbackDynamic);
-      std::cout<<"cWorld::Update Calling dSpaceCollide2"<<std::endl;
+      //std::cout<<"cWorld::Update Calling dSpaceCollide2"<<std::endl;
       dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceStatic, NULL, &nearCallbackStatic);
 
       // For triggers
       //dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, NULL, &nearCallbackTrigger);
 
-      std::cout<<"cWorld::Update Calling dWorldQuickStep"<<std::endl;
-      dWorldQuickStep(world, GetInterval() / 1000.0f);
-      std::cout<<"cWorld::Update Calling dJointGroupEmpty"<<std::endl;
+      //std::cout<<"cWorld::Update Calling dWorldQuickStep"<<std::endl;
+      dWorldQuickStep(world, fIntervalMS / 1000.0f);
+      //std::cout<<"cWorld::Update Calling dJointGroupEmpty"<<std::endl;
       dJointGroupEmpty(contactgroup);
 
 
 
 
-      std::cout<<"cWorld::Update Updating each object"<<std::endl;
+      //std::cout<<"cWorld::Update Updating each object"<<std::endl;
       {
         iterator iter = lPhysicsObject.begin();
         const iterator iterEnd = lPhysicsObject.end();
@@ -232,7 +242,7 @@ namespace breathe
         }
       }
 
-      std::cout<<"cWorld::Update returning"<<std::endl;
+      //std::cout<<"cWorld::Update returning"<<std::endl;
     }
 
     void nearCallbackStatic(void* f, dGeomID o1, dGeomID o2)

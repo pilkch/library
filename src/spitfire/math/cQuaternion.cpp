@@ -245,7 +245,6 @@ namespace spitfire
     cVec3 cQuaternion::GetAxis() const
     {
       const float angle = GetAngle();
-      ASSERT(angle != 0.0f);
       const float scale = 1.0f / sin(angle * 0.5f);
 
       return cVec3(scale * x, scale * y, scale * z);

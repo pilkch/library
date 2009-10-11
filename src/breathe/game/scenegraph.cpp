@@ -428,7 +428,7 @@ namespace breathe
     {
       cSceneNode::_Update(visitor);
 
-      const sampletime_t currentTime = spitfire::util::GetTime();
+      const sampletime_t currentTime = spitfire::util::GetTimeMS();
       animation.model.Update(currentTime);
     }
 
@@ -943,7 +943,7 @@ namespace breathe
 
           // MD3 Models, ideally this would not be a special case
           {
-            const sampletime_t currentTime = spitfire::util::GetTime();
+            const sampletime_t currentTime = spitfire::util::GetTimeMS();
             std::list<cRenderGraphMd3Pair>::iterator iter(rendergraph.md3Models.begin());
             const std::list<cRenderGraphMd3Pair>::iterator iterEnd(rendergraph.md3Models.end());
             while (iter != iterEnd) {
@@ -1063,13 +1063,13 @@ namespace breathe
               glTranslatef(pRender->GetFrustum().eye.x, pRender->GetFrustum().eye.y, pRender->GetFrustum().eye.z);
 
               render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
-              pParticleSystemPlanets->Update(spitfire::util::GetTime());
+              pParticleSystemPlanets->Update(spitfire::util::GetTimeMS());
               pParticleSystemPlanets->Render();
 
               pRender->ClearMaterial();
 
               render::cParticleSystemCustomBillboard* pParticleSystemStars = scenegraph.pSkySystem->GetStarParticleSystem();
-              pParticleSystemStars->Update(spitfire::util::GetTime());
+              pParticleSystemStars->Update(spitfire::util::GetTimeMS());
               pParticleSystemStars->Render();
 
               glMatrixMode(GL_MODELVIEW);
@@ -1414,7 +1414,7 @@ namespace breathe
 
             //pRoot->AddChild(&model);
 
-            const sampletime_t currentTime = util::GetTime();
+            const sampletime_t currentTime = util::GetTimeMS();
             render::cCamera camera;
 
             scenegraph.Update(currentTime);

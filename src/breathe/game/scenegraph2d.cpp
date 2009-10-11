@@ -995,7 +995,7 @@ namespace breathe
 
             //pRoot->AddChild(&model);
 
-            const sampletime_t currentTime = util::GetTime();
+            const sampletime_t currentTime = util::GetTimeMS();
             render::cCamera camera;
 
             scenegraph.Update(currentTime);

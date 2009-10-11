@@ -47,6 +47,45 @@
 
 
 
+
+// Models required
+
+// Chinook
+// Bell - small helicopter
+
+// Jeep
+// Pallet
+// Food crate to put on a pallet
+// Barrel of water
+
+// Various trees - palm, fir, bushes, african savannah trees
+// Various grass - short, long, tall as a person
+// Hook for hooking objects
+
+// Bridges
+// Antennas ...look up how to spell
+// Fences - cyclone, wood, metal sheets
+// Little shanty houses
+// Oil rig in the middle of the ocean
+
+
+// Special effects
+
+// Car paint on helicopters
+// Clouds of dust from helicopter
+// Smoke from fires
+// Rain and lightning
+
+
+
+
+// Editor
+
+// Place points - start point, set down point, landing point
+
+
+
+
 // Pickup crates, deliver, drop crates with parachutes, for food aid drop
 // Pickup people, rescue from bushfire, burning building, stranded on houses in flooded areas, at sea on air craft carrier, sinking ship, oil rig, capsized yacht
 // Build bridge, place spire onto top of tall building
