@@ -140,7 +140,7 @@ namespace breathe
       dWorldSetCFM(world, fCFM);
 
       dWorldSetContactMaxCorrectingVel(world, 1.0f);
-      dWorldSetAutoDisableFlag(world, 0);
+      dWorldSetAutoDisableFlag(world, 1);
 
       spaceStatic = dHashSpaceCreate(0);
       spaceDynamic = dHashSpaceCreate(0);
@@ -223,8 +223,9 @@ namespace breathe
       // For triggers
       //dSpaceCollide2((dGeomID)spaceDynamic, (dGeomID)spaceTrigger, NULL, &nearCallbackTrigger);
 
-      //std::cout<<"cWorld::Update Calling dWorldQuickStep"<<std::endl;
+      //std::cout<<"cWorld::Update Calling dWorldQuickStep interval="<<fIntervalMS / 1000.0f<<" objects="<<lPhysicsObject.size()<<std::endl;
       dWorldQuickStep(world, fIntervalMS / 1000.0f);
+
       //std::cout<<"cWorld::Update Calling dJointGroupEmpty"<<std::endl;
       dJointGroupEmpty(contactgroup);
 

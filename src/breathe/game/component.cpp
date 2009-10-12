@@ -19,7 +19,7 @@
 
 #include <breathe/game/component.h>
 
-//#include <breathe/vehicle/cCar.h>
+#include <breathe/vehicle/cCar.h>
 //#include <breathe/vehicle/cPlane.h>
 #include <breathe/vehicle/cHelicopter.h>
 
@@ -183,8 +183,9 @@ namespace breathe
     {
       SAFE_DELETE(pVehicle);
 
-      ASSERT(false);
-      //pVehicle = new cVehicleCar;
+      pVehicle = new cVehicleCar(object);
+
+      pVehicle->Init();
     }
 
     void cVehicleComponent::SetPlane()
@@ -192,7 +193,9 @@ namespace breathe
       SAFE_DELETE(pVehicle);
 
       ASSERT(false);
-      //pVehicle = new cVehiclePlane;
+      //pVehicle = new cVehiclePlane(object);
+
+      //pVehicle->Init();
     }
 
     void cVehicleComponent::SetHelicopter()
@@ -200,6 +203,8 @@ namespace breathe
       SAFE_DELETE(pVehicle);
 
       pVehicle = new cVehicleHelicopter(object);
+
+      pVehicle->Init();
     }
 /*
 ...

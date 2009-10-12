@@ -287,6 +287,8 @@ namespace breathe
       bool IsPlane() const { return (type == TYPE::PLANE); }
       bool IsHelicopter() const { return (type == TYPE::HELICOPTER); }
 
+      void Init() { _Init(); }
+
 
       // General Keyboard/Mouse/Joystick Inputs
       void SetInputAccelerator0To1(float_t fInput0To1) { fInputAccelerator0To1 = fInput0To1; }
@@ -341,6 +343,7 @@ namespace breathe
       float_t fInputYawRight0To1;
 
     private:
+      virtual void _Init() {}
       virtual void _Update(sampletime_t currentTime) {}
 
       TYPE type;

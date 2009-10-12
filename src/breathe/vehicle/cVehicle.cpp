@@ -16,6 +16,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+// OpenGL
+#include <GL/GLee.h>
+
 #include <ode/ode.h>
 
 // Spitfire headers
@@ -56,6 +59,29 @@
 #include <breathe/vehicle/cWheel.h>
 #include <breathe/vehicle/cSeat.h>
 #include <breathe/vehicle/cVehicle.h>
+
+
+namespace breathe
+{
+  namespace vehicle
+  {
+    void cVehicle::Create(breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, breathe::render::cTextureFrameBufferObjectRef _pCubeMapTexture)
+    {
+      LOG<<"cVehicle::Create"<<std::endl;
+      pGameObject.reset(new breathe::game::cGameObject);
+
+
+      breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pGameObject);
+      pRenderComponent->SetSceneNode(pNode);
+      pGameObject->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+
+      gameobjects.Add(pGameObject);
+
+
+      pCubeMapTexture = _pCubeMapTexture;
+    }
+  }
+}
 
 bool fourwheeldrive=false;
 

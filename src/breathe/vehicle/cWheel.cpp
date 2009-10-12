@@ -15,6 +15,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+// OpenGL
+#include <GL/GLee.h>
+
 #include <ode/ode.h>
 
 // Spitfire headers

@@ -1,52 +1,7 @@
 #ifndef CHELICOPTER_H
 #define CHELICOPTER_H
 
-#include <breathe/game/component.h>
-
-namespace breathe
-{
-  namespace vehicle
-  {
-    class cVehicle
-    {
-    public:
-      void Create(breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture);
-
-      breathe::game::cGameObjectRef GetGameObject() { return pGameObject; }
-      breathe::render::cTextureFrameBufferObjectRef GetCubeMapTexture() { return pCubeMapTexture; }
-
-    private:
-      breathe::game::cGameObjectRef pGameObject;
-      breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
-    };
-
-    inline void cVehicle::Create(breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, breathe::render::cTextureFrameBufferObjectRef _pCubeMapTexture)
-    {
-      LOG<<"cVehicle::Create"<<std::endl;
-      pGameObject.reset(new breathe::game::cGameObject);
-
-
-      breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pGameObject);
-      pRenderComponent->SetSceneNode(pNode);
-      pGameObject->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
-
-      gameobjects.Add(pGameObject);
-
-
-      pCubeMapTexture = _pCubeMapTexture;
-    }
-
-
-
-    class cVehicleFactory
-    {
-    public:
-      //void CreateCar(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, breathe::scenegraph3d::cGroupNodeRef pNode);
-      //void CreatePlane(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, breathe::scenegraph3d::cGroupNodeRef pNode);
-      void CreateHelicopter(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, cVehicle& vehicle) const;
-    };
-  }
-}
+#include <breathe/vehicle/cVehicle.h>
 
 namespace breathe
 {
@@ -74,7 +29,10 @@ namespace breathe
       explicit cVehicleHelicopter(cGameObject& object);
 
     private:
+      virtual void _Init();
       virtual void _Update(sampletime_t currentTime);
+
+      audio::cSourceRef pSourceEngine;
     };
   }
 }

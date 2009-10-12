@@ -11,6 +11,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+// OpenGL
 #include <GL/GLee.h>
 
 #include <ode/ode.h>
@@ -219,141 +220,101 @@ namespace breathe
     {
       LOG<<"cVehicleFactory::CreateHelicopter"<<std::endl;
 
-        cHelicopterFactory factory;
+      cHelicopterFactory factory;
 
 
 
-        breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
+      breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
 
-        factory.CreateChinook(pNode, pCubeMapTexture);
-        ASSERT(pCubeMapTexture != nullptr);
-
-
-
-
-        pNode->SetRelativePosition(position);
-        pNode->SetRelativeRotation(rotation);
+      factory.CreateChinook(pNode, pCubeMapTexture);
+      ASSERT(pCubeMapTexture != nullptr);
 
 
 
 
-        vehicle.Create(gameobjects, pNode, pCubeMapTexture);
-
-        breathe::game::cGameObjectRef pVehicle = vehicle.GetGameObject();
-
-        pVehicle->SetPositionRelative(position);
+      pNode->SetRelativePosition(position);
+      pNode->SetRelativeRotation(rotation);
 
 
 
+      vehicle.Create(gameobjects, pNode, pCubeMapTexture);
 
-        //breathe::string_t sFilename;
-        //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
-        //pVehicle->pModel = pRender->GetModel(sFilename);
-        //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
-        //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
+      breathe::game::cGameObjectRef pVehicle = vehicle.GetGameObject();
 
-        // Test crate
-        breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-        pPhysicsObject->fWeightKg = 10000.0f;
-
-        pPhysicsObject->CreateBox(pWorld, position);
-
-
-        //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
-        //pNode->SetRelativePosition(position);
-        //pNode->SetRelativeRotation(spitfire::math::cQuaternion());
-
-        //breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
-        //stateset.SetStateFromMaterial(pVehicleVBOMaterial);
-
-        //breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-        //vertexBufferObject.pVertexBufferObject = pVehicleVBO;
-        //vertexBufferObject.SetEnabled(true);
-        //vertexBufferObject.bHasValidValue = true;
-
-        // Attach to the root node
-        //breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
-        //breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
-        //pRootAsGroupNode->AttachChild(pNode);
+      pVehicle->SetPositionRelative(position);
 
 
 
 
-        breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-        pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
-        pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+      // Test crate
+      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
+      pPhysicsObject->fWeightKg = 10000.0f;
 
-        //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
-        //pRenderComponent->SetSceneNode(pNode);
-        //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
-
-        breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
-        pVehicleComponent->SetHelicopter();
-        pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+      pPhysicsObject->CreateBox(pWorld, position);
 
 
 
 
+      breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
+      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
 
 
+      breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
+      pVehicleComponent->SetHelicopter();
+      pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
 
 
+      {
+        // Create the front rotor
+        spitfire::string_t sFilename;
+        breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
 
+        breathe::render::model::cStaticModelSceneNodeFactory factory;
 
+        std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+        factory.LoadFromFile(sFilename, meshes);
 
+        const float x = 0.0f;
+        const float y = 10.4f;
+        const float z = 8.5f;
 
+        breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
+        pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
 
+        //spitfire::math::cQuaternion rotation;
+        //rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(45.0f));
+        //pNodeRotor->SetRelativeRotation(rotation);
 
-        {
-          // Create the front rotor
-          spitfire::string_t sFilename;
-          breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
+        factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
 
-          breathe::render::model::cStaticModelSceneNodeFactory factory;
+        pNode->AttachChild(pNodeRotor);
+      }
+      {
+        // Create the rear rotor
+        spitfire::string_t sFilename;
+        breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
 
-          std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
-          factory.LoadFromFile(sFilename, meshes);
+        breathe::render::model::cStaticModelSceneNodeFactory factory;
 
-          const float x = 0.0f;
-          const float y = 10.4f;
-          const float z = 8.5f;
+        std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+        factory.LoadFromFile(sFilename, meshes);
 
-          breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
-          pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
+        const float x = 0.0f;
+        const float y = -10.0f;
+        const float z = 10.5f;
 
-          //spitfire::math::cQuaternion rotation;
-          //rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(45.0f));
-          //pNodeRotor->SetRelativeRotation(rotation);
+        breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
+        pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
 
-          factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
+        spitfire::math::cQuaternion rotation;
+        rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(180.0f));
+        pNodeRotor->SetRelativeRotation(rotation);
 
-          pNode->AttachChild(pNodeRotor);
-        }
-        {
-          // Create the rear rotor
-          spitfire::string_t sFilename;
-          breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
+        factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
 
-          breathe::render::model::cStaticModelSceneNodeFactory factory;
-
-          std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
-          factory.LoadFromFile(sFilename, meshes);
-
-          const float x = 0.0f;
-          const float y = -10.0f;
-          const float z = 10.5f;
-
-          breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
-          pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
-
-          spitfire::math::cQuaternion rotation;
-          rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(180.0f));
-          pNodeRotor->SetRelativeRotation(rotation);
-
-          factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
-
-          pNode->AttachChild(pNodeRotor);
-        }
+        pNode->AttachChild(pNodeRotor);
+      }
     }
   }
 }
@@ -728,6 +689,49 @@ namespace breathe
     cVehicleHelicopter::cVehicleHelicopter(cGameObject& _object) :
       cVehicleBase(_object, TYPE::HELICOPTER)
     {
+    }
+
+    void cVehicleHelicopter::_Init()
+    {
+      LOG<<"cVehicleHelicopter::_Init"<<std::endl;
+
+      spitfire::string_t sFilename;
+      spitfire::filesystem::FindResourceFile(TEXT("audio/heli_out.wav"), sFilename);
+
+
+      breathe::audio::cBufferRef pBuffer = breathe::audio::GetManager()->CreateBuffer(sFilename);
+      if (pBuffer == nullptr) {
+        SCREEN<<"cVehicleHelicopter::_Init pBuffer=NULL, returning"<<std::endl;
+        return;
+      }
+
+      pSourceEngine = breathe::audio::GetManager()->CreateSourceAttachedToObject(pBuffer);
+      if (pSourceEngine == nullptr) {
+        SCREEN<<"cVehicleHelicopter::_Init pSourceEngine=NULL, returning"<<std::endl;
+        return;
+      }
+
+
+      breathe::game::cAudioSourceComponent* pAudioSourceComponent = nullptr;
+
+      if (object.IsComponentPresentAndEnabledOrDisabled(breathe::game::COMPONENT_AUDIOSOURCE)) {
+        pAudioSourceComponent = object.GetComponentIfEnabledOrDisabled<breathe::game::cAudioSourceComponent>(breathe::game::COMPONENT_AUDIOSOURCE);
+      } else {
+        pAudioSourceComponent = new breathe::game::cAudioSourceComponent(object);
+
+        // Add it to the game object
+        object.AddComponent(breathe::game::COMPONENT_AUDIOSOURCE, pAudioSourceComponent);
+      }
+
+      ASSERT(pAudioSourceComponent != nullptr);
+      pAudioSourceComponent->AddSource(pSourceEngine);
+
+
+
+      pSourceEngine->SetLooping();
+
+      LOG<<"cVehicleHelicopter::_Init Playing source"<<std::endl;
+      pSourceEngine->Play();
     }
 
     void cVehicleHelicopter::_Update(sampletime_t currentTime)

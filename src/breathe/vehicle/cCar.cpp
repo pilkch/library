@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 
+#include <iostream>
 #include <sstream>
 
 // Boost includes
@@ -51,6 +52,48 @@
 // out HOW MUCH HORSE POWER IT HAS TO USE, to make the gearbox and wheels turn at the same speed.
 // It then works out the loss that the gearbox and drive created.
 
+
+
+
+
+// The Physics of Racing Series
+// http://www.miata.net/sport/Physics/
+
+// The Physics of Racing Series: Part 22 The Magic Formula Lateral Version
+// http://www.miata.net/sport/Physics/Part22.html
+
+
+// Backfiring (Actually called afterfire, backfiring is something else)
+
+// BOV = Blow Off Valve
+// Here are the basic reasons for afterfire
+
+// 1. Atmo BOV. Makes you rich for a split second when you shift, all that fuel, not 100% burnt, goes into exh, hits the hot gasses in the exh tract, and explodes.
+// 2. Catless or free-er flowing exh on deceleration. I dont understand the mechanics of it, but free flowing exh's make backfire pop noises when decelerating in gear. (all cars will do this with an exh like that)
+
+// SPT exh is freeer flowing, I would imagine you are hearing this on deceleration? Or you have an atmo bov and its just poping in the exh, and you oculdnt hear it with the quiet stock muffler.
+// Mine does it all the time. TurboXS turboback exhaust, catless uppipe, stock ECU, stock boost, and stock turbo. On rev-match downshifts I get it; usually don't get too many otherwise.
+
+// Stock engine management uses tons of extra fuel, so it tends to do that a lot. Get a dyno-tune and it will increase power and decrease afterfires. :)
+
+// Get off the throttle and let engine braking take over. i.e. let the engine slow the car down. At first the engine will start to decelerate the car but it gets to a certain speed where it is no longer slowing down the car but sort of evens out to a neutral state. its not slowing or going faster. At that point if you apply enough throttle (not too much to make it accelerate) the car will start to afterfire. I do it all the time. On a Boost gauge its usually at 0. no vaccum or boost when afterfire occurs.
+
+
+
+// As it was explained to me, is that what happens is while you are accelerating, small amounts of unburnt and half burnt gas coat the cats, pipes, fiberglass and the walls of the muffler. When you let off the gas the car goes into DFCO mode (decelleration fuel cut off) which cuts all spark and all fuel going into the engine. So now the engine is pumping (oxygen filled) normal air through it. When you have O2 + fuel + heat you get small explosions in the tail pipe. Same reasons apply to the SRT.
+
+// A car backfires because unburned fuel is getting to the muffler. The heat of the exhause system causes the fuel to combust, thus a backfire.
+
+
+
+// BMW E36 Race Car:
+// "The whine is from the straight cut gears in the transmission versus helical gears used in normal transmissions."
+
+
+
+// http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
+
+
 namespace breathe
 {
   namespace game
@@ -59,11 +102,11 @@ namespace breathe
     {
       void cEngine::Update(sampletime_t currentTime)
       {
-        fRPM += 20.0f * fAcceleratorInput0To1;
+        fRPM += 50.0f * fAcceleratorInput0To1;
 
         fRPM *= 0.99f;
 
-        fRPM = spitfire::math::clamp(fRPM, 1000.0f, 5000.0f);
+        fRPM = spitfire::math::clamp(fRPM, 1000.0f, 16000.0f);
 
 
 /*
@@ -364,149 +407,88 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
 
 namespace breathe
 {
-   namespace vehicle
-   {
-      /*void cCarFactory::CreateCar(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, cVehicle& vehicle) const
-      {
-         LOG<<"cCarFactory::CreateCar"<<std::endl;
+  namespace vehicle
+  {
+    void cVehicleFactory::CreateCar(breathe::physics::cWorld* pWorld, breathe::game::cGameObjectCollection& gameobjects, breathe::scenegraph3d::cGroupNodeRef pNode, const spitfire::math::cVec3& position, const spitfire::math::cQuaternion& rotation, cVehicle& vehicle) const
+    {
+      LOG<<"cVehicleFactory::CreateCar"<<std::endl;
 
-         cCarFactory factory;
-
-
-
-         breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
-
-         factory.CreateCar(pNode, pCubeMapTexture);
-         ASSERT(pCubeMapTexture != nullptr);
+      cCarFactory factory;
 
 
 
+      breathe::render::cTextureFrameBufferObjectRef pCubeMapTexture;
 
-         pNode->SetRelativePosition(position);
-         pNode->SetRelativeRotation(rotation);
+      factory.CreateCar(pNode, pCubeMapTexture);
+      ASSERT(pCubeMapTexture != nullptr);
 
 
 
 
-         vehicle.Create(gameobjects, pNode, pCubeMapTexture);
-
-         breathe::game::cGameObjectRef pVehicle = vehicle.GetGameObject();
-
-         pVehicle->SetPositionRelative(position);
+      pNode->SetRelativePosition(position);
+      pNode->SetRelativeRotation(rotation);
 
 
 
 
-         //breathe::string_t sFilename;
-         //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
-         //pVehicle->pModel = pRender->GetModel(sFilename);
-         //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
-         //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
+      vehicle.Create(gameobjects, pNode, pCubeMapTexture);
 
-         // Test crate
-         breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-         pPhysicsObject->fWeightKg = 10000.0f;
+      breathe::game::cGameObjectRef pVehicle = vehicle.GetGameObject();
 
-         pPhysicsObject->CreateBox(pWorld, position);
-
-
-         //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
-         //pNode->SetRelativePosition(position);
-         //pNode->SetRelativeRotation(spitfire::math::cQuaternion());
-
-         //breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
-         //stateset.SetStateFromMaterial(pVehicleVBOMaterial);
-
-         //breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
-         //vertexBufferObject.pVertexBufferObject = pVehicleVBO;
-         //vertexBufferObject.SetEnabled(true);
-         //vertexBufferObject.bHasValidValue = true;
-
-         // Attach to the root node
-         //breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
-         //breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
-         //pRootAsGroupNode->AttachChild(pNode);
+      pVehicle->SetPositionRelative(position);
 
 
 
 
-         breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-         pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
-         pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+      //breathe::string_t sFilename;
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/toyota_gt_one/mesh.3ds"), sFilename);
+      //pVehicle->pModel = pRender->GetModel(sFilename);
+      //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
+      //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
 
-         //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
-         //pRenderComponent->SetSceneNode(pNode);
-         //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+      // Test crate
+      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
+      pPhysicsObject->fWeightKg = 1000.0f;
 
-         breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
-         pVehicleComponent->SetCar();
-         pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
-
-
+      pPhysicsObject->CreateBox(pWorld, position);
 
 
+      //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
+      //pNode->SetRelativePosition(position);
+      //pNode->SetRelativeRotation(spitfire::math::cQuaternion());
+
+      //breathe::scenegraph3d::cStateSet& stateset = pNode->GetStateSet();
+      //stateset.SetStateFromMaterial(pVehicleVBOMaterial);
+
+      //breathe::scenegraph_common::cStateVertexBufferObject& vertexBufferObject = stateset.GetVertexBufferObject();
+      //vertexBufferObject.pVertexBufferObject = pVehicleVBO;
+      //vertexBufferObject.SetEnabled(true);
+      //vertexBufferObject.bHasValidValue = true;
+
+      // Attach to the root node
+      //breathe::scenegraph3d::cSceneNodeRef pRoot = scenegraph.GetRoot();
+      //breathe::scenegraph3d::cGroupNode* pRootAsGroupNode = static_cast<breathe::scenegraph3d::cGroupNode*>(pRoot.get());
+      //pRootAsGroupNode->AttachChild(pNode);
 
 
 
 
+      breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
+      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+
+      //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
+      //pRenderComponent->SetSceneNode(pNode);
+      //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+
+      breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
+      pVehicleComponent->SetCar();
+      pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
 
 
-
-
-
-
-         {
-            // Create this rotor node
-            spitfire::string_t sFilename;
-            breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
-
-            breathe::render::model::cStaticModelSceneNodeFactory factory;
-
-            std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
-            factory.LoadFromFile(sFilename, meshes);
-
-            const float x = 0.0f;
-            const float y = -10.4f;
-            const float z = 8.5f;
-
-            breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
-            pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
-
-            //spitfire::math::cQuaternion rotation;
-            //rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(45.0f));
-            //pNodeRotor->SetRelativeRotation(rotation);
-
-            factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
-
-            pNode->AttachChild(pNodeRotor);
-         }
-         {
-            // Create this rotor node
-            spitfire::string_t sFilename;
-            breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
-
-            breathe::render::model::cStaticModelSceneNodeFactory factory;
-
-            std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
-            factory.LoadFromFile(sFilename, meshes);
-
-            const float x = 0.0f;
-            const float y = 10.0f;
-            const float z = 10.5f;
-
-            breathe::scenegraph3d::cGroupNodeRef pNodeRotor(new breathe::scenegraph3d::cGroupNode);
-            pNodeRotor->SetRelativePosition(spitfire::math::cVec3(x, y, z));
-
-            spitfire::math::cQuaternion rotation;
-            rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(180.0f));
-            pNodeRotor->SetRelativeRotation(rotation);
-
-            factory.CreateSceneNodeAttachedTo(meshes, pNodeRotor);
-
-            pNode->AttachChild(pNodeRotor);
-         }
-      }*/
-   }
+      SCREEN<<"cVehicleFactory::CreateCar returning"<<std::endl;
+    }
+  }
 }
 
 
@@ -609,10 +591,61 @@ namespace breathe
     {
     }
 
+    void cVehicleCar::InitParts()
+    {
+      for (size_t i = 0; i < 4; i++) wheels.push_back(car::cWheel());
+    }
+
+    void cVehicleCar::_Init()
+    {
+      LOG<<"cVehicleCar::_Init"<<std::endl;
+
+      InitParts();
+
+
+      spitfire::string_t sFilename;
+      spitfire::filesystem::FindResourceFile(TEXT("audio/engine.wav"), sFilename);
+
+
+      breathe::audio::cBufferRef pBuffer = breathe::audio::GetManager()->CreateBuffer(sFilename);
+      if (pBuffer == nullptr) {
+        SCREEN<<"cVehicleCar::_Init pBuffer=NULL, returning"<<std::endl;
+        return;
+      }
+
+      pSourceEngine = breathe::audio::GetManager()->CreateSourceAttachedToObject(pBuffer);
+      if (pSourceEngine == nullptr) {
+        SCREEN<<"cVehicleCar::_Init pSourceEngine=NULL, returning"<<std::endl;
+        return;
+      }
+
+
+      breathe::game::cAudioSourceComponent* pAudioSourceComponent = nullptr;
+
+      if (object.IsComponentPresentAndEnabledOrDisabled(breathe::game::COMPONENT_AUDIOSOURCE)) {
+        pAudioSourceComponent = object.GetComponentIfEnabledOrDisabled<breathe::game::cAudioSourceComponent>(breathe::game::COMPONENT_AUDIOSOURCE);
+      } else {
+        pAudioSourceComponent = new breathe::game::cAudioSourceComponent(object);
+
+        // Add it to the game object
+        object.AddComponent(breathe::game::COMPONENT_AUDIOSOURCE, pAudioSourceComponent);
+      }
+
+      ASSERT(pAudioSourceComponent != nullptr);
+      pAudioSourceComponent->AddSource(pSourceEngine);
+
+
+
+      pSourceEngine->SetLooping();
+
+      LOG<<"cVehicleCar::_Init Playing source"<<std::endl;
+      pSourceEngine->Play();
+    }
+
     void cVehicleCar::_Update(sampletime_t currentTime)
     {
-      engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
-      engine.Update(currentTime);
+      ASSERT(wheels.size() == 4);
+
 
       // Update the engine first
       engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
@@ -711,9 +744,20 @@ namespace breathe
 
 
       const float_t fEngineRPM = engine.GetRPM();
-      const float_t fNaturalEngineRPM = 1000.0f;
-      ASSERT(pSourceEngine != nullptr);
-      pSourceEngine->SetPitch(fEngineRPM / fNaturalEngineRPM);
+      const float_t fNaturalEngineRPM = 3000.0f;
+      std::cout<<"fEngineRPM="<<fEngineRPM<<std::endl;
+      if (pSourceEngine != nullptr) {
+        std::cout<<"Setting pitch"<<std::endl;
+        pSourceEngine->SetPitch(fEngineRPM / fNaturalEngineRPM);
+      }
+
+
+
+
+
+
+
+
 
 
       /*if (fInputBrake0To1 > 0.01f) {
@@ -748,7 +792,7 @@ namespace breathe
 
       // JUST FOR TESTING
       if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 100.0f * breathe::math::v3Up);
         pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
       }
       if (fInputBrake0To1 > 0.01f) {

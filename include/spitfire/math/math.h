@@ -135,17 +135,42 @@ namespace spitfire
     // Return LOW or HIGH, whichever is closer to VALUE.
     template <typename T> T closer(T value, T low, T  high) { return (std::abs(value - low) < std::abs(value - high)) ? low : high; }
 
-    // Return angle in the interval [minimum, minimum + 2pi].
-    template <typename T> T branch (T angle, T minimum)
-    {
-      while (angle > minimum + c2_PI) angle -= c2_PI;
-      while (angle <= minimum) angle += c2_PI;
-
-      return angle;
-    }
 
     // Square a number
     template <typename T> T square(T value) { return value * value; }
+
+    inline float squared(float x)
+    {
+      return (x * x);
+    }
+
+    inline float sqrtf(float x)
+    {
+      return ::sqrtf(x);
+    }
+
+    template <class T> inline bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
+
+    // This function gets the first power of 2 >= the int that we pass it.
+    inline int NextPowerOfTwo(int a)
+    {
+      int rval = 1;
+      while(rval < a) rval<<= 1;
+      return rval;
+    }
+
+    template<class T> inline bool IsPowerOfTwo(T value) { return (value & (~value + 1)) == value; }
+
+    inline bool IsApproximatelyEqual(float_t a, float_t b)
+    {
+      return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
+    }
+
+    inline bool IsApproximatelyZero(float_t value)
+    {
+      return ((value < cEPSILON) && (value > -cEPSILON));
+    }
+
 
     // Cube a number
     template <typename T> T cube(T value) { return value * value * value; }
@@ -216,6 +241,15 @@ namespace spitfire
     }
 
 
+    // Return angle in the interval [minimum, minimum + 2pi].
+    template <typename T> T branch (T angle, T minimum)
+    {
+      while (angle > minimum + c2_PI) angle -= c2_PI;
+      while (angle <= minimum) angle += c2_PI;
+
+      return angle;
+    }
+
     template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
     {
       return (i < lower) ? lower : (i > upper) ? upper : i;
@@ -227,40 +261,21 @@ namespace spitfire
       if (s > 1.0f) return b;
       if (s <= 0.0f) return a;
 
-      return ((1.0f - s) * a  + s * b);
+      return ((1.0f - s) * a)  + (s * b);
     }
 
-    inline float squared(float x)
+    // Same as above but smoother, m approaches 1.0f at x = 0.0f and x = 1.0f
+    // http://www.walterzorn.com/grapher/grapher_e.htm
+    inline float mix_smooth(float a, float b, float s)
     {
-      return (x * x);
+      if (s > 1.0f) return b;
+      if (s <= 0.0f) return a;
+
+      const float fAmountOfA = 0.5 + (0.5 * sinf(cPI * (s + 1.5f)));
+
+      return (fAmountOfA * a) + ((1.0f - fAmountOfA) * b);
     }
 
-    inline float sqrtf(float x)
-    {
-      return ::sqrtf(x);
-    }
-
-    template <class T> inline bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
-
-    // This function gets the first power of 2 >= the int that we pass it.
-    inline int NextPowerOfTwo(int a)
-    {
-      int rval = 1;
-      while(rval < a) rval<<= 1;
-      return rval;
-    }
-
-    template<class T> inline bool IsPowerOfTwo(T value) { return (value & (~value + 1)) == value; }
-
-    inline bool IsApproximatelyEqual(float_t a, float_t b)
-    {
-      return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
-    }
-
-    inline bool IsApproximatelyZero(float_t value)
-    {
-      return ((value < cEPSILON) && (value > -cEPSILON));
-    }
 
     inline bool PointIsWithinBounds(float x, float y, float bounds_x, float bounds_y, float bounds_width, float bounds_height)
     {

@@ -5,6 +5,8 @@
 
 #include <breathe/game/component.h>
 
+#include <breathe/vehicle/cVehicle.h>
+
 namespace breathe
 {
   namespace game
@@ -168,7 +170,10 @@ namespace breathe
       void Update(sampletime_t currentTime);
 
     private:
+      virtual void _Init();
       virtual void _Update(sampletime_t currentTime);
+
+      void InitParts();
 
       DRIVE drive;
       float_t fAmbientAirPressureKPA;
