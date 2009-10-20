@@ -94,14 +94,114 @@
 // http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
 
+// TODO: This is made up, whatever feels right?
+const float_t fNormalAirFlowCubicMetresPerSecond = 1.0f;
+
 namespace breathe
 {
   namespace game
   {
     namespace car
     {
+      cAirFlow::cAirFlow() :
+        fDensityKgPerCubicMetre(0.0f),
+        fFlowCubicMetresPerSecond(0.0f),
+        fTemperatureDegreesCelcius(0.0f)
+      {
+      }
+
+      void cAirFlow::Assign(const cAirFlow& rhs)
+      {
+        fDensityKgPerCubicMetre = rhs.fDensityKgPerCubicMetre;
+        fFlowCubicMetresPerSecond = rhs.fFlowCubicMetresPerSecond;
+        fTemperatureDegreesCelcius = rhs.fTemperatureDegreesCelcius;
+      }
+
+      void cAirFlow::SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(float_t _fDensityKgPerCubicMetre, float_t _fFlowCubicMetresPerSecond, float_t _fTemperatureDegreesCelcius)
+      {
+        fDensityKgPerCubicMetre = _fDensityKgPerCubicMetre;
+        fFlowCubicMetresPerSecond = _fFlowCubicMetresPerSecond;
+        fTemperatureDegreesCelcius = _fTemperatureDegreesCelcius;
+      }
+
+      void cAirFlow::ApplyCompressionOrDecompression(float_t fRatio)
+      {
+        ASSERT(fRatio != 0.0f);
+
+        // Apply the change to the other parameters
+        fTemperatureDegreesCelcius *= 1.0f / fRatio;
+
+        // Apply the change to the actual parameter
+        fDensityKgPerCubicMetre *= fRatio;
+      }
+
+      void cAirFlow::ApplyFlowRateChange(float_t fRatio)
+      {
+        ASSERT(fRatio != 0.0f);
+
+        // Apply the change to the actual parameter
+        fFlowCubicMetresPerSecond *= fRatio;
+      }
+
+      void cAirFlow::ApplyTemperatureChange(float_t fRatio)
+      {
+        ASSERT(fRatio != 0.0f);
+
+        // Apply the change to the other parameters
+        fDensityKgPerCubicMetre *= 1.0f / fRatio;
+
+        // Apply the change to the actual parameter
+        fTemperatureDegreesCelcius *= fRatio;
+      }
+
+
+
+
+      cAmbientSettings::cAmbientSettings() :
+        fDensityKgPerCubicMetre(0.0f),
+        fPressureKPA(0.0f),
+        fTemperatureDegreesCelcius(0.0f)
+      {
+      }
+
+      cAmbientSettings::cAmbientSettings(float_t _fDensityKgPerCubicMetre, float_t _fPressureKPA, float_t _fTemperatureDegreesCelcius) :
+        fDensityKgPerCubicMetre(_fDensityKgPerCubicMetre),
+        fPressureKPA(_fPressureKPA),
+        fTemperatureDegreesCelcius(_fTemperatureDegreesCelcius)
+      {
+      }
+
+      void cAmbientSettings::Assign(const cAmbientSettings& rhs)
+      {
+        fDensityKgPerCubicMetre = rhs.fDensityKgPerCubicMetre;
+        fPressureKPA = rhs.fPressureKPA;
+        fTemperatureDegreesCelcius = rhs.fTemperatureDegreesCelcius;
+      }
+
+
+
+
+
       void cEngine::Update(sampletime_t currentTime)
       {
+        // TODO: Should this be multiplied by the size of the engine?
+        const float_t fEngineAirFlowCubicMetresPerSecond = fNormalAirFlowCubicMetresPerSecond;
+        intakeAirFlow.SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(ambientSettings.GetDensityKgPerCubicMetre(), fEngineAirFlowCubicMetresPerSecond, ambientSettings.GetTemperatureDegreesCelcius());
+
+        if (fRPM != 0.0f) {
+          // Take in more air depending on rpm, we should definitely be capping this or using a curve of some sort.
+          // Perhaps intakeAirFlow should have a maximum that we can possibly increase our intake to?
+          const float_t fRatio = fRPM / 1000.0f;
+          intakeAirFlow.ApplyFlowRateChange(fRatio);
+        }
+
+        const float_t fExhaustDensityKgPerCubicMeter = intakeAirFlow.GetDensityKgPerCubicMetre();
+        const float_t fExhaustFlowCubicMetresPerSecond = intakeAirFlow.GetFlowCubicMetresPerSecond() * 3.0f;
+        const float_t fExhaustTemperatureDegreesCelcius = intakeAirFlow.GetTemperatureDegreesCelcius() * 5.0f;
+        exhaustAirFlow.SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(fExhaustDensityKgPerCubicMeter, fExhaustFlowCubicMetresPerSecond, fExhaustTemperatureDegreesCelcius);
+
+
+
         fRPM += 50.0f * fAcceleratorInput0To1;
 
         fRPM *= 0.99f;
@@ -129,19 +229,48 @@ namespace breathe
         }*/
       }
 
-      void cInterCooler::Update(sampletime_t currentTime)
+
+
+      void cSuperCharger::Update(sampletime_t currentTime)
       {
-        // TODO: Use fAmbientAirPressureKPA and fAmbientAirTemperatureDegreesCelcius
+        fRPM = fEngineRPM * fRatio;
 
-        //fOutputPressureKPA = fInputPressureKPA;
-        //fOutputTemperatureDegreesCelcius = fInputTemperatureDegreesCelcius - cooling from fCarVelocityKPH;
+        const float_t fSuperChargerAirFlowCubicMetresPerSecond = fNormalAirFlowCubicMetresPerSecond;
+        outputAirFlow.SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(ambientSettings.GetDensityKgPerCubicMetre(), fSuperChargerAirFlowCubicMetresPerSecond, ambientSettings.GetTemperatureDegreesCelcius());
+
+        // Compress the air depending on rpm, we should definitely be capping this or using a curve of some sort.
+        // Perhaps intakeAirFlow should have a maximum that we can possibly increase our intake to?
+        const float_t fCompressionRatio = fRPM / 1000.0f;
+        outputAirFlow.ApplyCompressionOrDecompression(fCompressionRatio);
+
+        // Take in more air depending on rpm, we should definitely be capping this or using a curve of some sort.
+        // Perhaps intakeAirFlow should have a maximum that we can possibly increase our intake to?
+        const float_t fFlowRateRatio = fRPM / 1000.0f;
+        outputAirFlow.ApplyFlowRateChange(fFlowRateRatio);
       }
-
 
 
 
       void cTurboCharger::Update(sampletime_t currentTime)
       {
+        fRPM = exhaustAirFlow.GetFlowCubicMetresPerSecond();
+
+
+        const float_t fTurboAirFlowCubicMetresPerSecond = fNormalAirFlowCubicMetresPerSecond;
+        outputAirFlow.SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(ambientSettings.GetDensityKgPerCubicMetre(), fTurboAirFlowCubicMetresPerSecond, ambientSettings.GetTemperatureDegreesCelcius());
+
+        // Compress the air depending on rpm, we should definitely be capping this or using a curve of some sort.
+        // Perhaps intakeAirFlow should have a maximum that we can possibly increase our intake to?
+        const float_t fCompressionRatio = fRPM / 1000.0f;
+        outputAirFlow.ApplyCompressionOrDecompression(fCompressionRatio);
+
+        // Take in more air depending on rpm, we should definitely be capping this or using a curve of some sort.
+        // Perhaps intakeAirFlow should have a maximum that we can possibly increase our intake to?
+        const float_t fFlowRateRatio = fRPM / 1000.0f;
+        outputAirFlow.ApplyFlowRateChange(fFlowRateRatio);
+
+
+
         /*if ((fRPM < fBlowOffPoint) || (fAccelerator0To1 > 0.3f)) {
           // If there is not enough rpm or the accelerator is being applied then we do not blow off
           pSource->SetVolume(0.0f);
@@ -155,6 +284,38 @@ namespace breathe
           }
         }*/
       }
+
+
+
+      void cInterCooler::Update(sampletime_t currentTime)
+      {
+         outputAirFlow = inputAirFlow;
+
+         // Cool the air depending on vehicle velocity, we should definitely be capping this or using a curve of some sort.
+         // Perhaps we should have a maximum that we can possibly decrease our temperature by?
+         const float_t fMinimumCarVelocityKPH = 10.0f;
+         if (fCarVelocityKPH < fMinimumCarVelocityKPH) {
+            // For really slow speeds and reversing we apply a constant quite low ratio
+            const float_t fRatio = 0.95f;
+            outputAirFlow.ApplyTemperatureChange(fRatio);
+         } else  {
+            // For all faster speeds we apply an actual ratio
+            const float_t fNormalisedCarVelocityKPH = fCarVelocityKPH - fMinimumCarVelocityKPH;
+            const float_t fRatio = 0.95f - (fNormalisedCarVelocityKPH / 300.0f);
+            outputAirFlow.ApplyTemperatureChange(fRatio);
+         }
+
+
+
+        // TODO: Use fAmbientAirPressureKPA and fAmbientAirTemperatureDegreesCelcius
+
+        //fOutputPressureKPA = fInputPressureKPA;
+        //fOutputTemperatureDegreesCelcius = fInputTemperatureDegreesCelcius - cooling from fCarVelocityKPH;
+      }
+
+
+
+
 
 
 
@@ -447,10 +608,11 @@ namespace breathe
       //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
 
       // Test crate
-      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-      pPhysicsObject->fWeightKg = 1000.0f;
+      breathe::physics::cBoxProperties properties;
+      properties.SetWeightKg(1000.0f);
+      properties.SetPositionAbsolute(position);
 
-      pPhysicsObject->CreateBox(pWorld, position);
+      breathe::physics::cBodyRef pBody = physics::GetWorld()->CreateBody(properties);
 
 
       //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
@@ -474,7 +636,7 @@ namespace breathe
 
 
       breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pPhysicsComponent->SetBody(pBody);
       pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
 
       //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
@@ -647,15 +809,15 @@ namespace breathe
       ASSERT(wheels.size() == 4);
 
 
+      const car::cAmbientSettings ambientSettings(math::cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER, math::cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA, math::cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS);
+
       // Update the engine first
+      engine.SetAmbientSettings(ambientSettings);
+      engine.SetIntakeAirFlow(engineIntakeAirFlow);
       engine.SetAcceleratorInput0To1(fInputAccelerator0To1);
-      engine.SetInputPressureKPA(fEngineInputAirPressureKPA);
-      engine.SetInputTemperatureDegreesCelcius(fEngineInputAirTemperatureDegreesCelcius);
 
       engine.Update(currentTime);
 
-      fEngineInputAirPressureKPA = fAmbientAirPressureKPA;
-      fEngineInputAirTemperatureDegreesCelcius = fAmbientAirTemperatureDegreesCelcius;
 /*
       {
         // Update each super charger
@@ -784,16 +946,15 @@ namespace breathe
       cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
       if (pPhysicsComponent == nullptr) return;
 
-      physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
-      if (pPhysicsObject == nullptr) return;
-
+      physics::cBodyRef pBody = pPhysicsComponent->GetBody();
+      if (pBody == nullptr) return;
 
 
 
       // JUST FOR TESTING
       if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 100.0f * breathe::math::v3Up);
-        pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetWeightKg() * 100.0f * breathe::math::v3Up);
+        pBody->AddForceRelativeToObjectKg(forceKg);
       }
       if (fInputBrake0To1 > 0.01f) {
         // This is more of a brake than an actual go down method
@@ -801,12 +962,12 @@ namespace breathe
       }
 
       if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
 

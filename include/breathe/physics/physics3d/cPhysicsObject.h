@@ -11,13 +11,13 @@ namespace breathe
     // a) Stop the capsule tipping over
     // b) Help the capsule up stairs by pushing the capsule up when we collide a ray in front of our feet
     // *****************************************************************************************************
-    class cUprightCapsule : virtual public cPhysicsObject, public cPhysicsRayCast
+    /*class cUprightCapsule : virtual public cPhysicsObject, public cPhysicsRayCast
     {
     public:
       explicit cUprightCapsule(cWorld* pWorld);
 
       void Update(sampletime_t currentTime);
-    };
+    };*/
   }
 }
 

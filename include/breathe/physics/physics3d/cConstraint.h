@@ -5,11 +5,11 @@ namespace breathe
 {
   namespace physics
   {
-    class cPhysicsConstraint
+    /*class cPhysicsConstraint
     {
     };
 
-    typedef cSmartPtr<cPhysicsConstraint> cPhysicsConstraintRef;
+    typedef cSmartPtr<cPhysicsConstraint> cPhysicsConstraintRef;*/
   }
 }
 

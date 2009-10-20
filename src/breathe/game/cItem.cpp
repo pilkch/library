@@ -53,7 +53,7 @@
 
 namespace breathe
 {
-  cItem::cItem()
+  /*cItem::cItem()
     : cUpdateable()
   {
 
@@ -62,5 +62,5 @@ namespace breathe
   cItem::~cItem()
   {
 
-  }
+  }*/
 }

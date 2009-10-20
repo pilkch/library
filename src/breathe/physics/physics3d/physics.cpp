@@ -145,7 +145,7 @@ namespace breathe
       spaceStatic = dHashSpaceCreate(0);
       spaceDynamic = dHashSpaceCreate(0);
 
-      contactgroup = dJointGroupCreate(10000);
+      contactgroup = dJointGroupCreate(0);
 
       CreateGround(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
     }

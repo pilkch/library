@@ -64,7 +64,7 @@
 namespace breathe
 {
 #ifdef BUILD_PHYSICS_3D
-  cBipedPhysicsObject::cBipedPhysicsObject(physics::cWorld* pWorld) :
+/*  cBipedPhysicsObject::cBipedPhysicsObject(physics::cWorld* pWorld) :
     physics::cUprightCapsule(pWorld)
   {
   }
@@ -76,19 +76,19 @@ namespace breathe
 
   void cBipedPhysicsObject::RayCastCallback(void* data, dGeomID g1, dGeomID g2)
   {
-  }
+  }*/
 #endif
 
   cPlayer::cPlayer(physics::cWorld* pWorld) :
-    biped(pWorld),
+    //biped(pWorld),
     state(STATE_WALK),
     pSeat(nullptr)
   {
 #ifdef BUILD_PHYSICS_3D
     //SetUseBody(false);
 
-    biped.fWeightKg = 80.0f;
-    biped.position.Set(0.0f, 0.0f, 10.0f);
+    //biped.fWeightKg = 80.0f;
+    //biped.position.Set(0.0f, 0.0f, 10.0f);
 #endif
 
 
@@ -282,13 +282,13 @@ namespace breathe
     // TODO: This doesn't make sense as while physics has a smart pointer to this, it will never be deleted so we will never get here
     //physics::RemovePhysicsObject(this);
 
-    biped.DestroyGeom();
-    biped.DestroyBody();
+    //biped.DestroyGeom();
+    //biped.DestroyBody();
 
-    if (biped.geomRay) {
-      dGeomDestroy(biped.geomRay);
-      biped.geomRay = 0;
-    }
+    //if (biped.geomRay) {
+    //  dGeomDestroy(biped.geomRay);
+    //  biped.geomRay = 0;
+    //}
   }
 
   void cPlayer::ChangeStateToRunning()

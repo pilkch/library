@@ -9,7 +9,7 @@ namespace breathe
 
     class cWheel
 #ifdef BUILD_PHYSICS_3D
-      : public physics::cPhysicsRayCast
+      //: public physics::cPhysicsRayCast
 #endif
     {
     public:

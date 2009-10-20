@@ -567,8 +567,8 @@ namespace breathe
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     LOG.Success("Destroy", "Physics");
-    pWorld->Destroy();
-    SAFE_DELETE(pWorld);
+    breathe::physics::Destroy();
+    pWorld = nullptr;
 #endif
 
     LOG.Success("Destroy", "Network");
@@ -893,15 +893,16 @@ namespace breathe
 
     TTF_Init();
 
-    breathe::audio::Init(audio::DRIVER::DRIVER_SDLMIXER);
-
-    pWorld = new physics::cWorld;
+    audio::Init(audio::DRIVER::DRIVER_SDLMIXER);
 
 #if defined(BUILD_PHYSICS_2D)
-    pWorld->Init(physics_width, physics_height);
-#elif defined(BUILD_PHYSICS_3D)
-    pWorld->Init(physics_width, physics_height, physics_depth);
+    physics::Init(physics::DRIVER::DRIVER_BOX2D, physics_width, physics_height);
+#elif defined(BUILD_PHYSICS_BULLET)
+    physics::Init(physics::DRIVER::DRIVER_BULLET, physics_width, physics_depth, physics_height);
+#elif defined(BUILD_PHYSICS_ODE)
+    physics::Init(physics::DRIVER::DRIVER_ODE, physics_width, physics_depth, physics_height);
 #endif
+    pWorld = physics::GetWorld();
 
     if (breathe::BAD == LoadScene()) return breathe::BAD;
 
@@ -1201,7 +1202,7 @@ namespace breathe
         pFont->printf(0.05f, fPosition += dy, "Position: %.03f, %.03f, %.03f", position.x, position.y, position.z);
 
 #ifdef BUILD_PHYSICS_3D
-        pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->size());
+        pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->GetNumberOfBodies());
 #endif
 
         fPosition += dy;

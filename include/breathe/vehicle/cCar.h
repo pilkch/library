@@ -13,31 +13,81 @@ namespace breathe
   {
     namespace car
     {
+      // This is a pretty dodgy class.
+      // It is not very scientific, perhaps density and flow could be combined?
+      // The Apply functions are not actually based on any physics laws.
+      class cAirFlow
+      {
+      public:
+        cAirFlow();
+
+        cAirFlow(const cAirFlow& rhs) { Assign(rhs); }
+        cAirFlow& operator=(const cAirFlow& rhs) { Assign(rhs); return *this; }
+
+        void SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(float_t fDensityKgPerCubicMetre, float_t fFlowCubicMetresPerSecond, float_t fTemperatureDegreesCelcius);
+
+        float_t GetDensityKgPerCubicMetre() const { return fDensityKgPerCubicMetre; }
+        float_t GetFlowCubicMetresPerSecond() const { return fFlowCubicMetresPerSecond; }
+        float_t GetTemperatureDegreesCelcius() const { return fTemperatureDegreesCelcius; }
+
+        void ApplyCompressionOrDecompression(float_t fRatio); // A value from 0.0f to n, basically the resulting density will be fDensityKgPerCubicMetre * fRatio
+        void ApplyFlowRateChange(float_t fRatio); // A value from 0.0f to n, basically the resulting flow will be fFlowCubicMetresPerSecond * fRatio
+        void ApplyTemperatureChange(float_t fRatio); // A value from 0.0f to n, basically the resulting temperature will be fTemperatureDegreesCelcius * fRatio
+
+      private:
+        void Assign(const cAirFlow& rhs);
+
+        float_t fDensityKgPerCubicMetre;
+        float_t fFlowCubicMetresPerSecond;
+        float_t fTemperatureDegreesCelcius;
+      };
+
+
+      class cAmbientSettings
+      {
+      public:
+        cAmbientSettings();
+        cAmbientSettings(float_t fDensityKgPerCubicMetre, float_t fPressureKPA, float_t fTemperatureDegreesCelcius);
+
+        cAmbientSettings(const cAmbientSettings& rhs) { Assign(rhs); }
+        cAmbientSettings& operator=(const cAmbientSettings& rhs) { Assign(rhs); return *this; }
+
+        float_t GetDensityKgPerCubicMetre() const { return fDensityKgPerCubicMetre; }
+        float_t GetPressureKPA() const { return fPressureKPA; }
+        float_t GetTemperatureDegreesCelcius() const { return fTemperatureDegreesCelcius; }
+
+      private:
+        void Assign(const cAmbientSettings& rhs);
+
+        float_t fDensityKgPerCubicMetre;
+        float_t fPressureKPA;
+        float_t fTemperatureDegreesCelcius;
+      };
+
+
       class cEngine
       {
       public:
+        void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetAcceleratorInput0To1(float_t _fAcceleratorInput0To1) { fAcceleratorInput0To1 = _fAcceleratorInput0To1; }
-        void SetInputPressureKPA(float_t _fInputPressureKPA) { fInputPressureKPA = _fInputPressureKPA; }
-        void SetInputTemperatureDegreesCelcius(float_t _fInputTemperatureDegreesCelcius) { fInputTemperatureDegreesCelcius = _fInputTemperatureDegreesCelcius; }
+        void SetIntakeAirFlow(const cAirFlow& _intakeAirFlow) { intakeAirFlow = _intakeAirFlow; }
 
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
-        float_t GetExhaustPressureKPA() const { return fExhaustPressureKPA; }
-        float_t GetExhaustTemperatureDegreesCelcius() const { return fExhaustTemperatureDegreesCelcius; }
+        const cAirFlow& GetExhaustAirFlow() const { return exhaustAirFlow; }
 
 
         void Update(sampletime_t currentTime);
 
       private:
+        cAmbientSettings ambientSettings;
         float_t fAcceleratorInput0To1;
-        float_t fInputPressureKPA;
-        float_t fInputTemperatureDegreesCelcius;
+        cAirFlow intakeAirFlow;
         math::cCurve rpmToTorqueCurve;
 
         float_t fRPM;
         float_t fTorqueNm;
-        float_t fExhaustPressureKPA;
-        float_t fExhaustTemperatureDegreesCelcius;
+        cAirFlow exhaustAirFlow;
       };
 
 
@@ -45,45 +95,40 @@ namespace breathe
       class cSuperCharger
       {
       public:
+        void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetEngineRPM(float_t _fRPM) { fRPM = _fRPM; }
-        void SetAmbientAirPressureKPA(float_t _fAmbientAirPressureKPA) { fAmbientAirPressureKPA = _fAmbientAirPressureKPA; }
-        void SetAmbientAirTemperatureDegreesCelcius(float_t _fAmbientAirTemperatureDegreesCelcius) { fAmbientAirTemperatureDegreesCelcius = _fAmbientAirTemperatureDegreesCelcius; }
 
-        float_t GetOutputPressureKPA() const { return fOutputPressureKPA; }
-        float_t GetOutputTemperatureDegreesCelcius() const { return fOutputTemperatureDegreesCelcius; }
+        const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        cAmbientSettings ambientSettings;
         float_t fEngineRPM;
-        float_t fAmbientAirPressureKPA;
-        float_t fAmbientAirTemperatureDegreesCelcius;
         math::cCurve rpmToPressureCurve;
+        float_t fRatio;
 
         float_t fRPM;
-        float_t fOutputPressureKPA;
-        float_t fOutputTemperatureDegreesCelcius;
+        cAirFlow outputAirFlow;
       };
 
       class cTurboCharger
       {
       public:
-        void SetEngineExhaustPressureKPA(float_t _fEngineExhaustPressureKPA) { fEngineExhaustPressureKPA = _fEngineExhaustPressureKPA; }
-        void SetEngineExhaustTemperatureDegreesCelcius(float_t _fEngineExhaustTemperatureDegreesCelcius) { fEngineExhaustTemperatureDegreesCelcius = _fEngineExhaustTemperatureDegreesCelcius; }
+        void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
+        void SetEngineExhaustAirFlow(const cAirFlow& _exhaustAirFlow) { exhaustAirFlow = _exhaustAirFlow; }
 
-        float_t GetOutputPressureKPA() const { return fOutputPressureKPA; }
-        float_t GetOutputTemperatureDegreesCelcius() const { return fOutputTemperatureDegreesCelcius; }
+        const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
-        float_t fEngineExhaustPressureKPA;
-        float_t fEngineExhaustTemperatureDegreesCelcius;
+        cAmbientSettings ambientSettings;
+        cAirFlow exhaustAirFlow;
         math::cCurve rpmToPressureCurve;
 
         float_t fRPM;
-        float_t fOutputPressureKPA;
-        float_t fOutputTemperatureDegreesCelcius;
+        cAirFlow outputAirFlow;
 
 
 
@@ -99,26 +144,21 @@ namespace breathe
       class cInterCooler
       {
       public:
+        void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetCarVelocityKPH(float_t _fCarVelocityKPH) { fCarVelocityKPH = _fCarVelocityKPH; }
-        void SetAmbientAirPressureKPA(float_t _fAmbientAirPressureKPA) { fAmbientAirPressureKPA = _fAmbientAirPressureKPA; }
-        void SetAmbientAirTemperatureDegreesCelcius(float_t _fAmbientAirTemperatureDegreesCelcius) { fAmbientAirTemperatureDegreesCelcius = _fAmbientAirTemperatureDegreesCelcius; }
-        void SetInputPressureKPA(float_t _fInputPressureKPA) { fInputPressureKPA = _fInputPressureKPA; }
-        void SetInputTemperatureDegreesCelcius(float_t _fInputTemperatureDegreesCelcius) { fInputTemperatureDegreesCelcius = _fInputTemperatureDegreesCelcius; }
 
-        float_t GetOutputPressureKPA() const { return fOutputPressureKPA; }
-        float_t GetOutputTemperatureDegreesCelcius() const { return fOutputTemperatureDegreesCelcius; }
+        void SetInputAirFlow(const cAirFlow& _inputAirFlow) { inputAirFlow = _inputAirFlow; }
+
+        const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        cAmbientSettings ambientSettings;
         float_t fCarVelocityKPH;
-        float_t fAmbientAirPressureKPA;
-        float_t fAmbientAirTemperatureDegreesCelcius;
-        float_t fInputPressureKPA;
-        float_t fInputTemperatureDegreesCelcius;
+        cAirFlow inputAirFlow;
 
-        float_t fOutputPressureKPA;
-        float_t fOutputTemperatureDegreesCelcius;
+        cAirFlow outputAirFlow;
       };
 
       class cWheel
@@ -164,9 +204,6 @@ namespace breathe
       bool IsRWD() const { return (drive == DRIVE::RWD); }
       bool IsFWD() const { return (drive == DRIVE::FWD); }
 
-      void SetAmbientAirPressureKPA(float_t _fAmbientAirPressureKPA) { fAmbientAirPressureKPA = _fAmbientAirPressureKPA; }
-      void SetAmbientAirTemperatureDegreesCelcius(float_t _fAmbientAirTemperatureDegreesCelcius) { fAmbientAirTemperatureDegreesCelcius = _fAmbientAirTemperatureDegreesCelcius; }
-
       void Update(sampletime_t currentTime);
 
     private:
@@ -176,11 +213,8 @@ namespace breathe
       void InitParts();
 
       DRIVE drive;
-      float_t fAmbientAirPressureKPA;
-      float_t fAmbientAirTemperatureDegreesCelcius;
 
-      float_t fEngineInputAirPressureKPA;
-      float_t fEngineInputAirTemperatureDegreesCelcius;
+      car::cAirFlow engineIntakeAirFlow;
 
 
       car::cEngine engine;

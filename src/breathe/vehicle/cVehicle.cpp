@@ -83,6 +83,7 @@ namespace breathe
   }
 }
 
+#if 0
 bool fourwheeldrive=false;
 
 float fMaxAcceleration=500.0f;
@@ -939,3 +940,4 @@ void cVehicle::Update()
     }
 }
 */
+#endif

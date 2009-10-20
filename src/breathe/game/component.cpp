@@ -139,9 +139,9 @@ namespace breathe
 
     void cPhysicsComponent::_Update(spitfire::sampletime_t currentTime)
     {
-      ASSERT(pPhysicsObject != nullptr);
-      object.SetPositionRelative(pPhysicsObject->GetPositionAbsolute());
-      object.SetRotationRelative(pPhysicsObject->GetRotationAbsolute());
+      ASSERT(pBody != nullptr);
+      object.SetPositionRelative(pBody->GetPositionAbsolute());
+      object.SetRotationRelative(pBody->GetRotationAbsolute());
     }
 
 

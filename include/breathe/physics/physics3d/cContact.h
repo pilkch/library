@@ -5,7 +5,7 @@ namespace breathe
 {
   namespace physics
   {
-    class cContact
+    /*class cContact
     {
     public:
       explicit cContact(cWorld* pWorld);
@@ -31,7 +31,7 @@ namespace breathe
     private:
       cWorld* pWorld;
       dContact contact;
-    };
+    };*/
   }
 }
 

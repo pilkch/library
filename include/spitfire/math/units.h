@@ -7,6 +7,7 @@ namespace spitfire
 {
   namespace math
   {
+    // http://en.wikipedia.org/wiki/SI_derived_unit
     // http://www.racer.nl/tech/converting.htm
     // TODO: Consider using Boost.Units library
     // http://www.boost.org/doc/libs/1_38_0/doc/html/boost_units/FAQ.html#boost_units.FAQ.NoConstructorFromValueType
@@ -74,11 +75,17 @@ namespace spitfire
     inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
     inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
 
+    // http://en.wikipedia.org/wiki/Cubic_metre_per_second
+    inline float CubicMetresPerSecondToCubicFeetPerSecond(float fCubicMetresPerSecond) { return fCubicMetresPerSecond * 35.314454f; }
+    inline float CubicFeetPerSecondToCubicMetresPerSecond(float fCubicFeetPerSecond) { return fCubicFeetPerSecond * 0.0283170172f; }
+
+
     // http://en.wikipedia.org/wiki/Density_of_air
     // http://en.wikipedia.org/wiki/ISO_1
     const float cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
     const float cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f;
     const float cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f;
+
 
     // http://en.wikipedia.org/wiki/Density_of_air#Altitude
     // returns density of air in kg/m3 for the given altitude in meters

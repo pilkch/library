@@ -5,7 +5,7 @@ namespace breathe
 {
   namespace physics
   {
-    class cPhysicsRayCast
+    /*class cPhysicsRayCast
     {
     public:
       explicit cPhysicsRayCast(cWorld* pWorld);
@@ -18,7 +18,7 @@ namespace breathe
 
       dGeomID geomRay;
       cContact rayContact;
-    };
+    };*/
   }
 }
 

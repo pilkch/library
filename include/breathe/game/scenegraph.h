@@ -70,16 +70,6 @@ namespace breathe
   class cCamera;
   class cObject;
 
-  namespace physics
-  {
-    class cPhysicsObject;
-  }
-
-  namespace vehicle
-  {
-    class cVehicle;
-  }
-
   namespace sky
   {
     class cSkySystem;

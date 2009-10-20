@@ -26,6 +26,7 @@
 
 #include <breathe/vehicle/cHelicopter.h>
 
+#include <breathe/physics/physics.h>
 
 #include <breathe/render/model/cStaticModelLoader.h>
 
@@ -247,16 +248,17 @@ namespace breathe
 
 
       // Test crate
-      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-      pPhysicsObject->fWeightKg = 10000.0f;
+      breathe::physics::cBoxProperties properties;
+      properties.SetWeightKg(12000.0f);
+      properties.SetPositionAbsolute(position);
 
-      pPhysicsObject->CreateBox(pWorld, position);
+      breathe::physics::cBodyRef pBody = physics::GetWorld()->CreateBody(properties);
 
 
 
 
       breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pPhysicsComponent->SetBody(pBody);
       pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
 
 
@@ -517,10 +519,11 @@ namespace breathe
       //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
 
       // Test crate
-      breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-      pPhysicsObject->fWeightKg = 10.0f;
+      breathe::physics::cBoxProperties properties;
+      properties.SetWeightKg(1000.0f);
+      properties.SetPositionAbsolute(position);
 
-      pPhysicsObject->CreateBox(pWorld, position);
+      breathe::physics::cBodyRef pBody = breathe::physics::GetWorld()->CreateBody(properties);
 
 
       breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
@@ -544,7 +547,7 @@ namespace breathe
 
 
       breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-      pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
+      pPhysicsComponent->SetBody(pBody);
       pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
 
       breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
@@ -739,13 +742,13 @@ namespace breathe
       cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
       if (pPhysicsComponent == nullptr) return;
 
-      physics::cPhysicsObjectRef pPhysicsObject = pPhysicsComponent->GetPhysicsObject();
-      if (pPhysicsObject == nullptr) return;
+      physics::cBodyRef pBody = pPhysicsComponent->GetBody();
+      if (pBody == nullptr) return;
 
 
       if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pPhysicsObject->GetWeightKg() * 300.0f * breathe::math::v3Up);
-        pPhysicsObject->AddForceRelativeToObjectKg(forceKg);
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        pBody->AddForceRelativeToObjectKg(forceKg);
       }
       if (fInputBrake0To1 > 0.01f) {
         // This is more of a brake than an actual go down method
@@ -755,30 +758,30 @@ namespace breathe
 
       const float_t fPitchRollFactor = 0.0005f;
       if (fInputForward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputForward0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputForward0To1 * pBody->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputBackward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pBody->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * fPitchRollFactor * breathe::math::v3Front);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetWeightKg() * fPitchRollFactor * breathe::math::v3Front);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Front);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Front);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
 
       if (fInputYawLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pBody->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputYawRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
-        pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
+        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pBody->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
 

@@ -101,7 +101,7 @@ namespace breathe
   // if (game rules specify) use those settings.
   // else if (map overrides) use those settings.
   // else set defaults
-
+/*
 #ifdef BUILD_PHYSICS_3D
   class cBipedPhysicsObject :
     public physics::cUprightCapsule
@@ -113,7 +113,7 @@ namespace breathe
     void RayCast();
     static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
   };
-#endif
+#endif*/
 
   class cPlayer
   {
@@ -137,7 +137,7 @@ namespace breathe
     spitfire::math::cVec3 position;
 
 #ifdef BUILD_PHYSICS_3D
-    cBipedPhysicsObject biped;
+//    cBipedPhysicsObject biped;
 #endif
 
     STATE state;

@@ -24,7 +24,7 @@ namespace breathe
 #endif
     };*/
 
-    class cPhysicsObject : virtual public cObject, public boost::enable_shared_from_this<cPhysicsObject>
+    /*class cPhysicsObject : virtual public cObject, public boost::enable_shared_from_this<cPhysicsObject>
     {
     public:
       cPhysicsObject();
@@ -110,7 +110,7 @@ namespace breathe
 #endif
     };
 
-    typedef cSmartPtr<cPhysicsObject> cPhysicsObjectRef;
+    typedef cSmartPtr<cPhysicsObject> cPhysicsObjectRef;*/
   }
 }
 

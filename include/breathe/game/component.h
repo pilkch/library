@@ -15,7 +15,6 @@
 #include <breathe/game/scenegraph.h>
 
 #include <breathe/physics/physics.h>
-#include <breathe/physics/cPhysicsObject.h>
 
 namespace breathe
 {
@@ -244,13 +243,13 @@ namespace breathe
     public:
       explicit cPhysicsComponent(cGameObject& _object) : cComponent(_object) {}
 
-      physics::cPhysicsObjectRef GetPhysicsObject() { return pPhysicsObject; }
-      void SetPhysicsObject(physics::cPhysicsObjectRef _pPhysicsObject) { pPhysicsObject = _pPhysicsObject; }
+      physics::cBodyRef GetBody() { return pBody; }
+      void SetBody(physics::cBodyRef _pBody) { pBody = _pBody; }
 
     private:
       void _Update(spitfire::sampletime_t currentTime);
 
-      physics::cPhysicsObjectRef pPhysicsObject;
+      physics::cBodyRef pBody;
     };
 
     class cPickupComponent : public cComponent
