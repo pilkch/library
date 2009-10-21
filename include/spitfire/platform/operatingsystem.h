@@ -5,6 +5,9 @@ namespace spitfire
 {
   namespace operatingsystem
   {
+    size_t GetProcessorCount();
+    size_t GetTotalProcessorCoreCount();
+
 #ifdef __WIN__
     //void AddLaunchIconToDesktop(); // We intentionally do not try to add a application icon to a Windows desktop because that looks tacky
     void AddLaunchIconToPanel();

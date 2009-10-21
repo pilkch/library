@@ -36,6 +36,7 @@ namespace breathe
       virtual void _Destroy();
 
       void CreateGround();
+      void DestroyGround();
 
       static void _CollisionCallbackStatic(void* pUserData, dGeomID o1, dGeomID o2);
       void CollisionCallbackStatic(dGeomID o1, dGeomID o2);

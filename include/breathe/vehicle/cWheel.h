@@ -22,7 +22,7 @@ namespace breathe
 
       // For raycasting to find out if this particular wheel is touching anything
       void RayCast();
-      static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
+      //static void RayCastCallback(void* data, dGeomID g1, dGeomID g2);
 
 
       bool bFront; // At the moment only the front wheels are steerable

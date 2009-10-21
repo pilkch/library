@@ -17,10 +17,6 @@
 #include <GL/GLee.h>
 
 
-#ifdef BUILD_PHYSICS_3D
-#include <ode/ode.h>
-#endif
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 

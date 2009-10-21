@@ -13,7 +13,6 @@
 
 #include <GL/GLee.h>
 
-#include <ode/ode.h>
 
 #include <spitfire/util/log.h>
 

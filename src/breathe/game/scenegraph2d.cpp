@@ -27,10 +27,6 @@
 #include <SDL/SDL_image.h>
 
 
-#ifdef BUILD_PHYSICS_3D
-#include <ode/ode.h>
-#endif
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 

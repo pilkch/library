@@ -129,11 +129,6 @@ int intersect_triangle(
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_net.h>
 
-#ifdef BUILD_PHYSICS_2D
-#include <Box2D/Box2D.h>
-#elif defined(BUILD_PHYSICS_3D)
-#include <ode/ode.h>
-#endif
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

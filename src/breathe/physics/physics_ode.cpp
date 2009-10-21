@@ -16,13 +16,8 @@
 #include <boost/smart_ptr.hpp>
 
 // Other libraries
-#ifdef BUILD_PHYSICS_BULLET
-#include <bullet/bullet.h>
-#endif
-
-#ifdef BUILD_PHYSICS_ODE
 #include <ode/ode.h>
-#endif
+
 
 // Spitfire
 #include <spitfire/spitfire.h>
@@ -149,6 +144,12 @@ namespace breathe
       const math::cVec3 normal(math::v3Up);
 
       ground = dCreatePlane(spaceStatic, normal.x, normal.y, normal.z, normal.DotProduct(position));
+    }
+
+    void cWorld::DestroyGround()
+    {
+      dGeomDestroy(ground);
+      ground = NULL;
     }
 
     physics::cBodyRef cWorld::_CreateBody(const physics::cBoxProperties& properties)
@@ -438,30 +439,6 @@ namespace breathe
 
     void cBody::_AddTorqueRelativeToObjectNm(const physics::physvec_t& torqueNm)
     {
-      /*// Get our current rotation
-      breathe::math::cQuaternion qOriginal;
-      qOriginal.SetFromODEQuaternion(dBodyGetQuaternion(body));
-
-      // Find our desired rotation (Current but with x=0, y=0)
-      breathe::math::cQuaternion qDesired = qOriginal;
-      qDesired.x = 0.0f;
-      qDesired.y = 0.0f;
-      float quat_len = sqrt(qDesired.z * qDesired.z + qDesired.w * qDesired.w);
-      qDesired.z /= quat_len;
-      qDesired.w /= quat_len;
-
-      // Set our rotation to a rotation in between these two quaternions
-      breathe::math::cQuaternion qInterpolated;
-      qInterpolated.Slerp(qOriginal, qDesired, 0.1f);
-      dReal values[4];
-      qInterpolated.GetODEQuaternion(values);
-      dBodySetQuaternion(body, values);
-
-      // Get rid of our x,y angular velocity as well
-      const dReal* rot = dBodyGetAngularVel(body);
-      dBodySetAngularVel(body, 0.0f, 0.0f, rot[2]);*/
-
-
       ASSERT(body != NULL);
       dBodyAddRelTorque(body, torqueNm.x, torqueNm.y, torqueNm.z);
     }

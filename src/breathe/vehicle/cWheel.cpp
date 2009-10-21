@@ -18,7 +18,6 @@
 // OpenGL
 #include <GL/GLee.h>
 
-#include <ode/ode.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -274,6 +273,7 @@ namespace breathe
       dSpaceCollide2(geomRay, (dGeomID)physics::GetSpaceDynamic(), this, RayCastCallback);*/
     }
 
+#if 0
     void cWheel::RayCastCallback(void* data, dGeomID g1, dGeomID g2 )
     {
       cWheel* p = ((cWheel*)data);
@@ -286,6 +286,7 @@ namespace breathe
       if( dCollide( g2, g1, 1, &c.geom, sizeof(c) ) == 1 && c.geom.depth < p->rayContact.fDepth)
         p->rayContact.SetContact(c.geom, p->pParent->GetGeom(), c.geom.depth);*/
     }
+#endif
 
 
     //------------------------------------------------------------------------------------------------

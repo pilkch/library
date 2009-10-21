@@ -19,7 +19,6 @@
 // OpenGL
 #include <GL/GLee.h>
 
-#include <ode/ode.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

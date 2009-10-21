@@ -17,7 +17,8 @@
 
 // Other libraries
 #ifdef BUILD_PHYSICS_BULLET
-#include <bullet/bullet.h>
+#include <btBulletDynamicsCommon.h>
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #endif
 
 #ifdef BUILD_PHYSICS_ODE

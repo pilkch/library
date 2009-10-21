@@ -13,10 +13,6 @@
 #include <boost/enable_shared_from_this.hpp>
 
 
-#ifdef BUILD_PHYSICS_3D
-#include <ode/ode.h>
-#endif
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 

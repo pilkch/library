@@ -40,6 +40,97 @@ namespace spitfire
 {
   namespace operatingsystem
   {
+#ifdef __WIN__
+    size_t GetProcessorCount()
+    {
+      SYSTEM_INFO si;
+      GetSystemInfo(&si);
+
+      return si.dwNumberOfProcessors;
+    }
+
+    size_t GetTotalProcessorCoreCount()
+    {
+      ... todo can we use GetLogicalProcessorInformation()?
+
+      // Number of Logical Cores per Physical Processor
+      int nCoreCount = 1;
+
+      _asm {
+        mov   eax, 1
+        cpuid
+        // Test for HTT bit
+        test  edx, 0x10000000
+
+        // If HTT is not supproted, goto htt_not_supported
+        jz htt_not_supported
+
+        // Multi-core or Hyperthreading supported...
+        // Read the "# of Logical Processors per Physical Processor" field:
+        mov   eax, ebx
+        and   eax, 0x00FF0000 // Mask the "logical core counter" byte
+        shr   eax, 16 // Shift byte to be least-significant
+        mov   nCoreCount, eax
+
+        // Uniprocessor (i.e. Pentium III or any AMD CPU excluding their new dual-core A64)
+        htt_not_supported:
+        // nCoreCount will contain 1.
+      }
+
+
+      // This gives a rough estimate, although theoretically someone might put a single core processor on a motherboard with say, 16 cores and we would return either 2 or 32 cores, ugh!
+      return (GetProcessorCount() * size_t(nCoreCount));
+    }
+#else
+    // http://www.sandpile.org/ia32/cpuid.htm
+
+    size_t GetProcessorCount()
+    {
+      //SYSTEM_INFO si;
+      //GetSystemInfo(&si);
+
+      //return si.dwNumberOfProcessors;
+
+      return 1;
+    }
+
+    size_t GetTotalProcessorCoreCount()
+    {
+      // Number of Logical Cores per Physical Processor
+      int nCoreCount = 1;
+
+      /*__asm (
+        ".intel_syntax noprefix\n"
+
+        "mov   eax, 1\n"
+        "cpuid\n"
+        // Test for HTT bit
+        "test  edx, 0x10000000\n"
+
+        // If HTT is not supproted, goto htt_not_supported
+        "jz htt_not_supported\n"
+
+        // Multi-core or Hyperthreading supported...
+        // Read the "# of Logical Processors per Physical Processor" field:
+        "mov   eax, ebx\n"
+        "and   eax, 0x00FF0000\n" // Mask the "logical core counter" byte
+        "shr   eax, 16\n" // Shift byte to be least-significant
+        "mov   nCoreCount, eax\n"
+
+        // Uniprocessor (i.e. Pentium III or any AMD CPU excluding their new dual-core A64)
+        "htt_not_supported:\n"
+
+        // nCoreCount will contain 1.
+
+        ".att_syntax \n"
+      );*/
+
+
+      // This gives a rough estimate, although theoretically someone might put a single core processor on a motherboard with say, 16 cores and we would return either 2 or 32 cores, ugh!
+      return (GetProcessorCount() * size_t(nCoreCount));
+    }
+#endif
+
 #ifdef PLATFORM_LINUX_OR_UNIX
     // *** Environment variables
 
