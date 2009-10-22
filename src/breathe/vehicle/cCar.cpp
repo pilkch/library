@@ -317,7 +317,7 @@ namespace breathe
 
 
 
-      float_t cWheel::GetWheelSpeedKPH() const
+      float_t cWheel::GetSpeedKPH() const
       {
         // 17 inch rim, 3 cm tire
         const float fRadiusOfTireCentimeters = math::InchesToCentimeters(17.0f) + 3.0f;
@@ -747,7 +747,8 @@ namespace breathe
   namespace game
   {
     cVehicleCar::cVehicleCar(cGameObject& _object) :
-        cVehicleBase(_object, TYPE::CAR)
+      cVehicleBase(_object, TYPE::CAR),
+      drive(DRIVE::RWD)
     {
     }
 
@@ -876,8 +877,15 @@ namespace breathe
       {
         // Update wheels
         // TODO: Go through gearbox, clutch, differential first
-        const float_t fRPM = engine.GetRPM();
+        float_t fRPM = engine.GetRPM();
         const float_t fTorqueNm = engine.GetTorqueNm();
+
+        // First gear ratio and diff ratio for a 2004 Corvette
+        const float fGearRatio = 2.97 / 1.0f;
+        const float fDiffRatio = 3.42f / 1.0f;
+
+        fRPM *= 1.0f / fGearRatio;
+        fRPM *= 1.0f / fDiffRatio;
 
         if (IsAWD() || IsRWD()) {
           wheels[WHEEL_REAR_LEFT].SetRPM(fRPM);

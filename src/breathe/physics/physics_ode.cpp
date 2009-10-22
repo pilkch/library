@@ -116,15 +116,10 @@ namespace breathe
     {
       dJointGroupDestroy(contactGroup);
 
-
-      {
+      // Remove all bodies
+      while (!lPhysicsBody.empty()) {
         body_iterator iter = lPhysicsBody.begin();
-        const body_iterator iterEnd = lPhysicsBody.end();
-        while (iter != iterEnd) {
-          DestroyBody(*iter);
-
-          iter++;
-        }
+        DestroyBody(*iter);
       }
 
       lPhysicsBody.clear();
@@ -623,9 +618,9 @@ namespace breathe
 
 
 
-    cCar::cCar(cBodyRef _pBody) :
-      pBody(_pBody)
+    cCar::cCar(cBodyRef _pBody)
     {
+      pBody = _pBody;
     }
 
 

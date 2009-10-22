@@ -119,10 +119,7 @@ namespace breathe
     public:
       explicit cCar(cBodyRef pBody);
 
-      cBodyRef GetBody() { return pBody; }
-
     private:
-      cBodyRef pBody;
     };
   }
 }

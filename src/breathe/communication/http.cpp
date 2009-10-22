@@ -74,7 +74,7 @@ namespace breathe
     {
       std::ostringstream o;
 
-      if (method == METHOD_GET) o<<"GET";
+      if (method == METHOD::GET) o<<"GET";
       else o<<"POST";
 
       o<<" /"<<uri.GetRelativePath()<<" HTTP/1.1" STR_END;
@@ -87,7 +87,7 @@ namespace breathe
       o<<"Connection: Keep-Alive" STR_END;
       o<<STR_END;
 
-      if (method == METHOD_POST) {
+      if (method == METHOD::POST) {
         const size_t content_length = 10;
 
         o<<"Content-Type: application/x-www-form-urlencoded" STR_END;

@@ -166,7 +166,7 @@ namespace breathe
       public:
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
-        float_t GetWheelSpeedKPH() const;
+        float_t GetSpeedKPH() const;
 
         void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
         void SetTorqueNm(float_t _fTorqueNm) { fTorqueNm = _fTorqueNm; }
@@ -204,6 +204,14 @@ namespace breathe
       bool IsRWD() const { return (drive == DRIVE::RWD); }
       bool IsFWD() const { return (drive == DRIVE::FWD); }
 
+      float GetRPM() const { return engine.GetRPM(); }
+
+      // Mostly for debug purposes etc.
+      const car::cEngine& GetEngine() const { return engine; }
+      const std::vector<car::cSuperCharger>& GetSuperChargers() const { return superChargers; }
+      const std::vector<car::cTurboCharger>& GetTurboChargers() const { return turboChargers; }
+      const std::vector<car::cWheel>& GetWheels() const { return wheels; }
+
       void Update(sampletime_t currentTime);
 
     private:
@@ -233,6 +241,8 @@ namespace breathe
       std::vector<car::cWheel> wheels;
 
 
+
+      physics::cCarRef pCar;
 
       audio::cSourceRef pSourceEngine;
       audio::cSourceRef pSourceTurbo0;

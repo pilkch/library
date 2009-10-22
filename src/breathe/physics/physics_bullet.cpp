@@ -98,18 +98,14 @@ namespace breathe
 
     void cWorld::_Destroy()
     {
-      // Remove all of our bodies
-      {
+      // Remove all bodies
+      while (!lPhysicsBody.empty()) {
         body_iterator iter = lPhysicsBody.begin();
-        const body_iterator iterEnd = lPhysicsBody.end();
-        while (iter != iterEnd) {
-          DestroyBody(*iter);
-
-          iter++;
-        }
+        DestroyBody(*iter);
       }
 
       lPhysicsBody.clear();
+
 
       // Destroy the ground
       SAFE_DELETE(groundShape);
@@ -308,14 +304,28 @@ namespace breathe
     void cBody::_AddForceRelativeToObjectKg(const physics::physvec_t& forceKg)
     {
       ASSERT(bodyRigidBody != nullptr);
-      const btVector3 force(forceKg.x, forceKg.y, forceKg.z);
+      btVector3 force(forceKg.x, forceKg.y, forceKg.z);
+
+      //bodyRigidBody->activate();
+      {
+        btTransform transform = bodyRigidBody->getCenterOfMassTransform();
+        force = transform.getBasis() * force;
+      }
+
       bodyRigidBody->applyCentralForce(force);
     }
 
     void cBody::_AddTorqueRelativeToObjectNm(const physics::physvec_t& torqueNm)
     {
       ASSERT(bodyRigidBody != nullptr);
-      const btVector3 torque(torqueNm.x, -torqueNm.y, torqueNm.z);
+      btVector3 torque(torqueNm.x, -torqueNm.y, torqueNm.z);
+
+      //m_body->activate();
+      {
+        btTransform transform = bodyRigidBody->getCenterOfMassTransform();
+        torque = transform.getBasis() * torque;
+      }
+
       bodyRigidBody->applyTorque(torque);
     }
 

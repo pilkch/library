@@ -292,16 +292,18 @@ namespace breathe
     class cCar
     {
     public:
-      const math::cVec3& GetPositionAbsolute() const { return positionAbsolute; }
-      const math::cQuaternion& GetRotationAbsolute() const { return rotationAbsolute; }
+      cBodyRef GetBody() { return pBody; }
+
+      const math::cVec3& GetPositionAbsolute() const { ASSERT(pBody != nullptr); return pBody->GetPositionAbsolute(); }
+      const math::cQuaternion& GetRotationAbsolute() const { ASSERT(pBody != nullptr); return pBody->GetRotationAbsolute(); }
 
       const math::cVec3& GetWheelPositionRelative(size_t index) const { ASSERT(index < wheelPositionRelative.size()); return wheelPositionRelative[index]; }
       const math::cQuaternion& GetWheelRotationRelative(size_t index) const { ASSERT(index < wheelRotationRelative.size()); return wheelRotationRelative[index]; }
 
-    private:
-      math::cVec3 positionAbsolute;
-      math::cQuaternion rotationAbsolute;
+    protected:
+      cBodyRef pBody;
 
+    private:
       std::vector<math::cVec3> wheelPositionRelative;
       std::vector<math::cQuaternion> wheelRotationRelative;
     };

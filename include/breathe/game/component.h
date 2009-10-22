@@ -348,6 +348,8 @@ namespace breathe
       TYPE type;
     };
 
+
+
     class cVehicleComponent : public cComponent
     {
     public:
@@ -363,6 +365,8 @@ namespace breathe
       void SetCar();
       void SetPlane();
       void SetHelicopter();
+
+      cVehicleBase* GetVehicle() { ASSERT(pVehicle != nullptr); return pVehicle; }
 
 
       // General Keyboard/Mouse/Joystick Inputs
