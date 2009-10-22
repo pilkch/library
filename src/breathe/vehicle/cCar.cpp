@@ -317,6 +317,80 @@ namespace breathe
 
 
 
+
+
+      // *** cGearBox
+
+      cGearBox::cGearBox() :
+        currentGear(1), // Default to neutral even though we don't actually have a neutral yet
+
+        fRPMBeforeGearBox(0.0f),
+        fTorqueNmBeforeGearBox(0.0f),
+
+        fRPMAfterGearBox(0.0f),
+        fTorqueNmAfterGearBox(0.0f)
+      {
+      }
+
+      void cGearBox::AddGear(float_t fGearRatio)
+      {
+        gears.push_back(fGearRatio);
+      }
+
+      void cGearBox::ChangeGearUp()
+      {
+        if ((currentGear + 1) < gears.size()) currentGear++;
+      }
+
+      void cGearBox::ChangeGearDown()
+      {
+        if (currentGear != 0) currentGear--;
+      }
+
+      float_t cGearBox::GetGearRatio() const
+      {
+        ASSERT(currentGear < gears.size());
+        return gears[currentGear];
+      }
+      void cGearBox::Update(sampletime_t currentTime)
+      {
+        ASSERT(currentGear < gears.size());
+
+        // Avoid a divide by zero for the neutral gear
+        if (gears[currentGear] != 0.0f) {
+          fRPMAfterGearBox = fRPMBeforeGearBox * (1.0f / gears[currentGear]);
+          fTorqueNmAfterGearBox = fTorqueNmBeforeGearBox * (1.0f / gears[currentGear]);
+        } else {
+          fRPMAfterGearBox = 0.0f;
+          fTorqueNmAfterGearBox = 0.0f;
+        }
+      }
+
+
+
+      // *** cDifferential
+
+      cDifferential::cDifferential() :
+        fRatio(3.42f)
+      {
+      }
+
+      void cDifferential::Update(sampletime_t currentTime)
+      {
+        ASSERT(fRatio != 0.0f);
+        fRPMAfterDifferential = fRPMBeforeDifferential * (1.0f / fRatio);
+        fTorqueNmAfterDifferential = fTorqueNmBeforeDifferential * (1.0f / fRatio);
+      }
+
+
+
+
+
+
+
+
+      // *** cWheel
+
       float_t cWheel::GetSpeedKPH() const
       {
         // 17 inch rim, 3 cm tire
@@ -755,6 +829,21 @@ namespace breathe
     void cVehicleCar::InitParts()
     {
       for (size_t i = 0; i < 4; i++) wheels.push_back(car::cWheel());
+
+
+      // Gear ratios for a 2004 Corvette
+      gearbox.AddGear(-3.28f); // Reverse
+      gearbox.AddGear(0.0f); // Neutral
+      gearbox.AddGear(2.97f);
+      gearbox.AddGear(2.07f);
+      gearbox.AddGear(1.43f);
+      gearbox.AddGear(1.00f);
+      gearbox.AddGear(0.84f);
+      gearbox.AddGear(0.56f);
+
+
+      // Diff ratio for a 2004 Corvette
+      differential.SetRatio(3.42f);
     }
 
     void cVehicleCar::_Init()
@@ -876,16 +965,34 @@ namespace breathe
 
       {
         // Update wheels
-        // TODO: Go through gearbox, clutch, differential first
         float_t fRPM = engine.GetRPM();
-        const float_t fTorqueNm = engine.GetTorqueNm();
+        float_t fTorqueNm = engine.GetTorqueNm();
 
-        // First gear ratio and diff ratio for a 2004 Corvette
-        const float fGearRatio = 2.97 / 1.0f;
-        const float fDiffRatio = 3.42f / 1.0f;
 
-        fRPM *= 1.0f / fGearRatio;
-        fRPM *= 1.0f / fDiffRatio;
+        // TODO: Go through clutch, first
+
+
+        // GearBox
+        gearbox.SetRPMBeforeGearBox(fRPM);
+        gearbox.SetTorqueNmBeforeGearBox(fTorqueNm);
+
+        gearbox.Update(currentTime);
+
+        fRPM = gearbox.GetRPMAfterGearBox();
+        fTorqueNm = gearbox.GetTorqueNmAfterGearBox();
+
+
+
+        // Differential
+        differential.SetRPMBeforeDifferential(fRPM);
+        differential.SetTorqueNmBeforeDifferential(fTorqueNm);
+
+        differential.Update(currentTime);
+
+        fRPM = differential.GetRPMAfterDifferential();
+        fTorqueNm = differential.GetTorqueNmAfterDifferential();
+
+
 
         if (IsAWD() || IsRWD()) {
           wheels[WHEEL_REAR_LEFT].SetRPM(fRPM);
@@ -947,6 +1054,16 @@ namespace breathe
 
       if (fInputClutch0To1 > 0.01f) {
       }*/
+
+
+
+      if (bIsInputChangeGearUp) {
+        gearbox.ChangeGearUp();
+      }
+      if (bIsInputChangeGearDown) {
+        gearbox.ChangeGearDown();
+      }
+
 
 
       cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);

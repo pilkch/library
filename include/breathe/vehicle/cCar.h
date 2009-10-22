@@ -161,6 +161,84 @@ namespace breathe
         cAirFlow outputAirFlow;
       };
 
+
+
+      // Gear ratios for a 2004 Corvette
+      // 0 = reverse   -3.28:1
+      // 1 = neutral   0.0:1
+      // 2 = 1st gear  2.97:1
+      // 3 = 2nd gear  2.07:1
+      // 4 = 3rd gear  1.43:1
+      // 5 = 4th gear  1.00:1
+      // 6 = 5th gear  0.84:1
+      // 7 = 6th gear  0.56:1
+      class cGearBox
+      {
+      public:
+        cGearBox();
+
+        void AddGear(float_t fGearRatio);
+
+        // NOTE: This includes reverse (0) and neutral (1)
+        size_t GetNumberOfGears() const { return gears.size(); }
+        size_t GetCurrentGear() const { return currentGear; }
+        float_t GetGearRatio() const;
+
+        void ChangeGearUp();
+        void ChangeGearDown();
+
+        void SetRPMBeforeGearBox(float_t _fRPMBeforeGearBox) { fRPMBeforeGearBox = _fRPMBeforeGearBox; }
+        void SetTorqueNmBeforeGearBox(float_t _fTorqueNmBeforeGearBox) { fTorqueNmBeforeGearBox = _fTorqueNmBeforeGearBox; }
+
+        float_t GetRPMAfterGearBox() const { return fRPMAfterGearBox; }
+        float_t GetTorqueNmAfterGearBox() const { return fTorqueNmAfterGearBox; }
+
+        void Update(sampletime_t currentTime);
+
+      private:
+        size_t currentGear;
+        std::vector<float_t> gears;
+
+        float_t fRPMBeforeGearBox;
+        float_t fTorqueNmBeforeGearBox;
+
+        float_t fRPMAfterGearBox;
+        float_t fTorqueNmAfterGearBox;
+      };
+
+
+      // Diff ratio for a 2004 Corvette
+      // 3.42:1
+
+      class cDifferential
+      {
+      public:
+        cDifferential();
+
+        void SetRatio(float_t _fRatio) { fRatio = _fRatio; }
+
+        float_t GetRatio() const { return fRatio; }
+
+        void SetRPMBeforeDifferential(float_t _fRPMBeforeDifferential) { fRPMBeforeDifferential = _fRPMBeforeDifferential; }
+        void SetTorqueNmBeforeDifferential(float_t _fTorqueNmBeforeDifferential) { fTorqueNmBeforeDifferential = _fTorqueNmBeforeDifferential; }
+
+        float_t GetRPMAfterDifferential() const { return fRPMAfterDifferential; }
+        float_t GetTorqueNmAfterDifferential() const { return fTorqueNmAfterDifferential; }
+
+        void Update(sampletime_t currentTime);
+
+      private:
+        float_t fRatio;
+
+        float_t fRPMBeforeDifferential;
+        float_t fTorqueNmBeforeDifferential;
+
+        float_t fRPMAfterDifferential;
+        float_t fTorqueNmAfterDifferential;
+      };
+
+
+
       class cWheel
       {
       public:
@@ -206,6 +284,10 @@ namespace breathe
 
       float GetRPM() const { return engine.GetRPM(); }
 
+      // NOTE: This includes reverse (0) and neutral (1)
+      size_t GetGear() const { return gearbox.GetCurrentGear(); }
+
+
       // Mostly for debug purposes etc.
       const car::cEngine& GetEngine() const { return engine; }
       const std::vector<car::cSuperCharger>& GetSuperChargers() const { return superChargers; }
@@ -232,9 +314,9 @@ namespace breathe
       std::vector<car::cTurboCharger> turboChargers;
       std::vector<car::cInterCooler> interCoolers;
 
-      //car::cGearbox gearbox;
+      car::cGearBox gearbox;
       //car::cClutch clutch;
-      //vcDifferential differential;
+      car::cDifferential differential;
 
       // TODO: suspension, tires
 
