@@ -131,11 +131,11 @@ namespace breathe
 
       void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
       void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
-      void SetWeightKg(float _fWeightKg) { fWeightKg = _fWeightKg; }
+      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
 
       spitfire::math::cVec3 position;
       spitfire::math::cQuaternion rotation;
-      float fWeightKg;
+      float fMassKg;
       float fWidthMetres;
     #ifdef BUILD_PHYSICS_3D
       float fDepthMetres;
@@ -150,12 +150,12 @@ namespace breathe
 
       void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
       void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
-      void SetWeightKg(float _fWeightKg) { fWeightKg = _fWeightKg; }
+      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
       void SetRadiusMetres(float _fRadiusMetres) { fRadiusMetres = _fRadiusMetres; }
 
       spitfire::math::cVec3 position;
       spitfire::math::cQuaternion rotation;
-      float fWeightKg;
+      float fMassKg;
       float fRadiusMetres;
     };
 
@@ -169,11 +169,11 @@ namespace breathe
 
       const math::cVec3& GetPositionAbsolute() const { return position; }
       const math::cQuaternion& GetRotationAbsolute() const { return rotation; }
-      float GetWeightKg() const { return fWeightKg; }
+      float GetMassKg() const { return fMassKg; }
 
       void SetPositionAbsolute(const spitfire::math::cVec3& position) { _SetPositionAbsolute(position); }
       void SetRotationAbsolute(const spitfire::math::cQuaternion& rotation) { _SetRotationAbsolute(rotation); }
-      void SetWeightKg(float fWeightKg) { _SetWeightKg(fWeightKg); }
+      void SetMassKg(float fMassKg) { _SetMassKg(fMassKg); }
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg) { _AddForceRelativeToWorldKg(forceKg); }
       void AddTorqueRelativeToWorldNm(const physvec_t& torqueNm) { _AddTorqueRelativeToWorldNm(torqueNm); }
@@ -188,14 +188,14 @@ namespace breathe
     protected:
       math::cVec3 position;
       math::cQuaternion rotation;
-      float fWeightKg;
+      float fMassKg;
 
     private:
       NO_COPY(cBody);
 
       virtual void _SetPositionAbsolute(const spitfire::math::cVec3& position) = 0;
       virtual void _SetRotationAbsolute(const spitfire::math::cQuaternion& rotation) = 0;
-      virtual void _SetWeightKg(float fWeightKg) = 0;
+      virtual void _SetMassKg(float fMassKg) = 0;
 
       virtual void _AddForceRelativeToWorldKg(const physvec_t& forceKg) = 0;
       virtual void _AddTorqueRelativeToWorldNm(const physvec_t& torqueNm) = 0;
@@ -264,12 +264,12 @@ namespace breathe
 
       void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
       void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
-      void SetWeightKg(float _fWeightKg) { fWeightKg = _fWeightKg; }
+      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
 
       // Chassis
       spitfire::math::cVec3 position;
       spitfire::math::cQuaternion rotation;
-      float fWeightKg;
+      float fMassKg;
       float fWidthMetres;
     #ifdef BUILD_PHYSICS_3D
       float fDepthMetres;
@@ -284,7 +284,7 @@ namespace breathe
 
       // Wheels
       size_t nWheels;
-      float fWheelWeightKg;
+      float fWheelMassKg;
       float fTireFrictionSlip;
     };
 

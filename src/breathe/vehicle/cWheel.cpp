@@ -237,12 +237,12 @@ namespace breathe
       fSuspensionMax=0.0f;
     }
 
-    void cWheel::Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, const math::cVec3& pos)
+    void cWheel::Init(bool bFront, float fWRadius, float fInMassKg, float fSK, float fSU, float fSNormal, float fSMin, float fSMax, const math::cVec3& pos)
     {
       this->bFront=bFront;
 
       fRadius=fWRadius;
-      fWeight=fInWeight;
+      fMassKg = fInMassKg;
 
       fSuspensionK=fSK;
       fSuspensionU=fSU;
@@ -493,7 +493,7 @@ namespace breathe
         float deltalength = math::sqrt(delta*delta);
         float diff = (deltalength-restlength)/deltalength;
 
-        float fForce=1.90f*pParent->fWeight*(fSuspensionMax-(fContact-fRadius))*fSuspensionK;
+        float fForce=1.90f*pParent->fMassKg * (fSuspensionMax-(fContact-fRadius))*fSuspensionK;
         float fTorque=10.0f;
         math::cVec3 force(up.x*fForce, up.y*fForce, up.z*fForce);
         math::cVec3 torque(up.z*fTorque, up.z*fTorque, 0.0f);

@@ -30,7 +30,7 @@ namespace breathe
     fLength(1.0f),
     fHeight(1.0f),
 
-    fWeightKg(1.0f)
+    fMassKg(1.0f)
   {
   }
 

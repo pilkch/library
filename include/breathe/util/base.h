@@ -45,7 +45,7 @@ namespace breathe
     float fLength;
     float fHeight;
 
-    float fWeightKg;
+    float fMassKg;
 
     // For 2D
     void SetDimensions(float fWidth, float fHeight);

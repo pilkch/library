@@ -163,7 +163,7 @@ namespace breathe
 
       if (bBody) {
         dMass mass;
-        dMassSetBoxTotal(&mass, fWeightKg, 2.0f * fWidth, 2.0f * fLength, 2.0f * fHeight);
+        dMassSetBoxTotal(&mass, fMassKg, 2.0f * fWidth, 2.0f * fLength, 2.0f * fHeight);
         dBodySetMass(body, &mass);
       }
     }
@@ -176,7 +176,7 @@ namespace breathe
 
       if (bBody) {
         dMass mass;
-        dMassSetSphereTotal(&mass, fWeightKg, 2.0f * fRadius);
+        dMassSetSphereTotal(&mass, fMassKg, 2.0f * fRadius);
         dBodySetMass(body, &mass);
       }
     }
@@ -189,7 +189,7 @@ namespace breathe
 
       if (bBody) {
         dMass mass;
-        dMassSetCapsuleTotal(&mass, fWeightKg, uiDirectionX, 2.0f*fRadius, fLength);
+        dMassSetCapsuleTotal(&mass, fMassKg, uiDirectionX, 2.0f*fRadius, fLength);
         dBodySetMass(body, &mass);
       }
     }
@@ -202,7 +202,7 @@ namespace breathe
 
       if (bBody) {
         dMass mass;
-        dMassSetCylinderTotal(&mass, fWeightKg, uiDirectionX, 2.0f * fRadius, fLength);
+        dMassSetCylinderTotal(&mass, fMassKg, uiDirectionX, 2.0f * fRadius, fLength);
         dBodySetMass(body, &mass);
       }
     }

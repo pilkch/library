@@ -200,7 +200,7 @@ namespace breathe
 
 
 
-        fRPM += 50.0f * fAcceleratorInput0To1;
+        fRPM += 100.0f * fAcceleratorInput0To1;
 
         fRPM *= 0.99f;
 
@@ -317,6 +317,27 @@ namespace breathe
 
 
 
+      // *** cClutch
+
+      cClutch::cClutch() :
+        fMassKg(10.0f),
+
+        fInputClutch0To1(1.0f),
+        fRPMBeforeClutch(0.0f),
+        fTorqueNmBeforeClutch(0.0f),
+
+        fRPMAfterClutch(0.0f),
+        fTorqueNmAfterClutch(0.0f)
+      {
+      }
+
+      void cClutch::Update(sampletime_t currentTime)
+      {
+        const float_t fOneMinusInputClutch0To1 = 1.0f - fInputClutch0To1;
+        fRPMAfterClutch = fOneMinusInputClutch0To1 * fRPMBeforeClutch;
+        fTorqueNmAfterClutch = fOneMinusInputClutch0To1 * fTorqueNmBeforeClutch;
+      }
+
 
 
       // *** cGearBox
@@ -391,10 +412,22 @@ namespace breathe
 
       // *** cWheel
 
+
+      cWheel::cWheel() :
+        fMassOfRimKg(20.0f),
+        fMassOfTireKg(10.0f),
+        fRPM(0.0f),
+        fTorqueNm(0.0f)
+      {
+        fDiametreOfRimCentimetres = math::InchesToCentimeters(17.0f);
+        fProfileOfTireCentimetres = 3.0f;
+        fWidthCentimetres = math::InchesToCentimeters(8.0f);
+      }
+
       float_t cWheel::GetSpeedKPH() const
       {
-        // 17 inch rim, 3 cm tire
-        const float fRadiusOfTireCentimeters = math::InchesToCentimeters(17.0f) + 3.0f;
+        // 17 inch rim, 3 cm tire on each side of the rim
+        const float fRadiusOfTireCentimeters = fDiametreOfRimCentimetres + (2.0f * fProfileOfTireCentimetres);
 
         const float fSpeedCentimetersPerMinute = ((2.0f * math::cPI * fRadiusOfTireCentimeters) * fRPM);
         const float fSpeedKPH = fSpeedCentimetersPerMinute * (60.0 / 100000.0f); // 60 minutes in an hour, 100000 cm in a kilometer
@@ -681,7 +714,7 @@ namespace breathe
 
       // Test crate
       breathe::physics::cBoxProperties properties;
-      properties.SetWeightKg(1000.0f);
+      properties.SetMassKg(1000.0f);
       properties.SetPositionAbsolute(position);
 
       breathe::physics::cBodyRef pBody = physics::GetWorld()->CreateBody(properties);
@@ -742,7 +775,7 @@ namespace breathe
 
    // Test crate
    breathe::physics::cPhysicsObjectRef pPhysicsObject(new breathe::physics::cPhysicsObject);
-   pPhysicsObject->fWeightKg = 10.0f;
+   pPhysicsObject->fMassKg = 10.0f;
 
    pPhysicsObject->CreateBox(pWorld, position);
 
@@ -892,6 +925,37 @@ namespace breathe
       pSourceEngine->Play();
     }
 
+
+    float_t cVehicleCar::GetTotalMassKg() const
+    {
+      float_t fMassKg = chassis.GetMassKg() + engine.GetMassKg();
+
+      {
+        const size_t n = superChargers.size();
+        for (size_t i = 0; i < n; i++) fMassKg += superChargers[i].GetMassKg();
+      }
+      {
+        const size_t n = turboChargers.size();
+        for (size_t i = 0; i < n; i++) fMassKg += turboChargers[i].GetMassKg();
+      }
+      {
+        const size_t n = interCoolers.size();
+        for (size_t i = 0; i < n; i++) fMassKg += interCoolers[i].GetMassKg();
+      }
+
+      fMassKg += clutch.GetMassKg() + gearbox.GetMassKg() + differential.GetMassKg();
+
+      {
+        const size_t n = wheels.size();
+        for (size_t i = 0; i < n; i++) {
+          fMassKg += wheels[i].GetMassOfRimKg();
+          fMassKg += wheels[i].GetMassOfTireKg();
+        }
+      }
+
+      return fMassKg;
+    }
+
     void cVehicleCar::_Update(sampletime_t currentTime)
     {
       ASSERT(wheels.size() == 4);
@@ -969,7 +1033,15 @@ namespace breathe
         float_t fTorqueNm = engine.GetTorqueNm();
 
 
-        // TODO: Go through clutch, first
+        // Clutch
+        clutch.SetRPMBeforeClutch(fRPM);
+        clutch.SetTorqueNmBeforeClutch(fTorqueNm);
+
+        clutch.Update(currentTime);
+
+        fRPM = clutch.GetRPMAfterClutch();
+        fTorqueNm = clutch.GetTorqueNmAfterClutch();
+
 
 
         // GearBox
@@ -1041,19 +1113,19 @@ namespace breathe
       }
 
       if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pPhysicsObject->GetMassKg() * 2.0f * breathe::math::v3Up);
         pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pPhysicsObject->GetMassKg() * -2.0f * breathe::math::v3Up);
         pPhysicsObject->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
       if (fInputHandBrake0To1 > 0.01f) {
-      }
-
-      if (fInputClutch0To1 > 0.01f) {
       }*/
+
+
+      clutch.SetInputClutch0To1(fInputClutch0To1);
 
 
 
@@ -1076,7 +1148,7 @@ namespace breathe
 
       // JUST FOR TESTING
       if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetWeightKg() * 100.0f * breathe::math::v3Up);
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetMassKg() * 200.0f * breathe::math::v3Front);
         pBody->AddForceRelativeToObjectKg(forceKg);
       }
       if (fInputBrake0To1 > 0.01f) {
@@ -1085,11 +1157,11 @@ namespace breathe
       }
 
       if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetMassKg() * 2.0f * breathe::math::v3Up);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetMassKg() * -2.0f * breathe::math::v3Up);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
@@ -1104,3 +1176,26 @@ namespace breathe
     }
   }
 }
+
+
+
+/*
+
+        800.0f,   // mass
+        -0.2f,    // Y shift
+        0.0f,     // Z shift
+
+        40.0f,    // suspension stiffness
+        2.3f,     // suspension damping
+        2.4f,     // suspension compression
+        0.10f,  //0.15f,  // suspension rest_length
+        10.0f,  //0.30f,  // max suspension travel (cm)
+        0.2f,     // roll influence
+        2.0f,     // wheel friction
+        1600.0f,  // max engine force
+        200.0f,   // max breaking force
+        0.5f,     // steering clamp
+
+        0.0f,   //0.2f,    // fwheel X shift
+        0.0f    //0.2f     // rwheel X shift
+*/

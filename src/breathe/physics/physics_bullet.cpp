@@ -244,14 +244,14 @@ namespace breathe
     {
     }
 
-    void cBody::_SetWeightKg(float fWeightKg)
+    void cBody::_SetMassKg(float fMassKg)
     {
     }
 
     void cBody::InitCommon()
     {
       bodyMotionState = new btDefaultMotionState(btTransform(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), btVector3(position.x, position.y, position.z)));
-      btScalar mass = fWeightKg;
+      btScalar mass = fMassKg;
       btVector3 bodyInertia(0, 0, 0);
       bodyShape->calculateLocalInertia(mass, bodyInertia);
       btRigidBody::btRigidBodyConstructionInfo bodyRigidBodyCI(mass, bodyMotionState, bodyShape, bodyInertia);
@@ -265,7 +265,7 @@ namespace breathe
 
       position = properties.position;
       rotation = properties.rotation;
-      fWeightKg = properties.fWeightKg;
+      fMassKg = properties.fMassKg;
 
       btVector3 dimensions(properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
       bodyShape = new btBoxShape(dimensions);
@@ -279,7 +279,7 @@ namespace breathe
 
       position = properties.position;
       rotation = properties.rotation;
-      fWeightKg = properties.fWeightKg;
+      fMassKg = properties.fMassKg;
 
       bodyShape = new btSphereShape(properties.fRadiusMetres);
 
@@ -291,6 +291,8 @@ namespace breathe
     {
       ASSERT(bodyRigidBody != nullptr);
       const btVector3 force(forceKg.x, forceKg.y, forceKg.z);
+
+      bodyRigidBody->activate();
       bodyRigidBody->applyCentralForce(force);
     }
 
@@ -298,6 +300,8 @@ namespace breathe
     {
       ASSERT(bodyRigidBody != nullptr);
       const btVector3 torque(torqueNm.x, -torqueNm.y, torqueNm.z);
+
+      bodyRigidBody->activate();
       bodyRigidBody->applyTorque(torque);
     }
 
@@ -312,6 +316,7 @@ namespace breathe
         force = transform.getBasis() * force;
       }
 
+      bodyRigidBody->activate();
       bodyRigidBody->applyCentralForce(force);
     }
 
@@ -326,6 +331,7 @@ namespace breathe
         torque = transform.getBasis() * torque;
       }
 
+      bodyRigidBody->activate();
       bodyRigidBody->applyTorque(torque);
     }
 

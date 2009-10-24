@@ -65,6 +65,25 @@ namespace breathe
       };
 
 
+      class cChassis
+      {
+      public:
+        // TODO: We need other stuff such as down force, spoilers? etc. centre of gravity?
+        float_t GetMassKg() const { return fMassKg; }
+        float_t GetWidthMetres() const { return fWidthMetres; }
+        float_t GetLengthMetres() const { return fLengthMetres; }
+        float_t GetHeightMetres() const { return fHeightMetres; }
+
+        void Update(sampletime_t currentTime) {}
+
+      private:
+        float_t fMassKg;
+        float_t fWidthMetres;
+        float_t fLengthMetres;
+        float_t fHeightMetres;
+      };
+
+
       class cEngine
       {
       public:
@@ -72,14 +91,15 @@ namespace breathe
         void SetAcceleratorInput0To1(float_t _fAcceleratorInput0To1) { fAcceleratorInput0To1 = _fAcceleratorInput0To1; }
         void SetIntakeAirFlow(const cAirFlow& _intakeAirFlow) { intakeAirFlow = _intakeAirFlow; }
 
+        float_t GetMassKg() const { return fMassKg; }
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
         const cAirFlow& GetExhaustAirFlow() const { return exhaustAirFlow; }
 
-
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         cAmbientSettings ambientSettings;
         float_t fAcceleratorInput0To1;
         cAirFlow intakeAirFlow;
@@ -98,11 +118,13 @@ namespace breathe
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetEngineRPM(float_t _fRPM) { fRPM = _fRPM; }
 
+        float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         cAmbientSettings ambientSettings;
         float_t fEngineRPM;
         math::cCurve rpmToPressureCurve;
@@ -118,11 +140,13 @@ namespace breathe
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetEngineExhaustAirFlow(const cAirFlow& _exhaustAirFlow) { exhaustAirFlow = _exhaustAirFlow; }
 
+        float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         cAmbientSettings ambientSettings;
         cAirFlow exhaustAirFlow;
         math::cCurve rpmToPressureCurve;
@@ -149,11 +173,13 @@ namespace breathe
 
         void SetInputAirFlow(const cAirFlow& _inputAirFlow) { inputAirFlow = _inputAirFlow; }
 
+        float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         cAmbientSettings ambientSettings;
         float_t fCarVelocityKPH;
         cAirFlow inputAirFlow;
@@ -161,6 +187,34 @@ namespace breathe
         cAirFlow outputAirFlow;
       };
 
+
+
+      class cClutch
+      {
+      public:
+        cClutch();
+
+        float_t GetMassKg() const { return fMassKg; }
+
+        void SetInputClutch0To1(float_t _fInputClutch0To1) { fInputClutch0To1 = _fInputClutch0To1; }
+        void SetRPMBeforeClutch(float_t _fRPMBeforeClutch) { fRPMBeforeClutch = _fRPMBeforeClutch; }
+        void SetTorqueNmBeforeClutch(float_t _fTorqueNmBeforeClutch) { fTorqueNmBeforeClutch = _fTorqueNmBeforeClutch; }
+
+        float_t GetRPMAfterClutch() const { return fRPMAfterClutch; }
+        float_t GetTorqueNmAfterClutch() const { return fTorqueNmAfterClutch; }
+
+        void Update(sampletime_t currentTime);
+
+      private:
+        float_t fMassKg;
+
+        float_t fInputClutch0To1;
+        float_t fRPMBeforeClutch;
+        float_t fTorqueNmBeforeClutch;
+
+        float_t fRPMAfterClutch;
+        float_t fTorqueNmAfterClutch;
+      };
 
 
       // Gear ratios for a 2004 Corvette
@@ -190,12 +244,14 @@ namespace breathe
         void SetRPMBeforeGearBox(float_t _fRPMBeforeGearBox) { fRPMBeforeGearBox = _fRPMBeforeGearBox; }
         void SetTorqueNmBeforeGearBox(float_t _fTorqueNmBeforeGearBox) { fTorqueNmBeforeGearBox = _fTorqueNmBeforeGearBox; }
 
+        float_t GetMassKg() const { return fMassKg; }
         float_t GetRPMAfterGearBox() const { return fRPMAfterGearBox; }
         float_t GetTorqueNmAfterGearBox() const { return fTorqueNmAfterGearBox; }
 
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         size_t currentGear;
         std::vector<float_t> gears;
 
@@ -217,6 +273,7 @@ namespace breathe
 
         void SetRatio(float_t _fRatio) { fRatio = _fRatio; }
 
+        float_t GetMassKg() const { return fMassKg; }
         float_t GetRatio() const { return fRatio; }
 
         void SetRPMBeforeDifferential(float_t _fRPMBeforeDifferential) { fRPMBeforeDifferential = _fRPMBeforeDifferential; }
@@ -228,6 +285,7 @@ namespace breathe
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fMassKg;
         float_t fRatio;
 
         float_t fRPMBeforeDifferential;
@@ -242,6 +300,16 @@ namespace breathe
       class cWheel
       {
       public:
+        cWheel();
+
+        // Total height of wheel is diameter of rim + (2 * profile of tire)
+        float_t GetDiametreOfRimCentimetres() const { return fDiametreOfRimCentimetres; }
+        float_t GetProfileOfTireCentimetres() const { return fProfileOfTireCentimetres; }
+        float_t GetWidthCentimetres() const { return fWidthCentimetres; }
+
+        float_t GetMassOfRimKg() const { return fMassOfRimKg; }
+        float_t GetMassOfTireKg() const { return fMassOfTireKg; }
+
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
         float_t GetSpeedKPH() const;
@@ -252,6 +320,11 @@ namespace breathe
         void Update(sampletime_t currentTime);
 
       private:
+        float_t fDiametreOfRimCentimetres;
+        float_t fProfileOfTireCentimetres;
+        float_t fWidthCentimetres;
+        float_t fMassOfRimKg;
+        float_t fMassOfTireKg;
         float_t fRPM;
         float_t fTorqueNm;
       };
@@ -282,7 +355,8 @@ namespace breathe
       bool IsRWD() const { return (drive == DRIVE::RWD); }
       bool IsFWD() const { return (drive == DRIVE::FWD); }
 
-      float GetRPM() const { return engine.GetRPM(); }
+      float_t GetTotalMassKg() const;
+      float_t GetRPM() const { return engine.GetRPM(); }
 
       // NOTE: This includes reverse (0) and neutral (1)
       size_t GetGear() const { return gearbox.GetCurrentGear(); }
@@ -307,6 +381,11 @@ namespace breathe
       car::cAirFlow engineIntakeAirFlow;
 
 
+
+      // Parts
+
+      car::cChassis chassis;
+
       car::cEngine engine;
 
       // These are all optional
@@ -314,8 +393,8 @@ namespace breathe
       std::vector<car::cTurboCharger> turboChargers;
       std::vector<car::cInterCooler> interCoolers;
 
+      car::cClutch clutch;
       car::cGearBox gearbox;
-      //car::cClutch clutch;
       car::cDifferential differential;
 
       // TODO: suspension, tires

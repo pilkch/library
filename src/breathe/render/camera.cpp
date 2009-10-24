@@ -74,8 +74,8 @@ namespace breathe
 
       positionEye = positionLookAtPoint + rotationOfObject.GetRotatedVector(positionRelativeToObject);
 
-      directionUp = rotationOfObject.GetRotatedVector(spitfire::math::v3Up);
-      directionRight = rotationOfObject.GetRotatedVector(spitfire::math::v3Right);
+      directionUp = rotationOfObject.GetRotatedVector(spitfire::math::v3Up).GetNormalised();
+      directionRight = rotationOfObject.GetRotatedVector(spitfire::math::v3Right).GetNormalised();
     }
 
     void cCamera::SetThirdPersonCamera(const spitfire::math::cVec3& positionOfObject, const spitfire::math::cQuaternion& rotationOfObject, const spitfire::math::cQuaternion& rotationOfViewRelativeToRotationOfObject)

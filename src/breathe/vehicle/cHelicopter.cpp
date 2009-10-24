@@ -247,7 +247,7 @@ namespace breathe
 
       // Test crate
       breathe::physics::cBoxProperties properties;
-      properties.SetWeightKg(12000.0f);
+      properties.SetMassKg(12000.0f);
       properties.SetPositionAbsolute(position);
 
       breathe::physics::cBodyRef pBody = physics::GetWorld()->CreateBody(properties);
@@ -518,7 +518,7 @@ namespace breathe
 
       // Test crate
       breathe::physics::cBoxProperties properties;
-      properties.SetWeightKg(1000.0f);
+      properties.SetMassKg(1000.0f);
       properties.SetPositionAbsolute(position);
 
       breathe::physics::cBodyRef pBody = breathe::physics::GetWorld()->CreateBody(properties);
@@ -745,7 +745,7 @@ namespace breathe
 
 
       if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetWeightKg() * 300.0f * breathe::math::v3Up);
+        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetMassKg() * 300.0f * breathe::math::v3Up);
         pBody->AddForceRelativeToObjectKg(forceKg);
       }
       if (fInputBrake0To1 > 0.01f) {
@@ -756,29 +756,29 @@ namespace breathe
 
       const float_t fPitchRollFactor = 0.0005f;
       if (fInputForward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputForward0To1 * pBody->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Right);
+        breathe::math::cVec3 torqueNm(fInputForward0To1 * pBody->GetMassKg() * -fPitchRollFactor * breathe::math::v3Right);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputBackward0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pBody->GetWeightKg() * fPitchRollFactor * breathe::math::v3Right);
+        breathe::math::cVec3 torqueNm(fInputBackward0To1 * pBody->GetMassKg() * fPitchRollFactor * breathe::math::v3Right);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetWeightKg() * fPitchRollFactor * breathe::math::v3Front);
+        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetMassKg() * fPitchRollFactor * breathe::math::v3Front);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetWeightKg() * -fPitchRollFactor * breathe::math::v3Front);
+        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetMassKg() * -fPitchRollFactor * breathe::math::v3Front);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 
 
       if (fInputYawLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pBody->GetWeightKg() * 2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputYawLeft0To1 * pBody->GetMassKg() * 2.0f * breathe::math::v3Up);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
       if (fInputYawRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pBody->GetWeightKg() * -2.0f * breathe::math::v3Up);
+        breathe::math::cVec3 torqueNm(fInputYawRight0To1 * pBody->GetMassKg() * -2.0f * breathe::math::v3Up);
         pBody->AddTorqueRelativeToWorldNm(torqueNm);
       }
 

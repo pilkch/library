@@ -352,7 +352,7 @@ namespace breathe
     {
     }
 
-    void cBody::_SetWeightKg(float fWeightKg)
+    void cBody::_SetMassKg(float fMassKg)
     {
     }
 
@@ -387,14 +387,14 @@ namespace breathe
     {
       position = properties.position;
       rotation = properties.rotation;
-      fWeightKg = properties.fWeightKg;
+      fMassKg = properties.fMassKg;
 
       geom = dCreateBox(pWorld->GetSpaceDynamic(), properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
 
       InitCommon(pWorld);
 
       dMass mass;
-      dMassSetBoxTotal(&mass, fWeightKg, properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
+      dMassSetBoxTotal(&mass, fMassKg, properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
       dBodySetMass(body, &mass);
     }
 
@@ -402,14 +402,14 @@ namespace breathe
     {
       position = properties.position;
       rotation = properties.rotation;
-      fWeightKg = properties.fWeightKg;
+      fMassKg = properties.fMassKg;
 
       geom = dCreateSphere(pWorld->GetSpaceDynamic(), properties.fRadiusMetres);
 
       InitCommon(pWorld);
 
       dMass mass;
-      dMassSetSphereTotal(&mass, fWeightKg, 2.0f * properties.fRadiusMetres);
+      dMassSetSphereTotal(&mass, fMassKg, 2.0f * properties.fRadiusMetres);
       dBodySetMass(body, &mass);
     }
 

@@ -94,7 +94,7 @@ namespace breathe
     {
       cPhysicsObject* pObject = new cPhysicsObject;
 
-      pObject->fWeight = 0.0f;
+      pObject->fMassKg = 0.0f;
       pObject->SetDimensions(width, height);
       pObject->CreateBox(breathe::math::cVec2(x, y));
 

@@ -69,7 +69,7 @@ namespace breathe
       //object_type GetType() const { return type; }
 #endif
 
-      float_t GetWeightKg() const { return fWeightKg; }
+      float_t GetMassKg() const { return fMassKg; }
 
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg);

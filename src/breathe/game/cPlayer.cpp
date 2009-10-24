@@ -83,7 +83,7 @@ namespace breathe
 #ifdef BUILD_PHYSICS_3D
     //SetUseBody(false);
 
-    //biped.fWeightKg = 80.0f;
+    //biped.fMassKg = 80.0f;
     //biped.position.Set(0.0f, 0.0f, 10.0f);
 #endif
 

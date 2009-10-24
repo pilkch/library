@@ -129,7 +129,7 @@ namespace breathe
 
 
     cBoxProperties::cBoxProperties() :
-      fWeightKg(1.0f),
+      fMassKg(1.0f),
       fWidthMetres(1.0f),
     #ifdef BUILD_PHYSICS_3D
       fDepthMetres(1.0f),
@@ -139,7 +139,7 @@ namespace breathe
     };
 
     cSphereProperties::cSphereProperties() :
-      fWeightKg(1.0f),
+      fMassKg(1.0f),
       fRadiusMetres(0.5f)
     {
     }

@@ -83,7 +83,7 @@ namespace breathe
       float fRollResistance;
       float fDownforce;
 
-      float fWeight;
+      float fMassKg;
       float fBoost;
       float fEngineSpeed;
       float fTraction0;

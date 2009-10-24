@@ -90,7 +90,7 @@ float fMaxSteer=1.0f;
 float fMaxBrake=1.0f;
 
 float fWheelRadius=1.0f;
-float fWheelWeight=20.0f;
+float fWheelMass=20.0f;
 
 float fSuspensionK=6.0f;
 float fSuspensionU=0.8f;
@@ -328,7 +328,7 @@ equals the force that pushes the car forward
 (Supercharger)->(Turbocharger)->Air Filter->Exhaust->Petrol->EngineCapacity->
 Transmission->(Rear Differential)->(Front Differential)->Tyres
 
-Weight=chassis + engine + 4*(rim + tyre)
+mass = chassis + engine + (mass of all other parts) + 4 * (rim + tyre)
 
 Engine: Inline 4, Inline 4 Cylinder Racing, V6, V6 Racing, V8, V8 Racing, V10 Racing, V12 Racing
 Air Filter: Stock, Racing Pod Filter
@@ -550,7 +550,7 @@ namespace breathe
       properties.fRollResistance = properties.fDrag * properties.fDrag; // Rolling resistance : approximation
       properties.fDownforce = 1.0f; // 1.0f is normal, less than that is lifting off, more is pushing down
 
-      properties.fWeight = 1600.0f;
+      properties.fMass = 1600.0f;
       properties.fBoost = 1.0f; // 1.0f is standard, 2.0f etc for turbo charged
       properties.fEngineSpeed = 800.0f; // RPM
       properties.fTraction0 = 1.0f;
@@ -599,20 +599,20 @@ namespace breathe
       //physics::AddPhysicsObject(shared_from_this());
 
       //Rear
-      lrWheel_->Init(false, fWheelRadius, fWheelWeight,
+      lrWheel_->Init(false, fWheelRadius, fWheelMass,
         fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
         math::cVec3(-v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
-      rrWheel_->Init(false, fWheelRadius, fWheelWeight,
+      rrWheel_->Init(false, fWheelRadius, fWheelMass,
         fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
         math::cVec3(v3WheelPos.x, -v3WheelPos.y, v3WheelPos.z));
 
       //Front
-      lfWheel_->Init(true, fWheelRadius, fWheelWeight,
+      lfWheel_->Init(true, fWheelRadius, fWheelMass,
         fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
         math::cVec3(-v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
 
-      rfWheel_->Init(true, fWheelRadius, fWheelWeight,
+      rfWheel_->Init(true, fWheelRadius, fWheelMass,
         fSuspensionK, fSuspensionU, fSuspensionNormal, fSuspensionMin, fSuspensionMax,
         math::cVec3(v3WheelPos.x, v3WheelPos.y, v3WheelPos.z));
     }

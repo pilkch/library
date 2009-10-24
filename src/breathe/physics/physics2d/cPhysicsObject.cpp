@@ -49,16 +49,16 @@ namespace breathe
 
       body(nullptr)
     {
-      fWeight=1.0f;
-      fRadius=2.0f;
+      fMassKg = 1.0f;
+      fRadius = 2.0f;
 
-      p[0]=0;
-      p[1]=0;
-      p[2]=0;
+      p[0] = 0;
+      p[1] = 0;
+      p[2] = 0;
 
-      v[0]=0;
-      v[1]=0;
-      v[2]=0;
+      v[0] = 0;
+      v[1] = 0;
+      v[2] = 0;
 
       m.LoadIdentity();
     }
@@ -116,7 +116,7 @@ namespace breathe
 
       b2PolygonDef shapeDef;
       shapeDef.SetAsBox(fWidth, fHeight);
-      shapeDef.density = fWeight;
+      shapeDef.density = fMassKg;
       shapeDef.friction = fFriction;
 
       std::list<b2ShapeDef*> lShapes;
@@ -130,7 +130,7 @@ namespace breathe
 
       b2CircleDef shapeDef;
       shapeDef.radius = fRadius;
-      shapeDef.density = fWeight;
+      shapeDef.density = fMassKg;
       shapeDef.friction = fFriction;
 
       std::list<b2ShapeDef*> lShapes;
@@ -159,7 +159,7 @@ namespace breathe
 
       fWidth = n * scale.x;
       fHeight = math::cEPSILON;
-      fWeight = 0.0f;
+      fMassKg = 0.0f;
       bDynamic = false;
 
       std::list<b2ShapeDef*> lShapes;

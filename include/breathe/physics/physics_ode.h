@@ -79,7 +79,7 @@ namespace breathe
 
       virtual void _SetPositionAbsolute(const spitfire::math::cVec3& position);
       virtual void _SetRotationAbsolute(const spitfire::math::cQuaternion& rotation);
-      virtual void _SetWeightKg(float fWeightKg);
+      virtual void _SetMassKg(float fMassKg);
 
 
       virtual void _AddForceRelativeToWorldKg(const spitfire::math::cVec3& forceKg);

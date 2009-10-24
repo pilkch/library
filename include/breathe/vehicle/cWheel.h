@@ -15,7 +15,7 @@ namespace breathe
     public:
       cWheel(cVehicle2* p, physics::cWorld* pWorld);
 
-      void Init(bool bFront, float fWRadius, float fInWeight, float fSK, float fSU,
+      void Init(bool bFront, float fWRadius, float fInMassKg, float fSK, float fSU,
         float fSNormal, float fSMin, float fSMax, const math::cVec3& pos);
       void Update(sampletime_t currentTime);
 
@@ -42,7 +42,7 @@ namespace breathe
       cVehicle2* pParent;
 
       float fRadius;
-      float fWeight;
+      float fMassKg;
     };
   }
 }
