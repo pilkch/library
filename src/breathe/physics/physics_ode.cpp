@@ -620,9 +620,12 @@ namespace breathe
 
     cCar::cCar(cBodyRef _pBody)
     {
-      pBody = _pBody;
+      pChassis = _pBody;
     }
 
+    void cCar::_Update(sampletime_t currentTime)
+    {
+    }
 
     /*const float fEquilibriumLengthCentimetres = ;
     const float fCurrentLengthCentimetres = ;

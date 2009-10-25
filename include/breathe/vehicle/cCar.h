@@ -343,7 +343,7 @@ namespace breathe
     class cVehicleCar : public cVehicleBase
     {
     public:
-      explicit cVehicleCar(cGameObject& object);
+      cVehicleCar(cGameObject& object, physics::cCarRef pCar);
 
       enum class DRIVE {
         AWD,
@@ -400,7 +400,6 @@ namespace breathe
       // TODO: suspension, tires
 
       std::vector<car::cWheel> wheels;
-
 
 
       physics::cCarRef pCar;

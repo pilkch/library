@@ -165,14 +165,35 @@ namespace breathe
     }
 
 
+
     cCarProperties::cCarProperties() :
+      fMassKg(1600.0f),
+      fWidthMetres(2.0f),
+      fDepthMetres(5.0f),
+      fHeightMetres(1.8f),
+
       fSuspensionStiffness(5.88f),
       fSuspensionCompression(0.83f),
       fSuspensionDamping(0.88f),
-      fSuspensionMaxTravelCentimetres(20.0f),
+      fSuspensionRestLengthCentimetres(30.0f),
+      fSuspensionMaxTravelCentimetres(50.0f),
 
+      // Wheels
+      nWheels(4),
+      fWheelMassKg(20.0f),
+      fWheelWidthCentimetres(20.0f),
+      fWheelRadiusCentimetres(45.0f),
       fTireFrictionSlip(10.5f)
     {
+    }
+
+    cCar::cCar()
+    {
+      for (size_t i = 0; i < 4; i++) {
+        fWheelAccelerationForceNewtons[i] = 0.0f;
+        fWheelBrakingForceNewtons[i] = 0.0f;
+        fWheelSteeringAngleMinusOneToPlusOne[i] = 0.0f;
+      }
     }
   }
 }

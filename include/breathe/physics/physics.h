@@ -280,11 +280,14 @@ namespace breathe
       float fSuspensionStiffness;
       float fSuspensionCompression;
       float fSuspensionDamping;
+      float fSuspensionRestLengthCentimetres;
       float fSuspensionMaxTravelCentimetres;
 
       // Wheels
       size_t nWheels;
       float fWheelMassKg;
+      float fWheelWidthCentimetres;
+      float fWheelRadiusCentimetres;
       float fTireFrictionSlip;
     };
 
@@ -292,20 +295,33 @@ namespace breathe
     class cCar
     {
     public:
-      cBodyRef GetBody() { return pBody; }
+      cCar();
 
-      const math::cVec3& GetPositionAbsolute() const { ASSERT(pBody != nullptr); return pBody->GetPositionAbsolute(); }
-      const math::cQuaternion& GetRotationAbsolute() const { ASSERT(pBody != nullptr); return pBody->GetRotationAbsolute(); }
+      cBodyRef GetChassis() { return pChassis; }
 
-      const math::cVec3& GetWheelPositionRelative(size_t index) const { ASSERT(index < wheelPositionRelative.size()); return wheelPositionRelative[index]; }
-      const math::cQuaternion& GetWheelRotationRelative(size_t index) const { ASSERT(index < wheelRotationRelative.size()); return wheelRotationRelative[index]; }
+      const math::cVec3& GetPositionAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetPositionAbsolute(); }
+      const math::cQuaternion& GetRotationAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetRotationAbsolute(); }
+
+      const math::cVec3& GetWheelPositionRelative(size_t index) const { ASSERT(index < 4); return wheelPositionRelative[index]; }
+      const math::cQuaternion& GetWheelRotationRelative(size_t index) const { ASSERT(index < 4); return wheelRotationRelative[index]; }
+
+      void SetWheelAccelerationForceNewtons(size_t wheel, float_t fAccelerationForceNewtons) { ASSERT(wheel < 4); fWheelAccelerationForceNewtons[wheel] = fAccelerationForceNewtons; }
+      void SetWheelBrakingForceNewtons(size_t wheel, float_t fBrakingForceNewtons) { ASSERT(wheel < 4); fWheelBrakingForceNewtons[wheel] = fBrakingForceNewtons; }
+      void SetWheelSteeringAngleMinusOneToPlusOne(size_t wheel, float_t fSteeringAngleMinusOneToPlusOne) { ASSERT(wheel < 4);  fWheelSteeringAngleMinusOneToPlusOne[wheel] = fSteeringAngleMinusOneToPlusOne; }
+
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
 
     protected:
-      cBodyRef pBody;
+      cBodyRef pChassis;
+
+      float fWheelAccelerationForceNewtons[4];
+      float fWheelBrakingForceNewtons[4];
+      float fWheelSteeringAngleMinusOneToPlusOne[4];
+      math::cVec3 wheelPositionRelative[4];
+      math::cQuaternion wheelRotationRelative[4];
 
     private:
-      std::vector<math::cVec3> wheelPositionRelative;
-      std::vector<math::cQuaternion> wheelRotationRelative;
+      virtual void _Update(sampletime_t currentTime) = 0;
     };
   }
 }

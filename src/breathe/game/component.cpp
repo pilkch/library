@@ -178,11 +178,11 @@ namespace breathe
       SAFE_DELETE(pVehicle);
     }
 
-    void cVehicleComponent::SetCar()
+    void cVehicleComponent::SetCar(physics::cCarRef pCar)
     {
       SAFE_DELETE(pVehicle);
 
-      pVehicle = new cVehicleCar(object);
+      pVehicle = new cVehicleCar(object, pCar);
 
       pVehicle->Init();
     }

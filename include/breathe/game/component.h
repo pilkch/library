@@ -362,7 +362,7 @@ namespace breathe
       bool IsPlane() const { ASSERT(pVehicle != nullptr); return pVehicle->IsPlane(); }
       bool IsHelicopter() const { ASSERT(pVehicle != nullptr); return pVehicle->IsHelicopter(); }
 
-      void SetCar();
+      void SetCar(physics::cCarRef pCar);
       void SetPlane();
       void SetHelicopter();
 

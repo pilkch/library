@@ -412,7 +412,6 @@ namespace breathe
 
       // *** cWheel
 
-
       cWheel::cWheel() :
         fMassOfRimKg(20.0f),
         fMassOfTireKg(10.0f),
@@ -668,6 +667,25 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
    ASSERT(pCubeMapTexture != nullptr);
 
    factory.CreateSceneNodeAttachedTo(meshes, pGroupNode);
+
+
+
+
+
+
+
+
+
+
+
+
+
+  attach each wheel node and name it
+  "car000"
+    "car000_wheel0"
+    "car000_wheel1"
+    "car000_wheel2"
+    "car000_wheel3"
 }
 
 
@@ -712,12 +730,30 @@ namespace breathe
       //breathe::filesystem::FindResourceFile(TEXT("vehicle/wheel00/mesh.3ds"), sFilename);
       //pVehicle->vWheel[0]->pModel = pVehicle->vWheel[1]->pModel = pVehicle->vWheel[2]->pModel = pVehicle->vWheel[3]->pModel = pRender->GetModel(sFilename);
 
-      // Test crate
-      breathe::physics::cBoxProperties properties;
+      // Create the physics object
+      breathe::physics::cCarProperties properties;
       properties.SetMassKg(1000.0f);
       properties.SetPositionAbsolute(position);
 
-      breathe::physics::cBodyRef pBody = physics::GetWorld()->CreateBody(properties);
+      properties.fWidthMetres = 1.0f;
+      properties.fDepthMetres = 2.0f;
+      properties.fHeightMetres = 0.5f;
+
+      // Suspension
+      properties.fSuspensionStiffness = 20.0f;
+      properties.fSuspensionCompression = 4.4f;
+      properties.fSuspensionDamping = 2.3f;
+      properties.fSuspensionRestLengthCentimetres = 30.0f;
+      properties.fSuspensionMaxTravelCentimetres = 50.0f;
+
+      // Wheels
+      properties.nWheels = 4;
+      properties.fWheelMassKg = 20.0f;
+      properties.fWheelWidthCentimetres = 40.0f;
+      properties.fWheelRadiusCentimetres = 50.0f;
+      properties.fTireFrictionSlip = 0.9f;
+
+      breathe::physics::cCarRef pCar = physics::GetWorld()->CreateCar(properties);
 
 
       //breathe::scenegraph3d::cModelNodeRef pNode(new breathe::scenegraph3d::cModelNode);
@@ -741,7 +777,7 @@ namespace breathe
 
 
       breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
-      pPhysicsComponent->SetBody(pBody);
+      pPhysicsComponent->SetBody(pCar->GetChassis());
       pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
 
       //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
@@ -749,7 +785,7 @@ namespace breathe
       //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
 
       breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
-      pVehicleComponent->SetCar();
+      pVehicleComponent->SetCar(pCar);
       pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
 
 
@@ -853,9 +889,10 @@ namespace breathe
 {
   namespace game
   {
-    cVehicleCar::cVehicleCar(cGameObject& _object) :
+    cVehicleCar::cVehicleCar(cGameObject& _object, physics::cCarRef _pCar) :
       cVehicleBase(_object, TYPE::CAR),
-      drive(DRIVE::RWD)
+      drive(DRIVE::RWD),
+      pCar(_pCar)
     {
     }
 
@@ -1138,32 +1175,15 @@ namespace breathe
 
 
 
-      cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT_PHYSICS);
-      if (pPhysicsComponent == nullptr) return;
+      const float fSteeringAngleMinusOneToPlusOne = -fInputLeft0To1 + fInputRight0To1;
 
-      physics::cBodyRef pBody = pPhysicsComponent->GetBody();
-      if (pBody == nullptr) return;
-
-
-
-      // JUST FOR TESTING
-      if (fInputAccelerator0To1 > 0.01f) {
-        breathe::math::cVec3 forceKg(fInputAccelerator0To1 * pBody->GetMassKg() * 200.0f * breathe::math::v3Front);
-        pBody->AddForceRelativeToObjectKg(forceKg);
-      }
-      if (fInputBrake0To1 > 0.01f) {
-        // This is more of a brake than an actual go down method
-        fInputAccelerator0To1 = 0.0f;
+      for (size_t i = 0; i < 4; i++) {
+        pCar->SetWheelAccelerationForceNewtons(i, fInputAccelerator0To1 * 10000.0f);
+        pCar->SetWheelBrakingForceNewtons(i, fInputBrake0To1 * 10000.0f);
+        pCar->SetWheelSteeringAngleMinusOneToPlusOne(i, fSteeringAngleMinusOneToPlusOne * 30.0f);
       }
 
-      if (fInputLeft0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputLeft0To1 * pBody->GetMassKg() * 2.0f * breathe::math::v3Up);
-        pBody->AddTorqueRelativeToWorldNm(torqueNm);
-      }
-      if (fInputRight0To1 > 0.01f) {
-        breathe::math::cVec3 torqueNm(fInputRight0To1 * pBody->GetMassKg() * -2.0f * breathe::math::v3Up);
-        pBody->AddTorqueRelativeToWorldNm(torqueNm);
-      }
+      pCar->Update(currentTime);
 
 
       // Set values back to defaults for next time

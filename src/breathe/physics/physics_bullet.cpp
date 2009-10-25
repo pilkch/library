@@ -170,6 +170,7 @@ namespace breathe
     physics::cCarRef cWorld::_CreateCar(const physics::cCarProperties& properties)
     {
       bullet::cCarRef pCar(new bullet::cCar);
+      pCar->CreateCar(this, properties);
 
       return pCar;
     }
@@ -225,6 +226,17 @@ namespace breathe
     }
 
 
+    // TODO: Remove me
+    physics::cBodyRef cWorld::CreateEmptyBody()
+    {
+      bullet::cBodyRef pBody(new bullet::cBody);
+
+      lPhysicsBody.push_back(pBody);
+
+      return pBody;
+    }
+
+
 
 
 
@@ -247,6 +259,34 @@ namespace breathe
     void cBody::_SetMassKg(float fMassKg)
     {
     }
+
+
+    btRigidBody* cBody::localCreateRigidBody(cWorld* _pWorld, float mass, const btTransform& startTransform,btCollisionShape* shape)
+    {
+      pWorld = _pWorld;
+
+      btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
+
+      //rigidbody is dynamic if and only if mass is non zero, otherwise static
+      bool isDynamic = (mass != 0.f);
+
+      btVector3 localInertia(0,0,0);
+      if (isDynamic) shape->calculateLocalInertia(mass,localInertia);
+
+      //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+      btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+
+      btRigidBody::btRigidBodyConstructionInfo cInfo(mass,myMotionState,shape,localInertia);
+
+      bodyRigidBody = new btRigidBody(cInfo);
+
+      pWorld->GetWorld()->addRigidBody(bodyRigidBody);
+
+      return bodyRigidBody;
+    }
+
+
 
     void cBody::InitCommon()
     {
@@ -513,13 +553,382 @@ namespace breathe
 
 
     cCar::cCar() :
-      m_vehicleRayCaster(nullptr),
-      m_vehicle(nullptr),
-      m_wheelShape(nullptr)
+      rayCaster(nullptr),
+      vehicle(nullptr),
+      wheelShape(nullptr)
     {
     }
 
+    void cCar::CreateCar(cWorld* pWorld, const physics::cCarProperties& properties)
+    {
+      ///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
+      ///notice that for higher-quality slow-moving vehicles, another approach might be better
+      ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
+      //float gEngineForce = 0.f;
+      //float gBrakingForce = 0.f;
 
+      //float maxEngineForce = 1000.f;//this should be engine/velocity dependent
+      //float maxBrakingForce = 100.f;
+
+      float gVehicleSteering = 0.f;
+      //float steeringIncrement = 0.04f;
+      //float steeringClamp = 0.3f;
+      float wheelRadius = 0.5f;
+      float wheelWidth = 0.4f;
+      float wheelFriction = 1000;//BT_LARGE_FLOAT;
+      float suspensionStiffness = 20.f;
+      float suspensionDamping = 2.3f;
+      float suspensionCompression = 4.4f;
+      float rollInfluence = 0.1f;//1.0f;
+
+
+
+
+
+
+
+
+
+
+      btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,2.f, 0.5f));
+      btCompoundShape* compound = new btCompoundShape();
+      btTransform localTrans;
+      localTrans.setIdentity();
+      //localTrans effectively shifts the center of mass with respect to the chassis
+      localTrans.setOrigin(btVector3(0,0,1));
+
+      compound->addChildShape(localTrans,chassisShape);
+
+      btTransform tr;
+      tr.setIdentity();
+
+      tr.setOrigin(btVector3(0,0.f,0));
+
+
+
+      pChassis = pWorld->CreateEmptyBody();
+
+      bullet::cBodyRef pChassisAsBulletBody = boost::static_pointer_cast<bullet::cBody>(pChassis);
+
+      btRigidBody* m_carChassis = pChassisAsBulletBody->localCreateRigidBody(pWorld, 800, tr, compound);
+      //m_carChassis->setDamping(0.2,0.2);
+
+      wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));
+
+
+
+
+
+
+      //clientResetScene();
+
+      gVehicleSteering = 0.f;
+      m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
+      m_carChassis->setLinearVelocity(btVector3(0,0,0));
+      m_carChassis->setAngularVelocity(btVector3(0,0,0));
+      pWorld->GetWorld()->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle(), pWorld->GetWorld()->getDispatcher());
+      if (vehicle) {
+        vehicle->resetSuspension();
+        for (int i=0; i < vehicle->getNumWheels();i++) {
+          //synchronize the wheels with the (interpolated) chassis worldtransform
+          vehicle->updateWheelTransform(i,true);
+        }
+      }
+
+
+
+
+
+
+
+
+
+
+      // create vehicle
+      {
+
+        rayCaster = new btDefaultVehicleRaycaster(pWorld->GetWorld());
+        vehicle = new btRaycastVehicle(tuning, m_carChassis, rayCaster);
+
+        // never deactivate the vehicle
+        m_carChassis->setActivationState(DISABLE_DEACTIVATION);
+
+        pWorld->GetWorld()->addVehicle(vehicle);
+
+        float connectionHeight = 1.2f;
+
+
+        bool isFrontWheel=true;
+
+        //choose coordinate system
+        int rightIndex = 0;
+        int upIndex = 2;
+        int forwardIndex = 1;
+        vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
+
+        btVector3 wheelDirectionCS0(0,0,-1);
+        btVector3 wheelAxleCS(1,0,0);
+
+        const float CUBE_HALF_EXTENTS = 1.0f;
+        btScalar suspensionRestLength(0.6);
+
+        btVector3 connectionPointCS0;
+
+        connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
+        vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius, tuning, isFrontWheel);
+
+        connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
+        vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius, tuning, isFrontWheel);
+
+        isFrontWheel = false;
+        connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
+        vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius, tuning, isFrontWheel);
+
+        connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
+        vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius, tuning, isFrontWheel);
+
+
+        for (int i=0;i<vehicle->getNumWheels();i++)
+        {
+          btWheelInfo& wheel = vehicle->getWheelInfo(i);
+          wheel.m_suspensionStiffness = suspensionStiffness;
+          wheel.m_wheelsDampingRelaxation = suspensionDamping;
+          wheel.m_wheelsDampingCompression = suspensionCompression;
+          wheel.m_frictionSlip = wheelFriction;
+          wheel.m_rollInfluence = rollInfluence;
+        }
+      }
+
+#if 0
+      // Rigid body
+      physics::cBoxProperties boxProperties;
+      boxProperties.SetMassKg(properties.fMassKg);
+      boxProperties.SetPositionAbsolute(properties.position);
+      boxProperties.SetRotationAbsolute(properties.rotation);
+      boxProperties.fWidthMetres = properties.fWidthMetres;
+      boxProperties.fDepthMetres = properties.fDepthMetres;
+      boxProperties.fHeightMetres = properties.fHeightMetres;
+
+      pChassis = pWorld->CreateBody(boxProperties);
+
+
+
+
+      // Tuning
+      tuning.m_suspensionStiffness = properties.fSuspensionStiffness;
+      tuning.m_suspensionCompression = properties.fSuspensionCompression;
+      tuning.m_suspensionDamping = properties.fSuspensionDamping;
+      tuning.m_maxSuspensionTravelCm = 500.0f;// properties.fSuspensionMaxTravelCentimetres;
+      tuning.m_frictionSlip = properties.fTireFrictionSlip;
+
+
+
+      bullet::cBodyRef pChassisAsBulletBody = boost::static_pointer_cast<bullet::cBody>(pChassis);
+      btRigidBody* pChassisAsBulletRigidBody = pChassisAsBulletBody->GetBody();
+
+
+      // Ray caster
+      rayCaster = new btDefaultVehicleRaycaster(pWorld->GetWorld());
+      ASSERT(rayCaster != nullptr);
+      if (rayCaster == nullptr) return;
+
+
+      vehicle = new btRaycastVehicle(tuning, pChassisAsBulletRigidBody, rayCaster);
+      ASSERT(vehicle != nullptr);
+      if (vehicle == nullptr) return;
+
+      pChassisAsBulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+
+      int rightIndex = 0;
+      int upIndex = 2;
+      int forwardIndex = 1;
+      vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
+
+      const float fRestLengthRatio = 0.6f;//properties.fSuspensionRestLengthCentimetres / properties.fSuspensionMaxTravelCentimetres;
+
+
+
+      const float fRollInfluence = 0.9f;
+      /*const float fMaxEngineForce = 1600.0f;
+      const float fMaxBrakingForce = 200.0f;
+      const float fSteeringClamp = 0.5f;
+      const float fFrontWheelShiftX = 0.0f;
+      const float fRearWheelShiftX = 0.0f;*/
+
+      //0.2f,     // roll influence
+      //1600.0f,  // max engine force
+      //200.0f,   // max breaking force
+      //0.5f,     // steering clamp
+
+      //0.0f,     // fwheel X shift
+      //0.0f      // rwheel X shift
+
+      btVector3 wheelDirectionCS0(0.0f, 0.0f, -1.0f); // Pointing down
+      btVector3 wheelAxleCS(1.0f, 0.0f, 0.0f); // To the right
+
+      float connectionHeight = 10.2f;
+
+
+      btVector3 connectionPointCS0;
+
+      const float CUBE_HALF_EXTENTS = properties.fWidthMetres * 0.5f;
+      const float fWheelWidthMetres = 0.01f * properties.fWheelWidthCentimetres;
+      const float fWheelRadiusMetres = 0.01f * properties.fWheelRadiusCentimetres;
+
+      {
+        const bool bIsFrontWheel = true;
+
+        connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3 * fWheelWidthMetres), 2 * CUBE_HALF_EXTENTS - fWheelRadiusMetres, connectionHeight);
+        vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, fRestLengthRatio, fWheelRadiusMetres, tuning, bIsFrontWheel);
+
+        connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * fWheelWidthMetres),2 * CUBE_HALF_EXTENTS - fWheelRadiusMetres, connectionHeight);
+        vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, fRestLengthRatio, fWheelRadiusMetres, tuning, bIsFrontWheel);
+      }
+
+      {
+        const bool bIsFrontWheel = false;
+
+        connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * fWheelWidthMetres), -2 * CUBE_HALF_EXTENTS + fWheelRadiusMetres, connectionHeight);
+        vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, fRestLengthRatio, fWheelRadiusMetres, tuning, bIsFrontWheel);
+
+        connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3 * fWheelWidthMetres), -2 * CUBE_HALF_EXTENTS + fWheelRadiusMetres, connectionHeight);
+        vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, fRestLengthRatio, fWheelRadiusMetres, tuning, bIsFrontWheel);
+      }
+
+      for (int i = 0; i < vehicle->getNumWheels(); i++) {
+        btWheelInfo& wheel = vehicle->getWheelInfo(i);
+        wheel.m_suspensionStiffness = properties.fSuspensionStiffness;
+        wheel.m_wheelsDampingRelaxation = properties.fSuspensionDamping;
+        wheel.m_wheelsDampingCompression = properties.fSuspensionCompression;
+        wheel.m_frictionSlip = properties.fTireFrictionSlip;
+        wheel.m_rollInfluence = fRollInfluence;
+      }
+
+/*
+      {
+        const bool bIsFrontWheel = true;
+
+        vehicle->addWheel(
+          vehicle_config->wheel_fr_v,
+          vehicle_config->wheel_direction_CS0,
+          vehicle_config->wheel_axle_CS,
+          btScalar(fRestLengthRatio),
+          0.01 * fWheelRadiusCentimetres,
+          tuning,
+          bIsFrontWheel
+        );
+
+        vehicle->addWheel(
+          vehicle_config->wheel_fl_v,
+          vehicle_config->wheel_direction_CS0,
+          vehicle_config->wheel_axle_CS,
+          btScalar(fRestLengthRatio),
+          0.01 * fWheelRadiusCentimetres,
+          tuning,
+          bIsFrontWheel
+        );
+      }
+
+      {
+        const bool bIsFrontWheel = false;
+
+        vehicle->addWheel(
+          vehicle_config->wheel_br_v,
+          vehicle_config->wheel_direction_CS0,
+          vehicle_config->wheel_axle_CS,
+          btScalar(fRestLengthRatio),
+          0.01 * fWheelRadiusCentimetres,
+          tuning,
+          bIsFrontWheel
+        );
+
+        vehicle->addWheel(
+          vehicle_config->wheel_bl_v,
+          vehicle_config->wheel_direction_CS0,
+          vehicle_config->wheel_axle_CS,
+          btScalar(fRestLengthRatio),
+          0.01 * fWheelRadiusCentimetres,
+          tuning,
+          bIsFrontWheel
+        );
+      }
+
+      for ( int i = 0; i < vehicle->getNumWheels(); i++) {
+        btWheelInfo& wheel = vehicle->getWheelInfo(i);
+        wheel.m_rollInfluence = fRollInfluence;
+      }*/
+
+      pWorld->GetWorld()->addVehicle(vehicle);
+#endif
+    }
+
+
+    void cCar::_Update(sampletime_t currentTime)
+    {
+      for (int i = 0; i < 4; i++) {
+        vehicle->applyEngineForce(fWheelAccelerationForceNewtons[i], i);
+        vehicle->setBrake(fWheelBrakingForceNewtons[i], i);
+        vehicle->setSteeringValue(fWheelSteeringAngleMinusOneToPlusOne[i], i);
+
+        // Synchronize the wheels with the (interpolated) chassis worldtransform
+        vehicle->updateWheelTransform(i, true);
+
+
+        // Update our wheel positions and rotations
+        const btVector3 position = vehicle->getWheelInfo(i).m_worldTransform.getOrigin();
+        const btQuaternion rotation = vehicle->getWheelInfo(i).m_worldTransform.getRotation();
+
+        wheelPositionRelative[i].Set(position.x(), position.y(), position.z());
+
+        wheelRotationRelative[i].x = rotation.x();
+        wheelRotationRelative[i].y = rotation.y();
+        wheelRotationRelative[i].z = rotation.z();
+        wheelRotationRelative[i].w = rotation.w();
+      }
+
+
+      /*int wheelIndex = 2;
+      m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+      m_vehicle->setBrake(gBreakingForce,wheelIndex);
+      wheelIndex = 3;
+      m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+      m_vehicle->setBrake(gBreakingForce,wheelIndex);
+
+
+      wheelIndex = 0;
+      m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
+      wheelIndex = 1;
+      m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);*/
+
+
+
+      /*// apply engine Force on relevant wheels
+      for (int i = mWheelsEngine[0]; i < mWheelsEngineCount; i++) {
+        mVehicle->applyEngineForce(mEngineForce, mWheelsEngine[i]);
+      }
+
+      if (mSteeringLeft)
+      {
+          mSteering += gSteeringIncrement;
+          if (mSteering > gSteeringClamp)
+              mSteering = gSteeringClamp;
+      }
+      else if (mSteeringRight)
+      {
+          mSteering -= gSteeringIncrement;
+          if (mSteering < -gSteeringClamp)
+              mSteering = -gSteeringClamp;
+      }
+
+      // apply Steering on relevant wheels
+      for (int i = mWheelsSteerable[0]; i < mWheelsSteerableCount; i++)
+      {
+          if (i < 2)
+              mVehicle->setSteeringValue (mSteering, mWheelsSteerable[i]);
+          else
+              mVehicle->setSteeringValue (-mSteering, mWheelsSteerable[i]);
+      }*/
+    }
 
 /*
     class btVehicleTuning;
@@ -571,10 +980,10 @@ namespace breathe
       btVector3*      m_vertices;
 
 
-      btRaycastVehicle::btVehicleTuning       m_tuning;
-      btVehicleRaycaster*     m_vehicleRayCaster;
-      btRaycastVehicle*       m_vehicle;
-      btCollisionShape*       m_wheelShape;
+      btRaycastVehicle::btVehicleTuning tuning;
+      btVehicleRaycaster*     vehicleRayCaster;
+      btRaycastVehicle*       vehicle;
+      btCollisionShape*       wheelShape;
 
       float           m_cameraHeight;
 

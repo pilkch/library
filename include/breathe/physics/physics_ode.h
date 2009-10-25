@@ -120,6 +120,7 @@ namespace breathe
       explicit cCar(cBodyRef pBody);
 
     private:
+      void _Update(sampletime_t currentTime);
     };
   }
 }

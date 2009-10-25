@@ -26,6 +26,9 @@ namespace breathe
 
       btDiscreteDynamicsWorld* GetWorld() { return dynamicsWorld; }
 
+      // TODO: Remove me
+      physics::cBodyRef CreateEmptyBody();
+
     private:
       virtual bool _Init(float fWorldWidth, float fWorldDepth, float fWorldHeight);
       virtual void _Destroy();
@@ -65,8 +68,13 @@ namespace breathe
     public:
       cBody();
 
+      btRigidBody* GetBody() { return bodyRigidBody; }
+
       void CreateBox(cWorld* pWorld, const physics::cBoxProperties& properties);
       void CreateSphere(cWorld* pWorld, const physics::cSphereProperties& properties);
+
+      // TODO: This is kind of screwy, when this is all working we should remove this
+      btRigidBody* localCreateRigidBody(cWorld* _pWorld, float mass, const btTransform& startTransform,btCollisionShape* shape);
 
     private:
       NO_COPY(cBody);
@@ -116,11 +124,15 @@ namespace breathe
     public:
       cCar();
 
+      void CreateCar(cWorld* pWorld, const physics::cCarProperties& properties);
+
     private:
-      btRaycastVehicle::btVehicleTuning m_tuning;
-      btVehicleRaycaster* m_vehicleRayCaster;
-      btRaycastVehicle* m_vehicle;
-      btCollisionShape* m_wheelShape;
+      void _Update(sampletime_t currentTime);
+
+      btRaycastVehicle::btVehicleTuning tuning;
+      btVehicleRaycaster* rayCaster;
+      btRaycastVehicle* vehicle;
+      btCollisionShape* wheelShape;
     };
   }
 }
