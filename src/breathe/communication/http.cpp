@@ -120,35 +120,59 @@ namespace breathe
 
     void cDownloadHTTP::ThreadFunction()
     {
-      std::cout<<uri.GetServer()<<" "<<uri.GetRelativePath()<<std::endl;
+      std::cout<<"cDownloadHTTP::ThreadFunction "<<uri.GetServer()<<" "<<uri.GetRelativePath()<<std::endl;
+
+      state = STATE::BEFORE_DOWNLOADING;
       content = "";
 
+      if (!uri.IsValidServer()) {
+        state = STATE::INVALID_URI;
+        return;
+      }
+
+      breathe::network::cConnectionTCP connection;
+
+      state = STATE::CONNECTING;
       connection.Open(uri.GetServer(), 80);
 
+      if (!connection.IsOpen()) {
+        state = STATE::CONNECTION_FAILED;
+        return;
+      }
+
+      state = STATE::SENDING_REQUEST;
       {
         // Send header
         std::string request(CreateRequest());
         size_t len = request.length() + 1;
         size_t sent = connection.Send(request.data(), len);
         if (sent != len) {
-          LOG<<"SDLNet_TCP_Send: "<<SDLNet_GetError()<<std::endl;
-          exit(EXIT_FAILURE);
+          LOG<<"cDownloadHTTP::ThreadFunction SDLNet_TCP_Send FAILED "<<SDLNet_GetError()<<std::endl;
+          return;
         }
       }
 
+
+      state = STATE::RECEIVING_HEADER;
       size_t len = 0;
 
       char buffer[STR_LEN - 1];
       buffer[0] = 0;
 
-      do {
-        len = connection.Recv(buffer, STR_LEN - 1);
-        if (len == 0) break;
-
+      len = connection.Recv(buffer, STR_LEN - 1);
+      if (len == 0) {
+        LOG<<"cDownloadHTTP::ThreadFunction Recv FAILED "<<SDLNet_GetError()<<std::endl;
+        return;
+      } else {
+        ASSERT(len < STR_LEN);
         buffer[len] = 0;
-
+        std::cout<<"cDownloadHTTP::ThreadFunction Recv returned \""<<buffer<<"\""<<std::endl;
         ParseHeader(buffer);
+      }
 
+
+      state = STATE::RECEIVING_CONTENT;
+      do {
         len = connection.Recv(buffer, STR_LEN - 1);
         if (len > 0) {
           buffer[len] = 0;
@@ -160,6 +184,9 @@ namespace breathe
       LOG<<content<<std::endl;
 
       connection.Close();
+
+      state = STATE::FINISHED;
+      std::cout<<"cDownloadHTTP::ThreadFunction Finished, returning"<<std::endl;
     }
 
     std::string cDownloadHTTP::Decode(const std::string& encodedString)

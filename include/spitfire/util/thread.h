@@ -89,7 +89,7 @@ namespace spitfire
 
     inline bool cThread::IsFinished() const
     {
-      return (pThread != nullptr);
+      return (pThread == nullptr);
     }
 
     inline void cThread::WaitUntilFinished()

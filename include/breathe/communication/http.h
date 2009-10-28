@@ -21,10 +21,75 @@ namespace breathe
     class cDownloadHTTP : public breathe::util::cThread
     {
     public:
-      enum METHOD {
-        METHOD_GET,
-        METHOD_POST
+      enum class METHOD {
+        GET,
+        POST
       };
+
+      enum class STATUS {
+        UNKNOWN = 0,
+
+        CONTINUE = 100,
+        SWITCHING_PROTOCOLS,
+
+        OK = 200,
+        CREATED,
+        ACCEPTED,
+        NON_AUTH_INFO,
+        NO_CONTENT,
+        RESET_CONTENT,
+        PARTIAL_CONTENT,
+
+        MULTIPLE_CHOICES = 300,
+        MOVED_PERMANENTLY,
+        FOUND,
+        SEE_OTHER,
+        NOT_MODIFIED,
+        USE_PROXY,
+        UNUSED_306, // 306 is Unused
+        TEMP_REDIRECT = 307,
+
+        BAD_REQUEST = 400,
+        UNAUTHORIZED,
+        PAYMENT_REQUIRED,
+        FORBIDDEN,
+        NOT_FOUND,
+        METHOD_NOT_ALLOWED,
+        NOT_ACCEPTABLE,
+        PROXY_AUTH_REQUIRED,
+        REQUEST_TIMEOUT,
+        CONFLICT,
+        GONE,
+        LENGTH_REQUIRED,
+        PRE_CONDITION_FAILED,
+        REQUEST_ENTITY_TOO_LONG,
+        REQUEST_URI_TOO_LONG,
+        UNSUPPORTED_MEDIA,
+        REQUEST_RANGE_NOT_SATISFIABLE,
+        EXPECTATION_FAILED,
+
+        INTERNAL_SERVER_ERROR = 500,
+        NOT_IMPLEMENTED,
+        BAD_GATEWAY,
+        SERVICE_UNAVAILABLE,
+        GATEWAY_TIMEOUT,
+        HTTP_VERSION_NOT_SUPPORTED
+      };
+
+
+      enum class STATE {
+        BEFORE_DOWNLOADING,
+        CONNECTING,
+        SENDING_REQUEST,
+        RECEIVING_HEADER,
+        RECEIVING_CONTENT,
+        FINISHED,
+
+        INVALID_URI,
+        CONNECTION_FAILED,
+        DISCONNECTED
+      };
+
 
       cDownloadHTTP();
 
@@ -34,8 +99,11 @@ namespace breathe
 
       const std::string& GetContent() const { ASSERT(IsSuccessfulDownload()); return content; }
 
-      bool IsSuccessfulDownload() const { return false; }
-      bool IsFailedDownload() const { return false; }
+      bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
+      bool IsFailedDownload() const { return !(state == STATE::FINISHED); }
+
+      STATUS GetStatus() const { return status; }
+      STATE GetState() const { return state; }
 
     private:
       void ThreadFunction();
@@ -44,66 +112,6 @@ namespace breathe
       std::string Decode(const std::string& encodedString);
       std::string Encode(const std::string& rawString);
 
-      enum STATUS {
-        STATUS_UNKNOWN = 0,
-
-        STATUS_CONTINUE = 100,
-        STATUS_SWITCHING_PROTOCOLS,
-
-        STATUS_OK = 200,
-        STATUS_CREATED,
-        STATUS_ACCEPTED,
-        STATUS_NON_AUTH_INFO,
-        STATUS_NO_CONTENT,
-        STATUS_RESET_CONTENT,
-        STATUS_PARTIAL_CONTENT,
-
-        STATUS_MULTIPLE_CHOICES = 300,
-        STATUS_MOVED_PERMANENTLY,
-        STATUS_FOUND,
-        STATUS_SEE_OTHER,
-        STATUS_NOT_MODIFIED,
-        STATUS_USE_PROXY,
-        STATUS_UNUSED_306, // 306 is Unused
-        STATUS_TEMP_REDIRECT = 307,
-
-        STATUS_BAD_REQUEST = 400,
-        STATUS_UNAUTHORIZED,
-        STATUS_PAYMENT_REQUIRED,
-        STATUS_FORBIDDEN,
-        STATUS_NOT_FOUND,
-        STATUS_METHOD_NOT_ALLOWED,
-        STATUS_NOT_ACCEPTABLE,
-        STATUS_PROXY_AUTH_REQUIRED,
-        STATUS_REQUEST_TIMEOUT,
-        STATUS_CONFLICT,
-        STATUS_GONE,
-        STATUS_LENGTH_REQUIRED,
-        STATUS_PRE_CONDITION_FAILED,
-        STATUS_REQUEST_ENTITY_TOO_LONG,
-        STATUS_REQUEST_URI_TOO_LONG,
-        STATUS_UNSUPPORTED_MEDIA,
-        STATUS_REQUEST_RANGE_NOT_SATISFIABLE,
-        STATUS_EXPECTATION_FAILED,
-
-        STATUS_INTERNAL_SERVER_ERROR = 500,
-        STATUS_NOT_IMPLEMENTED,
-        STATUS_BAD_GATEWAY,
-        STATUS_SERVICE_UNAVAILABLE,
-        STATUS_GATEWAY_TIMEOUT,
-        STATUS_HTTP_VERSION_NOT_SUPPORTED
-      };
-
-
-      enum STATE {
-        STATE_BEFORE_DOWNLOADING = 0,
-        STATE_DOWNLOADING,
-        STATE_FINISHED,
-
-        STATE_INVALID_PATH,
-        STATE_DISCONNECTED
-      };
-
       STATUS status;
       STATE state;
       uint32_t progress;
@@ -111,14 +119,13 @@ namespace breathe
 
       METHOD method;
       breathe::network::cURI uri;
-      breathe::network::cConnectionTCP connection;
     };
 
     inline cDownloadHTTP::cDownloadHTTP() :
-      status(STATUS_UNKNOWN),
-      state(STATE_BEFORE_DOWNLOADING),
+      status(STATUS::UNKNOWN),
+      state(STATE::BEFORE_DOWNLOADING),
       progress(0),
-      method(METHOD_GET)
+      method(METHOD::GET)
     {
     }
 

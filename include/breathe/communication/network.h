@@ -59,7 +59,7 @@ namespace breathe
     public:
       cConnectionTCP();
 
-      void Open(const std::string& host, port_t port);
+      bool Open(const std::string& host, port_t port);
       void Close();
 
       bool IsOpen() const;

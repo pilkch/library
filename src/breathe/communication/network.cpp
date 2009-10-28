@@ -93,19 +93,24 @@ namespace breathe
     {
     }
 
-    void cConnectionTCP::Open(const std::string& host, port_t port)
+    bool cConnectionTCP::Open(const std::string& host, port_t port)
     {
+      ASSERT(!IsOpen());
+
       // Resolve the host we are connecting to
       if (SDLNet_ResolveHost(&ip, host.c_str(), port) < 0) {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+        return false;
       }
 
       // Open a connection with the IP provided (listen on the host's port)
-      if (!(sd = SDLNet_TCP_Open(&ip))) {
+      sd = SDLNet_TCP_Open(&ip);
+      if (sd == NULL) {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+        return false;
       }
+
+      return true;
     }
 
     void cConnectionTCP::Close()
