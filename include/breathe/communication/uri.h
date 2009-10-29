@@ -139,10 +139,15 @@ namespace breathe
       // Ok, we have a valid protocol, lets continue, we'll at least get the protocol and port correct
       protocol = tempProtocol;
       port = GetPortFromProtocol(protocol);
-      server = breathe::string::StripAfterInclusive(breathe::string::StripBeforeInclusive(full_uri, "://"), "/");
+
+      std::string sRemaining = breathe::string::StripBeforeInclusive(full_uri, "://");
+
+      server = breathe::string::StripAfterInclusive(sRemaining, "/");
+
+      sRemaining = breathe::string::StripBeforeInclusive(sRemaining, "/");
 
       // We want a relativePath in the form "", "folder/" or "folder/file.txt"
-      relativePath = breathe::string::StripAfterInclusive(full_uri, "://");
+      relativePath = sRemaining;
     }
 
 

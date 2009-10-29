@@ -12,15 +12,12 @@ namespace breathe
   {
     typedef std::vector<uint8_t*> buffer_t;
 
-    // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
-    // if necessary add cHTTPDownloader::
-    // GetContentLengthFromHeader() const;
-    // GetContentLengthActual() const;
-    // Getresultcodeorsomething() const;
-
-    class cDownloadHTTP : public breathe::util::cThread
+    namespace http
     {
-    public:
+      // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+      // http://en.wikipedia.org/wiki/List_of_HTTP_headers
+
+
       enum class METHOD {
         GET,
         POST
@@ -91,58 +88,70 @@ namespace breathe
       };
 
 
-      cDownloadHTTP();
+      // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
+      // if necessary add these:
+      // GetContentLengthFromHeader() const;
+      // GetContentLengthActual() const;
+      // Getresultcodeorsomething() const;
 
-      // Deprecated 2008, use Download(path, METHOD_GET); instead
-      //void Download(const std::string& path);
-      void Download(const std::string& path, METHOD method);
+      class cDownloadHTTP : public breathe::util::cThread
+      {
+      public:
+        cDownloadHTTP();
 
-      const std::string& GetContent() const { ASSERT(IsSuccessfulDownload()); return content; }
+        // Deprecated 2008, use Download(path, METHOD_GET); instead
+        //void Download(const std::string& path);
+        void Download(const std::string& path, METHOD method);
 
-      bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
-      bool IsFailedDownload() const { return !(state == STATE::FINISHED); }
+        const std::string& GetContent() const { ASSERT(IsSuccessfulDownload()); return content; }
 
-      STATUS GetStatus() const { return status; }
-      STATE GetState() const { return state; }
+        bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
+        bool IsFailedDownload() const { return !(state == STATE::FINISHED); }
 
-    private:
-      void ThreadFunction();
-      std::string CreateRequest() const;
-      void ParseHeader(const char* header);
-      std::string Decode(const std::string& encodedString);
-      std::string Encode(const std::string& rawString);
+        STATUS GetStatus() const { return status; }
+        STATE GetState() const { return state; }
 
-      STATUS status;
-      STATE state;
-      uint32_t progress;
-      std::string content;
+      private:
+        void ThreadFunction();
+        std::string CreateRequest() const;
+        void ParseHeader(const char* header);
+        std::string Decode(const std::string& encodedString);
+        std::string Encode(const std::string& rawString);
 
-      METHOD method;
-      breathe::network::cURI uri;
-    };
+        STATUS status;
+        STATE state;
+        uint32_t progress;
+        std::string content;
 
-    inline cDownloadHTTP::cDownloadHTTP() :
-      status(STATUS::UNKNOWN),
-      state(STATE::BEFORE_DOWNLOADING),
-      progress(0),
-      method(METHOD::GET)
-    {
-    }
+        METHOD method;
+        breathe::network::cURI uri;
+      };
 
-    inline void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method)
-    {
-      if (IsRunning()) return;
+      inline cDownloadHTTP::cDownloadHTTP() :
+        status(STATUS::UNKNOWN),
+        state(STATE::BEFORE_DOWNLOADING),
+        progress(0),
+        method(METHOD::GET)
+      {
+      }
 
-      // Start downloading at the beginning
-      progress = 0;
+      inline void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method)
+      {
+        if (IsRunning()) return;
 
-      // Parse the uri
-      uri.Parse(full_uri);
+        // Start downloading at the beginning
+        progress = 0;
 
-      method = _method;
+        // Parse the uri
+        uri.Parse(full_uri);
 
-      // Now we are ready to download the file
-      Run();
+        method = _method;
+
+        // Now we are ready to download the file
+        //Run();
+
+        ThreadFunction();
+      }
     }
   }
 }

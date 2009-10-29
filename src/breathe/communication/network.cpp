@@ -126,6 +126,17 @@ namespace breathe
       return (sd != NULL);
     }
 
+    size_t cConnectionTCP::Recv(void* buffer, size_t len)
+    {
+      int recvBytes = SDLNet_TCP_Recv(sd, buffer, int(len));
+      if (recvBytes < 0) {
+        Close();
+        return 0;
+      }
+
+      return size_t(recvBytes);
+    }
+
     size_t cConnectionTCP::Send(const void* buffer, size_t len)
     {
       // I'm not sure why, but SDLNet_TCP_Send doesn't take a const void* which
@@ -135,16 +146,13 @@ namespace breathe
       int sentBytes = SDLNet_TCP_Send(sd, pBuffer, int(len));
       SAFE_DELETE_ARRAY(pBuffer);
 
+      if (sentBytes < 0) {
+        Close();
+        return 0;
+      }
+
       // If sentBytes is less than 0, return 0, else return sentBytes
       return (sentBytes < 0) ? 0 : size_t(sentBytes);
-    }
-
-    size_t cConnectionTCP::Recv(void* buffer, size_t len)
-    {
-      int recvBytes = SDLNet_TCP_Recv(sd, buffer, int(len));
-
-      // If recvBytes is less than 0, return 0, else return recvBytes
-      return (recvBytes < 0) ? 0 : size_t(recvBytes);
     }
   }
 }

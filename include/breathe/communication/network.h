@@ -64,8 +64,8 @@ namespace breathe
 
       bool IsOpen() const;
 
-      size_t Send(const void* buffer, size_t len);
       size_t Recv(void* buffer, size_t len);
+      size_t Send(const void* buffer, size_t len);
 
     private:
       IPaddress ip;
