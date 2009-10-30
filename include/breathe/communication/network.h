@@ -3,6 +3,8 @@
 
 namespace breathe
 {
+  typedef uint32_t timeoutms_t;
+
   namespace network
   {
     // Maximum Packet Size
@@ -64,12 +66,14 @@ namespace breathe
 
       bool IsOpen() const;
 
-      size_t Recv(void* buffer, size_t len);
+      size_t Recv(void* buffer, size_t len, timeoutms_t timeoutMS);
       size_t Send(const void* buffer, size_t len);
 
     private:
       IPaddress ip;
-      TCPsocket sd;
+      TCPsocket socket;
+
+      SDLNet_SocketSet socketSet;
     };
   }
 }

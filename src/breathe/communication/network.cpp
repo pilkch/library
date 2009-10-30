@@ -89,7 +89,7 @@ namespace breathe
     // *** cConnectionTCP
 
     cConnectionTCP::cConnectionTCP() :
-      sd(NULL)
+      socket(NULL)
     {
     }
 
@@ -104,11 +104,16 @@ namespace breathe
       }
 
       // Open a connection with the IP provided (listen on the host's port)
-      sd = SDLNet_TCP_Open(&ip);
-      if (sd == NULL) {
+      socket = SDLNet_TCP_Open(&ip);
+      if (socket == NULL) {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
         return false;
       }
+
+      // Create the socket set
+      socketSet = SDLNet_AllocSocketSet(1);
+
+      SDLNet_TCP_AddSocket(socketSet, socket);
 
       return true;
     }
@@ -116,20 +121,53 @@ namespace breathe
     void cConnectionTCP::Close()
     {
       if (IsOpen()) {
-        SDLNet_TCP_Close(sd);
-        sd = NULL;
+        if (socketSet != 0) {
+          SDLNet_TCP_DelSocket(socketSet, socket);
+          socketSet = 0;
+        }
+
+        SDLNet_TCP_Close(socket);
+        socket = NULL;
       }
     }
 
     bool cConnectionTCP::IsOpen() const
     {
-      return (sd != NULL);
+      return (socket != NULL);
     }
 
-    size_t cConnectionTCP::Recv(void* buffer, size_t len)
+    size_t cConnectionTCP::Recv(void* buffer, size_t len, timeoutms_t timeoutMS)
     {
-      int recvBytes = SDLNet_TCP_Recv(sd, buffer, int(len));
+      LOG<<"cConnectionTCP::Recv Reading with timeout "<<timeoutMS<<std::endl;
+
+      ASSERT(IsOpen());
+
+      int nResultSocketsCheck = SDLNet_CheckSockets(socketSet, timeoutMS);
+      if (nResultSocketsCheck == -1) {
+        LOG<<"cConnectionTCP::Recv SDLNet_CheckSockets returned "<<nResultSocketsCheck<<", error="<<SDLNet_GetError()<<" closing and returning 0"<<std::endl;
+        Close();
+        return 0;
+      } else if (nResultSocketsCheck == 0) {
+        LOG<<"cConnectionTCP::Recv Socket had no activity, closing and returning 0"<<std::endl;
+        // TODO: This works for http, I'm not sure if this is correct for all protocols?  Would we ever want to try to read and if it fails keep the socket open and try again later?
+        Close();
+        return 0;
+      }
+
+      int nResultSocketsReady = SDLNet_SocketReady(socketSet);
+      if (nResultSocketsReady == -1) {
+        LOG<<"cConnectionTCP::Recv SDLNet_SocketReady returned "<<nResultSocketsReady<<", error="<<SDLNet_GetError()<<" returning 0"<<std::endl;
+        return 0;
+      } else if (nResultSocketsReady == 0) {
+        LOG<<"cConnectionTCP::Recv Socket is not ready, returning 0"<<std::endl;
+        return 0;
+      }
+
+
+      // Ok, actually receive data from the socket
+      int recvBytes = SDLNet_TCP_Recv(socket, buffer, int(len));
       if (recvBytes < 0) {
+        LOG<<"cConnectionTCP::Recv SDLNet_TCP_Recv returned "<<recvBytes<<", socket is closed or in error, closing and returning 0"<<std::endl;
         Close();
         return 0;
       }
@@ -139,11 +177,15 @@ namespace breathe
 
     size_t cConnectionTCP::Send(const void* buffer, size_t len)
     {
+      LOG<<"cConnectionTCP::Send"<<std::endl;
+
+      ASSERT(IsOpen());
+
       // I'm not sure why, but SDLNet_TCP_Send doesn't take a const void* which
       // is painful as it probably doesn't change the data anyway
       char* pBuffer = new char[len];
       memcpy(pBuffer, buffer, len);
-      int sentBytes = SDLNet_TCP_Send(sd, pBuffer, int(len));
+      int sentBytes = SDLNet_TCP_Send(socket, pBuffer, int(len));
       SAFE_DELETE_ARRAY(pBuffer);
 
       if (sentBytes < 0) {

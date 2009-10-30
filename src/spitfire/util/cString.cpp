@@ -363,8 +363,9 @@ namespace spitfire
     std::string StripBeforeInclusive(const std::string& source, const std::string& find)
     {
       std::string::size_type i = source.find(find);
-      if (std::string::npos != i)
-        return std::string(source.begin() + i + find.length(), source.end());
+
+      // If we found this string then return everything after the found string
+      if (std::string::npos != i) return source.substr(i + find.length());
 
       return source;
     }
@@ -372,32 +373,29 @@ namespace spitfire
     std::wstring StripBeforeInclusive(const std::wstring& source, const std::wstring& find)
     {
       std::wstring::size_type i = source.find(find);
-      if (std::wstring::npos != i)
-        return std::wstring(source.begin() + i + find.length(), source.end());
+
+      // If we found this string then return everything after the found string
+      if (std::wstring::npos != i) return source.substr(i + find.length());
 
       return source;
     }
 
     std::string StripAfterInclusive(const std::string& source, const std::string& find)
     {
-      std::string::size_type i = source.find_first_of(find);
-      if (std::string::npos != i) {
-        std::string temp(source);
-        //std::string::size_type len = find.length();
-        return temp.erase(i);
-      }
+      std::string::size_type i = source.find(find);
+
+      // If we found this string then return up to this point
+      if (std::string::npos != i) return source.substr(0, i);
 
       return source;
     }
 
     std::wstring StripAfterInclusive(const std::wstring& source, const std::wstring& find)
     {
-      std::wstring::size_type i = source.find_first_of(find);
-      if (std::wstring::npos != i) {
-        std::wstring temp(source);
-        //std::wstring::size_type len = find.length();
-        return temp.erase(i);
-      }
+      std::wstring::size_type i = source.find(find);
+
+      // If we found this string then return up to this point
+      if (std::wstring::npos != i) return source.substr(0, i);
 
       return source;
     }

@@ -73,68 +73,119 @@ namespace breathe
       class cConnectionHTTP
       {
       public:
-        cConnectionHTTP();
+        size_t ReadHeader(network::cConnectionTCP& connection);
+        size_t ReadContent(network::cConnectionTCP& connection, void* pBuffer, size_t len);
 
-        size_t ReadHeader(network::cConnectionTCP& connection, std::string& header);
-        size_t ReadContent(network::cConnectionTCP& connection, const void* pBuffer, size_t len);
+        //const std::string& GetHeaderValueContentType() const { return headerValues["Content-Type"]; }
+        //size_t GetHeaderValueContentSize() const { return string::ToUnsignedInt(headerValues["Content-Length"]); }
 
       private:
-        void ParseHeader(const char* header);
+        void ParseHeader(const char* szHeader);
+
+        std::string header;
+        std::map<std::string, std::string> headerValues;
 
         static const size_t nBufferLength = 1024;
-        char buffer[nBufferLength];
-        size_t nBufferRead; // How much of buffer is valid?
+        std::vector<char> content;
       };
 
-      cConnectionHTTP::cConnectionHTTP() :
-        nBufferRead(0)
-      {
-      }
-
-      size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection, std::string& header)
+      size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
         std::cout<<"cConnectionHTTP::ReadHeader"<<std::endl;
         ASSERT(connection.IsOpen());
 
         // If this fails we have already read the header
-        ASSERT(nBufferRead == 0);
+        ASSERT(content.empty());
 
-        header = "";
-
-        bool bIsHeaderRead = false;
         size_t len = 0;
-        char szHeaderBuffer[nBufferLength];
-        while (!bIsHeaderRead) {
-          if (!connection.IsOpen()) {
-            std::cout<<"cConnectionHTTP::ReadHeader Connection is closed, breaking"<<std::endl;
-            break;
-          }
-
+        char szHeaderBuffer[nBufferLength + 1];
+        std::cout<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
+        while (connection.IsOpen()) {
           std::cout<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
-          len = connection.Recv(szHeaderBuffer, nBufferLength);
+          len = connection.Recv(szHeaderBuffer, nBufferLength, 5000);
+          std::cout<<"cConnectionHTTP::ReadHeader Recv has finished"<<std::endl;
           if (len == 0) {
             std::cout<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
             break;
           }
 
+          std::cout<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
           szHeaderBuffer[len] = 0;
-          std::cout<<"cConnectionHTTP::ReadHeader Read into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
+          std::cout<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
 
-          header += string::StripAfterInclusive(szHeaderBuffer, "\n\n");
-          std::cout<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
+          std::string sBuffer(szHeaderBuffer);
+          std::string::size_type i = sBuffer.find("\r\n\r\n");
+
+          if (i == std::string::npos) {
+            header += sBuffer;
+          } else {
+            header += sBuffer.substr(0, i);
+            std::cout<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
+
+            // Skip "\r\n\r\n"
+            i += 4;
+
+            ASSERT(len >= i);
+            const size_t nBufferRead = len - i;
+
+            if (nBufferRead != 0) {
+              // There is something to put in the content buffer so fill it up and return
+
+              // Make space to append the next chunk to the end of our current header buffer
+              std::cout<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
+              content.reserve(nBufferRead);
+
+              // Append to the header
+              std::cout<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
+              content.insert(content.begin(), nBufferRead, '\0');
+              std::cout<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
+              memcpy(&content[0], &szHeaderBuffer[i], nBufferRead);
+              break;
+            }
+          }
         }
 
         std::cout<<"cConnectionHTTP::ReadHeader header=\""<<header<<"\", returning"<<std::endl;
         return header.length();
       }
 
-      size_t cConnectionHTTP::ReadContent(network::cConnectionTCP& connection, const void* pBuffer, size_t len)
+      size_t cConnectionHTTP::ReadContent(network::cConnectionTCP& connection, void* pOutContent, size_t len)
       {
+        std::cout<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
         ASSERT(connection.IsOpen());
 
-        // TODO: Read from buffer first and then read from socket
+        size_t nContentReadThisTimeAround = 0;
 
-        return 0;
+        // If we already have content data then read from there first
+        const size_t nBufferRead = content.size();
+        std::cout<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
+        if (nBufferRead != 0) {
+          std::cout<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
+          const size_t smaller = min(nBufferRead, len);
+          std::cout<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
+          memcpy(pOutContent, &content[0], smaller);
+
+          // Increment our buffer
+          pOutContent = (char*)pOutContent + smaller;
+          len -= smaller;
+
+
+          std::vector<char> temp(content.begin() + smaller, content.end());
+          content = temp;
+          ASSERT(content.size() + smaller == nBufferRead);
+
+          nContentReadThisTimeAround += smaller;
+        }
+
+        if (len != 0) {
+          // Now read the rest from the connection
+          const size_t n = connection.Recv(pOutContent, len, 2000);
+          std::cout<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
+          nContentReadThisTimeAround += n;
+        }
+
+        std::cout<<"cConnectionHTTP::ReadContent nContentReadThisTimeAround="<<nContentReadThisTimeAround<<std::endl;
+        return nContentReadThisTimeAround;
       }
 
 
@@ -158,7 +209,7 @@ namespace breathe
         o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END;
         o<<"Accept: */*" STR_END;
         o<<"Accept-Language: en-us" STR_END;
-        o<<"Connection: Keep-Alive" STR_END;
+        //o<<"Connection: Keep-Alive" STR_END;
         o<<STR_END;
 
         if (method == METHOD::POST) {
@@ -229,7 +280,7 @@ namespace breathe
         state = STATE::RECEIVING_HEADER;
         std::string sHeader;
         cConnectionHTTP reader;
-        size_t len = reader.ReadHeader(connection, sHeader);
+        size_t len = reader.ReadHeader(connection);
         if (len == 0) {
           LOG<<"cDownloadHTTP::ThreadFunction ReadHeader FAILED "<<SDLNet_GetError()<<std::endl;
           return;
@@ -240,14 +291,18 @@ namespace breathe
         char buffer[STR_LEN - 1];
         do {
           len = reader.ReadContent(connection, buffer, STR_LEN - 1);
-          if (len > 0) {
+          if (len != 0) {
             buffer[len] = 0;
             content += buffer;
+            std::cout<<"*** content=\""<<content<<"\""<<std::endl;
           }
-        } while (len > 0);
+        } while (len != 0);
 
-        LOG<<"CONTENT"<<std::endl;
-        LOG<<content<<std::endl;
+        std::cout<<"*** finished CONTENT"<<std::endl;
+        std::cout<<content<<std::endl;
+
+        //... todo what should we do with the content?
+        assert(false);
 
         connection.Close();
 
