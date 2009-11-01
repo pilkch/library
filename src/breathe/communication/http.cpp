@@ -42,7 +42,7 @@
 
 
 const size_t STR_LEN = 512;
-#define STR_END "\r\n"
+const std::string STR_END = "\r\n";
 
 namespace breathe
 {
@@ -202,20 +202,30 @@ namespace breathe
         if (method == METHOD::GET) o<<"GET";
         else o<<"POST";
 
-        std::cout<<"path=\""<<uri.GetRelativePath()<<"\""<<std::endl;
-        o<<" /"<<uri.GetRelativePath()<<" HTTP/1.1" STR_END;
-        o<<"Host: "<<uri.GetServer()<< STR_END;
-        if (progress != 0) o<<"Range: bytes="<<progress<<"-" STR_END;
-        o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END;
-        o<<"Accept: */*" STR_END;
-        o<<"Accept-Language: en-us" STR_END;
-        //o<<"Connection: Keep-Alive" STR_END;
+        o<<" /"<<uri.GetRelativePath()<<" HTTP/1.1"<<STR_END;
+
+        if (uri.GetPort() == 80) o<<"Host: "<<uri.GetServer()<<STR_END;
+        else o<<"Host: "<<uri.GetServer()<<":"<<uri.GetPort()<<STR_END;
+
+        if (progress != 0) o<<"Range: bytes="<<progress<<"-"<<STR_END;
+
+        o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"<<STR_END;
+        o<<"Accept: */*"<<STR_END;
+        o<<"Accept-Language: en-us"<<STR_END;
+
+        //o<<"Connection: Keep-Alive"<<STR_END;
+        //OR
+        o<<"Connection: close"<<STR_END;
+
         o<<STR_END;
 
         if (method == METHOD::POST) {
+          // TODO: Obviously this is incorrect we should actually get this value from somewhere
           const size_t content_length = 10;
+          std::cout<<"cDownloadHTTP::CreateRequest POST is not complete"<<std::endl;
+          ASSERT(false);
 
-          o<<"Content-Type: application/x-www-form-urlencoded" STR_END;
+          o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
           o<<"Content-Length: "<<content_length<<STR_END;
           o<<STR_END;
         }
@@ -411,6 +421,13 @@ namespace breathe
       void cDownloadHTTP::ParseHeader(const char* szHeader)
       {
         ASSERT(false);
+
+        //bool bIsTransferEncodingChunked = ... "Transfer-Encoding: chunked"
+
+
+
+        // At the end of the content
+        //if (bIsTransferEncodingChunked) content will end with a 0
       }
     }
   }
