@@ -73,21 +73,67 @@ namespace breathe
       class cConnectionHTTP
       {
       public:
+        cConnectionHTTP();
+
         size_t ReadHeader(network::cConnectionTCP& connection);
         size_t ReadContent(network::cConnectionTCP& connection, void* pBuffer, size_t len);
 
         //const std::string& GetHeaderValueContentType() const { return headerValues["Content-Type"]; }
         //size_t GetHeaderValueContentSize() const { return string::ToUnsignedInt(headerValues["Content-Length"]); }
 
+        int GetStatus() const { return status; }
+        std::string GetContentType() const;
+        bool IsTransferEncodingChunked() const;
+
       private:
-        void ParseHeader(const char* szHeader);
+        void ParseHeader();
 
         std::string header;
+        int status;
         std::map<std::string, std::string> headerValues;
 
         static const size_t nBufferLength = 1024;
         std::vector<char> content;
       };
+
+      cConnectionHTTP::cConnectionHTTP() :
+        status(0)
+      {
+      }
+
+      void cConnectionHTTP::ParseHeader()
+      {
+        headerValues.clear();
+
+
+        std::vector<std::string> vHeader;
+        string::SplitOnNewLines(header, vHeader);
+
+        if (vHeader.empty()) return;
+
+        // HTTP/1.1 200 OK
+        {
+          // Split into "HTTP/1.1", "200", "OK"
+          std::vector<std::string> vParts;
+          string::SplitOnNewLines(vHeader[0], vParts);
+
+          if (vParts.size() >= 3) {
+            status = string::ToInt(string::ToString_t(vParts[1]));
+          }
+        }
+
+        std::string before;
+        std::string after;
+
+        const size_t n = vHeader.size();
+        for (size_t i = 0; i < n; i++) {
+          bool bIsFound = string::Split(vHeader[i], ": ", before, after);
+          if (!bIsFound) continue;
+
+          // Add it to the key value pairs
+          headerValues[before] = after;
+        }
+      }
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
@@ -145,6 +191,9 @@ namespace breathe
           }
         }
 
+        // Actually parse the header into status, key value pairs etc.
+        ParseHeader();
+
         std::cout<<"cConnectionHTTP::ReadHeader header=\""<<header<<"\", returning"<<std::endl;
         return header.length();
       }
@@ -184,8 +233,50 @@ namespace breathe
           nContentReadThisTimeAround += n;
         }
 
+        // TODO:
+        // if (IsTransferEncodingChunked()) {
+        //   ... begins with "\r\n25\r\n"
+        //
+        //   ... ends in "\r\n0\r\n"
+        // }
+
         std::cout<<"cConnectionHTTP::ReadContent nContentReadThisTimeAround="<<nContentReadThisTimeAround<<std::endl;
         return nContentReadThisTimeAround;
+      }
+
+
+
+      std::string cConnectionHTTP::GetContentType() const
+      {
+        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Content-Type");
+        if (iter != headerValues.end()) {
+          return iter->second;
+        }
+
+        return false;
+      }
+
+      // HTTP/1.1 200 OK
+      // Content-Type: text/plain
+      // Transfer-Encoding: chunked
+      //
+      // 25
+      // This is the data in the first chunk
+      //
+      // 1C
+      // and this is the second one
+      //
+      // 0
+      //
+
+      bool cConnectionHTTP::IsTransferEncodingChunked() const
+      {
+        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Transfer-Encoding");
+        if (iter != headerValues.end()) {
+          return (iter->second == "chunked");
+        }
+
+        return false;
       }
 
 
@@ -320,6 +411,22 @@ namespace breathe
         std::cout<<"cDownloadHTTP::ThreadFunction Finished, returning"<<std::endl;
       }
 
+
+
+      bool IsSpecialCharacter(char c)
+      {
+        switch (c) {
+          case '*':
+          case '-':
+          case '.':
+          case '_': {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
       std::string cDownloadHTTP::Decode(const std::string& encodedString)
       {
         const char* encStr = encodedString.c_str();
@@ -377,11 +484,6 @@ namespace breathe
         return decodedString;
       }
 
-      bool IsSpecialCharacter(char c)
-      {
-        return false;
-      }
-
       std::string cDownloadHTTP::Encode(const std::string& rawString)
       {
         char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
@@ -421,13 +523,6 @@ namespace breathe
       void cDownloadHTTP::ParseHeader(const char* szHeader)
       {
         ASSERT(false);
-
-        //bool bIsTransferEncodingChunked = ... "Transfer-Encoding: chunked"
-
-
-
-        // At the end of the content
-        //if (bIsTransferEncodingChunked) content will end with a 0
       }
     }
   }

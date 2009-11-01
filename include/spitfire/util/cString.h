@@ -58,6 +58,7 @@ namespace spitfire
     std::string StripAfterInclusive(const std::string& source, const std::string& find);
     std::string StripAfterLastInclusive(const std::string& source, const std::string& find);
     void Split(const std::string& source, char find, std::vector<std::string>& vOut);
+    bool Split(const std::string& source, const std::string& find, std::string& before, std::string& after); // Returns true if find is found and puts the first and second parts in before and after.
     void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut);
     std::string Trim(const std::string& source);
     bool BeginsWith(const std::string& source, const std::string& find);
@@ -76,6 +77,7 @@ namespace spitfire
     std::wstring StripAfterInclusive(const std::wstring& source, const std::wstring& find);
     std::wstring StripAfterLastInclusive(const std::wstring& source, const std::wstring& find);
     void Split(const std::wstring& source, wchar_t find, std::vector<std::wstring>& vOut);
+    bool Split(const std::wstring& source, const std::wstring& find, std::wstring& before, std::wstring& after); // Returns true if find is found and puts the first and second parts in before and after.
     void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut);
     std::wstring Trim(const std::wstring& source);
     bool BeginsWith(const std::wstring& source, const std::wstring& find);

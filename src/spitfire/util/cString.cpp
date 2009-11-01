@@ -178,6 +178,34 @@ namespace spitfire
       while (getline(stm, field, sFind)) vOut.push_back(Trim(field));
     }
 
+    bool Split(const std::string& source, const std::string& find, std::string& before, std::string& after)
+    {
+      std::string::size_type i = source.find(find);
+
+      // If we found this string then return everything after the found string
+      if (std::string::npos != i) {
+        before = source.substr(0, i);
+        after = source.substr(i + find.length());
+        return true;
+      }
+
+      return false;
+    }
+
+    bool Split(const std::wstring& source, const std::wstring& find, std::wstring& before, std::wstring& after)
+    {
+      std::wstring::size_type i = source.find(find);
+
+      // If we found this string then return everything after the found string
+      if (std::wstring::npos != i) {
+        before = source.substr(0, i);
+        after = source.substr(i + find.length());
+        return true;
+      }
+
+      return false;
+    }
+
     void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut)
     {
       vOut.clear();
