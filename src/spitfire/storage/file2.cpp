@@ -130,23 +130,23 @@ namespace spitfire
       T buffer[bufferSize];
       std::wostringstream o;
       while (file.good()) {
-        CONSOLE<<"ReadStringsFromFile Reading buffer"<<std::endl;
+        //CONSOLE<<"ReadStringsFromFile Reading buffer"<<std::endl;
         file.read((char*)&buffer[0], bufferSize * sizeof(T));
         CONSOLE<<"ReadStringsFromFile Finding how many read characters"<<std::endl;
         const size_t n = file.gcount() / sizeof(T);
 
-        CONSOLE<<"ReadStringsFromFile Interpreting line"<<std::endl;
+        //CONSOLE<<"ReadStringsFromFile Interpreting line"<<std::endl;
         for (size_t i = 0; i < n; i++) o<<wchar_t(buffer[i]);
       }
 
-      CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
+      //CONSOLE<<"ReadStringsFromFile Adding line to lines"<<std::endl;
       std::vector<std::wstring> lines;
       spitfire::string::SplitOnNewLines(o.str(), lines);
 
-      CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
+      //CONSOLE<<"ReadStringsFromFile Adding lines to contents"<<std::endl;
       const size_t n = lines.size();
       for (size_t i = 0; i < n; i++) {
-        CONSOLE<<"ReadStringsFromFile Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
+        //CONSOLE<<"ReadStringsFromFile Adding line["<<i<<"] "<<lines[i]<<" to contents"<<std::endl;
         contents.push_back(lines[i]);
       }
     }

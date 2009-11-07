@@ -78,15 +78,17 @@ namespace breathe
         size_t ReadHeader(network::cConnectionTCP& connection);
         size_t ReadContent(network::cConnectionTCP& connection, void* pBuffer, size_t len);
 
-        //const std::string& GetHeaderValueContentType() const { return headerValues["Content-Type"]; }
-        //size_t GetHeaderValueContentSize() const { return string::ToUnsignedInt(headerValues["Content-Length"]); }
 
         int GetStatus() const { return status; }
         std::string GetContentType() const;
+        size_t GetContentLength() const;
         bool IsTransferEncodingChunked() const;
 
       private:
         void ParseHeader();
+
+        std::string Decode(const std::string& encodedString);
+        std::string Encode(const std::string& rawString);
 
         std::string header;
         int status;
@@ -134,6 +136,108 @@ namespace breathe
           headerValues[before] = after;
         }
       }
+
+
+
+
+      bool IsSpecialCharacter(char c)
+      {
+        switch (c) {
+          case '*':
+          case '-':
+          case '.':
+          case '_': {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      std::string cConnectionHTTP::Decode(const std::string& encodedString)
+      {
+        const char* encStr = encodedString.c_str();
+        std::string decodedString;
+        const char* tmpStr = nullptr;
+        std::size_t cnt = 0;
+
+        // Reserve enough space for the worst case.
+        const std::size_t encodedLen = encodedString.size();
+        decodedString.reserve(encodedLen);
+
+        // Run down the length of the encoded string, examining each
+        // character.  If it's a %, we discard it, read in the next two
+        // characters, convert their hex value to a char, and write
+        // that to the decoded string.  Anything else, we just copy over.
+        for (std::size_t i = 0; i < encodedLen; ++i) {
+          char curChar = encStr[i];
+
+          if ('+' == curChar) {
+            if (tmpStr != NULL) {
+              decodedString.append(tmpStr, cnt);
+              tmpStr = NULL;
+              cnt = 0;
+            }
+            decodedString += ' ';
+          } else if ('%' == curChar) {
+            if (tmpStr != NULL) {
+              decodedString.append(tmpStr, cnt);
+              tmpStr = NULL;
+              cnt = 0;
+            }
+
+            if ((i + 2 < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
+              char s[3];
+              s[0] = encStr[i++];
+              s[1] = encStr[i++];
+              s[0] = 0;
+              uint32_t value = breathe::string::FromHexStringToUint32_t(s);
+              decodedString += static_cast<char>(value);
+            } else {
+              LOG<<"cHTTP::Decode invalid %-escapes in " + encodedString;
+              // TODO: What do we do now?
+            }
+          } else {
+            if (cnt == 0) tmpStr = encStr + i;
+            ++cnt;
+          }
+        }
+        if (tmpStr != NULL) {
+          decodedString.append(tmpStr, cnt);
+          cnt = 0;
+          tmpStr = NULL;
+        }
+
+        return decodedString;
+      }
+
+      std::string cConnectionHTTP::Encode(const std::string& rawString)
+      {
+        char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
+
+        std::size_t rawLen = rawString.size();
+
+        std::string encodedString;
+        encodedString.reserve(rawLen);
+
+        for (std::size_t i = 0; i < rawLen; ++i) {
+          char curChar = rawString[i];
+
+          if (curChar == ' ') encodedString += '+';
+          else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
+          else {
+            unsigned int temp = static_cast<unsigned int>(curChar);
+
+            encodingBuffer[1] = breathe::string::ConvertToHexDigit(temp / 0x10);
+            encodingBuffer[2] = breathe::string::ConvertToHexDigit(temp % 0x10);
+            encodedString += encodingBuffer;
+          }
+        }
+
+        return encodedString;
+      }
+
+
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
@@ -256,6 +360,17 @@ namespace breathe
         return false;
       }
 
+      size_t cConnectionHTTP::GetContentLength() const
+      {
+        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Content-Length");
+        if (iter != headerValues.end()) {
+          return string::ToUnsignedInt(string::ToString_t(iter->second));
+        }
+
+        return 0;
+      }
+
+
       // HTTP/1.1 200 OK
       // Content-Type: text/plain
       // Transfer-Encoding: chunked
@@ -324,23 +439,6 @@ namespace breathe
         o<<STR_END;
 
         return o.str();
-
-    /*   char header[STR_LEN];
-        header[0] = 0;
-
-        sprintf(header,
-        "GET /%s HTTP/1.1" STR_END
-        "Host: %s" STR_END
-        "Range: bytes=%ld-" STR_END
-        "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" STR_END*/
-    //   "Accept: */*" STR_END
-    /*   "Accept-Language: en-us" STR_END
-        "Connection: Keep-Alive" STR_END
-        "" STR_END
-
-        , path.c_str(), server.c_str(), progress);
-
-        request = std::string(header);*/
       }
 
       void cDownloadHTTP::ThreadFunction()
@@ -409,120 +507,6 @@ namespace breathe
 
         state = STATE::FINISHED;
         std::cout<<"cDownloadHTTP::ThreadFunction Finished, returning"<<std::endl;
-      }
-
-
-
-      bool IsSpecialCharacter(char c)
-      {
-        switch (c) {
-          case '*':
-          case '-':
-          case '.':
-          case '_': {
-            return true;
-          }
-        }
-
-        return false;
-      }
-
-      std::string cDownloadHTTP::Decode(const std::string& encodedString)
-      {
-        const char* encStr = encodedString.c_str();
-        std::string decodedString;
-        const char* tmpStr = nullptr;
-        std::size_t cnt = 0;
-
-        // Reserve enough space for the worst case.
-        const std::size_t encodedLen = encodedString.size();
-        decodedString.reserve(encodedLen);
-
-        // Run down the length of the encoded string, examining each
-        // character.  If it's a %, we discard it, read in the next two
-        // characters, convert their hex value to a char, and write
-        // that to the decoded string.  Anything else, we just copy over.
-        for (std::size_t i = 0; i < encodedLen; ++i) {
-          char curChar = encStr[i];
-
-          if ('+' == curChar) {
-            if (tmpStr != NULL) {
-              decodedString.append(tmpStr, cnt);
-              tmpStr = NULL;
-              cnt = 0;
-            }
-            decodedString += ' ';
-          } else if ('%' == curChar) {
-            if (tmpStr != NULL) {
-              decodedString.append(tmpStr, cnt);
-              tmpStr = NULL;
-              cnt = 0;
-            }
-
-            if ((i + 2 < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
-              char s[3];
-              s[0] = encStr[i++];
-              s[1] = encStr[i++];
-              s[0] = 0;
-              uint32_t value = breathe::string::FromHexStringToUint32_t(s);
-              decodedString += static_cast<char>(value);
-            } else {
-              LOG<<"cHTTP::Decode invalid %-escapes in " + encodedString;
-              // TODO: What do we do now?
-            }
-          } else {
-            if (cnt == 0) tmpStr = encStr + i;
-            ++cnt;
-          }
-        }
-        if (tmpStr != NULL) {
-          decodedString.append(tmpStr, cnt);
-          cnt = 0;
-          tmpStr = NULL;
-        }
-
-        return decodedString;
-      }
-
-      std::string cDownloadHTTP::Encode(const std::string& rawString)
-      {
-        char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
-
-        std::size_t rawLen = rawString.size();
-
-        std::string encodedString;
-        encodedString.reserve(rawLen);
-
-        for (std::size_t i = 0; i < rawLen; ++i) {
-          char curChar = rawString[i];
-
-          if (curChar == ' ') encodedString += '+';
-          else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
-          else {
-            unsigned int temp = static_cast<unsigned int>(curChar);
-
-            encodingBuffer[1] = breathe::string::ConvertToHexDigit(temp / 0x10);
-            encodingBuffer[2] = breathe::string::ConvertToHexDigit(temp % 0x10);
-            encodedString += encodingBuffer;
-          }
-        }
-
-        return encodedString;
-      }
-
-      /*void cDownloadHTTP::Download(const std::string& _path)
-      {
-        path = _path;
-        server = breathe::string::StripAfterInclusive(breathe::string::StripLeading(path, "http://"), "/");
-        path = breathe::string::StripBeforeInclusive(_path, server + "/");
-        if (path.length() < 1) path = "/";
-
-        Run();
-      }*/
-
-      void cDownloadHTTP::ParseHeader(const char* szHeader)
-      {
-        ASSERT(false);
       }
     }
   }

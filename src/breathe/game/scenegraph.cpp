@@ -1154,7 +1154,7 @@ namespace breathe
 
       cUpdateVisitor visitor(*this);
 
-      // TODO: Huh?  Do we need this?  Do we need this here?
+      // TODO: Huh?  Do we need this?  Does it need to be here?
       pRender->SetClearColour(backgroundColour);
     }
 

@@ -326,6 +326,8 @@ namespace breathe
     void SanityCheck();
 #endif
 
+    void CheckIfNeedToUpdateApplication();
+
     void CreateFBOTextures();
 
     void RemoveKey(unsigned int code);

@@ -248,7 +248,7 @@ namespace spitfire
       cCFString cfsPath(CFURLCopyFileSystemPath(mainBundleURL.ref, kCFURLPOSIXPathStyle));
       ASSERT(cfsPath.IsValid());
 
-      return cfsPath.GetString_t();
+      return cfsPath.GetString();
     }
 
     string_t GetResourcesPath()

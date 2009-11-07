@@ -15,6 +15,7 @@ namespace breathe
     namespace http
     {
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+      // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
       // http://en.wikipedia.org/wiki/List_of_HTTP_headers
 
 
@@ -114,9 +115,6 @@ namespace breathe
       private:
         void ThreadFunction();
         std::string CreateRequest() const;
-        void ParseHeader(const char* header);
-        std::string Decode(const std::string& encodedString);
-        std::string Encode(const std::string& rawString);
 
         STATUS status;
         STATE state;

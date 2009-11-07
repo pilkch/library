@@ -1845,8 +1845,7 @@ namespace breathe
     tRender.InitWithUnspecifiedFPS();
 
     //TODO: Activate window so that it is on top as soon as we start
-
-    do {
+    while (!bDone) {
       // If this fails we have a problem.  At all times we should either have
       // bDone == true or states has one or more states
       assert(!states.empty());

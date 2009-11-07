@@ -343,8 +343,9 @@ namespace breathe
       // *** cGearBox
 
       cGearBox::cGearBox() :
+        fMassKg(20.0f),
+        fEfficiency0To1(0.9f),
         currentGear(1), // Default to neutral even though we don't actually have a neutral yet
-
         fRPMBeforeGearBox(0.0f),
         fTorqueNmBeforeGearBox(0.0f),
 
@@ -373,6 +374,7 @@ namespace breathe
         ASSERT(currentGear < gears.size());
         return gears[currentGear];
       }
+
       void cGearBox::Update(sampletime_t currentTime)
       {
         ASSERT(currentGear < gears.size());
@@ -385,6 +387,9 @@ namespace breathe
           fRPMAfterGearBox = 0.0f;
           fTorqueNmAfterGearBox = 0.0f;
         }
+
+        // This gearbox may not be 100% efficient
+        fTorqueNmAfterGearBox *= fEfficiency0To1;
       }
 
 

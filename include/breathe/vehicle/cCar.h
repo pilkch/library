@@ -207,6 +207,7 @@ namespace breathe
 
       private:
         float_t fMassKg;
+        float_t fFrictionCoefficient;
 
         float_t fInputClutch0To1;
         float_t fRPMBeforeClutch;
@@ -241,6 +242,8 @@ namespace breathe
         void ChangeGearUp();
         void ChangeGearDown();
 
+        void SetMassKg(float_t _fMassKg) { fMassKg = _fMassKg; }
+        void SetEfficiency0To1(float_t _fEfficiency0To1) { fEfficiency0To1 = _fEfficiency0To1; }
         void SetRPMBeforeGearBox(float_t _fRPMBeforeGearBox) { fRPMBeforeGearBox = _fRPMBeforeGearBox; }
         void SetTorqueNmBeforeGearBox(float_t _fTorqueNmBeforeGearBox) { fTorqueNmBeforeGearBox = _fTorqueNmBeforeGearBox; }
 
@@ -252,6 +255,7 @@ namespace breathe
 
       private:
         float_t fMassKg;
+        float_t fEfficiency0To1;
         size_t currentGear;
         std::vector<float_t> gears;
 
