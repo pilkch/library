@@ -44,7 +44,6 @@
 
 #include <breathe/util/base.h>
 
-#include <breathe/game/cLevel.h>
 #include <breathe/game/cPlayer.h>
 
 #include <breathe/render/model/cMesh.h>

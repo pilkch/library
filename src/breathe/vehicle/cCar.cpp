@@ -101,6 +101,21 @@ namespace breathe
   {
     namespace car
     {
+      // Calculate the output of an rpm and torque going into a gear with this ratio
+      // NOTE: This gear is very generic and assumes 100% efficiency
+      void CalculateGearing(float_t fGearRatio, float_t fInputRPM, float_t fInputTorqueNm, float_t& fOutputRPM, float_t& fOutputTorqueNm)
+      {
+        // Avoid a divide by zero
+        if (fGearRatio != 0.0f) {
+          fOutputRPM = fInputRPM * (1.0f / fGearRatio);
+          fOutputTorqueNm = fInputTorqueNm * fGearRatio;
+        } else {
+          fOutputRPM = 0.0f;
+          fOutputTorqueNm = 0.0f;
+        }
+      }
+
+
       cAirFlow::cAirFlow() :
         fDensityKgPerCubicMetre(0.0f),
         fFlowCubicMetresPerSecond(0.0f),
@@ -113,6 +128,30 @@ namespace breathe
         fDensityKgPerCubicMetre = rhs.fDensityKgPerCubicMetre;
         fFlowCubicMetresPerSecond = rhs.fFlowCubicMetresPerSecond;
         fTemperatureDegreesCelcius = rhs.fTemperatureDegreesCelcius;
+      }
+
+      // Basically *this += rhs
+      void cAirFlow::Combine(const cAirFlow& rhs)
+      {
+        // TODO: Change properties more realistically
+        fDensityKgPerCubicMetre = (fDensityKgPerCubicMetre + rhs.fDensityKgPerCubicMetre) * 0.5f;
+        fFlowCubicMetresPerSecond = (fFlowCubicMetresPerSecond + rhs.fFlowCubicMetresPerSecond) * 0.5f;
+        fTemperatureDegreesCelcius = (fTemperatureDegreesCelcius + rhs.fTemperatureDegreesCelcius) * 0.5f;
+      }
+
+      // Basically return *this / nParts
+      cAirFlow cAirFlow::SplitIntoParts(size_t nParts) const
+      {
+        cAirFlow split = *this;
+
+        ASSERT(nParts != 0);
+
+        // TODO: Change properties more realistically
+        //split.fDensityKgPerCubicMetre = split.fDensityKgPerCubicMetre;
+        split.fFlowCubicMetresPerSecond /= float_t(nParts);
+        //split.fTemperatureDegreesCelcius = split.fTemperatureDegreesCelcius;
+
+        return split;
       }
 
       void cAirFlow::SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(float_t _fDensityKgPerCubicMetre, float_t _fFlowCubicMetresPerSecond, float_t _fTemperatureDegreesCelcius)
@@ -179,6 +218,31 @@ namespace breathe
 
 
 
+      cEngine::cEngine() :
+        fMassKg(300.0f),
+        fRedLineRPM(6500.0f),
+        fAcceleratorInput0To1(0.0f),
+        fRPM(0.0f),
+        fTorqueNm(0.0f)
+      {
+        // Very rough estimate of a torque curve for a 2001 Corvette (That's the best I could find!)
+        // http://www.corvettemuseum.com/specs/2001/performance.htm
+        // http://www.corvettemuseum.com/specs/2001/images/graph.jpg
+        rpmToTorqueCurve.AddPoint(0.0f, 0.0f);
+        rpmToTorqueCurve.AddPoint(800.0f, 379.6f);
+        rpmToTorqueCurve.AddPoint(1600.0f, 447.4f);
+        rpmToTorqueCurve.AddPoint(2400.0f, 467.7f);
+        rpmToTorqueCurve.AddPoint(3200.0f, 481.3f);
+        rpmToTorqueCurve.AddPoint(4000.0f, 508.4);
+        rpmToTorqueCurve.AddPoint(4800.0f, 542.0f);
+        rpmToTorqueCurve.AddPoint(5000.0f, 500.0f);
+        rpmToTorqueCurve.AddPoint(5600.0f, 440.6f);
+        rpmToTorqueCurve.AddPoint(6000.0f, 372.8f);
+        rpmToTorqueCurve.AddPoint(6500.0f, 300.0f);
+        rpmToTorqueCurve.AddPoint(7000.0f, 200.0f);
+        rpmToTorqueCurve.AddPoint(7500.0f, 80.0f);
+        rpmToTorqueCurve.AddPoint(8000.0f, 0.0f);
+      }
 
       void cEngine::Update(sampletime_t currentTime)
       {
@@ -199,16 +263,22 @@ namespace breathe
         exhaustAirFlow.SetDensityKgPerCubicMetersAndFlowCubicMetresPerSecondAndTemperatureDegreesCelcius(fExhaustDensityKgPerCubicMeter, fExhaustFlowCubicMetresPerSecond, fExhaustTemperatureDegreesCelcius);
 
 
+        float_t fActualAcceleratorInput0To1 = fAcceleratorInput0To1;
 
-        fRPM += 100.0f * fAcceleratorInput0To1;
+        // Cut the accelerator if we are above the red line
+        if (fRPM > fRedLineRPM) fActualAcceleratorInput0To1 = 0.0f;
+
+        fRPM += 100.0f * fActualAcceleratorInput0To1;
 
         fRPM *= 0.99f;
 
         fRPM = spitfire::math::clamp(fRPM, 1000.0f, 16000.0f);
 
 
-/*
-        // I know, in a real engine each of the four stages of an internal combustion engine are constantly taking place at a different place on each cylinder
+        fTorqueNm = rpmToTorqueCurve.GetYAtPointX(fRPM);
+
+#if 0
+        // I know, I know, in a real engine each of the four stages of an internal combustion engine are constantly taking place at a different place on each cylinder
         // We greatly simplify this by saying that the four stages happen instantaneously and "firing" happens to each cylinder in turn, so we should get similar
         // fuel economy etc. without doing the correct calculations.
 
@@ -224,10 +294,18 @@ namespace breathe
 
 
           nextFiring = currentTime + timeBetweenEachFiring;
-        }*/
+        }
+#endif
       }
 
 
+      cSuperCharger::cSuperCharger() :
+        fMassKg(20.0f),
+        fEngineRPM(0.0f),
+        fRatio(5.0f / 1.0f),
+        fRPM(0.0f)
+      {
+      }
 
       void cSuperCharger::Update(sampletime_t currentTime)
       {
@@ -248,6 +326,11 @@ namespace breathe
       }
 
 
+      cTurboCharger::cTurboCharger() :
+        fMassKg(5.0f),
+        fRPM(0.0f)
+      {
+      }
 
       void cTurboCharger::Update(sampletime_t currentTime)
       {
@@ -379,14 +462,9 @@ namespace breathe
       {
         ASSERT(currentGear < gears.size());
 
-        // Avoid a divide by zero for the neutral gear
-        if (gears[currentGear] != 0.0f) {
-          fRPMAfterGearBox = fRPMBeforeGearBox * (1.0f / gears[currentGear]);
-          fTorqueNmAfterGearBox = fTorqueNmBeforeGearBox * (1.0f / gears[currentGear]);
-        } else {
-          fRPMAfterGearBox = 0.0f;
-          fTorqueNmAfterGearBox = 0.0f;
-        }
+        currentGear = 5;
+
+        CalculateGearing(gears[currentGear], fRPMBeforeGearBox, fTorqueNmBeforeGearBox, fRPMAfterGearBox, fTorqueNmAfterGearBox);
 
         // This gearbox may not be 100% efficient
         fTorqueNmAfterGearBox *= fEfficiency0To1;
@@ -403,9 +481,7 @@ namespace breathe
 
       void cDifferential::Update(sampletime_t currentTime)
       {
-        ASSERT(fRatio != 0.0f);
-        fRPMAfterDifferential = fRPMBeforeDifferential * (1.0f / fRatio);
-        fTorqueNmAfterDifferential = fTorqueNmBeforeDifferential * (1.0f / fRatio);
+        CalculateGearing(fRatio, fRPMBeforeDifferential, fTorqueNmBeforeDifferential, fRPMAfterDifferential, fTorqueNmAfterDifferential);
       }
 
 
@@ -431,7 +507,7 @@ namespace breathe
       float_t cWheel::GetSpeedKPH() const
       {
         // 17 inch rim, 3 cm tire on each side of the rim
-        const float fRadiusOfTireCentimeters = fDiametreOfRimCentimetres + (2.0f * fProfileOfTireCentimetres);
+        const float fRadiusOfTireCentimeters = (0.5f * fDiametreOfRimCentimetres) + fProfileOfTireCentimetres;
 
         const float fSpeedCentimetersPerMinute = ((2.0f * math::cPI * fRadiusOfTireCentimeters) * fRPM);
         const float fSpeedKPH = fSpeedCentimetersPerMinute * (60.0 / 100000.0f); // 60 minutes in an hour, 100000 cm in a kilometer
@@ -441,6 +517,10 @@ namespace breathe
 
       void cWheel::Update(sampletime_t currentTime)
       {
+        // 17 inch rim, 3 cm tire on each side of the rim
+        const float fRadiusOfTireCentimeters = (0.5f * fDiametreOfRimCentimetres) + fProfileOfTireCentimetres;
+
+        fTorqueNm /= fRadiusOfTireCentimeters;
       }
     }
   }
@@ -672,25 +752,6 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
    ASSERT(pCubeMapTexture != nullptr);
 
    factory.CreateSceneNodeAttachedTo(meshes, pGroupNode);
-
-
-
-
-
-
-
-
-
-
-
-
-
-  attach each wheel node and name it
-  "car000"
-    "car000_wheel0"
-    "car000_wheel1"
-    "car000_wheel2"
-    "car000_wheel3"
 }
 
 
@@ -789,9 +850,55 @@ namespace breathe
       //pRenderComponent->SetSceneNode(pNode);
       //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
 
+
+
+
+
+      std::vector<breathe::scenegraph3d::cGroupNodeRef> wheels;
+
+      for (size_t i = 0; i < 4; i++) {
+        // Create the wheel
+        spitfire::string_t sFilename;
+        breathe::filesystem::FindResourceFile(TEXT("models/chinook/rotor.obj"), sFilename);
+
+        breathe::render::model::cStaticModelSceneNodeFactory factory;
+
+        std::vector<breathe::render::model::cStaticModelSceneNodeFactoryItem> meshes;
+        factory.LoadFromFile(sFilename, meshes);
+
+        const float x = 2.0f;
+        const float y = 10.4f;
+        const float z = 8.5f;
+
+        breathe::scenegraph3d::cGroupNodeRef pNodeWheel(new breathe::scenegraph3d::cGroupNode);
+
+        const spitfire::string_t sName = TEXT("wheel") + spitfire::string::ToString(i);
+        pNodeWheel->SetUniqueName(sName);
+
+        pNodeWheel->SetRelativePosition(spitfire::math::cVec3(x, y, z));
+
+        //spitfire::math::cQuaternion rotation;
+        //rotation.SetFromAxisAngle(spitfire::math::v3Up, spitfire::math::DegreesToRadians(45.0f));
+        //pNodeWheel->SetRelativeRotation(rotation);
+
+        factory.CreateSceneNodeAttachedTo(meshes, pNodeWheel);
+
+        pNode->AttachChild(pNodeWheel);
+
+        wheels.push_back(pNodeWheel);
+      }
+
+
+
+
       breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
-      pVehicleComponent->SetCar(pCar);
+      pVehicleComponent->SetCar(pCar, wheels);
       pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+
+
+
+
+
 
 
       SCREEN<<"cVehicleFactory::CreateCar returning"<<std::endl;
@@ -890,14 +997,37 @@ namespace breathe
 }*/
 
 
+
+/*
+  800.0f,   // mass
+  -0.2f,    // Y shift
+  0.0f,     // Z shift
+
+  40.0f,    // suspension stiffness
+  2.3f,     // suspension damping
+  2.4f,     // suspension compression
+  0.10f,  //0.15f,  // suspension rest_length
+  10.0f,  //0.30f,  // max suspension travel (cm)
+  0.2f,     // roll influence
+  2.0f,     // wheel friction
+  1600.0f,  // max engine force
+  200.0f,   // max breaking force
+  0.5f,     // steering clamp
+
+  0.0f,   //0.2f,    // fwheel X shift
+      0.0f    //0.2f     // rwheel X shift
+*/
+
 namespace breathe
 {
   namespace game
   {
-    cVehicleCar::cVehicleCar(cGameObject& _object, physics::cCarRef _pCar) :
+    cVehicleCar::cVehicleCar(cGameObject& _object, physics::cCarRef _pCar, const std::vector<breathe::scenegraph3d::cGroupNodeRef>& _wheelNodes) :
       cVehicleBase(_object, TYPE::CAR),
       drive(DRIVE::RWD),
-      pCar(_pCar)
+      fActualVelocityKPH(0.0f),
+      pCar(_pCar),
+      wheelNodes(_wheelNodes)
     {
     }
 
@@ -907,18 +1037,18 @@ namespace breathe
 
 
       // Gear ratios for a 2004 Corvette
-      gearbox.AddGear(-3.28f); // Reverse
-      gearbox.AddGear(0.0f); // Neutral
-      gearbox.AddGear(2.97f);
-      gearbox.AddGear(2.07f);
-      gearbox.AddGear(1.43f);
-      gearbox.AddGear(1.00f);
-      gearbox.AddGear(0.84f);
-      gearbox.AddGear(0.56f);
+      gearbox.AddGear(-3.28f / 1.0f); // Reverse
+      gearbox.AddGear(0.0f / 1.0f); // Neutral
+      gearbox.AddGear(2.97f / 1.0f);
+      gearbox.AddGear(2.07f / 1.0f);
+      gearbox.AddGear(1.43f / 1.0f);
+      gearbox.AddGear(1.00f / 1.0f);
+      gearbox.AddGear(0.84f / 1.0f);
+      gearbox.AddGear(0.56f / 1.0f);
 
 
       // Diff ratio for a 2004 Corvette
-      differential.SetRatio(3.42f);
+      differential.SetRatio(3.42f / 1.0f);
     }
 
     void cVehicleCar::_Init()
@@ -1012,20 +1142,18 @@ namespace breathe
 
       engine.Update(currentTime);
 
-/*
-      {
+
+      if (!superChargers.empty()) {
         // Update each super charger
         const size_t n = superChargers.size();
         for (size_t i = 0; i < n; i++) {
           superChargers[i].SetEngineRPM(engine.GetRPM());
-          superChargers[i].SetAmbientAirPressureKPA(fAmbientAirPressureKPA);
-          superChargers[i].SetAmbientAirTemperatureDegreesCelcius(fAmbientAirTemperatureDegreesCelcius);
+          superChargers[i].SetAmbientSettings(ambientSettings);
 
           superChargers[i].Update(currentTime);
 
           // Add to the combined output air pressure
-          fEngineInputAirPressureKPA += superChargers[i].GetOutputPressureKPA();
-          fEngineInputAirTemperatureDegreesCelcius = max(fEngineInputAirTemperatureDegreesCelcius, superChargers[i].GetOutputTemperatureDegreesCelcius());
+          engineIntakeAirFlow.Combine(superChargers[i].GetOutputAirFlow());
         }
       }
 
@@ -1035,37 +1163,33 @@ namespace breathe
 
         // Split the pressure between each turbo equally, I don't know how realistic this is for two differently sized turbos, you might want more exhaust going to the larger one?
         ASSERT(n != 0);
-        const float_t fSplitEngineExhaustPressureKPA = engine.GetExhaustPressureKPA() / n;
+        const car::cAirFlow splitExhaustAirFlow = engine.GetExhaustAirFlow().SplitIntoParts(n);
 
         for (size_t i = 0; i < n; i++) {
-          turboChargers[i].SetEngineExhaustPressureKPA(fSplitEngineExhaustPressureKPA);
-          turboChargers[i].SetEngineExhaustTemperatureDegreesCelcius(engine.GetExhaustTemperatureDegreesCelcius());
+          turboChargers[i].SetAmbientSettings(ambientSettings);
+          turboChargers[i].SetEngineExhaustAirFlow(splitExhaustAirFlow);
 
           turboChargers[i].Update(currentTime);
 
           // Add to the combined output air pressure
-          fEngineInputAirPressureKPA += turboChargers[i].GetOutputPressureKPA();
-          fEngineInputAirTemperatureDegreesCelcius = max(fEngineInputAirTemperatureDegreesCelcius, turboChargers[i].GetOutputTemperatureDegreesCelcius());
+          engineIntakeAirFlow.Combine(turboChargers[i].GetOutputAirFlow());
         }
       }
 
-      {
+      if (!interCoolers.empty()) {
         // Pass the engine input air through each intercooler and perform any cooling
         const size_t n = interCoolers.size();
         for (size_t i = 0; i < n; i++) {
-          interCoolers[i].SetCarVelocityKPH(fVelocityKPH);
-          interCoolers[i].SetAmbientAirPressureKPA(fAmbientAirPressureKPA);
-          interCoolers[i].SetAmbientAirTemperatureDegreesCelcius(fAmbientAirTemperatureDegreesCelcius);
-          interCoolers[i].SetInputPressureKPA(fEngineInputAirPressureKPA);
-          interCoolers[i].SetInputTemperatureDegreesCelcius(fEngineInputAirTemperatureDegreesCelcius);
+          interCoolers[i].SetCarVelocityKPH(fActualVelocityKPH);
+          interCoolers[i].SetAmbientSettings(ambientSettings);
+          interCoolers[i].SetInputAirFlow(engineIntakeAirFlow);
 
           interCoolers[i].Update(currentTime);
 
           // Set our input air pressure and temperature to whatever the intercooler is putting out
-          fEngineInputAirPressureKPA = interCoolers[i].GetOutputPressureKPA();
-          fEngineInputAirTemperatureDegreesCelcius = interCoolers[i].GetOutputTemperatureDegreesCelcius();
+          engineIntakeAirFlow = interCoolers[i].GetOutputAirFlow();
         }
-      }*/
+      }
 
       // TODO: gearbox, clutch, differential, suspension, tires
 
@@ -1107,6 +1231,15 @@ namespace breathe
         fTorqueNm = differential.GetTorqueNmAfterDifferential();
 
 
+        // Wheels
+        // Divide the torque evenly amount the wheels
+        /*if (IsAWD()) {
+          fRPM /= 4.0f;
+          fTorqueNm /= 4.0f;
+        } else {
+          fRPM /= 2.0f;
+          fTorqueNm /= 2.0f;
+        }*/
 
         if (IsAWD() || IsRWD()) {
           wheels[WHEEL_REAR_LEFT].SetRPM(fRPM);
@@ -1191,6 +1324,13 @@ namespace breathe
       pCar->Update(currentTime);
 
 
+
+      for (size_t i = 0; i < 4; i++) {
+        wheelNodes[i]->SetRelativePosition(pCar->GetWheelPositionRelative(i));
+        wheelNodes[i]->SetRelativeRotation(pCar->GetWheelRotationRelative(i));
+      }
+
+
       // Set values back to defaults for next time
       fInputAccelerator0To1 = 0.0f;
       fInputBrake0To1 = 0.0f;
@@ -1201,26 +1341,3 @@ namespace breathe
     }
   }
 }
-
-
-
-/*
-
-        800.0f,   // mass
-        -0.2f,    // Y shift
-        0.0f,     // Z shift
-
-        40.0f,    // suspension stiffness
-        2.3f,     // suspension damping
-        2.4f,     // suspension compression
-        0.10f,  //0.15f,  // suspension rest_length
-        10.0f,  //0.30f,  // max suspension travel (cm)
-        0.2f,     // roll influence
-        2.0f,     // wheel friction
-        1600.0f,  // max engine force
-        200.0f,   // max breaking force
-        0.5f,     // steering clamp
-
-        0.0f,   //0.2f,    // fwheel X shift
-        0.0f    //0.2f     // rwheel X shift
-*/

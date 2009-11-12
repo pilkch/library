@@ -10,12 +10,11 @@
 #include <spitfire/math/cColour.h>
 #include <spitfire/math/cFrustum.h>
 
-#include <breathe/game/cLevel.h>
-
-#include <breathe/render/cVertexBufferObject.h>
+#include <breathe/render/cMaterial.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cTexture.h>
+#include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/model/cMesh.h>
 
 namespace breathe

@@ -1,9 +1,7 @@
 #ifndef CPHYSICS_H
 #define CPHYSICS_H
 
-#if !defined(BUILD_PHYSICS_2D) && !defined(BUILD_PHYSICS_3D)
-#error "Please define either BUILD_PHYSICS_2D or BUILD_PHYSICS_3D in your IDE"
-#endif
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 
 #include <spitfire/spitfire.h>
 
@@ -335,5 +333,7 @@ namespace breathe
 #endif
 
 #include <breathe/physics/cPhysicsObject.h>
+
+#endif
 
 #endif // CPHYSICS_H

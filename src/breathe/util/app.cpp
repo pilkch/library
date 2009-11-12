@@ -214,6 +214,10 @@ Radio buttons:
   <remove_folder_if_empty name="data"/>
 */
 
+#include <breathe/communication/network.h>
+#include <breathe/communication/uri.h>
+#include <breathe/communication/http.h>
+
 namespace breathe
 {
   class cApplicationUpdaterListener;
@@ -618,6 +622,20 @@ namespace breathe
     ASSERT(a == nullptr);
   }
 #endif
+
+  void cApplication::CheckIfNeedToUpdateApplication()
+  {
+    LOG<<"cApplication::CheckIfNeedToUpdateApplication"<<std::endl;
+
+    network::http::cDownloadHTTP download;
+
+    download.Download("http://chris.iluo.net/projects/drive/info.php", network::http::METHOD::GET);
+
+    LOG<<"cApplication::CheckIfNeedToUpdateApplication returning"<<std::endl;
+
+
+    // http://chris.iluo.net/projects/drive/get_state.php
+  }
 
   void cApplication::_InitArguments(int argc, const char* const* argv)
   {
@@ -1893,7 +1911,7 @@ namespace breathe
         tUpdate.End();
         fUpdateNext = currentTime + fUpdateDelta;
 
-        spitfire::util::cRunOnMainThreadQueue::UpdateFromMainThread();
+        //spitfire::util::cRunOnMainThreadQueue::UpdateFromMainThread();
       }
 
       bool bPushOrPopState = bPopCurrentStateSoon || (pPushThisStateSoon != nullptr);
@@ -1905,7 +1923,8 @@ namespace breathe
       // If we changed state then we can go straight to the next iteration of this loop
       if (bPushOrPopState) continue;
 
-      // TODO: Do we need this? && currentTime > fRenderNext)
+      // TODO: Do we need this?
+      //&& (currentTime > fRenderNext)) {
       if (bActive && !bDone) {
         tRender.Begin();
           _Render(state, currentTime);

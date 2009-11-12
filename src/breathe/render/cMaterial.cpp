@@ -59,8 +59,6 @@
 #include <breathe/render/model/cMesh.h>
 #include <breathe/render/model/cModel.h>
 
-#include <breathe/game/cLevel.h>
-
 namespace breathe
 {
   namespace render

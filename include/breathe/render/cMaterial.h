@@ -1,6 +1,10 @@
 #ifndef CMATERIAL_H
 #define CMATERIAL_H
 
+#include <spitfire/util/cSmartPtr.h>
+
+#include <breathe/render/cTexture.h>
+
 namespace breathe
 {
   namespace render

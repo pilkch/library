@@ -87,10 +87,6 @@
 #include <breathe/physics/physics.h>
 #endif
 
-#ifdef BUILD_LEVEL
-#include <breathe/game/cLevel.h>
-#endif
-
 #include <breathe/game/cGameUnitTest.h>
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/skysystem.h>

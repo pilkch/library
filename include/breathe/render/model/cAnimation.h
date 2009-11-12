@@ -1,6 +1,8 @@
 #ifndef CMODEL_ANIMATION_H
 #define CMODEL_ANIMATION_H
 
+#include <breathe/render/model/cModel.h>
+
 namespace breathe
 {
   namespace character

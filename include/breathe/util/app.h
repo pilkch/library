@@ -29,10 +29,12 @@ namespace breathe
     class cFont;
   }
 
+#if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
   namespace physics
   {
     class cWorld;
   }
+#endif
 
   class cApplication
   {

@@ -238,20 +238,6 @@ namespace breathe
 
 
 
-    class cPhysicsComponent : public cComponent
-    {
-    public:
-      explicit cPhysicsComponent(cGameObject& _object) : cComponent(_object) {}
-
-      physics::cBodyRef GetBody() { return pBody; }
-      void SetBody(physics::cBodyRef _pBody) { pBody = _pBody; }
-
-    private:
-      void _Update(spitfire::sampletime_t currentTime);
-
-      physics::cBodyRef pBody;
-    };
-
     class cPickupComponent : public cComponent
     {
     public:
@@ -266,6 +252,21 @@ namespace breathe
       //std::vector<cItem*> items;
     };
 
+
+#if defined(BUILD_PHYSICS_BULLET) || defined(BUILD_PHYSICS_ODE)
+    class cPhysicsComponent : public cComponent
+    {
+    public:
+      explicit cPhysicsComponent(cGameObject& _object) : cComponent(_object) {}
+
+      physics::cBodyRef GetBody() { return pBody; }
+      void SetBody(physics::cBodyRef _pBody) { pBody = _pBody; }
+
+    private:
+      void _Update(spitfire::sampletime_t currentTime);
+
+      physics::cBodyRef pBody;
+    };
 
 
     class cVehicleComponent;
@@ -362,7 +363,7 @@ namespace breathe
       bool IsPlane() const { ASSERT(pVehicle != nullptr); return pVehicle->IsPlane(); }
       bool IsHelicopter() const { ASSERT(pVehicle != nullptr); return pVehicle->IsHelicopter(); }
 
-      void SetCar(physics::cCarRef pCar);
+      void SetCar(physics::cCarRef pCar, const std::vector<scenegraph3d::cGroupNodeRef>& wheels);
       void SetPlane();
       void SetHelicopter();
 
@@ -396,6 +397,7 @@ namespace breathe
 
       cVehicleBase* pVehicle;
     };
+#endif
 
 
 

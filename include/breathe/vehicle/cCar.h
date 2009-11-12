@@ -2,10 +2,22 @@
 #define CCAR_H
 
 #include <spitfire/math/cCurve.h>
+#include <spitfire/math/units.h>
 
 #include <breathe/game/component.h>
 
 #include <breathe/vehicle/cVehicle.h>
+
+// For testing 2004 Corvette:
+// http://www.corvetteactioncenter.com/specs/c5/2004/specs.html0-60 mph   3.9 sec[4]
+// http://en.wikipedia.org/wiki/Chevrolet_Corvette_C5_Z06
+// http://en.wikipedia.org/wiki/Chevrolet_Corvette_C5_Z06#Performance
+// 0-100 mph   9.2 sec
+// 0-100-0 mph   13.56 sec
+// 1/4 Mile  11.9 sec
+// Skid Pad  1.03 G
+// Top Speed   171 mph (275 km/h)
+// Nürburgring Nordschleife Lap Time 7:56
 
 namespace breathe
 {
@@ -33,6 +45,9 @@ namespace breathe
         void ApplyCompressionOrDecompression(float_t fRatio); // A value from 0.0f to n, basically the resulting density will be fDensityKgPerCubicMetre * fRatio
         void ApplyFlowRateChange(float_t fRatio); // A value from 0.0f to n, basically the resulting flow will be fFlowCubicMetresPerSecond * fRatio
         void ApplyTemperatureChange(float_t fRatio); // A value from 0.0f to n, basically the resulting temperature will be fTemperatureDegreesCelcius * fRatio
+
+        void Combine(const cAirFlow& rhs); // Basically *this += rhs
+        cAirFlow SplitIntoParts(size_t nParts) const; // Basically return *this / nParts
 
       private:
         void Assign(const cAirFlow& rhs);
@@ -87,6 +102,8 @@ namespace breathe
       class cEngine
       {
       public:
+        cEngine();
+
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetAcceleratorInput0To1(float_t _fAcceleratorInput0To1) { fAcceleratorInput0To1 = _fAcceleratorInput0To1; }
         void SetIntakeAirFlow(const cAirFlow& _intakeAirFlow) { intakeAirFlow = _intakeAirFlow; }
@@ -94,12 +111,14 @@ namespace breathe
         float_t GetMassKg() const { return fMassKg; }
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
+        float_t GetPowerKw() const { return spitfire::math::NmToKw(fTorqueNm, fRPM); }
         const cAirFlow& GetExhaustAirFlow() const { return exhaustAirFlow; }
 
         void Update(sampletime_t currentTime);
 
       private:
         float_t fMassKg;
+        float_t fRedLineRPM;
         cAmbientSettings ambientSettings;
         float_t fAcceleratorInput0To1;
         cAirFlow intakeAirFlow;
@@ -115,6 +134,8 @@ namespace breathe
       class cSuperCharger
       {
       public:
+        cSuperCharger();
+
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetEngineRPM(float_t _fRPM) { fRPM = _fRPM; }
 
@@ -134,9 +155,12 @@ namespace breathe
         cAirFlow outputAirFlow;
       };
 
+
       class cTurboCharger
       {
       public:
+        cTurboCharger();
+
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetEngineExhaustAirFlow(const cAirFlow& _exhaustAirFlow) { exhaustAirFlow = _exhaustAirFlow; }
 
@@ -227,6 +251,7 @@ namespace breathe
       // 5 = 4th gear  1.00:1
       // 6 = 5th gear  0.84:1
       // 7 = 6th gear  0.56:1
+
       class cGearBox
       {
       public:
@@ -275,6 +300,8 @@ namespace breathe
       public:
         cDifferential();
 
+        void SetMassKg(float_t _fMassKg) { fMassKg = _fMassKg; }
+        void SetEfficiency0To1(float_t _fEfficiency0To1) { fEfficiency0To1 = _fEfficiency0To1; }
         void SetRatio(float_t _fRatio) { fRatio = _fRatio; }
 
         float_t GetMassKg() const { return fMassKg; }
@@ -290,6 +317,7 @@ namespace breathe
 
       private:
         float_t fMassKg;
+        float_t fEfficiency0To1;
         float_t fRatio;
 
         float_t fRPMBeforeDifferential;
@@ -316,6 +344,7 @@ namespace breathe
 
         float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
+        float_t GetPowerKw() const { return spitfire::math::NmToKw(fTorqueNm, fRPM); }
         float_t GetSpeedKPH() const;
 
         void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
@@ -347,7 +376,7 @@ namespace breathe
     class cVehicleCar : public cVehicleBase
     {
     public:
-      cVehicleCar(cGameObject& object, physics::cCarRef pCar);
+      cVehicleCar(cGameObject& object, physics::cCarRef pCar, const std::vector<breathe::scenegraph3d::cGroupNodeRef>& wheels);
 
       enum class DRIVE {
         AWD,
@@ -360,10 +389,15 @@ namespace breathe
       bool IsFWD() const { return (drive == DRIVE::FWD); }
 
       float_t GetTotalMassKg() const;
-      float_t GetRPM() const { return engine.GetRPM(); }
 
       // NOTE: This includes reverse (0) and neutral (1)
       size_t GetGear() const { return gearbox.GetCurrentGear(); }
+
+      float_t GetEngineRPM() const { return engine.GetRPM(); }
+      float_t GetEngineTorqueNm() const { return engine.GetTorqueNm(); }
+      float_t GetEnginePowerKw() const { return engine.GetPowerKw(); }
+
+      float_t GetActualVelocityKPH() const { return fActualVelocityKPH; }
 
 
       // Mostly for debug purposes etc.
@@ -383,7 +417,7 @@ namespace breathe
       DRIVE drive;
 
       car::cAirFlow engineIntakeAirFlow;
-
+      float_t fActualVelocityKPH;
 
 
       // Parts
@@ -406,7 +440,11 @@ namespace breathe
       std::vector<car::cWheel> wheels;
 
 
+
+
       physics::cCarRef pCar;
+
+      std::vector<breathe::scenegraph3d::cGroupNodeRef> wheelNodes;
 
       audio::cSourceRef pSourceEngine;
       audio::cSourceRef pSourceTurbo0;

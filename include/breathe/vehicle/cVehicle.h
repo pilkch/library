@@ -33,7 +33,6 @@ namespace breathe
 
 
 
-#include <breathe/game/cLevel.h>
 #include <breathe/game/cPetrolBowser.h>
 #include <breathe/game/cPlayer.h>
 
@@ -112,14 +111,14 @@ namespace breathe
       static cVehicleRef Create();
       ~cVehicle2();
 
-      void Init(cLevelSpawn p, unsigned int uiSeats, physics::cWorld* pWorld);
+      void Init(const math::cVec3& position, unsigned int uiSeats, physics::cWorld* pWorld);
       void Update(uint32_t currentTime);
       void UpdateInput();
 
-      void PhysicsInit(cLevelSpawn p);
+      void PhysicsInit(const math::cVec3& position);
       void PhysicsDestroy();
 
-      void Spawn(cLevelSpawn p); //This is for spawning a car when it first comes into the level
+      void Spawn(const math::cVec3& position); //This is for spawning a car when it first comes into the level
 
       void FillUp(cPetrolBowser* pBowser);
 

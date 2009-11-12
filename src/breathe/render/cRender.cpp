@@ -64,8 +64,6 @@
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
-#include <breathe/game/cLevel.h>
-
 breathe::cVar fDetailScale = 0.5f;
 const float fMaximumViewDistance = 3000.0f;
 

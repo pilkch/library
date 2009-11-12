@@ -18,9 +18,12 @@
 
 #include <breathe/game/component.h>
 
+
+#if defined(BUILD_PHYSICS_BULLET) || defined(BUILD_PHYSICS_ODE)
 #include <breathe/vehicle/cCar.h>
 //#include <breathe/vehicle/cPlane.h>
 #include <breathe/vehicle/cHelicopter.h>
+#endif
 
 namespace breathe
 {
@@ -136,13 +139,13 @@ namespace breathe
     }
 
 
+#if defined(BUILD_PHYSICS_BULLET) || defined(BUILD_PHYSICS_ODE)
     void cPhysicsComponent::_Update(spitfire::sampletime_t currentTime)
     {
       ASSERT(pBody != nullptr);
       object.SetPositionRelative(pBody->GetPositionAbsolute());
       object.SetRotationRelative(pBody->GetRotationAbsolute());
     }
-
 
 
 
@@ -178,11 +181,11 @@ namespace breathe
       SAFE_DELETE(pVehicle);
     }
 
-    void cVehicleComponent::SetCar(physics::cCarRef pCar)
+    void cVehicleComponent::SetCar(physics::cCarRef pCar, const std::vector<scenegraph3d::cGroupNodeRef>& wheels)
     {
       SAFE_DELETE(pVehicle);
 
-      pVehicle = new cVehicleCar(object, pCar);
+      pVehicle = new cVehicleCar(object, pCar, wheels);
 
       pVehicle->Init();
     }
@@ -236,6 +239,7 @@ void cLevelOrWhatever::Load()
 
       pVehicle->Update(currentTime);
     }
+#endif
 
 
 

@@ -513,6 +513,7 @@ namespace breathe
     }
 
 
+    // *** cPagedLODNodeChild
 
     void cPagedLODNodeChild::Create(size_t x, size_t y)
     {
@@ -630,6 +631,8 @@ namespace breathe
       }
     }
 
+
+    // *** cPagedLODNode
 
     void cPagedLODNode::Clear()
     {
@@ -800,7 +803,7 @@ namespace breathe
 
               math::cQuaternion q(mat[8], mat[9], -mat[10]);
 
-              glLoadMatrixf(static_cast<float* >(q.GetMatrix()));
+              glLoadMatrixf(static_cast<float*>(q.GetMatrix()));
 #endif
 
               glMatrixMode(GL_MODELVIEW);

@@ -50,7 +50,7 @@ namespace spitfire
 
     const float c1_OVER_RPM_KW = 1.0f / 60000.0f;
 
-    inline float NmToKw(float Nm, float RPM) { return Nm * c2_PI * RPM * c1_OVER_RPM_KW; }
+    inline float NmToKw(float Nm, float RPM) { return Nm * (c2_PI * RPM * c1_OVER_RPM_KW); }
     inline float KwToNm(float kW, float RPM) { return kW / (c2_PI * RPM * c1_OVER_RPM_KW); }
 
     inline float RPMToRadiansPerSecond(float RPM) { return RPM * 0.10471976f; }
