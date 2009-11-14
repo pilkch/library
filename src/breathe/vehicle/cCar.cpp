@@ -475,7 +475,7 @@ namespace breathe
       // *** cDifferential
 
       cDifferential::cDifferential() :
-        fRatio(3.42f)
+        fRatio(3.42f / 1.0f)
       {
       }
 
@@ -517,10 +517,6 @@ namespace breathe
 
       void cWheel::Update(sampletime_t currentTime)
       {
-        // 17 inch rim, 3 cm tire on each side of the rim
-        const float fRadiusOfTireCentimeters = (0.5f * fDiametreOfRimCentimetres) + fProfileOfTireCentimetres;
-
-        fTorqueNm /= fRadiusOfTireCentimeters;
       }
     }
   }
@@ -1209,7 +1205,6 @@ namespace breathe
         fTorqueNm = clutch.GetTorqueNmAfterClutch();
 
 
-
         // GearBox
         gearbox.SetRPMBeforeGearBox(fRPM);
         gearbox.SetTorqueNmBeforeGearBox(fTorqueNm);
@@ -1267,9 +1262,7 @@ namespace breathe
 
       const float_t fEngineRPM = engine.GetRPM();
       const float_t fNaturalEngineRPM = 3000.0f;
-      std::cout<<"fEngineRPM="<<fEngineRPM<<std::endl;
       if (pSourceEngine != nullptr) {
-        std::cout<<"Setting pitch"<<std::endl;
         pSourceEngine->SetPitch(fEngineRPM / fNaturalEngineRPM);
       }
 
