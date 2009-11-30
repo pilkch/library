@@ -64,10 +64,19 @@ namespace spitfire
 #ifdef __WIN__
       sApplicationDirectory = GetPath(spitfire::string::Replace(executable, TEXT("\\"), TEXT("/")));
 #else
-      sApplicationDirectory = GetCurrentDirectory();
+      sApplicationDirectory = GetPath(executable);
 #endif
 
       ASSERT(!sApplicationDirectory.empty());
+
+      // Replace ./ with the current directory
+      if (spitfire::string::BeginsWith(sApplicationDirectory, TEXT("./"))) {
+        const string_t sCurrentDirectory = GetCurrentDirectory();
+        const string_t sEnd = spitfire::string::StripLeading(sApplicationDirectory, TEXT("./"));
+
+        // Join the two parts together
+        sApplicationDirectory = sCurrentDirectory + sEnd;
+      }
 
       if (!spitfire::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
 

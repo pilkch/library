@@ -1,13 +1,13 @@
 /***************************************************************************
 *
-* GLee.h 
-* GLee (OpenGL Easy Extension library)        
+* GLee.h
+* GLee (OpenGL Easy Extension library)
 * Version : 5.33
 *
 * Copyright (c)2008  Ben Woodhouse  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are 
+* modification, are permitted provided that the following conditions are
 * met:
 * 1. Redistributions of source code must retain the above copyright
 * notice, this list of conditions and the following disclaimer as
@@ -77,7 +77,7 @@
 
 #define GLEE_EXTERN extern
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
   extern "C" {    /* begin C linkage */
 #endif
 
@@ -742,7 +742,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 
 /* Used for GLSL shader text */
 #ifndef GL_VERSION_2_0
-  typedef char GLchar; 
+  typedef char GLchar;
 #endif
 
 #include <stddef.h>
@@ -773,33 +773,33 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 
 /* Platform-specific */
 
-#ifdef WIN32    
+#ifdef WIN32
 
   /* WGL */
 
   #ifndef WGL_ARB_pbuffer
       DECLARE_HANDLE(HPBUFFERARB);
   #endif
-  
+
   #ifndef WGL_EXT_pbuffer
       DECLARE_HANDLE(HPBUFFEREXT);
   #endif
-  
+
     #ifndef WGL_NV_video_output
         DECLARE_HANDLE(HPVIDEODEV);
     #endif
-  
+
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 
   /* Mac OS X */
 
-#else          
+#else
 
   /* GLX */
 
   typedef void (*__GLXextFuncPtr)(void);
 
-  #ifndef GLX_ARB_get_proc_address 
+  #ifndef GLX_ARB_get_proc_address
   #define GLX_ARB_get_proc_address 1
       extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
       extern void ( * glXGetProcAddressARB (const GLubyte *procName))(void);
@@ -819,9 +819,9 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
     Bool send_event;
     Display *display;
     GLXDrawable drawable;
-    int event_type;      
-    int draw_type;      
-    unsigned int mask;    
+    int event_type;
+    int draw_type;
+    unsigned int mask;
     int x, y;
     int width, height;
     int count;
@@ -830,13 +830,13 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 
   #ifndef GLX_SGIX_hyperpipe
     #define _GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX 80
-    typedef struct 
+    typedef struct
     {
       char  pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
       int  networkId;
     } GLXHyperpipeNetworkSGIX;
 
-    typedef struct 
+    typedef struct
     {
       char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
       int channel;
@@ -844,7 +844,7 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
       int timeSlice;
     } GLXHyperpipeConfigSGIX;
 
-    typedef struct 
+    typedef struct
     {
       char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
       int srcXOrigin;
@@ -857,20 +857,20 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
       int destHeight;
     } GLXPipeRect;
 
-    typedef struct 
+    typedef struct
     {
       char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-      int XOrigin; 
+      int XOrigin;
       int YOrigin;
       int maxHeight;
       int maxWidth;
     } GLXPipeRectLimits;
-  #endif 
-  
+  #endif
+
   #ifndef GLX_NV_video_output
     typedef unsigned int GLXVideoDeviceNV;
     #endif // GLX_NV_video_output
-      
+
 #endif /* end platform specific */
 
 
@@ -1036,7 +1036,7 @@ GLEE_EXTERN PFNGLCOPYTEXSUBIMAGE3DPROC pglCopyTexSubImage3D;
 #define glTexImage3D pglTexImage3D
 #define glTexSubImage3D pglTexSubImage3D
 #define glCopyTexSubImage3D pglCopyTexSubImage3D
-#endif 
+#endif
 
 /* GL_ARB_imaging */
 
@@ -1120,7 +1120,7 @@ GLEE_EXTERN PFNGLCOPYTEXSUBIMAGE3DPROC pglCopyTexSubImage3D;
 #define GL_CONSTANT_BORDER                                 0x8151
 #define GL_REPLICATE_BORDER                                0x8153
 #define GL_CONVOLUTION_BORDER_COLOR                        0x8154
-#endif 
+#endif
 
 /* GL_VERSION_1_3 */
 
@@ -1362,7 +1362,7 @@ GLEE_EXTERN PFNGLGETCOMPRESSEDTEXIMAGEPROC pglGetCompressedTexImage;
 #define glCompressedTexSubImage2D pglCompressedTexSubImage2D
 #define glCompressedTexSubImage1D pglCompressedTexSubImage1D
 #define glGetCompressedTexImage pglGetCompressedTexImage
-#endif 
+#endif
 
 /* GL_VERSION_1_4 */
 
@@ -1544,7 +1544,7 @@ GLEE_EXTERN PFNGLWINDOWPOS3SVPROC pglWindowPos3sv;
 #define glWindowPos3iv pglWindowPos3iv
 #define glWindowPos3s pglWindowPos3s
 #define glWindowPos3sv pglWindowPos3sv
-#endif 
+#endif
 
 /* GL_VERSION_1_5 */
 
@@ -1659,7 +1659,7 @@ GLEE_EXTERN PFNGLGETBUFFERPOINTERVPROC pglGetBufferPointerv;
 #define glUnmapBuffer pglUnmapBuffer
 #define glGetBufferParameteriv pglGetBufferParameteriv
 #define glGetBufferPointerv pglGetBufferPointerv
-#endif 
+#endif
 
 /* GL_VERSION_2_0 */
 
@@ -2030,7 +2030,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBPOINTERPROC pglVertexAttribPointer;
 #define glVertexAttrib4uiv pglVertexAttrib4uiv
 #define glVertexAttrib4usv pglVertexAttrib4usv
 #define glVertexAttribPointer pglVertexAttribPointer
-#endif 
+#endif
 
 /* GL_VERSION_2_1 */
 
@@ -2079,7 +2079,7 @@ GLEE_EXTERN PFNGLUNIFORMMATRIX4X3FVPROC pglUniformMatrix4x3fv;
 #define glUniformMatrix4x2fv pglUniformMatrix4x2fv
 #define glUniformMatrix3x4fv pglUniformMatrix3x4fv
 #define glUniformMatrix4x3fv pglUniformMatrix4x3fv
-#endif 
+#endif
 
 /* GL_VERSION_3_0 */
 
@@ -2369,7 +2369,7 @@ GLEE_EXTERN PFNGLGETSTRINGIPROC pglGetStringi;
 #define glClearBufferfv pglClearBufferfv
 #define glClearBufferfi pglClearBufferfi
 #define glGetStringi pglGetStringi
-#endif 
+#endif
 
 /* GL_ARB_multitexture */
 
@@ -2514,7 +2514,7 @@ GLEE_EXTERN PFNGLMULTITEXCOORD4SVARBPROC pglMultiTexCoord4svARB;
 #define glMultiTexCoord4ivARB pglMultiTexCoord4ivARB
 #define glMultiTexCoord4sARB pglMultiTexCoord4sARB
 #define glMultiTexCoord4svARB pglMultiTexCoord4svARB
-#endif 
+#endif
 
 /* GL_ARB_transpose_matrix */
 
@@ -2538,7 +2538,7 @@ GLEE_EXTERN PFNGLMULTTRANSPOSEMATRIXDARBPROC pglMultTransposeMatrixdARB;
 #define glLoadTransposeMatrixdARB pglLoadTransposeMatrixdARB
 #define glMultTransposeMatrixfARB pglMultTransposeMatrixfARB
 #define glMultTransposeMatrixdARB pglMultTransposeMatrixdARB
-#endif 
+#endif
 
 /* GL_ARB_multisample */
 
@@ -2558,7 +2558,7 @@ GLEE_EXTERN PFNGLMULTTRANSPOSEMATRIXDARBPROC pglMultTransposeMatrixdARB;
 typedef void (APIENTRYP PFNGLSAMPLECOVERAGEARBPROC) (GLclampf value, GLboolean invert);
 GLEE_EXTERN PFNGLSAMPLECOVERAGEARBPROC pglSampleCoverageARB;
 #define glSampleCoverageARB pglSampleCoverageARB
-#endif 
+#endif
 
 /* GL_ARB_texture_env_add */
 
@@ -2566,7 +2566,7 @@ GLEE_EXTERN PFNGLSAMPLECOVERAGEARBPROC pglSampleCoverageARB;
 #define GL_ARB_texture_env_add 1
 #define __GLEE_GL_ARB_texture_env_add 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_ARB_texture_cube_map */
 
@@ -2586,7 +2586,7 @@ GLEE_EXTERN PFNGLSAMPLECOVERAGEARBPROC pglSampleCoverageARB;
 #define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB                 0x851A
 #define GL_PROXY_TEXTURE_CUBE_MAP_ARB                      0x851B
 #define GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB                   0x851C
-#endif 
+#endif
 
 /* GL_ARB_texture_compression */
 
@@ -2626,7 +2626,7 @@ GLEE_EXTERN PFNGLGETCOMPRESSEDTEXIMAGEARBPROC pglGetCompressedTexImageARB;
 #define glCompressedTexSubImage2DARB pglCompressedTexSubImage2DARB
 #define glCompressedTexSubImage1DARB pglCompressedTexSubImage1DARB
 #define glGetCompressedTexImageARB pglGetCompressedTexImageARB
-#endif 
+#endif
 
 /* GL_ARB_texture_border_clamp */
 
@@ -2635,7 +2635,7 @@ GLEE_EXTERN PFNGLGETCOMPRESSEDTEXIMAGEARBPROC pglGetCompressedTexImageARB;
 #define __GLEE_GL_ARB_texture_border_clamp 1
 /* Constants */
 #define GL_CLAMP_TO_BORDER_ARB                             0x812D
-#endif 
+#endif
 
 /* GL_ARB_point_parameters */
 
@@ -2653,7 +2653,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERFARBPROC pglPointParameterfARB;
 GLEE_EXTERN PFNGLPOINTPARAMETERFVARBPROC pglPointParameterfvARB;
 #define glPointParameterfARB pglPointParameterfARB
 #define glPointParameterfvARB pglPointParameterfvARB
-#endif 
+#endif
 
 /* GL_ARB_vertex_blend */
 
@@ -2733,7 +2733,7 @@ GLEE_EXTERN PFNGLVERTEXBLENDARBPROC pglVertexBlendARB;
 #define glWeightuivARB pglWeightuivARB
 #define glWeightPointerARB pglWeightPointerARB
 #define glVertexBlendARB pglVertexBlendARB
-#endif 
+#endif
 
 /* GL_ARB_matrix_palette */
 
@@ -2766,7 +2766,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define glMatrixIndexusvARB pglMatrixIndexusvARB
 #define glMatrixIndexuivARB pglMatrixIndexuivARB
 #define glMatrixIndexPointerARB pglMatrixIndexPointerARB
-#endif 
+#endif
 
 /* GL_ARB_texture_env_combine */
 
@@ -2796,7 +2796,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define GL_CONSTANT_ARB                                    0x8576
 #define GL_PRIMARY_COLOR_ARB                               0x8577
 #define GL_PREVIOUS_ARB                                    0x8578
-#endif 
+#endif
 
 /* GL_ARB_texture_env_crossbar */
 
@@ -2804,7 +2804,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define GL_ARB_texture_env_crossbar 1
 #define __GLEE_GL_ARB_texture_env_crossbar 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_ARB_texture_env_dot3 */
 
@@ -2814,7 +2814,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 /* Constants */
 #define GL_DOT3_RGB_ARB                                    0x86AE
 #define GL_DOT3_RGBA_ARB                                   0x86AF
-#endif 
+#endif
 
 /* GL_ARB_texture_mirrored_repeat */
 
@@ -2823,7 +2823,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define __GLEE_GL_ARB_texture_mirrored_repeat 1
 /* Constants */
 #define GL_MIRRORED_REPEAT_ARB                             0x8370
-#endif 
+#endif
 
 /* GL_ARB_depth_texture */
 
@@ -2836,7 +2836,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define GL_DEPTH_COMPONENT32_ARB                           0x81A7
 #define GL_TEXTURE_DEPTH_SIZE_ARB                          0x884A
 #define GL_DEPTH_TEXTURE_MODE_ARB                          0x884B
-#endif 
+#endif
 
 /* GL_ARB_shadow */
 
@@ -2847,7 +2847,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define GL_TEXTURE_COMPARE_MODE_ARB                        0x884C
 #define GL_TEXTURE_COMPARE_FUNC_ARB                        0x884D
 #define GL_COMPARE_R_TO_TEXTURE_ARB                        0x884E
-#endif 
+#endif
 
 /* GL_ARB_shadow_ambient */
 
@@ -2856,7 +2856,7 @@ GLEE_EXTERN PFNGLMATRIXINDEXPOINTERARBPROC pglMatrixIndexPointerARB;
 #define __GLEE_GL_ARB_shadow_ambient 1
 /* Constants */
 #define GL_TEXTURE_COMPARE_FAIL_VALUE_ARB                  0x80BF
-#endif 
+#endif
 
 /* GL_ARB_window_pos */
 
@@ -2912,7 +2912,7 @@ GLEE_EXTERN PFNGLWINDOWPOS3SVARBPROC pglWindowPos3svARB;
 #define glWindowPos3ivARB pglWindowPos3ivARB
 #define glWindowPos3sARB pglWindowPos3sARB
 #define glWindowPos3svARB pglWindowPos3svARB
-#endif 
+#endif
 
 /* GL_ARB_vertex_program */
 
@@ -3185,7 +3185,7 @@ GLEE_EXTERN PFNGLISPROGRAMARBPROC pglIsProgramARB;
 #define glGetVertexAttribivARB pglGetVertexAttribivARB
 #define glGetVertexAttribPointervARB pglGetVertexAttribPointervARB
 #define glIsProgramARB pglIsProgramARB
-#endif 
+#endif
 
 /* GL_ARB_fragment_program */
 
@@ -3208,7 +3208,7 @@ GLEE_EXTERN PFNGLISPROGRAMARBPROC pglIsProgramARB;
 #define GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB         0x8810
 #define GL_MAX_TEXTURE_COORDS_ARB                          0x8871
 #define GL_MAX_TEXTURE_IMAGE_UNITS_ARB                     0x8872
-#endif 
+#endif
 
 /* GL_ARB_vertex_buffer_object */
 
@@ -3280,7 +3280,7 @@ GLEE_EXTERN PFNGLGETBUFFERPOINTERVARBPROC pglGetBufferPointervARB;
 #define glUnmapBufferARB pglUnmapBufferARB
 #define glGetBufferParameterivARB pglGetBufferParameterivARB
 #define glGetBufferPointervARB pglGetBufferPointervARB
-#endif 
+#endif
 
 /* GL_ARB_occlusion_query */
 
@@ -3317,7 +3317,7 @@ GLEE_EXTERN PFNGLGETQUERYOBJECTUIVARBPROC pglGetQueryObjectuivARB;
 #define glGetQueryivARB pglGetQueryivARB
 #define glGetQueryObjectivARB pglGetQueryObjectivARB
 #define glGetQueryObjectuivARB pglGetQueryObjectuivARB
-#endif 
+#endif
 
 /* GL_ARB_shader_objects */
 
@@ -3476,7 +3476,7 @@ GLEE_EXTERN PFNGLGETSHADERSOURCEARBPROC pglGetShaderSourceARB;
 #define glGetUniformfvARB pglGetUniformfvARB
 #define glGetUniformivARB pglGetUniformivARB
 #define glGetShaderSourceARB pglGetShaderSourceARB
-#endif 
+#endif
 
 /* GL_ARB_vertex_shader */
 
@@ -3500,7 +3500,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 #define glBindAttribLocationARB pglBindAttribLocationARB
 #define glGetActiveAttribARB pglGetActiveAttribARB
 #define glGetAttribLocationARB pglGetAttribLocationARB
-#endif 
+#endif
 
 /* GL_ARB_fragment_shader */
 
@@ -3512,7 +3512,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 
 #define GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB             0x8B49
 #define GL_FRAGMENT_SHADER_DERIVATIVE_HINT_ARB             0x8B8B
-#endif 
+#endif
 
 /* GL_ARB_shading_language_100 */
 
@@ -3521,7 +3521,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 #define __GLEE_GL_ARB_shading_language_100 1
 /* Constants */
 #define GL_SHADING_LANGUAGE_VERSION_ARB                    0x8B8C
-#endif 
+#endif
 
 /* GL_ARB_texture_non_power_of_two */
 
@@ -3529,7 +3529,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 #define GL_ARB_texture_non_power_of_two 1
 #define __GLEE_GL_ARB_texture_non_power_of_two 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_ARB_point_sprite */
 
@@ -3539,7 +3539,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 /* Constants */
 #define GL_POINT_SPRITE_ARB                                0x8861
 #define GL_COORD_REPLACE_ARB                               0x8862
-#endif 
+#endif
 
 /* GL_ARB_fragment_program_shadow */
 
@@ -3547,7 +3547,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 #define GL_ARB_fragment_program_shadow 1
 #define __GLEE_GL_ARB_fragment_program_shadow 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_ARB_draw_buffers */
 
@@ -3575,7 +3575,7 @@ GLEE_EXTERN PFNGLGETATTRIBLOCATIONARBPROC pglGetAttribLocationARB;
 typedef void (APIENTRYP PFNGLDRAWBUFFERSARBPROC) (GLsizei n, const GLenum * bufs);
 GLEE_EXTERN PFNGLDRAWBUFFERSARBPROC pglDrawBuffersARB;
 #define glDrawBuffersARB pglDrawBuffersARB
-#endif 
+#endif
 
 /* GL_ARB_texture_rectangle */
 
@@ -3587,7 +3587,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSARBPROC pglDrawBuffersARB;
 #define GL_TEXTURE_BINDING_RECTANGLE_ARB                   0x84F6
 #define GL_PROXY_TEXTURE_RECTANGLE_ARB                     0x84F7
 #define GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB                  0x84F8
-#endif 
+#endif
 
 /* GL_ARB_color_buffer_float */
 
@@ -3603,7 +3603,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSARBPROC pglDrawBuffersARB;
 typedef void (APIENTRYP PFNGLCLAMPCOLORARBPROC) (GLenum target, GLenum clamp);
 GLEE_EXTERN PFNGLCLAMPCOLORARBPROC pglClampColorARB;
 #define glClampColorARB pglClampColorARB
-#endif 
+#endif
 
 /* GL_ARB_half_float_pixel */
 
@@ -3612,7 +3612,7 @@ GLEE_EXTERN PFNGLCLAMPCOLORARBPROC pglClampColorARB;
 #define __GLEE_GL_ARB_half_float_pixel 1
 /* Constants */
 #define GL_HALF_FLOAT_ARB                                  0x140B
-#endif 
+#endif
 
 /* GL_ARB_texture_float */
 
@@ -3640,7 +3640,7 @@ GLEE_EXTERN PFNGLCLAMPCOLORARBPROC pglClampColorARB;
 #define GL_INTENSITY16F_ARB                                0x881D
 #define GL_LUMINANCE16F_ARB                                0x881E
 #define GL_LUMINANCE_ALPHA16F_ARB                          0x881F
-#endif 
+#endif
 
 /* GL_ARB_pixel_buffer_object */
 
@@ -3652,7 +3652,7 @@ GLEE_EXTERN PFNGLCLAMPCOLORARBPROC pglClampColorARB;
 #define GL_PIXEL_UNPACK_BUFFER_ARB                         0x88EC
 #define GL_PIXEL_PACK_BUFFER_BINDING_ARB                   0x88ED
 #define GL_PIXEL_UNPACK_BUFFER_BINDING_ARB                 0x88EF
-#endif 
+#endif
 
 /* GL_ARB_depth_buffer_float */
 
@@ -3663,7 +3663,7 @@ GLEE_EXTERN PFNGLCLAMPCOLORARBPROC pglClampColorARB;
 #define GL_DEPTH_COMPONENT32F                              0x8CAC
 #define GL_DEPTH32F_STENCIL8                               0x8CAD
 #define GL_FLOAT_32_UNSIGNED_INT_24_8_REV                  0x8DAD
-#endif 
+#endif
 
 /* GL_ARB_draw_instanced */
 
@@ -3677,7 +3677,7 @@ GLEE_EXTERN PFNGLDRAWARRAYSINSTANCEDARBPROC pglDrawArraysInstancedARB;
 GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDARBPROC pglDrawElementsInstancedARB;
 #define glDrawArraysInstancedARB pglDrawArraysInstancedARB
 #define glDrawElementsInstancedARB pglDrawElementsInstancedARB
-#endif 
+#endif
 
 /* GL_ARB_framebuffer_object */
 
@@ -3817,7 +3817,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTURELAYERPROC pglFramebufferTextureLayer;
 #define glBlitFramebuffer pglBlitFramebuffer
 #define glRenderbufferStorageMultisample pglRenderbufferStorageMultisample
 #define glFramebufferTextureLayer pglFramebufferTextureLayer
-#endif 
+#endif
 
 /* GL_ARB_framebuffer_sRGB */
 
@@ -3826,7 +3826,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTURELAYERPROC pglFramebufferTextureLayer;
 #define __GLEE_GL_ARB_framebuffer_sRGB 1
 /* Constants */
 #define GL_FRAMEBUFFER_SRGB                                0x8DB9
-#endif 
+#endif
 
 /* GL_ARB_geometry_shader4 */
 
@@ -3864,7 +3864,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEARBPROC pglFramebufferTextureFaceARB;
 #define glFramebufferTextureARB pglFramebufferTextureARB
 #define glFramebufferTextureLayerARB pglFramebufferTextureLayerARB
 #define glFramebufferTextureFaceARB pglFramebufferTextureFaceARB
-#endif 
+#endif
 
 /* GL_ARB_half_float_vertex */
 
@@ -3873,7 +3873,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEARBPROC pglFramebufferTextureFaceARB;
 #define __GLEE_GL_ARB_half_float_vertex 1
 /* Constants */
 #define GL_HALF_FLOAT                                      0x140B
-#endif 
+#endif
 
 /* GL_ARB_instanced_arrays */
 
@@ -3884,7 +3884,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEARBPROC pglFramebufferTextureFaceARB;
 typedef void (APIENTRYP PFNGLVERTEXATTRIBDIVISORPROC) (GLuint index, GLuint divisor);
 GLEE_EXTERN PFNGLVERTEXATTRIBDIVISORPROC pglVertexAttribDivisor;
 #define glVertexAttribDivisor pglVertexAttribDivisor
-#endif 
+#endif
 
 /* GL_ARB_map_buffer_range */
 
@@ -3904,7 +3904,7 @@ GLEE_EXTERN PFNGLMAPBUFFERRANGEPROC pglMapBufferRange;
 GLEE_EXTERN PFNGLFLUSHMAPPEDBUFFERRANGEPROC pglFlushMappedBufferRange;
 #define glMapBufferRange pglMapBufferRange
 #define glFlushMappedBufferRange pglFlushMappedBufferRange
-#endif 
+#endif
 
 /* GL_ARB_texture_buffer_object */
 
@@ -3920,7 +3920,7 @@ GLEE_EXTERN PFNGLFLUSHMAPPEDBUFFERRANGEPROC pglFlushMappedBufferRange;
 typedef void (APIENTRYP PFNGLTEXBUFFERARBPROC) (GLenum target, GLenum internalformat, GLuint buffer);
 GLEE_EXTERN PFNGLTEXBUFFERARBPROC pglTexBufferARB;
 #define glTexBufferARB pglTexBufferARB
-#endif 
+#endif
 
 /* GL_ARB_texture_compression_rgtc */
 
@@ -3932,7 +3932,7 @@ GLEE_EXTERN PFNGLTEXBUFFERARBPROC pglTexBufferARB;
 #define GL_COMPRESSED_SIGNED_RED_RGTC1                     0x8DBC
 #define GL_COMPRESSED_RG_RGTC2                             0x8DBD
 #define GL_COMPRESSED_SIGNED_RG_RGTC2                      0x8DBE
-#endif 
+#endif
 
 /* GL_ARB_texture_rg */
 
@@ -3962,7 +3962,7 @@ GLEE_EXTERN PFNGLTEXBUFFERARBPROC pglTexBufferARB;
 #define GL_RG16UI                                          0x823A
 #define GL_RG32I                                           0x823B
 #define GL_RG32UI                                          0x823C
-#endif 
+#endif
 
 /* GL_ARB_vertex_array_object */
 
@@ -3983,7 +3983,7 @@ GLEE_EXTERN PFNGLISVERTEXARRAYPROC pglIsVertexArray;
 #define glDeleteVertexArrays pglDeleteVertexArrays
 #define glGenVertexArrays pglGenVertexArrays
 #define glIsVertexArray pglIsVertexArray
-#endif 
+#endif
 
 /* GL_EXT_abgr */
 
@@ -3992,7 +3992,7 @@ GLEE_EXTERN PFNGLISVERTEXARRAYPROC pglIsVertexArray;
 #define __GLEE_GL_EXT_abgr 1
 /* Constants */
 #define GL_ABGR_EXT                                        0x8000
-#endif 
+#endif
 
 /* GL_EXT_blend_color */
 
@@ -4008,7 +4008,7 @@ GLEE_EXTERN PFNGLISVERTEXARRAYPROC pglIsVertexArray;
 typedef void (APIENTRYP PFNGLBLENDCOLOREXTPROC) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 GLEE_EXTERN PFNGLBLENDCOLOREXTPROC pglBlendColorEXT;
 #define glBlendColorEXT pglBlendColorEXT
-#endif 
+#endif
 
 /* GL_EXT_polygon_offset */
 
@@ -4022,7 +4022,7 @@ GLEE_EXTERN PFNGLBLENDCOLOREXTPROC pglBlendColorEXT;
 typedef void (APIENTRYP PFNGLPOLYGONOFFSETEXTPROC) (GLfloat factor, GLfloat bias);
 GLEE_EXTERN PFNGLPOLYGONOFFSETEXTPROC pglPolygonOffsetEXT;
 #define glPolygonOffsetEXT pglPolygonOffsetEXT
-#endif 
+#endif
 
 /* GL_EXT_texture */
 
@@ -4073,7 +4073,7 @@ GLEE_EXTERN PFNGLPOLYGONOFFSETEXTPROC pglPolygonOffsetEXT;
 #define GL_PROXY_TEXTURE_1D_EXT                            0x8063
 #define GL_PROXY_TEXTURE_2D_EXT                            0x8064
 #define GL_TEXTURE_TOO_LARGE_EXT                           0x8065
-#endif 
+#endif
 
 /* GL_EXT_texture3D */
 
@@ -4096,7 +4096,7 @@ GLEE_EXTERN PFNGLTEXIMAGE3DEXTPROC pglTexImage3DEXT;
 GLEE_EXTERN PFNGLTEXSUBIMAGE3DEXTPROC pglTexSubImage3DEXT;
 #define glTexImage3DEXT pglTexImage3DEXT
 #define glTexSubImage3DEXT pglTexSubImage3DEXT
-#endif 
+#endif
 
 /* GL_SGIS_texture_filter4 */
 
@@ -4112,7 +4112,7 @@ GLEE_EXTERN PFNGLGETTEXFILTERFUNCSGISPROC pglGetTexFilterFuncSGIS;
 GLEE_EXTERN PFNGLTEXFILTERFUNCSGISPROC pglTexFilterFuncSGIS;
 #define glGetTexFilterFuncSGIS pglGetTexFilterFuncSGIS
 #define glTexFilterFuncSGIS pglTexFilterFuncSGIS
-#endif 
+#endif
 
 /* GL_EXT_subtexture */
 
@@ -4126,7 +4126,7 @@ GLEE_EXTERN PFNGLTEXSUBIMAGE1DEXTPROC pglTexSubImage1DEXT;
 GLEE_EXTERN PFNGLTEXSUBIMAGE2DEXTPROC pglTexSubImage2DEXT;
 #define glTexSubImage1DEXT pglTexSubImage1DEXT
 #define glTexSubImage2DEXT pglTexSubImage2DEXT
-#endif 
+#endif
 
 /* GL_EXT_copy_texture */
 
@@ -4149,7 +4149,7 @@ GLEE_EXTERN PFNGLCOPYTEXSUBIMAGE3DEXTPROC pglCopyTexSubImage3DEXT;
 #define glCopyTexSubImage1DEXT pglCopyTexSubImage1DEXT
 #define glCopyTexSubImage2DEXT pglCopyTexSubImage2DEXT
 #define glCopyTexSubImage3DEXT pglCopyTexSubImage3DEXT
-#endif 
+#endif
 
 /* GL_EXT_histogram */
 
@@ -4201,7 +4201,7 @@ GLEE_EXTERN PFNGLRESETMINMAXEXTPROC pglResetMinmaxEXT;
 #define glMinmaxEXT pglMinmaxEXT
 #define glResetHistogramEXT pglResetHistogramEXT
 #define glResetMinmaxEXT pglResetMinmaxEXT
-#endif 
+#endif
 
 /* GL_EXT_convolution */
 
@@ -4268,7 +4268,7 @@ GLEE_EXTERN PFNGLSEPARABLEFILTER2DEXTPROC pglSeparableFilter2DEXT;
 #define glGetConvolutionParameterivEXT pglGetConvolutionParameterivEXT
 #define glGetSeparableFilterEXT pglGetSeparableFilterEXT
 #define glSeparableFilter2DEXT pglSeparableFilter2DEXT
-#endif 
+#endif
 
 /* GL_SGI_color_matrix */
 
@@ -4287,7 +4287,7 @@ GLEE_EXTERN PFNGLSEPARABLEFILTER2DEXTPROC pglSeparableFilter2DEXT;
 #define GL_POST_COLOR_MATRIX_GREEN_BIAS_SGI                0x80B9
 #define GL_POST_COLOR_MATRIX_BLUE_BIAS_SGI                 0x80BA
 #define GL_POST_COLOR_MATRIX_ALPHA_BIAS_SGI                0x80BB
-#endif 
+#endif
 
 /* GL_SGI_color_table */
 
@@ -4332,7 +4332,7 @@ GLEE_EXTERN PFNGLGETCOLORTABLEPARAMETERIVSGIPROC pglGetColorTableParameterivSGI;
 #define glGetColorTableSGI pglGetColorTableSGI
 #define glGetColorTableParameterfvSGI pglGetColorTableParameterfvSGI
 #define glGetColorTableParameterivSGI pglGetColorTableParameterivSGI
-#endif 
+#endif
 
 /* GL_SGIS_pixel_texture */
 
@@ -4362,7 +4362,7 @@ GLEE_EXTERN PFNGLGETPIXELTEXGENPARAMETERFVSGISPROC pglGetPixelTexGenParameterfvS
 #define glPixelTexGenParameterfvSGIS pglPixelTexGenParameterfvSGIS
 #define glGetPixelTexGenParameterivSGIS pglGetPixelTexGenParameterivSGIS
 #define glGetPixelTexGenParameterfvSGIS pglGetPixelTexGenParameterfvSGIS
-#endif 
+#endif
 
 /* GL_SGIX_pixel_texture */
 
@@ -4375,7 +4375,7 @@ GLEE_EXTERN PFNGLGETPIXELTEXGENPARAMETERFVSGISPROC pglGetPixelTexGenParameterfvS
 typedef void (APIENTRYP PFNGLPIXELTEXGENSGIXPROC) (GLenum mode);
 GLEE_EXTERN PFNGLPIXELTEXGENSGIXPROC pglPixelTexGenSGIX;
 #define glPixelTexGenSGIX pglPixelTexGenSGIX
-#endif 
+#endif
 
 /* GL_SGIS_texture4D */
 
@@ -4399,7 +4399,7 @@ GLEE_EXTERN PFNGLTEXIMAGE4DSGISPROC pglTexImage4DSGIS;
 GLEE_EXTERN PFNGLTEXSUBIMAGE4DSGISPROC pglTexSubImage4DSGIS;
 #define glTexImage4DSGIS pglTexImage4DSGIS
 #define glTexSubImage4DSGIS pglTexSubImage4DSGIS
-#endif 
+#endif
 
 /* GL_SGI_texture_color_table */
 
@@ -4409,7 +4409,7 @@ GLEE_EXTERN PFNGLTEXSUBIMAGE4DSGISPROC pglTexSubImage4DSGIS;
 /* Constants */
 #define GL_TEXTURE_COLOR_TABLE_SGI                         0x80BC
 #define GL_PROXY_TEXTURE_COLOR_TABLE_SGI                   0x80BD
-#endif 
+#endif
 
 /* GL_EXT_cmyka */
 
@@ -4421,7 +4421,7 @@ GLEE_EXTERN PFNGLTEXSUBIMAGE4DSGISPROC pglTexSubImage4DSGIS;
 #define GL_CMYKA_EXT                                       0x800D
 #define GL_PACK_CMYK_HINT_EXT                              0x800E
 #define GL_UNPACK_CMYK_HINT_EXT                            0x800F
-#endif 
+#endif
 
 /* GL_EXT_texture_object */
 
@@ -4452,7 +4452,7 @@ GLEE_EXTERN PFNGLPRIORITIZETEXTURESEXTPROC pglPrioritizeTexturesEXT;
 #define glGenTexturesEXT pglGenTexturesEXT
 #define glIsTextureEXT pglIsTextureEXT
 #define glPrioritizeTexturesEXT pglPrioritizeTexturesEXT
-#endif 
+#endif
 
 /* GL_SGIS_detail_texture */
 
@@ -4474,7 +4474,7 @@ GLEE_EXTERN PFNGLDETAILTEXFUNCSGISPROC pglDetailTexFuncSGIS;
 GLEE_EXTERN PFNGLGETDETAILTEXFUNCSGISPROC pglGetDetailTexFuncSGIS;
 #define glDetailTexFuncSGIS pglDetailTexFuncSGIS
 #define glGetDetailTexFuncSGIS pglGetDetailTexFuncSGIS
-#endif 
+#endif
 
 /* GL_SGIS_sharpen_texture */
 
@@ -4492,7 +4492,7 @@ GLEE_EXTERN PFNGLSHARPENTEXFUNCSGISPROC pglSharpenTexFuncSGIS;
 GLEE_EXTERN PFNGLGETSHARPENTEXFUNCSGISPROC pglGetSharpenTexFuncSGIS;
 #define glSharpenTexFuncSGIS pglSharpenTexFuncSGIS
 #define glGetSharpenTexFuncSGIS pglGetSharpenTexFuncSGIS
-#endif 
+#endif
 
 /* GL_EXT_packed_pixels */
 
@@ -4505,7 +4505,7 @@ GLEE_EXTERN PFNGLGETSHARPENTEXFUNCSGISPROC pglGetSharpenTexFuncSGIS;
 #define GL_UNSIGNED_SHORT_5_5_5_1_EXT                      0x8034
 #define GL_UNSIGNED_INT_8_8_8_8_EXT                        0x8035
 #define GL_UNSIGNED_INT_10_10_10_2_EXT                     0x8036
-#endif 
+#endif
 
 /* GL_SGIS_texture_lod */
 
@@ -4517,7 +4517,7 @@ GLEE_EXTERN PFNGLGETSHARPENTEXFUNCSGISPROC pglGetSharpenTexFuncSGIS;
 #define GL_TEXTURE_MAX_LOD_SGIS                            0x813B
 #define GL_TEXTURE_BASE_LEVEL_SGIS                         0x813C
 #define GL_TEXTURE_MAX_LEVEL_SGIS                          0x813D
-#endif 
+#endif
 
 /* GL_SGIS_multisample */
 
@@ -4547,7 +4547,7 @@ GLEE_EXTERN PFNGLSAMPLEMASKSGISPROC pglSampleMaskSGIS;
 GLEE_EXTERN PFNGLSAMPLEPATTERNSGISPROC pglSamplePatternSGIS;
 #define glSampleMaskSGIS pglSampleMaskSGIS
 #define glSamplePatternSGIS pglSamplePatternSGIS
-#endif 
+#endif
 
 /* GL_EXT_rescale_normal */
 
@@ -4556,7 +4556,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNSGISPROC pglSamplePatternSGIS;
 #define __GLEE_GL_EXT_rescale_normal 1
 /* Constants */
 #define GL_RESCALE_NORMAL_EXT                              0x803A
-#endif 
+#endif
 
 /* GL_EXT_vertex_array */
 
@@ -4623,7 +4623,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define glNormalPointerEXT pglNormalPointerEXT
 #define glTexCoordPointerEXT pglTexCoordPointerEXT
 #define glVertexPointerEXT pglVertexPointerEXT
-#endif 
+#endif
 
 /* GL_EXT_misc_attribute */
 
@@ -4631,7 +4631,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define GL_EXT_misc_attribute 1
 #define __GLEE_GL_EXT_misc_attribute 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIS_generate_mipmap */
 
@@ -4641,7 +4641,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 /* Constants */
 #define GL_GENERATE_MIPMAP_SGIS                            0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS                       0x8192
-#endif 
+#endif
 
 /* GL_SGIX_clipmap */
 
@@ -4661,7 +4661,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define GL_NEAREST_CLIPMAP_NEAREST_SGIX                    0x844D
 #define GL_NEAREST_CLIPMAP_LINEAR_SGIX                     0x844E
 #define GL_LINEAR_CLIPMAP_NEAREST_SGIX                     0x844F
-#endif 
+#endif
 
 /* GL_SGIX_shadow */
 
@@ -4673,7 +4673,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define GL_TEXTURE_COMPARE_OPERATOR_SGIX                   0x819B
 #define GL_TEXTURE_LEQUAL_R_SGIX                           0x819C
 #define GL_TEXTURE_GEQUAL_R_SGIX                           0x819D
-#endif 
+#endif
 
 /* GL_SGIS_texture_edge_clamp */
 
@@ -4682,7 +4682,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define __GLEE_GL_SGIS_texture_edge_clamp 1
 /* Constants */
 #define GL_CLAMP_TO_EDGE_SGIS                              0x812F
-#endif 
+#endif
 
 /* GL_SGIS_texture_border_clamp */
 
@@ -4691,7 +4691,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 #define __GLEE_GL_SGIS_texture_border_clamp 1
 /* Constants */
 #define GL_CLAMP_TO_BORDER_SGIS                            0x812D
-#endif 
+#endif
 
 /* GL_EXT_blend_minmax */
 
@@ -4706,7 +4706,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTEREXTPROC pglVertexPointerEXT;
 typedef void (APIENTRYP PFNGLBLENDEQUATIONEXTPROC) (GLenum mode);
 GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 #define glBlendEquationEXT pglBlendEquationEXT
-#endif 
+#endif
 
 /* GL_EXT_blend_subtract */
 
@@ -4716,7 +4716,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 /* Constants */
 #define GL_FUNC_SUBTRACT_EXT                               0x800A
 #define GL_FUNC_REVERSE_SUBTRACT_EXT                       0x800B
-#endif 
+#endif
 
 /* GL_EXT_blend_logic_op */
 
@@ -4724,7 +4724,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 #define GL_EXT_blend_logic_op 1
 #define __GLEE_GL_EXT_blend_logic_op 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_interlace */
 
@@ -4733,7 +4733,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 #define __GLEE_GL_SGIX_interlace 1
 /* Constants */
 #define GL_INTERLACE_SGIX                                  0x8094
-#endif 
+#endif
 
 /* GL_SGIX_pixel_tiles */
 
@@ -4749,7 +4749,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 #define GL_PIXEL_TILE_GRID_HEIGHT_SGIX                     0x8143
 #define GL_PIXEL_TILE_GRID_DEPTH_SGIX                      0x8144
 #define GL_PIXEL_TILE_CACHE_SIZE_SGIX                      0x8145
-#endif 
+#endif
 
 /* GL_SGIS_texture_select */
 
@@ -4779,7 +4779,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONEXTPROC pglBlendEquationEXT;
 #define GL_QUAD_INTENSITY8_SGIS                            0x8123
 #define GL_DUAL_TEXTURE_SELECT_SGIS                        0x8124
 #define GL_QUAD_TEXTURE_SELECT_SGIS                        0x8125
-#endif 
+#endif
 
 /* GL_SGIX_sprite */
 
@@ -4806,7 +4806,7 @@ GLEE_EXTERN PFNGLSPRITEPARAMETERIVSGIXPROC pglSpriteParameterivSGIX;
 #define glSpriteParameterfvSGIX pglSpriteParameterfvSGIX
 #define glSpriteParameteriSGIX pglSpriteParameteriSGIX
 #define glSpriteParameterivSGIX pglSpriteParameterivSGIX
-#endif 
+#endif
 
 /* GL_SGIX_texture_multi_buffer */
 
@@ -4815,7 +4815,7 @@ GLEE_EXTERN PFNGLSPRITEPARAMETERIVSGIXPROC pglSpriteParameterivSGIX;
 #define __GLEE_GL_SGIX_texture_multi_buffer 1
 /* Constants */
 #define GL_TEXTURE_MULTI_BUFFER_HINT_SGIX                  0x812E
-#endif 
+#endif
 
 /* GL_EXT_point_parameters */
 
@@ -4833,7 +4833,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERFEXTPROC pglPointParameterfEXT;
 GLEE_EXTERN PFNGLPOINTPARAMETERFVEXTPROC pglPointParameterfvEXT;
 #define glPointParameterfEXT pglPointParameterfEXT
 #define glPointParameterfvEXT pglPointParameterfvEXT
-#endif 
+#endif
 
 /* GL_SGIS_point_parameters */
 
@@ -4851,7 +4851,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERFSGISPROC pglPointParameterfSGIS;
 GLEE_EXTERN PFNGLPOINTPARAMETERFVSGISPROC pglPointParameterfvSGIS;
 #define glPointParameterfSGIS pglPointParameterfSGIS
 #define glPointParameterfvSGIS pglPointParameterfvSGIS
-#endif 
+#endif
 
 /* GL_SGIX_instruments */
 
@@ -4879,7 +4879,7 @@ GLEE_EXTERN PFNGLSTOPINSTRUMENTSSGIXPROC pglStopInstrumentsSGIX;
 #define glReadInstrumentsSGIX pglReadInstrumentsSGIX
 #define glStartInstrumentsSGIX pglStartInstrumentsSGIX
 #define glStopInstrumentsSGIX pglStopInstrumentsSGIX
-#endif 
+#endif
 
 /* GL_SGIX_texture_scale_bias */
 
@@ -4891,7 +4891,7 @@ GLEE_EXTERN PFNGLSTOPINSTRUMENTSSGIXPROC pglStopInstrumentsSGIX;
 #define GL_POST_TEXTURE_FILTER_SCALE_SGIX                  0x817A
 #define GL_POST_TEXTURE_FILTER_BIAS_RANGE_SGIX             0x817B
 #define GL_POST_TEXTURE_FILTER_SCALE_RANGE_SGIX            0x817C
-#endif 
+#endif
 
 /* GL_SGIX_framezoom */
 
@@ -4905,7 +4905,7 @@ GLEE_EXTERN PFNGLSTOPINSTRUMENTSSGIXPROC pglStopInstrumentsSGIX;
 typedef void (APIENTRYP PFNGLFRAMEZOOMSGIXPROC) (GLint factor);
 GLEE_EXTERN PFNGLFRAMEZOOMSGIXPROC pglFrameZoomSGIX;
 #define glFrameZoomSGIX pglFrameZoomSGIX
-#endif 
+#endif
 
 /* GL_SGIX_tag_sample_buffer */
 
@@ -4916,7 +4916,7 @@ GLEE_EXTERN PFNGLFRAMEZOOMSGIXPROC pglFrameZoomSGIX;
 typedef void (APIENTRYP PFNGLTAGSAMPLEBUFFERSGIXPROC) ();
 GLEE_EXTERN PFNGLTAGSAMPLEBUFFERSGIXPROC pglTagSampleBufferSGIX;
 #define glTagSampleBufferSGIX pglTagSampleBufferSGIX
-#endif 
+#endif
 
 /* GL_FfdMaskSGIX */
 
@@ -4926,7 +4926,7 @@ GLEE_EXTERN PFNGLTAGSAMPLEBUFFERSGIXPROC pglTagSampleBufferSGIX;
 /* Constants */
 #define GL_TEXTURE_DEFORMATION_BIT_SGIX                    0x00000001
 #define GL_GEOMETRY_DEFORMATION_BIT_SGIX                   0x00000002
-#endif 
+#endif
 
 /* GL_SGIX_polynomial_ffd */
 
@@ -4950,7 +4950,7 @@ GLEE_EXTERN PFNGLLOADIDENTITYDEFORMATIONMAPSGIXPROC pglLoadIdentityDeformationMa
 #define glDeformationMap3fSGIX pglDeformationMap3fSGIX
 #define glDeformSGIX pglDeformSGIX
 #define glLoadIdentityDeformationMapSGIX pglLoadIdentityDeformationMapSGIX
-#endif 
+#endif
 
 /* GL_SGIX_reference_plane */
 
@@ -4963,7 +4963,7 @@ GLEE_EXTERN PFNGLLOADIDENTITYDEFORMATIONMAPSGIXPROC pglLoadIdentityDeformationMa
 typedef void (APIENTRYP PFNGLREFERENCEPLANESGIXPROC) (const GLdouble * equation);
 GLEE_EXTERN PFNGLREFERENCEPLANESGIXPROC pglReferencePlaneSGIX;
 #define glReferencePlaneSGIX pglReferencePlaneSGIX
-#endif 
+#endif
 
 /* GL_SGIX_flush_raster */
 
@@ -4974,7 +4974,7 @@ GLEE_EXTERN PFNGLREFERENCEPLANESGIXPROC pglReferencePlaneSGIX;
 typedef void (APIENTRYP PFNGLFLUSHRASTERSGIXPROC) ();
 GLEE_EXTERN PFNGLFLUSHRASTERSGIXPROC pglFlushRasterSGIX;
 #define glFlushRasterSGIX pglFlushRasterSGIX
-#endif 
+#endif
 
 /* GL_SGIX_depth_texture */
 
@@ -4985,7 +4985,7 @@ GLEE_EXTERN PFNGLFLUSHRASTERSGIXPROC pglFlushRasterSGIX;
 #define GL_DEPTH_COMPONENT16_SGIX                          0x81A5
 #define GL_DEPTH_COMPONENT24_SGIX                          0x81A6
 #define GL_DEPTH_COMPONENT32_SGIX                          0x81A7
-#endif 
+#endif
 
 /* GL_SGIS_fog_function */
 
@@ -5002,7 +5002,7 @@ GLEE_EXTERN PFNGLFOGFUNCSGISPROC pglFogFuncSGIS;
 GLEE_EXTERN PFNGLGETFOGFUNCSGISPROC pglGetFogFuncSGIS;
 #define glFogFuncSGIS pglFogFuncSGIS
 #define glGetFogFuncSGIS pglGetFogFuncSGIS
-#endif 
+#endif
 
 /* GL_SGIX_fog_offset */
 
@@ -5012,7 +5012,7 @@ GLEE_EXTERN PFNGLGETFOGFUNCSGISPROC pglGetFogFuncSGIS;
 /* Constants */
 #define GL_FOG_OFFSET_SGIX                                 0x8198
 #define GL_FOG_OFFSET_VALUE_SGIX                           0x8199
-#endif 
+#endif
 
 /* GL_HP_image_transform */
 
@@ -5053,7 +5053,7 @@ GLEE_EXTERN PFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC pglGetImageTransformParamete
 #define glImageTransformParameterfvHP pglImageTransformParameterfvHP
 #define glGetImageTransformParameterivHP pglGetImageTransformParameterivHP
 #define glGetImageTransformParameterfvHP pglGetImageTransformParameterfvHP
-#endif 
+#endif
 
 /* GL_HP_convolution_border_modes */
 
@@ -5065,7 +5065,7 @@ GLEE_EXTERN PFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC pglGetImageTransformParamete
 #define GL_CONSTANT_BORDER_HP                              0x8151
 #define GL_REPLICATE_BORDER_HP                             0x8153
 #define GL_CONVOLUTION_BORDER_COLOR_HP                     0x8154
-#endif 
+#endif
 
 /* GL_INGR_palette_buffer */
 
@@ -5073,7 +5073,7 @@ GLEE_EXTERN PFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC pglGetImageTransformParamete
 #define GL_INGR_palette_buffer 1
 #define __GLEE_GL_INGR_palette_buffer 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_texture_add_env */
 
@@ -5082,7 +5082,7 @@ GLEE_EXTERN PFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC pglGetImageTransformParamete
 #define __GLEE_GL_SGIX_texture_add_env 1
 /* Constants */
 #define GL_TEXTURE_ENV_BIAS_SGIX                           0x80BE
-#endif 
+#endif
 
 /* GL_EXT_color_subtable */
 
@@ -5096,7 +5096,7 @@ GLEE_EXTERN PFNGLCOLORSUBTABLEEXTPROC pglColorSubTableEXT;
 GLEE_EXTERN PFNGLCOPYCOLORSUBTABLEEXTPROC pglCopyColorSubTableEXT;
 #define glColorSubTableEXT pglColorSubTableEXT
 #define glCopyColorSubTableEXT pglCopyColorSubTableEXT
-#endif 
+#endif
 
 /* GL_PGI_vertex_hints */
 
@@ -5126,7 +5126,7 @@ GLEE_EXTERN PFNGLCOPYCOLORSUBTABLEEXTPROC pglCopyColorSubTableEXT;
 #define GL_TEXCOORD4_BIT_PGI                               0x80000000
 #define GL_VERTEX23_BIT_PGI                                0x00000004
 #define GL_VERTEX4_BIT_PGI                                 0x00000008
-#endif 
+#endif
 
 /* GL_PGI_misc_hints */
 
@@ -5157,7 +5157,7 @@ GLEE_EXTERN PFNGLCOPYCOLORSUBTABLEEXTPROC pglCopyColorSubTableEXT;
 typedef void (APIENTRYP PFNGLHINTPGIPROC) (GLenum target, GLint mode);
 GLEE_EXTERN PFNGLHINTPGIPROC pglHintPGI;
 #define glHintPGI pglHintPGI
-#endif 
+#endif
 
 /* GL_EXT_paletted_texture */
 
@@ -5184,7 +5184,7 @@ GLEE_EXTERN PFNGLGETCOLORTABLEPARAMETERFVEXTPROC pglGetColorTableParameterfvEXT;
 #define glGetColorTableEXT pglGetColorTableEXT
 #define glGetColorTableParameterivEXT pglGetColorTableParameterivEXT
 #define glGetColorTableParameterfvEXT pglGetColorTableParameterfvEXT
-#endif 
+#endif
 
 /* GL_EXT_clip_volume_hint */
 
@@ -5193,7 +5193,7 @@ GLEE_EXTERN PFNGLGETCOLORTABLEPARAMETERFVEXTPROC pglGetColorTableParameterfvEXT;
 #define __GLEE_GL_EXT_clip_volume_hint 1
 /* Constants */
 #define GL_CLIP_VOLUME_CLIPPING_HINT_EXT                   0x80F0
-#endif 
+#endif
 
 /* GL_SGIX_list_priority */
 
@@ -5220,7 +5220,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define glListParameterfvSGIX pglListParameterfvSGIX
 #define glListParameteriSGIX pglListParameteriSGIX
 #define glListParameterivSGIX pglListParameterivSGIX
-#endif 
+#endif
 
 /* GL_SGIX_ir_instrument1 */
 
@@ -5229,7 +5229,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define __GLEE_GL_SGIX_ir_instrument1 1
 /* Constants */
 #define GL_IR_INSTRUMENT1_SGIX                             0x817F
-#endif 
+#endif
 
 /* GL_SGIX_calligraphic_fragment */
 
@@ -5238,7 +5238,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define __GLEE_GL_SGIX_calligraphic_fragment 1
 /* Constants */
 #define GL_CALLIGRAPHIC_FRAGMENT_SGIX                      0x8183
-#endif 
+#endif
 
 /* GL_SGIX_texture_lod_bias */
 
@@ -5249,7 +5249,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define GL_TEXTURE_LOD_BIAS_S_SGIX                         0x818E
 #define GL_TEXTURE_LOD_BIAS_T_SGIX                         0x818F
 #define GL_TEXTURE_LOD_BIAS_R_SGIX                         0x8190
-#endif 
+#endif
 
 /* GL_SGIX_shadow_ambient */
 
@@ -5258,7 +5258,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define __GLEE_GL_SGIX_shadow_ambient 1
 /* Constants */
 #define GL_SHADOW_AMBIENT_SGIX                             0x80BF
-#endif 
+#endif
 
 /* GL_EXT_index_texture */
 
@@ -5266,7 +5266,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 #define GL_EXT_index_texture 1
 #define __GLEE_GL_EXT_index_texture 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_index_material */
 
@@ -5280,7 +5280,7 @@ GLEE_EXTERN PFNGLLISTPARAMETERIVSGIXPROC pglListParameterivSGIX;
 typedef void (APIENTRYP PFNGLINDEXMATERIALEXTPROC) (GLenum face, GLenum mode);
 GLEE_EXTERN PFNGLINDEXMATERIALEXTPROC pglIndexMaterialEXT;
 #define glIndexMaterialEXT pglIndexMaterialEXT
-#endif 
+#endif
 
 /* GL_EXT_index_func */
 
@@ -5294,7 +5294,7 @@ GLEE_EXTERN PFNGLINDEXMATERIALEXTPROC pglIndexMaterialEXT;
 typedef void (APIENTRYP PFNGLINDEXFUNCEXTPROC) (GLenum func, GLclampf ref);
 GLEE_EXTERN PFNGLINDEXFUNCEXTPROC pglIndexFuncEXT;
 #define glIndexFuncEXT pglIndexFuncEXT
-#endif 
+#endif
 
 /* GL_EXT_index_array_formats */
 
@@ -5310,7 +5310,7 @@ GLEE_EXTERN PFNGLINDEXFUNCEXTPROC pglIndexFuncEXT;
 #define GL_T2F_IUI_V3F_EXT                                 0x81B2
 #define GL_T2F_IUI_N3F_V2F_EXT                             0x81B3
 #define GL_T2F_IUI_N3F_V3F_EXT                             0x81B4
-#endif 
+#endif
 
 /* GL_EXT_compiled_vertex_array */
 
@@ -5326,7 +5326,7 @@ GLEE_EXTERN PFNGLLOCKARRAYSEXTPROC pglLockArraysEXT;
 GLEE_EXTERN PFNGLUNLOCKARRAYSEXTPROC pglUnlockArraysEXT;
 #define glLockArraysEXT pglLockArraysEXT
 #define glUnlockArraysEXT pglUnlockArraysEXT
-#endif 
+#endif
 
 /* GL_EXT_cull_vertex */
 
@@ -5343,7 +5343,7 @@ GLEE_EXTERN PFNGLCULLPARAMETERDVEXTPROC pglCullParameterdvEXT;
 GLEE_EXTERN PFNGLCULLPARAMETERFVEXTPROC pglCullParameterfvEXT;
 #define glCullParameterdvEXT pglCullParameterdvEXT
 #define glCullParameterfvEXT pglCullParameterfvEXT
-#endif 
+#endif
 
 /* GL_SGIX_ycrcb */
 
@@ -5353,7 +5353,7 @@ GLEE_EXTERN PFNGLCULLPARAMETERFVEXTPROC pglCullParameterfvEXT;
 /* Constants */
 #define GL_YCRCB_422_SGIX                                  0x81BB
 #define GL_YCRCB_444_SGIX                                  0x81BC
-#endif 
+#endif
 
 /* GL_SGIX_fragment_lighting */
 
@@ -5435,7 +5435,7 @@ GLEE_EXTERN PFNGLLIGHTENVISGIXPROC pglLightEnviSGIX;
 #define glGetFragmentMaterialfvSGIX pglGetFragmentMaterialfvSGIX
 #define glGetFragmentMaterialivSGIX pglGetFragmentMaterialivSGIX
 #define glLightEnviSGIX pglLightEnviSGIX
-#endif 
+#endif
 
 /* GL_IBM_rasterpos_clip */
 
@@ -5444,7 +5444,7 @@ GLEE_EXTERN PFNGLLIGHTENVISGIXPROC pglLightEnviSGIX;
 #define __GLEE_GL_IBM_rasterpos_clip 1
 /* Constants */
 #define GL_RASTER_POSITION_UNCLIPPED_IBM                   0x19262
-#endif 
+#endif
 
 /* GL_HP_texture_lighting */
 
@@ -5455,7 +5455,7 @@ GLEE_EXTERN PFNGLLIGHTENVISGIXPROC pglLightEnviSGIX;
 #define GL_TEXTURE_LIGHTING_MODE_HP                        0x8167
 #define GL_TEXTURE_POST_SPECULAR_HP                        0x8168
 #define GL_TEXTURE_PRE_SPECULAR_HP                         0x8169
-#endif 
+#endif
 
 /* GL_EXT_draw_range_elements */
 
@@ -5468,7 +5468,7 @@ GLEE_EXTERN PFNGLLIGHTENVISGIXPROC pglLightEnviSGIX;
 typedef void (APIENTRYP PFNGLDRAWRANGEELEMENTSEXTPROC) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid * indices);
 GLEE_EXTERN PFNGLDRAWRANGEELEMENTSEXTPROC pglDrawRangeElementsEXT;
 #define glDrawRangeElementsEXT pglDrawRangeElementsEXT
-#endif 
+#endif
 
 /* GL_WIN_phong_shading */
 
@@ -5478,7 +5478,7 @@ GLEE_EXTERN PFNGLDRAWRANGEELEMENTSEXTPROC pglDrawRangeElementsEXT;
 /* Constants */
 #define GL_PHONG_WIN                                       0x80EA
 #define GL_PHONG_HINT_WIN                                  0x80EB
-#endif 
+#endif
 
 /* GL_WIN_specular_fog */
 
@@ -5487,7 +5487,7 @@ GLEE_EXTERN PFNGLDRAWRANGEELEMENTSEXTPROC pglDrawRangeElementsEXT;
 #define __GLEE_GL_WIN_specular_fog 1
 /* Constants */
 #define GL_FOG_SPECULAR_TEXTURE_WIN                        0x80EC
-#endif 
+#endif
 
 /* GL_EXT_light_texture */
 
@@ -5513,7 +5513,7 @@ GLEE_EXTERN PFNGLTEXTUREMATERIALEXTPROC pglTextureMaterialEXT;
 #define glApplyTextureEXT pglApplyTextureEXT
 #define glTextureLightEXT pglTextureLightEXT
 #define glTextureMaterialEXT pglTextureMaterialEXT
-#endif 
+#endif
 
 /* GL_SGIX_blend_alpha_minmax */
 
@@ -5523,7 +5523,7 @@ GLEE_EXTERN PFNGLTEXTUREMATERIALEXTPROC pglTextureMaterialEXT;
 /* Constants */
 #define GL_ALPHA_MIN_SGIX                                  0x8320
 #define GL_ALPHA_MAX_SGIX                                  0x8321
-#endif 
+#endif
 
 /* GL_SGIX_impact_pixel_texture */
 
@@ -5538,7 +5538,7 @@ GLEE_EXTERN PFNGLTEXTUREMATERIALEXTPROC pglTextureMaterialEXT;
 #define GL_PIXEL_TEX_GEN_ALPHA_NO_REPLACE_SGIX             0x8188
 #define GL_PIXEL_TEX_GEN_ALPHA_LS_SGIX                     0x8189
 #define GL_PIXEL_TEX_GEN_ALPHA_MS_SGIX                     0x818A
-#endif 
+#endif
 
 /* GL_EXT_bgra */
 
@@ -5548,7 +5548,7 @@ GLEE_EXTERN PFNGLTEXTUREMATERIALEXTPROC pglTextureMaterialEXT;
 /* Constants */
 #define GL_BGR_EXT                                         0x80E0
 #define GL_BGRA_EXT                                        0x80E1
-#endif 
+#endif
 
 /* GL_SGIX_async */
 
@@ -5575,7 +5575,7 @@ GLEE_EXTERN PFNGLISASYNCMARKERSGIXPROC pglIsAsyncMarkerSGIX;
 #define glGenAsyncMarkersSGIX pglGenAsyncMarkersSGIX
 #define glDeleteAsyncMarkersSGIX pglDeleteAsyncMarkersSGIX
 #define glIsAsyncMarkerSGIX pglIsAsyncMarkerSGIX
-#endif 
+#endif
 
 /* GL_SGIX_async_pixel */
 
@@ -5589,7 +5589,7 @@ GLEE_EXTERN PFNGLISASYNCMARKERSGIXPROC pglIsAsyncMarkerSGIX;
 #define GL_MAX_ASYNC_TEX_IMAGE_SGIX                        0x835F
 #define GL_MAX_ASYNC_DRAW_PIXELS_SGIX                      0x8360
 #define GL_MAX_ASYNC_READ_PIXELS_SGIX                      0x8361
-#endif 
+#endif
 
 /* GL_SGIX_async_histogram */
 
@@ -5599,7 +5599,7 @@ GLEE_EXTERN PFNGLISASYNCMARKERSGIXPROC pglIsAsyncMarkerSGIX;
 /* Constants */
 #define GL_ASYNC_HISTOGRAM_SGIX                            0x832C
 #define GL_MAX_ASYNC_HISTOGRAM_SGIX                        0x832D
-#endif 
+#endif
 
 /* GL_INTEL_texture_scissor */
 
@@ -5607,7 +5607,7 @@ GLEE_EXTERN PFNGLISASYNCMARKERSGIXPROC pglIsAsyncMarkerSGIX;
 #define GL_INTEL_texture_scissor 1
 #define __GLEE_GL_INTEL_texture_scissor 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_INTEL_parallel_arrays */
 
@@ -5632,7 +5632,7 @@ GLEE_EXTERN PFNGLTEXCOORDPOINTERVINTELPROC pglTexCoordPointervINTEL;
 #define glNormalPointervINTEL pglNormalPointervINTEL
 #define glColorPointervINTEL pglColorPointervINTEL
 #define glTexCoordPointervINTEL pglTexCoordPointervINTEL
-#endif 
+#endif
 
 /* GL_HP_occlusion_test */
 
@@ -5642,7 +5642,7 @@ GLEE_EXTERN PFNGLTEXCOORDPOINTERVINTELPROC pglTexCoordPointervINTEL;
 /* Constants */
 #define GL_OCCLUSION_TEST_HP                               0x8165
 #define GL_OCCLUSION_TEST_RESULT_HP                        0x8166
-#endif 
+#endif
 
 /* GL_EXT_pixel_transform */
 
@@ -5671,7 +5671,7 @@ GLEE_EXTERN PFNGLPIXELTRANSFORMPARAMETERFVEXTPROC pglPixelTransformParameterfvEX
 #define glPixelTransformParameterfEXT pglPixelTransformParameterfEXT
 #define glPixelTransformParameterivEXT pglPixelTransformParameterivEXT
 #define glPixelTransformParameterfvEXT pglPixelTransformParameterfvEXT
-#endif 
+#endif
 
 /* GL_EXT_pixel_transform_color_table */
 
@@ -5679,7 +5679,7 @@ GLEE_EXTERN PFNGLPIXELTRANSFORMPARAMETERFVEXTPROC pglPixelTransformParameterfvEX
 #define GL_EXT_pixel_transform_color_table 1
 #define __GLEE_GL_EXT_pixel_transform_color_table 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_shared_texture_palette */
 
@@ -5688,7 +5688,7 @@ GLEE_EXTERN PFNGLPIXELTRANSFORMPARAMETERFVEXTPROC pglPixelTransformParameterfvEX
 #define __GLEE_GL_EXT_shared_texture_palette 1
 /* Constants */
 #define GL_SHARED_TEXTURE_PALETTE_EXT                      0x81FB
-#endif 
+#endif
 
 /* GL_EXT_separate_specular_color */
 
@@ -5699,7 +5699,7 @@ GLEE_EXTERN PFNGLPIXELTRANSFORMPARAMETERFVEXTPROC pglPixelTransformParameterfvEX
 #define GL_LIGHT_MODEL_COLOR_CONTROL_EXT                   0x81F8
 #define GL_SINGLE_COLOR_EXT                                0x81F9
 #define GL_SEPARATE_SPECULAR_COLOR_EXT                     0x81FA
-#endif 
+#endif
 
 /* GL_EXT_secondary_color */
 
@@ -5765,7 +5765,7 @@ GLEE_EXTERN PFNGLSECONDARYCOLORPOINTEREXTPROC pglSecondaryColorPointerEXT;
 #define glSecondaryColor3usEXT pglSecondaryColor3usEXT
 #define glSecondaryColor3usvEXT pglSecondaryColor3usvEXT
 #define glSecondaryColorPointerEXT pglSecondaryColorPointerEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_perturb_normal */
 
@@ -5778,7 +5778,7 @@ GLEE_EXTERN PFNGLSECONDARYCOLORPOINTEREXTPROC pglSecondaryColorPointerEXT;
 typedef void (APIENTRYP PFNGLTEXTURENORMALEXTPROC) (GLenum mode);
 GLEE_EXTERN PFNGLTEXTURENORMALEXTPROC pglTextureNormalEXT;
 #define glTextureNormalEXT pglTextureNormalEXT
-#endif 
+#endif
 
 /* GL_EXT_multi_draw_arrays */
 
@@ -5792,7 +5792,7 @@ GLEE_EXTERN PFNGLMULTIDRAWARRAYSEXTPROC pglMultiDrawArraysEXT;
 GLEE_EXTERN PFNGLMULTIDRAWELEMENTSEXTPROC pglMultiDrawElementsEXT;
 #define glMultiDrawArraysEXT pglMultiDrawArraysEXT
 #define glMultiDrawElementsEXT pglMultiDrawElementsEXT
-#endif 
+#endif
 
 /* GL_EXT_fog_coord */
 
@@ -5823,7 +5823,7 @@ GLEE_EXTERN PFNGLFOGCOORDPOINTEREXTPROC pglFogCoordPointerEXT;
 #define glFogCoorddEXT pglFogCoorddEXT
 #define glFogCoorddvEXT pglFogCoorddvEXT
 #define glFogCoordPointerEXT pglFogCoordPointerEXT
-#endif 
+#endif
 
 /* GL_REND_screen_coordinates */
 
@@ -5833,7 +5833,7 @@ GLEE_EXTERN PFNGLFOGCOORDPOINTEREXTPROC pglFogCoordPointerEXT;
 /* Constants */
 #define GL_SCREEN_COORDINATES_REND                         0x8490
 #define GL_INVERTED_SCREEN_W_REND                          0x8491
-#endif 
+#endif
 
 /* GL_EXT_coordinate_frame */
 
@@ -5921,7 +5921,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 #define glBinormal3svEXT pglBinormal3svEXT
 #define glTangentPointerEXT pglTangentPointerEXT
 #define glBinormalPointerEXT pglBinormalPointerEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_env_combine */
 
@@ -5950,7 +5950,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 #define GL_OPERAND0_ALPHA_EXT                              0x8598
 #define GL_OPERAND1_ALPHA_EXT                              0x8599
 #define GL_OPERAND2_ALPHA_EXT                              0x859A
-#endif 
+#endif
 
 /* GL_APPLE_specular_vector */
 
@@ -5959,7 +5959,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 #define __GLEE_GL_APPLE_specular_vector 1
 /* Constants */
 #define GL_LIGHT_MODEL_SPECULAR_VECTOR_APPLE               0x85B0
-#endif 
+#endif
 
 /* GL_APPLE_transform_hint */
 
@@ -5968,7 +5968,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 #define __GLEE_GL_APPLE_transform_hint 1
 /* Constants */
 #define GL_TRANSFORM_HINT_APPLE                            0x85B1
-#endif 
+#endif
 
 /* GL_SGIX_fog_scale */
 
@@ -5978,7 +5978,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 /* Constants */
 #define GL_FOG_SCALE_SGIX                                  0x81FC
 #define GL_FOG_SCALE_VALUE_SGIX                            0x81FD
-#endif 
+#endif
 
 /* GL_SUNX_constant_data */
 
@@ -5991,7 +5991,7 @@ GLEE_EXTERN PFNGLBINORMALPOINTEREXTPROC pglBinormalPointerEXT;
 typedef void (APIENTRYP PFNGLFINISHTEXTURESUNXPROC) ();
 GLEE_EXTERN PFNGLFINISHTEXTURESUNXPROC pglFinishTextureSUNX;
 #define glFinishTextureSUNX pglFinishTextureSUNX
-#endif 
+#endif
 
 /* GL_SUN_global_alpha */
 
@@ -6025,7 +6025,7 @@ GLEE_EXTERN PFNGLGLOBALALPHAFACTORUISUNPROC pglGlobalAlphaFactoruiSUN;
 #define glGlobalAlphaFactorubSUN pglGlobalAlphaFactorubSUN
 #define glGlobalAlphaFactorusSUN pglGlobalAlphaFactorusSUN
 #define glGlobalAlphaFactoruiSUN pglGlobalAlphaFactoruiSUN
-#endif 
+#endif
 
 /* GL_SUN_triangle_list */
 
@@ -6071,7 +6071,7 @@ GLEE_EXTERN PFNGLREPLACEMENTCODEPOINTERSUNPROC pglReplacementCodePointerSUN;
 #define glReplacementCodeusvSUN pglReplacementCodeusvSUN
 #define glReplacementCodeubvSUN pglReplacementCodeubvSUN
 #define glReplacementCodePointerSUN pglReplacementCodePointerSUN
-#endif 
+#endif
 
 /* GL_SUN_vertex */
 
@@ -6199,7 +6199,7 @@ GLEE_EXTERN PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC pglR
 #define glReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN pglReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN
 #define glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN pglReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN
 #define glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN pglReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN
-#endif 
+#endif
 
 /* GL_EXT_blend_func_separate */
 
@@ -6214,7 +6214,7 @@ GLEE_EXTERN PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC pglR
 typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEEXTPROC) (GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
 GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define glBlendFuncSeparateEXT pglBlendFuncSeparateEXT
-#endif 
+#endif
 
 /* GL_INGR_color_clamp */
 
@@ -6230,7 +6230,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define GL_GREEN_MAX_CLAMP_INGR                            0x8565
 #define GL_BLUE_MAX_CLAMP_INGR                             0x8566
 #define GL_ALPHA_MAX_CLAMP_INGR                            0x8567
-#endif 
+#endif
 
 /* GL_INGR_interlace_read */
 
@@ -6239,7 +6239,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define __GLEE_GL_INGR_interlace_read 1
 /* Constants */
 #define GL_INTERLACE_READ_INGR                             0x8568
-#endif 
+#endif
 
 /* GL_EXT_stencil_wrap */
 
@@ -6249,7 +6249,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 /* Constants */
 #define GL_INCR_WRAP_EXT                                   0x8507
 #define GL_DECR_WRAP_EXT                                   0x8508
-#endif 
+#endif
 
 /* GL_EXT_422_pixels */
 
@@ -6261,7 +6261,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define GL_422_REV_EXT                                     0x80CD
 #define GL_422_AVERAGE_EXT                                 0x80CE
 #define GL_422_REV_AVERAGE_EXT                             0x80CF
-#endif 
+#endif
 
 /* GL_NV_texgen_reflection */
 
@@ -6271,7 +6271,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 /* Constants */
 #define GL_NORMAL_MAP_NV                                   0x8511
 #define GL_REFLECTION_MAP_NV                               0x8512
-#endif 
+#endif
 
 /* GL_EXT_texture_cube_map */
 
@@ -6291,7 +6291,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_EXT                 0x851A
 #define GL_PROXY_TEXTURE_CUBE_MAP_EXT                      0x851B
 #define GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT                   0x851C
-#endif 
+#endif
 
 /* GL_SUN_convolution_border_modes */
 
@@ -6300,7 +6300,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define __GLEE_GL_SUN_convolution_border_modes 1
 /* Constants */
 #define GL_WRAP_BORDER_SUN                                 0x81D4
-#endif 
+#endif
 
 /* GL_EXT_texture_env_add */
 
@@ -6308,7 +6308,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define GL_EXT_texture_env_add 1
 #define __GLEE_GL_EXT_texture_env_add 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_texture_lod_bias */
 
@@ -6319,7 +6319,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 #define GL_MAX_TEXTURE_LOD_BIAS_EXT                        0x84FD
 #define GL_TEXTURE_FILTER_CONTROL_EXT                      0x8500
 #define GL_TEXTURE_LOD_BIAS_EXT                            0x8501
-#endif 
+#endif
 
 /* GL_EXT_texture_filter_anisotropic */
 
@@ -6329,7 +6329,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEEXTPROC pglBlendFuncSeparateEXT;
 /* Constants */
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT                      0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT                  0x84FF
-#endif 
+#endif
 
 /* GL_EXT_vertex_weighting */
 
@@ -6359,7 +6359,7 @@ GLEE_EXTERN PFNGLVERTEXWEIGHTPOINTEREXTPROC pglVertexWeightPointerEXT;
 #define glVertexWeightfEXT pglVertexWeightfEXT
 #define glVertexWeightfvEXT pglVertexWeightfvEXT
 #define glVertexWeightPointerEXT pglVertexWeightPointerEXT
-#endif 
+#endif
 
 /* GL_NV_light_max_exponent */
 
@@ -6369,7 +6369,7 @@ GLEE_EXTERN PFNGLVERTEXWEIGHTPOINTEREXTPROC pglVertexWeightPointerEXT;
 /* Constants */
 #define GL_MAX_SHININESS_NV                                0x8504
 #define GL_MAX_SPOT_EXPONENT_NV                            0x8505
-#endif 
+#endif
 
 /* GL_NV_vertex_array_range */
 
@@ -6388,7 +6388,7 @@ GLEE_EXTERN PFNGLFLUSHVERTEXARRAYRANGENVPROC pglFlushVertexArrayRangeNV;
 GLEE_EXTERN PFNGLVERTEXARRAYRANGENVPROC pglVertexArrayRangeNV;
 #define glFlushVertexArrayRangeNV pglFlushVertexArrayRangeNV
 #define glVertexArrayRangeNV pglVertexArrayRangeNV
-#endif 
+#endif
 
 /* GL_NV_register_combiners */
 
@@ -6486,7 +6486,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 #define glGetCombinerOutputParameterivNV pglGetCombinerOutputParameterivNV
 #define glGetFinalCombinerInputParameterfvNV pglGetFinalCombinerInputParameterfvNV
 #define glGetFinalCombinerInputParameterivNV pglGetFinalCombinerInputParameterivNV
-#endif 
+#endif
 
 /* GL_NV_fog_distance */
 
@@ -6497,7 +6497,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 #define GL_FOG_DISTANCE_MODE_NV                            0x855A
 #define GL_EYE_RADIAL_NV                                   0x855B
 #define GL_EYE_PLANE_ABSOLUTE_NV                           0x855C
-#endif 
+#endif
 
 /* GL_NV_texgen_emboss */
 
@@ -6508,7 +6508,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 #define GL_EMBOSS_LIGHT_NV                                 0x855D
 #define GL_EMBOSS_CONSTANT_NV                              0x855E
 #define GL_EMBOSS_MAP_NV                                   0x855F
-#endif 
+#endif
 
 /* GL_NV_blend_square */
 
@@ -6516,7 +6516,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 #define GL_NV_blend_square 1
 #define __GLEE_GL_NV_blend_square 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_texture_env_combine4 */
 
@@ -6529,7 +6529,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 #define GL_SOURCE3_ALPHA_NV                                0x858B
 #define GL_OPERAND3_RGB_NV                                 0x8593
 #define GL_OPERAND3_ALPHA_NV                               0x859B
-#endif 
+#endif
 
 /* GL_MESA_resize_buffers */
 
@@ -6540,7 +6540,7 @@ GLEE_EXTERN PFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC pglGetFinalCombinerInput
 typedef void (APIENTRYP PFNGLRESIZEBUFFERSMESAPROC) ();
 GLEE_EXTERN PFNGLRESIZEBUFFERSMESAPROC pglResizeBuffersMESA;
 #define glResizeBuffersMESA pglResizeBuffersMESA
-#endif 
+#endif
 
 /* GL_MESA_window_pos */
 
@@ -6620,7 +6620,7 @@ GLEE_EXTERN PFNGLWINDOWPOS4SVMESAPROC pglWindowPos4svMESA;
 #define glWindowPos4ivMESA pglWindowPos4ivMESA
 #define glWindowPos4sMESA pglWindowPos4sMESA
 #define glWindowPos4svMESA pglWindowPos4svMESA
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_s3tc */
 
@@ -6632,7 +6632,7 @@ GLEE_EXTERN PFNGLWINDOWPOS4SVMESAPROC pglWindowPos4svMESA;
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                   0x83F1
 #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT                   0x83F2
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT                   0x83F3
-#endif 
+#endif
 
 /* GL_IBM_cull_vertex */
 
@@ -6641,7 +6641,7 @@ GLEE_EXTERN PFNGLWINDOWPOS4SVMESAPROC pglWindowPos4svMESA;
 #define __GLEE_GL_IBM_cull_vertex 1
 /* Constants */
 #define GL_CULL_VERTEX_IBM                                 103050
-#endif 
+#endif
 
 /* GL_IBM_multimode_draw_arrays */
 
@@ -6655,7 +6655,7 @@ GLEE_EXTERN PFNGLMULTIMODEDRAWARRAYSIBMPROC pglMultiModeDrawArraysIBM;
 GLEE_EXTERN PFNGLMULTIMODEDRAWELEMENTSIBMPROC pglMultiModeDrawElementsIBM;
 #define glMultiModeDrawArraysIBM pglMultiModeDrawArraysIBM
 #define glMultiModeDrawElementsIBM pglMultiModeDrawElementsIBM
-#endif 
+#endif
 
 /* GL_IBM_vertex_array_lists */
 
@@ -6703,7 +6703,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 #define glNormalPointerListIBM pglNormalPointerListIBM
 #define glTexCoordPointerListIBM pglTexCoordPointerListIBM
 #define glVertexPointerListIBM pglVertexPointerListIBM
-#endif 
+#endif
 
 /* GL_SGIX_subsample */
 
@@ -6716,7 +6716,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 #define GL_PIXEL_SUBSAMPLE_4444_SGIX                       0x85A2
 #define GL_PIXEL_SUBSAMPLE_2424_SGIX                       0x85A3
 #define GL_PIXEL_SUBSAMPLE_4242_SGIX                       0x85A4
-#endif 
+#endif
 
 /* GL_SGIX_ycrcb_subsample */
 
@@ -6724,7 +6724,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 #define GL_SGIX_ycrcb_subsample 1
 #define __GLEE_GL_SGIX_ycrcb_subsample 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_ycrcba */
 
@@ -6734,7 +6734,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 /* Constants */
 #define GL_YCRCB_SGIX                                      0x8318
 #define GL_YCRCBA_SGIX                                     0x8319
-#endif 
+#endif
 
 /* GL_SGI_depth_pass_instrument */
 
@@ -6745,7 +6745,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 #define GL_DEPTH_PASS_INSTRUMENT_SGIX                      0x8310
 #define GL_DEPTH_PASS_INSTRUMENT_COUNTERS_SGIX             0x8311
 #define GL_DEPTH_PASS_INSTRUMENT_MAX_SGIX                  0x8312
-#endif 
+#endif
 
 /* GL_3DFX_texture_compression_FXT1 */
 
@@ -6755,7 +6755,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 /* Constants */
 #define GL_COMPRESSED_RGB_FXT1_3DFX                        0x86B0
 #define GL_COMPRESSED_RGBA_FXT1_3DFX                       0x86B1
-#endif 
+#endif
 
 /* GL_3DFX_multisample */
 
@@ -6767,7 +6767,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 #define GL_SAMPLE_BUFFERS_3DFX                             0x86B3
 #define GL_SAMPLES_3DFX                                    0x86B4
 #define GL_MULTISAMPLE_BIT_3DFX                            0x20000000
-#endif 
+#endif
 
 /* GL_3DFX_tbuffer */
 
@@ -6778,7 +6778,7 @@ GLEE_EXTERN PFNGLVERTEXPOINTERLISTIBMPROC pglVertexPointerListIBM;
 typedef void (APIENTRYP PFNGLTBUFFERMASK3DFXPROC) (GLuint mask);
 GLEE_EXTERN PFNGLTBUFFERMASK3DFXPROC pglTbufferMask3DFX;
 #define glTbufferMask3DFX pglTbufferMask3DFX
-#endif 
+#endif
 
 /* GL_EXT_multisample */
 
@@ -6809,7 +6809,7 @@ GLEE_EXTERN PFNGLSAMPLEMASKEXTPROC pglSampleMaskEXT;
 GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 #define glSampleMaskEXT pglSampleMaskEXT
 #define glSamplePatternEXT pglSamplePatternEXT
-#endif 
+#endif
 
 /* GL_SGIX_vertex_preclip */
 
@@ -6819,7 +6819,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 /* Constants */
 #define GL_VERTEX_PRECLIP_SGIX                             0x83EE
 #define GL_VERTEX_PRECLIP_HINT_SGIX                        0x83EF
-#endif 
+#endif
 
 /* GL_SGIX_convolution_accuracy */
 
@@ -6828,7 +6828,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 #define __GLEE_GL_SGIX_convolution_accuracy 1
 /* Constants */
 #define GL_CONVOLUTION_HINT_SGIX                           0x8316
-#endif 
+#endif
 
 /* GL_SGIX_resample */
 
@@ -6841,7 +6841,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 #define GL_RESAMPLE_REPLICATE_SGIX                         0x842E
 #define GL_RESAMPLE_ZERO_FILL_SGIX                         0x842F
 #define GL_RESAMPLE_DECIMATE_SGIX                          0x8430
-#endif 
+#endif
 
 /* GL_SGIS_point_line_texgen */
 
@@ -6857,7 +6857,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 #define GL_OBJECT_POINT_SGIS                               0x81F5
 #define GL_EYE_LINE_SGIS                                   0x81F6
 #define GL_OBJECT_LINE_SGIS                                0x81F7
-#endif 
+#endif
 
 /* GL_SGIS_texture_color_mask */
 
@@ -6869,7 +6869,7 @@ GLEE_EXTERN PFNGLSAMPLEPATTERNEXTPROC pglSamplePatternEXT;
 typedef void (APIENTRYP PFNGLTEXTURECOLORMASKSGISPROC) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 GLEE_EXTERN PFNGLTEXTURECOLORMASKSGISPROC pglTextureColorMaskSGIS;
 #define glTextureColorMaskSGIS pglTextureColorMaskSGIS
-#endif 
+#endif
 
 /* GL_EXT_texture_env_dot3 */
 
@@ -6879,7 +6879,7 @@ GLEE_EXTERN PFNGLTEXTURECOLORMASKSGISPROC pglTextureColorMaskSGIS;
 /* Constants */
 #define GL_DOT3_RGB_EXT                                    0x8740
 #define GL_DOT3_RGBA_EXT                                   0x8741
-#endif 
+#endif
 
 /* GL_ATI_texture_mirror_once */
 
@@ -6889,7 +6889,7 @@ GLEE_EXTERN PFNGLTEXTURECOLORMASKSGISPROC pglTextureColorMaskSGIS;
 /* Constants */
 #define GL_MIRROR_CLAMP_ATI                                0x8742
 #define GL_MIRROR_CLAMP_TO_EDGE_ATI                        0x8743
-#endif 
+#endif
 
 /* GL_NV_fence */
 
@@ -6921,7 +6921,7 @@ GLEE_EXTERN PFNGLSETFENCENVPROC pglSetFenceNV;
 #define glGetFenceivNV pglGetFenceivNV
 #define glFinishFenceNV pglFinishFenceNV
 #define glSetFenceNV pglSetFenceNV
-#endif 
+#endif
 
 /* GL_IBM_texture_mirrored_repeat */
 
@@ -6930,7 +6930,7 @@ GLEE_EXTERN PFNGLSETFENCENVPROC pglSetFenceNV;
 #define __GLEE_GL_IBM_texture_mirrored_repeat 1
 /* Constants */
 #define GL_MIRRORED_REPEAT_IBM                             0x8370
-#endif 
+#endif
 
 /* GL_NV_evaluators */
 
@@ -6989,7 +6989,7 @@ GLEE_EXTERN PFNGLEVALMAPSNVPROC pglEvalMapsNV;
 #define glGetMapAttribParameterivNV pglGetMapAttribParameterivNV
 #define glGetMapAttribParameterfvNV pglGetMapAttribParameterfvNV
 #define glEvalMapsNV pglEvalMapsNV
-#endif 
+#endif
 
 /* GL_NV_packed_depth_stencil */
 
@@ -6999,7 +6999,7 @@ GLEE_EXTERN PFNGLEVALMAPSNVPROC pglEvalMapsNV;
 /* Constants */
 #define GL_DEPTH_STENCIL_NV                                0x84F9
 #define GL_UNSIGNED_INT_24_8_NV                            0x84FA
-#endif 
+#endif
 
 /* GL_NV_register_combiners2 */
 
@@ -7014,7 +7014,7 @@ GLEE_EXTERN PFNGLCOMBINERSTAGEPARAMETERFVNVPROC pglCombinerStageParameterfvNV;
 GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterfvNV;
 #define glCombinerStageParameterfvNV pglCombinerStageParameterfvNV
 #define glGetCombinerStageParameterfvNV pglGetCombinerStageParameterfvNV
-#endif 
+#endif
 
 /* GL_NV_texture_compression_vtc */
 
@@ -7022,7 +7022,7 @@ GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterf
 #define GL_NV_texture_compression_vtc 1
 #define __GLEE_GL_NV_texture_compression_vtc 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_texture_rectangle */
 
@@ -7034,7 +7034,7 @@ GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterf
 #define GL_TEXTURE_BINDING_RECTANGLE_NV                    0x84F6
 #define GL_PROXY_TEXTURE_RECTANGLE_NV                      0x84F7
 #define GL_MAX_RECTANGLE_TEXTURE_SIZE_NV                   0x84F8
-#endif 
+#endif
 
 /* GL_NV_texture_shader */
 
@@ -7115,7 +7115,7 @@ GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterf
 #define GL_TEXTURE_DS_SIZE_NV                              0x871D
 #define GL_TEXTURE_DT_SIZE_NV                              0x871E
 #define GL_TEXTURE_MAG_SIZE_NV                             0x871F
-#endif 
+#endif
 
 /* GL_NV_texture_shader2 */
 
@@ -7124,7 +7124,7 @@ GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterf
 #define __GLEE_GL_NV_texture_shader2 1
 /* Constants */
 #define GL_DOT_PRODUCT_TEXTURE_3D_NV                       0x86EF
-#endif 
+#endif
 
 /* GL_NV_vertex_array_range2 */
 
@@ -7133,7 +7133,7 @@ GLEE_EXTERN PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC pglGetCombinerStageParameterf
 #define __GLEE_GL_NV_vertex_array_range2 1
 /* Constants */
 #define GL_VERTEX_ARRAY_RANGE_WITHOUT_FLUSH_NV             0x8533
-#endif 
+#endif
 
 /* GL_NV_vertex_program */
 
@@ -7417,7 +7417,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 #define glVertexAttribs4fvNV pglVertexAttribs4fvNV
 #define glVertexAttribs4svNV pglVertexAttribs4svNV
 #define glVertexAttribs4ubvNV pglVertexAttribs4ubvNV
-#endif 
+#endif
 
 /* GL_SGIX_texture_coordinate_clamp */
 
@@ -7428,7 +7428,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 #define GL_TEXTURE_MAX_CLAMP_S_SGIX                        0x8369
 #define GL_TEXTURE_MAX_CLAMP_T_SGIX                        0x836A
 #define GL_TEXTURE_MAX_CLAMP_R_SGIX                        0x836B
-#endif 
+#endif
 
 /* GL_SGIX_scalebias_hint */
 
@@ -7437,7 +7437,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 #define __GLEE_GL_SGIX_scalebias_hint 1
 /* Constants */
 #define GL_SCALEBIAS_HINT_SGIX                             0x8322
-#endif 
+#endif
 
 /* GL_OML_interlace */
 
@@ -7447,7 +7447,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 /* Constants */
 #define GL_INTERLACE_OML                                   0x8980
 #define GL_INTERLACE_READ_OML                              0x8981
-#endif 
+#endif
 
 /* GL_OML_subsample */
 
@@ -7457,7 +7457,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 /* Constants */
 #define GL_FORMAT_SUBSAMPLE_24_24_OML                      0x8982
 #define GL_FORMAT_SUBSAMPLE_244_244_OML                    0x8983
-#endif 
+#endif
 
 /* GL_OML_resample */
 
@@ -7471,7 +7471,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 #define GL_RESAMPLE_ZERO_FILL_OML                          0x8987
 #define GL_RESAMPLE_AVERAGE_OML                            0x8988
 #define GL_RESAMPLE_DECIMATE_OML                           0x8989
-#endif 
+#endif
 
 /* GL_NV_copy_depth_to_color */
 
@@ -7481,7 +7481,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4UBVNVPROC pglVertexAttribs4ubvNV;
 /* Constants */
 #define GL_DEPTH_STENCIL_TO_RGBA_NV                        0x886E
 #define GL_DEPTH_STENCIL_TO_BGRA_NV                        0x886F
-#endif 
+#endif
 
 /* GL_ATI_envmap_bumpmap */
 
@@ -7509,7 +7509,7 @@ GLEE_EXTERN PFNGLGETTEXBUMPPARAMETERFVATIPROC pglGetTexBumpParameterfvATI;
 #define glTexBumpParameterfvATI pglTexBumpParameterfvATI
 #define glGetTexBumpParameterivATI pglGetTexBumpParameterivATI
 #define glGetTexBumpParameterfvATI pglGetTexBumpParameterfvATI
-#endif 
+#endif
 
 /* GL_ATI_fragment_shader */
 
@@ -7663,7 +7663,7 @@ GLEE_EXTERN PFNGLSETFRAGMENTSHADERCONSTANTATIPROC pglSetFragmentShaderConstantAT
 #define glAlphaFragmentOp2ATI pglAlphaFragmentOp2ATI
 #define glAlphaFragmentOp3ATI pglAlphaFragmentOp3ATI
 #define glSetFragmentShaderConstantATI pglSetFragmentShaderConstantATI
-#endif 
+#endif
 
 /* GL_ATI_pn_triangles */
 
@@ -7686,7 +7686,7 @@ GLEE_EXTERN PFNGLPNTRIANGLESIATIPROC pglPNTrianglesiATI;
 GLEE_EXTERN PFNGLPNTRIANGLESFATIPROC pglPNTrianglesfATI;
 #define glPNTrianglesiATI pglPNTrianglesiATI
 #define glPNTrianglesfATI pglPNTrianglesfATI
-#endif 
+#endif
 
 /* GL_ATI_vertex_array_object */
 
@@ -7738,7 +7738,7 @@ GLEE_EXTERN PFNGLGETVARIANTARRAYOBJECTIVATIPROC pglGetVariantArrayObjectivATI;
 #define glVariantArrayObjectATI pglVariantArrayObjectATI
 #define glGetVariantArrayObjectfvATI pglGetVariantArrayObjectfvATI
 #define glGetVariantArrayObjectivATI pglGetVariantArrayObjectivATI
-#endif 
+#endif
 
 /* GL_EXT_vertex_shader */
 
@@ -7982,7 +7982,7 @@ GLEE_EXTERN PFNGLGETLOCALCONSTANTFLOATVEXTPROC pglGetLocalConstantFloatvEXT;
 #define glGetLocalConstantBooleanvEXT pglGetLocalConstantBooleanvEXT
 #define glGetLocalConstantIntegervEXT pglGetLocalConstantIntegervEXT
 #define glGetLocalConstantFloatvEXT pglGetLocalConstantFloatvEXT
-#endif 
+#endif
 
 /* GL_ATI_vertex_streams */
 
@@ -8135,7 +8135,7 @@ GLEE_EXTERN PFNGLVERTEXBLENDENVFATIPROC pglVertexBlendEnvfATI;
 #define glClientActiveVertexStreamATI pglClientActiveVertexStreamATI
 #define glVertexBlendEnviATI pglVertexBlendEnviATI
 #define glVertexBlendEnvfATI pglVertexBlendEnvfATI
-#endif 
+#endif
 
 /* GL_ATI_element_array */
 
@@ -8155,7 +8155,7 @@ GLEE_EXTERN PFNGLDRAWRANGEELEMENTARRAYATIPROC pglDrawRangeElementArrayATI;
 #define glElementPointerATI pglElementPointerATI
 #define glDrawElementArrayATI pglDrawElementArrayATI
 #define glDrawRangeElementArrayATI pglDrawRangeElementArrayATI
-#endif 
+#endif
 
 /* GL_SUN_mesh_array */
 
@@ -8168,7 +8168,7 @@ GLEE_EXTERN PFNGLDRAWRANGEELEMENTARRAYATIPROC pglDrawRangeElementArrayATI;
 typedef void (APIENTRYP PFNGLDRAWMESHARRAYSSUNPROC) (GLenum mode, GLint first, GLsizei count, GLsizei width);
 GLEE_EXTERN PFNGLDRAWMESHARRAYSSUNPROC pglDrawMeshArraysSUN;
 #define glDrawMeshArraysSUN pglDrawMeshArraysSUN
-#endif 
+#endif
 
 /* GL_SUN_slice_accum */
 
@@ -8177,7 +8177,7 @@ GLEE_EXTERN PFNGLDRAWMESHARRAYSSUNPROC pglDrawMeshArraysSUN;
 #define __GLEE_GL_SUN_slice_accum 1
 /* Constants */
 #define GL_SLICE_ACCUM_SUN                                 0x85CC
-#endif 
+#endif
 
 /* GL_NV_multisample_filter_hint */
 
@@ -8186,7 +8186,7 @@ GLEE_EXTERN PFNGLDRAWMESHARRAYSSUNPROC pglDrawMeshArraysSUN;
 #define __GLEE_GL_NV_multisample_filter_hint 1
 /* Constants */
 #define GL_MULTISAMPLE_FILTER_HINT_NV                      0x8534
-#endif 
+#endif
 
 /* GL_NV_depth_clamp */
 
@@ -8195,7 +8195,7 @@ GLEE_EXTERN PFNGLDRAWMESHARRAYSSUNPROC pglDrawMeshArraysSUN;
 #define __GLEE_GL_NV_depth_clamp 1
 /* Constants */
 #define GL_DEPTH_CLAMP_NV                                  0x864F
-#endif 
+#endif
 
 /* GL_NV_occlusion_query */
 
@@ -8228,7 +8228,7 @@ GLEE_EXTERN PFNGLGETOCCLUSIONQUERYUIVNVPROC pglGetOcclusionQueryuivNV;
 #define glEndOcclusionQueryNV pglEndOcclusionQueryNV
 #define glGetOcclusionQueryivNV pglGetOcclusionQueryivNV
 #define glGetOcclusionQueryuivNV pglGetOcclusionQueryuivNV
-#endif 
+#endif
 
 /* GL_NV_point_sprite */
 
@@ -8245,7 +8245,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERINVPROC pglPointParameteriNV;
 GLEE_EXTERN PFNGLPOINTPARAMETERIVNVPROC pglPointParameterivNV;
 #define glPointParameteriNV pglPointParameteriNV
 #define glPointParameterivNV pglPointParameterivNV
-#endif 
+#endif
 
 /* GL_NV_texture_shader3 */
 
@@ -8270,7 +8270,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERIVNVPROC pglPointParameterivNV;
 #define GL_HILO8_NV                                        0x885E
 #define GL_SIGNED_HILO8_NV                                 0x885F
 #define GL_FORCE_BLUE_TO_ONE_NV                            0x8860
-#endif 
+#endif
 
 /* GL_NV_vertex_program1_1 */
 
@@ -8278,7 +8278,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERIVNVPROC pglPointParameterivNV;
 #define GL_NV_vertex_program1_1 1
 #define __GLEE_GL_NV_vertex_program1_1 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_shadow_funcs */
 
@@ -8286,7 +8286,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERIVNVPROC pglPointParameterivNV;
 #define GL_EXT_shadow_funcs 1
 #define __GLEE_GL_EXT_shadow_funcs 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_stencil_two_side */
 
@@ -8299,7 +8299,7 @@ GLEE_EXTERN PFNGLPOINTPARAMETERIVNVPROC pglPointParameterivNV;
 typedef void (APIENTRYP PFNGLACTIVESTENCILFACEEXTPROC) (GLenum face);
 GLEE_EXTERN PFNGLACTIVESTENCILFACEEXTPROC pglActiveStencilFaceEXT;
 #define glActiveStencilFaceEXT pglActiveStencilFaceEXT
-#endif 
+#endif
 
 /* GL_ATI_text_fragment_shader */
 
@@ -8308,7 +8308,7 @@ GLEE_EXTERN PFNGLACTIVESTENCILFACEEXTPROC pglActiveStencilFaceEXT;
 #define __GLEE_GL_ATI_text_fragment_shader 1
 /* Constants */
 #define GL_TEXT_FRAGMENT_SHADER_ATI                        0x8200
-#endif 
+#endif
 
 /* GL_APPLE_client_storage */
 
@@ -8317,7 +8317,7 @@ GLEE_EXTERN PFNGLACTIVESTENCILFACEEXTPROC pglActiveStencilFaceEXT;
 #define __GLEE_GL_APPLE_client_storage 1
 /* Constants */
 #define GL_UNPACK_CLIENT_STORAGE_APPLE                     0x85B2
-#endif 
+#endif
 
 /* GL_APPLE_element_array */
 
@@ -8343,7 +8343,7 @@ GLEE_EXTERN PFNGLMULTIDRAWRANGEELEMENTARRAYAPPLEPROC pglMultiDrawRangeElementArr
 #define glDrawRangeElementArrayAPPLE pglDrawRangeElementArrayAPPLE
 #define glMultiDrawElementArrayAPPLE pglMultiDrawElementArrayAPPLE
 #define glMultiDrawRangeElementArrayAPPLE pglMultiDrawRangeElementArrayAPPLE
-#endif 
+#endif
 
 /* GL_APPLE_fence */
 
@@ -8377,7 +8377,7 @@ GLEE_EXTERN PFNGLFINISHOBJECTAPPLEPROC pglFinishObjectAPPLE;
 #define glFinishFenceAPPLE pglFinishFenceAPPLE
 #define glTestObjectAPPLE pglTestObjectAPPLE
 #define glFinishObjectAPPLE pglFinishObjectAPPLE
-#endif 
+#endif
 
 /* GL_APPLE_vertex_array_object */
 
@@ -8398,7 +8398,7 @@ GLEE_EXTERN PFNGLISVERTEXARRAYAPPLEPROC pglIsVertexArrayAPPLE;
 #define glDeleteVertexArraysAPPLE pglDeleteVertexArraysAPPLE
 #define glGenVertexArraysAPPLE pglGenVertexArraysAPPLE
 #define glIsVertexArrayAPPLE pglIsVertexArrayAPPLE
-#endif 
+#endif
 
 /* GL_APPLE_vertex_array_range */
 
@@ -8421,7 +8421,7 @@ GLEE_EXTERN PFNGLVERTEXARRAYPARAMETERIAPPLEPROC pglVertexArrayParameteriAPPLE;
 #define glVertexArrayRangeAPPLE pglVertexArrayRangeAPPLE
 #define glFlushVertexArrayRangeAPPLE pglFlushVertexArrayRangeAPPLE
 #define glVertexArrayParameteriAPPLE pglVertexArrayParameteriAPPLE
-#endif 
+#endif
 
 /* GL_APPLE_ycbcr_422 */
 
@@ -8432,7 +8432,7 @@ GLEE_EXTERN PFNGLVERTEXARRAYPARAMETERIAPPLEPROC pglVertexArrayParameteriAPPLE;
 #define GL_YCBCR_422_APPLE                                 0x85B9
 #define GL_UNSIGNED_SHORT_8_8_APPLE                        0x85BA
 #define GL_UNSIGNED_SHORT_8_8_REV_APPLE                    0x85BB
-#endif 
+#endif
 
 /* GL_S3_s3tc */
 
@@ -8444,7 +8444,7 @@ GLEE_EXTERN PFNGLVERTEXARRAYPARAMETERIAPPLEPROC pglVertexArrayParameteriAPPLE;
 #define GL_RGB4_S3TC                                       0x83A1
 #define GL_RGBA_S3TC                                       0x83A2
 #define GL_RGBA4_S3TC                                      0x83A3
-#endif 
+#endif
 
 /* GL_ATI_draw_buffers */
 
@@ -8472,7 +8472,7 @@ GLEE_EXTERN PFNGLVERTEXARRAYPARAMETERIAPPLEPROC pglVertexArrayParameteriAPPLE;
 typedef void (APIENTRYP PFNGLDRAWBUFFERSATIPROC) (GLsizei n, const GLenum * bufs);
 GLEE_EXTERN PFNGLDRAWBUFFERSATIPROC pglDrawBuffersATI;
 #define glDrawBuffersATI pglDrawBuffersATI
-#endif 
+#endif
 
 /* GL_ATI_pixel_format_float */
 
@@ -8482,7 +8482,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSATIPROC pglDrawBuffersATI;
 /* Constants */
 #define GL_TYPE_RGBA_FLOAT_ATI                             0x8820
 #define GL_COLOR_CLEAR_UNCLAMPED_VALUE_ATI                 0x8835
-#endif 
+#endif
 
 /* GL_ATI_texture_env_combine3 */
 
@@ -8493,7 +8493,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSATIPROC pglDrawBuffersATI;
 #define GL_MODULATE_ADD_ATI                                0x8744
 #define GL_MODULATE_SIGNED_ADD_ATI                         0x8745
 #define GL_MODULATE_SUBTRACT_ATI                           0x8746
-#endif 
+#endif
 
 /* GL_ATI_texture_float */
 
@@ -8513,7 +8513,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSATIPROC pglDrawBuffersATI;
 #define GL_INTENSITY_FLOAT16_ATI                           0x881D
 #define GL_LUMINANCE_FLOAT16_ATI                           0x881E
 #define GL_LUMINANCE_ALPHA_FLOAT16_ATI                     0x881F
-#endif 
+#endif
 
 /* GL_NV_float_buffer */
 
@@ -8536,7 +8536,7 @@ GLEE_EXTERN PFNGLDRAWBUFFERSATIPROC pglDrawBuffersATI;
 #define GL_TEXTURE_FLOAT_COMPONENTS_NV                     0x888C
 #define GL_FLOAT_CLEAR_COLOR_VALUE_NV                      0x888D
 #define GL_FLOAT_RGBA_MODE_NV                              0x888E
-#endif 
+#endif
 
 /* GL_NV_fragment_program */
 
@@ -8568,7 +8568,7 @@ GLEE_EXTERN PFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC pglGetProgramNamedParameterdvN
 #define glProgramNamedParameter4dvNV pglProgramNamedParameter4dvNV
 #define glGetProgramNamedParameterfvNV pglGetProgramNamedParameterfvNV
 #define glGetProgramNamedParameterdvNV pglGetProgramNamedParameterdvNV
-#endif 
+#endif
 
 /* GL_NV_half_float */
 
@@ -8715,7 +8715,7 @@ GLEE_EXTERN PFNGLVERTEXATTRIBS4HVNVPROC pglVertexAttribs4hvNV;
 #define glVertexAttribs2hvNV pglVertexAttribs2hvNV
 #define glVertexAttribs3hvNV pglVertexAttribs3hvNV
 #define glVertexAttribs4hvNV pglVertexAttribs4hvNV
-#endif 
+#endif
 
 /* GL_NV_pixel_data_range */
 
@@ -8735,7 +8735,7 @@ GLEE_EXTERN PFNGLPIXELDATARANGENVPROC pglPixelDataRangeNV;
 GLEE_EXTERN PFNGLFLUSHPIXELDATARANGENVPROC pglFlushPixelDataRangeNV;
 #define glPixelDataRangeNV pglPixelDataRangeNV
 #define glFlushPixelDataRangeNV pglFlushPixelDataRangeNV
-#endif 
+#endif
 
 /* GL_NV_primitive_restart */
 
@@ -8751,7 +8751,7 @@ GLEE_EXTERN PFNGLPRIMITIVERESTARTNVPROC pglPrimitiveRestartNV;
 GLEE_EXTERN PFNGLPRIMITIVERESTARTINDEXNVPROC pglPrimitiveRestartIndexNV;
 #define glPrimitiveRestartNV pglPrimitiveRestartNV
 #define glPrimitiveRestartIndexNV pglPrimitiveRestartIndexNV
-#endif 
+#endif
 
 /* GL_NV_texture_expand_normal */
 
@@ -8760,7 +8760,7 @@ GLEE_EXTERN PFNGLPRIMITIVERESTARTINDEXNVPROC pglPrimitiveRestartIndexNV;
 #define __GLEE_GL_NV_texture_expand_normal 1
 /* Constants */
 #define GL_TEXTURE_UNSIGNED_REMAP_MODE_NV                  0x888F
-#endif 
+#endif
 
 /* GL_NV_vertex_program2 */
 
@@ -8768,7 +8768,7 @@ GLEE_EXTERN PFNGLPRIMITIVERESTARTINDEXNVPROC pglPrimitiveRestartIndexNV;
 #define GL_NV_vertex_program2 1
 #define __GLEE_GL_NV_vertex_program2 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_ATI_map_object_buffer */
 
@@ -8782,7 +8782,7 @@ GLEE_EXTERN PFNGLMAPOBJECTBUFFERATIPROC pglMapObjectBufferATI;
 GLEE_EXTERN PFNGLUNMAPOBJECTBUFFERATIPROC pglUnmapObjectBufferATI;
 #define glMapObjectBufferATI pglMapObjectBufferATI
 #define glUnmapObjectBufferATI pglUnmapObjectBufferATI
-#endif 
+#endif
 
 /* GL_ATI_separate_stencil */
 
@@ -8800,7 +8800,7 @@ GLEE_EXTERN PFNGLSTENCILOPSEPARATEATIPROC pglStencilOpSeparateATI;
 GLEE_EXTERN PFNGLSTENCILFUNCSEPARATEATIPROC pglStencilFuncSeparateATI;
 #define glStencilOpSeparateATI pglStencilOpSeparateATI
 #define glStencilFuncSeparateATI pglStencilFuncSeparateATI
-#endif 
+#endif
 
 /* GL_ATI_vertex_attrib_array_object */
 
@@ -8817,7 +8817,7 @@ GLEE_EXTERN PFNGLGETVERTEXATTRIBARRAYOBJECTIVATIPROC pglGetVertexAttribArrayObje
 #define glVertexAttribArrayObjectATI pglVertexAttribArrayObjectATI
 #define glGetVertexAttribArrayObjectfvATI pglGetVertexAttribArrayObjectfvATI
 #define glGetVertexAttribArrayObjectivATI pglGetVertexAttribArrayObjectivATI
-#endif 
+#endif
 
 /* GL_OES_read_format */
 
@@ -8827,7 +8827,7 @@ GLEE_EXTERN PFNGLGETVERTEXATTRIBARRAYOBJECTIVATIPROC pglGetVertexAttribArrayObje
 /* Constants */
 #define GL_IMPLEMENTATION_COLOR_READ_TYPE_OES              0x8B9A
 #define GL_IMPLEMENTATION_COLOR_READ_FORMAT_OES            0x8B9B
-#endif 
+#endif
 
 /* GL_EXT_depth_bounds_test */
 
@@ -8840,7 +8840,7 @@ GLEE_EXTERN PFNGLGETVERTEXATTRIBARRAYOBJECTIVATIPROC pglGetVertexAttribArrayObje
 typedef void (APIENTRYP PFNGLDEPTHBOUNDSEXTPROC) (GLclampd zmin, GLclampd zmax);
 GLEE_EXTERN PFNGLDEPTHBOUNDSEXTPROC pglDepthBoundsEXT;
 #define glDepthBoundsEXT pglDepthBoundsEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_mirror_clamp */
 
@@ -8851,7 +8851,7 @@ GLEE_EXTERN PFNGLDEPTHBOUNDSEXTPROC pglDepthBoundsEXT;
 #define GL_MIRROR_CLAMP_EXT                                0x8742
 #define GL_MIRROR_CLAMP_TO_EDGE_EXT                        0x8743
 #define GL_MIRROR_CLAMP_TO_BORDER_EXT                      0x8912
-#endif 
+#endif
 
 /* GL_EXT_blend_equation_separate */
 
@@ -8864,7 +8864,7 @@ GLEE_EXTERN PFNGLDEPTHBOUNDSEXTPROC pglDepthBoundsEXT;
 typedef void (APIENTRYP PFNGLBLENDEQUATIONSEPARATEEXTPROC) (GLenum modeRGB, GLenum modeAlpha);
 GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define glBlendEquationSeparateEXT pglBlendEquationSeparateEXT
-#endif 
+#endif
 
 /* GL_MESA_pack_invert */
 
@@ -8873,7 +8873,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define __GLEE_GL_MESA_pack_invert 1
 /* Constants */
 #define GL_PACK_INVERT_MESA                                0x8758
-#endif 
+#endif
 
 /* GL_MESA_ycbcr_texture */
 
@@ -8884,7 +8884,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_UNSIGNED_SHORT_8_8_MESA                         0x85BA
 #define GL_UNSIGNED_SHORT_8_8_REV_MESA                     0x85BB
 #define GL_YCBCR_MESA                                      0x8757
-#endif 
+#endif
 
 /* GL_EXT_pixel_buffer_object */
 
@@ -8896,7 +8896,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_PIXEL_UNPACK_BUFFER_EXT                         0x88EC
 #define GL_PIXEL_PACK_BUFFER_BINDING_EXT                   0x88ED
 #define GL_PIXEL_UNPACK_BUFFER_BINDING_EXT                 0x88EF
-#endif 
+#endif
 
 /* GL_NV_fragment_program_option */
 
@@ -8904,7 +8904,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_NV_fragment_program_option 1
 #define __GLEE_GL_NV_fragment_program_option 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_fragment_program2 */
 
@@ -8917,7 +8917,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_MAX_PROGRAM_IF_DEPTH_NV                         0x88F6
 #define GL_MAX_PROGRAM_LOOP_DEPTH_NV                       0x88F7
 #define GL_MAX_PROGRAM_LOOP_COUNT_NV                       0x88F8
-#endif 
+#endif
 
 /* GL_NV_vertex_program2_option */
 
@@ -8925,7 +8925,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_NV_vertex_program2_option 1
 #define __GLEE_GL_NV_vertex_program2_option 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_vertex_program3 */
 
@@ -8933,7 +8933,7 @@ GLEE_EXTERN PFNGLBLENDEQUATIONSEPARATEEXTPROC pglBlendEquationSeparateEXT;
 #define GL_NV_vertex_program3 1
 #define __GLEE_GL_NV_vertex_program3 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_object */
 
@@ -9043,7 +9043,7 @@ GLEE_EXTERN PFNGLGENERATEMIPMAPEXTPROC pglGenerateMipmapEXT;
 #define glFramebufferRenderbufferEXT pglFramebufferRenderbufferEXT
 #define glGetFramebufferAttachmentParameterivEXT pglGetFramebufferAttachmentParameterivEXT
 #define glGenerateMipmapEXT pglGenerateMipmapEXT
-#endif 
+#endif
 
 /* GL_GREMEDY_string_marker */
 
@@ -9054,7 +9054,7 @@ GLEE_EXTERN PFNGLGENERATEMIPMAPEXTPROC pglGenerateMipmapEXT;
 typedef void (APIENTRYP PFNGLSTRINGMARKERGREMEDYPROC) (GLsizei len, const GLvoid * string);
 GLEE_EXTERN PFNGLSTRINGMARKERGREMEDYPROC pglStringMarkerGREMEDY;
 #define glStringMarkerGREMEDY pglStringMarkerGREMEDY
-#endif 
+#endif
 
 /* GL_EXT_packed_depth_stencil */
 
@@ -9066,7 +9066,7 @@ GLEE_EXTERN PFNGLSTRINGMARKERGREMEDYPROC pglStringMarkerGREMEDY;
 #define GL_UNSIGNED_INT_24_8_EXT                           0x84FA
 #define GL_DEPTH24_STENCIL8_EXT                            0x88F0
 #define GL_TEXTURE_STENCIL_SIZE_EXT                        0x88F1
-#endif 
+#endif
 
 /* GL_EXT_stencil_clear_tag */
 
@@ -9079,7 +9079,7 @@ GLEE_EXTERN PFNGLSTRINGMARKERGREMEDYPROC pglStringMarkerGREMEDY;
 typedef void (APIENTRYP PFNGLSTENCILCLEARTAGEXTPROC) (GLsizei stencilTagBits, GLuint stencilClearTag);
 GLEE_EXTERN PFNGLSTENCILCLEARTAGEXTPROC pglStencilClearTagEXT;
 #define glStencilClearTagEXT pglStencilClearTagEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_sRGB */
 
@@ -9103,7 +9103,7 @@ GLEE_EXTERN PFNGLSTENCILCLEARTAGEXTPROC pglStencilClearTagEXT;
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT             0x8C4D
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT             0x8C4E
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT             0x8C4F
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_blit */
 
@@ -9118,7 +9118,7 @@ GLEE_EXTERN PFNGLSTENCILCLEARTAGEXTPROC pglStencilClearTagEXT;
 typedef void (APIENTRYP PFNGLBLITFRAMEBUFFEREXTPROC) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 GLEE_EXTERN PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT;
 #define glBlitFramebufferEXT pglBlitFramebufferEXT
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_multisample */
 
@@ -9132,7 +9132,7 @@ GLEE_EXTERN PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT;
 typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
 GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMultisampleEXT;
 #define glRenderbufferStorageMultisampleEXT pglRenderbufferStorageMultisampleEXT
-#endif 
+#endif
 
 /* GL_MESAX_texture_stack */
 
@@ -9146,7 +9146,7 @@ GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMul
 #define GL_PROXY_TEXTURE_2D_STACK_MESAX                    0x875C
 #define GL_TEXTURE_1D_STACK_BINDING_MESAX                  0x875D
 #define GL_TEXTURE_2D_STACK_BINDING_MESAX                  0x875E
-#endif 
+#endif
 
 /* GL_EXT_timer_query */
 
@@ -9161,7 +9161,7 @@ GLEE_EXTERN PFNGLGETQUERYOBJECTI64VEXTPROC pglGetQueryObjecti64vEXT;
 GLEE_EXTERN PFNGLGETQUERYOBJECTUI64VEXTPROC pglGetQueryObjectui64vEXT;
 #define glGetQueryObjecti64vEXT pglGetQueryObjecti64vEXT
 #define glGetQueryObjectui64vEXT pglGetQueryObjectui64vEXT
-#endif 
+#endif
 
 /* GL_EXT_gpu_program_parameters */
 
@@ -9175,7 +9175,7 @@ GLEE_EXTERN PFNGLPROGRAMENVPARAMETERS4FVEXTPROC pglProgramEnvParameters4fvEXT;
 GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC pglProgramLocalParameters4fvEXT;
 #define glProgramEnvParameters4fvEXT pglProgramEnvParameters4fvEXT
 #define glProgramLocalParameters4fvEXT pglProgramLocalParameters4fvEXT
-#endif 
+#endif
 
 /* GL_APPLE_flush_buffer_range */
 
@@ -9191,7 +9191,7 @@ GLEE_EXTERN PFNGLBUFFERPARAMETERIAPPLEPROC pglBufferParameteriAPPLE;
 GLEE_EXTERN PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC pglFlushMappedBufferRangeAPPLE;
 #define glBufferParameteriAPPLE pglBufferParameteriAPPLE
 #define glFlushMappedBufferRangeAPPLE pglFlushMappedBufferRangeAPPLE
-#endif 
+#endif
 
 /* GL_NV_gpu_program4 */
 
@@ -9255,7 +9255,7 @@ GLEE_EXTERN PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC pglGetProgramEnvParameterIuivN
 #define glGetProgramLocalParameterIuivNV pglGetProgramLocalParameterIuivNV
 #define glGetProgramEnvParameterIivNV pglGetProgramEnvParameterIivNV
 #define glGetProgramEnvParameterIuivNV pglGetProgramEnvParameterIuivNV
-#endif 
+#endif
 
 /* GL_NV_geometry_program4 */
 
@@ -9291,7 +9291,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC pglFramebufferTextureFaceEXT;
 #define glFramebufferTextureEXT pglFramebufferTextureEXT
 #define glFramebufferTextureLayerEXT pglFramebufferTextureLayerEXT
 #define glFramebufferTextureFaceEXT pglFramebufferTextureFaceEXT
-#endif 
+#endif
 
 /* GL_EXT_geometry_shader4 */
 
@@ -9309,7 +9309,7 @@ GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC pglFramebufferTextureFaceEXT;
 typedef void (APIENTRYP PFNGLPROGRAMPARAMETERIEXTPROC) (GLuint program, GLenum pname, GLint value);
 GLEE_EXTERN PFNGLPROGRAMPARAMETERIEXTPROC pglProgramParameteriEXT;
 #define glProgramParameteriEXT pglProgramParameteriEXT
-#endif 
+#endif
 
 /* GL_NV_vertex_program4 */
 
@@ -9387,7 +9387,7 @@ GLEE_EXTERN PFNGLGETVERTEXATTRIBIUIVEXTPROC pglGetVertexAttribIuivEXT;
 #define glVertexAttribIPointerEXT pglVertexAttribIPointerEXT
 #define glGetVertexAttribIivEXT pglGetVertexAttribIivEXT
 #define glGetVertexAttribIuivEXT pglGetVertexAttribIuivEXT
-#endif 
+#endif
 
 /* GL_EXT_gpu_shader4 */
 
@@ -9453,7 +9453,7 @@ GLEE_EXTERN PFNGLUNIFORM4UIVEXTPROC pglUniform4uivEXT;
 #define glUniform2uivEXT pglUniform2uivEXT
 #define glUniform3uivEXT pglUniform3uivEXT
 #define glUniform4uivEXT pglUniform4uivEXT
-#endif 
+#endif
 
 /* GL_EXT_draw_instanced */
 
@@ -9467,7 +9467,7 @@ GLEE_EXTERN PFNGLDRAWARRAYSINSTANCEDEXTPROC pglDrawArraysInstancedEXT;
 GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT;
 #define glDrawArraysInstancedEXT pglDrawArraysInstancedEXT
 #define glDrawElementsInstancedEXT pglDrawElementsInstancedEXT
-#endif 
+#endif
 
 /* GL_EXT_packed_float */
 
@@ -9478,7 +9478,7 @@ GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT;
 #define GL_R11F_G11F_B10F_EXT                              0x8C3A
 #define GL_UNSIGNED_INT_10F_11F_11F_REV_EXT                0x8C3B
 #define GL_RGBA_SIGNED_COMPONENTS_EXT                      0x8C3C
-#endif 
+#endif
 
 /* GL_EXT_texture_array */
 
@@ -9494,7 +9494,7 @@ GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT;
 #define GL_TEXTURE_BINDING_2D_ARRAY_EXT                    0x8C1D
 #define GL_MAX_ARRAY_TEXTURE_LAYERS_EXT                    0x88FF
 #define GL_COMPARE_REF_DEPTH_TO_TEXTURE_EXT                0x884E
-#endif 
+#endif
 
 /* GL_EXT_texture_buffer_object */
 
@@ -9510,7 +9510,7 @@ GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT;
 typedef void (APIENTRYP PFNGLTEXBUFFEREXTPROC) (GLenum target, GLenum internalformat, GLuint buffer);
 GLEE_EXTERN PFNGLTEXBUFFEREXTPROC pglTexBufferEXT;
 #define glTexBufferEXT pglTexBufferEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_latc */
 
@@ -9522,7 +9522,7 @@ GLEE_EXTERN PFNGLTEXBUFFEREXTPROC pglTexBufferEXT;
 #define GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT           0x8C71
 #define GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT            0x8C72
 #define GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT     0x8C73
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_rgtc */
 
@@ -9534,7 +9534,7 @@ GLEE_EXTERN PFNGLTEXBUFFEREXTPROC pglTexBufferEXT;
 #define GL_COMPRESSED_SIGNED_RED_RGTC1_EXT                 0x8DBC
 #define GL_COMPRESSED_RED_GREEN_RGTC2_EXT                  0x8DBD
 #define GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT           0x8DBE
-#endif 
+#endif
 
 /* GL_EXT_texture_shared_exponent */
 
@@ -9545,7 +9545,7 @@ GLEE_EXTERN PFNGLTEXBUFFEREXTPROC pglTexBufferEXT;
 #define GL_RGB9_E5_EXT                                     0x8C3D
 #define GL_UNSIGNED_INT_5_9_9_9_REV_EXT                    0x8C3E
 #define GL_TEXTURE_SHARED_SIZE_EXT                         0x8C3F
-#endif 
+#endif
 
 /* GL_NV_depth_buffer_float */
 
@@ -9566,7 +9566,7 @@ GLEE_EXTERN PFNGLDEPTHBOUNDSDNVPROC pglDepthBoundsdNV;
 #define glDepthRangedNV pglDepthRangedNV
 #define glClearDepthdNV pglClearDepthdNV
 #define glDepthBoundsdNV pglDepthBoundsdNV
-#endif 
+#endif
 
 /* GL_NV_fragment_program4 */
 
@@ -9574,7 +9574,7 @@ GLEE_EXTERN PFNGLDEPTHBOUNDSDNVPROC pglDepthBoundsdNV;
 #define GL_NV_fragment_program4 1
 #define __GLEE_GL_NV_fragment_program4 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_framebuffer_multisample_coverage */
 
@@ -9590,7 +9590,7 @@ GLEE_EXTERN PFNGLDEPTHBOUNDSDNVPROC pglDepthBoundsdNV;
 typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC) (GLenum target, GLsizei coverageSamples, GLsizei colorSamples, GLenum internalformat, GLsizei width, GLsizei height);
 GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC pglRenderbufferStorageMultisampleCoverageNV;
 #define glRenderbufferStorageMultisampleCoverageNV pglRenderbufferStorageMultisampleCoverageNV
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_sRGB */
 
@@ -9600,7 +9600,7 @@ GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC pglRenderbufferSto
 /* Constants */
 #define GL_FRAMEBUFFER_SRGB_EXT                            0x8DB9
 #define GL_FRAMEBUFFER_SRGB_CAPABLE_EXT                    0x8DBA
-#endif 
+#endif
 
 /* GL_NV_geometry_shader4 */
 
@@ -9608,7 +9608,7 @@ GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC pglRenderbufferSto
 #define GL_NV_geometry_shader4 1
 #define __GLEE_GL_NV_geometry_shader4 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_NV_parameter_buffer_object */
 
@@ -9630,7 +9630,7 @@ GLEE_EXTERN PFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC pglProgramBufferParametersIui
 #define glProgramBufferParametersfvNV pglProgramBufferParametersfvNV
 #define glProgramBufferParametersIivNV pglProgramBufferParametersIivNV
 #define glProgramBufferParametersIuivNV pglProgramBufferParametersIuivNV
-#endif 
+#endif
 
 /* GL_EXT_draw_buffers2 */
 
@@ -9656,7 +9656,7 @@ GLEE_EXTERN PFNGLISENABLEDINDEXEDEXTPROC pglIsEnabledIndexedEXT;
 #define glEnableIndexedEXT pglEnableIndexedEXT
 #define glDisableIndexedEXT pglDisableIndexedEXT
 #define glIsEnabledIndexedEXT pglIsEnabledIndexedEXT
-#endif 
+#endif
 
 /* GL_NV_transform_feedback */
 
@@ -9722,7 +9722,7 @@ GLEE_EXTERN PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC pglGetTransformFeedbackVaryin
 #define glGetVaryingLocationNV pglGetVaryingLocationNV
 #define glGetActiveVaryingNV pglGetActiveVaryingNV
 #define glGetTransformFeedbackVaryingNV pglGetTransformFeedbackVaryingNV
-#endif 
+#endif
 
 /* GL_EXT_bindable_uniform */
 
@@ -9745,7 +9745,7 @@ GLEE_EXTERN PFNGLGETUNIFORMOFFSETEXTPROC pglGetUniformOffsetEXT;
 #define glUniformBufferEXT pglUniformBufferEXT
 #define glGetUniformBufferSizeEXT pglGetUniformBufferSizeEXT
 #define glGetUniformOffsetEXT pglGetUniformOffsetEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_integer */
 
@@ -9818,7 +9818,7 @@ GLEE_EXTERN PFNGLCLEARCOLORIUIEXTPROC pglClearColorIuiEXT;
 #define glGetTexParameterIuivEXT pglGetTexParameterIuivEXT
 #define glClearColorIiEXT pglClearColorIiEXT
 #define glClearColorIuiEXT pglClearColorIuiEXT
-#endif 
+#endif
 
 /* GL_GREMEDY_frame_terminator */
 
@@ -9829,7 +9829,7 @@ GLEE_EXTERN PFNGLCLEARCOLORIUIEXTPROC pglClearColorIuiEXT;
 typedef void (APIENTRYP PFNGLFRAMETERMINATORGREMEDYPROC) ();
 GLEE_EXTERN PFNGLFRAMETERMINATORGREMEDYPROC pglFrameTerminatorGREMEDY;
 #define glFrameTerminatorGREMEDY pglFrameTerminatorGREMEDY
-#endif 
+#endif
 
 /* GL_NV_conditional_render */
 
@@ -9847,7 +9847,7 @@ GLEE_EXTERN PFNGLBEGINCONDITIONALRENDERNVPROC pglBeginConditionalRenderNV;
 GLEE_EXTERN PFNGLENDCONDITIONALRENDERNVPROC pglEndConditionalRenderNV;
 #define glBeginConditionalRenderNV pglBeginConditionalRenderNV
 #define glEndConditionalRenderNV pglEndConditionalRenderNV
-#endif 
+#endif
 
 /* GL_NV_present_video */
 
@@ -9861,7 +9861,7 @@ GLEE_EXTERN PFNGLENDCONDITIONALRENDERNVPROC pglEndConditionalRenderNV;
 #define GL_NUM_FILL_STREAMS_NV                             0x8E29
 #define GL_PRESENT_TIME_NV                                 0x8E2A
 #define GL_PRESENT_DURATION_NV                             0x8E2B
-#endif 
+#endif
 
 /* GL_EXT_transform_feedback */
 
@@ -9905,7 +9905,7 @@ GLEE_EXTERN PFNGLGETTRANSFORMFEEDBACKVARYINGEXTPROC pglGetTransformFeedbackVaryi
 #define glBindBufferBaseEXT pglBindBufferBaseEXT
 #define glTransformFeedbackVaryingsEXT pglTransformFeedbackVaryingsEXT
 #define glGetTransformFeedbackVaryingEXT pglGetTransformFeedbackVaryingEXT
-#endif 
+#endif
 
 /* GL_EXT_direct_state_access */
 
@@ -10474,7 +10474,7 @@ GLEE_EXTERN PFNGLMULTITEXRENDERBUFFEREXTPROC pglMultiTexRenderbufferEXT;
 #define glNamedFramebufferTextureFaceEXT pglNamedFramebufferTextureFaceEXT
 #define glTextureRenderbufferEXT pglTextureRenderbufferEXT
 #define glMultiTexRenderbufferEXT pglMultiTexRenderbufferEXT
-#endif 
+#endif
 
 /* GL_EXT_vertex_array_bgra */
 
@@ -10482,7 +10482,7 @@ GLEE_EXTERN PFNGLMULTITEXRENDERBUFFEREXTPROC pglMultiTexRenderbufferEXT;
 #define GL_EXT_vertex_array_bgra 1
 #define __GLEE_GL_EXT_vertex_array_bgra 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_texture_select */
 
@@ -10490,7 +10490,7 @@ GLEE_EXTERN PFNGLMULTITEXRENDERBUFFEREXTPROC pglMultiTexRenderbufferEXT;
 #define GL_SGIX_texture_select 1
 #define __GLEE_GL_SGIX_texture_select 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_INGR_blend_func_separate */
 
@@ -10501,7 +10501,7 @@ GLEE_EXTERN PFNGLMULTITEXRENDERBUFFEREXTPROC pglMultiTexRenderbufferEXT;
 typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEINGRPROC) (GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
 GLEE_EXTERN PFNGLBLENDFUNCSEPARATEINGRPROC pglBlendFuncSeparateINGR;
 #define glBlendFuncSeparateINGR pglBlendFuncSeparateINGR
-#endif 
+#endif
 
 /* GL_SGIX_depth_pass_instrument */
 
@@ -10509,7 +10509,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEINGRPROC pglBlendFuncSeparateINGR;
 #define GL_SGIX_depth_pass_instrument 1
 #define __GLEE_GL_SGIX_depth_pass_instrument 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_igloo_interface */
 
@@ -10520,7 +10520,7 @@ GLEE_EXTERN PFNGLBLENDFUNCSEPARATEINGRPROC pglBlendFuncSeparateINGR;
 typedef void (APIENTRYP PFNGLIGLOOINTERFACESGIXPROC) (GLenum pname, const GLvoid * params);
 GLEE_EXTERN PFNGLIGLOOINTERFACESGIXPROC pglIglooInterfaceSGIX;
 #define glIglooInterfaceSGIX pglIglooInterfaceSGIX
-#endif 
+#endif
 
 /* GL_EXT_fragment_lighting */
 
@@ -10596,7 +10596,7 @@ GLEE_EXTERN PFNGLLIGHTENVIEXTPROC pglLightEnviEXT;
 #define glGetFragmentMaterialfvEXT pglGetFragmentMaterialfvEXT
 #define glGetFragmentMaterialivEXT pglGetFragmentMaterialivEXT
 #define glLightEnviEXT pglLightEnviEXT
-#endif 
+#endif
 
 /* GL_EXT_scene_marker */
 
@@ -10610,7 +10610,7 @@ GLEE_EXTERN PFNGLBEGINSCENEEXTPROC pglBeginSceneEXT;
 GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 #define glBeginSceneEXT pglBeginSceneEXT
 #define glEndSceneEXT pglEndSceneEXT
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_dxt1 */
 
@@ -10620,7 +10620,7 @@ GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 /* Constants */
 #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT                    0x83F0
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                   0x83F1
-#endif 
+#endif
 
 /* GL_EXT_texture_env */
 
@@ -10639,7 +10639,7 @@ GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 #define GL_ENV_BLEND_EXT                                   0
 #define GL_ENV_REVERSE_BLEND_EXT                           0
 #define GL_TEXTURE_ENV_SHIFT_EXT                           0
-#endif 
+#endif
 
 /* GL_IBM_static_data */
 
@@ -10649,7 +10649,7 @@ GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 /* Constants */
 #define GL_ALL_STATIC_DATA_IBM                             103060
 #define GL_STATIC_VERTEX_ARRAY_IBM                         103061
-#endif 
+#endif
 
 /* GL_OES_byte_coordinates */
 
@@ -10658,7 +10658,7 @@ GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 #define __GLEE_GL_OES_byte_coordinates 1
 /* Constants */
 #define GL_BYTE                                            0x1400
-#endif 
+#endif
 
 /* GL_OES_compressed_paletted_texture */
 
@@ -10676,7 +10676,7 @@ GLEE_EXTERN PFNGLENDSCENEEXTPROC pglEndSceneEXT;
 #define GL_PALETTE8_R5_G6_B5_OES                           0x8B97
 #define GL_PALETTE8_RGBA4_OES                              0x8B98
 #define GL_PALETTE8_RGB5_A1_OES                            0x8B99
-#endif 
+#endif
 
 /* GL_OES_single_precision */
 
@@ -10702,7 +10702,7 @@ GLEE_EXTERN PFNGLCLEARDEPTHFOESPROC pglClearDepthfOES;
 #define glClipPlanefOES pglClipPlanefOES
 #define glGetClipPlanefOES pglGetClipPlanefOES
 #define glClearDepthfOES pglClearDepthfOES
-#endif 
+#endif
 
 /* GL_SGIX_pixel_texture_bits */
 
@@ -10710,7 +10710,7 @@ GLEE_EXTERN PFNGLCLEARDEPTHFOESPROC pglClearDepthfOES;
 #define GL_SGIX_pixel_texture_bits 1
 #define __GLEE_GL_SGIX_pixel_texture_bits 1
 /* Constants */
-#endif 
+#endif
 
 /* GL_SGIX_texture_range */
 
@@ -10746,7 +10746,7 @@ GLEE_EXTERN PFNGLCLEARDEPTHFOESPROC pglClearDepthfOES;
 #define GL_MAX_LUMINANCE_SGIS                              0x85F9
 #define GL_MIN_INTENSITY_SGIS                              0x85FA
 #define GL_MAX_INTENSITY_SGIS                              0x85FB
-#endif 
+#endif
 
 /* WGL  */
 
@@ -10854,7 +10854,7 @@ GLEE_EXTERN PFNWGLRESTOREBUFFERREGIONARBPROC pwglRestoreBufferRegionARB;
 #define wglDeleteBufferRegionARB pwglDeleteBufferRegionARB
 #define wglSaveBufferRegionARB pwglSaveBufferRegionARB
 #define wglRestoreBufferRegionARB pwglRestoreBufferRegionARB
-#endif 
+#endif
 
 /* WGL_ARB_multisample */
 
@@ -10864,7 +10864,7 @@ GLEE_EXTERN PFNWGLRESTOREBUFFERREGIONARBPROC pwglRestoreBufferRegionARB;
 /* Constants */
 #define WGL_SAMPLE_BUFFERS_ARB                             0x2041
 #define WGL_SAMPLES_ARB                                    0x2042
-#endif 
+#endif
 
 /* WGL_ARB_extensions_string */
 
@@ -10875,7 +10875,7 @@ GLEE_EXTERN PFNWGLRESTOREBUFFERREGIONARBPROC pwglRestoreBufferRegionARB;
 typedef const char * (APIENTRYP PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
 GLEE_EXTERN PFNWGLGETEXTENSIONSSTRINGARBPROC pwglGetExtensionsStringARB;
 #define wglGetExtensionsStringARB pwglGetExtensionsStringARB
-#endif 
+#endif
 
 /* WGL_ARB_pixel_format */
 
@@ -10941,7 +10941,7 @@ GLEE_EXTERN PFNWGLCHOOSEPIXELFORMATARBPROC pwglChoosePixelFormatARB;
 #define wglGetPixelFormatAttribivARB pwglGetPixelFormatAttribivARB
 #define wglGetPixelFormatAttribfvARB pwglGetPixelFormatAttribfvARB
 #define wglChoosePixelFormatARB pwglChoosePixelFormatARB
-#endif 
+#endif
 
 /* WGL_ARB_make_current_read */
 
@@ -10957,7 +10957,7 @@ GLEE_EXTERN PFNWGLMAKECONTEXTCURRENTARBPROC pwglMakeContextCurrentARB;
 GLEE_EXTERN PFNWGLGETCURRENTREADDCARBPROC pwglGetCurrentReadDCARB;
 #define wglMakeContextCurrentARB pwglMakeContextCurrentARB
 #define wglGetCurrentReadDCARB pwglGetCurrentReadDCARB
-#endif 
+#endif
 
 /* WGL_ARB_pbuffer */
 
@@ -10988,7 +10988,7 @@ GLEE_EXTERN PFNWGLQUERYPBUFFERARBPROC pwglQueryPbufferARB;
 #define wglReleasePbufferDCARB pwglReleasePbufferDCARB
 #define wglDestroyPbufferARB pwglDestroyPbufferARB
 #define wglQueryPbufferARB pwglQueryPbufferARB
-#endif 
+#endif
 
 /* WGL_ARB_render_texture */
 
@@ -11038,7 +11038,7 @@ GLEE_EXTERN PFNWGLSETPBUFFERATTRIBARBPROC pwglSetPbufferAttribARB;
 #define wglBindTexImageARB pwglBindTexImageARB
 #define wglReleaseTexImageARB pwglReleaseTexImageARB
 #define wglSetPbufferAttribARB pwglSetPbufferAttribARB
-#endif 
+#endif
 
 /* WGL_ARB_pixel_format_float */
 
@@ -11047,7 +11047,7 @@ GLEE_EXTERN PFNWGLSETPBUFFERATTRIBARBPROC pwglSetPbufferAttribARB;
 #define __GLEE_WGL_ARB_pixel_format_float 1
 /* Constants */
 #define WGL_TYPE_RGBA_FLOAT_ARB                            0x21A0
-#endif 
+#endif
 
 /* WGL_ARB_create_context */
 
@@ -11065,7 +11065,7 @@ GLEE_EXTERN PFNWGLSETPBUFFERATTRIBARBPROC pwglSetPbufferAttribARB;
 typedef HGLRC (APIENTRYP PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int * attribList);
 GLEE_EXTERN PFNWGLCREATECONTEXTATTRIBSARBPROC pwglCreateContextAttribsARB;
 #define wglCreateContextAttribsARB pwglCreateContextAttribsARB
-#endif 
+#endif
 
 /* WGL_EXT_make_current_read */
 
@@ -11080,7 +11080,7 @@ GLEE_EXTERN PFNWGLMAKECONTEXTCURRENTEXTPROC pwglMakeContextCurrentEXT;
 GLEE_EXTERN PFNWGLGETCURRENTREADDCEXTPROC pwglGetCurrentReadDCEXT;
 #define wglMakeContextCurrentEXT pwglMakeContextCurrentEXT
 #define wglGetCurrentReadDCEXT pwglGetCurrentReadDCEXT
-#endif 
+#endif
 
 /* WGL_EXT_pixel_format */
 
@@ -11142,7 +11142,7 @@ GLEE_EXTERN PFNWGLCHOOSEPIXELFORMATEXTPROC pwglChoosePixelFormatEXT;
 #define wglGetPixelFormatAttribivEXT pwglGetPixelFormatAttribivEXT
 #define wglGetPixelFormatAttribfvEXT pwglGetPixelFormatAttribfvEXT
 #define wglChoosePixelFormatEXT pwglChoosePixelFormatEXT
-#endif 
+#endif
 
 /* WGL_EXT_pbuffer */
 
@@ -11174,7 +11174,7 @@ GLEE_EXTERN PFNWGLQUERYPBUFFEREXTPROC pwglQueryPbufferEXT;
 #define wglReleasePbufferDCEXT pwglReleasePbufferDCEXT
 #define wglDestroyPbufferEXT pwglDestroyPbufferEXT
 #define wglQueryPbufferEXT pwglQueryPbufferEXT
-#endif 
+#endif
 
 /* WGL_EXT_depth_float */
 
@@ -11183,7 +11183,7 @@ GLEE_EXTERN PFNWGLQUERYPBUFFEREXTPROC pwglQueryPbufferEXT;
 #define __GLEE_WGL_EXT_depth_float 1
 /* Constants */
 #define WGL_DEPTH_FLOAT_EXT                                0x2040
-#endif 
+#endif
 
 /* WGL_3DFX_multisample */
 
@@ -11193,7 +11193,7 @@ GLEE_EXTERN PFNWGLQUERYPBUFFEREXTPROC pwglQueryPbufferEXT;
 /* Constants */
 #define WGL_SAMPLE_BUFFERS_3DFX                            0x2060
 #define WGL_SAMPLES_3DFX                                   0x2061
-#endif 
+#endif
 
 /* WGL_EXT_multisample */
 
@@ -11203,7 +11203,7 @@ GLEE_EXTERN PFNWGLQUERYPBUFFEREXTPROC pwglQueryPbufferEXT;
 /* Constants */
 #define WGL_SAMPLE_BUFFERS_EXT                             0x2041
 #define WGL_SAMPLES_EXT                                    0x2042
-#endif 
+#endif
 
 /* WGL_I3D_digital_video_control */
 
@@ -11221,7 +11221,7 @@ GLEE_EXTERN PFNWGLGETDIGITALVIDEOPARAMETERSI3DPROC pwglGetDigitalVideoParameters
 GLEE_EXTERN PFNWGLSETDIGITALVIDEOPARAMETERSI3DPROC pwglSetDigitalVideoParametersI3D;
 #define wglGetDigitalVideoParametersI3D pwglGetDigitalVideoParametersI3D
 #define wglSetDigitalVideoParametersI3D pwglSetDigitalVideoParametersI3D
-#endif 
+#endif
 
 /* WGL_I3D_gamma */
 
@@ -11243,7 +11243,7 @@ GLEE_EXTERN PFNWGLSETGAMMATABLEI3DPROC pwglSetGammaTableI3D;
 #define wglSetGammaTableParametersI3D pwglSetGammaTableParametersI3D
 #define wglGetGammaTableI3D pwglGetGammaTableI3D
 #define wglSetGammaTableI3D pwglSetGammaTableI3D
-#endif 
+#endif
 
 /* WGL_I3D_genlock */
 
@@ -11296,7 +11296,7 @@ GLEE_EXTERN PFNWGLQUERYGENLOCKMAXSOURCEDELAYI3DPROC pwglQueryGenlockMaxSourceDel
 #define wglGenlockSourceDelayI3D pwglGenlockSourceDelayI3D
 #define wglGetGenlockSourceDelayI3D pwglGetGenlockSourceDelayI3D
 #define wglQueryGenlockMaxSourceDelayI3D pwglQueryGenlockMaxSourceDelayI3D
-#endif 
+#endif
 
 /* WGL_I3D_image_buffer */
 
@@ -11318,7 +11318,7 @@ GLEE_EXTERN PFNWGLRELEASEIMAGEBUFFEREVENTSI3DPROC pwglReleaseImageBufferEventsI3
 #define wglDestroyImageBufferI3D pwglDestroyImageBufferI3D
 #define wglAssociateImageBufferEventsI3D pwglAssociateImageBufferEventsI3D
 #define wglReleaseImageBufferEventsI3D pwglReleaseImageBufferEventsI3D
-#endif 
+#endif
 
 /* WGL_I3D_swap_frame_lock */
 
@@ -11338,7 +11338,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define wglDisableFrameLockI3D pwglDisableFrameLockI3D
 #define wglIsEnabledFrameLockI3D pwglIsEnabledFrameLockI3D
 #define wglQueryFrameLockMasterI3D pwglQueryFrameLockMasterI3D
-#endif 
+#endif
 
 /* WGL_NV_render_depth_texture */
 
@@ -11351,7 +11351,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_DEPTH_TEXTURE_FORMAT_NV                        0x20A5
 #define WGL_TEXTURE_DEPTH_COMPONENT_NV                     0x20A6
 #define WGL_DEPTH_COMPONENT_NV                             0x20A7
-#endif 
+#endif
 
 /* WGL_NV_render_texture_rectangle */
 
@@ -11362,7 +11362,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_BIND_TO_TEXTURE_RECTANGLE_RGB_NV               0x20A0
 #define WGL_BIND_TO_TEXTURE_RECTANGLE_RGBA_NV              0x20A1
 #define WGL_TEXTURE_RECTANGLE_NV                           0x20A2
-#endif 
+#endif
 
 /* WGL_ATI_pixel_format_float */
 
@@ -11371,7 +11371,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define __GLEE_WGL_ATI_pixel_format_float 1
 /* Constants */
 #define WGL_TYPE_RGBA_FLOAT_ATI                            0x21A0
-#endif 
+#endif
 
 /* WGL_NV_float_buffer */
 
@@ -11388,7 +11388,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_TEXTURE_FLOAT_RG_NV                            0x20B6
 #define WGL_TEXTURE_FLOAT_RGB_NV                           0x20B7
 #define WGL_TEXTURE_FLOAT_RGBA_NV                          0x20B8
-#endif 
+#endif
 
 /* WGL_3DL_stereo_control */
 
@@ -11400,7 +11400,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_STEREO_EMITTER_DISABLE_3DL                     0x2056
 #define WGL_STEREO_POLARITY_NORMAL_3DL                     0x2057
 #define WGL_STEREO_POLARITY_INVERT_3DL                     0x2058
-#endif 
+#endif
 
 /* WGL_EXT_pixel_format_packed_float */
 
@@ -11409,7 +11409,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define __GLEE_WGL_EXT_pixel_format_packed_float 1
 /* Constants */
 #define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT                   0x20A8
-#endif 
+#endif
 
 /* WGL_EXT_framebuffer_sRGB */
 
@@ -11418,7 +11418,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define __GLEE_WGL_EXT_framebuffer_sRGB 1
 /* Constants */
 #define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT                   0x20A9
-#endif 
+#endif
 
 /* WGL_NV_present_video */
 
@@ -11427,7 +11427,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define __GLEE_WGL_NV_present_video 1
 /* Constants */
 #define WGL_NUM_VIDEO_SLOTS_NV                             0x20F0
-#endif 
+#endif
 
 /* WGL_NV_video_out */
 
@@ -11448,7 +11448,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_VIDEO_OUT_FIELD_2                              0x20CA
 #define WGL_VIDEO_OUT_STACKED_FIELDS_1_2                   0x20CB
 #define WGL_VIDEO_OUT_STACKED_FIELDS_2_1                   0x20CC
-#endif 
+#endif
 
 /* WGL_NV_swap_group */
 
@@ -11456,7 +11456,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMELOCKMASTERI3DPROC pwglQueryFrameLockMasterI3D;
 #define WGL_NV_swap_group 1
 #define __GLEE_WGL_NV_swap_group 1
 /* Constants */
-#endif 
+#endif
 
 /* WGL_EXT_display_color_table */
 
@@ -11476,7 +11476,7 @@ GLEE_EXTERN PFNWGLDESTROYDISPLAYCOLORTABLEEXTPROC pwglDestroyDisplayColorTableEX
 #define wglLoadDisplayColorTableEXT pwglLoadDisplayColorTableEXT
 #define wglBindDisplayColorTableEXT pwglBindDisplayColorTableEXT
 #define wglDestroyDisplayColorTableEXT pwglDestroyDisplayColorTableEXT
-#endif 
+#endif
 
 /* WGL_EXT_extensions_string */
 
@@ -11487,7 +11487,7 @@ GLEE_EXTERN PFNWGLDESTROYDISPLAYCOLORTABLEEXTPROC pwglDestroyDisplayColorTableEX
 typedef const char * (APIENTRYP PFNWGLGETEXTENSIONSSTRINGEXTPROC) ();
 GLEE_EXTERN PFNWGLGETEXTENSIONSSTRINGEXTPROC pwglGetExtensionsStringEXT;
 #define wglGetExtensionsStringEXT pwglGetExtensionsStringEXT
-#endif 
+#endif
 
 /* WGL_EXT_swap_control */
 
@@ -11501,7 +11501,7 @@ GLEE_EXTERN PFNWGLSWAPINTERVALEXTPROC pwglSwapIntervalEXT;
 GLEE_EXTERN PFNWGLGETSWAPINTERVALEXTPROC pwglGetSwapIntervalEXT;
 #define wglSwapIntervalEXT pwglSwapIntervalEXT
 #define wglGetSwapIntervalEXT pwglGetSwapIntervalEXT
-#endif 
+#endif
 
 /* WGL_NV_vertex_array_range */
 
@@ -11515,7 +11515,7 @@ GLEE_EXTERN PFNWGLALLOCATEMEMORYNVPROC pwglAllocateMemoryNV;
 GLEE_EXTERN PFNWGLFREEMEMORYNVPROC pwglFreeMemoryNV;
 #define wglAllocateMemoryNV pwglAllocateMemoryNV
 #define wglFreeMemoryNV pwglFreeMemoryNV
-#endif 
+#endif
 
 /* WGL_OML_sync_control */
 
@@ -11541,7 +11541,7 @@ GLEE_EXTERN PFNWGLWAITFORSBCOMLPROC pwglWaitForSbcOML;
 #define wglSwapLayerBuffersMscOML pwglSwapLayerBuffersMscOML
 #define wglWaitForMscOML pwglWaitForMscOML
 #define wglWaitForSbcOML pwglWaitForSbcOML
-#endif 
+#endif
 
 /* WGL_I3D_swap_frame_usage */
 
@@ -11561,7 +11561,7 @@ GLEE_EXTERN PFNWGLQUERYFRAMETRACKINGI3DPROC pwglQueryFrameTrackingI3D;
 #define wglBeginFrameTrackingI3D pwglBeginFrameTrackingI3D
 #define wglEndFrameTrackingI3D pwglEndFrameTrackingI3D
 #define wglQueryFrameTrackingI3D pwglQueryFrameTrackingI3D
-#endif 
+#endif
 
 /* WGL_NV_video_output */
 
@@ -11600,7 +11600,7 @@ GLEE_EXTERN PFNWGLGETVIDEOINFONVPROC pwglGetVideoInfoNV;
 #define wglReleaseVideoImageNV pwglReleaseVideoImageNV
 #define wglSendPbufferToVideoNV pwglSendPbufferToVideoNV
 #define wglGetVideoInfoNV pwglGetVideoInfoNV
-#endif 
+#endif
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 #else /* GLX */
 
@@ -11804,7 +11804,7 @@ GLEE_EXTERN PFNGLXGETSELECTEDEVENTPROC pglXGetSelectedEvent;
 #define glXQueryContext pglXQueryContext
 #define glXSelectEvent pglXSelectEvent
 #define glXGetSelectedEvent pglXGetSelectedEvent
-#endif 
+#endif
 
 /* GLX_VERSION_1_4 */
 
@@ -11817,7 +11817,7 @@ GLEE_EXTERN PFNGLXGETSELECTEDEVENTPROC pglXGetSelectedEvent;
 typedef __GLXextFuncPtr (APIENTRYP PFNGLXGETPROCADDRESSPROC) (const GLubyte * procName);
 GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 #define glXGetProcAddress pglXGetProcAddress
-#endif 
+#endif
 
 /* GLX_ARB_multisample */
 
@@ -11827,7 +11827,7 @@ GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 /* Constants */
 #define GLX_SAMPLE_BUFFERS_ARB                             100000
 #define GLX_SAMPLES_ARB                                    100001
-#endif 
+#endif
 
 /* GLX_ARB_fbconfig_float */
 
@@ -11837,7 +11837,7 @@ GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 /* Constants */
 #define GLX_RGBA_FLOAT_TYPE_ARB                            0x20B9
 #define GLX_RGBA_FLOAT_BIT_ARB                             0x00000004
-#endif 
+#endif
 
 /* GLX_SGIS_multisample */
 
@@ -11847,7 +11847,7 @@ GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 /* Constants */
 #define GLX_SAMPLE_BUFFERS_SGIS                            100000
 #define GLX_SAMPLES_SGIS                                   100001
-#endif 
+#endif
 
 /* GLX_EXT_visual_info */
 
@@ -11871,7 +11871,7 @@ GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 #define GLX_STATIC_GRAY_EXT                                0x8007
 #define GLX_TRANSPARENT_RGB_EXT                            0x8008
 #define GLX_TRANSPARENT_INDEX_EXT                          0x8009
-#endif 
+#endif
 
 /* GLX_SGI_swap_control */
 
@@ -11882,7 +11882,7 @@ GLEE_EXTERN PFNGLXGETPROCADDRESSPROC pglXGetProcAddress;
 typedef int (APIENTRYP PFNGLXSWAPINTERVALSGIPROC) (int interval);
 GLEE_EXTERN PFNGLXSWAPINTERVALSGIPROC pglXSwapIntervalSGI;
 #define glXSwapIntervalSGI pglXSwapIntervalSGI
-#endif 
+#endif
 
 /* GLX_SGI_video_sync */
 
@@ -11896,7 +11896,7 @@ GLEE_EXTERN PFNGLXGETVIDEOSYNCSGIPROC pglXGetVideoSyncSGI;
 GLEE_EXTERN PFNGLXWAITVIDEOSYNCSGIPROC pglXWaitVideoSyncSGI;
 #define glXGetVideoSyncSGI pglXGetVideoSyncSGI
 #define glXWaitVideoSyncSGI pglXWaitVideoSyncSGI
-#endif 
+#endif
 
 /* GLX_SGI_make_current_read */
 
@@ -11910,7 +11910,7 @@ GLEE_EXTERN PFNGLXMAKECURRENTREADSGIPROC pglXMakeCurrentReadSGI;
 GLEE_EXTERN PFNGLXGETCURRENTREADDRAWABLESGIPROC pglXGetCurrentReadDrawableSGI;
 #define glXMakeCurrentReadSGI pglXMakeCurrentReadSGI
 #define glXGetCurrentReadDrawableSGI pglXGetCurrentReadDrawableSGI
-#endif 
+#endif
 
 /* GLX_EXT_visual_rating */
 
@@ -11921,7 +11921,7 @@ GLEE_EXTERN PFNGLXGETCURRENTREADDRAWABLESGIPROC pglXGetCurrentReadDrawableSGI;
 #define GLX_VISUAL_CAVEAT_EXT                              0x20
 #define GLX_SLOW_VISUAL_EXT                                0x8001
 #define GLX_NON_CONFORMANT_VISUAL_EXT                      0x800D
-#endif 
+#endif
 
 /* GLX_EXT_import_context */
 
@@ -11947,7 +11947,7 @@ GLEE_EXTERN PFNGLXFREECONTEXTEXTPROC pglXFreeContextEXT;
 #define glXGetContextIDEXT pglXGetContextIDEXT
 #define glXImportContextEXT pglXImportContextEXT
 #define glXFreeContextEXT pglXFreeContextEXT
-#endif 
+#endif
 
 /* GLX_SGIX_fbconfig */
 
@@ -11983,7 +11983,7 @@ GLEE_EXTERN PFNGLXGETFBCONFIGFROMVISUALSGIXPROC pglXGetFBConfigFromVisualSGIX;
 #define glXCreateContextWithConfigSGIX pglXCreateContextWithConfigSGIX
 #define glXGetVisualFromFBConfigSGIX pglXGetVisualFromFBConfigSGIX
 #define glXGetFBConfigFromVisualSGIX pglXGetFBConfigFromVisualSGIX
-#endif 
+#endif
 
 /* GLX_SGIX_pbuffer */
 
@@ -12031,7 +12031,7 @@ GLEE_EXTERN PFNGLXGETSELECTEDEVENTSGIXPROC pglXGetSelectedEventSGIX;
 #define glXQueryGLXPbufferSGIX pglXQueryGLXPbufferSGIX
 #define glXSelectEventSGIX pglXSelectEventSGIX
 #define glXGetSelectedEventSGIX pglXGetSelectedEventSGIX
-#endif 
+#endif
 
 /* GLX_SGI_cushion */
 
@@ -12042,7 +12042,7 @@ GLEE_EXTERN PFNGLXGETSELECTEDEVENTSGIXPROC pglXGetSelectedEventSGIX;
 typedef void (APIENTRYP PFNGLXCUSHIONSGIPROC) (Display * dpy, Window window, float cushion);
 GLEE_EXTERN PFNGLXCUSHIONSGIPROC pglXCushionSGI;
 #define glXCushionSGI pglXCushionSGI
-#endif 
+#endif
 
 /* GLX_SGIX_video_resize */
 
@@ -12067,7 +12067,7 @@ GLEE_EXTERN PFNGLXCHANNELRECTSYNCSGIXPROC pglXChannelRectSyncSGIX;
 #define glXQueryChannelRectSGIX pglXQueryChannelRectSGIX
 #define glXQueryChannelDeltasSGIX pglXQueryChannelDeltasSGIX
 #define glXChannelRectSyncSGIX pglXChannelRectSyncSGIX
-#endif 
+#endif
 
 /* GLX_SGIX_swap_group */
 
@@ -12078,7 +12078,7 @@ GLEE_EXTERN PFNGLXCHANNELRECTSYNCSGIXPROC pglXChannelRectSyncSGIX;
 typedef void (APIENTRYP PFNGLXJOINSWAPGROUPSGIXPROC) (Display * dpy, GLXDrawable drawable, GLXDrawable member);
 GLEE_EXTERN PFNGLXJOINSWAPGROUPSGIXPROC pglXJoinSwapGroupSGIX;
 #define glXJoinSwapGroupSGIX pglXJoinSwapGroupSGIX
-#endif 
+#endif
 
 /* GLX_SGIX_swap_barrier */
 
@@ -12092,7 +12092,7 @@ GLEE_EXTERN PFNGLXBINDSWAPBARRIERSGIXPROC pglXBindSwapBarrierSGIX;
 GLEE_EXTERN PFNGLXQUERYMAXSWAPBARRIERSSGIXPROC pglXQueryMaxSwapBarriersSGIX;
 #define glXBindSwapBarrierSGIX pglXBindSwapBarrierSGIX
 #define glXQueryMaxSwapBarriersSGIX pglXQueryMaxSwapBarriersSGIX
-#endif 
+#endif
 
 /* GLX_SGIS_blended_overlay */
 
@@ -12101,7 +12101,7 @@ GLEE_EXTERN PFNGLXQUERYMAXSWAPBARRIERSSGIXPROC pglXQueryMaxSwapBarriersSGIX;
 #define __GLEE_GLX_SGIS_blended_overlay 1
 /* Constants */
 #define GLX_BLENDED_RGBA_SGIS                              0x8025
-#endif 
+#endif
 
 /* GLX_SGIS_shared_multisample */
 
@@ -12111,7 +12111,7 @@ GLEE_EXTERN PFNGLXQUERYMAXSWAPBARRIERSSGIXPROC pglXQueryMaxSwapBarriersSGIX;
 /* Constants */
 #define GLX_MULTISAMPLE_SUB_RECT_WIDTH_SGIS                0x8026
 #define GLX_MULTISAMPLE_SUB_RECT_HEIGHT_SGIS               0x8027
-#endif 
+#endif
 
 /* GLX_SUN_get_transparent_index */
 
@@ -12122,7 +12122,7 @@ GLEE_EXTERN PFNGLXQUERYMAXSWAPBARRIERSSGIXPROC pglXQueryMaxSwapBarriersSGIX;
 typedef Status (APIENTRYP PFNGLXGETTRANSPARENTINDEXSUNPROC) (Display * dpy, Window overlay, Window underlay, long * pTransparentIndex);
 GLEE_EXTERN PFNGLXGETTRANSPARENTINDEXSUNPROC pglXGetTransparentIndexSUN;
 #define glXGetTransparentIndexSUN pglXGetTransparentIndexSUN
-#endif 
+#endif
 
 /* GLX_3DFX_multisample */
 
@@ -12132,7 +12132,7 @@ GLEE_EXTERN PFNGLXGETTRANSPARENTINDEXSUNPROC pglXGetTransparentIndexSUN;
 /* Constants */
 #define GLX_SAMPLE_BUFFERS_3DFX                            0x8050
 #define GLX_SAMPLES_3DFX                                   0x8051
-#endif 
+#endif
 
 /* GLX_MESA_copy_sub_buffer */
 
@@ -12143,7 +12143,7 @@ GLEE_EXTERN PFNGLXGETTRANSPARENTINDEXSUNPROC pglXGetTransparentIndexSUN;
 typedef void (APIENTRYP PFNGLXCOPYSUBBUFFERMESAPROC) (Display * dpy, GLXDrawable drawable, int x, int y, int width, int height);
 GLEE_EXTERN PFNGLXCOPYSUBBUFFERMESAPROC pglXCopySubBufferMESA;
 #define glXCopySubBufferMESA pglXCopySubBufferMESA
-#endif 
+#endif
 
 /* GLX_MESA_pixmap_colormap */
 
@@ -12154,7 +12154,7 @@ GLEE_EXTERN PFNGLXCOPYSUBBUFFERMESAPROC pglXCopySubBufferMESA;
 typedef GLXPixmap (APIENTRYP PFNGLXCREATEGLXPIXMAPMESAPROC) (Display * dpy, XVisualInfo * visual, Pixmap pixmap, Colormap cmap);
 GLEE_EXTERN PFNGLXCREATEGLXPIXMAPMESAPROC pglXCreateGLXPixmapMESA;
 #define glXCreateGLXPixmapMESA pglXCreateGLXPixmapMESA
-#endif 
+#endif
 
 /* GLX_MESA_release_buffers */
 
@@ -12165,7 +12165,7 @@ GLEE_EXTERN PFNGLXCREATEGLXPIXMAPMESAPROC pglXCreateGLXPixmapMESA;
 typedef Bool (APIENTRYP PFNGLXRELEASEBUFFERSMESAPROC) (Display * dpy, GLXDrawable drawable);
 GLEE_EXTERN PFNGLXRELEASEBUFFERSMESAPROC pglXReleaseBuffersMESA;
 #define glXReleaseBuffersMESA pglXReleaseBuffersMESA
-#endif 
+#endif
 
 /* GLX_MESA_set_3dfx_mode */
 
@@ -12178,7 +12178,7 @@ GLEE_EXTERN PFNGLXRELEASEBUFFERSMESAPROC pglXReleaseBuffersMESA;
 typedef Bool (APIENTRYP PFNGLXSET3DFXMODEMESAPROC) (int mode);
 GLEE_EXTERN PFNGLXSET3DFXMODEMESAPROC pglXSet3DfxModeMESA;
 #define glXSet3DfxModeMESA pglXSet3DfxModeMESA
-#endif 
+#endif
 
 /* GLX_SGIX_visual_select_group */
 
@@ -12187,7 +12187,7 @@ GLEE_EXTERN PFNGLXSET3DFXMODEMESAPROC pglXSet3DfxModeMESA;
 #define __GLEE_GLX_SGIX_visual_select_group 1
 /* Constants */
 #define GLX_VISUAL_SELECT_GROUP_SGIX                       0x8028
-#endif 
+#endif
 
 /* GLX_OML_swap_method */
 
@@ -12199,7 +12199,7 @@ GLEE_EXTERN PFNGLXSET3DFXMODEMESAPROC pglXSet3DfxModeMESA;
 #define GLX_SWAP_EXCHANGE_OML                              0x8061
 #define GLX_SWAP_COPY_OML                                  0x8062
 #define GLX_SWAP_UNDEFINED_OML                             0x8063
-#endif 
+#endif
 
 /* GLX_OML_sync_control */
 
@@ -12222,7 +12222,7 @@ GLEE_EXTERN PFNGLXWAITFORSBCOMLPROC pglXWaitForSbcOML;
 #define glXSwapBuffersMscOML pglXSwapBuffersMscOML
 #define glXWaitForMscOML pglXWaitForMscOML
 #define glXWaitForSbcOML pglXWaitForSbcOML
-#endif 
+#endif
 
 /* GLX_NV_float_buffer */
 
@@ -12231,7 +12231,7 @@ GLEE_EXTERN PFNGLXWAITFORSBCOMLPROC pglXWaitForSbcOML;
 #define __GLEE_GLX_NV_float_buffer 1
 /* Constants */
 #define GLX_FLOAT_COMPONENTS_NV                            0x20B0
-#endif 
+#endif
 
 /* GLX_SGIX_hyperpipe */
 
@@ -12273,7 +12273,7 @@ GLEE_EXTERN PFNGLXQUERYHYPERPIPEATTRIBSGIXPROC pglXQueryHyperpipeAttribSGIX;
 #define glXQueryHyperpipeBestAttribSGIX pglXQueryHyperpipeBestAttribSGIX
 #define glXHyperpipeAttribSGIX pglXHyperpipeAttribSGIX
 #define glXQueryHyperpipeAttribSGIX pglXQueryHyperpipeAttribSGIX
-#endif 
+#endif
 
 /* GLX_MESA_agp_offset */
 
@@ -12284,7 +12284,7 @@ GLEE_EXTERN PFNGLXQUERYHYPERPIPEATTRIBSGIXPROC pglXQueryHyperpipeAttribSGIX;
 typedef unsigned int (APIENTRYP PFNGLXGETAGPOFFSETMESAPROC) (const void * pointer);
 GLEE_EXTERN PFNGLXGETAGPOFFSETMESAPROC pglXGetAGPOffsetMESA;
 #define glXGetAGPOffsetMESA pglXGetAGPOffsetMESA
-#endif 
+#endif
 
 /* GLX_EXT_fbconfig_packed_float */
 
@@ -12294,7 +12294,7 @@ GLEE_EXTERN PFNGLXGETAGPOFFSETMESAPROC pglXGetAGPOffsetMESA;
 /* Constants */
 #define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT                   0x20B1
 #define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT                    0x00000008
-#endif 
+#endif
 
 /* GLX_EXT_framebuffer_sRGB */
 
@@ -12303,7 +12303,7 @@ GLEE_EXTERN PFNGLXGETAGPOFFSETMESAPROC pglXGetAGPOffsetMESA;
 #define __GLEE_GLX_EXT_framebuffer_sRGB 1
 /* Constants */
 #define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT                   0x20B2
-#endif 
+#endif
 
 /* GLX_EXT_texture_from_pixmap */
 
@@ -12350,7 +12350,7 @@ GLEE_EXTERN PFNGLXBINDTEXIMAGEEXTPROC pglXBindTexImageEXT;
 GLEE_EXTERN PFNGLXRELEASETEXIMAGEEXTPROC pglXReleaseTexImageEXT;
 #define glXBindTexImageEXT pglXBindTexImageEXT
 #define glXReleaseTexImageEXT pglXReleaseTexImageEXT
-#endif 
+#endif
 
 /* GLX_NV_present_video */
 
@@ -12359,7 +12359,7 @@ GLEE_EXTERN PFNGLXRELEASETEXIMAGEEXTPROC pglXReleaseTexImageEXT;
 #define __GLEE_GLX_NV_present_video 1
 /* Constants */
 #define GLX_GLX_NUM_VIDEO_SLOTS_NV                         0x20F0
-#endif 
+#endif
 
 /* GLX_NV_video_out */
 
@@ -12377,7 +12377,7 @@ GLEE_EXTERN PFNGLXRELEASETEXIMAGEEXTPROC pglXReleaseTexImageEXT;
 #define GLX_GLX_VIDEO_OUT_FIELD_2_NV                       0x20CA
 #define GLX_GLX_VIDEO_OUT_STACKED_FIELDS_1_2_NV            0x20CB
 #define GLX_GLX_VIDEO_OUT_STACKED_FIELDS_2_1_NV            0x20CC
-#endif 
+#endif
 
 /* GLX_NV_swap_group */
 
@@ -12385,7 +12385,7 @@ GLEE_EXTERN PFNGLXRELEASETEXIMAGEEXTPROC pglXReleaseTexImageEXT;
 #define GLX_NV_swap_group 1
 #define __GLEE_GLX_NV_swap_group 1
 /* Constants */
-#endif 
+#endif
 
 /* GLX_EXT_scene_marker */
 
@@ -12393,7 +12393,7 @@ GLEE_EXTERN PFNGLXRELEASETEXIMAGEEXTPROC pglXReleaseTexImageEXT;
 #define GLX_EXT_scene_marker 1
 #define __GLEE_GLX_EXT_scene_marker 1
 /* Constants */
-#endif 
+#endif
 
 /* GLX_NV_video_output */
 
@@ -12429,13 +12429,13 @@ GLEE_EXTERN PFNGLXGETVIDEOINFONVPROC pglXGetVideoInfoNV;
 #define glXReleaseVideoImageNV pglXReleaseVideoImageNV
 #define glXSendPbufferToVideoNV pglXSendPbufferToVideoNV
 #define glXGetVideoInfoNV pglXGetVideoInfoNV
-#endif 
+#endif
 #endif /*end GLX */
 
 /*****************************************************************
  * GLee functions
  *****************************************************************/
- 
+
 GLEE_EXTERN GLboolean GLeeInit( void );
 GLEE_EXTERN GLint GLeeForceLink(const char * extensionName);
 GLEE_EXTERN const char * GLeeGetErrorString( void );
@@ -12445,7 +12445,7 @@ GLEE_EXTERN GLboolean GLeeEnabled(GLboolean * extensionQueryingVariable);
 #ifdef WIN32
 GLEE_EXTERN const char * GLeeGetExtStrWGL( void );
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
-#else 
+#else
 GLEE_EXTERN const char * GLeeGetExtStrGLX( void );
 #endif
 

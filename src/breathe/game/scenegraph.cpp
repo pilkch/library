@@ -508,8 +508,8 @@ namespace breathe
       if (node.empty()) return;
       ASSERT(index < node.size());
 
-    // Only visit the node that we require
-      visitor.Visit(*node[index]);
+      // Only visit the node that we require
+      //visitor.Visit(*node[index]);
     }
 
 
