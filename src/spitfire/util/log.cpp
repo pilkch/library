@@ -85,7 +85,7 @@ namespace spitfire
 {
   namespace logging
   {
-    bool bIsLogging = false;
+    bool bIsLogging = true;
 
     bool IsLogging()
     {

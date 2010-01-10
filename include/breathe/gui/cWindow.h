@@ -17,7 +17,7 @@ namespace breathe
       void SetCaption(const string_t& inText) { text = inText; }
       int GetZDepth() const { return z; }
 
-      float GetTitleBarHeightAbsolute() const;
+      float GetTitleBarHeight() const;
 
       bool AddChildToContainer(cWidget* pChild);
 

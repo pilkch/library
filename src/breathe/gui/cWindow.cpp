@@ -56,7 +56,7 @@ namespace breathe
 {
   namespace gui
   {
-    const float WINDOW_TITLE_BAR_HEIGHT_ABSOLUTE = 0.025f;
+    const float WINDOW_TITLE_BAR_HEIGHT = 0.1f;
 
     // This is just a quick test to make sure that a derived window compiles correctly at all times
     class cDerivedWindow : public cWindow
@@ -115,7 +115,7 @@ namespace breathe
       bModeless = _bModeless;
       bResizable = _bResizable;
 
-      pChildContainer = new cWidget_InvisibleContainer(GenerateID(), 0.0f, GetTitleBarHeightAbsolute(), 1.0f, 1.0f - GetTitleBarHeightAbsolute());
+      pChildContainer = new cWidget_InvisibleContainer(GenerateID(), 0.0f, GetTitleBarHeight(), 1.0f, 1.0f - GetTitleBarHeight());
       AddChild(pChildContainer);
     }
 
@@ -125,9 +125,9 @@ namespace breathe
       return pChildContainer->AddChild(pChild);
     }
 
-    float cWindow::GetTitleBarHeightAbsolute() const
+    float cWindow::GetTitleBarHeight() const
     {
-      return WINDOW_TITLE_BAR_HEIGHT_ABSOLUTE;
+      return WINDOW_TITLE_BAR_HEIGHT;
     }
 
     void cWindow::Update(sampletime_t currentTime)

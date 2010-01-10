@@ -63,17 +63,39 @@ namespace breathe
 {
   namespace gui
   {
+    const float fAlpha = 1.0f;
+
+    class cTheme
+    {
+    public:
+      cTheme();
+
+      const math::cColour& GetColourWindowBackground() const { return colourWindowBackground; }
+      const math::cColour& GetColourWindowTitleBar() const { return colourWindowTitleBar; }
+      const math::cColour& GetColourControlPrimary() const { return colourControlPrimary; }
+      const math::cColour& GetColourControlSecondary() const { return colourControlSecondary; }
+
+    private:
+      math::cColour colourWindowBackground;
+      math::cColour colourWindowTitleBar;
+      math::cColour colourControlPrimary;
+      math::cColour colourControlSecondary;
+    };
+
+    cTheme::cTheme() :
+      colourWindowBackground(0.4f, 0.4f, 0.4f),
+      colourWindowTitleBar(0.6f, 0.6f, 0.6f),
+      colourControlPrimary(0.6f, 0.6f, 0.6f),
+      colourControlSecondary(0.3f, 0.3f, 0.3f)
+    {
+    }
+
+    cTheme theme;
+
+
     render::material::cMaterialRef pMaterial;
-    std::vector<render::cTextureRef> textureBackground;
     render::cFont* pFontWindowCaption = nullptr;
 
-    enum
-    {
-      BACKGROUND_NORMAL,
-      BACKGROUND_DARKER,
-      BACKGROUND_DARKEST,
-      BACKGROUND_TEXT
-    };
 
     cWindowManager::cWindowManager() :
       pEventWidgetMouseLeftButtonDown(nullptr)
@@ -83,7 +105,7 @@ namespace breathe
     cWindowManager::~cWindowManager()
     {
       child_iterator iter = child.begin();
-      child_iterator iterEnd = child.end();
+      const child_iterator iterEnd = child.end();
       while (iter != iterEnd) {
         SAFE_DELETE(*iter);
 
@@ -96,18 +118,8 @@ namespace breathe
 
     void cWindowManager::LoadTheme()
     {
-      pMaterial = pRender->AddMaterial(TEXT("gui.mat"));
-
-      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_normal.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_darker.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_darkest.png")));
-      textureBackground.push_back(pRender->AddTexture(TEXT("textures/gui_background_text.png")));
-
+      pMaterial = pRender->AddMaterial(TEXT("materials/gui.mat"));
       ASSERT(pMaterial != nullptr);
-      ASSERT(textureBackground[0] != nullptr);
-      ASSERT(textureBackground[1] != nullptr);
-      ASSERT(textureBackground[2] != nullptr);
-      ASSERT(textureBackground[3] != nullptr);
 
       //pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);
       breathe::string_t sFilename;
@@ -148,7 +160,7 @@ namespace breathe
     id_t cWindowManager::GetIDFromStringIdentifier(const string_t& sIdentifier)
     {
       std::map<string_t, id_t>::iterator iter = stringIdentifierToID.begin();
-      std::map<string_t, id_t>::iterator iterEnd = stringIdentifierToID.end();
+      const std::map<string_t, id_t>::iterator iterEnd = stringIdentifierToID.end();
       while (iter != iterEnd) {
         if (iter->first == sIdentifier) return iter->second;
         iter++;
@@ -161,7 +173,7 @@ namespace breathe
     {
       cWindow* pWindow = nullptr;
       child_const_iterator iter = child.begin();
-      child_const_iterator iterEnd = child.end();
+      const child_const_iterator iterEnd = child.end();
       cWindow* pTempWindow = nullptr;
       while (iter != iterEnd) {
         pTempWindow = (*iter);
@@ -236,117 +248,68 @@ namespace breathe
     // a plain solid colour filled rectangle with a border
     void cWindowManager::_RenderRectangle(float fX, float fY, float fWidth, float fHeight) const
     {
-      static const math::cColour box(0.4f, 0.4f, 0.4f);
-      static const math::cColour upperBorder(0.6f, 0.6f, 0.6f);
-      static const math::cColour lowerBorder(0.3f, 0.3f, 0.3f);
+      //pRender->RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(fX, fY, fWidth, fHeight, box, upperBorder, lowerBorder);
+      pRender->RenderScreenSpaceRectangleTopLeftIsAt(fX, fY, fWidth, fHeight);
+    }
 
-      pRender->RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(fX, fY, fWidth, fHeight, box, upperBorder, lowerBorder);
+    void SetColourFromThemeColourAndAlpha(const math::cColour& themeColour)
+    {
+      pRender->SetColour(math::cColour(themeColour.r, themeColour.g, themeColour.b, fAlpha));
     }
 
     void cWindowManager::_RenderWindow(const cWindow& widget) const
     {
-      const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-      const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-
-      const float absolute_bar_height = widget.VerticalRelativeToAbsolute(widget.GetTitleBarHeightAbsolute());
+      const float title_bar_height = widget.GetTitleBarHeight();
 
       // Draw the top bar
-      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_bar_height);
+      SetColourFromThemeColourAndAlpha(theme.GetColourWindowTitleBar());
+      _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), title_bar_height);
 
       // Draw the rest of the window
-      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute() + absolute_bar_height, absolute_width, absolute_height - absolute_bar_height);
+      SetColourFromThemeColourAndAlpha(theme.GetColourWindowBackground());
+      _RenderRectangle(widget.GetX(), widget.GetY() + title_bar_height, widget.GetWidth(), widget.GetHeight() - title_bar_height);
 
-      /*
-
-      const float bar_v = 0.04f;
-
-      // Draw the top left corner
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetXAbsolute(), widget.GetYAbsolute(), 0.02f, bar_height,
-        0.0f, 0.0f, 0.05f, bar_v);
-
-      // Draw the top right corner
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetXAbsolute() + absolute_width - 0.016f, widget.GetYAbsolute(), 0.016f, bar_height,
-        0.187f, 0.0f, 0.049f, bar_v);
-
-      // Draw the top bar
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetXAbsolute() + 0.02f, widget.GetYAbsolute(), absolute_width - 0.02f - 0.01f, bar_height,
-        0.18f, 0.0f, 0.01f, bar_v);
-
-      // TODO: Draw the caption
-
-      // TODO: Draw the close button
-
-      // TODO: Draw the minimise and maximise buttons
-
-      if (widget.IsResizable()) {
-        // TODO: Draw the bottom right corner
-        //pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        //  widget.GetXAbsolute() + 0.02f, widget.GetYAbsolute(), absolute_width - 0.02f - 0.01f, 0.05f,
-        //  0.18f, 0.0f, 0.01f, 0.1f);
-      }
-
-      // Draw the window background
-      float width = absolute_width;
-      float height = absolute_height - bar_height;
-      render::ApplyTexture apply(textureBackground[BACKGROUND_NORMAL]);
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.GetXAbsolute(), widget.GetYAbsolute() + bar_height, absolute_width, absolute_height - bar_height,
-        0.0f, 0.0f, CreateTextureCoord(width), CreateTextureCoord(height));*/
-
+#if 0
       // Draw the caption if this window has one
       if (widget.HasCaption()) {
-        glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
-          pRender->ApplyMaterial(pMaterial);
+        /*glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
+          {
+            render::ApplyMaterial apply(pMaterial);
 
-          pRender->SelectTextureUnit0();
-
-          glMatrixMode(GL_TEXTURE);
-          glPushMatrix();
-            glLoadIdentity();
-
-            glMatrixMode(GL_MODELVIEW);
-
-            glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-
-            //pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetXAbsolute(), widget.GetYAbsolute(),
-            //  widget.GetWidth(), bar_height,
-            //  breathe::string::ToUTF8(widget.GetCaption()).c_str());
-            pFontWindowCaption->PrintCenteredHorizontally(widget.GetXAbsolute(), widget.GetYAbsolute(),
-              widget.GetWidth(), widget.GetCaption());
+            pRender->SelectTextureUnit0();
 
             glMatrixMode(GL_TEXTURE);
-          glPopMatrix();
+            glPushMatrix();
+              glLoadIdentity();
 
-          pRender->ApplyMaterial(pMaterial);
-        glPopAttrib();
+              glMatrixMode(GL_MODELVIEW);
 
-        pRender->ClearMaterial();
+              glColor4f(0.0f, 0.0f, 0.0f, 1.0f);*/
+
+              //pFontWindowCaption->printfCenteredHorizontallyVertically(widget.GetX(), widget.GetY(),
+              //  widget.GetWidth(), bar_height,
+              //  breathe::string::ToUTF8(widget.GetCaption()).c_str());
+              pFontWindowCaption->PrintCenteredHorizontally(widget.GetX(), widget.GetY(),
+                widget.GetWidth(), widget.GetCaption());
+
+              //glMatrixMode(GL_TEXTURE);
+            //glPopMatrix();
+          //}
+        //glPopAttrib();
       }
+#endif
     }
 
     void cWindowManager::_RenderInput(const cWidget_Input& widget) const
     {
-      const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-      const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-
-      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
-
-      /*render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
-        absolute_width, absolute_height,
-        0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));*/
+      SetColourFromThemeColourAndAlpha(theme.GetColourControlPrimary());
+      _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
     }
 
     void cWindowManager::_RenderButton(const cWidget_Button& widget) const
     {
-      const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-      const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
-
-      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
+      SetColourFromThemeColourAndAlpha(theme.GetColourControlPrimary());
+      _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 
       /*pRender->RenderScreenSpaceRectangleTopLeftIsAt(
         widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
@@ -354,7 +317,7 @@ namespace breathe
         0.0083f, 0.073f, 0.08f, 0.045f);//CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
       */
 
-      // Draw the text of this widget
+      /*// Draw the text of this widget
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
         pRender->UnApplyMaterial(pMaterial);
 
@@ -369,8 +332,7 @@ namespace breathe
           glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
           pFontWindowCaption->PrintCenteredHorizontallyVertically(
-            widget.GetXAbsolute(), widget.GetYAbsolute(),
-            absolute_width, absolute_height,
+            widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight(),
             widget.GetText()
           );
 
@@ -380,24 +342,15 @@ namespace breathe
         pRender->ApplyMaterial(pMaterial);
       glPopAttrib();
 
-      pRender->ClearMaterial();
+      pRender->ClearMaterial();*/
     }
 
     void cWindowManager::_RenderStaticText(const cWidget_StaticText& widget) const
     {
-      const float absolute_width = widget.HorizontalRelativeToAbsolute(widget.GetWidth());
-      const float absolute_height = widget.VerticalRelativeToAbsolute(widget.GetHeight());
+      SetColourFromThemeColourAndAlpha(theme.GetColourControlPrimary());
+      _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 
-      _RenderRectangle(widget.GetXAbsolute(), widget.GetYAbsolute(), absolute_width, absolute_height);
-
-      /*render::ApplyTexture apply(textureBackground[BACKGROUND_TEXT]);
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(
-        widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
-        absolute_width, absolute_height,
-        0.0f, 0.0f, CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
-      */
-
-      render::cFont* pFont = widget.GetFont();
+      /*render::cFont* pFont = widget.GetFont();
       if (pFont == nullptr) pFont = pFontWindowCaption;
 
       pRender->BeginRenderingText();
@@ -413,37 +366,51 @@ namespace breathe
         };
       pRender->EndRenderingText();
 
-      pRender->ClearMaterial();
+      pRender->ClearMaterial();*/
     }
 
     void cWindowManager::_RenderWidget(const cWidget& widget) const
     {
-      switch(widget.GetType())
-      {
+      std::cout<<"cWindowManager::_RenderWidget"<<std::endl;
+      switch(widget.GetType()) {
         case WIDGET_WINDOW:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_WINDOW"<<std::endl;
           _RenderWindow(static_cast<const cWindow&>(widget));
           break;
 
         case WIDGET_BUTTON:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_WINDOW"<<std::endl;
           _RenderButton(static_cast<const cWidget_Button&>(widget));
           break;
 
         case WIDGET_INPUT:
-          //_RenderInput(widget);
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_INPUT"<<std::endl;
+          _RenderInput(static_cast<const cWidget_Input&>(widget));
           break;
 
         case WIDGET_STATICTEXT:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_STATICTEXT"<<std::endl;
           _RenderStaticText(static_cast<const cWidget_StaticText&>(widget));
           break;
 
+        case WIDGET_INVISIBLE_CONTAINER:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_INVISIBLE_CONTAINER"<<std::endl;
+          // Purposely do not render this control
+          SetColourFromThemeColourAndAlpha(math::cColour(1.0f, 0.0f, 0.0f, 1.0f));
+          _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
+          break;
+
         default:
-          ;
-          //pRender->RenderScreenSpaceRectangleTopLeftIsAt(widget.GetXAbsolute(), widget.GetYAbsolute(), widget.GetWidth(), widget.GetHeight());
+          std::cout<<"cWindowManager::_RenderWidget UNKNOWN WIDGET TYPE"<<std::endl;
+          //SetColourFromThemeColourAndAlpha(theme.GetColourControlPrimary());
+          SetColourFromThemeColourAndAlpha(math::cColour(math::randomZeroToOnef(), math::randomZeroToOnef(), math::randomZeroToOnef(), 1.0f));
+          _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
       };
     }
 
     void cWindowManager::_RenderChildren(const cWidget& widget) const
     {
+      std::cout<<"cWindowManager::_RenderChildren "<<widget.GetX()<<", "<<widget.GetY()<<", "<<widget.GetWidth()<<"x"<<widget.GetHeight()<<std::endl;
       if (!widget.IsVisible()) return;
 
       _RenderWidget(widget);
@@ -451,25 +418,47 @@ namespace breathe
       const size_t n = widget.child.size();
       if (n == 0) return;
 
-      for (size_t i = 0; i < n; i++) _RenderChildren(*widget.child[i]);
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+
+        glTranslatef(widget.GetX(), widget.GetY(), 0.0f);
+
+        float fScaleHorizontal = 1.0f;
+        float fScaleVertical = 1.0f;
+
+        cWidget* pParent = widget.GetParent();
+        if (pParent != nullptr) {
+          fScaleHorizontal = pParent->GetWidth();
+          fScaleVertical = pParent->GetHeight();
+        }
+
+        glScalef(fScaleHorizontal, fScaleVertical, 1.0f);
+
+        for (size_t i = 0; i < n; i++) _RenderChildren(*widget.child[i]);
+
+        glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
     }
 
     void cWindowManager::Render() const
     {
+      std::cout<<"cWindowManager::Render"<<std::endl;
       ASSERT(pMaterial != nullptr);
-
-      pRender->ClearMaterial();
 
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
         glLoadIdentity();
 
-        child_const_iterator iter = child.begin();
-        child_const_iterator iterEnd = child.end();
-        while (iter != iterEnd) {
-          _RenderChildren(*(*iter));
+        {
+          render::ApplyMaterial apply(pMaterial);
 
-          iter++;
+          child_const_iterator iter = child.begin();
+          child_const_iterator iterEnd = child.end();
+          while (iter != iterEnd) {
+            _RenderChildren(*(*iter));
+
+            iter++;
+          }
         }
 
         glMatrixMode(GL_MODELVIEW);

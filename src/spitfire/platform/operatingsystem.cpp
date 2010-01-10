@@ -14,6 +14,7 @@
 #ifdef __LINUX__
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/sysinfo.h>
 #include <grp.h>
 #include <pwd.h>
 #endif
@@ -128,6 +129,16 @@ namespace spitfire
 
       // This gives a rough estimate, although theoretically someone might put a single core processor on a motherboard with say, 16 cores and we would return either 2 or 32 cores, ugh!
       return (GetProcessorCount() * size_t(nCoreCount));
+    }
+#endif
+
+#ifdef __LINUX__
+    size_t GetRAMTotalMB()
+    {
+      struct sysinfo info;
+      if (sysinfo(&info) != 0) return 0;
+
+      return info.totalram;
     }
 #endif
 

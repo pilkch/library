@@ -70,6 +70,47 @@ namespace breathe
 
     namespace http
     {
+      class cRequest
+      {
+      public:
+        cRequest();
+
+        void SetMethod(METHOD method);
+        void SetPath(const string_t& sPath);
+        void SetOffsetBytes(size_t nOffsetBytes);
+
+      private:
+        METHOD method;
+        string_t sPath;
+        size_t nOffsetBytes;
+      };
+
+      cRequest::cRequest() :
+        method(METHOD::GET),
+        sPath(TEXT("/")),
+        nOffsetBytes(0)
+      {
+      }
+
+      class cResponse
+      {
+      };
+
+      class cHTTP
+      {
+      public:
+        cHTTP();
+
+        void SetHostName(const string_t& sHostName);
+
+        void SetRequest(const cRequest& request, cResponse& response);
+
+        void Run();
+      };
+
+
+
+
       class cConnectionHTTP
       {
       public:

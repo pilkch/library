@@ -92,6 +92,43 @@
 // http://opende.sourceforge.net/wiki/index.php/HOWTO_4_wheel_vehicle
 
 
+// Camshaft turns at half the speed of the crankshaft, one input and one output valve per cylinder
+// Dual over head cams means there are two camshafts, two input and two output valves per cylinder
+
+
+// 1 Nm = 1 Joule
+// 1 Wh = 3600 Joules
+// 1 kWh = 3,412 BTU
+
+// 1 kWh = 1 kW used up in an hour
+// Using 10 kW this energy would last just 6 minutes
+
+
+// 1 U.S. liquid gallon = 3.785411784 litres
+// 1 Imperial (UK) gallon = 4.54609 litres
+// 1 pound = 0.45359237 kg
+
+// Air in Kg : Fuel in Kg ratio
+// Normal 14:1
+// Best power 12.6:1
+// Cruising for fuel economy 15:1
+
+// Fuel
+// 1 gallon of petrol (UK gallon) weighs about 7.5 pounds
+// Air weighs just over 2 pounds per cubic yard
+// Every gallon of fuel needs about 100 pounds of air.
+// That translates into about 50 cubic yards of air per gallon of fuel.
+// To put it into perspective, that's about the same volume of air as in a room 12 feet by 14 feet.
+
+// 1 gallon of petrol is 7.5 pounds
+// 7.5 pounds = 3.40194278 Kg
+
+// 3.40194278 Kg of petrol : 45.359237 Kg of air
+
+
+
+
+
 // TODO: This is made up, whatever feels right?
 const float_t fNormalAirFlowCubicMetresPerSecond = 1.0f;
 
@@ -517,6 +554,17 @@ namespace breathe
 
       void cWheel::Update(sampletime_t currentTime)
       {
+        // http://drpetter.proboards.com/index.cgi?board=rigid&action=display&thread=6
+
+/*        ...
+        const float fWeightOfCarOnThisWheel = fLiftingForceProvidedByThisSpring;
+
+        const float fTireGrip0To1 = 0.9f;
+        const float fDrivenOnSurfaceGrip0To1 = 1.0f; // Less for wet tarmac and less for dirt/sand/gravel etc.
+
+        const float fForceAppliedByTireKw = math::NmToKw(fTorqueNm, fRPM) * fTireGrip0To1 * fDrivenOnSurfaceGrip0To1;
+
+        fVelocity = fVelocity + fForceAppliedByTireKw / fWeightOfCarOnThisWheel;*/
       }
     }
   }
@@ -1305,6 +1353,13 @@ namespace breathe
       }
 
 
+      /*Fnet = Facceleration + Fbraking + Fdragresistance + Frollingresistance
+
+      Friction coefficients:
+      Concrete (wet)  Rubber  0.30
+      Concrete (dry)  Rubber  1.0
+      Metal   Wood  0.2-0.6*/
+
 
       const float fSteeringAngleMinusOneToPlusOne = -fInputLeft0To1 + fInputRight0To1;
 
@@ -1322,6 +1377,7 @@ namespace breathe
         wheelNodes[i]->SetRelativePosition(pCar->GetWheelPositionRelative(i));
         wheelNodes[i]->SetRelativeRotation(pCar->GetWheelRotationRelative(i));
       }
+
 
 
       // Set values back to defaults for next time

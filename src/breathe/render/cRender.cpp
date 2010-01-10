@@ -488,6 +488,16 @@ namespace breathe
       LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString(GL_VERSION)));
       LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString(GL_EXTENSIONS)));
 
+      std::ostringstream tVendor;
+      tVendor<<glGetString(GL_VENDOR);
+
+      const std::string sVendor(tVendor.str());
+      bool bIsNVIDIA = (sVendor.find("NVIDIA") != std::string::npos);
+      bool bIsATI = (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
+      if (!bIsNVIDIA && !bIsATI) {
+        LOG.Error("Render", std::string("Vendor is neither ATI nor NVIDIA") + sVendor);
+      }
+
       GLint iValue = 0;
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
       ASSERT(iValue >= 0);
@@ -2036,6 +2046,10 @@ namespace breathe
           case TEXTURE_MODE::TEXTURE_NORMAL:
           case TEXTURE_MODE::TEXTURE_MASK:
           case TEXTURE_MODE::TEXTURE_BLEND: {
+            if (pLayer->uiTextureMode == TEXTURE_MODE::TEXTURE_BLEND) {
+              glEnable(GL_BLEND);
+            }
+
             // We now do masking and blending in shaders so this is greatly simplified
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
@@ -2157,6 +2171,11 @@ namespace breathe
             // We now do masking and blending in shaders so this is greatly simplified
             glDisable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            if (pLayer->uiTextureMode == TEXTURE_MODE::TEXTURE_BLEND) {
+              glDisable(GL_BLEND);
+            }
+
             break;
           }
 

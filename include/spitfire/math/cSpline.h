@@ -84,10 +84,18 @@ namespace spitfire
       const float t2 = t * t;
       const float t3 = t2 * t;
 
+#if 1
       const float b1 = 0.5f * (-t3 + (2.0f * t2) - t);
       const float b2 = 0.5f * ((3.0f * t3) - (5.0f * t2) + 2.0f);
       const float b3 = 0.5f * ((-3.0f * t3) + (4.0f * t2) + t);
       const float b4 = 0.5f * (t3 - t2);
+#else
+      // TODO: This is another version which is similar but different, which one is better?
+      const float b1 = -t + t2 + t2 - t3;
+      const float b2 = 2.0f - 5.0f * t2 + 3.0f * t3;
+      const float b3 = t + 4.0f * t2 - 3.0f * t3;
+      const float b4 = 0.5f * (-t2 + t3);
+#endif
 
       return ((p1 * b1) + (p2 * b2) + (p3 * b3) + (p4 * b4));
     }
