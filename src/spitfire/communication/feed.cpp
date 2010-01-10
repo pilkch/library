@@ -19,14 +19,12 @@
 #include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
+#include <boost/asio.hpp>
 
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 
 // Spitfire
 #include <spitfire/spitfire.h>

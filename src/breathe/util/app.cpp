@@ -113,6 +113,7 @@ int intersect_triangle(
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/asio.hpp>
 
 //FreeType Headers
 #include <freetype/ft2build.h>
@@ -127,7 +128,6 @@ int intersect_triangle(
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
-#include <SDL/SDL_net.h>
 
 
 // Spitfire headers

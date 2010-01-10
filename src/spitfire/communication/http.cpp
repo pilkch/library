@@ -15,14 +15,12 @@
 // Boost headers
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/asio.hpp>
 
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -522,7 +520,7 @@ namespace spitfire
           size_t len = request.length() + 1;
           size_t sent = connection.Send(request.data(), len);
           if (sent != len) {
-            LOG<<"cDownloadHTTP::Download SDLNet_TCP_Send FAILED "<<SDLNet_GetError()<<std::endl;
+            LOG<<"cDownloadHTTP::Download SDLNet_TCP_Send FAILED"<<std::endl;
             return;
           }
         }
@@ -533,7 +531,7 @@ namespace spitfire
         cConnectionHTTP reader;
         size_t len = reader.ReadHeader(connection);
         if (len == 0) {
-          LOG<<"cDownloadHTTP::Download ReadHeader FAILED "<<SDLNet_GetError()<<std::endl;
+          LOG<<"cDownloadHTTP::Download ReadHeader FAILED"<<std::endl;
           return;
         }
 
@@ -553,16 +551,10 @@ namespace spitfire
             }
           } while (len != 0);
         } else {
-          assert(false);
           char buffer[STR_LEN - 1];
           do {
-            std::string sContent;
             len = reader.ReadContent(connection, buffer, STR_LEN - 1);
-            if (len != 0) {
-              buffer[len] = 0;
-              sContent = buffer;
-              //listener.OnBinaryContentReceived(sContent);
-            }
+            if (len != 0) listener.OnBinaryContentReceived(buffer, len);
           } while (len != 0);
         }
 

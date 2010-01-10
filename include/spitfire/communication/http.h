@@ -91,7 +91,7 @@ namespace spitfire
       public:
         bool IsToStop() const { return _IsToStop(); }
         void OnTextContentReceived(const std::string& sContent) { _OnTextContentReceived(sContent); }
-        void OnBinaryContentReceived(const std::vector<uint8_t>& content) { _OnBinaryContentReceived(content); }
+        void OnBinaryContentReceived(const void* pContent, size_t len) { _OnBinaryContentReceived(pContent, len); }
 
       private:
         virtual bool _IsToStop() const { return false; }
@@ -100,7 +100,7 @@ namespace spitfire
         virtual void _OnTextContentReceived(const std::string& sContent) {}
 
         // For binary content
-        virtual void _OnBinaryContentReceived(const std::vector<uint8_t>& content) {}
+        virtual void _OnBinaryContentReceived(const void* pContent, size_t len) {}
       };
 
       // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.

@@ -169,10 +169,9 @@ namespace spitfire
       size_t Send(const void* buffer, size_t len);
 
     private:
-      IPaddress ip;
-      TCPsocket socket;
-
-      SDLNet_SocketSet socketSet;
+      bool bIsOpen;
+      boost::asio::io_service io_service;
+      boost::asio::ip::tcp::socket socket;
     };
   }
 }

@@ -15,14 +15,12 @@
 // Boost headers
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/asio.hpp>
 
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
