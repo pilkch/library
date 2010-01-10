@@ -34,6 +34,43 @@ namespace breathe
     void ReportError();
 
 
+#if 0
+    // TODO: We should do something like this to manage the channels
+    // This is a very naive and approach, it is just a basic idea, do NOT do this in practice
+
+    class cChannel
+    {
+    public:
+      void SetBuffer();
+      void SetVolume();
+      void SetPitch();
+      void SetLooping();
+    };
+
+    class cManager
+    {
+    public:
+      virtual void _Update(sampletime_t currentTime, const cListener& listener)
+      {
+        size_t i = 0;
+        const size_t n = channels.size();
+
+        iterator iter = lAudioSources.begin();
+        const iterator iterEnd = lAudioSources.end();
+
+        while ((iter != iterEnd) && (i < n)) {
+          channels[i].SetSource(*iter);
+
+          i++;
+          iter++;
+        }
+      }
+
+    private:
+      std::vector<cChannel> channels;
+    };
+#endif
+
     class cManager : public audio::cManager
     {
     public:

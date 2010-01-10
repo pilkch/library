@@ -282,7 +282,7 @@ namespace breathe
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
-        std::cout<<"cConnectionHTTP::ReadHeader"<<std::endl;
+        LOG<<"cConnectionHTTP::ReadHeader"<<std::endl;
         ASSERT(connection.IsOpen());
 
         // If this fails we have already read the header
@@ -290,19 +290,19 @@ namespace breathe
 
         size_t len = 0;
         char szHeaderBuffer[nBufferLength + 1];
-        std::cout<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
+        LOG<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
         while (connection.IsOpen()) {
-          std::cout<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
+          LOG<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
           len = connection.Recv(szHeaderBuffer, nBufferLength, 5000);
-          std::cout<<"cConnectionHTTP::ReadHeader Recv has finished"<<std::endl;
+          LOG<<"cConnectionHTTP::ReadHeader Recv has finished"<<std::endl;
           if (len == 0) {
-            std::cout<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
+            LOG<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
             break;
           }
 
-          std::cout<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
+          LOG<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
           szHeaderBuffer[len] = 0;
-          std::cout<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
+          LOG<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
 
           std::string sBuffer(szHeaderBuffer);
           std::string::size_type i = sBuffer.find("\r\n\r\n");
@@ -311,7 +311,7 @@ namespace breathe
             header += sBuffer;
           } else {
             header += sBuffer.substr(0, i);
-            std::cout<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
+            LOG<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
 
             // Skip "\r\n\r\n"
             i += 4;
@@ -323,13 +323,13 @@ namespace breathe
               // There is something to put in the content buffer so fill it up and return
 
               // Make space to append the next chunk to the end of our current header buffer
-              std::cout<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
+              LOG<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
               content.reserve(nBufferRead);
 
               // Append to the header
-              std::cout<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
+              LOG<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
               content.insert(content.begin(), nBufferRead, '\0');
-              std::cout<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
+              LOG<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
               memcpy(&content[0], &szHeaderBuffer[i], nBufferRead);
               break;
             }
@@ -339,24 +339,24 @@ namespace breathe
         // Actually parse the header into status, key value pairs etc.
         ParseHeader();
 
-        std::cout<<"cConnectionHTTP::ReadHeader header=\""<<header<<"\", returning"<<std::endl;
+        LOG<<"cConnectionHTTP::ReadHeader header=\""<<header<<"\", returning"<<std::endl;
         return header.length();
       }
 
       size_t cConnectionHTTP::ReadContent(network::cConnectionTCP& connection, void* pOutContent, size_t len)
       {
-        std::cout<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
+        LOG<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
         ASSERT(connection.IsOpen());
 
         size_t nContentReadThisTimeAround = 0;
 
         // If we already have content data then read from there first
         const size_t nBufferRead = content.size();
-        std::cout<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
+        LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
         if (nBufferRead != 0) {
-          std::cout<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
+          LOG<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
           const size_t smaller = min(nBufferRead, len);
-          std::cout<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
+          LOG<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
           memcpy(pOutContent, &content[0], smaller);
 
           // Increment our buffer
@@ -374,7 +374,7 @@ namespace breathe
         if (len != 0) {
           // Now read the rest from the connection
           const size_t n = connection.Recv(pOutContent, len, 2000);
-          std::cout<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
+          LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
           nContentReadThisTimeAround += n;
         }
 
@@ -385,7 +385,7 @@ namespace breathe
         //   ... ends in "\r\n0\r\n"
         // }
 
-        std::cout<<"cConnectionHTTP::ReadContent nContentReadThisTimeAround="<<nContentReadThisTimeAround<<std::endl;
+        LOG<<"cConnectionHTTP::ReadContent nContentReadThisTimeAround="<<nContentReadThisTimeAround<<std::endl;
         return nContentReadThisTimeAround;
       }
 
@@ -469,7 +469,7 @@ namespace breathe
         if (method == METHOD::POST) {
           // TODO: Obviously this is incorrect we should actually get this value from somewhere
           const size_t content_length = 10;
-          std::cout<<"cDownloadHTTP::CreateRequest POST is not complete"<<std::endl;
+          LOG<<"cDownloadHTTP::CreateRequest POST is not complete"<<std::endl;
           ASSERT(false);
 
           o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
@@ -482,14 +482,24 @@ namespace breathe
         return o.str();
       }
 
-      void cDownloadHTTP::ThreadFunction()
+
+      void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method, cDownloadListener& listener)
       {
-        std::cout<<"cDownloadHTTP::ThreadFunction "<<uri.GetServer()<<" "<<uri.GetRelativePath()<<std::endl;
+        LOG<<"cDownloadHTTP::Download \""<<full_uri<<"\""<<std::endl;
+
+        // Parse the uri
+        uri.Parse(full_uri);
+
+        // Start downloading at the beginning
+        progress = 0;
+
+        method = _method;
+
 
         state = STATE::BEFORE_DOWNLOADING;
-        content = "";
 
         if (!uri.IsValidServer()) {
+          LOG<<"cDownloadHTTP::Download Invalid server in uri, returning"<<""<<std::endl;
           state = STATE::INVALID_URI;
           return;
         }
@@ -500,6 +510,7 @@ namespace breathe
         connection.Open(uri.GetServer(), 80);
 
         if (!connection.IsOpen()) {
+          LOG<<"cDownloadHTTP::Download Connection failed, returning"<<""<<std::endl;
           state = STATE::CONNECTION_FAILED;
           return;
         }
@@ -511,7 +522,7 @@ namespace breathe
           size_t len = request.length() + 1;
           size_t sent = connection.Send(request.data(), len);
           if (sent != len) {
-            LOG<<"cDownloadHTTP::ThreadFunction SDLNet_TCP_Send FAILED "<<SDLNet_GetError()<<std::endl;
+            LOG<<"cDownloadHTTP::Download SDLNet_TCP_Send FAILED "<<SDLNet_GetError()<<std::endl;
             return;
           }
         }
@@ -522,32 +533,43 @@ namespace breathe
         cConnectionHTTP reader;
         size_t len = reader.ReadHeader(connection);
         if (len == 0) {
-          LOG<<"cDownloadHTTP::ThreadFunction ReadHeader FAILED "<<SDLNet_GetError()<<std::endl;
+          LOG<<"cDownloadHTTP::Download ReadHeader FAILED "<<SDLNet_GetError()<<std::endl;
           return;
         }
 
 
         state = STATE::RECEIVING_CONTENT;
-        char buffer[STR_LEN - 1];
-        do {
-          len = reader.ReadContent(connection, buffer, STR_LEN - 1);
-          if (len != 0) {
-            buffer[len] = 0;
-            content += buffer;
-            std::cout<<"*** content=\""<<content<<"\""<<std::endl;
-          }
-        } while (len != 0);
 
-        std::cout<<"*** finished CONTENT"<<std::endl;
-        std::cout<<content<<std::endl;
-
-        //... todo what should we do with the content?
-        assert(false);
+        bool bIsText = true;
+        if (bIsText) {
+          char buffer[STR_LEN - 1];
+          std::string sContent;
+          do {
+            len = reader.ReadContent(connection, buffer, STR_LEN - 1);
+            if (len != 0) {
+              buffer[len] = 0;
+              sContent = buffer;
+              listener.OnTextContentReceived(sContent);
+            }
+          } while (len != 0);
+        } else {
+          assert(false);
+          char buffer[STR_LEN - 1];
+          do {
+            std::string sContent;
+            len = reader.ReadContent(connection, buffer, STR_LEN - 1);
+            if (len != 0) {
+              buffer[len] = 0;
+              sContent = buffer;
+              //listener.OnBinaryContentReceived(sContent);
+            }
+          } while (len != 0);
+        }
 
         connection.Close();
 
         state = STATE::FINISHED;
-        std::cout<<"cDownloadHTTP::ThreadFunction Finished, returning"<<std::endl;
+        LOG<<"cDownloadHTTP::Download Finished, returning"<<std::endl;
       }
     }
   }

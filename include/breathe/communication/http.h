@@ -1,8 +1,6 @@
 #ifndef CDOWNLOADHTTP_H
 #define CDOWNLOADHTTP_H
 
-#include <spitfire/util/thread.h>
-
 #include <breathe/communication/network.h>
 #include <breathe/communication/uri.h>
 
@@ -88,6 +86,22 @@ namespace breathe
         DISCONNECTED
       };
 
+      class cDownloadListener
+      {
+      public:
+        bool IsToStop() const { return _IsToStop(); }
+        void OnTextContentReceived(const std::string& sContent) { _OnTextContentReceived(sContent); }
+        void OnBinaryContentReceived(const std::vector<uint8_t>& content) { _OnBinaryContentReceived(content); }
+
+      private:
+        virtual bool _IsToStop() const { return false; }
+
+        // For text
+        virtual void _OnTextContentReceived(const std::string& sContent) {}
+
+        // For binary content
+        virtual void _OnBinaryContentReceived(const std::vector<uint8_t>& content) {}
+      };
 
       // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
       // if necessary add these:
@@ -95,16 +109,14 @@ namespace breathe
       // GetContentLengthActual() const;
       // Getresultcodeorsomething() const;
 
-      class cDownloadHTTP : public breathe::util::cThread
+      class cDownloadHTTP
       {
       public:
         cDownloadHTTP();
 
         // Deprecated 2008, use Download(path, METHOD_GET); instead
         //void Download(const std::string& path);
-        void Download(const std::string& path, METHOD method);
-
-        const std::string& GetContent() const { ASSERT(IsSuccessfulDownload()); return content; }
+        void Download(const std::string& path, METHOD method, cDownloadListener& listener);
 
         bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
         bool IsFailedDownload() const { return !(state == STATE::FINISHED); }
@@ -113,13 +125,11 @@ namespace breathe
         STATE GetState() const { return state; }
 
       private:
-        void ThreadFunction();
         std::string CreateRequest() const;
 
         STATUS status;
         STATE state;
         uint32_t progress;
-        std::string content;
 
         METHOD method;
         breathe::network::cURI uri;
@@ -131,24 +141,6 @@ namespace breathe
         progress(0),
         method(METHOD::GET)
       {
-      }
-
-      inline void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method)
-      {
-        if (IsRunning()) return;
-
-        // Start downloading at the beginning
-        progress = 0;
-
-        // Parse the uri
-        uri.Parse(full_uri);
-
-        method = _method;
-
-        // Now we are ready to download the file
-        //Run();
-
-        ThreadFunction();
       }
     }
   }

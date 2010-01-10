@@ -623,13 +623,27 @@ namespace breathe
   }
 #endif
 
+  class cDownloadUpdateListener : public network::http::cDownloadListener
+  {
+  public:
+
+  private:
+    void _OnTextContentReceived(const std::string& sContent);
+  };
+
+  void cDownloadUpdateListener::_OnTextContentReceived(const std::string& sContent)
+  {
+    LOG<<"Content: \""<<sContent<<"\""<<std::endl;
+  }
+
   void cApplication::CheckIfNeedToUpdateApplication()
   {
     LOG<<"cApplication::CheckIfNeedToUpdateApplication"<<std::endl;
 
     network::http::cDownloadHTTP download;
+    cDownloadUpdateListener listener;
 
-    download.Download("http://chris.iluo.net/projects/drive/info.php", network::http::METHOD::GET);
+    download.Download("http://chris.iluo.net/projects/drive/info.php", network::http::METHOD::GET, listener);
 
     LOG<<"cApplication::CheckIfNeedToUpdateApplication returning"<<std::endl;
 
