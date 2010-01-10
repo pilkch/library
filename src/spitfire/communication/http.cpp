@@ -33,18 +33,18 @@
 
 #include <spitfire/math/math.h>
 
+#include <spitfire/communication/network.h>
+#include <spitfire/communication/uri.h>
+#include <spitfire/communication/http.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
-
-#include <breathe/communication/network.h>
-#include <breathe/communication/uri.h>
-#include <breathe/communication/http.h>
 
 
 const size_t STR_LEN = 512;
 const std::string STR_END = "\r\n";
 
-namespace breathe
+namespace spitfire
 {
   namespace network
   {

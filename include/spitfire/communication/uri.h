@@ -1,7 +1,7 @@
 #ifndef CURI_H
 #define CURI_H
 
-namespace breathe
+namespace spitfire
 {
   namespace network
   {
@@ -132,7 +132,7 @@ namespace breathe
     {
       if (full_uri.empty()) return;
 
-      std::string strProtocol = breathe::string::StripAfterInclusive(full_uri, "://");
+      std::string strProtocol = string::StripAfterInclusive(full_uri, "://");
       PROTOCOL tempProtocol = GetProtocolFromString(strProtocol);
       if (tempProtocol == PROTOCOL::UNKNOWN) return;
 
@@ -140,11 +140,11 @@ namespace breathe
       protocol = tempProtocol;
       port = GetPortFromProtocol(protocol);
 
-      std::string sRemaining = breathe::string::StripBeforeInclusive(full_uri, "://");
+      std::string sRemaining = string::StripBeforeInclusive(full_uri, "://");
 
-      server = breathe::string::StripAfterInclusive(sRemaining, "/");
+      server = string::StripAfterInclusive(sRemaining, "/");
 
-      sRemaining = breathe::string::StripBeforeInclusive(sRemaining, "/");
+      sRemaining = string::StripBeforeInclusive(sRemaining, "/");
 
       // We want a relativePath in the form "", "folder/" or "folder/file.txt"
       relativePath = sRemaining;
@@ -162,7 +162,7 @@ namespace breathe
 
     inline cURI::PROTOCOL cURI::GetProtocolFromString(const std::string& protocol)
     {
-      const std::string lowerProtocol(breathe::string::ToLower(protocol));
+      const std::string lowerProtocol(string::ToLower(protocol));
       if (lowerProtocol == "http") return PROTOCOL::HTTP;
       if (lowerProtocol == "https") return PROTOCOL::HTTPS;
       if (lowerProtocol == "ftp") return PROTOCOL::FTP;

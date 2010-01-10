@@ -157,6 +157,10 @@ int intersect_triangle(
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/geometry.h>
 
+#include <spitfire/communication/network.h>
+#include <spitfire/communication/uri.h>
+#include <spitfire/communication/http.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
 
@@ -185,8 +189,6 @@ int intersect_triangle(
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/skysystem.h>
 
-#include <breathe/communication/network.h>
-
 #include <breathe/audio/audio.h>
 
 /*
@@ -214,9 +216,6 @@ Radio buttons:
   <remove_folder_if_empty name="data"/>
 */
 
-#include <breathe/communication/network.h>
-#include <breathe/communication/uri.h>
-#include <breathe/communication/http.h>
 
 namespace breathe
 {

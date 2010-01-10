@@ -1,8 +1,10 @@
 #ifndef CIPC_H
 #define CIPC_H
 
-namespace breathe {
-  namespace ipc {
+namespace spitfire
+{
+  namespace ipc
+  {
     typedef uint8_t channelid_t;
     typedef uint8_t connectionid_t;
 

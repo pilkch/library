@@ -1,7 +1,7 @@
 #ifndef CNETWORK_H
 #define CNETWORK_H
 
-namespace breathe
+namespace spitfire
 {
   typedef uint32_t timeoutms_t;
 

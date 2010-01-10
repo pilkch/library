@@ -65,6 +65,8 @@
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/geometry.h>
 
+#include <spitfire/communication/network.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
 
@@ -90,8 +92,6 @@
 #include <breathe/game/cGameUnitTest.h>
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/skysystem.h>
-
-#include <breathe/communication/network.h>
 
 #include <breathe/audio/audio.h>
 

@@ -33,13 +33,13 @@
 
 #include <spitfire/math/math.h>
 
+#include <spitfire/communication/network.h>
+#include <spitfire/communication/uri.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/communication/network.h>
-#include <breathe/communication/uri.h>
-
-namespace breathe
+namespace spitfire
 {
   namespace network
   {

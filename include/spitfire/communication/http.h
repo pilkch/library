@@ -1,10 +1,10 @@
 #ifndef CDOWNLOADHTTP_H
 #define CDOWNLOADHTTP_H
 
-#include <breathe/communication/network.h>
-#include <breathe/communication/uri.h>
+#include <spitfire/communication/network.h>
+#include <spitfire/communication/uri.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace network
   {
@@ -132,7 +132,7 @@ namespace breathe
         uint32_t progress;
 
         METHOD method;
-        breathe::network::cURI uri;
+        network::cURI uri;
       };
 
       inline cDownloadHTTP::cDownloadHTTP() :

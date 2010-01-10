@@ -39,15 +39,15 @@
 
 #include <spitfire/storage/xml.h>
 
+#include <spitfire/communication/network.h>
+#include <spitfire/communication/uri.h>
+#include <spitfire/communication/http.h>
+#include <spitfire/communication/feed.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/communication/network.h>
-#include <breathe/communication/uri.h>
-#include <breathe/communication/http.h>
-#include <breathe/communication/feed.h>
-
-namespace breathe
+namespace spitfire
 {
   namespace network
   {

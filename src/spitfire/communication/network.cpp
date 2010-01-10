@@ -32,16 +32,16 @@
 
 #include <spitfire/math/math.h>
 
+#include <spitfire/communication/network.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
-
-#include <breathe/communication/network.h>
 
 
 #define STR_LEN 512
 #define STR_END "\r\n"
 
-namespace breathe
+namespace spitfire
 {
   namespace network
   {

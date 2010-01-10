@@ -5,7 +5,7 @@
 
 #include <breathe/breathe.h>
 
-namespace breathe
+namespace spitfire
 {
   namespace network
   {
