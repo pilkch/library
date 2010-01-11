@@ -37,6 +37,55 @@ namespace finaltv
     return result;
   }
 
+  bool IsSpecialCharacter(char c)
+  {
+    switch (c) {
+      case '*':
+      case '-':
+      case '.':
+      case '_': {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  char ConvertToHexDigit(char value)
+  {
+    assert(value < 16);
+
+    if (value < char(10)) return '0' + char(value);
+
+    return 'a' + char(value) - char(10);
+  }
+
+  std::string Encode(const std::string& rawString)
+  {
+    char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
+
+    std::size_t rawLen = rawString.size();
+
+    std::string encodedString;
+    encodedString.reserve(rawLen);
+
+    for (std::size_t i = 0; i < rawLen; ++i) {
+      char curChar = rawString[i];
+
+      if (curChar == ' ') encodedString += '+';
+      else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
+      else {
+        unsigned int temp = static_cast<unsigned int>(curChar);
+
+        encodingBuffer[1] = ConvertToHexDigit(temp / 0x10);
+        encodingBuffer[2] = ConvertToHexDigit(temp % 0x10);
+        encodedString += encodingBuffer;
+      }
+    }
+
+    return encodedString;
+  }
+
 
   // ** cDuration
 
@@ -113,56 +162,38 @@ namespace finaltv
     // allow us to treat all data up until the EOF as the content.
     boost::asio::streambuf request;
     std::ostream request_stream(&request);
-    request_stream<<"GET "<<HOST_FINALTV_ROOT<<sRelativeURI<<" HTTP/1.0\r\n";
-    request_stream<<"Host: "<<HOST_NAME<<"\r\n";
-    request_stream<<"Accept: */*\r\n";
-    request_stream<<"Connection: close\r\n\r\n";
-
-    // TODO: DO A POST REQUEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-#if 0
-
-    std::ostringstream o;
-
-    o<<"GET /"<<HOST_FINALTV_ROOT<<sRelativeURI<<" HTTP/1.1"<<STR_END;
-
-           o<<"Host: "<<uri.GetServer()<<STR_END;
-
-           o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"<<STR_END;
-           o<<"Accept: */*"<<STR_END;
-           o<<"Accept-Language: en-us"<<STR_END;
-
-           o<<"Connection: close"<<STR_END;
-
-           o<<STR_END;
+    //std::ostringstream request_stream;
 
 
-    // For POST we have to do more work
-           std::ostringstream oPostValues;
-           for (each mValues) {
-           oPostValues<<ToURLEncoded(iter->first)<<"=" + ToURLEncoded(iter->second);
-  }
+    std::string sRelativeURIWithAnyVariables = sRelativeURI;
 
-           const std::string sPostValues(oPostValues.str());
+    if (!mValues.empty()) {
+      std::ostringstream oVariables;
+      std::map<std::string, std::string>::const_iterator iter = mValues.begin();
+      const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+        // Write the first item so that we can safely add "&" between every other item
+      if (iter != iterEnd) {
+        oVariables<<Encode(iter->first)<<"="<<Encode(iter->second);
+        iter++;
+      }
+      while (iter != iterEnd) {
+        oVariables<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
+        iter++;
+      }
 
-    // TODO: Obviously this is incorrect we should actually get this value from somewhere
-           const size_t content_length = sPostValues.length();
-           std::cout<<"cDownloadHTTP::CreateRequest POST is not complete"<<std::endl;
-           assert(false);
+      sRelativeURIWithAnyVariables += "?" + oVariables.str();
+    }
 
-           o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
-           o<<"Content-Length: "<<content_length<<STR_END;
-           o<<STR_END;
+    request_stream<<"GET "<<HOST_FINALTV_ROOT<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
+    request_stream<<"Host: "<<HOST_NAME<<""<<STR_END;
+    request_stream<<"User-Agent: Mozilla/4.0 (compatible; libfinaltv 1.0; Linux)"<<STR_END;
+    request_stream<<"Accept: */*"<<STR_END;
+    request_stream<<"Connection: close"<<STR_END;
+    request_stream<<STR_END;
 
-           o<<STR_END;
 
-           o<<sPostValues;
-
-           const std::string sHeader(o.str());
-
-           ... send sHeader;
-#endif
-
+    //std::cout<<"Sending request: "<<std::endl;
+    //std::cout<<request_stream.str()<<std::endl;
 
     // Send the request.
     boost::asio::write(socket, request);
@@ -220,6 +251,7 @@ namespace finaltv
     while (std::getline(buffer, sLine)) {
       if (sLine == "success") return RESULT::SUCCESS;
       else if (sLine == "error_wrong_version") return RESULT::ERROR_WRONG_VERSION;
+      else if (sLine == "error_no_action") return RESULT::ERROR_NO_ACTION;
       else if (sLine == "error_username_or_password_incorrect") return RESULT::ERROR_USERNAME_OR_PASSWORD_INCORRECT;
       else if (sLine == "error_username_banned_24_hours") return RESULT::ERROR_USERNAME_BANNED_24_HOURS;
       else if (sLine == "error_username_banned_6_months") return RESULT::ERROR_USERNAME_BANNED_6_MONTHS;
@@ -238,7 +270,7 @@ namespace finaltv
     mValues["version"] = "1";
 
     mValues["user"] = ToUTF8(sUserName);
-    mValues["password"] = ToUTF8(sPassword);
+    mValues["pass"] = ToUTF8(sPassword);
 
     return _PostRequest(sRelativeURI, mValues);
   }
@@ -249,7 +281,9 @@ namespace finaltv
 
     std::map<std::string, std::string> mValues;
 
-    RESULT result = PostRequest("login.php", _sUserName, _sPassword, mValues);
+    mValues["action"] = "login";
+
+    RESULT result = PostRequest("submit.php", _sUserName, _sPassword, mValues);
 
     if (result == RESULT::SUCCESS) {
       sUserName = _sUserName;
@@ -273,7 +307,7 @@ namespace finaltv
 
     std::map<std::string, std::string> mValues;
 
-    mValues["watching"] = "true";
+    mValues["action"] = "watching";
     mValues["title"] = ToUTF8(sTitle);
     mValues["position_seconds"] = ToUTF8(durationThroughMovie);
     mValues["length_seconds"] = ToUTF8(durationOfMovie);
@@ -289,7 +323,7 @@ namespace finaltv
 
     std::map<std::string, std::string> mValues;
 
-    mValues["watched"] = "true";
+    mValues["action"] = "watched";
     mValues["title"] = ToUTF8(sTitle);
 
     RESULT result = PostRequest("submit.php", sUserName, sPassword, mValues);

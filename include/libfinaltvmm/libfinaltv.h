@@ -36,6 +36,7 @@ namespace finaltv
   enum class RESULT {
     SUCCESS,
     ERROR_WRONG_VERSION,
+    ERROR_NO_ACTION,
     ERROR_SERVER_COULD_NOT_BE_CONTACTED,   // The FinalTV server could not be contacted due to either the server being down or a network problem on the client end
     ERROR_SERVER_INVALID_RESPONSE,
     ERROR_USERNAME_OR_PASSWORD_INCORRECT,  // This username is invalid or the password for that username is incorrect
@@ -78,7 +79,7 @@ namespace finaltv
 
   private:
     static RESULT _PostRequest(const std::string& sRelativeURI, const std::map<std::string, std::string>& mValues);
-    static RESULT PostRequest(const std::string& sRelativeURI, const string_t& sUserName, const string_t& sPassword, const std::map<std::string, std::string>& _mValues);
+    static RESULT PostRequest(const std::string& sRelativeURI, const string_t& sUserName, const string_t& sPassword, const std::map<std::string, std::string>& mValues);
 
     string_t sUserName;
     string_t sPassword;

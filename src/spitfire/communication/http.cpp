@@ -126,9 +126,6 @@ namespace spitfire
       private:
         void ParseHeader();
 
-        std::string Decode(const std::string& encodedString);
-        std::string Encode(const std::string& rawString);
-
         std::string header;
         int status;
         std::map<std::string, std::string> headerValues;
@@ -193,7 +190,7 @@ namespace spitfire
         return false;
       }
 
-      std::string cConnectionHTTP::Decode(const std::string& encodedString)
+      std::string Decode(const std::string& encodedString)
       {
         const char* encStr = encodedString.c_str();
         std::string decodedString;
@@ -250,7 +247,7 @@ namespace spitfire
         return decodedString;
       }
 
-      std::string cConnectionHTTP::Encode(const std::string& rawString)
+      std::string Encode(const std::string& rawString)
       {
         char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
 
@@ -442,19 +439,38 @@ namespace spitfire
 
       std::string cDownloadHTTP::CreateRequest() const
       {
+        std::ostringstream oVariables;
+        std::map<std::string, std::string>::const_iterator iter = mValues.begin();
+        const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+        // Write the first item so that we can safely add "&" between every other item
+        if (iter != iterEnd) {
+          oVariables<<Encode(iter->first)<<"="<<Encode(iter->second);
+          iter++;
+        }
+        while (iter != iterEnd) {
+          oVariables<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
+          iter++;
+        }
+
+        const std::string sVariables(oVariables.str());
+
+
         std::ostringstream o;
 
         if (method == METHOD::GET) o<<"GET";
         else o<<"POST";
 
-        o<<" /"<<uri.GetRelativePath()<<" HTTP/1.1"<<STR_END;
+        std::string sRelativeURIWithAnyVariables = uri.GetRelativePath();
+        if (method == METHOD::GET) sRelativeURIWithAnyVariables += "?" + sVariables;
+
+        o<<" /"<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
 
         if (uri.GetPort() == 80) o<<"Host: "<<uri.GetServer()<<STR_END;
         else o<<"Host: "<<uri.GetServer()<<":"<<uri.GetPort()<<STR_END;
 
         if (progress != 0) o<<"Range: bytes="<<progress<<"-"<<STR_END;
 
-        o<<"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"<<STR_END;
+        o<<"User-Agent: Mozilla/4.0 (compatible; Spitfire 1.0; Linux)"<<STR_END;
         o<<"Accept: */*"<<STR_END;
         o<<"Accept-Language: en-us"<<STR_END;
 
@@ -465,14 +481,13 @@ namespace spitfire
         o<<STR_END;
 
         if (method == METHOD::POST) {
-          // TODO: Obviously this is incorrect we should actually get this value from somewhere
-          const size_t content_length = 10;
-          LOG<<"cDownloadHTTP::CreateRequest POST is not complete"<<std::endl;
-          ASSERT(false);
+          const size_t content_length = sVariables.length();
 
           o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
           o<<"Content-Length: "<<content_length<<STR_END;
           o<<STR_END;
+
+          o<<sVariables;
         }
 
         o<<STR_END;

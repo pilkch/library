@@ -114,8 +114,8 @@ namespace spitfire
       public:
         cDownloadHTTP();
 
-        // Deprecated 2008, use Download(path, METHOD_GET); instead
-        //void Download(const std::string& path);
+        void AddVariable(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
+
         void Download(const std::string& path, METHOD method, cDownloadListener& listener);
 
         bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
@@ -133,6 +133,7 @@ namespace spitfire
 
         METHOD method;
         network::cURI uri;
+        std::map<std::string, std::string> mValues;
       };
 
       inline cDownloadHTTP::cDownloadHTTP() :
