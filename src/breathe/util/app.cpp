@@ -192,6 +192,35 @@ int intersect_triangle(
 #include <breathe/audio/audio.h>
 
 /*
+class cProcessDialogInterface : public cProcessInterface
+{
+  public:
+   cProcessDialogInterface();
+
+  private:
+   void _SetPrimaryPercentage0To100(float_t fPercent0To100);
+
+   cWidget* pStatusTextPrimary;
+   //cWidget* pStatusTextSecondary;
+   cWidget* pProgressBarPrimary;
+   //cWidget* pProgressBarSecondary;
+};
+
+cProcessDialogInterface::cProcessDialogInterface() :
+   pStatusTextPrimary(nullptr),
+   pProgressBarPrimary(nullptr)
+{
+}
+
+void cProgressDialogInterface::_SetPrimaryPercentage0To100(float_t fPercent0To100)
+{
+   ASSERT(pProgressBarPrimary != nullptr);
+
+   pProgressBarPrimary->SetPercentage0To100(fPercent0To100);
+}
+*/
+
+/*
 Automatic updates:
 Settings:
 Radio buttons:
@@ -454,6 +483,9 @@ namespace breathe
     CONSOLE.SetApp(this);
     filesystem::SetThisExecutable(breathe::string::ToString_t(argv[0]));
 
+    // Make sure that we are in the directory we think we are in
+    filesystem::ChangeToDirectory(filesystem::GetThisApplicationDirectory());
+
     // Set our main thread identifier so that when we call IsMainThread later it will work correctly
     spitfire::util::SetMainThread();
     spitfire::util::cRunOnMainThreadQueue::Create();
@@ -463,10 +495,6 @@ namespace breathe
 #endif
 
     filesystem::Create();
-
-    string_t sFullPath;
-    if (filesystem::GetFile(TEXT("Current"), sFullPath)) LOG<<"File exists at "<<breathe::string::ToUTF8(sFullPath).c_str()<<std::endl;
-    else LOG<<"File does not exists"<<std::endl;
 
     _LoadSearchDirectories();
 
@@ -1974,15 +2002,16 @@ namespace breathe
     SetVisible(false);
     SetResizable(true);
 
-    math::cColour green(0.0f, 1.0f, 0.0f);
+    const math::cColour red(1.0f, 0.0f, 0.0f);
+    pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.40f, 0.9f);
+    pPrevious->SetColour(red);
 
-    pPrevious = new gui::cWidget_StaticText(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
-    pPrevious->SetColour(green);
-    pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.05f, 0.05f, 0.9f, 0.9f);
+    const math::cColour green(0.0f, 1.0f, 0.0f);
+    pInput = new gui::cWidget_Input(breathe::gui::GenerateID(), 0.55f, 0.05f, 0.40f, 0.9f);
     pInput->SetColour(green);
 
-    AddChild(pPrevious);
-    AddChild(pInput);
+    AddChildToContainer(pPrevious);
+    AddChildToContainer(pInput);
   }
 
   void cApplication::cConsoleWindow::_OnEvent(const gui::cEvent& event)

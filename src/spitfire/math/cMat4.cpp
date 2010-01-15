@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cassert>
 
 #include <vector>
 
@@ -101,14 +102,17 @@ namespace spitfire
       entries[1] = 0.0f;
       entries[2] = 0.0f;
       entries[3] = 0.0f;
+
       entries[4] = 0.0f;
       entries[5] = 1.0f;
       entries[6] = 0.0f;
       entries[7] = 0.0f;
+
       entries[8] = 0.0f;
       entries[9] = 0.0f;
       entries[10] = 1.0f;
       entries[11] = 0.0f;
+
       entries[12] = 0.0f;
       entries[13] = 0.0f;
       entries[14] = 0.0f;
@@ -826,6 +830,69 @@ namespace spitfire
     {
       ASSERT(pEntries != nullptr);
       for (size_t i = 0; i < 16; i++) entries[i] = pEntries[i];
+    }
+
+
+    // OpenGL matrix operations
+    void cMat4::MultiplyMatrix(const cMat4& rhs)
+    {
+      cMat4 temp;
+
+      for (size_t i = 0; i < 16; i++) {
+        temp[i] = 0.0f;
+
+        for(size_t k = 0; k < 4; k++) {
+          //               row column               row column
+          temp[i] += entries[(i % 4) + (k * 4)] * rhs[k + ((i / 4) * 4)];
+        }
+      }
+
+      *this = temp;
+    }
+
+    void cMat4::TranslateMatrix(const cVec3& translation)
+    {
+      cMat4 matrix;
+
+      matrix[12] = translation.x;
+      matrix[13] = translation.y;
+      matrix[14] = translation.z;
+
+      MultiplyMatrix(matrix);
+    }
+
+    void cMat4::RotateMatrix(const cVec3& rotation)
+    {
+      cMat4 matrix;
+
+      const float rx = 2.0f * cPI * rotation.x / 360.0f;
+      const float ry = 2.0f * cPI * rotation.y / 360.0f;
+      const float rz = 2.0f * cPI * rotation.z / 360.0f;
+      const float sx = sinf(rx);
+      const float cx = cosf(rx);
+      const float sy = sinf(ry);
+      const float cy = cosf(ry);
+      const float sz = sinf(rz);
+      const float cz = cosf(rz);
+
+      matrix[0] = cy * cz;
+      matrix[1] = cy * sz;
+      matrix[2] = -sy;
+
+      matrix[4] = cz * sx * sy - cx * sz;
+      matrix[5] = cx * cz + sx * sy * sz;
+      matrix[6] = cy * sx;
+
+      matrix[8] = cx  *cz * sy + sx * sz;
+      matrix[9] = -cz * sx + cx * sy * sz;
+      matrix[10] = cx * cy;
+
+      MultiplyMatrix(matrix);
+    }
+
+    void cMat4::ScaleMatrix(const cVec3& scale)
+    {
+      assert(false);
     }
   }
 }

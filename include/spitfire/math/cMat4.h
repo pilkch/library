@@ -133,6 +133,13 @@ namespace spitfire
 
       void LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up);
 
+
+      // OpenGL matrix operations
+      void MultiplyMatrix(const cMat4& rhs);
+      void TranslateMatrix(const cVec3& translation);
+      void RotateMatrix(const cVec3& rotation);
+      void ScaleMatrix(const cVec3& scale);
+
     private:
       float entries[16];
     };
