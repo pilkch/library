@@ -159,7 +159,7 @@ namespace spitfire
       return rval;
     }
 
-    template<class T> inline bool IsPowerOfTwo(T value) { return (value & (~value + 1)) == value; }
+    template<class T> inline bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }
 
     inline bool IsApproximatelyEqual(float_t a, float_t b)
     {

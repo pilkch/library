@@ -1,6 +1,8 @@
 #ifndef UNITEST_H
 #define UNITEST_H
 
+#include <spitfire/util/cString.h>
+
 #if !defined NDEBUG || defined(BUILD_DEBUG)
 
 namespace spitfire

@@ -128,6 +128,16 @@
 
 
 
+// There are three variables that affect torque:
+//
+// * The size of the piston face
+// * The amount of pressure that the ignited fuel applies to the face of the piston
+// * The distance the piston travels on each stroke (therefore the diameter of the crankshaft). The bigger the diameter of the crankshaft, the bigger the lever arm and therefore the more torque.
+
+
+
+
+
 
 // TODO: This is made up, whatever feels right?
 const float_t fNormalAirFlowCubicMetresPerSecond = 1.0f;

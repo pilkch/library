@@ -27,21 +27,13 @@
 
 namespace spitfire
 {
-  class cMD5_Context
-  {
-  public:
-    uint32_t total[2];
-    uint32_t state[4];
-    unsigned char buffer[64];
-  };
-
   class cMD5
   {
   public:
     cMD5();
 
     bool CheckString(const char* szInput);
-    bool CheckBuffer(const char* pInput, size_t len);
+    bool CheckBuffer(const char* pData, size_t len);
     bool CheckFile(const std::string& sFilename);
 
     bool SetResultFromFormatted(const char* szMD5Hash);
@@ -56,17 +48,10 @@ namespace spitfire
     std::string GetResultFormatted() const;
 
   private:
-    unsigned char h2d(unsigned char a, unsigned char b);
+    unsigned char h2d(unsigned char a, unsigned char b) const;
 
-    cMD5_Context ctx;
-
-    void Start();
-    void Update(cMD5_Context* ctx, const unsigned char* pInput, uint32_t length);
-    void Finish(cMD5_Context* ctx);
-    void Process(cMD5_Context* ctx, const unsigned char data[64]);
-
-    unsigned char result[16]; //Raw result
-    std::string sResult; //Result formatted
+    unsigned char result[16]; // Raw result
+    std::string sResult; // Result formatted
   };
 }
 

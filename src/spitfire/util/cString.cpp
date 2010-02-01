@@ -142,20 +142,49 @@ namespace spitfire
 
     bool IsWhiteSpace(char_t c)
     {
+      // http://en.wikipedia.org/wiki/Whitespace_%28computer_science%29#Unicode
+
+      // (' '), tab ('\t'), newline ('\n'), linefeed ('\r'), formfeed ('\f') and vertical tab ('\x0b').
+      // U+0009–U+000D (control characters, containing Tab, CR and LF)
+
+      // U+0020 SPACE
+      // U+0085 NEL (control character next line)
+      // U+00A0 NBSP (NO-BREAK SPACE)
+      // U+1680 OGHAM SPACE MARK
+      // U+180E MONGOLIAN VOWEL SEPARATOR
+      // U+2000–U+200A (different sorts of spaces)
+      // U+2028 LS (LINE SEPARATOR)
+      // U+2029 PS (PARAGRAPH SEPARATOR)
+      // U+202F NNBSP (NARROW NO-BREAK SPACE)
+      // U+205F MMSP (MEDIUM MATHEMATICAL SPACE)
+      // U+3000 IDEOGRAPHIC SPACE
+
       // We regard space, tab, new line and carriage return characters as white space
       return (c == TEXT(' ')) || (c == TEXT('\t')) || (c == TEXT('\n')) || (c == TEXT('\r'));
     }
 
     size_t CountOccurrences(const std::string& source, const std::string& sFind)
     {
-      size_t n = 0;
+      size_t count = 0;
 
       size_t i = 0;
       size_t j;
-      for (;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, n++)
+      for (;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, count++)
         ;
 
-      return n;
+      return count;
+    }
+
+    size_t CountOccurrences(const std::wstring& source, const std::wstring& sFind)
+    {
+      size_t count = 0;
+
+      size_t i = 0;
+      size_t j;
+      for (;(j = source.find(sFind, i)) != std::wstring::npos; i = j + 1, count++)
+        ;
+
+      return count;
     }
 
     void Split(const std::string& source, char sFind, std::vector<std::string>& vOut)
