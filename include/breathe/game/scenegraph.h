@@ -868,7 +868,7 @@ namespace breathe
     class cRenderVisitor
     {
     public:
-      cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum);
+      cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context, const math::cFrustum& frustum);
 
     private:
       void ApplyStateSet(cStateSet& stateSet);
@@ -907,7 +907,7 @@ namespace breathe
 
       void Update(sampletime_t currentTime);
       void Cull(sampletime_t currentTime, const render::cCamera& camera);
-      void Render(sampletime_t currentTime, const math::cFrustum& frustum);
+      void Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum);
 
     protected:
       cRenderGraph& GetRenderGraph() { return renderGraph; }

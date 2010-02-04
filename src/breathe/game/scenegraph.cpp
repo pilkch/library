@@ -874,7 +874,7 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, const math::cFrustum& frustum)
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context, const math::cFrustum& frustum)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
@@ -1123,7 +1123,7 @@ namespace breathe
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime, const math::cFrustum& frustum)
+    void cSceneGraph::Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum)
     {
       cRenderVisitor visitor(*this, frustum);
     }
@@ -1374,7 +1374,7 @@ namespace breathe
 
             scenegraph.Update(currentTime);
             scenegraph.Cull(currentTime, camera);
-            scenegraph.Render(currentTime, pRender->GetFrustum());
+            scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
 
 
 

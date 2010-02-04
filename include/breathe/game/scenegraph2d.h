@@ -95,17 +95,6 @@ namespace breathe
       friend class cRenderGraph;
       friend class cRenderVisitor;
 
-      enum class PRIORITY {
-        FIRST = -3,
-        SECOND = -2,
-        THIRD = -1,
-        OPAQUE = 0,
-        DIFFUSE = 0,
-        NORMAL = 0,
-        TRANSPARENT,
-        LAST
-      };
-
       cStateSet();
       cStateSet(const cStateSet& rhs);
 
@@ -119,8 +108,6 @@ namespace breathe
     private:
       void Assign(const cStateSet& rhs);
       void Clear();
-
-      PRIORITY priority;
 
       scenegraph_common::cStateBoolean alphablending;
       scenegraph_common::cStateColour colour;
@@ -148,7 +135,6 @@ namespace breathe
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
-      priority = rhs.priority;
       alphablending = rhs.alphablending;
       colour = rhs.colour;
       texture[0] = rhs.texture[0];
@@ -162,7 +148,7 @@ namespace breathe
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
       return (
-        (priority == rhs.priority) && (alphablending == rhs.alphablending) && (colour == rhs.colour) &&
+        (alphablending == rhs.alphablending) && (colour == rhs.colour) &&
         (texture[0] == rhs.texture[0]) && (texture[1] == rhs.texture[1]) && (texture[2] == rhs.texture[2]) &&
         (geometryType == rhs.geometryType)
       );
@@ -274,7 +260,7 @@ namespace breathe
       virtual void _DeleteChildRecursively(cSceneNodeRef pChild);
       virtual void _DeleteAllChildrenRecursively();
 
-      std::list<cSceneNodeRef> children;
+      std::list<cSceneNodeRef> children; // The children will be rendered in order from begin() to end()
 
 #ifdef BUILD_DEBUG
       bool bIsShowingBoundingBox;
@@ -508,7 +494,7 @@ namespace breathe
     class cRenderVisitor
     {
     public:
-      explicit cRenderVisitor(cSceneGraph& scenegraph);
+      cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context);
 
     private:
       void ApplyStateSet(cStateSet& stateSet);
@@ -572,7 +558,7 @@ namespace breathe
 
       void Update(sampletime_t currentTime);
       void Cull(sampletime_t currentTime, const render::cCamera& camera);
-      void Render(sampletime_t currentTime);
+      void Render(sampletime_t currentTime, render::cGraphicsContext& context);
 
     protected:
       cRenderGraph& GetRenderGraph() { return renderGraph; }

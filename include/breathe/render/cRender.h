@@ -512,9 +512,12 @@ namespace breathe
     private:
       NO_COPY(cRenderScreenSpace); // Forbidden
     };
+
+    typedef cRender cGraphicsContext;
   }
 }
 
-extern breathe::render::cRender* pRender;
+extern breathe::render::cGraphicsContext* pContext;
+extern breathe::render::cRender* pRender; // TODO: Remove pRender
 
 #endif // CRENDER_H

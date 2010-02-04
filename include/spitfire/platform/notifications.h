@@ -7,16 +7,12 @@ namespace spitfire
 {
   namespace operatingsystem
   {
-    enum NOTIFICATION {
+    class enum NOTIFICATION {
       NOTIFICATION_INFORMATION,
       NOTIFICATION_WARNING
     };
 
-    #ifdef __APPLE__
-
-    ... Use Growl
-
-    #elif defined(__GTK__)
+    #ifdef __GTK__
 
     class cNotification
     {
@@ -26,8 +22,33 @@ namespace spitfire
       bool IsValid();
 
       void SetType(NOTIFICATION _type) { type = _type; }
+      void SetTitle(const string_t& sTitle);
+      void SetDescription(const string_t& sDescription);
+      void SetIcon(...);
 
-      void ShowNotification(const string_t& sTitle, const string_t& sDescription);
+      void Show();
+
+    private:
+      NOTIFICATION type;
+    };
+
+    #elif defined(__KDE__)
+
+    // http://api.kde.org/4.0-api/kdelibs-apidocs/kdeui/html/classKNotification.html
+
+    class cNotification
+    {
+    public:
+      cNotification();
+
+      bool IsValid();
+
+      void SetType(NOTIFICATION _type) { type = _type; }
+      void SetTitle(const string_t& sTitle);
+      void SetDescription(const string_t& sDescription);
+      void SetIcon(...);
+
+      void Show();
 
     private:
       static bool bIsGlobalInit;
@@ -35,9 +56,9 @@ namespace spitfire
       NOTIFICATION type;
     };
 
-    #else
+    #elif defined(__APPLE__)
 
-    // http://api.kde.org/4.0-api/kdelibs-apidocs/kdeui/html/classKNotification.html
+    // Use Growl
 
     class cNotification
     {
@@ -45,8 +66,31 @@ namespace spitfire
       bool IsValid();
 
       void SetType(NOTIFICATION _type) { type = _type; }
+      void SetTitle(const string_t& sTitle);
+      void SetDescription(const string_t& sDescription);
+      void SetIcon(...);
 
-      void ShowNotification(const string_t& sTitle, const string_t& sDescription);
+      void Show();
+
+    private:
+      NOTIFICATION type;
+    };
+
+    #else
+
+    class cNotification
+    {
+    public:
+      cNotification();
+
+      bool IsValid();
+
+      void SetType(NOTIFICATION _type) { type = _type; }
+      void SetTitle(const string_t& sTitle);
+      void SetDescription(const string_t& sDescription);
+      void SetIcon(...);
+
+      void Show();
 
     private:
       NOTIFICATION type;
@@ -57,4 +101,3 @@ namespace spitfire
 }
 
 #endif // NOTIFICATIONS_H
-

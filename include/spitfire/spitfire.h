@@ -116,6 +116,12 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #ifdef _MBCS
 #error "_MBCS should not be defined by your IDE"
 #endif
+#ifdef _CPPUNWIND
+#error "Exceptions must be disabled"
+#endif
+#ifdef _CPPRTTI
+#error "RTTI must be disabled"
+#endif
 
 #elif defined(UNICODE)
 #define _TEXT(s) L##s

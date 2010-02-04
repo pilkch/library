@@ -76,8 +76,6 @@ namespace breathe
     {
       ASSERT(render::MAX_TEXTURE_UNITS == 3);
 
-      priority = PRIORITY::NORMAL;
-
       alphablending.Clear();
       colour.Clear();
       texture[0].Clear();
@@ -603,7 +601,7 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph)
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
@@ -735,9 +733,9 @@ namespace breathe
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime)
+    void cSceneGraph::Render(sampletime_t currentTime, render::cGraphicsContext& context)
     {
-      cRenderVisitor visitor(*this);
+      cRenderVisitor visitor(*this, context);
     }
 
 
@@ -996,7 +994,7 @@ namespace breathe
 
             scenegraph.Update(currentTime);
             scenegraph.Cull(currentTime, camera);
-            scenegraph.Render(currentTime);
+            scenegraph.Render(currentTime, *pRender);
 
 
 
