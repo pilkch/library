@@ -76,6 +76,138 @@ namespace breathe
 
       directionUp = rotationOfObject.GetRotatedVector(spitfire::math::v3Up).GetNormalised();
       directionRight = rotationOfObject.GetRotatedVector(spitfire::math::v3Right).GetNormalised();
+
+
+
+
+
+      /*
+      // Third person over the shoulder camera for a Far Cry Mod
+      // http://farcry.crymod.com/thread.php?threadid=9783
+
+      float camDist = 0.75f;
+      float AngleCoeff = m_vEyeAngles.z;
+      float AngleVCoeff = m_vEyeAngles.x/90;
+      float camHeight = 1.0f;
+      float Circling = 1.75f;
+
+      if (AngleCoeff >= 0)
+      {
+        AngleCoeff += 30;
+
+        // X
+        if (m_vEyeAngles.x >= 0)
+        {
+          camHeight = camDist*(1-pow((1-AngleVCoeff), Circling));
+          offset.z += camHeight;
+          camDist = max(camDist*(1-AngleVCoeff), camDist/2);
+          AngleCoeff += 90*pow(AngleVCoeff, Circling);
+        }
+        else
+        {
+          camHeight = camDist*(1-pow((1- -AngleVCoeff), Circling));
+          offset.z -= camHeight;
+        }
+
+        if (AngleCoeff >= 360)
+        {
+          int steps = AngleCoeff/360;
+          AngleCoeff -= 360*steps;
+        }
+
+        while(true)
+        {
+          if (AngleCoeff < 90)
+          {
+            AngleCoeff /= 90;
+            offset.x -= camDist*(1-pow((1-AngleCoeff), Circling));
+            offset.y += camDist*(1-pow(AngleCoeff, Circling));
+            break;
+          }
+          if (AngleCoeff < 180)
+          {
+            AngleCoeff -= 90;
+            AngleCoeff /= 90;
+            offset.x -= camDist*(1-pow(AngleCoeff, Circling));
+            offset.y -= camDist*(1-pow((1-AngleCoeff), Circling));
+            break;
+          }
+          if (AngleCoeff < 270)
+          {
+            AngleCoeff -= 180;
+            AngleCoeff /= 90;
+            offset.x += camDist*(1-pow((1-AngleCoeff), Circling));
+            offset.y -= camDist*(1-pow(AngleCoeff, Circling));
+            break;
+          }
+          AngleCoeff -= 270;
+          AngleCoeff /= 90;
+          offset.x += camDist*(1-pow(AngleCoeff, Circling));
+          offset.y += camDist*(1-pow((1-AngleCoeff), Circling));
+          break;
+        }
+      }
+      else
+      {
+        AngleCoeff += 30;
+        AngleCoeff = -AngleCoeff+360;
+
+        // X
+        if (m_vEyeAngles.x >= 0)
+        {
+          camHeight = camDist*(1-pow((1-AngleVCoeff), Circling));
+          offset.z += camHeight;
+          camDist = max(camDist*(1-AngleVCoeff), camDist/2);
+          AngleCoeff -= 90*pow(AngleVCoeff, Circling);
+        }
+        else
+        {
+          camHeight = camDist*(1-pow((1- -AngleVCoeff), Circling));
+          offset.z -= camHeight;
+        }
+
+        if (AngleCoeff >= 360)
+        {
+          int steps = AngleCoeff/360;
+          AngleCoeff -= 360*steps;
+        }
+
+        while(true)
+        {
+          if (AngleCoeff < 90)
+          {
+            AngleCoeff /= 90;
+            offset.x += camDist*(1-pow((1-AngleCoeff), Circling));
+            offset.y += camDist*(1-pow(AngleCoeff, Circling));
+            break;
+          }
+          if (AngleCoeff < 180)
+          {
+            AngleCoeff -= 90;
+            AngleCoeff /= 90;
+            offset.x += camDist*(1-pow(AngleCoeff, Circling));
+            offset.y -= camDist*(1-pow((1-AngleCoeff), Circling));
+            break;
+          }
+          if (AngleCoeff < 270)
+          {
+            AngleCoeff -= 180;
+            AngleCoeff /= 90;
+            offset.x -= camDist*(1-pow((1-AngleCoeff), Circling));
+            offset.y -= camDist*(1-pow(AngleCoeff, Circling));
+            break;
+          }
+          AngleCoeff -= 270;
+          AngleCoeff /= 90;
+          offset.x -= camDist*(1-pow(AngleCoeff, Circling));
+          offset.y += camDist*(1-pow((1-AngleCoeff), Circling));
+          break;
+        }
+      }
+
+      camera->SetPos(offset);
+      camera->SetAngles(m_vEyeAngles);
+*/
     }
 
     void cCamera::SetThirdPersonCamera(const spitfire::math::cVec3& positionOfObject, const spitfire::math::cQuaternion& rotationOfObject, const spitfire::math::cQuaternion& rotationOfViewRelativeToRotationOfObject)
