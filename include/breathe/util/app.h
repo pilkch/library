@@ -134,6 +134,41 @@ namespace breathe
 
       void OnMouseEvent(int button, int state, float x, float y) { _OnMouseEvent(button, state, x, y); }
 
+
+
+      class cKeyboardEvent
+      {
+      public:
+        bool IsKeyPressed(key_t key) const; // A key down and then a key up event in quick succession
+
+        bool IsKeyDown(key_t key) const;
+        bool IsKeyUp(key_t key) const;
+
+      private:
+        std::list<key_t> keys; // This can contain for example KEY::A, KEY::SHIFT
+      };
+
+      class cMouseEvent
+      {
+      public:
+        bool IsPrimaryButtonDown() const;
+        bool IsSecondaryButtonDown() const;
+        bool IsTertiaryButtonDown() const;
+
+        float GetX() const;
+        float GetY() const;
+        float GetZ() const; // Scrolling wheel
+      };
+
+      void OnEvent(const cKeyboardEvent& event) { _OnEvent(event); }
+      void OnEvent(const cMouseEvent& event) { _OnEvent(event); }
+
+    private:
+      virtual void _OnEvent(const cKeyboardEvent& event) {}
+      virtual void _OnEvent(const cMouseEvent& event) {}
+
+
+
     protected:
       void AddMessageInformative(const string_t& text) { SCREEN.AddMessageInformative(text); }
       void AddMessageWarning(const string_t& text) { SCREEN.AddMessageWarning(text); }

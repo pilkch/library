@@ -588,6 +588,17 @@ namespace breathe
 
     typedef cSmartPtr<cAnimationNode> cAnimationNodeRef;
 
+    class cParticleSystemNode : public cSceneNode
+    {
+    public:
+
+    private:
+      void _Update(cUpdateVisitor& visitor);
+      void _Cull(cCullVisitor& visitor);
+    };
+
+    typedef cSmartPtr<cParticleSystemNode> cParticleSystemNodeRef;
+
     class cLightNode : public cSceneNode
     {
     public:
@@ -600,6 +611,9 @@ namespace breathe
       math::cColour colourDiffuse;
       float_t fMaximumDistanceRadius;
     };
+
+    typedef cSmartPtr<cLightNode> cLightNodeRef;
+
 
     class cSwitchNode : public cSceneNode
     {
@@ -798,6 +812,7 @@ namespace breathe
       std::map<cStateSet*, cRenderableList*> mOpaque;
 
       // Transparent (distance from the camera : renderable at that position)
+      // TODO: Should this be multimap?
       std::map<float, cRenderGraphTransparentPair> mTransparent;
     };
 
@@ -897,9 +912,9 @@ namespace breathe
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
 
       const math::cColour& GetBackgroundColour() const { return backgroundColour; }
-      const math::cColour& GetAmbientColour() const { return ambientColour; }
-
       void SetBackgroundColour(const math::cColour& colour) { backgroundColour = colour; }
+
+      const math::cColour& GetAmbientColour() const { return ambientColour; }
       void SetAmbientColour(const math::cColour& colour) { ambientColour = colour; }
 
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
@@ -909,10 +924,20 @@ namespace breathe
       void Cull(sampletime_t currentTime, const render::cCamera& camera);
       void Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum);
 
+      //cSceneNodeRef FindNode(const std::string& sName);
+
+      // All create functions are here so that the scenegraph can enforce unique names (Among other things)
+      cModelNodeRef CreateModelNode(const std::string& sName);
+      cAnimationNodeRef CreateAnimationNode(const std::string& sName);
+      cParticleSystemNodeRef CreateParticleSystemNode(const std::string& sName);
+      cLightNodeRef CreateLightNode(const std::string& sName);
+
     protected:
       cRenderGraph& GetRenderGraph() { return renderGraph; }
 
     private:
+      //uint32_t UniqueNameToUniqueHash(const std::string& sName) const;
+
       bool bIsCullingEnabled;
       math::cColour backgroundColour;
       math::cColour ambientColour;
@@ -920,6 +945,8 @@ namespace breathe
       cRenderGraph renderGraph;
       cSceneNodeRef pRoot;
       cSkySystemRef pSkySystem;
+
+      //std::map<uint32_t, cSceneNodeRef> nodes; // Unique hash to node map
     };
   }
 }

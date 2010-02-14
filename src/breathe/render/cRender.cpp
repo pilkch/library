@@ -73,6 +73,38 @@ namespace breathe
 {
   namespace render
   {
+    // *** cStatistics
+
+    cStatistics::cStatistics() :
+      nStateChanges(0),
+      nTrianglesRendered(0),
+      nModelsRendered(0)
+    {
+    }
+
+    void cStatistics::Reset()
+    {
+      nStateChanges = 0;
+      nTrianglesRendered = 0;
+      nModelsRendered = 0;
+    }
+
+
+    // *** cCapabilities
+
+    cCapabilities::cCapabilities() :
+      bIsOpenGLTwoPointZeroOrLater(false),
+      bIsOpenGLThreePointZeroOrLater(false),
+      bIsShadersTwoPointZeroOrLater(false),
+      bIsVertexBufferObject(false),
+      bIsFrameBufferObject(false),
+      bIsShadows(false),
+      nTextureUnits(0)
+    {
+    }
+
+
+
     class cDynamicShadowMap;
 
     class cShadowMapGenerator
@@ -512,11 +544,11 @@ namespace breathe
 
       {
         CONSOLE<<"Resolutions"<<std::endl;
-        std::vector<resolution> resolutions = GetAvailableScreenResolutions();
+        const std::vector<cResolution>& resolutions = GetAvailableScreenResolutions();
 
         const size_t n = resolutions.size();
         for (size_t i = 0; i < n; i++) {
-          const resolution& r = resolutions[i];
+          const cResolution& r = resolutions[i];
           std::cout<<r.GetWidth()<<"x"<<r.GetHeight()<<"x"<<r.GetColourDepth()<<" "<<(r.IsWideScreen() ? "widescreen" : "standard")<<std::endl;
         };
       }
@@ -1153,10 +1185,10 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderAxisReference(float x, float y, float z)
+    void cRender::RenderAxisReference()
     {
-      math::cVec3 position(x, y, z);
-      RenderAxisReference(position);
+      const math::cVec3 zero;
+      RenderAxisReference(zero);
     }
 
     void cRender::RenderAxisReference(const math::cVec3& position)
@@ -2441,21 +2473,21 @@ namespace breathe
 
 
 
-    resolution::resolution() :
+    cResolution::cResolution() :
       width(640),
       height(480),
       colourDepth(32)
     {
     }
 
-    void resolution::SetResolution(size_t _width, size_t _height, size_t _colourDepth)
+    void cResolution::SetResolution(size_t _width, size_t _height, size_t _colourDepth)
     {
       width = _width;
       height = _height;
       colourDepth = _colourDepth;
     }
 
-    bool resolution::IsWideScreen() const
+    bool cResolution::IsWideScreen() const
     {
       const float fWideScreenRatio = 16.0f / 9.0f;
 
@@ -2464,7 +2496,7 @@ namespace breathe
       return (fRatio >= fWideScreenRatio);
     }
 
-    bool resolution::ResolutionCompare(const resolution& lhs, const resolution& rhs)
+    bool cResolution::ResolutionCompare(const cResolution& lhs, const cResolution& rhs)
     {
       if (lhs.IsWideScreen() > rhs.IsWideScreen()) return true;
       if (lhs.GetColourDepth() > rhs.GetColourDepth()) return true;
@@ -2476,7 +2508,7 @@ namespace breathe
 
 
 
-    resolution cRender::GetCurrentScreenResolution() const
+    cResolution cRender::GetCurrentScreenResolution() const
     {
       const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
       ASSERT(pVideoInfo != nullptr);
@@ -2485,7 +2517,7 @@ namespace breathe
       const int iCurrentHeight = pVideoInfo->current_h;
       const int iCurrentColourDepthInBits = pVideoInfo->vfmt->BitsPerPixel;
 
-      resolution r;
+      cResolution r;
 
       ASSERT(iCurrentWidth >= 0);
       ASSERT(iCurrentHeight >= 0);
@@ -2495,9 +2527,9 @@ namespace breathe
       return r;
     }
 
-    std::vector<resolution> cRender::GetAvailableScreenResolutions() const
+    std::vector<cResolution> cRender::GetAvailableScreenResolutions() const
     {
-      std::vector<resolution> resolutions;
+      std::vector<cResolution> resolutions;
 
       const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
       ASSERT(pVideoInfo != nullptr);
@@ -2513,21 +2545,151 @@ namespace breathe
       SDL_Rect** modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
       if (modes == (SDL_Rect**)0 || modes == (SDL_Rect**)-1) {
         CONSOLE<<"No modes available"<<std::endl;
-        resolution r;
+        cResolution r;
         r.SetResolution(size_t(iCurrentWidth), size_t(iCurrentHeight), size_t(iCurrentColourDepthInBits));
         resolutions.push_back(r);
       } else {
         for (size_t i = 0; modes[i] != nullptr; i++) {
-          resolution r;
+          cResolution r;
           r.SetResolution(size_t(modes[i]->w), size_t(modes[i]->h), size_t(iCurrentColourDepthInBits));
           resolutions.push_back(r);
         }
       }
 
-      std::sort(resolutions.begin(), resolutions.end(), resolution::ResolutionCompare);
+      std::sort(resolutions.begin(), resolutions.end(), cResolution::ResolutionCompare);
 
       return resolutions;
     }
+
+
+    void cRender::PushProjectionMatrix()
+    {
+      math::cMat4 matrix;
+
+      // If we already have a matrix then get a copy of it
+      if (!lMatProjection.empty()) matrix = lMatProjection.back();
+
+      lMatProjection.push_back(matrix);
+    }
+
+    void cRender::PopProjectionMatrix()
+    {
+      ASSERT(!lMatProjection.empty());
+      lMatProjection.pop_back();
+    }
+
+    void cRender::SetProjectionMatrix(const math::cMat4& matrix)
+    {
+      // If we already have a matrix then get a copy of it
+      if (!lMatProjection.empty()) {
+        math::cMat4& current = lMatProjection.back();
+        current = matrix;
+      }
+    }
+
+    void cRender::MultiplyProjectionMatrix(const math::cMat4& matrix)
+    {
+      ASSERT(!lMatProjection.empty());
+      math::cMat4& current = lMatProjection.back();
+      current *= matrix;
+    }
+
+
+    void cRender::PushModelViewMatrix()
+    {
+      math::cMat4 matrix;
+
+      // If we already have a matrix then get a copy of it
+      if (!lMatModelView.empty()) matrix = lMatModelView.back();
+
+      lMatModelView.push_back(matrix);
+    }
+
+    void cRender::PopModelViewMatrix()
+    {
+      ASSERT(!lMatModelView.empty());
+      lMatModelView.pop_back();
+    }
+
+    void cRender::SetModelViewMatrix(const math::cMat4& matrix)
+    {
+      // If we already have a matrix then get a copy of it
+      if (!lMatModelView.empty()) {
+        math::cMat4& current = lMatModelView.back();
+        current = matrix;
+      }
+    }
+
+    void cRender::MultiplyModelViewMatrix(const math::cMat4& matrix)
+    {
+      ASSERT(!lMatModelView.empty());
+      math::cMat4& current = lMatModelView.back();
+      current *= matrix;
+    }
+
+
+
+    void cRender::PushTextureMatrix()
+    {
+      math::cMat4 matrix;
+
+      // If we already have a matrix then get a copy of it
+      if (!lMatTexture.empty()) matrix = lMatTexture.back();
+
+      lMatTexture.push_back(matrix);
+    }
+
+    void cRender::PopTextureMatrix()
+    {
+      ASSERT(!lMatTexture.empty());
+      lMatTexture.pop_back();
+    }
+
+    void cRender::SetTextureMatrix(const math::cMat4& matrix)
+    {
+      // If we already have a matrix then get a copy of it
+      if (!lMatTexture.empty()) {
+        math::cMat4& current = lMatTexture.back();
+        current = matrix;
+      }
+    }
+
+    void cRender::MultiplyTextureMatrix(const math::cMat4& matrix)
+    {
+      ASSERT(!lMatTexture.empty());
+      math::cMat4& current = lMatTexture.back();
+      current *= matrix;
+    }
+
+
+    void cRender::ApplyMatrices()
+    {
+      math::cMat4 matProjection;
+      if (!lMatProjection.empty()) matProjection = lMatProjection.back();
+
+      math::cMat4 matModelView;
+      if (!lMatModelView.empty()) matModelView = lMatModelView.back();
+
+      math::cMat4 matTexture;
+      if (!lMatTexture.empty()) matTexture = lMatTexture.back();
+
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixf(matProjection.GetOpenGLMatrixPointer());
+
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixf(matModelView.GetOpenGLMatrixPointer());
+
+      glMatrixMode(GL_TEXTURE);
+      glLoadMatrixf(matTexture.GetOpenGLMatrixPointer());
+
+      // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
+      //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
+      //glUniformMatrix4fv("???", 1, GL_FALSE, matModelView.GetOpenGLMatrixPointer());
+      //glUniformMatrix4fv("???", 1, GL_FALSE, matTexture.GetOpenGLMatrixPointer());
+    }
+
+
+
 
 
 

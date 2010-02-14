@@ -10,6 +10,7 @@
 #include <spitfire/math/cColour.h>
 #include <spitfire/math/cFrustum.h>
 
+#include <breathe/render/camera.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
@@ -19,6 +20,12 @@
 
 namespace breathe
 {
+  namespace game
+  {
+    class cRenderGraph;
+    class cRenderGraph2d;
+  }
+
   namespace render
   {
     const size_t MAX_TEXTURE_UNITS = 3;
@@ -91,12 +98,12 @@ namespace breathe
       friend class cRender;
     };*/
 
-    class resolution
+    class cResolution
     {
     public:
       friend class cRender;
 
-      resolution();
+      cResolution();
 
       size_t GetWidth() const { return width; }
       size_t GetHeight() const { return height; }
@@ -105,7 +112,7 @@ namespace breathe
 
       bool IsWideScreen() const;
 
-      static bool ResolutionCompare(const resolution& lhs, const resolution& rhs);
+      static bool ResolutionCompare(const cResolution& lhs, const cResolution& rhs);
 
     protected:
       void SetResolution(size_t width, size_t height, size_t colourDepth);
@@ -115,6 +122,35 @@ namespace breathe
       size_t height;
       size_t colourDepth;
     };
+
+    class cStatistics
+    {
+    public:
+      cStatistics();
+
+      void Reset();
+
+      size_t nStateChanges;
+      size_t nTrianglesRendered;
+      size_t nModelsRendered;
+      size_t nVertexBufferObjectsRendered;
+      size_t nSceneObjectsRendered;
+    };
+
+    class cCapabilities
+    {
+    public:
+      cCapabilities();
+
+      bool bIsOpenGLTwoPointZeroOrLater;
+      bool bIsOpenGLThreePointZeroOrLater;
+      bool bIsShadersTwoPointZeroOrLater;
+      bool bIsVertexBufferObject;
+      bool bIsFrameBufferObject;
+      bool bIsShadows;
+      size_t nTextureUnits;
+    };
+
 
     class cRender
     {
@@ -135,8 +171,8 @@ namespace breathe
       float GetShaderVersion() const;
 
     public:
-      resolution GetCurrentScreenResolution() const;
-      std::vector<resolution> GetAvailableScreenResolutions() const;
+      cResolution GetCurrentScreenResolution() const;
+      std::vector<cResolution> GetAvailableScreenResolutions() const;
 
       bool PreInit();
 
@@ -206,16 +242,81 @@ namespace breathe
       void RenderScreenSpaceLines(const std::vector<math::cVec2>& points);
 
       void RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2);
-      void RenderLines(const std::vector<math::cVec3>& points);
       void RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour);
-      void RenderAxisReference(float x, float y, float z);
-      void RenderAxisReference(const math::cVec3& position);
-      void RenderBox(const math::cVec3& vMin, const math::cVec3& vMax);
+
       void RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax);
 
       void RenderMesh(model::cMeshRef pMesh);
+
+
+
+      //void SetClearColour(const math::cColour& colour);
+
+      //void BindMaterial(material::cMaterialRef pMaterial);
+      //void UnBindMaterial(material::cMaterialRef pMaterial);
+
+      //void BindTexture(cTextureRef pTexture, size_t index);
+      //void UnBindTexture(cTextureRef pTexture, size_t index);
+
+      //void BindShader(cShaderRef pShader);
+      //void UnBindShader(cShaderRef pShader);
+
+      //void BindVBO(cVertexBufferObjectRef pVBO);
+      //void UnBindVBO(cVertexBufferObjectRef pVBO);
+
+
+      void PushProjectionMatrix();
+      void PopProjectionMatrix();
+      void SetProjectionMatrix(const math::cMat4& matrix);
+      void MultiplyProjectionMatrix(const math::cMat4& matrix);
+
+      void PushModelViewMatrix();
+      void PopModelViewMatrix();
+      void SetModelViewMatrix(const math::cMat4& matrix);
+      void MultiplyModelViewMatrix(const math::cMat4& matrix);
+
+      void PushTextureMatrix();
+      void PopTextureMatrix();
+      void SetTextureMatrix(const math::cMat4& matrix);
+      void MultiplyTextureMatrix(const math::cMat4& matrix);
+
+      void ApplyMatrices();
+
+      //void RenderTriangles(cVertexBufferObjectRef pVBO);
+      //void RenderTriangleStrip(cVertexBufferObjectRef pVBO);
+      //void RenderQuads(cVertexBufferObjectRef pVBO);
+      //void RenderQuadStrip(cVertexBufferObjectRef pVBO);
+
+      // Set the camera to use for rendering the next scene
+      void SetCamera(const cCamera& camera);
+
+      // Render the elements of the complete render graph
+      void RenderScene(game::cRenderGraph& renderGraph);
+
+      // Render the elements of the complete 2d render graph
+      void RenderScene2d(game::cRenderGraph2d& renderGraph2d);
+
+#ifdef BUILD_DEBUG
+      // Immediate mode functions for rendering basic shapes in debug mode
+      // These are rendered using the current translation, rotation and scale
+      // NOTE: They should not be used in release, an actual vbo should be used instead
+      void RenderLine(const math::cVec3& v0, const math::cVec3& v1);
+      void RenderLines(const std::vector<math::cVec3>& points);
+      void RenderAxisReference(); // Rendered with a red, green and blue line, ignoring active debug colour
+      void RenderAxisReference(const math::cVec3& position); // Rendered with a red, green and blue line, ignoring active debug colour
+      void RenderBox(const math::cVec3& vMin, const math::cVec3& vMax);
+#endif
+
+
+
+
+
+
+
+
+
 
       void PushScreenSpacePosition(float x, float y);
       void PopScreenSpacePosition();
@@ -229,6 +330,13 @@ namespace breathe
 
 
       // *** Resources
+
+      //cTextureRef CreateTexture();
+      //cFrameBufferObjectRef CreateFrameBufferObject();
+
+      //cShaderRef CreateShader();
+
+      //cStaticVertexBufferObjectRef CreateVertexBufferObject();
 
       void TransformModels();
 
@@ -381,6 +489,13 @@ namespace breathe
 
     private:
       NO_COPY(cRender);
+
+      std::list<math::cMat4> lMatProjection;
+      std::list<math::cMat4> lMatModelView;
+      std::list<math::cMat4> lMatTexture;
+
+      cStatistics statistics;
+      cCapabilities capabilities;
     };
 
 

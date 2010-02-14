@@ -1235,7 +1235,7 @@ namespace breathe
 #endif
 
 
-    scenegraph2D.Render(currentTime);
+    scenegraph2D.Render(currentTime, *pRender);
 
     state.RenderScreenSpace(currentTime);
 
@@ -1338,7 +1338,7 @@ namespace breathe
       {
         render::cRenderToTexture texture(pFrameBuffer0);
 
-        scenegraph.Render(currentTime, pRender->GetFrustum());
+        scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
 
 #ifdef BUILD_DEBUG
         if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
@@ -1499,7 +1499,7 @@ namespace breathe
       // Normal rendering, straight to the screen
       render::cRenderToScreen screen;
 
-      scenegraph.Render(currentTime, pRender->GetFrustum());
+      scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
 
 #ifdef BUILD_DEBUG
       if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
@@ -1882,6 +1882,7 @@ namespace breathe
     size_t uiPhysicsHz = pWorld->GetFrequencyHz();
 #endif
     unsigned int uiUpdateHz = 30;
+    unsigned int uiRenderHz = 60;
 
     float fEventsDelta = 1000.0f / 30.0f; // Should be once every single loop?
     float fInputDelta = 1000.0f / 30.0f;
@@ -1889,6 +1890,7 @@ namespace breathe
     float fPhysicsDelta = 1000.0f / uiPhysicsHz;
 #endif
     float fUpdateDelta = 1000.0f / uiUpdateHz;
+    float fRenderDelta = 1000.0f / uiRenderHz;
 
     float fEventsNext = 0.0f;
     float fInputNext = 0.0f;
@@ -1896,17 +1898,18 @@ namespace breathe
     float fPhysicsNext = 0.0f;
 #endif
     float fUpdateNext = 0.0f;
+    float fRenderNext = 0.0f;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     tPhysics.InitWithLockedFPS(uiPhysicsHz);
 #endif
     tUpdate.InitWithLockedFPS(uiUpdateHz);
-    tRender.InitWithUnspecifiedFPS();
+    tRender.InitWithLockedFPS(uiRenderHz);
 
     //TODO: Activate window so that it is on top as soon as we start
     while (!bDone) {
       // If this fails we have a problem.  At all times we should either have
-      // bDone == true or states has one or more states
+      // bDone == true OR states has one or more states
       assert(!states.empty());
 
       currentTime = spitfire::util::GetTimeMS();

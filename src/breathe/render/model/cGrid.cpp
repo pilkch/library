@@ -164,7 +164,7 @@ namespace breathe
 
       void cGridRenderer::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
+        pRender->RenderAxisReference();
 
         glDisable(GL_COLOR_MATERIAL);
         glDisable(GL_LIGHTING);

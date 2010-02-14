@@ -1363,13 +1363,61 @@ namespace breathe
       }
 
 
-      /*Fnet = Facceleration + Fbraking + Fdragresistance + Frollingresistance
+      // Fnet = Facceleration + Fbraking + Fdragresistance + Frollingresistance
 
-      Friction coefficients:
-      Concrete (wet)  Rubber  0.30
-      Concrete (dry)  Rubber  1.0
-      Metal   Wood  0.2-0.6*/
+      // Friction coefficients:
+      // Concrete (wet)  Rubber  0.30
+      // Concrete (dry)  Rubber  1.0
+      // Metal   Wood  0.2-0.6
 
+
+      // Force on a single tire
+      //
+      // F = (MassOfWholeCar / nWheels) + MassOfWheel * GravitationalAcceleration9.8m/s/s
+
+
+      // http://en.wikipedia.org/wiki/Rolling_resistance#Physical_formula
+      // F = Crr * Nf
+      //
+      // F is the rolling resistance force
+      // Crr is the dimensionless rolling resistance coefficient or coefficient of rolling friction (CRF)
+      // Nf is the normal force
+      //
+      // F = Nf * b / r
+      //
+      // F is the rolling resistance force
+      // r is the wheel radius
+      // b is the rolling resistance coefficient or coefficient of rolling friction with dimension of length
+      // Nf is the normal force
+      //
+      // b = Crr * r
+      //
+      //
+      // Rolling Resistance Coefficient Examples
+      // Crr                b        Description
+      // 0.0002 to 0.0010   0.5 mm   Railroad steel wheel on steel rail
+      // 0.0002 to 0.0010   0.1 mm   Hardened steel ball bearings on steel
+      // 0.0022 to 0.005             Production bicycle tires at 120 psi and 50 km/h, measured on rollers
+      // 0.0025                      Special Michelin solar car/eco-marathon tires
+      // 0.005                       Tram rails standard dirty with straights and curves
+      // 0.0055                      Typical BMX bicycle tires used for solar cars
+      // 0.006 - 0.01                Low rolling resistance car tire
+      // 0.010 to 0.015              Ordinary car tires on concrete
+      // 0.055 to 0.065              Ordinary car tires on grass, mud, and sand
+      // 0.3                         Ordinary car tires on sand
+      //
+      //
+      // Examples:
+      //
+      // How big is the area of the tire contact patch?
+      // AreaOfContactPatch = WeightOfCar / 4 / PressureOfTires
+      // AreaOfContactPatchSquareInches = WeightOfCarInPounds / 4 / PressureOfTiresPsi
+      // AreaOfContactPatchSquareMeters = WeightOfCarInKg / 4 / PressureOfTiresPa   (NOTE: 1 Pa = 1 N / 1 m squared)
+      // AreaOfContactPatchSquareMeters = 1000 Kg × / 4 / 32 Pa
+      //
+      // A car of 1000 kg on asphalt will need a force of around 100 newtons for rolling
+      // N = WeightOfCar * Gravity * Crr
+      // 98.1 N = 1000 kg × 9.81 m/s2 × 0.01
 
       const float fSteeringAngleMinusOneToPlusOne = -fInputLeft0To1 + fInputRight0To1;
 

@@ -96,6 +96,16 @@ namespace breathe
         vTextureCoord = rhs.vTextureCoord;
       }
 
+      void cMeshData::WeldVerticesWithinThreshold(float fThreshold)
+      {
+        const size_t n = vIndex.size();
+        for (size_t i = 0 ; i < n; i++) {
+          for (size_t j = 0; j < n; j++) {
+            //if (Distance(verts[i], verts[j]) < fThreshold) Join(i, j);
+          }
+        }
+      }
+
       void cMeshData::CreateVBO()
       {
         glEnable(GL_TEXTURE_2D);

@@ -37,6 +37,7 @@ namespace breathe
         void CopyFrom(const cMeshData& rhs);
         void CreateVBO();
 
+        void WeldVerticesWithinThreshold(float fThreshold);
 
         unsigned int uiVertexBuffer;
         unsigned int uiIndexBuffer;

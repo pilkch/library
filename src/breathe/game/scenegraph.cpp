@@ -911,7 +911,7 @@ namespace breathe
                       glMultMatrixf((*renderableIter).GetOpenGLMatrixPointer());
 
 #ifdef BUILD_DEBUG
-                      pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
+                      pRender->RenderAxisReference();
 #endif
 
                       switch (pStateSet->geometryType) {
@@ -950,7 +950,7 @@ namespace breathe
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
                 glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrixPointer());
-                pRender->RenderAxisReference(0.0f, 0.0f, 0.0f);
+                pRender->RenderAxisReference();
                 (*iter).pModel->Render(currentTime);
               glMatrixMode(GL_MODELVIEW);
               glPopMatrix();
