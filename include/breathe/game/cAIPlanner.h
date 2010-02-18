@@ -9,10 +9,17 @@
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
 
+// Breathe headers
+
+#include <breathe/game/cAIPathFinder.h>
+
 namespace breathe
 {
   namespace ai
   {
+    typedef uint16_t entityid_t;
+    typedef uint16_t eventid_t;
+
     // From the F.E.A.R AI paper for GDC 2006 by Jeff Orkin
     // http://web.media.mit.edu/~jorkin/gdc2006_orkin_jeff_fear.pdf
 
@@ -45,15 +52,32 @@ namespace breathe
     class cAgentOrSquadProperties
     {
     public:
-      const math::cVec3& GetPosition() const { return position; }
-      const math::cQuaternion& GetRotation() const { return rotation; }
+      const spitfire::math::cVec3& GetPosition() const { return position; }
+      const spitfire::math::cQuaternion& GetRotation() const { return rotation; }
+
+      spitfire::math::cVec3 position;
+      spitfire::math::cQuaternion rotation;
+    };
+
+    class cBlackBoardEntityData
+    {
+    public:
+      spitfire::math::cVec3 position;
+      spitfire::math::cQuaternion rotation;
     };
 
     // The current "knowledge" of an agent or squad of agents in the simulation
     class cAgentOrSquadBlackBoard
     {
     public:
+      void AddOrUpdateEntityPosition(entityid_t idEntity, const spitfire::math::cVec3& position);
+      void AddOrUpdateEntityRotation(entityid_t idEntity, const spitfire::math::cQuaternion& rotation);
 
+      void AddSuspiciousEvent(eventid_t idEntity, const spitfire::math::cVec3& position);
+
+    private:
+      std::map<entityid_t, cBlackBoardEntityData> knownEntities;
+      std::map<eventid_t, spitfire::math::cVec3> knownSuspiciousEvents;
     };
 
     class cCondition
@@ -123,11 +147,11 @@ namespace breathe
 
     void cPlanner::PlanForSquad(cSquad& squad)
     {
-      ... Find the agents that can fill the slots in this squad
+      /*... Find the agents that can fill the slots in this squad
       if (found participants) {
         ... send orders to each participant
         ... monitor how each participant is going with previous orders
-      }
+      }*/
     }
 
 
@@ -530,18 +554,6 @@ namespace breathe
     };
 
     class cGoalEatFood : public cGoal
-    {
-    public:
-
-    };
-
-    class cGoalLookAround : public cGoal
-    {
-    public:
-
-    };
-
-    class cGoalLookAround : public cGoal
     {
     public:
 
