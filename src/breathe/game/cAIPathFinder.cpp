@@ -184,9 +184,46 @@ namespace breathe
 
     void UnitTest()
     {
+      const spitfire::math::cVec3 nodes[] = {
+        spitfire::math::cVec3(1.0f, 3.0f, 0.0f),
+        spitfire::math::cVec3(1.0f, 1.0f, 0.0f),
+        spitfire::math::cVec3(2.0f, 1.0f, 0.0f),
+        spitfire::math::cVec3(2.0f, 2.0f, 0.0f),
+        spitfire::math::cVec3(4.0f, 1.0f, 0.0f),
+        spitfire::math::cVec3(10.0f, 4.0f, 0.0f),
+        spitfire::math::cVec3(4.0f, 3.0f, 0.0f),
+        spitfire::math::cVec3(5.0f, 3.0f, 0.0f),
+        spitfire::math::cVec3(6.0f, 1.0f, 0.0f)
+      };
+
+      const size_t edges[] = {
+        0, 1,
+        1, 2,
+        2, 3,
+        2, 4,
+        3, 4,
+        3, 5,
+        4, 6,
+        5, 7,
+        6, 7,
+        4, 8,
+        7, 8
+      };
+
       cGraph graph;
-      graph.AddNode(const spitfire::math::cVec3& position, 1.0f);
-      graph.AddEdge(size_t start, size_t end, 1.0f);
+
+      {
+        const size_t n = sizeof(nodes) / sizeof(spitfire::math::cVec3);
+        for (size_t i = 0; i < n; i++) {
+          graph.AddNode(nodes[i], 1.0f);
+        }
+      }
+      {
+        const size_t n = sizeof(edges) / sizeof(size_t);
+        for (size_t i = 0; i < n; i += 2) {
+          graph.AddEdge(edges[i], edges[i + 1], 1.0f);
+        }
+      }
 
       graph.Build();
 
@@ -194,9 +231,7 @@ namespace breathe
       std::vector<size_t> path;
 
       cDijkstra dijkstra;
-      dijkstra.GetLowestCostPath(graph, 0, 4, path);
-
-      ...
+      dijkstra.GetLowestCostPath(graph, 0, 7, path);
     }
   }
 }
