@@ -93,6 +93,8 @@ namespace breathe
       nodeDistanceFromStart.clear();
       nodeVisited.clear();
 
+      // 1. Assign to every node a distance value. Set it to zero for our initial node and to infinity for all other nodes.
+      // 2. Mark all nodes as unvisited. Set initial node as current.
       const size_t n = graph.GetNumberOfNodes();
       nodeDistanceFromStart.resize(n, spitfire::math::cINFINITY);
       nodeVisited.resize(n, false);
@@ -118,6 +120,7 @@ namespace breathe
       // If we are already at the end node then we have nothing to calculate, so return
       if (pNodeCurrent == pNodeEnd) return;
 
+      // 3. For current node, consider all its unvisited neighbours and calculate their distance (from the initial node). For example, if current node (A) has distance of 6, and an edge connecting it with another node (B) is 2, the distance to B through A will be 6+2=8. If this distance is less than the previously recorded distance (infinity in the beginning, zero for the initial node), overwrite the distance.
       const size_t n = pNodeCurrent->vEdges.size();
       for (size_t i = 0; i < n; i++) {
         size_t indexNextNode = pNodeCurrent->vEdges[i]->pNodeTo->index;
@@ -127,8 +130,10 @@ namespace breathe
         }
       }
 
+      // 4. When we are done considering all neighbours of the current node, mark it as visited. A visited node will not be checked ever again; its distance recorded now is final and minimal.
       nodeVisited[pNodeCurrent->index] = true;
 
+      // 5. Set the unvisited node with the smallest distance (from the initial node) as the next “current node” and continue from step 3
       bool bIsVisitedAllNodes = true;
       size_t indexOfLowestCostEdge = 0;
       float fLowestCost = spitfire::math::cINFINITY;
