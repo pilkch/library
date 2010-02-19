@@ -22,73 +22,23 @@ namespace breathe
 {
   namespace ai
   {
-    class cEdge;
-
-    class cNode
-    {
-    public:
-      void Sort(); // Sort the edges travelling away from this node in order of cheapest first
-
-      spitfire::math::cVec3 position;
-      float fCost;
-
-      std::vector<cEdge*> vEdges;
-    };
-
-
-    class cEdge
-    {
-    public:
-      static bool CostCompare(const cEdge* lhs, const cEdge* rhs);
-
-      cNode* pNodeFrom;
-      cNode* pNodeTo;
-      float fCost;
-    };
+    // ** cNode
 
     // Sort the edges travelling away from this node in order of cheapest first
-
     void cNode::Sort()
     {
       std::sort(vEdges.begin(), vEdges.end(), cEdge::CostCompare);
     }
 
-    // Comparison for sorting edges based on cost
 
-    inline bool cEdge::CostCompare(const cEdge* pLHS, const cEdge* pRHS)
-    {
-      ASSERT(pLHS != nullptr);
-      ASSERT(pRHS != nullptr);
-      return (pLHS->fCost > pRHS->fCost);
-    }
-
-
-    // NOTE: All nodes must be added first, then edges
-    class cGraph
-    {
-    public:
-      size_t AddNode(const spitfire::math::cVec3& position, float fCost);
-
-      // NOTE: The total cost is fCostMultiplier * length(start to end)
-      void AddEdge(size_t nodeFrom, size_t nodeTo, float fCostMultiplier);
-
-      void Build(); // Sorts the edges within each node, may do more work later on such as calculating distances and costs
-
-      const cNode& GetNode(size_t i) const { ASSERT(i < nodes.size()); return nodes[i]; }
-      const cEdge& GetEdge(size_t i) const { ASSERT(i < edges.size()); return edges[i]; }
-
-    private:
-      void Sort(); // Sort the edges in cNode::vEdges
-
-      std::vector<cNode> nodes;
-      std::vector<cEdge> edges;
-    };
+    // ** cGraph
 
     size_t cGraph::AddNode(const spitfire::math::cVec3& position, float fCost)
     {
       size_t index = nodes.size();
 
       cNode node;
+      node.index = index;
       node.position = position;
       node.fCost = fCost;
       nodes.push_back(node);
@@ -132,54 +82,75 @@ namespace breathe
     }
 
 
-    // Notes:
-    // Each edge is in a single direction, between node0 and node1 there could be hundreds of edges going either direction.
-    // Each node only knows about the edges heading away from it.
-    class cDijkstra
-    {
-    public:
-      void GetLowestCostPath(const cGraph& graph, size_t nodeStart, size_t nodeEnd, std::vector<size_t>& path);
-
-    private:
-      void _GetLowestCostPathRecursive(const cGraph& graph, const cNode* pNodeCurrent, const cNode* pNodeEnd, std::vector<size_t>& path);
-    };
+    // ** cDijkstra
 
     void cDijkstra::GetLowestCostPath(const cGraph& graph, size_t nodeStart, size_t nodeEnd, std::vector<size_t>& path)
     {
+      std::cout<<"cDijkstra::_GetLowestCostPathRecursive"<<std::endl;
+
       path.clear();
 
-      // If we are already at the end node then we have nothing to calculate, so return
-      if (nodeStart == nodeEnd) return;
+      nodeDistanceFromStart.clear();
+      nodeVisited.clear();
+
+      const size_t n = graph.GetNumberOfNodes();
+      nodeDistanceFromStart.resize(n, spitfire::math::cINFINITY);
+      nodeVisited.resize(n, false);
+
+      nodeDistanceFromStart[nodeStart] = 0.0f;
 
 
       const cNode* pNodeCurrent = &graph.GetNode(nodeStart);
       const cNode* pNodeEnd = &graph.GetNode(nodeEnd);
-
-      while (pNodeCurrent != pNodeEnd) {
-        _GetLowestCostPathRecursive(graph, pNodeCurrent, pNodeEnd, path);
-      };
+      const float fDistanceFromStartNode = 0.0f;
+      _GetLowestCostPathRecursive(graph, pNodeCurrent, pNodeEnd, fDistanceFromStartNode, path);
     }
 
-    void cDijkstra::_GetLowestCostPathRecursive(const cGraph& graph, const cNode* pNodeCurrent, const cNode* pNodeEnd, std::vector<size_t>& path)
+    void cDijkstra::_GetLowestCostPathRecursive(const cGraph& graph, const cNode* pNodeCurrent, const cNode* pNodeEnd, float fDistanceFromStartNode, std::vector<size_t>& path)
     {
-      // TODO: Do stuff here
+      std::cout<<"cDijkstra::_GetLowestCostPathRecursive"<<std::endl;
 
-      ...
+      ASSERT(pNodeCurrent != nullptr);
+      ASSERT(pNodeEnd != nullptr);
 
-      while (vs.size() > 0) {
-        int x = vs.front();//take the node with the shortest distance
-        const size_t n = vs.size() - 1;
-        for (size_t i = 0; i < n; i++) {
-          vs.at(i) = vs.at(i + 1);
+      path.push_back(pNodeCurrent->index);
+
+      // If we are already at the end node then we have nothing to calculate, so return
+      if (pNodeCurrent == pNodeEnd) return;
+
+      const size_t n = pNodeCurrent->vEdges.size();
+      for (size_t i = 0; i < n; i++) {
+        size_t indexNextNode = pNodeCurrent->vEdges[i]->pNodeTo->index;
+        if (!nodeVisited[indexNextNode]) {
+          const float fDistanceFromStartThroughCurrentNode = fDistanceFromStartNode + pNodeCurrent->vEdges[i]->fCost;
+          if (fDistanceFromStartThroughCurrentNode < nodeDistanceFromStart[indexNextNode]) nodeDistanceFromStart[indexNextNode] = fDistanceFromStartThroughCurrentNode;
         }
-        vs.pop_back();
-        s.push_back(x);//mark it as visited
+      }
 
-        relax(vs, x);//update the distances
+      nodeVisited[pNodeCurrent->index] = true;
 
-        sort(vs); //sort the nodes according to the new distances
+      bool bIsVisitedAllNodes = true;
+      size_t indexOfLowestCostEdge = 0;
+      float fLowestCost = spitfire::math::cINFINITY;
+      for (size_t i = 0; i < n; i++) {
+        size_t indexNextNode = pNodeCurrent->vEdges[i]->pNodeTo->index;
+        if (!nodeVisited[indexNextNode]) {
+          bIsVisitedAllNodes = false;
+          const float fDistanceFromStartThroughCurrentNode = fDistanceFromStartNode + pNodeCurrent->vEdges[i]->fCost;
+          if (fDistanceFromStartThroughCurrentNode < fLowestCost) {
+            indexOfLowestCostEdge = i;
+            fLowestCost = fDistanceFromStartThroughCurrentNode;
+          }
+        }
+      }
+
+      if (!bIsVisitedAllNodes) {
+        fDistanceFromStartNode = fLowestCost;
+        pNodeCurrent = pNodeCurrent->vEdges[indexOfLowestCostEdge]->pNodeTo;
+        _GetLowestCostPathRecursive(graph, pNodeCurrent, pNodeEnd, fDistanceFromStartNode, path);
       }
     }
+
 
 
     void UnitTest()
@@ -231,7 +202,23 @@ namespace breathe
       std::vector<size_t> path;
 
       cDijkstra dijkstra;
-      dijkstra.GetLowestCostPath(graph, 0, 7, path);
+      dijkstra.GetLowestCostPath(graph, 2, 7, path);
+
+      std::cout<<"path:";
+
+      const size_t n = path.size();
+      for (size_t i = 0; i < n; i++) {
+        std::cout<<" "<<path[i];
+      }
+
+      std::cout<<std::endl;
+
+      // Check that the path is correct
+      ASSERT(path[0] == 2);
+      ASSERT(path[1] == 3);
+      ASSERT(path[2] == 4);
+      ASSERT(path[3] == 6);
+      ASSERT(path[4] == 7);
     }
   }
 }
