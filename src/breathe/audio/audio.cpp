@@ -71,9 +71,9 @@ namespace breathe
     // Global variable unfortunately
     cManager* pManager = nullptr;
 
-    bool Init(DRIVER driver)
+    cManager* Create(DRIVER driver)
     {
-      LOG<<"audio::Init"<<std::endl;
+      LOG<<"audio::Create"<<std::endl;
       ASSERT(pManager == nullptr);
 
       switch (driver) {
@@ -90,16 +90,16 @@ namespace breathe
         }
 #endif
         default: {
-          LOG<<"audio::Init UNKNOWN driver"<<std::endl;
+          LOG<<"audio::Create UNKNOWN driver"<<std::endl;
         }
       }
 
-      LOG<<"audio::Init returning"<<std::endl;
+      LOG<<"audio::Create returning"<<std::endl;
       ASSERT(pManager != nullptr);
 
       pManager->Init();
 
-      return (pManager != nullptr);
+      return pManager;
     }
 
     void Destroy()

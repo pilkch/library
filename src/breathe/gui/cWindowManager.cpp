@@ -442,7 +442,7 @@ namespace breathe
 
     void cWindowManager::Render() const
     {
-      std::cout<<"cWindowManager::Render"<<std::endl;
+      LOG<<"cWindowManager::Render"<<std::endl;
       ASSERT(pMaterial != nullptr);
 
       glMatrixMode(GL_MODELVIEW);

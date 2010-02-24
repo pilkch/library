@@ -70,9 +70,10 @@ namespace breathe
     typedef cSmartPtr<cCar> cCarRef;
 
 
-    bool Init(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight);
+    cWorld* Create(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight);
     void Destroy();
 
+    // TODO: Eventually we want to remove this
     cWorld* GetWorld();
 
     class cWorld

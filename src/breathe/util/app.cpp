@@ -90,6 +90,11 @@ int intersect_triangle(
 */
 
 
+// Wii Fit Linux
+// http://news.cnet.com/8301-17938_105-10248625-1.html
+// http://www.mattcutts.com/blog/linux-wii-balanceboard/
+//
+
 #include <cmath>
 #include <ctime>
 #include <cstdio>
@@ -458,6 +463,7 @@ namespace breathe
     bDone(false),
     pFont(nullptr),
 
+    pAudioManager(nullptr),
     pWorld(nullptr),
 
 #ifdef BUILD_DEBUG
@@ -577,7 +583,7 @@ namespace breathe
 
     LOG.Success("Destroy", "Audio");
     breathe::audio::Destroy();
-
+    pAudioManager = nullptr;
 
     LOG.Success("Destroy", "Joystick");
     const size_t nJoysticks = vJoystick.size();
@@ -947,16 +953,15 @@ namespace breathe
 
     TTF_Init();
 
-    audio::Init(audio::DRIVER::DRIVER_SDLMIXER);
+    pAudioManager = audio::Create(audio::DRIVER::DRIVER_SDLMIXER);
 
 #if defined(BUILD_PHYSICS_2D)
-    physics::Init(physics::DRIVER::DRIVER_BOX2D, physics_width, physics_height);
+    pWorld = physics::Create(physics::DRIVER::DRIVER_BOX2D, physics_width, physics_height);
 #elif defined(BUILD_PHYSICS_BULLET)
-    physics::Init(physics::DRIVER::DRIVER_BULLET, physics_width, physics_depth, physics_height);
+    pWorld = physics::Create(physics::DRIVER::DRIVER_BULLET, physics_width, physics_depth, physics_height);
 #elif defined(BUILD_PHYSICS_ODE)
-    physics::Init(physics::DRIVER::DRIVER_ODE, physics_width, physics_depth, physics_height);
+    pWorld = physics::Create(physics::DRIVER::DRIVER_ODE, physics_width, physics_depth, physics_height);
 #endif
-    pWorld = physics::GetWorld();
 
     if (breathe::BAD == LoadScene()) return breathe::BAD;
 
@@ -1866,6 +1871,9 @@ namespace breathe
       };
     }
   }*/
+
+
+
 
   bool cApplication::Run()
   {

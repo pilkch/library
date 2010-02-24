@@ -9,6 +9,10 @@
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
 
+// TODO: Hmmmm, maybe polygons would be better than nodes and edges.  Similar algorithm, but there are no edges, only nodes and each node has a 3d volume (Height also for calculating when to crouch etc.).
+// Multiple sized/turning/crouching units can all use the same path graph, taking care to avoid areas that they would get stuck in.
+// http://www.ai-blog.net/archives/000152.html
+
 namespace breathe
 {
   namespace ai

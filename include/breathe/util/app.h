@@ -3,6 +3,8 @@
 
 #include <breathe/breathe.h>
 
+#include <breathe/audio/audio.h>
+
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/scenegraph2d.h>
 #include <breathe/game/cGameUnitTest.h>
@@ -240,6 +242,8 @@ namespace breathe
 
     scenegraph3d::cSceneGraph scenegraph;
     scenegraph2d::cSceneGraph scenegraph2D;
+
+    breathe::audio::cManager* pAudioManager;
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     breathe::physics::cWorld* pWorld;

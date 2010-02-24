@@ -23,6 +23,7 @@ namespace spitfire
   {
     if (bIsResultTrue) return;
 
+    std::cout<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
     LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
     assert(bIsResultTrue);
   }

@@ -695,7 +695,7 @@ namespace breathe
       q1.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(180.00001f));
       q2.SetFromAxisAngle(spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::DegreesToRadians(0.0f));
 
-      // 2x because we halved the full rotation into two halves
+      // 2x because we have split the full rotation into two halves
       rotationSun.Slerp(q1, q2, 2.0f * t);
 
       GenerateTexture();

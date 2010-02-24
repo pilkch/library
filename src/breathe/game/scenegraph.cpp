@@ -1125,7 +1125,7 @@ namespace breathe
 
     void cSceneGraph::Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum)
     {
-      cRenderVisitor visitor(*this, frustum);
+      cRenderVisitor visitor(*this, context, frustum);
     }
 
 #ifdef BUILD_DEBUG

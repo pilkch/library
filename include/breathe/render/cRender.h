@@ -18,6 +18,17 @@
 #include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/model/cMesh.h>
 
+// OpenGL Multiple Contexts
+// http://www.stevestreeting.com/2006/10/20/gl-thread-taming/
+// 1. Create main rendering thread context
+// 2. Disable main rendering thread context
+// 3. Lock background init condition mutex
+// 4. Start background thread
+// 5. Main thread waits for init condition (this releases the init mutex and blocks the main thread)
+// 6. Background thread clones context, sets up resource sharing and enables its own context
+// 7. Background thread locks the init mutex, notifies parent, releases init mutex, then continues independently
+// 8. Main thread wakes up, re-enables its own context, and carries on too
+
 namespace breathe
 {
   namespace game

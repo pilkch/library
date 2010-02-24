@@ -62,9 +62,9 @@ namespace breathe
     // Global variable unfortunately
     cWorld* pWorld = nullptr;
 
-    bool Init(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight)
+    cWorld* Create(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight)
     {
-      LOG<<"physics::Init"<<std::endl;
+      LOG<<"physics::Create"<<std::endl;
       ASSERT(pWorld == nullptr);
 
       switch (driver) {
@@ -81,16 +81,16 @@ namespace breathe
         }
 #endif
         default: {
-          LOG<<"physics::Init UNKNOWN driver"<<std::endl;
+          LOG<<"physics::Create UNKNOWN driver"<<std::endl;
         }
       }
 
-      LOG<<"physics::Init returning"<<std::endl;
+      LOG<<"physics::Create returning"<<std::endl;
       ASSERT(pWorld != nullptr);
 
       pWorld->Init(fWorldWidth, fWorldDepth, fWorldHeight);
 
-      return (pWorld != nullptr);
+      return pWorld;
     }
 
     void Destroy()

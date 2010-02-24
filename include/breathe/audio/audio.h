@@ -41,7 +41,7 @@ namespace breathe
 #endif
     };
 
-    bool Init(DRIVER driver);
+    cManager* Create(DRIVER driver);
     void Destroy();
 
     cManager* GetManager();
