@@ -49,6 +49,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -178,8 +179,8 @@ namespace breathe
 
 
         const spitfire::string_t sFilename(TEXT("materials/terrain.mat"));
-        pRender->AddMaterial(sFilename);
-        pMaterial = pRender->GetMaterial(sFilename);
+        pResourceManager->AddMaterial(sFilename);
+        pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
       void cTerrain::Update(spitfire::sampletime_t currentTime)
@@ -282,8 +283,8 @@ namespace breathe
 
 
         const spitfire::string_t sFilename(TEXT("materials/vegetation_grass.mat"));
-        pRender->AddMaterial(sFilename);
-        pMaterial = pRender->GetMaterial(sFilename);
+        pResourceManager->AddMaterial(sFilename);
+        pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
       void cGrassStatic::Render(spitfire::sampletime_t currentTime)
@@ -419,8 +420,8 @@ namespace breathe
 
 
         const spitfire::string_t sFilename(TEXT("materials/vegetation_grass.mat"));
-        pRender->AddMaterial(sFilename);
-        pMaterial = pRender->GetMaterial(sFilename);
+        pResourceManager->AddMaterial(sFilename);
+        pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
       void cGrassAnimated::Render(spitfire::sampletime_t currentTime)

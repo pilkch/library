@@ -198,6 +198,12 @@ namespace spitfire
       bool IsValid() const { return (cornerMin.x <= cornerMax.x) && (cornerMin.y <= cornerMax.y) && (cornerMin.z <= cornerMax.z); }
 #endif
 
+      //void Translate(const cVec3& translation);
+
+      //void SetWidth(float width);
+      //void SetHeight(float height);
+      //void SetDepth(float depth);
+
       cVec3 GetCentre() const;
       void AddToVolume(const cVec3& point);
       void AddToVolume(const cLine3& line);

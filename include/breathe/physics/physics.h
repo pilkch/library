@@ -71,7 +71,7 @@ namespace breathe
 
 
     cWorld* Create(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight);
-    void Destroy();
+    void Destroy(cWorld* pWorld);
 
     // TODO: Eventually we want to remove this
     cWorld* GetWorld();

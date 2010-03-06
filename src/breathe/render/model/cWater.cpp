@@ -47,6 +47,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -134,8 +135,8 @@ namespace breathe
 
 
         const spitfire::string_t sFilename(TEXT("materials/water.mat"));
-        pRender->AddMaterial(sFilename);
-        pMaterial = pRender->GetMaterial(sFilename);
+        pResourceManager->AddMaterial(sFilename);
+        pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
       void cWater::Render(spitfire::sampletime_t currentTime)

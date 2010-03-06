@@ -93,7 +93,7 @@ namespace breathe
       return pWorld;
     }
 
-    void Destroy()
+    void Destroy(cWorld*)
     {
       LOG<<"physics::Destroy"<<std::endl;
       ASSERT(pWorld != nullptr);

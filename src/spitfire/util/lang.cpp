@@ -172,3 +172,87 @@ namespace spitfire
     return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
   }
 }
+
+
+
+
+
+
+
+
+#if 0
+"lives" "5"
+"ammo" "24"
+"name" "Chris"
+"team" "Counter Terrorists"
+
+class cContext
+{
+public:
+   std::map<string_t, string_t> variables;
+};
+
+
+class cLangEntry
+{
+public:
+   string_t sValue;
+   bool bIsContainsVariables;
+};
+
+class cLangManager
+{
+public:
+   void AddEntry(const string_t& sKey, const string_t& sValue);
+   string_t GetLangEntry(const string_t& sKey) const;
+
+private:
+   string_t Parse(const string_t& sValue) const;
+
+   std::map<string_t, cLangEntry> entries;
+   cContext context;
+};
+
+void cLangManager::AddEntry(const string_t& sKey, const string_t& sValue)
+{
+   cLangEntry entry;
+   entry.sValue = sValue;
+   entry.bIsContainsVariables = (contains % that is not a %%);
+
+   entries[sKey] = entry;
+}
+
+string_t cLangManager::GetLangEntry(const string_t& sKey) const
+{
+   const cLangEntry& entry = entries[sKey];
+   if (entry.bIsContainsVariable) return Parse(entry.sValue);
+
+   return entry.sValue;
+}
+
+string_t cLangManager::Parse(const string_t& sValue) const
+{
+   ostringstream_t o;
+
+   find "%"
+   if (next character == %) {
+      o<<"%";
+   } else {
+      find "%"
+      o<<context.GetValueOfVariable(variable);
+   }
+
+   return sParsed;
+}
+
+
+void UnitTest()
+{
+   add context string
+
+   get lang tag
+   check that %% is present
+   check that %ammo% is correct
+}
+
+#endif

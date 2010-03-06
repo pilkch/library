@@ -68,7 +68,6 @@
 namespace breathe
 {
   class cCamera;
-  class cObject;
 
   namespace sky
   {
@@ -253,6 +252,39 @@ namespace breathe
 
 
 
+    class cObject
+    {
+    public:
+      virtual ~cObject() {}
+    };
+
+    typedef cObject* cObjectRef;
+
+
+    class cEntity : public cObject
+    {
+    public:
+
+    };
+
+    typedef cEntity* cEntityRef;
+
+    class cParticleSystem : public cObject
+    {
+    public:
+
+    };
+
+    typedef cParticleSystem* cParticleSystemRef;
+
+    class cLight : public cObject
+    {
+    public:
+
+    };
+
+    typedef cLight* cLightRef;
+
 
     /*class cSceneGraphModel : public cObject
     {
@@ -420,8 +452,14 @@ namespace breathe
       friend class cUpdateVisitor;
       friend class cCullVisitor;
 
+      // Child nodes
       typedef std::list<cSceneNodeRef>::iterator child_iterator;
       typedef std::list<cSceneNodeRef>::const_iterator child_const_iterator;
+
+      // Objects
+      typedef std::map<std::string, cObjectRef>::iterator object_iterator;
+      typedef std::map<std::string, cObjectRef>::const_iterator const_object_iterator;
+
 
       virtual ~cSceneNode();
 
@@ -437,10 +475,14 @@ namespace breathe
 
       cSceneNodeRef GetParent() const { return pParent; }
 
-      void AttachChild(cSceneNodeRef pChild); // Calls the virtual _AttachChild so that a scenegraph can choose how to add it or even not add it at all
-      void DetachChildForUseLater(cSceneNodeRef pChild); // Doesn't touch children of pChild, just detaches from the scenegraph, so you can still reference pChild and reinsert it later
-      void DeleteChildRecursively(cSceneNodeRef pChild); // Removes pChild from the scenegraph and also calls DeleteAllChildrenRecursively on each of the children of pChild
+      void AttachChild(cSceneNodeRef pChild); // Calls the virtual _AttachChild so that a scenenode can choose how to add it or even not add it at all
+      void DetachChildForUseLater(cSceneNodeRef pChild); // Doesn't touch children of pChild, just detaches from the scenenode, so you can still reference pChild and reinsert it later
+      void DeleteChildRecursively(cSceneNodeRef pChild); // Removes pChild from the scenenode and also calls DeleteAllChildrenRecursively on each of the children of pChild
       void DeleteAllChildrenRecursively() { _DeleteAllChildrenRecursively(); }
+
+
+      void AttachObject(cObjectRef pObject); // Calls the virtual _AttachObject so that a scenenode can choose how to add it or even not add it at all
+      void DetachObjectForUseLater(cObjectRef pObject); // Detaches the object from the scenenode, so you can still reference pObject and reinsert it later
 
 
       bool IsEnabled() const { return bIsEnabled; }
@@ -540,6 +582,7 @@ namespace breathe
       virtual void _DeleteAllChildrenRecursively();
 
       std::list<cSceneNodeRef> children;
+      std::map<std::string, cObjectRef> objects;
     };
 
     inline cSceneNode::~cSceneNode()
@@ -895,7 +938,8 @@ namespace breathe
 
     // NOTE: One restriction on the scenegraph at the moment is that every camera must use the same skysystem.
     // It is impossible to have a video camera on another planet in the galaxy with one sky and then also view a planet with another sky,
-    // but I don't think that is incredibly limiting and if that behaviour was required you would probably be better off building two scenegraphs anyway.
+    // but in most situations this is not incredibly limiting and if this behaviour is required, one solutions may be to build two separate scenegraphs.
+    // TODO: Other versions of cSceneGraph such cSceneGraphOctree and cSceneGraphBSP could be created
 
     class cSceneGraph
     {
@@ -907,6 +951,7 @@ namespace breathe
       cSceneGraph();
 
       void Create();
+      void Destroy();
 
       cSceneNodeRef GetRoot() const { ASSERT(pRoot != nullptr); return pRoot; }
       cSkySystemRef GetSkySystem() const { ASSERT(pSkySystem != nullptr); return pSkySystem; }
@@ -924,6 +969,14 @@ namespace breathe
       void Cull(sampletime_t currentTime, const render::cCamera& camera);
       void Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum);
 
+
+      // Cameras
+
+      const std::vector<cCamera>& GetCameraList() const;
+
+
+      // Nodes
+
       //cSceneNodeRef FindNode(const std::string& sName);
 
       // All create functions are here so that the scenegraph can enforce unique names (Among other things)
@@ -931,6 +984,25 @@ namespace breathe
       cAnimationNodeRef CreateAnimationNode(const std::string& sName);
       cParticleSystemNodeRef CreateParticleSystemNode(const std::string& sName);
       cLightNodeRef CreateLightNode(const std::string& sName);
+
+      void DestroyNode(cSceneNodeRef pNode);
+
+      size_t GetNodeCount() const { return nNodes; }
+
+
+      // Objects
+
+      cEntityRef CreateEntity(const std::string& sName, const std::string& sMesh);
+      cLightRef CreateLight(const std::string& sName);
+      //cCameraRef CreateCamera(const std::string& sName);
+      void DestroyLight(cLightRef pLight);
+      void DestroyEntity(cEntityRef pEntity);
+      //void DestroyCamera(cCameraRef pCamera);
+
+      size_t GetEntityCount() const { return entites.size(); }
+      size_t GetLightCount() const { return lights.size(); }
+      //size_t GetCameraCount() const { return cameras.size(); }
+
 
     protected:
       cRenderGraph& GetRenderGraph() { return renderGraph; }
@@ -946,7 +1018,12 @@ namespace breathe
       cSceneNodeRef pRoot;
       cSkySystemRef pSkySystem;
 
+      size_t nNodes; // Count of the nodes that the scenegraph has created itself
       //std::map<uint32_t, cSceneNodeRef> nodes; // Unique hash to node map
+
+      std::map<std::string, cEntityRef> entites;
+      std::map<std::string, cLightRef> lights;
+      //std::map<std::string, cCameraRef> cameras;
     };
   }
 }

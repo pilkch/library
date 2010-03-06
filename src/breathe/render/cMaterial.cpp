@@ -54,6 +54,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -363,14 +364,16 @@ namespace breathe
 
 
       cMaterial::cMaterial(const string_t& name) :
+        sName(name),
+
         chDustR(0),
         chDustG(0),
         chDustB(0),
 
+        bLight_emit(true),
+        bLight_receive(true),
         bShadow_cast(true),
         bShadow_receive(true),
-        bLight_receive(true),
-        bLight_transmit(true),
 
         uiAudioScrape(0),
         uiAudioBounce(0),
@@ -380,9 +383,7 @@ namespace breathe
         fFriction(0.0f),
         fBounce(0.0f),
 
-        fCorrugation(0.0f),
-
-        sName(name)
+        fCorrugation(0.0f)
       {
         for (size_t i = 0; i < nLayers; i++) vLayer.push_back(new cLayer());
       }
@@ -403,7 +404,7 @@ namespace breathe
         xml::cNode root(sFilename);
         xml::cNode::iterator iter(root);
 
-        if (!iter.IsValid()) return breathe::BAD;
+        if (!iter.IsValid()) return false;
 
         //<material collide="true" sShaderVertex="normalmap.vert" sShaderFragment="normalmap.frag">
         //  <layer sTexture="concrete.png" uiTextureMode="TEXTURE_NORMAL" uiTextureAtlas="ATLAS_NONE"/>
@@ -414,9 +415,9 @@ namespace breathe
         if (!iter.IsValid()) {
           LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
           for (unsigned int i=0;i<nLayers;i++)
-            vLayer[i]->pTexture = pRender->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
+            vLayer[i]->pTexture = pResourceManager->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
 
-          return breathe::BAD;
+          return false;
         }
 
         iter.GetAttribute("collide", bCollideTrimesh);
@@ -512,11 +513,11 @@ namespace breathe
             }
 
             if ((TEXTURE_MODE::TEXTURE_CUBE_MAP != pLayer->uiTextureMode) && (TEXTURE_MODE::TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
-              if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pRender->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
+              if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pResourceManager->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
 
               if (nullptr == pLayer->pTexture) {
                 uiTextureAtlas = ATLAS_NONE;
-                pLayer->pTexture = pRender->AddTexture(pLayer->sTexture);
+                pLayer->pTexture = pResourceManager->AddTexture(pLayer->sTexture);
               }
             }
           }
@@ -526,7 +527,7 @@ namespace breathe
         }
 
         LOG.Success("Material", breathe::string::ToUTF8(TEXT("Loaded ") + sFilename));
-        return breathe::GOOD;
+        return true;
       }
 
     }

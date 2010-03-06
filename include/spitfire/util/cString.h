@@ -14,25 +14,37 @@ namespace spitfire
   #define SIZEOF_WCHAR_T 2
   typedef wchar_t char16_t;
   typedef uint32_t char32_t;
-  typedef std::basic_string<char16_t> string16_t;
-  typedef std::wstring string32_t;
+  typedef std::wstring string16_t;
+  typedef std::basic_string<char32_t> string32_t;
   #else
   static_assert(sizeof(wchar_t) == 4, "We expect wchar_t to be 32 bits");
   #define SIZEOF_WCHAR_T 4
-  typedef std::wstring string16_t;
-  typedef std::basic_string<char32_t> string32_t;
+  typedef std::basic_string<char16_t> string16_t;
+  typedef std::wstring string32_t;
   #endif
+
+  //typedef std::u16string string16_t;
+  //typedef std::u32string string32_t;
 
   #ifdef UNICODE
   typedef wchar_t char_t;
+  typedef std::wstring string_t;
   typedef std::wostringstream ostringstream_t;
   typedef std::wistringstream istringstream_t;
-  typedef std::wstring string_t;
+  #ifdef __WIN__
+  //typedef std::u16string string_t;
+  //typedef std::u16ostringstream ostringstream_t;
+  //typedef std::u16istringstream istringstream_t;
+  #else
+  //typedef std::u32string string_t;
+  //typedef std::u32ostringstream ostringstream_t;
+  //typedef std::u32istringstream istringstream_t;
+  #endif
   #else
   typedef char char_t;
+  typedef std::string string_t;
   typedef std::ostringstream ostringstream_t;
   typedef std::istringstream istringstream_t;
-  typedef std::string string_t;
   #endif
 
 

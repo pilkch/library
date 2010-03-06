@@ -1,7 +1,7 @@
 #ifndef CGAMEUNITTEST_H
 #define CGAMEUNITTEST_H
 
-#include <breathe/util/app.h>
+#include <breathe/util/cApplication.h>
 
 #include <breathe/render/model/cGrid.h>
 

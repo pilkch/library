@@ -118,7 +118,7 @@ namespace breathe
     {
       std::ifstream file;
       file.open(spitfire::string::ToUTF8(sFilename).c_str(), std::ios::in | std::ios::binary);
-      if (!file) return breathe::BAD;
+      if (!file) return false;
 
       {
         const char szHeightmap[] = { "HEIGHTMAP" };
@@ -150,14 +150,14 @@ namespace breathe
       ASSERT(sizeof(float_t) == 4);
       file.read((char*)data.data(), n * sizeof(float_t));
 
-      return breathe::GOOD;
+      return true;
     }
 
     bool cHeightmapFile::Save(const string_t& sFilename)
     {
       std::ofstream file;
       file.open(spitfire::string::ToUTF8(sFilename).c_str(), std::ios::out | std::ios::binary);
-      if (!file) return breathe::BAD;
+      if (!file) return false;
 
       const char szHeightmap[] = { "HEIGHTMAP" };
       file.write((char*)&szHeightmap, std::strlen(szHeightmap));
@@ -174,7 +174,7 @@ namespace breathe
       ASSERT(sizeof(float_t) == 4);
       file.write((char*)data.data(), n * sizeof(float_t));
 
-      return breathe::GOOD;
+      return true;
     }
 
 
@@ -239,7 +239,7 @@ namespace breathe
       const string_t sExtension = spitfire::filesystem::GetExtension(sFilename);
       if (sExtension == TEXT("heightmap")) {
         cHeightmapFile heightmapFile;
-        if (heightmapFile.Load(sFilename) == breathe::BAD) {
+        if (!heightmapFile.Load(sFilename)) {
           LOG.Error("Heightmap", "cTerrainHeightMap::LoadFromFile Failed to load " + breathe::string::ToUTF8(sFilename));
           return;
         }
@@ -248,7 +248,7 @@ namespace breathe
       }
       {
         render::cTextureRef pTexture(new render::cTexture);
-        if (pTexture->Load(sFilename) == breathe::BAD) {
+        if (!pTexture->Load(sFilename)) {
           LOG.Error("Heightmap", "cTerrainHeightMap::LoadFromFile Failed to load " + breathe::string::ToUTF8(sFilename));
           return;
         }
@@ -291,7 +291,7 @@ namespace breathe
 
 
       // Save heightmap
-      if (heightmapFile.Save(sFilename) == breathe::BAD) {
+      if (!heightmapFile.Save(sFilename)) {
         LOG.Error("Heightmap", "cTerrainHeightMap::SaveToFile Failed to save " + breathe::string::ToUTF8(sFilename));
         return;
       }

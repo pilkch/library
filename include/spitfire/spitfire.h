@@ -208,11 +208,6 @@ namespace spitfire
   typedef uint32_t sampletime_t;
 
 
-  // Constants
-  const bool BAD = false;
-  const bool GOOD = true;
-
-
   // Safe deleting functions
   template <class T>
   inline void SAFE_DELETE(T& x)

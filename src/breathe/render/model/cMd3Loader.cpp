@@ -35,9 +35,7 @@
 // Breathe headers
 #include <breathe/render/model/cMd3Loader.h>
 
-#ifdef __WIN__
-#define strcasecmp _stricmp
-#endif
+#include <breathe/render/cResourceManager.h>
 
 // The vertices positions need to be multiplied by 1.0f / 64.0f to get the correct position.
 // If you use another ratio, it screws up the model's body part position.
@@ -58,7 +56,7 @@ namespace breathe
 
       const string_t sFileName(breathe::string::Trim(breathe::string::ToString_t(strFileName)));
       LOG<<"CreateTexture sFileName=\""<<sFileName<<"\""<<std::endl;
-      breathe::render::cTextureRef pTexture = pRender->AddTexture(sFileName);
+      breathe::render::cTextureRef pTexture = pResourceManager->AddTexture(sFileName);
       if (pTexture != nullptr) texture = pTexture->uiTexture;
     }
 

@@ -50,6 +50,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 
 namespace breathe
 {
@@ -124,9 +125,9 @@ namespace breathe
       // Load the texture
       cTextureRef pTexture(new cTexture);
 
-      if (pTexture->Load(sFilename) != breathe::GOOD) {
+      if (!pTexture->Load(sFilename)) {
         pTexture.reset();
-        return pRender->pTextureNotFoundTexture;
+        return pResourceManager->pTextureNotFoundTexture;
       }
 
       // We have a valid texture, find a spot for it
@@ -195,7 +196,7 @@ namespace breathe
         LOG.Error("Texture Atlas", t.str());
 
         pTexture.reset();
-        return pRender->pTextureNotFoundTexture;
+        return pResourceManager->pTextureNotFoundTexture;
       }
 
       // Ok, we have found a spot to place this texture

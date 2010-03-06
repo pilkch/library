@@ -25,7 +25,7 @@
 
 #include <breathe/vehicle/cCar.h>
 
-
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/model/cStaticModelLoader.h>
 
 
@@ -772,13 +772,13 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
       LOG<<"sBodyMaterialFilename=\""<<sBodyMaterialFilename<<"\""<<std::endl;
       if (model.mesh[iMesh]->sMaterial == sBodyMaterialFilename) {
          const spitfire::string_t sAlias = TEXT("chinook") + spitfire::string::ToString(iCar);
-         item.pMaterial = pRender->AddMaterialAsAlias(sCarPaintMaterialFilename, sAlias);
+         item.pMaterial = pResourceManager->AddMaterialAsAlias(sCarPaintMaterialFilename, sAlias);
          const size_t n = item.pMaterial->vLayer.size();
          for (size_t i = 0; i < n; i++) {
             if (i == 0) {
-               item.pMaterial->vLayer[i]->pTexture = pRender->AddTexture(sDiffuseTextureFilename);
+               item.pMaterial->vLayer[i]->pTexture = pResourceManager->AddTexture(sDiffuseTextureFilename);
             } else if (i == 1) {
-               item.pMaterial->vLayer[i]->pTexture = pRender->AddTexture(sGlossAndMetallicTextureFilename);
+               item.pMaterial->vLayer[i]->pTexture = pResourceManager->AddTexture(sGlossAndMetallicTextureFilename);
             } else if (item.pMaterial->vLayer[i]->uiTextureMode == breathe::render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
                // Cast shared_ptr from a normal cTextureRef to a cTextureFrameBufferObjectRef
                pCubeMapTexture.reset(new breathe::render::cTextureFrameBufferObject);
@@ -795,7 +795,7 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
             }
          }
       } else {
-         item.pMaterial = pRender->AddMaterial(model.mesh[iMesh]->sMaterial);
+         item.pMaterial = pResourceManager->AddMaterial(model.mesh[iMesh]->sMaterial);
       }
 
       meshes.push_back(item);

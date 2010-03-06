@@ -289,7 +289,7 @@ namespace breathe
           ReportError();
           if (device == NULL) {
             LOG<<"cManager::_Init alcOpenDevice FAILED, returning"<<std::endl;
-            return breathe::BAD;
+            return false;
           }
         }
       }
@@ -308,7 +308,7 @@ namespace breathe
         alcCloseDevice(device);
         ReportError();
         LOG<<"cManager::_Init alcCreateContext FAILED, returning"<<std::endl;
-        return breathe::BAD;
+        return false;
       }
 
       LOG<<"cManager::_Init Making context current"<<std::endl;
@@ -370,35 +370,35 @@ namespace breathe
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "8.1 Surround sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "7.1 Surround sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "6.1 Surround sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "5.1 Surround sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "Quad Speaker Surround sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
 
@@ -406,14 +406,14 @@ namespace breathe
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "Stereo sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
       ReportError();
       if (eBufferFormat) {
         LOG.Success("Audio", "Mono sound supported, returning");
-        return breathe::GOOD;
+        return true;
       }
 
 
@@ -423,7 +423,7 @@ namespace breathe
       alDopplerVelocity(fDopplerVelocity);
 
       LOG.Success("Audio", "Unknown sound setup, returning");
-      return breathe::BAD;
+      return false;
     }
 
     void cManager::_Destroy()

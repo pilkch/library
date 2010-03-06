@@ -1104,6 +1104,79 @@ namespace breathe
       pSkySystem->Create();
     }
 
+    void cSceneGraph::Destroy()
+    {
+      // TODO: Actually destroy objects and nodes etc.
+    }
+
+
+    // Nodes
+
+    cModelNodeRef cSceneGraph::CreateModelNode(const std::string& sName)
+    {
+      //cModelNodeRef pNode = new cModelNode;
+      cModelNodeRef pNode;
+      nNodes++;
+      return pNode;
+    }
+
+    cAnimationNodeRef cSceneGraph::CreateAnimationNode(const std::string& sName)
+    {
+      //cAnimationNodeRef pNode = new cAnimationNode;
+      cAnimationNodeRef pNode;
+      nNodes++;
+      return pNode;
+    }
+
+    cParticleSystemNodeRef cSceneGraph::CreateParticleSystemNode(const std::string& sName)
+    {
+      //cParticleSystemNodeRef pNode = new cParticleSystemNode;
+      cParticleSystemNodeRef pNode;
+      nNodes++;
+      return pNode;
+    }
+
+    cLightNodeRef cSceneGraph::CreateLightNode(const std::string& sName)
+    {
+      //cLightNodeRef pNode = new cLightNode;
+      cLightNodeRef pNode;
+      nNodes++;
+      return pNode;
+    }
+
+    void cSceneGraph::DestroyNode(cSceneNodeRef pNode)
+    {
+      //SAFE_DELETE(pNode);
+      nNodes--;
+    }
+
+
+    // Objects
+
+    cEntityRef cSceneGraph::CreateEntity(const std::string& sName, const std::string& sMesh)
+    {
+      cEntityRef pObject = new cEntity;
+      return pObject;
+    }
+
+    cLightRef cSceneGraph::CreateLight(const std::string& sName)
+    {
+      cLightRef pObject = new cLight;
+      return pObject;
+    }
+
+
+    void cSceneGraph::DestroyEntity(cEntityRef pEntity)
+    {
+      SAFE_DELETE(pEntity);
+    }
+
+    void cSceneGraph::DestroyLight(cLightRef pLight)
+    {
+      SAFE_DELETE(pLight);
+    }
+
+
     void cSceneGraph::Update(sampletime_t currentTime)
     {
       if (pSkySystem != nullptr) {

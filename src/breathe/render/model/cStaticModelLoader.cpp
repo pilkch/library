@@ -51,6 +51,7 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cStaticModelLoader.h>
@@ -1093,7 +1094,7 @@ namespace breathe
 
           item.pVBO->Compile();
 
-          item.pMaterial = pRender->AddMaterial(model.mesh[iMesh]->sMaterial);
+          item.pMaterial = pResourceManager->AddMaterial(model.mesh[iMesh]->sMaterial);
 
           meshes.push_back(item);
         }

@@ -42,8 +42,9 @@ namespace breathe
     };
 
     cManager* Create(DRIVER driver);
-    void Destroy();
+    void Destroy(cManager* pManager);
 
+    // TODO: Eventually we want to remove this
     cManager* GetManager();
 
     class cManager

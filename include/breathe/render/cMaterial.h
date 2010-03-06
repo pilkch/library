@@ -113,6 +113,14 @@ namespace breathe
 
         void CloneTo(cMaterialRef pDestination);
 
+        bool IsLightEmitting() const { return bLight_emit; }
+        bool IsLightReceiving() const { return bLight_receive; }
+        bool IsShadowCasting() const { return bShadow_cast; }
+        bool IsShadowReceiving() const { return bShadow_receive; }
+
+
+        string_t sName;
+
         // Rendering
         uint8_t chDustR;
         uint8_t chDustG;
@@ -123,10 +131,10 @@ namespace breathe
         // 1+=Either none, detail, cubemap or bumpmap
 
         // Lightmap Generation
+        bool bLight_emit;
+        bool bLight_receive;
         bool bShadow_cast;
         bool bShadow_receive;
-        bool bLight_receive;
-        bool bLight_transmit;
 
         // Audio
         unsigned int uiAudioScrape;
@@ -139,8 +147,6 @@ namespace breathe
         float fBounce;
 
         float fCorrugation; // 0.0f=none, 1.0f=very bouncy (stairs etc.)
-
-        string_t sName;
 
         cShaderRef pShader;
       };

@@ -102,7 +102,7 @@ namespace breathe
       return pManager;
     }
 
-    void Destroy()
+    void Destroy(cManager*)
     {
       LOG<<"audio::Destroy"<<std::endl;
       ASSERT(pManager != nullptr);

@@ -48,6 +48,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
 
 #include <breathe/gui/cWidget.h>
@@ -118,7 +119,7 @@ namespace breathe
 
     void cWindowManager::LoadTheme()
     {
-      pMaterial = pRender->AddMaterial(TEXT("materials/gui.mat"));
+      pMaterial = pResourceManager->AddMaterial(TEXT("materials/gui.mat"));
       ASSERT(pMaterial != nullptr);
 
       //pFontWindowCaption = new render::cFont(TEXT("osx_fonts/Lucida Grande.ttf"), 10);

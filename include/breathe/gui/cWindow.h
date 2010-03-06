@@ -1,5 +1,5 @@
-#ifndef CWINDOW_H
-#define CWINDOW_H
+#ifndef CGUI_WINDOW_H
+#define CGUI_WINDOW_H
 
 namespace breathe
 {
@@ -158,4 +158,4 @@ cWindow::AddDialog(cDialog* pDialog)
   }
 }
 
-#endif // CWINDOW_H
+#endif // CGUI_WINDOW_H

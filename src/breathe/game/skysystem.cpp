@@ -70,6 +70,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 
 #include <breathe/game/scenegraph.h>
 #include <breathe/game/skysystem.h>
@@ -561,16 +562,16 @@ namespace breathe
 
       pStarParticleSystem = new render::cParticleSystemCustomBillboard();
       sFilename = TEXT("materials/star_billboard.mat");
-      pRender->AddMaterial(sFilename);
-      pStarParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
+      pResourceManager->AddMaterial(sFilename);
+      pStarParticleSystem->SetMaterial(pResourceManager->GetMaterial(sFilename));
 
       pStarParticleSystem->SetPosition(position);
       pStarParticleSystem->SetGravity(gravity);
 
       pPlanetParticleSystem = new render::cParticleSystemCustomBillboard;
       sFilename = TEXT("materials/planet_billboard.mat");
-      pRender->AddMaterial(sFilename);
-      pPlanetParticleSystem->SetMaterial(pRender->GetMaterial(sFilename));
+      pResourceManager->AddMaterial(sFilename);
+      pPlanetParticleSystem->SetMaterial(pResourceManager->GetMaterial(sFilename));
 
       pPlanetParticleSystem->SetPosition(position);
       pPlanetParticleSystem->SetGravity(gravity);

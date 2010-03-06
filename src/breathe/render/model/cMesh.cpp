@@ -47,6 +47,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>
@@ -161,7 +162,7 @@ namespace breathe
       void cMesh::SetMaterial(const string_t& sInMaterial)
       {
         sMaterial = sInMaterial;
-        pMaterial = pRender->GetMaterial(sMaterial);
+        pMaterial = pResourceManager->GetMaterial(sMaterial);
       }
     }
   }

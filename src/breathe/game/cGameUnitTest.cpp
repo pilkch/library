@@ -70,7 +70,7 @@
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/app.h>
+#include <breathe/util/cApplication.h>
 #include <breathe/util/cVar.h>
 #include <breathe/util/base.h>
 
@@ -82,6 +82,7 @@
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cRender.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
 #include <breathe/render/cParticleSystem.h>
 
@@ -270,7 +271,7 @@ namespace breathe
 
 
     const spitfire::string_t sFilename(TEXT("materials/crate.mat"));
-    pCrateMaterial = pRender->GetMaterial(sFilename);
+    pCrateMaterial = pResourceManager->GetMaterial(sFilename);
   }
 
 
@@ -464,7 +465,7 @@ namespace breathe
     pFire = new breathe::render::cParticleSystemBillboard(100);
     string_t sFilename;
     breathe::filesystem::FindResourceFile(TEXT("materials/cloud_billboard.mat"), sFilename);
-    pFire->SetMaterial(pRender->GetMaterial(sFilename));
+    pFire->SetMaterial(pResourceManager->GetMaterial(sFilename));
 
     pCrate = new breathe::render::cParticleSystemMesh(30);
     breathe::filesystem::FindResourceFile(TEXT("props/static/crate/mesh.3ds"), sFilename);
@@ -527,7 +528,7 @@ namespace breathe
   {
     {
       // Draw an array of boxes unfortunately because they are all different, unless we have a colour attribute on a scenenode? we have to do this dynamically instead of through the scenegraph.
-      breathe::render::material::cMaterialRef pMaterial(pRender->GetMaterial(TEXT("materials/coloured_texture.mat")));
+      breathe::render::material::cMaterialRef pMaterial(pResourceManager->GetMaterial(TEXT("materials/coloured_texture.mat")));
       if (pMaterial == nullptr) {
         LOG.Error("cGame::cSudokuStatePlaying::_RenderScene", "coloured_texture.mat not found");
         ASSERT(pMaterial != nullptr);
