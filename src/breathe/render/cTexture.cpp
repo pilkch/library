@@ -92,7 +92,7 @@ namespace breathe
         else LOG.Error("Texture", "Texture " + breathe::string::ToUTF8(sFilename) + " doesn't exist");
 
         LOG.Error("Texture", "Couldn't Load Texture " + breathe::string::ToUTF8(sFilename));
-        return breathe::BAD;
+        return false;
       }
 
 
@@ -154,7 +154,7 @@ namespace breathe
         std::ostringstream t;
         t << surface->format->BitsPerPixel;
         LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + breathe::string::ToUTF8(sFilename));
-        return breathe::BAD;
+        return false;
       }
 
       uiWidth = surface->w;
@@ -169,7 +169,7 @@ namespace breathe
       }
       CopyFromSurfaceToData(surface->w, surface->h);
 
-      return breathe::GOOD;
+      return true;
     }
 
     void cTexture::CopyFromSurfaceToData(unsigned int w, unsigned int h)
@@ -207,7 +207,7 @@ namespace breathe
     {
       ASSERT(surface != nullptr);
       SDL_SaveBMP(surface, breathe::string::ToUTF8(inFilename).c_str());
-      return breathe::GOOD;
+      return true;
     }
 
     void cTexture::_Create()

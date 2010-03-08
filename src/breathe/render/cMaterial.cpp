@@ -143,7 +143,7 @@ namespace breathe
       int infologLength = 0;
       glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
       LOG<<"cShader::CheckStatusVertex glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
-      infologLength = 1024;
+      //infologLength = 1024;
       if (infologLength > 0) {
         char* infoLog = new char[infologLength];
         glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
@@ -170,7 +170,7 @@ namespace breathe
       int infologLength = 0;
       glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
       LOG<<"cShader::CheckStatusFragment glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
-      infologLength = 1024;
+      //infologLength = 1024;
       if (infologLength > 0) {
         char *infoLog = new char[infologLength];
         glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
@@ -197,7 +197,7 @@ namespace breathe
       int infologLength = 0;
       glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
       LOG<<"cShader::CheckStatusProgram glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
-      infologLength = 1024;
+      //infologLength = 1024;
       if (infologLength > 0) {
         char *infoLog = new char[infologLength];
         glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
@@ -260,6 +260,7 @@ namespace breathe
 
           uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
           LOG<<"cShader::Init Vertex shader glGetError="<<pRender->GetErrorString()<<std::endl;
+          CheckStatusVertex();
           ASSERT(uiShaderVertex != 0);
 
           const char* str = buffer.c_str();
@@ -297,6 +298,7 @@ namespace breathe
 
           uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
           LOG<<"cShader::Init Fragment shader glGetError="<<pRender->GetErrorString()<<std::endl;
+          CheckStatusFragment();
           ASSERT(uiShaderFragment != 0);
 
           const char* str = buffer.c_str();
@@ -414,8 +416,9 @@ namespace breathe
         iter.FindChild("material");
         if (!iter.IsValid()) {
           LOG.Error("Material", std::string("Not Found ") + breathe::string::ToUTF8(sFilename));
-          for (unsigned int i=0;i<nLayers;i++)
+          for (size_t i = 0; i < nLayers; i++) {
             vLayer[i]->pTexture = pResourceManager->pMaterialNotFoundMaterial->vLayer[0]->pTexture;
+          }
 
           return false;
         }
@@ -513,7 +516,9 @@ namespace breathe
             }
 
             if ((TEXTURE_MODE::TEXTURE_CUBE_MAP != pLayer->uiTextureMode) && (TEXTURE_MODE::TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
-              if (ATLAS_NONE != uiTextureAtlas) pLayer->pTexture = pResourceManager->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
+              if (ATLAS_NONE != uiTextureAtlas) {
+                pLayer->pTexture = pResourceManager->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
+              }
 
               if (nullptr == pLayer->pTexture) {
                 uiTextureAtlas = ATLAS_NONE;

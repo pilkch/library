@@ -47,13 +47,7 @@ namespace breathe
     bool InitApp();
     bool DestroyApp();
 
-    bool InitRender();
-    bool DestroyRender();
-
     bool Run();
-
-    bool ToggleFullscreen();
-    bool ResizeWindow(unsigned int w, unsigned int h);
 
     void AddKeyRepeat(unsigned int code); // ie. for a key like wasd.
     void AddKeyNoRepeat(unsigned int code); // ie. for key like escape, enter, spacebar, etc.
@@ -219,7 +213,6 @@ namespace breathe
     // but it also pops the current state and pushes a new one
     void PopStateAndPushNewStateSoon(cAppState* state) { PopStateSoon(); PushStateSoon(state); }
 
-
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     bool bStepPhysics;
     bool bUpdatePhysics;
@@ -234,7 +227,11 @@ namespace breathe
     spitfire::util::cTimer tUpdate;
     spitfire::util::cTimer tRender;
 
-    std::vector<SDL_Joystick*>vJoystick;
+
+    render::cSystem system;
+    render::cDevice* pDevice;
+    render::cWindow* pWindow;
+    render::cResourceManager* pResourceManager;
 
     render::cFont* pFont;
 
@@ -248,6 +245,8 @@ namespace breathe
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     breathe::physics::cWorld* pWorld;
 #endif
+
+    std::vector<SDL_Joystick*>vJoystick;
 
   private:
     class cConsoleWindow : public gui::cModelessWindow
@@ -306,7 +305,7 @@ namespace breathe
       int y;
     };
 
-    void LoadConfigXML();
+    void LoadConfigXML(render::cResolution& resolution);
     void _ConsoleExecuteSingleCommand(const std::string& s);
     void _InitArguments(int argc, const char* const* argv);
     void _LoadSearchDirectories();

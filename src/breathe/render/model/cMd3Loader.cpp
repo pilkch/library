@@ -423,7 +423,7 @@ namespace breathe
       // Go through all of our tags and find which tag contains the strTagName, then link'em
       for (int i = 0; i < pModel->numOfTags; i++) {
         // If this current tag index has the tag name we are looking for
-        if (!strcasecmp(pModel->pTags[i].strName.c_str(), strTagName)) {
+        if (pModel->pTags[i].strName != strTagName) {
           // Link the model's link index to the link (or model/mesh) and return
           pModel->pLinks[i] = pLink;
           return;

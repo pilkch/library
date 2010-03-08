@@ -57,7 +57,7 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
+#include <breathe/render/cDevice.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -67,7 +67,8 @@
 breathe::cVar fDetailScale = 0.5f;
 const float fMaximumViewDistance = 3000.0f;
 
-breathe::render::cRender* pRender = nullptr;
+breathe::render::cGraphicsContext* pContext = nullptr;
+breathe::render::cDevice* pRender = nullptr;
 
 namespace breathe
 {
@@ -88,21 +89,6 @@ namespace breathe
       nTrianglesRendered = 0;
       nModelsRendered = 0;
     }
-
-
-    // *** cCapabilities
-
-    cCapabilities::cCapabilities() :
-      bIsOpenGLTwoPointZeroOrLater(false),
-      bIsOpenGLThreePointZeroOrLater(false),
-      bIsShadersTwoPointZeroOrLater(false),
-      bIsVertexBufferObject(false),
-      bIsFrameBufferObject(false),
-      bIsShadows(false),
-      nTextureUnits(0)
-    {
-    }
-
 
 
     class cDynamicShadowMap;
@@ -239,9 +225,9 @@ namespace breathe
       std::sort(models.begin(), models.end(), cBatchModelContainer::SortBackToFront);
     }*/
 
-    // *** cRender
+    // *** cDevice
 
-    cRender::cRender() :
+    cDevice::cDevice() :
 
 #ifdef BUILD_DEBUG
       bFullscreen(false),
@@ -255,11 +241,6 @@ namespace breathe
 
       uiTriangles(0),
 
-      bIsCubemappingSupported(false),
-      bIsShaderSupported(false),
-      bIsRenderingToFrameBufferObjectSupported(false),
-      bIsFSAASupported(false),
-
       bIsRenderWireframe(false),
       bIsRenderGui(true),
       bIsLightingEnabled(true),
@@ -271,23 +252,11 @@ namespace breathe
 
 
       clearColour(1.0f, 0.0f, 1.0f, 1.0f),
-      bIsActiveColour(false),
-
-      g_info(nullptr),
-      videoInfo(nullptr)
+      bIsActiveColour(false)
     {
       pRender = this;
 
-      uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
-
-      iMaxTextureSize=0;
-
       sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
-
-      for (size_t i = 0; i < nAtlas; i++) {
-        cTextureAtlasRef pNewTextureAtlas(new cTextureAtlas(i));
-        vTextureAtlas.push_back(pNewTextureAtlas);
-      }
 
       for (size_t i = 0; i < material::nLayers; i++) {
         material::cLayer layer;
@@ -295,17 +264,13 @@ namespace breathe
       }
     }
 
-    cRender::~cRender()
+    cDevice::~cDevice()
     {
-      //TODO: Delete materials and shader objects and atlases etc.
-
-      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i].reset();
-      vTextureAtlas.clear();
-
+      // Delete layers
       vLayer.clear();
     }
 
-    string_t cRender::GetErrorString(GLenum error) const
+    string_t cDevice::GetErrorString(GLenum error) const
     {
       switch (error) {
         case GL_NO_ERROR: return TEXT("GL_NO_ERROR");
@@ -320,12 +285,12 @@ namespace breathe
       return TEXT("Unknown error");
     }
 
-    string_t cRender::GetErrorString() const
+    string_t cDevice::GetErrorString() const
     {
       return GetErrorString(glGetError());
     }
 
-    bool cRender::FindExtension(const string_t& sExt) const
+    bool cDevice::FindExtension(const string_t& sExt) const
     {
       std::ostringstream t;
       t<<const_cast<const unsigned char*>(glGetString(GL_EXTENSIONS));
@@ -333,13 +298,13 @@ namespace breathe
       return (breathe::string::ToString_t(t.str()).find(sExt) != string_t::npos);
     }
 
-    float cRender::GetShaderVersion() const
+    float cDevice::GetShaderVersion() const
     {
       float fGLVersion = 0.0f;
       {
-        std::string temp((const char*)glGetString(GL_VERSION));
+        const std::string sVersion((const char*)glGetString(GL_VERSION));
 
-        fGLVersion = breathe::string::ToFloat(breathe::string::ToString_t(temp));
+        fGLVersion = breathe::string::ToFloat(breathe::string::ToString_t(sVersion));
       }
 
       float fGLSLVersion = 0.0f;
@@ -376,17 +341,73 @@ namespace breathe
       return 0.0f;
     }
 
-    bool cRender::PreInit()
+    cResolution cDevice::GetResolution() const
     {
-      LOG<<"cRender::PreInit"<<std::endl;
+      cResolution resolution;
+      resolution.SetWidth(uiWidth);
+      resolution.SetHeight(uiHeight);
+      resolution.SetColourDepth(uiDepth);
+      resolution.SetFullScreen(bFullscreen);
+
+      return resolution;
+    }
+
+    bool cDevice::IsMultiSampling() const
+    {
+      GLint iBuffers = 0;
+      glGetIntegerv(GL_SAMPLE_BUFFERS_ARB, &iBuffers);
+
+      return (iBuffers != 0);
+    }
+
+    size_t cDevice::GetMultiSampleLevel() const
+    {
+      ASSERT(IsMultiSampling());
+
+      GLint iSampleLevel = 0;
+      glGetIntegerv(GL_SAMPLES_ARB, &iSampleLevel);
+
+      if (iSampleLevel < 0) iSampleLevel = 0;
+
+      return size_t(iSampleLevel);
+    }
+
+    cCapabilities cDevice::GetCapabilities() const
+    {
+      LOG<<"cDevice::GetCapabilities"<<std::endl;
+
+      cCapabilities capabilities;
 
       // Fetch the video info
-      videoInfo = SDL_GetVideoInfo();
+      const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
 
-      if (videoInfo == nullptr) {
+      if (pVideoInfo == nullptr) {
         LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
-        return breathe::BAD;
+        ASSERT(false);
       }
+
+      {
+        CONSOLE<<"Resolutions"<<std::endl;
+        const std::vector<cResolution>& resolutions = GetAvailableScreenResolutions();
+
+        const size_t n = resolutions.size();
+        for (size_t i = 0; i < n; i++) {
+          const cResolution& r = resolutions[i];
+          std::cout<<r.GetWidth()<<"x"<<r.GetHeight()<<"x"<<r.GetColourDepth()<<" "<<(r.IsWideScreen() ? "widescreen" : "standard")<<std::endl;
+        };
+      }
+
+      return capabilities;
+    }
+
+
+    bool cDevice::Create(const cResolution& resolution)
+    {
+      LOG<<"cDevice::Create"<<std::endl;
+
+
+      unsigned int uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
+
 
       if (bFullscreen) {
         LOG.Success("App", "Going to fullscreen");
@@ -397,8 +418,17 @@ namespace breathe
       }
 
 
+
+      const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
+
+      if (pVideoInfo == nullptr) {
+        LOG.Error("SDL", std::string("Video query failed: ") + SDL_GetError());
+        return false;
+      }
+
+
       // This checks to see if surfaces can be stored in memory
-      if (videoInfo->hw_available) {
+      if (pVideoInfo->hw_available) {
         uiFlags |= SDL_HWSURFACE;
         uiFlags &= ~SDL_SWSURFACE;
       } else {
@@ -408,7 +438,7 @@ namespace breathe
       }
 
       // This checks if hardware blits can be done
-      if (videoInfo->blit_hw) uiFlags |= SDL_HWACCEL;
+      if (pVideoInfo->blit_hw) uiFlags |= SDL_HWACCEL;
       else {
         LOG.Error("SDL", "SOFTWARE BLIT");
         uiFlags &= ~SDL_HWACCEL;
@@ -422,8 +452,116 @@ namespace breathe
 
 
 
-      bIsFSAASupported = (GL_ARB_multisample != 0);
-      if (bIsFSAASupported) {
+
+
+      capabilities = GetCapabilities();
+
+
+      if (!GLeeInit()) {
+        LOG.Error("cDevice::Create", "GLeeInit Failed");
+        LOG<<GLeeGetErrorString()<<std::endl;
+      } else {
+        LOG.Success("cDevice::Create", "GLeeInit Succeeded");
+        LOG<<GLeeGetErrorString()<<std::endl;
+      }
+
+
+      // Create an SDL surface
+      LOG<<"cDevice::Create Calling SDL_SetVideoMode"<<std::endl;
+      pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
+
+      // Verify there is a surface
+      if (pSurface == nullptr) {
+        LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
+        return false;
+      }
+
+
+
+      std::ostringstream t;
+      LOG.Success("Render", "");
+
+      const char* szValue = nullptr;
+
+      szValue = (const char*)glGetString(GL_VENDOR);
+      ASSERT(szValue != nullptr);
+      LOG.Success("Render", std::string("Vendor     : ") + szValue);
+      szValue = (const char*)glGetString(GL_RENDERER);
+      ASSERT(szValue != nullptr);
+      LOG.Success("Render", std::string("Renderer   : ") + szValue);
+      szValue = (const char*)glGetString(GL_VERSION);
+      ASSERT(szValue != nullptr);
+      LOG.Success("Render", std::string("Version    : ") + szValue);
+      szValue = (const char*)glGetString(GL_EXTENSIONS);
+      ASSERT(szValue != nullptr);
+      LOG.Success("Render", std::string("Extensions : ") + szValue);
+
+      std::ostringstream tVendor;
+      tVendor<<glGetString(GL_VENDOR);
+
+      const std::string sVendor(tVendor.str());
+      bool bIsNVIDIA = (sVendor.find("NVIDIA") != std::string::npos);
+      bool bIsATI = (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
+      if (!bIsNVIDIA && !bIsATI) {
+        LOG.Error("Render", std::string("Vendor is neither ATI nor NVIDIA") + sVendor);
+      }
+
+      if (FindExtension(TEXT("GL_ARB_multitexture"))) LOG.Success("Render", "Found GL_ARB_multitexture");
+      else {
+        LOG.Error("Render", "Not Found GL_ARB_multitexture");
+        ASSERT(false);
+      }
+
+
+      GLint iValue = 0;
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
+      ASSERT(iValue > 0);
+      capabilities.iMaxTextureSize = iValue;
+
+      t.str("");
+      t << capabilities.iMaxTextureSize;
+      if (capabilities.iMaxTextureSize >= MAX_TEXTURE_SIZE) {
+        LOG.Success("Render", std::string("Max Texture Size : ") + t.str());
+        capabilities.iMaxTextureSize = MAX_TEXTURE_SIZE;
+      } else LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
+
+      // Cube Map Support
+      if (FindExtension(TEXT("GL_ARB_texture_cube_map"))) {
+        LOG.Success("Render", "Found GL_ARB_texture_cube_map");
+        capabilities.bIsCubemappingSupported = true;
+      } else {
+        LOG.Error("Render", "Not Found GL_ARB_texture_cube_map");
+      }
+
+
+      // GLSL Version
+      float fShaderVersion = GetShaderVersion();
+      {
+        std::ostringstream stm;
+        stm<<fShaderVersion;
+
+        if (fShaderVersion >= 1.0f) {
+          LOG.Success("Render", "Found Shader" + stm.str());
+          capabilities.bIsShadersTwoPointZeroOrLaterSupported = true;
+        } else {
+          LOG.Error("Render", "Not Found Shader1.1, version found is Shader" + stm.str());
+          capabilities.bIsShadersTwoPointZeroOrLaterSupported = false;
+        }
+      }
+
+      if (capabilities.bIsShadersTwoPointZeroOrLaterSupported) LOG.Success("Render", "Can use shaders, shaders turned on");
+      else LOG.Success("Render", "Cannot use shaders, shaders turned off");
+
+
+      // Frame Buffer Object Support
+      if (FindExtension(TEXT("GL_EXT_framebuffer_object"))) {
+        LOG.Success("Render", "Found GL_EXT_framebuffer_object");
+        capabilities.bIsFrameBufferObjectSupported = true;
+      } else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
+
+
+      capabilities.bIsFSAASupported = (GL_ARB_multisample != 0);
+      if (capabilities.bIsFSAASupported) {
         // Only sample at 2, 4, 8 or 16
         if (uiFSAASampleLevel > 16) uiFSAASampleLevel = 16;
         else if (uiFSAASampleLevel > 8) uiFSAASampleLevel = 8;
@@ -438,166 +576,38 @@ namespace breathe
 
 
 
-
-      // Create an SDL surface
-      LOG<<"cRender::PreInit Calling SDL_SetVideoMode"<<std::endl;
-      pSurface = SDL_SetVideoMode(uiWidth, uiHeight, uiDepth, uiFlags);
-
-      // Verify there is a surface
-      if (pSurface == nullptr) {
-        LOG.Error("SDL", std::string("Video mode set failed: ") + SDL_GetError());
-        return breathe::BAD;
-      }
-
-
-
-
-
       bIsFSAAEnabled = false;
 
-      if (bIsFSAASupported) {
+      if (capabilities.bIsFSAASupported) {
         if (!IsMultiSampling()) {
             bIsFSAAEnabled = false;
         } else {
             size_t uiActualSampleLevel = GetMultiSampleLevel();
             if (uiFSAASampleLevel != uiActualSampleLevel) {
-              LOG<<"cRender::PreInit Requested sample level is "<<uiFSAASampleLevel<<", actual sample level is "<<uiActualSampleLevel<<std::endl;
+              LOG<<"cDevice::Create Requested sample level is "<<uiFSAASampleLevel<<", actual sample level is "<<uiActualSampleLevel<<std::endl;
             }
 
             if ((uiActualSampleLevel == 2) || (uiActualSampleLevel == 4) || (uiActualSampleLevel == 8) || (uiActualSampleLevel == 16)) bIsFSAAEnabled = true;
         }
       }
 
-      return breathe::GOOD;
+      Setup();
+
+      SetPerspective();
+
+      return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    bool cRender::IsMultiSampling() const
+    void cDevice::Destroy()
     {
-      GLint iBuffers = 0;
-      glGetIntegerv(GL_SAMPLE_BUFFERS_ARB, &iBuffers);
+      ASSERT(pSurface != nullptr);
 
-      return (iBuffers != 0);
+      SDL_FreeSurface(pSurface);
+      pSurface = nullptr;
     }
 
-    size_t cRender::GetMultiSampleLevel() const
+    void cDevice::Setup()
     {
-      ASSERT(IsMultiSampling());
-
-      GLint iSampleLevel = 0;
-      glGetIntegerv(GL_SAMPLES_ARB, &iSampleLevel);
-
-      if (iSampleLevel < 0) iSampleLevel = 0;
-
-      return size_t(iSampleLevel);
-    }
-
-    bool cRender::Init()
-    {
-      LOG<<"cRender::Init"<<std::endl;
-
-      std::ostringstream t;
-      t << "Screen BPP: ";
-      t << (unsigned int)(pSurface->format->BitsPerPixel);
-      LOG.Success("Render", t.str());
-      LOG.Success("Render", std::string("Vendor     : ") + (char*)(glGetString(GL_VENDOR)));
-      LOG.Success("Render", std::string("Renderer   : ") + (char*)(glGetString(GL_RENDERER)));
-      LOG.Success("Render", std::string("Version    : ") + (char*)(glGetString(GL_VERSION)));
-      LOG.Success("Render", std::string("Extensions : ") + (char*)(glGetString(GL_EXTENSIONS)));
-
-      std::ostringstream tVendor;
-      tVendor<<glGetString(GL_VENDOR);
-
-      const std::string sVendor(tVendor.str());
-      bool bIsNVIDIA = (sVendor.find("NVIDIA") != std::string::npos);
-      bool bIsATI = (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
-      if (!bIsNVIDIA && !bIsATI) {
-        LOG.Error("Render", std::string("Vendor is neither ATI nor NVIDIA") + sVendor);
-      }
-
-      GLint iValue = 0;
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &iValue);
-      ASSERT(iValue >= 0);
-      iMaxTextureSize = iValue;
-
-      t.str("");
-      t << iMaxTextureSize;
-      if (iMaxTextureSize >= MAX_TEXTURE_SIZE) {
-        LOG.Success("Render", std::string("Max Texture Size : ") + t.str());
-        iMaxTextureSize=MAX_TEXTURE_SIZE;
-      } else LOG.Error("Render", std::string("Max Texture Size : ") + t.str());
-
-      {
-        CONSOLE<<"Resolutions"<<std::endl;
-        const std::vector<cResolution>& resolutions = GetAvailableScreenResolutions();
-
-        const size_t n = resolutions.size();
-        for (size_t i = 0; i < n; i++) {
-          const cResolution& r = resolutions[i];
-          std::cout<<r.GetWidth()<<"x"<<r.GetHeight()<<"x"<<r.GetColourDepth()<<" "<<(r.IsWideScreen() ? "widescreen" : "standard")<<std::endl;
-        };
-      }
-
-
-      if (FindExtension(TEXT("GL_ARB_multitexture"))) LOG.Success("Render", "Found GL_ARB_multitexture");
-      else {
-        LOG.Error("Render", "Not Found GL_ARB_multitexture");
-        return false;
-      }
-
-
-      // Cube Map Support
-      if (FindExtension(TEXT("GL_ARB_texture_cube_map"))) {
-        LOG.Success("Render", "Found GL_ARB_texture_cube_map");
-        bIsCubemappingSupported = true;
-      } else {
-        LOG.Error("Render", "Not Found GL_ARB_texture_cube_map");
-        return false;
-      }
-
-
-      // GLSL Version
-      float fShaderVersion = GetShaderVersion();
-      {
-        std::ostringstream stm;
-        stm<<fShaderVersion;
-
-        if (fShaderVersion >= 1.0f) {
-          LOG.Success("Render", "Found Shader" + stm.str());
-          bIsShaderSupported = true;
-        } else {
-          LOG.Error("Render", "Not Found Shader1.1, version found is Shader" + stm.str());
-          bIsShaderSupported = false;
-        }
-      }
-
-      if (bIsShaderSupported) LOG.Success("Render", "Can use shaders, shaders turned on");
-      else LOG.Success("Render", "Cannot use shaders, shaders turned off");
-
-
-      // Frame Buffer Object Support
-      if (FindExtension(TEXT("GL_EXT_framebuffer_object"))) {
-        LOG.Success("Render", "Found GL_EXT_framebuffer_object");
-        bIsRenderingToFrameBufferObjectSupported = true;
-      } else LOG.Error("Render", "Not Found GL_EXT_framebuffer_object");
-
-
-
       // Clear the background to our requested colour
       glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
 
@@ -646,60 +656,9 @@ namespace breathe
 
       glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular.GetPointerConst());
       glMaterialfv(GL_FRONT, GL_EMISSION, MaterialEmission.GetPointerConst());
-
-
-      if (!GLeeInit()) {
-        LOG.Error("cRender::Init", "GLeeInit Failed");
-        LOG<<GLeeGetErrorString()<<std::endl;
-      } else {
-        LOG.Success("cRender::Init", "GLeeInit Succeeded");
-        LOG<<GLeeGetErrorString()<<std::endl;
-      }
-
-      return breathe::GOOD;
     }
 
-    void cRender::Destroy()
-    {
-      ASSERT(pSurface != nullptr);
-
-      SDL_FreeSurface(pSurface);
-      pSurface = nullptr;
-    }
-
-    void cRender::ToggleFullscreen()
-    {
-      bFullscreen = !bFullscreen;
-
-      if (bFullscreen) {
-#ifdef BUILD_DEBUG
-        uiWidth = 1024;
-        uiHeight = 768;
-        return;
-#endif
-
-        if (uiWidth<1280) {
-          if (uiWidth<1024) {
-            if (uiWidth<800) {
-              uiWidth = 640;
-              uiHeight = 480;
-            } else {
-              uiWidth = 800;
-              uiHeight = 600;
-            }
-          }
-          else {
-            uiWidth = 1024;
-            uiHeight = 768;
-          }
-        } else {
-          uiWidth = 1600;
-          uiHeight = 1280;
-        }
-      }
-    }
-
-    void cRender::SetPerspective()
+    void cDevice::SetPerspective()
     {
       // Protect against a divide by zero
       ASSERT(uiHeight != 0);
@@ -722,19 +681,19 @@ namespace breathe
       glLoadIdentity();
     }
 
-    void cRender::EnableWireframe()
+    void cDevice::EnableWireframe()
     {
       glDisable(GL_CULL_FACE);
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-    void cRender::DisableWireframe()
+    void cDevice::DisableWireframe()
     {
       glEnable(GL_CULL_FACE);
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    void cRender::_BeginRenderShared()
+    void cDevice::_BeginRenderShared()
     {
 #ifndef BUILD_DEBUG
       // If we are in a release build then use the colour specified
@@ -759,12 +718,12 @@ namespace breathe
       ClearMaterial();
     }
 
-    void cRender::_EndRenderShared()
+    void cDevice::_EndRenderShared()
     {
       if (bIsFSAAEnabled) glDisable(GL_MULTISAMPLE_ARB);
     }
 
-    void cRender::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
+    void cDevice::BeginRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
       ASSERT(pTexture->IsValid());
       ASSERT(!pTexture->IsModeCubeMap());
@@ -781,7 +740,7 @@ namespace breathe
       _BeginRenderShared();
     }
 
-    void cRender::EndRenderToTexture(cTextureFrameBufferObjectRef pTexture)
+    void cDevice::EndRenderToTexture(cTextureFrameBufferObjectRef pTexture)
     {
       _EndRenderShared();
 
@@ -794,7 +753,7 @@ namespace breathe
       glDisable(GL_TEXTURE_2D);
     }
 
-    void cRender::BeginRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture, CUBE_MAP_FACE face)
+    void cDevice::BeginRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture, CUBE_MAP_FACE face)
     {
       ASSERT(pTexture->IsValid());
       ASSERT(pTexture->IsModeCubeMap());
@@ -823,12 +782,12 @@ namespace breathe
       _BeginRenderShared();
     }
 
-    void cRender::EndRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture)
+    void cDevice::EndRenderToCubeMapTextureFace(cTextureFrameBufferObjectRef pTexture)
     {
       EndRenderToTexture(pTexture);
     }
 
-    void cRender::_BeginRenderToScreen()
+    void cDevice::_BeginRenderToScreen()
     {
       // Set viewport
       glViewport(0, 0, uiWidth, uiHeight);
@@ -838,24 +797,24 @@ namespace breathe
       uiTextureModeChanges = uiTextureChanges = uiTriangles = 0;
     }
 
-    void cRender::_EndRenderToScreen()
+    void cDevice::_EndRenderToScreen()
     {
       _EndRenderShared();
 
       SDL_GL_SwapBuffers();
     }
 
-    void cRender::BeginRenderToScreen()
+    void cDevice::BeginRenderToScreen()
     {
       _BeginRenderToScreen();
     }
 
-    void cRender::EndRenderToScreen()
+    void cDevice::EndRenderToScreen()
     {
       _EndRenderToScreen();
     }
 
-    void cRender::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pTexture)
+    void cDevice::_RenderPostRenderPass(material::cMaterialRef pMaterial, cTextureFrameBufferObjectRef pTexture)
     {
       ASSERT(pMaterial != nullptr);
       ASSERT(pTexture != nullptr);
@@ -870,7 +829,7 @@ namespace breathe
       EndScreenSpaceRendering();
     }
 
-    void cRender::SaveScreenShot()
+    void cDevice::SaveScreenShot()
     {
       int value = 0;
       GetApplicationUserSetting(TEXT("ScreenShot"), TEXT("Count"), value);
@@ -913,7 +872,7 @@ namespace breathe
     }
 
 
-    void cRender::BeginScreenSpaceRendering()
+    void cDevice::BeginScreenSpaceRendering()
     {
       glDisable(GL_LIGHTING);
 
@@ -939,7 +898,7 @@ namespace breathe
           glLoadIdentity();
     }
 
-    void cRender::EndScreenSpaceRendering()
+    void cDevice::EndScreenSpaceRendering()
     {
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
@@ -955,7 +914,7 @@ namespace breathe
       glEnable(GL_LIGHTING);
     }
 
-    void cRender::BeginScreenSpaceGuiRendering()
+    void cDevice::BeginScreenSpaceGuiRendering()
     {
       glFrontFace(GL_CW);
 
@@ -971,7 +930,7 @@ namespace breathe
           //glLoadIdentity();
     }
 
-    void cRender::EndScreenSpaceGuiRendering()
+    void cDevice::EndScreenSpaceGuiRendering()
     {
           glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
@@ -982,7 +941,7 @@ namespace breathe
     }
 
     // In this mode y is 1..0
-    void cRender::BeginScreenSpaceWorldRendering(float fScale)
+    void cDevice::BeginScreenSpaceWorldRendering(float fScale)
     {
       glFrontFace(GL_CCW);
 
@@ -996,7 +955,7 @@ namespace breathe
         glPushMatrix();
     }
 
-    void cRender::EndScreenSpaceWorldRendering()
+    void cDevice::EndScreenSpaceWorldRendering()
     {
           glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
@@ -1006,7 +965,7 @@ namespace breathe
       glFrontFace(GL_CW);
     }
 
-    void cRender::PushScreenSpacePosition(float x, float y)
+    void cDevice::PushScreenSpacePosition(float x, float y)
     {
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
@@ -1014,7 +973,7 @@ namespace breathe
         glTranslatef(x, -y, 0.0f);
     }
 
-    void cRender::PopScreenSpacePosition()
+    void cDevice::PopScreenSpacePosition()
     {
       glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
@@ -1029,7 +988,7 @@ namespace breathe
     //
     // 0.0f, 1.0f            1.0f, 1.0f
 
-    void cRender::RenderScreenSpacePolygon(float fX, float fY,
+    void cDevice::RenderScreenSpacePolygon(float fX, float fY,
         float fVertX0, float fVertY0, float fVertX1, float fVertY1,
         float fVertX2, float fVertY2, float fVertX3, float fVertY3)
     {
@@ -1042,7 +1001,7 @@ namespace breathe
     }
 
     // Render a solid filled rectangle with one colour and no texturing and a separately coloured border
-    void cRender::RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& boxColour, const math::cColour& upperBorderColour, const math::cColour& lowerBorderColour)
+    void cDevice::RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& boxColour, const math::cColour& upperBorderColour, const math::cColour& lowerBorderColour)
     {
       glColor3f(boxColour.r, boxColour.g, boxColour.b);
 
@@ -1076,7 +1035,7 @@ namespace breathe
       glLineWidth(1);
     }
 
-    void cRender::RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& colour0, const math::cColour& colour1, const math::cColour& colour2, const math::cColour& colour3)
+    void cDevice::RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight, const math::cColour& colour0, const math::cColour& colour1, const math::cColour& colour2, const math::cColour& colour3)
     {
       glBegin(GL_QUADS);
         glColor3f(colour0.r, colour0.g, colour0.b); glVertex2f(fX, fY);
@@ -1086,7 +1045,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
+    void cDevice::RenderScreenSpaceRectangle(float fX, float fY, float fWidth, float fHeight)
     {
       const float fHalfWidth = fWidth * 0.5f;
       const float fHalfHeight = fHeight * 0.5f;
@@ -1098,7 +1057,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderScreenSpaceRectangle(
+    void cDevice::RenderScreenSpaceRectangle(
       float fX, float fY, float fWidth, float fHeight,
       float fU, float fV, float fU2, float fV2)
     {
@@ -1115,7 +1074,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderScreenSpaceRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight)
+    void cDevice::RenderScreenSpaceRectangleTopLeftIsAt(float fX, float fY, float fWidth, float fHeight)
     {
       glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 1.0f); glVertex2f(fX, fY);
@@ -1125,7 +1084,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderScreenSpaceRectangleTopLeftIsAt(
+    void cDevice::RenderScreenSpaceRectangleTopLeftIsAt(
       float fX, float fY, float fWidth, float fHeight,
       float fU, float fV, float fU2, float fV2)
     {
@@ -1137,7 +1096,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation)
+    void cDevice::RenderScreenSpaceRectangleRotated(float fX, float fY, float fWidth, float fHeight, float fRotation)
     {
       glMatrixMode(GL_MODELVIEW);
       glPushMatrix();
@@ -1150,7 +1109,7 @@ namespace breathe
       glPopMatrix();
     }
 
-    void cRender::RenderScreenSpaceLines(const std::vector<math::cVec2>& points)
+    void cDevice::RenderScreenSpaceLines(const std::vector<math::cVec2>& points)
     {
       glBegin(GL_LINE_STRIP);
         const size_t n = points.size();
@@ -1162,7 +1121,7 @@ namespace breathe
 
     // *** World space rendering
 
-    void cRender::RenderLines(const std::vector<math::cVec3>& points)
+    void cDevice::RenderLines(const std::vector<math::cVec3>& points)
     {
       glBegin(GL_LINES);
         const size_t n = points.size();
@@ -1171,12 +1130,12 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderMesh(model::cMeshRef pMesh)
+    void cDevice::RenderMesh(model::cMeshRef pMesh)
     {
       ASSERT(false);
     }
 
-    void cRender::RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour)
+    void cDevice::RenderArrow(const math::cVec3& from, const math::cVec3& to, const math::cColour& colour)
     {
       SetColour(colour);
       glBegin(GL_LINES);
@@ -1185,13 +1144,13 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderAxisReference()
+    void cDevice::RenderAxisReference()
     {
       const math::cVec3 zero;
       RenderAxisReference(zero);
     }
 
-    void cRender::RenderAxisReference(const math::cVec3& position)
+    void cDevice::RenderAxisReference(const math::cVec3& position)
     {
       const float fWidth = 20.0f;
 
@@ -1222,7 +1181,7 @@ namespace breathe
       glEnable(GL_COLOR_MATERIAL);
     }
 
-    void cRender::RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2)
+    void cDevice::RenderTriangle(const math::cVec3& v0, const math::cVec3& v1, const math::cVec3& v2)
     {
       math::cVec3 n;
       n.Cross(v0 - v2, v2 - v1);
@@ -1238,7 +1197,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax)
+    void cDevice::RenderBoxTextured(const math::cVec3& vMin, const math::cVec3& vMax)
     {
       glBegin(GL_QUADS);
 
@@ -1278,7 +1237,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderBox(const math::cVec3& vMin, const math::cVec3& vMax)
+    void cDevice::RenderBox(const math::cVec3& vMin, const math::cVec3& vMax)
     {
       glBegin(GL_QUADS);
 
@@ -1310,7 +1269,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax)
+    void cDevice::RenderWireframeBox(const math::cVec3& vMin, const math::cVec3& vMax)
     {
       glBegin(GL_LINES);
 
@@ -1356,423 +1315,7 @@ namespace breathe
       glEnd();
     }
 
-    void cRender::SetAtlasWidth(unsigned int uiNewSegmentWidthPX, unsigned int uiNewSegmentSmallPX, unsigned int uiNewAtlasWidthPX)
-    {
-      uiSegmentWidthPX=uiNewSegmentWidthPX;
-      uiAtlasWidthPX=uiNewAtlasWidthPX;
-      uiSegmentSmallPX=uiNewSegmentSmallPX;
-    }
-
-    void cRender::BeginLoadingTextures()
-    {
-      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i]->Begin(uiSegmentWidthPX, uiSegmentSmallPX, uiAtlasWidthPX);
-
-      if (pTextureNotFoundTexture == nullptr) AddTextureNotFoundTexture(TEXT("textures/texturenotfound.png"));
-      if (pMaterialNotFoundMaterial == nullptr) AddMaterialNotFoundMaterial(TEXT("textures/materialnotfound.png"));
-    }
-
-    void cRender::EndLoadingTextures()
-    {
-      for (size_t i = 0; i < nAtlas; i++) vTextureAtlas[i]->End();
-    }
-
-
-
-    cTextureRef cRender::AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas)
-    {
-      ASSERT(sNewFilename != TEXT(""));
-      ASSERT(ATLAS_NONE != uiAtlas);
-
-      string_t sFilename;
-      breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename), sFilename);
-
-      cTextureRef p = vTextureAtlas[uiAtlas]->AddTexture(sFilename);
-      if ((p == nullptr) || (p == pTextureNotFoundTexture)) {
-        LOG.Error("Texture", breathe::string::ToUTF8(sFilename) + " pTextureNotFound");
-        return pTextureNotFoundTexture;
-      }
-
-      std::ostringstream t;
-      t << p->uiTexture;
-      LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " " + t.str());
-
-      return p;
-    }
-
-    cTextureRef cRender::AddTexture(const string_t& sNewFilename)
-    {
-      ASSERT(sNewFilename != TEXT(""));
-
-      string_t sFilename;
-      breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename), sFilename);
-
-      string_t s = breathe::filesystem::GetFile(sFilename);
-
-      cTextureRef p = GetTexture(s);
-      if (p == nullptr) {
-        ASSERT(p != nullptr);
-        return pTextureNotFoundTexture;
-      }
-
-      p = cTextureRef(new cTexture);
-      if (p->Load(sFilename) != breathe::GOOD) {
-        LOG.Error("Render", "Failed to load " + breathe::string::ToUTF8(sFilename));
-        p.reset();
-        return pTextureNotFoundTexture;
-      }
-
-      p->Create();
-      p->CopyFromSurfaceToTexture();
-
-      mTexture[s]=p;
-
-      std::ostringstream t;
-      t << p->uiTexture;
-      LOG.Success("Texture", "Texture " + breathe::string::ToUTF8(s) + " uiTexture=" + breathe::string::ToUTF8(t.str()));
-      return p;
-    }
-
-    bool cRender::AddTextureNotFoundTexture(const string_t& sNewFilename)
-    {
-      string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
-
-      cTextureRef p(new cTexture);
-      if (p->Load(sFilename) != breathe::GOOD) {
-        // Just assert, don't even try to come back from this situation
-        LOG.Error("Render", "Failed to load texture not found texture");
-        CONSOLE<<"cRender::AddTextureNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
-        ASSERT(false);
-        p.reset();
-        return breathe::BAD;
-      }
-
-      p->Create();
-      p->CopyFromSurfaceToTexture();
-
-      mTexture[sNewFilename]=p;
-      pTextureNotFoundTexture = p;
-
-      std::ostringstream t;
-      t << pTextureNotFoundTexture->uiTexture;
-      LOG.Success("Texture", "TextureNotFoundTexture " + t.str());
-
-      return breathe::GOOD;
-    }
-
-    bool cRender::AddMaterialNotFoundTexture(const string_t& sNewFilename)
-    {
-      string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
-
-      LOG.Success("Texture", "Loading " + breathe::string::ToUTF8(sFilename));
-
-      cTextureRef p(new cTexture);
-      if (p->Load(sFilename) != breathe::GOOD) {
-        // Just assert, don't even try to come back from this situation
-        LOG.Error("Render", "Failed to load material not found texture");
-        CONSOLE<<"cRender::AddMaterialNotFoundTexture failed to load "<<sNewFilename<<" "<<sFilename<<std::endl;
-        ASSERT(false);
-        p.reset();
-        return breathe::BAD;
-      }
-
-      p->Create();
-      p->CopyFromSurfaceToTexture();
-
-      mTexture[sNewFilename]=p;
-      pMaterialNotFoundTexture = p;
-
-      std::ostringstream t;
-      t << pMaterialNotFoundTexture->uiTexture;
-      LOG.Success("Texture", "MaterialNotFoundTexture " + t.str());
-
-      return breathe::GOOD;
-    }
-
-
-    cTextureRef cRender::GetTextureAtlas(ATLAS atlas)
-    {
-      ASSERT(atlas < nAtlas);
-
-      return vTextureAtlas[atlas];
-    }
-
-    cTextureRef cRender::GetTexture(const string_t& sNewFilename)
-    {
-      std::map<string_t, cTextureRef>::iterator iter = mTexture.find(sNewFilename);
-      if (iter != mTexture.end()) return iter->second;
-
-      return pTextureNotFoundTexture;
-    }
-
-    cVertexBufferObjectRef cRender::AddVertexBufferObject()
-    {
-      cVertexBufferObjectRef pVertexBufferObject(new cVertexBufferObject);
-      vVertexBufferObject.push_back(pVertexBufferObject);
-
-      return pVertexBufferObject;
-    }
-
-    cTextureRef cRender::GetCubeMap(const string_t& sNewFilename)
-    {
-      if (TEXT("") == sNewFilename) return cTextureRef();
-
-      std::map<string_t, cTextureRef>::iterator iter=mCubeMap.find(sNewFilename);
-
-      if (mCubeMap.end() != iter) return iter->second;
-
-      return cTextureRef();
-    }
-
-    cTextureRef cRender::AddCubeMap(const string_t& sFilename)
-    {
-      /*TODO: Surface of 1x6 that holds the cubemap faces,
-      not actually used for rendering, just collecting each surface
-
-      class cCubeMap : protected cTexture
-      {
-      public:
-        CopyFromSurface(uiWidth, 6 * uiHeight);
-      };
-      */
-
-      if (TEXT("")==sFilename)
-        return pTextureNotFoundTexture;
-
-      cTextureRef p = mCubeMap[sFilename];
-      if (p) return p;
-
-      p.reset(new cTexture);
-
-      mCubeMap[sFilename] = p;
-
-      p->sFilename = sFilename;
-
-      GLuint cube_map_directions[6] =
-      {
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-      };
-
-      LOG.Success("Texture", "Loading CubeMap " + breathe::string::ToUTF8(sFilename));
-
-      unsigned int i=0;
-      unsigned int uiTempTexture=0;
-
-      glEnable(GL_TEXTURE_CUBE_MAP);
-
-      glGenTextures(1, &p->uiTexture);
-
-      glBindTexture(GL_TEXTURE_CUBE_MAP, p->uiTexture);
-
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-
-      std::stringstream s;
-
-      string_t sFile = breathe::filesystem::GetFileNoExtension(breathe::string::ToString_t(sFilename));
-      string_t sExt = breathe::filesystem::GetExtension(breathe::string::ToString_t(sFilename));
-
-      for (i=0;i<6;i++)
-      {
-        s.str("");
-
-        s<<breathe::string::ToUTF8(sFile)<<"/"<<breathe::string::ToUTF8(sFile)<<i<<"."<<breathe::string::ToUTF8(sExt);
-        string_t sFilename;
-        breathe::filesystem::FindResourceFile(breathe::string::ToString_t(s.str()), sFilename);
-
-        unsigned int mode=0;
-
-        SDL_Surface* surface = IMG_Load(breathe::string::ToUTF8(sFilename).c_str());
-
-        // could not load filename
-        if (!surface)
-        {
-          LOG.Error("Texture", "Couldn't Load Texture " + breathe::string::ToUTF8(sFilename));
-          return cTextureRef();
-        }
-
-        if (surface->format->BytesPerPixel == 3) // RGB 24bit
-        {
-          mode = GL_RGB;
-          LOG.Success("Texture", "RGB Image");
-        }
-        else if (surface->format->BytesPerPixel == 4)// RGBA 32bit
-        {
-          mode = GL_RGBA;
-          LOG.Success("Texture", "RGBA Image");
-        }
-        else
-        {
-          SDL_FreeSurface(surface);
-          std::ostringstream t;
-          t << surface->format->BytesPerPixel;
-          LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
-
-          return cTextureRef();
-        }
-
-        {
-          int nHH = surface->h / 2;
-          int nPitch = surface->pitch;
-
-          unsigned char* pBuf = new unsigned char[nPitch];
-          unsigned char* pSrc = (unsigned char*) surface->pixels;
-          unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
-
-          while (nHH--)
-          {
-            std::memcpy(pBuf, pSrc, nPitch);
-            std::memcpy(pSrc, pDst, nPitch);
-            std::memcpy(pDst, pBuf, nPitch);
-
-            pSrc += nPitch;
-            pDst -= nPitch;
-          };
-
-          SAFE_DELETE_ARRAY(pBuf);
-        }
-
-
-
-
-        // create one texture name
-        glGenTextures(1, &uiTempTexture);
-
-        // This sets the alignment requirements for the start of each pixel row in memory.
-        glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-
-        // Bind the texture to the texture arrays index and init the texture
-        glBindTexture(GL_TEXTURE_2D, uiTempTexture);
-
-        // this reads from the sdl surface and puts it into an opengl texture
-        glTexImage2D(cube_map_directions[i], 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
-
-        // these affect how this texture is drawn later on...
-        /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        //Trilinear mipmapping.
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        //build mipmaps
-        //gluBuild2DMipmaps(cube_map_directions[i], mode, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
-
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);*/
-
-        // clean up
-        SDL_FreeSurface(surface);
-      }
-
-
-      glDisable(GL_TEXTURE_CUBE_MAP);
-      glDisable(GL_TEXTURE_GEN_S);
-      glDisable(GL_TEXTURE_GEN_T);
-      glDisable(GL_TEXTURE_GEN_R);
-      glEnable(GL_TEXTURE_2D);
-
-
-      std::ostringstream t;
-      t << p->uiTexture;
-      LOG.Success("Texture", t.str());
-
-      return p;
-    }
-
-    material::cMaterialRef cRender::AddMaterialNotFoundMaterial(const string_t& sNewFilename)
-    {
-      AddMaterialNotFoundTexture(sNewFilename);
-
-      pMaterialNotFoundMaterial.reset(new material::cMaterial(TEXT("MaterialNotFound")));
-
-      string_t sFilename;
-      breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
-      pMaterialNotFoundMaterial->vLayer[0]->sTexture = sFilename;
-      pMaterialNotFoundMaterial->vLayer[0]->pTexture = pMaterialNotFoundTexture;
-      pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode = TEXTURE_MODE::TEXTURE_NORMAL;
-
-      return pMaterialNotFoundMaterial;
-    }
-
-    material::cMaterialRef cRender::AddMaterial(const string_t& sNewfilename)
-    {
-      if (sNewfilename.empty()) return material::cMaterialRef();
-
-      material::cMaterialRef pMaterial = _GetMaterial(sNewfilename);
-
-      if (pMaterial != pMaterialNotFoundMaterial) return pMaterial;
-
-      string_t sFilename;
-      filesystem::FindResourceFile(breathe::string::ToString_t(sNewfilename), sFilename);
-      pMaterial.reset(new material::cMaterial(sFilename));
-
-      if (breathe::BAD == pMaterial->Load(sFilename)) {
-        pMaterial = pMaterialNotFoundMaterial;
-      }
-
-      mMaterial[filesystem::GetFile(sFilename)] = pMaterial;
-
-      return pMaterial;
-    }
-
-    material::cMaterialRef cRender::AddMaterialAsAlias(const string_t& sNewfilename, const string_t& sAlias)
-    {
-      LOG<<"cRender::AddMaterialAsAlias sNewfilename=\""<<sNewfilename<<"\""<<std::endl;
-      if (sNewfilename.empty()) {
-        LOG<<"cRender::AddMaterialAsAlias sNewfilename is empty, returning"<<std::endl;
-        return material::cMaterialRef();
-      }
-
-      string_t sFilename;
-      filesystem::FindResourceFile(breathe::string::ToString_t(sNewfilename), sFilename);
-
-      LOG<<"cRender::AddMaterialAsAlias sFilename=\""<<sFilename<<"\""<<std::endl;
-
-      material::cMaterialRef pMaterial(new material::cMaterial(sFilename));
-
-      if (breathe::BAD == pMaterial->Load(sFilename)) {
-        LOG<<"cRender::AddMaterialAsAlias FAILED to load material"<<std::endl;
-        pMaterial = pMaterialNotFoundMaterial;
-      }
-
-      mMaterial[sAlias] = pMaterial;
-
-      LOG<<"cRender::AddMaterialAsAlias returning"<<std::endl;
-
-      return pMaterial;
-    }
-
-    material::cMaterialRef cRender::GetMaterial(const string_t& sFilename)
-    {
-      AddMaterial(sFilename);
-      return _GetMaterial(sFilename);
-    }
-
-    material::cMaterialRef cRender::_GetMaterial(const string_t& sFilename)
-    {
-      std::map<string_t, material::cMaterialRef>::iterator iter = mMaterial.begin();
-      std::map<string_t, material::cMaterialRef>::iterator iterEnd = mMaterial.end();
-
-      string_t temp = filesystem::GetFile(sFilename);
-      while(iter != iterEnd) {
-        if (temp == iter->first) return iter->second;
-        iter++;
-      }
-
-      return pMaterialNotFoundMaterial;
-    }
-
+#if 0
     float Angle(const math::cVec2 & a, const math::cVec2 & b)
     {
       if (a.x > b.x) {
@@ -1786,34 +1329,24 @@ namespace breathe
 
       return (atan((b.y-a.y)/(b.x-a.x)) + math::cPI_DIV_180 * 270.0f) * math::c180_DIV_PI;
     }
+#endif
 
-
-    void cRender::SelectTextureUnit0()
+    void cDevice::SelectTextureUnit0()
     {
       glActiveTexture(GL_TEXTURE0);
     }
 
-    void cRender::SelectTextureUnit1()
+    void cDevice::SelectTextureUnit1()
     {
       glActiveTexture(GL_TEXTURE1);
     }
 
-    void cRender::SelectTextureUnit2()
+    void cDevice::SelectTextureUnit2()
     {
       glActiveTexture(GL_TEXTURE2);
     }
 
-    bool cRender::SetTexture0(ATLAS atlas)
-    {
-      return SetTexture0(GetTextureAtlas(atlas));
-    }
-
-    bool cRender::SetTexture1(ATLAS atlas)
-    {
-      return SetTexture1(GetTextureAtlas(atlas));
-    }
-
-    bool cRender::SetTexture0(cTextureRef pTexture)
+    bool cDevice::SetTexture0(cTextureRef pTexture)
     {
       ASSERT(pTexture != nullptr);
 
@@ -1823,7 +1356,7 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetTexture1(cTextureRef pTexture)
+    bool cDevice::SetTexture1(cTextureRef pTexture)
     {
       ASSERT(pTexture != nullptr);
 
@@ -1833,34 +1366,34 @@ namespace breathe
       return true;
     }
 
-    material::cMaterialRef cRender::GetCurrentMaterial() const
+    material::cMaterialRef cDevice::GetCurrentMaterial() const
     {
       ASSERT(pCurrentMaterial != nullptr);
       return pCurrentMaterial;
     }
 
-    cTextureRef cRender::GetCurrentTexture0() const
+    cTextureRef cDevice::GetCurrentTexture0() const
     {
       ASSERT(pCurrentMaterial != nullptr);
       ASSERT(pCurrentMaterial->vLayer.size() > 0);
       return pCurrentMaterial->vLayer[0]->pTexture;
     }
 
-    cTextureRef cRender::GetCurrentTexture1() const
+    cTextureRef cDevice::GetCurrentTexture1() const
     {
       ASSERT(pCurrentMaterial != nullptr);
       ASSERT(pCurrentMaterial->vLayer.size() > 1);
       return pCurrentMaterial->vLayer[1]->pTexture;
     }
 
-    cTextureRef cRender::GetCurrentTexture2() const
+    cTextureRef cDevice::GetCurrentTexture2() const
     {
       ASSERT(pCurrentMaterial != nullptr);
       ASSERT(pCurrentMaterial->vLayer.size() > 2);
       return pCurrentMaterial->vLayer[2]->pTexture;
     }
 
-    bool cRender::ClearMaterial()
+    bool cDevice::ClearMaterial()
     {
       unsigned int i = 0;
       unsigned int n = 0;
@@ -1922,7 +1455,7 @@ namespace breathe
       glEnable(GL_TEXTURE_2D);
       glDisable(GL_LIGHTING);
 
-      if (bIsShaderSupported && (pCurrentShader != nullptr)) UnBindShader();
+      if (capabilities.bIsShadersTwoPointZeroOrLaterSupported && (pCurrentShader != nullptr)) UnBindShader();
 
       pCurrentMaterial.reset();
 
@@ -1931,13 +1464,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(const std::string& sConstant, int value)
+    bool cDevice::SetShaderConstant(const std::string& sConstant, int value)
     {
       ASSERT(pCurrentShader != nullptr);
 
       GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cDevice::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1946,13 +1479,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(const std::string& sConstant, float value)
+    bool cDevice::SetShaderConstant(const std::string& sConstant, float value)
     {
       ASSERT(pCurrentShader != nullptr);
 
       GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cDevice::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1961,13 +1494,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec2& value)
+    bool cDevice::SetShaderConstant(const std::string& sConstant, const math::cVec2& value)
     {
       ASSERT(pCurrentShader != nullptr);
 
       GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cDevice::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1976,13 +1509,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec3& value)
+    bool cDevice::SetShaderConstant(const std::string& sConstant, const math::cVec3& value)
     {
       ASSERT(pCurrentShader != nullptr);
 
       GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cDevice::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -1991,13 +1524,13 @@ namespace breathe
       return true;
     }
 
-    bool cRender::SetShaderConstant(const std::string& sConstant, const math::cVec4& value)
+    bool cDevice::SetShaderConstant(const std::string& sConstant, const math::cVec4& value)
     {
       ASSERT(pCurrentShader != nullptr);
 
       GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
       if (loc == -1) {
-        LOG.Error("cRender::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
+        LOG.Error("cDevice::SetShaderConstant", breathe::string::ToUTF8(pCurrentShader->sShaderVertex) + ", " + breathe::string::ToUTF8(pCurrentShader->sShaderFragment) + " Couldn't set \"" + sConstant + "\" perhaps the constant is not actually used within the shader");
         ASSERT(loc > 0);
         return false;
       }
@@ -2007,7 +1540,7 @@ namespace breathe
     }
 
 
-    void cRender::BindShader(cShaderRef pShader)
+    void cDevice::BindShader(cShaderRef pShader)
     {
       ASSERT(pShader != nullptr);
 
@@ -2036,7 +1569,7 @@ namespace breathe
       //glEnable(GL_LIGHTING);
     }
 
-    void cRender::UnBindShader()
+    void cDevice::UnBindShader()
     {
       // TODO: Is this needed?
       //glDisable(GL_LIGHTING);
@@ -2047,7 +1580,7 @@ namespace breathe
     }
 
 
-    bool cRender::ApplyMaterial(material::cMaterialRef pMaterial)
+    bool cDevice::ApplyMaterial(material::cMaterialRef pMaterial)
     {
       ASSERT(pMaterial != nullptr);
 
@@ -2154,13 +1687,13 @@ namespace breathe
           }
 
           default: {
-            LOG<<"cRender::ApplyMaterial Unknown texture type"<<std::endl;
+            LOG<<"cDevice::ApplyMaterial Unknown texture type"<<std::endl;
             ASSERT(false);
           }
         }
       }
 
-      if (bIsShaderSupported && (pMaterial->pShader != nullptr)) {
+      if (capabilities.bIsShadersTwoPointZeroOrLaterSupported && (pMaterial->pShader != nullptr)) {
         BindShader(pMaterial->pShader);
       }
 
@@ -2172,7 +1705,7 @@ namespace breathe
       return true;
     }
 
-    bool cRender::UnApplyMaterial(material::cMaterialRef pMaterial)
+    bool cDevice::UnApplyMaterial(material::cMaterialRef pMaterial)
     {
       ASSERT(pMaterial != nullptr);
 
@@ -2222,7 +1755,7 @@ namespace breathe
           }
 
           case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
-            if (!bIsCubemappingSupported) {
+            if (!capabilities.bIsCubemappingSupported) {
               // What to do?
               ASSERT(false);
             }
@@ -2251,14 +1784,14 @@ namespace breathe
           }
 
           default: {
-            LOG<<"cRender::UnApplyMaterial Unknown texture type"<<std::endl;
+            LOG<<"cDevice::UnApplyMaterial Unknown texture type"<<std::endl;
             ASSERT(false);
           }
         }
       }
 
       // UnApply shader
-      if ((pMaterial->pShader != nullptr) && bIsShaderSupported) {
+      if (capabilities.bIsShadersTwoPointZeroOrLaterSupported && (pMaterial->pShader != nullptr)) {
         UnBindShader();
       }
 
@@ -2271,7 +1804,7 @@ namespace breathe
 
 
 
-    void cRender::ClearColour()
+    void cDevice::ClearColour()
     {
       bIsActiveColour = false;
 
@@ -2281,13 +1814,13 @@ namespace breathe
       glColor4f(colour.r, colour.g, colour.b, colour.a);
     }
 
-    void cRender::SetColour(float r, float g, float b)
+    void cDevice::SetColour(float r, float g, float b)
     {
       math::cColour colour(r, g, b, 1.0f);
       SetColour(colour);
     }
 
-    void cRender::SetColour(const math::cColour& inColour)
+    void cDevice::SetColour(const math::cColour& inColour)
     {
       bIsActiveColour = true;
 
@@ -2297,218 +1830,9 @@ namespace breathe
     }
 
 
-    void cRender::TransformModels()
-    {
-      /*cTextureRef t;
-      material::cMaterialRef mat;
-
-      model::cStaticRef s;
-      model::cMeshRef pMesh;
-      float* fTextureCoords=NULL;
-      size_t nMeshes=0;
-      size_t nTexcoords=0;
-      unsigned int mesh=0;
-      unsigned int texcoord=0;
-
-      //Transform uv texture coordinates
-      std::map<string_t, model::cStaticRef>::iterator iter = mStatic.begin();
-      std::map<string_t, model::cStaticRef>::iterator iterEnd = mStatic.end();
-      while (iter != iterEnd) {
-        string_t sFilename = iter->first;
-        s = iter->second;
-
-        LOG.Success("cRender::TransformModels", "UV model=" + breathe::string::ToUTF8(sFilename));
-        ASSERT(s != nullptr);
-
-        nMeshes = s->vMesh.size();
-
-        std::ostringstream sOut;
-        sOut<<static_cast<unsigned int>(nMeshes);
-        LOG.Success("cRender::TransformModels", "UV model=" + breathe::string::ToUTF8(sFilename) + " meshes=" + sOut.str());
-
-        for (mesh = 0; mesh < nMeshes; mesh++) {
-          pMesh = s->vMesh[mesh];
-          fTextureCoords = &pMesh->pMeshData->vTextureCoord[0];
-          nTexcoords = pMesh->pMeshData->vTextureCoord.size();
-
-          mat = GetMaterial(pMesh->sMaterial);
-
-          if (mat != nullptr) {
-            if (!mat->vLayer.empty()) {
-              t = mat->vLayer[0]->pTexture;
-
-              if (t == nullptr) t = GetTexture(mat->vLayer[0]->sTexture);
-
-              if (t != nullptr) {
-                for (texcoord=0;texcoord<nTexcoords;texcoord+=2) t->Transform(fTextureCoords[texcoord], fTextureCoords[texcoord+1]);
-              } else LOG.Error("Transform", "Texture not found " + breathe::string::ToUTF8(mat->vLayer[0]->sTexture));
-            } else LOG.Error("Transform", "Material doesn't have any layers");
-          } else LOG.Error("Transform", "Material not found " + breathe::string::ToUTF8(pMesh->sMaterial));
-        }
-
-        iter++;
-      }
 
 
-      float* fNormals=NULL;
-
-      //Calculate normals
-      for (iter=mStatic.begin();iter!=mStatic.end();iter++)
-      {
-        LOG.Success("Transform", "Normals " + breathe::string::ToUTF8(iter->first));
-
-        s=iter->second;
-
-        if (s)
-        {
-          nMeshes=s->vMesh.size();
-
-          for (mesh=0;mesh<nMeshes;mesh++)
-          {
-            pMesh = s->vMesh[mesh];
-            fNormals = &pMesh->pMeshData->vNormal[0];
-
-            //Init all vertex normals to zero
-
-            //for all faces:
-            //  compute face normal
-
-            //for every vertex in every face:
-            //  add face normal to vertex normal
-            //  for all adjacent faces:
-            //      if the dotproduct of the face normal and the adjacentface normal is > 0.71:
-            //          add adjacentface normal to vertex normal
-
-            //for all vertex normals:
-            //                                                                    normalise vertex normal
-          }
-        }
-      }
-
-
-      // TODO: Optimise order for rendering
-      unsigned int uiPass=0;
-      unsigned int i=0;
-      unsigned int uiMode0=0;
-      //unsigned int uiMode1=0;
-
-      for (iter = mStatic.begin(); iter != mStatic.end(); iter++) {
-        LOG.Success("Transform", "Optimising " + breathe::string::ToUTF8(iter->first));
-
-        s = iter->second;
-
-        if (s != nullptr) {
-          nMeshes = s->vMesh.size();
-
-          for (uiPass = 1; uiPass < nMeshes; uiPass++) {
-            for (i = 0; i < nMeshes - uiPass; i++) {
-              uiMode0=GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
-
-              //x[i] > x[i+1]
-              if ((TEXTURE_MASK == uiMode0) || (TEXTURE_BLEND == uiMode0))
-                std::swap(s->vMesh[i], s->vMesh[i+1]);
-            }
-          }
-        }
-      }
-
-      LOG.Success("Render", "TransformModels returning");*/
-    }
-
-    void cRender::ReloadTextures()
-    {
-      LOG.Success("Render", "ReloadTextures");
-
-      {
-        LOG.Success("Render", "ReloadTextures Atlases");
-        cTextureAtlasRef pAtlas;
-        size_t n = vTextureAtlas.size();
-        for (size_t i = 0;i<n;i++)
-          vTextureAtlas[i]->Reload();
-      }
-
-      {
-        LOG.Success("Render", "ReloadTextures Misc Textures");
-        cTextureRef pTexture;
-        std::map<string_t, cTextureRef>::iterator iter=mTexture.begin();
-        std::map<string_t, cTextureRef>::iterator iterEnd=mTexture.end();
-        while(iter != iterEnd)
-        {
-          pTexture = iter->second;
-
-          pTexture->Reload();
-
-          iter++;
-        }
-      }
-
-      {
-        LOG.Success("Render", "ReloadTextures Materials");
-        material::cMaterialRef pMaterial;
-        std::map<string_t, material::cMaterialRef>::iterator iter=mMaterial.begin();
-        const std::map<string_t, material::cMaterialRef>::iterator iterEnd=mMaterial.end();
-        while (iter != iterEnd) {
-          pMaterial = iter->second;
-
-          if (pMaterial->pShader != nullptr) {
-            pMaterial->pShader->Destroy();
-            pMaterial->pShader->Init();
-          }
-
-          iter++;
-        }
-      }
-
-      {
-        LOG.Success("Render", "ReloadTextures Vertex Buffer Objects");
-        const size_t n = vVertexBufferObject.size();
-        for (size_t i = 0; i < n; i++) {
-          vVertexBufferObject[i]->Destroy();
-          vVertexBufferObject[i]->Compile();
-        }
-      }
-    }
-
-
-
-
-
-    cResolution::cResolution() :
-      width(640),
-      height(480),
-      colourDepth(32)
-    {
-    }
-
-    void cResolution::SetResolution(size_t _width, size_t _height, size_t _colourDepth)
-    {
-      width = _width;
-      height = _height;
-      colourDepth = _colourDepth;
-    }
-
-    bool cResolution::IsWideScreen() const
-    {
-      const float fWideScreenRatio = 16.0f / 9.0f;
-
-      const float fRatio = (float(width) / float(height));
-
-      return (fRatio >= fWideScreenRatio);
-    }
-
-    bool cResolution::ResolutionCompare(const cResolution& lhs, const cResolution& rhs)
-    {
-      if (lhs.IsWideScreen() > rhs.IsWideScreen()) return true;
-      if (lhs.GetColourDepth() > rhs.GetColourDepth()) return true;
-
-      if (lhs.GetWidth() > rhs.GetWidth()) return true;
-
-      return (lhs.GetHeight() > rhs.GetHeight());
-    }
-
-
-
-    cResolution cRender::GetCurrentScreenResolution() const
+    cResolution cDevice::GetCurrentScreenResolution() const
     {
       const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
       ASSERT(pVideoInfo != nullptr);
@@ -2522,12 +1846,15 @@ namespace breathe
       ASSERT(iCurrentWidth >= 0);
       ASSERT(iCurrentHeight >= 0);
       ASSERT(iCurrentColourDepthInBits >= 0);
-      r.SetResolution(size_t(iCurrentWidth), size_t(iCurrentHeight), size_t(iCurrentColourDepthInBits));
+      r.SetWidth(size_t(iCurrentWidth));
+      r.SetHeight(size_t(iCurrentHeight));
+      r.SetColourDepth(size_t(iCurrentColourDepthInBits));
+      r.SetFullScreen(true);
 
       return r;
     }
 
-    std::vector<cResolution> cRender::GetAvailableScreenResolutions() const
+    std::vector<cResolution> cDevice::GetAvailableScreenResolutions() const
     {
       std::vector<cResolution> resolutions;
 
@@ -2546,12 +1873,18 @@ namespace breathe
       if (modes == (SDL_Rect**)0 || modes == (SDL_Rect**)-1) {
         CONSOLE<<"No modes available"<<std::endl;
         cResolution r;
-        r.SetResolution(size_t(iCurrentWidth), size_t(iCurrentHeight), size_t(iCurrentColourDepthInBits));
+        r.SetWidth(size_t(iCurrentWidth));
+        r.SetHeight(size_t(iCurrentHeight));
+        r.SetColourDepth(size_t(iCurrentColourDepthInBits));
+        r.SetFullScreen(true);
         resolutions.push_back(r);
       } else {
         for (size_t i = 0; modes[i] != nullptr; i++) {
           cResolution r;
-          r.SetResolution(size_t(modes[i]->w), size_t(modes[i]->h), size_t(iCurrentColourDepthInBits));
+          r.SetWidth(size_t(modes[i]->w));
+          r.SetHeight(size_t(modes[i]->h));
+          r.SetColourDepth(size_t(iCurrentColourDepthInBits));
+          r.SetFullScreen(true);
           resolutions.push_back(r);
         }
       }
@@ -2562,7 +1895,7 @@ namespace breathe
     }
 
 
-    void cRender::PushProjectionMatrix()
+    void cDevice::PushProjectionMatrix()
     {
       math::cMat4 matrix;
 
@@ -2572,13 +1905,13 @@ namespace breathe
       lMatProjection.push_back(matrix);
     }
 
-    void cRender::PopProjectionMatrix()
+    void cDevice::PopProjectionMatrix()
     {
       ASSERT(!lMatProjection.empty());
       lMatProjection.pop_back();
     }
 
-    void cRender::SetProjectionMatrix(const math::cMat4& matrix)
+    void cDevice::SetProjectionMatrix(const math::cMat4& matrix)
     {
       // If we already have a matrix then get a copy of it
       if (!lMatProjection.empty()) {
@@ -2587,7 +1920,7 @@ namespace breathe
       }
     }
 
-    void cRender::MultiplyProjectionMatrix(const math::cMat4& matrix)
+    void cDevice::MultiplyProjectionMatrix(const math::cMat4& matrix)
     {
       ASSERT(!lMatProjection.empty());
       math::cMat4& current = lMatProjection.back();
@@ -2595,7 +1928,7 @@ namespace breathe
     }
 
 
-    void cRender::PushModelViewMatrix()
+    void cDevice::PushModelViewMatrix()
     {
       math::cMat4 matrix;
 
@@ -2605,13 +1938,13 @@ namespace breathe
       lMatModelView.push_back(matrix);
     }
 
-    void cRender::PopModelViewMatrix()
+    void cDevice::PopModelViewMatrix()
     {
       ASSERT(!lMatModelView.empty());
       lMatModelView.pop_back();
     }
 
-    void cRender::SetModelViewMatrix(const math::cMat4& matrix)
+    void cDevice::SetModelViewMatrix(const math::cMat4& matrix)
     {
       // If we already have a matrix then get a copy of it
       if (!lMatModelView.empty()) {
@@ -2620,7 +1953,7 @@ namespace breathe
       }
     }
 
-    void cRender::MultiplyModelViewMatrix(const math::cMat4& matrix)
+    void cDevice::MultiplyModelViewMatrix(const math::cMat4& matrix)
     {
       ASSERT(!lMatModelView.empty());
       math::cMat4& current = lMatModelView.back();
@@ -2629,7 +1962,7 @@ namespace breathe
 
 
 
-    void cRender::PushTextureMatrix()
+    void cDevice::PushTextureMatrix()
     {
       math::cMat4 matrix;
 
@@ -2639,13 +1972,13 @@ namespace breathe
       lMatTexture.push_back(matrix);
     }
 
-    void cRender::PopTextureMatrix()
+    void cDevice::PopTextureMatrix()
     {
       ASSERT(!lMatTexture.empty());
       lMatTexture.pop_back();
     }
 
-    void cRender::SetTextureMatrix(const math::cMat4& matrix)
+    void cDevice::SetTextureMatrix(const math::cMat4& matrix)
     {
       // If we already have a matrix then get a copy of it
       if (!lMatTexture.empty()) {
@@ -2654,7 +1987,7 @@ namespace breathe
       }
     }
 
-    void cRender::MultiplyTextureMatrix(const math::cMat4& matrix)
+    void cDevice::MultiplyTextureMatrix(const math::cMat4& matrix)
     {
       ASSERT(!lMatTexture.empty());
       math::cMat4& current = lMatTexture.back();
@@ -2662,7 +1995,7 @@ namespace breathe
     }
 
 
-    void cRender::ApplyMatrices()
+    void cDevice::ApplyMatrices()
     {
       math::cMat4 matProjection;
       if (!lMatProjection.empty()) matProjection = lMatProjection.back();

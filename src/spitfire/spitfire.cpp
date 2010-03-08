@@ -21,11 +21,19 @@ namespace spitfire
 #ifndef NDEBUG
   void InformativeAssert(bool bIsResultTrue, const char* szAssert, const char* szFile, const char* szFunction, size_t line)
   {
-    if (bIsResultTrue) return;
+    if (!bIsResultTrue) {
+      bool bIsLogging = logging::IsLogging();
 
-    std::cout<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-    LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-    assert(bIsResultTrue);
+      // Make sure that we log this assert even if logging is off
+      logging::TurnOnLogging();
+
+      std::cout<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
+      LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
+      assert(bIsResultTrue);
+
+      // If logging was off then keep it off
+      if (!bIsLogging) logging::TurnOffLogging();
+    }
   }
 #endif
 }

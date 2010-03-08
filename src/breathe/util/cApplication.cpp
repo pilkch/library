@@ -169,7 +169,7 @@ int intersect_triangle(
 // Breathe headers
 #include <breathe/breathe.h>
 
-#include <breathe/util/app.h>
+#include <breathe/util/cApplication.h>
 #include <breathe/util/cVar.h>
 #include <breathe/util/base.h>
 
@@ -180,7 +180,9 @@ int intersect_triangle(
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
+#include <breathe/render/cDevice.h>
+#include <breathe/render/cSystem.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
@@ -456,11 +458,17 @@ namespace breathe
   render::material::cMaterialRef pHDRBloomMaterial;
 
   cApplication::cApplication(int argc, const char* const* argv) :
+
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     bStepPhysics(false),
     bUpdatePhysics(true),
 #endif
     bDone(false),
+
+    pDevice(nullptr),
+    pWindow(nullptr),
+    pResourceManager(nullptr),
+
     pFont(nullptr),
 
     pAudioManager(nullptr),
@@ -474,7 +482,7 @@ namespace breathe
     bIsHDRBloomPostRenderEffect(false),
 
     bActive(true),
-    bReturnCode(breathe::GOOD),
+    bReturnCode(true),
 
     bPopCurrentStateSoon(false),
     pPushThisStateSoon(nullptr)
@@ -539,8 +547,6 @@ namespace breathe
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    pRender = new render::cRender();
-
 #ifdef BUILD_LEVEL
     pLevel = new cLevel();
 #endif
@@ -582,7 +588,7 @@ namespace breathe
     TTF_Quit();
 
     LOG.Success("Destroy", "Audio");
-    breathe::audio::Destroy();
+    breathe::audio::Destroy(pAudioManager);
     pAudioManager = nullptr;
 
     LOG.Success("Destroy", "Joystick");
@@ -599,15 +605,24 @@ namespace breathe
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     LOG.Success("Destroy", "Physics");
-    breathe::physics::Destroy();
+    breathe::physics::Destroy(pWorld);
     pWorld = nullptr;
 #endif
 
     LOG.Success("Destroy", "Network");
     breathe::network::Destroy();
 
+    LOG.Success("Delete", "Resource Manager");
+    system.DestroyResourceManager(pResourceManager);
+    pResourceManager = nullptr;
+
     LOG.Success("Delete", "Render");
-    SAFE_DELETE(pRender);
+    system.DestroyDeviceAndWindow(pDevice, pWindow);
+    pDevice = nullptr;
+    pWindow = nullptr;
+
+    system.Destroy();
+
 
     LOG.Success("Delete", "Log");
     // Log is not actually deleted here, we were previously doing stuff like sending stats to the log
@@ -738,7 +753,7 @@ namespace breathe
   float physics_depth = 500.0f;
 #endif
 
-  void cApplication::LoadConfigXML()
+  void cApplication::LoadConfigXML(render::cResolution& resolution)
   {
     LOG.Success("Init", "Loading config.xml");
 
@@ -746,7 +761,7 @@ namespace breathe
     breathe::xml::cNode::iterator iter(root);
 
     if (!iter.IsValid()) {
-      bReturnCode=breathe::BAD;
+      bReturnCode = false;
       return;
     }
 
@@ -765,7 +780,7 @@ namespace breathe
         t<<"width = ";
         t<<uiValue;
         LOG.Success("Config", t.str());
-        pRender->uiWidth = uiValue;
+        resolution.SetWidth(uiValue);
       }
 
       if (iter.GetAttribute("height", uiValue)) {
@@ -773,7 +788,7 @@ namespace breathe
         t<<"height = ";
         t<<uiValue;
         LOG.Success("Config", t.str());
-        pRender->uiHeight = uiValue;
+        resolution.SetHeight(uiValue);
       }
 
       if (iter.GetAttribute("depth", uiValue)) {
@@ -781,14 +796,14 @@ namespace breathe
         t<<"depth = ";
         t<<uiValue;
         LOG.Success("Config", t.str());
-        pRender->uiDepth = uiValue;
+        resolution.SetColourDepth(uiValue);
       }
 
       bool bFullscreen;
 
       if (iter.GetAttribute("fullscreen", bFullscreen)) {
         LOG.Success("Config", std::string("fullscreen = ") + (bFullscreen ? "true" : "false"));
-        pRender->bFullscreen = bFullscreen;
+        resolution.SetFullScreen(bFullscreen);
       }
 
       iter.Next("render");
@@ -813,13 +828,19 @@ namespace breathe
 
   bool cApplication::InitApp()
   {
-    LoadConfigXML();
+    render::cResolution resolution;
+    resolution.SetWidth(1024);
+    resolution.SetHeight(768);
+    resolution.SetColourDepth(32);
+    resolution.SetWindowed(true);
+
+    LoadConfigXML(resolution);
 
     // Init SDL
     if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
       LOG.Error("SDL", std::string("SDL_Init for video FAILED error=") + SDL_GetError());
-      bReturnCode = breathe::BAD;
-      return breathe::BAD;
+      bReturnCode = false;
+      return false;
     }
 
     // Enable unicode
@@ -836,8 +857,8 @@ namespace breathe
 
       if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
         LOG.Error("SDL", std::string("SDL_InitSubSystem for joysticks FAILED error=") + SDL_GetError());
-        bReturnCode = breathe::BAD;
-        return breathe::BAD;
+        bReturnCode = false;
+        return false;
       }
 
       const size_t nJoysticks = SDL_NumJoysticks();
@@ -949,7 +970,17 @@ namespace breathe
       }*/
     }
 
-    if (breathe::BAD == InitRender()) return breathe::BAD;
+
+    system.Create();
+
+    //system.GetAvailableScreenResolutions();
+
+    system.CreateDeviceAndWindow(resolution);
+    pDevice = system.GetDevice();
+    pWindow = system.GetWindow();
+
+    pResourceManager = system.CreateResourceManager();
+
 
     TTF_Init();
 
@@ -963,7 +994,7 @@ namespace breathe
     pWorld = physics::Create(physics::DRIVER::DRIVER_ODE, physics_width, physics_depth, physics_height);
 #endif
 
-    if (breathe::BAD == LoadScene()) return breathe::BAD;
+    if (!LoadScene()) return false;
 
 
     window_manager.LoadTheme();
@@ -978,13 +1009,13 @@ namespace breathe
     window_manager.AddChild(pWindow0);*/
 #endif
 
-    if (breathe::BAD == InitScene()) return breathe::BAD;
+    if (!InitScene()) return false;
 
 
-    pGaussianBlurMaterial = pRender->AddMaterial(TEXT("postrender/gaussian_blur_two_pass.mat"));
+    pGaussianBlurMaterial = pResourceManager->AddMaterial(TEXT("postrender/gaussian_blur_two_pass.mat"));
     ASSERT(pGaussianBlurMaterial != nullptr);
 
-    pHDRBloomMaterial = pRender->AddMaterial(TEXT("postrender/bloom.mat"));
+    pHDRBloomMaterial = pResourceManager->AddMaterial(TEXT("postrender/bloom.mat"));
     ASSERT(pHDRBloomMaterial != nullptr);
 
 
@@ -1056,7 +1087,7 @@ namespace breathe
 
     //SDL_ShowCursor(SDL_DISABLE);
 
-    return breathe::GOOD;
+    return true;
   }
 
   bool cApplication::DestroyApp()
@@ -1072,70 +1103,7 @@ namespace breathe
 
     breathe::audio::GetManager()->StopAll();
 
-    return breathe::GOOD;
-  }
-
-  bool cApplication::InitRender()
-  {
-    if (breathe::BAD == pRender->PreInit()) {
-      bReturnCode = breathe::BAD;
-      return breathe::BAD;
-    }
-
-    pRender->SetPerspective();
-
-    if (breathe::BAD == pRender->Init()) return breathe::BAD;
-
-    return breathe::GOOD;
-  }
-
-  bool cApplication::DestroyRender()
-  {
-    LOG.Success("Delete", "Frame Buffer Objects");
-    pFrameBuffer0.reset();
-    pFrameBuffer1.reset();
-
-    pHDRBloomExposureFrameBuffer.reset();
-
-    pRender->Destroy();
-
-    return breathe::GOOD;
-  }
-
-  bool cApplication::ToggleFullscreen()
-  {
-    // Destroy the old render
-    if (breathe::BAD == DestroyRender()) {
-      bReturnCode=breathe::BAD;
-      return breathe::BAD;
-    }
-
-    // Toggle fullscreen
-    pRender->ToggleFullscreen();
-
-
-    // Create the new render
-    if (breathe::BAD == InitRender()) {
-      bReturnCode=breathe::BAD;
-      return breathe::BAD;
-    }
-
-    pRender->ReloadTextures();
-
-    return breathe::GOOD;
-  }
-
-  bool cApplication::ResizeWindow(unsigned int w, unsigned int h)
-  {
-    DestroyRender();
-
-    pRender->uiWidth = w;
-    pRender->uiHeight = h;
-
-    InitRender();
-    pRender->ReloadTextures();
-
-    return breathe::GOOD;
+    return true;
   }
 
 #ifdef BUILD_DEBUG
@@ -1196,7 +1164,7 @@ namespace breathe
 
   render::material::cMaterialRef cApplication::AddPostRenderEffect(const string_t& sFilename)
   {
-    render::material::cMaterialRef pMaterial = pRender->AddMaterial(sFilename);
+    render::material::cMaterialRef pMaterial = pResourceManager->AddMaterial(sFilename);
     ASSERT(pMaterial != nullptr);
 
     lPostRenderEffects.push_back(pMaterial);
@@ -1526,15 +1494,19 @@ namespace breathe
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_ACTIVEEVENT: {
-            bActive=event.active.gain != 0;
-            if (bActive) LOG.Success("Active", "Active");
-            else LOG.Error("Active", "Inactive");
+            bActive = (event.active.gain != 0);
+            if (bActive) {
+              LOG.Success("Active", "Active");
+              system.OnActivateWindow();
+            } else {
+              LOG.Error("Active", "Inactive");
+              system.OnDeactivateWindow();
+            }
           break;
         }
 
         case SDL_VIDEORESIZE: {
-          if (breathe::BAD == ResizeWindow(event.resize.w, event.resize.h))
-            bDone=true;
+          system.OnResizeWindow(event.resize.w, event.resize.h);
           break;
         }
 
@@ -1718,7 +1690,7 @@ namespace breathe
 
     if (IsKeyDown(SDLK_F3)) pRender->bIsRenderGui = !pRender->bIsRenderGui;
     if (IsKeyDown(SDLK_F4)) pRender->bIsRenderWireframe = !pRender->bIsRenderWireframe;
-    if (IsKeyDown(SDLK_F5)) pRender->bIsRenderWithShadersEnabled = pRender->bIsShaderSupported && !pRender->bIsRenderWithShadersEnabled;
+    if (IsKeyDown(SDLK_F5)) pRender->bIsRenderWithShadersEnabled = pRender->GetCapabilities().bIsShadersTwoPointZeroOrLaterSupported  && !pRender->bIsRenderWithShadersEnabled;
     if (IsKeyDown(SDLK_F6)) pRender->bIsCubemappingEnabled = !pRender->bIsCubemappingEnabled;
     if (IsKeyDown(SDLK_F7)) pRender->bIsLightingEnabled = !pRender->bIsLightingEnabled;
 
@@ -1732,11 +1704,13 @@ namespace breathe
     }
 #endif
 
-    if (IsKeyDown(SDLK_F11)) pRender->ReloadTextures();
+    if (IsKeyDown(SDLK_F11)) pResourceManager->ReloadTextures();
     if (IsKeyDown(SDLK_F12)) spitfire::util::RunUnitTests();
 #endif
 
-    if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) ToggleFullscreen();
+    if ((event.key.keysym.mod & (KMOD_ALT)) && IsKeyDown(SDLK_RETURN)) {
+      system.OnToggleFullScreen();
+    }
 
     if (!CONSOLE.IsVisible() && IsKeyDown(SDLK_BACKQUOTE)) {
       PushStateSoon(new cApplication::cAppStateConsole(*this));
@@ -1817,8 +1791,7 @@ namespace breathe
     {
       if ("quit"==full || "exit"==full) bDone = true;
       else if ("var"==args[0]) var::PrintAll();
-      else if (GOOD==Execute(full))
-      {
+      else if (Execute(full)) {
 
       }
 
@@ -1880,7 +1853,7 @@ namespace breathe
     LOG.Newline("Run");
 
     bReturnCode = InitApp();
-    if (bReturnCode == BAD) return bReturnCode;
+    if (!bReturnCode) return bReturnCode;
 
     LOG.Newline("MainLoop");
 
@@ -1978,13 +1951,22 @@ namespace breathe
       // TODO: Do we need this?
       //&& (currentTime > fRenderNext)) {
       if (bActive && !bDone) {
-        tRender.Begin();
+        if (currentTime > fRenderNext) {
+          tRender.Begin();
           _Render(state, currentTime);
-        tRender.End();
+          tRender.End();
+          fRenderNext = currentTime + fRenderDelta;
+        }
       }
 
-      breathe::util::YieldThisThread();
-    } while (!bDone);
+      spitfire::util::YieldThisThread();
+      //spitfire::util::SleepThisThreadMS(3);
+    }
+
+
+    // This is just a sanity check
+    bDone = false;
+
 
     // Get rid of any states that we do have as they may try and operate on destructed/destructing objects later on
     while (!states.empty()) states.pop_back();
