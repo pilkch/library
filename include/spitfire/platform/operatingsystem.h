@@ -8,6 +8,9 @@ namespace spitfire
     size_t GetProcessorCount();
     size_t GetTotalProcessorCoreCount();
 
+    size_t GetMemoryTotalMB();
+    size_t GetMemoryUsedByApplicationMB();
+
 #ifdef __WIN__
     //void AddLaunchIconToDesktop(); // We intentionally do not try to add a application icon to a Windows desktop because that looks tacky
     void AddLaunchIconToPanel();

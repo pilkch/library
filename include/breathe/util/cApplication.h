@@ -413,6 +413,7 @@ namespace breathe
     scenegraph2d::cGraphNodeRef pFPSRenderGraph;
     scenegraph2d::cGraphNodeRef pFPSUpdateGraph;
     scenegraph2d::cGraphNodeRef pFPSPhysicsGraph;
+    scenegraph2d::cGraphNodeRef pMemoryUsageGraph;
 
     friend class cGameUnitTest;
     cGameUnitTest* pGameUnitTest; // Only used if/when the application wants it

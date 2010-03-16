@@ -544,6 +544,8 @@ namespace breathe
         const spitfire::math::cVec3 vMin(-fHalfWidth, -fHalfWidth, -fHalfWidth);
         const spitfire::math::cVec3 vMax(fHalfWidth, fHalfWidth, fHalfWidth);
 
+        spitfire::math::cMat4 matTranslation;
+
         const size_t n = 10;
         for (size_t z = 0; z < n; z++) {
           for (size_t y = 0; y < n; y++) {
@@ -553,14 +555,15 @@ namespace breathe
               colour.z = float_t(z) / float_t(n); // Blue
               pRender->SetShaderConstant("colour", colour);
 
-              glMatrixMode(GL_MODELVIEW);
-              glPushMatrix();
-                glTranslatef(float(x) * 10.0f, float(y) * 10.0f, 90.0f + (float(z) * 10.0f));
+              matTranslation.SetTranslation(spitfire::math::cVec3(float(x) * 10.0f, float(y) * 10.0f, 90.0f + (float(z) * 10.0f)));
+
+              pRender->PushModelViewMatrix();
+
+                pRender->SetModelViewMatrix(matTranslation);
 
                 pRender->RenderBoxTextured(vMin, vMax);
 
-                glMatrixMode(GL_MODELVIEW);
-              glPopMatrix();
+              pRender->PopModelViewMatrix();
             }
           }
         }

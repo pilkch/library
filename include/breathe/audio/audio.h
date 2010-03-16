@@ -28,16 +28,16 @@ namespace breathe
 
     enum class DRIVER {
 #ifdef BUILD_AUDIO_OPENAL
-      DRIVER_OPENAL,
+      OPENAL2, // NOTE: We would call this OPENAL but that is defined elsewhere (AL/al.h probably) stupid global defines
 #endif
 #ifdef BUILD_AUDIO_SDLMIXER
-      DRIVER_SDLMIXER,
+      SDLMIXER,
 #endif
 
 #ifdef BUILD_AUDIO_OPENAL
-      DRIVER_DEFAULT = DRIVER_OPENAL
+      DEFAULT = OPENAL2
 #else
-      DRIVER_DEFAULT = DRIVER_SDLMIXER
+      DEFAULT = SDLMIXER
 #endif
     };
 

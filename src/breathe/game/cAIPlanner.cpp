@@ -23,20 +23,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
 
-//FreeType Headers
-#include <freetype/ft2build.h>
-#include <freetype/freetype.h>
-#include <freetype/ftglyph.h>
-#include <freetype/ftoutln.h>
-#include <freetype/fttrigon.h>
-
-// OpenGL headers
-#include <GL/GLee.h>
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
-
 #include <breathe/game/cAIPlanner.h>
 
 namespace breathe

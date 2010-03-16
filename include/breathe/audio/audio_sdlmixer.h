@@ -107,13 +107,15 @@ namespace breathe
       math::cVec3 listenerLookAtPoint;
       math::cVec3 listenerUp;
       math::cVec3 listenerVelocity;
+      // This stores the available channels, in future we should probably have something more like what is outlined above
+      std::list<int> channels;
     };
 
     // Buffer to hold the audio data
     class cBuffer : public audio::cBuffer
     {
     public:
-      explicit cBuffer(const string_t& sFilename);
+      cBuffer(const string_t& sFilename, cManager& manager);
       ~cBuffer();
 
       Mix_Chunk* pChunk;
@@ -122,9 +124,9 @@ namespace breathe
       cBuffer();
       NO_COPY(cBuffer);
 
-      virtual bool _IsValid() const { return (pChunk != nullptr); }
+      virtual bool _IsValid() const { return (buffer.IsLoaded()); }
 
-      void Create(const string_t& sFilename);
+      void Create(const string_t& sFilename, cManager& manager);
 
       string_t sFilename;
     };
@@ -135,8 +137,6 @@ namespace breathe
     public:
       explicit cSource(audio::cBufferRef pBuffer);
       ~cSource();
-
-      int GetChannel() const { return iChannel; }
 
       float_t GetActualOutputVolume0To1() const;
 
@@ -164,14 +164,11 @@ namespace breathe
 
       virtual void _Remove();
 
-      int iChannel;
-
       bool bLooping;
       float volume;
       float pitch;
 
       float_t fVolume0To1;
-      float_t fDistanceFromListenerInMeters;
 
       cBufferRef pBuffer;
 

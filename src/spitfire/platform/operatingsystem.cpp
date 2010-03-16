@@ -15,8 +15,10 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/sysinfo.h>
+//#include <sys/resource.h>
 #include <grp.h>
 #include <pwd.h>
+#include <unistd.h>
 #endif
 
 #ifdef __WIN__
@@ -133,12 +135,55 @@ namespace spitfire
 #endif
 
 #ifdef __LINUX__
-    size_t GetRAMTotalMB()
+    size_t GetMemoryTotalMB()
     {
       struct sysinfo info;
       if (sysinfo(&info) != 0) return 0;
 
-      return info.totalram;
+      return info.totalram / 1024 / 1024;
+    }
+
+    size_t GetMemoryUsedByApplicationMB()
+    {
+      using std::ios_base;
+      using std::ifstream;
+
+      double vm_usage_mb = 0.0;
+      double resident_set_mb = 0.0;
+
+      // 'file' stat seems to give the most reliable results
+      //
+      ifstream stat_stream("/proc/self/stat", ios_base::in);
+
+      // dummy vars for leading entries in stat that we don't care about
+      //
+      std::string pid, comm, state, ppid, pgrp, session, tty_nr;
+      std::string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+      std::string utime, stime, cutime, cstime, priority, nice;
+      std::string dummy, itrealvalue, starttime;
+
+      // the two fields we want
+      //
+      unsigned long vsize = 0;
+      long rss = 0;
+
+      stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+                  >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+                  >> utime >> stime >> cutime >> cstime >> priority >> nice
+                  >> dummy >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+
+      long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+      vm_usage_mb = vsize / 1024.0 / 1024.0;
+      resident_set_mb = rss * page_size_kb / 1024.0;
+
+      return size_t(vm_usage_mb);
+
+      // getrusage is broken on Linux still
+      //int who = RUSAGE_SELF;
+      //struct rusage usage;
+      //if (getrusage(who, &usage) != 0) return 0;
+
+      //return usage.;
     }
 #endif
 

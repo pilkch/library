@@ -78,13 +78,13 @@ namespace breathe
 
       switch (driver) {
 #ifdef BUILD_AUDIO_OPENAL
-        case DRIVER::DRIVER_OPENAL: {
+        case DRIVER::OPENAL2: {
           pManager = new openal::cManager;
           break;
         }
 #endif
 #ifdef BUILD_AUDIO_SDLMIXER
-        case DRIVER::DRIVER_SDLMIXER: {
+        case DRIVER::SDLMIXER: {
           pManager = new sdlmixer::cManager;
           break;
         }
@@ -127,7 +127,6 @@ namespace breathe
 
       std::list<cSourceRef>::iterator iter = lAudioSource.begin();
       const std::list<cSourceRef>::iterator iterEnd = lAudioSource.end();
-      std::cout<<"uSources="<<lAudioSource.size()<<std::endl;
       while (iter != iterEnd) {
         (*iter)->Update(currentTime, listener);
 

@@ -69,13 +69,13 @@ namespace breathe
 
       switch (driver) {
 #ifdef BUILD_PHYSICS_BULLET
-        case DRIVER::DRIVER_BULLET: {
+        case DRIVER::BULLET: {
           pWorld = new bullet::cWorld;
           break;
         }
 #endif
 #ifdef BUILD_PHYSICS_ODE
-        case DRIVER::DRIVER_ODE: {
+        case DRIVER::ODE: {
           pWorld = new ode::cWorld;
           break;
         }

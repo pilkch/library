@@ -411,7 +411,9 @@ namespace breathe
     void cSource::_SetLooping()
     {
       bLooping = true;
-      ASSERT(!IsPlaying());
+      if (IsPlaying()) {
+        source.SetLoop(bLooping);
+      }
     }
 
     void cSource::_SetNonLooping()
@@ -479,7 +481,7 @@ namespace breathe
 
     bool cSource::_IsValid() const
     {
-      return (iChannel != 0) && (pBuffer != nullptr);
+      return (pBuffer != nullptr);
     }
 
     bool cSource::_IsPlaying() const
@@ -523,7 +525,7 @@ namespace breathe
         const float_t C = 1.0f;
         const float_t L = 0.2f;
         const float_t Q = 0.08f;
-        const float_t d = fDistanceFromListenerInMeters;
+        const float_t d = fDistanceFromListenerMeters;
 
         const float_t fAttenuationFactor0To1 = 1.0f / (C + (L * d) + (Q * math::square(d)));
 

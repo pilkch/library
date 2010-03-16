@@ -34,16 +34,16 @@ namespace breathe
 
     enum class DRIVER {
 #ifdef BUILD_PHYSICS_BULLET
-      DRIVER_BULLET,
+      BULLET,
 #endif
 #ifdef BUILD_PHYSICS_ODE
-      DRIVER_ODE,
+      ODE,
 #endif
 
 #ifdef BUILD_PHYSICS_BULLET
-      DRIVER_DEFAULT = DRIVER_BULLET
+      DEFAULT = BULLET
 #else
-      DRIVER_DEFAULT = DRIVER_ODE
+      DEFAULT = ODE
 #endif
     };
 

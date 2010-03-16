@@ -147,6 +147,8 @@ int intersect_triangle(
 #include <spitfire/util/process.h>
 #include <spitfire/util/thread.h>
 
+#include <spitfire/platform/operatingsystem.h>
+
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/xml.h>
 
@@ -197,6 +199,7 @@ int intersect_triangle(
 #include <breathe/game/skysystem.h>
 
 #include <breathe/audio/audio.h>
+
 
 /*
 class cProcessDialogInterface : public cProcessInterface
@@ -984,14 +987,14 @@ namespace breathe
 
     TTF_Init();
 
-    pAudioManager = audio::Create(audio::DRIVER::DRIVER_SDLMIXER);
+    pAudioManager = audio::Create(audio::DRIVER::SDLMIXER);
 
 #if defined(BUILD_PHYSICS_2D)
-    pWorld = physics::Create(physics::DRIVER::DRIVER_BOX2D, physics_width, physics_height);
+    pWorld = physics::Create(physics::DRIVER::BOX2D, physics_width, physics_height);
 #elif defined(BUILD_PHYSICS_BULLET)
-    pWorld = physics::Create(physics::DRIVER::DRIVER_BULLET, physics_width, physics_depth, physics_height);
+    pWorld = physics::Create(physics::DRIVER::BULLET, physics_width, physics_depth, physics_height);
 #elif defined(BUILD_PHYSICS_ODE)
-    pWorld = physics::Create(physics::DRIVER::DRIVER_ODE, physics_width, physics_depth, physics_height);
+    pWorld = physics::Create(physics::DRIVER::ODE, physics_width, physics_depth, physics_height);
 #endif
 
     if (!LoadScene()) return false;
@@ -1064,6 +1067,17 @@ namespace breathe
 
         pRootAsGroupNode->AttachChild(pFPSPhysicsGraph);
       }
+
+      {
+        pMemoryUsageGraph.reset(new scenegraph2d::cGraphNode(nPoints));
+
+        pMemoryUsageGraph->SetRangeMax(3000.0f);
+
+        scenegraph2d::cStateSet& stateset = pMemoryUsageGraph->GetStateSet();
+        stateset.SetColour(math::cColour(1.0f, 1.0f, 0.0f));
+
+        pRootAsGroupNode->AttachChild(pMemoryUsageGraph);
+      }
     }
 #endif
 
@@ -1128,6 +1142,7 @@ namespace breathe
     pFPSRenderGraph->AddPoint(tRender.GetMPF());
     pFPSUpdateGraph->AddPoint(tUpdate.GetMPF());
     pFPSPhysicsGraph->AddPoint(tPhysics.GetMPF());
+    pMemoryUsageGraph->AddPoint(float(spitfire::operatingsystem::GetMemoryUsedByApplicationMB()));
 #endif
 
     // Update our current state
@@ -1494,14 +1509,14 @@ namespace breathe
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_ACTIVEEVENT: {
-            bActive = (event.active.gain != 0);
-            if (bActive) {
-              LOG.Success("Active", "Active");
-              system.OnActivateWindow();
-            } else {
-              LOG.Error("Active", "Inactive");
-              system.OnDeactivateWindow();
-            }
+          bActive = (event.active.gain != 0);
+          if (bActive) {
+            LOG.Success("Active", "Active");
+            system.OnActivateWindow();
+          } else {
+            LOG.Error("Active", "Inactive");
+            system.OnDeactivateWindow();
+          }
           break;
         }
 
@@ -1844,8 +1859,6 @@ namespace breathe
       };
     }
   }*/
-
-
 
 
   bool cApplication::Run()
