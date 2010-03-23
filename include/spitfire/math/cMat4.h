@@ -11,6 +11,10 @@ namespace spitfire
     class cVec4;
     class cQuaternion;
 
+    // NOTE: cMat4 contains a 4x4 matrix stored in column major order
+    // OpenGL stores matrix in column major order
+    // DirectX stores matrices in row major order
+
     class cMat4
     {
     public:
@@ -18,12 +22,11 @@ namespace spitfire
       cMat4(const cMat4& rhs);
       ~cMat4() {}
 
-      cVec3 GetRight() const;
-      cVec3 GetFront() const;
-      cVec3 GetUp() const;
+      const float& operator[](const size_t i) const;
+      float& operator[](const size_t i);
 
-      cVec3 GetPosition() const;
-      cQuaternion GetRotation() const;
+      const float& GetValue(const size_t x, const size_t y) const;
+      float& GetValue(const size_t x, const size_t y);
 
       void SetEntry(size_t position, float value);
       float GetEntry(size_t position) const;
@@ -32,32 +35,34 @@ namespace spitfire
 
       void LoadIdentity();
       void LoadZero();
-      void ClearRotation();
+
+      cVec3 GetTranslation() const;
       void ClearTranslation();
+      cQuaternion GetRotation() const;
+      void ClearRotation();
+      cVec3 GetScale() const;
+      void ClearScale(); // Sets scale x, y, z to 1.0f, 1.0f, 1.0f
 
-
-      const float& operator[](const size_t i) const;
-      float& operator[](const size_t i);
-
-      const float& GetValue(const size_t x, const size_t y) const;
-      float& GetValue(const size_t x, const size_t y);
+      cVec3 GetRight() const;
+      cVec3 GetFront() const;
+      cVec3 GetUp() const;
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;
       cMat4 operator-(const cMat4& rhs) const;
       cMat4 operator*(const cMat4& rhs) const;
-      cMat4 operator*(const float rhs) const;
-      cMat4 operator/(const float rhs) const;
+      cMat4 operator*(float rhs) const;
+      cMat4 operator/(float rhs) const;
 
-      bool operator==(const cMat4 & rhs) const;
-      bool operator!=(const cMat4 & rhs) const;
+      bool operator==(const cMat4& rhs) const;
+      bool operator!=(const cMat4& rhs) const;
 
       // Self-add etc
-      void operator+=(const cMat4 & rhs);
-      void operator-=(const cMat4 & rhs);
-      void operator*=(const cMat4 & rhs);
-      void operator*=(const float rhs);
-      void operator/=(const float rhs);
+      void operator+=(const cMat4& rhs);
+      void operator-=(const cMat4& rhs);
+      void operator*=(const cMat4& rhs);
+      void operator*=(float rhs);
+      void operator/=(float rhs);
 
       // Unary operators
       cMat4 operator-(void) const;
@@ -71,8 +76,8 @@ namespace spitfire
       void RotateVec3(cVec3& rhs) const { rhs = GetRotatedVec3(rhs); }
       void RotateVec4(cVec4& rhs) const { rhs = GetRotatedVec4(rhs); }
 
-      void InverseRotateVec3(cVec3 & rhs) const { rhs = GetInverseRotatedVec3(rhs); }
-      void InverseRotateVec4(cVec4 & rhs) const { rhs = GetInverseRotatedVec4(rhs); }
+      void InverseRotateVec3(cVec3& rhs) const { rhs = GetInverseRotatedVec3(rhs); }
+      void InverseRotateVec4(cVec4& rhs) const { rhs = GetInverseRotatedVec4(rhs); }
 
       cVec3 GetRotatedVec3(const cVec3& rhs) const;
       cVec3 GetInverseRotatedVec3(const cVec3& rhs) const;
@@ -81,14 +86,14 @@ namespace spitfire
       cVec4 GetInverseRotatedVec4(const cVec4& rhs) const;
 
       // Translate a 3d vector by translation part
-      void TranslateVec3(cVec3 & rhs) const
+      void TranslateVec3(cVec3& rhs) const
       {rhs=GetTranslatedVec3(rhs);}
 
-      void InverseTranslateVec3(cVec3 & rhs) const
+      void InverseTranslateVec3(cVec3& rhs) const
       {rhs=GetInverseTranslatedVec3(rhs);}
 
-      cVec3 GetTranslatedVec3(const cVec3 & rhs) const;
-      cVec3 GetInverseTranslatedVec3(const cVec3 & rhs) const;
+      cVec3 GetTranslatedVec3(const cVec3& rhs) const;
+      cVec3 GetInverseTranslatedVec3(const cVec3& rhs) const;
 
       // Other methods
       void Invert();
@@ -98,15 +103,6 @@ namespace spitfire
       void InvertTranspose();
       cMat4 GetInverseTranspose() const;
 
-      // Set to perform an operation on space - removes other entries
-      void SetTranslation(const cVec3 & translation);
-      void SetScale(const cVec3 & scaleFactor);
-      void SetUniformScale(const float scaleFactor);
-      void SetRotationAxis(const double angle, const cVec3 & axis);
-      void SetRotationX(const double angle);
-      void SetRotationY(const double angle);
-      void SetRotationZ(const double angle);
-      void SetRotationEuler(const double angleX, const double angleY, const double angleZ);
       void SetPerspective(float left, float right, float bottom, float top, float n, float f);
       void SetPerspective(float fovy, float aspect, float n, float f);
       void SetOrtho(float left, float right, float bottom, float top, float n, float f);
@@ -115,12 +111,18 @@ namespace spitfire
       void SetFromMatrix(const cMat4& rhs);
 
       // Set parts of the matrix
-      void SetTranslationPart(const cVec3& translation);
-      void SetRotationPart(const cQuaternion& rhs);
-      void SetRotationPartEuler(const double angleX, const double angleY, const double angleZ);
-      void SetRotationPartEuler(const cVec3& rotations)
+      void SetTranslation(const cVec3& translation);
+      void SetScale(const cVec3& scaleFactor);
+      void SetScale(float scaleFactor); // Set the scale in all directions to a uniform value
+      void SetRotation(const cQuaternion& rhs);
+      void SetRotationAxis(float angle, const cVec3& axis);
+      void SetRotationX(float angle);
+      void SetRotationY(float angle);
+      void SetRotationZ(float angle);
+      void SetRotationEuler(float angleX, float angleY, float angleZ);
+      void SetRotationEuler(const cVec3& angles)
       {
-        SetRotationPartEuler((float)rotations.x, (float)rotations.y, (float)rotations.z);
+        SetRotationEuler(angles.x, angles.y, angles.z);
       }
 
       // Get a pointer to a (float*) for glMultMatrixf etc

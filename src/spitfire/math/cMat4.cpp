@@ -26,7 +26,7 @@ namespace spitfire
       LoadIdentity();
     }
 
-    cMat4::cMat4(const cMat4 & rhs)
+    cMat4::cMat4(const cMat4& rhs)
     {
       SetFromMatrix(rhs);
     }
@@ -148,7 +148,7 @@ namespace spitfire
       entries[14] = 0.0f;
     }
 
-    cMat4 cMat4::operator+(const cMat4 & rhs) const    //overloaded operators
+    cMat4 cMat4::operator+(const cMat4& rhs) const    //overloaded operators
     {
       cMat4 result;
       for (size_t entry = 0; entry < 16; entry++) {
@@ -157,7 +157,7 @@ namespace spitfire
       return result;
     }
 
-    cMat4 cMat4::operator-(const cMat4 & rhs) const    //overloaded operators
+    cMat4 cMat4::operator-(const cMat4& rhs) const    //overloaded operators
     {
       cMat4 result;
       for (size_t entry = 0; entry < 16; entry++) {
@@ -166,7 +166,7 @@ namespace spitfire
       return result;
     }
 
-    cMat4 cMat4::operator*(const cMat4 & rhs) const
+    cMat4 cMat4::operator*(const cMat4& rhs) const
     {
       cMat4 result;
       result.SetEntry(0, (entries[0]*rhs.GetEntry(0))+(entries[4]*rhs.GetEntry(1))+(entries[8]*rhs.GetEntry(2))+(entries[12]*rhs.GetEntry(3)));
@@ -219,7 +219,7 @@ namespace spitfire
       return result;
     }
 
-    bool cMat4::operator==(const cMat4 & rhs) const
+    bool cMat4::operator==(const cMat4& rhs) const
     {
       for (size_t i=0; i < 16; i++) {
         if (entries[i]!=rhs.entries[i]) return false;
@@ -267,7 +267,7 @@ namespace spitfire
       return result;
     }
 
-    cVec3 cMat4::GetRotatedVec3(const cVec3 & rhs) const
+    cVec3 cMat4::GetRotatedVec3(const cVec3& rhs) const
     {
       cVec3 result;
 
@@ -331,7 +331,7 @@ namespace spitfire
     }
 
     // Returned in absolute units
-    cVec3 cMat4::GetPosition() const
+    cVec3 cMat4::GetTranslation() const
     {
       return cVec3(entries[12], entries[13], entries[14]);
     }
@@ -351,12 +351,12 @@ namespace spitfire
       return q;
     }
 
-    cVec3 cMat4::GetTranslatedVec3(const cVec3 & rhs) const
+    cVec3 cMat4::GetTranslatedVec3(const cVec3& rhs) const
     {
       return cVec3(rhs.x + entries[12], rhs.y + entries[13], rhs.z + entries[14]);
     }
 
-    cVec3 cMat4::GetInverseTranslatedVec3(const cVec3 & rhs) const
+    cVec3 cMat4::GetInverseTranslatedVec3(const cVec3& rhs) const
     {
       return cVec3(rhs.x - entries[12], rhs.y - entries[13], rhs.z - entries[14]);
     }
@@ -604,92 +604,66 @@ namespace spitfire
       return result;
     }
 
-    void cMat4::SetTranslation(const cVec3 & translation)
+    void cMat4::SetScale(const cVec3& scaleFactor)
     {
-      LoadIdentity();
-
-      SetTranslationPart(translation);
-    }
-
-    void cMat4::SetScale(const cVec3 & scaleFactor)
-    {
-      LoadIdentity();
-
       entries[0] = scaleFactor.x;
       entries[5] = scaleFactor.y;
       entries[10] = scaleFactor.z;
     }
 
-    void cMat4::SetUniformScale(const float scaleFactor)
+    void cMat4::SetScale(float scaleFactor)
     {
-      LoadIdentity();
-
       entries[0] = scaleFactor;
-      entries [5] = scaleFactor;
+      entries[5] = scaleFactor;
       entries[10] = scaleFactor;
     }
 
-    void cMat4::SetRotationAxis(const double angle, const cVec3 & axis)
+    void cMat4::SetRotationAxis(float angle, const cVec3& axis)
     {
-      LoadIdentity();
-
       const cVec3 u = axis.GetNormalised();
 
-      const float sinAngle = sin((float)angle);
-      const float cosAngle = cos((float)angle);
+      const float sinAngle = sinf(angle);
+      const float cosAngle = cosf(angle);
       const float oneMinusCosAngle = 1.0f - cosAngle;
 
-      entries[0]=(u.x)*(u.x) + cosAngle*(1-(u.x)*(u.x));
-      entries[4]=(u.x)*(u.y)*(oneMinusCosAngle) - sinAngle*u.z;
-      entries[8]=(u.x)*(u.z)*(oneMinusCosAngle) + sinAngle*u.y;
+      entries[0] = (u.x * u.x) + cosAngle * (1.0f - (u.x * u.x));
+      entries[4] = (u.x * u.y * oneMinusCosAngle) - sinAngle * u.z;
+      entries[8] = (u.x * u.z * oneMinusCosAngle) + sinAngle * u.y;
 
-      entries[1]=(u.x)*(u.y)*(oneMinusCosAngle) + sinAngle*u.z;
-      entries[5]=(u.y)*(u.y) + cosAngle*(1-(u.y)*(u.y));
-      entries[9]=(u.y)*(u.z)*(oneMinusCosAngle) - sinAngle*u.x;
+      entries[1] = (u.x * u.y * oneMinusCosAngle) + sinAngle * u.z;
+      entries[5] = (u.y * u.y) + cosAngle * (1.0f - (u.y * u.y));
+      entries[9] = (u.y * u.z * oneMinusCosAngle) - sinAngle * u.x;
 
-      entries[2]=(u.x)*(u.z)*(oneMinusCosAngle) - sinAngle*u.y;
-      entries[6]=(u.y)*(u.z)*(oneMinusCosAngle) + sinAngle*u.x;
-      entries[10]=(u.z)*(u.z) + cosAngle*(1-(u.z)*(u.z));
+      entries[2] = (u.x * u.z * oneMinusCosAngle) - sinAngle * u.y;
+      entries[6] = (u.y * u.z * oneMinusCosAngle) + sinAngle * u.x;
+      entries[10] = (u.z * u.z) + cosAngle * (1.0f - (u.z * u.z));
     }
 
-    void cMat4::SetRotationX(const double angle)
+    void cMat4::SetRotationX(float angle)
     {
-      LoadIdentity();
+      entries[5] = cosf(angle);
+      entries[6] = sinf(angle);
 
-      entries[5]=(float)cos((float)angle);
-      entries[6]=(float)sin((float)angle);
-
-      entries[9]=-(float)sin((float)angle);
-      entries[10]=(float)cos((float)angle);
+      entries[9] = -sinf(angle);
+      entries[10] = cosf(angle);
     }
 
-    void cMat4::SetRotationY(const double angle)
+    void cMat4::SetRotationY(float angle)
     {
-      LoadIdentity();
+      entries[0] = cosf(angle);
+      entries[2] = -sinf(angle);
 
-      entries[0]=(float)cos((float)angle);
-      entries[2]=-(float)sin((float)angle);
-
-      entries[8]=(float)sin((float)angle);
-      entries[10]=(float)cos((float)angle);
+      entries[8] = sinf(angle);
+      entries[10] = cosf(angle);
     }
 
-    void cMat4::SetRotationZ(const double angle)
+    void cMat4::SetRotationZ(float angle)
     {
-      LoadIdentity();
+      entries[0] = cosf(angle);
+      entries[1] = sinf(angle);
 
-      entries[0]=(float)cos((float)angle);
-      entries[1]=(float)sin((float)angle);
-
-      entries[4]=-(float)sin((float)angle);
-      entries[5]=(float)cos((float)angle);
-    }
-
-    void cMat4::SetRotationEuler(const double angleX, const double angleY, const double angleZ)
-    {
-      LoadIdentity();
-
-      SetRotationPartEuler(angleX, angleY, angleZ);
+      entries[4] = -sinf(angle);
+      entries[5] = cosf(angle);
     }
 
     void cMat4::SetPerspective(float left, float right, float bottom, float top, float n, float f)
@@ -725,7 +699,7 @@ namespace spitfire
       // Convert fov from degrees to radians
       fovy *= 0.017453295f;
 
-      float top = n * (float)tan(double(fovy * 0.5f));
+      float top = n * tanf(fovy * 0.5f);
       float bottom = -top;
 
       float left = aspect * bottom;
@@ -749,57 +723,62 @@ namespace spitfire
       entries[14]=-(f+n)/(f-n);
     }
 
-    void cMat4::SetTranslationPart(const cVec3 & translation)
+    void cMat4::SetTranslation(const cVec3& translation)
     {
       entries[12] = translation.x;
       entries[13] = translation.y;
       entries[14] = translation.z;
     }
 
-    void cMat4::SetRotationPartEuler(const double angleX, const double angleY, const double angleZ)
+    void cMat4::SetRotationEuler(float angleX, float angleY, float angleZ)
     {
-      const double cr = cos((float)angleX );
-      const double sr = sin((float)angleX );
-      const double cp = cos((float)angleY );
-      const double sp = sin((float)angleY );
-      const double cy = cos((float)angleZ );
-      const double sy = sin((float)angleZ );
+      const float cr = cosf(angleX);
+      const float sr = sinf(angleX);
+      const float cp = cosf(angleY);
+      const float sp = sinf(angleY);
+      const float cy = cosf(angleZ);
+      const float sy = sinf(angleZ);
 
-      entries[0] = float( cp*cy );
-      entries[1] = float( cp*sy );
-      entries[2] = float( -sp );
+      entries[0] = cp * cy;
+      entries[1] = cp * sy;
+      entries[2] = -sp;
 
-      const double srsp = sr * sp;
-      const double crsp = cr * sp;
+      const float srsp = sr * sp;
+      const float crsp = cr * sp;
 
-      entries[4] = float( srsp*cy-cr*sy );
-      entries[5] = float( srsp*sy+cr*cy );
-      entries[6] = float( sr*cp );
+      entries[4] = srsp * cy - cr * sy;
+      entries[5] = srsp * sy + cr * cy;
+      entries[6] = sr * cp;
 
-      entries[8] = float( crsp*cy+sr*sy );
-      entries[9] = float( crsp*sy-sr*cy );
-      entries[10] = float( cr*cp );
+      entries[8] = crsp * cy + sr * sy;
+      entries[9] = crsp * sy - sr * cy;
+      entries[10] = cr * cp;
     }
 
-    void cMat4::LookAt(const cVec3 &eye,const cVec3 &dir,const cVec3 &up)
+    void cMat4::LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up)
     {
-      cVec3 x,y,z;
-      cMat4 m0,m1;
-      z = eye - dir;
+      cVec3 z = eye - dir;
       z.Normalise();
+      cVec3 x;
       x.Cross(up, z);
       x.Normalise();
+      cVec3 y;
       y.Cross(z,x);
       y.Normalise();
-      m0.entries[0] = x.x; m0.entries[4] = x.y; m0.entries[8] = x.z; m0.entries[12] = 0.0;
-      m0.entries[1] = y.x; m0.entries[5] = y.y; m0.entries[9] = y.z; m0.entries[13] = 0.0;
-      m0.entries[2] = z.x; m0.entries[6] = z.y; m0.entries[10] = z.z; m0.entries[14] = 0.0;
-      m0.entries[3] = 0.0; m0.entries[7] = 0.0; m0.entries[11] = 0.0; m0.entries[15] = 1.0;
+
+      cMat4 m0;
+      m0.entries[0] = x.x; m0.entries[4] = x.y; m0.entries[8] = x.z; m0.entries[12] = 0.0f;
+      m0.entries[1] = y.x; m0.entries[5] = y.y; m0.entries[9] = y.z; m0.entries[13] = 0.0f;
+      m0.entries[2] = z.x; m0.entries[6] = z.y; m0.entries[10] = z.z; m0.entries[14] = 0.0f;
+      m0.entries[3] = 0.0f; m0.entries[7] = 0.0f; m0.entries[11] = 0.0f; m0.entries[15] = 1.0f;
+
+      cMat4 m1;
       m1.SetTranslation(-eye);
+
       *this = m0 * m1;
     }
 
-    void cMat4::SetRotationPart(const cQuaternion& rhs)
+    void cMat4::SetRotation(const cQuaternion& rhs)
     {
       const cMat4 mat(rhs.GetMatrix());
 

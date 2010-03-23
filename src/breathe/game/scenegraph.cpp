@@ -216,8 +216,8 @@ namespace breathe
     spitfire::math::cMat4 cSceneNode::GetAbsoluteMatrix() const
     {
       spitfire::math::cMat4 mat;
-      if (bHasRelativeRotation) mat.SetRotationPart(relativeRotation);
-      if (bHasRelativePosition) mat.SetTranslationPart(relativePosition);
+      if (bHasRelativeRotation) mat.SetRotation(relativeRotation);
+      if (bHasRelativePosition) mat.SetTranslation(relativePosition);
 
       if (pParent != nullptr) mat = pParent->GetAbsoluteMatrix() * mat;
 
@@ -226,7 +226,7 @@ namespace breathe
 
     spitfire::math::cVec3 cSceneNode::GetAbsolutePosition() const
     {
-      return GetAbsoluteMatrix().GetPosition();
+      return GetAbsoluteMatrix().GetTranslation();
     }
 
     spitfire::math::cQuaternion cSceneNode::GetAbsoluteRotation() const
