@@ -57,8 +57,8 @@ namespace spitfire
       void SetRotationZ(float angle);
       void SetRotationEuler(float angleX, float angleY, float angleZ);
       void SetRotationEuler(const cVec3& angles);
-      void SetScale(const cVec3& scaleFactor);
-      void SetScale(float scaleFactor); // Set the scale in all directions to a uniform value
+      void SetScale(const cVec3& scale);
+      void SetScale(float scale); // Set the scale in all directions to a uniform value
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;

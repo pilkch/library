@@ -211,12 +211,12 @@ namespace spitfire
 
     void cMat4::SetRotationEuler(float angleX, float angleY, float angleZ)
     {
-      const float cx = cosf(angleX);
       const float sx = sinf(angleX);
-      const float cy = cosf(angleY);
+      const float cx = cosf(angleX);
       const float sy = sinf(angleY);
-      const float cz = cosf(angleZ);
+      const float cy = cosf(angleY);
       const float sz = sinf(angleZ);
+      const float cz = cosf(angleZ);
 
       entries[0] = cy * cz;
       entries[1] = cy * sz;
@@ -284,18 +284,18 @@ namespace spitfire
       entries[5] = cosf(angle);
     }
 
-    void cMat4::SetScale(const cVec3& scaleFactor)
+    void cMat4::SetScale(const cVec3& scale)
     {
-      entries[0] = scaleFactor.x;
-      entries[5] = scaleFactor.y;
-      entries[10] = scaleFactor.z;
+      entries[0] = scale.x;
+      entries[5] = scale.y;
+      entries[10] = scale.z;
     }
 
-    void cMat4::SetScale(float scaleFactor)
+    void cMat4::SetScale(float scale)
     {
-      entries[0] = scaleFactor;
-      entries[5] = scaleFactor;
-      entries[10] = scaleFactor;
+      entries[0] = scale;
+      entries[5] = scale;
+      entries[10] = scale;
     }
 
 
@@ -839,46 +839,31 @@ namespace spitfire
     {
       cMat4 matrix;
 
-      matrix[12] = translation.x;
-      matrix[13] = translation.y;
-      matrix[14] = translation.z;
+      matrix.SetTranslation(translation);
 
       MultiplyMatrix(matrix);
     }
 
     void cMat4::RotateMatrix(const cVec3& rotation)
     {
+      const float angleX = 2.0f * cPI * rotation.x / 360.0f;
+      const float angleY = 2.0f * cPI * rotation.y / 360.0f;
+      const float angleZ = 2.0f * cPI * rotation.z / 360.0f;
+
       cMat4 matrix;
 
-      const float rx = 2.0f * cPI * rotation.x / 360.0f;
-      const float ry = 2.0f * cPI * rotation.y / 360.0f;
-      const float rz = 2.0f * cPI * rotation.z / 360.0f;
-
-      const float sx = sinf(rx);
-      const float cx = cosf(rx);
-      const float sy = sinf(ry);
-      const float cy = cosf(ry);
-      const float sz = sinf(rz);
-      const float cz = cosf(rz);
-
-      matrix[0] = cy * cz;
-      matrix[1] = cy * sz;
-      matrix[2] = -sy;
-
-      matrix[4] = (cz * sx * sy) - (cx * sz);
-      matrix[5] = (cx * cz) + (sx * sy * sz);
-      matrix[6] = cy * sx;
-
-      matrix[8] = (cx * cz * sy) + (sx * sz);
-      matrix[9] = (cx * sy * sz) - (cz * sx);
-      matrix[10] = cx * cy;
+      matrix.SetRotationEuler(angleX, angleY, angleZ);
 
       MultiplyMatrix(matrix);
     }
 
     void cMat4::ScaleMatrix(const cVec3& scale)
     {
-      assert(false);
+      cMat4 matrix;
+
+      matrix.SetScale(scale);
+
+      MultiplyMatrix(matrix);
     }
   }
 }
