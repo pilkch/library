@@ -36,6 +36,7 @@ namespace spitfire
       void LoadIdentity();
       void LoadZero();
 
+      // Get parts of the matrix
       cVec3 GetTranslation() const;
       void ClearTranslation();
       cQuaternion GetRotation() const;
@@ -46,6 +47,18 @@ namespace spitfire
       cVec3 GetRight() const;
       cVec3 GetFront() const;
       cVec3 GetUp() const;
+
+      // Set parts of the matrix
+      void SetTranslation(const cVec3& translation);
+      void SetRotation(const cQuaternion& rhs);
+      void SetRotationAxis(float angle, const cVec3& axis);
+      void SetRotationX(float angle);
+      void SetRotationY(float angle);
+      void SetRotationZ(float angle);
+      void SetRotationEuler(float angleX, float angleY, float angleZ);
+      void SetRotationEuler(const cVec3& angles);
+      void SetScale(const cVec3& scaleFactor);
+      void SetScale(float scaleFactor); // Set the scale in all directions to a uniform value
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;
@@ -110,21 +123,6 @@ namespace spitfire
       void SetFromQuaternion(const cQuaternion& rhs);
       void SetFromMatrix(const cMat4& rhs);
 
-      // Set parts of the matrix
-      void SetTranslation(const cVec3& translation);
-      void SetScale(const cVec3& scaleFactor);
-      void SetScale(float scaleFactor); // Set the scale in all directions to a uniform value
-      void SetRotation(const cQuaternion& rhs);
-      void SetRotationAxis(float angle, const cVec3& axis);
-      void SetRotationX(float angle);
-      void SetRotationY(float angle);
-      void SetRotationZ(float angle);
-      void SetRotationEuler(float angleX, float angleY, float angleZ);
-      void SetRotationEuler(const cVec3& angles)
-      {
-        SetRotationEuler(angles.x, angles.y, angles.z);
-      }
-
       // Get a pointer to a (float*) for glMultMatrixf etc
       const float* GetOpenGLMatrixPointer() const { return &entries[0]; }
 
@@ -134,7 +132,6 @@ namespace spitfire
       void SetFromOpenGLMatrix(const float* pEntries);
 
       void LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up);
-
 
       // OpenGL matrix operations
       void MultiplyMatrix(const cMat4& rhs);
