@@ -30,6 +30,25 @@ namespace spitfire
 {
   namespace database
   {
+    cParameters::cParameters() :
+      port(0)
+    {
+    }
+
+
+    class cDatabaseConnection
+    {
+    public:
+      cDatabaseConnection(const string_t& sHostName, const string_t& sUserName, const string_t& sPassword, const string_t& sDatabaseName);
+
+      bool IsOpen() const;
+
+      bool Select(const cQuery& query, cDatabaseResult& result);
+      bool Insert(const cQuery& query);
+      bool Update(const cQuery& query);
+    };
+
+
     // Use either the mysql, sqlite or couchdb API
 
 #ifdef BUILD_SUPPORT_MYSQL
