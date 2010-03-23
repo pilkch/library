@@ -211,27 +211,24 @@ namespace spitfire
 
     void cMat4::SetRotationEuler(float angleX, float angleY, float angleZ)
     {
-      const float cr = cosf(angleX);
-      const float sr = sinf(angleX);
-      const float cp = cosf(angleY);
-      const float sp = sinf(angleY);
-      const float cy = cosf(angleZ);
-      const float sy = sinf(angleZ);
+      const float cx = cosf(angleX);
+      const float sx = sinf(angleX);
+      const float cy = cosf(angleY);
+      const float sy = sinf(angleY);
+      const float cz = cosf(angleZ);
+      const float sz = sinf(angleZ);
 
-      entries[0] = cp * cy;
-      entries[1] = cp * sy;
-      entries[2] = -sp;
+      entries[0] = cy * cz;
+      entries[1] = cy * sz;
+      entries[2] = -sy;
 
-      const float srsp = sr * sp;
-      const float crsp = cr * sp;
+      entries[4] = (sx * sy * cz) - (cx * sz);
+      entries[5] = (sx * sy * sz) + (cx * cz);
+      entries[6] = sx * cy;
 
-      entries[4] = srsp * cy - cr * sy;
-      entries[5] = srsp * sy + cr * cy;
-      entries[6] = sr * cp;
-
-      entries[8] = crsp * cy + sr * sy;
-      entries[9] = crsp * sy - sr * cy;
-      entries[10] = cr * cp;
+      entries[8] = (cx * sy * cz) + (sx * sz);
+      entries[9] = (cx * sy * sz) - (sx * cz);
+      entries[10] = cx * cy;
     }
 
     void cMat4::SetRotationEuler(const cVec3& angles)
@@ -856,6 +853,7 @@ namespace spitfire
       const float rx = 2.0f * cPI * rotation.x / 360.0f;
       const float ry = 2.0f * cPI * rotation.y / 360.0f;
       const float rz = 2.0f * cPI * rotation.z / 360.0f;
+
       const float sx = sinf(rx);
       const float cx = cosf(rx);
       const float sy = sinf(ry);
@@ -867,12 +865,12 @@ namespace spitfire
       matrix[1] = cy * sz;
       matrix[2] = -sy;
 
-      matrix[4] = cz * sx * sy - cx * sz;
-      matrix[5] = cx * cz + sx * sy * sz;
+      matrix[4] = (cz * sx * sy) - (cx * sz);
+      matrix[5] = (cx * cz) + (sx * sy * sz);
       matrix[6] = cy * sx;
 
-      matrix[8] = cx  *cz * sy + sx * sz;
-      matrix[9] = -cz * sx + cx * sy * sz;
+      matrix[8] = (cx * cz * sy) + (sx * sz);
+      matrix[9] = (cx * sy * sz) - (cz * sx);
       matrix[10] = cx * cy;
 
       MultiplyMatrix(matrix);
