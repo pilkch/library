@@ -15,7 +15,9 @@
 // SDL headers
 
 // libopenglmm headers
-#include <libopenglmm/libopenglmm.h>
+#include <libopenglmm/cContext.h>
+#include <libopenglmm/cSystem.h>
+#include <libopenglmm/cWindow.h>
 
 namespace opengl
 {
