@@ -20,13 +20,13 @@
 #ifndef SPITFIRE_H
 #define SPITFIRE_H
 
-#ifndef SPITFIRE_APPLICATION_NAME
-#error "SPITFIRE_APPLICATION_NAME must be defined"
-#endif
+//#ifndef SPITFIRE_APPLICATION_NAME
+//#error "SPITFIRE_APPLICATION_NAME must be defined"
+//#endif
 
-#ifndef SPITFIRE_APPLICATION_NAME_LWR
-#error "SPITFIRE_APPLICATION_NAME_LWR must be defined"
-#endif
+//#ifndef SPITFIRE_APPLICATION_NAME_LWR
+//#error "SPITFIRE_APPLICATION_NAME_LWR must be defined"
+//#endif
 
 #ifdef CMEM_H
 #error "Don't include mem.h directly, include spitfire.h instead"
@@ -200,6 +200,10 @@ typedef int32_t ssize_t;
   private: \
   T(const T&); \
   void operator=(const T&)
+
+// Like sizeof for arrays (Although using raw arrays like this is discouraged so we can probably remove this
+template <class T>
+inline size_t lengthof(const T* t) { return (sizeof(t) / sizeof(T)); }
 
 // Utility types, objects etc.
 namespace spitfire

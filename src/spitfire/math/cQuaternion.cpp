@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -217,7 +218,7 @@ namespace spitfire
 
     void cQuaternion::SetFromODEQuaternion(const float* q)
     {
-      ASSERT(q != nullptr);
+      assert(q != nullptr);
 
       x = q[1];
       y = q[2];
@@ -228,7 +229,7 @@ namespace spitfire
 
     void cQuaternion::GetODEQuaternion(float* q) const
     {
-      ASSERT(q != nullptr);
+      assert(q != nullptr);
 
       q[1] = x;
       q[2] = y;
@@ -284,7 +285,7 @@ namespace spitfire
         attitude = -math::cPI / 2.0f;
         bank = 0.0f;
       } else {
-        ASSERT(unit != 0.0f);
+        assert(unit != 0.0f);
         heading = atan2(2.0f * y * w - 2.0f * x * z, sqx - sqy - sqz + sqw);
         attitude = asin(2.0f * test / unit);
         bank = atan2(2.0f * x * w - 2.0f * y * z, -sqx + sqy - sqz + sqw);

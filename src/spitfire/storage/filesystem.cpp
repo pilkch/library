@@ -30,7 +30,7 @@
 #endif
 
 // xdg headers
-#include <libxdgmm/libxdg.h>
+#include <libxdgmm/libxdgmm.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

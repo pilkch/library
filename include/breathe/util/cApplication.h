@@ -246,7 +246,7 @@ namespace breathe
     breathe::physics::cWorld* pWorld;
 #endif
 
-    std::vector<SDL_Joystick*>vJoystick;
+    std::vector<SDL_Joystick*> vJoystick;
 
   private:
     class cConsoleWindow : public gui::cModelessWindow

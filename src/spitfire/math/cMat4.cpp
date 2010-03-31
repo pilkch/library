@@ -11,11 +11,7 @@
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cVec4.h>
 #include <spitfire/math/cMat4.h>
-#include <spitfire/math/cPlane.h>
 #include <spitfire/math/cQuaternion.h>
-#include <spitfire/math/cFrustum.h>
-#include <spitfire/math/cOctree.h>
-#include <spitfire/math/cColour.h>
 
 namespace spitfire
 {
@@ -33,39 +29,39 @@ namespace spitfire
 
     const float& cMat4::operator[](const size_t i) const
     {
-      ASSERT(i < 16);
+      assert(i < 16);
       return entries[i];
     }
 
     float& cMat4::operator[](const size_t i)
     {
-      ASSERT(i < 16);
+      assert(i < 16);
       return entries[i];
     }
 
     const float& cMat4::GetValue(const size_t x, const size_t y) const
     {
-      ASSERT(x < 4);
-      ASSERT(y < 4);
+      assert(x < 4);
+      assert(y < 4);
       return entries[(y * 4) + x];
     }
 
     float& cMat4::GetValue(const size_t x, const size_t y)
     {
-      ASSERT(x < 4);
-      ASSERT(y < 4);
+      assert(x < 4);
+      assert(y < 4);
       return entries[(y * 4) + x];
     }
 
     void cMat4::SetEntry(size_t position, float value)
     {
-      ASSERT(position < 16);
+      assert(position < 16);
       entries[position] = value;
     }
 
     float cMat4::GetEntry(size_t position) const
     {
-      ASSERT(position < 16);
+      assert(position < 16);
       return entries[position];
     }
 
@@ -813,7 +809,7 @@ namespace spitfire
 
     void cMat4::SetFromOpenGLMatrix(const float* pEntries)
     {
-      ASSERT(pEntries != nullptr);
+      assert(pEntries != nullptr);
       for (size_t i = 0; i < 16; i++) entries[i] = pEntries[i];
     }
 
