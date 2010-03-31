@@ -12,7 +12,7 @@
 #include <boost/asio.hpp>
 
 // libfinaltvmm headers
-#include <libfinaltvmm/libfinaltv.h>
+#include <libfinaltvmm/libfinaltvmm.h>
 
 // Until C++0x we need to define this ourselves
 #define nullptr NULL
