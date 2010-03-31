@@ -10,7 +10,7 @@
 #include <sys/ioctl.h>
 
 // libxdgmm headers
-#include <libxdgmm/libxdg.h>
+#include <libxdgmm/libxdgmm.h>
 
 // Until C++0x we need to define this ourselves
 #define nullptr NULL
