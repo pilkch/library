@@ -30,7 +30,7 @@ namespace opengl
 {
   class cTexture;
   class cShader;
-  class cVertexBufferObject;
+  class cStaticVertexBufferObject;
 
   class cContext
   {
@@ -56,12 +56,12 @@ namespace opengl
     cShader* CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName);
     void DestroyShader(cShader* pShader);
 
-    cVertexBufferObject* CreateVertexBufferObject();
-    void DestroyVertexBufferObject(cVertexBufferObject* pVertexBufferObject);
+    cStaticVertexBufferObject* CreateStaticVertexBufferObject();
+    void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
 
 
-    void BeginRendering() {}
-    void EndRendering() {}
+    void BeginRendering();
+    void EndRendering();
 
 
     void BindTexture(size_t uTextureUnit, const cTexture& texture) {}
@@ -82,16 +82,22 @@ namespace opengl
     void SetTextureMatrix(const spitfire::math::cMat4& matrix);
 
 
-    void BindVertexBufferObject(const cVertexBufferObject& vertexBufferObject) {}
-    void UnBindVertexBufferObject(const cVertexBufferObject& vertexBufferObject) {}
+    void BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
+    void UnBindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
 
-    void DrawVertexBufferObject(const cVertexBufferObject& vertexBufferObject) {}
+    void DrawStaticVertexBufferObjectLines(cStaticVertexBufferObject& staticVertexBufferObject);
+    void DrawStaticVertexBufferObjectTriangles(cStaticVertexBufferObject& staticVertexBufferObject);
+    void DrawStaticVertexBufferObjectTriangleStrip(cStaticVertexBufferObject& staticVertexBufferObject);
+    void DrawStaticVertexBufferObjectQuads(cStaticVertexBufferObject& staticVertexBufferObject);
+    void DrawStaticVertexBufferObjectQuadStrip(cStaticVertexBufferObject& staticVertexBufferObject);
 
   protected:
     void ReloadResources() {}
 
   private:
     cSystem& system;
+
+    bool bIsRenderingToWindow;
     bool bIsValid;
     cResolution resolution;
 
@@ -104,7 +110,7 @@ namespace opengl
 
     std::map<std::string, cTexture*> textures;
     std::vector<cShader*> shaders;
-    std::vector<cVertexBufferObject*> vertexBufferObjects;
+    std::vector<cStaticVertexBufferObject*> staticVertexBufferObjects;
   };
 }
 

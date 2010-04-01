@@ -37,6 +37,9 @@ namespace opengl
     cSystem();
     ~cSystem();
 
+    std::string GetErrorString(GLenum error) const;
+    std::string GetErrorString() const;
+
     bool FindExtension(const std::string& sExt) const;
 
     void UpdateResolutions();

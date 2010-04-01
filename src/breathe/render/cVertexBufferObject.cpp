@@ -59,13 +59,13 @@ namespace breathe
 
 
     // Index Array
-    //glEnableClientState( GL_NORMAL_ARRAY );
+    //glEnableClientState(GL_NORMAL_ARRAY);
     //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_buf);
     // Don't need this apparently? glIndexPointer(GL_UNSIGNED_SHORT, 0, BUFFER_OFFSET(pIndex.uiOffset));
 
 
 
-    //glDrawRangeElements( GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
+    //glDrawRangeElements(GL_TRIANGLES, 0, uiIndicies, uiIndicies, GL_UNSIGNED_INT, BUFFER_OFFSET(pIndex.uiOffset));
     //glDrawElements(GL_TRIANGLES, uiIndicies, GL_UNSIGNED_SHORT, BUFFER_OFFSET(pIndex.uiOffset));
 
 

@@ -20,12 +20,14 @@
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
 #include <libopenglmm/cSystem.h>
+#include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
 
 namespace opengl
 {
   cContext::cContext(cSystem& _system, const cWindow& window) :
     system(_system),
+    bIsRenderingToWindow(true),
     bIsValid(false),
     resolution(window.GetResolution()),
     pSurface(nullptr)
@@ -134,7 +136,10 @@ namespace opengl
 
   cContext::cContext(cSystem& _system, const cResolution& _resolution) :
     system(_system),
-    resolution(_resolution)
+    bIsRenderingToWindow(false),
+    bIsValid(false),
+    resolution(_resolution),
+    pSurface(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
   }
@@ -174,17 +179,32 @@ namespace opengl
     delete pShader;
   }
 
-  cVertexBufferObject* cContext::CreateVertexBufferObject()
+  cStaticVertexBufferObject* cContext::CreateStaticVertexBufferObject()
   {
-    return nullptr;
+    return new cStaticVertexBufferObject;
   }
 
-  void cContext::DestroyVertexBufferObject(cVertexBufferObject* pVertexBufferObject)
+  void cContext::DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject)
   {
-    assert(pVertexBufferObject != nullptr);
-    delete pVertexBufferObject;
+    assert(pStaticVertexBufferObject != nullptr);
+    delete pStaticVertexBufferObject;
   }
 
+
+  void cContext::BeginRendering()
+  {
+    const spitfire::math::cColour clearColour(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  }
+
+  void cContext::EndRendering()
+  {
+    if (bIsRenderingToWindow) {
+      SDL_GL_SwapBuffers();
+    }
+  }
 
 
   // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
@@ -214,5 +234,42 @@ namespace opengl
 
     glMatrixMode(GL_TEXTURE);
     glLoadMatrixf(matTexture.GetOpenGLMatrixPointer());
+  }
+
+
+  void cContext::BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.Bind();
+  }
+
+  void cContext::UnBindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.Unbind();
+  }
+
+
+  void cContext::DrawStaticVertexBufferObjectLines(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderLines();
+  }
+
+  void cContext::DrawStaticVertexBufferObjectTriangles(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderTriangles();
+  }
+
+  void cContext::DrawStaticVertexBufferObjectTriangleStrip(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderTriangleStrip();
+  }
+
+  void cContext::DrawStaticVertexBufferObjectQuads(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderQuads();
+  }
+
+  void cContext::DrawStaticVertexBufferObjectQuadStrip(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderQuadStrip();
   }
 }

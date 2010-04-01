@@ -115,7 +115,7 @@ namespace opengl
 
   class cTexture;
   class cShader;
-  class cVertexBufferObject;
+  class cStaticVertexBuffer;
 
   class cContext;
 
@@ -135,15 +135,6 @@ namespace opengl
 
     bool LoadVertexShaderFromFile(const std::string& sFileName) { return false; }
     bool LoadFragmentShaderFromFile(const std::string& sFileName) { return false; }
-  };
-
-
-  class cVertexBufferObject
-  {
-  public:
-    bool IsValid() const { return false; }
-
-
   };
 }
 
