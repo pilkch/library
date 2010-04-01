@@ -64,8 +64,8 @@ namespace opengl
     void EndRendering();
 
 
-    void BindTexture(size_t uTextureUnit, const cTexture& texture) {}
-    void UnBindTexture(size_t uTextureUnit, const cTexture& texture) {}
+    void BindTexture(size_t uTextureUnit, const cTexture& texture);
+    void UnBindTexture(size_t uTextureUnit, const cTexture& texture);
 
 
     void BindShader(const cShader& shader) {}

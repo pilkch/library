@@ -37,16 +37,105 @@ struct SDL_Surface;
 
 namespace opengl
 {
+  enum class TEXTURE_TYPE {
+    RGBA,
+    HEIGHTMAP,
+    FRAMEBUFFEROBJECT
+  };
+
+  // ** cTexture
+
   class cTexture
   {
   public:
     cTexture();
-    ~cTexture();
+    virtual ~cTexture();
 
-    bool IsValid() const;
+    bool IsValid() const { return _IsValid(); }
 
-    bool LoadFromFile(const std::string& sFileName);
+    size_t GetWidth() const { return uiWidth; }
+    size_t GetHeight() const { return uiHeight; }
+
+    void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
+    void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
+
+    bool Load(const std::string& sFilename);
+
+    // pData <--> pSurface -> OpenGL texture
+    void CopyFromDataToSurface();
+
+    void CopyFromSurfaceToData(unsigned int w, unsigned int h);
+    void CopyFromSurfaceToData();
+
+    void CopyFromSurfaceToTexture();
+
+
+    bool SaveToBMP(const std::string& sFilename) const;
+
+    void Transform(float& u, float& v) const;
+
+    void Create() { _Create(); }
+    void Destroy();
+    void Reload();
+
+
+    unsigned int uiTextureAtlas;
+    unsigned int uiTexture;
+    std::string sFilename;
+
+  protected:
+    unsigned int uiWidth;
+    unsigned int uiHeight;
+
+  public:
+    TEXTURE_TYPE uiType;
+
+    float fScale;
+    float fU;
+    float fV;
+
+    SDL_Surface* pSurface;
+    std::vector<unsigned char> data;
+
+  private:
+    virtual bool _IsValid() const { return (uiTexture != 0); }
+    virtual void _Create();
   };
+
+  inline void cTexture::Transform(float& u, float& v) const
+  {
+    u = (u * fScale) + fU;
+    v = (v * fScale) + fV;
+  }
+
+
+  /*// ** cTextureFrameBufferObject
+
+  const size_t DEFAULT_FBO_TEXTURE_WIDTH = 1024;
+  const size_t DEFAULT_FBO_TEXTURE_HEIGHT = 1024;
+
+  class cTextureFrameBufferObject : public cTexture
+  {
+  public:
+    cTextureFrameBufferObject();
+    ~cTextureFrameBufferObject();
+
+    bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBE_MAP); }
+    void SetModeCubeMap();
+
+    void GenerateMipMapsIfRequired();
+
+    void SelectMipMapLevelOfDetail(float fLevelOfDetail);
+
+    unsigned int uiFBO;            // Our handle to the FBO
+    unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
+
+  private:
+    bool _IsValid() const { return (uiTexture != 0) && (uiFBO != 0) && (uiFBODepthBuffer != 0); }
+    void _Create();
+
+    bool bIsUsingMipMaps;
+  };*/
 }
 
 #endif // LIBOPENGLMM_CTEXTURE_H

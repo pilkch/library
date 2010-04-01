@@ -156,10 +156,14 @@ namespace opengl
   cTexture* cContext::CreateTexture(const std::string& sFileName)
   {
     cTexture* pTexture = new cTexture;
-    if (!pTexture->LoadFromFile(sFileName)) {
+    if (!pTexture->Load(sFileName)) {
       delete pTexture;
-      pTexture = nullptr;
+      return nullptr;
     }
+
+    pTexture->Create();
+    pTexture->CopyFromSurfaceToTexture();
+
     return pTexture;
   }
 
@@ -203,6 +207,8 @@ namespace opengl
     glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   }
 
   void cContext::EndRendering()
@@ -242,6 +248,24 @@ namespace opengl
     glLoadMatrixf(matTexture.GetOpenGLMatrixPointer());
   }
 
+
+  void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(uTextureUnit);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture.uiTexture);
+  }
+
+  void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(uTextureUnit);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+  }
 
   void cContext::BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject)
   {
