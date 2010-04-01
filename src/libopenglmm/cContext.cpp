@@ -20,6 +20,7 @@
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
 #include <libopenglmm/cSystem.h>
+#include <libopenglmm/cTexture.h>
 #include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
 
@@ -154,7 +155,12 @@ namespace opengl
 
   cTexture* cContext::CreateTexture(const std::string& sFileName)
   {
-    return nullptr;
+    cTexture* pTexture = new cTexture;
+    if (!pTexture->LoadFromFile(sFileName)) {
+      delete pTexture;
+      pTexture = nullptr;
+    }
+    return pTexture;
   }
 
   cTexture* cContext::CreateTexture(size_t width, size_t height, PIXELFORMAT pixelFormat)

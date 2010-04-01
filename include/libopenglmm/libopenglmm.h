@@ -120,14 +120,6 @@ namespace opengl
   class cContext;
 
 
-  class cTexture
-  {
-  public:
-    bool IsValid() const { return false; }
-
-    bool LoadFromFile(const std::string& sFileName) { return false; }
-  };
-
   class cShader
   {
   public:
