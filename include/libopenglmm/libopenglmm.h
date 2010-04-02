@@ -102,32 +102,17 @@ namespace opengl
     std::vector<cResolution> resolutions;
   };
 
+  class cSystem;
   class cContext;
   class cWindow;
-
-  class cSystem;
 
   class cWindowEventListener;
   class cInputEventListener;
 
-  class cWindow;
-
-
   class cTexture;
   class cShader;
   class cStaticVertexBuffer;
-
-  class cContext;
-
-
-  class cShader
-  {
-  public:
-    bool IsValid() const { return false; }
-
-    bool LoadVertexShaderFromFile(const std::string& sFileName) { return false; }
-    bool LoadFragmentShaderFromFile(const std::string& sFileName) { return false; }
-  };
+  class cShader;
 }
 
 #endif // LIBOPENGLMM_H

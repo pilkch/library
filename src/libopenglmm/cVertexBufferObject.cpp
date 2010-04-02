@@ -197,6 +197,8 @@ namespace opengl
 
   void cStaticVertexBufferObject::Bind()
   {
+    std::cout<<"cStaticVertexBufferObject::Bind"<<std::endl;
+
     assert(IsCompiled());
 
     // Activate the VBOs to draw
@@ -229,17 +231,19 @@ namespace opengl
       // Describe to OpenGL where the texture coordinate data is in the buffer
       //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
 
-      glActiveTexture(GL_TEXTURE0_ARB);
-      glClientActiveTextureARB(GL_TEXTURE0_ARB);
-      glEnable(GL_TEXTURE_2D);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      for (size_t i = 0; i < nTextureUnits; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glClientActiveTexture(GL_TEXTURE0 + i);
+
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 6 * sizeof(GL_FLOAT), BUFFER_OFFSET(vertex_size + normal_size + colour_size + (2 * i * sizeof(GL_FLOAT))));
+      }
 
       // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
       // 4 * 1 texture coordinates for every point, sending them all in one texture unit
       // if (texturecoordinate_size > 1) {
-      //   glActiveTexture(GL_TEXTURE1_ARB);
-      //   glClientActiveTextureARB(GL_TEXTURE1_ARB);
+      //   glActiveTexture(GL_TEXTURE1);
+      //   glClientActiveTexture(GL_TEXTURE1);
       //   glEnable(GL_TEXTURE_2D);
       //   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size colour_size + (2 * sizeof(GL_FLOAT))));
@@ -252,7 +256,14 @@ namespace opengl
     assert(IsCompiled());
 
     // Disable texture coordinate information
-    if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    if (texturecoordinate_size != 0) {
+      for (size_t i = 0; i < nTextureUnits; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glClientActiveTexture(GL_TEXTURE0 + i);
+
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      }
+    }
 
     // Disable colour information
     if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
@@ -269,6 +280,8 @@ namespace opengl
 
   void cStaticVertexBufferObject::RenderGeometry(GLenum geometryType)
   {
+    std::cout<<"cStaticVertexBufferObject::RenderGeometry"<<std::endl;
+
     assert(IsCompiled());
 
   #if 1
@@ -286,8 +299,8 @@ namespace opengl
       if (nTextureUnits == 2) {
         // Multitexturing
         while (v < n) {
-          glMultiTexCoord2fARB(GL_TEXTURE0_ARB, textureCoordinates[t], textureCoordinates[t + 1]);
-          glMultiTexCoord2fARB(GL_TEXTURE1_ARB, textureCoordinates[t + 2], textureCoordinates[t + 3]);
+          glMultiTexCoord2f(GL_TEXTURE0, textureCoordinates[t], textureCoordinates[t + 1]);
+          glMultiTexCoord2f(GL_TEXTURE1, textureCoordinates[t + 2], textureCoordinates[t + 3]);
           glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
 
           v += 3;

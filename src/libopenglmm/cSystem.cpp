@@ -81,7 +81,7 @@ namespace opengl
     SDL_Quit();
   }
 
-  std::string cSystem::GetErrorString(GLenum error) const
+  std::string cSystem::GetErrorString(GLenum error)
   {
     switch (error) {
       case GL_NO_ERROR: return "GL_NO_ERROR";
@@ -96,7 +96,7 @@ namespace opengl
     return "Unknown error";
   }
 
-  std::string cSystem::GetErrorString() const
+  std::string cSystem::GetErrorString()
   {
     return GetErrorString(glGetError());
   }

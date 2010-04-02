@@ -19,6 +19,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
+#include <libopenglmm/cShader.h>
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/cTexture.h>
 #include <libopenglmm/cVertexBufferObject.h>
@@ -31,7 +32,8 @@ namespace opengl
     bIsRenderingToWindow(true),
     bIsValid(false),
     resolution(window.GetResolution()),
-    pSurface(nullptr)
+    pSurface(nullptr),
+    pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
@@ -140,7 +142,8 @@ namespace opengl
     bIsRenderingToWindow(false),
     bIsValid(false),
     resolution(_resolution),
-    pSurface(nullptr)
+    pSurface(nullptr),
+    pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
   }
@@ -151,6 +154,11 @@ namespace opengl
 
     SDL_FreeSurface(pSurface);
     pSurface = nullptr;
+  }
+
+  bool cContext::IsValid() const
+  {
+    return (pSurface != nullptr);
   }
 
   cTexture* cContext::CreateTexture(const std::string& sFileName)
@@ -180,7 +188,13 @@ namespace opengl
 
   cShader* cContext::CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName)
   {
-    return nullptr;
+    cShader* pShader = new cShader;
+    if (!pShader->LoadVertexShaderAndFragmentShader(sVertexShaderFileName, sFragmentShaderFileName)) {
+      delete pShader;
+      return nullptr;
+    }
+
+    return pShader;
   }
 
   void cContext::DestroyShader(cShader* pShader)
@@ -218,7 +232,6 @@ namespace opengl
     }
   }
 
-
   // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
   //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
   //glUniformMatrix4fv("???", 1, GL_FALSE, matModelView.GetOpenGLMatrixPointer());
@@ -251,8 +264,10 @@ namespace opengl
 
   void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
   {
+    std::cout<<"cContext::BindTexture unit="<<uTextureUnit<<", texture="<<texture.uiTexture<<std::endl;
     // Activate the current texture unit
-    glActiveTexture(uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture.uiTexture);
@@ -261,11 +276,117 @@ namespace opengl
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)
   {
     // Activate the current texture unit
-    glActiveTexture(uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
   }
+
+
+  void cContext::BindShader(cShader& shader)
+  {
+    assert(shader.IsCompiledProgram());
+
+    assert(pCurrentShader == nullptr);
+
+    glUseProgram(shader.uiShaderProgram);
+
+    pCurrentShader = &shader;
+
+    // TODO: We also need some more variables within our post render shaders such as
+    // brightness: HDR, Top Gear Shader, Night Vision
+    // exposure: HDR, Top Gear Shader
+    // sunPosition: Car Shader, shadows, this could be light[0] though
+
+    //if (shader.bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
+    //if (shader.bAmbientColour) {
+    //  SetShaderConstant("ambientColour", shaderConstants.GetValueVec4(TEXT("ambientColour")));
+    //}
+    //if (shader.bLightPosition) {
+    //  SetShaderConstant("lightPosition", shaderConstants.GetValueVec3(TEXT("lightPosition")));
+    //}
+    if (shader.bTexUnit0) SetShaderConstant("texUnit0", 0);
+    if (shader.bTexUnit1) SetShaderConstant("texUnit1", 1);
+    if (shader.bTexUnit2) SetShaderConstant("texUnit2", 2);
+    if (shader.bTexUnit3) SetShaderConstant("texUnit3", 3);
+  }
+
+  void cContext::UnBindShader(cShader& shader)
+  {
+    assert(pCurrentShader == &shader);
+
+    glUseProgram(0);
+
+    pCurrentShader = nullptr;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, int value)
+  {
+    std::cout<<"cContext::SetShaderConstant "<<sConstant<<"="<<value<<std::endl;
+
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform1i(loc, value);
+    return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, float value)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform1f(loc, value);
+    return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec2& value)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform2f(loc, value.x, value.y);
+    return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec3& value)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform3f(loc, value.x, value.y, value.z);
+    return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec4& value)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform4f(loc, value.x, value.y, value.z, value.w);
+    return true;
+  }
+
 
   void cContext::BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject)
   {
