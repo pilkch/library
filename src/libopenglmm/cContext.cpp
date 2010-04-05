@@ -354,7 +354,6 @@ namespace opengl
 
   void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
   {
-    std::cout<<"cContext::BindTexture unit="<<uTextureUnit<<", texture="<<texture.uiTexture<<std::endl;
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
@@ -412,8 +411,6 @@ namespace opengl
 
   bool cContext::SetShaderConstant(const std::string& sConstant, int value)
   {
-    std::cout<<"cContext::SetShaderConstant "<<sConstant<<"="<<value<<std::endl;
-
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
       std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
@@ -475,6 +472,11 @@ namespace opengl
 
     glUniform4f(loc, value.x, value.y, value.z, value.w);
     return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour& value)
+  {
+    return SetShaderConstant(sConstant, spitfire::math::cVec4(value.r, value.g, value.b, value.a));
   }
 
 

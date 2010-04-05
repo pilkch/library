@@ -197,8 +197,6 @@ namespace opengl
 
   void cStaticVertexBufferObject::Bind()
   {
-    std::cout<<"cStaticVertexBufferObject::Bind"<<std::endl;
-
     assert(IsCompiled());
 
     // Activate the VBOs to draw
@@ -280,8 +278,6 @@ namespace opengl
 
   void cStaticVertexBufferObject::RenderGeometry(GLenum geometryType)
   {
-    std::cout<<"cStaticVertexBufferObject::RenderGeometry"<<std::endl;
-
     assert(IsCompiled());
 
   #if 1
