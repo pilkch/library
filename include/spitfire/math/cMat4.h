@@ -49,16 +49,18 @@ namespace spitfire
       cVec3 GetUp() const;
 
       // Set parts of the matrix
+      void SetTranslation(float x, float y, float z) { SetTranslation(cVec3(x, y, z)); }
       void SetTranslation(const cVec3& translation);
       void SetRotation(const cQuaternion& rhs);
-      void SetRotationAxis(float angle, const cVec3& axis);
-      void SetRotationX(float angle);
-      void SetRotationY(float angle);
-      void SetRotationZ(float angle);
-      void SetRotationEuler(float angleX, float angleY, float angleZ);
-      void SetRotationEuler(const cVec3& angles);
-      void SetScale(const cVec3& scale);
+      void SetRotationAxis(float fAngleRadians, const cVec3& axis);
+      void SetRotationX(float fAngleRadians);
+      void SetRotationY(float fAngleRadians);
+      void SetRotationZ(float fAngleRadians);
+      void SetRotationEuler(float fAngleRadiansX, float fAngleRadiansY, float fAngleRadiansZ) { SetRotationEuler(cVec3(fAngleRadiansX, fAngleRadiansY, fAngleRadiansZ)); }
+      void SetRotationEuler(const cVec3& anglesRadians);
       void SetScale(float scale); // Set the scale in all directions to a uniform value
+      void SetScale(float scaleX, float scaleY, float scaleZ) { SetScale(cVec3(scaleX, scaleY, scaleZ)); }
+      void SetScale(const cVec3& scale);
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;

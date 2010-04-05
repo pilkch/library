@@ -41,13 +41,14 @@ namespace opengl
     cContext(cSystem& system, const cResolution& resolution); // Created for an offscreen context
     ~cContext();
 
-    bool IsValid() const { return false; }
+    bool IsValid() const;
 
     size_t GetWidth() const { return resolution.width; }
     size_t GetHeight() const { return resolution.height; }
     PIXELFORMAT GetPixelFormat() const { return resolution.pixelFormat; }
     cResolution GetResolution() const { return resolution; }
 
+    void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const std::string& sFileName);
     cTexture* CreateTexture(size_t width, size_t height, PIXELFORMAT pixelFormat);
@@ -60,6 +61,8 @@ namespace opengl
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
 
 
+    void SetClearColour(const spitfire::math::cColour& clearColour);
+
     void BeginRendering();
     void EndRendering();
 
@@ -68,8 +71,14 @@ namespace opengl
     void UnBindTexture(size_t uTextureUnit, const cTexture& texture);
 
 
-    void BindShader(const cShader& shader) {}
-    void UnBindShader(const cShader& shader) {}
+    void BindShader(cShader& shader);
+    void UnBindShader(cShader& shader);
+
+    bool SetShaderConstant(const std::string& sConstant, int value);
+    bool SetShaderConstant(const std::string& sConstant, float value);
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec2& value);
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec3& value);
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec4& value);
 
 
     const spitfire::math::cMat4& GetProjectionMatrix() const { return matProjection; }
@@ -95,6 +104,9 @@ namespace opengl
     void ReloadResources() {}
 
   private:
+    bool SetWindowVideoMode(bool bIsFullScreen);
+    void SetPerspective();
+
     cSystem& system;
 
     bool bIsRenderingToWindow;
@@ -107,6 +119,10 @@ namespace opengl
     spitfire::math::cMat4 matProjection;
     spitfire::math::cMat4 matModelView;
     spitfire::math::cMat4 matTexture;
+
+    spitfire::math::cColour clearColour;
+
+    cShader* pCurrentShader;
 
     std::map<std::string, cTexture*> textures;
     std::vector<cShader*> shaders;

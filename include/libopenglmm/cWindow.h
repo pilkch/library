@@ -59,8 +59,6 @@ namespace opengl
   private:
     void OnResizeWindow(const cResolution& resolution, bool bIsFullScreen);
 
-    void ReloadResources();
-
     cSystem& system;
     cResolution resolution;
     cContext* pContext;

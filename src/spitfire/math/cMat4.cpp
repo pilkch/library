@@ -188,31 +188,14 @@ namespace spitfire
       entries[14] = translation.z;
     }
 
-    void cMat4::SetRotation(const cQuaternion& rhs)
+    void cMat4::SetRotationEuler(const cVec3& angleRadians)
     {
-      const cMat4 mat(rhs.GetMatrix());
-
-      entries[0] = mat.entries[0];
-      entries[1] = mat.entries[1];
-      entries[2] = mat.entries[2];
-
-      entries[4] = mat.entries[4];
-      entries[5] = mat.entries[5];
-      entries[6] = mat.entries[6];
-
-      entries[8] = mat.entries[8];
-      entries[9] = mat.entries[9];
-      entries[10] = mat.entries[10];
-    }
-
-    void cMat4::SetRotationEuler(float angleX, float angleY, float angleZ)
-    {
-      const float sx = sinf(angleX);
-      const float cx = cosf(angleX);
-      const float sy = sinf(angleY);
-      const float cy = cosf(angleY);
-      const float sz = sinf(angleZ);
-      const float cz = cosf(angleZ);
+      const float sx = sinf(angleRadians.x);
+      const float cx = cosf(angleRadians.x);
+      const float sy = sinf(angleRadians.y);
+      const float cy = cosf(angleRadians.y);
+      const float sz = sinf(angleRadians.z);
+      const float cz = cosf(angleRadians.z);
 
       entries[0] = cy * cz;
       entries[1] = cy * sz;
@@ -227,9 +210,9 @@ namespace spitfire
       entries[10] = cx * cy;
     }
 
-    void cMat4::SetRotationEuler(const cVec3& angles)
+    void cMat4::SetRotation(const cQuaternion& rhs)
     {
-      SetRotationEuler(angles.x, angles.y, angles.z);
+      SetRotationAxis(rhs.GetAngle(), rhs.GetAxis());
     }
 
     void cMat4::SetRotationAxis(float angle, const cVec3& axis)
@@ -253,31 +236,31 @@ namespace spitfire
       entries[10] = (u.z * u.z) + cosAngle * (1.0f - (u.z * u.z));
     }
 
-    void cMat4::SetRotationX(float angle)
+    void cMat4::SetRotationX(float fAngleRadians)
     {
-      entries[5] = cosf(angle);
-      entries[6] = sinf(angle);
+      entries[5] = cosf(fAngleRadians);
+      entries[6] = sinf(fAngleRadians);
 
-      entries[9] = -sinf(angle);
-      entries[10] = cosf(angle);
+      entries[9] = -sinf(fAngleRadians);
+      entries[10] = cosf(fAngleRadians);
     }
 
-    void cMat4::SetRotationY(float angle)
+    void cMat4::SetRotationY(float fAngleRadians)
     {
-      entries[0] = cosf(angle);
-      entries[2] = -sinf(angle);
+      entries[0] = cosf(fAngleRadians);
+      entries[2] = -sinf(fAngleRadians);
 
-      entries[8] = sinf(angle);
-      entries[10] = cosf(angle);
+      entries[8] = sinf(fAngleRadians);
+      entries[10] = cosf(fAngleRadians);
     }
 
-    void cMat4::SetRotationZ(float angle)
+    void cMat4::SetRotationZ(float fAngleRadians)
     {
-      entries[0] = cosf(angle);
-      entries[1] = sinf(angle);
+      entries[0] = cosf(fAngleRadians);
+      entries[1] = sinf(fAngleRadians);
 
-      entries[4] = -sinf(angle);
-      entries[5] = cosf(angle);
+      entries[4] = -sinf(fAngleRadians);
+      entries[5] = cosf(fAngleRadians);
     }
 
     void cMat4::SetScale(const cVec3& scale)
@@ -362,7 +345,7 @@ namespace spitfire
 
       const float temp = 1.0f / rhs;
 
-      for (size_t entry=0; entry < 16; entry++) {
+      for (size_t entry = 0; entry < 16; entry++) {
         result.SetEntry(entry, entries[entry] * temp);    // Divide entries by rhs
       }
 
@@ -371,7 +354,7 @@ namespace spitfire
 
     bool cMat4::operator==(const cMat4& rhs) const
     {
-      for (size_t i=0; i < 16; i++) {
+      for (size_t i = 0; i < 16; i++) {
         if (entries[i]!=rhs.entries[i]) return false;
       }
 
@@ -723,25 +706,25 @@ namespace spitfire
       LoadZero();
 
       // Check for division by 0
-      if ((left == right) || (top == bottom) || (n==f)) return;
+      if ((left == right) || (top == bottom) || (n == f)) return;
 
-      entries[0] = (2*n)/(right-left);
+      entries[0] = (2.0f * n) / (right - left);
 
-      entries[5] = (2*n)/(top-bottom);
+      entries[5] = (2.0f * n) / (top - bottom);
 
-      entries[8] = (right+left)/(right-left);
-      entries[9] = (top+bottom)/(top-bottom);
+      entries[8] = (right + left) / ( right - left);
+      entries[9] = (top + bottom) / ( top - bottom);
 
       if (f != -1) entries[10] = -(f + n) / (f - n);
-      else {    //if f==-1, use an infinite far plane
-        entries[10] = -1;
+      else {    //if f == -1, use an infinite far plane
+        entries[10] = -1.0f;
       }
 
-      entries[11] = -1;
+      entries[11] = -1.0f;
 
-      if (f != -1) entries[14] = -(2 * f * n) / (f - n);
+      if (f != -1) entries[14] = -(2.0f * f * n) / (f - n);
       else {  //if f==-1, use an infinite far plane
-        entries[14] = -2*n;
+        entries[14] = -2.0f * n;
       }
     }
 
@@ -763,7 +746,7 @@ namespace spitfire
     {
       LoadIdentity();
 
-      entries[0] = 2.0f/(right-left);
+      entries[0] = 2.0f / (right - left);
 
       entries[5] = 2.0f/(top-bottom);
 
@@ -842,13 +825,9 @@ namespace spitfire
 
     void cMat4::RotateMatrix(const cVec3& rotation)
     {
-      const float angleX = 2.0f * cPI * rotation.x / 360.0f;
-      const float angleY = 2.0f * cPI * rotation.y / 360.0f;
-      const float angleZ = 2.0f * cPI * rotation.z / 360.0f;
-
       cMat4 matrix;
 
-      matrix.SetRotationEuler(angleX, angleY, angleZ);
+      matrix.SetRotationEuler(cPI_DIV_180 * rotation);
 
       MultiplyMatrix(matrix);
     }

@@ -75,16 +75,12 @@ namespace opengl
 
   void cWindow::OnResizeWindow(const cResolution& _resolution, bool bIsFullScreen)
   {
-    // TODO: Resize the window, reinit opengl etc.
+    assert(pContext != nullptr);
+
     resolution = _resolution;
 
-    ReloadResources();
-  }
-
-  void cWindow::ReloadResources()
-  {
-    assert(pContext != nullptr);
     pContext->ReloadResources();
+    pContext->ResizeWindow(resolution);
   }
 
 
