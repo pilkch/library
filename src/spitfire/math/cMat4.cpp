@@ -215,25 +215,27 @@ namespace spitfire
       SetRotationAxis(rhs.GetAngle(), rhs.GetAxis());
     }
 
-    void cMat4::SetRotationAxis(float angle, const cVec3& axis)
+    void cMat4::SetRotationAxis(float fAngleRadians, const cVec3& _axis)
     {
-      const cVec3 u = axis.GetNormalised();
+      const cVec3 axis(_axis.GetNormalised());
 
-      const float sinAngle = sinf(angle);
-      const float cosAngle = cosf(angle);
-      const float oneMinusCosAngle = 1.0f - cosAngle;
+      float b = fAngleRadians;
 
-      entries[0] = (u.x * u.x) + cosAngle * (1.0f - (u.x * u.x));
-      entries[4] = (u.x * u.y * oneMinusCosAngle) - sinAngle * u.z;
-      entries[8] = (u.x * u.z * oneMinusCosAngle) + sinAngle * u.y;
+      float c = cosf(b);
+      float ac = 1.00f - c;
+      float s = sinf(b);
 
-      entries[1] = (u.x * u.y * oneMinusCosAngle) + sinAngle * u.z;
-      entries[5] = (u.y * u.y) + cosAngle * (1.0f - (u.y * u.y));
-      entries[9] = (u.y * u.z * oneMinusCosAngle) - sinAngle * u.x;
+      entries[0] = axis.x * axis.x * ac + c;
+      entries[1] = axis.x * axis.y * ac + axis.z * s;
+      entries[2] = axis.x * axis.z * ac - axis.y * s;
 
-      entries[2] = (u.x * u.z * oneMinusCosAngle) - sinAngle * u.y;
-      entries[6] = (u.y * u.z * oneMinusCosAngle) + sinAngle * u.x;
-      entries[10] = (u.z * u.z) + cosAngle * (1.0f - (u.z * u.z));
+      entries[4] = axis.y * axis.x * ac - axis.z * s;
+      entries[5] = axis.y * axis.y * ac + c;
+      entries[6] = axis.y * axis.z * ac + axis.x * s;
+
+      entries[8] = axis.z * axis.x * ac + axis.y * s;
+      entries[9] = axis.z * axis.y * ac - axis.x * s;
+      entries[10] = axis.z * axis.z * ac + c;
     }
 
     void cMat4::SetRotationX(float fAngleRadians)

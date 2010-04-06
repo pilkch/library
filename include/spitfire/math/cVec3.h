@@ -42,8 +42,12 @@ namespace spitfire
       void Cross(const cVec3& a, const cVec3& b);
       cVec3 CrossProduct(const cVec3& rhs) const;
 
-      inline float DotProduct(const cVec3& rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
+      inline float DotProduct(const cVec3& rhs) const { return (x * rhs.x) + (y * rhs.y) + (z * rhs.z); }
 
+
+      // Returns/sets to -x, -y, -z
+      void Invert();
+      cVec3 GetInverse() const;
 
       void Normalise();
       cVec3 GetNormalised() const;

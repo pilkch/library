@@ -96,6 +96,13 @@ namespace spitfire
       return result;
     }
 
+    void cVec3::Invert()
+    {
+      x = -x;
+      y = -y;
+      z = -z;
+    }
+
     void cVec3::Normalise()
     {
       const float fLength = GetLength();
@@ -142,6 +149,15 @@ namespace spitfire
       return result;
     }
 
+    cVec3 cVec3::GetInverse() const
+    {
+      cVec3 result(*this);
+
+      result.Invert();
+
+      return result;
+    }
+
     cVec3 cVec3::GetNormalised() const
     {
       cVec3 result(*this);
@@ -155,8 +171,8 @@ namespace spitfire
     {
       return cVec3(
         x,
-        y * cos((float)angle) - z * sin((float)angle),
-        y * sin((float)angle) + z * cos((float)angle)
+        y * cosf((float)angle) - z * sinf((float)angle),
+        y * sinf((float)angle) + z * cosf((float)angle)
       );
     }
 
@@ -168,37 +184,37 @@ namespace spitfire
     cVec3 cVec3::GetRotatedY(double angle) const
     {
       return cVec3(
-        x * cos((float)angle) + z * sin((float)angle),
+        x * cosf((float)angle) + z * sinf((float)angle),
         y,
-        -x * sin((float)angle) + z * cos((float)angle)
+        -x * sinf((float)angle) + z * cosf((float)angle)
       );
     }
 
     void cVec3::RotateY(double angle)
     {
-      (*this)=GetRotatedY(angle);
+      (*this) = GetRotatedY(angle);
     }
 
     cVec3 cVec3::GetRotatedZ(double angle) const
     {
       return cVec3(
-        x * cos((float)angle) - y * sin((float)angle),
-        x * sin((float)angle) + y * cos((float)angle),
+        x * cosf((float)angle) - y * sinf((float)angle),
+        x * sinf((float)angle) + y * cosf((float)angle),
         z
       );
     }
 
     void cVec3::RotateZ(double angle)
     {
-      (*this)=GetRotatedZ(angle);
+      (*this) = GetRotatedZ(angle);
     }
 
     cVec3 cVec3::GetRotatedAxis(double angle, const cVec3& axis) const
     {
       const cVec3 u = axis.GetNormalised();
 
-      const float sinAngle = sin((float)angle);
-      const float cosAngle = cos((float)angle);
+      const float sinAngle = sinf((float)angle);
+      const float cosAngle = cosf((float)angle);
       const float oneMinusCosAngle = 1.0f - cosAngle;
 
       cVec3 rotMatrixRow0;
@@ -227,7 +243,7 @@ namespace spitfire
 
     void cVec3::RotateAxis(double angle, const cVec3& axis)
     {
-      (*this)=GetRotatedAxis(angle, axis);
+      (*this) = GetRotatedAxis(angle, axis);
     }
 
     void cVec3::RotateByQuaternion(const cQuaternion& rhs)
