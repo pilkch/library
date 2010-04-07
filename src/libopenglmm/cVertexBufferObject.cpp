@@ -234,7 +234,7 @@ namespace opengl
         glClientActiveTexture(GL_TEXTURE0 + i);
 
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 6 * sizeof(GL_FLOAT), BUFFER_OFFSET(vertex_size + normal_size + colour_size + (2 * i * sizeof(GL_FLOAT))));
+        glTexCoordPointer(2, GL_FLOAT, 2 * nTextureUnits * sizeof(GL_FLOAT), BUFFER_OFFSET(vertex_size + normal_size + colour_size + (2 * i * sizeof(GL_FLOAT))));
       }
 
       // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
