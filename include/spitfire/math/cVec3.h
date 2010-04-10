@@ -130,6 +130,10 @@ namespace spitfire
       // Cast to pointer to a (float *) for glVertex3fv etc
       const float* GetPointerConst() const { return (const float*)this; }
 
+      float operator[](int i) const
+      {
+        return ((0 == i) ? x : ((1 == i) ? y : z));
+      }
       float& operator[](int i)
       {
         return ((0 == i) ? x : ((1 == i) ? y : z));

@@ -29,8 +29,15 @@ struct SDL_Surface;
 namespace opengl
 {
   class cTexture;
+  class cTextureFrameBufferObject;
   class cShader;
   class cStaticVertexBufferObject;
+
+  enum class LIGHT_TYPE {
+    POINTLIGHT,
+    DIRECTIONAL,
+    SPOTLIGHT,
+  };
 
   class cContext
   {
@@ -51,8 +58,10 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const std::string& sFileName);
-    cTexture* CreateTexture(size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
+
+    cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
 
     cShader* CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName);
     void DestroyShader(cShader* pShader);
@@ -62,9 +71,31 @@ namespace opengl
 
 
     void SetClearColour(const spitfire::math::cColour& clearColour);
+    void SetAmbientLightColour(const spitfire::math::cColour& ambientLightColour);
 
     void BeginRendering();
     void EndRendering();
+
+    void BeginRenderToTexture(cTextureFrameBufferObject& texture);
+    void EndRenderToTexture(cTextureFrameBufferObject& texture);
+
+    //void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face);
+    //void EndRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture);
+
+
+    void EnableLighting();
+    void DisableLighting();
+    void EnableLight(size_t light);
+    void DisableLighting(size_t light);
+    void SetLightType(size_t light, LIGHT_TYPE type);
+    void SetLightPosition(size_t light, const spitfire::math::cVec3& position);
+    void SetLightRotation(size_t light, const spitfire::math::cQuaternion& rotation);
+    void SetLightAmbientColour(size_t light, const spitfire::math::cColour& colour);
+    void SetLightDiffuseColour(size_t light, const spitfire::math::cColour& colour);
+    void SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour);
+
+    // TODO: Remove this, it is primarily for openglmm_gears and can probably be replaced with a shader
+    void SetMaterialColour(const spitfire::math::cColour& colour);
 
 
     void BindTexture(size_t uTextureUnit, const cTexture& texture);
@@ -106,7 +137,11 @@ namespace opengl
 
   private:
     bool SetWindowVideoMode(bool bIsFullScreen);
+    void SetDefaultFlags();
     void SetPerspective();
+
+    void _BeginRenderShared();
+    void _EndRenderShared();
 
     cSystem& system;
 
@@ -122,6 +157,7 @@ namespace opengl
     spitfire::math::cMat4 matTexture;
 
     spitfire::math::cColour clearColour;
+    spitfire::math::cColour ambientLightColour;
 
     cShader* pCurrentShader;
 

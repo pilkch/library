@@ -77,7 +77,7 @@ namespace breathe
       broadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
 
       // Set up the collision configuration and dispatcher
-      collisionConfiguration = new btDefaultCollisionConfiguration();
+      collisionConfiguration = new btDefaultCollisionConfiguration;
       dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
       // The actual physics solver
@@ -98,6 +98,8 @@ namespace breathe
 
     void cWorld::_Destroy()
     {
+      LOG<<"cWorld::_Destroy"<<std::endl;
+
       // Remove all bodies
       while (!lPhysicsBody.empty()) {
         body_iterator iter = lPhysicsBody.begin();

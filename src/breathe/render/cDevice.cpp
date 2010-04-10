@@ -76,11 +76,9 @@ namespace breathe
   {
     // *** cStatistics
 
-    cStatistics::cStatistics() :
-      nStateChanges(0),
-      nTrianglesRendered(0),
-      nModelsRendered(0)
+    cStatistics::cStatistics()
     {
+      Reset();
     }
 
     void cStatistics::Reset()
@@ -88,6 +86,9 @@ namespace breathe
       nStateChanges = 0;
       nTrianglesRendered = 0;
       nModelsRendered = 0;
+      nSceneObjectsRendered = 0;
+      nVertexBufferObjectsBound = 0;
+      nVertexBufferObjectsRendered = 0;
     }
 
 
@@ -238,8 +239,6 @@ namespace breathe
       uiWidth(1024),
       uiHeight(768),
       uiDepth(32),
-
-      uiTriangles(0),
 
       bIsRenderWireframe(false),
       bIsRenderGui(true),
@@ -611,7 +610,7 @@ namespace breathe
       // Clear the background to our requested colour
       glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
 
-     // Enable clearing Of The depth buffer
+      // Enable clearing Of The depth buffer
       glClearDepth(1.0);
 
       glEnable(GL_DEPTH_TEST);
@@ -794,7 +793,9 @@ namespace breathe
 
       _BeginRenderShared();
 
-      uiTextureModeChanges = uiTextureChanges = uiTriangles = 0;
+      uiTextureModeChanges = uiTextureChanges = 0;
+
+      statistics.Reset();
     }
 
     void cDevice::_EndRenderToScreen()

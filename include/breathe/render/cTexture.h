@@ -52,7 +52,7 @@ namespace breathe
 
       bool Load(const string_t& sFilename);
 
-      // pData <--> surface -> OpenGL texture
+      // pData <--> pSurface -> OpenGL texture
       void CopyFromDataToSurface();
 
       void CopyFromSurfaceToData(unsigned int w, unsigned int h);
@@ -86,7 +86,7 @@ namespace breathe
       float fU;
       float fV;
 
-      SDL_Surface* surface;
+      SDL_Surface* pSurface;
       std::vector<unsigned char> data;
 
     private:

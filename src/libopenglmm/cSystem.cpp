@@ -266,9 +266,9 @@ namespace opengl
     }*/
   }
 
-  cWindow* cSystem::CreateWindow(const cResolution& resolution, bool bIsFullScreen)
+  cWindow* cSystem::CreateWindow(const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen)
   {
-    cWindow* pWindow = new cWindow(*this, resolution, bIsFullScreen);
+    cWindow* pWindow = new cWindow(*this, sCaption, resolution, bIsFullScreen);
 
     return pWindow;
   }

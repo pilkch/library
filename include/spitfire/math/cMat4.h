@@ -88,12 +88,6 @@ namespace spitfire
       cVec4 operator*(const cVec4& rhs) const { return GetRotatedVec4(rhs); }
 
       // Rotate a vector by rotation part
-      void RotateVec3(cVec3& rhs) const { rhs = GetRotatedVec3(rhs); }
-      void RotateVec4(cVec4& rhs) const { rhs = GetRotatedVec4(rhs); }
-
-      void InverseRotateVec3(cVec3& rhs) const { rhs = GetInverseRotatedVec3(rhs); }
-      void InverseRotateVec4(cVec4& rhs) const { rhs = GetInverseRotatedVec4(rhs); }
-
       cVec3 GetRotatedVec3(const cVec3& rhs) const;
       cVec3 GetInverseRotatedVec3(const cVec3& rhs) const;
 
@@ -101,12 +95,6 @@ namespace spitfire
       cVec4 GetInverseRotatedVec4(const cVec4& rhs) const;
 
       // Translate a 3d vector by translation part
-      void TranslateVec3(cVec3& rhs) const
-      {rhs=GetTranslatedVec3(rhs);}
-
-      void InverseTranslateVec3(cVec3& rhs) const
-      {rhs=GetInverseTranslatedVec3(rhs);}
-
       cVec3 GetTranslatedVec3(const cVec3& rhs) const;
       cVec3 GetInverseTranslatedVec3(const cVec3& rhs) const;
 
@@ -118,9 +106,9 @@ namespace spitfire
       void InvertTranspose();
       cMat4 GetInverseTranspose() const;
 
-      void SetPerspective(float left, float right, float bottom, float top, float n, float f);
-      void SetPerspective(float fovy, float aspect, float n, float f);
-      void SetOrtho(float left, float right, float bottom, float top, float n, float f);
+      void SetPerspective(float left, float right, float bottom, float top, float fNear, float fFar);
+      void SetPerspective(float fFOVy, float fAspectRatio, float fNear, float fFar);
+      void SetOrtho(float left, float right, float bottom, float top, float fNear, float fFar);
 
       void SetFromQuaternion(const cQuaternion& rhs);
       void SetFromMatrix(const cMat4& rhs);

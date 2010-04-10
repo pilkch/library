@@ -107,11 +107,12 @@ namespace breathe
 
       void Reset();
 
-      size_t nStateChanges;
-      size_t nTrianglesRendered;
+      size_t nStateChanges; // How many times a new stateset was applied
       size_t nModelsRendered;
-      size_t nVertexBufferObjectsRendered;
       size_t nSceneObjectsRendered;
+      size_t nVertexBufferObjectsBound; // How many vertex buffer objects were bound (ie. 30)
+      size_t nVertexBufferObjectsRendered; // How many vertex buffer objects were rendered (ie. 300)
+      size_t nTrianglesRendered; // How many triangles were rendered in the whole scene
     };
 
     class cDevice
@@ -137,6 +138,13 @@ namespace breathe
 
       string_t GetErrorString() const;
       string_t GetErrorString(GLenum error) const;
+
+      const cStatistics& GetStatistics() const { return statistics; }
+
+      void StatisticsIncrementStateChanges() { statistics.nStateChanges++; }
+      void StatisticsIncrementVertexBufferObjectsBound() { statistics.nVertexBufferObjectsBound++; }
+      void StatisticsIncrementVertexBufferObjectsRendered() { statistics.nVertexBufferObjectsRendered++; }
+      void StatisticsAddTrianglesRendered(size_t nTriangles) { statistics.nTrianglesRendered += nTriangles; }
 
       // TODO: Is this wise?
       //void BindContext(cContext& context);
@@ -356,7 +364,6 @@ namespace breathe
 
       size_t uiTextureChanges;
       size_t uiTextureModeChanges;
-      size_t uiTriangles;
 
 
       bool bIsRenderWireframe;

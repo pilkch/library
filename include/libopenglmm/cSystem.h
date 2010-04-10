@@ -24,6 +24,7 @@
 
 #include <libopenglmm/libopenglmm.h>
 
+typedef unsigned int GLenum;
 struct SDL_Surface;
 
 namespace opengl
@@ -46,7 +47,7 @@ namespace opengl
     void UpdateCapabilities();
     const cCapabilities& GetCapabilities() const { return capabilities; }
 
-    cWindow* CreateWindow(const cResolution& resolution, bool bIsFullScreen);
+    cWindow* CreateWindow(const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen);
     void DestroyWindow(cWindow* pWindow);
 
     cContext* CreateSharedContextFromWindow(const cWindow& window);

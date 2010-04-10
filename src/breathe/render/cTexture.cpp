@@ -67,13 +67,17 @@ namespace breathe
       fU(0.0f),
       fV(0.0f),
 
-      surface(nullptr)
+      pSurface(nullptr)
     {
     }
 
     cTexture::~cTexture()
     {
-      SDL_FreeSurface(surface);
+      if (pSurface != nullptr) {
+        SDL_FreeSurface(pSurface);
+        pSurface = nullptr;
+      }
+
       data.clear();
     }
 
@@ -84,10 +88,10 @@ namespace breathe
       sFilename = inFilename;
 
       //unsigned int mode = 0;
-      surface = IMG_Load(breathe::string::ToUTF8(sFilename).c_str());
+      pSurface = IMG_Load(breathe::string::ToUTF8(sFilename).c_str());
 
       // could not load filename
-      if (surface == nullptr) {
+      if (pSurface == nullptr) {
         if (spitfire::filesystem::FileExists(sFilename)) LOG.Success("Texture", "Texture " + breathe::string::ToUTF8(sFilename) + " exists");
         else LOG.Error("Texture", "Texture " + breathe::string::ToUTF8(sFilename) + " doesn't exist");
 
@@ -98,13 +102,13 @@ namespace breathe
 
 
       //Check the format
-      if (8 == surface->format->BitsPerPixel) {
+      if (8 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
         uiType = TEXTURE_TYPE::TEXTURE_HEIGHTMAP;
-      } else if (16 == surface->format->BitsPerPixel) {
+      } else if (16 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
         uiType = TEXTURE_TYPE::TEXTURE_HEIGHTMAP;
-      } else if (24 == surface->format->BitsPerPixel) {
+      } else if (24 == pSurface->format->BitsPerPixel) {
         CONSOLE.Error("Texture", breathe::string::ToUTF8(sFilename) + " is a 24 bit RGB image");
         // Add alpha channel
         SDL_PixelFormat format = {
@@ -113,31 +117,31 @@ namespace breathe
           0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
           0, 255
         };
-        SDL_Surface *pConvertedSurface = SDL_ConvertSurface(surface, &format, SDL_SWSURFACE);
-        SDL_FreeSurface(surface);
-        surface = pConvertedSurface;
-      } else if (32 == surface->format->BitsPerPixel) {
+        SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
+        SDL_FreeSurface(pSurface);
+        pSurface = pConvertedSurface;
+      } else if (32 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " is a 32 bit RGBA image");
         uiType = TEXTURE_TYPE::TEXTURE_RGBA;
 
         // Convert if BGR
-        if (surface->format->Rshift > surface->format->Bshift) {
+        if (pSurface->format->Rshift > pSurface->format->Bshift) {
           SDL_PixelFormat format = {
             NULL, 32, 4, 0, 0, 0, 0,
             0, 8, 16, 24,
             0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
             0, 255};
-          SDL_Surface *pConvertedSurface = SDL_ConvertSurface(surface, &format, SDL_SWSURFACE);
-          SDL_FreeSurface(surface);
-          surface = pConvertedSurface;
+          SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
+          SDL_FreeSurface(pSurface);
+          pSurface = pConvertedSurface;
         }
 
-        /*int nHH = surface->h / 2;
-        int nPitch = surface->pitch;
+        /*int nHH = pSurface->h / 2;
+        int nPitch = pSurface->pitch;
 
         unsigned char* pBuf = new unsigned char[nPitch];
-        unsigned char* pSrc = (unsigned char*) surface->pixels;
-        unsigned char* pDst = (unsigned char*) surface->pixels + nPitch*(surface->h - 1);
+        unsigned char* pSrc = (unsigned char*)pSurface->pixels;
+        unsigned char* pDst = (unsigned char*)pSurface->pixels + nPitch * (pSurface->h - 1);
 
         while (nHH--)
         {
@@ -152,13 +156,13 @@ namespace breathe
         SAFE_DELETE_ARRAY(pBuf);*/
       } else {
         std::ostringstream t;
-        t << surface->format->BitsPerPixel;
+        t << pSurface->format->BitsPerPixel;
         LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + "bit) " + breathe::string::ToUTF8(sFilename));
         return false;
       }
 
-      uiWidth = surface->w;
-      uiHeight = surface->h;
+      uiWidth = pSurface->w;
+      uiHeight = pSurface->h;
 
       {
         std::ostringstream t;
@@ -167,7 +171,7 @@ namespace breathe
         t<<uiHeight;
         LOG.Success("Texture", breathe::string::ToUTF8(t.str()));
       }
-      CopyFromSurfaceToData(surface->w, surface->h);
+      CopyFromSurfaceToData(pSurface->w, pSurface->h);
 
       return true;
     }
@@ -185,28 +189,28 @@ namespace breathe
 
     void cTexture::CopyFromSurfaceToData()
     {
-      ASSERT(surface != nullptr);
+      ASSERT(pSurface != nullptr);
 
       // Fill out the pData structure array, we use this for when we have to reload this data
       // on a task switch or fullscreen mode change
       if (data.empty()) data.resize(uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4), 0);
 
-      std::memcpy(&data[0], surface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(&data[0], pSurface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
     }
 
     void cTexture::CopyFromDataToSurface()
     {
-      ASSERT(surface != nullptr);
+      ASSERT(pSurface != nullptr);
 
       if (data.empty()) return;
 
-      std::memcpy(surface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(pSurface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
     }
 
     bool cTexture::SaveToBMP(const string_t& inFilename) const
     {
-      ASSERT(surface != nullptr);
-      SDL_SaveBMP(surface, breathe::string::ToUTF8(inFilename).c_str());
+      ASSERT(pSurface != nullptr);
+      SDL_SaveBMP(pSurface, breathe::string::ToUTF8(inFilename).c_str());
       return true;
     }
 
@@ -230,12 +234,12 @@ namespace breathe
       // Bind so that the next operations happen on this texture
       glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-      if (surface != nullptr) {
+      if (pSurface != nullptr) {
         // Copy from surface to texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pSurface->w, pSurface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pSurface->pixels);
 
         //Remove this line if there are artifacts
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, pSurface->w, pSurface->h, GL_RGBA, GL_UNSIGNED_BYTE, pSurface->pixels);
 
         // Settings to make the texture look a bit nicer when we do blit it to the screen
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

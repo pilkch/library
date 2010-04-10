@@ -109,7 +109,7 @@ namespace opengl
   }
 
 
-  /*// ** cTextureFrameBufferObject
+  // ** cTextureFrameBufferObject
 
   const size_t DEFAULT_FBO_TEXTURE_WIDTH = 1024;
   const size_t DEFAULT_FBO_TEXTURE_HEIGHT = 1024;
@@ -120,8 +120,10 @@ namespace opengl
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
 
-    bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBE_MAP); }
-    void SetModeCubeMap();
+    bool IsModeCubeMap() const { return bIsCubeMap; }
+    void SetModeCubeMap() { bIsCubeMap = true; }
+
+    bool CreateFrameBufferObject(size_t width, size_t height);
 
     void GenerateMipMapsIfRequired();
 
@@ -135,7 +137,8 @@ namespace opengl
     void _Create();
 
     bool bIsUsingMipMaps;
-  };*/
+    bool bIsCubeMap;
+  };
 }
 
 #endif // LIBOPENGLMM_CTEXTURE_H

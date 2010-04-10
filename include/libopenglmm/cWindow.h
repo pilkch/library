@@ -34,7 +34,7 @@ namespace opengl
   class cWindow
   {
   public:
-    cWindow(cSystem& system, const cResolution& resolution, bool bIsFullScreen);
+    cWindow(cSystem& system, const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen);
     ~cWindow();
 
     const cContext* GetContext() const { return pContext; }

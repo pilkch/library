@@ -24,7 +24,7 @@
 
 namespace opengl
 {
-  cWindow::cWindow(cSystem& _system, const cResolution& _resolution, bool bIsFullScreen) :
+  cWindow::cWindow(cSystem& _system, const std::string& sCaption, const cResolution& _resolution, bool bIsFullScreen) :
     system(_system),
     resolution(_resolution),
     pContext(nullptr),
@@ -38,6 +38,9 @@ namespace opengl
     SDL_EnableKeyRepeat(200, 20);
 
     pContext = system.CreateSharedContextFromWindow(*this);
+
+    // Set our caption
+    SetCaption(sCaption);
   }
 
   cWindow::~cWindow()

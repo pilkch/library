@@ -34,6 +34,9 @@
 
 #include <libopenglmm/libopenglmm.h>
 
+typedef uint32_t GLuint;
+typedef ptrdiff_t GLsizeiptr;
+
 namespace opengl
 {
   // http://playcontrol.net/ewing/jibberjabber/opengl_vertex_buffer_object.html

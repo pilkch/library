@@ -33,7 +33,8 @@ namespace opengl
     bIsValid(false),
     resolution(window.GetResolution()),
     pSurface(nullptr),
-    clearColour(1.0f, 0.0f, 0.0f, 1.0f),
+    clearColour(0.0f, 0.0f, 0.0f, 1.0f),
+    ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
@@ -50,6 +51,7 @@ namespace opengl
       assert(false);
     }
 
+    SetDefaultFlags();
     SetPerspective();
 
     system.UpdateCapabilities();
@@ -92,23 +94,29 @@ namespace opengl
     bIsValid(false),
     resolution(_resolution),
     pSurface(nullptr),
+    clearColour(0.0f, 0.0f, 0.0f, 1.0f),
+    ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
+
+    SetDefaultFlags();
+    SetPerspective();
   }
 
   cContext::~cContext()
   {
-    assert(pSurface != nullptr);
-
-    SDL_FreeSurface(pSurface);
-    pSurface = nullptr;
+    if (pSurface != nullptr) {
+      SDL_FreeSurface(pSurface);
+      pSurface = nullptr;
+    }
   }
 
   bool cContext::IsValid() const
   {
-    return (pSurface != nullptr);
+    return bIsValid;
   }
+
 
   cTexture* cContext::CreateTexture(const std::string& sFileName)
   {
@@ -124,16 +132,33 @@ namespace opengl
     return pTexture;
   }
 
-  cTexture* cContext::CreateTexture(size_t width, size_t height, PIXELFORMAT pixelFormat)
-  {
-    return nullptr;
-  }
-
   void cContext::DestroyTexture(cTexture* pTexture)
   {
     assert(pTexture != nullptr);
     delete pTexture;
   }
+
+
+  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat)
+  {
+    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
+    if (!pTexture->CreateFrameBufferObject(width, height)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    pTexture->Create();
+    pTexture->CopyFromSurfaceToTexture();
+
+    return pTexture;
+  }
+
+  void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture)
+  {
+    assert(pTexture != nullptr);
+    delete pTexture;
+  }
+
 
   cShader* cContext::CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName)
   {
@@ -234,16 +259,21 @@ namespace opengl
       return false;
     }
 
+    return true;
+  }
 
+  void cContext::SetDefaultFlags()
+  {
+    // Setup rendering options
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
     glShadeModel(GL_SMOOTH);
+    glEnable(GL_NORMALIZE);
+
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-
-    return true;
   }
 
   void cContext::SetPerspective()
@@ -255,22 +285,21 @@ namespace opengl
     assert(height != 0);
 
     // Height / width ratio
-    const GLfloat ratio = (GLfloat)width / (GLfloat)height;
+    const GLfloat fRatio = (GLfloat)width / (GLfloat)height;
 
     // Setup our viewport
     glViewport(0, 0, (GLint)width, (GLint)height);
 
-    // Change to the projection matrix and set our viewing volume
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
     // Set our perspective
     const float fMaximumViewDistance = 1000.0f;
-    gluPerspective(45.0f, ratio, 0.1f, fMaximumViewDistance);
+    spitfire::math::cMat4 projection;
+    projection.SetPerspective(45.0f, fRatio, 0.1f, fMaximumViewDistance);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(projection.GetOpenGLMatrixPointer());
 
     // Set our modelview matrix
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
   }
 
   void cContext::ResizeWindow(const cResolution& _resolution)
@@ -289,38 +318,159 @@ namespace opengl
 
   void cContext::SetClearColour(const spitfire::math::cColour& _clearColour)
   {
+    std::cout<<"cContext::SetClearColour ("<<_clearColour.r<<","<<_clearColour.g<<","<<_clearColour.b<<")"<<std::endl;
     clearColour = _clearColour;
   }
 
-  void cContext::BeginRendering()
+  void cContext::SetAmbientLightColour(const spitfire::math::cColour& _ambientLightColour)
+  {
+    ambientLightColour = _ambientLightColour;
+  }
+
+  void cContext::_BeginRenderShared()
   {
     matProjection.LoadIdentity();
     matModelView.LoadIdentity();
     matTexture.LoadIdentity();
 
 
-    glClearDepth(1.0);
-    glClearColor(clearColour.r, clearColour.g, clearColour.b, 1.0f);
-
+    //glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    //glDepthFunc(GL_LEQUAL);
 
+    glClearColor(clearColour.r, clearColour.g, clearColour.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set our default colour
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+    //const GLfloat global_ambient[] = { ambientLightColour.r, ambientLightColour.g, ambientLightColour.b, 1.0f };
+    //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+
     // Set our modelview matrix
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // Set our texture matrix
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+
+
+    //if (bIsFSAAEnabled) glEnable(GL_MULTISAMPLE_ARB);
+
+    //if (bIsRenderWireframe) EnableWireframe();
+    //else DisableWireframe();
+  }
+
+  void cContext::_EndRenderShared()
+  {
+    //if (bIsFSAAEnabled) glDisable(GL_MULTISAMPLE_ARB);
+  }
+
+
+  void cContext::BeginRendering()
+  {
+    _BeginRenderShared();
   }
 
   void cContext::EndRendering()
   {
+    _EndRenderShared();
+
     if (bIsRenderingToWindow) {
       SDL_GL_SwapBuffers();
     }
   }
+
+  void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
+  {
+    assert(texture.IsValid());
+    assert(!texture.IsModeCubeMap()); // Cubemaps have to be rendered into each face separately
+
+    glEnable(GL_TEXTURE_2D);
+
+    // First we bind the FBO so we can render to it
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, texture.uiFBO);
+
+    // Save the view port settings and set it to the size of the texture
+    glPushAttrib(GL_VIEWPORT_BIT);
+    glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
+
+    _BeginRenderShared();
+  }
+
+  void cContext::EndRenderToTexture(cTextureFrameBufferObject& texture)
+  {
+    _EndRenderShared();
+
+    // Restore old view port settings and set rendering back to default frame buffer
+    glPopAttrib();
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    texture.GenerateMipMapsIfRequired();
+
+    glDisable(GL_TEXTURE_2D);
+  }
+
+  void cContext::EnableLighting()
+  {
+    glEnable(GL_LIGHTING);
+  }
+
+  void cContext::DisableLighting()
+  {
+    glDisable(GL_LIGHTING);
+  }
+
+  void cContext::EnableLight(size_t light)
+  {
+    glEnable(GL_LIGHT0 + light);
+  }
+
+  void cContext::DisableLighting(size_t light)
+  {
+    glDisable(GL_LIGHT0 + light);
+  }
+
+  void cContext::SetLightType(size_t light, LIGHT_TYPE type)
+  {
+  }
+
+  void cContext::SetLightPosition(size_t light, const spitfire::math::cVec3& _position)
+  {
+    const GLfloat position[] = { _position.x, _position.y, _position.z, 0.0f };
+    glLightfv(GL_LIGHT0 + light, GL_POSITION, position);
+  }
+
+  void cContext::SetLightRotation(size_t light, const spitfire::math::cQuaternion& rotation)
+  {
+  }
+
+  void cContext::SetLightAmbientColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat ambient[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient);
+  }
+
+  void cContext::SetLightDiffuseColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat diffuse[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse);
+  }
+
+  void cContext::SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat specular[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular);
+  }
+
+  // TODO: Remove this, it is primarily for openglmm_gears and can probably be replaced with a shader
+  void cContext::SetMaterialColour(const spitfire::math::cColour& _colour)
+  {
+    const GLfloat colour[] = { _colour.r, _colour.g, _colour.b, 1.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colour);
+  }
+
 
   // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
   //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
