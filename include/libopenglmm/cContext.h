@@ -82,6 +82,9 @@ namespace opengl
     //void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face);
     //void EndRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture);
 
+    void BeginRenderMode2D();
+    void EndRenderMode2D();
+
 
     void EnableLighting();
     void DisableLighting();
@@ -125,6 +128,8 @@ namespace opengl
 
     void BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
     void UnBindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
+    void BindStaticVertexBufferObject2D(cStaticVertexBufferObject& staticVertexBufferObject);
+    void UnBindStaticVertexBufferObject2D(cStaticVertexBufferObject& staticVertexBufferObject);
 
     void DrawStaticVertexBufferObjectLines(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectTriangles(cStaticVertexBufferObject& staticVertexBufferObject);
@@ -132,15 +137,17 @@ namespace opengl
     void DrawStaticVertexBufferObjectQuads(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectQuadStrip(cStaticVertexBufferObject& staticVertexBufferObject);
 
+    void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);
+
   protected:
     void ReloadResources() {}
 
   private:
-    bool SetWindowVideoMode(bool bIsFullScreen);
-    void SetDefaultFlags();
-    void SetPerspective();
+    bool _SetWindowVideoMode(bool bIsFullScreen);
+    void _SetDefaultFlags();
+    void _SetPerspective(size_t width, size_t height);
 
-    void _BeginRenderShared();
+    void _BeginRenderShared(size_t width, size_t height);
     void _EndRenderShared();
 
     cSystem& system;

@@ -189,6 +189,110 @@ namespace opengl
     bIsCompiled = true;
   }
 
+  void cStaticVertexBufferObject::Compile2D(const cSystem& system)
+  {
+    assert(!IsCompiled());
+
+    const size_t nVertices = vertices.size() / 2;
+    const size_t nTextureCoordinates = textureCoordinates.size() / 2;
+    assert(nVertices != 0);
+    if (nTextureCoordinates == (nVertices + nVertices + nVertices)) nTextureUnits = 3;
+    else if (nTextureCoordinates == (nVertices + nVertices)) nTextureUnits = 2;
+    else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
+    else nTextureUnits = 0;
+
+    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<system.GetErrorString()<<std::endl;
+
+    // Create a new buffer
+    glGenBuffers(1, &bufferID);
+    std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+    assert(bufferID != 0);
+
+    // Bbind the buffer object to use
+    glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+
+    // Allocate enough memory for the whole buffer
+    // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
+    glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+      // Describe to OpenGL where the vertex data is in the buffer
+      glVertexPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(0));
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    if (normal_size != 0) {
+      glEnableClientState(GL_NORMAL_ARRAY);
+        // Describe to OpenGL where the normal data is in the buffer
+        glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+      glDisableClientState(GL_NORMAL_ARRAY);
+    }
+
+    if (colour_size != 0) {
+      glEnableClientState(GL_COLOR_ARRAY);
+        // Describe to OpenGL where the colour data is in the buffer
+        glColorPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glDisableClientState(GL_COLOR_ARRAY);
+    }
+
+    if (texturecoordinate_size != 0) {
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        // Describe to OpenGL where the texture coordinate data is in the buffer
+        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    // Set the buffer data
+    GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    assert(pVoid != nullptr);
+
+      float* pBuffer = (float*)pVoid;
+
+      // Transfer the vertex data to the VBO
+      memcpy(pBuffer, vertices.data(), vertex_size);
+
+      // Append normal data to vertex data
+      if (normal_size != 0) memcpy(&pBuffer[vertices.size()], normals.data(), normal_size);
+
+      // Append colour data to vertex data and normal data
+      if (colour_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], colours.data(), colour_size);
+
+      // Append texture coordinates data to vertex data and normal data and colour data
+      if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size() + colours.size()], textureCoordinates.data(), texturecoordinate_size);
+
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+
+
+    // Index buffer
+
+    // create index buffer
+    //glGenBuffers(1, &cubeIBO);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
+
+    // For constrast, instead of glBufferSubData and glMapBuffer,
+    // we can directly supply the data in one-shot
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUMBER_OF_CUBE_INDICES*sizeof(GLubyte), s_cubeIndices, GL_STATIC_DRAW);
+
+
+    // We are now finished and are ready to unbind
+
+    // Unbind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Disable texture coordinate information
+    if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    // Disable colour information
+    if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
+
+    // Disable normal information
+    if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
+
+    // Disable vertex information
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    bIsCompiled = true;
+  }
+
   void cStaticVertexBufferObject::Destroy()
   {
     //glDeleteBuffers(1, &cubeIBO);
@@ -221,6 +325,60 @@ namespace opengl
       // Describe to OpenGL where the colour coordinate data is in the buffer
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+    }
+
+    // Enable texture coordinate information
+    if (texturecoordinate_size > 0) {
+      //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      // Describe to OpenGL where the texture coordinate data is in the buffer
+      //glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+
+      for (size_t i = 0; i < nTextureUnits; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glClientActiveTexture(GL_TEXTURE0 + i);
+
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 2 * nTextureUnits * sizeof(GL_FLOAT), BUFFER_OFFSET(vertex_size + normal_size + colour_size + (2 * i * sizeof(GL_FLOAT))));
+      }
+
+      // This is not normal!  Instead of sending 2 * 2 texture coordinates for every point, we send
+      // 4 * 1 texture coordinates for every point, sending them all in one texture unit
+      // if (texturecoordinate_size > 1) {
+      //   glActiveTexture(GL_TEXTURE1);
+      //   glClientActiveTexture(GL_TEXTURE1);
+      //   glEnable(GL_TEXTURE_2D);
+      //   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size colour_size + (2 * sizeof(GL_FLOAT))));
+      // }
+    }
+  }
+
+  void cStaticVertexBufferObject::Bind2D()
+  {
+    assert(IsCompiled());
+
+    // Activate the VBOs to draw
+    glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
+
+    // Enable vertex information
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    // Describe to OpenGL where the vertex data is in the buffer
+    glVertexPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(0));
+
+    // Enable normal information
+    if (normal_size > 0) {
+      // Describe to OpenGL where the normal coordinate data is in the buffer
+      glEnableClientState(GL_NORMAL_ARRAY);
+      glNormalPointer(GL_FLOAT, 0, BUFFER_OFFSET(vertex_size));
+    }
+
+    // Enable colour information
+    if (colour_size > 0) {
+      // Describe to OpenGL where the colour coordinate data is in the buffer
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
     }
 
     // Enable texture coordinate information
@@ -282,7 +440,7 @@ namespace opengl
 
   #if 1
     // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
-    const size_t nVertices = vertices.size() / 3;
+    const size_t nVertices = vertices.size() / 2;
     glDrawArrays(geometryType, 0, nVertices);
     //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
   #else
@@ -323,6 +481,54 @@ namespace opengl
   #endif
   }
 
+  void cStaticVertexBufferObject::RenderGeometry2D(GLenum geometryType)
+  {
+    std::cout<<"cStaticVertexBufferObject::RenderGeometry2D vertices.size()="<<vertices.size()<<std::endl;
+    assert(IsCompiled());
+
+  #if 1
+    // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+    const size_t nVertices = vertices.size() / 2;
+    glDrawArrays(geometryType, 0, nVertices);
+    //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
+  #else
+    // This is just for testing, immediate mode (yuk!)
+    glBegin(geometryType);
+
+      const size_t n = vertices.size();
+      size_t v = 0;
+      size_t t = 0;
+      if (nTextureUnits == 2) {
+        // Multitexturing
+        while (v < n) {
+          glMultiTexCoord2f(GL_TEXTURE0, textureCoordinates[t], textureCoordinates[t + 1]);
+          glMultiTexCoord2f(GL_TEXTURE1, textureCoordinates[t + 2], textureCoordinates[t + 3]);
+          glVertex2f(vertices[v], vertices[v + 1]);
+
+          v += 2;
+          t += 4;
+        };
+      } else if (nTextureUnits == 1) {
+        // Single texturing
+        while (v < n) {
+          glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]);
+          glVertex2f(vertices[v], vertices[v + 1]);
+
+          v += 2;
+          t += 2;
+        };
+      } else {
+        while (v < n) {
+          glVertex2f(vertices[v], vertices[v + 1]);
+
+          v += 2;
+        };
+      }
+
+    glEnd();
+  #endif
+  }
+
   void cStaticVertexBufferObject::RenderLines()
   {
     RenderGeometry(GL_LINES);
@@ -346,5 +552,11 @@ namespace opengl
   void cStaticVertexBufferObject::RenderQuadStrip()
   {
     RenderGeometry(GL_QUAD_STRIP);
+  }
+
+
+  void cStaticVertexBufferObject::RenderQuads2D()
+  {
+    RenderGeometry2D(GL_QUADS);
   }
 }

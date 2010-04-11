@@ -58,11 +58,14 @@ namespace opengl
     void SetIndices(const std::vector<uint16_t>& indices);
 
     void Compile(const cSystem& system);
+    void Compile2D(const cSystem& system);
     void Destroy();
 
   protected:
     void Bind();
+    void Bind2D();
     void Unbind();
+    void Unbind2D() { Unbind(); }
 
     void RenderLines();
     void RenderTriangles();
@@ -70,8 +73,12 @@ namespace opengl
     void RenderQuads();
     void RenderQuadStrip();
 
+    void RenderQuads2D();
+
   private:
     void RenderGeometry(GLenum geometryType);
+
+    void RenderGeometry2D(GLenum geometryType);
 
     bool bIsCompiled;
 

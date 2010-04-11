@@ -121,7 +121,7 @@ namespace spitfire
       // glGetFloatv(GL_MODELVIEW_MATRIX, modl);
       void SetFromOpenGLMatrix(const float* pEntries);
 
-      void LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up);
+      void LookAt(const cVec3& eye, const cVec3& target, const cVec3& up);
 
       // OpenGL matrix operations
       void MultiplyMatrix(const cMat4& rhs);

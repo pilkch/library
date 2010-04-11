@@ -46,13 +46,13 @@ namespace opengl
     }
 
 
-    if (!SetWindowVideoMode(window.IsFullScreen())) {
+    if (!_SetWindowVideoMode(window.IsFullScreen())) {
       std::cout<<"cContext::cContext Error setting video mode"<<std::endl;
       assert(false);
     }
 
-    SetDefaultFlags();
-    SetPerspective();
+    _SetDefaultFlags();
+    _SetPerspective(resolution.width, resolution.height);
 
     system.UpdateCapabilities();
 
@@ -100,8 +100,8 @@ namespace opengl
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
-    SetDefaultFlags();
-    SetPerspective();
+    _SetDefaultFlags();
+    _SetPerspective(resolution.width, resolution.height);
   }
 
   cContext::~cContext()
@@ -189,7 +189,7 @@ namespace opengl
   }
 
 
-  bool cContext::SetWindowVideoMode(bool bIsFullScreen)
+  bool cContext::_SetWindowVideoMode(bool bIsFullScreen)
   {
     assert(bIsRenderingToWindow);
 
@@ -208,10 +208,10 @@ namespace opengl
 
 
     if (bIsFullScreen) {
-      std::cout<<"cContext::SetWindowVideoMode fullscreen"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode fullscreen"<<std::endl;
       uiFlags |= SDL_FULLSCREEN;
     } else {
-      std::cout<<"cContext::SetWindowVideoMode window"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode window"<<std::endl;
       uiFlags &= ~SDL_FULLSCREEN;
     }
 
@@ -219,28 +219,28 @@ namespace opengl
 
     const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
     if (pVideoInfo == nullptr) {
-      std::cout<<"cContext::SetWindowVideoMode SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
       return false;
     }
 
 
     // This checks to see if surfaces can be stored in memory
     if (pVideoInfo->hw_available) {
-      std::cout<<"cContext::SetWindowVideoMode Hardware surface"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode Hardware surface"<<std::endl;
       uiFlags |= SDL_HWSURFACE;
       uiFlags &= ~SDL_SWSURFACE;
     } else {
-      std::cout<<"cContext::SetWindowVideoMode Software surface"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode Software surface"<<std::endl;
       uiFlags |= SDL_SWSURFACE;
       uiFlags &= ~SDL_HWSURFACE;
     }
 
     // This checks if hardware blits can be done
     if (pVideoInfo->blit_hw) {
-      std::cout<<"cContext::SetWindowVideoMode Hardware blit"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode Hardware blit"<<std::endl;
       uiFlags |= SDL_HWACCEL;
     } else {
-      std::cout<<"cContext::SetWindowVideoMode Software blit"<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode Software blit"<<std::endl;
       uiFlags &= ~SDL_HWACCEL;
     }
 
@@ -252,17 +252,17 @@ namespace opengl
 
 
     // Create an SDL surface
-    std::cout<<"cContext::SetWindowVideoMode Calling SDL_SetVideoMode"<<std::endl;
+    std::cout<<"cContext::_SetWindowVideoMode Calling SDL_SetVideoMode"<<std::endl;
     pSurface = SDL_SetVideoMode(resolution.width, resolution.height, GetBitsForPixelFormat(resolution.pixelFormat), uiFlags);
     if (pSurface == nullptr) {
-      std::cout<<"cContext::SetWindowVideoMode SDL_SetVideoMode FAILED error="<<SDL_GetError()<<std::endl;
+      std::cout<<"cContext::_SetWindowVideoMode SDL_SetVideoMode FAILED error="<<SDL_GetError()<<std::endl;
       return false;
     }
 
     return true;
   }
 
-  void cContext::SetDefaultFlags()
+  void cContext::_SetDefaultFlags()
   {
     // Setup rendering options
     glCullFace(GL_BACK);
@@ -276,11 +276,8 @@ namespace opengl
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
   }
 
-  void cContext::SetPerspective()
+  void cContext::_SetPerspective(size_t width, size_t height)
   {
-    const size_t width = resolution.width;
-    const size_t height = resolution.height;
-
     // Protect against a divide by zero
     assert(height != 0);
 
@@ -308,17 +305,16 @@ namespace opengl
 
     resolution = _resolution;
 
-    if (!SetWindowVideoMode(false)) {
+    if (!_SetWindowVideoMode(false)) {
       std::cout<<"cContext::ResizeWindow Error setting video mode"<<std::endl;
       assert(false);
     }
 
-    SetPerspective();
+    _SetPerspective(resolution.width, resolution.height);
   }
 
   void cContext::SetClearColour(const spitfire::math::cColour& _clearColour)
   {
-    std::cout<<"cContext::SetClearColour ("<<_clearColour.r<<","<<_clearColour.g<<","<<_clearColour.b<<")"<<std::endl;
     clearColour = _clearColour;
   }
 
@@ -327,11 +323,13 @@ namespace opengl
     ambientLightColour = _ambientLightColour;
   }
 
-  void cContext::_BeginRenderShared()
+  void cContext::_BeginRenderShared(size_t width, size_t height)
   {
     matProjection.LoadIdentity();
     matModelView.LoadIdentity();
     matTexture.LoadIdentity();
+
+    _SetPerspective(width, height);
 
 
     //glClearDepth(1.0);
@@ -347,15 +345,6 @@ namespace opengl
     //const GLfloat global_ambient[] = { ambientLightColour.r, ambientLightColour.g, ambientLightColour.b, 1.0f };
     //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
-    // Set our modelview matrix
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    // Set our texture matrix
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-
-
     //if (bIsFSAAEnabled) glEnable(GL_MULTISAMPLE_ARB);
 
     //if (bIsRenderWireframe) EnableWireframe();
@@ -370,7 +359,7 @@ namespace opengl
 
   void cContext::BeginRendering()
   {
-    _BeginRenderShared();
+    _BeginRenderShared(resolution.width, resolution.height);
   }
 
   void cContext::EndRendering()
@@ -396,7 +385,7 @@ namespace opengl
     glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
 
-    _BeginRenderShared();
+    _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
   }
 
   void cContext::EndRenderToTexture(cTextureFrameBufferObject& texture)
@@ -411,6 +400,68 @@ namespace opengl
 
     glDisable(GL_TEXTURE_2D);
   }
+
+  void cContext::BeginRenderMode2D()
+  {
+    // Setup projection matrix without touching matProjection so that we can revert later
+
+    spitfire::math::cMat4 matrix;
+
+    // Our screen coordinates look like this
+    // 0.0f, 0.0f            1.0f, 0.0f
+    //
+    //
+    // 0.0f, 1.0f            1.0f, 1.0f
+
+    matrix.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+  }
+
+  void cContext::EndRenderMode2D()
+  {
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+
+    // Revert the previous projection matrix
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(matProjection.GetOpenGLMatrixPointer());
+  }
+
+
+  // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
+  //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
+  //glUniformMatrix4fv("???", 1, GL_FALSE, matModelView.GetOpenGLMatrixPointer());
+  //glUniformMatrix4fv("???", 1, GL_FALSE, matTexture.GetOpenGLMatrixPointer());
+
+  void cContext::SetProjectionMatrix(const spitfire::math::cMat4& matrix)
+  {
+    matProjection = matrix;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+  }
+
+  void cContext::SetModelViewMatrix(const spitfire::math::cMat4& matrix)
+  {
+    matModelView = matrix;
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+  }
+
+  void cContext::SetTextureMatrix(const spitfire::math::cMat4& matrix)
+  {
+    matTexture = matrix;
+
+    glMatrixMode(GL_TEXTURE);
+    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+  }
+
 
   void cContext::EnableLighting()
   {
@@ -469,36 +520,6 @@ namespace opengl
   {
     const GLfloat colour[] = { _colour.r, _colour.g, _colour.b, 1.0f };
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colour);
-  }
-
-
-  // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
-  //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
-  //glUniformMatrix4fv("???", 1, GL_FALSE, matModelView.GetOpenGLMatrixPointer());
-  //glUniformMatrix4fv("???", 1, GL_FALSE, matTexture.GetOpenGLMatrixPointer());
-
-  void cContext::SetProjectionMatrix(const spitfire::math::cMat4& matrix)
-  {
-    matProjection = matrix;
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
-  }
-
-  void cContext::SetModelViewMatrix(const spitfire::math::cMat4& matrix)
-  {
-    matModelView = matrix;
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
-  }
-
-  void cContext::SetTextureMatrix(const spitfire::math::cMat4& matrix)
-  {
-    matTexture = matrix;
-
-    glMatrixMode(GL_TEXTURE);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
   }
 
 
@@ -640,6 +661,16 @@ namespace opengl
     staticVertexBufferObject.Unbind();
   }
 
+  void cContext::BindStaticVertexBufferObject2D(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.Bind2D();
+  }
+
+  void cContext::UnBindStaticVertexBufferObject2D(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.Unbind2D();
+  }
+
 
   void cContext::DrawStaticVertexBufferObjectLines(cStaticVertexBufferObject& staticVertexBufferObject)
   {
@@ -664,5 +695,11 @@ namespace opengl
   void cContext::DrawStaticVertexBufferObjectQuadStrip(cStaticVertexBufferObject& staticVertexBufferObject)
   {
     staticVertexBufferObject.RenderQuadStrip();
+  }
+
+
+  void cContext::DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderQuads2D();
   }
 }

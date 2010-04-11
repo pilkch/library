@@ -750,30 +750,33 @@ namespace spitfire
 
       entries[0] = 2.0f / (right - left);
 
-      entries[5] = 2.0f/(top-bottom);
+      entries[5] = 2.0f / (top - bottom);
 
-      entries[10] = -2.0f/(f-n);
+      entries[10] = -2.0f / (f - n);
 
-      entries[12] = -(right+left)/(right-left);
-      entries[13] = -(top+bottom)/(top-bottom);
-      entries[14] = -(f+n)/(f-n);
+      entries[12] = -(right + left) / (right - left);
+      entries[13] = -(top + bottom) / (top - bottom);
+      entries[14] = -(f + n)/(f - n);
     }
 
-    void cMat4::LookAt(const cVec3& eye, const cVec3& dir, const cVec3& up)
+    void cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
     {
-      cVec3 z = eye - dir;
-      z.Normalise();
-      cVec3 x;
-      x.Cross(up, z);
-      x.Normalise();
-      cVec3 y;
-      y.Cross(z,x);
-      y.Normalise();
+      cVec3 f = target - eye;
+      f.Normalise();
+
+      cVec3 u = up;
+      u.Normalise();
+
+      cVec3 s;
+      s.Cross(f, u);
+      s.Normalise();
+
+      u.Cross(s, f);
 
       cMat4 m0;
-      m0.entries[0] = x.x; m0.entries[4] = x.y; m0.entries[8] = x.z; m0.entries[12] = 0.0f;
-      m0.entries[1] = y.x; m0.entries[5] = y.y; m0.entries[9] = y.z; m0.entries[13] = 0.0f;
-      m0.entries[2] = z.x; m0.entries[6] = z.y; m0.entries[10] = z.z; m0.entries[14] = 0.0f;
+      m0.entries[0] = s.x; m0.entries[4] = s.y; m0.entries[8] = s.z; m0.entries[12] = 0.0f;
+      m0.entries[1] = u.x; m0.entries[5] = u.y; m0.entries[9] = u.z; m0.entries[13] = 0.0f;
+      m0.entries[2] = -f.x; m0.entries[6] = -f.y; m0.entries[10] = -f.z; m0.entries[14] = 0.0f;
       m0.entries[3] = 0.0f; m0.entries[7] = 0.0f; m0.entries[11] = 0.0f; m0.entries[15] = 1.0f;
 
       cMat4 m1;
