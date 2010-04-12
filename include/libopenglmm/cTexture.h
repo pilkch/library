@@ -87,7 +87,6 @@ namespace opengl
     unsigned int uiWidth;
     unsigned int uiHeight;
 
-  public:
     TEXTURE_TYPE uiType;
 
     float fScale;
