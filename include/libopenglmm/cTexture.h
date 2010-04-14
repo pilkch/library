@@ -28,6 +28,7 @@
 #include <spitfire/math/math.h>
 #include <spitfire/math/cColour.h>
 
+#include <libopenglmm/libopenglmm.h>
 //#include <libopenglmm/cTexture.h>
 //#include <libopenglmm/cShader.h>
 //#include <libopenglmm/cVertexBufferObject.h>
@@ -59,7 +60,8 @@ namespace opengl
     void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
     void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
 
-    bool Load(const std::string& sFilename);
+    bool LoadFromFile(const std::string& sFilename);
+    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
 
     // pData <--> pSurface -> OpenGL texture
     void CopyFromDataToSurface();
@@ -97,6 +99,8 @@ namespace opengl
     std::vector<unsigned char> data;
 
   private:
+    size_t GetBytesPerPixel() const;
+
     virtual bool _IsValid() const { return (uiTexture != 0); }
     virtual void _Create();
   };

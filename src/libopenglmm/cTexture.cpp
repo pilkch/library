@@ -66,9 +66,14 @@ namespace opengl
     data.clear();
   }
 
-  bool cTexture::Load(const std::string& inFilename)
+  size_t cTexture::GetBytesPerPixel() const
   {
-    std::cout<<"cTexture::Load \""<<inFilename<<"\""<<std::endl;
+    return (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4);
+  }
+
+  bool cTexture::LoadFromFile(const std::string& inFilename)
+  {
+    std::cout<<"cTexture::LoadFromFile \""<<inFilename<<"\""<<std::endl;
 
     sFilename = inFilename;
 
@@ -77,10 +82,10 @@ namespace opengl
 
     // Could not load filename
     if (pSurface == nullptr) {
-      if (FileExists(sFilename)) std::cout<<"cTexture::Load Texture "<<sFilename<<" exists"<<std::endl;
-      else std::cout<<"cTexture::Load Texture "<<sFilename<<" doesn't exist"<<std::endl;
+      if (FileExists(sFilename)) std::cout<<"cTexture::LoadFromFile Texture "<<sFilename<<" exists"<<std::endl;
+      else std::cout<<"cTexture::LoadFromFile Texture "<<sFilename<<" doesn't exist"<<std::endl;
 
-      std::cout<<"cTexture::Load Couldn't Load Texture "<<sFilename<<std::endl;
+      std::cout<<"cTexture::LoadFromFile Couldn't Load Texture "<<sFilename<<std::endl;
       return false;
     }
 
@@ -88,13 +93,13 @@ namespace opengl
 
     // Check the format
     if (8 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cTexture::Load Texture Greyscale Heightmap Image "<<sFilename<<std::endl;
+      std::cout<<"cTexture::LoadFromFile Texture Greyscale Heightmap Image "<<sFilename<<std::endl;
       uiType = TEXTURE_TYPE::HEIGHTMAP;
     } else if (16 == pSurface->format->BitsPerPixel) {
-      std::cout<<"Texture"<<"Greyscale Heightmap Image "<<sFilename<<std::endl;
+      std::cout<<"cTexture::LoadFromFile Greyscale Heightmap Image "<<sFilename<<std::endl;
       uiType = TEXTURE_TYPE::HEIGHTMAP;
     } else if (24 == pSurface->format->BitsPerPixel) {
-      std::cout<<"Texture"<<sFilename<<" is a 24 bit RGB image"<<std::endl;
+      std::cout<<"cTexture::LoadFromFile "<<sFilename<<" is a 24 bit RGB image"<<std::endl;
       // Add alpha channel
       SDL_PixelFormat format = {
         NULL, 32, 4, 0, 0, 0, 0,
@@ -106,7 +111,7 @@ namespace opengl
       SDL_FreeSurface(pSurface);
       pSurface = pConvertedSurface;
     } else if (32 == pSurface->format->BitsPerPixel) {
-      std::cout<<"Texture"<<sFilename<<" is a 32 bit RGBA image"<<std::endl;
+      std::cout<<"cTexture::LoadFromFile "<<sFilename<<" is a 32 bit RGBA image"<<std::endl;
       uiType = TEXTURE_TYPE::RGBA;
 
       // Convert if BGR
@@ -142,14 +147,63 @@ namespace opengl
     } else {
       std::ostringstream t;
       t << pSurface->format->BitsPerPixel;
-      std::cout<<"Texture"<<"Error Unknown Image Format ("<<t.str()<<"bit) "<<sFilename<<std::endl;
+      std::cout<<"cTexture::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<sFilename<<std::endl;
       return false;
     }
 
     uiWidth = pSurface->w;
     uiHeight = pSurface->h;
 
-    std::cout<<"Texture "<<uiWidth<<"x"<<uiHeight<<std::endl;
+    //std::cout<<"cTexture::LoadFromFile "<<uiWidth<<"x"<<uiHeight<<std::endl;
+
+    CopyFromSurfaceToData(pSurface->w, pSurface->h);
+
+    return true;
+  }
+
+  bool cTexture::CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  {
+    std::cout<<"cTexture::CreateFromBuffer "<<width<<"x"<<height<<std::endl;
+
+    // Only RGBA is supported at the moment
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    // Load the buffer into a surface
+    const size_t depth = 32;
+    const size_t pitch = width * GetBytesForPixelFormat(pixelFormat);
+
+    // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    uint32_t rmask = 0xFF000000;
+    uint32_t gmask = 0x00FF0000;
+    uint32_t bmask = 0x0000FF00;
+    uint32_t amask = 0x000000FF;
+#else
+    uint32_t rmask = 0x000000FF;
+    uint32_t gmask = 0x0000FF00;
+    uint32_t bmask = 0x00FF0000;
+    uint32_t amask = 0xFF000000;
+#endif
+
+    pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, width, height, depth, pitch, rmask, gmask, bmask, amask);
+
+    /*// Were we able to load the bitmap?
+    if (pTemp == nullptr) {
+      std::cout<<"cTexture::CreateFromBuffer Unable to load bitmap: "<<SDL_GetError()<<std::endl;
+      return false;
+    }
+
+    // Convert the image to optimal display format
+    pSurface = SDL_DisplayFormat(pTemp);
+
+    // Free the temporary surface
+    SDL_FreeSurface(pTemp);
+    pTemp = nullptr;*/
+
+    uiWidth = pSurface->w;
+    uiHeight = pSurface->h;
+
+    //std::cout<<"cTexture::CreateFromBuffer "<<uiWidth<<"x"<<uiHeight<<std::endl;
 
     CopyFromSurfaceToData(pSurface->w, pSurface->h);
 
@@ -171,11 +225,13 @@ namespace opengl
   {
     assert(pSurface != nullptr);
 
+    const size_t n = uiWidth * uiHeight * GetBytesPerPixel();
+
     // Fill out the pData structure array, we use this for when we have to reload this data
     // on a task switch or fullscreen mode change
-    if (data.empty()) data.resize(uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4), 0);
+    if (data.empty()) data.resize(n, 0);
 
-    std::memcpy(&data[0], pSurface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4));
+    std::memcpy(&data[0], pSurface->pixels, n);
   }
 
   void cTexture::CopyFromDataToSurface()
@@ -184,7 +240,9 @@ namespace opengl
 
     if (data.empty()) return;
 
-    std::memcpy(pSurface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4));
+    const size_t n = uiWidth * uiHeight * GetBytesPerPixel();
+
+    std::memcpy(pSurface->pixels, &data[0], n);
   }
 
   bool cTexture::SaveToBMP(const std::string& inFilename) const

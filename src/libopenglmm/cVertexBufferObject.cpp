@@ -440,7 +440,7 @@ namespace opengl
 
   #if 1
     // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
-    const size_t nVertices = vertices.size() / 2;
+    const size_t nVertices = vertices.size() / 3;
     glDrawArrays(geometryType, 0, nVertices);
     //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
   #else

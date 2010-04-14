@@ -22,6 +22,19 @@
 
 namespace opengl
 {
+  size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat)
+  {
+    if (pixelFormat == PIXELFORMAT::R8G8B8A8) return 4;
+    if (pixelFormat == PIXELFORMAT::R8G8B8) return 3;
+
+    return 2;
+  }
+
+  size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat)
+  {
+    return 8 * GetBytesForPixelFormat(pixelFormat);
+  }
+
   // *** cResolution
 
   cResolution::cResolution() :

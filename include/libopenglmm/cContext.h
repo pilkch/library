@@ -28,6 +28,9 @@ struct SDL_Surface;
 
 namespace opengl
 {
+#ifdef BUILD_OPENGLMM_FONT
+  class cFont;
+#endif
   class cTexture;
   class cTextureFrameBufferObject;
   class cShader;
@@ -58,6 +61,7 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const std::string& sFileName);
+    cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
 
     cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
@@ -68,6 +72,11 @@ namespace opengl
 
     cStaticVertexBufferObject* CreateStaticVertexBufferObject();
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
+
+#ifdef BUILD_OPENGLMM_FONT
+    cFont* CreateFont(const std::string& sFileName, size_t fontSize);
+    void DestroyFont(cFont* pFont);
+#endif
 
 
     void SetClearColour(const spitfire::math::cColour& clearColour);
@@ -84,6 +93,12 @@ namespace opengl
 
     void BeginRenderMode2D();
     void EndRenderMode2D();
+
+
+#ifdef BUILD_OPENGLMM_FONT
+    void BindFont(const cFont& font);
+    void UnBindFont(const cFont& font);
+#endif
 
 
     void EnableLighting();

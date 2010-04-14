@@ -18,20 +18,13 @@
 #include <SDL/SDL_image.h>
 
 // libopenglmm headers
+#include <libopenglmm/libopenglmm.h>
 #include <libopenglmm/cContext.h>
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/cWindow.h>
 
 namespace opengl
 {
-  size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat)
-  {
-    if (pixelFormat == PIXELFORMAT::R8G8B8A8) return 32;
-    if (pixelFormat == PIXELFORMAT::R8G8B8) return 24;
-
-    return 16;
-  }
-
   PIXELFORMAT GetPixelFormatFromSDLPixelFormat(const SDL_PixelFormat* pPixelFormat)
   {
     assert(pPixelFormat != nullptr);

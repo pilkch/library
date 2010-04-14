@@ -19,6 +19,9 @@
 
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
+#ifdef BUILD_OPENGLMM_FONT
+#include <libopenglmm/cFont.h>
+#endif
 #include <libopenglmm/cShader.h>
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/cTexture.h>
@@ -121,7 +124,23 @@ namespace opengl
   cTexture* cContext::CreateTexture(const std::string& sFileName)
   {
     cTexture* pTexture = new cTexture;
-    if (!pTexture->Load(sFileName)) {
+    if (!pTexture->LoadFromFile(sFileName)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    pTexture->Create();
+    pTexture->CopyFromSurfaceToTexture();
+
+    return pTexture;
+  }
+
+  cTexture* cContext::CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  {
+    assert(pBuffer != nullptr);
+
+    cTexture* pTexture = new cTexture;
+    if (!pTexture->CreateFromBuffer(pBuffer, width, height, pixelFormat)) {
       delete pTexture;
       return nullptr;
     }
@@ -187,6 +206,28 @@ namespace opengl
     assert(pStaticVertexBufferObject != nullptr);
     delete pStaticVertexBufferObject;
   }
+
+#ifdef BUILD_OPENGLMM_FONT
+  cFont* cContext::CreateFont(const std::string& sFileName, size_t fontSize)
+  {
+    std::cout<<"cContext::CreateFont"<<std::endl;
+    cFont* pFont = new cFont;
+    if (!pFont->Load(*this, sFileName, fontSize)) {
+      delete pFont;
+      return nullptr;
+    }
+
+    return pFont;
+  }
+
+  void cContext::DestroyFont(cFont* pFont)
+  {
+    std::cout<<"cContext::DestroyFont"<<std::endl;
+    assert(pFont != nullptr);
+    pFont->Destroy(*this);
+    delete pFont;
+  }
+#endif
 
 
   bool cContext::_SetWindowVideoMode(bool bIsFullScreen)
@@ -522,6 +563,22 @@ namespace opengl
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colour);
   }
 
+
+#ifdef BUILD_OPENGLMM_FONT
+  void cContext::BindFont(const cFont& font)
+  {
+    assert(font.IsValid());
+
+        BindTexture(0, *(font.pTexture));
+  }
+
+  void cContext::UnBindFont(const cFont& font)
+  {
+    assert(font.IsValid());
+
+        UnBindTexture(0, *(font.pTexture));
+  }
+#endif
 
   void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
   {

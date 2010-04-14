@@ -61,6 +61,7 @@ namespace opengl
     //float etc.
   };
 
+  size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat);
   size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat);
 
   class cResolution
