@@ -126,7 +126,7 @@ namespace opengl
     if (colour_size != 0) {
       glEnableClientState(GL_COLOR_ARRAY);
         // Describe to OpenGL where the colour data is in the buffer
-        glColorPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+        glColorPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
       glDisableClientState(GL_COLOR_ARRAY);
     }
 
@@ -230,7 +230,7 @@ namespace opengl
     if (colour_size != 0) {
       glEnableClientState(GL_COLOR_ARRAY);
         // Describe to OpenGL where the colour data is in the buffer
-        glColorPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+        glColorPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
       glDisableClientState(GL_COLOR_ARRAY);
     }
 
@@ -324,7 +324,7 @@ namespace opengl
     if (colour_size > 0) {
       // Describe to OpenGL where the colour coordinate data is in the buffer
       glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glColorPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
     }
 
     // Enable texture coordinate information
@@ -378,7 +378,7 @@ namespace opengl
     if (colour_size > 0) {
       // Describe to OpenGL where the colour coordinate data is in the buffer
       glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glColorPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size));
     }
 
     // Enable texture coordinate information

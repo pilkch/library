@@ -36,7 +36,7 @@
 namespace opengl
 {
   // Create a display list coresponding to the give character.
-  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outWidth, float& outHeight)
+  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outWidth, float& outHeight)
   {
     outWidth = 0.0f;
     outHeight = 0.0f;
@@ -45,14 +45,14 @@ namespace opengl
 
     // Load the Glyph for our character.
     if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT)) {
-      std::cout<<"make_dlist FT_Load_Glyph failed"<<std::endl;
+      std::cout<<"make_dlist FT_Load_Glyph FAILED"<<std::endl;
       return;
     }
 
     // Move the face's glyph into a Glyph object.
     FT_Glyph glyph;
     if (FT_Get_Glyph(face->glyph, &glyph)) {
-      std::cout<<"make_dlist FT_Get_Glyph failed"<<std::endl;
+      std::cout<<"make_dlist FT_Get_Glyph FAILED"<<std::endl;
       return;
     }
 
@@ -64,11 +64,15 @@ namespace opengl
     const FT_Bitmap& bitmap = bitmap_glyph->bitmap;
 
     // Use our helper function to get the widths of the bitmap data that we will need in order to create our texture.
-    size_t width = spitfire::math::NextPowerOfTwo(bitmap.width);
-    size_t height = spitfire::math::NextPowerOfTwo(bitmap.rows);
+    //size_t width = spitfire::math::NextPowerOfTwo(bitmap.width);
+    //size_t height = spitfire::math::NextPowerOfTwo(bitmap.rows);
+    const size_t width = glyphPixelHeightAndWidth;
+    const size_t height = glyphPixelHeightAndWidth;
 
     // Allocate memory for the texture data.
-    GLubyte* expanded_data = new GLubyte[2 * width * height];
+    GLubyte* expanded_data = new GLubyte[width * height];
+
+    const size_t nSrcRowWidthBytes = width;
 
     // Here we fill in the data for the expanded bitmap.
     // Notice that we are using two channel bitmap (one for
@@ -78,26 +82,31 @@ namespace opengl
     // We use the ?: operator so that value which we use
     // will be 0 if we are in the padding zone, and whatever
     // is the the Freetype bitmap otherwise.
-    for (size_t j = 0; j < height; j++) {
-      for (size_t i = 0; i < width; i++) {
-        expanded_data[2 * ((j * width) + i)] = expanded_data[2 * ((j * width) + i) + 1] =
-          ((i >= size_t(bitmap.width)) || (j >= size_t(bitmap.rows))) ? 0 : bitmap.buffer[(bitmap.width * j) + i];
+    for (size_t y = 0; y < height; y++) {
+      for (size_t x = 0; x < width; x++) {
+        if ((x >= size_t(bitmap.width)) || (y >= size_t(bitmap.rows))) {
+          expanded_data[(nSrcRowWidthBytes * y) + x] = 0;
+        } else {
+          expanded_data[(nSrcRowWidthBytes * y) + x] = bitmap.buffer[(bitmap.width * y) + x];
+        }
       }
     }
 
 
-    // Now we just setup some texture paramaters.
+    // Copy expanded_data into pBuffer
     assert(ch >= 0);
     const size_t index = size_t(ch);
 
-    const size_t nSrcRowWidthBytes = width;
-    const size_t nDestRowWidthBytes = nBufferWidth * glyphPixelHeightAndWidth;
-    const size_t nDestOffset = index * nBufferWidth * nDestRowWidthBytes;
+    const size_t nDestRowWidthBytes = nBufferWidth * 4;
+    const size_t nDestOffset = (((index / columns) * nDestRowWidthBytes * height) + ((index % rows) * width * 4));
 
-    // Copy expanded_data into pBuffer
     for (size_t y = 0; y < height; y++) {
       for (size_t x = 0; x < width; x++) {
-        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + x)] = expanded_data[(y * nSrcRowWidthBytes) + x];
+        const uint8_t value = expanded_data[(y * nSrcRowWidthBytes) + x];
+        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4))] = value;
+        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 1] = value;
+        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 2] = value;
+        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 3] = value;
       }
     }
 
@@ -167,19 +176,16 @@ namespace opengl
     // Create and initilize a freetype font library.
     FT_Library library;
     if (FT_Init_FreeType(&library)) {
-      std::cout<<"cFont::cFont FT_Init_FreeType failed"<<std::endl;
+      std::cout<<"cFont::cFont FT_Init_FreeType FAILED, returning false"<<std::endl;
       return false;
     }
-
-    // The object in which Freetype holds information on a given
-    // font is called a "face".
-    FT_Face face = NULL;
 
     // This is where we load in the font information from the file.
     // Of all the places where the code might die, this is the most likely,
     // as FT_New_Face will die if the font file does not exist or is somehow broken.
+    FT_Face face = NULL;
     if (FT_New_Face(library, sFilename.c_str(), 0, &face )) {
-      std::cout<<"cFont::cFont FT_New_Face failed to load font \""<<sFilename<<"\""<<std::endl;
+      std::cout<<"cFont::cFont FT_New_Face FAILED to load font \""<<sFilename<<"\", returning false"<<std::endl;
       return false;
     }
 
@@ -202,17 +208,14 @@ namespace opengl
     const size_t nBufferHeight = rows * 64;
     const size_t nBufferSizeBytes = nBufferWidth * nBufferHeight * 4;
 
-    //const size_t glyphPixelHeightAndWidth = 64;
+    const size_t glyphPixelHeightAndWidth = 64;
 
     uint8_t* pBuffer = new uint8_t[nBufferSizeBytes];
 
     // This is where we actually create each of the fonts display lists.
-    for (size_t i = 0; i < nBufferSizeBytes; i++) {
-      pBuffer[i] = 255;
+    for (size_t i = 0; i < n; i++) {
+      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, i, fGlyphWidth[i], fGlyphHeight[i]);
     }
-    //for (size_t i = 0; i < n; i++) {
-    //  DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, glyphPixelHeightAndWidth, face, i, fGlyphWidth[i], fGlyphHeight[i]);
-    //}
 
     // We don't need the face information now that the display
     // lists have been created, so we free the assosiated resources.
@@ -223,11 +226,14 @@ namespace opengl
 
     // Create our texture from the buffer
     pTexture = context.CreateTextureFromBuffer(pBuffer, nBufferWidth, nBufferHeight, PIXELFORMAT::R8G8B8A8);
-    //pTexture = context.CreateTexture("../openglmm_fbo/textures/diffuse.png");
-    assert(pTexture != nullptr);
 
     delete [] pBuffer;
     pBuffer = nullptr;
+
+    if (pTexture == nullptr) {
+      std::cout<<"cFont::cFont CreateTextureFromBuffer FAILED, returning false"<<std::endl;
+      return false;
+    }
 
     std::cout<<"cFont::Load returning true"<<std::endl;
     return true;
@@ -291,26 +297,32 @@ namespace opengl
 
   void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const std::string& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
   {
+#if 1
     spitfire::math::cVec2 position(_position);
+
+    const size_t rows = 16;
+    const size_t columns = 16;
 
     // For each character calculate the position in the world and the position in the texture and add a quad to the buffer
     const size_t n = sText.length();
     for (size_t i = 0; i < n; i++) {
-      const float fCharacterWidth = 0.1f;
-      const float fCharacterHeight = 0.1f;
+      const float fCharacterWidth = 1.0f / float(rows);
+      const float fCharacterHeight = 1.0f / float(columns);
 
-      //const char c = sText[i];
+      const char c = sText[i];
+      const size_t index = size_t(c);
 
       // TODO: Find out where in the texture this character is
-      float fTextureCharacterOffsetU = 0.0f;
-      float fTextureCharacterOffsetV = 0.0f;
-      float fTextureCharacterWidth = 1.0f;
-      float fTextureCharacterHeight = 1.0f;
+      const float fTextureCharacterOffsetU = float(index % rows) * fCharacterWidth;
+      const float fTextureCharacterOffsetV = float(index / columns) * fCharacterHeight;
 
-      builder.PushBack(spitfire::math::cVec2(position.x, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(spitfire::math::cVec2(position.x, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      const float fTextureCharacterWidth = 1.0f / float(rows); // TODO: Replace this with the actual character width for this particular character
+      const float fTextureCharacterHeight = 1.0f / float(columns); // TODO: Replace this with the actual character height for this particular character
+
+      builder.PushBack(spitfire::math::cVec2(position.x, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+      builder.PushBack(spitfire::math::cVec2(position.x, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
 
       // Move the cursor for the next character
       position.x += fCharacterWidth;
@@ -323,6 +335,12 @@ namespace opengl
       //position.x += scale.x * fCharacterWidth * cosf(fRotationDegrees);
       //position.y += scale.y * fCharacterWidth * sinf(fRotationDegrees);
     }
+#else
+    // For viewing the whole font
+    builder.PushBack(spitfire::math::cVec2(0.0f, 1.0f), colour, spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec2(1.0f, 1.0f), colour, spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec2(1.0f, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec2(0.0f, 0.0f), colour, spitfire::math::cVec2(0.0f, 0.0f));
+#endif
   }
-
 }
