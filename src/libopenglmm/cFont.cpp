@@ -36,7 +36,7 @@
 namespace opengl
 {
   // Create a display list coresponding to the give character.
-  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outWidth, float& outHeight)
+  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outU, float& outV, float& outWidth, float& outHeight, float& outAdvanceX, float& outAdvanceY)
   {
     outWidth = 0.0f;
     outHeight = 0.0f;
@@ -45,14 +45,14 @@ namespace opengl
 
     // Load the Glyph for our character.
     if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT)) {
-      std::cout<<"make_dlist FT_Load_Glyph FAILED"<<std::endl;
+      std::cout<<"DrawGlyphToBuffer FT_Load_Glyph FAILED"<<std::endl;
       return;
     }
 
     // Move the face's glyph into a Glyph object.
     FT_Glyph glyph;
     if (FT_Get_Glyph(face->glyph, &glyph)) {
-      std::cout<<"make_dlist FT_Get_Glyph FAILED"<<std::endl;
+      std::cout<<"DrawGlyphToBuffer FT_Get_Glyph FAILED"<<std::endl;
       return;
     }
 
@@ -115,58 +115,26 @@ namespace opengl
     expanded_data = nullptr;
 
 
-
-
-
-    /*// First we need to move over a little so that
-    // the character has the right amount of space
-    // between it and the one before it.
-    glTranslatef(static_cast<float>(bitmap_glyph->left), 0, 0);
-
-    // Now we move down a little in the case that the
-    // bitmap extends past the bottom of the line
-    // (this is only true for characters like 'g' or 'y'.
-    glPushMatrix();
-      glTranslatef(0, - static_cast<float>(bitmap_glyph->top), 0);
-
-      // Now we need to account for the fact that many of
-      // our textures are filled with empty padding space.
-      // We figure what portion of the texture is used by
-      // the actual character and store that information in
-      // the x and y variables, then when we draw the
-      // quad, we will only reference the parts of the texture
-      // that we contain the character itself.
-      float x = static_cast<float>(bitmap.width) / static_cast<float>(width);
-      float y = static_cast<float>(bitmap.rows) / static_cast<float>(height);
-
-      // Here we draw the texturemaped quads.
-      // The bitmap that we got from FreeType was not
-      // oriented quite like we would like it to be,
-      // so we need to link the texture to the quad
-      // so that the result will be properly aligned.
-      glBegin(GL_QUADS);
-        glVertex2f(0.0f, static_cast<float>(bitmap.rows)); glTexCoord2f(x, 0.0f);
-        glVertex2f(static_cast<float>(bitmap.width), static_cast<float>(bitmap.rows)); glTexCoord2f(x, y);
-        glVertex2f(static_cast<float>(bitmap.width), 0.0f); glTexCoord2f(0.0f, y);
-        glVertex2f(0.0f, 0.0f); glTexCoord2f(0.0f, 0.0f);
-      glEnd();
-    glPopMatrix();
-    glTranslatef(static_cast<float>(face->glyph->advance.x >> 6), 0, 0);*/
-
-    outWidth = static_cast<float>(face->glyph->advance.x >> 6);
-    outHeight = static_cast<float>(face->glyph->advance.y >> 6);
+    outU = float(bitmap_glyph->left) / float(width) / float(columns);
+    outV = float(bitmap_glyph->top) / float(height) / float(rows);
+    outWidth = float(bitmap.width) / float(width) / float(columns);
+    outHeight = float(bitmap.rows) / float(height) / float(rows);
+    outAdvanceX = float(face->glyph->advance.x) / 128.0f / float(width) / float(columns); // 128 is just a magic number that looks ok
+    outAdvanceY = float(face->glyph->advance.y) / 128.0f / float(height) / float(rows); // 128 is just a magic number that looks ok
   }
 
 
 
   cFont::cFont() :
-    pTexture(nullptr)
+    pTexture(nullptr),
+    pShader(nullptr)
   {
   }
 
   cFont::~cFont()
   {
     assert(pTexture == nullptr);
+    assert(pShader == nullptr);
   }
 
   bool cFont::Load(cContext& context, const std::string& sFilename, unsigned int height)
@@ -199,10 +167,12 @@ namespace opengl
     const size_t rows = 16;
     const size_t columns = 16;
 
-    //fGlyphU.insert(fGlyphU.begin(), n, 0.0f);
-    //fGlyphV.insert(fGlyphV.begin(), n, 0.0f);
+    fGlyphU.insert(fGlyphU.begin(), n, 0.0f);
+    fGlyphV.insert(fGlyphV.begin(), n, 0.0f);
     fGlyphWidth.insert(fGlyphWidth.begin(), n, 0.0f);
     fGlyphHeight.insert(fGlyphHeight.begin(), n, 0.0f);
+    fGlyphAdvanceX.insert(fGlyphAdvanceX.begin(), n, 0.0f);
+    fGlyphAdvanceY.insert(fGlyphAdvanceY.begin(), n, 0.0f);
 
     const size_t nBufferWidth = columns * 64;
     const size_t nBufferHeight = rows * 64;
@@ -214,7 +184,7 @@ namespace opengl
 
     // This is where we actually create each of the fonts display lists.
     for (size_t i = 0; i < n; i++) {
-      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, i, fGlyphWidth[i], fGlyphHeight[i]);
+      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, i, fGlyphU[i], fGlyphV[i], fGlyphWidth[i], fGlyphHeight[i], fGlyphAdvanceX[i], fGlyphAdvanceY[i]);
     }
 
     // We don't need the face information now that the display
@@ -235,63 +205,74 @@ namespace opengl
       return false;
     }
 
+    pShader = context.CreateShader("shaders/font.vert", "shaders/font.frag");
+    if (pShader == nullptr) {
+      std::cout<<"cFont::cFont CreateShader FAILED, returning false"<<std::endl;
+      return false;
+    }
+
     std::cout<<"cFont::Load returning true"<<std::endl;
     return true;
   }
 
   void cFont::Destroy(cContext& context)
   {
+    if (pShader != nullptr) {
+      context.DestroyShader(pShader);
+      pShader = nullptr;
+    }
+
     if (pTexture != nullptr) {
       context.DestroyTexture(pTexture);
       pTexture = nullptr;
     }
   }
 
-  void cFont::_GetDimensions(const std::string& line, float& width, float& height) const
+  void cFont::GetDimensions(const std::string& sText, float& fWidth, float& fHeight) const
   {
-    width = 0.0f;
-    height = 0.0f;
+    fWidth = 0.0f;
+    fHeight = 0.0f;
 
     float characterWidth = 0.0f;
     float characterHeight = 0.0f;
 
-    const size_t n = line.size();
+    const size_t n = sText.size();
     for (size_t i = 0; i < n; i++) {
       // Get the character that this is
-      assert(line[i] >= 0);
-      size_t c = size_t(line[i]);
+      assert(sText[i] >= 0);
+      size_t c = size_t(sText[i]);
 
       // Now lookup the character in the array of widths and heights
       characterWidth = fGlyphWidth[c];
       characterHeight = fGlyphHeight[c];
 
       // Add the characterWidth and if this is the tallest character so far then set our current tallest character to us
-      width += characterWidth;
-      if (characterHeight > height) height = characterHeight;
+      fWidth += characterWidth;
+      if (characterHeight > fHeight) fHeight = characterHeight;
     }
 
     // I'm not sure why 1000?  This seems to work and look nice but I don't have a clue what
     // the right value is/where it is from, I thought I wouldn't have to do anything to this number, we could just use it directly?
     const float fOneOver1000 = 1.0f / 1000;
-    width *= fOneOver1000;
-    height *= fOneOver1000;
+    fWidth *= fOneOver1000;
+    fHeight *= fOneOver1000;
   }
 
-  void cFont::_GetDimensions(const std::vector<std::string> lines, float& width, float& height) const
+  void cFont::GetDimensionsLineWrap(const std::string& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const
   {
-    width = 0.0f;
-    height = 0.0f;
+    fWidth = 0.0f;
+    fHeight = 0.0f;
 
-    float lineWidth = 0.0f;
-    float lineHeight = 0.0f;
+    //float characterWidth = 0.0f;
+    //float characterHeight = 0.0f;
 
-    const size_t n = lines.size();
+    const size_t n = sText.size();
     for (size_t i = 0; i < n; i++) {
-      _GetDimensions(lines[i], lineWidth, lineHeight);
+      /*_GetDimensions(sText[i], lineWidth, lineHeight);
 
       // Add the lineHeight and if this is the widest line so far then set our current widest line to us
-      if (lineWidth > width) width = lineWidth;
-      height += lineHeight;
+      if (lineWidth > fWidth) fWidth = lineWidth;
+      fHeight += lineHeight;*/
     }
   }
 
@@ -303,29 +284,37 @@ namespace opengl
     const size_t rows = 16;
     const size_t columns = 16;
 
-    // For each character calculate the position in the world and the position in the texture and add a quad to the buffer
-    const size_t n = sText.length();
-    for (size_t i = 0; i < n; i++) {
-      const float fCharacterWidth = 1.0f / float(rows);
-      const float fCharacterHeight = 1.0f / float(columns);
+    const float fGridWidth = 1.0f / float(rows);
+    const float fGridHeight = 1.0f / float(columns);
 
+    // For each character calculate the position in the world and the position in the texture and add a quad to the buffer
+    const size_t n = strlen(sText.c_str());//sText.length();
+    for (size_t i = 0; i < n; i++) {
       const char c = sText[i];
+      std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
       const size_t index = size_t(c);
 
+      const float fCharacterX = position.x - fGlyphU[index];
+      const float fCharacterY = position.y - fGlyphV[index];
+
+      const float fCharacterWidth = fGlyphWidth[index];
+      const float fCharacterHeight = fGlyphHeight[index];
+
       // TODO: Find out where in the texture this character is
-      const float fTextureCharacterOffsetU = float(index % rows) * fCharacterWidth;
-      const float fTextureCharacterOffsetV = float(index / columns) * fCharacterHeight;
+      const float fTextureCharacterOffsetU = (float(index % rows) * fGridWidth) + fGlyphU[i];
+      const float fTextureCharacterOffsetV = (float(index / columns) * fGridHeight) + fGlyphV[i];
 
-      const float fTextureCharacterWidth = 1.0f / float(rows); // TODO: Replace this with the actual character width for this particular character
-      const float fTextureCharacterHeight = 1.0f / float(columns); // TODO: Replace this with the actual character height for this particular character
+      const float fTextureCharacterWidth = fGlyphWidth[index];
+      const float fTextureCharacterHeight = fGlyphHeight[index];
 
-      builder.PushBack(spitfire::math::cVec2(position.x, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(spitfire::math::cVec2(position.x + fCharacterWidth, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(position.x, position.y), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
 
       // Move the cursor for the next character
-      position.x += fCharacterWidth;
+      position.x += fCharacterWidth + fGlyphAdvanceX[i];
+      //position.y += fGlyphAdvanceY[i];
 
       // TODO: Use rotation
       //position.x += fCharacterWidth * cosf(fRotationDegrees);

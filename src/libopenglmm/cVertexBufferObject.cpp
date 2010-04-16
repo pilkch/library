@@ -483,7 +483,6 @@ namespace opengl
 
   void cStaticVertexBufferObject::RenderGeometry2D(GLenum geometryType)
   {
-    std::cout<<"cStaticVertexBufferObject::RenderGeometry2D vertices.size()="<<vertices.size()<<std::endl;
     assert(IsCompiled());
 
   #if 1

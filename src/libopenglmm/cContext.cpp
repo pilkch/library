@@ -444,9 +444,9 @@ namespace opengl
 
   void cContext::BeginRenderMode2D()
   {
-    // Setup projection matrix without touching matProjection so that we can revert later
+    // Setup new matrices without touching the cached versions so that we can revert later
 
-    spitfire::math::cMat4 matrix;
+    spitfire::math::cMat4 matNewProjection;
 
     // Our screen coordinates look like this
     // 0.0f, 0.0f            1.0f, 0.0f
@@ -454,10 +454,14 @@ namespace opengl
     //
     // 0.0f, 1.0f            1.0f, 1.0f
 
-    matrix.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+    matNewProjection.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
 
     glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+    glLoadMatrixf(matNewProjection.GetOpenGLMatrixPointer());
+
+    spitfire::math::cMat4 matNewModelView;
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(matNewModelView.GetOpenGLMatrixPointer());
 
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
@@ -467,6 +471,10 @@ namespace opengl
   {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
+
+    // Revert the previous ModelView matrix
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(matProjection.GetOpenGLMatrixPointer());
 
     // Revert the previous projection matrix
     glMatrixMode(GL_PROJECTION);
@@ -569,14 +577,16 @@ namespace opengl
   {
     assert(font.IsValid());
 
-        BindTexture(0, *(font.pTexture));
+    BindTexture(0, *(font.pTexture));
+    BindShader(*(font.pShader));
   }
 
   void cContext::UnBindFont(const cFont& font)
   {
     assert(font.IsValid());
 
-        UnBindTexture(0, *(font.pTexture));
+    UnBindShader(*(font.pShader));
+    UnBindTexture(0, *(font.pTexture));
   }
 #endif
 
