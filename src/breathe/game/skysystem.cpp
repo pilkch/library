@@ -66,10 +66,10 @@
 
 #include <breathe/physics/physics.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 
 #include <breathe/game/scenegraph.h>
@@ -522,12 +522,12 @@ namespace breathe
     //
     void cSkyDomeAtmosphereRenderer::GenerateTexture()
     {
-      pRender->BeginRenderToTexture(pTexture);
+      pContext->BeginRenderToTexture(pTexture);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        pRender->BeginScreenSpaceRendering();
+        pContext->BeginScreenSpaceRendering();
 
           std::vector<math::cColour> colourTop;
           std::vector<math::cColour> colourBottom;
@@ -542,14 +542,14 @@ namespace breathe
           ASSERT(n != 0);
           const float_t fHeight = 1.0f / float_t(n);
           for (size_t i = 0; i < n; i++) {
-            pRender->RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(0.0f, float_t(i) * fHeight, 1.0f, fHeight, colourTop[i], colourTop[i], colourBottom[i], colourBottom[i]);
+            pContext->RenderScreenSpaceGradientFilledRectangleTopLeftIsAt(0.0f, float_t(i) * fHeight, 1.0f, fHeight, colourTop[i], colourTop[i], colourBottom[i], colourBottom[i]);
           }
 
-          pRender->ClearColour();
+          pContext->ClearColour();
 
-        pRender->EndScreenSpaceRendering();
+        pContext->EndScreenSpaceRendering();
 
-      pRender->EndRenderToTexture(pTexture);
+      pContext->EndRenderToTexture(pTexture);
     }
 
     void cSkyDomeAtmosphereRenderer::CreateParticleSystems()

@@ -61,10 +61,10 @@
 
 #include <breathe/physics/physics.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 
 #include <breathe/game/scenegraph2d.h>
 
@@ -628,14 +628,14 @@ namespace breathe
               }
 
               ApplyStateSet(*pStateSet);
-                pRender->RenderScreenSpaceLines(points);
+                pContext->RenderScreenSpaceLines(points);
               UnApplyStateSet(*pStateSet);
               break;
             }
             /*case : {
               ASSERT(vertices.size() == 8);
               ASSERT(textureCoordinates.size() == 8);
-              pRender->RenderScreenSpacePolygon(
+              pContext->RenderScreenSpacePolygon(
                 vertices[0], vertices[1], textureCoordinates[0], textureCoordinates[1],
                 vertices[2], vertices[3], textureCoordinates[2], textureCoordinates[3],
                 vertices[4], vertices[5], textureCoordinates[4], textureCoordinates[5],
@@ -664,7 +664,7 @@ namespace breathe
         points.push_back(math::cVec2(0.5f, 0.5f));
         points.push_back(math::cVec2(1.0f, 1.0f));
 
-        pRender->RenderScreenSpaceLines(points);
+        pContext->RenderScreenSpaceLines(points);
 
         glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
@@ -717,7 +717,7 @@ namespace breathe
     {
       unsigned int uiTriangles = 0;
 
-      uiTriangles+=pRender->RenderStaticModel(pRender->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
+      uiTriangles += pContext->RenderStaticModel(pContext->GetModel(breathe::string::ToString_t(sFilename + "mesh.3ds")));
 
       return uiTriangles;
     }*/
@@ -994,7 +994,7 @@ namespace breathe
 
             scenegraph.Update(currentTime);
             scenegraph.Cull(currentTime, camera);
-            scenegraph.Render(currentTime, *pRender);
+            scenegraph.Render(currentTime, *pContext);
 
 
 

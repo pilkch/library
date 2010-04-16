@@ -10,10 +10,10 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cFont.h>
 
 #include <breathe/game/scenegraph.h>

@@ -8,11 +8,11 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/camera.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/model/cHeightmap.h>
 
 // TODO: We have to remove this, there has to be a better way of doing this?

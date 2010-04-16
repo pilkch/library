@@ -43,10 +43,10 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -164,13 +164,13 @@ namespace breathe
 
       void cGridRenderer::Render(spitfire::sampletime_t currentTime)
       {
-        pRender->RenderAxisReference();
+        pContext->RenderAxisReference();
 
         glDisable(GL_COLOR_MATERIAL);
         glDisable(GL_LIGHTING);
         glDisable(GL_TEXTURE_2D);
 
-          pRender->SetColour(0.0f, 1.0f, 0.0f);
+          pContext->SetColour(0.0f, 1.0f, 0.0f);
 
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
@@ -195,7 +195,7 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
 
-          pRender->ClearColour();
+          pContext->ClearColour();
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_LIGHTING);

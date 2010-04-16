@@ -44,10 +44,10 @@
 // Breathe headers
 #include <breathe/breathe.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
 
@@ -249,13 +249,13 @@ namespace breathe
     // a plain solid colour filled rectangle with a border
     void cWindowManager::_RenderRectangle(float fX, float fY, float fWidth, float fHeight) const
     {
-      //pRender->RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(fX, fY, fWidth, fHeight, box, upperBorder, lowerBorder);
-      pRender->RenderScreenSpaceRectangleTopLeftIsAt(fX, fY, fWidth, fHeight);
+      //pContext->RenderScreenSpaceSolidRectangleWithBorderTopLeftIsAt(fX, fY, fWidth, fHeight, box, upperBorder, lowerBorder);
+      pContext->RenderScreenSpaceRectangleTopLeftIsAt(fX, fY, fWidth, fHeight);
     }
 
     void SetColourFromThemeColourAndAlpha(const math::cColour& themeColour)
     {
-      pRender->SetColour(math::cColour(themeColour.r, themeColour.g, themeColour.b, fAlpha));
+      pContext->SetColour(math::cColour(themeColour.r, themeColour.g, themeColour.b, fAlpha));
     }
 
     void cWindowManager::_RenderWindow(const cWindow& widget) const
@@ -277,7 +277,7 @@ namespace breathe
           {
             render::ApplyMaterial apply(pMaterial);
 
-            pRender->SelectTextureUnit0();
+            pContext->SelectTextureUnit0();
 
             glMatrixMode(GL_TEXTURE);
             glPushMatrix();
@@ -312,7 +312,7 @@ namespace breathe
       SetColourFromThemeColourAndAlpha(theme.GetColourControlPrimary());
       _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());
 
-      /*pRender->RenderScreenSpaceRectangleTopLeftIsAt(
+      /*pContext->RenderScreenSpaceRectangleTopLeftIsAt(
         widget.HorizontalRelativeToAbsolute(widget.GetXAbsolute()), widget.VerticalRelativeToAbsolute(widget.GetYAbsolute()),
         absolute_width, absolute_height,
         0.0083f, 0.073f, 0.08f, 0.045f);//CreateTextureCoord(absolute_width), CreateTextureCoord(absolute_height));
@@ -320,9 +320,9 @@ namespace breathe
 
       /*// Draw the text of this widget
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT);
-        pRender->UnApplyMaterial(pMaterial);
+        pContext->UnApplyMaterial(pMaterial);
 
-        pRender->SelectTextureUnit0();
+        pContext->SelectTextureUnit0();
 
         glMatrixMode(GL_TEXTURE);
         glPushMatrix();
@@ -340,10 +340,10 @@ namespace breathe
           glMatrixMode(GL_TEXTURE);
         glPopMatrix();
 
-        pRender->ApplyMaterial(pMaterial);
+        pContext->ApplyMaterial(pMaterial);
       glPopAttrib();
 
-      pRender->ClearMaterial();*/
+      pContext->ClearMaterial();*/
     }
 
     void cWindowManager::_RenderStaticText(const cWidget_StaticText& widget) const
@@ -354,20 +354,20 @@ namespace breathe
       /*render::cFont* pFont = widget.GetFont();
       if (pFont == nullptr) pFont = pFontWindowCaption;
 
-      pRender->BeginRenderingText();
+      pContext->BeginRenderingText();
         breathe::constant_stack<std::string>::reverse_iterator iter = CONSOLE.rbegin();
         breathe::constant_stack<std::string>::reverse_iterator iterEnd = CONSOLE.rend();
         unsigned int y = 60;
         while(iter != iterEnd) {
-          pRender->SetColour(widget.GetColour());
+          pContext->SetColour(widget.GetColour());
           pFont->printf(0, static_cast<float>(y), (*iter).c_str());
           y += 30;
 
           iter++;
         };
-      pRender->EndRenderingText();
+      pContext->EndRenderingText();
 
-      pRender->ClearMaterial();*/
+      pContext->ClearMaterial();*/
     }
 
     void cWindowManager::_RenderWidget(const cWidget& widget) const

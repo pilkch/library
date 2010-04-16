@@ -22,12 +22,6 @@ namespace breathe
 {
   namespace render
   {
-    namespace material
-    {
-      class cMaterial;
-      typedef cSmartPtr<cMaterial> cMaterialRef;
-    }
-
     class cWindow;
     class cContext;
     class cResourceManager;

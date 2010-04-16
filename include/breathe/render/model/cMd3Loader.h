@@ -7,7 +7,7 @@
 
 #include <breathe/breathe.h>
 
-#include <breathe/render/cRender.h>
+#include <breathe/render/cContext.h>
 #include <breathe/render/model/cAnimation.h>
 
 namespace breathe

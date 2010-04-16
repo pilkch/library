@@ -43,10 +43,10 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
@@ -144,7 +144,7 @@ namespace breathe
         render::ApplyMaterial apply(pMaterial);
 
         float fCurrentTime = float(currentTime);
-        pRender->SetShaderConstant("fCurrentTime", fCurrentTime);
+        pContext->SetShaderConstant("fCurrentTime", fCurrentTime);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

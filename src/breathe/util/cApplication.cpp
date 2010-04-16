@@ -1149,7 +1149,7 @@ namespace breathe
     GetCurrentState().Update(currentTime);
 
     // NOTE: The current state needs to have set this camera correctly by now
-    pRender->SetFrustum(camera.CreateFrustumFromCamera());
+    pContext->SetFrustum(camera.CreateFrustumFromCamera());
 
     // Now update our other sub systems
     breathe::audio::GetManager()->Update(currentTime, camera.GetEyePosition(), camera.GetLookAtPoint(), camera.GetUpDirection());
@@ -1223,21 +1223,21 @@ namespace breathe
 #endif
 
 
-    scenegraph2D.Render(currentTime, *pRender);
+    scenegraph2D.Render(currentTime, *pContext);
 
     state.RenderScreenSpace(currentTime);
 
-    if (pRender->bIsRenderGui) window_manager.Render();
+    if (pContext->bIsRenderGui) window_manager.Render();
 
 #ifdef BUILD_DEBUG
     if (IsDebug() && !CONSOLE.IsVisible()) {
-      pRender->SetColour(0.0f, 0.0f, 1.0f);
+      pContext->SetColour(0.0f, 0.0f, 1.0f);
 
       const float dy = 0.03f;
       float fPositionX = 0.05f;
       float fPositionY = 0.05f;
 
-      pRender->BeginRenderingText();
+      pContext->BeginRenderingText();
 
         pFont->printf(fPositionX, fPositionY += dy, "Log: %s", spitfire::logging::IsLogging() ? "on" : "off");
 
@@ -1252,35 +1252,35 @@ namespace breathe
         pFont->printf(fPositionX, fPositionY += dy, "currentTime: %d", currentTime);
 
         fPositionY += dy;
-        pRender->SetColour(1.0f, 0.0f, 0.0f);
+        pContext->SetColour(1.0f, 0.0f, 0.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fRenderFPS: %.03f", tRender.GetFPS());
-        pRender->SetColour(0.0f, 1.0f, 0.0f);
+        pContext->SetColour(0.0f, 1.0f, 0.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-        pRender->SetColour(0.0f, 0.0f, 1.0f);
+        pContext->SetColour(0.0f, 0.0f, 1.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
 #endif
 
         fPositionY += dy;
-        pRender->SetColour(1.0f, 0.0f, 0.0f);
+        pContext->SetColour(1.0f, 0.0f, 0.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fRenderMPF: %.03f", tRender.GetMPF());
-        pRender->SetColour(0.0f, 1.0f, 0.0f);
+        pContext->SetColour(0.0f, 1.0f, 0.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-        pRender->SetColour(0.0f, 0.0f, 1.0f);
+        pContext->SetColour(0.0f, 0.0f, 1.0f);
         pFont->printf(fPositionX, fPositionY += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
 #endif
 
         fPositionX = 0.55f;
         fPositionY = 0.05f;
-        const render::cStatistics& statistics = pRender->GetStatistics();
+        const render::cStatistics& statistics = pContext->GetStatistics();
         pFont->printf(fPositionX, fPositionY += dy, "nStateChanges: %d", statistics.nStateChanges);
         pFont->printf(fPositionX, fPositionY += dy, "nVBOsBound: %d", statistics.nVertexBufferObjectsBound);
         pFont->printf(fPositionX, fPositionY += dy, "nVBOsRendered: %d", statistics.nVertexBufferObjectsRendered);
         pFont->printf(fPositionX, fPositionY += dy, "nTrianglesRendered: %d", statistics.nTrianglesRendered);
-        pFont->printf(fPositionX, fPositionY += dy, "nTextureChanges: %d", pRender->uiTextureChanges);
-        pFont->printf(fPositionX, fPositionY += dy, "nTextureModeChanges: %d", pRender->uiTextureModeChanges);
-      pRender->EndRenderingText();
+        pFont->printf(fPositionX, fPositionY += dy, "nTextureChanges: %d", pContext->uiTextureChanges);
+        pFont->printf(fPositionX, fPositionY += dy, "nTextureModeChanges: %d", pContext->uiTextureModeChanges);
+      pContext->EndRenderingText();
     }
 #endif
   }
@@ -1302,13 +1302,13 @@ namespace breathe
     const math::cVec3 lightPosition(100.0f, 100.0f, 100.0f);
     shaderConstants.SetValue(TEXT("lightPosition"), lightPosition);
 
-    pRender->SetShaderConstants(shaderConstants);
+    pContext->SetShaderConstants(shaderConstants);
 
     //constants.SetValue(TEXT("scene_brightness"), fSceneBrightness);
     //constants.SetValue(TEXT("eye_perceived_brightness"), exposure.GetPerceivedBrightness0To1());
     //constants.SetValue(TEXT("eye_velocity"), fEyeVelocity);cHumanEyeExposureControl exposure;
 
-    //pRender->SetMaterial(*iter, constants);
+    //pContext->SetMaterial(*iter, constants);
 
 
 #ifdef BUILD_DEBUG
@@ -1332,7 +1332,7 @@ namespace breathe
       {
         render::cRenderToTexture texture(pFrameBuffer0);
 
-        scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
+        scenegraph.Render(currentTime, *pContext, pContext->GetFrustum());
 
 #ifdef BUILD_DEBUG
         if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
@@ -1356,7 +1356,7 @@ namespace breathe
             render::cRenderScreenSpace screenspace;
 
             glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+            pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
           }
         }
 
@@ -1379,17 +1379,17 @@ namespace breathe
 
 
             // For HDR bloom we need to get the exposure from the second texture
-            pRender->SelectTextureUnit1();
+            pContext->SelectTextureUnit1();
 
             glBindTexture(GL_TEXTURE_2D, pHDRBloomExposureFrameBuffer->uiTexture);
 
             // Select the lowest mipmap level of detail, this seems to correctly select 1x1
             pHDRBloomExposureFrameBuffer->SelectMipMapLevelOfDetail(10.0f); // Also try -1.0f, +1.0f etc.
 
-            pRender->SelectTextureUnit0();
+            pContext->SelectTextureUnit0();
 
 
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+            pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
           }
         }
       }
@@ -1413,13 +1413,13 @@ namespace breathe
 
             render::ApplyMaterial apply(pGaussianBlurMaterial);
 
-            pRender->SetShaderConstant("texture_width", 1024.0f);
-            pRender->SetShaderConstant("texture_height", 1024.0f);
-            pRender->SetShaderConstant("direction", 0.0f); // 0.0 for horizontal pass, 1.0 for vertical
-            pRender->SetShaderConstant("kernel_size", fKernelSize);
+            pContext->SetShaderConstant("texture_width", 1024.0f);
+            pContext->SetShaderConstant("texture_height", 1024.0f);
+            pContext->SetShaderConstant("direction", 0.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pContext->SetShaderConstant("kernel_size", fKernelSize);
 
             glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+            pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
           }
         }
 
@@ -1437,13 +1437,13 @@ namespace breathe
 
             render::ApplyMaterial apply(pGaussianBlurMaterial);
 
-            pRender->SetShaderConstant("texture_width", 1024.0f);
-            pRender->SetShaderConstant("texture_height", 1024.0f);
-            pRender->SetShaderConstant("direction", 1.0f); // 0.0 for horizontal pass, 1.0 for vertical
-            pRender->SetShaderConstant("kernel_size", fKernelSize);
+            pContext->SetShaderConstant("texture_width", 1024.0f);
+            pContext->SetShaderConstant("texture_height", 1024.0f);
+            pContext->SetShaderConstant("direction", 1.0f); // 0.0 for horizontal pass, 1.0 for vertical
+            pContext->SetShaderConstant("kernel_size", fKernelSize);
 
             glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-            pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+            pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
           }
         }
       }
@@ -1465,7 +1465,7 @@ namespace breathe
 
           render::ApplyMaterial apply(*iter);
           glBindTexture(GL_TEXTURE_2D, pFrameBuffer1->uiTexture);
-          pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+          pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
         }
       }
 
@@ -1478,13 +1478,13 @@ namespace breathe
         render::cRenderScreenSpace screenspace;
 
         // If we have one more post render effect to go then we do that now
-        if (iter != lPostRenderEffects.end()) pRender->ApplyMaterial(*iter);
+        if (iter != lPostRenderEffects.end()) pContext->ApplyMaterial(*iter);
 
         glBindTexture(GL_TEXTURE_2D, pFrameBuffer0->uiTexture);
-        pRender->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
+        pContext->RenderScreenSpaceRectangleTopLeftIsAt(0.0f, 0.0f, 1.0f, 1.0f);
 
         // Clear up our material
-        if (iter != lPostRenderEffects.end()) pRender->UnApplyMaterial(*iter);
+        if (iter != lPostRenderEffects.end()) pContext->UnApplyMaterial(*iter);
 
         // Now we can render any text, gui, etc. that we want to see over the top of any scene post render effects
         _RenderScreenSpaceScene(state, currentTime);
@@ -1493,7 +1493,7 @@ namespace breathe
       // Normal rendering, straight to the screen
       render::cRenderToScreen screen;
 
-      scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
+      scenegraph.Render(currentTime, *pContext, pContext->GetFrustum());
 
 #ifdef BUILD_DEBUG
       if (pGameUnitTest != nullptr) pGameUnitTest->RenderScene(currentTime);
@@ -1709,11 +1709,11 @@ namespace breathe
       else spitfire::logging::TurnOnLogging();
     }
 
-    if (IsKeyDown(SDLK_F3)) pRender->bIsRenderGui = !pRender->bIsRenderGui;
-    if (IsKeyDown(SDLK_F4)) pRender->bIsRenderWireframe = !pRender->bIsRenderWireframe;
-    if (IsKeyDown(SDLK_F5)) pRender->bIsRenderWithShadersEnabled = pRender->GetCapabilities().bIsShadersTwoPointZeroOrLaterSupported  && !pRender->bIsRenderWithShadersEnabled;
-    if (IsKeyDown(SDLK_F6)) pRender->bIsCubemappingEnabled = !pRender->bIsCubemappingEnabled;
-    if (IsKeyDown(SDLK_F7)) pRender->bIsLightingEnabled = !pRender->bIsLightingEnabled;
+    if (IsKeyDown(SDLK_F3)) pContext->bIsRenderGui = !pContext->bIsRenderGui;
+    if (IsKeyDown(SDLK_F4)) pContext->bIsRenderWireframe = !pContext->bIsRenderWireframe;
+    if (IsKeyDown(SDLK_F5)) pContext->bIsRenderWithShadersEnabled = pContext->GetCapabilities().bIsShadersTwoPointZeroOrLaterSupported  && !pContext->bIsRenderWithShadersEnabled;
+    if (IsKeyDown(SDLK_F6)) pContext->bIsCubemappingEnabled = !pContext->bIsCubemappingEnabled;
+    if (IsKeyDown(SDLK_F7)) pContext->bIsLightingEnabled = !pContext->bIsLightingEnabled;
 
     if (IsKeyDown(SDLK_F8)) CreateGameUnitTest();
 
@@ -1765,7 +1765,7 @@ namespace breathe
 
   void cApplication::CursorWarpToMiddleOfScreen()
   {
-    SDL_WarpMouse(pRender->uiWidth / 2, pRender->uiHeight / 2);
+    SDL_WarpMouse(pContext->uiWidth / 2, pContext->uiHeight / 2);
   }
 
   void cApplication::ConsoleExecute(const std::string& command)

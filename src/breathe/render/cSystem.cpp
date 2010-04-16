@@ -54,12 +54,12 @@
 #include <breathe/util/base.h>
 #include <breathe/util/cVar.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cSystem.h>
 #include <breathe/render/cWindow.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
@@ -153,8 +153,7 @@ namespace breathe
       pContext->CreateSharedContextFromWindow(*pWindow);
 
       // These are the dodgy global variables, these have to go
-      ::pContext = pRender; // TODO: Remove this
-      ::pRender = pRender; // TODO: Remove this
+      ::pContext = pContext; // TODO: Remove this
 
       return true;
     }

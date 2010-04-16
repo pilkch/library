@@ -48,9 +48,9 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 

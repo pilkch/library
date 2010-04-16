@@ -68,7 +68,6 @@ breathe::cVar fDetailScale = 0.5f;
 const float fMaximumViewDistance = 3000.0f;
 
 breathe::render::cContext* pContext = nullptr; // TODO: Remove pContext
-breathe::render::cContext* pRender = nullptr; // TODO: Remove pRender
 
 namespace breathe
 {
@@ -253,7 +252,7 @@ namespace breathe
       clearColour(1.0f, 0.0f, 1.0f, 1.0f),
       bIsActiveColour(false)
     {
-      pRender = this;
+      pContext = this;
 
       sunPosition.Set(10.0f, 10.0f, 5.0f, 0.0f);
 
@@ -2046,26 +2045,26 @@ namespace breathe
 
     ApplyTexture::ApplyTexture(cTextureRef pCurrent)
     {
-      pLast = pRender->GetCurrentTexture0();
-      pRender->SetTexture0(pCurrent);
+      pLast = pContext->GetCurrentTexture0();
+      pContext->SetTexture0(pCurrent);
     }
 
     ApplyTexture::~ApplyTexture()
     {
-      pRender->SetTexture0(pLast);
+      pContext->SetTexture0(pLast);
     }
 
 
     ApplyMaterial::ApplyMaterial(material::cMaterialRef _pMaterial)
     {
-      //pLast = pRender->GetCurrentMaterial();
+      //pLast = pContext->GetCurrentMaterial();
       pMaterial = _pMaterial;
-      pRender->ApplyMaterial(pMaterial);
+      pContext->ApplyMaterial(pMaterial);
     }
 
     ApplyMaterial::~ApplyMaterial()
     {
-      pRender->UnApplyMaterial(pMaterial);
+      pContext->UnApplyMaterial(pMaterial);
     }
 
 
@@ -2074,12 +2073,12 @@ namespace breathe
 
     cRenderToScreen::cRenderToScreen()
     {
-      pRender->BeginRenderToScreen();
+      pContext->BeginRenderToScreen();
     }
 
     cRenderToScreen::~cRenderToScreen()
     {
-      pRender->EndRenderToScreen();
+      pContext->EndRenderToScreen();
     }
 
 
@@ -2087,12 +2086,12 @@ namespace breathe
     cRenderToTexture::cRenderToTexture(cTextureFrameBufferObjectRef _pTexture) :
       pTexture(_pTexture)
     {
-      pRender->BeginRenderToTexture(pTexture);
+      pContext->BeginRenderToTexture(pTexture);
     }
 
     cRenderToTexture::~cRenderToTexture()
     {
-      pRender->EndRenderToTexture(pTexture);
+      pContext->EndRenderToTexture(pTexture);
     }
 
 
@@ -2100,24 +2099,24 @@ namespace breathe
     cRenderToCubeMapTexture::cRenderToCubeMapTexture(cTextureFrameBufferObjectRef _pTexture, CUBE_MAP_FACE face) :
       pTexture(_pTexture)
     {
-      pRender->BeginRenderToCubeMapTextureFace(pTexture, face);
+      pContext->BeginRenderToCubeMapTextureFace(pTexture, face);
     }
 
     cRenderToCubeMapTexture::~cRenderToCubeMapTexture()
     {
-      pRender->EndRenderToCubeMapTextureFace(pTexture);
+      pContext->EndRenderToCubeMapTextureFace(pTexture);
     }
 
 
 
     cRenderScreenSpace::cRenderScreenSpace()
     {
-      pRender->BeginScreenSpaceRendering();
+      pContext->BeginScreenSpaceRendering();
     }
 
     cRenderScreenSpace::~cRenderScreenSpace()
     {
-      pRender->EndScreenSpaceRendering();
+      pContext->EndScreenSpaceRendering();
     }
   }
 }

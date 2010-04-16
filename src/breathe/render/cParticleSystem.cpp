@@ -48,10 +48,10 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cParticleSystem.h>
 
 #include <breathe/render/model/cMesh.h>
@@ -106,7 +106,7 @@ namespace breathe
     void cParticleSystem::Sort()
     {
       size_t n = particles.size();
-      for (size_t i = 0; i < n; i++) particles[i].SetDepth((position + particles[i].p - pRender->GetFrustum().eye).GetLength());
+      for (size_t i = 0; i < n; i++) particles[i].SetDepth((position + particles[i].p - pContext->GetFrustum().eye).GetLength());
 
       std::sort(particles.begin(), particles.end(), cParticle::DepthCompare);
     }
@@ -155,11 +155,11 @@ namespace breathe
       {
         breathe::render::ApplyMaterial apply(pMaterial);
 
-        pRender->SetShaderConstant("width", fParticleWidth);
-        pRender->SetShaderConstant("height", fParticleHeight);
+        pContext->SetShaderConstant("width", fParticleWidth);
+        pContext->SetShaderConstant("height", fParticleHeight);
 
-        //pRender->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
-        //pRender->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
+        //pContext->SetShaderConstant(pMaterial, "width", 10.0f + 30.0f * sinf(float(spitfire::util::GetTime())));
+        //pContext->SetShaderConstant(pMaterial, "height", 10.0f + 30.0f * cosf(float(spitfire::util::GetTime())));
 
         glPushMatrix();
           glTranslatef(position.x, position.y, position.z);
@@ -276,7 +276,7 @@ namespace breathe
       glPushMatrix();
         glTranslatef(position.x, position.y, position.z);
 
-        if (pMesh->pMaterial) pRender->ApplyMaterial(pMesh->pMaterial);
+        if (pMesh->pMaterial) pContext->ApplyMaterial(pMesh->pMaterial);
 
           unsigned int uiParticlesRendered = 0;
           cParticle* p = &particles[0];
@@ -286,13 +286,13 @@ namespace breathe
 
             glPushMatrix();
               glTranslatef(p->p.x, p->p.y, p->p.z);
-              pRender->RenderMesh(pMesh);
+              pContext->RenderMesh(pMesh);
             glPopMatrix();
 
             uiParticlesRendered++;
           }
 
-        if (pMesh->pMaterial) pRender->UnApplyMaterial(pMesh->pMaterial);
+        if (pMesh->pMaterial) pContext->UnApplyMaterial(pMesh->pMaterial);
 
       glPopMatrix();
 
@@ -336,7 +336,7 @@ namespace breathe
     {
       size_t n = particles.size();
       for (size_t i = 0; i < n; i++)
-        particles[i].SetDepth((position + particles[i].p - pRender->GetFrustum().eye).GetLength());
+        particles[i].SetDepth((position + particles[i].p - pContext->GetFrustum().eye).GetLength());
 
       // Dodgy hack because sorting wrecks the order and for this class we need to know the order
       sorted = particles;
@@ -363,8 +363,8 @@ namespace breathe
           const cParticleCustom* p = &sorted[0];
           const size_t n = sorted.size();
           for (size_t i = 0; i < n; i++, p++) {
-            pRender->SetShaderConstant("width", p->fWidth);
-            pRender->SetShaderConstant("height", p->fHeight);
+            pContext->SetShaderConstant("width", p->fWidth);
+            pContext->SetShaderConstant("height", p->fHeight);
 
             glBegin(GL_QUADS);
 #if 1

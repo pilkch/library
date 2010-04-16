@@ -66,10 +66,10 @@
 
 #include <breathe/physics/physics.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cParticleSystem.h>
 
 #include <breathe/game/scenegraph.h>
@@ -823,7 +823,7 @@ namespace breathe
         }
       }
 
-      if (stateSet.shader.IsValidAndTurnedOn()) pRender->BindShader(stateSet.shader.pShader);
+      if (stateSet.shader.IsValidAndTurnedOn()) pContext->BindShader(stateSet.shader.pShader);
     }
 
     void cRenderVisitor::UnApplyStateSet(cStateSet& stateSet)
@@ -867,7 +867,7 @@ namespace breathe
         }
       }
 
-      if (stateSet.shader.IsValidAndTurnedOn()) pRender->UnBindShader();
+      if (stateSet.shader.IsValidAndTurnedOn()) pContext->UnBindShader();
 
       glActiveTexture(GL_TEXTURE0_ARB);
       glEnable(GL_TEXTURE_2D);
@@ -885,7 +885,7 @@ namespace breathe
         glLoadIdentity();
         glMultMatrixf(frustum.m.GetOpenGLMatrixPointer());
 
-          pRender->ClearMaterial();
+          pContext->ClearMaterial();
 
           // Opaque first
           {
@@ -951,8 +951,8 @@ namespace breathe
             while (iter != iterEnd) {
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
+                pContext->RenderAxisReference();
                 glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrixPointer());
-                pRender->RenderAxisReference();
                 (*iter).pModel->Render(currentTime);
               glMatrixMode(GL_MODELVIEW);
               glPopMatrix();
@@ -976,15 +976,15 @@ namespace breathe
           // ... Draw everything else
           if (scenegraph.pSkySystem != nullptr) {
 
-            pRender->ClearMaterial();
+            pContext->ClearMaterial();
 
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
               glLoadIdentity();
-              glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
+              glMultMatrixf(pContext->GetFrustum().m.GetOpenGLMatrixPointer());
 
               // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
-              glTranslatef(pRender->GetFrustum().eye.x, pRender->GetFrustum().eye.y, pRender->GetFrustum().eye.z);
+              glTranslatef(pContext->GetFrustum().eye.x, pContext->GetFrustum().eye.y, pContext->GetFrustum().eye.z);
 
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
@@ -992,10 +992,10 @@ namespace breathe
                 const math::cVec3 axis(rotation.GetAxis());
                 glRotatef(spitfire::math::RadiansToDegrees(rotation.GetAngle()), axis.x, axis.y, axis.z);
 
-                pRender->SelectTextureUnit0();
+                pContext->SelectTextureUnit0();
 
                 // Set our texture
-                if (!pRender->IsWireFrame()) pRender->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
+                if (!pContext->IsWireFrame()) pContext->SetTexture0(scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetTexture());
 
                 {
                   const sky::cSkyDomeAtmosphereRenderer::cVertex* pVertices = scenegraph.pSkySystem->GetSkyDomeAtmosphereRenderer().GetVertices();
@@ -1031,7 +1031,7 @@ namespace breathe
               glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
 
-            pRender->ClearMaterial();
+            pContext->ClearMaterial();
           }
 
 
@@ -1043,7 +1043,7 @@ namespace breathe
             std::map<float, cRenderGraphTransparentPair>::iterator iter(rendergraph.mTransparent.begin());
             const std::map<float, cRenderGraphTransparentPair>::iterator iterEnd(rendergraph.mTransparent.end());
             while (iter != iterEnd) {
-              //uiTriangles += (iter->second)->Render();
+              //context.StatisticsAddTrianglesRendered((iter->second)->Render());
               iter++;
             }
           }
@@ -1059,16 +1059,16 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
               glLoadIdentity();
-              glMultMatrixf(pRender->GetFrustum().m.GetOpenGLMatrixPointer());
+              glMultMatrixf(pContext->GetFrustum().m.GetOpenGLMatrixPointer());
 
               // Position the whole sky at the the viewpoint so that it gives the illusion that it is infinitely far away
-              glTranslatef(pRender->GetFrustum().eye.x, pRender->GetFrustum().eye.y, pRender->GetFrustum().eye.z);
+              glTranslatef(pContext->GetFrustum().eye.x, pContext->GetFrustum().eye.y, pContext->GetFrustum().eye.z);
 
               render::cParticleSystemCustomBillboard* pParticleSystemPlanets = scenegraph.pSkySystem->GetPlanetParticleSystem();
               pParticleSystemPlanets->Update(spitfire::util::GetTimeMS());
               pParticleSystemPlanets->Render();
 
-              pRender->ClearMaterial();
+              pContext->ClearMaterial();
 
               render::cParticleSystemCustomBillboard* pParticleSystemStars = scenegraph.pSkySystem->GetStarParticleSystem();
               pParticleSystemStars->Update(spitfire::util::GetTimeMS());
@@ -1450,7 +1450,7 @@ namespace breathe
 
             scenegraph.Update(currentTime);
             scenegraph.Cull(currentTime, camera);
-            scenegraph.Render(currentTime, *pRender, pRender->GetFrustum());
+            scenegraph.Render(currentTime, *pContext, pContext->GetFrustum());
 
 
 

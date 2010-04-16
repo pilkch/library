@@ -43,10 +43,10 @@
 // Breathe headers
 #include <breathe/breathe.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 
 #include <breathe/util/base.h>
 #include <breathe/render/model/cMesh.h>

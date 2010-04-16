@@ -6,7 +6,7 @@
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
 
-#include <breathe/render/cRender.h>
+#include <breathe/render/cContext.h>
 
 namespace breathe
 {

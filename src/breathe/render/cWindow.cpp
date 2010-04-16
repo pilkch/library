@@ -54,12 +54,12 @@
 #include <breathe/util/base.h>
 #include <breathe/util/cVar.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
 #include <breathe/render/cWindow.h>
 #include <breathe/render/cResourceManager.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 #include <breathe/render/model/cMesh.h>

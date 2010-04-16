@@ -50,10 +50,10 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 
 #include <breathe/util/base.h>
@@ -138,11 +138,11 @@ namespace breathe
 
     void cShader::CheckStatusVertex()
     {
-      LOG<<"cShader::CheckStatusVertex Last error="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusVertex Last error="<<pContext->GetErrorString()<<std::endl;
 
       int infologLength = 0;
       glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
-      LOG<<"cShader::CheckStatusVertex glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusVertex glGetShaderiv glGetError="<<pContext->GetErrorString()<<std::endl;
       //infologLength = 1024;
       if (infologLength > 0) {
         char* infoLog = new char[infologLength];
@@ -165,11 +165,11 @@ namespace breathe
 
     void cShader::CheckStatusFragment()
     {
-      LOG<<"cShader::CheckStatusFragment Last error="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusFragment Last error="<<pContext->GetErrorString()<<std::endl;
 
       int infologLength = 0;
       glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
-      LOG<<"cShader::CheckStatusFragment glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusFragment glGetShaderiv glGetError="<<pContext->GetErrorString()<<std::endl;
       //infologLength = 1024;
       if (infologLength > 0) {
         char *infoLog = new char[infologLength];
@@ -192,11 +192,11 @@ namespace breathe
 
     void cShader::CheckStatusProgram()
     {
-      LOG<<"cShader::CheckStatusProgram Last error="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusProgram Last error="<<pContext->GetErrorString()<<std::endl;
 
       int infologLength = 0;
       glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
-      LOG<<"cShader::CheckStatusProgram glGetShaderiv glGetError="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::CheckStatusProgram glGetShaderiv glGetError="<<pContext->GetErrorString()<<std::endl;
       //infologLength = 1024;
       if (infologLength > 0) {
         char *infoLog = new char[infologLength];
@@ -240,7 +240,7 @@ namespace breathe
 
     void cShader::Init()
     {
-      LOG<<"cShader::Init glGetError="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cShader::Init glGetError="<<pContext->GetErrorString()<<std::endl;
 
       if (!sShaderVertex.empty()) {
         std::string buffer = "";
@@ -256,10 +256,10 @@ namespace breathe
             line = "";
           };
 
-          LOG<<"cShader::Init Vertex "<<pRender->GetErrorString()<<" "<<pRender->GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
+          LOG<<"cShader::Init Vertex "<<pContext->GetErrorString()<<" "<<pContext->GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
 
           uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
-          LOG<<"cShader::Init Vertex shader glGetError="<<pRender->GetErrorString()<<std::endl;
+          LOG<<"cShader::Init Vertex shader glGetError="<<pContext->GetErrorString()<<std::endl;
           CheckStatusVertex();
           ASSERT(uiShaderVertex != 0);
 
@@ -297,7 +297,7 @@ namespace breathe
           LOG<<"cShader::Init Fragment shader=\""<<buffer<<"\""<<std::endl;
 
           uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
-          LOG<<"cShader::Init Fragment shader glGetError="<<pRender->GetErrorString()<<std::endl;
+          LOG<<"cShader::Init Fragment shader glGetError="<<pContext->GetErrorString()<<std::endl;
           CheckStatusFragment();
           ASSERT(uiShaderFragment != 0);
 
@@ -321,7 +321,7 @@ namespace breathe
 
       if (IsCompiledVertex() || IsCompiledFragment()) {
         uiShaderProgram = glCreateProgram();
-        LOG<<"cShader::Init program glGetError="<<pRender->GetErrorString()<<std::endl;
+        LOG<<"cShader::Init program glGetError="<<pContext->GetErrorString()<<std::endl;
         CheckStatusProgram();
         ASSERT(uiShaderFragment != 0);
 

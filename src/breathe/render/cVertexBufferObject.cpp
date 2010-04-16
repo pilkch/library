@@ -45,7 +45,7 @@
 
 #include <breathe/util/base.h>
 
-#include <breathe/render/cRender.h>
+#include <breathe/render/cContext.h>
 #include <breathe/render/cVertexBufferObject.h>
 
 namespace breathe
@@ -141,11 +141,11 @@ namespace breathe
       else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
       else nTextureUnits = 0;
 
-      LOG<<"cStaticVertexBuffer::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<pRender->GetErrorString()<<std::endl;
+      LOG<<"cStaticVertexBuffer::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<pContext->GetErrorString()<<std::endl;
 
       // Create a new buffer
       glGenBuffers(1, &bufferID);
-      LOG<<"cStaticVertexBuffer::Compile glGenBuffers glGetError="<<pRender->GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+      LOG<<"cStaticVertexBuffer::Compile glGenBuffers glGetError="<<pContext->GetErrorString()<<", bufferID="<<bufferID<<std::endl;
       ASSERT(bufferID != 0);
 
       // Bbind the buffer object to use

@@ -45,10 +45,10 @@
 
 #include <breathe/util/base.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cVertexBufferObject.h>
 
@@ -429,7 +429,7 @@ namespace breathe
         render::ApplyMaterial apply(pMaterial);
 
         float fCurrentTime = 0.0005f * float(currentTime);
-        pRender->SetShaderConstant("time", fCurrentTime);
+        pContext->SetShaderConstant("time", fCurrentTime);
 
         vbo.Bind();
 

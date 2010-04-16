@@ -78,10 +78,10 @@
 #include <breathe/render/model/cModel.h>
 #include <breathe/render/model/cStatic.h>
 
+#include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cRender.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
 #include <breathe/render/cParticleSystem.h>
@@ -553,17 +553,17 @@ namespace breathe
               colour.x = float_t(x) / float_t(n); // Red
               colour.y = float_t(y) / float_t(n); // Green
               colour.z = float_t(z) / float_t(n); // Blue
-              pRender->SetShaderConstant("colour", colour);
+              pContext->SetShaderConstant("colour", colour);
 
               matTranslation.SetTranslation(spitfire::math::cVec3(float(x) * 10.0f, float(y) * 10.0f, 90.0f + (float(z) * 10.0f)));
 
-              pRender->PushModelViewMatrix();
+              pContext->PushModelViewMatrix();
 
-                pRender->SetModelViewMatrix(matTranslation);
+                pContext->SetModelViewMatrix(matTranslation);
 
-                pRender->RenderBoxTextured(vMin, vMax);
+                pContext->RenderBoxTextured(vMin, vMax);
 
-              pRender->PopModelViewMatrix();
+              pContext->PopModelViewMatrix();
             }
           }
         }
