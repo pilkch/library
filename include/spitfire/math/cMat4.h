@@ -62,6 +62,9 @@ namespace spitfire
       void SetScale(float scaleX, float scaleY, float scaleZ) { SetScale(cVec3(scaleX, scaleY, scaleZ)); }
       void SetScale(const cVec3& scale);
 
+      // Assignment operator
+      cMat4& operator=(const cMat4& rhs);
+
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;
       cMat4 operator-(const cMat4& rhs) const;

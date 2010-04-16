@@ -27,6 +27,12 @@ namespace spitfire
       SetFromMatrix(rhs);
     }
 
+    cMat4& cMat4::operator=(const cMat4& rhs)
+    {
+      SetFromMatrix(rhs);
+      return *this;
+    }
+
     const float& cMat4::operator[](const size_t i) const
     {
       assert(i < 16);

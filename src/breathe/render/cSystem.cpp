@@ -92,7 +92,7 @@ namespace breathe
 
     cSystem::cSystem() :
       pWindow(nullptr),
-      pDevice(nullptr),
+      pContext(nullptr),
       pResourceManager(nullptr)
     {
     }
@@ -100,7 +100,7 @@ namespace breathe
     cSystem::~cSystem()
     {
       ASSERT(pResourceManager == nullptr);
-      ASSERT(pDevice == nullptr);
+      ASSERT(pContext == nullptr);
       ASSERT(pWindow == nullptr);
     }
 
@@ -108,32 +108,32 @@ namespace breathe
     {
       LOG<<"cSystem::Create"<<std::endl;
 
-      ASSERT(pDevice == nullptr);
-      pDevice = new cDevice;
+      ASSERT(pContext == nullptr);
+      pContext = new cContext;
 
       return true;
     }
 
     void cSystem::Destroy()
     {
-      SAFE_DELETE(pDevice);
+      SAFE_DELETE(pContext);
     }
 
 
     cResolution cSystem::GetCurrentScreenResolution() const
     {
-      return pDevice->GetCurrentScreenResolution();
+      return pContext->GetCurrentScreenResolution();
     }
 
     std::vector<cResolution> cSystem::GetAvailableScreenResolutions() const
     {
-      return pDevice->GetAvailableScreenResolutions();
+      return pContext->GetAvailableScreenResolutions();
     }
 
-    cDevice* cSystem::GetDevice()
+    cContext* cSystem::GetContext()
     {
-      ASSERT(pDevice != nullptr);
-      return pDevice;
+      ASSERT(pContext != nullptr);
+      return pContext;
     }
 
     cWindow* cSystem::GetWindow()
@@ -142,15 +142,15 @@ namespace breathe
       return pWindow;
     }
 
-    bool cSystem::CreateDeviceAndWindow(const cResolution& resolution)
+    bool cSystem::CreateContextAndWindow(const cResolution& resolution)
     {
-      ASSERT(pDevice != nullptr);
+      ASSERT(pContext != nullptr);
       ASSERT(pWindow == nullptr);
 
-      pDevice->Create(resolution);
-
       pWindow = new cWindow;
-      pWindow->Create();
+      pWindow->Create(resolution);
+
+      pContext->CreateSharedContextFromWindow(*pWindow);
 
       // These are the dodgy global variables, these have to go
       ::pContext = pRender; // TODO: Remove this
@@ -159,12 +159,12 @@ namespace breathe
       return true;
     }
 
-    void cSystem::DestroyDeviceAndWindow(cDevice* _pDevice, cWindow* _pWindow)
+    void cSystem::DestroyContextAndWindow(cContext* _pContext, cWindow* _pWindow)
     {
       pWindow->Destroy();
       SAFE_DELETE(pWindow);
 
-      pDevice->Destroy();
+      pContext->Destroy();
     }
 
 
@@ -177,7 +177,7 @@ namespace breathe
     cResourceManager* cSystem::CreateResourceManager()
     {
       ASSERT(pResourceManager == nullptr);
-      pResourceManager = new cResourceManager(*pDevice);
+      pResourceManager = new cResourceManager(*pContext);
       pResourceManager->Create();
 
       // These are the dodgy global variables, these have to go
@@ -208,20 +208,20 @@ namespace breathe
     {
       // TODO: For this function can we avoid destroying the window?
 
-      cResolution resolution = pDevice->GetResolution();
+      cResolution resolution = pContext->GetResolution();
       ASSERT(resolution.IsWindowed()); // Resize is only appropriate for windowed mode
 
-      // Destroy the old device and window
+      // Destroy the old context and window
       pWindow->Destroy();
-      pDevice->Destroy();
+      pContext->Destroy();
 
       // Set the width and height of the new resolution
       resolution.SetWidth(width);
       resolution.SetHeight(height);
 
       // Create the new render
-      pDevice->Create(resolution);
-      pWindow->Create();
+      pWindow->Create(resolution);
+      pContext->CreateSharedContextFromWindow(*pWindow);
 
       // TODO: Is this still valid?
       pResourceManager->ReloadTextures();
@@ -229,11 +229,11 @@ namespace breathe
 
     void cSystem::OnToggleFullScreen()
     {
-      cResolution resolution = pDevice->GetResolution();
+      cResolution resolution = pContext->GetResolution();
 
-      // Destroy the old device and window
+      // Destroy the old context and window
       pWindow->Destroy();
-      pDevice->Destroy();
+      pContext->Destroy();
 
       // Toggle the fullscreen or window flag of the new resolution
       if (resolution.IsFullScreen()) resolution.SetWindowed(true);
@@ -277,8 +277,8 @@ namespace breathe
       }
 
       // Create the new render
-      pDevice->Create(resolution);
-      pWindow->Create();
+      pWindow->Create(resolution);
+      pContext->CreateSharedContextFromWindow(*pWindow);
 
       // TODO: Is this still valid?
       pResourceManager->ReloadTextures();

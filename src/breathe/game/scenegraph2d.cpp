@@ -601,7 +601,7 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context)
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cContext& context)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
 
@@ -733,7 +733,7 @@ namespace breathe
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime, render::cGraphicsContext& context)
+    void cSceneGraph::Render(sampletime_t currentTime, render::cContext& context)
     {
       cRenderVisitor visitor(*this, context);
     }

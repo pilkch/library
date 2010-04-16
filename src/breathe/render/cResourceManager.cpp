@@ -73,8 +73,8 @@ namespace breathe
   {
     // *** cResourceManager
 
-    cResourceManager::cResourceManager(cDevice& _device) :
-      device(_device)
+    cResourceManager::cResourceManager(cContext& _context) :
+      context(_context)
       //iMaxTextureSize(0)
     {
       for (size_t i = 0; i < nAtlas; i++) {

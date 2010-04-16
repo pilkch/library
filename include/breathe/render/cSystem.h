@@ -29,13 +29,13 @@ namespace breathe
     }
 
     class cWindow;
-    class cDevice;
+    class cContext;
     class cResourceManager;
 
     class cResolution
     {
     public:
-      friend class cDevice;
+      friend class cContext;
 
       cResolution();
 
@@ -95,10 +95,10 @@ namespace breathe
       cResolution GetCurrentScreenResolution() const;
       std::vector<cResolution> GetAvailableScreenResolutions() const;
 
-      cDevice* GetDevice();
+      cContext* GetContext();
       cWindow* GetWindow();
-      bool CreateDeviceAndWindow(const cResolution& resolution);
-      void DestroyDeviceAndWindow(cDevice* pDevice, cWindow* pWindow);
+      bool CreateContextAndWindow(const cResolution& resolution);
+      void DestroyContextAndWindow(cContext* pContext, cWindow* pWindow);
 
       cResourceManager* GetResourceManager();
       cResourceManager* CreateResourceManager();
@@ -114,7 +114,7 @@ namespace breathe
       NO_COPY(cSystem);
 
       cWindow* pWindow;
-      cDevice* pDevice;
+      cContext* pContext;
       cResourceManager* pResourceManager;
     };
   }

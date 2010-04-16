@@ -874,11 +874,9 @@ namespace breathe
     }
 
 
-    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cGraphicsContext& context, const math::cFrustum& frustum)
+    cRenderVisitor::cRenderVisitor(cSceneGraph& scenegraph, render::cContext& context, const math::cFrustum& frustum)
     {
       ASSERT(scenegraph.GetRoot() != nullptr);
-
-      size_t uiTriangles = 0;
 
       cRenderGraph& rendergraph = scenegraph.GetRenderGraph();
 
@@ -897,8 +895,10 @@ namespace breathe
               cStateSet* pStateSet = iter->first;
               cRenderGraph::cRenderableList* pRenderableList = iter->second;
 
+              context.StatisticsIncrementStateChanges();
               ApplyStateSet(*pStateSet);
 
+                context.StatisticsIncrementVertexBufferObjectsBound();
                 render::cVertexBufferObjectRef pVbo = pStateSet->vertexBufferObject.GetVertexBufferObject();
                 pVbo->Bind();
 
@@ -916,10 +916,12 @@ namespace breathe
 
                       switch (pStateSet->geometryType) {
                         case scenegraph_common::GEOMETRY_TYPE::TRIANGLES: {
+                          context.StatisticsIncrementVertexBufferObjectsRendered();
                           pVbo->RenderTriangles();
                           break;
                         }
                         case scenegraph_common::GEOMETRY_TYPE::QUADS: {
+                          context.StatisticsIncrementVertexBufferObjectsRendered();
                           pVbo->RenderQuads();
                           break;
                         }
@@ -928,7 +930,7 @@ namespace breathe
                       glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();
 
-                    uiTriangles += pVbo->GetApproximateTriangleCount();
+                    context.StatisticsAddTrianglesRendered(pVbo->GetApproximateTriangleCount());
 
                     renderableIter++;
                   }
@@ -1078,9 +1080,6 @@ namespace breathe
 
         glMatrixMode(GL_MODELVIEW);
       glPopMatrix();
-
-
-      pRender->uiTriangles += uiTriangles;
     }
 
 
@@ -1089,6 +1088,10 @@ namespace breathe
       backgroundColour(0.0f, 0.0f, 1.0f)
     {
       pRoot.reset(new cGroupNode);
+    }
+
+    cSceneGraph::~cSceneGraph()
+    {
     }
 
     void cSceneGraph::Create()
@@ -1196,7 +1199,7 @@ namespace breathe
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime, render::cGraphicsContext& context, const math::cFrustum& frustum)
+    void cSceneGraph::Render(sampletime_t currentTime, render::cContext& context, const math::cFrustum& frustum)
     {
       cRenderVisitor visitor(*this, context, frustum);
     }

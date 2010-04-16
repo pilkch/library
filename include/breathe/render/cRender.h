@@ -1,6 +1,6 @@
 #ifndef CRENDER_H
 #define CRENDER_H
 
-#include <breathe/render/cDevice.h>
+#include <breathe/render/cContext.h>
 
 #endif // CRENDER_H

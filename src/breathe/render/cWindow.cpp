@@ -80,7 +80,7 @@ namespace breathe
     {
     }
 
-    bool cWindow::Create()
+    bool cWindow::Create(const cResolution& resolution)
     {
       LOG<<"cWindow::Create"<<std::endl;
 

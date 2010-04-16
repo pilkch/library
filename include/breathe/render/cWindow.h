@@ -28,7 +28,7 @@ namespace breathe
       cWindow();
       ~cWindow();
 
-      bool Create();
+      bool Create(const cResolution& resolution);
       void Destroy();
 
     private:

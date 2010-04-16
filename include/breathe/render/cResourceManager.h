@@ -17,7 +17,7 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/model/cMesh.h>
-#include <breathe/render/cDevice.h>
+#include <breathe/render/cContext.h>
 
 // OpenGL Multiple Contexts
 // http://www.stevestreeting.com/2006/10/20/gl-thread-taming/
@@ -43,7 +43,7 @@ namespace breathe
     class cResourceManager
     {
     public:
-      cResourceManager(cDevice& device);
+      explicit cResourceManager(cContext& context);
       ~cResourceManager();
 
       bool Create();
@@ -113,7 +113,7 @@ namespace breathe
       material::cMaterialRef _GetMaterial(const string_t& sFilename);
 
 
-      cDevice& device;
+      cContext& context;
 
 
       size_t uiSegmentWidthPX;

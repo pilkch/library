@@ -229,7 +229,7 @@ namespace breathe
 
 
     render::cSystem system;
-    render::cDevice* pDevice;
+    render::cContext* pContext;
     render::cWindow* pWindow;
     render::cResourceManager* pResourceManager;
 

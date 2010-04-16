@@ -182,7 +182,7 @@ int intersect_triangle(
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
-#include <breathe/render/cDevice.h>
+#include <breathe/render/cContext.h>
 #include <breathe/render/cSystem.h>
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/cFont.h>
@@ -468,7 +468,7 @@ namespace breathe
 #endif
     bDone(false),
 
-    pDevice(nullptr),
+    pContext(nullptr),
     pWindow(nullptr),
     pResourceManager(nullptr),
 
@@ -620,8 +620,8 @@ namespace breathe
     pResourceManager = nullptr;
 
     LOG.Success("Delete", "Render");
-    system.DestroyDeviceAndWindow(pDevice, pWindow);
-    pDevice = nullptr;
+    system.DestroyContextAndWindow(pContext, pWindow);
+    pContext = nullptr;
     pWindow = nullptr;
 
     system.Destroy();
@@ -978,8 +978,8 @@ namespace breathe
 
     //system.GetAvailableScreenResolutions();
 
-    system.CreateDeviceAndWindow(resolution);
-    pDevice = system.GetDevice();
+    system.CreateContextAndWindow(resolution);
+    pContext = system.GetContext();
     pWindow = system.GetWindow();
 
     pResourceManager = system.CreateResourceManager();
@@ -1234,46 +1234,52 @@ namespace breathe
       pRender->SetColour(0.0f, 0.0f, 1.0f);
 
       const float dy = 0.03f;
-      float fPosition = 0.1f;
+      float fPositionX = 0.05f;
+      float fPositionY = 0.05f;
 
       pRender->BeginRenderingText();
 
-        pFont->printf(0.05f, fPosition += dy, "Log: %s", spitfire::logging::IsLogging() ? "on" : "off");
+        pFont->printf(fPositionX, fPositionY += dy, "Log: %s", spitfire::logging::IsLogging() ? "on" : "off");
 
         const math::cVec3& position = camera.GetEyePosition();
-        pFont->printf(0.05f, fPosition += dy, "Position: %.03f, %.03f, %.03f", position.x, position.y, position.z);
+        pFont->printf(fPositionX, fPositionY += dy, "Position: %.03f, %.03f, %.03f", position.x, position.y, position.z);
 
 #ifdef BUILD_PHYSICS_3D
-        pFont->printf(0.05f, fPosition += dy, "Physics Objects: %d", pWorld->GetNumberOfBodies());
+        pFont->printf(fPositionX, fPositionY += dy, "Physics Objects: %d", pWorld->GetNumberOfBodies());
 #endif
 
-        fPosition += dy;
-        pFont->printf(0.05f, fPosition += dy, "uiTriangles: %d", pRender->uiTriangles);
-        pFont->printf(0.05f, fPosition += dy, "uiTextureChanges: %d", pRender->uiTextureChanges);
-        pFont->printf(0.05f, fPosition += dy, "uiTextureModeChanges: %d", pRender->uiTextureModeChanges);
+        fPositionY += dy;
+        pFont->printf(fPositionX, fPositionY += dy, "currentTime: %d", currentTime);
 
-        fPosition += dy;
-        pFont->printf(0.05f, fPosition += dy, "currentTime: %d", currentTime);
-
-        fPosition += dy;
+        fPositionY += dy;
         pRender->SetColour(1.0f, 0.0f, 0.0f);
-        pFont->printf(0.05f, fPosition += dy, "fRenderFPS: %.03f", tRender.GetFPS());
+        pFont->printf(fPositionX, fPositionY += dy, "fRenderFPS: %.03f", tRender.GetFPS());
         pRender->SetColour(0.0f, 1.0f, 0.0f);
-        pFont->printf(0.05f, fPosition += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
+        pFont->printf(fPositionX, fPositionY += dy, "fUpdateFPS: %.03f", tUpdate.GetFPS());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
         pRender->SetColour(0.0f, 0.0f, 1.0f);
-        pFont->printf(0.05f, fPosition += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
+        pFont->printf(fPositionX, fPositionY += dy, "fPhysicsFPS: %.03f", tPhysics.GetFPS());
 #endif
 
-        fPosition += dy;
+        fPositionY += dy;
         pRender->SetColour(1.0f, 0.0f, 0.0f);
-        pFont->printf(0.05f, fPosition += dy, "fRenderMPF: %.03f", tRender.GetMPF());
+        pFont->printf(fPositionX, fPositionY += dy, "fRenderMPF: %.03f", tRender.GetMPF());
         pRender->SetColour(0.0f, 1.0f, 0.0f);
-        pFont->printf(0.05f, fPosition += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
+        pFont->printf(fPositionX, fPositionY += dy, "fUpdateMPF: %.03f", tUpdate.GetMPF());
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
         pRender->SetColour(0.0f, 0.0f, 1.0f);
-        pFont->printf(0.05f, fPosition += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
+        pFont->printf(fPositionX, fPositionY += dy, "fPhysicsMPF: %.03f", tPhysics.GetMPF());
 #endif
+
+        fPositionX = 0.55f;
+        fPositionY = 0.05f;
+        const render::cStatistics& statistics = pRender->GetStatistics();
+        pFont->printf(fPositionX, fPositionY += dy, "nStateChanges: %d", statistics.nStateChanges);
+        pFont->printf(fPositionX, fPositionY += dy, "nVBOsBound: %d", statistics.nVertexBufferObjectsBound);
+        pFont->printf(fPositionX, fPositionY += dy, "nVBOsRendered: %d", statistics.nVertexBufferObjectsRendered);
+        pFont->printf(fPositionX, fPositionY += dy, "nTrianglesRendered: %d", statistics.nTrianglesRendered);
+        pFont->printf(fPositionX, fPositionY += dy, "nTextureChanges: %d", pRender->uiTextureChanges);
+        pFont->printf(fPositionX, fPositionY += dy, "nTextureModeChanges: %d", pRender->uiTextureModeChanges);
       pRender->EndRenderingText();
     }
 #endif
