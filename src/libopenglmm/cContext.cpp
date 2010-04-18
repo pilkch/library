@@ -565,10 +565,25 @@ namespace opengl
   }
 
   // TODO: Remove this, it is primarily for openglmm_gears and can probably be replaced with a shader
-  void cContext::SetMaterialColour(const spitfire::math::cColour& _colour)
+  void cContext::SetMaterialAmbientColour(const spitfire::math::cColour& _colour)
   {
     const GLfloat colour[] = { _colour.r, _colour.g, _colour.b, 1.0f };
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colour);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, colour);
+  }
+  void cContext::SetMaterialDiffuseColour(const spitfire::math::cColour& _colour)
+  {
+    const GLfloat colour[] = { _colour.r, _colour.g, _colour.b, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, colour);
+  }
+  void cContext::SetMaterialSpecularColour(const spitfire::math::cColour& _colour)
+  {
+    const GLfloat colour[] = { _colour.r, _colour.g, _colour.b, 1.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, colour);
+  }
+  void cContext::SetMaterialShininess(float fShininess)
+  {
+    const GLfloat shininess[] = { fShininess };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, shininess);
   }
 
 

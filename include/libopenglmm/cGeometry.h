@@ -292,10 +292,12 @@ namespace opengl
   class cGeometryBuilder
   {
   private:
-    void CreatePlane(std::vector<float>& vertices, std::vector<float>& normals);
-    void CreatePlane(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateBox(std::vector<float>& vertices, std::vector<float>& normals);
-    void CreateBox(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreatePlane(float fWidth, float fDepth, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreateCube(float fWidthAndDepthAndHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreateBox(float fWidth, float fDepth, float fHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreateSphere(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, std::vector<float>& vertices, std::vector<float>& normals); // This is primarily for openglmm_gears
+    void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
   };
 }
 

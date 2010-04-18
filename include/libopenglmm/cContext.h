@@ -113,8 +113,10 @@ namespace opengl
     void SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour);
 
     // TODO: Remove this, it is primarily for openglmm_gears and can probably be replaced with a shader
-    void SetMaterialColour(const spitfire::math::cColour& colour);
-
+    void SetMaterialAmbientColour(const spitfire::math::cColour& colour);
+    void SetMaterialDiffuseColour(const spitfire::math::cColour& colour);
+    void SetMaterialSpecularColour(const spitfire::math::cColour& colour);
+    void SetMaterialShininess(float fShininess);
 
     void BindTexture(size_t uTextureUnit, const cTexture& texture);
     void UnBindTexture(size_t uTextureUnit, const cTexture& texture);
