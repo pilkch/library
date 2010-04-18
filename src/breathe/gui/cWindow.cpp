@@ -70,21 +70,21 @@ namespace breathe
     void cDerivedWindow::_OnEvent(const cEvent& event)
     {
       switch (event.GetType()) {
-        case EVENT_MOUSE_DOWN: {
+        case EVENT::MOUSE_DOWN: {
           //cWidget& widget = event.GetWidget();
           //size_t button = event.GetMouseButton();
           //const math::cVec2& position = event.GetMousePosition();
           //DoStuff();
           break;
         }
-        case EVENT_MOUSE_UP: {
+        case EVENT::MOUSE_UP: {
           //cWidget& widget = event.GetWidget();
           //size_t button = event.GetMouseButton();
           //const math::cVec2& position = event.GetMousePosition();
           //DoStuff();
           break;
         }
-        case EVENT_CONTROL_CHANGE_VALUE: {
+        case EVENT::CONTROL_CHANGE_VALUE: {
           size_t button = event.GetMouseButton();
           if (button == MOUSE_BUTTON_PRIMARY) {
             cWidget& widget = event.GetWidget();
@@ -103,7 +103,7 @@ namespace breathe
     // *** cWindow
 
     cWindow::cWindow(id_t id, float x, float y, float width, float height, const string_t& caption, cWindow* _pParent, bool _bModeless, bool _bResizable) :
-      cWidget(id, WIDGET_WINDOW, x, y, width, height),
+      cWidget(id, WIDGET_TYPE::WINDOW, x, y, width, height),
       z(0),
       pChildContainer(nullptr)
     {

@@ -194,42 +194,42 @@ namespace spitfire
       // Switch on the ID to see which subdivided node we are finding the center
       switch(nodeID)
       {
-        case TOP_LEFT_FRONT:
+        case NODE::TOP_LEFT_FRONT:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x - width/4, vCtr.y + width/4, vCtr.z + width/4);
           break;
 
-        case TOP_LEFT_BACK:
+        case NODE::TOP_LEFT_BACK:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x - width/4, vCtr.y + width/4, vCtr.z - width/4);
           break;
 
-        case TOP_RIGHT_BACK:
+        case NODE::TOP_RIGHT_BACK:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x + width/4, vCtr.y + width/4, vCtr.z - width/4);
           break;
 
-        case TOP_RIGHT_FRONT:
+        case NODE::TOP_RIGHT_FRONT:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x + width/4, vCtr.y + width/4, vCtr.z + width/4);
           break;
 
-        case BOTTOM_LEFT_FRONT:
+        case NODE::BOTTOM_LEFT_FRONT:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x - width/4, vCtr.y - width/4, vCtr.z + width/4);
           break;
 
-        case BOTTOM_LEFT_BACK:
+        case NODE::BOTTOM_LEFT_BACK:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x - width/4, vCtr.y - width/4, vCtr.z - width/4);
           break;
 
-        case BOTTOM_RIGHT_BACK:
+        case NODE::BOTTOM_RIGHT_BACK:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x + width/4, vCtr.y - width/4, vCtr.z - width/4);
           break;
 
-        case BOTTOM_RIGHT_FRONT:
+        case NODE::BOTTOM_RIGHT_FRONT:
           // Calculate the center of this new node
           vNodeCenter = cVec3(vCtr.x + width/4, vCtr.y - width/4, vCtr.z + width/4);
           break;
@@ -427,14 +427,14 @@ namespace spitfire
         // Create the subdivided nodes if necessary and then recurse through them.
         // The information passed into CreateNewNode() are essential for creating the
         // new nodes.  We pass the 8 ID's in so it knows how to calculate it's new center.
-        CreateNewNode(pVertices, pList1, numberOfVerts, vCenter, width, triCount1, TOP_LEFT_FRONT);
-        CreateNewNode(pVertices, pList2, numberOfVerts, vCenter, width, triCount2, TOP_LEFT_BACK);
-        CreateNewNode(pVertices, pList3, numberOfVerts, vCenter, width, triCount3, TOP_RIGHT_BACK);
-        CreateNewNode(pVertices, pList4, numberOfVerts, vCenter, width, triCount4, TOP_RIGHT_FRONT);
-        CreateNewNode(pVertices, pList5, numberOfVerts, vCenter, width, triCount5, BOTTOM_LEFT_FRONT);
-        CreateNewNode(pVertices, pList6, numberOfVerts, vCenter, width, triCount6, BOTTOM_LEFT_BACK);
-        CreateNewNode(pVertices, pList7, numberOfVerts, vCenter, width, triCount7, BOTTOM_RIGHT_BACK);
-        CreateNewNode(pVertices, pList8, numberOfVerts, vCenter, width, triCount8, BOTTOM_RIGHT_FRONT);
+        CreateNewNode(pVertices, pList1, numberOfVerts, vCenter, width, triCount1, NODE::TOP_LEFT_FRONT);
+        CreateNewNode(pVertices, pList2, numberOfVerts, vCenter, width, triCount2, NODE::TOP_LEFT_BACK);
+        CreateNewNode(pVertices, pList3, numberOfVerts, vCenter, width, triCount3, NODE::TOP_RIGHT_BACK);
+        CreateNewNode(pVertices, pList4, numberOfVerts, vCenter, width, triCount4, NODE::TOP_RIGHT_FRONT);
+        CreateNewNode(pVertices, pList5, numberOfVerts, vCenter, width, triCount5, NODE::BOTTOM_LEFT_FRONT);
+        CreateNewNode(pVertices, pList6, numberOfVerts, vCenter, width, triCount6, NODE::BOTTOM_LEFT_BACK);
+        CreateNewNode(pVertices, pList7, numberOfVerts, vCenter, width, triCount7, NODE::BOTTOM_RIGHT_BACK);
+        CreateNewNode(pVertices, pList8, numberOfVerts, vCenter, width, triCount8, NODE::BOTTOM_RIGHT_FRONT);
       }
       else
       {

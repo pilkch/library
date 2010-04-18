@@ -263,19 +263,18 @@ namespace breathe
   class cApplicationUpdater : protected util::cThread
   {
   public:
-    enum RESULT
-    {
+    enum class RESULT {
       // Generic
-      RESULT_UNKNOWN = 0,
-      RESULT_CONNECTION_FAILED,
+      UNKNOWN = 0,
+      CONNECTION_FAILED,
 
       // Checking version only
-      RESULT_VERSION_IS_UP_TO_DATE,
-      RESULT_VERSION_IS_OUT_OF_DATE,
+      VERSION_IS_UP_TO_DATE,
+      VERSION_IS_OUT_OF_DATE,
 
       // Downloading an update only
-      RESULT_DOWNLOAD_FAILED,
-      RESULT_DOWNLOAD_COMPLETE
+      DOWNLOAD_FAILED,
+      DOWNLOAD_COMPLETE
     };
 
     cApplicationUpdater();
@@ -324,7 +323,7 @@ namespace breathe
     network::cDownloadHTTP download;
 
     download.Open();
-    if (!download.IsConnected()) return RESULT_CONNECTION_FAILED;
+    if (!download.IsConnected()) return RESULT::CONNECTION_FAILED;
 
     // It is only expected to be a small file so even 128 will probably do
     char buffer[128];
@@ -334,13 +333,13 @@ namespace breathe
 
       TODO: Parse the file here
       {
-        return RESULT_THERE_IS_A_NEW_VERSION_AVAILABLE;
+        return RESULT::THERE_IS_A_NEW_VERSION_AVAILABLE;
       }
 
       util::YieldThisThread();
     };
 
-    return RESULT_VERSION_IS_OUT_OF_DATE;
+    return RESULT::VERSION_IS_OUT_OF_DATE;
   }
 
   cApplicationUpdater::RESULT cApplicationUpdater::DownloadUpdate()
@@ -349,7 +348,7 @@ namespace breathe
     cConnectionTCP connection;
 
     connection.Open();
-    if (!connection.IsConnected()) return RESULT_CONNECTION_FAILED;
+    if (!connection.IsConnected()) return RESULT::CONNECTION_FAILED;
 
     uint8_t buffer[1024];
 
@@ -358,13 +357,13 @@ namespace breathe
 
       Download the file here
       {
-        return RESULT_DOWNLOAD_COMPLETE;
+        return RESULT::DOWNLOAD_COMPLETE;
       }
 
       Sleep();
     };
 
-    return RESULT_DOWNLOAD_FAILED;
+    return RESULT::DOWNLOAD_FAILED;
   }
 
   void cApplicationUpdater::_ThreadFunction()
@@ -381,7 +380,7 @@ namespace breathe
     }
     ASSERT(pTempListener != nullptr);
 
-    RESULT result = RESULT_UNKNOWN;
+    RESULT result = RESULT::UNKNOWN;
     if (bTempModeIsCheckIfUpdateIsAvailable) result = CheckIfUpdateIsAvailable();
     else result = DownloadUpdate();
 
@@ -411,7 +410,7 @@ namespace breathe
   public:
     cConsoleApplicationUpdateListener() : bIsVersionOutOfDate(true) {}
 
-    bool IsVersionOutOfDate() const { return result == cApplicationUpdater::RESULT_VERSION_IS_OUT_OF_DATE; }
+    bool IsVersionOutOfDate() const { return result == cApplicationUpdater::RESULT::VERSION_IS_OUT_OF_DATE; }
 
   private:
     void _OnUpdateThreadFinished(cApplicationUpdater::RESULT _result) { result = _result; }

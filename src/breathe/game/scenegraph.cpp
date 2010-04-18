@@ -780,7 +780,7 @@ namespace breathe
         }
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
-          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::CUBE_MAP) {
              // Cube map texture
 
             glEnable(GL_TEXTURE_CUBE_MAP);
@@ -846,7 +846,7 @@ namespace breathe
         }
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
-          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+          if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::CUBE_MAP) {
              // Cube map texture
 
               glDisable(GL_TEXTURE_GEN_R);

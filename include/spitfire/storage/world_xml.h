@@ -87,10 +87,10 @@ namespace spitfire
   class cWorldXMLReader
   {
   public:
-    enum RESULT {
-      RESULT_SUCCESS,
-      RESULT_ERROR_FILE_NOT_FOUND,
-      RESULT_ERROR_FILE_DOES_NOT_HAVE_INSERT_CRITICAL_FEATURE_HERE
+    enum class RESULT {
+      SUCCESS,
+      ERROR_FILE_NOT_FOUND,
+      ERROR_FILE_DOES_NOT_HAVE_INSERT_CRITICAL_FEATURE_HERE
     };
 
     RESULT ReadFromFile(const string_t& filename);
@@ -104,9 +104,9 @@ namespace spitfire
   class cWorldXMLWriter
   {
   public:
-    enum RESULT {
-      RESULT_SUCCESS,
-      RESULT_ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING
+    enum class RESULT {
+      SUCCESS,
+      ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING
     };
 
     RESULT WriteToFile(const cWorldXMLData& data, const string_t& filename);

@@ -17,20 +17,20 @@ namespace breathe
     // ** Texture modes for materials
 
     enum class TEXTURE_MODE {
-      TEXTURE_NONE,
-      TEXTURE_NORMAL,
-      TEXTURE_MASK,
-      TEXTURE_BLEND,
-      TEXTURE_DETAIL,
-      TEXTURE_SPECULAR,
-      TEXTURE_CUBE_MAP,
-      TEXTURE_POST_RENDER
+      NONE,
+      NORMAL,
+      MASK,
+      BLEND,
+      DETAIL,
+      SPECULAR,
+      CUBE_MAP,
+      POST_RENDER
     };
 
     enum class TEXTURE_TYPE {
-      TEXTURE_RGBA,
-      TEXTURE_HEIGHTMAP,
-      TEXTURE_FRAMEBUFFEROBJECT
+      RGBA,
+      HEIGHTMAP,
+      FRAMEBUFFEROBJECT
     };
 
 
@@ -111,7 +111,7 @@ namespace breathe
       cTextureFrameBufferObject();
       ~cTextureFrameBufferObject();
 
-      bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::TEXTURE_CUBE_MAP); }
+      bool IsModeCubeMap() const { return (uiMode == TEXTURE_MODE::CUBE_MAP); }
       void SetModeCubeMap();
 
       void GenerateMipMapsIfRequired();

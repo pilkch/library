@@ -15,21 +15,21 @@ namespace breathe
 
   class cItem;
 
-  enum STATE {
-    STATE_DEAD,
-    STATE_WALK,
-    STATE_RUN,
-    STATE_SPRINT,
-    STATE_DRIVE,
-    STATE_PASSENGER
+  enum class STATE {
+    DEAD,
+    WALK,
+    RUN,
+    SPRINT,
+    DRIVE,
+    PASSENGER
   };
 
-  enum CAMERA {
-    CAMERA_FIRSTPERSON,
-    CAMERA_THIRDPERSON
+  enum class CAMERA {
+    FIRSTPERSON,
+    THIRDPERSON
 #ifdef BUILD_DEBUG
-    , CAMERA_THIRDPERSONFREE,
-    CAMERA_FIRSTPERSONFREE
+    , THIRDPERSONFREE,
+    FIRSTPERSONFREE
 #endif
   };
 

@@ -895,11 +895,10 @@ namespace spitfire
 
 
 
-    enum PRIORITY
-    {
-      PRIORITY_LOW = 0,
-      PRIORITY_DEFAULT,
-      PRIORITY_HIGH
+    enum PRIORITY {
+      LOW = 0,
+      DEFAULT,
+      HIGH
     };
 
 
@@ -1110,17 +1109,17 @@ namespace spitfire
 
     void Mount(const string_t& sPath)
     {
-      vfs.MountWithPriority(sPath, PRIORITY_DEFAULT);
+      vfs.MountWithPriority(sPath, PRIORITY::DEFAULT);
     }
 
     void MountHighPriority(const string_t& sPath)
     {
-      vfs.MountWithPriority(sPath, PRIORITY_HIGH);
+      vfs.MountWithPriority(sPath, PRIORITY::HIGH);
     }
 
     void MountLowPriority(const string_t& sPath)
     {
-      vfs.MountWithPriority(sPath, PRIORITY_LOW);
+      vfs.MountWithPriority(sPath, PRIORITY::LOW);
     }
 
     void Unmount(const string_t& sPath)

@@ -8,11 +8,10 @@ namespace spitfire
   namespace math
   {
     // Constants for ClassifyPoint()
-    enum PLANE_POINT_CLASSIFICATION
-    {
-      PLANE_POINT_CLASSIFICATION_POINT_ON_PLANE,
-      PLANE_POINT_CLASSIFICATION_POINT_IN_FRONT_OF_PLANE,
-      PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE
+    enum class PLANE_POINT_CLASSIFICATION {
+      POINT_ON_PLANE,
+      POINT_IN_FRONT_OF_PLANE,
+      POINT_BEHIND_PLANE
     };
 
     class cPlane

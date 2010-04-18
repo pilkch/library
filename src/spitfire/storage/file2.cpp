@@ -82,26 +82,26 @@ namespace spitfire
         if ((signature[0] == 0x00) && (signature[1] == 0x00) && (signature[2] == 0xFE) && (signature[3] == 0xFF))  {
           SCREEN<<"Error 32bit big endian file signature detected"<<std::endl;
           assert(false);
-          return BYTEORDER_UTF32BE;
+          return BYTEORDER::UTF32BE;
         }
 
         //UTF-32 (little-endian) FF FE 00 00
         if ((signature[0] == 0xFF) && (signature[1] == 0xFE) && (signature[2] == 0x00) && (signature[3] == 0x00)) {
           SCREEN<<"Error 32bit little endian file signature detected"<<std::endl;
           assert(false);
-          return BYTEORDER_UTF32LE;
+          return BYTEORDER::UTF32LE;
         }
       }
 
       if (count >= 3) {
         bytes = 3;
         //UTF-8 EF BB BF
-        if ((signature[0] == 0xEF) && (signature[1] == 0xBB) && (signature[2] == 0xBF)) return BYTEORDER_UTF8;
+        if ((signature[0] == 0xEF) && (signature[1] == 0xBB) && (signature[2] == 0xBF)) return BYTEORDER::UTF8;
         //SCSU (compression) 0E FE FF
         if ((signature[0] == 0x0E) && (signature[1] == 0xFE) && (signature[2] == 0xFF)) {
           SCREEN<<"Error unhandled file signature detected SCSU"<<std::endl;
           assert(false);
-          return BYTEORDER_INVALID;
+          return BYTEORDER::INVALID;
         }
       }
 
@@ -111,14 +111,14 @@ namespace spitfire
         if ((signature[0] == 0xFE) && (signature[1] == 0xFF)) {
           SCREEN<<"Error big endian file signature detected"<<std::endl;
           assert(false);
-          return BYTEORDER_UTF16BE;
+          return BYTEORDER::UTF16BE;
         }
         //UTF-16 (little-endian) FF FE
-        if ((signature[0] == 0xFF) && (signature[1] == 0xFE)) return BYTEORDER_UTF16LE;
+        if ((signature[0] == 0xFF) && (signature[1] == 0xFE)) return BYTEORDER::UTF16LE;
       }
 
       bytes = 0;
-      return BYTEORDER_UTF8;
+      return BYTEORDER::UTF8;
     }
 
     // NOTE: This function does not actually convert between encodings properly,
@@ -195,9 +195,9 @@ namespace spitfire
       }
 
       CONSOLE<<"ReadText Reading from file"<<std::endl;
-      if (BYTEORDER_UTF8 == byteOrder) ReadStringsFromLittleEndianFile<char>(file, contents);
-      else if (BYTEORDER_UTF16LE == byteOrder) ReadStringsFromLittleEndianFile<char16_t>(file, contents);
-      else if (BYTEORDER_UTF32LE == byteOrder) {
+      if (BYTEORDER::UTF8 == byteOrder) ReadStringsFromLittleEndianFile<char>(file, contents);
+      else if (BYTEORDER::UTF16LE == byteOrder) ReadStringsFromLittleEndianFile<char16_t>(file, contents);
+      else if (BYTEORDER::UTF32LE == byteOrder) {
           std::vector<std::wstring> lines;
           ReadStringsFromLittleEndianFile<char32_t>(file, lines);
       } else {
@@ -230,7 +230,7 @@ namespace spitfire
       file.open(spitfire::string::ToUTF8(filename).c_str(), std::ios::out | std::ios::app);
 
       file<<contents;
-      /*if (BYTEORDER_UTF8 == byteOrder)
+      /*if (BYTEORDER::UTF8 == byteOrder)
       {
 
       }*/

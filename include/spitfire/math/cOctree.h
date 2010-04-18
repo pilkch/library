@@ -8,8 +8,7 @@ namespace spitfire
   namespace math
   {
     // So we can tell which octant we are talking about
-    enum eOctreeNodes
-    {
+    enum NODE {
       TOP_LEFT_FRONT,
       TOP_LEFT_BACK,
       TOP_RIGHT_BACK,

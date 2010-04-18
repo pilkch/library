@@ -60,8 +60,8 @@ namespace breathe
 
       uiWidth(0),
       uiHeight(0),
-      uiType(TEXTURE_TYPE::TEXTURE_RGBA),
-      uiMode(TEXTURE_MODE::TEXTURE_NORMAL),
+      uiType(TEXTURE_TYPE::RGBA),
+      uiMode(TEXTURE_MODE::NORMAL),
 
       fScale(1.0f),
       fU(0.0f),
@@ -104,10 +104,10 @@ namespace breathe
       //Check the format
       if (8 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
-        uiType = TEXTURE_TYPE::TEXTURE_HEIGHTMAP;
+        uiType = TEXTURE_TYPE::HEIGHTMAP;
       } else if (16 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", "Greyscale Heightmap Image " + breathe::string::ToUTF8(sFilename));
-        uiType = TEXTURE_TYPE::TEXTURE_HEIGHTMAP;
+        uiType = TEXTURE_TYPE::HEIGHTMAP;
       } else if (24 == pSurface->format->BitsPerPixel) {
         CONSOLE.Error("Texture", breathe::string::ToUTF8(sFilename) + " is a 24 bit RGB image");
         // Add alpha channel
@@ -122,7 +122,7 @@ namespace breathe
         pSurface = pConvertedSurface;
       } else if (32 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " is a 32 bit RGBA image");
-        uiType = TEXTURE_TYPE::TEXTURE_RGBA;
+        uiType = TEXTURE_TYPE::RGBA;
 
         // Convert if BGR
         if (pSurface->format->Rshift > pSurface->format->Bshift) {
@@ -193,9 +193,9 @@ namespace breathe
 
       // Fill out the pData structure array, we use this for when we have to reload this data
       // on a task switch or fullscreen mode change
-      if (data.empty()) data.resize(uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4), 0);
+      if (data.empty()) data.resize(uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4), 0);
 
-      std::memcpy(&data[0], pSurface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(&data[0], pSurface->pixels, uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4));
     }
 
     void cTexture::CopyFromDataToSurface()
@@ -204,7 +204,7 @@ namespace breathe
 
       if (data.empty()) return;
 
-      std::memcpy(pSurface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_TYPE::TEXTURE_HEIGHTMAP ? 1 : 4));
+      std::memcpy(pSurface->pixels, &data[0], uiWidth * uiHeight * (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4));
     }
 
     bool cTexture::SaveToBMP(const string_t& inFilename) const
@@ -275,8 +275,8 @@ namespace breathe
       uiFBODepthBuffer(0),
       bIsUsingMipMaps(true)
     {
-      uiType = TEXTURE_TYPE::TEXTURE_FRAMEBUFFEROBJECT;
-      uiMode = TEXTURE_MODE::TEXTURE_NORMAL;
+      uiType = TEXTURE_TYPE::FRAMEBUFFEROBJECT;
+      uiMode = TEXTURE_MODE::NORMAL;
 
       uiWidth = DEFAULT_FBO_TEXTURE_WIDTH;
       uiHeight = DEFAULT_FBO_TEXTURE_HEIGHT;
@@ -295,7 +295,7 @@ namespace breathe
 
     void cTextureFrameBufferObject::SetModeCubeMap()
     {
-      uiMode = TEXTURE_MODE::TEXTURE_CUBE_MAP;
+      uiMode = TEXTURE_MODE::CUBE_MAP;
     }
 
     void cTextureFrameBufferObject::_Create()
@@ -311,7 +311,7 @@ namespace breathe
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
 
 
-      if (uiMode != TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+      if (uiMode != TEXTURE_MODE::CUBE_MAP) {
         // Now setup a texture to render to
         glGenTextures(1, &uiTexture);
         glBindTexture(GL_TEXTURE_2D, uiTexture);

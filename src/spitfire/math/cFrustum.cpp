@@ -27,7 +27,7 @@ namespace spitfire
   {
     // We create an enum of the sides so we don't have to call each side 0 or 1.
     // This way it makes it more understandable and readable when dealing with frustum sides.
-    enum FrustumSide {
+    enum FRUSTUM_SIDE {
       RIGHT  = 0,    // The RIGHT side of the frustum
       LEFT   = 1,    // The LEFT   side of the frustum
       BOTTOM = 2,    // The BOTTOM side of the frustum
@@ -238,12 +238,12 @@ namespace spitfire
 
     bool cFrustum::PointInFrustum(const cVec3& point) const
     {
-      if (m_Frustum[0].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
-      if (m_Frustum[1].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
-      if (m_Frustum[2].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
-      if (m_Frustum[3].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
-      if (m_Frustum[4].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
-      if (m_Frustum[5].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[0].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[1].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[2].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[3].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[4].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
+      if (m_Frustum[5].ClassifyPoint(point) != PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE) return false;
 
       return true;
     }

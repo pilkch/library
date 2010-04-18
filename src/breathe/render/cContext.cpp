@@ -779,11 +779,11 @@ namespace breathe
 
 
       GLenum openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-      if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_X) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_POSITIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_POSITIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-      else if (face == CUBE_MAP_FACE::CUBE_MAP_FACE_NEGATIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+      if (face == CUBE_MAP_FACE::NEGATIVE_X) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+      else if (face == CUBE_MAP_FACE::POSITIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+      else if (face == CUBE_MAP_FACE::NEGATIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+      else if (face == CUBE_MAP_FACE::POSITIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+      else if (face == CUBE_MAP_FACE::NEGATIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 
       // Bind the actual face we want to render to
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, openGLFace, pTexture->uiTexture, 0);
@@ -1425,14 +1425,14 @@ namespace breathe
         glActiveTexture(unit);
 
         //Undo last mode
-        if (TEXTURE_MODE::TEXTURE_MASK == layerOld->uiTextureMode ||
-            TEXTURE_MODE::TEXTURE_BLEND == layerOld->uiTextureMode)
+        if (TEXTURE_MODE::MASK == layerOld->uiTextureMode ||
+            TEXTURE_MODE::BLEND == layerOld->uiTextureMode)
         {
           glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
           glBlendFunc(GL_ONE, GL_ZERO);
           glDisable(GL_BLEND);
         }
-        else if (TEXTURE_MODE::TEXTURE_DETAIL==layerOld->uiTextureMode)
+        else if (TEXTURE_MODE::DETAIL==layerOld->uiTextureMode)
         {
           // Reset the texture matrix
           glMatrixMode(GL_TEXTURE);
@@ -1441,7 +1441,7 @@ namespace breathe
 
           //glEnable(GL_LIGHTING);
         }
-        else if (TEXTURE_MODE::TEXTURE_CUBE_MAP==layerOld->uiTextureMode)
+        else if (TEXTURE_MODE::CUBE_MAP==layerOld->uiTextureMode)
         {
           glMatrixMode(GL_TEXTURE);
           glPopMatrix();
@@ -1462,7 +1462,7 @@ namespace breathe
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         //Set the current mode and texture
-        layerOld->uiTextureMode = TEXTURE_MODE::TEXTURE_NONE;
+        layerOld->uiTextureMode = TEXTURE_MODE::NONE;
         layerOld->pTexture.reset();
         layerOld->sTexture = TEXT("");
       }
@@ -1619,15 +1619,15 @@ namespace breathe
         ASSERT(pLayer != nullptr);
 
         switch (pLayer->uiTextureMode) {
-          case TEXTURE_MODE::TEXTURE_NONE: {
+          case TEXTURE_MODE::NONE: {
             glDisable(GL_TEXTURE_2D);
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_NORMAL:
-          case TEXTURE_MODE::TEXTURE_MASK:
-          case TEXTURE_MODE::TEXTURE_BLEND: {
-            if (pLayer->uiTextureMode == TEXTURE_MODE::TEXTURE_BLEND) {
+          case TEXTURE_MODE::NORMAL:
+          case TEXTURE_MODE::MASK:
+          case TEXTURE_MODE::BLEND: {
+            if (pLayer->uiTextureMode == TEXTURE_MODE::BLEND) {
               glEnable(GL_BLEND);
             }
 
@@ -1637,7 +1637,7 @@ namespace breathe
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_DETAIL: {
+          case TEXTURE_MODE::DETAIL: {
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
 
@@ -1650,7 +1650,7 @@ namespace breathe
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
+          case TEXTURE_MODE::CUBE_MAP: {
             if (!bIsCubemappingEnabled) {
               // What to do?
               ASSERT(false);
@@ -1695,7 +1695,7 @@ namespace breathe
           }
 
 
-          case TEXTURE_MODE::TEXTURE_POST_RENDER: {
+          case TEXTURE_MODE::POST_RENDER: {
             glEnable(GL_TEXTURE_2D);
             // TODO: Automatically fill this with a valid texture?
             //glBindTexture(GL_TEXTURE_2D, pLayer->pTexture->uiTexture);
@@ -1741,26 +1741,26 @@ namespace breathe
         ASSERT(pLayer != nullptr);
 
         switch (pLayer->uiTextureMode) {
-          case TEXTURE_MODE::TEXTURE_NONE: {
+          case TEXTURE_MODE::NONE: {
             glDisable(GL_TEXTURE_2D);
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_NORMAL:
-          case TEXTURE_MODE::TEXTURE_MASK:
-          case TEXTURE_MODE::TEXTURE_BLEND: {
+          case TEXTURE_MODE::NORMAL:
+          case TEXTURE_MODE::MASK:
+          case TEXTURE_MODE::BLEND: {
             // We now do masking and blending in shaders so this is greatly simplified
             glDisable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            if (pLayer->uiTextureMode == TEXTURE_MODE::TEXTURE_BLEND) {
+            if (pLayer->uiTextureMode == TEXTURE_MODE::BLEND) {
               glDisable(GL_BLEND);
             }
 
             break;
           }
 
-          case TEXTURE_MODE::TEXTURE_DETAIL: {
+          case TEXTURE_MODE::DETAIL: {
               glDisable(GL_TEXTURE_2D);
               glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1770,7 +1770,7 @@ namespace breathe
             glMatrixMode(GL_MODELVIEW);
           }
 
-          case TEXTURE_MODE::TEXTURE_CUBE_MAP: {
+          case TEXTURE_MODE::CUBE_MAP: {
             if (!capabilities.bIsCubemappingSupported) {
               // What to do?
               ASSERT(false);
@@ -1793,7 +1793,7 @@ namespace breathe
           }
 
 
-          case TEXTURE_MODE::TEXTURE_POST_RENDER: {
+          case TEXTURE_MODE::POST_RENDER: {
             glDisable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
             break;

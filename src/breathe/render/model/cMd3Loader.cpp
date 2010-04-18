@@ -319,7 +319,7 @@ namespace breathe
       int torsoOffset = 0;                            // The offset between the first torso and leg animation
 
       // Create an animation object for every valid animation in the Quake3 Character
-      cAnimationSet animations[MAX_ANIMATIONS];
+      cAnimationSet animations[MD3ANIMATIONS::MAX_ANIMATIONS];
 
       // Here we go through every word in the file until a numeric number if found.
       // This is how we know that we are on the animation lines, and past header info.
@@ -390,7 +390,7 @@ namespace breathe
           // end frame of the BOTH_DEAD3 anim.  This will make your program crash if so.
 
           // If the torso offset hasn't been set, set it
-          if (!torsoOffset) torsoOffset = animations[LEGS_WALKCR].startFrame - animations[TORSO_GESTURE].startFrame;
+          if (!torsoOffset) torsoOffset = animations[MD3ANIMATIONS::LEGS_WALKCR].startFrame - animations[MD3ANIMATIONS::TORSO_GESTURE].startFrame;
 
           // Minus the offset from the legs animation start and end frame.
           animations[currentAnim].startFrame -= torsoOffset;

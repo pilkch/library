@@ -87,10 +87,10 @@ namespace breathe
     class cWorldXMLReader
     {
     public:
-      enum RESULT {
-        RESULT_SUCCESS,
-        RESULT_ERROR_FILE_NOT_FOUND,
-        RESULT_ERROR_WORLD_NODE_NOT_FOUND,
+      enum class RESULT {
+        SUCCESS,
+        ERROR_FILE_NOT_FOUND,
+        ERROR_WORLD_NODE_NOT_FOUND,
       };
 
       RESULT ReadFromFile(const string_t& filename, cWorldXMLData& data);
@@ -99,9 +99,9 @@ namespace breathe
     class cWorldXMLWriter
     {
     public:
-      enum RESULT {
-        RESULT_SUCCESS,
-        RESULT_ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING
+      enum class RESULT {
+        SUCCESS,
+        ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING
       };
 
       RESULT WriteToFile(const string_t& filename, const cWorldXMLData& data);

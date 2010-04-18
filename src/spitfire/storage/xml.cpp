@@ -40,21 +40,21 @@ namespace spitfire
     //cNode
 
     cNode::cNode() :
-      type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
+      type(TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pParent(nullptr),
       pNext(nullptr)
     {
     }
 
     cNode::cNode(cNode* inParent) :
-      type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
+      type(TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pParent(inParent),
       pNext(nullptr)
     {
     }
 
     cNode::cNode(const string_t& inFilename) :
-      type(TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN),
+      type(TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN),
       pParent(nullptr),
       pNext(nullptr)
     {
@@ -68,7 +68,7 @@ namespace spitfire
 
     void cNode::Clear()
     {
-      type = TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN;
+      type = TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN;
 
       pParent = nullptr;
       pNext = nullptr;
@@ -135,7 +135,7 @@ namespace spitfire
           }
 
           LOG<<"Found XML declaration node"<<std::endl;
-          type = TYPE_XML_DELCARATION;
+          type = TYPE::XML_DELCARATION;
           sData = string::StripLeadingWhiteSpace(sData.substr(nEndDeclaration));
         }
 
@@ -152,7 +152,7 @@ namespace spitfire
           }
 
           LOG<<"Found comment node"<<std::endl;
-          type = TYPE_COMMENT;
+          type = TYPE::COMMENT;
           sData = string::StripLeadingWhiteSpace(sData.substr(nEndComment));
         }
 
@@ -297,7 +297,7 @@ namespace spitfire
           // No tags, just content for the parent tag (this)
           cNode* p = CreateNodeAsChildAndAppend();
 
-          p->type = TYPE_CONTENT_ONLY;
+          p->type = TYPE::CONTENT_ONLY;
           p->sContentOnly += string::StripTrailingWhiteSpace(sData);
           return "";
         }
@@ -466,13 +466,13 @@ namespace spitfire
     void cNode::SetTypeElement(const std::string& inName)
     {
       sName = string::StripTrailingWhiteSpace(inName);
-      type = TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN;
+      type = TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN;
     }
 
     void cNode::SetTypeContentOnly(const std::string& inContent)
     {
       sContentOnly = string::StripTrailingWhiteSpace(inContent);
-      type = TYPE_CONTENT_ONLY;
+      type = TYPE::CONTENT_ONLY;
     }
 
     std::string cNode::GetName() const

@@ -779,7 +779,7 @@ void cCarFactory::CreateCar(breathe::scenegraph3d::cGroupNodeRef pGroupNode, bre
                item.pMaterial->vLayer[i]->pTexture = pResourceManager->AddTexture(sDiffuseTextureFilename);
             } else if (i == 1) {
                item.pMaterial->vLayer[i]->pTexture = pResourceManager->AddTexture(sGlossAndMetallicTextureFilename);
-            } else if (item.pMaterial->vLayer[i]->uiTextureMode == breathe::render::TEXTURE_MODE::TEXTURE_CUBE_MAP) {
+            } else if (item.pMaterial->vLayer[i]->uiTextureMode == breathe::render::TEXTURE_MODE::CUBE_MAP) {
                // Cast shared_ptr from a normal cTextureRef to a cTextureFrameBufferObjectRef
                pCubeMapTexture.reset(new breathe::render::cTextureFrameBufferObject);
 
@@ -898,11 +898,11 @@ namespace breathe
 
       breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
       pPhysicsComponent->SetBody(pCar->GetChassis());
-      pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+      pVehicle->AddComponent(breathe::game::COMPONENT::PHYSICS, pPhysicsComponent);
 
       //breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
       //pRenderComponent->SetSceneNode(pNode);
-      //pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+      //pVehicle->AddComponent(breathe::game::COMPONENT::RENDERABLE, pRenderComponent);
 
 
 
@@ -947,7 +947,7 @@ namespace breathe
 
       breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
       pVehicleComponent->SetCar(pCar, wheels);
-      pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+      pVehicle->AddComponent(breathe::game::COMPONENT::VEHICLE, pVehicleComponent);
 
 
 
@@ -1004,15 +1004,15 @@ namespace breathe
 
    breathe::game::cPhysicsComponent* pPhysicsComponent = new breathe::game::cPhysicsComponent(*pVehicle);
    pPhysicsComponent->SetPhysicsObject(pPhysicsObject);
-   pVehicle->AddComponent(breathe::game::COMPONENT_PHYSICS, pPhysicsComponent);
+   pVehicle->AddComponent(breathe::game::COMPONENT::PHYSICS, pPhysicsComponent);
 
    breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pVehicle);
    pRenderComponent->SetSceneNode(pNode);
-   pVehicle->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+   pVehicle->AddComponent(breathe::game::COMPONENT::RENDERABLE, pRenderComponent);
 
    breathe::game::cVehicleComponent* pVehicleComponent = new breathe::game::cVehicleComponent(*pVehicle);
    pVehicleComponent->SetCar();
-   pVehicle->AddComponent(breathe::game::COMPONENT_VEHICLE, pVehicleComponent);
+   pVehicle->AddComponent(breathe::game::COMPONENT::VEHICLE, pVehicleComponent);
 
    gameobjects.Add(pVehicle);
 
@@ -1131,13 +1131,13 @@ namespace breathe
 
       breathe::game::cAudioSourceComponent* pAudioSourceComponent = nullptr;
 
-      if (object.IsComponentPresentAndEnabledOrDisabled(breathe::game::COMPONENT_AUDIOSOURCE)) {
-        pAudioSourceComponent = object.GetComponentIfEnabledOrDisabled<breathe::game::cAudioSourceComponent>(breathe::game::COMPONENT_AUDIOSOURCE);
+      if (object.IsComponentPresentAndEnabledOrDisabled(breathe::game::COMPONENT::AUDIOSOURCE)) {
+        pAudioSourceComponent = object.GetComponentIfEnabledOrDisabled<breathe::game::cAudioSourceComponent>(breathe::game::COMPONENT::AUDIOSOURCE);
       } else {
         pAudioSourceComponent = new breathe::game::cAudioSourceComponent(object);
 
         // Add it to the game object
-        object.AddComponent(breathe::game::COMPONENT_AUDIOSOURCE, pAudioSourceComponent);
+        object.AddComponent(breathe::game::COMPONENT::AUDIOSOURCE, pAudioSourceComponent);
       }
 
       ASSERT(pAudioSourceComponent != nullptr);

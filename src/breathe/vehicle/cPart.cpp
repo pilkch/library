@@ -159,10 +159,9 @@ namespace breathe
     public:
       friend class cGearboxController;
 
-      enum STATE
-      {
-        STATE_IN_GEAR = 0, // When we are in a gear already, the clutch may or may not be in at the moment
-        STATE_SHIFTING_GEAR // Currently the clutch is (probably) in and we are actually changing gear ie. between 1st and 2nd
+      enum class STATE {
+        IN_GEAR = 0, // When we are in a gear already, the clutch may or may not be in at the moment
+        SHIFTING_GEAR // Currently the clutch is (probably) in and we are actually changing gear ie. between 1st and 2nd
       };
 
       cGearbox();
@@ -229,7 +228,7 @@ namespace breathe
       bHasReverseGear(false),
       bHasNeutralGear(false),
       timeShiftDelayMS(200), // How long each shift takes
-      state(STATE_IN_GEAR),
+      state(STATE::IN_GEAR),
       fInputRPM(1000.0f)
     {
     }
@@ -326,7 +325,7 @@ namespace breathe
       ASSERT(targetGear <= gears.size());
       ASSERT(currentGear <= gears.size());
 
-      if (state == STATE_IN_GEAR) {
+      if (state == STATE::IN_GEAR) {
         // If we are already in the gear that we want then return
         if (targetGear == currentGear) return;
 
@@ -467,7 +466,7 @@ namespace breathe
     {
       cGearbox::STATE state = gearbox.GetState();
 
-      if (state == cGearbox::STATE_IN_GEAR) {
+      if (state == cGearbox::STATE::IN_GEAR) {
         // If we are in reverse or neutral and we are not changing up or down then we have nothing to do, so return
         if (gearbox.IsInReverse() || gearbox.IsInNeutral()) return;
 

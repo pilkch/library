@@ -17,12 +17,11 @@ namespace spitfire
     void TurnOnLogging();
     void TurnOffLogging();
 
-    enum
-    {
-      COLOUR_NORMAL = 0,
-      COLOUR_RED,
-      COLOUR_GREEN,
-      COLOUR_BLUE
+    enum class COLOUR {
+      NORMAL = 0,
+      RED,
+      GREEN,
+      BLUE
     };
 
     class cLogBase
@@ -271,11 +270,10 @@ namespace spitfire
       void AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life); // Which person is speaking, what they are saying
 
     private:
-      enum GAME_MESSAGE
-      {
-        GAME_MESSAGE_INFORMATIVE = 0,
-        GAME_MESSAGE_WARNING,
-        GAME_MESSAGE_ERROR
+      enum class GAME_MESSAGE {
+        INFORMATIVE,
+        WARNING,
+        ERROR
       };
 
       class cGameMessage
@@ -329,19 +327,19 @@ namespace spitfire
 
     inline void cScreen::AddMessageInformative(const string_t& text)
     {
-      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_INFORMATIVE, text, 50);
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE::INFORMATIVE, text, 50);
       message.push_back(pMessage);
     }
 
     inline void cScreen::AddMessageWarning(const string_t& text)
     {
-      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_WARNING, text, 50);
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE::WARNING, text, 50);
       message.push_back(pMessage);
     }
 
     inline void cScreen::AddMessageError(const string_t& text)
     {
-      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE_ERROR, text, 50);
+      cGameMessage* pMessage = new cGameMessage(GAME_MESSAGE::ERROR, text, 50);
       message.push_back(pMessage);
     }
 

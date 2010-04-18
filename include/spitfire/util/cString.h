@@ -174,10 +174,10 @@ namespace spitfire
     // http://en.wikipedia.org/wiki/Binary_prefix#IEC_standard_prefixes
     string_t GetIECStringFromBytes(uint64_t nBytes);
 
-    enum SORT {
-      SORT_A_IS_EQUAL_TO_B,
-      SORT_A_IS_LESS_THAN_B,
-      SORT_A_IS_GREATER_THAN_B,
+    enum class SORT {
+      A_IS_EQUAL_TO_B,
+      A_IS_LESS_THAN_B,
+      A_IS_GREATER_THAN_B,
     };
 
     // Case is insignificant.

@@ -56,10 +56,9 @@ namespace spitfire
       cFeed();
       ~cFeed();
 
-      enum TYPE
-      {
-        TYPE_ATOM_2005,
-        TYPE_DEFAULT = TYPE_ATOM_2005
+      enum class TYPE {
+        ATOM_2005,
+        DEFAULT = ATOM_2005
       };
 
       TYPE GetType() const { return type; }
@@ -83,7 +82,7 @@ namespace spitfire
     };
 
     inline cFeed::cFeed() :
-      type(TYPE_ATOM_2005)
+      type(TYPE::ATOM_2005)
     {
     }
 
@@ -94,7 +93,7 @@ namespace spitfire
 
     inline void cFeed::Clear()
     {
-      type = TYPE_DEFAULT;
+      type = TYPE::DEFAULT;
       title.clear();
 
       iterator iter(articles.begin());

@@ -78,10 +78,10 @@ namespace spitfire
       void AddAttribute(const std::string& sAttribute, const math::cColour& value);
 #endif
 
-      bool IsXMLDeclarationOnly() const { return type == TYPE_XML_DELCARATION; }
-      bool IsCommentOnly() const { return type == TYPE_COMMENT; }
-      bool IsNameAndAttributesAndChildren() const { return type == TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN; }
-      bool IsContentOnly() const { return type == TYPE_CONTENT_ONLY; }
+      bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DELCARATION; }
+      bool IsCommentOnly() const { return type == TYPE::COMMENT; }
+      bool IsNameAndAttributesAndChildren() const { return type == TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN; }
+      bool IsContentOnly() const { return type == TYPE::CONTENT_ONLY; }
 
       std::string GetName() const;
       std::string GetContent() const;
@@ -168,12 +168,11 @@ namespace spitfire
 
       void WriteToFile(std::ofstream& file, const std::string& sTab) const;
 
-      enum TYPE
-      {
-        TYPE_XML_DELCARATION,
-        TYPE_COMMENT,
-        TYPE_NAME_AND_ATTRIBUTES_AND_CHILDREN,
-        TYPE_CONTENT_ONLY
+      enum class TYPE {
+        XML_DELCARATION,
+        COMMENT,
+        NAME_AND_ATTRIBUTES_AND_CHILDREN,
+        CONTENT_ONLY
       };
 
 

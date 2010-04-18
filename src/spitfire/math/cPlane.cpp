@@ -101,11 +101,11 @@ namespace spitfire
 
     PLANE_POINT_CLASSIFICATION cPlane::ClassifyPoint(const cVec3& point) const
     {
-      if ((point.DotProduct(normal) + intercept) == 0.0f) return PLANE_POINT_CLASSIFICATION_POINT_ON_PLANE;
+      if ((point.DotProduct(normal) + intercept) == 0.0f) return PLANE_POINT_CLASSIFICATION::POINT_ON_PLANE;
 
-      if ((point.DotProduct(normal) + intercept) > 0.0f) return PLANE_POINT_CLASSIFICATION_POINT_IN_FRONT_OF_PLANE;
+      if ((point.DotProduct(normal) + intercept) > 0.0f) return PLANE_POINT_CLASSIFICATION::POINT_IN_FRONT_OF_PLANE;
 
-      return PLANE_POINT_CLASSIFICATION_POINT_BEHIND_PLANE;
+      return PLANE_POINT_CLASSIFICATION::POINT_BEHIND_PLANE;
     }
 
     cPlane cPlane::lerp(const cPlane& p2, float factor) const

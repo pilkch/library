@@ -51,12 +51,12 @@ namespace breathe
     const size_t MAX_LIGHTS = 8;
 
     enum class CUBE_MAP_FACE {
-      CUBE_MAP_FACE_POSITIVE_X,
-      CUBE_MAP_FACE_NEGATIVE_X,
-      CUBE_MAP_FACE_POSITIVE_Y,
-      CUBE_MAP_FACE_NEGATIVE_Y,
-      CUBE_MAP_FACE_POSITIVE_Z,
-      CUBE_MAP_FACE_NEGATIVE_Z
+      POSITIVE_X,
+      NEGATIVE_X,
+      POSITIVE_Y,
+      NEGATIVE_Y,
+      POSITIVE_Z,
+      NEGATIVE_Z
     };
 
     /*class cBatchModelContainer

@@ -15,14 +15,14 @@ namespace breathe
   public:
     // Default 0 is session only (Not saved at all), read and write at any time
     enum FLAGS {
-      FLAGS_NULL = 0,
+      NONE = 0,
 
-      FLAGS_SAVE_CLIENT = 1,          // Written to client.xml
-      FLAGS_SAVE_SERVER = 2,          // Written to server.xml
+      SAVE_CLIENT = 1,          // Written to client.xml
+      SAVE_SERVER = 2,          // Written to server.xml
 
-      FLAGS_READ_ONLY_IN_GAME = 4,    // Can't change once in game.  For example: "sv_maxplayers" etc.
-      FLAGS_READ_ONLY_IN_CONSOLE = 8, // Can't change once in console.  For example: "r_driver" etc.
-      FLAGS_READ_ONLY = 16            // Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.
+      READ_ONLY_IN_GAME = 4,    // Can't change once in game.  For example: "sv_maxplayers" etc.
+      READ_ONLY_IN_CONSOLE = 8, // Can't change once in console.  For example: "r_driver" etc.
+      READ_ONLY = 16            // Can't change at all ever, even programatically.  Used for functions.  For example: "help", "version" etc.
     };
 
     cVar();
@@ -65,7 +65,7 @@ namespace breathe
   };
 
   inline cVar::cVar() :
-    flags(FLAGS_NULL)
+    flags(FLAGS::NONE)
   {
     SetValue(true);
   }
@@ -152,9 +152,9 @@ namespace breathe
 
   inline bool cVar::IsReadOnlyAtTheMoment() const
   {
-    if (flags & FLAGS_READ_ONLY) return true;
-    //if ((flags & FLAGS_READ_ONLY_IN_CONSOLE) && pConsole->IsInConsole()) return true;
-    //if ((flags & FLAGS_READ_ONLY_IN_GAME) && pConsole->IsInGame()) return true;
+    if (flags & FLAGS::READ_ONLY) return true;
+    //if ((flags & FLAGS::READ_ONLY_IN_CONSOLE) && pConsole->IsInConsole()) return true;
+    //if ((flags & FLAGS::READ_ONLY_IN_GAME) && pConsole->IsInGame()) return true;
 
     return false;
   }

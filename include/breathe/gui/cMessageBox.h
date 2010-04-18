@@ -39,11 +39,10 @@ namespace breathe
       bool HasCancelButton() const { return bHasButtonCancel; }
 
     private:
-      enum TYPE
-      {
-        TYPE_INFORMATION,
-        TYPE_WARNING,
-        TYPE_ERROR
+      enum class TYPE {
+        INFORMATION,
+        WARNING,
+        ERROR
       };
 
       bool bIsModeless;
@@ -99,11 +98,10 @@ namespace breathe
       void OnMessageBoxReturnedCancel() { _OnMessageBoxReturn(MESSAGE_BOX_RESULT_CANCEL); }
 
     private:
-      enum MESSAGE_BOX_RESULT
-      {
-        MESSAGE_BOX_RESULT_YES,
-        MESSAGE_BOX_RESULT_NO,
-        MESSAGE_BOX_RESULT_CANCEL
+      enum class MESSAGE_BOX_RESULT {
+        RESULT_YES,
+        RESULT_NO,
+        RESULT_CANCEL
       };
 
       virtual void _OnMessageBoxReturn(MESSAGE_BOX_RESULT result) = 0;

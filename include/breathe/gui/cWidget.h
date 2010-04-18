@@ -10,35 +10,33 @@ namespace breathe
 
   namespace gui
   {
-    enum EVENT
-    {
-      EVENT_OPEN_WINDOW,
-      EVENT_DESTROY_WINDOW,
-      EVENT_ACTIVATE_WINDOW,
-      EVENT_DEACTIVATE_WINDOW,
-      EVENT_KEY_DOWN,
-      EVENT_KEY_UP,
-      EVENT_MOUSE_DOWN,
-      EVENT_MOUSE_UP,
-      EVENT_MOUSE_MOVE,
-      EVENT_CONTROL_CHANGE_VALUE
+    enum EVENT {
+      OPEN_WINDOW,
+      DESTROY_WINDOW,
+      ACTIVATE_WINDOW,
+      DEACTIVATE_WINDOW,
+      KEY_DOWN,
+      KEY_UP,
+      MOUSE_DOWN,
+      MOUSE_UP,
+      MOUSE_MOVE,
+      CONTROL_CHANGE_VALUE
     };
 
     const size_t MOUSE_BUTTON_PRIMARY = 0;
     const size_t MOUSE_BUTTON_SECONDARY = 1;
 
-    enum WIDGET_TYPE
-    {
-      WIDGET_UNKNOWN = 0,
-      WIDGET_WINDOW,
-      WIDGET_INVISIBLE_CONTAINER, // For positioning children of the container without having to draw anything
-      WIDGET_BUTTON,
-      WIDGET_STATICTEXT,
-      WIDGET_INPUT,
-      WIDGET_SLIDER_HORIZONTAL,
-      WIDGET_SLIDER_VERTICAL,
-      WIDGET_SCROLLBAR_HORIZONTAL,
-      WIDGET_SCROLLBAR_VERTICAL
+    enum class WIDGET_TYPE {
+      UNKNOWN = 0,
+      WINDOW,
+      INVISIBLE_CONTAINER, // For positioning children of the container without having to draw anything
+      BUTTON,
+      STATICTEXT,
+      INPUT,
+      SLIDER_HORIZONTAL,
+      SLIDER_VERTICAL,
+      SCROLLBAR_HORIZONTAL,
+      SCROLLBAR_VERTICAL
     };
 
     typedef uint16_t id_t;
@@ -226,14 +224,14 @@ namespace breathe
     };
 
 
-    typedef cWidgetTemplate<WIDGET_INVISIBLE_CONTAINER> cWidget_InvisibleContainer;
+    typedef cWidgetTemplate<WIDGET_TYPE::INVISIBLE_CONTAINER> cWidget_InvisibleContainer;
 
 
     class cWidget_Button : public cWidget
     {
     public:
       cWidget_Button(id_t idControl, float x, float y, float width, float height) :
-        cWidget(idControl, WIDGET_BUTTON, x, y, width, height),
+        cWidget(idControl, WIDGET_TYPE::BUTTON, x, y, width, height),
         bCurrentlyClickingOnThisControl(false)
       {
         HandleClickPrimary(idControl);
@@ -241,7 +239,7 @@ namespace breathe
 
       void HandleClickPrimary(id_t idToReturn)
       {
-        HandleEvent(EVENT_MOUSE_DOWN, idToReturn);
+        HandleEvent(EVENT::MOUSE_DOWN, idToReturn);
       }
 
     private:
@@ -256,7 +254,7 @@ namespace breathe
     {
     public:
       cWidget_SliderHorizontal(id_t idControl, float x, float y, float width, float height) :
-        cWidget(idControl, WIDGET_SLIDER_HORIZONTAL, x, y, width, height),
+        cWidget(idControl, WIDGET_TYPE::SLIDER_HORIZONTAL, x, y, width, height),
         bCurrentlyClickingOnThisControl(false)
       {
         HandleChangeValue(idControl);
@@ -264,7 +262,7 @@ namespace breathe
 
       void HandleChangeValue(id_t idToReturn)
       {
-        HandleEvent(EVENT_CONTROL_CHANGE_VALUE, idToReturn);
+        HandleEvent(EVENT::CONTROL_CHANGE_VALUE, idToReturn);
       }
 
     private:
@@ -281,7 +279,7 @@ namespace breathe
     {
       public:
       cWidget_StaticText(id_t idControl, float x, float y, float width, float height) :
-        cWidget(idControl, WIDGET_STATICTEXT, x, y, width, height),
+        cWidget(idControl, WIDGET_TYPE::STATICTEXT, x, y, width, height),
         pFont(nullptr)
       {
       }
@@ -315,7 +313,7 @@ namespace breathe
     {
     public:
       cWidget_Input(id_t idControl, float x, float y, float width, float height) :
-        cWidget(idControl, WIDGET_INPUT, x, y, width, height),
+        cWidget(idControl, WIDGET_TYPE::INPUT, x, y, width, height),
         pFont(nullptr)
       {
       }

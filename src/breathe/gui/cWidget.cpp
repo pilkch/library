@@ -251,7 +251,7 @@ namespace breathe
     {
       //if (bCurrentlyClickingOnThisControl) {
         LOG<<"cWidget_Button::_OnLeftMouseUp Clicking on control "<<idControl<<std::endl;
-        CheckAndHandleEvent(EVENT_MOUSE_UP);
+        CheckAndHandleEvent(EVENT::MOUSE_UP);
       //}
 
       bCurrentlyClickingOnThisControl = false;

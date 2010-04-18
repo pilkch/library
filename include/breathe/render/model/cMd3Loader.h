@@ -29,8 +29,7 @@ namespace breathe
     #define kWeapon 3                       // This stores the ID for the weapon model
 
     // All the animations in order from the config file (.cfg)
-    enum MD3ANIMATIONS
-    {
+    enum MD3ANIMATIONS {
       // If one model is set to one of the BOTH_* animations, the other one should be too,
       // otherwise it looks really bad and confusing.
 

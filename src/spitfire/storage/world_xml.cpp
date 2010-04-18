@@ -31,7 +31,7 @@ namespace spitfire
     xml::document doc;
     reader.ReadFromFile(doc, filename);
 
-    return RESULT_ERROR_FILE_NOT_FOUND;
+    return RESULT::ERROR_FILE_NOT_FOUND;
   }
 
   // *** Writer
@@ -70,6 +70,6 @@ namespace spitfire
     xml::writer writer;
     writer.WriteToFile(doc, filename);
 
-    return RESULT_ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING;
+    return RESULT::ERROR_FILE_COULD_NOT_BE_OPENED_FOR_WRITING;
   }
 }

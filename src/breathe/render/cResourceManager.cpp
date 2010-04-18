@@ -159,7 +159,7 @@ namespace breathe
     cTextureRef cResourceManager::AddTextureToAtlas(const string_t& sNewFilename, unsigned int uiAtlas)
     {
       ASSERT(sNewFilename != TEXT(""));
-      ASSERT(ATLAS_NONE != uiAtlas);
+      ASSERT(ATLAS::NONE != uiAtlas);
 
       string_t sFilename;
       breathe::filesystem::FindFile(breathe::string::ToString_t(sNewFilename), sFilename);
@@ -808,7 +808,7 @@ void init()
       breathe::filesystem::FindResourceFile(breathe::string::ToString_t(sNewFilename), sFilename);
       pMaterialNotFoundMaterial->vLayer[0]->sTexture = sFilename;
       pMaterialNotFoundMaterial->vLayer[0]->pTexture = pMaterialNotFoundTexture;
-      pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode = TEXTURE_MODE::TEXTURE_NORMAL;
+      pMaterialNotFoundMaterial->vLayer[0]->uiTextureMode = TEXTURE_MODE::NORMAL;
 
       return pMaterialNotFoundMaterial;
     }
@@ -989,7 +989,7 @@ void init()
               uiMode0=GetMaterial(s->vMesh[i]->sMaterial)->vLayer[0]->uiTextureMode;
 
               //x[i] > x[i+1]
-              if ((TEXTURE_MASK == uiMode0) || (TEXTURE_BLEND == uiMode0))
+              if ((TEXTURE_MODE::MASK == uiMode0) || (TEXTURE_MODE::BLEND == uiMode0))
                 std::swap(s->vMesh[i], s->vMesh[i+1]);
             }
           }

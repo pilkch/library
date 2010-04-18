@@ -67,18 +67,17 @@ namespace breathe
       virtual void _Update(sampletime_t currentTime)=0;
     };
 
-    enum ENGINE_TYPE
-    {
-      ENGINE_TYPE_FOUR_CYLINDER_INLINE,
-      ENGINE_TYPE_FOUR_CYLINDER_V,
-      ENGINE_TYPE_FOUR_CYLINDER_BOXER,
-      ENGINE_TYPE_SIX_CYLINDER_INLINE,
-      ENGINE_TYPE_SIX_CYLINDER_V,
-      ENGINE_TYPE_SIX_CYLINDER_BOXER,
-      ENGINE_TYPE_EIGHT_CYLINDER_V,
-      ENGINE_TYPE_TEN_CYLINDER_V,
-      ENGINE_TYPE_TWELVE_CYLINDER_V,
-      ENGINE_TYPE_SIXTEEN_CYLINDER_W
+    enum class ENGINE_TYPE {
+      FOUR_CYLINDER_INLINE,
+      FOUR_CYLINDER_V,
+      FOUR_CYLINDER_BOXER,
+      SIX_CYLINDER_INLINE,
+      SIX_CYLINDER_V,
+      SIX_CYLINDER_BOXER,
+      EIGHT_CYLINDER_V,
+      TEN_CYLINDER_V,
+      TWELVE_CYLINDER_V,
+      SIXTEEN_CYLINDER_W
     };
 
     // engine
@@ -159,12 +158,11 @@ namespace breathe
     class cBrakes
     {
     public:
-      enum BRAKE_TYPE
-      {
-        BRAKE_STANDARD,
-        BRAKE_CROSS_DRILLED,
-        BRAKE_,
-        BRAKE_CARBON_CERAMIC
+      enum class BRAKE_TYPE {
+        IRON,
+        IRON_CROSS_DRILLED,
+        CARBON_CERAMIC,
+        CARBON_CERAMIC_CROSS_DRILLED
       };
 
       BRAKE_TYPE GetBrakeType() const { return brakeType; }
@@ -180,14 +178,10 @@ namespace breathe
 
     inline bool cBrakes::_IsValid() const
     {
-      // Make sure that we have one of the types
-      const bool bIsValidType = (brakeType == BRAKE_STANDARD) || (brakeType == BRAKE_CROSS_DRILLED) ||
-          (brakeType == BRAKE_) || (brakeType == BRAKE_CARBON_CERAMIC);
-
       // More than 10cm and less than 100cm
       const bool bIsValidDiameter = (fDiametermm > 100.0f) && (fDiametermm < 1000.0f);
 
-      return bIsValidType && bIsValidDiameter;
+      return bIsValidDiameter;
     }
 
     inline float_t cBrakes::GetMaximumBrakeForceNm() const
@@ -195,9 +189,10 @@ namespace breathe
       // Here we basically just generate a number that feels good
       const float n = fDiametermm * fDiametermm;
       switch (brakeType) {
-        case BRAKE_CARBON_CERAMIC: return 2.5f * n;
-        case BRAKE_: return 1.6f * n;
-        case BRAKE_CROSS_DRILLED: return 1.4f * n;
+        case BRAKE_TYPE::CARBON_CERAMIC: return 2.5f * n;
+        case BRAKE_TYPE::CARBON_CERAMIC_CROSS_DRILLED: return 2.3f * n;
+        case BRAKE_TYPE::IRON: return 1.6f * n;
+        case BRAKE_TYPE::IRON_CROSS_DRILLED: return 1.4f * n;
       };
 
       return 1.0f * n;

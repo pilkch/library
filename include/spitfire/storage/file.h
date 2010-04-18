@@ -37,14 +37,13 @@ namespace spitfire
       UTF-32 (little-endian) FF FE 00 00
       SCSU (compression) 0E FE FF
     */
-    enum BYTEORDER
-    {
-      BYTEORDER_UTF8 = 0,
-      BYTEORDER_UTF16BE,
-      BYTEORDER_UTF16LE,
-      BYTEORDER_UTF32BE,
-      BYTEORDER_UTF32LE,
-      BYTEORDER_INVALID
+    enum class BYTEORDER {
+      UTF8 = 0,
+      UTF16BE,
+      UTF16LE,
+      UTF32BE,
+      UTF32LE,
+      INVALID
     };
 
     BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes);

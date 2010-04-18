@@ -29,29 +29,121 @@ namespace breathe
 {
   namespace game
   {
+    COMPONENT cGameObject::GetComponentFromIndex(size_t index)
+    {
+      switch (index) {
+        case 0: return COMPONENT::USER_HIGH_PRIORITY_0;
+        case 1: return COMPONENT::USER_HIGH_PRIORITY_1;
+        case 2: return COMPONENT::USER_HIGH_PRIORITY_2;
+        case 3: return COMPONENT::PHYSICS;
+        case 4: return COMPONENT::FLAMABLE;
+        case 5: return COMPONENT::EXPLODABLE;
+        case 6: return COMPONENT::BOUYANT;
+        case 7: return COMPONENT::ITEM;
+        case 8: return COMPONENT::ITEM_CONTAINER;
+        case 9: return COMPONENT::VEHICLE;
+        case 10: return COMPONENT::AUDIOSOURCE;
+        case 11: return COMPONENT::TEAM;
+        case 12: return COMPONENT::ANIMATION;
+        case 13: return COMPONENT::USER_NORMAL_PRIORITY_0;
+        case 14: return COMPONENT::USER_NORMAL_PRIORITY_1;
+        case 15: return COMPONENT::USER_NORMAL_PRIORITY_2;
+        case 16: return COMPONENT::USER_NORMAL_PRIORITY_3;
+        case 17: return COMPONENT::USER_NORMAL_PRIORITY_4;
+        case 18: return COMPONENT::USER_NORMAL_PRIORITY_5;
+        case 19: return COMPONENT::USER_NORMAL_PRIORITY_6;
+        case 20: return COMPONENT::USER_NORMAL_PRIORITY_7;
+        case 21: return COMPONENT::USER_NORMAL_PRIORITY_8;
+        case 22: return COMPONENT::USER_NORMAL_PRIORITY_9;
+        case 23: return COMPONENT::USER_NORMAL_PRIORITY_10;
+        case 24: return COMPONENT::USER_NORMAL_PRIORITY_11;
+        case 25: return COMPONENT::USER_NORMAL_PRIORITY_12;
+        case 26: return COMPONENT::USER_NORMAL_PRIORITY_13;
+        case 27: return COMPONENT::USER_NORMAL_PRIORITY_14;
+        case 28: return COMPONENT::USER_NORMAL_PRIORITY_15;
+        case 29: return COMPONENT::USER_NORMAL_PRIORITY_16;
+        case 30: return COMPONENT::USER_NORMAL_PRIORITY_17;
+        case 31: return COMPONENT::USER_NORMAL_PRIORITY_18;
+        case 32: return COMPONENT::RENDERABLE;
+        case 33: return COMPONENT::USER_LOW_PRIORITY_0;
+        case 34: return COMPONENT::USER_LOW_PRIORITY_1;
+        case 35: return COMPONENT::USER_LOW_PRIORITY_2;
+      };
+
+      ASSERT(false);
+      return COMPONENT::USER_HIGH_PRIORITY_0;
+    }
+
+    size_t cGameObject::GetIndexFromComponent(COMPONENT component)
+    {
+      switch (component) {
+        case COMPONENT::USER_HIGH_PRIORITY_0: return 0;
+        case COMPONENT::USER_HIGH_PRIORITY_1: return 1;
+        case COMPONENT::USER_HIGH_PRIORITY_2: return 2;
+        case COMPONENT::PHYSICS: return 3;
+        case COMPONENT::FLAMABLE: return 4;
+        case COMPONENT::EXPLODABLE: return 5;
+        case COMPONENT::BOUYANT: return 6;
+        case COMPONENT::ITEM: return 7;
+        case COMPONENT::ITEM_CONTAINER: return 8;
+        case COMPONENT::VEHICLE: return 9;
+        case COMPONENT::AUDIOSOURCE: return 10;
+        case COMPONENT::TEAM: return 11;
+        case COMPONENT::ANIMATION: return 12;
+        case COMPONENT::USER_NORMAL_PRIORITY_0: return 13;
+        case COMPONENT::USER_NORMAL_PRIORITY_1: return 14;
+        case COMPONENT::USER_NORMAL_PRIORITY_2: return 15;
+        case COMPONENT::USER_NORMAL_PRIORITY_3: return 16;
+        case COMPONENT::USER_NORMAL_PRIORITY_4: return 17;
+        case COMPONENT::USER_NORMAL_PRIORITY_5: return 18;
+        case COMPONENT::USER_NORMAL_PRIORITY_6: return 19;
+        case COMPONENT::USER_NORMAL_PRIORITY_7: return 20;
+        case COMPONENT::USER_NORMAL_PRIORITY_8: return 21;
+        case COMPONENT::USER_NORMAL_PRIORITY_9: return 22;
+        case COMPONENT::USER_NORMAL_PRIORITY_10: return 23;
+        case COMPONENT::USER_NORMAL_PRIORITY_11: return 24;
+        case COMPONENT::USER_NORMAL_PRIORITY_12: return 25;
+        case COMPONENT::USER_NORMAL_PRIORITY_13: return 26;
+        case COMPONENT::USER_NORMAL_PRIORITY_14: return 27;
+        case COMPONENT::USER_NORMAL_PRIORITY_15: return 28;
+        case COMPONENT::USER_NORMAL_PRIORITY_16: return 29;
+        case COMPONENT::USER_NORMAL_PRIORITY_17: return 30;
+        case COMPONENT::USER_NORMAL_PRIORITY_18: return 31;
+        case COMPONENT::RENDERABLE: return 32;
+        case COMPONENT::USER_LOW_PRIORITY_0: return 33;
+        case COMPONENT::USER_LOW_PRIORITY_1: return 34;
+        case COMPONENT::USER_LOW_PRIORITY_2: return 35;
+      };
+
+      ASSERT(false);
+      return 0;
+    }
+
     //cGameObject::cGameObject()
     //{
     //}
 
-    void cGameObject::AddComponent(COMPONENT c, cComponent* pComponent)
+    void cGameObject::AddComponent(COMPONENT componentType, cComponent* pComponent)
     {
       ASSERT(pComponent != nullptr);
 
+      const size_t index = GetIndexFromComponent(componentType);
+
       // Delete the old component if there is one
-      std::map<COMPONENT, cComponent*>::iterator iter = components.find(c);
+      std::map<size_t, cComponent*>::iterator iter = components.find(index);
       if (iter != components.end()) {
         cComponent* pOldComponent = iter->second;
         SAFE_DELETE(pOldComponent);
       }
 
       // Add our new component
-      components[c] = pComponent;
+      components[index] = pComponent;
     }
 
     void cGameObject::RemoveAllComponents()
     {
-      std::map<COMPONENT, cComponent*>::iterator iter = components.begin();
-      const std::map<COMPONENT, cComponent*>::iterator iterEnd = components.end();
+      std::map<size_t, cComponent*>::iterator iter = components.begin();
+      const std::map<size_t, cComponent*>::iterator iterEnd = components.end();
       while (iter != iterEnd) {
         cComponent* pComponent = iter->second;
         SAFE_DELETE(pComponent);
@@ -73,8 +165,8 @@ namespace breathe
     void cGameObject::Update(spitfire::sampletime_t currentTime)
     {
       // These components are already sorted in order of priority
-      std::map<COMPONENT, cComponent*>::iterator iter = components.begin();
-      const std::map<COMPONENT, cComponent*>::iterator iterEnd = components.end();
+      std::map<size_t, cComponent*>::iterator iter = components.begin();
+      const std::map<size_t, cComponent*>::iterator iterEnd = components.end();
       while (iter != iterEnd) {
         cComponent* pComponent = iter->second;
         ASSERT(pComponent != nullptr);

@@ -374,28 +374,28 @@ namespace breathe
     {
       std::cout<<"cWindowManager::_RenderWidget"<<std::endl;
       switch(widget.GetType()) {
-        case WIDGET_WINDOW:
-          std::cout<<"cWindowManager::_RenderWidget WIDGET_WINDOW"<<std::endl;
+        case WIDGET_TYPE::WINDOW:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_TYPE::WINDOW"<<std::endl;
           _RenderWindow(static_cast<const cWindow&>(widget));
           break;
 
-        case WIDGET_BUTTON:
-          std::cout<<"cWindowManager::_RenderWidget WIDGET_WINDOW"<<std::endl;
+        case WIDGET_TYPE::BUTTON:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_TYPE::WINDOW"<<std::endl;
           _RenderButton(static_cast<const cWidget_Button&>(widget));
           break;
 
-        case WIDGET_INPUT:
-          std::cout<<"cWindowManager::_RenderWidget WIDGET_INPUT"<<std::endl;
+        case WIDGET_TYPE::INPUT:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_TYPE::INPUT"<<std::endl;
           _RenderInput(static_cast<const cWidget_Input&>(widget));
           break;
 
-        case WIDGET_STATICTEXT:
-          std::cout<<"cWindowManager::_RenderWidget WIDGET_STATICTEXT"<<std::endl;
+        case WIDGET_TYPE::STATICTEXT:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_TYPE::STATICTEXT"<<std::endl;
           _RenderStaticText(static_cast<const cWidget_StaticText&>(widget));
           break;
 
-        case WIDGET_INVISIBLE_CONTAINER:
-          std::cout<<"cWindowManager::_RenderWidget WIDGET_INVISIBLE_CONTAINER"<<std::endl;
+        case WIDGET_TYPE::INVISIBLE_CONTAINER:
+          std::cout<<"cWindowManager::_RenderWidget WIDGET_TYPE::INVISIBLE_CONTAINER"<<std::endl;
           // Purposely do not render this control
           SetColourFromThemeColourAndAlpha(math::cColour(1.0f, 0.0f, 0.0f, 1.0f));
           _RenderRectangle(widget.GetX(), widget.GetY(), widget.GetWidth(), widget.GetHeight());

@@ -75,7 +75,7 @@ namespace breathe
 
   cPlayer::cPlayer(physics::cWorld* pWorld) :
     //biped(pWorld),
-    state(STATE_WALK),
+    state(STATE::WALK),
     pSeat(nullptr)
   {
 #ifdef BUILD_PHYSICS_3D
@@ -87,9 +87,9 @@ namespace breathe
 
 
 #ifdef BUILD_RELEASE
-    uiCameraMode = CAMERA_FIRSTPERSON;
+    uiCameraMode = CAMERA::FIRSTPERSON;
 #else
-    uiCameraMode = CAMERA_FIRSTPERSONFREE;
+    uiCameraMode = CAMERA::FIRSTPERSONFREE;
 #endif
 
     // Movement
@@ -151,13 +151,13 @@ namespace breathe
   {
     // biped.Update(currentTime);
 
-    float fSpeed = ((STATE_WALK == state) ? fSpeedWalk : ((STATE_RUN == state) ? fSpeedRun : fSpeedSprint));
+    float fSpeed = ((STATE::WALK == state) ? fSpeedWalk : ((STATE::RUN == state) ? fSpeedRun : fSpeedSprint));
 
-    //if (STATE_DRIVE == state) position = pSeat->pVehicle->position;
-    //else if (STATE_PASSENGER == state) position = pSeat->pVehicle->position;
+    //if (STATE::DRIVE == state) position = pSeat->pVehicle->position;
+    //else if (STATE::PASSENGER == state) position = pSeat->pVehicle->position;
 
 #ifdef BUILD_DEBUG
-    /*else*/ if (uiCameraMode == CAMERA_FIRSTPERSONFREE) {
+    /*else*/ if (uiCameraMode == CAMERA::FIRSTPERSONFREE) {
       if (
         (fInputUp > math::cEPSILON) || (fInputDown > math::cEPSILON) ||
         (fInputLeft > math::cEPSILON) || (fInputRight > math::cEPSILON)
@@ -262,16 +262,16 @@ namespace breathe
   bool cPlayer::IsThirdPersonCamera() const
   {
 #ifdef BUILD_RELEASE
-    return (uiCameraMode == CAMERA_THIRDPERSON);
+    return (uiCameraMode == CAMERA::THIRDPERSON);
 #else
-    return (uiCameraMode == CAMERA_THIRDPERSON) || (uiCameraMode == CAMERA_THIRDPERSONFREE);
+    return (uiCameraMode == CAMERA::THIRDPERSON) || (uiCameraMode == CAMERA::THIRDPERSONFREE);
 #endif
   }
 
 
   void cPlayer::ChangeStateToDriving()
   {
-    state = STATE_DRIVE;
+    state = STATE::DRIVE;
 
     // TODO: This doesn't make sense as while physics has a smart pointer to this, it will never be deleted so we will never get here
     //physics::RemovePhysicsObject(this);
@@ -287,10 +287,10 @@ namespace breathe
 
   void cPlayer::ChangeStateToRunning()
   {
-    state = STATE_RUN;
+    state = STATE::RUN;
 
 #ifdef BUILD_DEBUG
-    if (uiCameraMode != CAMERA_FIRSTPERSONFREE) {
+    if (uiCameraMode != CAMERA::FIRSTPERSONFREE) {
 #endif
       //SetUseBody(true);
       //CreateCapsule(pWorld, position);

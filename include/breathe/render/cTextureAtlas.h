@@ -17,19 +17,18 @@ namespace breathe
       Atlas4 special effects: particles, smoke, lens flare, sun
     */
 
-    enum ATLAS
-    {
-      ATLAS_LANDSCAPE=0,
-      ATLAS_BUILDING,
-      ATLAS_FOLIAGE,
-      ATLAS_VEHICLES,
-      ATLAS_PROPS,
-      ATLAS_WEAPONS,
-      ATLAS_EFFECTS,
+    enum ATLAS {
+      LANDSCAPE,
+      BUILDING,
+      FOLIAGE,
+      VEHICLES,
+      PROPS,
+      WEAPONS,
+      EFFECTS,
 
       nAtlas,
 
-      ATLAS_NONE = 0xFFFFFF
+      NONE = 0xFFFFFF
     };
 
     class cTextureAtlas :

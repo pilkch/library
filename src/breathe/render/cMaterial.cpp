@@ -360,7 +360,7 @@ namespace breathe
     namespace material
     {
       cLayer::cLayer() :
-        uiTextureMode(TEXTURE_MODE::TEXTURE_NONE)
+        uiTextureMode(TEXTURE_MODE::NONE)
       {
       }
 
@@ -489,39 +489,39 @@ namespace breathe
 
             std::string sValue;
             if (iter.GetAttribute("uiTextureMode", sValue)) {
-              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_NORMAL;
-              else if (sValue == "TEXTURE_MASK")         pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_MASK;
-              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_BLEND;
-              else if (sValue == "TEXTURE_DETAIL")       pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_DETAIL;
-              else if (sValue == "TEXTURE_SPECULAR")     pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_SPECULAR;
-              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_CUBE_MAP;
-              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode = TEXTURE_MODE::TEXTURE_POST_RENDER;
+              if (sValue == "TEXTURE_NORMAL")            pLayer->uiTextureMode = TEXTURE_MODE::NORMAL;
+              else if (sValue == "TEXTURE_MASK")         pLayer->uiTextureMode = TEXTURE_MODE::MASK;
+              else if (sValue == "TEXTURE_BLEND")        pLayer->uiTextureMode = TEXTURE_MODE::BLEND;
+              else if (sValue == "TEXTURE_DETAIL")       pLayer->uiTextureMode = TEXTURE_MODE::DETAIL;
+              else if (sValue == "TEXTURE_SPECULAR")     pLayer->uiTextureMode = TEXTURE_MODE::SPECULAR;
+              else if (sValue == "TEXTURE_CUBEMAP")      pLayer->uiTextureMode = TEXTURE_MODE::CUBE_MAP;
+              else if (sValue == "TEXTURE_POST_RENDER")  pLayer->uiTextureMode = TEXTURE_MODE::POST_RENDER;
             }
 
-            unsigned int uiTextureAtlas = ATLAS_NONE;
-            // TODO: The texture atlas code is broken so we assume ATLAS_NONE until it is fixed
+            unsigned int uiTextureAtlas = ATLAS::NONE;
+            // TODO: The texture atlas code is broken so we assume ATLAS::NONE until it is fixed
             /*if (iter.GetAttribute("uiTextureAtlas", sValue)) {
-              if (sValue == "ATLAS_LANDSCAPE")      uiTextureAtlas = ATLAS_LANDSCAPE;
-              else if (sValue == "ATLAS_BUILDING")  uiTextureAtlas = ATLAS_BUILDING;
-              else if (sValue == "ATLAS_FOLIAGE")  uiTextureAtlas = ATLAS_FOLIAGE;
-              else if (sValue == "ATLAS_VEHICLES")  uiTextureAtlas = ATLAS_VEHICLES;
-              else if (sValue == "ATLAS_PROPS")    uiTextureAtlas = ATLAS_PROPS;
-              else if (sValue == "ATLAS_WEAPONS")  uiTextureAtlas = ATLAS_WEAPONS;
-              else if (sValue == "ATLAS_EFFECTS")  uiTextureAtlas = ATLAS_EFFECTS;
+              if (sValue == "ATLAS::LANDSCAPE")      uiTextureAtlas = ATLAS::LANDSCAPE;
+              else if (sValue == "ATLAS::BUILDING")  uiTextureAtlas = ATLAS::BUILDING;
+              else if (sValue == "ATLAS::FOLIAGE")  uiTextureAtlas = ATLAS::FOLIAGE;
+              else if (sValue == "ATLAS::VEHICLES")  uiTextureAtlas = ATLAS::VEHICLES;
+              else if (sValue == "ATLAS::PROPS")    uiTextureAtlas = ATLAS::PROPS;
+              else if (sValue == "ATLAS::WEAPONS")  uiTextureAtlas = ATLAS::WEAPONS;
+              else if (sValue == "ATLAS::EFFECTS")  uiTextureAtlas = ATLAS::EFFECTS;
             }*/
 
-            if (TEXTURE_MODE::TEXTURE_CUBE_MAP == pLayer->uiTextureMode) {
-              uiTextureAtlas = ATLAS_NONE;
+            if (TEXTURE_MODE::CUBE_MAP == pLayer->uiTextureMode) {
+              uiTextureAtlas = ATLAS::NONE;
               LOG.Error("CUBEMAP", "CUBEMAP");
             }
 
-            if ((TEXTURE_MODE::TEXTURE_CUBE_MAP != pLayer->uiTextureMode) && (TEXTURE_MODE::TEXTURE_POST_RENDER != pLayer->uiTextureMode)) {
-              if (ATLAS_NONE != uiTextureAtlas) {
+            if ((TEXTURE_MODE::CUBE_MAP != pLayer->uiTextureMode) && (TEXTURE_MODE::POST_RENDER != pLayer->uiTextureMode)) {
+              if (ATLAS::NONE != uiTextureAtlas) {
                 pLayer->pTexture = pResourceManager->AddTextureToAtlas(pLayer->sTexture, uiTextureAtlas);
               }
 
               if (nullptr == pLayer->pTexture) {
-                uiTextureAtlas = ATLAS_NONE;
+                uiTextureAtlas = ATLAS::NONE;
                 pLayer->pTexture = pResourceManager->AddTexture(pLayer->sTexture);
               }
             }

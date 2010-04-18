@@ -71,7 +71,7 @@ namespace breathe
 
       breathe::game::cRenderComponent* pRenderComponent = new breathe::game::cRenderComponent(*pGameObject);
       pRenderComponent->SetSceneNode(pNode);
-      pGameObject->AddComponent(breathe::game::COMPONENT_RENDERABLE, pRenderComponent);
+      pGameObject->AddComponent(breathe::game::COMPONENT::RENDERABLE, pRenderComponent);
 
       gameobjects.Add(pGameObject);
 

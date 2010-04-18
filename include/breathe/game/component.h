@@ -20,43 +20,43 @@ namespace breathe
 {
   namespace game
   {
-    enum COMPONENT {
-      COMPONENT_USER_HIGH_PRIORITY_0,
-      COMPONENT_USER_HIGH_PRIORITY_1,
-      COMPONENT_USER_HIGH_PRIORITY_2,
-      COMPONENT_PHYSICS, // This component should be close to the start of updating
-      COMPONENT_FLAMABLE,
-      COMPONENT_EXPLODABLE,
-      COMPONENT_BOUYANT,
-      COMPONENT_ITEM, // An pickup that can be added to an item container, for example a weapon, ammo, a key etc.
-      COMPONENT_ITEM_CONTAINER, // Contains items, an inventory
-      COMPONENT_VEHICLE, // Game object is a vehicle of some description, note: this infers drivable, a prop vehicle that no one ever drives will NOT have this
-      COMPONENT_AUDIOSOURCE,
-      COMPONENT_TEAM,
-      COMPONENT_ANIMATION, // This is a wrapper for md3 animation, it requires a COMPONENT_RENDERABLE:cRenderableComponent that is pointing to a cAnimationNode
-      COMPONENT_USER_NORMAL_PRIORITY_0,
-      COMPONENT_USER_NORMAL_PRIORITY_1,
-      COMPONENT_USER_NORMAL_PRIORITY_2,
-      COMPONENT_USER_NORMAL_PRIORITY_3,
-      COMPONENT_USER_NORMAL_PRIORITY_4,
-      COMPONENT_USER_NORMAL_PRIORITY_5,
-      COMPONENT_USER_NORMAL_PRIORITY_6,
-      COMPONENT_USER_NORMAL_PRIORITY_7,
-      COMPONENT_USER_NORMAL_PRIORITY_8,
-      COMPONENT_USER_NORMAL_PRIORITY_9,
-      COMPONENT_USER_NORMAL_PRIORITY_10,
-      COMPONENT_USER_NORMAL_PRIORITY_11,
-      COMPONENT_USER_NORMAL_PRIORITY_12,
-      COMPONENT_USER_NORMAL_PRIORITY_13,
-      COMPONENT_USER_NORMAL_PRIORITY_14,
-      COMPONENT_USER_NORMAL_PRIORITY_15,
-      COMPONENT_USER_NORMAL_PRIORITY_16,
-      COMPONENT_USER_NORMAL_PRIORITY_17,
-      COMPONENT_USER_NORMAL_PRIORITY_18,
-      COMPONENT_RENDERABLE, // This one wants to be close to the end, if not absolute last, when updating
-      COMPONENT_USER_LOW_PRIORITY_0,
-      COMPONENT_USER_LOW_PRIORITY_1,
-      COMPONENT_USER_LOW_PRIORITY_2
+    enum class COMPONENT {
+      USER_HIGH_PRIORITY_0,
+      USER_HIGH_PRIORITY_1,
+      USER_HIGH_PRIORITY_2,
+      PHYSICS, // This component should be close to the start of updating
+      FLAMABLE,
+      EXPLODABLE,
+      BOUYANT,
+      ITEM, // An pickup that can be added to an item container, for example a weapon, ammo, a key etc.
+      ITEM_CONTAINER, // Contains items, an inventory
+      VEHICLE, // Game object is a vehicle of some description, note: this infers drivable, a prop vehicle that no one ever drives will NOT have this
+      AUDIOSOURCE,
+      TEAM,
+      ANIMATION, // This is a wrapper for md3 animation, it requires a COMPONENT::RENDERABLE and cRenderableComponent that is pointing to a cAnimationNode
+      USER_NORMAL_PRIORITY_0,
+      USER_NORMAL_PRIORITY_1,
+      USER_NORMAL_PRIORITY_2,
+      USER_NORMAL_PRIORITY_3,
+      USER_NORMAL_PRIORITY_4,
+      USER_NORMAL_PRIORITY_5,
+      USER_NORMAL_PRIORITY_6,
+      USER_NORMAL_PRIORITY_7,
+      USER_NORMAL_PRIORITY_8,
+      USER_NORMAL_PRIORITY_9,
+      USER_NORMAL_PRIORITY_10,
+      USER_NORMAL_PRIORITY_11,
+      USER_NORMAL_PRIORITY_12,
+      USER_NORMAL_PRIORITY_13,
+      USER_NORMAL_PRIORITY_14,
+      USER_NORMAL_PRIORITY_15,
+      USER_NORMAL_PRIORITY_16,
+      USER_NORMAL_PRIORITY_17,
+      USER_NORMAL_PRIORITY_18,
+      RENDERABLE, // This one wants to be close to the end, if not absolute last, when updating
+      USER_LOW_PRIORITY_0,
+      USER_LOW_PRIORITY_1,
+      USER_LOW_PRIORITY_2
 
       // input ie. keyboard, ai?
       // particle system, mesh data, or is that getting too much into a scenegraph
@@ -123,11 +123,14 @@ namespace breathe
       void SetRotationRelative(const spitfire::math::cQuaternion& _rotationRelative) { rotationRelative = _rotationRelative; }
 
     private:
+      static COMPONENT GetComponentFromIndex(size_t index);
+      static size_t GetIndexFromComponent(COMPONENT component);
+
       spitfire::string_t sName;
       spitfire::math::cVec3 positionRelative;
       spitfire::math::cQuaternion rotationRelative;
 
-      std::map<COMPONENT, cComponent*> components;
+      std::map<size_t, cComponent*> components;
     };
 
     template <typename T>
@@ -142,11 +145,13 @@ namespace breathe
     template <typename T>
     inline T* cGameObject::GetComponentIfEnabledOrDisabled(COMPONENT componentType) const
     {
+      const size_t index = GetIndexFromComponent(componentType);
+
       cComponent* pComponent = nullptr;
-      std::map<COMPONENT, cComponent*>::const_iterator iter = components.begin();
-      const std::map<COMPONENT, cComponent*>::const_iterator iterEnd = components.end();
+      std::map<size_t, cComponent*>::const_iterator iter = components.begin();
+      const std::map<size_t, cComponent*>::const_iterator iterEnd = components.end();
       while (iter != iterEnd) {
-        if (iter->first == componentType) {
+        if (iter->first == index) {
           pComponent = iter->second;
           break;
         }

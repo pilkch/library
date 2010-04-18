@@ -15,7 +15,7 @@ namespace spitfire
 {
   namespace util
   {
-    enum PROCESS_RESULT {
+    enum class PROCESS_RESULT {
       COMPLETE,
       FAILED,
       STOPPED_BY_INTERFACE,
