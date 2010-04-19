@@ -16,7 +16,20 @@
 
 namespace opengl
 {
-  // Templated functions to take a
+  // Templated functions to take any builder
+  template <class T>
+  void CreatePlaneTemplated(T& builder, float fWidth, float fDepth)
+  {
+    const spitfire::math::cVec2 vMin(-fWidth * 0.5f, -fDepth * 0.5f);
+    const spitfire::math::cVec2 vMax(fWidth * 0.5f, fDepth * 0.5f);
+
+    // Upper Square
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+  }
+
   template <class T>
   void CreateBoxTemplated(T& builder, float fWidth, float fDepth, float fHeight)
   {
@@ -36,20 +49,20 @@ namespace opengl
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 1.0f));
 
     // Side Squares
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
 
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
 
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
 
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
@@ -61,8 +74,22 @@ namespace opengl
 
   void cGeometryBuilder::CreatePlane(float fWidth, float fDepth, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
   {
-    std::cout<<"cGeometryBuilder::CreatePlane Invalid nTextureUnits "<<nTextureUnits<<std::endl;
-    assert(false);
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3 builder(vertices, normals);
+      CreatePlaneTemplated(builder, fWidth, fDepth);
+    } else if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2 builder(vertices, normals, textureCoords);
+      CreatePlaneTemplated(builder, fWidth, fDepth);
+    } else if (nTextureUnits == 2) {
+      cGeometryBuilder_v3_n3_t2_t2 builder(vertices, normals, textureCoords);
+      CreatePlaneTemplated(builder, fWidth, fDepth);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(vertices, normals, textureCoords);
+      CreatePlaneTemplated(builder, fWidth, fDepth);
+    } else {
+      std::cout<<"cGeometryBuilder::CreatePlane Invalid nTextureUnits "<<nTextureUnits<<std::endl;
+      assert(false);
+    }
   }
 
   void cGeometryBuilder::CreateCube(float fWidthAndDepthAndHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
@@ -72,8 +99,17 @@ namespace opengl
 
   void cGeometryBuilder::CreateBox(float fWidth, float fDepth, float fHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
   {
-    if (nTextureUnits == 2) {
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3 builder(vertices, normals);
+      CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
+    } else if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2 builder(vertices, normals, textureCoords);
+      CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
+    } else if (nTextureUnits == 2) {
       cGeometryBuilder_v3_n3_t2_t2 builder(vertices, normals, textureCoords);
+      CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(vertices, normals, textureCoords);
       CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
     } else {
       std::cout<<"cGeometryBuilder::CreateBox Invalid nTextureUnits "<<nTextureUnits<<std::endl;

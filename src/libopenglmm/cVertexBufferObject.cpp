@@ -24,7 +24,7 @@
 
 namespace opengl
 {
-  #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+  #define BUFFER_OFFSET(i) ((char *)nullptr + (i))
 
   // *** cStaticVertexBufferObject
 
@@ -42,6 +42,7 @@ namespace opengl
 
   void cStaticVertexBufferObject::SetVertices(const std::vector<float>& _vertices)
   {
+    assert(sizeof(float) == sizeof(GLfloat));
     assert(!_vertices.empty());
     assert(!IsCompiled());
 
@@ -51,6 +52,7 @@ namespace opengl
 
   void cStaticVertexBufferObject::SetNormals(const std::vector<float>& _normals)
   {
+    assert(sizeof(float) == sizeof(GLfloat));
     assert(!_normals.empty());
     assert(!IsCompiled());
 
@@ -60,6 +62,7 @@ namespace opengl
 
   void cStaticVertexBufferObject::SetColours(const std::vector<float>& _colours)
   {
+    assert(sizeof(float) == sizeof(GLfloat));
     assert(!_colours.empty());
     assert(!IsCompiled());
 
@@ -69,6 +72,7 @@ namespace opengl
 
   void cStaticVertexBufferObject::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
   {
+    assert(sizeof(float) == sizeof(GLfloat));
     assert(!_textureCoordinates.empty());
     assert(!IsCompiled());
 
@@ -78,6 +82,7 @@ namespace opengl
 
   void cStaticVertexBufferObject::SetIndices(const std::vector<uint16_t>& _indices)
   {
+    assert(sizeof(uint16_t) == sizeof(GLushort));
     assert(!_indices.empty());
     assert(!IsCompiled());
 
@@ -97,7 +102,7 @@ namespace opengl
     else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
     else nTextureUnits = 0;
 
-    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<system.GetErrorString()<<std::endl;
+    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
     // Create a new buffer
     glGenBuffers(1, &bufferID);
@@ -136,6 +141,7 @@ namespace opengl
         glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
+
 
     // Set the buffer data
     GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -201,7 +207,7 @@ namespace opengl
     else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
     else nTextureUnits = 0;
 
-    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" glGetError="<<system.GetErrorString()<<std::endl;
+    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
     // Create a new buffer
     glGenBuffers(1, &bufferID);
@@ -240,6 +246,7 @@ namespace opengl
         glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
+
 
     // Set the buffer data
     GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -438,94 +445,26 @@ namespace opengl
   {
     assert(IsCompiled());
 
-  #if 1
-    // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
-    const size_t nVertices = vertices.size() / 3;
-    glDrawArrays(geometryType, 0, nVertices);
-    //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
-  #else
-    // This is just for testing, immediate mode (yuk!)
-    glBegin(geometryType);
-
-      const size_t n = vertices.size();
-      size_t v = 0;
-      size_t t = 0;
-      if (nTextureUnits == 2) {
-        // Multitexturing
-        while (v < n) {
-          glMultiTexCoord2f(GL_TEXTURE0, textureCoordinates[t], textureCoordinates[t + 1]);
-          glMultiTexCoord2f(GL_TEXTURE1, textureCoordinates[t + 2], textureCoordinates[t + 3]);
-          glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
-
-          v += 3;
-          t += 4;
-        };
-      } else if (nTextureUnits == 1) {
-        // Single texturing
-        while (v < n) {
-          glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]);
-          glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
-
-          v += 3;
-          t += 2;
-        };
-      } else {
-        while (v < n) {
-          glVertex3f(vertices[v], vertices[v + 1], vertices[v + 2]);
-
-          v += 3;
-        };
-      }
-
-    glEnd();
-  #endif
+    if (indices.empty()) {
+      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+      const size_t nVertices = vertices.size() / 3;
+      glDrawArrays(geometryType, 0, nVertices);
+    } else {
+      glDrawElements(geometryType, indices.size(), GL_UNSIGNED_SHORT,  indices.data());
+    }
   }
 
   void cStaticVertexBufferObject::RenderGeometry2D(GLenum geometryType)
   {
     assert(IsCompiled());
 
-  #if 1
-    // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
-    const size_t nVertices = vertices.size() / 2;
-    glDrawArrays(geometryType, 0, nVertices);
-    //glDrawElements(geometryType, NUMBER_OF_CUBE_INDICES, GL_UNSIGNED_BYTE, (GLvoid*)((char*)NULL));
-  #else
-    // This is just for testing, immediate mode (yuk!)
-    glBegin(geometryType);
-
-      const size_t n = vertices.size();
-      size_t v = 0;
-      size_t t = 0;
-      if (nTextureUnits == 2) {
-        // Multitexturing
-        while (v < n) {
-          glMultiTexCoord2f(GL_TEXTURE0, textureCoordinates[t], textureCoordinates[t + 1]);
-          glMultiTexCoord2f(GL_TEXTURE1, textureCoordinates[t + 2], textureCoordinates[t + 3]);
-          glVertex2f(vertices[v], vertices[v + 1]);
-
-          v += 2;
-          t += 4;
-        };
-      } else if (nTextureUnits == 1) {
-        // Single texturing
-        while (v < n) {
-          glTexCoord2f(textureCoordinates[t], textureCoordinates[t + 1]);
-          glVertex2f(vertices[v], vertices[v + 1]);
-
-          v += 2;
-          t += 2;
-        };
-      } else {
-        while (v < n) {
-          glVertex2f(vertices[v], vertices[v + 1]);
-
-          v += 2;
-        };
-      }
-
-    glEnd();
-  #endif
+    if (indices.empty()) {
+      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+      const size_t nVertices = vertices.size() / 2;
+      glDrawArrays(geometryType, 0, nVertices);
+    } else {
+      glDrawElements(geometryType, indices.size(), GL_UNSIGNED_SHORT,  indices.data());
+    }
   }
 
   void cStaticVertexBufferObject::RenderLines()
