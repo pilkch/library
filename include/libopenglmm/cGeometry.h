@@ -115,6 +115,22 @@ namespace opengl
     std::vector<float>& textureCoords;
   };
 
+  class cGeometryBuilder_v3_n3_t2_i
+  {
+  public:
+    cGeometryBuilder_v3_n3_t2_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<uint16_t>& indices);
+
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0);
+
+    void PushBackIndex(uint16_t index);
+
+  private:
+    std::vector<float>& vertices;
+    std::vector<float>& normals;
+    std::vector<float>& textureCoords;
+    std::vector<uint16_t>& indices;
+  };
+
   class cGeometryBuilder_v3_n3_t2_t2
   {
   public:
@@ -127,6 +143,23 @@ namespace opengl
     std::vector<float>& vertices;
     std::vector<float>& normals;
     std::vector<float>& textureCoords;
+  };
+
+  class cGeometryBuilder_v3_n3_t2_t2_i
+  {
+  public:
+    cGeometryBuilder_v3_n3_t2_t2_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<uint16_t>& indices);
+
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1);
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated);
+
+    void PushBackIndex(uint16_t index);
+
+  private:
+    std::vector<float>& vertices;
+    std::vector<float>& normals;
+    std::vector<float>& textureCoords;
+    std::vector<uint16_t>& indices;
   };
 
   class cGeometryBuilder_v3_n3_t2_t2_t2
@@ -269,6 +302,32 @@ namespace opengl
   }
 
 
+  inline cGeometryBuilder_v3_n3_t2_i::cGeometryBuilder_v3_n3_t2_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<uint16_t>& _indices) :
+    vertices(_vertices),
+    normals(_normals),
+    textureCoords(_textureCoords),
+    indices(_indices)
+  {
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    vertices.push_back(vertex.z);
+    normals.push_back(normal.x);
+    normals.push_back(normal.y);
+    normals.push_back(normal.z);
+    textureCoords.push_back(textureCoord0.x);
+    textureCoords.push_back(textureCoord0.y);
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_i::PushBackIndex(uint16_t index)
+  {
+    indices.push_back(index);
+  }
+
+
   inline cGeometryBuilder_v3_n3_t2_t2::cGeometryBuilder_v3_n3_t2_t2(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords) :
     vertices(_vertices),
     normals(_normals),
@@ -302,6 +361,48 @@ namespace opengl
     textureCoords.push_back(textureCoordDuplicated.y);
     textureCoords.push_back(textureCoordDuplicated.x);
     textureCoords.push_back(textureCoordDuplicated.y);
+  }
+
+
+  inline cGeometryBuilder_v3_n3_t2_t2_i::cGeometryBuilder_v3_n3_t2_t2_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<uint16_t>& _indices) :
+    vertices(_vertices),
+    normals(_normals),
+    textureCoords(_textureCoords),
+    indices(_indices)
+  {
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    vertices.push_back(vertex.z);
+    normals.push_back(normal.x);
+    normals.push_back(normal.y);
+    normals.push_back(normal.z);
+    textureCoords.push_back(textureCoord0.x);
+    textureCoords.push_back(textureCoord0.y);
+    textureCoords.push_back(textureCoord1.x);
+    textureCoords.push_back(textureCoord1.y);
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    vertices.push_back(vertex.z);
+    normals.push_back(normal.x);
+    normals.push_back(normal.y);
+    normals.push_back(normal.z);
+    textureCoords.push_back(textureCoordDuplicated.x);
+    textureCoords.push_back(textureCoordDuplicated.y);
+    textureCoords.push_back(textureCoordDuplicated.x);
+    textureCoords.push_back(textureCoordDuplicated.y);
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBackIndex(uint16_t index)
+  {
+    indices.push_back(index);
   }
 
 
@@ -398,7 +499,7 @@ namespace opengl
     void CreateCube(float fWidthAndDepthAndHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
     void CreateBox(float fWidth, float fDepth, float fHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
     void CreateSphere(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateTeapot(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
+    void CreateTeapot(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits, std::vector<uint16_t>& indices);
     void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, std::vector<float>& vertices, std::vector<float>& normals); // This is primarily for openglmm_gears and there are no texture coordinates generated
   };
 }
