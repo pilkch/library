@@ -95,10 +95,8 @@ namespace opengl
     void EndRenderMode2D();
 
 
-#ifdef BUILD_OPENGLMM_FONT
-    void BindFont(const cFont& font);
-    void UnBindFont(const cFont& font);
-#endif
+    void EnableWireframe();
+    void DisableWireframe();
 
 
     void EnableLighting();
@@ -117,6 +115,13 @@ namespace opengl
     void SetMaterialDiffuseColour(const spitfire::math::cColour& colour);
     void SetMaterialSpecularColour(const spitfire::math::cColour& colour);
     void SetMaterialShininess(float fShininess);
+
+
+#ifdef BUILD_OPENGLMM_FONT
+    void BindFont(const cFont& font);
+    void UnBindFont(const cFont& font);
+#endif
+
 
     void BindTexture(size_t uTextureUnit, const cTexture& texture);
     void UnBindTexture(size_t uTextureUnit, const cTexture& texture);

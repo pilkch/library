@@ -390,6 +390,9 @@ namespace opengl
 
     //if (bIsRenderWireframe) EnableWireframe();
     //else DisableWireframe();
+
+    glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT, GL_FILL);
   }
 
   void cContext::_EndRenderShared()
@@ -584,6 +587,19 @@ namespace opengl
   {
     const GLfloat shininess[] = { fShininess };
     glMaterialfv(GL_FRONT, GL_SPECULAR, shininess);
+  }
+
+
+  void cContext::EnableWireframe()
+  {
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+
+  void cContext::DisableWireframe()
+  {
+    glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
 
