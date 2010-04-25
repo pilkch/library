@@ -123,14 +123,14 @@ namespace opengl
 
   cTexture* cContext::CreateTexture(const std::string& sFileName)
   {
+    cImage image;
+    if (!image.LoadFromFile(sFileName)) return nullptr;
+
     cTexture* pTexture = new cTexture;
-    if (!pTexture->LoadFromFile(sFileName)) {
+    if (!pTexture->CreateFromImage(image)) {
       delete pTexture;
       return nullptr;
     }
-
-    pTexture->Create();
-    pTexture->CopyFromSurfaceToTexture();
 
     return pTexture;
   }
@@ -139,14 +139,14 @@ namespace opengl
   {
     assert(pBuffer != nullptr);
 
+    cImage image;
+    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return nullptr;
+
     cTexture* pTexture = new cTexture;
-    if (!pTexture->CreateFromBuffer(pBuffer, width, height, pixelFormat)) {
+    if (!pTexture->CreateFromImage(image)) {
       delete pTexture;
       return nullptr;
     }
-
-    pTexture->Create();
-    pTexture->CopyFromSurfaceToTexture();
 
     return pTexture;
   }
@@ -154,6 +154,7 @@ namespace opengl
   void cContext::DestroyTexture(cTexture* pTexture)
   {
     assert(pTexture != nullptr);
+    pTexture->Destroy();
     delete pTexture;
   }
 
@@ -166,15 +167,13 @@ namespace opengl
       return nullptr;
     }
 
-    pTexture->Create();
-    pTexture->CopyFromSurfaceToTexture();
-
     return pTexture;
   }
 
   void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture)
   {
     assert(pTexture != nullptr);
+    pTexture->Destroy();
     delete pTexture;
   }
 
@@ -193,6 +192,7 @@ namespace opengl
   void cContext::DestroyShader(cShader* pShader)
   {
     assert(pShader != nullptr);
+    pShader->Destroy();
     delete pShader;
   }
 
@@ -204,13 +204,13 @@ namespace opengl
   void cContext::DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject)
   {
     assert(pStaticVertexBufferObject != nullptr);
+    pStaticVertexBufferObject->Destroy();
     delete pStaticVertexBufferObject;
   }
 
 #ifdef BUILD_OPENGLMM_FONT
   cFont* cContext::CreateFont(const std::string& sFileName, size_t fontSize)
   {
-    std::cout<<"cContext::CreateFont"<<std::endl;
     cFont* pFont = new cFont;
     if (!pFont->Load(*this, sFileName, fontSize)) {
       delete pFont;
@@ -222,7 +222,6 @@ namespace opengl
 
   void cContext::DestroyFont(cFont* pFont)
   {
-    std::cout<<"cContext::DestroyFont"<<std::endl;
     assert(pFont != nullptr);
     pFont->Destroy(*this);
     delete pFont;
@@ -628,7 +627,7 @@ namespace opengl
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture.uiTexture);
+    glBindTexture(GL_TEXTURE_2D, texture.GetTexture());
   }
 
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)

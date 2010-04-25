@@ -36,12 +36,68 @@
 
 struct SDL_Surface;
 
+// Data flow
+// cImage::pData <--> cImage::pSurface -> cTexture::uiTexture OpenGL texture
+
 namespace opengl
 {
   enum class TEXTURE_TYPE {
     RGBA,
     HEIGHTMAP,
     FRAMEBUFFEROBJECT
+  };
+
+  // ** cImage
+
+  class cTexture;
+  class cTextureFrameBufferObject;
+
+  class cImage
+  {
+  public:
+    friend class cTexture;
+    friend class cTextureFrameBufferObject;
+
+    cImage();
+    virtual ~cImage();
+
+    cImage(const cImage& rhs);
+    cImage& operator=(const cImage& rhs);
+
+    bool IsValid() const { return (pSurface != nullptr); }
+
+    size_t GetWidth() const { return uiWidth; }
+    size_t GetHeight() const { return uiHeight; }
+
+    void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
+    void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
+
+    bool LoadFromFile(const std::string& sFilename);
+    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+
+    void CopyFromDataToSurface();
+
+    void CopyFromSurfaceToData(size_t width, size_t height);
+    void CopyFromSurfaceToData();
+
+    void CopyFromSurfaceToTexture();
+
+
+    bool SaveToBMP(const std::string& sFilename) const;
+
+  protected:
+    size_t uiWidth;
+    size_t uiHeight;
+
+    TEXTURE_TYPE uiType;
+
+    SDL_Surface* pSurface;
+    std::vector<unsigned char> data;
+
+  private:
+    void Assign(const cImage& rhs);
+
+    size_t GetBytesPerPixel() const;
   };
 
   // ** cTexture
@@ -54,62 +110,39 @@ namespace opengl
 
     bool IsValid() const { return _IsValid(); }
 
-    size_t GetWidth() const { return uiWidth; }
-    size_t GetHeight() const { return uiHeight; }
+    size_t GetWidth() const { return image.GetWidth(); }
+    size_t GetHeight() const { return image.GetHeight(); }
 
-    void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
-    void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
+    unsigned int GetTexture() const { return uiTexture; }
 
-    bool LoadFromFile(const std::string& sFilename);
-    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    bool CreateFromImage(const cImage& image);
 
-    // pData <--> pSurface -> OpenGL texture
-    void CopyFromDataToSurface();
+    void CopyFromDataToSurface() { image.CopyFromDataToSurface(); }
 
-    void CopyFromSurfaceToData(unsigned int w, unsigned int h);
-    void CopyFromSurfaceToData();
+    void CopyFromSurfaceToData(size_t width, size_t height) { image.CopyFromSurfaceToData(width, height); }
+    void CopyFromSurfaceToData() { image.CopyFromSurfaceToData(); }
 
     void CopyFromSurfaceToTexture();
 
 
-    bool SaveToBMP(const std::string& sFilename) const;
-
-    void Transform(float& u, float& v) const;
+    bool SaveToBMP(const std::string& sFilename) const { return image.SaveToBMP(sFilename); }
 
     void Create() { _Create(); }
-    void Destroy();
+    void Destroy() { _Destroy(); }
     void Reload();
 
-
-    unsigned int uiTextureAtlas;
-    unsigned int uiTexture;
-    std::string sFilename;
-
   protected:
-    unsigned int uiWidth;
-    unsigned int uiHeight;
+    cImage image;
 
-    TEXTURE_TYPE uiType;
-
-    float fScale;
-    float fU;
-    float fV;
-
-    SDL_Surface* pSurface;
-    std::vector<unsigned char> data;
+    unsigned int uiTexture;
 
   private:
-    size_t GetBytesPerPixel() const;
+    size_t GetBytesPerPixel() const { return image.GetBytesPerPixel(); }
 
     virtual bool _IsValid() const { return (uiTexture != 0); }
     virtual void _Create();
+    virtual void _Destroy();
   };
-
-  inline void cTexture::Transform(float& u, float& v) const
-  {
-    u = (u * fScale) + fU;
-    v = (v * fScale) + fV;
-  }
 
 
   // ** cTextureFrameBufferObject
@@ -138,6 +171,7 @@ namespace opengl
   private:
     bool _IsValid() const { return (uiTexture != 0) && (uiFBO != 0) && (uiFBODepthBuffer != 0); }
     void _Create();
+    void _Destroy();
 
     bool bIsUsingMipMaps;
     bool bIsCubeMap;
