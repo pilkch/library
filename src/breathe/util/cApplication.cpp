@@ -1546,8 +1546,8 @@ namespace breathe
           mouse.down[event.button.button] = true;
           const int button = event.button.button;
           const int state = event.button.state;
-          const float x = event.button.x / float(pRender->uiWidth);
-          const float y = event.button.y / float(pRender->uiHeight);
+          const float x = event.button.x / float(pContext->uiWidth);
+          const float y = event.button.y / float(pContext->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
           break;
         }
@@ -1558,8 +1558,8 @@ namespace breathe
           if (SDL_PRESSED == event.button.state) mouse.down[event.button.button] = true;
           const int button = event.button.button;
           const int state = event.button.state;
-          const float x = event.button.x / float(pRender->uiWidth);
-          const float y = event.button.y / float(pRender->uiHeight);
+          const float x = event.button.x / float(pContext->uiWidth);
+          const float y = event.button.y / float(pContext->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
           break;
         }
@@ -1569,8 +1569,8 @@ namespace breathe
           mouse.y = event.button.y;
           const int button = event.button.button;
           const int state = event.button.state;
-          const float x = event.button.x / float(pRender->uiWidth);
-          const float y = event.button.y / float(pRender->uiHeight);
+          const float x = event.button.x / float(pContext->uiWidth);
+          const float y = event.button.y / float(pContext->uiHeight);
           if (!window_manager.OnMouseEvent(button, state, x, y)) GetCurrentState().OnMouseEvent(button, state, x, y);
           break;
         }
@@ -1698,6 +1698,20 @@ namespace breathe
 
   }
 
+  void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
+  {
+    std::cout<<"cApplication::_OnWindowEvent"<<std::endl;
+  }
+
+  void cApplication::_OnMouseEvent(const opengl::cMouseEvent& event)
+  {
+    std::cout<<"cApplication::_OnMouseEvent"<<std::endl;
+  }
+
+  void cApplication::_OnKeyboardEvent(const opengl::cKeyboardEvent& event)
+  {
+    std::cout<<"cApplication::_OnKeyboardEvent"<<std::endl;
+  }
 
   void cApplication::_UpdateInput(sampletime_t currentTime)
   {

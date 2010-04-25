@@ -72,8 +72,13 @@ namespace opengl
 
   void cWindow::ShowCursor(bool bShow)
   {
-    if (bShow) SDL_ShowCursor(SDL_DISABLE);
-    else SDL_ShowCursor(SDL_ENABLE);
+    if (bShow) SDL_ShowCursor(SDL_ENABLE);
+    else SDL_ShowCursor(SDL_DISABLE);
+  }
+
+  void cWindow::WarpCursorToMiddleOfScreen()
+  {
+    SDL_WarpMouse(resolution.width / 2, resolution.height / 2);
   }
 
   void cWindow::OnResizeWindow(const cResolution& _resolution, bool bIsFullScreen)
@@ -148,6 +153,7 @@ namespace opengl
         case SDL_MOUSEBUTTONUP: {
           cMouseEvent event;
           event.type = TYPE::MOUSE_UP;
+          event.button = sdlEvent.button.button;
           event.x = sdlEvent.button.x;
           event.y = sdlEvent.button.y;
           if (pInputEventListener != nullptr) pInputEventListener->OnMouseEvent(event);
@@ -157,6 +163,7 @@ namespace opengl
         case SDL_MOUSEBUTTONDOWN: {
           cMouseEvent event;
           event.type = TYPE::MOUSE_DOWN;
+          event.button = sdlEvent.button.button;
           event.x = sdlEvent.button.x;
           event.y = sdlEvent.button.y;
           if (pInputEventListener != nullptr) pInputEventListener->OnMouseEvent(event);

@@ -238,7 +238,7 @@ namespace spitfire
     }
 
 
-    float cQuaternion::GetAngle() const
+    float cQuaternion::GetAngleDegrees() const
     {
       return 2.0f * acos(w);
     }

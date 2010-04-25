@@ -53,6 +53,7 @@ namespace opengl
     void SetCaption(const std::string& sCaption);
 
     void ShowCursor(bool bShow);
+    void WarpCursorToMiddleOfScreen();
 
     void UpdateEvents();
 
@@ -146,6 +147,7 @@ namespace opengl
 
     cMouseEvent();
 
+    bool IsMouseMove() const { return (type == TYPE::MOUSE_MOVE); }
     bool IsButtonDown() const { return (type == TYPE::MOUSE_DOWN); }
     bool IsButtonUp() const { return (type == TYPE::MOUSE_UP); }
     unsigned int GetButton() const { return button; }

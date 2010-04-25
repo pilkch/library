@@ -117,7 +117,7 @@ namespace spitfire
       void operator*=(const float rhs);
       void operator/=(const float rhs);
 
-      inline void operator=(const cVec3& rhs) { x=rhs.x; y=rhs.y; z=rhs.z; }
+      inline cVec3& operator=(const cVec3& rhs) { x=rhs.x; y=rhs.y; z=rhs.z; return *this; }
 
 
       void operator*=(const cVec3& rhs)
