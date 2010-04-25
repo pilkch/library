@@ -96,6 +96,13 @@ namespace opengl
     return (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4);
   }
 
+  const uint8_t* cImage::GetPointerToSurfacePixelBuffer() const
+  {
+    assert(pSurface != nullptr);
+
+    return static_cast<const uint8_t*>(pSurface->pixels);
+  }
+
   bool cImage::LoadFromFile(const std::string& sFilename)
   {
     std::cout<<"cImage::LoadFromFile \""<<sFilename<<"\""<<std::endl;

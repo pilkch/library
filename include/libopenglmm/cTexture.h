@@ -72,6 +72,8 @@ namespace opengl
     void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
     void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
 
+    const uint8_t* GetPointerToSurfacePixelBuffer() const;
+
     bool LoadFromFile(const std::string& sFilename);
     bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
 
