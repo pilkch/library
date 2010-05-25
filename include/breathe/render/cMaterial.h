@@ -3,12 +3,17 @@
 
 #include <spitfire/util/cSmartPtr.h>
 
+#include <libopenglmm/cShader.h>
+
 #include <breathe/render/cTexture.h>
 
 namespace breathe
 {
   namespace render
   {
+    typedef opengl::cShader cShader;
+    typedef cShader* cShaderRef;
+
     class cShaderConstants
     {
     public:
@@ -43,49 +48,10 @@ namespace breathe
     // void cRender::SetMaterial(material::cMaterialRef pMaterial, const cShaderConstants& shaderConstants);
 
 
-
-    // A cShader is a combination of a either one or zero vertex program and one or zero fragment program
-    class cShader
-    {
-    public:
-      cShader();
-
-      void Init();
-      void Destroy();
-
-      void CheckStatusVertex();
-      void CheckStatusFragment();
-      void CheckStatusProgram();
-
-      bool IsCompiledVertex() const;
-      bool IsCompiledFragment() const;
-      bool IsCompiledProgram() const;
-
-      string_t sShaderVertex;
-      string_t sShaderFragment;
-
-      unsigned int uiShaderVertex;
-      unsigned int uiShaderFragment;
-
-      // Combined resource id
-      unsigned int uiShaderProgram;
-
-
-      // Which uniforms should we send to the shader?
-      bool bTexUnit0;
-      bool bTexUnit1;
-      bool bTexUnit2;
-      bool bTexUnit3;
-      bool bCameraPos;
-      bool bAmbientColour;
-      bool bLightPosition;
-    };
-
-    typedef cSmartPtr<cShader> cShaderRef;
-
-
     namespace material
     {
+      using opengl::TEXTURE_TYPE;
+
       const size_t nLayers = 3;
 
       class cLayer
@@ -96,7 +62,7 @@ namespace breathe
         void CloneTo(cLayer& destination) const;
 
         cTextureRef pTexture;
-        TEXTURE_MODE uiTextureMode;
+        TEXTURE_TYPE uiTextureMode;
         string_t sTexture;
       };
 
