@@ -34,7 +34,7 @@ namespace opengl
   class cWindow
   {
   public:
-    cWindow(cSystem& system, const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen);
+    cWindow(cSystem& system, const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     ~cWindow();
 
     const cContext* GetContext() const { return pContext; }
@@ -49,8 +49,8 @@ namespace opengl
     void SetWindowEventListener(cWindowEventListener& listener);
     void SetInputEventListener(cInputEventListener& listener);
 
-    std::string GetCaption() const;
-    void SetCaption(const std::string& sCaption);
+    const opengl::string_t& GetCaption() const;
+    void SetCaption(const opengl::string_t& sCaption);
 
     void ShowCursor(bool bShow);
     void WarpCursorToMiddleOfScreen();
@@ -66,7 +66,7 @@ namespace opengl
     cWindowEventListener* pWindowEventListener;
     cInputEventListener* pInputEventListener;
 
-    std::string sCaption;
+    opengl::string_t sCaption;
   };
 
 
@@ -77,6 +77,8 @@ namespace opengl
   class cWindowEventListener
   {
   public:
+    virtual ~cWindowEventListener() {}
+
     void OnWindowEvent(const cWindowEvent& event) { _OnWindowEvent(event); }
 
   private:
@@ -86,6 +88,8 @@ namespace opengl
   class cInputEventListener
   {
   public:
+    virtual ~cInputEventListener() {}
+
     void OnKeyboardEvent(const cKeyboardEvent& event) { _OnKeyboardEvent(event); }
     void OnMouseEvent(const cMouseEvent& event) { _OnMouseEvent(event); }
 

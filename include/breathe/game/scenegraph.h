@@ -13,6 +13,7 @@
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
 #include <breathe/render/cMaterial.h>
+#include <breathe/render/cResourceManager.h>
 #include <breathe/render/model/cHeightmap.h>
 
 // TODO: We have to remove this, there has to be a better way of doing this?
@@ -488,8 +489,8 @@ namespace breathe
       bool IsEnabled() const { return bIsEnabled; }
       void SetEnabled(bool _bIsEnabled) { bIsEnabled = _bIsEnabled; }
 
-      bool IsDirty() const { return bIsDirty; }
-      void SetDirty();
+      bool IsBoundingVolumeDirty() const { return bIsBoundingVolumeDirty; }
+      void SetBoundingVolumeDirty();
 
       void SetVisible(bool bVisible);
       void SetPosition(const math::cVec3& position) { SetRelativePosition(position); }
@@ -511,7 +512,7 @@ namespace breathe
       const math::cBox& GetBoundingBox() const { return boundingBox; }
 
       // We call this from cSceneGraph::Update
-      void UpdateBoundingVolumeAndSetNotDirty();
+      void UpdateBoundingVolumeAndSetBoundingVolumeNotDirty();
 
 #ifdef BUILD_DEBUG
       bool IsShowingBoundingBox() const;
@@ -533,10 +534,10 @@ namespace breathe
       virtual void _Update(cUpdateVisitor& visitor);
       virtual void _Cull(cCullVisitor& visitor);
 
-      float_t UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+      float_t UpdateBoundingVolumeAndSetBoundingVolumeNotDirtyReturningBoundingVolumeRadius();
 
       // Only the derived class will know how to get the radius from our possible children
-      virtual float_t _UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius() { return math::cEPSILON; }
+      virtual float_t _UpdateBoundingVolumeAndSetBoundingVolumeNotDirtyReturningBoundingVolumeRadius() { return math::cEPSILON; }
 
 
       string_t sUniqueName; // This is only for debugging purposes
@@ -548,7 +549,7 @@ namespace breathe
       bool bIsVisible;
       bool bIsEnabled;
 
-      bool bIsDirty;
+      bool bIsBoundingVolumeDirty;
 
       bool bUseIsDynamic;
       bool bIsDynamic;
@@ -843,13 +844,14 @@ namespace breathe
       void AddMD3Model(character::cMd3* pModel, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
 
       void AddRenderable(cStateSet* pStateSet, const spitfire::math::cMat4& matAbsolutePositionAndRotation);
+      void AddRenderableLists(cStateSet* pStateSet, const std::vector<const spitfire::math::cMat4>&  matAbsolutePositionAndRotationList);
       void Clear();
 
     private:
       // TODO: We have to remove this, there has to be a better way of doing this?
-      std::list<cRenderGraphMd3Pair> md3Models;
+      std::vector<cRenderGraphMd3Pair> md3Models;
 
-      typedef std::list<spitfire::math::cMat4> cRenderableList;
+      typedef std::vector<spitfire::math::cMat4> cRenderableList;
 
       // Opaque (states : list of renderables with that state)
       std::map<cStateSet*, cRenderableList*> mOpaque;
@@ -1000,7 +1002,7 @@ namespace breathe
       void DestroyEntity(cEntityRef pEntity);
       //void DestroyCamera(cCameraRef pCamera);
 
-      size_t GetEntityCount() const { return entites.size(); }
+      size_t GetEntityCount() const { return entities.size(); }
       size_t GetLightCount() const { return lights.size(); }
       //size_t GetCameraCount() const { return cameras.size(); }
 
@@ -1022,7 +1024,7 @@ namespace breathe
       size_t nNodes; // Count of the nodes that the scenegraph has created itself
       //std::map<uint32_t, cSceneNodeRef> nodes; // Unique hash to node map
 
-      std::map<std::string, cEntityRef> entites;
+      std::map<std::string, cEntityRef> entities;
       std::map<std::string, cLightRef> lights;
       //std::map<std::string, cCameraRef> cameras;
     };

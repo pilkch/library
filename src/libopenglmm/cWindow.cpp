@@ -24,7 +24,7 @@
 
 namespace opengl
 {
-  cWindow::cWindow(cSystem& _system, const std::string& sCaption, const cResolution& _resolution, bool bIsFullScreen) :
+  cWindow::cWindow(cSystem& _system, const opengl::string_t& sCaption, const cResolution& _resolution, bool bIsFullScreen) :
     system(_system),
     resolution(_resolution),
     pContext(nullptr),
@@ -59,15 +59,15 @@ namespace opengl
     pInputEventListener = &listener;
   }
 
-  std::string cWindow::GetCaption() const
+  const opengl::string_t& cWindow::GetCaption() const
   {
     return sCaption;
   }
 
-  void cWindow::SetCaption(const std::string& _sCaption)
+  void cWindow::SetCaption(const opengl::string_t& _sCaption)
   {
     sCaption = _sCaption;
-    SDL_WM_SetCaption(sCaption.c_str(), "app.ico");
+    SDL_WM_SetCaption(opengl::string::ToUTF8(sCaption).c_str(), "app.ico");
   }
 
   void cWindow::ShowCursor(bool bShow)

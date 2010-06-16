@@ -85,15 +85,16 @@ namespace spitfire
       return (GetProcessorCount() * size_t(nCoreCount));
     }
 #else
-    // http://www.sandpile.org/ia32/cpuid.htm
-
     size_t GetProcessorCount()
     {
-      //SYSTEM_INFO si;
-      //GetSystemInfo(&si);
-
-      //return si.dwNumberOfProcessors;
-
+      #ifdef _SC_NPROCESSORS_CONF
+      return sysconf(_SC_NPROCESSORS_CONF);
+      #elif defined(__APPLE__)
+      int iaMib[2] = { CTL_HW, HW_NCPU };
+      int nProcessorCount;
+      size_t len = sizeof(nProcessorCount);
+      if (sysctl(iaMib, 2, &nProcessorCount, &len, NULL, 0) == 0) return nProcessorCount;
+      #endif
       return 1;
     }
 

@@ -17,12 +17,6 @@
 
 #include <boost/smart_ptr.hpp>
 
-// OpenGL headers
-#include <GL/GLee.h>
-
-// SDL headers
-#include <SDL/SDL.h>
-
 //#if defined(BUILD_DEBUG) && defined(__WIN__)
 //#include <windows.h>
 //#endif
@@ -49,27 +43,6 @@
 #include <spitfire/math/cFrustum.h>
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/geometry.h>
-
-#include <breathe/util/base.h>
-#include <breathe/render/model/cMesh.h>
-
-#include <breathe/render/model/cMesh.h>
-#include <breathe/render/model/cModel.h>
-
-#include <breathe/render/cContext.h>
-#include <breathe/render/cTexture.h>
-#include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cMaterial.h>
-#include <breathe/render/cFont.h>
-
-#include <breathe/gui/cWidget.h>
-#include <breathe/gui/cWindow.h>
-#include <breathe/gui/cWindowManager.h>
-
-#include <breathe/game/scenegraph.h>
-
-#include <breathe/util/cApplication.h>
-
 
 
 #define t "  "
@@ -434,8 +407,8 @@ namespace spitfire
 
     void cConsoleBase::ExecuteCommand(const std::string& command)
     {
-      assert(pApp != nullptr);
-      pApp->ConsoleExecute(command);
+      //assert(pApp != nullptr);
+      //pApp->ConsoleExecute(command);
     }
 
 

@@ -5,6 +5,8 @@
 
 #include <spitfire/spitfire.h>
 
+#include <spitfire/util/cString.h>
+
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
@@ -138,11 +140,17 @@ namespace breathe
       std::list<cGoal> lGoals;
     };
 
+    class cState;
+
     class cPlanner
     {
     public:
       void PlanForAgent(cAgent& agent);
       void PlanForSquad(cSquad& squad);
+
+    private:
+      std::vector<spitfire::string_t> GetStatesThatFulFillTheseGoals(const std::vector<spitfire::string_t>& goals) const;
+      cState* CreateState(const spitfire::string_t& sName) const;
     };
 
     void cPlanner::PlanForSquad(cSquad& squad)

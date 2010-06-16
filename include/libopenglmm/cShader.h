@@ -32,10 +32,7 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cColour.h>
 
-//#include <libopenglmm/cTexture.h>
-//#include <libopenglmm/cShader.h>
-//#include <libopenglmm/cVertexBufferObject.h>
-//#include <libopenglmm/cWindow.h>
+#include <libopenglmm/libopenglmm.h>
 
 namespace opengl
 {
@@ -80,9 +77,9 @@ namespace opengl
   public:
     cShader();
 
-    bool LoadVertexShaderOnly(const std::string& sShaderVertex);
-    bool LoadFragmentShaderOnly(const std::string& sShaderFragment);
-    bool LoadVertexShaderAndFragmentShader(const std::string& sShaderVertex, const std::string& sShaderFragment);
+    bool LoadVertexShaderOnly(const opengl::string_t& sShaderVertex);
+    bool LoadFragmentShaderOnly(const opengl::string_t& sShaderFragment);
+    bool LoadVertexShaderAndFragmentShader(const opengl::string_t& sShaderVertex, const opengl::string_t& sShaderFragment);
     void Destroy();
 
     void CheckStatusVertex();
@@ -93,8 +90,8 @@ namespace opengl
     bool IsCompiledFragment() const;
     bool IsCompiledProgram() const;
 
-    std::string sShaderVertex;
-    std::string sShaderFragment;
+    opengl::string_t sShaderVertex;
+    opengl::string_t sShaderFragment;
 
     unsigned int uiShaderVertex;
     unsigned int uiShaderFragment;
@@ -113,8 +110,8 @@ namespace opengl
     bool bLightPosition;
 
   private:
-    void _LoadVertexShader(const std::string& sShaderVertex);
-    void _LoadFragmentShader(const std::string& sShaderFragment);
+    void _LoadVertexShader(const opengl::string_t& sShaderVertex);
+    void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
     void _Compile();
   };
 }

@@ -31,6 +31,7 @@ namespace spitfire
   typedef std::wstring string_t;
   typedef std::wostringstream ostringstream_t;
   typedef std::wistringstream istringstream_t;
+  //typedef std::wifstream ifstream_t; // This is not correct, the data read is wchar_t, the filename is still char
   #ifdef __WIN__
   //typedef std::u16string string_t;
   //typedef std::u16ostringstream ostringstream_t;
@@ -45,6 +46,7 @@ namespace spitfire
   typedef std::string string_t;
   typedef std::ostringstream ostringstream_t;
   typedef std::istringstream istringstream_t;
+  //typedef std::ifstream ifstream_t;
   #endif
 
 

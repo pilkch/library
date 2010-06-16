@@ -167,7 +167,7 @@ namespace breathe
       bIsShowingBoundingBox(false),
 #endif
       bIsVisible(true),
-      bIsDirty(true),
+      bIsBoundingVolumeDirty(true),
       bHasRelativePosition(false),
       bHasRelativeRotation(false)
     {
@@ -190,11 +190,11 @@ namespace breathe
       return ((pChild != nullptr) && (pChild->GetParent() == shared_from_this()));
     }
 
-    void cSceneNode::SetDirty()
+    void cSceneNode::SetBoundingVolumeDirty()
     {
-      if (!bIsDirty) {
-        bIsDirty = true;
-        if (pParent != nullptr) pParent->SetDirty();
+      if (!bIsBoundingVolumeDirty) {
+        bIsBoundingVolumeDirty = true;
+        if (pParent != nullptr) pParent->SetBoundingVolumeDirty();
       }
     }
 
@@ -202,14 +202,14 @@ namespace breathe
     {
       bHasRelativePosition = true;
       relativePosition = position;
-      SetDirty();
+      SetBoundingVolumeDirty();
     }
 
     void cSceneNode::SetRelativeRotation(const math::cQuaternion& rotation)
     {
       bHasRelativeRotation = true;
       relativeRotation = rotation;
-      SetDirty();
+      SetBoundingVolumeDirty();
     }
 
     // If we don't have a parent return our relative position, else return our parent's absolute position + our own
@@ -238,7 +238,7 @@ namespace breathe
     {
       //TODO: Generate the bounding volume for this scenenode
 
-      bIsDirty = false;
+      bIsBoundingVolumeDirty = false;
     }
 
     void cSceneNode::SetVisible(bool bVisible)
@@ -246,44 +246,44 @@ namespace breathe
       bIsVisible = bVisible;
     }
 
-    void cSceneNode::UpdateBoundingVolumeAndSetNotDirty()
+    void cSceneNode::UpdateBoundingVolumeAndSetBoundingVolumeNotDirty()
     {
       // We should only be calling this function on pRoot
       ASSERT(pParent == nullptr);
 
       // No point if we are not dirty
-      if (!bIsDirty) return;
+      if (!bIsBoundingVolumeDirty) return;
 
       boundingSphere.position = math::v3Zero;
       if (bHasRelativePosition) boundingSphere.position += relativePosition;
 
       // Set our boundingSphere volume from our possible children as only a derived class will know how
-      boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+      boundingSphere.fRadius = UpdateBoundingVolumeAndSetBoundingVolumeNotDirtyReturningBoundingVolumeRadius();
 
       // We have now updated our boundingSphere and we are not dirty any more
-      bIsDirty = false;
+      bIsBoundingVolumeDirty = false;
     }
 
-    float_t cSceneNode::UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius()
+    float_t cSceneNode::UpdateBoundingVolumeAndSetBoundingVolumeNotDirtyReturningBoundingVolumeRadius()
     {
       // We should not be calling this function on pRoot or on a child that does not have a parent set
       ASSERT(pParent != nullptr);
 
       // No point if we are not dirty
-      if (!bIsDirty) return boundingSphere.fRadius;
+      if (!bIsBoundingVolumeDirty) return boundingSphere.fRadius;
 
       // If we are dirty our parents must also be dirty at this point
-      ASSERT(pParent->IsDirty());
+      ASSERT(pParent->IsBoundingVolumeDirty());
 
       // Set our boundingSphere position from our parent node plus our relative position if we have any
       boundingSphere.position = pParent->GetBoundingSphere().position;
       if (bHasRelativePosition) boundingSphere.position += relativePosition;
 
       // Set our boundingSphere volume from our possible children as only a derived class will know how
-      boundingSphere.fRadius = UpdateBoundingVolumeAndSetNotDirtyReturningBoundingVolumeRadius();
+      boundingSphere.fRadius = UpdateBoundingVolumeAndSetBoundingVolumeNotDirtyReturningBoundingVolumeRadius();
 
       // We have now updated our boundingSphere and we are not dirty any more
-      bIsDirty = false;
+      bIsBoundingVolumeDirty = false;
 
       return boundingSphere.fRadius;
     }
@@ -781,8 +781,7 @@ namespace breathe
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
           if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::CUBE_MAP) {
-             // Cube map texture
-
+            // Cube map texture
             glEnable(GL_TEXTURE_CUBE_MAP);
             glBindTexture(GL_TEXTURE_CUBE_MAP, stateSet.texture[i].pTexture->uiTexture);
 
@@ -847,12 +846,10 @@ namespace breathe
 
         if (stateSet.texture[i].IsValidAndTurnedOn()) {
           if (stateSet.texture[i].pTexture->uiMode == render::TEXTURE_MODE::CUBE_MAP) {
-             // Cube map texture
-
+              // Cube map texture
               glDisable(GL_TEXTURE_GEN_R);
               glDisable(GL_TEXTURE_GEN_T);
               glDisable(GL_TEXTURE_GEN_S);
-
 
               glMatrixMode(GL_TEXTURE);
               glPopMatrix();
@@ -893,7 +890,7 @@ namespace breathe
             const std::map<cStateSet*, cRenderGraph::cRenderableList*>::iterator iterEnd(rendergraph.mOpaque.end());
             while (iter != iterEnd) {
               cStateSet* pStateSet = iter->first;
-              cRenderGraph::cRenderableList* pRenderableList = iter->second;
+              cRenderGraph::cRenderableList& renderableList = *iter->second;
 
               context.StatisticsIncrementStateChanges();
               ApplyStateSet(*pStateSet);
@@ -902,16 +899,14 @@ namespace breathe
                 render::cVertexBufferObjectRef pVbo = pStateSet->vertexBufferObject.GetVertexBufferObject();
                 pVbo->Bind();
 
-                  cRenderGraph::cRenderableList::iterator renderableIter((*pRenderableList).begin());
-                  const cRenderGraph::cRenderableList::iterator renderableIterEnd((*pRenderableList).end());
-
-                  while (renderableIter != renderableIterEnd) {
+                  const size_t n = renderableList.size();
+                  for (size_t i = 0; i < n; i++) {
                     glMatrixMode(GL_MODELVIEW);
                     glPushMatrix();
-                      glMultMatrixf((*renderableIter).GetOpenGLMatrixPointer());
+                      glMultMatrixf(renderableList[i].GetOpenGLMatrixPointer());
 
 #ifdef BUILD_DEBUG
-                      pRender->RenderAxisReference();
+                      pContext->RenderAxisReference();
 #endif
 
                       switch (pStateSet->geometryType) {
@@ -931,8 +926,6 @@ namespace breathe
                     glPopMatrix();
 
                     context.StatisticsAddTrianglesRendered(pVbo->GetApproximateTriangleCount());
-
-                    renderableIter++;
                   }
                 pVbo->Unbind();
 
@@ -946,18 +939,15 @@ namespace breathe
           // MD3 Models, ideally this would not be a special case
           {
             const sampletime_t currentTime = spitfire::util::GetTimeMS();
-            std::list<cRenderGraphMd3Pair>::iterator iter(rendergraph.md3Models.begin());
-            const std::list<cRenderGraphMd3Pair>::iterator iterEnd(rendergraph.md3Models.end());
-            while (iter != iterEnd) {
+            const size_t n = rendergraph.md3Models.size();
+            for (size_t i = 0; i < n; i++) {
               glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
+                glMultMatrixf(rendergraph.md3Models[i].matAbsolutePositionAndRotation.GetOpenGLMatrixPointer());
                 pContext->RenderAxisReference();
-                glMultMatrixf((*iter).matAbsolutePositionAndRotation.GetOpenGLMatrixPointer());
-                (*iter).pModel->Render(currentTime);
+                rendergraph.md3Models[i].pModel->Render(currentTime);
               glMatrixMode(GL_MODELVIEW);
               glPopMatrix();
-
-              iter++;
             }
           }
 
@@ -1092,6 +1082,8 @@ namespace breathe
 
     cSceneGraph::~cSceneGraph()
     {
+      ASSERT(entities.empty());
+      ASSERT(lights.empty());
     }
 
     void cSceneGraph::Create()
@@ -1190,7 +1182,7 @@ namespace breathe
       cUpdateVisitor visitor(*this);
 
       // TODO: Huh?  Do we need this?  Does it need to be here?
-      pRender->SetClearColour(backgroundColour);
+      //pContext->SetClearColour(backgroundColour);
     }
 
     void cSceneGraph::Cull(sampletime_t currentTime, const render::cCamera& camera)

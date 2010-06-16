@@ -44,9 +44,6 @@ namespace breathe
       std::map<string_t, math::cVec4> mVec4;
     };
 
-    // void cRender::SetMaterial(material::cMaterialRef pMaterial);
-    // void cRender::SetMaterial(material::cMaterialRef pMaterial, const cShaderConstants& shaderConstants);
-
 
     namespace material
     {

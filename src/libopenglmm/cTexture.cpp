@@ -26,19 +26,22 @@
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <sys/stat.h>
-
-bool FileExists(const std::string& strFilename)
-{
-  struct stat statInfo;
-
-  int iResult = stat(strFilename.c_str(), &statInfo);
-
-  return (iResult == 0);
-}
 #endif
 
 namespace opengl
 {
+#ifdef PLATFORM_LINUX_OR_UNIX
+  bool FileExists(const opengl::string_t& strFilename)
+  {
+    struct stat statInfo;
+
+    int iResult = stat(opengl::string::ToUTF8(strFilename).c_str(), &statInfo);
+
+    return (iResult == 0);
+  }
+#endif
+
+
   // ** cImage
 
   cImage::cImage() :
@@ -103,19 +106,19 @@ namespace opengl
     return static_cast<const uint8_t*>(pSurface->pixels);
   }
 
-  bool cImage::LoadFromFile(const std::string& sFilename)
+  bool cImage::LoadFromFile(const opengl::string_t& sFilename)
   {
-    std::cout<<"cImage::LoadFromFile \""<<sFilename<<"\""<<std::endl;
+    std::cout<<"cImage::LoadFromFile \""<<opengl::string::ToUTF8(sFilename)<<"\""<<std::endl;
 
     //unsigned int mode = 0;
-    pSurface = IMG_Load(sFilename.c_str());
+    pSurface = IMG_Load(opengl::string::ToUTF8(sFilename).c_str());
 
     // Could not load filename
     if (pSurface == nullptr) {
-      if (FileExists(sFilename)) std::cout<<"cImage::LoadFromFile Texture "<<sFilename<<" exists"<<std::endl;
-      else std::cout<<"cImage::LoadFromFile Texture "<<sFilename<<" doesn't exist"<<std::endl;
+      if (FileExists(sFilename)) std::cout<<"cImage::LoadFromFile Texture "<<opengl::string::ToUTF8(sFilename)<<" exists"<<std::endl;
+      else std::cout<<"cImage::LoadFromFile Texture "<<opengl::string::ToUTF8(sFilename)<<" doesn't exist"<<std::endl;
 
-      std::cout<<"cImage::LoadFromFile Couldn't Load Texture "<<sFilename<<", returning false"<<std::endl;
+      std::cout<<"cImage::LoadFromFile Couldn't Load Texture "<<opengl::string::ToUTF8(sFilename)<<", returning false"<<std::endl;
       return false;
     }
 
@@ -123,13 +126,13 @@ namespace opengl
 
     // Check the format
     if (8 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile Texture Greyscale Heightmap Image "<<sFilename<<std::endl;
+      std::cout<<"cImage::LoadFromFile Texture Greyscale Heightmap Image "<<opengl::string::ToUTF8(sFilename)<<std::endl;
       uiType = TEXTURE_TYPE::HEIGHTMAP;
     } else if (16 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile Greyscale Heightmap Image "<<sFilename<<std::endl;
+      std::cout<<"cImage::LoadFromFile Greyscale Heightmap Image "<<opengl::string::ToUTF8(sFilename)<<std::endl;
       uiType = TEXTURE_TYPE::HEIGHTMAP;
     } else if (24 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile "<<sFilename<<" is a 24 bit RGB image"<<std::endl;
+      std::cout<<"cImage::LoadFromFile "<<opengl::string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
       // Add alpha channel
       SDL_PixelFormat format = {
         NULL, 32, 4, 0, 0, 0, 0,
@@ -141,7 +144,7 @@ namespace opengl
       SDL_FreeSurface(pSurface);
       pSurface = pConvertedSurface;
     } else if (32 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile "<<sFilename<<" is a 32 bit RGBA image"<<std::endl;
+      std::cout<<"cImage::LoadFromFile "<<opengl::string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
       uiType = TEXTURE_TYPE::RGBA;
 
       // Convert if BGR
@@ -177,7 +180,7 @@ namespace opengl
     } else {
       std::ostringstream t;
       t << pSurface->format->BitsPerPixel;
-      std::cout<<"cImage::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<sFilename<<", returning false"<<std::endl;
+      std::cout<<"cImage::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<opengl::string::ToUTF8(sFilename)<<", returning false"<<std::endl;
       return false;
     }
 
@@ -275,10 +278,10 @@ namespace opengl
     std::memcpy(pSurface->pixels, &data[0], n);
   }
 
-  bool cImage::SaveToBMP(const std::string& inFilename) const
+  bool cImage::SaveToBMP(const opengl::string_t& inFilename) const
   {
     assert(pSurface != nullptr);
-    SDL_SaveBMP(pSurface, inFilename.c_str());
+    SDL_SaveBMP(pSurface, opengl::string::ToUTF8(inFilename).c_str());
     return true;
   }
 

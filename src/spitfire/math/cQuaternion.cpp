@@ -207,6 +207,11 @@ namespace spitfire
       w = cosHalfAngle;
     }
 
+    void cQuaternion::SetFromAxisAngleDegrees(const cVec3& axis, float fAngleDegrees)
+    {
+      SetFromAxisAngle(axis, DegreesToRadians(fAngleDegrees));
+    }
+
     void cQuaternion::SetFromVectors(const cVec3& source, const cVec3& destination)
     {
       const cVec3 axis(source.CrossProduct(destination));

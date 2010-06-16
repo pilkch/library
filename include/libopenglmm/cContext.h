@@ -42,6 +42,21 @@ namespace opengl
     SPOTLIGHT,
   };
 
+
+  // OpenGL 3.2 Contexts in SDL
+  // http://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_%28C_/_SDL%29
+
+  // OpenGL Multiple Contexts
+  // http://www.stevestreeting.com/2006/10/20/gl-thread-taming/
+  // 1. Create main rendering thread context
+  // 2. Disable main rendering thread context
+  // 3. Lock background init condition mutex
+  // 4. Start background thread
+  // 5. Main thread waits for init condition (this releases the init mutex and blocks the main thread)
+  // 6. Background thread clones context, sets up resource sharing and enables its own context
+  // 7. Background thread locks the init mutex, notifies parent, releases init mutex, then continues independently
+  // 8. Main thread wakes up, re-enables its own context, and carries on too
+
   class cContext
   {
   public:
@@ -60,21 +75,21 @@ namespace opengl
 
     void ResizeWindow(const cResolution& resolution);
 
-    cTexture* CreateTexture(const std::string& sFileName);
+    cTexture* CreateTexture(const opengl::string_t& sFileName);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
 
     cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
 
-    cShader* CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName);
+    cShader* CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
     void DestroyShader(cShader* pShader);
 
     cStaticVertexBufferObject* CreateStaticVertexBufferObject();
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
 
 #ifdef BUILD_OPENGLMM_FONT
-    cFont* CreateFont(const std::string& sFileName, size_t fontSize);
+    cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize);
     void DestroyFont(cFont* pFont);
 #endif
 
@@ -190,7 +205,9 @@ namespace opengl
 
     cShader* pCurrentShader;
 
-    std::map<std::string, cTexture*> textures;
+    size_t nFrameBufferObjects;
+
+    std::map<opengl::string_t, cTexture*> textures;
     std::vector<cShader*> shaders;
     std::vector<cStaticVertexBufferObject*> staticVertexBufferObjects;
   };

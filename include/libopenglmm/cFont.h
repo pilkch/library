@@ -53,15 +53,15 @@ namespace opengl
 
     bool IsValid() const { return (pTexture != nullptr) && (pShader != nullptr); }
 
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const std::string& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const std::string& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const std::string& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
 
-    void GetDimensions(const std::string& sText, float& fWidth, float& fHeight) const;
-    void GetDimensionsLineWrap(const std::string& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const;
+    void GetDimensions(const string_t& sText, float& fWidth, float& fHeight) const;
+    void GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const;
 
   protected:
-    bool Load(cContext& context, const std::string& sFilename, unsigned int height);
+    bool Load(cContext& context, const string_t& sFilename, unsigned int height);
     void Destroy(cContext& context);
 
     cTexture* pTexture;

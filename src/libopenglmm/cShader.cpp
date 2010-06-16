@@ -128,7 +128,7 @@ namespace opengl
       )
       {
         sInfo = StringReplace(sInfo, "\n", "<br>");
-        std::cout<<"cShader::CheckStatusVertex Vertex Shader "<<sShaderVertex<<": "<<sInfo<<std::endl;
+        std::cout<<"cShader::CheckStatusVertex Vertex Shader "<<opengl::string::ToUTF8(sShaderVertex)<<": "<<sInfo<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -156,7 +156,7 @@ namespace opengl
       )
       {
         sInfo = StringReplace(sInfo, "\n", "<br>");
-        std::cout<<"cShader::CheckStatusFragment  Fragment Shader "<<sShaderFragment<<": "<<sInfo<<std::endl;
+        std::cout<<"cShader::CheckStatusFragment  Fragment Shader "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<sInfo<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -182,9 +182,9 @@ namespace opengl
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("Warning") != std::string::npos
       ) {
-        std::cout<<"cShader::CheckStatusProgram Program "<<sShaderVertex<<" "<<sShaderFragment<<": "<<infoLog<<std::endl;
+        std::cout<<"cShader::CheckStatusProgram Program "<<opengl::string::ToUTF8(sShaderVertex)<<" "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<infoLog<<std::endl;
       } else {
-        std::cout<<"cShader::CheckStatusProgram Program "<<sShaderVertex<<" "<<sShaderFragment<<": "<<infoLog<<std::endl;
+        std::cout<<"cShader::CheckStatusProgram Program "<<opengl::string::ToUTF8(sShaderVertex)<<" "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<infoLog<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -214,13 +214,13 @@ namespace opengl
     return (value == GL_TRUE);
   }
 
-  void cShader::_LoadVertexShader(const std::string& _sShaderVertex)
+  void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
   {
     sShaderVertex = _sShaderVertex;
 
     std::string buffer = "";
     std::string line = "";
-    std::ifstream f(sShaderVertex.c_str());
+    std::ifstream f(opengl::string::ToUTF8(sShaderVertex).c_str());
     if (f.is_open()) {
       while (!f.eof()) {
         std::getline(f, line);
@@ -245,24 +245,24 @@ namespace opengl
       glCompileShader(uiShaderVertex);
       CheckStatusVertex();
 
-      if (IsCompiledVertex()) std::cout<<"cShader::_LoadVertexShader Vertex shader "<<sShaderVertex<<": Compiled"<<std::endl;
+      if (IsCompiledVertex()) std::cout<<"cShader::_LoadVertexShader Vertex shader "<<opengl::string::ToUTF8(sShaderVertex)<<": Compiled"<<std::endl;
       else {
-        std::cout<<"cShader::_LoadVertexShader Vertex shader "<<sShaderVertex<<": Not compiled"<<std::endl;
+        std::cout<<"cShader::_LoadVertexShader Vertex shader "<<opengl::string::ToUTF8(sShaderVertex)<<": Not compiled"<<std::endl;
         assert(false);
       }
     } else {
-      std::cout<<"cShader::_LoadVertexShader Shader not found "<<sShaderVertex<<std::endl;
+      std::cout<<"cShader::_LoadVertexShader Shader not found "<<opengl::string::ToUTF8(sShaderVertex)<<std::endl;
       uiShaderVertex = 0;
     }
   }
 
-  void cShader::_LoadFragmentShader(const std::string& _sShaderFragment)
+  void cShader::_LoadFragmentShader(const opengl::string_t& _sShaderFragment)
   {
     sShaderFragment = _sShaderFragment;
 
     std::string buffer;
     std::string line;
-    std::ifstream f(sShaderFragment.c_str());
+    std::ifstream f(opengl::string::ToUTF8(sShaderFragment).c_str());
     if (f.is_open()) {
       while (!f.eof()) {
         std::getline(f, line);
@@ -285,13 +285,13 @@ namespace opengl
       glCompileShader(uiShaderFragment);
       CheckStatusFragment();
 
-      if (IsCompiledFragment()) std::cout<<"cShader::_LoadFragmentShader Fragment shader "<<sShaderFragment<<": Compiled"<<std::endl;
+      if (IsCompiledFragment()) std::cout<<"cShader::_LoadFragmentShader Fragment shader "<<opengl::string::ToUTF8(sShaderFragment)<<": Compiled"<<std::endl;
       else {
-        std::cout<<"cShader::_LoadFragmentShader Fragment shader "<<sShaderFragment<<": Not compiled"<<std::endl;
+        std::cout<<"cShader::_LoadFragmentShader Fragment shader "<<opengl::string::ToUTF8(sShaderFragment)<<": Not compiled"<<std::endl;
         assert(false);
       }
     } else {
-      std::cout<<"cShader::_LoadFragmentShader Shader not found "<<sShaderFragment<<std::endl;
+      std::cout<<"cShader::_LoadFragmentShader Shader not found "<<opengl::string::ToUTF8(sShaderFragment)<<std::endl;
       uiShaderFragment = 0;
     }
   }
@@ -325,7 +325,7 @@ namespace opengl
   }
 
 
-  bool cShader::LoadVertexShaderOnly(const std::string& _sShaderVertex)
+  bool cShader::LoadVertexShaderOnly(const opengl::string_t& _sShaderVertex)
   {
     std::cout<<"cShader::LoadVertexShaderOnly glGetError="<<cSystem::GetErrorString()<<std::endl;
 
@@ -335,7 +335,7 @@ namespace opengl
     return IsCompiledProgram();
   }
 
-  bool cShader::LoadFragmentShaderOnly(const std::string& _sShaderFragment)
+  bool cShader::LoadFragmentShaderOnly(const opengl::string_t& _sShaderFragment)
   {
     std::cout<<"cShader::LoadFragmentShaderOnly glGetError="<<cSystem::GetErrorString()<<std::endl;
 
@@ -345,7 +345,7 @@ namespace opengl
     return IsCompiledProgram();
   }
 
-  bool cShader::LoadVertexShaderAndFragmentShader(const std::string& _sShaderVertex, const std::string& _sShaderFragment)
+  bool cShader::LoadVertexShaderAndFragmentShader(const opengl::string_t& _sShaderVertex, const opengl::string_t& _sShaderFragment)
   {
     std::cout<<"cShader::LoadVertexShaderAndFragmentShader glGetError="<<cSystem::GetErrorString()<<std::endl;
 

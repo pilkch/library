@@ -21,19 +21,6 @@
 // TODO: Remove we should not have to know about anything in cSystem.h
 #include <breathe/render/cSystem.h>
 
-// http://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_%28C_/_SDL%29
-
-// OpenGL Multiple Contexts
-// http://www.stevestreeting.com/2006/10/20/gl-thread-taming/
-// 1. Create main rendering thread context
-// 2. Disable main rendering thread context
-// 3. Lock background init condition mutex
-// 4. Start background thread
-// 5. Main thread waits for init condition (this releases the init mutex and blocks the main thread)
-// 6. Background thread clones context, sets up resource sharing and enables its own context
-// 7. Background thread locks the init mutex, notifies parent, releases init mutex, then continues independently
-// 8. Main thread wakes up, re-enables its own context, and carries on too
-
 namespace breathe
 {
   namespace game

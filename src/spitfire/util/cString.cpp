@@ -655,15 +655,15 @@ namespace spitfire
 
     std::string ToUTF8(const std::wstring& source)
     {
-        std::string result(source.size(), char(0));
-        typedef std::ctype<wchar_t> ctype_t;
-        const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
+      std::string result(source.size(), char(0));
+      typedef std::ctype<wchar_t> ctype_t;
+      const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
 #ifdef __LINUX__
-        ct.narrow(source.data(), source.data() + source.size(), '0', &(*result.begin()));
+      ct.narrow(source.data(), source.data() + source.size(), '0', &(*result.begin()));
 #else
-        ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin()));
+      ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin()));
 #endif
-        return result;
+      return result;
     }
 
     /*std::string ToUTF8(const std::wstring& source)

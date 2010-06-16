@@ -38,7 +38,8 @@ namespace opengl
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
-    pCurrentShader(nullptr)
+    pCurrentShader(nullptr),
+    nFrameBufferObjects(0)
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
@@ -99,7 +100,8 @@ namespace opengl
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
-    pCurrentShader(nullptr)
+    pCurrentShader(nullptr),
+    nFrameBufferObjects(0)
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
@@ -109,6 +111,12 @@ namespace opengl
 
   cContext::~cContext()
   {
+    assert(nFrameBufferObjects == 0);
+
+    assert(textures.empty());
+    assert(shaders.empty());
+    assert(staticVertexBufferObjects.empty());
+
     if (pSurface != nullptr) {
       SDL_FreeSurface(pSurface);
       pSurface = nullptr;
@@ -121,7 +129,7 @@ namespace opengl
   }
 
 
-  cTexture* cContext::CreateTexture(const std::string& sFileName)
+  cTexture* cContext::CreateTexture(const opengl::string_t& sFileName)
   {
     cImage image;
     if (!image.LoadFromFile(sFileName)) return nullptr;
@@ -167,6 +175,8 @@ namespace opengl
       return nullptr;
     }
 
+    nFrameBufferObjects++;
+
     return pTexture;
   }
 
@@ -175,10 +185,12 @@ namespace opengl
     assert(pTexture != nullptr);
     pTexture->Destroy();
     delete pTexture;
+
+    nFrameBufferObjects--;
   }
 
 
-  cShader* cContext::CreateShader(const std::string& sVertexShaderFileName, const std::string& sFragmentShaderFileName)
+  cShader* cContext::CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName)
   {
     cShader* pShader = new cShader;
     if (!pShader->LoadVertexShaderAndFragmentShader(sVertexShaderFileName, sFragmentShaderFileName)) {
@@ -209,7 +221,7 @@ namespace opengl
   }
 
 #ifdef BUILD_OPENGLMM_FONT
-  cFont* cContext::CreateFont(const std::string& sFileName, size_t fontSize)
+  cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize)
   {
     cFont* pFont = new cFont;
     if (!pFont->Load(*this, sFileName, fontSize)) {
@@ -681,7 +693,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -694,7 +706,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -707,7 +719,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -720,7 +732,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -733,7 +745,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      std::cout<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }

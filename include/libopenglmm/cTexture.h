@@ -74,7 +74,7 @@ namespace opengl
 
     const uint8_t* GetPointerToSurfacePixelBuffer() const;
 
-    bool LoadFromFile(const std::string& sFilename);
+    bool LoadFromFile(const opengl::string_t& sFilename);
     bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
 
     void CopyFromDataToSurface();
@@ -85,7 +85,7 @@ namespace opengl
     void CopyFromSurfaceToTexture();
 
 
-    bool SaveToBMP(const std::string& sFilename) const;
+    bool SaveToBMP(const opengl::string_t& sFilename) const;
 
   protected:
     size_t uiWidth;
@@ -127,7 +127,7 @@ namespace opengl
     void CopyFromSurfaceToTexture();
 
 
-    bool SaveToBMP(const std::string& sFilename) const { return image.SaveToBMP(sFilename); }
+    bool SaveToBMP(const opengl::string_t& sFilename) const { return image.SaveToBMP(sFilename); }
 
     void Create() { _Create(); }
     void Destroy() { _Destroy(); }

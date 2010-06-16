@@ -58,7 +58,8 @@ namespace opengl
 
   // *** cSystem
 
-  cSystem::cSystem()
+  cSystem::cSystem() :
+    nContexts(0)
   {
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
@@ -71,6 +72,8 @@ namespace opengl
 
   cSystem::~cSystem()
   {
+    assert(nContexts == 0);
+
     SDL_Quit();
   }
 
@@ -92,6 +95,64 @@ namespace opengl
   std::string cSystem::GetErrorString()
   {
     return GetErrorString(glGetError());
+  }
+
+  bool cSystem::IsGPUATI() const
+  {
+    std::ostringstream tVendor;
+    tVendor<<glGetString(GL_VENDOR);
+
+    const std::string sVendor(tVendor.str());
+    return (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
+  }
+
+  bool cSystem::IsGPUNVIDIA() const
+  {
+    std::ostringstream tVendor;
+    tVendor<<glGetString(GL_VENDOR);
+
+    const std::string sVendor(tVendor.str());
+    return (sVendor.find("NVIDIA") != std::string::npos);
+  }
+
+  #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+  #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+
+  size_t cSystem::GetGPUMemoryTotalMB() const
+  {
+    size_t nTotalMB = 0;
+
+    if (IsGPUATI()) {
+
+    } else if (IsGPUNVIDIA()) {
+      GLint total_mem_kb = 0;
+      glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb);
+      nTotalMB = total_mem_kb;
+    }
+
+    return nTotalMB;
+  }
+
+  size_t cSystem::GetGPUMemoryUsedMB() const
+  {
+    size_t nTotalMB = GetGPUMemoryTotalMB();
+    size_t nUsedMB = 0;
+
+    if (IsGPUATI()) {
+      //int cur_avail_mem_kb = 0;
+      //glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &cur_avail_mem_kb);
+      //size_t nAvailableMB = cur_avail_mem_kb / 1024;
+      //assert(nAvailableMB <= nTotalMB);
+      //nUsedMB = nTotalMB - nAvailableMB;
+    } else if (IsGPUNVIDIA()) {
+      GLint cur_avail_mem_kb = 0;
+      glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb);
+      size_t nAvailableMB = cur_avail_mem_kb / 1024;
+      assert(nAvailableMB <= nTotalMB);
+      nUsedMB = nTotalMB - nAvailableMB;
+    }
+
+    return nUsedMB;
   }
 
   bool cSystem::FindExtension(const std::string& sExt) const
@@ -187,13 +248,11 @@ namespace opengl
     assert(szValue != nullptr);
     std::cout<<"cContext::cContext Extensions : "<<szValue<<std::endl;
 
-    std::ostringstream tVendor;
-    tVendor<<glGetString(GL_VENDOR);
+    if (!IsGPUNVIDIA() && !IsGPUATI()) {
+      std::ostringstream tVendor;
+      tVendor<<glGetString(GL_VENDOR);
 
-    const std::string sVendor(tVendor.str());
-    bool bIsNVIDIA = (sVendor.find("NVIDIA") != std::string::npos);
-    bool bIsATI = (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
-    if (!bIsNVIDIA && !bIsATI) {
+      const std::string sVendor(tVendor.str());
       std::cout<<"cContext::cContext Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
     }
 
@@ -259,7 +318,7 @@ namespace opengl
     }*/
   }
 
-  cWindow* cSystem::CreateWindow(const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen)
+  cWindow* cSystem::CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen)
   {
     cWindow* pWindow = new cWindow(*this, sCaption, resolution, bIsFullScreen);
 
@@ -275,11 +334,15 @@ namespace opengl
 
   cContext* cSystem::CreateSharedContextFromWindow(const cWindow& window)
   {
+    nContexts++;
+
     return new cContext(*this, window);
   }
 
   cContext* cSystem::CreateSharedContextFromContext(const cContext& rhs)
   {
+    nContexts++;
+
     return new cContext(*this, rhs.GetResolution());
   }
 
@@ -287,5 +350,7 @@ namespace opengl
   {
     delete pContext;
     pContext = nullptr;
+
+    nContexts--;
   }
 }

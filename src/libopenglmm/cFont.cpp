@@ -137,9 +137,9 @@ namespace opengl
     assert(pShader == nullptr);
   }
 
-  bool cFont::Load(cContext& context, const std::string& sFilename, unsigned int height)
+  bool cFont::Load(cContext& context, const opengl::string_t& sFilename, unsigned int height)
   {
-    std::cout<<"cFont::Load \""<<sFilename<<"\""<<std::endl;
+    std::cout<<"cFont::Load \""<<opengl::string::ToUTF8(sFilename)<<"\""<<std::endl;
 
     // Create and initilize a freetype font library.
     FT_Library library;
@@ -152,8 +152,8 @@ namespace opengl
     // Of all the places where the code might die, this is the most likely,
     // as FT_New_Face will die if the font file does not exist or is somehow broken.
     FT_Face face = NULL;
-    if (FT_New_Face(library, sFilename.c_str(), 0, &face )) {
-      std::cout<<"cFont::cFont FT_New_Face FAILED to load font \""<<sFilename<<"\", returning false"<<std::endl;
+    if (FT_New_Face(library, opengl::string::ToUTF8(sFilename).c_str(), 0, &face )) {
+      std::cout<<"cFont::cFont FT_New_Face FAILED to load font \""<<opengl::string::ToUTF8(sFilename)<<"\", returning false"<<std::endl;
       return false;
     }
 
@@ -205,7 +205,7 @@ namespace opengl
       return false;
     }
 
-    pShader = context.CreateShader("shaders/font.vert", "shaders/font.frag");
+    pShader = context.CreateShader(TEXT("shaders/font.vert"), TEXT("shaders/font.frag"));
     if (pShader == nullptr) {
       std::cout<<"cFont::cFont CreateShader FAILED, returning false"<<std::endl;
       return false;
@@ -228,7 +228,7 @@ namespace opengl
     }
   }
 
-  void cFont::GetDimensions(const std::string& sText, float& fWidth, float& fHeight) const
+  void cFont::GetDimensions(const opengl::string_t& sText, float& fWidth, float& fHeight) const
   {
     fWidth = 0.0f;
     fHeight = 0.0f;
@@ -258,7 +258,7 @@ namespace opengl
     fHeight *= fOneOver1000;
   }
 
-  void cFont::GetDimensionsLineWrap(const std::string& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const
+  void cFont::GetDimensionsLineWrap(const opengl::string_t& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const
   {
     fWidth = 0.0f;
     fHeight = 0.0f;
@@ -276,7 +276,7 @@ namespace opengl
     }
   }
 
-  void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const std::string& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
+  void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
   {
 #if 1
     spitfire::math::cVec2 position(_position);
@@ -288,9 +288,10 @@ namespace opengl
     const float fGridHeight = 1.0f / float(columns);
 
     // For each character calculate the position in the world and the position in the texture and add a quad to the buffer
-    const size_t n = strlen(sText.c_str());//sText.length();
+    const std::string sTextUTF8 = opengl::string::ToUTF8(sText);
+    const size_t n = sTextUTF8.length();
     for (size_t i = 0; i < n; i++) {
-      const char c = sText[i];
+      const char c = sTextUTF8[i];
       std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
       const size_t index = size_t(c);
 

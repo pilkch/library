@@ -94,6 +94,7 @@ namespace spitfire
 
       // Set from axis-angle combination
       void SetFromAxisAngle(const cVec3& axis, float fAngleRadians);
+      void SetFromAxisAngleDegrees(const cVec3& axis, float fAngleDegrees);
 
       // Set from vectors (source and destination)
       void SetFromVectors(const cVec3& source, const cVec3& destination);

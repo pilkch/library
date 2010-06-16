@@ -41,6 +41,13 @@ struct SDL_Surface;
 
 namespace opengl
 {
+  typedef std::wstring string_t;
+
+  namespace string
+  {
+    std::string ToUTF8(const string_t& source);
+  }
+
   const size_t MAX_TEXTURE_UNITS = 3;
   const size_t MAX_TEXTURE_SIZE = 1024;
   const size_t MAX_LIGHTS = 8;

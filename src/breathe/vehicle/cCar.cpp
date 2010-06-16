@@ -577,129 +577,115 @@ namespace breathe
         fVelocity = fVelocity + fForceAppliedByTireKw / fWeightOfCarOnThisWheel;*/
       }
     }
-  }
-}
 
 
 
 
 
 
-class cEngineAudioManager
-{
-public:
-  void SetNaturalRPM(float_t _fNaturalRPM) { fNaturalRPM = _fNaturalRPM; }
-  // This is used for formula 1 engines for example where the loudest point is at really high rpm when they scream down the straights
-  void SetHighRPMLoudnessFactor0To1(float_t _fHighRPMLoudnessFactor0To1) { fHighRPMLoudnessFactor0To1 = _fHighRPMLoudnessFactor0To1; }
-  void SetSource(breathe::audio::cSourceRef _pSource) { pSource = _pSource; }
+    class cEngineAudioManager
+    {
+    public:
+      void SetNaturalRPM(float_t _fNaturalRPM) { fNaturalRPM = _fNaturalRPM; }
+      // This is used for formula 1 engines for example where the loudest point is at really high rpm when they scream down the straights
+      void SetHighRPMLoudnessFactor0To1(float_t _fHighRPMLoudnessFactor0To1) { fHighRPMLoudnessFactor0To1 = _fHighRPMLoudnessFactor0To1; }
+      void SetSource(breathe::audio::cSourceRef _pSource) { pSource = _pSource; }
 
-  void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
-  void SetAccelerator0To1(float_t _fAccelerator0To1) { fAccelerator0To1 = _fAccelerator0To1; }
+      void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
+      void SetAccelerator0To1(float_t _fAccelerator0To1) { fAccelerator0To1 = _fAccelerator0To1; }
 
-  void Update(spitfire::sampletime_t currentTime);
+      void Update(spitfire::sampletime_t currentTime);
 
-private:
-  float_t fNaturalRPM;
-  float_t fHighRPMLoudnessFactor0To1;
-  breathe::audio::cSourceRef pSource;
+    private:
+      float_t fNaturalRPM;
+      float_t fHighRPMLoudnessFactor0To1;
+      breathe::audio::cSourceRef pSource;
 
-  float_t fRPM;
-  float_t fAccelerator0To1;
-};
+      float_t fRPM;
+      float_t fAccelerator0To1;
+    };
 
-void cEngineAudioManager::Update(spitfire::sampletime_t currentTime)
-{
-  // As the rpm increases the volume goes up exponentially
-  if (fHighRPMLoudnessFactor0To1 > spitfire::math::cEPSILON) {
-    pSource->SetVolume(1.0f + (fHighRPMLoudnessFactor0To1 * spitfire::math::squared(fRPM)));
-  }
-}
-
-typedef cEngineAudioManager cSuperChargerAudioManager;
-typedef cEngineAudioManager cTurboAudioManager;
-
-
-
-// NOTE: The blow off valve source is constantly playing at volume 0.0f, if the blow off valve actually blows off then volume is set to 1.0f
-class cBlowOffValveAudioManager
-{
-public:
-  void SetHighPressureLoudnessFactor0To1(float_t _fHighPressureLoudnessFactor0To1) { fHighPressureLoudnessFactor0To1 = _fHighPressureLoudnessFactor0To1; }
-  void SetMinimumBlowOffPressureKPA(float_t _fMinimumBlowOffPressureKPA) { fMinimumBlowOffPressureKPA = _fMinimumBlowOffPressureKPA; }
-  void SetSource(breathe::audio::cSourceRef _pSource) { pSource = _pSource; }
-
-  void SetTurboPressureKPA(float_t _fTurboPressureKPA) { fTurboPressureKPA = _fTurboPressureKPA; }
-
-  void Update(spitfire::sampletime_t currentTime);
-
-private:
-  float_t fHighPressureLoudnessFactor0To1;
-  float_t fMinimumBlowOffPressureKPA;
-  breathe::audio::cSourceRef pSource;
-
-  float_t fTurboPressureKPA;
-};
-
-void cBlowOffValveAudioManager::Update(spitfire::sampletime_t currentTime)
-{
-  if (fTurboPressureKPA < fMinimumBlowOffPressureKPA) {
-    // Not enough pressure to blow off
-    pSource->SetVolume(0.0f);
-  } else {
-    // Ok this blow off valve is active
-    pSource->SetVolume(1.0f);
-
-    // As the pressure increases the volume goes up exponentially
-    if (fHighPressureLoudnessFactor0To1 > spitfire::math::cEPSILON) {
-      pSource->SetVolume(1.0f + (fHighPressureLoudnessFactor0To1 * spitfire::math::squared(fTurboPressureKPA)));
+    void cEngineAudioManager::Update(spitfire::sampletime_t currentTime)
+    {
+      // As the rpm increases the volume goes up exponentially
+      if (fHighRPMLoudnessFactor0To1 > spitfire::math::cEPSILON) {
+        pSource->SetVolume(1.0f + (fHighRPMLoudnessFactor0To1 * spitfire::math::squared(fRPM)));
+      }
     }
 
-    pSource->SetPitch(spitfire::math::squared(fTurboPressureKPA) / fMinimumBlowOffPressureKPA);
+    typedef cEngineAudioManager cSuperChargerAudioManager;
+    typedef cEngineAudioManager cTurboAudioManager;
+
+
+
+    // NOTE: The blow off valve source is constantly playing at volume 0.0f, if the blow off valve actually blows off then volume is set to 1.0f
+    class cBlowOffValveAudioManager
+    {
+    public:
+      void SetHighPressureLoudnessFactor0To1(float_t _fHighPressureLoudnessFactor0To1) { fHighPressureLoudnessFactor0To1 = _fHighPressureLoudnessFactor0To1; }
+      void SetMinimumBlowOffPressureKPA(float_t _fMinimumBlowOffPressureKPA) { fMinimumBlowOffPressureKPA = _fMinimumBlowOffPressureKPA; }
+      void SetSource(breathe::audio::cSourceRef _pSource) { pSource = _pSource; }
+
+      void SetTurboPressureKPA(float_t _fTurboPressureKPA) { fTurboPressureKPA = _fTurboPressureKPA; }
+
+      void Update(spitfire::sampletime_t currentTime);
+
+    private:
+      float_t fHighPressureLoudnessFactor0To1;
+      float_t fMinimumBlowOffPressureKPA;
+      breathe::audio::cSourceRef pSource;
+
+      float_t fTurboPressureKPA;
+    };
+
+    void cBlowOffValveAudioManager::Update(spitfire::sampletime_t currentTime)
+    {
+      if (fTurboPressureKPA < fMinimumBlowOffPressureKPA) {
+        // Not enough pressure to blow off
+        pSource->SetVolume(0.0f);
+      } else {
+        // Ok this blow off valve is active
+        pSource->SetVolume(1.0f);
+
+        // As the pressure increases the volume goes up exponentially
+        if (fHighPressureLoudnessFactor0To1 > spitfire::math::cEPSILON) {
+          pSource->SetVolume(1.0f + (fHighPressureLoudnessFactor0To1 * spitfire::math::squared(fTurboPressureKPA)));
+        }
+
+        pSource->SetPitch(spitfire::math::squared(fTurboPressureKPA) / fMinimumBlowOffPressureKPA);
+      }
+    }
+
+
+
+
+
+
+
+
+    #if 0
+    cTurboAudioManager turboAudio;
+    cBlowOffValveAudioManager blowOffValveAudio;
+
+    void cCarComponent::Init()
+    {
+      blowOffValveAudio.SetHighPressureLoudnessFactor0To1(0.5f);
+      blowOffValveAudio.SetMinimumBlowOffPressureKPA(...?);
+    }
+
+    void cCarComponent::Update(sampletime_t currentTime)
+    {
+      turboAudio.SetAccelerator0To1(fAccelerator0To1);
+      turboAudio.SetRPM(fRPM);
+      turboAudio.Update(currentTime);
+
+      blowOffValveAudio.SetTurboPressureKPA(turbo.GetPressureKPA());
+      blowOffValveAudio.Update(currentTime);
+
+    }
+    #endif
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-cTurboAudioManager turboAudio;
-cBlowOffValveAudioManager blowOffValveAudio;
-
-void cCarComponent::Init()
-{
-  blowOffValveAudio.SetHighPressureLoudnessFactor0To1(0.5f);
-  blowOffValveAudio.SetMinimumBlowOffPressureKPA(...?);
-}
-
-void cCarComponent::Update(sampletime_t currentTime)
-{
-  turboAudio.SetAccelerator0To1(fAccelerator0To1);
-  turboAudio.SetRPM(fRPM);
-  turboAudio.Update(currentTime);
-
-  blowOffValveAudio.SetTurboPressureKPA(turbo.GetPressureKPA());
-  blowOffValveAudio.Update(currentTime);
-
-}
-#endif
-
-
 
 class cCarFactory
 {

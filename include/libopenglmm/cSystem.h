@@ -47,7 +47,7 @@ namespace opengl
     void UpdateCapabilities();
     const cCapabilities& GetCapabilities() const { return capabilities; }
 
-    cWindow* CreateWindow(const std::string& sCaption, const cResolution& resolution, bool bIsFullScreen);
+    cWindow* CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     void DestroyWindow(cWindow* pWindow);
 
     cContext* CreateSharedContextFromWindow(const cWindow& window);
@@ -57,7 +57,14 @@ namespace opengl
   private:
     float GetShaderVersion() const;
 
+    bool IsGPUATI() const;
+    bool IsGPUNVIDIA() const;
+    size_t GetGPUMemoryTotalMB() const;
+    size_t GetGPUMemoryUsedMB() const;
+
     cCapabilities capabilities;
+
+    size_t nContexts;
   };
 }
 
