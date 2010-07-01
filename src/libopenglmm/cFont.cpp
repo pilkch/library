@@ -137,7 +137,7 @@ namespace opengl
     assert(pShader == nullptr);
   }
 
-  bool cFont::Load(cContext& context, const opengl::string_t& sFilename, unsigned int height)
+  bool cFont::Load(cContext& context, const opengl::string_t& sFilename, unsigned int height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
     std::cout<<"cFont::Load \""<<opengl::string::ToUTF8(sFilename)<<"\""<<std::endl;
 
@@ -205,7 +205,7 @@ namespace opengl
       return false;
     }
 
-    pShader = context.CreateShader(TEXT("shaders/font.vert"), TEXT("shaders/font.frag"));
+    pShader = context.CreateShader(sVertexShader, sFragmentShader);
     if (pShader == nullptr) {
       std::cout<<"cFont::cFont CreateShader FAILED, returning false"<<std::endl;
       return false;

@@ -61,7 +61,7 @@ namespace opengl
     void GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const;
 
   protected:
-    bool Load(cContext& context, const string_t& sFilename, unsigned int height);
+    bool Load(cContext& context, const string_t& sFilename, unsigned int height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
     void Destroy(cContext& context);
 
     cTexture* pTexture;

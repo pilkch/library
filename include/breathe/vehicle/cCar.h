@@ -232,6 +232,7 @@ namespace breathe
       private:
         float_t fMassKg;
         float_t fFrictionCoefficient;
+        float_t fMaxTorqueNm; // How much torque this clutch can hold, Nm after this will make the clutch slip
 
         float_t fInputClutch0To1;
         float_t fRPMBeforeClutch;

@@ -221,10 +221,10 @@ namespace opengl
   }
 
 #ifdef BUILD_OPENGLMM_FONT
-  cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize)
+  cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
     cFont* pFont = new cFont;
-    if (!pFont->Load(*this, sFileName, fontSize)) {
+    if (!pFont->Load(*this, sFileName, fontSize, sVertexShader, sFragmentShader)) {
       delete pFont;
       return nullptr;
     }

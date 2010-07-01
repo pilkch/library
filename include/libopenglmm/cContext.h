@@ -89,7 +89,7 @@ namespace opengl
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
 
 #ifdef BUILD_OPENGLMM_FONT
-    cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize);
+    cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
     void DestroyFont(cFont* pFont);
 #endif
 
