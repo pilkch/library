@@ -77,10 +77,10 @@ namespace opengl
 
   private:
     void RenderGeometry(GLenum geometryType);
-
     void RenderGeometry2D(GLenum geometryType);
 
     bool bIsCompiled;
+    bool bIs2D;
 
     std::vector<float> vertices;
     std::vector<float> normals;

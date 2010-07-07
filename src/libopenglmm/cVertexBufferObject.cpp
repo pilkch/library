@@ -30,6 +30,7 @@ namespace opengl
 
   cStaticVertexBufferObject::cStaticVertexBufferObject() :
     bIsCompiled(false),
+    bIs2D(false),
     vertex_size(0),
     normal_size(0),
     colour_size(0),
@@ -193,6 +194,7 @@ namespace opengl
     glDisableClientState(GL_VERTEX_ARRAY);
 
     bIsCompiled = true;
+    bIs2D = false;
   }
 
   void cStaticVertexBufferObject::Compile2D(const cSystem& system)
@@ -298,6 +300,7 @@ namespace opengl
     glDisableClientState(GL_VERTEX_ARRAY);
 
     bIsCompiled = true;
+    bIs2D = true;
   }
 
   void cStaticVertexBufferObject::Destroy()
@@ -309,6 +312,7 @@ namespace opengl
   void cStaticVertexBufferObject::Bind()
   {
     assert(IsCompiled());
+    assert(!bIs2D);
 
     // Activate the VBOs to draw
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
@@ -363,6 +367,7 @@ namespace opengl
   void cStaticVertexBufferObject::Bind2D()
   {
     assert(IsCompiled());
+    assert(bIs2D);
 
     // Activate the VBOs to draw
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
@@ -444,6 +449,7 @@ namespace opengl
   void cStaticVertexBufferObject::RenderGeometry(GLenum geometryType)
   {
     assert(IsCompiled());
+    assert(!bIs2D);
 
     if (indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
@@ -457,6 +463,7 @@ namespace opengl
   void cStaticVertexBufferObject::RenderGeometry2D(GLenum geometryType)
   {
     assert(IsCompiled());
+    assert(bIs2D);
 
     if (indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
