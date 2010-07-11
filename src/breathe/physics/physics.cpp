@@ -25,6 +25,10 @@
 #include <ode/ode.h>
 #endif
 
+#ifdef BUILD_PHYSICS_BOX2D
+#include <Box2D/Box2D.h>
+#endif
+
 // Spitfire
 #include <spitfire/spitfire.h>
 
@@ -47,13 +51,16 @@
 #include <spitfire/math/cColour.h>
 
 #include <breathe/physics/physics.h>
+
 #ifdef BUILD_PHYSICS_BULLET
 #include <breathe/physics/physics_bullet.h>
 #endif
 #ifdef BUILD_PHYSICS_ODE
 #include <breathe/physics/physics_ode.h>
 #endif
-
+#ifdef BUILD_PHYSICS_BOX2D
+#include <breathe/physics/physics_box2d.h>
+#endif
 
 namespace breathe
 {
@@ -62,7 +69,7 @@ namespace breathe
     // Global variable unfortunately
     cWorld* pWorld = nullptr;
 
-    cWorld* Create(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight)
+    cWorld* Create(DRIVER driver, const physvec_t& worldDimensions)
     {
       LOG<<"physics::Create"<<std::endl;
       ASSERT(pWorld == nullptr);
@@ -80,6 +87,12 @@ namespace breathe
           break;
         }
 #endif
+#ifdef BUILD_PHYSICS_BOX2D
+        case DRIVER::BOX2D: {
+          pWorld = new box2d::cWorld;
+          break;
+        }
+#endif
         default: {
           LOG<<"physics::Create UNKNOWN driver"<<std::endl;
         }
@@ -88,7 +101,7 @@ namespace breathe
       LOG<<"physics::Create returning"<<std::endl;
       ASSERT(pWorld != nullptr);
 
-      pWorld->Init(fWorldWidth, fWorldDepth, fWorldHeight);
+      pWorld->Init(worldDimensions);
 
       return pWorld;
     }
@@ -146,7 +159,7 @@ namespace breathe
 
 
 
-
+#ifdef BUILD_PHYSICS_3D
     cHeightmapProperties::cHeightmapProperties(const game::cTerrainHeightMap& _loader) :
       loader(_loader),
       width(1),
@@ -163,13 +176,27 @@ namespace breathe
       scale(properties.scale)
     {
     }
+#else
+    cHeightmapProperties::cHeightmapProperties(const std::vector<float>& _values) :
+      values(_values),
+      width(1),
+      scale(1.0f, 1.0f)
+    {
+    }
 
+    cHeightmap::cHeightmap(const cHeightmapProperties& properties) :
+      values(properties.values),
+      width(properties.width),
+      position(properties.position),
+      scale(properties.scale)
+    {
+    }
+#endif
 
 
     cCarProperties::cCarProperties() :
       fMassKg(1600.0f),
       fWidthMetres(2.0f),
-      fDepthMetres(5.0f),
       fHeightMetres(1.8f),
 
       fSuspensionStiffness(5.88f),

@@ -8,8 +8,10 @@
 #include <spitfire/util/cSmartPtr.h>
 
 #include <spitfire/math/cVec2.h>
+#ifdef BUILD_PHYSICS_3D
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
+#endif
 
 #include <breathe/breathe.h>
 
@@ -39,11 +41,16 @@ namespace breathe
 #ifdef BUILD_PHYSICS_ODE
       ODE,
 #endif
+#ifdef BUILD_PHYSICS_BOX2D
+      BOX2D,
+#endif
 
 #ifdef BUILD_PHYSICS_BULLET
       DEFAULT = BULLET
-#else
+#elif defined(BUILD_PHYSICS_ODE)
       DEFAULT = ODE
+#else
+      DEFAULT = BOX2D
 #endif
     };
 
@@ -63,14 +70,13 @@ namespace breathe
     class cHeightmap;
     typedef cSmartPtr<cHeightmap> cHeightmapRef;
 
-
     class cCarProperties;
 
     class cCar;
     typedef cSmartPtr<cCar> cCarRef;
 
 
-    cWorld* Create(DRIVER driver, float fWorldWidth, float fWorldDepth, float fWorldHeight);
+    cWorld* Create(DRIVER driver, const physvec_t& worldDimensions);
     void Destroy(cWorld* pWorld);
 
     // TODO: Eventually we want to remove this
@@ -81,7 +87,7 @@ namespace breathe
     public:
       virtual ~cWorld() {}
 
-      bool Init(float fWorldWidth, float fWorldDepth, float fWorldHeight) { return _Init(fWorldWidth, fWorldDepth, fWorldHeight); }
+      bool Init(const physvec_t& worldDimensions) { return _Init(worldDimensions); }
       void Destroy() { return _Destroy(); }
 
       size_t GetFrequencyHz() const { return uiFrequencyHz; }
@@ -107,7 +113,7 @@ namespace breathe
       typedef std::list<physics::cBodyRef>::iterator body_iterator;
 
     private:
-      virtual bool _Init(float fWorldWidth, float fWorldDepth, float fWorldHeight) = 0;
+      virtual bool _Init(const physvec_t& worldDimensions) = 0;
       virtual void _Destroy() = 0;
 
       virtual cBodyRef _CreateBody(const cBoxProperties& properties) = 0;
@@ -128,12 +134,17 @@ namespace breathe
     public:
       cBoxProperties();
 
-      void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
-      void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
+      void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
+      void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
       void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
+    #ifdef BUILD_PHYSICS_3D
+      void SetWidthDepthHeightMetres(float _fWidthMetres, float _fDepthMetres, float _fHeightMetres) { fWidthMetres = _fWidthMetres; fDepthMetres = _fDepthMetres; fHeightMetres = _fHeightMetres; }
+    #else
+      void SetWidthHeightMetres(float _fWidthMetres, float _fHeightMetres) { fWidthMetres = _fWidthMetres; fHeightMetres = _fHeightMetres; }
+    #endif
 
-      spitfire::math::cVec3 position;
-      spitfire::math::cQuaternion rotation;
+      physvec_t position;
+      physrotation_t rotation;
       float fMassKg;
       float fWidthMetres;
     #ifdef BUILD_PHYSICS_3D
@@ -147,13 +158,13 @@ namespace breathe
     public:
       cSphereProperties();
 
-      void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
-      void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
+      void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
+      void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
       void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
       void SetRadiusMetres(float _fRadiusMetres) { fRadiusMetres = _fRadiusMetres; }
 
-      spitfire::math::cVec3 position;
-      spitfire::math::cQuaternion rotation;
+      physvec_t position;
+      physrotation_t rotation;
       float fMassKg;
       float fRadiusMetres;
     };
@@ -166,12 +177,12 @@ namespace breathe
       cBody() {}
       virtual ~cBody() {}
 
-      const math::cVec3& GetPositionAbsolute() const { return position; }
-      const math::cQuaternion& GetRotationAbsolute() const { return rotation; }
+      const physvec_t& GetPositionAbsolute() const { return position; }
+      const physrotation_t& GetRotationAbsolute() const { return rotation; }
       float GetMassKg() const { return fMassKg; }
 
-      void SetPositionAbsolute(const spitfire::math::cVec3& position) { _SetPositionAbsolute(position); }
-      void SetRotationAbsolute(const spitfire::math::cQuaternion& rotation) { _SetRotationAbsolute(rotation); }
+      void SetPositionAbsolute(const physvec_t& position) { _SetPositionAbsolute(position); }
+      void SetRotationAbsolute(const physrotation_t& rotation) { _SetRotationAbsolute(rotation); }
       void SetMassKg(float fMassKg) { _SetMassKg(fMassKg); }
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg) { _AddForceRelativeToWorldKg(forceKg); }
@@ -185,15 +196,17 @@ namespace breathe
       void Remove() { _Remove(); }
 
     protected:
-      math::cVec3 position;
-      math::cQuaternion rotation;
+      physvec_t position;
+      physrotation_t rotation;
+      // TODO: Add velocity
+      // TODO: Add rotational velocity
       float fMassKg;
 
     private:
       NO_COPY(cBody);
 
-      virtual void _SetPositionAbsolute(const spitfire::math::cVec3& position) = 0;
-      virtual void _SetRotationAbsolute(const spitfire::math::cQuaternion& rotation) = 0;
+      virtual void _SetPositionAbsolute(const physvec_t& position) = 0;
+      virtual void _SetRotationAbsolute(const physrotation_t& rotation) = 0;
       virtual void _SetMassKg(float fMassKg) = 0;
 
       virtual void _AddForceRelativeToWorldKg(const physvec_t& forceKg) = 0;
@@ -209,21 +222,21 @@ namespace breathe
 
 
 
+#ifdef BUILD_PHYSICS_3D
     class cHeightmapProperties
     {
     public:
       explicit cHeightmapProperties(const game::cTerrainHeightMap& loader);
 
-      void SetWidth(size_t _width) { width = _width; }
-      void SetHeight(size_t _height) { height = _height; }
-      void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
-      void SetScale(const spitfire::math::cVec3& _scale) { scale = _scale; }
+      void SetWidthHeight(size_t _width, size_t _height) { width = _width; height = _height; }
+      void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
+      void SetScale(const physvec_t& _scale) { scale = _scale; }
 
       const game::cTerrainHeightMap& loader;
-      size_t width;
-      size_t height;
-      spitfire::math::cVec3 position;
-      spitfire::math::cVec3 scale;
+      size_t width; // How many samples wide
+      size_t height; // How many samples high
+      physvec_t position;
+      physvec_t scale;
     };
 
     class cHeightmap
@@ -232,8 +245,8 @@ namespace breathe
       explicit cHeightmap(const cHeightmapProperties& properties);
       virtual ~cHeightmap() {}
 
-      const math::cVec3& GetPositionAbsolute() const { return position; }
-      const math::cVec3& GetScale() const { return scale; }
+      const physvec_t& GetPositionAbsolute() const { return position; }
+      const physvec_t& GetScale() const { return scale; }
 
       void Update(sampletime_t currentTime) { _Update(currentTime); }
 
@@ -241,10 +254,10 @@ namespace breathe
 
     protected:
       const game::cTerrainHeightMap& loader;
-      const size_t width;
-      const size_t height;
-      math::cVec3 position;
-      math::cVec3 scale;
+      const size_t width; // How many samples wide
+      const size_t height; // How many samples high
+      physvec_t position;
+      physvec_t scale;
 
     private:
       NO_COPY(cHeightmap);
@@ -253,7 +266,49 @@ namespace breathe
 
       virtual void _Remove() = 0;
     };
+#else
+    class cHeightmapProperties
+    {
+    public:
+      explicit cHeightmapProperties(const std::vector<float>& values);
 
+      void SetWidth(size_t _width) { width = _width; }
+      void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
+      void SetScale(const physvec_t& _scale) { scale = _scale; }
+
+      const std::vector<float>& values;
+      size_t width; // How many samples wide
+      physvec_t position;
+      physvec_t scale;
+    };
+
+    class cHeightmap
+    {
+    public:
+      explicit cHeightmap(const cHeightmapProperties& properties);
+      virtual ~cHeightmap() {}
+
+      const physvec_t& GetPositionAbsolute() const { return position; }
+      const physvec_t& GetScale() const { return scale; }
+
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+
+      void Remove() { _Remove(); }
+
+    protected:
+      const std::vector<float>& values;
+      const size_t width; // How many samples wide
+      physvec_t position;
+      physvec_t scale;
+
+    private:
+      NO_COPY(cHeightmap);
+
+      virtual void _Update(sampletime_t currentTime) = 0;
+
+      virtual void _Remove() = 0;
+    };
+#endif
 
 
     class cCarProperties
@@ -261,13 +316,13 @@ namespace breathe
     public:
       cCarProperties();
 
-      void SetPositionAbsolute(const spitfire::math::cVec3& _position) { position = _position; }
-      void SetRotationAbsolute(const spitfire::math::cQuaternion& _rotation) { rotation = _rotation; }
+      void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
+      void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
       void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
 
       // Chassis
-      spitfire::math::cVec3 position;
-      spitfire::math::cQuaternion rotation;
+      physvec_t position;
+      physrotation_t rotation;
       float fMassKg;
       float fWidthMetres;
     #ifdef BUILD_PHYSICS_3D
@@ -298,11 +353,11 @@ namespace breathe
 
       cBodyRef GetChassis() { return pChassis; }
 
-      const math::cVec3& GetPositionAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetPositionAbsolute(); }
-      const math::cQuaternion& GetRotationAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetRotationAbsolute(); }
+      const physvec_t& GetPositionAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetPositionAbsolute(); }
+      const physrotation_t& GetRotationAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetRotationAbsolute(); }
 
-      const math::cVec3& GetWheelPositionRelative(size_t index) const { ASSERT(index < 4); return wheelPositionRelative[index]; }
-      const math::cQuaternion& GetWheelRotationRelative(size_t index) const { ASSERT(index < 4); return wheelRotationRelative[index]; }
+      const physvec_t& GetWheelPositionRelative(size_t index) const { ASSERT(index < 4); return wheelPositionRelative[index]; }
+      const physrotation_t& GetWheelRotationRelative(size_t index) const { ASSERT(index < 4); return wheelRotationRelative[index]; }
 
       void SetWheelAccelerationForceNewtons(size_t wheel, float_t fAccelerationForceNewtons) { ASSERT(wheel < 4); fWheelAccelerationForceNewtons[wheel] = fAccelerationForceNewtons; }
       void SetWheelBrakingForceNewtons(size_t wheel, float_t fBrakingForceNewtons) { ASSERT(wheel < 4); fWheelBrakingForceNewtons[wheel] = fBrakingForceNewtons; }
@@ -316,8 +371,8 @@ namespace breathe
       float fWheelAccelerationForceNewtons[4];
       float fWheelBrakingForceNewtons[4];
       float fWheelSteeringAngleMinusOneToPlusOne[4];
-      math::cVec3 wheelPositionRelative[4];
-      math::cQuaternion wheelRotationRelative[4];
+      physvec_t wheelPositionRelative[4];
+      physrotation_t wheelRotationRelative[4];
 
     private:
       virtual void _Update(sampletime_t currentTime) = 0;
@@ -326,14 +381,13 @@ namespace breathe
 }
 
 #ifdef BUILD_PHYSICS_2D
-#include <breathe/physics/physics2d/physics.h>
-#include <breathe/physics/physics2d/cContact.h>
+//#include <breathe/physics/physics2d/cContact.h>
+//#include <breathe/physics/physics2d/cRayCast.h>
 #elif defined(BUILD_PHYSICS_3D)
 #include <breathe/physics/physics3d/cContact.h>
 #include <breathe/physics/physics3d/cRayCast.h>
-#endif
-
 #include <breathe/physics/cPhysicsObject.h>
+#endif
 
 #endif
 

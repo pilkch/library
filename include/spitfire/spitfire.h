@@ -99,6 +99,14 @@
 #error "For Visual Studio define NOMINMAX"
 #endif
 
+#ifdef _MSC_VER
+#define COMPILER_MSVC
+#elif defined(__GNUC__)
+#define COMPILER_GCC
+#else
+#error "Unknown compiler"
+#endif
+
 // CRT's memory leak detection
 #ifdef __WIN__
 #include <windows.h>
@@ -136,7 +144,7 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 // http://en.wikipedia.org/wiki/Thread-local_storage
 
 // Again Visual Studio does it's own thing
-#ifdef _MSC_VER
+#ifdef COMPILER_MSVC
 #define THREAD_LOCAL __declspec( thread )
 #else
 #define THREAD_LOCAL __thread

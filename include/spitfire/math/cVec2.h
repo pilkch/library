@@ -97,6 +97,11 @@ namespace spitfire
     };
 
     const cVec2 v2Zero(0.0f, 0.0f);
+
+    const cVec2 v2Up(0.0f, 1.0f);
+    const cVec2 v2Down(0.0f, -1.0f);
+    const cVec2 v2Left(1.0f, 0.0f);
+    const cVec2 v2Right(-1.0f, 0.0f);
   }
 }
 
