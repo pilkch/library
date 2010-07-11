@@ -146,9 +146,13 @@ namespace breathe
         float fCurrentTime = float(currentTime);
         pContext->SetShaderConstant("fCurrentTime", fCurrentTime);
 
+        // TODO: Call a cContext function
+        // TODO: Can the blending be replaced with shader colour.a = 0.5?
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+          // Disable culling so that we get double sided triangles
+          // TODO: Call a cContext function
           glDisable(GL_CULL_FACE);
 
             vbo.Bind();

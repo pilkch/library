@@ -355,7 +355,7 @@ namespace spitfire
           memcpy(pOutContent, &content[0], smaller);
 
           // Increment our buffer
-          pOutContent = (char*)pOutContent + smaller;
+          pOutContent = static_cast<char*>(pOutContent) + smaller;
           len -= smaller;
 
 

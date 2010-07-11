@@ -129,7 +129,7 @@ namespace spitfire
 
       boost::system::error_code error;
 
-      len = socket.read_some(boost::asio::buffer((char*)buffer, len), error);
+      len = socket.read_some(boost::asio::buffer(static_cast<char*>(buffer), len), error);
 
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();
@@ -149,7 +149,7 @@ namespace spitfire
 
       boost::system::error_code error;
 
-      len = socket.write_some(boost::asio::buffer((const char*)buffer, len), error);
+      len = socket.write_some(boost::asio::buffer(static_cast<const char*>(buffer), len), error);
 
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();

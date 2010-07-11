@@ -90,14 +90,14 @@ namespace spitfire
 
       inline cVec3 operator-(const cVec3& rhs) const { return cVec3(x - rhs.x, y - rhs.y, z - rhs.z); }
 
-      cVec3 operator*(const float rhs) const;
+      cVec3 operator*(float rhs) const;
 
-      friend cVec3 operator*(const float rhs, const cVec3& v)
+      friend cVec3 operator*(float rhs, const cVec3& v)
       {
         return cVec3(rhs*v.x, rhs*v.y, rhs*v.z);
       }
 
-      cVec3 operator/(const float rhs) const
+      cVec3 operator/(float rhs) const
       { return (rhs==0) ? cVec3(0.0f, 0.0f, 0.0f) : cVec3(x / rhs, y / rhs, z / rhs); }
 
       cVec3 operator/(const cVec3& rhs) const
@@ -110,18 +110,18 @@ namespace spitfire
       bool operator!=(const cVec3& rhs) const;
 
       // Self-add etc
-      void operator+=(const cVec3& rhs)
-      { x += rhs.x;  y += rhs.y;  z += rhs.z; }
+      cVec3& operator+=(const cVec3& rhs)
+      { x += rhs.x;  y += rhs.y;  z += rhs.z; return *this; }
 
-      void operator-=(const cVec3& rhs);
-      void operator*=(const float rhs);
-      void operator/=(const float rhs);
+      cVec3& operator-=(const cVec3& rhs);
+      cVec3& operator*=(float rhs);
+      cVec3& operator/=(float rhs);
 
       inline cVec3& operator=(const cVec3& rhs) { x=rhs.x; y=rhs.y; z=rhs.z; return *this; }
 
 
-      void operator*=(const cVec3& rhs)
-      { x *= rhs.x; y *= rhs.y; z *= rhs.z; }
+      cVec3& operator*=(const cVec3& rhs)
+      { x *= rhs.x; y *= rhs.y; z *= rhs.z; return *this; }
 
       // Unary operators
       cVec3 operator-(void) const { return cVec3(-x, -y, -z); }
