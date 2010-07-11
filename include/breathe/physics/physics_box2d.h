@@ -121,6 +121,7 @@ namespace breathe
       bool bBody;
       bool bDynamic;
       float fFriction;
+      float fRestitition;
       float fRadius;
 
       b2Body* pBody;

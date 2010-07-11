@@ -128,7 +128,6 @@ namespace breathe
     {
       std::list<cBodyRef>::iterator iter = lPhysicsBody.begin();
       const std::list<cBodyRef>::iterator iterEnd = lPhysicsBody.end();
-      std::cout<<"bodies="<<lPhysicsBody.size()<<std::endl;
       while (iter != iterEnd) {
         (*iter)->Update(currentTime);
 
@@ -142,18 +141,22 @@ namespace breathe
 
 
     cBoxProperties::cBoxProperties() :
-      fMassKg(1.0f),
       fWidthMetres(1.0f),
     #ifdef BUILD_PHYSICS_3D
       fDepthMetres(1.0f),
     #endif
-      fHeightMetres(1.0f)
+      fHeightMetres(1.0f),
+      fMassKg(1.0f),
+      fFriction(0.3f),
+      fRestitution(0.1f)
     {
     };
 
     cSphereProperties::cSphereProperties() :
+      fRadiusMetres(0.5f),
       fMassKg(1.0f),
-      fRadiusMetres(0.5f)
+      fFriction(0.3f),
+      fRestitution(0.1f)
     {
     }
 
@@ -164,7 +167,9 @@ namespace breathe
       loader(_loader),
       width(1),
       height(1),
-      scale(1.0f, 1.0f, 1.0f)
+      scale(1.0f, 1.0f, 1.0f),
+      fFriction(0.3f),
+      fRestitution(0.1f)
     {
     }
 
@@ -173,14 +178,18 @@ namespace breathe
       width(properties.width),
       height(properties.height),
       position(properties.position),
-      scale(properties.scale)
+      scale(properties.scale),
+      fFriction(properties.fFriction),
+      fRestitution(properties.fRestitution)
     {
     }
 #else
     cHeightmapProperties::cHeightmapProperties(const std::vector<float>& _values) :
       values(_values),
       width(1),
-      scale(1.0f, 1.0f)
+      scale(1.0f, 1.0f),
+      fFriction(0.3f),
+      fRestitution(0.1f)
     {
     }
 
@@ -188,7 +197,9 @@ namespace breathe
       values(properties.values),
       width(properties.width),
       position(properties.position),
-      scale(properties.scale)
+      scale(properties.scale),
+      fFriction(properties.fFriction),
+      fRestitution(properties.fRestitution)
     {
     }
 #endif

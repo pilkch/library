@@ -20,7 +20,7 @@ namespace spitfire
       cVec3(const cVec3& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; }
 
       inline void Set(float newX, float newY, float newZ) { x=newX; y=newY; z=newZ; }
-      inline void Set(const float *rhs) { x=rhs[0]; y=rhs[1]; z=rhs[2]; }
+      inline void Set(const float* rhs) { x=rhs[0]; y=rhs[1]; z=rhs[2]; }
 
       inline float GetX() const { return x; }
       inline float GetY() const { return y; }

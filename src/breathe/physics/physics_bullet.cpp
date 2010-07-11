@@ -263,23 +263,23 @@ namespace breathe
     }
 
 
-    btRigidBody* cBody::localCreateRigidBody(cWorld* _pWorld, float mass, const btTransform& startTransform,btCollisionShape* shape)
+    btRigidBody* cBody::CreateLocalCreateRigidBody(cWorld* _pWorld, float mass, const btTransform& startTransform, btCollisionShape* shape)
     {
       pWorld = _pWorld;
 
       btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
-      //rigidbody is dynamic if and only if mass is non zero, otherwise static
-      bool isDynamic = (mass != 0.f);
+      // Rigidbody is dynamic if and only if mass is non zero, otherwise static
+      bool bIsDynamic = (mass != 0.0f);
 
       btVector3 localInertia(0,0,0);
-      if (isDynamic) shape->calculateLocalInertia(mass,localInertia);
+      if (bIsDynamic) shape->calculateLocalInertia(mass,localInertia);
 
-      //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+      // Using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 
       btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 
-      btRigidBody::btRigidBodyConstructionInfo cInfo(mass,myMotionState,shape,localInertia);
+      btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
       bodyRigidBody = new btRigidBody(cInfo);
 
@@ -612,7 +612,7 @@ namespace breathe
 
       bullet::cBodyRef pChassisAsBulletBody = boost::static_pointer_cast<bullet::cBody>(pChassis);
 
-      btRigidBody* m_carChassis = pChassisAsBulletBody->localCreateRigidBody(pWorld, 800, tr, compound);
+      btRigidBody* m_carChassis = pChassisAsBulletBody->CreateLocalCreateRigidBody(pWorld, 800, tr, compound);
       //m_carChassis->setDamping(0.2,0.2);
 
       wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));

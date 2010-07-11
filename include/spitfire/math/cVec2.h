@@ -57,6 +57,11 @@ namespace spitfire
 
       cVec2 operator*(const float rhs) const;
 
+      friend cVec2 operator*(float rhs, const cVec2& v)
+      {
+        return cVec2(rhs * v.x, rhs * v.y);
+      }
+
       cVec2 operator/(const float rhs) const
       { return (rhs==0) ? cVec2(0.0f, 0.0f) : cVec2(x / rhs, y / rhs); }
 

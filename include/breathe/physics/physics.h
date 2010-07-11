@@ -136,21 +136,25 @@ namespace breathe
 
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
-      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
     #ifdef BUILD_PHYSICS_3D
       void SetWidthDepthHeightMetres(float _fWidthMetres, float _fDepthMetres, float _fHeightMetres) { fWidthMetres = _fWidthMetres; fDepthMetres = _fDepthMetres; fHeightMetres = _fHeightMetres; }
     #else
       void SetWidthHeightMetres(float _fWidthMetres, float _fHeightMetres) { fWidthMetres = _fWidthMetres; fHeightMetres = _fHeightMetres; }
     #endif
+      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
+      void SetFriction(float _fFriction) { fFriction = _fFriction; }
+      void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
       physvec_t position;
       physrotation_t rotation;
-      float fMassKg;
       float fWidthMetres;
     #ifdef BUILD_PHYSICS_3D
       float fDepthMetres;
     #endif
       float fHeightMetres;
+      float fMassKg;
+      float fFriction;
+      float fRestitution;
     };
 
     class cSphereProperties
@@ -160,13 +164,17 @@ namespace breathe
 
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
-      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
       void SetRadiusMetres(float _fRadiusMetres) { fRadiusMetres = _fRadiusMetres; }
+      void SetMassKg(float _fMassKg) { fMassKg = _fMassKg; }
+      void SetFriction(float _fFriction) { fFriction = _fFriction; }
+      void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
       physvec_t position;
       physrotation_t rotation;
-      float fMassKg;
       float fRadiusMetres;
+      float fMassKg;
+      float fFriction;
+      float fRestitution;
     };
 
 
@@ -231,12 +239,16 @@ namespace breathe
       void SetWidthHeight(size_t _width, size_t _height) { width = _width; height = _height; }
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetScale(const physvec_t& _scale) { scale = _scale; }
+      void SetFriction(float _fFriction) { fFriction = _fFriction; }
+      void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
       const game::cTerrainHeightMap& loader;
       size_t width; // How many samples wide
       size_t height; // How many samples high
       physvec_t position;
       physvec_t scale;
+      float fFriction;
+      float fRestitution;
     };
 
     class cHeightmap
@@ -258,6 +270,8 @@ namespace breathe
       const size_t height; // How many samples high
       physvec_t position;
       physvec_t scale;
+      float fFriction;
+      float fRestitution;
 
     private:
       NO_COPY(cHeightmap);
@@ -275,11 +289,15 @@ namespace breathe
       void SetWidth(size_t _width) { width = _width; }
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetScale(const physvec_t& _scale) { scale = _scale; }
+      void SetFriction(float _fFriction) { fFriction = _fFriction; }
+      void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
       const std::vector<float>& values;
       size_t width; // How many samples wide
       physvec_t position;
       physvec_t scale;
+      float fFriction;
+      float fRestitution;
     };
 
     class cHeightmap
@@ -300,6 +318,8 @@ namespace breathe
       const size_t width; // How many samples wide
       physvec_t position;
       physvec_t scale;
+      float fFriction;
+      float fRestitution;
 
     private:
       NO_COPY(cHeightmap);

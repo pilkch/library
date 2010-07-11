@@ -73,8 +73,9 @@ namespace breathe
       void CreateBox(cWorld* pWorld, const physics::cBoxProperties& properties);
       void CreateSphere(cWorld* pWorld, const physics::cSphereProperties& properties);
 
+    protected:
       // TODO: This is kind of screwy, when this is all working we should remove this
-      btRigidBody* localCreateRigidBody(cWorld* _pWorld, float mass, const btTransform& startTransform,btCollisionShape* shape);
+      btRigidBody* CreateLocalCreateRigidBody(cWorld* pWorld, float mass, const btTransform& startTransform, btCollisionShape* shape);
 
     private:
       NO_COPY(cBody);

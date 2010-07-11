@@ -365,8 +365,8 @@ namespace breathe
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
       fixtureDef.density = fMassKg;
-      fixtureDef.friction = fFriction;
-      fixtureDef.restitution = 0.8f;
+      fixtureDef.friction = properties.fFriction;
+      fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
     }
 
@@ -381,13 +381,13 @@ namespace breathe
       pBody = pWorld->GetWorld()->CreateBody(&bodyDef);
 
       b2CircleShape shapeDef;
-      shapeDef.m_radius = fRadius;
+      shapeDef.m_radius = properties.fRadiusMetres;
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = fMassKg;
-      fixtureDef.friction = fFriction;
-      fixtureDef.restitution = 0.8f;
+      fixtureDef.density = properties.fMassKg;
+      fixtureDef.friction = properties.fFriction;
+      fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
     }
 
@@ -415,97 +415,8 @@ namespace breathe
       position.x = pBody->GetPosition().x;
       position.y = pBody->GetPosition().y;
 
-      rotation = -spitfire::math::RadiansToDegrees(pBody->GetAngle());
+      rotation = spitfire::math::RadiansToDegrees(pBody->GetAngle());
     }
-
-    /*
-    void cBody::CreateBox(cWorld* _pWorld, const physics::cBoxProperties& properties)
-    {
-      pWorld = _pWorld;
-
-      position = properties.position;
-      rotation = properties.rotation;
-      fMassKg = properties.fMassKg;
-
-      geom = dCreateBox(pWorld->GetSpaceDynamic(), properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
-
-      InitCommon(pWorld);
-
-      dMass mass;
-      dMassSetBoxTotal(&mass, fMassKg, properties.fWidthMetres, properties.fDepthMetres, properties.fHeightMetres);
-      dBodySetMass(body, &mass);
-    }
-
-    void cBody::CreateSphere(cWorld* _pWorld, const physics::cSphereProperties& properties)
-    {
-      pWorld = _pWorld;
-
-      position = properties.position;
-      rotation = properties.rotation;
-      fMassKg = properties.fMassKg;
-
-      geom = dCreateSphere(pWorld->GetSpaceDynamic(), properties.fRadiusMetres);
-
-      InitCommon(pWorld);
-
-      dMass mass;
-      dMassSetSphereTotal(&mass, fMassKg, 2.0f * properties.fRadiusMetres);
-      dBodySetMass(body, &mass);
-    }
-
-
-    void cBody::_AddForceRelativeToWorldKg(const physics::physvec_t& forceKg)
-    {
-      ASSERT(body != NULL);
-      dBodyAddForce(body, forceKg.x, forceKg.y, forceKg.z);
-    }
-
-    void cBody::_AddTorqueRelativeToWorldNm(const physics::physvec_t& torqueNm)
-    {
-      ASSERT(body != NULL);
-      dBodyAddTorque(body, torqueNm.x, torqueNm.y, torqueNm.z);
-    }
-
-    void cBody::_AddForceRelativeToObjectKg(const physics::physvec_t& forceKg)
-    {
-      ASSERT(body != NULL);
-      dBodyAddRelForce(body, forceKg.x, forceKg.y, forceKg.z);
-    }
-
-    void cBody::_AddTorqueRelativeToObjectNm(const physics::physvec_t& torqueNm)
-    {
-      ASSERT(body != NULL);
-      dBodyAddRelTorque(body, torqueNm.x, torqueNm.y, torqueNm.z);
-    }
-
-
-    void cBody::_Update(sampletime_t currentTime)
-    {
-      if (body != NULL) {
-        const dReal* p0 = dBodyGetPosition(body);
-        const dReal* r0 = dBodyGetQuaternion(body);
-        //const dReal* v0 = dBodyGetLinearVel(body);
-        //const dReal *a0 = dBodyGetAngularVel(body);
-
-        ASSERT(p0 != nullptr);
-        ASSERT(r0 != nullptr);
-        position.Set(p0[0], p0[1], p0[2]);
-        rotation.SetFromODEQuaternion(r0);
-      }
-    }
-
-    void cBody::_Remove()
-    {
-      if (body != NULL) {
-        dBodyDestroy(body);
-        body = NULL;
-      }
-
-      if (geom != NULL) {
-        dGeomDestroy(geom);
-        geom = NULL;
-      }
-    }*/
 
 
     cHeightmap::cHeightmap(const physics::cHeightmapProperties& properties) :
@@ -549,7 +460,7 @@ namespace breathe
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shapeDef;
         fixtureDef.friction = fFriction;
-        fixtureDef.restitution = 0.8f;
+        fixtureDef.restitution = fRestitution;
         pBody->CreateFixture(&fixtureDef);
       }
     }
