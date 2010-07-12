@@ -42,6 +42,10 @@ namespace opengl
     SPOTLIGHT,
   };
 
+  enum class MODE2D_TYPE {
+    Y_INCREASES_UP_SCREEN, // Y increases up the screen (ie. a video game will usually have the origin at the bottom left of the screen)
+    Y_INCREASES_DOWN_SCREEN // Y increases down the screen (ie. a GUI will usually have the origin at the top left of the screen)
+  };
 
   // OpenGL 3.2 Contexts in SDL
   // http://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_%28C_/_SDL%29
@@ -106,7 +110,7 @@ namespace opengl
     //void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face);
     //void EndRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture);
 
-    void BeginRenderMode2D();
+    void BeginRenderMode2D(MODE2D_TYPE type);
     void EndRenderMode2D();
 
 

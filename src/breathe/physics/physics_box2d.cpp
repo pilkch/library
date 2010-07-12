@@ -298,22 +298,25 @@ namespace breathe
 
     void cBody::_AddForceRelativeToWorldKg(const spitfire::math::cVec2& forceKg)
     {
-      //b2Vec2 direction = rightWheel->GetTransform().R.col2;
-      //direction *= forceKg;
       const b2Vec2 force(forceKg.x, forceKg.y);
       pBody->ApplyForce(force, pBody->GetPosition());
     }
 
-    void cBody::_AddTorqueRelativeToWorldNm(const spitfire::math::cVec2& torqueNm)
+    void cBody::_AddTorqueRelativeToWorldNm(const float& torqueNm)
     {
+      pBody->ApplyTorque(torqueNm);
     }
 
-    void cBody::_AddForceRelativeToObjectKg(const spitfire::math::cVec2& forceKg)
+    void cBody::_AddForceRelativeToBodyKg(const spitfire::math::cVec2& forceKg)
     {
+      b2Transform transform = pBody->GetTransform();
+      const b2Vec2 forceInRelativeDirection = b2Mul(transform.R, b2Vec2(forceKg.x, forceKg.y));
+      pBody->ApplyForce(forceInRelativeDirection, pBody->GetPosition());
     }
 
-    void cBody::_AddTorqueRelativeToObjectNm(const spitfire::math::cVec2& torqueNm)
+    void cBody::_AddTorqueRelativeToBodyNm(const float& torqueNm)
     {
+      pBody->ApplyTorque(torqueNm);
     }
 
     /*void cBody::InitCommon(std::list<b2ShapeDef*>& lShapes, const spitfire::math::cVec2& pos, float rot)
@@ -442,13 +445,16 @@ namespace breathe
       const size_t n = width - 1;
       for (size_t i = 0; i < n; i++) {
         // Box2D accepts polygons with points specified in CCW order
+        // We drop the bottom of the polygons to -1.0f to ensure that they are at least 1 unit tall
         b2Vec2 vertices[4];
         const float x0 = scale.x * float(i);
         const float y0 = scale.y * values[i];
         const float x1 = scale.x * float(i + 1);
         const float y1 = scale.y * values[i + 1];
-        vertices[0].Set(x0, 0.0f);
-        vertices[1].Set(x1, 0.0f);
+        ASSERT(y0 >= 0.0f);
+        ASSERT(y1 >= 0.0f);
+        vertices[0].Set(x0, -1.0f);
+        vertices[1].Set(x1, -1.0f);
         vertices[2].Set(x1, y1);
         vertices[3].Set(x0, y0);
 

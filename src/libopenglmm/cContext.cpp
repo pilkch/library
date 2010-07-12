@@ -456,7 +456,7 @@ namespace opengl
     glDisable(GL_TEXTURE_2D);
   }
 
-  void cContext::BeginRenderMode2D()
+  void cContext::BeginRenderMode2D(MODE2D_TYPE type)
   {
     // Setup new matrices without touching the cached versions so that we can revert later
 
@@ -468,7 +468,11 @@ namespace opengl
     //
     // 0.0f, 1.0f            1.0f, 1.0f
 
-    matNewProjection.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Invert Y axis so increasing Y goes down.
+    if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN) {
+      matNewProjection.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
+    } else {
+      matNewProjection.SetOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
+    }
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(matNewProjection.GetOpenGLMatrixPointer());

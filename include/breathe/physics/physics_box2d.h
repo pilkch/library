@@ -107,10 +107,10 @@ namespace breathe
 
 
       virtual void _AddForceRelativeToWorldKg(const spitfire::math::cVec2& forceKg);
-      virtual void _AddTorqueRelativeToWorldNm(const spitfire::math::cVec2& torqueNm);
+      virtual void _AddTorqueRelativeToWorldNm(const float& torqueNm);
 
-      virtual void _AddForceRelativeToObjectKg(const spitfire::math::cVec2& forceKg);
-      virtual void _AddTorqueRelativeToObjectNm(const spitfire::math::cVec2& torqueNm);
+      virtual void _AddForceRelativeToBodyKg(const spitfire::math::cVec2& forceKg);
+      virtual void _AddTorqueRelativeToBodyNm(const float& torqueNm);
 
       virtual void _Update(sampletime_t currentTime);
 

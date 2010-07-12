@@ -194,10 +194,18 @@ namespace breathe
       void SetMassKg(float fMassKg) { _SetMassKg(fMassKg); }
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg) { _AddForceRelativeToWorldKg(forceKg); }
+      #ifdef BUILD_PHYSICS_3D
       void AddTorqueRelativeToWorldNm(const physvec_t& torqueNm) { _AddTorqueRelativeToWorldNm(torqueNm); }
+      #else
+      void AddTorqueRelativeToWorldNm(const physrotation_t& torqueNm) { _AddTorqueRelativeToWorldNm(torqueNm); }
+      #endif
 
-      void AddForceRelativeToObjectKg(const physvec_t& forceKg) { _AddForceRelativeToObjectKg(forceKg); }
-      void AddTorqueRelativeToObjectNm(const physvec_t& torqueNm) { _AddTorqueRelativeToObjectNm(torqueNm); }
+      void AddForceRelativeToBodyKg(const physvec_t& forceKg) { _AddForceRelativeToBodyKg(forceKg); }
+      #ifdef BUILD_PHYSICS_3D
+      void AddTorqueRelativeToBodyNm(const physvec_t& torqueNm) { _AddTorqueRelativeToBodyNm(torqueNm); }
+      #else
+      void AddTorqueRelativeToBodyNm(const physrotation_t& torqueNm) { _AddTorqueRelativeToBodyNm(torqueNm); }
+      #endif
 
       void Update(sampletime_t currentTime) { _Update(currentTime); }
 
@@ -218,10 +226,18 @@ namespace breathe
       virtual void _SetMassKg(float fMassKg) = 0;
 
       virtual void _AddForceRelativeToWorldKg(const physvec_t& forceKg) = 0;
+      #ifdef BUILD_PHYSICS_3D
       virtual void _AddTorqueRelativeToWorldNm(const physvec_t& torqueNm) = 0;
+      #else
+      virtual void _AddTorqueRelativeToWorldNm(const physrotation_t& torqueNm) = 0;
+      #endif
 
-      virtual void _AddForceRelativeToObjectKg(const physvec_t& forceKg) = 0;
-      virtual void _AddTorqueRelativeToObjectNm(const physvec_t& torqueNm) = 0;
+      virtual void _AddForceRelativeToBodyKg(const physvec_t& forceKg) = 0;
+      #ifdef BUILD_PHYSICS_3D
+      virtual void _AddTorqueRelativeToBodyNm(const physvec_t& torqueNm) = 0;
+      #else
+      virtual void _AddTorqueRelativeToBodyNm(const physrotation_t& torqueNm) = 0;
+      #endif
 
       virtual void _Update(sampletime_t currentTime) = 0;
 
