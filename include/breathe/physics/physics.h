@@ -12,6 +12,7 @@
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
 #endif
+#include <spitfire/math/geometry.h>
 
 #include <breathe/breathe.h>
 
@@ -75,6 +76,9 @@ namespace breathe
     class cCar;
     typedef cSmartPtr<cCar> cCarRef;
 
+    class cRayCast;
+    class cCollisionResult;
+
 
     cWorld* Create(DRIVER driver, const physvec_t& worldDimensions);
     void Destroy(cWorld* pWorld);
@@ -103,6 +107,13 @@ namespace breathe
 
       size_t GetNumberOfBodies() const { return lPhysicsBody.size(); }
 
+      #ifdef BUILD_PHYSICS_2D
+      void CastRay(const spitfire::math::cRay2& ray, cCollisionResult& result) { _CastRay(ray, result); }
+      #else
+      void CastRay(const spitfire::math::cRay3& ray, cCollisionResult& result) { _CastRay(ray, result); }
+      #endif
+      //void CastRayFromBody(const cBody& body, cCollisionResult& result) { _CastRayFromBody(body, result); }
+
       void Update(sampletime_t currentTime);
 
     protected:
@@ -123,6 +134,13 @@ namespace breathe
 
       virtual void _DestroyBody(cBodyRef pBody) = 0;
       virtual void _DestroyCar(cCarRef pCar) = 0;
+
+      #ifdef BUILD_PHYSICS_2D
+      virtual void _CastRay(const spitfire::math::cRay2& ray, cCollisionResult& result) = 0;
+      #else
+      virtual void _CastRay(const spitfire::math::cRay3& ray, cCollisionResult& result) = 0;
+      #endif
+      //virtual void _CastRayFromBody(const cBody& body, cCollisionResult& result) = 0;
 
       virtual void _Update(sampletime_t currentTime) = 0;
     };
@@ -412,6 +430,34 @@ namespace breathe
 
     private:
       virtual void _Update(sampletime_t currentTime) = 0;
+    };
+
+
+    class cCollisionResult
+    {
+    public:
+      cCollisionResult() { bIsIntersection = false; }
+
+      void Clear() { bIsIntersection = false; }
+
+      bool IsIntersection() const { return bIsIntersection; }
+      void SetIsIntersection() { bIsIntersection = true; }
+
+      const physvec_t& GetIntersectionPoint() const { return intersectionPoint; }
+      void SetIntersectionPoint(const physvec_t& _intersectionPoint) { intersectionPoint = _intersectionPoint; }
+
+      const physvec_t& GetIntersectionNormal() const { return intersectionNormal; }
+      void SetIntersectionNormal(const physvec_t& _intersectionNormal) { intersectionNormal = _intersectionNormal; }
+
+      //const cGeometry& GetGeometry() const;
+      //void SetGeometry(const cGeometry& geometry);
+
+    private:
+      bool bIsIntersection;
+      physvec_t intersectionPoint;
+      physvec_t intersectionNormal;
+
+      //const cGeometry* pGeometry;
     };
   }
 }

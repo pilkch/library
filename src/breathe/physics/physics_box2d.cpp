@@ -226,6 +226,47 @@ namespace breathe
       //lPhysicsBody.remove(pCar->GetBody());
     }
 
+    // This class captures the closest hit shape.
+
+    class cRayCastCallback : public b2RayCastCallback
+    {
+    public:
+      explicit cRayCastCallback(physics::cCollisionResult& _result) :
+        result(_result),
+        m_fixture(nullptr)
+      {
+      }
+
+      float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction)
+      {
+        result.SetIsIntersection();
+        result.SetIntersectionPoint(spitfire::math::cVec2(point.x, point.y));
+        result.SetIntersectionNormal(spitfire::math::cVec2(normal.x, normal.y));
+
+        m_fixture = fixture;
+        m_fraction = fraction;
+
+        return fraction;
+      }
+
+      physics::cCollisionResult& result;
+      b2Fixture* m_fixture;
+      float32 m_fraction;
+    };
+
+    void cWorld::_CastRay(const spitfire::math::cRay2& ray, physics::cCollisionResult& result)
+    {
+      cRayCastCallback callback(result);
+
+      const spitfire::math::cVec2& origin = ray.GetOrigin();
+      const b2Vec2 point1(origin.x, origin.y);
+
+      const spitfire::math::cVec2& destination = ray.GetOrigin() + (10.0f * ray.GetDirection());
+      const b2Vec2 point2(destination.x, destination.y);
+
+      pWorld->RayCast(&callback, point1, point2);
+    }
+
     void cWorld::_Update(sampletime_t currentTime)
     {
       // Step the world

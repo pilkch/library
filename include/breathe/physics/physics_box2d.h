@@ -79,6 +79,8 @@ namespace breathe
       virtual void _DestroyBody(physics::cBodyRef pBody);
       virtual void _DestroyCar(physics::cCarRef pCar);
 
+      virtual void _CastRay(const spitfire::math::cRay2& ray, physics::cCollisionResult& result);
+
       virtual void _Update(sampletime_t currentTime);
 
       b2World* pWorld;

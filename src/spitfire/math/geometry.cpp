@@ -33,6 +33,21 @@ namespace spitfire
       return v3Zero;
     }
 
+    // *** cRay2
+
+    void cRay2::SetOriginAndDirection(const cVec2& _origin, const cVec2& _direction)
+    {
+      origin = _origin;
+      direction = _direction;
+    }
+
+    void cRay2::SetLength(float_t _length)
+    {
+      ASSERT(_length >= 0.0f);
+
+      length = _length;
+    }
+
     // *** cRay3
 
     void cRay3::SetOriginAndDirection(const cVec3& _origin, const cVec3& _direction)

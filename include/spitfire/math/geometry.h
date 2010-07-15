@@ -158,6 +158,38 @@ namespace spitfire
     };
 
     // A point and direction to travel from that point, the ray itself is infinite length
+    class cRay2
+    {
+    public:
+      cRay2();
+
+      void SetOriginAndDirection(const cVec2& origin, const cVec2& direction);
+      void SetLength(float_t length);
+
+      const cVec2& GetOrigin() const { return origin; }
+      const cVec2& GetDirection() const { return direction; }
+      const float_t& GetLength() const { return length; }
+
+      //bool CollideWithPlane(const cPlane& rhs, float& fDepth) const;
+      //bool CollideWithAABB(const cAABB2& rhs, float& fDepth) const;
+      //bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
+      //bool CollideWithTriangle(const cVec2& p0, const cVec2& p1, const cVec2& p2, float& fDepth) const;
+
+    private:
+      cVec2 origin;
+      cVec2 direction;
+      float_t length;
+    };
+
+    inline cRay2::cRay2() :
+      origin(v2Zero),
+      direction(v2Down),
+      length(100000.0f) // Just a big enough number to get to the other side of the scene
+    {
+    }
+
+
+    // A point and direction to travel from that point, the ray itself is infinite length
     class cRay3
     {
     public:
