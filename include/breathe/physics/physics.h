@@ -205,10 +205,13 @@ namespace breathe
 
       const physvec_t& GetPositionAbsolute() const { return position; }
       const physrotation_t& GetRotationAbsolute() const { return rotation; }
+      const physvec_t& GetVelocityAbsolute() const { return velocity; }
       float GetMassKg() const { return fMassKg; }
 
       void SetPositionAbsolute(const physvec_t& position) { _SetPositionAbsolute(position); }
       void SetRotationAbsolute(const physrotation_t& rotation) { _SetRotationAbsolute(rotation); }
+      void SetVelocityAbsolute(const physvec_t& velocity) { _SetVelocityAbsolute(velocity); }
+      void SetRotationVelocityAbsolute(const physrotation_t& rotationalVelocity) { _SetRotationVelocityAbsolute(rotationalVelocity); }
       void SetMassKg(float fMassKg) { _SetMassKg(fMassKg); }
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg) { _AddForceRelativeToWorldKg(forceKg); }
@@ -232,7 +235,7 @@ namespace breathe
     protected:
       physvec_t position;
       physrotation_t rotation;
-      // TODO: Add velocity
+      physvec_t velocity;
       // TODO: Add rotational velocity
       float fMassKg;
 
@@ -241,6 +244,8 @@ namespace breathe
 
       virtual void _SetPositionAbsolute(const physvec_t& position) = 0;
       virtual void _SetRotationAbsolute(const physrotation_t& rotation) = 0;
+      virtual void _SetVelocityAbsolute(const physvec_t& velocity) = 0;
+      virtual void _SetRotationVelocityAbsolute(const physrotation_t& rotationalVelocity) = 0;
       virtual void _SetMassKg(float fMassKg) = 0;
 
       virtual void _AddForceRelativeToWorldKg(const physvec_t& forceKg) = 0;
@@ -409,6 +414,7 @@ namespace breathe
 
       const physvec_t& GetPositionAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetPositionAbsolute(); }
       const physrotation_t& GetRotationAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetRotationAbsolute(); }
+      const physvec_t& GetVelocityAbsolute() const { ASSERT(pChassis != nullptr); return pChassis->GetVelocityAbsolute(); }
 
       const physvec_t& GetWheelPositionRelative(size_t index) const { ASSERT(index < 4); return wheelPositionRelative[index]; }
       const physrotation_t& GetWheelRotationRelative(size_t index) const { ASSERT(index < 4); return wheelRotationRelative[index]; }
@@ -443,6 +449,9 @@ namespace breathe
       bool IsIntersection() const { return bIsIntersection; }
       void SetIsIntersection() { bIsIntersection = true; }
 
+      const float& GetIntersectionLength() const { return fIntersectionLength; }
+      void SetIntersectionLength(float _fIntersectionLength) { fIntersectionLength = _fIntersectionLength; }
+
       const physvec_t& GetIntersectionPoint() const { return intersectionPoint; }
       void SetIntersectionPoint(const physvec_t& _intersectionPoint) { intersectionPoint = _intersectionPoint; }
 
@@ -454,6 +463,7 @@ namespace breathe
 
     private:
       bool bIsIntersection;
+      float fIntersectionLength;
       physvec_t intersectionPoint;
       physvec_t intersectionNormal;
 

@@ -239,6 +239,18 @@ namespace breathe
 
       float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction)
       {
+        /*
+        // Ignore polygon with index 0
+        b2Body* body = fixture->GetBody();
+        void* pUserData = body->GetUserData();
+        if (pUserData) {
+          int32 index = *(int32*)pUserData;
+          if (index == 0) {
+            // filter
+            return -1.0f;
+          }
+        }*/
+
         result.SetIsIntersection();
         result.SetIntersectionPoint(spitfire::math::cVec2(point.x, point.y));
         result.SetIntersectionNormal(spitfire::math::cVec2(normal.x, normal.y));
@@ -261,10 +273,12 @@ namespace breathe
       const spitfire::math::cVec2& origin = ray.GetOrigin();
       const b2Vec2 point1(origin.x, origin.y);
 
-      const spitfire::math::cVec2& destination = ray.GetOrigin() + (10.0f * ray.GetDirection());
+      const spitfire::math::cVec2& destination = ray.GetOrigin() + (ray.GetLength() * ray.GetDirection());
       const b2Vec2 point2(destination.x, destination.y);
 
       pWorld->RayCast(&callback, point1, point2);
+
+      if (result.IsIntersection()) result.SetIntersectionLength((ray.GetOrigin() - result.GetIntersectionPoint()).GetLength());
     }
 
     void cWorld::_Update(sampletime_t currentTime)
@@ -325,12 +339,27 @@ namespace breathe
       }
     }
 
-    void cBody::_SetPositionAbsolute(const spitfire::math::cVec2& position)
+    void cBody::_SetPositionAbsolute(const spitfire::math::cVec2& _position)
     {
+      const b2Vec2 position(_position.x, _position.y);
+      pBody->SetTransform(position, pBody->GetAngle());
     }
 
     void cBody::_SetRotationAbsolute(const float_t& fRotation)
     {
+      pBody->SetTransform(pBody->GetPosition(), spitfire::math::DegreesToRadians(fRotation));
+    }
+
+    void cBody::_SetVelocityAbsolute(const spitfire::math::cVec2& _velocity)
+    {
+      const b2Vec2 velocity(_velocity.x, _velocity.y);
+      pBody->SetLinearVelocity(velocity);
+    }
+
+    void cBody::_SetRotationVelocityAbsolute(const float_t& rotationalVelocity)
+    {
+      const float_t fOmega = rotationalVelocity;
+      pBody->SetAngularVelocity(fOmega);
     }
 
     void cBody::_SetMassKg(float fMassKg)
@@ -460,6 +489,9 @@ namespace breathe
       position.y = pBody->GetPosition().y;
 
       rotation = spitfire::math::RadiansToDegrees(pBody->GetAngle());
+
+      velocity.x = pBody->GetLinearVelocity().x;
+      velocity.y = pBody->GetLinearVelocity().y;
     }
 
 
