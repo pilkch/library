@@ -103,11 +103,11 @@ namespace opengl
     else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
     else nTextureUnits = 0;
 
-    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
     // Create a new buffer
     glGenBuffers(1, &bufferID);
-    std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
     assert(bufferID != 0);
 
     // Bbind the buffer object to use
@@ -209,11 +209,11 @@ namespace opengl
     else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
     else nTextureUnits = 0;
 
-    std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile2D nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
     // Create a new buffer
     glGenBuffers(1, &bufferID);
-    std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile2D glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
     assert(bufferID != 0);
 
     // Bbind the buffer object to use
@@ -307,6 +307,25 @@ namespace opengl
   {
     //glDeleteBuffers(1, &cubeIBO);
     glDeleteBuffers(1, &bufferID);
+
+    bufferID = 0;
+
+    bIsCompiled = false;
+    bIs2D = false;
+
+    vertices.clear();
+    normals.clear();
+    colours.clear();
+    textureCoordinates.clear();
+    indices.clear();
+
+    vertex_size = 0;
+    normal_size = 0;
+    colour_size = 0;
+    texturecoordinate_size = 0;
+    indices_size = 0;
+
+    nTextureUnits = 0;
   }
 
   void cStaticVertexBufferObject::Bind()
@@ -499,6 +518,11 @@ namespace opengl
     RenderGeometry(GL_QUAD_STRIP);
   }
 
+
+  void cStaticVertexBufferObject::RenderLines2D()
+  {
+    RenderGeometry2D(GL_LINES);
+  }
 
   void cStaticVertexBufferObject::RenderQuads2D()
   {

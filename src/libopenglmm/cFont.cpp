@@ -292,7 +292,7 @@ namespace opengl
     const size_t n = sTextUTF8.length();
     for (size_t i = 0; i < n; i++) {
       const char c = sTextUTF8[i];
-      std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
+      //std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
       const size_t index = size_t(c);
 
       const float fCharacterX = position.x - fGlyphU[index];

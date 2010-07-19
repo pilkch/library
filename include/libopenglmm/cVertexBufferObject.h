@@ -73,6 +73,7 @@ namespace opengl
     void RenderQuads();
     void RenderQuadStrip();
 
+    void RenderLines2D();
     void RenderQuads2D();
 
   private:

@@ -811,6 +811,11 @@ namespace opengl
   }
 
 
+  void cContext::DrawStaticVertexBufferObjectLines2D(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderLines2D();
+  }
+
   void cContext::DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject)
   {
     staticVertexBufferObject.RenderQuads2D();

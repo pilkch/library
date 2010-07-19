@@ -47,6 +47,18 @@ namespace opengl
     std::vector<float>& vertices;
   };
 
+  class cGeometryBuilder_v2_c4
+  {
+  public:
+    cGeometryBuilder_v2_c4(std::vector<float>& vertices, std::vector<float>&colours);
+
+    void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour);
+
+  private:
+    std::vector<float>& vertices;
+    std::vector<float>& colours;
+  };
+
   class cGeometryBuilder_v2_t2
   {
   public:
@@ -204,6 +216,23 @@ namespace opengl
   {
     vertices.push_back(vertex.x);
     vertices.push_back(vertex.y);
+  }
+
+
+  inline cGeometryBuilder_v2_c4::cGeometryBuilder_v2_c4(std::vector<float>& _vertices, std::vector<float>& _colours) :
+    vertices(_vertices),
+    colours(_colours)
+  {
+  }
+
+  inline void cGeometryBuilder_v2_c4::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    colours.push_back(colour.r);
+    colours.push_back(colour.g);
+    colours.push_back(colour.b);
+    colours.push_back(colour.a);
   }
 
 
