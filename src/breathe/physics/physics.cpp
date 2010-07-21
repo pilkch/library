@@ -141,6 +141,7 @@ namespace breathe
 
 
     cBoxProperties::cBoxProperties() :
+      bIsDynamic(true),
       fWidthMetres(1.0f),
     #ifdef BUILD_PHYSICS_3D
       fDepthMetres(1.0f),
@@ -153,6 +154,7 @@ namespace breathe
     };
 
     cSphereProperties::cSphereProperties() :
+      bIsDynamic(true),
       fRadiusMetres(0.5f),
       fMassKg(1.0f),
       fFriction(0.3f),

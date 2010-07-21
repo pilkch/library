@@ -427,7 +427,7 @@ namespace breathe
       pWorld = _pWorld;
 
       b2BodyDef bodyDef;
-      bodyDef.type = b2_dynamicBody;
+      bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
       //bodyDef.userData = this;
       pBody = pWorld->GetWorld()->CreateBody(&bodyDef);
@@ -448,7 +448,7 @@ namespace breathe
       pWorld = _pWorld;
 
       b2BodyDef bodyDef;
-      bodyDef.type = b2_dynamicBody;
+      bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
       //bodyDef.userData = this;
       pBody = pWorld->GetWorld()->CreateBody(&bodyDef);

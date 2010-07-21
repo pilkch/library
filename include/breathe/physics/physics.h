@@ -152,6 +152,8 @@ namespace breathe
     public:
       cBoxProperties();
 
+      void SetDynamic() { bIsDynamic = true; }
+      void SetStatic() { bIsDynamic = false; }
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
     #ifdef BUILD_PHYSICS_3D
@@ -163,6 +165,7 @@ namespace breathe
       void SetFriction(float _fFriction) { fFriction = _fFriction; }
       void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
+      bool bIsDynamic;
       physvec_t position;
       physrotation_t rotation;
       float fWidthMetres;
@@ -180,6 +183,8 @@ namespace breathe
     public:
       cSphereProperties();
 
+      void SetDynamic() { bIsDynamic = true; }
+      void SetStatic() { bIsDynamic = false; }
       void SetPositionAbsolute(const physvec_t& _position) { position = _position; }
       void SetRotationAbsolute(const physrotation_t& _rotation) { rotation = _rotation; }
       void SetRadiusMetres(float _fRadiusMetres) { fRadiusMetres = _fRadiusMetres; }
@@ -187,6 +192,7 @@ namespace breathe
       void SetFriction(float _fFriction) { fFriction = _fFriction; }
       void SetRestitution(float _fRestitution) { fRestitution = _fRestitution; }
 
+      bool bIsDynamic;
       physvec_t position;
       physrotation_t rotation;
       float fRadiusMetres;
