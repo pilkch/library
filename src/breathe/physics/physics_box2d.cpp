@@ -429,6 +429,8 @@ namespace breathe
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
+      //bodyDef.linearDamping = 0.0f;
+      bodyDef.angularDamping = 0.01f;
       //bodyDef.userData = this;
       pBody = pWorld->GetWorld()->CreateBody(&bodyDef);
 
@@ -437,7 +439,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = fMassKg;
+      fixtureDef.density = properties.fMassKg; // TODO: This should be the actual density, not the total mass
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
@@ -450,6 +452,8 @@ namespace breathe
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
+      //bodyDef.linearDamping = 0.0f;
+      bodyDef.angularDamping = 0.01f;
       //bodyDef.userData = this;
       pBody = pWorld->GetWorld()->CreateBody(&bodyDef);
 
@@ -458,7 +462,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = properties.fMassKg;
+      fixtureDef.density = properties.fMassKg; // TODO: This should be the actual density, not the total mass
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);

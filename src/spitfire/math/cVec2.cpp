@@ -58,28 +58,24 @@ namespace spitfire
       y=1.0f;
     }
 
-                                void cVec2::Normalise()
+    void cVec2::Normalise()
     {
-      float length;
-      float scalefactor;
-      length=GetLength();
+      const float length = GetLength();
 
-      if (length==1 || length==0)      //return if length is 1 or 0
+      if (length == 1 || length == 0)      //return if length is 1 or 0
         return;
 
-      scalefactor = 1.0f/length;
+      const float scalefactor = 1.0f / length;
       x *= scalefactor;
       y *= scalefactor;
     }
 
     void cVec2::SetLength(float length)
     {
-      float scalefactor;
-
-      if (length==1 || length==0)      //return if length is 1 or 0
+      if (length == 1 || length == 0)      //return if length is 1 or 0
         return;
 
-      scalefactor = 1.0f/length;
+      const float scalefactor = 1.0f/length;
       x *= scalefactor;
       y *= scalefactor;
     }
@@ -93,13 +89,18 @@ namespace spitfire
       return result;
     }
 
-                                cVec2 cVec2::GetNormalised() const
+    cVec2 cVec2::GetNormalised() const
     {
       cVec2 result(*this);
 
-                                                result.Normalise();
+      result.Normalise();
 
       return result;
+    }
+
+    float cVec2::GetMagnitude() const
+    {
+      return GetLength();
     }
 
     void cVec2::PackTo01()
@@ -111,7 +112,7 @@ namespace spitfire
     {
       cVec2 temp(*this);
 
-                                                temp.Normalise();
+      temp.Normalise();
 
       temp=temp*0.5f+cVec2(0.5f, 0.5f);
 

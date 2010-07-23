@@ -5,6 +5,19 @@ namespace spitfire
 {
   namespace math
   {
+    inline float GetAngleDegreesFromNormal(const cVec2& normal)
+    {
+      //float fTargetAngleDegrees = 90.0f;
+      //if (normal.x != 0.0f) fTargetAngleDegrees += RadiansToDegrees(atanf(normal.y / normal.x));
+      return -RadiansToDegrees(atan2f(normal.x, normal.y));
+    }
+
+    inline cVec2 GetNormalFromAngleDegrees(float fAngleDegrees)
+    {
+      return (cVec2(cosf(DegreesToRadians(fAngleDegrees)), sinf(DegreesToRadians(fAngleDegrees)))).GetNormalised();
+    }
+
+
     // This is for 2 dimensions
     class cCircle
     {

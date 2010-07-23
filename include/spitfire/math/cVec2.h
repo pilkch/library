@@ -40,6 +40,8 @@ namespace spitfire
       float GetSquaredLength() const
       { return (x*x)+(y*y); }
 
+      float GetMagnitude() const;
+
       //pack to [0,1] for color
       void PackTo01();
       cVec2 GetPackedTo01() const;

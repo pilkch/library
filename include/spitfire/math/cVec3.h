@@ -56,10 +56,9 @@ namespace spitfire
       cVec3 SetLength(float length) const;
 
       float GetLength() const;
+      float GetSquaredLength() const;
 
       float GetMagnitude() const;
-
-      float GetSquaredLength() const;
 
       // Rotations
       void RotateX(double angle);
