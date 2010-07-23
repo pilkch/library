@@ -106,7 +106,7 @@ namespace breathe
       virtual void _SetPositionAbsolute(const spitfire::math::cVec2& position);
       virtual void _SetRotationAbsolute(const float_t& fRotation);
       virtual void _SetVelocityAbsolute(const spitfire::math::cVec2& velocity);
-      virtual void _SetRotationVelocityAbsolute(const float_t& rotationalVelocity);
+      virtual void _SetRotationalVelocityAbsolute(const float_t& rotationalVelocity);
       virtual void _SetMassKg(float fMassKg);
 
 

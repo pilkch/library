@@ -1,13 +1,6 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-// TODO: Future
-// Now using boost::circular_buffer directly
-// c++0x: Change this to something like
-//typedef boost::circular_buffer cCircularBuffer;
-// Although I can't find a working version of boost::circular_buffer so I am not using it for the moment
-// #define cCircularBuffer boost::circular_buffer
-
 // In general it would be great if we could get rid of this whole file and just use STL/Boost/TR1 classes only, but
 // I haven't found replacements for everything just yet, waiting for C++0x.
 
@@ -243,68 +236,6 @@ namespace spitfire
     std::vector<T> replacement(width * height);
     elements = replacement;
     ASSERT(elements.size() == (width * height));
-  }
-
-
-  // Basically a vector that wraps around, items can be added but not removed, once an item is pushed back the at member is incremented
-  // and rolled over.  Once a cCircularBuffer has been created it is a fixed size.
-  template<class T>
-  class cCircularBuffer
-  {
-  public:
-    explicit cCircularBuffer(size_t nElements);
-
-    void push_back(const T& t);
-    size_t size() const { return data.size(); }
-
-    T& operator[](size_t i);
-    const T& operator[](size_t i) const;
-
-    void SetAllItemsToValue(const T& value);
-
-  private:
-    size_t at;
-    std::vector<T> data;
-  };
-
-  template<class T>
-  inline cCircularBuffer<T>::cCircularBuffer(size_t nElements) :
-    at(0),
-    data(nElements)
-  {
-    ASSERT(nElements != 0);
-  }
-
-  template<class T>
-  inline T& cCircularBuffer<T>::operator[](size_t i)
-  {
-    const size_t n = (at + i) % data.size();
-    return data[n];
-  }
-
-  template<class T>
-  inline const T& cCircularBuffer<T>::operator[](size_t i) const
-  {
-    const size_t n = (at + i) % data.size();
-    return data[n];
-  }
-
-  template<class T>
-  inline void cCircularBuffer<T>::push_back(const T& t)
-  {
-    // Set the current item to t (This item will become the last element when we increment)
-    data[at] = t;
-
-    at++;
-
-    if (at >= data.size()) at = 0;
-  }
-
-  template<class T>
-  inline void cCircularBuffer<T>::SetAllItemsToValue(const T& value)
-  {
-    const size_t n = data.size();
-    for (size_t i = 0; i < n; i++) data[i] = value;
   }
 }
 

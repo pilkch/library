@@ -356,7 +356,7 @@ namespace breathe
       pBody->SetLinearVelocity(velocity);
     }
 
-    void cBody::_SetRotationVelocityAbsolute(const float_t& rotationalVelocity)
+    void cBody::_SetRotationalVelocityAbsolute(const float_t& rotationalVelocity)
     {
       const float_t fOmega = rotationalVelocity;
       pBody->SetAngularVelocity(fOmega);

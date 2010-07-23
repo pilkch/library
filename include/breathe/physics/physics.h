@@ -217,7 +217,7 @@ namespace breathe
       void SetPositionAbsolute(const physvec_t& position) { _SetPositionAbsolute(position); }
       void SetRotationAbsolute(const physrotation_t& rotation) { _SetRotationAbsolute(rotation); }
       void SetVelocityAbsolute(const physvec_t& velocity) { _SetVelocityAbsolute(velocity); }
-      void SetRotationVelocityAbsolute(const physrotation_t& rotationalVelocity) { _SetRotationVelocityAbsolute(rotationalVelocity); }
+      void SetRotationalVelocityAbsolute(const physrotation_t& rotationalVelocity) { _SetRotationalVelocityAbsolute(rotationalVelocity); }
       void SetMassKg(float fMassKg) { _SetMassKg(fMassKg); }
 
       void AddForceRelativeToWorldKg(const physvec_t& forceKg) { _AddForceRelativeToWorldKg(forceKg); }
@@ -251,7 +251,7 @@ namespace breathe
       virtual void _SetPositionAbsolute(const physvec_t& position) = 0;
       virtual void _SetRotationAbsolute(const physrotation_t& rotation) = 0;
       virtual void _SetVelocityAbsolute(const physvec_t& velocity) = 0;
-      virtual void _SetRotationVelocityAbsolute(const physrotation_t& rotationalVelocity) = 0;
+      virtual void _SetRotationalVelocityAbsolute(const physrotation_t& rotationalVelocity) = 0;
       virtual void _SetMassKg(float fMassKg) = 0;
 
       virtual void _AddForceRelativeToWorldKg(const physvec_t& forceKg) = 0;
