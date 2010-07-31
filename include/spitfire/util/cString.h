@@ -9,19 +9,11 @@
 
 namespace spitfire
 {
-  #ifdef __WIN__
-  static_assert(sizeof(wchar_t) == 2, "We expect wchar_t to be 16 bits");
-  #define SIZEOF_WCHAR_T 2
-  typedef wchar_t char16_t;
-  typedef uint32_t char32_t;
-  typedef std::wstring string16_t;
-  typedef std::basic_string<char32_t> string32_t;
-  #else
-  static_assert(sizeof(wchar_t) == 4, "We expect wchar_t to be 32 bits");
-  #define SIZEOF_WCHAR_T 4
-  typedef std::basic_string<char16_t> string16_t;
-  typedef std::wstring string32_t;
-  #endif
+  typedef char char8_t;
+  typedef std::string string8_t;
+
+  typedef std::u16string string16_t;
+  typedef std::u32string string32_t;
 
   //typedef std::u16string string16_t;
   //typedef std::u32string string32_t;
@@ -32,15 +24,6 @@ namespace spitfire
   typedef std::wostringstream ostringstream_t;
   typedef std::wistringstream istringstream_t;
   //typedef std::wifstream ifstream_t; // This is not correct, the data read is wchar_t, the filename is still char
-  #ifdef __WIN__
-  //typedef std::u16string string_t;
-  //typedef std::u16ostringstream ostringstream_t;
-  //typedef std::u16istringstream istringstream_t;
-  #else
-  //typedef std::u32string string_t;
-  //typedef std::u32ostringstream ostringstream_t;
-  //typedef std::u32istringstream istringstream_t;
-  #endif
   #else
   typedef char char_t;
   typedef std::string string_t;
@@ -60,6 +43,7 @@ namespace spitfire
     inline bool IsHexDigit(wchar_t c) { return (isxdigit(c) == 1); }
 
     size_t CountOccurrences(const std::string& source, const std::string& find);
+    bool Find(const std::string& source, const std::string& find, size_t& indexOut);
     std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
     std::string StripLeading(const std::string& source, const std::string& find);
     std::string StripTrailing(const std::string& source, const std::string& find);
@@ -79,6 +63,7 @@ namespace spitfire
     bool EndsWith(const std::string& source, const std::string& find);
 
     size_t CountOccurrences(const std::wstring& source, const std::wstring& find);
+    bool Find(const std::wstring& source, const std::wstring& find, size_t& indexOut);
     std::wstring Replace(const std::wstring& source, const std::wstring& find, const std::wstring& replace);
     std::wstring StripLeading(const std::wstring& source, const std::wstring& find);
     std::wstring StripTrailing(const std::wstring& source, const std::wstring& find);
@@ -105,6 +90,17 @@ namespace spitfire
 
     std::wstring ToLower(const std::wstring& source);
     std::wstring ToUpper(const std::wstring& source);
+
+
+    // UTF8 Surrogate Pairs
+    // http://en.wikipedia.org/wiki/UTF-8#Description
+
+    // For UTF8 this function will return 1, 2, 3, 4 or 5
+    // For UTF16 this function will return 1 or 2
+    // For UTF32 this function will always return 1
+    size_t GetSurrogatePairCountForMultiByteCharacter(char8_t c);
+    size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c);
+    inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { return 1; }
 
     std::string ToUTF8(const std::wstring& source);
     inline std::string ToUTF8(const std::string& source) { return source; }
@@ -186,6 +182,225 @@ namespace spitfire
     // Punctuation and symbols are significant for sorting.
     // Digit sub-strings are sorted by numeric value rather than as characters.
     SORT Compare(const string_t& sA, const string_t& sB);
+
+
+
+
+
+    template <class C, class S>
+    class cStringParserTemplate
+    {
+    public:
+      cStringParserTemplate();
+      explicit cStringParserTemplate(const S& sString);
+
+      cStringParserTemplate(const cStringParserTemplate& rhs);
+      cStringParserTemplate& operator=(const cStringParserTemplate& rhs);
+
+      bool IsEmpty() const;
+
+      S GetCharacter() const; // Returns a string as UTF8 and UTF16 can have surrogate pairs
+      S GetCharacters(size_t nSurrogatePairs) const; // Returns a string of n surrogate pairs
+      bool GetToString(const S& sFind, S& sResult) const; // Returns true if sFind is found, else returns false
+      S GetToEnd() const; // Returns the remaining string
+
+      S GetCharacterAndSkip(); // Returns a string as UTF8 and UTF16 can have surrogate pairs
+      bool GetToStringAndSkip(const S& sFind, S& sResult); // Returns true if sFind is found and skips it, else returns false
+      S GetToEndAndSkip(); // Returns the remaining string and skips to the end
+
+      void SkipCharacter(); // Skips ahead one surrogate pair
+      void SkipCharacters(size_t nSurrogatePairs); // Skips ahead n surrogate pairs
+      bool SkipToString(const S& sFind); // Skips to sFind if found
+      bool SkipToStringAndSkip(const S& sFind); // Skips to sFind if found and skips it also
+      void SkipToEnd();
+
+    private:
+      S sString;
+    };
+
+    template <class C, class S>
+    cStringParserTemplate<C, S>::cStringParserTemplate()
+    {
+    }
+
+    template <class C, class S>
+    cStringParserTemplate<C, S>::cStringParserTemplate(const S& _sString) :
+      sString(_sString)
+    {
+    }
+
+    template <class C, class S>
+    cStringParserTemplate<C, S>::cStringParserTemplate(const cStringParserTemplate& rhs) :
+      sString(rhs.sString)
+    {
+    }
+
+    template <class C, class S>
+    cStringParserTemplate<C, S>& cStringParserTemplate<C, S>::operator=(const cStringParserTemplate& rhs)
+    {
+      sString = rhs.sString;
+      return *this;
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::IsEmpty() const
+    {
+      return sString.empty();
+    }
+
+    template <class C, class S>
+    S cStringParserTemplate<C, S>::GetCharacter() const
+    {
+      ASSERT(!IsEmpty());
+
+      const size_t nElementCount = GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str());
+      return sString.substr(0, nElementCount);
+    }
+
+    template <class C, class S>
+    S cStringParserTemplate<C, S>::GetCharacters(size_t nSurrogatePairs) const
+    {
+      ASSERT(!IsEmpty());
+
+      size_t nElementCount = 0;
+      for (size_t i = 0; i < nSurrogatePairs; i++) {
+        // If we are at the end of the string we are finished incrementing our element count
+        if (sString.c_str()[nElementCount] == 0) break;
+
+        nElementCount += GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str()[nElementCount]);
+      }
+
+      return sString.substr(0, nElementCount);
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::GetToString(const S& sFind, S& sResult) const
+    {
+      ASSERT(!IsEmpty());
+
+      sResult.clear();
+
+      std::string::size_type i = sString.find(sFind);
+
+      // If we found this string then return everything after the found string
+      if (std::string::npos != i) {
+        sResult = sString.substr(i);
+        return true;
+      }
+
+      return false;
+    }
+
+    template <class C, class S>
+    S cStringParserTemplate<C, S>::GetToEnd() const
+    {
+      ASSERT(!IsEmpty());
+
+      return sString;
+    }
+
+    template <class C, class S>
+    S cStringParserTemplate<C, S>::GetCharacterAndSkip()
+    {
+      ASSERT(!IsEmpty());
+
+      const S sResult = GetCharacter();
+      sString = sString.substr(sResult.length());
+      return sResult;
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::GetToStringAndSkip(const S& sFind, S& sResult)
+    {
+      ASSERT(!IsEmpty());
+
+      bool bResult = GetToString(sFind, sResult);
+      sString = sString.substr(sResult.length());
+
+      return sResult;
+    }
+
+    template <class C, class S>
+    S cStringParserTemplate<C, S>::GetToEndAndSkip()
+    {
+      ASSERT(!IsEmpty());
+
+      const S sResult = GetToEnd();
+      sString = sString.substr(sResult.length());
+      return sResult;
+    }
+
+    template <class C, class S>
+    void cStringParserTemplate<C, S>::SkipCharacter()
+    {
+      ASSERT(!IsEmpty());
+
+      const size_t nElementCount = GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str());
+      sString = sString.substr(nElementCount);
+    }
+
+    template <class C, class S>
+    void cStringParserTemplate<C, S>::SkipCharacters(size_t nSurrogatePairs)
+    {
+      ASSERT(!IsEmpty());
+
+      size_t nElementCount = 0;
+      for (size_t i = 0; i < nSurrogatePairs; i++) {
+        // If we are at the end of the string we are finished incrementing our element count
+        if (sString.c_str()[nElementCount] == 0) break;
+
+        nElementCount += GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str()[nElementCount]);
+      }
+
+      sString = sString.substr(nElementCount);
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::SkipToString(const S& sFind)
+    {
+      ASSERT(!IsEmpty());
+
+      std::string::size_type i = sString.find(sFind);
+
+      // If we found this string then return everything after the found string
+      if (std::string::npos != i) {
+        sString = sString.substr(i);
+        return true;
+      }
+
+      return false;
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::SkipToStringAndSkip(const S& sFind)
+    {
+      ASSERT(!IsEmpty());
+
+      std::string::size_type i = sString.find(sFind);
+
+      // If we found this string then return everything after the found string
+      if (std::string::npos != i) {
+        sString = sString.substr(i + sFind.length());
+        return true;
+      }
+
+      return false;
+    }
+
+    template <class C, class S>
+    void cStringParserTemplate<C, S>::SkipToEnd()
+    {
+      ASSERT(!IsEmpty());
+
+      sString.clear();
+    }
+
+
+    typedef cStringParserTemplate<char8_t, string8_t> cStringParserUTF8;
+    typedef cStringParserTemplate<char16_t, string16_t> cStringParserUTF16;
+    typedef cStringParserTemplate<char32_t, string32_t> cStringParserUTF32;
+
+    typedef cStringParserTemplate<char_t, string_t> cStringParser;
   }
 }
 

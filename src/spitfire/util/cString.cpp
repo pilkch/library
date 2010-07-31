@@ -533,6 +533,44 @@ namespace spitfire
 
 
 
+    // UTF8 Surrogate Pairs
+    // http://en.wikipedia.org/wiki/UTF-8#Description
+    //
+    // UTF Conversion
+    // http://gears.googlecode.com/svn/trunk/third_party/convert_utf/ConvertUTF.c
+    //
+    // Index into the table below with the first byte of a UTF-8 sequence to get the number of trailing bytes that are supposed to follow it.
+    // Note that *legal* UTF-8 values can't have 4 or 5-bytes.
+    // The table is left as-is for anyone who may want to do such conversion, which was allowed in earlier algorithms.
+    const size_t trailingBytesUTF8[256] = {
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+      2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
+    };
+
+    size_t GetSurrogatePairCountForMultiByteCharacter(char8_t ch)
+    {
+      size_t c = size_t(ch);
+      ASSERT((c < 128) || (c > 191)); // Second, third, or fourth byte of a multi-byte sequence
+      ASSERT((c < 192) || (c > 193)); // Overlong encoding: start of 2-byte sequence, but would encode a code point ≤ 127
+      ASSERT((c < 245) || (c > 247)); // Restricted by RFC 3629: start of 4-byte sequence for codepoint above 10FFFF
+      ASSERT((c < 248) || (c > 251)); // Restricted by RFC 3629: start of 5-byte sequence
+      ASSERT((c < 252) || (c > 253)); // Restricted by RFC 3629: start of 6-byte sequence
+      ASSERT((c < 254) || (c > 255)); // Invalid: not defined by original UTF-8 specification
+
+      return 1 + trailingBytesUTF8[c];
+    }
+
+    size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c)
+    {
+      return ((c >= 0xD800) && (c <= 0xDBFF)) ? 2 : 1;
+    }
+
     /*
     // This doesn't seem to work correctly, it needs more debugging and testing
     const size_t nBufferLength = 10;
