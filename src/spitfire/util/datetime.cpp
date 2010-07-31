@@ -18,6 +18,7 @@
 #include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -57,6 +58,24 @@ namespace spitfire
     cDateTime::cDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond)
     {
       datetime = boost::posix_time::ptime(boost::gregorian::date(year, month, day), boost::posix_time::hours(hour) + boost::posix_time::minutes(minute) + boost::posix_time::seconds(second) + boost::posix_time::microseconds(1000 * millisecond));
+    }
+
+    WEEKDAY cDateTime::GetWeekDay() const
+    {
+      WEEKDAY result = WEEKDAY::MONDAY;
+      boost::gregorian::date d = datetime.date();
+      boost::gregorian::greg_weekday wd = d.day_of_week();
+      switch (wd) {
+        case boost::gregorian::Monday: result = WEEKDAY::MONDAY; break;
+        case boost::gregorian::Tuesday: result = WEEKDAY::TUESDAY; break;
+        case boost::gregorian::Wednesday: result = WEEKDAY::WEDNESDAY; break;
+        case boost::gregorian::Thursday: result = WEEKDAY::THURSDAY; break;
+        case boost::gregorian::Friday: result = WEEKDAY::FRIDAY; break;
+        case boost::gregorian::Saturday: result = WEEKDAY::SATURDAY; break;
+        case boost::gregorian::Sunday: result = WEEKDAY::SUNDAY; break;
+      };
+
+      return result;
     }
 
     uint16_t cDateTime::GetMilliSeconds() const

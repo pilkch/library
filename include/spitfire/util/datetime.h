@@ -9,6 +9,16 @@ namespace spitfire
   {
     const int cSecondsInADay = 86400;
 
+    enum class WEEKDAY {
+      MONDAY,
+      TUESDAY,
+      WEDNESDAY,
+      THURSDAY,
+      FRIDAY,
+      SATURDAY,
+      SUNDAY
+    };
+
     class cDateTime
     {
     public:
@@ -20,6 +30,8 @@ namespace spitfire
 
       // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
       bool IsValid() const { return !datetime.is_not_a_date_time(); /*(!datetime.date().is_special()) && (!datetime.time_of_day().is_special());*/  }
+
+      WEEKDAY GetWeekDay() const; // Returns the day of the week of this date
 
       uint16_t GetYear() const { ASSERT(IsValid()); return datetime.date().year(); }
       uint8_t GetMonth() const { ASSERT(IsValid()); return datetime.date().month(); }
