@@ -198,6 +198,7 @@ namespace spitfire
       cStringParserTemplate& operator=(const cStringParserTemplate& rhs);
 
       bool IsEmpty() const;
+      bool IsEnd() const { return IsEmpty(); }
 
       S GetCharacter() const; // Returns a string as UTF8 and UTF16 can have surrogate pairs
       S GetCharacters(size_t nSurrogatePairs) const; // Returns a string of n surrogate pairs
@@ -317,7 +318,7 @@ namespace spitfire
       bool bResult = GetToString(sFind, sResult);
       sString = sString.substr(sResult.length());
 
-      return sResult;
+      return bResult;
     }
 
     template <class C, class S>

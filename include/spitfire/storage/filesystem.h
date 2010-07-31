@@ -73,6 +73,7 @@ namespace spitfire
     void SetFolderReadAndWriteAccessForThisUserRecursively(const string_t& sFolder);
     void SetFolderReadAndWriteAccessForEveryoneRecursively(const string_t& sFolder);
 
+    bool IsFolderWritable(const string_t& sFolderPath);
 
     string_t StripLastDirectory(const string_t& path);
     string_t ExpandPath(const string_t& path);
@@ -111,6 +112,7 @@ namespace spitfire
     bool FindFile(const string_t& sFilename, string_t& sOutFilename);
 
 
+    // TODO: Remove this
     class cScopedDirectoryChange
     {
     public:
@@ -133,6 +135,23 @@ namespace spitfire
       string_t sTemporarySubFolder;
     };
 
+
+
+    class cPathBuilder
+    {
+    public:
+      explicit cPathBuilder(const string_t& sFolderPath);
+
+      void PushBackFolder(const string_t& sFolderName) { folders.push_back(sFolderName); }
+      void PopFolder() { folders.pop_back(); }
+
+      string_t GetFullPath() const;
+
+      size_t GetNumberOfFolders() { return folders.size(); }
+
+    private:
+      std::list<string_t> folders;
+    };
 
 
     class cFilePathParser

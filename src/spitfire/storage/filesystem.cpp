@@ -292,6 +292,21 @@ namespace spitfire
       chdir(spitfire::string::ToUTF8(sDirectory).c_str());
     }
 
+    bool IsFolderWritable(const string_t& sFolder)
+    {
+      bool bIsFolderWritable = false;
+
+      cPathBuilder builder(sFolder);
+      builder.PushBackFolder(TEXT(".breathe_folder_writable_test"));
+      const string_t sSubFolder = builder.GetFullPath();
+      if (CreateDirectory(sSubFolder)) {
+          DeleteDirectory(sSubFolder);
+          bIsFolderWritable = true;
+      }
+
+      return bIsFolderWritable;
+    }
+
     string_t ExpandPath(const string_t& path)
     {
       LOG<<"ExpandPath path=\""<<path<<"\""<<std::endl;
@@ -639,6 +654,40 @@ namespace spitfire
       string_t sFullPath(sSubDirectory);
       if (!spitfire::string::EndsWith(sSubDirectory, sFolderSeparator)) sFullPath += sFolderSeparator;
       return MakeFilePath(sDirectory, sFullPath + spitfire::string::StripLeading(sFile, sFolderSeparator));
+    }
+
+
+    // ** cPathBuilder
+
+    cPathBuilder::cPathBuilder(const string_t& sFolderPath)
+    {
+      string::cStringParser sp(sFolderPath);
+
+      while (!sp.IsEnd()) {
+        string_t sResult;
+        if (sp.GetToStringAndSkip(sFolderSeparator, sResult)) folders.push_back(sResult);
+      };
+
+      folders.push_back(sp.GetToEnd());
+    }
+
+    string_t cPathBuilder::GetFullPath() const
+    {
+      string_t sFullPath;
+
+      #ifndef __WIN__
+      sFullPath += sFolderSeparator;
+      #endif
+
+      std::list<string_t>::const_iterator iter = folders.begin();
+      const std::list<string_t>::const_iterator iterEnd = folders.end();
+      while (iter != iterEnd) {
+          sFullPath += *iter + sFolderSeparator;
+
+          iter++;
+      }
+
+      return sFullPath;
     }
 
 
@@ -1133,3 +1182,33 @@ namespace spitfire
     }
   }
 }
+
+#if 0
+void UnitTest()
+{
+   #ifdef __WIN__
+   const string_t sDrive = TEXT("C:");
+   #else
+   const string_t sDrive = TEXT("");
+   #endif
+
+   const string_t sInitial = sDrive + TEXT(FOLDER_SEPARATOR) TEXT("test") TEXT(FOLDER_SEPARATOR) TEXT("a");
+   cPathBuilder builder(sInitial);
+
+   if (builder.GetFullPath() != sInitial + TEXT(FOLDER_SEPARATOR)) {
+      ...
+   }
+
+   builder.PushBackFolder(TEXT("b"));
+
+   if (builder.GetFullPath() != sInitial + TEXT(FOLDER_SEPARATOR) + TEXT("b") + TEXT(FOLDER_SEPARATOR)) {
+      ...
+   }
+
+   builder.PopFolder();
+
+   if (builder.GetFullPath() != sInitial + TEXT(FOLDER_SEPARATOR)) {
+      ...
+   }
+}
+#endif

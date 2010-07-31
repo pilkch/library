@@ -331,7 +331,7 @@ namespace opengl
     // Bind so that the next operations happen on this texture
     glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-    SDL_Surface* pSurface = image.pSurface;
+    const SDL_Surface* pSurface = image.pSurface;
     if (pSurface != nullptr) {
       // Copy from surface to texture
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pSurface->w, pSurface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pSurface->pixels);
