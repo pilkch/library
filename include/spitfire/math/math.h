@@ -242,7 +242,8 @@ namespace spitfire
 
 
     // Return angle in the interval [minimum, minimum + 2pi].
-    template <typename T> T branch (T angle, T minimum)
+    template <typename T>
+    T branch (T angle, T minimum)
     {
       while (angle > minimum + c2_PI) angle -= c2_PI;
       while (angle <= minimum) angle += c2_PI;
@@ -250,28 +251,37 @@ namespace spitfire
       return angle;
     }
 
-    template <class T> inline T clamp(const T& i, const T& lower, const T& upper)
+    template <class T>
+    T clamp(const T& i, const T& lower, const T& upper)
     {
       return (i < lower) ? lower : (i > upper) ? upper : i;
     }
 
-    // Lineary interpolate from a to b using s = { 0..1 }
-    inline float mix(float a, float b, float s)
+    // Smooth step from a to b using mu = { 0..1 }
+    template <class T>
+    T smooth_step(T a, T b, float mu)
     {
-      if (s > 1.0f) return b;
-      if (s <= 0.0f) return a;
+      const T num = clamp(mu, 0.0f, 1.0f);
+      return lerp(a, b, (num * num) * (3.0f - (2.0f * num)));
+    }
 
-      return ((1.0f - s) * a)  + (s * b);
+    // Linearly interpolate from a to b using mu = { 0..1 }
+    inline float mix(float a, float b, float mu)
+    {
+      if (mu > 1.0f) return b;
+      if (mu <= 0.0f) return a;
+
+      return ((1.0f - mu) * a)  + (mu * b);
     }
 
     // Same as above but smoother, m approaches 1.0f at x = 0.0f and x = 1.0f
     // http://www.walterzorn.com/grapher/grapher_e.htm
-    inline float mix_smooth(float a, float b, float s)
+    inline float mix_smooth(float a, float b, float mu)
     {
-      if (s > 1.0f) return b;
-      if (s <= 0.0f) return a;
+      if (mu > 1.0f) return b;
+      if (mu <= 0.0f) return a;
 
-      const float fAmountOfA = 0.5 + (0.5 * sinf(cPI * (s + 1.5f)));
+      const float fAmountOfA = 0.5 + (0.5 * sinf(cPI * (mu + 1.5f)));
 
       return (fAmountOfA * a) + ((1.0f - fAmountOfA) * b);
     }
@@ -309,6 +319,11 @@ namespace spitfire
 
 
     // *** Random Number Generation
+
+    inline void SetRandomSeed(uint32_t seed)
+    {
+      return srand(seed);
+    }
 
     inline uint32_t random(uint32_t maximum)
     {

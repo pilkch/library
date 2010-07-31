@@ -116,6 +116,14 @@ namespace spitfire
     }
 
 
+    inline float CentimetersToMillimeters(float fCentimeters) { return 0.1f * fCentimeters; }
+    inline float MillimetersToCentimeters(float fMillimeters) { return 10.0f * fMillimeters; }
+
+    inline float GetCubicCentimetersDisplacementForOneCylinder(float fBoreMillimeters, float fStrokeMillimeters) { return (cPI / 4.0f) * square(MillimetersToCentimeters(fBoreMillimeters)) * MillimetersToCentimeters(fStrokeMillimeters); }
+
+    inline float CubicCentimetersToCubicInches(float fCubicCentimeters) { return 0.0610237441f * fCubicCentimeters; }
+    inline float CubicInchesToCubicCentimeters(float fCubicInches) { return 16.387064f * fCubicInches; }
+
 
     inline float CentimetersToInches(float fCentimeters) { return fCentimeters * 0.393700787401575f; }
     inline float InchesToCentimeters(float fInches) { return fInches * 2.54f; }
