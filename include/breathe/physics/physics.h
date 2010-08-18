@@ -71,6 +71,11 @@ namespace breathe
     class cHeightmap;
     typedef cSmartPtr<cHeightmap> cHeightmapRef;
 
+    class cSpringProperties;
+
+    class cSpring;
+    typedef cSmartPtr<cSpring> cSpringRef;
+
     class cCarProperties;
 
     class cCar;
@@ -374,6 +379,55 @@ namespace breathe
       virtual void _Remove() = 0;
     };
 #endif
+
+
+    class cSpringProperties
+    {
+    public:
+      cSpringProperties();
+
+      void SetBodyAndOffset0(cBodyRef _pBody0, physvec_t _offset0) { pBody0 = _pBody0; offset0 = _offset0; }
+      void SetBodyAndOffset1(cBodyRef _pBody1, physvec_t _offset1) { pBody1 = _pBody1; offset1 = _offset1; }
+      void SetSpringConstantK(float _fK) { fK = _fK; }
+      void SetFriction(float _fFriction) { fFriction = _fFriction; }
+
+      cBodyRef pBody0;
+      cBodyRef pBody1;
+      physvec_t offset0;
+      physvec_t offset1;
+      float fK;
+      float fFriction;
+      float fDesiredDistance;
+
+      /*void addSpringForce(float k, float friction, float fDesiredDistance) {
+        Vec2 pA = pBody0->pBody->getWorldPoint(offset0);
+        Vec2 pB = pBody1->pBody->getWorldPoint(offset1);
+        Vec2 diff = pB.sub(pA);
+        //Find velocities of attach points
+        Vec2 vA = pBody0->pBody->m_linearVelocity.sub(Vec2.cross(pBody0->pBody->getWorldVector(offset0), pBody0->pBody->m_angularVelocity));
+        Vec2 vB = pBody1->pBody->m_linearVelocity.sub(Vec2.cross(pBody1->pBody->getWorldVector(offset1), pBody1->pBody->m_angularVelocity));
+        Vec2 vdiff = vB.sub(vA);
+        float dx = diff.normalize(); //normalizes diff and puts length into dx
+        float vrel = vdiff.x*diff.x + vdiff.y * diff.y;
+        float forceMag = -k * (dx - fDesiredDistance) - friction * vrel;
+        diff.mulLocal(forceMag); // diff *= forceMag
+        pBody1->pBody->applyForce(diff, pBody0->pBody->getWorldPoint(offset0));
+        pBody0->pBody->applyForce(diff.mulLocal(-1f), pBody1->pBody->getWorldPoint(offset1));
+        pBody0->pBody->wakeUp();
+        pBody1->pBody->wakeUp();
+      }*/
+    };
+
+    class cSpring
+    {
+    public:
+      explicit cSpring(const cSpringProperties& properties);
+
+    private:
+      // TODO: Preferably we would not hold onto these
+      cBodyRef pBody0;
+      cBodyRef pBody1;
+    };
 
 
     class cCarProperties

@@ -26,6 +26,10 @@ namespace spitfire
     inline float kphToknots(float kph) { return kph * 0.539956803f; }
     inline float knotsTokph(float knots) { return knots * 1.852f; }
 
+    inline float MPGToLitresPerHundredKilometres(float fMPG) { return 235.214583f / fMPG; }
+    inline float LitresPerHundredKilometresToMPG(float fLitresPerHundredKilometres) { return 235.214583f / fLitresPerHundredKilometres; }
+
+
     // Power/Torque
     // kW/Nm : hp/lb-ft
 

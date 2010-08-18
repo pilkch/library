@@ -126,6 +126,21 @@ namespace spitfire
       return ceilf(fValue);
     }
 
+
+    inline int GetIntegerPart(float_t fValue)
+    {
+      return int(floor(fValue));
+    }
+
+    inline void GetIntegerAndFractionParts(float_t fValue, int& integer, float_t& fraction)
+    {
+      double dInteger = 0;
+      double dFraction = modf(fValue , &dInteger);
+      integer = int(dInteger);
+      fraction = float_t(dFraction);
+    }
+
+
     // Clip VALUE to the range LOW--HIGH.
     template <typename T> T clip(T value, T low, T high) { return max(min(value, high), low); }
 

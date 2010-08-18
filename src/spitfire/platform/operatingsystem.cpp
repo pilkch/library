@@ -237,7 +237,7 @@ namespace spitfire
       if (ngroups_max == 0) return false;
 
       // Create the space to hold the groups and fill them out
-      std::vector<gid_t> group_list(ngroups_max, nullptr);
+      std::vector<gid_t> group_list(ngroups_max, 0);
 
       const size_t n = getgroups(ngroups_max, &group_list[0]);
 

@@ -167,9 +167,7 @@ namespace spitfire
     {
       size_t count = 0;
 
-      size_t i = 0;
-      size_t j;
-      for (;(j = source.find(sFind, i)) != std::string::npos; i = j + 1, count++)
+      for (size_t i = 0, j = 0; (j = source.find(sFind, i)) != std::string::npos; i = j + 1, count++)
         ;
 
       return count;
@@ -179,9 +177,7 @@ namespace spitfire
     {
       size_t count = 0;
 
-      size_t i = 0;
-      size_t j;
-      for (;(j = source.find(sFind, i)) != std::wstring::npos; i = j + 1, count++)
+      for (size_t i = 0, j = 0; (j = source.find(sFind, i)) != std::wstring::npos; i = j + 1, count++)
         ;
 
       return count;
@@ -283,10 +279,8 @@ namespace spitfire
 
     std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)
     {
-      size_t j;
       std::string temp(source);
-      for (;(j = temp.find(sFind)) != std::string::npos;)
-      {
+      for (size_t j = 0; (j = temp.find(sFind)) != std::string::npos;) {
         temp.replace(j, sFind.length(), sReplace);
       }
       return temp;
@@ -294,10 +288,8 @@ namespace spitfire
 
     std::wstring Replace(const std::wstring& source, const std::wstring& sFind, const std::wstring& sReplace)
     {
-      size_t j;
       std::wstring temp(source);
-      for (;(j = temp.find(sFind)) != std::wstring::npos;)
-      {
+      for (size_t j = 0; (j = temp.find(sFind)) != std::wstring::npos;) {
         temp.replace(j, sFind.length(), sReplace);
       }
       return temp;
@@ -708,9 +700,8 @@ namespace spitfire
     {
       std::ostringstream stm;
       const std::ctype<char>& ctfacet = std::use_facet< std::ctype<char> >(stm.getloc());
-      size_t n = source.length();
-      size_t i = 0;
-      for (; i<n ; ++i) {
+      const size_t n = source.length();
+      for (size_t i = 0; i < n; ++i) {
         wchar_t a = source[i];
         wchar_t c = ctfacet.narrow(a, 0);
         stm<<c;
@@ -821,6 +812,63 @@ namespace spitfire
     uint32_t FromHexStringToUint32_t(const std::wstring& source)
     {
       return GenericFromHexStringToUint32_t<std::wstring, wchar_t>(source);
+    }
+
+    string_t ToHexString(uint32_t value)
+    {
+      ostringstream_t ss;
+
+      for (size_t i = 7; i > 0; i++) {
+        if (value < (uint32_t(0x1) << uint32_t(i))) ss<<TEXT("0");
+      }
+
+      ss<<std::hex<<value;
+
+      return ss.str();
+    }
+
+    string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue)
+    {
+      const int r = int(red * 255.0f);
+      const int g = int(green * 255.0f);
+      const int b = int(blue * 255.0f);
+
+      ostringstream_t ss;
+
+      if (r < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<r;
+
+      if (g < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<g;
+
+      if (b < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<b;
+
+      return ss.str();
+    }
+
+    string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+    {
+      const int r = int(red * 255.0f);
+      const int g = int(green * 255.0f);
+      const int b = int(blue * 255.0f);
+      const int a = int(alpha * 255.0f);
+
+      ostringstream_t ss;
+
+      if (r < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<r;
+
+      if (g < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<g;
+
+      if (b < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<b;
+
+      if (a < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<a;
+
+      return ss.str();
     }
 
 
@@ -1028,6 +1076,8 @@ public:
 
   void Test()
   {
+    // IEC Byte Size Formats
+
     ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
     ASSERT(spitfire::string::GetIECStringFromBytes(1023) == TEXT("1023 Bytes"));
 
@@ -1047,6 +1097,24 @@ public:
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846975) == TEXT("1023 PiB"));
 
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846976) == TEXT("1 EiB"));
+
+
+    // Hex conversions
+
+    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("0")) == 0x0);
+    ASSERT(spitfire::string::ToHexString(0x0) == TEXT("00000000"));
+    ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0) == TEXT("000000"));
+    ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0, 0x0) == TEXT("00000000"));
+
+    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("FFFFffff")) == 0xFFFFFFFF);
+    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FFFFFFFF"));
+    ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF) == TEXT("FFFFFF"));
+    ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF, 0xFF) == TEXT("FFFFFFFF"));
+
+    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("12345678")) == 0x12345678);
+    ASSERT(spitfire::string::ToHexString(0x12345678) == TEXT("12345678"));
+    ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56) == TEXT("123456"));
+    ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56, 0x78) == TEXT("12345678"));
   }
 };
 

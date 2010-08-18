@@ -207,6 +207,13 @@ namespace breathe
 #endif
 
 
+    cSpringProperties::cSpringProperties() :
+      fK(1.0f),
+      fFriction(1.0f)
+    {
+    }
+
+
     cCarProperties::cCarProperties() :
       fMassKg(1600.0f),
       fWidthMetres(2.0f),

@@ -301,6 +301,12 @@ namespace opengl
     else std::cout<<"cSystem::UpdateCapabilities Cannot use shaders, shaders turned off"<<std::endl;
 
 
+    // How many textures can we access in a vertex shader (As opposed to in the fragment shader)
+    GLint iTextureUnitsInVertexShader = 0;
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB, &iTextureUnitsInVertexShader);
+    std::cout<<"cSystem::UpdateCapabilities "<<iTextureUnitsInVertexShader<<" texture units accessable in vertex shader"<<std::endl;
+
+
     // Frame Buffer Object Support
     if (FindExtension("GL_EXT_framebuffer_object")) {
       std::cout<<"cSystem::UpdateCapabilities Found GL_EXT_framebuffer_object"<<std::endl;

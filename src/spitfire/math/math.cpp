@@ -35,3 +35,37 @@ namespace spitfire
     }
   }
 }
+
+#if 0
+void TestInteger(float fValue, int iExpectedInteger)
+{
+   int iInteger = GetIntegerPart(fValue);
+   ASSERT(iInteger == iExpectedInteger);
+}
+
+void TestIntegerAndFraction(float fValue, int iExpectedInteger, float fApproximateExpectedFraction)
+{
+   int iInteger = 0;
+   float fFraction = 0;
+   GetIntegerAndFractionParts(fValue, iInteger, fFraction);
+   ASSERT(iInteger == iExpectedInteger);
+   ASSERT(IsApproximatelyEqual(fFraction, fApproximateExpectedFraction));
+}
+
+void Test()
+{
+   TestInteger(-1.0f, -1);
+   TestInteger(0.0f, 0);
+   TestInteger(1.000001f, 1);
+   TestInteger(1.51f, 1);
+   TestInteger(1.9999f, 1);
+   TestInteger(2.0f, 2);
+
+   TestIntegerAndFraction(-1.0f, -1, 0.0f);
+   TestIntegerAndFraction(0.0f, 0, 0.0f);
+   TestIntegerAndFraction(1.000001f, 1, 0.0f);
+   TestIntegerAndFraction(1.51f, 1, 0.51f);
+   TestIntegerAndFraction(1.9999f, 1, 0.9999f);
+   TestIntegerAndFraction(2.0f, 2, 0.0f);
+}
+#endif

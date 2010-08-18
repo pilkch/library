@@ -42,6 +42,11 @@ namespace spitfire
     inline bool IsHexDigit(char c) { return (isxdigit(c) == 1); }
     inline bool IsHexDigit(wchar_t c) { return (isxdigit(c) == 1); }
 
+    // Is the character for this key in the printable range of ascii characters?
+    // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
+    inline bool IsPrintableCharacter(char c) { return (c >= 32); }
+    inline bool IsPrintableCharacter(wchar_t c) { return (c >= 32) && (c <= 127); } // NOTE: This just takes care of ASCII printable characters, there are many more printable characters after 127 too, that this function does not cover
+
     size_t CountOccurrences(const std::string& source, const std::string& find);
     bool Find(const std::string& source, const std::string& find, size_t& indexOut);
     std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
@@ -128,14 +133,21 @@ namespace spitfire
     int ToInt(const string_t& source);
     float ToFloat(const string_t& source);
 
-    // text to hex
+    // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
     // eg. "FE1234" -> 16650804
-    // atoh : ASCII
-    // wtoh : UNICODE
 
     uint32_t FromHexStringToUint32_t(const std::string& source);
     uint32_t FromHexStringToUint32_t(const std::wstring& source);
+
+    // Hex to string
+    // Converts an unsigned integer to a string containing a hexadecimal number
+    // eg. 16650804 -> "FE1234"
+
+    string_t ToHexString(uint32_t value);
+    string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue);
+    string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+
 
     template <class T>
     inline T ConvertFromHexDigit(char hex)

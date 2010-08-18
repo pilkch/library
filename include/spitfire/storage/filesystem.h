@@ -145,7 +145,9 @@ namespace spitfire
       void PushBackFolder(const string_t& sFolderName) { folders.push_back(sFolderName); }
       void PopFolder() { folders.pop_back(); }
 
-      string_t GetFullPath() const;
+      string_t GetFullPath() const { return GetFullPathWithFolderSeparator(); }
+      string_t GetFullPathWithFolderSeparator() const;
+      string_t GetFullPathWithFolderSeparatorAndAddedFileName(const string_t& sFileName) const;
 
       size_t GetNumberOfFolders() { return folders.size(); }
 

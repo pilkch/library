@@ -192,8 +192,25 @@ typedef int32_t ssize_t;
 #endif
 
 #ifndef nullptr
+#ifdef BUILD_DEBUG
+// ** Nullptr
+// Const class
+const class nullptr_t
+{
+public:
+   template <class T>
+   operator T*() const { return NULL; }
+
+   template <class C, class T>
+   operator T C::*() const { return NULL; }
+
+private:
+   void operator&() const; // Forbidden
+} nullptr = {};
+#else
 #define nullptr NULL
-#endif
+#endif // !BUILD_DEBUG
+#endif // !nullptr
 
 #ifdef BUILD_DEBUG
 #ifdef __WIN__

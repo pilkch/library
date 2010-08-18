@@ -671,7 +671,7 @@ namespace spitfire
       folders.push_back(sp.GetToEnd());
     }
 
-    string_t cPathBuilder::GetFullPath() const
+    string_t cPathBuilder::GetFullPathWithFolderSeparator() const
     {
       string_t sFullPath;
 
