@@ -31,6 +31,7 @@ namespace opengl
 #ifdef BUILD_OPENGLMM_FONT
   class cFont;
 #endif
+  class cImage;
   class cTexture;
   class cTextureFrameBufferObject;
   class cShader;
@@ -80,6 +81,7 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const opengl::string_t& sFileName);
+    cTexture* CreateTextureFromImage(const cImage& image);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
 

@@ -343,29 +343,40 @@ namespace spitfire
     class cRectangle
     {
     public:
+      cRectangle();
       cRectangle(float x, float y, float width, float height);
 
-      float GetWidth() const { return right - x; }
-      float GetHeight() const { return bottom - y; }
+      float GetLeft() const { return x; }
+      float GetRight() const { return x + width; }
+      float GetTop() const { return y; }
+      float GetBottom() const { return y + height; }
+      float GetWidth() const { return width; }
+      float GetHeight() const { return height; }
       float GetAspect() const { return GetWidth() / GetHeight(); }
 
       // Enlarge the rectangle if necessary so that another rectangle is
       // completely enclosed.
       const cRectangle& AddRectangleToVolume(const cRectangle& rhs);
 
-    private:
       float x;
       float y;
-      float right;
-      float bottom;
+      float width;
+      float height;
     };
 
+    inline cRectangle::cRectangle() :
+      x(0),
+      y(0),
+      width(0),
+      height(0)
+    {
+    }
 
     inline cRectangle::cRectangle(float _x, float _y, float _width, float _height) :
       x(_x),
       y(_y),
-      right(_x + _width),
-      bottom(_y + _height)
+      width(_width),
+      height(_height)
     {
     }
 
@@ -374,8 +385,12 @@ namespace spitfire
     {
       x = std::min(x, rhs.x);
       x = std::max(x, rhs.x);
-      right = std::max(right, rhs.right);
-      bottom = std::min(bottom, rhs.bottom);
+			const float fRightOfRHS = rhs.x + rhs.width;
+			if (fRightOfRHS > x + width) width = fRightOfRHS - x;
+
+			const float fBottomOfRHS = rhs.y + rhs.height;
+			if (fBottomOfRHS > y + height) height = fBottomOfRHS - y;
+
       return *this;
     }
 

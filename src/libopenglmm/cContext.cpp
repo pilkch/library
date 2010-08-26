@@ -143,6 +143,19 @@ namespace opengl
     return pTexture;
   }
 
+  cTexture* cContext::CreateTextureFromImage(const cImage& image)
+  {
+    assert(image.IsValid());
+
+    cTexture* pTexture = new cTexture;
+    if (!pTexture->CreateFromImage(image)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    return pTexture;
+  }
+
   cTexture* cContext::CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     assert(pBuffer != nullptr);

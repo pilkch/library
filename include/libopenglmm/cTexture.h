@@ -68,10 +68,13 @@ namespace opengl
 
     size_t GetWidth() const { return uiWidth; }
     size_t GetHeight() const { return uiHeight; }
+    PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
 
     void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
     void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
+    void SetPixelFormat(PIXELFORMAT _pixelFormat) { pixelFormat = _pixelFormat; }
 
+    const uint8_t* GetPointerToData() const;
     const uint8_t* GetPointerToSurfacePixelBuffer() const;
 
     bool LoadFromFile(const opengl::string_t& sFilename);
@@ -90,6 +93,8 @@ namespace opengl
   protected:
     size_t uiWidth;
     size_t uiHeight;
+
+    PIXELFORMAT pixelFormat;
 
     TEXTURE_TYPE uiType;
 

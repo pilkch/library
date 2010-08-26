@@ -45,6 +45,7 @@ namespace opengl
   // ** cImage
 
   cImage::cImage() :
+    pixelFormat(PIXELFORMAT::R8G8B8A8),
     uiType(TEXTURE_TYPE::RGBA),
 
     pSurface(nullptr)
@@ -84,6 +85,8 @@ namespace opengl
     uiWidth = rhs.uiWidth;
     uiHeight = rhs.uiHeight;
 
+    pixelFormat = rhs.pixelFormat;
+
     uiType = rhs.uiType;
 
     if (rhs.pSurface != nullptr) {
@@ -97,6 +100,12 @@ namespace opengl
   size_t cImage::GetBytesPerPixel() const
   {
     return (uiType == TEXTURE_TYPE::HEIGHTMAP ? 1 : 4);
+  }
+
+  const uint8_t* cImage::GetPointerToData() const
+  {
+    assert(!data.empty());
+    return data.data();
   }
 
   const uint8_t* cImage::GetPointerToSurfacePixelBuffer() const
@@ -143,9 +152,12 @@ namespace opengl
       SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
       SDL_FreeSurface(pSurface);
       pSurface = pConvertedSurface;
+
+      // The image has now been converted to RGBA
+      uiType = TEXTURE_TYPE::RGBA;
+      pixelFormat = PIXELFORMAT::R8G8B8A8;
     } else if (32 == pSurface->format->BitsPerPixel) {
       std::cout<<"cImage::LoadFromFile "<<opengl::string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
-      uiType = TEXTURE_TYPE::RGBA;
 
       // Convert if BGR
       if (pSurface->format->Rshift > pSurface->format->Bshift) {
@@ -177,6 +189,9 @@ namespace opengl
       };
 
       SAFE_DELETE_ARRAY(pBuf);*/
+
+      uiType = TEXTURE_TYPE::RGBA;
+      pixelFormat = PIXELFORMAT::R8G8B8A8;
     } else {
       std::ostringstream t;
       t << pSurface->format->BitsPerPixel;
