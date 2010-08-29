@@ -178,8 +178,7 @@ namespace opengl
       unsigned char* pSrc = (unsigned char*)pSurface->pixels;
       unsigned char* pDst = (unsigned char*)pSurface->pixels + nPitch * (pSurface->h - 1);
 
-      while (nHH--)
-      {
+      while (nHH--) {
         std::memcpy(pBuf, pSrc, nPitch);
         std::memcpy(pSrc, pDst, nPitch);
         std::memcpy(pDst, pBuf, nPitch);
@@ -293,6 +292,33 @@ namespace opengl
     std::memcpy(pSurface->pixels, &data[0], n);
   }
 
+  void cImage::FlipDataVertically()
+  {
+    if (data.empty()) return;
+
+    // For each row swap it with the corresponding row on the other side of the image
+    const size_t nBytesPerRow = GetBytesPerPixel() * uiWidth;
+    uint8_t buffer[nBytesPerRow];
+    const size_t halfHeight = uiHeight / 2;
+    for (size_t y = 0; y < halfHeight; y++) {
+      std::memcpy(&buffer[0], &data[(nBytesPerRow * (uiHeight - 1)) - (y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&data[(nBytesPerRow * (uiHeight - 1)) - (y * nBytesPerRow)], &data[(y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&data[(y * nBytesPerRow)], &buffer[0], nBytesPerRow);
+    }
+  }
+
+  void cImage::FlipDataHorizontally()
+  {
+    /*if (data.empty()) return;
+
+    // For each column swap it with the corresponding column on the other side of the image
+    const size_t nBytesPerRow = GetBytesPerPixel();
+    const size_t halfHeight = uiHeight / 2;
+    for (size_t y = 0; y < halfHeight; y++) {
+      std::memcpy(&data[(y * nBytesPerRow)], &data[(nBytesPerRow * uiHeight) - (y * nBytesPerRow)], nBytesPerRow);
+    }*/
+  }
+
   bool cImage::SaveToBMP(const opengl::string_t& inFilename) const
   {
     assert(pSurface != nullptr);
@@ -316,6 +342,9 @@ namespace opengl
   bool cTexture::CreateFromImage(const cImage& _image)
   {
     assert(_image.IsValid());
+    assert(spitfire::math::IsPowerOfTwo(_image.GetWidth()));
+    assert(spitfire::math::IsPowerOfTwo(_image.GetHeight()));
+    assert(_image.GetWidth() == _image.GetHeight());
 
     image = _image;
 
@@ -400,6 +429,10 @@ namespace opengl
 
   bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height)
   {
+    assert(spitfire::math::IsPowerOfTwo(width));
+    assert(spitfire::math::IsPowerOfTwo(height));
+    assert(width == height);
+
     image.SetWidth(width);
     image.SetHeight(height);
 

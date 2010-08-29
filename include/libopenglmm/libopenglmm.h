@@ -49,7 +49,7 @@ namespace opengl
   }
 
   const size_t MAX_TEXTURE_UNITS = 3;
-  const size_t MAX_TEXTURE_SIZE = 1024;
+  const size_t MAX_TEXTURE_SIZE = 2048;
   const size_t MAX_LIGHTS = 8;
 
   enum class CUBE_MAP_FACE {

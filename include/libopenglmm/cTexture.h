@@ -87,6 +87,8 @@ namespace opengl
 
     void CopyFromSurfaceToTexture();
 
+    void FlipDataVertically();
+    void FlipDataHorizontally();
 
     bool SaveToBMP(const opengl::string_t& sFilename) const;
 

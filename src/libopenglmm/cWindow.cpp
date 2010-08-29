@@ -24,9 +24,10 @@
 
 namespace opengl
 {
-  cWindow::cWindow(cSystem& _system, const opengl::string_t& sCaption, const cResolution& _resolution, bool bIsFullScreen) :
+  cWindow::cWindow(cSystem& _system, const opengl::string_t& sCaption, const cResolution& _resolution, bool _bIsFullScreen) :
     system(_system),
     resolution(_resolution),
+    bIsFullScreen(_bIsFullScreen),
     pContext(nullptr),
     pWindowEventListener(nullptr),
     pInputEventListener(nullptr)

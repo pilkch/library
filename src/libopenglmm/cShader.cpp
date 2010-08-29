@@ -105,10 +105,6 @@ namespace opengl
   {
   }
 
-  void LoadVertexShaderOnly(const std::string& sShaderVertex);
-  void LoadFragmentShaderOnly(const std::string& sShaderFragment);
-  void LoadVertexShaderAndFragmentShader(const std::string& sShaderVertex, const std::string& sShaderFragment);
-
   void cShader::CheckStatusVertex()
   {
     std::cout<<"cShader::CheckStatusVertex Last error="<<cSystem::GetErrorString()<<std::endl;
@@ -231,7 +227,7 @@ namespace opengl
         line = "";
       };
 
-      std::cout<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" "<<cSystem::GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
+      std::cout<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
 
       uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
       std::cout<<"cShader::_LoadVertexShader Vertex shader glGetError="<<cSystem::GetErrorString()<<std::endl;

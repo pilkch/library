@@ -167,11 +167,13 @@ namespace spitfire
     template <class T> inline bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
 
     // This function gets the first power of 2 >= the int that we pass it.
-    inline int NextPowerOfTwo(int a)
+    inline int NextPowerOfTwo(int n)
     {
-      int rval = 1;
-      while(rval < a) rval<<= 1;
-      return rval;
+      // TODO: Surely 2 is the first power of two after 0?
+      int value = 1;
+      // Keep looping through the powers of two until we find one that is >= n
+      while (value < n) value <<= 1;
+      return value;
     }
 
     template<class T> inline bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }

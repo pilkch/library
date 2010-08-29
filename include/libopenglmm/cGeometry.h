@@ -71,6 +71,19 @@ namespace opengl
     std::vector<float>& textureCoords;
   };
 
+  class cGeometryBuilder_v2_t2_t2
+  {
+  public:
+    cGeometryBuilder_v2_t2_t2(std::vector<float>& vertices, std::vector<float>& textureCoords);
+
+    void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1);
+    void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoordDuplicated);
+
+  private:
+    std::vector<float>& vertices;
+    std::vector<float>& textureCoords;
+  };
+
   class cGeometryBuilder_v2_c4_t2
   {
   public:
@@ -248,6 +261,33 @@ namespace opengl
     vertices.push_back(vertex.y);
     textureCoords.push_back(textureCoord0.x);
     textureCoords.push_back(textureCoord0.y);
+  }
+
+
+  inline cGeometryBuilder_v2_t2_t2::cGeometryBuilder_v2_t2_t2(std::vector<float>& _vertices, std::vector<float>& _textureCoords) :
+    vertices(_vertices),
+    textureCoords(_textureCoords)
+  {
+  }
+
+  inline void cGeometryBuilder_v2_t2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    textureCoords.push_back(textureCoord0.x);
+    textureCoords.push_back(textureCoord0.y);
+    textureCoords.push_back(textureCoord1.x);
+    textureCoords.push_back(textureCoord1.y);
+  }
+
+  inline void cGeometryBuilder_v2_t2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoordDuplicated)
+  { 
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    textureCoords.push_back(textureCoordDuplicated.x);
+    textureCoords.push_back(textureCoordDuplicated.y);
+    textureCoords.push_back(textureCoordDuplicated.x);
+    textureCoords.push_back(textureCoordDuplicated.y);
   }
 
 

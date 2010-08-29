@@ -89,12 +89,21 @@ namespace opengl
       case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
     };
 
-    return "Unknown error";
+    std::ostringstream o;
+    o<<"Unknown error ";
+    o<<error;
+    return o.str();
   }
 
   std::string cSystem::GetErrorString()
   {
-    return GetErrorString(glGetError());
+    const GLenum error = glGetError();
+    const std::string sError = GetErrorString(error);
+    if (error == GL_NO_ERROR) return sError;
+
+    std::cout<<"cSystem::GetErrorString Error "<<sError<<std::endl;
+    assert(error == GL_NO_ERROR);
+    return sError;
   }
 
   bool cSystem::IsGPUATI() const

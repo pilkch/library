@@ -44,7 +44,7 @@ namespace opengl
     size_t GetHeight() const { return resolution.height; }
     PIXELFORMAT GetPixelFormat() const { return resolution.pixelFormat; }
     cResolution GetResolution() const { return resolution; }
-    bool IsFullScreen() const { return false; }
+    bool IsFullScreen() const { return bIsFullScreen; }
 
     void SetWindowEventListener(cWindowEventListener& listener);
     void SetInputEventListener(cInputEventListener& listener);
@@ -62,6 +62,7 @@ namespace opengl
 
     cSystem& system;
     cResolution resolution;
+    bool bIsFullScreen;
     cContext* pContext;
     cWindowEventListener* pWindowEventListener;
     cInputEventListener* pInputEventListener;

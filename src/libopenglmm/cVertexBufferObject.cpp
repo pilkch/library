@@ -139,12 +139,23 @@ namespace opengl
     if (texturecoordinate_size != 0) {
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         // Describe to OpenGL where the texture coordinate data is in the buffer
-        glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+        glTexCoordPointer(nTextureUnits, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
 
-    // Set the buffer data
+    // http://www.informit.com/articles/article.aspx?p=1377833&seqNum=7
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size, vertices.data());
+    std::cout<<"cStaticVertexBufferObject::Compile b glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
+
+    if (normal_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size, normal_size, normals.data());
+
+    if (colour_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size + normal_size, colour_size, colours.data());
+
+    if (texturecoordinate_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size, texturecoordinate_size, textureCoordinates.data());
+
+    /*// Set the buffer data
     GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     assert(pVoid != nullptr);
 
@@ -162,7 +173,7 @@ namespace opengl
       // Append texture coordinates data to vertex data and normal data and colour data
       if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size() + colours.size()], textureCoordinates.data(), texturecoordinate_size);
 
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glUnmapBuffer(GL_ARRAY_BUFFER);*/
 
 
     // Index buffer

@@ -313,7 +313,7 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     // We definitely want the OpenGL flag for SDL_SetVideoMode
-    assert(uiFlags & SDL_OPENGL);
+    assert((uiFlags & SDL_OPENGL) != 0);
 
 
     // Create an SDL surface
