@@ -44,6 +44,12 @@ namespace spitfire
       void GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const;
       void SetRGBFromHSL(float fHue, float fSaturation, float fLuminance);
 
+      // HSV/HSB
+      // http://en.wikipedia.org/wiki/HSL_and_HSV
+      // h are 0..360
+      // s and v are 0..1
+      void GetHSVFromRGB(float& fHue0To360, float& fSaturation, float& fValue) const;
+      void SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue);
 
       void Clamp(); // clamp all components to [0,1]
 

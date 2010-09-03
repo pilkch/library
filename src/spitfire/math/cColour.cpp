@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cmath>
 
 #include <vector>
@@ -277,6 +278,142 @@ namespace spitfire
         g = HueToRGBForSetRGBFromHSL(f1, f2, fHue);
         b = HueToRGBForSetRGBFromHSL(f1, f2, fHue - (1.0f / 3.0f));
       }
+    }
+
+
+    // HSV/HSB
+    // http://en.wikipedia.org/wiki/HSL_and_HSV
+    void cColour::GetHSVFromRGB(float& fHue0To360, float& fSaturation, float& fValue) const
+    {
+       const double maxC = max(r, max(b, g));
+       const double minC = min(r, min(b, g));
+
+       fHue0To360 = 0.0f;
+       fSaturation = 0.0f;
+       fValue = maxC;
+
+       double delta = maxC - minC;
+       if (delta == 0.0) {
+          fHue0To360 = 0.0f;
+          fSaturation = 0.0f;
+       } else {
+          fSaturation = delta / maxC;
+          double dR = 60.0 * (maxC - r) / delta + 180.0;
+          double dG = 60.0 * (maxC - g) / delta + 180.0;
+          double dB = 60.0 * (maxC - b) / delta + 180.0;
+          if (r == maxC) fHue0To360 = dB - dG;
+          else if (g == maxC) fHue0To360 = 120.0 + dR - dB;
+          else fHue0To360 = 240.0 + dG - dR;
+       }
+
+       if (fHue0To360 < 0.0f) fHue0To360 += 360.0f;
+       if (fHue0To360 >= 360.0f) fHue0To360 -= 360.0f;
+    }
+
+    void cColour::SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue)
+    {
+       r = 0.0f;
+       g = 0.0f;
+       b = 0.0f;
+
+       if (fValue > 0.0f) {
+          if (fSaturation <= 0) {
+             r = fValue;
+             g = fValue;
+             b = fValue;
+          } else {
+             while (fHue0To360 < 0) fHue0To360 += 360;
+             while (fHue0To360 >= 360) fHue0To360 -= 360;
+
+             const double hf = fHue0To360 / 60.0;
+             const int i = (int)floor(hf);
+             const double f = hf - i;
+             const double pv = fValue * (1 - fSaturation);
+             const double qv = fValue * (1 - fSaturation * f);
+             const double tv = fValue * (1 - fSaturation * (1 - f));
+             switch (i) {
+
+                // Red is the dominant colour
+
+                case 0: {
+                  r = fValue;
+                  g = tv;
+                  b = pv;
+                  break;
+                }
+
+                // Green is the dominant colour
+
+                case 1: {
+                  r = qv;
+                  g = fValue;
+                  b = pv;
+                  break;
+                }
+                case 2: {
+                  r = pv;
+                  g = fValue;
+                  b = tv;
+                  break;
+                }
+
+                // Blue is the dominant colour
+
+                case 3: {
+                  r = pv;
+                  g = qv;
+                  b = fValue;
+                  break;
+                }
+                case 4: {
+                  r = tv;
+                  g = pv;
+                  b = fValue;
+                  break;
+                }
+
+                // Red is the dominant colour
+
+                case 5: {
+                  r = fValue;
+                  g = pv;
+                  b = qv;
+                  break;
+                }
+
+                // Just in case we overshoot on our math by a little, we put these here. Since its a switch it won't slow us down at all to put these here.
+
+                case 6: {
+                  r = fValue;
+                  g = tv;
+                  b = pv;
+                  break;
+                }
+                case -1: {
+                  r = fValue;
+                  g = pv;
+                  b = qv;
+                  break;
+                }
+
+                default: {
+                  //std::cout<<"cColour::SetRGBFromHSV HSV colour is not defined HSV("<<fHue0To360<<", "<<fSaturation<<", "<<fValue<<")"<<std::endl;
+                  assert(false);
+
+                  // Set to black/white
+                  r = fValue;
+                  g = fValue;
+                  b = fValue;
+
+                  break;
+                }
+             }
+          }
+       }
+
+       r = clamp(r, 0.0f, 1.0f);
+       g = clamp(g, 0.0f, 1.0f);
+       b = clamp(b, 0.0f, 1.0f);
     }
   }
 }
