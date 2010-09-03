@@ -28,6 +28,7 @@
 #include <spitfire/math/math.h>
 #include <spitfire/math/cColour.h>
 
+// liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 //#include <libopenglmm/cTexture.h>
 //#include <libopenglmm/cShader.h>
@@ -41,74 +42,6 @@ struct SDL_Surface;
 
 namespace opengl
 {
-  enum class TEXTURE_TYPE {
-    RGBA,
-    HEIGHTMAP,
-    FRAMEBUFFEROBJECT
-  };
-
-  // ** cImage
-
-  class cTexture;
-  class cTextureFrameBufferObject;
-
-  class cImage
-  {
-  public:
-    friend class cTexture;
-    friend class cTextureFrameBufferObject;
-
-    cImage();
-    virtual ~cImage();
-
-    cImage(const cImage& rhs);
-    cImage& operator=(const cImage& rhs);
-
-    bool IsValid() const { return (pSurface != nullptr); }
-
-    size_t GetWidth() const { return uiWidth; }
-    size_t GetHeight() const { return uiHeight; }
-    PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
-
-    void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
-    void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
-    void SetPixelFormat(PIXELFORMAT _pixelFormat) { pixelFormat = _pixelFormat; }
-
-    const uint8_t* GetPointerToData() const;
-    const uint8_t* GetPointerToSurfacePixelBuffer() const;
-
-    bool LoadFromFile(const opengl::string_t& sFilename);
-    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
-
-    void CopyFromDataToSurface();
-
-    void CopyFromSurfaceToData(size_t width, size_t height);
-    void CopyFromSurfaceToData();
-
-    void CopyFromSurfaceToTexture();
-
-    void FlipDataVertically();
-    void FlipDataHorizontally();
-
-    bool SaveToBMP(const opengl::string_t& sFilename) const;
-
-  protected:
-    size_t uiWidth;
-    size_t uiHeight;
-
-    PIXELFORMAT pixelFormat;
-
-    TEXTURE_TYPE uiType;
-
-    SDL_Surface* pSurface;
-    std::vector<unsigned char> data;
-
-  private:
-    void Assign(const cImage& rhs);
-
-    size_t GetBytesPerPixel() const;
-  };
-
   // ** cTexture
 
   class cTexture
@@ -124,7 +57,7 @@ namespace opengl
 
     unsigned int GetTexture() const { return uiTexture; }
 
-    bool CreateFromImage(const cImage& image);
+    bool CreateFromImage(const voodoo::cImage& image);
 
     void CopyFromDataToSurface() { image.CopyFromDataToSurface(); }
 
@@ -141,7 +74,7 @@ namespace opengl
     void Reload();
 
   protected:
-    cImage image;
+    voodoo::cImage image;
 
     unsigned int uiTexture;
 

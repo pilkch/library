@@ -131,7 +131,7 @@ namespace opengl
 
   cTexture* cContext::CreateTexture(const opengl::string_t& sFileName)
   {
-    cImage image;
+    voodoo::cImage image;
     if (!image.LoadFromFile(sFileName)) return nullptr;
 
     cTexture* pTexture = new cTexture;
@@ -143,7 +143,7 @@ namespace opengl
     return pTexture;
   }
 
-  cTexture* cContext::CreateTextureFromImage(const cImage& image)
+  cTexture* cContext::CreateTextureFromImage(const voodoo::cImage& image)
   {
     assert(image.IsValid());
 
@@ -160,7 +160,7 @@ namespace opengl
   {
     assert(pBuffer != nullptr);
 
-    cImage image;
+    voodoo::cImage image;
     if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return nullptr;
 
     cTexture* pTexture = new cTexture;

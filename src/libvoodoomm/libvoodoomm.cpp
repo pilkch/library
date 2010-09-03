@@ -17,10 +17,10 @@
 // SDL headers
 #include <SDL/SDL_image.h>
 
-// libopenglmm headers
-#include <libopenglmm/libopenglmm.h>
+// libvoodoomm headers
+#include <libvoodoomm/libvoodoomm.h>
 
-namespace opengl
+namespace voodoo
 {
   namespace string
   {
@@ -39,33 +39,16 @@ namespace opengl
   }
 
 
-  // *** cResolution
+   size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat)
+   {
+     if (pixelFormat == PIXELFORMAT::R8G8B8A8) return 4;
+     if (pixelFormat == PIXELFORMAT::R8G8B8) return 3;
 
-  cResolution::cResolution() :
-    width(0),
-    height(0),
-    pixelFormat(PIXELFORMAT::R8G8B8A8)
-  {
-  }
-
-#if 0
-    bool cResolution::IsWideScreen() const
-    {
-      const float fWideScreenRatio = 16.0f / 9.0f;
-
-      const float fRatio = (float(width) / float(height));
-
-      return (fRatio >= fWideScreenRatio);
-    }
-
-    bool cResolution::ResolutionCompare(const cResolution& lhs, const cResolution& rhs)
-    {
-      if (lhs.IsWideScreen() > rhs.IsWideScreen()) return true;
-      if (lhs.GetColourDepth() > rhs.GetColourDepth()) return true;
-
-      if (lhs.GetWidth() > rhs.GetWidth()) return true;
-
-      return (lhs.GetHeight() > rhs.GetHeight());
-    }
-#endif
+     return 2;
+   }
+ 
+   size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat)
+   {
+     return 8 * GetBytesForPixelFormat(pixelFormat);
+   }
 }

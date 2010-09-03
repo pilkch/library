@@ -22,6 +22,7 @@
 #ifndef LIBOPENGLMM_CONTEXT_H
 #define LIBOPENGLMM_CONTEXT_H
 
+// liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
 struct SDL_Surface;
@@ -31,7 +32,6 @@ namespace opengl
 #ifdef BUILD_OPENGLMM_FONT
   class cFont;
 #endif
-  class cImage;
   class cTexture;
   class cTextureFrameBufferObject;
   class cShader;
@@ -81,7 +81,7 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const opengl::string_t& sFileName);
-    cTexture* CreateTextureFromImage(const cImage& image);
+    cTexture* CreateTextureFromImage(const voodoo::cImage& image);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
 

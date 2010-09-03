@@ -32,10 +32,8 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cColour.h>
 
-//#include <libopenglmm/cTexture.h>
-//#include <libopenglmm/cShader.h>
-//#include <libopenglmm/cVertexBufferObject.h>
-//#include <libopenglmm/cWindow.h>
+// libvoodoomm headers
+#include <libvoodoomm/cImage.h>
 
 struct SDL_Surface;
 
@@ -61,15 +59,10 @@ namespace opengl
     NEGATIVE_Z
   };
 
-  enum class PIXELFORMAT {
-    R8G8B8A8,
-    R8G8B8,
-    R5G6B5
-    //float etc.
-  };
+  typedef voodoo::PIXELFORMAT PIXELFORMAT;
 
-  size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat);
-  size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat);
+  using voodoo::GetBytesForPixelFormat;
+  using voodoo::GetBitsForPixelFormat;
 
   class cResolution
   {
