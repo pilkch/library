@@ -212,12 +212,12 @@ namespace spitfire
       bool IsEmpty() const;
       bool IsEnd() const { return IsEmpty(); }
 
-      S GetCharacter() const; // Returns a string as UTF8 and UTF16 can have surrogate pairs
+      S GetCharacter() const; // Returns a string because UTF8 and UTF16 can have surrogate pairs
       S GetCharacters(size_t nSurrogatePairs) const; // Returns a string of n surrogate pairs
       bool GetToString(const S& sFind, S& sResult) const; // Returns true if sFind is found, else returns false
       S GetToEnd() const; // Returns the remaining string
 
-      S GetCharacterAndSkip(); // Returns a string as UTF8 and UTF16 can have surrogate pairs
+      S GetCharacterAndSkip(); // Returns a string because UTF8 and UTF16 can have surrogate pairs
       bool GetToStringAndSkip(const S& sFind, S& sResult); // Returns true if sFind is found and skips it, else returns false
       S GetToEndAndSkip(); // Returns the remaining string and skips to the end
 
