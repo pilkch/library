@@ -156,6 +156,20 @@ namespace opengl
     std::vector<uint16_t>& indices;
   };
 
+  class cGeometryBuilder_v3_n3_t2_c4
+  {
+  public:
+    cGeometryBuilder_v3_n3_t2_c4(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<float>& colours);
+
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour);
+
+  private:
+    std::vector<float>& vertices;
+    std::vector<float>& normals;
+    std::vector<float>& textureCoords;
+    std::vector<float>& colours;
+  };
+
   class cGeometryBuilder_v3_n3_t2_t2
   {
   public:
@@ -281,7 +295,7 @@ namespace opengl
   }
 
   inline void cGeometryBuilder_v2_t2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoordDuplicated)
-  { 
+  {
     vertices.push_back(vertex.x);
     vertices.push_back(vertex.y);
     textureCoords.push_back(textureCoordDuplicated.x);
@@ -394,6 +408,31 @@ namespace opengl
   inline void cGeometryBuilder_v3_n3_t2_i::PushBackIndex(uint16_t index)
   {
     indices.push_back(index);
+  }
+
+
+  inline cGeometryBuilder_v3_n3_t2_c4::cGeometryBuilder_v3_n3_t2_c4(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<float>& _colours) :
+    vertices(_vertices),
+    normals(_normals),
+    textureCoords(_textureCoords),
+    colours(_colours)
+  {
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_c4::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour)
+  {
+    vertices.push_back(vertex.x);
+    vertices.push_back(vertex.y);
+    vertices.push_back(vertex.z);
+    normals.push_back(normal.x);
+    normals.push_back(normal.y);
+    normals.push_back(normal.z);
+    textureCoords.push_back(textureCoord0.x);
+    textureCoords.push_back(textureCoord0.y);
+    colours.push_back(colour.r);
+    colours.push_back(colour.g);
+    colours.push_back(colour.b);
+    colours.push_back(colour.a);
   }
 
 

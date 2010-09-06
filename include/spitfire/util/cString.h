@@ -266,7 +266,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t nElementCount = GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str());
+      const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
       return sString.substr(0, nElementCount);
     }
 
@@ -278,9 +278,9 @@ namespace spitfire
       size_t nElementCount = 0;
       for (size_t i = 0; i < nSurrogatePairs; i++) {
         // If we are at the end of the string we are finished incrementing our element count
-        if (sString.c_str()[nElementCount] == 0) break;
+        if (sString[nElementCount] == 0) break;
 
-        nElementCount += GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str()[nElementCount]);
+        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
       }
 
       return sString.substr(0, nElementCount);
@@ -348,7 +348,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t nElementCount = GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str());
+      const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
       sString = sString.substr(nElementCount);
     }
 
@@ -360,9 +360,9 @@ namespace spitfire
       size_t nElementCount = 0;
       for (size_t i = 0; i < nSurrogatePairs; i++) {
         // If we are at the end of the string we are finished incrementing our element count
-        if (sString.c_str()[nElementCount] == 0) break;
+        if (sString[nElementCount] == 0) break;
 
-        nElementCount += GetElementCountForSurrogatePairsInMultiByteCharacter(sString.c_str()[nElementCount]);
+        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
       }
 
       sString = sString.substr(nElementCount);
