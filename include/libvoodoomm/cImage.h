@@ -55,14 +55,14 @@ namespace voodoo
 
     bool IsValid() const { return (pSurface != nullptr); }
 
-    size_t GetWidth() const { return uiWidth; }
-    size_t GetHeight() const { return uiHeight; }
+    size_t GetWidth() const { return width; }
+    size_t GetHeight() const { return height; }
     PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
     size_t GetBytesPerPixel() const;
     IMAGE_TYPE GetType() const { return type; }
 
-    void SetWidth(size_t _uiWidth) { uiWidth = _uiWidth; }
-    void SetHeight(size_t _uiHeight) { uiHeight = _uiHeight; }
+    void SetWidth(size_t _width) { width = _width; }
+    void SetHeight(size_t _height) { height = _height; }
     void SetPixelFormat(PIXELFORMAT _pixelFormat) { pixelFormat = _pixelFormat; }
     void SetType(IMAGE_TYPE _type) { type = _type; }
 
@@ -85,8 +85,8 @@ namespace voodoo
     bool SaveToBMP(const string_t& sFilename) const;
 
   protected:
-    size_t uiWidth;
-    size_t uiHeight;
+    size_t width;
+    size_t height;
 
     PIXELFORMAT pixelFormat;
 

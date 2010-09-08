@@ -78,8 +78,8 @@ namespace voodoo
     }
 
 
-    uiWidth = rhs.uiWidth;
-    uiHeight = rhs.uiHeight;
+    width = rhs.width;
+    height = rhs.height;
 
     pixelFormat = rhs.pixelFormat;
 
@@ -194,26 +194,26 @@ namespace voodoo
       return false;
     }
 
-    uiWidth = pSurface->w;
-    uiHeight = pSurface->h;
+    width = pSurface->w;
+    height = pSurface->h;
 
-    std::cout<<"cImage::LoadFromFile "<<uiWidth<<"x"<<uiHeight<<std::endl;
+    std::cout<<"cImage::LoadFromFile "<<width<<"x"<<height<<std::endl;
 
     CopyFromSurfaceToData(pSurface->w, pSurface->h);
 
     return true;
   }
 
-  bool cImage::CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  bool cImage::CreateFromBuffer(const uint8_t* pBuffer, size_t _width, size_t _height, PIXELFORMAT pixelFormat)
   {
-    std::cout<<"cImage::CreateFromBuffer "<<width<<"x"<<height<<std::endl;
+    std::cout<<"cImage::CreateFromBuffer "<<_width<<"x"<<_height<<std::endl;
 
     // Only RGBA is supported at the moment
     assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
 
     // Load the buffer into a surface
     const size_t depth = 32;
-    const size_t pitch = width * GetBytesForPixelFormat(pixelFormat);
+    const size_t pitch = _width * GetBytesForPixelFormat(pixelFormat);
 
     // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -228,7 +228,7 @@ namespace voodoo
     uint32_t amask = 0xFF000000;
 #endif
 
-    pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, width, height, depth, pitch, rmask, gmask, bmask, amask);
+    pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, _width, _height, depth, pitch, rmask, gmask, bmask, amask);
 
     /*// Were we able to load the bitmap?
     if (pTemp == nullptr) {
@@ -243,23 +243,23 @@ namespace voodoo
     SDL_FreeSurface(pTemp);
     pTemp = nullptr;*/
 
-    uiWidth = pSurface->w;
-    uiHeight = pSurface->h;
+    width = pSurface->w;
+    height = pSurface->h;
 
-    //std::cout<<"cImage::CreateFromBuffer "<<uiWidth<<"x"<<uiHeight<<std::endl;
+    //std::cout<<"cImage::CreateFromBuffer "<<width<<"x"<<height<<std::endl;
 
     CopyFromSurfaceToData(pSurface->w, pSurface->h);
 
     return true;
   }
 
-  void cImage::CopyFromSurfaceToData(size_t width, size_t height)
+  void cImage::CopyFromSurfaceToData(size_t _width, size_t _height)
   {
     // Fill out the pData structure array, we use this for when we have to reload this data
     // on a task switch or fullscreen mode change
 
-    uiWidth = width;
-    uiHeight = height;
+    width = _width;
+    height = _height;
 
     CopyFromSurfaceToData();
   }
@@ -268,7 +268,7 @@ namespace voodoo
   {
     assert(pSurface != nullptr);
 
-    const size_t n = uiWidth * uiHeight * GetBytesPerPixel();
+    const size_t n = width * height * GetBytesPerPixel();
 
     // Fill out the pData structure array, we use this for when we have to reload this data
     // on a task switch or fullscreen mode change
@@ -283,7 +283,7 @@ namespace voodoo
 
     if (data.empty()) return;
 
-    const size_t n = uiWidth * uiHeight * GetBytesPerPixel();
+    const size_t n = width * height * GetBytesPerPixel();
 
     std::memcpy(pSurface->pixels, &data[0], n);
   }
@@ -293,12 +293,12 @@ namespace voodoo
     if (data.empty()) return;
 
     // For each row swap it with the corresponding row on the other side of the image
-    const size_t nBytesPerRow = GetBytesPerPixel() * uiWidth;
+    const size_t nBytesPerRow = GetBytesPerPixel() * width;
     uint8_t buffer[nBytesPerRow];
-    const size_t halfHeight = uiHeight / 2;
+    const size_t halfHeight = height / 2;
     for (size_t y = 0; y < halfHeight; y++) {
-      std::memcpy(&buffer[0], &data[(nBytesPerRow * (uiHeight - 1)) - (y * nBytesPerRow)], nBytesPerRow);
-      std::memcpy(&data[(nBytesPerRow * (uiHeight - 1)) - (y * nBytesPerRow)], &data[(y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&buffer[0], &data[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&data[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], &data[(y * nBytesPerRow)], nBytesPerRow);
       std::memcpy(&data[(y * nBytesPerRow)], &buffer[0], nBytesPerRow);
     }
   }
@@ -308,10 +308,10 @@ namespace voodoo
     /*if (data.empty()) return;
 
     // For each column swap it with the corresponding column on the other side of the image
-    const size_t nBytesPerRow = GetBytesPerPixel();
-    const size_t halfHeight = uiHeight / 2;
-    for (size_t y = 0; y < halfHeight; y++) {
-      std::memcpy(&data[(y * nBytesPerRow)], &data[(nBytesPerRow * uiHeight) - (y * nBytesPerRow)], nBytesPerRow);
+    const size_t nBytesPerRow = GetBytesPerPixel() * width;
+    const size_t halfWidth = width / 2;
+    for (size_t y = 0; y < height; y++) {
+      std::memcpy(&data[(y * nBytesPerRow)], &data[(nBytesPerRow * height) - (y * nBytesPerRow)], nBytesPerRow);
     }*/
   }
 
