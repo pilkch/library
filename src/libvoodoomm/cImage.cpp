@@ -38,106 +38,140 @@ namespace voodoo
 #endif
 
 
-  // ** cImage
 
-  cImage::cImage() :
-    pixelFormat(PIXELFORMAT::R8G8B8A8),
+
+  class cSurface
+  {
+  public:
+    cSurface();
+    ~cSurface();
+
+    //cSurface(const cSurface& rhs);
+    //cSurface& operator=(const cSurface& rhs);
+
+    bool IsSurfaceValid() const { return (pSurface != nullptr); }
+
+    size_t GetWidth() const { return image.GetWidth(); }
+    size_t GetHeight() const { return image.GetHeight(); }
+    PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
+    size_t GetBytesPerPixel() const { return image.GetBytesPerPixel(); }
+    IMAGE_TYPE GetType() const { return type; }
+
+    void Destroy();
+
+    bool CreateFromImage(const cImage& image);
+    bool LoadFromFile(const string_t& sFilename);
+
+    const uint8_t* GetPointerToBuffer() const;
+    const uint8_t* GetPointerToSurfacePixelBuffer() const;
+
+    const cImage& GetImage() const;
+
+    void CopyFromBufferToSurface();
+
+    void CopyFromSurfaceToBuffer(size_t width, size_t height);
+    void CopyFromSurfaceToBuffer();
+
+    bool SaveToBMP(const string_t& sFilename) const;
+
+  private:
+    void Assign(const cSurface& rhs);
+
+    bool IsSameFormat(const cSurface& rhs) const;
+
+    IMAGE_TYPE type;
+
+    cImage image;
+    SDL_Surface* pSurface;
+  };
+
+  cSurface::cSurface() :
     type(IMAGE_TYPE::BITMAP),
-
     pSurface(nullptr)
   {
   }
 
-  cImage::~cImage()
+  cSurface::~cSurface()
+  {
+    Destroy();
+  }
+
+  void cSurface::Destroy()
   {
     if (pSurface != nullptr) {
       SDL_FreeSurface(pSurface);
       pSurface = nullptr;
     }
-
-    data.clear();
   }
 
-  cImage::cImage(const cImage& rhs)
+  /*cSurface& cSurface::operator=(const cSurface& rhs)
   {
-    Assign(rhs);
-  }
-
-  cImage& cImage::operator=(const cImage& rhs)
-  {
-    Assign(rhs);
-    return *this;
-  }
-
-  void cImage::Assign(const cImage& rhs)
-  {
-    // Delete our old surface
-    if (pSurface != nullptr) {
-      SDL_FreeSurface(pSurface);
-      pSurface = nullptr;
-    }
-
-
-    width = rhs.width;
-    height = rhs.height;
-
-    pixelFormat = rhs.pixelFormat;
-
     type = rhs.type;
 
-    if (rhs.pSurface != nullptr) {
-      // Make a copy of the surface so that we do not modify the original
-      pSurface = SDL_ConvertSurface(rhs.pSurface, rhs.pSurface->format, rhs.pSurface->flags);
-    }
+    image = rhs.image;
+    SDL_Surface* pSurface;
+  }*/
 
-    data = rhs.data;
+  const uint8_t* cSurface::GetPointerToBuffer() const
+  {
+    return image.GetPointerToBuffer();
   }
 
-  size_t cImage::GetBytesPerPixel() const
+  const uint8_t* cSurface::GetPointerToSurfacePixelBuffer() const
   {
-    return (type == IMAGE_TYPE::HEIGHTMAP ? 1 : 4);
+    assert(IsSurfaceValid());
+    return static_cast<uint8_t*>(pSurface->pixels);
   }
 
-  const uint8_t* cImage::GetPointerToData() const
+  const cImage& cSurface::GetImage() const
   {
-    assert(!data.empty());
-    return data.data();
+    return image;
   }
 
-  const uint8_t* cImage::GetPointerToSurfacePixelBuffer() const
+  bool cSurface::CreateFromImage(const cImage& _image)
   {
-    assert(pSurface != nullptr);
+    // Only RGBA textures are supported at the moment
+    assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
 
-    return static_cast<const uint8_t*>(pSurface->pixels);
+    // Only width and heights divisible by 2 are supported at the moment
+    assert(spitfire::math::IsDivisibleByTwo(image.GetWidth()));
+    assert(spitfire::math::IsDivisibleByTwo(image.GetHeight()));
+
+    // Only square textures are supported at the moment
+    assert(image.GetWidth() == image.GetHeight());
+
+    image = _image;
+
+    return true;
   }
 
-  bool cImage::LoadFromFile(const string_t& sFilename)
+  bool cSurface::LoadFromFile(const string_t& sFilename)
   {
-    std::cout<<"cImage::LoadFromFile \""<<string::ToUTF8(sFilename)<<"\""<<std::endl;
+    std::cout<<"cSurface::LoadFromFile \""<<string::ToUTF8(sFilename)<<"\""<<std::endl;
+
+    Destroy();
 
     //unsigned int mode = 0;
     pSurface = IMG_Load(string::ToUTF8(sFilename).c_str());
 
     // Could not load filename
     if (pSurface == nullptr) {
-      if (FileExists(sFilename)) std::cout<<"cImage::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" exists"<<std::endl;
-      else std::cout<<"cImage::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" doesn't exist"<<std::endl;
+      if (FileExists(sFilename)) std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" exists"<<std::endl;
+      else std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" doesn't exist"<<std::endl;
 
-      std::cout<<"cImage::LoadFromFile Couldn't Load Texture "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Couldn't Load Texture "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
       return false;
     }
 
-
-
     // Check the format
     if (8 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
     } else if (16 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
     } else if (24 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
       // Add alpha channel
       SDL_PixelFormat format = {
         NULL, 32, 4, 0, 0, 0, 0,
@@ -151,9 +185,9 @@ namespace voodoo
 
       // The image has now been converted to RGBA
       type = IMAGE_TYPE::BITMAP;
-      pixelFormat = PIXELFORMAT::R8G8B8A8;
+      image.pixelFormat = PIXELFORMAT::R8G8B8A8;
     } else if (32 == pSurface->format->BitsPerPixel) {
-      std::cout<<"cImage::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
 
       // Convert if BGR
       if (pSurface->format->Rshift > pSurface->format->Bshift) {
@@ -186,139 +220,385 @@ namespace voodoo
       SAFE_DELETE_ARRAY(pBuf);*/
 
       type = IMAGE_TYPE::BITMAP;
-      pixelFormat = PIXELFORMAT::R8G8B8A8;
+      image.pixelFormat = PIXELFORMAT::R8G8B8A8;
     } else {
       std::ostringstream t;
       t << pSurface->format->BitsPerPixel;
-      std::cout<<"cImage::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
       return false;
     }
 
-    width = pSurface->w;
-    height = pSurface->h;
+    image.width = pSurface->w;
+    image.height = pSurface->h;
 
-    std::cout<<"cImage::LoadFromFile "<<width<<"x"<<height<<std::endl;
+    std::cout<<"cSurface::LoadFromFile "<<image.width<<"x"<<image.height<<std::endl;
 
-    CopyFromSurfaceToData(pSurface->w, pSurface->h);
+    CopyFromSurfaceToBuffer();
 
     return true;
   }
 
-  bool cImage::CreateFromBuffer(const uint8_t* pBuffer, size_t _width, size_t _height, PIXELFORMAT pixelFormat)
+  void cSurface::CopyFromSurfaceToBuffer()
+  {
+    assert(IsSurfaceValid());
+
+    const size_t width = pSurface->w;
+    const size_t height = pSurface->h;
+
+    CopyFromSurfaceToBuffer(width, height);
+  }
+
+  void cSurface::CopyFromSurfaceToBuffer(size_t width, size_t height)
+  {
+    assert(IsSurfaceValid());
+
+    image.CreateFromBuffer(GetPointerToSurfacePixelBuffer(), width, height, PIXELFORMAT::R8G8B8A8);
+  }
+
+  void cSurface::CopyFromBufferToSurface()
+  {
+    // Only RGBA is supported at the moment
+    assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+
+    if (image.IsValid()) return;
+
+    const size_t width = image.GetWidth();
+    const size_t height = image.GetHeight();
+    const size_t bytesPerRow = width * GetBytesPerPixel();
+    const size_t n = bytesPerRow * height;
+
+    if (!IsSurfaceValid()) {
+      // Load the buffer into a surface
+      const size_t depth = 32;
+      const size_t pitch = bytesPerRow;
+
+      // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+      uint32_t rmask = 0xFF000000;
+      uint32_t gmask = 0x00FF0000;
+      uint32_t bmask = 0x0000FF00;
+      uint32_t amask = 0x000000FF;
+#else
+      uint32_t rmask = 0x000000FF;
+      uint32_t gmask = 0x0000FF00;
+      uint32_t bmask = 0x00FF0000;
+      uint32_t amask = 0xFF000000;
+#endif
+
+      const uint8_t* pBuffer = image.GetPointerToBuffer();
+      pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, width, height, depth, pitch, rmask, gmask, bmask, amask);
+    } else {
+      const uint8_t* pBuffer = image.GetPointerToBuffer();
+      std::memcpy(pSurface->pixels, pBuffer, n);
+    }
+  }
+
+  /*bool cSurface::CopyToImage(cImage& image)
+  {
+    assert(IsSurfaceValid());
+
+    const uint8_t* pBuffer = buffer.get();
+    image.CreateFromBuffer(pBuffer, width, height, pixelFormat);
+  }*/
+
+  bool cSurface::SaveToBMP(const string_t& sFilename) const
+  {
+    assert(IsSurfaceValid());
+    SDL_SaveBMP(pSurface, string::ToUTF8(sFilename).c_str());
+    return true;
+  }
+
+
+
+  // ** cImage
+
+  cImage::cImage() :
+    pixelFormat(PIXELFORMAT::R8G8B8A8)
+  {
+  }
+
+  cImage::~cImage()
+  {
+    buffer.clear();
+  }
+
+  cImage::cImage(const cImage& rhs)
+  {
+    Assign(rhs);
+  }
+
+  cImage& cImage::operator=(const cImage& rhs)
+  {
+    Assign(rhs);
+    return *this;
+  }
+
+  void cImage::Assign(const cImage& rhs)
+  {
+    width = rhs.width;
+    height = rhs.height;
+
+    pixelFormat = rhs.pixelFormat;
+
+    buffer = rhs.buffer;
+  }
+
+  bool cImage::IsSameFormat(const cImage& rhs) const
+  {
+    return (width == rhs.width) && (height == rhs.height) && (pixelFormat == rhs.pixelFormat);
+  }
+
+  size_t cImage::GetBytesPerPixel() const
+  {
+    //return (type == IMAGE_TYPE::HEIGHTMAP ? 1 : 4);
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+    return 4;
+  }
+
+  const uint8_t* cImage::GetPointerToBuffer() const
+  {
+    assert(!buffer.empty());
+    return buffer.data();
+  }
+
+  bool cImage::LoadFromFile(const string_t& sFilename)
+  {
+    cSurface surface;
+    if (!surface.LoadFromFile(sFilename)) {
+      std::cout<<"cImage::LoadFromFile Failed to load file \""<<string::ToUTF8(sFilename)<<"\""<<std::endl;
+      return false;
+    }
+
+    *this = surface.GetImage();
+
+    return true;
+  }
+
+  bool cImage::CreateEmptyImage(size_t _width, size_t _height, PIXELFORMAT _pixelFormat)
+  {
+    std::cout<<"cImage::CreateEmptyImage "<<_width<<"x"<<_height<<std::endl;
+
+    // Only RGBA is supported at the moment
+    assert(_pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    width = _width;
+    height = _height;
+    pixelFormat = _pixelFormat;
+
+    const size_t n = _width * _height;
+    buffer.resize(n, 0);
+    FillBlack();
+
+    return true;
+  }
+
+  bool cImage::CreateFromImage(const cImage& rhs)
+  {
+    Assign(rhs);
+    return IsValid();
+  }
+
+  bool cImage::CreateFromBuffer(const uint8_t* _pBuffer, size_t _width, size_t _height, PIXELFORMAT _pixelFormat)
   {
     std::cout<<"cImage::CreateFromBuffer "<<_width<<"x"<<_height<<std::endl;
 
     // Only RGBA is supported at the moment
-    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
-
-    // Load the buffer into a surface
-    const size_t depth = 32;
-    const size_t pitch = _width * GetBytesForPixelFormat(pixelFormat);
-
-    // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    uint32_t rmask = 0xFF000000;
-    uint32_t gmask = 0x00FF0000;
-    uint32_t bmask = 0x0000FF00;
-    uint32_t amask = 0x000000FF;
-#else
-    uint32_t rmask = 0x000000FF;
-    uint32_t gmask = 0x0000FF00;
-    uint32_t bmask = 0x00FF0000;
-    uint32_t amask = 0xFF000000;
-#endif
-
-    pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, _width, _height, depth, pitch, rmask, gmask, bmask, amask);
-
-    /*// Were we able to load the bitmap?
-    if (pTemp == nullptr) {
-      std::cout<<"cImage::CreateFromBuffer Unable to load bitmap: "<<SDL_GetError()<<std::endl;
-      return false;
-    }
-
-    // Convert the image to optimal display format
-    pSurface = SDL_DisplayFormat(pTemp);
-
-    // Free the temporary surface
-    SDL_FreeSurface(pTemp);
-    pTemp = nullptr;*/
-
-    width = pSurface->w;
-    height = pSurface->h;
-
-    //std::cout<<"cImage::CreateFromBuffer "<<width<<"x"<<height<<std::endl;
-
-    CopyFromSurfaceToData(pSurface->w, pSurface->h);
-
-    return true;
-  }
-
-  void cImage::CopyFromSurfaceToData(size_t _width, size_t _height)
-  {
-    // Fill out the pData structure array, we use this for when we have to reload this data
-    // on a task switch or fullscreen mode change
+    assert(_pixelFormat == PIXELFORMAT::R8G8B8A8);
 
     width = _width;
     height = _height;
-
-    CopyFromSurfaceToData();
-  }
-
-  void cImage::CopyFromSurfaceToData()
-  {
-    assert(pSurface != nullptr);
+    pixelFormat = _pixelFormat;
 
     const size_t n = width * height * GetBytesPerPixel();
+    buffer.resize(n, 0);
+    std::memcpy(buffer.data(), _pBuffer, n);
 
-    // Fill out the pData structure array, we use this for when we have to reload this data
-    // on a task switch or fullscreen mode change
-    if (data.empty()) data.resize(n, 0);
-
-    std::memcpy(&data[0], pSurface->pixels, n);
+    return true;
   }
 
-  void cImage::CopyFromDataToSurface()
+  bool cImage::SaveToBMP(const string_t& sFilename) const
   {
-    assert(pSurface != nullptr);
-
-    if (data.empty()) return;
-
-    const size_t n = width * height * GetBytesPerPixel();
-
-    std::memcpy(pSurface->pixels, &data[0], n);
+    cSurface surface;
+    surface.CreateFromImage(*this);
+    return surface.SaveToBMP(sFilename);
   }
 
-  void cImage::FlipDataVertically()
+  void cImage::CreateFromImageHalfSize(const cImage& image)
   {
-    if (data.empty()) return;
+    // Only RGBA is supported at the moment
+    assert(image.pixelFormat == PIXELFORMAT::R8G8B8A8);
 
-    // For each row swap it with the corresponding row on the other side of the image
-    const size_t nBytesPerRow = GetBytesPerPixel() * width;
-    uint8_t buffer[nBytesPerRow];
-    const size_t halfHeight = height / 2;
-    for (size_t y = 0; y < halfHeight; y++) {
-      std::memcpy(&buffer[0], &data[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], nBytesPerRow);
-      std::memcpy(&data[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], &data[(y * nBytesPerRow)], nBytesPerRow);
-      std::memcpy(&data[(y * nBytesPerRow)], &buffer[0], nBytesPerRow);
+    // Only width and heights divisible by 2 are supported at the moment
+    assert(spitfire::math::IsDivisibleByTwo(image.width));
+    assert(spitfire::math::IsDivisibleByTwo(image.height));
+
+    CreateEmptyImage(image.width / 2, image.height / 2, image.pixelFormat);
+
+    const size_t widthSource = image.width;
+    //const size_t heightSource = image.height;
+
+    const size_t widthDestination = width;
+    const size_t heightDestination = height;
+
+    for (size_t y = 0; y < heightDestination; y++) {
+      for (size_t x = 0; x < widthDestination; x++) {
+        const size_t indexSource = (2 * ((y * widthSource) + x)) * 4;
+        const size_t indexDestination = ((y * widthDestination) + x) * 4;
+
+        buffer[indexSource] = image.buffer[indexDestination]; // Red
+        buffer[indexSource + 1] = image.buffer[indexDestination + 1]; // Green
+        buffer[indexSource + 2] = image.buffer[indexDestination + 2]; // Blue
+        buffer[indexSource + 3] = image.buffer[indexDestination + 3]; // Alpha
+      }
     }
   }
 
-  void cImage::FlipDataHorizontally()
+  void cImage::CreateFromImageDoubleSize(const cImage& image)
   {
-    /*if (data.empty()) return;
+    // Only RGBA is supported at the moment
+    assert(image.pixelFormat == PIXELFORMAT::R8G8B8A8);
 
-    // For each column swap it with the corresponding column on the other side of the image
-    const size_t nBytesPerRow = GetBytesPerPixel() * width;
-    const size_t halfWidth = width / 2;
-    for (size_t y = 0; y < height; y++) {
-      std::memcpy(&data[(y * nBytesPerRow)], &data[(nBytesPerRow * height) - (y * nBytesPerRow)], nBytesPerRow);
+    CreateEmptyImage(image.width * 2, image.height * 2, image.pixelFormat);
+
+    const size_t widthSource = image.width;
+    //const size_t heightSource = image.height;
+
+    const size_t widthDestination = width;
+    const size_t heightDestination = height;
+
+    for (size_t y = 0; y < heightDestination; y++) {
+      for (size_t x = 0; x < widthDestination; x++) {
+        const size_t indexSource = ((y * widthSource) + x) * 4;
+
+        // For each component of RGBA
+        for (size_t c = 0; c < 4; c++) {
+          const uint8_t component = image.buffer[indexSource + c];
+
+          // Fill in a 2x2 area on the destination
+          buffer[(((2 * ((y * widthDestination) + x)) + 0) * 4) + c] = component;
+          buffer[(((2 * ((y * widthDestination) + x)) + 1) * 4) + c] = component;
+          buffer[(((widthDestination + (2 * ((y * widthDestination) + x)) + 0)) * 4) + c] = component;
+          buffer[(((widthDestination + (2 * ((y * widthDestination) + x)) + 1)) * 4) + c] = component;
+        }
+      }
+    }
+  }
+
+  void cImage::CreateFromImageAndSmooth(const cImage& image, size_t iterations)
+  {
+    /*const size_t n = image.width * image.height;
+
+    imageOut.SetDimensions(n);
+
+    std::vector<spitfire::math::cColour> temp = source;
+
+    spitfire::math::cColour surrounding[5];
+
+    for (size_t i = 0; i < iterations; i++) {
+      for (size_t y = 0; y < depthLightmap; y++) {
+        for (size_t x = 0; x < widthLightmap; x++) {
+
+          surrounding[0] = surrounding[1] = surrounding[2] = surrounding[3] = surrounding[4] = GetLightmapPixel(temp, x, y);
+
+          // We sample from the 4 surrounding pixels in a cross shape
+          if (x != 0) surrounding[0] = GetLightmapPixel(temp, x - 1, y);
+          if ((y + 1) < depthLightmap) surrounding[1] = GetLightmapPixel(temp, x, y + 1);
+          if (y != 0) surrounding[3] = GetLightmapPixel(temp, x, y - 1);
+          if ((x + 1) < widthLightmap) surrounding[4] = GetLightmapPixel(temp, x + 1, y);
+
+          //const spitfire::math::cColour averageOfSurrounding = 0.25f * (surrounding[0] + surrounding[1] + surrounding[3] + surrounding[4]);
+          //const spitfire::math::cColour final = 0.5f * (surrounding[2] + averageOfSurrounding);
+          const spitfire::math::cColour final = 0.25f * (surrounding[0] + surrounding[1] + surrounding[3] + surrounding[4]);
+
+          const size_t index = (y * widthLightmap) + x;
+
+          destination[index] = final;
+        }
+      }
+
+
+      // If we are still going then set temp to destination for the next iteration
+      if ((i + 1) < iterations) temp = destination;
     }*/
   }
 
-  bool cImage::SaveToBMP(const string_t& inFilename) const
+  void cImage::ConvertToNegative()
   {
-    assert(pSurface != nullptr);
-    SDL_SaveBMP(pSurface, string::ToUTF8(inFilename).c_str());
-    return true;
+    const size_t n = width * height * GetBytesPerPixel();
+    for (size_t i = 0; i < n; i += 4) {
+      buffer[i] = 255 - buffer[i]; // Red
+      buffer[i + 1] = 255 - buffer[i + 1]; // Green
+      buffer[i + 2] = 255 - buffer[i + 2]; // Blue
+    }
+  }
+
+  void cImage::FillBlack()
+  {
+    // Only RGBA is supported at the moment
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    const size_t n = width * height * GetBytesPerPixel();
+    buffer.resize(n);
+
+    for (size_t i = 0; i < n; i += 4) {
+      buffer[i] = 0; // Red
+      buffer[i + 1] = 0; // Green
+      buffer[i + 2] = 0; // Blue
+      buffer[i + 3] = 255; // Apha
+    }
+  }
+
+  void cImage::FillWhite()
+  {
+    // Only RGBA is supported at the moment
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    const size_t n = width * height;
+    buffer.resize(n);
+
+    for (size_t i = 0; i < n; i += 4) {
+      buffer[i] = 255; // Red
+      buffer[i + 1] = 255; // Green
+      buffer[i + 2] = 255; // Blue
+      buffer[i + 3] = 255; // Apha
+    }
+  }
+
+  void cImage::FlipVertically()
+  {
+    // Only RGBA is supported at the moment
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    if (buffer.empty()) return;
+
+    // For each row swap it with the corresponding row on the other side of the image
+    const size_t nBytesPerRow = GetBytesPerPixel() * width;
+    assert(buffer.size() == nBytesPerRow * height);
+
+    uint8_t tempBuffer[nBytesPerRow];
+    const size_t halfHeight = height / 2;
+    for (size_t y = 0; y < halfHeight; y++) {
+      std::memcpy(&tempBuffer[0], &buffer[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&buffer[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], &buffer[(y * nBytesPerRow)], nBytesPerRow);
+      std::memcpy(&buffer[(y * nBytesPerRow)], &tempBuffer[0], nBytesPerRow);
+    }
+  }
+
+  void cImage::FlipHorizontally()
+  {
+    // Only RGBA is supported at the moment
+    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    if (buffer.empty()) return;
+
+    // This has not been implemented yet
+    assert(false);
+
+    /*// For each column swap it with the corresponding column on the other side of the image
+    const size_t nBytesPerRow = GetBytesPerPixel() * width;
+    const size_t halfWidth = width / 2;
+    for (size_t y = 0; y < height; y++) {
+      std::memcpy(&buffer[(y * nBytesPerRow)], &buffer[(nBytesPerRow * height) - (y * nBytesPerRow)], nBytesPerRow);
+    }*/
   }
 }

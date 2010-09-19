@@ -35,10 +35,8 @@
 //#include <libopenglmm/cVertexBufferObject.h>
 //#include <libopenglmm/cWindow.h>
 
-struct SDL_Surface;
-
 // Data flow
-// cImage::pData <--> cImage::pSurface -> cTexture::uiTexture OpenGL texture
+// cImage::buffer <--> cTexture::uiTexture OpenGL texture
 
 namespace opengl
 {
@@ -59,12 +57,7 @@ namespace opengl
 
     bool CreateFromImage(const voodoo::cImage& image);
 
-    void CopyFromDataToSurface() { image.CopyFromDataToSurface(); }
-
-    void CopyFromSurfaceToData(size_t width, size_t height) { image.CopyFromSurfaceToData(width, height); }
-    void CopyFromSurfaceToData() { image.CopyFromSurfaceToData(); }
-
-    void CopyFromSurfaceToTexture();
+    void CopyFromImageToTexture();
 
 
     bool SaveToBMP(const opengl::string_t& sFilename) const { return image.SaveToBMP(sFilename); }

@@ -53,6 +53,7 @@ namespace voodoo
   size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat);
 
   class cImage;
+  class cSurface;
 }
 
 #endif // LIBVOODOOMM_H

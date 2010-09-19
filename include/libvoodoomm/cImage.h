@@ -26,14 +26,16 @@
 #include <spitfire/spitfire.h>
 
 #include <spitfire/math/math.h>
-#include <spitfire/math/cColour.h>
 
 #include <libvoodoomm/libvoodoomm.h>
 
 struct SDL_Surface;
 
 // Data flow
-// cImage::pData <--> cImage::pSurface
+//
+// cImage::pSurface <--> cSurface::data
+// OR
+// cImage::buffer <--> cSurface::data <--> cImage::pSurface
 
 namespace voodoo
 {
@@ -42,61 +44,65 @@ namespace voodoo
     HEIGHTMAP
   };
 
+  class cSurface;
+
   // ** cImage
 
   class cImage
   {
   public:
+    friend class cSurface;
+
     cImage();
-    virtual ~cImage();
+    ~cImage();
 
     cImage(const cImage& rhs);
     cImage& operator=(const cImage& rhs);
 
-    bool IsValid() const { return (pSurface != nullptr); }
+    bool CreateEmptyImage(size_t width, size_t height, PIXELFORMAT pixelFormat);
+    bool CreateFromImage(const cImage& image);
+    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    bool LoadFromFile(const string_t& sFilename);
+
+    void CreateFromImageHalfSize(const cImage& image); // Skips every second pixel
+    void CreateFromImageDoubleSize(const cImage& image); // Copies each pixel twice
+    void CreateFromImageAndSmooth(const cImage& image, size_t iterations);
+
+    bool IsValid() const { return (width != 0) && (height != 0) && !buffer.empty(); }
 
     size_t GetWidth() const { return width; }
     size_t GetHeight() const { return height; }
     PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
     size_t GetBytesPerPixel() const;
-    IMAGE_TYPE GetType() const { return type; }
 
     void SetWidth(size_t _width) { width = _width; }
     void SetHeight(size_t _height) { height = _height; }
     void SetPixelFormat(PIXELFORMAT _pixelFormat) { pixelFormat = _pixelFormat; }
-    void SetType(IMAGE_TYPE _type) { type = _type; }
 
-    const uint8_t* GetPointerToData() const;
-    const uint8_t* GetPointerToSurfacePixelBuffer() const;
+    const uint8_t* GetPointerToBuffer() const;
 
-    bool LoadFromFile(const string_t& sFilename);
-    bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void FillBlack();
+    void FillWhite();
 
-    void CopyFromDataToSurface();
+    void ConvertToGreyScale();
+    void ConvertToNegative();
 
-    void CopyFromSurfaceToData(size_t width, size_t height);
-    void CopyFromSurfaceToData();
-
-    void CopyFromSurfaceToTexture();
-
-    void FlipDataVertically();
-    void FlipDataHorizontally();
+    void FlipVertically();
+    void FlipHorizontally();
 
     bool SaveToBMP(const string_t& sFilename) const;
 
   protected:
     size_t width;
     size_t height;
-
     PIXELFORMAT pixelFormat;
 
-    IMAGE_TYPE type;
-
-    SDL_Surface* pSurface;
-    std::vector<unsigned char> data;
+    std::vector<uint8_t> buffer;
 
   private:
     void Assign(const cImage& rhs);
+
+    bool IsSameFormat(const cImage& rhs) const;
   };
 }
 

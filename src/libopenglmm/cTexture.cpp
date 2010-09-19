@@ -64,7 +64,7 @@ namespace opengl
     image = _image;
 
     Create();
-    CopyFromSurfaceToTexture();
+    CopyFromImageToTexture();
 
     return IsValid();
   }
@@ -85,14 +85,14 @@ namespace opengl
     uiTexture = 0;
   }
 
-  void cTexture::CopyFromSurfaceToTexture()
+  void cTexture::CopyFromImageToTexture()
   {
     // Bind so that the next operations happen on this texture
     glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-    const uint8_t* pBuffer = image.GetPointerToSurfacePixelBuffer();
+    const uint8_t* pBuffer = image.GetPointerToBuffer();
     if (pBuffer != nullptr) {
-      // Copy from surface to texture
+      // Copy from image to texture
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
 
       // Remove this line if there are artifacts
@@ -115,11 +115,8 @@ namespace opengl
     // Create a new one
     Create();
 
-    // Copy from data buffer to surface
-    CopyFromDataToSurface();
-
-    // Copy from surface to texture
-    CopyFromSurfaceToTexture();
+    // Copy from image to texture
+    CopyFromImageToTexture();
   }
 
 
@@ -134,7 +131,6 @@ namespace opengl
   {
     image.SetWidth(DEFAULT_FBO_TEXTURE_WIDTH);
     image.SetHeight(DEFAULT_FBO_TEXTURE_HEIGHT);
-    image.SetType(voodoo::IMAGE_TYPE::BITMAP);
   }
 
   cTextureFrameBufferObject::~cTextureFrameBufferObject()
