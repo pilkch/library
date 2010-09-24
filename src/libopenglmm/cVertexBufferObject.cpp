@@ -482,7 +482,7 @@ namespace opengl
     assert(!bIs2D);
 
     if (indices.empty()) {
-      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
       const size_t nVertices = vertices.size() / 3;
       glDrawArrays(geometryType, 0, nVertices);
     } else {
@@ -496,7 +496,7 @@ namespace opengl
     assert(bIs2D);
 
     if (indices.empty()) {
-      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.
+      // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
       const size_t nVertices = vertices.size() / 2;
       glDrawArrays(geometryType, 0, nVertices);
     } else {

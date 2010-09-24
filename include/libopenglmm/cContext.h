@@ -1,6 +1,6 @@
 /*************************************************************************
  *                                                                       *
- * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington         *
+ * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington      *
  * All rights reserved.  Web: http://chris.iluo.net                      *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
@@ -36,6 +36,7 @@ namespace opengl
   class cTextureFrameBufferObject;
   class cShader;
   class cStaticVertexBufferObject;
+  class cDynamicVertexArray;
 
   enum class LIGHT_TYPE {
     POINTLIGHT,
@@ -93,6 +94,9 @@ namespace opengl
 
     cStaticVertexBufferObject* CreateStaticVertexBufferObject();
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
+
+    cDynamicVertexArray* CreateDynamicVertexArray();
+    void DestroyDynamicVertexArray(cDynamicVertexArray* pDynamicVertexArray);
 
 #ifdef BUILD_OPENGLMM_FONT
     cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
@@ -169,6 +173,8 @@ namespace opengl
     void SetTextureMatrix(const spitfire::math::cMat4& matrix);
 
 
+    // cStaticVertexBufferObject
+
     void BindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
     void UnBindStaticVertexBufferObject(cStaticVertexBufferObject& staticVertexBufferObject);
     void BindStaticVertexBufferObject2D(cStaticVertexBufferObject& staticVertexBufferObject);
@@ -182,6 +188,23 @@ namespace opengl
 
     void DrawStaticVertexBufferObjectLines2D(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);
+
+
+    // cDynamicVertexArray
+
+    void BindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray);
+    void UnBindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray);
+    void BindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray);
+    void UnBindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray);
+
+    void DrawDynamicVertexArrayLines(cDynamicVertexArray& dynamicVertexArray);
+    void DrawDynamicVertexArrayTriangles(cDynamicVertexArray& dynamicVertexArray);
+    void DrawDynamicVertexArrayTriangleStrip(cDynamicVertexArray& dynamicVertexArray);
+    void DrawDynamicVertexArrayQuads(cDynamicVertexArray& dynamicVertexArray);
+    void DrawDynamicVertexArrayQuadStrip(cDynamicVertexArray& dynamicVertexArray);
+
+    void DrawDynamicVertexArrayLines2D(cDynamicVertexArray& dynamicVertexArray);
+    void DrawDynamicVertexArrayQuads2D(cDynamicVertexArray& dynamicVertexArray);
 
   protected:
     void ReloadResources() {}
@@ -217,6 +240,7 @@ namespace opengl
     std::map<opengl::string_t, cTexture*> textures;
     std::vector<cShader*> shaders;
     std::vector<cStaticVertexBufferObject*> staticVertexBufferObjects;
+    std::vector<cDynamicVertexArray*> dynamicVertexArrays;
   };
 }
 
