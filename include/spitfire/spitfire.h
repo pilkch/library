@@ -154,6 +154,14 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define THREAD_GLOBAL
 
 
+// Deprecation flags
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#define ATTRIBUTE_DEPRECATED __attribute__((deprecated))
+#else
+#define ATTRIBUTE_DEPRECATED
+#endif
+
+
 // *** Types
 
 // Now taken directly from math.h/cmath because of a name clash

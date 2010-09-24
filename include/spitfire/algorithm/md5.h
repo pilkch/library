@@ -1,9 +1,6 @@
 /*
 *  RFC 1321 compliant MD5 implementation
 *
-*  Incorporated into:
-*  Various GPL projects by Christopher Pilkington
-*
 *
 *  Copyright (C) 2001-2003  Christophe Devine
 *

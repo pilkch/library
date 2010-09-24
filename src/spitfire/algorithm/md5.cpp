@@ -22,14 +22,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-/*
- * 08/11/2004 Adapted by Christopher Pilkington
- *  - Operates within a class for easier access.
- *  - Variety of ways of collecting the result: raw data, formatted string
- *  - Can check files or strings
- */
-
 #include <cstdio>
 #include <cstring>
 
@@ -444,7 +436,7 @@ namespace spitfire
 
 class cMD5UnitTest : protected spitfire::util::cUnitTestBase
 {
-  public:
+public:
   cMD5UnitTest() :
     cUnitTestBase(TEXT("cMD5UnitTest"))
   {
