@@ -235,12 +235,10 @@ namespace opengl
 
     cShader* pCurrentShader;
 
-    size_t nFrameBufferObjects;
-
     std::map<opengl::string_t, cTexture*> textures;
-    std::vector<cShader*> shaders;
-    std::vector<cStaticVertexBufferObject*> staticVertexBufferObjects;
-    std::vector<cDynamicVertexArray*> dynamicVertexArrays;
+    std::list<cShader*> shaders;
+    std::list<cStaticVertexBufferObject*> staticVertexBufferObjects;
+    std::list<cDynamicVertexArray*> dynamicVertexArrays;
   };
 }
 

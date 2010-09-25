@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <list>
 #include <vector>
 
 // OpenGL headers
