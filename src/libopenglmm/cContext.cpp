@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <list>
 #include <vector>
 
 // OpenGL headers
@@ -39,8 +40,7 @@ namespace opengl
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
-    pCurrentShader(nullptr),
-    nFrameBufferObjects(0)
+    pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
@@ -101,8 +101,7 @@ namespace opengl
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
-    pCurrentShader(nullptr),
-    nFrameBufferObjects(0)
+    pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
 
@@ -112,8 +111,6 @@ namespace opengl
 
   cContext::~cContext()
   {
-    assert(nFrameBufferObjects == 0);
-
     assert(textures.empty());
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());
@@ -142,6 +139,8 @@ namespace opengl
       return nullptr;
     }
 
+    //textures.push_back(pTexture);
+
     return pTexture;
   }
 
@@ -154,6 +153,8 @@ namespace opengl
       delete pTexture;
       return nullptr;
     }
+
+    //textures.push_back(pTexture);
 
     return pTexture;
   }
@@ -171,12 +172,17 @@ namespace opengl
       return nullptr;
     }
 
+    //textures.push_back(pTexture);
+
     return pTexture;
   }
 
   void cContext::DestroyTexture(cTexture* pTexture)
   {
     assert(pTexture != nullptr);
+
+    //textures.remove(pTexture);
+
     pTexture->Destroy();
     delete pTexture;
   }
@@ -190,7 +196,7 @@ namespace opengl
       return nullptr;
     }
 
-    nFrameBufferObjects++;
+    //textures.push_back(pTexture);
 
     return pTexture;
   }
@@ -198,10 +204,11 @@ namespace opengl
   void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture)
   {
     assert(pTexture != nullptr);
+
+    //textures.remove(pTexture);
+
     pTexture->Destroy();
     delete pTexture;
-
-    nFrameBufferObjects--;
   }
 
 
@@ -213,36 +220,51 @@ namespace opengl
       return nullptr;
     }
 
+    shaders.push_back(pShader);
+
     return pShader;
   }
 
   void cContext::DestroyShader(cShader* pShader)
   {
     assert(pShader != nullptr);
+
+    shaders.remove(pShader);
+
     pShader->Destroy();
     delete pShader;
   }
 
   cStaticVertexBufferObject* cContext::CreateStaticVertexBufferObject()
   {
-    return new cStaticVertexBufferObject;
+    cStaticVertexBufferObject* pStaticVertexBufferObject = new cStaticVertexBufferObject;
+    staticVertexBufferObjects.push_back(pStaticVertexBufferObject);
+    return pStaticVertexBufferObject;
   }
 
   void cContext::DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject)
   {
     assert(pStaticVertexBufferObject != nullptr);
+
+    staticVertexBufferObjects.remove(pStaticVertexBufferObject);
+
     pStaticVertexBufferObject->Destroy();
     delete pStaticVertexBufferObject;
   }
 
   cDynamicVertexArray* cContext::CreateDynamicVertexArray()
   {
-    return new cDynamicVertexArray;
+    cDynamicVertexArray* pDynamicVertexArray = new cDynamicVertexArray;
+    dynamicVertexArrays.push_back(pDynamicVertexArray);
+    return pDynamicVertexArray;
   }
 
   void cContext::DestroyDynamicVertexArray(cDynamicVertexArray* pDynamicVertexArray)
   {
     assert(pDynamicVertexArray != nullptr);
+
+    dynamicVertexArrays.remove(pDynamicVertexArray);
+
     pDynamicVertexArray->Destroy();
     delete pDynamicVertexArray;
   }
@@ -256,12 +278,17 @@ namespace opengl
       return nullptr;
     }
 
+    fonts.push_back(pFont);
+
     return pFont;
   }
 
   void cContext::DestroyFont(cFont* pFont)
   {
     assert(pFont != nullptr);
+
+    fonts.remove(pFont);
+
     pFont->Destroy(*this);
     delete pFont;
   }
