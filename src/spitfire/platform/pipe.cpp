@@ -50,11 +50,11 @@ namespace spitfire
 {
   namespace platform
   {
-    cPipeIn::cPipeIn(const string_t& szCommandLine) :
+    cPipeIn::cPipeIn(const string_t& sCommandLine) :
       fhPipe(nullptr),
       fd(-1)
     {
-      Open(szCommandLine);
+      Open(sCommandLine);
     }
 
     cPipeIn::~cPipeIn()
@@ -68,9 +68,7 @@ namespace spitfire
       LOG<<"cPipeIn::Open: "<<sCommandLine<<std::endl;
       Close();
 
-      const std::string sCommandLineUTF8(string::ToUTF8(sCommandLine));
-
-      fhPipe = popen(sCommandLineUTF8.c_str(), "r");
+      fhPipe = popen(string::ToUTF8(sCommandLine).c_str(), "r");
       if (fhPipe == nullptr) {
         LOG<<"cPipeIn::Open popen FAILED, returning false"<<std::endl;
         fd = -1;
@@ -86,10 +84,12 @@ namespace spitfire
 
     int cPipeIn::Close()
     {
-      int iReturnValueOfCommand = 0;
+      int iReturnValueOfCommand = -1;
 
       if (fhPipe != nullptr) {
-        iReturnValueOfCommand = pclose(fhPipe);
+        int status = pclose(fhPipe);
+        if ((status != -1) && WIFEXITED(status)) iReturnValueOfCommand = WEXITSTATUS(status);
+
         fhPipe = nullptr;
       }
 
@@ -124,7 +124,7 @@ namespace spitfire
     size_t cPipeIn::GetBytesReady() const
     {
       LOG<<"cPipeIn::GetBytesReady fd="<<fd<<std::endl;
-
+      assert(IsOpen());
       u_long nBytesReady = 0;
       #ifdef __APPLE__
       if (ioctlsocket(fd, FIONREAD, &nBytesReady) != 0) LOG<<"cPipeIn::GetBytesReady ioctlsocket error"<<std::endl;
@@ -175,9 +175,7 @@ namespace spitfire
       LOG<<"cPipeOut::Open: "<<sCommandLine<<std::endl;
       Close();
 
-
-      const std::string sCommandLineUTF8 = string::ToUTF8(sCommandLine);
-      fhPipe = popen(sCommandLineUTF8.c_str(), "w");
+      fhPipe = popen(string::ToUTF8(sCommandLine).c_str(), "w");
       if (fhPipe == NULL) {
         fd = -1;
         return false;
@@ -189,10 +187,12 @@ namespace spitfire
 
     int cPipeOut::Close()
     {
-      int iReturnValueOfCommand = 0;
+      int iReturnValueOfCommand = -1;
 
       if (fhPipe != nullptr) {
-        iReturnValueOfCommand = pclose(fhPipe);
+        int status = pclose(fhPipe);
+        if ((status != -1) && WIFEXITED(status)) iReturnValueOfCommand = WEXITSTATUS(status);
+
         fhPipe = nullptr;
       }
 
@@ -395,44 +395,62 @@ namespace spitfire
 
 
 
-    std::string PipeReadToString(const string_t& sCommandLine)
+    std::string PipeReadToString(const string_t& sCommandLine, int& iReturnValueOfCommand)
     {
       LOG<<"PipeReadToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
 
-      // Create a pipe
-      cPipeIn pipe(sCommandLine);
-      if (!pipe.IsOpen()) {
+      iReturnValueOfCommand = -1;
+
+      FILE* fhPipe = popen(string::ToUTF8(sCommandLine).c_str(), "r");
+      if (fhPipe == nullptr) {
         LOG<<"PipeReadToString pipe is closed"<<std::endl;
         return "";
       }
 
-      // We keep a single working string
-      std::ostringstream o;
+      int fd = fileno(fhPipe);
+      if (fd == -1) LOG<<"ReadPipeToString fd=-1"<<std::endl;
+      fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
 
-      size_t i = 0;
-      while (pipe.IsDataReady()) {
-        if (i > 20) break;
-        i++;
+      std::vector<char> buffer;
 
-        // Read the control code
-        const size_t n = pipe.GetBytesReady();
-        LOG<<"PipeReadToString "<<n<<" bytes ready"<<std::endl;
-        if (n != 0) {
-          char szText[n];
-          if (pipe.Read(szText, sizeof(szText)) == 0) {
-            LOG<<"PipeReadToString Process terminated without graceful exit"<<std::endl;
+      {
+        char buf[80];
+        const size_t len = sizeof(buf);
+
+        size_t n = len;
+        while (n == len) {
+          int nRead = read(fd, buf, len);
+          if (nRead <= 0) {
+            LOG<<"ReadPipeToString FAILED: "<<nRead<<std::endl;
             break;
           }
+          if (size_t(nRead) < len) {
+            int iErrno = errno;
+            if (iErrno != 0) LOG<<"ReadPipeToString errno="<<iErrno<<std::endl;
+          }
 
-          szText[n] = 0;
-
-          o<<szText;
+          //LOG<<"ReadPipeToString nRead "<<nRead<<" < len "<<len<<std::endl;
+          n = size_t(nRead);
+          for (size_t i = 0; i < n; i++) buffer.push_back(buf[i]);
         }
       }
 
-      LOG<<"PipeReadToString Read \""<<o.str()<<"\""<<std::endl;
+      int status = pclose(fhPipe);
+      if ((status != -1) && WIFEXITED(status)) iReturnValueOfCommand = WEXITSTATUS(status);
 
-      return o.str();
+      fhPipe = nullptr;
+
+      buffer.push_back(0);
+      const std::string sBuffer(buffer.data());
+
+      LOG<<"PipeReadToString \""<<sBuffer<<"\" returning "<<iReturnValueOfCommand<<std::endl;
+      return sBuffer;
+    }
+
+    std::string PipeReadToString(const string_t& sCommandLine)
+    {
+      int iReturnValueOfCommand = -1;
+      return PipeReadToString(sCommandLine, iReturnValueOfCommand);
     }
 
 

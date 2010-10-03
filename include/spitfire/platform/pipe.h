@@ -13,7 +13,7 @@ namespace spitfire
       ~cPipeIn();
 
       bool Open(const string_t& sCommandLine);
-      int Close();
+      int Close(); // Returns the return value of the command
 
       bool IsOpen() const;
       bool IsDataReady() const;
@@ -35,7 +35,7 @@ namespace spitfire
       ~cPipeOut();
 
       bool Open(const string_t& sCommandLine);
-      int Close();
+      int Close(); // Returns the return value of the command
 
       bool IsOpen() const;
 
@@ -56,7 +56,7 @@ namespace spitfire
       ~cPipeInOut();
 
       bool Open(const string_t& sCommandLine);
-      int Close();
+      int Close(); // Returns the return value of the command
 
       bool IsOpen() const;
       bool IsDataReady() const;
@@ -74,7 +74,8 @@ namespace spitfire
 
     // *** PipeReadToString
 
-    std::string PipeReadToString(const string_t& sCommandLine);
+    std::string PipeReadToString(const string_t& sCommandLine); // Returns any data read
+    std::string PipeReadToString(const string_t& sCommandLine, int& iReturnValueOfCommand); // Returns any data read and set iReturnValueOfCommand to the return code of sCommandLine
   }
 }
 
