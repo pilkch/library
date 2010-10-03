@@ -111,6 +111,8 @@ namespace opengl
 
   cContext::~cContext()
   {
+    std::cout<<"cContext::~cContext"<<std::endl;
+
     assert(textures.empty());
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());
