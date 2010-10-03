@@ -10,10 +10,10 @@ namespace spitfire
     class cVec2
     {
     public:
-      inline cVec2() : u(x), v(y) {}
+      inline cVec2() : x(0), y(0), u(x), v(y) {}
       explicit cVec2(const float* rhs);
-      inline cVec2(float newX, float newY) : u(x), v(y) { x=newX; y=newY; }
-      inline cVec2(const cVec2& rhs) : u(x), v(y) { x=rhs.x; y=rhs.y; }
+      inline cVec2(float newX, float newY) : x(newX), y(newY), u(x), v(y) {}
+      inline cVec2(const cVec2& rhs) : x(rhs.x), y(rhs.y), u(x), v(y) {}
       cVec2(const cVec3& rhs);
 
       void Set(float newX, float newY); //set member variables

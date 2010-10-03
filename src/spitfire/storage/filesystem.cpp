@@ -43,6 +43,9 @@
 
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>
+#endif
+
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
 #include <spitfire/algorithm/md5.h>
 #endif
 
@@ -586,7 +589,7 @@ namespace spitfire
     }
 
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
     string_t GetMD5(const string_t& sFilename)
     {
       cMD5 m;

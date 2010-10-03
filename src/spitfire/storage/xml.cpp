@@ -26,7 +26,7 @@
 
 #include <spitfire/storage/xml.h>
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
@@ -520,7 +520,7 @@ namespace spitfire
       mAttribute[sAttribute] = o.str();
     }
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
     void cNode::AddAttribute(const std::string& sAttribute, const math::cVec3& value)
     {
       std::ostringstream o;
@@ -623,7 +623,7 @@ namespace spitfire
       return false;
     }
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
     bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value) const
     {
       value.SetZero();

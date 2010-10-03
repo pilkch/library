@@ -9,15 +9,15 @@
 
 // Shared folder mirrors the directory structure of each program
 //
-// ~/Dev/shared/lang.h
-// ~/Dev/shared/lang_us.h
-// ~/Dev/shared/data/textures/
+// ~/dev/shared/lang.h
+// ~/dev/shared/lang_us.h
+// ~/dev/shared/data/textures/
 //                   fonts/
 //                   materials/
 //
-// ~/Dev/drive/lang.h
-// ~/Dev/drive/lang_us.h
-// ~/Dev/drive/data/textures/
+// ~/dev/drive/lang.h
+// ~/dev/drive/lang_us.h
+// ~/dev/drive/data/textures/
 //                  fonts/
 //                  materials/
 //
@@ -38,8 +38,10 @@ namespace spitfire
     void SetThisExecutable(const string_t& executable);
     string_t GetThisApplicationDirectory();
     string_t GetApplicationSettingsDirectory(const string_t& sApplication);
+#ifndef BUILDALL
     inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(SPITFIRE_APPLICATION_NAME_LWR)); }
     inline string_t GetSpitfireSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("spitfire")); }
+#endif
     string_t GetHomeDirectory();
     string_t GetHomeConfigurationFilesDirectory();
     string_t GetHomeDesktopDirectory();
@@ -58,7 +60,7 @@ namespace spitfire
     void ChangeToDirectory(const string_t& sDirectory);
 
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
     string_t GetMD5(const string_t& sFilename);
     string_t GetSHA1(const string_t& sFilename);
 #endif
@@ -110,6 +112,10 @@ namespace spitfire
     bool FindResourceFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename);
 
     bool FindFile(const string_t& sFilename, string_t& sOutFilename);
+
+
+    string_t MakeFilePath(const string_t& sDirectory, const string_t& sFile);
+    string_t MakeFilePath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
 
 
     // TODO: Remove this
@@ -243,7 +249,6 @@ namespace spitfire
     void Unmount(const string_t& sPath);
 
     bool GetFile(const string_t& sFile, string_t& sFullPath);
-
 
     bool UnzipFileToFolder(const string_t& sFullPathToZipFile, const string_t& sFullPathToExtractFilesTo);
   }

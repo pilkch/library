@@ -281,3 +281,4 @@ namespace spitfire
 #endif
 
 #endif // SPITFIRE_H
+

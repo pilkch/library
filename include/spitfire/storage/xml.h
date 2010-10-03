@@ -1,7 +1,7 @@
 #ifndef XML_H
 #define XML_H
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
 #include <spitfire/util/cString.h>
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
@@ -72,7 +72,7 @@ namespace spitfire
       void AddAttribute(const std::string& sAttribute, const bool value);
       void AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
       void AddAttribute(const std::string& sAttribute, const math::cVec3& value);
       void AddAttribute(const std::string& sAttribute, const math::cQuaternion& value);
       void AddAttribute(const std::string& sAttribute, const math::cColour& value);
@@ -104,7 +104,7 @@ namespace spitfire
       bool GetAttribute(const std::string& sAttribute, bool& value) const;
       bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
-#ifndef FIRESTARTER
+#if !defined(FIRESTARTER) && !defined(BUILDALL)
       bool GetAttribute(const std::string& sAttribute, math::cVec3& value) const;
       bool GetAttribute(const std::string& sAttribute, math::cQuaternion& value) const;
       bool GetAttribute(const std::string& sAttribute, math::cColour& value) const;
@@ -124,6 +124,7 @@ namespace spitfire
         bool IsValid() const;
 
         cIterator operator++(int);
+        void Next();
         void Next(const std::string& sName);
 
         void FirstChild();
@@ -238,6 +239,12 @@ namespace spitfire
       ASSERT(pNode != nullptr);
       pNode = pNode->GetNext();
       return *this;
+    }
+
+    inline void cNode::cIterator::Next()
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->GetNext();
     }
 
     inline void cNode::cIterator::Next(const std::string& sName)
