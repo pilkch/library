@@ -2,9 +2,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <cstring>
 
 #include <string>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -17,158 +20,52 @@
 
 namespace xdg
 {
-  // *** cPipeIn
-
-  class cPipeIn {
-  public:
-    explicit cPipeIn(const std::string& sCommandLine);
-    ~cPipeIn();
-
-    bool Open(const std::string& sCommandLine);
-    int Close();
-
-    bool IsOpen() const;
-    bool IsDataReady() const;
-
-    size_t GetBytesReady() const;
-    size_t Read(void* Buffer, size_t Length);
-
-  private:
-    FILE* fhPipe;
-    int fd;
-  };
-
-  cPipeIn::cPipeIn(const std::string& sCommandLine) :
-    fhPipe(nullptr),
-    fd(-1)
-  {
-    Open(sCommandLine);
-  }
-
-  cPipeIn::~cPipeIn()
-  {
-    Close();
-  }
-
-  bool cPipeIn::Open(const std::string& sCommandLine)
-  {
-    Close();
-
-    fhPipe = popen(sCommandLine.c_str(), "r");
-    if (fhPipe == nullptr) {
-      //std::cout<<"cPipeIn::Open popen FAILED, returning false"<<std::endl;
-      fd = -1;
-      return false;
-    }
-    fd = fileno(fhPipe);
-    //if (fd == -1) std::cout<<"cPipeIn::Open fd=-1"<<std::endl;
-    fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
-
-    //std::cout<<"cPipeIn::Open returning true"<<std::endl;
-    return true;
-  }
-
-  int cPipeIn::Close()
-  {
-    int iReturnValueOfCommand = 0;
-
-    if (fhPipe != nullptr) {
-      iReturnValueOfCommand = pclose(fhPipe);
-      fhPipe = nullptr;
-    }
-
-    fd = -1;
-
-    return iReturnValueOfCommand;
-  }
-
-  bool cPipeIn::IsOpen() const
-  {
-    return (fhPipe != nullptr);
-  }
-
-  bool cPipeIn::IsDataReady() const
-  {
-    assert(IsOpen());
-    int iSelectResult = 0;
-
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(fd, &readfds);
-    timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    iSelectResult = select(int(fd) + 1, &readfds, NULL, NULL, &tv);
-
-    //std::cout<<"cPipeIn::IsDataReady returning "<<(iSelectResult > 0)<<std::endl;
-    return (iSelectResult > 0);
-  }
-
-  size_t cPipeIn::GetBytesReady() const
-  {
-    u_long nBytesReady = 0;
-    int n = 0;
-    if (ioctl(fd, FIONREAD, &n) == -1) {
-      //std::cout<<"cPipeIn::GetBytesReady ioctl error"<<std::endl;
-    } else {
-      //std::cout<<"cPipeIn::GetBytesReady ioctl returned "<<n<<std::endl;
-      nBytesReady = n;
-    }
-    assert(int(nBytesReady) >= 0);
-    //std::cout<<"cPipeIn::GetBytesReady returning "<<nBytesReady<<std::endl;
-    return nBytesReady;
-  }
-
-  size_t cPipeIn::Read(void* Buffer, size_t Length)
-  {
-    int nRead = read(fd, Buffer, Length);
-    if (nRead < 0) {
-      //std::cout<<"cPipeIn::Read FAILED: "<<nRead<<std::endl;
-      nRead = 0;
-    }
-    if (size_t(nRead) < Length) {
-      //std::cout<<"cPipeIn::Read errno="<<errno<<std::endl;
-      //std::cout<<"cPipeIn::Read nRead "<<nRead<<" < Length "<<Length<<std::endl;
-    }
-    return size_t(nRead);
-  }
-
-
-
   std::string ReadPipeToString(const std::string& sCommandLine)
   {
     //std::cout<<"ReadPipeToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
 
-    // Create a pipe
-    cPipeIn pipe(sCommandLine);
-    if (!pipe.IsOpen()) {
-      //std::cout<<"ReadPipeToString pipe is closed"<<std::endl;
+    FILE* fhPipe = popen(sCommandLine.c_str(), "r");
+    if (fhPipe == nullptr) {
+      std::cout<<"PipeReadToString pipe is closed"<<std::endl;
       return "";
     }
 
-    // We keep a single working string
-    std::ostringstream o;
+    int fd = fileno(fhPipe);
+    if (fd == -1) std::cout<<"ReadPipeToString fd=-1"<<std::endl;
+    fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
 
-    while (pipe.IsDataReady()) {
-      // Read the control code
-      const size_t n = pipe.GetBytesReady();
-      //std::cout<<"ReadPipeToString "<<n<<" bytes ready"<<std::endl;
-      if (n != 0) {
-        char szText[n];
-        if (pipe.Read(szText, sizeof(szText)) == 0) {
-          //std::cout<<"ReadPipeToString Process terminated without graceful exit"<<std::endl;
+    std::vector<char> buffer;
+
+    {
+      char buf[80];
+      const size_t len = sizeof(buf);
+
+      size_t n = len;
+      while (n == len) {
+        int nRead = read(fd, buf, len);
+        if (nRead <= 0) {
+          std::cout<<"ReadPipeToString FAILED: "<<nRead<<std::endl;
           break;
         }
+        if (size_t(nRead) < len) {
+          int iErrno = errno;
+          if (iErrno != 0) std::cout<<"ReadPipeToString errno="<<iErrno<<std::endl;
+        }
 
-        szText[n] = 0;
-
-        o<<szText;
+        //std::cout<<"ReadPipeToString nRead "<<nRead<<" < len "<<len<<std::endl;
+        n = size_t(nRead);
+        for (size_t i = 0; i < n; i++) buffer.push_back(buf[i]);
       }
     }
 
-    //std::cout<<"ReadPipeToString Read \""<<o.str()<<"\""<<std::endl;
+    pclose(fhPipe);
+    fhPipe = nullptr;
 
-    return o.str();
+    buffer.push_back(0);
+    const std::string sBuffer(buffer.data());
+
+    //std::cout<<"PipeReadToString returning \""<<sBuffer<<"\""<<std::endl;
+    return sBuffer;
   }
 
 
@@ -209,10 +106,20 @@ namespace xdg
   {
     directory = ReadPipeToString("xdg-user-dir");
 
-    if (directory.empty()) {
+    if (!directory.empty()) {
+      // The directory is everything before the first new line or tab
+      const size_t n = directory.length();
+      for (size_t i = 0; i < n; i++) {
+        if ((directory[i] == '\r') || (directory[i] == '\n') || (directory[i] == '\t')) {
+          directory = directory.substr(0, i);
+        }
+      }
+    } else {
       std::string home;
       if (GetEnvironmentVariable("HOME", home)) directory = home;
     }
+
+    std::cout<<"GetHomeDirectory returning \""<<directory<<"\""<<std::endl;
   }
 
   void GetDataHomeDirectory(std::string& directory)
@@ -221,7 +128,8 @@ namespace xdg
 
     if (!GetEnvironmentVariable("XDG_DATA_HOME", directory)) {
       std::string home;
-      if (GetEnvironmentVariable("HOME", home)) directory = home + "/.local/share";
+      GetHomeDirectory(home);
+      directory = home + "/.local/share";
     }
   }
 
@@ -231,7 +139,8 @@ namespace xdg
 
     if (!GetEnvironmentVariable("XDG_CONFIG_HOME", directory)) {
       std::string home;
-      if (GetEnvironmentVariable("HOME", home)) directory = home + "/.config";
+      GetHomeDirectory(home);
+      directory = home + "/.config";
     }
   }
 
