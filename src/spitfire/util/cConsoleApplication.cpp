@@ -16,6 +16,9 @@ namespace spitfire
 
   cConsoleApplication::cConsoleApplication(int argc, const char* const* argv)
   {
+    // So we can run stdio and stream style i/o interchanged.
+    //std::ios_base::sync_with_stdio();
+
     ParseArguments(argc, argv);
   }
 

@@ -1,3 +1,4 @@
+// Standard headers
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,8 +13,10 @@
 #include <sstream>
 #include <fstream>
 
-// Boost Includes
+// Boost headers
 #include <boost/filesystem/operations.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -408,30 +411,21 @@ namespace spitfire
       }
 
       int fd = fileno(fhPipe);
-      if (fd == -1) LOG<<"ReadPipeToString fd=-1"<<std::endl;
+      if (fd == -1) LOG<<"PipeReadToString fd=-1"<<std::endl;
       fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
 
-      std::vector<char> buffer;
+      std::ostringstream o;
 
       {
-        char buf[80];
-        const size_t len = sizeof(buf);
+        boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
+        std::istream in(&fpstream);
+        in.set_auto_close(false);
 
-        size_t n = len;
-        while (n == len) {
-          int nRead = read(fd, buf, len);
-          if (nRead <= 0) {
-            LOG<<"ReadPipeToString FAILED: "<<nRead<<std::endl;
-            break;
-          }
-          if (size_t(nRead) < len) {
-            int iErrno = errno;
-            if (iErrno != 0) LOG<<"ReadPipeToString errno="<<iErrno<<std::endl;
-          }
-
-          //LOG<<"ReadPipeToString nRead "<<nRead<<" < len "<<len<<std::endl;
-          n = size_t(nRead);
-          for (size_t i = 0; i < n; i++) buffer.push_back(buf[i]);
+        std::string sLine;
+        while (in) {
+          std::getline(in, sLine);
+          //std::cout<<"PipeReadToString \""<<sLine<<"\""<<std::endl;
+          o<<sLine;
         }
       }
 
@@ -440,10 +434,9 @@ namespace spitfire
 
       fhPipe = nullptr;
 
-      buffer.push_back(0);
-      const std::string sBuffer(buffer.data());
+      const std::string sBuffer(o.str());
 
-      LOG<<"PipeReadToString \""<<sBuffer<<"\" returning "<<iReturnValueOfCommand<<std::endl;
+      std::cout<<"PipeReadToString \""<<sBuffer<<"\" returning "<<iReturnValueOfCommand<<std::endl;
       return sBuffer;
     }
 

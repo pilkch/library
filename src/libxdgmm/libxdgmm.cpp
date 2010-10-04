@@ -9,6 +9,10 @@
 #include <sstream>
 #include <vector>
 
+// Boost headers
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
@@ -20,9 +24,9 @@
 
 namespace xdg
 {
-  std::string ReadPipeToString(const std::string& sCommandLine)
+  std::string PipeReadToString(const std::string& sCommandLine)
   {
-    //std::cout<<"ReadPipeToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
+    //std::cout<<"PipeReadToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
 
     FILE* fhPipe = popen(sCommandLine.c_str(), "r");
     if (fhPipe == nullptr) {
@@ -31,38 +35,27 @@ namespace xdg
     }
 
     int fd = fileno(fhPipe);
-    if (fd == -1) std::cout<<"ReadPipeToString fd=-1"<<std::endl;
+    if (fd == -1) std::cout<<"PipeReadToString fd=-1"<<std::endl;
     fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
 
-    std::vector<char> buffer;
+    std::ostringstream o;
 
     {
-      char buf[80];
-      const size_t len = sizeof(buf);
+      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
+      std::istream in(&fpstream);
 
-      size_t n = len;
-      while (n == len) {
-        int nRead = read(fd, buf, len);
-        if (nRead <= 0) {
-          std::cout<<"ReadPipeToString FAILED: "<<nRead<<std::endl;
-          break;
-        }
-        if (size_t(nRead) < len) {
-          int iErrno = errno;
-          if (iErrno != 0) std::cout<<"ReadPipeToString errno="<<iErrno<<std::endl;
-        }
-
-        //std::cout<<"ReadPipeToString nRead "<<nRead<<" < len "<<len<<std::endl;
-        n = size_t(nRead);
-        for (size_t i = 0; i < n; i++) buffer.push_back(buf[i]);
+      std::string sLine;
+      while (in) {
+        std::getline(in, sLine);
+        //std::cout<<"PipeReadToString \""<<sLine<<"\""<<std::endl;
+        o<<sLine;
       }
     }
 
     pclose(fhPipe);
     fhPipe = nullptr;
 
-    buffer.push_back(0);
-    const std::string sBuffer(buffer.data());
+    const std::string sBuffer(o.str());
 
     //std::cout<<"PipeReadToString returning \""<<sBuffer<<"\""<<std::endl;
     return sBuffer;
@@ -104,7 +97,7 @@ namespace xdg
 
   void GetHomeDirectory(std::string& directory)
   {
-    directory = ReadPipeToString("xdg-user-dir");
+    directory = PipeReadToString("xdg-user-dir");
 
     if (!directory.empty()) {
       // The directory is everything before the first new line or tab
