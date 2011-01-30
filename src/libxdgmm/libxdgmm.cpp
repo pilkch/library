@@ -41,7 +41,7 @@ namespace xdg
     std::ostringstream o;
 
     {
-      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
+      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
       std::istream in(&fpstream);
 
       std::string sLine;
@@ -111,8 +111,6 @@ namespace xdg
       std::string home;
       if (GetEnvironmentVariable("HOME", home)) directory = home;
     }
-
-    std::cout<<"GetHomeDirectory returning \""<<directory<<"\""<<std::endl;
   }
 
   void GetDataHomeDirectory(std::string& directory)
@@ -174,3 +172,4 @@ namespace xdg
     return system(("xdg-open '" + url + "'").c_str());
   }
 }
+

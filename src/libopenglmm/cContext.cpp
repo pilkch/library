@@ -113,6 +113,9 @@ namespace opengl
   {
     std::cout<<"cContext::~cContext"<<std::endl;
 
+#ifdef BUILD_OPENGLMM_FONT
+    assert(fonts.empty());
+#endif
     assert(textures.empty());
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());

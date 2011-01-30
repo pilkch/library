@@ -239,6 +239,10 @@ namespace opengl
     std::list<cShader*> shaders;
     std::list<cStaticVertexBufferObject*> staticVertexBufferObjects;
     std::list<cDynamicVertexArray*> dynamicVertexArrays;
+
+#ifdef BUILD_OPENGLMM_FONT
+    std::list<cFont*> fonts;
+#endif
   };
 }
 
