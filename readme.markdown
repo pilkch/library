@@ -26,8 +26,6 @@ Pull this project:
 yum install git  
 OR  
 sudo apt-get install git-core  
-mkdir library  
-cd library  
 git clone git@github.com:pilkch/library.git  
 OR  
 git clone https://github.com/pilkch/git@github.com:pilkch/library.git  
