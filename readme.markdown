@@ -1,5 +1,6 @@
-### Chris Pilkington  
-Copyright (C) 2005-2011  
+### Breathe Game Engine and Spitfire Utility Library  
+Chris Pilkington  
+Copyright (C) 2005-2010  
 <http://chris.iluo.net/> 
 
 ### License
@@ -19,7 +20,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA  
 
 
-### Getting a copy of the project on Linux (Fedora 8 used)
+### Getting a copy of the project on Linux (Fedora 14 used)
 
 Pull this project:  
 yum install git  
@@ -27,12 +28,12 @@ OR
 sudo apt-get install git-core  
 mkdir library  
 cd library  
-git clone git://breathe.git.sourceforge.net/gitroot/breathe/breathe  
+git clone git@github.com:pilkch/library.git  
 OR  
-git clone ssh://pilkch@breathe.git.sourceforge.net/gitroot/breathe/breathe  
+git clone https://github.com/pilkch/git@github.com:pilkch/library.git  
 
 
-### Building on Linux (Fedora 8 used)
+### Building on Linux (Fedora 14 used)
 
 Use a cmake file as used in Sudoku and Drive  
 Use yum to get all required libraries such as  
@@ -123,3 +124,4 @@ Paul Nettle
 Copyright 2000, Fluid Studios  
 All rights reserved  
 <http://www.FluidStudios.com>
+
