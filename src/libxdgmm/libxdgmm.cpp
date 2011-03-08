@@ -78,7 +78,7 @@ namespace xdg
 
   bool IsInstalled()
   {
-    return ((system("which xdg-user-dir") == 0) && (system("which xdg-open") == 0));
+    return (!PipeReadToString("which xdg-user-dir").empty() && !PipeReadToString("which xdg-open").empty());
   }
 
 
