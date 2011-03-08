@@ -41,8 +41,13 @@ namespace xdg
     std::ostringstream o;
 
     {
-      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
+      //boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
+      //std::istream in(&fpstream);
+
+      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
       std::istream in(&fpstream);
+      // TODO: This is required to automatically close the stream when we are done but isn't supported on early versions of boost
+      //in.set_auto_close(false);
 
       std::string sLine;
       while (in) {
