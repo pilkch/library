@@ -271,12 +271,11 @@ namespace spitfire
 
     void ChangeDirectoryToExecutablePath(const char* argv0)
     {
-      std::string exePath(argv0);
-      std::string::size_type last_pos = exePath.find_last_of ("\\/");
-      if (last_pos != std::string::npos) {
-        std::string exeDir = exePath.substr (0, last_pos);
-        std::cerr << "Chdir to " << exeDir << std::endl;
-        chdir(exeDir.c_str());
+      string_t sExecutablePath = spitfire::string::ToString_t(argv0);
+      string_t::size_type last_pos = sExecutablePath.find_last_of(TEXT("\\/"));
+      if (last_pos != string_t::npos) {
+        const string_t sExecutableFolder = sExecutablePath.substr(0, last_pos);
+        ChangeToDirectory(sExecutableFolder);
       }
     }
 
@@ -286,13 +285,16 @@ namespace spitfire
     string_t GetCurrentDirectory()
     {
       char szDirectory[MAX_PATH_LEN];
-      getcwd(szDirectory, MAX_PATH_LEN);
+      const char* szResult = getcwd(szDirectory, MAX_PATH_LEN);
+      if (szResult == nullptr) LOG<<"GetCurrentDirectory getcwd FAILED errno="<<errno<<std::endl;
       return spitfire::string::ToString_t(szDirectory);
     }
 
     void ChangeToDirectory(const string_t& sDirectory)
     {
-      chdir(spitfire::string::ToUTF8(sDirectory).c_str());
+      ASSERT(DirectoryExists(sDirectory));
+      int iResult = chdir(spitfire::string::ToUTF8(sDirectory).c_str());
+      if (iResult != 0) LOG<<"ChangeToDirectory chdir FAILED iResult="<<iResult<<" errno="<<errno<<std::endl;
     }
 
     bool IsFolderWritable(const string_t& sFolder)
@@ -799,7 +801,8 @@ namespace spitfire
 
       char szTempFolderPath[MAX_PATH_LEN];
       strlcpy(szTempFolderPath, spitfire::string::ToUTF8(p.GetFullPath()).c_str(), MAX_PATH_LEN);
-      mkdtemp(szTempFolderPath);
+      const char* szResult = mkdtemp(szTempFolderPath);
+      ASSERT(szResult != nullptr);
 
       sTemporarySubFolder = spitfire::string::ToString_t(szTempFolderPath);
     #endif
