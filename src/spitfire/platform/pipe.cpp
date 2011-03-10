@@ -144,16 +144,15 @@ namespace spitfire
       return nBytesReady;
     }
 
-    size_t cPipeIn::Read(void* Buffer, size_t Length)
+    size_t cPipeIn::Read(void* Buffer, size_t len)
     {
-      int nRead = read(fd, Buffer, Length);
+      ssize_t nRead = read(fd, Buffer, len);
       if (nRead < 0) {
-        LOG<<"cPipeIn::Read FAILED: "<<nRead<<std::endl;
+        LOG<<"cPipeIn::Read read FAILED nRead="<<nRead<<std::endl;
         nRead = 0;
       }
-      if (size_t(nRead) < Length) {
-        LOG<<"cPipeIn::Read errno="<<errno<<std::endl;
-        LOG<<"cPipeIn::Read nRead "<<nRead<<" < Length "<<Length<<std::endl;
+      if (size_t(nRead) < len) {
+        LOG<<"cPipeIn::Read read FAILED nRead="<<nRead<<" errno="<<errno<<std::endl;
       }
       return size_t(nRead);
     }
@@ -210,10 +209,17 @@ namespace spitfire
     }
 
 
-    void cPipeOut::Write(const void* Buffer, size_t Length)
+    void cPipeOut::Write(const void* Buffer, size_t len)
     {
       ASSERT(IsOpen());
-      write(fd, Buffer, Length);
+      ssize_t nWrote = write(fd, Buffer, len);
+      if (nWrote < 0) {
+        LOG<<"cPipeOut::Write write FAILED nWrote="<<nWrote<<std::endl;
+        nWrote = 0;
+      }
+      if (size_t(nWrote) < len) {
+        LOG<<"cPipeOut::Write write FAILED nWrote="<<nWrote<<" errno="<<errno<<std::endl;
+      }
     }
 
 
@@ -365,32 +371,34 @@ namespace spitfire
       return nBytesReady;
     }
 
-    size_t cPipeInOut::Read(void* Buffer, size_t Length)
+    size_t cPipeInOut::Read(void* Buffer, size_t len)
     {
       #ifndef NDEBUG
       if (infp == -1) LOG<<"cPipeInOut::Read infp invalid"<<std::endl;
       #endif
-      int nRead = read(infp, Buffer, Length);
+      ssize_t nRead = read(infp, Buffer, len);
       if (nRead < 0) {
-        LOG<<"cPipeInOut::Read read failed: "<<nRead<<" infp "<<infp<<std::endl;
+        LOG<<"cPipeInOut::Read read FAILED nRead="<<nRead<<std::endl;
         nRead = 0;
       }
-      if (size_t(nRead) < Length) {
-        LOG<<"cPipeInOut::Read read FAILED errno="<<errno<<std::endl;
-        LOG<<"cPipeInOut::Read nRead "<<nRead<<" < Length "<<Length<<std::endl;
+      if (size_t(nRead) < len) {
+        LOG<<"cPipeInOut::Read read FAILED nRead="<<nRead<<" errno="<<errno<<std::endl;
       }
       return size_t(nRead);
     }
 
-    void cPipeInOut::Write(const void* Buffer, size_t Length)
+    void cPipeInOut::Write(const void* Buffer, size_t len)
     {
       #ifndef NDEBUG
       if (outfp == -1) LOG<<"cPipeInOut::Write outfp invalid"<<std::endl;
       #endif
-      ssize_t nLengthWritten = write(outfp, Buffer, Length);
-      if (nLengthWritten < 0) {
-        LOG<<"cPipeInOut::Write write FAILED errno="<<errno<<std::endl;
-        LOG<<"cPipeInOut::Write write FAILED error is: "<<errno<<std::endl;
+      ssize_t nWrote = write(outfp, Buffer, len);
+      if (nWrote < 0) {
+        LOG<<"cPipeInOut::Write write FAILED nWrote="<<nWrote<<std::endl;
+        nWrote = 0;
+      }
+      if (size_t(nWrote) < len) {
+        LOG<<"cPipeInOut::Write write FAILED nWrote="<<nWrote<<" errno="<<errno<<std::endl;
       }
     }
 
@@ -417,9 +425,13 @@ namespace spitfire
       std::ostringstream o;
 
       {
+        //boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
+        //std::istream in(&fpstream);
+
         boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
         std::istream in(&fpstream);
-        in.set_auto_close(false);
+        // TODO: This is required to automatically close the stream when we are done but isn't supported on early versions of boost
+        //in.set_auto_close(false);
 
         std::string sLine;
         while (in) {
