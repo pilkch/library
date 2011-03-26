@@ -104,12 +104,36 @@ namespace breathe
       public:
         cEngine();
 
+        size_t GetNumberOfCylinders() const;
+        void SetNumberOfCylinders(size_t nCylinders);
+
+        float GetBoreRadiusCentiMeters() const;
+        void SetBoreRadiusCentiMeters(float fBoreRadiusCentiMeters);
+
+        float GetStrokeLengthCentiMeters() const;
+        void SetStrokeLengthCentiMeters(float fStrokeLengthCentiMeters);
+
+        float GetCompressionRatioMassAirToPetrol() const;
+        void SetCompressionRatioMassAirToPetrol(float fCompressionRatioMassAirToPetrol);
+
         void SetAmbientSettings(const cAmbientSettings& _ambientSettings) { ambientSettings = _ambientSettings; }
         void SetAcceleratorInput0To1(float_t _fAcceleratorInput0To1) { fAcceleratorInput0To1 = _fAcceleratorInput0To1; }
         void SetIntakeAirFlow(const cAirFlow& _intakeAirFlow) { intakeAirFlow = _intakeAirFlow; }
 
+        // This will be proportional to the accelerator and affected by how fast the air is flowing over the vehicle and into the engine
+        float GetMassAirKgPerSecond() const;
+        void SetMassAirKgPerSecond(float fMassAirKgPerSecond);
+
+        float GetInjectorSizeMassFuelKgPerSecond() const;
+        void SetInjectorSizeMassFuelKgPerSecond(float fInjectorSizeMassFuelKgPerSecond);
+
+        float GetRPM() const;
+        void SetRPM(float fRPM);
+
+        float GetCylinderDisplacementCubicCentiMeters() const;
+        float GetEngineDisplacementCubicCentiMeters() const;
+
         float_t GetMassKg() const { return fMassKg; }
-        float_t GetRPM() const { return fRPM; }
         float_t GetTorqueNm() const { return fTorqueNm; }
         float_t GetPowerKw() const { return spitfire::math::NmToKw(fTorqueNm, fRPM); }
         const cAirFlow& GetExhaustAirFlow() const { return exhaustAirFlow; }
@@ -118,13 +142,19 @@ namespace breathe
 
       private:
         float_t fMassKg;
+        size_t nCylinders;
+        float fBoreRadiusCentiMeters;
+        float fStrokeLengthCentiMeters;
         float_t fRedLineRPM;
+        float fCompressionRatioMassAirToPetrol;
+        float fMassAirKgPerSecond;
+        float fInjectorSizeMassFuelKgPerSecond;
         cAmbientSettings ambientSettings;
         float_t fAcceleratorInput0To1;
         cAirFlow intakeAirFlow;
         math::cCurve rpmToTorqueCurve;
 
-        float_t fRPM;
+        float fRPM;
         float_t fTorqueNm;
         cAirFlow exhaustAirFlow;
       };

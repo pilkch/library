@@ -264,9 +264,13 @@ namespace breathe
 
 
 
-
       cEngine::cEngine() :
         fMassKg(300.0f),
+        nCylinders(0),
+        fBoreRadiusCentiMeters(0.0f),
+        fStrokeLengthCentiMeters(0.0f),
+        fCompressionRatioMassAirToPetrol(0.0f),
+        fInjectorSizeMassFuelKgPerSecond(0.0f),
         fRedLineRPM(6500.0f),
         fAcceleratorInput0To1(0.0f),
         fRPM(0.0f),
@@ -289,6 +293,90 @@ namespace breathe
         rpmToTorqueCurve.AddPoint(7000.0f, 200.0f);
         rpmToTorqueCurve.AddPoint(7500.0f, 80.0f);
         rpmToTorqueCurve.AddPoint(8000.0f, 0.0f);
+      }
+
+      size_t cEngine::GetNumberOfCylinders() const
+      {
+        return nCylinders;
+      }
+
+      void cEngine::SetNumberOfCylinders(size_t _nCylinders)
+      {
+        nCylinders = _nCylinders;
+      }
+
+      float cEngine::GetBoreRadiusCentiMeters() const
+      {
+        return fBoreRadiusCentiMeters;
+      }
+
+      void cEngine::SetBoreRadiusCentiMeters(float _fBoreRadiusCentiMeters)
+      {
+        fBoreRadiusCentiMeters = _fBoreRadiusCentiMeters;
+      }
+
+      float cEngine::GetStrokeLengthCentiMeters() const
+      {
+        return fStrokeLengthCentiMeters;
+      }
+
+      void cEngine::SetStrokeLengthCentiMeters(float _fStrokeLengthCentiMeters)
+      {
+        fStrokeLengthCentiMeters = _fStrokeLengthCentiMeters;
+      }
+
+      float cEngine::GetCompressionRatioMassAirToPetrol() const
+      {
+        return fCompressionRatioMassAirToPetrol;
+      }
+
+      void cEngine::SetCompressionRatioMassAirToPetrol(float _fCompressionRatioMassAirToPetrol)
+      {
+        fCompressionRatioMassAirToPetrol = _fCompressionRatioMassAirToPetrol;
+      }
+
+      float cEngine::GetMassAirKgPerSecond() const
+      {
+        return fMassAirKgPerSecond;
+      }
+
+      void cEngine::SetMassAirKgPerSecond(float _fMassAirKgPerSecond)
+      {
+        fMassAirKgPerSecond = _fMassAirKgPerSecond;
+      }
+
+      float cEngine::GetInjectorSizeMassFuelKgPerSecond() const
+      {
+        return fInjectorSizeMassFuelKgPerSecond;
+      }
+
+      void cEngine::SetInjectorSizeMassFuelKgPerSecond(float _fInjectorSizeMassFuelKgPerSecond)
+      {
+        fInjectorSizeMassFuelKgPerSecond = _fInjectorSizeMassFuelKgPerSecond;
+      }
+
+      float cEngine::GetRPM() const
+      {
+        return fRPM;
+      }
+
+      void cEngine::SetRPM(float _fRPM)
+      {
+        fRPM = _fRPM;
+      }
+
+      float cEngine::GetCylinderDisplacementCubicCentiMeters() const
+      {
+        // The bore (diameter of the cylinder) is 4", and the stroke (twice the crankshaft throw radius) is 3.5".
+        // The volume of that cylindrical volume is then (PI) * R2 * H or 3.1416 * 2 * 2 * 3.5 or around 44 cubic inches.
+        // Since that engine has eight cylinders that are each that volume, its total 'displacement' is 44 * 8 or around 350 cubic inches. This engine is generally called the Chevy 350 V-8.
+
+        return spitfire::math::cPI * fBoreRadiusCentiMeters * fBoreRadiusCentiMeters * fStrokeLengthCentiMeters;
+      }
+
+      float cEngine::GetEngineDisplacementCubicCentiMeters() const
+      {
+        return float(nCylinders) * GetCylinderDisplacementCubicCentiMeters();
       }
 
       void cEngine::Update(sampletime_t currentTime)
