@@ -434,6 +434,91 @@ namespace breathe
       }
 
 
+
+      cEFI::cEFI(cEngine& _engine) :
+        engine(_engine),
+        fMassFuelAirRatio(0.0f)
+      {
+      }
+
+      float cEFI::GetMassAirFuelRatio() const
+      {
+        // Convert to an air to fuel ratio
+        return 1.0f / fMassFuelAirRatio;
+      }
+
+      void cEFI::SetMassAirFuelRatio(float fMassAirFuelRatio)
+      {
+        // Convert to a fuel to air ratio
+        fMassFuelAirRatio = 1.0f / fMassAirFuelRatio;
+      }
+
+      float cEFI::GetMassFuelAirRatio() const
+      {
+        return fMassFuelAirRatio;
+      }
+
+      void cEFI::SetMassFuelAirRatio(float _fMassFuelAirRatio)
+      {
+        fMassFuelAirRatio = _fMassFuelAirRatio;
+      }
+
+      float cEFI::GetAirMassFlowRateKgPerStroke() const
+      {
+        const float fMassAirKgPerMinute = 60.0f * engine.GetMassAirKgPerSecond();
+        const float fMinutesPerRevolution = 1.0f / engine.GetRPM();
+        const float fRevolutionsPerStroke = 1.0f / 2.0f; // Revolutions / Stroke = 1 / 2, whether it's a four stroke or a two-stroke engine
+
+        // MassAirKg / Stroke = MassAirKg/Minute * Minutes/Revolution * Revolutions/Stroke
+        return fMassAirKgPerMinute * fMinutesPerRevolution * fRevolutionsPerStroke;
+      }
+
+      /*float cEFI::GetAirMassFlowRateKgPerSecond() const
+      {
+        const float fMassAirKgPerMinute = ;
+        const float fMinutesPerRevolution = 1.0f / fRPM;
+        const float fRevolutionsPerStroke = 1.0f / 2.0f; // Revolutions / Stroke = 1 / 2, whether it's a four stroke or a two-stroke engine
+
+        // MassAirKg / Stroke = MassAirKg/Minute * Minutes/Revolution * Revolutions/Stroke
+        const float fMassAirKgPerStroke = fMassAirKgPerMinute * fMinutesPerRevolution * fRevolutionsPerStroke;
+        ...
+      }*/
+
+      float cEFI::GetPulseWidthMS() const
+      {
+        // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Sample_pulsewidth_calculations
+        // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_injector_pulsewidth_from_airflow
+        // TODO: This equation is wrong, it relies on the weight of the air and fuel which is ok, except that it only works for pounds, so we convert back at this point
+
+        const float fMassAirLbPerMinute = 60.0f *  spitfire::math::KiloGramsToPounds(engine.GetMassAirKgPerSecond());
+        const float fMassFuelLbPerMinute = 60.0f * spitfire::math::KiloGramsToPounds(engine.GetInjectorSizeMassFuelKgPerSecond());
+        const float fMinutesPerRevolution = 1.0f / engine.GetRPM();
+        const float fRevolutionsPerStroke = 1.0f / 2.0f; // Revolutions / Stroke = 1 / 2, whether it's a four stroke or a two-stroke engine
+
+        // MassAirLbPerMinute * Minutes/Revolution * Revolutions/Stroke * MassFuelLb/MassAirLb * 1/MassFuelLbPerMinute = PulseWidth
+        // 0.55 lb per min * 1 min/700 rev * 1 revolution/2 strokes * 1/14.64 * 2.5/min per lb = 6.7 * 10^-5 min = 4ms
+
+        // PulseWidth = MassAirLbPerMinute * Minutes/Revolution * Revolutions/Stroke * MassFuelLb/MassAirLb * 1/MassFuelLbPerMinute
+        return fMassAirLbPerMinute * fMinutesPerRevolution * fRevolutionsPerStroke * fMassFuelAirRatio * fMassFuelLbPerMinute * 60000.0f;
+      }
+
+      float cEFI::GetEngineFuelFlowRateKgPerSecond() const
+      {
+        // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_fuel-flow_rate_from_pulsewidth
+        const float fPulseWidthMSPerIntakeStroke = GetPulseWidthMS() / 2.0f;
+        const float fMinutesPerMS = 1.0f / 60000.0f;
+        const float fMassFuelKgPerHour = spitfire::math::PoundsToKiloGrams(24.0f);
+        const float fHoursPerSecond = 1.0f / 3600.0f;
+        const float fIntakeStrokesPerRevolution = 4.0f;
+        const float fRPM = engine.GetRPM();
+
+        // (Fuel flow rate) = (2.0 ms/intake-stroke) × (hour/3,600,000 ms) × (24 lb-fuel/hour) × (4-intake-stroke/rev) × (700 rev/min) × (60 min/h) = (2.24 lb/h)
+        // FuelFlowRateKgPerSecond = PulseWidthMSPerIntakeStroke * HoursPerMS * MassFuelKgPerHour * IntakeStrokesPerRevolution * RPM
+        return (fPulseWidthMSPerIntakeStroke * fMinutesPerMS) * (fMassFuelKgPerHour * fHoursPerSecond) * fIntakeStrokesPerRevolution * fRPM;
+      }
+
+
+
       cSuperCharger::cSuperCharger() :
         fMassKg(20.0f),
         fEngineRPM(0.0f),
@@ -1520,5 +1605,63 @@ namespace breathe
       fInputHandBrake0To1 = 0.0f;
       fInputClutch0To1 = 0.0f;
     }
+
+
+
+    void TestEFIWithSpecificParameters(cEngine& engine, cEFI& efi, float fRPM, float fMassAirKgPerSecond, float fMassAirFuelRatio)
+    {
+      engine.SetRPM(fRPM);
+      engine.SetMassAirKgPerSecond(fMassAirKgPerSecond);
+      efi.SetMassAirFuelRatio(fMassAirFuelRatio);
+
+      const float fPulseWidthMS = efi.GetPulseWidthMS();
+      std::cout<<"PulseWidth="<<fPulseWidthMS<<"ms"<<std::endl;
+      const float fEngineFuelFlowRateKgPerSecond = efi.GetEngineFuelFlowRateKgPerSecond();
+      std::cout<<"EngineFuelFlowRate="<<fEngineFuelFlowRateKgPerSecond * 60.0f * 60.0f<<"Kg/h, "<<spitfire::math::KiloGramsToPounds(fEngineFuelFlowRateKgPerSecond) * 60.0f * 60.0f<<"lb/h"<<std::endl;
+    }
+
+    void TestEFI()
+    {
+      cEngine engine;
+      cEFI efi(engine);
+
+      // Cylinder and Engine Capacity
+      // http://mb-soft.com/public2/engine.html
+      // The bore (diameter of the cylinder) is 4", and the stroke (twice the crankshaft throw radius) is 3.5".
+      // The volume of that cylindrical volume is then (PI) * R2 * H or 3.1416 * 2 * 2 * 3.5 or around 44 cubic inches.
+      // Since that engine has eight cylinders that are each that volume, its total 'displacement' is 44 * 8 or around 350 cubic inches. This engine is generally called the Chevy 350 V-8.
+      engine.SetNumberOfCylinders(8);
+      engine.SetBoreRadiusCentiMeters(spitfire::math::InchesToCentiMeters(2.0f));
+      engine.SetStrokeLengthCentiMeters(spitfire::math::InchesToCentiMeters(3.5f));
+      engine.SetCompressionRatioMassAirToPetrol(8.0f / 1.0f);
+
+      float fCylinderDisplacementCubicCentiMeters = engine.GetCylinderDisplacementCubicCentiMeters();
+      std::cout<<"Cylinder="<<spitfire::math::CubicCentiMetersToCubicInches(fCylinderDisplacementCubicCentiMeters)<<"ci, "<<fCylinderDisplacementCubicCentiMeters<<"cc"<<std::endl;
+      float fEngineDisplacementCubicCentiMeters = engine.GetEngineDisplacementCubicCentiMeters();
+      std::cout<<"Engine="<<spitfire::math::CubicCentiMetersToCubicInches(fEngineDisplacementCubicCentiMeters)<<"ci, "<<fEngineDisplacementCubicCentiMeters<<"cc"<<std::endl;
+
+
+      // Engine Petrol Usage Dynamic Range
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Sample_pulsewidth_calculations
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_injector_pulsewidth_from_airflow
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_fuel-flow_rate_from_pulsewidth
+      // Create a 5L engine and test it at idle (700 RPM) and maximum power (5500 RPM)
+      engine.SetNumberOfCylinders(8);
+      engine.SetBoreRadiusCentiMeters(spitfire::math::InchesToCentiMeters(2.0f));
+      engine.SetStrokeLengthCentiMeters(spitfire::math::InchesToCentiMeters(3.05f));
+      engine.SetCompressionRatioMassAirToPetrol(8.0f / 1.0f);
+      engine.SetInjectorSizeMassFuelKgPerSecond(spitfire::math::PoundsToKiloGrams(2.5f) / 60.0f);
+
+      // Engine at idle
+      // 0.55 lb per min * 1 min/700 rev * 1 revolution/2 strokes * 1/14.64 * 2.5/min per lb = 6.7 * 10^-5 min = 4ms
+      // (Fuel flow rate) = (2.0 ms/intake-stroke) × (hour/3,600,000 ms) × (24 lb-fuel/hour) × (4-intake-stroke/rev) × (700 rev/min) × (60 min/h) = (2.24 lb/h)
+      TestEFIWithSpecificParameters(engine, efi, 700.0f, spitfire::math::PoundsToKiloGrams(0.55f) / 60.0f, 14.64f / 1.0f);
+
+      // Engine at maximum power
+      // 28.0 lb per min * 1 min/5500 rev * 1 revolution/2 strokes * 1/11.0 * 2.5/min per lb = 57.9 * 10^-5 min = 35ms 
+      // (Fuel flow rate) = (17.3 ms/intake-stroke) × (hour/3,600,000-ms) × (24 lb-fuel/hour) × (4-intake-stroke/rev) × (5500-rev/min) × (60-min/hour) = (152 lb/h)
+      TestEFIWithSpecificParameters(engine, efi, 5500.0f, spitfire::math::PoundsToKiloGrams(28.0f) / 60.0f, 11.0f / 1.0f);
+    }
   }
 }
+

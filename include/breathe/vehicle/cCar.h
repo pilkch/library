@@ -158,6 +158,69 @@ namespace breathe
         float_t fTorqueNm;
         cAirFlow exhaustAirFlow;
       };
+      
+      
+      // Electronic Fuel Injection
+      //
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Sample_pulsewidth_calculations
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_injector_pulsewidth_from_airflow
+      // https://secure.wikimedia.org/wikipedia/en/wiki/Fuel_injection#Calculate_fuel-flow_rate_from_pulsewidth
+      // http://mb-soft.com/public2/engine.html
+      //
+      // The total amount of gas-air mixture in the COMPLETE cylinder (initially at approximately atmospheric pressure of 15 PSIA) is now already squeezed into just the volume of the cylinder above the piston.
+      // If you think about it, the initial gas-air mixture is here already squeezed into HALF its original volume, and so it is already at about TWICE the initial pressure (or now 30 PSIA).
+      //
+      // Pressures can be described in two different ways, Absolute and Gauge.
+      // In this case, we know that the air started out at the natural pressure of 15 PSI, which is an Absolute pressure, so it is sometimes written PSIA.
+      // If you measured that pressure with an air pressure gauge, it would read 0 PSI, because there is no difference in pressure from natural.
+      // This is called gauge pressure, and would be written 0 PSIG. They mean the same thing, and absolute pressure is always 15 higher than gauge pressure. 
+      //
+      // Virtually all cars and trucks use the spark-ignition or Otto cycle engine.
+      // There are a couple common alternatives: The compression-ignition or Diesel cycle and the Brayton or Joule cycle.
+      //
+      // An Otto cycle has an isentropic compression, followed by a constant volume combustion explosion, followed by an isentropic expansion.
+      // A Diesel cycle has an isentropic compression followed by a NON-explosive combustion at (relatively) constant pressure, followed by the isentropic expansion. 
+      //
+      // The area shown at the top of the drawing is an additional volume that remains even when the piston is at the very highest point, a location called TDC for Top Dead Center, which will mean more in our second drawing.
+      // The space above the piston at TDC is carefully designed. In this specific case, it has a volume of around 6.3 cubic inches.
+      //
+      // When the piston began its upward movement (at BDC, bottom dead center), there was then a volume of gas-air mixture above it of (44 + 6.3) or 50.3 cubic inches. When the piston has gotten to TDC,
+      // as in this drawing, all that gas-air mixture has now been compressed into the remaining 6.3 cubic inches. The ratio of these numbers, 50.3 / 6.3 is called the Compression Ratio of the engine. In this case, it is about 8.0.
+      //
+      // This drawing shows the moment when that gas-air mixture is most compressed. The 8.0 compression ratio means that the 15 PSIA beginning mixture, is now
+      // at about 8.0 times that pressure, or around 120 PSIA. (Technically not precisely, because of some really technical characteristics of what happens when gases are compressed isentropically.)
+      // The cylinder compression is measured and is essentially this number. Except that that device is a gauge, so the reading would be 105 PSIG.
+      //
+      // All actual internal combustion engines rely on KEEPING that explosion pressure for as long as possible!  The total effect regarding rotating the crankshaft is the Integral of the net
+      // force actually applied to the crankshaft by that connecting rod for as long as there is explosive pressure inside the cylinder. In an engine that is operating
+      // properly, contributions to this Integral begin at the instant of ignition and end when the exhaust valve begins to open.  The instantaneous force applied as torque in rotating
+      // the crankshaft continuously changes during this "power stroke". It actually begins with a slight negative contribution since ignition is timed to occur before TDC, but
+      // not much pressure yet develops since the flame is still spreading inside the cylinder.
+      //
+      // The contribution becomes exactly zero at TDC, and then quickly rises as the internal burning and pressure continues and the leverage angle at the crankshaft improves.
+      // Eventually, the piston going down reduces the pressure, and engine cooling also does, and good design times the exhaust valve to begin opening about when productive torque is no longer available.
+
+      class cEFI
+      {
+      public:
+        explicit cEFI(cEngine& engine);
+
+        float GetMassAirFuelRatio() const;
+        void SetMassAirFuelRatio(float fMassAirFuelRatio);
+
+        float GetMassFuelAirRatio() const;
+        void SetMassFuelAirRatio(float fMassFuelAirRatio);
+
+        float GetAirMassFlowRateKgPerStroke() const;
+        float GetAirMassFlowRateKgPerSecond() const;
+        float GetPulseWidthMS() const;
+        float GetEngineFuelFlowRateKgPerSecond() const;
+
+      private:
+        cEngine& engine;
+
+        float fMassFuelAirRatio;
+      };
 
 
 

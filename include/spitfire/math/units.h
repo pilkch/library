@@ -133,14 +133,12 @@ namespace spitfire
     inline float InchesToCentimeters(float fInches) { return fInches * 2.54f; }
     inline float MetersToFeet(float fMeters) { return fMeters * 3.2808399f; }
     inline float MetersToMiles(float fMeters) { return fMeters * 0.000621371192f; }
-    //inline float KiloGramsToWatts(float fKg) { return fKg * 0.0025f; }
-    //inline float KiloGramsToKiloWatts(float fKg) { return fKg * 0.0025f; }
+    inline float CubicInchesToCubicCentiMeters(float fCubicInches) { return fCubicInches * 16.387064f; }
+    inline float CubicCentiMetersToCubicInches(float fCubicCentiMeters) { return fCubicCentiMeters * 0.0610237441f; }
     inline float KiloGramsToPounds(float fKg) { return fKg * 2.20462262f; }
-    //inline float KiloGramsToHorsePower(float fKg) { return fKg * 1.0f; }
-    //inline float HorsePowerToKiloGrams(float fHP) { return fHP * 1.0f; }
-    //inline float KiloWattsToKiloGrams(float fKw) { return fKw * 0.0025f; }
+    inline float PoundsToKiloGrams(float fLb) { return fLb * 0.45359237f; }
     inline float KiloMetersPerHourToMilesPerHour(float fKPH) { return kphTomph(fKPH); }
-
+ 
     // 1 nautical mile (exactly) = 1.852 kilometres (exactly)
     inline float KilometersToNauticalMiles(float Kilometers) { return Kilometers * 0.539956803f; }
     inline float NauticalMilesToKilometers(float NauticalMiles) { return NauticalMiles * 1.852f; }
