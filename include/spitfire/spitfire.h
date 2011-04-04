@@ -226,23 +226,36 @@ namespace spitfire
 {
   // Types
   typedef uint32_t sampletime_t;
+}
 
 
-  // Safe deleting functions
+// Safe deleting functions
+// These will delete your object/array and set your pointer to NULL so that we avoid double deletes
+namespace spitfire
+{
   template <class T>
   inline void SAFE_DELETE(T& x)
   {
     delete x;
-    x = NULL;
+    x = nullptr;
   }
 
   template <class T>
   inline void SAFE_DELETE_ARRAY(T& x)
   {
     delete [] x;
-    x = NULL;
+    x = nullptr;
   }
+}
 
+
+// Static Assert
+// NOTE: These are compile time so we do them in both debug and release
+#define STATIC_ASSERT(expression, szDescription) static_assert(expression, szDescription)
+
+// Assert
+namespace spitfire
+{
 #ifndef NDEBUG
   void InformativeAssert(bool b, const char* szAssert, const char* szFile, const char* szFunction, size_t line);
 #endif
