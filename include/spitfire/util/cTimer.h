@@ -1,6 +1,8 @@
 #ifndef CTIMER_H
 #define CTIMER_H
 
+#include <spitfire/spitfire.h>
+
 namespace spitfire
 {
   namespace util

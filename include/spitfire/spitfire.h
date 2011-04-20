@@ -199,6 +199,9 @@ typedef int32_t ssize_t;
 #endif
 #endif
 
+// For representing a file size on both 32 bit and 64 bit architectures
+typedef uint64_t filesize_t;
+
 #ifndef nullptr
 #define nullptr NULL
 #endif // !nullptr
