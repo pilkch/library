@@ -154,8 +154,8 @@ namespace spitfire
       return getpid();
     }
 
-#ifdef __APPLE__
 
+#ifdef __APPLE__
     inline int32_t GetOSVersion();
 
     inline void GetOSVersion(uint8_t& major, uint8_t& minor)
@@ -205,6 +205,12 @@ namespace spitfire
     }
 
     void OpenFolder(const string_t& sFolderPath);
+
+    #ifdef BUILD_ENDIAN_BIG
+    bool IsIntelSystemRunningPowerPCVersion();
+    #endif
+
+    bool IsBundled();
 #endif
   }
 }

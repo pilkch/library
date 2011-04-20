@@ -276,6 +276,17 @@ namespace spitfire
 #endif
     }
 
+    /*void GetOSVersion(uint8_t& major);
+    void GetOSVersion(uint8_t& major, uint8_t& minor);
+    string_t GetOSVersionString();
+    string_t GetOSVersionStringShort();
+
+    ubuntu
+
+    lsb_release -a – get Ubuntu version
+    uname -r – get kernel version
+    uname -a - get kernal information*/
+
 #ifdef __APPLE__
     int32_t GetOSVersion()
     {
@@ -538,6 +549,33 @@ Bail:
       ASSERT(cfsComputerName.IsValid());
       cfsComputerName.GetCString(sComputerName);
     }
+
+    bool IsBundled()
+    {
+      // http://developer.apple.com/carbon/tipsandtricks.html#AmIBundled
+
+      FSRef processRef;
+      ProcessSerialNumber psn = { 0, kCurrentProcess };
+      GetProcessBundleLocation(&psn, &processRef);
+
+      FSCatalogInfo processInfo;
+      FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
+
+      bool bIsBundled = ((processInfo.nodeFlags & kFSNodeIsDirectoryMask) != 0);
+
+      return bIsBundled;
+    }
+
+    #ifdef BUILD_ENDIAN_BIG
+    bool IsIntelSystemRunningPowerPCVersion()
+    {
+      // http://www.carbondev.com/site/?page=Rosetta
+      // http://developer.apple.com/documentation/MacOSX/Conceptual/universal_binary/universal_binary_exec_a/chapter_950_section_7.html#//apple_ref/doc/uid/TP40002217-CH210-BAJEBJJF
+
+      NXGetLocalArchInfo(...);
+    }
+    #endif
+
 
 
     bool GetBooleanValue(const string_t& section, const string_t& name, bool defaultValue)

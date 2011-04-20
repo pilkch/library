@@ -980,8 +980,15 @@ namespace spitfire
     {
       std::ostringstream o;
 
-      // TODO: Do stuff :)
-      o<<source;
+      for (size_t i = 0; i < n; i++) {
+        const char c = sText[i];
+        if (c == '&') o<<"&amp;";
+        else if (c == '<') o<<"&lt;"));
+        else if (c == '>') o<<"&gt;"));
+        else if (c == '"') o<<"&quot;"));
+        else if (c == '\'') o<<"&apos;"));
+        else o<<c;
+      }
 
       return o.str();
     }
@@ -990,8 +997,41 @@ namespace spitfire
     {
       std::ostringstream o;
 
-      // TODO: Do stuff :)
-      o<<source;
+      bool bIsBR = false;
+      bool bIsP = false;
+      char cReturnChar = 0;
+      for (size_t i = 0; i < n + 1; i++) {
+        const char c = (i < n) ? sText[i] : 0;
+        if ((c == '\r') || (c == '\n')) {
+          if (bIsBR) {
+            if (c == cReturnChar) {
+              if (bIsP) o<<"<br>";
+              else bIsP = true;
+            }
+          } else {
+            cReturnChar = c;
+            bIsBR = true;
+            bIsP = false;
+          }
+          continue;
+        }
+        if (bIsP) {
+          o<<"<p>"));
+          bIsP = false;
+          bIsBR = false;
+        } else if (bIsBR) {
+          o<<"<br>"));
+          bIsBR = false;
+        }
+        if (c == 0) break;
+
+        if (c == '&') o<<"&amp;";
+        else if (c == '<') o<<"&lt;"));
+        else if (c == '>') o<<"&gt;"));
+        else if (c == '"') o<<"&quot;"));
+        else if (c == '\'') o<<"&apos;"));
+        else o<<c;
+      }
 
       return o.str();
     }
