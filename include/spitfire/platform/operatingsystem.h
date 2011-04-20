@@ -1,6 +1,8 @@
 #ifndef OPERATINGSYSTEM_H
 #define OPERATINGSYSTEM_H
 
+#include <spitfire/algorithm.h>
+
 namespace spitfire
 {
   namespace operatingsystem
@@ -156,18 +158,6 @@ namespace spitfire
 
     inline int32_t GetOSVersion();
 
-    // Conversion from 12 to 0x12 for example
-    inline uint8_t ToBinaryCodedDecimal(uint8_t uValue)
-    {
-      return ((uValue / 10) << 4) | (uValue % 10);
-    }
-
-    // Conversion from 0x12 to 12 for example
-    inline uint8_t FromBinaryCodedDecimal(uint8_t uBCD)
-    {
-      return ((uBCD >> 4) * 10) + (uBCD & 0x0F);
-    }
-
     inline void GetOSVersion(uint8_t& major, uint8_t& minor)
     {
       SInt32 osVersion = GetOSVersion;
@@ -180,12 +170,12 @@ namespace spitfire
     // Conversion from 10, 4 to 0x1040
     inline uint16_t MakeMacOSVersion(uint8_t uiMajor, uint8_t uiMinor)
     {
-      uint16_t uiResult = uint16_t(ToBinaryCodedDecimal(uiMajor)) << 8;
+      uint16_t uiResult = uint16_t(algorithm::ToBinaryCodedDecimal(uiMajor)) << 8;
 
       // If uiMinor is a single digit then shift it into the form 0xi0
       if (uiMinor < 9) return uiResult | (uiMinor << 4);
 
-      return uiResult | uint16_t(ToBinaryCodedDecimal(uiMinor));
+      return uiResult | uint16_t(algorithm::ToBinaryCodedDecimal(uiMinor));
     }
 
     inline void GetOSVersion(string_t& sOut)

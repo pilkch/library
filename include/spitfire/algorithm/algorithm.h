@@ -237,6 +237,20 @@ namespace spitfire
     elements = replacement;
     ASSERT(elements.size() == (width * height));
   }
+  namespace algorithm
+  {
+    // Conversion from 12 to 0x12 for example
+    inline uint8_t ToBinaryCodedDecimal(uint8_t uValue)
+    {
+      return ((uValue / 10) << 4) | (uValue % 10);
+    }
+
+    // Conversion from 0x12 to 12 for example
+    inline uint8_t FromBinaryCodedDecimal(uint8_t uBCD)
+    {
+      return ((uBCD >> 4) * 10) + (uBCD & 0x0F);
+    }
+  }
 }
 
 #endif // ALGORITHM_H
