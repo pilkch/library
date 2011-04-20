@@ -1,6 +1,8 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
+#include <spitfire/math/math.h>
+
 // In general it would be great if we could get rid of this whole file and just use STL/Boost/TR1 classes only, but
 // I haven't found replacements for everything just yet, waiting for C++0x.
 
@@ -237,6 +239,86 @@ namespace spitfire
     elements = replacement;
     ASSERT(elements.size() == (width * height));
   }
+
+
+  // ** cRandomBucket
+  //
+  // For selecting items randomly from a list where each item must occur with a uniform distribution
+  //
+  template <class T>
+  class cRandomBucket
+  {
+  public:
+    // NOTE: Added items will not be returned via GetRandomItem until the possible list has been cleared first
+    void AddItem(T value);
+    void AddItems(T value, size_t number);
+
+    const std::list<T>& GetPossibleItems() const;
+
+    T GetRandomItem();
+    void Clear();
+
+  private:
+    std::list<T> original;
+    std::list<T> possible;
+  };
+
+  template <class T>
+  void cRandomBucket<T>::AddItem(T value)
+  {
+    original.push_back(value);
+  }
+
+  template <class T>
+  void cRandomBucket<T>::AddItems(T value, size_t number)
+  {
+    for (size_t i = 0; i < number; i++) original.push_back(value);
+  }
+
+  template <class T>
+  const std::list<T>& cRandomBucket<T>::GetPossibleItems() const
+  {
+    return possible;
+  }
+
+  template <class T>
+  T cRandomBucket<T>::GetRandomItem()
+  {
+    // If original is empty we have a problem
+    assert(!original.empty());
+
+    // If we don't have any more items to select then refresh the list to the original items
+    if (possible.empty()) possible = original;
+
+    // Get an index to a random item in the list
+    uint32_t index = spitfire::math::random(possible.size());
+
+    typename std::list<T>::iterator iter = possible.begin();
+    const typename std::list<T>::iterator iterEnd = possible.end();
+
+    // Iterate through to index
+    std::advance(iter, index);
+
+    // Make sure we are not past the end of the list
+    assert(iter != iterEnd);
+
+    // Get the item
+    T item = *iter;
+
+    // Remove the item
+    possible.erase(iter);
+
+    return item;
+  }
+
+  template <class T>
+  void cRandomBucket<T>::Clear()
+  {
+    original.clear();
+    possible.clear();
+  }
+
+
   namespace algorithm
   {
     // Conversion from 12 to 0x12 for example
