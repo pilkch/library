@@ -154,6 +154,55 @@ namespace spitfire
       return getpid();
     }
 
+    bool IsOSVersion(uint8_t major);
+    bool IsOSVersion(uint8_t major, uint8_t minor);
+    bool IsOSVersionOrLater(uint8_t major);
+    bool IsOSVersionOrLater(uint8_t major, uint8_t minor);
+
+    void GetOSVersion(uint8_t& major);
+    void GetOSVersion(uint8_t& major, uint8_t& minor);
+    string_t GetOSVersionString();
+    string_t GetOSVersionStringShort();
+
+    #ifdef __WIN__
+    bool IsWindows();
+    bool IsWindowsXP();
+    bool IsWindowsVista();
+    inline bool IsWindows7() { return IsOSVersion(7); }
+    bool IsWindowsXPOrLater();
+    bool IsWindowsVistaOrLater();
+    inline bool IsWindows7OrLater() { return IsOSVersionOrLater(7); }
+    #elif defined(__LINUX__)
+    bool IsUbuntu();
+    bool IsUbuntu10_4();
+    bool IsUbuntu10_10();
+    bool IsUbuntu11_4();
+    bool IsUbuntu11_10();
+    bool IsUbuntu10_4Orlater();
+    bool IsUbuntu10_10Orlater();
+    bool IsUbuntu11_4Orlater();
+    bool IsUbuntu11_10Orlater();
+    bool IsFedora();
+    bool IsFedora12();
+    bool IsFedora13();
+    bool IsFedora14();
+    bool IsFedora15();
+    bool IsFedora16();
+    bool IsFedora12OrLater();
+    bool IsFedora13OrLater();
+    bool IsFedora14OrLater();
+    bool IsFedora15OrLater();
+    bool IsFedora16OrLater();
+    #elif defined(__APPLE__)
+    inline bool IsMacOS10_4Tiger() { return IsOSVersion(10, 4); }
+    inline bool IsMacOS10_5Leopard() { return IsOSVersion(10, 5); }
+    inline bool IsMacOS10_6SnowLeopard() { return IsOSVersion(10, 6); }
+    inline bool IsMacOS10_7Lion() { return IsOSVersion(10, 7); }
+    inline bool IsMacOS10_4TigerOrLater() { return IsOSVersionOrLater(10, 4); }
+    inline bool IsMacOS10_5LeopardOrLater() { return IsOSVersionOrLater(10, 5); }
+    inline bool IsMacOS10_6SnowLeopardOrLater() { return IsOSVersionOrLater(10, 6); }
+    inline bool IsMacOS10_7LionOrLater() { return IsOSVersionOrLater(10, 7); }
+    #endif
 
 #ifdef __APPLE__
     inline int32_t GetOSVersion();
