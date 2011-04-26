@@ -31,6 +31,166 @@ namespace opengl
   class cWindowEventListener;
   class cInputEventListener;
 
+  enum KEY {
+    // Mapping to SDLK constants
+    // The keyboard syms have been cleverly chosen to map to ASCII
+    UNKNOWN = SDLK_UNKNOWN,
+    BACKSPACE = SDLK_BACKSPACE,
+    TAB = SDLK_TAB,
+    CLEAR = SDLK_CLEAR,
+    RETURN = SDLK_RETURN,
+    PAUSE = SDLK_PAUSE,
+    ESCAPE = SDLK_ESCAPE,
+    SPACE = SDLK_SPACE,
+    EXCLAIM = SDLK_EXCLAIM,
+    QUOTE_DOUBLE = SDLK_QUOTEDBL,
+    HASH = SDLK_HASH,
+    CURRENCY = SDLK_DOLLAR,
+    AMPERSAND = SDLK_AMPERSAND,
+    QUOTE = SDLK_QUOTE,
+    PARENTHESES_LEFT = SDLK_LEFTPAREN,
+    PARENTHESES_RIGHT = SDLK_RIGHTPAREN,
+    ASTERISK = SDLK_ASTERISK,
+    PLUS = SDLK_PLUS,
+    COMMA = SDLK_COMMA,
+    MINUS = SDLK_MINUS,
+    PERIOD = SDLK_PERIOD,
+    SLASH = SDLK_SLASH,
+    NUMBER_0 = SDLK_0,
+    NUMBER_1 = SDLK_1,
+    NUMBER_2 = SDLK_2,
+    NUMBER_3 = SDLK_3,
+    NUMBER_4 = SDLK_4,
+    NUMBER_5 = SDLK_5,
+    NUMBER_6 = SDLK_6,
+    NUMBER_7 = SDLK_7,
+    NUMBER_8 = SDLK_8,
+    NUMBER_9 = SDLK_9,
+    COLON = SDLK_COLON,
+    SEMICOLON = SDLK_SEMICOLON,
+    LESS = SDLK_LESS,
+    EQUALS = SDLK_EQUALS,
+    GREATER = SDLK_GREATER,
+    QUESTION_MARK = SDLK_QUESTION,
+    AT = SDLK_AT,
+    // Skip uppercase letters
+    BRACKET_LEFT = SDLK_LEFTBRACKET,
+    BACKSLASH = SDLK_BACKSLASH,
+    BRACKET_RIGHT = SDLK_RIGHTBRACKET,
+    CARET = SDLK_CARET,
+    UNDERSCORE = SDLK_UNDERSCORE,
+    BACKQUOTE = SDLK_BACKQUOTE,
+    A = SDLK_a,
+    B = SDLK_b,
+    C = SDLK_c,
+    D = SDLK_d,
+    E = SDLK_e,
+    F = SDLK_f,
+    G = SDLK_g,
+    H = SDLK_h,
+    I = SDLK_i,
+    J = SDLK_j,
+    K = SDLK_k,
+    L = SDLK_l,
+    M = SDLK_m,
+    N = SDLK_n,
+    O = SDLK_o,
+    P = SDLK_p,
+    Q = SDLK_q,
+    R = SDLK_r,
+    S = SDLK_s,
+    T = SDLK_t,
+    U = SDLK_u,
+    V = SDLK_v,
+    W = SDLK_w,
+    X = SDLK_x,
+    Y = SDLK_y,
+    Z = SDLK_z,
+    DELETE = SDLK_DELETE,
+    // End of ASCII mapped keysyms
+
+    /*
+    // International keyboard syms
+    SDLK_WORLD_0        = 160, // 0xA0
+    ...
+    SDLK_WORLD_95       = 255, // 0xFF
+    */
+
+    // Numeric keypad
+    /*SDLK_KP0,
+    SDLK_KP1,
+    SDLK_KP2,
+    SDLK_KP3,
+    SDLK_KP4,
+    SDLK_KP5,
+    SDLK_KP6,
+    SDLK_KP7,
+    SDLK_KP8,
+    SDLK_KP9,
+    SDLK_KP_PERIOD,
+    SDLK_KP_DIVIDE,
+    SDLK_KP_MULTIPLY,
+    SDLK_KP_MINUS,
+    SDLK_KP_PLUS,
+    SDLK_KP_ENTER,
+    SDLK_KP_EQUALS,*/
+
+    // Arrows + Home/End pad
+    UP = SDLK_UP,
+    DOWN = SDLK_DOWN,
+    RIGHT = SDLK_RIGHT,
+    LEFT = SDLK_LEFT,
+    INSERT = SDLK_INSERT,
+    HOME = SDLK_HOME,
+    END = SDLK_END,
+    PAGEUP = SDLK_PAGEUP,
+    PAGEDOWN = SDLK_PAGEDOWN,
+
+    // Function keys
+    F1 = SDLK_F1,
+    F2 = SDLK_F2,
+    F3 = SDLK_F3,
+    F4 = SDLK_F4,
+    F5 = SDLK_F5,
+    F6 = SDLK_F6,
+    F7 = SDLK_F7,
+    F8 = SDLK_F8,
+    F9 = SDLK_F9,
+    F10 = SDLK_F10,
+    F11 = SDLK_F11,
+    F12 = SDLK_F12,
+    F13 = SDLK_F13,
+    F14 = SDLK_F14,
+    F15 = SDLK_F15,
+
+    /*// Key state modifier keys
+    SDLK_NUMLOCK,
+    SDLK_CAPSLOCK       = 301,
+    SDLK_SCROLLOCK      = 302,
+    SDLK_RSHIFT     = 303,
+    SDLK_LSHIFT     = 304,
+    SDLK_RCTRL      = 305,
+    SDLK_LCTRL      = 306,
+    SDLK_RALT       = 307,
+    SDLK_LALT       = 308,
+    SDLK_RMETA      = 309,
+    SDLK_LMETA      = 310,
+    SDLK_LSUPER     = 311,      // Left "Windows" key
+    SDLK_RSUPER     = 312,      // Right "Windows" key
+    SDLK_MODE       = 313,      // "Alt Gr" key
+    SDLK_COMPOSE,  // Multi-key compose key
+
+    // Miscellaneous function keys
+    SDLK_HELP       = 315,
+    SDLK_PRINT      = 316,
+    SDLK_SYSREQ     = 317,
+    SDLK_BREAK      = 318,
+    SDLK_MENU       = 319,
+    SDLK_POWER      = 320,      // Power Macintosh power key
+    SDLK_EURO       = 321,      // Some european keyboards
+    SDLK_UNDO       = 322,      // Atari keyboard has Undo*/
+  };
+
   class cWindow
   {
   public:
