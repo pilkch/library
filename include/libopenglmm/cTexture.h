@@ -38,6 +38,9 @@
 // Data flow
 // cImage::buffer <--> cTexture::uiTexture OpenGL texture
 
+// TODO: SDL 1.3 There is now a texture class, can this be used instead of uiTexture?
+// http://wiki.libsdl.org/moin.cgi/MigrationGuide#Hardware_surfaces
+
 namespace opengl
 {
   // ** cTexture

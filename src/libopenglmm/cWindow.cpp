@@ -74,8 +74,7 @@ namespace opengl
 
   void cWindow::ShowCursor(bool bShow)
   {
-    if (bShow) SDL_ShowCursor(SDL_ENABLE);
-    else SDL_ShowCursor(SDL_DISABLE);
+    SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
   }
 
   void cWindow::WarpCursorToMiddleOfScreen()
