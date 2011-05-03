@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cctype> // for toupper/tolower
+#include <cmath>
 
 #include <string>
 #include <vector>
@@ -980,13 +981,14 @@ namespace spitfire
     {
       std::ostringstream o;
 
+      const size_t n = source.length();
       for (size_t i = 0; i < n; i++) {
-        const char c = sText[i];
+        const char c = source[i];
         if (c == '&') o<<"&amp;";
-        else if (c == '<') o<<"&lt;"));
-        else if (c == '>') o<<"&gt;"));
-        else if (c == '"') o<<"&quot;"));
-        else if (c == '\'') o<<"&apos;"));
+        else if (c == '<') o<<"&lt;";
+        else if (c == '>') o<<"&gt;";
+        else if (c == '"') o<<"&quot;";
+        else if (c == '\'') o<<"&apos;";
         else o<<c;
       }
 
@@ -1000,8 +1002,9 @@ namespace spitfire
       bool bIsBR = false;
       bool bIsP = false;
       char cReturnChar = 0;
+      const size_t n = source.length();
       for (size_t i = 0; i < n + 1; i++) {
-        const char c = (i < n) ? sText[i] : 0;
+        const char c = (i < n) ? source[i] : 0;
         if ((c == '\r') || (c == '\n')) {
           if (bIsBR) {
             if (c == cReturnChar) {
@@ -1016,20 +1019,20 @@ namespace spitfire
           continue;
         }
         if (bIsP) {
-          o<<"<p>"));
+          o<<"<p>";
           bIsP = false;
           bIsBR = false;
         } else if (bIsBR) {
-          o<<"<br>"));
+          o<<"<br>";
           bIsBR = false;
         }
         if (c == 0) break;
 
         if (c == '&') o<<"&amp;";
-        else if (c == '<') o<<"&lt;"));
-        else if (c == '>') o<<"&gt;"));
-        else if (c == '"') o<<"&quot;"));
-        else if (c == '\'') o<<"&apos;"));
+        else if (c == '<') o<<"&lt;";
+        else if (c == '>') o<<"&gt;";
+        else if (c == '"') o<<"&quot;";
+        else if (c == '\'') o<<"&apos;";
         else o<<c;
       }
 
