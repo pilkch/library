@@ -47,7 +47,10 @@ namespace breathe
 
     namespace material
     {
-      using opengl::TEXTURE_TYPE;
+      // using opengl::TEXTURE_TYPE;
+      enum class TEXTURE_TYPE {
+        NORMAL
+      };
 
       const size_t nLayers = 3;
 

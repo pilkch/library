@@ -265,7 +265,7 @@ namespace spitfire
       pNode = pNode->FindChild(sName);
     }
 
-    inline cNode::cIterator::cIterator cNode::cIterator::GetFirstChild() const
+    inline cNode::cIterator cNode::cIterator::GetFirstChild() const
     {
       cIterator iter(*this);
       iter.FirstChild();
@@ -273,7 +273,7 @@ namespace spitfire
       return iter;
     }
 
-    inline cNode::cIterator::cIterator cNode::cIterator::GetChild(const std::string& sName) const
+    inline cNode::cIterator cNode::cIterator::GetChild(const std::string& sName) const
     {
       cIterator iter(*this);
       iter.FindChild(sName);

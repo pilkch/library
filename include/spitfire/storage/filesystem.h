@@ -38,7 +38,7 @@ namespace spitfire
     void SetThisExecutable(const string_t& executable);
     string_t GetThisApplicationDirectory();
     string_t GetApplicationSettingsDirectory(const string_t& sApplication);
-#ifndef BUILDALL
+#ifdef SPITFIRE_APPLICATION_NAME_LWR
     inline string_t GetThisApplicationSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT(SPITFIRE_APPLICATION_NAME_LWR)); }
     inline string_t GetSpitfireSettingsDirectory() { return GetApplicationSettingsDirectory(TEXT("spitfire")); }
 #endif
@@ -60,8 +60,10 @@ namespace spitfire
     void ChangeToDirectory(const string_t& sDirectory);
 
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+#ifdef BUILD_SUPPORT_MD5
     string_t GetMD5(const string_t& sFilename);
+#endif
+#ifdef BUILD_SUPPORT_SHA1
     string_t GetSHA1(const string_t& sFilename);
 #endif
 

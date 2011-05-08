@@ -45,8 +45,12 @@
 #include <spitfire/util/log.h>
 #endif
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+#ifdef BUILD_SUPPORT_MD5
 #include <spitfire/algorithm/md5.h>
+#endif
+
+#ifdef BUILD_SUPPORT_SHA1
+#include <spitfire/algorithm/sha1.h>
 #endif
 
 
@@ -591,12 +595,21 @@ namespace spitfire
     }
 
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+#ifdef BUILD_SUPPORT_MD5
     string_t GetMD5(const string_t& sFilename)
     {
       cMD5 m;
       m.CheckFile(spitfire::string::ToUTF8(sFilename));
       return spitfire::string::ToString_t(m.GetResult());
+    }
+#endif
+
+#ifdef BUILD_SUPPORT_SHA1
+    string_t GetSHA1(const string_t& sFilename)
+    {
+      cSHA1 s;
+      s.CheckFile(spitfire::string::ToUTF8(sFilename));
+      return spitfire::string::ToString_t(s.GetResult());
     }
 #endif
 

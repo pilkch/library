@@ -1,7 +1,7 @@
 #ifndef OPERATINGSYSTEM_H
 #define OPERATINGSYSTEM_H
 
-#include <spitfire/algorithm.h>
+#include <spitfire/algorithm/algorithm.h>
 
 namespace spitfire
 {
