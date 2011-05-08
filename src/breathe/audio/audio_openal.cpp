@@ -156,40 +156,40 @@ namespace breathe
     {
     }
 
-    static const int indentation = 4;
-    static const int maxmimumWidth = 79;
+    static const size_t indentation = 2;
+    static const size_t maxmimumWidth = 79;
 
-    static void printChar(int c, int *width)
+    static void PrintChar(int c, size_t* width)
     {
        putchar(c);
        *width = ((c == '\n') ? 0 : ((*width) + 1));
     }
 
-    static void indent(int *width)
+    static void PrintIndent(size_t* width)
     {
-       int i;
-       for (i = 0; i < indentation; i++)
-           printChar(' ', width);
+       for (size_t i = 0; i < indentation; i++) PrintChar(' ', width);
     }
 
-    static void printExtensions(const char *header, char separator, const char *extensions)
+    static void PrintExtensions(const char *header, char separator, const char *extensions)
     {
-      int width = 0, start = 0, end = 0;
+      size_t width = 0;
+      size_t start = 0;
+      size_t end = 0;
 
-      printf("<!> Run - audio::Init %s: ", header);
+      printf("<!> Run - PrintExtensions %s: ", header);
       if (extensions == NULL || extensions[0] == '\0') return;
 
-      indent(&width);
+      PrintIndent(&width);
       while (true) {
-        if(extensions[end] == separator || extensions[end] == '\0') {
-          if(width + end - start + 2 > maxmimumWidth) {
-            printChar('\n', &width);
-            printf("<!> Run - audio::Init %s: ", header);
-            indent(&width);
+        if (extensions[end] == separator || extensions[end] == '\0') {
+          if (width + end - start + 2 > maxmimumWidth) {
+            PrintChar('\n', &width);
+            printf("<!> Run - PrintExtensions %s: ", header);
+            PrintIndent(&width);
           }
 
           while(start < end) {
-            printChar(extensions[start], &width);
+            PrintChar(extensions[start], &width);
             start++;
           }
 
@@ -199,12 +199,12 @@ namespace breathe
           end++;
           if (extensions[end] == '\0') break;
 
-          printChar(',', &width);
-          printChar(' ', &width);
+          PrintChar(',', &width);
+          PrintChar(' ', &width);
         }
         end++;
       }
-      printChar('\n', &width);
+      PrintChar('\n', &width);
     }
 
     bool cManager::_Init()
@@ -253,13 +253,13 @@ namespace breathe
       ReportError();
 
 
-      printExtensions("ALC extensions", ' ', alcGetString(device, ALC_EXTENSIONS));
+      PrintExtensions("ALC extensions", ' ', alcGetString(device, ALC_EXTENSIONS));
       ReportError();
 
       LOG<<"cManager::_Init OpenAL vendor string: "<<alGetString(AL_VENDOR)<<std::endl;
       LOG<<"cManager::_Init OpenAL renderer string: "<<alGetString(AL_RENDERER)<<std::endl;
       LOG<<"cManager::_Init OpenAL version string: "<<alGetString(AL_VERSION)<<std::endl;
-      printExtensions("OpenAL extensions", ' ', alGetString(AL_EXTENSIONS));
+      PrintExtensions("OpenAL extensions", ' ', alGetString(AL_EXTENSIONS));
       ReportError();
 
 
@@ -447,8 +447,9 @@ namespace breathe
       alcMakeContextCurrent(NULL);
       ReportError();
 
-      alcDestroyContext(context);
-      ReportError();
+      if (context != nullptr) {
+        alcDestroyContext(context);
+        ReportError();
 
       if (device != nullptr) {
         alcCloseDevice(device);

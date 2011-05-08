@@ -3,9 +3,12 @@
 
 #include <spitfire/spitfire.h>
 
+#include <spitfire/util/cString.h>
 #include <spitfire/util/cSmartPtr.h>
 
 #include <spitfire/math/cVec3.h>
+
+#include <breathe/breathe.h>
 
 // Buffer: Sound data ready to play
 // Listener: Position of the player

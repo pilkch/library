@@ -115,7 +115,7 @@ namespace breathe
     class cBuffer : public audio::cBuffer
     {
     public:
-      cBuffer(const string_t& sFilename, cManager& manager);
+      cBuffer(const string_t& sFilename);
       ~cBuffer();
 
       Mix_Chunk* pChunk;
@@ -124,9 +124,9 @@ namespace breathe
       cBuffer();
       NO_COPY(cBuffer);
 
-      virtual bool _IsValid() const { return (buffer.IsLoaded()); }
+      virtual bool _IsValid() const { return (pChunk != nullptr); }
 
-      void Create(const string_t& sFilename, cManager& manager);
+      void Create(const string_t& sFilename);
 
       string_t sFilename;
     };
@@ -163,6 +163,8 @@ namespace breathe
       virtual void _Stop();
 
       virtual void _Remove();
+
+      int iChannel;
 
       bool bLooping;
       float volume;

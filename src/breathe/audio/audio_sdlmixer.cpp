@@ -282,7 +282,7 @@ namespace breathe
 
 
       // Remove any sources that need removing
-      LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
+      //LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
 
       iter = listToRemove.begin();
       iterEnd = listToRemove.end();
@@ -411,9 +411,9 @@ namespace breathe
     void cSource::_SetLooping()
     {
       bLooping = true;
-      if (IsPlaying()) {
+      /*if (IsPlaying()) {
         source.SetLoop(bLooping);
-      }
+      }*/
     }
 
     void cSource::_SetNonLooping()
