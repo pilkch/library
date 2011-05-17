@@ -763,19 +763,14 @@ namespace spitfire
       return s.str();
     }
 
-    string_t ToString(unsigned int value)
+    string_t ToString(uint64_t value)
     {
-      return ToString<unsigned int>(value);
+      return ToString<uint64_t>(value);
     }
 
-    string_t ToString(size_t value)
+    string_t ToString(int64_t value)
     {
-      return ToString<size_t>(value);
-    }
-
-    string_t ToString(int value)
-    {
-      return ToString<int>(value);
+      return ToString<int64_t>(value);
     }
 
     string_t ToString(float value)
@@ -793,14 +788,14 @@ namespace spitfire
       return value;
     }
 
-    unsigned int ToUnsignedInt(const string_t& source)
+    uint64_t ToUnsignedInt(const string_t& source)
     {
-      return FromString<unsigned int>(source);
+      return FromString<uint64_t>(source);
     }
 
-    int ToInt(const string_t& source)
+    int64_t ToInt(const string_t& source)
     {
-      return FromString<int>(source);
+      return FromString<int64_t>(source);
     }
 
     float ToFloat(const string_t& source)

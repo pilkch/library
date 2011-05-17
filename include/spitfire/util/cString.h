@@ -122,15 +122,14 @@ namespace spitfire
 #endif
 
     inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
-    string_t ToString(unsigned int value);
-    string_t ToString(size_t value);
-    string_t ToString(int value);
+    string_t ToString(uint64_t value);
+    string_t ToString(int64_t value);
     string_t ToString(float value);
 
     // returns true for anything other than "false" and "0"
     inline bool ToBool(const string_t& source) { return ((TEXT("false") != source) && (TEXT("0") != source)); }
-    unsigned int ToUnsignedInt(const string_t& source);
-    int ToInt(const string_t& source);
+    uint64_t ToUnsignedInt(const string_t& source);
+    int64_t ToInt(const string_t& source);
     float ToFloat(const string_t& source);
 
     // String to hex

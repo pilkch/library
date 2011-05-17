@@ -1,6 +1,8 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+#include <spitfire/util/cString.h>
+
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm#tutorial
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/example/file_size.cpp

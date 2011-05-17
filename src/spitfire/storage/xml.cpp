@@ -501,6 +501,16 @@ namespace spitfire
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
     }
 
+    void cNode::AddAttribute(const std::string& sAttribute, uint64_t value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
+    }
+
+    void cNode::AddAttribute(const std::string& sAttribute, int64_t value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
+    }
+
     void cNode::AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues)
     {
       ASSERT(pValue != nullptr);
@@ -595,6 +605,30 @@ namespace spitfire
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         value = spitfire::string::ToBool(spitfire::string::ToString_t(iter->second));
+
+        return true;
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, uint64_t& value) const
+    {
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      if (iter != mAttribute.end()) {
+        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(iter->second));
+
+        return true;
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, int64_t& value) const
+    {
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      if (iter != mAttribute.end()) {
+        value = spitfire::string::ToInt(spitfire::string::ToString_t(iter->second));
 
         return true;
       }

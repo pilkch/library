@@ -70,6 +70,8 @@ namespace spitfire
       void AddAttribute(const std::string& sAttribute, const std::string& value);
       void AddAttribute(const std::string& sAttribute, const std::wstring& value);
       void AddAttribute(const std::string& sAttribute, const bool value);
+      void AddAttribute(const std::string& sAttribute, const uint64_t value);
+      void AddAttribute(const std::string& sAttribute, const int64_t value);
       void AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
 
 #if !defined(FIRESTARTER) && !defined(BUILDALL)
@@ -102,6 +104,8 @@ namespace spitfire
       bool GetAttribute(const std::string& sAttribute, std::string& value) const;
       bool GetAttribute(const std::string& sAttribute, std::wstring& value) const;
       bool GetAttribute(const std::string& sAttribute, bool& value) const;
+      bool GetAttribute(const std::string& sAttribute, uint64_t& value) const;
+      bool GetAttribute(const std::string& sAttribute, int64_t& value) const;
       bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
 #if !defined(FIRESTARTER) && !defined(BUILDALL)

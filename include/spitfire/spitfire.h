@@ -221,8 +221,7 @@ typedef uint64_t filesize_t;
   void operator=(const T&)
 
 // Like sizeof for arrays (Although using raw arrays like this is discouraged so we can probably remove this
-template <class T>
-inline size_t lengthof(const T* t) { return (sizeof(t) / sizeof(T)); }
+#define lengthof(t) (sizeof(t) / sizeof(t[0]))
 
 // Utility types, objects etc.
 namespace spitfire

@@ -449,10 +449,13 @@ namespace breathe
 
       if (context != nullptr) {
         alcDestroyContext(context);
+        context = nullptr;
         ReportError();
+      }
 
       if (device != nullptr) {
         alcCloseDevice(device);
+        device = nullptr;
         ReportError();
       }
 
