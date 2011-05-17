@@ -215,6 +215,11 @@ namespace opengl
     void ShowCursor(bool bShow);
     void WarpCursorToMiddleOfScreen();
 
+    bool IsKeyUp(KEY key) const;
+    bool IsKeyDown(KEY key) const;
+    bool IsKeyHeld(KEY key) const;
+    bool GetKeyState(KEY key) const;
+
     void UpdateEvents();
 
   private:
@@ -228,6 +233,15 @@ namespace opengl
     cInputEventListener* pInputEventListener;
 
     opengl::string_t sCaption;
+
+    // For handling key repeating
+    enum class STATE {
+      NOT_FOUND,
+      UP,
+      DOWN,
+      HELD,
+    };
+    std::map<KEY, STATE> keystates;
   };
 
 

@@ -82,6 +82,29 @@ namespace opengl
     SDL_WarpMouse(resolution.width / 2, resolution.height / 2);
   }
 
+  bool cWindow::IsKeyUp(KEY key) const
+  {
+    std::map<KEY, STATE>::const_iterator iter = keystates.find(key);
+    return (iter != keystates.end()) && (iter->second == STATE::UP);
+  }
+
+  bool cWindow::IsKeyDown(KEY key) const
+  {
+    std::map<KEY, STATE>::const_iterator iter = keystates.find(key);
+    return (iter != keystates.end()) && (iter->second == STATE::DOWN);
+  }
+
+  bool cWindow::IsKeyHeld(KEY key) const
+  {
+    std::map<KEY, STATE>::const_iterator iter = keystates.find(key);
+    return (iter != keystates.end()) && (iter->second == STATE::HELD);
+  }
+
+  bool cWindow::GetKeyState(KEY key) const
+  {
+    return (IsKeyDown(key) || IsKeyHeld(key));
+  }
+
   void cWindow::OnResizeWindow(const cResolution& _resolution, bool bIsFullScreen)
   {
     assert(pContext != nullptr);
@@ -95,6 +118,9 @@ namespace opengl
 
   void cWindow::UpdateEvents()
   {
+    // Which keys were released this time step
+    std::vector<KEY> keysUp;
+
     // Handle all the events in the queue
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent)) {
@@ -136,6 +162,10 @@ namespace opengl
         }
 
         case SDL_KEYDOWN: {
+          // Update our key state
+          KEY key = KEY(sdlEvent.key.keysym.sym);
+          keystates[key] = STATE::DOWN;
+
           cKeyboardEvent event;
           event.type = TYPE::KEY_DOWN;
           event.keyCode = sdlEvent.key.keysym.sym;
@@ -144,6 +174,11 @@ namespace opengl
         }
 
         case SDL_KEYUP: {
+          // Update our key state and add our key to the list of keys released this time step
+          KEY key = KEY(sdlEvent.key.keysym.sym);
+          keystates[key] = STATE::UP;
+          keysUp.push_back(key);
+
           cKeyboardEvent event;
           event.type = TYPE::KEY_UP;
           event.keyCode = sdlEvent.key.keysym.sym;
@@ -182,6 +217,42 @@ namespace opengl
 
         default:
           break;
+      }
+    }
+
+
+    // Process keys that were released or held down this time step
+    for (std::map<KEY, STATE>::iterator iter = keystates.begin(); iter != keystates.end(); iter++) {
+      if (iter->second == STATE::UP) {
+        // Handle keys that were up and may now be back to the starting state
+        bool bIsKeyFound = false;
+
+        // Find the matching key in keysUp
+        const size_t n = keysUp.size();
+        for (size_t i = 0; i < n; i++) {
+          if (keysUp[i] == iter->first) {
+            bIsKeyFound = true;
+            break;
+          }
+        }
+
+        // If the key wasn't changed set it to not found
+        if (!bIsKeyFound) iter->second = STATE::NOT_FOUND;
+      } else if (iter->second == STATE::DOWN) {
+        // Handle keys that were down and may now be into the held state
+        bool bIsKeyFound = false;
+
+        // Find the matching key in keysUp
+        const size_t n = keysUp.size();
+        for (size_t i = 0; i < n; i++) {
+          if (keysUp[i] == iter->first) {
+            bIsKeyFound = true;
+            break;
+          }
+        }
+
+        // If the key wasn't changed set it to held
+        if (!bIsKeyFound) iter->second = STATE::HELD;
       }
     }
   }
