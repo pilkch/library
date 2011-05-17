@@ -29,6 +29,34 @@
 #include <breathe/render/model/cStaticModelLoader.h>
 
 
+// Things to print to the screen in debug mode
+// Accelerator percentage
+// Brake percentage
+// Hand brake (yes/no)
+// Clutch percentage
+// Clutch "holding" Nm of torque
+// Clutch "allowing" Nm of torque
+// Gear
+// RPM
+// Speed
+// Power
+// Torque
+// Gearbox RPM
+// Gear ratio
+// Tire temperatures
+//   - Perhaps represented by 10cm "bands" going across the tire from left to right?  This would allow the left side of the tire to heat up say if we are going around a clockwise circuit
+//   - Show the overall temperature for each tire too (Average of all the bands)
+// Tire wear
+// Brake temperatures
+// Brake fade
+// Weight on each wheel
+// Down force amount front and back
+// Grip (Percentage?)
+// Bump stop?
+// Travel cm
+// Ride height cm
+
+
 // How does a dynamometer/rolling road work?
 //
 // The car is put on the rollers. It's driven up to about 40mph, then put in 4th gear. The computer is set to a
@@ -37,6 +65,7 @@
 // Once it's at the red line they ease off and the rollers can work out how powerful the engine is from the
 // resistance through the wheels to the rollers.
 //
+
 
 // To measure the power at the fly wheel
 //
@@ -80,7 +109,7 @@
 
 // As it was explained to me, is that what happens is while you are accelerating, small amounts of unburnt and half burnt gas coat the cats, pipes, fiberglass and the walls of the muffler. When you let off the gas the car goes into DFCO mode (decelleration fuel cut off) which cuts all spark and all fuel going into the engine. So now the engine is pumping (oxygen filled) normal air through it. When you have O2 + fuel + heat you get small explosions in the tail pipe. Same reasons apply to the SRT.
 
-// A car backfires because unburned fuel is getting to the muffler. The heat of the exhause system causes the fuel to combust, thus a backfire.
+// A car backfires because unburned fuel is getting to the muffler. The heat of the exhaust system causes the fuel to combust, thus a backfire.
 
 
 
