@@ -405,29 +405,65 @@ namespace spitfire
     }
 #endif // BUILD_DEBUG
 
+    const cNode* cNode::FirstChild() const
+    {
+      if (!vChild.empty()) return vChild[0];
+
+      return nullptr;
+    }
+
     cNode* cNode::FirstChild()
     {
       if (!vChild.empty()) return vChild[0];
 
-      return NULL;
+      return nullptr;
     }
 
-    cNode* cNode::FindChild(const std::string& sName)
+    const cNode* cNode::FindChild(const std::string& sName) const
     {
       if (!vChild.empty()) {
-        cNode* p=vChild[0];
+        const cNode* p = vChild[0];
         while (p != nullptr) {
           if (sName == p->sName) return p;
           p = p->pNext;
         }
       }
 
-      return NULL;
+      return nullptr;
+    }
+
+    cNode* cNode::FindChild(const std::string& sName)
+    {
+      if (!vChild.empty()) {
+        cNode* p = vChild[0];
+        while (p != nullptr) {
+          if (sName == p->sName) return p;
+          p = p->pNext;
+        }
+      }
+
+      return nullptr;
+    }
+
+    const cNode* cNode::GetNext() const
+    {
+      return pNext;
     }
 
     cNode* cNode::GetNext()
     {
       return pNext;
+    }
+
+    const cNode* cNode::GetNext(const std::string& sName) const
+    {
+      const cNode* p = pNext;
+      while (p != nullptr) {
+        if (sName == p->sName) return p;
+        p = p->pNext;
+      };
+
+      return nullptr;
     }
 
     cNode* cNode::GetNext(const std::string& sName)
@@ -438,7 +474,7 @@ namespace spitfire
         p = p->pNext;
       };
 
-      return NULL;
+      return nullptr;
     }
 
     cNode* cNode::CreateNode()

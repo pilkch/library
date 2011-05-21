@@ -109,14 +109,52 @@ namespace spitfire
 
       void Clear();
 
+      class cConstIterator
+      {
+      public:
+        cConstIterator(const cConstIterator& rhs);
+        explicit cConstIterator(const cNode& rhs);
+
+        cConstIterator operator=(const cConstIterator& rhs);
+        cConstIterator operator=(const cNode& rhs);
+
+        bool IsValid() const;
+
+        cConstIterator operator++(int);
+        void Next();
+        void Next(const std::string& sName);
+
+        void FirstChild();
+        void FindChild(const std::string& sName);
+
+        cConstIterator GetFirstChild() const;
+        cConstIterator GetChild(const std::string& sName) const;
+
+        std::string GetName() const; // Get the name of this node
+        std::string GetContent() const; // Get the content of this node
+        std::string GetChildContent() const; // Get the content of the (only) child of this node
+
+        template <class T>
+        bool GetAttribute(const std::string& sAttribute, T& value) const;
+
+        bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
+
+      private:
+        // Forbidden
+        cConstIterator();
+        operator bool() const;
+
+        const cNode* pNode;
+      };
+
       class cIterator
       {
       public:
         cIterator(const cIterator& rhs);
-        explicit cIterator(const cNode& rhs);
+        explicit cIterator(cNode& rhs);
 
         cIterator operator=(const cIterator& rhs);
-        cIterator operator=(const cNode& rhs);
+        cIterator operator=(cNode& rhs);
 
         bool IsValid() const;
 
@@ -139,6 +177,9 @@ namespace spitfire
 
         bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
+        // This allows us to edit the node, you should consider the iterator invalid after editing the node
+        cNode* Get() { return pNode; }
+
       private:
         // Forbidden
         cIterator();
@@ -147,15 +188,20 @@ namespace spitfire
         cNode* pNode;
       };
 
+      typedef cConstIterator const_iterator;
       typedef cIterator iterator;
 
     private:
       cNode* CreateNode();
       cNode* CreateNodeAsChildAndAppend();
 
+      const cNode* GetNext() const;
+      const cNode* GetNext(const std::string& sName) const;
       cNode* GetNext();
       cNode* GetNext(const std::string& sName);
 
+      const cNode* FirstChild() const;
+      const cNode* FindChild(const std::string& sName) const;
       cNode* FirstChild();
       cNode* FindChild(const std::string& sName);
 
@@ -190,6 +236,8 @@ namespace spitfire
 
     // *** Inlines
 
+    // ** cNode
+
     inline cNode* cNode::CreateElement(const std::string& name)
     {
       cNode* pNode = new cNode;
@@ -204,13 +252,130 @@ namespace spitfire
       return pNode;
     }
 
+
+    // ** cConstIterator
+
+    inline cNode::cConstIterator::cConstIterator(const cConstIterator& rhs) :
+      pNode(rhs.pNode)
+    {
+    }
+
+    inline cNode::cConstIterator::cConstIterator(const cNode& rhs) :
+      pNode(&rhs)
+    {
+    }
+
+    inline cNode::cConstIterator cNode::cConstIterator::operator=(const cConstIterator& rhs)
+    {
+      pNode = rhs.pNode;
+      return *this;
+    }
+
+    inline cNode::cConstIterator cNode::cConstIterator::operator=(const cNode& rhs)
+    {
+      pNode = &rhs;
+      return *this;
+    }
+
+    inline bool cNode::cConstIterator::IsValid() const
+    {
+      return pNode != nullptr;
+    }
+
+    inline cNode::cConstIterator cNode::cConstIterator::operator++(int)
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->GetNext();
+      return *this;
+    }
+
+    inline void cNode::cConstIterator::Next()
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->GetNext();
+    }
+
+    inline void cNode::cConstIterator::Next(const std::string& sName)
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->GetNext(sName);
+    }
+
+    inline void cNode::cConstIterator::FirstChild()
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->FirstChild();
+    }
+
+    inline void cNode::cConstIterator::FindChild(const std::string& sName)
+    {
+      ASSERT(pNode != nullptr);
+      pNode = pNode->FindChild(sName);
+    }
+
+    inline cNode::cConstIterator cNode::cConstIterator::GetFirstChild() const
+    {
+      cConstIterator iter(*this);
+      iter.FirstChild();
+
+      return iter;
+    }
+
+    inline cNode::cConstIterator cNode::cConstIterator::GetChild(const std::string& sName) const
+    {
+      cConstIterator iter(*this);
+      iter.FindChild(sName);
+
+      return iter;
+    }
+
+    inline std::string cNode::cConstIterator::GetName() const
+    {
+      ASSERT(pNode != nullptr);
+      return pNode->GetName();
+    }
+
+    inline std::string cNode::cConstIterator::GetContent() const
+    {
+      ASSERT(pNode != nullptr);
+      return pNode->GetContent();
+    }
+
+    inline std::string cNode::cConstIterator::GetChildContent() const
+    {
+      ASSERT(pNode != nullptr);
+      cConstIterator iter(*this);
+      iter.FirstChild();
+      if (!iter.IsValid()) return "";
+
+      // Ok, we have a child, let's get it's content
+      return iter.GetContent();
+    }
+
+    template <class T>
+    inline bool cNode::cConstIterator::GetAttribute(const std::string& sAttribute, T& value) const
+    {
+      ASSERT(pNode != nullptr);
+      return pNode->GetAttribute(sAttribute, value);
+    }
+
+    inline bool cNode::cConstIterator::GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const
+    {
+      ASSERT(pNode != nullptr);
+      ASSERT(pValue != nullptr);
+      return pNode->GetAttribute(sAttribute, pValue, nValues);
+    }
+
+
+    // ** cIterator
+
     inline cNode::cIterator::cIterator(const cIterator& rhs) :
       pNode(rhs.pNode)
     {
     }
 
-    inline cNode::cIterator::cIterator(const cNode& rhs) :
-      pNode(&const_cast<cNode&>(rhs))
+    inline cNode::cIterator::cIterator(cNode& rhs) :
+      pNode(&rhs)
     {
     }
 
@@ -220,9 +385,9 @@ namespace spitfire
       return *this;
     }
 
-    inline cNode::cIterator cNode::cIterator::operator=(const cNode& rhs)
+    inline cNode::cIterator cNode::cIterator::operator=(cNode& rhs)
     {
-      pNode = &const_cast<cNode&>(rhs);
+      pNode = &rhs;
       return *this;
     }
 
