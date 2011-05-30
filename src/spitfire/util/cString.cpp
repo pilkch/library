@@ -780,7 +780,7 @@ namespace spitfire
 
 
     template <class T>
-    inline T FromString(const string_t& source)
+    inline T FromStringGeneric(const string_t& source)
     {
       T value = T(0);
       istringstream_t stm(source);
@@ -788,19 +788,19 @@ namespace spitfire
       return value;
     }
 
-    uint64_t ToUnsignedInt(const string_t& source)
+    void FromString(const string_t& source, uint64_t& value)
     {
-      return FromString<uint64_t>(source);
+      value = FromStringGeneric<uint64_t>(source);
     }
 
-    int64_t ToInt(const string_t& source)
+    void FromString(const string_t& source, int64_t& value)
     {
-      return FromString<int64_t>(source);
+      value = FromStringGeneric<int64_t>(source);
     }
 
-    float ToFloat(const string_t& source)
+    void FromString(const string_t& source, float& value)
     {
-      return FromString<float>(source);
+      value = FromStringGeneric<float>(source);
     }
 
 

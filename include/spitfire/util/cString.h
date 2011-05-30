@@ -127,10 +127,16 @@ namespace spitfire
     string_t ToString(float value);
 
     // returns true for anything other than "false" and "0"
-    inline bool ToBool(const string_t& source) { return ((TEXT("false") != source) && (TEXT("0") != source)); }
-    uint64_t ToUnsignedInt(const string_t& source);
-    int64_t ToInt(const string_t& source);
-    float ToFloat(const string_t& source);
+    inline void FromString(const string_t& source, bool& value) { value = ((TEXT("false") != source) && (TEXT("0") != source)); }
+    void FromString(const string_t& source, uint64_t& value);
+    void FromString(const string_t& source, int64_t& value);
+    void FromString(const string_t& source, float& value);
+
+    // returns true for anything other than "false" and "0"
+    inline bool ToBool(const string_t& source) { bool value = false; FromString(source, value); return value; }
+    inline uint64_t ToUnsignedInt(const string_t& source) { uint64_t value = false; FromString(source, value); return value; }
+    inline int64_t ToInt(const string_t& source) { int64_t value = false; FromString(source, value); return value; }
+    inline float ToFloat(const string_t& source) { float value = false; FromString(source, value); return value; }
 
     // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
