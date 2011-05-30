@@ -61,17 +61,17 @@ namespace spitfire
       cNode* CreateCommentNode(const std::string& comment); // This element is owned by the caller of this function
 
       void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
-      void AddAttribute(const std::string& sAttribute, const std::string& value);
-      void AddAttribute(const std::string& sAttribute, const std::wstring& value);
-      void AddAttribute(const std::string& sAttribute, const bool value);
-      void AddAttribute(const std::string& sAttribute, const uint64_t value);
-      void AddAttribute(const std::string& sAttribute, const int64_t value);
-      void AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
+      void SetAttribute(const std::string& sAttribute, const std::string& value);
+      void SetAttribute(const std::string& sAttribute, const std::wstring& value);
+      void SetAttribute(const std::string& sAttribute, const bool value);
+      void SetAttribute(const std::string& sAttribute, const uint64_t value);
+      void SetAttribute(const std::string& sAttribute, const int64_t value);
+      void SetAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
 
 #if !defined(FIRESTARTER) && !defined(BUILDALL)
-      void AddAttribute(const std::string& sAttribute, const math::cVec3& value);
-      void AddAttribute(const std::string& sAttribute, const math::cQuaternion& value);
-      void AddAttribute(const std::string& sAttribute, const math::cColour& value);
+      void SetAttribute(const std::string& sAttribute, const math::cVec3& value);
+      void SetAttribute(const std::string& sAttribute, const math::cQuaternion& value);
+      void SetAttribute(const std::string& sAttribute, const math::cColour& value);
 #endif
 
       bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DELCARATION; }

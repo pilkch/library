@@ -230,7 +230,7 @@ namespace spitfire
 
               while(iter!=sData.end() && *iter!='/' && *iter!='>') {
                 if (*iter == ' ') {
-                  p->AddAttribute(sAttributeName, "");
+                  p->SetAttribute(sAttributeName, "");
                   sAttributeName = "";
                   sData=string::StripLeading(&*iter, " ");
                   iter=sData.begin();
@@ -247,7 +247,7 @@ namespace spitfire
                     while (std::string::npos != nQuote) {
                       if (nQuote < nSlashQuote) {
                         // attribute="value"
-                        p->AddAttribute(sAttributeName, sAttributeValue + sData.substr(0, nQuote));
+                        p->SetAttribute(sAttributeName, sAttributeValue + sData.substr(0, nQuote));
                         sAttributeName="";
                         sAttributeValue="";
                         sData=string::StripLeading(sData.substr(nQuote+1), " ");
@@ -278,7 +278,7 @@ namespace spitfire
                 iter++;
                 if (!sAttributeName.empty()) {
                   // attribute>
-                  p->AddAttribute(sAttributeName, sAttributeValue);
+                  p->SetAttribute(sAttributeName, sAttributeValue);
                   sAttributeName = "";
                 }
                 sData.erase(sData.begin(), iter);
@@ -522,32 +522,32 @@ namespace spitfire
     }
 
 
-    void cNode::AddAttribute(const std::string& sAttribute, const std::string& value)
+    void cNode::SetAttribute(const std::string& sAttribute, const std::string& value)
     {
       mAttribute[sAttribute] = value;
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, const std::wstring& value)
+    void cNode::SetAttribute(const std::string& sAttribute, const std::wstring& value)
     {
       mAttribute[sAttribute] = spitfire::string::ToUTF8(value);
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, const bool value)
+    void cNode::SetAttribute(const std::string& sAttribute, const bool value)
     {
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, uint64_t value)
+    void cNode::SetAttribute(const std::string& sAttribute, uint64_t value)
     {
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, int64_t value)
+    void cNode::SetAttribute(const std::string& sAttribute, int64_t value)
     {
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, const float* pValue, size_t nValues)
+    void cNode::SetAttribute(const std::string& sAttribute, const float* pValue, size_t nValues)
     {
       ASSERT(pValue != nullptr);
 
@@ -567,7 +567,7 @@ namespace spitfire
     }
 
 #if !defined(FIRESTARTER) && !defined(BUILDALL)
-    void cNode::AddAttribute(const std::string& sAttribute, const math::cVec3& value)
+    void cNode::SetAttribute(const std::string& sAttribute, const math::cVec3& value)
     {
       std::ostringstream o;
 
@@ -580,7 +580,7 @@ namespace spitfire
       mAttribute[sAttribute] = o.str();
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, const math::cQuaternion& value)
+    void cNode::SetAttribute(const std::string& sAttribute, const math::cQuaternion& value)
     {
       std::ostringstream o;
 
@@ -595,7 +595,7 @@ namespace spitfire
       mAttribute[sAttribute] = o.str();
     }
 
-    void cNode::AddAttribute(const std::string& sAttribute, const math::cColour& value)
+    void cNode::SetAttribute(const std::string& sAttribute, const math::cColour& value)
     {
       std::ostringstream o;
 
