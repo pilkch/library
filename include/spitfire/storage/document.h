@@ -57,7 +57,8 @@ namespace spitfire
 
       cNode* CreateElement(const std::string& name); // This element is owned by the caller of this function
       cNode* CreateTextNode(const std::string& text); // This element is owned by the caller of this function
-      cNode* CreateCommentNode(const std::string& text); // This element is owned by the caller of this function
+      cNode* CreateContentNode(const std::string& content); // This element is owned by the caller of this function
+      cNode* CreateCommentNode(const std::string& comment); // This element is owned by the caller of this function
 
       void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
       void AddAttribute(const std::string& sAttribute, const std::string& value);
@@ -250,6 +251,12 @@ namespace spitfire
       cNode* pNode = new cNode;
       pNode->SetTypeContentOnly(text);
       return pNode;
+    }
+
+    inline cNode* cNode::CreateContentNode(const std::string& content)
+    {
+      // This is a synonym for CreateTextNode, perhaps we should rename CreateTextNode?
+      return CreateTextNode(content);
     }
 
 
