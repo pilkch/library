@@ -522,6 +522,16 @@ namespace spitfire
     }
 
 
+    void cNode::SetAttribute(const std::string& sAttribute, const char* value)
+    {
+      mAttribute[sAttribute] = value;
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const wchar_t* value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(value);
+    }
+
     void cNode::SetAttribute(const std::string& sAttribute, const std::string& value)
     {
       mAttribute[sAttribute] = value;

@@ -61,8 +61,10 @@ namespace spitfire
       cNode* CreateCommentNode(const std::string& comment); // This element is owned by the caller of this function
 
       void AppendChild(element* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
-      void SetAttribute(const std::string& sAttribute, const std::string& value);
-      void SetAttribute(const std::string& sAttribute, const std::wstring& value);
+      void SetAttribute(const std::string& sAttribute, const char* szValue);
+      void SetAttribute(const std::string& sAttribute, const wchar_t* szValue);
+      void SetAttribute(const std::string& sAttribute, const std::string& sValue);
+      void SetAttribute(const std::string& sAttribute, const std::wstring& sValue);
       void SetAttribute(const std::string& sAttribute, const bool value);
       void SetAttribute(const std::string& sAttribute, const uint64_t value);
       void SetAttribute(const std::string& sAttribute, const int64_t value);
