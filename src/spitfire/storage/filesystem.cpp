@@ -717,54 +717,54 @@ namespace spitfire
     }
 
 
-    // ************************************************* path *************************************************
+    // ************************************************* cPath *************************************************
 
-    path::path(const string_t& sDirectory) :
+    cPath::cPath(const string_t& sDirectory) :
       sPath(sDirectory)
     {
     }
 
-    path::path(const string_t& sDirectory, const string_t& sFile) :
+    cPath::cPath(const string_t& sDirectory, const string_t& sFile) :
       sPath(MakeFilePath(sDirectory, sFile))
     {
     }
 
-    path::path(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile) :
+    cPath::cPath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile) :
       sPath(MakeFilePath(sDirectory, sSubDirectory, sFile))
     {
     }
 
-    bool path::IsFile() const
+    bool cPath::IsFile() const
     {
       const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
       return (boost::filesystem::exists(file) && boost::filesystem::is_regular(file));
     }
 
-    bool path::IsDirectory() const
+    bool cPath::IsDirectory() const
     {
       const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
       return (boost::filesystem::exists(file) && boost::filesystem::is_directory(file));
     }
 
-    string_t path::GetDirectory() const // Returns just the directory "/folder1/folder2/"
+    string_t cPath::GetDirectory() const // Returns just the directory "/folder1/folder2/"
     {
       ASSERT(IsDirectory());
       return filesystem::GetPath(sPath);
     }
 
-    string_t path::GetFile() const // Returns just the file "file.txt"
+    string_t cPath::GetFile() const // Returns just the file "file.txt"
     {
       ASSERT(IsFile());
       return filesystem::GetFile(sPath);
     }
 
-    string_t path::GetExtenstion() const // Returns just the extension ".txt"
+    string_t cPath::GetExtenstion() const // Returns just the extension ".txt"
     {
       ASSERT(IsFile());
       return filesystem::GetExtension(sPath);
     }
 
-    string_t path::GetFullPath() const // Returns the full path "/folder1/folder2/file.txt"
+    string_t cPath::GetFullPath() const // Returns the full path "/folder1/folder2/file.txt"
     {
       return sPath;
     }
@@ -810,7 +810,7 @@ namespace spitfire
 
       sTemporarySubFolder = szTempFolderPath;
     #else
-      spitfire::filesystem::path p(TEXT(P_tmpdir), TEXT("0XXXXXX"));
+      cPath p(TEXT(P_tmpdir), TEXT("0XXXXXX"));
 
       char szTempFolderPath[MAX_PATH_LEN];
       strlcpy(szTempFolderPath, spitfire::string::ToUTF8(p.GetFullPath()).c_str(), MAX_PATH_LEN);
@@ -836,22 +836,22 @@ namespace spitfire
 
 
 
-    // ********************************************* iterator *********************************************
+    // ********************************************* cFolderIterator *********************************************
 
-    iterator::iterator() :
+    cFolderIterator::cFolderIterator() :
       bIsEndIterator(true),
       i(0),
       sParentFolder(TEXT(""))
     {
     }
 
-    iterator::iterator(const string_t& directory) :
+    cFolderIterator::cFolderIterator(const string_t& directory) :
       bIsEndIterator(false),
       i(0),
       sParentFolder(directory)
     {
 #ifdef __WIN__
-#error "iterator::iterator not implemented in windows"
+#error "cFolderIterator::cFolderIterator not implemented in windows"
 #elif defined(__LINUX__)
       DIR* d = opendir(spitfire::string::ToUTF8(sParentFolder).c_str());
       struct dirent* dirp;
@@ -864,11 +864,11 @@ namespace spitfire
       }
       closedir(d);
 #else
-#error "iterator::iterator not implemented on this platform"
+#error "cFolderIterator::cFolderIterator not implemented on this platform"
 #endif
     }
 
-    iterator::iterator(const iterator& rhs)
+    cFolderIterator::cFolderIterator(const cFolderIterator& rhs)
     {
       bIsEndIterator = true;
       i = rhs.i;
@@ -877,18 +877,16 @@ namespace spitfire
     }
 
 
-    iterator& iterator::operator++(int)
+    void cFolderIterator::Next()
     {
       const size_t n = paths.size();
       if (i < n) {
         i++;
         if (i == n) bIsEndIterator = true;
       }
-
-      return *this;
     }
 
-    iterator& iterator::operator=(const iterator& rhs)
+    cFolderIterator& cFolderIterator::operator=(const cFolderIterator& rhs)
     {
       bIsEndIterator = rhs.bIsEndIterator;
       i = rhs.i;
@@ -898,50 +896,50 @@ namespace spitfire
       return *this;
     }
 
-    bool iterator::operator==(const iterator& rhs)
+    bool cFolderIterator::operator==(const cFolderIterator& rhs)
     {
-      // If we were never initialised or have iterator through our path lists
+      // If we were never initialised or have cFolderIterator through our path lists
       return ((!IsValid() && !rhs.IsValid()) || ((sParentFolder == rhs.sParentFolder) && (paths.size() == rhs.paths.size())));
     }
 
-    bool iterator::operator!=(const iterator& rhs)
+    bool cFolderIterator::operator!=(const cFolderIterator& rhs)
     {
       return !(*this == rhs);
     }
 
-    string_t iterator::GetFile() const
+    string_t cFolderIterator::GetFile() const
     {
       ASSERT(IsValid());
       return paths[i];
     }
 
-    string_t iterator::GetFullPath() const
+    string_t cFolderIterator::GetFullPath() const
     {
       ASSERT(IsValid());
       return MakeFilePath(sParentFolder, paths[i]);
     }
 
-    bool iterator::HasChildren() const
+    bool cFolderIterator::HasChildren() const
     {
       return !paths.empty();
     }
 
-    bool iterator::IsValid() const
+    bool cFolderIterator::IsValid() const
     {
       return (!bIsEndIterator && !paths.empty() && (i < paths.size()));
     }
 
-    bool iterator::IsFile() const
+    bool cFolderIterator::IsFile() const
     {
       ASSERT(IsValid());
-      path p(sParentFolder, paths[i]);
+      cPath p(sParentFolder, paths[i]);
       return p.IsFile();
     }
 
-    bool iterator::IsDirectory() const
+    bool cFolderIterator::IsDirectory() const
     {
       ASSERT(IsValid());
-      path p(sParentFolder, paths[i]);
+      cPath p(sParentFolder, paths[i]);
       return p.IsDirectory();
     }
 

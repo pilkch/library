@@ -183,12 +183,12 @@ namespace spitfire
     };
 
 
-    class path
+    class cPath
     {
     public:
-      explicit path(const string_t& sDirectory);
-      explicit path(const string_t& sDirectory, const string_t& sFile);
-      explicit path(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
+      explicit cPath(const string_t& sDirectory);
+      explicit cPath(const string_t& sDirectory, const string_t& sFile);
+      explicit cPath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
 
       bool IsFile() const;
       bool IsDirectory() const;
@@ -197,22 +197,22 @@ namespace spitfire
       string_t GetFile() const; // Returns just the file "file.txt"
       string_t GetExtenstion() const; // Returns just the extension ".txt"
       string_t GetFullPath() const; // Returns the full path "/folder1/folder2/file.txt"
-      string_t str() const { return GetFullPath(); } // Returns the full path "/folder1/folder2/file.txt"
 
     private:
-      path();
-      NO_COPY(path);
+      cPath();
 
       string_t sPath;
     };
 
 
-    class iterator
+    class cFolderIterator
     {
     public:
-      iterator();
-      explicit iterator(const string_t& directory);
-      explicit iterator(const iterator& rhs);
+      cFolderIterator();
+      explicit cFolderIterator(const string_t& directory);
+      cFolderIterator(const cFolderIterator& rhs);
+
+      bool SetIgnoreHiddenFilesAndFolders();
 
       bool IsFile() const;
       bool IsDirectory() const;
@@ -224,16 +224,17 @@ namespace spitfire
       bool HasChildren() const;
 
       void GoToFirstChild();
+      void Next();
 
-      bool operator==(const iterator& rhs);
-      bool operator!=(const iterator& rhs);
+      bool operator==(const cFolderIterator& rhs);
+      bool operator!=(const cFolderIterator& rhs);
 
-      iterator& operator++(int);
-      iterator& operator=(const iterator& rhs);
+      cFolderIterator& operator=(const cFolderIterator& rhs);
 
     private:
       bool IsValid() const;
 
+      bool bIsIgnoreHiddenFilesAndFolders;
       bool bIsEndIterator;
       size_t i;
       string_t sParentFolder;
