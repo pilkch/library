@@ -108,16 +108,16 @@ namespace spitfire
     inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { return 1; }
 
     std::string ToUTF8(const std::wstring& source);
-    inline std::string ToUTF8(const std::string& source) { return source; }
+    inline const std::string& ToUTF8(const std::string& source) { return source; }
 
     std::wstring ToWchar_t(const std::string& source);
-    inline std::wstring ToWchar_t(const std::wstring& source) { return source; }
+    inline const std::wstring& ToWchar_t(const std::wstring& source) { return source; }
 
 #ifdef UNICODE
     inline string_t ToString_t(const std::string& source) { return ToWchar_t(source); }
-    inline string_t ToString_t(const std::wstring& source) { return source; }
+    inline const string_t& ToString_t(const std::wstring& source) { return source; }
 #else
-    inline string_t ToString_t(const std::string& source) { return source; }
+    inline const string_t& ToString_t(const std::string& source) { return source; }
     inline string_t ToString_t(const std::wstring& source) { return ToUTF8(source); }
 #endif
 
