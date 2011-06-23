@@ -3,6 +3,8 @@
 
 #include <spitfire/storage/document.h>
 
+// http://en.wikipedia.org/wiki/XML
+
 /*
 TODO:
 Identify and replace these in XML:
