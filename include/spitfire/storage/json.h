@@ -39,8 +39,8 @@ namespace spitfire
       bool IsTypeFloat() const { return (type == TYPE::FLOAT); }
       bool IsTypeBool() const { return (type == TYPE::BOOL_); }
 
-      const std::vector<cNode*>& GetValueObjectOrArray() const { ASSERT(type == TYPE::OBJECT); return vValueObjectOrArray; }
-      std::vector<cNode*>& GetValueObjectOrArray() { ASSERT(type == TYPE::OBJECT); return vValueObjectOrArray; }
+      const std::vector<cNode*>& GetValueObjectOrArray() const { ASSERT((type == TYPE::OBJECT) || (type == TYPE::ARRAY)); return vValueObjectOrArray; }
+      std::vector<cNode*>& GetValueObjectOrArray() { ASSERT((type == TYPE::OBJECT) || (type == TYPE::ARRAY)); return vValueObjectOrArray; }
       std::string GetValueString() const { ASSERT(type == TYPE::STRING); return sValueUTF8String; }
       int GetValueInt() const { ASSERT(type == TYPE::INT); return iValueInt; }
       double GetValueFloat() const { ASSERT(type == TYPE::FLOAT); return dValueFloat; }
@@ -167,8 +167,7 @@ namespace spitfire
 
     private:
       bool ReadNodeFromStringParserUTF8(cNode& doc, string::cStringParserUTF8& sp) const;
-      bool ReadObject(cNode& object, string::cStringParserUTF8& sp) const;
-      bool ReadArray(cNode& array, string::cStringParserUTF8& sp) const;
+      bool ReadObjectOrArray(cNode& object, string::cStringParserUTF8& sp) const;
       bool ReadString(std::string& sValue, string::cStringParserUTF8& sp) const;
     };
 
