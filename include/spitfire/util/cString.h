@@ -35,7 +35,8 @@ namespace spitfire
 
   namespace string
   {
-    bool IsWhiteSpace(char_t c);
+    bool IsWhiteSpace(char c);
+    bool IsWhiteSpace(wchar_t c);
 
     // http://www.cppreference.com/wiki/c/string/isxdigit
     // returns true if (A-F, a-f, or 0-9)
@@ -203,6 +204,7 @@ namespace spitfire
 
 
 
+    // TODO: Replace the hacky code in this class with std::istringstream
 
     template <class C, class S>
     class cStringParserTemplate
@@ -217,18 +219,25 @@ namespace spitfire
       bool IsEmpty() const;
       bool IsEnd() const { return IsEmpty(); }
 
-      S GetCharacter() const; // Returns a string because UTF8 and UTF16 can have surrogate pairs
+      C GetCharacter() const; // Returns a single character (This breaks for UTF8 and UTF16 surrogate pairs)
+      S GetCharacterPossiblySurrogatePair() const { return GetCharacters(1); } // Returns a string of 1 surrogate pairs
       S GetCharacters(size_t nSurrogatePairs) const; // Returns a string of n surrogate pairs
+      bool GetToWhiteSpace(S& sResult) const; // Returns true if whitespace is found, else returns false
       bool GetToString(const S& sFind, S& sResult) const; // Returns true if sFind is found, else returns false
       S GetToEnd() const; // Returns the remaining string
 
-      S GetCharacterAndSkip(); // Returns a string because UTF8 and UTF16 can have surrogate pairs
+      C GetCharacterAndSkip(); // Returns a single character (This breaks for UTF8 and UTF16 surrogate pairs)
+      S GetCharacterPossiblySurrogatePairAndSkip() { return GetCharactersAndSkip(1); } // Returns a string of 1 surrogate pairs
+      S GetCharactersAndSkip(size_t nSurrogatePairs); // Returns a string of n surrogate pairs
+      bool GetToWhiteSpaceAndSkip(S& sResult); // Returns true if whitespace is found and skips it, else returns false
       bool GetToStringAndSkip(const S& sFind, S& sResult); // Returns true if sFind is found and skips it, else returns false
       S GetToEndAndSkip(); // Returns the remaining string and skips to the end
 
       void SkipCharacter(); // Skips ahead one surrogate pair
       void SkipCharacters(size_t nSurrogatePairs); // Skips ahead n surrogate pairs
+      void SkipWhiteSpace(); // Skips tabs, spaces and new lines until some other character is found
       bool SkipToString(const S& sFind); // Skips to sFind if found
+      bool SkipToWhiteSpace(); // Skips to find the next tab, space or new line
       bool SkipToStringAndSkip(const S& sFind); // Skips to sFind if found and skips it also
       void SkipToEnd();
 
@@ -267,12 +276,13 @@ namespace spitfire
     }
 
     template <class C, class S>
-    S cStringParserTemplate<C, S>::GetCharacter() const
+    C cStringParserTemplate<C, S>::GetCharacter() const
     {
       ASSERT(!IsEmpty());
 
       const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
-      return sString.substr(0, nElementCount);
+      ASSERT(nElementCount == 1);
+      return sString[0];
     }
 
     template <class C, class S>
@@ -318,13 +328,31 @@ namespace spitfire
     }
 
     template <class C, class S>
-    S cStringParserTemplate<C, S>::GetCharacterAndSkip()
+    C cStringParserTemplate<C, S>::GetCharacterAndSkip()
     {
       ASSERT(!IsEmpty());
 
-      const S sResult = GetCharacter();
-      sString = sString.substr(sResult.length());
-      return sResult;
+      const C c = GetCharacter();
+      sString = sString.substr(1);
+      return c;
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::GetToWhiteSpaceAndSkip(S& sResult)
+    {
+      ASSERT(!IsEmpty());
+
+      const size_t n = sString.size();
+      for (size_t i = 0; i < n; i++) {
+        if (IsWhiteSpace(sString[i])) {
+          sResult = sString.substr(0, i);
+          sString = sString.substr(i);
+          SkipWhiteSpace();
+          return true;
+        }
+      }
+
+      return false;
     }
 
     template <class C, class S>
@@ -371,6 +399,20 @@ namespace spitfire
       }
 
       sString = sString.substr(nElementCount);
+    }
+
+    template <class C, class S>
+    void cStringParserTemplate<C, S>::SkipWhiteSpace()
+    {
+      ASSERT(!IsEmpty());
+
+      const size_t n = sString.size();
+      for (size_t i = 0; i < n; i++) {
+        if (!IsWhiteSpace(sString[i])) {
+          sString = sString.substr(i);
+          break;
+        }
+      }
     }
 
     template <class C, class S>

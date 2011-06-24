@@ -141,27 +141,33 @@ namespace spitfire
     cLocalisedStringTransformer gLocalisedStringTransformer;
 
 
-    bool IsWhiteSpace(char_t c)
+    // http://en.wikipedia.org/wiki/Whitespace_%28computer_science%29#Unicode
+
+    // (' '), tab ('\t'), newline ('\n'), linefeed ('\r'), formfeed ('\f') and vertical tab ('\x0b').
+    // U+0009–U+000D (control characters, containing Tab, CR and LF)
+
+    // U+0020 SPACE
+    // U+0085 NEL (control character next line)
+    // U+00A0 NBSP (NO-BREAK SPACE)
+    // U+1680 OGHAM SPACE MARK
+    // U+180E MONGOLIAN VOWEL SEPARATOR
+    // U+2000–U+200A (different sorts of spaces)
+    // U+2028 LS (LINE SEPARATOR)
+    // U+2029 PS (PARAGRAPH SEPARATOR)
+    // U+202F NNBSP (NARROW NO-BREAK SPACE)
+    // U+205F MMSP (MEDIUM MATHEMATICAL SPACE)
+    // U+3000 IDEOGRAPHIC SPACE
+
+    bool IsWhiteSpace(char c)
     {
-      // http://en.wikipedia.org/wiki/Whitespace_%28computer_science%29#Unicode
-
-      // (' '), tab ('\t'), newline ('\n'), linefeed ('\r'), formfeed ('\f') and vertical tab ('\x0b').
-      // U+0009–U+000D (control characters, containing Tab, CR and LF)
-
-      // U+0020 SPACE
-      // U+0085 NEL (control character next line)
-      // U+00A0 NBSP (NO-BREAK SPACE)
-      // U+1680 OGHAM SPACE MARK
-      // U+180E MONGOLIAN VOWEL SEPARATOR
-      // U+2000–U+200A (different sorts of spaces)
-      // U+2028 LS (LINE SEPARATOR)
-      // U+2029 PS (PARAGRAPH SEPARATOR)
-      // U+202F NNBSP (NARROW NO-BREAK SPACE)
-      // U+205F MMSP (MEDIUM MATHEMATICAL SPACE)
-      // U+3000 IDEOGRAPHIC SPACE
-
       // We regard space, tab, new line and carriage return characters as white space
-      return (c == TEXT(' ')) || (c == TEXT('\t')) || (c == TEXT('\n')) || (c == TEXT('\r'));
+      return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
+    }
+
+    bool IsWhiteSpace(wchar_t c)
+    {
+      // We regard space, tab, new line and carriage return characters as white space
+      return (c == L' ') || (c == L'\t') || (c == L'\n') || (c == L'\r');
     }
 
     size_t CountOccurrences(const std::string& source, const std::string& sFind)

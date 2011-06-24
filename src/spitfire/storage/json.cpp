@@ -31,8 +31,8 @@ namespace spitfire
   namespace json
   {
     cNode::cNode() :
-      type(TYPE::NULL_)
-      iValueInt(0)
+      type(TYPE::NULL_),
+      iValueInt(0),
       dValueFloat(0.0),
       bValueBool(false)
     {
@@ -57,12 +57,39 @@ namespace spitfire
       vValueObjectOrArray.push_back(pChild);
     }
 
+    void cNode::Clear()
+    {
+      type = TYPE::NULL_;
+      sNameUTF8.clear();
+
+      const size_t n = vValueObjectOrArray.size();
+      for (size_t i = 0; i < n; i++) SAFE_DELETE(vValueObjectOrArray[i]);
+
+      sValueUTF8String.clear();
+      iValueInt = 0;
+      dValueFloat = 0.0;
+      bValueBool = false;
+    }
+
+
     // ** reader
 
     bool reader::ReadFromFile(cDocument& doc, const string_t& filename) const
     {
+      std::ifstream f(spitfire::string::ToUTF8(filename).c_str());
+
+      if (!f.is_open()) {
+#ifndef FIRESTARTER
+        LOG.Error("XML", spitfire::string::ToUTF8(filename) + " not found, returning false");
+        CONSOLE<<"XML "<<filename<<" not found, returning false"<<std::endl;
+#endif
+        return false;
+      }
+
       std::string content;
-      ... read filename into content
+      f>>content;
+      f.close();
+
       return ReadFromStringUTF8(doc, content);
     }
 
@@ -71,13 +98,13 @@ namespace spitfire
       doc.Clear();
       doc.SetTypeObject();
 
-      cStringParserUTF8 sp(content);
+      string::cStringParserUTF8 sp(content);
       if (sp.IsEnd()) return false;
 
       return ReadObject(doc, sp);
     }
 
-    bool reader::ReadObject(cNode& object, cStringParserUTF8& sp) const
+    bool reader::ReadObject(cNode& object, string::cStringParserUTF8& sp) const
     {
       sp.SkipWhiteSpace();
 
@@ -88,18 +115,22 @@ namespace spitfire
         if (sp.IsEnd()) return false;
 
         sp.SkipWhiteSpace();
-        if (sp.GetCharacter() == "}") break;
+        if (sp.GetCharacter() == '}') break;
 
         if (sp.GetCharacters(4) == "null") {
           sp.SkipCharacters(4);
-          cNode* pNull = object.Create();
+          cNode* pNull = object.CreateNode();
           pNull->SetTypeNull();
           object.AppendChild(pNull);
         } else {
+          std::string sName;
+          if (!ReadString(sName, sp)) return false;
+
+          sp.SkipWhiteSpace();
           c = sp.GetCharacter();
           switch (c) {
             case '{': {
-              cNode* pObject = object.Create();
+              cNode* pObject = object.CreateNode();
               pObject->SetName(sName);
               pObject->SetTypeObject();
 
@@ -109,56 +140,61 @@ namespace spitfire
               break;
             }
             case '"': {
-              std::string sName;
-              if (!ReadString(sName, sp)) return false;
-
               sp.SkipWhiteSpace();
               c = sp.GetCharacter();
               if (c == ':') {
-	sp.SkipCharacter();
-	sp.SkipWhiteSpace();
+                sp.SkipCharacter();
+                sp.SkipWhiteSpace();
 
-	c = sp.GetCharacter();
-	if (c == '{') {
-	  cNode* pObject = object.Create();
-	  pObject->SetName(sName);
-	  pObject->SetTypeObject();
-	  object.AppendChild(pObject);
-	  if (!ReadObject(*pObject, sp)) return false;
-	} else if (c == '[') {
-	  cNode* pArray = object.Create();
-	  pArray->SetName(sName);
-	  pArray->SetTypeArray();
-	  object.AppendChild(pArray);
-	  if (!ReadArray(*pArray, sp)) return false;
-	} else if (c == '"') {
-	  // Read a string value
-	  std::string sValue;
-	  if (!ReadString(sValue, sp)) return false;
+                c = sp.GetCharacter();
+                if (c == '{') {
+                  cNode* pObject = object.CreateNode();
+                  pObject->SetName(sName);
+                  pObject->SetTypeObject();
+                  object.AppendChild(pObject);
+                  if (!ReadObject(*pObject, sp)) return false;
+                } else if (c == '[') {
+                  cNode* pArray = object.CreateNode();
+                  pArray->SetName(sName);
+                  pArray->SetTypeArray();
+                  object.AppendChild(pArray);
+                  if (!ReadArray(*pArray, sp)) return false;
+                } else if (c == '"') {
+                  // Read a string value
+                  std::string sValue;
+                  if (!ReadString(sValue, sp)) return false;
 
-	  cNode* pProperty = object.Create();
-	  pProperty->SetName(sName);
-	  pProperty->SetTypeString(sValue);
-	  object.AppendChild(pProperty);
-	} else {
-	  const std::string sValue = sp.GetToWhiteSpaceAndSkip();
+                  cNode* pProperty = object.CreateNode();
+                  pProperty->SetName(sName);
+                  pProperty->SetTypeString(sValue);
+                  object.AppendChild(pProperty);
+                } else {
+                  std::string sValue;
+                  if (!sp.GetToWhiteSpaceAndSkip(sValue)) {
+                    #ifndef FIRESTARTER
+                    LOG.Error("JSON", "Found a node that is not a null, object or array, but does not have a name, returning false");
+                    #endif
+                    return false;
+                  }
 
-	  if ((sValue == "true") || (sValue == "false")) {
-	    // Read a boolean
-	    cNode* pProperty = object.Create();
-	    const bool bIsValueTrue = (sValue == "true");
-	    pProperty->SetTypeBool(bIsValueTrue);
-	    object.AppendChild(pProperty);
-	  } else if (sValue.find('.')) {
-	    // Read a float value
-	    dValueFloat = string::ToFloat(string::ToString_t(sValue));
-	  } else {
-	    // Read an int value
-	    iValueInt = string::ToInt(string::ToString_t(sValue));
-	  }
-	}
+                  cNode* pProperty = object.CreateNode();
+                  object.AppendChild(pProperty);
+                  if ((sValue == "true") || (sValue == "false")) {
+                    // Read a boolean
+                    const bool bIsValueTrue = (sValue == "true");
+                    pProperty->SetTypeBool(bIsValueTrue);
+                  } else if (sValue.find('.')) {
+                    // Read a float value
+                    const double dValueFloat = string::ToFloat(string::ToString_t(sValue));
+                    pProperty->SetTypeFloat(dValueFloat);
+                  } else {
+                    // Read an int value
+                    const int iValueInt = string::ToInt(string::ToString_t(sValue));
+                    pProperty->SetTypeInt(iValueInt);
+                  }
+                }
               } else {
-	std::cout<<"Unexpected character in object after name"<<std::endl;
+                std::cout<<"Unexpected character in object after name"<<std::endl;
               }
 
               break;
@@ -178,15 +214,15 @@ namespace spitfire
       return true;
     }
 
-    bool reader::ReadArray(cNode& object, cStringParserUTF8& sp) const
+    bool reader::ReadArray(cNode& array, string::cStringParserUTF8& sp) const
     {
       return ReadObject(array, sp);
     }
 
-    bool reader::ReadString(std::string& sValue, cStringParserUTF8& sp) const
+    bool reader::ReadString(std::string& sValue, string::cStringParserUTF8& sp) const
     {
       char c = sp.GetCharacterAndSkip();
-      if c != '"') return false;
+      if (c != '"') return false;
 
       while (true) {
 
@@ -214,7 +250,6 @@ namespace spitfire
       std::ofstream f(spitfire::string::ToUTF8(filename).c_str());
 
       if (!f.is_open()) {
-
 #ifndef FIRESTARTER
       LOG.Error("JSON", spitfire::string::ToUTF8(filename) + " not opened, returning false");
 #endif
@@ -229,7 +264,7 @@ namespace spitfire
       return true;
     }
 
-    bool writer::WriteToStringUTF8(const cDocument& doc, const std::string& content) const
+    bool writer::WriteToStringUTF8(const cDocument& doc, std::string& content) const
     {
       bool bResult = true;
 
@@ -242,7 +277,7 @@ namespace spitfire
     bool writer::WriteObjectOrArray(const cNode& object, std::ostringstream& o, const std::string& _sTabs) const
     {
       const std::string sName = object.GetName();
-      if (!sName.empty()) o<<sTabs<<"\""<<sName<<"\":"<<std::endl;
+      if (!sName.empty()) o<<_sTabs<<"\""<<sName<<"\":"<<std::endl;
 
       if (object.IsTypeObject()) o<<_sTabs<<"{"<<std::endl;
       else o<<_sTabs<<"["<<std::endl;
@@ -267,7 +302,7 @@ namespace spitfire
             else if (child.IsTypeBool()) o<<child.GetValueBool();
             else {
 #ifndef FIRESTARTER
-              LOG.Error("JSON", "WriteObjectOrArray Error writing child \"" + child.GetName(), "\", it is an unknown type");
+              LOG.Error("JSON", "WriteObjectOrArray Error writing child \"" + child.GetName() + "\", it is an unknown type");
 #endif
               return false;
             }

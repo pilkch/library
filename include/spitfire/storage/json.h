@@ -49,11 +49,12 @@ namespace spitfire
       void SetTypeNull() { type = TYPE::NULL_; }
       void SetTypeObject() { type = TYPE::OBJECT; }
       void SetTypeArray() { type = TYPE::ARRAY; }
-      bool SetTypeString(const std::string& sValue) { type = TYPE::STRING; sValueUTF8String = sValue; }
+      void SetTypeString(const std::string& sValue) { type = TYPE::STRING; sValueUTF8String = sValue; }
       void SetTypeInt(int iValue) { type = TYPE::INT; iValueInt = iValue; }
       void SetTypeFloat(double fValue) { type = TYPE::FLOAT; dValueFloat = fValue; }
       void SetTypeBool(bool bValue) { type = TYPE::BOOL_; bValueBool = bValue; }
 
+      void Clear();
 
       class cConstIterator
       {
@@ -148,6 +149,7 @@ namespace spitfire
         BOOL_,   // Boolean (true or false)
       };
 
+      TYPE type;
       std::string sNameUTF8; // Most nodes will have a name as well as one of the following values
       std::vector<cNode*> vValueObjectOrArray;
       std::string sValueUTF8String;
@@ -164,10 +166,10 @@ namespace spitfire
       bool ReadFromStringUTF8(cDocument& doc, const std::string& input) const;
 
     private:
-      bool ReadNodeFromStringParserUTF8(cNode& doc, cStringParserUTF8& sp) const;
-      bool ReadObject(cNode& object, cStringParserUTF8& sp) const;
-      bool ReadArray(cNode& array, cStringParserUTF8& sp) const;
-      bool ReadString(std::string& sValue, cStringParserUTF8& sp) const;
+      bool ReadNodeFromStringParserUTF8(cNode& doc, string::cStringParserUTF8& sp) const;
+      bool ReadObject(cNode& object, string::cStringParserUTF8& sp) const;
+      bool ReadArray(cNode& array, string::cStringParserUTF8& sp) const;
+      bool ReadString(std::string& sValue, string::cStringParserUTF8& sp) const;
     };
 
 
@@ -176,6 +178,9 @@ namespace spitfire
     public:
       bool WriteToFile(const cDocument& doc, const string_t& filename) const;
       bool WriteToStringUTF8(const cDocument& doc, std::string& output) const;
+
+    private:
+      bool WriteObjectOrArray(const cNode& object, std::ostringstream& o, const std::string& sTabs) const;
     };
 
 
@@ -211,7 +216,7 @@ namespace spitfire
       return (pNode != nullptr);
     }
 
-    inline cNode::cConstIterator cNode::cConstIterator::operator++(int)
+    /*inline cNode::cConstIterator cNode::cConstIterator::operator++(int)
     {
       ASSERT(pNode != nullptr);
       pNode = pNode->GetNext();
@@ -240,7 +245,7 @@ namespace spitfire
     {
       ASSERT(pNode != nullptr);
       pNode = pNode->FindChild(sName);
-    }
+    }*/
 
     inline cNode::cConstIterator cNode::cConstIterator::GetFirstChild() const
     {
@@ -264,11 +269,11 @@ namespace spitfire
       return pNode->GetName();
     }
 
-    inline std::string cNode::cConstIterator::GetContent() const
+    /*inline std::string cNode::cConstIterator::GetContent() const
     {
       ASSERT(pNode != nullptr);
       return pNode->GetContent();
-    }
+    }*/
 
     inline std::string cNode::cConstIterator::GetChildContent() const
     {
@@ -281,7 +286,7 @@ namespace spitfire
       return iter.GetContent();
     }
 
-    template <class T>
+    /*template <class T>
     inline bool cNode::cConstIterator::GetAttribute(const std::string& sAttribute, T& value) const
     {
       ASSERT(pNode != nullptr);
@@ -293,7 +298,7 @@ namespace spitfire
       ASSERT(pNode != nullptr);
       ASSERT(pValue != nullptr);
       return pNode->GetAttribute(sAttribute, pValue, nValues);
-    }
+    }*/
 
 
     // ** cIterator
@@ -325,7 +330,7 @@ namespace spitfire
       return (pNode != nullptr);
     }
 
-    inline cNode::cIterator cNode::cIterator::operator++(int)
+    /*inline cNode::cIterator cNode::cIterator::operator++(int)
     {
       ASSERT(pNode != nullptr);
       pNode = pNode->GetNext();
@@ -354,7 +359,7 @@ namespace spitfire
     {
       ASSERT(pNode != nullptr);
       pNode = pNode->FindChild(sName);
-    }
+    }*/
 
     inline cNode::cIterator cNode::cIterator::GetFirstChild() const
     {
@@ -378,11 +383,11 @@ namespace spitfire
       return pNode->GetName();
     }
 
-    inline std::string cNode::cIterator::GetContent() const
+    /*inline std::string cNode::cIterator::GetContent() const
     {
       ASSERT(pNode != nullptr);
       return pNode->GetContent();
-    }
+    }*/
 
     inline std::string cNode::cIterator::GetChildContent() const
     {
@@ -395,7 +400,7 @@ namespace spitfire
       return iter.GetContent();
     }
 
-    template <class T>
+    /*template <class T>
     inline bool cNode::cIterator::GetAttribute(const std::string& sAttribute, T& value) const
     {
       ASSERT(pNode != nullptr);
@@ -407,7 +412,7 @@ namespace spitfire
       ASSERT(pNode != nullptr);
       ASSERT(pValue != nullptr);
       return pNode->GetAttribute(sAttribute, pValue, nValues);
-    }
+    }*/
   }
 }
 
