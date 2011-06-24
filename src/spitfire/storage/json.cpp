@@ -323,9 +323,6 @@ namespace spitfire
 
     bool writer::WriteToFile(const cDocument& doc, const string_t& filename) const
     {
-      std::string content;
-      WriteToStringUTF8(doc, content);
-
       std::ofstream f(spitfire::string::ToUTF8(filename).c_str());
 
       if (!f.is_open()) {
@@ -335,8 +332,9 @@ namespace spitfire
         return false;
       }
 
-      // Write the header
-      f<<content<<std::endl;
+      // Write the root object to the file
+      WriteObjectOrArray(doc, f, "");
+      f<<std::endl;
 
       f.close();
 
@@ -347,14 +345,15 @@ namespace spitfire
     {
       bool bResult = true;
 
+      // Write the root object to the string
       std::ostringstream o;
       WriteObjectOrArray(doc, o, "");
-      content = o.str();
+      content = o.str() + "\n";
 
       return bResult;
     }
 
-    bool writer::WriteObjectOrArray(const cNode& object, std::ostringstream& o, const std::string& _sTabs) const
+    bool writer::WriteObjectOrArray(const cNode& object, std::ostream& o, const std::string& _sTabs) const
     {
       const std::string sName = object.GetName();
       if (!sName.empty()) o<<_sTabs<<"\""<<sName<<"\":"<<std::endl;

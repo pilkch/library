@@ -179,7 +179,7 @@ namespace spitfire
       bool WriteToStringUTF8(const cDocument& doc, std::string& output) const;
 
     private:
-      bool WriteObjectOrArray(const cNode& object, std::ostringstream& o, const std::string& sTabs) const;
+      bool WriteObjectOrArray(const cNode& object, std::ostream& o, const std::string& sTabs) const;
     };
 
 
