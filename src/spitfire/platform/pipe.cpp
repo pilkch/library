@@ -412,23 +412,27 @@ namespace spitfire
 
       iReturnValueOfCommand = -1;
 
-      FILE* fhPipe = popen(string::ToUTF8(sCommandLine).c_str(), "r");
-      if (fhPipe == nullptr) {
-        LOG<<"PipeReadToString pipe is closed"<<std::endl;
-        return "";
-      }
-
-      int fd = fileno(fhPipe);
-      if (fd == -1) LOG<<"PipeReadToString fd=-1"<<std::endl;
-      fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
-
       std::ostringstream o;
 
       {
-        //boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
-        //std::istream in(&fpstream);
+        FILE* fhPipe = popen(string::ToUTF8(sCommandLine).c_str(), "r");
+        if (fhPipe == nullptr) {
+          LOG<<"PipeReadToString pipe is closed"<<std::endl;
+          return "";
+        }
 
-        boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
+        int fd = fileno(fhPipe);
+        if (fd == -1) LOG<<"PipeReadToString fd=-1"<<std::endl;
+        fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
+
+        #ifdef BUILD_PLATFORM_WINDOWS
+        boost::iostreams::file_descriptor_source descriptorSource(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
+        #else
+        const bool bCloseOnExit = false;
+        boost::iostreams::file_descriptor_source descriptorSource(fileno(fhPipe), bCloseOnExit);
+        #endif
+
+        boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(descriptorSource, bCloseOnExit);
         std::istream in(&fpstream);
         // TODO: This is required to automatically close the stream when we are done but isn't supported on early versions of boost
         //in.set_auto_close(false);
@@ -439,12 +443,16 @@ namespace spitfire
           //std::cout<<"PipeReadToString \""<<sLine<<"\""<<std::endl;
           o<<sLine;
         }
+
+        int status = pclose(fhPipe);
+        std::cout<<"PipeReadToString pclose returned "<<status<<std::endl;
+        if ((status != -1) && WIFEXITED(status)) {
+          iReturnValueOfCommand = WEXITSTATUS(status);
+          std::cout<<"PipeReadToString WEXITSTATUS returned "<<iReturnValueOfCommand<<std::endl;
+        }
+
+        fhPipe = nullptr;
       }
-
-      int status = pclose(fhPipe);
-      if ((status != -1) && WIFEXITED(status)) iReturnValueOfCommand = WEXITSTATUS(status);
-
-      fhPipe = nullptr;
 
       const std::string sBuffer(o.str());
 
