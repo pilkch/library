@@ -673,7 +673,7 @@ namespace breathe
   }
 #endif
 
-  class cDownloadUpdateListener : public network::http::cDownloadListener
+  class cDownloadUpdateListener : public network::http::cRequestListener
   {
   public:
 

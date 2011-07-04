@@ -13,12 +13,12 @@ namespace spitfire
 
     inline void SleepThisThreadMS(uint32_t milliseconds)
     {
-      boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
+      std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
     }
 
     inline void YieldThisThread()
     {
-      boost::this_thread::yield();
+      std::this_thread::yield();
     }
 
     class cThread
@@ -38,7 +38,7 @@ namespace spitfire
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
 
-      boost::thread* pThread;
+      std::thread* pThread;
 
       NO_COPY(cThread);
     };
@@ -53,7 +53,7 @@ namespace spitfire
       ~cMutex() {}
 
     private:
-      boost::mutex mutex;
+      std::mutex mutex;
 
       NO_COPY(cMutex);
     };
@@ -64,7 +64,7 @@ namespace spitfire
       explicit cLockObject(cMutex& mutex);
 
     private:
-      boost::mutex::scoped_lock lock;
+      std::lock_guard<std::mutex> lock;
 
       NO_COPY(cLockObject);
     };
@@ -101,10 +101,7 @@ namespace spitfire
 
     inline void cThread::StopNow()
     {
-      ASSERT(pThread != nullptr);
-      pThread->interrupt();
-      pThread->join();
-      SAFE_DELETE(pThread);
+      WaitUntilFinished();
     }
 
     // Not the most elegant method, but it works
@@ -187,7 +184,7 @@ namespace spitfire
       // Early exit if we are already signalled
       if (IsSignalled()) return true;
 
-      const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+      const std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
       uint64_t uTimePassed = 0;
       while (uTimePassed <= uTimeOutMS) {
@@ -196,9 +193,9 @@ namespace spitfire
         SleepThisThreadMS(50);
         YieldThisThread();
 
-        boost::posix_time::time_duration timePassed = boost::posix_time::microsec_clock::local_time() - start;
+        const std::chrono::system_clock::duration timePassed = (std::chrono::system_clock::now() - start);
 
-        uTimePassed = timePassed.total_milliseconds();
+        uTimePassed = timePassed.count();
       }
 
       return false;

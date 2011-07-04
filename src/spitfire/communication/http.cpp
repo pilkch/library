@@ -12,9 +12,11 @@
 #include <map>
 #include <sstream>
 
+#include <chrono>
+#include <mutex>
+#include <thread>
+
 // Boost headers
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
 
 // Other libraries
