@@ -123,6 +123,12 @@ namespace spitfire
 #endif
 
     inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
+    string_t ToString(uint8_t value);
+    string_t ToString(int8_t value);
+    string_t ToString(uint16_t value);
+    string_t ToString(int16_t value);
+    string_t ToString(uint32_t value);
+    string_t ToString(int32_t value);
     string_t ToString(uint64_t value);
     string_t ToString(int64_t value);
     string_t ToString(float value);

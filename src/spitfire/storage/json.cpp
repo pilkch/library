@@ -51,6 +51,13 @@ namespace spitfire
       return new cNode;
     }
 
+    cNode* cNode::CreateNode(const std::string& _sName)
+    {
+      cNode* pNode = new cNode;
+      pNode->SetName(_sName);
+      return pNode;
+    }
+
     void cNode::AppendChild(cNode* pChild)
     {
       ASSERT((type == TYPE::OBJECT) || (type == TYPE::ARRAY));
@@ -69,6 +76,55 @@ namespace spitfire
       iValueInt = 0;
       dValueFloat = 0.0;
       bValueBool = false;
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const char* szValue)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeString(szValue);
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const wchar_t* szValue)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeString(spitfire::string::ToUTF8(szValue));
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const std::string& sValue)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeString(sValue);
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const std::wstring& sValue)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeString(spitfire::string::ToUTF8(sValue));
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const bool value)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeBool(value);
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const uint64_t value)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeInt(value);
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, const int64_t value)
+    {
+      cNode* pNode = CreateNode(sAttribute.c_str());
+      AppendChild(pNode);
+      pNode->SetTypeInt(value);
     }
 
 

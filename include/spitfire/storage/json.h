@@ -26,6 +26,7 @@ namespace spitfire
       ~cNode();
 
       cNode* CreateNode(); // This element is owned by the caller of this function
+      cNode* CreateNode(const std::string& sName); // This element is owned by the caller of this function
       void AppendChild(cNode* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
 
       std::string GetName() const { return sNameUTF8; }
@@ -55,6 +56,14 @@ namespace spitfire
       void SetTypeBool(bool bValue) { type = TYPE::BOOL_; bValueBool = bValue; }
 
       void Clear();
+
+      void SetAttribute(const std::string& sAttribute, const char* szValue);
+      void SetAttribute(const std::string& sAttribute, const wchar_t* szValue);
+      void SetAttribute(const std::string& sAttribute, const std::string& sValue);
+      void SetAttribute(const std::string& sAttribute, const std::wstring& sValue);
+      void SetAttribute(const std::string& sAttribute, const bool value);
+      void SetAttribute(const std::string& sAttribute, const uint64_t value);
+      void SetAttribute(const std::string& sAttribute, const int64_t value);
 
       class cConstIterator
       {

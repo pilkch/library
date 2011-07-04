@@ -769,6 +769,36 @@ namespace spitfire
       return s.str();
     }
 
+    string_t ToString(uint8_t value)
+    {
+      return ToString<uint8_t>(value);
+    }
+
+    string_t ToString(int8_t value)
+    {
+      return ToString<int8_t>(value);
+    }
+
+    string_t ToString(uint16_t value)
+    {
+      return ToString<uint16_t>(value);
+    }
+
+    string_t ToString(int16_t value)
+    {
+      return ToString<int16_t>(value);
+    }
+
+    string_t ToString(uint32_t value)
+    {
+      return ToString<uint32_t>(value);
+    }
+
+    string_t ToString(int32_t value)
+    {
+      return ToString<int32_t>(value);
+    }
+
     string_t ToString(uint64_t value)
     {
       return ToString<uint64_t>(value);
