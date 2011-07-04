@@ -1,5 +1,5 @@
-#ifndef CDOWNLOADHTTP_H
-#define CDOWNLOADHTTP_H
+#ifndef CHTTP_H
+#define CHTTP_H
 
 #include <spitfire/communication/network.h>
 #include <spitfire/communication/uri.h>
@@ -16,11 +16,51 @@ namespace spitfire
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
       // http://en.wikipedia.org/wiki/List_of_HTTP_headers
 
-
+      // TODO: move this into cRequest
       enum class METHOD {
         GET,
         POST
       };
+
+      class cHTTP;
+
+      class cRequest
+      {
+      public:
+        friend class cHTTP;
+
+        cRequest();
+
+        void SetMethodGet() { method = METHOD::GET; }
+        bool IsMethodGet() const { return (method == METHOD::GET); }
+        void SetMethodPost() { method = METHOD::POST; }
+        bool IsMethodPost() const { return (method == METHOD::POST); }
+        void SetHost(const string_t& _sHost) { sHost = _sHost; }
+        const string_t& GetHost() const { return sHost; }
+        void SetPath(const string_t& _sPath) { sPath = _sPath; }
+        const string_t& GetPath() const { return sPath; }
+        void SetOffsetBytes(size_t _nOffsetBytes) { nOffsetBytes = _nOffsetBytes; }
+
+        void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
+
+        void AddPostFileFromPath(const string_t& sFilePath);
+        //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
+
+        std::string CreateRequestHeader() const; // Create a request header, everything up to the content
+
+      protected:
+        void SetContentType(const std::string& sContentType);
+
+        METHOD method;
+        string_t sHost;
+        string_t sPath;
+        size_t nOffsetBytes;
+        std::map<std::string, std::string> mValues;
+
+        // TODO: Support multiple attachments
+        string_t sFilePath;
+      };
+
 
       enum class STATUS {
         UNKNOWN = 0,
@@ -86,15 +126,23 @@ namespace spitfire
         DISCONNECTED
       };
 
-      class cDownloadListener
+      class cRequestListener
       {
       public:
         bool IsToStop() const { return _IsToStop(); }
+
+        void OnStateChanged(STATE state) { _OnStateChanged(state); }
+        void OnStatusReceived(STATUS status) { _OnStatusReceived(status); }
+        void OnHeaderReceived(const std::string& sHeader) { _OnHeaderReceived(sHeader); }
         void OnTextContentReceived(const std::string& sContent) { _OnTextContentReceived(sContent); }
         void OnBinaryContentReceived(const void* pContent, size_t len) { _OnBinaryContentReceived(pContent, len); }
 
       private:
         virtual bool _IsToStop() const { return false; }
+
+        virtual void _OnStateChanged(STATE state) {}
+        virtual void _OnStatusReceived(STATUS status) {}
+        virtual void _OnHeaderReceived(const std::string& sHeader) {}
 
         // For text
         virtual void _OnTextContentReceived(const std::string& sContent) {}
@@ -103,48 +151,58 @@ namespace spitfire
         virtual void _OnBinaryContentReceived(const void* pContent, size_t len) {}
       };
 
-      // TODO: Make sure that content has no http header information left in it, cHTTPDownloader should be taking it out.
+      typedef cRequestListener cRequestListenerVoid;
+
+      // TODO: Make sure that content has no http header information left in it, cHTTP should be taking it out.
       // if necessary add these:
       // GetContentLengthFromHeader() const;
       // GetContentLengthActual() const;
       // Getresultcodeorsomething() const;
 
-      class cDownloadHTTP
+      class cHTTP
       {
       public:
-        cDownloadHTTP();
+        cHTTP();
 
-        void AddVariable(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
+        void Download(const std::string& path, METHOD method, cRequestListener& listener) const;
+        void Download(const std::string& path, METHOD method) const { cRequestListenerVoid listener; Download(path, method, listener); }
+        void SendRequest(const cRequest& request, cRequestListener& listener) const;
+        void SendRequest(const cRequest& request) const { cRequestListenerVoid listener; SendRequest(request, listener); }
 
-        void Download(const std::string& path, METHOD method, cDownloadListener& listener);
-
-        bool IsSuccessfulDownload() const { return (state == STATE::FINISHED); }
-        bool IsFailedDownload() const { return !(state == STATE::FINISHED); }
+        bool IsSuccessful() const { return (state == STATE::FINISHED); }
+        bool IsFailed() const { return !(state == STATE::FINISHED); }
 
         STATUS GetStatus() const { return status; }
         STATE GetState() const { return state; }
 
       private:
-        std::string CreateRequest() const;
-
         STATUS status;
         STATE state;
         uint32_t progress;
-
-        METHOD method;
-        network::cURI uri;
-        std::map<std::string, std::string> mValues;
       };
 
-      inline cDownloadHTTP::cDownloadHTTP() :
+      // ** Inlines
+
+      // ** cRequest
+
+      inline cRequest::cRequest() :
+        method(METHOD::GET),
+        sPath(TEXT("/")),
+        nOffsetBytes(0)
+      {
+      }
+
+
+      // ** cHTTP
+
+      inline cHTTP::cHTTP() :
         status(STATUS::UNKNOWN),
         state(STATE::BEFORE_DOWNLOADING),
-        progress(0),
-        method(METHOD::GET)
+        progress(0)
       {
       }
     }
   }
 }
 
-#endif // CDOWNLOADHTTP_H
+#endif // CHTTP_H

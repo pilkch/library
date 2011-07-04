@@ -66,48 +66,51 @@ namespace spitfire
     }
 
 
-    namespace http
+
+    struct cExtensionToMime
     {
-      class cRequest
-      {
-      public:
-        cRequest();
+      const char_t* szExtension;
+      const char* szMimeType;
+      bool bIsServeInline;
+    };
 
-        void SetMethod(METHOD method);
-        void SetPath(const string_t& sPath);
-        void SetOffsetBytes(size_t nOffsetBytes);
+    const cExtensionToMime extensionToMime[] = {
+      { TEXT("css"), "text/css",                 true },
+      { TEXT("jpg"), "image/jpeg",               true },
+      { TEXT("gif"), "image/gif",                true },
+      { TEXT("png"), "image/png",                true },
+      { TEXT("html"),"text/html",                true },
+      { TEXT("txt"), "text/plain",               true },
+      { TEXT("js"),  "text/javascript",          true },
+      { TEXT("xml"), "text/xml",                 true },
+      { TEXT("wav"), "audio/wav",                false },
+      { TEXT("mp3"), "audio/mpeg",               false },
+      { TEXT("exe"), "application/octet-stream", false },
+      { TEXT("zip"), "application/zip",          false },
+      { TEXT("pdf"), "application/pdf",          false },
+    };
 
-      private:
-        METHOD method;
-        string_t sPath;
-        size_t nOffsetBytes;
-      };
+    const char* GetMimeTypeFromExtension(const string_t& sExtension, bool& bIsServeInline)
+    {
+      bIsServeInline = false;
+      const char* szMimeType = "application/octet-stream";
 
-      cRequest::cRequest() :
-        method(METHOD::GET),
-        sPath(TEXT("/")),
-        nOffsetBytes(0)
-      {
+      const size_t n = lengthof(extensionToMime);
+      for (size_t i = 0; i < n; i++) {
+        if (sExtension == extensionToMime[i].szExtension) {
+          bIsServeInline = extensionToMime[i].bIsServeInline;
+          szMimeType = extensionToMime[i].szMimeType;
+          break;
+        }
       }
 
-      class cResponse
-      {
-      };
-
-      class cHTTP
-      {
-      public:
-        cHTTP();
-
-        void SetHostName(const string_t& sHostName);
-
-        void SetRequest(const cRequest& request, cResponse& response);
-
-        void Run();
-      };
+      return szMimeType;
+    }
 
 
-
+    namespace http
+    {
+      // ** cConnectionHTTP
 
       class cConnectionHTTP
       {
@@ -122,6 +125,8 @@ namespace spitfire
         std::string GetContentType() const;
         size_t GetContentLength() const;
         bool IsTransferEncodingChunked() const;
+
+        std::string GetContentAsText() const;
 
       private:
         void ParseHeader();
@@ -274,6 +279,97 @@ namespace spitfire
       }
 
 
+      // ** cRequest
+
+      void cRequest::AddPostFileFromPath(const string_t& _sFilePath)
+      {
+        sFilePath = _sFilePath;
+      }
+
+      std::string cRequest::CreateRequestHeader() const
+      {
+        std::ostringstream oVariables;
+        std::map<std::string, std::string>::const_iterator iter = mValues.begin();
+        const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+        // Write the first item so that we can safely add "&" between every other item
+        if (iter != iterEnd) {
+          oVariables<<Encode(iter->first)<<"="<<Encode(iter->second);
+          iter++;
+        }
+        while (iter != iterEnd) {
+          oVariables<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
+          iter++;
+        }
+
+        const std::string sVariables(oVariables.str());
+
+
+        std::ostringstream o;
+
+        if (method == METHOD::GET) o<<"GET";
+        else o<<"POST";
+
+        std::string sRelativeURIWithAnyVariables = spitfire::string::ToUTF8(sPath);
+        if (method == METHOD::GET) sRelativeURIWithAnyVariables += "?" + sVariables;
+
+        o<<" "<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
+
+        // TODO: Use ports other than 80 when required
+        //if (uri.GetPort() == 80) o<<"Host: "<<uri.GetServer()<<STR_END;
+        //else o<<"Host: "<<uri.GetServer()<<":"<<uri.GetPort()<<STR_END;
+        o<<"Host: "<<spitfire::string::ToUTF8(sHost)<<STR_END;
+
+        if (nOffsetBytes != 0) o<<"Range: bytes="<<nOffsetBytes<<"-"<<STR_END;
+
+        o<<"User-Agent: Mozilla/4.0 (compatible; Spitfire 1.0; Linux)"<<STR_END;
+        o<<"Accept: */*"<<STR_END;
+        o<<"Accept-Language: en-us"<<STR_END;
+
+        //o<<"Connection: Keep-Alive"<<STR_END;
+        //OR
+        o<<"Connection: close"<<STR_END;
+
+        o<<STR_END;
+
+        if (method == METHOD::POST) {
+          const size_t content_length = sVariables.length();
+
+          o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
+          o<<"Content-Length: "<<content_length<<STR_END;
+          o<<STR_END;
+
+          o<<sVariables;
+        }
+
+        o<<STR_END;
+
+        return o.str();
+      }
+
+/*
+Content-type: multipart/form-data, boundary=AaB03x
+
+--AaB03x
+content-disposition: form-data; name="field1"
+
+Joe Blow
+--AaB03x
+content-disposition: form-data; name="pics"; filename="file1.txt"
+Content-Type: text/plain
+
+... contents of file1.txt ...
+--AaB03x--
+
+
+
+Content-Type: text/plain
+
+OR
+
+Content-type: image/gif
+Content-Transfer-Encoding: binary
+*/
+
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
@@ -341,7 +437,6 @@ namespace spitfire
       size_t cConnectionHTTP::ReadContent(network::cConnectionTCP& connection, void* pOutContent, size_t len)
       {
         LOG<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
-        ASSERT(connection.IsOpen());
 
         size_t nContentReadThisTimeAround = 0;
 
@@ -367,6 +462,11 @@ namespace spitfire
         }
 
         if (len != 0) {
+          if (!connection.IsOpen()) {
+            LOG<<"cConnectionHTTP::ReadContent Connection is closed, returning "<<nContentReadThisTimeAround<<std::endl;
+            return nContentReadThisTimeAround;
+          }
+
           // Now read the rest from the connection
           const size_t n = connection.Recv(pOutContent, len, 2000);
           LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
@@ -393,7 +493,7 @@ namespace spitfire
           return iter->second;
         }
 
-        return false;
+        return "";
       }
 
       size_t cConnectionHTTP::GetContentLength() const
@@ -404,6 +504,19 @@ namespace spitfire
         }
 
         return 0;
+      }
+
+      std::string cConnectionHTTP::GetContentAsText() const
+      {
+        std::string sText;
+        const size_t n = content.size();
+        sText.resize(n + 1);
+        for (size_t i = 0; i < n; i++) sText[i] = content[i];
+
+        // Terminate the string
+        sText[n + 1] = 0;
+
+        return sText;
       }
 
 
@@ -435,95 +548,26 @@ namespace spitfire
 
 
 
-      // *** cDownloadHTTP
+      // *** cHTTP
 
-      std::string cDownloadHTTP::CreateRequest() const
+      void cHTTP::SendRequest(const cRequest& request, cRequestListener& listener) const
       {
-        std::ostringstream oVariables;
-        std::map<std::string, std::string>::const_iterator iter = mValues.begin();
-        const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
-        // Write the first item so that we can safely add "&" between every other item
-        if (iter != iterEnd) {
-          oVariables<<Encode(iter->first)<<"="<<Encode(iter->second);
-          iter++;
-        }
-        while (iter != iterEnd) {
-          oVariables<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
-          iter++;
-        }
-
-        const std::string sVariables(oVariables.str());
-
-
-        std::ostringstream o;
-
-        if (method == METHOD::GET) o<<"GET";
-        else o<<"POST";
-
-        std::string sRelativeURIWithAnyVariables = uri.GetRelativePath();
-        if (method == METHOD::GET) sRelativeURIWithAnyVariables += "?" + sVariables;
-
-        o<<" /"<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
-
-        if (uri.GetPort() == 80) o<<"Host: "<<uri.GetServer()<<STR_END;
-        else o<<"Host: "<<uri.GetServer()<<":"<<uri.GetPort()<<STR_END;
-
-        if (progress != 0) o<<"Range: bytes="<<progress<<"-"<<STR_END;
-
-        o<<"User-Agent: Mozilla/4.0 (compatible; Spitfire 1.0; Linux)"<<STR_END;
-        o<<"Accept: */*"<<STR_END;
-        o<<"Accept-Language: en-us"<<STR_END;
-
-        //o<<"Connection: Keep-Alive"<<STR_END;
-        //OR
-        o<<"Connection: close"<<STR_END;
-
-        o<<STR_END;
-
-        if (method == METHOD::POST) {
-          const size_t content_length = sVariables.length();
-
-          o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
-          o<<"Content-Length: "<<content_length<<STR_END;
-          o<<STR_END;
-
-          o<<sVariables;
-        }
-
-        o<<STR_END;
-
-        return o.str();
-      }
-
-
-      void cDownloadHTTP::Download(const std::string& full_uri, METHOD _method, cDownloadListener& listener)
-      {
-        LOG<<"cDownloadHTTP::Download \""<<full_uri<<"\""<<std::endl;
-
-        // Parse the uri
-        uri.Parse(full_uri);
+        LOG<<"cHTTP::SendRequest"<<std::endl;
 
         // Start downloading at the beginning
-        progress = 0;
+        //uint32_t progress = 0;
 
-        method = _method;
+        //METHOD method = request.IsMethodGet() ? METHOD::GET : METHOD::POST;
 
-
-        state = STATE::BEFORE_DOWNLOADING;
-
-        if (!uri.IsValidServer()) {
-          LOG<<"cDownloadHTTP::Download Invalid server in uri, returning"<<""<<std::endl;
-          state = STATE::INVALID_URI;
-          return;
-        }
+        STATE state = STATE::BEFORE_DOWNLOADING;
 
         breathe::network::cConnectionTCP connection;
 
         state = STATE::CONNECTING;
-        connection.Open(uri.GetServer(), 80);
+        connection.Open(spitfire::string::ToUTF8(request.GetHost()), 80);
 
         if (!connection.IsOpen()) {
-          LOG<<"cDownloadHTTP::Download Connection failed, returning"<<""<<std::endl;
+          LOG<<"cHTTP::SendRequest Connection failed, returning"<<""<<std::endl;
           state = STATE::CONNECTION_FAILED;
           return;
         }
@@ -531,14 +575,16 @@ namespace spitfire
         state = STATE::SENDING_REQUEST;
         {
           // Send header
-          std::string request(CreateRequest());
-          size_t len = request.length() + 1;
-          size_t sent = connection.Send(request.data(), len);
+          const std::string sRequestHeader(request.CreateRequestHeader());
+          size_t len = sRequestHeader.length() + 1;
+          size_t sent = connection.Send(sRequestHeader.data(), len);
           if (sent != len) {
-            LOG<<"cDownloadHTTP::Download SDLNet_TCP_Send FAILED"<<std::endl;
+            LOG<<"cHTTP::SendRequest SDLNet_TCP_Send FAILED"<<std::endl;
             return;
           }
         }
+
+        // TODO: Send other post data here for example either the url encoded form data or an attached file
 
 
         state = STATE::RECEIVING_HEADER;
@@ -546,11 +592,12 @@ namespace spitfire
         cConnectionHTTP reader;
         size_t len = reader.ReadHeader(connection);
         if (len == 0) {
-          LOG<<"cDownloadHTTP::Download ReadHeader FAILED"<<std::endl;
+          LOG<<"cHTTP::SendRequest ReadHeader FAILED"<<std::endl;
           return;
         }
 
 
+        LOG<<"cHTTP::SendRequest About to read content"<<std::endl;
         state = STATE::RECEIVING_CONTENT;
 
         bool bIsText = true;
@@ -562,6 +609,7 @@ namespace spitfire
             if (len != 0) {
               buffer[len] = 0;
               sContent = buffer;
+              LOG<<"Content: "<<sContent<<std::endl;
               listener.OnTextContentReceived(sContent);
             }
           } while (len != 0);
@@ -576,7 +624,7 @@ namespace spitfire
         connection.Close();
 
         state = STATE::FINISHED;
-        LOG<<"cDownloadHTTP::Download Finished, returning"<<std::endl;
+        LOG<<"cHTTP::SendRequest Finished, returning"<<std::endl;
       }
     }
   }

@@ -28,16 +28,16 @@ namespace spitfire
 
       #ifdef BUILD_ENDIAN_LITTLE
       // Little Endian
-      template <class T> inline T LittleToNative(T value) { return value; }
-      template <class T> inline T NativeToLittle(T value) { return value; }
+      template <class T> inline const T& LittleToNative(const T& value) { return value; }
+      template <class T> inline const T& NativeToLittle(const T& value) { return value; }
       template <class T> inline T BigToNative(T value) { return Reverse(value); }
       template <class T> inline T NativeToBig(T value) { return Reverse(value); }
       #else
       // Big Endian
       template <class T> inline T LittleToNative(T value) { return Reverse(value); }
       template <class T> inline T NativeToLittle(T value) { return Reverse(value); }
-      template <class T> inline T BigToNative(T value) { return value; }
-      template <class T> inline T NativeToBig(T value) { return value; }
+      template <class T> inline const T& BigToNative(const T& value) { return value; }
+      template <class T> inline const T& NativeToBig(const T& value) { return value; }
       #endif
    }
 }
