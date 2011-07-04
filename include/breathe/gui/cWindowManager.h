@@ -16,6 +16,19 @@
 //   RenderRectangle(rectangle.png, x, y, width, height);
 // }
 
+// TODO: New gui renderer class
+//
+// Each widget has properties
+// alpha
+// position x,y
+// scale x,y
+// rotation x,y
+//
+// Render each widget to a layer
+//  - Each layer has a fbo which we render the widget to
+//  - Each layer takes on the properties of the widget
+//  - Do not have to rebuild the layer if these properties change
+
 namespace breathe
 {
   namespace gui

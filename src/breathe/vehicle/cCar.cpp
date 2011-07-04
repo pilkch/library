@@ -28,6 +28,15 @@
 #include <breathe/render/cResourceManager.h>
 #include <breathe/render/model/cStaticModelLoader.h>
 
+// Racing Line
+// Turn in
+// Apex
+// Track out
+//
+// Geometric line (Entry 55 KPH, exit 55 KPH)
+// Late apex line (Entry 50 KPH, exit 57 KPH) - This can still be faster due to changes in tire temperature and grip
+// Avoiding potholes, oil, bumps, hills, etc. line - This can be a slower line on paper but faster because we stay on good track the whole corner
+
 
 // Things to print to the screen in debug mode
 // Accelerator percentage
@@ -46,6 +55,7 @@
 // Tire temperatures
 //   - Perhaps represented by 10cm "bands" going across the tire from left to right?  This would allow the left side of the tire to heat up say if we are going around a clockwise circuit
 //   - Show the overall temperature for each tire too (Average of all the bands)
+//   - "When you’re going through a corner, especially on a high speed oval, the tire surface can heat up at 50 degrees per second"
 // Tire wear
 // Brake temperatures
 // Brake fade
@@ -55,6 +65,31 @@
 // Bump stop?
 // Travel cm
 // Ride height cm
+
+
+// Tires
+//
+// Nascar - Temperature on the surface of the tire: up to 350-370 degrees on the corner, 200 on the straights
+//
+//
+// Interview with Dave Kaemmer
+//
+// We’re very excited to get the new tire model into your hands and out into public view finally! We think you’ll find that the new tires are a lot of fun—at the same time easier to drive, but more challenging, too. For sure they are more realistic than the old tires—especially on the high speed ovals, which is why we’re letting you get a first look at them on the new Nationwide car. The car itself represents a big step forward in simulating a Nascar race car—the aerodynamics and suspension have been reworked in addition to the tires. But before you jump into the new Nationwide car and drop the clutch I thought I’d give you a few bits of information to help get you up to speed on these new tires.
+//
+// First, you’re probably going to be best off if you start with the baseline setups provided with the car (click on the iRacing Setups tab in the garage). You may need to alter your driving style a bit to get the most out of these tires, and you can easily get into a hole by playing with the setup instead of playing with your line, and your technique.
+//
+// Second, be patient—you’ll need to learn how you can change the balance of the car simply by altering your line, and by changing how and when you lift off and get back on the throttle. These tires, just like real tires, are very sensitive to heat buildup. When you’re going through a corner, especially on a high speed oval, the tire surface can heat up at 50 degrees per second! If the rear tires are heating up faster than the fronts, it’s sayonara—you’re going to spin. If the fronts are heating up faster, the car will be tight, and more steering will make it worse. When both ends are working nearly equally, you’ll know it—and you’ll find out why the drivers have a huge grin when their car is “hooked up.”
+//
+// By changing how you drive a corner, you can control the heat buildup to a degree. If you drive in really hot, and crank in a lot of steering wheel angle (a very typical simracing technique), it will come as no surprise that you will get understeer, or push, and lots of it. If you do this lap after lap, your right front will likely not make a full fuel run without popping when you wear through the cords. Also you will be slow—maybe not on the first lap, but over a run you will lose a lot of time. That’s because the right front will lose a lot of grip as it nearly catches fire, and melts away.
+//
+// An alternative is to back off a bit earlier, and turn the car down into the corner without a lot of steering wheel angle. Be patient, and apply the throttle only once the car is heading where you want it, and has rotated enough to get the rears working a bit. Now pick up the throttle, and you should feel the car bite. The easier you drive it into the corner, the earlier you can get back to the gas, but you might find that you start to heat the right rear more than the right front as you do this, and the car will get loose. You need to find the right amount to push the car in order to keep it balanced. A very slight brush on the brakes can do wonders on the way into a corner to get the front planted, and enough speed pulled off to get back on the gas. No need to mash the brakes—that’s another great way to overheat the fronts and move yourself to the back!
+//
+// Once you have gotten comfortable with altering your driving style while lapping, and seeing how you can move the car from tight to loose and back again, then you might start to play with the car setup in order to fine tune things to be just how you like them. Pay close attention to how the tires are wearing, as much as to the temperatures. Remember that you can dramatically change the temperature and wear simply by changing how you drive, in addition to changing the setup. The keys to setting up the Nationwide car are to keep the front splitter as close to the ground as possible, and to get the four tires to share the workload as evenly as possible. The baseline setups do a good job at both, so if what you really want to do is race, just load the right setup for the track you’re driving, and forget it.
+//
+// One small disclaimer: remember this is a preview of the new model; there are some features that are not done, such as smoke pouring from your locked up tires. We're still hard at work on completing it, but most of the important stuff is in there. I think it's fair to say that all of us here at iRacing and our dedicated crew of testers can't wait for you to try it--it is a ton of fun.
+//
+// We hope you like this upgrade to our simulation, and rest assured we’ll continue to improve it for a long time to come!
+//
 
 
 // How does a dynamometer/rolling road work?
@@ -112,9 +147,14 @@
 // A car backfires because unburned fuel is getting to the muffler. The heat of the exhaust system causes the fuel to combust, thus a backfire.
 
 
-
+// Gear boxes
+// H box
+// Sequential shift box
+// Paddle shift (Sequential?)
+//
 // BMW E36 Race Car:
 // "The whine is from the straight cut gears in the transmission versus helical gears used in normal transmissions."
+
 
 
 
@@ -164,6 +204,10 @@
 // * The distance the piston travels on each stroke (therefore the diameter of the crankshaft). The bigger the diameter of the crankshaft, the bigger the lever arm and therefore the more torque.
 
 
+
+// Forumla 1
+// KERS - Brake battery regeneration, can release up to 80 hp for up to 6 seconds, full charge at start of race
+// DRS - Dynamic rear wing - only within certain zones for a maximum distance (Per lap?)
 
 
 
