@@ -617,6 +617,20 @@ Content-Transfer-Encoding: binary
                 // Content length goes here when we send the request
 
                 std::ostringstream contentBegin;
+                const std::map<std::string, std::string>& mValues = request.GetValues();
+                if (!mValues.empty()) {
+                  // Add the values for this request
+                  std::map<std::string, std::string>::const_iterator iter = mValues.begin();
+                  const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+                  while (iter != iterEnd) {
+                    contentBegin<<"--AaB03x"<<STR_END;
+                    contentBegin<<"content-disposition: form-data; name=\""<<iter->first<<"\""<<STR_END;
+                    contentBegin<<STR_END;
+                    contentBegin<<iter->second<<STR_END;
+
+                    iter++;
+                  }
+                }
                 contentBegin<<"--AaB03x"<<STR_END;
                 contentBegin<<"Content-Disposition: form-data; name=\"file\"; filename=\"results.json\""<<STR_END;
                 contentBegin<<"Content-Type: application/json"<<STR_END;

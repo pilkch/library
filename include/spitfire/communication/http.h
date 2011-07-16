@@ -41,6 +41,7 @@ namespace spitfire
         const string_t& GetPath() const { return sPath; }
         void SetOffsetBytes(size_t _nOffsetBytes) { nOffsetBytes = _nOffsetBytes; }
 
+        const std::map<std::string, std::string>& GetValues() const { return mValues; }
         void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
 
         void AddPostFileFromPath(const std::string& sName, const string_t& sFilePath);
