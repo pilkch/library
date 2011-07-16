@@ -43,13 +43,14 @@ namespace spitfire
 
         void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
 
-        void AddPostFileFromPath(const string_t& sFilePath);
+        void AddPostFileFromPath(const std::string& sName, const string_t& sFilePath);
         //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
-
-        std::string CreateRequestHeader() const; // Create a request header, everything up to the content
 
       protected:
         void SetContentType(const std::string& sContentType);
+
+        std::string CreateVariablesString() const;
+        std::string CreateRequestHeader() const; // Create a request header, everything up to the content
 
         METHOD method;
         string_t sHost;
@@ -58,7 +59,13 @@ namespace spitfire
         std::map<std::string, std::string> mValues;
 
         // TODO: Support multiple attachments
-        string_t sFilePath;
+        struct cFile
+        {
+          std::string sName;
+          string_t sFilePath;
+        };
+
+        cFile file;
       };
 
 
@@ -117,6 +124,7 @@ namespace spitfire
         BEFORE_DOWNLOADING,
         CONNECTING,
         SENDING_REQUEST,
+        SENDING_CONTENT,
         RECEIVING_HEADER,
         RECEIVING_CONTENT,
         FINISHED,
@@ -176,9 +184,9 @@ namespace spitfire
         STATE GetState() const { return state; }
 
       private:
-        STATUS status;
-        STATE state;
-        uint32_t progress;
+        mutable STATUS status;
+        mutable STATE state;
+        mutable uint32_t progress;
       };
 
       // ** Inlines

@@ -131,16 +131,18 @@ namespace spitfire
 
       boost::system::error_code error;
 
-      len = socket.read_some(boost::asio::buffer(static_cast<char*>(buffer), len), error);
+      const size_t nLength = socket.read_some(boost::asio::buffer(static_cast<char*>(buffer), len), error);
 
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();
       } else if (error) {
         LOG<<"ERROR When reading from socket"<<std::endl;
         Close();
+      } else {
+        ASSERT(nLength <= len);
       }
 
-      return len;
+      return nLength;
     }
 
     size_t cConnectionTCP::Send(const void* buffer, size_t len)
@@ -151,16 +153,18 @@ namespace spitfire
 
       boost::system::error_code error;
 
-      len = socket.write_some(boost::asio::buffer(static_cast<const char*>(buffer), len), error);
+      const size_t nLength = socket.write_some(boost::asio::buffer(static_cast<const char*>(buffer), len), error);
 
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();
       } else if (error) {
         LOG<<"ERROR When reading from socket"<<std::endl;
         Close();
+      } else {
+        ASSERT(nLength == len);
       }
 
-      return len;
+      return nLength;
     }
   }
 }

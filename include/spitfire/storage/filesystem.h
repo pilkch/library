@@ -56,7 +56,7 @@ namespace spitfire
 #endif
 
     uint32_t GetLastModifiedDate(const string_t& sFilename);
-    uint64_t GetFileSize();
+    uint64_t GetFileSize(const string_t& sFilename);
 
     string_t GetCurrentDirectory();
     void ChangeToDirectory(const string_t& sDirectory);

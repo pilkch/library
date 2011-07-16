@@ -31,6 +31,8 @@
 #include <spitfire/util/log.h>
 #include <spitfire/util/thread.h>
 
+#include <spitfire/storage/filesystem.h>
+
 #include <spitfire/math/math.h>
 
 #include <spitfire/communication/network.h>
@@ -283,36 +285,43 @@ namespace spitfire
 
       // ** cRequest
 
-      void cRequest::AddPostFileFromPath(const string_t& _sFilePath)
+      void cRequest::AddPostFileFromPath(const std::string& _sName, const string_t& _sFilePath)
       {
-        sFilePath = _sFilePath;
+        file.sName = _sName;
+        file.sFilePath = _sFilePath;
       }
 
-      std::string cRequest::CreateRequestHeader() const
+      std::string cRequest::CreateVariablesString() const
       {
-        std::ostringstream oVariables;
+        std::ostringstream o;
+
         std::map<std::string, std::string>::const_iterator iter = mValues.begin();
         const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
         // Write the first item so that we can safely add "&" between every other item
         if (iter != iterEnd) {
-          oVariables<<Encode(iter->first)<<"="<<Encode(iter->second);
+          o<<Encode(iter->first)<<"="<<Encode(iter->second);
           iter++;
         }
         while (iter != iterEnd) {
-          oVariables<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
+          o<<"&"<<Encode(iter->first)<<"="<<Encode(iter->second);
           iter++;
         }
 
-        const std::string sVariables(oVariables.str());
+        return o.str();
+      }
 
-
+      std::string cRequest::CreateRequestHeader() const
+      {
         std::ostringstream o;
 
         if (method == METHOD::GET) o<<"GET";
         else o<<"POST";
 
         std::string sRelativeURIWithAnyVariables = spitfire::string::ToUTF8(sPath);
-        if (method == METHOD::GET) sRelativeURIWithAnyVariables += "?" + sVariables;
+        if (method == METHOD::GET) {
+          const std::string sVariables(CreateVariablesString());
+          sRelativeURIWithAnyVariables += "?" + sVariables;
+        }
 
         o<<" "<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
 
@@ -330,20 +339,6 @@ namespace spitfire
         //o<<"Connection: Keep-Alive"<<STR_END;
         //OR
         o<<"Connection: close"<<STR_END;
-
-        o<<STR_END;
-
-        if (method == METHOD::POST) {
-          const size_t content_length = sVariables.length();
-
-          o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
-          o<<"Content-Length: "<<content_length<<STR_END;
-          o<<STR_END;
-
-          o<<sVariables;
-        }
-
-        o<<STR_END;
 
         return o.str();
       }
@@ -383,19 +378,19 @@ Content-Transfer-Encoding: binary
 
         size_t len = 0;
         char szHeaderBuffer[nBufferLength + 1];
-        LOG<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
+        //LOG<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
         while (connection.IsOpen()) {
-          LOG<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
           len = connection.Recv(szHeaderBuffer, nBufferLength, 5000);
-          LOG<<"cConnectionHTTP::ReadHeader Recv has finished"<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadHeader Recv has finished"<<std::endl;
           if (len == 0) {
             LOG<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
             break;
           }
 
-          LOG<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
           szHeaderBuffer[len] = 0;
-          LOG<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
 
           std::string sBuffer(szHeaderBuffer);
           std::string::size_type i = sBuffer.find("\r\n\r\n");
@@ -404,7 +399,7 @@ Content-Transfer-Encoding: binary
             header += sBuffer;
           } else {
             header += sBuffer.substr(0, i);
-            LOG<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
+            //LOG<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
 
             // Skip "\r\n\r\n"
             i += 4;
@@ -416,13 +411,13 @@ Content-Transfer-Encoding: binary
               // There is something to put in the content buffer so fill it up and return
 
               // Make space to append the next chunk to the end of our current header buffer
-              LOG<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
+              //LOG<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
               content.reserve(nBufferRead);
 
               // Append to the header
-              LOG<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
+              //LOG<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
               content.insert(content.begin(), nBufferRead, '\0');
-              LOG<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
+              //LOG<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
               memcpy(&content[0], &szHeaderBuffer[i], nBufferRead);
               break;
             }
@@ -432,7 +427,7 @@ Content-Transfer-Encoding: binary
         // Actually parse the header into status, key value pairs etc.
         ParseHeader();
 
-        LOG<<"cConnectionHTTP::ReadHeader header=\""<<header<<"\", returning"<<std::endl;
+        LOG<<"cConnectionHTTP::ReadHeader returning"<<std::endl;
         return header.length();
       }
 
@@ -444,11 +439,11 @@ Content-Transfer-Encoding: binary
 
         // If we already have content data then read from there first
         const size_t nBufferRead = content.size();
-        LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
+        //LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
         if (nBufferRead != 0) {
-          LOG<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
           const size_t smaller = min(nBufferRead, len);
-          LOG<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
           memcpy(pOutContent, &content[0], smaller);
 
           // Increment our buffer
@@ -471,7 +466,7 @@ Content-Transfer-Encoding: binary
 
           // Now read the rest from the connection
           const size_t n = connection.Recv(pOutContent, len, 2000);
-          LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
+          //LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
           nContentReadThisTimeAround += n;
         }
 
@@ -548,8 +543,6 @@ Content-Transfer-Encoding: binary
 
 
 
-
-
       // *** cHTTP
 
       void cHTTP::SendRequest(const cRequest& request, cRequestListener& listener) const
@@ -569,24 +562,147 @@ Content-Transfer-Encoding: binary
         connection.Open(spitfire::string::ToUTF8(request.GetHost()), 80);
 
         if (!connection.IsOpen()) {
-          LOG<<"cHTTP::SendRequest Connection failed, returning"<<""<<std::endl;
+          LOG<<"cHTTP::SendRequest Connection failed, returning"<<std::endl;
           state = STATE::CONNECTION_FAILED;
           return;
         }
 
-        state = STATE::SENDING_REQUEST;
+        // Send request and content
         {
-          // Send header
-          const std::string sRequestHeader(request.CreateRequestHeader());
-          size_t len = sRequestHeader.length() + 1;
-          size_t sent = connection.Send(sRequestHeader.data(), len);
-          if (sent != len) {
-            LOG<<"cHTTP::SendRequest SDLNet_TCP_Send FAILED"<<std::endl;
-            return;
+          // Send request
+          state = STATE::SENDING_REQUEST;
+          {
+            const std::string sRequestHeader(request.CreateRequestHeader());
+            const size_t len = sRequestHeader.length();
+            const size_t sent = connection.Send(sRequestHeader.c_str(), len);
+            if (sent != len) {
+              LOG<<"cHTTP::SendRequest Sending request, Send FAILED"<<std::endl;
+              return;
+            }
+          }
+
+          // Send content
+          state = STATE::SENDING_CONTENT;
+
+          // Create parameters string
+          const std::string sVariables(request.CreateVariablesString());
+
+          if (request.IsMethodPost()) {
+            if (request.file.sFilePath.empty()) {
+              std::ostringstream o;
+              // As the variables as an encoded string
+              const size_t content_length = sVariables.length();
+
+              o<<"Content-Type: application/x-www-form-urlencoded"<<STR_END;
+              o<<"Content-Length: "<<content_length<<STR_END;
+              o<<STR_END;
+              o<<sVariables<<STR_END;
+              o<<STR_END;
+
+              // Send the content
+              const std::string sContent(o.str());
+              const size_t len = sContent.length();
+              const size_t sent = connection.Send(sContent.c_str(), len);
+              if (sent != len) {
+                LOG<<"cHTTP::SendRequest Sending content, Send FAILED"<<std::endl;
+                return;
+              }
+            } else {
+
+              {
+                // Send the start of the content
+                std::ostringstream o;
+                o<<"Content-Type: multipart/form-data; boundary=AaB03x"<<STR_END;
+
+                // Content length goes here when we send the request
+
+                std::ostringstream contentBegin;
+                contentBegin<<"--AaB03x"<<STR_END;
+                contentBegin<<"Content-Disposition: form-data; name=\"file\"; filename=\"results.json\""<<STR_END;
+                contentBegin<<"Content-Type: application/json"<<STR_END;
+                contentBegin<<STR_END;
+
+                // Content goes here when we send the request
+
+                std::ostringstream contentEnd;
+                contentEnd<<"--AaB03x--"<<STR_END;
+                contentEnd<<STR_END;
+
+
+                const std::string sContentBegin(contentBegin.str());
+                const std::string sContentEnd(contentEnd.str());
+
+                {
+                  const size_t nContentLength = sContentBegin.length() + spitfire::filesystem::GetFileSize(request.file.sFilePath) + sContentEnd.length();
+
+                  o<<"Content-Length: "<<nContentLength<<STR_END;
+                  o<<STR_END;
+
+                  // Send the content length
+                  const std::string sContentLength(o.str());
+                  const size_t len = sContentLength.length();
+                  const size_t sent = connection.Send(sContentLength.c_str(), len);
+                  if (sent != len) {
+                    LOG<<"cHTTP::SendRequest Sending content length, Send FAILED"<<std::endl;
+                    return;
+                  }
+                }
+
+
+                {
+                  // Send the start of the content
+                  const size_t len = sContentBegin.length();
+                  const size_t sent = connection.Send(sContentBegin.c_str(), len);
+                  if (sent != len) {
+                    LOG<<"cHTTP::SendRequest Sending begin of content, Send FAILED"<<std::endl;
+                    return;
+                  }
+                }
+
+                {
+                  // Send the contents of the file
+                  LOG<<"cHTTP::SendRequest Sending content of file"<<std::endl;
+                  std::ifstream file;
+
+                  file.open(spitfire::string::ToUTF8(request.file.sFilePath).c_str(), std::ios::in | std::ios::binary);
+
+                  if (!file.good()) {
+                      LOG<<"cHTTP::SendRequest File not opened \""<<request.file.sFilePath<<"\""<<std::endl;
+                      return;
+                  }
+
+                  uint8_t buffer[1024];
+
+                  while (!file.eof()) {
+                    LOG<<"cHTTP::SendRequest Reading into buffer"<<std::endl;
+                    const size_t nRead = file.readsome((char*)buffer, 1024);
+                    if (nRead == 0) {
+                      LOG<<"cHTTP::SendRequest Finished reading file"<<std::endl;
+                      break;
+                    }
+                    assert(nRead <= 1024);
+                    const size_t len = nRead;
+                    const size_t sent = connection.Send((char*)buffer, len);
+                    if (sent != len) {
+                      LOG<<"cHTTP::SendRequest Sending file contents, Send FAILED"<<std::endl;
+                      return;
+                    }
+                  }
+                }
+
+                {
+                  // Send the end of the content
+                  const size_t len = sContentEnd.length();
+                  const size_t sent = connection.Send(sContentEnd.c_str(), len);
+                  if (sent != len) {
+                    LOG<<"cHTTP::SendRequest Sending end of content, Send FAILED"<<std::endl;
+                    return;
+                  }
+                }
+              }
+            }
           }
         }
-
-        // TODO: Send other post data here for example either the url encoded form data or an attached file
 
 
         state = STATE::RECEIVING_HEADER;
@@ -611,7 +727,7 @@ Content-Transfer-Encoding: binary
             if (len != 0) {
               buffer[len] = 0;
               sContent = buffer;
-              LOG<<"Content: "<<sContent<<std::endl;
+              //LOG<<"Content: "<<sContent<<std::endl;
               listener.OnTextContentReceived(sContent);
             }
           } while (len != 0);
