@@ -38,6 +38,15 @@
 // Avoiding potholes, oil, bumps, hills, etc. line - This can be a slower line on paper but faster because we stay on good track the whole corner
 
 
+// Jumps
+//
+// Accelerating before the jump can bring the nose up
+// Braking and letting off the throttle before the jump can bring the nose down
+// If the car is nose up in the air we can apply the clutch or tap the brakes slightly to bring the nose down
+// If the car is nose down in the air we can floor the accelerator to bring the nose up
+// Accelerator, clutching and braking enhance or dampen gyroscopic effects on the chassis
+
+
 // Things to print to the screen in debug mode
 // Accelerator percentage
 // Brake percentage
@@ -1731,7 +1740,7 @@ namespace breathe
       TestEFIWithSpecificParameters(engine, efi, 700.0f, spitfire::math::PoundsToKiloGrams(0.55f) / 60.0f, 14.64f / 1.0f);
 
       // Engine at maximum power
-      // 28.0 lb per min * 1 min/5500 rev * 1 revolution/2 strokes * 1/11.0 * 2.5/min per lb = 57.9 * 10^-5 min = 35ms 
+      // 28.0 lb per min * 1 min/5500 rev * 1 revolution/2 strokes * 1/11.0 * 2.5/min per lb = 57.9 * 10^-5 min = 35ms
       // (Fuel flow rate) = (17.3 ms/intake-stroke) × (hour/3,600,000-ms) × (24 lb-fuel/hour) × (4-intake-stroke/rev) × (5500-rev/min) × (60-min/hour) = (152 lb/h)
       TestEFIWithSpecificParameters(engine, efi, 5500.0f, spitfire::math::PoundsToKiloGrams(28.0f) / 60.0f, 11.0f / 1.0f);
     }
