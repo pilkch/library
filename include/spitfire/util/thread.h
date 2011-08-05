@@ -24,8 +24,10 @@ namespace spitfire
     class cThread
     {
     public:
-      cThread();
+      explicit cThread(const std::string& sName);
       virtual ~cThread();
+
+      const std::string& GetName() const { return sName; }
 
       void Run();
       void WaitUntilFinished(); // Safe, blocks forever until thread is done
@@ -38,6 +40,7 @@ namespace spitfire
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
 
+      const std::string sName;
       std::thread* pThread;
 
       NO_COPY(cThread);
@@ -49,10 +52,12 @@ namespace spitfire
       friend class cLockObject;
       friend class cSignalObject;
 
-      cMutex() {}
-      ~cMutex() {}
+      explicit cMutex(const std::string& sName);
+
+      const std::string& GetName() const { return sName; }
 
     private:
+      const std::string sName;
       std::mutex mutex;
 
       NO_COPY(cMutex);
@@ -72,7 +77,8 @@ namespace spitfire
 
     // *** cThread
 
-    inline cThread::cThread() :
+    inline cThread::cThread(const std::string& _sName) :
+      sName(_sName),
       pThread(nullptr)
     {
     }
@@ -117,6 +123,13 @@ namespace spitfire
     }
 
 
+    // *** cMutex
+
+    inline cMutex::cMutex(const std::string& _sName) :
+      sName(_sName)
+    {
+    }
+
     // *** cLockObject
 
     inline cLockObject::cLockObject(cMutex& _mutex) :
@@ -131,7 +144,9 @@ namespace spitfire
     class cSignalObject
     {
     public:
-      explicit cSignalObject();
+      explicit cSignalObject(const std::string& sName);
+
+      const std::string& GetName() const { return sName; }
 
       bool IsSignalled();
 
@@ -144,10 +159,12 @@ namespace spitfire
 
     private:
       cMutex mutex;
+      const std::string sName;
       bool bIsSignalled; // NOTE: With a real signalobject we should not have to use this
     };
 
-    inline cSignalObject::cSignalObject() :
+    inline cSignalObject::cSignalObject(const std::string& _sName) :
+      sName(_sName),
       bIsSignalled(false)
     {
     }
