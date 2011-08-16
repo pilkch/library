@@ -494,7 +494,11 @@ namespace spitfire
     {
       ASSERT(pChild != nullptr);
 
-      if (!vChild.empty()) vChild.back()->pNext = pChild;
+      if (!vChild.empty()) {
+        element* pLast = vChild.back();
+        ASSERT(pLast != nullptr);
+        pLast->pNext = pChild;
+      }
 
       vChild.push_back(pChild);
     }
