@@ -447,7 +447,7 @@ namespace opengl
     glEnable(GL_DEPTH_TEST);
     //glDepthFunc(GL_LEQUAL);
 
-    glClearColor(clearColour.r, clearColour.g, clearColour.b, 1.0f);
+    glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set our default colour
