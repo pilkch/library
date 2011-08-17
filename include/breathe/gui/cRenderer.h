@@ -31,6 +31,7 @@ namespace breathe
       void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, const cStaticText& widget);
       void AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, const cButton& widget);
       void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, const cInput& widget);
+      void AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget);
 
       void AddChildrenOfWidget(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWidget& widget);
 

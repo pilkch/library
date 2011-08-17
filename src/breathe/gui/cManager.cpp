@@ -151,6 +151,22 @@ namespace breathe
     }
 
 
+    // ** cButton
+
+    cInput::cInput() :
+      cWidget(WIDGET_TYPE::INPUT)
+    {
+    }
+
+
+    // ** cSlider
+
+    cSlider::cSlider() :
+      cWidget(WIDGET_TYPE::SLIDER)
+    {
+    }
+
+
     // ** cManager
 
     cManager::cManager() :

@@ -172,7 +172,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(1.0f, 1.0f, 0.0f);
+      const spitfire::math::cColour colour(0.0f, 0.0f, 1.0f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -181,7 +181,16 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(1.0f, 0.0f, 0.0f);
+      const spitfire::math::cColour colour(0.0f, 1.0f, 0.0f);
+
+      AddRect(builder, position, widget.width, widget.height, colour);
+    }
+
+    void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      const spitfire::math::cColour colour(1.0f, 1.0f, 0.0f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -221,6 +230,10 @@ namespace breathe
 
           case WIDGET_TYPE::INPUT:
             AddInput(builder, static_cast<const cInput&>(child));
+            break;
+
+          case WIDGET_TYPE::SLIDER:
+            AddSlider(builder, static_cast<const cSlider&>(child));
             break;
 
           case WIDGET_TYPE::INVISIBLE_CONTAINER:

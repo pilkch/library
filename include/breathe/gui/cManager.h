@@ -40,6 +40,7 @@ namespace breathe
       STATICTEXT,
       BUTTON,
       INPUT,
+      SLIDER,
       INVISIBLE_CONTAINER,
     };
 
@@ -138,7 +139,18 @@ namespace breathe
       cButton();
     };
 
-    typedef cWidget cInput;
+    class cInput : public cWidget
+    {
+    public:
+      cInput();
+    };
+
+    class cSlider : public cWidget
+    {
+    public:
+      cSlider();
+    };
+
     //cImage
     //cHUDText
     //cHUDImage
