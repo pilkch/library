@@ -480,9 +480,7 @@ namespace opengl
   {
     _EndRenderShared();
 
-    if (bIsRenderingToWindow) {
-      SDL_GL_SwapBuffers();
-    }
+    if (bIsRenderingToWindow) SDL_GL_SwapBuffers();
   }
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
@@ -495,9 +493,8 @@ namespace opengl
     // First we bind the FBO so we can render to it
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, texture.uiFBO);
 
-    // Save the view port settings and set it to the size of the texture
+    // Save the view port settings (It is about to be change in _SetPerspective which is called by _BeginRenderShared)
     glPushAttrib(GL_VIEWPORT_BIT);
-    glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
 
     _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
   }
