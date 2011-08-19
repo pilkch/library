@@ -24,8 +24,16 @@ namespace breathe
     private:
       void DeleteRenderables();
 
+      enum class ORIENTATION {
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT
+      };
+
       void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour);
       void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, float fU, float fV, float fU2, float fV2);
+      void AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation);
 
       void AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWindow& widget);
       void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, const cStaticText& widget);

@@ -150,13 +150,81 @@ namespace breathe
       builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
     }
 
+    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation)
+    {
+      const float fU = 0.0f;
+      const float fV = 0.0f;
+
+      // Get the rotation for this orientation
+      float fAngle = -90.0f;
+      spitfire::math::cVec2 position = _position;
+      if (orientation == ORIENTATION::TOP_LEFT) position += spitfire::math::cVec2(fRadius, fRadius);
+      else if (orientation == ORIENTATION::TOP_RIGHT) {
+        fAngle += 90.0f;
+        position += spitfire::math::cVec2(0.0f, fRadius);
+      } else if (orientation == ORIENTATION::BOTTOM_RIGHT) fAngle += 180.0f;
+      else if (orientation == ORIENTATION::BOTTOM_LEFT) {
+        fAngle += 270.0f;
+        position += spitfire::math::cVec2(fRadius, 0.0f);
+      }
+
+      // Add the points for the arc
+      size_t nDots = spitfire::math::clamp<size_t>((100.0f * fRadius), 4, 20);
+      if (!spitfire::math::IsDivisibleByTwo(nDots)) nDots++;
+      float fAngleBetweenDots = 90.0f / float(nDots);
+      for (size_t iDots = 0; iDots < nDots; iDots += 2) {
+        // Start with a point that points straight up
+        const spitfire::math::cVec2 point(0.0f, -fRadius);
+
+        // Rotate the point
+        spitfire::math::cVec2 point0;
+        point0.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
+        point0.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
+
+        // Increment our angle
+        fAngle += fAngleBetweenDots;
+
+        // Rotate the point
+        spitfire::math::cVec2 point1;
+        point1.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
+        point1.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
+
+        // Increment our angle
+        fAngle += fAngleBetweenDots;
+
+        // Rotate the point
+        spitfire::math::cVec2 point2;
+        point2.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
+        point2.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
+
+        // Add the point
+        builder.PushBack(position + point2, colour, spitfire::math::cVec2(fU, fV));
+        builder.PushBack(position + point1, colour, spitfire::math::cVec2(fU, fV));
+        builder.PushBack(position + point0, colour, spitfire::math::cVec2(fU, fV));
+        builder.PushBack(position, colour, spitfire::math::cVec2(fU, fV));
+      }
+    }
+
     void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWindow& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
       const spitfire::math::cColour colour(1.0f, 0.0f, 0.0f);
 
-      AddRect(builder, position, widget.width, widget.height, colour);
+      const float x = position.x;
+      const float y = position.y;
+      const float fRadius = 0.05f;
+
+      // Add a cross for the rectangular parts of the window
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y), widget.width - (2 * fRadius), fRadius, colour);
+      AddRect(builder, spitfire::math::cVec2(x, y + fRadius), widget.width, widget.height - (2 * fRadius), colour);
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y + widget.height - fRadius), widget.width - (2 * fRadius), fRadius, colour);
+
+      // Add an arc in each corner
+      AddArc(builder, spitfire::math::cVec2(x, y), fRadius, colour, ORIENTATION::TOP_LEFT);
+      AddArc(builder, spitfire::math::cVec2(x + widget.width - fRadius, y), fRadius, colour, ORIENTATION::TOP_RIGHT);
+      AddArc(builder, spitfire::math::cVec2(x, y + widget.height - fRadius), fRadius, colour, ORIENTATION::BOTTOM_LEFT);
+      AddArc(builder, spitfire::math::cVec2(x + widget.width - fRadius, y + widget.height - fRadius), fRadius, colour, ORIENTATION::BOTTOM_RIGHT);
     }
 
     void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, const cStaticText& widget)
