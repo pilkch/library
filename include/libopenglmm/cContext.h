@@ -141,6 +141,13 @@ namespace opengl
     void SetMaterialSpecularColour(const spitfire::math::cColour& colour);
     void SetMaterialShininess(float fShininess);
 
+    void EnableDepthTesting();
+    void DisableDepthTesting();
+    void EnableAlphaTesting();
+    void DisableAlphaTesting();
+    void EnableBlending();
+    void DisableBlending();
+
 
 #ifdef BUILD_OPENGLMM_FONT
     void BindFont(const cFont& font);
