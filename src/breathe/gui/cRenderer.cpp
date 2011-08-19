@@ -90,7 +90,7 @@ namespace breathe
       const float fWidth = float(width);
       const float fHeight = float(height);
 
-      const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f);
+      const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 0.5f);
 
       // Front facing quad
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
@@ -209,7 +209,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(1.0f, 0.0f, 0.0f);
+      const spitfire::math::cColour colour(0.2f, 0.2f, 0.2f, 0.5f);
 
       const float x = position.x;
       const float y = position.y;
@@ -231,7 +231,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(1.0f, 0.0f, 1.0f);
+      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -240,7 +240,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.0f, 0.0f, 1.0f);
+      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -249,7 +249,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.0f, 1.0f, 0.0f);
+      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -258,7 +258,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(1.0f, 1.0f, 0.0f);
+      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -340,6 +340,8 @@ namespace breathe
 
           pVBO->Compile2D(system);
 
+          context.EnableBlending();
+
           // Render the vbo to the frame buffer texture
           context.BindTexture(0, *pWidgetsTexture);
 
@@ -352,6 +354,8 @@ namespace breathe
           context.UnBindShader(*pWidgetsShader);
 
           context.UnBindTexture(0, *pWidgetsTexture);
+
+          context.DisableBlending();
 
           context.DestroyStaticVertexBufferObject(pVBO);
         }
@@ -398,6 +402,8 @@ namespace breathe
         matModelView.SetTranslation(manager.GetHUDOffset().x, manager.GetHUDOffset().y, 0.0f);
         context.SetModelViewMatrix(matModelView);
 
+        context.EnableBlending();
+
         context.BindTexture(0, *pTextureFrameBufferObject);
 
         context.BindShader(*pGuiShader);
@@ -409,6 +415,8 @@ namespace breathe
         context.UnBindShader(*pGuiShader);
 
         context.UnBindTexture(0, *pTextureFrameBufferObject);
+
+        context.DisableBlending();
       }
 
       context.EndRenderMode2D();
