@@ -109,10 +109,15 @@ namespace breathe
 
       pTextureFrameBufferObject = context.CreateTextureFrameBufferObject(1024, 1024, opengl::PIXELFORMAT::R8G8B8A8);
       ASSERT(pTextureFrameBufferObject != nullptr);
+
+      // Create the font for rendering text
+      pFont = context.CreateFont(TEXT("data/fonts/pricedown.ttf"), 32, TEXT("data/shaders/font.vert"), TEXT("data/shaders/font.frag"));
     }
 
     cRenderer::~cRenderer()
     {
+      if (pFont != nullptr) context.DestroyFont(pFont);
+
       if (pWidgetsShader != nullptr) context.DestroyShader(pWidgetsShader);
       if (pWidgetsTexture != nullptr) context.DestroyTexture(pWidgetsTexture);
 
@@ -205,7 +210,24 @@ namespace breathe
       }
     }
 
-    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWindow& widget)
+    void cRenderer::AddCapsule(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
+    {
+      const float x = position.x;
+      const float y = position.y;
+
+      // Add a cross for the rectangular parts of the window
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y), fWidth - (2 * fRadius), fRadius, colour);
+      AddRect(builder, spitfire::math::cVec2(x, y + fRadius), fWidth, fHeight - (2 * fRadius), colour);
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y + fHeight - fRadius), fWidth - (2 * fRadius), fRadius, colour);
+
+      // Add an arc in each corner
+      AddArc(builder, spitfire::math::cVec2(x, y), fRadius, colour, ORIENTATION::TOP_LEFT);
+      AddArc(builder, spitfire::math::cVec2(x + fWidth - fRadius, y), fRadius, colour, ORIENTATION::TOP_RIGHT);
+      AddArc(builder, spitfire::math::cVec2(x, y + fHeight - fRadius), fRadius, colour, ORIENTATION::BOTTOM_LEFT);
+      AddArc(builder, spitfire::math::cVec2(x + fWidth - fRadius, y + fHeight - fRadius), fRadius, colour, ORIENTATION::BOTTOM_RIGHT);
+    }
+
+    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -213,52 +235,56 @@ namespace breathe
 
       const float x = position.x;
       const float y = position.y;
-      const float fRadius = 0.05f;
+      const float fRadius = 0.02f;
 
-      // Add a cross for the rectangular parts of the window
-      AddRect(builder, spitfire::math::cVec2(x + fRadius, y), widget.width - (2 * fRadius), fRadius, colour);
-      AddRect(builder, spitfire::math::cVec2(x, y + fRadius), widget.width, widget.height - (2 * fRadius), colour);
-      AddRect(builder, spitfire::math::cVec2(x + fRadius, y + widget.height - fRadius), widget.width - (2 * fRadius), fRadius, colour);
+      AddCapsule(builder, position, widget.width, widget.height, fRadius, colour);
 
-      // Add an arc in each corner
-      AddArc(builder, spitfire::math::cVec2(x, y), fRadius, colour, ORIENTATION::TOP_LEFT);
-      AddArc(builder, spitfire::math::cVec2(x + widget.width - fRadius, y), fRadius, colour, ORIENTATION::TOP_RIGHT);
-      AddArc(builder, spitfire::math::cVec2(x, y + widget.height - fRadius), fRadius, colour, ORIENTATION::BOTTOM_LEFT);
-      AddArc(builder, spitfire::math::cVec2(x + widget.width - fRadius, y + widget.height - fRadius), fRadius, colour, ORIENTATION::BOTTOM_RIGHT);
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, const cStaticText& widget)
+    void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
-
-      AddRect(builder, position, widget.width, widget.height, colour);
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, const cButton& widget)
+    void cRenderer::AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
+      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
 
-      AddRect(builder, position, widget.width, widget.height, colour);
+      const float fRadius = 0.02f;
+
+      AddCapsule(builder, position, widget.width, widget.height, fRadius, colour);
+
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, const cInput& widget)
+    void cRenderer::AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
+      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
+
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.5f, 0.5f, 0.5f, 0.8f);
+      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -276,28 +302,47 @@ namespace breathe
     //    render to texture
     //}
 
-    void cRenderer::AddChildrenOfWidget(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWidget& widget)
+    void cRenderer::AddChildrenOfWidget(const cWidget& widget)
     {
       ASSERT(!widget.children.empty());
 
       const size_t n = widget.children.size();
       for (size_t i = 0; i < n; i++) {
+
+        std::vector<float> vertices;
+        //std::vector<float> normals;
+        std::vector<float> textureCoordinates;
+        std::vector<float> colours;
+        //std::vector<uint16_t> indices;
+
+        opengl::cGeometryBuilder_v2_c4_t2 builder(vertices, colours, textureCoordinates);
+
+        // Text
+        assert(pFont != nullptr);
+        assert(pFont->IsValid());
+
+        std::vector<float> verticesText;
+        std::vector<float> coloursText;
+        std::vector<float> textureCoordinatesText;
+
+        opengl::cGeometryBuilder_v2_c4_t2 builderText(verticesText, coloursText, textureCoordinatesText);
+
         const cWidget& child = *(widget.children[i]);
         switch (child.GetType()) {
           case WIDGET_TYPE::WINDOW:
-            AddWindow(builder, static_cast<const cWindow&>(child));
+            AddWindow(builder, builderText, static_cast<const cWindow&>(child));
             break;
 
           case WIDGET_TYPE::STATICTEXT:
-            AddStaticText(builder, static_cast<const cStaticText&>(child));
+            AddStaticText(builder, builderText, static_cast<const cStaticText&>(child));
             break;
 
           case WIDGET_TYPE::BUTTON:
-            AddButton(builder, static_cast<const cButton&>(child));
+            AddButton(builder, builderText, static_cast<const cButton&>(child));
             break;
 
           case WIDGET_TYPE::INPUT:
-            AddInput(builder, static_cast<const cInput&>(child));
+            AddInput(builder, builderText, static_cast<const cInput&>(child));
             break;
 
           case WIDGET_TYPE::SLIDER:
@@ -311,24 +356,6 @@ namespace breathe
           default:
             std::cout<<"cRenderer::Visit UNKNOWN WIDGET TYPE "<<child.GetType()<<std::endl;
         };
-      }
-    }
-
-    void cRenderer::Visit(const cWidget& widget)
-    {
-      ASSERT(!widget.children.empty());
-
-      // For widgets that can group other widgets we need to render their children
-      {
-        std::vector<float> vertices;
-        //std::vector<float> normals;
-        std::vector<float> textureCoordinates;
-        std::vector<float> colours;
-        //std::vector<uint16_t> indices;
-
-        opengl::cGeometryBuilder_v2_c4_t2 builder(vertices, colours, textureCoordinates);
-
-        AddChildrenOfWidget(builder, widget);
 
         if (!vertices.empty()) {
           opengl::cStaticVertexBufferObject* pVBO = context.CreateStaticVertexBufferObject();
@@ -359,7 +386,34 @@ namespace breathe
 
           context.DestroyStaticVertexBufferObject(pVBO);
         }
+
+        if (!verticesText.empty()) {
+          opengl::cStaticVertexBufferObject* pVBOText = context.CreateStaticVertexBufferObject();
+          pVBOText->SetVertices(verticesText);
+          pVBOText->SetColours(coloursText);
+          pVBOText->SetTextureCoordinates(textureCoordinatesText);
+
+          pVBOText->Compile2D(system);
+
+          context.BindFont(*pFont);
+
+          context.BindStaticVertexBufferObject2D(*pVBOText);
+          context.DrawStaticVertexBufferObjectQuads2D(*pVBOText);
+          context.UnBindStaticVertexBufferObject2D(*pVBOText);
+
+          context.UnBindFont(*pFont);
+
+          context.DestroyStaticVertexBufferObject(pVBOText);
+        }
       }
+    }
+
+    void cRenderer::Visit(const cWidget& widget)
+    {
+      ASSERT(!widget.children.empty());
+
+      // For widgets that can group other widgets we need to render their children
+      AddChildrenOfWidget(widget);
 
       // Visit any children that contain children themselves
       const size_t n = widget.children.size();

@@ -34,14 +34,15 @@ namespace breathe
       void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour);
       void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, float fU, float fV, float fU2, float fV2);
       void AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation);
+      void AddCapsule(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour);
 
-      void AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWindow& widget);
-      void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, const cStaticText& widget);
-      void AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, const cButton& widget);
-      void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, const cInput& widget);
+      void AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& widget);
+      void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget);
+      void AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget);
+      void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget);
       void AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget);
 
-      void AddChildrenOfWidget(opengl::cGeometryBuilder_v2_c4_t2& builder, const cWidget& widget);
+      void AddChildrenOfWidget(const cWidget& widget);
 
       void Visit(const cWidget& widget);
 

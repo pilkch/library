@@ -192,6 +192,13 @@ namespace breathe
       void SetHUDOffset(const spitfire::math::cVec2& offset) { HUDOffset = offset; }
       const spitfire::math::cVec2& GetHUDOffset() const { return HUDOffset; }
 
+      float GetTextHeight() const;
+      float GetTextWidth(const spitfire::string_t& sText) const;
+
+      float GetStaticTextHeight() const;
+      float GetButtonHeight() const;
+      float GetInputHeight() const;
+
     private:
       cLayoutAbsolute HUD;
 

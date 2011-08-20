@@ -173,5 +173,31 @@ namespace breathe
       pRoot(nullptr)
     {
     }
+
+    float cManager::GetTextHeight() const
+    {
+      return 0.03f;
+    }
+
+    float cManager::GetTextWidth(const spitfire::string_t& sText) const
+    {
+      // Just a very rough estimate
+      return 0.02f * sText.length();
+    }
+
+    float cManager::GetStaticTextHeight() const
+    {
+      return 0.01f + GetTextHeight() + 0.01f;
+    }
+
+    float cManager::GetButtonHeight() const
+    {
+      return 0.01f + GetTextHeight() + 0.01f;
+    }
+
+    float cManager::GetInputHeight() const
+    {
+      return 0.01f + GetTextHeight() + 0.01f;
+    }
   }
 }
