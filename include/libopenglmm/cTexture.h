@@ -94,6 +94,8 @@ namespace opengl
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
 
+    void SetDoNotUseMipMaps() { bIsUsingMipMaps = false; }
+
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }
 

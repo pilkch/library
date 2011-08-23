@@ -206,6 +206,20 @@ namespace opengl
     return pTexture;
   }
 
+  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectNoMipMaps(size_t width, size_t height, PIXELFORMAT pixelFormat)
+  {
+    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
+    pTexture->SetDoNotUseMipMaps();
+    if (!pTexture->CreateFrameBufferObject(width, height)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
   void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture)
   {
     assert(pTexture != nullptr);
@@ -669,6 +683,16 @@ namespace opengl
   void cContext::DisableDepthTesting()
   {
     glDisable(GL_DEPTH_TEST);
+  }
+
+  void cContext::EnableDepthMasking()
+  {
+    glDepthMask(GL_TRUE);
+  }
+
+  void cContext::DisableDepthMasking()
+  {
+    glDepthMask(GL_FALSE);
   }
 
   void cContext::EnableAlphaTesting()

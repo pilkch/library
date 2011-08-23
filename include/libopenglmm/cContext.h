@@ -87,6 +87,7 @@ namespace opengl
     void DestroyTexture(cTexture* pTexture);
 
     cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
+    cTextureFrameBufferObject* CreateTextureFrameBufferObjectNoMipMaps(size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
 
     cShader* CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
@@ -143,6 +144,8 @@ namespace opengl
 
     void EnableDepthTesting();
     void DisableDepthTesting();
+    void EnableDepthMasking();
+    void DisableDepthMasking();
     void EnableAlphaTesting();
     void DisableAlphaTesting();
     void EnableBlending();
