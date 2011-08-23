@@ -58,6 +58,7 @@ namespace breathe
     {
     public:
       void AddChild(cWidget* pChild);
+      void RemoveChildAndDestroy(cWidget* pChild);
       void RemoveChild(cWidget* pChild);
 
       void SetChildPositionAndSize(cWidget* pChild, const spitfire::math::cVec2&
@@ -75,6 +76,7 @@ namespace breathe
     class cWidget
     {
     public:
+      cWidget();
       virtual ~cWidget();
 
       id_t GetId() const { return id; }
@@ -96,6 +98,23 @@ namespace breathe
       void ClearDirtyRendering() { bIsDirtyRendering = false; }
 
       void AddChild(cWidget* pChild);
+      void RemoveChildAndDestroy(cWidget* pChild);
+      void RemoveChild(cWidget* pChild);
+
+      size_t GetNumberOfChildren() const { return children.size(); }
+      const cWidget* GetChild(size_t i) const { return children[i]; }
+      cWidget* GetChild(size_t i) { return children[i]; }
+
+      const cWidget* GetChildById(id_t id) const;
+      cWidget* GetChildById(id_t id);
+
+      void SetVisible(bool bVisible) { bIsVisible = bVisible; }
+      bool IsVisible() const { return bIsVisible; }
+
+      const spitfire::math::cColour& GetColour() const { return colourBackground; }
+      void SetColour(const spitfire::math::cColour& colour) { colourBackground = colour; }
+      const spitfire::math::cColour& GetTextColour() const { return colourText; }
+      void SetTextColour(const spitfire::math::cColour& colour) { colourText = colour; }
 
     protected:
       explicit cWidget(WIDGET_TYPE type);
@@ -113,6 +132,11 @@ namespace breathe
 
       cWidget* pParent;
       std::vector<cWidget*> children;
+
+      bool bIsVisible;
+
+      spitfire::math::cColour colourBackground;
+      spitfire::math::cColour colourText;
     };
 
     class cLayer : public cWidget
@@ -199,12 +223,26 @@ namespace breathe
       float GetButtonHeight() const;
       float GetInputHeight() const;
 
+      const spitfire::math::cColour& GetColourWindow() const { return colourWindow; }
+      const spitfire::math::cColour& GetColourWidget() const { return colourWidget; }
+      const spitfire::math::cColour& GetColourText() const { return colourText; }
+
+      cWindow* CreateWindow();
+      cStaticText* CreateStaticText();
+      cButton* CreateButton();
+      cInput* CreateInput();
+      cSlider* CreateSlider();
+
     private:
       cLayoutAbsolute HUD;
 
       spitfire::math::cVec2 HUDOffset; // For shaking the HUD
 
       cWidget* pRoot;
+
+      spitfire::math::cColour colourWindow;
+      spitfire::math::cColour colourWidget;
+      spitfire::math::cColour colourText;
     };
   }
 }

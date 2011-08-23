@@ -77,7 +77,7 @@ namespace breathe
       opengl::cGeometryBuilder_v2_c4_t2 builder(vertices, colours, textureCoordinates);
 
       // Texture coordinates
-      // NOTE: The v coordinates have been swapped, the code looks correct but with normal v coordinates the gui is rednered upside down
+      // NOTE: The v coordinates have been swapped, the code looks correct but with normal v coordinates the gui is rendered upside down
       const float fU = 0.0f;
       const float fV = 1.0f;
       const float fU2 = 1.0f;
@@ -90,7 +90,7 @@ namespace breathe
       const float fWidth = float(width);
       const float fHeight = float(height);
 
-      const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 0.5f);
+      const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 1.0f);
 
       // Front facing quad
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
@@ -107,7 +107,7 @@ namespace breathe
 
       pVBO->Compile2D(system);
 
-      pTextureFrameBufferObject = context.CreateTextureFrameBufferObject(1024, 1024, opengl::PIXELFORMAT::R8G8B8A8);
+      pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(1024, 1024, opengl::PIXELFORMAT::R8G8B8A8);
       ASSERT(pTextureFrameBufferObject != nullptr);
 
       // Create the font for rendering text
@@ -231,7 +231,7 @@ namespace breathe
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.2f, 0.2f, 0.2f, 0.5f);
+      const spitfire::math::cColour colour(manager.GetColourWindow());
 
       const float x = position.x;
       const float y = position.y;
@@ -241,7 +241,7 @@ namespace breathe
 
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget)
@@ -249,14 +249,14 @@ namespace breathe
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
+      const spitfire::math::cColour colour(manager.GetColourWidget());
 
       const float fRadius = 0.02f;
 
@@ -264,27 +264,27 @@ namespace breathe
 
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
+      const spitfire::math::cColour colour(manager.GetColourWidget());
 
       AddRect(builder, position, widget.width, widget.height, colour);
 
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, spitfire::math::cColour(1.0f, 1.0f, 1.0f, 1.0f), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
-      const spitfire::math::cColour colour(0.1f, 0.1f, 0.1f, 0.8f);
+      const spitfire::math::cColour colour(manager.GetColourWidget());
 
       AddRect(builder, position, widget.width, widget.height, colour);
     }
@@ -308,6 +308,10 @@ namespace breathe
 
       const size_t n = widget.children.size();
       for (size_t i = 0; i < n; i++) {
+        const cWidget& child = *(widget.children[i]);
+
+        // If this child is not visible then we don't need to render it
+        if (!child.IsVisible()) continue;
 
         std::vector<float> vertices;
         //std::vector<float> normals;
@@ -327,7 +331,6 @@ namespace breathe
 
         opengl::cGeometryBuilder_v2_c4_t2 builderText(verticesText, coloursText, textureCoordinatesText);
 
-        const cWidget& child = *(widget.children[i]);
         switch (child.GetType()) {
           case WIDGET_TYPE::WINDOW:
             AddWindow(builder, builderText, static_cast<const cWindow&>(child));
@@ -412,6 +415,9 @@ namespace breathe
     {
       ASSERT(!widget.children.empty());
 
+      // If this widget is not visible then we don't need to render it
+      if (!widget.IsVisible()) return;
+
       // For widgets that can group other widgets we need to render their children
       AddChildrenOfWidget(widget);
 
@@ -419,6 +425,7 @@ namespace breathe
       const size_t n = widget.children.size();
       for (size_t i = 0; i < n; i++) {
         const cWidget& child = *(widget.children[i]);
+
         if (!child.children.empty()) Visit(child);
       }
     }
