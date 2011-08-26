@@ -370,6 +370,23 @@ namespace breathe
   }
 }
 
+/*void TestGUI()
+{
+  //cTextureAtlasCustom guiTextureAtlas;
+
+  //const size_t GUI_WINDOW_BACKGROUND              = 0;
+  //const size_t GUI_WINDOW_BORDER_TOP_LEFT         = 1;
+  //const size_t GUI_WINDOW_BORDER_TOP_RIGHT        = 2;
+  //const size_t GUI_WINDOW_BORDER_BOTTOM_LEFT      = 3;
+  //const size_t GUI_WINDOW_BORDER_BOTTOM_RIGHT     = 4;
+  //const size_t GUI_WINDOW_DECORATION_CLOSE        = 5;
+  //const size_t GUI_WINDOW_DECORATION_MINIMISE     = 6;
+  //const size_t GUI_WINDOW_DECORATION_MAXIMISE     = 7;
+
+  //guiTextureAtlas.Init(pWidgetsTexture->GetWidth(), pWidgetsTexture->GetHeight());
+  //guiTextureAtlas.AddRectangle(spitfire::math::cRectangle(0.0f, 0.0f, 1.0f, 0.5f));
+  //guiTextureAtlas.AddRectangle(spitfire::math::cRectangle(0.0f, 0.5f, 1.0f, 0.5f));
+}*/
 
 /*void Test()
 {

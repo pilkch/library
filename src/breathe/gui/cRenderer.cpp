@@ -66,7 +66,7 @@ namespace breathe
       pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
       pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
 
-      pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughalphamask.vert"), TEXT("data/shaders/passthroughalphamask.frag"));
+      pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
 
       std::vector<float> vertices;
       //std::vector<float> normals;
@@ -128,38 +128,32 @@ namespace breathe
 
     void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour)
     {
-      const float fU = 0.0f;
-      const float fV = 0.0f;
-      const float fU2 = 1.0f;
-      const float fV2 = 1.0f;
+      const render::cTextureCoordinatesRectangle textureCoordinates(0.0f, 0.0f, 0.0f, 0.0f);
 
       const float x = position.x;
       const float y = position.y;
 
       // Front facing quad
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, spitfire::math::cVec2(fU2, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
-      builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
+      builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
     }
 
-    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, float fU, float fV, float fU2, float fV2)
+    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates)
     {
       const float x = position.x;
       const float y = position.y;
 
       // Front facing quad
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, spitfire::math::cVec2(fU2, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
-      builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
+      builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
     }
 
-    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation)
+    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates)
     {
-      const float fU = 0.0f;
-      const float fV = 0.0f;
-
       // Get the rotation for this orientation
       float fAngle = -90.0f;
       spitfire::math::cVec2 position = _position;
@@ -202,12 +196,20 @@ namespace breathe
         point2.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
         point2.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
 
-        // Add the point
-        builder.PushBack(position + point2, colour, spitfire::math::cVec2(fU, fV));
-        builder.PushBack(position + point1, colour, spitfire::math::cVec2(fU, fV));
-        builder.PushBack(position + point0, colour, spitfire::math::cVec2(fU, fV));
-        builder.PushBack(position, colour, spitfire::math::cVec2(fU, fV));
+        // Add the points
+        // Each segment is two triangles next to each other, so each iteration of the loop we add 4 points, 1 at the origin of the arc and the other 3 are along the outside of the arc
+        // The first and last points along the arc in each iteration will be touching a point from the previous iteration and a point from the next iteration
+        builder.PushBack(position + point2, colour, textureCoordinates.textureCoordinates[2]);
+        builder.PushBack(position + point1, colour, textureCoordinates.textureCoordinates[2]);
+        builder.PushBack(position + point0, colour, textureCoordinates.textureCoordinates[2]);
+        builder.PushBack(position, colour, textureCoordinates.textureCoordinates[0]);
       }
+    }
+
+    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation)
+    {
+      const render::cTextureCoordinatesRectangle textureCoordinates(0.0f, 0.0f, 0.0f, 0.0f);
+      AddArc(builder, position, fRadius, colour, orientation, textureCoordinates);
     }
 
     void cRenderer::AddCapsule(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
@@ -216,9 +218,9 @@ namespace breathe
       const float y = position.y;
 
       // Add a cross for the rectangular parts of the window
-      AddRect(builder, spitfire::math::cVec2(x + fRadius, y), fWidth - (2 * fRadius), fRadius, colour);
-      AddRect(builder, spitfire::math::cVec2(x, y + fRadius), fWidth, fHeight - (2 * fRadius), colour);
-      AddRect(builder, spitfire::math::cVec2(x + fRadius, y + fHeight - fRadius), fWidth - (2 * fRadius), fRadius, colour);
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y), fWidth - (2.0f * fRadius), fRadius, colour);
+      AddRect(builder, spitfire::math::cVec2(x, y + fRadius), fWidth, fHeight - (2.0f * fRadius), colour);
+      AddRect(builder, spitfire::math::cVec2(x + fRadius, y + fHeight - fRadius), fWidth - (2.0f * fRadius), fRadius, colour);
 
       // Add an arc in each corner
       AddArc(builder, spitfire::math::cVec2(x, y), fRadius, colour, ORIENTATION::TOP_LEFT);
@@ -227,9 +229,33 @@ namespace breathe
       AddArc(builder, spitfire::math::cVec2(x + fWidth - fRadius, y + fHeight - fRadius), fRadius, colour, ORIENTATION::BOTTOM_RIGHT);
     }
 
-    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& widget)
+    void cRenderer::AddDropShadow(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
     {
-      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+      {
+        // Add the rectangles for the sides, top and bottom
+        render::cTextureCoordinatesRectangle textureCoordinates(0.5f, 0.5f, 0.5f, 1.0f);
+        AddRect(builder, position - spitfire::math::cVec2(0.0f, fRadius), fWidth, fRadius, colour, textureCoordinates);
+        textureCoordinates.Rotate90DegreesClockWise();
+        AddRect(builder, position + spitfire::math::cVec2(fWidth, 0.0f), fRadius, fHeight, colour, textureCoordinates);
+        textureCoordinates.Rotate90DegreesClockWise();
+        AddRect(builder, position + spitfire::math::cVec2(0.0f, fHeight), fWidth, fRadius, colour, textureCoordinates);
+        textureCoordinates.Rotate90DegreesClockWise();
+        AddRect(builder, position - spitfire::math::cVec2(fRadius, 0.0f), fRadius, fHeight, colour, textureCoordinates);
+      }
+
+      {
+        // Add an arc in each corner
+        const render::cTextureCoordinatesRectangle textureCoordinates(0.5f, 0.51f, 0.5f, 1.0f); // NOTE: Our U coordinate is pulled slightly into the shadow part of the texture to prevent bleeding from the solid part of the texture
+        AddArc(builder, position + spitfire::math::cVec2(- fRadius, -fRadius), fRadius, colour, ORIENTATION::TOP_LEFT, textureCoordinates);
+        AddArc(builder, position + spitfire::math::cVec2(fWidth, -fRadius), fRadius, colour, ORIENTATION::TOP_RIGHT, textureCoordinates);
+        AddArc(builder, position + spitfire::math::cVec2(-fRadius, fHeight), fRadius, colour, ORIENTATION::BOTTOM_LEFT, textureCoordinates);
+        AddArc(builder, position + spitfire::math::cVec2(fWidth, fHeight), fRadius, colour, ORIENTATION::BOTTOM_RIGHT, textureCoordinates);
+      }
+    }
+
+    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& window)
+    {
+      const spitfire::math::cVec2 position = window.GetAbsolutePosition();
 
       const spitfire::math::cColour colour(manager.GetColourWindow());
 
@@ -237,11 +263,15 @@ namespace breathe
       const float y = position.y;
       const float fRadius = 0.02f;
 
-      AddCapsule(builder, position, widget.width, widget.height, fRadius, colour);
+      // Create the drop shadow for this window
+      //AddDropShadow(builder, position + spitfire::math::cVec2(fRadius, fRadius), window.width - (2.0f * fRadius), window.height - (2.0f * fRadius), 2.0f * fRadius, spitfire::math::cColour(0.0f, 0.0f, 0.0f));
+
+      // Create the geometry for this window
+      AddCapsule(builder, position, window.width, window.height, fRadius, colour);
 
 
-      // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
+      // Create the text for this window
+      pFont->PushBack(builderText, window.sCaption, window.GetTextColour(), spitfire::math::cVec2(x + ((window.width - manager.GetTextWidth(window.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget)
@@ -289,9 +319,9 @@ namespace breathe
       AddRect(builder, position, widget.width, widget.height, colour);
     }
 
-    //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, cImage& widget)
+    //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, voodoo::cImage& widget)
     //{
-    //  const cImage& image = widget.GetImage();
+    //  const voodoo::cImage& image = widget.GetImage();
     //  render image to texture
     //}
 
