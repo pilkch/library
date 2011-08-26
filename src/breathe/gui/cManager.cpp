@@ -144,6 +144,8 @@ namespace breathe
           children.erase(iter);
           break;
         }
+
+        iter++;
       }
       pChild->pParent = nullptr;
     }
