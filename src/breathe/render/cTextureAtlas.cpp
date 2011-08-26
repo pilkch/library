@@ -49,14 +49,89 @@
 #include <breathe/render/cContext.h>
 #include <breathe/render/cTexture.h>
 #include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cMaterial.h>
-#include <breathe/render/cResourceManager.h>
+//#include <breathe/render/cMaterial.h>
+//#include <breathe/render/cResourceManager.h>
 
 namespace breathe
 {
   namespace render
   {
-    cTextureAtlas::cTextureAtlas(unsigned int id)
+    // ** cTextureCoordinatesRectangle
+
+    cTextureCoordinatesRectangle::cTextureCoordinatesRectangle()
+    {
+      textureCoordinates[0].Set(0.0f, 1.0f);
+      textureCoordinates[1].Set(1.0f, 1.0f);
+      textureCoordinates[2].Set(1.0f, 0.0f);
+      textureCoordinates[3].Set(0.0f, 0.0f);
+    }
+
+    cTextureCoordinatesRectangle::cTextureCoordinatesRectangle(float fU, float fV, float fU2, float fV2)
+    {
+      textureCoordinates[0].Set(fU, fV2);
+      textureCoordinates[1].Set(fU2, fV2);
+      textureCoordinates[2].Set(fU2, fV);
+      textureCoordinates[3].Set(fU, fV);
+    }
+
+    void cTextureCoordinatesRectangle::Rotate90DegreesClockWise()
+    {
+      const spitfire::math::cVec2 temp(textureCoordinates[0]);
+      textureCoordinates[0] = textureCoordinates[1];
+      textureCoordinates[1] = textureCoordinates[2];
+      textureCoordinates[2] = textureCoordinates[3];
+      textureCoordinates[3] = temp;
+    }
+
+    void cTextureCoordinatesRectangle::Rotate90DegreesCounterClockWise()
+    {
+      const spitfire::math::cVec2 temp(textureCoordinates[3]);
+      textureCoordinates[3] = textureCoordinates[2];
+      textureCoordinates[2] = textureCoordinates[1];
+      textureCoordinates[1] = textureCoordinates[0];
+      textureCoordinates[0] = temp;
+    }
+
+    void cTextureCoordinatesRectangle::Translate(const spitfire::math::cVec2& distance)
+    {
+      textureCoordinates[0] += distance;
+      textureCoordinates[1] += distance;
+      textureCoordinates[2] += distance;
+      textureCoordinates[3] += distance;
+    }
+
+    void cTextureCoordinatesRectangle::Scale(const spitfire::math::cVec2& scale)
+    {
+      textureCoordinates[0] *= scale;
+      textureCoordinates[1] *= scale;
+      textureCoordinates[2] *= scale;
+      textureCoordinates[3] *= scale;
+    }
+
+
+    // ** cTextureAtlasCustom
+
+    cTextureAtlasCustom::cTextureAtlasCustom() :
+      width(1),
+      height(1)
+    {
+    }
+
+    void cTextureAtlasCustom::Init(size_t _width, size_t _height)
+    {
+      width = _width;
+      height = _height;
+    }
+
+    size_t cTextureAtlasCustom::AddRectangle(const spitfire::math::cRectangle& rectangle)
+    {
+      size_t i = textures.size();
+      textures.push_back(rectangle);
+      return i;
+    }
+
+
+    /*cTextureAtlas::cTextureAtlas(unsigned int id)
       : cTexture()
     {
       uiID=id;
@@ -262,8 +337,7 @@ namespace breathe
 
       Uint32 rmask, gmask, bmask, amask;
 
-      /* SDL interprets each pixel as a 32-bit number, so our masks must depend
-        on the endianness (byte order) of the machine */
+      // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
       rmask = 0xff000000;
       gmask = 0x00ff0000;
@@ -292,6 +366,78 @@ namespace breathe
       std::ostringstream t;
       t << uiTexture;
       LOG.Success("Texture", "Atlas uiTexture=" + t.str());
-    }
+    }*/
   }
 }
+
+
+/*void Test()
+{
+  // Basic wrapping case
+  breathe::render::cTextureMapper mapper;
+  cVec2 a = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(0.5f, 0.5f));
+  cVec2 b = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(1.0f, 1.0f));
+
+  // Basic wrapping case
+  breathe::render::cTextureMapper mapper;
+  cVec2 a = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(0.5f, 0.5f));
+  cVec2 b = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(10.0f, 10.0f));
+
+  set texture wrap when rendering
+
+
+  // We know the world position but not how many times to wrap
+  breathe::render::cTextureMapperRealWorld mapper;
+  mapper.SetTextureRealWorldDimensions(5.0f, 5.0f);
+  cVec2 a = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(0.5f, 0.5f));
+  cVec2 b = mapper.GetTextureCoordinateFromPositionInPlaneSpace(spitfire::math::cVec2(10.0f, 10.0f));
+
+  set texture wrap when rendering
+
+
+  // Basic case from atlas
+  breathe::render::cTextureAtlas atlas;
+
+  spitfire::math::cRectangle rectangle;
+  rectangle.SetPosition(0.4f, 0.4f);
+  rectangle.SetSize(0.2f, 0.2f);
+
+  breathe::render::cTextureAtlasSubTexture texture;
+  texture.SetRectangle(atlas, rectangle);
+
+  cVec2 a = atlas.GetTextureCoordinatesFromPointInSubTexture(texture, spitfire::math::cVec2(0.5f, 0.5f));
+  cVec2 b = atlas.GetTextureCoordinatesFromPointInSubTexture(texture, spitfire::math::cVec2(1.0f, 0.5f));
+
+  Add a simple 3x3 texture that we can then "cut" pieces out of
+  Put an icon in each one and a seamless wood grain texture at coordinate (2, 1)
+
+  const size_t nSegmentsHorizontal = 3;
+  const size_t nSegmentsVertical = 3;
+
+  const float fRectangleWidth = 1.0f / nSegmentsHorizontal;
+  const float fRectangleHeight = 1.0f / nSegmentsVertical;
+
+  spitfire::math::cRectangle rectangles[9];
+  for (size_t y = 0; y < nSegmentsHorizontal; y++) {
+     for (size_t x = 0; x < nSegmentsVertical; x++) {
+        rectangles[i].SetPosition(float(x) * fRectangleWidth, float(y) * fRectangleHeight);
+        rectangles[i].SetSize(fRectangleWidth, fRectangleHeight);
+     }
+  }
+
+  // The wood grain texture is at (2, 1)
+  const spitfire::math::cRectangle& rectangleWoodGrain = rectangles[(1 * nSegmentsHorizontal) + 2)];
+
+  breathe::render::cTextureAtlasSubTexture textureWoodGrain;
+  textureWoodGrain.SetRectangle(atlas, rectangleWoodGrain);
+
+  do not set texture wrap when rendering, to get a repeated texture we need to repeat geometry
+  const spitfire::math::cVec2 textureCoord0 = atlas.GetTextureCoordinatesFromPointInSubTexture(textureWoodGrain, spitfire::math::cVec2(0.0f, 1.0f));
+  const spitfire::math::cVec2 textureCoord1 = atlas.GetTextureCoordinatesFromPointInSubTexture(textureWoodGrain, spitfire::math::cVec2(1.0f, 1.0f));
+  const spitfire::math::cVec2 textureCoord2 = atlas.GetTextureCoordinatesFromPointInSubTexture(textureWoodGrain, spitfire::math::cVec2(1.0f, 0.0f));
+  const spitfire::math::cVec2 textureCoord3 = atlas.GetTextureCoordinatesFromPointInSubTexture(textureWoodGrain, spitfire::math::cVec2(0.0f, 0.0f));
+  for (size_t i = 0; i < 5; i++) {
+     x = float(i);
+     ...
+  }
+}*/
