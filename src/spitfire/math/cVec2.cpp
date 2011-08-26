@@ -149,12 +149,6 @@ namespace spitfire
       return !((*this)==rhs);
     }
 
-    void cVec2::operator-=(const cVec2 & rhs)
-    {
-      x -= rhs.x;
-      y -= rhs.y;
-    }
-
     void cVec2::operator*=(const float rhs)
     {
       x *= rhs;

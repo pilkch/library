@@ -77,10 +77,11 @@ namespace spitfire
       bool operator!=(const cVec2 & rhs) const;
 
       //self-add etc
-      void operator+=(const cVec2 & rhs)
-      { x+=rhs.x;  y+=rhs.y; }
+      void operator+=(const cVec2 & rhs) { x +=rhs.x; y +=rhs.y; }
+      void operator-=(const cVec2 & rhs) { x -=rhs.x; y -=rhs.y; }
+      void operator*=(const cVec2& rhs) { x *= rhs.x; y *= rhs.y; }
+      void operator/=(const cVec2& rhs) { x /= rhs.x; y /= rhs.y; }
 
-      void operator-=(const cVec2 & rhs);
       void operator*=(const float rhs);
       void operator/=(const float rhs);
 
