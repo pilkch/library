@@ -149,6 +149,23 @@ namespace opengl
     return pTexture;
   }
 
+  cTexture* cContext::CreateTextureNoMipMaps(const opengl::string_t& sFileName)
+  {
+    voodoo::cImage image;
+    if (!image.LoadFromFile(sFileName)) return nullptr;
+
+    cTexture* pTexture = new cTexture;
+    pTexture->SetDoNotUseMipMaps();
+    if (!pTexture->CreateFromImage(image)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
   cTexture* cContext::CreateTextureFromImage(const voodoo::cImage& image)
   {
     assert(image.IsValid());

@@ -58,6 +58,8 @@ namespace opengl
 
     unsigned int GetTexture() const { return uiTexture; }
 
+    void SetDoNotUseMipMaps() { bIsUsingMipMaps = false; }
+
     bool CreateFromImage(const voodoo::cImage& image);
 
     void CopyFromImageToTexture();
@@ -73,6 +75,8 @@ namespace opengl
     voodoo::cImage image;
 
     unsigned int uiTexture;
+
+    bool bIsUsingMipMaps;
 
   private:
     size_t GetBytesPerPixel() const { return image.GetBytesPerPixel(); }
@@ -94,8 +98,6 @@ namespace opengl
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
 
-    void SetDoNotUseMipMaps() { bIsUsingMipMaps = false; }
-
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }
 
@@ -113,7 +115,6 @@ namespace opengl
     void _Create();
     void _Destroy();
 
-    bool bIsUsingMipMaps;
     bool bIsCubeMap;
   };
 }

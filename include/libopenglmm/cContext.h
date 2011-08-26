@@ -82,6 +82,7 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const opengl::string_t& sFileName);
+    cTexture* CreateTextureNoMipMaps(const opengl::string_t& sFileName);
     cTexture* CreateTextureFromImage(const voodoo::cImage& image);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
