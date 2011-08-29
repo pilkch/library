@@ -118,6 +118,8 @@ namespace breathe
       const cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point) const;
       cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point);
 
+      void BringToFront(); // Brings this widget to the front (Does not change the visibility)
+
       void SetVisible(bool bVisible) { bIsVisible = bVisible; }
       bool IsVisible() const { return bIsVisible; }
 
@@ -135,6 +137,8 @@ namespace breathe
       void OnEventMouseClick(int button, float x, float y) { _OnEventMouseClick(button, x, y); }
 
     public:
+      void _BringChildToFront(cWidget& widget);
+
       virtual void _OnEventMouseDown(int button, float x, float y) {}
       virtual void _OnEventMouseUp(int button, float x, float y) {}
       virtual void _OnEventMouseMove(int button, float x, float y) {}

@@ -254,6 +254,30 @@ namespace breathe
       return nullptr;
     }
 
+    void cWidget::_BringChildToFront(cWidget& widget)
+    {
+      // If we don't have at least two children then this widget must be at the front already
+      if (children.size() < 2) return;
+
+      const size_t n = children.size() - 1;
+      for (size_t i = 0; i < n; i++) {
+        if (children[i] == &widget) {
+          // Shift each child up
+          for (; i < n; i++) children[i] = children[i + 1];
+
+          // Now set the front most child to this widget
+          children[i] = &widget;
+
+          return;
+        }
+      }
+    }
+
+    void cWidget::BringToFront()
+    {
+      if (pParent != nullptr) pParent->_BringChildToFront(*this);
+    }
+
 
     // ** cLayer
 
