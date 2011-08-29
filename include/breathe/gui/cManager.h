@@ -73,11 +73,18 @@ namespace breathe
       std::vector<float> heights;
     };
 
+    class cManager;
+
     class cWidget
     {
     public:
+      friend class cManager;
+
       cWidget();
       virtual ~cWidget();
+
+      const cWidget* GetParent() const { return pParent; }
+      cWidget* GetParent() { return pParent; }
 
       id_t GetId() const { return id; }
       void SetId(id_t id);
@@ -108,6 +115,9 @@ namespace breathe
       const cWidget* GetChildById(id_t id) const;
       cWidget* GetChildById(id_t id);
 
+      const cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point) const;
+      cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point);
+
       void SetVisible(bool bVisible) { bIsVisible = bVisible; }
       bool IsVisible() const { return bIsVisible; }
 
@@ -119,7 +129,17 @@ namespace breathe
     protected:
       explicit cWidget(WIDGET_TYPE type);
 
+      void OnEventMouseDown(int button, float x, float y) { _OnEventMouseDown(button, x, y); }
+      void OnEventMouseUp(int button, float x, float y) { _OnEventMouseUp(button, x, y); }
+      void OnEventMouseMove(int button, float x, float y) { _OnEventMouseMove(button, x, y); }
+      void OnEventMouseClick(int button, float x, float y) { _OnEventMouseClick(button, x, y); }
+
     public:
+      virtual void _OnEventMouseDown(int button, float x, float y) {}
+      virtual void _OnEventMouseUp(int button, float x, float y) {}
+      virtual void _OnEventMouseMove(int button, float x, float y) {}
+      virtual void _OnEventMouseClick(int button, float x, float y) {}
+
       id_t id;
       WIDGET_TYPE type;
       spitfire::math::cVec2 position;
@@ -131,7 +151,7 @@ namespace breathe
       bool bIsDirtyRendering;
 
       cWidget* pParent;
-      std::vector<cWidget*> children;
+      std::vector<cWidget*> children; // Children in back to front order (0 is the child lowest in the z order, n -1 is the child at the front)
 
       bool bIsVisible;
 
@@ -161,6 +181,12 @@ namespace breathe
     {
     public:
       cButton();
+
+    private:
+      virtual void _OnEventMouseDown(int button, float x, float y);
+      virtual void _OnEventMouseUp(int button, float x, float y);
+      virtual void _OnEventMouseMove(int button, float x, float y);
+      virtual void _OnEventMouseClick(int button, float x, float y);
     };
 
     class cInput : public cWidget
@@ -233,12 +259,21 @@ namespace breathe
       cInput* CreateInput();
       cSlider* CreateSlider();
 
+      // Inject events into the window manager
+      void InjectEventMouseDown(int button, float x, float y);
+      void InjectEventMouseUp(int button, float x, float y);
+      void InjectEventMouseMove(int button, float x, float y);
+
     private:
+      const cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point) const;
+      cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point);
+
       cLayoutAbsolute HUD;
 
       spitfire::math::cVec2 HUDOffset; // For shaking the HUD
 
       cWidget* pRoot;
+      id_t idMouseLeftButtonDown;
 
       spitfire::math::cColour colourWindow;
       spitfire::math::cColour colourWidget;

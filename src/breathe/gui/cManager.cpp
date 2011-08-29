@@ -17,7 +17,9 @@
 
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec2.h>
+#include <spitfire/math/cVec3.h>
 #include <spitfire/math/cColour.h>
+#include <spitfire/math/geometry.h>
 
 #include <spitfire/util/cString.h>
 
@@ -194,6 +196,64 @@ namespace breathe
       return pChild;
     }
 
+    const cWidget* cWidget::FindWidgetUnderPoint(const spitfire::math::cVec2& point) const
+    {
+      spitfire::math::cRectangle rectangle;
+
+      std::vector<cWidget*>::const_reverse_iterator iter = children.rbegin();
+      const std::vector<cWidget*>::const_reverse_iterator iterEnd = children.rend();
+      while (iter != iterEnd) {
+        const cWidget& child = *(*iter);
+        const spitfire::math::cVec2 position = child.GetAbsolutePosition();
+        rectangle.x = position.x;
+        rectangle.y = position.y;
+        rectangle.width = child.width;
+        rectangle.height = child.height;
+        if (rectangle.ContainsPoint(point)) return child.FindWidgetUnderPoint(point);
+
+        iter++;
+      }
+
+      const spitfire::math::cVec2 position = GetAbsolutePosition();
+      rectangle.x = position.x;
+      rectangle.y = position.y;
+      rectangle.width = width;
+      rectangle.height = height;
+      if (rectangle.ContainsPoint(point)) return this;
+
+      return nullptr;
+    }
+
+    cWidget* cWidget::FindWidgetUnderPoint(const spitfire::math::cVec2& point)
+    {
+      // NOTE: This must keep in line with the const version of this function
+      spitfire::math::cRectangle rectangle;
+
+      std::vector<cWidget*>::reverse_iterator iter = children.rbegin();
+      const std::vector<cWidget*>::reverse_iterator iterEnd = children.rend();
+      while (iter != iterEnd) {
+        cWidget& child = *(*iter);
+        const spitfire::math::cVec2 position = child.GetAbsolutePosition();
+        spitfire::math::cRectangle rectangle;
+        rectangle.x = position.x;
+        rectangle.y = position.y;
+        rectangle.width = child.width;
+        rectangle.height = child.height;
+        if (rectangle.ContainsPoint(point))return child.FindWidgetUnderPoint(point);
+
+        iter++;
+      }
+
+      const spitfire::math::cVec2 position = GetAbsolutePosition();
+      rectangle.x = position.x;
+      rectangle.y = position.y;
+      rectangle.width = width;
+      rectangle.height = height;
+      if (rectangle.ContainsPoint(point)) return this;
+
+      return nullptr;
+    }
+
 
     // ** cLayer
 
@@ -226,6 +286,26 @@ namespace breathe
     {
     }
 
+    void cButton::_OnEventMouseDown(int button, float x, float y)
+    {
+      std::cout<<"cButton::_OnEventMouseDown button="<<button<<" at "<<x<<","<<y<<std::endl;
+    }
+
+    void cButton::_OnEventMouseUp(int button, float x, float y)
+    {
+      std::cout<<"cButton::_OnEventMouseUp button="<<button<<" at "<<x<<","<<y<<std::endl;
+    }
+
+    void cButton::_OnEventMouseMove(int button, float x, float y)
+    {
+      std::cout<<"cButton::_OnEventMouseMove button="<<button<<" at "<<x<<","<<y<<std::endl;
+    }
+
+    void cButton::_OnEventMouseClick(int button, float x, float y)
+    {
+      std::cout<<"cButton::_OnEventMouseClick button="<<button<<" at "<<x<<","<<y<<std::endl;
+    }
+
 
     // ** cButton
 
@@ -247,6 +327,7 @@ namespace breathe
 
     cManager::cManager() :
       pRoot(nullptr),
+      idMouseLeftButtonDown(0),
       colourWindow(0.1f, 0.1f, 0.1f, 0.6f),  // Grey
       colourWidget(0.1f, 0.1f, 0.1f, 0.8f), // Dark grey
       colourText(1.0f, 1.0f, 1.0f)           // White
@@ -318,6 +399,61 @@ namespace breathe
       pWidget->SetColour(colourWidget);
       pWidget->SetTextColour(colourText);
       return pWidget;
+    }
+
+    const cWidget* cManager::FindWidgetUnderPoint(const spitfire::math::cVec2& point) const
+    {
+      ASSERT(pRoot != nullptr);
+      return pRoot->FindWidgetUnderPoint(point);
+    }
+
+    cWidget* cManager::FindWidgetUnderPoint(const spitfire::math::cVec2& point)
+    {
+      ASSERT(pRoot != nullptr);
+      return pRoot->FindWidgetUnderPoint(point);
+    }
+
+    void cManager::InjectEventMouseDown(int button, float x, float y)
+    {
+      std::cout<<"cManager::InjectEventMouseDown "<<x<<", "<<y<<std::endl;
+      idMouseLeftButtonDown = 0;
+
+      const spitfire::math::cVec2 point(x, y);
+      cWidget* pWidget = FindWidgetUnderPoint(point);
+      if (pWidget != nullptr) {
+        idMouseLeftButtonDown = pWidget->GetId();
+        std::cout<<"cManager::InjectEventMouseDown Sending event to "<<idMouseLeftButtonDown<<std::endl;
+        pWidget->OnEventMouseDown(button, x, y);
+      } else std::cout<<"cManager::InjectEventMouseDown Count not find widget to send the event to"<<std::endl;
+    }
+
+    void cManager::InjectEventMouseUp(int button, float x, float y)
+    {
+      //std::cout<<"cManager::InjectEventMouseUp "<<x<<", "<<y<<std::endl;
+      const spitfire::math::cVec2 point(x, y);
+      cWidget* pWidget = FindWidgetUnderPoint(point);
+      if (pWidget != nullptr) pWidget->OnEventMouseUp(button, x, y);
+
+      if (idMouseLeftButtonDown != 0) {
+        cWidget* pWidgetLeftButtonDown = pRoot->GetChildById(idMouseLeftButtonDown);
+        if ((pWidgetLeftButtonDown != nullptr) && (pWidget == pWidgetLeftButtonDown)) {
+          pWidgetLeftButtonDown->OnEventMouseClick(button, x, y);
+        }
+        idMouseLeftButtonDown = 0;
+      }
+    }
+
+    void cManager::InjectEventMouseMove(int button, float x, float y)
+    {
+      //std::cout<<"cManager::InjectEventMouseMove "<<x<<", "<<y<<std::endl;
+      cWidget* pWidget = nullptr;
+      if (idMouseLeftButtonDown != 0) pWidget = pRoot->GetChildById(idMouseLeftButtonDown);
+      else {
+        const spitfire::math::cVec2 point(x, y);
+        pWidget = FindWidgetUnderPoint(point);
+      }
+
+      if (pWidget != nullptr) pWidget->OnEventMouseMove(button, x, y);
     }
   }
 }
