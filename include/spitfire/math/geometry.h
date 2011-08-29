@@ -358,6 +358,8 @@ namespace spitfire
       // completely enclosed.
       const cRectangle& AddRectangleToVolume(const cRectangle& rhs);
 
+      bool ContainsPoint(const spitfire::math::cVec2& point) const;
+
       float x;
       float y;
       float width;
@@ -385,11 +387,11 @@ namespace spitfire
     {
       x = std::min(x, rhs.x);
       x = std::max(x, rhs.x);
-			const float fRightOfRHS = rhs.x + rhs.width;
-			if (fRightOfRHS > x + width) width = fRightOfRHS - x;
+      const float fRightOfRHS = rhs.x + rhs.width;
+      if (fRightOfRHS > x + width) width = fRightOfRHS - x;
 
-			const float fBottomOfRHS = rhs.y + rhs.height;
-			if (fBottomOfRHS > y + height) height = fBottomOfRHS - y;
+      const float fBottomOfRHS = rhs.y + rhs.height;
+      if (fBottomOfRHS > y + height) height = fBottomOfRHS - y;
 
       return *this;
     }

@@ -174,6 +174,15 @@ namespace spitfire
     }
 
 
+    // ** cRectangle
+
+    bool cRectangle::ContainsPoint(const spitfire::math::cVec2& point) const
+    {
+      return (point.x > x) && (point.y > y) && (point.x < x + width) && (point.y < y + height);
+    }
+
+
+    // ** cLineGenerator
 
     void cLineGenerator::GenerateLine(int x0, int y0, int x1, int y1)
     {
