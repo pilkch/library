@@ -331,7 +331,7 @@ namespace breathe
     }
 
 
-    // ** cButton
+    // ** cInput
 
     cInput::cInput() :
       cWidget(WIDGET_TYPE::INPUT)
@@ -347,14 +347,29 @@ namespace breathe
     }
 
 
+    // ** cRetroButton
+
+    cRetroButton::cRetroButton()
+    {
+      type = WIDGET_TYPE::RETRO_BUTTON;
+    }
+
+    // ** cRetroInput
+
+    cRetroInput::cRetroInput()
+    {
+      type = WIDGET_TYPE::RETRO_INPUT;
+    }
+
+
     // ** cManager
 
     cManager::cManager() :
       pRoot(nullptr),
       idMouseLeftButtonDown(0),
-      colourWindow(0.1f, 0.1f, 0.1f, 0.6f),  // Grey
+      colourWindow(0.1f, 0.1f, 0.1f, 0.6f), // Grey
       colourWidget(0.1f, 0.1f, 0.1f, 0.8f), // Dark grey
-      colourText(1.0f, 1.0f, 1.0f)           // White
+      colourText(1.0f, 1.0f, 1.0f)          // White
     {
     }
 
@@ -420,6 +435,22 @@ namespace breathe
     cSlider* cManager::CreateSlider()
     {
       cSlider* pWidget = new cSlider;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
+    cRetroButton* cManager::CreateRetroButton()
+    {
+      cRetroButton* pWidget = new cRetroButton;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
+    cRetroInput* cManager::CreateRetroInput()
+    {
+      cRetroInput* pWidget = new cRetroInput;
       pWidget->SetColour(colourWidget);
       pWidget->SetTextColour(colourText);
       return pWidget;

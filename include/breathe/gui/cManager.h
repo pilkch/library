@@ -41,6 +41,8 @@ namespace breathe
       BUTTON,
       INPUT,
       SLIDER,
+      RETRO_BUTTON,
+      RETRO_INPUT,
       INVISIBLE_CONTAINER,
     };
 
@@ -205,6 +207,20 @@ namespace breathe
       cSlider();
     };
 
+    // ** Retro versions of the normal widgets
+
+    class cRetroButton : public cButton
+    {
+    public:
+      cRetroButton();
+    };
+
+    class cRetroInput : public cInput
+    {
+    public:
+      cRetroInput();
+    };
+
     //cImage
     //cHUDText
     //cHUDImage
@@ -262,6 +278,10 @@ namespace breathe
       cButton* CreateButton();
       cInput* CreateInput();
       cSlider* CreateSlider();
+
+      // Retro versions of the normal widgets
+      cRetroInput* CreateRetroInput();
+      cRetroButton* CreateRetroButton();
 
       // Inject events into the window manager
       void InjectEventMouseDown(int button, float x, float y);

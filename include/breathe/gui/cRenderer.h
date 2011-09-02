@@ -46,6 +46,9 @@ namespace breathe
       void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget);
       void AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget);
 
+      void AddRetroButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroButton& widget);
+      void AddRetroInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInput& widget);
+
       void AddChildrenOfWidget(const cWidget& widget);
 
       void Visit(const cWidget& widget);

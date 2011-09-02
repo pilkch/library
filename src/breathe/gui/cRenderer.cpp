@@ -319,6 +319,22 @@ namespace breathe
       AddRect(builder, position, widget.width, widget.height, colour);
     }
 
+    void cRenderer::AddRetroButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroButton& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+    }
+
+    void cRenderer::AddRetroInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInput& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+    }
+
     //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, voodoo::cImage& widget)
     //{
     //  const voodoo::cImage& image = widget.GetImage();
@@ -380,6 +396,14 @@ namespace breathe
 
           case WIDGET_TYPE::SLIDER:
             AddSlider(builder, static_cast<const cSlider&>(child));
+            break;
+
+          case WIDGET_TYPE::RETRO_BUTTON:
+            AddRetroButton(builder, builderText, static_cast<const cRetroButton&>(child));
+            break;
+
+          case WIDGET_TYPE::RETRO_INPUT:
+            AddRetroInput(builder, builderText, static_cast<const cRetroInput&>(child));
             break;
 
           case WIDGET_TYPE::INVISIBLE_CONTAINER:
