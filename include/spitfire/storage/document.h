@@ -110,7 +110,8 @@ namespace spitfire
       bool GetAttribute(const std::string& sAttribute, math::cColour& value) const;
 #endif
 
-      void Clear();
+      void Clear();          // Removes all attributes including name and removes all children
+      void RemoveChildren(); // Removes all children
 
       class cConstIterator
       {

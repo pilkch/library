@@ -73,13 +73,19 @@ namespace spitfire
       pParent = nullptr;
       pNext = nullptr;
 
-      const size_t n = vChild.size();
-      for (size_t i = 0; i < n; i++) SAFE_DELETE(vChild[i]);
+      RemoveChildren();
 
       sName.clear();
       mAttribute.clear();
 
       sContentOnly.clear();
+    }
+
+    void cNode::RemoveChildren()
+    {
+      const size_t n = vChild.size();
+      for (size_t i = 0; i < n; i++) SAFE_DELETE(vChild[i]);
+      vChild.clear();
     }
 
     bool cNode::LoadFromString(const std::string& sData)
