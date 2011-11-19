@@ -2,6 +2,7 @@
 #include <cctype> // for toupper/tolower
 #include <cmath>
 
+#include <cstring>
 #include <string>
 #include <vector>
 #include <list>
@@ -28,6 +29,48 @@
 
 #define WHITE_SPACE "\t\v\r\n"
 #define LWHITE_SPACE L"\t\v\r\n"
+
+const char szWhiteSpace[] = {
+  0x09, // \t
+  0x0A, // \n
+  0x0B,
+  0x0C,
+  0x0D, // \r
+  0x20, // Space
+  0
+};
+
+const wchar_t wszWhiteSpace[] = {
+  0x0009, // <control-0009> to <control-000D>
+  0x000A,
+  0x000B,
+  0x000C,
+  0x000D,
+  0x0020, // Space
+  0x0085, // <control-0085>
+  0x00A0, // No-Break Space
+  0x1680, // Ogham Space Mark
+  0x180E, // Mongolian Vowel Separator
+  0x2000, // En Quad to Hair Space
+  0x2001,
+  0x2002,
+  0x2003,
+  0x2004,
+  0x2005,
+  0x2006,
+  0x2007,
+  0x2008,
+  0x2009,
+  0x200A,
+  0x200C, // Zero Width Non-Joiner
+  0x2028, // Line Separator
+  0x2029, // Paragraph Separator
+  0x202F, // Narrow No-Break Space
+  0x205F, // Medium Mathematical Space
+  0x3000, // Ideographic Space
+  0
+};
+
 
 namespace spitfire
 {
@@ -568,6 +611,75 @@ namespace spitfire
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c)
     {
       return ((c >= 0xD800) && (c <= 0xDBFF)) ? 2 : 1;
+    }
+
+
+    // IsValidUTF8
+    // Returns true if the string passed in is valid UTF8
+    // http://en.wikipedia.org/wiki/UTF-8
+
+    bool IsValidUTF8(const char* _szUTF8)
+    {
+      const unsigned char* szUTF8 = (const unsigned char*)_szUTF8;
+
+      const size_t len = strlen(_szUTF8);
+      for (size_t i = 0; i < len; i++) {
+         // If the current char is ANSI skip it
+         if (szUTF8[i] < 0x80) continue;
+         else if ((szUTF8[i] ^ 0xDF) <= 0x1F) { //110xxxxx
+            // make sure there is at least 1 more byte
+            if ((i + 1) >= len) return false;
+
+            // make sure the following byte starts with //10xxxxxx
+            unsigned char c = szUTF8[i + 1] ^ 0x80;
+            if (c > 0x3F) return false;
+
+            // increment
+            i += 1;
+         } else if ((szUTF8[i] ^ 0xEF) <= 0x0F) { //1110xxxx
+            // make sure there are at least two more bytes
+            if ((i + 2) >= len) return false;
+
+            // make sure the following 2 bytes start with //10xxxxxx
+            unsigned char c = (szUTF8[i + 1] & szUTF8[i + 2]) ^ 0x80;
+            if (c > 0x3F) return false;
+
+            // increment
+            i += 2;
+         } else if ((szUTF8[i] ^ 0xF7) <= 0x07) { //11110xxx
+            // make sure there are at least three more bytes
+            if ((i + 3) >= len) return false;
+
+            // make sure the following 3 bytes start with //10xxxxxx
+            unsigned char c = (szUTF8[i + 1] & szUTF8[i + 2] & szUTF8[i + 3]) ^ 0x80;
+            if (c > 0x3F) return false;
+
+            // increment
+            i += 3;
+         } else if ((szUTF8[i] ^ 0xFB) <= 0x03) { //111110xx
+            // make sure there are at least four more bytes
+            if ((i + 4) >= len) return false;
+
+            // make sure the following 4 bytes start with //10xxxxxx
+            unsigned char c = (szUTF8[i + 1] & szUTF8[i + 2] & szUTF8[i + 3] & szUTF8[i + 4]) ^ 0x80;
+            if (c > 0x3F) return false;
+
+            // increment
+            i += 4;
+         } else if ((szUTF8[i] ^ 0xBF) <= 0x01) { //1111110x
+            // make sure there are at least five more bytes
+            if ((i + 5) >= len) return false;
+
+            // make sure the following 5 bytes start with //10xxxxxx
+            unsigned char c = (szUTF8[i + 1] & szUTF8[i + 2] & szUTF8[i + 3] & szUTF8[i + 4] & szUTF8[i + 5]) ^ 0x80;
+            if (c > 0x3F) return false;
+
+            // increment
+            i += 5;
+         } else return false;
+      }
+
+      return true;
     }
 
     /*
