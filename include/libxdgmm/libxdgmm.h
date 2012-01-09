@@ -29,28 +29,52 @@
 
 #include <string>
 
+// libxdg-basedir includes
+#include <basedir.h>
+
 namespace xdg
 {
-  // For checking if xdg executables are actually present
-  bool IsInstalled();
+  // https://launchpad.net/ubuntu/+source/libxdg-basedir
+  // http://n.ethz.ch/~nevillm/download/libxdg-basedir/doc/basedir_8h.html
+  class cXdg
+  {
+  public:
+    cXdg();
+    ~cXdg();
+
+    // Checks if the handle to the library has been opened successfully
+    bool IsValid() const;
+
+    // "The base directory relative to which user specific data files should be stored"
+    // "/home/chris/"
+    std::string GetHomeDirectory();
+
+    // "The base directory relative to which user specific data files should be stored"
+    // "home/chris/.local/share/"
+    std::string GetHomeDataDirectory();
+
+    // "The base directory relative to which user specific configuration files should be stored"
+    // "home/chris/.config/"
+    std::string GetHomeConfigDirectory();
+
+    // "Base directory for user specific non-essential data files"
+    // "home/chris/.cache/"
+    std::string GetHomeTempDirectory();
 
 
-  // "The base directory relative to which user specific data files should be stored"
-  void GetHomeDirectory(std::string& directory);
+    // Opening files, folders and URLs
+    std::string GetOpenErrorString(int result);
 
-  // "The base directory relative to which user specific data files should be stored"
-  void GetDataHomeDirectory(std::string& directory);
+    int OpenFile(const std::string& file);
+    int OpenFolder(const std::string& folder);
+    int OpenURL(const std::string& url);
 
-  // "The base directory relative to which user specific configuration files should be stored"
-  void GetConfigHomeDirectory(std::string& directory);
+  private:
+    bool bIsValid;
+    xdgHandle handle;
 
-
-  // Opening files, folders and URLs
-  std::string GetOpenErrorString(int result);
-
-  int OpenFile(const std::string& file);
-  int OpenFolder(const std::string& folder);
-  int OpenURL(const std::string& url);
+    std::string home;
+  };
 }
 
 #endif // LIBXDGMM_H

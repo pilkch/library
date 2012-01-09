@@ -79,67 +79,90 @@ namespace xdg
 
 
 
-  bool IsInstalled()
+  // ** cXdg
+
+  cXdg::cXdg() :
+    bIsValid(false)
   {
-    return (!PipeReadToString("which xdg-user-dir").empty() && !PipeReadToString("which xdg-open").empty());
+    // Initialise our handle to NULL
+    handle.reserved = nullptr;
+
+    // Create our handle
+    const xdgHandle* pHandle = xdgInitHandle(&handle);
+
+    // Set our result
+    bIsValid = (pHandle != nullptr);
   }
 
-
-  // TODO: There are more of these to add
-  // xdg-user-dir --help
-
-  // XDG_DESKTOP_DIR=/home/chris/Desktop
-  // XDG_DOCUMENTS_DIR=/home/chris/
-  // XDG_DOWNLOAD_DIR=/home/chris/
-  // XDG_MUSIC_DIR=/home/chris/
-  // XDG_PICTURES_DIR=/home/chris/
-  // XDG_PUBLICSHARE_DIR=/home/chris/Public
-  // XDG_TEMPLATES_DIR=/home/chris/Templates
-  // XDG_VIDEOS_DIR=/home/chris/
-
-
-  void GetHomeDirectory(std::string& directory)
+  cXdg::~cXdg()
   {
-    directory = PipeReadToString("xdg-user-dir");
+    // Destroy our handle
+    if (bIsValid) xdgWipeHandle(&handle);
+  }
 
-    if (!directory.empty()) {
-      // The directory is everything before the first new line or tab
-      const size_t n = directory.length();
-      for (size_t i = 0; i < n; i++) {
-        if ((directory[i] == '\r') || (directory[i] == '\n') || (directory[i] == '\t')) {
-          directory = directory.substr(0, i);
+  bool cXdg::IsValid() const
+  {
+    return bIsValid;
+  }
+
+  std::string cXdg::GetHomeDirectory()
+  {
+    if (home.empty()) {
+      // Try using xdg first
+      home = PipeReadToString("xdg-user-dir");
+
+      if (!home.empty()) {
+        // The directory is everything before the first new line or tab
+        const size_t n = home.length();
+        for (size_t i = 0; i < n; i++) {
+          if ((home[i] == '\r') || (home[i] == '\n') || (home[i] == '\t')) {
+            home = home.substr(0, i);
+          }
         }
+      } else {
+        // Xdg failed, get the directory from the "HOME" environment variable
+        GetEnvironmentVariable("HOME", home);
       }
-    } else {
-      std::string home;
-      if (GetEnvironmentVariable("HOME", home)) directory = home;
     }
+
+    return home;
   }
 
-  void GetDataHomeDirectory(std::string& directory)
+  std::string cXdg::GetHomeDataDirectory()
   {
-    directory.clear();
-
-    if (!GetEnvironmentVariable("XDG_DATA_HOME", directory)) {
-      std::string home;
-      GetHomeDirectory(home);
-      directory = home + "/.local/share";
+    std::string sDirectory = xdgDataHome(&handle);
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/.local/share";
     }
+
+    return sDirectory;
   }
 
-  void GetConfigHomeDirectory(std::string& directory)
+  std::string cXdg::GetHomeConfigDirectory()
   {
-    directory.clear();
-
-    if (!GetEnvironmentVariable("XDG_CONFIG_HOME", directory)) {
-      std::string home;
-      GetHomeDirectory(home);
-      directory = home + "/.config";
+    std::string sDirectory = xdgConfigHome(&handle);
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/.config";
     }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomeTempDirectory()
+  {
+    std::string sDirectory = xdgCacheHome(&handle);
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/.cache";
+    }
+
+    return sDirectory;
   }
 
 
-  std::string GetOpenErrorString(int result)
+  std::string cXdg::GetOpenErrorString(int result)
   {
     switch (result) {
       case 1: {
@@ -159,17 +182,17 @@ namespace xdg
     return "";
   }
 
-  int OpenFile(const std::string& file)
+  int cXdg::OpenFile(const std::string& file)
   {
     return system(("xdg-open " + file).c_str());
   }
 
-  int OpenFolder(const std::string& folder)
+  int cXdg::OpenFolder(const std::string& folder)
   {
     return system(("xdg-open " + folder).c_str());
   }
 
-  int OpenURL(const std::string& url)
+  int cXdg::OpenURL(const std::string& url)
   {
     // URL needs to be wrapped in single quotes
     return system(("xdg-open '" + url + "'").c_str());
