@@ -210,9 +210,8 @@ namespace spitfire
         sPath = string::ToString_t(pw->pw_dir);
       } else {
         // Try XDG
-        std::string sDirectory;
-        xdg::GetHomeDirectory(sDirectory);
-        sPath = string::ToString_t(sDirectory);
+        xdg::cXdg xdg;
+        sPath = string::ToString_t(xdg.GetHomeDirectory());
       }
 #endif
       ASSERT(!sPath.empty());
@@ -221,9 +220,8 @@ namespace spitfire
 
     string_t GetHomeConfigurationFilesDirectory()
     {
-      std::string sDirectory;
-      xdg::GetConfigHomeDirectory(sDirectory);
-      return string::ToString_t(sDirectory);
+      xdg::cXdg xdg;
+      return string::ToString_t(xdg.GetHomeConfigDirectory());
     }
 
     string_t GetHomeImagesDirectory()

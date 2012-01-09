@@ -1,3 +1,4 @@
+// Standard includes
 #include <cassert>
 #include <cctype> // for toupper/tolower
 #include <cmath>
@@ -17,9 +18,13 @@
 
 #include <locale>
 
+// Boost includes
+#include <boost/algorithm/string.hpp>
+
 #include <iconv.h>
 #include <errno.h>
 
+// Spitfire includes
 #include <spitfire/spitfire.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
@@ -567,6 +572,20 @@ namespace spitfire
     }
 
 
+    // *** Comparison functions
+
+    bool IsEqualInsensitive(const std::string& a, const std::string& b)
+    {
+      return boost::iequals(a, b);
+    }
+
+    bool IsEqualInsensitive(const std::wstring& a, const std::wstring& b)
+    {
+      return boost::iequals(a, b);
+    }
+
+
+    // *** Formatting functions
 
     string_t FormatTime(uint32_t hours, uint32_t minutes, uint32_t seconds)
     {

@@ -93,9 +93,11 @@ namespace spitfire
 
     std::string ToLower(const std::string& source);
     std::string ToUpper(const std::string& source);
+    bool IsEqualInsensitive(const std::string& a, const std::string& b);
 
     std::wstring ToLower(const std::wstring& source);
     std::wstring ToUpper(const std::wstring& source);
+    bool IsEqualInsensitive(const std::wstring& a, const std::wstring& b);
 
 
     // UTF8 Surrogate Pairs
