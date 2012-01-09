@@ -1,6 +1,3 @@
-// Note: This file is not named file.cpp because of a stupid bug in Visual Studio 2003
-// When we upgrade to 2005+ rename it to file.cpp
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
