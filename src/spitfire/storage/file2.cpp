@@ -35,33 +35,22 @@ namespace spitfire
 {
   namespace storage
   {
-    const string_t& sLINE_ENDING_UNIX_AND_LINUX = sLINE_ENDING_LF;
-    const string_t& sLINE_ENDING_WINDOWS = sLINE_ENDING_CRLF;
-
-#ifdef PLATFORM_LINUX_OR_UNIX
-    const string_t& sLINE_ENDING_NATIVE = sLINE_ENDING_UNIX_AND_LINUX;
-#else
-    const string_t& sLINE_ENDING_NATIVE = sLINE_ENDING_WINDOWS;
-#endif
-
-    /*
-      From http://en.wikipedia.org/wiki/Byte-order_mark
-
-      DETECTED:
-      UTF-8 EF BB BF
-      UTF-16 (big-endian) FE FF
-      UTF-16 (little-endian) FF FE
-      UTF-32 (big-endian) 00 00 FE FF
-      UTF-32 (little-endian) FF FE 00 00
-      SCSU (compression) 0E FE FF
-
-      NOT DETECTED:
-      UTF-16BE, UTF-32BE (big-endian) With no BOM
-      UTF-16LE, UTF-32LE (little-endian) With no BOM
-      UTF-7  2B 2F 76 and one of the following bytes: [ 38 | 39 | 2B | 2F ]
-      UTF-EBCDIC DD 73 66 73
-      BOCU-1 FB EE 28
-    */
+    // From http://en.wikipedia.org/wiki/Byte-order_mark
+    //
+    // DETECTED:
+    // UTF-8 EF BB BF
+    // UTF-16 (big-endian) FE FF
+    // UTF-16 (little-endian) FF FE
+    // UTF-32 (big-endian) 00 00 FE FF
+    // UTF-32 (little-endian) FF FE 00 00
+    // SCSU (compression) 0E FE FF
+    //
+    // NOT DETECTED:
+    // UTF-16BE, UTF-32BE (big-endian) With no BOM
+    // UTF-16LE, UTF-32LE (little-endian) With no BOM
+    // UTF-7  2B 2F 76 and one of the following bytes: [ 38 | 39 | 2B | 2F ]
+    // UTF-EBCDIC DD 73 66 73
+    // BOCU-1 FB EE 28
 
     BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes)
     {
