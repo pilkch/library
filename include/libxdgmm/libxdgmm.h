@@ -65,9 +65,9 @@ namespace xdg
     // Opening files, folders and URLs
     std::string GetOpenErrorString(int result);
 
-    int OpenFile(const std::string& file);
-    int OpenFolder(const std::string& folder);
-    int OpenURL(const std::string& url);
+    int OpenFile(const std::string& sFilePathUTF8);
+    int OpenFolder(const std::string& sFolderPathUTF8);
+    int OpenURL(const std::string& sURLUTF8);
 
   private:
     bool bIsValid;

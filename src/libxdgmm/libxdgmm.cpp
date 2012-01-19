@@ -182,20 +182,19 @@ namespace xdg
     return "";
   }
 
-  int cXdg::OpenFile(const std::string& file)
+  int cXdg::OpenFile(const std::string& sFilePathUTF8)
   {
-    return system(("xdg-open " + file).c_str());
+    return system(("xdg-open " + sFilePathUTF8).c_str());
   }
 
-  int cXdg::OpenFolder(const std::string& folder)
+  int cXdg::OpenFolder(const std::string& sFolderPathUTF8)
   {
-    return system(("xdg-open " + folder).c_str());
+    return system(("xdg-open " + sFolderPathUTF8).c_str());
   }
 
-  int cXdg::OpenURL(const std::string& url)
+  int cXdg::OpenURL(const std::string& sURLUTF8)
   {
     // URL needs to be wrapped in single quotes
-    return system(("xdg-open '" + url + "'").c_str());
+    return system(("xdg-open '" + sURLUTF8 + "'").c_str());
   }
 }
-
