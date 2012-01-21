@@ -17,6 +17,12 @@
  *                                                                       *
  *************************************************************************/
 
+// Defines
+// BUILD_HTML_LOG - Allow logging to HTML
+// BUILD_UNITTESTS - Build spitfire unit tests
+// BUILD_SDL - Build with SDL support
+// NDEBUG - Release build (Defaults to debug build otherwise)
+
 #ifndef SPITFIRE_H
 #define SPITFIRE_H
 
@@ -32,9 +38,9 @@
 #error "Don't include mem.h directly, include spitfire.h instead"
 #endif // CMEM_H
 
-#ifdef FIRESTARTER
+#ifndef BUILD_SDL
 #define NO_SDL
-#endif // FIRESTARTER
+#endif // !BUILD_SDL
 
 // Architecture
 #if defined(_M_IA64) || defined(__ia64__) || defined(_M_AMD64) || defined(__x86_64__) || defined(__LP64__) || defined(__amd64)
@@ -171,14 +177,8 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 //#endif
 
 #ifdef NO_SDL
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef signed short int16_t;
-typedef unsigned short uint16_t;
-typedef signed int int32_t;
-typedef unsigned int uint32_t;
-typedef long long int int64_t;
-typedef unsigned long long int uint64_t;
+#include <cstdint>
+#include <cstddef>
 #else
 // For our types (uint8_t, uint32_t, etc.)
 #include <SDL/SDL.h>
@@ -260,25 +260,30 @@ namespace spitfire
 // NOTE: These are compile time so we do them in both debug and release
 #define STATIC_ASSERT(expression, szDescription) static_assert(expression, szDescription)
 
-// Assert
-namespace spitfire
-{
-#ifndef NDEBUG
-  void InformativeAssert(bool b, const char* szAssert, const char* szFile, const char* szFunction, size_t line);
-#endif
-}
-
 #ifdef ASSERT
 #undef ASSERT
 #endif
 
 #ifndef NDEBUG
 
+#ifdef BUILD_HTML_LOG
+
+// Assert
+namespace spitfire
+{
+  void InformativeAssert(bool b, const char* szAssert, const char* szFile, const char* szFunction, size_t line);
+}
+
 #ifndef __PRETTY_FUNCTION__
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
 #define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+
+#else
+#define ASSERT assert
+#endif
+
 #else
 #define ASSERT(...)
 #endif

@@ -1,6 +1,12 @@
 #ifndef CSTRING_H
 #define CSTRING_H
 
+// Standard headers
+#include <cassert>
+#include <string>
+#include <vector>
+
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 // http://www.cppreference.com/wiki/io/io_flags
@@ -109,6 +115,9 @@ namespace spitfire
     size_t GetSurrogatePairCountForMultiByteCharacter(char8_t c);
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c);
     inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { return 1; }
+
+    std::string ToASCII(const std::wstring& source);
+    std::string ToASCII(const std::string& source);
 
     std::string ToUTF8(const std::wstring& source);
     inline const std::string& ToUTF8(const std::string& source) { return source; }

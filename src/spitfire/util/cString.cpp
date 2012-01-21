@@ -807,7 +807,7 @@ namespace spitfire
         }
       }
 
-      assert(szBuffer[n] == 0);
+      ASSERT(szBuffer[n] == 0);
 
       sOut = szBuffer;
     }
@@ -852,6 +852,18 @@ namespace spitfire
       return result;
     }
 
+
+    // TODO: Do a correct conversion
+    std::string ToASCII(const std::wstring& source)
+    {
+      return ToUTF8(source);
+    }
+
+    // TODO: Do a correct conversion
+    std::string ToASCII(const std::string& source)
+    {
+      return ToUTF8(source);
+    }
 
     std::string ToUTF8(const std::wstring& source)
     {
@@ -1299,6 +1311,7 @@ namespace spitfire
 }
 
 
+#ifdef SPITFIRE_UNITTESTS
 #ifdef BUILD_DEBUG
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
@@ -1357,3 +1370,4 @@ public:
 
 cStringUnitTest gStringUnitTest;
 #endif // BUILD_DEBUG
+#endif // SPITFIRE_UNITTESTS
