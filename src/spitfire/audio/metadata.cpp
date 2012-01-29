@@ -17,9 +17,9 @@ namespace spitfire
     void cMetaData::Clear()
     {
       sArtist.clear();
-      sCompilationArtist.clear();
-      sAlbum.clear();
       sTitle.clear();
+      sAlbum.clear();
+      sAlbumArtist.clear();
       sGenre.clear();
       sComment.clear();
       uiYear = 0;

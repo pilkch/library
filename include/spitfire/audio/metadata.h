@@ -17,9 +17,9 @@ namespace spitfire
       void Clear();
 
       spitfire::string_t sArtist;
-      spitfire::string_t sCompilationArtist;
-      spitfire::string_t sAlbum;
       spitfire::string_t sTitle;
+      spitfire::string_t sAlbum;
+      spitfire::string_t sAlbumArtist;
       spitfire::string_t sGenre;
       spitfire::string_t sComment;
       uint64_t uiYear;
