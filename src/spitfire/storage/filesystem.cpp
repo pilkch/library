@@ -147,7 +147,7 @@ namespace spitfire
 
     bool DeleteFile(const string_t& sFilename)
     {
-      CONSOLE<<"DeleteFile \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
+      CONSOLE<<"DeleteFile \""<<sFilename<<"\""<<std::endl;
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
       boost::filesystem::remove(file);
       return !FileExists(sFilename);
@@ -155,11 +155,33 @@ namespace spitfire
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
-      CONSOLE<<"DeleteDirectory \""<<spitfire::string::ToUTF8(sFoldername)<<"\""<<std::endl;
+      CONSOLE<<"DeleteDirectory \""<<sFoldername<<"\""<<std::endl;
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
       return (boost::filesystem::remove_all(file) != 0);
     }
 #endif
+
+    void CopyFile(const string_t& sFrom, const string_t& sTo)
+    {
+      if (FileExists(sTo)) return;
+
+      CopyContentsOfFile(sFrom, sTo);
+
+      // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
+      //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
+    }
+
+    void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo)
+    {
+      CopyContentsOfFile(sFrom, sTo);
+
+      // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
+      //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+    }
 
     // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
     // file is a link to another file it won't destroy the link, it will actually write to the linked to file.
@@ -443,7 +465,7 @@ namespace spitfire
       ASSERT(spitfire::string::EndsWith(expanded, TEXT("/")));
       vDirectory.push_back(expanded);
 #ifndef FIRESTARTER
-      LOG.Success("FileSystem", spitfire::string::ToUTF8(TEXT("Added ") + expanded));
+      LOG<<"FileSystem Added "<<expanded<<std::endl;
 #endif
     }
 

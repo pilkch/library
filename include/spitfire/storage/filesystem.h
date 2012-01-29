@@ -1,6 +1,11 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+// Standard headers
+#include <list>
+#include <vector>
+
+// Spitfire headers
 #include <spitfire/util/cString.h>
 
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm
@@ -97,6 +102,8 @@ namespace spitfire
     bool DeleteFile(const string_t& sFilename);
     bool DeleteDirectory(const string_t& sFoldername);
 
+    void CopyFile(const string_t& sFrom, const string_t& sTo);
+    void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo);
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo);
 
     // File Opening functions
