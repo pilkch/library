@@ -1,6 +1,8 @@
 #ifndef CLOG_H
 #define CLOG_H
 
+#ifdef BUILD_LOG
+
 #undef Success
 #undef Error
 
@@ -352,5 +354,19 @@ namespace spitfire
 }
 
 extern spitfire::logging::cScreen SCREEN;
+
+#else
+
+#ifdef UNICODE
+#define LOG std::wcout
+#define CONSOLE std::wcout
+#define SCREEN std::wcout
+#else
+#define LOG std::cout
+#define CONSOLE std::cout
+#define SCREEN std::cout
+#endif
+
+#endif
 
 #endif // CLOG_H
