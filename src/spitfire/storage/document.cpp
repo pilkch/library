@@ -26,7 +26,7 @@
 
 #include <spitfire/storage/document.h>
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+#ifdef BUILD_XML_MATH
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
@@ -101,10 +101,7 @@ namespace spitfire
       std::ifstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
-#ifndef FIRESTARTER
-        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning false");
         CONSOLE<<"XML "<<inFilename<<" not found, returning false"<<std::endl;
-#endif
         return false;
       }
 
@@ -118,7 +115,7 @@ namespace spitfire
       }
       f.close();
 
-      LOG<<"XML "<<inFilename<<" contains \""<<sData<<"\", returning"<<std::endl;
+      LOG<<"XML "<<inFilename<<" contains \""<<spitfire::string::ToString_t(sData)<<"\", returning"<<std::endl;
       return LoadFromString(sData);
     }
 
@@ -135,7 +132,7 @@ namespace spitfire
 
           if (nEndDeclaration == std::string::npos) {
 #ifndef FIRESTARTER
-            LOG.Error("XML", "Unterminated XML declaration");
+            LOG<<"XML Unterminated XML declaration"<<std::endl;
 #endif
             return "";
           }
@@ -151,9 +148,7 @@ namespace spitfire
           const size_t nEndComment = sData.find("-->");
 
           if (nEndComment == std::string::npos) {
-#ifndef FIRESTARTER
-            LOG.Error("XML", "Unterminated Comment");
-#endif
+            LOG<<"XML Unterminated Comment"<<std::endl;
             return "";
           }
 
@@ -188,17 +183,13 @@ namespace spitfire
               std::string sClose=string::StripTrailing(string::StripLeading(sData.substr(1, angleBracket-1), " "), " ");
 
               if (sClose != sName) {
-#ifndef FIRESTARTER
-                LOG.Error("XML", "Opening tag \"" + sName + "\" doesn't match closing tag \"" + sClose + "\"");
-#endif
+                LOG<<"XML Opening tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't match closing tag \""<<spitfire::string::ToString_t(sClose)<<"\""<<std::endl;
                 return "";
               }
 
               sData=string::StripLeading(sData.substr(angleBracket+1), " ");
             } else {
-#ifndef FIRESTARTER
-              LOG.Error("XML", "Tag \"" + sName + "\" doesn't have a closing tag");
-#endif
+              LOG<<"XML Tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't have a closing tag"<<std::endl;
               return "";
             }
 
@@ -217,7 +208,7 @@ namespace spitfire
 
             cNode* p = CreateNodeAsChildAndAppend();
 
-            LOG<<"Found node "<<inName<<std::endl;
+            LOG<<"Found node "<<spitfire::string::ToString_t(inName)<<std::endl;
             p->sName = inName;
 
             // Fill in attributes if any, and find the end of the opening tag
@@ -313,9 +304,9 @@ namespace spitfire
     }
 
 
-    bool cNode::SaveToFile(const string_t& inFilename) const
+    bool cNode::SaveToFile(const string_t& sFilename) const
     {
-      std::ofstream f(spitfire::string::ToUTF8(inFilename).c_str());
+      std::ofstream f(spitfire::string::ToUTF8(sFilename).c_str());
 
       if (f.is_open()) {
         // Write the header
@@ -329,9 +320,7 @@ namespace spitfire
         return true;
       }
 
-#ifndef FIRESTARTER
-        LOG.Error("XML", spitfire::string::ToUTF8(inFilename) + " not found, returning false");
-#endif
+      LOG<<"XML Error could not open \""<<spitfire::string::ToString_t(sFilename)<<"\", returning false"<<std::endl;
       return false;
     }
 
@@ -391,23 +380,14 @@ namespace spitfire
           if (!vChild.empty()) sTag+="&gt;";
           else sTag+="/&gt;";
 
-#ifndef FIRESTARTER
-          LOG.Success("XML", sTag.c_str());
-#endif
+          LOG<<"XML "<<spitfire::string::ToString_t(sTag)<<std::endl;
         }
-      }
-#ifndef FIRESTARTER
-      else
-        LOG.Success("XML", sTab + "Content=\"" + sContentOnly + "\"");
-#endif
+      } else LOG<<"XML "<<spitfire::string::ToString_t(sTab)<<"Content=\""<<spitfire::string::ToString_t(sContentOnly)<<"\""<<std::endl;
 
       n = vChild.size();
       for (i=0;i<n;i++) vChild[i]->PrintToLog(sTab + "&nbsp;");
 
-#ifndef FIRESTARTER
-      if (!vChild.empty() && !sName.empty())
-        LOG.Success("XML", (sTab + "&lt;/" + sName + "&gt;").c_str());
-#endif
+      if (!vChild.empty() && !sName.empty()) LOG<<"XML "<<spitfire::string::ToString_t(sTab)<<"&lt;/"<<spitfire::string::ToString_t(sName)<<"&gt;"<<std::endl;
     }
 #endif // BUILD_DEBUG
 
@@ -557,6 +537,16 @@ namespace spitfire
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
     }
 
+    void cNode::SetAttribute(const std::string& sAttribute, uint32_t value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
+    }
+
+    void cNode::SetAttribute(const std::string& sAttribute, int32_t value)
+    {
+      mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
+    }
+
     void cNode::SetAttribute(const std::string& sAttribute, uint64_t value)
     {
       mAttribute[sAttribute] = spitfire::string::ToUTF8(spitfire::string::ToString(value));
@@ -586,7 +576,7 @@ namespace spitfire
       mAttribute[sAttribute] = o.str();
     }
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+    #ifdef BUILD_XML_MATH
     void cNode::SetAttribute(const std::string& sAttribute, const math::cVec3& value)
     {
       std::ostringstream o;
@@ -629,7 +619,7 @@ namespace spitfire
 
       mAttribute[sAttribute] = o.str();
     }
-#endif
+    #endif // BUILD_XML_MATH
 
 
     bool cNode::GetAttribute(const std::string& sAttribute, std::string& value) const
@@ -661,6 +651,30 @@ namespace spitfire
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
         value = spitfire::string::ToBool(spitfire::string::ToString_t(iter->second));
+
+        return true;
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, uint32_t& value) const
+    {
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      if (iter != mAttribute.end()) {
+        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(iter->second));
+
+        return true;
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, int32_t& value) const
+    {
+      const_attribute_iterator iter = mAttribute.find(sAttribute);
+      if (iter != mAttribute.end()) {
+        value = spitfire::string::ToInt(spitfire::string::ToString_t(iter->second));
 
         return true;
       }
@@ -713,7 +727,7 @@ namespace spitfire
       return false;
     }
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+    #ifdef BUILD_XML_MATH
     bool cNode::GetAttribute(const std::string& sAttribute, math::cVec3& value) const
     {
       value.SetZero();
@@ -777,6 +791,6 @@ namespace spitfire
 
       return false;
     }
-#endif
+    #endif // BUILD_XML_MATH
   }
 }

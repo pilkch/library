@@ -1,8 +1,10 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+// Spitfire headers
 #include <spitfire/util/cString.h>
+
+#ifdef BUILD_XML_MATH
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cColour.h>
@@ -66,15 +68,17 @@ namespace spitfire
       void SetAttribute(const std::string& sAttribute, const std::string& sValue);
       void SetAttribute(const std::string& sAttribute, const std::wstring& sValue);
       void SetAttribute(const std::string& sAttribute, const bool value);
+      void SetAttribute(const std::string& sAttribute, const uint32_t value);
+      void SetAttribute(const std::string& sAttribute, const int32_t value);
       void SetAttribute(const std::string& sAttribute, const uint64_t value);
       void SetAttribute(const std::string& sAttribute, const int64_t value);
       void SetAttribute(const std::string& sAttribute, const float* pValue, size_t nValues);
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+      #ifdef BUILD_XML_MATH
       void SetAttribute(const std::string& sAttribute, const math::cVec3& value);
       void SetAttribute(const std::string& sAttribute, const math::cQuaternion& value);
       void SetAttribute(const std::string& sAttribute, const math::cColour& value);
-#endif
+      #endif
 
       bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DELCARATION; }
       bool IsCommentOnly() const { return type == TYPE::COMMENT; }
@@ -100,15 +104,17 @@ namespace spitfire
       bool GetAttribute(const std::string& sAttribute, std::string& value) const;
       bool GetAttribute(const std::string& sAttribute, std::wstring& value) const;
       bool GetAttribute(const std::string& sAttribute, bool& value) const;
+      bool GetAttribute(const std::string& sAttribute, uint32_t& value) const;
+      bool GetAttribute(const std::string& sAttribute, int32_t& value) const;
       bool GetAttribute(const std::string& sAttribute, uint64_t& value) const;
       bool GetAttribute(const std::string& sAttribute, int64_t& value) const;
       bool GetAttribute(const std::string& sAttribute, float* pValue, size_t nValues) const;
 
-#if !defined(FIRESTARTER) && !defined(BUILDALL)
+      #ifdef BUILD_XML_MATH
       bool GetAttribute(const std::string& sAttribute, math::cVec3& value) const;
       bool GetAttribute(const std::string& sAttribute, math::cQuaternion& value) const;
       bool GetAttribute(const std::string& sAttribute, math::cColour& value) const;
-#endif
+      #endif
 
       void Clear();          // Removes all attributes including name and removes all children
       void RemoveChildren(); // Removes all children
