@@ -1,6 +1,16 @@
 #ifndef CTHREAD_H
 #define CTHREAD_H
 
+// Standard headers
+#include <thread>
+#include <mutex>
+
+// Boost headers
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
 namespace spitfire
 {
   namespace util
@@ -164,6 +174,7 @@ namespace spitfire
     };
 
     inline cSignalObject::cSignalObject(const std::string& _sName) :
+      mutex(_sName + "_mutex"),
       sName(_sName),
       bIsSignalled(false)
     {
