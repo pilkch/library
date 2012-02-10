@@ -232,7 +232,7 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
 namespace spitfire
 {
   // Types
-  typedef uint32_t sampletime_t;
+  typedef uint64_t sampletime_t;
 }
 
 

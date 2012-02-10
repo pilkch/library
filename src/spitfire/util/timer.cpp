@@ -1,11 +1,9 @@
 #include <cmath>
 
-#include <SDL/SDL.h>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cTimer.h>
+#include <spitfire/util/timer.h>
 
 namespace spitfire
 {
@@ -88,5 +86,41 @@ namespace spitfire
         iCount = 0;
       }
     }
+
+
+    #ifdef __WIN__
+    // http://social.msdn.microsoft.com/Forums/en-US/vcgeneral/thread/430449b3-f6dd-4e18-84de-eebd26a8d668/
+    int gettimeofday(struct timeval* tv, struct timezone* tz)
+    {
+      FILETIME ft;
+      unsigned int64_t tmpres = 0;
+
+      if (tv != nullptr) {
+        GetSystemTimeAsFileTime(&ft);
+
+        tmpres |= ft.dwHighDateTime;
+        tmpres <<= 32;
+        tmpres |= ft.dwLowDateTime;
+
+        // Convert file time to unix epoch
+        tmpres /= 10;  // Convert to microseconds
+        tmpres -= DELTA_EPOCH_IN_MICROSECS;
+        tv->tv_sec = long(tmpres / 1000000UL);
+        tv->tv_usec = long(tmpres % 1000000UL);
+      }
+
+      if (tz != nullptr) {
+        static bool bHasSetTimeZone = false;
+        if (!bHasSetTimeZone) {
+          _tzset();
+          bHasSetTimeZone = true;
+        }
+        tz->tz_minuteswest = _timezone / 60;
+        tz->tz_dsttime = _daylight;
+      }
+
+      return 0;
+    }
+    #endif
   }
 }

@@ -39,10 +39,25 @@ namespace spitfire
       float fUpdateIntervalDivFPS;
     };
 
+
+    #ifdef __WIN__
+    struct timeval {
+      long tv_sec;  // Time interval, in seconds
+      long tv_usec; // Time interval, in microseconds
+    };
+    struct timezone {
+      int tz_minuteswest; // Minutes W of Greenwich
+      int tz_dsttime;     // Type of daylight savings correction
+    };
+    // http://social.msdn.microsoft.com/Forums/en-US/vcgeneral/thread/430449b3-f6dd-4e18-84de-eebd26a8d668/
+    int gettimeofday(struct timeval* tv, struct timezone* tz);
+    #endif
+
     inline sampletime_t GetTimeMS()
     {
-      // Return the milliseconds since we started
-      return SDL_GetTicks();
+      timeval tvNow;
+      gettimeofday(&tvNow, nullptr);
+      return (uint64_t(tvNow.tv_sec) * 1000) + (uint64_t(tvNow.tv_usec) / 1000);
     }
   }
 }
