@@ -228,5 +228,155 @@ namespace spitfire
     {
       AppendText(filename, spitfire::string::ToUTF8(contents));
     }
+
+
+    // ** cReadFile
+
+    cReadFile::cReadFile()
+    {
+    }
+
+    cReadFile::cReadFile(const string_t& sFilePath)
+    {
+      Open(sFilePath);
+    }
+
+    cReadFile::cReadFile(const string_t& sFilePath, uint32_t uTimeoutMS)
+    {
+      Open(sFilePath, uTimeoutMS);
+    }
+
+    bool cReadFile::Open(const string_t& sFilePath)
+    {
+      file.open(spitfire::string::ToUTF8(sFilePath).c_str(), std::ios::in | std::ios::binary);
+      return file.is_open();
+    }
+
+    bool cReadFile::Open(const string_t& sFilePath, uint32_t uTimeoutMS)
+    {
+      // TODO: Implement this function
+      return false;
+    }
+
+    void cReadFile::Close()
+    {
+      file.close();
+    }
+
+    size_t cReadFile::Read(void* pBuffer, size_t uiBufferSizeBytes)
+    {
+      file.read(static_cast<char*>(pBuffer), uiBufferSizeBytes);
+      return file.gcount();
+    }
+
+    bool cReadFile::ReadLineUTF8(string_t& sLine)
+    {
+      sLine.clear();
+
+      const size_t nBufferSize = 100;
+      char szBufferUTF8[nBufferSize + 1];
+      std::ostringstream o;
+      bool bFoundNewLine = false;
+      while (file.good() && !bFoundNewLine) {
+        file.read(&szBufferUTF8[0], nBufferSize);
+        const size_t nRead = file.gcount();
+        if (nRead == 0) break; // End of file
+
+        // Null terminate the buffer
+        szBufferUTF8[nBufferSize] = 0; // Terminate at the end of the buffer
+        szBufferUTF8[nRead] = 0; // Terminate at the end of what was read
+
+        for (size_t i = 0; i < nRead; i++) {
+          if ((szBufferUTF8[i] == '\r') || (szBufferUTF8[i] == '\n')) {
+            // Add the string to the output buffer
+            szBufferUTF8[i] = 0;
+            o<<szBufferUTF8;
+
+            // Skip to the next character
+            if (szBufferUTF8[i] == '\r') {
+              // Skip to the next character
+              i++;
+
+              char c = 0;
+              if (i < nRead) c = szBufferUTF8[i];
+              else {
+                // We are at the end of the buffer, we have to check the actual file
+                c = file.peek();
+              }
+
+              if (c == '\n') {
+                // Skip to the next character
+                i++;
+              }
+            } else {
+              // Skip to the next character
+              i++;
+            }
+
+            // Seek backwards to just after our new line character(s)
+            file.seekg(-(nRead - i), std::ios::cur);
+
+            bFoundNewLine = true;
+            break;
+          }
+        }
+
+        if (!bFoundNewLine) {
+          // Add the string to our output buffer
+          o<<szBufferUTF8;
+        }
+      }
+
+      sLine = string::ToString_t(o.str());
+
+      return !sLine.empty();
+    }
+
+
+    // ** cWriteFile
+
+    cWriteFile::cWriteFile()
+    {
+    }
+
+    cWriteFile::cWriteFile(const string_t& sFilePath)
+    {
+      Open(sFilePath);
+    }
+
+    cWriteFile::cWriteFile(const string_t& sFilePath, uint32_t uTimeoutMS)
+    {
+      Open(sFilePath, uTimeoutMS);
+    }
+
+    bool cWriteFile::Open(const string_t& sFilePath)
+    {
+      file.open(spitfire::string::ToUTF8(sFilePath).c_str(), std::ios::out | std::ios::binary);
+      return file.is_open();
+    }
+
+    bool cWriteFile::Open(const string_t& sFilePath, uint32_t uTimeoutMS)
+    {
+      // TODO: Implement this function
+      return false;
+    }
+
+    void cWriteFile::Close()
+    {
+      file.close();
+    }
+
+    size_t cWriteFile::Write(const void* pBuffer, size_t uiBufferSizeBytes)
+    {
+      file.write(static_cast<const char*>(pBuffer), uiBufferSizeBytes);
+      return true;
+    }
+
+    bool cWriteFile::WriteStringUTF8(const string_t& str)
+    {
+      const std::string sStringUTF8 = string::ToUTF8(str);
+      file.write(static_cast<const char*>(sStringUTF8.c_str()), sStringUTF8.length());
+      return true;
+    }
   }
 }

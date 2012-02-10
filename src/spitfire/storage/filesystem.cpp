@@ -452,6 +452,83 @@ namespace spitfire
     }
 
 
+
+    bool IsPathRelative(const string_t& sPath)
+    {
+      return (
+        (sPath[0] == TEXT('/')) ||
+        (sPath[0] == TEXT('\\')) ||
+        ((sPath[0] != 0) && (sPath[1] == TEXT(':')))
+      );
+    }
+
+    string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath)
+    {
+      std::cout<<"MakePathAbsolute"<<std::endl;
+
+      if (IsPathRelative(sRelativePath)) return MakeFilePath(sRootPath, sRelativePath);
+
+      // Path is already absolute
+      return sRelativePath;
+    }
+
+    string_t MakePathRelative(const string_t& sBaseFolder, const string_t& sAbsolutePath)
+    {
+      // Find the last folder separator where the paths differ
+      size_t idx = 0;
+      size_t iLastFolder = 0;
+      char_t cFolder = 0;
+      const size_t nBaseLen = sBaseFolder.length();
+      const size_t nAbsoluteLen = sAbsolutePath.length();
+      while ((idx < nBaseLen) && (idx < nAbsoluteLen) && (sBaseFolder[idx] == sAbsolutePath[idx])) {
+        // Store which folder separator to use when creating the relative path later
+        if ((sBaseFolder[idx] == '\\') || (sBaseFolder[idx] == '/')) {
+          cFolder = sBaseFolder[idx];
+          iLastFolder = idx;
+        }
+
+        idx++;
+      }
+
+      // If cFolder is 0 and we aren't at the end of sBaseFolder or the next character of the Absolute Path isn't a folder separator,
+      // the absolute path is completely different (on a different drive, server, etc.) than the base folder so just return the absolute path
+      if ((cFolder == 0) &&
+        ((sBaseFolder[idx] != 0) || ((sAbsolutePath[idx] != '\\') && (sAbsolutePath[idx] != '/')))
+      ) {
+        return sAbsolutePath;
+      }
+
+      if ((idx == nBaseLen) && ((sAbsolutePath[idx] == '/') ||
+        (sAbsolutePath[idx] == '\\') || (sAbsolutePath[idx - 1] == '/') ||
+        (sAbsolutePath[idx - 1] == '\\'))
+      ) {
+        // The whole base folder name is in the file path, so we just trim off the base folder path to get the current file path
+        if ((sAbsolutePath[idx] == '/') || (sAbsolutePath[idx] == '\\')) idx++;
+
+        return sAbsolutePath.substr(idx);
+      }
+
+      // The absolute path is not a child directory of the base folder so we need to add "../" for each directory up to the parent
+      // First find out how many levels deeper we are than the common directory
+      size_t nLevels = 1;
+      for (; idx < nBaseLen - 1; idx++) {
+        if ((sBaseFolder[idx] == '/') || (sBaseFolder[idx] == '\\')) nLevels++;
+      }
+
+      // Add a "../" for each folder we have to go up
+      ostringstream_t o;
+      for (size_t i = 0; i < nLevels; i++) {
+        o<<TEXT("..");
+        o<<cFolder;
+      }
+
+      // Copy the rest of the filename into the result string
+      o<<sAbsolutePath.substr(iLastFolder + 1);
+
+      return o.str();
+    }
+
+
     void AddDirectory(const string_t& sDirectory)
     {
       string_t expanded = ExpandPath(sDirectory);

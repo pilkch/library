@@ -42,6 +42,12 @@ namespace spitfire
 {
   namespace filesystem
   {
+    #ifdef __WIN__
+    const string_t sFilePathSeparator = TEXT("\\");
+    #else
+    const string_t sFilePathSeparator = TEXT("/");
+    #endif
+
     void SetThisExecutable(const string_t& executable);
     string_t GetThisApplicationDirectory();
     string_t GetApplicationSettingsDirectory(const string_t& sApplication);
@@ -86,13 +92,17 @@ namespace spitfire
 
     bool IsFolderWritable(const string_t& sFolderPath);
 
-    string_t StripLastDirectory(const string_t& path);
-    string_t ExpandPath(const string_t& path);
+    string_t StripLastDirectory(const string_t& sFolderPath); // Returns a string with the last folder of path removed
+    string_t ExpandPath(const string_t& sPath);
 
-    string_t GetPath(const string_t& sFilename);
-    string_t GetFile(const string_t& sFilename);
-    string_t GetFileNoExtension(const string_t& sFilename);
-    string_t GetExtension(const string_t& sFilename);
+    string_t GetPath(const string_t& sFilename); // Returns just the directory "/folder1/folder2/"
+    string_t GetFile(const string_t& sFilename); // Returns just the file "file.txt"
+    string_t GetFileNoExtension(const string_t& sFilename);  // Returns just the name "file"
+    string_t GetExtension(const string_t& sFilename); // Returns just the extension ".txt"
+
+    bool IsPathRelative(const string_t& sFilePath);
+    string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath);
+    string_t MakePathRelative(const string_t& sRootPath, const string_t& sFullPath);
 
     bool FileExists(const string_t& sFilename);
     bool DirectoryExists(const string_t& sFoldername);

@@ -57,10 +57,6 @@ namespace spitfire
       cThread* pThis = this;
       pThread = new boost::thread(boost::bind(&cThread::RunThreadFunction, pThis));
     }
-
-
-
-    // *** cSignalObject
   }
 }
 
