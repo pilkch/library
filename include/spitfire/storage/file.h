@@ -5,7 +5,7 @@
 #include <fstream>
 
 // Spitfire headers
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #ifdef __WIN__
 #pragma push_macro("CreateDirectory")

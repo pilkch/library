@@ -6,7 +6,7 @@
 #include <vector>
 
 // Spitfire headers
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm#tutorial

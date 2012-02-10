@@ -2,7 +2,7 @@
 #define DOCUMENT_H
 
 // Spitfire headers
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #ifdef BUILD_XML_MATH
 #include <spitfire/math/math.h>

@@ -13,7 +13,7 @@
 
 // Spitfire Includes
 #include <spitfire/spitfire.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/file.h>

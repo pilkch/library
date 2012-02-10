@@ -1,7 +1,7 @@
 #ifndef SPITFIRE_METADATA_H
 #define SPITFIRE_METADATA_H
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 namespace spitfire
 {

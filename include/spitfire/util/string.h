@@ -115,6 +115,11 @@ namespace spitfire
     size_t GetSurrogatePairCountForMultiByteCharacter(char8_t c);
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c);
     inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { return 1; }
+    #ifdef __WIN__
+    inline size_t GetSurrogatePairCountForMultiByteCharacter(wchar_t c) { return GetSurrogatePairCountForMultiByteCharacter(char16_t(c)); }
+    #else
+    inline size_t GetSurrogatePairCountForMultiByteCharacter(wchar_t c) { return GetSurrogatePairCountForMultiByteCharacter(char32_t(c)); }
+    #endif
 
     std::string ToASCII(const std::wstring& source);
     std::string ToASCII(const std::string& source);
