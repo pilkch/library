@@ -60,19 +60,26 @@ namespace spitfire
   }
 }
 
+#ifdef BUILD_SPITFIRE_UNITTEST
 #ifdef BUILD_DEBUG
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
 class cDerivedThreadForUnitTest : public spitfire::util::cThread
 {
 public:
+  cDerivedThreadForUnitTest();
 
 private:
   void ThreadFunction();
 };
+
+cDerivedThreadForUnitTest::cDerivedThreadForUnitTest() :
+  spitfire::util::cThread("cDerivedThreadForUnitTest")
+{
+}
 
 void cDerivedThreadForUnitTest::ThreadFunction()
 {

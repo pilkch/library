@@ -1,7 +1,11 @@
 #ifndef UNITEST_H
 #define UNITEST_H
 
-#include <spitfire/util/cString.h>
+#ifndef BUILD_SPITFIRE_UNITTEST
+#error "BUILD_SPITFIRE_UNITTEST must be defined to use Spitfire unit tests"
+#endif
+
+#include <spitfire/util/string.h>
 
 #if !defined NDEBUG || defined(BUILD_DEBUG)
 
