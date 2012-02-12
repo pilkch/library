@@ -332,9 +332,9 @@ namespace spitfire
 
       std::string::size_type i = sString.find(sFind);
 
-      // If we found this string then return everything after the found string
+      // If we found this string then return everything up to the found string
       if (std::string::npos != i) {
-        sResult = sString.substr(i);
+        sResult = sString.substr(0, i);
         return true;
       }
 
@@ -383,7 +383,7 @@ namespace spitfire
       ASSERT(!IsEmpty());
 
       bool bResult = GetToString(sFind, sResult);
-      sString = sString.substr(sResult.length());
+      if (bResult) sString = sString.substr(sResult.length() + sFind.length());
 
       return bResult;
     }

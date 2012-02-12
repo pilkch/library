@@ -212,11 +212,20 @@ namespace spitfire
       return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
     }
 
+
     bool IsWhiteSpace(wchar_t c)
     {
       // We regard space, tab, new line and carriage return characters as white space
+      // TODO: Use boost::is_space?
       return (c == L' ') || (c == L'\t') || (c == L'\n') || (c == L'\r');
     }
+
+    // TODO: Use boost::is_alnum
+    // TODO: Use boost::is_alpha
+    // TODO: Use boost::is_lower
+    // TODO: Use boost::is_print
+    // TODO: Use boost::is_upper
+
 
     size_t CountOccurrences(const std::string& source, const std::string& sFind)
     {
@@ -527,6 +536,11 @@ namespace spitfire
       return (source.substr(0, find.length()) == find);
     }
 
+    // TODO: Use boost::starts_with
+    // TODO: Use boost::istarts_with
+    // TODO: Use boost::ends_with
+    // TODO: Use boost::iends_with
+
     bool BeginsWith(const std::wstring& source, const std::wstring& find)
     {
       if (source.length() < find.length()) return false;
@@ -550,6 +564,9 @@ namespace spitfire
 
 
     // *** Conversion Functions
+
+    // TODO: Use boost::toupper
+    // TODO: Use boost::toupper
 
     std::string ToLower(const std::string& source)
     {
