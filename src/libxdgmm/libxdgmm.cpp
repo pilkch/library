@@ -105,6 +105,30 @@ namespace xdg
     return bIsValid;
   }
 
+  std::string cXdg::GetDirectory(const std::string& sTag) const
+  {
+    // Try using xdg first
+    std::string sDirectory = PipeReadToString("xdg-user-dir " + sTag);
+
+    if (!sDirectory.empty()) {
+      // The directory is everything before the first new line or tab
+      const size_t n = sDirectory.length();
+      for (size_t i = 0; i < n; i++) {
+        if ((sDirectory[i] == '\r') || (sDirectory[i] == '\n') || (sDirectory[i] == '\t')) {
+          sDirectory = sDirectory.substr(0, i);
+          break;
+        }
+      }
+    }
+
+    if (sDirectory.empty()) {
+      // Xdg failed, get the directory from the environment variable for this tag
+      GetEnvironmentVariable(sTag.c_str(), sDirectory);
+    }
+
+    return sDirectory;
+  }
+
   std::string cXdg::GetHomeDirectory()
   {
     if (home.empty()) {
@@ -117,9 +141,12 @@ namespace xdg
         for (size_t i = 0; i < n; i++) {
           if ((home[i] == '\r') || (home[i] == '\n') || (home[i] == '\t')) {
             home = home.substr(0, i);
+            break;
           }
         }
-      } else {
+      }
+
+      if (home.empty()) {
         // Xdg failed, get the directory from the "HOME" environment variable
         GetEnvironmentVariable("HOME", home);
       }
@@ -161,6 +188,71 @@ namespace xdg
     return sDirectory;
   }
 
+  std::string cXdg::GetHomeDesktopDirectory()
+  {
+    std::string sDirectory = GetDirectory("DESKTOP");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Desktop";
+    }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomeDownloadsDirectory()
+  {
+    std::string sDirectory = GetDirectory("DOWNLOAD");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Downloads";
+    }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomeDocumentsDirectory()
+  {
+    std::string sDirectory = GetDirectory("DOCUMENTS");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Documents";
+    }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomeMusicDirectory()
+  {
+    std::string sDirectory = GetDirectory("MUSIC");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Music";
+    }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomePicturesDirectory()
+  {
+    std::string sDirectory = GetDirectory("PICTURES");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Pictures";
+    }
+
+    return sDirectory;
+  }
+
+  std::string cXdg::GetHomeVideosDirectory()
+  {
+    std::string sDirectory = GetDirectory("VIDEOS");
+    if (sDirectory.empty() || (sDirectory[0] == 0)) {
+      const std::string sHome = GetHomeDirectory();
+      sDirectory = sHome + "/Videos";
+    }
+
+    return sDirectory;
+  }
 
   std::string cXdg::GetOpenErrorString(int result)
   {

@@ -50,15 +50,39 @@ namespace xdg
     std::string GetHomeDirectory();
 
     // "The base directory relative to which user specific data files should be stored"
-    // "home/chris/.local/share/"
+    // "/home/chris/.local/share/"
     std::string GetHomeDataDirectory();
 
     // "The base directory relative to which user specific configuration files should be stored"
-    // "home/chris/.config/"
+    // "/home/chris/.config/"
     std::string GetHomeConfigDirectory();
 
+    // User desktop folder
+    // "/home/chris/Desktop/"
+    std::string GetHomeDesktopDirectory();
+
+    // User documents folder
+    // "/home/chris/Documents/"
+    std::string GetHomeDocumentsDirectory();
+
+    // User downloads folder
+    // "/home/chris/Download/"
+    std::string GetHomeDownloadsDirectory();
+
+    // User music folder
+    // "/home/chris/Music/"
+    std::string GetHomeMusicDirectory();
+
+    // User pictures folder
+    // "/home/chris/Pictures/"
+    std::string GetHomePicturesDirectory();
+
+    // User videos folder
+    // "/home/chris/Videos/"
+    std::string GetHomeVideosDirectory();
+
     // "Base directory for user specific non-essential data files"
-    // "home/chris/.cache/"
+    // "/home/chris/.cache/"
     std::string GetHomeTempDirectory();
 
 
@@ -70,6 +94,8 @@ namespace xdg
     int OpenURL(const std::string& sURLUTF8);
 
   private:
+    std::string GetDirectory(const std::string& sTag) const;
+
     bool bIsValid;
     xdgHandle handle;
 
