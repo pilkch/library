@@ -271,65 +271,36 @@ namespace spitfire
 
     bool cReadFile::ReadLineUTF8(string_t& sLine)
     {
+      std::cout<<"cReadFile::ReadLineUTF8"<<std::endl;
+
       sLine.clear();
 
-      const size_t nBufferSize = 100;
-      char szBufferUTF8[nBufferSize + 1];
       std::ostringstream o;
       bool bFoundNewLine = false;
+      char c;
       while (file.good() && !bFoundNewLine) {
-        file.read(&szBufferUTF8[0], nBufferSize);
+        file.read(&c, sizeof(c));
         const size_t nRead = file.gcount();
         if (nRead == 0) break; // End of file
 
-        // Null terminate the buffer
-        szBufferUTF8[nBufferSize] = 0; // Terminate at the end of the buffer
-        szBufferUTF8[nRead] = 0; // Terminate at the end of what was read
-
-        for (size_t i = 0; i < nRead; i++) {
-          if ((szBufferUTF8[i] == '\r') || (szBufferUTF8[i] == '\n')) {
-            // Add the string to the output buffer
-            szBufferUTF8[i] = 0;
-            o<<szBufferUTF8;
-
-            // Skip to the next character
-            if (szBufferUTF8[i] == '\r') {
-              // Skip to the next character
-              i++;
-
-              char c = 0;
-              if (i < nRead) c = szBufferUTF8[i];
-              else {
-                // We are at the end of the buffer, we have to check the actual file
-                c = file.peek();
-              }
-
-              if (c == '\n') {
-                // Skip to the next character
-                i++;
-              }
-            } else {
-              // Skip to the next character
-              i++;
-            }
-
-            // Seek backwards to just after our new line character(s)
-            file.seekg(-(nRead - i), std::ios::cur);
-
-            bFoundNewLine = true;
-            break;
+        if ((c == '\r') || (c == '\n')) {
+          if (c == '\r') {
+            if (file.peek() == '\n') file.read(&c, sizeof(c));
           }
+
+          bFoundNewLine = true;
+          break;
         }
 
         if (!bFoundNewLine) {
           // Add the string to our output buffer
-          o<<szBufferUTF8;
+          o<<c;
         }
       }
 
       sLine = string::ToString_t(o.str());
 
-      return !sLine.empty();
+      return bFoundNewLine;
     }
 
 

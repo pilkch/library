@@ -35,6 +35,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 #include <spitfire/util/string.h>
+#include <spitfire/util/thread.h>
 
 #include <spitfire/platform/operatingsystem.h>
 #include <spitfire/platform/pipe.h>
@@ -246,7 +247,7 @@ namespace spitfire
       return string::ToString_t(xdg.GetHomeConfigDirectory());
     }
 
-    string_t GetHomeImagesDirectory()
+    string_t GetHomePicturesDirectory()
     {
       string_t sPath;
 #ifdef WIN32
@@ -254,6 +255,9 @@ namespace spitfire
       strcpy(szPath, exe_directory);
       ASSERT(SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
+#else
+      xdg::cXdg xdg;
+      return string::ToString_t(xdg.GetHomePicturesDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -267,6 +271,9 @@ namespace spitfire
       strcpy(szPath, exe_directory);
       ASSERT(SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
+#else
+      xdg::cXdg xdg;
+      return string::ToString_t(xdg.GetHomeMusicDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -334,42 +341,6 @@ namespace spitfire
       }
 
       return bIsFolderWritable;
-    }
-
-    string_t ExpandPath(const string_t& path)
-    {
-      LOG<<"ExpandPath path=\""<<path<<"\""<<std::endl;
-
-      // ""
-      if (path.empty() || (TEXT("./") == path)) {
-        LOG<<"ExpandPath 0 returning \""<<GetThisApplicationDirectory()<<"\""<<std::endl;
-        return GetThisApplicationDirectory();
-      }
-
-      if (TEXT(".") == path) {
-        LOG<<"ExpandPath 1 returning \""<<spitfire::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"))<<"\""<<std::endl;
-        return spitfire::string::StripAfterLastInclusive(GetThisApplicationDirectory(), TEXT("/"));
-      }
-
-      // "."
-      // ".********"
-      if ((path == TEXT(".")) || (((path.length() > 2) && (path[0] == TEXT('.'))) && (path[1] != TEXT('.')))) {
-        string_t expanded(path.substr(2));
-        LOG<<"ExpandPath 2 returning \""<<expanded<<"\""<<std::endl;
-        return expanded;
-      }
-
-      string_t expanded = path;
-      string_t prefix = GetThisApplicationDirectory();
-      while (spitfire::string::BeginsWith(expanded, TEXT("../"))) {
-        expanded.erase(0, 3);
-        LOG<<"ExpandPath prefix=\""<<prefix<<"\""<<std::endl;
-        prefix = StripLastDirectory(prefix);
-      };
-
-      LOG<<"ExpandPath final prefix=\""<<expanded<<"\" expanded=\""<<expanded<<"\""<<std::endl;
-
-      return prefix + expanded;
     }
 
     string_t StripLastDirectory(const string_t& path)
@@ -453,7 +424,7 @@ namespace spitfire
 
 
 
-    bool IsPathRelative(const string_t& sPath)
+    bool IsPathAbsolute(const string_t& sPath)
     {
       return (
         (sPath[0] == TEXT('/')) ||
@@ -462,14 +433,44 @@ namespace spitfire
       );
     }
 
+    bool IsPathRelative(const string_t& sFilePath)
+    {
+      return !IsPathAbsolute(sFilePath);
+    }
+
     string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath)
     {
       std::cout<<"MakePathAbsolute"<<std::endl;
 
-      if (IsPathRelative(sRelativePath)) return MakeFilePath(sRootPath, sRelativePath);
+      // ""
+      if (sRelativePath.empty() || (TEXT("./") == sRelativePath)) {
+        LOG<<"MakePathAbsolute 0 returning \""<<sRootPath<<"\""<<std::endl;
+        return sRootPath;
+      }
 
-      // Path is already absolute
-      return sRelativePath;
+      if (TEXT(".") == sRelativePath) {
+        LOG<<"MakePathAbsolute 1 returning \""<<spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"))<<"\""<<std::endl;
+        return spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"));
+      }
+
+      // "."
+      // ".********"
+      if ((sRelativePath == TEXT(".")) || (((sRelativePath.length() > 2) && (sRelativePath[0] == TEXT('.'))) && (sRelativePath[1] != TEXT('.')))) {
+        string_t expanded(sRelativePath.substr(2));
+        LOG<<"MakePathAbsolute 2 returning \""<<expanded<<"\""<<std::endl;
+        return expanded;
+      }
+
+      string_t expanded = sRelativePath;
+      string_t prefix = sRootPath;
+      while (spitfire::string::BeginsWith(expanded, TEXT("../"))) {
+        expanded.erase(0, 3);
+        LOG<<"MakePathAbsolute prefix=\""<<prefix<<"\""<<std::endl;
+        prefix = StripLastDirectory(prefix);
+      };
+
+      std::wcout<<"MakePathAbsolute returning \""<<(prefix + expanded)<<"\""<<std::endl;
+      return prefix + expanded;
     }
 
     string_t MakePathRelative(const string_t& sBaseFolder, const string_t& sAbsolutePath)
@@ -531,7 +532,7 @@ namespace spitfire
 
     void AddDirectory(const string_t& sDirectory)
     {
-      string_t expanded = ExpandPath(sDirectory);
+      string_t expanded = MakePathAbsolute(GetThisApplicationDirectory(), sDirectory);
 
       size_t i = 0;
       const size_t n = vDirectory.size();
@@ -867,15 +868,18 @@ namespace spitfire
     }
 
 
-    // ********************************************* cScopedDirectoryChange *********************************************
+    // ** cScopedDirectoryChangeMainThread
 
-    cScopedDirectoryChange::cScopedDirectoryChange(const string_t& sNewDirectory)
+    cScopedDirectoryChangeMainThread::cScopedDirectoryChangeMainThread(const string_t& sNewDirectory)
     {
+      // chdir and ChangeDirectory are not thread safe so we only allow changing the directory on the main thread
+      ASSERT(util::IsMainThread());
+
       sPreviousDirectory = GetCurrentDirectory();
       ChangeToDirectory(sNewDirectory);
     }
 
-    cScopedDirectoryChange::~cScopedDirectoryChange()
+    cScopedDirectoryChangeMainThread::~cScopedDirectoryChangeMainThread()
     {
       ChangeToDirectory(sPreviousDirectory);
     }

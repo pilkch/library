@@ -58,7 +58,7 @@ namespace spitfire
     string_t GetHomeDirectory();
     string_t GetHomeConfigurationFilesDirectory();
     string_t GetHomeDesktopDirectory();
-    string_t GetHomeImagesDirectory();
+    string_t GetHomePicturesDirectory();
     string_t GetHomeMusicDirectory();
     string_t GetHomeDownloadsDirectory();
     string_t GetTempDirectory();
@@ -81,7 +81,7 @@ namespace spitfire
 #endif
 
 
-    // Permissions
+    // ** Permissions
 
     void SetFileExecutableForThisUser(const string_t& sFilename);
     void SetFileExecutableForEveryone(const string_t& sFilename);
@@ -92,16 +92,22 @@ namespace spitfire
 
     bool IsFolderWritable(const string_t& sFolderPath);
 
+
     string_t StripLastDirectory(const string_t& sFolderPath); // Returns a string with the last folder of path removed
-    string_t ExpandPath(const string_t& sPath);
 
     string_t GetPath(const string_t& sFilename); // Returns just the directory "/folder1/folder2/"
     string_t GetFile(const string_t& sFilename); // Returns just the file "file.txt"
     string_t GetFileNoExtension(const string_t& sFilename);  // Returns just the name "file"
     string_t GetExtension(const string_t& sFilename); // Returns just the extension ".txt"
 
+    bool IsPathAbsolute(const string_t& sFilePath);
     bool IsPathRelative(const string_t& sFilePath);
     string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath);
+    #ifdef SPITFIRE_LEGACY
+    // Deprecated
+    // Use MakePathAbsolute(GetThisApplicationDirectory(), sPath);
+    string_t ExpandPath(const string_t& sPath);
+    #endif
     string_t MakePathRelative(const string_t& sRootPath, const string_t& sFullPath);
 
     bool FileExists(const string_t& sFilename);
@@ -139,16 +145,21 @@ namespace spitfire
     string_t MakeFilePath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
 
 
-    // TODO: Remove this
-    class cScopedDirectoryChange
+    class cScopedDirectoryChangeMainThread
     {
     public:
-      explicit cScopedDirectoryChange(const string_t& sNewDirectory);
-      ~cScopedDirectoryChange();
+      explicit cScopedDirectoryChangeMainThread(const string_t& sNewDirectory);
+      ~cScopedDirectoryChangeMainThread();
 
     private:
       string_t sPreviousDirectory;
     };
+
+    #ifdef SPITFIRE_LEGACY
+    // Deprecated
+    // Use cScopedDirectoryChangeMainThread instead
+    typedef cScopedDirectoryChangeMainThread cScopedDirectoryChange;
+    #endif
 
     class cScopedTemporaryFolder
     {
