@@ -25,28 +25,19 @@ namespace spitfire
 {
   namespace util
   {
-    boost::thread::id idThreadMain;
-
-    //pthread_t idThreadMain = 0;
+    std::thread::id idThreadMain;
 
     void SetMainThread()
     {
-      ASSERT(idThreadMain == boost::thread::id());
-      idThreadMain = boost::this_thread::get_id();
-
-      //ASSERT(idThreadMain == 0);
-      //idThreadMain = pthread_self();
+      ASSERT(idThreadMain == std::thread::id());
+      idThreadMain = std::this_thread::get_id();
     }
 
     bool IsMainThread()
     {
-      ASSERT(idThreadMain != boost::thread::id());
-      const boost::thread::id idThread = boost::this_thread::get_id();
+      ASSERT(idThreadMain != std::thread::id());
+      const std::thread::id idThread = std::this_thread::get_id();
       return (idThread == idThreadMain);
-
-      //ASSERT(idThreadMain != 0);
-      //const pthread_t idThread = pthread_self();
-      //return (pthread_equal(idThread, idThreadMain) != 0);
     }
 
 
@@ -55,7 +46,7 @@ namespace spitfire
     void cThread::Run()
     {
       cThread* pThis = this;
-      pThread = new boost::thread(boost::bind(&cThread::RunThreadFunction, pThis));
+      pThread = new std::thread(boost::bind(&cThread::RunThreadFunction, pThis));
     }
   }
 }
@@ -116,3 +107,4 @@ public:
 cThreadUnitTest gThreadUnitTest;
 
 #endif // BUILD_DEBUG
+#endif // BUILD_SPITFIRE_UNITTEST
