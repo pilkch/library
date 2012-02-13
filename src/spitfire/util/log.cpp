@@ -15,7 +15,11 @@
 #include <fstream>
 #include <iomanip>
 
+// Boost headers
 #include <boost/smart_ptr.hpp>
+
+// SDL headers
+#include <SDL/SDL.h>
 
 //#if defined(BUILD_DEBUG) && defined(__WIN__)
 //#include <windows.h>
@@ -25,9 +29,9 @@
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
-#include <spitfire/util/cTimer.h>
+#include <spitfire/util/timer.h>
 
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/xml.h>

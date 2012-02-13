@@ -1,6 +1,9 @@
 #ifndef CMATH_H
 #define CMATH_H
 
+// Standard headers
+#include <cstdlib>
+
 // e^(i*pi) + 1 = 0
 // e^(i*z) = cos(z) + i*sin(z)
 // cos(z) = ( e^(i*z) + e^(-i*z) ) / 2

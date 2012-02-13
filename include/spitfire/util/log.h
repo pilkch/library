@@ -1,12 +1,12 @@
 #ifndef CLOG_H
 #define CLOG_H
 
-#ifdef BUILD_LOG
+#ifdef BUILD_HTML_LOG
 
 #undef Success
 #undef Error
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #include <spitfire/algorithm/algorithm.h>
 

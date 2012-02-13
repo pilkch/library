@@ -22,6 +22,10 @@
 #ifndef LIBOPENGLMM_WINDOW_H
 #define LIBOPENGLMM_WINDOW_H
 
+// SDL headers
+#include <SDL/SDL.h>
+
+// libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
 struct SDL_Surface;

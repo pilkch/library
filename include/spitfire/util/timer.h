@@ -1,6 +1,10 @@
 #ifndef CTIMER_H
 #define CTIMER_H
 
+// Standard headers
+#include <sys/time.h>
+
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 namespace spitfire

@@ -12,7 +12,7 @@
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
 #include <spitfire/math/math.h>

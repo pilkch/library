@@ -1,6 +1,9 @@
 #ifndef CGEOMETRY_H
 #define CGEOMETRY_H
 
+// Standard headers
+#include <cassert>
+
 namespace spitfire
 {
   namespace math

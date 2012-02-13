@@ -3,7 +3,7 @@
 
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/cSmartPtr.h>
 
 #include <breathe/breathe.h>

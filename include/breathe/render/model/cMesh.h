@@ -3,7 +3,7 @@
 
 #include <breathe/breathe.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/cSmartPtr.h>
 
 namespace breathe

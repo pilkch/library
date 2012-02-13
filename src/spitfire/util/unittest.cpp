@@ -18,7 +18,7 @@
 #include <spitfire/spitfire.h>
 
 #ifdef BUILD_DEBUG
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 #include <spitfire/util/singleton.h>

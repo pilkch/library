@@ -21,7 +21,7 @@
 #include <spitfire/math/cColour.h>
 #include <spitfire/math/geometry.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 // Breathe headers
 #include <breathe/gui/cManager.h>
