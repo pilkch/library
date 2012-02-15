@@ -17,6 +17,10 @@
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
+#ifndef BUILD_HTML_LOG
+#error "BUILD_HTML_LOG must be defined to be able to use ASSERT"
+#endif
+
 namespace spitfire
 {
 #ifndef NDEBUG

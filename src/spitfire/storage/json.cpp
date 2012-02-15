@@ -18,7 +18,7 @@
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>

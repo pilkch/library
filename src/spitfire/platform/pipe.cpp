@@ -40,7 +40,7 @@
 
 // Spitfire Includes
 #include <spitfire/spitfire.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 #include <spitfire/platform/operatingsystem.h>
 #include <spitfire/platform/pipe.h>
@@ -425,13 +425,9 @@ namespace spitfire
         if (fd == -1) LOG<<"PipeReadToString fd=-1"<<std::endl;
         fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
 
-        #ifdef BUILD_PLATFORM_WINDOWS
         boost::iostreams::file_descriptor_source descriptorSource(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
-        #else
-        const bool bCloseOnExit = false;
-        boost::iostreams::file_descriptor_source descriptorSource(fileno(fhPipe), bCloseOnExit);
-        #endif
 
+        const bool bCloseOnExit = false;
         boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(descriptorSource, bCloseOnExit);
         std::istream in(&fpstream);
         // TODO: This is required to automatically close the stream when we are done but isn't supported on early versions of boost

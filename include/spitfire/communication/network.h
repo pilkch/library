@@ -37,8 +37,8 @@ namespace spitfire
 
     // Outgoing Communication Packet
     struct Packet_Message_Out {
-      Uint8 Packet_Length;  // Length of packet being sent
-      Uint8 Packet_Type;
+      uint8_t Packet_Length;  // Length of packet being sent
+      uint8_t Packet_Type;
       char Message[126];    // message, null terminated
     };
 
@@ -46,11 +46,11 @@ namespace spitfire
     //  Two packets are required, the first is always one byte long
     //  and contains the size of the following packet plus itself
     struct Packet_Sizer {
-      Uint8 Packet_Length;  // Length of next packet
+      uint8_t Packet_Length;  // Length of next packet
     };
 
     struct Packet_Message_In {
-      Uint8 Packet_Type;
+      uint8_t Packet_Type;
       char Message[126];    // message, null terminated
     };
 

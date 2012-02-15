@@ -1,7 +1,7 @@
 #ifndef CPROCESS_H
 #define CPROCESS_H
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/thread.h>
 
 //

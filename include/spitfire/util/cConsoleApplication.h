@@ -1,7 +1,7 @@
 #ifndef CCONSOLEAPPLICATION_H
 #define CCONSOLEAPPLICATION_H
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 namespace spitfire
 {

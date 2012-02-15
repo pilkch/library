@@ -130,22 +130,6 @@ namespace spitfire
 #endif
 
 #ifdef __LINUX__
-    string_t GetTempDirectory()
-    {
-#ifdef P_tmpdir
-      ASSERT(P_tmpdir != nullptr);
-      ASSERT(P_tmpdir[0] != 0);
-      // On some systems this is defined for us
-      return spitfire::string::ToString_t(P_tmpdir);
-#endif
-
-      string_t sPath;
-      if (operatingsystem::GetEnvironmentVariable(TEXT("TMPDIR"), sPath)) return sPath;
-
-      // Last resort
-      return TEXT("/tmp");
-    }
-
     bool DeleteFile(const string_t& sFilename)
     {
       CONSOLE<<"DeleteFile \""<<sFilename<<"\""<<std::endl;
@@ -277,6 +261,12 @@ namespace spitfire
 #endif
       ASSERT(!sPath.empty());
       return sPath;
+    }
+
+    string_t GetHomeTempDirectory()
+    {
+      xdg::cXdg xdg;
+      return string::ToString_t(xdg.GetHomeTempDirectory());
     }
 
 #ifdef __APPLE__
@@ -911,7 +901,7 @@ namespace spitfire
 
       sTemporarySubFolder = szTempFolderPath;
     #else
-      cPath p(TEXT(P_tmpdir), TEXT("0XXXXXX"));
+      cPath p(GetHomeTempDirectory(), TEXT("0XXXXXX"));
 
       char szTempFolderPath[MAX_PATH_LEN];
       strlcpy(szTempFolderPath, spitfire::string::ToUTF8(p.GetFullPath()).c_str(), MAX_PATH_LEN);

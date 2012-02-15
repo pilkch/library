@@ -61,7 +61,10 @@ namespace spitfire
     string_t GetHomePicturesDirectory();
     string_t GetHomeMusicDirectory();
     string_t GetHomeDownloadsDirectory();
-    string_t GetTempDirectory();
+    // Deprecated
+    // Use GetHomeTempDirectory() instead
+    //string_t GetTempDirectory() { return GetHomeTempDirectory(); }
+    string_t GetHomeTempDirectory();
 #ifdef __APPLE__
     string_t GetResourcesPath();
 #endif
@@ -103,11 +106,9 @@ namespace spitfire
     bool IsPathAbsolute(const string_t& sFilePath);
     bool IsPathRelative(const string_t& sFilePath);
     string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath);
-    #ifdef SPITFIRE_LEGACY
     // Deprecated
     // Use MakePathAbsolute(GetThisApplicationDirectory(), sPath);
-    string_t ExpandPath(const string_t& sPath);
-    #endif
+    //string_t ExpandPath(const string_t& sPath);
     string_t MakePathRelative(const string_t& sRootPath, const string_t& sFullPath);
 
     bool FileExists(const string_t& sFilename);
@@ -155,11 +156,9 @@ namespace spitfire
       string_t sPreviousDirectory;
     };
 
-    #ifdef SPITFIRE_LEGACY
     // Deprecated
     // Use cScopedDirectoryChangeMainThread instead
-    typedef cScopedDirectoryChangeMainThread cScopedDirectoryChange;
-    #endif
+    //typedef cScopedDirectoryChangeMainThread cScopedDirectoryChange;
 
     class cScopedTemporaryFolder
     {

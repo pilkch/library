@@ -27,7 +27,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/thread.h>
 
@@ -555,6 +555,7 @@ Content-Transfer-Encoding: binary
         //METHOD method = request.IsMethodGet() ? METHOD::GET : METHOD::POST;
 
         STATE state = STATE::BEFORE_DOWNLOADING;
+        (void)state; // Avoid warning about unused variable
 
         breathe::network::cConnectionTCP connection;
 
