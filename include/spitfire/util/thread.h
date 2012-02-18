@@ -10,6 +10,7 @@
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
+#include <spitfire/util/mutex.h>
 
 namespace spitfire
 {
@@ -54,34 +55,6 @@ namespace spitfire
       std::thread* pThread;
 
       NO_COPY(cThread);
-    };
-
-    class cMutex
-    {
-    public:
-      friend class cLockObject;
-      friend class cSignalObject;
-
-      explicit cMutex(const std::string& sName);
-
-      const std::string& GetName() const { return sName; }
-
-    private:
-      const std::string sName;
-      std::mutex mutex;
-
-      NO_COPY(cMutex);
-    };
-
-    class cLockObject
-    {
-    public:
-      explicit cLockObject(cMutex& mutex);
-
-    private:
-      std::lock_guard<std::mutex> lock;
-
-      NO_COPY(cLockObject);
     };
 
 
@@ -131,22 +104,6 @@ namespace spitfire
       // We don't really do this correctly, we just return 0 for every thread
       return 0;
     }
-
-
-    // *** cMutex
-
-    inline cMutex::cMutex(const std::string& _sName) :
-      sName(_sName)
-    {
-    }
-
-    // *** cLockObject
-
-    inline cLockObject::cLockObject(cMutex& _mutex) :
-      lock(_mutex.mutex)
-    {
-    }
-
 
 
     // We should definitely use the boost signals2 library when it is ready, this is inefficient, not pretty code!
