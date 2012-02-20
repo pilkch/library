@@ -3,7 +3,6 @@
 
 // Standard headers
 #include <thread>
-#include <mutex>
 
 // Boost headers
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -17,7 +16,6 @@ namespace spitfire
 {
   namespace util
   {
-    class cLockObject;
     class cSignalObject;
 
     void SetMainThread();
@@ -33,6 +31,9 @@ namespace spitfire
       std::this_thread::yield();
     }
 
+
+    // ** cThread
+
     class cThread
     {
     public:
@@ -41,19 +42,23 @@ namespace spitfire
 
       const std::string& GetName() const { return sName; }
 
-      void Run();
-      void WaitUntilFinished(); // Safe, blocks forever until thread is done
-      void StopNow(); // Unsafe, kills thread instantly and returns
+      void Run();            // Runs the thread in the background
+      void WaitToStop();     // Blocks forever until thread is done
+      void StopThreadSoon(); // Tells the thread to stop soon (Does not actually wait for it to stop)
 
-      bool IsRunning() const;
-      bool IsFinished() const;
+      bool IsRunning();
+      bool IsToStop();
 
     private:
+
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
 
       const std::string sName;
+
       std::thread* pThread;
+      cSignalObject soStop;
+      cSignalObject soDone;
 
       NO_COPY(cThread);
     };
@@ -63,35 +68,37 @@ namespace spitfire
 
     inline cThread::cThread(const std::string& _sName) :
       sName(_sName),
-      pThread(nullptr)
+      pThread(nullptr),
+      soStop("cThread::soStop"),
+      soDone("cThread::soDone")
     {
     }
 
     inline cThread::~cThread()
     {
-      if (IsRunning()) WaitUntilFinished();
+      WaitToStop();
     }
 
-    inline bool cThread::IsRunning() const
+    inline bool cThread::IsRunning()
     {
-      return (pThread != nullptr);
+      return (pThread != nullptr) && !soDone.IsSignalled();
     }
 
-    inline bool cThread::IsFinished() const
+    inline bool cThread::IsToStop()
     {
-      return (pThread == nullptr);
+      return soStop.IsSignalled();
     }
 
-    inline void cThread::WaitUntilFinished()
+    inline void cThread::WaitToStop()
     {
-      ASSERT(pThread != nullptr);
-      pThread->join();
+      if (pThread != nullptr) pThread->join();
+
       SAFE_DELETE(pThread);
     }
 
-    inline void cThread::StopNow()
+    inline void cThread::StopThreadSoon()
     {
-      WaitUntilFinished();
+      soStop.Signal();
     }
 
     // Not the most elegant method, but it works
@@ -101,6 +108,8 @@ namespace spitfire
       cThread* pThis = static_cast<cThread*>(pData);
       ASSERT(pThis != nullptr);
       pThis->ThreadFunction();
+
+      pThis->soDone.Signal();
 
       // We don't really do this correctly, we just return 0 for every thread
       return 0;

@@ -45,6 +45,11 @@ namespace spitfire
 
     void cThread::Run()
     {
+      WaitToStop();
+
+      soStop.Reset();
+      soDone.Reset();
+
       cThread* pThis = this;
       pThread = new std::thread(boost::bind(&cThread::RunThreadFunction, pThis));
     }
@@ -100,7 +105,7 @@ public:
       spitfire::util::SleepThisThreadMS(500);
     }
 
-    thread.WaitUntilFinished();
+    thread.WaitToStop();
   }
 };
 
