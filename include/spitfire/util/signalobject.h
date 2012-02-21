@@ -24,7 +24,8 @@ namespace spitfire
 
       bool IsSignalled() const;
 
-      void Signal();
+      void Signal();    // Signals all waiting threads
+      void SignalOne(); // Signals only one waiting thread
       void Reset();
 
       void WaitForever();
@@ -51,6 +52,13 @@ namespace spitfire
     }
 
     inline void cSignalObject::Signal()
+    {
+      std::unique_lock<std::mutex> lock(mutex);
+      bIsSignalled = true;
+      condition.notify_all();
+    }
+
+    inline void cSignalObject::SignalOne()
     {
       std::unique_lock<std::mutex> lock(mutex);
       bIsSignalled = true;
