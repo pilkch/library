@@ -1,6 +1,9 @@
 #ifndef CDATETIME_H
 #define CDATETIME_H
 
+// Boost headers
+#include <boost/date_time.hpp>
+
 // http://www.boost.org/doc/libs/1_37_0/doc/html/date_time.html
 
 namespace spitfire

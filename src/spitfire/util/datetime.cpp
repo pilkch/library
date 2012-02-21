@@ -25,7 +25,7 @@
 
 #include <spitfire/math/math.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/datetime.h>
 
