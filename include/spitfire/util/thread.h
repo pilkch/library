@@ -10,6 +10,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 #include <spitfire/util/mutex.h>
+#include <spitfire/util/process.h>
 #include <spitfire/util/signalobject.h>
 
 namespace spitfire
@@ -34,7 +35,7 @@ namespace spitfire
 
     // ** cThread
 
-    class cThread
+    class cThread : public cProcessInterface
     {
     public:
       explicit cThread(const std::string& sName);
@@ -47,9 +48,9 @@ namespace spitfire
       void StopThreadSoon(); // Tells the thread to stop soon (Does not actually wait for it to stop)
 
       bool IsRunning();
-      bool IsToStop();
 
     private:
+      virtual bool _IsToStop() const override;
 
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
@@ -84,7 +85,7 @@ namespace spitfire
       return (pThread != nullptr) && !soDone.IsSignalled();
     }
 
-    inline bool cThread::IsToStop()
+    inline bool cThread::_IsToStop() const
     {
       return soStop.IsSignalled();
     }

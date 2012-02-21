@@ -1,6 +1,7 @@
 #ifndef CPROCESS_H
 #define CPROCESS_H
 
+// Spitfire headers
 #include <spitfire/util/string.h>
 #include <spitfire/util/thread.h>
 
@@ -29,7 +30,8 @@ namespace spitfire
       explicit cProcess(cProcessInterface& interface);
       virtual ~cProcess() {}
 
-      PROCESS_RESULT Run();
+      // Call this to run the process (Blocks until complete)
+      PROCESS_RESULT Run() { return ProcessFunction(); }
 
     protected:
       cProcessInterface& interface;
@@ -48,20 +50,32 @@ namespace spitfire
 
       bool IsToStop() const { return _IsToStop(); }
 
+      void SetCancellable(bool bCancellable) { _SetCancellable(bCancellable); }
+
+      void SetTextTitle(const string_t& sText) { _SetTextTitle(sText); }
       void SetTextPrimary(const string_t& sText) { _SetTextPrimary(sText); }
       void SetTextSecondary(const string_t& sText) { _SetTextSecondary(sText); }
 
       void SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) { _SetPercentageCompletePrimary0To100(fPercentageComplete0To100); }
       void SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) { _SetPercentageCompleteSecondary0To100(fPercentageComplete0To100); }
 
+      void SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) { _SetPercentageCompletePrimaryIndeterminate(bIndeterminate); }
+      void SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) { _SetPercentageCompleteSecondaryIndeterminate(bIndeterminate); }
+
     private:
       virtual bool _IsToStop() const { return false; }
 
+      virtual void _SetCancellable(bool bCancellable) {}
+
+      virtual void _SetTextTitle(const string_t& sText) {}
       virtual void _SetTextPrimary(const string_t& sText) {}
       virtual void _SetTextSecondary(const string_t& sText) {}
 
       virtual void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) {}
       virtual void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) {}
+
+      virtual void _SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) {}
+      virtual void _SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) {}
     };
 
 
