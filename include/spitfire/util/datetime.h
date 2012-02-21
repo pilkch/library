@@ -29,7 +29,7 @@ namespace spitfire
       cDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
       // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
-      bool IsValid() const { return !datetime.is_not_a_date_time(); /*(!datetime.date().is_special()) && (!datetime.time_of_day().is_special());*/  }
+      bool IsValid() const { return !datetime.is_not_a_date_time() && !datetime.date().is_special() && !datetime.time_of_day().is_special();  }
 
       WEEKDAY GetWeekDay() const; // Returns the day of the week of this date
 
