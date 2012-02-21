@@ -22,7 +22,7 @@ namespace spitfire
     public:
       explicit cSignalObject(const std::string& sName);
 
-      bool IsSignalled();
+      bool IsSignalled() const;
 
       void Signal();
       void Reset();
@@ -32,7 +32,7 @@ namespace spitfire
 
     private:
       std::string sName;
-      std::mutex mutex;
+      mutable std::mutex mutex;
       std::condition_variable condition;
       volatile bool bIsSignalled;
     };
@@ -43,7 +43,7 @@ namespace spitfire
     {
     }
 
-    inline bool cSignalObject::IsSignalled()
+    inline bool cSignalObject::IsSignalled() const
     {
       std::unique_lock<std::mutex> lock(mutex);
 
@@ -65,8 +65,13 @@ namespace spitfire
 
     inline void cSignalObject::WaitForever()
     {
-      std::unique_lock<std::mutex> lock(mutex);
-      condition.wait(lock);
+      // In a while loop because pthreads are susceptible to spurious wakes
+      // http://stackoverflow.com/questions/6877032/boostcondition-variable-timed-wait-return-immediately
+      while (true) {
+        std::unique_lock<std::mutex> lock(mutex);
+        condition.wait(lock);
+        if (bIsSignalled) break;
+      }
     }
 
     inline bool cSignalObject::WaitTimeoutMS(uint32_t uTimeOutMS)
