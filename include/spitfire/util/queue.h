@@ -52,6 +52,7 @@ namespace spitfire
     class cThreadSafeQueue
     {
     public:
+      cThreadSafeQueue();
       ~cThreadSafeQueue();
 
       // NOTE: No IsEmpty or GetSize functions because by the time you call the next function this may have changed
@@ -65,9 +66,15 @@ namespace spitfire
     };
 
     template <class T>
+    inline cThreadSafeQueue<T>::cThreadSafeQueue() :
+      mutex("cThreadSafeQueue<T>::mutex")
+    {
+    }
+
+    template <class T>
     inline cThreadSafeQueue<T>::~cThreadSafeQueue()
     {
-      cLock lock(mutex);
+      cLockObject lock(mutex);
       // NOTE: All items must be removed before the queue is destroyed
       ASSERT(items.empty());
     }
@@ -75,7 +82,7 @@ namespace spitfire
     template <class T>
     inline void cThreadSafeQueue<T>::AddItemToBack(T* pItem)
     {
-      cLock lock(mutex);
+      cLockObject lock(mutex);
       items.push_back(pItem);
     }
 
@@ -84,7 +91,7 @@ namespace spitfire
     {
       T* pItem = nullptr;
       {
-        cLock lock(mutex);
+        cLockObject lock(mutex);
         if (!items.empty()) pItem = items.pop_front();
       }
       return pItem;

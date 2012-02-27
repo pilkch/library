@@ -4,6 +4,10 @@
 // Boost headers
 #include <boost/date_time.hpp>
 
+// Spitfire headers
+#include <spitfire/spitfire.h>
+#include <spitfire/util/string.h>
+
 // http://www.boost.org/doc/libs/1_37_0/doc/html/date_time.html
 
 namespace spitfire
