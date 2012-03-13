@@ -2,6 +2,7 @@
 #define CMATH_H
 
 // Standard headers
+#include <cmath>
 #include <cstdlib>
 
 // e^(i*pi) + 1 = 0

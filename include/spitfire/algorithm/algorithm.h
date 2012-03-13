@@ -1,6 +1,10 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
+// Standard headers
+#include <vector>
+
+// Spitfire headers
 #include <spitfire/math/math.h>
 
 // In general it would be great if we could get rid of this whole file and just use STL/Boost/TR1 classes only, but
@@ -60,7 +64,10 @@ namespace spitfire
   }
 
 
-  // Creates a vector style stack out of any container
+  // ** constant_stack
+  //
+  // A vector with a constant size
+  //
   template <class T>
   class constant_stack
   {
