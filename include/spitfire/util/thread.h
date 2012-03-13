@@ -38,7 +38,7 @@ namespace spitfire
     class cThread : public cProcessInterface
     {
     public:
-      explicit cThread(const std::string& sName);
+      cThread(cSignalObject& soAction, const std::string& sName);
       virtual ~cThread();
 
       const std::string& GetName() const { return sName; }
@@ -46,8 +46,9 @@ namespace spitfire
       void Run();            // Runs the thread in the background
       void WaitToStop();     // Blocks forever until thread is done
       void StopThreadSoon(); // Tells the thread to stop soon (Does not actually wait for it to stop)
+      void StopThreadNow();  // Tells the thread to stop soon and waits until it stops
 
-      bool IsRunning();
+      bool IsRunning() const;
 
     private:
       virtual bool _IsToStop() const override;
@@ -55,11 +56,13 @@ namespace spitfire
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;
 
+      cSignalObject& soAction; // Signals that something has happened (Either stop, or done, or something else has triggered action)
+
       const std::string sName;
 
       std::thread* pThread;
-      cSignalObject soStop;
-      cSignalObject soDone;
+      cSignalObject soStop;    // Signals that the thread should stop
+      cSignalObject soDone;    // Signals that the thread has finished
 
       NO_COPY(cThread);
     };
@@ -67,7 +70,8 @@ namespace spitfire
 
     // *** cThread
 
-    inline cThread::cThread(const std::string& _sName) :
+    inline cThread::cThread(cSignalObject& _soAction, const std::string& _sName) :
+      soAction(_soAction),
       sName(_sName),
       pThread(nullptr),
       soStop("cThread::soStop"),
@@ -80,7 +84,7 @@ namespace spitfire
       WaitToStop();
     }
 
-    inline bool cThread::IsRunning()
+    inline bool cThread::IsRunning() const
     {
       return (pThread != nullptr) && !soDone.IsSignalled();
     }
@@ -92,6 +96,7 @@ namespace spitfire
 
     inline void cThread::WaitToStop()
     {
+      // Wait for the thread to stop
       if (pThread != nullptr) pThread->join();
 
       SAFE_DELETE(pThread);
@@ -99,7 +104,23 @@ namespace spitfire
 
     inline void cThread::StopThreadSoon()
     {
+      // Tell the thread to stop soon
       soStop.Signal();
+
+      // Tell the thread that something has happened
+      soAction.Signal();
+    }
+
+    inline void cThread::StopThreadNow()
+    {
+      // Tell the thread to stop
+      soStop.Signal();
+
+      // Tell the thread that something has happened
+      soAction.Signal();
+
+      // Wait for the thread to stop
+      WaitToStop();
     }
 
     // Not the most elegant method, but it works
@@ -110,7 +131,11 @@ namespace spitfire
       ASSERT(pThis != nullptr);
       pThis->ThreadFunction();
 
+      // Tell everyone that the thread has finished
       pThis->soDone.Signal();
+
+      // Tell everyone that something has happened
+      pThis->soAction.Signal();
 
       // We don't really do this correctly, we just return 0 for every thread
       return 0;

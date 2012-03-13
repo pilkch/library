@@ -78,15 +78,23 @@ namespace spitfire
       while (true) {
         std::unique_lock<std::mutex> lock(mutex);
         condition.wait(lock);
-        if (bIsSignalled) break;
+        if (bIsSignalled) {
+          bIsSignalled = false;
+          break;
+        }
       }
     }
 
     inline bool cSignalObject::WaitTimeoutMS(uint32_t uTimeOutMS)
     {
       const auto endTime = std::chrono::system_clock::now() + std::chrono::milliseconds(uTimeOutMS);
-      std::unique_lock<std::mutex> lock(mutex);
-      return condition.wait_until(lock, endTime, [&]() { return cSignalObject::bIsSignalled; });
+      bool bResult = false;
+      {
+        std::unique_lock<std::mutex> lock(mutex);
+        bResult = condition.wait_until(lock, endTime, [&]() { return cSignalObject::bIsSignalled; });
+        bIsSignalled = false;
+      }
+      return bResult;
     }
   }
 }

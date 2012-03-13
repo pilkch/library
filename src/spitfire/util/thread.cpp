@@ -45,10 +45,12 @@ namespace spitfire
 
     void cThread::Run()
     {
+      StopThreadSoon();
       WaitToStop();
 
       soStop.Reset();
       soDone.Reset();
+      soAction.Reset();
 
       cThread* pThis = this;
       pThread = new std::thread(boost::bind(&cThread::RunThreadFunction, pThis));

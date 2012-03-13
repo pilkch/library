@@ -52,7 +52,7 @@ namespace spitfire
     class cThreadSafeQueue
     {
     public:
-      cThreadSafeQueue();
+      explicit cThreadSafeQueue(cSignalObject& soAction);
       ~cThreadSafeQueue();
 
       // NOTE: No IsEmpty or GetSize functions because by the time you call the next function this may have changed
@@ -61,12 +61,15 @@ namespace spitfire
       T* RemoveItemFromFront(); // The caller takes ownership of the item that is returned
 
     private:
+      cSignalObject& soAction;
+
       cMutex mutex;
       std::list<T*> items;
     };
 
     template <class T>
-    inline cThreadSafeQueue<T>::cThreadSafeQueue() :
+    inline cThreadSafeQueue<T>::cThreadSafeQueue(cSignalObject& _soAction) :
+      soAction(_soAction),
       mutex("cThreadSafeQueue<T>::mutex")
     {
     }
@@ -82,8 +85,13 @@ namespace spitfire
     template <class T>
     inline void cThreadSafeQueue<T>::AddItemToBack(T* pItem)
     {
-      cLockObject lock(mutex);
-      items.push_back(pItem);
+      {
+        cLockObject lock(mutex);
+        items.push_back(pItem);
+      }
+
+      // Tell anyone listening that something happened
+      soAction.Signal();
     }
 
     template <class T>
@@ -92,7 +100,10 @@ namespace spitfire
       T* pItem = nullptr;
       {
         cLockObject lock(mutex);
-        if (!items.empty()) pItem = items.pop_front();
+        if (!items.empty()) {
+          pItem = items.front();
+          items.pop_front();
+        }
       }
       return pItem;
     }
