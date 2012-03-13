@@ -12,120 +12,355 @@ namespace spitfire
 {
   namespace audio
   {
-    cLastFM::cLastFM() :
-      pSession(nullptr)
+    namespace lastfm
     {
-    }
+      cSession::cSession() :
+        pSession(nullptr)
+      {
+      }
 
-    cLastFM::~cLastFM()
-    {
-      LogOut();
-    }
-
-    bool cLastFM::IsLoggedIn() const
-    {
-      return (pSession != nullptr);
-    }
-
-    void cLastFM::Login(const string_t& sUserName, const string_t& sPassword)
-    {
-      LogOut();
-
-      const char* szKey = BUILD_LASTFM_KEY;
-      const char* szSecret = BUILD_LASTFM_SECRET;
-
-      pSession = LASTFM_init(szKey, szSecret);
-
-      const std::string sUserNameUTF8 = spitfire::string::ToUTF8(sUserName);
-      const std::string sPasswordUTF8 = spitfire::string::ToUTF8(sPassword);
-
-      int iResult = LASTFM_login(pSession, sUserNameUTF8.c_str(), sPasswordUTF8.c_str());
-      if (iResult != 0) {
-        std::cerr<<"cLastFM::Scrobble LASTFM_login FAILED status="<<LASTFM_status(pSession)<<"\n";
+      cSession::~cSession()
+      {
         LogOut();
       }
-    }
 
-    void cLastFM::LogOut()
-    {
-      if (pSession != nullptr) {
-        LASTFM_dinit(pSession);
-        pSession = nullptr;
-      }
-    }
-
-    void cLastFM::ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble)
-    {
-      if (!IsLoggedIn()) {
-        std::cerr<<"cLastFM::ScrobbleOrUpdateTrack Error not logged in to LastFM\n";
-        return;
+      bool cSession::IsLoggedIn() const
+      {
+        return (pSession != nullptr);
       }
 
-      const std::string sArtistUTF8 = spitfire::string::ToUTF8(metaData.sArtist);
-      const std::string sTitleUTF8 = spitfire::string::ToUTF8(metaData.sTitle);
-      const std::string sAlbumUTF8 = spitfire::string::ToUTF8(metaData.sAlbum);
+      void cSession::Login(const string_t& sUserName, const string_t& sPassword)
+      {
+        LogOut();
 
-      char* szArtistUTF8 = new char[sArtistUTF8.length() + 1];
-      strcpy(szArtistUTF8, sArtistUTF8.c_str());
-      char* szTitleUTF8 = new char[sTitleUTF8.length() + 1];
-      strcpy(szTitleUTF8, sTitleUTF8.c_str());
-      char* szAlbumUTF8 = new char[sAlbumUTF8.length() + 1];
-      strcpy(szAlbumUTF8, sAlbumUTF8.c_str());
+        const char* szKey = BUILD_LASTFM_KEY;
+        const char* szSecret = BUILD_LASTFM_SECRET;
 
-      const uint64_t uiLengthSeconds = metaData.uiDurationMilliSeconds / 1000;
+        pSession = LASTFM_init(szKey, szSecret);
 
-      if (bScrobble) {
-        /*time_t rawtime;
-        time(&rawtime);
+        const std::string sUserNameUTF8 = spitfire::string::ToUTF8(sUserName);
+        const std::string sPasswordUTF8 = spitfire::string::ToUTF8(sPassword);
 
-        tm* ptm = gmtime(&rawtime);
-
-        time_t started = mktime(ptm);
-        if (ptm->tm_isdst) {
-          ptm->tm_hour += 1;
-          started = mktime(ptm);
-        }*/
-
-        // TODO: Start a background thread so we don't have to do this
-        time_t started;
-        time(&started);
-        started -= 31; // simulate playtime
-
-        LASTFM_track_scrobble(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, started, uiLengthSeconds, 0, 0, NULL);
-      } else LASTFM_track_update_now_playing(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, uiLengthSeconds, 0, 0);
-
-      delete [] szAlbumUTF8;
-      delete [] szTitleUTF8;
-      delete [] szArtistUTF8;
-
-      std::cout<<"cLastFM::ScrobbleOrUpdateTrack returning, status="<<LASTFM_status(pSession)<<"\n";
-    }
-
-    void cLastFM::Scrobble(const cMetaData& metaData)
-    {
-      const bool bScrobble = true;
-      ScrobbleOrUpdateTrack(metaData, bScrobble);
-    }
-
-    void cLastFM::UpdateTrack(const cMetaData& metaData)
-    {
-      const bool bScrobble = false;
-      ScrobbleOrUpdateTrack(metaData, bScrobble);
-    }
-
-    void cLastFM::LoveTrack(const cMetaData& metaData)
-    {
-      if (!IsLoggedIn()) {
-        std::cerr<<"cLastFM::LoveTrack Error not logged in to LastFM\n";
-        return;
+        int iResult = LASTFM_login(pSession, sUserNameUTF8.c_str(), sPasswordUTF8.c_str());
+        if (iResult != 0) {
+          std::cerr<<"cSession::Scrobble LASTFM_login FAILED status="<<LASTFM_status(pSession)<<"\n";
+          LogOut();
+        }
       }
 
-      const std::string sArtistUTF8 = spitfire::string::ToUTF8(metaData.sArtist);
-      const std::string sTitleUTF8 = spitfire::string::ToUTF8(metaData.sTitle);
+      void cSession::LogOut()
+      {
+        if (pSession != nullptr) {
+          LASTFM_dinit(pSession);
+          pSession = nullptr;
+        }
+      }
 
-      LASTFM_track_love(pSession, sTitleUTF8.c_str(), sArtistUTF8.c_str());
+      bool cSession::ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble)
+      {
+        std::wcout<<"cSession::ScrobbleOrUpdateTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
 
-      std::cout<<"cLastFM::LoveTrack returning, status="<<LASTFM_status(pSession)<<"\n";
+        if (!IsLoggedIn()) {
+          std::cerr<<"cSession::ScrobbleOrUpdateTrack Error not logged in to LastFM\n";
+          return false;
+        }
+
+        const std::string sArtistUTF8 = spitfire::string::ToUTF8(metaData.sArtist);
+        const std::string sTitleUTF8 = spitfire::string::ToUTF8(metaData.sTitle);
+        const std::string sAlbumUTF8 = spitfire::string::ToUTF8(metaData.sAlbum);
+
+        char* szArtistUTF8 = new char[sArtistUTF8.length() + 1];
+        strcpy(szArtistUTF8, sArtistUTF8.c_str());
+        char* szTitleUTF8 = new char[sTitleUTF8.length() + 1];
+        strcpy(szTitleUTF8, sTitleUTF8.c_str());
+        char* szAlbumUTF8 = new char[sAlbumUTF8.length() + 1];
+        strcpy(szAlbumUTF8, sAlbumUTF8.c_str());
+
+        const uint64_t uiLengthSeconds = metaData.uiDurationMilliSeconds / 1000;
+
+        int iResult = -1;
+
+        if (bScrobble) {
+          /*time_t rawtime;
+          time(&rawtime);
+
+          tm* ptm = gmtime(&rawtime);
+
+          time_t started = mktime(ptm);
+          if (ptm->tm_isdst) {
+            ptm->tm_hour += 1;
+            started = mktime(ptm);
+          }*/
+
+          // TODO: Start a background thread so we don't have to do this
+          time_t started;
+          time(&started);
+          started -= 31; // simulate playtime
+
+          iResult = LASTFM_track_scrobble(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, started, uiLengthSeconds, 0, 0, NULL);
+        } else iResult = LASTFM_track_update_now_playing(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, uiLengthSeconds, 0, 0);
+
+        delete [] szAlbumUTF8;
+        delete [] szTitleUTF8;
+        delete [] szArtistUTF8;
+
+        std::cout<<"cSession::ScrobbleOrUpdateTrack returning "<<(iResult == 0)<<", status="<<LASTFM_status(pSession)<<"\n";
+        return (iResult == 0);
+      }
+
+      bool cSession::Scrobble(const cMetaData& metaData)
+      {
+        const bool bScrobble = true;
+        return ScrobbleOrUpdateTrack(metaData, bScrobble);
+      }
+
+      bool cSession::UpdateTrack(const cMetaData& metaData)
+      {
+        const bool bScrobble = false;
+        return ScrobbleOrUpdateTrack(metaData, bScrobble);
+      }
+
+      bool cSession::LoveTrack(const cMetaData& metaData)
+      {
+        std::wcout<<"cSession::LoveTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
+
+        if (!IsLoggedIn()) {
+          std::cerr<<"cSession::LoveTrack Error not logged in to LastFM\n";
+          return false;
+        }
+
+        const std::string sArtistUTF8 = spitfire::string::ToUTF8(metaData.sArtist);
+        const std::string sTitleUTF8 = spitfire::string::ToUTF8(metaData.sTitle);
+
+        int iResult = LASTFM_track_love(pSession, sTitleUTF8.c_str(), sArtistUTF8.c_str());
+
+        std::cout<<"cSession::LoveTrack returning "<<(iResult == 0)<<", status="<<LASTFM_status(pSession)<<std::endl;
+        return (iResult == 0);
+      }
+
+
+      // ** cLastFM
+
+      void cLastFM::ReadListenedFromFile(std::list<cEntry*>& listened)
+      {
+        util::cLockObject lock(mutex);
+      }
+
+      void cLastFM::WriteListenedToFile(const std::list<cEntry*>& listened) const
+      {
+        util::cLockObject lock(mutex);
+      }
+
+      void cLastFM::ReadLovedFromFile(std::list<cEntry*>& loved)
+      {
+        util::cLockObject lock(mutex);
+      }
+
+      void cLastFM::WriteLovedToFile(const std::list<cEntry*>& loved) const
+      {
+        util::cLockObject lock(mutex);
+      }
+
+      void cLastFM::StartPlayingTrack(const cMetaData& metaData)
+      {
+        cEvent* pEvent = new cEvent;
+        pEvent->type = cEvent::TYPE::START_TRACK;
+        pEvent->metaData = metaData;
+        eventQueue.AddItemToBack(pEvent);
+      }
+
+      void cLastFM::StopPlayingTrack()
+      {
+        cEvent* pEvent = new cEvent;
+        pEvent->type = cEvent::TYPE::STOP_TRACK;
+        eventQueue.AddItemToBack(pEvent);
+      }
+
+      void cLastFM::LoveTrack(const cMetaData& metaData)
+      {
+        cEvent* pEvent = new cEvent;
+        pEvent->type = cEvent::TYPE::LOVE_TRACK;
+        pEvent->metaData = metaData;
+        eventQueue.AddItemToBack(pEvent);
+      }
+
+      void cLastFM::ThreadFunction()
+      {
+        std::cout<<"cLastFM::ThreadFunction"<<std::endl;
+
+        // Check that we can log in
+        {
+          cSession session;
+          session.Login(sUserName, sPassword);
+        }
+
+
+        cEntry* pCurrent = nullptr;
+        bool bAddedCurrentSongToListenedList = false;
+        util::cDateTime lastScrobbled;
+
+        std::list<cEntry*> listened;
+        ReadListenedFromFile(listened);
+
+        std::list<cEntry*> loved;
+        ReadLovedFromFile(loved);
+
+        while (true) {
+          std::cout<<"cLastFM::ThreadFunction Loop"<<std::endl;
+          soAction.WaitTimeoutMS(1000);
+
+          if (IsToStop()) break;
+
+          cEvent* pEvent = eventQueue.RemoveItemFromFront();
+          if (pEvent != nullptr) {
+            switch (pEvent->type) {
+              case cEvent::TYPE::START_TRACK: {
+                SAFE_DELETE(pCurrent);
+                if (pCurrent == nullptr) {
+                  pCurrent = new cEntry;
+                  pCurrent->dateTime = pEvent->dateTime;
+                  pCurrent->metaData = pEvent->metaData;
+                  bAddedCurrentSongToListenedList = false;
+                }
+                break;
+              }
+              case cEvent::TYPE::STOP_TRACK: {
+                SAFE_DELETE(pCurrent);
+                bAddedCurrentSongToListenedList = false;
+                break;
+              }
+              case cEvent::TYPE::LOVE_TRACK: {
+                std::cerr<<"cLastFM::ThreadFunction Love has not been implemented"<<std::endl;
+                break;
+              }
+            }
+
+            SAFE_DELETE(pEvent);
+          }
+
+          if (IsToStop()) break;
+
+          const util::cDateTime now;
+
+          // Check currently playing some
+          if ((pCurrent != nullptr) && !bAddedCurrentSongToListenedList) {
+            std::cout<<"cLastFM::ThreadFunction Checking song"<<std::endl;
+            ASSERT(now.GetMillisecondsSince0AD() >= pCurrent->dateTime.GetMillisecondsSince0AD());
+            uint64_t uiPositionMS = now.GetMillisecondsSince0AD() - pCurrent->dateTime.GetMillisecondsSince0AD();
+            // If track is more than 30 second long and (position is at least half way or position is at least 4 minutes
+            if ((pCurrent->metaData.uiDurationMilliSeconds > (30 * 1000)) && ((uiPositionMS >= (pCurrent->metaData.uiDurationMilliSeconds / 2)) || (uiPositionMS >= (4 * 60 * 1000)))) {
+              cEntry* pNewEntry = new cEntry;
+              *pNewEntry = *pCurrent;
+              listened.push_back(pNewEntry);
+
+              bAddedCurrentSongToListenedList = true;
+
+              // Update listened
+              WriteListenedToFile(listened);
+            }
+          }
+
+          if (IsToStop()) break;
+
+          // Send up to 10 songs from listened to last.fm
+          if (!listened.empty()) {
+            ASSERT(now.GetMillisecondsSince0AD() >= lastScrobbled.GetMillisecondsSince0AD());
+            uint64_t uiTimeSinceLastScrobbleMS = now.GetMillisecondsSince0AD() - lastScrobbled.GetMillisecondsSince0AD();
+            if (uiTimeSinceLastScrobbleMS > 10000) {
+              cSession session;
+              session.Login(sUserName, sPassword);
+              if (session.IsLoggedIn()) {
+                bool bScrobbledAtLeastOneSong = false;
+
+                for (size_t i = 0; i < 10; i++) {
+                  // Break if we are told to stop or listened is now empty
+                  if (IsToStop() || listened.empty()) break;
+
+                  cEntry* pEntry = listened.front();
+                  ASSERT(pEntry != nullptr);
+
+                  if (!session.Scrobble(pEntry->metaData)) {
+                    std::wcerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
+                    break;
+                  }
+
+                  listened.pop_front();
+
+                  SAFE_DELETE(pEntry);
+
+                  bScrobbledAtLeastOneSong = true;
+                }
+
+                if (bScrobbledAtLeastOneSong) {
+                  WriteListenedToFile(listened);
+                  lastScrobbled = now;
+                }
+              }
+            }
+          }
+        }
+
+        SAFE_DELETE(pCurrent);
+
+        {
+          std::list<cEntry*>::iterator iter = listened.begin();
+          const std::list<cEntry*>::iterator iterEnd = listened.end();
+          while (iter != iterEnd) {
+            SAFE_DELETE(*iter);
+            iter++;
+          }
+        }
+        {
+          std::list<cEntry*>::iterator iter = loved.begin();
+          const std::list<cEntry*>::iterator iterEnd = loved.end();
+          while (iter != iterEnd) {
+            SAFE_DELETE(*iter);
+            iter++;
+          }
+        }
+
+        // Remove any further events because we don't care any more
+        while (true) {
+          cEvent* pEvent = eventQueue.RemoveItemFromFront();
+          if (pEvent == nullptr) break;
+
+          SAFE_DELETE(pEvent);
+        }
+      }
+
+      void cLastFM::Start(const string_t& _sUserName, const string_t& _sPassword)
+      {
+        Stop();
+
+        {
+          util::cLockObject lock(mutex);
+          sUserName = _sUserName;
+          sPassword = _sPassword;
+        }
+
+        Run();
+      }
+
+      void cLastFM::StopSoon()
+      {
+        // Stop scrobbling the current song
+        StopPlayingTrack();
+
+        // Tell the thread to stop
+        StopThreadSoon();
+      }
+
+      void cLastFM::Stop()
+      {
+        StopSoon();
+
+        WaitToStop();
+      }
+
+      bool cLastFM::IsRunning() const
+      {
+        return util::cThread::IsRunning();
+      }
     }
   }
 }

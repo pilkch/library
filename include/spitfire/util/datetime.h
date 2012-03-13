@@ -48,8 +48,9 @@ namespace spitfire
       uint8_t GetSeconds() const { ASSERT(IsValid()); return datetime.time_of_day().seconds(); }
       uint16_t GetMilliSeconds() const;
 
-      // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
       uint32_t GetMillisecondsSinceMidnight() const;
+      // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
+      uint64_t GetMillisecondsSince0AD() const;
 
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
       string_t GetISO8601UTCString() const;

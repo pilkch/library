@@ -31,6 +31,8 @@ namespace spitfire
     public:
       ~cPlaylist();
 
+      void Clear();
+
       std::vector<cTrack*> tracks;
     };
 

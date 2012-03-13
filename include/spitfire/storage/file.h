@@ -111,9 +111,10 @@ namespace spitfire
       template <class T> bool ReadIntBE(T& value);
 
       // String reading
-      void ReadStringUTF8(string_t& str); // Reads string of str + in UTF8 encoded format
-      bool ReadLine(std::string& str);    // Reads a line as a string until \r\n or \r or \n - does not include the trailing \r or \n. 8 bit characters encoding unspecified.
-      bool ReadLineUTF8(string_t& str);   // Reads a line as a string until \r\n or \r or \n - does not include the trailing \r or \n. 8 bit characters encoding unspecified.
+      bool ReadLine(std::string& str);      // Reads a line as a string until \r\n, \r or \n.  Does not include the trailing \r or \n.
+      bool ReadLine(std::wstring& str);     // Reads a line as a string until \r\n, \r or \n.  Does not include the trailing \r or \n.
+      bool ReadLineUTF8(std::string& str);  // Reads a line as a string until \r\n, \r or \n.  Does not include the trailing \r or \n.
+      bool ReadLineUTF8(std::wstring& str); // Reads a line as a string until \r\n, \r or \n.  Does not include the trailing \r or \n.
 
     private:
       BYTEORDER byteOrder;

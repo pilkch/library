@@ -23,6 +23,11 @@ namespace spitfire
 
     cPlaylist::~cPlaylist()
     {
+      Clear();
+    }
+
+    void cPlaylist::Clear()
+    {
       const size_t n = tracks.size();
       for (size_t i = 0; i < n; i++) {
         SAFE_DELETE(tracks[i]);
@@ -70,7 +75,7 @@ namespace spitfire
 
       // Fill the list with file paths
       string_t sLine;
-      while (file.ReadLineUTF8(sLine)) {
+      while (file.ReadLine(sLine)) {
         // #EXTINF:123, Sample artist - Sample title
         // Path/To/Song/Sample artist - Sample title.mp3
 
@@ -127,7 +132,7 @@ namespace spitfire
         std::cout<<"cPlayListReader::LoadFromPls Looking for version and number of entries"<<std::endl;
         storage::cReadTextFile file(sPlsPath);
         string_t sLine;
-        while (file.ReadLineUTF8(sLine)) {
+        while (file.ReadLine(sLine)) {
           std::wcout<<"cPlayListReader::LoadFromPls Line \""<<sLine<<"\""<<std::endl;
           if (string::BeginsWith(sLine, TEXT("Version="))) {
             uiVersion = string::ToUnsignedInt(sLine.substr(strlen("Version=")));
@@ -152,7 +157,7 @@ namespace spitfire
 
       string_t sLine;
       string_t sItem;
-      while (file.ReadLineUTF8(sLine)) {
+      while (file.ReadLine(sLine)) {
         // [playlist]
         // File1=Alternative\everclear - SMFTA.mp3
         // Title1=Everclear - So Much For The Afterglow

@@ -269,9 +269,9 @@ namespace spitfire
       return file.gcount();
     }
 
-    bool cReadFile::ReadLineUTF8(string_t& sLine)
+    bool cReadFile::ReadLine(std::string& sLine)
     {
-      std::cout<<"cReadFile::ReadLineUTF8"<<std::endl;
+      std::cout<<"cReadFile::ReadLine"<<std::endl;
 
       sLine.clear();
 
@@ -298,9 +298,58 @@ namespace spitfire
         }
       }
 
-      sLine = string::ToString_t(o.str());
+      sLine = o.str();
 
+      std::cout<<"cReadFile::ReadLine Finished reading line \""<<sLine<<"\", returning "<<bFoundNewLine<<std::endl;
       return bFoundNewLine;
+    }
+
+    bool cReadFile::ReadLine(std::wstring& sLine)
+    {
+      std::cout<<"cReadFile::ReadLine"<<std::endl;
+
+      sLine.clear();
+
+      std::wostringstream o;
+      bool bFoundNewLine = false;
+      wchar_t c;
+      while (file.good() && !bFoundNewLine) {
+        file.read((char*)&c, sizeof(c));
+        const size_t nRead = file.gcount();
+        if (nRead == 0) break; // End of file
+
+        if ((c == L'\r') || (c == L'\n')) {
+          if (c == L'\r') {
+            if (file.peek() == L'\n') file.read((char*)&c, sizeof(c));
+          }
+
+          bFoundNewLine = true;
+          break;
+        }
+
+        if (!bFoundNewLine) {
+          // Add the string to our output buffer
+          o<<c;
+        }
+      }
+
+      sLine = o.str();
+
+      std::wcout<<"cReadFile::ReadLine Finished reading line \""<<sLine<<"\", returning "<<bFoundNewLine<<std::endl;
+      return bFoundNewLine;
+    }
+
+    bool cReadFile::ReadLineUTF8(std::string& sLine)
+    {
+      return ReadLine(sLine);
+    }
+
+    bool cReadFile::ReadLineUTF8(std::wstring& sLine)
+    {
+      std::string sLineUTF8;
+      bool bResult = ReadLine(sLineUTF8);
+      sLine = string::ToWchar_t(sLineUTF8);
+      return bResult;
     }
 
 

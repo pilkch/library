@@ -6,6 +6,7 @@
 
 // Standard headers
 #include <string>
+#include <list>
 
 // libclastfm headers
 extern "C"{
@@ -13,7 +14,12 @@ extern "C"{
 }
 
 // Spitfire headers
+#include <spitfire/algorithm/algorithm.h>
 #include <spitfire/audio/metadata.h>
+#include <spitfire/util/datetime.h>
+#include <spitfire/util/mutex.h>
+#include <spitfire/util/queue.h>
+#include <spitfire/util/thread.h>
 
 // Define these in your cmake file
 //#define BUILD_LASTFM_KEY "<mykey>"
@@ -23,34 +29,120 @@ namespace spitfire
 {
   namespace audio
   {
-    // ** cLastFM
-    // http://www.last.fm/api/scrobbling
-    //
-    // Submission Rules
-    // The track must be longer than 30 seconds.
-    // And the track has been played for at least half its duration, or for 4 minutes (whichever occurs earlier.)
-    //
-    class cLastFM
+    namespace lastfm
     {
-    public:
-      cLastFM();
-      ~cLastFM();
+      // ** cSession
+      //
+      // http://www.last.fm/api/scrobbling
+      //
+      // Submission Rules
+      // The track must be longer than 30 seconds.
+      // And the track has been played for at least half its duration, or for 4 minutes (whichever occurs earlier.)
+      //
+      class cSession
+      {
+      public:
+        cSession();
+        ~cSession();
 
-      bool IsLoggedIn() const;
-      void Login(const string_t& sUserName, const string_t& sPassword);
+        void Login(const string_t& sUserName, const string_t& sPassword);
+        void LogOut();
 
-      void Scrobble(const cMetaData& metaData);
-      void UpdateTrack(const cMetaData& metaData);
+        bool IsLoggedIn() const;
 
-      void LoveTrack(const cMetaData& metaData);
+        bool Scrobble(const cMetaData& metaData);
+        bool UpdateTrack(const cMetaData& metaData);
 
-    private:
-      void LogOut();
+        bool LoveTrack(const cMetaData& metaData);
 
-      void ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble);
+      private:
+        bool ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble);
 
-      LASTFM_SESSION* pSession;
-    };
+        LASTFM_SESSION* pSession;
+      };
+
+
+      // ** cEntry
+
+      class cEntry
+      {
+      public:
+        cMetaData metaData;
+        util::cDateTime dateTime;
+      };
+
+
+      // ** cEvent
+
+      class cEvent
+      {
+      public:
+        enum class TYPE {
+          START_TRACK,
+          STOP_TRACK,
+          LOVE_TRACK
+        };
+        TYPE type;
+
+        cMetaData metaData;
+        util::cDateTime dateTime;
+      };
+
+
+      // ** cLastFM
+
+      class cLastFM : protected util::cThread
+      {
+      public:
+        cLastFM();
+
+        void Start(const string_t& sUserName, const string_t& sPassword);
+        void StopSoon();
+        void Stop();
+
+        bool IsRunning() const;
+
+        constant_stack<cEntry> GetHistoryListened() const;
+        constant_stack<cEntry> GetHistoryLoved() const;
+
+        void StartPlayingTrack(const cMetaData& metaData);
+        void StopPlayingTrack();
+        void LoveTrack(const cMetaData& metaData);
+
+      private:
+        virtual void ThreadFunction() override;
+
+        string_t GetListenedFile() const;
+        void ReadListenedFromFile(std::list<cEntry*>& listened);
+        void WriteListenedToFile(const std::list<cEntry*>& listened) const;
+
+        string_t GetLovedFile() const;
+        void ReadLovedFromFile(std::list<cEntry*>& loved);
+        void WriteLovedToFile(const std::list<cEntry*>& loved) const;
+
+        mutable util::cMutex mutex;
+
+        string_t sUserName;
+        string_t sPassword;
+
+        constant_stack<cEntry> historyListened;
+        constant_stack<cEntry> historyLoved;
+
+        util::cSignalObject soAction;
+
+        util::cThreadSafeQueue<cEvent> eventQueue;
+      };
+
+      inline cLastFM::cLastFM() :
+        util::cThread(soAction, "cLastFM"),
+        mutex("cLastFM_mutex"),
+        historyListened(10),
+        historyLoved(10),
+        soAction("cLastFM_soAction"),
+        eventQueue(soAction)
+      {
+      }
+    }
   }
 }
 

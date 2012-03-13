@@ -91,11 +91,18 @@ namespace spitfire
       return uint16_t(remainder);
     }
 
-    // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
     uint32_t cDateTime::GetMillisecondsSinceMidnight() const
     {
       ASSERT(IsValid());
       return ((((((GetHours() * 60) + GetMinutes()) * 60) + GetSeconds()) * 1000) + GetMilliSeconds());
+    }
+
+    // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
+    uint64_t cDateTime::GetMillisecondsSince0AD() const
+    {
+      ASSERT(IsValid());
+      const boost::posix_time::time_duration duration = datetime.time_of_day();
+      return duration.total_milliseconds();
     }
 
     /*void GetTimeNow()
