@@ -378,6 +378,24 @@ namespace spitfire
     }
 
     template <class C, class S>
+    S cStringParserTemplate<C, S>::GetCharactersAndSkip(size_t nSurrogatePairs)
+    {
+      ASSERT(!IsEmpty());
+
+      size_t nElementCount = 0;
+      for (size_t i = 0; i < nSurrogatePairs; i++) {
+        // If we are at the end of the string we are finished incrementing our element count
+        if (sString[nElementCount] == 0) break;
+
+        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
+      }
+
+      const S sResult = sString.substr(0, nElementCount);
+      sString = sString.substr(nElementCount);
+      return sResult;
+    }
+
+    template <class C, class S>
     bool cStringParserTemplate<C, S>::GetToStringAndSkip(const S& sFind, S& sResult)
     {
       ASSERT(!IsEmpty());
