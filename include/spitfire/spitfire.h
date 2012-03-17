@@ -160,8 +160,13 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define THREAD_GLOBAL
 
 
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 100) + (__GNUC_MINOR__)
+#define GCC_VERSION_4_7 407
+#endif
+
 // Override keyword to flag virtual functions which are overridden from the base class
-#ifndef COMPILER_MSVC
+#if !defined(COMPILER_MSVC) || (defined(__GNUC__) && (GCC_VERSION < GCC_VERSION_4_7))
 #define override
 #endif
 
