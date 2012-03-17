@@ -46,7 +46,6 @@ namespace spitfire
         ~cSession();
 
         void Login(const string_t& sUserName, const string_t& sPassword);
-        void LogOut();
 
         bool IsLoggedIn() const;
 
@@ -59,6 +58,7 @@ namespace spitfire
         bool ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble);
 
         LASTFM_SESSION* pSession;
+        bool bIsLoggedIn;
       };
 
 

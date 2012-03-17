@@ -1,6 +1,10 @@
 #ifndef CQUEUE_H
 #define CQUEUE_H
 
+// Standard headers
+#include <list>
+
+// Spitfire headers
 #include <spitfire/util/thread.h>
 
 namespace spitfire

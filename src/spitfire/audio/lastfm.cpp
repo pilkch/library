@@ -15,45 +15,39 @@ namespace spitfire
     namespace lastfm
     {
       cSession::cSession() :
-        pSession(nullptr)
+        pSession(nullptr),
+        bIsLoggedIn(false)
       {
-      }
-
-      cSession::~cSession()
-      {
-        LogOut();
-      }
-
-      bool cSession::IsLoggedIn() const
-      {
-        return (pSession != nullptr);
-      }
-
-      void cSession::Login(const string_t& sUserName, const string_t& sPassword)
-      {
-        LogOut();
-
         const char* szKey = BUILD_LASTFM_KEY;
         const char* szSecret = BUILD_LASTFM_SECRET;
 
         pSession = LASTFM_init(szKey, szSecret);
+      }
+
+      cSession::~cSession()
+      {
+        if (pSession != nullptr) {
+          LASTFM_dinit(pSession);
+          pSession = nullptr;
+        }
+      }
+
+      bool cSession::IsLoggedIn() const
+      {
+        return bIsLoggedIn;
+      }
+
+      void cSession::Login(const string_t& sUserName, const string_t& sPassword)
+      {
+        bIsLoggedIn = false;
 
         const std::string sUserNameUTF8 = spitfire::string::ToUTF8(sUserName);
         const std::string sPasswordUTF8 = spitfire::string::ToUTF8(sPassword);
 
         int iResult = LASTFM_login(pSession, sUserNameUTF8.c_str(), sPasswordUTF8.c_str());
         if (iResult != 0) {
-          std::cerr<<"cSession::Scrobble LASTFM_login FAILED status="<<LASTFM_status(pSession)<<"\n";
-          LogOut();
-        }
-      }
-
-      void cSession::LogOut()
-      {
-        if (pSession != nullptr) {
-          LASTFM_dinit(pSession);
-          pSession = nullptr;
-        }
+          std::cerr<<"cSession::Scrobble LASTFM_login FAILED status="<<LASTFM_status(pSession)<<std::endl;
+        } else bIsLoggedIn = true;
       }
 
       bool cSession::ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble)
@@ -189,11 +183,13 @@ namespace spitfire
         std::cout<<"cLastFM::ThreadFunction"<<std::endl;
 
         // Check that we can log in
-        {
-          cSession session;
-          session.Login(sUserName, sPassword);
-        }
+        cSession session;
+        session.Login(sUserName, sPassword);
 
+        if (!session.IsLoggedIn()) {
+          std::cout<<"cLastFM::ThreadFunction Could not log in to last.fm, returning"<<std::endl;
+          return;
+        }
 
         cEntry* pCurrent = nullptr;
         bool bAddedCurrentSongToListenedList = false;
@@ -267,8 +263,6 @@ namespace spitfire
             ASSERT(now.GetMillisecondsSince0AD() >= lastScrobbled.GetMillisecondsSince0AD());
             uint64_t uiTimeSinceLastScrobbleMS = now.GetMillisecondsSince0AD() - lastScrobbled.GetMillisecondsSince0AD();
             if (uiTimeSinceLastScrobbleMS > 10000) {
-              cSession session;
-              session.Login(sUserName, sPassword);
               if (session.IsLoggedIn()) {
                 bool bScrobbledAtLeastOneSong = false;
 
