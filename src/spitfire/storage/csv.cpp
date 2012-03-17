@@ -30,57 +30,58 @@ namespace spitfire
       file.ReadLineUTF8(sLine);
 
       string::cStringParser sp(sLine);
-      if (sp.IsEnd()) bReadAllValues = true;
-      else {
-        while (!sp.IsEnd()) {
-          if (sp.GetCharacter() == TEXT('\"')) {
-            sp.SkipCharacter();
+      while (!sp.IsEnd()) {
+        if (sp.GetCharacter() == TEXT('\"')) {
+          sp.SkipCharacter();
 
-            ostringstream_t oValue;
+          ostringstream_t oValue;
 
-            bool bFoundEndQuote = false;
-            while (!bFoundEndQuote) {
-              string_t sText;
-              if (sp.GetToStringAndSkip(TEXT("\""), sText)) {
-                if (sp.IsEnd()) {
+          bool bFoundEndQuote = false;
+          while (!bFoundEndQuote) {
+            if (sp.IsEnd()) {
+              std::wcerr<<"cReader::ReadLine Error unexpected end of string"<<std::endl;
+              break;
+            }
+
+            string_t sText;
+            if (sp.GetToStringAndSkip(TEXT("\""), sText)) {
+              if (sp.IsEnd()) {
+                oValue<<sText;
+                bFoundEndQuote = true;
+              } else {
+                const char_t c = sp.GetCharacterAndSkip();
+                if (c == TEXT('\"')) {
+                  oValue<<sText;
+                  oValue<<"\"";
+                } else if (c == TEXT(',')) {
                   oValue<<sText;
                   bFoundEndQuote = true;
                 } else {
-                  const char_t c = sp.GetCharacter();
-                  if (c == TEXT(',')) {
-                    sp.SkipCharacter();
-                    oValue<<sText;
-                    bFoundEndQuote = true;
-                  } else if (c == TEXT('\"')) {
-                    oValue<<sText;
-                    oValue<<"\"";
-                  } else {
-                    std::wcerr<<"cReader::ReadLine Error found unexpected string at "<<sp.GetToEndAndSkip()<<std::endl;
-                  }
+                  std::wcerr<<"cReader::ReadLine Error found unexpected string at "<<sp.GetToEndAndSkip()<<std::endl;
                 }
-              } else {
-                oValue<<sp.GetToEndAndSkip();
-
-                file.ReadLineUTF8(sLine);
-
-                string::cStringParser sp2(sLine);
-                sp = sp2;
               }
-            }
-
-            values.push_back(oValue.str());
-          } else {
-            std::cout<<"cReader::ReadLine 0"<<std::endl;
-            string_t sValue;
-            if (sp.GetToStringAndSkip(TEXT(","), sValue)) {
-              std::cout<<"cReader::ReadLine 1"<<std::endl;
-              values.push_back(sValue);
             } else {
-              std::cout<<"cReader::ReadLine 2"<<std::endl;
-              values.push_back(sp.GetToEndAndSkip());
-              bReadAllValues = true;
-              break;
+              oValue<<sp.GetToEndAndSkip();
+
+              file.ReadLineUTF8(sLine);
+
+              string::cStringParser sp2(sLine);
+              sp = sp2;
             }
+          }
+
+          values.push_back(oValue.str());
+        } else {
+          //std::cout<<"cReader::ReadLine 0"<<std::endl;
+          string_t sValue;
+          if (sp.GetToStringAndSkip(TEXT(","), sValue)) {
+            //std::cout<<"cReader::ReadLine 1"<<std::endl;
+            values.push_back(sValue);
+          } else {
+            //std::cout<<"cReader::ReadLine 2"<<std::endl;
+            values.push_back(sp.GetToEndAndSkip());
+            bReadAllValues = true;
+            break;
           }
         }
       }
