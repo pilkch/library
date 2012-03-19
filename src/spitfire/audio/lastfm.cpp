@@ -273,7 +273,10 @@ namespace spitfire
                   cEntry* pEntry = listened.front();
                   ASSERT(pEntry != nullptr);
 
-                  if (!session.Scrobble(pEntry->metaData)) {
+                  // Only scrobble the song if it has a valid artist and title
+                  const bool bIsMetaDataValid = (!pEntry->metaData.sArtist.empty() && !pEntry->metaData.sTitle.empty());
+
+                  if (bIsMetaDataValid && !session.Scrobble(pEntry->metaData)) {
                     std::wcerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
                     break;
                   }
