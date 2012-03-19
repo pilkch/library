@@ -930,14 +930,14 @@ namespace spitfire
     // ********************************************* cFolderIterator *********************************************
 
     cFolderIterator::cFolderIterator() :
-      bIsEndIterator(true),
+      bIsIgnoreHiddenFilesAndFolders(false),
       i(0),
       sParentFolder(TEXT(""))
     {
     }
 
     cFolderIterator::cFolderIterator(const string_t& directory) :
-      bIsEndIterator(false),
+      bIsIgnoreHiddenFilesAndFolders(false),
       i(0),
       sParentFolder(directory)
     {
@@ -948,10 +948,14 @@ namespace spitfire
       struct dirent* dirp;
       if (d != nullptr) {
         while ((dirp = readdir(d)) != NULL ) {
+          std::cout<<"cFolderIterator::cFolderIterator \""<<dirp->d_name<<"\""<<std::endl;
           if ((0 != strcmp(".", dirp->d_name)) &&
-              (0 != strcmp("..", dirp->d_name)))
+              (0 != strcmp("..", dirp->d_name))) {
+            std::cout<<"cFolderIterator::cFolderIterator Adding \""<<dirp->d_name<<"\""<<std::endl;
             paths.push_back(spitfire::string::ToString_t(dirp->d_name));
+          }
         }
+        std::sort(paths.begin(), paths.end());
       }
       closedir(d);
 #else
@@ -961,25 +965,38 @@ namespace spitfire
 
     cFolderIterator::cFolderIterator(const cFolderIterator& rhs)
     {
-      bIsEndIterator = true;
+      bIsIgnoreHiddenFilesAndFolders = rhs.bIsIgnoreHiddenFilesAndFolders;
       i = rhs.i;
       sParentFolder = rhs.sParentFolder;
       paths = rhs.paths;
     }
 
+    void cFolderIterator::SetIgnoreHiddenFilesAndFolders()
+    {
+      bIsIgnoreHiddenFilesAndFolders = true;
+      if (IsValid() && IsHiddenFileOrFolder(GetFileOrFolder())) Next();
+    }
+
+    bool cFolderIterator::IsHiddenFileOrFolder(const string_t& sFileOrFolder) const
+    {
+      return (!sFileOrFolder.empty()) && (sFileOrFolder[0] == TEXT('.'));
+    }
 
     void cFolderIterator::Next()
     {
       const size_t n = paths.size();
-      if (i < n) {
-        i++;
-        if (i == n) bIsEndIterator = true;
+      if (i < n) i++;
+
+      if (bIsIgnoreHiddenFilesAndFolders) {
+        // Keep iterating until we find a non hidden file or folder
+        while ((i < n) && IsHiddenFileOrFolder(paths[i])) {
+          i++;
+        }
       }
     }
 
     cFolderIterator& cFolderIterator::operator=(const cFolderIterator& rhs)
     {
-      bIsEndIterator = rhs.bIsEndIterator;
       i = rhs.i;
       sParentFolder = rhs.sParentFolder;
       paths = rhs.paths;
@@ -987,18 +1004,7 @@ namespace spitfire
       return *this;
     }
 
-    bool cFolderIterator::operator==(const cFolderIterator& rhs)
-    {
-      // If we were never initialised or have cFolderIterator through our path lists
-      return ((!IsValid() && !rhs.IsValid()) || ((sParentFolder == rhs.sParentFolder) && (paths.size() == rhs.paths.size())));
-    }
-
-    bool cFolderIterator::operator!=(const cFolderIterator& rhs)
-    {
-      return !(*this == rhs);
-    }
-
-    string_t cFolderIterator::GetFile() const
+    string_t cFolderIterator::GetFileOrFolder() const
     {
       ASSERT(IsValid());
       return paths[i];
@@ -1010,14 +1016,9 @@ namespace spitfire
       return MakeFilePath(sParentFolder, paths[i]);
     }
 
-    bool cFolderIterator::HasChildren() const
-    {
-      return !paths.empty();
-    }
-
     bool cFolderIterator::IsValid() const
     {
-      return (!bIsEndIterator && !paths.empty() && (i < paths.size()));
+      return (!paths.empty() && (i < paths.size()));
     }
 
     bool cFolderIterator::IsFile() const
@@ -1027,7 +1028,7 @@ namespace spitfire
       return p.IsFile();
     }
 
-    bool cFolderIterator::IsDirectory() const
+    bool cFolderIterator::IsFolder() const
     {
       ASSERT(IsValid());
       cPath p(sParentFolder, paths[i]);

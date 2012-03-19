@@ -239,30 +239,24 @@ namespace spitfire
       explicit cFolderIterator(const string_t& directory);
       cFolderIterator(const cFolderIterator& rhs);
 
-      bool SetIgnoreHiddenFilesAndFolders();
+      void SetIgnoreHiddenFilesAndFolders();
 
       bool IsFile() const;
-      bool IsDirectory() const;
+      bool IsFolder() const;
 
-      string_t GetParentFolder() const;
-      string_t GetFile() const;
+      string_t GetFileOrFolder() const;
       string_t GetFullPath() const; // Returns the full path "/folder1/folder2/file.txt"
 
-      bool HasChildren() const;
+      bool IsValid() const;
 
-      void GoToFirstChild();
       void Next();
-
-      bool operator==(const cFolderIterator& rhs);
-      bool operator!=(const cFolderIterator& rhs);
 
       cFolderIterator& operator=(const cFolderIterator& rhs);
 
     private:
-      bool IsValid() const;
+      bool IsHiddenFileOrFolder(const string_t& sFileOrFolder) const;
 
       bool bIsIgnoreHiddenFilesAndFolders;
-      bool bIsEndIterator;
       size_t i;
       string_t sParentFolder;
       std::vector<string_t> paths;
