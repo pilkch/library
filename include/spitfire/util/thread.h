@@ -50,6 +50,9 @@ namespace spitfire
 
       bool IsRunning() const;
 
+    protected:
+      void Yield();
+
     private:
       virtual bool _IsToStop() const override;
 
@@ -139,6 +142,11 @@ namespace spitfire
 
       // We don't really do this correctly, we just return 0 for every thread
       return 0;
+    }
+
+    inline void cThread::Yield()
+    {
+      YieldThisThread();
     }
   }
 }
