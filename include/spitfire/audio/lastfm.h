@@ -95,6 +95,7 @@ namespace spitfire
       {
       public:
         cLastFM();
+        ~cLastFM();
 
         void Start(const string_t& sUserName, const string_t& sPassword);
         void StopSoon();

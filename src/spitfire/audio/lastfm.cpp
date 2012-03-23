@@ -135,6 +135,17 @@ namespace spitfire
 
       // ** cLastFM
 
+      cLastFM::~cLastFM()
+      {
+        // Remove any further events because we don't care any more
+        while (true) {
+          cEvent* pEvent = eventQueue.RemoveItemFromFront();
+          if (pEvent == nullptr) break;
+
+          SAFE_DELETE(pEvent);
+        }
+      }
+
       void cLastFM::ReadListenedFromFile(std::list<cEntry*>& listened)
       {
         util::cLockObject lock(mutex);
@@ -241,18 +252,19 @@ namespace spitfire
           // Check currently playing some
           if ((pCurrent != nullptr) && !bAddedCurrentSongToListenedList) {
             std::cout<<"cLastFM::ThreadFunction Checking song"<<std::endl;
-            ASSERT(now.GetMillisecondsSince0AD() >= pCurrent->dateTime.GetMillisecondsSince0AD());
-            uint64_t uiPositionMS = now.GetMillisecondsSince0AD() - pCurrent->dateTime.GetMillisecondsSince0AD();
-            // If track is more than 30 second long and (position is at least half way or position is at least 4 minutes
-            if ((pCurrent->metaData.uiDurationMilliSeconds > (30 * 1000)) && ((uiPositionMS >= (pCurrent->metaData.uiDurationMilliSeconds / 2)) || (uiPositionMS >= (4 * 60 * 1000)))) {
-              cEntry* pNewEntry = new cEntry;
-              *pNewEntry = *pCurrent;
-              listened.push_back(pNewEntry);
+            if (now.GetMillisecondsSince0AD() >= pCurrent->dateTime.GetMillisecondsSince0AD()) {
+              uint64_t uiPositionMS = now.GetMillisecondsSince0AD() - pCurrent->dateTime.GetMillisecondsSince0AD();
+              // If track is more than 30 second long and (position is at least half way or position is at least 4 minutes
+              if ((pCurrent->metaData.uiDurationMilliSeconds > (30 * 1000)) && ((uiPositionMS >= (pCurrent->metaData.uiDurationMilliSeconds / 2)) || (uiPositionMS >= (4 * 60 * 1000)))) {
+                cEntry* pNewEntry = new cEntry;
+                *pNewEntry = *pCurrent;
+                listened.push_back(pNewEntry);
 
-              bAddedCurrentSongToListenedList = true;
+                bAddedCurrentSongToListenedList = true;
 
-              // Update listened
-              WriteListenedToFile(listened);
+                // Update listened
+                WriteListenedToFile(listened);
+              }
             }
           }
 
@@ -314,14 +326,6 @@ namespace spitfire
             SAFE_DELETE(*iter);
             iter++;
           }
-        }
-
-        // Remove any further events because we don't care any more
-        while (true) {
-          cEvent* pEvent = eventQueue.RemoveItemFromFront();
-          if (pEvent == nullptr) break;
-
-          SAFE_DELETE(pEvent);
         }
       }
 
