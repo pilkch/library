@@ -303,6 +303,7 @@ namespace spitfire
       ASSERT(!IsEmpty());
 
       const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
+      (void)nElementCount;
       ASSERT(nElementCount == 1);
       return sString[0];
     }

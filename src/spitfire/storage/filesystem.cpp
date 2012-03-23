@@ -906,6 +906,7 @@ namespace spitfire
       char szTempFolderPath[MAX_PATH_LEN];
       strlcpy(szTempFolderPath, spitfire::string::ToUTF8(p.GetFullPath()).c_str(), MAX_PATH_LEN);
       const char* szResult = mkdtemp(szTempFolderPath);
+      (void)szResult;
       ASSERT(szResult != nullptr);
 
       sTemporarySubFolder = spitfire::string::ToString_t(szTempFolderPath);
