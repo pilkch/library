@@ -85,7 +85,7 @@ namespace spitfire
       // number of milliseconds and then subtract the hours, minutes and seconds to get the remainder
       const boost::posix_time::time_duration duration = datetime.time_of_day();
       const long millisecondsTotal = duration.total_milliseconds();
-      const long remainder = millisecondsTotal - (((duration.hours() * 60) + duration.minutes()) * 1000);
+      const long remainder = millisecondsTotal - (((((duration.hours() * 60) + duration.minutes()) * 60) + duration.seconds()) * 1000);
       ASSERT(remainder >= 0);
       ASSERT(remainder < 1000);
       return uint16_t(remainder);
