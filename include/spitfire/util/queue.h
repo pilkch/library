@@ -107,8 +107,14 @@ namespace spitfire
         if (!items.empty()) {
           pItem = items.front();
           items.pop_front();
+
+          if (!items.empty()) {
+            // Tell anyone listening that there is still an item in the queue
+            soAction.Signal();
+          }
         }
       }
+
       return pItem;
     }
   }
