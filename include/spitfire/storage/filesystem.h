@@ -72,6 +72,12 @@ namespace spitfire
     uint32_t GetLastModifiedDate(const string_t& sFilename);
     uint64_t GetFileSize(const string_t& sFilename);
 
+    // Check that these two paths are pointing to the same file
+    bool IsSameFile(const string_t& sFileA, const string_t& sFileB);
+
+    // Check that these two paths are pointing to the same folder
+    bool IsSameFolder(const string_t& sFolderA, const string_t& sFolderB);
+
     string_t GetCurrentDirectory();
     void ChangeToDirectory(const string_t& sDirectory);
 
@@ -119,9 +125,16 @@ namespace spitfire
     bool DeleteFile(const string_t& sFilename);
     bool DeleteDirectory(const string_t& sFoldername);
 
+    void MoveFileToTrash(const string_t& sFilePath);
+    void MoveFolderToTrash(const string_t& sFolderPath);
+
+    void MoveFile(const string_t& sFrom, const string_t& sTo);
     void CopyFile(const string_t& sFrom, const string_t& sTo);
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo);
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo);
+
+    void ShowFile(const string_t& sFilePath);     // Opens the file navigator to show where this file is
+    void ShowFolder(const string_t& sFolderPath); // Opens the file navigator to show where this folder is
 
     // File Opening functions
     // No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?

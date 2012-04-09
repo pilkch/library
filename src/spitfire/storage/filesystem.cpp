@@ -29,7 +29,10 @@
 #include <windows.h>
 #endif
 
-// xdg headers
+// libtrashmm headers
+#include <libtrashmm/libtrashmm.h>
+
+// libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
 
 // Spitfire headers
@@ -146,6 +149,16 @@ namespace spitfire
     }
 #endif
 
+    void MoveFileToTrash(const string_t& sFilePath)
+    {
+      trash::MoveFileToTrash(string::ToUTF8(sFilePath));
+    }
+
+    void MoveFolderToTrash(const string_t& sFolderPath)
+    {
+      trash::MoveFolderToTrash(string::ToUTF8(sFolderPath));
+    }
+
     void CopyFile(const string_t& sFrom, const string_t& sTo)
     {
       if (FileExists(sTo)) return;
@@ -179,6 +192,18 @@ namespace spitfire
       char c = '\0';
 
       while (i.get(c)) o.put(c);
+    }
+
+    void ShowFile(const string_t& sFilePath)
+    {
+      xdg::cXdg xdg;
+      xdg.OpenFile(spitfire::string::ToUTF8(sFilePath));
+    }
+
+    void ShowFolder(const string_t& sFolderPath)
+    {
+      xdg::cXdg xdg;
+      xdg.OpenFolder(spitfire::string::ToUTF8(sFolderPath));
     }
 
 
@@ -682,6 +707,23 @@ namespace spitfire
       return boost::filesystem::file_size(file);
     }
 
+    // Check that these two paths are pointing to the same file
+    bool IsSameFile(const string_t& sFileA, const string_t& sFileB)
+    {
+      struct stat stA;
+      bool bResultA = (stat(spitfire::string::ToUTF8(sFileA).c_str(), &stA) == 0);
+      struct stat stB;
+      bool bResultB = (stat(spitfire::string::ToUTF8(sFileB).c_str(), &stB) == 0);
+
+      // Check that the inodes these files match
+      return (bResultA && bResultB && (stA.st_ino == stB.st_ino));
+    }
+
+    // Check that these two paths are pointing to the same folder
+    bool IsSameFolder(const string_t& sFolderA, const string_t& sFolderB)
+    {
+      return IsSameFile(sFolderA, sFolderB);
+    }
 
 #ifdef BUILD_SUPPORT_MD5
     string_t GetMD5(const string_t& sFilename)
