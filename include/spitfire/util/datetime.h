@@ -56,6 +56,11 @@ namespace spitfire
       string_t GetISO8601UTCString() const;
       bool SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset); // Returns true and sets offset if there is one
 
+      // RFC 3339 Format
+      // YYYY-MM-DDThh:mm:ss
+      string_t GetRFC3339String() const;
+      bool SetFromRFC3339String(const string_t& rhs);
+
       void SetFromLocalTimeNow() { datetime = GetLocalTimeNow(); }
       void SetFromUniversalTimeNow() { datetime = GetUniversalTime(); }
 

@@ -213,6 +213,30 @@ namespace spitfire
       return true;
     }
 
+    // RFC 3339 Format
+    // YYYY-MM-DDThh:mm:ss
+    // 2006-03-20T17:53:38
+    string_t cDateTime::GetRFC3339String() const
+    {
+      ASSERT(IsValid());
+
+      ostringstream_t o;
+
+      o<<std::setfill(TEXT('0'));
+
+      o<<std::setw(4)<<GetYear();
+      o<<std::setw(2)<<GetMonth();
+      o<<std::setw(2)<<GetDay();
+      o<<TEXT('T');
+      o<<std::setw(2)<<GetHours();
+      o<<TEXT(':');
+      o<<std::setw(2)<<GetMinutes();
+      o<<TEXT(':');
+      o<<std::setw(2)<<GetSeconds();
+
+      return o.str();
+    }
+
     boost::posix_time::time_duration cDateTime::GetLocalTimeZoneOffset()
     {
       boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
