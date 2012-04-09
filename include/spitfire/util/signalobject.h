@@ -53,15 +53,23 @@ namespace spitfire
 
     inline void cSignalObject::Signal()
     {
-      std::unique_lock<std::mutex> lock(mutex);
-      bIsSignalled = true;
+      {
+        std::unique_lock<std::mutex> lock(mutex);
+        bIsSignalled = true;
+      }
+
+      // Mutex must be unlocked when condition variable is notified
       condition.notify_all();
     }
 
     inline void cSignalObject::SignalOne()
     {
-      std::unique_lock<std::mutex> lock(mutex);
-      bIsSignalled = true;
+      {
+        std::unique_lock<std::mutex> lock(mutex);
+        bIsSignalled = true;
+      }
+
+      // Mutex must be unlocked when condition variable is notified
       condition.notify_one();
     }
 
