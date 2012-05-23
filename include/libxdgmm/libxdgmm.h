@@ -91,6 +91,7 @@ namespace xdg
 
     int OpenFile(const std::string& sFilePathUTF8);
     int OpenFolder(const std::string& sFolderPathUTF8);
+    int OpenFolderHighlightFile(const std::string& sFilePathUTF8);
     int OpenURL(const std::string& sURLUTF8);
 
   private:
