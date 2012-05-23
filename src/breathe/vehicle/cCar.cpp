@@ -125,6 +125,86 @@
 
 
 
+// Total Drive Train Loss
+// FWD: 10-15% loss
+// RWD: 10-18% loss
+// AWD: 17-25% loss
+//
+// Automatic transmission: 2-5% more loss
+
+
+
+// Handling Upgrades
+//
+// Commodore:
+// Light weight wheels/semi slick tyres with -3 degrees camber
+// Custom Adjustable coil overs
+// Sway bars/strut bars/nolathene bushes
+// Supercar front bar/air splitter
+// Chassis brace kit
+// Liner steering rack
+//
+// WRX/EVO:
+// Light weight wheels/semi slick tyres with -2.5 degrees camber
+// Heavy duty springs/shocks or coil overs.
+//
+// Also WRX/EVO:
+// Heavy duty sway bars and links
+// Strut bar
+// Camber setup
+// Good set of springs
+//
+// Also WRX/EVO ultimate:
+// Anti lift kit
+// Coilovers
+// Decent quality rotors and pads like DBA500s and QFCs
+
+
+
+// Turbo Chargers
+//
+// High power engines with small capacities have less exhaust gas available to initially spin the turbo up (or more accurately, proportionally much less than they have at full power), so these engines are even harder to provide with a responsive turbo.
+// Ceramic turbines (less mass so faster acceleration)
+// Ball-bearing turbos (less frictional drag from the bearing)
+// Electric-assist turbos are relatively new and can start the turbo spinning
+// To reduce lag place the turbo closer to the exhaust port
+
+
+// Super Chargers
+//
+// Example:
+// 0.59L Super Charger
+//
+// Displacement
+// 0.59L per revolution
+//
+// Maximum air flow:
+// 150L per second
+//
+// Compression:
+// Built in pressure ratio 1.4 bar
+//
+// Achievable Engine Output:
+// 150Kw / 200Hp
+//
+// Drive speed max. RPM:
+// 16000RPM (continuous rating)
+//
+// Compression:
+// Built in pressure ratio 1.4bar
+//
+// Pressure Range:
+// Up to 2.0bar
+//
+// Typical Engine Capacity:
+// 1.0 – 2.0L
+//
+// Lubrication:
+// Self contained sealed unit or externally pressure fed
+//
+// Weight:
+// 4.5kg (including front cover and standard pulley)
+
 
 
 // The Physics of Racing Series
