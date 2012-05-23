@@ -764,7 +764,6 @@ namespace spitfire
 #ifdef __WIN__
 #pragma pop_macro("CreateDirectory")
 #endif
-
       return boost::filesystem::create_directories(sFoldername);
     }
 

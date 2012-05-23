@@ -72,10 +72,13 @@ public:
 
 private:
   void ThreadFunction();
+
+  spitfire::util::cSignalObject soAction;
 };
 
 cDerivedThreadForUnitTest::cDerivedThreadForUnitTest() :
-  spitfire::util::cThread("cDerivedThreadForUnitTest")
+  spitfire::util::cThread(soAction, "cDerivedThreadForUnitTest"),
+  soAction("cDerivedThreadForUnitTest_soAction")
 {
 }
 
