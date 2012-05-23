@@ -151,10 +151,10 @@ namespace spitfire
       #endif
       bool WriteStringUTF8(const string_t& str);    // Writes a simple string encoded in UTF8
       void WriteStringAnsi(const string_t& str);    // Writes a simple string encoded in the ACP. Not recommended.
-      void WriteLine(const std::string& str);       // Uses the OS Native Ending
+      void WriteLine(const string_t& str);       // Uses the OS Native Ending
       void WriteLineUTF8(const string_t& str);      // Uses the OS Native Ending
-      void WriteLineCRLF(const std::string& str);   // Uses \r\n at the end of lines. ie. Windows
-      void WriteLineLF(const std::string& str);     // Uses \n at the end of lines. ie. Unix
+      void WriteLineCRLF(const string_t& str);   // Uses \r\n at the end of lines. ie. Windows
+      void WriteLineLF(const string_t& str);     // Uses \n at the end of lines. ie. Unix
     };
 
     // ** cWriteTextFile

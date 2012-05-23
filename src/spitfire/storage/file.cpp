@@ -398,5 +398,20 @@ namespace spitfire
       file.write(static_cast<const char*>(sStringUTF8.c_str()), sStringUTF8.length());
       return true;
     }
+
+    void cWriteFile::WriteLine(const string_t& str)
+    {
+      #ifdef __WIN__
+      WriteLineCRLF(str);
+      #else
+      WriteLineLF(str);
+      #endif
+    }
+
+    void cWriteFile::WriteLineLF(const string_t& str)
+    {
+      file.write((const char*)str.c_str(), str.length() * sizeof(char_t));
+      file.write((const char*)TEXT("\n"), sizeof(char_t));
+    }
   }
 }
