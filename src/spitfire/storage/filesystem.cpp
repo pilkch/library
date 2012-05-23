@@ -197,7 +197,7 @@ namespace spitfire
     void ShowFile(const string_t& sFilePath)
     {
       xdg::cXdg xdg;
-      xdg.OpenFile(spitfire::string::ToUTF8(sFilePath));
+      xdg.OpenFolderHighlightFile(spitfire::string::ToUTF8(sFilePath));
     }
 
     void ShowFolder(const string_t& sFolderPath)
@@ -560,6 +560,18 @@ namespace spitfire
 #ifndef FIRESTARTER
       LOG<<"FileSystem Added "<<expanded<<std::endl;
 #endif
+    }
+
+    bool IsFile(const string_t& sFilePath)
+    {
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      return boost::filesystem::is_regular_file(file);
+    }
+
+    bool IsFolder(const string_t& sFolderPath)
+    {
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFolderPath));
+      return boost::filesystem::is_directory(file);
     }
 
 #ifdef __WIN__

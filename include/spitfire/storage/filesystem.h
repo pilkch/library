@@ -117,6 +117,8 @@ namespace spitfire
     //string_t ExpandPath(const string_t& sPath);
     string_t MakePathRelative(const string_t& sRootPath, const string_t& sFullPath);
 
+    bool IsFile(const string_t& sFilePath);
+    bool IsFolder(const string_t& sFolderPath);
     bool FileExists(const string_t& sFilename);
     bool DirectoryExists(const string_t& sFoldername);
     bool CreateFile(const string_t& sFilename);
