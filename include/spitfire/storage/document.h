@@ -80,6 +80,8 @@ namespace spitfire
       void SetAttribute(const std::string& sAttribute, const math::cColour& value);
       #endif
 
+      void RemoveAttribute(const std::string& sAttribute);
+
       bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DELCARATION; }
       bool IsCommentOnly() const { return type == TYPE::COMMENT; }
       bool IsNameAndAttributesAndChildren() const { return type == TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN; }

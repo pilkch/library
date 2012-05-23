@@ -622,6 +622,14 @@ namespace spitfire
     #endif // BUILD_XML_MATH
 
 
+    void cNode::RemoveAttribute(const std::string& sAttribute)
+    {
+      attribute_iterator iter = mAttribute.find(sAttribute);
+      const attribute_iterator iterEnd = mAttribute.end();
+      if (iter != iterEnd) mAttribute.erase(iter);
+    }
+
+
     bool cNode::GetAttribute(const std::string& sAttribute, std::string& value) const
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
