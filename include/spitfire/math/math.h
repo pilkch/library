@@ -261,8 +261,17 @@ namespace spitfire
       );
     }
 
+    // Clamp an angle to -180..180
+    template <typename T>
+    T ClampAngle(T angle)
+    {
+      if (angle < 0.0f) angle = 180.0f - (T)fmod(fabs(angle), 360.0f);
+      else angle = -180.0f + (T)fmod(angle, 360.0f);
 
-    // Return angle in the interval [minimum, minimum + 2pi].
+      return angle;
+    }
+
+    // Return angle in the interval [minimum, minimum + 2pi]
     template <typename T>
     T branch (T angle, T minimum)
     {

@@ -8,6 +8,27 @@ namespace spitfire
 {
   namespace math
   {
+    inline float GetAngleBetweenPoints(const cVec2& point1, const cVec2& point2)
+    {
+      const float z_delta = (point1.y - point2.y);
+      const float x_delta = (point1.x - point2.x);
+      if (x_delta == 0.0f) {
+        return (z_delta > 0.0f) ? 0.0f : 180.0f;
+      }
+
+      float angle = 0.0f;
+      if (fabs(x_delta) < fabs(z_delta)) {
+        angle = 90.0f - (float)atan(z_delta / x_delta) * RADIANS_TO_DEGREES;
+        if (x_delta < 0.0f) angle -= 180.0f;
+      } else {
+        angle = (float)atan(x_delta / z_delta) * RADIANS_TO_DEGREES;
+        if (z_delta < 0.0f) angle += 180.0f;
+      }
+      if (angle < 0.0f) angle += 360.0f;
+
+      return angle;
+    }
+
     inline float GetAngleDegreesFromNormal(const cVec2& normal)
     {
       //float fTargetAngleDegrees = 90.0f;
@@ -18,6 +39,15 @@ namespace spitfire
     inline cVec2 GetNormalFromAngleDegrees(float fAngleDegrees)
     {
       return (cVec2(cosf(DegreesToRadians(fAngleDegrees)), sinf(DegreesToRadians(fAngleDegrees)))).GetNormalised();
+    }
+
+    inline float GetDifferenceBetweenAngles(float fAngle1, float fAngle2)
+    {
+      const float result = (float)fmod(fAngle1 - fAngle2, 360.0f);
+      if (result > 180.0f) return result - 360.0f;
+      if (result < -180.0f) return result + 360.0f;
+
+      return result;
     }
 
 
