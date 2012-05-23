@@ -46,7 +46,11 @@ namespace spitfire
 
         int iResult = LASTFM_login(pSession, sUserNameUTF8.c_str(), sPasswordUTF8.c_str());
         if (iResult != 0) {
-          std::cerr<<"cSession::Scrobble LASTFM_login FAILED status="<<LASTFM_status(pSession)<<std::endl;
+          const char* szStatus = nullptr;
+          const int* iErrorCode = nullptr;
+          const char* szErrorText = nullptr;
+          LASTFM_status(pSession, &szStatus, &iErrorCode, &szErrorText);
+          std::cerr<<"cSession::Scrobble LASTFM_login FAILED status="<<szStatus<<", error="<<iErrorCode<<", "<<szErrorText<<std::endl;
         } else bIsLoggedIn = true;
       }
 
@@ -55,7 +59,7 @@ namespace spitfire
         std::wcout<<"cSession::ScrobbleOrUpdateTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
 
         if (!IsLoggedIn()) {
-          std::cerr<<"cSession::ScrobbleOrUpdateTrack Error not logged in to LastFM\n";
+          std::cerr<<"cSession::ScrobbleOrUpdateTrack Error not logged in to LastFM"<<std::endl;
           return false;
         }
 
@@ -91,14 +95,18 @@ namespace spitfire
           time(&started);
           started -= 31; // simulate playtime
 
-          iResult = LASTFM_track_scrobble(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, started, uiLengthSeconds, 0, 0, NULL);
-        } else iResult = LASTFM_track_update_now_playing(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, uiLengthSeconds, 0, 0);
+          iResult = LASTFM_track_scrobble(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, started, uiLengthSeconds, 0, 0, nullptr);
+        } else iResult = LASTFM_track_update_now_playing(pSession, szTitleUTF8, szAlbumUTF8, szArtistUTF8, uiLengthSeconds, 0, 0, nullptr);
 
         delete [] szAlbumUTF8;
         delete [] szTitleUTF8;
         delete [] szArtistUTF8;
 
-        std::cout<<"cSession::ScrobbleOrUpdateTrack returning "<<(iResult == 0)<<", status="<<LASTFM_status(pSession)<<"\n";
+        const char* szStatus = nullptr;
+        const int* iErrorCode = nullptr;
+        const char* szErrorText = nullptr;
+        LASTFM_status(pSession, &szStatus, &iErrorCode, &szErrorText);
+        std::cout<<"cSession::ScrobbleOrUpdateTrack returning "<<(iResult == 0)<<", status="<<szStatus<<", error="<<iErrorCode<<", "<<szErrorText<<std::endl;
         return (iResult == 0);
       }
 
@@ -119,7 +127,7 @@ namespace spitfire
         std::wcout<<"cSession::LoveTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
 
         if (!IsLoggedIn()) {
-          std::cerr<<"cSession::LoveTrack Error not logged in to LastFM\n";
+          std::cerr<<"cSession::LoveTrack Error not logged in to LastFM"<<std::endl;
           return false;
         }
 
@@ -128,7 +136,11 @@ namespace spitfire
 
         int iResult = LASTFM_track_love(pSession, sTitleUTF8.c_str(), sArtistUTF8.c_str());
 
-        std::cout<<"cSession::LoveTrack returning "<<(iResult == 0)<<", status="<<LASTFM_status(pSession)<<std::endl;
+        const char* szStatus = nullptr;
+        const int* iErrorCode = nullptr;
+        const char* szErrorText = nullptr;
+        LASTFM_status(pSession, &szStatus, &iErrorCode, &szErrorText);
+        std::cout<<"cSession::LoveTrack returning "<<(iResult == 0)<<", status="<<szStatus<<", error="<<iErrorCode<<", "<<szErrorText<<std::endl;
         return (iResult == 0);
       }
 
