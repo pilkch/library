@@ -884,15 +884,31 @@ namespace spitfire
 
     std::string ToUTF8(const std::wstring& source)
     {
-      std::string result(source.size(), char(0));
-      typedef std::ctype<wchar_t> ctype_t;
-      const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
-#ifdef __LINUX__
-      ct.narrow(source.data(), source.data() + source.size(), '0', &(*result.begin()));
-#else
-      ct.narrow(source.data(), source.data() + source.size(), '\u00B6', &(*result.begin()));
-#endif
-      return result;
+      // http://en.wikipedia.org/wiki/UTF-8
+
+      std::ostringstream o;
+
+      const size_t n = source.length();
+      for (size_t i = 0; i < n; i++) {
+        const wchar_t c = source[i];
+        if (c <= 0x7f) {
+          o<<static_cast<char>(c);
+        } else if (c <= 0x7FF) {
+          o<<static_cast<char>(0xC0 | (c >> 6));
+          o<<static_cast<char>(0x80 | (0x3f & c));
+        } else if (c <= 0xFFFF) {
+          o<<(0xE0 | static_cast<char>(c >> 12));
+          o<<(0x80 | static_cast<char>((0x3f & (c >> 6))));
+          o<<static_cast<char>(0x80 | (0x3f & c));
+        } else if (c <= 0x10FFFF) {
+          o<<static_cast<char>(0xF0 | (c >> 18));
+          o<<static_cast<char>(0x80 | (0x3f & (c >> 12)));
+          o<<static_cast<char>(0x80 | (0x3f & (c >> 6)));
+          o<<static_cast<char>(0x80 | (0x3f & c));
+        }
+      }
+
+      return o.str();
     }
 
     /*std::string ToUTF8(const std::wstring& source)

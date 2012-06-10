@@ -97,10 +97,6 @@
 #define BUILD_DEBUG
 #endif
 
-#if !defined(UNICODE) && !defined(_UNICODE)
-#error "Add UNICODE and _UNICODE to the build flags in your CMakeLists.txt file"
-#endif // !UNICODE
-
 #if defined(min) || defined(max)
 #error "For Visual Studio define NOMINMAX"
 #endif

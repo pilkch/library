@@ -56,7 +56,7 @@ namespace spitfire
 
       bool cSession::ScrobbleOrUpdateTrack(const cMetaData& metaData, bool bScrobble)
       {
-        std::wcout<<"cSession::ScrobbleOrUpdateTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
+        std::cout<<"cSession::ScrobbleOrUpdateTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
 
         if (!IsLoggedIn()) {
           std::cerr<<"cSession::ScrobbleOrUpdateTrack Error not logged in to LastFM"<<std::endl;
@@ -124,7 +124,7 @@ namespace spitfire
 
       bool cSession::LoveTrack(const cMetaData& metaData)
       {
-        std::wcout<<"cSession::LoveTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
+        std::cout<<"cSession::LoveTrack "<<metaData.sArtist<<" - "<<metaData.sTitle<<std::endl;
 
         if (!IsLoggedIn()) {
           std::cerr<<"cSession::LoveTrack Error not logged in to LastFM"<<std::endl;
@@ -301,7 +301,7 @@ namespace spitfire
                   const bool bIsMetaDataValid = (!pEntry->metaData.sArtist.empty() && !pEntry->metaData.sTitle.empty());
 
                   if (bIsMetaDataValid && !session.Scrobble(pEntry->metaData)) {
-                    std::wcerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
+                    std::cerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
                     break;
                   }
 

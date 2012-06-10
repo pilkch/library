@@ -39,7 +39,7 @@ namespace spitfire
           bool bFoundEndQuote = false;
           while (!bFoundEndQuote) {
             if (sp.IsEnd()) {
-              std::wcerr<<"cReader::ReadLine Error unexpected end of string"<<std::endl;
+              std::cerr<<"cReader::ReadLine Error unexpected end of string"<<std::endl;
               break;
             }
 
@@ -57,7 +57,7 @@ namespace spitfire
                   oValue<<sText;
                   bFoundEndQuote = true;
                 } else {
-                  std::wcerr<<"cReader::ReadLine Error found unexpected string at "<<sp.GetToEndAndSkip()<<std::endl;
+                  std::cerr<<"cReader::ReadLine Error found unexpected string at "<<sp.GetToEndAndSkip()<<std::endl;
                 }
               }
             } else {

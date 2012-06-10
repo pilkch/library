@@ -133,7 +133,7 @@ namespace spitfire
         storage::cReadTextFile file(sPlsPath);
         string_t sLine;
         while (file.ReadLine(sLine)) {
-          std::wcout<<"cPlayListReader::LoadFromPls Line \""<<sLine<<"\""<<std::endl;
+          std::cout<<"cPlayListReader::LoadFromPls Line \""<<sLine<<"\""<<std::endl;
           if (string::BeginsWith(sLine, TEXT("Version="))) {
             uiVersion = string::ToUnsignedInt(sLine.substr(strlen("Version=")));
           } else if (string::BeginsWith(sLine, TEXT("NumberOfEntries="))) {
@@ -178,7 +178,7 @@ namespace spitfire
         if (sp.SkipToStringAndSkip(TEXT("File"))) { // "File1"
           if (sp.GetToStringAndSkip(TEXT("="), sItem)) {
             const uint64_t item = string::ToUnsignedInt(sItem);
-            std::wcout<<"cPlayListReader::LoadFromPls File"<<item<<" "<<sItem<<std::endl;
+            std::cout<<"cPlayListReader::LoadFromPls File"<<item<<" "<<sItem<<std::endl;
             if (item != 0) {
               std::cout<<"cPlayListReader::LoadFromPls a"<<std::endl;
               const size_t index = item - 1;

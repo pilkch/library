@@ -194,6 +194,15 @@ namespace spitfire
       while (i.get(c)) o.put(c);
     }
 
+    bool MoveFile(const string_t& sFrom, const string_t& sTo)
+    {
+      CONSOLE<<"MoveFile From \""<<sFrom<<"\", to \""<<sTo<<"\""<<std::endl;
+      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      boost::filesystem::rename(from, to);
+      return FileExists(sTo);
+    }
+
     void ShowFile(const string_t& sFilePath)
     {
       xdg::cXdg xdg;
@@ -484,7 +493,7 @@ namespace spitfire
         prefix = StripLastDirectory(prefix);
       };
 
-      std::wcout<<"MakePathAbsolute returning \""<<(prefix + expanded)<<"\""<<std::endl;
+      std::cout<<"MakePathAbsolute returning \""<<(prefix + expanded)<<"\""<<std::endl;
       return prefix + expanded;
     }
 
@@ -854,7 +863,13 @@ namespace spitfire
 
     cFilePathParser::cFilePathParser(const string_t& sFilePath)
     {
-      ASSERT(false);
+      std::cout<<"cFilePathParser::cFilePathParser \""<<sFilePath<<"\""<<std::endl;
+      const string_t sPath = spitfire::filesystem::GetPath(sFilePath);
+      sFileName = spitfire::filesystem::GetFile(sFilePath);
+
+      string::Split(sFilePath, cFilePathSeparator, vFolderNames);
+      const size_t n = vFolderNames.size();
+      for (size_t i = 0; i < n; i++) std::cout<<"Part=\""<<vFolderNames[i]<<"\""<<std::endl;
     }
 
 

@@ -43,8 +43,10 @@ namespace spitfire
   namespace filesystem
   {
     #ifdef __WIN__
+    const char_t cFilePathSeparator = TEXT('\\');
     const string_t sFilePathSeparator = TEXT("\\");
     #else
+    const char_t cFilePathSeparator = TEXT('/');
     const string_t sFilePathSeparator = TEXT("/");
     #endif
 
@@ -130,7 +132,7 @@ namespace spitfire
     void MoveFileToTrash(const string_t& sFilePath);
     void MoveFolderToTrash(const string_t& sFolderPath);
 
-    void MoveFile(const string_t& sFrom, const string_t& sTo);
+    bool MoveFile(const string_t& sFrom, const string_t& sTo);
     void CopyFile(const string_t& sFrom, const string_t& sTo);
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo);
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo);
@@ -283,10 +285,10 @@ namespace spitfire
     void Create();
     void Destroy();
 
+    // Virtual file system functions
     void Mount(const string_t& sPath);
     void MountHighPriority(const string_t& sPath);
     void MountLowPriority(const string_t& sPath);
-
     void Unmount(const string_t& sPath);
 
     bool GetFile(const string_t& sFile, string_t& sFullPath);
