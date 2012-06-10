@@ -77,6 +77,19 @@ namespace xdg
     return true;
   }
 
+  // NOTE: For KDE we have KDE_FULL_SESSION
+
+  bool IsDesktopGnome()
+  {
+    // Return true if the desktop session is gnome
+    std::string sValue;
+    GetEnvironmentVariable("DESKTOP_SESSION", sValue);
+    if (sValue == "gnome-shell") return true;
+
+    // Return true if the gnome desktop session id is set
+    return GetEnvironmentVariable("GNOME_DESKTOP_SESSION_ID", sValue);
+  }
+
 
 
   // ** cXdg
@@ -287,9 +300,7 @@ namespace xdg
   int cXdg::OpenFolderHighlightFile(const std::string& sFilePathUTF8)
   {
     // Nautilus does a better job of this than xdg-open so we try to use that where possible
-    std::string sValue;
-    GetEnvironmentVariable("DESKTOP_SESSION", sValue);
-    if (sValue == "gnome-shell") return system(("nautilus \'" + sFilePathUTF8 + "\'").c_str());
+    if (IsDesktopGnome()) return system(("nautilus \'" + sFilePathUTF8 + "\'").c_str());
 
     return OpenFolder(sFilePathUTF8);
   }
