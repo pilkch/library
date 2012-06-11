@@ -38,6 +38,8 @@ namespace spitfire
       // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
       bool IsValid() const { return !datetime.is_not_a_date_time() && !datetime.date().is_special() && !datetime.time_of_day().is_special();  }
 
+      bool IsUnixEpoch() const { return ((GetYear() == 1970) && (GetMonth() == 1) && (GetDay() == 1) && (GetHours() == 0) && (GetMinutes() == 0) && (GetSeconds() == 0) && (GetMilliSeconds() == 0)); }
+
       WEEKDAY GetWeekDay() const; // Returns the day of the week of this date
 
       uint16_t GetYear() const { ASSERT(IsValid()); return datetime.date().year(); }
@@ -61,6 +63,7 @@ namespace spitfire
       string_t GetRFC3339String() const;
       bool SetFromRFC3339String(const string_t& rhs);
 
+      void SetFromUnixEpoch() { *this = cDateTime(1970, 1, 1); }
       void SetFromLocalTimeNow() { datetime = GetLocalTimeNow(); }
       void SetFromUniversalTimeNow() { datetime = GetUniversalTime(); }
 
