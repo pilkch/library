@@ -177,6 +177,7 @@ namespace spitfire
     // Use cScopedDirectoryChangeMainThread instead
     //typedef cScopedDirectoryChangeMainThread cScopedDirectoryChange;
 
+
     class cScopedTemporaryFolder
     {
     public:
@@ -189,6 +190,16 @@ namespace spitfire
       string_t sTemporarySubFolder;
     };
 
+
+    class cScopedFolderDeleter
+    {
+    public:
+      explicit cScopedFolderDeleter(const string_t& sFullPath);
+      ~cScopedFolderDeleter();
+
+    private:
+      std::string sFullPath;
+    };
 
 
     class cPathBuilder

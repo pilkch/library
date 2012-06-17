@@ -425,8 +425,8 @@ namespace spitfire
     {
       string_t s = sFilename;
 
-      string_t::size_type i = s.find(TEXT("/"));;
-      while(i != string_t::npos) {
+      string_t::size_type i = s.find(TEXT("/"));
+      while (i != string_t::npos) {
         i++;
         s = s.substr(i);
         i = s.find(TEXT("/"));
@@ -995,6 +995,19 @@ namespace spitfire
     }
 
 
+    cScopedFolderDeleter::cScopedFolderDeleter(const string_t& _sFullPath) :
+      sFullPath(_sFullPath)
+    {
+    }
+
+    cScopedFolderDeleter::~cScopedFolderDeleter()
+    {
+      LOG<<"cScopedFolderDeleter::~cScopedFolderDeleter"<<std::endl;
+      ASSERT(DirectoryExists(sFullPath));
+
+      DeleteDirectory(sFullPath);
+    }
+
 
     // ********************************************* cFolderIterator *********************************************
 
@@ -1010,26 +1023,21 @@ namespace spitfire
       i(0),
       sParentFolder(directory)
     {
-#ifdef __WIN__
-#error "cFolderIterator::cFolderIterator not implemented in windows"
-#elif defined(__LINUX__)
-      DIR* d = opendir(spitfire::string::ToUTF8(sParentFolder).c_str());
-      struct dirent* dirp;
-      if (d != nullptr) {
-        while ((dirp = readdir(d)) != NULL ) {
-          std::cout<<"cFolderIterator::cFolderIterator \""<<dirp->d_name<<"\""<<std::endl;
-          if ((0 != strcmp(".", dirp->d_name)) &&
-              (0 != strcmp("..", dirp->d_name))) {
-            std::cout<<"cFolderIterator::cFolderIterator Adding \""<<dirp->d_name<<"\""<<std::endl;
-            paths.push_back(spitfire::string::ToString_t(dirp->d_name));
-          }
-        }
-        std::sort(paths.begin(), paths.end());
+      if (!DirectoryExists(sParentFolder)) {
+        std::cout<<"Folder \""<<sParentFolder<<"\" does not exist"<<std::endl;
+        return;
       }
-      closedir(d);
-#else
-#error "cFolderIterator::cFolderIterator not implemented on this platform"
-#endif
+      const boost::filesystem::directory_iterator iterEnd;
+      for (boost::filesystem::directory_iterator iter(spitfire::string::ToUTF8(sParentFolder)); iter != iterEnd; iter++) {
+        const string_t sFullPath = iter->path().string();
+        const string_t sFile = filesystem::GetFile(sFullPath);
+        if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
+          std::cout<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
+          paths.push_back(sFile);
+        }
+      }
+
+      std::sort(paths.begin(), paths.end());
     }
 
     cFolderIterator::cFolderIterator(const cFolderIterator& rhs)
