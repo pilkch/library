@@ -161,11 +161,12 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define GCC_VERSION_4_7 407
 #endif
 
-// Override keyword to flag virtual functions which are overridden from the base class
 #if !defined(COMPILER_MSVC) || (defined(__GNUC__) && (GCC_VERSION < GCC_VERSION_4_7))
+// Override keyword to flag virtual functions which are overridden from the base class
 #define override
+// Final keyword to flag virtual functions which are not allowed to be overridden in derived classes
+#define final
 #endif
-
 
 // Deprecation flags
 #if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
@@ -232,7 +233,7 @@ typedef uint64_t filesize_t;
 template <typename T, size_t N>
 char (&ArraySizeHelper(T (&array)[N]))[N];
 
-#define lengthof(array) (sizeof(ArraySizeHelper(array)))
+#define countof(array) (sizeof(ArraySizeHelper(array)))
 
 
 // Utility types, objects etc.
