@@ -421,29 +421,17 @@ namespace spitfire
       return TEXT("");
     }
 
+    string_t GetExtensionNoDot(const string_t& sFilename)
+    {
+      return boost::filesystem::extension(sFilename);
+    }
+
     string_t GetExtension(const string_t& sFilename)
     {
-      string_t s = sFilename;
+      const string_t sExtensionNoDot = GetExtensionNoDot(sFilename);
+      if (sExtensionNoDot.empty()) return TEXT("");
 
-      string_t::size_type i = s.find(TEXT("/"));
-      while (i != string_t::npos) {
-        i++;
-        s = s.substr(i);
-        i = s.find(TEXT("/"));
-      };
-
-      if (i != string_t::npos) s = s.substr(i);
-
-      i = s.find(TEXT("."));
-      while (i != string_t::npos) {
-        i++;
-        s = s.substr(i);
-        i = s.find(TEXT("."));
-      };
-
-      if (i != string_t::npos) return s.substr(i);
-
-      return s.substr(0);
+      return TEXT(".") + sExtensionNoDot;
     }
 
 

@@ -110,6 +110,7 @@ namespace spitfire
     string_t GetFile(const string_t& sFilename); // Returns just the file "file.txt"
     string_t GetFileNoExtension(const string_t& sFilename);  // Returns just the name "file"
     string_t GetExtension(const string_t& sFilename); // Returns just the extension ".txt"
+    string_t GetExtensionNoDot(const string_t& sFilename); // Returns just the extension with no dot "txt"
 
     bool IsPathAbsolute(const string_t& sFilePath);
     bool IsPathRelative(const string_t& sFilePath);
