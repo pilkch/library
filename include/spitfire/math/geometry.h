@@ -4,6 +4,9 @@
 // Standard headers
 #include <cassert>
 
+// Spitfire headers
+#include <spitfire/math/math.h>
+
 namespace spitfire
 {
   namespace math
@@ -18,10 +21,10 @@ namespace spitfire
 
       float angle = 0.0f;
       if (fabs(x_delta) < fabs(z_delta)) {
-        angle = 90.0f - (float)atan(z_delta / x_delta) * RADIANS_TO_DEGREES;
+        angle = 90.0f - RadiansToDegrees((float)atan(z_delta / x_delta));
         if (x_delta < 0.0f) angle -= 180.0f;
       } else {
-        angle = (float)atan(x_delta / z_delta) * RADIANS_TO_DEGREES;
+        angle = RadiansToDegrees((float)atan(x_delta / z_delta));
         if (z_delta < 0.0f) angle += 180.0f;
       }
       if (angle < 0.0f) angle += 360.0f;
