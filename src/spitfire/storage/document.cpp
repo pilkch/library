@@ -90,9 +90,8 @@ namespace spitfire
 
     bool cNode::LoadFromString(const std::string& sData)
     {
-      ParseFromString(sData, nullptr);
-
-      return (!sData.empty());
+      spitfire::string::cStringParserUTF8 sp(sData);
+      return ParseFromStringParser(sp);
     }
 
     bool cNode::LoadFromFile(const string_t& inFilename)
@@ -115,162 +114,155 @@ namespace spitfire
       }
       f.close();
 
-      LOG<<"XML "<<inFilename<<" contains \""<<spitfire::string::ToString_t(sData)<<"\", returning"<<std::endl;
+      //LOG<<"XML "<<inFilename<<" contains \""<<spitfire::string::ToString_t(sData)<<"\", returning"<<std::endl;
       return LoadFromString(sData);
     }
 
-    std::string cNode::ParseFromString(const std::string& data, cNode* pPrevious)
+    bool cNode::ParseFromStringParser(spitfire::string::cStringParserUTF8& sp)
     {
-      std::string sData(data);
-      while (!sData.empty()) {
-        sData = string::StripLeadingWhiteSpace(sData);
+      //std::cout<<"cNode::ParseFromString \""<<sp.GetToEnd()<<"\""<<std::endl;
+
+      while (!sp.IsEnd()) {
+        const std::string sTmp = sp.GetToEnd();
+        //std::cout<<"cNode::ParseFromString While \""<<sTmp<<"\""<<std::endl;
+
+        sp.SkipWhiteSpace();
 
         // XML declaration
         // <?xml version="1.0" encoding="UTF-8"?>
-        while (sData.find("<?xml") == 0) {
-          const size_t nEndDeclaration = sData.find("?>");
-
-          if (nEndDeclaration == std::string::npos) {
-#ifndef FIRESTARTER
-            LOG<<"XML Unterminated XML declaration"<<std::endl;
-#endif
-            return "";
+        while (sp.StartsWithAndSkip("<?xml")) {
+          if (!sp.SkipToString("?>")) {
+            LOG<<"XML Unterminated XML declaration, returning false"<<std::endl;
+            return false;
           }
 
-          LOG<<"Found XML declaration node"<<std::endl;
-          type = TYPE::XML_DELCARATION;
-          sData = string::StripLeadingWhiteSpace(sData.substr(nEndDeclaration));
+          //LOG<<"Found XML declaration node"<<std::endl;
+          type = TYPE::XML_DECLARATION;
+          sp.SkipWhiteSpace();
         }
 
         // Comments
         // <!-- ... -->
-        while (sData.find("<!--") == 0) {
-          const size_t nEndComment = sData.find("-->");
-
-          if (nEndComment == std::string::npos) {
-            LOG<<"XML Unterminated Comment"<<std::endl;
-            return "";
+        while (sp.StartsWithAndSkip("<!--")) {
+          if (!sp.SkipToString("-->")) {
+            LOG<<"XML Unterminated Comment, returning false"<<std::endl;
+            return false;
           }
 
-          LOG<<"Found comment node"<<std::endl;
+          //LOG<<"Found comment node"<<std::endl;
           type = TYPE::COMMENT;
-          sData = string::StripLeadingWhiteSpace(sData.substr(nEndComment));
         }
 
-        std::string::size_type angleBracket=sData.find("<");
-        if (angleBracket != std::string::npos) {
-          std::string sContent;
+        std::string sContent;
+        if (sp.GetToStringAndSkip("<", sContent)) {
+          sp.SkipWhiteSpace();
 
-          if (angleBracket) {
-            //Content</name>
-            sContent = sData.substr(0, angleBracket);
-          }
+          if (sp.GetCharacter() == '/') {
+            sp.SkipCharacter();
 
-          // example attribute="value"...
-          sData = string::StripLeading(sData.substr(angleBracket+1), " ");
-
-          if (sData[0] == '/') {
             // </name>
-            if (!sContent.empty() && sContent != "/>") {
+            if (!sContent.empty() && (sContent != "/>")) {
               cNode* pNode = CreateNodeAsChildAndAppend();
               ASSERT(pNode != nullptr);
               pNode->SetTypeContentOnly(sContent);
             }
 
-            angleBracket = sData.find(">");
-
-            if (angleBracket != std::string::npos) {
-              std::string sClose=string::StripTrailing(string::StripLeading(sData.substr(1, angleBracket-1), " "), " ");
-
+            std::string sClose;
+            if (sp.GetToStringAndSkip(">", sClose)) {
               if (sClose != sName) {
-                LOG<<"XML Opening tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't match closing tag \""<<spitfire::string::ToString_t(sClose)<<"\""<<std::endl;
-                return "";
+                LOG<<"XML Opening tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't match closing tag \""<<spitfire::string::ToString_t(sClose)<<"\", returning false"<<std::endl;
+                return false;
               }
-
-              sData=string::StripLeading(sData.substr(angleBracket+1), " ");
             } else {
-              LOG<<"XML Tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't have a closing tag"<<std::endl;
-              return "";
+              LOG<<"XML Tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't have a closing tag, returning false"<<std::endl;
+              return false;
             }
 
-            return sData;
+            //std::cout<<"Found end of tag, breaking"<<std::endl;
+            break;
           }
 
-          const std::string sSlashSpaceRightBracket = "/ >";
-          std::string::size_type n = sData.find_first_of(sSlashSpaceRightBracket);
+          std::string sResult;
+          if (sp.GetToOneOfTheseCharacters("/ >", sResult)) {
+            sp.SkipCharacters(sResult.length());
 
-          if (std::string::npos != n) {
             // Collect name
-            std::string inName=string::StripTrailing(sData.substr(0, n), " ");
+            std::string inName = string::StripTrailing(sResult, " ");
 
             // attribute="value"...
-            sData = string::StripLeading(sData.substr(n), " ");
+            sp.SkipWhiteSpace();
 
             cNode* p = CreateNodeAsChildAndAppend();
 
-            LOG<<"Found node "<<spitfire::string::ToString_t(inName)<<std::endl;
+            //LOG<<"Found node "<<spitfire::string::ToString_t(inName)<<std::endl;
             p->sName = inName;
 
             // Fill in attributes if any, and find the end of the opening tag
-            if ('/' == sData[0]) {
+            if (sp.GetCharacter() == '/') {
               // />
-              n=sData.find(">");
-              if (std::string::npos==n) return "";
-
-              sData=sData.substr(n+1);
+              if (!sp.SkipToStringAndSkip(">")) {
+                LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" doesn't have a closing bracket, returning false"<<std::endl;
+                return false;
+              }
             } else {
+              std::string sData;
+              if (!sp.GetToStringAndSkip(">", sData)) {
+                LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" opening declaration doesn't terminate, returning false"<<std::endl;
+                return false;
+              }
+
+              // Append a closing bracket because we took one off when parsing
+              sData += ">";
+
               // attribute="value">
-              std::string::iterator iter=sData.begin();
+              std::string::iterator iter = sData.begin();
 
               std::string sAttributeName;
               std::string sAttributeValue;
 
-              while(iter!=sData.end() && *iter!='/' && *iter!='>') {
+              while ((iter != sData.end()) && (*iter != '/') && (*iter != '>')) {
                 if (*iter == ' ') {
                   p->SetAttribute(sAttributeName, "");
                   sAttributeName = "";
-                  sData=string::StripLeading(&*iter, " ");
-                  iter=sData.begin();
+                  sData = string::StripLeading(&*iter, " ");
+                  iter = sData.begin();
                   continue;
                 } else if (*iter == '=') {
                   iter++;
                   if ((iter != sData.end()) && (*iter == '\"')) {
                     sData.erase(sData.begin(), ++iter);
-                    sData=string::StripLeading(sData, " ");
+                    sData = string::StripLeading(sData, " ");
 
-                    std::string::size_type nQuote=sData.find("\"");
-                    std::string::size_type nSlashQuote=sData.find("\\\"");
+                    std::string::size_type nQuote = sData.find("\"");
+                    std::string::size_type nSlashQuote = sData.find("\\\"");
 
                     while (std::string::npos != nQuote) {
                       if (nQuote < nSlashQuote) {
                         // attribute="value"
                         p->SetAttribute(sAttributeName, sAttributeValue + sData.substr(0, nQuote));
-                        sAttributeName="";
-                        sAttributeValue="";
-                        sData=string::StripLeading(sData.substr(nQuote+1), " ");
+                        sAttributeName = "";
+                        sAttributeValue = "";
+                        sData = string::StripLeading(sData.substr(nQuote + 1), " ");
                         break;
-                      }
-                      else
-                      {
+                      } else {
                         // attribute="value\"innervalue..."
-                        sAttributeValue+=sData.substr(0, nSlashQuote);
-                        sData=string::StripLeading(sData.substr(nSlashQuote+2), " ");
+                        sAttributeValue += sData.substr(0, nSlashQuote);
+                        sData = string::StripLeading(sData.substr(nSlashQuote + 2), " ");
                       }
 
-                      nQuote=sData.find("\"");
-                      nSlashQuote=sData.find("\\\"");
+                      nQuote = sData.find("\"");
+                      nSlashQuote = sData.find("\\\"");
                     };
 
-                    iter=sData.begin();
+                    iter = sData.begin();
                     continue;
                   }
-                } else sAttributeName+=*iter;
+                } else sAttributeName += *iter;
 
                 iter++;
               };
 
-              if ('>'==*iter)
-              {
+              if ('>' == *iter) {
                 // >...
                 iter++;
                 if (!sAttributeName.empty()) {
@@ -278,29 +270,30 @@ namespace spitfire
                   p->SetAttribute(sAttributeName, sAttributeValue);
                   sAttributeName = "";
                 }
-                sData.erase(sData.begin(), iter);
-                sData=(*vChild.rbegin())->ParseFromString(sData, this);
-                iter = sData.begin();
+
+                if (!(*vChild.rbegin())->ParseFromStringParser(sp)) {
+                  std::cerr<<"Error parsing child node, returning false"<<std::endl;
+                  return false;
+                }
               }
             }
+          } else {
+            std::cout<<"here, returning true"<<std::endl;
+            return true;
           }
-          else
-          {
-            return "";
-          }
-        }
-        else
-        {
+        } else {
           // No tags, just content for the parent tag (this)
           cNode* p = CreateNodeAsChildAndAppend();
 
           p->type = TYPE::CONTENT_ONLY;
-          p->sContentOnly += string::StripTrailingWhiteSpace(sData);
-          return "";
+          p->sContentOnly += string::StripTrailingWhiteSpace(sp.GetToEnd());
+          //std::cout<<"Content only, returning true"<<std::endl;
+          return true;
         }
       }
 
-      return sData;
+      //std::cout<<"At end of function, returning true"<<std::endl;
+      return true;
     }
 
 

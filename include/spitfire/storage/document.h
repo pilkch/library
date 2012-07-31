@@ -1,6 +1,9 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
+// Standard headers
+#include <map>
+
 // Spitfire headers
 #include <spitfire/util/string.h>
 
@@ -82,7 +85,7 @@ namespace spitfire
 
       void RemoveAttribute(const std::string& sAttribute);
 
-      bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DELCARATION; }
+      bool IsXMLDeclarationOnly() const { return type == TYPE::XML_DECLARATION; }
       bool IsCommentOnly() const { return type == TYPE::COMMENT; }
       bool IsNameAndAttributesAndChildren() const { return type == TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN; }
       bool IsContentOnly() const { return type == TYPE::CONTENT_ONLY; }
@@ -220,12 +223,12 @@ namespace spitfire
       void SetTypeElement(const std::string& name);
       void SetTypeContentOnly(const std::string& text);
 
-      std::string ParseFromString(const std::string& sData, cNode* pPrevious);
+      bool ParseFromStringParser(spitfire::string::cStringParserUTF8& sp);
 
       void WriteToFile(std::ofstream& file, const std::string& sTab) const;
 
       enum class TYPE {
-        XML_DELCARATION,
+        XML_DECLARATION,
         COMMENT,
         NAME_AND_ATTRIBUTES_AND_CHILDREN,
         CONTENT_ONLY

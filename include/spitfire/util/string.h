@@ -225,7 +225,7 @@ namespace spitfire
 
 
 
-
+    // TODO: Use C* szString instead of S sString
     // TODO: Replace the hacky code in this class with std::istringstream
 
     template <class C, class S>
@@ -245,6 +245,7 @@ namespace spitfire
       S GetCharacterPossiblySurrogatePair() const { return GetCharacters(1); } // Returns a string of 1 surrogate pairs
       S GetCharacters(size_t nSurrogatePairs) const; // Returns a string of n surrogate pairs
       bool GetToWhiteSpace(S& sResult) const; // Returns true if whitespace is found, else returns false
+      bool GetToOneOfTheseCharacters(const S& sFind, S& sResult) const; // Returns true if a character from sFind was found, else returns false
       bool GetToString(const S& sFind, S& sResult) const; // Returns true if sFind is found, else returns false
       S GetToEnd() const; // Returns the remaining string
 
@@ -254,6 +255,9 @@ namespace spitfire
       bool GetToWhiteSpaceAndSkip(S& sResult); // Returns true if whitespace is found and skips it, else returns false
       bool GetToStringAndSkip(const S& sFind, S& sResult); // Returns true if sFind is found and skips it, else returns false
       S GetToEndAndSkip(); // Returns the remaining string and skips to the end
+
+      bool StartsWith(const S& sFind) const; // Returns true if the start of the string equals sFind
+      bool StartsWithAndSkip(const S& sFind); // Returns true and skips the characters if the start of the string equals sFind
 
       void SkipCharacter(); // Skips ahead one surrogate pair
       void SkipCharacters(size_t nSurrogatePairs); // Skips ahead n surrogate pairs
@@ -325,6 +329,24 @@ namespace spitfire
     }
 
     template <class C, class S>
+    bool cStringParserTemplate<C, S>::GetToOneOfTheseCharacters(const S& sFind, S& sResult) const
+    {
+      ASSERT(!IsEmpty());
+
+      sResult.clear();
+
+      std::string::size_type i = sString.find_first_of(sFind);
+
+      // If we found one of these characters then return everything up to the found string
+      if (std::string::npos != i) {
+        sResult = sString.substr(0, i);
+        return true;
+      }
+
+      return false;
+    }
+
+    template <class C, class S>
     bool cStringParserTemplate<C, S>::GetToString(const S& sFind, S& sResult) const
     {
       ASSERT(!IsEmpty());
@@ -345,8 +367,6 @@ namespace spitfire
     template <class C, class S>
     S cStringParserTemplate<C, S>::GetToEnd() const
     {
-      ASSERT(!IsEmpty());
-
       return sString;
     }
 
@@ -415,6 +435,20 @@ namespace spitfire
       const S sResult = GetToEnd();
       sString = sString.substr(sResult.length());
       return sResult;
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::StartsWith(const S& sFind) const
+    {
+      return BeginsWith(sString, sFind);
+    }
+
+    template <class C, class S>
+    bool cStringParserTemplate<C, S>::StartsWithAndSkip(const S& sFind)
+    {
+      bool bResult = BeginsWith(sString, sFind);
+      if (bResult) sString = sString.substr(sFind.length());
+      return bResult;
     }
 
     template <class C, class S>
