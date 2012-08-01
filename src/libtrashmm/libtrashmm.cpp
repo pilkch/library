@@ -70,12 +70,12 @@ namespace trash
     return o.str();
   }
 
-  bool TestFileExists(const std::string& sFilePath)
+  bool FileExists(const std::string& sFilePath)
   {
     return (access(sFilePath.c_str(), F_OK) == 0);
   }
 
-  bool TestFolderExists(const std::string& sFolderPath)
+  bool FolderExists(const std::string& sFolderPath)
   {
     return (access(sFolderPath.c_str(), F_OK) == 0);
   }
@@ -134,18 +134,71 @@ namespace trash
     return ((lstat(sPath.c_str(), &st) != -1) && ((st.st_mode & S_IFMT) == S_IFLNK));
   }
 
+#ifdef __LINUX__
+  bool DeleteFile(const std::string& sFilename)
+  {
+    const boost::filesystem::path file(sFilename);
+    boost::filesystem::remove(file);
+    return !FileExists(sFilename);
+  }
+
+  bool DeleteDirectory(const std::string& sFoldername)
+  {
+    const boost::filesystem::path file(sFoldername);
+    return (boost::filesystem::remove_all(file) != 0);
+  }
+#endif
+
+  // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
+  // file is a link to another file it won't destroy the link, it will actually write to the linked to file.
+  // NOTE: This is very very slow, only reading one character at a time, this could take minutes even on a few GB file?
+  void CopyContentsOfFile(const std::string& sFrom, const std::string& sTo)
+  {
+    std::ifstream i(sFrom.c_str());
+    std::ofstream o(sTo.c_str());
+
+    char c = '\0';
+
+    while (i.get(c)) o.put(c);
+  }
+
+  void CopyFile(const std::string& sFrom, const std::string& sTo)
+  {
+    if (FileExists(sTo)) return;
+
+    CopyContentsOfFile(sFrom, sTo);
+
+    // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
+    //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+    //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+    //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
+  }
+
+  void CopyFileOverwrite(const std::string& sFrom, const std::string& sTo)
+  {
+    CopyContentsOfFile(sFrom, sTo);
+
+    // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
+    //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+    //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+    //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+  }
+
   bool MoveFile(const std::string& sFromFile, const std::string& sToFile)
   {
-    // NOTE: sToFile must be the actual file that we want to move to, not the parent folder
-    assert(!IsFolder(sToFile));
-
-    int iResult = rename(sFromFile.c_str(), sToFile.c_str());
-    if (iResult != 0) {
-      std::cout<<"MoveFile From \""<<sFromFile<<"\" to \""<<sToFile<<"\" FAILED Due to "<<GetUnixErrorString()<<std::endl;
-      return false;
+    // Check if the files are on the same device
+    struct stat a;
+    struct stat b;
+    if ((lstat(sFromFile.c_str(), &a) != -1) && (lstat(sToFile.c_str(), &b) != -1) && (a.st_dev == b.st_dev)) {
+      const boost::filesystem::path from(sFromFile);
+      const boost::filesystem::path to(sToFile);
+      boost::filesystem::rename(from, to);
+    } else {
+      // Can't just rename so we have to copy and delete
+      CopyFile(sFromFile, sToFile);
+      DeleteFile(sFromFile);
     }
-
-    return true;
+    return FileExists(sToFile);
   }
 
   bool MoveFolder(const std::string& sFromFolder, const std::string& sToFolder)
@@ -187,25 +240,25 @@ namespace trash
   {
     assert(!IsUserRoot());
 
-    if (!TestFileExists(sFilePath)) return RESULT::ERROR_FILE_DOES_NOT_EXIST;
+    if (!FileExists(sFilePath)) return RESULT::ERROR_FILE_DOES_NOT_EXIST;
 
     // TODO: Files that the user trashes from the same file system (device/partition) should be stored here.
     // If this directory is needed for a trashing operation but does not exist, the implementation SHOULD automatically create it.
 
     const std::string sInfoDirectory = GetInfoFolder();
-    if (!TestFolderExists(sInfoDirectory)) CreateFolder(sInfoDirectory);
+    if (!FolderExists(sInfoDirectory)) CreateFolder(sInfoDirectory);
 
     const std::string sFilesDirectory = GetFilesFolder();
-    if (!TestFolderExists(sFilesDirectory)) CreateFolder(sFilesDirectory);
+    if (!FolderExists(sFilesDirectory)) CreateFolder(sFilesDirectory);
 
     const std::string sDirectory = GetFolderPathFromFilePath(sFilePath); // Get the path without the file
     const std::string sFile = GetFileFromFilePath(sFilePath); // Get the file without the path
 
     // Find a free path to copy the file to
-    std::string sTrashFile = "/" + sFile;
+    std::string sTrashFile = sFile;
     std::string sTrashFilePath = sFilesDirectory + "/" + sTrashFile;
     size_t i = 0;
-    while (TestFileExists(sTrashFilePath)) {
+    while (FileExists(sTrashFilePath)) {
       i++;
       sTrashFile = sFile + ToString(i);
       sTrashFilePath = sFilesDirectory + "/" + sTrashFile;
