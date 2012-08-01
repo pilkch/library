@@ -423,15 +423,17 @@ namespace spitfire
 
     string_t GetExtensionNoDot(const string_t& sFilename)
     {
-      return boost::filesystem::extension(sFilename);
+      const string_t sExtensionWithDot = GetExtension(sFilename);
+
+      // If it starts with a dot then return the rest of the string
+      if (!sExtensionWithDot.empty() && (sExtensionWithDot.c_str()[0] == TEXT('.'))) return sExtensionWithDot.substr(1);
+
+      return sExtensionWithDot;
     }
 
     string_t GetExtension(const string_t& sFilename)
     {
-      const string_t sExtensionNoDot = GetExtensionNoDot(sFilename);
-      if (sExtensionNoDot.empty()) return TEXT("");
-
-      return TEXT(".") + sExtensionNoDot;
+      return boost::filesystem::extension(sFilename);
     }
 
 
