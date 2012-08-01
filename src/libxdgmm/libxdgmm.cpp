@@ -10,6 +10,7 @@
 #include <vector>
 
 // Boost headers
+#include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 
@@ -64,6 +65,11 @@ namespace xdg
     return sBuffer;
   }
 
+    bool DirectoryExists(const std::string& sFolderName)
+    {
+      const boost::filesystem::path folder(sFolderName);
+      return boost::filesystem::exists(folder);
+    }
 
 
   bool GetEnvironmentVariable(const std::string& sVariable, std::string& sValue)
@@ -203,66 +209,54 @@ namespace xdg
 
   std::string cXdg::GetHomeDesktopDirectory()
   {
-    std::string sDirectory = GetDirectory("DESKTOP");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Desktop";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Desktop";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("DESKTOP");
 
     return sDirectory;
   }
 
   std::string cXdg::GetHomeDownloadsDirectory()
   {
-    std::string sDirectory = GetDirectory("DOWNLOAD");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Downloads";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Downloads";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("DOWNLOAD");
 
     return sDirectory;
   }
 
   std::string cXdg::GetHomeDocumentsDirectory()
   {
-    std::string sDirectory = GetDirectory("DOCUMENTS");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Documents";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Documents";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("DOCUMENTS");
 
     return sDirectory;
   }
 
   std::string cXdg::GetHomeMusicDirectory()
   {
-    std::string sDirectory = GetDirectory("MUSIC");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Music";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Music";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("MUSIC");
 
     return sDirectory;
   }
 
   std::string cXdg::GetHomePicturesDirectory()
   {
-    std::string sDirectory = GetDirectory("PICTURES");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Pictures";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Pictures";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("PICTURES");
 
     return sDirectory;
   }
 
   std::string cXdg::GetHomeVideosDirectory()
   {
-    std::string sDirectory = GetDirectory("VIDEOS");
-    if (sDirectory.empty() || (sDirectory[0] == 0)) {
-      const std::string sHome = GetHomeDirectory();
-      sDirectory = sHome + "/Videos";
-    }
+    const std::string sHome = GetHomeDirectory();
+    std::string sDirectory = sHome + "/Videos";
+    if (!DirectoryExists(sDirectory)) sDirectory = GetDirectory("VIDEOS");
 
     return sDirectory;
   }
