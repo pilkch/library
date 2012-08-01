@@ -131,14 +131,14 @@ namespace voodoo
   bool cSurface::CreateFromImage(const cImage& _image)
   {
     // Only RGBA textures are supported at the moment
-    assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+    assert(_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
 
     // Only width and heights divisible by 2 are supported at the moment
-    assert(spitfire::math::IsDivisibleByTwo(image.GetWidth()));
-    assert(spitfire::math::IsDivisibleByTwo(image.GetHeight()));
+    assert(spitfire::math::IsDivisibleByTwo(_image.GetWidth()));
+    assert(spitfire::math::IsDivisibleByTwo(_image.GetHeight()));
 
     // Only square textures are supported at the moment
-    assert(image.GetWidth() == image.GetHeight());
+    assert(_image.GetWidth() == _image.GetHeight());
 
     image = _image;
 
@@ -260,7 +260,7 @@ namespace voodoo
     // Only RGBA is supported at the moment
     assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
 
-    if (image.IsValid()) return;
+    if (!image.IsValid()) return;
 
     const size_t width = image.GetWidth();
     const size_t height = image.GetHeight();
@@ -420,6 +420,7 @@ namespace voodoo
   {
     cSurface surface;
     surface.CreateFromImage(*this);
+    surface.CopyFromBufferToSurface();
     return surface.SaveToBMP(sFilename);
   }
 
