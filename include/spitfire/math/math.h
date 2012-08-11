@@ -273,7 +273,7 @@ namespace spitfire
 
     // Return angle in the interval [minimum, minimum + 2pi]
     template <typename T>
-    T branch (T angle, T minimum)
+    T branch(T angle, T minimum)
     {
       while (angle > minimum + c2_PI) angle -= c2_PI;
       while (angle <= minimum) angle += c2_PI;
