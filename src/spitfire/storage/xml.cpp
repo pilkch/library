@@ -32,18 +32,18 @@ namespace spitfire
   {
     // ** reader
 
-    bool reader::ReadFromFile(document::cDocument& doc, const string_t& filename) const
+    util::PROCESS_RESULT reader::ReadFromFile(util::cProcessInterface& interface, document::cDocument& doc, const string_t& filename) const
     {
       doc.Clear();
 
-      return doc.LoadFromFile(filename);
+      return doc.LoadFromFile(interface, filename);
     }
 
-    bool reader::ReadFromString(document::cDocument& doc, const std::string& content) const
+    util::PROCESS_RESULT reader::ReadFromString(util::cProcessInterface& interface, document::cDocument& doc, const std::string& content) const
     {
       doc.Clear();
 
-      return doc.LoadFromString(content);
+      return doc.LoadFromString(interface, content);
     }
 
 
