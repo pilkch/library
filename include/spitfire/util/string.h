@@ -3,6 +3,7 @@
 
 // Standard headers
 #include <cassert>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,8 @@ namespace spitfire
 
   namespace string
   {
+    void Init(); // Call this in main()
+
     bool IsWhiteSpace(char c);
     bool IsWhiteSpace(wchar_t c);
 

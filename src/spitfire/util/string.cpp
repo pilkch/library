@@ -1,6 +1,6 @@
 // Standard includes
 #include <cassert>
-#include <cctype> // for toupper/tolower
+#include <cctype>
 #include <cmath>
 
 #include <cstring>
@@ -20,6 +20,7 @@
 
 // Boost includes
 #include <boost/algorithm/string.hpp>
+#include <boost/locale.hpp>
 
 #include <iconv.h>
 #include <errno.h>
@@ -81,29 +82,18 @@ namespace spitfire
 {
   namespace string
   {
-    class cToUpper
-    {
-    public:
-      explicit cToUpper(const std::locale& l) : loc(l) {}
 
-      char operator() (char c) const { return std::toupper(c,loc); }
-      wchar_t operator() (wchar_t c) const { return std::toupper(c,loc); }
-
-    private:
-      std::locale const& loc;
     };
 
-    class cToLower
+
+    bool bIsInitCalled = false;
+
+    void Init()
     {
-    public:
-      explicit cToLower(const std::locale& l) : loc(l) {}
+      std::locale::global(boost::locale::generator().generate(""));
+      bIsInitCalled = true;
+    }
 
-      char operator() (char c) const { return std::tolower(c,loc); }
-      wchar_t operator() (wchar_t c) const { return std::tolower(c,loc); }
-
-    private:
-      std::locale const& loc;
-    };
 
     class cLocalisedStringTransformer
     {
@@ -112,29 +102,11 @@ namespace spitfire
 
       // Other Possible functions
       // bool isspace(c, loc);
-      // bool isupper(c, loc);
-      // bool islower(c, loc);
       // bool isalpha(c, loc);
       // bool isdigit(c, loc);
       // bool ispunct(c, loc);
       // bool isxdigit(c, loc);
       // bool isalnum(c, loc);
-
-      template <class T>
-      inline T ToLower(const T& source) const
-      {
-        T sOut;
-        std::transform(source.begin(), source.end(), std::back_inserter(sOut), lower);
-        return sOut;
-      }
-
-      template <class T>
-      inline T ToUpper(const T& source) const
-      {
-        T sOut;
-        std::transform(source.begin(), source.end(), std::back_inserter(sOut), upper);
-        return sOut;
-      }
 
       template <class T, class C, class O>
       inline T FormatTime(uint32_t hours, uint32_t minutes, uint32_t seconds) const
@@ -174,15 +146,10 @@ namespace spitfire
 
     private:
       std::locale loc;
-
-      cToUpper upper;
-      cToLower lower;
     };
 
     cLocalisedStringTransformer::cLocalisedStringTransformer() :
-      loc("C"),
-      upper(loc),
-      lower(loc)
+      loc("C")
     {
     }
 
@@ -565,27 +532,28 @@ namespace spitfire
 
     // *** Conversion Functions
 
-    // TODO: Use boost::toupper
-    // TODO: Use boost::toupper
-
-    std::string ToLower(const std::string& source)
+    string_t ToLower(const string_t& sText)
     {
-      return gLocalisedStringTransformer.ToLower(source);
+      ASSERT(bIsInitCalled);
+      return boost::locale::to_lower(sText);
     }
 
-    std::wstring ToLower(const std::wstring& source)
+    std::wstring ToLower(const std::wstring& sText)
     {
-      return gLocalisedStringTransformer.ToLower(source);
+      ASSERT(bIsInitCalled);
+      return boost::locale::to_lower(sText);
     }
 
-    std::string ToUpper(const std::string& source)
+    std::string ToUpper(const std::string& sText)
     {
-      return gLocalisedStringTransformer.ToUpper(source);
+      ASSERT(bIsInitCalled);
+      return boost::locale::to_upper(sText);
     }
 
-    std::wstring ToUpper(const std::wstring& source)
+    std::wstring ToUpper(const std::wstring& sText)
     {
-      return gLocalisedStringTransformer.ToUpper(source);
+      ASSERT(bIsInitCalled);
+      return boost::locale::to_upper(sText);
     }
 
 
@@ -1359,6 +1327,22 @@ public:
 
   void Test()
   {
+    // Upper and lower case conversions
+    ASSERT(ToUpper("abcdef") == "ABCDEF");
+    ASSERT(ToUpper("ABCDEF") == "ABCDEF");
+    ASSERT(ToLower("abcdef") == "abcdef");
+    ASSERT(ToLower("ABCDEF") == "abcdef");
+
+    // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
+    const std::string grussen = "grüßEN";
+
+    const std::string upper = ToUpper(grussen);
+    ASSERT(upper == "GRÜSSEN");
+
+    const std::string lower = ToLower(grussen);
+    ASSERT(lower == "grüßen");
+
+
     // IEC Byte Size Formats
 
     ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
