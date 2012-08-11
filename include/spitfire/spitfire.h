@@ -140,6 +140,11 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define TEXT(s) s
 #endif
 
+#ifndef STRINGIFY
+#define _STRINGIFY(number) #number
+#define STRINGIFY(number)  _STRINGIFY(number)
+#endif
+
 
 // Thread local storage
 // NOTE: This is only for POD types
@@ -286,6 +291,8 @@ namespace spitfire
 #define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #else
+#define LOG std::cout
+#define LOGERROR std::cerr
 #define ASSERT assert
 #endif
 
