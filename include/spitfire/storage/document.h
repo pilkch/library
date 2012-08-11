@@ -6,6 +6,7 @@
 
 // Spitfire headers
 #include <spitfire/util/string.h>
+#include <spitfire/util/process.h>
 
 #ifdef BUILD_XML_MATH
 #include <spitfire/math/math.h>
@@ -49,11 +50,10 @@ namespace spitfire
 
       cNode();
       explicit cNode(cNode* inParent);
-      explicit cNode(const string_t& inFilename);
       ~cNode();
 
-      bool LoadFromString(const std::string& sData);
-      bool LoadFromFile(const string_t& sFilename);
+      util::PROCESS_RESULT LoadFromString(util::cProcessInterface& interface, const std::string& sData);
+      util::PROCESS_RESULT LoadFromFile(util::cProcessInterface& interface, const string_t& sFilename);
       bool SaveToFile(const string_t& inFilename) const;
 
 #ifdef BUILD_DEBUG
@@ -223,7 +223,7 @@ namespace spitfire
       void SetTypeElement(const std::string& name);
       void SetTypeContentOnly(const std::string& text);
 
-      bool ParseFromStringParser(spitfire::string::cStringParserUTF8& sp);
+      util::PROCESS_RESULT ParseFromStringParser(const util::cProcessInterface& interface, size_t& nProcessedElements, spitfire::string::cStringParserUTF8& sp);
 
       void WriteToFile(std::ofstream& file, const std::string& sTab) const;
 

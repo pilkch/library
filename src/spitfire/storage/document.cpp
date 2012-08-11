@@ -24,6 +24,7 @@
 #include <spitfire/util/log.h>
 #endif
 
+#include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/document.h>
 
 #ifdef BUILD_XML_MATH
@@ -53,14 +54,6 @@ namespace spitfire
     {
     }
 
-    cNode::cNode(const string_t& inFilename) :
-      type(TYPE::NAME_AND_ATTRIBUTES_AND_CHILDREN),
-      pParent(nullptr),
-      pNext(nullptr)
-    {
-      LoadFromFile(inFilename);
-    }
-
     cNode::~cNode()
     {
       Clear();
@@ -88,23 +81,26 @@ namespace spitfire
       vChild.clear();
     }
 
-    bool cNode::LoadFromString(const std::string& sData)
+    util::PROCESS_RESULT cNode::LoadFromString(util::cProcessInterface& interface, const std::string& sData)
     {
+      size_t nProcessedElements = 0;
       spitfire::string::cStringParserUTF8 sp(sData);
-      return ParseFromStringParser(sp);
+      return ParseFromStringParser(interface, nProcessedElements, sp);
     }
 
-    bool cNode::LoadFromFile(const string_t& inFilename)
+    util::PROCESS_RESULT cNode::LoadFromFile(util::cProcessInterface& interface, const string_t& inFilename)
     {
       LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
       std::ifstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
         CONSOLE<<"XML "<<inFilename<<" not found, returning false"<<std::endl;
-        return false;
+        return util::PROCESS_RESULT::FAILED;
       }
 
+      const size_t nFileSizeBytes = filesystem::GetFileSize(inFilename);
       std::string sData;
+      sData.reserve(nFileSizeBytes);
       std::string line;
       while(!f.eof()) {
         std::getline(f, line);
@@ -115,15 +111,22 @@ namespace spitfire
       f.close();
 
       //LOG<<"XML "<<inFilename<<" contains \""<<spitfire::string::ToString_t(sData)<<"\", returning"<<std::endl;
-      return LoadFromString(sData);
+      return LoadFromString(interface, sData);
     }
 
-    bool cNode::ParseFromStringParser(spitfire::string::cStringParserUTF8& sp)
+    util::PROCESS_RESULT cNode::ParseFromStringParser(const util::cProcessInterface& interface, size_t& nProcessedElements, spitfire::string::cStringParserUTF8& sp)
     {
       //std::cout<<"cNode::ParseFromString \""<<sp.GetToEnd()<<"\""<<std::endl;
 
       while (!sp.IsEnd()) {
-        const std::string sTmp = sp.GetToEnd();
+        if (nProcessedElements > 100) {
+          if (interface.IsToStop()) return util::PROCESS_RESULT::STOPPED_BY_INTERFACE;
+          nProcessedElements = 0;
+        }
+
+        nProcessedElements++;
+
+        //const std::string sTmp = sp.GetToEnd();
         //std::cout<<"cNode::ParseFromString While \""<<sTmp<<"\""<<std::endl;
 
         sp.SkipWhiteSpace();
@@ -133,7 +136,7 @@ namespace spitfire
         while (sp.StartsWithAndSkip("<?xml")) {
           if (!sp.SkipToString("?>")) {
             LOG<<"XML Unterminated XML declaration, returning false"<<std::endl;
-            return false;
+            return util::PROCESS_RESULT::FAILED;
           }
 
           //LOG<<"Found XML declaration node"<<std::endl;
@@ -146,7 +149,7 @@ namespace spitfire
         while (sp.StartsWithAndSkip("<!--")) {
           if (!sp.SkipToString("-->")) {
             LOG<<"XML Unterminated Comment, returning false"<<std::endl;
-            return false;
+            return util::PROCESS_RESULT::FAILED;
           }
 
           //LOG<<"Found comment node"<<std::endl;
@@ -171,11 +174,11 @@ namespace spitfire
             if (sp.GetToStringAndSkip(">", sClose)) {
               if (sClose != sName) {
                 LOG<<"XML Opening tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't match closing tag \""<<spitfire::string::ToString_t(sClose)<<"\", returning false"<<std::endl;
-                return false;
+                return util::PROCESS_RESULT::FAILED;
               }
             } else {
               LOG<<"XML Tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't have a closing tag, returning false"<<std::endl;
-              return false;
+              return util::PROCESS_RESULT::FAILED;
             }
 
             //std::cout<<"Found end of tag, breaking"<<std::endl;
@@ -202,13 +205,13 @@ namespace spitfire
               // />
               if (!sp.SkipToStringAndSkip(">")) {
                 LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" doesn't have a closing bracket, returning false"<<std::endl;
-                return false;
+                return util::PROCESS_RESULT::FAILED;
               }
             } else {
               std::string sData;
               if (!sp.GetToStringAndSkip(">", sData)) {
                 LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" opening declaration doesn't terminate, returning false"<<std::endl;
-                return false;
+                return util::PROCESS_RESULT::FAILED;
               }
 
               // Append a closing bracket because we took one off when parsing
@@ -271,15 +274,16 @@ namespace spitfire
                   sAttributeName = "";
                 }
 
-                if (!(*vChild.rbegin())->ParseFromStringParser(sp)) {
-                  std::cerr<<"Error parsing child node, returning false"<<std::endl;
-                  return false;
+                util::PROCESS_RESULT result = (*vChild.rbegin())->ParseFromStringParser(interface, nProcessedElements, sp);
+                if (result != util::PROCESS_RESULT::COMPLETE) {
+                  std::cerr<<"Error parsing child node, returning"<<std::endl;
+                  return result;
                 }
               }
             }
           } else {
             std::cout<<"here, returning true"<<std::endl;
-            return true;
+            return util::PROCESS_RESULT::COMPLETE;
           }
         } else {
           // No tags, just content for the parent tag (this)
@@ -288,12 +292,12 @@ namespace spitfire
           p->type = TYPE::CONTENT_ONLY;
           p->sContentOnly += string::StripTrailingWhiteSpace(sp.GetToEnd());
           //std::cout<<"Content only, returning true"<<std::endl;
-          return true;
+          return util::PROCESS_RESULT::COMPLETE;
         }
       }
 
       //std::cout<<"At end of function, returning true"<<std::endl;
-      return true;
+      return util::PROCESS_RESULT::COMPLETE;
     }
 
 

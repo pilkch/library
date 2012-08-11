@@ -2,6 +2,7 @@
 #define XML_H
 
 #include <spitfire/storage/document.h>
+#include <spitfire/util/process.h>
 
 // http://en.wikipedia.org/wiki/XML
 
@@ -23,9 +24,9 @@ namespace spitfire
     class reader
     {
     public:
-      bool ReadFromFile(document::cDocument& doc, const string_t& filename) const;
-      bool ReadFromString(document::cDocument& doc, const std::string& input) const;
-      bool ReadFromString(document::cDocument& doc, const std::wstring& input) const { return ReadFromString(doc, spitfire::string::ToUTF8(input)); }
+      util::PROCESS_RESULT ReadFromFile(util::cProcessInterface& interface, document::cDocument& doc, const string_t& filename) const;
+      util::PROCESS_RESULT ReadFromString(util::cProcessInterface& interface, document::cDocument& doc, const std::string& input) const;
+      util::PROCESS_RESULT ReadFromString(util::cProcessInterface& interface, document::cDocument& doc, const std::wstring& input) const { return ReadFromString(interface, doc, spitfire::string::ToUTF8(input)); }
     };
 
 
