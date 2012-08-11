@@ -227,9 +227,154 @@ namespace spitfire
     SORT Compare(const string_t& sA, const string_t& sB);
 
 
+    // ** cStringPtrTemplate
+    // For iterating through a string efficiently by pointer
+    // NOTE: sText must hang around for the life time of cStringPtrTemplate
 
-    // TODO: Use C* szString instead of S sString
-    // TODO: Replace the hacky code in this class with std::istringstream
+    template <class C, class S>
+    class cStringPtrTemplate
+    {
+    public:
+      cStringPtrTemplate();
+      cStringPtrTemplate(const S& sText);
+
+      bool IsValid() const;
+      bool IsEmpty() const;
+
+      const C* Get() const { return sz; }
+      void Set(const S& sText);
+
+      size_t GetLength() const;
+
+      C GetCharacter() const;
+      S GetCharacters(size_t nSurrogatePairs) const;
+
+      void SkipElements(size_t nSkipElementCount); // Skips ahead n elements in the array
+      void SkipCharacter(); // Skips ahead one surrogate pair
+      void SkipCharacters(size_t nSurrogatePairs); // Skips ahead n surrogate pairs
+      void SkipToEnd();
+
+    private:
+      const C* sz;
+      size_t nElementCount;
+    };
+
+    template <class C, class S>
+    cStringPtrTemplate<C, S>::cStringPtrTemplate() :
+      sz(nullptr),
+      nElementCount(0)
+    {
+    }
+
+    template <class C, class S>
+    cStringPtrTemplate<C, S>::cStringPtrTemplate(const S& sText) :
+      sz(sText.c_str()),
+      nElementCount(sText.length())
+    {
+    }
+
+    template <class C, class S>
+    bool cStringPtrTemplate<C, S>::IsValid() const
+    {
+      return (sz != nullptr);
+    }
+
+    template <class C, class S>
+    bool cStringPtrTemplate<C, S>::IsEmpty() const
+    {
+      return (nElementCount == 0);
+    }
+
+    template <class C, class S>
+    void cStringPtrTemplate<C, S>::Set(const S& sText)
+    {
+      sz = sText.data();
+      nElementCount = sText.length();
+    }
+
+    template <class C, class S>
+    size_t cStringPtrTemplate<C, S>::GetLength() const
+    {
+      return nElementCount;
+    }
+
+    template <class C, class S>
+    C cStringPtrTemplate<C, S>::GetCharacter() const
+    {
+      ASSERT(!IsEmpty());
+
+      return sz[0];
+    }
+
+    template <class C, class S>
+    S cStringPtrTemplate<C, S>::GetCharacters(size_t nSurrogatePairs) const
+    {
+      ASSERT(!IsEmpty());
+
+      size_t nSelectElementCount = 0;
+      for (size_t i = 0; i < nSurrogatePairs; i++) {
+        // If we are at the end of the string we are finished incrementing our element count
+        if (sz[nSelectElementCount] == 0) break;
+
+        nSelectElementCount += GetSurrogatePairCountForMultiByteCharacter(sz[nSelectElementCount]);
+      }
+
+      // Return a section of sz
+      return S(sz, sz + nSelectElementCount);
+    }
+
+    template <class C, class S>
+    void cStringPtrTemplate<C, S>::SkipElements(size_t nSkipElementCount)
+    {
+      ASSERT(IsValid());
+
+      // Make sure that we don't skip to far
+      nSkipElementCount = std::min(nSkipElementCount, nElementCount);
+
+      sz += nSkipElementCount;
+      nElementCount -= nSkipElementCount;
+    }
+
+    template <class C, class S>
+    void cStringPtrTemplate<C, S>::SkipCharacter()
+    {
+      ASSERT(IsValid());
+
+      const size_t nSkipElementCount = GetSurrogatePairCountForMultiByteCharacter(sz[0]);
+      SkipElements(nSkipElementCount);
+    }
+
+    template <class C, class S>
+    void cStringPtrTemplate<C, S>::SkipCharacters(size_t nSurrogatePairs)
+    {
+      ASSERT(IsValid());
+
+      size_t nSkipElementCount = 0;
+      for (size_t i = 0; i < nSurrogatePairs; i++) {
+        // If we are at the end of the string we are finished incrementing our element count
+        if (sz[nSkipElementCount] == 0) break;
+
+        nSkipElementCount += GetSurrogatePairCountForMultiByteCharacter(sz[nSkipElementCount]);
+      }
+
+      SkipElements(nSkipElementCount);
+    }
+
+    template <class C, class S>
+    void cStringPtrTemplate<C, S>::SkipToEnd()
+    {
+      ASSERT(IsValid());
+
+      SkipElements(nElementCount);
+    }
+
+
+    typedef cStringPtrTemplate<char_t, string_t> cStringPtr;
+
+
+
+    // ** cStringParserTemplate
+    // TODO: Replace the hacky code in this class with std::istringstream?
 
     template <class C, class S>
     class cStringParserTemplate
@@ -271,8 +416,9 @@ namespace spitfire
       void SkipToEnd();
 
     private:
-      S sString;
+      cStringPtrTemplate<C, S> s;
     };
+
 
     template <class C, class S>
     cStringParserTemplate<C, S>::cStringParserTemplate()
@@ -280,28 +426,28 @@ namespace spitfire
     }
 
     template <class C, class S>
-    cStringParserTemplate<C, S>::cStringParserTemplate(const S& _sString) :
-      sString(_sString)
+    cStringParserTemplate<C, S>::cStringParserTemplate(const S& sString) :
+      s(sString)
     {
     }
 
     template <class C, class S>
     cStringParserTemplate<C, S>::cStringParserTemplate(const cStringParserTemplate& rhs) :
-      sString(rhs.sString)
+      s(rhs.s)
     {
     }
 
     template <class C, class S>
     cStringParserTemplate<C, S>& cStringParserTemplate<C, S>::operator=(const cStringParserTemplate& rhs)
     {
-      sString = rhs.sString;
+      s = rhs.s;
       return *this;
     }
 
     template <class C, class S>
     bool cStringParserTemplate<C, S>::IsEmpty() const
     {
-      return sString.empty();
+      return s.IsEmpty();
     }
 
     template <class C, class S>
@@ -309,10 +455,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
-      (void)nElementCount;
-      ASSERT(nElementCount == 1);
-      return sString[0];
+      return s.GetCharacter();
     }
 
     template <class C, class S>
@@ -320,15 +463,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      size_t nElementCount = 0;
-      for (size_t i = 0; i < nSurrogatePairs; i++) {
-        // If we are at the end of the string we are finished incrementing our element count
-        if (sString[nElementCount] == 0) break;
-
-        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
-      }
-
-      return sString.substr(0, nElementCount);
+      s.GetCharacters(nSurrogatePairs);
     }
 
     template <class C, class S>
@@ -338,11 +473,10 @@ namespace spitfire
 
       sResult.clear();
 
-      std::string::size_type i = sString.find_first_of(sFind);
-
-      // If we found one of these characters then return everything up to the found string
-      if (std::string::npos != i) {
-        sResult = sString.substr(0, i);
+      const C* sz = strpbrk(s.Get(), sFind.c_str());
+      if (sz != nullptr) {
+        const size_t nElements = (sz - s.Get());
+        sResult.assign(s.Get(), nElements);
         return true;
       }
 
@@ -356,11 +490,10 @@ namespace spitfire
 
       sResult.clear();
 
-      std::string::size_type i = sString.find(sFind);
-
-      // If we found this string then return everything up to the found string
-      if (std::string::npos != i) {
-        sResult = sString.substr(0, i);
+      const C* sz = std::strstr(s.Get(), sFind.c_str());
+      if (sz != nullptr) {
+        const size_t nElements = (sz - s.Get());
+        sResult.assign(s.Get(), nElements);
         return true;
       }
 
@@ -370,7 +503,7 @@ namespace spitfire
     template <class C, class S>
     S cStringParserTemplate<C, S>::GetToEnd() const
     {
-      return sString;
+      return S(s.Get());
     }
 
     template <class C, class S>
@@ -378,8 +511,8 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const C c = GetCharacter();
-      sString = sString.substr(1);
+      const C c = s.GetCharacter();
+      s.SkipElements(1);
       return c;
     }
 
@@ -388,11 +521,13 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t n = sString.size();
+      const C* sz = s.Get();
+
+      const size_t n = s.GetLength();
       for (size_t i = 0; i < n; i++) {
-        if (IsWhiteSpace(sString[i])) {
-          sResult = sString.substr(0, i);
-          sString = sString.substr(i);
+        if (IsWhiteSpace(s[i])) {
+          sResult.assign(s.Get(), i);
+          s.SkipElements(i);
           SkipWhiteSpace();
           return true;
         }
@@ -406,16 +541,18 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      size_t nElementCount = 0;
+      const C* sz = s.Get();
+
+      size_t nSkipElementCount = 0;
       for (size_t i = 0; i < nSurrogatePairs; i++) {
         // If we are at the end of the string we are finished incrementing our element count
-        if (sString[nElementCount] == 0) break;
+        if (sz[nSkipElementCount] == 0) break;
 
-        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
+        nSkipElementCount += GetSurrogatePairCountForMultiByteCharacter(sz[nSkipElementCount]);
       }
 
-      const S sResult = sString.substr(0, nElementCount);
-      sString = sString.substr(nElementCount);
+      const S sResult(sz, nSkipElementCount);
+      s.SkipElements(nSkipElementCount);
       return sResult;
     }
 
@@ -425,7 +562,10 @@ namespace spitfire
       ASSERT(!IsEmpty());
 
       bool bResult = GetToString(sFind, sResult);
-      if (bResult) sString = sString.substr(sResult.length() + sFind.length());
+      if (bResult) {
+        const size_t nSkipElements = sResult.length() + sFind.length();
+        s.SkipElements(nSkipElements);
+      }
 
       return bResult;
     }
@@ -435,22 +575,22 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const S sResult = GetToEnd();
-      sString = sString.substr(sResult.length());
+      const S sResult = s.Get();
+      s.SkipToEnd();
       return sResult;
     }
 
     template <class C, class S>
     bool cStringParserTemplate<C, S>::StartsWith(const S& sFind) const
     {
-      return BeginsWith(sString, sFind);
+      return (std::strncmp(s.Get(), sFind.c_str(), sFind.length()) == 0);
     }
 
     template <class C, class S>
     bool cStringParserTemplate<C, S>::StartsWithAndSkip(const S& sFind)
     {
-      bool bResult = BeginsWith(sString, sFind);
-      if (bResult) sString = sString.substr(sFind.length());
+      bool bResult = StartsWith(sFind);
+      if (bResult) s.SkipElements(sFind.length());
       return bResult;
     }
 
@@ -459,8 +599,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t nElementCount = GetSurrogatePairCountForMultiByteCharacter(sString[0]);
-      sString = sString.substr(nElementCount);
+      s.SkipCharacter();
     }
 
     template <class C, class S>
@@ -468,15 +607,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      size_t nElementCount = 0;
-      for (size_t i = 0; i < nSurrogatePairs; i++) {
-        // If we are at the end of the string we are finished incrementing our element count
-        if (sString[nElementCount] == 0) break;
-
-        nElementCount += GetSurrogatePairCountForMultiByteCharacter(sString[nElementCount]);
-      }
-
-      sString = sString.substr(nElementCount);
+      s.SkipCharacters(nSurrogatePairs);
     }
 
     template <class C, class S>
@@ -484,10 +615,12 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const size_t n = sString.size();
+      const C* sz = s.Get();
+
+      const size_t n = s.GetLength();
       for (size_t i = 0; i < n; i++) {
-        if (!IsWhiteSpace(sString[i])) {
-          sString = sString.substr(i);
+        if (!IsWhiteSpace(sz[i])) {
+          s.SkipElements(i);
           break;
         }
       }
@@ -498,11 +631,10 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      std::string::size_type i = sString.find(sFind);
-
-      // If we found this string then return everything after the found string
-      if (std::string::npos != i) {
-        sString = sString.substr(i);
+      const C* sz = std::strstr(s.Get(), sFind.c_str());
+      if (sz != nullptr) {
+        const size_t nSkipElements = (sz - s.Get());
+        s.SkipElements(nSkipElements);
         return true;
       }
 
@@ -514,11 +646,10 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      std::string::size_type i = sString.find(sFind);
-
-      // If we found this string then return everything after the found string
-      if (std::string::npos != i) {
-        sString = sString.substr(i + sFind.length());
+      const C* sz = std::strstr(s.Get(), sFind.c_str());
+      if (sz != nullptr) {
+        const size_t nSkipElements = (sz - s.Get()) + sFind.length();
+        s.SkipElements(nSkipElements);
         return true;
       }
 
@@ -530,7 +661,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      sString.clear();
+      s.SkipToEnd();
     }
 
 
