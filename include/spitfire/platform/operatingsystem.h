@@ -76,7 +76,7 @@ namespace spitfire
 
     inline void OpenTextFile(const string_t& sFullPath)
     {
-        OpenFile(sFullPath);
+      OpenFile(sFullPath);
     }
 
     void OpenFolder(const string_t& sFullPath);
