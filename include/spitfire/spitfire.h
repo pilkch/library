@@ -207,13 +207,6 @@ typedef int32_t ssize_t;
 #endif
 #endif
 
-// For representing a file size on both 32 bit and 64 bit architectures
-typedef uint64_t filesize_t;
-
-#ifndef nullptr
-#define nullptr NULL
-#endif // !nullptr
-
 #ifdef BUILD_DEBUG
 #ifdef __WIN__
 // *** FluidStudios' memory leak detection
@@ -239,8 +232,12 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
 // Utility types, objects etc.
 namespace spitfire
 {
-  // Types
-  typedef uint64_t sampletime_t;
+  // For representing a file size on both 32 bit and 64 bit architectures
+  typedef uint64_t filesize_t;
+
+  // For specifying a time duration
+  typedef uint64_t sampletime_t; // Legacy
+  typedef uint64_t durationms_t;
 }
 
 
