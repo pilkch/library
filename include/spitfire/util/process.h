@@ -3,8 +3,8 @@
 
 // Spitfire headers
 #include <spitfire/util/string.h>
+#include <spitfire/util/mutex.h>
 #include <spitfire/util/signalobject.h>
-#include <spitfire/util/thread.h>
 
 //
 // *** cProcess/cProcessInterface
@@ -79,6 +79,7 @@ namespace spitfire
       virtual void _SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) {}
     };
 
+    typedef cProcessInterface cProcessInterfaceVoid;
 
 
 
