@@ -137,11 +137,6 @@ namespace opengl
     void SetLightDiffuseColour(size_t light, const spitfire::math::cColour& colour);
     void SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour);
 
-    // TODO: Remove this, it is primarily for openglmm_gears and can probably be replaced with a shader
-    void SetMaterialAmbientColour(const spitfire::math::cColour& colour);
-    void SetMaterialDiffuseColour(const spitfire::math::cColour& colour);
-    void SetMaterialSpecularColour(const spitfire::math::cColour& colour);
-    void SetMaterialShininess(float fShininess);
 
     void EnableDepthTesting();
     void DisableDepthTesting();
@@ -236,7 +231,7 @@ namespace opengl
 
     SDL_Surface* pSurface;
 
-    // matProjection and matModelView are multiplied together to get the MPV matrix in OpenGL 3.0
+    // matProjection and matModelView are multiplied together to get the MVP matrix in OpenGL 3.0
     spitfire::math::cMat4 matProjection;
     spitfire::math::cMat4 matModelView;
     spitfire::math::cMat4 matTexture;
