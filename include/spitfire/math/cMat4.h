@@ -9,6 +9,7 @@ namespace spitfire
   namespace math
   {
     class cVec4;
+    class cMat3;
     class cQuaternion;
 
     // NOTE: cMat4 contains a 4x4 matrix stored in column major order
@@ -18,6 +19,8 @@ namespace spitfire
     class cMat4
     {
     public:
+      friend class cMat3;
+
       cMat4();
       cMat4(const cMat4& rhs);
       ~cMat4() {}
