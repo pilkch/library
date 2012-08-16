@@ -154,6 +154,16 @@ namespace spitfire
       (*this) = (*this) / rhs;
     }
 
+    void cMat3::Invert()
+    {
+      *this = GetInverse();
+    }
+
+    void cMat3::Transpose()
+    {
+      *this = GetTranspose();
+    }
+
     void cMat3::InvertTranspose()
     {
       *this = GetInverseTranspose();
@@ -191,17 +201,17 @@ namespace spitfire
     void cMat3::SetFromMatrix(const cMat4& rhs)
     {
       // Load the upper left sub matrix of the 4x4 matrix
-      entries[0] = rhs.entries[0];
-      entries[1] = rhs.entries[1];
-      entries[2] = rhs.entries[2];
+      entries[0] = rhs[0];
+      entries[1] = rhs[1];
+      entries[2] = rhs[2];
 
-      entries[3] = rhs.entries[5];
-      entries[4] = rhs.entries[6];
-      entries[5] = rhs.entries[7];
+      entries[3] = rhs[4];
+      entries[4] = rhs[5];
+      entries[5] = rhs[6];
 
-      entries[6] = rhs.entries[9];
-      entries[7] = rhs.entries[10];
-      entries[8] = rhs.entries[11];
+      entries[6] = rhs[8];
+      entries[7] = rhs[9];
+      entries[8] = rhs[10];
     }
   }
 }
