@@ -167,10 +167,16 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 #if !defined(COMPILER_MSVC) || (defined(__GNUC__) && (GCC_VERSION < GCC_VERSION_4_7))
+#define BUILD_SPITFIRE_NO_CPP11
+#endif
+
+#ifdef BUILD_SPITFIRE_NO_CPP11
 // Override keyword to flag virtual functions which are overridden from the base class
 #define override
 // Final keyword to flag virtual functions which are not allowed to be overridden in derived classes
 #define final
+// Static compile time assert
+#define static_assert assert
 #endif
 
 // Deprecation flags
