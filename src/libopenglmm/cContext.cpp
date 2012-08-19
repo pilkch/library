@@ -30,6 +30,16 @@
 #include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
 
+#if BUILD_LIBOPENGLMM_SDL_VERSION < 130
+#if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+#define GLX_CONTEXT_DEBUG_BIT_ARB                0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB   0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB            0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB            0x2092
+#define GLX_CONTEXT_FLAGS_ARB                    0x2094
+#endif
+#endif
+
 namespace opengl
 {
   cContext::cContext(cSystem& _system, const cWindow& window) :
@@ -396,6 +406,26 @@ namespace opengl
     // We definitely want the OpenGL flag for SDL_SetVideoMode
     assert((uiFlags & SDL_OPENGL) != 0);
 
+    #if (BUILD_LIBOPENGLMM_SDL_VERSION >= 130) || (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
+    const int iMajor = BUILD_LIBOPENGLMM_OPENGL_VERSION / 100;
+    const int iMinor = (BUILD_LIBOPENGLMM_OPENGL_VERSION % 100) / 10;
+    #endif
+
+    #if BUILD_LIBOPENGLMM_SDL_VERSION >= 130
+    // For SDL 1.3 and above we can just request the OpenGL version
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, iMajor);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, iMinor);
+    #elif BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
+    // http://encelo.netsons.org/2009/01/16/habemus-opengl-30/
+    // Get a pointer to glXCreateContextAttribsARB
+    typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int* attrib_list);
+    PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress((GLubyte*)"glXCreateContextAttribsARB");
+    if (glXCreateContextAttribsARB == nullptr) {
+      std::cerr<<"cContext::_SetWindowVideoMode glXCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+      return false;
+    }
+    #endif
 
     // Create an SDL surface
     std::cout<<"cContext::_SetWindowVideoMode Calling SDL_SetVideoMode"<<std::endl;
@@ -404,6 +434,36 @@ namespace opengl
       std::cout<<"cContext::_SetWindowVideoMode SDL_SetVideoMode FAILED error="<<SDL_GetError()<<std::endl;
       return false;
     }
+
+    std::cout<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
+
+    #if BUILD_LIBOPENGLMM_SDL_VERSION < 130
+    // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    if (glXCreateContextAttribsARB != nullptr) {
+      // Create a new context, make it current and destroy the old one
+      std::cout<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
+      // Tell GLX which version of OpenGL we want
+      GLXContext ctx = glXGetCurrentContext();
+      Display* dpy = glXGetCurrentDisplay();
+      GLXDrawable draw = glXGetCurrentDrawable();
+      GLXDrawable read = glXGetCurrentReadDrawable();
+      int nelements = 0;
+      GLXFBConfig* cfg = glXGetFBConfigs(dpy, 0, &nelements);
+      int attribs[]= {
+        GLX_CONTEXT_MAJOR_VERSION_ARB, iMajor,
+        GLX_CONTEXT_MINOR_VERSION_ARB, iMinor,
+        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        0
+      };
+      GLXContext ctx3 = glXCreateContextAttribsARB(dpy, *cfg, 0, 1, attribs);
+      glXMakeContextCurrent(dpy, draw, read, ctx3);
+      glXDestroyContext(dpy, ctx);
+
+      std::cout<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
+    }
+    #endif
+    #endif
 
     return true;
   }

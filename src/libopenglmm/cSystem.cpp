@@ -165,12 +165,49 @@ namespace opengl
     return nUsedMB;
   }
 
+  std::string cSystem::GetExtensions() const
+  {
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    std::cout<<"cSystem::GetExtensions"<<std::endl;
+    std::ostringstream o;
+    int iNumberOfExtensions = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &iNumberOfExtensions);
+    for (int i = 0; i < iNumberOfExtensions; i++) {
+      o<<glGetStringi(GL_EXTENSIONS, i);
+      std::cout<<"cSystem::FindExtension \""<<o.str()<<"\""<<std::endl;
+      o<<" ";
+    }
+    return o.str();
+    #else
+    return (const char*)glGetString(GL_EXTENSIONS);
+    #endif
+  }
+
   bool cSystem::FindExtension(const std::string& sExt) const
   {
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    std::cout<<"cSystem::FindExtension"<<std::endl;
+
+    // There is a bug in some drivers where glGetStringi returns NULL, so we just return true for all extensions (We aren't using anything special and if we are running OpenGL 3 we probably support all the basic extensions anyway)
+    return true;
+
+    int iNumberOfExtensions = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &iNumberOfExtensions);
+    for (int i = 0; i < iNumberOfExtensions; i++) {
+      std::ostringstream t;
+      t<<glGetStringi(GL_EXTENSIONS, i);
+      ASSERT(glGetStringi(GL_EXTENSIONS, i) != nullptr);
+      ASSERT(glGetStringi(GL_EXTENSIONS, i)[0] != 0);
+      std::cout<<"cSystem::FindExtension \""<<t.str()<<"\""<<std::endl;
+      if (sExt == t.str()) return true;
+    }
+    return false;
+    #else
     std::ostringstream t;
     t<<const_cast<const unsigned char*>(glGetString(GL_EXTENSIONS));
 
     return (t.str().find(sExt) != std::string::npos);
+    #endif
   }
 
   float cSystem::GetShaderVersion() const
@@ -245,18 +282,22 @@ namespace opengl
   {
     const char* szValue = nullptr;
 
+    std::cout<<"cSystem::UpdateCapabilities glGetError="<<cSystem::GetErrorString()<<std::endl;
+
     szValue = (const char*)glGetString(GL_VENDOR);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Vendor     : "<<szValue<<std::endl;
+    std::cout<<"cContext::cContext Vendor: "<<szValue<<std::endl;
     szValue = (const char*)glGetString(GL_RENDERER);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Renderer   : "<<szValue<<std::endl;
+    std::cout<<"cContext::cContext Renderer: "<<szValue<<std::endl;
     szValue = (const char*)glGetString(GL_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Version    : "<<szValue<<std::endl;
-    szValue = (const char*)glGetString(GL_EXTENSIONS);
+    std::cout<<"cContext::cContext Version: "<<szValue<<std::endl;
+    szValue = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Extensions : "<<szValue<<std::endl;
+    std::cout<<"cContext::cContext GLSL Version: "<<szValue<<std::endl;
+    const std::string sValue = GetExtensions();
+    std::cout<<"cContext::cContext Extensions: "<<sValue<<std::endl;
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;

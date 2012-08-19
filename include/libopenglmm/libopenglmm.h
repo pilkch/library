@@ -36,6 +36,12 @@
 // libvoodoomm headers
 #include <libvoodoomm/cImage.h>
 
+#define BUILD_LIBOPENGLMM_SDL_VERSION 120
+
+#ifndef BUILD_LIBOPENGLMM_OPENGL_VERSION
+#define BUILD_LIBOPENGLMM_OPENGL_VERSION 200
+#endif
+
 struct SDL_Surface;
 
 namespace opengl

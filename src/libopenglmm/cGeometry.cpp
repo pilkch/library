@@ -249,7 +249,7 @@ namespace opengl
     {
       const spitfire::math::cVec3 normal(0.0f, 0.0f, 1.0f);
 
-      // Draw front face
+      // Draw front face circle
       for (size_t i = 0; i < nTeeth + 1; i++) {
         const float angle = float(i) * 2.0f * spitfire::math::cPI / float(nTeeth);
 

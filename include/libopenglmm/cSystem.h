@@ -55,6 +55,7 @@ namespace opengl
     void DestroyContext(cContext* pContext);
 
   private:
+    std::string GetExtensions() const;
     float GetShaderVersion() const;
 
     bool IsGPUATI() const;
