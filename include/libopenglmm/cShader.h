@@ -36,6 +36,8 @@
 
 namespace opengl
 {
+  class cContext;
+
   class cShaderConstants
   {
   public:
@@ -75,6 +77,8 @@ namespace opengl
   class cShader
   {
   public:
+    friend class cContext;
+
     cShader();
 
     bool LoadVertexShaderOnly(const opengl::string_t& sShaderVertex);
@@ -90,6 +94,10 @@ namespace opengl
     bool IsCompiledFragment() const;
     bool IsCompiledProgram() const;
 
+    const string_t GetShaderVertex() const { return sShaderVertex; }
+    const string_t GetShaderFragment() const { return sShaderFragment; }
+
+  protected:
     opengl::string_t sShaderVertex;
     opengl::string_t sShaderFragment;
 
@@ -123,6 +131,8 @@ namespace opengl
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
     void _Compile();
+
+    void ParseShaderLine(const std::string& sLine);
   };
 }
 

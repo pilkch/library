@@ -585,13 +585,13 @@ namespace opengl
     glDisable(GL_TEXTURE_2D);
   }
 
-  void cContext::BeginRenderMode2DRENAMED(MODE2D_TYPE type)
+  void cContext::BeginRenderMode2D(MODE2D_TYPE type)
   {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
   }
 
-  void cContext::EndRenderMode2DRENAMED()
+  void cContext::EndRenderMode2D()
   {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);

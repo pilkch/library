@@ -14,7 +14,6 @@
 
 // OpenGL headers
 #include <GL/GLee.h>
-#include <GL/glu.h>
 
 // SDL headers
 #include <SDL/SDL_image.h>
@@ -22,6 +21,13 @@
 // libopenglmm headers
 #include <libopenglmm/cShader.h>
 #include <libopenglmm/cSystem.h>
+
+bool StringBeginsWith(const std::string& source, const std::string& find)
+{
+  if (source.length() < find.length()) return false;
+
+  return (source.substr(0, find.length()) == find);
+}
 
 std::string StringReplace(const std::string& source, const std::string& sFind, const std::string& sReplace)
 {
@@ -221,31 +227,76 @@ namespace opengl
     return (value == GL_TRUE);
   }
 
+  void cShader::ParseShaderLine(const std::string& sLine)
+  {
+    // Warn about deprecated OpenGL 2 built in variables
+    if (sLine.find("gl_ModelViewProjectionMatrix") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_ModelViewProjectionMatrix\" should be replaced with \"uniform mat4 matModelViewProjection;\" in the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_NormalMatrix") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_NormalMatrix\" should be replaced with \"uniform mat3 matNormal;\" in the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_FrontMaterial.ambient") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.ambient\" should be replaced with a uniform on the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_FrontMaterial.diffuse") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.diffuse\" should be replaced with a uniform on the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_FrontMaterial.specular") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.specular\" should be replaced with a uniform on the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_FrontMaterial.shininess") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.shininess\" should be replaced with a uniform on the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_LightModel.ambient") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_LightModel.ambient\" should be replaced with \"uniform vec4 ambientColour;\" in the shader"<<std::endl;
+      assert(false);
+    } else if (sLine.find("gl_LightSource") != std::string::npos) {
+      std::cerr<<"cShader::ParseShaderLine \"gl_LightSource\" should be replaced with uniforms on the shader"<<std::endl;
+      assert(false);
+    }
+
+    // Check which uniforms this shader uses
+    if (StringBeginsWith(sLine, "uniform mat4 matProjection;")) bProjectionMatrix = true;
+    else if (StringBeginsWith(sLine, "uniform mat4 matModelView;")) bModelViewMatrix = true;
+    else if (StringBeginsWith(sLine, "uniform mat4 matModelViewProjection;")) bModelViewProjectionMatrix = true;
+    else if (StringBeginsWith(sLine, "uniform mat3 matNormal;")) bNormalMatrix = true;
+    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit0;")) bTexUnit0 = true;
+    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit1;")) bTexUnit1 = true;
+    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit2;")) bTexUnit2 = true;
+    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit3;")) bTexUnit3 = true;
+    else if (StringBeginsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
+    else if (StringBeginsWith(sLine, "uniform vec3 sunPosition;")) bSunPosition = true;
+    else if (StringBeginsWith(sLine, "uniform vec4 sunAmbientColour;")) bSunAmbientColour = true;
+    else if (StringBeginsWith(sLine, "uniform float fSunIntensity;")) bSunIntensity = true;
+  }
+
   void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
   {
     sShaderVertex = _sShaderVertex;
 
-    std::string buffer = "";
-    std::string line = "";
     std::ifstream f(opengl::string::ToUTF8(sShaderVertex).c_str());
     if (f.is_open()) {
+      std::ostringstream o;
+      std::string sLine;
       while (!f.eof()) {
-        std::getline(f, line);
+        std::getline(f, sLine);
 
-        buffer += line;
-        buffer += "\n";
+        o<<sLine;
+        o<<"\n";
 
-        line = "";
+        ParseShaderLine(sLine);
       };
 
-      std::cout<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<buffer<<"\""<<std::endl;
+      std::cout<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<o.str()<<"\""<<std::endl;
 
       uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
       std::cout<<"cShader::_LoadVertexShader Vertex shader glGetError="<<cSystem::GetErrorString()<<std::endl;
       CheckStatusVertex();
       assert(uiShaderVertex != 0);
 
-      const char* str = buffer.c_str();
+      const std::string sBuffer = o.str();
+      const char* str = sBuffer.c_str();
       glShaderSource(uiShaderVertex, 1, &str, NULL);
       CheckStatusVertex();
 
@@ -267,25 +318,28 @@ namespace opengl
   {
     sShaderFragment = _sShaderFragment;
 
-    std::string buffer;
-    std::string line;
     std::ifstream f(opengl::string::ToUTF8(sShaderFragment).c_str());
     if (f.is_open()) {
+      std::ostringstream o;
+      std::string sLine;
       while (!f.eof()) {
-        std::getline(f, line);
+        std::getline(f, sLine);
 
-        buffer += line;
-        buffer += "\n";
+        o<<sLine;
+        o<<"\n";
+
+        ParseShaderLine(sLine);
       };
 
-      std::cout<<"cShader::_LoadFragmentShader Fragment shader=\""<<buffer<<"\""<<std::endl;
+      std::cout<<"cShader::_LoadFragmentShader Fragment shader=\""<<o.str()<<"\""<<std::endl;
 
       uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
       std::cout<<"cShader::_LoadFragmentShader Fragment shader glGetError="<<cSystem::GetErrorString()<<std::endl;
       CheckStatusFragment();
       assert(uiShaderFragment != 0);
 
-      const char* str = buffer.c_str();
+      const std::string sBuffer = o.str();
+      const char* str = sBuffer.c_str();
       glShaderSource(uiShaderFragment, 1, &str, NULL);
       CheckStatusFragment();
 
