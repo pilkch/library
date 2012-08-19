@@ -115,6 +115,8 @@ namespace opengl
   {
     std::cout<<"cContext::~cContext"<<std::endl;
 
+    assert(pCurrentShader == nullptr); // Shaders must be unbound before this point
+
 #ifdef BUILD_OPENGLMM_FONT
     assert(fonts.empty());
 #endif
@@ -422,26 +424,51 @@ namespace opengl
 
   void cContext::_SetPerspective(size_t width, size_t height)
   {
-    // Protect against a divide by zero
-    assert(height != 0);
-
-    // Height / width ratio
-    const GLfloat fRatio = (GLfloat)width / (GLfloat)height;
-
     // Setup our viewport
     glViewport(0, 0, (GLint)width, (GLint)height);
 
-    // Set our perspective
-    const float fMaximumViewDistance = 1000.0f;
-    spitfire::math::cMat4 projection;
-    projection.SetPerspective(45.0f, fRatio, 0.1f, fMaximumViewDistance);
+    // Set up projection matrix
+    matProjection = CalculateProjectionMatrix(width, height, 45.0f);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(projection.GetOpenGLMatrixPointer());
-
-    // Set our modelview matrix
-    glMatrixMode(GL_MODELVIEW);
+    // Load identity matrix for the modelview matrix
+    matModelView.LoadIdentity();
   }
+
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrix() const
+  {
+    return CalculateProjectionMatrix(resolution.width, resolution.height, 45.0f);
+  }
+
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const
+  {
+    // Set our perspective
+    assert(height != 0); // Protect against a divide by zero
+    const GLfloat fRatio = (GLfloat)width / (GLfloat)height;
+    const float fMaximumViewDistance = 1000.0f;
+    spitfire::math::cMat4 matrix;
+    matrix.SetPerspective(fFOV, fRatio, 0.1f, fMaximumViewDistance);
+    return matrix;
+  }
+
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const
+  {
+    spitfire::math::cMat4 matrix;
+
+    // Our screen coordinates look like this
+    // 0.0f, 0.0f            1.0f, 0.0f
+    //
+    //
+    // 0.0f, 1.0f            1.0f, 1.0f
+
+    if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN) {
+      matrix.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
+    } else {
+      matrix.SetOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
+    }
+
+    return matrix;
+  }
+
 
   void cContext::ResizeWindow(const cResolution& _resolution)
   {
@@ -484,8 +511,6 @@ namespace opengl
 
   void cContext::_BeginRenderShared(size_t width, size_t height)
   {
-    matProjection.LoadIdentity();
-    matModelView.LoadIdentity();
     matTexture.LoadIdentity();
 
     _SetPerspective(width, height);
@@ -560,83 +585,55 @@ namespace opengl
     glDisable(GL_TEXTURE_2D);
   }
 
-  void cContext::BeginRenderMode2D(MODE2D_TYPE type)
+  void cContext::BeginRenderMode2DRENAMED(MODE2D_TYPE type)
   {
-    // Setup new matrices without touching the cached versions so that we can revert later
-
-    spitfire::math::cMat4 matNewProjection;
-
-    // Our screen coordinates look like this
-    // 0.0f, 0.0f            1.0f, 0.0f
-    //
-    //
-    // 0.0f, 1.0f            1.0f, 1.0f
-
-    if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN) {
-      matNewProjection.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
-    } else {
-      matNewProjection.SetOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
-    }
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(matNewProjection.GetOpenGLMatrixPointer());
-
-    spitfire::math::cMat4 matNewModelView;
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(matNewModelView.GetOpenGLMatrixPointer());
-
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
   }
 
-  void cContext::EndRenderMode2D()
+  void cContext::EndRenderMode2DRENAMED()
   {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
-
-    // Revert the previous ModelView matrix
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(matProjection.GetOpenGLMatrixPointer());
-
-    // Revert the previous projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(matProjection.GetOpenGLMatrixPointer());
   }
 
-
-  // Under OpenGL 3.x we should use this method (We can probably do this under OpenGL 2.x too if we change the shaders)
-  //glUniformMatrix4fv("projMat", 1, GL_FALSE, matProjection.GetOpenGLMatrixPointer());
-  //glUniformMatrix4fv("???", 1, GL_FALSE, matModelView.GetOpenGLMatrixPointer());
-  //glUniformMatrix4fv("???", 1, GL_FALSE, matTexture.GetOpenGLMatrixPointer());
-
-  void cContext::SetProjectionMatrix(const spitfire::math::cMat4& matrix)
+  void cContext::SetShaderProjectionAndModelViewMatricesRenderMode2D(MODE2D_TYPE type, const spitfire::math::cMat4& _matModelView)
   {
-    matProjection = matrix;
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+    spitfire::math::cMat4 _matProjection = CalculateProjectionMatrixRenderMode2D(type);
+    SetShaderProjectionAndModelViewMatrices(_matProjection, _matModelView);
   }
 
-  void cContext::SetModelViewMatrix(const spitfire::math::cMat4& matrix)
+  void cContext::SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& _matProjection, const spitfire::math::cMat4& _matModelView)
   {
-    matModelView = matrix;
+    assert(pCurrentShader != nullptr);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
+    matProjection = _matProjection;
+    matModelView = _matModelView;
+
+    // Update the projection matrix on the shader if required
+    if (pCurrentShader->bProjectionMatrix) SetShaderConstant("matProjection", matProjection);
+
+    if (pCurrentShader->bModelViewMatrix) SetShaderConstant("matModelView", matModelView);
+
+    if (pCurrentShader->bModelViewProjectionMatrix) {
+      // Modelview projection matrix
+      const spitfire::math::cMat4 matModelViewProjection(matProjection * matModelView);
+      SetShaderConstant("matModelViewProjection", matModelViewProjection);
+    }
+
+    if (pCurrentShader->bNormalMatrix) {
+      // Normal matrix
+      // http://blog.tojicode.com/2012/07/the-webgl-guide-to-reading-opengl.html
+      // http://www.gamedev.net/topic/503063-inverse-transpose-matrix-what-is-that/page__p__4281691#entry4281691
+      const spitfire::math::cMat3 matNormal = spitfire::math::cMat3(matModelView).GetInverseTranspose();
+      SetShaderConstant("matNormal", matNormal);
+    }
   }
 
-  void cContext::SetTextureMatrix(const spitfire::math::cMat4& matrix)
-  {
-    matTexture = matrix;
-
-    glMatrixMode(GL_TEXTURE);
-    glLoadMatrixf(matrix.GetOpenGLMatrixPointer());
-  }
-
-
-
-  }
-
+  //void cContext::SetTextureMatrix(const spitfire::math::cMat4& matrix)
+  //{
+  //  SetShaderConstant("matTexture", matTexture);
+  //}
 
   void cContext::SetShaderLightEnabled(size_t light, bool bEnable)
   {
@@ -785,28 +782,21 @@ namespace opengl
   {
     assert(shader.IsCompiledProgram());
 
-    assert(pCurrentShader == nullptr);
+    assert(pCurrentShader == nullptr); // UnBindShader must be called first
 
     glUseProgram(shader.uiShaderProgram);
 
     pCurrentShader = &shader;
 
-    // TODO: We also need some more variables within our post render shaders such as
-    // brightness: HDR, Top Gear Shader, Night Vision
-    // exposure: HDR, Top Gear Shader
-    // sunPosition: Car Shader, shadows, this could be light[0] though
+    // TODO: We also need some more variables within our post render shaders such as:
+    //  - brightness: HDR, Top Gear Shader, Night Vision
+    //  - exposure: HDR, Top Gear Shader
 
-    //if (shader.bCameraPos) SetShaderConstant("cameraPos", frustum.eye);
-    //if (shader.bAmbientColour) {
-    //  SetShaderConstant("ambientColour", shaderConstants.GetValueVec4(TEXT("ambientColour")));
-    //}
-    //if (shader.bLightPosition) {
-    //  SetShaderConstant("lightPosition", shaderConstants.GetValueVec3(TEXT("lightPosition")));
-    //}
     if (shader.bTexUnit0) SetShaderConstant("texUnit0", 0);
     if (shader.bTexUnit1) SetShaderConstant("texUnit1", 1);
     if (shader.bTexUnit2) SetShaderConstant("texUnit2", 2);
     if (shader.bTexUnit3) SetShaderConstant("texUnit3", 3);
+
     if (shader.bAmbientColour) SetShaderConstant("ambientColour", ambientColour);
     if (shader.bSunAmbientColour) SetShaderConstant("sunAmbientColour", sunAmbientColour);
     if (shader.bSunPosition) SetShaderConstant("sunPosition", sunPosition);
@@ -890,6 +880,32 @@ namespace opengl
   bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour& value)
   {
     return SetShaderConstant(sConstant, spitfire::math::cVec4(value.r, value.g, value.b, value.a));
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat3& matrix)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniformMatrix3fv(loc, 1, GL_FALSE, matrix.GetOpenGLMatrixPointer());
+    return true;
+  }
+
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat4& matrix)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      std::cout<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniformMatrix4fv(loc, 1, GL_FALSE, matrix.GetOpenGLMatrixPointer());
+    return true;
   }
 
 

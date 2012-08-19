@@ -101,6 +101,11 @@ namespace opengl
 
 
     // Which uniforms should we send to the shader?
+    bool bProjectionMatrix;
+    bool bModelViewMatrix;
+    bool bModelViewProjectionMatrix;
+    bool bNormalMatrix;
+
     bool bTexUnit0;
     bool bTexUnit1;
     bool bTexUnit2;

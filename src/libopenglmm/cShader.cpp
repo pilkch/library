@@ -96,6 +96,11 @@ namespace opengl
     uiShaderFragment(0),
     uiShaderProgram(0),
 
+    bProjectionMatrix(false),
+    bModelViewMatrix(false),
+    bModelViewProjectionMatrix(false),
+    bNormalMatrix(false),
+
     bTexUnit0(false),
     bTexUnit1(false),
     bTexUnit2(false),

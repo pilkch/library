@@ -79,6 +79,13 @@ namespace opengl
     PIXELFORMAT GetPixelFormat() const { return resolution.pixelFormat; }
     cResolution GetResolution() const { return resolution; }
 
+    const spitfire::math::cMat4& GetProjectionMatrix() const { return matProjection; }
+    const spitfire::math::cMat4& GetModelViewMatrix() const { return matModelView; }
+    const spitfire::math::cMat4& GetTextureMatrix() const { return matTexture; }
+
+    spitfire::math::cMat4 CalculateProjectionMatrix() const;
+    spitfire::math::cMat4 CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const;
+
     void ResizeWindow(const cResolution& resolution);
 
     cTexture* CreateTexture(const opengl::string_t& sFileName);
@@ -160,16 +167,13 @@ namespace opengl
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec3& value);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec4& value);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour& value); // NOTE: This will try to look for a vec4 in the shader
-
-
-    const spitfire::math::cMat4& GetProjectionMatrix() const { return matProjection; }
-    const spitfire::math::cMat4& GetModelViewMatrix() const { return matModelView; }
-    const spitfire::math::cMat4& GetTextureMatrix() const { return matTexture; }
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat3& matrix);
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat4& matrix);
 
     // A shader must already be bound before these are called
-    void SetProjectionMatrix(const spitfire::math::cMat4& matrix);
-    void SetModelViewMatrix(const spitfire::math::cMat4& matrix);
-    void SetTextureMatrix(const spitfire::math::cMat4& matrix);
+    void SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matModelView);
+    void SetShaderProjectionAndModelViewMatricesRenderMode2D(MODE2D_TYPE type, const spitfire::math::cMat4& matModelView);
+    //void SetTextureMatrix(const spitfire::math::cMat4& matrix);
 
     void SetShaderLightEnabled(size_t light, bool bEnabled);
     void SetShaderLightType(size_t light, LIGHT_TYPE type);
@@ -217,6 +221,8 @@ namespace opengl
     void ReloadResources() {}
 
   private:
+    spitfire::math::cMat4 CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const;
+
     bool _SetWindowVideoMode(bool bIsFullScreen);
     void _SetDefaultFlags();
     void _SetPerspective(size_t width, size_t height);
@@ -232,7 +238,6 @@ namespace opengl
 
     SDL_Surface* pSurface;
 
-    // matProjection and matModelView are multiplied together to get the MVP matrix in OpenGL 3.0
     spitfire::math::cMat4 matProjection;
     spitfire::math::cMat4 matModelView;
     spitfire::math::cMat4 matTexture;

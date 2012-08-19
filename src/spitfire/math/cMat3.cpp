@@ -159,9 +159,61 @@ namespace spitfire
       *this = GetInverse();
     }
 
+    cMat3 cMat3::GetInverse() const
+    {
+      assert(false); // Check this
+      const float a00 = entries[0], a01 = entries[1], a02 = entries[2];
+      const float a10 = entries[3], a11 = entries[4], a12 = entries[5];
+      const float a20 = entries[6], a21 = entries[7], a22 = entries[8];
+
+      const float b01 = (a22 * a11) - (a12 * a21);
+      const float b11 = (-a22 * a10) + (a12 * a20);
+      const float b21 = (a21 * a10) - (a11 * a20);
+
+      cMat3 result;
+
+      const float fDeterminant = (a00 * b01) + (a01 * b11) + (a02 * b21);
+      if (fDeterminant == 0.0f) {
+         result.LoadZero();
+         return result;
+      }
+
+      const float fOneOverDeterminant = 1 / fDeterminant;
+
+      result[0] = b01 * fOneOverDeterminant;
+      result[1] = ((-a22 * a01) + (a02 * a21)) * fOneOverDeterminant;
+      result[2] = ((a12 * a01) - (a02 * a11)) * fOneOverDeterminant;
+      result[3] = b11 * fOneOverDeterminant;
+      result[4] = ((a22 * a00) - (a02 * a20)) * fOneOverDeterminant;
+      result[5] = ((-a12 * a00) + (a02 * a10)) * fOneOverDeterminant;
+      result[6] = b21 * fOneOverDeterminant;
+      result[7] = ((-a21 * a00) + (a01 * a20)) * fOneOverDeterminant;
+      result[8] = ((a11 * a00) - (a01 * a10)) * fOneOverDeterminant;
+
+      return result;
+    }
+
     void cMat3::Transpose()
     {
       *this = GetTranspose();
+    }
+
+    cMat3 cMat3::GetTranspose() const
+    {
+      assert(false); // Check this
+      // Flip the matrix along the upper left to lower right diagonal
+      cMat3 result;
+      result[0] = entries[ 0];
+      result[1] = entries[ 3];
+      result[2] = entries[ 6];
+      result[3] = entries[ 1];
+      result[4] = entries[ 4];
+      result[5] = entries[ 7];
+      result[6] = entries[ 2];
+      result[7] = entries[ 5];
+      result[8] = entries[ 8];
+
+      return result;
     }
 
     void cMat3::InvertTranspose()

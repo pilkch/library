@@ -29,6 +29,7 @@
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat3.h>
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cColour.h>
 
