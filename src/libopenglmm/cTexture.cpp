@@ -93,13 +93,6 @@ namespace opengl
 
     const uint8_t* pBuffer = image.GetPointerToBuffer();
     if (pBuffer != nullptr) {
-      // Copy from image to texture
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
-
-      if (bIsUsingMipMaps) {
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, image.GetWidth(), image.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
-      }
-
       // Settings to make the texture look a bit nicer when we do blit it to the screen
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -113,8 +106,13 @@ namespace opengl
       if (bIsUsingMipMaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
       }
+
+      // Copy from image to texture
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+
+      if (bIsUsingMipMaps) glGenerateMipmap(GL_TEXTURE_2D);
     }
   }
 
