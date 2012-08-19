@@ -39,7 +39,9 @@ namespace opengl
     resolution(window.GetResolution()),
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
-    ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
+    ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
+    sunAmbientColour(1.0f, 1.0f, 1.0f, 1.0f),
+    fSunIntensity(0.0f),
     pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
@@ -100,7 +102,7 @@ namespace opengl
     resolution(_resolution),
     pSurface(nullptr),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
-    ambientLightColour(1.0f, 1.0f, 1.0f, 1.0f),
+    ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
   {
     std::cout<<"cContext::cContext"<<std::endl;
@@ -460,9 +462,24 @@ namespace opengl
     clearColour = _clearColour;
   }
 
-  void cContext::SetAmbientLightColour(const spitfire::math::cColour& _ambientLightColour)
+  void cContext::SetAmbientColour(const spitfire::math::cColour& _ambientColour)
   {
-    ambientLightColour = _ambientLightColour;
+    ambientColour = _ambientColour;
+  }
+
+  void cContext::SetSunPosition(const spitfire::math::cVec3& _sunPosition)
+  {
+    sunPosition = _sunPosition;
+  }
+
+  void cContext::SetSunAmbientColour(const spitfire::math::cColour& _sunAmbientColour)
+  {
+    sunAmbientColour = _sunAmbientColour;
+  }
+
+  void cContext::SetSunIntensity(float _fSunIntensity)
+  {
+    fSunIntensity = _fSunIntensity;
   }
 
   void cContext::_BeginRenderShared(size_t width, size_t height)
@@ -484,7 +501,7 @@ namespace opengl
     // Set our default colour
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    //const GLfloat global_ambient[] = { ambientLightColour.r, ambientLightColour.g, ambientLightColour.b, 1.0f };
+    //const GLfloat global_ambient[] = { ambientColour.r, ambientColour.g, ambientColour.b, 1.0f };
     //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
     //if (bIsFSAAEnabled) glEnable(GL_MULTISAMPLE_ARB);
@@ -617,6 +634,49 @@ namespace opengl
   }
 
 
+
+  }
+
+
+  void cContext::SetShaderLightEnabled(size_t light, bool bEnable)
+  {
+    if (bEnable) glEnable(GL_LIGHT0 + light);
+    else glDisable(GL_LIGHT0 + light);
+  }
+
+  void cContext::SetShaderLightType(size_t light, LIGHT_TYPE type)
+  {
+  }
+
+  void cContext::SetShaderLightPosition(size_t light, const spitfire::math::cVec3& _position)
+  {
+    const GLfloat position[] = { _position.x, _position.y, _position.z, 0.0f };
+    glLightfv(GL_LIGHT0 + light, GL_POSITION, position);
+  }
+
+  void cContext::SetShaderLightRotation(size_t light, const spitfire::math::cQuaternion& rotation)
+  {
+  }
+
+  void cContext::SetShaderLightAmbientColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat ambient[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient);
+  }
+
+  void cContext::SetShaderLightDiffuseColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat diffuse[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse);
+  }
+
+  void cContext::SetShaderLightSpecularColour(size_t light, const spitfire::math::cColour& colour)
+  {
+    const GLfloat specular[] = { colour.r, colour.g, colour.b, 1.0f };
+    glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular);
+  }
+
+
   void cContext::EnableLighting()
   {
     glEnable(GL_LIGHTING);
@@ -625,48 +685,6 @@ namespace opengl
   void cContext::DisableLighting()
   {
     glDisable(GL_LIGHTING);
-  }
-
-  void cContext::EnableLight(size_t light)
-  {
-    glEnable(GL_LIGHT0 + light);
-  }
-
-  void cContext::DisableLighting(size_t light)
-  {
-    glDisable(GL_LIGHT0 + light);
-  }
-
-  void cContext::SetLightType(size_t light, LIGHT_TYPE type)
-  {
-  }
-
-  void cContext::SetLightPosition(size_t light, const spitfire::math::cVec3& _position)
-  {
-    const GLfloat position[] = { _position.x, _position.y, _position.z, 0.0f };
-    glLightfv(GL_LIGHT0 + light, GL_POSITION, position);
-  }
-
-  void cContext::SetLightRotation(size_t light, const spitfire::math::cQuaternion& rotation)
-  {
-  }
-
-  void cContext::SetLightAmbientColour(size_t light, const spitfire::math::cColour& colour)
-  {
-    const GLfloat ambient[] = { colour.r, colour.g, colour.b, 1.0f };
-    glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient);
-  }
-
-  void cContext::SetLightDiffuseColour(size_t light, const spitfire::math::cColour& colour)
-  {
-    const GLfloat diffuse[] = { colour.r, colour.g, colour.b, 1.0f };
-    glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse);
-  }
-
-  void cContext::SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour)
-  {
-    const GLfloat specular[] = { colour.r, colour.g, colour.b, 1.0f };
-    glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular);
   }
 
 
@@ -789,6 +807,10 @@ namespace opengl
     if (shader.bTexUnit1) SetShaderConstant("texUnit1", 1);
     if (shader.bTexUnit2) SetShaderConstant("texUnit2", 2);
     if (shader.bTexUnit3) SetShaderConstant("texUnit3", 3);
+    if (shader.bAmbientColour) SetShaderConstant("ambientColour", ambientColour);
+    if (shader.bSunAmbientColour) SetShaderConstant("sunAmbientColour", sunAmbientColour);
+    if (shader.bSunPosition) SetShaderConstant("sunPosition", sunPosition);
+    if (shader.bSunIntensity) SetShaderConstant("fSunIntensity", fSunIntensity);
   }
 
   void cContext::UnBindShader(cShader& shader)

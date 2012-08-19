@@ -105,9 +105,14 @@ namespace opengl
     bool bTexUnit1;
     bool bTexUnit2;
     bool bTexUnit3;
+
     bool bCameraPos;
     bool bAmbientColour;
-    bool bLightPosition;
+    bool bSunPosition;
+    bool bSunAmbientColour;
+    bool bSunIntensity;
+
+    size_t nLights;
 
   private:
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);

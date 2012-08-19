@@ -107,7 +107,10 @@ namespace opengl
 
 
     void SetClearColour(const spitfire::math::cColour& clearColour);
-    void SetAmbientLightColour(const spitfire::math::cColour& ambientLightColour);
+    void SetAmbientColour(const spitfire::math::cColour& ambientColour);
+    void SetSunPosition(const spitfire::math::cVec3& sunPosition);
+    void SetSunAmbientColour(const spitfire::math::cColour& sunAmbientColour);
+    void SetSunIntensity(float fSunIntensity);
 
     void BeginRendering();
     void EndRendering();
@@ -125,18 +128,8 @@ namespace opengl
     void EnableWireframe();
     void DisableWireframe();
 
-
     void EnableLighting();
     void DisableLighting();
-    void EnableLight(size_t light);
-    void DisableLighting(size_t light);
-    void SetLightType(size_t light, LIGHT_TYPE type);
-    void SetLightPosition(size_t light, const spitfire::math::cVec3& position);
-    void SetLightRotation(size_t light, const spitfire::math::cQuaternion& rotation);
-    void SetLightAmbientColour(size_t light, const spitfire::math::cColour& colour);
-    void SetLightDiffuseColour(size_t light, const spitfire::math::cColour& colour);
-    void SetLightSpecularColour(size_t light, const spitfire::math::cColour& colour);
-
 
     void EnableDepthTesting();
     void DisableDepthTesting();
@@ -177,6 +170,14 @@ namespace opengl
     void SetProjectionMatrix(const spitfire::math::cMat4& matrix);
     void SetModelViewMatrix(const spitfire::math::cMat4& matrix);
     void SetTextureMatrix(const spitfire::math::cMat4& matrix);
+
+    void SetShaderLightEnabled(size_t light, bool bEnabled);
+    void SetShaderLightType(size_t light, LIGHT_TYPE type);
+    void SetShaderLightPosition(size_t light, const spitfire::math::cVec3& position);
+    void SetShaderLightRotation(size_t light, const spitfire::math::cQuaternion& rotation);
+    void SetShaderLightAmbientColour(size_t light, const spitfire::math::cColour& colour);
+    void SetShaderLightDiffuseColour(size_t light, const spitfire::math::cColour& colour);
+    void SetShaderLightSpecularColour(size_t light, const spitfire::math::cColour& colour);
 
 
     // cStaticVertexBufferObject
@@ -237,7 +238,11 @@ namespace opengl
     spitfire::math::cMat4 matTexture;
 
     spitfire::math::cColour clearColour;
-    spitfire::math::cColour ambientLightColour;
+    spitfire::math::cColour ambientColour;
+
+    spitfire::math::cVec3 sunPosition;
+    spitfire::math::cColour sunAmbientColour;
+    float fSunIntensity;
 
     cShader* pCurrentShader;
 

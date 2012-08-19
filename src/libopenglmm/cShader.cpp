@@ -100,9 +100,14 @@ namespace opengl
     bTexUnit1(false),
     bTexUnit2(false),
     bTexUnit3(false),
+
     bCameraPos(false),
     bAmbientColour(false),
-    bLightPosition(false)
+    bSunPosition(false),
+    bSunAmbientColour(false),
+    bSunIntensity(false),
+
+    nLights(0)
   {
   }
 
