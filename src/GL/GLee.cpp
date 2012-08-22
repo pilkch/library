@@ -20283,7 +20283,7 @@ GLboolean __GLeeGetExtensions(ExtensionList* extList)
        else totalExtStrLen = strlen(platExtStr);
 
        glExtStr=(const char *)glGetString(GL_EXTENSIONS);
-       if (glExtStr==0)
+       if ((glExtStr==0) || (glExtStr[0] == 0))
 	{
 		__GLeeWriteError("glGetString(GL_EXTENSIONS) failed.");
 		return GL_FALSE;
