@@ -994,13 +994,13 @@ GLEE_EXTERN GLboolean _GLEE_IBM_static_data;
 #endif
 
 #ifndef GL_ARB_shader_objects
-	typedef int GLhandleARB;
+	typedef unsigned int GLhandleARB;
 	typedef char GLcharARB;
 #endif
 
 #ifndef GL_EXT_timer_query
-	typedef signed long long GLint64EXT;
-	typedef unsigned long long GLuint64EXT;
+	typedef int64_t GLint64EXT;
+	typedef uint64_t GLuint64EXT;
 #endif
 
 #ifndef GL_ARB_sync
