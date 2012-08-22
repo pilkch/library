@@ -411,8 +411,8 @@ namespace opengl
   {
     std::cout<<"cShader::LoadVertexShaderAndFragmentShader glGetError="<<cSystem::GetErrorString()<<std::endl;
 
-    _LoadFragmentShader(_sShaderFragment);
     _LoadVertexShader(_sShaderVertex);
+    _LoadFragmentShader(_sShaderFragment);
     _Compile();
 
     return IsCompiledProgram();
