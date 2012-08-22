@@ -12,15 +12,13 @@
 #include <list>
 #include <vector>
 
-// OpenGL headers
-#include <GL/GLee.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 
 // libopenglmm headers
 #include <libopenglmm/cShader.h>
 #include <libopenglmm/cSystem.h>
+#include <libopenglmm/opengl.h>
 
 bool StringBeginsWith(const std::string& source, const std::string& find)
 {

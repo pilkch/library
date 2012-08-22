@@ -11,10 +11,6 @@
 #include <list>
 #include <vector>
 
-// OpenGL headers
-#include <GL/GLee.h>
-#include <GL/glu.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 
@@ -29,6 +25,11 @@
 #include <libopenglmm/cVertexArray.h>
 #include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
+#include <libopenglmm/opengl.h>
+
+#if (BUILD_LIBOPENGLMM_SDL_VERSION < 130) && (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
+#include <GL/glx.h>
+#endif
 
 #if BUILD_LIBOPENGLMM_SDL_VERSION < 130
 #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300

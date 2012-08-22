@@ -19,10 +19,6 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-// OpenGL headers
-#include <GL/GLee.h>
-#include <GL/glu.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 
@@ -33,6 +29,7 @@
 #include <libopenglmm/cContext.h>
 #include <libopenglmm/cGeometry.h>
 #include <libopenglmm/cFont.h>
+#include <libopenglmm/opengl.h>
 
 namespace opengl
 {

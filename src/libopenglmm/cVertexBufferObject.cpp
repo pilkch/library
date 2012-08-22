@@ -12,15 +12,13 @@
 #include <list>
 #include <vector>
 
-// OpenGL headers
-#include <GL/GLee.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 
 // libopenglmm headers
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/cVertexBufferObject.h>
+#include <libopenglmm/opengl.h>
 
 namespace opengl
 {

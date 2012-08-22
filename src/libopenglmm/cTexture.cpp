@@ -12,9 +12,6 @@
 #include <list>
 #include <vector>
 
-// OpenGL headers
-#include <GL/GLee.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 
@@ -23,6 +20,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/cTexture.h>
+#include <libopenglmm/opengl.h>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <sys/stat.h>
