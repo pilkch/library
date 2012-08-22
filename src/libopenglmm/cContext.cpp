@@ -55,14 +55,7 @@ namespace opengl
     fSunIntensity(0.0f),
     pCurrentShader(nullptr)
   {
-    std::cout<<"cContext::cContext"<<std::endl;
-
-    if (!GLeeInit()) {
-      std::cout<<"cContext::cContext GLeeInit FAILED error="<<GLeeGetErrorString()<<std::endl;
-    } else {
-      std::cout<<"cContext::cContext GLeeInit succeeded"<<std::endl;
-    }
-
+    std::cout<<"cContext::cContext with window"<<std::endl;
 
     if (!_SetWindowVideoMode(window.IsFullScreen())) {
       std::cout<<"cContext::cContext Error setting video mode"<<std::endl;
@@ -454,7 +447,10 @@ namespace opengl
       int attribs[]= {
         GLX_CONTEXT_MAJOR_VERSION_ARB, iMajor,
         GLX_CONTEXT_MINOR_VERSION_ARB, iMinor,
+        #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+        // Use the stricter OpenGL 3 core compatibility flag
         GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        #endif
         0
       };
       GLXContext ctx3 = glXCreateContextAttribsARB(dpy, *cfg, 0, 1, attribs);
@@ -477,10 +473,14 @@ namespace opengl
     glEnable(GL_CULL_FACE);
 
     glShadeModel(GL_SMOOTH);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_NORMALIZE);
+    #endif
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+    #endif
   }
 
   void cContext::_SetPerspective(size_t width, size_t height)

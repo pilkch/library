@@ -82,8 +82,11 @@ namespace opengl
       case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
       case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
       case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+      #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
+      // NOTE: These only makes sense for OpenGL 2 and earlier because the matrix stack has been removed in OpenGL 3
       case GL_STACK_OVERFLOW: return "GL_STACK_OVERFLOW";
       case GL_STACK_UNDERFLOW: return "GL_STACK_UNDERFLOW";
+      #endif
       case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
     };
 
@@ -277,36 +280,36 @@ namespace opengl
 
   void cSystem::UpdateCapabilities()
   {
-    const char* szValue = nullptr;
-
     std::cout<<"cSystem::UpdateCapabilities glGetError="<<cSystem::GetErrorString()<<std::endl;
+
+    const char* szValue = nullptr;
 
     szValue = (const char*)glGetString(GL_VENDOR);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Vendor: "<<szValue<<std::endl;
+    std::cout<<"cSystem::UpdateCapabilities Vendor: "<<szValue<<std::endl;
     szValue = (const char*)glGetString(GL_RENDERER);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Renderer: "<<szValue<<std::endl;
+    std::cout<<"cSystem::UpdateCapabilities Renderer: "<<szValue<<std::endl;
     szValue = (const char*)glGetString(GL_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext Version: "<<szValue<<std::endl;
+    std::cout<<"cSystem::UpdateCapabilities Version: "<<szValue<<std::endl;
     szValue = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cContext::cContext GLSL Version: "<<szValue<<std::endl;
+    std::cout<<"cSystem::UpdateCapabilities GLSL Version: "<<szValue<<std::endl;
     const std::string sValue = GetExtensions();
-    std::cout<<"cContext::cContext Extensions: "<<sValue<<std::endl;
+    std::cout<<"cSystem::UpdateCapabilities Extensions: "<<sValue<<std::endl;
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;
       tVendor<<glGetString(GL_VENDOR);
 
       const std::string sVendor(tVendor.str());
-      std::cout<<"cContext::cContext Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
+      std::cout<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
     }
 
-    if (FindExtension("GL_ARB_multitexture")) std::cout<<"cContext::cContext Found GL_ARB_multitexture"<<std::endl;
+    if (FindExtension("GL_ARB_multitexture")) std::cout<<"cSystem::UpdateCapabilities Found GL_ARB_multitexture"<<std::endl;
     else {
-      std::cout<<"cContext::cContext GL_ARB_multitexture is not present"<<std::endl;
+      std::cout<<"cSystem::UpdateCapabilities GL_ARB_multitexture is not present"<<std::endl;
       assert(false);
     }
 
@@ -351,7 +354,7 @@ namespace opengl
 
     // How many textures can we access in a vertex shader (As opposed to in the fragment shader)
     GLint iTextureUnitsInVertexShader = 0;
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB, &iTextureUnitsInVertexShader);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &iTextureUnitsInVertexShader);
     std::cout<<"cSystem::UpdateCapabilities "<<iTextureUnitsInVertexShader<<" texture units accessable in vertex shader"<<std::endl;
 
 

@@ -104,7 +104,9 @@ namespace opengl
       if (bIsUsingMipMaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+        #endif
       }
 
       // Copy from image to texture
@@ -173,8 +175,8 @@ namespace opengl
     assert(uiWidth == uiHeight);
 
     // Create FBO
-    glGenFramebuffersEXT(1, &uiFBO);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, uiFBO);
+    glGenFramebuffers(1, &uiFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, uiFBO);
 
 
     if (!bIsCubeMap) {
@@ -186,8 +188,8 @@ namespace opengl
       GLenum type = GL_UNSIGNED_BYTE;
 
       // We want all FBO textures to be 16bit as we will get more precision hopefully
-      internal = GL_RGBA16F_ARB; // This seems good enough and won't use twice as much(!) memory as 32bit
-      //internal = GL_RGBA32F_ARB;
+      internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
+      //internal = GL_RGBA32F;
       type = GL_FLOAT;
 
       glTexImage2D(GL_TEXTURE_2D, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, NULL);
@@ -200,11 +202,11 @@ namespace opengl
       if (bIsUsingMipMaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmapEXT(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
       }
 
       // And attach it to the FBO so we can render to it
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, uiTexture, 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, uiTexture, 0);
     } else {
       // Now setup a texture to render to
       glGenTextures(1, &uiTexture);
@@ -224,35 +226,36 @@ namespace opengl
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
       // Attach one of the faces of the Cubemap texture to this FBO
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
     }
 
 
 
     // Create the Render Buffer for Depth
-    glGenRenderbuffersEXT(1, &uiFBODepthBuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, uiWidth, uiHeight);
+    glGenRenderbuffers(1, &uiFBODepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, uiFBODepthBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, uiWidth, uiHeight);
 
     // Attach the depth render buffer to the FBO as it's depth attachment
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, uiFBODepthBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uiFBODepthBuffer);
 
 
 
     // Check our status to make sure that we have a complete and ready to use FBO
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
       std::string sError = "UNKNOWN ERROR";
 
       switch (status) {
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT: {
-          sError = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT";
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
+          sError = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
           break;
         }
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT: {
-          sError = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT";
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
+          sError = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
           break;
         }
+        #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT: {
           sError = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT";
           break;
@@ -261,41 +264,42 @@ namespace opengl
           sError = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
           break;
         }
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT: {
-          sError = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT";
+        #endif
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: {
+          sError = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
           break;
         }
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT: {
-          sError = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT";
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: {
+          sError = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
           break;
         }
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT: {
-          sError = "GL_FRAMEBUFFER_UNSUPPORTED_EXT";
+        case GL_FRAMEBUFFER_UNSUPPORTED: {
+          sError = "GL_FRAMEBUFFER_UNSUPPORTED";
           break;
         }
-        case GL_INVALID_FRAMEBUFFER_OPERATION_EXT: {
-          sError = "GL_INVALID_FRAMEBUFFER_OPERATION_EXT";
+        case GL_INVALID_FRAMEBUFFER_OPERATION: {
+          sError = "GL_INVALID_FRAMEBUFFER_OPERATION";
           break;
         }
       }
 
       std::cout<<"cTextureFrameBufferObject::_Create FAILED status="<<sError<<std::endl;
-      assert(status == GL_FRAMEBUFFER_COMPLETE_EXT);
+      assert(status == GL_FRAMEBUFFER_COMPLETE);
     }
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // Unbind the FBO for now
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind the FBO for now
   }
 
   void cTextureFrameBufferObject::_Destroy()
   {
-    glDeleteFramebuffersEXT(1, &uiFBO);
+    glDeleteFramebuffers(1, &uiFBO);
     uiFBO = 0;
 
-    glDeleteRenderbuffersEXT(1, &uiFBODepthBuffer);
+    glDeleteRenderbuffers(1, &uiFBODepthBuffer);
     uiFBODepthBuffer = 0;
 
     // Unbind this texture if it is bound
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glDeleteTextures(1, &uiTexture);
     uiTexture = 0;
@@ -306,7 +310,7 @@ namespace opengl
     if (bIsUsingMipMaps) {
       glBindTexture(GL_TEXTURE_2D, uiTexture);
 
-        glGenerateMipmapEXT(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
       glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -322,6 +326,8 @@ namespace opengl
     assert(fLevelOfDetail > -MAX_TEXTURE_LOD_BIAS);
     #endif
 
-    glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, fLevelOfDetail);
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
+    glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, fLevelOfDetail);
+    #endif
   }
 }
