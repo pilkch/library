@@ -130,6 +130,7 @@ namespace opengl
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
+      infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
       std::cout<<"cShader::CheckStatusVertex "<<sInfo<<std::endl;
@@ -157,7 +158,8 @@ namespace opengl
     std::cout<<"cShader::CheckStatusFragment glGetShaderiv glGetError="<<cSystem::GetErrorString()<<std::endl;
     //infologLength = 1024;
     if (infologLength > 0) {
-      char *infoLog = new char[infologLength];
+      char* infoLog = new char[infologLength];
+      infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
       std::cout<<"cShader::CheckStatusFragment "<<sInfo<<std::endl;
@@ -185,7 +187,8 @@ namespace opengl
     std::cout<<"cShader::CheckStatusProgram glGetShaderiv glGetError="<<cSystem::GetErrorString()<<std::endl;
     //infologLength = 1024;
     if (infologLength > 0) {
-      char *infoLog = new char[infologLength];
+      char* infoLog = new char[infologLength];
+      infoLog[0] = 0;
       glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
       std::cout<<"cShader::CheckStatusProgram "<<sInfo<<std::endl;
