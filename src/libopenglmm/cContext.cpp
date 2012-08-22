@@ -690,7 +690,7 @@ namespace opengl
     }
   }
 
-  //void cContext::SetTextureMatrix(const spitfire::math::cMat4& matrix)
+  //void cContext::SetTextureMatrix(const spitfire::math::cMat3& matrix)
   //{
   //  SetShaderConstant("matTexture", matTexture);
   //}

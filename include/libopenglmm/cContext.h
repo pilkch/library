@@ -81,7 +81,7 @@ namespace opengl
 
     const spitfire::math::cMat4& GetProjectionMatrix() const { return matProjection; }
     const spitfire::math::cMat4& GetModelViewMatrix() const { return matModelView; }
-    const spitfire::math::cMat4& GetTextureMatrix() const { return matTexture; }
+    const spitfire::math::cMat3& GetTextureMatrix() const { return matTexture; }
 
     spitfire::math::cMat4 CalculateProjectionMatrix() const;
     spitfire::math::cMat4 CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const;
@@ -173,7 +173,7 @@ namespace opengl
     // A shader must already be bound before these are called
     void SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matModelView);
     void SetShaderProjectionAndModelViewMatricesRenderMode2D(MODE2D_TYPE type, const spitfire::math::cMat4& matModelView);
-    //void SetTextureMatrix(const spitfire::math::cMat4& matrix);
+    //void SetTextureMatrix(const spitfire::math::cMat3& matTexture);
 
     void SetShaderLightEnabled(size_t light, bool bEnabled);
     void SetShaderLightType(size_t light, LIGHT_TYPE type);
@@ -240,7 +240,7 @@ namespace opengl
 
     spitfire::math::cMat4 matProjection;
     spitfire::math::cMat4 matModelView;
-    spitfire::math::cMat4 matTexture;
+    spitfire::math::cMat3 matTexture;
 
     spitfire::math::cColour clearColour;
     spitfire::math::cColour ambientColour;
