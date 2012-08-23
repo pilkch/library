@@ -311,6 +311,7 @@ namespace opengl
     RenderGeometry(GL_TRIANGLE_STRIP);
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cDynamicVertexArray::RenderQuads()
   {
     RenderGeometry(GL_QUADS);
@@ -320,15 +321,17 @@ namespace opengl
   {
     RenderGeometry(GL_QUAD_STRIP);
   }
-
+  #endif
 
   void cDynamicVertexArray::RenderLines2D()
   {
     RenderGeometry2D(GL_LINES);
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cDynamicVertexArray::RenderQuads2D()
   {
     RenderGeometry2D(GL_QUADS);
   }
+  #endif
 }

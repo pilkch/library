@@ -194,11 +194,17 @@ namespace opengl
     void DrawStaticVertexBufferObjectLines(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectTriangles(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectTriangleStrip(cStaticVertexBufferObject& staticVertexBufferObject);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Quads are deprecated in OpenGL 3.1 core profile
     void DrawStaticVertexBufferObjectQuads(cStaticVertexBufferObject& staticVertexBufferObject);
     void DrawStaticVertexBufferObjectQuadStrip(cStaticVertexBufferObject& staticVertexBufferObject);
+    #endif
 
     void DrawStaticVertexBufferObjectLines2D(cStaticVertexBufferObject& staticVertexBufferObject);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Quads are deprecated in OpenGL 3.1 core profile
     void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);
+    #endif
 
 
     // cDynamicVertexArray
@@ -211,11 +217,17 @@ namespace opengl
     void DrawDynamicVertexArrayLines(cDynamicVertexArray& dynamicVertexArray);
     void DrawDynamicVertexArrayTriangles(cDynamicVertexArray& dynamicVertexArray);
     void DrawDynamicVertexArrayTriangleStrip(cDynamicVertexArray& dynamicVertexArray);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Quads are deprecated in OpenGL 3.1 core profile
     void DrawDynamicVertexArrayQuads(cDynamicVertexArray& dynamicVertexArray);
     void DrawDynamicVertexArrayQuadStrip(cDynamicVertexArray& dynamicVertexArray);
+    #endif
 
     void DrawDynamicVertexArrayLines2D(cDynamicVertexArray& dynamicVertexArray);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Quads are deprecated in OpenGL 3.1 core profile
     void DrawDynamicVertexArrayQuads2D(cDynamicVertexArray& dynamicVertexArray);
+    #endif
 
   protected:
     void ReloadResources() {}

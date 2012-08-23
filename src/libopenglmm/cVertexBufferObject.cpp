@@ -517,6 +517,7 @@ namespace opengl
     RenderGeometry(GL_TRIANGLE_STRIP);
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cStaticVertexBufferObject::RenderQuads()
   {
     RenderGeometry(GL_QUADS);
@@ -526,6 +527,7 @@ namespace opengl
   {
     RenderGeometry(GL_QUAD_STRIP);
   }
+  #endif
 
 
   void cStaticVertexBufferObject::RenderLines2D()
@@ -533,8 +535,10 @@ namespace opengl
     RenderGeometry2D(GL_LINES);
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cStaticVertexBufferObject::RenderQuads2D()
   {
     RenderGeometry2D(GL_QUADS);
   }
+  #endif
 }

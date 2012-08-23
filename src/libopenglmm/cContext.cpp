@@ -41,6 +41,12 @@
 #endif
 #endif
 
+#ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+// Use the old EXT versions
+#define glBindFramebuffer glBindFramebufferEXT
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#endif
+
 namespace opengl
 {
   cContext::cContext(cSystem& _system, const cWindow& window) :
@@ -625,7 +631,7 @@ namespace opengl
     glEnable(GL_TEXTURE_2D);
 
     // First we bind the FBO so we can render to it
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, texture.uiFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, texture.uiFBO);
 
     // Save the view port settings (It is about to be change in _SetPerspective which is called by _BeginRenderShared)
     glPushAttrib(GL_VIEWPORT_BIT);
@@ -639,7 +645,7 @@ namespace opengl
 
     // Restore old view port settings and set rendering back to default frame buffer
     glPopAttrib();
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     texture.GenerateMipMapsIfRequired();
 
@@ -1008,6 +1014,7 @@ namespace opengl
     staticVertexBufferObject.RenderTriangleStrip();
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::DrawStaticVertexBufferObjectQuads(cStaticVertexBufferObject& staticVertexBufferObject)
   {
     staticVertexBufferObject.RenderQuads();
@@ -1017,6 +1024,7 @@ namespace opengl
   {
     staticVertexBufferObject.RenderQuadStrip();
   }
+  #endif
 
 
   void cContext::DrawStaticVertexBufferObjectLines2D(cStaticVertexBufferObject& staticVertexBufferObject)
@@ -1024,10 +1032,12 @@ namespace opengl
     staticVertexBufferObject.RenderLines2D();
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject)
   {
     staticVertexBufferObject.RenderQuads2D();
   }
+  #endif
 
 
   // ** cDynamicVertexArray
@@ -1068,6 +1078,7 @@ namespace opengl
     dynamicVertexArray.RenderTriangleStrip();
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::DrawDynamicVertexArrayQuads(cDynamicVertexArray& dynamicVertexArray)
   {
     dynamicVertexArray.RenderQuads();
@@ -1077,6 +1088,7 @@ namespace opengl
   {
     dynamicVertexArray.RenderQuadStrip();
   }
+  #endif
 
 
   void cContext::DrawDynamicVertexArrayLines2D(cDynamicVertexArray& dynamicVertexArray)
@@ -1084,8 +1096,10 @@ namespace opengl
     dynamicVertexArray.RenderLines2D();
   }
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::DrawDynamicVertexArrayQuads2D(cDynamicVertexArray& dynamicVertexArray)
   {
     dynamicVertexArray.RenderQuads2D();
   }
+  #endif
 }
