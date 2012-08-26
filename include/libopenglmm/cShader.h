@@ -86,6 +86,9 @@ namespace opengl
     bool LoadVertexShaderAndFragmentShader(const opengl::string_t& sShaderVertex, const opengl::string_t& sShaderFragment);
     void Destroy();
 
+    void Bind();
+    void UnBind();
+
     void CheckStatusVertex();
     void CheckStatusFragment();
     void CheckStatusProgram();
@@ -132,7 +135,14 @@ namespace opengl
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
     void _Compile();
 
-    void ParseShaderLine(const std::string& sLine);
+    void ParseLineShader(const std::string& sLine);
+    void ParseLineFragmentShader(const std::string& sLine);
+    void ParseLineVertexShader(const std::string& sLine);
+
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    std::vector<std::string> vAttributes;
+    std::vector<std::string> vFragmentDataLocations;
+    #endif
   };
 }
 

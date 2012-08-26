@@ -851,7 +851,7 @@ namespace opengl
 
     assert(pCurrentShader == nullptr); // UnBindShader must be called first
 
-    glUseProgram(shader.uiShaderProgram);
+    shader.Bind();
 
     pCurrentShader = &shader;
 
@@ -874,7 +874,7 @@ namespace opengl
   {
     assert(pCurrentShader == &shader);
 
-    glUseProgram(0);
+    shader.UnBind();
 
     pCurrentShader = nullptr;
   }

@@ -228,32 +228,32 @@ namespace opengl
     return (value == GL_TRUE);
   }
 
-  void cShader::ParseShaderLine(const std::string& sLine)
+  void cShader::ParseLineShader(const std::string& sLine)
   {
     // Warn about deprecated OpenGL 2 built in variables
     if (sLine.find("gl_ModelViewProjectionMatrix") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_ModelViewProjectionMatrix\" should be replaced with \"uniform mat4 matModelViewProjection;\" in the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_ModelViewProjectionMatrix\" should be replaced with \"uniform mat4 matModelViewProjection;\" in the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_NormalMatrix") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_NormalMatrix\" should be replaced with \"uniform mat3 matNormal;\" in the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_NormalMatrix\" should be replaced with \"uniform mat3 matNormal;\" in the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_FrontMaterial.ambient") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.ambient\" should be replaced with a uniform on the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_FrontMaterial.ambient\" should be replaced with a uniform on the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_FrontMaterial.diffuse") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.diffuse\" should be replaced with a uniform on the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_FrontMaterial.diffuse\" should be replaced with a uniform on the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_FrontMaterial.specular") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.specular\" should be replaced with a uniform on the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_FrontMaterial.specular\" should be replaced with a uniform on the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_FrontMaterial.shininess") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_FrontMaterial.shininess\" should be replaced with a uniform on the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_FrontMaterial.shininess\" should be replaced with a uniform on the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_LightModel.ambient") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_LightModel.ambient\" should be replaced with \"uniform vec4 ambientColour;\" in the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_LightModel.ambient\" should be replaced with \"uniform vec4 ambientColour;\" in the shader"<<std::endl;
       assert(false);
     } else if (sLine.find("gl_LightSource") != std::string::npos) {
-      std::cerr<<"cShader::ParseShaderLine \"gl_LightSource\" should be replaced with uniforms on the shader"<<std::endl;
+      std::cerr<<"cShader::ParseLineShader \"gl_LightSource\" should be replaced with uniforms on the shader"<<std::endl;
       assert(false);
     }
 
@@ -272,6 +272,52 @@ namespace opengl
     else if (StringBeginsWith(sLine, "uniform float fSunIntensity;")) bSunIntensity = true;
   }
 
+  void cShader::ParseLineVertexShader(const std::string& sLine)
+  {
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    // "in vec3 vertexColour;"
+    if (StringBeginsWith(sLine, "in ")) {
+      std::string::size_type space = sLine.find(" ", 3);
+      if (space != std::string::npos) {
+        // Skip the space
+        space++;
+
+        std::string::size_type semiColon = sLine.find(";");
+        if (semiColon != std::string::npos) {
+          const std::string sName(sLine.substr(space, semiColon - space));
+          vAttributes.push_back(sName);
+          std::cout<<"cShader::ParseLineVertexShader \""<<sName<<"\""<<std::endl;
+        }
+      }
+    }
+    #endif
+
+    ParseLineShader(sLine);
+  }
+
+  void cShader::ParseLineFragmentShader(const std::string& sLine)
+  {
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    // "out vec3 fragmentColour;"
+    if (StringBeginsWith(sLine, "out ")) {
+      std::string::size_type space = sLine.find(" ", 4);
+      if (space != std::string::npos) {
+        // Skip the space
+        space++;
+
+        std::string::size_type semiColon = sLine.find(";");
+        if (semiColon != std::string::npos) {
+          const std::string sName(sLine.substr(space, semiColon - space));
+          vFragmentDataLocations.push_back(sName);
+          std::cout<<"cShader::ParseLineFragmentShader \""<<sName<<"\""<<std::endl;
+        }
+      }
+    }
+    #endif
+
+    ParseLineShader(sLine);
+  }
+
   void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
   {
     sShaderVertex = _sShaderVertex;
@@ -286,7 +332,7 @@ namespace opengl
         o<<sLine;
         o<<"\n";
 
-        ParseShaderLine(sLine);
+        ParseLineVertexShader(sLine);
       };
 
       std::cout<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<o.str()<<"\""<<std::endl;
@@ -329,7 +375,7 @@ namespace opengl
         o<<sLine;
         o<<"\n";
 
-        ParseShaderLine(sLine);
+        ParseLineFragmentShader(sLine);
       };
 
       std::cout<<"cShader::_LoadFragmentShader Fragment shader=\""<<o.str()<<"\""<<std::endl;
@@ -431,5 +477,25 @@ namespace opengl
 
     glDeleteProgram(uiShaderProgram);
     uiShaderProgram = 0;
+  }
+
+  void cShader::Bind()
+  {
+    glUseProgram(uiShaderProgram);
+
+    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+    // Set the attributes of the vertex shader
+    const size_t nAttributes = vAttributes.size();
+    for (size_t i = 0; i < nAttributes; i++) glBindAttribLocation(uiShaderProgram, i, vAttributes[i].c_str());
+
+    // Set the output parameters of the fragment shader
+    const size_t nFragmentDataLocations = vFragmentDataLocations.size();
+    for (size_t i = 0; i < nFragmentDataLocations; i++) glBindFragDataLocation(uiShaderProgram, i, vFragmentDataLocations[i].c_str());
+    #endif
+  }
+
+  void cShader::UnBind()
+  {
+    glUseProgram(0);
   }
 }
