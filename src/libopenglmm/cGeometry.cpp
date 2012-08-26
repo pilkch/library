@@ -257,13 +257,17 @@ namespace opengl
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), fWidth * 0.5f), normal);
 
         // Thin quad
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 4.0f * da), r1 * sinf(angle + 4.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 4.0f * da), r1 * sinf(angle + 4.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
       }
 
       // Draw front sides of teeth
@@ -273,7 +277,9 @@ namespace opengl
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
       }
     }
 
@@ -288,13 +294,17 @@ namespace opengl
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), -fWidth * 0.5f), normal);
 
         // Thin quad
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), -fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), -fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 4.0f * da), r1 * sinf(angle + 4.0f * da), -fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
       }
 
       // Draw front sides of teeth
@@ -304,7 +314,9 @@ namespace opengl
         builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
         builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
+        builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
       }
     }
 
@@ -317,14 +329,18 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle), r0 * sinf(angle), -fWidth * 0.5f), normal);
 
       normal.Set(-cosf(angle + 3.5f * da), -sinf(angle + 3.5f * da), 0.0f);
 
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 4.0f * da), r0 * sinf(angle + 4.0f * da), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r0 * cosf(angle + 3.0f * da), r0 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
     }
 
 
@@ -342,7 +358,9 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle - da), r1 * sinf(angle - da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle - da), r1 * sinf(angle - da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle - da), r1 * sinf(angle - da), fWidth * 0.5f), normal);
 
       // This is for the "wall" quad
       u = r2 * cosf(angle + da) - r1 * cosf(angle);
@@ -354,14 +372,18 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle), r1 * sinf(angle), fWidth * 0.5f), normal);
 
 
       normal.Set(cosf(angle + 1.5f * da), sinf(angle + 1.5f * da), 0.0f);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + da), r2 * sinf(angle + da), fWidth * 0.5f), normal);
 
       // This is for the "wall" quad
       u = r1 * cosf(angle + 3.0f * da) - r2 * cosf(angle + 2.0f * da);
@@ -370,7 +392,9 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
+      builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
     }
   }
 }

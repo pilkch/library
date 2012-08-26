@@ -35,6 +35,9 @@ namespace opengl
     texturecoordinate_size(0),
     indices_size(0),
     nTextureUnits(0),
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    vertexArrayObjectID(0),
+    #endif
     bufferID(0)
   {
   }
@@ -103,18 +106,27 @@ namespace opengl
 
     //std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Create a vertex array object
+    glGenVertexArrays(1, &vertexArrayObjectID);
+
+    // Bind our vertex array object
+    glBindVertexArray(vertexArrayObjectID);
+    #endif
+
     // Create a new buffer
     glGenBuffers(1, &bufferID);
     //std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
     assert(bufferID != 0);
 
-    // Bbind the buffer object to use
+    // Bind the buffer object to use
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
 
     // Allocate enough memory for the whole buffer
     // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
     glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnableClientState(GL_VERTEX_ARRAY);
       // Describe to OpenGL where the vertex data is in the buffer
       glVertexPointer(3, GL_FLOAT, 0, BUFFER_OFFSET(0));
@@ -140,7 +152,7 @@ namespace opengl
         glTexCoordPointer(nTextureUnits, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
-
+    #endif
 
     // http://www.informit.com/articles/article.aspx?p=1377833&seqNum=7
 
@@ -184,12 +196,52 @@ namespace opengl
     // we can directly supply the data in one-shot
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUMBER_OF_CUBE_INDICES*sizeof(GLubyte), s_cubeIndices, GL_STATIC_DRAW);
 
+   #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    const size_t nVertexSize = 3;
+    const size_t nNormalSize = (normal_size != 0) ? 3 : 0;
+    const size_t nColourSize = (colour_size != 0) ? 4 : 0;
+    const size_t nTextureCoordinatesSize = nTextureUnits;
+
+    unsigned int shaderAttribute = 0;
+
+    // Tell the shader where the vertices are
+    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glEnableVertexAttribArray(shaderAttribute);
+    shaderAttribute++;
+
+    // Tell the shader where the normals are
+    if (normal_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+
+    // Tell the shader where the colours are
+    if (colour_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+
+    // Tell the shader where the texture coordinates are
+    if (texturecoordinate_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nTextureCoordinatesSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+    #endif
 
     // We are now finished and are ready to unbind
+
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Unbind the vertex array
+    glBindVertexArray(0);
+    #endif
 
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Disable texture coordinate information
     if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -201,6 +253,7 @@ namespace opengl
 
     // Disable vertex information
     glDisableClientState(GL_VERTEX_ARRAY);
+    #endif
 
     bIsCompiled = true;
     bIs2D = false;
@@ -225,13 +278,47 @@ namespace opengl
     //std::cout<<"cStaticVertexBufferObject::Compile2D glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
     assert(bufferID != 0);
 
-    // Bbind the buffer object to use
+    // Bind the buffer object to use
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
 
     // Allocate enough memory for the whole buffer
     // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
     glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    const size_t nVertexSize = 2;
+    const size_t nNormalSize = (normal_size != 0) ? 2 : 0;
+    const size_t nColourSize = (colour_size != 0) ? 4 : 0;
+    const size_t nTextureCoordinatesSize = nTextureUnits;
+
+    unsigned int shaderAttribute = 0;
+
+    // Tell the shader where the vertices are
+    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glEnableVertexAttribArray(shaderAttribute);
+    shaderAttribute++;
+
+    // Tell the shader where the normals are
+    if (normal_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+
+    // Tell the shader where the colours are
+    if (colour_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+
+    // Tell the shader where the texture coordinates are
+    if (texturecoordinate_size != 0) {
+      glVertexAttribPointer(shaderAttribute, nTextureCoordinatesSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+    }
+    #else
     glEnableClientState(GL_VERTEX_ARRAY);
       // Describe to OpenGL where the vertex data is in the buffer
       glVertexPointer(2, GL_FLOAT, 0, BUFFER_OFFSET(0));
@@ -257,7 +344,7 @@ namespace opengl
         glTexCoordPointer(nTextureUnits * 2, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
-
+    #endif
 
     // Set the buffer data
     GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -296,6 +383,7 @@ namespace opengl
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Disable texture coordinate information
     if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -307,6 +395,7 @@ namespace opengl
 
     // Disable vertex information
     glDisableClientState(GL_VERTEX_ARRAY);
+    #endif
 
     bIsCompiled = true;
     bIs2D = true;
@@ -342,6 +431,11 @@ namespace opengl
     assert(IsCompiled());
     assert(!bIs2D);
 
+
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Activate the vertex array
+    glBindVertexArray(vertexArrayObjectID);
+    #else
     // Activate the VBOs to draw
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
@@ -390,6 +484,7 @@ namespace opengl
       //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size colour_size + (2 * sizeof(GL_FLOAT))));
       // }
     }
+    #endif
   }
 
   void cStaticVertexBufferObject::Bind2D()
@@ -397,6 +492,10 @@ namespace opengl
     assert(IsCompiled());
     assert(bIs2D);
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Activate the vertex array
+    glBindVertexArray(vertexArrayObjectID);
+    #else
     // Activate the VBOs to draw
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
@@ -445,12 +544,17 @@ namespace opengl
       //   glTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vertex_size + normal_size colour_size + (2 * sizeof(GL_FLOAT))));
       // }
     }
+    #endif
   }
 
   void cStaticVertexBufferObject::Unbind()
   {
     assert(IsCompiled());
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    // Disable the vertex array
+    glBindVertexArray(0);
+    #else
     // Disable texture coordinate information
     if (texturecoordinate_size != 0) {
       for (size_t i = 0; i < nTextureUnits; i++) {
@@ -472,6 +576,7 @@ namespace opengl
 
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    #endif
   }
 
   void cStaticVertexBufferObject::RenderGeometry(GLenum geometryType)

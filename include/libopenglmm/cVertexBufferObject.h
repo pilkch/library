@@ -103,6 +103,10 @@ namespace opengl
 
     size_t nTextureUnits;
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    GLuint vertexArrayObjectID;
+    #endif
+
     // Note: one buffer per cStaticVertexBufferObject,
     // but with multiple offsets for each cVertexBufferObjectArray
     GLuint bufferID;

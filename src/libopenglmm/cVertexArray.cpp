@@ -147,6 +147,9 @@ namespace opengl
     assert(IsCompiled());
     assert(!bIs2D);
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+
+    #else
     // Enable vertex information
     glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -191,6 +194,7 @@ namespace opengl
       //   glTexCoordPointer(4, GL_FLOAT, 0, textureCoordinates.data());
       // }
     }
+    #endif
   }
 
   void cDynamicVertexArray::Bind2D()
@@ -198,6 +202,9 @@ namespace opengl
     assert(IsCompiled());
     assert(bIs2D);
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+
+    #else
     // Enable vertex information
     glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -242,12 +249,16 @@ namespace opengl
       //   glTexCoordPointer(4, GL_FLOAT, 0, textureCoordinates.data() + (2 * i * sizeof(GL_FLOAT)));
       // }
     }
+    #endif
   }
 
   void cDynamicVertexArray::Unbind()
   {
     assert(IsCompiled());
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+
+    #else
     // Disable texture coordinate information
     if (texturecoordinate_size != 0) {
       for (size_t i = 0; i < nTextureUnits; i++) {
@@ -266,6 +277,7 @@ namespace opengl
 
     // Disable vertex information
     glDisableClientState(GL_VERTEX_ARRAY);
+    #endif
   }
 
   void cDynamicVertexArray::RenderGeometry(GLenum geometryType)

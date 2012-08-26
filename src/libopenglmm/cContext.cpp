@@ -29,22 +29,22 @@
 
 #if (BUILD_LIBOPENGLMM_SDL_VERSION < 130) && (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
 #include <GL/glx.h>
-#endif
 
-#if BUILD_LIBOPENGLMM_SDL_VERSION < 130
-#if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
 #define GLX_CONTEXT_DEBUG_BIT_ARB                0x00000001
 #define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB   0x00000002
 #define GLX_CONTEXT_MAJOR_VERSION_ARB            0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB            0x2092
 #define GLX_CONTEXT_FLAGS_ARB                    0x2094
 #endif
-#endif
 
 #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
 // Use the old EXT versions
-#define glBindFramebuffer glBindFramebufferEXT
+#ifndef GL_FRAMEBUFFER
 #define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#endif
+#ifndef glBindFramebuffer
+#define glBindFramebuffer glBindFramebufferEXT
+#endif
 #endif
 
 namespace opengl
