@@ -408,6 +408,12 @@ namespace opengl
 
     bufferID = 0;
 
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glDeleteVertexArrays(1, &vertexArrayObjectID);
+
+    vertexArrayObjectID = 0;
+    #endif
+
     bIsCompiled = false;
     bIs2D = false;
 
@@ -552,6 +558,7 @@ namespace opengl
     assert(IsCompiled());
 
     #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     // Disable the vertex array
     glBindVertexArray(0);
     #else
