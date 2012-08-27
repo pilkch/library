@@ -36,7 +36,6 @@ namespace opengl
   class cTextureFrameBufferObject;
   class cShader;
   class cStaticVertexBufferObject;
-  class cDynamicVertexArray;
 
   enum class LIGHT_TYPE {
     POINTLIGHT,
@@ -103,9 +102,6 @@ namespace opengl
 
     cStaticVertexBufferObject* CreateStaticVertexBufferObject();
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
-
-    cDynamicVertexArray* CreateDynamicVertexArray();
-    void DestroyDynamicVertexArray(cDynamicVertexArray* pDynamicVertexArray);
 
 #ifdef BUILD_OPENGLMM_FONT
     cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
@@ -206,29 +202,6 @@ namespace opengl
     void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);
     #endif
 
-
-    // cDynamicVertexArray
-
-    void BindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray);
-    void UnBindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray);
-    void BindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray);
-    void UnBindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray);
-
-    void DrawDynamicVertexArrayLines(cDynamicVertexArray& dynamicVertexArray);
-    void DrawDynamicVertexArrayTriangles(cDynamicVertexArray& dynamicVertexArray);
-    void DrawDynamicVertexArrayTriangleStrip(cDynamicVertexArray& dynamicVertexArray);
-    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
-    // Quads are deprecated in OpenGL 3.1 core profile
-    void DrawDynamicVertexArrayQuads(cDynamicVertexArray& dynamicVertexArray);
-    void DrawDynamicVertexArrayQuadStrip(cDynamicVertexArray& dynamicVertexArray);
-    #endif
-
-    void DrawDynamicVertexArrayLines2D(cDynamicVertexArray& dynamicVertexArray);
-    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
-    // Quads are deprecated in OpenGL 3.1 core profile
-    void DrawDynamicVertexArrayQuads2D(cDynamicVertexArray& dynamicVertexArray);
-    #endif
-
   protected:
     void ReloadResources() {}
 
@@ -266,7 +239,6 @@ namespace opengl
     std::map<opengl::string_t, cTexture*> textures;
     std::list<cShader*> shaders;
     std::list<cStaticVertexBufferObject*> staticVertexBufferObjects;
-    std::list<cDynamicVertexArray*> dynamicVertexArrays;
 
 #ifdef BUILD_OPENGLMM_FONT
     std::list<cFont*> fonts;

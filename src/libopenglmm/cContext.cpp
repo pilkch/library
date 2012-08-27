@@ -22,7 +22,6 @@
 #include <libopenglmm/cShader.h>
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/cTexture.h>
-#include <libopenglmm/cVertexArray.h>
 #include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
 #include <libopenglmm/opengl.h>
@@ -133,7 +132,6 @@ namespace opengl
     assert(textures.empty());
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());
-    assert(dynamicVertexArrays.empty());
 
     if (pSurface != nullptr) {
       SDL_FreeSurface(pSurface);
@@ -302,22 +300,6 @@ namespace opengl
     delete pStaticVertexBufferObject;
   }
 
-  cDynamicVertexArray* cContext::CreateDynamicVertexArray()
-  {
-    cDynamicVertexArray* pDynamicVertexArray = new cDynamicVertexArray;
-    dynamicVertexArrays.push_back(pDynamicVertexArray);
-    return pDynamicVertexArray;
-  }
-
-  void cContext::DestroyDynamicVertexArray(cDynamicVertexArray* pDynamicVertexArray)
-  {
-    assert(pDynamicVertexArray != nullptr);
-
-    dynamicVertexArrays.remove(pDynamicVertexArray);
-
-    pDynamicVertexArray->Destroy();
-    delete pDynamicVertexArray;
-  }
 
 #ifdef BUILD_OPENGLMM_FONT
   cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
@@ -1036,70 +1018,6 @@ namespace opengl
   void cContext::DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject)
   {
     staticVertexBufferObject.RenderQuads2D();
-  }
-  #endif
-
-
-  // ** cDynamicVertexArray
-
-  void cContext::BindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.Bind();
-  }
-
-  void cContext::UnBindDynamicVertexArray(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.Unbind();
-  }
-
-  void cContext::BindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.Bind2D();
-  }
-
-  void cContext::UnBindDynamicVertexArray2D(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.Unbind2D();
-  }
-
-
-  void cContext::DrawDynamicVertexArrayLines(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderLines();
-  }
-
-  void cContext::DrawDynamicVertexArrayTriangles(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderTriangles();
-  }
-
-  void cContext::DrawDynamicVertexArrayTriangleStrip(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderTriangleStrip();
-  }
-
-  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
-  void cContext::DrawDynamicVertexArrayQuads(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderQuads();
-  }
-
-  void cContext::DrawDynamicVertexArrayQuadStrip(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderQuadStrip();
-  }
-  #endif
-
-
-  void cContext::DrawDynamicVertexArrayLines2D(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderLines2D();
-  }
-
-  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
-  void cContext::DrawDynamicVertexArrayQuads2D(cDynamicVertexArray& dynamicVertexArray)
-  {
-    dynamicVertexArray.RenderQuads2D();
   }
   #endif
 }
