@@ -48,15 +48,12 @@ namespace opengl
 
     cStaticVertexBufferObject();
 
-    bool IsCompiled() const { return bIsCompiled; }
-    size_t GetApproximateTriangleCount() const { return vertices.size() / 4; }
-
-    void SetVertices(const std::vector<float>& vertices);
-    void SetNormals(const std::vector<float>& normals);
-    void SetColours(const std::vector<float>& colours);
-    void SetTextureCoordinates(const std::vector<float>& textureCoordinates);
+    void SetData(const std::vector<float>& data, const cBufferSizes& bufferSizes);
     void SetIndices(const std::vector<uint16_t>& indices);
 
+    size_t GetApproximateTriangleCount() const { return (bufferSizes.nVertexCount / 4); }
+
+    bool IsCompiled() const { return bIsCompiled; }
     void Compile(const cSystem& system);
     void Compile2D(const cSystem& system);
     void Destroy();
@@ -89,10 +86,9 @@ namespace opengl
     bool bIsCompiled;
     bool bIs2D;
 
-    std::vector<float> vertices;
-    std::vector<float> normals;
-    std::vector<float> colours;
-    std::vector<float> textureCoordinates;
+    cBufferSizes bufferSizes;
+
+    std::vector<float> data;
     std::vector<uint16_t> indices;
 
     GLsizeiptr vertex_size;

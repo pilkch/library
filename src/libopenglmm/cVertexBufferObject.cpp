@@ -42,44 +42,23 @@ namespace opengl
   {
   }
 
-  void cStaticVertexBufferObject::SetVertices(const std::vector<float>& _vertices)
+  void cStaticVertexBufferObject::SetData(const std::vector<float>& _data, const cBufferSizes& _bufferSizes)
   {
     assert(sizeof(float) == sizeof(GLfloat));
-    assert(!_vertices.empty());
+    assert(!_data.empty());
     assert(!IsCompiled());
 
-    vertices = _vertices;
-    vertex_size = vertices.size() * sizeof(GLfloat);
-  }
+    // Set our data
+    data = _data;
 
-  void cStaticVertexBufferObject::SetNormals(const std::vector<float>& _normals)
-  {
-    assert(sizeof(float) == sizeof(GLfloat));
-    assert(!_normals.empty());
-    assert(!IsCompiled());
+    // Set our item counts
+    bufferSizes = _bufferSizes;
 
-    normals = _normals;
-    normal_size = normals.size() * sizeof(GLfloat);
-  }
-
-  void cStaticVertexBufferObject::SetColours(const std::vector<float>& _colours)
-  {
-    assert(sizeof(float) == sizeof(GLfloat));
-    assert(!_colours.empty());
-    assert(!IsCompiled());
-
-    colours = _colours;
-    colour_size = colours.size() * sizeof(GLfloat);
-  }
-
-  void cStaticVertexBufferObject::SetTextureCoordinates(const std::vector<float>& _textureCoordinates)
-  {
-    assert(sizeof(float) == sizeof(GLfloat));
-    assert(!_textureCoordinates.empty());
-    assert(!IsCompiled());
-
-    textureCoordinates = _textureCoordinates;
-    texturecoordinate_size = textureCoordinates.size() * sizeof(GLfloat);
+    // Set our byte sizes which finally get sent to OpenGL
+    vertex_size = bufferSizes.nVertexCount * bufferSizes.nVerticesPerPoint * sizeof(GLfloat);
+    normal_size = bufferSizes.nVertexCount * bufferSizes.nNormalsPerPoint * sizeof(GLfloat);
+    colour_size = bufferSizes.nVertexCount * bufferSizes.nColoursPerPoint * sizeof(GLfloat);
+    texturecoordinate_size = bufferSizes.nVertexCount * bufferSizes.nTextureCoordinatesPerPoint * sizeof(GLfloat);
   }
 
   void cStaticVertexBufferObject::SetIndices(const std::vector<uint16_t>& _indices)
@@ -96,13 +75,9 @@ namespace opengl
   {
     assert(!IsCompiled());
 
-    const size_t nVertices = vertices.size() / 3;
-    const size_t nTextureCoordinates = textureCoordinates.size() / 2;
+    const size_t nVertices = bufferSizes.nVertexCount;
     assert(nVertices != 0);
-    if (nTextureCoordinates == (nVertices + nVertices + nVertices)) nTextureUnits = 3;
-    else if (nTextureCoordinates == (nVertices + nVertices)) nTextureUnits = 2;
-    else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
-    else nTextureUnits = 0;
+    nTextureUnits = bufferSizes.nTextureCoordinatesPerPoint / 2;
 
     //std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
@@ -156,14 +131,8 @@ namespace opengl
 
     // http://www.informit.com/articles/article.aspx?p=1377833&seqNum=7
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size, vertices.data());
     std::cout<<"cStaticVertexBufferObject::Compile b glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
-
-    if (normal_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size, normal_size, normals.data());
-
-    if (colour_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size + normal_size, colour_size, colours.data());
-
-    if (texturecoordinate_size != 0) glBufferSubData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size, texturecoordinate_size, textureCoordinates.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size + normal_size + colour_size + texturecoordinate_size, data.data());
 
     /*// Set the buffer data
     GLvoid* pVoid = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -175,13 +144,13 @@ namespace opengl
       memcpy(pBuffer, vertices.data(), vertex_size);
 
       // Append normal data to vertex data
-      if (normal_size != 0) memcpy(&pBuffer[vertices.size()], normals.data(), normal_size);
+      if (normal_size != 0) memcpy(&pBuffer[nVerticesSize], normals.data(), normal_size);
 
       // Append colour data to vertex data and normal data
-      if (colour_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], colours.data(), colour_size);
+      if (colour_size != 0) memcpy(&pBuffer[nVerticesSize + bufferSizes.nNormalsSize], colours.data(), colour_size);
 
       // Append texture coordinates data to vertex data and normal data and colour data
-      if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size() + colours.size()], textureCoordinates.data(), texturecoordinate_size);
+      if (texturecoordinate_size != 0) memcpy(&pBuffer[nVerticesSize + bufferSizes.nNormalsSize + bufferSizes.nColoursSize], textureCoordinates.data(), texturecoordinate_size);
 
     glUnmapBuffer(GL_ARRAY_BUFFER);*/
 
@@ -196,36 +165,42 @@ namespace opengl
     // we can directly supply the data in one-shot
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUMBER_OF_CUBE_INDICES*sizeof(GLubyte), s_cubeIndices, GL_STATIC_DRAW);
 
-   #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
-    const size_t nVertexSize = 3;
-    const size_t nNormalSize = (normal_size != 0) ? 3 : 0;
-    const size_t nColourSize = (colour_size != 0) ? 4 : 0;
-    const size_t nTextureCoordinatesSize = nTextureUnits;
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    const size_t nVertexSize = bufferSizes.nVerticesPerPoint;
+    const size_t nNormalSize = bufferSizes.nNormalsPerPoint;
+    const size_t nColourSize = bufferSizes.nColoursPerPoint;
+    const size_t nTextureCoordinateSize = bufferSizes.nTextureCoordinatesPerPoint;
+
+    const size_t nVertexSizeBytes = nVertexSize * sizeof(GLfloat);
+    const size_t nNormalSizeBytes = nNormalSize * sizeof(GLfloat);
+    const size_t nColourSizeBytes = nColourSize * sizeof(GLfloat);
+
+    const size_t nStrideBytes = (nVertexSize + nNormalSize + nColourSize + nTextureCoordinateSize) * sizeof(GLfloat);
 
     unsigned int shaderAttribute = 0;
 
     // Tell the shader where the vertices are
-    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(0));
     glEnableVertexAttribArray(shaderAttribute);
     shaderAttribute++;
 
     // Tell the shader where the normals are
     if (normal_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size));
+      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
 
     // Tell the shader where the colours are
     if (colour_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
 
     // Tell the shader where the texture coordinates are
     if (texturecoordinate_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nTextureCoordinatesSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      glVertexAttribPointer(shaderAttribute, nTextureCoordinateSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + nColourSizeBytes));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
@@ -263,13 +238,9 @@ namespace opengl
   {
     assert(!IsCompiled());
 
-    const size_t nVertices = vertices.size() / 2;
-    const size_t nTextureCoordinates = textureCoordinates.size() / 2;
+    const size_t nVertices = bufferSizes.nVertexCount / 2;
     assert(nVertices != 0);
-    if (nTextureCoordinates == (nVertices + nVertices + nVertices)) nTextureUnits = 3;
-    else if (nTextureCoordinates == (nVertices + nVertices)) nTextureUnits = 2;
-    else if (nTextureCoordinates == nVertices) nTextureUnits = 1;
-    else nTextureUnits = 0;
+    nTextureUnits = bufferSizes.nTextureCoordinatesPerPoint / 2;
 
     //std::cout<<"cStaticVertexBufferObject::Compile2D nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<indices.size()<<" glGetError="<<system.GetErrorString()<<std::endl;
 
@@ -286,35 +257,37 @@ namespace opengl
     glBufferData(GL_ARRAY_BUFFER, vertex_size + normal_size + colour_size + texturecoordinate_size, nullptr, GL_STATIC_DRAW);
 
     #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
-    const size_t nVertexSize = 2;
-    const size_t nNormalSize = (normal_size != 0) ? 2 : 0;
-    const size_t nColourSize = (colour_size != 0) ? 4 : 0;
-    const size_t nTextureCoordinatesSize = nTextureUnits;
+    const size_t nVertexSize = bufferSizes.nVerticesPerPoint;
+    const size_t nNormalSize = bufferSizes.nNormalsPerPoint;
+    const size_t nColourSize = bufferSizes.nColoursPerPoint;
+    const size_t nTextureCoordinateSize = bufferSizes.nTextureCoordinatesPerPoint;
+
+    const size_t stride = nVertexSize + nNormalSize + nColourSize + nTextureCoordinateSize;
 
     unsigned int shaderAttribute = 0;
 
     // Tell the shader where the vertices are
-    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(0));
     glEnableVertexAttribArray(shaderAttribute);
     shaderAttribute++;
 
     // Tell the shader where the normals are
     if (normal_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size));
+      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(nVertexSize));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
 
     // Tell the shader where the colours are
     if (colour_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size));
+      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(nVertexSize + nNormalSize));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
 
     // Tell the shader where the texture coordinates are
     if (texturecoordinate_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nTextureCoordinatesSize, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_size + normal_size + colour_size));
+      glVertexAttribPointer(shaderAttribute, nTextureCoordinateSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(nVertexSize + nNormalSize + nColourSize));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
     }
@@ -353,16 +326,7 @@ namespace opengl
       float* pBuffer = (float*)pVoid;
 
       // Transfer the vertex data to the VBO
-      memcpy(pBuffer, vertices.data(), vertex_size);
-
-      // Append normal data to vertex data
-      if (normal_size != 0) memcpy(&pBuffer[vertices.size()], normals.data(), normal_size);
-
-      // Append colour data to vertex data and normal data
-      if (colour_size != 0) memcpy(&pBuffer[vertices.size() + normals.size()], colours.data(), colour_size);
-
-      // Append texture coordinates data to vertex data and normal data and colour data
-      if (texturecoordinate_size != 0) memcpy(&pBuffer[vertices.size() + normals.size() + colours.size()], textureCoordinates.data(), texturecoordinate_size);
+      memcpy(pBuffer, data.data(), vertex_size + normal_size + colour_size + texturecoordinate_size);
 
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -417,10 +381,7 @@ namespace opengl
     bIsCompiled = false;
     bIs2D = false;
 
-    vertices.clear();
-    normals.clear();
-    colours.clear();
-    textureCoordinates.clear();
+    data.clear();
     indices.clear();
 
     vertex_size = 0;
@@ -593,8 +554,7 @@ namespace opengl
 
     if (indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
-      const size_t nVertices = vertices.size() / 3;
-      glDrawArrays(geometryType, 0, nVertices);
+      glDrawArrays(geometryType, 0, bufferSizes.nVertexCount);
     } else {
       glDrawElements(geometryType, indices.size(), GL_UNSIGNED_SHORT,  indices.data());
     }
@@ -607,8 +567,7 @@ namespace opengl
 
     if (indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
-      const size_t nVertices = vertices.size() / 2;
-      glDrawArrays(geometryType, 0, nVertices);
+      glDrawArrays(geometryType, 0, bufferSizes.nVertexCount);
     } else {
       glDrawElements(geometryType, indices.size(), GL_UNSIGNED_SHORT,  indices.data());
     }

@@ -110,6 +110,33 @@ namespace opengl
     std::vector<cResolution> resolutions;
   };
 
+
+  // ** cBufferSizes
+  //
+  // Provides a way of passing around sizes for the parts of a vertex buffer object easily
+
+  class cBufferSizes {
+  public:
+    cBufferSizes();
+
+    size_t nVertexCount;
+
+    size_t nVerticesPerPoint;
+    size_t nNormalsPerPoint;
+    size_t nColoursPerPoint;
+    size_t nTextureCoordinatesPerPoint;
+  };
+
+  inline cBufferSizes::cBufferSizes() :
+    nVertexCount(0),
+    nVerticesPerPoint(0),
+    nNormalsPerPoint(0),
+    nColoursPerPoint(0),
+    nTextureCoordinatesPerPoint(0)
+  {
+  }
+
+
   class cSystem;
   class cContext;
   class cWindow;
