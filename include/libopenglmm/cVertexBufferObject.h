@@ -34,6 +34,8 @@
 
 #include <libopenglmm/libopenglmm.h>
 
+#include <libopenglmm/cGeometryData.h>
+
 typedef uint32_t GLuint;
 typedef ptrdiff_t GLsizeiptr;
 
@@ -48,10 +50,9 @@ namespace opengl
 
     cStaticVertexBufferObject();
 
-    void SetData(const std::vector<float>& data, const cBufferSizes& bufferSizes);
-    void SetIndices(const std::vector<uint16_t>& indices);
+    void SetData(cGeometryDataPtr pGeometryDataPtr);
 
-    size_t GetApproximateTriangleCount() const { return (bufferSizes.nVertexCount / 4); }
+    size_t GetApproximateTriangleCount() const;
 
     bool IsCompiled() const { return bIsCompiled; }
     void Compile(const cSystem& system);
@@ -86,10 +87,7 @@ namespace opengl
     bool bIsCompiled;
     bool bIs2D;
 
-    cBufferSizes bufferSizes;
-
-    std::vector<float> data;
-    std::vector<uint16_t> indices;
+    cGeometryDataPtr pGeometryDataPtr;
 
     GLsizeiptr vertex_size;
     GLsizeiptr normal_size;

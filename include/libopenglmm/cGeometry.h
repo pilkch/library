@@ -1,6 +1,6 @@
 /*************************************************************************
  *                                                                       *
- * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington         *
+ * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington      *
  * All rights reserved.  Web: http://chris.iluo.net                      *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
@@ -32,89 +32,83 @@
 #include <spitfire/math/cColour.h>
 
 #include <libopenglmm/libopenglmm.h>
+#include <libopenglmm/cGeometryData.h>
 
 namespace opengl
 {
-
   class cGeometryBuilder_v2
   {
   public:
-    cGeometryBuilder_v2(std::vector<float>& vertices);
+    explicit cGeometryBuilder_v2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec2& vertex);
 
   private:
-    std::vector<float>& vertices;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v2_c4
   {
   public:
-    cGeometryBuilder_v2_c4(std::vector<float>& vertices, std::vector<float>&colours);
+    explicit cGeometryBuilder_v2_c4(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& colours;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v2_t2
   {
   public:
-    cGeometryBuilder_v2_t2(std::vector<float>& vertices, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v2_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v2_t2_t2
   {
   public:
-    cGeometryBuilder_v2_t2_t2(std::vector<float>& vertices, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v2_t2_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1);
     void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoordDuplicated);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v2_c4_t2
   {
   public:
-    cGeometryBuilder_v2_c4_t2(std::vector<float>& vertices, std::vector<float>&colours, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v2_c4_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour, const spitfire::math::cVec2& textureCoord0);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& colours;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
 
   class cGeometryBuilder_v3_n3
   {
   public:
-    cGeometryBuilder_v3_n3(std::vector<float>& vertices, std::vector<float>& normals);
+    explicit cGeometryBuilder_v3_n3(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { PushBack(vertex, normal); }
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_i
   {
   public:
-    cGeometryBuilder_v3_n3_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<uint16_t>& indices);
+    explicit cGeometryBuilder_v3_n3_i(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { PushBack(vertex, normal); }
@@ -122,72 +116,60 @@ namespace opengl
     void PushBackIndex(uint16_t index);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<uint16_t>& indices;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2
   {
   public:
-    cGeometryBuilder_v3_n3_t2(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v3_n3_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_i
   {
   public:
-    cGeometryBuilder_v3_n3_t2_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<uint16_t>& indices);
+    explicit cGeometryBuilder_v3_n3_t2_i(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0);
 
     void PushBackIndex(uint16_t index);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
-    std::vector<uint16_t>& indices;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_c4
   {
   public:
-    cGeometryBuilder_v3_n3_t2_c4(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<float>& colours);
+    explicit cGeometryBuilder_v3_n3_t2_c4(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
-    std::vector<float>& colours;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_t2
   {
   public:
-    cGeometryBuilder_v3_n3_t2_t2(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v3_n3_t2_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_t2_i
   {
   public:
-    cGeometryBuilder_v3_n3_t2_t2_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<uint16_t>& indices);
+    cGeometryBuilder_v3_n3_t2_t2_i(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated);
@@ -195,30 +177,25 @@ namespace opengl
     void PushBackIndex(uint16_t index);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
-    std::vector<uint16_t>& indices;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_t2_t2
   {
   public:
-    cGeometryBuilder_v3_n3_t2_t2_t2(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords);
+    explicit cGeometryBuilder_v3_n3_t2_t2_t2(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1, const spitfire::math::cVec2& textureCoord2);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
+    cGeometryData& data;
   };
 
   class cGeometryBuilder_v3_n3_t2_t2_t2_i
   {
   public:
-    cGeometryBuilder_v3_n3_t2_t2_t2_i(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, std::vector<uint16_t>& indices);
+    cGeometryBuilder_v3_n3_t2_t2_t2_i(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1, const spitfire::math::cVec2& textureCoord2);
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated);
@@ -226,389 +203,415 @@ namespace opengl
     void PushBackIndex(uint16_t index);
 
   private:
-    std::vector<float>& vertices;
-    std::vector<float>& normals;
-    std::vector<float>& textureCoords;
-    std::vector<uint16_t>& indices;
+    cGeometryData& data;
   };
 
 
 
-  inline cGeometryBuilder_v2::cGeometryBuilder_v2(std::vector<float>& _vertices) :
-    vertices(_vertices)
+  inline cGeometryBuilder_v2::cGeometryBuilder_v2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v2::PushBack(const spitfire::math::cVec2& vertex)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v2_c4::cGeometryBuilder_v2_c4(std::vector<float>& _vertices, std::vector<float>& _colours) :
-    vertices(_vertices),
-    colours(_colours)
+  inline cGeometryBuilder_v2_c4::cGeometryBuilder_v2_c4(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 2;
+    data.nColoursPerPoint = 4;
   }
 
   inline void cGeometryBuilder_v2_c4::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    colours.push_back(colour.r);
-    colours.push_back(colour.g);
-    colours.push_back(colour.b);
-    colours.push_back(colour.a);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(colour.r);
+    data.vertices.push_back(colour.g);
+    data.vertices.push_back(colour.b);
+    data.vertices.push_back(colour.a);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v2_t2::cGeometryBuilder_v2_t2(std::vector<float>& _vertices, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v2_t2::cGeometryBuilder_v2_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 2;
+    data.nTextureCoordinatesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v2_t2_t2::cGeometryBuilder_v2_t2_t2(std::vector<float>& _vertices, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v2_t2_t2::cGeometryBuilder_v2_t2_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 2;
+    data.nTextureCoordinatesPerPoint = 4;
   }
 
   inline void cGeometryBuilder_v2_t2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    textureCoords.push_back(textureCoord1.x);
-    textureCoords.push_back(textureCoord1.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(textureCoord1.x);
+    data.vertices.push_back(textureCoord1.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v2_t2_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoordDuplicated)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v2_c4_t2::cGeometryBuilder_v2_c4_t2(std::vector<float>& _vertices, std::vector<float>& _colours, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    colours(_colours),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v2_c4_t2::cGeometryBuilder_v2_c4_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 2;
+    data.nColoursPerPoint = 4;
+    data.nTextureCoordinatesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v2_c4_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour, const spitfire::math::cVec2& textureCoord0)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    colours.push_back(colour.r);
-    colours.push_back(colour.g);
-    colours.push_back(colour.b);
-    colours.push_back(colour.a);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(colour.r);
+    data.vertices.push_back(colour.g);
+    data.vertices.push_back(colour.b);
+    data.vertices.push_back(colour.a);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3::cGeometryBuilder_v3_n3(std::vector<float>& _vertices, std::vector<float>& _normals) :
-    vertices(_vertices),
-    normals(_normals)
+  inline cGeometryBuilder_v3_n3::cGeometryBuilder_v3_n3(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
   }
 
   inline void cGeometryBuilder_v3_n3::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3_i::cGeometryBuilder_v3_n3_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<uint16_t>& _indices) :
-    vertices(_vertices),
-    normals(_normals),
-    indices(_indices)
+  inline cGeometryBuilder_v3_n3_i::cGeometryBuilder_v3_n3_i(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
   }
 
   inline void cGeometryBuilder_v3_n3_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_i::PushBackIndex(uint16_t index)
   {
-    indices.push_back(index);
+    data.indices.push_back(index);
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2::cGeometryBuilder_v3_n3_t2(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v3_n3_t2::cGeometryBuilder_v3_n3_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v3_n3_t2::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_i::cGeometryBuilder_v3_n3_t2_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<uint16_t>& _indices) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords),
-    indices(_indices)
+  inline cGeometryBuilder_v3_n3_t2_i::cGeometryBuilder_v3_n3_t2_i(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_i::PushBackIndex(uint16_t index)
   {
-    indices.push_back(index);
+    data.indices.push_back(index);
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_c4::cGeometryBuilder_v3_n3_t2_c4(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<float>& _colours) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords),
-    colours(_colours)
+  inline cGeometryBuilder_v3_n3_t2_c4::cGeometryBuilder_v3_n3_t2_c4(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nColoursPerPoint = 4;
+    data.nTextureCoordinatesPerPoint = 2;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_c4::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    colours.push_back(colour.r);
-    colours.push_back(colour.g);
-    colours.push_back(colour.b);
-    colours.push_back(colour.a);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(colour.r);
+    data.vertices.push_back(colour.g);
+    data.vertices.push_back(colour.b);
+    data.vertices.push_back(colour.a);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_t2::cGeometryBuilder_v3_n3_t2_t2(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v3_n3_t2_t2::cGeometryBuilder_v3_n3_t2_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 4;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    textureCoords.push_back(textureCoord1.x);
-    textureCoords.push_back(textureCoord1.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(textureCoord1.x);
+    data.vertices.push_back(textureCoord1.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_t2_i::cGeometryBuilder_v3_n3_t2_t2_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<uint16_t>& _indices) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords),
-    indices(_indices)
+  inline cGeometryBuilder_v3_n3_t2_t2_i::cGeometryBuilder_v3_n3_t2_t2_i(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 4;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    textureCoords.push_back(textureCoord1.x);
-    textureCoords.push_back(textureCoord1.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(textureCoord1.x);
+    data.vertices.push_back(textureCoord1.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_i::PushBackIndex(uint16_t index)
   {
-    indices.push_back(index);
+    data.indices.push_back(index);
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_t2_t2::cGeometryBuilder_v3_n3_t2_t2_t2(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords)
+  inline cGeometryBuilder_v3_n3_t2_t2_t2::cGeometryBuilder_v3_n3_t2_t2_t2(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 6;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_t2::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1, const spitfire::math::cVec2& textureCoord2)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    textureCoords.push_back(textureCoord1.x);
-    textureCoords.push_back(textureCoord1.y);
-    textureCoords.push_back(textureCoord2.x);
-    textureCoords.push_back(textureCoord2.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(textureCoord1.x);
+    data.vertices.push_back(textureCoord1.y);
+    data.vertices.push_back(textureCoord2.x);
+    data.vertices.push_back(textureCoord2.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_t2::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.nVertexCount++;
   }
 
 
-  inline cGeometryBuilder_v3_n3_t2_t2_t2_i::cGeometryBuilder_v3_n3_t2_t2_t2_i(std::vector<float>& _vertices, std::vector<float>& _normals, std::vector<float>& _textureCoords, std::vector<uint16_t>& _indices) :
-    vertices(_vertices),
-    normals(_normals),
-    textureCoords(_textureCoords),
-    indices(_indices)
+  inline cGeometryBuilder_v3_n3_t2_t2_t2_i::cGeometryBuilder_v3_n3_t2_t2_t2_i(cGeometryData& _data) :
+    data(_data)
   {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 6;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec2& textureCoord1, const spitfire::math::cVec2& textureCoord2)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoord0.x);
-    textureCoords.push_back(textureCoord0.y);
-    textureCoords.push_back(textureCoord1.x);
-    textureCoords.push_back(textureCoord1.y);
-    textureCoords.push_back(textureCoord2.x);
-    textureCoords.push_back(textureCoord2.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(textureCoord1.x);
+    data.vertices.push_back(textureCoord1.y);
+    data.vertices.push_back(textureCoord2.x);
+    data.vertices.push_back(textureCoord2.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_t2_i::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoordDuplicated)
   {
-    vertices.push_back(vertex.x);
-    vertices.push_back(vertex.y);
-    vertices.push_back(vertex.z);
-    normals.push_back(normal.x);
-    normals.push_back(normal.y);
-    normals.push_back(normal.z);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
-    textureCoords.push_back(textureCoordDuplicated.x);
-    textureCoords.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.vertices.push_back(textureCoordDuplicated.x);
+    data.vertices.push_back(textureCoordDuplicated.y);
+    data.nVertexCount++;
   }
 
   inline void cGeometryBuilder_v3_n3_t2_t2_t2_i::PushBackIndex(uint16_t index)
   {
-    indices.push_back(index);
+    data.indices.push_back(index);
   }
 
 
   class cGeometryBuilder
   {
   public:
-    void CreatePlane(float fWidth, float fDepth, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateCube(float fWidthAndDepthAndHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateBox(float fWidth, float fDepth, float fHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateSphere(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits);
-    void CreateTeapot(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits, std::vector<uint16_t>& indices);
-    void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, std::vector<float>& vertices, std::vector<float>& normals); // This is primarily for openglmm_gears and there are no texture coordinates generated
+    void CreatePlane(float fWidth, float fDepth, cGeometryData& data, size_t nTextureUnits);
+    void CreateCube(float fWidthAndDepthAndHeight, cGeometryData& data, size_t nTextureUnits);
+    void CreateBox(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits);
+    void CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
+    void CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
+    void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, cGeometryData& data); // This is primarily for openglmm_gears and there are no texture coordinates generated
   };
 }
 

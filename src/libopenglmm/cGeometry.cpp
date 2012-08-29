@@ -137,33 +137,33 @@ namespace opengl
     spitfire::math::cMat4 matFinal;
     matFinal = matScale * matRotation;
 
-    const size_t nPoints = (sizeof(verticesArray) / sizeof(verticesArray[0])) / 3;
+    const size_t nPoints = countof(verticesArray) / 3;
     for (size_t i = 0; i < nPoints; i++) {
       const size_t nPointOffset = i * 3;
       const size_t nTextureCoordinatesOffset = i * 2;
       builder.PushBack(matFinal * spitfire::math::cVec3(verticesArray[nPointOffset], verticesArray[nPointOffset + 1], verticesArray[nPointOffset + 2]), matFinal * spitfire::math::cVec3(normalsArray[nPointOffset], normalsArray[nPointOffset + 1], normalsArray[nPointOffset + 2]), spitfire::math::cVec2(textureCoordinatesArray[nTextureCoordinatesOffset + 1], textureCoordinatesArray[nTextureCoordinatesOffset + 2]));
     }
 
-    const size_t nIndices = sizeof(indicesArray) / sizeof(indicesArray[0]);
+    const size_t nIndices = countof(indicesArray);
     for (size_t i = 0; i < nIndices; i++) {
       builder.PushBackIndex(indicesArray[i]);
     }
   }
 
 
-  void cGeometryBuilder::CreatePlane(float fWidth, float fDepth, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
+  void cGeometryBuilder::CreatePlane(float fWidth, float fDepth, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
-      cGeometryBuilder_v3_n3 builder(vertices, normals);
+      cGeometryBuilder_v3_n3 builder(data);
       CreatePlaneTemplated(builder, fWidth, fDepth);
     } else if (nTextureUnits == 1) {
-      cGeometryBuilder_v3_n3_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2 builder(data);
       CreatePlaneTemplated(builder, fWidth, fDepth);
     } else if (nTextureUnits == 2) {
-      cGeometryBuilder_v3_n3_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
       CreatePlaneTemplated(builder, fWidth, fDepth);
     } else if (nTextureUnits == 3) {
-      cGeometryBuilder_v3_n3_t2_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
       CreatePlaneTemplated(builder, fWidth, fDepth);
     } else {
       std::cout<<"cGeometryBuilder::CreatePlane Invalid nTextureUnits "<<nTextureUnits<<std::endl;
@@ -171,24 +171,24 @@ namespace opengl
     }
   }
 
-  void cGeometryBuilder::CreateCube(float fWidthAndDepthAndHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
+  void cGeometryBuilder::CreateCube(float fWidthAndDepthAndHeight, cGeometryData& data, size_t nTextureUnits)
   {
-    CreateBox(fWidthAndDepthAndHeight, fWidthAndDepthAndHeight, fWidthAndDepthAndHeight, vertices, normals, textureCoords, nTextureUnits);
+    CreateBox(fWidthAndDepthAndHeight, fWidthAndDepthAndHeight, fWidthAndDepthAndHeight, data, nTextureUnits);
   }
 
-  void cGeometryBuilder::CreateBox(float fWidth, float fDepth, float fHeight, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
+  void cGeometryBuilder::CreateBox(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
-      cGeometryBuilder_v3_n3 builder(vertices, normals);
+      cGeometryBuilder_v3_n3 builder(data);
       CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
     } else if (nTextureUnits == 1) {
-      cGeometryBuilder_v3_n3_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2 builder(data);
       CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
     } else if (nTextureUnits == 2) {
-      cGeometryBuilder_v3_n3_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
       CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
     } else if (nTextureUnits == 3) {
-      cGeometryBuilder_v3_n3_t2_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
       CreateBoxTemplated(builder, fWidth, fDepth, fHeight);
     } else {
       std::cout<<"cGeometryBuilder::CreateBox Invalid nTextureUnits "<<nTextureUnits<<std::endl;
@@ -196,19 +196,19 @@ namespace opengl
     }
   }
 
-  void cGeometryBuilder::CreateSphere(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits)
+  void cGeometryBuilder::CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
-      cGeometryBuilder_v3_n3 builder(vertices, normals);
+      cGeometryBuilder_v3_n3 builder(data);
       CreateSphereTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 1) {
-      cGeometryBuilder_v3_n3_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2 builder(data);
       CreateSphereTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 2) {
-      cGeometryBuilder_v3_n3_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
       CreateSphereTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 3) {
-      cGeometryBuilder_v3_n3_t2_t2_t2 builder(vertices, normals, textureCoords);
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
       CreateSphereTemplated(builder, fRadius, nSegments);
     } else {
       std::cout<<"cGeometryBuilder::CreateSphere Invalid nTextureUnits "<<nTextureUnits<<std::endl;
@@ -216,19 +216,19 @@ namespace opengl
     }
   }
 
-  void cGeometryBuilder::CreateTeapot(float fRadius, size_t nSegments, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& textureCoords, size_t nTextureUnits, std::vector<uint16_t>& indices)
+  void cGeometryBuilder::CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
-      cGeometryBuilder_v3_n3_i builder(vertices, normals, indices);
+      cGeometryBuilder_v3_n3_i builder(data);
       CreateTeapotTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 1) {
-      cGeometryBuilder_v3_n3_t2_i builder(vertices, normals, textureCoords, indices);
+      cGeometryBuilder_v3_n3_t2_i builder(data);
       CreateTeapotTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 2) {
-      cGeometryBuilder_v3_n3_t2_t2_i builder(vertices, normals, textureCoords, indices);
+      cGeometryBuilder_v3_n3_t2_t2_i builder(data);
       CreateTeapotTemplated(builder, fRadius, nSegments);
     } else if (nTextureUnits == 3) {
-      cGeometryBuilder_v3_n3_t2_t2_t2_i builder(vertices, normals, textureCoords, indices);
+      cGeometryBuilder_v3_n3_t2_t2_t2_i builder(data);
       CreateTeapotTemplated(builder, fRadius, nSegments);
     } else {
       std::cout<<"cGeometryBuilder::CreateTeapot Invalid nTextureUnits "<<nTextureUnits<<std::endl;
@@ -236,7 +236,7 @@ namespace opengl
     }
   }
 
-  void cGeometryBuilder::CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, std::vector<float>& vertices, std::vector<float>& normals)
+  void cGeometryBuilder::CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, cGeometryData& data)
   {
     const float r0 = fInnerRadius;
     const float r1 = fOuterRadius - fToothDepth / 2.0f;
@@ -244,7 +244,7 @@ namespace opengl
 
     const float da = 2.0f * spitfire::math::cPI / float(nTeeth) / 4.0f;
 
-    opengl::cGeometryBuilder_v3_n3 builder(vertices, normals);
+    opengl::cGeometryBuilder_v3_n3 builder(data);
 
     {
       const spitfire::math::cVec3 normal(0.0f, 0.0f, 1.0f);
