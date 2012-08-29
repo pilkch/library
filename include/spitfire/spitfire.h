@@ -166,7 +166,7 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define GCC_VERSION_4_7 407
 #endif
 
-#if !defined(COMPILER_MSVC) || (defined(__GNUC__) && (GCC_VERSION < GCC_VERSION_4_7))
+#ifdef COMPILER_MSVC
 #define BUILD_SPITFIRE_NO_CPP11
 #endif
 
