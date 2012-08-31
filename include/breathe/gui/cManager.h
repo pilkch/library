@@ -43,7 +43,7 @@ namespace breathe
       SLIDER,
       RETRO_BUTTON,
       RETRO_INPUT,
-      INVISIBLE_CONTAINER,
+      INVISIBLE_LAYER,
     };
 
     class cWidget;

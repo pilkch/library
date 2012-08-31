@@ -283,7 +283,7 @@ namespace breathe
     // ** cLayer
 
     cLayer::cLayer() :
-      cWidget(WIDGET_TYPE::INVISIBLE_CONTAINER)
+      cWidget(WIDGET_TYPE::INVISIBLE_LAYER)
     {
     }
 

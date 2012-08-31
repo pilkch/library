@@ -393,12 +393,12 @@ namespace breathe
             AddRetroInput(builder, builderText, static_cast<const cRetroInput&>(child));
             break;
 
-          case WIDGET_TYPE::INVISIBLE_CONTAINER:
+          case WIDGET_TYPE::INVISIBLE_LAYER:
             // Purposely do not render this control
             break;
 
           default:
-            std::cout<<"cRenderer::Visit UNKNOWN WIDGET TYPE "<<child.GetType()<<std::endl;
+            std::cout<<"cRenderer::Visit UNKNOWN WIDGET TYPE for widget "<<child.GetId()<<std::endl;
         };
 
         if (pGeometryDataPtr->nVertexCount != 0) {
