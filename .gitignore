@@ -1,4 +1,5 @@
 .DS_Store
+.kdev_include_paths
 .svn
 ._*
 ~$*
