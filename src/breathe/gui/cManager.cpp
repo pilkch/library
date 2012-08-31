@@ -94,6 +94,8 @@ namespace breathe
       pParent(nullptr),
       bIsVisible(true),
       bIsEnabled(true),
+      bIsFocusable(false),
+      bIsFocused(false),
       colourBackground(0.1f, 0.1f, 0.1f),
       colourText(1.0f, 1.0f, 1.0f)
     {
@@ -255,6 +257,22 @@ namespace breathe
       return nullptr;
     }
 
+    const cWidget* cWidget::_GetRoot() const
+    {
+      const cWidget* pWidget = this;
+      while ((pWidget != nullptr) && (pWidget->pParent != nullptr)) pWidget = pWidget->pParent;
+
+      return pWidget;
+    }
+
+    cWidget* cWidget::_GetRoot()
+    {
+      cWidget* pWidget = this;
+      while ((pWidget != nullptr) && (pWidget->pParent != nullptr)) pWidget = pWidget->pParent;
+
+      return pWidget;
+    }
+
     void cWidget::_BringChildToFront(cWidget& widget)
     {
       // If we don't have at least two children then this widget must be at the front already
@@ -277,6 +295,130 @@ namespace breathe
     void cWidget::BringToFront()
     {
       if (pParent != nullptr) pParent->_BringChildToFront(*this);
+    }
+
+    void cWidget::SetFocused()
+    {
+      // Iterate down through heirarchy unsetting focus
+      cWidget* pWidget = _GetRoot();
+      while ((pWidget != nullptr) && pWidget->bIsFocused) {
+        cWidget* pChild = nullptr;
+        const size_t n = pWidget->children.size();
+        for (size_t i = 0; i < n; i++) {
+          if (pWidget->children[i]->bIsFocused) {
+            pChild = pWidget->children[i];
+            break;
+          }
+        }
+
+        pWidget = pChild;
+      }
+
+      // Start at this widget and iterate up through the heirarchy setting focus
+      pWidget = this;
+      while (pWidget != nullptr) {
+        pWidget->bIsFocused = true;
+        pWidget = pParent;
+      }
+    }
+
+    const cWidget* cWidget::_GetFocusedChild() const
+    {
+      const cWidget* pFocusedChild = nullptr;
+
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        if (children[i]->bIsFocused) {
+          pFocusedChild = children[i];
+          break;
+        }
+      }
+
+      return pFocusedChild;
+    }
+
+    cWidget* cWidget::_GetFocusedChild()
+    {
+      cWidget* pFocusedChild = nullptr;
+
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        if (children[i]->bIsFocused) {
+          pFocusedChild = children[i];
+          break;
+        }
+      }
+
+      return pFocusedChild;
+    }
+
+    size_t cWidget::_GetFocusableChildCount() const
+    {
+      size_t nFocusableChildren = 0;
+
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        if (children[i]->IsFocusable()) nFocusableChildren++;
+      }
+
+      return nFocusableChildren;
+    }
+
+    void cWidget::SetNextFocused()
+    {
+      if (pParent != nullptr) pParent->SetFocusToNextChild();
+    }
+
+    void cWidget::SetFocusToNextChild()
+    {
+      cWidget* pFocusedChild = _GetFocusedChild();
+
+      if ((type == WIDGET_TYPE::WINDOW) || (type == WIDGET_TYPE::INVISIBLE_LAYER)) {
+        if (_GetFocusableChildCount() > 1) {
+          // We are a window or invisible layer with more than 1 child, set the focus to the next focusable child
+          const size_t n = children.size();
+          for (size_t i = 0; i < n; i++) {
+            if (children[i] == pFocusedChild) {
+              children[i]->bIsFocused = false;
+              i++;
+              while (i < n) {
+                if (children[i]->IsFocusable()) {
+                  // We found the next child to set the focus to
+                  children[i]->bIsFocused = true;
+                  return;
+                }
+                i++;
+              }
+
+              // We didn't find a focusable child after this child so go back to the start and try again
+              for (size_t i = 0; i < n; i++) {
+                if (children[i]->IsFocusable()) {
+                  // We found the next child to set the focus to
+                  children[i]->bIsFocused = true;
+                  return;
+                }
+              }
+            }
+          }
+        }
+      } else {
+        const size_t n = children.size();
+        for (size_t i = 0; i < n; i++) {
+          if (children[i] == pFocusedChild) {
+            children[i]->bIsFocused = false;
+            i++;
+            for (; i < n; i++) {
+              if (children[i]->IsFocusable()) {
+                children[i]->bIsFocused = true;
+                return;
+              }
+            }
+
+            // We didn't find another focusable child after this child so tell the parent to set focus to the next child
+            SetNextFocused();
+          }
+        }
+      }
     }
 
 
@@ -309,27 +451,33 @@ namespace breathe
     cButton::cButton() :
       cWidget(WIDGET_TYPE::BUTTON)
     {
+      bIsFocusable = true;
     }
 
-    void cButton::_OnEventMouseDown(int button, float x, float y)
+    EVENT_RESULT cButton::_OnEventMouseDown(int button, float x, float y)
     {
       std::cout<<"cButton::_OnEventMouseDown button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
     }
 
-    void cButton::_OnEventMouseUp(int button, float x, float y)
+    EVENT_RESULT cButton::_OnEventMouseUp(int button, float x, float y)
     {
       std::cout<<"cButton::_OnEventMouseUp button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
     }
 
-    void cButton::_OnEventMouseMove(int button, float x, float y)
+    EVENT_RESULT cButton::_OnEventMouseMove(int button, float x, float y)
     {
       std::cout<<"cButton::_OnEventMouseMove button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
     }
 
-    void cButton::_OnEventMouseClick(int button, float x, float y)
+    EVENT_RESULT cButton::_OnEventMouseClick(int button, float x, float y)
     {
       std::cout<<"cButton::_OnEventMouseClick button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
     }
+
 
 
     // ** cInput
@@ -337,6 +485,7 @@ namespace breathe
     cInput::cInput() :
       cWidget(WIDGET_TYPE::INPUT)
     {
+      bIsFocusable = true;
     }
 
 
@@ -345,6 +494,7 @@ namespace breathe
     cSlider::cSlider() :
       cWidget(WIDGET_TYPE::SLIDER)
     {
+      bIsFocusable = true;
     }
 
 
@@ -395,6 +545,11 @@ namespace breathe
       return 0.01f + GetTextHeight() + 0.01f;
     }
 
+    float cManager::GetCheckboxHeight() const
+    {
+      return 0.01f + GetTextHeight() + 0.01f;
+    }
+
     float cManager::GetInputHeight() const
     {
       return 0.01f + GetTextHeight() + 0.01f;
@@ -420,6 +575,14 @@ namespace breathe
     cButton* cManager::CreateButton()
     {
       cButton* pWidget = new cButton;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
+    cCheckbox* cManager::CreateCheckbox()
+    {
+      cCheckbox* pWidget = new cCheckbox;
       pWidget->SetColour(colourWidget);
       pWidget->SetTextColour(colourText);
       return pWidget;
@@ -457,6 +620,16 @@ namespace breathe
       return pWidget;
     }
 
+    const cWidget* cManager::GetFocusedWidget() const
+    {
+      return pRoot->_GetFocusedChild();
+    }
+
+    cWidget* cManager::GetFocusedWidget()
+    {
+      return pRoot->_GetFocusedChild();
+    }
+
     const cWidget* cManager::FindWidgetUnderPoint(const spitfire::math::cVec2& point) const
     {
       ASSERT(pRoot != nullptr);
@@ -469,7 +642,31 @@ namespace breathe
       return pRoot->FindWidgetUnderPoint(point);
     }
 
-    void cManager::InjectEventMouseDown(int button, float x, float y)
+    bool cManager::InjectEventKeyboardDown(int keyCode)
+    {
+      ASSERT(pRoot != nullptr);
+      cWidget* pWidget = GetFocusedWidget();
+      if (pWidget != nullptr) {
+        std::cout<<"cManager::InjectEventKeyboardDown Sending event to "<<pWidget->GetId()<<std::endl;
+        return (pWidget->OnEventKeyboardDown(keyCode) == EVENT_RESULT::HANDLED);
+      } else std::cout<<"cManager::InjectEventKeyboardDown Could not find widget to send the event to"<<std::endl;
+
+      return false;
+    }
+
+    bool cManager::InjectEventKeyboardUp(int keyCode)
+    {
+      ASSERT(pRoot != nullptr);
+      cWidget* pWidget = GetFocusedWidget();
+      if (pWidget != nullptr) {
+        std::cout<<"cManager::InjectEventKeyboardUp Sending event to "<<pWidget->GetId()<<std::endl;
+        return (pWidget->OnEventKeyboardUp(keyCode) == EVENT_RESULT::HANDLED);
+      } else std::cout<<"cManager::InjectEventKeyboardUp Could not find widget to send the event to"<<std::endl;
+
+      return false;
+    }
+
+    bool cManager::InjectEventMouseDown(int button, float x, float y)
     {
       std::cout<<"cManager::InjectEventMouseDown "<<x<<", "<<y<<std::endl;
       idMouseLeftButtonDown = 0;
@@ -479,11 +676,13 @@ namespace breathe
       if (pWidget != nullptr) {
         idMouseLeftButtonDown = pWidget->GetId();
         std::cout<<"cManager::InjectEventMouseDown Sending event to "<<idMouseLeftButtonDown<<std::endl;
-        pWidget->OnEventMouseDown(button, x, y);
-      } else std::cout<<"cManager::InjectEventMouseDown Count not find widget to send the event to"<<std::endl;
+        return (pWidget->OnEventMouseDown(button, x, y) == EVENT_RESULT::HANDLED);
+      } else std::cout<<"cManager::InjectEventMouseDown Could not find widget to send the event to"<<std::endl;
+
+      return false;
     }
 
-    void cManager::InjectEventMouseUp(int button, float x, float y)
+    bool cManager::InjectEventMouseUp(int button, float x, float y)
     {
       //std::cout<<"cManager::InjectEventMouseUp "<<x<<", "<<y<<std::endl;
       const spitfire::math::cVec2 point(x, y);
@@ -497,9 +696,11 @@ namespace breathe
         }
         idMouseLeftButtonDown = 0;
       }
+
+      return false;
     }
 
-    void cManager::InjectEventMouseMove(int button, float x, float y)
+    bool cManager::InjectEventMouseMove(int button, float x, float y)
     {
       //std::cout<<"cManager::InjectEventMouseMove "<<x<<", "<<y<<std::endl;
       cWidget* pWidget = nullptr;
@@ -509,7 +710,9 @@ namespace breathe
         pWidget = FindWidgetUnderPoint(point);
       }
 
-      if (pWidget != nullptr) pWidget->OnEventMouseMove(button, x, y);
+      if (pWidget != nullptr) return (pWidget->OnEventMouseMove(button, x, y) == EVENT_RESULT::HANDLED);
+
+      return false;
     }
   }
 }

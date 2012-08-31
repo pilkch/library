@@ -35,7 +35,7 @@ namespace breathe
   {
     typedef uint32_t id_t;
 
-    enum WIDGET_TYPE {
+    enum class WIDGET_TYPE {
       WINDOW,
       STATICTEXT,
       BUTTON,
@@ -44,6 +44,11 @@ namespace breathe
       RETRO_BUTTON,
       RETRO_INPUT,
       INVISIBLE_LAYER,
+    };
+
+    enum class EVENT_RESULT {
+      NOT_HANDLED_PERCOLATE,
+      HANDLED
     };
 
     class cWidget;
@@ -127,6 +132,11 @@ namespace breathe
 
       void SetEnabled(bool bEnabled) { bIsEnabled = bEnabled; }
       bool IsEnabled() const { return bIsEnabled; }
+
+      void SetFocused();
+      void SetNextFocused();
+      void SetFocusToNextChild();
+
       const spitfire::math::cColour& GetColour() const { return colourBackground; }
       void SetColour(const spitfire::math::cColour& colour) { colourBackground = colour; }
       const spitfire::math::cColour& GetTextColour() const { return colourText; }
@@ -135,18 +145,30 @@ namespace breathe
     protected:
       explicit cWidget(WIDGET_TYPE type);
 
-      void OnEventMouseDown(int button, float x, float y) { _OnEventMouseDown(button, x, y); }
-      void OnEventMouseUp(int button, float x, float y) { _OnEventMouseUp(button, x, y); }
-      void OnEventMouseMove(int button, float x, float y) { _OnEventMouseMove(button, x, y); }
-      void OnEventMouseClick(int button, float x, float y) { _OnEventMouseClick(button, x, y); }
+      EVENT_RESULT OnEventKeyboardDown(int keyCode) { return _OnEventKeyboardDown(keyCode); }
+      EVENT_RESULT OnEventKeyboardUp(int keyCode) { return _OnEventKeyboardUp(keyCode); }
+      EVENT_RESULT OnEventMouseDown(int button, float x, float y) { return _OnEventMouseDown(button, x, y); }
+      EVENT_RESULT OnEventMouseUp(int button, float x, float y) { return _OnEventMouseUp(button, x, y); }
+      EVENT_RESULT OnEventMouseMove(int button, float x, float y) { return _OnEventMouseMove(button, x, y); }
+      EVENT_RESULT OnEventMouseClick(int button, float x, float y) { return _OnEventMouseClick(button, x, y); }
+
+      void SetFocusable(bool bFocusable) { bIsFocusable = bIsFocusable; }
+      bool IsFocusable() const { return (bIsEnabled && bIsFocusable); }
 
     public:
+      const cWidget* _GetRoot() const;
+      cWidget* _GetRoot();
+      const cWidget* _GetFocusedChild() const;
+      cWidget* _GetFocusedChild();
+      size_t _GetFocusableChildCount() const;
       void _BringChildToFront(cWidget& widget);
 
-      virtual void _OnEventMouseDown(int button, float x, float y) {}
-      virtual void _OnEventMouseUp(int button, float x, float y) {}
-      virtual void _OnEventMouseMove(int button, float x, float y) {}
-      virtual void _OnEventMouseClick(int button, float x, float y) {}
+      virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+      virtual EVENT_RESULT _OnEventKeyboardUp(int keyCode) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
 
       id_t id;
       WIDGET_TYPE type;
@@ -163,6 +185,8 @@ namespace breathe
 
       bool bIsVisible;
       bool bIsEnabled;
+      bool bIsFocusable;
+      bool bIsFocused;
 
       spitfire::math::cColour colourBackground;
       spitfire::math::cColour colourText;
@@ -192,10 +216,10 @@ namespace breathe
       cButton();
 
     private:
-      virtual void _OnEventMouseDown(int button, float x, float y);
-      virtual void _OnEventMouseUp(int button, float x, float y);
-      virtual void _OnEventMouseMove(int button, float x, float y);
-      virtual void _OnEventMouseClick(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
     };
 
     class cInput : public cWidget
@@ -287,11 +311,16 @@ namespace breathe
       cRetroButton* CreateRetroButton();
 
       // Inject events into the window manager
-      void InjectEventMouseDown(int button, float x, float y);
-      void InjectEventMouseUp(int button, float x, float y);
-      void InjectEventMouseMove(int button, float x, float y);
+      // NOTE: These return true if they have handled the event
+      bool InjectEventKeyboardDown(int keyCode);
+      bool InjectEventKeyboardUp(int keyCode);
+      bool InjectEventMouseDown(int button, float x, float y);
+      bool InjectEventMouseUp(int button, float x, float y);
+      bool InjectEventMouseMove(int button, float x, float y);
 
     private:
+      const cWidget* GetFocusedWidget() const;
+      cWidget* GetFocusedWidget();
       const cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point) const;
       cWidget* FindWidgetUnderPoint(const spitfire::math::cVec2& point);
 
