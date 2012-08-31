@@ -68,13 +68,9 @@ namespace breathe
 
       pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
 
-      std::vector<float> vertices;
-      //std::vector<float> normals;
-      std::vector<float> textureCoordinates;
-      std::vector<float> colours;
-      //std::vector<uint16_t> indices;
+      opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
-      opengl::cGeometryBuilder_v2_c4_t2 builder(vertices, colours, textureCoordinates);
+      opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
 
       // Texture coordinates
       // NOTE: The v coordinates have been swapped, the code looks correct but with normal v coordinates the gui is rendered upside down
@@ -99,11 +95,8 @@ namespace breathe
       builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
 
       pVBO = context.CreateStaticVertexBufferObject();
-      pVBO->SetVertices(vertices);
-      //pVBO->SetNormals(normals);
-      pVBO->SetTextureCoordinates(textureCoordinates);
-      pVBO->SetColours(colours);
-      //pVBO->SetIndices(indices);
+
+      pVBO->SetData(pGeometryDataPtr);
 
       pVBO->Compile2D(system);
 
@@ -359,23 +352,17 @@ namespace breathe
         // If this child is not visible then we don't need to render it
         if (!child.IsVisible()) continue;
 
-        std::vector<float> vertices;
-        //std::vector<float> normals;
-        std::vector<float> textureCoordinates;
-        std::vector<float> colours;
-        //std::vector<uint16_t> indices;
+        opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
-        opengl::cGeometryBuilder_v2_c4_t2 builder(vertices, colours, textureCoordinates);
+        opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
 
         // Text
         assert(pFont != nullptr);
         assert(pFont->IsValid());
 
-        std::vector<float> verticesText;
-        std::vector<float> coloursText;
-        std::vector<float> textureCoordinatesText;
+        opengl::cGeometryDataPtr pTextGeometryDataPtr = opengl::CreateGeometryData();
 
-        opengl::cGeometryBuilder_v2_c4_t2 builderText(verticesText, coloursText, textureCoordinatesText);
+        opengl::cGeometryBuilder_v2_c4_t2 builderText(*pTextGeometryDataPtr);
 
         switch (child.GetType()) {
           case WIDGET_TYPE::WINDOW:
@@ -414,13 +401,14 @@ namespace breathe
             std::cout<<"cRenderer::Visit UNKNOWN WIDGET TYPE "<<child.GetType()<<std::endl;
         };
 
-        if (!vertices.empty()) {
+        if (pGeometryDataPtr->nVertexCount != 0) {
+          // Set the position of the widget
+          spitfire::math::cMat4 matModelView2D;
+          matModelView2D.SetTranslation(0.0f, 0.0f, 0.0f);
+
           opengl::cStaticVertexBufferObject* pVBO = context.CreateStaticVertexBufferObject();
-          pVBO->SetVertices(vertices);
-          //pVBO->SetNormals(normals);
-          pVBO->SetTextureCoordinates(textureCoordinates);
-          pVBO->SetColours(colours);
-          //pVBO->SetIndices(indices);
+
+          pVBO->SetData(pGeometryDataPtr);
 
           pVBO->Compile2D(system);
 
@@ -430,6 +418,8 @@ namespace breathe
           context.BindTexture(0, *pWidgetsTexture);
 
           context.BindShader(*pWidgetsShader);
+
+          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBO);
           context.DrawStaticVertexBufferObjectQuads2D(*pVBO);
@@ -444,15 +434,20 @@ namespace breathe
           context.DestroyStaticVertexBufferObject(pVBO);
         }
 
-        if (!verticesText.empty()) {
+        if (pTextGeometryDataPtr->nVertexCount != 0) {
+          // Set the position of the widget
+          spitfire::math::cMat4 matModelView2D;
+          matModelView2D.SetTranslation(0.0f, 0.0f, 0.0f);
+
           opengl::cStaticVertexBufferObject* pVBOText = context.CreateStaticVertexBufferObject();
-          pVBOText->SetVertices(verticesText);
-          pVBOText->SetColours(coloursText);
-          pVBOText->SetTextureCoordinates(textureCoordinatesText);
+
+          pVBOText->SetData(pTextGeometryDataPtr);
 
           pVBOText->Compile2D(system);
 
           context.BindFont(*pFont);
+
+          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBOText);
           context.DrawStaticVertexBufferObjectQuads2D(*pVBOText);
@@ -513,15 +508,16 @@ namespace breathe
 
       {
         // Set the position of the layer
-        spitfire::math::cMat4 matModelView;
-        matModelView.SetTranslation(manager.GetHUDOffset().x, manager.GetHUDOffset().y, 0.0f);
-        context.SetModelViewMatrix(matModelView);
+        spitfire::math::cMat4 matModelView2D;
+        matModelView2D.SetTranslation(manager.GetHUDOffset().x, manager.GetHUDOffset().y, 0.0f);
 
         context.EnableBlending();
 
         context.BindTexture(0, *pTextureFrameBufferObject);
 
         context.BindShader(*pGuiShader);
+
+        context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
         context.BindStaticVertexBufferObject2D(*pVBO);
         context.DrawStaticVertexBufferObjectQuads2D(*pVBO);
