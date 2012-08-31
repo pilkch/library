@@ -479,6 +479,49 @@ namespace breathe
     }
 
 
+    // ** cCheckbox
+
+    cCheckbox::cCheckbox() :
+      cWidget(WIDGET_TYPE::CHECKBOX),
+      bIsSelected(false)
+    {
+      bIsFocusable = true;
+    }
+
+    bool cCheckbox::IsSelected() const
+    {
+      return bIsSelected;
+    }
+
+    void cCheckbox::SetSelected(bool bSelected)
+    {
+      bIsSelected = true;
+    }
+
+    EVENT_RESULT cCheckbox::_OnEventMouseDown(int button, float x, float y)
+    {
+      std::cout<<"cCheckbox::_OnEventMouseDown button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
+    EVENT_RESULT cCheckbox::_OnEventMouseUp(int button, float x, float y)
+    {
+      std::cout<<"cCheckbox::_OnEventMouseUp button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
+    EVENT_RESULT cCheckbox::_OnEventMouseMove(int button, float x, float y)
+    {
+      std::cout<<"cCheckbox::_OnEventMouseMove button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
+    EVENT_RESULT cCheckbox::_OnEventMouseClick(int button, float x, float y)
+    {
+      std::cout<<"cCheckbox::_OnEventMouseClick button="<<button<<" at "<<x<<","<<y<<std::endl;
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
 
     // ** cInput
 

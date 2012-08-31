@@ -39,6 +39,7 @@ namespace breathe
       WINDOW,
       STATICTEXT,
       BUTTON,
+      CHECKBOX,
       INPUT,
       SLIDER,
       RETRO_BUTTON,
@@ -222,6 +223,23 @@ namespace breathe
       virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
     };
 
+    class cCheckbox : public cWidget
+    {
+    public:
+      cCheckbox();
+
+      bool IsSelected() const;
+      void SetSelected(bool bSelected);
+
+    private:
+      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
+
+      bool bIsSelected;
+    };
+
     class cInput : public cWidget
     {
     public:
@@ -294,6 +312,7 @@ namespace breathe
 
       float GetStaticTextHeight() const;
       float GetButtonHeight() const;
+      float GetCheckboxHeight() const;
       float GetInputHeight() const;
 
       const spitfire::math::cColour& GetColourWindow() const { return colourWindow; }
@@ -303,6 +322,7 @@ namespace breathe
       cWindow* CreateWindow();
       cStaticText* CreateStaticText();
       cButton* CreateButton();
+      cCheckbox* CreateCheckbox();
       cInput* CreateInput();
       cSlider* CreateSlider();
 
