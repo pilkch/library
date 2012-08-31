@@ -648,6 +648,8 @@ namespace opengl
 
   void cContext::SetShaderProjectionAndModelViewMatricesRenderMode2D(MODE2D_TYPE type, const spitfire::math::cMat4& _matModelView)
   {
+    assert(pCurrentShader != nullptr);
+
     spitfire::math::cMat4 _matProjection = CalculateProjectionMatrixRenderMode2D(type);
     SetShaderProjectionAndModelViewMatrices(_matProjection, _matModelView);
   }
