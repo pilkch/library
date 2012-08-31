@@ -26,7 +26,11 @@ struct SDL_Surface;
 
 namespace voodoo
 {
+  #ifdef UNICODE
   typedef std::wstring string_t;
+  #else
+  typedef std::string string_t;
+  #endif
 
   namespace string
   {

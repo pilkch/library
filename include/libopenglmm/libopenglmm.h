@@ -46,7 +46,11 @@ struct SDL_Surface;
 
 namespace opengl
 {
+  #ifdef UNICODE
   typedef std::wstring string_t;
+  #else
+  typedef std::string string_t;
+  #endif
 
   namespace string
   {
