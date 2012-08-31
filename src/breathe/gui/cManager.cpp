@@ -93,6 +93,7 @@ namespace breathe
       bIsDirtyRendering(true),
       pParent(nullptr),
       bIsVisible(true),
+      bIsEnabled(true),
       colourBackground(0.1f, 0.1f, 0.1f),
       colourText(1.0f, 1.0f, 1.0f)
     {

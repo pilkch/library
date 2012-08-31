@@ -125,6 +125,8 @@ namespace breathe
       void SetVisible(bool bVisible) { bIsVisible = bVisible; }
       bool IsVisible() const { return bIsVisible; }
 
+      void SetEnabled(bool bEnabled) { bIsEnabled = bEnabled; }
+      bool IsEnabled() const { return bIsEnabled; }
       const spitfire::math::cColour& GetColour() const { return colourBackground; }
       void SetColour(const spitfire::math::cColour& colour) { colourBackground = colour; }
       const spitfire::math::cColour& GetTextColour() const { return colourText; }
@@ -160,6 +162,7 @@ namespace breathe
       std::vector<cWidget*> children; // Children in back to front order (0 is the child lowest in the z order, n -1 is the child at the front)
 
       bool bIsVisible;
+      bool bIsEnabled;
 
       spitfire::math::cColour colourBackground;
       spitfire::math::cColour colourText;
