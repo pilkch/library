@@ -59,10 +59,13 @@ namespace voodoo
     cImage(const cImage& rhs);
     cImage& operator=(const cImage& rhs);
 
+    static bool IsLoadingSupported(const string_t& sFilePath);
+    bool LoadFromFile(const string_t& sFilePath);
+    bool SaveToBMP(const string_t& sFilePath) const;
+
     bool CreateEmptyImage(size_t width, size_t height, PIXELFORMAT pixelFormat);
     bool CreateFromImage(const cImage& image);
     bool CreateFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
-    bool LoadFromFile(const string_t& sFilename);
 
     void CreateFromImageHalfSize(const cImage& image); // Skips every second pixel
     void CreateFromImageDoubleSize(const cImage& image); // Copies each pixel twice
@@ -89,8 +92,6 @@ namespace voodoo
 
     void FlipVertically();
     void FlipHorizontally();
-
-    bool SaveToBMP(const string_t& sFilename) const;
 
   protected:
     size_t width;

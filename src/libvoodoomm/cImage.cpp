@@ -361,6 +361,39 @@ namespace voodoo
     return buffer.data();
   }
 
+  bool IsLoadingSupported(const string_t& sFilePath)
+  {
+    // Check the built in supported formats
+    bool bIsSupported = (
+      (sFilePath == TEXT("bmp")) ||
+      (sFilePath == TEXT("cur")) ||
+      (sFilePath == TEXT("gif")) ||
+      (sFilePath == TEXT("lbm")) ||
+      (sFilePath == TEXT("pcx")) ||
+      (sFilePath == TEXT("pnm")) ||
+      (sFilePath == TEXT("tga")) ||
+      (sFilePath == TEXT("xcf")) ||
+      (sFilePath == TEXT("xpm")) ||
+      (sFilePath == TEXT("xv"))
+    );
+
+    // Check the dynamically supported formats
+    if (!bIsSupported) {
+      SDL_RWops* pRWops = SDL_RWFromFile(string::ToUTF8(sFilePath).c_str(), "rb");
+      if (pRWops != nullptr) {
+        bIsSupported = (IMG_isJPG(pRWops) || IMG_isTIF(pRWops) || IMG_isPNG(pRWops)); // NOTE: In later versions of SDL there is also IMG_isWEBP
+
+        // TODO: Is this required?  Does it crash?
+        if (pRWops != nullptr) {
+          SDL_FreeRW(pRWops);
+          pRWops = nullptr;
+        }
+      }
+    }
+
+    return bIsSupported;
+  }
+
   bool cImage::LoadFromFile(const string_t& sFilename)
   {
     cSurface surface;
