@@ -1,6 +1,6 @@
 /*************************************************************************
  *                                                                       *
- * libvoodoomm Library, Copyright (C) 2009 Onwards Chris Pilkington        *
+ * libvoodoomm Library, Copyright (C) 2009 Onwards Chris Pilkington      *
  * All rights reserved.  Web: http://chris.iluo.net                      *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
@@ -17,49 +17,58 @@
  *                                                                       *
  *************************************************************************/
 
-// This is a simple wrapper around SDL_image to to load, save and apply basic effects to images
+// This is a simple wrapper to load and save 32 bit floating point images
 
-#ifndef LIBVOODOOMM_H
-#define LIBVOODOOMM_H
+#ifndef LIBVOODOOMM_CIMAGEFLOAT_H
+#define LIBVOODOOMM_CIMAGEFLOAT_H
 
-struct SDL_Surface;
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#include <spitfire/math/math.h>
+
+#include <libvoodoomm/libvoodoomm.h>
 
 namespace voodoo
 {
-  #ifdef UNICODE
-  typedef std::wstring string_t;
-  #else
-  typedef std::string string_t;
-  #endif
+  // ** cImageFloat
 
-  namespace string
+  class cImageFloat
   {
-    std::string ToUTF8(const string_t& source);
-  }
+  public:
+    friend class cSurface;
 
-  enum class CUBE_MAP_FACE {
-    POSITIVE_X,
-    NEGATIVE_X,
-    POSITIVE_Y,
-    NEGATIVE_Y,
-    POSITIVE_Z,
-    NEGATIVE_Z
+    cImageFloat();
+    ~cImageFloat();
+
+    cImageFloat(const cImageFloat& rhs);
+    cImageFloat& operator=(const cImageFloat& rhs);
+
+    static bool IsLoadingSupported(const string_t& sFilePath);
+    bool LoadFromFile(const string_t& sFilePath);
+    bool SaveToPFM(const string_t& sFilePath) const;
+
+    bool IsValid() const { return (width != 0) && (height != 0) && !buffer.empty(); }
+
+    size_t GetWidth() const { return width; }
+    size_t GetHeight() const { return height; }
+    PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
+    size_t GetBytesPerPixel() const;
+
+    const float* GetPointerToBuffer() const;
+
+  protected:
+    size_t width;
+    size_t height;
+    PIXELFORMAT pixelFormat;
+
+    std::vector<float> buffer;
+
+  private:
+    void Assign(const cImageFloat& rhs);
+
+    bool IsSameFormat(const cImageFloat& rhs) const;
   };
-
-  enum class PIXELFORMAT {
-    R8G8B8A8,
-    R8G8B8,
-    R5G6B5,
-    H8,  // uint8_t heightmap
-    H16, // uint16_t heightmap
-    H32  // float heightmap
-  };
-
-  size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat);
-  size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat);
-
-  class cImage;
-  class cSurface;
 }
 
-#endif // LIBVOODOOMM_H
+#endif // LIBVOODOOMM_CIMAGEFLOAT_H

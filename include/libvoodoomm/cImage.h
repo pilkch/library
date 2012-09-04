@@ -1,6 +1,6 @@
 /*************************************************************************
  *                                                                       *
- * libvoodoomm Library, Copyright (C) 2009 Onwards Chris Pilkington        *
+ * libvoodoomm Library, Copyright (C) 2009 Onwards Chris Pilkington      *
  * All rights reserved.  Web: http://chris.iluo.net                      *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
@@ -17,7 +17,7 @@
  *                                                                       *
  *************************************************************************/
 
-// This is a simple wrapper around SDL_image to to load, save and apply basic effects to images
+// This is a simple wrapper around SDL_image to load, save and apply basic effects to images
 
 #ifndef LIBVOODOOMM_CIMAGE_H
 #define LIBVOODOOMM_CIMAGE_H
@@ -28,8 +28,6 @@
 #include <spitfire/math/math.h>
 
 #include <libvoodoomm/libvoodoomm.h>
-
-struct SDL_Surface;
 
 // Data flow
 //

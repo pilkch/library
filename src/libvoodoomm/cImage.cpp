@@ -37,6 +37,13 @@ namespace voodoo
   }
 #endif
 
+  string_t GetFileExtension(const string_t& sFilePath)
+  {
+    const string_t::size_type found = sFilePath.find(TEXT("."));
+    if (found != string_t::npos) return sFilePath.substr(found + 1);
+
+    return TEXT("");
+  }
 
 
 
@@ -60,7 +67,9 @@ namespace voodoo
     void Destroy();
 
     bool CreateFromImage(const cImage& image);
+
     bool LoadFromFile(const string_t& sFilename);
+    bool SaveToBMP(const string_t& sFilename) const;
 
     const uint8_t* GetPointerToBuffer() const;
     const uint8_t* GetPointerToSurfacePixelBuffer() const;
@@ -71,8 +80,6 @@ namespace voodoo
 
     void CopyFromSurfaceToBuffer(size_t width, size_t height);
     void CopyFromSurfaceToBuffer();
-
-    bool SaveToBMP(const string_t& sFilename) const;
 
   private:
     void Assign(const cSurface& rhs);
@@ -167,9 +174,11 @@ namespace voodoo
     if (8 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
+      image.pixelFormat = PIXELFORMAT::H8;
     } else if (16 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
+      image.pixelFormat = PIXELFORMAT::H16;
     } else if (24 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
       // Add alpha channel
@@ -309,7 +318,6 @@ namespace voodoo
   }
 
 
-
   // ** cImage
 
   cImage::cImage() :
@@ -350,7 +358,14 @@ namespace voodoo
 
   size_t cImage::GetBytesPerPixel() const
   {
-    //return (type == IMAGE_TYPE::HEIGHTMAP ? 1 : 4);
+    switch (pixelFormat) {
+      case PIXELFORMAT::H8: return 1;
+      case PIXELFORMAT::H16:
+      case PIXELFORMAT::R5G6B5: {
+        return 2;
+      }
+      case PIXELFORMAT::R8G8B8: return 3;
+    };
     assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
     return 4;
   }
@@ -361,20 +376,22 @@ namespace voodoo
     return buffer.data();
   }
 
-  bool IsLoadingSupported(const string_t& sFilePath)
+  bool cImage::IsLoadingSupported(const string_t& sFilePath)
   {
+    const string_t sExtension = GetFileExtension(sFilePath);
+
     // Check the built in supported formats
     bool bIsSupported = (
-      (sFilePath == TEXT("bmp")) ||
-      (sFilePath == TEXT("cur")) ||
-      (sFilePath == TEXT("gif")) ||
-      (sFilePath == TEXT("lbm")) ||
-      (sFilePath == TEXT("pcx")) ||
-      (sFilePath == TEXT("pnm")) ||
-      (sFilePath == TEXT("tga")) ||
-      (sFilePath == TEXT("xcf")) ||
-      (sFilePath == TEXT("xpm")) ||
-      (sFilePath == TEXT("xv"))
+      (sExtension == TEXT("bmp")) ||
+      (sExtension == TEXT("cur")) ||
+      (sExtension == TEXT("gif")) ||
+      (sExtension == TEXT("lbm")) ||
+      (sExtension == TEXT("pcx")) ||
+      (sExtension == TEXT("pnm")) ||
+      (sExtension == TEXT("tga")) ||
+      (sExtension == TEXT("xcf")) ||
+      (sExtension == TEXT("xpm")) ||
+      (sExtension == TEXT("xv"))
     );
 
     // Check the dynamically supported formats
