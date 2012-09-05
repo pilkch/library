@@ -597,6 +597,7 @@ namespace spitfire
 
     size_t GetSurrogatePairCountForMultiByteCharacter(char8_t ch)
     {
+      #if 0
       size_t c = size_t(ch);
       ASSERT((c < 128) || (c > 191)); // Second, third, or fourth byte of a multi-byte sequence
       ASSERT((c < 192) || (c > 193)); // Overlong encoding: start of 2-byte sequence, but would encode a code point ≤ 127
@@ -606,6 +607,26 @@ namespace spitfire
       ASSERT((c < 254) || (c > 255)); // Invalid: not defined by original UTF-8 specification
 
       return 1 + trailingBytesUTF8[c];
+      #else
+      // Using the array above will sometimes return too many bytes
+      // http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer?rq=1
+      size_t seqlen = 0;
+      const unsigned char c = ch;
+      if ((c & 0x80) == 0) {
+        seqlen = 1;
+      } else if ((c & 0xE0) == 0xC0) {
+        seqlen = 2;
+      } else if ((c & 0xF0) == 0xE0) {
+        seqlen = 3;
+      } else if ((c & 0xF8) == 0xF0) {
+        seqlen = 4;
+      } else {
+        // Malformed UTF8
+        ASSERT(false);
+      }
+
+      return seqlen;
+      #endif
     }
 
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c)
