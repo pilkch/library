@@ -75,6 +75,7 @@ namespace opengl
     #endif
 
     void RenderLines2D();
+    void RenderTriangles2D();
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Quads are deprecated in OpenGL 3.1 core profile
     void RenderQuads2D();

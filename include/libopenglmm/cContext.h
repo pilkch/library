@@ -197,6 +197,7 @@ namespace opengl
     #endif
 
     void DrawStaticVertexBufferObjectLines2D(cStaticVertexBufferObject& staticVertexBufferObject);
+    void DrawStaticVertexBufferObjectTriangles2D(cStaticVertexBufferObject& staticVertexBufferObject);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Quads are deprecated in OpenGL 3.1 core profile
     void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);

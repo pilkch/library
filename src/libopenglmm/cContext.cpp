@@ -1016,6 +1016,11 @@ namespace opengl
     staticVertexBufferObject.RenderLines2D();
   }
 
+  void cContext::DrawStaticVertexBufferObjectTriangles2D(cStaticVertexBufferObject& staticVertexBufferObject)
+  {
+    staticVertexBufferObject.RenderTriangles2D();
+  }
+
   #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject)
   {
