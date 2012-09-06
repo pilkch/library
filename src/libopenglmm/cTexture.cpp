@@ -148,11 +148,6 @@ namespace opengl
 
   bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height)
   {
-    // Only allow square, power of two FBO textures at the moment
-    assert(spitfire::math::IsPowerOfTwo(width));
-    assert(spitfire::math::IsPowerOfTwo(height));
-    assert(width == height);
-
     image.SetWidth(width);
     image.SetHeight(height);
 
@@ -169,20 +164,21 @@ namespace opengl
     const unsigned int uiWidth = image.GetWidth();
     const unsigned int uiHeight = image.GetHeight();
 
-    // Only allow square, power of two FBO textures at the moment
-    assert(spitfire::math::IsPowerOfTwo(uiWidth));
-    assert(spitfire::math::IsPowerOfTwo(uiHeight));
-    assert(uiWidth == uiHeight);
-
     // Create FBO
     glGenFramebuffers(1, &uiFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, uiFBO);
 
-
     if (!bIsCubeMap) {
+      const bool bIsRectangle = uiWidth != uiHeight;
+
+      // Turn off mipmaps for rectangular textures
+      if (bIsRectangle) bIsUsingMipMaps = false;
+
+      const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+
       // Now setup a texture to render to
       glGenTextures(1, &uiTexture);
-      glBindTexture(GL_TEXTURE_2D, uiTexture);
+      glBindTexture(textureType, uiTexture);
 
       GLenum internal = GL_RGBA8;
       GLenum type = GL_UNSIGNED_BYTE;
@@ -192,22 +188,27 @@ namespace opengl
       //internal = GL_RGBA32F;
       type = GL_FLOAT;
 
-      glTexImage2D(GL_TEXTURE_2D, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, NULL);
+      glTexImage2D(textureType, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, NULL);
 
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
       if (bIsUsingMipMaps) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glGenerateMipmap(textureType);
       }
 
       // And attach it to the FBO so we can render to it
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, uiTexture, 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureType, uiTexture, 0);
     } else {
+      // Cube maps have to be square, power of two textures
+      assert(spitfire::math::IsPowerOfTwo(width));
+      assert(spitfire::math::IsPowerOfTwo(height));
+      assert(width == height);
+
       // Now setup a texture to render to
       glGenTextures(1, &uiTexture);
       glBindTexture(GL_TEXTURE_CUBE_MAP, uiTexture);

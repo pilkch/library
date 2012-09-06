@@ -98,6 +98,8 @@ namespace opengl
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
 
+    bool IsRectangle() const { return (GetWidth() != GetHeight()); }
+
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }
 
