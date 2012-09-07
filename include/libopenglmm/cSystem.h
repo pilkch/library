@@ -47,6 +47,13 @@ namespace opengl
     void UpdateCapabilities();
     const cCapabilities& GetCapabilities() const { return capabilities; }
 
+    #ifdef DEBUG
+    // Debug windowed mode resolutions for testing various aspect ratios
+    static void GetWindowedTestResolution4By3(size_t& width, size_t& height) { width = 1000; height = 750; }
+    static void GetWindowedTestResolution16By10(size_t& width, size_t& height) { width = 1000; height = 624; }
+    static void GetWindowedTestResolution16By9(size_t& width, size_t& height) { width = 1000; height = 562; }
+    #endif
+
     cWindow* CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     void DestroyWindow(cWindow* pWindow);
 
