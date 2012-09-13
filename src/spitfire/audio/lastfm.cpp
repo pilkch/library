@@ -14,14 +14,11 @@ namespace spitfire
   {
     namespace lastfm
     {
-      cSession::cSession() :
+      cSession::cSession(const string_t& sKey, const string_t& sSecret) :
         pSession(nullptr),
         bIsLoggedIn(false)
       {
-        const char* szKey = BUILD_LASTFM_KEY;
-        const char* szSecret = BUILD_LASTFM_SECRET;
-
-        pSession = LASTFM_init(szKey, szSecret);
+        pSession = LASTFM_init(sKey.c_str(), sSecret.c_str());
       }
 
       cSession::~cSession()
@@ -206,7 +203,7 @@ namespace spitfire
         std::cout<<"cLastFM::ThreadFunction"<<std::endl;
 
         // Check that we can log in
-        cSession session;
+        cSession session(sKey, sSecret);
         session.Login(sUserName, sPassword);
 
         if (!session.IsLoggedIn()) {
@@ -341,12 +338,14 @@ namespace spitfire
         }
       }
 
-      void cLastFM::Start(const string_t& _sUserName, const string_t& _sPassword)
+      void cLastFM::Start(const string_t& _sKey, const string_t& _sSecret, const string_t& _sUserName, const string_t& _sPassword)
       {
         Stop();
 
         {
           util::cLockObject lock(mutex);
+          sKey = _sKey;
+          sSecret = _sSecret;
           sUserName = _sUserName;
           sPassword = _sPassword;
         }

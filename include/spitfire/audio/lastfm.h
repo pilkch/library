@@ -42,7 +42,7 @@ namespace spitfire
       class cSession
       {
       public:
-        cSession();
+        cSession(const string_t& sKey, const string_t& sSecret);
         ~cSession();
 
         void Login(const string_t& sUserName, const string_t& sPassword);
@@ -97,7 +97,7 @@ namespace spitfire
         cLastFM();
         ~cLastFM();
 
-        void Start(const string_t& sUserName, const string_t& sPassword);
+        void Start(const string_t& sKey, const string_t& sSecret, const string_t& sUserName, const string_t& sPassword);
         void StopSoon();
         void Stop();
 
@@ -123,6 +123,8 @@ namespace spitfire
 
         mutable util::cMutex mutex;
 
+        string_t sKey;
+        string_t sSecret;
         string_t sUserName;
         string_t sPassword;
 
