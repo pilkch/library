@@ -4,6 +4,7 @@
 ._*
 ~$*
 *~
+*.kate-swp
 .*.swp
 *.pbxuser
 *.perspectivev3

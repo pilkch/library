@@ -130,6 +130,7 @@ namespace opengl
     assert(fonts.empty());
 #endif
     assert(textures.empty());
+    assert(cubeMapTextures.empty());
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());
 
@@ -216,6 +217,44 @@ namespace opengl
     assert(pTexture != nullptr);
 
     //textures.remove(pTexture);
+
+    pTexture->Destroy();
+    delete pTexture;
+  }
+
+  cTextureCubeMap* cContext::CreateTextureCubeMap(
+    const opengl::string_t& filePathPositiveX,
+    const opengl::string_t& filePathNegativeX,
+    const opengl::string_t& filePathPositiveY,
+    const opengl::string_t& filePathNegativeY,
+    const opengl::string_t& filePathPositiveZ,
+    const opengl::string_t& filePathNegativeZ
+  )
+  {
+    cTextureCubeMap* pTexture = new cTextureCubeMap;
+    if (!pTexture->CreateFromFilePaths(
+        filePathPositiveX,
+        filePathNegativeX,
+        filePathPositiveY,
+        filePathNegativeY,
+        filePathPositiveZ,
+        filePathNegativeZ
+      )
+    ) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //cubeMapTextures.push_back(pTexture);
+
+    return pTexture;
+  }
+
+  void cContext::DestroyTextureCubeMap(cTextureCubeMap* pTexture)
+  {
+    assert(pTexture != nullptr);
+
+    //cubeMapTextures.remove(pTexture);
 
     pTexture->Destroy();
     delete pTexture;
@@ -826,6 +865,26 @@ namespace opengl
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+  }
+
+
+  void cContext::BindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
+
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetTexture());
+  }
+
+  void cContext::UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glDisable(GL_TEXTURE_CUBE_MAP);
   }
 
 

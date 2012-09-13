@@ -87,6 +87,33 @@ namespace opengl
   };
 
 
+  // ** cTextureCubeMap
+
+  class cTextureCubeMap
+  {
+  public:
+    cTextureCubeMap();
+    ~cTextureCubeMap();
+
+    bool IsValid() const { return (uiTexture != 0); }
+
+    unsigned int GetTexture() const { return uiTexture; }
+
+    bool CreateFromFilePaths(
+      const opengl::string_t& filePathPositiveX,
+      const opengl::string_t& filePathNegativeX,
+      const opengl::string_t& filePathPositiveY,
+      const opengl::string_t& filePathNegativeY,
+      const opengl::string_t& filePathPositiveZ,
+      const opengl::string_t& filePathNegativeZ
+    );
+    void Destroy();
+
+  protected:
+    unsigned int uiTexture;
+  };
+
+
   // ** cTextureFrameBufferObject
 
   const size_t DEFAULT_FBO_TEXTURE_WIDTH = 1024;

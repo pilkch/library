@@ -33,6 +33,7 @@ namespace opengl
   class cFont;
 #endif
   class cTexture;
+  class cTextureCubeMap;
   class cTextureFrameBufferObject;
   class cShader;
   class cStaticVertexBufferObject;
@@ -92,6 +93,16 @@ namespace opengl
     cTexture* CreateTextureFromImage(const voodoo::cImage& image);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
+
+    cTextureCubeMap* CreateTextureCubeMap(
+      const opengl::string_t& filePathPositiveX,
+      const opengl::string_t& filePathNegativeX,
+      const opengl::string_t& filePathPositiveY,
+      const opengl::string_t& filePathNegativeY,
+      const opengl::string_t& filePathPositiveZ,
+      const opengl::string_t& filePathNegativeZ
+    );
+    void DestroyTextureCubeMap(cTextureCubeMap* pTexture);
 
     cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
     cTextureFrameBufferObject* CreateTextureFrameBufferObjectNoMipMaps(size_t width, size_t height, PIXELFORMAT pixelFormat);
@@ -153,6 +164,8 @@ namespace opengl
     void BindTexture(size_t uTextureUnit, const cTexture& texture);
     void UnBindTexture(size_t uTextureUnit, const cTexture& texture);
 
+    void BindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture);
+    void UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture);
 
     void BindShader(cShader& shader);
     void UnBindShader(cShader& shader);
@@ -238,6 +251,7 @@ namespace opengl
     cShader* pCurrentShader;
 
     std::map<opengl::string_t, cTexture*> textures;
+    std::map<opengl::string_t, cTextureCubeMap*> cubeMapTextures;
     std::list<cShader*> shaders;
     std::list<cStaticVertexBufferObject*> staticVertexBufferObjects;
 

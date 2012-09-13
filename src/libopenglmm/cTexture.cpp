@@ -130,6 +130,85 @@ namespace opengl
 
 
 
+
+  // ** Cube Map Texture
+
+  cTextureCubeMap::cTextureCubeMap() :
+    uiTexture(0)
+  {
+  }
+
+  cTextureCubeMap::~cTextureCubeMap()
+  {
+    assert(uiTexture == 0);
+  }
+
+  bool cTextureCubeMap::CreateFromFilePaths(
+    const opengl::string_t& filePathPositiveX,
+    const opengl::string_t& filePathNegativeX,
+    const opengl::string_t& filePathPositiveY,
+    const opengl::string_t& filePathNegativeY,
+    const opengl::string_t& filePathPositiveZ,
+    const opengl::string_t& filePathNegativeZ
+  )
+  {
+    const GLuint axis[6] = {
+      GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
+
+    std::vector<opengl::string_t> filePaths;
+    filePaths.push_back(filePathPositiveX);
+    filePaths.push_back(filePathNegativeX);
+    filePaths.push_back(filePathPositiveY);
+    filePaths.push_back(filePathNegativeY);
+    filePaths.push_back(filePathPositiveZ);
+    filePaths.push_back(filePathNegativeZ);
+
+    // Create new texture
+    glGenTextures(1, &uiTexture);
+
+    // Bind so that the next operations happen on this texture
+    glBindTexture(GL_TEXTURE_CUBE_MAP, uiTexture);
+
+    {
+      voodoo::cImage image;
+
+      for (size_t i = 0; i < 6; i++) {
+        image.LoadFromFile(filePaths[i]);
+
+        assert(image.IsValid());
+        assert(spitfire::math::IsPowerOfTwo(image.GetWidth()));
+        assert(spitfire::math::IsPowerOfTwo(image.GetHeight()));
+        assert(image.GetWidth() == image.GetHeight());
+
+        const uint8_t* pBuffer = image.GetPointerToBuffer();
+        if (pBuffer != nullptr) {
+          // Copy from image to texture
+          glTexImage2D(axis[i], 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+
+          glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+          glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+          glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+          glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+      }
+    }
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    return IsValid();
+  }
+
+  void cTextureCubeMap::Destroy()
+  {
+    // Destroy old texture
+    glDeleteTextures(1, &uiTexture);
+    uiTexture = 0;
+  }
+
+
   // ** Frame Buffer Object
 
   cTextureFrameBufferObject::cTextureFrameBufferObject() :

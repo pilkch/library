@@ -266,6 +266,10 @@ namespace opengl
     else if (StringBeginsWith(sLine, "uniform sampler2D texUnit1;")) bTexUnit1 = true;
     else if (StringBeginsWith(sLine, "uniform sampler2D texUnit2;")) bTexUnit2 = true;
     else if (StringBeginsWith(sLine, "uniform sampler2D texUnit3;")) bTexUnit3 = true;
+    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit0;")) bTexUnit0 = true;
+    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
+    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
+    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
     else if (StringBeginsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
     else if (StringBeginsWith(sLine, "uniform vec3 sunPosition;")) bSunPosition = true;
     else if (StringBeginsWith(sLine, "uniform vec4 sunAmbientColour;")) bSunAmbientColour = true;
