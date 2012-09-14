@@ -24,9 +24,11 @@ namespace opengl
     const spitfire::math::cVec2 vMax(fWidth * 0.5f, fDepth * 0.5f);
 
     // Upper Square
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
   }
 
@@ -37,37 +39,49 @@ namespace opengl
     const spitfire::math::cVec3 vMax(fWidth * 0.5f, fDepth * 0.5f, fHeight * 0.5f);
 
     // Upper Square
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
 
     // Bottom Square
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f));
 
     // Side Squares
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
 
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
 
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
 
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
   }
 
   template <class T>
@@ -106,6 +120,8 @@ namespace opengl
           builder.PushBack(spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec2(fU, fV + fSegmentTextureHeight));
           builder.PushBack(spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
           builder.PushBack(spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV));
+          builder.PushBack(spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
+          builder.PushBack(spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
       }
     }
   }
