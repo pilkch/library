@@ -119,6 +119,7 @@ namespace spitfire
       //void operator+=(const cQuaternion& rhs) { (*this) = (*this) + rhs; }
       //void operator-=(const cQuaternion& rhs) { (*this) = (*this) - rhs; }
 
+      cVec3 operator*(const cVec3& rhs) const { return GetRotatedVector(rhs); }
 
 
       // TODO: Remove these
