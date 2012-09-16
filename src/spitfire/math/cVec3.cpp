@@ -107,37 +107,41 @@ namespace spitfire
     {
       const float fLength = GetLength();
 
-      // Return if length is 1 or 0
+      // Return if the length is 1 or 0
       if ((fLength == 1.0f) || (fLength == 0.0f)) return;
 
-      const float scalefactor = 1.0f / fLength;
+      const float fScale = 1.0f / fLength;
 
       if ((cEPSILON > x) && (-cEPSILON < x)) x = 0.0f;
-      else x *= scalefactor;
+      else x *= fScale;
 
       if ((cEPSILON > y) && (-cEPSILON < y)) y = 0.0f;
-      else y *= scalefactor;
+      else y *= fScale;
 
       if ((cEPSILON > z) && (-cEPSILON < z)) z = 0.0f;
-      else z *= scalefactor;
+      else z *= fScale;
     }
 
-    void cVec3::SetLength(float fLength)
+    void cVec3::SetLength(float fNewLength)
     {
-      // Return if length is 1 or 0
-      if (fLength == 1.0f) return;
-
-      if (fLength == 0.0f) {
+      // Return if the new length is 0
+      if (fNewLength == 0.0f) {
         x = 0.0f;
         y = 0.0f;
         z = 0.0f;
         return;
       }
 
-      const float scalefactor = 1.0f / fLength;
-      x *= scalefactor;
-      y *= scalefactor;
-      z *= scalefactor;
+      const float fCurrentLength = GetLength();
+
+      // Return if the current length is the same as the new length or is 0
+      if ((fCurrentLength == fNewLength) || (fCurrentLength == 0.0f)) return;
+
+      // Set the length
+      const float fScale = fNewLength / fCurrentLength;
+      x *= fScale;
+      y *= fScale;
+      z *= fScale;
     }
 
     cVec3 cVec3::SetLength(float length) const
