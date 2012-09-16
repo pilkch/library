@@ -149,6 +149,28 @@ namespace spitfire
       return result;
     }
 
+    void cVec3::ClampLength(float fMaxLength)
+    {
+      // Return if the max length is 0
+      if (fMaxLength == 0.0f) {
+        x = 0.0f;
+        y = 0.0f;
+        z = 0.0f;
+        return;
+      }
+
+      const float fCurrentLength = GetLength();
+
+      // Return if the current length is less than the max length or is 0
+      if ((fCurrentLength < fMaxLength) || (fCurrentLength == 0.0f)) return;
+
+      // Clamp the length
+      const float fScale = fMaxLength / fCurrentLength;
+      x *= fScale;
+      y *= fScale;
+      z *= fScale;
+    }
+
     cVec3 cVec3::GetInverse() const
     {
       cVec3 result(*this);

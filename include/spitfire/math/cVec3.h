@@ -52,8 +52,10 @@ namespace spitfire
       void Normalise();
       cVec3 GetNormalised() const;
 
-      void SetLength(float length);
-      cVec3 SetLength(float length) const;
+      void ClampLength(float fMaxLength);
+
+      void SetLength(float fLength);
+      cVec3 SetLength(float fLength) const;
 
       float GetLength() const;
       float GetSquaredLength() const;
