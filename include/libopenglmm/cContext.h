@@ -126,8 +126,8 @@ namespace opengl
     void SetSunAmbientColour(const spitfire::math::cColour& sunAmbientColour);
     void SetSunIntensity(float fSunIntensity);
 
-    void BeginRendering();
-    void EndRendering();
+    void BeginRenderToScreen();
+    void EndRenderToScreen();
 
     void BeginRenderToTexture(cTextureFrameBufferObject& texture);
     void EndRenderToTexture(cTextureFrameBufferObject& texture);

@@ -632,12 +632,12 @@ namespace opengl
   }
 
 
-  void cContext::BeginRendering()
+  void cContext::BeginRenderToScreen()
   {
     _BeginRenderShared(resolution.width, resolution.height);
   }
 
-  void cContext::EndRendering()
+  void cContext::EndRenderToScreen()
   {
     _EndRenderShared();
 
