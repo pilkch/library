@@ -89,11 +89,13 @@ namespace breathe
 
       const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 1.0f);
 
-      // Front facing quad
+      // Front facing triangles
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, spitfire::math::cVec2(fU2, fV2));
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
       builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
 
       pVBO = context.CreateStaticVertexBufferObject();
 
@@ -132,11 +134,13 @@ namespace breathe
       const float x = position.x;
       const float y = position.y;
 
-      // Front facing quad
+      // Front facing triangles
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
       builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
     }
 
     void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates)
@@ -144,11 +148,13 @@ namespace breathe
       const float x = position.x;
       const float y = position.y;
 
-      // Front facing quad
+      // Front facing triangles
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
       builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
       builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
     }
 
     void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates)
@@ -170,7 +176,7 @@ namespace breathe
       size_t nDots = spitfire::math::clamp<size_t>((100.0f * fRadius), 4, 20);
       if (!spitfire::math::IsDivisibleByTwo(nDots)) nDots++;
       float fAngleBetweenDots = 90.0f / float(nDots);
-      for (size_t iDots = 0; iDots < nDots; iDots += 2) {
+      for (size_t iDots = 0; iDots < nDots; iDots++) {
         // Start with a point that points straight up
         const spitfire::math::cVec2 point(0.0f, -fRadius);
 
@@ -187,18 +193,8 @@ namespace breathe
         point1.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
         point1.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
 
-        // Increment our angle
-        fAngle += fAngleBetweenDots;
-
-        // Rotate the point
-        spitfire::math::cVec2 point2;
-        point2.x = (point.x * cosf(spitfire::math::DegreesToRadians(fAngle))) - (point.y * sinf(spitfire::math::DegreesToRadians(fAngle)));
-        point2.y = (point.y * cosf(spitfire::math::DegreesToRadians(fAngle))) + (point.x * sinf(spitfire::math::DegreesToRadians(fAngle)));
-
         // Add the points
-        // Each segment is two triangles next to each other, so each iteration of the loop we add 4 points, 1 at the origin of the arc and the other 3 are along the outside of the arc
-        // The first and last points along the arc in each iteration will be touching a point from the previous iteration and a point from the next iteration
-        builder.PushBack(position + point2, colour, textureCoordinates.textureCoordinates[2]);
+        // Each segment is a triangle, so for each iteration of the loop we add 3 points, 1 at the origin of the arc and the other 2 are along the outside of the arc
         builder.PushBack(position + point1, colour, textureCoordinates.textureCoordinates[2]);
         builder.PushBack(position + point0, colour, textureCoordinates.textureCoordinates[2]);
         builder.PushBack(position, colour, textureCoordinates.textureCoordinates[0]);
@@ -428,7 +424,7 @@ namespace breathe
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBO);
-          context.DrawStaticVertexBufferObjectQuads2D(*pVBO);
+          context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
           context.UnBindStaticVertexBufferObject2D(*pVBO);
 
           context.UnBindShader(*pWidgetsShader);
@@ -456,7 +452,7 @@ namespace breathe
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBOText);
-          context.DrawStaticVertexBufferObjectQuads2D(*pVBOText);
+          context.DrawStaticVertexBufferObjectTriangles2D(*pVBOText);
           context.UnBindStaticVertexBufferObject2D(*pVBOText);
 
           context.UnBindFont(*pFont);
@@ -528,7 +524,7 @@ namespace breathe
         context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
         context.BindStaticVertexBufferObject2D(*pVBO);
-        context.DrawStaticVertexBufferObjectQuads2D(*pVBO);
+        context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
         context.UnBindStaticVertexBufferObject2D(*pVBO);
 
         context.UnBindShader(*pGuiShader);
