@@ -101,9 +101,9 @@ namespace spitfire
     }
 
 // spitfire/src/linux/file.cpp
-// /home/chris/.spitfire/spitfire/profile.xml
-// /home/chris/.spitfire/spitfire/config.xml
-// /home/chris/.spitfire/drive/
+// /home/chris/.config/spitfire/profile.xml
+// /home/chris/.config/spitfire/config.xml
+// /home/chris/.config/drive/
 
 // spitfire/src/apple/file.cpp
 // /Users/Chris/.spitfire/spitfire/profile.xml
@@ -114,10 +114,6 @@ namespace spitfire
 // C:/User Settings/Chris/App Data/.spitfire/spitfire/profile.xml
 // C:/User Settings/Chris/App Data/.spitfire/spitfire/config.xml
 // C:/User Settings/Chris/App Data/.spitfire/drive/
-
-// C:/Documents and Settings/Chris/App Data/.spitfire/spitfire/profile.xml
-// C:/Documents and Settings/Chris/App Data/.spitfire/spitfire/config.xml
-// C:/Documents and Settings/Chris/App Data/.spitfire/drive/
 
 // C:/Users/Chris/.spitfire/spitfire/profile.xml
 // C:/Users/Chris/.spitfire/spitfire/config.xml
