@@ -19,6 +19,8 @@ namespace breathe
       explicit cRenderer(const cManager& manager, opengl::cSystem& _system, opengl::cContext& context);
       ~cRenderer();
 
+      void SetWireFrame(bool bWireFrame);
+
       void Update();
       void Render();
 
@@ -56,6 +58,8 @@ namespace breathe
       const cManager& manager;
       opengl::cSystem& system;
       opengl::cContext& context;
+
+      bool bWireFrame;
 
       opengl::cTexture* pWidgetsTexture;
       opengl::cShader* pWidgetsShader;

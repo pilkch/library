@@ -57,6 +57,7 @@ namespace breathe
       manager(_manager),
       system(_system),
       context(_context),
+      bWireFrame(false),
       pWidgetsTexture(nullptr),
       pWidgetsShader(nullptr),
       pTextureFrameBufferObject(nullptr),
@@ -117,6 +118,11 @@ namespace breathe
       if (pTextureFrameBufferObject != nullptr) context.DestroyTextureFrameBufferObject(pTextureFrameBufferObject);
       if (pGuiShader != nullptr) context.DestroyShader(pGuiShader);
       if (pVBO != nullptr) context.DestroyStaticVertexBufferObject(pVBO);
+    }
+
+    void cRenderer::SetWireFrame(bool _bWireFrame)
+    {
+      bWireFrame = _bWireFrame;
     }
 
     void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour)
@@ -488,6 +494,8 @@ namespace breathe
       context.BeginRenderToTexture(*pTextureFrameBufferObject);
 
       context.BeginRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN);
+
+      if (bWireFrame) context.EnableWireframe();
 
       {
         const cWidget* pRoot = manager.GetRoot();
