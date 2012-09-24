@@ -109,11 +109,11 @@
 #error "Unknown compiler"
 #endif
 
-// CRT's memory leak detection
 #ifdef __WIN__
 #include <windows.h>
 
 #ifdef BUILD_DEBUG
+// CRT's memory leak detection
 #include <crtdbg.h>
 #ifndef __GNUC__
 //#define _CRTDBG_MAP_ALLOC
@@ -133,10 +133,16 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #error "RTTI must be disabled"
 #endif
 
-#elif defined(UNICODE)
-#define _TEXT(s) L##s
-#define TEXT(s) _TEXT(s)
+#ifndef UNICODE
+#error "UNICODE must be defined on Windows"
+#endif
+
 #else
+
+#ifdef UNICODE
+#error "UNICODE must not be defined on this platform"
+#endif
+
 #define TEXT(s) s
 #endif
 
