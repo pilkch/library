@@ -142,8 +142,10 @@ namespace opengl
     void EnableWireframe();
     void DisableWireframe();
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     void EnableLighting();
     void DisableLighting();
+    #endif
 
     void EnableDepthTesting();
     void DisableDepthTesting();

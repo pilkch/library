@@ -309,7 +309,9 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
       builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
       builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
       builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
+      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
 
       // Move the cursor for the next character
       position.x += fCharacterWidth + fGlyphAdvanceX[i];
@@ -328,7 +330,9 @@ namespace opengl
     builder.PushBack(spitfire::math::cVec2(0.0f, 1.0f), colour, spitfire::math::cVec2(0.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec2(1.0f, 1.0f), colour, spitfire::math::cVec2(1.0f, 1.0f));
     builder.PushBack(spitfire::math::cVec2(1.0f, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec2(1.0f, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec2(0.0f, 0.0f), colour, spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec2(0.0f, 1.0f), colour, spitfire::math::cVec2(0.0f, 1.0f));
 #endif
   }
 }

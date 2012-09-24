@@ -603,27 +603,35 @@ namespace opengl
 
     _SetPerspective(width, height);
 
-
-    //glClearDepth(1.0);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glClearDepth(1.0);
+    #endif
     glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_LEQUAL);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glDepthFunc(GL_LEQUAL);
+    #endif
 
     glClearColor(clearColour.r, clearColour.g, clearColour.b, clearColour.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Set our default colour
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     //const GLfloat global_ambient[] = { ambientColour.r, ambientColour.g, ambientColour.b, 1.0f };
     //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+    #endif
 
     //if (bIsFSAAEnabled) glEnable(GL_MULTISAMPLE_ARB);
 
     //if (bIsRenderWireframe) EnableWireframe();
     //else DisableWireframe();
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT, GL_FILL);
+    #endif
+    DisableWireframe();
   }
 
   void cContext::_EndRenderShared()
@@ -649,13 +657,15 @@ namespace opengl
     assert(texture.IsValid());
     assert(!texture.IsModeCubeMap()); // Cubemaps have to be rendered into each face separately
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_TEXTURE_2D);
+    #endif
 
     // First we bind the FBO so we can render to it
     glBindFramebuffer(GL_FRAMEBUFFER, texture.uiFBO);
 
-    // Save the view port settings (It is about to be change in _SetPerspective which is called by _BeginRenderShared)
-    glPushAttrib(GL_VIEWPORT_BIT);
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) std::cerr<<"cContext::BeginRenderToTexture Incomplete FBO "<<status<<std::endl;
 
     _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
   }
@@ -664,24 +674,29 @@ namespace opengl
   {
     _EndRenderShared();
 
-    // Restore old view port settings and set rendering back to default frame buffer
-    glPopAttrib();
+    // Set rendering back to default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     texture.GenerateMipMapsIfRequired();
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_TEXTURE_2D);
+    #endif
   }
 
   void cContext::BeginRenderMode2D(MODE2D_TYPE type)
   {
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_LIGHTING);
+    #endif
     glDisable(GL_DEPTH_TEST);
   }
 
   void cContext::EndRenderMode2D()
   {
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_LIGHTING);
+    #endif
     glEnable(GL_DEPTH_TEST);
   }
 
@@ -764,6 +779,7 @@ namespace opengl
   }
 
 
+  #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
   void cContext::EnableLighting()
   {
     glEnable(GL_LIGHTING);
@@ -773,6 +789,7 @@ namespace opengl
   {
     glDisable(GL_LIGHTING);
   }
+  #endif
 
 
   void cContext::EnableDepthTesting()
@@ -852,10 +869,15 @@ namespace opengl
   {
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #endif
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture.GetTexture());
+    GLenum type = GL_TEXTURE_2D;
+    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+
+    //glEnable(type);
+    glBindTexture(type, texture.GetTexture());
   }
 
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)
@@ -863,8 +885,13 @@ namespace opengl
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
+    GLenum type = GL_TEXTURE_2D;
+    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+
+    glBindTexture(type, 0);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glDisable(type);
+    #endif
   }
 
 
@@ -872,9 +899,13 @@ namespace opengl
   {
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #endif
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_TEXTURE_CUBE_MAP);
+    #endif
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetTexture());
   }
 
@@ -884,7 +915,9 @@ namespace opengl
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_TEXTURE_CUBE_MAP);
+    #endif
   }
 
 
