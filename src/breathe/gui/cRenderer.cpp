@@ -173,7 +173,7 @@ namespace breathe
       }
 
       // Add the points for the arc
-      size_t nDots = spitfire::math::clamp<size_t>((100.0f * fRadius), 4, 20);
+      size_t nDots = spitfire::math::clamp<size_t>((100.0f * fRadius), 4, 100);
       if (!spitfire::math::IsDivisibleByTwo(nDots)) nDots++;
       float fAngleBetweenDots = 90.0f / float(nDots);
       for (size_t iDots = 0; iDots < nDots; iDots++) {
