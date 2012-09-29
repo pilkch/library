@@ -1,9 +1,11 @@
 #ifndef CMODEL_STATIC_H
 #define CMODEL_STATIC_H
 
-#include <spitfire/spitfire.h>
+// Spitfire headers
+#include <spitfire/util/string.h>
 
-#include <spitfire/util/cString.h>
+// Breathe headers
+#include <breathe/breathe.h>
 
 namespace breathe
 {
@@ -21,7 +23,7 @@ namespace breathe
         std::vector<float_t> normals;
         std::vector<size_t> indices;
 
-        spitfire::string_t sMaterial;
+        string_t sMaterial;
       };
 
 
