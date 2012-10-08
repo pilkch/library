@@ -98,7 +98,7 @@ namespace opengl
     for (int i = 0; i <= latitudes; i++) {
       double lat0 = spitfire::math::cPI * (-0.5 + double(i - 1) / latitudes);
       double z0  = sin(lat0);
-      double zr0 =  cos(lat0);
+      double zr0 = cos(lat0);
 
       double lat1 = spitfire::math::cPI * (-0.5 + double(i) / latitudes);
       double z1 = sin(lat1);
@@ -116,12 +116,12 @@ namespace opengl
           const float fU = float(j) * fSegmentTextureWidth;
           const float fV = float(i) * fSegmentTextureHeight;
 
-          builder.PushBack(spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
-          builder.PushBack(spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec2(fU, fV + fSegmentTextureHeight));
-          builder.PushBack(spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
-          builder.PushBack(spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV));
-          builder.PushBack(spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
-          builder.PushBack(spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec2(fU, fV + fSegmentTextureHeight));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
+          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
       }
     }
   }
