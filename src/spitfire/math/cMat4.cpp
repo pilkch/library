@@ -703,7 +703,7 @@ namespace spitfire
         return identity;
       }
 
-      result = result / determinant;
+      result /= determinant;
 
       return result;
     }
