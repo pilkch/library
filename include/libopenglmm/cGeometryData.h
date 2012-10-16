@@ -46,6 +46,9 @@ namespace opengl
     size_t nNormalsPerPoint;
     size_t nColoursPerPoint;
     size_t nTextureCoordinatesPerPoint;
+    size_t nFloatUserData0PerPoint;
+    size_t nFloatUserData1PerPoint;
+    size_t nFloatUserData2PerPoint;
   };
 
   typedef std::shared_ptr<cGeometryData> cGeometryDataPtr;
@@ -56,7 +59,10 @@ namespace opengl
     nVerticesPerPoint(0),
     nNormalsPerPoint(0),
     nColoursPerPoint(0),
-    nTextureCoordinatesPerPoint(0)
+    nTextureCoordinatesPerPoint(0),
+    nFloatUserData0PerPoint(0),
+    nFloatUserData1PerPoint(0),
+    nFloatUserData2PerPoint(0)
   {
   }
 
