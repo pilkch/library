@@ -135,6 +135,8 @@ namespace breathe
       bool IsEnabled() const { return bIsEnabled; }
 
       void SetFocused();
+      bool IsFocused() const { return (bIsEnabled && bIsFocusable && bIsFocused); }
+
       void SetNextFocused();
       void SetFocusToNextChild();
 

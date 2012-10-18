@@ -378,7 +378,13 @@ namespace breathe
           // We are a window or invisible layer with more than 1 child, set the focus to the next focusable child
           const size_t n = children.size();
           for (size_t i = 0; i < n; i++) {
-            if (children[i] == pFocusedChild) {
+            if (pFocusedChild == nullptr) {
+              // We haven't had focus before so we just need to find the first focusable child
+              if (children[i]->IsFocusable()) {
+                children[i]->bIsFocused = true;
+                break;
+              }
+            } else if (children[i] == pFocusedChild) {
               children[i]->bIsFocused = false;
               i++;
               while (i < n) {
