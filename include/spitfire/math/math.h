@@ -5,6 +5,9 @@
 #include <cmath>
 #include <cstdlib>
 
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
 // e^(i*pi) + 1 = 0
 // e^(i*z) = cos(z) + i*sin(z)
 // cos(z) = ( e^(i*z) + e^(-i*z) ) / 2
@@ -430,6 +433,113 @@ namespace spitfire
     inline float cScopedPredictableRandom::GetRandomNumber0To1()
     {
       return (float(GetRandomNumberAndIncrement()) * fOneOver65536By65536);
+    }
+
+
+
+    // ** cTimeStep
+
+    class cTimeStep
+    {
+    public:
+      cTimeStep(sampletime_t currentTimeMS, float fStepMS);
+
+      spitfire::sampletime_t GetCurrentTimeMS() const { return currentTimeMS; }
+      float GetStepMS() const { return fStepMS; }
+
+    private:
+      spitfire::sampletime_t currentTimeMS;
+      float fStepMS;
+    };
+
+    inline cTimeStep::cTimeStep(spitfire::sampletime_t _currentTimeMS, float _fStepMS) :
+      currentTimeMS(_currentTimeMS),
+      fStepMS(_fStepMS)
+    {
+    }
+
+
+    // ** cSpring
+    // A generic spring class that can use 1, 2 or 3 dimensional vector
+    // NOTE: This shouldn't really be here but there isn't any where else to put it
+
+    template <class T>
+    class cSpring
+    {
+    public:
+      cSpring();
+
+      void SetMass(float fMass);
+      void SetK(float fK);
+      void SetDampening(float fDampening);
+
+      T GetPosition() const { return position; }
+      void SetPosition(const T& position);
+
+      void SetVelocity(const T& velocity);
+
+      void Update(const cTimeStep& timeStep);
+
+    private:
+      T dv(const T& x, const T& v) const;
+
+      float fMass;
+      float fK;
+      float fDampening;
+      T position;
+      T velocity;
+    };
+
+    template <class T>
+    inline cSpring<T>::cSpring() :
+      fMass(0.5f),
+      fK(0.3f),
+      fDampening(0.8f),
+      position(0.0f, 0.0f)
+    {
+    }
+
+    template <class T>
+    inline void cSpring<T>::SetMass(float _fMass)
+    {
+      fMass = _fMass;
+    }
+
+    template <class T>
+    inline void cSpring<T>::SetK(float _fK)
+    {
+      fK = _fK;
+    }
+
+    template <class T>
+    inline void cSpring<T>::SetDampening(float _fDampening)
+    {
+      fDampening = _fDampening;
+    }
+
+    template <class T>
+    inline void cSpring<T>::SetPosition(const T& _position)
+    {
+      position = _position;
+    }
+
+    template <class T>
+    inline void cSpring<T>::SetVelocity(const T& _velocity)
+    {
+      velocity = _velocity;
+    }
+
+    template <class T>
+    inline T cSpring<T>::dv(const T& x, const T& v) const
+    {
+      return (-fK / fMass) * x - (fDampening / fMass) * v;
+    }
+
+    template <class T>
+    inline void cSpring<T>::Update(const cTimeStep& timeStep)
+    {
+      velocity += dv(position, velocity);
+      position += velocity;
     }
   }
 }
