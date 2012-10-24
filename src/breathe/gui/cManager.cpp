@@ -297,6 +297,12 @@ namespace breathe
       if (pParent != nullptr) pParent->_BringChildToFront(*this);
     }
 
+    void cWidget::SetVisible(bool bVisible)
+    {
+      if (!bVisible) RemoveFocus();
+
+      bIsVisible = bVisible;
+    }
     void cWidget::SetFocused()
     {
       // Iterate down through heirarchy unsetting focus
@@ -386,6 +392,8 @@ namespace breathe
               }
             } else if (children[i] == pFocusedChild) {
               children[i]->bIsFocused = false;
+
+              // Find the next child to set focus to
               i++;
               while (i < n) {
                 if (children[i]->IsFocusable()) {
@@ -412,6 +420,8 @@ namespace breathe
         for (size_t i = 0; i < n; i++) {
           if (children[i] == pFocusedChild) {
             children[i]->bIsFocused = false;
+
+            // Find the next child to set focus to
             i++;
             for (; i < n; i++) {
               if (children[i]->IsFocusable()) {

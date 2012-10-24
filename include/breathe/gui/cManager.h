@@ -107,7 +107,12 @@ namespace breathe
       float GetX() const { return position.x; }
       float GetY() const { return position.y; }
       float GetWidth() const { return width; }
+      void SetWidth(float _width) { width = _width; }
       float GetHeight() const { return height; }
+      void SetHeight(float _height) { height = _height; }
+
+      string_t GetCaption() const { return sCaption; }
+      void SetCaption(const string_t& _sCaption) { sCaption = _sCaption; }
 
       bool IsDirtyRendering() const { return bIsDirtyRendering; }
       void ClearDirtyRendering() { bIsDirtyRendering = false; }
@@ -128,7 +133,7 @@ namespace breathe
 
       void BringToFront(); // Brings this widget to the front (Does not change the visibility)
 
-      void SetVisible(bool bVisible) { bIsVisible = bVisible; }
+      void SetVisible(bool bVisible);
       bool IsVisible() const { return bIsVisible; }
 
       void SetEnabled(bool bEnabled) { bIsEnabled = bEnabled; }
@@ -158,9 +163,11 @@ namespace breathe
       void SetFocusable(bool bFocusable) { bIsFocusable = bIsFocusable; }
       bool IsFocusable() const { return (bIsEnabled && bIsFocusable); }
 
-    public:
+    protected:
       const cWidget* _GetRoot() const;
       cWidget* _GetRoot();
+
+      // Direct children of this widget
       const cWidget* _GetFocusedChild() const;
       cWidget* _GetFocusedChild();
       size_t _GetFocusableChildCount() const;
@@ -219,10 +226,10 @@ namespace breathe
       cButton();
 
     private:
-      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
     };
 
     class cCheckbox : public cWidget
@@ -234,10 +241,10 @@ namespace breathe
       void SetSelected(bool bSelected);
 
     private:
-      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
-      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
+      virtual override EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
 
       bool bIsSelected;
     };
