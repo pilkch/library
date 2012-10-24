@@ -336,6 +336,21 @@ namespace breathe
       pFont->PushBack(builderText, widget.sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
+    void cRenderer::AddRetroInputUpDown(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInputUpDown& widget)
+    {
+      spitfire::math::cVec2 position = widget.GetAbsolutePosition() + spitfire::math::cVec2(0.01f, manager.GetTextHeight() + 0.005f);
+
+      const spitfire::math::cColour colourRed(1.0f, 0.0f, 0.0f);
+      const spitfire::math::cColour colour = widget.IsFocused() ? colourRed : widget.GetTextColour();
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, TEXT("<"), colour, position);
+      position.x += pFont->GetDimensions(TEXT("<")).x;
+      pFont->PushBack(builderText, widget.sCaption, colour, position);
+      position.x += pFont->GetDimensions(widget.sCaption).x;
+      pFont->PushBack(builderText, TEXT(">"), colour, position);
+    }
+
     //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, voodoo::cImage& widget)
     //{
     //  const voodoo::cImage& image = widget.GetImage();
@@ -399,6 +414,10 @@ namespace breathe
 
           case WIDGET_TYPE::RETRO_INPUT:
             AddRetroInput(builder, builderText, static_cast<const cRetroInput&>(child));
+            break;
+
+          case WIDGET_TYPE::RETRO_INPUT_UPDOWN:
+            AddRetroInputUpDown(builder, builderText, static_cast<const cRetroInputUpDown&>(child));
             break;
 
           case WIDGET_TYPE::INVISIBLE_LAYER:

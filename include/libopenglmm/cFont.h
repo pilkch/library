@@ -57,8 +57,8 @@ namespace opengl
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
 
-    void GetDimensions(const string_t& sText, float& fWidth, float& fHeight) const;
-    void GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const;
+    spitfire::math::cVec2 GetDimensions(const string_t& sText) const;
+    spitfire::math::cVec2 GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine) const;
 
   protected:
     bool Load(cContext& context, const string_t& sFilename, unsigned int height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);

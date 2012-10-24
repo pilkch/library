@@ -3,6 +3,7 @@
 
 // Breathe headers
 #include <breathe/breathe.h>
+
 // TODO: include shadows for gui with an alpha blend niceynicey.
 // TODO: Be original, don't use the mac os x controls,
 // TODO: use original solid black white and grey rectangles with rounded edges
@@ -46,6 +47,7 @@ namespace breathe
       SLIDER,
       RETRO_BUTTON,
       RETRO_INPUT,
+      RETRO_INPUT_UPDOWN,
       INVISIBLE_LAYER,
     };
 
@@ -327,7 +329,30 @@ namespace breathe
     {
     public:
       cRetroInput();
+
+    private:
+      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
     };
+
+    class cRetroInputUpDown : public cRetroInput
+    {
+    public:
+      cRetroInputUpDown();
+
+      int GetMin() const { return min; }
+      int GetMax() const { return max; }
+      void SetRange(int min, int max);
+      int GetValue() const { return value; }
+      void SetValue(int value);
+
+    private:
+      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+
+      int min;
+      int max;
+      int value;
+    };
+
 
     //cImage
     //cHUDText

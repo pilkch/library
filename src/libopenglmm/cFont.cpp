@@ -226,10 +226,9 @@ namespace opengl
     }
   }
 
-  void cFont::GetDimensions(const opengl::string_t& sText, float& fWidth, float& fHeight) const
+  spitfire::math::cVec2 cFont::GetDimensions(const opengl::string_t& sText) const
   {
-    fWidth = 0.0f;
-    fHeight = 0.0f;
+    spitfire::math::cVec2 dimensions;
 
     float characterWidth = 0.0f;
     float characterHeight = 0.0f;
@@ -245,21 +244,22 @@ namespace opengl
       characterHeight = fGlyphHeight[c];
 
       // Add the characterWidth and if this is the tallest character so far then set our current tallest character to us
-      fWidth += characterWidth;
-      if (characterHeight > fHeight) fHeight = characterHeight;
+      dimensions.x += characterWidth;
+      if (characterHeight > dimensions.y) dimensions.y = characterHeight;
     }
 
     // I'm not sure why 1000?  This seems to work and look nice but I don't have a clue what
     // the right value is/where it is from, I thought I wouldn't have to do anything to this number, we could just use it directly?
-    const float fOneOver1000 = 1.0f / 1000;
-    fWidth *= fOneOver1000;
-    fHeight *= fOneOver1000;
+    //const float fOneOver1000 = 1.0f / 1000;
+    //dimensions.x *= fOneOver1000;
+    //dimensions.y *= fOneOver1000;
+
+    return dimensions;
   }
 
-  void cFont::GetDimensionsLineWrap(const opengl::string_t& sText, float fMaxWidthOfLine, float& fWidth, float& fHeight) const
+  spitfire::math::cVec2 cFont::GetDimensionsLineWrap(const opengl::string_t& sText, float fMaxWidthOfLine) const
   {
-    fWidth = 0.0f;
-    fHeight = 0.0f;
+    spitfire::math::cVec2 dimensions;
 
     //float characterWidth = 0.0f;
     //float characterHeight = 0.0f;
@@ -269,9 +269,11 @@ namespace opengl
       /*_GetDimensions(sText[i], lineWidth, lineHeight);
 
       // Add the lineHeight and if this is the widest line so far then set our current widest line to us
-      if (lineWidth > fWidth) fWidth = lineWidth;
-      fHeight += lineHeight;*/
+      if (lineWidth > dimensions.x) dimensions.x = lineWidth;
+      dimensions.y += lineHeight;*/
     }
+
+    return dimensions;
   }
 
   void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const

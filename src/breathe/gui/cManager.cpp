@@ -750,6 +750,48 @@ namespace breathe
       type = WIDGET_TYPE::RETRO_INPUT;
     }
 
+    // ** cRetroInputUpDown
+
+    cRetroInputUpDown::cRetroInputUpDown() :
+      min(0),
+      max(100),
+      value(0)
+    {
+      type = WIDGET_TYPE::RETRO_INPUT_UPDOWN;
+
+      SetValue(0);
+    }
+
+    void cRetroInputUpDown::SetRange(int _min, int _max)
+    {
+      min = _min;
+      max = _max;
+    }
+
+    void cRetroInputUpDown::SetValue(int _value)
+    {
+      if ((_value >= min) && (_value <= max)) {
+        value = _value;
+        SetCaption(spitfire::string::ToString(value));
+      }
+    }
+
+    EVENT_RESULT cRetroInputUpDown::_OnEventKeyboardDown(int keyCode)
+    {
+      switch (keyCode) {
+        case KEY::LEFT: {
+          SetValue(value - 1);
+          return EVENT_RESULT::HANDLED;
+        }
+        case KEY::RIGHT: {
+          SetValue(value + 1);
+          return EVENT_RESULT::HANDLED;
+        }
+      }
+
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
 
     // ** cWidgetEvent
 
