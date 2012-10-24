@@ -12,6 +12,9 @@
 #include <vector>
 #include <list>
 
+// libopenglmm headers
+#include <libopenglmm/cWindow.h>
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
@@ -30,6 +33,8 @@ namespace breathe
 {
   namespace gui
   {
+    using opengl::KEY;
+
     // ** cLayoutAbsolute
 
     void cLayoutAbsolute::AddChild(cWidget* pChild)
@@ -86,6 +91,7 @@ namespace breathe
     // ** cWidget
 
     cWidget::cWidget(WIDGET_TYPE _type) :
+      pListener(nullptr),
       id(0),
       type(_type),
       width(1.0f),
@@ -105,6 +111,11 @@ namespace breathe
     {
       const size_t n = children.size();
       for (size_t i = 0; i < n; i++) spitfire::SAFE_DELETE(children[i]);
+    }
+
+    void cWidget::SetEventListener(cWidgetEventListener& listener)
+    {
+      pListener = &listener;
     }
 
     void cWidget::SetId(id_t _id)
@@ -303,6 +314,21 @@ namespace breathe
 
       bIsVisible = bVisible;
     }
+
+    void cWidget::RemoveFocus()
+    {
+      if (bIsFocused) {
+        bIsFocused = false;
+        return;
+      }
+
+      // Iterate down through heirarchy unsetting focus
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        children[i]->RemoveFocus();
+      }
+    }
+
     void cWidget::SetFocused()
     {
       // Iterate down through heirarchy unsetting focus
@@ -358,6 +384,40 @@ namespace breathe
       return pFocusedChild;
     }
 
+    const cWidget* cWidget::_GetFocusedDescendant() const
+    {
+      const cWidget* pFocusedChild = nullptr;
+
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        if (children[i]->bIsFocused) {
+          pFocusedChild = children[i];
+          break;
+        }
+
+        pFocusedChild = children[i]->_GetFocusedDescendant();
+      }
+
+      return pFocusedChild;
+    }
+
+    cWidget* cWidget::_GetFocusedDescendant()
+    {
+      cWidget* pFocusedChild = nullptr;
+
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        if (children[i]->bIsFocused) {
+          pFocusedChild = children[i];
+          break;
+        }
+
+        pFocusedChild = children[i]->_GetFocusedDescendant();
+      }
+
+      return pFocusedChild;
+    }
+
     size_t cWidget::_GetFocusableChildCount() const
     {
       size_t nFocusableChildren = 0;
@@ -373,6 +433,39 @@ namespace breathe
     void cWidget::SetNextFocused()
     {
       if (pParent != nullptr) pParent->SetFocusToNextChild();
+    }
+
+    void cWidget::SetPreviousFocused()
+    {
+      if (pParent != nullptr) pParent->SetFocusToPreviousChild();
+    }
+
+    void cWidget::SetFocusToFirstChild()
+    {
+      // We are a window or invisible layer with more than 1 child, set the focus to the first focusable child
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        // Find the first focusable child
+        if (children[i]->SetFocusToFirstChildRecursive()) break;
+      }
+    }
+
+    bool cWidget::SetFocusToFirstChildRecursive()
+    {
+      // We are a window or invisible layer with more than 1 child, set the focus to the first focusable child
+      const size_t n = children.size();
+      for (size_t i = 0; i < n; i++) {
+        // Find the first focusable child
+        if (children[i]->SetFocusToFirstChildRecursive()) return true;
+      }
+
+      // We didn't find a focusable child so we set our focus to our own widget
+      if (IsFocusable()) {
+        bIsFocused = true;
+        return true;
+      }
+
+      return false;
     }
 
     void cWidget::SetFocusToNextChild()
@@ -432,6 +525,77 @@ namespace breathe
 
             // We didn't find another focusable child after this child so tell the parent to set focus to the next child
             SetNextFocused();
+          }
+        }
+      }
+    }
+
+    void cWidget::SetFocusToPreviousChild()
+    {
+      cWidget* pFocusedChild = _GetFocusedChild();
+
+      if ((type == WIDGET_TYPE::WINDOW) || (type == WIDGET_TYPE::INVISIBLE_LAYER)) {
+        if (_GetFocusableChildCount() > 1) {
+          // We are a window or invisible layer with more than 1 child, set the focus to the previous focusable child
+          const size_t n = children.size();
+          for (size_t i = 0; i < n; i++) {
+            if (pFocusedChild == nullptr) {
+              // We haven't had focus before so we just need to find the first focusable child
+              if (children[i]->IsFocusable()) {
+                children[i]->bIsFocused = true;
+                break;
+              }
+            } else if (children[i] == pFocusedChild) {
+              children[i]->bIsFocused = false;
+
+              // Find the previous child to set focus to
+              if (i != 0) {
+                i--;
+                do {
+                  if (children[i]->IsFocusable()) {
+                    children[i]->bIsFocused = true;
+                    return;
+                  }
+
+                  if (i != 0) i--;
+                } while (i != 0);
+              }
+
+              // We didn't find a focusable child before this child so go back to the end and try again
+              i = n - 1;
+              do {
+                if (children[i]->IsFocusable()) {
+                  // We found the previous child to set the focus to
+                  children[i]->bIsFocused = true;
+                  return;
+                }
+
+                if (i != 0) i--;
+              } while (i != 0);
+            }
+          }
+        }
+      } else {
+        const size_t n = children.size();
+        for (size_t i = 0; i < n; i++) {
+          if (children[i] == pFocusedChild) {
+            children[i]->bIsFocused = false;
+
+            // Find the previous child to set focus to
+            if (i != 0) {
+              i--;
+              do {
+                if (children[i]->IsFocusable()) {
+                  children[i]->bIsFocused = true;
+                  return;
+                }
+
+                if (i != 0) i--;
+              } while (i != 0);
+            }
+
+            // We didn't find another focusable child after this child so tell the parent to set focus to the previous child
+            SetPreviousFocused();
           }
         }
       }
@@ -564,11 +728,35 @@ namespace breathe
       type = WIDGET_TYPE::RETRO_BUTTON;
     }
 
+    EVENT_RESULT cRetroButton::_OnEventKeyboardDown(int keyCode)
+    {
+      if (keyCode == KEY::RETURN) {
+        if (pListener != nullptr) {
+          cWidgetEvent event;
+          event.SetWidget(this);
+          event.SetType(cWidgetEvent::TYPE::PRESSED);
+          pListener->_OnWidgetEvent(event);
+        }
+        return EVENT_RESULT::HANDLED;
+      }
+
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
     // ** cRetroInput
 
     cRetroInput::cRetroInput()
     {
       type = WIDGET_TYPE::RETRO_INPUT;
+    }
+
+
+    // ** cWidgetEvent
+
+    cWidgetEvent::cWidgetEvent() :
+      pWidget(nullptr),
+      type(TYPE::UNKNOWN)
+    {
     }
 
 
@@ -681,12 +869,12 @@ namespace breathe
 
     const cWidget* cManager::GetFocusedWidget() const
     {
-      return pRoot->_GetFocusedChild();
+      return pRoot->_GetFocusedDescendant();
     }
 
     cWidget* cManager::GetFocusedWidget()
     {
-      return pRoot->_GetFocusedChild();
+      return pRoot->_GetFocusedDescendant();
     }
 
     const cWidget* cManager::FindWidgetUnderPoint(const spitfire::math::cVec2& point) const
@@ -707,8 +895,27 @@ namespace breathe
       cWidget* pWidget = GetFocusedWidget();
       if (pWidget != nullptr) {
         std::cout<<"cManager::InjectEventKeyboardDown Sending event to "<<pWidget->GetId()<<std::endl;
-        return (pWidget->OnEventKeyboardDown(keyCode) == EVENT_RESULT::HANDLED);
+        if (pWidget->OnEventKeyboardDown(keyCode) == EVENT_RESULT::HANDLED) return true;
       } else std::cout<<"cManager::InjectEventKeyboardDown Could not find widget to send the event to"<<std::endl;
+
+      switch (keyCode) {
+        case KEY::DOWN: {
+          if (pWidget != nullptr) {
+            pWidget->SetNextFocused();
+            return true;
+          }
+
+          break;
+        }
+        case KEY::UP: {
+          if (pWidget != nullptr) {
+            pWidget->SetPreviousFocused();
+            return true;
+          }
+
+          break;
+        }
+      }
 
       return false;
     }
@@ -719,7 +926,7 @@ namespace breathe
       cWidget* pWidget = GetFocusedWidget();
       if (pWidget != nullptr) {
         std::cout<<"cManager::InjectEventKeyboardUp Sending event to "<<pWidget->GetId()<<std::endl;
-        return (pWidget->OnEventKeyboardUp(keyCode) == EVENT_RESULT::HANDLED);
+        if (pWidget->OnEventKeyboardUp(keyCode) == EVENT_RESULT::HANDLED) return true;
       } else std::cout<<"cManager::InjectEventKeyboardUp Could not find widget to send the event to"<<std::endl;
 
       return false;

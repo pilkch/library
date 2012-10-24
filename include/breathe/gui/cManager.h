@@ -1,6 +1,8 @@
 #ifndef CMANAGER_H
 #define CMANAGER_H
 
+// Breathe headers
+#include <breathe/breathe.h>
 // TODO: include shadows for gui with an alpha blend niceynicey.
 // TODO: Be original, don't use the mac os x controls,
 // TODO: use original solid black white and grey rectangles with rounded edges
@@ -54,6 +56,39 @@ namespace breathe
 
     class cWidget;
 
+    class cWidgetEvent
+    {
+    public:
+      cWidgetEvent();
+
+      const cWidget* GetWidget() const { return pWidget; }
+      cWidget* GetWidget() { return pWidget; }
+
+      bool IsPressed() const { return (type == TYPE::PRESSED); }
+
+      enum class TYPE {
+        PRESSED,
+        UNKNOWN,
+      };
+
+      void SetWidget(cWidget* _pWidget) { pWidget = _pWidget; }
+      void SetType(TYPE _type) { type = _type; }
+
+    private:
+      cWidget* pWidget;
+      TYPE type;
+    };
+
+
+    class cWidgetEventListener
+    {
+    public:
+      virtual ~cWidgetEventListener() {}
+
+      virtual void _OnWidgetEvent(const cWidgetEvent& event) = 0;
+    };
+
+
     // ** cLayoutAbsolute
     //
     // The children of this layout can be positioned at absolute coordinates within the layout.
@@ -82,14 +117,18 @@ namespace breathe
     };
 
     class cManager;
+    class cRenderer;
 
     class cWidget
     {
     public:
       friend class cManager;
+      friend class cRenderer;
 
       cWidget();
       virtual ~cWidget();
+
+      void SetEventListener(cWidgetEventListener& listener);
 
       const cWidget* GetParent() const { return pParent; }
       cWidget* GetParent() { return pParent; }
@@ -143,7 +182,10 @@ namespace breathe
       bool IsFocused() const { return (bIsEnabled && bIsFocusable && bIsFocused); }
 
       void SetNextFocused();
+      void SetPreviousFocused();
+      void SetFocusToFirstChild();
       void SetFocusToNextChild();
+      void SetFocusToPreviousChild();
 
       const spitfire::math::cColour& GetColour() const { return colourBackground; }
       void SetColour(const spitfire::math::cColour& colour) { colourBackground = colour; }
@@ -173,12 +215,21 @@ namespace breathe
       size_t _GetFocusableChildCount() const;
       void _BringChildToFront(cWidget& widget);
 
+      // All widgets under the tree of this widget
+      const cWidget* _GetFocusedDescendant() const;
+      cWidget* _GetFocusedDescendant();
+
+      void RemoveFocus();
+      bool SetFocusToFirstChildRecursive();
+
       virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
       virtual EVENT_RESULT _OnEventKeyboardUp(int keyCode) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
       virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
       virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
       virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
       virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y) { return EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
+
+      cWidgetEventListener* pListener;
 
       id_t id;
       WIDGET_TYPE type;
@@ -267,6 +318,9 @@ namespace breathe
     {
     public:
       cRetroButton();
+
+    private:
+      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
     };
 
     class cRetroInput : public cInput
