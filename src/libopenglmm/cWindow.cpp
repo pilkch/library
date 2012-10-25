@@ -22,6 +22,18 @@
 
 namespace opengl
 {
+  bool IsKeyPrintable(KEY key)
+  {
+    if ((key >= KEY::A) && (key <= KEY::Z)) return true;
+
+    if ((key >= KEY::SPACE) && (key <= KEY::BACKQUOTE)) return true;
+
+    return false;
+  }
+
+
+  // ** cWindow
+
   cWindow::cWindow(cSystem& _system, const opengl::string_t& sCaption, const cResolution& _resolution, bool _bIsFullScreen) :
     system(_system),
     resolution(_resolution),

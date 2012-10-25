@@ -195,6 +195,8 @@ namespace opengl
     SDLK_UNDO       = 322,      // Atari keyboard has Undo*/
   };
 
+  bool IsKeyPrintable(KEY key);
+
   class cWindow
   {
   public:

@@ -332,8 +332,11 @@ namespace breathe
       const spitfire::math::cColour colourRed(1.0f, 0.0f, 0.0f);
       const spitfire::math::cColour colour = widget.IsFocused() ? colourRed : widget.GetTextColour();
 
+      string_t sCaption = widget.sCaption;
+      if (widget.IsFocused()) sCaption.append(TEXT("|"));
+
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddRetroInputUpDown(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInputUpDown& widget)

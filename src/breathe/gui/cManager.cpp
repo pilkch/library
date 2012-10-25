@@ -35,6 +35,8 @@ namespace breathe
   {
     using opengl::KEY;
 
+    using opengl::IsKeyPrintable;
+
     // ** cLayoutAbsolute
 
     void cLayoutAbsolute::AddChild(cWidget* pChild)
@@ -743,12 +745,36 @@ namespace breathe
       return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
     }
 
+
     // ** cRetroInput
 
     cRetroInput::cRetroInput()
     {
       type = WIDGET_TYPE::RETRO_INPUT;
     }
+
+    EVENT_RESULT cRetroInput::_OnEventKeyboardDown(int keyCode)
+    {
+      switch (keyCode) {
+        case KEY::BACKSPACE: {
+          if (!sCaption.empty()) {
+            // Strip the last character
+            sCaption = sCaption.substr(0, sCaption.length() - 1);
+          }
+          return EVENT_RESULT::HANDLED;
+        }
+        default: {
+          if (IsKeyPrintable(KEY(keyCode))) {
+            const char_t szText[2] = { char_t(keyCode), 0 };
+            sCaption.append(szText);
+            return EVENT_RESULT::HANDLED;
+          }
+        }
+      };
+
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
 
     // ** cRetroInputUpDown
 
