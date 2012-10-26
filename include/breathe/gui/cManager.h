@@ -48,6 +48,7 @@ namespace breathe
       RETRO_BUTTON,
       RETRO_INPUT,
       RETRO_INPUT_UPDOWN,
+      RETRO_COLOUR_PICKER,
       INVISIBLE_LAYER,
     };
 
@@ -66,9 +67,11 @@ namespace breathe
       const cWidget* GetWidget() const { return pWidget; }
       cWidget* GetWidget() { return pWidget; }
 
+      bool IsChanged() const { return (type == TYPE::CHANGED); }
       bool IsPressed() const { return (type == TYPE::PRESSED); }
 
       enum class TYPE {
+        CHANGED,
         PRESSED,
         UNKNOWN,
       };
@@ -87,7 +90,7 @@ namespace breathe
     public:
       virtual ~cWidgetEventListener() {}
 
-      virtual void _OnWidgetEvent(const cWidgetEvent& event) = 0;
+      virtual EVENT_RESULT _OnWidgetEvent(const cWidgetEvent& event) = 0;
     };
 
 
@@ -343,7 +346,7 @@ namespace breathe
       int GetMax() const { return max; }
       void SetRange(int min, int max);
       int GetValue() const { return value; }
-      void SetValue(int value);
+      void SetValue(int value, bool bNotifyListener);
 
     private:
       virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
@@ -351,6 +354,28 @@ namespace breathe
       int min;
       int max;
       int value;
+    };
+
+    class cRetroColourPicker : public cRetroInput
+    {
+    public:
+      cRetroColourPicker();
+
+      size_t GetNumberOfColours() const;
+      string_t GetColourName(size_t index) const;
+      spitfire::math::cColour GetColour(size_t index) const;
+      void AddColour(const string_t& sName, const spitfire::math::cColour& colour);
+
+      size_t GetSelectedColour() const { return selected; }
+      void SetSelectedColour(size_t index, bool bNotifyListener);
+
+    private:
+      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+
+      std::vector<string_t> colourNames;
+      std::vector<spitfire::math::cColour> colours;
+
+      size_t selected;
     };
 
 

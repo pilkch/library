@@ -785,7 +785,7 @@ namespace breathe
     {
       type = WIDGET_TYPE::RETRO_INPUT_UPDOWN;
 
-      SetValue(0);
+      SetValue(0, false);
     }
 
     void cRetroInputUpDown::SetRange(int _min, int _max)
@@ -794,7 +794,7 @@ namespace breathe
       max = _max;
     }
 
-    void cRetroInputUpDown::SetValue(int _value)
+    void cRetroInputUpDown::SetValue(int _value, bool bNotifyListener)
     {
       if ((_value >= min) && (_value <= max)) {
         value = _value;
@@ -806,11 +806,87 @@ namespace breathe
     {
       switch (keyCode) {
         case KEY::LEFT: {
-          SetValue(value - 1);
+          SetValue(value - 1, true);
           return EVENT_RESULT::HANDLED;
         }
         case KEY::RIGHT: {
-          SetValue(value + 1);
+          SetValue(value + 1, true);
+          return EVENT_RESULT::HANDLED;
+        }
+      }
+
+      return EVENT_RESULT::NOT_HANDLED_PERCOLATE;
+    }
+
+
+    // ** cRetroColourPicker
+
+    cRetroColourPicker::cRetroColourPicker() :
+      selected(0)
+    {
+      type = WIDGET_TYPE::RETRO_COLOUR_PICKER;
+
+      SetSelectedColour(0, false);
+    }
+
+    size_t cRetroColourPicker::GetNumberOfColours() const
+    {
+      return colours.size();
+    }
+
+    string_t cRetroColourPicker::GetColourName(size_t index) const
+    {
+      if (index < colours.size()) return colourNames[index];
+
+      return TEXT("");
+    }
+
+    spitfire::math::cColour cRetroColourPicker::GetColour(size_t index) const
+    {
+      if (index < colours.size()) return colours[index];
+
+      return spitfire::math::cColour(0.0f, 0.0f, 0.0f);
+    }
+
+    void cRetroColourPicker::AddColour(const string_t& sName, const spitfire::math::cColour& colour)
+    {
+      colourNames.push_back(sName);
+      colours.push_back(colour);
+    }
+
+    void cRetroColourPicker::SetSelectedColour(size_t index, bool bNotifyListener)
+    {
+      if (index < colours.size()) {
+        size_t previous = selected;
+
+        selected = index;
+
+        // Give the listener a chance to veto the action
+        if (bNotifyListener && (pListener != nullptr)) {
+          cWidgetEvent event;
+          event.SetWidget(this);
+          event.SetType(cWidgetEvent::TYPE::CHANGED);
+          if (pListener->_OnWidgetEvent(event) == EVENT_RESULT::HANDLED) {
+            // The event has been vetoed
+            selected = previous;
+            return;
+          }
+        }
+
+      }
+    }
+
+    EVENT_RESULT cRetroColourPicker::_OnEventKeyboardDown(int keyCode)
+    {
+      switch (keyCode) {
+        case KEY::LEFT: {
+          int index = int(selected);
+          SetSelectedColour(index - 1, true);
+          return EVENT_RESULT::HANDLED;
+        }
+        case KEY::RIGHT: {
+          int index = int(selected);
+          SetSelectedColour(index + 1, true);
           return EVENT_RESULT::HANDLED;
         }
       }

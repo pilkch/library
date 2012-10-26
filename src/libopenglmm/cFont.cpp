@@ -230,8 +230,8 @@ namespace opengl
   {
     spitfire::math::cVec2 dimensions;
 
-    float characterWidth = 0.0f;
-    float characterHeight = 0.0f;
+    float fCharacterWidth = 0.0f;
+    float fCharacterHeight = 0.0f;
 
     const size_t n = sText.size();
     for (size_t i = 0; i < n; i++) {
@@ -240,12 +240,14 @@ namespace opengl
       size_t c = size_t(sText[i]);
 
       // Now lookup the character in the array of widths and heights
-      characterWidth = fGlyphWidth[c];
-      characterHeight = fGlyphHeight[c];
+      fCharacterWidth = fGlyphWidth[c];
+      fCharacterHeight = fGlyphHeight[c];
 
-      // Add the characterWidth and if this is the tallest character so far then set our current tallest character to us
-      dimensions.x += characterWidth;
-      if (characterHeight > dimensions.y) dimensions.y = characterHeight;
+      // Add the character width and glyph advance value
+      dimensions.x += fCharacterWidth + fGlyphAdvanceX[i];
+
+      // If this is the tallest character so far then set our current tallest character to us
+      if (fCharacterHeight > dimensions.y) dimensions.y = fCharacterHeight;
     }
 
     // I'm not sure why 1000?  This seems to work and look nice but I don't have a clue what

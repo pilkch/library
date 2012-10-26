@@ -354,6 +354,33 @@ namespace breathe
       pFont->PushBack(builderText, TEXT(">"), colour, position);
     }
 
+    void cRenderer::AddRetroColourPicker(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroColourPicker& widget)
+    {
+      spitfire::math::cVec2 position = widget.GetAbsolutePosition() + spitfire::math::cVec2(0.01f, manager.GetTextHeight() + 0.005f);
+
+      const spitfire::math::cColour colourRed(1.0f, 0.0f, 0.0f);
+
+      const size_t selected = widget.GetSelectedColour();
+
+      const float fWidestBracket = max(pFont->GetDimensions(TEXT("<")).x, pFont->GetDimensions(TEXT("[")).x);
+
+      const size_t n = widget.GetNumberOfColours();
+      for (size_t i = 0; i < n; i++) {
+        const spitfire::math::cColour colour = widget.GetColour(i);
+
+        // Create the text for this widget
+        if (i == selected) pFont->PushBack(builderText, widget.IsFocused() ? TEXT("[") : TEXT("["), colour, position);
+        position.x += fWidestBracket;
+
+        const string_t sName = widget.GetColourName(i);
+        pFont->PushBack(builderText, sName, colour, position);
+        position.x += pFont->GetDimensions(sName).x;
+
+        if (i == selected) pFont->PushBack(builderText, widget.IsFocused() ? TEXT("]") : TEXT("]"), colour, position);
+        position.x += fWidestBracket;
+      }
+    }
+
     //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, voodoo::cImage& widget)
     //{
     //  const voodoo::cImage& image = widget.GetImage();
@@ -421,6 +448,10 @@ namespace breathe
 
           case WIDGET_TYPE::RETRO_INPUT_UPDOWN:
             AddRetroInputUpDown(builder, builderText, static_cast<const cRetroInputUpDown&>(child));
+            break;
+
+          case WIDGET_TYPE::RETRO_COLOUR_PICKER:
+            AddRetroColourPicker(builder, builderText, static_cast<const cRetroColourPicker&>(child));
             break;
 
           case WIDGET_TYPE::INVISIBLE_LAYER:
