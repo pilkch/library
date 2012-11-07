@@ -43,14 +43,6 @@
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/cColour.h>
 
-#include <breathe/util/base.h>
-#include <breathe/render/model/cMesh.h>
-#include <breathe/render/model/cModel.h>
-
-#include <breathe/render/cTexture.h>
-#include <breathe/render/cTextureAtlas.h>
-#include <breathe/render/cMaterial.h>
-
 #include <breathe/audio/audio.h>
 #include <breathe/audio/audio_openal.h>
 
