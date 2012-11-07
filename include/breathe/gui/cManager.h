@@ -1,6 +1,9 @@
 #ifndef CMANAGER_H
 #define CMANAGER_H
 
+// libopenglmm headers
+#include <libopenglmm/cWindow.h>
+
 // Breathe headers
 #include <breathe/breathe.h>
 
@@ -37,6 +40,11 @@ namespace breathe
   namespace gui
   {
     typedef uint32_t id_t;
+
+    using opengl::KEY;
+    using opengl::cWindowEvent;
+    using opengl::cKeyboardEvent;
+    using opengl::cMouseEvent;
 
     enum class WIDGET_TYPE {
       WINDOW,

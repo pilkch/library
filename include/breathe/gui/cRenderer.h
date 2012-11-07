@@ -1,6 +1,12 @@
 #ifndef CRENDERER_H
 #define CRENDERER_H
 
+// libopenglmm headers
+#include <libopenglmm/cFont.h>
+#include <libopenglmm/cSystem.h>
+#include <libopenglmm/cTexture.h>
+
+// Breathe headers
 #include <breathe/gui/cManager.h>
 #include <breathe/render/cTextureAtlas.h>
 
