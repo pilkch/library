@@ -150,7 +150,7 @@ namespace opengl
 
   class cTexture;
   class cShader;
-  class cStaticVertexBuffer;
+  class cStaticVertexBufferObject;
   class cShader;
 }
 

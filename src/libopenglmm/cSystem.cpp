@@ -61,7 +61,7 @@ namespace opengl
   {
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
-      std::cout<<"cSystem::cSystem SDL_Init FAILED error="<<SDL_GetError()<<std::endl;
+      std::cerr<<"cSystem::cSystem SDL_Init FAILED error="<<SDL_GetError()<<std::endl;
       return;
     }
 

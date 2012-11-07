@@ -471,7 +471,7 @@ namespace opengl
       GLXDrawable read = glXGetCurrentReadDrawable();
       int nelements = 0;
       GLXFBConfig* cfg = glXGetFBConfigs(dpy, 0, &nelements);
-      int attribs[]= {
+      int attribs[] = {
         GLX_CONTEXT_MAJOR_VERSION_ARB, iMajor,
         GLX_CONTEXT_MINOR_VERSION_ARB, iMinor,
         #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
