@@ -22,6 +22,10 @@
 #ifndef LIBOPENGLMM_CONTEXT_H
 #define LIBOPENGLMM_CONTEXT_H
 
+// Standard headers
+#include <list>
+#include <map>
+
 // liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 

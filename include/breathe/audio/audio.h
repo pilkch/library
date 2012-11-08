@@ -1,6 +1,14 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+// Standard headers
+#include <list>
+#include <map>
+
+// Boost headers
+#include <boost/shared_ptr.hpp>
+
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/string.h>
@@ -8,6 +16,7 @@
 
 #include <spitfire/math/cVec3.h>
 
+// Breathe headers
 #include <breathe/breathe.h>
 
 // Buffer: Sound data ready to play
