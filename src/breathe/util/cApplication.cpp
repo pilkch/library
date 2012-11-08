@@ -47,47 +47,318 @@ int intersect_triangle(
   *u = tvec.DotProduct(pvec);
   if (*u < 0.0 || *u > det) return 0;
 
+
   // prepare to test V parameter
   qvec = tvec.CrossProduct(edge1);
 
   // calculate V parameter and test bounds
+
   *v = dir.DotProduct(qvec);
   if (*v < 0.0 || *u + *v > det) return 0;
 
   // calculate t, scale parameters, ray intersects triangle
   *t = edge2.DotProduct(qvec);
+
   double inv_det = 1.0 / det;
   *t *= inv_det;
   *u *= inv_det;
   *v *= inv_det;
+
 
 #else                    // the non-culling branch
    if (det > -EPSILON && det < EPSILON) return 0;
 
    double inv_det = 1.0 / det;
 
+
    // calculate distance from vert0 to ray origin
    tvec = orig - vert0;
 
    // calculate U parameter and test bounds
    *u = tvec.DotProduct(pvec) * inv_det;
+
    if (*u < 0.0 || *u > 1.0) return 0;
 
    // prepare to test V parameter
    qvec = tvec.CrossProduct(edge1);
 
    // calculate V parameter and test bounds
+
    *v = dir.DotProduct(qvec) * inv_det;
 
    if (*v < 0.0 || *u + *v > 1.0) return 0;
 
    // calculate t, ray intersects triangle
+
    *t = edge2.DotProduct(qvec) * inv_det;
 #endif
 
    return 1;
 }
+
 */
+
+#include <breathe/util/cApplication.h>
+
+namespace breathe
+{
+  namespace util
+  {
+    // ** cState
+
+    cState::cState(cApplication& application) :
+      system(application.system),
+      pWindow(application.pWindow),
+      pContext(application.pContext),
+      pAudioManager(application.pAudioManager)
+    {
+    }
+
+    cState::~cState()
+    {
+    }
+
+
+    // ** cApplication
+
+    cApplication::cApplication() :
+      bIsDone(false),
+
+      pWindow(nullptr),
+      pContext(nullptr),
+
+      pAudioManager(nullptr)
+    {
+    }
+
+    cApplication::~cApplication()
+    {
+      Destroy();
+    }
+
+    bool cApplication::Create()
+    {
+      const opengl::cCapabilities& capabilities = system.GetCapabilities();
+
+      opengl::cResolution resolution = capabilities.GetCurrentResolution();
+      if ((resolution.width < 1024) || (resolution.height < 768) || (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8)) {
+        std::cout<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
+        return false;
+      }
+
+      // Set our required resolution
+      resolution.width = 1024;
+      resolution.height = 768;
+      resolution.pixelFormat = opengl::PIXELFORMAT::R8G8B8A8;
+
+      pWindow = system.CreateWindow(TEXT("Tetris"), resolution, false);
+      if (pWindow == nullptr) {
+        std::cout<<"Window could not be created"<<std::endl;
+        return false;
+      }
+
+      pContext = pWindow->GetContext();
+      if (pContext == nullptr) {
+        std::cout<<"Context could not be created"<<std::endl;
+        return false;
+      }
+
+      // Setup our event listeners
+      pWindow->SetWindowEventListener(*this);
+      pWindow->SetInputEventListener(*this);
+
+      pAudioManager = breathe::audio::Create(breathe::audio::DRIVER::SDLMIXER);
+
+
+      // Call our overridden create function
+      return _Create();
+    }
+
+    void cApplication::Destroy()
+    {
+      // Call our overridden destroy function
+      _Destroy();
+
+
+      if (pAudioManager != nullptr) {
+        breathe::audio::Destroy(pAudioManager);
+        pAudioManager = nullptr;
+      }
+
+      pContext = nullptr;
+
+      if (pWindow != nullptr) {
+        system.DestroyWindow(pWindow);
+        pWindow = nullptr;
+      }
+    }
+
+    void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
+    {
+      std::cout<<"cApplication::_OnWindowEvent"<<std::endl;
+
+      if (event.IsQuit()) {
+        std::cout<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
+        bIsDone = true;
+      }
+    }
+
+    void cApplication::_OnMouseEvent(const opengl::cMouseEvent& event)
+    {
+      cState* pState = GetState();
+      if (pState != nullptr) pState->OnMouseEvent(event);
+    }
+
+    void cApplication::_OnKeyboardEvent(const opengl::cKeyboardEvent& event)
+    {
+      cState* pState = GetState();
+      if (pState != nullptr) pState->OnKeyboardEvent(event);
+    }
+
+    void cApplication::PushStateSoon(cState* pState)
+    {
+      cStateEvent event = pState;
+      stateEvents.push_back(event);
+    }
+
+    void cApplication::PopStateSoon()
+    {
+      cStateEvent event = nullptr; // A null state event means "Pop the current state"
+      stateEvents.push_back(event);
+    }
+
+    void cApplication::PushState(cState* pState)
+    {
+      ASSERT(pState != nullptr);
+
+      cState* pOldState = GetState();
+      if (pOldState != nullptr) pOldState->Pause();
+
+      states.push(pState);
+
+      pState->Resume();
+    }
+
+    void cApplication::PopState()
+    {
+      cState* pOldState = GetState();
+      if (pOldState != nullptr) {
+        pOldState->Pause();
+
+        // Delete and remove the old state
+        delete pOldState;
+        states.pop();
+
+        // Prepare the previous state
+        cState* pCurrentState = GetState();
+        if (pCurrentState != nullptr) pCurrentState->Resume();
+      }
+    }
+
+    cState* cApplication::GetState()
+    {
+      cState* pState = nullptr;
+      if (!states.empty()) {
+        pState = states.top();
+        ASSERT(pState != nullptr);
+      }
+      return pState;
+    }
+
+    void cApplication::ProcessStateEvents()
+    {
+      const size_t n = stateEvents.size();
+      for (size_t i = 0; i < n; i++) {
+        cState* pState = stateEvents[i];
+        if (pState != nullptr) PushState(pState);
+        else PopState(); // A null state event means "Pop the current state"
+      }
+
+      stateEvents.clear();
+    }
+
+    void cApplication::MainLoop()
+    {
+      assert(pContext != nullptr);
+      assert(pContext->IsValid());
+
+      uint32_t T0 = 0;
+      uint32_t Frames = 0;
+
+      uint32_t currentTime = SDL_GetTicks();
+      uint32_t lastTime = SDL_GetTicks();
+
+      uint32_t lastUpdateTime = SDL_GetTicks();
+
+      while (!states.empty()) {
+        ProcessStateEvents();
+        if (states.empty()) break;
+
+        // Update window events
+        pWindow->UpdateEvents();
+
+        // Update state
+        lastTime = currentTime;
+        currentTime = SDL_GetTicks();
+        {
+          const spitfire::math::cTimeStep timeStep(currentTime, currentTime - lastTime);
+          cState* pState = GetState();
+          assert(pState != nullptr);
+          pState->UpdateInput(timeStep);
+        }
+
+        // Perform an Update, these are locked at 30 fps
+        if ((currentTime - lastUpdateTime) > 33) {
+          const spitfire::math::cTimeStep timeStep(currentTime, 33);
+          cState* pState = GetState();
+          assert(pState != nullptr);
+          pState->Update(timeStep);
+          lastUpdateTime = currentTime;
+        }
+
+        // Update audio
+        const spitfire::math::cVec3 listenerPosition;
+        const spitfire::math::cVec3 listenerTarget;
+        const spitfire::math::cVec3 listenerUp(0.0f, 0.0f, 1.0f);
+        pAudioManager->Update(currentTime, listenerPosition, listenerTarget, listenerUp);
+
+        // Render a frame
+        {
+          const spitfire::math::cTimeStep timeStep(currentTime, currentTime - lastTime);
+          cState* pState = GetState();
+          assert(pState != nullptr);
+          pState->Render(timeStep);
+        }
+
+        // Gather our frames per second
+        Frames++;
+        {
+          const uint32_t t = SDL_GetTicks();
+          // TODO: Try changing this to 1000
+          if (t - T0 >= 5000) {
+            const float seconds = (t - T0) / 1000.0;
+            const float fps = Frames / seconds;
+            std::cout<<Frames<<" frames in "<<seconds<<" seconds = "<<fps<<" FPS"<<std::endl;
+            T0 = t;
+            Frames = 0;
+          }
+        }
+      };
+    }
+
+    void cApplication::Run()
+    {
+      const bool bIsSuccess = Create();
+      if (bIsSuccess) MainLoop();
+
+      Destroy();
+    }
+  }
+}
+
+
+
+#if 0
 
 
 // Wii Fit Linux
@@ -2230,3 +2501,6 @@ namespace breathe
     }
   }
 }
+
+#endif
+
