@@ -437,6 +437,20 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, iMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, iMinor);
     #elif BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+
+    #ifdef __WIN__
+    // Get a handle to the window
+    SDL_SysWMinfo wmInfo;
+    SDL_GetWMInfo(&wmInfo)
+    HDC hdc = GetDC(wmInfo.window);
+
+    // Load the wglCreateContextAttribsARB extension
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+    if (wglCreateContextAttribsARB == nullptr) {
+      std::cerr<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+      return false;
+    }
+    #else
     // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
     // http://encelo.netsons.org/2009/01/16/habemus-opengl-30/
     // Get a pointer to glXCreateContextAttribsARB
@@ -446,6 +460,8 @@ namespace opengl
       std::cerr<<"cContext::_SetWindowVideoMode glXCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
       return false;
     }
+    #endif
+
     #endif
 
     // Create an SDL surface
@@ -461,11 +477,32 @@ namespace opengl
     #if BUILD_LIBOPENGLMM_SDL_VERSION < 130
     // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
+
+    #ifdef __WIN__
+    if (wglCreateContextAttribsARB != nullptr) {
+      // Create a new context, make it current and destroy the old one
+      std::cout<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
+      // Create the new context
+      int attribList[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        0
+      };
+      HGLRC ctx3 = wglCreateContextAttribsARB(hdc, 0, attribList);
+
+      // Make the new context current
+      wglMakeCurrent(hdc, ctx3);
+
+      // Destroy the old context
+      //wglDeleteContext(wmInfo.hglrc);
+    }
+    #else
     if (glXCreateContextAttribsARB != nullptr) {
       // Create a new context, make it current and destroy the old one
       std::cout<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
       // Tell GLX which version of OpenGL we want
-      GLXContext ctx = glXGetCurrentContext();
+      //GLXContext ctx = glXGetCurrentContext();
       Display* dpy = glXGetCurrentDisplay();
       GLXDrawable draw = glXGetCurrentDrawable();
       GLXDrawable read = glXGetCurrentReadDrawable();
@@ -482,10 +519,14 @@ namespace opengl
       };
       GLXContext ctx3 = glXCreateContextAttribsARB(dpy, *cfg, 0, 1, attribs);
       glXMakeContextCurrent(dpy, draw, read, ctx3);
-      glXDestroyContext(dpy, ctx);
+
+      // Destroy the old context
+      //glXDestroyContext(dpy, ctx);
 
       std::cout<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
     }
+    #endif
+
     #endif
     #endif
 
