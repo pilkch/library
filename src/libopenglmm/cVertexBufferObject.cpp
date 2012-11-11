@@ -76,8 +76,11 @@ namespace opengl
   {
     assert(!IsCompiled());
 
+    #ifdef DEBUG
     const size_t nVertices = pGeometryDataPtr->nVertexCount;
     assert(nVertices != 0);
+    #endif
+
     nTextureUnits = pGeometryDataPtr->nTextureCoordinatesPerPoint / 2;
 
     //std::cout<<"cStaticVertexBufferObject::Compile nVertices="<<nVertices<<" nTextureUnits="<<nTextureUnits<<" indices="<<pGeometryDataPtr->indices.size()<<std::endl;

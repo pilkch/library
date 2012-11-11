@@ -98,6 +98,10 @@ int intersect_triangle(
 
 */
 
+// Standard headers
+#include <iostream>
+
+// Breathe headers
 #include <breathe/util/cApplication.h>
 
 namespace breathe
