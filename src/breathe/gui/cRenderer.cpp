@@ -64,6 +64,16 @@ namespace breathe
       pGuiShader(nullptr),
       pVBO(nullptr)
     {
+      LoadResources();
+    }
+
+    cRenderer::~cRenderer()
+    {
+      DestroyResources();
+    }
+
+    bool cRenderer::LoadResources()
+    {
       pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
       pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
 
@@ -108,18 +118,38 @@ namespace breathe
 
       // Create the font for rendering text
       pFont = context.CreateFont(TEXT("data/fonts/pricedown.ttf"), 32, TEXT("data/shaders/font.vert"), TEXT("data/shaders/font.frag"));
+
+      return true;
     }
 
-    cRenderer::~cRenderer()
+    void cRenderer::DestroyResources()
     {
-      if (pFont != nullptr) context.DestroyFont(pFont);
+      if (pFont != nullptr) {
+        context.DestroyFont(pFont);
+        pFont = nullptr;
+      }
 
-      if (pWidgetsShader != nullptr) context.DestroyShader(pWidgetsShader);
-      if (pWidgetsTexture != nullptr) context.DestroyTexture(pWidgetsTexture);
+      if (pWidgetsShader != nullptr) {
+        context.DestroyShader(pWidgetsShader);
+        pWidgetsShader = nullptr;
+      }
+      if (pWidgetsTexture != nullptr) {
+        context.DestroyTexture(pWidgetsTexture);
+        pWidgetsTexture = nullptr;
+      }
 
-      if (pTextureFrameBufferObject != nullptr) context.DestroyTextureFrameBufferObject(pTextureFrameBufferObject);
-      if (pGuiShader != nullptr) context.DestroyShader(pGuiShader);
-      if (pVBO != nullptr) context.DestroyStaticVertexBufferObject(pVBO);
+      if (pTextureFrameBufferObject != nullptr) {
+        context.DestroyTextureFrameBufferObject(pTextureFrameBufferObject);
+        pTextureFrameBufferObject = nullptr;
+      }
+      if (pGuiShader != nullptr) {
+        context.DestroyShader(pGuiShader);
+        pGuiShader = nullptr;
+      }
+      if (pVBO != nullptr) {
+        context.DestroyStaticVertexBufferObject(pVBO);
+        pVBO = nullptr;
+      }
     }
 
     void cRenderer::SetWireFrame(bool _bWireFrame)

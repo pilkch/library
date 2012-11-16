@@ -25,6 +25,9 @@ namespace breathe
       explicit cRenderer(const cManager& manager, opengl::cSystem& _system, opengl::cContext& context);
       ~cRenderer();
 
+      bool LoadResources();
+      void DestroyResources();
+
       void SetWireFrame(bool bWireFrame);
 
       void Update();
