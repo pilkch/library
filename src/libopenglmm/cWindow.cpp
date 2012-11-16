@@ -141,7 +141,7 @@ namespace opengl
     while (SDL_PollEvent(&sdlEvent)) {
       switch (sdlEvent.type) {
         case SDL_QUIT: {
-          std::cout<<"cWindow::UpdateEvents Quit"<<std::endl;
+          LOG<<"cWindow::UpdateEvents Quit"<<std::endl;
           cWindowEvent event;
           event.type = TYPE::WINDOW_QUIT;
           if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
@@ -152,10 +152,10 @@ namespace opengl
           cWindowEvent event;
           bool bActivated = (sdlEvent.active.gain != 0);
           if (bActivated) {
-            std::cout<<"cWindow::UpdateEvents Activated"<<std::endl;
+            LOG<<"cWindow::UpdateEvents Activated"<<std::endl;
             event.type = TYPE::WINDOW_ACTIVATE;
           } else {
-            std::cout<<"cWindow::UpdateEvents Deactivated"<<std::endl;
+            LOG<<"cWindow::UpdateEvents Deactivated"<<std::endl;
             event.type = TYPE::WINDOW_DEACTIVATE;
           }
           if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
@@ -163,16 +163,28 @@ namespace opengl
         }
 
         case SDL_VIDEORESIZE: {
-          std::cout<<"cWindow::UpdateEvents Resize"<<std::endl;
+          LOG<<"cWindow::UpdateEvents Resize"<<std::endl;
+
+          {
+            // Send an about to resize event
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
+            if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+          }
+
           cResolution resolution;
           resolution.width = sdlEvent.resize.w;
           resolution.height = sdlEvent.resize.h;
           resolution.pixelFormat = GetPixelFormat();
           OnResizeWindow(resolution, IsFullScreen());
 
-          cWindowEvent event;
-          event.type = TYPE::WINDOW_RESIZE;
-          if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+          {
+            // Send a resized event
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_RESIZED;
+            if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+          }
+
           break;
         }
 

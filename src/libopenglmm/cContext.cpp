@@ -611,6 +611,7 @@ namespace opengl
 
   void cContext::_SetPerspective(size_t width, size_t height)
   {
+    //LOG<<"cContext::_SetPerspective "<<cSystem::GetErrorString()<<std::endl;
     // Setup our viewport
     glViewport(0, 0, (GLint)width, (GLint)height);
 
@@ -619,6 +620,7 @@ namespace opengl
 
     // Load identity matrix for the modelview matrix
     matModelView.LoadIdentity();
+    //LOG<<"cContext::_SetPerspective returning, "<<cSystem::GetErrorString()<<std::endl;
   }
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix() const
@@ -698,6 +700,7 @@ namespace opengl
 
   void cContext::_BeginRenderShared(size_t width, size_t height)
   {
+    //LOG<<"cContext::_BeginRenderShared "<<cSystem::GetErrorString()<<std::endl;
     matTexture.LoadIdentity();
 
     _SetPerspective(width, height);
@@ -731,6 +734,7 @@ namespace opengl
     glPolygonMode(GL_FRONT, GL_FILL);
     #endif
     DisableWireframe();
+    //LOG<<"cContext::_BeginRenderShared returning, "<<cSystem::GetErrorString()<<std::endl;
   }
 
   void cContext::_EndRenderShared()

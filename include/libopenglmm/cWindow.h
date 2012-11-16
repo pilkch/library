@@ -290,7 +290,8 @@ namespace opengl
     WINDOW_QUIT,
     WINDOW_ACTIVATE,
     WINDOW_DEACTIVATE,
-    WINDOW_RESIZE,
+    WINDOW_ABOUT_TO_RESIZE,
+    WINDOW_RESIZED,
     KEY_DOWN,
     KEY_UP,
     MOUSE_DOWN,
@@ -308,7 +309,8 @@ namespace opengl
     bool IsQuit() const { return (type == TYPE::WINDOW_QUIT); }
     bool IsActivated() const { return (type == TYPE::WINDOW_ACTIVATE); }
     bool IsDeactivated() const { return (type == TYPE::WINDOW_DEACTIVATE); }
-    bool IsResize() const { return (type == TYPE::WINDOW_RESIZE); }
+    bool IsAboutToResize() const { return (type == TYPE::WINDOW_ABOUT_TO_RESIZE); }
+    bool IsResized() const { return (type == TYPE::WINDOW_RESIZED); }
 
   protected:
     TYPE type;
