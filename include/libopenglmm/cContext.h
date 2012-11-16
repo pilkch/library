@@ -34,6 +34,11 @@
 
 struct SDL_Surface;
 
+#ifdef __WIN__
+#pragma push_macro("CreateFont")
+#undef CreateFont
+#endif
+
 namespace opengl
 {
 #ifdef BUILD_OPENGLMM_FONT
