@@ -129,12 +129,10 @@ namespace spitfire
 
 
 
-#if defined(__LINUX__) || defined(__APPLE__)
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
       return GetHomeConfigurationFilesDirectory() + TEXT("/") + sApplication + TEXT("/");
     }
-#endif
 
     bool DeleteFile(const string_t& sFilename)
     {

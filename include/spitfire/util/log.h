@@ -1,6 +1,10 @@
 #ifndef CLOG_H
 #define CLOG_H
 
+// Standard headers
+#include <sstream>
+
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 #ifdef BUILD_LOGGING

@@ -86,7 +86,7 @@ namespace breathe
       cApplication();
       ~cApplication();
 
-      void Run();
+      bool Run();
 
       void PushStateSoon(cState* pState);
       void PopStateSoon();

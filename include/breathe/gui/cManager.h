@@ -35,6 +35,11 @@
 //  - Each layer takes on the properties of the widget
 //  - Do not have to rebuild the layer if these properties change
 
+#ifdef __WIN__
+#pragma push_macro("CreateWindow")
+#undef CreateWindow
+#endif
+
 namespace breathe
 {
   namespace gui

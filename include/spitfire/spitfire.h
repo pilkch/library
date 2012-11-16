@@ -115,7 +115,7 @@
 #ifdef BUILD_DEBUG
 // CRT's memory leak detection
 #include <crtdbg.h>
-#ifndef __GNUC__
+#ifndef COMPILER_GCC
 //#define _CRTDBG_MAP_ALLOC
 inline void *__cdecl operator new(size_t n, const char *fn, int l) { return ::operator new(n, 1, fn, l); }
 inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator delete(p, 1, fn, l); }
@@ -167,14 +167,15 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define THREAD_GLOBAL
 
 
-#ifdef __GNUC__
+#ifdef COMPILER_GCC
 #define GCC_VERSION (__GNUC__ * 100) + (__GNUC_MINOR__)
 #define GCC_VERSION_4_7 407
 #endif
 
-#ifdef __GNUC__
 // Override keyword to flag virtual functions which are overridden from the base class
 #define override
+
+#ifdef COMPILER_GCC
 // Final keyword to flag virtual functions which are not allowed to be overridden in derived classes
 #define final
 #endif
@@ -194,7 +195,7 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 // Deprecation flags
-#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#if defined(COMPILER_GCC) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
 #define ATTRIBUTE_DEPRECATED __attribute__((deprecated))
 #else
 #define ATTRIBUTE_DEPRECATED

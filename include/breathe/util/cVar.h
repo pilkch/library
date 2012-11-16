@@ -112,7 +112,7 @@ namespace breathe
   {
     if (IsReadOnlyAtTheMoment()) return false;
 
-    bValue = bool(value);
+    bValue = (value != 0);
     iValue = value;
     fValue = float(value);
     sValue = breathe::string::ToString(value);
@@ -124,7 +124,7 @@ namespace breathe
   {
     if (IsReadOnlyAtTheMoment()) return false;
 
-    bValue = bool(value);
+    bValue = (value != 0);
     iValue = int(value);
     fValue = value;
     sValue = breathe::string::ToString(value);

@@ -101,6 +101,9 @@ int intersect_triangle(
 // Standard headers
 #include <iostream>
 
+// Spitfire headers
+#include <spitfire/util/log.h>
+
 // Breathe headers
 #include <breathe/util/cApplication.h>
 
@@ -146,7 +149,7 @@ namespace breathe
 
       opengl::cResolution resolution = capabilities.GetCurrentResolution();
       if ((resolution.width < 1024) || (resolution.height < 768) || (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8)) {
-        std::cout<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
+        LOGERROR<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
         return false;
       }
 
@@ -157,13 +160,13 @@ namespace breathe
 
       pWindow = system.CreateWindow(TEXT("Tetris"), resolution, false);
       if (pWindow == nullptr) {
-        std::cout<<"Window could not be created"<<std::endl;
+        LOGERROR<<"Window could not be created"<<std::endl;
         return false;
       }
 
       pContext = pWindow->GetContext();
       if (pContext == nullptr) {
-        std::cout<<"Context could not be created"<<std::endl;
+        LOGERROR<<"Context could not be created"<<std::endl;
         return false;
       }
 
@@ -171,7 +174,7 @@ namespace breathe
       pWindow->SetWindowEventListener(*this);
       pWindow->SetInputEventListener(*this);
 
-      pAudioManager = breathe::audio::Create(breathe::audio::DRIVER::SDLMIXER);
+      pAudioManager = breathe::audio::Create(breathe::audio::DRIVER::DEFAULT);
 
 
       // Call our overridden create function
@@ -199,10 +202,10 @@ namespace breathe
 
     void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
     {
-      std::cout<<"cApplication::_OnWindowEvent"<<std::endl;
+      LOG<<"cApplication::_OnWindowEvent"<<std::endl;
 
       if (event.IsQuit()) {
-        std::cout<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
+        LOG<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
         bIsDone = true;
       }
     }
@@ -342,7 +345,7 @@ namespace breathe
           if (t - T0 >= 5000) {
             const float seconds = (t - T0) / 1000.0;
             const float fps = Frames / seconds;
-            std::cout<<Frames<<" frames in "<<seconds<<" seconds = "<<fps<<" FPS"<<std::endl;
+            LOG<<Frames<<" frames in "<<seconds<<" seconds = "<<fps<<" FPS"<<std::endl;
             T0 = t;
             Frames = 0;
           }
@@ -350,12 +353,14 @@ namespace breathe
       };
     }
 
-    void cApplication::Run()
+    bool cApplication::Run()
     {
       const bool bIsSuccess = Create();
       if (bIsSuccess) MainLoop();
 
       Destroy();
+
+      return bIsSuccess;
     }
   }
 }
@@ -707,16 +712,16 @@ namespace breathe
 
       updater.CheckIfUpdateIsAvailableInBackground();
 
-      std::cout<<"Checking for updates"<<std::endl;
+      LOG<<"Checking for updates"<<std::endl;
       while (updater.IsRunning()) {
-        std::cout<<".";
+        LOG<<".";
         util::PauseThisThread(1000);
       };
 
-      std::cout<<std::endl;
+      LOG<<std::endl;
 
       if (listener.IsVersionOutOfDate()) {
-        std::cout<<"The current version is out of date"<<std::endl;
+        LOG<<"The current version is out of date"<<std::endl;
 
         if (download the latest version automatically setting is true)
             // TODO:
@@ -727,7 +732,7 @@ namespace breathe
             // We can now safely return, the newly extracted executable is running and will install itself
           return;
       }
-    } else std::cout<<"The current version is up to date"<<std::endl;
+    } else LOG<<"The current version is up to date"<<std::endl;
   }
   */
 
@@ -1975,17 +1980,17 @@ namespace breathe
 
   void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
   {
-    std::cout<<"cApplication::_OnWindowEvent"<<std::endl;
+    LOG<<"cApplication::_OnWindowEvent"<<std::endl;
   }
 
   void cApplication::_OnMouseEvent(const opengl::cMouseEvent& event)
   {
-    std::cout<<"cApplication::_OnMouseEvent"<<std::endl;
+    LOG<<"cApplication::_OnMouseEvent"<<std::endl;
   }
 
   void cApplication::_OnKeyboardEvent(const opengl::cKeyboardEvent& event)
   {
-    std::cout<<"cApplication::_OnKeyboardEvent"<<std::endl;
+    LOG<<"cApplication::_OnKeyboardEvent"<<std::endl;
   }
 
   void cApplication::_UpdateInput(sampletime_t currentTime)
@@ -2316,7 +2321,7 @@ namespace breathe
 
   void cApplication::cConsoleWindow::_OnEvent(const gui::cEvent& event)
   {
-    std::cout<<"cApplication::cConsoleWindow::_OnEvent"<<std::endl;
+    LOG<<"cApplication::cConsoleWindow::_OnEvent"<<std::endl;
   }
 
 
