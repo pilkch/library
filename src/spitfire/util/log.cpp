@@ -148,7 +148,7 @@ namespace spitfire
       return true;
     }
 
-#ifdef BUILD_DEBUG
+//#ifdef BUILD_DEBUG
     void cLog::trace(const std::string& section)
     {
       if (!bIsLogging) return;
@@ -170,7 +170,7 @@ namespace spitfire
     {
       trace(section + " - " + text);
     }
-#endif //BUILD_DEBUG
+//#endif //BUILD_DEBUG
 
     void cLog::Newline()
     {
@@ -202,9 +202,9 @@ namespace spitfire
 
       logfile.close();
 
-  #ifdef BUILD_DEBUG
+  //#ifdef BUILD_DEBUG
       trace(s1);
-  #endif //BUILD_DEBUG
+  //#endif //BUILD_DEBUG
     }
 
     void cLog::Newline(const std::string& s1, const std::string& text)
@@ -222,9 +222,9 @@ namespace spitfire
       logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << text << endline;
       logfile.close();
 
-  #ifdef BUILD_DEBUG
+  //#ifdef BUILD_DEBUG
       trace(s1, text);
-  #endif
+  //#endif
     }
 
     void cLog::Success(const std::string& section, const std::string& text)
@@ -244,9 +244,9 @@ namespace spitfire
 
       scol=!scol;
 
-  #ifdef BUILD_DEBUG
+  //#ifdef BUILD_DEBUG
       trace(section, text);
-  #endif //BUILD_DEBUG
+  //#endif //BUILD_DEBUG
     }
 
     void cLog::Error(const std::string& section, const std::string& text)
@@ -265,9 +265,9 @@ namespace spitfire
 
       ecol=!ecol;
 
-  #ifdef BUILD_DEBUG
+  //#ifdef BUILD_DEBUG
       trace(section, text);
-  #endif //BUILD_DEBUG
+  //#endif //BUILD_DEBUG
     }
 
 

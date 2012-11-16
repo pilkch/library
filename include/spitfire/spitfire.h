@@ -289,6 +289,16 @@ namespace spitfire
 // NOTE: These are compile time so we do them in both debug and release
 #define STATIC_ASSERT(expression, szDescription) static_assert(expression, szDescription)
 
+
+// Logging and assert
+#if defined(COMPILER_MSVC) || defined(BUILD_DEBUG)
+#define BUILD_LOGGING
+// LOG and LOGERROR are declared in spitfire/util/log.h
+#else
+#define LOG std::cout
+#define LOGERROR std::cerr
+#endif
+
 #ifdef ASSERT
 #undef ASSERT
 #endif
@@ -310,8 +320,6 @@ namespace spitfire
 #define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #else
-#define LOG std::cout
-#define LOGERROR std::cerr
 #define ASSERT assert
 #endif
 
