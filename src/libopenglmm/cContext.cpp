@@ -13,6 +13,7 @@
 
 // SDL headers
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_syswm.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -30,6 +31,16 @@
 #include <libopenglmm/opengl.h>
 
 #if (BUILD_LIBOPENGLMM_SDL_VERSION < 130) && (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
+#ifdef __WIN__
+typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
+
+#define WGL_CONTEXT_MAJOR_VERSION_ARB          0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB          0x2092
+#define WGL_CONTEXT_FLAGS_ARB                  0x2094
+#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
+#define WGL_CONTEXT_PROFILE_MASK_ARB           0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB       0x00000001
+#else
 #include <GL/glx.h>
 
 #define GLX_CONTEXT_DEBUG_BIT_ARB                0x00000001
@@ -37,6 +48,7 @@
 #define GLX_CONTEXT_MAJOR_VERSION_ARB            0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB            0x2092
 #define GLX_CONTEXT_FLAGS_ARB                    0x2094
+#endif
 #endif
 
 #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -447,31 +459,22 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, iMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, iMinor);
     #elif BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-
+    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually
     #ifdef __WIN__
     // Get a handle to the window
-    SDL_SysWMinfo wmInfo;
-    SDL_GetWMInfo(&wmInfo)
-    HDC hdc = GetDC(wmInfo.window);
-
-    // Load the wglCreateContextAttribsARB extension
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-    if (wglCreateContextAttribsARB == nullptr) {
-      std::cerr<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+    SDL_SysWMinfo wmInfo = { 0 };
+    SDL_GetWMInfo(&wmInfo);
+    if (wmInfo.window == NULL) {
+      LOGERROR<<"cContext::_SetWindowVideoMode SDL_GetWMInfo FAILED, returning false"<<std::endl;
       return false;
     }
-    #else
-    // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
-    // http://encelo.netsons.org/2009/01/16/habemus-opengl-30/
-    // Get a pointer to glXCreateContextAttribsARB
-    typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int* attrib_list);
-    PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress((GLubyte*)"glXCreateContextAttribsARB");
-    if (glXCreateContextAttribsARB == nullptr) {
-      std::cerr<<"cContext::_SetWindowVideoMode glXCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+
+    HDC hdc = GetDC(wmInfo.window);
+    if (hdc == NULL) {
+      LOGERROR<<"cContext::_SetWindowVideoMode GetDC FAILED, returning false"<<std::endl;
       return false;
     }
     #endif
-
     #endif
 
     // Create an SDL surface
@@ -482,24 +485,53 @@ namespace opengl
       return false;
     }
 
+    #ifdef __WIN__
+    if (gl3wInit()) {
+      LOGERROR<<"cContext::_SetWindowVideoMode Failed to initialize OpenGL"<<std::endl;
+      return false;
+    }
+    if (!gl3wIsSupported(iMajor, iMinor)) {
+      LOGERROR<<"cContext::_SetWindowVideoMode OpenGL "<<spitfire::string::ToString(iMajor)<<"."<<spitfire::string::ToString(iMinor)<<" not supported"<<std::endl;
+      return false;
+    }
+    #endif
+
     LOG<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     #if BUILD_LIBOPENGLMM_SDL_VERSION < 130
-    // SDL 1.2 and lower don't support OpenGL 3.0 or later so we have to initialize it manually here
+    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually here
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
 
     #ifdef __WIN__
+    LOG<<"cContext::_SetWindowVideoMode Error before wglGetProcAddress "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
+    // Load the wglCreateContextAttribsARB extension
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+    LOG<<"cContext::_SetWindowVideoMode Error after wglGetProcAddress "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
+    if (wglCreateContextAttribsARB == nullptr) {
+      LOG<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+      return false;
+    }
+
     if (wglCreateContextAttribsARB != nullptr) {
       // Create a new context, make it current and destroy the old one
       LOG<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
       // Create the new context
       int attribList[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, iMajor,
+        WGL_CONTEXT_MINOR_VERSION_ARB, iMinor,
+        #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+        // Use the stricter OpenGL 3 core compatibility flag
         WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+        #endif
         0
       };
-      HGLRC ctx3 = wglCreateContextAttribsARB(hdc, 0, attribList);
+      HGLRC ctx3 = wglCreateContextAttribsARB(hdc, NULL, attribList);
+      LOG<<"cContext::_SetWindowVideoMode After wglCreateContextAttribsARB "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
+      if (ctx3 == NULL) {
+        LOGERROR<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB FAILED, returning false"<<std::endl;
+        return false;
+      }
 
       // Make the new context current
       wglMakeCurrent(hdc, ctx3);
@@ -510,6 +542,16 @@ namespace opengl
       //LOG<<"cContext::_SetWindowVideoMode After wglDeleteContext "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
     }
     #else
+    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually here
+    // http://encelo.netsons.org/2009/01/16/habemus-opengl-30/
+    // Get a pointer to glXCreateContextAttribsARB
+    typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int* attrib_list);
+    PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress((GLubyte*)"glXCreateContextAttribsARB");
+    if (glXCreateContextAttribsARB == nullptr) {
+      LOG<<"cContext::_SetWindowVideoMode glXCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
+      return false;
+    }
+
     if (glXCreateContextAttribsARB != nullptr) {
       // Create a new context, make it current and destroy the old one
       LOG<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;

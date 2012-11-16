@@ -32,7 +32,11 @@
 #include <GL/GLee.h>
 #include <GL/glu.h>
 #endif
+#ifdef __WIN__
+#include <GL3/gl3w.h>
+#else
 #include <GL3/gl3.h>
+#endif
 #else
 #include <GL/GLee.h>
 #include <GL/glu.h>
