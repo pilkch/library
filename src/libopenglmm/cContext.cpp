@@ -595,7 +595,10 @@ namespace opengl
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glShadeModel(GL_SMOOTH);
+    #endif
+
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_NORMALIZE);
     #endif
@@ -840,8 +843,12 @@ namespace opengl
 
   void cContext::SetShaderLightEnabled(size_t light, bool bEnable)
   {
+    (void)light;
+    (void)bEnable;
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     if (bEnable) glEnable(GL_LIGHT0 + light);
     else glDisable(GL_LIGHT0 + light);
+    #endif
   }
 
   void cContext::SetShaderLightType(size_t light, LIGHT_TYPE type)
@@ -852,8 +859,12 @@ namespace opengl
 
   void cContext::SetShaderLightPosition(size_t light, const spitfire::math::cVec3& _position)
   {
+    (void)light;
+    (void)_position;
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     const GLfloat position[] = { _position.x, _position.y, _position.z, 0.0f };
     glLightfv(GL_LIGHT0 + light, GL_POSITION, position);
+    #endif
   }
 
   void cContext::SetShaderLightRotation(size_t light, const spitfire::math::cQuaternion& rotation)
@@ -864,20 +875,32 @@ namespace opengl
 
   void cContext::SetShaderLightAmbientColour(size_t light, const spitfire::math::cColour& colour)
   {
+    (void)light;
+    (void)colour;
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     const GLfloat ambient[] = { colour.r, colour.g, colour.b, 1.0f };
     glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient);
+    #endif
   }
 
   void cContext::SetShaderLightDiffuseColour(size_t light, const spitfire::math::cColour& colour)
   {
+    (void)light;
+    (void)colour;
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     const GLfloat diffuse[] = { colour.r, colour.g, colour.b, 1.0f };
     glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse);
+    #endif
   }
 
   void cContext::SetShaderLightSpecularColour(size_t light, const spitfire::math::cColour& colour)
   {
+    (void)light;
+    (void)colour;
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     const GLfloat specular[] = { colour.r, colour.g, colour.b, 1.0f };
     glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular);
+    #endif
   }
 
 
@@ -916,12 +939,16 @@ namespace opengl
 
   void cContext::EnableAlphaTesting()
   {
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnable(GL_ALPHA_TEST);
+    #endif
   }
 
   void cContext::DisableAlphaTesting()
   {
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_ALPHA_TEST);
+    #endif
   }
 
   void cContext::EnableBlending()
