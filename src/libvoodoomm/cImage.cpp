@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 
+#include <array>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -26,7 +27,14 @@
 
 namespace voodoo
 {
-#ifdef PLATFORM_LINUX_OR_UNIX
+  #ifdef __WIN__
+  bool FileExists(const voodoo::string_t& sFilePath)
+  {
+    DWORD dwAttrib = GetFileAttributes(sFilePath.c_str());
+
+    return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0));
+  }
+  #elif defined(PLATFORM_LINUX_OR_UNIX)
   bool FileExists(const voodoo::string_t& strFilename)
   {
     struct stat statInfo;
@@ -35,7 +43,7 @@ namespace voodoo
 
     return (iResult == 0);
   }
-#endif
+  #endif
 
   string_t GetFileExtension(const string_t& sFilePath)
   {
@@ -537,6 +545,9 @@ namespace voodoo
 
   void cImage::CreateFromImageAndSmooth(const cImage& image, size_t iterations)
   {
+    (void)image;
+    (void)iterations;
+
     /*const size_t n = image.width * image.height;
 
     imageOut.SetDimensions(n);
@@ -626,7 +637,7 @@ namespace voodoo
     const size_t nBytesPerRow = GetBytesPerPixel() * width;
     assert(buffer.size() == nBytesPerRow * height);
 
-    uint8_t tempBuffer[nBytesPerRow];
+    std::vector<uint8_t> tempBuffer(nBytesPerRow);
     const size_t halfHeight = height / 2;
     for (size_t y = 0; y < halfHeight; y++) {
       std::memcpy(&tempBuffer[0], &buffer[(nBytesPerRow * (height - 1)) - (y * nBytesPerRow)], nBytesPerRow);
