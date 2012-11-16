@@ -148,14 +148,14 @@ namespace breathe
       const opengl::cCapabilities& capabilities = system.GetCapabilities();
 
       opengl::cResolution resolution = capabilities.GetCurrentResolution();
-      if ((resolution.width < 1024) || (resolution.height < 768) || (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8)) {
+      if ((resolution.width < 1024) || (resolution.height < 576) || (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8)) {
         LOGERROR<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
         return false;
       }
 
       // Set our required resolution
       resolution.width = 1024;
-      resolution.height = 768;
+      resolution.height = 576;
       resolution.pixelFormat = opengl::PIXELFORMAT::R8G8B8A8;
 
       pWindow = system.CreateWindow(TEXT("Tetris"), resolution, false);
@@ -1121,7 +1121,7 @@ namespace breathe
   {
     render::cResolution resolution;
     resolution.SetWidth(1024);
-    resolution.SetHeight(768);
+    resolution.SetHeight(576);
     resolution.SetColourDepth(32);
     resolution.SetWindowed(true);
 
