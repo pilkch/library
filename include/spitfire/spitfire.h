@@ -97,7 +97,7 @@
 #define BUILD_DEBUG
 #endif
 
-#if defined(min) || defined(max)
+#ifndef NOMINMAX
 #error "For Visual Studio define NOMINMAX"
 #endif
 
@@ -180,7 +180,12 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 #ifdef COMPILER_MSVC
-#define BUILD_SPITFIRE_NO_CPP11
+#undef interface
+// Avoid problems with using the interface keyword
+#define interface Interface
+
+// Make sure that we don't try to use C++11 functionality
+//#define BUILD_SPITFIRE_NO_CPP11
 #endif
 
 #ifdef BUILD_SPITFIRE_NO_CPP11
@@ -198,12 +203,6 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 
 // *** Types
 
-// Now taken directly from math.h/cmath because of a name clash
-// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
-//#ifndef float_t
-//typedef float float_t;
-//#endif
-
 #ifdef NO_SDL
 #include <cstdint>
 #include <cstddef>
@@ -218,8 +217,13 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 typedef float float32_t; // For reading/writing to and from files/network
 typedef double float64_t; // For reading/writing to and from files/network
 
+// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
+#ifdef COMPILER_MSVC
+typedef float float_t;
+#endif
+
 // Apparently Visual Studio doesn't have ssize_t
-#ifdef __WIN__
+#ifdef COMPILER_MSVC
 #ifdef BUILD_PLATFORM_64
 typedef int64_t ssize_t;
 #else
@@ -228,10 +232,10 @@ typedef int32_t ssize_t;
 #endif
 
 #ifdef BUILD_DEBUG
-#ifdef __WIN__
+#ifdef COMPILER_MSVC
 // *** FluidStudios' memory leak detection
 #ifndef FIRESTARTER
-#include <spitfire/util/mem.h>
+//#include <spitfire/util/mem.h>
 #endif
 #endif
 #endif // BUILD_DEBUG
@@ -289,7 +293,7 @@ namespace spitfire
 #undef ASSERT
 #endif
 
-#ifndef NDEBUG
+#ifdef BUILD_DEBUG
 
 #ifdef BUILD_HTML_LOG
 
@@ -316,4 +320,3 @@ namespace spitfire
 #endif
 
 #endif // SPITFIRE_H
-
