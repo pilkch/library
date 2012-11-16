@@ -30,6 +30,11 @@
 
 struct SDL_Surface;
 
+#ifdef __WIN__
+#pragma push_macro("DELETE")
+#undef DELETE
+#endif
+
 namespace opengl
 {
   class cWindowEventListener;

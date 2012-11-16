@@ -74,6 +74,8 @@ namespace opengl
 
   void cStaticVertexBufferObject::Compile(const cSystem& system)
   {
+    (void)system;
+
     assert(!IsCompiled());
 
     #ifdef DEBUG

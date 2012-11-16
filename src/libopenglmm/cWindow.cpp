@@ -14,6 +14,9 @@
 // SDL headers
 #include <SDL/SDL_image.h>
 
+// Spitfire headers
+#include <spitfire/util/log.h>
+
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
 #include <libopenglmm/cSystem.h>
@@ -42,6 +45,8 @@ namespace opengl
     pWindowEventListener(nullptr),
     pInputEventListener(nullptr)
   {
+    LOG<<"cWindow::cWindow "<<std::endl;
+
     // Enable unicode
     SDL_EnableUNICODE(1);
 
@@ -116,11 +121,12 @@ namespace opengl
 
   void cWindow::OnResizeWindow(const cResolution& _resolution, bool bIsFullScreen)
   {
+    (void)bIsFullScreen;
+
     assert(pContext != nullptr);
 
     resolution = _resolution;
 
-    pContext->ReloadResources();
     pContext->ResizeWindow(resolution);
   }
 

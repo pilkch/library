@@ -36,6 +36,8 @@ namespace opengl
   // Create a display list coresponding to the give character.
   void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outU, float& outV, float& outWidth, float& outHeight, float& outAdvanceX, float& outAdvanceY)
   {
+    (void)nBufferHeight;
+
     outWidth = 0.0f;
     outHeight = 0.0f;
 
@@ -182,7 +184,7 @@ namespace opengl
 
     // This is where we actually create each of the fonts display lists.
     for (size_t i = 0; i < n; i++) {
-      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, i, fGlyphU[i], fGlyphV[i], fGlyphWidth[i], fGlyphHeight[i], fGlyphAdvanceX[i], fGlyphAdvanceY[i]);
+      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, char(i), fGlyphU[i], fGlyphV[i], fGlyphWidth[i], fGlyphHeight[i], fGlyphAdvanceX[i], fGlyphAdvanceY[i]);
     }
 
     // We don't need the face information now that the display
@@ -261,6 +263,8 @@ namespace opengl
 
   spitfire::math::cVec2 cFont::GetDimensionsLineWrap(const opengl::string_t& sText, float fMaxWidthOfLine) const
   {
+    (void)fMaxWidthOfLine;
+
     spitfire::math::cVec2 dimensions;
 
     //float characterWidth = 0.0f;
@@ -280,6 +284,9 @@ namespace opengl
 
   void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
   {
+    (void)fRotationDegrees;
+    (void)scale;
+
 #if 1
     spitfire::math::cVec2 position(_position);
 
