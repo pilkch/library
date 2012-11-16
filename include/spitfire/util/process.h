@@ -66,17 +66,17 @@ namespace spitfire
     private:
       virtual bool _IsToStop() const { return false; }
 
-      virtual void _SetCancellable(bool bCancellable) {}
+      virtual void _SetCancellable(bool bCancellable) { (void)bCancellable; }
 
-      virtual void _SetTextTitle(const string_t& sText) {}
-      virtual void _SetTextPrimary(const string_t& sText) {}
-      virtual void _SetTextSecondary(const string_t& sText) {}
+      virtual void _SetTextTitle(const string_t& sText) { (void)sText; }
+      virtual void _SetTextPrimary(const string_t& sText) { (void)sText; }
+      virtual void _SetTextSecondary(const string_t& sText) { (void)sText; }
 
-      virtual void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) {}
-      virtual void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) {}
+      virtual void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) { (void)fPercentageComplete0To100; }
+      virtual void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) { (void)fPercentageComplete0To100; }
 
-      virtual void _SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) {}
-      virtual void _SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) {}
+      virtual void _SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) { (void)bIndeterminate; }
+      virtual void _SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) { (void)bIndeterminate; }
     };
 
     typedef cProcessInterface cProcessInterfaceVoid;

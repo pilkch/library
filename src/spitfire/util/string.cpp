@@ -22,7 +22,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/locale.hpp>
 
+#ifdef PLATFORM_LINUX_OR_UNIX
 #include <iconv.h>
+#endif
 #include <errno.h>
 
 // Spitfire includes
@@ -528,7 +530,7 @@ namespace spitfire
 
     // *** Conversion Functions
 
-    string_t ToLower(const string_t& sText)
+    std::string ToLower(const std::string& sText)
     {
       ASSERT(bIsInitCalled);
       return boost::locale::to_lower(sText);
@@ -886,7 +888,8 @@ namespace spitfire
           o<<(0x80 | static_cast<char>((0x3f & (c >> 6))));
           o<<static_cast<char>(0x80 | (0x3f & c));
         } else if (c <= 0x10FFFF) {
-          o<<static_cast<char>(0xF0 | (c >> 18));
+          // TODO: This line was incorrect, it always returns 0 because a shift of 18 is larger than the size of the data (16 bits)
+          o<<static_cast<char>(0);//o<<static_cast<char>(0xF0 | (c >> 18));
           o<<static_cast<char>(0x80 | (0x3f & (c >> 12)));
           o<<static_cast<char>(0x80 | (0x3f & (c >> 6)));
           o<<static_cast<char>(0x80 | (0x3f & c));

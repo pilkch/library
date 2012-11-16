@@ -99,7 +99,7 @@ namespace spitfire
       bool bResult = false;
       {
         std::unique_lock<std::mutex> lock(mutex);
-        bResult = condition.wait_until(lock, endTime, [&]() { return cSignalObject::bIsSignalled; });
+        bResult = condition.wait_until(lock, endTime, [&]() { return bIsSignalled; });
         bIsSignalled = false;
       }
       return bResult;
