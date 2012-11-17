@@ -4,6 +4,7 @@
 // Standard headers
 #include <cmath>
 #include <cstdlib>
+#include <algorithm>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -317,6 +318,13 @@ namespace spitfire
       const float fAmountOfA = 0.5 + (0.5 * sinf(cPI * (mu + 1.5f)));
 
       return (fAmountOfA * a) + ((1.0f - fAmountOfA) * b);
+    }
+
+    inline float slow_in_out(float value)
+    {
+      if (value < 1.0f) value = 1.0f / (1.0f + exp((-value * 12.0f) + 6.0f));
+
+      return std::min(value, 1.0f);
     }
 
 
