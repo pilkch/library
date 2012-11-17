@@ -315,7 +315,7 @@ namespace spitfire
       if (mu > 1.0f) return b;
       if (mu <= 0.0f) return a;
 
-      const float fAmountOfA = 0.5 + (0.5 * sinf(cPI * (mu + 1.5f)));
+      const float fAmountOfA = 0.5f + (0.5f * sinf(cPI * (mu + 1.5f)));
 
       return (fAmountOfA * a) + ((1.0f - fAmountOfA) * b);
     }
@@ -397,6 +397,9 @@ namespace spitfire
     }
 
 
+    // For random number generation
+    const float fOneOver65536By65536 = 1.0f / (65536.0f * 65536.0f);
+
     class cScopedPredictableRandom
     {
     public:
@@ -408,8 +411,7 @@ namespace spitfire
     private:
       uint32_t GetRandomNumberAndIncrement();
 
-      // For random number generation
-      const float fOneOver65536By65536;
+	// For random number generation
       uint32_t x[5]; // History buffer
     };
 
