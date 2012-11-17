@@ -56,6 +56,42 @@ namespace spitfire
     bool RemoveEnvironmentVariable(const string_t& sVariable);
 #endif
 
+    inline size_t GetProcessorCount()
+    {
+      #ifdef __WIN__
+      SYSTEM_INFO siSysInfo;
+      GetSystemInfo(&siSysInfo);
+      return siSysInfo.dwNumberOfProcessors;
+      #elif defined(_SC_NPROCESSORS_CONF)
+      int iValue = sysconf(_SC_NPROCESSORS_CONF);
+      if (iValue >= 1) return iValue;
+      #elif defined(__APPLE__)
+      int name[2] = { CTL_HW, HW_NCPU };
+      int iValue = 0;
+      size_t nLength = sizeof(iValue);
+      if (sysctl(name, 2, &iValue, &nLength, NULL, 0) == 0) return iValue;
+      #endif
+      std::cerr<<"GetProcessorCount Could not get the processor count, returning 1"<<std::endl;
+      return 1;
+    }
+
+    inline size_t GetTotalProcessorCoreCount()
+    {
+      std::cerr<<"GetTotalProcessorCoreCount Could not get the processor core count, returning 1"<<std::endl;
+      return 1;
+    }
+
+    #ifdef __WIN__
+    inline bool IsRunningUnderWine()
+    {
+      // Wine has a registry key we can test
+      HKEY hKey;
+      if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Wine"), 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS) return false;
+      RegCloseKey(hKey);
+      return true;
+    }
+    #endif
+
 #ifdef __LINUX__
     // *** Linux specific version functions
 
