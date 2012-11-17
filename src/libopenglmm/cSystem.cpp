@@ -112,11 +112,8 @@ namespace opengl
 
   bool cSystem::IsGPUATI() const
   {
-    const GLubyte* szValue = glGetString(GL_VENDOR);
-    if (szValue == nullptr) return false;
-
     std::ostringstream tVendor;
-    tVendor<<szValue;
+    tVendor<<glGetString(GL_VENDOR);
 
     const std::string sVendor(tVendor.str());
     return (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
