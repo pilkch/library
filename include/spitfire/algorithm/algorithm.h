@@ -2,6 +2,7 @@
 #define ALGORITHM_H
 
 // Standard headers
+#include <list>
 #include <vector>
 
 // Spitfire headers

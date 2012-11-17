@@ -14,6 +14,9 @@
 // SDL headers
 #include <SDL/SDL_image.h>
 
+// Spitfire headers
+#include <spitfire/util/log.h>
+
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 #include <libopenglmm/cContext.h>
@@ -61,7 +64,7 @@ namespace opengl
   {
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
-      std::cerr<<"cSystem::cSystem SDL_Init FAILED error="<<SDL_GetError()<<std::endl;
+      LOGERROR<<"cSystem::cSystem SDL_Init FAILED error="<<SDL_GetError()<<std::endl;
       return;
     }
 
@@ -102,15 +105,18 @@ namespace opengl
     const std::string sError = GetErrorString(error);
     if (error == GL_NO_ERROR) return sError;
 
-    std::cout<<"cSystem::GetErrorString Error "<<sError<<std::endl;
+    LOG<<"cSystem::GetErrorString Error "<<sError<<std::endl;
     assert(error == GL_NO_ERROR);
     return sError;
   }
 
   bool cSystem::IsGPUATI() const
   {
+    const GLubyte* szValue = glGetString(GL_VENDOR);
+    if (szValue == nullptr) return false;
+
     std::ostringstream tVendor;
-    tVendor<<glGetString(GL_VENDOR);
+    tVendor<<szValue;
 
     const std::string sVendor(tVendor.str());
     return (sVendor.find("ATI") != std::string::npos) || (sVendor.find("AMD") != std::string::npos);
@@ -168,15 +174,16 @@ namespace opengl
   std::string cSystem::GetExtensions() const
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-    std::cout<<"cSystem::GetExtensions"<<std::endl;
+    LOG<<"cSystem::GetExtensions"<<std::endl;
     std::ostringstream o;
     int iNumberOfExtensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &iNumberOfExtensions);
-    for (int i = 0; i < iNumberOfExtensions; i++) {
-      o<<glGetStringi(GL_EXTENSIONS, i);
-      std::cout<<"cSystem::FindExtension \""<<o.str()<<"\""<<std::endl;
-      o<<" ";
-    }
+    o<<"Extensions not added";
+    //for (int i = 0; i < iNumberOfExtensions; i++) {
+    //  o<<glGetStringi(GL_EXTENSIONS, i);
+    //  LOG<<"cSystem::FindExtension \""<<o.str()<<"\""<<std::endl;
+    //  o<<" ";
+    //}
     return o.str();
     #else
     return (const char*)glGetString(GL_EXTENSIONS);
@@ -186,22 +193,24 @@ namespace opengl
   bool cSystem::FindExtension(const std::string& sExt) const
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-    std::cout<<"cSystem::FindExtension"<<std::endl;
+    LOG<<"cSystem::FindExtension"<<std::endl;
+
+    (void)sExt;
 
     // There is a bug in some drivers where glGetStringi returns NULL, so we just return true for all extensions (We aren't using anything special and if we are running OpenGL 3 we probably support all the basic extensions anyway)
     return true;
 
-    int iNumberOfExtensions = 0;
+    /*int iNumberOfExtensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &iNumberOfExtensions);
     for (int i = 0; i < iNumberOfExtensions; i++) {
       std::ostringstream t;
       t<<glGetStringi(GL_EXTENSIONS, i);
       ASSERT(glGetStringi(GL_EXTENSIONS, i) != nullptr);
       ASSERT(glGetStringi(GL_EXTENSIONS, i)[0] != 0);
-      std::cout<<"cSystem::FindExtension \""<<t.str()<<"\""<<std::endl;
+      LOG<<"cSystem::FindExtension \""<<t.str()<<"\""<<std::endl;
       if (sExt == t.str()) return true;
     }
-    return false;
+    return false;*/
     #else
     std::ostringstream t;
     t<<const_cast<const unsigned char*>(glGetString(GL_EXTENSIONS));
@@ -257,7 +266,7 @@ namespace opengl
   {
     const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
     if ((pVideoInfo == nullptr) && (pVideoInfo->vfmt == nullptr)) {
-      std::cout<<"cSystem::UpdateResolutions SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
+      LOG<<"cSystem::UpdateResolutions SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
       return;
     }
 
@@ -280,36 +289,36 @@ namespace opengl
 
   void cSystem::UpdateCapabilities()
   {
-    std::cout<<"cSystem::UpdateCapabilities glGetError="<<cSystem::GetErrorString()<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     const char* szValue = nullptr;
 
     szValue = (const char*)glGetString(GL_VENDOR);
     assert(szValue != nullptr);
-    std::cout<<"cSystem::UpdateCapabilities Vendor: "<<szValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Vendor: "<<(szValue != nullptr ? szValue : "")<<std::endl;
     szValue = (const char*)glGetString(GL_RENDERER);
     assert(szValue != nullptr);
-    std::cout<<"cSystem::UpdateCapabilities Renderer: "<<szValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Renderer: "<<(szValue != nullptr ? szValue : "")<<std::endl;
     szValue = (const char*)glGetString(GL_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cSystem::UpdateCapabilities Version: "<<szValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Version: "<<(szValue != nullptr ? szValue : "")<<std::endl;
     szValue = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
     assert(szValue != nullptr);
-    std::cout<<"cSystem::UpdateCapabilities GLSL Version: "<<szValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities GLSL Version: "<<(szValue != nullptr ? szValue : "")<<std::endl;
     const std::string sValue = GetExtensions();
-    std::cout<<"cSystem::UpdateCapabilities Extensions: "<<sValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Extensions: "<<sValue<<std::endl;
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;
       tVendor<<glGetString(GL_VENDOR);
 
       const std::string sVendor(tVendor.str());
-      std::cout<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
     }
 
-    if (FindExtension("GL_ARB_multitexture")) std::cout<<"cSystem::UpdateCapabilities Found GL_ARB_multitexture"<<std::endl;
+    if (FindExtension("GL_ARB_multitexture")) LOG<<"cSystem::UpdateCapabilities Found GL_ARB_multitexture"<<std::endl;
     else {
-      std::cout<<"cSystem::UpdateCapabilities GL_ARB_multitexture is not present"<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities GL_ARB_multitexture is not present"<<std::endl;
       assert(false);
     }
 
@@ -322,14 +331,14 @@ namespace opengl
      // Limit the max texture size to MAX_TEXTURE_SIZE
     if (capabilities.iMaxTextureSize > MAX_TEXTURE_SIZE) capabilities.iMaxTextureSize = MAX_TEXTURE_SIZE;
 
-    std::cout<<"cSystem::UpdateCapabilities Max texture size "<<capabilities.iMaxTextureSize<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Max texture size "<<capabilities.iMaxTextureSize<<std::endl;
 
     // Cube Map Support
     if (FindExtension("GL_ARB_texture_cube_map")) {
-      std::cout<<"cSystem::UpdateCapabilities Found GL_ARB_texture_cube_map"<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities Found GL_ARB_texture_cube_map"<<std::endl;
       capabilities.bIsCubemappingSupported = true;
     } else {
-      std::cout<<"cSystem::UpdateCapabilities Not Found GL_ARB_texture_cube_map"<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities Not Found GL_ARB_texture_cube_map"<<std::endl;
     }
 
 
@@ -340,32 +349,32 @@ namespace opengl
       stm<<fShaderVersion;
 
       if (fShaderVersion >= 1.0f) {
-        std::cout<<"cSystem::UpdateCapabilities Found Shader"<<stm.str()<<std::endl;
+        LOG<<"cSystem::UpdateCapabilities Found Shader"<<stm.str()<<std::endl;
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = true;
       } else {
-        std::cout<<"cSystem::UpdateCapabilities Not Found Shader1.1, version found is Shader"<<stm.str()<<std::endl;
+        LOG<<"cSystem::UpdateCapabilities Not Found Shader1.1, version found is Shader"<<stm.str()<<std::endl;
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = false;
       }
     }
 
-    if (capabilities.bIsShadersTwoPointZeroOrLaterSupported) std::cout<<"cSystem::UpdateCapabilities Can use shaders, shaders turned on"<<std::endl;
-    else std::cout<<"cSystem::UpdateCapabilities Cannot use shaders, shaders turned off"<<std::endl;
+    if (capabilities.bIsShadersTwoPointZeroOrLaterSupported) LOG<<"cSystem::UpdateCapabilities Can use shaders, shaders turned on"<<std::endl;
+    else LOG<<"cSystem::UpdateCapabilities Cannot use shaders, shaders turned off"<<std::endl;
 
 
     // How many textures can we access in a vertex shader (As opposed to in the fragment shader)
     GLint iTextureUnitsInVertexShader = 0;
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &iTextureUnitsInVertexShader);
-    std::cout<<"cSystem::UpdateCapabilities "<<iTextureUnitsInVertexShader<<" texture units accessable in vertex shader"<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities "<<iTextureUnitsInVertexShader<<" texture units accessable in vertex shader"<<std::endl;
 
 
     // Frame Buffer Object Support
     if (FindExtension("GL_EXT_framebuffer_object")) {
-      std::cout<<"cSystem::UpdateCapabilities Found GL_EXT_framebuffer_object"<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities Found GL_EXT_framebuffer_object"<<std::endl;
       capabilities.bIsFrameBufferObjectSupported = true;
-    } else std::cout<<"cSystem::UpdateCapabilities Not Found GL_EXT_framebuffer_object"<<std::endl;
+    } else LOG<<"cSystem::UpdateCapabilities Not Found GL_EXT_framebuffer_object"<<std::endl;
 
 
-    capabilities.bIsFSAASupported = (GL_ARB_multisample != 0);
+    //capabilities.bIsFSAASupported = (GL_ARB_multisample != 0);
     /*if (capabilities.bIsFSAASupported) {
       // Only sample at 2, 4, 8 or 16
       if (capabilities.nMaxFSAALevels > 16) capabilities.nMaxFSAALevels = 16;

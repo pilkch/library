@@ -26,10 +26,18 @@
 #include <list>
 #include <map>
 
+// Spifire headers
+#include <spitfire/math/cQuaternion.h>
+
 // liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
 struct SDL_Surface;
+
+#ifdef __WIN__
+#pragma push_macro("CreateFont")
+#undef CreateFont
+#endif
 
 namespace opengl
 {
@@ -221,9 +229,6 @@ namespace opengl
     // Quads are deprecated in OpenGL 3.1 core profile
     void DrawStaticVertexBufferObjectQuads2D(cStaticVertexBufferObject& staticVertexBufferObject);
     #endif
-
-  protected:
-    void ReloadResources() {}
 
   private:
     spitfire::math::cMat4 CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const;

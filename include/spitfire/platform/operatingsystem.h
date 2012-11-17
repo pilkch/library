@@ -1,7 +1,9 @@
 #ifndef OPERATINGSYSTEM_H
 #define OPERATINGSYSTEM_H
 
+// Spitfire headers
 #include <spitfire/algorithm/algorithm.h>
+#include <spitfire/util/log.h>
 
 namespace spitfire
 {
@@ -30,23 +32,25 @@ namespace spitfire
 
 
 #ifdef __WIN__
+    const size_t MAX_STRING_LENGTH = 1024;
+
     // *** Environment variables
 
     inline bool GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
     {
       char_t szValue[MAX_STRING_LENGTH];
-      ::GetEnvironmentVariable(spitfire::string::ToUTF8(sVariable).c_str(), szValue, MAX_STRING_LENGTH);
+      ::GetEnvironmentVariable(sVariable.c_str(), szValue, MAX_STRING_LENGTH);
       sValue = szValue;
     }
 
     inline bool SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
     {
-      ::SetEnvironmentVariable(spitfire::string::ToUTF8(sVariable).c_str(), spitfire::string::ToUTF8(sValue).c_str());
+      ::SetEnvironmentVariable(sVariable.c_str(), sValue.c_str());
     }
 
     inline bool RemoveEnvironmentVariable(const string_t& sVariable)
     {
-      ::SetEnvironmentVariable(spitfire::string::ToUTF8(sVariable).c_str(), nullptr);
+      ::SetEnvironmentVariable(sVariable.c_str(), nullptr);
     }
 #elif defined(PLATFORM_LINUX_OR_UNIX)
     // *** Environment variables
@@ -146,12 +150,7 @@ namespace spitfire
     {
       if (uint32_t(ShellExecute(NULL, TEXT("explore"), sFolderPath.c_str(), NULL, NULL, SW_SHOWNORMAL)) >= 32) return;
 
-      if (!IsOSWine()) {
-        LDEBUG("OpenFolder ShellExecute FAILED");
-        return;
-      }
-
-      const string_t sCommand(TEXT("explorer.exe \"") + sFolderPath + TEXT("\""));
+      string_t sCommand(TEXT("explorer.exe \"") + sFolderPath + TEXT("\""));
       STARTUPINFO siStartInfo;
       ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
       siStartInfo.cb = sizeof(STARTUPINFO);
@@ -161,7 +160,7 @@ namespace spitfire
       PROCESS_INFORMATION piProcInfo;
       ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
 
-      BOOL bResult = CreateProcess(NULL, sCommand.c_str(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, szFolder, &siStartInfo, &piProcInfo);
+      BOOL bResult = CreateProcess(NULL, &sCommand[0], NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, sFolderPath.c_str(), &siStartInfo, &piProcInfo);
       if (bResult != TRUE) LOG<<"OpenFolder unable to find explorer.exe"<<std::endl;
       CloseHandle(piProcInfo.hThread);
       CloseHandle(piProcInfo.hProcess);
@@ -169,16 +168,22 @@ namespace spitfire
 
     inline void GetComputerName(string_t& sComputerName)
     {
-      szComputerName[0] = 0;
+      sComputerName[0] = 0;
+
+      char_t szComputerName[MAX_STRING_LENGTH];
       DWORD dwNameSize = MAX_STRING_LENGTH;
       ::GetComputerName(szComputerName, &dwNameSize);
+      sComputerName = szComputerName;
     }
 
     inline void GetUserName(string_t& sUserName)
     {
-      szUserName[0] = 0;
+      sUserName[0] = 0;
+
+      char_t szUserName[MAX_STRING_LENGTH];
       DWORD dwNameSize = MAX_STRING_LENGTH;
       ::GetUserName(szUserName, &dwNameSize);
+      sUserName = szUserName;
     }
 #endif
 
@@ -187,7 +192,11 @@ namespace spitfire
 
     inline uint32_t GetCurrentProcessId()
     {
+      #ifdef __WIN__
+      return ::GetCurrentProcessId();
+      #else
       return getpid();
+      #endif
     }
 
     bool IsOSVersion(uint8_t major);

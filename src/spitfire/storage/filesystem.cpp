@@ -18,6 +18,7 @@
 // Boost headers
 #include <boost/filesystem.hpp>
 
+
 #ifdef __LINUX__
 #include <dirent.h>
 #include <pwd.h>
@@ -25,15 +26,22 @@
 
 // TODO: Remove these
 #include <sys/stat.h>
-#elif defined(__WIN__)
+#else
 #include <windows.h>
+#include <shlobj.h>
+#include <direct.h>
+
+// This appears to have been removed?
+#define CSIDL_APPDATA                   0x001a        // <user name>\Application Data
 #endif
 
+#ifdef __LINUX__
 // libtrashmm headers
 #include <libtrashmm/libtrashmm.h>
 
 // libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
+#endif
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -121,14 +129,11 @@ namespace spitfire
 
 
 
-#if defined(__LINUX__) || defined(__APPLE__)
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
       return GetHomeConfigurationFilesDirectory() + TEXT("/") + sApplication + TEXT("/");
     }
-#endif
 
-#ifdef __LINUX__
     bool DeleteFile(const string_t& sFilename)
     {
       CONSOLE<<"DeleteFile \""<<sFilename<<"\""<<std::endl;
@@ -143,11 +148,26 @@ namespace spitfire
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
       return (boost::filesystem::remove_all(file) != 0);
     }
-#endif
 
     void MoveFileToTrash(const string_t& sFilePath)
     {
+      #ifdef __WIN__
+      char_t szFile[MAX_PATH + 2];
+	lstrcpyn(szFile, sFilePath.c_str(), sizeof(szFile));
+	szFile[sFilePath.length() + 1] = '\0'; // Add an extra null terminator (The function looks for a double null terminator to find the end of the parameters
+
+	SHFILEOPSTRUCT op;
+	ZeroMemory(&op, sizeof(op));
+	op.wFunc = FO_DELETE;
+	op.pFrom = szFile;
+	op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI |
+FOF_SILENT; // Options set for no user interaction
+
+	//return (SHFileOperation(&op) == 0);
+      SHFileOperation(&op);
+      #else
       trash::MoveFileToTrash(string::ToUTF8(sFilePath));
+      #endif
     }
 
     void MoveFolderToTrash(const string_t& sFolderPath)
@@ -215,11 +235,11 @@ namespace spitfire
     string_t GetHomeDirectory()
     {
       string_t sPath;
-#ifdef WIN32
-      char szPath[MAX_PATH_LEN];
-      strcpy(szPath, exe_directory);
+#ifdef __WIN__
+      char_t szPath[MAX_PATH_LEN];
+      szPath[0] = 0;
       ASSERT(SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
-      sPath = string_t(szPath);
+      sPath = szPath;
 #elif defined(__APPLE__)
       FSRef dataFolderRef;
       OSErr theError = FSFindFolder(kUserDomain, kCurrentUserFolderType, kCreateFolder, &dataFolderRef);
@@ -265,8 +285,8 @@ namespace spitfire
     {
       string_t sPath;
 #ifdef WIN32
-      char szPath[MAX_PATH_LEN];
-      strcpy(szPath, exe_directory);
+      char_t szPath[MAX_PATH_LEN];
+      szPath[0] = 0;
       ASSERT(SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
 #else
@@ -281,8 +301,8 @@ namespace spitfire
     {
       string_t sPath;
 #ifdef WIN32
-      char szPath[MAX_PATH_LEN];
-      strcpy(szPath, exe_directory);
+      char_t szPath[MAX_PATH_LEN];
+      szPath[0] = 0;
       ASSERT(SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
       sPath = string_t(szPath);
 #else
@@ -336,7 +356,11 @@ namespace spitfire
     string_t GetCurrentDirectory()
     {
       char szDirectory[MAX_PATH_LEN];
+      #ifdef __WIN__
+      const char* szResult = _getcwd(szDirectory, MAX_PATH_LEN);
+      #else
       const char* szResult = getcwd(szDirectory, MAX_PATH_LEN);
+      #endif
       if (szResult == nullptr) LOG<<"GetCurrentDirectory getcwd FAILED errno="<<errno<<std::endl;
       return spitfire::string::ToString_t(szDirectory);
     }
@@ -344,7 +368,11 @@ namespace spitfire
     void ChangeToDirectory(const string_t& sDirectory)
     {
       ASSERT(DirectoryExists(sDirectory));
+      #ifdef __WIN__
+      int iResult = _chdir(spitfire::string::ToUTF8(sDirectory).c_str());
+      #else
       int iResult = chdir(spitfire::string::ToUTF8(sDirectory).c_str());
+      #endif
       if (iResult != 0) LOG<<"ChangeToDirectory chdir FAILED iResult="<<iResult<<" errno="<<errno<<std::endl;
     }
 
@@ -429,7 +457,7 @@ namespace spitfire
 
     string_t GetExtension(const string_t& sFilename)
     {
-      return boost::filesystem::extension(sFilename);
+      return string::ToString_t(boost::filesystem::extension(sFilename));
     }
 
 
@@ -454,12 +482,12 @@ namespace spitfire
 
       // ""
       if (sRelativePath.empty() || (TEXT("./") == sRelativePath)) {
-        LOG<<"MakePathAbsolute 0 returning \""<<sRootPath<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 0 returning \""<<string::ToUTF8(sRootPath)<<"\""<<std::endl;
         return sRootPath;
       }
 
       if (TEXT(".") == sRelativePath) {
-        LOG<<"MakePathAbsolute 1 returning \""<<spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"))<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 1 returning \""<<string::ToUTF8(spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/")))<<"\""<<std::endl;
         return spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"));
       }
 
@@ -467,7 +495,7 @@ namespace spitfire
       // ".********"
       if ((sRelativePath == TEXT(".")) || (((sRelativePath.length() > 2) && (sRelativePath[0] == TEXT('.'))) && (sRelativePath[1] != TEXT('.')))) {
         string_t expanded(sRelativePath.substr(2));
-        LOG<<"MakePathAbsolute 2 returning \""<<expanded<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 2 returning \""<<string::ToUTF8(expanded)<<"\""<<std::endl;
         return expanded;
       }
 
@@ -475,11 +503,11 @@ namespace spitfire
       string_t prefix = sRootPath;
       while (spitfire::string::BeginsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
-        LOG<<"MakePathAbsolute prefix=\""<<prefix<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute prefix=\""<<string::ToUTF8(prefix)<<"\""<<std::endl;
         prefix = StripLastDirectory(prefix);
       };
 
-      std::cout<<"MakePathAbsolute returning \""<<(prefix + expanded)<<"\""<<std::endl;
+      LOG<<"MakePathAbsolute returning \""<<string::ToUTF8(prefix + expanded)<<"\""<<std::endl;
       return prefix + expanded;
     }
 
@@ -552,9 +580,7 @@ namespace spitfire
 
       ASSERT(spitfire::string::EndsWith(expanded, TEXT("/")));
       vDirectory.push_back(expanded);
-#ifndef FIRESTARTER
-      LOG<<"FileSystem Added "<<expanded<<std::endl;
-#endif
+      LOG<<"FileSystem Added "<<string::ToUTF8(expanded)<<std::endl;
     }
 
     bool IsFile(const string_t& sFilePath)
@@ -613,9 +639,6 @@ namespace spitfire
     bool FindFile(const string_t& sInFilename, string_t& sOutFilename)
     {
       CONSOLE<<"FindFile \""<<sInFilename<<"\""<<std::endl;
-      char sz[1024];
-      strcpy(sz, spitfire::string::ToUTF8(sInFilename).data());
-      CONSOLE<<"FindFile sz=\""<<sz<<"\""<<std::endl;
 
       sOutFilename.clear();
 
@@ -714,9 +737,38 @@ namespace spitfire
       return boost::filesystem::file_size(file);
     }
 
+
+#ifdef __WIN__
+#pragma pop_macro("CreateFile")
+#endif
+
     // Check that these two paths are pointing to the same file
     bool IsSameFile(const string_t& sFileA, const string_t& sFileB)
     {
+      #ifdef __WIN__
+      // http://stackoverflow.com/a/5419758
+
+      HANDLE h2 = NULL;
+
+      BY_HANDLE_FILE_INFORMATION bhfi1 = { 0 };
+      BY_HANDLE_FILE_INFORMATION bhfi2 = { 0 };
+      DWORD access = 0;
+      DWORD share = FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE;
+
+      HANDLE h1 = CreateFile(sFileA.c_str(), access, share, NULL, OPEN_EXISTING, (GetFileAttributes(sFileA.c_str()) & FILE_ATTRIBUTE_DIRECTORY) ?FILE_FLAG_BACKUP_SEMANTICS : 0, NULL);
+      if (INVALID_HANDLE_VALUE != h1) {
+        if (!GetFileInformationByHandle(h1, &bhfi1)) bhfi1.dwVolumeSerialNumber = 0;
+        h2 = CreateFile(sFileB.c_str(), access, share, NULL, OPEN_EXISTING, (GetFileAttributes(sFileB.c_str()) & FILE_ATTRIBUTE_DIRECTORY)?FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+        if (!GetFileInformationByHandle(h2, &bhfi2)) bhfi2.dwVolumeSerialNumber = bhfi1.dwVolumeSerialNumber + 1;
+        CloseHandle(h2);
+      }
+      CloseHandle(h1);
+
+      return (INVALID_HANDLE_VALUE != h1) && (INVALID_HANDLE_VALUE != h2) &&
+        (bhfi1.dwVolumeSerialNumber == bhfi2.dwVolumeSerialNumber) &&
+        (bhfi1.nFileIndexHigh == bhfi2.nFileIndexHigh) &&
+        (bhfi1.nFileIndexLow == bhfi2.nFileIndexLow);
+      #else
       struct stat stA;
       bool bResultA = (stat(spitfire::string::ToUTF8(sFileA).c_str(), &stA) == 0);
       struct stat stB;
@@ -724,7 +776,14 @@ namespace spitfire
 
       // Check that the inodes these files match
       return (bResultA && bResultB && (stA.st_ino == stB.st_ino));
+      #endif
     }
+
+#ifdef __WIN__
+#pragma push_macro("CreateFile")
+#undef CreateFile
+#endif
+
 
     // Check that these two paths are pointing to the same folder
     bool IsSameFolder(const string_t& sFolderA, const string_t& sFolderB)
@@ -750,15 +809,8 @@ namespace spitfire
     }
 #endif
 
-#ifdef __WIN__
-#pragma push_macro("CreateDirectory")
-#undef CreateDirectory
-#endif
     bool CreateDirectory(const string_t& sFoldername)
     {
-#ifdef __WIN__
-#pragma pop_macro("CreateDirectory")
-#endif
       return boost::filesystem::create_directories(sFoldername);
     }
 
@@ -849,13 +901,13 @@ namespace spitfire
 
     cFilePathParser::cFilePathParser(const string_t& sFilePath)
     {
-      std::cout<<"cFilePathParser::cFilePathParser \""<<sFilePath<<"\""<<std::endl;
+      LOG<<"cFilePathParser::cFilePathParser \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
       const string_t sPath = spitfire::filesystem::GetPath(sFilePath);
       sFileName = spitfire::filesystem::GetFile(sFilePath);
 
       string::Split(sFilePath, cFilePathSeparator, vFolderNames);
       const size_t n = vFolderNames.size();
-      for (size_t i = 0; i < n; i++) std::cout<<"Part=\""<<vFolderNames[i]<<"\""<<std::endl;
+      for (size_t i = 0; i < n; i++) LOG<<"Part=\""<<string::ToUTF8(vFolderNames[i])<<"\""<<std::endl;
     }
 
 
@@ -967,7 +1019,7 @@ namespace spitfire
     #endif
 
       if (!DirectoryExists(sTemporarySubFolder)) {
-          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<sTemporarySubFolder<<"\""<<std::endl;
+          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<string::ToUTF8(sTemporarySubFolder)<<"\""<<std::endl;
           CreateDirectory(sTemporarySubFolder);
       }
     }
@@ -1010,15 +1062,15 @@ namespace spitfire
       sParentFolder(directory)
     {
       if (!DirectoryExists(sParentFolder)) {
-        std::cout<<"Folder \""<<sParentFolder<<"\" does not exist"<<std::endl;
+        LOG<<"Folder \""<<string::ToUTF8(sParentFolder)<<"\" does not exist"<<std::endl;
         return;
       }
       const boost::filesystem::directory_iterator iterEnd;
       for (boost::filesystem::directory_iterator iter(spitfire::string::ToUTF8(sParentFolder)); iter != iterEnd; iter++) {
-        const string_t sFullPath = iter->path().string();
+        const string_t sFullPath = string::ToString_t(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
-          std::cout<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
+          LOG<<"cFolderIterator::cFolderIterator Adding \""<<string::ToUTF8(sFile)<<"\""<<std::endl;
           paths.push_back(sFile);
         }
       }

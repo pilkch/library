@@ -30,7 +30,7 @@
 // Directory
 // Login
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 
 namespace spitfire
 {

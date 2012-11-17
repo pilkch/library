@@ -199,7 +199,7 @@ namespace spitfire
       ~cScopedFolderDeleter();
 
     private:
-      std::string sFullPath;
+      string_t sFullPath;
     };
 
 

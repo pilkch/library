@@ -1,19 +1,26 @@
 #ifndef CLOG_H
 #define CLOG_H
 
-#ifdef BUILD_HTML_LOG
+// Standard headers
+#include <sstream>
 
-#undef Success
-#undef Error
+// Spitfire headers
+#include <spitfire/spitfire.h>
+
+#ifdef BUILD_LOGGING
 
 #include <spitfire/util/string.h>
-
 #include <spitfire/algorithm/algorithm.h>
 
 namespace spitfire
 {
   namespace logging
   {
+    #undef Success
+    #undef Error
+
+    #undef ERROR
+
     bool IsLogging();
 
     void TurnOnLogging();
@@ -124,10 +131,10 @@ namespace spitfire
 
       bool CreateLog();
 
-#ifdef BUILD_DEBUG
+//#ifdef BUILD_DEBUG
       void trace(const std::string& section);
       void trace(const std::string& section, const std::string& text);
-#endif // BUILD_DEBUG
+//#endif // BUILD_DEBUG
 
       string_t strfilename;
 
@@ -152,6 +159,10 @@ namespace spitfire
 }
 
 extern spitfire::logging::cLog LOG;
+
+//#define LOGERROR LOG<<LOG_ERROR
+#define LOGERROR LOG
+
 
 namespace breathe
 {
@@ -357,16 +368,9 @@ extern spitfire::logging::cScreen SCREEN;
 
 #else
 
-#ifdef UNICODE
-#define LOG std::wcout
-#define CONSOLE std::wcout
-#define SCREEN std::wcout
-#else
-#define LOG std::cout
 #define CONSOLE std::cout
 #define SCREEN std::cout
-#endif
 
-#endif
+#endif // BUILD_LOGGING
 
 #endif // CLOG_H

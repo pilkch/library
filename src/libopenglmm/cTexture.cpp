@@ -398,6 +398,8 @@ namespace opengl
 
   void cTextureFrameBufferObject::SelectMipMapLevelOfDetail(float fLevelOfDetail)
   {
+    (void)fLevelOfDetail;
+
     assert(bIsUsingMipMaps);
 
     #ifdef MAX_TEXTURE_LOD_BIAS

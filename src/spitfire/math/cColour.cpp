@@ -220,30 +220,30 @@ namespace spitfire
       float fmax = max(max(r, g), b);    //Max. value of RGB
       float delta = fmax - fmin;             //Delta RGB value
 
-      fLuminance = (fmax + fmin) / 2.0; // Luminance
+      fLuminance = (fmax + fmin) / 2.0f; // Luminance
 
-      if (delta == 0.0) { //This is a gray, no chroma...
-        fHue = 0.0;  // Hue
-        fSaturation = 0.0;  // Saturation
+      if (delta == 0.0f) { //This is a gray, no chroma...
+        fHue = 0.0f;  // Hue
+        fSaturation = 0.0f;  // Saturation
       } else {            //Chromatic data...
-        if (fLuminance < 0.5)
+        if (fLuminance < 0.5f)
           fSaturation = delta / (fmax + fmin); // Saturation
         else
-          fSaturation = delta / (2.0 - fmax - fmin); // Saturation
+          fSaturation = delta / (2.0f - fmax - fmin); // Saturation
 
-        float deltaR = (((fmax - r) / 6.0) + (delta / 2.0)) / delta;
-        float deltaG = (((fmax - g) / 6.0) + (delta / 2.0)) / delta;
-        float deltaB = (((fmax - b) / 6.0) + (delta / 2.0)) / delta;
+        float deltaR = (((fmax - r) / 6.0f) + (delta / 2.0f)) / delta;
+        float deltaG = (((fmax - g) / 6.0f) + (delta / 2.0f)) / delta;
+        float deltaB = (((fmax - b) / 6.0f) + (delta / 2.0f)) / delta;
 
         if (r == fmax)
           fHue = deltaB - deltaG; // Hue
         else if (g == fmax)
-          fHue = (1.0 / 3.0) + deltaR - deltaB; // Hue
+          fHue = (1.0f / 3.0f) + deltaR - deltaB; // Hue
         else if (b == fmax)
-          fHue = (2.0 / 3.0) + deltaG - deltaR; // Hue
+          fHue = (2.0f / 3.0f) + deltaG - deltaR; // Hue
 
-        if (fHue < 0.0) fHue += 1.0; // Hue
-        else if (fHue > 1.0) fHue -= 1.0; // Hue
+        if (fHue < 0.0f) fHue += 1.0f; // Hue
+        else if (fHue > 1.0f) fHue -= 1.0f; // Hue
       }
     }
 
@@ -251,13 +251,13 @@ namespace spitfire
 
     float cColour::HueToRGBForSetRGBFromHSL(float f1, float f2, float fHue) const
     {
-      if (fHue < 0.0) fHue += 1.0;
-      else if (fHue > 1.0) fHue -= 1.0;
+      if (fHue < 0.0f) fHue += 1.0f;
+      else if (fHue > 1.0f) fHue -= 1.0f;
 
       float res = 0.0f;
-      if ((6.0 * fHue) < 1.0) res = f1 + (f2 - f1) * 6.0 * fHue;
-      else if ((2.0 * fHue) < 1.0) res = f2;
-      else if ((3.0 * fHue) < 2.0) res = f1 + (f2 - f1) * ((2.0 / 3.0) - fHue) * 6.0;
+      if ((6.0f * fHue) < 1.0f) res = f1 + (f2 - f1) * 6.0f * fHue;
+      else if ((2.0f * fHue) < 1.0f) res = f2;
+      else if ((3.0f * fHue) < 2.0f) res = f1 + (f2 - f1) * ((2.0f / 3.0f) - fHue) * 6.0f;
       else res = f1;
 
       return res;

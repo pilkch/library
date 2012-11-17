@@ -10,10 +10,6 @@
 #include <map>
 #include <vector>
 
-// OpenGL headers
-#include <GL/GLee.h>
-#include <GL/glu.h>
-
 // SDL headers
 #include <SDL/SDL_image.h>
 

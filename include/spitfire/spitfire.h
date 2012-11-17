@@ -97,7 +97,7 @@
 #define BUILD_DEBUG
 #endif
 
-#if defined(min) || defined(max)
+#ifndef NOMINMAX
 #error "For Visual Studio define NOMINMAX"
 #endif
 
@@ -115,7 +115,7 @@
 #ifdef BUILD_DEBUG
 // CRT's memory leak detection
 #include <crtdbg.h>
-#ifndef __GNUC__
+#ifndef COMPILER_GCC
 //#define _CRTDBG_MAP_ALLOC
 inline void *__cdecl operator new(size_t n, const char *fn, int l) { return ::operator new(n, 1, fn, l); }
 inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator delete(p, 1, fn, l); }
@@ -167,20 +167,26 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define THREAD_GLOBAL
 
 
-#ifdef __GNUC__
+#ifdef COMPILER_GCC
 #define GCC_VERSION (__GNUC__ * 100) + (__GNUC_MINOR__)
 #define GCC_VERSION_4_7 407
 #endif
 
-#ifdef __GNUC__
 // Override keyword to flag virtual functions which are overridden from the base class
 #define override
+
+#ifdef COMPILER_GCC
 // Final keyword to flag virtual functions which are not allowed to be overridden in derived classes
 #define final
 #endif
 
 #ifdef COMPILER_MSVC
-#define BUILD_SPITFIRE_NO_CPP11
+#undef interface
+// Avoid problems with using the interface keyword
+#define interface Interface
+
+// Make sure that we don't try to use C++11 functionality
+//#define BUILD_SPITFIRE_NO_CPP11
 #endif
 
 #ifdef BUILD_SPITFIRE_NO_CPP11
@@ -189,7 +195,7 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 // Deprecation flags
-#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#if defined(COMPILER_GCC) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
 #define ATTRIBUTE_DEPRECATED __attribute__((deprecated))
 #else
 #define ATTRIBUTE_DEPRECATED
@@ -197,12 +203,6 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 
 
 // *** Types
-
-// Now taken directly from math.h/cmath because of a name clash
-// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
-//#ifndef float_t
-//typedef float float_t;
-//#endif
 
 #ifdef NO_SDL
 #include <cstdint>
@@ -218,8 +218,13 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 typedef float float32_t; // For reading/writing to and from files/network
 typedef double float64_t; // For reading/writing to and from files/network
 
+// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
+#ifdef COMPILER_MSVC
+typedef float float_t;
+#endif
+
 // Apparently Visual Studio doesn't have ssize_t
-#ifdef __WIN__
+#ifdef COMPILER_MSVC
 #ifdef BUILD_PLATFORM_64
 typedef int64_t ssize_t;
 #else
@@ -228,10 +233,10 @@ typedef int32_t ssize_t;
 #endif
 
 #ifdef BUILD_DEBUG
-#ifdef __WIN__
+#ifdef COMPILER_MSVC
 // *** FluidStudios' memory leak detection
 #ifndef FIRESTARTER
-#include <spitfire/util/mem.h>
+//#include <spitfire/util/mem.h>
 #endif
 #endif
 #endif // BUILD_DEBUG
@@ -285,11 +290,21 @@ namespace spitfire
 // NOTE: These are compile time so we do them in both debug and release
 #define STATIC_ASSERT(expression, szDescription) static_assert(expression, szDescription)
 
+
+// Logging and assert
+#if defined(COMPILER_MSVC) || defined(BUILD_DEBUG)
+#define BUILD_LOGGING
+// LOG and LOGERROR are declared in spitfire/util/log.h
+#else
+#define LOG std::cout
+#define LOGERROR std::cerr
+#endif
+
 #ifdef ASSERT
 #undef ASSERT
 #endif
 
-#ifndef NDEBUG
+#ifdef BUILD_DEBUG
 
 #ifdef BUILD_HTML_LOG
 
@@ -306,8 +321,6 @@ namespace spitfire
 #define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #else
-#define LOG std::cout
-#define LOGERROR std::cerr
 #define ASSERT assert
 #endif
 
@@ -316,4 +329,3 @@ namespace spitfire
 #endif
 
 #endif // SPITFIRE_H
-

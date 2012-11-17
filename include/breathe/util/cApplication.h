@@ -86,7 +86,7 @@ namespace breathe
       cApplication();
       ~cApplication();
 
-      void Run();
+      bool Run();
 
       void PushStateSoon(cState* pState);
       void PopStateSoon();
@@ -114,6 +114,9 @@ namespace breathe
 
       virtual bool _Create() { return true; }
       virtual void _Destroy() {}
+
+      virtual bool _LoadResources() { return true; }
+      virtual void _DestroyResources() {}
 
       void _OnWindowEvent(const opengl::cWindowEvent& event);
       void _OnMouseEvent(const opengl::cMouseEvent& event);

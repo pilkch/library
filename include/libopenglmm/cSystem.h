@@ -27,6 +27,11 @@
 typedef unsigned int GLenum;
 struct SDL_Surface;
 
+#ifdef __WIN__
+#pragma push_macro("CreateWindow")
+#undef CreateWindow
+#endif
+
 namespace opengl
 {
   class cContext;

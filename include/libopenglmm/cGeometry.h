@@ -99,7 +99,7 @@ namespace opengl
     explicit cGeometryBuilder_v3_n3(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal);
-    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { PushBack(vertex, normal); }
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { (void)ignoredTextureCoord0; PushBack(vertex, normal); }
 
   private:
     cGeometryData& data;
@@ -111,7 +111,7 @@ namespace opengl
     explicit cGeometryBuilder_v3_n3_i(cGeometryData& data);
 
     void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal);
-    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { PushBack(vertex, normal); }
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& ignoredTextureCoord0) { (void)ignoredTextureCoord0; PushBack(vertex, normal); }
 
     void PushBackIndex(uint16_t index);
 

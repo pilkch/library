@@ -57,6 +57,9 @@ namespace spitfire
     inline bool IsPrintableCharacter(char c) { return (c >= 32); }
     inline bool IsPrintableCharacter(wchar_t c) { return (c >= 32) && (c <= 127); } // NOTE: This just takes care of ASCII printable characters, there are many more printable characters after 127 too, that this function does not cover
 
+    inline const char* Find(const char* szText, const char* szFind) { return std::strstr(szText, szFind); }
+    inline const wchar_t* Find(const wchar_t* szText, const wchar_t* szFind) { return wcsstr(szText, szFind); }
+
     size_t CountOccurrences(const std::string& source, const std::string& find);
     bool Find(const std::string& source, const std::string& find, size_t& indexOut);
     std::string Replace(const std::string& source, const std::string& find, const std::string& replace);
@@ -117,7 +120,7 @@ namespace spitfire
     // For UTF32 this function will always return 1
     size_t GetSurrogatePairCountForMultiByteCharacter(char8_t c);
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c);
-    inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { return 1; }
+    inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { (void)c; return 1; }
     #ifdef __WIN__
     inline size_t GetSurrogatePairCountForMultiByteCharacter(wchar_t c) { return GetSurrogatePairCountForMultiByteCharacter(char16_t(c)); }
     #else
@@ -490,7 +493,7 @@ namespace spitfire
 
       sResult.clear();
 
-      const C* sz = std::strstr(s.Get(), sFind.c_str());
+      const C* sz = Find(s.Get(), sFind.c_str());
       if (sz != nullptr) {
         const size_t nElements = (sz - s.Get());
         sResult.assign(s.Get(), nElements);
@@ -631,7 +634,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      const C* sz = std::strstr(s.Get(), sFind.c_str());
+      const C* sz = Find(s.Get(), sFind.c_str());
       if (sz != nullptr) {
         const size_t nSkipElements = (sz - s.Get());
         s.SkipElements(nSkipElements);
