@@ -203,16 +203,12 @@ namespace breathe
     void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
     {
       LOG<<"cApplication::_OnWindowEvent"<<std::endl;
-      
-      // On Windows the driver is liable to invalidate the resources when the window is resized, so we need to handle destroying and reloading them ourselves
+
+      // The resources are probably going to become invalid when the window is resized, so we need to handle destroying and reloading them ourselves
       if (event.IsAboutToResize()) {
-        #ifdef __WIN__
         _DestroyResources();
-        #endif
       } else if (event.IsResized()) {
-        #ifdef __WIN__
         _LoadResources();
-        #endif
       } else if (event.IsQuit()) {
         LOG<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
         bIsDone = true;

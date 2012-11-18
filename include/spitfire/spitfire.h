@@ -97,10 +97,6 @@
 #define BUILD_DEBUG
 #endif
 
-#ifndef NOMINMAX
-#error "For Visual Studio define NOMINMAX"
-#endif
-
 #ifdef _MSC_VER
 #define COMPILER_MSVC
 #elif defined(__GNUC__)
@@ -113,9 +109,9 @@
 #include <windows.h>
 
 #ifdef BUILD_DEBUG
-// CRT's memory leak detection
+// Use CRT memory leak detection
 #include <crtdbg.h>
-#ifndef COMPILER_GCC
+#ifdef COMPILER_MSVC
 //#define _CRTDBG_MAP_ALLOC
 inline void *__cdecl operator new(size_t n, const char *fn, int l) { return ::operator new(n, 1, fn, l); }
 inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator delete(p, 1, fn, l); }
@@ -123,18 +119,22 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 #endif
 
+#ifndef NOMINMAX
+#error "NOMINMAX must be defined on Windows"
+#endif
+
 #ifdef _MBCS
 #error "_MBCS should not be defined by your IDE"
 #endif
+#ifndef UNICODE
+#error "UNICODE must be defined on Windows"
+#endif
+
 #ifdef _CPPUNWIND
 #error "Exceptions must be disabled"
 #endif
 #ifdef _CPPRTTI
 #error "RTTI must be disabled"
-#endif
-
-#ifndef UNICODE
-#error "UNICODE must be defined on Windows"
 #endif
 
 #else
@@ -292,7 +292,7 @@ namespace spitfire
 
 
 // Logging and assert
-#if defined(COMPILER_MSVC) || defined(BUILD_DEBUG)
+#if defined(COMPILER_MSVC) && defined(BUILD_DEBUG)
 #define BUILD_LOGGING
 // LOG and LOGERROR are declared in spitfire/util/log.h
 #else

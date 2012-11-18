@@ -361,35 +361,35 @@ namespace breathe
       eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "8.1 Surround sound supported, returning");
+        LOG<<"openal cManager::_Init 8.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "7.1 Surround sound supported, returning");
+        LOG<<"openal cManager::_Init 7.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "6.1 Surround sound supported, returning");
+        LOG<<"openal cManager::_Init 6.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "5.1 Surround sound supported, returning");
+        LOG<<"openal cManager::_Init 5.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "Quad Speaker Surround sound supported, returning");
+        LOG<<"openal cManager::_Init Quad Speaker Surround sound supported, returning"<<std::endl;
         return true;
       }
 
@@ -397,14 +397,14 @@ namespace breathe
       eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "Stereo sound supported, returning");
+        LOG<<"openal cManager::_Init Stereo sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
       ReportError();
       if (eBufferFormat) {
-        LOG.Success("Audio", "Mono sound supported, returning");
+        LOG<<"openal cManager::_Init Mono sound supported, returning"<<std::endl;
         return true;
       }
 
@@ -414,7 +414,7 @@ namespace breathe
       alDopplerFactor(fDopplerFactor);
       alDopplerVelocity(fDopplerVelocity);
 
-      LOG.Success("Audio", "Unknown sound setup, returning");
+      LOG<<"openal cManager::_Init Unknown sound setup, returning"<<std::endl;
       return false;
     }
 
