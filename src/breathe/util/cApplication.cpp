@@ -153,7 +153,7 @@ namespace breathe
         return false;
       }
 
-      // Override the resolution
+      // Use a 16:9 windowed resolution
       resolution.width = 1000;
       resolution.height = 562;
       resolution.pixelFormat = opengl::PIXELFORMAT::R8G8B8A8;

@@ -77,25 +77,26 @@ namespace breathe
       pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
       pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
 
-      pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
+      pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolourrect.frag"));
 
       opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
       opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
 
+      const size_t resolutionWidth = context.GetWidth();
+      const size_t resolutionHeight = context.GetHeight();
+      const float fWidth = float(resolutionWidth) / float(resolutionHeight);
+      const float fHeight = 1.0f;
+
       // Texture coordinates
       // NOTE: The v coordinates have been swapped, the code looks correct but with normal v coordinates the gui is rendered upside down
       const float fU = 0.0f;
-      const float fV = 1.0f;
-      const float fU2 = 1.0f;
+      const float fV = float(resolutionHeight);
+      const float fU2 = float(resolutionWidth);
       const float fV2 = 0.0f;
 
       const float x = 0.0f;
       const float y = 0.0f;
-      const size_t width = 1;
-      const size_t height = 1;
-      const float fWidth = float(width);
-      const float fHeight = float(height);
 
       const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -113,7 +114,7 @@ namespace breathe
 
       pVBO->Compile2D(system);
 
-      pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(1024, 1024, opengl::PIXELFORMAT::R8G8B8A8);
+      pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(resolutionWidth, resolutionHeight, opengl::PIXELFORMAT::R8G8B8A8);
       ASSERT(pTextureFrameBufferObject != nullptr);
 
       // Create the font for rendering text
@@ -510,7 +511,7 @@ namespace breathe
 
           context.BindShader(*pWidgetsShader);
 
-          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
+          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBO);
           context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
@@ -538,7 +539,7 @@ namespace breathe
 
           context.BindFont(*pFont);
 
-          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
+          context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
           context.BindStaticVertexBufferObject2D(*pVBOText);
           context.DrawStaticVertexBufferObjectTriangles2D(*pVBOText);
@@ -610,7 +611,7 @@ namespace breathe
 
         context.BindShader(*pGuiShader);
 
-        context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
+        context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
         context.BindStaticVertexBufferObject2D(*pVBO);
         context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
