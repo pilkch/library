@@ -1,13 +1,13 @@
 /***************************************************************************
 *
 * GLee.c
-* GLee (OpenGL Easy Extension library)        
+* GLee (OpenGL Easy Extension library)
 * Version : 5.5
 *
 * Copyright (c)2011  Ben Woodhouse  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are 
+* modification, are permitted provided that the following conditions are
 * met:
 * 1. Redistributions of source code must retain the above copyright
 * notice, this list of conditions and the following disclaimer as
@@ -52,7 +52,7 @@ GLboolean __GLeeInited=GL_FALSE;
 
 #ifndef _WIN32
 	#define __stdcall  /* nothing */
-#endif 
+#endif
 
 #ifdef _MSC_VER
     #define snprintf sprintf_s
@@ -1151,12 +1151,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glResetMinmax(GLenum  target)  {if (GLeeInit()) glResetMinmax(target);}
   GLEEPFNGLRESETMINMAXPROC GLeeFuncPtr_glResetMinmax=GLee_Lazy_glResetMinmax;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_imaging */
 
 #ifdef __GLEE_GL_ARB_imaging
-#endif 
+#endif
 
 /* GL_VERSION_1_3 */
 
@@ -1391,7 +1391,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultTransposeMatrixd(const GLdouble * m)  {if (GLeeInit()) glMultTransposeMatrixd(m);}
   GLEEPFNGLMULTTRANSPOSEMATRIXDPROC GLeeFuncPtr_glMultTransposeMatrixd=GLee_Lazy_glMultTransposeMatrixd;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_1_4 */
 
@@ -1621,7 +1621,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glWindowPos3sv(const GLshort * v)  {if (GLeeInit()) glWindowPos3sv(v);}
   GLEEPFNGLWINDOWPOS3SVPROC GLeeFuncPtr_glWindowPos3sv=GLee_Lazy_glWindowPos3sv;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_1_5 */
 
@@ -1721,7 +1721,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetBufferPointerv(GLenum  target, GLenum  pname, GLvoid* * params)  {if (GLeeInit()) glGetBufferPointerv(target, pname, params);}
   GLEEPFNGLGETBUFFERPOINTERVPROC GLeeFuncPtr_glGetBufferPointerv=GLee_Lazy_glGetBufferPointerv;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_2_0 */
 
@@ -2191,7 +2191,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribPointer(GLuint  index, GLint  size, GLenum  type, GLboolean  normalized, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glVertexAttribPointer(index, size, type, normalized, stride, pointer);}
   GLEEPFNGLVERTEXATTRIBPOINTERPROC GLeeFuncPtr_glVertexAttribPointer=GLee_Lazy_glVertexAttribPointer;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_2_1 */
 
@@ -2226,7 +2226,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glUniformMatrix4x3fv(GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix4x3fv(location, count, transpose, value);}
   GLEEPFNGLUNIFORMMATRIX4X3FVPROC GLeeFuncPtr_glUniformMatrix4x3fv=GLee_Lazy_glUniformMatrix4x3fv;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_3_0 */
 
@@ -2521,7 +2521,7 @@ int __GLeeGLNumExtensions=430;
   const GLubyte * __stdcall GLee_Lazy_glGetStringi(GLenum  name, GLuint  index)  {if (GLeeInit()) return glGetStringi(name, index); return (const GLubyte *)0;}
   GLEEPFNGLGETSTRINGIPROC GLeeFuncPtr_glGetStringi=GLee_Lazy_glGetStringi;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_3_1 */
 
@@ -2546,7 +2546,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPrimitiveRestartIndex(GLuint  index)  {if (GLeeInit()) glPrimitiveRestartIndex(index);}
   GLEEPFNGLPRIMITIVERESTARTINDEXPROC GLeeFuncPtr_glPrimitiveRestartIndex=GLee_Lazy_glPrimitiveRestartIndex;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_3_2 */
 
@@ -2566,7 +2566,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFramebufferTexture(GLenum  target, GLenum  attachment, GLuint  texture, GLint  level)  {if (GLeeInit()) glFramebufferTexture(target, attachment, texture, level);}
   GLEEPFNGLFRAMEBUFFERTEXTUREPROC GLeeFuncPtr_glFramebufferTexture=GLee_Lazy_glFramebufferTexture;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_3_3 */
 
@@ -2576,7 +2576,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribDivisor(GLuint  index, GLuint  divisor)  {if (GLeeInit()) glVertexAttribDivisor(index, divisor);}
   GLEEPFNGLVERTEXATTRIBDIVISORPROC GLeeFuncPtr_glVertexAttribDivisor=GLee_Lazy_glVertexAttribDivisor;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_4_0 */
 
@@ -2606,17 +2606,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendFuncSeparatei(GLuint  buf, GLenum  srcRGB, GLenum  dstRGB, GLenum  srcAlpha, GLenum  dstAlpha)  {if (GLeeInit()) glBlendFuncSeparatei(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);}
   GLEEPFNGLBLENDFUNCSEPARATEIPROC GLeeFuncPtr_glBlendFuncSeparatei=GLee_Lazy_glBlendFuncSeparatei;
 #endif
-#endif 
+#endif
 
 /* GL_VERSION_4_1 */
 
 #ifdef __GLEE_GL_VERSION_4_1
-#endif 
+#endif
 
 /* GL_VERSION_4_2 */
 
 #ifdef __GLEE_GL_VERSION_4_2
-#endif 
+#endif
 
 /* GL_ARB_multitexture */
 
@@ -2791,7 +2791,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiTexCoord4svARB(GLenum  target, const GLshort * v)  {if (GLeeInit()) glMultiTexCoord4svARB(target, v);}
   GLEEPFNGLMULTITEXCOORD4SVARBPROC GLeeFuncPtr_glMultiTexCoord4svARB=GLee_Lazy_glMultiTexCoord4svARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_transpose_matrix */
 
@@ -2816,7 +2816,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultTransposeMatrixdARB(const GLdouble * m)  {if (GLeeInit()) glMultTransposeMatrixdARB(m);}
   GLEEPFNGLMULTTRANSPOSEMATRIXDARBPROC GLeeFuncPtr_glMultTransposeMatrixdARB=GLee_Lazy_glMultTransposeMatrixdARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_multisample */
 
@@ -2826,17 +2826,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSampleCoverageARB(GLclampf  value, GLboolean  invert)  {if (GLeeInit()) glSampleCoverageARB(value, invert);}
   GLEEPFNGLSAMPLECOVERAGEARBPROC GLeeFuncPtr_glSampleCoverageARB=GLee_Lazy_glSampleCoverageARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_env_add */
 
 #ifdef __GLEE_GL_ARB_texture_env_add
-#endif 
+#endif
 
 /* GL_ARB_texture_cube_map */
 
 #ifdef __GLEE_GL_ARB_texture_cube_map
-#endif 
+#endif
 
 /* GL_ARB_texture_compression */
 
@@ -2876,12 +2876,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetCompressedTexImageARB(GLenum  target, GLint  level, GLvoid * img)  {if (GLeeInit()) glGetCompressedTexImageARB(target, level, img);}
   GLEEPFNGLGETCOMPRESSEDTEXIMAGEARBPROC GLeeFuncPtr_glGetCompressedTexImageARB=GLee_Lazy_glGetCompressedTexImageARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_border_clamp */
 
 #ifdef __GLEE_GL_ARB_texture_border_clamp
-#endif 
+#endif
 
 /* GL_ARB_point_parameters */
 
@@ -2896,7 +2896,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPointParameterfvARB(GLenum  pname, const GLfloat * params)  {if (GLeeInit()) glPointParameterfvARB(pname, params);}
   GLEEPFNGLPOINTPARAMETERFVARBPROC GLeeFuncPtr_glPointParameterfvARB=GLee_Lazy_glPointParameterfvARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_vertex_blend */
 
@@ -2951,7 +2951,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexBlendARB(GLint  count)  {if (GLeeInit()) glVertexBlendARB(count);}
   GLEEPFNGLVERTEXBLENDARBPROC GLeeFuncPtr_glVertexBlendARB=GLee_Lazy_glVertexBlendARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_matrix_palette */
 
@@ -2981,42 +2981,42 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMatrixIndexPointerARB(GLint  size, GLenum  type, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glMatrixIndexPointerARB(size, type, stride, pointer);}
   GLEEPFNGLMATRIXINDEXPOINTERARBPROC GLeeFuncPtr_glMatrixIndexPointerARB=GLee_Lazy_glMatrixIndexPointerARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_env_combine */
 
 #ifdef __GLEE_GL_ARB_texture_env_combine
-#endif 
+#endif
 
 /* GL_ARB_texture_env_crossbar */
 
 #ifdef __GLEE_GL_ARB_texture_env_crossbar
-#endif 
+#endif
 
 /* GL_ARB_texture_env_dot3 */
 
 #ifdef __GLEE_GL_ARB_texture_env_dot3
-#endif 
+#endif
 
 /* GL_ARB_texture_mirrored_repeat */
 
 #ifdef __GLEE_GL_ARB_texture_mirrored_repeat
-#endif 
+#endif
 
 /* GL_ARB_depth_texture */
 
 #ifdef __GLEE_GL_ARB_depth_texture
-#endif 
+#endif
 
 /* GL_ARB_shadow */
 
 #ifdef __GLEE_GL_ARB_shadow
-#endif 
+#endif
 
 /* GL_ARB_shadow_ambient */
 
 #ifdef __GLEE_GL_ARB_shadow_ambient
-#endif 
+#endif
 
 /* GL_ARB_window_pos */
 
@@ -3101,7 +3101,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glWindowPos3svARB(const GLshort * v)  {if (GLeeInit()) glWindowPos3svARB(v);}
   GLEEPFNGLWINDOWPOS3SVARBPROC GLeeFuncPtr_glWindowPos3svARB=GLee_Lazy_glWindowPos3svARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_vertex_program */
 
@@ -3416,12 +3416,12 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsProgramARB(GLuint  program)  {if (GLeeInit()) return glIsProgramARB(program); return (GLboolean)0;}
   GLEEPFNGLISPROGRAMARBPROC GLeeFuncPtr_glIsProgramARB=GLee_Lazy_glIsProgramARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_fragment_program */
 
 #ifdef __GLEE_GL_ARB_fragment_program
-#endif 
+#endif
 
 /* GL_ARB_vertex_buffer_object */
 
@@ -3481,7 +3481,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetBufferPointervARB(GLenum  target, GLenum  pname, GLvoid* * params)  {if (GLeeInit()) glGetBufferPointervARB(target, pname, params);}
   GLEEPFNGLGETBUFFERPOINTERVARBPROC GLeeFuncPtr_glGetBufferPointervARB=GLee_Lazy_glGetBufferPointervARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_occlusion_query */
 
@@ -3526,7 +3526,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetQueryObjectuivARB(GLuint  id, GLenum  pname, GLuint * params)  {if (GLeeInit()) glGetQueryObjectuivARB(id, pname, params);}
   GLEEPFNGLGETQUERYOBJECTUIVARBPROC GLeeFuncPtr_glGetQueryObjectuivARB=GLee_Lazy_glGetQueryObjectuivARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_objects */
 
@@ -3726,7 +3726,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetShaderSourceARB(GLhandleARB  obj, GLsizei  maxLength, GLsizei * length, GLcharARB * source)  {if (GLeeInit()) glGetShaderSourceARB(obj, maxLength, length, source);}
   GLEEPFNGLGETSHADERSOURCEARBPROC GLeeFuncPtr_glGetShaderSourceARB=GLee_Lazy_glGetShaderSourceARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_vertex_shader */
 
@@ -3746,32 +3746,32 @@ int __GLeeGLNumExtensions=430;
   GLint __stdcall GLee_Lazy_glGetAttribLocationARB(GLhandleARB  programObj, const GLcharARB * name)  {if (GLeeInit()) return glGetAttribLocationARB(programObj, name); return (GLint)0;}
   GLEEPFNGLGETATTRIBLOCATIONARBPROC GLeeFuncPtr_glGetAttribLocationARB=GLee_Lazy_glGetAttribLocationARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_fragment_shader */
 
 #ifdef __GLEE_GL_ARB_fragment_shader
-#endif 
+#endif
 
 /* GL_ARB_shading_language_100 */
 
 #ifdef __GLEE_GL_ARB_shading_language_100
-#endif 
+#endif
 
 /* GL_ARB_texture_non_power_of_two */
 
 #ifdef __GLEE_GL_ARB_texture_non_power_of_two
-#endif 
+#endif
 
 /* GL_ARB_point_sprite */
 
 #ifdef __GLEE_GL_ARB_point_sprite
-#endif 
+#endif
 
 /* GL_ARB_fragment_program_shadow */
 
 #ifdef __GLEE_GL_ARB_fragment_program_shadow
-#endif 
+#endif
 
 /* GL_ARB_draw_buffers */
 
@@ -3781,12 +3781,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawBuffersARB(GLsizei  n, const GLenum * bufs)  {if (GLeeInit()) glDrawBuffersARB(n, bufs);}
   GLEEPFNGLDRAWBUFFERSARBPROC GLeeFuncPtr_glDrawBuffersARB=GLee_Lazy_glDrawBuffersARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_rectangle */
 
 #ifdef __GLEE_GL_ARB_texture_rectangle
-#endif 
+#endif
 
 /* GL_ARB_color_buffer_float */
 
@@ -3796,27 +3796,27 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glClampColorARB(GLenum  target, GLenum  clamp)  {if (GLeeInit()) glClampColorARB(target, clamp);}
   GLEEPFNGLCLAMPCOLORARBPROC GLeeFuncPtr_glClampColorARB=GLee_Lazy_glClampColorARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_half_float_pixel */
 
 #ifdef __GLEE_GL_ARB_half_float_pixel
-#endif 
+#endif
 
 /* GL_ARB_texture_float */
 
 #ifdef __GLEE_GL_ARB_texture_float
-#endif 
+#endif
 
 /* GL_ARB_pixel_buffer_object */
 
 #ifdef __GLEE_GL_ARB_pixel_buffer_object
-#endif 
+#endif
 
 /* GL_ARB_depth_buffer_float */
 
 #ifdef __GLEE_GL_ARB_depth_buffer_float
-#endif 
+#endif
 
 /* GL_ARB_draw_instanced */
 
@@ -3831,7 +3831,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawElementsInstancedARB(GLenum  mode, GLsizei  count, GLenum  type, const GLvoid * indices, GLsizei  primcount)  {if (GLeeInit()) glDrawElementsInstancedARB(mode, count, type, indices, primcount);}
   GLEEPFNGLDRAWELEMENTSINSTANCEDARBPROC GLeeFuncPtr_glDrawElementsInstancedARB=GLee_Lazy_glDrawElementsInstancedARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_framebuffer_object */
 
@@ -3936,12 +3936,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFramebufferTextureLayer(GLenum  target, GLenum  attachment, GLuint  texture, GLint  level, GLint  layer)  {if (GLeeInit()) glFramebufferTextureLayer(target, attachment, texture, level, layer);}
   GLEEPFNGLFRAMEBUFFERTEXTURELAYERPROC GLeeFuncPtr_glFramebufferTextureLayer=GLee_Lazy_glFramebufferTextureLayer;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_framebuffer_sRGB */
 
 #ifdef __GLEE_GL_ARB_framebuffer_sRGB
-#endif 
+#endif
 
 /* GL_ARB_geometry_shader4 */
 
@@ -3966,12 +3966,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFramebufferTextureFaceARB(GLenum  target, GLenum  attachment, GLuint  texture, GLint  level, GLenum  face)  {if (GLeeInit()) glFramebufferTextureFaceARB(target, attachment, texture, level, face);}
   GLEEPFNGLFRAMEBUFFERTEXTUREFACEARBPROC GLeeFuncPtr_glFramebufferTextureFaceARB=GLee_Lazy_glFramebufferTextureFaceARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_half_float_vertex */
 
 #ifdef __GLEE_GL_ARB_half_float_vertex
-#endif 
+#endif
 
 /* GL_ARB_instanced_arrays */
 
@@ -3981,7 +3981,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribDivisorARB(GLuint  index, GLuint  divisor)  {if (GLeeInit()) glVertexAttribDivisorARB(index, divisor);}
   GLEEPFNGLVERTEXATTRIBDIVISORARBPROC GLeeFuncPtr_glVertexAttribDivisorARB=GLee_Lazy_glVertexAttribDivisorARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_map_buffer_range */
 
@@ -3996,7 +3996,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFlushMappedBufferRange(GLenum  target, GLintptr  offset, GLsizeiptr  length)  {if (GLeeInit()) glFlushMappedBufferRange(target, offset, length);}
   GLEEPFNGLFLUSHMAPPEDBUFFERRANGEPROC GLeeFuncPtr_glFlushMappedBufferRange=GLee_Lazy_glFlushMappedBufferRange;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_buffer_object */
 
@@ -4006,17 +4006,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexBufferARB(GLenum  target, GLenum  internalformat, GLuint  buffer)  {if (GLeeInit()) glTexBufferARB(target, internalformat, buffer);}
   GLEEPFNGLTEXBUFFERARBPROC GLeeFuncPtr_glTexBufferARB=GLee_Lazy_glTexBufferARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_compression_rgtc */
 
 #ifdef __GLEE_GL_ARB_texture_compression_rgtc
-#endif 
+#endif
 
 /* GL_ARB_texture_rg */
 
 #ifdef __GLEE_GL_ARB_texture_rg
-#endif 
+#endif
 
 /* GL_ARB_vertex_array_object */
 
@@ -4041,7 +4041,7 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsVertexArray(GLuint  array)  {if (GLeeInit()) return glIsVertexArray(array); return (GLboolean)0;}
   GLEEPFNGLISVERTEXARRAYPROC GLeeFuncPtr_glIsVertexArray=GLee_Lazy_glIsVertexArray;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_uniform_buffer_object */
 
@@ -4081,12 +4081,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glUniformBlockBinding(GLuint  program, GLuint  uniformBlockIndex, GLuint  uniformBlockBinding)  {if (GLeeInit()) glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);}
   GLEEPFNGLUNIFORMBLOCKBINDINGPROC GLeeFuncPtr_glUniformBlockBinding=GLee_Lazy_glUniformBlockBinding;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_compatibility */
 
 #ifdef __GLEE_GL_ARB_compatibility
-#endif 
+#endif
 
 /* GL_ARB_copy_buffer */
 
@@ -4096,17 +4096,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glCopyBufferSubData(GLenum  readTarget, GLenum  writeTarget, GLintptr  readOffset, GLintptr  writeOffset, GLsizeiptr  size)  {if (GLeeInit()) glCopyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);}
   GLEEPFNGLCOPYBUFFERSUBDATAPROC GLeeFuncPtr_glCopyBufferSubData=GLee_Lazy_glCopyBufferSubData;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_texture_lod */
 
 #ifdef __GLEE_GL_ARB_shader_texture_lod
-#endif 
+#endif
 
 /* GL_ARB_depth_clamp */
 
 #ifdef __GLEE_GL_ARB_depth_clamp
-#endif 
+#endif
 
 /* GL_ARB_draw_elements_base_vertex */
 
@@ -4131,12 +4131,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiDrawElementsBaseVertex(GLenum  mode, const GLsizei * count, GLenum  type, const GLvoid* * indices, GLsizei  primcount, const GLint * basevertex)  {if (GLeeInit()) glMultiDrawElementsBaseVertex(mode, count, type, indices, primcount, basevertex);}
   GLEEPFNGLMULTIDRAWELEMENTSBASEVERTEXPROC GLeeFuncPtr_glMultiDrawElementsBaseVertex=GLee_Lazy_glMultiDrawElementsBaseVertex;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_fragment_coord_conventions */
 
 #ifdef __GLEE_GL_ARB_fragment_coord_conventions
-#endif 
+#endif
 
 /* GL_ARB_provoking_vertex */
 
@@ -4146,12 +4146,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProvokingVertex(GLenum  mode)  {if (GLeeInit()) glProvokingVertex(mode);}
   GLEEPFNGLPROVOKINGVERTEXPROC GLeeFuncPtr_glProvokingVertex=GLee_Lazy_glProvokingVertex;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_seamless_cube_map */
 
 #ifdef __GLEE_GL_ARB_seamless_cube_map
-#endif 
+#endif
 
 /* GL_ARB_sync */
 
@@ -4191,7 +4191,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetSynciv(GLsync  sync, GLenum  pname, GLsizei  bufSize, GLsizei * length, GLint * values)  {if (GLeeInit()) glGetSynciv(sync, pname, bufSize, length, values);}
   GLEEPFNGLGETSYNCIVPROC GLeeFuncPtr_glGetSynciv=GLee_Lazy_glGetSynciv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_multisample */
 
@@ -4216,12 +4216,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSampleMaski(GLuint  index, GLbitfield  mask)  {if (GLeeInit()) glSampleMaski(index, mask);}
   GLEEPFNGLSAMPLEMASKIPROC GLeeFuncPtr_glSampleMaski=GLee_Lazy_glSampleMaski;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_vertex_array_bgra */
 
 #ifdef __GLEE_GL_ARB_vertex_array_bgra
-#endif 
+#endif
 
 /* GL_ARB_draw_buffers_blend */
 
@@ -4246,7 +4246,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendFuncSeparateiARB(GLuint  buf, GLenum  srcRGB, GLenum  dstRGB, GLenum  srcAlpha, GLenum  dstAlpha)  {if (GLeeInit()) glBlendFuncSeparateiARB(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);}
   GLEEPFNGLBLENDFUNCSEPARATEIARBPROC GLeeFuncPtr_glBlendFuncSeparateiARB=GLee_Lazy_glBlendFuncSeparateiARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_sample_shading */
 
@@ -4256,22 +4256,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMinSampleShadingARB(GLclampf  value)  {if (GLeeInit()) glMinSampleShadingARB(value);}
   GLEEPFNGLMINSAMPLESHADINGARBPROC GLeeFuncPtr_glMinSampleShadingARB=GLee_Lazy_glMinSampleShadingARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_cube_map_array */
 
 #ifdef __GLEE_GL_ARB_texture_cube_map_array
-#endif 
+#endif
 
 /* GL_ARB_texture_gather */
 
 #ifdef __GLEE_GL_ARB_texture_gather
-#endif 
+#endif
 
 /* GL_ARB_texture_query_lod */
 
 #ifdef __GLEE_GL_ARB_texture_query_lod
-#endif 
+#endif
 
 /* GL_ARB_shading_language_include */
 
@@ -4306,12 +4306,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetNamedStringivARB(GLint  namelen, const GLchar * name, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetNamedStringivARB(namelen, name, pname, params);}
   GLEEPFNGLGETNAMEDSTRINGIVARBPROC GLeeFuncPtr_glGetNamedStringivARB=GLee_Lazy_glGetNamedStringivARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_compression_bptc */
 
 #ifdef __GLEE_GL_ARB_texture_compression_bptc
-#endif 
+#endif
 
 /* GL_ARB_blend_func_extended */
 
@@ -4326,17 +4326,17 @@ int __GLeeGLNumExtensions=430;
   GLint __stdcall GLee_Lazy_glGetFragDataIndex(GLuint  program, const GLchar * name)  {if (GLeeInit()) return glGetFragDataIndex(program, name); return (GLint)0;}
   GLEEPFNGLGETFRAGDATAINDEXPROC GLeeFuncPtr_glGetFragDataIndex=GLee_Lazy_glGetFragDataIndex;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_explicit_attrib_location */
 
 #ifdef __GLEE_GL_ARB_explicit_attrib_location
-#endif 
+#endif
 
 /* GL_ARB_occlusion_query2 */
 
 #ifdef __GLEE_GL_ARB_occlusion_query2
-#endif 
+#endif
 
 /* GL_ARB_sampler_objects */
 
@@ -4411,22 +4411,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetSamplerParameterIuiv(GLuint  sampler, GLenum  pname, GLuint * params)  {if (GLeeInit()) glGetSamplerParameterIuiv(sampler, pname, params);}
   GLEEPFNGLGETSAMPLERPARAMETERIUIVPROC GLeeFuncPtr_glGetSamplerParameterIuiv=GLee_Lazy_glGetSamplerParameterIuiv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_bit_encoding */
 
 #ifdef __GLEE_GL_ARB_shader_bit_encoding
-#endif 
+#endif
 
 /* GL_ARB_texture_rgb10_a2ui */
 
 #ifdef __GLEE_GL_ARB_texture_rgb10_a2ui
-#endif 
+#endif
 
 /* GL_ARB_texture_swizzle */
 
 #ifdef __GLEE_GL_ARB_texture_swizzle
-#endif 
+#endif
 
 /* GL_ARB_timer_query */
 
@@ -4446,7 +4446,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetQueryObjectui64v(GLuint  id, GLenum  pname, GLuint64 * params)  {if (GLeeInit()) glGetQueryObjectui64v(id, pname, params);}
   GLEEPFNGLGETQUERYOBJECTUI64VPROC GLeeFuncPtr_glGetQueryObjectui64v=GLee_Lazy_glGetQueryObjectui64v;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_vertex_type_2_10_10_10_rev */
 
@@ -4641,7 +4641,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribP4uiv(GLuint  index, GLenum  type, GLboolean  normalized, const GLuint * value)  {if (GLeeInit()) glVertexAttribP4uiv(index, type, normalized, value);}
   GLEEPFNGLVERTEXATTRIBP4UIVPROC GLeeFuncPtr_glVertexAttribP4uiv=GLee_Lazy_glVertexAttribP4uiv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_draw_indirect */
 
@@ -4656,12 +4656,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawElementsIndirect(GLenum  mode, GLenum  type, const GLvoid * indirect)  {if (GLeeInit()) glDrawElementsIndirect(mode, type, indirect);}
   GLEEPFNGLDRAWELEMENTSINDIRECTPROC GLeeFuncPtr_glDrawElementsIndirect=GLee_Lazy_glDrawElementsIndirect;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_gpu_shader5 */
 
 #ifdef __GLEE_GL_ARB_gpu_shader5
-#endif 
+#endif
 
 /* GL_ARB_gpu_shader_fp64 */
 
@@ -4756,7 +4756,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetUniformdv(GLuint  program, GLint  location, GLdouble * params)  {if (GLeeInit()) glGetUniformdv(program, location, params);}
   GLEEPFNGLGETUNIFORMDVPROC GLeeFuncPtr_glGetUniformdv=GLee_Lazy_glGetUniformdv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_subroutine */
 
@@ -4801,7 +4801,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetProgramStageiv(GLuint  program, GLenum  shadertype, GLenum  pname, GLint * values)  {if (GLeeInit()) glGetProgramStageiv(program, shadertype, pname, values);}
   GLEEPFNGLGETPROGRAMSTAGEIVPROC GLeeFuncPtr_glGetProgramStageiv=GLee_Lazy_glGetProgramStageiv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_tessellation_shader */
 
@@ -4816,12 +4816,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPatchParameterfv(GLenum  pname, const GLfloat * values)  {if (GLeeInit()) glPatchParameterfv(pname, values);}
   GLEEPFNGLPATCHPARAMETERFVPROC GLeeFuncPtr_glPatchParameterfv=GLee_Lazy_glPatchParameterfv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_texture_buffer_object_rgb32 */
 
 #ifdef __GLEE_GL_ARB_texture_buffer_object_rgb32
-#endif 
+#endif
 
 /* GL_ARB_transform_feedback2 */
 
@@ -4861,7 +4861,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawTransformFeedback(GLenum  mode, GLuint  id)  {if (GLeeInit()) glDrawTransformFeedback(mode, id);}
   GLEEPFNGLDRAWTRANSFORMFEEDBACKPROC GLeeFuncPtr_glDrawTransformFeedback=GLee_Lazy_glDrawTransformFeedback;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_transform_feedback3 */
 
@@ -4886,7 +4886,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetQueryIndexediv(GLenum  target, GLuint  index, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetQueryIndexediv(target, index, pname, params);}
   GLEEPFNGLGETQUERYINDEXEDIVPROC GLeeFuncPtr_glGetQueryIndexediv=GLee_Lazy_glGetQueryIndexediv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_ES2_compatibility */
 
@@ -4916,7 +4916,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glClearDepthf(GLclampf  d)  {if (GLeeInit()) glClearDepthf(d);}
   GLEEPFNGLCLEARDEPTHFPROC GLeeFuncPtr_glClearDepthf=GLee_Lazy_glClearDepthf;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_get_program_binary */
 
@@ -4936,7 +4936,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramParameteri(GLuint  program, GLenum  pname, GLint  value)  {if (GLeeInit()) glProgramParameteri(program, pname, value);}
   GLEEPFNGLPROGRAMPARAMETERIPROC GLeeFuncPtr_glProgramParameteri=GLee_Lazy_glProgramParameteri;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_separate_shader_objects */
 
@@ -5241,12 +5241,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetProgramPipelineInfoLog(GLuint  pipeline, GLsizei  bufSize, GLsizei * length, GLchar * infoLog)  {if (GLeeInit()) glGetProgramPipelineInfoLog(pipeline, bufSize, length, infoLog);}
   GLEEPFNGLGETPROGRAMPIPELINEINFOLOGPROC GLeeFuncPtr_glGetProgramPipelineInfoLog=GLee_Lazy_glGetProgramPipelineInfoLog;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_precision */
 
 #ifdef __GLEE_GL_ARB_shader_precision
-#endif 
+#endif
 
 /* GL_ARB_vertex_attrib_64bit */
 
@@ -5301,7 +5301,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetVertexAttribLdv(GLuint  index, GLenum  pname, GLdouble * params)  {if (GLeeInit()) glGetVertexAttribLdv(index, pname, params);}
   GLEEPFNGLGETVERTEXATTRIBLDVPROC GLeeFuncPtr_glGetVertexAttribLdv=GLee_Lazy_glGetVertexAttribLdv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_viewport_array */
 
@@ -5356,7 +5356,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetDoublei_v(GLenum  target, GLuint  index, GLdouble * data)  {if (GLeeInit()) glGetDoublei_v(target, index, data);}
   GLEEPFNGLGETDOUBLEI_VPROC GLeeFuncPtr_glGetDoublei_v=GLee_Lazy_glGetDoublei_v;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_cl_event */
 
@@ -5366,7 +5366,7 @@ int __GLeeGLNumExtensions=430;
   GLsync __stdcall GLee_Lazy_glCreateSyncFromCLeventARB(struct _cl_context *  context, struct _cl_event *  event, GLbitfield  flags)  {if (GLeeInit()) return glCreateSyncFromCLeventARB(context, event, flags); return (GLsync)0;}
   GLEEPFNGLCREATESYNCFROMCLEVENTARBPROC GLeeFuncPtr_glCreateSyncFromCLeventARB=GLee_Lazy_glCreateSyncFromCLeventARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_robustness */
 
@@ -5471,12 +5471,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetnUniformdvARB(GLuint  program, GLint  location, GLsizei  bufSize, GLdouble * params)  {if (GLeeInit()) glGetnUniformdvARB(program, location, bufSize, params);}
   GLEEPFNGLGETNUNIFORMDVARBPROC GLeeFuncPtr_glGetnUniformdvARB=GLee_Lazy_glGetnUniformdvARB;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_stencil_export */
 
 #ifdef __GLEE_GL_ARB_shader_stencil_export
-#endif 
+#endif
 
 /* GL_ARB_base_instance */
 
@@ -5496,12 +5496,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawElementsInstancedBaseVertexBaseInstance(GLenum  mode, GLsizei  count, GLenum  type, const void * indices, GLsizei  primcount, GLint  basevertex, GLuint  baseinstance)  {if (GLeeInit()) glDrawElementsInstancedBaseVertexBaseInstance(mode, count, type, indices, primcount, basevertex, baseinstance);}
   GLEEPFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC GLeeFuncPtr_glDrawElementsInstancedBaseVertexBaseInstance=GLee_Lazy_glDrawElementsInstancedBaseVertexBaseInstance;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shading_language_420pack */
 
 #ifdef __GLEE_GL_ARB_shading_language_420pack
-#endif 
+#endif
 
 /* GL_ARB_transform_feedback_instanced */
 
@@ -5516,17 +5516,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawTransformFeedbackStreamInstanced(GLenum  mode, GLuint  id, GLuint  stream, GLsizei  primcount)  {if (GLeeInit()) glDrawTransformFeedbackStreamInstanced(mode, id, stream, primcount);}
   GLEEPFNGLDRAWTRANSFORMFEEDBACKSTREAMINSTANCEDPROC GLeeFuncPtr_glDrawTransformFeedbackStreamInstanced=GLee_Lazy_glDrawTransformFeedbackStreamInstanced;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_compressed_texture_pixel_storage */
 
 #ifdef __GLEE_GL_ARB_compressed_texture_pixel_storage
-#endif 
+#endif
 
 /* GL_ARB_conservative_depth */
 
 #ifdef __GLEE_GL_ARB_conservative_depth
-#endif 
+#endif
 
 /* GL_ARB_internalformat_query */
 
@@ -5536,12 +5536,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetInternalformativ(GLenum  target, GLenum  internalformat, GLenum  pname, GLsizei  bufSize, GLint * params)  {if (GLeeInit()) glGetInternalformativ(target, internalformat, pname, bufSize, params);}
   GLEEPFNGLGETINTERNALFORMATIVPROC GLeeFuncPtr_glGetInternalformativ=GLee_Lazy_glGetInternalformativ;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_map_buffer_alignment */
 
 #ifdef __GLEE_GL_ARB_map_buffer_alignment
-#endif 
+#endif
 
 /* GL_ARB_shader_atomic_counters */
 
@@ -5551,7 +5551,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetActiveAtomicCounterBufferiv(GLuint  program, GLuint  bufferIndex, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetActiveAtomicCounterBufferiv(program, bufferIndex, pname, params);}
   GLEEPFNGLGETACTIVEATOMICCOUNTERBUFFERIVPROC GLeeFuncPtr_glGetActiveAtomicCounterBufferiv=GLee_Lazy_glGetActiveAtomicCounterBufferiv;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shader_image_load_store */
 
@@ -5566,12 +5566,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMemoryBarrier(GLbitfield  barriers)  {if (GLeeInit()) glMemoryBarrier(barriers);}
   GLEEPFNGLMEMORYBARRIERPROC GLeeFuncPtr_glMemoryBarrier=GLee_Lazy_glMemoryBarrier;
 #endif
-#endif 
+#endif
 
 /* GL_ARB_shading_language_packing */
 
 #ifdef __GLEE_GL_ARB_shading_language_packing
-#endif 
+#endif
 
 /* GL_ARB_texture_storage */
 
@@ -5606,12 +5606,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureStorage3DEXT(GLuint  texture, GLenum  target, GLsizei  levels, GLenum  internalformat, GLsizei  width, GLsizei  height, GLsizei  depth)  {if (GLeeInit()) glTextureStorage3DEXT(texture, target, levels, internalformat, width, height, depth);}
   GLEEPFNGLTEXTURESTORAGE3DEXTPROC GLeeFuncPtr_glTextureStorage3DEXT=GLee_Lazy_glTextureStorage3DEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_abgr */
 
 #ifdef __GLEE_GL_EXT_abgr
-#endif 
+#endif
 
 /* GL_EXT_blend_color */
 
@@ -5621,7 +5621,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendColorEXT(GLclampf  red, GLclampf  green, GLclampf  blue, GLclampf  alpha)  {if (GLeeInit()) glBlendColorEXT(red, green, blue, alpha);}
   GLEEPFNGLBLENDCOLOREXTPROC GLeeFuncPtr_glBlendColorEXT=GLee_Lazy_glBlendColorEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_polygon_offset */
 
@@ -5631,12 +5631,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPolygonOffsetEXT(GLfloat  factor, GLfloat  bias)  {if (GLeeInit()) glPolygonOffsetEXT(factor, bias);}
   GLEEPFNGLPOLYGONOFFSETEXTPROC GLeeFuncPtr_glPolygonOffsetEXT=GLee_Lazy_glPolygonOffsetEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture */
 
 #ifdef __GLEE_GL_EXT_texture
-#endif 
+#endif
 
 /* GL_EXT_texture3D */
 
@@ -5651,7 +5651,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexSubImage3DEXT(GLenum  target, GLint  level, GLint  xoffset, GLint  yoffset, GLint  zoffset, GLsizei  width, GLsizei  height, GLsizei  depth, GLenum  format, GLenum  type, const GLvoid * pixels)  {if (GLeeInit()) glTexSubImage3DEXT(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);}
   GLEEPFNGLTEXSUBIMAGE3DEXTPROC GLeeFuncPtr_glTexSubImage3DEXT=GLee_Lazy_glTexSubImage3DEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_texture_filter4 */
 
@@ -5666,7 +5666,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexFilterFuncSGIS(GLenum  target, GLenum  filter, GLsizei  n, const GLfloat * weights)  {if (GLeeInit()) glTexFilterFuncSGIS(target, filter, n, weights);}
   GLEEPFNGLTEXFILTERFUNCSGISPROC GLeeFuncPtr_glTexFilterFuncSGIS=GLee_Lazy_glTexFilterFuncSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_subtexture */
 
@@ -5681,7 +5681,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexSubImage2DEXT(GLenum  target, GLint  level, GLint  xoffset, GLint  yoffset, GLsizei  width, GLsizei  height, GLenum  format, GLenum  type, const GLvoid * pixels)  {if (GLeeInit()) glTexSubImage2DEXT(target, level, xoffset, yoffset, width, height, format, type, pixels);}
   GLEEPFNGLTEXSUBIMAGE2DEXTPROC GLeeFuncPtr_glTexSubImage2DEXT=GLee_Lazy_glTexSubImage2DEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_copy_texture */
 
@@ -5711,7 +5711,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glCopyTexSubImage3DEXT(GLenum  target, GLint  level, GLint  xoffset, GLint  yoffset, GLint  zoffset, GLint  x, GLint  y, GLsizei  width, GLsizei  height)  {if (GLeeInit()) glCopyTexSubImage3DEXT(target, level, xoffset, yoffset, zoffset, x, y, width, height);}
   GLEEPFNGLCOPYTEXSUBIMAGE3DEXTPROC GLeeFuncPtr_glCopyTexSubImage3DEXT=GLee_Lazy_glCopyTexSubImage3DEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_histogram */
 
@@ -5766,7 +5766,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glResetMinmaxEXT(GLenum  target)  {if (GLeeInit()) glResetMinmaxEXT(target);}
   GLEEPFNGLRESETMINMAXEXTPROC GLeeFuncPtr_glResetMinmaxEXT=GLee_Lazy_glResetMinmaxEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_convolution */
 
@@ -5836,12 +5836,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSeparableFilter2DEXT(GLenum  target, GLenum  internalformat, GLsizei  width, GLsizei  height, GLenum  format, GLenum  type, const GLvoid * row, const GLvoid * column)  {if (GLeeInit()) glSeparableFilter2DEXT(target, internalformat, width, height, format, type, row, column);}
   GLEEPFNGLSEPARABLEFILTER2DEXTPROC GLeeFuncPtr_glSeparableFilter2DEXT=GLee_Lazy_glSeparableFilter2DEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGI_color_matrix */
 
 #ifdef __GLEE_GL_SGI_color_matrix
-#endif 
+#endif
 
 /* GL_SGI_color_table */
 
@@ -5881,7 +5881,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetColorTableParameterivSGI(GLenum  target, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetColorTableParameterivSGI(target, pname, params);}
   GLEEPFNGLGETCOLORTABLEPARAMETERIVSGIPROC GLeeFuncPtr_glGetColorTableParameterivSGI=GLee_Lazy_glGetColorTableParameterivSGI;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_pixel_texture */
 
@@ -5916,7 +5916,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetPixelTexGenParameterfvSGIS(GLenum  pname, GLfloat * params)  {if (GLeeInit()) glGetPixelTexGenParameterfvSGIS(pname, params);}
   GLEEPFNGLGETPIXELTEXGENPARAMETERFVSGISPROC GLeeFuncPtr_glGetPixelTexGenParameterfvSGIS=GLee_Lazy_glGetPixelTexGenParameterfvSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_pixel_texture */
 
@@ -5926,7 +5926,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPixelTexGenSGIX(GLenum  mode)  {if (GLeeInit()) glPixelTexGenSGIX(mode);}
   GLEEPFNGLPIXELTEXGENSGIXPROC GLeeFuncPtr_glPixelTexGenSGIX=GLee_Lazy_glPixelTexGenSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_texture4D */
 
@@ -5941,17 +5941,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexSubImage4DSGIS(GLenum  target, GLint  level, GLint  xoffset, GLint  yoffset, GLint  zoffset, GLint  woffset, GLsizei  width, GLsizei  height, GLsizei  depth, GLsizei  size4d, GLenum  format, GLenum  type, const GLvoid * pixels)  {if (GLeeInit()) glTexSubImage4DSGIS(target, level, xoffset, yoffset, zoffset, woffset, width, height, depth, size4d, format, type, pixels);}
   GLEEPFNGLTEXSUBIMAGE4DSGISPROC GLeeFuncPtr_glTexSubImage4DSGIS=GLee_Lazy_glTexSubImage4DSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_SGI_texture_color_table */
 
 #ifdef __GLEE_GL_SGI_texture_color_table
-#endif 
+#endif
 
 /* GL_EXT_cmyka */
 
 #ifdef __GLEE_GL_EXT_cmyka
-#endif 
+#endif
 
 /* GL_EXT_texture_object */
 
@@ -5986,7 +5986,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPrioritizeTexturesEXT(GLsizei  n, const GLuint * textures, const GLclampf * priorities)  {if (GLeeInit()) glPrioritizeTexturesEXT(n, textures, priorities);}
   GLEEPFNGLPRIORITIZETEXTURESEXTPROC GLeeFuncPtr_glPrioritizeTexturesEXT=GLee_Lazy_glPrioritizeTexturesEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_detail_texture */
 
@@ -6001,7 +6001,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetDetailTexFuncSGIS(GLenum  target, GLfloat * points)  {if (GLeeInit()) glGetDetailTexFuncSGIS(target, points);}
   GLEEPFNGLGETDETAILTEXFUNCSGISPROC GLeeFuncPtr_glGetDetailTexFuncSGIS=GLee_Lazy_glGetDetailTexFuncSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_sharpen_texture */
 
@@ -6016,17 +6016,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetSharpenTexFuncSGIS(GLenum  target, GLfloat * points)  {if (GLeeInit()) glGetSharpenTexFuncSGIS(target, points);}
   GLEEPFNGLGETSHARPENTEXFUNCSGISPROC GLeeFuncPtr_glGetSharpenTexFuncSGIS=GLee_Lazy_glGetSharpenTexFuncSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_packed_pixels */
 
 #ifdef __GLEE_GL_EXT_packed_pixels
-#endif 
+#endif
 
 /* GL_SGIS_texture_lod */
 
 #ifdef __GLEE_GL_SGIS_texture_lod
-#endif 
+#endif
 
 /* GL_SGIS_multisample */
 
@@ -6041,12 +6041,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSamplePatternSGIS(GLenum  pattern)  {if (GLeeInit()) glSamplePatternSGIS(pattern);}
   GLEEPFNGLSAMPLEPATTERNSGISPROC GLeeFuncPtr_glSamplePatternSGIS=GLee_Lazy_glSamplePatternSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_rescale_normal */
 
 #ifdef __GLEE_GL_EXT_rescale_normal
-#endif 
+#endif
 
 /* GL_EXT_vertex_array */
 
@@ -6096,37 +6096,37 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexPointerEXT(GLint  size, GLenum  type, GLsizei  stride, GLsizei  count, const GLvoid * pointer)  {if (GLeeInit()) glVertexPointerEXT(size, type, stride, count, pointer);}
   GLEEPFNGLVERTEXPOINTEREXTPROC GLeeFuncPtr_glVertexPointerEXT=GLee_Lazy_glVertexPointerEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_misc_attribute */
 
 #ifdef __GLEE_GL_EXT_misc_attribute
-#endif 
+#endif
 
 /* GL_SGIS_generate_mipmap */
 
 #ifdef __GLEE_GL_SGIS_generate_mipmap
-#endif 
+#endif
 
 /* GL_SGIX_clipmap */
 
 #ifdef __GLEE_GL_SGIX_clipmap
-#endif 
+#endif
 
 /* GL_SGIX_shadow */
 
 #ifdef __GLEE_GL_SGIX_shadow
-#endif 
+#endif
 
 /* GL_SGIS_texture_edge_clamp */
 
 #ifdef __GLEE_GL_SGIS_texture_edge_clamp
-#endif 
+#endif
 
 /* GL_SGIS_texture_border_clamp */
 
 #ifdef __GLEE_GL_SGIS_texture_border_clamp
-#endif 
+#endif
 
 /* GL_EXT_blend_minmax */
 
@@ -6136,32 +6136,32 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendEquationEXT(GLenum  mode)  {if (GLeeInit()) glBlendEquationEXT(mode);}
   GLEEPFNGLBLENDEQUATIONEXTPROC GLeeFuncPtr_glBlendEquationEXT=GLee_Lazy_glBlendEquationEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_blend_subtract */
 
 #ifdef __GLEE_GL_EXT_blend_subtract
-#endif 
+#endif
 
 /* GL_EXT_blend_logic_op */
 
 #ifdef __GLEE_GL_EXT_blend_logic_op
-#endif 
+#endif
 
 /* GL_SGIX_interlace */
 
 #ifdef __GLEE_GL_SGIX_interlace
-#endif 
+#endif
 
 /* GL_SGIX_pixel_tiles */
 
 #ifdef __GLEE_GL_SGIX_pixel_tiles
-#endif 
+#endif
 
 /* GL_SGIS_texture_select */
 
 #ifdef __GLEE_GL_SGIS_texture_select
-#endif 
+#endif
 
 /* GL_SGIX_sprite */
 
@@ -6186,12 +6186,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSpriteParameterivSGIX(GLenum  pname, const GLint * params)  {if (GLeeInit()) glSpriteParameterivSGIX(pname, params);}
   GLEEPFNGLSPRITEPARAMETERIVSGIXPROC GLeeFuncPtr_glSpriteParameterivSGIX=GLee_Lazy_glSpriteParameterivSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_texture_multi_buffer */
 
 #ifdef __GLEE_GL_SGIX_texture_multi_buffer
-#endif 
+#endif
 
 /* GL_EXT_point_parameters */
 
@@ -6206,7 +6206,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPointParameterfvEXT(GLenum  pname, const GLfloat * params)  {if (GLeeInit()) glPointParameterfvEXT(pname, params);}
   GLEEPFNGLPOINTPARAMETERFVEXTPROC GLeeFuncPtr_glPointParameterfvEXT=GLee_Lazy_glPointParameterfvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIS_point_parameters */
 
@@ -6221,7 +6221,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPointParameterfvSGIS(GLenum  pname, const GLfloat * params)  {if (GLeeInit()) glPointParameterfvSGIS(pname, params);}
   GLEEPFNGLPOINTPARAMETERFVSGISPROC GLeeFuncPtr_glPointParameterfvSGIS=GLee_Lazy_glPointParameterfvSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_instruments */
 
@@ -6256,12 +6256,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glStopInstrumentsSGIX(GLint  marker)  {if (GLeeInit()) glStopInstrumentsSGIX(marker);}
   GLEEPFNGLSTOPINSTRUMENTSSGIXPROC GLeeFuncPtr_glStopInstrumentsSGIX=GLee_Lazy_glStopInstrumentsSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_texture_scale_bias */
 
 #ifdef __GLEE_GL_SGIX_texture_scale_bias
-#endif 
+#endif
 
 /* GL_SGIX_framezoom */
 
@@ -6271,7 +6271,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFrameZoomSGIX(GLint  factor)  {if (GLeeInit()) glFrameZoomSGIX(factor);}
   GLEEPFNGLFRAMEZOOMSGIXPROC GLeeFuncPtr_glFrameZoomSGIX=GLee_Lazy_glFrameZoomSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_tag_sample_buffer */
 
@@ -6281,12 +6281,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTagSampleBufferSGIX(void)  {if (GLeeInit()) glTagSampleBufferSGIX();}
   GLEEPFNGLTAGSAMPLEBUFFERSGIXPROC GLeeFuncPtr_glTagSampleBufferSGIX=GLee_Lazy_glTagSampleBufferSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_FfdMaskSGIX */
 
 #ifdef __GLEE_GL_FfdMaskSGIX
-#endif 
+#endif
 
 /* GL_SGIX_polynomial_ffd */
 
@@ -6311,7 +6311,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glLoadIdentityDeformationMapSGIX(GLbitfield  mask)  {if (GLeeInit()) glLoadIdentityDeformationMapSGIX(mask);}
   GLEEPFNGLLOADIDENTITYDEFORMATIONMAPSGIXPROC GLeeFuncPtr_glLoadIdentityDeformationMapSGIX=GLee_Lazy_glLoadIdentityDeformationMapSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_reference_plane */
 
@@ -6321,7 +6321,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glReferencePlaneSGIX(const GLdouble * equation)  {if (GLeeInit()) glReferencePlaneSGIX(equation);}
   GLEEPFNGLREFERENCEPLANESGIXPROC GLeeFuncPtr_glReferencePlaneSGIX=GLee_Lazy_glReferencePlaneSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_flush_raster */
 
@@ -6331,12 +6331,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFlushRasterSGIX(void)  {if (GLeeInit()) glFlushRasterSGIX();}
   GLEEPFNGLFLUSHRASTERSGIXPROC GLeeFuncPtr_glFlushRasterSGIX=GLee_Lazy_glFlushRasterSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_depth_texture */
 
 #ifdef __GLEE_GL_SGIX_depth_texture
-#endif 
+#endif
 
 /* GL_SGIS_fog_function */
 
@@ -6351,12 +6351,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetFogFuncSGIS(GLfloat * points)  {if (GLeeInit()) glGetFogFuncSGIS(points);}
   GLEEPFNGLGETFOGFUNCSGISPROC GLeeFuncPtr_glGetFogFuncSGIS=GLee_Lazy_glGetFogFuncSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_fog_offset */
 
 #ifdef __GLEE_GL_SGIX_fog_offset
-#endif 
+#endif
 
 /* GL_HP_image_transform */
 
@@ -6391,22 +6391,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetImageTransformParameterfvHP(GLenum  target, GLenum  pname, GLfloat * params)  {if (GLeeInit()) glGetImageTransformParameterfvHP(target, pname, params);}
   GLEEPFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC GLeeFuncPtr_glGetImageTransformParameterfvHP=GLee_Lazy_glGetImageTransformParameterfvHP;
 #endif
-#endif 
+#endif
 
 /* GL_HP_convolution_border_modes */
 
 #ifdef __GLEE_GL_HP_convolution_border_modes
-#endif 
+#endif
 
 /* GL_INGR_palette_buffer */
 
 #ifdef __GLEE_GL_INGR_palette_buffer
-#endif 
+#endif
 
 /* GL_SGIX_texture_add_env */
 
 #ifdef __GLEE_GL_SGIX_texture_add_env
-#endif 
+#endif
 
 /* GL_EXT_color_subtable */
 
@@ -6421,12 +6421,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glCopyColorSubTableEXT(GLenum  target, GLsizei  start, GLint  x, GLint  y, GLsizei  width)  {if (GLeeInit()) glCopyColorSubTableEXT(target, start, x, y, width);}
   GLEEPFNGLCOPYCOLORSUBTABLEEXTPROC GLeeFuncPtr_glCopyColorSubTableEXT=GLee_Lazy_glCopyColorSubTableEXT;
 #endif
-#endif 
+#endif
 
 /* GL_PGI_vertex_hints */
 
 #ifdef __GLEE_GL_PGI_vertex_hints
-#endif 
+#endif
 
 /* GL_PGI_misc_hints */
 
@@ -6436,7 +6436,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glHintPGI(GLenum  target, GLint  mode)  {if (GLeeInit()) glHintPGI(target, mode);}
   GLEEPFNGLHINTPGIPROC GLeeFuncPtr_glHintPGI=GLee_Lazy_glHintPGI;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_paletted_texture */
 
@@ -6461,12 +6461,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetColorTableParameterfvEXT(GLenum  target, GLenum  pname, GLfloat * params)  {if (GLeeInit()) glGetColorTableParameterfvEXT(target, pname, params);}
   GLEEPFNGLGETCOLORTABLEPARAMETERFVEXTPROC GLeeFuncPtr_glGetColorTableParameterfvEXT=GLee_Lazy_glGetColorTableParameterfvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_clip_volume_hint */
 
 #ifdef __GLEE_GL_EXT_clip_volume_hint
-#endif 
+#endif
 
 /* GL_SGIX_list_priority */
 
@@ -6501,32 +6501,32 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glListParameterivSGIX(GLuint  list, GLenum  pname, const GLint * params)  {if (GLeeInit()) glListParameterivSGIX(list, pname, params);}
   GLEEPFNGLLISTPARAMETERIVSGIXPROC GLeeFuncPtr_glListParameterivSGIX=GLee_Lazy_glListParameterivSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_ir_instrument1 */
 
 #ifdef __GLEE_GL_SGIX_ir_instrument1
-#endif 
+#endif
 
 /* GL_SGIX_calligraphic_fragment */
 
 #ifdef __GLEE_GL_SGIX_calligraphic_fragment
-#endif 
+#endif
 
 /* GL_SGIX_texture_lod_bias */
 
 #ifdef __GLEE_GL_SGIX_texture_lod_bias
-#endif 
+#endif
 
 /* GL_SGIX_shadow_ambient */
 
 #ifdef __GLEE_GL_SGIX_shadow_ambient
-#endif 
+#endif
 
 /* GL_EXT_index_texture */
 
 #ifdef __GLEE_GL_EXT_index_texture
-#endif 
+#endif
 
 /* GL_EXT_index_material */
 
@@ -6536,7 +6536,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glIndexMaterialEXT(GLenum  face, GLenum  mode)  {if (GLeeInit()) glIndexMaterialEXT(face, mode);}
   GLEEPFNGLINDEXMATERIALEXTPROC GLeeFuncPtr_glIndexMaterialEXT=GLee_Lazy_glIndexMaterialEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_index_func */
 
@@ -6546,12 +6546,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glIndexFuncEXT(GLenum  func, GLclampf  ref)  {if (GLeeInit()) glIndexFuncEXT(func, ref);}
   GLEEPFNGLINDEXFUNCEXTPROC GLeeFuncPtr_glIndexFuncEXT=GLee_Lazy_glIndexFuncEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_index_array_formats */
 
 #ifdef __GLEE_GL_EXT_index_array_formats
-#endif 
+#endif
 
 /* GL_EXT_compiled_vertex_array */
 
@@ -6566,7 +6566,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glUnlockArraysEXT(void)  {if (GLeeInit()) glUnlockArraysEXT();}
   GLEEPFNGLUNLOCKARRAYSEXTPROC GLeeFuncPtr_glUnlockArraysEXT=GLee_Lazy_glUnlockArraysEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_cull_vertex */
 
@@ -6581,12 +6581,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glCullParameterfvEXT(GLenum  pname, GLfloat * params)  {if (GLeeInit()) glCullParameterfvEXT(pname, params);}
   GLEEPFNGLCULLPARAMETERFVEXTPROC GLeeFuncPtr_glCullParameterfvEXT=GLee_Lazy_glCullParameterfvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_ycrcb */
 
 #ifdef __GLEE_GL_SGIX_ycrcb
-#endif 
+#endif
 
 /* GL_SGIX_fragment_lighting */
 
@@ -6681,17 +6681,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glLightEnviSGIX(GLenum  pname, GLint  param)  {if (GLeeInit()) glLightEnviSGIX(pname, param);}
   GLEEPFNGLLIGHTENVISGIXPROC GLeeFuncPtr_glLightEnviSGIX=GLee_Lazy_glLightEnviSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_IBM_rasterpos_clip */
 
 #ifdef __GLEE_GL_IBM_rasterpos_clip
-#endif 
+#endif
 
 /* GL_HP_texture_lighting */
 
 #ifdef __GLEE_GL_HP_texture_lighting
-#endif 
+#endif
 
 /* GL_EXT_draw_range_elements */
 
@@ -6701,17 +6701,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawRangeElementsEXT(GLenum  mode, GLuint  start, GLuint  end, GLsizei  count, GLenum  type, const GLvoid * indices)  {if (GLeeInit()) glDrawRangeElementsEXT(mode, start, end, count, type, indices);}
   GLEEPFNGLDRAWRANGEELEMENTSEXTPROC GLeeFuncPtr_glDrawRangeElementsEXT=GLee_Lazy_glDrawRangeElementsEXT;
 #endif
-#endif 
+#endif
 
 /* GL_WIN_phong_shading */
 
 #ifdef __GLEE_GL_WIN_phong_shading
-#endif 
+#endif
 
 /* GL_WIN_specular_fog */
 
 #ifdef __GLEE_GL_WIN_specular_fog
-#endif 
+#endif
 
 /* GL_EXT_light_texture */
 
@@ -6731,22 +6731,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureMaterialEXT(GLenum  face, GLenum  mode)  {if (GLeeInit()) glTextureMaterialEXT(face, mode);}
   GLEEPFNGLTEXTUREMATERIALEXTPROC GLeeFuncPtr_glTextureMaterialEXT=GLee_Lazy_glTextureMaterialEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_blend_alpha_minmax */
 
 #ifdef __GLEE_GL_SGIX_blend_alpha_minmax
-#endif 
+#endif
 
 /* GL_SGIX_impact_pixel_texture */
 
 #ifdef __GLEE_GL_SGIX_impact_pixel_texture
-#endif 
+#endif
 
 /* GL_EXT_bgra */
 
 #ifdef __GLEE_GL_EXT_bgra
-#endif 
+#endif
 
 /* GL_SGIX_async */
 
@@ -6781,22 +6781,22 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsAsyncMarkerSGIX(GLuint  marker)  {if (GLeeInit()) return glIsAsyncMarkerSGIX(marker); return (GLboolean)0;}
   GLEEPFNGLISASYNCMARKERSGIXPROC GLeeFuncPtr_glIsAsyncMarkerSGIX=GLee_Lazy_glIsAsyncMarkerSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_async_pixel */
 
 #ifdef __GLEE_GL_SGIX_async_pixel
-#endif 
+#endif
 
 /* GL_SGIX_async_histogram */
 
 #ifdef __GLEE_GL_SGIX_async_histogram
-#endif 
+#endif
 
 /* GL_INTEL_texture_scissor */
 
 #ifdef __GLEE_GL_INTEL_texture_scissor
-#endif 
+#endif
 
 /* GL_INTEL_parallel_arrays */
 
@@ -6821,12 +6821,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexCoordPointervINTEL(GLint  size, GLenum  type, const GLvoid* * pointer)  {if (GLeeInit()) glTexCoordPointervINTEL(size, type, pointer);}
   GLEEPFNGLTEXCOORDPOINTERVINTELPROC GLeeFuncPtr_glTexCoordPointervINTEL=GLee_Lazy_glTexCoordPointervINTEL;
 #endif
-#endif 
+#endif
 
 /* GL_HP_occlusion_test */
 
 #ifdef __GLEE_GL_HP_occlusion_test
-#endif 
+#endif
 
 /* GL_EXT_pixel_transform */
 
@@ -6851,22 +6851,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPixelTransformParameterfvEXT(GLenum  target, GLenum  pname, const GLfloat * params)  {if (GLeeInit()) glPixelTransformParameterfvEXT(target, pname, params);}
   GLEEPFNGLPIXELTRANSFORMPARAMETERFVEXTPROC GLeeFuncPtr_glPixelTransformParameterfvEXT=GLee_Lazy_glPixelTransformParameterfvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_pixel_transform_color_table */
 
 #ifdef __GLEE_GL_EXT_pixel_transform_color_table
-#endif 
+#endif
 
 /* GL_EXT_shared_texture_palette */
 
 #ifdef __GLEE_GL_EXT_shared_texture_palette
-#endif 
+#endif
 
 /* GL_EXT_separate_specular_color */
 
 #ifdef __GLEE_GL_EXT_separate_specular_color
-#endif 
+#endif
 
 /* GL_EXT_secondary_color */
 
@@ -6956,7 +6956,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSecondaryColorPointerEXT(GLint  size, GLenum  type, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glSecondaryColorPointerEXT(size, type, stride, pointer);}
   GLEEPFNGLSECONDARYCOLORPOINTEREXTPROC GLeeFuncPtr_glSecondaryColorPointerEXT=GLee_Lazy_glSecondaryColorPointerEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_perturb_normal */
 
@@ -6966,7 +6966,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureNormalEXT(GLenum  mode)  {if (GLeeInit()) glTextureNormalEXT(mode);}
   GLEEPFNGLTEXTURENORMALEXTPROC GLeeFuncPtr_glTextureNormalEXT=GLee_Lazy_glTextureNormalEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_multi_draw_arrays */
 
@@ -6981,7 +6981,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiDrawElementsEXT(GLenum  mode, const GLsizei * count, GLenum  type, const GLvoid* * indices, GLsizei  primcount)  {if (GLeeInit()) glMultiDrawElementsEXT(mode, count, type, indices, primcount);}
   GLEEPFNGLMULTIDRAWELEMENTSEXTPROC GLeeFuncPtr_glMultiDrawElementsEXT=GLee_Lazy_glMultiDrawElementsEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_fog_coord */
 
@@ -7011,12 +7011,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFogCoordPointerEXT(GLenum  type, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glFogCoordPointerEXT(type, stride, pointer);}
   GLEEPFNGLFOGCOORDPOINTEREXTPROC GLeeFuncPtr_glFogCoordPointerEXT=GLee_Lazy_glFogCoordPointerEXT;
 #endif
-#endif 
+#endif
 
 /* GL_REND_screen_coordinates */
 
 #ifdef __GLEE_GL_REND_screen_coordinates
-#endif 
+#endif
 
 /* GL_EXT_coordinate_frame */
 
@@ -7131,27 +7131,27 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBinormalPointerEXT(GLenum  type, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glBinormalPointerEXT(type, stride, pointer);}
   GLEEPFNGLBINORMALPOINTEREXTPROC GLeeFuncPtr_glBinormalPointerEXT=GLee_Lazy_glBinormalPointerEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_env_combine */
 
 #ifdef __GLEE_GL_EXT_texture_env_combine
-#endif 
+#endif
 
 /* GL_APPLE_specular_vector */
 
 #ifdef __GLEE_GL_APPLE_specular_vector
-#endif 
+#endif
 
 /* GL_APPLE_transform_hint */
 
 #ifdef __GLEE_GL_APPLE_transform_hint
-#endif 
+#endif
 
 /* GL_SGIX_fog_scale */
 
 #ifdef __GLEE_GL_SGIX_fog_scale
-#endif 
+#endif
 
 /* GL_SUNX_constant_data */
 
@@ -7161,7 +7161,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFinishTextureSUNX(void)  {if (GLeeInit()) glFinishTextureSUNX();}
   GLEEPFNGLFINISHTEXTURESUNXPROC GLeeFuncPtr_glFinishTextureSUNX=GLee_Lazy_glFinishTextureSUNX;
 #endif
-#endif 
+#endif
 
 /* GL_SUN_global_alpha */
 
@@ -7206,7 +7206,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGlobalAlphaFactoruiSUN(GLuint  factor)  {if (GLeeInit()) glGlobalAlphaFactoruiSUN(factor);}
   GLEEPFNGLGLOBALALPHAFACTORUISUNPROC GLeeFuncPtr_glGlobalAlphaFactoruiSUN=GLee_Lazy_glGlobalAlphaFactoruiSUN;
 #endif
-#endif 
+#endif
 
 /* GL_SUN_triangle_list */
 
@@ -7246,7 +7246,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glReplacementCodePointerSUN(GLenum  type, GLsizei  stride, const GLvoid* * pointer)  {if (GLeeInit()) glReplacementCodePointerSUN(type, stride, pointer);}
   GLEEPFNGLREPLACEMENTCODEPOINTERSUNPROC GLeeFuncPtr_glReplacementCodePointerSUN=GLee_Lazy_glReplacementCodePointerSUN;
 #endif
-#endif 
+#endif
 
 /* GL_SUN_vertex */
 
@@ -7451,7 +7451,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN(const GLuint * rc, const GLfloat * tc, const GLfloat * c, const GLfloat * n, const GLfloat * v)  {if (GLeeInit()) glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN(rc, tc, c, n, v);}
   GLEEPFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC GLeeFuncPtr_glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN=GLee_Lazy_glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_blend_func_separate */
 
@@ -7461,57 +7461,57 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendFuncSeparateEXT(GLenum  sfactorRGB, GLenum  dfactorRGB, GLenum  sfactorAlpha, GLenum  dfactorAlpha)  {if (GLeeInit()) glBlendFuncSeparateEXT(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);}
   GLEEPFNGLBLENDFUNCSEPARATEEXTPROC GLeeFuncPtr_glBlendFuncSeparateEXT=GLee_Lazy_glBlendFuncSeparateEXT;
 #endif
-#endif 
+#endif
 
 /* GL_INGR_color_clamp */
 
 #ifdef __GLEE_GL_INGR_color_clamp
-#endif 
+#endif
 
 /* GL_INGR_interlace_read */
 
 #ifdef __GLEE_GL_INGR_interlace_read
-#endif 
+#endif
 
 /* GL_EXT_stencil_wrap */
 
 #ifdef __GLEE_GL_EXT_stencil_wrap
-#endif 
+#endif
 
 /* GL_EXT_422_pixels */
 
 #ifdef __GLEE_GL_EXT_422_pixels
-#endif 
+#endif
 
 /* GL_NV_texgen_reflection */
 
 #ifdef __GLEE_GL_NV_texgen_reflection
-#endif 
+#endif
 
 /* GL_EXT_texture_cube_map */
 
 #ifdef __GLEE_GL_EXT_texture_cube_map
-#endif 
+#endif
 
 /* GL_SUN_convolution_border_modes */
 
 #ifdef __GLEE_GL_SUN_convolution_border_modes
-#endif 
+#endif
 
 /* GL_EXT_texture_env_add */
 
 #ifdef __GLEE_GL_EXT_texture_env_add
-#endif 
+#endif
 
 /* GL_EXT_texture_lod_bias */
 
 #ifdef __GLEE_GL_EXT_texture_lod_bias
-#endif 
+#endif
 
 /* GL_EXT_texture_filter_anisotropic */
 
 #ifdef __GLEE_GL_EXT_texture_filter_anisotropic
-#endif 
+#endif
 
 /* GL_EXT_vertex_weighting */
 
@@ -7531,12 +7531,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexWeightPointerEXT(GLsizei  size, GLenum  type, GLsizei  stride, const GLvoid * pointer)  {if (GLeeInit()) glVertexWeightPointerEXT(size, type, stride, pointer);}
   GLEEPFNGLVERTEXWEIGHTPOINTEREXTPROC GLeeFuncPtr_glVertexWeightPointerEXT=GLee_Lazy_glVertexWeightPointerEXT;
 #endif
-#endif 
+#endif
 
 /* GL_NV_light_max_exponent */
 
 #ifdef __GLEE_GL_NV_light_max_exponent
-#endif 
+#endif
 
 /* GL_NV_vertex_array_range */
 
@@ -7551,7 +7551,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexArrayRangeNV(GLsizei  length, const GLvoid * pointer)  {if (GLeeInit()) glVertexArrayRangeNV(length, pointer);}
   GLEEPFNGLVERTEXARRAYRANGENVPROC GLeeFuncPtr_glVertexArrayRangeNV=GLee_Lazy_glVertexArrayRangeNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_register_combiners */
 
@@ -7621,27 +7621,27 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetFinalCombinerInputParameterivNV(GLenum  variable, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetFinalCombinerInputParameterivNV(variable, pname, params);}
   GLEEPFNGLGETFINALCOMBINERINPUTPARAMETERIVNVPROC GLeeFuncPtr_glGetFinalCombinerInputParameterivNV=GLee_Lazy_glGetFinalCombinerInputParameterivNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_fog_distance */
 
 #ifdef __GLEE_GL_NV_fog_distance
-#endif 
+#endif
 
 /* GL_NV_texgen_emboss */
 
 #ifdef __GLEE_GL_NV_texgen_emboss
-#endif 
+#endif
 
 /* GL_NV_blend_square */
 
 #ifdef __GLEE_GL_NV_blend_square
-#endif 
+#endif
 
 /* GL_NV_texture_env_combine4 */
 
 #ifdef __GLEE_GL_NV_texture_env_combine4
-#endif 
+#endif
 
 /* GL_MESA_resize_buffers */
 
@@ -7651,7 +7651,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glResizeBuffersMESA(void)  {if (GLeeInit()) glResizeBuffersMESA();}
   GLEEPFNGLRESIZEBUFFERSMESAPROC GLeeFuncPtr_glResizeBuffersMESA=GLee_Lazy_glResizeBuffersMESA;
 #endif
-#endif 
+#endif
 
 /* GL_MESA_window_pos */
 
@@ -7776,17 +7776,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glWindowPos4svMESA(const GLshort * v)  {if (GLeeInit()) glWindowPos4svMESA(v);}
   GLEEPFNGLWINDOWPOS4SVMESAPROC GLeeFuncPtr_glWindowPos4svMESA=GLee_Lazy_glWindowPos4svMESA;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_s3tc */
 
 #ifdef __GLEE_GL_EXT_texture_compression_s3tc
-#endif 
+#endif
 
 /* GL_IBM_cull_vertex */
 
 #ifdef __GLEE_GL_IBM_cull_vertex
-#endif 
+#endif
 
 /* GL_IBM_multimode_draw_arrays */
 
@@ -7801,7 +7801,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiModeDrawElementsIBM(const GLenum * mode, const GLsizei * count, GLenum  type, const GLvoid* const * indices, GLsizei  primcount, GLint  modestride)  {if (GLeeInit()) glMultiModeDrawElementsIBM(mode, count, type, indices, primcount, modestride);}
   GLEEPFNGLMULTIMODEDRAWELEMENTSIBMPROC GLeeFuncPtr_glMultiModeDrawElementsIBM=GLee_Lazy_glMultiModeDrawElementsIBM;
 #endif
-#endif 
+#endif
 
 /* GL_IBM_vertex_array_lists */
 
@@ -7846,37 +7846,37 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexPointerListIBM(GLint  size, GLenum  type, GLint  stride, const GLvoid* * pointer, GLint  ptrstride)  {if (GLeeInit()) glVertexPointerListIBM(size, type, stride, pointer, ptrstride);}
   GLEEPFNGLVERTEXPOINTERLISTIBMPROC GLeeFuncPtr_glVertexPointerListIBM=GLee_Lazy_glVertexPointerListIBM;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_subsample */
 
 #ifdef __GLEE_GL_SGIX_subsample
-#endif 
+#endif
 
 /* GL_SGIX_ycrcb_subsample */
 
 #ifdef __GLEE_GL_SGIX_ycrcb_subsample
-#endif 
+#endif
 
 /* GL_SGIX_ycrcba */
 
 #ifdef __GLEE_GL_SGIX_ycrcba
-#endif 
+#endif
 
 /* GL_SGI_depth_pass_instrument */
 
 #ifdef __GLEE_GL_SGI_depth_pass_instrument
-#endif 
+#endif
 
 /* GL_3DFX_texture_compression_FXT1 */
 
 #ifdef __GLEE_GL_3DFX_texture_compression_FXT1
-#endif 
+#endif
 
 /* GL_3DFX_multisample */
 
 #ifdef __GLEE_GL_3DFX_multisample
-#endif 
+#endif
 
 /* GL_3DFX_tbuffer */
 
@@ -7886,7 +7886,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTbufferMask3DFX(GLuint  mask)  {if (GLeeInit()) glTbufferMask3DFX(mask);}
   GLEEPFNGLTBUFFERMASK3DFXPROC GLeeFuncPtr_glTbufferMask3DFX=GLee_Lazy_glTbufferMask3DFX;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_multisample */
 
@@ -7901,27 +7901,27 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSamplePatternEXT(GLenum  pattern)  {if (GLeeInit()) glSamplePatternEXT(pattern);}
   GLEEPFNGLSAMPLEPATTERNEXTPROC GLeeFuncPtr_glSamplePatternEXT=GLee_Lazy_glSamplePatternEXT;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_vertex_preclip */
 
 #ifdef __GLEE_GL_SGIX_vertex_preclip
-#endif 
+#endif
 
 /* GL_SGIX_convolution_accuracy */
 
 #ifdef __GLEE_GL_SGIX_convolution_accuracy
-#endif 
+#endif
 
 /* GL_SGIX_resample */
 
 #ifdef __GLEE_GL_SGIX_resample
-#endif 
+#endif
 
 /* GL_SGIS_point_line_texgen */
 
 #ifdef __GLEE_GL_SGIS_point_line_texgen
-#endif 
+#endif
 
 /* GL_SGIS_texture_color_mask */
 
@@ -7931,17 +7931,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureColorMaskSGIS(GLboolean  red, GLboolean  green, GLboolean  blue, GLboolean  alpha)  {if (GLeeInit()) glTextureColorMaskSGIS(red, green, blue, alpha);}
   GLEEPFNGLTEXTURECOLORMASKSGISPROC GLeeFuncPtr_glTextureColorMaskSGIS=GLee_Lazy_glTextureColorMaskSGIS;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_env_dot3 */
 
 #ifdef __GLEE_GL_EXT_texture_env_dot3
-#endif 
+#endif
 
 /* GL_ATI_texture_mirror_once */
 
 #ifdef __GLEE_GL_ATI_texture_mirror_once
-#endif 
+#endif
 
 /* GL_NV_fence */
 
@@ -7981,12 +7981,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSetFenceNV(GLuint  fence, GLenum  condition)  {if (GLeeInit()) glSetFenceNV(fence, condition);}
   GLEEPFNGLSETFENCENVPROC GLeeFuncPtr_glSetFenceNV=GLee_Lazy_glSetFenceNV;
 #endif
-#endif 
+#endif
 
 /* GL_IBM_texture_mirrored_repeat */
 
 #ifdef __GLEE_GL_IBM_texture_mirrored_repeat
-#endif 
+#endif
 
 /* GL_NV_evaluators */
 
@@ -8036,12 +8036,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glEvalMapsNV(GLenum  target, GLenum  mode)  {if (GLeeInit()) glEvalMapsNV(target, mode);}
   GLEEPFNGLEVALMAPSNVPROC GLeeFuncPtr_glEvalMapsNV=GLee_Lazy_glEvalMapsNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_packed_depth_stencil */
 
 #ifdef __GLEE_GL_NV_packed_depth_stencil
-#endif 
+#endif
 
 /* GL_NV_register_combiners2 */
 
@@ -8056,32 +8056,32 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetCombinerStageParameterfvNV(GLenum  stage, GLenum  pname, GLfloat * params)  {if (GLeeInit()) glGetCombinerStageParameterfvNV(stage, pname, params);}
   GLEEPFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC GLeeFuncPtr_glGetCombinerStageParameterfvNV=GLee_Lazy_glGetCombinerStageParameterfvNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_texture_compression_vtc */
 
 #ifdef __GLEE_GL_NV_texture_compression_vtc
-#endif 
+#endif
 
 /* GL_NV_texture_rectangle */
 
 #ifdef __GLEE_GL_NV_texture_rectangle
-#endif 
+#endif
 
 /* GL_NV_texture_shader */
 
 #ifdef __GLEE_GL_NV_texture_shader
-#endif 
+#endif
 
 /* GL_NV_texture_shader2 */
 
 #ifdef __GLEE_GL_NV_texture_shader2
-#endif 
+#endif
 
 /* GL_NV_vertex_array_range2 */
 
 #ifdef __GLEE_GL_NV_vertex_array_range2
-#endif 
+#endif
 
 /* GL_NV_vertex_program */
 
@@ -8406,37 +8406,37 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribs4ubvNV(GLuint  index, GLsizei  count, const GLubyte * v)  {if (GLeeInit()) glVertexAttribs4ubvNV(index, count, v);}
   GLEEPFNGLVERTEXATTRIBS4UBVNVPROC GLeeFuncPtr_glVertexAttribs4ubvNV=GLee_Lazy_glVertexAttribs4ubvNV;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_texture_coordinate_clamp */
 
 #ifdef __GLEE_GL_SGIX_texture_coordinate_clamp
-#endif 
+#endif
 
 /* GL_SGIX_scalebias_hint */
 
 #ifdef __GLEE_GL_SGIX_scalebias_hint
-#endif 
+#endif
 
 /* GL_OML_interlace */
 
 #ifdef __GLEE_GL_OML_interlace
-#endif 
+#endif
 
 /* GL_OML_subsample */
 
 #ifdef __GLEE_GL_OML_subsample
-#endif 
+#endif
 
 /* GL_OML_resample */
 
 #ifdef __GLEE_GL_OML_resample
-#endif 
+#endif
 
 /* GL_NV_copy_depth_to_color */
 
 #ifdef __GLEE_GL_NV_copy_depth_to_color
-#endif 
+#endif
 
 /* GL_ATI_envmap_bumpmap */
 
@@ -8461,7 +8461,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetTexBumpParameterfvATI(GLenum  pname, GLfloat * param)  {if (GLeeInit()) glGetTexBumpParameterfvATI(pname, param);}
   GLEEPFNGLGETTEXBUMPPARAMETERFVATIPROC GLeeFuncPtr_glGetTexBumpParameterfvATI=GLee_Lazy_glGetTexBumpParameterfvATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_fragment_shader */
 
@@ -8536,7 +8536,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSetFragmentShaderConstantATI(GLuint  dst, const GLfloat * value)  {if (GLeeInit()) glSetFragmentShaderConstantATI(dst, value);}
   GLEEPFNGLSETFRAGMENTSHADERCONSTANTATIPROC GLeeFuncPtr_glSetFragmentShaderConstantATI=GLee_Lazy_glSetFragmentShaderConstantATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_pn_triangles */
 
@@ -8551,7 +8551,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPNTrianglesfATI(GLenum  pname, GLfloat  param)  {if (GLeeInit()) glPNTrianglesfATI(pname, param);}
   GLEEPFNGLPNTRIANGLESFATIPROC GLeeFuncPtr_glPNTrianglesfATI=GLee_Lazy_glPNTrianglesfATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_vertex_array_object */
 
@@ -8616,7 +8616,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetVariantArrayObjectivATI(GLuint  id, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetVariantArrayObjectivATI(id, pname, params);}
   GLEEPFNGLGETVARIANTARRAYOBJECTIVATIPROC GLeeFuncPtr_glGetVariantArrayObjectivATI=GLee_Lazy_glGetVariantArrayObjectivATI;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_vertex_shader */
 
@@ -8831,7 +8831,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetLocalConstantFloatvEXT(GLuint  id, GLenum  value, GLfloat * data)  {if (GLeeInit()) glGetLocalConstantFloatvEXT(id, value, data);}
   GLEEPFNGLGETLOCALCONSTANTFLOATVEXTPROC GLeeFuncPtr_glGetLocalConstantFloatvEXT=GLee_Lazy_glGetLocalConstantFloatvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_vertex_streams */
 
@@ -9061,7 +9061,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexBlendEnvfATI(GLenum  pname, GLfloat  param)  {if (GLeeInit()) glVertexBlendEnvfATI(pname, param);}
   GLEEPFNGLVERTEXBLENDENVFATIPROC GLeeFuncPtr_glVertexBlendEnvfATI=GLee_Lazy_glVertexBlendEnvfATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_element_array */
 
@@ -9081,7 +9081,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawRangeElementArrayATI(GLenum  mode, GLuint  start, GLuint  end, GLsizei  count)  {if (GLeeInit()) glDrawRangeElementArrayATI(mode, start, end, count);}
   GLEEPFNGLDRAWRANGEELEMENTARRAYATIPROC GLeeFuncPtr_glDrawRangeElementArrayATI=GLee_Lazy_glDrawRangeElementArrayATI;
 #endif
-#endif 
+#endif
 
 /* GL_SUN_mesh_array */
 
@@ -9091,22 +9091,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawMeshArraysSUN(GLenum  mode, GLint  first, GLsizei  count, GLsizei  width)  {if (GLeeInit()) glDrawMeshArraysSUN(mode, first, count, width);}
   GLEEPFNGLDRAWMESHARRAYSSUNPROC GLeeFuncPtr_glDrawMeshArraysSUN=GLee_Lazy_glDrawMeshArraysSUN;
 #endif
-#endif 
+#endif
 
 /* GL_SUN_slice_accum */
 
 #ifdef __GLEE_GL_SUN_slice_accum
-#endif 
+#endif
 
 /* GL_NV_multisample_filter_hint */
 
 #ifdef __GLEE_GL_NV_multisample_filter_hint
-#endif 
+#endif
 
 /* GL_NV_depth_clamp */
 
 #ifdef __GLEE_GL_NV_depth_clamp
-#endif 
+#endif
 
 /* GL_NV_occlusion_query */
 
@@ -9146,7 +9146,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetOcclusionQueryuivNV(GLuint  id, GLenum  pname, GLuint * params)  {if (GLeeInit()) glGetOcclusionQueryuivNV(id, pname, params);}
   GLEEPFNGLGETOCCLUSIONQUERYUIVNVPROC GLeeFuncPtr_glGetOcclusionQueryuivNV=GLee_Lazy_glGetOcclusionQueryuivNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_point_sprite */
 
@@ -9161,22 +9161,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPointParameterivNV(GLenum  pname, const GLint * params)  {if (GLeeInit()) glPointParameterivNV(pname, params);}
   GLEEPFNGLPOINTPARAMETERIVNVPROC GLeeFuncPtr_glPointParameterivNV=GLee_Lazy_glPointParameterivNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_texture_shader3 */
 
 #ifdef __GLEE_GL_NV_texture_shader3
-#endif 
+#endif
 
 /* GL_NV_vertex_program1_1 */
 
 #ifdef __GLEE_GL_NV_vertex_program1_1
-#endif 
+#endif
 
 /* GL_EXT_shadow_funcs */
 
 #ifdef __GLEE_GL_EXT_shadow_funcs
-#endif 
+#endif
 
 /* GL_EXT_stencil_two_side */
 
@@ -9186,17 +9186,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glActiveStencilFaceEXT(GLenum  face)  {if (GLeeInit()) glActiveStencilFaceEXT(face);}
   GLEEPFNGLACTIVESTENCILFACEEXTPROC GLeeFuncPtr_glActiveStencilFaceEXT=GLee_Lazy_glActiveStencilFaceEXT;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_text_fragment_shader */
 
 #ifdef __GLEE_GL_ATI_text_fragment_shader
-#endif 
+#endif
 
 /* GL_APPLE_client_storage */
 
 #ifdef __GLEE_GL_APPLE_client_storage
-#endif 
+#endif
 
 /* GL_APPLE_element_array */
 
@@ -9226,7 +9226,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiDrawRangeElementArrayAPPLE(GLenum  mode, GLuint  start, GLuint  end, const GLint * first, const GLsizei * count, GLsizei  primcount)  {if (GLeeInit()) glMultiDrawRangeElementArrayAPPLE(mode, start, end, first, count, primcount);}
   GLEEPFNGLMULTIDRAWRANGEELEMENTARRAYAPPLEPROC GLeeFuncPtr_glMultiDrawRangeElementArrayAPPLE=GLee_Lazy_glMultiDrawRangeElementArrayAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_fence */
 
@@ -9271,7 +9271,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFinishObjectAPPLE(GLenum  object, GLint  name)  {if (GLeeInit()) glFinishObjectAPPLE(object, name);}
   GLEEPFNGLFINISHOBJECTAPPLEPROC GLeeFuncPtr_glFinishObjectAPPLE=GLee_Lazy_glFinishObjectAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_vertex_array_object */
 
@@ -9296,7 +9296,7 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsVertexArrayAPPLE(GLuint  array)  {if (GLeeInit()) return glIsVertexArrayAPPLE(array); return (GLboolean)0;}
   GLEEPFNGLISVERTEXARRAYAPPLEPROC GLeeFuncPtr_glIsVertexArrayAPPLE=GLee_Lazy_glIsVertexArrayAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_vertex_array_range */
 
@@ -9316,17 +9316,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexArrayParameteriAPPLE(GLenum  pname, GLint  param)  {if (GLeeInit()) glVertexArrayParameteriAPPLE(pname, param);}
   GLEEPFNGLVERTEXARRAYPARAMETERIAPPLEPROC GLeeFuncPtr_glVertexArrayParameteriAPPLE=GLee_Lazy_glVertexArrayParameteriAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_ycbcr_422 */
 
 #ifdef __GLEE_GL_APPLE_ycbcr_422
-#endif 
+#endif
 
 /* GL_S3_s3tc */
 
 #ifdef __GLEE_GL_S3_s3tc
-#endif 
+#endif
 
 /* GL_ATI_draw_buffers */
 
@@ -9336,27 +9336,27 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawBuffersATI(GLsizei  n, const GLenum * bufs)  {if (GLeeInit()) glDrawBuffersATI(n, bufs);}
   GLEEPFNGLDRAWBUFFERSATIPROC GLeeFuncPtr_glDrawBuffersATI=GLee_Lazy_glDrawBuffersATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_pixel_format_float */
 
 #ifdef __GLEE_GL_ATI_pixel_format_float
-#endif 
+#endif
 
 /* GL_ATI_texture_env_combine3 */
 
 #ifdef __GLEE_GL_ATI_texture_env_combine3
-#endif 
+#endif
 
 /* GL_ATI_texture_float */
 
 #ifdef __GLEE_GL_ATI_texture_float
-#endif 
+#endif
 
 /* GL_NV_float_buffer */
 
 #ifdef __GLEE_GL_NV_float_buffer
-#endif 
+#endif
 
 /* GL_NV_fragment_program */
 
@@ -9391,7 +9391,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetProgramNamedParameterdvNV(GLuint  id, GLsizei  len, const GLubyte * name, GLdouble * params)  {if (GLeeInit()) glGetProgramNamedParameterdvNV(id, len, name, params);}
   GLEEPFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC GLeeFuncPtr_glGetProgramNamedParameterdvNV=GLee_Lazy_glGetProgramNamedParameterdvNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_half_float */
 
@@ -9626,7 +9626,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribs4hvNV(GLuint  index, GLsizei  n, const GLhalfNV * v)  {if (GLeeInit()) glVertexAttribs4hvNV(index, n, v);}
   GLEEPFNGLVERTEXATTRIBS4HVNVPROC GLeeFuncPtr_glVertexAttribs4hvNV=GLee_Lazy_glVertexAttribs4hvNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_pixel_data_range */
 
@@ -9641,7 +9641,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFlushPixelDataRangeNV(GLenum  target)  {if (GLeeInit()) glFlushPixelDataRangeNV(target);}
   GLEEPFNGLFLUSHPIXELDATARANGENVPROC GLeeFuncPtr_glFlushPixelDataRangeNV=GLee_Lazy_glFlushPixelDataRangeNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_primitive_restart */
 
@@ -9656,17 +9656,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glPrimitiveRestartIndexNV(GLuint  index)  {if (GLeeInit()) glPrimitiveRestartIndexNV(index);}
   GLEEPFNGLPRIMITIVERESTARTINDEXNVPROC GLeeFuncPtr_glPrimitiveRestartIndexNV=GLee_Lazy_glPrimitiveRestartIndexNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_texture_expand_normal */
 
 #ifdef __GLEE_GL_NV_texture_expand_normal
-#endif 
+#endif
 
 /* GL_NV_vertex_program2 */
 
 #ifdef __GLEE_GL_NV_vertex_program2
-#endif 
+#endif
 
 /* GL_ATI_map_object_buffer */
 
@@ -9681,7 +9681,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glUnmapObjectBufferATI(GLuint  buffer)  {if (GLeeInit()) glUnmapObjectBufferATI(buffer);}
   GLEEPFNGLUNMAPOBJECTBUFFERATIPROC GLeeFuncPtr_glUnmapObjectBufferATI=GLee_Lazy_glUnmapObjectBufferATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_separate_stencil */
 
@@ -9696,7 +9696,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glStencilFuncSeparateATI(GLenum  frontfunc, GLenum  backfunc, GLint  ref, GLuint  mask)  {if (GLeeInit()) glStencilFuncSeparateATI(frontfunc, backfunc, ref, mask);}
   GLEEPFNGLSTENCILFUNCSEPARATEATIPROC GLeeFuncPtr_glStencilFuncSeparateATI=GLee_Lazy_glStencilFuncSeparateATI;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_vertex_attrib_array_object */
 
@@ -9716,12 +9716,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetVertexAttribArrayObjectivATI(GLuint  index, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetVertexAttribArrayObjectivATI(index, pname, params);}
   GLEEPFNGLGETVERTEXATTRIBARRAYOBJECTIVATIPROC GLeeFuncPtr_glGetVertexAttribArrayObjectivATI=GLee_Lazy_glGetVertexAttribArrayObjectivATI;
 #endif
-#endif 
+#endif
 
 /* GL_OES_read_format */
 
 #ifdef __GLEE_GL_OES_read_format
-#endif 
+#endif
 
 /* GL_EXT_depth_bounds_test */
 
@@ -9731,12 +9731,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDepthBoundsEXT(GLclampd  zmin, GLclampd  zmax)  {if (GLeeInit()) glDepthBoundsEXT(zmin, zmax);}
   GLEEPFNGLDEPTHBOUNDSEXTPROC GLeeFuncPtr_glDepthBoundsEXT=GLee_Lazy_glDepthBoundsEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_mirror_clamp */
 
 #ifdef __GLEE_GL_EXT_texture_mirror_clamp
-#endif 
+#endif
 
 /* GL_EXT_blend_equation_separate */
 
@@ -9746,42 +9746,42 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendEquationSeparateEXT(GLenum  modeRGB, GLenum  modeAlpha)  {if (GLeeInit()) glBlendEquationSeparateEXT(modeRGB, modeAlpha);}
   GLEEPFNGLBLENDEQUATIONSEPARATEEXTPROC GLeeFuncPtr_glBlendEquationSeparateEXT=GLee_Lazy_glBlendEquationSeparateEXT;
 #endif
-#endif 
+#endif
 
 /* GL_MESA_pack_invert */
 
 #ifdef __GLEE_GL_MESA_pack_invert
-#endif 
+#endif
 
 /* GL_MESA_ycbcr_texture */
 
 #ifdef __GLEE_GL_MESA_ycbcr_texture
-#endif 
+#endif
 
 /* GL_EXT_pixel_buffer_object */
 
 #ifdef __GLEE_GL_EXT_pixel_buffer_object
-#endif 
+#endif
 
 /* GL_NV_fragment_program_option */
 
 #ifdef __GLEE_GL_NV_fragment_program_option
-#endif 
+#endif
 
 /* GL_NV_fragment_program2 */
 
 #ifdef __GLEE_GL_NV_fragment_program2
-#endif 
+#endif
 
 /* GL_NV_vertex_program2_option */
 
 #ifdef __GLEE_GL_NV_vertex_program2_option
-#endif 
+#endif
 
 /* GL_NV_vertex_program3 */
 
 #ifdef __GLEE_GL_NV_vertex_program3
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_object */
 
@@ -9871,7 +9871,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGenerateMipmapEXT(GLenum  target)  {if (GLeeInit()) glGenerateMipmapEXT(target);}
   GLEEPFNGLGENERATEMIPMAPEXTPROC GLeeFuncPtr_glGenerateMipmapEXT=GLee_Lazy_glGenerateMipmapEXT;
 #endif
-#endif 
+#endif
 
 /* GL_GREMEDY_string_marker */
 
@@ -9881,12 +9881,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glStringMarkerGREMEDY(GLsizei  len, const GLvoid * string)  {if (GLeeInit()) glStringMarkerGREMEDY(len, string);}
   GLEEPFNGLSTRINGMARKERGREMEDYPROC GLeeFuncPtr_glStringMarkerGREMEDY=GLee_Lazy_glStringMarkerGREMEDY;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_packed_depth_stencil */
 
 #ifdef __GLEE_GL_EXT_packed_depth_stencil
-#endif 
+#endif
 
 /* GL_EXT_stencil_clear_tag */
 
@@ -9896,12 +9896,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glStencilClearTagEXT(GLsizei  stencilTagBits, GLuint  stencilClearTag)  {if (GLeeInit()) glStencilClearTagEXT(stencilTagBits, stencilClearTag);}
   GLEEPFNGLSTENCILCLEARTAGEXTPROC GLeeFuncPtr_glStencilClearTagEXT=GLee_Lazy_glStencilClearTagEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_sRGB */
 
 #ifdef __GLEE_GL_EXT_texture_sRGB
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_blit */
 
@@ -9911,7 +9911,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlitFramebufferEXT(GLint  srcX0, GLint  srcY0, GLint  srcX1, GLint  srcY1, GLint  dstX0, GLint  dstY0, GLint  dstX1, GLint  dstY1, GLbitfield  mask, GLenum  filter)  {if (GLeeInit()) glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);}
   GLEEPFNGLBLITFRAMEBUFFEREXTPROC GLeeFuncPtr_glBlitFramebufferEXT=GLee_Lazy_glBlitFramebufferEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_multisample */
 
@@ -9921,12 +9921,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glRenderbufferStorageMultisampleEXT(GLenum  target, GLsizei  samples, GLenum  internalformat, GLsizei  width, GLsizei  height)  {if (GLeeInit()) glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);}
   GLEEPFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC GLeeFuncPtr_glRenderbufferStorageMultisampleEXT=GLee_Lazy_glRenderbufferStorageMultisampleEXT;
 #endif
-#endif 
+#endif
 
 /* GL_MESAX_texture_stack */
 
 #ifdef __GLEE_GL_MESAX_texture_stack
-#endif 
+#endif
 
 /* GL_EXT_timer_query */
 
@@ -9941,7 +9941,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetQueryObjectui64vEXT(GLuint  id, GLenum  pname, GLuint64EXT * params)  {if (GLeeInit()) glGetQueryObjectui64vEXT(id, pname, params);}
   GLEEPFNGLGETQUERYOBJECTUI64VEXTPROC GLeeFuncPtr_glGetQueryObjectui64vEXT=GLee_Lazy_glGetQueryObjectui64vEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_gpu_program_parameters */
 
@@ -9956,7 +9956,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramLocalParameters4fvEXT(GLenum  target, GLuint  index, GLsizei  count, const GLfloat * params)  {if (GLeeInit()) glProgramLocalParameters4fvEXT(target, index, count, params);}
   GLEEPFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC GLeeFuncPtr_glProgramLocalParameters4fvEXT=GLee_Lazy_glProgramLocalParameters4fvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_flush_buffer_range */
 
@@ -9971,7 +9971,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFlushMappedBufferRangeAPPLE(GLenum  target, GLintptr  offset, GLsizeiptr  size)  {if (GLeeInit()) glFlushMappedBufferRangeAPPLE(target, offset, size);}
   GLEEPFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC GLeeFuncPtr_glFlushMappedBufferRangeAPPLE=GLee_Lazy_glFlushMappedBufferRangeAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_gpu_shader4 */
 
@@ -10031,7 +10031,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glUniform4uivEXT(GLint  location, GLsizei  count, const GLuint * value)  {if (GLeeInit()) glUniform4uivEXT(location, count, value);}
   GLEEPFNGLUNIFORM4UIVEXTPROC GLeeFuncPtr_glUniform4uivEXT=GLee_Lazy_glUniform4uivEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_draw_instanced */
 
@@ -10046,17 +10046,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawElementsInstancedEXT(GLenum  mode, GLsizei  count, GLenum  type, const GLvoid * indices, GLsizei  primcount)  {if (GLeeInit()) glDrawElementsInstancedEXT(mode, count, type, indices, primcount);}
   GLEEPFNGLDRAWELEMENTSINSTANCEDEXTPROC GLeeFuncPtr_glDrawElementsInstancedEXT=GLee_Lazy_glDrawElementsInstancedEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_packed_float */
 
 #ifdef __GLEE_GL_EXT_packed_float
-#endif 
+#endif
 
 /* GL_EXT_texture_array */
 
 #ifdef __GLEE_GL_EXT_texture_array
-#endif 
+#endif
 
 /* GL_EXT_texture_buffer_object */
 
@@ -10066,22 +10066,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexBufferEXT(GLenum  target, GLenum  internalformat, GLuint  buffer)  {if (GLeeInit()) glTexBufferEXT(target, internalformat, buffer);}
   GLEEPFNGLTEXBUFFEREXTPROC GLeeFuncPtr_glTexBufferEXT=GLee_Lazy_glTexBufferEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_latc */
 
 #ifdef __GLEE_GL_EXT_texture_compression_latc
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_rgtc */
 
 #ifdef __GLEE_GL_EXT_texture_compression_rgtc
-#endif 
+#endif
 
 /* GL_EXT_texture_shared_exponent */
 
 #ifdef __GLEE_GL_EXT_texture_shared_exponent
-#endif 
+#endif
 
 /* GL_NV_depth_buffer_float */
 
@@ -10101,7 +10101,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDepthBoundsdNV(GLdouble  zmin, GLdouble  zmax)  {if (GLeeInit()) glDepthBoundsdNV(zmin, zmax);}
   GLEEPFNGLDEPTHBOUNDSDNVPROC GLeeFuncPtr_glDepthBoundsdNV=GLee_Lazy_glDepthBoundsdNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_framebuffer_multisample_coverage */
 
@@ -10111,17 +10111,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glRenderbufferStorageMultisampleCoverageNV(GLenum  target, GLsizei  coverageSamples, GLsizei  colorSamples, GLenum  internalformat, GLsizei  width, GLsizei  height)  {if (GLeeInit()) glRenderbufferStorageMultisampleCoverageNV(target, coverageSamples, colorSamples, internalformat, width, height);}
   GLEEPFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC GLeeFuncPtr_glRenderbufferStorageMultisampleCoverageNV=GLee_Lazy_glRenderbufferStorageMultisampleCoverageNV;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_sRGB */
 
 #ifdef __GLEE_GL_EXT_framebuffer_sRGB
-#endif 
+#endif
 
 /* GL_NV_geometry_shader4 */
 
 #ifdef __GLEE_GL_NV_geometry_shader4
-#endif 
+#endif
 
 /* GL_NV_parameter_buffer_object */
 
@@ -10141,7 +10141,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramBufferParametersIuivNV(GLenum  target, GLuint  buffer, GLuint  index, GLsizei  count, const GLuint * params)  {if (GLeeInit()) glProgramBufferParametersIuivNV(target, buffer, index, count, params);}
   GLEEPFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC GLeeFuncPtr_glProgramBufferParametersIuivNV=GLee_Lazy_glProgramBufferParametersIuivNV;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_draw_buffers2 */
 
@@ -10176,7 +10176,7 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsEnabledIndexedEXT(GLenum  target, GLuint  index)  {if (GLeeInit()) return glIsEnabledIndexedEXT(target, index); return (GLboolean)0;}
   GLEEPFNGLISENABLEDINDEXEDEXTPROC GLeeFuncPtr_glIsEnabledIndexedEXT=GLee_Lazy_glIsEnabledIndexedEXT;
 #endif
-#endif 
+#endif
 
 /* GL_NV_transform_feedback */
 
@@ -10241,7 +10241,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTransformFeedbackStreamAttribsNV(GLsizei  count, const GLint * attribs, GLsizei  nbuffers, const GLint * bufstreams, GLenum  bufferMode)  {if (GLeeInit()) glTransformFeedbackStreamAttribsNV(count, attribs, nbuffers, bufstreams, bufferMode);}
   GLEEPFNGLTRANSFORMFEEDBACKSTREAMATTRIBSNVPROC GLeeFuncPtr_glTransformFeedbackStreamAttribsNV=GLee_Lazy_glTransformFeedbackStreamAttribsNV;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_bindable_uniform */
 
@@ -10261,7 +10261,7 @@ int __GLeeGLNumExtensions=430;
   GLintptr __stdcall GLee_Lazy_glGetUniformOffsetEXT(GLuint  program, GLint  location)  {if (GLeeInit()) return glGetUniformOffsetEXT(program, location); return (GLintptr)0;}
   GLEEPFNGLGETUNIFORMOFFSETEXTPROC GLeeFuncPtr_glGetUniformOffsetEXT=GLee_Lazy_glGetUniformOffsetEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_integer */
 
@@ -10296,7 +10296,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glClearColorIuiEXT(GLuint  red, GLuint  green, GLuint  blue, GLuint  alpha)  {if (GLeeInit()) glClearColorIuiEXT(red, green, blue, alpha);}
   GLEEPFNGLCLEARCOLORIUIEXTPROC GLeeFuncPtr_glClearColorIuiEXT=GLee_Lazy_glClearColorIuiEXT;
 #endif
-#endif 
+#endif
 
 /* GL_GREMEDY_frame_terminator */
 
@@ -10306,7 +10306,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glFrameTerminatorGREMEDY(void)  {if (GLeeInit()) glFrameTerminatorGREMEDY();}
   GLEEPFNGLFRAMETERMINATORGREMEDYPROC GLeeFuncPtr_glFrameTerminatorGREMEDY=GLee_Lazy_glFrameTerminatorGREMEDY;
 #endif
-#endif 
+#endif
 
 /* GL_NV_conditional_render */
 
@@ -10321,7 +10321,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glEndConditionalRenderNV(void)  {if (GLeeInit()) glEndConditionalRenderNV();}
   GLEEPFNGLENDCONDITIONALRENDERNVPROC GLeeFuncPtr_glEndConditionalRenderNV=GLee_Lazy_glEndConditionalRenderNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_present_video */
 
@@ -10356,7 +10356,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetVideoui64vNV(GLuint  video_slot, GLenum  pname, GLuint64EXT * params)  {if (GLeeInit()) glGetVideoui64vNV(video_slot, pname, params);}
   GLEEPFNGLGETVIDEOUI64VNVPROC GLeeFuncPtr_glGetVideoui64vNV=GLee_Lazy_glGetVideoui64vNV;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_transform_feedback */
 
@@ -10396,7 +10396,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetTransformFeedbackVaryingEXT(GLuint  program, GLuint  index, GLsizei  bufSize, GLsizei * length, GLsizei * size, GLenum * type, GLchar * name)  {if (GLeeInit()) glGetTransformFeedbackVaryingEXT(program, index, bufSize, length, size, type, name);}
   GLEEPFNGLGETTRANSFORMFEEDBACKVARYINGEXTPROC GLeeFuncPtr_glGetTransformFeedbackVaryingEXT=GLee_Lazy_glGetTransformFeedbackVaryingEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_direct_state_access */
 
@@ -11431,17 +11431,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramUniformMatrix4x3dvEXT(GLuint  program, GLint  location, GLsizei  count, GLboolean  transpose, const GLdouble * value)  {if (GLeeInit()) glProgramUniformMatrix4x3dvEXT(program, location, count, transpose, value);}
   GLEEPFNGLPROGRAMUNIFORMMATRIX4X3DVEXTPROC GLeeFuncPtr_glProgramUniformMatrix4x3dvEXT=GLee_Lazy_glProgramUniformMatrix4x3dvEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_vertex_array_bgra */
 
 #ifdef __GLEE_GL_EXT_vertex_array_bgra
-#endif 
+#endif
 
 /* GL_EXT_texture_swizzle */
 
 #ifdef __GLEE_GL_EXT_texture_swizzle
-#endif 
+#endif
 
 /* GL_NV_explicit_multisample */
 
@@ -11461,7 +11461,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTexRenderbufferNV(GLenum  target, GLuint  renderbuffer)  {if (GLeeInit()) glTexRenderbufferNV(target, renderbuffer);}
   GLEEPFNGLTEXRENDERBUFFERNVPROC GLeeFuncPtr_glTexRenderbufferNV=GLee_Lazy_glTexRenderbufferNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_transform_feedback2 */
 
@@ -11501,12 +11501,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glDrawTransformFeedbackNV(GLenum  mode, GLuint  id)  {if (GLeeInit()) glDrawTransformFeedbackNV(mode, id);}
   GLEEPFNGLDRAWTRANSFORMFEEDBACKNVPROC GLeeFuncPtr_glDrawTransformFeedbackNV=GLee_Lazy_glDrawTransformFeedbackNV;
 #endif
-#endif 
+#endif
 
 /* GL_ATI_meminfo */
 
 #ifdef __GLEE_GL_ATI_meminfo
-#endif 
+#endif
 
 /* GL_AMD_performance_monitor */
 
@@ -11566,12 +11566,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetPerfMonitorCounterDataAMD(GLuint  monitor, GLenum  pname, GLsizei  dataSize, GLuint * data, GLint * bytesWritten)  {if (GLeeInit()) glGetPerfMonitorCounterDataAMD(monitor, pname, dataSize, data, bytesWritten);}
   GLEEPFNGLGETPERFMONITORCOUNTERDATAAMDPROC GLeeFuncPtr_glGetPerfMonitorCounterDataAMD=GLee_Lazy_glGetPerfMonitorCounterDataAMD;
 #endif
-#endif 
+#endif
 
 /* GL_AMD_texture_texture4 */
 
 #ifdef __GLEE_GL_AMD_texture_texture4
-#endif 
+#endif
 
 /* GL_AMD_vertex_shader_tesselator */
 
@@ -11586,7 +11586,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTessellationModeAMD(GLenum  mode)  {if (GLeeInit()) glTessellationModeAMD(mode);}
   GLEEPFNGLTESSELLATIONMODEAMDPROC GLeeFuncPtr_glTessellationModeAMD=GLee_Lazy_glTessellationModeAMD;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_provoking_vertex */
 
@@ -11596,12 +11596,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProvokingVertexEXT(GLenum  mode)  {if (GLeeInit()) glProvokingVertexEXT(mode);}
   GLEEPFNGLPROVOKINGVERTEXEXTPROC GLeeFuncPtr_glProvokingVertexEXT=GLee_Lazy_glProvokingVertexEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_texture_snorm */
 
 #ifdef __GLEE_GL_EXT_texture_snorm
-#endif 
+#endif
 
 /* GL_AMD_draw_buffers_blend */
 
@@ -11626,7 +11626,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendEquationSeparateIndexedAMD(GLuint  buf, GLenum  modeRGB, GLenum  modeAlpha)  {if (GLeeInit()) glBlendEquationSeparateIndexedAMD(buf, modeRGB, modeAlpha);}
   GLEEPFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC GLeeFuncPtr_glBlendEquationSeparateIndexedAMD=GLee_Lazy_glBlendEquationSeparateIndexedAMD;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_texture_range */
 
@@ -11641,12 +11641,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetTexParameterPointervAPPLE(GLenum  target, GLenum  pname, GLvoid* * params)  {if (GLeeInit()) glGetTexParameterPointervAPPLE(target, pname, params);}
   GLEEPFNGLGETTEXPARAMETERPOINTERVAPPLEPROC GLeeFuncPtr_glGetTexParameterPointervAPPLE=GLee_Lazy_glGetTexParameterPointervAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_float_pixels */
 
 #ifdef __GLEE_GL_APPLE_float_pixels
-#endif 
+#endif
 
 /* GL_APPLE_vertex_program_evaluators */
 
@@ -11686,12 +11686,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMapVertexAttrib2fAPPLE(GLuint  index, GLuint  size, GLfloat  u1, GLfloat  u2, GLint  ustride, GLint  uorder, GLfloat  v1, GLfloat  v2, GLint  vstride, GLint  vorder, const GLfloat * points)  {if (GLeeInit()) glMapVertexAttrib2fAPPLE(index, size, u1, u2, ustride, uorder, v1, v2, vstride, vorder, points);}
   GLEEPFNGLMAPVERTEXATTRIB2FAPPLEPROC GLeeFuncPtr_glMapVertexAttrib2fAPPLE=GLee_Lazy_glMapVertexAttrib2fAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_aux_depth_stencil */
 
 #ifdef __GLEE_GL_APPLE_aux_depth_stencil
-#endif 
+#endif
 
 /* GL_APPLE_object_purgeable */
 
@@ -11711,17 +11711,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetObjectParameterivAPPLE(GLenum  objectType, GLuint  name, GLenum  pname, GLint * params)  {if (GLeeInit()) glGetObjectParameterivAPPLE(objectType, name, pname, params);}
   GLEEPFNGLGETOBJECTPARAMETERIVAPPLEPROC GLeeFuncPtr_glGetObjectParameterivAPPLE=GLee_Lazy_glGetObjectParameterivAPPLE;
 #endif
-#endif 
+#endif
 
 /* GL_APPLE_row_bytes */
 
 #ifdef __GLEE_GL_APPLE_row_bytes
-#endif 
+#endif
 
 /* GL_APPLE_rgb_422 */
 
 #ifdef __GLEE_GL_APPLE_rgb_422
-#endif 
+#endif
 
 /* GL_NV_video_capture */
 
@@ -11786,7 +11786,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVideoCaptureStreamParameterdvNV(GLuint  video_capture_slot, GLuint  stream, GLenum  pname, const GLdouble * params)  {if (GLeeInit()) glVideoCaptureStreamParameterdvNV(video_capture_slot, stream, pname, params);}
   GLEEPFNGLVIDEOCAPTURESTREAMPARAMETERDVNVPROC GLeeFuncPtr_glVideoCaptureStreamParameterdvNV=GLee_Lazy_glVideoCaptureStreamParameterdvNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_copy_image */
 
@@ -11796,7 +11796,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glCopyImageSubDataNV(GLuint  srcName, GLenum  srcTarget, GLint  srcLevel, GLint  srcX, GLint  srcY, GLint  srcZ, GLuint  dstName, GLenum  dstTarget, GLint  dstLevel, GLint  dstX, GLint  dstY, GLint  dstZ, GLsizei  width, GLsizei  height, GLsizei  depth)  {if (GLeeInit()) glCopyImageSubDataNV(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, width, height, depth);}
   GLEEPFNGLCOPYIMAGESUBDATANVPROC GLeeFuncPtr_glCopyImageSubDataNV=GLee_Lazy_glCopyImageSubDataNV;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_separate_shader_objects */
 
@@ -11816,12 +11816,12 @@ int __GLeeGLNumExtensions=430;
   GLuint __stdcall GLee_Lazy_glCreateShaderProgramEXT(GLenum  type, const GLchar * string)  {if (GLeeInit()) return glCreateShaderProgramEXT(type, string); return (GLuint)0;}
   GLEEPFNGLCREATESHADERPROGRAMEXTPROC GLeeFuncPtr_glCreateShaderProgramEXT=GLee_Lazy_glCreateShaderProgramEXT;
 #endif
-#endif 
+#endif
 
 /* GL_NV_parameter_buffer_object2 */
 
 #ifdef __GLEE_GL_NV_parameter_buffer_object2
-#endif 
+#endif
 
 /* GL_NV_shader_buffer_load */
 
@@ -11896,7 +11896,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramUniformui64vNV(GLuint  program, GLint  location, GLsizei  count, const GLuint64EXT * value)  {if (GLeeInit()) glProgramUniformui64vNV(program, location, count, value);}
   GLEEPFNGLPROGRAMUNIFORMUI64VNVPROC GLeeFuncPtr_glProgramUniformui64vNV=GLee_Lazy_glProgramUniformui64vNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_vertex_buffer_unified_memory */
 
@@ -11961,7 +11961,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetIntegerui64i_vNV(GLenum  value, GLuint  index, GLuint64EXT * result)  {if (GLeeInit()) glGetIntegerui64i_vNV(value, index, result);}
   GLEEPFNGLGETINTEGERUI64I_VNVPROC GLeeFuncPtr_glGetIntegerui64i_vNV=GLee_Lazy_glGetIntegerui64i_vNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_texture_barrier */
 
@@ -11971,22 +11971,22 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureBarrierNV(void)  {if (GLeeInit()) glTextureBarrierNV();}
   GLEEPFNGLTEXTUREBARRIERNVPROC GLeeFuncPtr_glTextureBarrierNV=GLee_Lazy_glTextureBarrierNV;
 #endif
-#endif 
+#endif
 
 /* GL_AMD_shader_stencil_export */
 
 #ifdef __GLEE_GL_AMD_shader_stencil_export
-#endif 
+#endif
 
 /* GL_AMD_seamless_cubemap_per_texture */
 
 #ifdef __GLEE_GL_AMD_seamless_cubemap_per_texture
-#endif 
+#endif
 
 /* GL_AMD_conservative_depth */
 
 #ifdef __GLEE_GL_AMD_conservative_depth
-#endif 
+#endif
 
 /* GL_EXT_shader_image_load_store */
 
@@ -12001,7 +12001,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMemoryBarrierEXT(GLbitfield  barriers)  {if (GLeeInit()) glMemoryBarrierEXT(barriers);}
   GLEEPFNGLMEMORYBARRIEREXTPROC GLeeFuncPtr_glMemoryBarrierEXT=GLee_Lazy_glMemoryBarrierEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_vertex_attrib_64bit */
 
@@ -12061,7 +12061,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexArrayVertexAttribLOffsetEXT(GLuint  vaobj, GLuint  buffer, GLuint  index, GLint  size, GLenum  type, GLsizei  stride, GLintptr  offset)  {if (GLeeInit()) glVertexArrayVertexAttribLOffsetEXT(vaobj, buffer, index, size, type, stride, offset);}
   GLEEPFNGLVERTEXARRAYVERTEXATTRIBLOFFSETEXTPROC GLeeFuncPtr_glVertexArrayVertexAttribLOffsetEXT=GLee_Lazy_glVertexArrayVertexAttribLOffsetEXT;
 #endif
-#endif 
+#endif
 
 /* GL_NV_gpu_program5 */
 
@@ -12076,7 +12076,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glGetProgramSubroutineParameteruivNV(GLenum  target, GLuint  index, GLuint * param)  {if (GLeeInit()) glGetProgramSubroutineParameteruivNV(target, index, param);}
   GLEEPFNGLGETPROGRAMSUBROUTINEPARAMETERUIVNVPROC GLeeFuncPtr_glGetProgramSubroutineParameteruivNV=GLee_Lazy_glGetProgramSubroutineParameteruivNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_gpu_shader5 */
 
@@ -12246,17 +12246,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glProgramUniform4ui64vNV(GLuint  program, GLint  location, GLsizei  count, const GLuint64EXT * value)  {if (GLeeInit()) glProgramUniform4ui64vNV(program, location, count, value);}
   GLEEPFNGLPROGRAMUNIFORM4UI64VNVPROC GLeeFuncPtr_glProgramUniform4ui64vNV=GLee_Lazy_glProgramUniform4ui64vNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_shader_buffer_store */
 
 #ifdef __GLEE_GL_NV_shader_buffer_store
-#endif 
+#endif
 
 /* GL_NV_tessellation_program5 */
 
 #ifdef __GLEE_GL_NV_tessellation_program5
-#endif 
+#endif
 
 /* GL_NV_vertex_attrib_integer_64bit */
 
@@ -12356,12 +12356,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glVertexAttribLFormatNV(GLuint  index, GLint  size, GLenum  type, GLsizei  stride)  {if (GLeeInit()) glVertexAttribLFormatNV(index, size, type, stride);}
   GLEEPFNGLVERTEXATTRIBLFORMATNVPROC GLeeFuncPtr_glVertexAttribLFormatNV=GLee_Lazy_glVertexAttribLFormatNV;
 #endif
-#endif 
+#endif
 
 /* GL_NV_multisample_coverage */
 
 #ifdef __GLEE_GL_NV_multisample_coverage
-#endif 
+#endif
 
 /* GL_AMD_name_gen_delete */
 
@@ -12381,22 +12381,22 @@ int __GLeeGLNumExtensions=430;
   GLboolean __stdcall GLee_Lazy_glIsNameAMD(GLenum  identifier, GLuint  name)  {if (GLeeInit()) return glIsNameAMD(identifier, name); return (GLboolean)0;}
   GLEEPFNGLISNAMEAMDPROC GLeeFuncPtr_glIsNameAMD=GLee_Lazy_glIsNameAMD;
 #endif
-#endif 
+#endif
 
 /* GL_AMD_transform_feedback3_lines_triangles */
 
 #ifdef __GLEE_GL_AMD_transform_feedback3_lines_triangles
-#endif 
+#endif
 
 /* GL_AMD_depth_clamp_separate */
 
 #ifdef __GLEE_GL_AMD_depth_clamp_separate
-#endif 
+#endif
 
 /* GL_EXT_texture_sRGB_decode */
 
 #ifdef __GLEE_GL_EXT_texture_sRGB_decode
-#endif 
+#endif
 
 /* GL_NV_texture_multisample */
 
@@ -12431,12 +12431,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glTextureImage3DMultisampleCoverageNV(GLuint  texture, GLenum  target, GLsizei  coverageSamples, GLsizei  colorSamples, GLint  internalFormat, GLsizei  width, GLsizei  height, GLsizei  depth, GLboolean  fixedSampleLocations)  {if (GLeeInit()) glTextureImage3DMultisampleCoverageNV(texture, target, coverageSamples, colorSamples, internalFormat, width, height, depth, fixedSampleLocations);}
   GLEEPFNGLTEXTUREIMAGE3DMULTISAMPLECOVERAGENVPROC GLeeFuncPtr_glTextureImage3DMultisampleCoverageNV=GLee_Lazy_glTextureImage3DMultisampleCoverageNV;
 #endif
-#endif 
+#endif
 
 /* GL_AMD_blend_minmax_factor */
 
 #ifdef __GLEE_GL_AMD_blend_minmax_factor
-#endif 
+#endif
 
 /* GL_AMD_sample_positions */
 
@@ -12446,7 +12446,7 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glSetMultisamplefvAMD(GLenum  pname, GLuint  index, const GLfloat * val)  {if (GLeeInit()) glSetMultisamplefvAMD(pname, index, val);}
   GLEEPFNGLSETMULTISAMPLEFVAMDPROC GLeeFuncPtr_glSetMultisamplefvAMD=GLee_Lazy_glSetMultisamplefvAMD;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_x11_sync_object */
 
@@ -12456,7 +12456,7 @@ int __GLeeGLNumExtensions=430;
   GLsync __stdcall GLee_Lazy_glImportSyncEXT(GLenum  external_sync_type, GLintptr  external_sync, GLbitfield  flags)  {if (GLeeInit()) return glImportSyncEXT(external_sync_type, external_sync, flags); return (GLsync)0;}
   GLEEPFNGLIMPORTSYNCEXTPROC GLeeFuncPtr_glImportSyncEXT=GLee_Lazy_glImportSyncEXT;
 #endif
-#endif 
+#endif
 
 /* GL_AMD_multi_draw_indirect */
 
@@ -12471,17 +12471,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glMultiDrawElementsIndirectAMD(GLenum  mode, GLenum  type, const GLvoid * indirect, GLsizei  primcount, GLsizei  stride)  {if (GLeeInit()) glMultiDrawElementsIndirectAMD(mode, type, indirect, primcount, stride);}
   GLEEPFNGLMULTIDRAWELEMENTSINDIRECTAMDPROC GLeeFuncPtr_glMultiDrawElementsIndirectAMD=GLee_Lazy_glMultiDrawElementsIndirectAMD;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_framebuffer_multisample_blit_scaled */
 
 #ifdef __GLEE_GL_EXT_framebuffer_multisample_blit_scaled
-#endif 
+#endif
 
 /* GL_SGIX_texture_select */
 
 #ifdef __GLEE_GL_SGIX_texture_select
-#endif 
+#endif
 
 /* GL_INGR_blend_func_separate */
 
@@ -12491,12 +12491,12 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glBlendFuncSeparateINGR(GLenum  sfactorRGB, GLenum  dfactorRGB, GLenum  sfactorAlpha, GLenum  dfactorAlpha)  {if (GLeeInit()) glBlendFuncSeparateINGR(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);}
   GLEEPFNGLBLENDFUNCSEPARATEINGRPROC GLeeFuncPtr_glBlendFuncSeparateINGR=GLee_Lazy_glBlendFuncSeparateINGR;
 #endif
-#endif 
+#endif
 
 /* GL_SGIX_depth_pass_instrument */
 
 #ifdef __GLEE_GL_SGIX_depth_pass_instrument
-#endif 
+#endif
 
 /* GL_SGIX_igloo_interface */
 
@@ -12506,17 +12506,17 @@ int __GLeeGLNumExtensions=430;
   void __stdcall GLee_Lazy_glIglooInterfaceSGIX(GLenum  pname, const GLvoid * params)  {if (GLeeInit()) glIglooInterfaceSGIX(pname, params);}
   GLEEPFNGLIGLOOINTERFACESGIXPROC GLeeFuncPtr_glIglooInterfaceSGIX=GLee_Lazy_glIglooInterfaceSGIX;
 #endif
-#endif 
+#endif
 
 /* GL_OES_compressed_paletted_texture */
 
 #ifdef __GLEE_GL_OES_compressed_paletted_texture
-#endif 
+#endif
 
 /* GL_OES_fixed_point */
 
 #ifdef __GLEE_GL_OES_fixed_point
-#endif 
+#endif
 
 /* GL_OES_single_precision */
 
@@ -12526,27 +12526,27 @@ int __GLeeGLNumExtensions=430;
   GLvoid __stdcall GLee_Lazy_glClearDepthfOES(GLclampd depth)  {if (GLeeInit()) glClearDepthfOES(depth);}
   GLEEPFNGLCLEARDEPTHFOESPROC GLeeFuncPtr_glClearDepthfOES=GLee_Lazy_glClearDepthfOES;
 #endif
-#endif 
+#endif
 
 /* GL_OES_query_matrix */
 
 #ifdef __GLEE_GL_OES_query_matrix
-#endif 
+#endif
 
 /* GL_OES_byte_coordinates */
 
 #ifdef __GLEE_GL_OES_byte_coordinates
-#endif 
+#endif
 
 /* GL_NV_gpu_program4 */
 
 #ifdef __GLEE_GL_NV_gpu_program4
-#endif 
+#endif
 
 /* GL_NV_path_rendering */
 
 #ifdef __GLEE_GL_NV_path_rendering
-#endif 
+#endif
 
 /* GL_AMD_vertex_shader_tessellator */
 
@@ -12556,17 +12556,17 @@ int __GLeeGLNumExtensions=430;
   GLvoid __stdcall GLee_Lazy_glTessellationModeAMD(GLenum mode)  {if (GLeeInit()) glTessellationModeAMD(mode);}
   GLEEPFNGLTESSELLATIONMODEAMDPROC GLeeFuncPtr_glTessellationModeAMD=GLee_Lazy_glTessellationModeAMD;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_fragment_lighting */
 
 #ifdef __GLEE_GL_EXT_fragment_lighting
-#endif 
+#endif
 
 /* GL_EXT_texture_compression_dxt1 */
 
 #ifdef __GLEE_GL_EXT_texture_compression_dxt1
-#endif 
+#endif
 
 /* GL_EXT_scene_marker */
 
@@ -12576,32 +12576,32 @@ int __GLeeGLNumExtensions=430;
   GLvoid __stdcall GLee_Lazy_glEndSceneEXT(void)  {if (GLeeInit()) glEndSceneEXT();}
   GLEEPFNGLENDSCENEEXTPROC GLeeFuncPtr_glEndSceneEXT=GLee_Lazy_glEndSceneEXT;
 #endif
-#endif 
+#endif
 
 /* GL_EXT_geometry_shader4 */
 
 #ifdef __GLEE_GL_EXT_geometry_shader4
-#endif 
+#endif
 
 /* GL_EXT_texture_env */
 
 #ifdef __GLEE_GL_EXT_texture_env
-#endif 
+#endif
 
 /* GL_SGIX_texture_range */
 
 #ifdef __GLEE_GL_SGIX_texture_range
-#endif 
+#endif
 
 /* GL_SGIX_pixel_texture_bits */
 
 #ifdef __GLEE_GL_SGIX_pixel_texture_bits
-#endif 
+#endif
 
 /* GL_IBM_static_data */
 
 #ifdef __GLEE_GL_IBM_static_data
-#endif 
+#endif
 
 /* WGL */
 
@@ -12729,12 +12729,12 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglRestoreBufferRegionARB(HANDLE  hRegion, int  x, int  y, int  width, int  height, int  xSrc, int  ySrc)  {if (GLeeInit()) return wglRestoreBufferRegionARB(hRegion, x, y, width, height, xSrc, ySrc); return (BOOL)0;}
   GLEEPFNWGLRESTOREBUFFERREGIONARBPROC GLeeFuncPtr_wglRestoreBufferRegionARB=GLee_Lazy_wglRestoreBufferRegionARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_multisample */
 
 #ifdef __GLEE_WGL_ARB_multisample
-#endif 
+#endif
 
 /* WGL_ARB_extensions_string */
 
@@ -12744,7 +12744,7 @@ int __GLeeWGLNumExtensions=45;
   const char * __stdcall GLee_Lazy_wglGetExtensionsStringARB(HDC  hdc)  {if (GLeeInit()) return wglGetExtensionsStringARB(hdc); return (const char *)0;}
   GLEEPFNWGLGETEXTENSIONSSTRINGARBPROC GLeeFuncPtr_wglGetExtensionsStringARB=GLee_Lazy_wglGetExtensionsStringARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_pixel_format */
 
@@ -12764,7 +12764,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglChoosePixelFormatARB(HDC  hdc, const int * piAttribIList, const FLOAT * pfAttribFList, UINT  nMaxFormats, int * piFormats, UINT * nNumFormats)  {if (GLeeInit()) return wglChoosePixelFormatARB(hdc, piAttribIList, pfAttribFList, nMaxFormats, piFormats, nNumFormats); return (BOOL)0;}
   GLEEPFNWGLCHOOSEPIXELFORMATARBPROC GLeeFuncPtr_wglChoosePixelFormatARB=GLee_Lazy_wglChoosePixelFormatARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_make_current_read */
 
@@ -12779,7 +12779,7 @@ int __GLeeWGLNumExtensions=45;
   HDC __stdcall GLee_Lazy_wglGetCurrentReadDCARB(void)  {if (GLeeInit()) return wglGetCurrentReadDCARB(); return (HDC)0;}
   GLEEPFNWGLGETCURRENTREADDCARBPROC GLeeFuncPtr_wglGetCurrentReadDCARB=GLee_Lazy_wglGetCurrentReadDCARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_pbuffer */
 
@@ -12809,7 +12809,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryPbufferARB(HPBUFFERARB  hPbuffer, int  iAttribute, int * piValue)  {if (GLeeInit()) return wglQueryPbufferARB(hPbuffer, iAttribute, piValue); return (BOOL)0;}
   GLEEPFNWGLQUERYPBUFFERARBPROC GLeeFuncPtr_wglQueryPbufferARB=GLee_Lazy_wglQueryPbufferARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_render_texture */
 
@@ -12829,17 +12829,17 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglSetPbufferAttribARB(HPBUFFERARB  hPbuffer, const int * piAttribList)  {if (GLeeInit()) return wglSetPbufferAttribARB(hPbuffer, piAttribList); return (BOOL)0;}
   GLEEPFNWGLSETPBUFFERATTRIBARBPROC GLeeFuncPtr_wglSetPbufferAttribARB=GLee_Lazy_wglSetPbufferAttribARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_pixel_format_float */
 
 #ifdef __GLEE_WGL_ARB_pixel_format_float
-#endif 
+#endif
 
 /* WGL_ARB_framebuffer_sRGB */
 
 #ifdef __GLEE_WGL_ARB_framebuffer_sRGB
-#endif 
+#endif
 
 /* WGL_ARB_create_context */
 
@@ -12849,17 +12849,17 @@ int __GLeeWGLNumExtensions=45;
   HGLRC __stdcall GLee_Lazy_wglCreateContextAttribsARB(HDC  hDC, HGLRC  hShareContext, const int * attribList)  {if (GLeeInit()) return wglCreateContextAttribsARB(hDC, hShareContext, attribList); return (HGLRC)0;}
   GLEEPFNWGLCREATECONTEXTATTRIBSARBPROC GLeeFuncPtr_wglCreateContextAttribsARB=GLee_Lazy_wglCreateContextAttribsARB;
 #endif
-#endif 
+#endif
 
 /* WGL_ARB_create_context_profile */
 
 #ifdef __GLEE_WGL_ARB_create_context_profile
-#endif 
+#endif
 
 /* WGL_ARB_create_context_robustness */
 
 #ifdef __GLEE_WGL_ARB_create_context_robustness
-#endif 
+#endif
 
 /* WGL_EXT_make_current_read */
 
@@ -12874,7 +12874,7 @@ int __GLeeWGLNumExtensions=45;
   HDC __stdcall GLee_Lazy_wglGetCurrentReadDCEXT(void)  {if (GLeeInit()) return wglGetCurrentReadDCEXT(); return (HDC)0;}
   GLEEPFNWGLGETCURRENTREADDCEXTPROC GLeeFuncPtr_wglGetCurrentReadDCEXT=GLee_Lazy_wglGetCurrentReadDCEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_pixel_format */
 
@@ -12894,7 +12894,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglChoosePixelFormatEXT(HDC  hdc, const int * piAttribIList, const FLOAT * pfAttribFList, UINT  nMaxFormats, int * piFormats, UINT * nNumFormats)  {if (GLeeInit()) return wglChoosePixelFormatEXT(hdc, piAttribIList, pfAttribFList, nMaxFormats, piFormats, nNumFormats); return (BOOL)0;}
   GLEEPFNWGLCHOOSEPIXELFORMATEXTPROC GLeeFuncPtr_wglChoosePixelFormatEXT=GLee_Lazy_wglChoosePixelFormatEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_pbuffer */
 
@@ -12924,22 +12924,22 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryPbufferEXT(HPBUFFEREXT  hPbuffer, int  iAttribute, int * piValue)  {if (GLeeInit()) return wglQueryPbufferEXT(hPbuffer, iAttribute, piValue); return (BOOL)0;}
   GLEEPFNWGLQUERYPBUFFEREXTPROC GLeeFuncPtr_wglQueryPbufferEXT=GLee_Lazy_wglQueryPbufferEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_depth_float */
 
 #ifdef __GLEE_WGL_EXT_depth_float
-#endif 
+#endif
 
 /* WGL_3DFX_multisample */
 
 #ifdef __GLEE_WGL_3DFX_multisample
-#endif 
+#endif
 
 /* WGL_EXT_multisample */
 
 #ifdef __GLEE_WGL_EXT_multisample
-#endif 
+#endif
 
 /* WGL_I3D_digital_video_control */
 
@@ -12954,7 +12954,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglSetDigitalVideoParametersI3D(HDC  hDC, int  iAttribute, const int * piValue)  {if (GLeeInit()) return wglSetDigitalVideoParametersI3D(hDC, iAttribute, piValue); return (BOOL)0;}
   GLEEPFNWGLSETDIGITALVIDEOPARAMETERSI3DPROC GLeeFuncPtr_wglSetDigitalVideoParametersI3D=GLee_Lazy_wglSetDigitalVideoParametersI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_I3D_gamma */
 
@@ -12979,7 +12979,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglSetGammaTableI3D(HDC  hDC, int  iEntries, const USHORT * puRed, const USHORT * puGreen, const USHORT * puBlue)  {if (GLeeInit()) return wglSetGammaTableI3D(hDC, iEntries, puRed, puGreen, puBlue); return (BOOL)0;}
   GLEEPFNWGLSETGAMMATABLEI3DPROC GLeeFuncPtr_wglSetGammaTableI3D=GLee_Lazy_wglSetGammaTableI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_I3D_genlock */
 
@@ -13044,7 +13044,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryGenlockMaxSourceDelayI3D(HDC  hDC, UINT * uMaxLineDelay, UINT * uMaxPixelDelay)  {if (GLeeInit()) return wglQueryGenlockMaxSourceDelayI3D(hDC, uMaxLineDelay, uMaxPixelDelay); return (BOOL)0;}
   GLEEPFNWGLQUERYGENLOCKMAXSOURCEDELAYI3DPROC GLeeFuncPtr_wglQueryGenlockMaxSourceDelayI3D=GLee_Lazy_wglQueryGenlockMaxSourceDelayI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_I3D_image_buffer */
 
@@ -13069,7 +13069,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglReleaseImageBufferEventsI3D(HDC  hDC, const LPVOID * pAddress, UINT  count)  {if (GLeeInit()) return wglReleaseImageBufferEventsI3D(hDC, pAddress, count); return (BOOL)0;}
   GLEEPFNWGLRELEASEIMAGEBUFFEREVENTSI3DPROC GLeeFuncPtr_wglReleaseImageBufferEventsI3D=GLee_Lazy_wglReleaseImageBufferEventsI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_I3D_swap_frame_lock */
 
@@ -13094,27 +13094,27 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryFrameLockMasterI3D(BOOL * pFlag)  {if (GLeeInit()) return wglQueryFrameLockMasterI3D(pFlag); return (BOOL)0;}
   GLEEPFNWGLQUERYFRAMELOCKMASTERI3DPROC GLeeFuncPtr_wglQueryFrameLockMasterI3D=GLee_Lazy_wglQueryFrameLockMasterI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_render_depth_texture */
 
 #ifdef __GLEE_WGL_NV_render_depth_texture
-#endif 
+#endif
 
 /* WGL_NV_render_texture_rectangle */
 
 #ifdef __GLEE_WGL_NV_render_texture_rectangle
-#endif 
+#endif
 
 /* WGL_ATI_pixel_format_float */
 
 #ifdef __GLEE_WGL_ATI_pixel_format_float
-#endif 
+#endif
 
 /* WGL_NV_float_buffer */
 
 #ifdef __GLEE_WGL_NV_float_buffer
-#endif 
+#endif
 
 /* WGL_3DL_stereo_control */
 
@@ -13124,17 +13124,17 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglSetStereoEmitterState3DL(HDC  hDC, UINT  uState)  {if (GLeeInit()) return wglSetStereoEmitterState3DL(hDC, uState); return (BOOL)0;}
   GLEEPFNWGLSETSTEREOEMITTERSTATE3DLPROC GLeeFuncPtr_wglSetStereoEmitterState3DL=GLee_Lazy_wglSetStereoEmitterState3DL;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_pixel_format_packed_float */
 
 #ifdef __GLEE_WGL_EXT_pixel_format_packed_float
-#endif 
+#endif
 
 /* WGL_EXT_framebuffer_sRGB */
 
 #ifdef __GLEE_WGL_EXT_framebuffer_sRGB
-#endif 
+#endif
 
 /* WGL_NV_present_video */
 
@@ -13154,7 +13154,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryCurrentContextNV(int  iAttribute, int * piValue)  {if (GLeeInit()) return wglQueryCurrentContextNV(iAttribute, piValue); return (BOOL)0;}
   GLEEPFNWGLQUERYCURRENTCONTEXTNVPROC GLeeFuncPtr_wglQueryCurrentContextNV=GLee_Lazy_wglQueryCurrentContextNV;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_swap_group */
 
@@ -13189,7 +13189,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglResetFrameCountNV(HDC  hDC)  {if (GLeeInit()) return wglResetFrameCountNV(hDC); return (BOOL)0;}
   GLEEPFNWGLRESETFRAMECOUNTNVPROC GLeeFuncPtr_wglResetFrameCountNV=GLee_Lazy_wglResetFrameCountNV;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_gpu_affinity */
 
@@ -13219,7 +13219,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglDeleteDCNV(HDC  hdc)  {if (GLeeInit()) return wglDeleteDCNV(hdc); return (BOOL)0;}
   GLEEPFNWGLDELETEDCNVPROC GLeeFuncPtr_wglDeleteDCNV=GLee_Lazy_wglDeleteDCNV;
 #endif
-#endif 
+#endif
 
 /* WGL_AMD_gpu_association */
 
@@ -13269,7 +13269,7 @@ int __GLeeWGLNumExtensions=45;
   VOID __stdcall GLee_Lazy_wglBlitContextFramebufferAMD(HGLRC  dstCtx, GLint  srcX0, GLint  srcY0, GLint  srcX1, GLint  srcY1, GLint  dstX0, GLint  dstY0, GLint  dstX1, GLint  dstY1, GLbitfield  mask, GLenum  filter)  {if (GLeeInit()) wglBlitContextFramebufferAMD(dstCtx, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);}
   GLEEPFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC GLeeFuncPtr_wglBlitContextFramebufferAMD=GLee_Lazy_wglBlitContextFramebufferAMD;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_copy_image */
 
@@ -13279,17 +13279,17 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglCopyImageSubDataNV(HGLRC  hSrcRC, GLuint  srcName, GLenum  srcTarget, GLint  srcLevel, GLint  srcX, GLint  srcY, GLint  srcZ, HGLRC  hDstRC, GLuint  dstName, GLenum  dstTarget, GLint  dstLevel, GLint  dstX, GLint  dstY, GLint  dstZ, GLsizei  width, GLsizei  height, GLsizei  depth)  {if (GLeeInit()) return wglCopyImageSubDataNV(hSrcRC, srcName, srcTarget, srcLevel, srcX, srcY, srcZ, hDstRC, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, width, height, depth); return (BOOL)0;}
   GLEEPFNWGLCOPYIMAGESUBDATANVPROC GLeeFuncPtr_wglCopyImageSubDataNV=GLee_Lazy_wglCopyImageSubDataNV;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_multisample_coverage */
 
 #ifdef __GLEE_WGL_NV_multisample_coverage
-#endif 
+#endif
 
 /* WGL_EXT_create_context_es2_profile */
 
 #ifdef __GLEE_WGL_EXT_create_context_es2_profile
-#endif 
+#endif
 
 /* WGL_NV_DX_interop */
 
@@ -13334,7 +13334,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglDXUnlockObjectsNV(HANDLE  hDevice, GLint  count, HANDLE * hObjects)  {if (GLeeInit()) return wglDXUnlockObjectsNV(hDevice, count, hObjects); return (BOOL)0;}
   GLEEPFNWGLDXUNLOCKOBJECTSNVPROC GLeeFuncPtr_wglDXUnlockObjectsNV=GLee_Lazy_wglDXUnlockObjectsNV;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_display_color_table */
 
@@ -13359,7 +13359,7 @@ int __GLeeWGLNumExtensions=45;
   VOID __stdcall GLee_Lazy_wglDestroyDisplayColorTableEXT(GLushort  id)  {if (GLeeInit()) wglDestroyDisplayColorTableEXT(id);}
   GLEEPFNWGLDESTROYDISPLAYCOLORTABLEEXTPROC GLeeFuncPtr_wglDestroyDisplayColorTableEXT=GLee_Lazy_wglDestroyDisplayColorTableEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_extensions_string */
 
@@ -13369,7 +13369,7 @@ int __GLeeWGLNumExtensions=45;
   const char * __stdcall GLee_Lazy_wglGetExtensionsStringEXT(void)  {if (GLeeInit()) return wglGetExtensionsStringEXT(); return (const char *)0;}
   GLEEPFNWGLGETEXTENSIONSSTRINGEXTPROC GLeeFuncPtr_wglGetExtensionsStringEXT=GLee_Lazy_wglGetExtensionsStringEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_EXT_swap_control */
 
@@ -13384,7 +13384,7 @@ int __GLeeWGLNumExtensions=45;
   int __stdcall GLee_Lazy_wglGetSwapIntervalEXT(void)  {if (GLeeInit()) return wglGetSwapIntervalEXT(); return (int)0;}
   GLEEPFNWGLGETSWAPINTERVALEXTPROC GLeeFuncPtr_wglGetSwapIntervalEXT=GLee_Lazy_wglGetSwapIntervalEXT;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_vertex_array_range */
 
@@ -13399,7 +13399,7 @@ int __GLeeWGLNumExtensions=45;
   void __stdcall GLee_Lazy_wglFreeMemoryNV(void * pointer)  {if (GLeeInit()) wglFreeMemoryNV(pointer);}
   GLEEPFNWGLFREEMEMORYNVPROC GLeeFuncPtr_wglFreeMemoryNV=GLee_Lazy_wglFreeMemoryNV;
 #endif
-#endif 
+#endif
 
 /* WGL_OML_sync_control */
 
@@ -13434,7 +13434,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglWaitForSbcOML(HDC  hdc, INT64  target_sbc, INT64 * ust, INT64 * msc, INT64 * sbc)  {if (GLeeInit()) return wglWaitForSbcOML(hdc, target_sbc, ust, msc, sbc); return (BOOL)0;}
   GLEEPFNWGLWAITFORSBCOMLPROC GLeeFuncPtr_wglWaitForSbcOML=GLee_Lazy_wglWaitForSbcOML;
 #endif
-#endif 
+#endif
 
 /* WGL_I3D_swap_frame_usage */
 
@@ -13459,7 +13459,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglQueryFrameTrackingI3D(DWORD * pFrameCount, DWORD * pMissedFrames, float * pLastMissedUsage)  {if (GLeeInit()) return wglQueryFrameTrackingI3D(pFrameCount, pMissedFrames, pLastMissedUsage); return (BOOL)0;}
   GLEEPFNWGLQUERYFRAMETRACKINGI3DPROC GLeeFuncPtr_wglQueryFrameTrackingI3D=GLee_Lazy_wglQueryFrameTrackingI3D;
 #endif
-#endif 
+#endif
 
 /* WGL_NV_video_output */
 
@@ -13494,7 +13494,7 @@ int __GLeeWGLNumExtensions=45;
   BOOL __stdcall GLee_Lazy_wglGetVideoInfoNV(HPVIDEODEV  hpVideoDevice, unsigned long * pulCounterOutputPbuffer, unsigned long * pulCounterOutputVideo)  {if (GLeeInit()) return wglGetVideoInfoNV(hpVideoDevice, pulCounterOutputPbuffer, pulCounterOutputVideo); return (BOOL)0;}
   GLEEPFNWGLGETVIDEOINFONVPROC GLeeFuncPtr_wglGetVideoInfoNV=GLee_Lazy_wglGetVideoInfoNV;
 #endif
-#endif 
+#endif
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 #else /* GLX */
 
@@ -13702,7 +13702,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXGetSelectedEvent(Display * dpy, GLXDrawable  draw, unsigned long * event_mask)  {if (GLeeInit()) glXGetSelectedEvent(dpy, draw, event_mask);}
   GLEEPFNGLXGETSELECTEDEVENTPROC GLeeFuncPtr_glXGetSelectedEvent=GLee_Lazy_glXGetSelectedEvent;
 #endif
-#endif 
+#endif
 
 /* GLX_VERSION_1_4 */
 
@@ -13712,27 +13712,27 @@ int __GLeeGLXNumExtensions=51;
   __GLXextFuncPtr __stdcall GLee_Lazy_glXGetProcAddress(const GLubyte * procName)  {if (GLeeInit()) return glXGetProcAddress(procName); return (__GLXextFuncPtr)0;}
   GLEEPFNGLXGETPROCADDRESSPROC GLeeFuncPtr_glXGetProcAddress=GLee_Lazy_glXGetProcAddress;
 #endif
-#endif 
+#endif
 
 /* GLX_ARB_multisample */
 
 #ifdef __GLEE_GLX_ARB_multisample
-#endif 
+#endif
 
 /* GLX_ARB_vertex_buffer_object */
 
 #ifdef __GLEE_GLX_ARB_vertex_buffer_object
-#endif 
+#endif
 
 /* GLX_ARB_fbconfig_float */
 
 #ifdef __GLEE_GLX_ARB_fbconfig_float
-#endif 
+#endif
 
 /* GLX_ARB_framebuffer_sRGB */
 
 #ifdef __GLEE_GLX_ARB_framebuffer_sRGB
-#endif 
+#endif
 
 /* GLX_ARB_create_context */
 
@@ -13742,27 +13742,27 @@ int __GLeeGLXNumExtensions=51;
   GLXContext __stdcall GLee_Lazy_glXCreateContextAttribsARB(Display * dpy, GLXFBConfig  config, GLXContext  share_context, Bool  direct, const int * attrib_list)  {if (GLeeInit()) return glXCreateContextAttribsARB(dpy, config, share_context, direct, attrib_list); return (GLXContext)0;}
   GLEEPFNGLXCREATECONTEXTATTRIBSARBPROC GLeeFuncPtr_glXCreateContextAttribsARB=GLee_Lazy_glXCreateContextAttribsARB;
 #endif
-#endif 
+#endif
 
 /* GLX_ARB_create_context_profile */
 
 #ifdef __GLEE_GLX_ARB_create_context_profile
-#endif 
+#endif
 
 /* GLX_ARB_create_context_robustness */
 
 #ifdef __GLEE_GLX_ARB_create_context_robustness
-#endif 
+#endif
 
 /* GLX_SGIS_multisample */
 
 #ifdef __GLEE_GLX_SGIS_multisample
-#endif 
+#endif
 
 /* GLX_EXT_visual_info */
 
 #ifdef __GLEE_GLX_EXT_visual_info
-#endif 
+#endif
 
 /* GLX_SGI_swap_control */
 
@@ -13772,7 +13772,7 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXSwapIntervalSGI(int  interval)  {if (GLeeInit()) return glXSwapIntervalSGI(interval); return (int)0;}
   GLEEPFNGLXSWAPINTERVALSGIPROC GLeeFuncPtr_glXSwapIntervalSGI=GLee_Lazy_glXSwapIntervalSGI;
 #endif
-#endif 
+#endif
 
 /* GLX_SGI_video_sync */
 
@@ -13787,7 +13787,7 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXWaitVideoSyncSGI(int  divisor, int  remainder, unsigned int * count)  {if (GLeeInit()) return glXWaitVideoSyncSGI(divisor, remainder, count); return (int)0;}
   GLEEPFNGLXWAITVIDEOSYNCSGIPROC GLeeFuncPtr_glXWaitVideoSyncSGI=GLee_Lazy_glXWaitVideoSyncSGI;
 #endif
-#endif 
+#endif
 
 /* GLX_SGI_make_current_read */
 
@@ -13802,12 +13802,12 @@ int __GLeeGLXNumExtensions=51;
   GLXDrawable __stdcall GLee_Lazy_glXGetCurrentReadDrawableSGI(void)  {if (GLeeInit()) return glXGetCurrentReadDrawableSGI(); return (GLXDrawable)0;}
   GLEEPFNGLXGETCURRENTREADDRAWABLESGIPROC GLeeFuncPtr_glXGetCurrentReadDrawableSGI=GLee_Lazy_glXGetCurrentReadDrawableSGI;
 #endif
-#endif 
+#endif
 
 /* GLX_EXT_visual_rating */
 
 #ifdef __GLEE_GLX_EXT_visual_rating
-#endif 
+#endif
 
 /* GLX_EXT_import_context */
 
@@ -13837,7 +13837,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXFreeContextEXT(Display * dpy, GLXContext  context)  {if (GLeeInit()) glXFreeContextEXT(dpy, context);}
   GLEEPFNGLXFREECONTEXTEXTPROC GLeeFuncPtr_glXFreeContextEXT=GLee_Lazy_glXFreeContextEXT;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_fbconfig */
 
@@ -13872,7 +13872,7 @@ int __GLeeGLXNumExtensions=51;
   GLXFBConfigSGIX __stdcall GLee_Lazy_glXGetFBConfigFromVisualSGIX(Display * dpy, XVisualInfo * vis)  {if (GLeeInit()) return glXGetFBConfigFromVisualSGIX(dpy, vis); return (GLXFBConfigSGIX)0;}
   GLEEPFNGLXGETFBCONFIGFROMVISUALSGIXPROC GLeeFuncPtr_glXGetFBConfigFromVisualSGIX=GLee_Lazy_glXGetFBConfigFromVisualSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_pbuffer */
 
@@ -13902,7 +13902,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXGetSelectedEventSGIX(Display * dpy, GLXDrawable  drawable, unsigned long * mask)  {if (GLeeInit()) glXGetSelectedEventSGIX(dpy, drawable, mask);}
   GLEEPFNGLXGETSELECTEDEVENTSGIXPROC GLeeFuncPtr_glXGetSelectedEventSGIX=GLee_Lazy_glXGetSelectedEventSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_SGI_cushion */
 
@@ -13912,7 +13912,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXCushionSGI(Display * dpy, Window  window, float  cushion)  {if (GLeeInit()) glXCushionSGI(dpy, window, cushion);}
   GLEEPFNGLXCUSHIONSGIPROC GLeeFuncPtr_glXCushionSGI=GLee_Lazy_glXCushionSGI;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_video_resize */
 
@@ -13942,7 +13942,7 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXChannelRectSyncSGIX(Display * display, int  screen, int  channel, GLenum  synctype)  {if (GLeeInit()) return glXChannelRectSyncSGIX(display, screen, channel, synctype); return (int)0;}
   GLEEPFNGLXCHANNELRECTSYNCSGIXPROC GLeeFuncPtr_glXChannelRectSyncSGIX=GLee_Lazy_glXChannelRectSyncSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_swap_group */
 
@@ -13952,7 +13952,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXJoinSwapGroupSGIX(Display * dpy, GLXDrawable  drawable, GLXDrawable  member)  {if (GLeeInit()) glXJoinSwapGroupSGIX(dpy, drawable, member);}
   GLEEPFNGLXJOINSWAPGROUPSGIXPROC GLeeFuncPtr_glXJoinSwapGroupSGIX=GLee_Lazy_glXJoinSwapGroupSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_swap_barrier */
 
@@ -13967,17 +13967,17 @@ int __GLeeGLXNumExtensions=51;
   Bool __stdcall GLee_Lazy_glXQueryMaxSwapBarriersSGIX(Display * dpy, int  screen, int * max)  {if (GLeeInit()) return glXQueryMaxSwapBarriersSGIX(dpy, screen, max); return (Bool)0;}
   GLEEPFNGLXQUERYMAXSWAPBARRIERSSGIXPROC GLeeFuncPtr_glXQueryMaxSwapBarriersSGIX=GLee_Lazy_glXQueryMaxSwapBarriersSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIS_blended_overlay */
 
 #ifdef __GLEE_GLX_SGIS_blended_overlay
-#endif 
+#endif
 
 /* GLX_SGIS_shared_multisample */
 
 #ifdef __GLEE_GLX_SGIS_shared_multisample
-#endif 
+#endif
 
 /* GLX_SUN_get_transparent_index */
 
@@ -13987,12 +13987,12 @@ int __GLeeGLXNumExtensions=51;
   Status __stdcall GLee_Lazy_glXGetTransparentIndexSUN(Display * dpy, Window  overlay, Window  underlay, long * pTransparentIndex)  {if (GLeeInit()) return glXGetTransparentIndexSUN(dpy, overlay, underlay, pTransparentIndex); return (Status)0;}
   GLEEPFNGLXGETTRANSPARENTINDEXSUNPROC GLeeFuncPtr_glXGetTransparentIndexSUN=GLee_Lazy_glXGetTransparentIndexSUN;
 #endif
-#endif 
+#endif
 
 /* GLX_3DFX_multisample */
 
 #ifdef __GLEE_GLX_3DFX_multisample
-#endif 
+#endif
 
 /* GLX_MESA_copy_sub_buffer */
 
@@ -14002,7 +14002,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXCopySubBufferMESA(Display * dpy, GLXDrawable  drawable, int  x, int  y, int  width, int  height)  {if (GLeeInit()) glXCopySubBufferMESA(dpy, drawable, x, y, width, height);}
   GLEEPFNGLXCOPYSUBBUFFERMESAPROC GLeeFuncPtr_glXCopySubBufferMESA=GLee_Lazy_glXCopySubBufferMESA;
 #endif
-#endif 
+#endif
 
 /* GLX_MESA_pixmap_colormap */
 
@@ -14012,7 +14012,7 @@ int __GLeeGLXNumExtensions=51;
   GLXPixmap __stdcall GLee_Lazy_glXCreateGLXPixmapMESA(Display * dpy, XVisualInfo * visual, Pixmap  pixmap, Colormap  cmap)  {if (GLeeInit()) return glXCreateGLXPixmapMESA(dpy, visual, pixmap, cmap); return (GLXPixmap)0;}
   GLEEPFNGLXCREATEGLXPIXMAPMESAPROC GLeeFuncPtr_glXCreateGLXPixmapMESA=GLee_Lazy_glXCreateGLXPixmapMESA;
 #endif
-#endif 
+#endif
 
 /* GLX_MESA_release_buffers */
 
@@ -14022,7 +14022,7 @@ int __GLeeGLXNumExtensions=51;
   Bool __stdcall GLee_Lazy_glXReleaseBuffersMESA(Display * dpy, GLXDrawable  drawable)  {if (GLeeInit()) return glXReleaseBuffersMESA(dpy, drawable); return (Bool)0;}
   GLEEPFNGLXRELEASEBUFFERSMESAPROC GLeeFuncPtr_glXReleaseBuffersMESA=GLee_Lazy_glXReleaseBuffersMESA;
 #endif
-#endif 
+#endif
 
 /* GLX_MESA_set_3dfx_mode */
 
@@ -14032,17 +14032,17 @@ int __GLeeGLXNumExtensions=51;
   Bool __stdcall GLee_Lazy_glXSet3DfxModeMESA(int  mode)  {if (GLeeInit()) return glXSet3DfxModeMESA(mode); return (Bool)0;}
   GLEEPFNGLXSET3DFXMODEMESAPROC GLeeFuncPtr_glXSet3DfxModeMESA=GLee_Lazy_glXSet3DfxModeMESA;
 #endif
-#endif 
+#endif
 
 /* GLX_SGIX_visual_select_group */
 
 #ifdef __GLEE_GLX_SGIX_visual_select_group
-#endif 
+#endif
 
 /* GLX_OML_swap_method */
 
 #ifdef __GLEE_GLX_OML_swap_method
-#endif 
+#endif
 
 /* GLX_OML_sync_control */
 
@@ -14072,12 +14072,12 @@ int __GLeeGLXNumExtensions=51;
   Bool __stdcall GLee_Lazy_glXWaitForSbcOML(Display * dpy, GLXDrawable  drawable, int64_t  target_sbc, int64_t * ust, int64_t * msc, int64_t * sbc)  {if (GLeeInit()) return glXWaitForSbcOML(dpy, drawable, target_sbc, ust, msc, sbc); return (Bool)0;}
   GLEEPFNGLXWAITFORSBCOMLPROC GLeeFuncPtr_glXWaitForSbcOML=GLee_Lazy_glXWaitForSbcOML;
 #endif
-#endif 
+#endif
 
 /* GLX_NV_float_buffer */
 
 #ifdef __GLEE_GLX_NV_float_buffer
-#endif 
+#endif
 
 /* GLX_SGIX_hyperpipe */
 
@@ -14122,7 +14122,7 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXQueryHyperpipeAttribSGIX(Display * dpy, int  timeSlice, int  attrib, int  size, void * returnAttribList)  {if (GLeeInit()) return glXQueryHyperpipeAttribSGIX(dpy, timeSlice, attrib, size, returnAttribList); return (int)0;}
   GLEEPFNGLXQUERYHYPERPIPEATTRIBSGIXPROC GLeeFuncPtr_glXQueryHyperpipeAttribSGIX=GLee_Lazy_glXQueryHyperpipeAttribSGIX;
 #endif
-#endif 
+#endif
 
 /* GLX_MESA_agp_offset */
 
@@ -14132,17 +14132,17 @@ int __GLeeGLXNumExtensions=51;
   unsigned int __stdcall GLee_Lazy_glXGetAGPOffsetMESA(const void * pointer)  {if (GLeeInit()) return glXGetAGPOffsetMESA(pointer); return (unsigned int)0;}
   GLEEPFNGLXGETAGPOFFSETMESAPROC GLeeFuncPtr_glXGetAGPOffsetMESA=GLee_Lazy_glXGetAGPOffsetMESA;
 #endif
-#endif 
+#endif
 
 /* GLX_EXT_fbconfig_packed_float */
 
 #ifdef __GLEE_GLX_EXT_fbconfig_packed_float
-#endif 
+#endif
 
 /* GLX_EXT_framebuffer_sRGB */
 
 #ifdef __GLEE_GLX_EXT_framebuffer_sRGB
-#endif 
+#endif
 
 /* GLX_EXT_texture_from_pixmap */
 
@@ -14157,7 +14157,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXReleaseTexImageEXT(Display * dpy, GLXDrawable  drawable, int  buffer)  {if (GLeeInit()) glXReleaseTexImageEXT(dpy, drawable, buffer);}
   GLEEPFNGLXRELEASETEXIMAGEEXTPROC GLeeFuncPtr_glXReleaseTexImageEXT=GLee_Lazy_glXReleaseTexImageEXT;
 #endif
-#endif 
+#endif
 
 /* GLX_NV_present_video */
 
@@ -14172,12 +14172,12 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXBindVideoDeviceNV(Display * dpy, unsigned int  video_slot, unsigned int  video_device, const int * attrib_list)  {if (GLeeInit()) return glXBindVideoDeviceNV(dpy, video_slot, video_device, attrib_list); return (int)0;}
   GLEEPFNGLXBINDVIDEODEVICENVPROC GLeeFuncPtr_glXBindVideoDeviceNV=GLee_Lazy_glXBindVideoDeviceNV;
 #endif
-#endif 
+#endif
 
 /* GLX_NV_video_out */
 
 #ifdef __GLEE_GLX_NV_video_out
-#endif 
+#endif
 
 /* GLX_NV_swap_group */
 
@@ -14212,7 +14212,7 @@ int __GLeeGLXNumExtensions=51;
   Bool __stdcall GLee_Lazy_glXResetFrameCountNV(Display * dpy, int  screen)  {if (GLeeInit()) return glXResetFrameCountNV(dpy, screen); return (Bool)0;}
   GLEEPFNGLXRESETFRAMECOUNTNVPROC GLeeFuncPtr_glXResetFrameCountNV=GLee_Lazy_glXResetFrameCountNV;
 #endif
-#endif 
+#endif
 
 /* GLX_NV_video_capture */
 
@@ -14242,7 +14242,7 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXReleaseVideoCaptureDeviceNV(Display * dpy, GLXVideoCaptureDeviceNV  device)  {if (GLeeInit()) glXReleaseVideoCaptureDeviceNV(dpy, device);}
   GLEEPFNGLXRELEASEVIDEOCAPTUREDEVICENVPROC GLeeFuncPtr_glXReleaseVideoCaptureDeviceNV=GLee_Lazy_glXReleaseVideoCaptureDeviceNV;
 #endif
-#endif 
+#endif
 
 /* GLX_EXT_swap_control */
 
@@ -14252,7 +14252,7 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXSwapIntervalEXT(Display * dpy, GLXDrawable  drawable, int  interval)  {if (GLeeInit()) return glXSwapIntervalEXT(dpy, drawable, interval); return (int)0;}
   GLEEPFNGLXSWAPINTERVALEXTPROC GLeeFuncPtr_glXSwapIntervalEXT=GLee_Lazy_glXSwapIntervalEXT;
 #endif
-#endif 
+#endif
 
 /* GLX_NV_copy_image */
 
@@ -14262,27 +14262,27 @@ int __GLeeGLXNumExtensions=51;
   void __stdcall GLee_Lazy_glXCopyImageSubDataNV(Display * dpy, GLXContext  srcCtx, GLuint  srcName, GLenum  srcTarget, GLint  srcLevel, GLint  srcX, GLint  srcY, GLint  srcZ, GLXContext  dstCtx, GLuint  dstName, GLenum  dstTarget, GLint  dstLevel, GLint  dstX, GLint  dstY, GLint  dstZ, GLsizei  width, GLsizei  height, GLsizei  depth)  {if (GLeeInit()) glXCopyImageSubDataNV(dpy, srcCtx, srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstCtx, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, width, height, depth);}
   GLEEPFNGLXCOPYIMAGESUBDATANVPROC GLeeFuncPtr_glXCopyImageSubDataNV=GLee_Lazy_glXCopyImageSubDataNV;
 #endif
-#endif 
+#endif
 
 /* GLX_INTEL_swap_event */
 
 #ifdef __GLEE_GLX_INTEL_swap_event
-#endif 
+#endif
 
 /* GLX_NV_multisample_coverage */
 
 #ifdef __GLEE_GLX_NV_multisample_coverage
-#endif 
+#endif
 
 /* GLX_AMD_gpu_association */
 
 #ifdef __GLEE_GLX_AMD_gpu_association
-#endif 
+#endif
 
 /* GLX_EXT_create_context_es2_profile */
 
 #ifdef __GLEE_GLX_EXT_create_context_es2_profile
-#endif 
+#endif
 
 /* GLX_NV_video_output */
 
@@ -14317,12 +14317,12 @@ int __GLeeGLXNumExtensions=51;
   int __stdcall GLee_Lazy_glXGetVideoInfoNV(Display * dpy, int  screen, GLXVideoDeviceNV  VideoDevice, unsigned long * pulCounterOutputPbuffer, unsigned long * pulCounterOutputVideo)  {if (GLeeInit()) return glXGetVideoInfoNV(dpy, screen, VideoDevice, pulCounterOutputPbuffer, pulCounterOutputVideo); return (int)0;}
   GLEEPFNGLXGETVIDEOINFONVPROC GLeeFuncPtr_glXGetVideoInfoNV=GLee_Lazy_glXGetVideoInfoNV;
 #endif
-#endif 
+#endif
 
 /* GLX_EXT_scene_marker */
 
 #ifdef __GLEE_GLX_EXT_scene_marker
-#endif 
+#endif
 #endif /* end GLX */
 /*****************************************************************
 * Extension link functions
@@ -20173,7 +20173,7 @@ void initGLXLoadFunctions(void)
 /*****************************************************************
  * GLee internal types
  *****************************************************************/
-typedef struct 
+typedef struct
 {
 	char ** names;
 	int * lengths;
@@ -20358,7 +20358,7 @@ GLEE_EXTERN GLint __GLeeGetExtensionNumber(const char *extensionName, int type)
 }
 
 /*****************************************************************
- * GLee external functions 
+ * GLee external functions
  *****************************************************************/
 
 #ifdef _WIN32
@@ -20368,7 +20368,7 @@ GLEE_EXTERN const char * GLeeGetExtStrWGL( void )
 }
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 #else
-GLEE_EXTERN const char * GLeeGetExtStrGLX( void )	
+GLEE_EXTERN const char * GLeeGetExtStrGLX( void )
 {
 	return __GLeeGetExtStrPlat();
 }
@@ -20388,7 +20388,7 @@ GLboolean __GLeeInitedLoadFunctions=GL_FALSE;
 
 GLEE_EXTERN GLint GLeeForceLink(const char * extensionName)
 {
-	int type=0; 
+	int type=0;
 	int extNum;
 	int len=strlen(extensionName);
 	if (len<5) return GLEE_LINK_FAIL;
@@ -20405,13 +20405,13 @@ GLEE_EXTERN GLint GLeeForceLink(const char * extensionName)
 		__GLeeInitedLoadFunctions=GL_TRUE;
 	}
 	if (extensionName[0]=='W') type=1;
-	else if (extensionName[2]=='X') type=2;	
+	else if (extensionName[2]=='X') type=2;
 	extNum=__GLeeGetExtensionNumber(extensionName,type);
 	if (extNum==-1) return GLEE_LINK_FAIL;
 	if (type==0) return __GLeeGLLoadFunction[extNum]();
 #ifdef _WIN32
 	if (type==1) return __GLeeWGLLoadFunction[extNum]();
-#elif defined(__APPLE__) || defined(__APPLE_CC__)	
+#elif defined(__APPLE__) || defined(__APPLE_CC__)
 #else
 	if (type==2) return __GLeeGLXLoadFunction[extNum]();
 #endif
@@ -20421,21 +20421,21 @@ GLEE_EXTERN GLint GLeeForceLink(const char * extensionName)
 GLEE_EXTERN GLboolean GLeeEnabled(GLboolean * extensionQueryingVariable)
 {
 	if (!__GLeeInited) GLeeInit();
-	return *extensionQueryingVariable;	
+	return *extensionQueryingVariable;
 }
 
 GLEE_EXTERN GLboolean GLeeInit( void )
 {
 	int version;
 	ExtensionList extensionNames;
-	
-	if (__GLeeInited) 
+
+	if (__GLeeInited)
 	{
 		return GL_FALSE;
 	}
 
 	__GLeeExtList_init(&extensionNames);
-	if (!__GLeeGetExtensions(&extensionNames)) 
+	if (!__GLeeGetExtensions(&extensionNames))
 	{
 		__GLeeWriteError("GL extension querying failed.");
 		__GLeeExtList_clean(&extensionNames);
