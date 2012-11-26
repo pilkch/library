@@ -60,16 +60,16 @@ namespace breathe
       bWireFrame(false),
       pWidgetsTexture(nullptr),
       pWidgetsShader(nullptr),
+      pFont(nullptr),
       pTextureFrameBufferObject(nullptr),
       pGuiShader(nullptr),
       pVBO(nullptr)
     {
-      LoadResources();
     }
 
     cRenderer::~cRenderer()
     {
-      DestroyResources();
+      ASSERT(pFont == nullptr);
     }
 
     bool cRenderer::LoadResources()
