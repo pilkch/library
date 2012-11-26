@@ -58,7 +58,8 @@ namespace opengl
 
   enum class MODE2D_TYPE {
     Y_INCREASES_UP_SCREEN, // Y increases up the screen (ie. a video game will usually have the origin at the bottom left of the screen)
-    Y_INCREASES_DOWN_SCREEN // Y increases down the screen (ie. a GUI will usually have the origin at the top left of the screen)
+    Y_INCREASES_DOWN_SCREEN, // Y increases down the screen (ie. a GUI will usually have the origin at the top left of the screen)
+    Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, // As above, but using the screen aspect ratio instead of 1:1
   };
 
   // OpenGL 3.2 Contexts in SDL

@@ -650,8 +650,14 @@ namespace opengl
     // 0.0f, 1.0f            1.0f, 1.0f
 
     if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN) {
+      // Use an aspect ratio of 1:1
       matrix.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
+    } else if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO) {
+      // Keep the aspect ratio of the screen, for example 16:9
+      const float fRight = float(resolution.width) / float(resolution.height);
+      matrix.SetOrtho(0.0f, fRight, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
     } else {
+      // Use an aspect ratio of 1:1
       matrix.SetOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
     }
 
