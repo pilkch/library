@@ -72,7 +72,7 @@ namespace breathe
       ASSERT(pFont == nullptr);
     }
 
-    bool cRenderer::LoadResources()
+    bool cRenderer::LoadResources(size_t resolutionWidth, size_t resolutionHeight)
     {
       pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
       pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
@@ -83,8 +83,6 @@ namespace breathe
 
       opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
 
-      const size_t resolutionWidth = context.GetWidth();
-      const size_t resolutionHeight = context.GetHeight();
       const float fWidth = float(resolutionWidth) / float(resolutionHeight);
       const float fHeight = 1.0f;
 
@@ -611,7 +609,7 @@ namespace breathe
 
         context.BindShader(*pGuiShader);
 
-        context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
+        context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
         context.BindStaticVertexBufferObject2D(*pVBO);
         context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);

@@ -25,7 +25,7 @@ namespace breathe
       explicit cRenderer(const cManager& manager, opengl::cSystem& _system, opengl::cContext& context);
       ~cRenderer();
 
-      bool LoadResources();
+      bool LoadResources(size_t resolutionWidth, size_t resolutionHeight);
       void DestroyResources();
 
       void SetWireFrame(bool bWireFrame);
@@ -77,6 +77,9 @@ namespace breathe
       opengl::cTextureFrameBufferObject* pTextureFrameBufferObject;
       opengl::cShader* pGuiShader;
       opengl::cStaticVertexBufferObject* pVBO;
+
+      size_t resolutionWidth;
+      size_t resolutionHeight;
     };
   }
 }
