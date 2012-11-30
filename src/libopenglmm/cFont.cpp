@@ -137,7 +137,13 @@ namespace opengl
     assert(pShader == nullptr);
   }
 
-  bool cFont::Load(cContext& context, const opengl::string_t& sFilename, unsigned int height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
+  unsigned int RoundDownToNearestEvenNumber(unsigned int value)
+  {
+    // Round down to the nearest even number
+    return (2 * (value / 2));
+  }
+
+  bool cFont::Load(cContext& context, const opengl::string_t& sFilename, unsigned int _height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
     std::cout<<"cFont::Load \""<<opengl::string::ToUTF8(sFilename)<<"\""<<std::endl;
 
@@ -160,6 +166,8 @@ namespace opengl
     // For some twisted reason, Freetype measures font size
     // in terms of 1/64ths of pixels.  Thus, to make a font
     // h pixels high, we need to request a size of h*64.
+    const unsigned int height = RoundDownToNearestEvenNumber(_height);
+    ASSERT((height % 2) == 0);
     FT_Set_Char_Size(face, height * 64, height * 64, 96, 96);
 
 
@@ -174,8 +182,7 @@ namespace opengl
     fGlyphAdvanceX.insert(fGlyphAdvanceX.begin(), n, 0.0f);
     fGlyphAdvanceY.insert(fGlyphAdvanceY.begin(), n, 0.0f);
 
-
-    const size_t glyphPixelHeightAndWidth = 64;
+    const size_t glyphPixelHeightAndWidth = spitfire::math::NextPowerOfTwo(height * 2);
 
     const size_t nBufferWidth = columns * glyphPixelHeightAndWidth;
     const size_t nBufferHeight = rows * glyphPixelHeightAndWidth;
