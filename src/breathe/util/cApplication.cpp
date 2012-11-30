@@ -248,7 +248,7 @@ namespace breathe
       cState* pOldState = GetState();
       if (pOldState != nullptr) pOldState->Pause();
 
-      states.push(pState);
+      states.push_back(pState);
 
       pState->Resume();
     }
@@ -261,7 +261,7 @@ namespace breathe
 
         // Delete and remove the old state
         delete pOldState;
-        states.pop();
+        states.pop_back();
 
         // Prepare the previous state
         cState* pCurrentState = GetState();
@@ -273,7 +273,7 @@ namespace breathe
     {
       cState* pState = nullptr;
       if (!states.empty()) {
-        pState = states.top();
+        pState = states.back();
         ASSERT(pState != nullptr);
       }
       return pState;

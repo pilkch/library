@@ -2,7 +2,7 @@
 #define CAPPLICATION_H
 
 // Standard headers
-#include <stack>
+#include <list>
 
 // Spitfire headers
 #include <spitfire/math/math.h>
@@ -106,6 +106,8 @@ namespace breathe
 
       breathe::audio::cManager* pAudioManager;
 
+      std::list<cState*> states;
+
     private:
       bool Create();
       void Destroy();
@@ -125,8 +127,6 @@ namespace breathe
       // State event management (Transitioning between states)
       void ProcessStateEvents();
 
-
-      std::stack<cState*> states;
 
       // State change event queue
       typedef cState* cStateEvent;
