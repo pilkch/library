@@ -750,19 +750,22 @@ namespace spitfire
       SetPerspective(left, right, bottom, top, n, f);
     }
 
-    void cMat4::SetOrtho(float left, float right, float bottom, float top, float n, float f)
+    void cMat4::SetOrtho(float left, float right, float bottom, float top, float near, float far)
     {
+      // http://stackoverflow.com/a/12230368/1074390
+
       LoadIdentity();
 
       entries[0] = 2.0f / (right - left);
 
       entries[5] = 2.0f / (top - bottom);
 
-      entries[10] = -2.0f / (f - n);
+      entries[10] = -2.0f / (far - near);
 
+      // Translation
       entries[12] = -(right + left) / (right - left);
       entries[13] = -(top + bottom) / (top - bottom);
-      entries[14] = -(f + n)/(f - n);
+      entries[14] = -(far + near) / (far - near);
     }
 
     void cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
