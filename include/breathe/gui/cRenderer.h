@@ -34,8 +34,6 @@ namespace breathe
       void Render();
 
     private:
-      void DeleteRenderables();
-
       enum class ORIENTATION {
         TOP_LEFT,
         TOP_RIGHT,
