@@ -479,6 +479,11 @@ namespace voodoo
     cSurface surface;
     surface.CreateFromImage(*this);
     surface.CopyFromBufferToSurface();
+    if (!surface.IsSurfaceValid()) {
+      std::cerr<<"cImage::SaveToBMP Surface is invalid, returning false"<<std::endl;
+      return false;
+    }
+
     return surface.SaveToBMP(sFilename);
   }
 
