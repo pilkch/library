@@ -174,11 +174,12 @@ namespace opengl
     fGlyphAdvanceX.insert(fGlyphAdvanceX.begin(), n, 0.0f);
     fGlyphAdvanceY.insert(fGlyphAdvanceY.begin(), n, 0.0f);
 
-    const size_t nBufferWidth = columns * 64;
-    const size_t nBufferHeight = rows * 64;
-    const size_t nBufferSizeBytes = nBufferWidth * nBufferHeight * 4;
 
     const size_t glyphPixelHeightAndWidth = 64;
+
+    const size_t nBufferWidth = columns * glyphPixelHeightAndWidth;
+    const size_t nBufferHeight = rows * glyphPixelHeightAndWidth;
+    const size_t nBufferSizeBytes = nBufferWidth * nBufferHeight * 4;
 
     uint8_t* pBuffer = new uint8_t[nBufferSizeBytes];
 
