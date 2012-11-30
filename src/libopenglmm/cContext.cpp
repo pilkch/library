@@ -233,6 +233,25 @@ namespace opengl
     return pTexture;
   }
 
+  cTexture* cContext::CreateTextureFromBufferNoMipMaps(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  {
+    assert(pBuffer != nullptr);
+
+    voodoo::cImage image;
+    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return nullptr;
+
+    cTexture* pTexture = new cTexture;
+    pTexture->SetDoNotUseMipMaps();
+    if (!pTexture->CreateFromImage(image)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
   void cContext::DestroyTexture(cTexture* pTexture)
   {
     assert(pTexture != nullptr);

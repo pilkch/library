@@ -106,6 +106,7 @@ namespace opengl
     cTexture* CreateTextureNoMipMaps(const opengl::string_t& sFileName);
     cTexture* CreateTextureFromImage(const voodoo::cImage& image);
     cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    cTexture* CreateTextureFromBufferNoMipMaps(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture* pTexture);
 
     cTextureCubeMap* CreateTextureCubeMap(
