@@ -249,6 +249,9 @@ namespace opengl
 
     SDL_Surface* pSurface;
 
+    size_t targetWidth;
+    size_t targetHeight;
+
     spitfire::math::cMat4 matProjection;
     spitfire::math::cMat4 matModelView;
     spitfire::math::cMat3 matTexture;

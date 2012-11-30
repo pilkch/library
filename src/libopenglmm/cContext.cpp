@@ -69,6 +69,8 @@ namespace opengl
     bIsValid(false),
     resolution(window.GetResolution()),
     pSurface(nullptr),
+    targetWidth(0),
+    targetHeight(0),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     sunAmbientColour(1.0f, 1.0f, 1.0f, 1.0f),
@@ -127,6 +129,8 @@ namespace opengl
     bIsValid(false),
     resolution(_resolution),
     pSurface(nullptr),
+    targetWidth(0),
+    targetHeight(0),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
@@ -625,7 +629,7 @@ namespace opengl
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix() const
   {
-    return CalculateProjectionMatrix(resolution.width, resolution.height, 45.0f);
+    return CalculateProjectionMatrix(targetWidth, targetHeight, 45.0f);
   }
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const
@@ -654,7 +658,7 @@ namespace opengl
       matrix.SetOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
     } else if (type == MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO) {
       // Keep the aspect ratio of the screen, for example 16:9
-      const float fRight = float(resolution.width) / float(resolution.height);
+      const float fRight = float(targetWidth) / float(targetHeight);
       matrix.SetOrtho(0.0f, fRight, 1.0f, 0.0f, -1.0f, 1.0f); // Y axis increases down the screen
     } else {
       // Use an aspect ratio of 1:1
@@ -709,6 +713,9 @@ namespace opengl
     //LOG<<"cContext::_BeginRenderShared "<<cSystem::GetErrorString()<<std::endl;
     matTexture.LoadIdentity();
 
+    targetWidth = width;
+    targetHeight = height;
+
     _SetPerspective(width, height);
 
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -745,6 +752,9 @@ namespace opengl
 
   void cContext::_EndRenderShared()
   {
+    targetWidth = resolution.width;
+    targetHeight = resolution.height;
+
     //if (bIsFSAAEnabled) glDisable(GL_MULTISAMPLE_ARB);
   }
 
@@ -1015,7 +1025,6 @@ namespace opengl
     GLenum type = GL_TEXTURE_2D;
     if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
 
-    //glEnable(type);
     glBindTexture(type, texture.GetTexture());
   }
 
