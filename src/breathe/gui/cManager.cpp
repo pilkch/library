@@ -913,6 +913,12 @@ namespace breathe
       colourWidget(0.1f, 0.1f, 0.1f, 0.8f), // Dark grey
       colourText(1.0f, 1.0f, 1.0f)          // White
     {
+      pRoot = new breathe::gui::cLayer;
+    }
+
+    cManager::~cManager()
+    {
+      SAFE_DELETE(pRoot);
     }
 
     float cManager::GetTextHeight() const

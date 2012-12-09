@@ -425,6 +425,7 @@ namespace breathe
     {
     public:
       cManager();
+      ~cManager();
 
       const cWidget* GetRoot() const { return pRoot; }
       cWidget* GetRoot() { return pRoot; }
