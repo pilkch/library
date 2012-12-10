@@ -161,7 +161,7 @@ namespace breathe
       resolution.height = height;
       resolution.pixelFormat = opengl::PIXELFORMAT::R8G8B8A8;
 
-      pWindow = system.CreateWindow(TEXT("Tetris"), resolution, false);
+      pWindow = system.CreateWindow(TEXT(SPITFIRE_APPLICATION_NAME), resolution, false);
       if (pWindow == nullptr) {
         LOGERROR<<"Window could not be created"<<std::endl;
         return false;
