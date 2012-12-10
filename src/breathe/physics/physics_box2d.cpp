@@ -15,15 +15,14 @@
 // Boost includes
 #include <boost/smart_ptr.hpp>
 
-// Other libraries
+// Box2D headers
 #include <Box2D/Box2D.h>
-
 
 // Spitfire
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
 #include <spitfire/storage/filesystem.h>
@@ -117,8 +116,8 @@ namespace breathe
       fWidth = worldDimensions.x;
       fHeight = worldDimensions.y;
 
-      b2Vec2 gravity(0.0f, fGravity);
-      pWorld = new b2World(gravity, CanSleep());
+      const b2Vec2 gravity(0.0f, fGravity);
+      pWorld = new b2World(gravity);
 
       /*// Create edges around the entire screen
       b2BodyDef groundBodyDef;
@@ -380,7 +379,7 @@ namespace breathe
     void cBody::_AddForceRelativeToBodyKg(const spitfire::math::cVec2& forceKg)
     {
       b2Transform transform = pBody->GetTransform();
-      const b2Vec2 forceInRelativeDirection = b2Mul(transform.R, b2Vec2(forceKg.x, forceKg.y));
+      const b2Vec2 forceInRelativeDirection = b2Mul(transform.q, b2Vec2(forceKg.x, forceKg.y));
       pBody->ApplyForce(forceInRelativeDirection, pBody->GetPosition());
     }
 

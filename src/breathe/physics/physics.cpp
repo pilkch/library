@@ -26,6 +26,7 @@
 #endif
 
 #ifdef BUILD_PHYSICS_BOX2D
+// Box2D headers
 #include <Box2D/Box2D.h>
 #endif
 
@@ -33,7 +34,7 @@
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
 #include <spitfire/storage/filesystem.h>

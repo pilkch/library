@@ -3,6 +3,10 @@
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 
+// Boost headers
+#include <boost/shared_ptr.hpp>
+
+// Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/cSmartPtr.h>

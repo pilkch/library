@@ -6,6 +6,7 @@
 
 // Spitfire headers
 #include <spitfire/math/math.h>
+#include <spitfire/math/cVec3.h>
 
 namespace spitfire
 {
