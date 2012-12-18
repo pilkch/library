@@ -1,10 +1,14 @@
 #ifndef CMATERIAL_H
 #define CMATERIAL_H
 
-#include <spitfire/util/cSmartPtr.h>
-
+// libopenglmm headers
 #include <libopenglmm/cShader.h>
 
+// Spitfire headers
+#include <spitfire/util/cSmartPtr.h>
+#include <spitfire/util/string.h>
+
+// Breathe headers
 #include <breathe/render/cTexture.h>
 
 namespace breathe
