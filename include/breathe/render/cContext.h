@@ -110,6 +110,4 @@ namespace breathe
   }
 }
 
-extern breathe::render::cContext* pContext; // TODO: Remove pContext
-
 #endif // CCONTEXT_H

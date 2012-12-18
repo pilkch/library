@@ -67,8 +67,6 @@
 breathe::cVar fDetailScale = 0.5f;
 const float fMaximumViewDistance = 3000.0f;
 
-breathe::render::cContext* pContext = nullptr; // TODO: Remove pContext
-
 namespace breathe
 {
   namespace render
