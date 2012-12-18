@@ -33,6 +33,7 @@
 #include <spitfire/math/cColour.h>
 
 #include <libopenglmm/libopenglmm.h>
+#include <libopenglmm/opengl.h>
 
 #include <libopenglmm/cGeometryData.h>
 
