@@ -172,17 +172,19 @@ namespace opengl
     F14 = SDLK_F14,
     F15 = SDLK_F15,
 
-    /*// Key state modifier keys
-    SDLK_NUMLOCK,
-    SDLK_CAPSLOCK       = 301,
-    SDLK_SCROLLOCK      = 302,
-    SDLK_RSHIFT     = 303,
-    SDLK_LSHIFT     = 304,
-    SDLK_RCTRL      = 305,
-    SDLK_LCTRL      = 306,
-    SDLK_RALT       = 307,
-    SDLK_LALT       = 308,
-    SDLK_RMETA      = 309,
+    //// Key state modifier keys
+    //SDLK_NUMLOCK,
+    //SDLK_CAPSLOCK       = 301,
+    //SDLK_SCROLLOCK      = 302,
+
+    RSHIFT = SDLK_RSHIFT,
+    LSHIFT = SDLK_LSHIFT,
+    RCTRL = SDLK_RCTRL,
+    LCTRL = SDLK_LCTRL,
+    RALT = SDLK_RALT,
+    LALT = SDLK_LALT,
+
+    /*SDLK_RMETA      = 309,
     SDLK_LMETA      = 310,
     SDLK_LSUPER     = 311,      // Left "Windows" key
     SDLK_RSUPER     = 312,      // Right "Windows" key
