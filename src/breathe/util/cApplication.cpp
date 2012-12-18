@@ -310,6 +310,9 @@ namespace breathe
 
       uint32_t lastUpdateTime = SDL_GetTicks();
 
+      // Updates are locked at 60 fps
+      const float fUpdateTimeStep = 1000.0f / 60.0f;
+
       while (!states.empty()) {
         ProcessStateEvents();
         if (states.empty()) break;
@@ -327,9 +330,9 @@ namespace breathe
           pState->UpdateInput(timeStep);
         }
 
-        // Perform an Update, these are locked at 30 fps
-        if ((currentTime - lastUpdateTime) > 33) {
-          const spitfire::math::cTimeStep timeStep(currentTime, 33);
+        // Perform an Update
+        if ((currentTime - lastUpdateTime) > fUpdateTimeStep) {
+          const spitfire::math::cTimeStep timeStep(currentTime, fUpdateTimeStep);
           cState* pState = GetState();
           assert(pState != nullptr);
           pState->Update(timeStep);
@@ -356,7 +359,7 @@ namespace breathe
           const uint32_t t = SDL_GetTicks();
           // TODO: Try changing this to 1000
           if (t - T0 >= 5000) {
-            const float seconds = (t - T0) / 1000.0;
+            const float seconds = (t - T0) / 1000.0f;
             const float fps = Frames / seconds;
             LOG<<Frames<<" frames in "<<seconds<<" seconds = "<<fps<<" FPS"<<std::endl;
             T0 = t;
