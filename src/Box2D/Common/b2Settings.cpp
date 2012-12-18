@@ -44,11 +44,3 @@ void b2Log(const char* string, ...)
 	vprintf(string, args);
 	va_end(args);
 }
-
-void loveAssert(bool test, const char *teststr)
-{
-  if (!test) {
-    std::cerr<<teststr<<std::endl;
-    assert(test);
-  }
-}

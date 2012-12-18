@@ -57,11 +57,6 @@ namespace breathe
 
       b2World* GetWorld() { return pWorld; }
 
-      cBody* GetBorder0();
-      cBody* GetBorder1();
-      cBody* GetBorder2();
-      cBody* GetBorder3();
-
       bool CanSleep() const;
 
     private:
@@ -84,7 +79,6 @@ namespace breathe
       virtual void _Update(sampletime_t currentTime);
 
       b2World* pWorld;
-      cBody* border[4];
     };
 
     // The physics object

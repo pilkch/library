@@ -90,9 +90,6 @@ namespace breathe
       // Timing
       //uiFrequencyHz = 20;
       //fIntervalMS = 1000.0f / float(uiFrequencyHz);
-
-      const size_t n = 4;
-      for (size_t i = 0; i < n; i++) border[i] = nullptr;
     }
 
     bool cWorld::CanSleep() const
@@ -119,44 +116,25 @@ namespace breathe
       const b2Vec2 gravity(0.0f, fGravity);
       pWorld = new b2World(gravity);
 
-      /*// Create edges around the entire screen
+      // Create edges around the entire screen
       b2BodyDef groundBodyDef;
       groundBodyDef.position.Set(0,0);
       b2Body* groundBody = pWorld->CreateBody(&groundBodyDef);
-      b2PolygonShape groundBox;
-      b2FixtureDef boxShapeDef;
-      boxShapeDef.shape = &groundBox;
-      groundBox.SetAsEdge(b2Vec2(0,0), b2Vec2(fWidth, 0));
-      groundBody->CreateFixture(&boxShapeDef);
-      groundBox.SetAsEdge(b2Vec2(0,0), b2Vec2(0, fHeight));
-      groundBody->CreateFixture(&boxShapeDef);
-      groundBox.SetAsEdge(b2Vec2(0, fHeight), b2Vec2(fWidth, fHeight));
-      groundBody->CreateFixture(&boxShapeDef);
-      groundBox.SetAsEdge(b2Vec2(fWidth, fHeight), b2Vec2(fWidth, 0));
-      groundBody->CreateFixture(&boxShapeDef);*/
-
-      /*// Bottom
-      border[0] = CreateBoundingWall(fWidth * 0.5f, -0.5f * fBorder, fWidth * 0.5f, fBorder);
-
-      // Top
-      border[1] = CreateBoundingWall(fWidth * 0.5f, fHeight + 0.5f * fBorder, fWidth * 0.5f, fBorder);
-
-      // Left
-      border[2] = CreateBoundingWall(-0.5f * fBorder, fHeight * 0.5f, fBorder, fHeight * 0.5f);
-
-      // Right
-      border[3] = CreateBoundingWall(fWidth + 0.5f * fBorder, fHeight * 0.5f, fBorder, fHeight * 0.5f);*/
+      b2EdgeShape groundBox;
+      groundBox.Set(b2Vec2(0,0), b2Vec2(fWidth, 0));
+      groundBody->CreateFixture(&groundBox, 0);
+      groundBox.Set(b2Vec2(0,0), b2Vec2(0, fHeight));
+      groundBody->CreateFixture(&groundBox, 0);
+      groundBox.Set(b2Vec2(0, fHeight), b2Vec2(fWidth, fHeight));
+      groundBody->CreateFixture(&groundBox, 0);
+      groundBox.Set(b2Vec2(fWidth, fHeight), b2Vec2(fWidth, 0));
+      groundBody->CreateFixture(&groundBox, 0);
 
       return true;
     }
 
     void cWorld::_Destroy()
     {
-      SAFE_DELETE(border[0]);
-      SAFE_DELETE(border[1]);
-      SAFE_DELETE(border[2]);
-      SAFE_DELETE(border[3]);
-
       SAFE_DELETE(pWorld);
     }
 
