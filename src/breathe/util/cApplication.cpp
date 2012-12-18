@@ -252,6 +252,11 @@ namespace breathe
       states.push_back(pState);
 
       pState->Resume();
+
+      // Force an update so that textures etc. are loaded
+      const sampletime_t currentTime = SDL_GetTicks();
+      const spitfire::math::cTimeStep timeStep(currentTime, 33);
+      pState->Update(timeStep);
     }
 
     void cApplication::PopState()
