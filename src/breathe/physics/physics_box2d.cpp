@@ -17,6 +17,7 @@
 
 // Box2D headers
 #include <Box2D/Box2D.h>
+#include <Box2D/Rope/b2Rope.h>
 
 // Spitfire
 #include <spitfire/spitfire.h>
@@ -193,6 +194,15 @@ namespace breathe
       return pCar;
     }
 
+    physics::cRopeRef cWorld::_CreateRope(const physics::cRopeProperties& properties)
+    {
+      box2d::cRopeRef pRope(new box2d::cRope);
+
+      pRope->Create(this, properties);
+
+      return pRope;
+    }
+
     void cWorld::_DestroyBody(physics::cBodyRef pBody)
     {
       lPhysicsBody.remove(pBody);
@@ -202,6 +212,16 @@ namespace breathe
     {
       //lPhysicsBody.remove(pCar->GetBody());
     }
+
+    void cWorld::_DestroyRope(physics::cRopeRef pRope)
+    {
+      cRope* pRopeBox2D = static_cast<cRope*>(pRope.get());
+
+      pRopeBox2D->Destroy();
+
+      //lPhysicsBody.remove(pRope->GetBody());
+    }
+
 
     // This class captures the closest hit shape.
 
@@ -546,6 +566,61 @@ namespace breathe
     }
 
     void cCar::_Update(sampletime_t currentTime)
+    {
+    }
+
+
+    cRope::cRope() :
+      pWorld(nullptr)
+    {
+    }
+
+    void cRope::Create(cWorld* _pWorld, const physics::cRopeProperties& properties)
+    {
+      pWorld = _pWorld;
+
+      pAnchorBody0 = properties.pAnchorBody0;
+      pAnchorBody1 = properties.pAnchorBody1;
+
+      cBody* pBody0 = static_cast<cBody*>(pAnchorBody0.get());
+      cBody* pBody1 = static_cast<cBody*>(pAnchorBody1.get());
+
+      b2Body* pBodyA = pBody0->GetBody();
+      b2Body* pBodyB = pBody1->GetBody();
+      const b2Vec2 anchorA(properties.anchorPoint0.x, properties.anchorPoint0.y);
+      const b2Vec2 anchorB(properties.anchorPoint1.x, properties.anchorPoint1.y);
+
+      b2RopeJointDef definition;
+      definition.bodyA = pBodyA;
+      definition.bodyB = pBodyB;
+      definition.localAnchorA = anchorA;
+      definition.localAnchorB = anchorB;
+
+      // Max length of joint = current distance between bodies * sag
+      float32 ropeLength = (pBodyA->GetWorldPoint(anchorA) - pBodyB->GetWorldPoint(anchorB)).Length() * properties.fSag;
+      definition.maxLength = ropeLength;
+
+      // Create joint
+      b2RopeJoint* pRopeJoint = (b2RopeJoint*)pWorld->GetWorld()->CreateJoint(&definition);
+
+      joints.push_back(pRopeJoint);
+    }
+
+    void cRope::Destroy()
+    {
+      // Destroy the rope joints
+      std::list<b2RopeJoint*>::iterator iter = joints.begin();
+      const std::list<b2RopeJoint*>::iterator iterEnd = joints.end();
+      while (iter != iterEnd) {
+        pWorld->GetWorld()->DestroyJoint(*iter);
+
+        iter++;
+      }
+
+      joints.clear();
+    }
+
+    void cRope::_Update(sampletime_t currentTime)
     {
     }
   }

@@ -243,6 +243,20 @@ namespace breathe
         fWheelSteeringAngleMinusOneToPlusOne[i] = 0.0f;
       }
     }
+
+
+    #ifdef BUILD_PHYSICS_2D
+    cRopeProperties::cRopeProperties() :
+      anchorPoint0(0.0f, 0.0f),
+      anchorPoint1(0.0f, 0.0f),
+      fSag(0.0f)
+    {
+    }
+
+    cRope::cRope()
+    {
+    }
+    #endif
   }
 }
 

@@ -34,6 +34,10 @@ public:
   }
 };*/
 
+// Standard headers
+#include <list>
+
+// Breathe headers
 #include <breathe/physics/physics.h>
 
 namespace breathe
@@ -49,6 +53,9 @@ namespace breathe
 
     class cCar;
     typedef cSmartPtr<cCar> cCarRef;
+
+    class cRope;
+    typedef cSmartPtr<cRope> cRopeRef;
 
     class cWorld : public physics::cWorld
     {
@@ -70,9 +77,11 @@ namespace breathe
       virtual physics::cBodyRef _CreateBody(const physics::cSphereProperties& properties);
       virtual physics::cHeightmapRef _CreateHeightmap(const physics::cHeightmapProperties& properties);
       virtual physics::cCarRef _CreateCar(const physics::cCarProperties& properties);
+      virtual physics::cRopeRef _CreateRope(const physics::cRopeProperties& properties);
 
       virtual void _DestroyBody(physics::cBodyRef pBody);
       virtual void _DestroyCar(physics::cCarRef pCar);
+      virtual void _DestroyRope(physics::cRopeRef pRope);
 
       virtual void _CastRay(const spitfire::math::cRay2& ray, physics::cCollisionResult& result);
 
@@ -151,6 +160,26 @@ namespace breathe
 
     private:
       void _Update(sampletime_t currentTime);
+    };
+
+
+    class cRopeJoint;
+
+    class cRope : public physics::cRope
+    {
+    public:
+      cRope();
+
+      void Create(cWorld* _pWorld, const physics::cRopeProperties& properties);
+      void Destroy();
+
+    protected:
+      std::list<b2RopeJoint*> joints;
+
+    private:
+      void _Update(sampletime_t currentTime);
+
+      cWorld* pWorld;
     };
   }
 }

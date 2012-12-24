@@ -85,6 +85,13 @@ namespace breathe
     class cCar;
     typedef cSmartPtr<cCar> cCarRef;
 
+    #ifdef BUILD_PHYSICS_2D
+    class cRopeProperties;
+
+    class cRope;
+    typedef cSmartPtr<cRope> cRopeRef;
+    #endif
+
     class cRayCast;
     class cCollisionResult;
 
@@ -110,9 +117,15 @@ namespace breathe
       cBodyRef CreateBody(const cSphereProperties& properties) { return _CreateBody(properties); }
       cHeightmapRef CreateHeightmap(const cHeightmapProperties& properties) { return _CreateHeightmap(properties); }
       cCarRef CreateCar(const cCarProperties& properties) { return _CreateCar(properties); } // In any particular physics engine a car is usually made up of a body and 4 rays, but this is entirely up to the physics engine
+      #ifdef BUILD_PHYSICS_2D
+      cRopeRef CreateRope(const cRopeProperties& properties) { return _CreateRope(properties); }
+      #endif
 
       void DestroyBody(cBodyRef pBody) { _DestroyBody(pBody); }
       void DestroyCar(cCarRef pCar) { _DestroyCar(pCar); }
+      #ifdef BUILD_PHYSICS_2D
+      void DestroyRope(cRopeRef pRope) { _DestroyRope(pRope); }
+      #endif
 
       size_t GetNumberOfBodies() const { return lPhysicsBody.size(); }
 
@@ -140,9 +153,15 @@ namespace breathe
       virtual cBodyRef _CreateBody(const cSphereProperties& properties) = 0;
       virtual cHeightmapRef _CreateHeightmap(const cHeightmapProperties& properties) = 0;
       virtual cCarRef _CreateCar(const cCarProperties& properties) = 0;
+      #ifdef BUILD_PHYSICS_2D
+      virtual cRopeRef _CreateRope(const cRopeProperties& properties) = 0;
+      #endif
 
       virtual void _DestroyBody(cBodyRef pBody) = 0;
       virtual void _DestroyCar(cCarRef pCar) = 0;
+      #ifdef BUILD_PHYSICS_2D
+      virtual void _DestroyRope(cRopeRef pRope) = 0;
+      #endif
 
       #ifdef BUILD_PHYSICS_2D
       virtual void _CastRay(const spitfire::math::cRay2& ray, cCollisionResult& result) = 0;
@@ -501,6 +520,49 @@ namespace breathe
     private:
       virtual void _Update(sampletime_t currentTime) = 0;
     };
+
+
+    #ifdef BUILD_PHYSICS_2D
+    class cRopeProperties
+    {
+    public:
+      cRopeProperties();
+
+      void SetAnchorPoint0(cBodyRef pBody, const physvec_t anchorPoint) { pAnchorBody0 = pBody; anchorPoint0 = anchorPoint; }
+      void SetAnchorPoint1(cBodyRef pBody, const physvec_t anchorPoint) { pAnchorBody1 = pBody; anchorPoint1 = anchorPoint; }
+      void SetSag(float _fSag) { fSag = _fSag; }
+
+      cBodyRef pAnchorBody0;
+      cBodyRef pAnchorBody1;
+
+      physvec_t anchorPoint0;
+      physvec_t anchorPoint1;
+
+      float fSag;
+    };
+
+
+    // http://www.raywenderlich.com/14793/how-to-make-a-game-like-cut-the-rope-part-1
+    // http://www.raywenderlich.com/14812/how-to-make-a-game-like-cut-the-rope-part-2
+    class cRope
+    {
+    public:
+      cRope();
+      virtual ~cRope() {}
+
+      cBodyRef GetAnchorBody0() { return pAnchorBody0; }
+      cBodyRef GetAnchorBody1() { return pAnchorBody1; }
+
+      void Update(sampletime_t currentTime) { _Update(currentTime); }
+
+    protected:
+      cBodyRef pAnchorBody0;
+      cBodyRef pAnchorBody1;
+
+    private:
+      virtual void _Update(sampletime_t currentTime) = 0;
+    };
+    #endif
 
 
     class cCollisionResult
