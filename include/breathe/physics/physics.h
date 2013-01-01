@@ -530,7 +530,7 @@ namespace breathe
 
       void SetAnchorPoint0(cBodyRef pBody, const physvec_t anchorPoint) { pAnchorBody0 = pBody; anchorPoint0 = anchorPoint; }
       void SetAnchorPoint1(cBodyRef pBody, const physvec_t anchorPoint) { pAnchorBody1 = pBody; anchorPoint1 = anchorPoint; }
-      void SetSag(float _fSag) { fSag = _fSag; }
+      void SetMaxLength(float _fMaxLength) { fMaxLength = _fMaxLength; }
 
       cBodyRef pAnchorBody0;
       cBodyRef pAnchorBody1;
@@ -538,7 +538,7 @@ namespace breathe
       physvec_t anchorPoint0;
       physvec_t anchorPoint1;
 
-      float fSag;
+      float fMaxLength;
     };
 
 

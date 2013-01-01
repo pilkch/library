@@ -606,9 +606,7 @@ namespace breathe
       definition.localAnchorA = anchorA;
       definition.localAnchorB = anchorB;
 
-      // Max length of joint = current distance between bodies * sag
-      float32 ropeLength = (pBodyA->GetWorldPoint(anchorA) - pBodyB->GetWorldPoint(anchorB)).Length() * properties.fSag;
-      definition.maxLength = ropeLength;
+      definition.maxLength = properties.fMaxLength;
 
       // Create joint
       b2RopeJoint* pRopeJoint = (b2RopeJoint*)pWorld->GetWorld()->CreateJoint(&definition);
