@@ -423,6 +423,11 @@ namespace breathe
     {
       pWorld = _pWorld;
 
+      // Set properties
+      position = properties.position;
+      rotation = properties.rotation;
+      fMassKg = properties.fMassKg;
+
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
@@ -436,7 +441,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = properties.fMassKg; // TODO: This should be the actual density, not the total mass
+      fixtureDef.density = properties.bIsDynamic ? properties.fMassKg : 0.0f; // TODO: This should be the actual density, not the total mass
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
@@ -445,6 +450,11 @@ namespace breathe
     void cBody::CreateSphere(cWorld* _pWorld, const physics::cSphereProperties& properties)
     {
       pWorld = _pWorld;
+
+      // Set properties
+      position = properties.position;
+      rotation = properties.rotation;
+      fMassKg = properties.fMassKg;
 
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
@@ -459,7 +469,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = properties.fMassKg; // TODO: This should be the actual density, not the total mass
+      fixtureDef.density = properties.bIsDynamic ? properties.fMassKg : 0.0f; // TODO: This should be the actual density, not the total mass
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
