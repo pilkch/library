@@ -1,6 +1,6 @@
 /*************************************************************************
  *                                                                       *
- * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington         *
+ * libopenglmm Library, Copyright (C) 2009 Onwards Chris Pilkington      *
  * All rights reserved.  Web: http://chris.iluo.net                      *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
