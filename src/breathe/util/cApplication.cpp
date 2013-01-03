@@ -134,7 +134,9 @@ namespace breathe
       pWindow(nullptr),
       pContext(nullptr),
 
-      pAudioManager(nullptr)
+      pAudioManager(nullptr),
+
+      fFramesPerSecond(60.0f)
     {
     }
 
@@ -360,8 +362,8 @@ namespace breathe
           // TODO: Try changing this to 1000
           if (t - T0 >= 5000) {
             const float seconds = (t - T0) / 1000.0f;
-            const float fps = Frames / seconds;
-            LOG<<Frames<<" frames in "<<seconds<<" seconds = "<<fps<<" FPS"<<std::endl;
+            fFramesPerSecond = Frames / seconds;
+            LOG<<Frames<<" frames in "<<seconds<<" seconds = "<<fFramesPerSecond<<" FPS"<<std::endl;
             T0 = t;
             Frames = 0;
           }

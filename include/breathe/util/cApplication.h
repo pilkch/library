@@ -91,6 +91,8 @@ namespace breathe
       void PushStateSoon(cState* pState);
       void PopStateSoon();
 
+      float GetFramesPerSecond() const { return fFramesPerSecond; }
+
     protected:
       // State management
       const cState* GetState() const;
@@ -131,6 +133,8 @@ namespace breathe
       // State change event queue
       typedef cState* cStateEvent;
       std::vector<cState*> stateEvents;
+
+      float fFramesPerSecond;
     };
   }
 }
