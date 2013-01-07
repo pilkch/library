@@ -434,6 +434,8 @@ namespace breathe
       rotation = properties.rotation;
       fMassKg = properties.fMassKg;
 
+      const float fDensityKgPerMeterSquared = (properties.fWidthMetres * properties.fHeightMetres) / fMassKg;
+
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
@@ -447,7 +449,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = properties.bIsDynamic ? properties.fMassKg : 0.0f; // TODO: This should be the actual density, not the total mass
+      fixtureDef.density = properties.bIsDynamic ? fDensityKgPerMeterSquared : 0.0f;
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
@@ -462,6 +464,8 @@ namespace breathe
       rotation = properties.rotation;
       fMassKg = properties.fMassKg;
 
+      const float fDensityKgPerMeterSquared = (spitfire::math::cPI * properties.fRadiusMetres * properties.fRadiusMetres) / fMassKg;
+
       b2BodyDef bodyDef;
       bodyDef.type = properties.bIsDynamic ? b2_dynamicBody : b2_staticBody;
       bodyDef.position.Set(properties.position.x, properties.position.y);
@@ -475,7 +479,7 @@ namespace breathe
 
       b2FixtureDef fixtureDef;
       fixtureDef.shape = &shapeDef;
-      fixtureDef.density = properties.bIsDynamic ? properties.fMassKg : 0.0f; // TODO: This should be the actual density, not the total mass
+      fixtureDef.density = properties.bIsDynamic ? fDensityKgPerMeterSquared : 0.0f;
       fixtureDef.friction = properties.fFriction;
       fixtureDef.restitution = properties.fRestitution;
       pBody->CreateFixture(&fixtureDef);
