@@ -616,7 +616,7 @@ namespace breathe
 
 
       // Remove any sources that need removing
-      LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
+      //LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
 
       iter = listToRemove.begin();
       iterEnd = listToRemove.end();
