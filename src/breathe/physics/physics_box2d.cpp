@@ -117,6 +117,12 @@ namespace breathe
       const b2Vec2 gravity(0.0f, fGravity);
       pWorld = new b2World(gravity);
 
+      // Do we want to let bodies sleep?
+      pWorld->SetAllowSleeping(true);
+
+      // Do we want to keep contacts instead of penetrating and repelling?  (Note: Continuous physics is slower to calculate)
+      pWorld->SetContinuousPhysics(true);
+
       // Create edges around the entire screen
       b2BodyDef groundBodyDef;
       groundBodyDef.position.Set(0,0);
