@@ -596,29 +596,151 @@ namespace breathe
       cBody* pBody1 = static_cast<cBody*>(pAnchorBody1.get());
 
       b2Body* pBodyA = pBody0->GetBody();
-      b2Body* pBodyB = pBody1->GetBody();
-      const b2Vec2 anchorA(properties.anchorPoint0.x, properties.anchorPoint0.y);
-      const b2Vec2 anchorB(properties.anchorPoint1.x, properties.anchorPoint1.y);
+      b2Body* pBodyB = nullptr;
 
+      const float fDistancePerJoint = 0.1f;
+
+      spitfire::math::cVec2 relativeAnchorPoint0(properties.anchorPoint0);
+      spitfire::math::cVec2 relativeAnchorPoint1(0.0f, 0.0f);
+
+      spitfire::math::cVec2 bodyPosition(pBody0->GetBody()->GetPosition().x, pBody0->GetBody()->GetPosition().y + fDistancePerJoint);
+
+      const size_t nJoints = size_t(properties.fMaxLength / fDistancePerJoint);
+      LOG<<"cRope::Create nJoints="<<nJoints<<std::endl;
+      for (size_t i = 0; i < nJoints; i++) {
+        // Create a new body and join it to the previous body
+        pBodyB = CreateRopeBody(bodyPosition, 0.0f);
+
+        #ifdef BUILD_USE_BOX2D_ROPE_JOINT
+        b2RopeJoint* pRopeJoint = CreateRopeJoint(pBodyA, pBodyB, relativeAnchorPoint0, relativeAnchorPoint1);
+        #else
+        b2DistanceJoint* pRopeJoint = CreateRopeJoint(pBodyA, pBodyB, relativeAnchorPoint0, relativeAnchorPoint1);
+        #endif
+
+        joints.push_back(pRopeJoint);
+        bodies.push_back(pBodyB);
+
+        pBodyA = pBodyB;
+        pBodyB = nullptr;
+
+        bodyPosition.y += 0.01f; // Height of the rope body
+
+        relativeAnchorPoint0.Set(0.0f, fDistancePerJoint);
+      }
+
+      // Join the last (Or first if we didn't go through the loop) created body to the other anchor point
+      relativeAnchorPoint1 = properties.anchorPoint1;
+      pBodyB = pBody1->GetBody();
+
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
+      b2RopeJoint* pRopeJoint = CreateRopeJoint(pBodyA, pBodyB, relativeAnchorPoint0, relativeAnchorPoint1);
+      #else
+      b2DistanceJoint* pRopeJoint = CreateRopeJoint(pBodyA, pBodyB, relativeAnchorPoint0, relativeAnchorPoint1);
+      #endif
+
+      joints.push_back(pRopeJoint);
+    }
+
+    #ifdef BUILD_USE_BOX2D_ROPE_JOINT
+    b2RopeJoint* cRope::CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& _anchorPointA, const spitfire::math::cVec2& _anchorPointB)
+    #else
+    b2DistanceJoint* cRope::CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& _anchorPointA, const spitfire::math::cVec2& _anchorPointB)
+    #endif
+    {
+      spitfire::math::cVec2 anchorPointA;
+      spitfire::math::cVec2 anchorPointB;
+
+      const b2Vec2 anchorA(anchorPointA.x, anchorPointA.y);
+      const b2Vec2 anchorB(anchorPointB.x, anchorPointB.y);
+
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
       b2RopeJointDef definition;
       definition.bodyA = pBodyA;
       definition.bodyB = pBodyB;
       definition.localAnchorA = anchorA;
       definition.localAnchorB = anchorB;
+      #else
+      b2DistanceJointDef definition;
+      definition.Initialize(pBodyA, pBodyB, anchorA, anchorB);
+      definition.frequencyHz = 4.0f;
+      definition.dampingRatio = 0.5f;
+      #endif
 
-      definition.maxLength = properties.fMaxLength;
+      definition.collideConnected = true;
+
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
+      const spitfire::math::cVec2 absolutionAnchorPointA(pBodyA->GetPosition().x + anchorPointA.x, pBodyA->GetPosition().y + anchorPointA.y);
+      const spitfire::math::cVec2 absolutionAnchorPointB(pBodyB->GetPosition().x + anchorPointB.x, pBodyB->GetPosition().y + anchorPointB.y);
+
+      // NOTE: this must be larger than b2_linearSlop or the joint will have no effect.
+      definition.maxLength = max(b2_linearSlop, (absolutionAnchorPointA - absolutionAnchorPointB).GetLength());
+      #else
+      definition.length = 1.0f;
+      #endif
 
       // Create joint
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
       b2RopeJoint* pRopeJoint = (b2RopeJoint*)pWorld->GetWorld()->CreateJoint(&definition);
+      pRopeJoint->SetMaxLength(max(b2_linearSlop, 0.01f));
+      #else
+      b2DistanceJoint* pRopeJoint = (b2DistanceJoint*)pWorld->GetWorld()->CreateJoint(&definition);
+      #endif
+      ASSERT(pRopeJoint != nullptr);
 
-      joints.push_back(pRopeJoint);
+      return pRopeJoint;
+    }
+
+    b2Body* cRope::CreateRopeBody(const spitfire::math::cVec2& position, float fRotationDegrees)
+    {
+      // Set properties
+      /*const float fFriction = 0.3f;
+      const float fRestitution = 0.828f;
+
+      const float fRadiusMetres = 0.5f * 0.01f;
+      const float fMassKg = 100.5f;
+
+      const float fDensityKgPerMeterSquared = (spitfire::math::cPI * fRadiusMetres * fRadiusMetres) / fMassKg;
+
+      b2BodyDef bodyDef;
+      bodyDef.type = b2_dynamicBody;
+      bodyDef.position.Set(position.x, position.y);
+      //bodyDef.linearDamping = 0.01f;
+      bodyDef.angularDamping = 0.01f;
+      //bodyDef.userData = this;
+      b2Body* pBody = pWorld->GetWorld()->CreateBody(&bodyDef);
+
+      b2CircleShape shapeDef;
+      shapeDef.m_radius = fRadiusMetres;
+
+      b2FixtureDef fixtureDef;
+      fixtureDef.shape = &shapeDef;
+      fixtureDef.density = fDensityKgPerMeterSquared;
+      fixtureDef.friction = fFriction;
+      fixtureDef.restitution = fRestitution;
+      pBody->CreateFixture(&fixtureDef);*/
+
+
+      breathe::physics::cBoxProperties properties;
+      properties.SetDynamic();
+      properties.SetWidthHeightMetres(0.1f, 0.1f);
+      properties.SetMassKg(1.0f);
+      properties.SetPositionAbsolute(position);
+
+      cBody* pBody = static_cast<cBody*>((pWorld->CreateBody(properties)).get());
+
+      return pBody->GetBody();
     }
 
     void cRope::Destroy()
     {
       // Destroy the rope joints
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
       std::list<b2RopeJoint*>::iterator iter = joints.begin();
       const std::list<b2RopeJoint*>::iterator iterEnd = joints.end();
+      #else
+      std::list<b2DistanceJoint*>::iterator iter = joints.begin();
+      const std::list<b2DistanceJoint*>::iterator iterEnd = joints.end();
+      #endif
       while (iter != iterEnd) {
         pWorld->GetWorld()->DestroyJoint(*iter);
 
@@ -630,6 +752,24 @@ namespace breathe
 
     void cRope::_Update(sampletime_t currentTime)
     {
+    }
+
+    void cRope::GetRopeSegmentPositionAndRotations(std::vector<std::pair<spitfire::math::cVec2, float> >& positionAndRotations) const
+    {
+      positionAndRotations.clear();
+
+      positionAndRotations.reserve(bodies.size());
+
+      std::list<b2Body*>::const_iterator iter = bodies.begin();
+      const std::list<b2Body*>::const_iterator iterEnd = bodies.end();
+      while (iter != iterEnd) {
+        const b2Body* pBody = *iter;
+        const spitfire::math::cVec2 position(pBody->GetPosition().x, pBody->GetPosition().y);
+        const float fRotationDegrees = spitfire::math::RadiansToDegrees(pBody->GetAngle());
+        positionAndRotations.push_back(std::make_pair(position, fRotationDegrees));
+
+        iter++;
+      }
     }
   }
 }

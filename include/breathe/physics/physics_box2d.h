@@ -163,7 +163,13 @@ namespace breathe
     };
 
 
-    class cRopeJoint;
+    // Rope
+    //
+    // Ropes are constructed like this:
+    //
+    // pAnchorBody0 - joints[0] - bodies[0] - joints[1] - bodies[1] - joints[2] - pAnchorBody1
+
+    #define BUILD_USE_BOX2D_ROPE_JOINT
 
     class cRope : public physics::cRope
     {
@@ -173,10 +179,24 @@ namespace breathe
       void Create(cWorld* _pWorld, const physics::cRopeProperties& properties);
       void Destroy();
 
+      void GetRopeSegmentPositionAndRotations(std::vector<std::pair<spitfire::math::cVec2, float> >& positionAndRotations) const;
+
     protected:
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
       std::list<b2RopeJoint*> joints;
+      #else
+      std::list<b2DistanceJoint*> joints;
+      #endif
+      std::list<b2Body*> bodies;
 
     private:
+      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
+      b2RopeJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB);
+      #else
+      b2DistanceJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB);
+      #endif
+      b2Body* CreateRopeBody(const spitfire::math::cVec2& position, float fRotationDegrees);
+
       void _Update(sampletime_t currentTime);
 
       cWorld* pWorld;
