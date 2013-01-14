@@ -608,12 +608,19 @@ namespace breathe
       b2Body* pBodyA = pBody0->GetBody();
       b2Body* pBodyB = nullptr;
 
-      const float fDistancePerJoint = 0.1f;
+      const float fDistancePerJoint = 0.4f;
+
+      spitfire::math::cVec2 direction(pBody1->GetBody()->GetPosition().x - pBody0->GetBody()->GetPosition().x, pBody1->GetBody()->GetPosition().y - pBody0->GetBody()->GetPosition().y);
+      direction.Normalise();
+
+      const spitfire::math::cVec2 increment(direction * fDistancePerJoint);
 
       spitfire::math::cVec2 relativeAnchorPoint0(properties.anchorPoint0);
       spitfire::math::cVec2 relativeAnchorPoint1(0.0f, 0.0f);
 
-      spitfire::math::cVec2 bodyPosition(pBody0->GetBody()->GetPosition().x, pBody0->GetBody()->GetPosition().y + fDistancePerJoint);
+      spitfire::math::cVec2 bodyPosition(pBody0->GetBody()->GetPosition().x, pBody0->GetBody()->GetPosition().y);
+
+      bodyPosition += increment;
 
       const size_t nJoints = size_t(properties.fMaxLength / fDistancePerJoint);
       LOG<<"cRope::Create nJoints="<<nJoints<<std::endl;
@@ -633,7 +640,7 @@ namespace breathe
         pBodyA = pBodyB;
         pBodyB = nullptr;
 
-        bodyPosition.y += 0.01f; // Height of the rope body
+        bodyPosition += increment;
 
         relativeAnchorPoint0.Set(0.0f, fDistancePerJoint);
       }
@@ -674,28 +681,27 @@ namespace breathe
       definition.Initialize(pBodyA, pBodyB, anchorA, anchorB);
       definition.frequencyHz = 4.0f;
       definition.dampingRatio = 0.5f;
+      definition.length = 0.05f;
       #endif
 
       definition.collideConnected = true;
 
-      #ifdef BUILD_USE_BOX2D_ROPE_JOINT
-      const spitfire::math::cVec2 absolutionAnchorPointA(pBodyA->GetPosition().x + anchorPointA.x, pBodyA->GetPosition().y + anchorPointA.y);
-      const spitfire::math::cVec2 absolutionAnchorPointB(pBodyB->GetPosition().x + anchorPointB.x, pBodyB->GetPosition().y + anchorPointB.y);
-
-      // NOTE: this must be larger than b2_linearSlop or the joint will have no effect.
-      definition.maxLength = max(b2_linearSlop, (absolutionAnchorPointA - absolutionAnchorPointB).GetLength());
-      #else
-      definition.length = 1.0f;
-      #endif
-
       // Create joint
       #ifdef BUILD_USE_BOX2D_ROPE_JOINT
       b2RopeJoint* pRopeJoint = (b2RopeJoint*)pWorld->GetWorld()->CreateJoint(&definition);
+
+      //const spitfire::math::cVec2 absolutionAnchorPointA(pBodyA->GetPosition().x + anchorPointA.x, pBodyA->GetPosition().y + anchorPointA.y);
+      //const spitfire::math::cVec2 absolutionAnchorPointB(pBodyB->GetPosition().x + anchorPointB.x, pBodyB->GetPosition().y + anchorPointB.y);
+
+      // NOTE: this must be larger than b2_linearSlop or the joint will have no effect.
       pRopeJoint->SetMaxLength(max(b2_linearSlop, 0.01f));
       #else
       b2DistanceJoint* pRopeJoint = (b2DistanceJoint*)pWorld->GetWorld()->CreateJoint(&definition);
+      pRopeJoint->SetLength(0.05f);
       #endif
       ASSERT(pRopeJoint != nullptr);
+
+      pRopeJoint->Dump();
 
       return pRopeJoint;
     }
@@ -730,9 +736,9 @@ namespace breathe
       pBody->CreateFixture(&fixtureDef);*/
 
 
-      breathe::physics::cBoxProperties properties;
+      breathe::physics::cSphereProperties properties;
       properties.SetDynamic();
-      properties.SetWidthHeightMetres(0.1f, 0.1f);
+      properties.SetRadiusMetres(0.1f);
       properties.SetMassKg(1.0f);
       properties.SetPositionAbsolute(position);
 
