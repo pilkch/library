@@ -154,6 +154,7 @@ namespace spitfire
       void WriteLine(const string_t& str);       // Uses the OS Native Ending
       void WriteLineUTF8(const string_t& str);      // Uses the OS Native Ending
       void WriteLineCRLF(const string_t& str);   // Uses \r\n at the end of lines. ie. Windows
+      void WriteLineUTF8LF(const std::string& str); // Uses \n at the end of lines. ie. Unix
       void WriteLineLF(const string_t& str);     // Uses \n at the end of lines. ie. Unix
     };
 

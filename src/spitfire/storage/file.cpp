@@ -392,10 +392,16 @@ namespace spitfire
       return true;
     }
 
+    bool cWriteFile::WriteString(const std::string& str)
+    {
+      file.write(str.c_str(), str.length());
+      return true;
+    }
+
     bool cWriteFile::WriteStringUTF8(const string_t& str)
     {
       const std::string sStringUTF8 = string::ToUTF8(str);
-      file.write(static_cast<const char*>(sStringUTF8.c_str()), sStringUTF8.length());
+      file.write(sStringUTF8.c_str(), sStringUTF8.length());
       return true;
     }
 
@@ -412,6 +418,12 @@ namespace spitfire
     {
       file.write((const char*)str.c_str(), str.length() * sizeof(char_t));
       file.write((const char*)TEXT("\n"), sizeof(char_t));
+    }
+
+    void cWriteFile::WriteLineUTF8LF(const std::string& str)
+    {
+      file.write(str.c_str(), str.length() * sizeof(char));
+      file.write("\n", sizeof(char));
     }
   }
 }
