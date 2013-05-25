@@ -65,14 +65,14 @@ namespace spitfire
 
     bool Init()
     {
-      LOG.Success("cNetwork", "Init");
+      LOG<<"cNetwork Init"<<std::endl;
 
       return true;
     }
 
     void Destroy()
     {
-      LOG.Success("cNetwork", "Shutdown");
+      LOG<<"cNetwork Destroy"<<std::endl;
     }
 
 
