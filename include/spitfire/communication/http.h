@@ -10,6 +10,8 @@ namespace spitfire
   {
     typedef std::vector<uint8_t*> buffer_t;
 
+    string_t GetMimeTypeFromExtension(const string_t& sExtension, bool& bServeInline);
+
     namespace http
     {
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol

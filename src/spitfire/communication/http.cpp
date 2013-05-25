@@ -70,45 +70,54 @@ namespace spitfire
     }
 
 
-
     struct cExtensionToMime
     {
-      const char_t* szExtension;
-      const char* szMimeType;
-      bool bIsServeInline;
+    public:
+      const string_t sExtension;
+      const std::string sMimeType;
+      const bool bServeInline;
     };
 
     const cExtensionToMime extensionToMime[] = {
-      { TEXT("css"), "text/css",                 true },
-      { TEXT("jpg"), "image/jpeg",               true },
-      { TEXT("gif"), "image/gif",                true },
-      { TEXT("png"), "image/png",                true },
-      { TEXT("html"),"text/html",                true },
-      { TEXT("txt"), "text/plain",               true },
-      { TEXT("js"),  "text/javascript",          true },
-      { TEXT("xml"), "text/xml",                 true },
-      { TEXT("wav"), "audio/wav",                false },
-      { TEXT("mp3"), "audio/mpeg",               false },
-      { TEXT("exe"), "application/octet-stream", false },
-      { TEXT("zip"), "application/zip",          false },
-      { TEXT("pdf"), "application/pdf",          false },
+      { TEXT("css"),  "text/css",                      true },
+      { TEXT("html"), "text/html",                     true },
+      { TEXT("txt"),  "text/plain",                    true },
+      { TEXT("js"),   "text/javascript",               true },
+
+      { TEXT("jpg"),  "image/jpeg",                    true },
+      { TEXT("png"),  "image/png",                     true },
+      { TEXT("ico"),  "image/x-icon",                  true },
+      { TEXT("gif"),  "image/gif",                     true },
+      { TEXT("bmp"),  "image/bmp",                     true },
+
+      { TEXT("jar"),  "application/java-archive",      true },
+      { TEXT("swf"),  "application/x-shockwave-flash", true },
+
+      { TEXT("wav"),  "audio/wav",                     true },
+      { TEXT("mp3"),  "audio/mpeg",                    true },
+      { TEXT("exe"),  "application/octet-stream",      false },
+      { TEXT("zip"),  "application/zip",               false },
+      { TEXT("doc"),  "application/msword",            false },
+      { TEXT("pdf"),  "application/pdf",               true },
+      { TEXT("rtf"),  "application/rtf",               false },
     };
 
-    const char* GetMimeTypeFromExtension(const string_t& sExtension, bool& bIsServeInline)
+    string_t GetMimeTypeFromExtension(const string_t& sExtension, bool& bServeInline)
     {
-      bIsServeInline = false;
-      const char* szMimeType = "application/octet-stream";
+      const string_t sExtensionLower = string::ToLower(sExtension);
 
-      const size_t n = lengthof(extensionToMime);
+      const size_t n = countof(extensionToMime);
       for (size_t i = 0; i < n; i++) {
-        if (sExtension == extensionToMime[i].szExtension) {
-          bIsServeInline = extensionToMime[i].bIsServeInline;
-          szMimeType = extensionToMime[i].szMimeType;
-          break;
+        if (sExtensionLower == extensionToMime[i].sExtension) {
+          bServeInline = extensionToMime[i].bServeInline;
+          return extensionToMime[i].sMimeType;
         }
       }
 
-      return szMimeType;
+      // We didn't find the extension, so return the default mime
+      LOG<<"GetMimeTypeFromExtension Mime type not known for file type \""<<sExtension<<"\""<<std::endl;
+      bServeInline = false;
+      return "application/octet-stream";
     }
 
 
