@@ -494,7 +494,7 @@ namespace spitfire
       return source;
     }
 
-    bool BeginsWith(const std::string& source, const std::string& find)
+    bool StartsWith(const std::string& source, const std::string& find)
     {
       if (source.length() < find.length()) return false;
 
@@ -506,7 +506,7 @@ namespace spitfire
     // TODO: Use boost::ends_with
     // TODO: Use boost::iends_with
 
-    bool BeginsWith(const std::wstring& source, const std::wstring& find)
+    bool StartsWith(const std::wstring& source, const std::wstring& find)
     {
       if (source.length() < find.length()) return false;
 

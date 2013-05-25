@@ -77,7 +77,7 @@ namespace spitfire
     bool Split(const std::string& source, const std::string& find, std::string& before, std::string& after); // Returns true if find is found and puts the first and second parts in before and after.
     void SplitOnNewLines(const std::string& source, std::vector<std::string>& vOut);
     std::string Trim(const std::string& source);
-    bool BeginsWith(const std::string& source, const std::string& find);
+    bool StartsWith(const std::string& source, const std::string& find);
     bool EndsWith(const std::string& source, const std::string& find);
 
     size_t CountOccurrences(const std::wstring& source, const std::wstring& find);
@@ -97,7 +97,7 @@ namespace spitfire
     bool Split(const std::wstring& source, const std::wstring& find, std::wstring& before, std::wstring& after); // Returns true if find is found and puts the first and second parts in before and after.
     void SplitOnNewLines(const std::wstring& source, std::vector<std::wstring>& vOut);
     std::wstring Trim(const std::wstring& source);
-    bool BeginsWith(const std::wstring& source, const std::wstring& find);
+    bool StartsWith(const std::wstring& source, const std::wstring& find);
     bool EndsWith(const std::wstring& source, const std::wstring& find);
 
     std::string HTMLDecode(const std::string& source);
@@ -528,7 +528,7 @@ namespace spitfire
 
       const size_t n = s.GetLength();
       for (size_t i = 0; i < n; i++) {
-        if (IsWhiteSpace(s[i])) {
+        if (IsWhiteSpace(sz[i])) {
           sResult.assign(s.Get(), i);
           s.SkipElements(i);
           SkipWhiteSpace();

@@ -89,7 +89,7 @@ namespace spitfire
       ASSERT(!sApplicationDirectory.empty());
 
       // Replace ./ with the current directory
-      if (spitfire::string::BeginsWith(sApplicationDirectory, TEXT("./"))) {
+      if (spitfire::string::StartsWith(sApplicationDirectory, TEXT("./"))) {
         const string_t sCurrentDirectory = GetCurrentDirectory();
         const string_t sEnd = spitfire::string::StripLeading(sApplicationDirectory, TEXT("./"));
 
@@ -501,7 +501,7 @@ FOF_SILENT; // Options set for no user interaction
 
       string_t expanded = sRelativePath;
       string_t prefix = sRootPath;
-      while (spitfire::string::BeginsWith(expanded, TEXT("../"))) {
+      while (spitfire::string::StartsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
         LOG<<"MakePathAbsolute prefix=\""<<string::ToUTF8(prefix)<<"\""<<std::endl;
         prefix = StripLastDirectory(prefix);
