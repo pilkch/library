@@ -730,7 +730,7 @@ FOF_SILENT; // Options set for no user interaction
     }
 
 
-    uint64_t GetFileSize(const string_t& sFilename)
+    uint64_t GetFileSizeBytes(const string_t& sFilename)
     {
       ASSERT(FileExists(sFilename));
       const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));

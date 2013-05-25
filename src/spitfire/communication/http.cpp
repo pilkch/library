@@ -648,7 +648,7 @@ Content-Transfer-Encoding: binary
                 const std::string sContentEnd(contentEnd.str());
 
                 {
-                  const size_t nContentLength = sContentBegin.length() + spitfire::filesystem::GetFileSize(request.file.sFilePath) + sContentEnd.length();
+                  const size_t nContentLength = sContentBegin.length() + spitfire::filesystem::GetFileSizeBytes(request.file.sFilePath) + sContentEnd.length();
 
                   o<<"Content-Length: "<<nContentLength<<STR_END;
                   o<<STR_END;

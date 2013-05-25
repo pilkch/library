@@ -98,7 +98,7 @@ namespace spitfire
         return util::PROCESS_RESULT::FAILED;
       }
 
-      const size_t nFileSizeBytes = filesystem::GetFileSize(inFilename);
+      const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(inFilename);
       std::string sData;
       sData.reserve(nFileSizeBytes);
       std::string line;

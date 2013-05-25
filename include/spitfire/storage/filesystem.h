@@ -72,7 +72,7 @@ namespace spitfire
 #endif
 
     uint32_t GetLastModifiedDate(const string_t& sFilename);
-    uint64_t GetFileSize(const string_t& sFilename);
+    uint64_t GetFileSizeBytes(const string_t& sFilename);
 
     // Check that these two paths are pointing to the same file
     bool IsSameFile(const string_t& sFileA, const string_t& sFileB);
