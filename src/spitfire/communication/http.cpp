@@ -121,8 +121,174 @@ namespace spitfire
     }
 
 
+
     namespace http
     {
+      string_t GetStatusAsString(STATUS status)
+      {
+        return spitfire::string::ToString(int(status));
+      }
+
+      string_t GetStatusDescription(STATUS status)
+      {
+        return TEXT("");
+      }
+
+
+
+      bool ParseRequestPair(string::cStringParserUTF8& sp, std::string& sKey, std::string& sValue)
+      {
+        // If we are at the end of the request then return false
+        if (sp.IsEnd()) return false;
+
+        // If we have an empty line (Like at the end of the request) then return false
+        const char c = sp.GetCharacter();
+        if ((c == '\r') || (c == '\n')) return false;
+
+        // Parse path
+        if (!sp.GetToStringAndSkip(": ", sKey)) {
+          LOG<<"ParseRequest Couldn't parse key, returning false"<<std::endl;
+          return false;
+        }
+
+        // Get to the end of the line
+        return sp.GetToStringAndSkip("\n", sValue);
+      }
+
+      bool ParseRequest(cRequest& request, const std::string& sRequest)
+      {
+        request.Clear();
+
+        string::cStringParserUTF8 sp(sRequest);
+
+        if (sp.IsEnd()) {
+          LOG<<"ParseRequest Empty string, returning false"<<std::endl;
+          return false;
+        }
+
+        std::string sValue;
+
+        // Parse method
+        if (!sp.GetToWhiteSpaceAndSkip(sValue)) {
+          LOG<<"ParseRequest Couldn't parse method, returning false"<<std::endl;
+          return false;
+        }
+
+        if (sValue == "POST") request.SetMethodPost();
+        else request.SetMethodGet();
+
+        // Parse path
+        if (!sp.GetToWhiteSpaceAndSkip(sValue)) {
+          LOG<<"ParseRequest Couldn't parse path, returning false"<<std::endl;
+          return false;
+        }
+
+        request.SetPath(sValue);
+
+        // Skip to the end of the line
+        sp.SkipToStringAndSkip("\n");
+
+        std::string sKey;
+
+        // Parse key value pairs
+        while (ParseRequestPair(sp, sKey, sValue)) {
+          if (sKey == "Host") { // Host: 127.0.0.1:12345
+            size_t found = sValue.find(":");
+            if (found != std::string::npos) {
+              // Split the host and port up
+              sValue = sValue.substr(0, found);
+              //std::string sPort = sValue.substr(found + 1);
+
+              request.SetHost(sValue);
+              // TODO: Do something with the port
+            } else request.SetHost(sValue);
+          } else {
+            request.AddValue(sKey, sValue);
+          }
+        }
+
+        return true;
+      }
+
+
+
+      // ** cRequest
+
+      cResponse::cResponse() :
+        status(STATUS::OK),
+        nContentLengthBytes(0),
+        iExpires(-1),
+        bCacheControlPrivateMaxAgeZero(true),
+        bCloseConnection(true)
+      {
+        SetContentTypeTextHTMLUTF8();
+      }
+
+      void cResponse::SetStatus(STATUS _status)
+      {
+        status = _status;
+      }
+
+      void cResponse::SetContentLengthBytes(size_t _nContentLengthBytes)
+      {
+        nContentLengthBytes = _nContentLengthBytes;
+      }
+
+      void cResponse::SetContentMimeType(const std::string& _sMimeType)
+      {
+        sMimeType = _sMimeType;
+      }
+
+      void cResponse::SetContentTypeTextHTMLUTF8()
+      {
+        sMimeType = "text/html";
+      }
+
+      void cResponse::SetDateTimeNow()
+      {
+      }
+
+      void cResponse::SetExpires(int _iExpires)
+      {
+        iExpires = _iExpires;
+      }
+
+      void cResponse::SetCacheControlPrivateMaxAgeZero()
+      {
+        bCacheControlPrivateMaxAgeZero = true;
+      }
+
+      void cResponse::SetCloseConnection()
+      {
+        bCloseConnection = true;
+      }
+
+      std::string cResponse::ToString() const
+      {
+        LOG<<"cResponse::ToString mime=\""<<sMimeType<<"\""<<std::endl;
+
+        std::ostringstream o;
+        o<<"HTTP/1.1 "<<GetStatusAsString(status)<<" "<<GetStatusDescription(status)<<"\n";
+        o<<"Status: "<<GetStatusAsString(status)<<" "<<GetStatusDescription(status)<<"\n";
+        o<<"Version: HTTP/1.1\n";
+
+        // Set the content type
+        if (spitfire::string::StartsWith(sMimeType, "text/")) o<<"Content-type: "<<sMimeType<<"; charset=UTF-8\n";
+        else o<<"Content-type: "<<sMimeType<<"\n";
+
+        if (bCacheControlPrivateMaxAgeZero) o<<"Cache-control: private, max-age=0\n";
+        o<<"Date: Fri, 24 May 2013 10:15:39 GMT\n";
+        o<<"Expires: "<<iExpires<<"\n";
+        //o<<"Server: Apache 1.0 (Unix)\n";
+        //o<<"x-frame-options: SAMEORIGIN\n";
+        //o<<"x-xss-protection: 1; mode=block\n";
+        o<<"Content-Length: "<<nContentLengthBytes<<"\n";
+        o<<"Connection: close\n\n";
+
+        return o.str();
+      }
+
+
       // ** cConnectionHTTP
 
       class cConnectionHTTP
@@ -376,6 +542,493 @@ Content-type: image/gif
 Content-Transfer-Encoding: binary
 */
 
+
+
+
+
+      // ** cServerEvent
+
+      cServerEvent::cServerEvent() :
+        type(SERVER_EVENT_TYPE::UNKNOWN),
+        pConnectedClient(nullptr)
+      {
+      }
+
+
+      // ** cConnectedClient
+
+      cConnectedClient::cConnectedClient(cServer& _server, boost::asio::io_service& _socket) :
+        util::cThread(soStop, "cConnectedClient"),
+        soStop("soStop"),
+        server(_server),
+        socket(_socket)
+      {
+      }
+
+      bool cConnectedClient::_IsToStop() const override
+      {
+        return false;
+      }
+
+      void cConnectedClient::ThreadFunction()
+      {
+        LOG<<"cConnectedClient::ThreadFunction"<<std::endl;
+
+        server.RunClientConnection(*this);
+
+        server.OnClientConnectionFinished(*this);
+
+        LOG<<"cConnectedClient::ThreadFunction returning"<<std::endl;
+      }
+
+      size_t cConnectedClient::GetBytesToRead()
+      {
+        // Check if there are any bytes available
+        boost::asio::socket_base::bytes_readable command(true);
+
+        socket.io_control(command);
+
+        return command.get();
+      }
+
+      size_t cConnectedClient::GetBytesAvailable()
+      {
+        return socket.available();
+      }
+
+      size_t cConnectedClient::Read(uint8_t* pBuffer, size_t nBufferSize)
+      {
+        return socket.receive(boost::asio::buffer(pBuffer, nBufferSize));
+      }
+
+      void cConnectedClient::Write(const uint8_t* pBuffer, size_t nBufferSize)
+      {
+        boost::asio::write(socket, boost::asio::buffer(pBuffer, nBufferSize), boost::asio::transfer_all());
+      }
+
+      void cConnectedClient::Write(const std::string& sData)
+      {
+        /*message = sData;
+
+        boost::asio::async_write(socket, boost::asio::buffer(message),
+            boost::bind(&cConnectedClient::WriteCallback, shared_from_this(),
+              boost::asio::placeholders::error,
+              boost::asio::placeholders::bytes_transferred));*/
+
+        boost::asio::write(socket, boost::asio::buffer(sData), boost::asio::transfer_all());
+      }
+
+      void cConnectedClient::SendResponse(const cResponse& response)
+      {
+        Write(response.ToString());
+      }
+
+      void cConnectedClient::SendContent(const std::string& sContentUTF8)
+      {
+        Write(sContentUTF8);
+      }
+
+
+      // ** cServer
+
+      cServer::cServer() :
+        util::cThread(soStop, "cServer"),
+        soStop("soStop"),
+        pRequestHandler(nullptr),
+        soEvent("soEvent"),
+        mutexEventQueue("mutexEventQueue")
+      {
+      }
+
+      void cServer::OnConnectedClient(cConnectedClient* pNewConnection)
+      {
+        LOG<<"cServer::OnConnectedClient New connection started"<<std::endl;
+
+        ASSERT(pNewConnection != nullptr);
+
+        clients.push_back(pNewConnection);
+
+        // Start the connection thread
+        //pNewConnection->Run();
+        pNewConnection->ThreadFunction();
+      }
+
+      void cServer::ServeError404(cConnectedClient& connection, const cRequest& request)
+      {
+        string_t sContentUTF8(
+          "<!DOCTYPE html>"
+          "<html lang=\"en\">"
+          "  <meta charset=\"utf-8\">"
+          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
+          "  <title>Error 404 (Not Found)</title>"
+          "  <style>"
+          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(http://www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
+          "  </style>"
+          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
+          "  <p><b>404.</b> <ins>That’s an error.</ins>"
+        );
+
+        // Add the message
+        sContentUTF8 +=
+          "  <p>"
+          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
+          "</p>"
+          "</html>"
+        ;
+
+        cResponse response;
+        response.SetStatus(STATUS::NOT_FOUND);
+        response.SetContentLengthBytes(sContentUTF8.length());
+        response.SetContentTypeTextHTMLUTF8();
+        response.SetDateTimeNow();
+
+        connection.SendResponse(response);
+        connection.SendContent(sContentUTF8);
+      }
+
+      void cServer::ServeError(cConnectedClient& connection, const cRequest& request, STATUS status)
+      {
+        string_t sContentUTF8(
+          "<!DOCTYPE html>"
+          "<html lang=\"en\">"
+          "  <meta charset=\"utf-8\">"
+          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
+          "  <title>Error " + GetStatusAsString(status) + " (" + GetStatusDescription(status) + ")</title>"
+          "  <style>"
+          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
+          "  </style>"
+          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
+          "  <p><b>404.</b> <ins>That’s an error.</ins>"
+        );
+
+        // Add the message
+        sContentUTF8 +=
+          "  <p>"
+          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
+          "</p>"
+          "</html>"
+        ;
+
+        cResponse response;
+        response.SetStatus(status);
+        response.SetContentLengthBytes(sContentUTF8.length());
+        response.SetContentTypeTextHTMLUTF8();
+        response.SetDateTimeNow();
+
+        connection.SendResponse(response);
+        connection.SendContent(sContentUTF8);
+        connection.SendContent("\n\n");
+      }
+
+      void cServer::ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath)
+      {
+        if (!request.IsMethodGet()) {
+          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
+          return;
+        }
+
+        if (!filesystem::FileExists(sRelativeFilePath)) {
+          ServeError404(connection, request);
+          return;
+        }
+
+        if (filesystem::IsFolder(sRelativeFilePath)) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        storage::cReadFile file(sRelativeFilePath);
+        if (!file.IsOpen()) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sRelativeFilePath);
+
+        cResponse response;
+        response.SetStatus(STATUS::OK);
+        response.SetContentLengthBytes(nFileSizeBytes);
+        response.SetContentMimeType(sMimeTypeUTF8);
+        response.SetDateTimeNow();
+        response.SetExpires(-1);
+        response.SetCacheControlPrivateMaxAgeZero();
+        response.SetCloseConnection();
+
+        connection.SendResponse(response);
+
+        const size_t nBufferSizeBytes = 1024;
+
+        uint8_t buffer[nBufferSizeBytes];
+
+        while (file.IsOpen()) {
+          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
+          if (nRead == 0) break;
+
+          connection.Write(buffer, nRead);
+        }
+
+        connection.Write("\n\n");
+      }
+
+
+      void cServer::ServeFile(cConnectedClient& connection, const cRequest& request)
+      {
+        std::string sRelativeFilePath = string::StripLeading(request.GetPath(), "/");
+
+        bool bIsValidRelativeFilePath = true;
+
+        // Check if the path is trying to be tricky
+        if ((string::CountOccurrences(sRelativeFilePath, "./") != 0) || (string::CountOccurrences(sRelativeFilePath, "..") != 0)) {
+          LOG<<"cServer::ServeFile Request path is a compressed path, returning 404"<<std::endl;
+          bIsValidRelativeFilePath = false;
+        } else if (!filesystem::FileExists(sRelativeFilePath)) {
+          LOG<<"cServer::ServeFile Request path \""<<sRelativeFilePath<<"\" was not found, returning 404"<<std::endl;
+          bIsValidRelativeFilePath = false;
+        }
+
+        if (!bIsValidRelativeFilePath) {
+          ServeError404(connection, request);
+        } else {
+          // Add index.html if it is a folder
+          if (filesystem::IsFolder(sRelativeFilePath)) sRelativeFilePath += "index.html";
+
+          bool bServeInline = false;
+          const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sRelativeFilePath), bServeInline);
+          ServeFile(connection, request, sMimeTypeUTF8, sRelativeFilePath);
+        }
+      }
+
+      /*void cServer::ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8)
+      {
+        cResponse response;
+        response.SetStatus(STATUS::OK);
+        response.SetCacheControl();
+        response.SetContentType(sMimeTypeUTF8);
+        response.SetDateTimeNow();
+        response.SetContentLengthBytes(sContentUTF8.length());
+        response.SetConnectionClose();
+
+        "HTTP/1.1 " + status + " " + GetStatusDescription(status) +
+        "Location: http://" + GetHostName() + "/" +
+        "Expires: -1" +
+        "Cache-Control: private, max-age=0" +
+        "Content-Type: text/html; charset=UTF-8" +
+        "Date: Wed, 18 Jul 2012 05:13:40 GMT" +
+        "Content-Length: " + nContentLengthBytes +
+        "Connection: close"
+
+        connection.SendResponse(response);
+        connection.SendContent(sContentUTF8);
+      }*/
+
+      void cServer::OnRequestMade(cConnectedClient& connection, const cRequest& request)
+      {
+        // Ask the request handler to handle this request first
+        if (pRequestHandler != nullptr) {
+          if (pRequestHandler->HandleRequest(*this, connection, request)) return;
+        }
+
+        //ServeFile(client, request);
+      }
+
+      bool cServer::_IsToStop() const
+      {
+        return false;
+      }
+
+      void cServer::RunClientConnection(cConnectedClient& connection)
+      {
+        // Wait for the request to be sent
+        sleep(1);
+
+        const size_t bytes_readable = connection.GetBytesToRead();
+
+        std::cout<<"bytes_readable="<<bytes_readable<<std::endl;
+
+        const size_t nDataSize = 512;
+        uint8_t data[nDataSize];
+
+        std::vector<uint8_t> buffer;
+        buffer.reserve(1024);
+
+        while (true) {
+          const size_t nBytesAvailable = connection.GetBytesAvailable();
+          if (nBytesAvailable == 0) {
+            //LOG<<"cServer::RunClientConnection No bytes available, breaking"<<std::endl;
+            break;
+          }
+
+          const size_t nBytesRead = connection.Read(data, nDataSize);
+          if (nBytesRead == 0) {
+            LOG<<"cServer::RunClientConnection No bytes read, breaking"<<std::endl;
+            break;
+          }
+
+          LOG<<"cServer::RunClientConnection "<<nBytesRead<<" bytes read"<<std::endl;
+          const size_t nBufferSize = buffer.size();
+
+          // Resize the read buffer
+          buffer.resize(nBufferSize + nBytesRead);
+
+          // Append the data
+          memcpy(buffer.data() + nBufferSize, data, nBytesRead);
+        };
+
+        if (buffer.empty()) {
+          LOG<<"cServer::RunClientConnection No request sent, returning"<<std::endl;
+          return;
+        }
+
+        const std::string sRequest((const char*)buffer.data());
+
+        //LOG<<"cServer::RunClientConnection request \""<<(const char*)(buffer.data())<<"\""<<std::endl;
+        cRequest request;
+        ParseRequest(request, sRequest);
+        LOG<<"Path "<<request.GetPath()<<std::endl;
+        if (string::StartsWith(request.GetPath(), "/data/web/")) {
+          ServeFile(connection, request);
+        } else {
+          static int x = 1;
+
+          const std::string sContentUTF8 = "<html><head><title>Title</title></head><body>Body " + spitfire::string::ToString(x) + "</body></html>\n";
+
+          x++;
+
+          // TODO: Fill out the response from the request
+          cResponse response;
+          response.SetContentLengthBytes(sContentUTF8.length());
+          connection.SendResponse(response);
+
+          // TODO: Send actual content
+          connection.SendContent(sContentUTF8);
+
+          connection.Write("\n\n");
+        }
+      }
+
+      void cServer::OnClientConnectionFinished(cConnectedClient& connection)
+      {
+        cServerEvent* pEvent = new cServerEvent;
+        pEvent->type = SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED;
+        pEvent->pConnectedClient = &connection;
+        SendEvent(pEvent);
+      }
+
+      void cServer::SendEvent(cServerEvent* pEvent)
+      {
+        spitfire::util::cLockObject lock(mutexEventQueue);
+
+        eventQueue.push_back(pEvent);
+      }
+
+      cServerEvent* cServer::GetNextEvent()
+      {
+        spitfire::util::cLockObject lock(mutexEventQueue);
+
+        cServerEvent* pEvent = eventQueue.front();
+        eventQueue.pop_front();
+        return pEvent;
+      }
+
+      void cServer::ThreadFunction()
+      {
+        LOG<<"cServer::ThreadFunction"<<std::endl;
+
+        cTCPServer server(*this, 12345);
+        server.Run();
+
+        while (true) {
+          soEvent.WaitForever();
+
+          cServerEvent* pEvent = GetNextEvent();
+          if (pEvent != nullptr) {
+            if (pEvent->type == SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED) {
+              ASSERT(pEvent->pConnectedClient != nullptr);
+
+              if (!pEvent->pConnectedClient->IsRunning()) {
+                // Destroy the connection
+                SAFE_DELETE(pEvent->pConnectedClient);
+              } else {
+                // Wait a little bit
+                util::YieldThisThread();
+
+                // Resend the event so that we try again later
+                SendEvent(pEvent);
+
+                // Skip deleting the event
+                continue;
+              }
+            }
+
+            SAFE_DELETE(pEvent);
+          }
+        }
+
+        LOG<<"cServer::ThreadFunction returning"<<std::endl;
+      }
+
+
+
+
+
+      // ** cTCPServer
+
+      cTCPServer::cTCPServer(cServer& _server, uint16_t uiPort) :
+        server(_server),
+        acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), uiPort)),
+        pNewConnection(nullptr)
+      {
+      }
+
+      void cTCPServer::Run()
+      {
+        // Start accepting connections
+        StartAccept();
+
+        // Run the io service
+        io_service.run();
+
+        SAFE_DELETE(pNewConnection);
+      }
+
+      void cTCPServer::StartAccept()
+      {
+        LOG<<"cTCPServer::StartAccept"<<std::endl;
+
+        // Make sure that there isn't a current connection in progress
+        ASSERT(pNewConnection == nullptr);
+
+        // Create a new connection and try to accept it
+        pNewConnection = new cConnectedClient(server, acceptor.get_io_service());
+
+        // Try to accept a connection some time in the future
+        acceptor.async_accept(pNewConnection->GetSocket(),
+          boost::bind(&cTCPServer::OnConnection, this, boost::asio::placeholders::error));
+      }
+
+      void cTCPServer::OnConnection(const boost::system::error_code& error)
+      {
+        if (error) {
+          LOG<<"cTCPServer::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
+
+          // Delete the connection
+          SAFE_DELETE(pNewConnection);
+        } else {
+          cConnectedClient* pConnection = pNewConnection;
+
+          // The server is about to take ownership of the connection
+          pNewConnection = nullptr;
+
+          server.OnConnectedClient(pConnection);
+        }
+
+        // This connection has now been started, so we need to start accepting the next connection
+        StartAccept();
+      }
+
+
+
+      // ** cConnectionHTTP
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {

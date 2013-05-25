@@ -1,8 +1,20 @@
 #ifndef CHTTP_H
 #define CHTTP_H
 
+// Boost headers
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/asio.hpp>
+
+// Spitfire headers
 #include <spitfire/communication/network.h>
 #include <spitfire/communication/uri.h>
+#include <spitfire/storage/file.h>
+#include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/html.h>
+#include <spitfire/util/datetime.h>
+#include <spitfire/util/thread.h>
 
 namespace spitfire
 {
@@ -32,6 +44,8 @@ namespace spitfire
         friend class cHTTP;
 
         cRequest();
+
+        void Clear();
 
         void SetMethodGet() { method = METHOD::GET; }
         bool IsMethodGet() const { return (method == METHOD::GET); }
@@ -70,6 +84,9 @@ namespace spitfire
 
         cFile file;
       };
+
+
+      bool ParseRequest(cRequest& request, const std::string& sRequest);
 
 
       enum class STATUS {
@@ -121,6 +138,173 @@ namespace spitfire
         GATEWAY_TIMEOUT,
         HTTP_VERSION_NOT_SUPPORTED
       };
+
+      string_t GetStatusAsString(STATUS status);
+      string_t GetStatusDescription(STATUS status);
+
+
+      class cResponse
+      {
+      public:
+        cResponse();
+
+        void SetStatus(STATUS status);
+        void SetContentLengthBytes(size_t nContentLengthBytes);
+        void SetContentMimeType(const std::string& sMimeType);
+        void SetContentTypeTextHTMLUTF8();
+        void SetDateTimeNow();
+        void SetExpires(int iExpires);
+        void SetCacheControlPrivateMaxAgeZero();
+        void SetCloseConnection();
+
+        std::string ToString() const;
+
+      private:
+        STATUS status;
+        size_t nContentLengthBytes;
+        std::string sMimeType;
+        util::cDateTime dateTime;
+        int iExpires;
+        bool bCacheControlPrivateMaxAgeZero;
+        bool bCloseConnection;
+      };
+
+
+
+      class cServer;
+
+      class cConnectedClient : public util::cThread
+      {
+      public:
+        cConnectedClient(cServer& server, boost::asio::io_service& socket);
+
+        size_t GetBytesToRead();
+        size_t GetBytesAvailable();
+
+        const boost::asio::ip::tcp::socket& GetSocket() const
+        {
+          return socket;
+        }
+
+        boost::asio::ip::tcp::socket& GetSocket()
+        {
+          return socket;
+        }
+
+        size_t Read(uint8_t* pBuffer, size_t nBufferSize);
+
+        void SendResponse(const cResponse& response);
+        void SendContent(const std::string& sContentUTF8);
+
+        void Write(const uint8_t* pBuffer, size_t nBufferSize);
+        void Write(const std::string& sData);
+
+      //private:
+        virtual bool _IsToStop() const override;
+
+        virtual void ThreadFunction() override;
+
+        /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
+        {
+          std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
+        }*/
+
+        util::cSignalObject soStop;
+
+        cServer& server;
+
+        boost::asio::ip::tcp::socket socket;
+        //std::string message;
+      };
+
+
+
+      class cTCPServer
+      {
+      public:
+        cTCPServer(cServer& server, uint16_t uiPort);
+
+        void Run();
+
+      private:
+        void StartAccept();
+        void OnConnection(const boost::system::error_code& error);
+
+        cServer& server;
+        boost::asio::io_service io_service;
+        boost::asio::ip::tcp::acceptor acceptor;
+
+        cConnectedClient* pNewConnection;
+      };
+
+
+
+      class cServerRequestHandler
+      {
+      public:
+        virtual ~cServerRequestHandler() {}
+
+        virtual bool HandleRequest(cServer& server, cConnectedClient& connection, const cRequest& request) = 0;
+      };
+
+      enum class SERVER_EVENT_TYPE {
+        CLIENT_CONNECTION_FINISHED,
+        UNKNOWN
+      };
+
+      class cServerEvent
+      {
+      public:
+        cServerEvent();
+
+        SERVER_EVENT_TYPE type;
+        cConnectedClient* pConnectedClient;
+      };
+
+      class cServer : public util::cThread
+      {
+      public:
+        cServer();
+
+        friend class cServerRequestHandler;
+
+        void SetRequestHandler(cServerRequestHandler& pRequestHandler);
+        void SetRootPath(const string_t& sFolderPath);
+
+        void OnConnectedClient(cConnectedClient* pNewConnection);
+        void RunClientConnection(cConnectedClient& connection);
+        void OnClientConnectionFinished(cConnectedClient& connection);
+
+      protected:
+        void ServeError404(cConnectedClient& connection, const cRequest& request);
+        void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status);
+        void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8);
+        void ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath);
+        void ServeFile(cConnectedClient& connection, const cRequest& request);
+
+      private:
+        virtual bool _IsToStop() const override;
+
+        void SendEvent(cServerEvent* pEvent);
+        cServerEvent* GetNextEvent();
+
+        virtual void ThreadFunction() override;
+
+        void OnRequestMade(cConnectedClient& connection, const cRequest& request);
+
+        util::cSignalObject soStop;
+
+        cServerRequestHandler* pRequestHandler; // For calling back into the application, every request is sent here first
+
+        std::list<cConnectedClient*> clients;
+
+        util::cSignalObject soEvent;
+
+        util::cMutex mutexEventQueue;
+        std::list<cServerEvent*> eventQueue;
+      };
+
+
 
 
       enum class STATE {
@@ -201,6 +385,18 @@ namespace spitfire
         sPath(TEXT("/")),
         nOffsetBytes(0)
       {
+      }
+
+      inline void cRequest::Clear()
+      {
+        method = METHOD::GET;
+        sHost.clear();
+        sPath.clear();
+        nOffsetBytes = 0;
+        mValues.clear();
+
+        file.sName.clear();
+        file.sFilePath.clear();
       }
 
 

@@ -1,6 +1,10 @@
 #ifndef CNETWORK_H
 #define CNETWORK_H
 
+// Boost headers
+#include <boost/asio.hpp>
+
+// Spitfire headers
 #include <spitfire/math/math.h>
 
 namespace spitfire

@@ -1,6 +1,8 @@
 #ifndef CURI_H
 #define CURI_H
 
+#include <spitfire/util/string.h>
+
 namespace spitfire
 {
   namespace network
