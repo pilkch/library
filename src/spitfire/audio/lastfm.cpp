@@ -256,11 +256,10 @@ namespace spitfire
 
           if (IsToStop()) break;
 
-          const util::cDateTime now;
-
           // Check currently playing some
           if ((pCurrent != nullptr) && !bAddedCurrentSongToListenedList) {
             std::cout<<"cLastFM::ThreadFunction Checking song"<<std::endl;
+            const util::cDateTime now;
             if (now.GetMillisecondsSince0AD() >= pCurrent->dateTime.GetMillisecondsSince0AD()) {
               uint64_t uiPositionMS = now.GetMillisecondsSince0AD() - pCurrent->dateTime.GetMillisecondsSince0AD();
               // If track is more than 30 second long and (position is at least half way or position is at least 4 minutes
@@ -281,6 +280,7 @@ namespace spitfire
 
           // Send up to 10 songs from listened to last.fm
           if (!listened.empty()) {
+            const util::cDateTime now;
             ASSERT(now.GetMillisecondsSince0AD() >= lastScrobbled.GetMillisecondsSince0AD());
             uint64_t uiTimeSinceLastScrobbleMS = now.GetMillisecondsSince0AD() - lastScrobbled.GetMillisecondsSince0AD();
             if (uiTimeSinceLastScrobbleMS > 10000) {
