@@ -134,9 +134,9 @@ namespace spitfire
         string_t sLine;
         while (file.ReadLine(sLine)) {
           std::cout<<"cPlayListReader::LoadFromPls Line \""<<sLine<<"\""<<std::endl;
-          if (string::BeginsWith(sLine, TEXT("Version="))) {
+          if (string::StartsWith(sLine, TEXT("Version="))) {
             uiVersion = string::ToUnsignedInt(sLine.substr(strlen("Version=")));
-          } else if (string::BeginsWith(sLine, TEXT("NumberOfEntries="))) {
+          } else if (string::StartsWith(sLine, TEXT("NumberOfEntries="))) {
             uiNumberOfEntries = string::ToUnsignedInt(sLine.substr(strlen("NumberOfEntries=")));
           }
         }
