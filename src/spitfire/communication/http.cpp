@@ -557,28 +557,30 @@ Content-Transfer-Encoding: binary
 
       // ** cConnectedClient
 
-      cConnectedClient::cConnectedClient(cServer& _server, boost::asio::io_service& _socket) :
-        util::cThread(soStop, "cConnectedClient"),
-        soStop("soStop"),
-        server(_server),
-        socket(_socket)
+      cConnectedClient::cConnectedClient(boost::asio::io_service& _socket) :
+        socket(_socket),
+        bIsRunning(false)
       {
       }
 
-      bool cConnectedClient::_IsToStop() const override
+      bool cConnectedClient::IsRunning() const
       {
-        return false;
+        return bIsRunning;
       }
 
-      void cConnectedClient::ThreadFunction()
+      void cConnectedClient::Run(cServer& server)
       {
-        LOG<<"cConnectedClient::ThreadFunction"<<std::endl;
+        LOG<<"cConnectedClient::Run"<<std::endl;
+
+        bIsRunning = true;
 
         server.RunClientConnection(*this);
 
         server.OnClientConnectionFinished(*this);
 
-        LOG<<"cConnectedClient::ThreadFunction returning"<<std::endl;
+        bIsRunning = false;
+
+        LOG<<"cConnectedClient::Run returning"<<std::endl;
       }
 
       size_t cConnectedClient::GetBytesToRead()
@@ -649,8 +651,7 @@ Content-Transfer-Encoding: binary
         clients.push_back(pNewConnection);
 
         // Start the connection thread
-        //pNewConnection->Run();
-        pNewConnection->ThreadFunction();
+        pNewConnection->Run(*this);
       }
 
       void cServer::ServeError404(cConnectedClient& connection, const cRequest& request)
@@ -999,7 +1000,7 @@ Content-Transfer-Encoding: binary
         ASSERT(pNewConnection == nullptr);
 
         // Create a new connection and try to accept it
-        pNewConnection = new cConnectedClient(server, acceptor.get_io_service());
+        pNewConnection = new cConnectedClient(acceptor.get_io_service());
 
         // Try to accept a connection some time in the future
         acceptor.async_accept(pNewConnection->GetSocket(),

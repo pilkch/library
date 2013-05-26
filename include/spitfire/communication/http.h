@@ -173,10 +173,12 @@ namespace spitfire
 
       class cServer;
 
-      class cConnectedClient : public util::cThread
+      class cConnectedClient
       {
       public:
-        cConnectedClient(cServer& server, boost::asio::io_service& socket);
+        explicit cConnectedClient(boost::asio::io_service& socket);
+
+        bool IsRunning() const;
 
         size_t GetBytesToRead();
         size_t GetBytesAvailable();
@@ -199,22 +201,18 @@ namespace spitfire
         void Write(const uint8_t* pBuffer, size_t nBufferSize);
         void Write(const std::string& sData);
 
-      //private:
-        virtual bool _IsToStop() const override;
+        void Run(cServer& server);
 
-        virtual void ThreadFunction() override;
-
+      private:
         /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
         {
           std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
         }*/
 
-        util::cSignalObject soStop;
-
-        cServer& server;
-
         boost::asio::ip::tcp::socket socket;
         //std::string message;
+
+        bool bIsRunning;
       };
 
 
