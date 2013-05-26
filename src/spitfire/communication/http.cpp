@@ -131,7 +131,19 @@ namespace spitfire
 
       string_t GetStatusDescription(STATUS status)
       {
-        return TEXT("");
+        switch (status) {
+          case STATUS::OK: return TEXT("Ok");
+
+          case STATUS::BAD_REQUEST: return TEXT("Bad Request");
+          case STATUS::FORBIDDEN: return TEXT("Forbidden");
+          case STATUS::NOT_FOUND: return TEXT("Not Found");
+          case STATUS::METHOD_NOT_ALLOWED: return TEXT("Method Not Allowed");
+          case STATUS::INTERNAL_SERVER_ERROR: return TEXT("Internal Server Error");
+          case STATUS::NOT_IMPLEMENTED: return TEXT("Not Implemented");
+          case STATUS::HTTP_VERSION_NOT_SUPPORTED: return TEXT("HTTP Version Not Supported");
+        };
+
+        return TEXT("Unknown");
       }
 
 
