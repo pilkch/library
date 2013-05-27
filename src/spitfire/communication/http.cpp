@@ -405,39 +405,40 @@ namespace spitfire
           char curChar = encStr[i];
 
           if ('+' == curChar) {
-            if (tmpStr != NULL) {
+            if (tmpStr != nullptr) {
               decodedString.append(tmpStr, cnt);
-              tmpStr = NULL;
+              tmpStr = nullptr;
               cnt = 0;
             }
             decodedString += ' ';
           } else if ('%' == curChar) {
-            if (tmpStr != NULL) {
+            if (tmpStr != nullptr) {
               decodedString.append(tmpStr, cnt);
-              tmpStr = NULL;
+              tmpStr = nullptr;
               cnt = 0;
             }
 
-            if ((i + 2 < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
-              char s[3];
+            if (((i + 2) < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
+              char s[4]; // NOTE: We only need an arry of 3 chars, but gcc stack protector gives a warning that it won't work on arrays smaller than 4 bytes, so we kindly oblige
               s[0] = encStr[i++];
               s[1] = encStr[i++];
-              s[0] = 0;
+              s[2] = 0;
+              s[3] = 0;
               uint32_t value = breathe::string::FromHexStringToUint32_t(s);
               decodedString += static_cast<char>(value);
             } else {
-              LOG<<"cHTTP::Decode invalid %-escapes in " + encodedString;
-              // TODO: What do we do now?
+              LOG<<"cHTTP::Decode invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
+              return "";
             }
           } else {
             if (cnt == 0) tmpStr = encStr + i;
             ++cnt;
           }
         }
-        if (tmpStr != NULL) {
+        if (tmpStr != nullptr) {
           decodedString.append(tmpStr, cnt);
           cnt = 0;
-          tmpStr = NULL;
+          tmpStr = nullptr;
         }
 
         return decodedString;
