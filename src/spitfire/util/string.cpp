@@ -332,8 +332,8 @@ namespace spitfire
         return temp.erase(0, i);
       }
 
-      return source;
-                                }
+      return "";
+    }
 
     std::wstring StripLeading(const std::wstring& source, const std::wstring& find)
     {
@@ -343,7 +343,7 @@ namespace spitfire
         return temp.erase(0, i);
       }
 
-      return source;
+      return L"";
     }
 
     std::string StripTrailing(const std::string& source, const std::string& find)
