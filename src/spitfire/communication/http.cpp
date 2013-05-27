@@ -655,6 +655,11 @@ Content-Transfer-Encoding: binary
       {
       }
 
+      void cServer::SetRequestHandler(cServerRequestHandler& requestHandler)
+      {
+        pRequestHandler = &requestHandler;
+      }
+
       void cServer::OnConnectedClient(cConnectedClient* pNewConnection)
       {
         LOG<<"cServer::OnConnectedClient New connection started"<<std::endl;
@@ -918,23 +923,12 @@ Content-Transfer-Encoding: binary
         LOG<<"Path "<<request.GetPath()<<std::endl;
         if (IsFileInWebDirectory(request.GetPath())) {
           ServeFile(connection, request);
-        } else {
-          static int x = 1;
-
-          const std::string sContentUTF8 = "<html><head><title>Title</title></head><body>Body " + spitfire::string::ToString(x) + "</body></html>\n";
-
-          x++;
-
-          // TODO: Fill out the response from the request
-          cResponse response;
-          response.SetContentLengthBytes(sContentUTF8.length());
-          connection.SendResponse(response);
-
-          // TODO: Send actual content
-          connection.SendContent(sContentUTF8);
-
-          connection.Write("\n\n");
+          return;
+        } else if ((pRequestHandler != nullptr) && pRequestHandler->HandleRequest(*this, connection, request)) {
+          return;
         }
+
+        ServeError404(connection, request);
       }
 
       void cServer::OnClientConnectionFinished(cConnectedClient& connection)
