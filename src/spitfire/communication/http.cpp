@@ -964,7 +964,7 @@ Content-Transfer-Encoding: binary
       {
         LOG<<"cServer::ThreadFunction"<<std::endl;
 
-        cTCPServer server(*this, 12345);
+        cTCPServer server(*this, 38001);
         server.Run();
 
         while (true) {
