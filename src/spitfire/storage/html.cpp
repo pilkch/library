@@ -4,6 +4,9 @@
 
 #include <spitfire/storage/file.h>
 
+
+// ** cMyController
+
 class cMyController
 {
 public:
