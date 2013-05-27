@@ -281,6 +281,9 @@ namespace spitfire
         void ServeFile(cConnectedClient& connection, const cRequest& request);
 
       private:
+        bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
+        bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
+
         virtual bool _IsToStop() const override;
 
         void SendEvent(cServerEvent* pEvent);

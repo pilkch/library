@@ -783,31 +783,48 @@ Content-Transfer-Encoding: binary
         connection.Write("\n\n");
       }
 
+      bool cServer::GetLocalFilePathInWebDirectory(std::string& sResolvedLocalFilePath, const std::string sRelativeFilePath) const
+      {
+        // Build the path
+        sResolvedLocalFilePath = "data/web/" + string::StripLeading(sRelativeFilePath, "/");
+
+        // Check if the path is trying to be tricky
+        if ((string::CountOccurrences(sResolvedLocalFilePath, "./") != 0) || (string::CountOccurrences(sResolvedLocalFilePath, "..") != 0)) {
+          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a compressed path, returning false"<<std::endl;
+          return false;
+        } else if (!filesystem::FileExists(sResolvedLocalFilePath)) {
+          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" was not found, returning false"<<std::endl;
+          return false;
+        }
+
+        // Look for index.html if it is a folder
+        if (filesystem::IsFolder(sResolvedLocalFilePath)) {
+          if (!filesystem::FileExists(sResolvedLocalFilePath + "index.html")) {
+            LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a folder, but it doesn't contain an index.html, returning false"<<std::endl;
+            return false;
+          }
+
+          sResolvedLocalFilePath += "index.html";
+        }
+
+        return true;
+      }
+
+      bool cServer::IsFileInWebDirectory(const std::string sRelativeFilePath) const
+      {
+        std::string sResolvedLocalFilePath;
+        return GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, sRelativeFilePath);
+      }
 
       void cServer::ServeFile(cConnectedClient& connection, const cRequest& request)
       {
-        std::string sRelativeFilePath = string::StripLeading(request.GetPath(), "/");
-
-        bool bIsValidRelativeFilePath = true;
-
-        // Check if the path is trying to be tricky
-        if ((string::CountOccurrences(sRelativeFilePath, "./") != 0) || (string::CountOccurrences(sRelativeFilePath, "..") != 0)) {
-          LOG<<"cServer::ServeFile Request path is a compressed path, returning 404"<<std::endl;
-          bIsValidRelativeFilePath = false;
-        } else if (!filesystem::FileExists(sRelativeFilePath)) {
-          LOG<<"cServer::ServeFile Request path \""<<sRelativeFilePath<<"\" was not found, returning 404"<<std::endl;
-          bIsValidRelativeFilePath = false;
-        }
-
-        if (!bIsValidRelativeFilePath) {
+        std::string sResolvedLocalFilePath;
+        if (!GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, request.GetPath())) {
           ServeError404(connection, request);
         } else {
-          // Add index.html if it is a folder
-          if (filesystem::IsFolder(sRelativeFilePath)) sRelativeFilePath += "index.html";
-
           bool bServeInline = false;
-          const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sRelativeFilePath), bServeInline);
-          ServeFile(connection, request, sMimeTypeUTF8, sRelativeFilePath);
+          const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sResolvedLocalFilePath), bServeInline);
+          ServeFile(connection, request, sMimeTypeUTF8, sResolvedLocalFilePath);
         }
       }
 
@@ -898,7 +915,7 @@ Content-Transfer-Encoding: binary
         cRequest request;
         ParseRequest(request, sRequest);
         LOG<<"Path "<<request.GetPath()<<std::endl;
-        if (string::StartsWith(request.GetPath(), "/data/web/")) {
+        if (IsFileInWebDirectory(request.GetPath())) {
           ServeFile(connection, request);
         } else {
           static int x = 1;
