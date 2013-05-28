@@ -14,6 +14,7 @@
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/html.h>
 #include <spitfire/util/datetime.h>
+#include <spitfire/util/queue.h>
 #include <spitfire/util/thread.h>
 
 namespace spitfire
@@ -223,6 +224,7 @@ namespace spitfire
         cTCPServer(cServer& server, uint16_t uiPort);
 
         void Run();
+        void StopThreadNow();
 
       private:
         void StartAccept();
@@ -269,6 +271,9 @@ namespace spitfire
         void SetRequestHandler(cServerRequestHandler& pRequestHandler);
         void SetRootPath(const string_t& sFolderPath);
 
+        void Start();
+        void Stop();
+
         void OnConnectedClient(cConnectedClient* pNewConnection);
         void RunClientConnection(cConnectedClient& connection);
         void OnClientConnectionFinished(cConnectedClient& connection);
@@ -284,25 +289,20 @@ namespace spitfire
         bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
         bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
 
-        virtual bool _IsToStop() const override;
-
         void SendEvent(cServerEvent* pEvent);
-        cServerEvent* GetNextEvent();
 
         virtual void ThreadFunction() override;
 
         void OnRequestMade(cConnectedClient& connection, const cRequest& request);
 
-        util::cSignalObject soStop;
+        util::cSignalObject soAction;
+        spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
+
+        cTCPServer* pTCPServer;
 
         cServerRequestHandler* pRequestHandler; // For calling back into the application, every request is sent here first
 
         std::list<cConnectedClient*> clients;
-
-        util::cSignalObject soEvent;
-
-        util::cMutex mutexEventQueue;
-        std::list<cServerEvent*> eventQueue;
       };
 
 

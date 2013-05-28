@@ -647,17 +647,32 @@ Content-Transfer-Encoding: binary
       // ** cServer
 
       cServer::cServer() :
-        util::cThread(soStop, "cServer"),
-        soStop("soStop"),
-        pRequestHandler(nullptr),
-        soEvent("soEvent"),
-        mutexEventQueue("mutexEventQueue")
+        util::cThread(soAction, "cServer"),
+        soAction("soAction"),
+        eventQueue(soAction),
+        pTCPServer(nullptr),
+        pRequestHandler(nullptr)
       {
       }
 
       void cServer::SetRequestHandler(cServerRequestHandler& requestHandler)
       {
         pRequestHandler = &requestHandler;
+      }
+
+      void cServer::Start()
+      {
+        // Start the thread
+        Run();
+      }
+
+      void cServer::Stop()
+      {
+        // Tell the server to stop
+        if (pTCPServer != nullptr) pTCPServer->StopThreadNow();
+
+        // Tell the thread to stop
+        StopThreadNow();
       }
 
       void cServer::OnConnectedClient(cConnectedClient* pNewConnection)
@@ -867,11 +882,6 @@ Content-Transfer-Encoding: binary
         //ServeFile(client, request);
       }
 
-      bool cServer::_IsToStop() const
-      {
-        return false;
-      }
-
       void cServer::RunClientConnection(cConnectedClient& connection)
       {
         // Wait for the request to be sent
@@ -941,31 +951,22 @@ Content-Transfer-Encoding: binary
 
       void cServer::SendEvent(cServerEvent* pEvent)
       {
-        spitfire::util::cLockObject lock(mutexEventQueue);
-
-        eventQueue.push_back(pEvent);
-      }
-
-      cServerEvent* cServer::GetNextEvent()
-      {
-        spitfire::util::cLockObject lock(mutexEventQueue);
-
-        cServerEvent* pEvent = eventQueue.front();
-        eventQueue.pop_front();
-        return pEvent;
+        eventQueue.AddItemToBack(pEvent);
       }
 
       void cServer::ThreadFunction()
       {
         LOG<<"cServer::ThreadFunction"<<std::endl;
 
-        cTCPServer server(*this, 38001);
-        server.Run();
+        pTCPServer = new cTCPServer(*this, 38001);
+        pTCPServer->Run();
 
         while (true) {
-          soEvent.WaitForever();
+          soAction.WaitTimeoutMS(1000);
 
-          cServerEvent* pEvent = GetNextEvent();
+          if (IsToStop()) break;
+
+          cServerEvent* pEvent = eventQueue.RemoveItemFromFront();
           if (pEvent != nullptr) {
             if (pEvent->type == SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED) {
               ASSERT(pEvent->pConnectedClient != nullptr);
@@ -987,6 +988,19 @@ Content-Transfer-Encoding: binary
 
             SAFE_DELETE(pEvent);
           }
+
+          // Try to avoid hogging the CPU
+          spitfire::util::SleepThisThreadMS(1);
+        }
+
+        SAFE_DELETE(pTCPServer);
+
+        // Remove any further events because we don't care any more
+        while (true) {
+          cServerEvent* pEvent = eventQueue.RemoveItemFromFront();
+          if (pEvent == nullptr) break;
+
+          spitfire::SAFE_DELETE(pEvent);
         }
 
         LOG<<"cServer::ThreadFunction returning"<<std::endl;
@@ -1014,6 +1028,11 @@ Content-Transfer-Encoding: binary
         io_service.run();
 
         SAFE_DELETE(pNewConnection);
+      }
+
+      void cTCPServer::StopThreadNow()
+      {
+        io_service.stop();
       }
 
       void cTCPServer::StartAccept()
