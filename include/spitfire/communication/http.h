@@ -58,6 +58,10 @@ namespace spitfire
         const string_t& GetPath() const { return sPath; }
         void SetOffsetBytes(size_t _nOffsetBytes) { nOffsetBytes = _nOffsetBytes; }
 
+        std::string GetContentType() const;
+        void SetContentType(const std::string& sContentType);
+        size_t GetContentLengthBytes() const;
+        void SetContentLengthBytes(size_t nLengthBytes);
         const std::map<std::string, std::string>& GetValues() const { return mValues; }
         void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
 
@@ -65,8 +69,6 @@ namespace spitfire
         //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
 
       protected:
-        void SetContentType(const std::string& sContentType);
-
         std::string CreateVariablesString() const;
         std::string CreateRequestHeader() const; // Create a request header, everything up to the content
 

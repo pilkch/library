@@ -306,6 +306,18 @@ namespace spitfire
       return L"";
     }
 
+    bool Find(const std::string& source, const std::string& find, size_t& indexOut)
+    {
+      indexOut = source.find(find);
+      return (indexOut != std::string::npos);
+    }
+
+    bool Find(const std::wstring& source, const std::wstring& find, size_t& indexOut)
+    {
+      indexOut = source.find(find);
+      return (indexOut != std::wstring::npos);
+    }
+
     std::string Replace(const std::string& source, const std::string& sFind, const std::string& sReplace)
     {
       std::string temp(source);

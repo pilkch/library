@@ -154,21 +154,39 @@ namespace spitfire
         if (sp.IsEnd()) return false;
 
         // If we have an empty line (Like at the end of the request) then return false
-        const char c = sp.GetCharacter();
+        char c = sp.GetCharacter();
         if ((c == '\r') || (c == '\n')) return false;
 
         // Parse path
         if (!sp.GetToStringAndSkip(": ", sKey)) {
-          LOG<<"ParseRequest Couldn't parse key, returning false"<<std::endl;
+          LOG<<"ParseRequestPair Couldn't parse key, returning false"<<std::endl;
           return false;
         }
 
         // Get to the end of the line
-        return sp.GetToStringAndSkip("\n", sValue);
+        if (!sp.GetToOneOfTheseCharacters("\r\n", sValue)) {
+          LOG<<"ParseRequestPair Couldn't parse value, returning false"<<std::endl;
+          return false;
+        }
+
+        // Skip the value
+        sp.SkipCharacters(sValue.length());
+
+        // Skip \r\n and \n
+        c = sp.GetCharacter();
+        if (c == '\r') {
+          sp.SkipCharacter();
+          if (sp.GetCharacter() == '\n') sp.SkipCharacter();
+        } else if (c == '\n') sp.SkipCharacter();
+
+        //LOG<<"ParseRequestPair returning \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
+        return true;
       }
 
       bool ParseRequest(cRequest& request, const std::string& sRequest)
       {
+        //LOG<<"ParseRequest sRequest=\""<<sRequest<<"\""<<std::endl;
+
         request.Clear();
 
         string::cStringParserUTF8 sp(sRequest);
@@ -472,6 +490,24 @@ namespace spitfire
 
 
       // ** cRequest
+
+      std::string cRequest::GetContentType() const
+      {
+        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Content-Type");
+        if (iter != mValues.end()) return iter->second;
+
+        // Return an empty string if we haven't specified a content type
+        return "";
+      }
+
+      size_t cRequest::GetContentLengthBytes() const
+      {
+        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Content-Length");
+        if (iter != mValues.end()) return spitfire::string::ToUnsignedInt(iter->second);
+
+        // Return a default content type
+        return 0;
+      }
 
       void cRequest::AddPostFileFromPath(const std::string& _sName, const string_t& _sFilePath)
       {
