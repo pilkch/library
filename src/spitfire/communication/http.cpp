@@ -185,7 +185,7 @@ namespace spitfire
 
       bool ParseRequest(cRequest& request, const std::string& sRequest)
       {
-        //LOG<<"ParseRequest sRequest=\""<<sRequest<<"\""<<std::endl;
+        LOG<<"ParseRequest sRequest=\""<<sRequest<<"\""<<std::endl;
 
         request.Clear();
 
@@ -237,6 +237,59 @@ namespace spitfire
           }
         }
 
+        // Decode any form url encoded data
+        //LOG<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
+        if (request.GetContentType() == "application/x-www-form-urlencoded") {
+          const size_t nContentLengthBytes = request.GetContentLengthBytes();
+          if (nContentLengthBytes != 0) {
+            if (sp.IsEnd()) {
+              LOG<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
+              return false;
+            }
+
+            // Read an empty line
+            sp.SkipToStringAndSkip("\n");
+
+            if (sp.IsEnd()) {
+              LOG<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
+              return false;
+            }
+
+            // Read the url encoded string
+            // action=delete&track=140736481787360&x=14&y=14
+            std::string sLine = sp.GetToEndAndSkip();
+            if (sLine.length() < nContentLengthBytes) {
+              LOG<<"ParseRequest URL encoded content length was less than the expected "<<nContentLengthBytes<<", actual "<<sLine.length()<<", returning false"<<std::endl;
+              return false;
+            }
+
+            // Make sure that we ignore bytes after the content length
+            sLine[nContentLengthBytes] = 0;
+
+            //LOG<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
+
+            // Decode our url encoded string;
+            std::vector<std::string> pairs;
+            spitfire::string::Split(sLine, '&', pairs);
+
+            const size_t n = pairs.size();
+            for (size_t i = 0; i < n; i++) {
+              //LOG<<"ParseRequest Pair \""<<pairs[i]<<"\""<<std::endl;
+              size_t found = 0;
+              if (!spitfire::string::Find(pairs[i], "=", found)) {
+                LOG<<"ParseRequest Invalid pair \""<<pairs[i]<<"\", returning false"<<std::endl;
+                return false;
+              }
+
+              const std::string sKey = pairs[i].substr(0, found);
+              const std::string sValue = spitfire::network::Decode(pairs[i].substr(found + 1));
+              //LOG<<"ParseRequest Split \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
+              request.AddFormData(sKey, sValue);
+            }
+          }
+        }
+
+        LOG<<"ParseRequest returning true"<<std::endl;
         return true;
       }
 

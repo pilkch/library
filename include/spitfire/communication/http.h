@@ -62,8 +62,12 @@ namespace spitfire
         void SetContentType(const std::string& sContentType);
         size_t GetContentLengthBytes() const;
         void SetContentLengthBytes(size_t nLengthBytes);
+
         const std::map<std::string, std::string>& GetValues() const { return mValues; }
         void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
+
+        const std::map<std::string, std::string>& GetFormData() const { return mFormData; }
+        void AddFormData(const std::string& sName, const std::string& sValue) { mFormData[sName] = sValue; }
 
         void AddPostFileFromPath(const std::string& sName, const string_t& sFilePath);
         //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
@@ -77,6 +81,7 @@ namespace spitfire
         string_t sPath;
         size_t nOffsetBytes;
         std::map<std::string, std::string> mValues;
+        std::map<std::string, std::string> mFormData;
 
         // TODO: Support multiple attachments
         struct cFile
@@ -397,6 +402,7 @@ namespace spitfire
         sPath.clear();
         nOffsetBytes = 0;
         mValues.clear();
+        mFormData.clear();
 
         file.sName.clear();
         file.sFilePath.clear();
