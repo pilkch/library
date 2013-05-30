@@ -121,6 +121,105 @@ namespace spitfire
     }
 
 
+    bool IsSpecialCharacter(char c)
+    {
+      switch (c) {
+        case '*':
+        case '-':
+        case '.':
+        case '_': {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    std::string Decode(const std::string& encodedString)
+    {
+      const char* encStr = encodedString.c_str();
+      std::string decodedString;
+      const char* tmpStr = nullptr;
+      std::size_t cnt = 0;
+
+      // Reserve enough space for the worst case.
+      const std::size_t encodedLen = encodedString.size();
+      decodedString.reserve(encodedLen);
+
+      // Run down the length of the encoded string, examining each
+      // character.  If it's a %, we discard it, read in the next two
+      // characters, convert their hex value to a char, and write
+      // that to the decoded string.  Anything else, we just copy over.
+      for (std::size_t i = 0; i < encodedLen; ++i) {
+        char curChar = encStr[i];
+
+        if ('+' == curChar) {
+          if (tmpStr != nullptr) {
+            decodedString.append(tmpStr, cnt);
+            tmpStr = nullptr;
+            cnt = 0;
+          }
+          decodedString += ' ';
+        } else if ('%' == curChar) {
+          if (tmpStr != nullptr) {
+            decodedString.append(tmpStr, cnt);
+            tmpStr = nullptr;
+            cnt = 0;
+          }
+
+          if (((i + 2) < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
+            char s[4]; // NOTE: We only need an arry of 3 chars, but gcc stack protector gives a warning that it won't work on arrays smaller than 4 bytes, so we kindly oblige
+            s[0] = encStr[i++];
+            s[1] = encStr[i++];
+            s[2] = 0;
+            s[3] = 0;
+            uint32_t value = breathe::string::FromHexStringToUint32_t(s);
+            decodedString += static_cast<char>(value);
+          } else {
+            LOG<<"cHTTP::Decode invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
+            return "";
+          }
+        } else {
+          if (cnt == 0) tmpStr = encStr + i;
+          ++cnt;
+        }
+      }
+      if (tmpStr != nullptr) {
+        decodedString.append(tmpStr, cnt);
+        cnt = 0;
+        tmpStr = nullptr;
+      }
+
+      return decodedString;
+    }
+
+    std::string Encode(const std::string& rawString)
+    {
+      char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
+
+      std::size_t rawLen = rawString.size();
+
+      std::string encodedString;
+      encodedString.reserve(rawLen);
+
+      for (std::size_t i = 0; i < rawLen; ++i) {
+        char curChar = rawString[i];
+
+        if (curChar == ' ') encodedString += '+';
+        else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
+        else {
+          unsigned int temp = static_cast<unsigned int>(curChar);
+
+          encodingBuffer[1] = breathe::string::ConvertToHexDigit(temp / 0x10);
+          encodingBuffer[2] = breathe::string::ConvertToHexDigit(temp % 0x10);
+          encodedString += encodingBuffer;
+        }
+      }
+
+      return encodedString;
+    }
+
+
 
     namespace http
     {
@@ -441,105 +540,6 @@ namespace spitfire
       }
 
 
-
-
-      bool IsSpecialCharacter(char c)
-      {
-        switch (c) {
-          case '*':
-          case '-':
-          case '.':
-          case '_': {
-            return true;
-          }
-        }
-
-        return false;
-      }
-
-      std::string Decode(const std::string& encodedString)
-      {
-        const char* encStr = encodedString.c_str();
-        std::string decodedString;
-        const char* tmpStr = nullptr;
-        std::size_t cnt = 0;
-
-        // Reserve enough space for the worst case.
-        const std::size_t encodedLen = encodedString.size();
-        decodedString.reserve(encodedLen);
-
-        // Run down the length of the encoded string, examining each
-        // character.  If it's a %, we discard it, read in the next two
-        // characters, convert their hex value to a char, and write
-        // that to the decoded string.  Anything else, we just copy over.
-        for (std::size_t i = 0; i < encodedLen; ++i) {
-          char curChar = encStr[i];
-
-          if ('+' == curChar) {
-            if (tmpStr != nullptr) {
-              decodedString.append(tmpStr, cnt);
-              tmpStr = nullptr;
-              cnt = 0;
-            }
-            decodedString += ' ';
-          } else if ('%' == curChar) {
-            if (tmpStr != nullptr) {
-              decodedString.append(tmpStr, cnt);
-              tmpStr = nullptr;
-              cnt = 0;
-            }
-
-            if (((i + 2) < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
-              char s[4]; // NOTE: We only need an arry of 3 chars, but gcc stack protector gives a warning that it won't work on arrays smaller than 4 bytes, so we kindly oblige
-              s[0] = encStr[i++];
-              s[1] = encStr[i++];
-              s[2] = 0;
-              s[3] = 0;
-              uint32_t value = breathe::string::FromHexStringToUint32_t(s);
-              decodedString += static_cast<char>(value);
-            } else {
-              LOG<<"cHTTP::Decode invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
-              return "";
-            }
-          } else {
-            if (cnt == 0) tmpStr = encStr + i;
-            ++cnt;
-          }
-        }
-        if (tmpStr != nullptr) {
-          decodedString.append(tmpStr, cnt);
-          cnt = 0;
-          tmpStr = nullptr;
-        }
-
-        return decodedString;
-      }
-
-      std::string Encode(const std::string& rawString)
-      {
-        char encodingBuffer[4] = { '%', '\0', '\0', '\0' };
-
-        std::size_t rawLen = rawString.size();
-
-        std::string encodedString;
-        encodedString.reserve(rawLen);
-
-        for (std::size_t i = 0; i < rawLen; ++i) {
-          char curChar = rawString[i];
-
-          if (curChar == ' ') encodedString += '+';
-          else if (isalpha(curChar) || isdigit(curChar) || IsSpecialCharacter(curChar)) encodedString += curChar;
-          else {
-            unsigned int temp = static_cast<unsigned int>(curChar);
-
-            encodingBuffer[1] = breathe::string::ConvertToHexDigit(temp / 0x10);
-            encodingBuffer[2] = breathe::string::ConvertToHexDigit(temp % 0x10);
-            encodedString += encodingBuffer;
-          }
-        }
-
-        return encodedString;
-      }
 
 
       // ** cRequest
