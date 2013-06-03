@@ -676,7 +676,12 @@ Content-Transfer-Encoding: binary
 
         bIsRunning = true;
 
-        server.RunClientConnection(*this);
+        try {
+          server.RunClientConnection(*this);
+        }
+        catch (std::exception& e) {
+          LOG<<e.what()<<std::endl;
+        }
 
         server.OnClientConnectionFinished(*this);
 
