@@ -168,15 +168,19 @@ namespace spitfire
           }
 
           if (((i + 2) < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
+            // Parse the hex digits and add the new character to the string
             char s[4]; // NOTE: We only need an arry of 3 chars, but gcc stack protector gives a warning that it won't work on arrays smaller than 4 bytes, so we kindly oblige
-            s[0] = encStr[i++];
-            s[1] = encStr[i++];
+            s[0] = encStr[i + 1];
+            s[1] = encStr[i + 2];
             s[2] = 0;
             s[3] = 0;
             uint32_t value = breathe::string::FromHexStringToUint32_t(s);
             decodedString += static_cast<char>(value);
+
+            // Skip because we have read two extra characters
+            i += 2;
           } else {
-            LOG<<"cHTTP::Decode invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
+            LOG<<"cHTTP::Decode Invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
             return "";
           }
         } else {
@@ -312,7 +316,7 @@ namespace spitfire
           return false;
         }
 
-        request.SetPath(sValue);
+        request.SetPath(Decode(sValue));
 
         // Skip to the end of the line
         sp.SkipToStringAndSkip("\n");
@@ -399,6 +403,7 @@ namespace spitfire
       cResponse::cResponse() :
         status(STATUS::OK),
         nContentLengthBytes(0),
+        bContentDispositionServeInline(true),
         iExpires(-1),
         bCacheControlPrivateMaxAgeZero(true),
         bCloseConnection(true)
@@ -424,6 +429,13 @@ namespace spitfire
       void cResponse::SetContentTypeTextHTMLUTF8()
       {
         sMimeType = "text/html";
+      }
+
+      void cResponse::SetContentDispositionInline(const std::string& sFile)
+      {
+        // Content-Disposition: inline; filename="lilly.mp3"
+        bContentDispositionServeInline = true;
+        sContentDispositionFile = sFile;
       }
 
       void cResponse::SetDateTimeNow()
@@ -457,6 +469,10 @@ namespace spitfire
         // Set the content type
         if (spitfire::string::StartsWith(sMimeType, "text/")) o<<"Content-type: "<<sMimeType<<"; charset=UTF-8\n";
         else o<<"Content-type: "<<sMimeType<<"\n";
+
+        // Set the content disposition
+        // Content-Disposition: inline; filename="lilly.mp3"
+        if (bContentDispositionServeInline && !sContentDispositionFile.empty()) o<<"Content-Disposition: inline; filename=\""<<sContentDispositionFile<<"\"\n";
 
         if (bCacheControlPrivateMaxAgeZero) o<<"Cache-control: private, max-age=0\n";
         o<<"Date: Fri, 24 May 2013 10:15:39 GMT\n";

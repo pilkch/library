@@ -162,6 +162,8 @@ namespace spitfire
         void SetContentLengthBytes(size_t nContentLengthBytes);
         void SetContentMimeType(const std::string& sMimeType);
         void SetContentTypeTextHTMLUTF8();
+        bool GetContentDispositionInline(bool& bServeInline, std::string& sFile) const;
+        void SetContentDispositionInline(const std::string& sFile);
         void SetDateTimeNow();
         void SetExpires(int iExpires);
         void SetCacheControlPrivateMaxAgeZero();
@@ -173,6 +175,8 @@ namespace spitfire
         STATUS status;
         size_t nContentLengthBytes;
         std::string sMimeType;
+        bool bContentDispositionServeInline;
+        std::string sContentDispositionFile;
         util::cDateTime dateTime;
         int iExpires;
         bool bCacheControlPrivateMaxAgeZero;
