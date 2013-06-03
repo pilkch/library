@@ -308,8 +308,6 @@ namespace spitfire
 
         virtual void ThreadFunction() override;
 
-        void OnRequestMade(cConnectedClient& connection, const cRequest& request);
-
         util::cSignalObject soAction;
         spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
 

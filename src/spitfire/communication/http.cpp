@@ -987,16 +987,6 @@ Content-Transfer-Encoding: binary
         connection.SendContent(sContentUTF8);
       }*/
 
-      void cServer::OnRequestMade(cConnectedClient& connection, const cRequest& request)
-      {
-        // Ask the request handler to handle this request first
-        if (pRequestHandler != nullptr) {
-          if (pRequestHandler->HandleRequest(*this, connection, request)) return;
-        }
-
-        //ServeFile(client, request);
-      }
-
       void cServer::RunClientConnection(cConnectedClient& connection)
       {
         // Wait for the request to be sent
