@@ -222,7 +222,7 @@ namespace spitfire
         ReadLovedFromFile(loved);
 
         while (true) {
-          std::cout<<"cLastFM::ThreadFunction Loop"<<std::endl;
+          //std::cout<<"cLastFM::ThreadFunction Loop"<<std::endl;
           soAction.WaitTimeoutMS(1000);
 
           if (IsToStop()) break;
@@ -258,7 +258,7 @@ namespace spitfire
 
           // Check currently playing some
           if ((pCurrent != nullptr) && !bAddedCurrentSongToListenedList) {
-            std::cout<<"cLastFM::ThreadFunction Checking song"<<std::endl;
+            //std::cout<<"cLastFM::ThreadFunction Checking song"<<std::endl;
             const util::cDateTime now;
             if (now.GetMillisecondsSince0AD() >= pCurrent->dateTime.GetMillisecondsSince0AD()) {
               uint64_t uiPositionMS = now.GetMillisecondsSince0AD() - pCurrent->dateTime.GetMillisecondsSince0AD();
