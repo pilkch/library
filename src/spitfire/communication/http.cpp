@@ -665,6 +665,11 @@ Content-Transfer-Encoding: binary
       {
       }
 
+      void cConnectedClient::Close()
+      {
+        socket.close();
+      }
+
       bool cConnectedClient::IsRunning() const
       {
         return bIsRunning;
@@ -1025,14 +1030,11 @@ Content-Transfer-Encoding: binary
         cRequest request;
         ParseRequest(request, sRequest);
         LOG<<"Path "<<request.GetPath()<<std::endl;
-        if (IsFileInWebDirectory(request.GetPath())) {
-          ServeFile(connection, request);
-          return;
-        } else if ((pRequestHandler != nullptr) && pRequestHandler->HandleRequest(*this, connection, request)) {
-          return;
-        }
+        if (IsFileInWebDirectory(request.GetPath())) ServeFile(connection, request);
+        else if ((pRequestHandler != nullptr) && pRequestHandler->HandleRequest(*this, connection, request)) {
+        } else ServeError404(connection, request);
 
-        ServeError404(connection, request);
+        if (request.IsCloseConnection()) connection.Close();
       }
 
       void cServer::OnClientConnectionFinished(cConnectedClient& connection)
@@ -1316,7 +1318,17 @@ Content-Transfer-Encoding: binary
         return sText;
       }
 
+      bool cRequest::IsCloseConnection() const
+      {
+        std::map<std::string, std::string>::const_iterator iter = mValues.find("Connection");
+        if (iter != mValues.end()) return spitfire::string::IsEqualInsensitive(iter->second, "Close");
 
+        return true;
+      }
+
+
+      // ** cConnectionHTTP
+      //
       // HTTP/1.1 200 OK
       // Content-Type: text/plain
       // Transfer-Encoding: chunked

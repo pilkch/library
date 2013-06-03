@@ -72,6 +72,8 @@ namespace spitfire
         void AddPostFileFromPath(const std::string& sName, const string_t& sFilePath);
         //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
 
+        bool IsCloseConnection() const;
+
       protected:
         std::string CreateVariablesString() const;
         std::string CreateRequestHeader() const; // Create a request header, everything up to the content
@@ -200,6 +202,8 @@ namespace spitfire
         {
           return socket;
         }
+
+        void Close();
 
         size_t Read(uint8_t* pBuffer, size_t nBufferSize);
 
