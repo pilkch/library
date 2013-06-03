@@ -919,6 +919,60 @@ Content-Transfer-Encoding: binary
         connection.Write("\n\n");
       }
 
+      void cServer::ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath)
+      {
+        if (!request.IsMethodGet()) {
+          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
+          return;
+        }
+
+        if (!filesystem::FileExists(sFilePath)) {
+          ServeError404(connection, request);
+          return;
+        }
+
+        if (filesystem::IsFolder(sFilePath)) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        storage::cReadFile file(sFilePath);
+        if (!file.IsOpen()) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sFilePath);
+
+        bool bServeInline = false;
+        const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sFilePath), bServeInline);
+
+        cResponse response;
+        response.SetStatus(STATUS::OK);
+        response.SetContentLengthBytes(nFileSizeBytes);
+        response.SetContentMimeType(sMimeTypeUTF8);
+        if (bServeInline) response.SetContentDispositionInline(filesystem::GetFile(sFilePath));
+        response.SetDateTimeNow();
+        response.SetExpires(-1);
+        response.SetCacheControlPrivateMaxAgeZero();
+        response.SetCloseConnection();
+
+        connection.SendResponse(response);
+
+        const size_t nBufferSizeBytes = 1024;
+
+        uint8_t buffer[nBufferSizeBytes];
+
+        while (file.IsOpen()) {
+          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
+          if (nRead == 0) break;
+
+          connection.Write(buffer, nRead);
+        }
+
+        connection.Write("\n\n");
+      }
+
       bool cServer::GetLocalFilePathInWebDirectory(std::string& sResolvedLocalFilePath, const std::string sRelativeFilePath) const
       {
         // Build the path

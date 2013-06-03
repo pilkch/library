@@ -293,12 +293,12 @@ namespace spitfire
         void RunClientConnection(cConnectedClient& connection);
         void OnClientConnectionFinished(cConnectedClient& connection);
 
-      protected:
         void ServeError404(cConnectedClient& connection, const cRequest& request);
         void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status);
         void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8);
         void ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath);
         void ServeFile(cConnectedClient& connection, const cRequest& request);
+        void ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath);
 
       private:
         bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
