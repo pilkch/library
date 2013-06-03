@@ -49,8 +49,8 @@ namespace spitfire
 
     // http://www.cppreference.com/wiki/c/string/isxdigit
     // returns true if (A-F, a-f, or 0-9)
-    inline bool IsHexDigit(char c) { return (isxdigit(c) == 1); }
-    inline bool IsHexDigit(wchar_t c) { return (isxdigit(c) == 1); }
+    inline bool IsHexDigit(char c) { return (isxdigit(c) != 0); }
+    inline bool IsHexDigit(wchar_t c) { return (isxdigit(c) != 0); }
 
     // Is the character for this key in the printable range of ascii characters?
     // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
