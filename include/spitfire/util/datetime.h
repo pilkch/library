@@ -26,6 +26,14 @@ namespace spitfire
       SUNDAY
     };
 
+    string_t WeekDayToLongString(WEEKDAY weekDay);
+    string_t WeekDayToShortString(WEEKDAY weekDay);
+    WEEKDAY StringToWeekDay(const string_t& sWeekDay);
+
+    string_t MonthToLongString(int month);
+    string_t MonthToShortString(int month);
+    int StringToMonth(const string_t& sMonth);
+
     class cDateTime
     {
     public:
@@ -54,9 +62,18 @@ namespace spitfire
       // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
       uint64_t GetMillisecondsSince0AD() const;
 
+      void AddDays(int days);
+
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
       string_t GetISO8601UTCString() const;
       bool SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset); // Returns true and sets offset if there is one
+
+
+      // RFC 1123 Format
+      // Must be in GMT time zone
+      // Wed, 05 Jun 2013 13:08:10 GMT
+      string_t GetRFC1123Format() const;
+      bool SetRFC1123Format(const string_t& rhs);
 
       // RFC 3339 Format
       // YYYY-MM-DDThh:mm:ss

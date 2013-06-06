@@ -33,6 +33,107 @@ namespace spitfire
 {
   namespace util
   {
+    string_t WeekDayToLongString(WEEKDAY weekDay)
+    {
+      if (weekDay == WEEKDAY::MONDAY) return TEXT("Monday");
+      else if (weekDay == WEEKDAY::TUESDAY) return TEXT("Tuesday");
+      else if (weekDay == WEEKDAY::WEDNESDAY) return TEXT("Wednesday");
+      else if (weekDay == WEEKDAY::THURSDAY) return TEXT("Thursday");
+      else if (weekDay == WEEKDAY::FRIDAY) return TEXT("Friday");
+      else if (weekDay == WEEKDAY::SATURDAY) return TEXT("Saturday");
+
+      return TEXT("Sunday");
+    }
+
+    string_t WeekDayToShortString(WEEKDAY weekDay)
+    {
+      if (weekDay == WEEKDAY::MONDAY) return TEXT("Mon");
+      else if (weekDay == WEEKDAY::TUESDAY) return TEXT("Tue");
+      else if (weekDay == WEEKDAY::WEDNESDAY) return TEXT("Wed");
+      else if (weekDay == WEEKDAY::THURSDAY) return TEXT("Thu");
+      else if (weekDay == WEEKDAY::FRIDAY) return TEXT("Fri");
+      else if (weekDay == WEEKDAY::SATURDAY) return TEXT("Sat");
+
+      return TEXT("Sun");
+    }
+
+    WEEKDAY StringToWeekDay(string_t sWeekDay)
+    {
+      WEEKDAY weekDay = WEEKDAY::SUNDAY;
+
+      if ((sWeekDay == TEXT("Monday")) || (sWeekDay == TEXT("Mon"))) weekDay = WEEKDAY::MONDAY;
+      else if ((sWeekDay == TEXT("Tuesday")) || (sWeekDay == TEXT("Tue"))) weekDay = WEEKDAY::TUESDAY;
+      else if ((sWeekDay == TEXT("Wednesday")) || (sWeekDay == TEXT("Wed"))) weekDay = WEEKDAY::WEDNESDAY;
+      else if ((sWeekDay == TEXT("Thursday")) || (sWeekDay == TEXT("Thu"))) weekDay = WEEKDAY::THURSDAY;
+      else if ((sWeekDay == TEXT("Friday")) || (sWeekDay == TEXT("Fri"))) weekDay = WEEKDAY::FRIDAY;
+      else if ((sWeekDay == TEXT("Saturday")) || (sWeekDay == TEXT("Sat"))) weekDay = WEEKDAY::SATURDAY;
+
+      return weekDay;
+    }
+
+    string_t MonthToLongString(int month)
+    {
+      const string_t months[12] = {
+        TEXT("January"),
+        TEXT("February"),
+        TEXT("March"),
+        TEXT("April"),
+        TEXT("May"),
+        TEXT("June"),
+        TEXT("July"),
+        TEXT("August"),
+        TEXT("September"),
+        TEXT("October"),
+        TEXT("November"),
+        TEXT("December"),
+      };
+
+      ASSERT((month >= 1) && (month <= 12));
+      return months[month];
+    }
+
+    string_t MonthToShortString(int month)
+    {
+      const string_t months[12] = {
+        TEXT("Jan"),
+        TEXT("Feb"),
+        TEXT("Mar"),
+        TEXT("Apr"),
+        TEXT("May"),
+        TEXT("Jun"),
+        TEXT("Jul"),
+        TEXT("Aug"),
+        TEXT("Sep"),
+        TEXT("Oct"),
+        TEXT("Nov"),
+        TEXT("Dec"),
+      };
+
+      ASSERT((month >= 1) && (month <= 12));
+      return months[month - 1];
+    }
+
+    int StringToMonth(const string_t& sMonth)
+    {
+      int month = 12;
+
+      if ((sMonth == TEXT("January")) || (sMonth == TEXT("Jan"))) month = 1;
+      else if ((sMonth == TEXT("February")) || (sMonth == TEXT("Feb"))) month = 2;
+      else if ((sMonth == TEXT("March")) || (sMonth == TEXT("Mar"))) month = 3;
+      else if ((sMonth == TEXT("April")) || (sMonth == TEXT("Apr"))) month = 4;
+      else if ((sMonth == TEXT("May")) || (sMonth == TEXT("May"))) month = 5;
+      else if ((sMonth == TEXT("June")) || (sMonth == TEXT("Jun"))) month = 6;
+      else if ((sMonth == TEXT("July")) || (sMonth == TEXT("Jul"))) month = 7;
+      else if ((sMonth == TEXT("August")) || (sMonth == TEXT("Aug"))) month = 8;
+      else if ((sMonth == TEXT("September")) || (sMonth == TEXT("Sep"))) month = 9;
+      else if ((sMonth == TEXT("October")) || (sMonth == TEXT("Oct"))) month = 10;
+      else if ((sMonth == TEXT("November")) || (sMonth == TEXT("Nov"))) month = 11;
+      else if ((sMonth == TEXT("December")) || (sMonth == TEXT("Dec"))) month = 12;
+
+      return month;
+    }
+
+
     // Defaults to local time now
     cDateTime::cDateTime()
     {
@@ -104,6 +205,13 @@ namespace spitfire
       const boost::posix_time::time_duration duration = datetime.time_of_day();
       return duration.total_milliseconds();
     }
+
+    void cDateTime::AddDays(int days)
+    {
+      boost::posix_time::time_duration duration = boost::posix_time::hours(24 * days);
+      datetime += duration;
+    }
+
 
     /*void GetTimeNow()
     {
@@ -211,6 +319,35 @@ namespace spitfire
 
       offset = boost::posix_time::time_duration(hours, minutes, 0, 0);
       return true;
+    }
+
+    // RFC 1123 Format
+    // Must be in GMT time zone
+    // Wed, 05 Jun 2013 13:08:10 GMT
+    string_t cDateTime::GetRFC1123Format() const
+    {
+      ASSERT(IsValid());
+
+      ostringstream_t o;
+
+      o<<std::setfill(TEXT('0'));
+
+      o<<WeekDayToShortString(GetWeekDay());
+      o<<TEXT(", ");
+      o<<std::setw(2)<<std::setfill('0')<<int(GetDay());
+      o<<TEXT(" ");
+      o<<MonthToShortString(GetMonth());
+      o<<TEXT(" ");
+      o<<std::setw(4)<<std::setfill('0')<<int(GetYear());
+      o<<TEXT(" ");
+      o<<std::setw(2)<<std::setfill('0')<<int(GetHours());
+      o<<TEXT(':');
+      o<<std::setw(2)<<std::setfill('0')<<int(GetMinutes());
+      o<<TEXT(':');
+      o<<std::setw(2)<<std::setfill('0')<<int(GetSeconds());
+      o<<TEXT(" GMT");
+
+      return o.str();
     }
 
     // RFC 3339 Format
