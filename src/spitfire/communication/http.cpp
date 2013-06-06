@@ -120,6 +120,17 @@ namespace spitfire
       return "application/octet-stream";
     }
 
+    bool IsCachePublicForExtension(const string_t& sExtension)
+    {
+      return (
+        (sExtension == TEXT("jpg")) ||
+        (sExtension == TEXT("png")) ||
+        (sExtension == TEXT("ico")) ||
+        (sExtension == TEXT("gif")) ||
+        (sExtension == TEXT("bmp"))
+      );
+    }
+
 
     bool IsSpecialCharacter(char c)
     {
@@ -404,11 +415,11 @@ namespace spitfire
         status(STATUS::OK),
         nContentLengthBytes(0),
         bContentDispositionServeInline(true),
-        iExpires(-1),
-        bCacheControlPrivateMaxAgeZero(true),
-        bCloseConnection(true)
+        expires(EXPIRES::ONE_YEAR),
+        cacheControl(CACHE_CONTROL::NOT_SPECIFIED)
       {
         SetContentTypeTextHTMLUTF8();
+        SetConnectionClose();
       }
 
       void cResponse::SetStatus(STATUS _status)
@@ -438,23 +449,39 @@ namespace spitfire
         sContentDispositionFile = sFile;
       }
 
-      void cResponse::SetDateTimeNow()
+      void cResponse::SetExpiresMinusOne()
       {
+        expires = EXPIRES::MINUS_ONE;
       }
 
-      void cResponse::SetExpires(int _iExpires)
+      void cResponse::SetExpiresOneMonth()
       {
-        iExpires = _iExpires;
+        expires = EXPIRES::ONE_MONTH;
+      }
+
+      void cResponse::SetExpiresOneYear()
+      {
+        expires = EXPIRES::ONE_YEAR;
       }
 
       void cResponse::SetCacheControlPrivateMaxAgeZero()
       {
-        bCacheControlPrivateMaxAgeZero = true;
+        cacheControl = CACHE_CONTROL::PRIVATE_MAX_AGE_ZERO;
       }
 
-      void cResponse::SetCloseConnection()
+      void cResponse::SetCacheControlPublic()
       {
-        bCloseConnection = true;
+        cacheControl = CACHE_CONTROL::PUBLIC;
+      }
+
+      void cResponse::SetConnectionClose()
+      {
+        bConnectionKeepAlive = false;
+      }
+
+      void cResponse::SetConnectionKeepAlive()
+      {
+        bConnectionKeepAlive = true;
       }
 
       std::string cResponse::ToString() const
@@ -474,14 +501,27 @@ namespace spitfire
         // Content-Disposition: inline; filename="lilly.mp3"
         if (bContentDispositionServeInline && !sContentDispositionFile.empty()) o<<"Content-Disposition: inline; filename=\""<<sContentDispositionFile<<"\"\n";
 
-        if (bCacheControlPrivateMaxAgeZero) o<<"Cache-control: private, max-age=0\n";
-        o<<"Date: Fri, 24 May 2013 10:15:39 GMT\n";
-        o<<"Expires: "<<iExpires<<"\n";
+        if (cacheControl == CACHE_CONTROL::PRIVATE_MAX_AGE_ZERO) o<<"Cache-control: private, max-age=0\n";
+        else if (cacheControl == CACHE_CONTROL::PUBLIC) o<<"Cache-Control: public\n";
+
+        spitfire::util::cDateTime dateTime;
+        dateTime.SetFromUniversalTimeNow();
+        o<<"Date: "<<dateTime.GetRFC1123Format()<<"\n";
+
+        if (expires == EXPIRES::MINUS_ONE) o<<"Expires: -1\n";
+        else if ((expires == EXPIRES::ONE_MONTH) || (expires == EXPIRES::ONE_YEAR)) {
+          spitfire::util::cDateTime dateTime;
+          dateTime.SetFromLocalTimeNow();
+          const int days = (expires == EXPIRES::ONE_MONTH) ? 30 : 365;
+          dateTime.AddDays(days);
+          o<<"Expires: "<<dateTime.GetRFC1123Format()<<"\n";
+        }
+
         //o<<"Server: Apache 1.0 (Unix)\n";
         //o<<"x-frame-options: SAMEORIGIN\n";
         //o<<"x-xss-protection: 1; mode=block\n";
         o<<"Content-Length: "<<nContentLengthBytes<<"\n";
-        o<<"Connection: close\n\n";
+        o<<"Connection: "<<(bConnectionKeepAlive ? "Keep-Alive" : "Close")<<"\n\n";
 
         return o.str();
       }
@@ -582,6 +622,25 @@ namespace spitfire
       {
         file.sName = _sName;
         file.sFilePath = _sFilePath;
+      }
+
+      bool cRequest::IsConnectionClose() const
+      {
+        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Connection");
+        if (iter != mValues.end()) return (spitfire::string::IsEqualInsensitive(iter->second, "Close"));
+
+        // Return the default value
+        return TEXT("Close");
+      }
+
+      void cRequest::SetConnectionClose()
+      {
+        mValues["Connection"] = "Close";
+      }
+
+      void cRequest::SetConnectionKeepAlive()
+      {
+        mValues["Connection"] = "Keep-Alive";
       }
 
       std::string cRequest::CreateVariablesString() const
@@ -841,7 +900,6 @@ Content-Transfer-Encoding: binary
         response.SetStatus(STATUS::NOT_FOUND);
         response.SetContentLengthBytes(sContentUTF8.length());
         response.SetContentTypeTextHTMLUTF8();
-        response.SetDateTimeNow();
 
         connection.SendResponse(response);
         connection.SendContent(sContentUTF8);
@@ -874,7 +932,6 @@ Content-Transfer-Encoding: binary
         response.SetStatus(status);
         response.SetContentLengthBytes(sContentUTF8.length());
         response.SetContentTypeTextHTMLUTF8();
-        response.SetDateTimeNow();
 
         connection.SendResponse(response);
         connection.SendContent(sContentUTF8);
@@ -910,10 +967,8 @@ Content-Transfer-Encoding: binary
         response.SetStatus(STATUS::OK);
         response.SetContentLengthBytes(nFileSizeBytes);
         response.SetContentMimeType(sMimeTypeUTF8);
-        response.SetDateTimeNow();
-        response.SetExpires(-1);
-        response.SetCacheControlPrivateMaxAgeZero();
-        response.SetCloseConnection();
+        if (IsCachePublicForExtension(filesystem::GetExtensionNoDot(sRelativeFilePath))) response.SetCacheControlPublic();
+        response.SetConnectionClose();
 
         connection.SendResponse(response);
 
@@ -964,10 +1019,7 @@ Content-Transfer-Encoding: binary
         response.SetContentLengthBytes(nFileSizeBytes);
         response.SetContentMimeType(sMimeTypeUTF8);
         if (bServeInline) response.SetContentDispositionInline(filesystem::GetFile(sFilePath));
-        response.SetDateTimeNow();
-        response.SetExpires(-1);
-        response.SetCacheControlPrivateMaxAgeZero();
-        response.SetCloseConnection();
+        response.SetConnectionClose();
 
         connection.SendResponse(response);
 
@@ -1367,14 +1419,6 @@ Content-Transfer-Encoding: binary
         return sText;
       }
 
-      bool cRequest::IsCloseConnection() const
-      {
-        std::map<std::string, std::string>::const_iterator iter = mValues.find("Connection");
-        if (iter != mValues.end()) return spitfire::string::IsEqualInsensitive(iter->second, "Close");
-
-        return true;
-      }
-
 
       // ** cConnectionHTTP
       //
@@ -1395,7 +1439,7 @@ Content-Transfer-Encoding: binary
       {
         std::map<std::string, std::string>::const_iterator iter = headerValues.find("Transfer-Encoding");
         if (iter != headerValues.end()) {
-          return (iter->second == "chunked");
+          return (spitfire::string::IsEqualInsensitive(iter->second, "chunked"));
         }
 
         return false;

@@ -71,7 +71,10 @@ namespace spitfire
         void AddPostFileFromPath(const std::string& sName, const string_t& sFilePath);
         //void AddPostFileFromContent(const string_t& sFileName, const void* pBuffer, size_t len);
 
-        bool IsCloseConnection() const;
+        bool IsConnectionClose() const;
+        bool IsConnectionKeepAlive() const { return !IsConnectionClose(); }
+        void SetConnectionClose();
+        void SetConnectionKeepAlive();
 
       protected:
         std::string CreateVariablesString() const;
@@ -163,23 +166,36 @@ namespace spitfire
         void SetContentTypeTextHTMLUTF8();
         bool GetContentDispositionInline(bool& bServeInline, std::string& sFile) const;
         void SetContentDispositionInline(const std::string& sFile);
-        void SetDateTimeNow();
-        void SetExpires(int iExpires);
+        void SetExpiresMinusOne();
+        void SetExpiresOneMonth();
+        void SetExpiresOneYear();
         void SetCacheControlPrivateMaxAgeZero();
-        void SetCloseConnection();
+        void SetCacheControlPublic();
+        void SetConnectionClose();
+        void SetConnectionKeepAlive();
 
         std::string ToString() const;
 
       private:
+        enum class EXPIRES {
+          MINUS_ONE,
+          ONE_MONTH,
+          ONE_YEAR,
+        };
+        enum class CACHE_CONTROL {
+          NOT_SPECIFIED,
+          PUBLIC,
+          PRIVATE_MAX_AGE_ZERO,
+        };
+
         STATUS status;
         size_t nContentLengthBytes;
         std::string sMimeType;
         bool bContentDispositionServeInline;
         std::string sContentDispositionFile;
-        util::cDateTime dateTime;
-        int iExpires;
-        bool bCacheControlPrivateMaxAgeZero;
-        bool bCloseConnection;
+        EXPIRES expires;
+        CACHE_CONTROL cacheControl;
+        bool bConnectionKeepAlive;
       };
 
 
@@ -401,6 +417,7 @@ namespace spitfire
         sPath(TEXT("/")),
         nOffsetBytes(0)
       {
+        SetConnectionClose();
       }
 
       inline void cRequest::Clear()
