@@ -31,7 +31,6 @@ namespace spitfire
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
       // http://en.wikipedia.org/wiki/List_of_HTTP_headers
 
-      // TODO: move this into cRequest
       enum class METHOD {
         GET,
         POST
@@ -187,12 +186,15 @@ namespace spitfire
 
       class cServer;
 
-      class cConnectedClient
+      class cConnectedClient : public spitfire::util::cThread
       {
       public:
         explicit cConnectedClient(boost::asio::io_service& socket);
+        ~cConnectedClient();
 
-        bool IsRunning() const;
+        void Start(cServer& server);
+
+        void Close();
 
         size_t GetBytesToRead();
         size_t GetBytesAvailable();
@@ -207,8 +209,6 @@ namespace spitfire
           return socket;
         }
 
-        void Close();
-
         size_t Read(uint8_t* pBuffer, size_t nBufferSize);
 
         void SendResponse(const cResponse& response);
@@ -217,18 +217,20 @@ namespace spitfire
         void Write(const uint8_t* pBuffer, size_t nBufferSize);
         void Write(const std::string& sData);
 
-        void Run(cServer& server);
-
       private:
+        virtual void ThreadFunction() override;
+
         /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
         {
           std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
         }*/
 
+        util::cSignalObject soAction;
+
         boost::asio::ip::tcp::socket socket;
         //std::string message;
 
-        bool bIsRunning;
+        cServer* pServer;
       };
 
 

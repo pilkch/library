@@ -676,9 +676,17 @@ Content-Transfer-Encoding: binary
       // ** cConnectedClient
 
       cConnectedClient::cConnectedClient(boost::asio::io_service& _socket) :
+        util::cThread(soAction, "cServer"),
+        soAction("soAction"),
         socket(_socket),
-        bIsRunning(false)
+        pServer(nullptr)
       {
+      }
+
+      cConnectedClient::~cConnectedClient()
+      {
+        LOG<<"cConnectedClient::~cConnectedClient"<<std::endl;
+        assert(false);
       }
 
       void cConnectedClient::Close()
@@ -686,29 +694,31 @@ Content-Transfer-Encoding: binary
         socket.close();
       }
 
-      bool cConnectedClient::IsRunning() const
+      void cConnectedClient::Start(cServer& server)
       {
-        return bIsRunning;
+        LOG<<"cConnectedClient::Start"<<std::endl;
+
+        pServer = &server;
+
+        Run();
       }
 
-      void cConnectedClient::Run(cServer& server)
+      void cConnectedClient::ThreadFunction()
       {
-        LOG<<"cConnectedClient::Run"<<std::endl;
-
-        bIsRunning = true;
+        LOG<<"cConnectedClient::ThreadFunction"<<std::endl;
 
         try {
-          server.RunClientConnection(*this);
+          pServer->RunClientConnection(*this);
         }
         catch (std::exception& e) {
           LOG<<e.what()<<std::endl;
         }
 
-        server.OnClientConnectionFinished(*this);
+        pServer->OnClientConnectionFinished(*this);
 
-        bIsRunning = false;
+        pServer = nullptr;
 
-        LOG<<"cConnectedClient::Run returning"<<std::endl;
+        LOG<<"cConnectedClient::ThreadFunction returning"<<std::endl;
       }
 
       size_t cConnectedClient::GetBytesToRead()
@@ -783,6 +793,8 @@ Content-Transfer-Encoding: binary
 
       void cServer::Stop()
       {
+        // Tell the connections to stop
+
         // Tell the server to stop
         if (pTCPServer != nullptr) pTCPServer->StopThreadNow();
 
@@ -799,7 +811,7 @@ Content-Transfer-Encoding: binary
         clients.push_back(pNewConnection);
 
         // Start the connection thread
-        pNewConnection->Run(*this);
+        pNewConnection->Start(*this);
       }
 
       void cServer::ServeError404(cConnectedClient& connection, const cRequest& request)
@@ -1017,29 +1029,6 @@ Content-Transfer-Encoding: binary
           ServeFile(connection, request, sMimeTypeUTF8, sResolvedLocalFilePath);
         }
       }
-
-      /*void cServer::ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8)
-      {
-        cResponse response;
-        response.SetStatus(STATUS::OK);
-        response.SetCacheControl();
-        response.SetContentType(sMimeTypeUTF8);
-        response.SetDateTimeNow();
-        response.SetContentLengthBytes(sContentUTF8.length());
-        response.SetConnectionClose();
-
-        "HTTP/1.1 " + status + " " + GetStatusDescription(status) +
-        "Location: http://" + GetHostName() + "/" +
-        "Expires: -1" +
-        "Cache-Control: private, max-age=0" +
-        "Content-Type: text/html; charset=UTF-8" +
-        "Date: Wed, 18 Jul 2012 05:13:40 GMT" +
-        "Content-Length: " + nContentLengthBytes +
-        "Connection: close"
-
-        connection.SendResponse(response);
-        connection.SendContent(sContentUTF8);
-      }*/
 
       void cServer::RunClientConnection(cConnectedClient& connection)
       {
