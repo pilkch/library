@@ -43,6 +43,26 @@ namespace spitfire
 
     // *** cThread
 
+    // Not the most elegant method, but it works
+    int cThread::RunThreadFunction(void* pData)
+    {
+      ASSERT(pData != nullptr);
+      cThread* pThis = static_cast<cThread*>(pData);
+      ASSERT(pThis != nullptr);
+      LOG<<"cThread::RunThreadFunction Calling ThreadFunction"<<std::endl;
+      pThis->ThreadFunction();
+      LOG<<"cThread::RunThreadFunction ThreadFunction returned"<<std::endl;
+
+      // Tell everyone that the thread has finished
+      pThis->soDone.Signal();
+
+      // Tell everyone that something has happened
+      pThis->soAction.Signal();
+
+      // We don't really do this correctly, we just return 0 for every thread
+      return 0;
+    }
+
     void cThread::Run()
     {
       StopThreadSoon();

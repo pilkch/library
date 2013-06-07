@@ -126,24 +126,6 @@ namespace spitfire
       WaitToStop();
     }
 
-    // Not the most elegant method, but it works
-    inline int cThread::RunThreadFunction(void* pData)
-    {
-      ASSERT(pData != nullptr);
-      cThread* pThis = static_cast<cThread*>(pData);
-      ASSERT(pThis != nullptr);
-      pThis->ThreadFunction();
-
-      // Tell everyone that the thread has finished
-      pThis->soDone.Signal();
-
-      // Tell everyone that something has happened
-      pThis->soAction.Signal();
-
-      // We don't really do this correctly, we just return 0 for every thread
-      return 0;
-    }
-
     inline void cThread::Yield()
     {
       YieldThisThread();
