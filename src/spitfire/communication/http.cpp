@@ -761,12 +761,6 @@ Content-Transfer-Encoding: binary
       {
       }
 
-      cConnectedClient::~cConnectedClient()
-      {
-        LOG<<"cConnectedClient::~cConnectedClient"<<std::endl;
-        assert(false);
-      }
-
       void cConnectedClient::Close()
       {
         socket.close();
@@ -789,6 +783,7 @@ Content-Transfer-Encoding: binary
           pServer->RunClientConnection(*this);
         }
         catch (std::exception& e) {
+          // Catch any boost asio socket errors
           LOG<<e.what()<<std::endl;
         }
 
@@ -885,8 +880,6 @@ Content-Transfer-Encoding: binary
         LOG<<"cServer::OnConnectedClient New connection started"<<std::endl;
 
         ASSERT(pNewConnection != nullptr);
-
-        clients.push_back(pNewConnection);
 
         // Start the connection thread
         pNewConnection->Start(*this);
@@ -1104,7 +1097,7 @@ Content-Transfer-Encoding: binary
       void cServer::RunClientConnection(cConnectedClient& connection)
       {
         // Wait for the request to be sent
-        sleep(1);
+        spitfire::util::SleepThisThreadMS(10);
 
         const size_t bytes_readable = connection.GetBytesToRead();
 
@@ -1159,6 +1152,7 @@ Content-Transfer-Encoding: binary
 
       void cServer::OnClientConnectionFinished(cConnectedClient& connection)
       {
+        LOG<<"cServer::OnClientConnectionFinished Sending event CLIENT_CONNECTION_FINISHED"<<std::endl;
         cServerEvent* pEvent = new cServerEvent;
         pEvent->type = SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED;
         pEvent->pConnectedClient = &connection;
@@ -1168,6 +1162,7 @@ Content-Transfer-Encoding: binary
       void cServer::SendEvent(cServerEvent* pEvent)
       {
         eventQueue.AddItemToBack(pEvent);
+        soAction.Signal();
       }
 
       void cServer::ThreadFunction()
@@ -1185,6 +1180,7 @@ Content-Transfer-Encoding: binary
           cServerEvent* pEvent = eventQueue.RemoveItemFromFront();
           if (pEvent != nullptr) {
             if (pEvent->type == SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED) {
+              LOG<<"cServer::ThreadFunction Processing event CLIENT_CONNECTION_FINISHED"<<std::endl;
               ASSERT(pEvent->pConnectedClient != nullptr);
 
               if (!pEvent->pConnectedClient->IsRunning()) {
@@ -1229,13 +1225,20 @@ Content-Transfer-Encoding: binary
       // ** cTCPServer
 
       cTCPServer::cTCPServer(cServer& _server, uint16_t uiPort) :
+        util::cThread(soAction, "cServer"),
+        soAction("soAction"),
         server(_server),
         acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), uiPort)),
         pNewConnection(nullptr)
       {
       }
 
-      void cTCPServer::Run()
+      void cTCPServer::StopThreadNow()
+      {
+        io_service.stop();
+      }
+
+      void cTCPServer::ThreadFunction()
       {
         // Start accepting connections
         StartAccept();
@@ -1244,11 +1247,6 @@ Content-Transfer-Encoding: binary
         io_service.run();
 
         SAFE_DELETE(pNewConnection);
-      }
-
-      void cTCPServer::StopThreadNow()
-      {
-        io_service.stop();
       }
 
       void cTCPServer::StartAccept()
@@ -1268,6 +1266,8 @@ Content-Transfer-Encoding: binary
 
       void cTCPServer::OnConnection(const boost::system::error_code& error)
       {
+        LOG<<"cTCPServer::OnConnection"<<std::endl;
+
         if (error) {
           LOG<<"cTCPServer::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
 

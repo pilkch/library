@@ -12,7 +12,6 @@
 #include <spitfire/communication/uri.h>
 #include <spitfire/storage/file.h>
 #include <spitfire/storage/filesystem.h>
-#include <spitfire/storage/html.h>
 #include <spitfire/util/datetime.h>
 #include <spitfire/util/queue.h>
 #include <spitfire/util/thread.h>
@@ -207,7 +206,6 @@ namespace spitfire
       {
       public:
         explicit cConnectedClient(boost::asio::io_service& socket);
-        ~cConnectedClient();
 
         void Start(cServer& server);
 
@@ -252,17 +250,20 @@ namespace spitfire
 
 
 
-      class cTCPServer
+      class cTCPServer : public spitfire::util::cThread
       {
       public:
         cTCPServer(cServer& server, uint16_t uiPort);
 
-        void Run();
         void StopThreadNow();
 
       private:
+        virtual void ThreadFunction() override;
+
         void StartAccept();
         void OnConnection(const boost::system::error_code& error);
+
+        util::cSignalObject soAction;
 
         cServer& server;
         boost::asio::io_service io_service;
@@ -333,8 +334,6 @@ namespace spitfire
         cTCPServer* pTCPServer;
 
         cServerRequestHandler* pRequestHandler; // For calling back into the application, every request is sent here first
-
-        std::list<cConnectedClient*> clients;
       };
 
 
