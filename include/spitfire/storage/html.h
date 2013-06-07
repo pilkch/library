@@ -76,6 +76,14 @@ namespace spitfire
       writer.WriteLine("      font-size:26px;");
       writer.WriteLine("    }");
       writer.WriteLine("  </style>");
+
+      // Add external javascripts
+      std::vector<std::string> scripts = controller.GetExternalJavaScripts();
+      const size_t n = scripts.size();
+      for (size_t i = 0; i < n; i++) {
+        writer.WriteLine("  <script language=\"JavaScript\" src=\"" + scripts[i] + "\"></script>");
+      }
+
       writer.WriteLine("</head>");
       writer.WriteLine("<body>");
     }
