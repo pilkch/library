@@ -163,6 +163,7 @@ namespace spitfire
         void SetStatus(STATUS status);
         void SetContentLengthBytes(size_t nContentLengthBytes);
         void SetContentMimeType(const std::string& sMimeType);
+        void SetContentTypeTextPlainUTF8();
         void SetContentTypeTextHTMLUTF8();
         bool GetContentDispositionInline(bool& bServeInline, std::string& sFile) const;
         void SetContentDispositionInline(const std::string& sFile);

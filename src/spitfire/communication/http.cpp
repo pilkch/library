@@ -453,6 +453,11 @@ namespace spitfire
         sMimeType = _sMimeType;
       }
 
+      void cResponse::SetContentTypeTextPlainUTF8()
+      {
+        sMimeType = "text/plain";
+      }
+
       void cResponse::SetContentTypeTextHTMLUTF8()
       {
         sMimeType = "text/html";
