@@ -46,6 +46,22 @@
 const size_t STR_LEN = 512;
 const std::string STR_END = "\r\n";
 
+template <class V>
+typename std::map<std::string, V>::const_iterator MapFindCaseInsensitive(const std::map<std::string, V>& mValues, const std::string& sFind)
+{
+  typedef typename std::map<std::string, V>::const_iterator const_iterator;
+
+  const_iterator iter = mValues.begin();
+  const const_iterator iterEnd = mValues.end();
+  while (iter != iterEnd) {
+    if (spitfire::string::IsEqualInsensitive(iter->first, sFind)) break;
+
+    iter++;
+  }
+
+  return iter;
+}
+
 namespace spitfire
 {
   namespace network
@@ -352,7 +368,7 @@ namespace spitfire
         }
 
         // Decode any form url encoded data
-        //LOG<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
+        LOG<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
         if (request.GetContentType() == "application/x-www-form-urlencoded") {
           const size_t nContentLengthBytes = request.GetContentLengthBytes();
           if (nContentLengthBytes != 0) {
@@ -380,7 +396,7 @@ namespace spitfire
             // Make sure that we ignore bytes after the content length
             sLine[nContentLengthBytes] = 0;
 
-            //LOG<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
+            LOG<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
 
             // Decode our url encoded string;
             std::vector<std::string> pairs;
@@ -388,7 +404,7 @@ namespace spitfire
 
             const size_t n = pairs.size();
             for (size_t i = 0; i < n; i++) {
-              //LOG<<"ParseRequest Pair \""<<pairs[i]<<"\""<<std::endl;
+              LOG<<"ParseRequest Pair \""<<pairs[i]<<"\""<<std::endl;
               size_t found = 0;
               if (!spitfire::string::Find(pairs[i], "=", found)) {
                 LOG<<"ParseRequest Invalid pair \""<<pairs[i]<<"\", returning false"<<std::endl;
@@ -397,7 +413,7 @@ namespace spitfire
 
               const std::string sKey = pairs[i].substr(0, found);
               const std::string sValue = spitfire::network::Decode(pairs[i].substr(found + 1));
-              //LOG<<"ParseRequest Split \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
+              LOG<<"ParseRequest Split \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
               request.AddFormData(sKey, sValue);
             }
           }
@@ -602,7 +618,7 @@ namespace spitfire
 
       std::string cRequest::GetContentType() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Content-Type");
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Content-Type");
         if (iter != mValues.end()) return iter->second;
 
         // Return an empty string if we haven't specified a content type
@@ -611,7 +627,7 @@ namespace spitfire
 
       size_t cRequest::GetContentLengthBytes() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Content-Length");
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Content-Length");
         if (iter != mValues.end()) return spitfire::string::ToUnsignedInt(iter->second);
 
         // Return a default content type
@@ -626,7 +642,7 @@ namespace spitfire
 
       bool cRequest::IsConnectionClose() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = mValues.find("Connection");
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Connection");
         if (iter != mValues.end()) return (spitfire::string::IsEqualInsensitive(iter->second, "Close"));
 
         // Return the default value
@@ -1388,7 +1404,7 @@ Content-Transfer-Encoding: binary
 
       std::string cConnectionHTTP::GetContentType() const
       {
-        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Content-Type");
+        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(headerValues, "Content-Type");
         if (iter != headerValues.end()) {
           return iter->second;
         }
@@ -1398,7 +1414,7 @@ Content-Transfer-Encoding: binary
 
       size_t cConnectionHTTP::GetContentLength() const
       {
-        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Content-Length");
+        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(headerValues, "Content-Length");
         if (iter != headerValues.end()) {
           return string::ToUnsignedInt(string::ToString_t(iter->second));
         }
@@ -1437,7 +1453,7 @@ Content-Transfer-Encoding: binary
 
       bool cConnectionHTTP::IsTransferEncodingChunked() const
       {
-        std::map<std::string, std::string>::const_iterator iter = headerValues.find("Transfer-Encoding");
+        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(headerValues, "Transfer-Encoding");
         if (iter != headerValues.end()) {
           return (spitfire::string::IsEqualInsensitive(iter->second, "chunked"));
         }
