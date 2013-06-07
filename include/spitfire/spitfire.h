@@ -26,6 +26,9 @@
 #ifndef SPITFIRE_H
 #define SPITFIRE_H
 
+// Standard headers
+#include <string>
+
 //#ifndef SPITFIRE_APPLICATION_NAME
 //#error "SPITFIRE_APPLICATION_NAME must be defined"
 //#endif
@@ -296,7 +299,11 @@ namespace spitfire
 #define BUILD_LOGGING
 // LOG and LOGERROR are declared in spitfire/util/log.h
 #else
-#define LOG std::cout
+namespace spitfire
+{
+  std::string LogGetTime();
+}
+#define LOG std::cout<<spitfire::LogGetTime()
 #define LOGERROR std::cerr
 #endif
 
