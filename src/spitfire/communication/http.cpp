@@ -709,9 +709,7 @@ namespace spitfire
         o<<"Accept: */*"<<STR_END;
         o<<"Accept-Language: en-us"<<STR_END;
 
-        //o<<"Connection: Keep-Alive"<<STR_END;
-        //OR
-        o<<"Connection: close"<<STR_END;
+        o<<"Connection: "<<(IsConnectionKeepAlive() ? "Keep-Alive" : "Close")<<STR_END;
 
         return o.str();
       }
