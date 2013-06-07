@@ -97,7 +97,8 @@ namespace spitfire
       writer.WriteLine("  <header role=\"banner\">");
       writer.WriteLine("    <h1>" + controller.GetBannerTitle() + "</h1>");
 
-      if (!articles.empty()) {
+      // TODO: This should be more like a site map, navigation links to the rest of the site, not this page
+      /*if (!articles.empty()) {
         writer.WriteLine("");
         writer.WriteLine("    <nav role=\"navigation\">");
         writer.WriteLine("      <ul>");
@@ -110,7 +111,7 @@ namespace spitfire
 
         writer.WriteLine("      </ul>");
         writer.WriteLine("    </nav>");
-      }
+      }*/
 
       // Finish our banner
       writer.WriteLine("  </header>");
