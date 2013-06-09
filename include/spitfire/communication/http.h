@@ -56,6 +56,7 @@ namespace spitfire
         const string_t& GetPath() const { return sPath; }
         void SetOffsetBytes(size_t _nOffsetBytes) { nOffsetBytes = _nOffsetBytes; }
 
+        std::string GetAccept() const;
         std::string GetContentType() const;
         void SetContentType(const std::string& sContentType);
         size_t GetContentLengthBytes() const;
@@ -164,11 +165,13 @@ namespace spitfire
         void SetContentMimeType(const std::string& sMimeType);
         void SetContentTypeTextPlainUTF8();
         void SetContentTypeTextHTMLUTF8();
+        void SetContentTypeTextEventStream();
         bool GetContentDispositionInline(bool& bServeInline, std::string& sFile) const;
         void SetContentDispositionInline(const std::string& sFile);
         void SetExpiresMinusOne();
         void SetExpiresOneMonth();
         void SetExpiresOneYear();
+        void SetCacheControlNoCache();
         void SetCacheControlPrivateMaxAgeZero();
         void SetCacheControlPublic();
         void SetConnectionClose();
@@ -184,11 +187,13 @@ namespace spitfire
         };
         enum class CACHE_CONTROL {
           NOT_SPECIFIED,
+          NO_CACHE,
           PUBLIC,
           PRIVATE_MAX_AGE_ZERO,
         };
 
         STATUS status;
+        bool bContentLengthSet;
         size_t nContentLengthBytes;
         std::string sMimeType;
         bool bContentDispositionServeInline;
@@ -210,6 +215,10 @@ namespace spitfire
         void Start(cServer& server);
 
         void Close();
+
+        bool IsOpen();
+
+        void SetNoDelay(); // Set no delay so that we don't buffer our data before sending (This should only be required for EventSources)
 
         size_t GetBytesToRead();
         size_t GetBytesAvailable();

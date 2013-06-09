@@ -429,6 +429,7 @@ namespace spitfire
 
       cResponse::cResponse() :
         status(STATUS::OK),
+        bContentLengthSet(false),
         nContentLengthBytes(0),
         bContentDispositionServeInline(true),
         expires(EXPIRES::ONE_YEAR),
@@ -445,6 +446,7 @@ namespace spitfire
 
       void cResponse::SetContentLengthBytes(size_t _nContentLengthBytes)
       {
+        if (_nContentLengthBytes != 0) bContentLengthSet = true;
         nContentLengthBytes = _nContentLengthBytes;
       }
 
@@ -461,6 +463,11 @@ namespace spitfire
       void cResponse::SetContentTypeTextHTMLUTF8()
       {
         sMimeType = "text/html";
+      }
+
+      void cResponse::SetContentTypeTextEventStream()
+      {
+        sMimeType = "text/event-stream";
       }
 
       void cResponse::SetContentDispositionInline(const std::string& sFile)
@@ -483,6 +490,11 @@ namespace spitfire
       void cResponse::SetExpiresOneYear()
       {
         expires = EXPIRES::ONE_YEAR;
+      }
+
+      void cResponse::SetCacheControlNoCache()
+      {
+        cacheControl = CACHE_CONTROL::NO_CACHE;
       }
 
       void cResponse::SetCacheControlPrivateMaxAgeZero()
@@ -522,7 +534,8 @@ namespace spitfire
         // Content-Disposition: inline; filename="lilly.mp3"
         if (bContentDispositionServeInline && !sContentDispositionFile.empty()) o<<"Content-Disposition: inline; filename=\""<<sContentDispositionFile<<"\"\n";
 
-        if (cacheControl == CACHE_CONTROL::PRIVATE_MAX_AGE_ZERO) o<<"Cache-control: private, max-age=0\n";
+        if (cacheControl == CACHE_CONTROL::NO_CACHE) o<<"Cache-control: no-cache\n";
+        else if (cacheControl == CACHE_CONTROL::PRIVATE_MAX_AGE_ZERO) o<<"Cache-control: private, max-age=0\n";
         else if (cacheControl == CACHE_CONTROL::PUBLIC) o<<"Cache-Control: public\n";
 
         spitfire::util::cDateTime dateTime;
@@ -541,7 +554,7 @@ namespace spitfire
         //o<<"Server: Apache 1.0 (Unix)\n";
         //o<<"x-frame-options: SAMEORIGIN\n";
         //o<<"x-xss-protection: 1; mode=block\n";
-        o<<"Content-Length: "<<nContentLengthBytes<<"\n";
+        if (bContentLengthSet) o<<"Content-Length: "<<nContentLengthBytes<<"\n";
         o<<"Connection: "<<(bConnectionKeepAlive ? "Keep-Alive" : "Close")<<"\n\n";
 
         return o.str();
@@ -620,6 +633,15 @@ namespace spitfire
 
 
       // ** cRequest
+
+      std::string cRequest::GetAccept() const
+      {
+        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Accept");
+        if (iter != mValues.end()) return iter->second;
+
+        // Return an empty string if we haven't specified an accept
+        return "";
+      }
 
       std::string cRequest::GetContentType() const
       {
@@ -792,6 +814,16 @@ Content-Transfer-Encoding: binary
         pServer = nullptr;
 
         LOG<<"cConnectedClient::ThreadFunction returning"<<std::endl;
+      }
+
+      bool cConnectedClient::IsOpen()
+      {
+        return socket.is_open();
+      }
+
+      void cConnectedClient::SetNoDelay()
+      {
+        socket.set_option(boost::asio::ip::tcp::no_delay(true));
       }
 
       size_t cConnectedClient::GetBytesToRead()
