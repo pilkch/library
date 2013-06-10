@@ -1237,6 +1237,7 @@ Content-Transfer-Encoding: binary
           spitfire::util::SleepThisThreadMS(1);
         }
 
+        pTCPServer->StopThreadNow();
         SAFE_DELETE(pTCPServer);
 
         // Remove any further events because we don't care any more
@@ -1267,7 +1268,11 @@ Content-Transfer-Encoding: binary
 
       void cTCPServer::StopThreadNow()
       {
+        // Tell the service to stop
         io_service.stop();
+
+        // Stop the thread
+        util::cThread::StopThreadNow();
       }
 
       void cTCPServer::ThreadFunction()
