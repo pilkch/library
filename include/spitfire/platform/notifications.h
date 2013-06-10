@@ -1,102 +1,65 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
+#include <boost/concept_check.hpp>
 
 namespace spitfire
 {
   namespace operatingsystem
   {
-    class enum NOTIFICATION {
-      NOTIFICATION_INFORMATION,
-      NOTIFICATION_WARNING
+    class cNotification;
+
+    class cNotificationHandler
+    {
+    public:
+      virtual ~cNotificationHandler() {}
+
+      virtual void OnNotificationClicked(size_t notificationID) = 0;
+      virtual void OnNotificationAction(size_t actionID) = 0;
     };
 
-    #ifdef __GTK__
+    void NotificationInit(cNotificationHandler& handler);
+    void NotificationDestroy();
+    void NotificationShow(const cNotification& notification, durationms_t timeOutMS);
+
+
+    enum class NOTIFICATION_TYPE {
+      INFORMATION,
+      WARNING
+    };
 
     class cNotification
     {
     public:
-      cNotification();
+      friend void NotificationShow(const cNotification& notification, durationms_t timeOutMS);
 
-      bool IsValid();
+      explicit cNotification(size_t notificationID);
 
-      void SetType(NOTIFICATION _type) { type = _type; }
+      void SetInformation() { type = NOTIFICATION_TYPE::INFORMATION; }
+      void SetWarning() { type = NOTIFICATION_TYPE::WARNING; }
       void SetTitle(const string_t& sTitle);
       void SetDescription(const string_t& sDescription);
-      void SetIcon(...);
+      void SetAction1(size_t idAction, const string_t& sText);
+      void SetAction2(size_t idAction, const string_t& sText);
+      void SetAction3(size_t idAction, const string_t& sText);
 
-      void Show();
+      void SetActionsMusicPlayer(size_t idAction1, size_t idAction2, size_t idAction3);
 
-    private:
-      NOTIFICATION type;
+    protected:
+      size_t notificationID;
+      NOTIFICATION_TYPE type;
+      string_t sTitle;
+      string_t sDescription;
+      size_t idAction1;
+      string_t sActionText1;
+      size_t idAction2;
+      string_t sActionText2;
+      size_t idAction3;
+      string_t sActionText3;
+
+      bool bActionsMusicPlayer;
     };
-
-    #elif defined(__KDE__)
-
-    // http://api.kde.org/4.0-api/kdelibs-apidocs/kdeui/html/classKNotification.html
-
-    class cNotification
-    {
-    public:
-      cNotification();
-
-      bool IsValid();
-
-      void SetType(NOTIFICATION _type) { type = _type; }
-      void SetTitle(const string_t& sTitle);
-      void SetDescription(const string_t& sDescription);
-      void SetIcon(...);
-
-      void Show();
-
-    private:
-      static bool bIsGlobalInit;
-
-      NOTIFICATION type;
-    };
-
-    #elif defined(__APPLE__)
-
-    // Use Growl
-
-    class cNotification
-    {
-    public:
-      bool IsValid();
-
-      void SetType(NOTIFICATION _type) { type = _type; }
-      void SetTitle(const string_t& sTitle);
-      void SetDescription(const string_t& sDescription);
-      void SetIcon(...);
-
-      void Show();
-
-    private:
-      NOTIFICATION type;
-    };
-
-    #else
-
-    class cNotification
-    {
-    public:
-      cNotification();
-
-      bool IsValid();
-
-      void SetType(NOTIFICATION _type) { type = _type; }
-      void SetTitle(const string_t& sTitle);
-      void SetDescription(const string_t& sDescription);
-      void SetIcon(...);
-
-      void Show();
-
-    private:
-      NOTIFICATION type;
-    };
-
-    #endif
   }
 }
 
