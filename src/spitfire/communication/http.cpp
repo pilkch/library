@@ -47,12 +47,12 @@ const size_t STR_LEN = 512;
 const std::string STR_END = "\r\n";
 
 template <class V>
-typename std::map<std::string, V>::const_iterator MapFindCaseInsensitive(const std::map<std::string, V>& mValues, const std::string& sFind)
+typename std::map<std::string, V>::const_iterator MapFindCaseInsensitive(const std::map<std::string, V>& values, const std::string& sFind)
 {
   typedef typename std::map<std::string, V>::const_iterator const_iterator;
 
-  const_iterator iter = mValues.begin();
-  const const_iterator iterEnd = mValues.end();
+  const_iterator iter = values.begin();
+  const const_iterator iterEnd = values.end();
   while (iter != iterEnd) {
     if (spitfire::string::IsEqualInsensitive(iter->first, sFind)) break;
 
@@ -196,11 +196,10 @@ namespace spitfire
 
           if (((i + 2) < encodedLen) && string::IsHexDigit(encStr[i + 1]) && string::IsHexDigit(encStr[i + 2])) {
             // Parse the hex digits and add the new character to the string
-            char s[4]; // NOTE: We only need an arry of 3 chars, but gcc stack protector gives a warning that it won't work on arrays smaller than 4 bytes, so we kindly oblige
+            char s[3];
             s[0] = encStr[i + 1];
             s[1] = encStr[i + 2];
             s[2] = 0;
-            s[3] = 0;
             uint32_t value = breathe::string::FromHexStringToUint32_t(s);
             decodedString += static_cast<char>(value);
 
@@ -363,7 +362,7 @@ namespace spitfire
               // TODO: Do something with the port
             } else request.SetHost(sValue);
           } else {
-            request.AddValue(sKey, sValue);
+            request.AddOtherHeader(sKey, sValue);
           }
         }
 
@@ -636,8 +635,8 @@ namespace spitfire
 
       std::string cRequest::GetAccept() const
       {
-        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Accept");
-        if (iter != mValues.end()) return iter->second;
+        std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mOtherHeaders, "Accept");
+        if (iter != mOtherHeaders.end()) return iter->second;
 
         // Return an empty string if we haven't specified an accept
         return "";
@@ -645,8 +644,8 @@ namespace spitfire
 
       std::string cRequest::GetContentType() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Content-Type");
-        if (iter != mValues.end()) return iter->second;
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mOtherHeaders, "Content-Type");
+        if (iter != mOtherHeaders.end()) return iter->second;
 
         // Return an empty string if we haven't specified a content type
         return "";
@@ -654,8 +653,8 @@ namespace spitfire
 
       size_t cRequest::GetContentLengthBytes() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Content-Length");
-        if (iter != mValues.end()) return spitfire::string::ToUnsignedInt(iter->second);
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mOtherHeaders, "Content-Length");
+        if (iter != mOtherHeaders.end()) return spitfire::string::ToUnsignedInt(iter->second);
 
         // Return a default content type
         return 0;
@@ -669,8 +668,8 @@ namespace spitfire
 
       bool cRequest::IsConnectionClose() const
       {
-        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mValues, "Connection");
-        if (iter != mValues.end()) return (spitfire::string::IsEqualInsensitive(iter->second, "Close"));
+        const std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(mOtherHeaders, "Connection");
+        if (iter != mOtherHeaders.end()) return (spitfire::string::IsEqualInsensitive(iter->second, "Close"));
 
         // Return the default value
         return TEXT("Close");
@@ -678,20 +677,20 @@ namespace spitfire
 
       void cRequest::SetConnectionClose()
       {
-        mValues["Connection"] = "Close";
+        mOtherHeaders["Connection"] = "Close";
       }
 
       void cRequest::SetConnectionKeepAlive()
       {
-        mValues["Connection"] = "Keep-Alive";
+        mOtherHeaders["Connection"] = "Keep-Alive";
       }
 
       std::string cRequest::CreateVariablesString() const
       {
         std::ostringstream o;
 
-        std::map<std::string, std::string>::const_iterator iter = mValues.begin();
-        const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+        std::map<std::string, std::string>::const_iterator iter = mVariables.begin();
+        const std::map<std::string, std::string>::const_iterator iterEnd = mVariables.end();
         // Write the first item so that we can safely add "&" between every other item
         if (iter != iterEnd) {
           o<<Encode(iter->first)<<"="<<Encode(iter->second);
@@ -712,10 +711,10 @@ namespace spitfire
         if (method == METHOD::GET) o<<"GET";
         else o<<"POST";
 
-        std::string sRelativeURIWithAnyVariables = spitfire::string::ToUTF8(sPath);
-        if (method == METHOD::GET) {
-          const std::string sVariables(CreateVariablesString());
-          sRelativeURIWithAnyVariables += "?" + sVariables;
+        std::string sRelativeURIWithAnyVariables = "/" + spitfire::string::ToUTF8(sPath);
+        if ((method == METHOD::GET) && !mVariables.empty()) {
+          // Append the encoded variables to the path
+          sRelativeURIWithAnyVariables += "?" + CreateVariablesString();
         }
 
         o<<" "<<sRelativeURIWithAnyVariables<<" HTTP/1.1"<<STR_END;
@@ -1579,11 +1578,11 @@ Content-Transfer-Encoding: binary
                 // Content length goes here when we send the request
 
                 std::ostringstream contentBegin;
-                const std::map<std::string, std::string>& mValues = request.GetValues();
-                if (!mValues.empty()) {
+                const std::map<std::string, std::string>& mVariables = request.GetVariables();
+                if (!mVariables.empty()) {
                   // Add the values for this request
-                  std::map<std::string, std::string>::const_iterator iter = mValues.begin();
-                  const std::map<std::string, std::string>::const_iterator iterEnd = mValues.end();
+                  std::map<std::string, std::string>::const_iterator iter = mVariables.begin();
+                  const std::map<std::string, std::string>::const_iterator iterEnd = mVariables.end();
                   while (iter != iterEnd) {
                     contentBegin<<"--AaB03x"<<STR_END;
                     contentBegin<<"content-disposition: form-data; name=\""<<iter->first<<"\""<<STR_END;

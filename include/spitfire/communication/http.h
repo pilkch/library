@@ -46,6 +46,7 @@ namespace spitfire
 
         void Clear();
 
+        void SetMethod(METHOD _method) { method = _method; }
         void SetMethodGet() { method = METHOD::GET; }
         bool IsMethodGet() const { return (method == METHOD::GET); }
         void SetMethodPost() { method = METHOD::POST; }
@@ -62,8 +63,11 @@ namespace spitfire
         size_t GetContentLengthBytes() const;
         void SetContentLengthBytes(size_t nLengthBytes);
 
-        const std::map<std::string, std::string>& GetValues() const { return mValues; }
-        void AddValue(const std::string& sName, const std::string& sValue) { mValues[sName] = sValue; }
+        const std::map<std::string, std::string>& GetOtherHeaders() const { return mOtherHeaders; }
+        void AddOtherHeader(const std::string& sName, const std::string& sValue) { mOtherHeaders[sName] = sValue; }
+
+        const std::map<std::string, std::string>& GetVariables() const { return mVariables; }
+        void AddVariable(const std::string& sName, const std::string& sValue) { mVariables[sName] = sValue; }
 
         const std::map<std::string, std::string>& GetFormData() const { return mFormData; }
         void AddFormData(const std::string& sName, const std::string& sValue) { mFormData[sName] = sValue; }
@@ -84,7 +88,8 @@ namespace spitfire
         string_t sHost;
         string_t sPath;
         size_t nOffsetBytes;
-        std::map<std::string, std::string> mValues;
+        std::map<std::string, std::string> mOtherHeaders;
+        std::map<std::string, std::string> mVariables;
         std::map<std::string, std::string> mFormData;
 
         // TODO: Support multiple attachments
@@ -412,6 +417,8 @@ namespace spitfire
         STATE GetState() const { return state; }
 
       private:
+        void SendRequest(cConnectionTCP& connection, const cRequest& request, cRequestListener& listener) const;
+
         mutable STATUS status;
         mutable STATE state;
         mutable uint32_t progress;
@@ -435,7 +442,7 @@ namespace spitfire
         sHost.clear();
         sPath.clear();
         nOffsetBytes = 0;
-        mValues.clear();
+        mOtherHeaders.clear();
         mFormData.clear();
 
         file.sName.clear();
