@@ -20,7 +20,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/lang.h>
 #include <spitfire/util/datetime.h>
 
@@ -97,7 +97,7 @@ namespace spitfire
       const size_t n = contents.size();
       for (size_t i = 0; i < n; i++) {
         line = spitfire::string::StripLeadingWhiteSpace(contents[i]);
-        CONSOLE<<"LoadLanguageFile contents["<<i<<"]=\""<<line<<"\""<<std::endl;
+        CONSOLE<<"LoadLanguageFile contents["<<i<<"]=\""<<spitfire::string::ToString_t(line)<<"\""<<std::endl;
 
         // If we have enough characters for a comment string and the first 2 characters
         // are comment slashes then skip this line
@@ -125,7 +125,7 @@ namespace spitfire
         value = spitfire::string::StripTrailing(value, L"\"");
 
         // Add tag
-        CONSOLE<<"LoadLanguageFile Tag \""<<tag<<"\"=\""<<value<<"\""<<std::endl;
+        CONSOLE<<"LoadLanguageFile Tag \""<<spitfire::string::ToString_t(tag)<<"\"=\""<<spitfire::string::ToString_t(value)<<"\""<<std::endl;
         langtags[tag] = value;
       }
 
@@ -162,7 +162,7 @@ namespace spitfire
   {
     std::map<std::wstring, std::wstring>::iterator iter = langtags.find(spitfire::string::ToWchar_t(tag));
     if (iter != langtags.end()) {
-      CONSOLE<<"LANG["<<tag<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
+      CONSOLE<<"LANG["<<spitfire::string::ToString_t(tag)<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
       return  spitfire::string::ToString_t(iter->second);
     }
 
