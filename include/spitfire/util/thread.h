@@ -49,6 +49,7 @@ namespace spitfire
       void StopThreadNow();  // Tells the thread to stop soon and waits until it stops
 
       bool IsRunning() const;
+      bool IsToStop() const { return _IsToStop(); }
 
     protected:
       void Yield();
