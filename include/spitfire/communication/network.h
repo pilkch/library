@@ -93,8 +93,11 @@ namespace spitfire
 
       bool IsOpen() const;
 
-      size_t Recv(void* buffer, size_t len, timeoutms_t timeoutMS);
-      size_t Send(const void* buffer, size_t len);
+      size_t GetBytesToRead();
+      size_t GetBytesAvailable();
+
+      size_t Read(void* buffer, size_t len, timeoutms_t timeoutMS);
+      size_t Write(const void* buffer, size_t len);
 
     private:
       bool bIsOpen;

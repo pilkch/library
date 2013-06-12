@@ -123,9 +123,24 @@ namespace spitfire
       return bIsOpen;
     }
 
-    size_t cConnectionTCP::Recv(void* buffer, size_t len, timeoutms_t timeoutMS)
+    size_t cConnectionTCP::GetBytesToRead()
     {
-      LOG<<"cConnectionTCP::Recv Reading with timeout "<<timeoutMS<<std::endl;
+      // Check if there are any bytes available
+      boost::asio::socket_base::bytes_readable command(true);
+
+      socket.io_control(command);
+
+      return command.get();
+    }
+
+    size_t cConnectionTCP::GetBytesAvailable()
+    {
+      return socket.available();
+    }
+
+    size_t cConnectionTCP::Read(void* buffer, size_t len, timeoutms_t timeoutMS)
+    {
+      LOG<<"cConnectionTCP::Read Reading with timeout "<<timeoutMS<<std::endl;
 
       ASSERT(IsOpen());
 
@@ -136,18 +151,19 @@ namespace spitfire
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();
       } else if (error) {
-        LOG<<"ERROR When reading from socket"<<std::endl;
+        LOG<<"cConnectionTCP::Read ERROR When reading from socket"<<std::endl;
         Close();
       } else {
         ASSERT(nLength <= len);
       }
 
+      LOG<<"cConnectionTCP::Read len="<<nLength<<std::endl;
       return nLength;
     }
 
-    size_t cConnectionTCP::Send(const void* buffer, size_t len)
+    size_t cConnectionTCP::Write(const void* buffer, size_t len)
     {
-      LOG<<"cConnectionTCP::Send"<<std::endl;
+      LOG<<"cConnectionTCP::Write"<<std::endl;
 
       ASSERT(IsOpen());
 
@@ -158,7 +174,7 @@ namespace spitfire
       if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
         Close();
       } else if (error) {
-        LOG<<"ERROR When reading from socket"<<std::endl;
+        LOG<<"cConnectionTCP::Write ERROR When reading from socket"<<std::endl;
         Close();
       } else {
         ASSERT(nLength == len);
