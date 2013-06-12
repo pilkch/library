@@ -31,7 +31,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/lang.h>
 #include <spitfire/util/log.h>
 
@@ -149,9 +149,6 @@ namespace spitfire
       using std::ios_base;
       using std::ifstream;
 
-      double vm_usage_mb = 0.0;
-      double resident_set_mb = 0.0;
-
       // 'file' stat seems to give the most reliable results
       //
       ifstream stat_stream("/proc/self/stat", ios_base::in);
@@ -173,9 +170,9 @@ namespace spitfire
                   >> utime >> stime >> cutime >> cstime >> priority >> nice
                   >> dummy >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
 
-      long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
-      vm_usage_mb = vsize / 1024.0 / 1024.0;
-      resident_set_mb = rss * page_size_kb / 1024.0;
+      //long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+      double vm_usage_mb = vsize / 1024.0 / 1024.0;
+      //double resident_set_mb = rss * page_size_kb / 1024.0;
 
       return size_t(vm_usage_mb);
 
@@ -430,9 +427,8 @@ namespace spitfire
 
     string_t GetUserDataDirectory()
     {
-      std::string sFullPath;
-      xdg::GetDataHomeDirectory(sFullPath);
-
+      xdg::cXdg xdg;
+      const std::string sFullPath = xdg.GetHomeDataDirectory();
       return string::ToString_t(sFullPath) + LANG("L_Application");
     }
 
@@ -447,20 +443,23 @@ namespace spitfire
 
     void OpenURL(const string_t& sURL)
     {
-      int result = xdg::OpenURL(string::ToUTF8(sURL).c_str());
-      if (result != 0) LOG<<"xdg::OpenFile returned "<<xdg::GetOpenErrorString(result)<<std::endl;
+      xdg::cXdg xdg;
+      int result = xdg.OpenURL(string::ToUTF8(sURL).c_str());
+      if (result != 0) LOG<<"xdg::OpenFile returned "<<xdg.GetOpenErrorString(result)<<std::endl;
     }
 
     void OpenFile(const string_t& sFullPath)
     {
-      int result = xdg::OpenFile(string::ToUTF8(sFullPath).c_str());
-      if (result != 0) LOG<<"OpenFile xdg::OpenFile returned "<<xdg::GetOpenErrorString(result)<<std::endl;
+      xdg::cXdg xdg;
+      int result = xdg.OpenFile(string::ToUTF8(sFullPath).c_str());
+      if (result != 0) LOG<<"OpenFile xdg::OpenFile returned "<<xdg.GetOpenErrorString(result)<<std::endl;
     }
 
     void OpenFolder(const string_t& sFullPath)
     {
-      int result = xdg::OpenFolder(string::ToUTF8(sFullPath).c_str());
-      if (result != 0) LOG<<"OpenFolder xdg::OpenFile returned "<<xdg::GetOpenErrorString(result)<<std::endl;
+      xdg::cXdg xdg;
+      int result = xdg.OpenFolder(string::ToUTF8(sFullPath).c_str());
+      if (result != 0) LOG<<"OpenFolder xdg::OpenFile returned "<<xdg.GetOpenErrorString(result)<<std::endl;
     }
 #endif
 
@@ -527,14 +526,14 @@ Bail:
       LSOpenFSRef(&fsr, NULL);
     }
 
-    void OpenWebPage(const string_t& sWebPageURL)
+    void OpenURL(const string_t& sURL)
     {
       ICInstance icInstance;
       OSType psiSignature = uint32_t('Psi ');
       OSStatus error = ICStart( &icInstance, psiSignature );
       if (error == noErr) {
         ConstStr255Param hint = 0x0;
-        const char* data = spitfire::string::ToUTF8(sWebPageURL).get();
+        const char* data = spitfire::string::ToUTF8(sURL).get();
         long length = url.length();
         long start = 0;
         long end = length;
