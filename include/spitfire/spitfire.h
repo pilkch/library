@@ -298,12 +298,15 @@ namespace spitfire
 #if defined(COMPILER_MSVC) && defined(BUILD_DEBUG)
 #define BUILD_LOGGING
 // LOG and LOGERROR are declared in spitfire/util/log.h
-#else
+#elif defined(BUILD_DEBUG)
 namespace spitfire
 {
   std::string LogGetTime();
 }
 #define LOG std::cout<<spitfire::LogGetTime()
+#define LOGERROR std::cerr<<spitfire::LogGetTime()
+#else
+#define LOG std::cout
 #define LOGERROR std::cerr
 #endif
 
