@@ -880,6 +880,7 @@ Content-Transfer-Encoding: binary
 
       cServer::cServer() :
         util::cThread(soAction, "cServer"),
+        uiPort(38001),
         soAction("soAction"),
         eventQueue(soAction),
         pTCPServer(nullptr),
@@ -892,8 +893,11 @@ Content-Transfer-Encoding: binary
         pRequestHandler = &requestHandler;
       }
 
-      void cServer::Start()
+      void cServer::Start(uint16_t _uiPort)
       {
+        // Set the port
+        uiPort = _uiPort;
+
         // Start the thread
         Run();
       }
@@ -1203,7 +1207,7 @@ Content-Transfer-Encoding: binary
       {
         LOG<<"cServer::ThreadFunction"<<std::endl;
 
-        pTCPServer = new cTCPServer(*this, 38001);
+        pTCPServer = new cTCPServer(*this, uiPort);
         pTCPServer->Run();
 
         while (true) {
@@ -1341,7 +1345,7 @@ Content-Transfer-Encoding: binary
         // Wait for the request to be sent
         spitfire::util::SleepThisThreadMS(1000);
 
-        const size_t bytes_readable = connection.GetBytesToRead();
+        //const size_t bytes_readable = connection.GetBytesToRead();
 
         //LOG<<"cConnectionHTTP::ReadHeader bytes_readable="<<bytes_readable<<std::endl;
 

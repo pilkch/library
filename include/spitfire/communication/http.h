@@ -320,7 +320,7 @@ namespace spitfire
         void SetRequestHandler(cServerRequestHandler& pRequestHandler);
         void SetRootPath(const string_t& sFolderPath);
 
-        void Start();
+        void Start(uint16_t uiPort);
         void Stop();
 
         void OnConnectedClient(cConnectedClient* pNewConnection);
@@ -341,6 +341,8 @@ namespace spitfire
         void SendEvent(cServerEvent* pEvent);
 
         virtual void ThreadFunction() override;
+
+        uint16_t uiPort;
 
         util::cSignalObject soAction;
         spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
