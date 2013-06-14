@@ -93,28 +93,31 @@ namespace spitfire
     {
       const std::vector<std::pair<std::string, std::string> > articles = controller.GetArticles();
 
-      // Start our banner
-      writer.WriteLine("  <header role=\"banner\">");
-      writer.WriteLine("    <h1>" + controller.GetBannerTitle() + "</h1>");
+      // Write the banner if we have a valid banner title
+      if (!controller.GetBannerTitle().empty()) {
+        // Start our banner
+        writer.WriteLine("  <header role=\"banner\">");
+        writer.WriteLine("    <h1>" + controller.GetBannerTitle() + "</h1>");
 
-      // TODO: This should be more like a site map, navigation links to the rest of the site, not this page
-      /*if (!articles.empty()) {
-        writer.WriteLine("");
-        writer.WriteLine("    <nav role=\"navigation\">");
-        writer.WriteLine("      <ul>");
+        // TODO: This should be more like a site map, navigation links to the rest of the site, not this page
+        /*if (!articles.empty()) {
+          writer.WriteLine("");
+          writer.WriteLine("    <nav role=\"navigation\">");
+          writer.WriteLine("      <ul>");
 
-        // Add a link for each article
-        const size_t nArticles = articles.size();
-        for (size_t i = 0; i < nArticles; i++) {
-          writer.WriteLine("        <li><a href=\"#" + articles[i].first + "\">" + articles[i].second + "</a></li>");
-        }
+          // Add a link for each article
+          const size_t nArticles = articles.size();
+          for (size_t i = 0; i < nArticles; i++) {
+            writer.WriteLine("        <li><a href=\"#" + articles[i].first + "\">" + articles[i].second + "</a></li>");
+          }
 
-        writer.WriteLine("      </ul>");
-        writer.WriteLine("    </nav>");
-      }*/
+          writer.WriteLine("      </ul>");
+          writer.WriteLine("    </nav>");
+        }*/
 
-      // Finish our banner
-      writer.WriteLine("  </header>");
+        // Finish our banner
+        writer.WriteLine("  </header>");
+      }
 
       // Start our main div
       writer.WriteLine("");
@@ -123,24 +126,29 @@ namespace spitfire
       writer.WriteLine("    <!-- The <main> element is used to enclose the main content, i.e. that which contains the central topic of a document -->");
       writer.WriteLine("    <main role=\"main\">");
       writer.WriteLine("      <section>");
-      writer.WriteLine("        <header>");
-      writer.WriteLine("          <h2>" + controller.GetSectionTitle() + "</h2>");
 
-      if (!articles.empty()) {
-        writer.WriteLine("          <nav role=\"navigation\">");
-        writer.WriteLine("            <ul>");
+      // Add the header if we have a valid section title
+      if (!controller.GetSectionTitle().empty()) {
+        writer.WriteLine("        <header>");
+        writer.WriteLine("          <h2>" + controller.GetSectionTitle() + "</h2>");
 
-        // Add a link for each article
-        const size_t nArticles = articles.size();
-        for (size_t i = 0; i < nArticles; i++) {
-          writer.WriteLine("              <li><a href=\"#" + articles[i].first + "\">" + articles[i].second + "</a></li>");
+        // Add the links to the articles if we have any
+        if (!articles.empty()) {
+          writer.WriteLine("          <nav role=\"navigation\">");
+          writer.WriteLine("            <ul>");
+
+          // Add a link for each article
+          const size_t nArticles = articles.size();
+          for (size_t i = 0; i < nArticles; i++) {
+            writer.WriteLine("              <li><a href=\"#" + articles[i].first + "\">" + articles[i].second + "</a></li>");
+          }
+
+          writer.WriteLine("            </ul>");
+          writer.WriteLine("          </nav>");
         }
 
-        writer.WriteLine("            </ul>");
-        writer.WriteLine("          </nav>");
+        writer.WriteLine("        </header>");
       }
-
-      writer.WriteLine("        </header>");
 
       if (!articles.empty()) {
         const size_t nArticles = articles.size();
