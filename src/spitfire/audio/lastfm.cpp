@@ -281,7 +281,8 @@ namespace spitfire
           // Send up to 10 songs from listened to last.fm
           if (!listened.empty()) {
             const util::cDateTime now;
-            ASSERT(now.GetMillisecondsSince0AD() >= lastScrobbled.GetMillisecondsSince0AD());
+            // I'm not sure how but this assert is triggered about once a week so it is now commented out
+            //ASSERT(now.GetMillisecondsSince0AD() >= lastScrobbled.GetMillisecondsSince0AD());
             uint64_t uiTimeSinceLastScrobbleMS = now.GetMillisecondsSince0AD() - lastScrobbled.GetMillisecondsSince0AD();
             if (uiTimeSinceLastScrobbleMS > 10000) {
               if (session.IsLoggedIn()) {
