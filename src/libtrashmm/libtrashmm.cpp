@@ -103,9 +103,7 @@ namespace trash
   std::string GetUnixErrorString()
   {
     char szError[255];
-    szError[0] = 0; // Just in case strerror_r fails
-    strerror_r(errno, szError, 255);
-    return std::string(szError);
+    return std::string(strerror_r(errno, szError, 255));
   }
 
   bool IsFile(const std::string& sFilePath)
