@@ -36,6 +36,10 @@
 // libvoodoomm headers
 #include <libvoodoomm/cImage.h>
 
+#ifdef BUILD_OPENGLMM_FONT
+#error "BUILD_OPENGLMM_FONT is deprecated, please use BUILD_LIBOPENGLMM_FONT instead"
+#endif
+
 #define BUILD_LIBOPENGLMM_SDL_VERSION 120
 
 #ifndef BUILD_LIBOPENGLMM_OPENGL_VERSION

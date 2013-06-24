@@ -43,7 +43,7 @@ struct SDL_Surface;
 
 namespace opengl
 {
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
   class cFont;
 #endif
   class cTexture;
@@ -136,7 +136,7 @@ namespace opengl
     cStaticVertexBufferObject* CreateStaticVertexBufferObject();
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
     cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
     void DestroyFont(cFont* pFont);
 #endif
@@ -179,7 +179,7 @@ namespace opengl
     void DisableBlending();
 
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
     void BindFont(const cFont& font);
     void UnBindFont(const cFont& font);
 #endif
@@ -283,7 +283,7 @@ namespace opengl
     std::list<cShader*> shaders;
     std::list<cStaticVertexBufferObject*> staticVertexBufferObjects;
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
     std::list<cFont*> fonts;
 #endif
   };

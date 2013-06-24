@@ -20,7 +20,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
 #include <libopenglmm/cFont.h>
 #endif
 #include <libopenglmm/cShader.h>
@@ -151,7 +151,7 @@ namespace opengl
 
     assert(pCurrentShader == nullptr); // Shaders must be unbound before this point
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
     assert(fonts.empty());
 #endif
     assert(textures.empty());
@@ -390,7 +390,7 @@ namespace opengl
   }
 
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
   cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
     cFont* pFont = new cFont;
@@ -1047,7 +1047,7 @@ namespace opengl
   }
 
 
-#ifdef BUILD_OPENGLMM_FONT
+#ifdef BUILD_LIBOPENGLMM_FONT
   void cContext::BindFont(const cFont& font)
   {
     assert(font.IsValid());
