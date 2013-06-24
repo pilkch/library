@@ -106,32 +106,6 @@ namespace trash
     return std::string(strerror_r(errno, szError, 255));
   }
 
-  bool IsFile(const std::string& sFilePath)
-  {
-    struct stat stBuffer;
-    if (stat(sFilePath.c_str(), &stBuffer) == 0) return S_ISREG(stBuffer.st_mode);
-
-    std::cout<<"IsFile FAILED for \""<<sFilePath<<"\""<<std::endl;
-    //LTRACEUNIXERRORMSG("IsFile failed due to: ");
-    return false;
-  }
-
-  bool IsFolder(const std::string& sFolderPath)
-  {
-    struct stat stBuffer;
-    if (stat(sFolderPath.c_str(), &stBuffer) == 0) return S_ISDIR(stBuffer.st_mode);
-
-    std::cout<<"IsFolder FAILED for \""<<sFolderPath<<"\""<<std::endl;
-    //LTRACEUNIXERRORMSG("IsFolder FAILED due to: ");
-    return false;
-  }
-
-  bool IsSymlink(const std::string& sPath)
-  {
-    struct stat st;
-    return ((lstat(sPath.c_str(), &st) != -1) && ((st.st_mode & S_IFMT) == S_IFLNK));
-  }
-
 #ifdef __LINUX__
   bool DeleteFile(const std::string& sFilename)
   {
