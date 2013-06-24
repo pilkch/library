@@ -122,6 +122,7 @@ namespace spitfire
 
     bool IsFile(const string_t& sFilePath);
     bool IsFolder(const string_t& sFolderPath);
+    bool IsSymlink(const std::string& sPath);
     bool FileExists(const string_t& sFilename);
     bool DirectoryExists(const string_t& sFoldername);
     bool CreateFile(const string_t& sFilename);

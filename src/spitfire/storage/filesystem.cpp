@@ -595,6 +595,12 @@ FOF_SILENT; // Options set for no user interaction
       return boost::filesystem::is_directory(file);
     }
 
+    bool IsSymlink(const std::string& sPath)
+    {
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return boost::filesystem::is_symlink(file);
+    }
+
 #ifdef __WIN__
 #pragma push_macro("FileExists")
 #undef FileExists
