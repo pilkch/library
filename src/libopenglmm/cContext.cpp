@@ -63,6 +63,7 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShar
 
 namespace opengl
 {
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   cContext::cContext(cSystem& _system, const cWindow& window) :
     system(_system),
     bIsRenderingToWindow(true),
@@ -122,13 +123,16 @@ namespace opengl
 
     LOG<<"cContext::cContext with window returning, "<<cSystem::GetErrorString()<<std::endl;
   }
+  #endif
 
   cContext::cContext(cSystem& _system, const cResolution& _resolution) :
     system(_system),
     bIsRenderingToWindow(false),
     bIsValid(false),
     resolution(_resolution),
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     pSurface(nullptr),
+    #endif
     targetWidth(0),
     targetHeight(0),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
@@ -155,10 +159,12 @@ namespace opengl
     assert(shaders.empty());
     assert(staticVertexBufferObjects.empty());
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     if (pSurface != nullptr) {
       SDL_FreeSurface(pSurface);
       pSurface = nullptr;
     }
+    #endif
   }
 
   bool cContext::IsValid() const
@@ -410,6 +416,7 @@ namespace opengl
 #endif
 
 
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   bool cContext::_SetWindowVideoMode(bool bIsFullScreen)
   {
     LOG<<"cContext::_SetWindowVideoMode "<<std::endl;
@@ -610,6 +617,7 @@ namespace opengl
     LOG<<"cContext::_SetWindowVideoMode returning true, "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
     return true;
   }
+  #endif
 
   void cContext::_SetDefaultFlags()
   {
@@ -701,10 +709,12 @@ namespace opengl
 
     resolution = _resolution;
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     if (!_SetWindowVideoMode(false)) {
       LOG<<"cContext::ResizeWindow Error setting video mode"<<std::endl;
       assert(false);
     }
+    #endif
 
     _SetPerspective(resolution.width, resolution.height);
   }
@@ -799,6 +809,7 @@ namespace opengl
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
   {
+    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
     assert(texture.IsValid());
     assert(!texture.IsModeCubeMap()); // Cubemaps have to be rendered into each face separately
 
@@ -809,20 +820,34 @@ namespace opengl
     // First we bind the FBO so we can render to it
     glBindFramebuffer(GL_FRAMEBUFFER, texture.uiFBO);
 
+    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) LOG<<"cContext::BeginRenderToTexture Incomplete FBO "<<status<<std::endl;
 
+    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+
     _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
+
+    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
   }
 
   void cContext::EndRenderToTexture(cTextureFrameBufferObject& texture)
   {
+    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+
     _EndRenderShared();
+
+    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
 
     // Set rendering back to default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+
     texture.GenerateMipMapsIfRequired();
+
+    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
 
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_TEXTURE_2D);
@@ -1042,6 +1067,8 @@ namespace opengl
 
   void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
   {
+    //LOG<<"cContext::BindTexture "<<cSystem::GetErrorString()<<std::endl;
+
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + uTextureUnit);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -1052,6 +1079,8 @@ namespace opengl
     if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
 
     glBindTexture(type, texture.GetTexture());
+
+    //LOG<<"cContext::BindTexture "<<cSystem::GetErrorString()<<std::endl;
   }
 
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)

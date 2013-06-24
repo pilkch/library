@@ -381,6 +381,7 @@ namespace opengl
     }*/
   }
 
+#ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   cWindow* cSystem::CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen)
   {
     cWindow* pWindow = new cWindow(*this, sCaption, resolution, bIsFullScreen);
@@ -401,6 +402,7 @@ namespace opengl
 
     return new cContext(*this, window);
   }
+#endif
 
   cContext* cSystem::CreateSharedContextFromContext(const cContext& rhs)
   {

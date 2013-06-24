@@ -143,10 +143,14 @@ namespace opengl
 
   class cSystem;
   class cContext;
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   class cWindow;
+  #endif
 
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   class cWindowEventListener;
   class cInputEventListener;
+  #endif
 
   class cTexture;
   class cShader;

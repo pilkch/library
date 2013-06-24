@@ -27,15 +27,19 @@
 typedef unsigned int GLenum;
 struct SDL_Surface;
 
+#ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
 #ifdef __WIN__
 #pragma push_macro("CreateWindow")
 #undef CreateWindow
+#endif
 #endif
 
 namespace opengl
 {
   class cContext;
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   class cWindow;
+  #endif
 
   class cSystem
   {
@@ -59,10 +63,13 @@ namespace opengl
     static void GetWindowedTestResolution16By9(size_t& width, size_t& height) { width = 1000; height = 562; }
     #endif
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     cWindow* CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     void DestroyWindow(cWindow* pWindow);
 
     cContext* CreateSharedContextFromWindow(const cWindow& window);
+    #endif
+
     cContext* CreateSharedContextFromContext(const cContext& context);
     void DestroyContext(cContext* pContext);
 

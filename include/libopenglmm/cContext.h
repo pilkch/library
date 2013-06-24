@@ -32,7 +32,9 @@
 // liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
+#ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
 struct SDL_Surface;
+#endif
 
 #ifdef __WIN__
 #pragma push_macro("CreateFont")
@@ -81,9 +83,13 @@ namespace opengl
   class cContext
   {
   public:
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     friend class cWindow;
+    #endif
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     cContext(cSystem& system, const cWindow& window); // Created for a window
+    #endif
     cContext(cSystem& system, const cResolution& resolution); // Created for an offscreen context
     ~cContext();
 
@@ -237,7 +243,9 @@ namespace opengl
   private:
     spitfire::math::cMat4 CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const;
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     bool _SetWindowVideoMode(bool bIsFullScreen);
+    #endif
     void _SetDefaultFlags();
     void _SetPerspective(size_t width, size_t height);
 
@@ -250,7 +258,9 @@ namespace opengl
     bool bIsValid;
     cResolution resolution;
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     SDL_Surface* pSurface;
+    #endif
 
     size_t targetWidth;
     size_t targetHeight;
