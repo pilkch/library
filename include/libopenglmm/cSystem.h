@@ -70,6 +70,10 @@ namespace opengl
     cContext* CreateSharedContextFromWindow(const cWindow& window);
     #endif
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT
+    cContext* CreateSharedContextForWidget(const cResolution& resolution);
+    #endif
+
     cContext* CreateSharedContextFromContext(const cContext& context);
     void DestroyContext(cContext* pContext);
 

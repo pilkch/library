@@ -395,7 +395,6 @@ namespace opengl
     delete pWindow;
   }
 
-
   cContext* cSystem::CreateSharedContextFromWindow(const cWindow& window)
   {
     nContexts++;
@@ -403,6 +402,15 @@ namespace opengl
     return new cContext(*this, window);
   }
 #endif
+
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT
+  cContext* cSystem::CreateSharedContextForWidget(const cResolution& resolution)
+  {
+    nContexts++;
+
+    return new cContext(*this, resolution);
+  }
+  #endif
 
   cContext* cSystem::CreateSharedContextFromContext(const cContext& rhs)
   {
