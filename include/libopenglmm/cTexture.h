@@ -53,6 +53,8 @@ namespace opengl
 
     bool IsValid() const { return _IsValid(); }
 
+    bool IsRectangle() const { return (GetWidth() != GetHeight()); }
+
     size_t GetWidth() const { return image.GetWidth(); }
     size_t GetHeight() const { return image.GetHeight(); }
 
@@ -124,8 +126,6 @@ namespace opengl
   public:
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
-
-    bool IsRectangle() const { return (GetWidth() != GetHeight()); }
 
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }

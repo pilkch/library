@@ -56,9 +56,6 @@ namespace opengl
   bool cTexture::CreateFromImage(const voodoo::cImage& _image)
   {
     assert(_image.IsValid());
-    assert(spitfire::math::IsPowerOfTwo(_image.GetWidth()));
-    assert(spitfire::math::IsPowerOfTwo(_image.GetHeight()));
-    assert(_image.GetWidth() == _image.GetHeight());
 
     image = _image;
 
@@ -74,7 +71,11 @@ namespace opengl
     glGenTextures(1, &uiTexture);
 
     // Bind so that the next operations happen on this texture
-    glBindTexture(GL_TEXTURE_2D, uiTexture);
+    const bool bIsRectangle = GetWidth() != GetHeight();
+
+    const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+
+    glBindTexture(textureType, uiTexture);
   }
 
   void cTexture::_Destroy()
@@ -86,34 +87,55 @@ namespace opengl
 
   void cTexture::CopyFromImageToTexture()
   {
-    // Bind so that the next operations happen on this texture
-    glBindTexture(GL_TEXTURE_2D, uiTexture);
+    if (!IsValid()) {
+      LOG<<"cTexture::CopyFromImageToTexture Texture is invalid, returning"<<std::endl;
+      return;
+    }
 
     const uint8_t* pBuffer = image.GetPointerToBuffer();
-    if (pBuffer != nullptr) {
-      // Settings to make the texture look a bit nicer when we do blit it to the screen
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-      //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-      if (bIsUsingMipMaps) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-        #endif
-      }
-
-      // Copy from image to texture
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
-
-      if (bIsUsingMipMaps) glGenerateMipmap(GL_TEXTURE_2D);
+    if (pBuffer == nullptr) {
+      LOG<<"cTexture::CopyFromImageToTexture Image is invalid, returning"<<std::endl;
+      return;
     }
+
+    const size_t uiWidth = GetWidth();
+    const size_t uiHeight = GetHeight();
+
+    const bool bIsRectangle = uiWidth != uiHeight;
+
+    // Turn off mipmaps for rectangular textures
+    if (bIsRectangle) bIsUsingMipMaps = false;
+
+    const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+
+    // Bind so that the next operations happen on this texture
+    glBindTexture(textureType, uiTexture);
+
+    GLenum internal = GL_RGBA;
+    GLenum type = GL_UNSIGNED_BYTE;
+
+    // Settings to make the texture look a bit nicer when we do blit it to the screen
+    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    if (bIsUsingMipMaps) {
+      glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
+      glTexParameteri(textureType, GL_GENERATE_MIPMAP, GL_TRUE);
+      #endif
+    }
+
+    // Copy from image to texture
+    glTexImage2D(textureType, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, pBuffer);
+
+    if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
 
   void cTexture::Reload()
