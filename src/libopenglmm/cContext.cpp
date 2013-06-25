@@ -125,9 +125,9 @@ namespace opengl
   }
   #endif
 
-  cContext::cContext(cSystem& _system, const cResolution& _resolution) :
+  cContext::cContext(cSystem& _system, const cResolution& _resolution, bool _bIsRenderingToWindow) :
     system(_system),
-    bIsRenderingToWindow(false),
+    bIsRenderingToWindow(_bIsRenderingToWindow),
     bIsValid(false),
     resolution(_resolution),
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL

@@ -408,7 +408,7 @@ namespace opengl
   {
     nContexts++;
 
-    return new cContext(*this, resolution);
+    return new cContext(*this, resolution, true);
   }
   #endif
 
@@ -416,7 +416,7 @@ namespace opengl
   {
     nContexts++;
 
-    return new cContext(*this, rhs.GetResolution());
+    return new cContext(*this, rhs.GetResolution(), false);
   }
 
   void cSystem::DestroyContext(cContext* pContext)

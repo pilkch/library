@@ -90,7 +90,7 @@ namespace opengl
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     cContext(cSystem& system, const cWindow& window); // Created for a window
     #endif
-    cContext(cSystem& system, const cResolution& resolution); // Created for an offscreen context
+    cContext(cSystem& system, const cResolution& resolution, bool bIsRenderingToWindow); // Created for an offscreen context or a context for gtkglext
     ~cContext();
 
     bool IsValid() const;
