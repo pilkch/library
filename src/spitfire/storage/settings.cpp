@@ -14,19 +14,55 @@
 
 // Spitfire Includes
 #include <spitfire/spitfire.h>
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
+#ifdef BUILD_SPITFIRE_UNITTEST
 #include <spitfire/util/unittest.h>
+#endif
 
 #include <spitfire/storage/filesystem.h>
+#include <spitfire/storage/settings.h>
 #include <spitfire/storage/xml.h>
 
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>
 #endif
 
-
 namespace spitfire
 {
+  namespace storage
+  {
+    void cSettingsDocument::Load()
+    {
+      assert(spitfire::util::IsMainThread());
+
+      // Read the xml document
+      spitfire::xml::reader reader;
+
+      spitfire::util::cProcessInterfaceVoid interface;
+      const string_t sFilename = spitfire::filesystem::GetThisApplicationSettingsDirectory() + TEXT("config.xml");
+      spitfire::util::PROCESS_RESULT result = reader.ReadFromFile(interface, document, sFilename);
+      if (result != spitfire::util::PROCESS_RESULT::COMPLETE) std::cout<<"cSettings::Load \""<<spitfire::string::ToUTF8(sFilename)<<"\" not found"<<std::endl;
+    }
+
+    void cSettingsDocument::Save()
+    {
+      assert(spitfire::util::IsMainThread());
+
+      // Create the directory
+      const string_t sFolder = spitfire::filesystem::GetThisApplicationSettingsDirectory();
+      spitfire::filesystem::CreateDirectory(sFolder);
+
+      // Write the xml document
+      spitfire::xml::writer writer;
+
+      const string_t sFilename = sFolder + TEXT("config.xml");
+      if (!writer.WriteToFile(document, sFilename)) {
+        std::cout<<"cSettings::Save Error saving to file \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
+        return;
+      }
+    }
+  }
+
 #ifdef BUILD_SETTINGS_GLOBAL
   // Shared between applications, per user
   // Uses IPC, the first application starts the IPC server and then other applications query the IPC server
@@ -247,7 +283,7 @@ namespace spitfire
 #endif // BUILD_SETTINGS_PROFILES
 
 
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
   class cSettingsUnitTest : protected util::cUnitTestBase
   {
   public:

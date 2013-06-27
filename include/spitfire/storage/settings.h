@@ -1,6 +1,10 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+// Spitfire headers
+#include <spitfire/storage/document.h>
+#include <spitfire/util/thread.h>
+
 // Bad Example
 /*
 enum HANDORIENTATION
@@ -25,6 +29,24 @@ inline HANDORIENTATION GetHandOrientation()
 
 namespace spitfire
 {
+  namespace storage
+  {
+    class cSettingsDocument
+    {
+    public:
+      void Load();
+      void Save();
+
+      template <class T>
+      T GetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& valueDefault) const;
+      template <class T>
+      void SetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& value);
+
+    private:
+      spitfire::document::cDocument document;
+    };
+  }
+
 #ifdef BUILD_SETTINGS_GLOBAL
   // Shared between applications, per user
   // Uses IPC, the first application starts the IPC server and then other applications query the IPC server
@@ -98,6 +120,96 @@ namespace spitfire
   void RemoveApplicationProfileSetting(const string_t& section, const string_t& subsection);
   void RemoveApplicationProfileSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection);
 #endif // BUILD_SETTINGS_PROFILES
+
+
+  namespace storage
+  {
+    template <class T>
+    inline T cSettingsDocument::GetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& valueDefault) const
+    {
+      assert(spitfire::util::IsMainThread());
+
+      T value = valueDefault;
+
+      spitfire::document::cNode::const_iterator iterConfig(document);
+      if (!iterConfig.IsValid()) return value;
+
+      iterConfig.FindChild("config");
+      if (!iterConfig.IsValid()) return value;
+
+      {
+        spitfire::document::cNode::const_iterator iter(iterConfig);
+
+        iter.FindChild(spitfire::string::ToUTF8(sSection));
+        if (iter.IsValid()) {
+          iter.FindChild(spitfire::string::ToUTF8(sItem));
+          if (iter.IsValid()) {
+            iter.GetAttribute(spitfire::string::ToUTF8(sAttribute), value);
+            //std::cout<<"cSettings::GetValue Item \""<<sItem<<"\" found "<<spitfire::string::ToString(value)<<std::endl;
+          }
+        }
+      }
+
+      return value;
+    }
+
+    template <class T>
+    inline void cSettingsDocument::SetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& value)
+    {
+      assert(spitfire::util::IsMainThread());
+
+      // Get or create the config element
+      spitfire::document::cNode::iterator iterConfig(document);
+      if (!iterConfig.IsValid()) {
+        spitfire::document::element* configElement = document.CreateElement("config");
+        document.AppendChild(configElement);
+        iterConfig = document;
+        assert(iterConfig.IsValid());
+      }
+
+      // Get or create the config element
+      iterConfig.FindChild("config");
+      if (!iterConfig.IsValid()) {
+        spitfire::document::element* configElement = document.CreateElement("config");
+        document.AppendChild(configElement);
+        iterConfig = document;
+        assert(iterConfig.IsValid());
+        iterConfig.FindChild("config");
+        assert(iterConfig.IsValid());
+      }
+
+      // Get or create the section element
+      spitfire::document::cNode::iterator iterSection(iterConfig);
+      iterSection.FindChild(spitfire::string::ToUTF8(sSection));
+      if (!iterSection.IsValid()) {
+        spitfire::document::element* sectionElement = document.CreateElement(spitfire::string::ToUTF8(sSection));
+        spitfire::document::element* configElement = iterConfig.Get();
+        configElement->AppendChild(sectionElement);
+        iterSection = iterConfig;
+        assert(iterSection.IsValid());
+        iterSection.FindChild(spitfire::string::ToUTF8(sSection));
+        assert(iterSection.IsValid());
+      }
+
+      // Get or create the item element
+      spitfire::document::cNode::iterator iterItem(iterSection);
+      iterItem.FindChild(spitfire::string::ToUTF8(sItem));
+      if (!iterItem.IsValid()) {
+        spitfire::document::element* itemElement = document.CreateElement(spitfire::string::ToUTF8(sItem));
+        spitfire::document::element* sectionElement = iterSection.Get();
+        sectionElement->AppendChild(itemElement);
+        iterItem = iterSection;
+        assert(iterItem.IsValid());
+        iterItem.FindChild(spitfire::string::ToUTF8(sItem));
+        assert(iterItem.IsValid());
+      }
+
+      spitfire::document::element* itemElement = iterItem.Get();
+
+      // Create and append the item element
+      itemElement->SetAttribute(spitfire::string::ToUTF8(sAttribute), value);
+    }
+  }
 }
 
 #endif // SETTINGS_H
