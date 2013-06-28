@@ -29,10 +29,8 @@
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cColour.h>
 
-//#include <libopenglmm/cTexture.h>
-//#include <libopenglmm/cShader.h>
-//#include <libopenglmm/cVertexBufferObject.h>
-//#include <libopenglmm/cWindow.h>
+// libopenglmm headers
+#include <libopenglmm/libopenglmm.h>
 
 struct SDL_Surface;
 
