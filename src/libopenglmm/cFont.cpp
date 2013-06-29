@@ -294,7 +294,6 @@ namespace opengl
   void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
   {
     (void)fRotationDegrees;
-    (void)scale;
 
 #if 1
     spitfire::math::cVec2 position(_position);
@@ -313,8 +312,8 @@ namespace opengl
       //std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
       const size_t index = size_t(c);
 
-      const float fCharacterX = position.x - fGlyphU[index];
-      const float fCharacterY = position.y - fGlyphV[index];
+      const float fCharacterX = - fGlyphU[index];
+      const float fCharacterY = - fGlyphV[index];
 
       const float fCharacterWidth = fGlyphWidth[index];
       const float fCharacterHeight = fGlyphHeight[index];
@@ -326,24 +325,19 @@ namespace opengl
       const float fTextureCharacterWidth = fGlyphWidth[index];
       const float fTextureCharacterHeight = fGlyphHeight[index];
 
-      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
-      builder.PushBack(spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
+      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
 
       // Move the cursor for the next character
-      position.x += fCharacterWidth + fGlyphAdvanceX[i];
+      position.x += scale.x * (fCharacterWidth + fGlyphAdvanceX[i]) * cosf(fRotationDegrees);
+      position.y += scale.y * (fCharacterWidth + fGlyphAdvanceX[i]) * sinf(fRotationDegrees);
+
+      // TODO: Work out how to incorporate this with the scale and rotation
       //position.y += fGlyphAdvanceY[i];
-
-      // TODO: Use rotation
-      //position.x += fCharacterWidth * cosf(fRotationDegrees);
-      //position.y += fCharacterWidth * sinf(fRotationDegrees);
-
-      // TODO: Use scale
-      //position.x += scale.x * fCharacterWidth * cosf(fRotationDegrees);
-      //position.y += scale.y * fCharacterWidth * sinf(fRotationDegrees);
     }
 #else
     // For viewing the whole font
