@@ -368,7 +368,7 @@ namespace spitfire
 
         // Decode any form url encoded data
         LOG<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
-        if (request.GetContentType() == "application/x-www-form-urlencoded") {
+        if (spitfire::string::StartsWith(request.GetContentType(), "application/x-www-form-urlencoded")) {
           const size_t nContentLengthBytes = request.GetContentLengthBytes();
           if (nContentLengthBytes != 0) {
             if (sp.IsEnd()) {
