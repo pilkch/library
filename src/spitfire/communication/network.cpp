@@ -23,6 +23,16 @@
 #include <windows.h>
 #endif
 
+#ifdef __LINUX__
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <ifaddrs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#endif
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
@@ -45,6 +55,46 @@ namespace spitfire
 {
   namespace network
   {
+    cIPAddress::cIPAddress(uint8_t uIPOctet0, uint8_t uIPOctet1, uint8_t uIPOctet2, uint8_t uIPOctet3)
+    {
+      octet[0] = uIPOctet0;
+      octet[1] = uIPOctet1;
+      octet[2] = uIPOctet2;
+      octet[3] = uIPOctet3;
+    }
+
+    cIPAddress::cIPAddress(const string_t& sIPAddress)
+    {
+      string::cStringParser sp(sIPAddress);
+
+      string_t sValue;
+      if (!sp.IsEnd()) {
+        sp.GetToStringAndSkip(".", sValue);
+        octet[0] = string::ToUnsignedInt(sValue);
+      }
+      if (!sp.IsEnd()) {
+        sp.GetToStringAndSkip(".", sValue);
+        octet[1] = string::ToUnsignedInt(sValue);
+      }
+      if (!sp.IsEnd()) {
+        sp.GetToStringAndSkip(".", sValue);
+        octet[2] = string::ToUnsignedInt(sValue);
+      }
+      if (!sp.IsEnd()) {
+        octet[3] = string::ToUnsignedInt(sp.GetToEnd());
+      }
+    }
+
+    bool cIPAddress::IsValid() const
+    {
+      return ((octet[0] != 0) && (octet[1] != 0) && (octet[2] != 0) && (octet[3] != 0));
+    }
+
+    string_t cIPAddress::ToString() const
+    {
+      return string::ToString(uint32_t(octet[0])) + "." + string::ToString(uint32_t(octet[1])) + "." + string::ToString(uint32_t(octet[2])) + "." + string::ToString(uint32_t(octet[3]));
+    }
+
     /*
       Uint32 number;
 
@@ -73,6 +123,40 @@ namespace spitfire
     void Destroy()
     {
       LOG<<"cNetwork Destroy"<<std::endl;
+    }
+
+    bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses)
+    {
+      addresses.clear();
+
+      ifaddrs* ifaddr = nullptr;
+      if (getifaddrs(&ifaddr) == -1) {
+        perror("GetIPAddressesOfNetworkInterfaces getifaddrs FAILED");
+        return false;
+      }
+
+      // Iterate through the network interfaces
+      for (const ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        const sockaddr* pAddr = ifa->ifa_addr;
+        if (pAddr == nullptr) continue;
+
+        const int family = pAddr->sa_family;
+        if (family == AF_INET) {
+          char host[NI_MAXHOST];
+          int s = getnameinfo(pAddr, sizeof(struct sockaddr_in), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+          if (s != 0) {
+            LOG<<"GetIPAddressesOfNetworkInterfaces getnameinfo FAILED: "<<gai_strerror(s)<<std::endl;
+            return false;
+          }
+
+          // Add the address
+          addresses.push_back(cIPAddress(host));
+        }
+      }
+
+      freeifaddrs(ifaddr);
+
+      return true;
     }
 
 

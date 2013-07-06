@@ -1,11 +1,15 @@
 #ifndef CNETWORK_H
 #define CNETWORK_H
 
+// Standard headers
+#include <list>
+
 // Boost headers
 #include <boost/asio.hpp>
 
 // Spitfire headers
 #include <spitfire/math/math.h>
+#include <spitfire/util/string.h>
 
 namespace spitfire
 {
@@ -18,26 +22,24 @@ namespace spitfire
 
     typedef uint16_t port_t;
 
-    class cIPAddress;
-    extern const cIPAddress localhost;
-
-    /*class cIPAddress
+    class cIPAddress
     {
     public:
       cIPAddress(uint8_t uIPOctet0, uint8_t uIPOctet1, uint8_t uIPOctet2, uint8_t uIPOctet3);
-      explicit cIPAddress(const string_t& sIPAddressOrHostName);
+      explicit cIPAddress(const string_t& sIPAddress);
 
-      bool IsIpAddress() const { return bIsIP; }
-      bool IsHostName() const { return !bIsIP; }
+      bool IsValid() const;
 
-      string_t GetIPAddress() const { return  }
-      string_t GetHostNameString() const {  }
+      uint8_t GetOctect0() const { return octet[0]; }
+      uint8_t GetOctect1() const { return octet[1]; }
+      uint8_t GetOctect2() const { return octet[2]; }
+      uint8_t GetOctect3() const { return octet[3]; }
+
+      string_t ToString() const;
 
     private:
-      bool bIsIP;
-      uint8_t uIPOctet[4];
-      string_t sHostName;
-    };*/
+      uint8_t octet[4];
+    };
 
     // Outgoing Communication Packet
     struct Packet_Message_Out {
@@ -71,6 +73,7 @@ namespace spitfire
     bool Init();
     void Destroy();
 
+    bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses);
 
 
     // For choosing a static port look at this list
