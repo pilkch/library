@@ -2,7 +2,6 @@
 #define NOTIFICATIONS_H
 
 #include <spitfire/util/string.h>
-#include <boost/concept_check.hpp>
 
 namespace spitfire
 {
