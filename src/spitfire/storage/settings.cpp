@@ -61,6 +61,39 @@ namespace spitfire
         return;
       }
     }
+
+    void cSettingsDocument::GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::list<string_t>& values) const
+    {
+      values.clear();
+
+      // Get the count
+      const size_t n = GetValue(sSection, sItem, sItem + TEXT("Count"), 0);
+
+      // Get each path
+      string_t sValue;
+      for (size_t i = 0; i < n; i++) {
+        sValue = GetValue<string_t>(sSection, sItem, sAttribute + spitfire::string::ToString(i), TEXT(""));
+        if (!sValue.empty()) values.push_back(sValue);
+      }
+    }
+
+    void cSettingsDocument::SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::list<string_t>& values)
+    {
+      // Set the count
+      const size_t n = values.size();
+      SetValue(sSection, sItem, sItem + TEXT("Count"), n);
+
+      // Add each path
+      size_t i = 0;
+      std::list<string_t>::const_iterator iter(values.begin());
+      const std::list<string_t>::const_iterator iterEnd(values.end());
+      while (iter != iterEnd) {
+        SetValue(sSection, sItem, sAttribute + spitfire::string::ToString(i), *iter);
+
+        iter++;
+        i++;
+      }
+    }
   }
 
 #ifdef BUILD_SETTINGS_GLOBAL

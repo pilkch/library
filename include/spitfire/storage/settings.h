@@ -1,6 +1,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+// Standard headers
+#include <list>
+
 // Spitfire headers
 #include <spitfire/storage/document.h>
 #include <spitfire/util/thread.h>
@@ -41,6 +44,9 @@ namespace spitfire
       T GetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& valueDefault) const;
       template <class T>
       void SetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& value);
+
+      void GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::list<string_t>& values) const;
+      void SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::list<string_t>& values);
 
     private:
       spitfire::document::cDocument document;
