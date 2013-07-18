@@ -69,6 +69,9 @@ namespace spitfire
       // Get the count
       const size_t n = GetValue(sSection, sItem, sAttribute + TEXT("Count"), 0);
 
+      // Reserve space for the number of values we are expecting
+      values.reserve(n);
+
       // Get each path
       string_t sValue;
       for (size_t i = 0; i < n; i++) {
