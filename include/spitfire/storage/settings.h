@@ -2,7 +2,7 @@
 #define SETTINGS_H
 
 // Standard headers
-#include <list>
+#include <vector>
 
 // Spitfire headers
 #include <spitfire/storage/document.h>
@@ -45,8 +45,8 @@ namespace spitfire
       template <class T>
       void SetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& value);
 
-      void GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::list<string_t>& values) const;
-      void SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::list<string_t>& values);
+      void GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::vector<string_t>& values) const;
+      void SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::vector<string_t>& values);
 
     private:
       spitfire::document::cDocument document;

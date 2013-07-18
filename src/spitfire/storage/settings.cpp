@@ -62,12 +62,12 @@ namespace spitfire
       }
     }
 
-    void cSettingsDocument::GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::list<string_t>& values) const
+    void cSettingsDocument::GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::vector<string_t>& values) const
     {
       values.clear();
 
       // Get the count
-      const size_t n = GetValue(sSection, sItem, sItem + TEXT("Count"), 0);
+      const size_t n = GetValue(sSection, sItem, sAttribute + TEXT("Count"), 0);
 
       // Get each path
       string_t sValue;
@@ -77,21 +77,15 @@ namespace spitfire
       }
     }
 
-    void cSettingsDocument::SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::list<string_t>& values)
+    void cSettingsDocument::SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::vector<string_t>& values)
     {
       // Set the count
       const size_t n = values.size();
-      SetValue(sSection, sItem, sItem + TEXT("Count"), n);
+      SetValue(sSection, sItem, sAttribute + TEXT("Count"), n);
 
-      // Add each path
-      size_t i = 0;
-      std::list<string_t>::const_iterator iter(values.begin());
-      const std::list<string_t>::const_iterator iterEnd(values.end());
-      while (iter != iterEnd) {
-        SetValue(sSection, sItem, sAttribute + spitfire::string::ToString(i), *iter);
-
-        iter++;
-        i++;
+      // Add each value
+      for (size_t i = 0; i < n; i++) {
+        SetValue(sSection, sItem, sAttribute + spitfire::string::ToString(i), values[i]);
       }
     }
   }
