@@ -44,9 +44,11 @@ namespace spitfire
       T GetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& valueDefault) const;
       template <class T>
       void SetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& value);
+      void RemoveValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute);
 
       void GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::vector<string_t>& values) const;
       void SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::vector<string_t>& values);
+      void RemoveListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute);
 
     private:
       spitfire::document::cDocument document;

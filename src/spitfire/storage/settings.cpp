@@ -62,6 +62,34 @@ namespace spitfire
       }
     }
 
+    void cSettingsDocument::RemoveValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute)
+    {
+      assert(spitfire::util::IsMainThread());
+
+      // Get the config element
+      spitfire::document::cNode::iterator iterConfig(document);
+      if (!iterConfig.IsValid()) return;
+
+      // Get the config element
+      iterConfig.FindChild("config");
+      if (!iterConfig.IsValid()) return;
+
+      // Get the section element
+      spitfire::document::cNode::iterator iterSection(iterConfig);
+      iterSection.FindChild(spitfire::string::ToUTF8(sSection));
+      if (!iterSection.IsValid()) return;
+
+      // Get the item element
+      spitfire::document::cNode::iterator iterItem(iterSection);
+      iterItem.FindChild(spitfire::string::ToUTF8(sItem));
+      if (!iterItem.IsValid()) return;
+
+      spitfire::document::element* itemElement = iterItem.Get();
+
+      // Remove the attribute
+      itemElement->RemoveAttribute(spitfire::string::ToUTF8(sAttribute));
+    }
+
     void cSettingsDocument::GetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, std::vector<string_t>& values) const
     {
       values.clear();
@@ -82,6 +110,9 @@ namespace spitfire
 
     void cSettingsDocument::SetListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const std::vector<string_t>& values)
     {
+      // Remove the old list
+      RemoveListOfValues(sSection, sItem, sAttribute);
+
       // Set the count
       const size_t n = values.size();
       SetValue(sSection, sItem, sAttribute + TEXT("Count"), n);
@@ -90,6 +121,20 @@ namespace spitfire
       for (size_t i = 0; i < n; i++) {
         SetValue(sSection, sItem, sAttribute + spitfire::string::ToString(i), values[i]);
       }
+    }
+
+    void cSettingsDocument::RemoveListOfValues(const string_t& sSection, const string_t& sItem, const string_t& sAttribute)
+    {
+      // Get the count
+      const size_t n = GetValue(sSection, sItem, sAttribute + TEXT("Count"), 0);
+
+      // Remove each value
+      for (size_t i = 0; i < n; i++) {
+        RemoveValue(sSection, sItem, sAttribute + spitfire::string::ToString(i));
+      }
+
+      // Remove the count
+      RemoveValue(sSection, sItem, sAttribute + TEXT("Count"));
     }
   }
 
