@@ -41,6 +41,8 @@
 
 namespace spitfire
 {
+  namespace algorithm
+  {
   #define GET_UINT32(n,b,i)                             \
   {                                                     \
     (n) = ( (uint32_t) (b)[(i)    ]       )             \
@@ -307,7 +309,7 @@ namespace spitfire
     std::memset(result, 0, sizeof(result));
   }
 
-  bool cMD5::CheckString(const char* szInput)
+  bool cMD5::CalculateForString(const char* szInput)
   {
     cMD5_Context ctx;
     ctx.Start();
@@ -317,7 +319,7 @@ namespace spitfire
     return true;
   }
 
-  bool cMD5::CheckBuffer(const char* pData, size_t len)
+  bool cMD5::CalculateForBuffer(const char* pData, size_t len)
   {
     cMD5_Context ctx;
 
@@ -329,7 +331,7 @@ namespace spitfire
     return true;
   }
 
-  bool cMD5::CheckFile(const std::string& input)
+  bool cMD5::CalculateForFile(const std::string& input)
   {
     if (input.size() < 2) {
       result[0] = 0;
@@ -368,31 +370,31 @@ namespace spitfire
     return (a & (unsigned char)(0xF)) * (unsigned char)(16) + (b & (unsigned char)(0xF));
   }
 
-  bool cMD5::SetResultFromFormatted(const char*szMD5Hash)
+  bool cMD5::SetResultFromFormatted(const string_t& sMD5Hash)
   {
     for (size_t i = 0; i < 32; i++) {
-      if ((szMD5Hash[i] > 'z') || (szMD5Hash[i] < '0')) return false;
+      if ((sMD5Hash[i] > 'z') || (sMD5Hash[i] < '0')) return false;
     }
 
-    result[0]  = h2d(szMD5Hash[0],  szMD5Hash[1]);
-    result[1]  = h2d(szMD5Hash[2],  szMD5Hash[3]);
-    result[2]  = h2d(szMD5Hash[4],  szMD5Hash[5]);
-    result[3]  = h2d(szMD5Hash[6],  szMD5Hash[7]);
+    result[0]  = h2d(sMD5Hash[0],  sMD5Hash[1]);
+    result[1]  = h2d(sMD5Hash[2],  sMD5Hash[3]);
+    result[2]  = h2d(sMD5Hash[4],  sMD5Hash[5]);
+    result[3]  = h2d(sMD5Hash[6],  sMD5Hash[7]);
 
-    result[4]  = h2d(szMD5Hash[8],  szMD5Hash[9]);
-    result[5]  = h2d(szMD5Hash[10], szMD5Hash[11]);
-    result[6]  = h2d(szMD5Hash[12], szMD5Hash[13]);
-    result[7]  = h2d(szMD5Hash[14], szMD5Hash[15]);
+    result[4]  = h2d(sMD5Hash[8],  sMD5Hash[9]);
+    result[5]  = h2d(sMD5Hash[10], sMD5Hash[11]);
+    result[6]  = h2d(sMD5Hash[12], sMD5Hash[13]);
+    result[7]  = h2d(sMD5Hash[14], sMD5Hash[15]);
 
-    result[8]  = h2d(szMD5Hash[16], szMD5Hash[17]);
-    result[9]  = h2d(szMD5Hash[18], szMD5Hash[19]);
-    result[10] = h2d(szMD5Hash[20], szMD5Hash[21]);
-    result[11] = h2d(szMD5Hash[22], szMD5Hash[23]);
+    result[8]  = h2d(sMD5Hash[16], sMD5Hash[17]);
+    result[9]  = h2d(sMD5Hash[18], sMD5Hash[19]);
+    result[10] = h2d(sMD5Hash[20], sMD5Hash[21]);
+    result[11] = h2d(sMD5Hash[22], sMD5Hash[23]);
 
-    result[12] = h2d(szMD5Hash[24], szMD5Hash[25]);
-    result[13] = h2d(szMD5Hash[26], szMD5Hash[27]);
-    result[14] = h2d(szMD5Hash[28], szMD5Hash[29]);
-    result[15] = h2d(szMD5Hash[30], szMD5Hash[31]);
+    result[12] = h2d(sMD5Hash[24], sMD5Hash[25]);
+    result[13] = h2d(sMD5Hash[26], sMD5Hash[27]);
+    result[14] = h2d(sMD5Hash[28], sMD5Hash[29]);
+    result[15] = h2d(sMD5Hash[30], sMD5Hash[31]);
 
     return true;
   }
@@ -402,19 +404,9 @@ namespace spitfire
     return (sResult == rhs.sResult);
   }
 
-  bool cMD5::operator!=(const cMD5 & rhs) const
-  {
-    return (sResult != rhs.sResult);
-  }
-
   bool cMD5::operator==(const std::string & rhs) const
   {
     return (sResult == rhs);
-  }
-
-  bool cMD5::operator!=(const std::string & rhs) const
-  {
-    return (sResult != rhs);
   }
 
   std::string cMD5::GetResult() const
@@ -428,9 +420,10 @@ namespace spitfire
     std::strcpy(temp, (char*)result);
     return std::string(temp);
   }
+  }
 }
 
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
 
 #include <spitfire/util/unittest.h>
 
@@ -446,13 +439,13 @@ public:
   {
     const char szText[] = { "This is the testing string for the md5 unit test" };
 
-    spitfire::cMD5 test;
+    spitfire::algorithm::cMD5 test;
 
-    bool bResult = test.CheckString(szText);
+    bool bResult = test.CalculateForString(szText);
     ASSERT(bResult);
     ASSERT(test.GetResultFormatted() == "fcfb62be1afe450706c373d7b9cbb3e3");
 
-    bResult = test.CheckBuffer(szText, strlen(szText));
+    bResult = test.CalculateForBuffer(szText, strlen(szText));
     ASSERT(bResult);
     ASSERT(test.GetResultFormatted() == "fcfb62be1afe450706c373d7b9cbb3e3");
   }

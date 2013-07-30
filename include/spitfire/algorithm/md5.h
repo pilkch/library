@@ -22,27 +22,34 @@
 #ifndef CMD5_H
 #define CMD5_H
 
+#include <spitfire/util/string.h>
+
 namespace spitfire
 {
+  namespace algorithm
+  {
   class cMD5
   {
   public:
     cMD5();
 
-    bool CheckString(const char* szInput);
-    bool CheckBuffer(const char* pData, size_t len);
-    bool CheckFile(const std::string& sFilename);
+    bool CalculateForString(const char* szInput);
+    bool CalculateForBuffer(const char* pData, size_t len);
+    bool CalculateForFile(const std::string& sFilePath);
+    bool CheckString(const char* szInput) { return CalculateForString(szInput); }
+    bool CheckBuffer(const char* pData, size_t len) { return CalculateForBuffer(pData, len); }
+    bool CheckFile(const string_t& sFilePath) { return  CalculateForFile(sFilePath); }
 
-    bool SetResultFromFormatted(const char* szMD5Hash);
+    bool SetResultFromFormatted(const string_t& sMD5Hash);
 
     bool operator==(const cMD5& rhs) const;
-    bool operator!=(const cMD5& rhs) const;
+    bool operator!=(const cMD5& rhs) const { return !(*this == rhs); }
 
     bool operator==(const std::string& rhs) const;
-    bool operator!=(const std::string& rhs) const;
+    bool operator!=(const std::string& rhs) const { return !(*this == rhs); }
 
     std::string GetResult() const;
-    std::string GetResultFormatted() const;
+    string_t GetResultFormatted() const;
 
   private:
     unsigned char h2d(unsigned char a, unsigned char b) const;
@@ -50,6 +57,7 @@ namespace spitfire
     unsigned char result[16]; // Raw result
     std::string sResult; // Result formatted
   };
+  }
 }
 
 #endif // CMD5_H
