@@ -81,9 +81,9 @@ namespace spitfire
       CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
 
 #ifdef __WIN__
-      sApplicationDirectory = GetPath(spitfire::string::Replace(executable, TEXT("\\"), TEXT("/")));
+      sApplicationDirectory = GetFolder(spitfire::string::Replace(executable, TEXT("\\"), TEXT("/")));
 #else
-      sApplicationDirectory = GetPath(executable);
+      sApplicationDirectory = GetFolder(executable);
 #endif
 
       ASSERT(!sApplicationDirectory.empty());
@@ -212,7 +212,7 @@ FOF_SILENT; // Options set for no user interaction
 
     bool MoveFile(const string_t& sFrom, const string_t& sTo)
     {
-      CONSOLE<<"MoveFile From \""<<sFrom<<"\", to \""<<sTo<<"\""<<std::endl;
+      //CONSOLE<<"MoveFile From \""<<sFrom<<"\", to \""<<sTo<<"\""<<std::endl;
       const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
       const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
       boost::filesystem::rename(from, to);
@@ -402,10 +402,10 @@ FOF_SILENT; // Options set for no user interaction
       return spitfire::string::StripAfterLast(result, TEXT("/"));
     }
 
-    string_t GetPath(const string_t& sFilename)
+    string_t GetFolder(const string_t& sFilePath)
     {
       string_t p = TEXT("");
-      string_t s = sFilename;
+      string_t s = sFilePath;
 
       string_t::size_type i = s.find(TEXT("/"));
       while (i != string_t::npos) {
@@ -908,7 +908,7 @@ FOF_SILENT; // Options set for no user interaction
     cFilePathParser::cFilePathParser(const string_t& sFilePath)
     {
       LOG<<"cFilePathParser::cFilePathParser \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
-      const string_t sPath = spitfire::filesystem::GetPath(sFilePath);
+      const string_t sPath = spitfire::filesystem::GetFolder(sFilePath);
       sFileName = spitfire::filesystem::GetFile(sFilePath);
 
       string::Split(sFilePath, cFilePathSeparator, vFolderNames);
@@ -940,7 +940,7 @@ FOF_SILENT; // Options set for no user interaction
       return (boost::filesystem::exists(file) && boost::filesystem::is_regular(file));
     }
 
-    bool cPath::IsDirectory() const
+    bool cPath::IsFolder() const
     {
       const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
       return (boost::filesystem::exists(file) && boost::filesystem::is_directory(file));
@@ -948,8 +948,8 @@ FOF_SILENT; // Options set for no user interaction
 
     string_t cPath::GetDirectory() const // Returns just the directory "/folder1/folder2/"
     {
-      ASSERT(IsDirectory());
-      return filesystem::GetPath(sPath);
+      ASSERT(IsFolder());
+      return filesystem::GetFolder(sPath);
     }
 
     string_t cPath::GetFile() const // Returns just the file "file.txt"
@@ -1153,7 +1153,7 @@ FOF_SILENT; // Options set for no user interaction
     {
       ASSERT(IsValid());
       cPath p(sParentFolder, paths[i]);
-      return p.IsDirectory();
+      return p.IsFolder();
     }
 
 

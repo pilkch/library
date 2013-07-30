@@ -106,7 +106,10 @@ namespace spitfire
 
     string_t StripLastDirectory(const string_t& sFolderPath); // Returns a string with the last folder of path removed
 
-    string_t GetPath(const string_t& sFilename); // Returns just the directory "/folder1/folder2/"
+    string_t GetFolder(const string_t& sFilePath); // Returns just the directory "/folder1/folder2/"
+    // Deprecated
+    // Use GetFolder instead
+    inline string_t GetPath(const string_t& sFilename) { return GetFolder(sFilename); }
     string_t GetFile(const string_t& sFilename); // Returns just the file "file.txt"
     string_t GetFileNoExtension(const string_t& sFilename);  // Returns just the name "file"
     string_t GetExtension(const string_t& sFilename); // Returns just the extension ".txt"
@@ -248,7 +251,7 @@ namespace spitfire
       explicit cPath(const string_t& sDirectory, const string_t& sSubDirectory, const string_t& sFile);
 
       bool IsFile() const;
-      bool IsDirectory() const;
+      bool IsFolder() const;
 
       string_t GetDirectory() const; // Returns just the directory "/folder1/folder2/"
       string_t GetFile() const; // Returns just the file "file.txt"
