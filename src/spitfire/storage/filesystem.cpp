@@ -1081,7 +1081,23 @@ FOF_SILENT; // Options set for no user interaction
         }
       }
 
-      std::sort(paths.begin(), paths.end());
+      // Use a lambda to sort with folders first like this:
+      // foldera/
+      // folderb/
+      // filea.txt
+      // fileb.txt
+      std::sort(paths.begin(), paths.end(),
+        [&](const string_t& lhs, const string_t& rhs)
+        {
+          const cPath lhsPath(sParentFolder, lhs);
+          const cPath rhsPath(sParentFolder, rhs);
+          if (lhsPath.IsFolder()) {
+            if (!rhsPath.IsFolder()) return true;
+          } else if (rhsPath.IsFolder()) return false;
+
+          return (lhs < rhs);
+        }
+      );
     }
 
     cFolderIterator::cFolderIterator(const cFolderIterator& rhs)
