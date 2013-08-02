@@ -416,9 +416,11 @@ namespace spitfire
 
   std::string cMD5::GetResultFormatted() const
   {
-    char temp[17];
-    std::strcpy(temp, (char*)result);
-    return std::string(temp);
+    // TODO: Huh? sResult already appears to be formatted. What is this code trying to do?
+    //char temp[17];
+    //std::strcpy(temp, (char*)result);
+    //return std::string(temp);
+    return sResult;
   }
   }
 }
