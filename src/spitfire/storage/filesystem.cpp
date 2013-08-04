@@ -815,9 +815,9 @@ FOF_SILENT; // Options set for no user interaction
     }
 #endif
 
-    bool CreateDirectory(const string_t& sFoldername)
+    bool CreateDirectory(const string_t& sFolderPath)
     {
-      return boost::filesystem::create_directories(sFoldername);
+      return boost::filesystem::create_directories(sFolderPath);
     }
 
 #ifdef __WIN__
