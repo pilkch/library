@@ -22,6 +22,11 @@ namespace spitfire
     void SetMainThread();
     bool IsMainThread();
 
+    size_t GetRecommendedConcurrentThreadCount();
+
+
+    // ** Inlines
+
     inline void SleepThisThreadMS(uint32_t milliseconds)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
@@ -30,6 +35,12 @@ namespace spitfire
     inline void YieldThisThread()
     {
       std::this_thread::yield();
+    }
+
+    inline size_t GetRecommendedConcurrentThreadCount()
+    {
+      // Return the recommended number of concurrent threads or at least 1
+      return std::max<unsigned int>(1, std::thread::hardware_concurrency());
     }
 
 
