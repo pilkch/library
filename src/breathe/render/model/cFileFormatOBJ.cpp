@@ -421,7 +421,7 @@ namespace breathe
             // Resolve material name to a full file path
             // Something like "material"
             const string_t sMaterialFile = pMesh->sMaterial;
-            const string_t sObjFileDirectory = spitfire::filesystem::GetPath(sFilePath);
+            const string_t sObjFileDirectory = spitfire::filesystem::GetFolder(sFilePath);
             spitfire::filesystem::cPath p(sObjFileDirectory, sMaterialFile);
 
             // Something like "shared/data/models/material"
