@@ -212,6 +212,10 @@ namespace spitfire
       datetime += duration;
     }
 
+    void cDateTime::SetFromTimeT(time_t time)
+    {
+      datetime = boost::posix_time::from_time_t(time);
+    }
 
     /*void GetTimeNow()
     {

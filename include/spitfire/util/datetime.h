@@ -51,11 +51,11 @@ namespace spitfire
       WEEKDAY GetWeekDay() const; // Returns the day of the week of this date
 
       uint16_t GetYear() const { ASSERT(IsValid()); return datetime.date().year(); }
-      uint8_t GetMonth() const { ASSERT(IsValid()); return datetime.date().month(); }
-      uint8_t GetDay() const { ASSERT(IsValid()); return datetime.date().day(); }
-      uint8_t GetHours() const { ASSERT(IsValid()); return datetime.time_of_day().hours(); }
-      uint8_t GetMinutes() const { ASSERT(IsValid()); return datetime.time_of_day().minutes(); }
-      uint8_t GetSeconds() const { ASSERT(IsValid()); return datetime.time_of_day().seconds(); }
+      uint16_t GetMonth() const { ASSERT(IsValid()); return datetime.date().month(); }
+      uint16_t GetDay() const { ASSERT(IsValid()); return datetime.date().day(); }
+      uint16_t GetHours() const { ASSERT(IsValid()); return datetime.time_of_day().hours(); }
+      uint16_t GetMinutes() const { ASSERT(IsValid()); return datetime.time_of_day().minutes(); }
+      uint16_t GetSeconds() const { ASSERT(IsValid()); return datetime.time_of_day().seconds(); }
       uint16_t GetMilliSeconds() const;
 
       uint32_t GetMillisecondsSinceMidnight() const;
@@ -63,6 +63,8 @@ namespace spitfire
       uint64_t GetMillisecondsSince0AD() const;
 
       void AddDays(int days);
+
+      void SetFromTimeT(time_t time);
 
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
       string_t GetISO8601UTCString() const;

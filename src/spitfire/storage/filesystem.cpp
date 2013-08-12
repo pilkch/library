@@ -735,6 +735,14 @@ FOF_SILENT; // Options set for no user interaction
       return FindFile(sNewFilename, sOutFilename);
     }
 
+    spitfire::util::cDateTime GetLastModifiedDate(const string_t& sFilePath)
+    {
+      ASSERT(FileExists(sFilePath));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      spitfire::util::cDateTime dateTime;
+      dateTime.SetFromTimeT(boost::filesystem::last_write_time(file));
+      return dateTime;
+    }
 
     uint64_t GetFileSizeBytes(const string_t& sFilename)
     {

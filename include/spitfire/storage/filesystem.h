@@ -6,6 +6,7 @@
 #include <vector>
 
 // Spitfire headers
+#include <spitfire/util/datetime.h>
 #include <spitfire/util/string.h>
 
 // http://www.boost.org/doc/libs/1_39_0/libs/filesystem/doc/index.htm
@@ -71,7 +72,7 @@ namespace spitfire
     string_t GetResourcesPath();
 #endif
 
-    uint32_t GetLastModifiedDate(const string_t& sFilename);
+    util::cDateTime GetLastModifiedDate(const string_t& sFilename);
     uint64_t GetFileSizeBytes(const string_t& sFilename);
 
     // Check that these two paths are pointing to the same file
