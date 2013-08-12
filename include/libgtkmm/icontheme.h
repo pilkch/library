@@ -11,11 +11,19 @@ namespace gtkmm
 {
   #define sICON_ADD "gtk-add"
   #define sICON_DIRECTORY "gtk-directory"
+  #define sICON_GO_UP "gtk-go-up"
+  #define sICON_CONVERT "gtk-convert"
+  #define sICON_DELETE "gtk-delete"
+  #define sICON_FIND "gtk-find"
   #define sICON_MEDIA_PREVIOUS "gtk-media-previous-ltr"
   #define sICON_MEDIA_PLAY "gtk-media-play-ltr"
   #define sICON_MEDIA_NEXT "gtk-media-next-ltr"
   #define sICON_REPEAT_TOGGLE "gtk-goto-top"
   #define sICON_STOP "gtk-stop"
+  #define sICON_ZOOM_100 "gtk-zoom-100"
+  #define sICON_ZOOM_FIT "gtk-zoom-fit"
+  #define sICON_ZOOM_IN "gtk-zoom-in"
+  #define sICON_ZOOM_OUT "gtk-zoom-out"
 
   class cIconTheme
   {
