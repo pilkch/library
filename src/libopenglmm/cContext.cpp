@@ -87,6 +87,9 @@ namespace opengl
 
     _SetDefaultFlags();
     _SetPerspective(resolution.width, resolution.height);
+    targetWidth = resolution.width;
+    targetHeight = resolution.height;
+
 
     system.UpdateCapabilities();
 
