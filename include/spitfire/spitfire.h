@@ -246,8 +246,8 @@ typedef int32_t ssize_t;
 
 #define NO_COPY(T) \
   private: \
-  T(const T&); \
-  void operator=(const T&)
+  T(const T&) = delete; \
+  T& operator=(const T&) = delete
 
 
 // Like sizeof for arrays (Although using raw arrays like this is discouraged so we can probably remove this
