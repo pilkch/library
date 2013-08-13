@@ -89,6 +89,10 @@ namespace spitfire
       void ConvertFromLocalToUTC();
       void ConvertFromUTCToLocal();
 
+      bool operator==(const cDateTime& rhs) const;
+      bool operator<(const cDateTime& rhs) const;
+      bool operator>(const cDateTime& rhs) const;
+
     private:
       static boost::posix_time::ptime GetLocalTimeNow() { return boost::posix_time::microsec_clock::local_time(); }
       static boost::posix_time::ptime GetUniversalTime() { return boost::posix_time::microsec_clock::universal_time(); }

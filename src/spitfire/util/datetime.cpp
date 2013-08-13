@@ -408,6 +408,22 @@ namespace spitfire
       boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
       datetime = local_adj.utc_to_local(datetime);
     }
+
+    bool cDateTime::operator==(const cDateTime& rhs) const
+    {
+      return (datetime == rhs.datetime);
+    }
+
+    bool cDateTime::operator<(const cDateTime& rhs) const
+    {
+      return (datetime < rhs.datetime);
+    }
+
+    bool cDateTime::operator>(const cDateTime& rhs) const
+    {
+      return (datetime > rhs.datetime);
+    }
+
   }
 }
 
