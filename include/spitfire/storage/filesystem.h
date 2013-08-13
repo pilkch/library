@@ -110,7 +110,7 @@ namespace spitfire
     string_t GetFolder(const string_t& sFilePath); // Returns just the directory "/folder1/folder2/"
     // Deprecated
     // Use GetFolder instead
-    inline string_t GetPath(const string_t& sFilename) { return GetFolder(sFilename); }
+    //inline string_t GetPath(const string_t& sFilename) { return GetFolder(sFilename); }
     string_t GetFile(const string_t& sFilename); // Returns just the file "file.txt"
     string_t GetFileNoExtension(const string_t& sFilename);  // Returns just the name "file"
     string_t GetExtension(const string_t& sFilename); // Returns just the extension ".txt"
