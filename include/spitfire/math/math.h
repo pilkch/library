@@ -134,6 +134,11 @@ namespace spitfire
       return ceilf(fValue);
     }
 
+    inline int RoundUpToNearestInt(float_t fValue)
+    {
+      return static_cast<int>(std::ceil(fValue));
+    }
+
 
     inline int GetIntegerPart(float_t fValue)
     {
