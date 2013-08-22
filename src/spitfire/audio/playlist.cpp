@@ -69,7 +69,7 @@ namespace spitfire
 
       storage::cReadTextFile file(sM3uPath);
 
-      const string_t sPlaylistPath = filesystem::GetPath(sM3uPath);
+      const string_t sPlaylistPath = filesystem::GetFolder(sM3uPath);
 
       cTrack track;
 
@@ -150,7 +150,7 @@ namespace spitfire
 
       storage::cReadTextFile file(sPlsPath);
 
-      const string_t sPlaylistPath = filesystem::GetPath(sPlsPath);
+      const string_t sPlaylistPath = filesystem::GetFolder(sPlsPath);
 
       playlist.tracks.reserve(uiNumberOfEntries);
       for (size_t i = 0; i < uiNumberOfEntries; i++) playlist.tracks.push_back(new cTrack);
@@ -257,7 +257,7 @@ namespace spitfire
         return false;
       }
 
-      const string_t sM3uFolder = filesystem::GetPath(sM3uPath);
+      const string_t sM3uFolder = filesystem::GetFolder(sM3uPath);
 
       ostringstream_t o;
       o<<TEXT("#EXTM3U\n"); // Extended m3u header
@@ -304,7 +304,7 @@ namespace spitfire
         return false;
       }
 
-      const string_t sPlsFolder = filesystem::GetPath(sPlsPath);
+      const string_t sPlsFolder = filesystem::GetFolder(sPlsPath);
 
       ostringstream_t o;
       o<<TEXT("[playlist]\n"); // Pls header
