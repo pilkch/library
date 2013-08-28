@@ -393,7 +393,7 @@ namespace spitfire
             }
 
             // Make sure that we ignore bytes after the content length
-            sLine[nContentLengthBytes] = 0;
+            sLine.resize(nContentLengthBytes);
 
             LOG<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
 
