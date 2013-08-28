@@ -73,7 +73,6 @@ namespace spitfire
       writer.WriteLine("    }");
       writer.WriteLine("    .table_heading {");
       writer.WriteLine("      font-weight:bold;");
-      writer.WriteLine("      font-size:26px;");
       writer.WriteLine("    }");
       writer.WriteLine("  </style>");
 
