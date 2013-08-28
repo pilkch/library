@@ -61,8 +61,8 @@ namespace spitfire
       writer.WriteLine("  <!-- Define a viewport to mobile devices to use - telling the browser to assume that the page is as wide as the device (width=device-width) and setting the initial page zoom level to be 1 (initial-scale=1.0) -->");
       writer.WriteLine("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>");
       writer.WriteLine("");
-      writer.WriteLine("  <!-- Add reset.css which enables browsers to render all elements more consistently and in line with modern standards as it only targets particular styles that need normalizing -->");
-      writer.WriteLine("  <link href=\"css/reset.css\" rel=\"stylesheet\" media=\"all\"/>");
+      writer.WriteLine("  <!-- Add normalize.css which enables browsers to render all elements more consistently and in line with modern standards as it only targets particular styles that need normalizing -->");
+      writer.WriteLine("  <link href=\"css/normalize.css\" rel=\"stylesheet\" media=\"all\"/>");
       writer.WriteLine("");
       writer.WriteLine("  <!-- Include the site stylesheet -->");
       writer.WriteLine("  <link href=\"css/styles.css\" rel=\"stylesheet\" media=\"all\"/>");
