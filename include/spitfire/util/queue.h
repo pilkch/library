@@ -59,7 +59,11 @@ namespace spitfire
       explicit cThreadSafeQueue(cSignalObject& soAction);
       ~cThreadSafeQueue();
 
-      // NOTE: No IsEmpty or GetSize functions because by the time you call the next function this may have changed
+      #ifdef BUILD_DEBUG
+      bool IsEmpty();
+      #endif
+
+      // NOTE: There is no GetSize() because by the time you call the next function this may have changed
 
       void AddItemToBack(T* pItem); // The queue takes ownership of pItem
       T* RemoveItemFromFront(); // The caller takes ownership of the item that is returned
@@ -81,10 +85,18 @@ namespace spitfire
     template <class T>
     inline cThreadSafeQueue<T>::~cThreadSafeQueue()
     {
-      cLockObject lock(mutex);
       // NOTE: All items must be removed before the queue is destroyed
-      ASSERT(items.empty());
+      ASSERT(IsEmpty());
     }
+
+    #ifdef BUILD_DEBUG
+    template <class T>
+    inline bool cThreadSafeQueue<T>::IsEmpty()
+    {
+      cLockObject lock(mutex);
+      return items.empty();
+    }
+    #endif
 
     template <class T>
     inline void cThreadSafeQueue<T>::AddItemToBack(T* pItem)

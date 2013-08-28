@@ -911,6 +911,9 @@ Content-Transfer-Encoding: binary
 
         // Tell the thread to stop
         StopThreadNow();
+
+        // Make sure that the event queue is now empty
+        ASSERT(eventQueue.IsEmpty());
       }
 
       void cServer::OnConnectedClient(cConnectedClient* pNewConnection)
