@@ -421,6 +421,11 @@ FOF_SILENT; // Options set for no user interaction
       return p;
     }
 
+    string_t GetLastDirectory(const string_t& sFolderPath)
+    {
+      return GetFile(sFolderPath);
+    }
+
     string_t GetFile(const string_t& sFilename)
     {
       string_t::size_type i = sFilename.rfind(TEXT("/"));

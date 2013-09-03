@@ -110,6 +110,7 @@ namespace spitfire
     string_t StripLastDirectory(const string_t& sFolderPath); // Returns a string with the last folder of path removed
 
     string_t GetFolder(const string_t& sFilePath); // Returns just the directory "/folder1/folder2/"
+    string_t GetLastDirectory(const string_t& sFolderPath); // Returns the last folder in the path "folder"
     // Deprecated
     // Use GetFolder instead
     //inline string_t GetPath(const string_t& sFilename) { return GetFolder(sFilename); }
