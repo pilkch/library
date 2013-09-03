@@ -212,6 +212,18 @@ namespace spitfire
       datetime += duration;
     }
 
+    time_t cDateTime::GetTimeT() const
+    {
+      static boost::posix_time::ptime epoch(boost::gregorian::date(1970, 1, 1));
+
+      // Get the number of seconds since 1970
+      boost::posix_time::time_duration::sec_type seconds = (datetime - epoch).total_seconds();
+
+      // TODO: Check overflow here
+
+      return time_t(seconds);
+    }
+
     void cDateTime::SetFromTimeT(time_t time)
     {
       datetime = boost::posix_time::from_time_t(time);

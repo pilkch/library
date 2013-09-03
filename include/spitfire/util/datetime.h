@@ -64,6 +64,7 @@ namespace spitfire
 
       void AddDays(int days);
 
+      time_t GetTimeT() const;
       void SetFromTimeT(time_t time);
 
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;

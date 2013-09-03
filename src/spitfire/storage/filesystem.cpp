@@ -208,6 +208,9 @@ FOF_SILENT; // Options set for no user interaction
       char c = '\0';
 
       while (i.get(c)) o.put(c);
+
+      // Set the modification date so that it matches the source file
+      SetLastModifiedDate(sTo, GetLastModifiedDate(sFrom));
     }
 
     bool MoveFile(const string_t& sFrom, const string_t& sTo)
@@ -742,6 +745,13 @@ FOF_SILENT; // Options set for no user interaction
       spitfire::util::cDateTime dateTime;
       dateTime.SetFromTimeT(boost::filesystem::last_write_time(file));
       return dateTime;
+    }
+
+    void SetLastModifiedDate(const string_t& sFilePath, const util::cDateTime& dateTime)
+    {
+      ASSERT(FileExists(sFilePath));
+      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      boost::filesystem::last_write_time(file, dateTime.GetTimeT());
     }
 
     uint64_t GetFileSizeBytes(const string_t& sFilename)

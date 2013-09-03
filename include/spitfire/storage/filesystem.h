@@ -73,6 +73,8 @@ namespace spitfire
 #endif
 
     util::cDateTime GetLastModifiedDate(const string_t& sFilename);
+    void SetLastModifiedDate(const string_t& sFilePath, const util::cDateTime& dateTime);
+
     uint64_t GetFileSizeBytes(const string_t& sFilename);
 
     // Check that these two paths are pointing to the same file
