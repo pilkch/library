@@ -16,6 +16,7 @@
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/process.h>
+#include <spitfire/util/thread.h>
 
 namespace spitfire
 {
@@ -127,7 +128,7 @@ namespace spitfire
 
     void cRunOnMainThreadTask::RunFromMainThread()
     {
-      ASSERT(IsMainThread());
+      ASSERT(spitfire::util::IsMainThread());
 
       soStarted.Signal();
 

@@ -32,7 +32,7 @@ namespace spitfire
       virtual ~cProcess() {}
 
       // Call this to run the process (Blocks until complete)
-      PROCESS_RESULT Run() { return ProcessFunction(); }
+      PROCESS_RESULT Run();
 
     protected:
       cProcessInterface& interface;
@@ -60,8 +60,8 @@ namespace spitfire
       void SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) { _SetPercentageCompletePrimary0To100(fPercentageComplete0To100); }
       void SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) { _SetPercentageCompleteSecondary0To100(fPercentageComplete0To100); }
 
-      void SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) { _SetPercentageCompletePrimaryIndeterminate(bIndeterminate); }
-      void SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) { _SetPercentageCompleteSecondaryIndeterminate(bIndeterminate); }
+      void SetPercentageCompletePrimaryIndeterminate() { _SetPercentageCompletePrimaryIndeterminate(); }
+      void SetPercentageCompleteSecondaryIndeterminate() { _SetPercentageCompleteSecondaryIndeterminate(); }
 
     private:
       virtual bool _IsToStop() const { return false; }
@@ -75,8 +75,8 @@ namespace spitfire
       virtual void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) { (void)fPercentageComplete0To100; }
       virtual void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) { (void)fPercentageComplete0To100; }
 
-      virtual void _SetPercentageCompletePrimaryIndeterminate(bool bIndeterminate) { (void)bIndeterminate; }
-      virtual void _SetPercentageCompleteSecondaryIndeterminate(bool bIndeterminate) { (void)bIndeterminate; }
+      virtual void _SetPercentageCompletePrimaryIndeterminate() {}
+      virtual void _SetPercentageCompleteSecondaryIndeterminate() {}
     };
 
     typedef cProcessInterface cProcessInterfaceVoid;

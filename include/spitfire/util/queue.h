@@ -5,6 +5,7 @@
 #include <list>
 
 // Spitfire headers
+#include <spitfire/util/signalobject.h>
 #include <spitfire/util/thread.h>
 
 namespace spitfire
