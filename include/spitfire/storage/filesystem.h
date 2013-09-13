@@ -278,6 +278,8 @@ namespace spitfire
 
       void SetIgnoreHiddenFilesAndFolders();
 
+      size_t GetFileAndFolderCount() const;
+
       bool IsFile() const;
       bool IsFolder() const;
 

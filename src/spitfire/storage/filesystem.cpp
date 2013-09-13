@@ -1164,6 +1164,11 @@ FOF_SILENT; // Options set for no user interaction
       return *this;
     }
 
+    size_t cFolderIterator::GetFileAndFolderCount() const
+    {
+      return paths.size();
+    }
+
     string_t cFolderIterator::GetFileOrFolder() const
     {
       ASSERT(IsValid());
