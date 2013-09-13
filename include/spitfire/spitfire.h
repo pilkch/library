@@ -187,12 +187,12 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #undef interface
 // Avoid problems with using the interface keyword
 #define interface Interface
-
-// Make sure that we don't try to use C++11 functionality
-//#define BUILD_SPITFIRE_NO_CPP11
 #endif
 
-#ifdef BUILD_SPITFIRE_NO_CPP11
+// All compilers now support C++11
+#define BUILD_SPITFIRE_CPP11
+
+#ifndef BUILD_SPITFIRE_CPP11
 // Static compile time assert
 #define static_assert assert
 #endif
