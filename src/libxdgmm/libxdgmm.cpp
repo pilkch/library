@@ -301,7 +301,7 @@ namespace xdg
 
   int cXdg::OpenURL(const std::string& sURLUTF8)
   {
-    // URL needs to be wrapped in single quotes
+    // The URL needs to be wrapped in single quotes
     return system(("xdg-open '" + sURLUTF8 + "'").c_str());
   }
 }
