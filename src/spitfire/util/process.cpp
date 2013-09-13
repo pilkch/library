@@ -13,7 +13,7 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/process.h>
 
@@ -140,7 +140,7 @@ namespace spitfire
 
 #ifdef BUILD_DEBUG
 
-#include <spitfire/util/cString.h>
+#include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
