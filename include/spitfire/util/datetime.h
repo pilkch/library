@@ -76,12 +76,16 @@ namespace spitfire
       // Must be in GMT time zone
       // Wed, 05 Jun 2013 13:08:10 GMT
       string_t GetRFC1123Format() const;
-      bool SetRFC1123Format(const string_t& rhs);
+      bool SetFromRFC1123Format(const string_t& rhs);
 
       // RFC 3339 Format
       // YYYY-MM-DDThh:mm:ss
       string_t GetRFC3339String() const;
       bool SetFromRFC3339String(const string_t& rhs);
+
+      // YYYYMMDD
+      string_t GetDateYYYYMMDD() const;
+      bool SetFromDateYYYYMMDD(const string_t& rhs);
 
       void SetFromUnixEpoch() { *this = cDateTime(1970, 1, 1); }
       void SetFromLocalTimeNow() { datetime = GetLocalTimeNow(); }

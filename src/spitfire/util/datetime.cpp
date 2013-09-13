@@ -390,6 +390,24 @@ namespace spitfire
       return o.str();
     }
 
+    // YYYYMMDD
+    string_t cDateTime::GetDateYYYYMMDD() const
+    {
+      ASSERT(IsValid());
+
+      ostringstream_t o;
+
+      o<<std::setfill(TEXT('0'));
+
+      o<<std::setw(4)<<GetYear();
+      o<<std::setw(2)<<GetMonth();
+      o<<std::setw(2)<<GetDay();
+
+      return o.str();
+    }
+
+
+
     boost::posix_time::time_duration cDateTime::GetLocalTimeZoneOffset()
     {
       boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
