@@ -283,18 +283,18 @@ namespace xdg
 
   int cXdg::OpenFile(const std::string& sFilePathUTF8)
   {
-    return system(("xdg-open \'" + sFilePathUTF8 + "\'").c_str());
+    return system(("xdg-open \"" + sFilePathUTF8 + "\"").c_str());
   }
 
   int cXdg::OpenFolder(const std::string& sFolderPathUTF8)
   {
-    return system(("xdg-open \'" + sFolderPathUTF8 + "\'").c_str());
+    return system(("xdg-open \"" + sFolderPathUTF8 + "\"").c_str());
   }
 
   int cXdg::OpenFolderHighlightFile(const std::string& sFilePathUTF8)
   {
     // Nautilus does a better job of this than xdg-open so we try to use that where possible
-    if (IsDesktopGnome()) return system(("nautilus \'" + sFilePathUTF8 + "\'").c_str());
+    if (IsDesktopGnome()) return system(("nautilus \"" + sFilePathUTF8 + "\"").c_str());
 
     return OpenFolder(sFilePathUTF8);
   }
