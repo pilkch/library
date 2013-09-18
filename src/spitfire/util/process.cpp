@@ -24,7 +24,7 @@ namespace spitfire
   {
     // *** cRunOnMainThreadQueue
 
-    cRunOnMainThreadQueue::cRunOnMainThreadQueue* cRunOnMainThreadQueue::pQueue = nullptr;
+    //cRunOnMainThreadQueue* cRunOnMainThreadQueue::pQueue = nullptr;
 
 
 
@@ -48,9 +48,11 @@ namespace spitfire
 
 
 
-    // *** cRunOnMainThreadQueue
+    /*// *** cRunOnMainThreadQueue
 
-    cRunOnMainThreadQueue::cRunOnMainThreadQueue()
+    cRunOnMainThreadQueue::cRunOnMainThreadQueue() :
+      soAction("cRunOnMainThreadQueue::soAction"),
+      tasks(soAction)
     {
     }
 
@@ -107,6 +109,12 @@ namespace spitfire
 
     // *** cRunOnMainThreadTask
 
+    cRunOnMainThreadTask::cRunOnMainThreadTask() :
+      soStarted("cRunOnMainThreadTask::soStarted"),
+      soDone("cRunOnMainThreadTask::soDone")
+    {
+    }
+
     bool cRunOnMainThreadTask::Run()
     {
       soDone.Reset();
@@ -135,10 +143,11 @@ namespace spitfire
       _Run();
 
       soDone.Signal();
-    }
+    }*/
   }
 }
 
+/*
 #ifdef BUILD_DEBUG
 
 #include <spitfire/util/string.h>
@@ -241,3 +250,4 @@ public:
 cProcessUnitTest gProcessUnitTest;
 
 #endif // BUILD_DEBUG
+*/

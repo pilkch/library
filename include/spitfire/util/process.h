@@ -3,7 +3,8 @@
 
 // Spitfire headers
 #include <spitfire/util/string.h>
-#include <spitfire/util/mutex.h>
+//#include <spitfire/util/mutex.h>
+//#include <spitfire/util/queue.h>
 #include <spitfire/util/signalobject.h>
 
 //
@@ -84,9 +85,7 @@ namespace spitfire
 
 
 
-
-
-    class cRunOnMainThreadTask;
+    /*class cRunOnMainThreadTask;
 
     class cRunOnMainThreadQueue
     {
@@ -106,8 +105,8 @@ namespace spitfire
 
       static cRunOnMainThreadQueue* pQueue;
 
-      cMutex mutex;
-      std::vector<cRunOnMainThreadTask*> tasks;
+      cSignalObject soAction;
+      cThreadSafeQueue<cRunOnMainThreadTask> tasks;
     };
 
 
@@ -117,6 +116,7 @@ namespace spitfire
     public:
       friend class cRunOnMainThreadQueue;
 
+      cRunOnMainThreadTask();
       virtual ~cRunOnMainThreadTask() {}
 
       bool Run();
@@ -129,7 +129,7 @@ namespace spitfire
 
       cSignalObject soStarted;
       cSignalObject soDone;
-    };
+    };*/
   }
 }
 
