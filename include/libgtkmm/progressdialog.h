@@ -6,15 +6,94 @@
 
 // libgtkmm headers
 #include <libgtkmm/libgtkmm.h>
+#include <libgtkmm/dispatcher.h>
 
 // Spitfire headers
 #include <spitfire/util/process.h>
+#include <spitfire/util/thread.h>
 
 namespace gtkmm
 {
-  class cProgressDialog : public Gtk::Dialog, public spitfire::util::cProcessInterface
+  // ** cRunProcessOnBackgroundThreadListener
+
+  class cRunProcessOnBackgroundThreadListener
   {
   public:
+    virtual ~cRunProcessOnBackgroundThreadListener() {}
+
+    virtual void OnBackgroundThreadFinished(spitfire::util::PROCESS_RESULT result) = 0;
+  };
+
+
+  // ** cRunProcessOnBackgroundThread
+
+  class cRunProcessOnBackgroundThread : public spitfire::util::cThread
+  {
+  public:
+    cRunProcessOnBackgroundThread();
+
+    void RunProcess(cRunProcessOnBackgroundThreadListener& listener, spitfire::util::cProcess& process);
+
+    private:
+      virtual void ThreadFunction() override;
+
+      spitfire::util::cSignalObject soAction;
+
+      cRunProcessOnBackgroundThreadListener* pListener;
+
+      spitfire::util::cProcess* pProcess;
+  };
+
+
+  class cProgressDialog;
+
+  // ** cProgressDialogEvent
+
+  class cProgressDialogEvent
+  {
+  public:
+    cProgressDialogEvent(cProgressDialog& dialog);
+    virtual ~cProgressDialogEvent() {}
+
+    virtual void RunEvent() = 0;
+
+  protected:
+    cProgressDialog& dialog;
+  };
+
+
+  class cProgressDialogEventSetCancellable;
+
+  class cProgressDialogEventSetTextTitle;
+  class cProgressDialogEventSetTextPrimary;
+  class cProgressDialogEventSetTextSecondary;
+
+  class cProgressDialogEventSetPercentageCompletePrimary0To100;
+  class cProgressDialogEventSetPercentageCompleteSecondary0To100;
+  class cProgressDialogEventSetPercentageCompletePrimaryIndeterminate;
+  class cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate;
+
+  class cProgressDialogEventBackgroundThreadFinished;
+
+
+  // ** cProgressDialog
+
+  class cProgressDialog : public Gtk::Dialog, public spitfire::util::cProcessInterface, private cRunProcessOnBackgroundThreadListener
+  {
+  public:
+    friend class cProgressDialogEventSetCancellable;
+
+    friend class cProgressDialogEventSetTextTitle;
+    friend class cProgressDialogEventSetTextPrimary;
+    friend class cProgressDialogEventSetTextSecondary;
+
+    friend class cProgressDialogEventSetPercentageCompletePrimary0To100;
+    friend class cProgressDialogEventSetPercentageCompleteSecondary0To100;
+    friend class cProgressDialogEventSetPercentageCompletePrimaryIndeterminate;
+    friend class cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate;
+
+    friend class cProgressDialogEventBackgroundThreadFinished;
+
     explicit cProgressDialog(Gtk::Window& parent);
     virtual ~cProgressDialog() {}
 
@@ -35,18 +114,26 @@ namespace gtkmm
     virtual void _SetPercentageCompleteSecondaryIndeterminate() override;
 
     void OnInit();
+    void OnResponse(int iResponseID);
+
+    virtual void OnBackgroundThreadFinished(spitfire::util::PROCESS_RESULT result) override;
+
+    cRunProcessOnBackgroundThread processThread;
 
     spitfire::util::cProcess* pProcess;
 
     spitfire::util::PROCESS_RESULT result;
 
-    Gtk::Alignment m_Alignment;
     Gtk::Label statusPrimary;
     Gtk::Label statusSecondary;
-    Gtk::ProgressBar m_ProgressBar;
+    Gtk::ProgressBar progressBarPrimary;
     Gtk::ProgressBar progressBarSecondary;
-    Gtk::Separator m_Separator;
+    Gtk::Separator separator;
     Gtk::Button* pButtonCancel;
+
+    gtkmm::cGtkmmRunOnMainThread<cProgressDialogEvent> notify;
+
+    bool bCancelling;
   };
 }
 
