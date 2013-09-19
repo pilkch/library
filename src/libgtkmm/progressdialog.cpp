@@ -36,19 +36,13 @@ namespace gtkmm
 
   // ** cProgressDialogEvent
 
-  cProgressDialogEvent::cProgressDialogEvent(cProgressDialog& _dialog) :
-    dialog(_dialog)
-  {
-  }
-
-
   class cProgressDialogEventSetCancellable : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetCancellable(cProgressDialog& dialog, bool bCancellable);
+    explicit cProgressDialogEventSetCancellable(bool bCancellable);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     bool bCancellable;
   };
@@ -56,10 +50,10 @@ namespace gtkmm
   class cProgressDialogEventSetTextTitle : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetTextTitle(cProgressDialog& dialog, const string_t sTitle);
+    explicit cProgressDialogEventSetTextTitle(const string_t sTitle);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     string_t sTitle;
   };
@@ -67,10 +61,10 @@ namespace gtkmm
   class cProgressDialogEventSetTextPrimary : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetTextPrimary(cProgressDialog& dialog, const string_t sPrimary);
+    explicit cProgressDialogEventSetTextPrimary(const string_t sPrimary);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     string_t sPrimary;
   };
@@ -78,10 +72,10 @@ namespace gtkmm
   class cProgressDialogEventSetTextSecondary : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetTextSecondary(cProgressDialog& dialog, const string_t sSecondary);
+    explicit cProgressDialogEventSetTextSecondary(const string_t sSecondary);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     string_t sSecondary;
   };
@@ -89,10 +83,10 @@ namespace gtkmm
   class cProgressDialogEventSetPercentageCompletePrimary0To100 : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetPercentageCompletePrimary0To100(cProgressDialog& dialog, float fPercentageComplete0To100);
+    explicit cProgressDialogEventSetPercentageCompletePrimary0To100(float fPercentageComplete0To100);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     float fPercentageComplete0To100;
   };
@@ -100,10 +94,10 @@ namespace gtkmm
   class cProgressDialogEventSetPercentageCompleteSecondary0To100 : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetPercentageCompleteSecondary0To100(cProgressDialog& dialog, float fPercentageComplete0To100);
+    explicit cProgressDialogEventSetPercentageCompleteSecondary0To100(float fPercentageComplete0To100);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     float fPercentageComplete0To100;
   };
@@ -112,130 +106,111 @@ namespace gtkmm
   class cProgressDialogEventSetPercentageCompletePrimaryIndeterminate : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetPercentageCompletePrimaryIndeterminate(cProgressDialog& dialog);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
   };
 
   class cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate(cProgressDialog& dialog);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
   };
 
   class cProgressDialogEventBackgroundThreadFinished : public cProgressDialogEvent
   {
   public:
-    cProgressDialogEventBackgroundThreadFinished(cProgressDialog& dialog, spitfire::util::PROCESS_RESULT result);
+    explicit cProgressDialogEventBackgroundThreadFinished(spitfire::util::PROCESS_RESULT result);
 
   private:
-    virtual void RunEvent() override;
+    virtual void EventFunction(cProgressDialog& dialog) override;
 
     spitfire::util::PROCESS_RESULT result;
   };
 
 
-  cProgressDialogEventSetCancellable::cProgressDialogEventSetCancellable(cProgressDialog& dialog, bool _bCancellable) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetCancellable::cProgressDialogEventSetCancellable(bool _bCancellable) :
     bCancellable(_bCancellable)
   {
   }
 
-  void cProgressDialogEventSetCancellable::RunEvent()
+  void cProgressDialogEventSetCancellable::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetCancellable(bCancellable);
   }
 
 
-  cProgressDialogEventSetTextTitle::cProgressDialogEventSetTextTitle(cProgressDialog& dialog, const string_t _sTitle) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetTextTitle::cProgressDialogEventSetTextTitle(const string_t _sTitle) :
     sTitle(_sTitle)
   {
   }
 
-  void cProgressDialogEventSetTextTitle::RunEvent()
+  void cProgressDialogEventSetTextTitle::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetTextTitle(sTitle);
   }
 
 
-  cProgressDialogEventSetTextPrimary::cProgressDialogEventSetTextPrimary(cProgressDialog& dialog, const string_t _sPrimary) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetTextPrimary::cProgressDialogEventSetTextPrimary(const string_t _sPrimary) :
     sPrimary(_sPrimary)
   {
   }
 
-  void cProgressDialogEventSetTextPrimary::RunEvent()
+  void cProgressDialogEventSetTextPrimary::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetTextPrimary(sPrimary);
   }
 
 
-  cProgressDialogEventSetTextSecondary::cProgressDialogEventSetTextSecondary(cProgressDialog& dialog, const string_t _sSecondary) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetTextSecondary::cProgressDialogEventSetTextSecondary(const string_t _sSecondary) :
     sSecondary(_sSecondary)
   {
   }
 
-  void cProgressDialogEventSetTextSecondary::RunEvent()
+  void cProgressDialogEventSetTextSecondary::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetTextSecondary(sSecondary);
   }
 
 
-  cProgressDialogEventSetPercentageCompletePrimary0To100::cProgressDialogEventSetPercentageCompletePrimary0To100(cProgressDialog& dialog, float _fPercentageComplete0To100) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetPercentageCompletePrimary0To100::cProgressDialogEventSetPercentageCompletePrimary0To100(float _fPercentageComplete0To100) :
     fPercentageComplete0To100(_fPercentageComplete0To100)
   {
   }
 
-  void cProgressDialogEventSetPercentageCompletePrimary0To100::RunEvent()
+  void cProgressDialogEventSetPercentageCompletePrimary0To100::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetPercentageCompletePrimary0To100(fPercentageComplete0To100);
   }
 
-  cProgressDialogEventSetPercentageCompleteSecondary0To100::cProgressDialogEventSetPercentageCompleteSecondary0To100(cProgressDialog& dialog, float _fPercentageComplete0To100) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventSetPercentageCompleteSecondary0To100::cProgressDialogEventSetPercentageCompleteSecondary0To100(float _fPercentageComplete0To100) :
     fPercentageComplete0To100(_fPercentageComplete0To100)
   {
   }
 
-  void cProgressDialogEventSetPercentageCompleteSecondary0To100::RunEvent()
+  void cProgressDialogEventSetPercentageCompleteSecondary0To100::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetPercentageCompleteSecondary0To100(fPercentageComplete0To100);
   }
 
-  cProgressDialogEventSetPercentageCompletePrimaryIndeterminate::cProgressDialogEventSetPercentageCompletePrimaryIndeterminate(cProgressDialog& dialog) :
-    cProgressDialogEvent(dialog)
-  {
-  }
-
-  void cProgressDialogEventSetPercentageCompletePrimaryIndeterminate::RunEvent()
+  void cProgressDialogEventSetPercentageCompletePrimaryIndeterminate::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetPercentageCompletePrimaryIndeterminate();
   }
 
-  cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate::cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate(cProgressDialog& dialog) :
-    cProgressDialogEvent(dialog)
-  {
-  }
-
-  void cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate::RunEvent()
+  void cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate::EventFunction(cProgressDialog& dialog)
   {
     dialog.SetPercentageCompleteSecondaryIndeterminate();
   }
 
-  cProgressDialogEventBackgroundThreadFinished::cProgressDialogEventBackgroundThreadFinished(cProgressDialog& dialog, spitfire::util::PROCESS_RESULT _result) :
-    cProgressDialogEvent(dialog),
+  cProgressDialogEventBackgroundThreadFinished::cProgressDialogEventBackgroundThreadFinished(spitfire::util::PROCESS_RESULT _result) :
     result(_result)
   {
   }
 
-  void cProgressDialogEventBackgroundThreadFinished::RunEvent()
+  void cProgressDialogEventBackgroundThreadFinished::EventFunction(cProgressDialog& dialog)
   {
     dialog.OnBackgroundThreadFinished(result);
   }
@@ -248,6 +223,7 @@ namespace gtkmm
     pProcess(nullptr),
     result(spitfire::util::PROCESS_RESULT::FAILED),
     pButtonCancel(nullptr),
+    notify(*this),
     bCancelling(false)
   {
     set_border_width(5);
@@ -303,35 +279,35 @@ namespace gtkmm
   void cProgressDialog::_SetCancellable(bool bCancellable)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetCancellable(*this, bCancellable));
+      notify.PushEventToMainThread(new cProgressDialogEventSetCancellable(bCancellable));
     } else pButtonCancel->set_sensitive(bCancellable);
   }
 
   void cProgressDialog::_SetTextTitle(const string_t& sText)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetTextTitle(*this, sText));
+      notify.PushEventToMainThread(new cProgressDialogEventSetTextTitle(sText));
     } else set_title(sText);
   }
 
   void cProgressDialog::_SetTextPrimary(const string_t& sText)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetTextPrimary(*this, sText));
+      notify.PushEventToMainThread(new cProgressDialogEventSetTextPrimary(sText));
     } else statusPrimary.set_text(sText);
   }
 
   void cProgressDialog::_SetTextSecondary(const string_t& sText)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetTextSecondary(*this, sText));
+      notify.PushEventToMainThread(new cProgressDialogEventSetTextSecondary(sText));
     } else statusSecondary.set_text(sText);
   }
 
   void cProgressDialog::_SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompletePrimary0To100(*this, fPercentageComplete0To100));
+      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompletePrimary0To100(fPercentageComplete0To100));
     } else {
       progressBarPrimary.show();
       progressBarPrimary.set_fraction(fPercentageComplete0To100 / 100.0f);
@@ -343,7 +319,7 @@ namespace gtkmm
   void cProgressDialog::_SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompleteSecondary0To100(*this, fPercentageComplete0To100));
+      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompleteSecondary0To100(fPercentageComplete0To100));
     } else {
       progressBarSecondary.show();
       progressBarSecondary.set_fraction(fPercentageComplete0To100 / 100.0f);
@@ -356,7 +332,7 @@ namespace gtkmm
   {
 
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompletePrimaryIndeterminate(*this));
+      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompletePrimaryIndeterminate);
     } else {
       progressBarPrimary.show();
       progressBarPrimary.set_text("");
@@ -367,7 +343,7 @@ namespace gtkmm
   void cProgressDialog::_SetPercentageCompleteSecondaryIndeterminate()
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate(*this));
+      notify.PushEventToMainThread(new cProgressDialogEventSetPercentageCompleteSecondaryIndeterminate);
     } else {
       progressBarSecondary.show();
       progressBarSecondary.set_text("");
@@ -378,7 +354,7 @@ namespace gtkmm
   void cProgressDialog::OnBackgroundThreadFinished(spitfire::util::PROCESS_RESULT _result)
   {
     if (!spitfire::util::IsMainThread()) {
-      notify.PushEventToMainThread(new cProgressDialogEventBackgroundThreadFinished(*this, _result));
+      notify.PushEventToMainThread(new cProgressDialogEventBackgroundThreadFinished(_result));
     } else {
       result = _result;
 

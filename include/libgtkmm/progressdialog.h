@@ -52,13 +52,9 @@ namespace gtkmm
   class cProgressDialogEvent
   {
   public:
-    cProgressDialogEvent(cProgressDialog& dialog);
     virtual ~cProgressDialogEvent() {}
 
-    virtual void RunEvent() = 0;
-
-  protected:
-    cProgressDialog& dialog;
+    virtual void EventFunction(cProgressDialog& dialog) = 0;
   };
 
 
@@ -131,7 +127,7 @@ namespace gtkmm
     Gtk::Separator separator;
     Gtk::Button* pButtonCancel;
 
-    gtkmm::cGtkmmRunOnMainThread<cProgressDialogEvent> notify;
+    gtkmm::cGtkmmRunOnMainThread<cProgressDialog, cProgressDialogEvent> notify;
 
     bool bCancelling;
   };
