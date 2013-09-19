@@ -45,11 +45,11 @@ namespace gtkmm
   //
   // Sends events to the main thread
 
-  template <class T>
+  template <class D, class T>
   class cGtkmmRunOnMainThread
   {
   public:
-    cGtkmmRunOnMainThread();
+    explicit cGtkmmRunOnMainThread(D& data);
     ~cGtkmmRunOnMainThread();
 
     void Create();
@@ -65,6 +65,8 @@ namespace gtkmm
   private:
     void OnNotify();
 
+    D& data;
+
     cGtkmmNotifyMainThread notifyMainThread;
 
     spitfire::util::cSignalObject soAction;
@@ -72,39 +74,40 @@ namespace gtkmm
     spitfire::util::cThreadSafeQueue<T> queue;
   };
 
-  template <class T>
-  cGtkmmRunOnMainThread<T>::cGtkmmRunOnMainThread() :
+  template <class D, class T>
+  cGtkmmRunOnMainThread<D, T>::cGtkmmRunOnMainThread(D& _data) :
+    data(_data),
     soAction("cGtkmmRunOnMainThread<T>::soAction"),
     queue(soAction)
   {
   }
 
-  template <class T>
-  cGtkmmRunOnMainThread<T>::~cGtkmmRunOnMainThread()
+  template <class D, class T>
+  cGtkmmRunOnMainThread<D, T>::~cGtkmmRunOnMainThread()
   {
     ASSERT(queue.IsEmpty());
   }
 
-  template <class T>
-  void cGtkmmRunOnMainThread<T>::Create()
+  template <class D, class T>
+  void cGtkmmRunOnMainThread<D, T>::Create()
   {
-    notifyMainThread.Create(*this, &cGtkmmRunOnMainThread<T>::OnNotify);
+    notifyMainThread.Create(*this, &cGtkmmRunOnMainThread<D, T>::OnNotify);
   }
 
-  template <class T>
-  void cGtkmmRunOnMainThread<T>::OnNotify()
+  template <class D, class T>
+  void cGtkmmRunOnMainThread<D, T>::OnNotify()
   {
     ASSERT(!queue.IsEmpty());
 
     T* pEvent = queue.RemoveItemFromFront();
     if (pEvent != nullptr) {
-      pEvent->RunEvent();
+      pEvent->EventFunction(data);
       spitfire::SAFE_DELETE(pEvent);
     }
   }
 
-  template <class T>
-  void cGtkmmRunOnMainThread<T>::PushEventToMainThread(T* pEvent)
+  template <class D, class T>
+  void cGtkmmRunOnMainThread<D, T>::PushEventToMainThread(T* pEvent)
   {
     // Add the event to the queue
     queue.AddItemToBack(pEvent);
@@ -113,8 +116,8 @@ namespace gtkmm
     notifyMainThread.Notify();
   }
 
-  template <class T>
-  void cGtkmmRunOnMainThread<T>::ClearEventQueue()
+  template <class D, class T>
+  void cGtkmmRunOnMainThread<D, T>::ClearEventQueue()
   {
     ASSERT(spitfire::util::IsMainThread());
 
@@ -122,7 +125,7 @@ namespace gtkmm
       T* pEvent = queue.RemoveItemFromFront();
       if (pEvent == nullptr) break;
 
-      pEvent->RunEvent();
+      pEvent->EventFunction(data);
       spitfire::SAFE_DELETE(pEvent);
     }
   }
