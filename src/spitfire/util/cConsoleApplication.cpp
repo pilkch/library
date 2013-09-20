@@ -81,10 +81,7 @@ namespace spitfire
     bool bIsHandledAlready = false;
 
     const size_t n = GetArgumentCount();
-    if (n == 0) {
-      bIsHandledAlready = true;
-      _PrintHelp();
-    } else if (n == 1) {
+    if (n == 1) {
       const string_t sArgument0 = GetArgument(0);
       if ((sArgument0 == TEXT("-help")) || (sArgument0 == TEXT("--help"))) {
         bIsHandledAlready = true;
