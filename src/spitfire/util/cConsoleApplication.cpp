@@ -15,9 +15,20 @@
 
 namespace spitfire
 {
-
-  cConsoleApplication::cConsoleApplication(int argc, const char* const* argv)
+  cConsoleApplication::cConsoleApplication(int argc, const char* const* argv) :
+    #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
+    pPreviousCoutStreamBuf(nullptr)
+    #endif
   {
+    #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
+    // KDevelop only shows output sent to cerr, we redirect cout to cerr here so that it will show up and then restore it later
+    // Remember cout's streambuf
+    pPreviousCoutStreamBuf = std::cout.rdbuf();
+
+    // Assign cerr's streambuf to cout
+    std::cout.rdbuf(std::cerr.rdbuf());
+    #endif
+
     spitfire::util::SetMainThread();
 
     spitfire::string::Init();
@@ -26,6 +37,16 @@ namespace spitfire
     //std::ios_base::sync_with_stdio();
 
     ParseArguments(argc, argv);
+  }
+
+  cConsoleApplication::~cConsoleApplication()
+  {
+    #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
+    ASSERT(pPreviousCoutStreamBuf != nullptr);
+
+    // Restore the previous cout streambuf
+    std::cout.rdbuf(pPreviousCoutStreamBuf);
+    #endif
   }
 
   void cConsoleApplication::ParseArguments(int argc, const char* const* argv)

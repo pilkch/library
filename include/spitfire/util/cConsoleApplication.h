@@ -9,7 +9,7 @@ namespace spitfire
   {
   public:
     cConsoleApplication(int argc, const char* const* argv);
-    virtual ~cConsoleApplication() {}
+    virtual ~cConsoleApplication();
 
     const string_t& GetApplicationName() const { return sApplicationName; }
 
@@ -25,6 +25,10 @@ namespace spitfire
     virtual void _PrintHelp() const = 0;
     virtual string_t _GetVersion() const = 0;
     virtual bool _Run() = 0; // NOTE: This may not be run at all, for example if "--help" is the first argument
+
+    #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
+    std::streambuf* pPreviousCoutStreamBuf;
+    #endif
 
     string_t sApplicationName;
     std::vector<string_t> vArguments;
