@@ -11,11 +11,17 @@
 
 #include <spitfire/storage/filesystem.h>
 
+#include <spitfire/util/thread.h>
+
 namespace spitfire
 {
 
   cConsoleApplication::cConsoleApplication(int argc, const char* const* argv)
   {
+    spitfire::util::SetMainThread();
+
+    spitfire::string::Init();
+
     // So we can run stdio and stream style i/o interchanged.
     //std::ios_base::sync_with_stdio();
 
