@@ -16,6 +16,8 @@ namespace spitfire
     size_t GetArgumentCount() const { return vArguments.size(); }
     const string_t& GetArgument(size_t index) const { ASSERT(index < vArguments.size()); return vArguments[index]; }
 
+    bool IsArgumentPresent(const string_t& sArgument) const;
+
     int Run();
 
   private:

@@ -59,6 +59,16 @@ namespace spitfire
     for (size_t i = 1; i < n; i++) vArguments.push_back(spitfire::string::ToString_t(argv[i]));
   }
 
+  bool cConsoleApplication::IsArgumentPresent(const string_t& sArgument) const
+  {
+    const size_t n = vArguments.size();
+    for (size_t i = 0; i < n; i++) {
+      if (vArguments[i] == sArgument) return true;
+    }
+
+    return false;
+  }
+
   void cConsoleApplication::PrintVersion() const
   {
     const string_t sVersion = _GetVersion();
