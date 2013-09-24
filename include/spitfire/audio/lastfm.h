@@ -121,13 +121,13 @@ namespace spitfire
         void ReadLovedFromFile(std::list<cEntry*>& loved);
         void WriteLovedToFile(const std::list<cEntry*>& loved) const;
 
-        mutable util::cMutex mutex;
 
         string_t sKey;
         string_t sSecret;
         string_t sUserName;
         string_t sPassword;
 
+        mutable util::cMutex mutex;
         constant_stack<cEntry> historyListened;
         constant_stack<cEntry> historyLoved;
 

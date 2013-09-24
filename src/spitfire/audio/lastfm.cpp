@@ -343,14 +343,13 @@ namespace spitfire
       {
         Stop();
 
-        {
-          util::cLockObject lock(mutex);
-          sKey = _sKey;
-          sSecret = _sSecret;
-          sUserName = _sUserName;
-          sPassword = _sPassword;
-        }
+        // Set the properties
+        sKey = _sKey;
+        sSecret = _sSecret;
+        sUserName = _sUserName;
+        sPassword = _sPassword;
 
+        // Start the thread again
         Run();
       }
 
