@@ -89,12 +89,23 @@ namespace spitfire
       };
 
 
+      // ** cLastFMErrorHandler
+
+      class cLastFMErrorHandler
+      {
+      public:
+        virtual ~cLastFMErrorHandler() {}
+
+        virtual void OnLastFMErrorUserNameOrPasswordIncorrect() = 0;
+      };
+
+
       // ** cLastFM
 
       class cLastFM : protected util::cThread
       {
       public:
-        cLastFM();
+        explicit cLastFM(cLastFMErrorHandler& handler);
         ~cLastFM();
 
         void Start(const string_t& sKey, const string_t& sSecret, const string_t& sUserName, const string_t& sPassword);
@@ -121,6 +132,7 @@ namespace spitfire
         void ReadLovedFromFile(std::list<cEntry*>& loved);
         void WriteLovedToFile(const std::list<cEntry*>& loved) const;
 
+        cLastFMErrorHandler& handler;
 
         string_t sKey;
         string_t sSecret;
@@ -136,8 +148,9 @@ namespace spitfire
         util::cThreadSafeQueue<cEvent> eventQueue;
       };
 
-      inline cLastFM::cLastFM() :
+      inline cLastFM::cLastFM(cLastFMErrorHandler& _handler) :
         util::cThread(soAction, "cLastFM"),
+        handler(_handler),
         mutex("cLastFM_mutex"),
         historyListened(10),
         historyLoved(10),

@@ -208,6 +208,7 @@ namespace spitfire
 
         if (!session.IsLoggedIn()) {
           std::cout<<"cLastFM::ThreadFunction Could not log in to last.fm, returning"<<std::endl;
+          handler.OnLastFMErrorUserNameOrPasswordIncorrect();
           return;
         }
 
