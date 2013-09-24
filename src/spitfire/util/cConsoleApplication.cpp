@@ -15,9 +15,9 @@
 
 namespace spitfire
 {
-  cConsoleApplication::cConsoleApplication(int argc, const char* const* argv) :
+  cConsoleApplication::cConsoleApplication(int argc, const char* const* argv)
     #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
-    pPreviousCoutStreamBuf(nullptr)
+    : pPreviousCoutStreamBuf(nullptr)
     #endif
   {
     #if defined(BUILD_DEBUG) && defined(PLATFORM_LINUX_OR_UNIX)
