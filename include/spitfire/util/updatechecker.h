@@ -23,6 +23,8 @@ namespace spitfire
     public:
       explicit cUpdateChecker(cUpdateCheckerHandler& handler);
 
+      bool IsNewerThanCurrentVersion(int iNewMajorVersion, int iNewMinorVersion) const;
+
     private:
       // For the request listener
       virtual bool _IsToStop() const override;

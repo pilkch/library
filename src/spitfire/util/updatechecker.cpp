@@ -18,6 +18,29 @@ namespace spitfire
       return spitfire::util::cThread::IsToStop();
     }
 
+    bool cUpdateChecker::IsNewerThanCurrentVersion(int iNewMajorVersion, int iNewMinorVersion) const
+    {
+      LOG<<"cUpdateChecker::IsVersionNewer Current version string \""<<BUILD_APPLICATION_VERSION_STRING<<"\""<<std::endl;
+
+      const string_t sVersion = TEXT(BUILD_APPLICATION_VERSION_STRING);
+      spitfire::string::cStringParser sp(sVersion);
+      string_t sMajorVersion;
+      if (!sp.GetToStringAndSkip(".", sMajorVersion)) {
+        LOG<<"IsVersionNewer Error getting major version from version string \""<<BUILD_APPLICATION_VERSION_STRING<<"\""<<std::endl;
+        return false;
+      }
+      const string_t sMinorVersion = sp.GetToEnd();
+      const int iMajorVersion = spitfire::string::ToUnsignedInt(sMajorVersion);
+      const int iMinorVersion = spitfire::string::ToUnsignedInt(sMinorVersion);
+
+      LOG<<"cUpdateChecker::IsVersionNewer sCurrent="<<sMajorVersion<<"."<<sMinorVersion<<", current="<<iMajorVersion<<"."<<iMinorVersion<<", new="<<iNewMajorVersion<<"."<<iNewMinorVersion<<std::endl;
+
+      const int iVersion = (10 * iMajorVersion) + iMinorVersion;
+      const int iNewVersion = (10 * iNewMajorVersion) + iNewMinorVersion;
+      const bool bIsVersionNewer = (iNewVersion > iVersion);
+      return bIsVersionNewer;
+    }
+
     void cUpdateChecker::_OnStatusReceived(spitfire::network::http::STATUS status)
     {
       if (status != spitfire::network::http::STATUS::ACCEPTED) {
