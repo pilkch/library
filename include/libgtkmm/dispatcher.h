@@ -12,6 +12,7 @@ namespace gtkmm
   // ** cGtkmmNotifyMainThread
   //
   // Runs a function on the main thread
+  // NOTE: Generally cGtkmmRunOnMainThread below should be used instead as it can process custom events a queue and
 
   class cGtkmmNotifyMainThread
   {
@@ -24,8 +25,6 @@ namespace gtkmm
   private:
     Glib::Dispatcher signal;
   };
-
-  // ** cGtkmmNotifyMainThread
 
   template <class T>
   void cGtkmmNotifyMainThread::Create(T& t, void (T::*function)())
