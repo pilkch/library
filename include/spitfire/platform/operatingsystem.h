@@ -89,13 +89,12 @@ namespace spitfire
 
     void OpenFile(const string_t& sFullPath);
 
-    inline void OpenTextFile(const string_t& sFullPath)
-    {
-      OpenFile(sFullPath);
-    }
+    inline void OpenTextFile(const string_t& sFullPath) { OpenFile(sFullPath); }
 
-    void OpenFolder(const string_t& sFullPath);
     void OpenURL(const string_t& sURL);
+
+    void ShowFile(const string_t& sFilePath);     // Opens the file navigator to show where this file is
+    void ShowFolder(const string_t& sFolderPath); // Opens the file navigator to show where this folder is
 
     void GetOperatingSystemVersion(int& major, int& minor);
 

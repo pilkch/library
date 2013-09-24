@@ -432,6 +432,7 @@ namespace spitfire
       return string::ToString_t(sFullPath) + LANG("L_Application");
     }
 
+
     // *** Open functions
 
     //void OpenFile(const string_t& sFullPath)
@@ -455,13 +456,20 @@ namespace spitfire
       if (result != 0) LOG<<"OpenFile xdg::OpenFile returned "<<xdg.GetOpenErrorString(result)<<std::endl;
     }
 
-    void OpenFolder(const string_t& sFullPath)
+    void ShowFile(const string_t& sFilePath)
     {
       xdg::cXdg xdg;
-      int result = xdg.OpenFolder(string::ToUTF8(sFullPath).c_str());
+      xdg.OpenFolderHighlightFile(spitfire::string::ToUTF8(sFilePath));
+    }
+
+    void ShowFolder(const string_t& sFolderPath)
+    {
+      xdg::cXdg xdg;
+      int result = xdg.OpenFolder(string::ToUTF8(sFolderPath).c_str());
       if (result != 0) LOG<<"OpenFolder xdg::OpenFile returned "<<xdg.GetOpenErrorString(result)<<std::endl;
     }
 #endif
+
 
 #ifdef __APPLE__
     //void GetUserHome(string_t& sUserHome)

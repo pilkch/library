@@ -146,9 +146,6 @@ namespace spitfire
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo);
     void CopyContentsOfFile(const string_t& sFrom, const string_t& sTo);
 
-    void ShowFile(const string_t& sFilePath);     // Opens the file navigator to show where this file is
-    void ShowFolder(const string_t& sFolderPath); // Opens the file navigator to show where this folder is
-
     // File Opening functions
     // No point in totally wrapping ofstream/ifstream.  Because it isnt needed.  Do we even need this?
     // The idea is that we can search directories to find the file and then open the correct one.

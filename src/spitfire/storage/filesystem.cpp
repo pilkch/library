@@ -222,18 +222,6 @@ FOF_SILENT; // Options set for no user interaction
       return FileExists(sTo);
     }
 
-    void ShowFile(const string_t& sFilePath)
-    {
-      xdg::cXdg xdg;
-      xdg.OpenFolderHighlightFile(spitfire::string::ToUTF8(sFilePath));
-    }
-
-    void ShowFolder(const string_t& sFolderPath)
-    {
-      xdg::cXdg xdg;
-      xdg.OpenFolder(spitfire::string::ToUTF8(sFolderPath));
-    }
-
 
     string_t GetHomeDirectory()
     {
