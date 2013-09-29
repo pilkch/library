@@ -356,6 +356,8 @@ namespace spitfire
       }
     ctx.Finish(&result[0], sResult);
 
+    fclose(f);
+
     return true;
   }
 
