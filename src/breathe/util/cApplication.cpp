@@ -256,7 +256,7 @@ namespace breathe
       pState->Resume();
 
       // Force an update so that textures etc. are loaded
-      const sampletime_t currentTime = SDL_GetTicks();
+      const durationms_t currentTime = SDL_GetTicks();
       const spitfire::math::cTimeStep timeStep(currentTime, 33);
       pState->Update(timeStep);
     }
@@ -1431,7 +1431,7 @@ namespace breathe
   }
 #endif
 
-  void cApplication::_Update(sampletime_t currentTime)
+  void cApplication::_Update(durationms_t currentTime)
   {
 #ifdef BUILD_DEBUG
     if (pGameUnitTest != nullptr) pGameUnitTest->Update(currentTime);
@@ -1513,7 +1513,7 @@ namespace breathe
   }
 
 
-  void cApplication::_RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime)
+  void cApplication::_RenderScreenSpaceScene(cApplication::cAppState& state, durationms_t currentTime)
   {
 #ifdef BUILD_DEBUG
     if (pGameUnitTest != nullptr) pGameUnitTest->RenderScreenSpace(currentTime);
@@ -1582,7 +1582,7 @@ namespace breathe
 #endif
   }
 
-  void cApplication::_Render(cApplication::cAppState& state, sampletime_t currentTime)
+  void cApplication::_Render(cApplication::cAppState& state, durationms_t currentTime)
   {
     // TODO: Remove RenderScene entirely and do everything through scenegraphs
 
@@ -1806,7 +1806,7 @@ namespace breathe
     }
   }
 
-  void cApplication::_UpdateEvents(sampletime_t currentTime)
+  void cApplication::_UpdateEvents(durationms_t currentTime)
   {
     // Handle the events in the queue
     while (SDL_PollEvent(&event)) {
@@ -1925,7 +1925,7 @@ namespace breathe
     return false;
   }
 
-  void cApplication::_UpdateKeys(sampletime_t currentTime)
+  void cApplication::_UpdateKeys(durationms_t currentTime)
   {
     Uint8 *key = SDL_GetKeyState( NULL );
     cKey* p;
@@ -2011,7 +2011,7 @@ namespace breathe
     LOG<<"cApplication::_OnKeyboardEvent"<<std::endl;
   }
 
-  void cApplication::_UpdateInput(sampletime_t currentTime)
+  void cApplication::_UpdateInput(durationms_t currentTime)
   {
 #ifdef BUILD_DEBUG
     if (IsKeyDown(SDLK_F1)) ToggleDebug();
@@ -2054,7 +2054,7 @@ namespace breathe
   }
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-  void cApplication::_UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime)
+  void cApplication::_UpdatePhysics(cApplication::cAppState& state, durationms_t currentTime)
   {
 #ifdef BUILD_DEBUG
     if (pGameUnitTest != nullptr) pGameUnitTest->UpdatePhysics(currentTime);
@@ -2187,7 +2187,7 @@ namespace breathe
 
     LOG.Newline("MainLoop");
 
-    sampletime_t currentTime = spitfire::util::GetTimeMS();
+    durationms_t currentTime = spitfire::util::GetTimeMS();
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
     size_t uiPhysicsHz = pWorld->GetFrequencyHz();
@@ -2505,7 +2505,7 @@ namespace breathe
   // map <space has been inserted too>
   // if more than one option then show all options as in linux
 
-  void breathe::cApplication::cAppStateConsole::_Update(breathe::sampletime_t currentTime)
+  void breathe::cApplication::cAppStateConsole::_Update(breathe::durationms_t currentTime)
   {
     std::string s;
     /*breathe::constant_stack<std::string>::iterator iter = CONSOLE.begin();
@@ -2520,7 +2520,7 @@ namespace breathe
     pConsoleWindow->GetPrevious().SetText(breathe::string::ToString_t(s));
   }
 
-  void breathe::cApplication::cAppStateConsole::_UpdateInput(breathe::sampletime_t currentTime)
+  void breathe::cApplication::cAppStateConsole::_UpdateInput(breathe::durationms_t currentTime)
   {
     if (app.IsKeyDown(SDLK_BACKQUOTE) || app.IsKeyDown(SDLK_ESCAPE)) {
       app.PopStateSoon();

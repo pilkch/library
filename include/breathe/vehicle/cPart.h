@@ -45,7 +45,7 @@ namespace breathe
       virtual ~cPart() {}
 
       void Install(cVehicle2* p);
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
       bool IsValid() const { return _IsValid(); }
 
@@ -64,7 +64,7 @@ namespace breathe
 
     private:
       virtual bool _IsValid() const { return true; }
-      virtual void _Update(sampletime_t currentTime)=0;
+      virtual void _Update(durationms_t currentTime)=0;
     };
 
     enum class ENGINE_TYPE {
@@ -94,7 +94,7 @@ namespace breathe
       float_t GetTorqueNm() const { return fTorqueNm; }
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       inline float_t GetTorqueNmAtEngineRPM(float_t fEngineRPM) const { return curveEngineRPMToTorqueNm.GetYAtPointX(fEngineRPM); }
 
@@ -117,7 +117,7 @@ namespace breathe
       cPartTurboCharger();
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       inline float_t GetTurboChargerRPMAtEngineExhaustpsi(float_t fEngineExhaustpsi) const { return curveTurboChargerRPMAtEngineExhaustpsi.GetYAtPointX(fEngineExhaustpsi); }
       inline float_t GetBoostpsiAtTurboChargerRPM(float_t fTurboChargerRPM) const { return curveBoostpsiAtTurboChargerRPM.GetYAtPointX(fTurboChargerRPM); }
@@ -145,7 +145,7 @@ namespace breathe
       cPartSuperCharger();
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       inline float_t GetBoostpsiAtSuperChargerRPM(float_t fSuperChargerRPM) const { return curveSuperChargerRPMToBoostpsi.GetYAtPointX(fSuperChargerRPM); }
 
@@ -250,7 +250,7 @@ namespace breathe
 
       size_t GetWheelCount() const { return 4; }
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
     private:
       bool _IsValid() const;

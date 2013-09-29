@@ -85,7 +85,7 @@ namespace breathe
 
       virtual void _CastRay(const spitfire::math::cRay2& ray, physics::cCollisionResult& result);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       b2World* pWorld;
     };
@@ -119,7 +119,7 @@ namespace breathe
       virtual void _AddForceRelativeToBodyKg(const spitfire::math::cVec2& forceKg);
       virtual void _AddTorqueRelativeToBodyNm(const float& torqueNm);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -143,7 +143,7 @@ namespace breathe
       void CreateHeightmap(cWorld* pWorld);
 
     private:
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -159,7 +159,7 @@ namespace breathe
       explicit cCar(cBodyRef pBody);
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
     };
 
 
@@ -191,13 +191,13 @@ namespace breathe
 
     private:
       #ifdef BUILD_USE_BOX2D_ROPE_JOINT
-      b2RopeJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB);
+      b2RopeJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB, float fLength);
       #else
-      b2DistanceJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB);
+      b2DistanceJoint* CreateRopeJoint(b2Body* pBodyA, b2Body* pBodyB, const spitfire::math::cVec2& anchorPointA, const spitfire::math::cVec2& anchorPointB, float fLength);
       #endif
-      b2Body* CreateRopeBody(const spitfire::math::cVec2& position, float fRotationDegrees);
+      b2Body* CreateRopeBody(const spitfire::math::cVec2& position, float fRotationDegrees, float fWidth);
 
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       cWorld* pWorld;
     };

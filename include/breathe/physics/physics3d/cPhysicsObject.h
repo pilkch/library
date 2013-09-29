@@ -16,7 +16,7 @@ namespace breathe
     public:
       explicit cUprightCapsule(cWorld* pWorld);
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
     };*/
   }
 }

@@ -35,8 +35,8 @@ namespace breathe
         // TODO: REMOVE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*********************!!!!!!!!
         void Create(const game::cTerrainHeightMap& loader) { Create(loader, 512); }
 
-        void Update(spitfire::sampletime_t currentTime);
-        void Render(spitfire::sampletime_t currentTime);
+        void Update(spitfire::durationms_t currentTime);
+        void Render(spitfire::durationms_t currentTime);
 
         cVertexBufferObjectRef GetVBO() const { return pVBO; }
         material::cMaterialRef GetMaterial() const { return pMaterial; }
@@ -51,8 +51,8 @@ namespace breathe
       public:
         void Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
-        void Update(spitfire::sampletime_t currentTime) {}
-        void Render(spitfire::sampletime_t currentTime);
+        void Update(spitfire::durationms_t currentTime) {}
+        void Render(spitfire::durationms_t currentTime);
 
       private:
         cStaticVertexBuffer vbo;
@@ -64,8 +64,8 @@ namespace breathe
       public:
         void Create(const game::cTerrainHeightMap& loader, float fOffsetX, float fOffsetY, float fWidth, float fHeight);
 
-        void Update(spitfire::sampletime_t currentTime) {}
-        void Render(spitfire::sampletime_t currentTime);
+        void Update(spitfire::durationms_t currentTime) {}
+        void Render(spitfire::durationms_t currentTime);
 
       private:
         cStaticVertexBuffer vbo;

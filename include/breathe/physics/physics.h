@@ -136,7 +136,7 @@ namespace breathe
       #endif
       //void CastRayFromBody(const cBody& body, cCollisionResult& result) { _CastRayFromBody(body, result); }
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
     protected:
       size_t uiFrequencyHz;
@@ -170,7 +170,7 @@ namespace breathe
       #endif
       //virtual void _CastRayFromBody(const cBody& body, cCollisionResult& result) = 0;
 
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
     };
 
 
@@ -262,7 +262,7 @@ namespace breathe
       void AddTorqueRelativeToBodyNm(const physrotation_t& torqueNm) { _AddTorqueRelativeToBodyNm(torqueNm); }
       #endif
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
       void Remove() { _Remove(); }
 
@@ -296,7 +296,7 @@ namespace breathe
       virtual void _AddTorqueRelativeToBodyNm(const physrotation_t& torqueNm) = 0;
       #endif
 
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
 
       virtual void _Remove() = 0;
     };
@@ -333,7 +333,7 @@ namespace breathe
       const physvec_t& GetPositionAbsolute() const { return position; }
       const physvec_t& GetScale() const { return scale; }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
       void Remove() { _Remove(); }
 
@@ -349,7 +349,7 @@ namespace breathe
     private:
       NO_COPY(cHeightmap);
 
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
 
       virtual void _Remove() = 0;
     };
@@ -382,7 +382,7 @@ namespace breathe
       const physvec_t& GetPositionAbsolute() const { return position; }
       const physvec_t& GetScale() const { return scale; }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
       void Remove() { _Remove(); }
 
@@ -397,7 +397,7 @@ namespace breathe
     private:
       NO_COPY(cHeightmap);
 
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
 
       virtual void _Remove() = 0;
     };
@@ -506,7 +506,7 @@ namespace breathe
       void SetWheelBrakingForceNewtons(size_t wheel, float_t fBrakingForceNewtons) { ASSERT(wheel < 4); fWheelBrakingForceNewtons[wheel] = fBrakingForceNewtons; }
       void SetWheelSteeringAngleMinusOneToPlusOne(size_t wheel, float_t fSteeringAngleMinusOneToPlusOne) { ASSERT(wheel < 4);  fWheelSteeringAngleMinusOneToPlusOne[wheel] = fSteeringAngleMinusOneToPlusOne; }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
     protected:
       cBodyRef pChassis;
@@ -518,7 +518,7 @@ namespace breathe
       physrotation_t wheelRotationRelative[4];
 
     private:
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
     };
 
 
@@ -553,14 +553,14 @@ namespace breathe
       cBodyRef GetAnchorBody0() { return pAnchorBody0; }
       cBodyRef GetAnchorBody1() { return pAnchorBody1; }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
     protected:
       cBodyRef pAnchorBody0;
       cBodyRef pAnchorBody1;
 
     private:
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
     };
     #endif
 

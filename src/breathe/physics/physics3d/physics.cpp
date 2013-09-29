@@ -186,7 +186,7 @@ namespace breathe
       lPhysicsObject.remove(pPhysicsObject);
     }
 
-    void cWorld::Update(sampletime_t currentTime)
+    void cWorld::Update(durationms_t currentTime)
     {
       {
         // First Iteration

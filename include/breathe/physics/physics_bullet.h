@@ -50,7 +50,7 @@ namespace breathe
       virtual void _DestroyBody(physics::cBodyRef pBody);
       virtual void _DestroyCar(physics::cCarRef pCar);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       btAxisSweep3* broadphase;
       btDefaultCollisionConfiguration* collisionConfiguration;
@@ -93,7 +93,7 @@ namespace breathe
       virtual void _AddForceRelativeToBodyKg(const spitfire::math::cVec3& forceKg);
       virtual void _AddTorqueRelativeToBodyNm(const spitfire::math::cVec3& torqueNm);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -112,7 +112,7 @@ namespace breathe
       void CreateHeightmap(cWorld* pWorld);
 
     private:
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -128,7 +128,7 @@ namespace breathe
       void CreateCar(cWorld* pWorld, const physics::cCarProperties& properties);
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       btRaycastVehicle::btVehicleTuning tuning;
       btVehicleRaycaster* rayCaster;

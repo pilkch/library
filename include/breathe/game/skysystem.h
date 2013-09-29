@@ -71,7 +71,7 @@ namespace breathe
       void CreateGeometry();
       void CreateParticleSystems();
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
 
       spitfire::math::cQuaternion GetRotationSun() const { return rotationSun; }
@@ -239,20 +239,20 @@ namespace breathe
     class cWeatherStateTemplate
     {
     public:
-      sampletime_t durationMinimumMS;
-      sampletime_t durationMaximumMS;
+      durationms_t durationMinimumMS;
+      durationms_t durationMaximumMS;
 
       math::cColour ambientColour; // This is mixed with the day/night cycle ambientColour
 
       bool bIsThundering;
-      sampletime_t thunderFrequencyMinimumMS;
-      sampletime_t thunderFrequencyMaximumMS;
+      durationms_t thunderFrequencyMinimumMS;
+      durationms_t thunderFrequencyMaximumMS;
       float_t thunderVolume0To1;
 
       bool bIsLightning;
       bool bIsLightningAccompaniedByThunder; // This allows lightning to generate a thunder clap as it strikes
-      sampletime_t lightningFrequencyMinimumMS;
-      sampletime_t lightningFrequencyMaximumMS;
+      durationms_t lightningFrequencyMinimumMS;
+      durationms_t lightningFrequencyMaximumMS;
 
       size_t cloudsMimimum;
       size_t cloudsMaximum;
@@ -276,20 +276,20 @@ namespace breathe
     public:
       void SetFromRatioOfTwoStates(float_t fRatio0, const cWeatherState& state0, float_t fRatio1, const cWeatherState& state1);
 
-      sampletime_t timeThisStateStarts;
-      sampletime_t timeThisStateEnds;
+      durationms_t timeThisStateStarts;
+      durationms_t timeThisStateEnds;
 
       math::cColour ambientColour; // This is mixed with the day/night cycle ambientColour
 
       bool bIsThundering;
-      sampletime_t thunderFrequencyMinimumMS;
-      sampletime_t thunderFrequencyMaximumMS;
+      durationms_t thunderFrequencyMinimumMS;
+      durationms_t thunderFrequencyMaximumMS;
       float_t thunderVolume0To1;
 
       bool bIsLightning;
       bool bIsLightningAccompaniedByThunder; // This allows lightning to generate a thunder clap as it strikes
-      sampletime_t lightningFrequencyMinimumMS;
-      sampletime_t lightningFrequencyMaximumMS;
+      durationms_t lightningFrequencyMinimumMS;
+      durationms_t lightningFrequencyMaximumMS;
 
       size_t cloudsMimimum;
       size_t cloudsMaximum;
@@ -349,13 +349,13 @@ namespace breathe
       void SetStatesPaused() { bIsStatesCycling = false; }
       void SetStatesCycling() { bIsStatesCycling = true; }
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
     private:
       const cWeatherState& GetState0() const;
       const cWeatherState& GetState1() const;
 
-      void CalculateRatioOfEachState(sampletime_t currentTime, float_t& fRatio0, float_t& fRatio1) const;
+      void CalculateRatioOfEachState(durationms_t currentTime, float_t& fRatio0, float_t& fRatio1) const;
 
       void PlaySoundThunderNormal();
       void PlaySoundThunderLoud();
@@ -404,7 +404,7 @@ namespace breathe
       return *iter;
     }
 
-    inline void cWeatherManager::CalculateRatioOfEachState(sampletime_t currentTime, float_t& fRatio0, float_t& fRatio1) const
+    inline void cWeatherManager::CalculateRatioOfEachState(durationms_t currentTime, float_t& fRatio0, float_t& fRatio1) const
     {
       ASSERT(IsValid());
 
@@ -413,7 +413,7 @@ namespace breathe
 
       currentTime -= currentState.timeThisStateStarts;
 
-      const sampletime_t duration = (currentState.timeThisStateEnds - currentState.timeThisStateStarts);
+      const durationms_t duration = (currentState.timeThisStateEnds - currentState.timeThisStateStarts);
 
       ASSERT(duration != 0);
 
@@ -430,7 +430,7 @@ namespace breathe
       }
     }
 
-    inline void cWeatherManager::Update(sampletime_t currentTime)
+    inline void cWeatherManager::Update(durationms_t currentTime)
     {
       float_t fRatio0 = 1.0f;
       float_t fRatio1 = 0.0f;
@@ -464,7 +464,7 @@ namespace breathe
       void Create();
       void Clear();
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
       void StartFromCurrentLocalEarthTime();
       void StartFromTimeAndIncrement0To1(float fTime0To1, float fTimeIncrement0To1);

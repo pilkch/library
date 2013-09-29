@@ -196,7 +196,7 @@ namespace breathe
       //lPhysicsBody.remove(pCar->GetBody());
     }
 
-    void cWorld::_Update(sampletime_t currentTime)
+    void cWorld::_Update(durationms_t currentTime)
     {
       {
         // First Iteration
@@ -439,7 +439,7 @@ namespace breathe
     }
 
 
-    void cBody::_Update(sampletime_t currentTime)
+    void cBody::_Update(durationms_t currentTime)
     {
       if (body != NULL) {
         const dReal* p0 = dBodyGetPosition(body);
@@ -602,7 +602,7 @@ namespace breathe
 #endif*/
     }
 
-    void cHeightmap::_Update(sampletime_t currentTime)
+    void cHeightmap::_Update(durationms_t currentTime)
     {
     }
 
@@ -623,7 +623,7 @@ namespace breathe
       pChassis = _pBody;
     }
 
-    void cCar::_Update(sampletime_t currentTime)
+    void cCar::_Update(durationms_t currentTime)
     {
     }
 

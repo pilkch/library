@@ -457,17 +457,17 @@ namespace spitfire
     class cTimeStep
     {
     public:
-      cTimeStep(sampletime_t currentTimeMS, float fStepMS);
+      cTimeStep(durationms_t currentTimeMS, float fStepMS);
 
-      spitfire::sampletime_t GetCurrentTimeMS() const { return currentTimeMS; }
+      spitfire::durationms_t GetCurrentTimeMS() const { return currentTimeMS; }
       float GetStepMS() const { return fStepMS; }
 
     private:
-      spitfire::sampletime_t currentTimeMS;
+      spitfire::durationms_t currentTimeMS;
       float fStepMS;
     };
 
-    inline cTimeStep::cTimeStep(spitfire::sampletime_t _currentTimeMS, float _fStepMS) :
+    inline cTimeStep::cTimeStep(spitfire::durationms_t _currentTimeMS, float _fStepMS) :
       currentTimeMS(_currentTimeMS),
       fStepMS(_fStepMS)
     {

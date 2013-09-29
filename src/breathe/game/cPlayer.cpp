@@ -147,7 +147,7 @@ namespace breathe
   }
 */
 
-  void cPlayer::Update(sampletime_t currentTime)
+  void cPlayer::Update(durationms_t currentTime)
   {
     // biped.Update(currentTime);
 

@@ -292,7 +292,7 @@ namespace breathe
     public:
       render::model::cStaticRef pModel;
 
-      void Update(sampletime_t currentTime)
+      void Update(durationms_t currentTime)
       {
 
       }
@@ -968,9 +968,9 @@ namespace breathe
       bool IsCullingEnabled() const { return bIsCullingEnabled; }
       void SetCulling(bool bEnable) { bIsCullingEnabled = bEnable; }
 
-      void Update(sampletime_t currentTime);
-      void Cull(sampletime_t currentTime, const render::cCamera& camera);
-      void Render(sampletime_t currentTime, render::cContext& context, const math::cFrustum& frustum);
+      void Update(durationms_t currentTime);
+      void Cull(durationms_t currentTime, const render::cCamera& camera);
+      void Render(durationms_t currentTime, render::cContext& context, const math::cFrustum& frustum);
 
 
       // Cameras

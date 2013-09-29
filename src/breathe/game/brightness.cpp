@@ -74,7 +74,7 @@ namespace breathe
       return fBrightness0To1;
     }
 
-    cHumanEyeExposureControl::Update(sampletime_t currentTime, float_t _fSceneBrightness0To1)
+    cHumanEyeExposureControl::Update(durationms_t currentTime, float_t _fSceneBrightness0To1)
     {
       // Update scene brightness
       fSceneBrightness0To1 = clamp(_fSceneBrightness0To1, 0.0f, 1.0f);

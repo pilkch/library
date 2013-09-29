@@ -71,7 +71,7 @@ namespace breathe
       float_t CalculateOutputTorqueNm(float_t fInputTorqueNm) const;
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       float_t fMaxTorqueNm; // Maximum torque the clutch can take before it slips.
 
@@ -196,7 +196,7 @@ namespace breathe
       void ShiftUp();
       void ShiftDown();
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
       cClutch clutch;
 
@@ -219,7 +219,7 @@ namespace breathe
       size_t targetGear;
 
       STATE state;
-      sampletime_t stateEnteredTime;
+      durationms_t stateEnteredTime;
 
       float_t fInputRPM;
     };
@@ -318,7 +318,7 @@ namespace breathe
       return inertia;
     }
 
-    void cGearbox::Update(sampletime_t currentTime)
+    void cGearbox::Update(durationms_t currentTime)
     {
       ASSERT(!gears.empty());
 
@@ -346,7 +346,7 @@ namespace breathe
       void InjectInputChangeUp() { _InjectInputChangeUp(); }
       void InjectInputChangeDown() { _InjectInputChangeDown(); }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
     protected:
       cGearbox& gearbox;
@@ -356,7 +356,7 @@ namespace breathe
       virtual void _InjectInputChangeUp() {}
       virtual void _InjectInputChangeDown() {}
 
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
     };
 
     cGearboxController::cGearboxController(cGearbox& _gearbox) :
@@ -410,7 +410,7 @@ namespace breathe
       virtual void _InjectInputChangeUp();
       virtual void _InjectInputChangeDown();
 
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       void InternalChangeUp();
       void InternalChangeDown();
@@ -420,8 +420,8 @@ namespace breathe
 
       float_t fChangeUpAtRPM; // At what RPM does the automatic transmission change up?
       float_t fChangeDownAtRPM; // At what RPM does the automatic transmission change down?
-      sampletime_t timeClutchPushInDelayMS; // How long it takes to push the clutch in from fully let out
-      sampletime_t timeClutchLetOutDelayMS; // How long it takes to let the clutch out
+      durationms_t timeClutchPushInDelayMS; // How long it takes to push the clutch in from fully let out
+      durationms_t timeClutchLetOutDelayMS; // How long it takes to let the clutch out
     };
 
     cGearboxAutomatic::cGearboxAutomatic(cGearbox& _gearbox) :
@@ -462,7 +462,7 @@ namespace breathe
       else if (fRPM < fChangeDownAtRPM) InternalChangeDown();
     }
 
-    void cGearboxAutomatic::_Update(sampletime_t currentTime)
+    void cGearboxAutomatic::_Update(durationms_t currentTime)
     {
       cGearbox::STATE state = gearbox.GetState();
 
@@ -537,7 +537,7 @@ namespace breathe
       curveEngineRPMToTorqueNm.AddPoint(9500.0f, 146.43f);
     }
 
-    void cPartEngine::_Update(sampletime_t currentTime)
+    void cPartEngine::_Update(durationms_t currentTime)
     {
       fTorqueNm = GetTorqueNmAtEngineRPM(fRPM);
     }
@@ -553,7 +553,7 @@ namespace breathe
     {
     }
 
-    void cPartTurboCharger::_Update(sampletime_t currentTime)
+    void cPartTurboCharger::_Update(durationms_t currentTime)
     {
       // http://www.turbochargedpower.com/Turbo%20vs%20Blowers.htm
       // http://www.hi-flow.com/HP4FAQSuper.htm
@@ -572,7 +572,7 @@ namespace breathe
     {
     }
 
-    void cPartSuperCharger::_Update(sampletime_t currentTime)
+    void cPartSuperCharger::_Update(durationms_t currentTime)
     {
       // http://www.turbochargedpower.com/Turbo%20vs%20Blowers.htm
       // http://www.hi-flow.com/HP4FAQSuper.htm
@@ -627,7 +627,7 @@ namespace breathe
       }*/
     }
 
-    void cVehicleControlModule::Update(sampletime_t currentTime)
+    void cVehicleControlModule::Update(durationms_t currentTime)
     {
       /*const float_t fRPM = vehicle.GetRPM();
       float_t fAccelerator0To1 = vehicle.GetAccelerator0To1();
@@ -837,7 +837,7 @@ namespace breathe
     {
       breathe::vehicle::cPartEngine engine;
 
-      for (breathe::sampletime_t currentTime = 0; currentTime < 1000; currentTime += 100) {
+      for (breathe::durationms_t currentTime = 0; currentTime < 1000; currentTime += 100) {
         const float_t fRPM = float_t(currentTime);
         engine.SetRPM(fRPM);
 
@@ -847,7 +847,7 @@ namespace breathe
         LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
       }
 
-      for (breathe::sampletime_t currentTime = 1000; currentTime < 10001; currentTime += 1000) {
+      for (breathe::durationms_t currentTime = 1000; currentTime < 10001; currentTime += 1000) {
         const float_t fRPM = float_t(currentTime);
         engine.SetRPM(fRPM);
 
@@ -857,7 +857,7 @@ namespace breathe
         LOG<<""<<currentTime<<"RPM = "<<fTorqueNm<<"Nm = "<<breathe::math::NmToKw(fTorqueNm, fRPM)<<"Kw"<<std::endl;
       }
 
-      sampletime_t currentTime = 1000;
+      durationms_t currentTime = 1000;
       engine.SetRPM(30000.0f);
       engine.Update(currentTime);
       ASSERT(engine.GetTorqueNm() < 0.1f);

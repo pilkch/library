@@ -79,7 +79,7 @@ namespace breathe
 
       void CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename) { _CreateSoundAttachedToScreenPlayAndForget(sFilename); }
 
-      void Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
+      void Update(durationms_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp);
 
       void StartAll() { _StartAll(); }
       void StopAll() { _StopAll(); }
@@ -107,7 +107,7 @@ namespace breathe
 
       virtual void _CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename) {}
 
-      virtual void _Update(sampletime_t currentTime, const cListener& listener) = 0;
+      virtual void _Update(durationms_t currentTime, const cListener& listener) = 0;
 
       virtual void _StartAll() {}
       virtual void _StopAll() {}
@@ -170,7 +170,7 @@ namespace breathe
       void SetLooping() { _SetLooping(); }
       void SetNonLooping() { _SetNonLooping(); }
 
-      void Update(sampletime_t currentTime, const cListener& listener);
+      void Update(durationms_t currentTime, const cListener& listener);
 
       void Play() { _Play(); }
       void Stop() { _Stop(); }
@@ -204,7 +204,7 @@ namespace breathe
       virtual void _SetLooping() = 0;
       virtual void _SetNonLooping() = 0;
 
-      virtual void _Update(sampletime_t currentTime, const cListener& listener) = 0;
+      virtual void _Update(durationms_t currentTime, const cListener& listener) = 0;
 
       virtual void _Play() = 0;
       virtual void _Stop() = 0;
@@ -224,10 +224,10 @@ namespace breathe
     {
     public:
       virtual ~cSourceStream() {}
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
     private:
-      virtual void _Update(sampletime_t currentTime) = 0;
+      virtual void _Update(durationms_t currentTime) = 0;
 
       cSourceRef source;
     };
@@ -238,7 +238,7 @@ namespace breathe
       void SetPitch(float fPitch);
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       float fPitch;
     };
@@ -248,7 +248,7 @@ namespace breathe
       fPitch = _fPitch;
     }
 
-    inline void cSourceLoopedEffect::_Update(sampletime_t currentTime)
+    inline void cSourceLoopedEffect::_Update(durationms_t currentTime)
     {
 
     }

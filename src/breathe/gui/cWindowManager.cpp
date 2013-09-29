@@ -218,7 +218,7 @@ namespace breathe
       return false;
     }
 
-    void cWindowManager::Update(sampletime_t currentTime)
+    void cWindowManager::Update(durationms_t currentTime)
     {
       //if ()
     }

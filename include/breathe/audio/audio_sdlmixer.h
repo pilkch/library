@@ -50,7 +50,7 @@ namespace breathe
     class cManager
     {
     public:
-      virtual void _Update(sampletime_t currentTime, const cListener& listener)
+      virtual void _Update(durationms_t currentTime, const cListener& listener)
       {
         size_t i = 0;
         const size_t n = channels.size();
@@ -94,7 +94,7 @@ namespace breathe
 
       virtual void _CreateSoundAttachedToScreenPlayAndForget(const breathe::string_t& sFilename);
 
-      virtual void _Update(sampletime_t currentTime, const audio::cListener& listener);
+      virtual void _Update(durationms_t currentTime, const audio::cListener& listener);
 
       virtual void _StartAll();
       virtual void _StopAll();
@@ -157,7 +157,7 @@ namespace breathe
       virtual void _SetLooping();
       virtual void _SetNonLooping();
 
-      virtual void _Update(sampletime_t currentTime, const audio::cListener& listener);
+      virtual void _Update(durationms_t currentTime, const audio::cListener& listener);
 
       virtual void _Play();
       virtual void _Stop();

@@ -20,7 +20,7 @@ namespace breathe
   public:
     virtual ~cUpdateable() {}
 
-    virtual void Update(sampletime_t currentTime)=0;
+    virtual void Update(durationms_t currentTime)=0;
   };
 
   // This is for in game objects that have a physical presence in the world such as the player,

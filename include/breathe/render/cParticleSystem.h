@@ -84,7 +84,7 @@ namespace breathe
         unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX,
         float fInParticleWidth = DEFAULT_PARTICLE_WIDTH, float fInParticleHeight = DEFAULT_PARTICLE_HEIGHT);
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
       unsigned int Render();
 
       void SetParticleWidth(float fWidth);
@@ -103,7 +103,7 @@ namespace breathe
     public:
       cParticleSystemMesh(size_t uiMaxSize, unsigned int uiLifeSpanMin = DEFAULT_LIFESPANMIN, unsigned int uiLifeSpanMax = DEFAULT_LIFESPANMAX);
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
       unsigned int Render();
 
       void SetMesh(model::cMeshRef pMesh);
@@ -152,7 +152,7 @@ namespace breathe
       cParticleSystemCustomBillboard();
       virtual ~cParticleSystemCustomBillboard();
 
-      void Update(sampletime_t currentTime) { Sort(); }
+      void Update(durationms_t currentTime) { Sort(); }
       unsigned int Render();
 
       void SetPosition(const math::cVec3& _position) { position = _position; }

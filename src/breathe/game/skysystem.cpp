@@ -121,7 +121,7 @@ namespace breathe
       fTimeIncrement0To1 = _fTimeIncrement0To1;
     }
 
-    void cSkySystem::Update(sampletime_t currentTime)
+    void cSkySystem::Update(durationms_t currentTime)
     {
       float fCurrentTime = float(currentTime);
       if ((fCurrentTime - fTimeLastUpdated) > fTimeBetweenUpdates) {
@@ -669,7 +669,7 @@ namespace breathe
     }
 
 
-    void cSkyDomeAtmosphereRenderer::Update(sampletime_t currentTime)
+    void cSkyDomeAtmosphereRenderer::Update(durationms_t currentTime)
     {
       LOG<<"cSkyDomeAtmosphereRenderer::Update"<<std::endl;
 

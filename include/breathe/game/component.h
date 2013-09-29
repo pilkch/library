@@ -74,13 +74,13 @@ namespace breathe
 
       bool IsEnabled() const { return bIsEnabled; }
 
-      void Update(spitfire::sampletime_t currentTime) { _Update(currentTime); }
+      void Update(spitfire::durationms_t currentTime) { _Update(currentTime); }
 
     protected:
       cGameObject& object;
 
     private:
-      virtual void _Update(spitfire::sampletime_t currentTime) {}
+      virtual void _Update(spitfire::durationms_t currentTime) {}
 
       bool bIsEnabled;
     };
@@ -108,7 +108,7 @@ namespace breathe
       void SetComponentDisabled(COMPONENT componentType);
 
 
-      void Update(spitfire::sampletime_t currentTime);
+      void Update(spitfire::durationms_t currentTime);
 
       const string_t& GetName() const { return sName; }
       void SetName(const string_t& _sName) { sName = _sName; }
@@ -171,7 +171,7 @@ namespace breathe
       void Add(cGameObjectRef pGameObject);
       void Remove(cGameObjectRef pGameObject);
 
-      void Update(spitfire::sampletime_t currentTime);
+      void Update(spitfire::durationms_t currentTime);
 
       std::list<cGameObjectRef>& GetGameObjects() { return gameobjects; }
       const std::list<cGameObjectRef>& GetGameObjects() const { return gameobjects; }
@@ -268,7 +268,7 @@ namespace breathe
       void SetBody(physics::cBodyRef _pBody) { pBody = _pBody; }
 
     private:
-      void _Update(spitfire::sampletime_t currentTime);
+      void _Update(spitfire::durationms_t currentTime);
 
       physics::cBodyRef pBody;
     };
@@ -319,7 +319,7 @@ namespace breathe
 
 
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
 
     protected:
       cGameObject& object;
@@ -349,7 +349,7 @@ namespace breathe
 
     private:
       virtual void _Init() {}
-      virtual void _Update(sampletime_t currentTime) {}
+      virtual void _Update(durationms_t currentTime) {}
 
       TYPE type;
     };
@@ -398,7 +398,7 @@ namespace breathe
       void SetInputYawRight0To1(float_t fInput0To1) { ASSERT(pVehicle != nullptr); pVehicle->SetInputYawRight0To1(fInput0To1); }
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
 
       cVehicleBase* pVehicle;
     };
@@ -415,7 +415,7 @@ namespace breathe
       void RemoveSource(audio::cSourceRef pSource);
 
     private:
-      void _Update(spitfire::sampletime_t currentTime);
+      void _Update(spitfire::durationms_t currentTime);
 
       std::vector<audio::cSourceRef> sources;
     };
@@ -435,7 +435,7 @@ namespace breathe
       explicit cAnimationComponent(cGameObject& _object) : cComponent(_object) {}
 
     private:
-      void _Update(spitfire::sampletime_t currentTime);
+      void _Update(spitfire::durationms_t currentTime);
     };
 
     class cRenderComponent : public cComponent
@@ -447,7 +447,7 @@ namespace breathe
       scenegraph3d::cSceneNodeRef GetSceneNode() const { return pNode; }
 
     private:
-      void _Update(spitfire::sampletime_t currentTime);
+      void _Update(spitfire::durationms_t currentTime);
 
       scenegraph3d::cSceneNodeRef pNode;
     };

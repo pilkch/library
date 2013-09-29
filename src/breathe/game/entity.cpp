@@ -4,7 +4,7 @@
 
 #include <breathe/game/entity.h>
 
-void cUpdateDirtyEntitiesVisitor::VisitDirtyEntitiesInThisList(sampletime_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd)
+void cUpdateDirtyEntitiesVisitor::VisitDirtyEntitiesInThisList(durationms_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd)
 {
   while (iter != iterEnd) {
     cEntity& entity = *iter;
@@ -34,7 +34,7 @@ public:
   void SetPhysicsObject(physics::cPhysicsObject* pPhysicsObject);
 
 private:
-  virtual void _Update(sampletime_t currentTime);
+  virtual void _Update(durationms_t currentTime);
 
   physics::cPhysicsObject* _pPhysicsObject;
 };
@@ -45,7 +45,7 @@ void cPhysicsEntity::SetPhysicsObject(physics::cPhysicsObject* _pPhysicsObject)
   pPhysicsObject = _pPhysicsObject;
 }
 
-void cPhysicsEntity::_Update(sampletime_t currentTime)
+void cPhysicsEntity::_Update(durationms_t currentTime)
 {
   ASSERT(pSceneNode != nullptr);
   ASSERT(pPhysicsObject != nullptr);

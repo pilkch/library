@@ -88,7 +88,7 @@ namespace spitfire
     int gettimeofday(struct timeval* tv, struct timezone* tz);
     #endif
 
-    inline sampletime_t GetTimeMS()
+    inline durationms_t GetTimeMS()
     {
       timeval tvNow;
       gettimeofday(&tvNow, nullptr);

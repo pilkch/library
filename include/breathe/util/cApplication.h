@@ -275,15 +275,15 @@ namespace breathe
       void OnPause() { _OnPause(); }
       void OnResume(int iResult) { _OnResume(iResult); }
 
-      void Update(sampletime_t currentTime) { _Update(currentTime); }
-      void UpdateInput(sampletime_t currentTime) { _UpdateInput(currentTime); }
+      void Update(durationms_t currentTime) { _Update(currentTime); }
+      void UpdateInput(durationms_t currentTime) { _UpdateInput(currentTime); }
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-      void UpdatePhysics(sampletime_t currentTime) { _UpdatePhysics(currentTime); }
+      void UpdatePhysics(durationms_t currentTime) { _UpdatePhysics(currentTime); }
 #endif
 
-      void PreRender(sampletime_t currentTime) { _PreRender(currentTime); }
-      void RenderScene(sampletime_t currentTime) { _RenderScene(currentTime); }
-      void RenderScreenSpace(sampletime_t currentTime) { _RenderScreenSpace(currentTime); }
+      void PreRender(durationms_t currentTime) { _PreRender(currentTime); }
+      void RenderScene(durationms_t currentTime) { _RenderScene(currentTime); }
+      void RenderScreenSpace(durationms_t currentTime) { _RenderScreenSpace(currentTime); }
 
       void OnMouseEvent(int button, int state, float x, float y) { _OnMouseEvent(button, state, x, y); }
 
@@ -340,17 +340,17 @@ namespace breathe
       virtual void _OnResume(int iResult) {}
 
 
-      virtual void _Update(sampletime_t currentTime) {}
-      virtual void _UpdateInput(sampletime_t currentTime) {}
+      virtual void _Update(durationms_t currentTime) {}
+      virtual void _UpdateInput(durationms_t currentTime) {}
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-      virtual void _UpdatePhysics(sampletime_t currentTime) {}
+      virtual void _UpdatePhysics(durationms_t currentTime) {}
 #endif
 
       // Override to create dynamic textures, do last minute changes to the scene graph, etc.
       // For example we can override this function and render to texture for dynamic cubemaps, spheremaps, precalculated shadow maps, etc.
-      virtual void _PreRender(sampletime_t currentTime) {}
-      virtual void _RenderScene(sampletime_t currentTime) {}
-      virtual void _RenderScreenSpace(sampletime_t currentTime) {}
+      virtual void _PreRender(durationms_t currentTime) {}
+      virtual void _RenderScene(durationms_t currentTime) {}
+      virtual void _RenderScreenSpace(durationms_t currentTime) {}
 
 
       virtual void _OnMouseEvent(int button, int state, float x, float y) {}
@@ -551,9 +551,9 @@ namespace breathe
 
 
 
-    void _UpdateKeys(sampletime_t currentTime);
+    void _UpdateKeys(durationms_t currentTime);
 
-    void _UpdateEvents(sampletime_t currentTime);
+    void _UpdateEvents(durationms_t currentTime);
 
 
 
@@ -571,22 +571,22 @@ namespace breathe
 
 
 
-    void _Update(sampletime_t currentTime);
+    void _Update(durationms_t currentTime);
 
-    void _UpdateInput(sampletime_t currentTime);
+    void _UpdateInput(durationms_t currentTime);
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 
-    void _UpdatePhysics(cApplication::cAppState& state, sampletime_t currentTime);
+    void _UpdatePhysics(cApplication::cAppState& state, durationms_t currentTime);
 
 #endif
 
 
     // Main rendering function, basically controls the rendering process from rendering to textures, using those textures to render a scene and applying those textures to the screen
 
-    void _Render(cApplication::cAppState& state, sampletime_t currentTime);
+    void _Render(cApplication::cAppState& state, durationms_t currentTime);
 
-    void _RenderScreenSpaceScene(cApplication::cAppState& state, sampletime_t currentTime);
+    void _RenderScreenSpaceScene(cApplication::cAppState& state, durationms_t currentTime);
 
 
 
@@ -675,10 +675,10 @@ namespace breathe
       void _OnEntry();
       void _OnExit();
 
-      void _Update(breathe::sampletime_t currentTime);
-      void _UpdateInput(breathe::sampletime_t currentTime);
-      void _RenderScene(breathe::sampletime_t currentTime) { GetParent()->RenderScene(currentTime); }
-      void _RenderScreenSpace(breathe::sampletime_t currentTime) { GetParent()->RenderScreenSpace(currentTime); }
+      void _Update(breathe::durationms_t currentTime);
+      void _UpdateInput(breathe::durationms_t currentTime);
+      void _RenderScene(breathe::durationms_t currentTime) { GetParent()->RenderScene(currentTime); }
+      void _RenderScreenSpace(breathe::durationms_t currentTime) { GetParent()->RenderScreenSpace(currentTime); }
 
       cApplication& app;
       cConsoleWindow* pConsoleWindow;

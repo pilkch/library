@@ -36,7 +36,7 @@ namespace breathe
 
       float_t GetPerceivedBrightness0To1() const;
 
-      void Update(sampletime_t currentTime, float_t fSceneBrightness0To1);
+      void Update(durationms_t currentTime, float_t fSceneBrightness0To1);
 
     private:
       // How much light does the eye let in?

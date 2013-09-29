@@ -139,7 +139,7 @@ namespace breathe
         pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
-      void cWater::Render(spitfire::sampletime_t currentTime)
+      void cWater::Render(spitfire::durationms_t currentTime)
       {
         render::ApplyMaterial apply(pMaterial);
 

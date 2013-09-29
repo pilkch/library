@@ -112,7 +112,7 @@ namespace breathe
 
 
 
-    void cManager::Update(sampletime_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp)
+    void cManager::Update(durationms_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp)
     {
       const cListener listener(listenerPosition, listenerTarget, listenerUp);
 
@@ -155,7 +155,7 @@ namespace breathe
       return (lhs->GetDistanceToListenerMeters() < rhs->GetDistanceToListenerMeters());
     }
 
-    void cSource::Update(sampletime_t currentTime, const cListener& listener)
+    void cSource::Update(durationms_t currentTime, const cListener& listener)
     {
       fDistanceFromListenerMeters = (listener.GetPosition() - position).GetLength();
 

@@ -374,7 +374,7 @@ namespace breathe
     }
 
 
-    void cPhysicsObject::Update(sampletime_t currentTime)
+    void cPhysicsObject::Update(durationms_t currentTime)
     {
       if (bDynamic) {
         const dReal* p0 = nullptr;
@@ -418,7 +418,7 @@ namespace breathe
     {
     }
 
-    void cUprightCapsule::Update(sampletime_t currentTime)
+    void cUprightCapsule::Update(durationms_t currentTime)
     {
       ASSERT(HasBody());
 

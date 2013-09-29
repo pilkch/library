@@ -187,7 +187,7 @@ namespace breathe
       //lPhysicsBody.remove(pCar->GetBody());
     }
 
-    void cWorld::_Update(sampletime_t currentTime)
+    void cWorld::_Update(durationms_t currentTime)
     {
       /*{
         // First Iteration
@@ -378,7 +378,7 @@ namespace breathe
     }
 
 
-    void cBody::_Update(sampletime_t currentTime)
+    void cBody::_Update(durationms_t currentTime)
     {
       if (bodyRigidBody != nullptr) {
         btTransform trans;
@@ -538,7 +538,7 @@ namespace breathe
 #endif*/
     }
 
-    void cHeightmap::_Update(sampletime_t currentTime)
+    void cHeightmap::_Update(durationms_t currentTime)
     {
     }
 
@@ -865,7 +865,7 @@ namespace breathe
     }
 
 
-    void cCar::_Update(sampletime_t currentTime)
+    void cCar::_Update(durationms_t currentTime)
     {
       for (int i = 0; i < 4; i++) {
         vehicle->applyEngineForce(fWheelAccelerationForceNewtons[i], i);

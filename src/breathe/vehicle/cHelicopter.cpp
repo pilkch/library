@@ -609,7 +609,7 @@ namespace breathe
       void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
       void SetAccelerator0To1(float_t _fAccelerator0To1) { fAccelerator0To1 = _fAccelerator0To1; }
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
     private:
       /*class cEngineAudioSample;
@@ -671,7 +671,7 @@ namespace breathe
       return sampleClosest;
     }*/
 
-    void cEngineAudio::Update(sampletime_t currentTime)
+    void cEngineAudio::Update(durationms_t currentTime)
     {
       // We want this in the range of 0.5f .. 1.5f
       pSource->SetPitch(1.0f + sinf(0.001f * currentTime));
@@ -736,7 +736,7 @@ namespace breathe
       pSourceEngine->Play();
     }
 
-    void cVehicleHelicopter::_Update(sampletime_t currentTime)
+    void cVehicleHelicopter::_Update(durationms_t currentTime)
     {
       cPhysicsComponent* pPhysicsComponent = object.GetComponentIfEnabled<cPhysicsComponent>(COMPONENT::PHYSICS);
       if (pPhysicsComponent == nullptr) return;

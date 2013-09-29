@@ -16,7 +16,7 @@ namespace breathe
       explicit cVehiclePlane(cGameObject& object);
 
     private:
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
     };
   }
 }

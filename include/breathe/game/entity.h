@@ -25,13 +25,13 @@ namespace breathe
     void SetRotation(const math::cQuaternion& rotation) { ASSERT(pSceneNode != nullptr); pSceneNode->SetRotation(rotation); }
 
   protected:
-    void Update(sampletime_t currentTime) { _Update(currentTime); }
+    void Update(durationms_t currentTime) { _Update(currentTime); }
     void SetNotDirty() { ASSERT(IsDirty()); bIsDirty = false; }
 
     scenegraph3d::cSceneNodeRef pSceneNode;
 
   private:
-    virtual void _Update(sampletime_t currentTime) {}
+    virtual void _Update(durationms_t currentTime) {}
 
     bool bIsDirty;
   };
@@ -53,7 +53,7 @@ namespace breathe
   class cUpdateDirtyEntitiesVisitor
   {
   public:
-    void VisitDirtyEntitiesInThisList(sampletime_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd);
+    void VisitDirtyEntitiesInThisList(durationms_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd);
   };
 
 

@@ -490,7 +490,7 @@ namespace breathe
     return true;
   }
 
-  void cGameUnitTest::Update(sampletime_t currentTime)
+  void cGameUnitTest::Update(durationms_t currentTime)
   {
     fSlabRotation += 1.0f;
 
@@ -507,7 +507,7 @@ namespace breathe
   }
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
-  void cGameUnitTest::UpdatePhysics(sampletime_t currentTime)
+  void cGameUnitTest::UpdatePhysics(durationms_t currentTime)
   {
     // Particle Systems
     //pFire->SetPosition(pTestSphere->position);
@@ -520,11 +520,11 @@ namespace breathe
   }
 #endif
 
-  void cGameUnitTest::PreRender(sampletime_t currentTime)
+  void cGameUnitTest::PreRender(durationms_t currentTime)
   {
   }
 
-  void cGameUnitTest::RenderScene(breathe::sampletime_t currentTime)
+  void cGameUnitTest::RenderScene(breathe::durationms_t currentTime)
   {
     {
       // Draw an array of boxes unfortunately because they are all different, unless we have a colour attribute on a scenenode? we have to do this dynamically instead of through the scenegraph.
@@ -579,7 +579,7 @@ namespace breathe
     grid.Render(currentTime);
   }
 
-  void cGameUnitTest::RenderScreenSpace(sampletime_t currentTime)
+  void cGameUnitTest::RenderScreenSpace(durationms_t currentTime)
   {
   }
 #endif

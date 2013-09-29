@@ -52,7 +52,7 @@ namespace breathe
       virtual void _DestroyBody(physics::cBodyRef pBody);
       virtual void _DestroyCar(physics::cCarRef pCar);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       dWorldID world;
       dSpaceID spaceStatic;
@@ -88,7 +88,7 @@ namespace breathe
       virtual void _AddForceRelativeToObjectKg(const spitfire::math::cVec3& forceKg);
       virtual void _AddTorqueRelativeToObjectNm(const spitfire::math::cVec3& torqueNm);
 
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -105,7 +105,7 @@ namespace breathe
       void CreateHeightmap(cWorld* pWorld);
 
     private:
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       virtual void _Remove();
 
@@ -120,7 +120,7 @@ namespace breathe
       explicit cCar(cBodyRef pBody);
 
     private:
-      void _Update(sampletime_t currentTime);
+      void _Update(durationms_t currentTime);
     };
   }
 }

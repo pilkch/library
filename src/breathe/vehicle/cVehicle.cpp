@@ -631,7 +631,7 @@ namespace breathe
     }
 
 
-    void cVehicle2::Update(sampletime_t currentTime)
+    void cVehicle2::Update(durationms_t currentTime)
     {
       return;
 

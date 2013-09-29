@@ -264,7 +264,7 @@ namespace spitfire
   typedef uint64_t filesize_t;
 
   // For specifying a time duration
-  typedef uint64_t sampletime_t; // Legacy
+  //typedef uint64_t sampletime_t; // Legacy
   typedef uint64_t durationms_t;
 }
 

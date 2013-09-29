@@ -284,7 +284,7 @@ namespace breathe
       if (result.IsIntersection()) result.SetIntersectionLength((ray.GetOrigin() - result.GetIntersectionPoint()).GetLength());
     }
 
-    void cWorld::_Update(sampletime_t currentTime)
+    void cWorld::_Update(durationms_t currentTime)
     {
       // Step the world
       pWorld->Step(fTimeStep, velocityIterations, positionIterations);
@@ -502,7 +502,7 @@ namespace breathe
     }
 #endif
 
-    void cBody::_Update(sampletime_t currentTime)
+    void cBody::_Update(durationms_t currentTime)
     {
       assert(pBody != nullptr);
 
@@ -565,7 +565,7 @@ namespace breathe
       }
     }
 
-    void cHeightmap::_Update(sampletime_t currentTime)
+    void cHeightmap::_Update(durationms_t currentTime)
     {
     }
 
@@ -585,7 +585,7 @@ namespace breathe
       pChassis = _pBody;
     }
 
-    void cCar::_Update(sampletime_t currentTime)
+    void cCar::_Update(durationms_t currentTime)
     {
     }
 
@@ -766,7 +766,7 @@ namespace breathe
       joints.clear();
     }
 
-    void cRope::_Update(sampletime_t currentTime)
+    void cRope::_Update(durationms_t currentTime)
     {
     }
 

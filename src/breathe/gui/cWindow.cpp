@@ -130,7 +130,7 @@ namespace breathe
       return WINDOW_TITLE_BAR_HEIGHT;
     }
 
-    void cWindow::Update(sampletime_t currentTime)
+    void cWindow::Update(durationms_t currentTime)
     {
     }
 

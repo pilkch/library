@@ -123,7 +123,7 @@ namespace breathe
     {
     }
 
-    void cParticleSystemBillboard::Update(sampletime_t currentTime)
+    void cParticleSystemBillboard::Update(durationms_t currentTime)
     {
       unsigned int i = 0;
 
@@ -249,7 +249,7 @@ namespace breathe
       pMesh = pInMesh;
     }
 
-    void cParticleSystemMesh::Update(sampletime_t currentTime)
+    void cParticleSystemMesh::Update(durationms_t currentTime)
     {
       unsigned int i = 0;
 

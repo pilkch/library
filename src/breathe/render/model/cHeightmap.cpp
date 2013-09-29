@@ -183,11 +183,11 @@ namespace breathe
         pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
-      void cTerrain::Update(spitfire::sampletime_t currentTime)
+      void cTerrain::Update(spitfire::durationms_t currentTime)
       {
       }
 
-      void cTerrain::Render(spitfire::sampletime_t currentTime)
+      void cTerrain::Render(spitfire::durationms_t currentTime)
       {
         render::ApplyMaterial apply(pMaterial);
 
@@ -287,7 +287,7 @@ namespace breathe
         pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
-      void cGrassStatic::Render(spitfire::sampletime_t currentTime)
+      void cGrassStatic::Render(spitfire::durationms_t currentTime)
       {
         render::ApplyMaterial apply(pMaterial);
 
@@ -424,7 +424,7 @@ namespace breathe
         pMaterial = pResourceManager->GetMaterial(sFilename);
       }
 
-      void cGrassAnimated::Render(spitfire::sampletime_t currentTime)
+      void cGrassAnimated::Render(spitfire::durationms_t currentTime)
       {
         render::ApplyMaterial apply(pMaterial);
 

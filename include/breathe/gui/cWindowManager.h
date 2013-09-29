@@ -52,7 +52,7 @@ namespace breathe
       void Render() const;
 
       bool OnMouseEvent(int button, int state, float x, float y);
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
       bool AddChild(cWindow* pChild);
       bool RemoveChild(cWindow* pChild);

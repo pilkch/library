@@ -905,7 +905,7 @@ namespace breathe
     }
 
 
-    void cMd3::Update(sampletime_t currentTime)
+    void cMd3::Update(durationms_t currentTime)
     {
       // Since we have animation now, when we draw the model the animation frames need
       // to be updated.  To do that, we pass in our lower and upper models to UpdateModel().
@@ -1173,7 +1173,7 @@ namespace breathe
     /////
     ///////////////////////////////// DRAW MODEL \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-    void cMd3::Render(sampletime_t currentTime)
+    void cMd3::Render(durationms_t currentTime)
     {
       const float r = 1.0f;
       const float g = 1.0f;

@@ -67,7 +67,7 @@ namespace breathe
         return 0;
       }
 
-      void cAnimation::Update(sampletime_t currentTime)
+      void cAnimation::Update(durationms_t currentTime)
       {
         LOG.Error("Animation", "Don't use this class");
       }

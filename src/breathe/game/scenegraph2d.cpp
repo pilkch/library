@@ -705,7 +705,7 @@ namespace breathe
       uiStatus=NODE_INACTIVE;
     }
 
-    void cSceneNode::Update(sampletime_t currentTime)
+    void cSceneNode::Update(durationms_t currentTime)
     {
       if (NODE_INACTIVE!=uiStatus)
         uiStatus--;
@@ -722,18 +722,18 @@ namespace breathe
       return uiTriangles;
     }*/
 
-    void cSceneGraph::Update(sampletime_t currentTime)
+    void cSceneGraph::Update(durationms_t currentTime)
     {
       cUpdateVisitor visitor(*this);
     }
 
-    void cSceneGraph::Cull(sampletime_t currentTime, const render::cCamera& camera)
+    void cSceneGraph::Cull(durationms_t currentTime, const render::cCamera& camera)
     {
       renderGraph.Clear();
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime, render::cContext& context)
+    void cSceneGraph::Render(durationms_t currentTime, render::cContext& context)
     {
       cRenderVisitor visitor(*this, context);
     }
@@ -989,7 +989,7 @@ namespace breathe
 
             //pRoot->AddChild(&model);
 
-            const sampletime_t currentTime = util::GetTimeMS();
+            const durationms_t currentTime = util::GetTimeMS();
             render::cCamera camera;
 
             scenegraph.Update(currentTime);

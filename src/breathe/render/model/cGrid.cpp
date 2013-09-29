@@ -162,7 +162,7 @@ namespace breathe
         );
       }
 
-      void cGridRenderer::Render(spitfire::sampletime_t currentTime)
+      void cGridRenderer::Render(spitfire::durationms_t currentTime)
       {
         pContext->RenderAxisReference();
 

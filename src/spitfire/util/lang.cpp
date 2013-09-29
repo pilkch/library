@@ -39,7 +39,7 @@ namespace spitfire
     cLangContext();
 
     void SetPlayerName(const string_t& playername);
-    void Update(sampletime_t currentTime);
+    void Update(durationms_t currentTime);
 
   private:
     string_t playername;
@@ -57,7 +57,7 @@ namespace spitfire
   {
   }
 
-  void cLangContext::Update(sampletime_t currentTime)
+  void cLangContext::Update(durationms_t currentTime)
   {
     datetime.SetFromUniversalTimeNow();
   }
@@ -65,7 +65,7 @@ namespace spitfire
 
   cLangContext context;
 
-  void Update(sampletime_t currentTime)
+  void Update(durationms_t currentTime)
   {
     context.Update(currentTime);
   }

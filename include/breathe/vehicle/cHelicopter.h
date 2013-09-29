@@ -30,7 +30,7 @@ namespace breathe
 
     private:
       virtual void _Init();
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       audio::cSourceRef pSourceEngine;
     };

@@ -30,7 +30,7 @@ namespace breathe
       cPhysicsObject();
       virtual ~cPhysicsObject();
 
-      virtual void Update(sampletime_t currentTime);
+      virtual void Update(durationms_t currentTime);
 
       void CreateBox(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);
       void CreateSphere(cWorld* pWorld, const physvec_t& pos, const physvec_t& rot = physveczero);

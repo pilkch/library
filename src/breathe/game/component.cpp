@@ -162,7 +162,7 @@ namespace breathe
       return (GetComponentIfEnabledOrDisabled<cComponent>(componentType) != nullptr);
     }
 
-    void cGameObject::Update(spitfire::sampletime_t currentTime)
+    void cGameObject::Update(spitfire::durationms_t currentTime)
     {
       // These components are already sorted in order of priority
       std::map<size_t, cComponent*>::iterator iter = components.begin();
@@ -191,7 +191,7 @@ namespace breathe
       gameobjects.remove(pGameObject);
     }
 
-    void cGameObjectCollection::Update(spitfire::sampletime_t currentTime)
+    void cGameObjectCollection::Update(spitfire::durationms_t currentTime)
     {
       std::list<cGameObjectRef>::iterator iter = gameobjects.begin();
       const std::list<cGameObjectRef>::iterator iterEnd = gameobjects.end();
@@ -222,7 +222,7 @@ namespace breathe
       }
     }
 
-    void cAudioSourceComponent::_Update(spitfire::sampletime_t currentTime)
+    void cAudioSourceComponent::_Update(spitfire::durationms_t currentTime)
     {
       const size_t n = sources.size();
       for (size_t i = 0; i < n; i++) {
@@ -232,7 +232,7 @@ namespace breathe
 
 
 #if defined(BUILD_PHYSICS_BULLET) || defined(BUILD_PHYSICS_ODE)
-    void cPhysicsComponent::_Update(spitfire::sampletime_t currentTime)
+    void cPhysicsComponent::_Update(spitfire::durationms_t currentTime)
     {
       ASSERT(pBody != nullptr);
       object.SetPositionRelative(pBody->GetPositionAbsolute());
@@ -322,7 +322,7 @@ void cLevelOrWhatever::Load()
   timeOfDayToTemperatureDegreesCelciusCurve.AddPoint(1.0f, 10.0f);
 }*/
 
-    void cVehicleComponent::_Update(sampletime_t currentTime)
+    void cVehicleComponent::_Update(durationms_t currentTime)
     {
       ASSERT(pVehicle != nullptr);
 
@@ -338,14 +338,14 @@ void cLevelOrWhatever::Load()
 
 
 
-    void cAnimationComponent::_Update(spitfire::sampletime_t currentTime)
+    void cAnimationComponent::_Update(spitfire::durationms_t currentTime)
     {
       //ASSERT(pNode != nullptr);
       //pNode->SetRelativePosition(object.GetPositionRelative());
       //pNode->SetRelativeRotation(object.GetRotationRelative());
     }
 
-    void cRenderComponent::_Update(spitfire::sampletime_t currentTime)
+    void cRenderComponent::_Update(spitfire::durationms_t currentTime)
     {
       ASSERT(pNode != nullptr);
       pNode->SetRelativePosition(object.GetPositionRelative());

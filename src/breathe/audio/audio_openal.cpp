@@ -588,7 +588,7 @@ namespace breathe
       //ReportError();
     }
 
-    void cManager::_Update(sampletime_t currentTime, const audio::cListener& listener)
+    void cManager::_Update(durationms_t currentTime, const audio::cListener& listener)
     {
       // Update listener
       SetListener(listener);
@@ -816,7 +816,7 @@ namespace breathe
       ReportError();
     }
 
-    void cSource::_Update(sampletime_t currentTime, const audio::cListener& listener)
+    void cSource::_Update(durationms_t currentTime, const audio::cListener& listener)
     {
     }
 

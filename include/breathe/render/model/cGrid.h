@@ -28,7 +28,7 @@ namespace breathe
         void SetResolutionInMeters(size_t resolutionInMeters); // Must be 1, 10 or 100
         void SetPosition(const spitfire::math::cVec3& position);
 
-        void Render(spitfire::sampletime_t currentTime);
+        void Render(spitfire::durationms_t currentTime);
 
       private:
         breathe::render::cStaticVertexBuffer vboLight; // This is the normal line

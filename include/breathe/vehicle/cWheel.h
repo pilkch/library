@@ -17,7 +17,7 @@ namespace breathe
 
       void Init(bool bFront, float fWRadius, float fInMassKg, float fSK, float fSU,
         float fSNormal, float fSMin, float fSMax, const math::cVec3& pos);
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
 
       // For raycasting to find out if this particular wheel is touching anything

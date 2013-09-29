@@ -14,7 +14,7 @@ namespace breathe
       public:
         void Create();
 
-        void Render(spitfire::sampletime_t currentTime);
+        void Render(spitfire::durationms_t currentTime);
 
       private:
         breathe::render::cStaticVertexBuffer vbo;

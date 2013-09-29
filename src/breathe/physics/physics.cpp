@@ -125,7 +125,7 @@ namespace breathe
 
 
 
-    void cWorld::Update(sampletime_t currentTime)
+    void cWorld::Update(durationms_t currentTime)
     {
       std::list<cBodyRef>::iterator iter = lPhysicsBody.begin();
       const std::list<cBodyRef>::iterator iterEnd = lPhysicsBody.end();

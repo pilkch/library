@@ -232,9 +232,9 @@ namespace breathe
       void SetLegsAnimation(const char* strAnimation);
 
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
-      void Render(sampletime_t currentTime);
+      void Render(durationms_t currentTime);
 
       // This returns a pointer to a .md3 model in the character (kLower, kUpper, kHead, kWeapon)
       cModel* GetModel(int whichPart);

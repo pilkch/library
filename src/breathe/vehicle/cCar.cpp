@@ -541,7 +541,7 @@ namespace breathe
         return float(nCylinders) * GetCylinderDisplacementCubicCentiMeters();
       }
 
-      void cEngine::Update(sampletime_t currentTime)
+      void cEngine::Update(durationms_t currentTime)
       {
         // TODO: Should this be multiplied by the size of the engine?
         const float_t fEngineAirFlowCubicMetresPerSecond = fNormalAirFlowCubicMetresPerSecond;
@@ -581,7 +581,7 @@ namespace breathe
 
         // Basically, milliseconds between each firing = (RPM -> revs per second) / cylinders
 
-        const sampletime_t timeBetweenEachFiring = ...;
+        const durationms_t timeBetweenEachFiring = ...;
 
         if (currentTime >= nextFiring) {
           // Control the air fuel mix
@@ -689,7 +689,7 @@ namespace breathe
       {
       }
 
-      void cSuperCharger::Update(sampletime_t currentTime)
+      void cSuperCharger::Update(durationms_t currentTime)
       {
         fRPM = fEngineRPM * fRatio;
 
@@ -714,7 +714,7 @@ namespace breathe
       {
       }
 
-      void cTurboCharger::Update(sampletime_t currentTime)
+      void cTurboCharger::Update(durationms_t currentTime)
       {
         fRPM = exhaustAirFlow.GetFlowCubicMetresPerSecond();
 
@@ -750,7 +750,7 @@ namespace breathe
 
 
 
-      void cInterCooler::Update(sampletime_t currentTime)
+      void cInterCooler::Update(durationms_t currentTime)
       {
          outputAirFlow = inputAirFlow;
 
@@ -796,7 +796,7 @@ namespace breathe
       {
       }
 
-      void cClutch::Update(sampletime_t currentTime)
+      void cClutch::Update(durationms_t currentTime)
       {
         const float_t fOneMinusInputClutch0To1 = 1.0f - fInputClutch0To1;
         fRPMAfterClutch = fOneMinusInputClutch0To1 * fRPMBeforeClutch;
@@ -840,7 +840,7 @@ namespace breathe
         return gears[currentGear];
       }
 
-      void cGearBox::Update(sampletime_t currentTime)
+      void cGearBox::Update(durationms_t currentTime)
       {
         ASSERT(currentGear < gears.size());
 
@@ -861,7 +861,7 @@ namespace breathe
       {
       }
 
-      void cDifferential::Update(sampletime_t currentTime)
+      void cDifferential::Update(durationms_t currentTime)
       {
         CalculateGearing(fRatio, fRPMBeforeDifferential, fTorqueNmBeforeDifferential, fRPMAfterDifferential, fTorqueNmAfterDifferential);
       }
@@ -897,7 +897,7 @@ namespace breathe
         return fSpeedKPH;
       }
 
-      void cWheel::Update(sampletime_t currentTime)
+      void cWheel::Update(durationms_t currentTime)
       {
         // http://drpetter.proboards.com/index.cgi?board=rigid&action=display&thread=6
 
@@ -929,7 +929,7 @@ namespace breathe
       void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
       void SetAccelerator0To1(float_t _fAccelerator0To1) { fAccelerator0To1 = _fAccelerator0To1; }
 
-      void Update(spitfire::sampletime_t currentTime);
+      void Update(spitfire::durationms_t currentTime);
 
     private:
       float_t fNaturalRPM;
@@ -940,7 +940,7 @@ namespace breathe
       float_t fAccelerator0To1;
     };
 
-    void cEngineAudioManager::Update(spitfire::sampletime_t currentTime)
+    void cEngineAudioManager::Update(spitfire::durationms_t currentTime)
     {
       // As the rpm increases the volume goes up exponentially
       if (fHighRPMLoudnessFactor0To1 > spitfire::math::cEPSILON) {
@@ -963,7 +963,7 @@ namespace breathe
 
       void SetTurboPressureKPA(float_t _fTurboPressureKPA) { fTurboPressureKPA = _fTurboPressureKPA; }
 
-      void Update(spitfire::sampletime_t currentTime);
+      void Update(spitfire::durationms_t currentTime);
 
     private:
       float_t fHighPressureLoudnessFactor0To1;
@@ -973,7 +973,7 @@ namespace breathe
       float_t fTurboPressureKPA;
     };
 
-    void cBlowOffValveAudioManager::Update(spitfire::sampletime_t currentTime)
+    void cBlowOffValveAudioManager::Update(spitfire::durationms_t currentTime)
     {
       if (fTurboPressureKPA < fMinimumBlowOffPressureKPA) {
         // Not enough pressure to blow off
@@ -1008,7 +1008,7 @@ namespace breathe
       blowOffValveAudio.SetMinimumBlowOffPressureKPA(...?);
     }
 
-    void cCarComponent::Update(sampletime_t currentTime)
+    void cCarComponent::Update(durationms_t currentTime)
     {
       turboAudio.SetAccelerator0To1(fAccelerator0To1);
       turboAudio.SetRPM(fRPM);
@@ -1503,7 +1503,7 @@ namespace breathe
       return fMassKg;
     }
 
-    void cVehicleCar::_Update(sampletime_t currentTime)
+    void cVehicleCar::_Update(durationms_t currentTime)
     {
       ASSERT(wheels.size() == 4);
 

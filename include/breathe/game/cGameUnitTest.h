@@ -19,12 +19,12 @@ namespace breathe
     bool Init();
     bool Destroy();
 
-    void Update(sampletime_t currentTime);
-    void UpdatePhysics(sampletime_t currentTime);
+    void Update(durationms_t currentTime);
+    void UpdatePhysics(durationms_t currentTime);
 
-    void PreRender(sampletime_t currentTime);
-    void RenderScene(sampletime_t currentTime);
-    void RenderScreenSpace(sampletime_t currentTime);
+    void PreRender(durationms_t currentTime);
+    void RenderScene(durationms_t currentTime);
+    void RenderScreenSpace(durationms_t currentTime);
 
   private:
     cApplication& app;

@@ -424,7 +424,7 @@ namespace breathe
     {
       cSceneNode::_Update(visitor);
 
-      const sampletime_t currentTime = spitfire::util::GetTimeMS();
+      const durationms_t currentTime = spitfire::util::GetTimeMS();
       animation.model.Update(currentTime);
     }
 
@@ -938,7 +938,7 @@ namespace breathe
 
           // MD3 Models, ideally this would not be a special case
           {
-            const sampletime_t currentTime = spitfire::util::GetTimeMS();
+            const durationms_t currentTime = spitfire::util::GetTimeMS();
             const size_t n = rendergraph.md3Models.size();
             for (size_t i = 0; i < n; i++) {
               glMatrixMode(GL_MODELVIEW);
@@ -1172,7 +1172,7 @@ namespace breathe
     }
 
 
-    void cSceneGraph::Update(sampletime_t currentTime)
+    void cSceneGraph::Update(durationms_t currentTime)
     {
       if (pSkySystem != nullptr) {
         pSkySystem->Update(currentTime);
@@ -1185,13 +1185,13 @@ namespace breathe
       //pContext->SetClearColour(backgroundColour);
     }
 
-    void cSceneGraph::Cull(sampletime_t currentTime, const render::cCamera& camera)
+    void cSceneGraph::Cull(durationms_t currentTime, const render::cCamera& camera)
     {
       renderGraph.Clear();
       cCullVisitor visitor(*this, camera);
     }
 
-    void cSceneGraph::Render(sampletime_t currentTime, render::cContext& context, const math::cFrustum& frustum)
+    void cSceneGraph::Render(durationms_t currentTime, render::cContext& context, const math::cFrustum& frustum)
     {
       cRenderVisitor visitor(*this, context, frustum);
     }
@@ -1437,7 +1437,7 @@ namespace breathe
 
             //pRoot->AddChild(&model);
 
-            const sampletime_t currentTime = util::GetTimeMS();
+            const durationms_t currentTime = util::GetTimeMS();
             render::cCamera camera;
 
             scenegraph.Update(currentTime);

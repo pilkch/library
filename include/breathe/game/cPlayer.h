@@ -121,7 +121,7 @@ namespace breathe
     explicit cPlayer(physics::cWorld* pWorld);
     ~cPlayer();
 
-    void Update(sampletime_t currentTime);
+    void Update(durationms_t currentTime);
 
     bool IsInACar() const;
     bool IsDriving() const;

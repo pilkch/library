@@ -89,7 +89,7 @@ namespace breathe
         float_t GetLengthMetres() const { return fLengthMetres; }
         float_t GetHeightMetres() const { return fHeightMetres; }
 
-        void Update(sampletime_t currentTime) {}
+        void Update(durationms_t currentTime) {}
 
       private:
         float_t fMassKg;
@@ -138,7 +138,7 @@ namespace breathe
         float_t GetPowerKw() const { return spitfire::math::NmToKw(fTorqueNm, fRPM); }
         const cAirFlow& GetExhaustAirFlow() const { return exhaustAirFlow; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -235,7 +235,7 @@ namespace breathe
         float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -260,7 +260,7 @@ namespace breathe
         float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -293,7 +293,7 @@ namespace breathe
         float_t GetMassKg() const { return fMassKg; }
         const cAirFlow& GetOutputAirFlow() const { return outputAirFlow; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -320,7 +320,7 @@ namespace breathe
         float_t GetRPMAfterClutch() const { return fRPMAfterClutch; }
         float_t GetTorqueNmAfterClutch() const { return fTorqueNmAfterClutch; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -370,7 +370,7 @@ namespace breathe
         float_t GetRPMAfterGearBox() const { return fRPMAfterGearBox; }
         float_t GetTorqueNmAfterGearBox() const { return fTorqueNmAfterGearBox; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -407,7 +407,7 @@ namespace breathe
         float_t GetRPMAfterDifferential() const { return fRPMAfterDifferential; }
         float_t GetTorqueNmAfterDifferential() const { return fTorqueNmAfterDifferential; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fMassKg;
@@ -444,7 +444,7 @@ namespace breathe
         void SetRPM(float_t _fRPM) { fRPM = _fRPM; }
         void SetTorqueNm(float_t _fTorqueNm) { fTorqueNm = _fTorqueNm; }
 
-        void Update(sampletime_t currentTime);
+        void Update(durationms_t currentTime);
 
       private:
         float_t fDiametreOfRimCentimetres;
@@ -500,11 +500,11 @@ namespace breathe
       const std::vector<car::cTurboCharger>& GetTurboChargers() const { return turboChargers; }
       const std::vector<car::cWheel>& GetWheels() const { return wheels; }
 
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
     private:
       virtual void _Init();
-      virtual void _Update(sampletime_t currentTime);
+      virtual void _Update(durationms_t currentTime);
 
       void InitParts();
 

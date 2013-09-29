@@ -10,7 +10,7 @@ namespace breathe
     public:
       void OnEvent(const cEvent& event) { _OnEvent(event); }
       void OnMouseEvent(int button, int state, float x, float y);
-      void Update(sampletime_t currentTime);
+      void Update(durationms_t currentTime);
 
       bool HasCaption() const { return !text.empty(); }
       const string_t& GetCaption() const { return text; }

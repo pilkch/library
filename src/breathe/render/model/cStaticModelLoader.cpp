@@ -571,7 +571,7 @@ namespace breathe
         return 0;
       }
 
-      void cFileFormat3DS::Update(sampletime_t currentTime)
+      void cFileFormat3DS::Update(durationms_t currentTime)
       {
 
       }
