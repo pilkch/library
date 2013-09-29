@@ -339,8 +339,8 @@ namespace spitfire
       return false;
     }
 
-    FILE* f;
-    if (!(f = fopen(input.c_str(), "rb" ))) {
+    FILE* f = fopen(input.c_str(), "rb");
+    if (f == nullptr) {
       perror("fopen");
       return false;
     }
