@@ -48,6 +48,7 @@
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/geometry.h>
 
+#ifdef BUILD_LOGGING
 
 #define t "  "
 
@@ -505,3 +506,5 @@ namespace spitfire
     }
   }
 }
+
+#endif // BUILD_LOGGING

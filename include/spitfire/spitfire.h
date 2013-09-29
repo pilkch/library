@@ -295,10 +295,10 @@ namespace spitfire
 
 
 // Logging and assert
-#if defined(COMPILER_MSVC) && defined(BUILD_DEBUG)
+#if defined(__WIN__) && defined(BUILD_DEBUG)
 #define BUILD_LOGGING
+
 // LOG and LOGERROR are declared in spitfire/util/log.h
-#elif defined(BUILD_DEBUG)
 namespace spitfire
 {
   std::string LogGetTime();
