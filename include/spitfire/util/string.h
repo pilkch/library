@@ -466,7 +466,7 @@ namespace spitfire
     {
       ASSERT(!IsEmpty());
 
-      s.GetCharacters(nSurrogatePairs);
+      return s.GetCharacters(nSurrogatePairs);
     }
 
     template <class C, class S>
