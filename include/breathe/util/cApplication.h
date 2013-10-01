@@ -6,6 +6,7 @@
 
 // Spitfire headers
 #include <spitfire/math/math.h>
+#include <spitfire/util/cConsoleApplication.h>
 
 // Breathe headers
 #include <breathe/audio/audio.h>
@@ -78,15 +79,13 @@ namespace breathe
 
     // ** cApplication
 
-    class cApplication : public opengl::cWindowEventListener, public opengl::cInputEventListener
+    class cApplication : public spitfire::cConsoleApplication, public opengl::cWindowEventListener, public opengl::cInputEventListener
     {
     public:
       friend class cState;
 
-      cApplication();
+      cApplication(int argc, const char* const* argv);
       ~cApplication();
-
-      bool Run();
 
       void PushStateSoon(cState* pState);
       void PopStateSoon();
@@ -94,6 +93,10 @@ namespace breathe
       float GetFramesPerSecond() const { return fFramesPerSecond; }
 
     protected:
+      void _PrintHelp() const;
+      string_t _GetVersion() const;
+      virtual bool _Run() override;
+
       // State management
       const cState* GetState() const;
       cState* GetState();

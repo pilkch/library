@@ -128,7 +128,9 @@ namespace breathe
 
     // ** cApplication
 
-    cApplication::cApplication() :
+    cApplication::cApplication(int argc, const char* const* argv) :
+      spitfire::cConsoleApplication(argc, argv),
+
       bIsDone(false),
 
       pWindow(nullptr),
@@ -143,6 +145,22 @@ namespace breathe
     cApplication::~cApplication()
     {
       Destroy();
+    }
+
+    void cApplication::_PrintHelp() const
+    {
+      std::cout<<"Usage: "<<spitfire::string::ToUTF8(GetApplicationName())<<" [OPTIONS]"<<std::endl;
+      std::cout<<std::endl;
+      std::cout<<" -help, --help Display this help and exit"<<std::endl;
+      std::cout<<" -version, --version Display version information and exit"<<std::endl;
+    }
+
+    string_t cApplication::_GetVersion() const
+    {
+      std::ostringstream o;
+      o<<GetApplicationName();
+      o<<" "<<BUILD_APPLICATION_VERSION_STRING;
+      return o.str();
     }
 
     bool cApplication::Create()
@@ -371,7 +389,7 @@ namespace breathe
       };
     }
 
-    bool cApplication::Run()
+    bool cApplication::_Run()
     {
       const bool bIsSuccess = Create();
       if (bIsSuccess) MainLoop();
