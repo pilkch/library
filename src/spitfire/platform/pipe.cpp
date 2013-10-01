@@ -441,10 +441,10 @@ namespace spitfire
         }
 
         int status = pclose(fhPipe);
-        std::cout<<"PipeReadToString pclose returned "<<status<<std::endl;
-        if ((status != -1) && WIFEXITED(status)) {
+        //std::cout<<"PipeReadToString pclose returned "<<status<<std::endl;
+        if ((status != -1) && (WIFEXITED(status) != 0)) {
           iReturnValueOfCommand = WEXITSTATUS(status);
-          std::cout<<"PipeReadToString WEXITSTATUS returned "<<iReturnValueOfCommand<<std::endl;
+          //std::cout<<"PipeReadToString WEXITSTATUS returned "<<iReturnValueOfCommand<<std::endl;
         }
 
         fhPipe = nullptr;
@@ -452,7 +452,7 @@ namespace spitfire
 
       const std::string sBuffer(o.str());
 
-      std::cout<<"PipeReadToString \""<<sBuffer<<"\" returning "<<iReturnValueOfCommand<<std::endl;
+      //std::cout<<"PipeReadToString \""<<sBuffer<<"\" returning "<<iReturnValueOfCommand<<std::endl;
       return sBuffer;
     }
 
