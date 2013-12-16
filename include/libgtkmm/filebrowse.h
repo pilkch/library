@@ -90,6 +90,8 @@ namespace gtkmm
   class cGtkmmFileDialog
   {
   public:
+    cGtkmmFileDialog();
+
     enum class TYPE {
       OPEN,
       SAVE
@@ -122,6 +124,8 @@ namespace gtkmm
   class cGtkmmFolderDialog
   {
   public:
+    cGtkmmFolderDialog();
+
     enum class TYPE {
       SELECT,
       SAVE
@@ -130,17 +134,21 @@ namespace gtkmm
     void SetType(TYPE type);
     void SetCaption(const string_t& sCaption);
     void SetDefaultFolder(const string_t& sDefaultFolder);
+    void SetSelectMultipleFolders(bool bSelectMultipleFolders);
 
     const string_t& GetSelectedFolder() const;
+    const std::list<string_t>& GetSelectedFolders() const;
 
     bool Run(Gtk::Window& parent);
 
   private:
     TYPE type;
+    bool bSelectMultipleFolders;
     string_t sCaption;
     string_t sDefaultFolder;
 
     string_t sSelectedFolder;
+    std::list<string_t> selectedFolders;
   };
 }
 

@@ -22,6 +22,12 @@ namespace gtkmm
 
   // ** cGtkmmFileDialog
 
+  cGtkmmFileDialog::cGtkmmFileDialog() :
+    type(TYPE::OPEN),
+    bSelectMultipleFiles(false)
+  {
+  }
+
   void cGtkmmFileDialog::SetType(TYPE _type)
   {
     type = _type;
@@ -108,8 +114,12 @@ namespace gtkmm
     int iResult = dialog.run();
     if (iResult == Gtk::RESPONSE_OK) {
       bResult = true;
+
+      // Get folder and single selected file
       sSelectedFolder = spitfire::string::ToString_t(dialog.get_current_folder());
       sSelectedFile = spitfire::string::ToString_t(dialog.get_filename());
+
+      // Get selected files
       const std::vector<std::string>& files = dialog.get_filenames();
       const size_t n = files.size();
       for (size_t i = 0; i < n; i++) selectedFiles.push_back(spitfire::string::ToString_t(files[i]));
@@ -120,6 +130,12 @@ namespace gtkmm
 
 
   // ** cGtkmmFolderDialog
+
+  cGtkmmFolderDialog::cGtkmmFolderDialog() :
+    type(TYPE::SELECT),
+    bSelectMultipleFolders(false)
+  {
+  }
 
   void cGtkmmFolderDialog::SetType(TYPE _type)
   {
@@ -136,20 +152,32 @@ namespace gtkmm
     sDefaultFolder = _sDefaultFolder;
   }
 
+  void cGtkmmFolderDialog::SetSelectMultipleFolders(bool _bSelectMultipleFolders)
+  {
+    bSelectMultipleFolders = _bSelectMultipleFolders;
+  }
+
   const string_t& cGtkmmFolderDialog::GetSelectedFolder() const
   {
     return sSelectedFolder;
   }
 
+  const std::list<string_t>& cGtkmmFolderDialog::GetSelectedFolders() const
+  {
+    return selectedFolders;
+  }
+
   bool cGtkmmFolderDialog::Run(Gtk::Window& parent)
   {
     sSelectedFolder.clear();
+    selectedFolders.clear();
 
     // Create our dialog
     Gtk::FileChooserDialog
     dialog(spitfire::string::ToUTF8(sCaption).c_str(), Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     dialog.set_transient_for(parent);
     dialog.set_current_folder(spitfire::string::ToUTF8(sDefaultFolder).c_str());
+    dialog.set_select_multiple(bSelectMultipleFolders);
 
     // Add response buttons the the dialog
     dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
@@ -162,7 +190,14 @@ namespace gtkmm
     int iResult = dialog.run();
     if (iResult == Gtk::RESPONSE_OK) {
       bResult = true;
+
+      // Get single selected folder
       sSelectedFolder = spitfire::string::ToString_t(dialog.get_filename());
+
+      // Get selected folders
+      const std::vector<std::string>& files = dialog.get_filenames();
+      const size_t n = files.size();
+      for (size_t i = 0; i < n; i++) selectedFolders.push_back(spitfire::string::ToString_t(files[i]));
     }
 
     return bResult;
