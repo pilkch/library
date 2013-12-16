@@ -11,7 +11,7 @@ namespace spitfire
     class cConnectedClient
     {
     public:
-      cConnectedClient(connectionid_t connection);
+      explicit cConnectedClient(connectionid_t connection);
 
       connectionid_t GetConnectionID() const { return connection; }
 
