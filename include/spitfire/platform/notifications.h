@@ -3,6 +3,11 @@
 
 #include <spitfire/util/string.h>
 
+#ifdef __GTK__
+// libnotifymm headers
+#include <libnotifymm.h>
+#endif
+
 namespace spitfire
 {
   namespace operatingsystem
@@ -28,12 +33,14 @@ namespace spitfire
       WARNING
     };
 
-    class cNotification
+    class cNotification;
+
+    class cNotificationSettings
     {
     public:
-      friend void NotificationShow(const cNotification& notification, durationms_t timeOutMS);
+      friend class cNotification;
 
-      explicit cNotification(size_t notificationID);
+      explicit cNotificationSettings(size_t notificationID);
 
       void SetInformation() { type = NOTIFICATION_TYPE::INFORMATION; }
       void SetWarning() { type = NOTIFICATION_TYPE::WARNING; }
@@ -46,6 +53,14 @@ namespace spitfire
       void SetActionsMusicPlayer(size_t idAction1, size_t idAction2, size_t idAction3);
 
     protected:
+      cNotificationSettings();
+
+      cNotificationSettings(const cNotificationSettings& rhs);
+      cNotificationSettings& operator=(const cNotificationSettings& rhs);
+
+      void Assign(const cNotificationSettings& rhs);
+      void Clear();
+
       size_t notificationID;
       NOTIFICATION_TYPE type;
       string_t sTitle;
@@ -58,6 +73,30 @@ namespace spitfire
       string_t sActionText3;
 
       bool bActionsMusicPlayer;
+    };
+
+    class cNotification
+    {
+    public:
+      cNotification();
+      ~cNotification();
+
+      void Show(const cNotificationSettings& settings, durationms_t timeOutMS);
+      void Close();
+
+    private:
+      void OnClosed();
+      void OnActionClicked(const Glib::ustring& sAction);
+
+      bool bCreated;
+      bool bClosed;
+      Notify::Notification notification;
+
+      cNotificationSettings settings;
+
+      string_t sActionName1;
+      string_t sActionName2;
+      string_t sActionName3;
     };
   }
 }
