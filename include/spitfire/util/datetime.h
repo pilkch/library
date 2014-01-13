@@ -67,9 +67,16 @@ namespace spitfire
       time_t GetTimeT() const;
       void SetFromTimeT(time_t time);
 
+
+      // ISO 8601 UTC Format with time zone offset
+      // 2013-12-19T00:16:34+00:00
       string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
+
+      // ISO 8601 UTC format
+      // 2013-12-19T00:16Z
       string_t GetISO8601UTCString() const;
       bool SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset); // Returns true and sets offset if there is one
+      bool SetFromISO8601UTCString(const string_t& rhs);
 
 
       // RFC 1123 Format

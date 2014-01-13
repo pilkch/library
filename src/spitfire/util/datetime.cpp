@@ -337,6 +337,13 @@ namespace spitfire
       return true;
     }
 
+    bool cDateTime::SetFromISO8601UTCString(const string_t& rhs)
+    {
+      boost::posix_time::time_duration offset;
+      return SetFromISO8601UTCString(rhs, offset);
+    }
+
+
     // RFC 1123 Format
     // Must be in GMT time zone
     // Wed, 05 Jun 2013 13:08:10 GMT
