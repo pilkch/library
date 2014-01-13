@@ -23,7 +23,14 @@
 #include <windows.h>
 #elif defined(__GTK__)
 // libnotifymm headers
-#include <libnotifymm.h>
+// NOTE: This is a non-standard, modified location
+//#include <libnotifymm/libnotifymm.h>
+
+// libnotify headers
+#include <libnotify/notify.h>
+
+// gtkmm headers
+#include <gtkmm.h>
 #endif
 
 // Spitfire headers
@@ -43,89 +50,45 @@ namespace spitfire
 
     // ** cNotification
 
-    cNotificationSettings::cNotificationSettings(size_t _notificationID)
+    cNotification::cNotification(size_t _notificationID) :
+      notificationID(_notificationID),
+      type(NOTIFICATION_TYPE::INFORMATION),
+      idAction1(0),
+      idAction2(0),
+      idAction3(0),
+      bActionsMusicPlayer(false)
     {
-      Clear();
-
-      notificationID = _notificationID;
     }
 
-    cNotificationSettings::cNotificationSettings()
-    {
-      Clear();
-    }
-
-    cNotificationSettings::cNotificationSettings(const cNotificationSettings& rhs)
-    {
-      Assign(rhs);
-    }
-
-    cNotificationSettings& cNotificationSettings::operator=(const cNotificationSettings& rhs)
-    {
-      Assign(rhs);
-      return *this;
-    }
-
-    void cNotificationSettings::Assign(const cNotificationSettings& rhs)
-    {
-      ASSERT(this != &rhs);
-      notificationID = rhs.notificationID;
-      type = rhs.type;
-      sTitle = rhs.sTitle;
-      sDescription = rhs.sDescription;
-      idAction1 = rhs.idAction1;
-      sActionText1 = rhs.sActionText1;
-      idAction2 = rhs.idAction2;
-      sActionText2 = rhs.sActionText2;
-      idAction3 = rhs.idAction3;
-      sActionText3 = rhs.sActionText3;
-      bActionsMusicPlayer = rhs.bActionsMusicPlayer;
-    }
-
-    void cNotificationSettings::Clear()
-    {
-      notificationID = 0;
-      type = NOTIFICATION_TYPE::INFORMATION;
-      sTitle.clear();
-      sDescription.clear();
-      idAction1 = 0;
-      sActionText1.clear();
-      idAction2 = 0;
-      sActionText2.clear();
-      idAction3 = 0;
-      sActionText3.clear();
-      bActionsMusicPlayer = false;
-    }
-
-    void cNotificationSettings::SetTitle(const string_t& _sTitle)
+    void cNotification::SetTitle(const string_t& _sTitle)
     {
       sTitle = _sTitle;
     }
 
-    void cNotificationSettings::SetDescription(const string_t& _sDescription)
+    void cNotification::SetDescription(const string_t& _sDescription)
     {
       sDescription = _sDescription;
     }
 
-    void cNotificationSettings::SetAction1(size_t id, const string_t& sText)
+    void cNotification::SetAction1(size_t id, const string_t& sText)
     {
       idAction1 = id;
       sActionText1 = sText;
     }
 
-    void cNotificationSettings::SetAction2(size_t id, const string_t& sText)
+    void cNotification::SetAction2(size_t id, const string_t& sText)
     {
       idAction2 = id;
       sActionText2 = sText;
     }
 
-    void cNotificationSettings::SetAction3(size_t id, const string_t& sText)
+    void cNotification::SetAction3(size_t id, const string_t& sText)
     {
       idAction3 = id;
       sActionText3 = sText;
     }
 
-    void cNotificationSettings::SetActionsMusicPlayer(size_t _idAction1, size_t _idAction2, size_t _idAction3)
+    void cNotification::SetActionsMusicPlayer(size_t _idAction1, size_t _idAction2, size_t _idAction3)
     {
       idAction1 = _idAction1;
       idAction2 = _idAction2;
@@ -142,15 +105,41 @@ namespace spitfire
 
     bool bIsGlobalInit = false;
 
+    /*
+    void cNotification::ShowNotification(const string_t& sTitle, const string_t& sDescription)
+    {
+      ASSERT(IsValid());
+
+      //Glib::RefPtr<Gtk::StatusIcon> status_icon =
+      //Gtk::StatusIcon::create(Gtk::Stock::INFO);
+      //Notify::Notification n("StatusIcon", "Testing StatusIcon mode with low urgency", "gtk-info", status_icon);
+
+      Notify::Notification notification(string::ToUTF8(sTitle).c_str(), string::ToUTF8(sDescription).c_str());
+
+      // There is also Notify::URGENCY_LOW
+      if (type == NOTIFICATION::NOTIFICATION_WARNING) notification.set_urgency(Notify::URGENCY_CRITICAL);
+
+      notification.set_timeout(NOTIFICATIONS_TIMEOUT_MS);
+
+#ifdef GLIBMM_EXCEPTIONS_ENABLED
+      if (!notification.show()) {
+          std::cerr<<"cNotification::ShowNotification Failed to send notification"<<std::endl;
+      }
+#else
+      std::auto_ptr<Glib::Error> error;
+      if (!notification.show(error)) {
+          std::cerr<<"cNotification::ShowNotification Failed to send notification error=\""<<error->what()<<"\""<<std::endl;
+      }
+#endif //GLIBMM_EXCEPTIONS_ENABLED
+    }*/
+
     cNotificationHandler* pHandler = nullptr;
 
     void NotificationInit(cNotificationHandler& handler)
     {
-      LOG<<"NotificationInit"<<std::endl;
+      notify_init(SPITFIRE_APPLICATION_NAME);
 
-      Notify::init(SPITFIRE_APPLICATION_NAME);
-
-      ASSERT(Notify::is_initted());
+      ASSERT(notify_is_initted());
 
       bIsGlobalInit = true;
       pHandler = &handler;
@@ -158,167 +147,126 @@ namespace spitfire
 
     void NotificationDestroy()
     {
-      Notify::uninit();
+      notify_uninit();
 
       bIsGlobalInit = false;
       pHandler = nullptr;
     }
 
-
-    // ** cNotification
-
-    cNotification::cNotification() :
-      bCreated(false),
-      bClosed(true),
-      notification("Caption", "Description")
+    void NotificationActionCallback(NotifyNotification* pNotification, char* szAction, gpointer pUserData)
     {
+      LOG<<"NotificationActionCallback"<<std::endl;
+
+      ASSERT(pUserData != nullptr);
+
+      const size_t id = size_t(pUserData);
+      LOG<<"NotificationActionCallback id="<<id<<std::endl;
+      if (pHandler != nullptr) {
+        LOG<<"NotificationActionCallback Calling notification handler"<<std::endl;
+        pHandler->OnNotificationAction(id);
+      }
+
+      g_object_unref(pNotification);
     }
 
-    cNotification::~cNotification()
+    // http://cgit.collabora.com/git/user/jonathon/empathy/plain/src/empathy-misc.h
+    const gint NOTIFICATION_CLOSED_INVALID = 0;
+    const gint NOTIFICATION_CLOSED_EXPIRED = 1;
+    const gint NOTIFICATION_CLOSED_DISMISSED = 2;
+    const gint NOTIFICATION_CLOSED_PROGRAMMATICALY = 3;
+    const gint NOTIFICATION_CLOSED_RESERVED = 4;
+
+    void NotificationClosedCallback(NotifyNotification* pNotification, size_t notificationID)
     {
-      Close();
+      if (pHandler != nullptr) {
+        // Notify the handler if the notification was closed by clicking on the window area
+        const gint reason = notify_notification_get_closed_reason(pNotification);
+        if (reason == NOTIFICATION_CLOSED_DISMISSED) pHandler->OnNotificationClicked(notificationID);
+      }
+      g_object_unref(pNotification);
     }
 
-    void cNotification::Show(const cNotificationSettings& _constSettings, durationms_t timeOutMS)
+    void NotificationShow(const cNotification& notification, durationms_t timeOutMS)
     {
-      LOG<<"cNotification::Show"<<std::endl;
-
-      cNotificationSettings _settings = _constSettings;
-
       // https://developer.gnome.org/libnotify/unstable/NotifyNotification.html
       // https://git.gnome.org/browse/rhythmbox/tree/plugins/notification/rb-notification-plugin.c#n125
 
       ASSERT(bIsGlobalInit);
 
-      if (!bCreated) {
-        LOG<<"cNotification::Show Installing signal_closed handler"<<std::endl;
+      NotifyNotification* pNotification = notify_notification_new(notification.sTitle.c_str(), notification.sDescription.c_str(), nullptr);
 
-        // Handle the closed signal
-        notification.signal_closed().connect(sigc::mem_fun(*this, &cNotification::OnClosed));
+      // Tell the desktop which category our notification is for
+      if (notification.bActionsMusicPlayer) notify_notification_set_category(pNotification, "x-gnome.music");
 
-        bCreated = true;
-      }
-
-      if (_settings.bActionsMusicPlayer != settings.bActionsMusicPlayer) {
-        // Clear any existing hints
-        notification.clear_hints();
-
-        // Tell the desktop which desktop entry this notification is for
-        notification.set_hint("desktop-entry", Glib::ustring(SPITFIRE_APPLICATION_NAME_LWR));
-
-        if (_settings.bActionsMusicPlayer) {
-          // Tell the desktop that this notification is persistent
-          // NOTE: This means that the notification can be dismissed but never "closed" so the signal_closed notification will never get called
-          notification.set_hint("resident", int(TRUE));
-
-          // Tell the desktop that we want to show items for our action buttons
-          notification.set_hint("action-icons", int(TRUE));
-
-          // Tell the desktop which category our notification is for
-          notification.set_category("x-gnome.music");
-        }
-      }
-
-      // Update the text on our notification
-      notification.update(_settings.sTitle.c_str(), _settings.sDescription.c_str(), "");
+      // Tell the desktop which desktop entry this notification is for
+      notify_notification_set_hint(pNotification, "desktop-entry", g_variant_new_string(SPITFIRE_APPLICATION_NAME_LWR));
 
       // Set the timeout of the notification
-      notification.set_timeout(timeOutMS);
+      notify_notification_set_timeout(pNotification, timeOutMS);
 
       // Set the urgency level of the notification
-      // NOTE: There is also Notify::URGENCY_LOW
-      Notify::Urgency urgency = (_settings.type == NOTIFICATION_TYPE::WARNING) ? Notify::URGENCY_CRITICAL : Notify::URGENCY_NORMAL;
-      notification.set_urgency(urgency);
+      NotifyUrgency urgency = notification.type == NOTIFICATION_TYPE::WARNING ? NOTIFY_URGENCY_CRITICAL : NOTIFY_URGENCY_NORMAL;
+      notify_notification_set_urgency(pNotification, urgency);
 
+      // Handle the closed signal
+      g_signal_connect(pNotification, "closed", G_CALLBACK(NotificationClosedCallback), (void*)notification.notificationID);
 
       // Set the image
       Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("data/application_32x32.png");
-      notification.set_icon_from_pixbuf(image);
+      notify_notification_set_image_from_pixbuf(pNotification, image->gobj());
 
       // Set the actions for this notification
-      if (_settings.bActionsMusicPlayer) {
-        sActionName1 = "media-skip-backward";
-        _settings.sActionText1 = "Previous";
-        sActionName2 = "media-playback-pause";
-        _settings.sActionText2 = "Pause";
-        sActionName3 = "media-skip-forward";
-        _settings.sActionText3 = "Next";
-      } else {
-        sActionName1 = _settings.sActionText1;
-        sActionName2 = _settings.sActionText2;
-        sActionName3 = _settings.sActionText3;
-      }
+      if (notification.bActionsMusicPlayer) {
+        notify_notification_add_action(pNotification, "media-skip-backward", "Previous", NotificationActionCallback, (void*)notification.idAction1, nullptr);
+        notify_notification_add_action(pNotification, "media-playback-pause", "Pause", NotificationActionCallback, (void*)notification.idAction2, nullptr);
+        notify_notification_add_action(pNotification, "media-skip-forward", "Next", NotificationActionCallback, (void*)notification.idAction3, nullptr);
 
-      if (
-        (_settings.idAction1 != settings.idAction1) ||
-        (_settings.idAction2 != settings.idAction2) ||
-        (_settings.idAction3 != settings.idAction3) ||
-        (_settings.sActionText1 != settings.sActionText1) ||
-        (_settings.sActionText2 != settings.sActionText2) ||
-        (_settings.sActionText3 != settings.sActionText3)
-      ) {
-        // Clear any existing actions
-        //notification.clear_actions();
+        notify_notification_set_hint(pNotification, "action-icons", g_variant_new_boolean(TRUE));
+      } else if (notification.idAction1 != 0) {
+        ASSERT(pHandler != nullptr); // There is no point in having an action if there is no handler to catch it
 
-        if (_settings.idAction1 != 0) {
-          ASSERT(pHandler != nullptr); // There is no point in having an action if there is no handler to catch it
+        notify_notification_add_action(pNotification, notification.sActionText1.c_str(), notification.sActionText1.c_str(), NotificationActionCallback, (void*)notification.idAction1, nullptr);
 
-          notification.add_action(sActionName1.c_str(), _settings.sActionText1.c_str(), sigc::mem_fun(*this, &cNotification::OnActionClicked));
+        if (notification.idAction2 != 0) {
+          notify_notification_add_action(pNotification, notification.sActionText2.c_str(), notification.sActionText2.c_str(), NotificationActionCallback, (void*)notification.idAction2, nullptr);
 
-          if (_settings.idAction2 != 0) {
-            notification.add_action(sActionName2.c_str(), _settings.sActionText2.c_str(), sigc::mem_fun(*this, &cNotification::OnActionClicked));
-
-            if (_settings.idAction3 != 0) {
-              notification.add_action(sActionName3.c_str(), _settings.sActionText3.c_str(), sigc::mem_fun(*this, &cNotification::OnActionClicked));
-            }
+          if (notification.idAction3 != 0) {
+            notify_notification_add_action(pNotification, notification.sActionText3.c_str(), notification.sActionText3.c_str(), NotificationActionCallback, (void*)notification.idAction3, nullptr);
           }
         }
       }
 
-      settings = _settings;
+      GError* error = nullptr;
+      notify_notification_show(pNotification, &error);
 
-      notification.show();
+      //Glib::RefPtr<Gtk::StatusIcon> status_icon =
+      //Gtk::StatusIcon::create(Gtk::Stock::INFO);
+      //Notify::Notification n("StatusIcon", "Testing StatusIcon mode with low urgency", "gtk-info", status_icon);
 
-      bClosed = false;
-    }
+      /*Notify::Notification notification(string::ToUTF8(sTitle).c_str(), string::ToUTF8(sDescription).c_str());
 
-    void cNotification::Close()
-    {
-      if (!bClosed) {
-        notification.close();
+      // There is also Notify::URGENCY_LOW
+      if (type == NOTIFICATION::NOTIFICATION_WARNING) notification.set_urgency(Notify::URGENCY_CRITICAL);
 
-        bClosed = true;
+      notification.set_timeout(NOTIFICATIONS_TIMEOUT_MS);
+
+#ifdef GLIBMM_EXCEPTIONS_ENABLED
+      if (!notification.show()) {
+          std::cerr<<"cNotification::ShowNotification Failed to send notification"<<std::endl;
       }
-    }
-
-    void cNotification::OnClosed()
-    {
-      LOG<<"cNotification::OnClosed"<<std::endl;
-
-      if (pHandler != nullptr) {
-        // Notify the handler if the notification was closed by clicking on the window area
-        pHandler->OnNotificationClicked(settings.notificationID);
+#else
+      std::auto_ptr<Glib::Error> error;
+      if (!notification.show(error)) {
+          std::cerr<<"cNotification::ShowNotification Failed to send notification error=\""<<error->what()<<"\""<<std::endl;
       }
-
-      bClosed = true;
-    }
-
-    void cNotification::OnActionClicked(const Glib::ustring& sAction)
-    {
-      LOG<<"cNotification::OnActionClicked \""<<sAction.c_str()<<"\""<<std::endl;
-
-      if (pHandler != nullptr) {
-        if (sAction == sActionName1) pHandler->OnNotificationAction(settings.idAction1);
-        else if (sAction == sActionName2) pHandler->OnNotificationAction(settings.idAction2);
-        else if (sAction == sActionName3) pHandler->OnNotificationAction(settings.idAction3);
-      }
+#endif //GLIBMM_EXCEPTIONS_ENABLED*/
     }
 
     #else
 
     // http://api.kde.org/4.0-api/kdelibs-apidocs/kdeui/html/classKNotification.html
 
-    void cNotification::Show(const cNotificationSettings& settings, durationms_t timeOutMS)
+    void cNotification::ShowNotification(const string_t& sTitle, const string_t& sDescription)
     {
       string_t sType = TEXT("Information");
 
