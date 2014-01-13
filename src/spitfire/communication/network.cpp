@@ -176,11 +176,12 @@ namespace spitfire
 
       const std::string sPort = spitfire::string::ToUTF8(spitfire::string::ToString(port));
       boost::asio::ip::tcp::resolver::query query(host, sPort);
-      boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+      boost::system::error_code error = boost::asio::error::host_not_found;
+      boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, error);
       boost::asio::ip::tcp::resolver::iterator end;
 
-      boost::system::error_code error = boost::asio::error::host_not_found;
-      while (error && endpoint_iterator != end) {
+      error = boost::asio::error::host_not_found;
+      while (error && (endpoint_iterator != end)) {
         socket.close();
         socket.connect(*endpoint_iterator++, error);
       }
