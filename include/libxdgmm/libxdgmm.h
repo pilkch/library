@@ -24,7 +24,7 @@
 // http://standards.freedesktop.org/basedir-spec/latest/index.html
 // http://ploum.frimouvy.org/?207-modify-your-application-to-use-xdg-folders
 // TODO: Also wrap desktop-file-utils, xdg-desktop-menu and xdg-desktop-icon
-// Other possible utilities to wrap are xdg-screensaver and xdg-mime
+// Also xdg-mime could be wrapped
 // TODO: $XDG_DATA_DIRS, $XDG_CONFIG_DIRS, $XDG_CACHE_HOME have not been wrapped yet
 
 #include <string>
@@ -101,6 +101,21 @@ namespace xdg
     xdgHandle handle;
 
     std::string home;
+  };
+
+
+  // Inhibit the screen saver for a while.  This should be called multiple times, say once every 30 seconds
+  bool ScreenSaverInhibit();
+
+  // Inhibit the screen saver for the lifetime of the instance of this class
+  class cScreenSaverInhibit
+  {
+  public:
+    explicit cScreenSaverInhibit(size_t XWindowsWindowID);
+    ~cScreenSaverInhibit();
+
+  private:
+    size_t XWindowsWindowID;
   };
 }
 

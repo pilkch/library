@@ -304,4 +304,30 @@ namespace xdg
     // The URL needs to be wrapped in single quotes
     return system(("xdg-open '" + sURLUTF8 + "'").c_str());
   }
+
+
+  bool ScreenSaverInhibit()
+  {
+    return (system("xdg-screensaver reset") == 0);
+  }
+
+
+  std::string ToString(size_t value)
+  {
+    std::ostringstream o;
+    o<<value;
+    return o.str();
+  }
+
+
+  cScreenSaverInhibit::cScreenSaverInhibit(size_t _XWindowsWindowID) :
+    XWindowsWindowID(_XWindowsWindowID)
+  {
+    system(("xdg-screensaver suspend " + ToString(XWindowsWindowID)).c_str());
+  }
+
+  cScreenSaverInhibit::~cScreenSaverInhibit()
+  {
+    system(("xdg-screensaver resume " + ToString(XWindowsWindowID)).c_str());
+  }
 }
