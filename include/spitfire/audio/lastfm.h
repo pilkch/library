@@ -97,6 +97,8 @@ namespace spitfire
         virtual ~cLastFMErrorHandler() {}
 
         virtual void OnLastFMErrorUserNameOrPasswordIncorrect() = 0;
+        virtual void OnLastFMTracksQueuedUpdated(size_t nTracksQueued) = 0;
+        virtual void OnLastFMTracksSubmitted(size_t nTracksSubmitted, const cMetaData& metaDataLastTrack, const util::cDateTime& dateTime) = 0;
       };
 
 

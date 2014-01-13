@@ -269,6 +269,9 @@ namespace spitfire
                 *pNewEntry = *pCurrent;
                 listened.push_back(pNewEntry);
 
+                // Tell the handler
+                handler.OnLastFMTracksQueuedUpdated(listened.size());
+
                 bAddedCurrentSongToListenedList = true;
 
                 // Update listened
@@ -287,7 +290,10 @@ namespace spitfire
             uint64_t uiTimeSinceLastScrobbleMS = now.GetMillisecondsSince0AD() - lastScrobbled.GetMillisecondsSince0AD();
             if (uiTimeSinceLastScrobbleMS > 10000) {
               if (session.IsLoggedIn()) {
-                bool bScrobbledAtLeastOneSong = false;
+                size_t nScrobbled = 0;
+
+                cMetaData lastMetaData;
+                util::cDateTime lastDateTime;
 
                 for (size_t i = 0; i < 10; i++) {
                   // Break if we are told to stop or listened is now empty
@@ -299,21 +305,32 @@ namespace spitfire
                   // Only scrobble the song if it has a valid artist and title
                   const bool bIsMetaDataValid = (!pEntry->metaData.sArtist.empty() && !pEntry->metaData.sTitle.empty());
 
-                  if (bIsMetaDataValid && !session.Scrobble(pEntry->metaData)) {
-                    std::cerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
-                    break;
+                  if (bIsMetaDataValid) {
+                    if (!session.Scrobble(pEntry->metaData)) {
+                      std::cerr<<"cLastFM::ThreadFunction Error scrobbling \""<<pEntry->metaData.sArtist<<"\" - \""<<pEntry->metaData.sTitle<<"\""<<std::endl;
+                      break;
+                    }
+
+                    // Update our last submitted meta data and date time
+                    lastMetaData = pEntry->metaData;
+                    lastDateTime = pEntry->dateTime;
                   }
 
                   listened.pop_front();
 
                   SAFE_DELETE(pEntry);
 
-                  bScrobbledAtLeastOneSong = true;
+                  nScrobbled++;
                 }
 
-                if (bScrobbledAtLeastOneSong) {
+                if (nScrobbled != 0) {
                   WriteListenedToFile(listened);
                   lastScrobbled = now;
+
+                  // Tell the handler
+                  handler.OnLastFMTracksQueuedUpdated(listened.size());
+
+                  handler.OnLastFMTracksSubmitted(nScrobbled, lastMetaData, lastDateTime);
                 }
               }
             }
