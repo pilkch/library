@@ -281,10 +281,10 @@ namespace spitfire
 
 
 
-      class cTCPServer : public spitfire::util::cThread
+      class cTCPConnectionListener : public spitfire::util::cThread
       {
       public:
-        cTCPServer(cServer& server, uint16_t uiPort);
+        cTCPConnectionListener(cServer& server, uint16_t uiPort);
 
         void StopThreadNow();
 
@@ -354,7 +354,7 @@ namespace spitfire
         util::cSignalObject soAction;
         spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
 
-        cTCPServer* pTCPServer;
+        cTCPConnectionListener* pTCPConnectionListener;
 
         cServerRequestHandler* pRequestHandler; // For calling back into the application, every request is sent here first
       };

@@ -1095,7 +1095,7 @@ Content-Transfer-Encoding: binary
         uiPort(38001),
         soAction("soAction"),
         eventQueue(soAction),
-        pTCPServer(nullptr),
+        pTCPConnectionListener(nullptr),
         pRequestHandler(nullptr)
       {
       }
@@ -1119,7 +1119,7 @@ Content-Transfer-Encoding: binary
         // Tell the connections to stop
 
         // Tell the server to stop
-        if (pTCPServer != nullptr) pTCPServer->StopThreadNow();
+        if (pTCPConnectionListener != nullptr) pTCPConnectionListener->StopThreadNow();
 
         // Tell the thread to stop
         StopThreadNow();
@@ -1215,8 +1215,8 @@ Content-Transfer-Encoding: binary
       {
         LOG<<"cServer::ThreadFunction"<<std::endl;
 
-        pTCPServer = new cTCPServer(*this, uiPort);
-        pTCPServer->Run();
+        pTCPConnectionListener = new cTCPConnectionListener(*this, uiPort);
+        pTCPConnectionListener->Run();
 
         while (true) {
           soAction.WaitTimeoutMS(1000);
@@ -1251,8 +1251,8 @@ Content-Transfer-Encoding: binary
           spitfire::util::SleepThisThreadMS(1);
         }
 
-        pTCPServer->StopThreadNow();
-        SAFE_DELETE(pTCPServer);
+        pTCPConnectionListener->StopThreadNow();
+        SAFE_DELETE(pTCPConnectionListener);
 
         // Remove any further events because we don't care any more
         while (true) {
@@ -1269,9 +1269,9 @@ Content-Transfer-Encoding: binary
 
 
 
-      // ** cTCPServer
+      // ** cTCPConnectionListener
 
-      cTCPServer::cTCPServer(cServer& _server, uint16_t uiPort) :
+      cTCPConnectionListener::cTCPConnectionListener(cServer& _server, uint16_t uiPort) :
         util::cThread(soAction, "cServer"),
         soAction("soAction"),
         server(_server),
@@ -1280,7 +1280,7 @@ Content-Transfer-Encoding: binary
       {
       }
 
-      void cTCPServer::StopThreadNow()
+      void cTCPConnectionListener::StopThreadNow()
       {
         // Tell the service to stop
         io_service.stop();
@@ -1289,7 +1289,7 @@ Content-Transfer-Encoding: binary
         util::cThread::StopThreadNow();
       }
 
-      void cTCPServer::ThreadFunction()
+      void cTCPConnectionListener::ThreadFunction()
       {
         // Start accepting connections
         StartAccept();
@@ -1300,9 +1300,9 @@ Content-Transfer-Encoding: binary
         SAFE_DELETE(pNewConnection);
       }
 
-      void cTCPServer::StartAccept()
+      void cTCPConnectionListener::StartAccept()
       {
-        LOG<<"cTCPServer::StartAccept"<<std::endl;
+        LOG<<"cTCPConnectionListener::StartAccept"<<std::endl;
 
         // Make sure that there isn't a current connection in progress
         ASSERT(pNewConnection == nullptr);
@@ -1312,15 +1312,15 @@ Content-Transfer-Encoding: binary
 
         // Try to accept a connection some time in the future
         acceptor.async_accept(pNewConnection->GetSocket(),
-          boost::bind(&cTCPServer::OnConnection, this, boost::asio::placeholders::error));
+          boost::bind(&cTCPConnectionListener::OnConnection, this, boost::asio::placeholders::error));
       }
 
-      void cTCPServer::OnConnection(const boost::system::error_code& error)
+      void cTCPConnectionListener::OnConnection(const boost::system::error_code& error)
       {
-        LOG<<"cTCPServer::OnConnection"<<std::endl;
+        LOG<<"cTCPConnectionListener::OnConnection"<<std::endl;
 
         if (error) {
-          LOG<<"cTCPServer::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
+          LOG<<"cTCPConnectionListener::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
 
           // Delete the connection
           SAFE_DELETE(pNewConnection);
