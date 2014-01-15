@@ -1089,6 +1089,73 @@ Content-Transfer-Encoding: binary
 
 
 
+      // ** cTCPConnectionListener
+
+      cTCPConnectionListener::cTCPConnectionListener(cServer& _server, uint16_t uiPort) :
+        util::cThread(soAction, "cServer"),
+        soAction("soAction"),
+        server(_server),
+        acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), uiPort)),
+        pNewConnection(nullptr)
+      {
+      }
+
+      void cTCPConnectionListener::StopThreadNow()
+      {
+        // Tell the service to stop
+        io_service.stop();
+
+        // Stop the thread
+        util::cThread::StopThreadNow();
+      }
+
+      void cTCPConnectionListener::ThreadFunction()
+      {
+        // Start accepting connections
+        StartAccept();
+
+        // Run the io service
+        io_service.run();
+
+        SAFE_DELETE(pNewConnection);
+      }
+
+      void cTCPConnectionListener::StartAccept()
+      {
+        LOG<<"cTCPConnectionListener::StartAccept"<<std::endl;
+
+        // Make sure that there isn't a current connection in progress
+        ASSERT(pNewConnection == nullptr);
+
+        // Create a new connection and try to accept it
+        pNewConnection = new cConnectedClient(acceptor.get_io_service());
+
+        // Try to accept a connection some time in the future
+        acceptor.async_accept(pNewConnection->GetSocket(),
+          boost::bind(&cTCPConnectionListener::OnConnection, this, boost::asio::placeholders::error));
+      }
+
+      void cTCPConnectionListener::OnConnection(const boost::system::error_code& error)
+      {
+        LOG<<"cTCPConnectionListener::OnConnection"<<std::endl;
+
+        if (error) {
+          LOG<<"cTCPConnectionListener::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
+
+          // Delete the connection
+          SAFE_DELETE(pNewConnection);
+        } else {
+          cConnectedClient* pConnection = pNewConnection;
+
+          // The server is about to take ownership of the connection
+          pNewConnection = nullptr;
+
+          server.OnConnectedClient(pConnection);
+        }
+
+        // This connection has now been started, so we need to start accepting the next connection
+        StartAccept();
+      }
 
 
 
@@ -1271,75 +1338,6 @@ Content-Transfer-Encoding: binary
 
 
 
-
-
-      // ** cTCPConnectionListener
-
-      cTCPConnectionListener::cTCPConnectionListener(cServer& _server, uint16_t uiPort) :
-        util::cThread(soAction, "cServer"),
-        soAction("soAction"),
-        server(_server),
-        acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), uiPort)),
-        pNewConnection(nullptr)
-      {
-      }
-
-      void cTCPConnectionListener::StopThreadNow()
-      {
-        // Tell the service to stop
-        io_service.stop();
-
-        // Stop the thread
-        util::cThread::StopThreadNow();
-      }
-
-      void cTCPConnectionListener::ThreadFunction()
-      {
-        // Start accepting connections
-        StartAccept();
-
-        // Run the io service
-        io_service.run();
-
-        SAFE_DELETE(pNewConnection);
-      }
-
-      void cTCPConnectionListener::StartAccept()
-      {
-        LOG<<"cTCPConnectionListener::StartAccept"<<std::endl;
-
-        // Make sure that there isn't a current connection in progress
-        ASSERT(pNewConnection == nullptr);
-
-        // Create a new connection and try to accept it
-        pNewConnection = new cConnectedClient(acceptor.get_io_service());
-
-        // Try to accept a connection some time in the future
-        acceptor.async_accept(pNewConnection->GetSocket(),
-          boost::bind(&cTCPConnectionListener::OnConnection, this, boost::asio::placeholders::error));
-      }
-
-      void cTCPConnectionListener::OnConnection(const boost::system::error_code& error)
-      {
-        LOG<<"cTCPConnectionListener::OnConnection"<<std::endl;
-
-        if (error) {
-          LOG<<"cTCPConnectionListener::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
-
-          // Delete the connection
-          SAFE_DELETE(pNewConnection);
-        } else {
-          cConnectedClient* pConnection = pNewConnection;
-
-          // The server is about to take ownership of the connection
-          pNewConnection = nullptr;
-
-          server.OnConnectedClient(pConnection);
-        }
-
-        // This connection has now been started, so we need to start accepting the next connection
-        StartAccept();
-      }
 
 
 
