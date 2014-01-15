@@ -209,6 +209,23 @@ namespace spitfire
       };
 
 
+      class cConnectedClient;
+
+      class cServerUtil
+      {
+      public:
+        bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
+
+        void ServeError404(cConnectedClient& connection, const cRequest& request) const;
+        void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status) const;
+        void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8) const;
+        void ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath) const;
+        void ServeFile(cConnectedClient& connection, const cRequest& request) const;
+        void ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath) const;
+
+      private:
+        bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
+      };
 
       class cServer;
 
@@ -327,17 +344,7 @@ namespace spitfire
         void RunClientConnection(cConnectedClient& connection);
         void OnClientConnectionFinished(cConnectedClient& connection);
 
-        void ServeError404(cConnectedClient& connection, const cRequest& request);
-        void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status);
-        void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8);
-        void ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath);
-        void ServeFile(cConnectedClient& connection, const cRequest& request);
-        void ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath);
-
       private:
-        bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
-        bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
-
         void SendEvent(cServerEvent* pEvent);
 
         virtual void ThreadFunction() override;
@@ -396,6 +403,10 @@ namespace spitfire
 
       typedef cRequestListener cRequestListenerVoid;
 
+
+      // ** cHTTP
+      //
+      // A class for performing HTTP requests and receiving data or downloading files
       // TODO: Make sure that content has no http header information left in it, cHTTP should be taking it out.
       // if necessary add these:
       // GetContentLengthFromHeader() const;

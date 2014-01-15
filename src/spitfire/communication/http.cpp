@@ -764,6 +764,218 @@ Content-Transfer-Encoding: binary
 
 
 
+      // ** cServerUtil
+
+      void cServerUtil::ServeError404(cConnectedClient& connection, const cRequest& request) const
+      {
+        string_t sContentUTF8(
+          "<!DOCTYPE html>"
+          "<html lang=\"en\">"
+          "  <meta charset=\"utf-8\">"
+          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
+          "  <title>Error 404 (Not Found)</title>"
+          "  <style>"
+          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(http://www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
+          "  </style>"
+          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
+          "  <p><b>404.</b> <ins>That’s an error.</ins>"
+        );
+
+        // Add the message
+        sContentUTF8 +=
+          "  <p>"
+          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
+          "</p>"
+          "</html>"
+        ;
+
+        cResponse response;
+        response.SetStatus(STATUS::NOT_FOUND);
+        response.SetContentLengthBytes(sContentUTF8.length());
+        response.SetContentTypeTextHTMLUTF8();
+
+        connection.SendResponse(response);
+        connection.SendContent(sContentUTF8);
+      }
+
+      void cServerUtil::ServeError(cConnectedClient& connection, const cRequest& request, STATUS status) const
+      {
+        string_t sContentUTF8(
+          "<!DOCTYPE html>"
+          "<html lang=\"en\">"
+          "  <meta charset=\"utf-8\">"
+          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
+          "  <title>Error " + GetStatusAsString(status) + " (" + GetStatusDescription(status) + ")</title>"
+          "  <style>"
+          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
+          "  </style>"
+          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
+          "  <p><b>404.</b> <ins>That’s an error.</ins>"
+        );
+
+        // Add the message
+        sContentUTF8 +=
+          "  <p>"
+          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
+          "</p>"
+          "</html>"
+        ;
+
+        cResponse response;
+        response.SetStatus(status);
+        response.SetContentLengthBytes(sContentUTF8.length());
+        response.SetContentTypeTextHTMLUTF8();
+
+        connection.SendResponse(response);
+        connection.SendContent(sContentUTF8);
+        connection.SendContent("\n\n");
+      }
+
+      void cServerUtil::ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath) const
+      {
+        if (!request.IsMethodGet()) {
+          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
+          return;
+        }
+
+        if (!filesystem::FileExists(sRelativeFilePath)) {
+          ServeError404(connection, request);
+          return;
+        }
+
+        if (filesystem::IsFolder(sRelativeFilePath)) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        storage::cReadFile file(sRelativeFilePath);
+        if (!file.IsOpen()) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sRelativeFilePath);
+
+        cResponse response;
+        response.SetStatus(STATUS::OK);
+        response.SetContentLengthBytes(nFileSizeBytes);
+        response.SetContentMimeType(sMimeTypeUTF8);
+        if (IsCachePublicForExtension(filesystem::GetExtensionNoDot(sRelativeFilePath))) response.SetCacheControlPublic();
+        response.SetConnectionClose();
+
+        connection.SendResponse(response);
+
+        const size_t nBufferSizeBytes = 1024;
+
+        uint8_t buffer[nBufferSizeBytes];
+
+        while (file.IsOpen()) {
+          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
+          if (nRead == 0) break;
+
+          connection.Write(buffer, nRead);
+        }
+
+        connection.Write("\n\n");
+      }
+
+      void cServerUtil::ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath) const
+      {
+        if (!request.IsMethodGet()) {
+          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
+          return;
+        }
+
+        if (!filesystem::FileExists(sFilePath)) {
+          ServeError404(connection, request);
+          return;
+        }
+
+        if (filesystem::IsFolder(sFilePath)) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        storage::cReadFile file(sFilePath);
+        if (!file.IsOpen()) {
+          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sFilePath);
+
+        bool bServeInline = false;
+        const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sFilePath), bServeInline);
+
+        cResponse response;
+        response.SetStatus(STATUS::OK);
+        response.SetContentLengthBytes(nFileSizeBytes);
+        response.SetContentMimeType(sMimeTypeUTF8);
+        if (bServeInline) response.SetContentDispositionInline(filesystem::GetFile(sFilePath));
+        response.SetConnectionClose();
+
+        connection.SendResponse(response);
+
+        const size_t nBufferSizeBytes = 1024;
+
+        uint8_t buffer[nBufferSizeBytes];
+
+        while (file.IsOpen()) {
+          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
+          if (nRead == 0) break;
+
+          connection.Write(buffer, nRead);
+        }
+
+        connection.Write("\n\n");
+      }
+
+      bool cServerUtil::GetLocalFilePathInWebDirectory(std::string& sResolvedLocalFilePath, const std::string sRelativeFilePath) const
+      {
+        // Build the path
+        sResolvedLocalFilePath = "data/web/" + string::StripLeading(sRelativeFilePath, "/");
+
+        // Check if the path is trying to be tricky
+        if ((string::CountOccurrences(sResolvedLocalFilePath, "./") != 0) || (string::CountOccurrences(sResolvedLocalFilePath, "..") != 0)) {
+          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a compressed path, returning false"<<std::endl;
+          return false;
+        } else if (!filesystem::FileExists(sResolvedLocalFilePath)) {
+          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" was not found, returning false"<<std::endl;
+          return false;
+        }
+
+        // Look for index.html if it is a folder
+        if (filesystem::IsFolder(sResolvedLocalFilePath)) {
+          if (!filesystem::FileExists(sResolvedLocalFilePath + "index.html")) {
+            LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a folder, but it doesn't contain an index.html, returning false"<<std::endl;
+            return false;
+          }
+
+          sResolvedLocalFilePath += "index.html";
+        }
+
+        return true;
+      }
+
+      bool cServerUtil::IsFileInWebDirectory(const std::string sRelativeFilePath) const
+      {
+        std::string sResolvedLocalFilePath;
+        return GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, sRelativeFilePath);
+      }
+
+      void cServerUtil::ServeFile(cConnectedClient& connection, const cRequest& request) const
+      {
+        std::string sResolvedLocalFilePath;
+        if (!GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, request.GetPath())) {
+          ServeError404(connection, request);
+        } else {
+          bool bServeInline = false;
+          const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sResolvedLocalFilePath), bServeInline);
+          ServeFile(connection, request, sMimeTypeUTF8, sResolvedLocalFilePath);
+        }
+      }
+
+
 
 
       // ** cServerEvent
@@ -926,215 +1138,6 @@ Content-Transfer-Encoding: binary
         pNewConnection->Start(*this);
       }
 
-      void cServer::ServeError404(cConnectedClient& connection, const cRequest& request)
-      {
-        string_t sContentUTF8(
-          "<!DOCTYPE html>"
-          "<html lang=\"en\">"
-          "  <meta charset=\"utf-8\">"
-          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
-          "  <title>Error 404 (Not Found)</title>"
-          "  <style>"
-          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(http://www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
-          "  </style>"
-          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
-          "  <p><b>404.</b> <ins>That’s an error.</ins>"
-        );
-
-        // Add the message
-        sContentUTF8 +=
-          "  <p>"
-          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
-          "</p>"
-          "</html>"
-        ;
-
-        cResponse response;
-        response.SetStatus(STATUS::NOT_FOUND);
-        response.SetContentLengthBytes(sContentUTF8.length());
-        response.SetContentTypeTextHTMLUTF8();
-
-        connection.SendResponse(response);
-        connection.SendContent(sContentUTF8);
-      }
-
-      void cServer::ServeError(cConnectedClient& connection, const cRequest& request, STATUS status)
-      {
-        string_t sContentUTF8(
-          "<!DOCTYPE html>"
-          "<html lang=\"en\">"
-          "  <meta charset=\"utf-8\">"
-          "  <meta name=\"viewport\" content=\"initial-scale=1, minimum-scale=1, width=device-width\">"
-          "  <title>Error " + GetStatusAsString(status) + " (" + GetStatusDescription(status) + ")</title>"
-          "  <style>"
-          "    *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}"
-          "  </style>"
-          "  <a href=\"http://www.google.com/\"><img src=\"http://www.google.com/images/errors/logo_sm.gif\" alt=\"Google\"></a>"
-          "  <p><b>404.</b> <ins>That’s an error.</ins>"
-        );
-
-        // Add the message
-        sContentUTF8 +=
-          "  <p>"
-          "    The requested URL <code>" + request.GetPath() + "</code> was not found on this server.  <ins>That’s all we know.</ins>"
-          "</p>"
-          "</html>"
-        ;
-
-        cResponse response;
-        response.SetStatus(status);
-        response.SetContentLengthBytes(sContentUTF8.length());
-        response.SetContentTypeTextHTMLUTF8();
-
-        connection.SendResponse(response);
-        connection.SendContent(sContentUTF8);
-        connection.SendContent("\n\n");
-      }
-
-      void cServer::ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath)
-      {
-        if (!request.IsMethodGet()) {
-          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
-          return;
-        }
-
-        if (!filesystem::FileExists(sRelativeFilePath)) {
-          ServeError404(connection, request);
-          return;
-        }
-
-        if (filesystem::IsFolder(sRelativeFilePath)) {
-          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
-          return;
-        }
-
-        storage::cReadFile file(sRelativeFilePath);
-        if (!file.IsOpen()) {
-          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
-          return;
-        }
-
-        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sRelativeFilePath);
-
-        cResponse response;
-        response.SetStatus(STATUS::OK);
-        response.SetContentLengthBytes(nFileSizeBytes);
-        response.SetContentMimeType(sMimeTypeUTF8);
-        if (IsCachePublicForExtension(filesystem::GetExtensionNoDot(sRelativeFilePath))) response.SetCacheControlPublic();
-        response.SetConnectionClose();
-
-        connection.SendResponse(response);
-
-        const size_t nBufferSizeBytes = 1024;
-
-        uint8_t buffer[nBufferSizeBytes];
-
-        while (file.IsOpen()) {
-          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
-          if (nRead == 0) break;
-
-          connection.Write(buffer, nRead);
-        }
-
-        connection.Write("\n\n");
-      }
-
-      void cServer::ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath)
-      {
-        if (!request.IsMethodGet()) {
-          ServeError(connection, request, STATUS::NOT_IMPLEMENTED);
-          return;
-        }
-
-        if (!filesystem::FileExists(sFilePath)) {
-          ServeError404(connection, request);
-          return;
-        }
-
-        if (filesystem::IsFolder(sFilePath)) {
-          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
-          return;
-        }
-
-        storage::cReadFile file(sFilePath);
-        if (!file.IsOpen()) {
-          ServeError(connection, request, STATUS::INTERNAL_SERVER_ERROR);
-          return;
-        }
-
-        const size_t nFileSizeBytes = filesystem::GetFileSizeBytes(sFilePath);
-
-        bool bServeInline = false;
-        const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sFilePath), bServeInline);
-
-        cResponse response;
-        response.SetStatus(STATUS::OK);
-        response.SetContentLengthBytes(nFileSizeBytes);
-        response.SetContentMimeType(sMimeTypeUTF8);
-        if (bServeInline) response.SetContentDispositionInline(filesystem::GetFile(sFilePath));
-        response.SetConnectionClose();
-
-        connection.SendResponse(response);
-
-        const size_t nBufferSizeBytes = 1024;
-
-        uint8_t buffer[nBufferSizeBytes];
-
-        while (file.IsOpen()) {
-          const size_t nRead = file.Read(buffer, nBufferSizeBytes);
-          if (nRead == 0) break;
-
-          connection.Write(buffer, nRead);
-        }
-
-        connection.Write("\n\n");
-      }
-
-      bool cServer::GetLocalFilePathInWebDirectory(std::string& sResolvedLocalFilePath, const std::string sRelativeFilePath) const
-      {
-        // Build the path
-        sResolvedLocalFilePath = "data/web/" + string::StripLeading(sRelativeFilePath, "/");
-
-        // Check if the path is trying to be tricky
-        if ((string::CountOccurrences(sResolvedLocalFilePath, "./") != 0) || (string::CountOccurrences(sResolvedLocalFilePath, "..") != 0)) {
-          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a compressed path, returning false"<<std::endl;
-          return false;
-        } else if (!filesystem::FileExists(sResolvedLocalFilePath)) {
-          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" was not found, returning false"<<std::endl;
-          return false;
-        }
-
-        // Look for index.html if it is a folder
-        if (filesystem::IsFolder(sResolvedLocalFilePath)) {
-          if (!filesystem::FileExists(sResolvedLocalFilePath + "index.html")) {
-            LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a folder, but it doesn't contain an index.html, returning false"<<std::endl;
-            return false;
-          }
-
-          sResolvedLocalFilePath += "index.html";
-        }
-
-        return true;
-      }
-
-      bool cServer::IsFileInWebDirectory(const std::string sRelativeFilePath) const
-      {
-        std::string sResolvedLocalFilePath;
-        return GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, sRelativeFilePath);
-      }
-
-      void cServer::ServeFile(cConnectedClient& connection, const cRequest& request)
-      {
-        std::string sResolvedLocalFilePath;
-        if (!GetLocalFilePathInWebDirectory(sResolvedLocalFilePath, request.GetPath())) {
-          ServeError404(connection, request);
-        } else {
-          bool bServeInline = false;
-          const std::string sMimeTypeUTF8 = GetMimeTypeFromExtension(filesystem::GetExtensionNoDot(sResolvedLocalFilePath), bServeInline);
-          ServeFile(connection, request, sMimeTypeUTF8, sResolvedLocalFilePath);
-        }
-      }
-
       void cServer::RunClientConnection(cConnectedClient& connection)
       {
         // Wait for the request to be sent
@@ -1184,9 +1187,11 @@ Content-Transfer-Encoding: binary
         cRequest request;
         ParseRequest(request, sRequest);
         LOG<<"Path "<<request.GetPath()<<std::endl;
-        if (IsFileInWebDirectory(request.GetPath())) ServeFile(connection, request);
+
+        cServerUtil util;
+        if (util.IsFileInWebDirectory(request.GetPath())) util.ServeFile(connection, request);
         else if ((pRequestHandler != nullptr) && pRequestHandler->HandleRequest(*this, connection, request)) {
-        } else ServeError404(connection, request);
+        } else util.ServeError404(connection, request);
 
         if (request.IsConnectionClose()) connection.Close();
       }

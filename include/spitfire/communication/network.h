@@ -86,6 +86,10 @@ namespace spitfire
     }
 
 
+    // ** cConnectionTCP
+    //
+    // A TCP connection for either the server or client
+
     class cConnectionTCP
     {
     public:
