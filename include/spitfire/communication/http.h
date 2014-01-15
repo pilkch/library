@@ -216,6 +216,9 @@ namespace spitfire
       public:
         bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
 
+        void SendResponse(cConnectedClient& connection, const cResponse& response) const;
+        void SendContent(cConnectedClient& connection, const std::string& sContentUTF8) const;
+
         void ServeError404(cConnectedClient& connection, const cRequest& request) const;
         void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status) const;
         void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8) const;
@@ -256,9 +259,6 @@ namespace spitfire
         }
 
         size_t Read(uint8_t* pBuffer, size_t nBufferSize);
-
-        void SendResponse(const cResponse& response);
-        void SendContent(const std::string& sContentUTF8);
 
         void Write(const uint8_t* pBuffer, size_t nBufferSize);
         void Write(const std::string& sData);

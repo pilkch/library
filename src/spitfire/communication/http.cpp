@@ -766,6 +766,16 @@ Content-Transfer-Encoding: binary
 
       // ** cServerUtil
 
+      void cServerUtil::SendResponse(cConnectedClient& connection, const cResponse& response) const
+      {
+        connection.Write(response.ToString());
+      }
+
+      void cServerUtil::SendContent(cConnectedClient& connection, const std::string& sContentUTF8) const
+      {
+        connection.Write(sContentUTF8);
+      }
+
       void cServerUtil::ServeError404(cConnectedClient& connection, const cRequest& request) const
       {
         string_t sContentUTF8(
@@ -794,8 +804,8 @@ Content-Transfer-Encoding: binary
         response.SetContentLengthBytes(sContentUTF8.length());
         response.SetContentTypeTextHTMLUTF8();
 
-        connection.SendResponse(response);
-        connection.SendContent(sContentUTF8);
+        SendResponse(connection, response);
+        SendContent(connection, sContentUTF8);
       }
 
       void cServerUtil::ServeError(cConnectedClient& connection, const cRequest& request, STATUS status) const
@@ -826,9 +836,9 @@ Content-Transfer-Encoding: binary
         response.SetContentLengthBytes(sContentUTF8.length());
         response.SetContentTypeTextHTMLUTF8();
 
-        connection.SendResponse(response);
-        connection.SendContent(sContentUTF8);
-        connection.SendContent("\n\n");
+        SendResponse(connection, response);
+        SendContent(connection, sContentUTF8);
+        SendContent(connection, "\n\n");
       }
 
       void cServerUtil::ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath) const
@@ -863,7 +873,7 @@ Content-Transfer-Encoding: binary
         if (IsCachePublicForExtension(filesystem::GetExtensionNoDot(sRelativeFilePath))) response.SetCacheControlPublic();
         response.SetConnectionClose();
 
-        connection.SendResponse(response);
+        SendResponse(connection, response);
 
         const size_t nBufferSizeBytes = 1024;
 
@@ -914,7 +924,7 @@ Content-Transfer-Encoding: binary
         if (bServeInline) response.SetContentDispositionInline(filesystem::GetFile(sFilePath));
         response.SetConnectionClose();
 
-        connection.SendResponse(response);
+        SendResponse(connection, response);
 
         const size_t nBufferSizeBytes = 1024;
 
@@ -1077,15 +1087,9 @@ Content-Transfer-Encoding: binary
         boost::asio::write(socket, boost::asio::buffer(sData), boost::asio::transfer_all());
       }
 
-      void cConnectedClient::SendResponse(const cResponse& response)
-      {
-        Write(response.ToString());
-      }
 
-      void cConnectedClient::SendContent(const std::string& sContentUTF8)
-      {
-        Write(sContentUTF8);
-      }
+
+
 
 
       // ** cServer
