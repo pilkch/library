@@ -9,7 +9,9 @@
 
 // Spitfire headers
 #include <spitfire/math/math.h>
+#include <spitfire/util/queue.h>
 #include <spitfire/util/string.h>
+#include <spitfire/util/thread.h>
 
 namespace spitfire
 {
@@ -110,6 +112,156 @@ namespace spitfire
       bool bIsOpen;
       boost::asio::io_service io_service;
       boost::asio::ip::tcp::socket socket;
+    };
+
+
+
+
+
+    class cServer;
+
+    // ** cConnectedClient
+    //
+    // A connected client on a server
+
+    class cConnectedClient : public spitfire::util::cThread
+    {
+    public:
+      explicit cConnectedClient(boost::asio::io_service& socket);
+
+      void Start(cServer& server);
+
+      void Close();
+
+      bool IsOpen();
+
+      void SetNoDelay(); // Set no delay so that we don't buffer our data before sending (This should only be required for EventSources)
+
+      size_t GetBytesToRead();
+      size_t GetBytesAvailable();
+
+      const boost::asio::ip::tcp::socket& GetSocket() const
+      {
+        return socket;
+      }
+
+      boost::asio::ip::tcp::socket& GetSocket()
+      {
+        return socket;
+      }
+
+      size_t Read(uint8_t* pBuffer, size_t nBufferSize);
+
+      void Write(const uint8_t* pBuffer, size_t nBufferSize);
+      void Write(const std::string& sData);
+
+    private:
+      virtual void ThreadFunction() override;
+
+      /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
+      {
+        std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
+      }*/
+
+      util::cSignalObject soAction;
+
+      boost::asio::ip::tcp::socket socket;
+      //std::string message;
+
+      cServer* pServer;
+    };
+
+
+    // ** cTCPConnectionListener
+    //
+    // A thread that listens for connecting clients
+
+    class cTCPConnectionListener : public spitfire::util::cThread
+    {
+    public:
+      cTCPConnectionListener(cServer& server, uint16_t uiPort);
+
+      void StopThreadNow();
+
+    private:
+      virtual void ThreadFunction() override;
+
+      void StartAccept();
+      void OnConnection(const boost::system::error_code& error);
+
+      util::cSignalObject soAction;
+
+      cServer& server;
+      boost::asio::io_service io_service;
+      boost::asio::ip::tcp::acceptor acceptor;
+
+      cConnectedClient* pNewConnection;
+    };
+
+
+    // ** cServerConnectionHandler
+    //
+    // An abstract connection handler that could implement any protocol
+
+    class cServerConnectionHandler
+    {
+    public:
+      virtual ~cServerConnectionHandler() {}
+
+      virtual void HandleConnection(cServer& server, cConnectedClient& connection) = 0;
+    };
+
+
+
+
+    enum class SERVER_EVENT_TYPE {
+      CLIENT_CONNECTION_FINISHED,
+      UNKNOWN
+    };
+
+    class cServerEvent
+    {
+    public:
+      cServerEvent();
+
+      SERVER_EVENT_TYPE type;
+      cConnectedClient* pConnectedClient;
+    };
+
+    // ** cServer
+    //
+    // A generic TCP server that handles listening and handling multiple connections on a background thread
+
+    class cServer : public util::cThread
+    {
+    public:
+      cServer();
+
+      friend class cServerConnectionHandler;
+
+      void SetConnectionHandler(cServerConnectionHandler& connectionHandler);
+      void SetRootPath(const string_t& sFolderPath);
+
+      void Start(uint16_t uiPort);
+      void Stop();
+
+      void OnConnectedClient(cConnectedClient* pNewConnection);
+      void RunClientConnection(cConnectedClient& connection);
+      void OnClientConnectionFinished(cConnectedClient& connection);
+
+    private:
+      void SendEvent(cServerEvent* pEvent);
+
+      virtual void ThreadFunction() override;
+
+      uint16_t uiPort;
+
+      util::cSignalObject soAction;
+      spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
+
+      cTCPConnectionListener* pTCPConnectionListener;
+
+      cServerConnectionHandler* pConnectionHandler; // For calling back into the application, every connection is sent here
     };
   }
 }

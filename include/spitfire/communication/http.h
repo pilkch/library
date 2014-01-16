@@ -13,8 +13,6 @@
 #include <spitfire/storage/file.h>
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/util/datetime.h>
-#include <spitfire/util/queue.h>
-#include <spitfire/util/thread.h>
 
 namespace spitfire
 {
@@ -209,155 +207,28 @@ namespace spitfire
       };
 
 
-      class cConnectedClient;
-
       class cServerUtil
       {
       public:
         bool IsFileInWebDirectory(const std::string sRelativeFilePath) const;
 
-        void SendResponse(cConnectedClient& connection, const cResponse& response) const;
-        void SendContent(cConnectedClient& connection, const std::string& sContentUTF8) const;
+        void SendResponse(spitfire::network::cConnectedClient& connection, const cResponse& response) const;
+        void SendContent(spitfire::network::cConnectedClient& connection, const std::string& sContentUTF8) const;
 
-        void ServeError404(cConnectedClient& connection, const cRequest& request) const;
-        void ServeError(cConnectedClient& connection, const cRequest& request, STATUS status) const;
-        void ServePage(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8) const;
-        void ServeFile(cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath) const;
-        void ServeFile(cConnectedClient& connection, const cRequest& request) const;
-        void ServeFileWithResolvedFilePath(cConnectedClient& connection, const cRequest& request, const string_t& sFilePath) const;
+        void ServeError404(spitfire::network::cConnectedClient& connection, const cRequest& request) const;
+        void ServeError(spitfire::network::cConnectedClient& connection, const cRequest& request, STATUS status) const;
+        void ServePage(spitfire::network::cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sPageContentUTF8) const;
+        void ServeFile(spitfire::network::cConnectedClient& connection, const cRequest& request, const string_t& sMimeTypeUTF8, const string_t& sRelativeFilePath) const;
+        void ServeFile(spitfire::network::cConnectedClient& connection, const cRequest& request) const;
+        void ServeFileWithResolvedFilePath(spitfire::network::cConnectedClient& connection, const cRequest& request, const string_t& sFilePath) const;
 
       private:
         bool GetLocalFilePathInWebDirectory(std::string& sRelativeLocalFilePath, const std::string sRelativeFilePath) const;
       };
 
-      class cServer;
-
-      class cConnectedClient : public spitfire::util::cThread
-      {
-      public:
-        explicit cConnectedClient(boost::asio::io_service& socket);
-
-        void Start(cServer& server);
-
-        void Close();
-
-        bool IsOpen();
-
-        void SetNoDelay(); // Set no delay so that we don't buffer our data before sending (This should only be required for EventSources)
-
-        size_t GetBytesToRead();
-        size_t GetBytesAvailable();
-
-        const boost::asio::ip::tcp::socket& GetSocket() const
-        {
-          return socket;
-        }
-
-        boost::asio::ip::tcp::socket& GetSocket()
-        {
-          return socket;
-        }
-
-        size_t Read(uint8_t* pBuffer, size_t nBufferSize);
-
-        void Write(const uint8_t* pBuffer, size_t nBufferSize);
-        void Write(const std::string& sData);
-
-      private:
-        virtual void ThreadFunction() override;
-
-        /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
-        {
-          std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
-        }*/
-
-        util::cSignalObject soAction;
-
-        boost::asio::ip::tcp::socket socket;
-        //std::string message;
-
-        cServer* pServer;
-      };
 
 
 
-      class cTCPConnectionListener : public spitfire::util::cThread
-      {
-      public:
-        cTCPConnectionListener(cServer& server, uint16_t uiPort);
-
-        void StopThreadNow();
-
-      private:
-        virtual void ThreadFunction() override;
-
-        void StartAccept();
-        void OnConnection(const boost::system::error_code& error);
-
-        util::cSignalObject soAction;
-
-        cServer& server;
-        boost::asio::io_service io_service;
-        boost::asio::ip::tcp::acceptor acceptor;
-
-        cConnectedClient* pNewConnection;
-      };
-
-
-
-      class cServerConnectionHandler
-      {
-      public:
-        virtual ~cServerConnectionHandler() {}
-
-        virtual void HandleConnection(cServer& server, cConnectedClient& connection) = 0;
-      };
-
-      enum class SERVER_EVENT_TYPE {
-        CLIENT_CONNECTION_FINISHED,
-        UNKNOWN
-      };
-
-      class cServerEvent
-      {
-      public:
-        cServerEvent();
-
-        SERVER_EVENT_TYPE type;
-        cConnectedClient* pConnectedClient;
-      };
-
-      class cServer : public util::cThread
-      {
-      public:
-        cServer();
-
-        friend class cServerConnectionHandler;
-
-        void SetConnectionHandler(cServerConnectionHandler& connectionHandler);
-        void SetRootPath(const string_t& sFolderPath);
-
-        void Start(uint16_t uiPort);
-        void Stop();
-
-        void OnConnectedClient(cConnectedClient* pNewConnection);
-        void RunClientConnection(cConnectedClient& connection);
-        void OnClientConnectionFinished(cConnectedClient& connection);
-
-      private:
-        void SendEvent(cServerEvent* pEvent);
-
-        virtual void ThreadFunction() override;
-
-        uint16_t uiPort;
-
-        util::cSignalObject soAction;
-        spitfire::util::cThreadSafeQueue<cServerEvent> eventQueue;
-
-        cTCPConnectionListener* pTCPConnectionListener;
-
-        cServerConnectionHandler* pConnectionHandler; // For calling back into the application, every connection is sent here
-      };
 
 
 
