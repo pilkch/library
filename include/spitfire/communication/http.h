@@ -305,12 +305,12 @@ namespace spitfire
 
 
 
-      class cServerRequestHandler
+      class cServerConnectionHandler
       {
       public:
-        virtual ~cServerRequestHandler() {}
+        virtual ~cServerConnectionHandler() {}
 
-        virtual bool HandleRequest(cServer& server, cConnectedClient& connection, const cRequest& request) = 0;
+        virtual void HandleConnection(cServer& server, cConnectedClient& connection) = 0;
       };
 
       enum class SERVER_EVENT_TYPE {
@@ -332,9 +332,9 @@ namespace spitfire
       public:
         cServer();
 
-        friend class cServerRequestHandler;
+        friend class cServerConnectionHandler;
 
-        void SetRequestHandler(cServerRequestHandler& pRequestHandler);
+        void SetConnectionHandler(cServerConnectionHandler& connectionHandler);
         void SetRootPath(const string_t& sFolderPath);
 
         void Start(uint16_t uiPort);
@@ -356,7 +356,7 @@ namespace spitfire
 
         cTCPConnectionListener* pTCPConnectionListener;
 
-        cServerRequestHandler* pRequestHandler; // For calling back into the application, every request is sent here first
+        cServerConnectionHandler* pConnectionHandler; // For calling back into the application, every connection is sent here
       };
 
 

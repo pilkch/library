@@ -1167,13 +1167,13 @@ Content-Transfer-Encoding: binary
         soAction("soAction"),
         eventQueue(soAction),
         pTCPConnectionListener(nullptr),
-        pRequestHandler(nullptr)
+        pConnectionHandler(nullptr)
       {
       }
 
-      void cServer::SetRequestHandler(cServerRequestHandler& requestHandler)
+      void cServer::SetConnectionHandler(cServerConnectionHandler& connectionHandler)
       {
-        pRequestHandler = &requestHandler;
+        pConnectionHandler = &connectionHandler;
       }
 
       void cServer::Start(uint16_t _uiPort)
@@ -1214,57 +1214,11 @@ Content-Transfer-Encoding: binary
         // Wait for the request to be sent
         spitfire::util::SleepThisThreadMS(10);
 
-        const size_t bytes_readable = connection.GetBytesToRead();
-
-        LOG<<"cServer::RunClientConnection bytes_readable="<<bytes_readable<<std::endl;
-
-        const size_t nDataSize = 512;
-        uint8_t data[nDataSize];
-
-        std::vector<uint8_t> buffer;
-        buffer.reserve(1024);
-
-        while (true) {
-          const size_t nBytesAvailable = connection.GetBytesAvailable();
-          if (nBytesAvailable == 0) {
-            //LOG<<"cServer::RunClientConnection No bytes available, breaking"<<std::endl;
-            break;
-          }
-
-          const size_t nBytesRead = connection.Read(data, nDataSize);
-          if (nBytesRead == 0) {
-            LOG<<"cServer::RunClientConnection No bytes read, breaking"<<std::endl;
-            break;
-          }
-
-          LOG<<"cServer::RunClientConnection "<<nBytesRead<<" bytes read"<<std::endl;
-          const size_t nBufferSize = buffer.size();
-
-          // Resize the read buffer
-          buffer.resize(nBufferSize + nBytesRead);
-
-          // Append the data
-          memcpy(buffer.data() + nBufferSize, data, nBytesRead);
-        };
-
-        if (buffer.empty()) {
-          LOG<<"cServer::RunClientConnection No header received, returning"<<std::endl;
-          return;
+        if (pConnectionHandler != nullptr) pConnectionHandler->HandleConnection(*this, connection);
+        else {
+          // There is no handler so we have no idea what to do with the connection so we just close it
+          connection.Close();
         }
-
-        const std::string sRequest((const char*)buffer.data());
-
-        //LOG<<"cServer::RunClientConnection request \""<<(const char*)(buffer.data())<<"\""<<std::endl;
-        cRequest request;
-        ParseRequest(request, sRequest);
-        LOG<<"Path "<<request.GetPath()<<std::endl;
-
-        cServerUtil util;
-        if (util.IsFileInWebDirectory(request.GetPath())) util.ServeFile(connection, request);
-        else if ((pRequestHandler != nullptr) && pRequestHandler->HandleRequest(*this, connection, request)) {
-        } else util.ServeError404(connection, request);
-
-        if (request.IsConnectionClose()) connection.Close();
       }
 
       void cServer::OnClientConnectionFinished(cConnectedClient& connection)
