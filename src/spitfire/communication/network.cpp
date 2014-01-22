@@ -460,7 +460,7 @@ namespace spitfire
 
     void cServer::Start(uint16_t _uiPort)
     {
-      // Set the port
+      // Remember the port
       uiPort = _uiPort;
 
       // Start the thread
