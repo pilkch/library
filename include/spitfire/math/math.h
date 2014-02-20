@@ -416,7 +416,7 @@ namespace spitfire
     private:
       uint32_t GetRandomNumberAndIncrement();
 
-	// For random number generation
+      // For random number generation
       uint32_t x[5]; // History buffer
     };
 
