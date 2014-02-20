@@ -573,17 +573,6 @@ Bail:
       return bIsBundled;
     }
 
-    #ifdef BUILD_ENDIAN_BIG
-    bool IsIntelSystemRunningPowerPCVersion()
-    {
-      // http://www.carbondev.com/site/?page=Rosetta
-      // http://developer.apple.com/documentation/MacOSX/Conceptual/universal_binary/universal_binary_exec_a/chapter_950_section_7.html#//apple_ref/doc/uid/TP40002217-CH210-BAJEBJJF
-
-      NXGetLocalArchInfo(...);
-    }
-    #endif
-
-
 
     bool GetBooleanValue(const string_t& section, const string_t& name, bool defaultValue)
     {

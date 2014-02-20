@@ -274,10 +274,6 @@ namespace spitfire
 
     void OpenFolder(const string_t& sFolderPath);
 
-    #ifdef BUILD_ENDIAN_BIG
-    bool IsIntelSystemRunningPowerPCVersion();
-    #endif
-
     bool IsBundled();
 #endif
   }
