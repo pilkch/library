@@ -81,10 +81,6 @@
 #ifndef __APPLE__
 #define __APPLE__
 #endif
-#elif defined(_XENON) || \
-  defined(SN_TARGET_PSP_HW) || \
-  defined(SN_TARGET_PS3)
-#error "This platform has not been built on yet"
 #else
 #error "Need some help identifying the platform!"
 #endif
@@ -133,12 +129,14 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #error "UNICODE must be defined on Windows"
 #endif
 
-#ifdef _CPPUNWIND
-#error "Exceptions must be disabled"
-#endif
-#ifdef _CPPRTTI
-#error "RTTI must be disabled"
-#endif
+// The Windows headers require exceptions so we cannot disable them
+//#ifdef _CPPUNWIND
+//#error "Exceptions must be disabled"
+//#endif
+// The boost headers require exceptions so we cannot disable them
+//#ifdef _CPPRTTI
+//#error "RTTI must be disabled"
+//#endif
 
 #else
 
@@ -189,12 +187,9 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define interface Interface
 #endif
 
-// All compilers now support C++11
+// Visual Studio 2012 still doesn't support C++11
+#ifndef COMPILER_MSVC
 #define BUILD_SPITFIRE_CPP11
-
-#ifndef BUILD_SPITFIRE_CPP11
-// Static compile time assert
-#define static_assert assert
 #endif
 
 // Deprecation flags
@@ -244,10 +239,19 @@ typedef int32_t ssize_t;
 #endif
 #endif // BUILD_DEBUG
 
+
+// Prevent a class from being copied
+#ifdef BUILD_SPITFIRE_CPP11
 #define NO_COPY(T) \
   private: \
   T(const T&) = delete; \
   T& operator=(const T&) = delete
+#else
+#define NO_COPY(T) \
+  private: \
+  T(const T&); \
+  T& operator=(const T&);
+#endif
 
 
 // Like sizeof for arrays (Although using raw arrays like this is discouraged so we can probably remove this
@@ -299,12 +303,9 @@ namespace spitfire
 #define BUILD_LOGGING
 
 // LOG and LOGERROR are declared in spitfire/util/log.h
-namespace spitfire
-{
-  std::string LogGetTime();
-}
-#define LOG std::cout<<spitfire::LogGetTime()
-#define LOGERROR std::cerr<<spitfire::LogGetTime()
+#elif defined(UNICODE)
+#define LOG std::wcout
+#define LOGERROR std::wcerr
 #else
 #define LOG std::cout
 #define LOGERROR std::cerr
