@@ -2,6 +2,7 @@
 #define CDYNAMIC_LIBRARY_H
 
 #include <spitfire/spitfire.h>
+#include <spitfire/util/log.h>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <dlfcn.h>
@@ -49,28 +50,38 @@ namespace spitfire
   {
     ASSERT(handle == NULL);
     handle = ::LoadLibrary(sDynamicLibraryFile.c_str());
-    if (handle == NULL) LOG<<"cDynamicLibrary::LoadFromAnywhere LoadLibrary FAILED to load \""<<sLibraryFile<<"\""<<std::endl;
+    if (handle == NULL) {
+      LOG<<"cDynamicLibrary::LoadFromAnywhere LoadLibrary FAILED to load \""<<sDynamicLibraryFile<<"\", returning false"<<std::endl;
+      return false;
+    }
+
+    return true;
   }
 
   inline bool cDynamicLibrary::LoadFromSpecificPath(const string_t& sDynamicLibraryFullPath)
   {
     ASSERT(handle == NULL);
-    handle = ::LoadLibraryEx(sDynamicLibraryFile.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (handle == NULL) LOG<<"cDynamicLibrary::LoadFromSpecificPath LoadLibraryEx FAILED to load \""<<sLibraryFile<<"\""<<std::endl;
+    handle = ::LoadLibraryEx(sDynamicLibraryFullPath.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (handle == NULL) {
+      LOG<<"cDynamicLibrary::LoadFromSpecificPath LoadLibraryEx FAILED to load \""<<sDynamicLibraryFullPath<<"\", returning false"<<std::endl;
+      return false;
+    }
+
+    return true;
   }
 
-  inline void cDynamicLibary::Unload()
+  inline void cDynamicLibrary::Unload()
   {
     ::FreeLibrary(handle);
     handle = NULL;
   }
 
   template <class F>
-  inline bool cDynamicLibary::LoadFunction(const std::string& sFunction, F** pFunction)
+  inline bool cDynamicLibrary::LoadFunction(const std::string& sFunction, F** pFunction)
   {
     ASSERT(handle != NULL);
     *pFunction = (F*)::GetProcAddress(handle, sFunction.c_str());
-    if (*pFunction == nullptr) LOG<<"cDynamicLibary::LoadFunction GetProcAddress FAILED could not find function \""<<sFunction<<"\""<<std::endl;
+    if (*pFunction == nullptr) LOG<<"cDynamicLibrary::LoadFunction GetProcAddress FAILED could not find function \""<<sFunction<<"\""<<std::endl;
 
     return (*pFunction != nullptr);
   }
