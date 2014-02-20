@@ -47,8 +47,8 @@ namespace opengl
     cSystem();
     ~cSystem();
 
-    static std::string GetErrorString(GLenum error);
-    static std::string GetErrorString();
+    static string_t GetErrorString(GLenum error);
+    static string_t GetErrorString();
 
     bool FindExtension(const std::string& sExt) const;
 

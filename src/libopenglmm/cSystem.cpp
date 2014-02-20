@@ -16,6 +16,7 @@
 
 // Spitfire headers
 #include <spitfire/util/log.h>
+#include <spitfire/util/string.h>
 
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
@@ -78,34 +79,34 @@ namespace opengl
     SDL_Quit();
   }
 
-  std::string cSystem::GetErrorString(GLenum error)
+  string_t cSystem::GetErrorString(GLenum error)
   {
     switch (error) {
-      case GL_NO_ERROR: return "GL_NO_ERROR";
-      case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
-      case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
-      case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+      case GL_NO_ERROR: return TEXT("GL_NO_ERROR");
+      case GL_INVALID_ENUM: return TEXT("GL_INVALID_ENUM");
+      case GL_INVALID_VALUE: return TEXT("GL_INVALID_VALUE");
+      case GL_INVALID_OPERATION: return TEXT("GL_INVALID_OPERATION");
       #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
       // NOTE: These only makes sense for OpenGL 2 and earlier because the matrix stack has been removed in OpenGL 3
-      case GL_STACK_OVERFLOW: return "GL_STACK_OVERFLOW";
-      case GL_STACK_UNDERFLOW: return "GL_STACK_UNDERFLOW";
+      case GL_STACK_OVERFLOW: return TEXT("GL_STACK_OVERFLOW");
+      case GL_STACK_UNDERFLOW: return TEXT("GL_STACK_UNDERFLOW");
       #endif
-      case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+      case GL_OUT_OF_MEMORY: return TEXT("GL_OUT_OF_MEMORY");
     };
 
-    std::ostringstream o;
-    o<<"Unknown error ";
+    spitfire::ostringstream_t o;
+    o<<TEXT("Unknown error ");
     o<<error;
     return o.str();
   }
 
-  std::string cSystem::GetErrorString()
+  string_t cSystem::GetErrorString()
   {
     const GLenum error = glGetError();
-    const std::string sError = GetErrorString(error);
+    const string_t sError = GetErrorString(error);
     if (error == GL_NO_ERROR) return sError;
 
-    LOG<<"cSystem::GetErrorString Error "<<sError<<std::endl;
+    LOG<<TEXT("cSystem::GetErrorString Error ")<<sError<<std::endl;
     assert(error == GL_NO_ERROR);
     return sError;
   }
@@ -303,14 +304,14 @@ namespace opengl
     assert(szValue != nullptr);
     LOG<<"cSystem::UpdateCapabilities GLSL Version: "<<(szValue != nullptr ? szValue : "")<<std::endl;
     const std::string sValue = GetExtensions();
-    LOG<<"cSystem::UpdateCapabilities Extensions: "<<sValue<<std::endl;
+    LOG<<"cSystem::UpdateCapabilities Extensions: "<<spitfire::string::ToString_t(sValue)<<std::endl;
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;
       tVendor<<glGetString(GL_VENDOR);
 
       const std::string sVendor(tVendor.str());
-      LOG<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<sVendor<<std::endl;
+      LOG<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<spitfire::string::ToString_t(sVendor)<<std::endl;
     }
 
     if (FindExtension("GL_ARB_multitexture")) LOG<<"cSystem::UpdateCapabilities Found GL_ARB_multitexture"<<std::endl;
@@ -342,14 +343,13 @@ namespace opengl
     // GLSL Version
     float fShaderVersion = GetShaderVersion();
     {
-      std::ostringstream stm;
-      stm<<fShaderVersion;
+      const string_t sShaderVersion = spitfire::string::ToString(fShaderVersion);
 
       if (fShaderVersion >= 1.0f) {
-        LOG<<"cSystem::UpdateCapabilities Found Shader"<<stm.str()<<std::endl;
+        LOG<<"cSystem::UpdateCapabilities Found Shader"<<sShaderVersion<<std::endl;
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = true;
       } else {
-        LOG<<"cSystem::UpdateCapabilities Not Found Shader1.1, version found is Shader"<<stm.str()<<std::endl;
+        LOG<<"cSystem::UpdateCapabilities Not Found Shader1.1, version found is Shader"<<sShaderVersion<<std::endl;
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = false;
       }
     }

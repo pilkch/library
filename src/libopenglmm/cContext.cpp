@@ -17,6 +17,7 @@
 
 // Spitfire headers
 #include <spitfire/util/log.h>
+#include <spitfire/util/string.h>
 
 // libopenglmm headers
 #include <libopenglmm/cContext.h>
@@ -528,7 +529,7 @@ namespace opengl
       return false;
     }
     if (!gl3wIsSupported(iMajor, iMinor)) {
-      LOGERROR<<"cContext::_SetWindowVideoMode OpenGL "<<spitfire::string::ToString(iMajor)<<"."<<spitfire::string::ToString(iMinor)<<" not supported"<<std::endl;
+      LOGERROR<<TEXT("cContext::_SetWindowVideoMode OpenGL ")<<spitfire::string::ToString(iMajor)<<TEXT(".")<<spitfire::string::ToString(iMinor)<<TEXT(" not supported")<<std::endl;
       return false;
     }
     #endif
@@ -1171,7 +1172,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1184,7 +1185,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1197,7 +1198,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<spitfire::string::ToString_t(sConstant)<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1210,7 +1211,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1223,7 +1224,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1241,7 +1242,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }
@@ -1254,7 +1255,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<opengl::string::ToUTF8(pCurrentShader->sShaderVertex)<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<sConstant<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
       assert(loc > 0);
       return false;
     }

@@ -17,6 +17,7 @@
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
+#include <spitfire/util/log.h>
 
 // libopenglmm headers
 #include <libopenglmm/cTexture.h>

@@ -17,6 +17,7 @@
 
 // Spitfire headers
 #include <spitfire/util/log.h>
+#include <spitfire/util/string.h>
 
 // libopenglmm headers
 #include <libopenglmm/cShader.h>
@@ -136,14 +137,14 @@ namespace opengl
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG<<"cShader::CheckStatusVertex "<<sInfo<<std::endl;
+      LOG<<"cShader::CheckStatusVertex "<<spitfire::string::ToString_t(sInfo)<<std::endl;
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
       )
       {
         sInfo = StringReplace(sInfo, "\n", "<br>");
-        LOG<<"cShader::CheckStatusVertex Vertex Shader "<<opengl::string::ToUTF8(sShaderVertex)<<": "<<sInfo<<std::endl;
+        LOG<<TEXT("cShader::CheckStatusVertex Vertex Shader ")<<sShaderVertex<<TEXT(": ")<<spitfire::string::ToString_t(sInfo)<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -165,14 +166,14 @@ namespace opengl
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG<<"cShader::CheckStatusFragment "<<sInfo<<std::endl;
+      LOG<<"cShader::CheckStatusFragment "<<spitfire::string::ToString_t(sInfo)<<std::endl;
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
       )
       {
         sInfo = StringReplace(sInfo, "\n", "<br>");
-        LOG<<"cShader::CheckStatusFragment  Fragment Shader "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<sInfo<<std::endl;
+        LOG<<"cShader::CheckStatusFragment  Fragment Shader "<<sShaderFragment<<": "<<spitfire::string::ToString_t(sInfo)<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -194,14 +195,14 @@ namespace opengl
       infoLog[0] = 0;
       glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG<<"cShader::CheckStatusProgram "<<sInfo<<std::endl;
+      LOG<<"cShader::CheckStatusProgram "<<spitfire::string::ToString_t(sInfo)<<std::endl;
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("Warning") != std::string::npos
       ) {
-        LOG<<"cShader::CheckStatusProgram Program "<<opengl::string::ToUTF8(sShaderVertex)<<" "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<infoLog<<std::endl;
+        LOG<<"cShader::CheckStatusProgram Program "<<spitfire::string::ToString_t(sShaderVertex)<<" "<<spitfire::string::ToString_t(sShaderFragment)<<": "<<spitfire::string::ToString_t(infoLog)<<std::endl;
       } else {
-        LOG<<"cShader::CheckStatusProgram Program "<<opengl::string::ToUTF8(sShaderVertex)<<" "<<opengl::string::ToUTF8(sShaderFragment)<<": "<<infoLog<<std::endl;
+        LOG<<"cShader::CheckStatusProgram Program "<<spitfire::string::ToString_t(sShaderVertex)<<" "<<spitfire::string::ToString_t(sShaderFragment)<<": "<<spitfire::string::ToString_t(infoLog)<<std::endl;
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -297,7 +298,7 @@ namespace opengl
         if (semiColon != std::string::npos) {
           const std::string sName(sLine.substr(space, semiColon - space));
           vAttributes.push_back(sName);
-          LOG<<"cShader::ParseLineVertexShader \""<<sName<<"\""<<std::endl;
+          LOG<<"cShader::ParseLineVertexShader \""<<spitfire::string::ToString_t(sName)<<"\""<<std::endl;
         }
       }
     }
@@ -320,7 +321,7 @@ namespace opengl
         if (semiColon != std::string::npos) {
           const std::string sName(sLine.substr(space, semiColon - space));
           vFragmentDataLocations.push_back(sName);
-          LOG<<"cShader::ParseLineFragmentShader \""<<sName<<"\""<<std::endl;
+          LOG<<"cShader::ParseLineFragmentShader \""<<spitfire::string::ToString_t(sName)<<"\""<<std::endl;
         }
       }
     }
@@ -346,7 +347,7 @@ namespace opengl
         ParseLineVertexShader(sLine);
       };
 
-      LOG<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<o.str()<<"\""<<std::endl;
+      LOG<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
 
       uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
       LOG<<"cShader::_LoadVertexShader Vertex shader glGetError="<<cSystem::GetErrorString()<<std::endl;
@@ -361,13 +362,13 @@ namespace opengl
       glCompileShader(uiShaderVertex);
       CheckStatusVertex();
 
-      if (IsCompiledVertex()) LOG<<"cShader::_LoadVertexShader Vertex shader "<<opengl::string::ToUTF8(sShaderVertex)<<": Compiled"<<std::endl;
+      if (IsCompiledVertex()) LOG<<"cShader::_LoadVertexShader Vertex shader "<<sShaderVertex<<": Compiled"<<std::endl;
       else {
-        LOGERROR<<"cShader::_LoadVertexShader Vertex shader "<<opengl::string::ToUTF8(sShaderVertex)<<": Not compiled"<<std::endl;
+        LOGERROR<<"cShader::_LoadVertexShader Vertex shader "<<sShaderVertex<<": Not compiled"<<std::endl;
         assert(false);
       }
     } else {
-      LOGERROR<<"cShader::_LoadVertexShader Shader not found "<<opengl::string::ToUTF8(sShaderVertex)<<std::endl;
+      LOGERROR<<"cShader::_LoadVertexShader Shader not found "<<sShaderVertex<<std::endl;
       uiShaderVertex = 0;
     }
   }
@@ -389,7 +390,7 @@ namespace opengl
         ParseLineFragmentShader(sLine);
       };
 
-      LOG<<"cShader::_LoadFragmentShader Fragment shader=\""<<o.str()<<"\""<<std::endl;
+      LOG<<"cShader::_LoadFragmentShader Fragment shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
 
       uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
       LOG<<"cShader::_LoadFragmentShader Fragment shader glGetError="<<cSystem::GetErrorString()<<std::endl;
@@ -404,13 +405,13 @@ namespace opengl
       glCompileShader(uiShaderFragment);
       CheckStatusFragment();
 
-      if (IsCompiledFragment()) LOG<<"cShader::_LoadFragmentShader Fragment shader "<<opengl::string::ToUTF8(sShaderFragment)<<": Compiled"<<std::endl;
+      if (IsCompiledFragment()) LOG<<"cShader::_LoadFragmentShader Fragment shader "<<sShaderFragment<<": Compiled"<<std::endl;
       else {
-        LOGERROR<<"cShader::_LoadFragmentShader Fragment shader "<<opengl::string::ToUTF8(sShaderFragment)<<": Not compiled"<<std::endl;
+        LOGERROR<<"cShader::_LoadFragmentShader Fragment shader "<<sShaderFragment<<": Not compiled"<<std::endl;
         assert(false);
       }
     } else {
-      LOGERROR<<"cShader::_LoadFragmentShader Shader not found "<<opengl::string::ToUTF8(sShaderFragment)<<std::endl;
+      LOGERROR<<"cShader::_LoadFragmentShader Shader not found "<<sShaderFragment<<std::endl;
       uiShaderFragment = 0;
     }
   }
