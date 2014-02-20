@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include <string>
+#include <codecvt>
 #include <vector>
 #include <list>
 #include <map>
@@ -717,155 +718,16 @@ namespace spitfire
       return true;
     }
 
-    /*
-    // This doesn't seem to work correctly, it needs more debugging and testing
-
-    // http://www.manpagez.com/man/3/iconv_open/
-    // http://www.manpagez.com/man/3/iconv/
-
-    template <class I, class O, class OT>
-    void ConvertString(const I& sIn, O& sOut, const char* szInFormat, const char* szOutFormat)
+    std::wstring ToWchar_t(const std::string& source)
     {
-      //LOG<<"ConvertString szIn=\""<<sIn<<"\""<<std::endl;
-
-      sOut[0] = 0;
-
-      iconv_t i = iconv_open(szOutFormat, szInFormat);
-      if (i == (iconv_t) -1) {
-        //if (errno == EINVAL) LOG<<"ConvertString iconv_open FAILED Conversion from ISO-8859-1 to UTF-8 not available"<<std::endl;
-        //else LOG<<"ConvertString iconv_open FAILED Unknown reason "<<errno<<std::endl;
-
-        return;
-      }
-
-      const size_t inLength = sIn.length();
-      size_t fromlen = inLength;
-
-      char* szIn = const_cast<char*>((const char*)sIn.data());
-
-      // Our output list of chunks of text
-      std::list<std::vector<OT>*> outChunks;
-
-      size_t nRead = 0;
-      while (nRead < inLength) {
-        // Temporary buffer for storing each part of the conversion
-        const size_t nChunkLength = 80;
-        std::vector<OT>* pNewChunk = new std::vector<OT>;
-        pNewChunk->resize(nChunkLength);
-
-        char* szOut = (char*)pNewChunk;
-        size_t outLength = nChunkLength;
-
-        fromlen = inLength - nRead;
-
-        //LOG<<"ConvertString BEFORE fromlen="<<fromlen<<", outLength="<<outLength<<", szIn=\""<<szIn<<"\", szOut=\""<<szOut<<"\""<<std::endl;
-
-        const size_t iconv_value = iconv(i, &szIn, &fromlen, &szOut, &outLength);
-        if (iconv_value == size_t(-1)) {
-          if (errno == E2BIG) {
-            // We handle this case, so not really an error
-            //LOG<<"ConvertString iconv FAILED \"There is not sufficient room at *outbuf\"");
-            //break;
-          } else if (errno == EILSEQ) {
-            LOG<<"ConvertString iconv FAILED \"An invalid multibyte sequence has been encountered in the input\""<<std::endl;
-            break;
-          } else if (errno == EINVAL) {
-            LOG<<"ConvertString iconv FAILED \"An  incomplete  multibyte  sequence  has been encountered in the input\""<<std::endl;
-            break;
-          } else {
-            LOG<<"ConvertString iconv FAILED Could not convert string, error: "<<errno<<std::endl;
-            break;
-          }
-        }
-
-        //LOG<<"ConvertString AFTER fromlen="<<fromlen<<", outLength="<<outLength<<", szIn=\""<<szIn<<"\", szOut=\""<<szOut<<"\""<<std::endl;
-
-        nRead += fromlen;
-
-        pNewChunk->resize(fromlen);
-        outChunks.push_back(pNewChunk);
-      }
-
-      iconv_close(i);
-
-      ASSERT(fromlen == 0); // The whole string should have been processed
-
-      // Build our output string from the chunks
-      size_t n = 0;
-      {
-        // Get our output buffer size
-        std::list<OT*>::const_iterator iter = outChunks.begin();
-        const std::list<OT*>::const_iterator iterEnd = outChunks.end();
-        while (iter != iterEnd) {
-          const OT* pChunk = *iter;
-
-          n += pChunk->size();
-
-          iter++;
-        }
-      }
-
-      OT szBuffer[n];
-      {
-        // Build our output buffer
-        size_t i = 0;
-
-        std::list<OT*>::iterator iter = outChunks.begin();
-        const std::list<OT*>::iterator iterEnd = outChunks.end();
-        while (iter != iterEnd) {
-          OT* pChunk = *iter;
-
-          memcpy(&szBuffer[i], pChunk->data(), pChunk->size() * sizeof(OT));
-
-          delete [] pChunk;
-
-          iter++;
-        }
-      }
-
-      ASSERT(szBuffer[n] == 0);
-
-      sOut = szBuffer;
+      std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+      return convert.from_bytes(source);
     }
 
     std::string ToUTF8(const std::wstring& source)
     {
-      std::string result;
-
-    #ifdef __WIN__
-      ConvertString<std::wstring, std::string, char>(source, result, "UTF-16LE", "UTF-8");
-    #else
-      ConvertString<std::wstring, std::string, char>(source, result, "UTF-32LE", "UTF-8");
-    #endif
-
-      return result;
-    }
-
-    std::wstring ToWchar_t(const std::string& source)
-    {
-      // This doesn't work yet, ConvertString needs to be fixed
-      ASSERT(false);
-
-      std::wstring result;
-
-    #ifdef __WIN__
-      ConvertString<std::string, std::wstring, wchar_t>(source, result, "UTF-8", "UTF-16LE");
-    #else
-      ConvertString<std::string, std::wstring, wchar_t>(source, result, "UTF-8", "UTF-32LE");
-    #endif
-
-      return result;
-    }*/
-
-
-
-    std::wstring ToWchar_t(const std::string& source)
-    {
-      std::wstring result(source.size(), char(0));
-      typedef std::ctype<wchar_t> ctype_t;
-      const ctype_t& ct = std::use_facet<ctype_t>(std::locale());
-      ct.widen(source.data(), source.data() + source.size(), &(*result.begin()));
-      return result;
+      std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+      return convert.to_bytes(source);
     }
 
 
@@ -880,61 +742,6 @@ namespace spitfire
     {
       return ToUTF8(source);
     }
-
-    std::string ToUTF8(const std::wstring& source)
-    {
-      // http://en.wikipedia.org/wiki/UTF-8
-
-      std::ostringstream o;
-
-      const size_t n = source.length();
-      for (size_t i = 0; i < n; i++) {
-        const wchar_t c = source[i];
-        if (c <= 0x7f) {
-          o<<static_cast<char>(c);
-        } else if (c <= 0x7FF) {
-          o<<static_cast<char>(0xC0 | (c >> 6));
-          o<<static_cast<char>(0x80 | (0x3f & c));
-        } else if (c <= 0xFFFF) {
-          o<<(0xE0 | static_cast<char>(c >> 12));
-          o<<(0x80 | static_cast<char>((0x3f & (c >> 6))));
-          o<<static_cast<char>(0x80 | (0x3f & c));
-        } else if (c <= 0x10FFFF) {
-          // TODO: This line was incorrect, it always returns 0 because a shift of 18 is larger than the size of the data (16 bits)
-          o<<static_cast<char>(0);//o<<static_cast<char>(0xF0 | (c >> 18));
-          o<<static_cast<char>(0x80 | (0x3f & (c >> 12)));
-          o<<static_cast<char>(0x80 | (0x3f & (c >> 6)));
-          o<<static_cast<char>(0x80 | (0x3f & c));
-        }
-      }
-
-      return o.str();
-    }
-
-    /*std::string ToUTF8(const std::wstring& source)
-    {
-      std::ostringstream stm;
-      const std::ctype<char>& ctfacet = std::use_facet< std::ctype<char> >(stm.getloc());
-      const size_t n = source.length();
-      for (size_t i = 0; i < n; ++i) {
-        wchar_t a = source[i];
-        wchar_t c = ctfacet.narrow(a, 0);
-        stm<<c;
-      }
-      return stm.str();
-
-      //std::string temp;
-      //temp.reserve(source.length());
-      //std::transform(source.begin(), source.end(), temp.begin(), (int(*)(int))std::ios::narrow);
-
-      //const size_t len = source.length() + 1;
-      //char* pTemp = new char[len];
-      //wcstombs(pTemp, source.data(), len);
-      //std::string temp(pTemp);
-      //SAFE_DELETE_ARRAY(pTemp);
-
-      //return temp;
-  }*/
 
 
     template <class T>
