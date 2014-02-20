@@ -112,9 +112,9 @@ namespace spitfire
       void InvertTranspose();
       cMat4 GetInverseTranspose() const;
 
-      void SetPerspective(float left, float right, float bottom, float top, float fNear, float fFar);
+      void SetPerspective(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar);
       void SetPerspective(float fFOVy, float fAspectRatio, float fNear, float fFar);
-      void SetOrtho(float left, float right, float bottom, float top, float fNear, float fFar);
+      void SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar);
 
       void SetFromQuaternion(const cQuaternion& rhs);
       void SetFromMatrix(const cMat4& rhs);

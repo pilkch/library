@@ -709,63 +709,63 @@ namespace spitfire
     }
 
 
-    void cMat4::SetPerspective(float left, float right, float bottom, float top, float n, float f)
+    void cMat4::SetPerspective(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar)
     {
       LoadZero();
 
       // Check for division by 0
-      if ((left == right) || (top == bottom) || (n == f)) return;
+      if ((fLeft == fRight) || (fTop == fBottom) || (fNear == fFar)) return;
 
-      entries[0] = (2.0f * n) / (right - left);
+      entries[0] = (2.0f * fNear) / (fRight - fLeft);
 
-      entries[5] = (2.0f * n) / (top - bottom);
+      entries[5] = (2.0f * fNear) / (fTop - fBottom);
 
-      entries[8] = (right + left) / ( right - left);
-      entries[9] = (top + bottom) / ( top - bottom);
+      entries[8] = (fRight + fLeft) / ( fRight - fLeft);
+      entries[9] = (fTop + fBottom) / ( fTop - fBottom);
 
-      if (f != -1) entries[10] = -(f + n) / (f - n);
+      if (fFar != -1) entries[10] = -(fFar + fNear) / (fFar - fNear);
       else {    //if f == -1, use an infinite far plane
         entries[10] = -1.0f;
       }
 
       entries[11] = -1.0f;
 
-      if (f != -1) entries[14] = -(2.0f * f * n) / (f - n);
+      if (fFar != -1) entries[14] = -(2.0f * fFar * fNear) / (fFar - fNear);
       else {  //if f==-1, use an infinite far plane
-        entries[14] = -2.0f * n;
+        entries[14] = -2.0f * fNear;
       }
     }
 
-    void cMat4::SetPerspective(float fovy, float aspect, float n, float f)
+    void cMat4::SetPerspective(float fFovY, float fAspect, float fNear, float fFar)
     {
       // Convert fov from degrees to radians
-      fovy *= 0.017453295f;
+      fFovY = math::DegreesToRadians(fFovY);
 
-      float top = n * tanf(fovy * 0.5f);
-      float bottom = -top;
+      const float fTop = fNear * tanf(fFovY * 0.5f);
+      const float fBottom = -fTop;
 
-      float left = aspect * bottom;
-      float right = aspect * top;
+      const float fLeft = fAspect * fBottom;
+      const float fRight = fAspect * fTop;
 
-      SetPerspective(left, right, bottom, top, n, f);
+      SetPerspective(fLeft, fRight, fBottom, fTop, fNear, fFar);
     }
 
-    void cMat4::SetOrtho(float left, float right, float bottom, float top, float near, float far)
+    void cMat4::SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar)
     {
       // http://stackoverflow.com/a/12230368/1074390
 
       LoadIdentity();
 
-      entries[0] = 2.0f / (right - left);
+      entries[0] = 2.0f / (fRight - fLeft);
 
-      entries[5] = 2.0f / (top - bottom);
+      entries[5] = 2.0f / (fTop - fBottom);
 
-      entries[10] = -2.0f / (far - near);
+      entries[10] = -2.0f / (fFar - fNear);
 
       // Translation
-      entries[12] = -(right + left) / (right - left);
-      entries[13] = -(top + bottom) / (top - bottom);
-      entries[14] = -(far + near) / (far - near);
+      entries[12] = -(fRight + fLeft) / (fRight - fLeft);
+      entries[13] = -(fTop + fBottom) / (fTop - fBottom);
+      entries[14] = -(fFar + fNear) / (fFar - fNear);
     }
 
     void cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
