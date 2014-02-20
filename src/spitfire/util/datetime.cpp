@@ -357,17 +357,17 @@ namespace spitfire
 
       o<<WeekDayToShortString(GetWeekDay());
       o<<TEXT(", ");
-      o<<std::setw(2)<<std::setfill('0')<<int(GetDay());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetDay());
       o<<TEXT(" ");
       o<<MonthToShortString(GetMonth());
       o<<TEXT(" ");
-      o<<std::setw(4)<<std::setfill('0')<<int(GetYear());
+      o<<std::setw(4)<<std::setfill(TEXT('0'))<<int(GetYear());
       o<<TEXT(" ");
-      o<<std::setw(2)<<std::setfill('0')<<int(GetHours());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetHours());
       o<<TEXT(':');
-      o<<std::setw(2)<<std::setfill('0')<<int(GetMinutes());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetMinutes());
       o<<TEXT(':');
-      o<<std::setw(2)<<std::setfill('0')<<int(GetSeconds());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetSeconds());
       o<<TEXT(" GMT");
 
       return o.str();
@@ -417,9 +417,8 @@ namespace spitfire
 
     boost::posix_time::time_duration cDateTime::GetLocalTimeZoneOffset()
     {
-      boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
       const boost::posix_time::ptime t10(boost::gregorian::date(2002, boost::gregorian::Jan, 1), boost::posix_time::hours(7));
-      const boost::posix_time::ptime t11 = local_adj.utc_to_local(t10);
+      const boost::posix_time::ptime t11 = boost::date_time::c_local_adjustor<boost::posix_time::ptime>::utc_to_local(t10);
 
       return t11 - t10;
     }
@@ -433,8 +432,7 @@ namespace spitfire
     {
       ASSERT(IsValid());
 
-      //boost::date_time::local_adjustor<boost::posix_time::ptime> local_adj;
-      //datetime = local_adj.local_to_utc(datetime);
+      //datetime = boost::date_time::c_local_adjustor<boost::posix_time::ptime>.local_to_utc(datetime);
       ASSERT(false);
     }
 
@@ -442,8 +440,7 @@ namespace spitfire
     {
       ASSERT(IsValid());
 
-      boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
-      datetime = local_adj.utc_to_local(datetime);
+      datetime = boost::date_time::c_local_adjustor<boost::posix_time::ptime>::utc_to_local(datetime);
     }
 
     bool cDateTime::operator==(const cDateTime& rhs) const

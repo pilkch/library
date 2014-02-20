@@ -35,7 +35,7 @@ namespace spitfire
 
     bool CalculateForString(const char* szInput);
     bool CalculateForBuffer(const char* pData, size_t len);
-    bool CalculateForFile(const std::string& sFilePath);
+    bool CalculateForFile(const string_t& sFilePath);
     bool CheckString(const char* szInput) { return CalculateForString(szInput); }
     bool CheckBuffer(const char* pData, size_t len) { return CalculateForBuffer(pData, len); }
     bool CheckFile(const string_t& sFilePath) { return  CalculateForFile(sFilePath); }

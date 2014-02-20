@@ -71,7 +71,11 @@ namespace spitfire
   namespace filesystem
   {
     const size_t MAX_PATH_LEN = 1024;
+    #ifdef __WIN__
+    const string_t sFolderSeparator = TEXT("\\");
+    #else
     const string_t sFolderSeparator = TEXT("/");
+    #endif
 
     std::vector<string_t> vDirectory;
     string_t sApplicationDirectory = TEXT("");
@@ -97,7 +101,7 @@ namespace spitfire
         sApplicationDirectory = sCurrentDirectory + sEnd;
       }
 
-      if (!spitfire::string::EndsWith(sApplicationDirectory, TEXT("/"))) sApplicationDirectory += TEXT("/");
+      if (!spitfire::string::EndsWith(sApplicationDirectory, sFolderSeparator)) sApplicationDirectory += sFolderSeparator;
 
       CONSOLE<<"SetThisExecutable application directory="<<sApplicationDirectory<<", returning"<<std::endl;
     }
@@ -131,7 +135,7 @@ namespace spitfire
 
     string_t GetApplicationSettingsDirectory(const string_t& sApplication)
     {
-      return GetHomeConfigurationFilesDirectory() + TEXT("/") + sApplication + TEXT("/");
+      return GetHomeConfigurationFilesDirectory() + sFolderSeparator + sApplication + sFolderSeparator;
     }
 
     bool DeleteFile(const string_t& sFilename)
@@ -153,17 +157,17 @@ namespace spitfire
     {
       #ifdef __WIN__
       char_t szFile[MAX_PATH + 2];
-	lstrcpyn(szFile, sFilePath.c_str(), sizeof(szFile));
-	szFile[sFilePath.length() + 1] = '\0'; // Add an extra null terminator (The function looks for a double null terminator to find the end of the parameters
+      lstrcpyn(szFile, sFilePath.c_str(), sizeof(szFile));
+      szFile[sFilePath.length() + 1] = '\0'; // Add an extra null terminator (The function looks for a double null terminator to find the end of the parameters
 
-	SHFILEOPSTRUCT op;
-	ZeroMemory(&op, sizeof(op));
-	op.wFunc = FO_DELETE;
-	op.pFrom = szFile;
-	op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI |
-FOF_SILENT; // Options set for no user interaction
+      SHFILEOPSTRUCT op;
+      ZeroMemory(&op, sizeof(op));
+      op.wFunc = FO_DELETE;
+      op.pFrom = szFile;
+      op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI |
+      FOF_SILENT; // Options set for no user interaction
 
-	//return (SHFileOperation(&op) == 0);
+      //return (SHFileOperation(&op) == 0);
       SHFileOperation(&op);
       #else
       trash::MoveFileToTrash(string::ToUTF8(sFilePath));
@@ -172,7 +176,12 @@ FOF_SILENT; // Options set for no user interaction
 
     void MoveFolderToTrash(const string_t& sFolderPath)
     {
+      #ifdef __WIN__
+      // The file version of this function can move folders too
+      MoveFileToTrash(sFolderPath);
+      #else
       trash::MoveFolderToTrash(string::ToUTF8(sFolderPath));
+      #endif
     }
 
     void CopyFile(const string_t& sFrom, const string_t& sTo)
@@ -229,7 +238,8 @@ FOF_SILENT; // Options set for no user interaction
 #ifdef __WIN__
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      ASSERT(SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      const int iResult = SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
+      ASSERT(iResult == 0);
       sPath = szPath;
 #elif defined(__APPLE__)
       FSRef dataFolderRef;
@@ -268,8 +278,20 @@ FOF_SILENT; // Options set for no user interaction
 
     string_t GetHomeConfigurationFilesDirectory()
     {
+      #ifdef __WIN__
+      // C:\Documents and Settings\username\Local Settings\Application Data
+      char_t szAppData[MAX_PATH_LEN];
+      szAppData[0] = 0;
+      const int iResult = SHGetFolderPath(0, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szAppData);
+      ASSERT(iResult == 0);
+      ASSERT(szAppData[0] != 0);
+      LOG<<TEXT("GetHomeConfigurationFilesDirectory returning \"")<<szAppData<<TEXT("\"")<<std::endl;
+      const string_t sFullPath = MakeFilePath(szAppData, TEXT(SPITFIRE_APPLICATION_COMPANY_NAME), TEXT(SPITFIRE_APPLICATION_NAME));
+      return sFullPath;
+      #else
       xdg::cXdg xdg;
       return string::ToString_t(xdg.GetHomeConfigDirectory());
+      #endif
     }
 
     string_t GetHomePicturesDirectory()
@@ -278,7 +300,8 @@ FOF_SILENT; // Options set for no user interaction
 #ifdef WIN32
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      ASSERT(SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      const int iResult = SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
+      ASSERT(iResult == 0);
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
@@ -294,7 +317,8 @@ FOF_SILENT; // Options set for no user interaction
 #ifdef WIN32
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      ASSERT(SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath) == 0);
+      const int iResult = SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
+      ASSERT(iResult == 0);
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
@@ -306,8 +330,20 @@ FOF_SILENT; // Options set for no user interaction
 
     string_t GetHomeTempDirectory()
     {
+      #ifdef __WIN__
+      //  Gets the temp path env string (no guarantee it's a valid path).
+      char_t szPath[MAX_PATH];
+      szPath[0] = 0;
+      const int iResult = GetTempPath(MAX_PATH, szPath);
+      if (iResult > MAX_PATH || (iResult == 0)) {
+        LOG<<"GetHomeTempDirectory GetTempPath FAILED iResult="<<spitfire::string::ToString(iResult)<<std::endl;
+        szPath[0] = 0;
+      }
+      return szPath;
+      #else
       xdg::cXdg xdg;
       return string::ToString_t(xdg.GetHomeTempDirectory());
+      #endif
     }
 
 #ifdef __APPLE__
@@ -388,9 +424,9 @@ FOF_SILENT; // Options set for no user interaction
       // else ("folder1/folder2/" so ... ) return "folder1/"
 
       string_t result(path);
-      if (spitfire::string::EndsWith(path, TEXT("/"))) result = spitfire::string::StripAfterLastInclusive(result, TEXT("/"));
+      if (spitfire::string::EndsWith(path, sFolderSeparator)) result = spitfire::string::StripAfterLastInclusive(result, sFolderSeparator);
 
-      return spitfire::string::StripAfterLast(result, TEXT("/"));
+      return spitfire::string::StripAfterLast(result, sFolderSeparator);
     }
 
     string_t GetFolder(const string_t& sFilePath)
@@ -398,12 +434,12 @@ FOF_SILENT; // Options set for no user interaction
       string_t p = TEXT("");
       string_t s = sFilePath;
 
-      string_t::size_type i = s.find(TEXT("/"));
+      string_t::size_type i = s.find(sFolderSeparator);
       while (i != string_t::npos) {
         i++;
         p += s.substr(0, i);
         s = s.substr(i);
-        i = s.find(TEXT("/"));
+        i = s.find(sFolderSeparator);
       };
 
       return p;
@@ -416,7 +452,7 @@ FOF_SILENT; // Options set for no user interaction
 
     string_t GetFile(const string_t& sFilename)
     {
-      string_t::size_type i = sFilename.rfind(TEXT("/"));
+      string_t::size_type i = sFilename.rfind(sFolderSeparator);
 
       // We didn't find a folder, so just return the whole path
       if (string_t::npos == i) return sFilename;
@@ -427,12 +463,12 @@ FOF_SILENT; // Options set for no user interaction
 
     string_t GetFileNoExtension(const string_t& sFilename)
     {
-      string_t::size_type i = sFilename.find(TEXT("/"));
+      string_t::size_type i = sFilename.find(sFolderSeparator);
       string_t temp = sFilename;
       while (i != string_t::npos) {
         i++;
         temp = temp.substr(i);
-        i = temp.find(TEXT("/"));
+        i = temp.find(sFolderSeparator);
       };
 
       i = temp.find(TEXT("."));
@@ -478,12 +514,12 @@ FOF_SILENT; // Options set for no user interaction
 
       // ""
       if (sRelativePath.empty() || (TEXT("./") == sRelativePath)) {
-        LOG<<"MakePathAbsolute 0 returning \""<<string::ToUTF8(sRootPath)<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 0 returning \""<<sRootPath<<"\""<<std::endl;
         return sRootPath;
       }
 
       if (TEXT(".") == sRelativePath) {
-        LOG<<"MakePathAbsolute 1 returning \""<<string::ToUTF8(spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/")))<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 1 returning \""<<spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"))<<"\""<<std::endl;
         return spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"));
       }
 
@@ -491,7 +527,7 @@ FOF_SILENT; // Options set for no user interaction
       // ".********"
       if ((sRelativePath == TEXT(".")) || (((sRelativePath.length() > 2) && (sRelativePath[0] == TEXT('.'))) && (sRelativePath[1] != TEXT('.')))) {
         string_t expanded(sRelativePath.substr(2));
-        LOG<<"MakePathAbsolute 2 returning \""<<string::ToUTF8(expanded)<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute 2 returning \""<<expanded<<"\""<<std::endl;
         return expanded;
       }
 
@@ -499,11 +535,11 @@ FOF_SILENT; // Options set for no user interaction
       string_t prefix = sRootPath;
       while (spitfire::string::StartsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
-        LOG<<"MakePathAbsolute prefix=\""<<string::ToUTF8(prefix)<<"\""<<std::endl;
+        LOG<<"MakePathAbsolute prefix=\""<<prefix<<"\""<<std::endl;
         prefix = StripLastDirectory(prefix);
       };
 
-      LOG<<"MakePathAbsolute returning \""<<string::ToUTF8(prefix + expanded)<<"\""<<std::endl;
+      LOG<<"MakePathAbsolute returning \""<<prefix<<expanded<<"\""<<std::endl;
       return prefix + expanded;
     }
 
@@ -574,9 +610,9 @@ FOF_SILENT; // Options set for no user interaction
         if (vDirectory[i] == expanded) return;
       }
 
-      ASSERT(spitfire::string::EndsWith(expanded, TEXT("/")));
+      ASSERT(spitfire::string::EndsWith(expanded, sFolderSeparator));
       vDirectory.push_back(expanded);
-      LOG<<"FileSystem Added "<<string::ToUTF8(expanded)<<std::endl;
+      LOG<<"FileSystem Added "<<expanded<<std::endl;
     }
 
     bool IsFile(const string_t& sFilePath)
@@ -707,7 +743,7 @@ FOF_SILENT; // Options set for no user interaction
 
         // Ok, that didn't work, let's try without the first directory
         const size_t nBefore = sFilename.length();
-        sFilename = spitfire::string::StripBeforeInclusive(sFilename, TEXT("/"));
+        sFilename = spitfire::string::StripBeforeInclusive(sFilename, sFolderSeparator);
         if (nBefore == sFilename.length()) break;
       }
 
@@ -772,10 +808,10 @@ FOF_SILENT; // Options set for no user interaction
       DWORD access = 0;
       DWORD share = FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE;
 
-      HANDLE h1 = CreateFile(sFileA.c_str(), access, share, NULL, OPEN_EXISTING, (GetFileAttributes(sFileA.c_str()) & FILE_ATTRIBUTE_DIRECTORY) ?FILE_FLAG_BACKUP_SEMANTICS : 0, NULL);
+      HANDLE h1 = CreateFile(sFileA.c_str(), access, share, NULL, OPEN_EXISTING, ((GetFileAttributes(sFileA.c_str()) & FILE_ATTRIBUTE_DIRECTORY) != 0) ? FILE_FLAG_BACKUP_SEMANTICS : 0, NULL);
       if (INVALID_HANDLE_VALUE != h1) {
         if (!GetFileInformationByHandle(h1, &bhfi1)) bhfi1.dwVolumeSerialNumber = 0;
-        h2 = CreateFile(sFileB.c_str(), access, share, NULL, OPEN_EXISTING, (GetFileAttributes(sFileB.c_str()) & FILE_ATTRIBUTE_DIRECTORY)?FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+        h2 = CreateFile(sFileB.c_str(), access, share, NULL, OPEN_EXISTING, ((GetFileAttributes(sFileB.c_str()) & FILE_ATTRIBUTE_DIRECTORY) != 0) ? FILE_FLAG_BACKUP_SEMANTICS : 0, NULL);
         if (!GetFileInformationByHandle(h2, &bhfi2)) bhfi2.dwVolumeSerialNumber = bhfi1.dwVolumeSerialNumber + 1;
         CloseHandle(h2);
       }
@@ -918,13 +954,13 @@ FOF_SILENT; // Options set for no user interaction
 
     cFilePathParser::cFilePathParser(const string_t& sFilePath)
     {
-      LOG<<"cFilePathParser::cFilePathParser \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
+      LOG<<"cFilePathParser::cFilePathParser \""<<sFilePath<<"\""<<std::endl;
       const string_t sPath = spitfire::filesystem::GetFolder(sFilePath);
       sFileName = spitfire::filesystem::GetFile(sFilePath);
 
       string::Split(sFilePath, cFilePathSeparator, vFolderNames);
       const size_t n = vFolderNames.size();
-      for (size_t i = 0; i < n; i++) LOG<<"Part=\""<<string::ToUTF8(vFolderNames[i])<<"\""<<std::endl;
+      for (size_t i = 0; i < n; i++) LOG<<"Part=\""<<vFolderNames[i]<<"\""<<std::endl;
     }
 
 
@@ -1036,7 +1072,7 @@ FOF_SILENT; // Options set for no user interaction
     #endif
 
       if (!DirectoryExists(sTemporarySubFolder)) {
-          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<string::ToUTF8(sTemporarySubFolder)<<"\""<<std::endl;
+          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<sTemporarySubFolder<<"\""<<std::endl;
           CreateDirectory(sTemporarySubFolder);
       }
     }
@@ -1079,15 +1115,15 @@ FOF_SILENT; // Options set for no user interaction
       sParentFolder(directory)
     {
       if (!DirectoryExists(sParentFolder)) {
-        LOG<<"Folder \""<<string::ToUTF8(sParentFolder)<<"\" does not exist"<<std::endl;
+        LOG<<"Folder \""<<sParentFolder<<"\" does not exist"<<std::endl;
         return;
       }
       const boost::filesystem::directory_iterator iterEnd;
-      for (boost::filesystem::directory_iterator iter(spitfire::string::ToUTF8(sParentFolder)); iter != iterEnd; iter++) {
+      for (boost::filesystem::directory_iterator iter(sParentFolder); iter != iterEnd; iter++) {
         const string_t sFullPath = string::ToString_t(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
-          LOG<<"cFolderIterator::cFolderIterator Adding \""<<string::ToUTF8(sFile)<<"\""<<std::endl;
+          LOG<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
           paths.push_back(sFile);
         }
       }

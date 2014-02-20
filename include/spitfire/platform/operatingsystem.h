@@ -173,6 +173,12 @@ namespace spitfire
       #endif
     }
 
+    bool IsOS64Bit();
+
+    #ifdef __WIN__
+    bool IsWindowsRunningUnderWine();
+    #endif
+
     bool IsOSVersion(uint8_t major);
     bool IsOSVersion(uint8_t major, uint8_t minor);
     bool IsOSVersionOrLater(uint8_t major);

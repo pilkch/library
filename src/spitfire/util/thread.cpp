@@ -19,6 +19,7 @@
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
+#include <spitfire/util/log.h>
 #include <spitfire/util/thread.h>
 
 namespace spitfire

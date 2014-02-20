@@ -25,12 +25,14 @@
 #include <windows.h>
 #endif
 
+#ifdef __LINUX__
 // libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
+#endif
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
-
+#include <spitfire/platform/dynamiclibrary.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/lang.h>
 #include <spitfire/util/log.h>
@@ -43,97 +45,24 @@ namespace spitfire
 {
   namespace operatingsystem
   {
-#ifdef __WIN__
     size_t GetProcessorCount()
     {
+      #ifdef __WIN__
       SYSTEM_INFO si;
       GetSystemInfo(&si);
-
       return si.dwNumberOfProcessors;
-    }
-
-    size_t GetTotalProcessorCoreCount()
-    {
-      ... todo can we use GetLogicalProcessorInformation()?
-
-      // Number of Logical Cores per Physical Processor
-      int nCoreCount = 1;
-
-      _asm {
-        mov   eax, 1
-        cpuid
-        // Test for HTT bit
-        test  edx, 0x10000000
-
-        // If HTT is not supproted, goto htt_not_supported
-        jz htt_not_supported
-
-        // Multi-core or Hyperthreading supported...
-        // Read the "# of Logical Processors per Physical Processor" field:
-        mov   eax, ebx
-        and   eax, 0x00FF0000 // Mask the "logical core counter" byte
-        shr   eax, 16 // Shift byte to be least-significant
-        mov   nCoreCount, eax
-
-        // Uniprocessor (i.e. Pentium III or any AMD CPU excluding their new dual-core A64)
-        htt_not_supported:
-        // nCoreCount will contain 1.
-      }
-
-
-      // This gives a rough estimate, although theoretically someone might put a single core processor on a motherboard with say, 16 cores and we would return either 2 or 32 cores, ugh!
-      return (GetProcessorCount() * size_t(nCoreCount));
-    }
-#else
-    size_t GetProcessorCount()
-    {
-      #ifdef _SC_NPROCESSORS_CONF
+      #elif defined(_SC_NPROCESSORS_CONF)
       return sysconf(_SC_NPROCESSORS_CONF);
       #elif defined(__APPLE__)
       int iaMib[2] = { CTL_HW, HW_NCPU };
       int nProcessorCount;
       size_t len = sizeof(nProcessorCount);
       if (sysctl(iaMib, 2, &nProcessorCount, &len, NULL, 0) == 0) return nProcessorCount;
-      #endif
       return 1;
+      #else
+      #error "GetProcessorCount has not been implemented on this platform"
+      #endif
     }
-
-    size_t GetTotalProcessorCoreCount()
-    {
-      // Number of Logical Cores per Physical Processor
-      int nCoreCount = 1;
-
-      /*__asm (
-        ".intel_syntax noprefix\n"
-
-        "mov   eax, 1\n"
-        "cpuid\n"
-        // Test for HTT bit
-        "test  edx, 0x10000000\n"
-
-        // If HTT is not supproted, goto htt_not_supported
-        "jz htt_not_supported\n"
-
-        // Multi-core or Hyperthreading supported...
-        // Read the "# of Logical Processors per Physical Processor" field:
-        "mov   eax, ebx\n"
-        "and   eax, 0x00FF0000\n" // Mask the "logical core counter" byte
-        "shr   eax, 16\n" // Shift byte to be least-significant
-        "mov   nCoreCount, eax\n"
-
-        // Uniprocessor (i.e. Pentium III or any AMD CPU excluding their new dual-core A64)
-        "htt_not_supported:\n"
-
-        // nCoreCount will contain 1.
-
-        ".att_syntax \n"
-      );*/
-
-
-      // This gives a rough estimate, although theoretically someone might put a single core processor on a motherboard with say, 16 cores and we would return either 2 or 32 cores, ugh!
-      return (GetProcessorCount() * size_t(nCoreCount));
-    }
-#endif
 
 #ifdef __LINUX__
     size_t GetMemoryTotalMB()
@@ -256,6 +185,38 @@ namespace spitfire
     }
 #endif
 
+    bool IsOS64Bit()
+    {
+      #ifdef BUILD_PLATFORM_64
+      return true;
+      #elif defined(__WIN__)
+      typedef BOOL (WINAPI* PFNISWOW64PROCESS)(HANDLE, PBOOL);
+      cDynamicLibrary dll;
+      dll.LoadFromAnywhere(TEXT("kernel32.dll"));
+      PFNISWOW64PROCESS pIsWow64Process = nullptr;
+      if (!dll.LoadFunction("IsWow64Process", &pIsWow64Process)) return false;
+      BOOL bIsWow64 = FALSE;
+      pIsWow64Process(GetCurrentProcess(), &bIsWow64);
+      IsWow64Process(GetCurrentProcess(), &bIsWow64);
+      return (bIsWow64 != FALSE);
+      #else
+      #error "IsOS64Bit hasn't been implemented"
+      #endif
+    }
+
+    #ifdef __WIN__
+    bool IsWindowsRunningUnderWine()
+    {
+      // We know that we are running under Wine if the function wine_get_unix_file_name exists
+      typedef BOOL (WINAPI* PFNwine_get_unix_file_name)(LPCWSTR, LPSTR, DWORD);
+      cDynamicLibrary dll;
+      dll.LoadFromAnywhere(TEXT("kernel32.dll"));
+      PFNwine_get_unix_file_name pwine_get_unix_file_name = nullptr;
+      return dll.LoadFunction("wine_get_unix_file_name", &pwine_get_unix_file_name);
+    }
+    #endif
+
+
     string_t GetOperatingSystemNameString()
     {
 #if defined(__WIN__)
@@ -323,51 +284,32 @@ namespace spitfire
       string_t s = TEXT("Unknown ") + GetOperatingSystemVersionString();
 
 #ifdef __WIN__
-      int major = GetOperatingSystemVersionMajor();
-      int minor = GetOperatingSystemVersionMinor();
+      int major = 0;
+      int minor = 0;
+      GetOperatingSystemVersion(major, minor);
 
       if (4 == major) {
-        if (0 == minor) s = "95";
-        else if (1 == minor) s = "98";
-        else if (9 == minor) s = "ME";
-      }
-      else if (5 == major) {
-        if (0 == minor) s = "2000";
-        else if (1 == minor) s = "XP";
-        else if (2 == minor) s = "Server 2003";
-      }
-      else if (6 == major) {
-        if (0 == minor) s = "Vista";
+        if (0 == minor) s = TEXT("95");
+        else if (1 == minor) s = TEXT("98");
+        else if (9 >= minor) s = TEXT("ME");
+      } else if (5 == major) {
+        if (0 == minor) s = TEXT("2000");
+        else if (1 == minor) s = TEXT("XP");
+        else if (2 >= minor) s = TEXT("Server 2003");
+      } else if (6 == major) {
+        if (0 == minor) s = TEXT("Vista");
+        else if (minor == 1) s = TEXT("Windows 7");
+        else if (minor >= 2) s = TEXT("Windows 8");
       }
 
       // Check if we are running in Wine
-      HKEY hKey;
-      if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Wine"), 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS) {
-        RegCloseKey(hKey);
-        s += " under Wine";
-      }
+      if (IsWindowsRunningUnderWine()) s += TEXT(" under Wine");
+      #else
+      #error "GetOperatingSystemFullString"
 #endif
 
       return GetOperatingSystemNameString() + TEXT(" ") + s;
     }
-
-#ifdef __WIN__
-    string_t GetUserName()
-    {
-      const int MAX_LENGTH = 260;
-      spitfire::char_t user[MAX_LENGTH];
-      user[0] = 0;
-
-      DWORD nSize = (DWORD)MAX_LENGTH;
-      if (GetComputerName(user, &nSize)) return spitfire::string::ToUTF8(spitfire::string_t(user));
-
-      if (getenv("USER") != 0) return string_t(getenv("USER"));
-      else if (getenv("USERNAME") != 0) return string_t(getenv("USERNAME"));
-
-      return TEXT("");
-    }
-#endif
-
 
 #ifdef __LINUX__
     const size_t MAX_STRING_LENGTH = 512;

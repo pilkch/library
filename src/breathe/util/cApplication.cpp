@@ -157,7 +157,7 @@ namespace breathe
 
     string_t cApplication::_GetVersion() const
     {
-      std::ostringstream o;
+      ostringstream_t o;
       o<<GetApplicationName();
       o<<" "<<BUILD_APPLICATION_VERSION_STRING;
       return o.str();

@@ -84,17 +84,17 @@ namespace spitfire
     {
       success = true;
 
-      LOG<<"Unit Test Running "<<spitfire::string::ToUTF8(sComponent)<<std::endl;
+      LOG<<"Unit Test Running "<<sComponent<<std::endl;
 
       Test();
 
-      if (true == success) LOG<<"Unit Test "<<spitfire::string::ToUTF8(sComponent)<<" Successfully completed"<<std::endl;
-      else LOGERROR<<"Unit Test "<<spitfire::string::ToUTF8(sComponent)<<" FAILED"<<std::endl;
+      if (true == success) LOG<<"Unit Test "<<sComponent<<" Successfully completed"<<std::endl;
+      else LOGERROR<<"Unit Test "<<sComponent<<" FAILED"<<std::endl;
     }
 
     void cUnitTestBase::SetFailed(const string_t& error)
     {
-      LOGERROR<<"Unit Test "<<spitfire::string::ToUTF8(sComponent)<<" "<<spitfire::string::ToUTF8(error)<<std::endl;
+      LOGERROR<<"Unit Test "<<sComponent<<" "<<error<<std::endl;
       success = false;
     }
 
