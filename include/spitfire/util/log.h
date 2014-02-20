@@ -41,7 +41,7 @@ namespace spitfire
       template<typename T>
       cLogBase& operator<<(const T& t)
       {
-        std::ostringstream o;
+        ostringstream_t o;
         o<<t;
 
         line += o.str();
@@ -49,19 +49,23 @@ namespace spitfire
         return *this;
       }
 
+      cLogBase& operator<<(const std::string& t)
+      {
+        line += string::ToString_t(t);
+
+        return *this;
+      }
+
       cLogBase& operator<<(const std::wstring& t)
       {
-        std::wostringstream o;
-        o<<t;
-
-        line += spitfire::string::ToUTF8(o.str());
+        line += string::ToString_t(t);
 
         return *this;
       }
 
       cLogBase& operator<<(float t)
       {
-        std::stringstream o;
+        ostringstream_t o;
         o<<t;
 
         line += o.str();
@@ -71,12 +75,12 @@ namespace spitfire
 
       cLogBase& operator<<(bool t)
       {
-        line += (t ? "true" : "false");
+        line += (t ? TEXT("true") : TEXT("false"));
 
         return *this;
       }
 
-      cLogBase& operator<<(const std::ostringstream& o)
+      cLogBase& operator<<(const ostringstream_t& o)
       {
         line += o.str();
 
@@ -95,13 +99,13 @@ namespace spitfire
       void ClearLine() { line.clear(); }
 
 
-      virtual void Success(const std::string& section, const std::string& text) = 0;
-      virtual void Error(const std::string& section, const std::string& text) = 0;
+      virtual void Success(const string_t& section, const string_t& text) = 0;
+      virtual void Error(const string_t& section, const string_t& text) = 0;
 
     private:
-      virtual void _AddLine(const std::string& o) = 0;
+      virtual void _AddLine(const string_t& o) = 0;
 
-      std::string line;
+      string_t line;
     };
 
 
@@ -116,14 +120,14 @@ namespace spitfire
       friend class cConsole;
 
       void Newline();
-      void Newline(const std::string& s1);
-      void Newline(const std::string& s1, const std::string& text);
+      void Newline(const string_t& s1);
+      void Newline(const string_t& s1, const string_t& text);
 
-      void Success(const std::string& section, const std::string& text);
-      void Error(const std::string& section, const std::string& text);
+      void Success(const string_t& section, const string_t& text);
+      void Error(const string_t& section, const string_t& text);
 
     private:
-      void _AddLine(const std::string& o)
+      void _AddLine(const string_t& o)
       {
         Success(section, o);
         ClearLine();
@@ -132,25 +136,25 @@ namespace spitfire
       bool CreateLog();
 
 //#ifdef BUILD_DEBUG
-      void trace(const std::string& section);
-      void trace(const std::string& section, const std::string& text);
+      void trace(const string_t& section);
+      void trace(const string_t& section, const string_t& text);
 //#endif // BUILD_DEBUG
 
       string_t strfilename;
 
       bool scol;
       bool ecol;
-      std::string starttable;
-      std::string startline;
-      std::string startsuccesscolumn[2];
-      std::string starterrorcolumn[2];
-      std::string endcolumn;
-      std::string endline;
-      std::string newline;
-      std::string endtable;
-      std::string hash;
+      string_t starttable;
+      string_t startline;
+      string_t startsuccesscolumn[2];
+      string_t starterrorcolumn[2];
+      string_t endcolumn;
+      string_t endline;
+      string_t newline;
+      string_t endtable;
+      string_t hash;
 
-      std::string section;
+      string_t section;
 
     private:
       cLog(const cLog&);
@@ -194,12 +198,12 @@ namespace spitfire
 
       void SetApp(breathe::cApplication* inApp) { pApp = inApp; }
 
-      const constant_stack<std::string>& GetLines() const { return lines; }
-      const std::string GetCurrentLine() const { return current; }
-      void ClearCurrent() { current = ""; }
+      const constant_stack<string_t>& GetLines() const { return lines; }
+      const string_t& GetCurrentLine() const { return current; }
+      void ClearCurrent() { current.clear(); }
 
       bool AddKey(unsigned int code);
-      void ExecuteCommand(const std::string& command);
+      void ExecuteCommand(const string_t& command);
 
       bool IsVisible() const { return bShow; }
       void Show()
@@ -216,18 +220,18 @@ namespace spitfire
         ClearCurrent();
       }
 
-      constant_stack<std::string>::iterator begin() { return lines.begin(); }
-      constant_stack<std::string>::iterator end() { return lines.end(); }
+      constant_stack<string_t>::iterator begin() { return lines.begin(); }
+      constant_stack<string_t>::iterator end() { return lines.end(); }
 
-      constant_stack<std::string>::reverse_iterator rbegin() { return lines.rbegin(); }
-      constant_stack<std::string>::reverse_iterator rend() { return lines.rend(); }
+      constant_stack<string_t>::reverse_iterator rbegin() { return lines.rbegin(); }
+      constant_stack<string_t>::reverse_iterator rend() { return lines.rend(); }
 
     protected:
       bool bShow;
       breathe::cApplication* pApp;
 
-      constant_stack<std::string> lines;
-      std::string current;
+      constant_stack<string_t> lines;
+      string_t current;
 
     private:
       NO_COPY(cConsoleBase);
@@ -247,14 +251,14 @@ namespace spitfire
       friend class cScreen;
 
       /*void Newline();
-      void Newline(const std::string& s1);
-      void Newline(const std::string& s1, const std::string& text);*/
+      void Newline(const string_t& s1);
+      void Newline(const string_t& s1, const string_t& text);*/
 
-      void Success(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
-      void Error(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
+      void Success(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
+      void Error(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
 
     private:
-      void _AddLine(const std::string& o);
+      void _AddLine(const string_t& o);
     };
   }
 }
@@ -271,10 +275,10 @@ namespace spitfire
       cScreen();
       ~cScreen();
 
-      void Success(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
-      void Error(const std::string& section, const std::string& text) { _AddLine(section + " " + text); }
+      void Success(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
+      void Error(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
 
-      const std::list<std::string>& GetLines() const;
+      const std::list<string_t>& GetLines() const;
 
       void AddMessageInformative(const string_t& text);
       void AddMessageWarning(const string_t& text);
@@ -319,7 +323,7 @@ namespace spitfire
         uint32_t life;
       };
 
-      void _AddLine(const std::string& o)
+      void _AddLine(const string_t& o)
       {
         // Cascade output to console
         CONSOLE._AddLine(o);
@@ -335,7 +339,7 @@ namespace spitfire
       std::vector<cGameMessage*> message;
       std::vector<cGameClosedCaption*> closedCaption;
 
-      std::list<std::string> lLine;
+      std::list<string_t> lLine;
     };
 
     inline void cScreen::AddMessageInformative(const string_t& text)
@@ -368,8 +372,13 @@ extern spitfire::logging::cScreen SCREEN;
 
 #else
 
+#ifdef UNICODE
+#define CONSOLE std::wcout
+#define SCREEN std::wcout
+#else
 #define CONSOLE std::cout
 #define SCREEN std::cout
+#endif
 
 #endif // BUILD_LOGGING
 

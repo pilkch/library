@@ -59,6 +59,12 @@ spitfire::logging::cLog LOG;
 spitfire::logging::cConsole CONSOLE;
 spitfire::logging::cScreen SCREEN;
 
+#ifdef UNICODE
+#define cout_t std::wcout
+#else
+#define cout_t std::cout
+#endif
+
 namespace spitfire
 {
   namespace logging
@@ -86,19 +92,19 @@ namespace spitfire
     cLog::cLog() :
       strfilename(TEXT("log/index.html"))
     {
-      scol=0;
-      ecol=0;
-      hash=35;
-      starttable=t t t "<table border=\"0\" cellspacing=\"0\">";
-      startline=t t t t "<tr>";
-      startsuccesscolumn[0]="<td bgcolor=\"" + hash + "006600\" width=\"*\">";
-      startsuccesscolumn[1]="<td bgcolor=\"" + hash + "005500\">";
-      starterrorcolumn[0]="<td bgcolor=\"" + hash + "660000\">";
-      starterrorcolumn[1]="<td bgcolor=\"" + hash + "550000\">";
-      endcolumn="</td>";
-      endline="</td></tr>\n";
-      newline="<br>\n";
-      endtable=t t t "</table>\n";
+      scol = 0;
+      ecol = 0;
+      hash = 35;
+      starttable = TEXT(t) TEXT(t) TEXT(t) TEXT("<table border=\"0\" cellspacing=\"0\">");
+      startline = TEXT(t) TEXT(t) TEXT(t) TEXT(t) TEXT("<tr>");
+      startsuccesscolumn[0] = TEXT("<td bgcolor=\"") + hash + TEXT("006600\" width=\"*\">");
+      startsuccesscolumn[1] = TEXT("<td bgcolor=\"") + hash + TEXT("005500\">");
+      starterrorcolumn[0] = TEXT("<td bgcolor=\"") + hash + TEXT("660000\">");
+      starterrorcolumn[1] = TEXT("<td bgcolor=\"") + hash + TEXT("550000\">");
+      endcolumn = TEXT("</td>");
+      endline = TEXT("</td></tr>");
+      newline = TEXT("<br>\n");
+      endtable = TEXT(t) TEXT(t) TEXT(t) TEXT("</table>\n");
 
 
       filesystem::CreateDirectory(TEXT("log"));
@@ -115,7 +121,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile<<endtable<<t<<t<<"</center>"<<std::endl;
+      logfile<<spitfire::string::ToUTF8(endtable)<<t<<t<<"</center>"<<std::endl;
       logfile<<t<<"</body>"<<std::endl;
       logfile<<"</html>"<<std::endl;
       logfile.close();
@@ -140,8 +146,8 @@ namespace spitfire
       logfile << t << "</head>" << std::endl;
       logfile << t << "<body font face=\"Tohama\" size=\"2\" bgcolor=\"" << hash.data()[0] << "000000\" text=\"" << hash.data()[0] << "FFFFFF\">" << std::endl;
       logfile << t << t << "<center>" << std::endl;
-      logfile << t << t << t << starttable << std::endl;
-      logfile << t << t << t << startline << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Component" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Event" << endline;
+      logfile << t << t << t << spitfire::string::ToUTF8(starttable) << std::endl;
+      logfile << t << t << t << spitfire::string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Component" << spitfire::string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Event" << string::ToUTF8(endline)<<std::endl;
 
       //Close the file, return success
       logfile.close();
@@ -150,7 +156,7 @@ namespace spitfire
     }
 
 //#ifdef BUILD_DEBUG
-    void cLog::trace(const std::string& section)
+    void cLog::trace(const string_t& section)
     {
       if (!bIsLogging) return;
 
@@ -159,17 +165,13 @@ namespace spitfire
       s += TEXT("\n");
       OutputDebugString(s.c_str());
 #else
-#ifdef UNICODE
-      std::wcout<<s<<std::endl;
-#else
-      std::cout<<s<<std::endl;
-#endif
+      cout_t<<s<<std::endl;
 #endif
     }
 
-    void cLog::trace(const std::string& section, const std::string& text)
+    void cLog::trace(const string_t& section, const string_t& text)
     {
-      trace(section + " - " + text);
+      trace(section + TEXT(" - ") + text);
     }
 //#endif //BUILD_DEBUG
 
@@ -183,11 +185,11 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
+      logfile << string::ToUTF8(startline)<< "<td bgcolor=\"" <<hash.data()[0] << "0000CC\">&nbsp;" <<string::ToUTF8(endcolumn)<< "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" <<string::ToUTF8(endline)<<std::endl;
       logfile.close();
     }
 
-    void cLog::Newline(const std::string& s1)
+    void cLog::Newline(const string_t& s1)
     {
       if (!bIsLogging) return;
 
@@ -199,7 +201,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << endline;
+      logfile << string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" <<string::ToUTF8(s1)<< string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << string::ToUTF8(endline)<<std::endl;
 
       logfile.close();
 
@@ -208,7 +210,7 @@ namespace spitfire
   //#endif //BUILD_DEBUG
     }
 
-    void cLog::Newline(const std::string& s1, const std::string& text)
+    void cLog::Newline(const string_t& s1, const string_t& text)
     {
       if (!bIsLogging) return;
 
@@ -220,7 +222,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << startline << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << s1 << endcolumn << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << text << endline;
+      logfile << string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << string::ToUTF8(s1) << string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
       logfile.close();
 
   //#ifdef BUILD_DEBUG
@@ -228,7 +230,7 @@ namespace spitfire
   //#endif
     }
 
-    void cLog::Success(const std::string& section, const std::string& text)
+    void cLog::Success(const string_t& section, const string_t& text)
     {
       if (!bIsLogging) return;
 
@@ -238,7 +240,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << startline << startsuccesscolumn[scol] << section << endcolumn << startsuccesscolumn[scol] << text << endline;
+      logfile << string::ToUTF8(startline) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(section) << string::ToUTF8(endcolumn) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
 
       //Close the file
       logfile.close();
@@ -250,7 +252,7 @@ namespace spitfire
   //#endif //BUILD_DEBUG
     }
 
-    void cLog::Error(const std::string& section, const std::string& text)
+    void cLog::Error(const string_t& section, const string_t& text)
     {
       if (!bIsLogging) return;
 
@@ -260,7 +262,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << startline << starterrorcolumn[ecol] << section << endcolumn << starterrorcolumn[ecol] << text << endline;
+      logfile <<string::ToUTF8(startline)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(section)<<string::ToUTF8(endcolumn)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(text)<<string::ToUTF8(endline)<<std::endl;
 
       logfile.close();
 
@@ -334,19 +336,19 @@ namespace spitfire
       //logfile << t;
       LOG.Success(LOG.section, o.str());
 
-      if (bIsLogging) std::cout<<o.str()<<std::endl;
+      if (bIsLogging) cout_t<<o.str()<<std::endl;
 
       return *this;
     }*/
 
-    void cConsole::_AddLine(const std::string& o)
+    void cConsole::_AddLine(const string_t& o)
     {
       // Cascade output to log file
       LOG._AddLine(o);
 
       lines.push_back(o);
 
-      if (bIsLogging) std::cout<<o<<std::endl;
+      if (bIsLogging) cout_t<<o<<std::endl;
 
       ClearLine();
     }
@@ -410,7 +412,7 @@ namespace spitfire
   {
     // TODO: Console should not be here
 
-    void cConsoleBase::ExecuteCommand(const std::string& command)
+    void cConsoleBase::ExecuteCommand(const string_t& command)
     {
       //assert(pApp != nullptr);
       //pApp->ConsoleExecute(command);
@@ -472,7 +474,7 @@ namespace spitfire
       else if (SDLK_TAB == uiCode)
         ; //TODO: Autocomplete
       else if (SDLK_CLEAR == uiCode)
-        current = "";
+        current.clear();
       else if (SDLK_UP == uiCode)
         ; //TODO: History of typed in items
       else if (SDLK_DOWN == uiCode)
@@ -492,8 +494,8 @@ namespace spitfire
           ConsoleAddLine(t.str());
         }*/
 
-        std::string s;
-        s += char(uiCode);
+        string_t s;
+        s += char_t(uiCode);
 
         current.insert(uiCursorPosition, s);
         uiCursorPosition++;
