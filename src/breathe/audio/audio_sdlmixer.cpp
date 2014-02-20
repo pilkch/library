@@ -131,7 +131,7 @@ namespace breathe
       if (pBuffer != nullptr) return pBuffer;
 
       if (!filesystem::FileExists(sFilename)) {
-        SCREEN<<"GetAudioBuffer File not found \""<<sFilename<<"\""<<std::endl;
+        SCREEN<<TEXT("GetAudioBuffer File not found \"")<<sFilename<<TEXT("\"")<<std::endl;
         return pBuffer;
       }
 
@@ -346,8 +346,8 @@ namespace breathe
 
       pChunk = Mix_LoadWAV(breathe::string::ToUTF8(sFilename).c_str());
 
-      if (pChunk == nullptr) SCREEN<<"cBuffer::Create Mix_LoadWAV FAILED Could not find file \""<<breathe::string::ToUTF8(sFilename)<<"\""<<std::endl;
-      else SCREEN<<"cBuffer::Create loaded file \""<<breathe::string::ToUTF8(sFilename)<<"\""<<std::endl;
+      if (pChunk == nullptr) SCREEN<<"cBuffer::Create Mix_LoadWAV FAILED Could not find file \""<<sFilename<<"\""<<std::endl;
+      else SCREEN<<"cBuffer::Create loaded file \""<<sFilename<<"\""<<std::endl;
     }
 
 

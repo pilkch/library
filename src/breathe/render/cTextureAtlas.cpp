@@ -17,8 +17,8 @@
 
 
 // Anything else
-#include <GL/GLee.h>
-#include <GL/glu.h>
+//#include <GL/GLee.h>
+//#include <GL/glu.h>
 
 #include <SDL/SDL_image.h>
 
