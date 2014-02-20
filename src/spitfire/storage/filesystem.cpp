@@ -286,7 +286,7 @@ namespace spitfire
       ASSERT(iResult == 0);
       ASSERT(szAppData[0] != 0);
       LOG<<TEXT("GetHomeConfigurationFilesDirectory returning \"")<<szAppData<<TEXT("\"")<<std::endl;
-      const string_t sFullPath = MakeFilePath(szAppData, TEXT(SPITFIRE_APPLICATION_COMPANY_NAME), TEXT(SPITFIRE_APPLICATION_NAME));
+      const string_t sFullPath = MakeFilePath(szAppData, TEXT(SPITFIRE_APPLICATION_COMPANY_NAME));
       return sFullPath;
       #else
       xdg::cXdg xdg;
