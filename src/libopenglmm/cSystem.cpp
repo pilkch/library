@@ -27,18 +27,6 @@
 
 namespace opengl
 {
-  PIXELFORMAT GetPixelFormatFromSDLPixelFormat(const SDL_PixelFormat* pPixelFormat)
-  {
-    assert(pPixelFormat != nullptr);
-
-    if ((pPixelFormat->BitsPerPixel == 32) && (pPixelFormat->BytesPerPixel == 4)) return PIXELFORMAT::R8G8B8A8;
-    if ((pPixelFormat->BitsPerPixel == 24) && (pPixelFormat->BytesPerPixel == 3)) return PIXELFORMAT::R8G8B8;
-    if ((pPixelFormat->BitsPerPixel == 16) && (pPixelFormat->BytesPerPixel == 3)) return PIXELFORMAT::R5G6B5;
-
-    assert(false);
-    return PIXELFORMAT::R5G6B5;
-  }
-
   PIXELFORMAT GetPixelFormatFromSDLPixelFormatEnum(uint32_t uiPixelFormat)
   {
     switch (uiPixelFormat) {
