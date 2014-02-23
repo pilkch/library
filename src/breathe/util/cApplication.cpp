@@ -1165,7 +1165,7 @@ namespace breathe
     SDL_SetWindowTitle(pWindow, breathe::string::ToUTF8(LANG("L_Application")).c_str());
 
     // Set our window icon
-    SDL_Surface* pIcon = IMG_Load("app.png");
+    SDL_Surface* pIcon = IMG_Load("data/icons/app.png");
     SDL_SetWindowIcon(pWindow, pIcon);
     SDL_FreeSurface(pIcon);
     pIcon = nullptr;
