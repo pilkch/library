@@ -1193,7 +1193,7 @@ namespace breathe
           t << "Joystick(";
           t << i;
           t << ") ";
-          t << SDL_JoystickName(i);
+          t << SDL_JoystickNameForIndex(i);
           LOG.Success("SDL", t.str());
 
           //TODO: Create a list of joysticks, close them at the end of the program
