@@ -434,9 +434,10 @@ namespace opengl
       context = nullptr;
     }
 
-    unsigned int uiFlags = SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_WINDOW_RESIZABLE;
+    unsigned int uiFlags = SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
     //uiFlags |= SDL_HWPALETTE;
 
+    // Create a window that is fullscreen with a custom resolution
     if (bIsFullScreen) {
       LOG<<"cContext::_SetWindowVideoMode fullscreen"<<std::endl;
       uiFlags |= SDL_WINDOW_FULLSCREEN;
@@ -462,7 +463,7 @@ namespace opengl
     LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
     if (window.pWindow == nullptr) {
       window.pWindow = SDL_CreateWindow("My Game Window",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         resolution.width, resolution.height,
         uiFlags);
       // Create a fullscreen window with the current resolution
