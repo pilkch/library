@@ -67,7 +67,7 @@ namespace opengl
     cWindow* CreateWindow(const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     void DestroyWindow(cWindow* pWindow);
 
-    cContext* CreateSharedContextFromWindow(const cWindow& window);
+    cContext* CreateSharedContextFromWindow(cWindow& window);
     #endif
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT

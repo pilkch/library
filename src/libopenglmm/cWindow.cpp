@@ -12,7 +12,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -38,6 +38,7 @@ namespace opengl
   // ** cWindow
 
   cWindow::cWindow(cSystem& _system, const opengl::string_t& sCaption, const cResolution& _resolution, bool _bIsFullScreen) :
+    pWindow(nullptr),
     system(_system),
     resolution(_resolution),
     bIsFullScreen(_bIsFullScreen),
@@ -46,12 +47,6 @@ namespace opengl
     pInputEventListener(nullptr)
   {
     LOG<<"cWindow::cWindow "<<std::endl;
-
-    // Enable unicode
-    SDL_EnableUNICODE(1);
-
-    // Enable key repeat
-    SDL_EnableKeyRepeat(200, 20);
 
     pContext = system.CreateSharedContextFromWindow(*this);
 
@@ -82,8 +77,15 @@ namespace opengl
 
   void cWindow::SetCaption(const opengl::string_t& _sCaption)
   {
+    // Set the caption
     sCaption = _sCaption;
-    SDL_WM_SetCaption(opengl::string::ToUTF8(sCaption).c_str(), "app.ico");
+    SDL_SetWindowTitle(pWindow, opengl::string::ToUTF8(sCaption).c_str());
+
+    // Set the icon
+    SDL_Surface* pIcon = IMG_Load("app.png");
+    SDL_SetWindowIcon(pWindow, pIcon);
+    SDL_FreeSurface(pIcon);
+    pIcon = nullptr;
   }
 
   void cWindow::ShowCursor(bool bShow)
@@ -93,7 +95,12 @@ namespace opengl
 
   void cWindow::WarpCursorToMiddleOfScreen()
   {
-    SDL_WarpMouse(resolution.width / 2, resolution.height / 2);
+    SDL_WarpMouseInWindow(pWindow, resolution.width / 2, resolution.height / 2);
+  }
+
+  void cWindow::SwapWindowFromContext()
+  {
+    SDL_GL_SwapWindow(pWindow);
   }
 
   bool cWindow::IsKeyUp(KEY key) const
@@ -127,7 +134,7 @@ namespace opengl
 
     resolution = _resolution;
 
-    pContext->ResizeWindow(resolution);
+    pContext->ResizeWindow(*this, resolution);
   }
 
 
@@ -148,42 +155,52 @@ namespace opengl
           break;
         }
 
-        case SDL_ACTIVEEVENT: {
-          cWindowEvent event;
-          bool bActivated = (sdlEvent.active.gain != 0);
-          if (bActivated) {
-            LOG<<"cWindow::UpdateEvents Activated"<<std::endl;
-            event.type = TYPE::WINDOW_ACTIVATE;
-          } else {
-            LOG<<"cWindow::UpdateEvents Deactivated"<<std::endl;
-            event.type = TYPE::WINDOW_DEACTIVATE;
-          }
-          if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
-          break;
-        }
+        case SDL_WINDOWEVENT: {
+          switch (sdlEvent.window.event) {
+            case SDL_WINDOWEVENT_FOCUS_GAINED: {
+              LOG<<"cWindow::UpdateEvents Activated"<<std::endl;
+              if (pWindowEventListener != nullptr) {
+                cWindowEvent event;
+                event.type = TYPE::WINDOW_ACTIVATE;
+                pWindowEventListener->OnWindowEvent(event);
+              }
+              break;
+            }
+            case SDL_WINDOWEVENT_FOCUS_LOST: {
+              LOG<<"cWindow::UpdateEvents Deactivated"<<std::endl;
+              if (pWindowEventListener != nullptr) {
+                cWindowEvent event;
+                event.type = TYPE::WINDOW_DEACTIVATE;
+                pWindowEventListener->OnWindowEvent(event);
+              }
+              break;
+            }
+            case SDL_WINDOWEVENT_RESIZED: {
+              LOG<<"cWindow::UpdateEvents Resize"<<std::endl;
 
-        case SDL_VIDEORESIZE: {
-          LOG<<"cWindow::UpdateEvents Resize"<<std::endl;
+              {
+                // Send an about to resize event
+                cWindowEvent event;
+                event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
+                if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+              }
 
-          {
-            // Send an about to resize event
-            cWindowEvent event;
-            event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
-            if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
-          }
+              cResolution resolution;
+              resolution.width = size_t(sdlEvent.window.data1);
+              resolution.height = size_t(sdlEvent.window.data2);
+              resolution.pixelFormat = GetPixelFormat();
+              OnResizeWindow(resolution, IsFullScreen());
 
-          cResolution resolution;
-          resolution.width = sdlEvent.resize.w;
-          resolution.height = sdlEvent.resize.h;
-          resolution.pixelFormat = GetPixelFormat();
-          OnResizeWindow(resolution, IsFullScreen());
+              // Send a resized event
+              if (pWindowEventListener != nullptr) {
+                cWindowEvent event;
+                event.type = TYPE::WINDOW_RESIZED;
+                pWindowEventListener->OnWindowEvent(event);
+              }
 
-          {
-            // Send a resized event
-            cWindowEvent event;
-            event.type = TYPE::WINDOW_RESIZED;
-            if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
-          }
+              break;
+            }
+          };
 
           break;
         }

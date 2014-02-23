@@ -32,6 +32,8 @@
 // liblibopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
+typedef void* SDL_GLContext;
+
 #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
 struct SDL_Surface;
 #endif
@@ -88,7 +90,7 @@ namespace opengl
     #endif
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
-    cContext(cSystem& system, const cWindow& window); // Created for a window
+    cContext(cSystem& system, cWindow& window); // Created for a window
     #endif
     cContext(cSystem& system, const cResolution& resolution, bool bIsRenderingToWindow); // Created for an offscreen context or a context for gtkglext
     ~cContext();
@@ -107,7 +109,11 @@ namespace opengl
     spitfire::math::cMat4 CalculateProjectionMatrix() const;
     spitfire::math::cMat4 CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const;
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
+    void ResizeWindow(cWindow& window, const cResolution& resolution);
+    #else
     void ResizeWindow(const cResolution& resolution);
+    #endif
 
     cTexture* CreateTexture(const opengl::string_t& sFileName);
     cTexture* CreateTextureNoMipMaps(const opengl::string_t& sFileName);
@@ -149,7 +155,7 @@ namespace opengl
     void SetSunIntensity(float fSunIntensity);
 
     void BeginRenderToScreen();
-    void EndRenderToScreen();
+    void EndRenderToScreen(cWindow& window);
 
     void BeginRenderToTexture(cTextureFrameBufferObject& texture);
     void EndRenderToTexture(cTextureFrameBufferObject& texture);
@@ -244,7 +250,7 @@ namespace opengl
     spitfire::math::cMat4 CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const;
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
-    bool _SetWindowVideoMode(bool bIsFullScreen);
+    bool _SetWindowVideoMode(cWindow& window, bool bIsFullScreen);
     #endif
     void _SetDefaultFlags();
     void _SetPerspective(size_t width, size_t height);
@@ -257,6 +263,8 @@ namespace opengl
     bool bIsRenderingToWindow;
     bool bIsValid;
     cResolution resolution;
+
+    SDL_GLContext context;
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     SDL_Surface* pSurface;

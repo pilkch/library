@@ -172,7 +172,7 @@ namespace breathe
       const size_t height = 562;
 
       opengl::cResolution resolution = capabilities.GetCurrentResolution();
-      if ((resolution.width < width) || (resolution.height < height) || (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8)) {
+      if ((resolution.width < width) || (resolution.height < height) || ((resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8) && (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8))) {
         LOGERROR<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
         return false;
       }
@@ -1161,14 +1161,14 @@ namespace breathe
       return false;
     }
 
-    // Enable unicode
-    SDL_EnableUNICODE(1);
+    // Set our window caption
+    SDL_SetWindowTitle(pWindow, breathe::string::ToUTF8(LANG("L_Application")).c_str());
 
-    // Enable key repeat
-    SDL_EnableKeyRepeat(200, 20);
-
-    // Set our window caption and possibly the icon as well
-    SDL_WM_SetCaption(breathe::string::ToUTF8(LANG("L_Application")).c_str(), "app.ico");
+    // Set our window icon
+    SDL_Surface* pIcon = IMG_Load("app.png");
+    SDL_SetWindowIcon(pWindow, pIcon);
+    SDL_FreeSurface(pIcon);
+    pIcon = nullptr;
 
     {
       // Joysticks
@@ -1945,7 +1945,7 @@ namespace breathe
 
   void cApplication::_UpdateKeys(durationms_t currentTime)
   {
-    Uint8 *key = SDL_GetKeyState( NULL );
+    const Uint8* key = SDL_GetKeyboardState(NULL);
     cKey* p;
 
     std::map<unsigned int, cKey*>::iterator iter = mKey.begin();

@@ -13,7 +13,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -190,14 +190,13 @@ namespace voodoo
     } else if (24 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
       // Add alpha channel
-      SDL_PixelFormat format = {
-        NULL, 32, 4, 0, 0, 0, 0,
-        0, 8, 16, 24,
-        0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
-        0, 255
-      };
-      SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
+      SDL_PixelFormat* pPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+
+      SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, pPixelFormat, SDL_SWSURFACE);
       SDL_FreeSurface(pSurface);
+
+      SDL_FreeFormat(pPixelFormat);
+
       pSurface = pConvertedSurface;
 
       // The image has now been converted to RGBA
@@ -208,13 +207,13 @@ namespace voodoo
 
       // Convert if BGR
       if (pSurface->format->Rshift > pSurface->format->Bshift) {
-        SDL_PixelFormat format = {
-          NULL, 32, 4, 0, 0, 0, 0,
-          0, 8, 16, 24,
-          0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
-          0, 255};
-        SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
+        SDL_PixelFormat* pPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+
+        SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, pPixelFormat, SDL_SWSURFACE);
         SDL_FreeSurface(pSurface);
+
+        SDL_FreeFormat(pPixelFormat);
+
         pSurface = pConvertedSurface;
       }
 

@@ -23,7 +23,7 @@
 #define LIBOPENGLMM_WINDOW_H
 
 // SDL headers
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
@@ -207,6 +207,8 @@ namespace opengl
   class cWindow
   {
   public:
+    friend class cContext;
+
     cWindow(cSystem& system, const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     ~cWindow();
 
@@ -234,6 +236,11 @@ namespace opengl
     bool GetKeyState(KEY key) const;
 
     void UpdateEvents();
+
+    void SwapWindowFromContext(); // Swap the window buffer (Called by cContext, you do not need to call this yourself)
+
+  protected:
+    SDL_Window* pWindow;
 
   private:
     void OnResizeWindow(const cResolution& resolution, bool bIsFullScreen);

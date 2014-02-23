@@ -12,8 +12,8 @@
 #include <vector>
 
 // SDL headers
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_syswm.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -31,27 +31,6 @@
 #include <libopenglmm/cWindow.h>
 #include <libopenglmm/opengl.h>
 
-#if (BUILD_LIBOPENGLMM_SDL_VERSION < 130) && (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
-#ifdef __WIN__
-typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
-
-#define WGL_CONTEXT_MAJOR_VERSION_ARB          0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB          0x2092
-#define WGL_CONTEXT_FLAGS_ARB                  0x2094
-#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
-#define WGL_CONTEXT_PROFILE_MASK_ARB           0x9126
-#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB       0x00000001
-#else
-#include <GL/glx.h>
-
-#define GLX_CONTEXT_DEBUG_BIT_ARB                0x00000001
-#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB   0x00000002
-#define GLX_CONTEXT_MAJOR_VERSION_ARB            0x2091
-#define GLX_CONTEXT_MINOR_VERSION_ARB            0x2092
-#define GLX_CONTEXT_FLAGS_ARB                    0x2094
-#endif
-#endif
-
 #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
 // Use the old EXT versions
 #ifndef GL_FRAMEBUFFER
@@ -65,11 +44,12 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShar
 namespace opengl
 {
   #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
-  cContext::cContext(cSystem& _system, const cWindow& window) :
+  cContext::cContext(cSystem& _system, cWindow& window) :
     system(_system),
     bIsRenderingToWindow(true),
     bIsValid(false),
     resolution(window.GetResolution()),
+    context(nullptr),
     pSurface(nullptr),
     targetWidth(0),
     targetHeight(0),
@@ -81,7 +61,7 @@ namespace opengl
   {
     LOG<<"cContext::cContext with window "<<std::endl;
 
-    if (!_SetWindowVideoMode(window.IsFullScreen())) {
+    if (!_SetWindowVideoMode(window, window.IsFullScreen())) {
       LOG<<"cContext::cContext Error setting video mode"<<std::endl;
       assert(false);
     }
@@ -134,6 +114,7 @@ namespace opengl
     bIsRenderingToWindow(_bIsRenderingToWindow),
     bIsValid(false),
     resolution(_resolution),
+    context(nullptr),
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     pSurface(nullptr),
     #endif
@@ -168,11 +149,18 @@ namespace opengl
     assert(staticVertexBufferObjects.empty());
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
+    // Destroy the surface
     if (pSurface != nullptr) {
       SDL_FreeSurface(pSurface);
       pSurface = nullptr;
     }
     #endif
+
+    // Destroy the context
+    if (context != nullptr) {
+      SDL_GL_DeleteContext(context);
+      context = nullptr;
+    }
   }
 
   bool cContext::IsValid() const
@@ -425,7 +413,7 @@ namespace opengl
 
 
   #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
-  bool cContext::_SetWindowVideoMode(bool bIsFullScreen)
+  bool cContext::_SetWindowVideoMode(cWindow& window, bool bIsFullScreen)
   {
     LOG<<"cContext::_SetWindowVideoMode "<<std::endl;
     assert(bIsRenderingToWindow);
@@ -440,86 +428,59 @@ namespace opengl
       pSurface = nullptr;
     }
 
+    // Destroy the old context
+    if (context != nullptr) {
+      SDL_GL_DeleteContext(context);
+      context = nullptr;
+    }
 
-    unsigned int uiFlags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE | SDL_RESIZABLE;
-
+    unsigned int uiFlags = SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_WINDOW_RESIZABLE;
+    //uiFlags |= SDL_HWPALETTE;
 
     if (bIsFullScreen) {
       LOG<<"cContext::_SetWindowVideoMode fullscreen"<<std::endl;
-      uiFlags |= SDL_FULLSCREEN;
+      uiFlags |= SDL_WINDOW_FULLSCREEN;
     } else {
       LOG<<"cContext::_SetWindowVideoMode window"<<std::endl;
-      uiFlags &= ~SDL_FULLSCREEN;
+      uiFlags &= ~SDL_WINDOW_FULLSCREEN;
     }
 
-
-
-    const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
-    if (pVideoInfo == nullptr) {
-      LOGERROR<<"cContext::_SetWindowVideoMode SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
-      return false;
-    }
-
-
-    // This checks to see if surfaces can be stored in memory
-    if (pVideoInfo->hw_available) {
-      LOG<<"cContext::_SetWindowVideoMode Hardware surface"<<std::endl;
-      uiFlags |= SDL_HWSURFACE;
-      uiFlags &= ~SDL_SWSURFACE;
-    } else {
-      LOG<<"cContext::_SetWindowVideoMode Software surface"<<std::endl;
-      uiFlags |= SDL_SWSURFACE;
-      uiFlags &= ~SDL_HWSURFACE;
-    }
-
-    // This checks if hardware blits can be done
-    if (pVideoInfo->blit_hw) {
-      LOG<<"cContext::_SetWindowVideoMode Hardware blit"<<std::endl;
-      uiFlags |= SDL_HWACCEL;
-    } else {
-      LOG<<"cContext::_SetWindowVideoMode Software blit"<<std::endl;
-      uiFlags &= ~SDL_HWACCEL;
-    }
-
-    // Sets up OpenGL double buffering
+    // Set up OpenGL double buffering
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    // We definitely want the OpenGL flag for SDL_SetVideoMode
-    assert((uiFlags & SDL_OPENGL) != 0);
-
-    #if (BUILD_LIBOPENGLMM_SDL_VERSION >= 130) || (BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300)
     const int iMajor = BUILD_LIBOPENGLMM_OPENGL_VERSION / 100;
     const int iMinor = (BUILD_LIBOPENGLMM_OPENGL_VERSION % 100) / 10;
-    #endif
 
-    #if BUILD_LIBOPENGLMM_SDL_VERSION >= 130
     // For SDL 1.3 and above we can just request the OpenGL version
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, iMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, iMinor);
-    #elif BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually
-    #ifdef __WIN__
-    // Get a handle to the window
-    SDL_SysWMinfo wmInfo = { 0 };
-    SDL_GetWMInfo(&wmInfo);
-    if (wmInfo.window == NULL) {
-      LOGERROR<<"cContext::_SetWindowVideoMode SDL_GetWMInfo FAILED, returning false"<<std::endl;
-      return false;
-    }
-
-    HDC hdc = GetDC(wmInfo.window);
-    if (hdc == NULL) {
-      LOGERROR<<"cContext::_SetWindowVideoMode GetDC FAILED, returning false"<<std::endl;
-      return false;
-    }
-    #endif
+    #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     #endif
 
-    // Create an SDL surface
-    LOG<<"cContext::_SetWindowVideoMode Calling SDL_SetVideoMode"<<std::endl;
-    pSurface = SDL_SetVideoMode(resolution.width, resolution.height, GetBitsForPixelFormat(resolution.pixelFormat), uiFlags);
-    if (pSurface == nullptr) {
-      LOGERROR<<"cContext::_SetWindowVideoMode SDL_SetVideoMode FAILED error="<<SDL_GetError()<<std::endl;
+    // Create our window if it has already been created
+    LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
+    if (window.pWindow == nullptr) {
+      window.pWindow = SDL_CreateWindow("My Game Window",
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        resolution.width, resolution.height,
+        uiFlags);
+      // Create a fullscreen window with the current resolution
+      //window.pWindow = SDL_CreateWindow(title,
+      //                        SDL_WINDOWPOS_UNDEFINED,
+      //                        SDL_WINDOWPOS_UNDEFINED,
+      //                        0, 0,
+      //                        SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+      if (window.pWindow == nullptr) {
+        LOGERROR<<"cContext::_SetWindowVideoMode SDL_CreateWindow FAILED error="<<SDL_GetError()<<std::endl;
+        return false;
+      }
+    }
+
+    context = SDL_GL_CreateContext(window.pWindow);
+    if (context == nullptr) {
+      LOGERROR<<"cContext::_SetWindowVideoMode SDL_GL_CreateContext FAILED error="<<SDL_GetError()<<std::endl;
       return false;
     }
 
@@ -534,95 +495,15 @@ namespace opengl
     }
     #endif
 
-    LOG<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
-
-    #if BUILD_LIBOPENGLMM_SDL_VERSION < 130
-    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually here
-    #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-
-    #ifdef __WIN__
-    LOG<<"cContext::_SetWindowVideoMode Error before wglGetProcAddress "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
-    // Load the wglCreateContextAttribsARB extension
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-    LOG<<"cContext::_SetWindowVideoMode Error after wglGetProcAddress "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
-    if (wglCreateContextAttribsARB == nullptr) {
-      LOG<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
-      return false;
-    }
-
-    if (wglCreateContextAttribsARB != nullptr) {
-      // Create a new context, make it current and destroy the old one
-      LOG<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
-      // Create the new context
-      int attribList[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, iMajor,
-        WGL_CONTEXT_MINOR_VERSION_ARB, iMinor,
-        #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
-        // Use the stricter OpenGL 3 core compatibility flag
-        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-        #endif
-        0
-      };
-      HGLRC ctx3 = wglCreateContextAttribsARB(hdc, NULL, attribList);
-      LOG<<"cContext::_SetWindowVideoMode After wglCreateContextAttribsARB "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
-      if (ctx3 == NULL) {
-        LOGERROR<<"cContext::_SetWindowVideoMode wglCreateContextAttribsARB FAILED, returning false"<<std::endl;
-        return false;
-      }
-
-      // Make the new context current
-      wglMakeCurrent(hdc, ctx3);
-      LOG<<"cContext::_SetWindowVideoMode After wglMakeCurrent "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
-
-      // Destroy the old context
-      //wglDeleteContext(wmInfo.hglrc);
-      //LOG<<"cContext::_SetWindowVideoMode After wglDeleteContext "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
-    }
-    #else
-    // SDL 1.2 and lower doesn't support OpenGL 3.0 or later so we have to initialize it manually here
-    // http://encelo.netsons.org/2009/01/16/habemus-opengl-30/
-    // Get a pointer to glXCreateContextAttribsARB
-    typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int* attrib_list);
-    PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress((GLubyte*)"glXCreateContextAttribsARB");
-    if (glXCreateContextAttribsARB == nullptr) {
-      LOG<<"cContext::_SetWindowVideoMode glXCreateContextAttribsARB NOT FOUND, returning false"<<std::endl;
-      return false;
-    }
-
-    if (glXCreateContextAttribsARB != nullptr) {
-      // Create a new context, make it current and destroy the old one
-      LOG<<"cContext::_SetWindowVideoMode Initializing OpenGL "<<iMajor<<"."<<iMinor<<std::endl;
-      // Tell GLX which version of OpenGL we want
-      //GLXContext ctx = glXGetCurrentContext();
-      Display* dpy = glXGetCurrentDisplay();
-      GLXDrawable draw = glXGetCurrentDrawable();
-      GLXDrawable read = glXGetCurrentReadDrawable();
-      int nelements = 0;
-      GLXFBConfig* cfg = glXGetFBConfigs(dpy, 0, &nelements);
-      int attribs[] = {
-        GLX_CONTEXT_MAJOR_VERSION_ARB, iMajor,
-        GLX_CONTEXT_MINOR_VERSION_ARB, iMinor,
-        #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
-        // Use the stricter OpenGL 3 core compatibility flag
-        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        #endif
-        0
-      };
-      GLXContext ctx3 = glXCreateContextAttribsARB(dpy, *cfg, 0, 1, attribs);
-      glXMakeContextCurrent(dpy, draw, read, ctx3);
-
-      // Destroy the old context
-      //glXDestroyContext(dpy, ctx);
-
-      LOG<<"cContext::_SetWindowVideoMode glGetError="<<cSystem::GetErrorString()<<std::endl;
-    }
-    #endif
-
-    #endif
+    #ifdef BUILD_DEBUG
+    LOG<<"cContext::_SetWindowVideoMode OpenGL Version: "<<(const char*)(glGetString(GL_VERSION))<<std::endl;
+    LOG<<"cContext::_SetWindowVideoMode OpenGL Vendor: "<<(const char*)(glGetString(GL_VENDOR))<<std::endl;
+    LOG<<"cContext::_SetWindowVideoMode OpenGL Renderer: "<<(const char*)(glGetString(GL_RENDERER))<<std::endl;
+    LOG<<"cContext::_SetWindowVideoMode GLSL Version: "<<(const char*)(glGetString(GL_SHADING_LANGUAGE_VERSION))<<std::endl;
     #endif
 
     LOG<<"cContext::_SetWindowVideoMode returning true, "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
+
     return true;
   }
   #endif
@@ -710,15 +591,18 @@ namespace opengl
     return matrix;
   }
 
-
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
+  void cContext::ResizeWindow(cWindow& window, const cResolution& _resolution)
+  #else
   void cContext::ResizeWindow(const cResolution& _resolution)
+  #endif
   {
     assert(bIsRenderingToWindow);
 
     resolution = _resolution;
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
-    if (!_SetWindowVideoMode(false)) {
+    if (!_SetWindowVideoMode(window, false)) {
       LOG<<"cContext::ResizeWindow Error setting video mode"<<std::endl;
       assert(false);
     }
@@ -808,11 +692,11 @@ namespace opengl
     _BeginRenderShared(resolution.width, resolution.height);
   }
 
-  void cContext::EndRenderToScreen()
+  void cContext::EndRenderToScreen(cWindow& window)
   {
     _EndRenderShared();
 
-    if (bIsRenderingToWindow) SDL_GL_SwapBuffers();
+    if (bIsRenderingToWindow) window.SwapWindowFromContext();
   }
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)

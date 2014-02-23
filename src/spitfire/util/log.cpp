@@ -19,7 +19,7 @@
 #include <boost/smart_ptr.hpp>
 
 // SDL headers
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 //#if defined(BUILD_DEBUG) && defined(__WIN__)
 //#include <windows.h>
@@ -421,7 +421,8 @@ namespace spitfire
 
     bool cConsoleBase::AddKey(unsigned int uiCode)
     {
-      //Uint8* key = SDL_GetKeyState( NULL );
+      //const Uint8* key = SDL_GetKeyboardState(NULL);
+
       //key for shift, control, etc. modifiers
 
       //if (key[SDLK_SHIFT])

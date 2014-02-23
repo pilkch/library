@@ -12,7 +12,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -34,6 +34,18 @@ namespace opengl
     if ((pPixelFormat->BitsPerPixel == 32) && (pPixelFormat->BytesPerPixel == 4)) return PIXELFORMAT::R8G8B8A8;
     if ((pPixelFormat->BitsPerPixel == 24) && (pPixelFormat->BytesPerPixel == 3)) return PIXELFORMAT::R8G8B8;
     if ((pPixelFormat->BitsPerPixel == 16) && (pPixelFormat->BytesPerPixel == 3)) return PIXELFORMAT::R5G6B5;
+
+    assert(false);
+    return PIXELFORMAT::R5G6B5;
+  }
+
+  PIXELFORMAT GetPixelFormatFromSDLPixelFormatEnum(uint32_t uiPixelFormat)
+  {
+    switch (uiPixelFormat) {
+      case SDL_PIXELFORMAT_RGBA8888: return PIXELFORMAT::R8G8B8A8;
+      case SDL_PIXELFORMAT_RGB888: return PIXELFORMAT::R8G8B8;
+      case SDL_PIXELFORMAT_RGB565: return PIXELFORMAT::R5G6B5;
+    };
 
     assert(false);
     return PIXELFORMAT::R5G6B5;
@@ -262,9 +274,10 @@ namespace opengl
 
   void cSystem::UpdateResolutions()
   {
-    const SDL_VideoInfo* pVideoInfo = SDL_GetVideoInfo();
-    if ((pVideoInfo == nullptr) && (pVideoInfo->vfmt == nullptr)) {
-      LOG<<"cSystem::UpdateResolutions SDL_GetVideoInfo FAILED error="<<SDL_GetError()<<std::endl;
+    SDL_DisplayMode currentDisplayMode;
+    int iResult = SDL_GetDesktopDisplayMode(0, &currentDisplayMode);
+    if (iResult != 0) {
+      LOG<<"cSystem::UpdateResolutions SDL_GetDesktopDisplayMode FAILED error="<<SDL_GetError()<<std::endl;
       return;
     }
 
@@ -278,9 +291,9 @@ namespace opengl
     //}
 
     cResolution resolution;
-    resolution.width = pVideoInfo->current_w;
-    resolution.height = pVideoInfo->current_h;
-    resolution.pixelFormat = GetPixelFormatFromSDLPixelFormat(pVideoInfo->vfmt);
+    resolution.width = currentDisplayMode.w;
+    resolution.height = currentDisplayMode.h;
+    resolution.pixelFormat = GetPixelFormatFromSDLPixelFormatEnum(currentDisplayMode.format);
 
     capabilities.SetCurrentResolution(resolution);
   }
@@ -395,7 +408,7 @@ namespace opengl
     delete pWindow;
   }
 
-  cContext* cSystem::CreateSharedContextFromWindow(const cWindow& window)
+  cContext* cSystem::CreateSharedContextFromWindow(cWindow& window)
   {
     nContexts++;
 

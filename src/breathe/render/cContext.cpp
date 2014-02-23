@@ -815,7 +815,7 @@ namespace breathe
     {
       _EndRenderShared();
 
-      SDL_GL_SwapBuffers();
+      SDL_GL_SwapWindow(pWindow);
     }
 
     void cContext::BeginRenderToScreen()
