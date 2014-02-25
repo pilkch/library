@@ -118,6 +118,10 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN 
+#error "WIN32_LEAN_AND_MEAN must be defined on Windows"
+#endif
+
 #ifndef NOMINMAX
 #error "NOMINMAX must be defined on Windows"
 #endif
@@ -270,13 +274,11 @@ namespace spitfire
   // For specifying a time duration
   //typedef uint64_t sampletime_t; // Legacy
   typedef uint64_t durationms_t;
-}
 
 
-// Safe deleting functions
-// These will delete your object/array and set your pointer to NULL so that we avoid double deletes
-namespace spitfire
-{
+  // Safe deleting functions
+  // These will delete your object/array and set your pointer to NULL so that we avoid double deletes
+
   template <class T>
   inline void SAFE_DELETE(T& x)
   {

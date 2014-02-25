@@ -5,6 +5,11 @@
 #include <spitfire/algorithm/algorithm.h>
 #include <spitfire/util/log.h>
 
+#ifdef __WIN__
+// Windows headers
+#include <shellapi.h>
+#endif
+
 namespace spitfire
 {
   namespace operatingsystem
