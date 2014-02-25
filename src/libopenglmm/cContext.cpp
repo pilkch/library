@@ -459,17 +459,18 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     #endif
 
+    const int iDisplay = 1;
+
     // Create our window if it has already been created
     LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
     if (window.pWindow == nullptr) {
       window.pWindow = SDL_CreateWindow("My Game Window",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
         resolution.width, resolution.height,
         uiFlags);
       // Create a fullscreen window with the current resolution
       //window.pWindow = SDL_CreateWindow(title,
-      //                        SDL_WINDOWPOS_UNDEFINED,
-      //                        SDL_WINDOWPOS_UNDEFINED,
+      //                        SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
       //                        0, 0,
       //                        SDL_WINDOW_FULLSCREEN_DESKTOP);
 
