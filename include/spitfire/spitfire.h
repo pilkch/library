@@ -104,6 +104,15 @@
 #error "Unknown compiler"
 #endif
 
+#ifdef COMPILER_MSVC
+#define COMPILER_MSVC_2013 1800
+#define COMPILER_MSVC_2012 1700
+#define COMPILER_MSVC_2010 1600
+#define COMPILER_MSVC_2008 1500
+#define COMPILER_MSVC_2005 1400
+#define COMPILER_MSVC_2003 1310
+#endif
+
 #ifdef __WIN__
 #include <windows.h>
 
@@ -178,7 +187,9 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 // Override keyword to flag virtual functions which are overridden from the base class
+#if defined(COMPILER_MSVC) && (_MSC_VER < COMPILER_MSVC_2010)
 #define override
+#endif
 
 #ifdef COMPILER_GCC
 // Final keyword to flag virtual functions which are not allowed to be overridden in derived classes
@@ -192,7 +203,7 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 // Visual Studio 2012 still doesn't support C++11
-#ifndef COMPILER_MSVC
+#if !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2013))
 #define BUILD_SPITFIRE_CPP11
 #endif
 

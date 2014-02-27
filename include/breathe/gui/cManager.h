@@ -295,10 +295,10 @@ namespace breathe
       cButton();
 
     private:
-      virtual override EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y) override;
     };
 
     class cCheckbox : public cWidget
@@ -310,10 +310,10 @@ namespace breathe
       void SetSelected(bool bSelected);
 
     private:
-      virtual override EVENT_RESULT _OnEventMouseDown(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseUp(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseMove(int button, float x, float y);
-      virtual override EVENT_RESULT _OnEventMouseClick(int button, float x, float y);
+      virtual EVENT_RESULT _OnEventMouseDown(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseUp(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseMove(int button, float x, float y) override;
+      virtual EVENT_RESULT _OnEventMouseClick(int button, float x, float y) override;
 
       bool bIsSelected;
     };
@@ -338,7 +338,7 @@ namespace breathe
       cRetroButton();
 
     private:
-      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+      virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) override;
     };
 
     class cRetroInput : public cInput
@@ -347,7 +347,7 @@ namespace breathe
       cRetroInput();
 
     private:
-      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+      virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) override;
     };
 
     class cRetroInputUpDown : public cRetroInput
@@ -362,7 +362,7 @@ namespace breathe
       void SetValue(int value, bool bNotifyListener);
 
     private:
-      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+      virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) override;
 
       int min;
       int max;
@@ -383,7 +383,7 @@ namespace breathe
       void SetSelectedColour(size_t index, bool bNotifyListener);
 
     private:
-      virtual override EVENT_RESULT _OnEventKeyboardDown(int keyCode);
+      virtual EVENT_RESULT _OnEventKeyboardDown(int keyCode) override;
 
       std::vector<string_t> colourNames;
       std::vector<spitfire::math::cColour> colours;
