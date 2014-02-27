@@ -18,10 +18,6 @@
 // OpenGL headers
 #include <GL/GLee.h>
 
-// SDL headers
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
