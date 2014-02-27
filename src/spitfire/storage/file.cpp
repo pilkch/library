@@ -118,7 +118,7 @@ namespace spitfire
       while (file.good()) {
         //CONSOLE<<"ReadStringsFromFile Reading buffer"<<std::endl;
         file.read((char*)&buffer[0], bufferSize * sizeof(T));
-        CONSOLE<<"ReadStringsFromFile Finding how many read characters"<<std::endl;
+        //CONSOLE<<"ReadStringsFromFile Finding how many read characters"<<std::endl;
         const size_t n = file.gcount() / sizeof(T);
 
         //CONSOLE<<"ReadStringsFromFile Interpreting line"<<std::endl;
@@ -412,6 +412,12 @@ namespace spitfire
       #else
       WriteLineLF(str);
       #endif
+    }
+
+    void cWriteFile::WriteLineCRLF(const string_t& str)
+    {
+      file.write((const char*)str.c_str(), str.length() * sizeof(char_t));
+      file.write((const char*)TEXT("\r\n"), 2 * sizeof(char_t));
     }
 
     void cWriteFile::WriteLineLF(const string_t& str)
