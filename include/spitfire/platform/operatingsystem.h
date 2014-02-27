@@ -15,7 +15,7 @@ namespace spitfire
   namespace operatingsystem
   {
     size_t GetProcessorCount();
-    size_t GetTotalProcessorCoreCount();
+    size_t GetProcessorCoreCount();
 
     size_t GetMemoryTotalMB();
     size_t GetMemoryUsedByApplicationMB();

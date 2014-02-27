@@ -11,6 +11,8 @@
 #include <vector>
 #include <fstream>
 
+#include <thread>
+
 #ifdef __LINUX__
 #include <errno.h>
 #include <sys/types.h>
@@ -64,13 +66,45 @@ namespace spitfire
       #endif
     }
 
-#ifdef __LINUX__
+    size_t GetProcessorCoreCount()
+    {
+      const size_t nConcurrency = static_cast<size_t>(boost::thread::hardware_concurrency());
+
+      return max(nConcurrency, 1);
+    }
+
+    #ifdef __WIN__
+
     size_t GetMemoryTotalMB()
     {
-      struct sysinfo info;
-      if (sysinfo(&info) != 0) return 0;
+      // http://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+      MEMORYSTATUSEX memoryStatus;
+      memoryStatus.dwLength = sizeof(memoryStatus);
+      GlobalMemoryStatusEx(&memoryStatus);
 
-      return info.totalram / 1024 / 1024;
+      return static_cast<size_t>(memoryStatus.ullTotalPhys / 1024 / 1024);
+    }
+    
+    uint64_t GetMemoryUsedByApplicationMB()
+    {
+      // Get the virtual memory size from the process memory info
+      // http://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+      PROCESS_MEMORY_COUNTERS_EX memoryCounters;
+      GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&memoryCounters), sizeof(memoryCounters));
+
+      return memoryCounters.PrivateUsage / 1024 / 1024;
+    }
+
+    #elif defined(__LINUX__)
+
+    uint64_t GetSystemTotalPhysicalMemorySizeMb()
+    {
+      // http://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+
+      struct sysinfo sysInfo;
+      sysinfo(&sysInfo);
+
+      return static_cast<uint64_t>(sysInfo.totalram) / 1024 / 1024;
     }
 
     size_t GetMemoryUsedByApplicationMB()
