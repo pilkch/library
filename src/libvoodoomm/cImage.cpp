@@ -89,6 +89,8 @@ namespace voodoo
     void CopyFromSurfaceToBuffer(size_t width, size_t height);
     void CopyFromSurfaceToBuffer();
 
+    void ConvertARGBToRGBA();
+
   private:
     void Assign(const cSurface& rhs);
 
@@ -198,6 +200,8 @@ namespace voodoo
       SDL_FreeFormat(pPixelFormat);
 
       pSurface = pConvertedSurface;
+
+      ConvertARGBToRGBA();
 
       // The image has now been converted to RGBA
       type = IMAGE_TYPE::BITMAP;
@@ -316,6 +320,29 @@ namespace voodoo
     const uint8_t* pBuffer = buffer.get();
     image.CreateFromBuffer(pBuffer, width, height, pixelFormat);
   }*/
+
+  void cSurface::ConvertARGBToRGBA()
+  {
+    ASSERT(pSurface != nullptr);
+    ASSERT(pSurface->format->BitsPerPixel == 32);
+
+    const size_t height = pSurface->h;
+    const size_t nPitchBytes = pSurface->pitch;
+
+    unsigned char* pBuf = static_cast<unsigned char*>(pSurface->pixels);
+
+    // Iterate through each pixel
+    for (size_t row = 0; row < height; row++) {
+      for (size_t i = 0; i < nPitchBytes; i += 4) {
+        // Swap the components of this pixel
+        std::swap(pBuf[i], pBuf[i + 3]);
+        std::swap(pBuf[i + 1], pBuf[i + 2]);
+      }
+
+      // Skip to the new row
+      pBuf += nPitchBytes;
+    };
+  }
 
   bool cSurface::SaveToBMP(const string_t& sFilename) const
   {
