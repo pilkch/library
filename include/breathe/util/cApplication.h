@@ -125,6 +125,8 @@ namespace breathe
       virtual bool _LoadResources() { return true; }
       virtual void _DestroyResources() {}
 
+      virtual void _HandleSDLEvent(const SDL_Event& event) override;
+
       virtual void _OnWindowEvent(const opengl::cWindowEvent& event) override;
       virtual void _OnMouseEvent(const opengl::cMouseEvent& event) override;
       virtual void _OnKeyboardEvent(const opengl::cKeyboardEvent& event) override;

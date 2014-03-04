@@ -262,6 +262,7 @@ namespace opengl
         }
 
         default:
+          pWindowEventListener->HandleSDLEvent(SDL_Event);
           break;
       }
     }

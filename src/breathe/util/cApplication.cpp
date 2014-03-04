@@ -223,6 +223,11 @@ namespace breathe
       }
     }
 
+    void cApplication::_HandleSDLEvent(const SDL_Event& event)
+    {
+      joystickManager.HandleSDLEvent(event);
+    }
+
     void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
     {
       LOG<<"cApplication::_OnWindowEvent"<<std::endl;

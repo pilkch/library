@@ -274,9 +274,13 @@ namespace opengl
   public:
     virtual ~cWindowEventListener() {}
 
+    void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); }
+
     void OnWindowEvent(const cWindowEvent& event) { _OnWindowEvent(event); }
 
   private:
+    virtual void _HandleSDLEvent(const SDL_Event& event) {}
+
     virtual void _OnWindowEvent(const cWindowEvent& event) = 0;
   };
 
