@@ -15,19 +15,42 @@ namespace breathe
   namespace util
   {
     enum class GAMECONTROLLER_BUTTON {
-    };
-    enum class GAMECONTROLLER_AXIS {
+      A,
+      B,
+      X,
+      Y,
+      BACK,
+      GUIDE,
+      START,
+      LEFTSTICK,
+      RIGHTSTICK,
+      LEFTSHOULDER,
+      RIGHTSHOULDER,
+      DPAD_UP,
+      DPAD_DOWN,
+      DPAD_LEFT,
+      DPAD_RIGHT
     };
 
-    class cJoystickEventHandler
+    enum class GAMECONTROLLER_AXIS {
+      LEFTX,
+      LEFTY,
+      RIGHTX,
+      RIGHTY,
+      TRIGGERLEFT,
+      TRIGGERRIGHT,
+    };
+
+    class cJoystickEventListener
     {
     public:
-      virtual ~cJoystickEventHandler();
+      virtual ~cJoystickEventListener() {}
 
       virtual void OnGameControllerConnected(int index) = 0;
       virtual void OnGameControllerDisconnected(int index) = 0;
       virtual void OnGameControllerButtonDown(int index, GAMECONTROLLER_BUTTON button) = 0;
       virtual void OnGameControllerButtonUp(int index, GAMECONTROLLER_BUTTON button) = 0;
+      virtual void OnGameControllerAxisMotion(int index, GAMECONTROLLER_AXIS axis) = 0;
     };
 
     class cJoystickManager
@@ -35,6 +58,8 @@ namespace breathe
     public:
       cJoystickManager();
       ~cJoystickManager();
+
+      void SetEventListener(cJoystickEventListener& listener);
 
       void HandleSDLEvent(const SDL_Event& event);
 
@@ -48,6 +73,8 @@ namespace breathe
       void CloseGameController(int index);
 
       bool IsAttached(SDL_GameController* pController) const;
+
+      cJoystickEventListener* pEventListener;
 
       std::map<int, SDL_GameController*> controllers;
     };

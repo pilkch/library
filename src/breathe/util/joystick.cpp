@@ -14,7 +14,91 @@ namespace breathe
 {
   namespace util
   {
-    cJoystickManager::cJoystickManager()
+    const char* ControllerAxisName(const SDL_GameControllerAxis axis)
+    {
+      switch (axis) {
+        #define AXIS_CASE(ax) case SDL_CONTROLLER_AXIS_##ax: return #ax
+        AXIS_CASE(INVALID);
+        AXIS_CASE(LEFTX);
+        AXIS_CASE(LEFTY);
+        AXIS_CASE(RIGHTX);
+        AXIS_CASE(RIGHTY);
+        AXIS_CASE(TRIGGERLEFT);
+        AXIS_CASE(TRIGGERRIGHT);
+        #undef AXIS_CASE
+        default: return "???";
+      }
+    }
+
+    const char* ControllerButtonName(const SDL_GameControllerButton button)
+    {
+      switch (button) {
+        #define BUTTON_CASE(btn) case SDL_CONTROLLER_BUTTON_##btn: return #btn
+        BUTTON_CASE(INVALID);
+        BUTTON_CASE(A);
+        BUTTON_CASE(B);
+        BUTTON_CASE(X);
+        BUTTON_CASE(Y);
+        BUTTON_CASE(BACK);
+        BUTTON_CASE(GUIDE);
+        BUTTON_CASE(START);
+        BUTTON_CASE(LEFTSTICK);
+        BUTTON_CASE(RIGHTSTICK);
+        BUTTON_CASE(LEFTSHOULDER);
+        BUTTON_CASE(RIGHTSHOULDER);
+        BUTTON_CASE(DPAD_UP);
+        BUTTON_CASE(DPAD_DOWN);
+        BUTTON_CASE(DPAD_LEFT);
+        BUTTON_CASE(DPAD_RIGHT);
+        #undef BUTTON_CASE
+        default: return "???";
+      }
+    }
+
+    GAMECONTROLLER_AXIS SDLGameControllerAxisToBreatheGameControllerAxis(SDL_GameControllerAxis axis)
+    {
+      switch (axis)
+      {
+        #define AXIS_CASE(ax) case SDL_CONTROLLER_AXIS_##ax: return GAMECONTROLLER_AXIS::ax
+        AXIS_CASE(LEFTX);
+        AXIS_CASE(LEFTY);
+        AXIS_CASE(RIGHTX);
+        AXIS_CASE(RIGHTY);
+        AXIS_CASE(TRIGGERLEFT);
+        #undef AXIS_CASE
+        default: return GAMECONTROLLER_AXIS::TRIGGERRIGHT;
+      }
+    }
+
+    GAMECONTROLLER_BUTTON SDLGameControllerButtonToBreatheGameControllerButton(SDL_GameControllerButton button)
+    {
+      switch (button)
+      {
+        #define BUTTON_CASE(ax) case SDL_CONTROLLER_BUTTON_##ax: return GAMECONTROLLER_BUTTON::ax
+        BUTTON_CASE(A);
+        BUTTON_CASE(B);
+        BUTTON_CASE(X);
+        BUTTON_CASE(Y);
+        BUTTON_CASE(BACK);
+        BUTTON_CASE(GUIDE);
+        BUTTON_CASE(START);
+        BUTTON_CASE(LEFTSTICK);
+        BUTTON_CASE(RIGHTSTICK);
+        BUTTON_CASE(LEFTSHOULDER);
+        BUTTON_CASE(RIGHTSHOULDER);
+        BUTTON_CASE(DPAD_UP);
+        BUTTON_CASE(DPAD_DOWN);
+        BUTTON_CASE(DPAD_LEFT);
+        #undef BUTTON_CASE
+        default: return GAMECONTROLLER_BUTTON::DPAD_RIGHT;
+      }
+    }
+
+
+    // ** cJoystickManager
+
+    cJoystickManager::cJoystickManager() :
+      pEventListener(nullptr)
     {
       SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
 
@@ -26,6 +110,11 @@ namespace breathe
       CloseGameControllers();
 
       SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+    }
+
+    void cJoystickManager::SetEventListener(cJoystickEventListener& listener)
+    {
+      pEventListener = &listener;
     }
 
     void cJoystickManager::OpenGameControllers()
@@ -63,6 +152,8 @@ namespace breathe
 
         const char* szName = SDL_GameControllerName(pController);
         LOG<<"cJoystickManager::OpenGameController Using controller \""<<((szName != nullptr) ? szName : "Unknown controller")<<"\""<<std::endl;
+
+        if (pEventListener != nullptr) pEventListener->OnGameControllerConnected(index);
       }
     }
 
@@ -70,6 +161,8 @@ namespace breathe
     {
       std::map<int, SDL_GameController*>::iterator iter = controllers.find(index);
       if (iter != controllers.end()) {
+        if (pEventListener != nullptr) pEventListener->OnGameControllerConnected(index);
+
         SDL_GameControllerClose(iter->second);
         controllers.erase(iter);
       }
@@ -109,49 +202,6 @@ namespace breathe
     SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
 
     Sint16 iValue = SDL_GameControllerGetAxis(pController, SDL_CONTROLLER_AXIS axis);*/
-
-    const char* ControllerAxisName(const SDL_GameControllerAxis axis)
-    {
-        switch (axis)
-        {
-          #define AXIS_CASE(ax) case SDL_CONTROLLER_AXIS_##ax: return #ax
-            AXIS_CASE(INVALID);
-            AXIS_CASE(LEFTX);
-            AXIS_CASE(LEFTY);
-            AXIS_CASE(RIGHTX);
-            AXIS_CASE(RIGHTY);
-            AXIS_CASE(TRIGGERLEFT);
-            AXIS_CASE(TRIGGERRIGHT);
-    #undef AXIS_CASE
-            default: return "???";
-        }
-    }
-
-    const char* ControllerButtonName(const SDL_GameControllerButton button)
-    {
-        switch (button)
-        {
-    #define BUTTON_CASE(btn) case SDL_CONTROLLER_BUTTON_##btn: return #btn
-            BUTTON_CASE(INVALID);
-            BUTTON_CASE(A);
-            BUTTON_CASE(B);
-            BUTTON_CASE(X);
-            BUTTON_CASE(Y);
-            BUTTON_CASE(BACK);
-            BUTTON_CASE(GUIDE);
-            BUTTON_CASE(START);
-            BUTTON_CASE(LEFTSTICK);
-            BUTTON_CASE(RIGHTSTICK);
-            BUTTON_CASE(LEFTSHOULDER);
-            BUTTON_CASE(RIGHTSHOULDER);
-            BUTTON_CASE(DPAD_UP);
-            BUTTON_CASE(DPAD_DOWN);
-            BUTTON_CASE(DPAD_LEFT);
-            BUTTON_CASE(DPAD_RIGHT);
-    #undef BUTTON_CASE
-            default: return "???";
-        }
-    }
 
 
     void UpdateInput()
@@ -202,15 +252,24 @@ namespace breathe
           CloseGameController(index);
           break;
         }
-        case SDL_CONTROLLERAXISMOTION:
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<event.cdevice.which<<", axis "<<event.caxis.which<<", "<<event.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(event.caxis.axis))<<"') value: "<<event.caxis.value<<std::endl;
-          break;
-        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONDOWN: {
           LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
+          const int index = event.cdevice.which;
+          if (pEventListener != nullptr) pEventListener->OnGameControllerButtonDown(index, SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
           break;
-        case SDL_CONTROLLERBUTTONUP:
+        }
+        case SDL_CONTROLLERBUTTONUP: {
           LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
+          const int index = event.cdevice.which;
+          if (pEventListener != nullptr) pEventListener->OnGameControllerButtonUp(index, SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
           break;
+        }
+        case SDL_CONTROLLERAXISMOTION: {
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<event.cdevice.which<<", axis "<<event.caxis.which<<", "<<event.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(event.caxis.axis))<<"') value: "<<event.caxis.value<<std::endl;
+          const int index = event.cdevice.which;
+          if (pEventListener != nullptr) pEventListener->OnGameControllerAxisMotion(index, SDLGameControllerAxisToBreatheGameControllerAxis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)));
+          break;
+        }
         default:
           break;
       }
