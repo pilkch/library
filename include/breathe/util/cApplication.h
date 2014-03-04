@@ -125,9 +125,9 @@ namespace breathe
       virtual bool _LoadResources() { return true; }
       virtual void _DestroyResources() {}
 
-      void _OnWindowEvent(const opengl::cWindowEvent& event);
-      void _OnMouseEvent(const opengl::cMouseEvent& event);
-      void _OnKeyboardEvent(const opengl::cKeyboardEvent& event);
+      virtual void _OnWindowEvent(const opengl::cWindowEvent& event) override;
+      virtual void _OnMouseEvent(const opengl::cMouseEvent& event) override;
+      virtual void _OnKeyboardEvent(const opengl::cKeyboardEvent& event) override;
 
       // State event management (Transitioning between states)
       void ProcessStateEvents();
