@@ -235,7 +235,7 @@ namespace opengl
     bool IsKeyHeld(KEY key) const;
     bool GetKeyState(KEY key) const;
 
-    void UpdateEvents();
+    void HandleEvents();
 
     void SwapWindowFromContext(); // Swap the window buffer (Called by cContext, you do not need to call this yourself)
 

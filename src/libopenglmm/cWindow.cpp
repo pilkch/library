@@ -140,7 +140,7 @@ namespace opengl
   }
 
 
-  void cWindow::UpdateEvents()
+  void cWindow::HandleEvents()
   {
     // Which keys were released this time step
     std::vector<KEY> keysUp;
