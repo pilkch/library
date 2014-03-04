@@ -17,6 +17,7 @@
 #include <breathe/render/cSystem.h>
 #include <breathe/render/cVertexBufferObject.h>
 #include <breathe/render/cWindow.h>
+#include <breathe/util/joystick.h>
 
 namespace breathe
 {
@@ -134,6 +135,7 @@ namespace breathe
       // State event management (Transitioning between states)
       void ProcessStateEvents();
 
+      cJoystickManager joystickManager;
 
       // State change event queue
       typedef cState* cStateEvent;
