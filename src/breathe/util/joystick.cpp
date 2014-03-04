@@ -110,8 +110,7 @@ namespace breathe
 
     Sint16 iValue = SDL_GameControllerGetAxis(pController, SDL_CONTROLLER_AXIS axis);*/
 
-    static const char *
-    ControllerAxisName(const SDL_GameControllerAxis axis)
+    const char* ControllerAxisName(const SDL_GameControllerAxis axis)
     {
         switch (axis)
         {
@@ -128,8 +127,7 @@ namespace breathe
         }
     }
 
-    static const char *
-    ControllerButtonName(const SDL_GameControllerButton button)
+    const char* ControllerButtonName(const SDL_GameControllerButton button)
     {
         switch (button)
         {
@@ -205,27 +203,13 @@ namespace breathe
           break;
         }
         case SDL_CONTROLLERAXISMOTION:
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION"<<std::endl;
-          //const int index = event.cdevice.which;
-          printf("Controller %d axis %d ('%s') value: %d\n",
-                  event.caxis.which,
-                  event.caxis.axis,
-                  ControllerAxisName(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
-                  event.caxis.value);
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<event.cdevice.which<<", axis "<<event.caxis.which<<", "<<event.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(event.caxis.axis))<<"') value: "<<event.caxis.value<<std::endl;
           break;
         case SDL_CONTROLLERBUTTONDOWN:
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN"<<std::endl;
-          //const int index = event.cdevice.which;
-          printf("Controller %d button %d ('%s') down\n",
-                  event.cbutton.which, event.cbutton.button,
-                  ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
           break;
         case SDL_CONTROLLERBUTTONUP:
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP"<<std::endl;
-          //const int index = event.cdevice.which;
-          printf("Controller %d button %d ('%s') up\n",
-                  event.cbutton.which, event.cbutton.button,
-                  ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
           break;
         default:
           break;
