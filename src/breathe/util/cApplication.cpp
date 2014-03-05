@@ -197,8 +197,10 @@ namespace breathe
       pWindow->SetWindowEventListener(*this);
       pWindow->SetInputEventListener(*this);
 
-      pAudioManager = breathe::audio::Create(breathe::audio::DRIVER::DEFAULT);
+      // Register our joystick event listener
+      joystickManager.SetEventListener(*this);
 
+      pAudioManager = breathe::audio::Create(breathe::audio::DRIVER::DEFAULT);
 
       // Call our overridden create function
       return _Create();
@@ -214,6 +216,9 @@ namespace breathe
         breathe::audio::Destroy(pAudioManager);
         pAudioManager = nullptr;
       }
+
+      // Invalidate our joystick event listener
+      joystickManager.InvalidateEventListener();
 
       pContext = nullptr;
 
@@ -254,6 +259,13 @@ namespace breathe
       cState* pState = GetState();
       if (pState != nullptr) pState->OnKeyboardEvent(event);
     }
+
+    void cApplication::OnJoystickEvent(const util::cJoystickEvent& event)
+    {
+      cState* pState = GetState();
+      if (pState != nullptr) pState->OnJoystickEvent(event);
+    }
+
 
     void cApplication::PushStateSoon(cState* pState)
     {

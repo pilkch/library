@@ -6,6 +6,7 @@
 
 // Breathe headers
 #include <breathe/breathe.h>
+#include <breathe/util/joystick.h>
 
 // TODO: include shadows for gui with an alpha blend niceynicey.
 // TODO: Be original, don't use the mac os x controls,
@@ -464,6 +465,7 @@ namespace breathe
       bool InjectEventMouseDown(int button, float x, float y);
       bool InjectEventMouseUp(int button, float x, float y);
       bool InjectEventMouseMove(int button, float x, float y);
+      bool InjectEventJoystickEvent(const breathe::util::cJoystickEvent& event);
 
     private:
       const cWidget* GetFocusedWidget() const;

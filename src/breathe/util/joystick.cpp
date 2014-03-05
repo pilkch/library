@@ -95,6 +95,25 @@ namespace breathe
     }
 
 
+    // ** cJoystickEvent
+
+    cJoystickEvent::cJoystickEvent() :
+      type(TYPE::CONNECTED),
+      index(0),
+      button(GAMECONTROLLER_BUTTON::A),
+      axis(GAMECONTROLLER_AXIS::LEFTX)
+    {
+    }
+
+    // ** cGameController
+
+    cJoystickManager::cGameController::cGameController() :
+      pController(nullptr),
+      pHaptic(nullptr)
+    {
+    }
+
+
     // ** cJoystickManager
 
     cJoystickManager::cJoystickManager() :
@@ -117,6 +136,11 @@ namespace breathe
       pEventListener = &listener;
     }
 
+    void cJoystickManager::InvalidateEventListener()
+    {
+      pEventListener = nullptr;
+    }
+
     void cJoystickManager::OpenGameControllers()
     {
       size_t nControllers = 0;
@@ -132,10 +156,19 @@ namespace breathe
 
     void cJoystickManager::CloseGameControllers()
     {
-      std::map<int, SDL_GameController*>::iterator iter(controllers.begin());
-      const std::map<int, SDL_GameController*>::iterator iterEnd(controllers.end());
+      std::map<int, cGameController>::iterator iter(controllers.begin());
+      const std::map<int, cGameController>::iterator iterEnd(controllers.end());
       while (iter != iterEnd) {
-        SDL_GameControllerClose(iter->second);
+        if (pEventListener != nullptr) {
+          cJoystickEvent event;
+          event.type = cJoystickEvent::TYPE::DISCONNECTED;
+          event.index = iter->first;
+          pEventListener->OnJoystickEvent(event);
+        }
+
+        if (iter->second.pHaptic != nullptr) SDL_HapticClose((iter->second).pHaptic);
+
+        SDL_GameControllerClose(iter->second.pController);
 
         iter++;
       }
@@ -145,25 +178,55 @@ namespace breathe
 
     void cJoystickManager::OpenGameController(int index)
     {
-      std::map<int, SDL_GameController*>::iterator iter = controllers.find(index);
+      std::map<int, cGameController>::iterator iter = controllers.find(index);
       if (iter == controllers.end()) {
-        SDL_GameController* pController = SDL_GameControllerOpen(index);
-        controllers[index] = pController;
+        cGameController controller;
+        controller.pController = SDL_GameControllerOpen(index);
 
-        const char* szName = SDL_GameControllerName(pController);
+        const char* szName = SDL_GameControllerName(controller.pController);
         LOG<<"cJoystickManager::OpenGameController Using controller \""<<((szName != nullptr) ? szName : "Unknown controller")<<"\""<<std::endl;
 
-        if (pEventListener != nullptr) pEventListener->OnGameControllerConnected(index);
+        SDL_Joystick* pJoystick = SDL_GameControllerGetJoystick(controller.pController);
+        if (SDL_JoystickIsHaptic(pJoystick)) {
+          SDL_Haptic* pHaptic = SDL_HapticOpenFromJoystick(pJoystick);
+          printf("Haptic Effects: %d\n", SDL_HapticNumEffects(pHaptic));
+          printf("Haptic Query: %x\n", SDL_HapticQuery(pHaptic));
+          if (SDL_HapticRumbleSupported(pHaptic) == 0) {
+            SDL_HapticClose(pHaptic);
+            pHaptic = nullptr;
+          } else if (SDL_HapticRumbleInit(pHaptic) != 0) {
+            printf("Haptic Rumble Init: %s\n", SDL_GetError());
+            SDL_HapticClose(pHaptic);
+            pHaptic = nullptr;
+          } else controller.pHaptic = pHaptic;
+        }
+
+        controllers[index] = controller;
+        
+        if (pEventListener != nullptr) {
+          cJoystickEvent event;
+          event.type = cJoystickEvent::TYPE::CONNECTED;
+          event.index = index;
+          pEventListener->OnJoystickEvent(event);
+        }
       }
     }
 
     void cJoystickManager::CloseGameController(int index)
     {
-      std::map<int, SDL_GameController*>::iterator iter = controllers.find(index);
+      std::map<int, cGameController>::iterator iter = controllers.find(index);
       if (iter != controllers.end()) {
-        if (pEventListener != nullptr) pEventListener->OnGameControllerConnected(index);
+        if (pEventListener != nullptr) {
+          cJoystickEvent event;
+          event.type = cJoystickEvent::TYPE::DISCONNECTED;
+          event.index = index;
+          pEventListener->OnJoystickEvent(event);
+        }
 
-        SDL_GameControllerClose(iter->second);
+        if (iter->second.pHaptic != nullptr) SDL_HapticClose((iter->second).pHaptic);
+
+        SDL_GameControllerClose(iter->second.pController);
+
         controllers.erase(iter);
       }
     }
@@ -174,33 +237,11 @@ namespace breathe
     }
 
     /*
-    SDL_CONTROLLER_BUTTON_A,
-    SDL_CONTROLLER_BUTTON_B,
-    SDL_CONTROLLER_BUTTON_X,
-    SDL_CONTROLLER_BUTTON_Y,
-    SDL_CONTROLLER_BUTTON_BACK,
-    SDL_CONTROLLER_BUTTON_GUIDE,
-    SDL_CONTROLLER_BUTTON_START,
-    SDL_CONTROLLER_BUTTON_LEFTSTICK,
-    SDL_CONTROLLER_BUTTON_RIGHTSTICK,
-    SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
-    SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
-    SDL_CONTROLLER_BUTTON_DPAD_UP,
-    SDL_CONTROLLER_BUTTON_DPAD_DOWN,
-    SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-    SDL_CONTROLLER_BUTTON_DPAD_RIGHT
     Uint8 uiValue = SDL_GameControllerGetButton(pController, SDL_CONTROLLER_BUTTON button);
 
     // Get the current state of an axis control on a game controller.
     // The state is a value ranging from -32768 to 32767.
     // The axis indices start at index 0.
-    SDL_CONTROLLER_AXIS_LEFTX,
-    SDL_CONTROLLER_AXIS_LEFTY,
-    SDL_CONTROLLER_AXIS_RIGHTX,
-    SDL_CONTROLLER_AXIS_RIGHTY,
-    SDL_CONTROLLER_AXIS_TRIGGERLEFT,
-    SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
-
     Sint16 iValue = SDL_GameControllerGetAxis(pController, SDL_CONTROLLER_AXIS axis);*/
 
 
@@ -236,38 +277,53 @@ namespace breathe
       }*/
     }
 
-    void cJoystickManager::HandleSDLEvent(const SDL_Event& event)
+    void cJoystickManager::HandleSDLEvent(const SDL_Event& sdlEvent)
     {
       LOG<<"cJoystickManager::HandleSDLEvent"<<std::endl;
-      switch (event.type) {
+      switch (sdlEvent.type) {
         case SDL_CONTROLLERDEVICEADDED: {
           LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERDEVICEADDED"<<std::endl;
-          const int index = event.cdevice.which;
+          const int index = sdlEvent.cdevice.which;
           OpenGameController(index);
           break;
         }
         case SDL_CONTROLLERDEVICEREMOVED: {
           LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERDEVICEREMOVED"<<std::endl;
-          const int index = event.cdevice.which;
+          const int index = sdlEvent.cdevice.which;
           CloseGameController(index);
           break;
         }
         case SDL_CONTROLLERBUTTONDOWN: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
-          const int index = event.cdevice.which;
-          if (pEventListener != nullptr) pEventListener->OnGameControllerButtonDown(index, SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN device "<<sdlEvent.cdevice.which<<", button "<<sdlEvent.cbutton.which<<", "<<sdlEvent.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button))<<"')"<<std::endl;
+          if (pEventListener != nullptr) {
+            cJoystickEvent event;
+            event.type = cJoystickEvent::TYPE::BUTTON_DOWN;
+            event.index = sdlEvent.cdevice.which;
+            event.button = SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button));
+            pEventListener->OnJoystickEvent(event);
+          }
           break;
         }
         case SDL_CONTROLLERBUTTONUP: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP device "<<event.cdevice.which<<", button "<<event.cbutton.which<<", "<<event.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(event.cbutton.button))<<"')"<<std::endl;
-          const int index = event.cdevice.which;
-          if (pEventListener != nullptr) pEventListener->OnGameControllerButtonUp(index, SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(event.cbutton.button)));
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP device "<<sdlEvent.cdevice.which<<", button "<<sdlEvent.cbutton.which<<", "<<sdlEvent.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button))<<"')"<<std::endl;
+          if (pEventListener != nullptr) {
+            cJoystickEvent event;
+            event.type = cJoystickEvent::TYPE::BUTTON_UP;
+            event.index = sdlEvent.cdevice.which;
+            event.button = SDLGameControllerButtonToBreatheGameControllerButton(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button));
+            pEventListener->OnJoystickEvent(event);
+          }
           break;
         }
         case SDL_CONTROLLERAXISMOTION: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<event.cdevice.which<<", axis "<<event.caxis.which<<", "<<event.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(event.caxis.axis))<<"') value: "<<event.caxis.value<<std::endl;
-          const int index = event.cdevice.which;
-          if (pEventListener != nullptr) pEventListener->OnGameControllerAxisMotion(index, SDLGameControllerAxisToBreatheGameControllerAxis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)));
+          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<sdlEvent.cdevice.which<<", axis "<<sdlEvent.caxis.which<<", "<<sdlEvent.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(sdlEvent.caxis.axis))<<"') value: "<<sdlEvent.caxis.value<<std::endl;
+          if (pEventListener != nullptr) {
+            cJoystickEvent event;
+            event.type = cJoystickEvent::TYPE::AXIS_MOTION;
+            event.index = sdlEvent.cdevice.which;
+            event.axis = SDLGameControllerAxisToBreatheGameControllerAxis(static_cast<SDL_GameControllerAxis>(sdlEvent.caxis.axis));
+            pEventListener->OnJoystickEvent(event);
+          }
           break;
         }
         default:

@@ -41,16 +41,45 @@ namespace breathe
       TRIGGERRIGHT,
     };
 
+    class cJoystickManager;
+
+    class cJoystickEvent
+    {
+    public:
+      friend class cJoystickManager;
+
+      cJoystickEvent();
+
+      bool IsConnected() const { return (type == TYPE::CONNECTED); }
+      bool IsDisconnected() const { return (type == TYPE::DISCONNECTED); }
+      bool IsButtonDown() const { return (type == TYPE::BUTTON_DOWN); }
+      bool IsButtonUp() const { return (type == TYPE::BUTTON_UP); }
+      bool IsAxisMotion() const { return (type == TYPE::AXIS_MOTION); }
+
+      int GetIndex() const { return index; }
+      GAMECONTROLLER_BUTTON GetButton() const { return button; }
+      GAMECONTROLLER_AXIS GetAxis() const { return axis; }
+
+    protected:
+      enum class TYPE {
+        CONNECTED,
+        DISCONNECTED,
+        BUTTON_DOWN,
+        BUTTON_UP,
+        AXIS_MOTION
+      };
+      TYPE type;
+      int index;
+      GAMECONTROLLER_BUTTON button;
+      GAMECONTROLLER_AXIS axis;
+    };
+
     class cJoystickEventListener
     {
     public:
       virtual ~cJoystickEventListener() {}
 
-      virtual void OnGameControllerConnected(int index) = 0;
-      virtual void OnGameControllerDisconnected(int index) = 0;
-      virtual void OnGameControllerButtonDown(int index, GAMECONTROLLER_BUTTON button) = 0;
-      virtual void OnGameControllerButtonUp(int index, GAMECONTROLLER_BUTTON button) = 0;
-      virtual void OnGameControllerAxisMotion(int index, GAMECONTROLLER_AXIS axis) = 0;
+      virtual void OnJoystickEvent(const cJoystickEvent& event) = 0;
     };
 
     class cJoystickManager
@@ -60,6 +89,7 @@ namespace breathe
       ~cJoystickManager();
 
       void SetEventListener(cJoystickEventListener& listener);
+      void InvalidateEventListener();
 
       void HandleSDLEvent(const SDL_Event& event);
 
@@ -75,8 +105,17 @@ namespace breathe
       bool IsAttached(SDL_GameController* pController) const;
 
       cJoystickEventListener* pEventListener;
+      
+      class cGameController
+      {
+      public:
+        cGameController();
 
-      std::map<int, SDL_GameController*> controllers;
+        SDL_GameController* pController;
+        SDL_Haptic* pHaptic;
+      };
+
+      std::map<int, cGameController> controllers;
     };
   }
 }

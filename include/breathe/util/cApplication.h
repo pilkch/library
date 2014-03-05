@@ -39,6 +39,7 @@ namespace breathe
       void OnWindowEvent(const gui::cWindowEvent& event) { _OnWindowEvent(event); }
       void OnMouseEvent(const gui::cMouseEvent& event) { _OnMouseEvent(event); }
       void OnKeyboardEvent(const gui::cKeyboardEvent& event) { _OnKeyboardEvent(event); }
+      void OnJoystickEvent(const util::cJoystickEvent& event) { _OnJoystickEvent(event); }
 
       void Update(const spitfire::math::cTimeStep& timeStep) { _Update(timeStep); }
       void UpdateInput(const spitfire::math::cTimeStep& timeStep) { _UpdateInput(timeStep); }
@@ -65,6 +66,7 @@ namespace breathe
       virtual void _OnWindowEvent(const gui::cWindowEvent& event) {}
       virtual void _OnMouseEvent(const gui::cMouseEvent& event) {}
       virtual void _OnKeyboardEvent(const gui::cKeyboardEvent& event) {}
+      virtual void _OnJoystickEvent(const util::cJoystickEvent& event) {}
 
       virtual void _Update(const spitfire::math::cTimeStep& timeStep) {}
       virtual void _UpdateInput(const spitfire::math::cTimeStep& timeStep) {}
@@ -73,6 +75,7 @@ namespace breathe
 
       virtual void _OnStateMouseEvent(const gui::cMouseEvent& event) {}
       virtual void _OnStateKeyboardEvent(const gui::cKeyboardEvent& event) {}
+      virtual void _OnStateJoystickEvent(const util::cJoystickEvent& event) {}
 
       virtual gui::EVENT_RESULT _OnWidgetEvent(const gui::cWidgetEvent& event) { return gui::EVENT_RESULT::NOT_HANDLED_PERCOLATE; }
     };
@@ -80,7 +83,7 @@ namespace breathe
 
     // ** cApplication
 
-    class cApplication : public spitfire::cConsoleApplication, public opengl::cWindowEventListener, public opengl::cInputEventListener
+    class cApplication : public spitfire::cConsoleApplication, public opengl::cWindowEventListener, public opengl::cInputEventListener, public cJoystickEventListener
     {
     public:
       friend class cState;
@@ -132,6 +135,8 @@ namespace breathe
       virtual void _OnMouseEvent(const opengl::cMouseEvent& event) override;
       virtual void _OnKeyboardEvent(const opengl::cKeyboardEvent& event) override;
 
+      virtual void OnJoystickEvent(const util::cJoystickEvent& event) override;
+    
       // State event management (Transitioning between states)
       void ProcessStateEvents();
 

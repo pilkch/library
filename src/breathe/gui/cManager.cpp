@@ -1130,5 +1130,27 @@ namespace breathe
 
       return false;
     }
+
+    bool cManager::InjectEventJoystickEvent(const breathe::util::cJoystickEvent& event)
+    {
+      // Convert the joystick events to keyboard events
+      if (event.IsButtonDown()) {
+        switch (event.GetButton()) {
+          case util::GAMECONTROLLER_BUTTON::DPAD_UP: return InjectEventKeyboardDown(KEY::UP);
+          case util::GAMECONTROLLER_BUTTON::DPAD_DOWN: return InjectEventKeyboardDown(KEY::DOWN);
+          case util::GAMECONTROLLER_BUTTON::A: return InjectEventKeyboardDown(KEY::RETURN);
+          case util::GAMECONTROLLER_BUTTON::B: return InjectEventKeyboardDown(KEY::ESCAPE);
+        }
+      } else if (event.IsButtonUp()) {
+        switch (event.GetButton()) {
+          case util::GAMECONTROLLER_BUTTON::DPAD_UP: return InjectEventKeyboardUp(KEY::UP);
+          case util::GAMECONTROLLER_BUTTON::DPAD_DOWN: return InjectEventKeyboardUp(KEY::DOWN);
+          case util::GAMECONTROLLER_BUTTON::A: return InjectEventKeyboardUp(KEY::RETURN);
+          case util::GAMECONTROLLER_BUTTON::B: return InjectEventKeyboardUp(KEY::ESCAPE);
+        }
+      }
+
+      return false;
+    }
   }
 }
