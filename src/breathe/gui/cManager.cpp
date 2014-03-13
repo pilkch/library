@@ -1136,6 +1136,8 @@ namespace breathe
       // Convert the joystick events to keyboard events
       if (event.IsButtonDown()) {
         switch (event.GetButton()) {
+          case util::GAMECONTROLLER_BUTTON::DPAD_LEFT: return InjectEventKeyboardDown(KEY::LEFT);
+          case util::GAMECONTROLLER_BUTTON::DPAD_RIGHT: return InjectEventKeyboardDown(KEY::RIGHT);
           case util::GAMECONTROLLER_BUTTON::DPAD_UP: return InjectEventKeyboardDown(KEY::UP);
           case util::GAMECONTROLLER_BUTTON::DPAD_DOWN: return InjectEventKeyboardDown(KEY::DOWN);
           case util::GAMECONTROLLER_BUTTON::A: return InjectEventKeyboardDown(KEY::RETURN);
@@ -1143,6 +1145,8 @@ namespace breathe
         }
       } else if (event.IsButtonUp()) {
         switch (event.GetButton()) {
+          case util::GAMECONTROLLER_BUTTON::DPAD_LEFT: return InjectEventKeyboardUp(KEY::LEFT);
+          case util::GAMECONTROLLER_BUTTON::DPAD_RIGHT: return InjectEventKeyboardUp(KEY::RIGHT);
           case util::GAMECONTROLLER_BUTTON::DPAD_UP: return InjectEventKeyboardUp(KEY::UP);
           case util::GAMECONTROLLER_BUTTON::DPAD_DOWN: return InjectEventKeyboardUp(KEY::DOWN);
           case util::GAMECONTROLLER_BUTTON::A: return InjectEventKeyboardUp(KEY::RETURN);
