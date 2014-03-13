@@ -355,7 +355,7 @@ namespace breathe
         if (states.empty()) break;
 
         // Update window events
-        pWindow->HandleEvents();
+        pWindow->ProcessEvents();
 
         // Update state
         lastTime = currentTime;

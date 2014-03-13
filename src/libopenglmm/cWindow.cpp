@@ -140,7 +140,7 @@ namespace opengl
   }
 
 
-  void cWindow::HandleEvents()
+  void cWindow::ProcessEvents()
   {
     // Which keys were released this time step
     std::vector<KEY> keysUp;
@@ -150,7 +150,7 @@ namespace opengl
     while (SDL_PollEvent(&sdlEvent)) {
       switch (sdlEvent.type) {
         case SDL_QUIT: {
-          LOG<<"cWindow::UpdateEvents Quit"<<std::endl;
+          LOG<<"cWindow::ProcessEvents Quit"<<std::endl;
           cWindowEvent event;
           event.type = TYPE::WINDOW_QUIT;
           if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
@@ -160,7 +160,7 @@ namespace opengl
         case SDL_WINDOWEVENT: {
           switch (sdlEvent.window.event) {
             case SDL_WINDOWEVENT_FOCUS_GAINED: {
-              LOG<<"cWindow::UpdateEvents Activated"<<std::endl;
+              LOG<<"cWindow::ProcessEvents Activated"<<std::endl;
               if (pWindowEventListener != nullptr) {
                 cWindowEvent event;
                 event.type = TYPE::WINDOW_ACTIVATE;
@@ -169,7 +169,7 @@ namespace opengl
               break;
             }
             case SDL_WINDOWEVENT_FOCUS_LOST: {
-              LOG<<"cWindow::UpdateEvents Deactivated"<<std::endl;
+              LOG<<"cWindow::ProcessEvents Deactivated"<<std::endl;
               if (pWindowEventListener != nullptr) {
                 cWindowEvent event;
                 event.type = TYPE::WINDOW_DEACTIVATE;
@@ -178,7 +178,7 @@ namespace opengl
               break;
             }
             case SDL_WINDOWEVENT_RESIZED: {
-              LOG<<"cWindow::UpdateEvents Resize"<<std::endl;
+              LOG<<"cWindow::ProcessEvents Resize"<<std::endl;
 
               {
                 // Send an about to resize event
