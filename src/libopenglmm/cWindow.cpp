@@ -82,8 +82,8 @@ namespace opengl
     SDL_SetWindowTitle(pWindow, opengl::string::ToUTF8(sCaption).c_str());
 
     // Set the icon
-    SDL_Surface* pIcon = IMG_Load("data/icons/app.png");
-    if (pIcon == nullptr) LOGERROR<<"cWindow::SetCaption Could not load data/icons/app.png"<<std::endl;
+    SDL_Surface* pIcon = IMG_Load("data/icons/application_32x32.png");
+    if (pIcon == nullptr) LOGERROR<<"cWindow::SetCaption Could not load data/icons/application_32x32.png"<<std::endl;
     else {
       SDL_SetWindowIcon(pWindow, pIcon);
       SDL_FreeSurface(pIcon);
