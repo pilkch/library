@@ -75,9 +75,12 @@ namespace breathe
     bool cRenderer::LoadResources(size_t resolutionWidth, size_t resolutionHeight)
     {
       pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
+      ASSERT(pWidgetsTexture != nullptr);
       pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
+      ASSERT(pWidgetsShader != nullptr);
 
       pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolourrect.frag"));
+      ASSERT(pGuiShader != nullptr);
 
       opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
