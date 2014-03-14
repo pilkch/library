@@ -1182,7 +1182,8 @@ namespace breathe
     SDL_SetWindowTitle(pWindow, breathe::string::ToUTF8(LANG("L_Application")).c_str());
 
     // Set our window icon
-    SDL_Surface* pIcon = IMG_Load("data/icons/app.png");
+    SDL_Surface* pIcon = IMG_Load("data/icons/application_32x32.png");
+    if (pIcon == nullptr) LOGERROR<<"cApplication::InitApp Could not load data/icons/application_32x32.png"<<std::endl;
     SDL_SetWindowIcon(pWindow, pIcon);
     SDL_FreeSurface(pIcon);
     pIcon = nullptr;
