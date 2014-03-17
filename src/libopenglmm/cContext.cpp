@@ -13,7 +13,6 @@
 
 // SDL headers
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_syswm.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
