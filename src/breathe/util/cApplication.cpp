@@ -240,8 +240,9 @@ namespace breathe
         _DestroyResources();
       } else if (event.IsResized()) {
         _LoadResources();
-      } else if (event.IsQuit()) {
-        LOG<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
+      } else {
+        cState* pState = GetState();
+        if (pState != nullptr) pState->OnWindowEvent(event);
       }
     }
 
