@@ -274,7 +274,7 @@ namespace opengl
   public:
     virtual ~cWindowEventListener() {}
 
-    void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); }
+    void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); } // Allow the application to handle the raw event if nothing else handles it first
 
     void OnWindowEvent(const cWindowEvent& event) { _OnWindowEvent(event); }
 
