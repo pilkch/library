@@ -12,6 +12,7 @@
 #include <vector>
 
 // SDL headers
+#include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_image.h>
 
 // Spitfire headers
@@ -59,6 +60,23 @@ namespace opengl
     system.DestroyContext(pContext);
     pContext = nullptr;
   }
+
+  #ifdef __WIN__
+  HWND cWindow::GetWindowHandle()
+  {
+    ASSERT(pWindow != nullptr);
+
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (!SDL_GetWindowWMInfo(pWindow, &info))  {
+      LOGERROR<<"cWindow::GetWindowHandle SDL_GetWindowWMInfo FAILED"<<std::endl;
+      return NULL;
+    }
+
+    // Store the windows handle
+    return info.info.win.window;
+  }
+  #endif
 
   void cWindow::SetWindowEventListener(cWindowEventListener& listener)
   {
@@ -138,7 +156,6 @@ namespace opengl
 
     pContext->ResizeWindow(*this, resolution);
   }
-
 
   void cWindow::ProcessEvents()
   {
