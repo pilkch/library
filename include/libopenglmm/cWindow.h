@@ -309,6 +309,9 @@ namespace opengl
     WINDOW_DEACTIVATE,
     WINDOW_ABOUT_TO_RESIZE,
     WINDOW_RESIZED,
+    #ifdef __WIN__
+    WINDOW_COMMAND, // Sent when a control or menu command is processed
+    #endif
     KEY_DOWN,
     KEY_UP,
     MOUSE_DOWN,
@@ -328,9 +331,16 @@ namespace opengl
     bool IsDeactivated() const { return (type == TYPE::WINDOW_DEACTIVATE); }
     bool IsAboutToResize() const { return (type == TYPE::WINDOW_ABOUT_TO_RESIZE); }
     bool IsResized() const { return (type == TYPE::WINDOW_RESIZED); }
+    #ifdef __WIN__
+    bool IsCommand() const { return (type == TYPE::WINDOW_COMMAND); }
+    int GetCommandID() const { return iCommandID; }
+    #endif
 
   protected:
     TYPE type;
+    #ifdef __WIN__
+    int iCommandID;
+    #endif
   };
 
   class cKeyboardEvent

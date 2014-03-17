@@ -176,6 +176,33 @@ namespace opengl
           break;
         }
 
+        #ifdef __WIN__
+        // This checks for an window event
+        case SDL_SYSWMEVENT: {
+          // event.syswm.msg contains a pointer to SDL_SysWMmsg
+          // which contains the event information
+          switch(sdlEvent.syswm.msg->msg.win.msg) {
+            // The user selected the command from the menu or used
+            // a hot key
+            case WM_COMMAND: {
+              if (pWindowEventListener != nullptr) {
+                // Find which sub command was selected
+                const int iCommandID = (LOWORD(sdlEvent.syswm.msg->msg.win.wParam));
+
+                cWindowEvent event;
+                event.type = TYPE::WINDOW_COMMAND;
+                event.iCommandID = iCommandID;
+                pWindowEventListener->OnWindowEvent(event);
+              }
+            }
+
+            break;
+          }
+
+          break;
+        }
+        #endif
+
         case SDL_WINDOWEVENT: {
           switch (sdlEvent.window.event) {
             case SDL_WINDOWEVENT_FOCUS_GAINED: {
@@ -336,6 +363,9 @@ namespace opengl
 
   cWindowEvent::cWindowEvent() :
     type(TYPE::WINDOW_QUIT)
+    #ifdef __WIN__
+    , iCommandID(0)
+    #endif
   {
   }
 
