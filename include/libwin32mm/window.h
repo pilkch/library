@@ -6,6 +6,7 @@
 
 // libwin32mm headers
 #include <libwin32mm/libwin32mm.h>
+#include <libwin32mm/keys.h>
 
 namespace win32mm
 {
@@ -42,8 +43,10 @@ namespace win32mm
   public:
     cPopupMenu();
 
-    void CreatePopupMenu();
-    void AppendPopupMenuItem(int iCommandID, const string_t& sText);
+    void CreateMenu();
+    void AppendMenuItem(int iCommandID, const string_t& sText);
+    void AppendMenuItemWithShortcut(int iCommandID, const string_t& sText, key_t key);
+    void AppendSeparator();
 
     HMENU hmenu;
   };
@@ -100,14 +103,28 @@ namespace win32mm
   {
   }
 
-  inline void cPopupMenu::CreatePopupMenu()
+  inline void cPopupMenu::CreateMenu()
   {
     hmenu = ::CreatePopupMenu();
   }
 
-  inline void cPopupMenu::AppendPopupMenuItem(int iCommandID, const string_t& sText)
+  inline void cPopupMenu::AppendMenuItem(int iCommandID, const string_t& sText)
   {
     ::AppendMenu(hmenu, MF_STRING, iCommandID, sText.c_str());
+  }
+
+  inline void cPopupMenu::AppendMenuItemWithShortcut(int iCommandID, const string_t& sText, key_t key)
+  {
+    ASSERT(key != KEY_INVALID);
+
+    // Add the shortcut key to the menu item text
+    const string_t sTextWithShortcut = sText + TEXT("\t") + KeyGetDescription(key);
+    AppendMenuItem(iCommandID, sTextWithShortcut);
+  }
+
+  inline void cPopupMenu::AppendSeparator()
+  {
+    ::AppendMenu(hmenu, MF_SEPARATOR, UINT_PTR(-1), NULL);
   }
 }
 
