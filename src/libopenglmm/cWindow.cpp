@@ -168,9 +168,11 @@ namespace opengl
       switch (sdlEvent.type) {
         case SDL_QUIT: {
           LOG<<"cWindow::ProcessEvents Quit"<<std::endl;
-          cWindowEvent event;
-          event.type = TYPE::WINDOW_QUIT;
-          if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+          if (pWindowEventListener != nullptr) {
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_QUIT;
+            pWindowEventListener->OnWindowEvent(event);
+          }
           break;
         }
 
@@ -197,11 +199,11 @@ namespace opengl
             case SDL_WINDOWEVENT_RESIZED: {
               LOG<<"cWindow::ProcessEvents Resize"<<std::endl;
 
-              {
+              if (pWindowEventListener != nullptr) {
                 // Send an about to resize event
                 cWindowEvent event;
                 event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
-                if (pWindowEventListener != nullptr) pWindowEventListener->OnWindowEvent(event);
+                pWindowEventListener->OnWindowEvent(event);
               }
 
               cResolution resolution;
@@ -229,10 +231,12 @@ namespace opengl
           KEY key = KEY(sdlEvent.key.keysym.sym);
           keystates[key] = STATE::DOWN;
 
-          cKeyboardEvent event;
-          event.type = TYPE::KEY_DOWN;
-          event.keyCode = sdlEvent.key.keysym.sym;
-          if (pInputEventListener != nullptr) pInputEventListener->OnKeyboardEvent(event);
+          if (pInputEventListener != nullptr) {
+            cKeyboardEvent event;
+            event.type = TYPE::KEY_DOWN;
+            event.keyCode = sdlEvent.key.keysym.sym;
+            pInputEventListener->OnKeyboardEvent(event);
+          }
           break;
         }
 
@@ -242,39 +246,47 @@ namespace opengl
           keystates[key] = STATE::UP;
           keysUp.push_back(key);
 
-          cKeyboardEvent event;
-          event.type = TYPE::KEY_UP;
-          event.keyCode = sdlEvent.key.keysym.sym;
-          if (pInputEventListener != nullptr) pInputEventListener->OnKeyboardEvent(event);
+          if (pInputEventListener != nullptr) {
+            cKeyboardEvent event;
+            event.type = TYPE::KEY_UP;
+            event.keyCode = sdlEvent.key.keysym.sym;
+            pInputEventListener->OnKeyboardEvent(event);
+          }
           break;
         }
 
         case SDL_MOUSEBUTTONUP: {
-          cMouseEvent event;
-          event.type = TYPE::MOUSE_UP;
-          event.button = sdlEvent.button.button;
-          event.x = sdlEvent.button.x;
-          event.y = sdlEvent.button.y;
-          if (pInputEventListener != nullptr) pInputEventListener->OnMouseEvent(event);
+          if (pInputEventListener != nullptr) {
+            cMouseEvent event;
+            event.type = TYPE::MOUSE_UP;
+            event.button = sdlEvent.button.button;
+            event.x = sdlEvent.button.x;
+            event.y = sdlEvent.button.y;
+            pInputEventListener->OnMouseEvent(event);
+          }
           break;
         }
 
         case SDL_MOUSEBUTTONDOWN: {
-          cMouseEvent event;
-          event.type = TYPE::MOUSE_DOWN;
-          event.button = sdlEvent.button.button;
-          event.x = sdlEvent.button.x;
-          event.y = sdlEvent.button.y;
-          if (pInputEventListener != nullptr) pInputEventListener->OnMouseEvent(event);
+          if (pInputEventListener != nullptr) {
+            cMouseEvent event;
+            event.type = TYPE::MOUSE_DOWN;
+            event.button = sdlEvent.button.button;
+            event.x = sdlEvent.button.x;
+            event.y = sdlEvent.button.y;
+            pInputEventListener->OnMouseEvent(event);
+          }
           break;
         }
 
         case SDL_MOUSEMOTION: {
-          cMouseEvent event;
-          event.type = TYPE::MOUSE_MOVE;
-          event.x = sdlEvent.button.x;
-          event.y = sdlEvent.button.y;
-          if (pInputEventListener != nullptr) pInputEventListener->OnMouseEvent(event);
+          if (pInputEventListener != nullptr) {
+            cMouseEvent event;
+            event.type = TYPE::MOUSE_MOVE;
+            event.x = sdlEvent.button.x;
+            event.y = sdlEvent.button.y;
+            pInputEventListener->OnMouseEvent(event);
+          }
           break;
         }
 
