@@ -131,8 +131,6 @@ namespace breathe
     cApplication::cApplication(int argc, const char* const* argv) :
       spitfire::cConsoleApplication(argc, argv),
 
-      bIsDone(false),
-
       pWindow(nullptr),
       pContext(nullptr),
 
@@ -244,7 +242,6 @@ namespace breathe
         _LoadResources();
       } else if (event.IsQuit()) {
         LOG<<"cApplication::_OnWindowEvent Quiting"<<std::endl;
-        bIsDone = true;
       }
     }
 

@@ -107,8 +107,6 @@ namespace breathe
       void PushState(cState* pState);
       void PopState();
 
-      bool bIsDone;
-
       opengl::cSystem system;
       opengl::cWindow* pWindow;
       opengl::cContext* pContext;
