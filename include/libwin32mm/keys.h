@@ -11,24 +11,24 @@ namespace win32mm
 {
   typedef uint32_t key_t;
 
-  #define KEY_INVALID win32mm::key_t(0)
+  const key_t KEY_INVALID = 0;
 
-  #define KEY_CONTROL win32mm::key_t(VK_CONTROL)
-  #define KEY_SHIFT win32mm::key_t(VK_SHIFT)
-  #define KEY_MENU win32mm::key_t(VK_MENU)
-  #define KEY_ALT win32mm::key_t(VK_MENU)
+  const key_t KEY_CONTROL = VK_CONTROL;
+  const key_t KEY_SHIFT = VK_SHIFT;
+  const key_t KEY_MENU = VK_MENU;
+  const key_t KEY_ALT = VK_MENU;
   
-  #define KEY_DELETE win32mm::key_t(VK_DELETE)
-  #define KEY_INSERT win32mm::key_t(VK_INSERT)
-  #define KEY_HOME win32mm::key_t(VK_HOME)
-  #define KEY_END win32mm::key_t(VK_END)
-  #define KEY_PGUP win32mm::key_t(VK_PRIOR)
-  #define KEY_PGDN win32mm::key_t(VK_NEXT)
-  #define KEY_PAUSE win32mm::key_t(VK_PAUSE)
-  #define KEY_LEFT win32mm::key_t(VK_LEFT)
-  #define KEY_RIGHT win32mm::key_t(VK_RIGHT)
-  #define KEY_UP win32mm::key_t(VK_UP)
-  #define KEY_DOWN win32mm::key_t(VK_DOWN)
+  const key_t KEY_DELETE = VK_DELETE;
+  const key_t KEY_INSERT = VK_INSERT;
+  const key_t KEY_HOME = VK_HOME;
+  const key_t KEY_END = VK_END;
+  const key_t KEY_PGUP = VK_PRIOR;
+  const key_t KEY_PGDN = VK_NEXT;
+  const key_t KEY_PAUSE = VK_PAUSE;
+  const key_t KEY_LEFT = VK_LEFT;
+  const key_t KEY_RIGHT = VK_RIGHT;
+  const key_t KEY_UP = VK_UP;
+  const key_t KEY_DOWN = VK_DOWN;
 
   // These are the MOD_ keys shifted 16 bits for values see winuser.h
   #define KEY_MOD_CONTROL win32mm::key_t(0x00020000)
