@@ -17,6 +17,8 @@ namespace win32mm
   public:
     explicit cWindow(HWND hwndWindow);
 
+    HWND GetWindowHandle() const;
+
     void SetMenu(cMenu& menu);
 
     HWND hwndWindow;
@@ -57,6 +59,11 @@ namespace win32mm
   inline cWindow::cWindow(HWND _hwndWindow) :
     hwndWindow(_hwndWindow)
   {
+  }
+
+  inline HWND cWindow::GetWindowHandle() const
+  {
+    return hwndWindow;
   }
 
   inline void cWindow::SetMenu(cMenu& menu)
