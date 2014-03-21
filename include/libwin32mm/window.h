@@ -11,6 +11,7 @@
 namespace win32mm
 {
   class cMenu;
+  class cPopupMenu;
 
   class cWindow
   {
@@ -20,6 +21,8 @@ namespace win32mm
     HWND GetWindowHandle() const;
 
     void SetMenu(cMenu& menu);
+
+    void DisplayPopupMenu(cPopupMenu& popupMenu);
 
     HWND hwndWindow;
   };
@@ -50,6 +53,8 @@ namespace win32mm
     void AppendMenuItemWithShortcut(int iCommandID, const string_t& sText, key_t key);
     void AppendSeparator();
 
+    void EnableMenuItem(int iCommandID, bool bEnable);
+
     HMENU hmenu;
   };
 
@@ -69,6 +74,16 @@ namespace win32mm
   inline void cWindow::SetMenu(cMenu& menu)
   {
     ::SetMenu(hwndWindow, menu.hmenu);
+  }
+
+  inline void cWindow::DisplayPopupMenu(cPopupMenu& popupMenu)
+  {
+    CURSORINFO ci;
+    ci.cbSize = sizeof(CURSORINFO);
+    ::GetCursorInfo(&ci);
+
+    const POINT& point = ci.ptScreenPos;
+    ::TrackPopupMenu(popupMenu.hmenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, 0, hwndWindow, NULL);
   }
 
 
@@ -133,6 +148,11 @@ namespace win32mm
   inline void cPopupMenu::AppendSeparator()
   {
     ::AppendMenu(hmenu, MF_SEPARATOR, UINT_PTR(-1), NULL);
+  }
+
+  inline void cPopupMenu::EnableMenuItem(int iCommandID, bool bEnable)
+  {
+    ::EnableMenuItem(hmenu, iCommandID, MF_BYCOMMAND | (bEnable ? MF_ENABLED : MF_GRAYED));
   }
 }
 
