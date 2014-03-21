@@ -44,8 +44,8 @@ namespace win32mm
   {
   public:
     cPopupMenu();
+    ~cPopupMenu();
 
-    void CreateMenu();
     void AppendMenuItem(int iCommandID, const string_t& sText);
     void AppendMenuItemWithShortcut(int iCommandID, const string_t& sText, key_t key);
     void AppendSeparator();
@@ -108,11 +108,12 @@ namespace win32mm
   inline cPopupMenu::cPopupMenu() :
     hmenu(NULL)
   {
+    hmenu = ::CreatePopupMenu();
   }
 
-  inline void cPopupMenu::CreateMenu()
+  inline cPopupMenu::~cPopupMenu()
   {
-    hmenu = ::CreatePopupMenu();
+    ::DestroyMenu(hmenu);
   }
 
   inline void cPopupMenu::AppendMenuItem(int iCommandID, const string_t& sText)
