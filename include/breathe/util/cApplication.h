@@ -134,7 +134,9 @@ namespace breathe
       virtual void _OnKeyboardEvent(const opengl::cKeyboardEvent& event) override;
 
       virtual void OnJoystickEvent(const util::cJoystickEvent& event) override;
-    
+
+      virtual void OnApplicationWindowEvent(const gui::cWindowEvent& event) {}
+
       // State event management (Transitioning between states)
       void ProcessStateEvents();
 

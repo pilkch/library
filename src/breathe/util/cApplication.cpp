@@ -240,10 +240,14 @@ namespace breathe
         _DestroyResources();
       } else if (event.IsResized()) {
         _LoadResources();
-      } else {
-        cState* pState = GetState();
-        if (pState != nullptr) pState->OnWindowEvent(event);
       }
+
+      // Notify the derived application
+      OnApplicationWindowEvent(event);
+
+      // Notify the current state
+      cState* pState = GetState();
+      if (pState != nullptr) pState->OnWindowEvent(event);
     }
 
     void cApplication::_OnMouseEvent(const opengl::cMouseEvent& event)
