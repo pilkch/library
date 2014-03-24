@@ -3,6 +3,7 @@
 
 // Win32 headers
 #include <windows.h>
+#include <commctrl.h>
 
 // libwin32mm headers
 #include <libwin32mm/libwin32mm.h>
@@ -10,20 +11,27 @@
 
 namespace win32mm
 {
+  const int ID_STATUS_BAR = 10101;
+
   class cMenu;
   class cPopupMenu;
+  class cStatusBar;
 
   class cWindow
   {
   public:
-    explicit cWindow(HWND hwndWindow);
+    cWindow();
 
     HWND GetWindowHandle() const;
+    void SetWindowHandle(HWND hwndWindow);
 
     void SetMenu(cMenu& menu);
 
+    void CreateStatusBar(cStatusBar& statusBar);
+
     void DisplayPopupMenu(cPopupMenu& popupMenu);
 
+  private:
     HWND hwndWindow;
   };
 
@@ -41,6 +49,19 @@ namespace win32mm
 
   private:
     string_t MenuPrepareTextForMenu(const string_t& sText) const;
+  };
+
+  class cStatusBar
+  {
+  public:
+    cStatusBar();
+
+    void SetWidths(const int* widths, size_t nWidths);
+    void SetText(size_t segment, const string_t& sText);
+
+    void Resize();
+
+    HWND hStatusBar;
   };
 
   class cPopupMenu
@@ -61,8 +82,8 @@ namespace win32mm
 
   // ** cWindow
 
-  inline cWindow::cWindow(HWND _hwndWindow) :
-    hwndWindow(_hwndWindow)
+  inline cWindow::cWindow() :
+    hwndWindow(NULL)
   {
   }
 
@@ -71,9 +92,19 @@ namespace win32mm
     return hwndWindow;
   }
 
+  inline void cWindow::SetWindowHandle(HWND _hwndWindow)
+  {
+    hwndWindow = _hwndWindow;
+  }
+
   inline void cWindow::SetMenu(cMenu& menu)
   {
     ::SetMenu(hwndWindow, menu.hmenu);
+  }
+
+  inline void cWindow::CreateStatusBar(cStatusBar& statusBar)
+  {
+    statusBar.hStatusBar = ::CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hwndWindow, (HMENU)ID_STATUS_BAR, GetModuleHandle(NULL), NULL);
   }
 
   inline void cWindow::DisplayPopupMenu(cPopupMenu& popupMenu)
@@ -115,6 +146,30 @@ namespace win32mm
     }
 
     return sText;
+  }
+
+
+  // ** cStatusBar
+
+  inline cStatusBar::cStatusBar() :
+    hStatusBar(NULL)
+  {
+  }
+
+  inline void cStatusBar::SetWidths(const int* widths, size_t nWidths)
+  {
+    ::SendMessage(hStatusBar, SB_SETPARTS, (WPARAM)nWidths, (LPARAM)widths);
+  }
+
+  inline void cStatusBar::SetText(size_t segment, const string_t& sText)
+  {
+    ::SendMessage(hStatusBar, SB_SETTEXT, (WPARAM)(INT)segment, (LPARAM)(LPSTR)sText.c_str());
+  }
+
+  inline void cStatusBar::Resize()
+  {
+    // Send a dummy resize event to update the statusbar position
+    ::SendMessage(hStatusBar, WM_SIZE, 0, 0);
   }
 
 
