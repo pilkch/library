@@ -41,6 +41,9 @@
 
 // libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
+#elif defined(__WIN__)
+// libwin32mm headers
+#include <libwin32mm/filesystem.h>
 #endif
 
 // Spitfire headers
@@ -156,19 +159,7 @@ namespace spitfire
     void MoveFileToTrash(const string_t& sFilePath)
     {
       #ifdef __WIN__
-      char_t szFile[MAX_PATH + 2];
-      lstrcpyn(szFile, sFilePath.c_str(), sizeof(szFile));
-      szFile[sFilePath.length() + 1] = '\0'; // Add an extra null terminator (The function looks for a double null terminator to find the end of the parameters
-
-      SHFILEOPSTRUCT op;
-      ZeroMemory(&op, sizeof(op));
-      op.wFunc = FO_DELETE;
-      op.pFrom = szFile;
-      op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI |
-      FOF_SILENT; // Options set for no user interaction
-
-      //return (SHFileOperation(&op) == 0);
-      SHFileOperation(&op);
+      win32mm::MoveFileOrFolderToRecycleBin(sFilePath);
       #else
       trash::MoveFileToTrash(string::ToUTF8(sFilePath));
       #endif
@@ -177,8 +168,7 @@ namespace spitfire
     void MoveFolderToTrash(const string_t& sFolderPath)
     {
       #ifdef __WIN__
-      // The file version of this function can move folders too
-      MoveFileToTrash(sFolderPath);
+      win32mm::MoveFileOrFolderToRecycleBin(sFolderPath);
       #else
       trash::MoveFolderToTrash(string::ToUTF8(sFolderPath));
       #endif
