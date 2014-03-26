@@ -2,15 +2,15 @@
 #include <iostream>
 #include <sstream>
 
+// Win32 headers
+#include <windows.h>
+#include <shobjidl.h>
+#include <commdlg.h>
+
 // libwin32mm headers
+#include <libwin32mm/com.h>
 #include <libwin32mm/filebrowse.h>
 #include <libwin32mm/window.h>
-
-#undef interface
-
-// Win32 headers
-#include <Shobjidl.h>
-#include <commdlg.h>
 
 namespace win32mm
 {
@@ -26,11 +26,8 @@ namespace win32mm
   {
     sSelectedFolder.clear();
 
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (!SUCCEEDED(hr)) {
-      std::wcout<<TEXT("BrowseOpenFolderDialog CoInitializeEx FAILED, returning false")<<std::endl;
-      return false;
-    }
+    // Initialize COM
+    cComScope com;
 
     IFileDialog* pfd = nullptr;
     if (!SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) {
@@ -57,11 +54,11 @@ namespace win32mm
 
         CoTaskMemFree(pszFilePath);
 
-        psi->Release();
+        COM_SAFE_RELEASE(psi);
       }
     }
 
-    pfd->Release();
+    COM_SAFE_RELEASE(pfd);
 
     return true;
   }
