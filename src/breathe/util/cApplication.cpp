@@ -138,6 +138,7 @@ namespace breathe
 
       fFramesPerSecond(60.0f)
     {
+      LOG<<"cApplication::cApplication \""<<argv[0]<<"\""<<std::endl;
     }
 
     cApplication::~cApplication()
