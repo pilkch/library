@@ -115,7 +115,7 @@ namespace opengl
 
   void cWindow::WarpCursorToMiddleOfScreen()
   {
-    SDL_WarpMouseInWindow(pWindow, resolution.width / 2, resolution.height / 2);
+    SDL_WarpMouseInWindow(pWindow, int(resolution.width / 2), int(resolution.height / 2));
   }
 
   void cWindow::SwapWindowFromContext()

@@ -498,11 +498,11 @@ namespace opengl
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
     // Set the attributes of the vertex shader
     const size_t nAttributes = vAttributes.size();
-    for (size_t i = 0; i < nAttributes; i++) glBindAttribLocation(uiShaderProgram, i, vAttributes[i].c_str());
+    for (size_t i = 0; i < nAttributes; i++) glBindAttribLocation(uiShaderProgram, (unsigned int)i, vAttributes[i].c_str());
 
     // Set the output parameters of the fragment shader
     const size_t nFragmentDataLocations = vFragmentDataLocations.size();
-    for (size_t i = 0; i < nFragmentDataLocations; i++) glBindFragDataLocation(uiShaderProgram, i, vFragmentDataLocations[i].c_str());
+    for (size_t i = 0; i < nFragmentDataLocations; i++) glBindFragDataLocation(uiShaderProgram, (unsigned int)i, vFragmentDataLocations[i].c_str());
     #endif
   }
 

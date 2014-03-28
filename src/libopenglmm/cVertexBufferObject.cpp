@@ -176,14 +176,14 @@ namespace opengl
     size_t nBufferOffset = 0;
 
     // Tell the shader where the vertices are
-    glVertexAttribPointer(shaderAttribute, nVertexSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+    glVertexAttribPointer(shaderAttribute, int(nVertexSize), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
     glEnableVertexAttribArray(shaderAttribute);
     shaderAttribute++;
     nBufferOffset += nVertexSizeBytes;
 
     // Tell the shader where the normals are
     if (normal_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nNormalSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, int(nNormalSize), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += nNormalSizeBytes;
@@ -191,7 +191,7 @@ namespace opengl
 
     // Tell the shader where the colours are
     if (colour_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nColourSize, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, int(nColourSize), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += nColourSizeBytes;
@@ -199,25 +199,25 @@ namespace opengl
 
     // Tell the shader where the texture coordinates are (We specify them in groups of 2)
     if (texturecoordinate_size >= 2) {
-      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
     if (texturecoordinate_size >= 4) {
-      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
     if (texturecoordinate_size >= 6) {
-      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
     if (texturecoordinate_size >= 8) {
-      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
@@ -225,19 +225,19 @@ namespace opengl
 
     // Tell the shader where the float user data are (These are special fields that can be used to store user specified data such as tangents, blend weights, etc.)
     if (floatUserData0_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nFloatUserData0Size, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, int(nFloatUserData0Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += floatUserData0_size * sizeof(GLfloat);
     }
     if (floatUserData1_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nFloatUserData1Size, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, int(nFloatUserData1Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += floatUserData1_size * sizeof(GLfloat);
     }
     if (floatUserData2_size != 0) {
-      glVertexAttribPointer(shaderAttribute, nFloatUserData2Size, GL_FLOAT, GL_FALSE, nStrideBytes, BUFFER_OFFSET(nBufferOffset));
+      glVertexAttribPointer(shaderAttribute, int(nFloatUserData2Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += floatUserData2_size * sizeof(GLfloat);
@@ -420,9 +420,9 @@ namespace opengl
 
     if (pGeometryDataPtr->indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
-      glDrawArrays(geometryType, 0, pGeometryDataPtr->nVertexCount);
+      glDrawArrays(geometryType, 0, int(pGeometryDataPtr->nVertexCount));
     } else {
-      glDrawElements(geometryType, pGeometryDataPtr->indices.size(), GL_UNSIGNED_SHORT,  pGeometryDataPtr->indices.data());
+      glDrawElements(geometryType, int(pGeometryDataPtr->indices.size()), GL_UNSIGNED_SHORT,  pGeometryDataPtr->indices.data());
     }
   }
 
@@ -433,9 +433,9 @@ namespace opengl
 
     if (pGeometryDataPtr->indices.empty()) {
       // Draw this many vertices of type specified by geometryType (GL_LINES, GL_TRIANGLES, strips, quads, etc.)
-      glDrawArrays(geometryType, 0, pGeometryDataPtr->nVertexCount);
+      glDrawArrays(geometryType, 0, int(pGeometryDataPtr->nVertexCount));
     } else {
-      glDrawElements(geometryType, pGeometryDataPtr->indices.size(), GL_UNSIGNED_SHORT,  pGeometryDataPtr->indices.data());
+      glDrawElements(geometryType, int(pGeometryDataPtr->indices.size()), GL_UNSIGNED_SHORT,  pGeometryDataPtr->indices.data());
     }
   }
 

@@ -89,8 +89,8 @@ namespace opengl
   {
     assert(nSegments != 0);
 
-    const int latitudes = nSegments;
-    const int longitudes = nSegments;
+    const int latitudes = int(nSegments);
+    const int longitudes = int(nSegments);
 
     const float fSegmentTextureWidth = 1.0f / latitudes;
     const float fSegmentTextureHeight = 1.0f / longitudes;

@@ -59,7 +59,7 @@ namespace opengl
     spitfire::math::cVec2 GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine) const;
 
   protected:
-    bool Load(cContext& context, const string_t& sFilename, unsigned int height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
+    bool Load(cContext& context, const string_t& sFilename, size_t height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
     void Destroy(cContext& context);
 
     cTexture* pTexture;

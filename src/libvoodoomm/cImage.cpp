@@ -289,8 +289,8 @@ namespace voodoo
 
     if (!IsSurfaceValid()) {
       // Load the buffer into a surface
-      const size_t depth = 32;
-      const size_t pitch = bytesPerRow;
+      const int depth = 32;
+      const int pitch = int(bytesPerRow);
 
       // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -306,7 +306,7 @@ namespace voodoo
 #endif
 
       const uint8_t* pBuffer = image.GetPointerToBuffer();
-      pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, width, height, depth, pitch, rmask, gmask, bmask, amask);
+      pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, int(width), int(height), depth, pitch, rmask, gmask, bmask, amask);
     } else {
       const uint8_t* pBuffer = image.GetPointerToBuffer();
       std::memcpy(pSurface->pixels, pBuffer, n);

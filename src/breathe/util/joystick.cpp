@@ -148,7 +148,7 @@ namespace breathe
       int nJoysticks = SDL_NumJoysticks();
       for (int i = 0; i < nJoysticks; i++) {
         if (SDL_IsGameController(i)) {
-          OpenGameController(nControllers);
+          OpenGameController(int(nControllers));
           nControllers++;
         }
       }

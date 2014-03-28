@@ -136,7 +136,7 @@ namespace opengl
     }
 
     // Copy from image to texture
-    glTexImage2D(textureType, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, pBuffer);
+    glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, pBuffer);
 
     if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
@@ -211,7 +211,7 @@ namespace opengl
         const uint8_t* pBuffer = image.GetPointerToBuffer();
         if (pBuffer != nullptr) {
           // Copy from image to texture
-          glTexImage2D(axis[i], 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+          glTexImage2D(axis[i], 0, GL_RGBA, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
 
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -265,8 +265,8 @@ namespace opengl
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.282D.29.2C_mipmaps
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.28Cubemap.29
 
-    const unsigned int uiWidth = image.GetWidth();
-    const unsigned int uiHeight = image.GetHeight();
+    const size_t uiWidth = image.GetWidth();
+    const size_t uiHeight = image.GetHeight();
 
     // Create FBO
     glGenFramebuffers(1, &uiFBO);
@@ -292,7 +292,7 @@ namespace opengl
       //internal = GL_RGBA32F;
       type = GL_FLOAT;
 
-      glTexImage2D(textureType, 0, internal, uiWidth, uiHeight, 0, GL_RGBA, type, NULL);
+      glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, NULL);
 
       glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -323,12 +323,12 @@ namespace opengl
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
       // NULL means reserve texture memory, but texels are undefined
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
       // Attach one of the faces of the Cubemap texture to this FBO
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
@@ -339,7 +339,7 @@ namespace opengl
     // Create the Render Buffer for Depth
     glGenRenderbuffers(1, &uiFBODepthBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, uiFBODepthBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, uiWidth, uiHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight));
 
     // Attach the depth render buffer to the FBO as it's depth attachment
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uiFBODepthBuffer);

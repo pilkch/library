@@ -465,7 +465,7 @@ namespace opengl
     if (window.pWindow == nullptr) {
       window.pWindow = SDL_CreateWindow("My Game Window",
         SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
-        resolution.width, resolution.height,
+        int(resolution.width), int(resolution.height),
         uiFlags);
       // Create a fullscreen window with the current resolution
       //window.pWindow = SDL_CreateWindow(title,
@@ -963,7 +963,7 @@ namespace opengl
     //LOG<<"cContext::BindTexture "<<cSystem::GetErrorString()<<std::endl;
 
     // Activate the current texture unit
-    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
     #endif
@@ -979,7 +979,7 @@ namespace opengl
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)
   {
     // Activate the current texture unit
-    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
 
     GLenum type = GL_TEXTURE_2D;
     if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
@@ -994,7 +994,7 @@ namespace opengl
   void cContext::BindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
   {
     // Activate the current texture unit
-    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
     #endif
@@ -1010,7 +1010,7 @@ namespace opengl
     (void)texture;
 
     // Activate the current texture unit
-    glActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
