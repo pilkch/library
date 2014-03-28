@@ -1,10 +1,11 @@
+/* ftconfig.h.  Generated from ftconfig.in by configure.  */
 /***************************************************************************/
 /*                                                                         */
-/*  ftconfig.h                                                             */
+/*  ftconfig.in                                                            */
 /*                                                                         */
-/*    ANSI-specific configuration file (specification only).               */
+/*    UNIX-specific configuration file (specification only).               */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2006 by                         */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -31,8 +32,6 @@
   /* contains system-specific files that are always included first when    */
   /* building the library.                                                 */
   /*                                                                       */
-  /* This ANSI version should stay in `include/freetype/config'.           */
-  /*                                                                       */
   /*************************************************************************/
 
 
@@ -42,6 +41,7 @@
 #include <freetype/ft2build.h>
 #include FT_CONFIG_OPTIONS_H
 #include FT_CONFIG_STANDARD_LIBRARY_H
+
 
 FT_BEGIN_HEADER
 
@@ -58,42 +58,17 @@ FT_BEGIN_HEADER
   /*************************************************************************/
 
 
-  /* There are systems (like the Texas Instruments 'C54x) where a `char' */
-  /* has 16 bits.  ANSI C says that sizeof(char) is always 1.  Since an  */
-  /* `int' has 16 bits also for this system, sizeof(int) gives 1 which   */
-  /* is probably unexpected.                                             */
-  /*                                                                     */
-  /* `CHAR_BIT' (defined in limits.h) gives the number of bits in a      */
-  /* `char' type.                                                        */
+#define HAVE_UNISTD_H 1
+#define HAVE_FCNTL_H 1
 
-#ifndef FT_CHAR_BIT
+#define SIZEOF_INT 4
+#define SIZEOF_LONG 4
+
+
+#define FT_SIZEOF_INT   SIZEOF_INT
+#define FT_SIZEOF_LONG  SIZEOF_LONG
+
 #define FT_CHAR_BIT  CHAR_BIT
-#endif
-
-
-  /* The size of an `int' type.  */
-#if                                 FT_UINT_MAX == 0xFFFFUL
-#define FT_SIZEOF_INT  (16 / FT_CHAR_BIT)
-#elif                               FT_UINT_MAX == 0xFFFFFFFFUL
-#define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
-#elif FT_UINT_MAX > 0xFFFFFFFFUL && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFUL
-#define FT_SIZEOF_INT  (64 / FT_CHAR_BIT)
-#else
-#error "Unsupported size of `int' type!"
-#endif
-
-  /* The size of a `long' type.  A five-byte `long' (as used e.g. on the */
-  /* DM642) is recognized but avoided.                                   */
-#if                                  FT_ULONG_MAX == 0xFFFFFFFFUL
-#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
-#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFUL
-#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
-#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFUL
-#define FT_SIZEOF_LONG  (64 / FT_CHAR_BIT)
-#else
-#error "Unsupported size of `long' type!"
-#endif
-
 
   /* Preferred alignment of data */
 #define FT_ALIGNMENT  8
@@ -126,7 +101,22 @@ FT_BEGIN_HEADER
   /*                                                                       */
 #if ( defined( __APPLE__ ) && !defined( DARWIN_NO_CARBON ) ) || \
     ( defined( __MWERKS__ ) && defined( macintosh )        )
+  /* no Carbon frameworks for 64bit 10.4.x */
+#include "AvailabilityMacros.h"
+#if defined( __LP64__ ) && \
+    ( MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4 )
+#define DARWIN_NO_CARBON 1
+#else
 #define FT_MACINTOSH 1
+#endif
+#endif
+
+
+  /* Fix compiler warning with sgi compiler */
+#if defined( __sgi ) && !defined( __GNUC__ )
+#if defined( _COMPILER_VERSION ) && ( _COMPILER_VERSION >= 730 )
+#pragma set woff 3505
+#endif
 #endif
 
 
@@ -139,12 +129,12 @@ FT_BEGIN_HEADER
   typedef signed short    FT_Int16;
   typedef unsigned short  FT_UInt16;
 
-#if FT_SIZEOF_INT == (32 / FT_CHAR_BIT)
+#if FT_SIZEOF_INT == 4
 
   typedef signed int      FT_Int32;
   typedef unsigned int    FT_UInt32;
 
-#elif FT_SIZEOF_LONG == (32 / FT_CHAR_BIT)
+#elif FT_SIZEOF_LONG == 4
 
   typedef signed long     FT_Int32;
   typedef unsigned long   FT_UInt32;
@@ -153,13 +143,14 @@ FT_BEGIN_HEADER
 #error "no 32bit type found -- please check your configuration files"
 #endif
 
+
   /* look up an integer type that is at least 32 bits */
-#if FT_SIZEOF_INT >= (32 / FT_CHAR_BIT)
+#if FT_SIZEOF_INT >= 4
 
   typedef int            FT_Fast;
   typedef unsigned int   FT_UFast;
 
-#elif FT_SIZEOF_LONG >= (32 / FT_CHAR_BIT)
+#elif FT_SIZEOF_LONG >= 4
 
   typedef long           FT_Fast;
   typedef unsigned long  FT_UFast;
@@ -169,7 +160,7 @@ FT_BEGIN_HEADER
 
   /* determine whether we have a 64-bit int type for platforms without */
   /* Autoconf                                                          */
-#if FT_SIZEOF_LONG == (64 / FT_CHAR_BIT)
+#if FT_SIZEOF_LONG == 8
 
   /* FT_LONG64 must be defined if a 64-bit type is available */
 #define FT_LONG64
@@ -205,7 +196,7 @@ FT_BEGIN_HEADER
 #define FT_LONG64
 #define FT_INT64  long long int
 
-#endif /* FT_SIZEOF_LONG == (64 / FT_CHAR_BIT) */
+#endif /* FT_SIZEOF_LONG == 8 */
 
 
 #define FT_BEGIN_STMNT  do {
@@ -224,7 +215,10 @@ FT_BEGIN_HEADER
 
 #ifdef __STDC__
 
-  /* undefine the 64-bit macros in strict ANSI compilation mode */
+  /* Undefine the 64-bit macros in strict ANSI compilation mode.  */
+  /* Since `#undef' doesn't survive in configuration header files */
+  /* we use the postprocessing facility of AC_CONFIG_HEADERS to   */
+  /* replace the leading `/' with `#'.                            */
 #undef FT_LONG64
 #undef FT_INT64
 

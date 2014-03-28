@@ -20,7 +20,7 @@
 #define __FTMODAPI_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H
@@ -316,7 +316,7 @@ FT_BEGIN_HEADER
   /**************************************************************************
    *
    * @section:
-   *   ttengine
+   *   truetype_engine
    *
    * @title:
    *   The TrueType Engine

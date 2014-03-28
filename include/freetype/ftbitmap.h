@@ -3,7 +3,7 @@
 /*  ftbitmap.h                                                             */
 /*                                                                         */
 /*    FreeType utility functions for converting 1bpp, 2bpp, 4bpp, and 8bpp */
-/*    bitmaps into 8bpp format (specification).                            */  
+/*    bitmaps into 8bpp format (specification).                            */
 /*                                                                         */
 /*  Copyright 2004, 2005, 2006 by                                          */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
@@ -21,7 +21,7 @@
 #define __FTBITMAP_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H
