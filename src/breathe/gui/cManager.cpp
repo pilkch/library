@@ -713,11 +713,37 @@ namespace breathe
       bIsFocusable = true;
     }
 
+    // ** cComboBox
+
+    cComboBox::cComboBox() :
+      cWidget(WIDGET_TYPE::COMBOBOX)
+    {
+      bIsFocusable = true;
+    }
+    
+
 
     // ** cSlider
 
     cSlider::cSlider() :
       cWidget(WIDGET_TYPE::SLIDER)
+    {
+      bIsFocusable = true;
+    }
+
+
+    // ** cToolbar
+
+    cToolbar::cToolbar() :
+      cWidget(WIDGET_TYPE::TOOLBAR)
+    {
+      bIsFocusable = true;
+    }
+
+    // ** cScrollbar
+
+    cScrollbar::cScrollbar() :
+      cWidget(WIDGET_TYPE::SCROLLBAR)
     {
       bIsFocusable = true;
     }
@@ -952,6 +978,11 @@ namespace breathe
       return 0.01f + GetTextHeight() + 0.01f;
     }
 
+    float cManager::GetComboBoxHeight() const
+    {
+      return 0.01f + GetTextHeight() + 0.01f;
+    }
+
 
     cWindow* cManager::CreateWindow()
     {
@@ -993,9 +1024,33 @@ namespace breathe
       return pWidget;
     }
 
+    cComboBox* cManager::CreateComboBox()
+    {
+      cComboBox* pWidget = new cComboBox;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
     cSlider* cManager::CreateSlider()
     {
       cSlider* pWidget = new cSlider;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
+    cToolbar* cManager::CreateToolbar()
+    {
+      cToolbar* pWidget = new cToolbar;
+      pWidget->SetColour(colourWidget);
+      pWidget->SetTextColour(colourText);
+      return pWidget;
+    }
+
+    cScrollbar* cManager::CreateScrollbar()
+    {
+      cScrollbar* pWidget = new cScrollbar;
       pWidget->SetColour(colourWidget);
       pWidget->SetTextColour(colourText);
       return pWidget;

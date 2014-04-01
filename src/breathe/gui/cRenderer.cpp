@@ -337,7 +337,38 @@ namespace breathe
       pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
+    void cRenderer::AddComboBox(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cComboBox& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      const spitfire::math::cColour colour(manager.GetColourWidget());
+
+      AddRect(builder, position, widget.width, widget.height, colour);
+
+
+      // Create the text for this widget
+      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+    }
+
     void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      const spitfire::math::cColour colour(manager.GetColourWidget());
+
+      AddRect(builder, position, widget.width, widget.height, colour);
+    }
+
+    void cRenderer::AddToolbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cToolbar& widget)
+    {
+      const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
+
+      const spitfire::math::cColour colour(manager.GetColourWidget());
+
+      AddRect(builder, position, widget.width, widget.height, colour);
+    }
+
+    void cRenderer::AddScrollbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cScrollbar& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -466,8 +497,20 @@ namespace breathe
             AddInput(builder, builderText, static_cast<const cInput&>(child));
             break;
 
+          case WIDGET_TYPE::COMBOBOX:
+            AddComboBox(builder, builderText, static_cast<const cComboBox&>(child));
+            break;
+
           case WIDGET_TYPE::SLIDER:
             AddSlider(builder, static_cast<const cSlider&>(child));
+            break;
+
+          case WIDGET_TYPE::TOOLBAR:
+            AddToolbar(builder, static_cast<const cToolbar&>(child));
+            break;
+
+          case WIDGET_TYPE::SCROLLBAR:
+            AddScrollbar(builder, static_cast<const cScrollbar&>(child));
             break;
 
           case WIDGET_TYPE::RETRO_BUTTON:

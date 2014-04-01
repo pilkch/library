@@ -53,7 +53,10 @@ namespace breathe
       void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget);
       void AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget);
       void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget);
+      void AddComboBox(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cComboBox& widget);
       void AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget);
+      void AddToolbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cToolbar& widget);
+      void AddScrollbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cScrollbar& widget);
 
       void AddRetroButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroButton& widget);
       void AddRetroInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInput& widget);

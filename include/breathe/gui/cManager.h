@@ -58,7 +58,10 @@ namespace breathe
       BUTTON,
       CHECKBOX,
       INPUT,
+      COMBOBOX,
       SLIDER,
+      TOOLBAR,
+      SCROLLBAR,
       RETRO_BUTTON,
       RETRO_INPUT,
       RETRO_INPUT_UPDOWN,
@@ -325,10 +328,28 @@ namespace breathe
       cInput();
     };
 
+    class cComboBox : public cWidget
+    {
+    public:
+      cComboBox();
+    };
+
     class cSlider : public cWidget
     {
     public:
       cSlider();
+    };
+
+    class cToolbar : public cWidget
+    {
+    public:
+      cToolbar();
+    };
+
+    class cScrollbar : public cWidget
+    {
+    public:
+      cScrollbar();
     };
 
     // ** Retro versions of the normal widgets
@@ -442,6 +463,7 @@ namespace breathe
       float GetButtonHeight() const;
       float GetCheckboxHeight() const;
       float GetInputHeight() const;
+      float GetComboBoxHeight() const;
 
       const spitfire::math::cColour& GetColourWindow() const { return colourWindow; }
       const spitfire::math::cColour& GetColourWidget() const { return colourWidget; }
@@ -452,7 +474,10 @@ namespace breathe
       cButton* CreateButton();
       cCheckbox* CreateCheckbox();
       cInput* CreateInput();
+      cComboBox* CreateComboBox();
       cSlider* CreateSlider();
+      cToolbar* CreateToolbar();
+      cScrollbar* CreateScrollbar();
 
       // Retro versions of the normal widgets
       cRetroInput* CreateRetroInput();
