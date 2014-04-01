@@ -40,11 +40,10 @@
 #include <spitfire/algorithm/md5.h>
 
 #ifdef UNICODE
-FILE* fopen(const wchar_t* szFilePath, const char* szMode)
+FILE* fopen(const wchar_t* szFilePath, const wchar_t* szMode)
 {
-  const std::string sFilePath(spitfire::string::ToUTF8(szFilePath));
   FILE* file = nullptr;
-  fopen_s(&file, sFilePath.c_str(), szMode);
+  _wfopen_s(&file, szFilePath, szMode);
   return file;
 }
 #endif
@@ -349,7 +348,7 @@ namespace spitfire
       return false;
     }
 
-    FILE* f = fopen(sFilePath.c_str(), "rb");
+    FILE* f = fopen(sFilePath.c_str(), TEXT("rb"));
     if (f == nullptr) {
       perror("fopen");
       return false;
