@@ -39,6 +39,16 @@
 
 #include <spitfire/algorithm/md5.h>
 
+#ifdef UNICODE
+FILE* fopen(const wchar_t* szFilePath, const char* szMode)
+{
+  const std::string sFilePath(spitfire::string::ToUTF8(szFilePath));
+  FILE* file = nullptr;
+  fopen_s(&file, sFilePath.c_str(), szMode);
+  return file;
+}
+#endif
+
 namespace spitfire
 {
   namespace algorithm
@@ -331,15 +341,15 @@ namespace spitfire
     return true;
   }
 
-  bool cMD5::CalculateForFile(const std::string& input)
+  bool cMD5::CalculateForFile(const string_t& sFilePath)
   {
-    if (input.size() < 2) {
+    if (sFilePath.size() < 2) {
       result[0] = 0;
 
       return false;
     }
 
-    FILE* f = fopen(input.c_str(), "rb");
+    FILE* f = fopen(sFilePath.c_str(), "rb");
     if (f == nullptr) {
       perror("fopen");
       return false;
@@ -416,13 +426,13 @@ namespace spitfire
     return sResult;
   }
 
-  std::string cMD5::GetResultFormatted() const
+  string_t cMD5::GetResultFormatted() const
   {
     // TODO: Huh? sResult already appears to be formatted. What is this code trying to do?
     //char temp[17];
     //std::strcpy(temp, (char*)result);
     //return std::string(temp);
-    return sResult;
+    return string::ToString_t(sResult);
   }
   }
 }
@@ -447,11 +457,11 @@ public:
 
     bool bResult = test.CalculateForString(szText);
     ASSERT(bResult);
-    ASSERT(test.GetResultFormatted() == "fcfb62be1afe450706c373d7b9cbb3e3");
+    ASSERT(test.GetResultFormatted() == TEXT("fcfb62be1afe450706c373d7b9cbb3e3"));
 
     bResult = test.CalculateForBuffer(szText, strlen(szText));
     ASSERT(bResult);
-    ASSERT(test.GetResultFormatted() == "fcfb62be1afe450706c373d7b9cbb3e3");
+    ASSERT(test.GetResultFormatted() == TEXT("fcfb62be1afe450706c373d7b9cbb3e3"));
   }
 };
 

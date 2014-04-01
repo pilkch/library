@@ -22,6 +22,9 @@
 #ifndef LIBVOODOOMM_CIMAGE_H
 #define LIBVOODOOMM_CIMAGE_H
 
+// Standard headers
+#include <vector>
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
