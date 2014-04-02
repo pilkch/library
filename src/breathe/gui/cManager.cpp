@@ -983,6 +983,25 @@ namespace breathe
       return 0.01f + GetTextHeight() + 0.01f;
     }
 
+    float cManager::GetToolbarWidthOrHeight() const
+    {
+      return 0.1f;
+    }
+
+    float cManager::GetScrollBarWidthOrHeight() const
+    {
+      return 0.04f;
+    }
+
+    float cManager::GetSpacerWidth() const
+    {
+      return 0.05f;
+    }
+
+    float cManager::GetSpacerHeight() const
+    {
+      return 0.03f;
+    }
 
     cWindow* cManager::CreateWindow()
     {

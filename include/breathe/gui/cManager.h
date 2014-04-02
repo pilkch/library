@@ -464,6 +464,10 @@ namespace breathe
       float GetCheckboxHeight() const;
       float GetInputHeight() const;
       float GetComboBoxHeight() const;
+      float GetToolbarWidthOrHeight() const;
+      float GetScrollBarWidthOrHeight() const;
+      float GetSpacerWidth() const;
+      float GetSpacerHeight() const;
 
       const spitfire::math::cColour& GetColourWindow() const { return colourWindow; }
       const spitfire::math::cColour& GetColourWidget() const { return colourWidget; }
