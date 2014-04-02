@@ -330,11 +330,11 @@ namespace breathe
 
       const spitfire::math::cColour colour(manager.GetColourWidget());
 
-      AddRect(builder, position, widget.width, widget.height, colour);
-
+      string_t sCaption = widget.sCaption;
+      if (widget.IsFocused()) sCaption.append(TEXT("|"));
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddComboBox(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cComboBox& widget)
@@ -343,11 +343,11 @@ namespace breathe
 
       const spitfire::math::cColour colour(manager.GetColourWidget());
 
-      AddRect(builder, position, widget.width, widget.height, colour);
-
+      string_t sCaption = widget.sCaption;
+      if (widget.IsFocused()) sCaption.append(TEXT("|"));
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
     void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
