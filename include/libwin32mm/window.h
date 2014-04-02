@@ -27,6 +27,11 @@ namespace win32mm
 
     void SetMenu(cMenu& menu);
 
+    void EnableMenu();
+    void DisableMenu();
+    void EnableMenuItem(int idItem, bool bEnable);
+    void CheckMenuItem(int idItem, bool bCheck);
+
     void CreateStatusBar(cStatusBar& statusBar);
 
     void DisplayPopupMenu(cPopupMenu& popupMenu);
@@ -100,6 +105,40 @@ namespace win32mm
   inline void cWindow::SetMenu(cMenu& menu)
   {
     ::SetMenu(hwndWindow, menu.hmenu);
+  }
+
+  inline void cWindow::EnableMenu()
+  {
+    // Enable all the top level menu items
+    HMENU hmenu = ::GetMenu(hwndWindow);
+    const int n = ::GetMenuItemCount(hmenu);
+    for (int i = 0; i < n; i++) ::EnableMenuItem(hmenu, i, MF_BYPOSITION | MF_ENABLED);
+
+    // Update the menu
+    ::DrawMenuBar(hwndWindow);
+  }
+
+  inline void cWindow::DisableMenu()
+  {
+    // Disable all the top level menu items
+    HMENU hmenu = ::GetMenu(hwndWindow);
+    const int n = ::GetMenuItemCount(hmenu);
+    for (int i = 0; i < n; i++) ::EnableMenuItem(hmenu, i, MF_BYPOSITION | MF_GRAYED);
+
+    // Update the menu
+    ::DrawMenuBar(hwndWindow);
+  }
+
+  inline void cWindow::EnableMenuItem(int idItem, bool bEnable)
+  {
+    HMENU hmenu = ::GetMenu(hwndWindow);
+    ::EnableMenuItem(hmenu, idItem, MF_BYCOMMAND | (bEnable ? MF_ENABLED : MF_GRAYED));
+  }
+
+  inline void cWindow::CheckMenuItem(int idItem, bool bCheck)
+  {
+    HMENU hmenu = ::GetMenu(hwndWindow);
+    ::CheckMenuItem(hmenu, idItem, MF_BYCOMMAND | (bCheck ? MF_CHECKED : MF_UNCHECKED));
   }
 
   inline void cWindow::CreateStatusBar(cStatusBar& statusBar)
