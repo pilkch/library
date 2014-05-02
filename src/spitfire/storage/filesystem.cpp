@@ -68,7 +68,6 @@
 #include <spitfire/algorithm/sha1.h>
 #endif
 
-
 namespace spitfire
 {
   namespace filesystem

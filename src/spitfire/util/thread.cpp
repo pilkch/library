@@ -98,8 +98,8 @@ private:
 };
 
 cDerivedThreadForUnitTest::cDerivedThreadForUnitTest() :
-  spitfire::util::cThread(soAction, "cDerivedThreadForUnitTest"),
-  soAction("cDerivedThreadForUnitTest_soAction")
+  spitfire::util::cThread(soAction, TEXT("cDerivedThreadForUnitTest")),
+  soAction(TEXT("cDerivedThreadForUnitTest_soAction"))
 {
 }
 

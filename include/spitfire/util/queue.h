@@ -79,7 +79,7 @@ namespace spitfire
     template <class T>
     inline cThreadSafeQueue<T>::cThreadSafeQueue(cSignalObject& _soAction) :
       soAction(_soAction),
-      mutex("cThreadSafeQueue<T>::mutex")
+      mutex(TEXT("cThreadSafeQueue<T>::mutex"))
     {
     }
 

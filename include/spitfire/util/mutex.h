@@ -22,12 +22,12 @@ namespace spitfire
       friend class cLockObject;
       friend class cSignalObject;
 
-      explicit cMutex(const std::string& sName);
+      explicit cMutex(const string_t& sName);
 
-      const std::string& GetName() const { return sName; }
+      const string_t& GetName() const { return sName; }
 
     private:
-      const std::string sName;
+      const string_t sName;
       std::mutex mutex;
 
       NO_COPY(cMutex);
@@ -47,7 +47,7 @@ namespace spitfire
 
     // *** cMutex
 
-    inline cMutex::cMutex(const std::string& _sName) :
+    inline cMutex::cMutex(const string_t& _sName) :
       sName(_sName)
     {
     }

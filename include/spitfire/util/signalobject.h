@@ -20,7 +20,7 @@ namespace spitfire
     class cSignalObject
     {
     public:
-      explicit cSignalObject(const std::string& sName);
+      explicit cSignalObject(const string_t& sName);
 
       bool IsSignalled() const;
 
@@ -32,13 +32,13 @@ namespace spitfire
       bool WaitTimeoutMS(uint32_t uTimeOutMS);
 
     private:
-      std::string sName;
+      string_t sName;
       mutable std::mutex mutex;
       std::condition_variable condition;
       volatile bool bIsSignalled;
     };
 
-    inline cSignalObject::cSignalObject(const std::string& _sName) :
+    inline cSignalObject::cSignalObject(const string_t& _sName) :
       sName(_sName),
       bIsSignalled(false)
     {

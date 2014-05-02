@@ -49,10 +49,10 @@ namespace spitfire
     class cThread : public cProcessInterface
     {
     public:
-      cThread(cSignalObject& soAction, const std::string& sName);
+      cThread(cSignalObject& soAction, const string_t& sName);
       virtual ~cThread();
 
-      const std::string& GetName() const { return sName; }
+      const string_t& GetName() const { return sName; }
 
       void Run();            // Runs the thread in the background
       void WaitToStop();     // Blocks forever until thread is done
@@ -73,7 +73,7 @@ namespace spitfire
 
       cSignalObject& soAction; // Signals that something has happened (Either stop, or done, or something else has triggered action)
 
-      const std::string sName;
+      const string_t sName;
 
       std::thread* pThread;
       cSignalObject soStop;    // Signals that the thread should stop
@@ -85,12 +85,12 @@ namespace spitfire
 
     // *** cThread
 
-    inline cThread::cThread(cSignalObject& _soAction, const std::string& _sName) :
+    inline cThread::cThread(cSignalObject& _soAction, const string_t& _sName) :
       soAction(_soAction),
       sName(_sName),
       pThread(nullptr),
-      soStop("cThread::soStop"),
-      soDone("cThread::soDone")
+      soStop(TEXT("cThread::soStop")),
+      soDone(TEXT("cThread::soDone"))
     {
     }
 
