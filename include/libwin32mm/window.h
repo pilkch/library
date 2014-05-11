@@ -26,6 +26,31 @@ namespace win32mm
   class cMenu;
   class cPopupMenu;
 
+  // ** cBubbleTip
+
+  class cBubbleTip
+  {
+  public:
+    friend class cWindow;
+
+    cBubbleTip();
+
+    void Show(cWindow& parent, HWND control, const string_t& sText);
+    void Hide();
+
+  protected:
+    LRESULT HandleWindowMessage(cWindow& window, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+  private:
+    HWND hwndBubbleTip;
+
+    TOOLINFO toolInfo;
+
+    // Keep track of the old position because Windows sends the WM_MOUSEMOVE message continuously when a bubbletip is present
+    int iOldX;
+    int iOldY;
+  };
+
   // ** cWindowProcHandler
 
   class cWindowProcHandler
@@ -148,6 +173,9 @@ namespace win32mm
 
     void SetFocus(HWND control);
 
+    void BubbleTipShow(HWND control, const string_t& sText);
+    void BubbleTipHide();
+
   protected:
     void UpdateDPI();
 
@@ -178,6 +206,8 @@ namespace win32mm
     int iDPI;
 
     HWND hwndThumb; // Resize control on the bottom right corner of the window
+
+    cBubbleTip bubbleTip;
   };
 
   class cPopupMenu;
@@ -595,6 +625,22 @@ namespace win32mm
     }
 
     return sText;
+  }
+
+
+  // ** cBubbleTip
+
+  inline cBubbleTip::cBubbleTip() :
+    hwndBubbleTip(NULL),
+    iOldX(0),
+    iOldY(0)
+  {
+  }
+
+  inline void cBubbleTip::Hide()
+  {
+    ::DestroyWindow(hwndBubbleTip);
+    hwndBubbleTip = NULL;
   }
 
 

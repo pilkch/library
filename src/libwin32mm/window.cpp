@@ -164,7 +164,7 @@ namespace win32mm
       // show the resize thumb in the bottom right corner
       ::ShowWindow(hwndThumb, SW_SHOW);
       const int iThumbWidth = GetScrollBarWidth();
-      const int iThumbHeight = GetScrollBarHeightPixels();
+      const int iThumbHeight = GetScrollBarHeight();
       ::SetWindowPos(hwndThumb, NULL, iWidth - iThumbWidth, iHeight - iThumbHeight, iThumbWidth, iThumbHeight, SWP_NOCOPYBITS | SWP_NOZORDER);
     }
 
@@ -294,16 +294,37 @@ namespace win32mm
     ::PostMessage(hwndWindow, WM_NEXTDLGCTL, (WPARAM)control, TRUE);
   }
 
+  void cWindow::BubbleTipShow(HWND control, const string_t& sText)
+  {
+    // Set the focus to this control
+    SetFocus(control);
+
+    // Show a bubble tip for this control
+    bubbleTip.Show(*this, control, sText);
+  }
+
+  void cWindow::BubbleTipHide()
+  {
+    bubbleTip.Hide();
+  }
+
   LRESULT APIENTRY cWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
+    // Check if the bubble tip wants to handle this message
+    LRESULT result = bubbleTip.HandleWindowMessage(*this, uMsg, wParam, lParam);
+    if (result != FALSE) return result;
+
+    // Check if any handlers want to handle this message
     if (lParam != 0) {
       HWND control = HWND(lParam);
       std::map<HWND, cWindowProcHandler*>::iterator iter = handlers.find(control);
       if (iter != handlers.end()) return iter->second->OnWindowProc(uMsg, wParam, lParam);
     }
 
+    // Let the previous window proc handle the message
     if (PreviousWindowProc != nullptr) return ::CallWindowProc(PreviousWindowProc, hwnd, uMsg, wParam, lParam);
 
+    // Let the default window proc handle the message
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
   }
 
@@ -312,5 +333,107 @@ namespace win32mm
     cWindow* pThis = (cWindow*)::GetProp(hwnd, TEXT("cWindowThis"));
     ASSERT(pThis != nullptr);
     return pThis->WindowProc(hwnd, uMsg, wParam, lParam);
+  }
+
+
+  // ** cBubbleTip
+
+  bool g_TrackingMouse = false;
+
+  void cBubbleTip::Show(cWindow& parent, HWND control, const string_t& sText)
+  {
+    // Hide and destroy any current bubble tip
+    Hide();
+
+    if (hwndBubbleTip == NULL) {
+      // Create the bubble tip
+      hwndBubbleTip = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, TTS_BALLOON | TTS_CLOSE | TTS_USEVISUALSTYLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parent.GetWindowHandle(), NULL, GetHInstance(), NULL);
+    }
+
+    // Set the maximum bubble tip width
+    ::SendMessage(hwndBubbleTip, TTM_SETMAXTIPWIDTH, 0, 300);
+
+    ZeroMemory(&toolInfo, sizeof(toolInfo));
+    toolInfo.cbSize = sizeof(toolInfo);
+    toolInfo.uFlags = TTF_TRANSPARENT | TTF_CENTERTIP | TTF_IDISHWND | TTF_PARSELINKS;
+    toolInfo.hwnd = control;
+    toolInfo.uId = UINT_PTR(control);
+    toolInfo.hinst = GetHInstance();
+    toolInfo.lpszText = LPWSTR(sText.c_str());
+
+    int iIcon = 1;
+    const string_t sCaption = TEXT("Caption");
+    if (!sCaption.empty()) ::SendMessage(hwndBubbleTip, TTM_SETTITLE, (WPARAM)(int)iIcon, (LPARAM)(LPCTSTR)sCaption.c_str());
+
+    // Get the control position
+    ::GetClientRect(control, &toolInfo.rect);
+
+    // Add the bubble tip
+    ::SendMessage(hwndBubbleTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
+
+    g_TrackingMouse = true;
+
+    // Activate the tooltip.
+    ::SendMessage(hwndBubbleTip, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&toolInfo);
+
+    //POINT pt = { toolInfo.rect.left, toolInfo.rect.top }; 
+    //::ClientToScreen(control, &pt);
+    //::SendMessage(hwndBubbleTip, TTM_TRACKPOSITION, 0, (LPARAM)MAKELONG(pt.x + 10, pt.y - 20));
+  }
+
+  LRESULT cBubbleTip::HandleWindowMessage(cWindow& window, UINT uMsg, WPARAM wParam, LPARAM lParam)
+  {
+    return FALSE;
+
+    switch (uMsg) {
+      case WM_MOUSELEAVE: {
+        // The mouse pointer has left our window. Deactivate the tooltip
+        ::SendMessage(hwndBubbleTip, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&toolInfo);
+        g_TrackingMouse = false;
+        return FALSE;
+      }
+      case WM_MOUSEMOVE: {
+        if (!g_TrackingMouse) {
+          // The mouse has just entered the window
+          // Request notification when the mouse leaves
+          TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT) };
+          tme.hwndTrack = hwndBubbleTip;
+          tme.dwFlags = TME_LEAVE;
+
+          ::TrackMouseEvent(&tme);
+
+          // Activate the tooltip.
+          ::SendMessage(hwndBubbleTip, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&toolInfo);
+
+          g_TrackingMouse = true;
+        }
+
+        const int newX = GET_X_LPARAM(lParam);
+        const int newY = GET_Y_LPARAM(lParam);
+
+        // Make sure the mouse has actually moved. The presence of the tooltip 
+        // causes Windows to send the message continuously
+        if ((newX != iOldX) || (newY != iOldY)) {
+          iOldX = newX;
+          iOldY = newY;
+
+          // Update the text
+          WCHAR coords[30];
+          swprintf_s(coords, ARRAYSIZE(coords), L"%d, %d", newX, newY);
+
+          toolInfo.lpszText = coords;
+          ::SendMessage(hwndBubbleTip, TTM_SETTOOLINFO, 0, (LPARAM)&toolInfo);
+
+          // Position the tooltip. The coordinates are adjusted so that the tooltip does not overlap the mouse pointer.
+          POINT pt = { newX, newY }; 
+          ::ClientToScreen(window.GetWindowHandle(), &pt);
+          ::SendMessage(hwndBubbleTip, TTM_TRACKPOSITION, 0, (LPARAM)MAKELONG(pt.x + 10, pt.y - 20));
+        }
+
+        return FALSE;
+      }
+    }
+
+    return FALSE;
   }
 }
