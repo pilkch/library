@@ -36,6 +36,9 @@ namespace breathe
       void Pause() { _OnPause(); }
       void Resume() { _OnResume(); }
 
+      #ifdef __WIN__
+      LRESULT HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return _HandleWin32Event(hwnd, uMsg, wParam, lParam); }
+      #endif
       void OnWindowEvent(const gui::cWindowEvent& event) { _OnWindowEvent(event); }
       void OnMouseEvent(const gui::cMouseEvent& event) { _OnMouseEvent(event); }
       void OnKeyboardEvent(const gui::cKeyboardEvent& event) { _OnKeyboardEvent(event); }
@@ -63,6 +66,9 @@ namespace breathe
       virtual void _OnPause() {}
       virtual void _OnResume() {}
 
+      #ifdef __WIN__
+      virtual LRESULT _HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return FALSE; }
+      #endif
       virtual void _OnWindowEvent(const gui::cWindowEvent& event) {}
       virtual void _OnMouseEvent(const gui::cMouseEvent& event) {}
       virtual void _OnKeyboardEvent(const gui::cKeyboardEvent& event) {}
@@ -128,6 +134,7 @@ namespace breathe
       virtual void _DestroyResources() {}
 
       virtual void _HandleSDLEvent(const SDL_Event& event) override;
+      virtual LRESULT _HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
       virtual void _OnWindowEvent(const opengl::cWindowEvent& event) override;
       virtual void _OnMouseEvent(const opengl::cMouseEvent& event) override;
@@ -135,6 +142,7 @@ namespace breathe
 
       virtual void OnJoystickEvent(const util::cJoystickEvent& event) override;
 
+      virtual LRESULT HandleApplicationWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return FALSE; }
       virtual void OnApplicationWindowEvent(const gui::cWindowEvent& event) {}
 
       // State event management (Transitioning between states)

@@ -232,6 +232,14 @@ namespace breathe
       joystickManager.HandleSDLEvent(event);
     }
 
+    LRESULT cApplication::_HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+      cState* pState = GetState();
+      if (pState != nullptr) return pState->HandleWin32Event(hwnd, uMsg, wParam, lParam);
+
+      return FALSE;
+    }
+
     void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
     {
       LOG<<"cApplication::_OnWindowEvent"<<std::endl;
