@@ -177,26 +177,10 @@ namespace opengl
         }
 
         #ifdef __WIN__
-        // This checks for an window event
         case SDL_SYSWMEVENT: {
-          // event.syswm.msg contains a pointer to SDL_SysWMmsg
-          // which contains the event information
-          switch(sdlEvent.syswm.msg->msg.win.msg) {
-            // The user selected the command from the menu or used
-            // a hot key
-            case WM_COMMAND: {
-              if (pWindowEventListener != nullptr) {
-                // Find which sub command was selected
-                const int iCommandID = (LOWORD(sdlEvent.syswm.msg->msg.win.wParam));
-
-                cWindowEvent event;
-                event.type = TYPE::WINDOW_COMMAND;
-                event.iCommandID = iCommandID;
-                pWindowEventListener->OnWindowEvent(event);
-              }
-            }
-
-            break;
+          // Allow the application to handle the raw Win32 Event
+          if (pWindowEventListener != nullptr) {
+            pWindowEventListener->HandleWin32Event(sdlEvent.syswm.msg->msg.win.hwnd, sdlEvent.syswm.msg->msg.win.msg, sdlEvent.syswm.msg->msg.win.wParam, sdlEvent.syswm.msg->msg.win.lParam);
           }
 
           break;

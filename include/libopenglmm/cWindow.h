@@ -279,12 +279,17 @@ namespace opengl
     virtual ~cWindowEventListener() {}
 
     void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); } // Allow the application to handle the raw event if nothing else handles it first
+    #ifdef __WIN__
+    LRESULT HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return _HandleWin32Event(hwnd, uMsg, wParam, lParam); }
+    #endif
 
     void OnWindowEvent(const cWindowEvent& event) { _OnWindowEvent(event); }
 
   private:
     virtual void _HandleSDLEvent(const SDL_Event& event) {}
-
+    #ifdef __WIN__
+    virtual LRESULT _HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return FALSE; }
+    #endif
     virtual void _OnWindowEvent(const cWindowEvent& event) = 0;
   };
 
