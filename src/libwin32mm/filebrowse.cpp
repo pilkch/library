@@ -4,7 +4,6 @@
 
 // Win32 headers
 #include <windows.h>
-#include <shobjidl.h>
 #include <commdlg.h>
 
 // libwin32mm headers

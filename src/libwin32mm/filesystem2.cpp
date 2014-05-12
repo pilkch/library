@@ -3,7 +3,6 @@
 
 // Windows headers
 #include <windows.h>
-#include <shobjidl.h>
 #include <shellapi.h>
 
 // libwin32mm headers
