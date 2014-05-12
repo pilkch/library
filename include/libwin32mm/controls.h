@@ -311,7 +311,8 @@ namespace win32mm
     ASSERT(controlUpDown != NULL);
 
 
-    // Set the buddy window now that the control has been created.  We can't set this when creating the control because it will trigger the WM_COMMAND messages for EN_CHANGE and EN_UPDATE which will calls EnableControls twice
+    // Set the buddy window
+    // Note: We cannot set this when creating the control because it will trigger the WM_COMMAND messages for EN_CHANGE and EN_UPDATE which will calls EnableControls twice.
     if ((::GetWindowLong(controlUpDown, GWL_STYLE) & UDS_AUTOBUDDY) == 0) ::SendMessage(controlUpDown, UDM_SETBUDDY, WPARAM(controlInput), 0);
 
     // Set control range
