@@ -193,8 +193,8 @@ namespace spitfire
       }
       virtual ~cConsoleBase() {}
 
-      unsigned int uiCursorBlink;
-      unsigned int uiCursorPosition;
+      size_t uiCursorBlink;
+      size_t uiCursorPosition;
 
       void SetApp(breathe::cApplication* inApp) { pApp = inApp; }
 
