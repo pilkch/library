@@ -25,7 +25,6 @@
 #include <libopenglmm/cFont.h>
 #include <libopenglmm/cGeometry.h>
 #include <libopenglmm/cShader.h>
-#include <libopenglmm/cSystem.h>
 #include <libopenglmm/cTexture.h>
 #include <libopenglmm/cVertexBufferObject.h>
 #include <libopenglmm/cWindow.h>
@@ -53,9 +52,8 @@ namespace breathe
   {
     // ** cRenderer
 
-    cRenderer::cRenderer(const cManager& _manager, opengl::cSystem& _system, opengl::cContext& _context) :
+    cRenderer::cRenderer(const cManager& _manager, opengl::cContext& _context) :
       manager(_manager),
-      system(_system),
       context(_context),
       bWireFrame(false),
       pWidgetsTexture(nullptr),
@@ -113,7 +111,7 @@ namespace breathe
 
       pVBO->SetData(pGeometryDataPtr);
 
-      pVBO->Compile2D(system);
+      pVBO->Compile2D();
 
       pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(resolutionWidth, resolutionHeight, opengl::PIXELFORMAT::R8G8B8A8);
       ASSERT(pTextureFrameBufferObject != nullptr);
@@ -546,7 +544,7 @@ namespace breathe
 
           pVBO->SetData(pGeometryDataPtr);
 
-          pVBO->Compile2D(system);
+          pVBO->Compile2D();
 
           context.EnableBlending();
 
@@ -579,7 +577,7 @@ namespace breathe
 
           pVBOText->SetData(pTextGeometryDataPtr);
 
-          pVBOText->Compile2D(system);
+          pVBOText->Compile2D();
 
           context.BindFont(*pFont);
 

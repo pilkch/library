@@ -3,7 +3,6 @@
 
 // libopenglmm headers
 #include <libopenglmm/cFont.h>
-#include <libopenglmm/cSystem.h>
 #include <libopenglmm/cTexture.h>
 
 // Breathe headers
@@ -22,7 +21,7 @@ namespace breathe
     class cRenderer
     {
     public:
-      explicit cRenderer(const cManager& manager, opengl::cSystem& _system, opengl::cContext& context);
+      explicit cRenderer(const cManager& manager, opengl::cContext& context);
       ~cRenderer();
 
       bool LoadResources(size_t resolutionWidth, size_t resolutionHeight);
@@ -68,7 +67,6 @@ namespace breathe
       void Visit(const cWidget& widget);
 
       const cManager& manager;
-      opengl::cSystem& system;
       opengl::cContext& context;
 
       bool bWireFrame;
