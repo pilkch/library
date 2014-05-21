@@ -56,8 +56,8 @@ namespace opengl
     size_t GetApproximateTriangleCount() const;
 
     bool IsCompiled() const { return bIsCompiled; }
-    void Compile(const cSystem& system);
-    void Compile2D(const cSystem& system);
+    void Compile();
+    void Compile2D();
     void Destroy();
 
   protected:

@@ -72,10 +72,8 @@ namespace opengl
     return (pGeometryDataPtr != nullptr) ? (pGeometryDataPtr->nVertexCount / 3) : 0;
   }
 
-  void cStaticVertexBufferObject::Compile(const cSystem& system)
+  void cStaticVertexBufferObject::Compile()
   {
-    (void)system;
-
     assert(!IsCompiled());
 
     #ifdef DEBUG
@@ -95,16 +93,16 @@ namespace opengl
     glBindVertexArray(vertexArrayObjectID);
     #endif
 
-    //std::cout<<"cStaticVertexBufferObject::Compile glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile glGetError="<<cSystem::GetErrorString()<<std::endl;
     // Create a new buffer
     glGenBuffers(1, &bufferID);
-    //std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<system.GetErrorString()<<", bufferID="<<bufferID<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile glGenBuffers glGetError="<<cSystem::GetErrorString()<<", bufferID="<<bufferID<<std::endl;
     assert(bufferID != 0);
 
     // Bind the buffer object to use
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
 
-    //std::cout<<"cStaticVertexBufferObject::Compile x glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile x glGetError="<<opengl::ccSystem::GetErrorString()<<std::endl;
     // Allocate enough memory for the whole buffer
     // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
     const size_t nBufferSizeBytes =
@@ -127,7 +125,7 @@ namespace opengl
 
     const size_t nStrideBytes = (nVertexSize + nNormalSize + nColourSize + nTextureCoordinateSize + nFloatUserData0Size + nFloatUserData1Size + nFloatUserData2Size) * sizeof(GLfloat);
 
-    //std::cout<<"cStaticVertexBufferObject::Compile y glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile y glGetError="<<cSystem::GetErrorString()<<std::endl;
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glEnableClientState(GL_VERTEX_ARRAY);
       // Describe to OpenGL where the vertex data is in the buffer
@@ -158,9 +156,9 @@ namespace opengl
 
     // http://www.informit.com/articles/article.aspx?p=1377833&seqNum=7
 
-    //std::cout<<"cStaticVertexBufferObject::Compile b0 glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile b0 glGetError="<<cSystem::GetErrorString()<<std::endl;
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size + normal_size + colour_size + texturecoordinate_size + floatUserData0_size + floatUserData1_size + floatUserData2_size, pGeometryDataPtr->vertices.data());
-    //std::cout<<"cStaticVertexBufferObject::Compile b1 glGetError="<<opengl::cSystem::GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile b1 glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     // Index buffer
 
@@ -246,7 +244,7 @@ namespace opengl
 
     // We are now finished and are ready to unbind
 
-    //std::cout<<"cStaticVertexBufferObject::Compile unbinding buffer, glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile unbinding buffer, glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Unbind the vertex array
@@ -256,7 +254,7 @@ namespace opengl
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //std::cout<<"cStaticVertexBufferObject::Compile unbound buffer, glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile unbound buffer, glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     // Disable texture coordinate information
@@ -272,15 +270,15 @@ namespace opengl
     glDisableClientState(GL_VERTEX_ARRAY);
     #endif
 
-    //std::cout<<"cStaticVertexBufferObject::Compile returning, glGetError="<<system.GetErrorString()<<std::endl;
+    //std::cout<<"cStaticVertexBufferObject::Compile returning, glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     bIsCompiled = true;
     bIs2D = false;
   }
 
-  void cStaticVertexBufferObject::Compile2D(const cSystem& system)
+  void cStaticVertexBufferObject::Compile2D()
   {
-    Compile(system);
+    Compile();
 
     bIsCompiled = true;
     bIs2D = true;
