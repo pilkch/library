@@ -306,7 +306,7 @@ namespace spitfire
     if (possible.empty()) possible = original;
 
     // Get an index to a random item in the list
-    uint32_t index = spitfire::math::random(possible.size());
+    uint32_t index = spitfire::math::random(int(possible.size()));
 
     typename std::list<T>::iterator iter = possible.begin();
     const typename std::list<T>::iterator iterEnd = possible.end();

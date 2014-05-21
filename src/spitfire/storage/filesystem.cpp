@@ -41,7 +41,7 @@
 
 // libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
-#elif defined(__WIN__)
+#else
 // libwin32mm headers
 #include <libwin32mm/filesystem.h>
 #endif
