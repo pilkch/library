@@ -404,6 +404,11 @@ namespace voodoo
     return 4;
   }
 
+  size_t cImage::GetBitsPerPixel() const
+  {
+    return (8 * GetBytesPerPixel());
+  }
+
   const uint8_t* cImage::GetPointerToBuffer() const
   {
     assert(!buffer.empty());

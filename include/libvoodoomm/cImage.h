@@ -78,6 +78,7 @@ namespace voodoo
     size_t GetHeight() const { return height; }
     PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
     size_t GetBytesPerPixel() const;
+    size_t GetBitsPerPixel() const;
 
     void SetWidth(size_t _width) { width = _width; }
     void SetHeight(size_t _height) { height = _height; }
