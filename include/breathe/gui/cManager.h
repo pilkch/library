@@ -45,7 +45,7 @@ namespace breathe
 {
   namespace gui
   {
-    typedef uint32_t id_t;
+    typedef size_t id_t;
 
     using opengl::KEY;
     using opengl::cWindowEvent;
