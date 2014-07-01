@@ -1,5 +1,15 @@
+// Windows headers
+#define min(a, b) (a < b ? a : b)
+#define max(a, b) (a > b ? a : b)
+
 #include <windows.h>
+#include <objidl.h>
+#include <gdiplus.h>
 #include <commctrl.h>
+#include <shellapi.h>
+
+#undef min
+#undef max
 
 #pragma comment(lib, "comctl32.lib")
 
@@ -18,9 +28,12 @@
 
 #include <libwin32mm/libwin32mm.h>
 #include <libwin32mm/dynamiclibrary.h>
+#include <libwin32mm/window.h>
 
 namespace win32mm
 {
+  ULONG_PTR gGDIPlusToken = 0;
+
   void Init()
   {
     cDLL dll(TEXT("user32.dll"));
@@ -40,5 +53,31 @@ namespace win32mm
       ICC_STANDARD_CLASSES // All other controls
     ;
     ::InitCommonControlsEx(&icce);
+
+    // Init GDI+
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    Gdiplus::GdiplusStartup(&gGDIPlusToken, &gdiplusStartupInput, NULL);
+  }
+
+  void Destroy()
+  {
+    // Destroy GDI+
+    Gdiplus::GdiplusShutdown(gGDIPlusToken);
+  }
+
+
+  void OpenWebPage(const cWindow& parent, const string_t& sWebPage)
+  {
+    // Launch this web page in the default browser
+    SHELLEXECUTEINFO sh;
+    memset(&sh, 0, sizeof(SHELLEXECUTEINFO));
+
+    sh.cbSize = sizeof(SHELLEXECUTEINFO);
+    sh.lpVerb = TEXT("open");
+    sh.lpFile = sWebPage.c_str();
+    sh.hwnd = parent.GetWindowHandle();
+    sh.nShow = SW_NORMAL;
+
+    ::ShellExecuteEx(&sh);
   }
 }

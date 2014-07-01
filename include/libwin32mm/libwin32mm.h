@@ -20,9 +20,14 @@ namespace win32mm
   using spitfire::string_t;
   using spitfire::ostringstream_t;
 
+  class cWindow;
+
   void Init();
+  void Destroy();
 
   HINSTANCE GetHInstance();
+
+  void OpenWebPage(const cWindow& parent, const string_t& sWebPage);
 
 
   // ** Inlines
