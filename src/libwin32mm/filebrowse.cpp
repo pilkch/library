@@ -13,15 +13,15 @@
 
 namespace win32mm
 {
-  // ** cWin32mmFolderDialog
+  // ** cFolderDialog
 
-  cWin32mmFolderDialog::cWin32mmFolderDialog() :
+  cFolderDialog::cFolderDialog() :
     type(TYPE::SELECT),
     bSelectMultipleFolders(false)
   {
   }
 
-  bool cWin32mmFolderDialog::Run(const cWindow& parent)
+  bool cFolderDialog::Run(const cWindow& parent)
   {
     sSelectedFolder.clear();
 

@@ -17,8 +17,8 @@ namespace win32mm
 
   // Browse for a file with file type filtering
   //
-  // cWin32mmFileDialog dialog;
-  // dialog.SetType(cWin32mmFileDialog::TYPE::OPEN);
+  // cFileDialog dialog;
+  // dialog.SetType(cFileDialog::TYPE::OPEN);
   // dialog.SetCaption(TEXT("Please choose a file"));
   // dialog.SetDefaultFolder(TEXT("/folder"));
   //
@@ -45,8 +45,8 @@ namespace win32mm
 
   // Browse for multiple files
   //
-  // cWin32mmFileDialog dialog;
-  // dialog.SetType(cWin32mmFileDialog::TYPE::OPEN);
+  // cFileDialog dialog;
+  // dialog.SetType(cFileDialog::TYPE::OPEN);
   // dialog.SetSelectMultipleFiles(true);
   // dialog.SetCaption(TEXT("Please choose some files"));
   // dialog.SetDefaultFolder(TEXT("/folder"));
@@ -63,8 +63,8 @@ namespace win32mm
 
   // Browse for a Folder
   //
-  // cWin32mmFolderDialog dialog;
-  // dialog.SetType(cWin32mmFolderDialog::TYPE::SELECT);
+  // cFolderDialog dialog;
+  // dialog.SetType(cFolderDialog::TYPE::SELECT);
   // dialog.SetCaption(TEXT("Please choose a folder"));
   // dialog.SetDefaultFolder(TEXT("/folder"));
   // if (dialog.Run(*this)) {
@@ -89,10 +89,10 @@ namespace win32mm
     std::vector<cFilter> filters;
   };
 
-  class cWin32mmFileDialog
+  class cFileDialog
   {
   public:
-    cWin32mmFileDialog();
+    cFileDialog();
 
     enum class TYPE {
       OPEN,
@@ -124,10 +124,10 @@ namespace win32mm
     std::list<string_t> selectedFiles;
   };
 
-  class cWin32mmFolderDialog
+  class cFolderDialog
   {
   public:
-    cWin32mmFolderDialog();
+    cFolderDialog();
 
     enum class TYPE {
       SELECT,
