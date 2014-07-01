@@ -36,7 +36,6 @@ namespace win32mm
 
     virtual void OnInit() = 0;
     virtual void OnDestroy() {}
-    virtual void OnCommand(int iCommand) = 0;
     virtual void OnClose(int iResult) override;
     virtual bool OnOk() = 0;
     virtual bool OnCancel() { return true; }

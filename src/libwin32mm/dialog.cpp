@@ -126,13 +126,16 @@ namespace win32mm
 
   bool cDialog::RunNonResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits)
   {
-   cHGLOBAL hglobal;
+    cHGLOBAL hglobal;
 
-   CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_VISIBLE | WS_SYSMENU | DS_MODALFRAME | WS_CAPTION | DS_3DLOOK, WS_EX_DLGMODALFRAME);
+    CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_EX_COMPOSITED | WS_VISIBLE | WS_SYSMENU | DS_MODALFRAME | WS_CAPTION | DS_3DLOOK, WS_EX_DLGMODALFRAME);
 
-   LRESULT ret = DialogBoxIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
+    LRESULT ret = DialogBoxIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
 
-   return (ret == IDOK);
+    ::SetForegroundWindow(parent.GetWindowHandle());
+    ::PostMessage(parent.GetWindowHandle(), WM_SHOWWINDOW, 0, 0);
+
+    return (ret == IDOK);
   }
 
   bool cDialog::RunResizable(cWindow& parent)
@@ -144,7 +147,7 @@ namespace win32mm
   {
     cHGLOBAL hglobal;
 
-    CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_VISIBLE | DS_MODALFRAME | WS_BORDER | WS_CAPTION | DS_3DLOOK | WS_SYSMENU | WS_OVERLAPPED | WS_THICKFRAME, WS_EX_DLGMODALFRAME);
+    CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_EX_COMPOSITED | WS_VISIBLE | DS_MODALFRAME | WS_BORDER | WS_CAPTION | DS_3DLOOK | WS_SYSMENU | WS_OVERLAPPED | WS_THICKFRAME, WS_EX_DLGMODALFRAME);
 
     LRESULT ret = DialogBoxIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
 
@@ -154,6 +157,9 @@ namespace win32mm
     SetMinimizable(true);
     SetMaximizable(true);
 
+    ::SetForegroundWindow(parent.GetWindowHandle());
+    ::PostMessage(parent.GetWindowHandle(), WM_SHOWWINDOW, 0, 0);
+
     return (ret == IDOK);
   }
   
@@ -161,9 +167,11 @@ namespace win32mm
   {
     cHGLOBAL hglobal;
 
-    CreateDialogResource(hglobal, 0, 0, 0, TEXT(""), DS_3DLOOK | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP  | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN, 0);
+    CreateDialogResource(hglobal, 0, 0, 0, TEXT(""), DS_3DLOOK | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN | WS_EX_COMPOSITED, 0);
 
     const HWND hwnd = CreateDialogIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
+
+    ::SetForegroundWindow(parent.GetWindowHandle());
 
     if (hwnd == NULL) {
       std::cerr<<"cDialog::CreateModelessDialog CreateDialogIndirectParam Failed"<<std::endl;
@@ -207,11 +215,10 @@ namespace win32mm
   LRESULT cDialog::DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     // Allow cWindow to handle this message
-    BOOL bResult = WindowProc(hwnd, uMsg, wParam, lParam);
-    if (bResult != FALSE) return bResult;
+    LRESULT result = HandleMessage(hwnd, uMsg, wParam, lParam);
+    if (result != FALSE) return result;
 
     switch (uMsg) {
-
       case WM_INITDIALOG:
         std::cout<<"cWindow::DialogProc call InitDialog"<<std::endl;
         OnInit();
