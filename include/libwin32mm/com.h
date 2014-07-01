@@ -36,6 +36,9 @@ namespace win32mm
     ~cComObject();
 
     void CreateObject(REFCLSID rclsid, REFIID riid);
+    void Set(T* p);
+    
+    void Release();
 
     bool IsValid() const;
 
@@ -46,8 +49,6 @@ namespace win32mm
 
   private:
     NO_COPY(cComObject<T>);
-
-    void Release();
 
     T* p;
   };
@@ -154,6 +155,16 @@ namespace win32mm
     if (result != S_OK) {
       std::wcerr<<TEXT("cComObject::CreateObject CoCreateInstance FAILED result=")<<result<<TEXT(", last error=")<<GetLastError()<<std::endl;
     }
+  }
+
+  template <class T>
+  inline void cComObject<T>::Set(T* _p)
+  {
+    // Release any existing object
+    Release();
+
+    // Set the new object
+    p = _p;
   }
 }
 
