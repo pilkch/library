@@ -163,6 +163,9 @@ namespace win32mm
     int MeasureStaticTextWidth(HWND control) const;
     int MeasureStaticTextHeight(HWND control, int iAreaWidth) const;
     int MeasureButtonWidth(HWND control) const;
+    int MeasureOkButtonWidth() const;
+    int MeasureCancelButtonWidth() const;
+    int MeasureHelpButtonWidth() const;
     int MeasureRadioButtonWidth(HWND control) const;
     int MeasureCheckBoxWidth(HWND control) const;
     int MeasureInputWidth(HWND control) const;
@@ -177,12 +180,16 @@ namespace win32mm
     void BubbleTipHide();
 
   protected:
+    virtual bool OnCommand(int idCommand) { return false; } // Allow the application handle control generated commands, return true if the command was handled
+
     void UpdateDPI();
 
     void CallOnResize(int iWidth, int iHeight);
 
     static void GetControlText(HWND control, string_t& sText);
     static void SetControlText(HWND control, const string_t& sText);
+
+    LRESULT HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
@@ -194,10 +201,6 @@ namespace win32mm
     virtual void OnResize(int iWidth, int iHeight) {}
 
     int MeasureControlTextWidth(HWND control) const;
-
-    int MeasureOkButtonWidth() const;
-    int MeasureCancelButtonWidth() const;
-    int MeasureHelpButtonWidth() const;
 
     WNDPROC PreviousWindowProc;
 
@@ -362,18 +365,6 @@ namespace win32mm
     return ::GetDlgItem(hwndWindow, idControl);
   }
 
-  inline int cWindow::DialogUnitsToPixelsY(int y) const
-  {
-
-    RECT rect;
-    rect.left = 0;
-    rect.top = 0;
-    rect.right = 0;
-    rect.bottom = y;
-    ::MapDialogRect(hwndWindow, &rect);
-    return rect.bottom;
-  }
-
   inline int cWindow::DialogUnitsToPixelsX(int x) const
   {
     RECT rect;
@@ -385,14 +376,25 @@ namespace win32mm
     return rect.right;
   }
 
+  inline int cWindow::DialogUnitsToPixelsY(int y) const
+  {
+    RECT rect;
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = 0;
+    rect.bottom = y;
+    ::MapDialogRect(hwndWindow, &rect);
+    return rect.bottom;
+  }
+
   inline int cWindow::CharacterUnitsToPixelsX(int iPixelsX) const
   {
-    return 99;
+    return DialogUnitsToPixelsY(iPixelsX << 3);
   }
 
   inline int cWindow::CharacterUnitsToPixelsY(int iPixelsY) const
   {
-    return 99;
+    return DialogUnitsToPixelsY(iPixelsY << 2);
   }
 
   inline int cWindow::GetMarginWidth() const

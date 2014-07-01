@@ -267,12 +267,11 @@ namespace win32mm
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof(ncm);
 
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
-    HFONT hDlgFont = CreateFontIndirect(&(ncm.lfMessageFont));
+    ::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+    HFONT hDlgFont = ::CreateFontIndirect(&(ncm.lfMessageFont));
 
     // Set the dialog to use the system message box font
-    //SetFont(m_DlgFont, TRUE);
-    SendMessage(hwndWindow, WM_SETFONT, (WPARAM)hDlgFont, MAKELPARAM(FALSE, 0));
+    ::SendMessage(hwndWindow, WM_SETFONT, (WPARAM)hDlgFont, MAKELPARAM(FALSE, 0));
   }
 
   void cWindow::SetControlDefaultFont(HWND control)
@@ -281,12 +280,11 @@ namespace win32mm
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof(ncm);
 
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
-    HFONT hDlgFont = CreateFontIndirect(&(ncm.lfMessageFont));
+    ::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+    HFONT hDlgFont = ::CreateFontIndirect(&(ncm.lfMessageFont));
 
     // Set the dialog to use the system message box font
-    //SetFont(m_DlgFont, TRUE);
-    SendMessage(control, WM_SETFONT, (WPARAM)hDlgFont, MAKELPARAM(FALSE, 0));
+    ::SendMessage(control, WM_SETFONT, (WPARAM)hDlgFont, MAKELPARAM(FALSE, 0));
   }
 
   void cWindow::SetFocus(HWND control)
@@ -308,7 +306,7 @@ namespace win32mm
     bubbleTip.Hide();
   }
 
-  LRESULT APIENTRY cWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+  LRESULT APIENTRY cWindow::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     // Check if the bubble tip wants to handle this message
     LRESULT result = bubbleTip.HandleWindowMessage(*this, uMsg, wParam, lParam);
@@ -317,15 +315,37 @@ namespace win32mm
     // Check if any handlers want to handle this message
     if (lParam != 0) {
       HWND control = HWND(lParam);
+
+      // WM_NOTIFY messages have an actual structure in lParam
+      if (uMsg == WM_NOTIFY) control = ((LPNMHDR)lParam)->hwndFrom;
+
       std::map<HWND, cWindowProcHandler*>::iterator iter = handlers.find(control);
       if (iter != handlers.end()) return iter->second->OnWindowProc(uMsg, wParam, lParam);
     }
 
+    return FALSE;
+  }
+
+  LRESULT APIENTRY cWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+  {
+    // Check if anything wants to handle this message
+    LRESULT result = HandleMessage(hwnd, uMsg, wParam, lParam);
+    if (result != FALSE) return result;
+
+    switch (uMsg) {
+      case WM_COMMAND: {
+        OnCommand(LOWORD(wParam));
+        break;
+      }
+    }
+
     // Let the previous window proc handle the message
-    if (PreviousWindowProc != nullptr) return ::CallWindowProc(PreviousWindowProc, hwnd, uMsg, wParam, lParam);
+    if (PreviousWindowProc != nullptr) {
+      //if (uMsg != WM_CREATE) return ::CallWindowProc(PreviousWindowProc, hwnd, uMsg, wParam, lParam);
+    }
 
     // Let the default window proc handle the message
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
   }
 
   LRESULT APIENTRY cWindow::_WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
