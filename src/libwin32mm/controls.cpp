@@ -2,6 +2,8 @@
 #include <windowsx.h>
 
 // libwin32mm headers
+#include <libwin32mm/bitmap.h>
+#include <libwin32mm/colorref.h>
 #include <libwin32mm/controls.h>
 
 // Spitfire headers
@@ -32,6 +34,101 @@ namespace win32mm
     cComboBox* pThis = (cComboBox*)::GetProp(HWND(hwnd), TEXT("cComboBoxThis"));
     ASSERT(pThis != nullptr);
     return pThis->WindowProc(uMsg, wParam, lParam);
+  }
+
+
+  // ** cLinkControl
+
+  void cLinkControl::Create(cWindow& parent, cLinkControlListener& listener, int idControl, const string_t& sText)
+  {
+    // Create the SysLink control
+    control = ::CreateWindowEx(NULL, WC_LINK, sText.c_str(),
+      WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+      50, 220, 100, 24,
+      parent.GetWindowHandle(),
+      (HMENU)NULL,
+      ::GetModuleHandle(NULL), NULL
+    );
+
+    // Set the default font
+    parent.SetControlDefaultFont(control);
+
+    parent.AddHandler(control, *this);
+
+    pListener = &listener;
+  }
+
+  LRESULT APIENTRY cLinkControl::OnWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+  {
+    switch (uMsg) {
+      case WM_NOTIFY: {
+        switch (((const LPNMHDR)lParam)->code) {
+          case NM_CLICK:    // Fall through to the NM_RETURN case
+          case NM_RETURN: {
+            if (pListener != nullptr) {
+              const PNMLINK pNMLink = (const PNMLINK)lParam;
+              const LITEM item = pNMLink->item;
+              pListener->OnLinkClicked(*this, size_t(item.iLink));
+            }
+
+            break;
+          }
+        }
+
+        break;
+      }
+      default:
+        break;
+    }
+
+    return FALSE;
+  }
+
+
+  // ** cImageControl
+
+  void cImageControl::Create(cWindow& parent, const cBitmap& bitmap)
+  {
+    // Create the control
+    control = ::CreateWindowEx(0, WC_STATIC, NULL, WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SS_BITMAP, 0, 0, 0, 0, parent.GetWindowHandle(), 0, GetHInstance(), NULL);
+
+    // Set the image
+    SetImage(bitmap);
+
+    parent.AddHandler(control, *this);
+  }
+
+  void cImageControl::SetImage(const cBitmap& bitmap)
+  {
+    // Set the image
+    int iResult = ::SendMessage(control, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bitmap.GetHBitmap());
+    printf("cImageControl::Create iResult=%d\n", iResult);
+  }
+
+  LRESULT APIENTRY cImageControl::OnWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+  {
+    switch (uMsg) {
+      case WM_CTLCOLOR: {
+        ::SetBkMode((HDC)wParam, TRANSPARENT);
+        return LRESULT(::GetStockObject(NULL_BRUSH));
+      }
+      case WM_ERASEBKGND: {
+        break;
+      }
+      case WM_PAINT: {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(control, &ps);
+        const cColorRef colour(255, 0, 0);
+        SetBkColor(hdc, colour.GetColorRef());
+        TextOut(hdc, 50, 50, TEXT("Hello"), 5);
+        EndPaint(control, &ps);
+        break;
+      }
+      default:
+        break;
+    }
+
+    return FALSE;
   }
 
 

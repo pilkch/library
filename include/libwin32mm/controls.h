@@ -6,7 +6,7 @@
 #include <libwin32mm/window.h>
 
 #ifndef CreateWindow
-#define CreateWindow  CreateWindowW
+#define CreateWindow CreateWindowW
 #endif
 
 namespace win32mm
@@ -16,10 +16,13 @@ namespace win32mm
   const int COMBOBOX_INVALID_ITEM = CB_ERR;
 
   class cWindow;
+  class cInput;
   class cInputUpDown;
   class cMenu;
   class cPopupMenu;
   class cStatusBar;
+
+  class cBitmap;
 
   class cStatusBar
   {
@@ -29,6 +32,8 @@ namespace win32mm
     HWND GetHandle() const;
 
     void Create(cWindow& parent);
+
+    int GetHeight() const;
 
     void SetWidths(const int* widths, size_t nWidths);
     void SetText(size_t segment, const string_t& sText);
@@ -64,6 +69,22 @@ namespace win32mm
     void CreateOk(cWindow& parent, const string_t& sText);
     void CreateCancel(cWindow& parent);
     void CreateHelp(cWindow& parent);
+
+  private:
+    HWND control;
+  };
+
+  class cInput
+  {
+  public:
+    cInput();
+
+    HWND GetHandle() const;
+
+    void Create(cWindow& parent, int idControl);
+
+    string_t GetValue() const;
+    void SetValue(const string_t& sValue);
 
   private:
     HWND control;
@@ -126,6 +147,51 @@ namespace win32mm
     HWND controlComboBox;
   };
 
+
+  class cLinkControl;
+
+  class cLinkControlListener
+  {
+  public:
+    virtual ~cLinkControlListener() {}
+
+    virtual void OnLinkClicked(const cLinkControl& linkControl, size_t index) = 0;
+  };
+
+  class cLinkControl : public cWindowProcHandler
+  {
+  public:
+    cLinkControl();
+
+    void Create(cWindow& parent, cLinkControlListener& listener, int idControl, const string_t& sText);
+
+    HWND GetHandle() const;
+
+  private:
+    virtual LRESULT OnWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+
+    HWND control;
+
+    cLinkControlListener* pListener;
+  };
+
+  class cImageControl : public cWindowProcHandler
+  {
+  public:
+    cImageControl();
+
+    HWND GetHandle() const;
+
+    void Create(cWindow& parent, const cBitmap& bitmap);
+
+    void SetImage(const cBitmap& bitmap);
+
+  private:
+    virtual LRESULT OnWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+
+    HWND control;
+  };
+
   class cHorizontalLine
   {
   public:
@@ -139,7 +205,7 @@ namespace win32mm
     HWND control;
   };
 
-  class cScrollBar : cWindowProcHandler
+  class cScrollBar : public cWindowProcHandler
   {
   public:
     cScrollBar();
@@ -182,6 +248,13 @@ namespace win32mm
 
     // Set the default font
     parent.SetControlDefaultFont(control);
+  }
+
+  inline int cStatusBar::GetHeight() const
+  {
+    RECT rect;
+    ::GetWindowRect(control, &rect);
+    return (rect.bottom - rect.top);
   }
 
   inline void cStatusBar::SetWidths(const int* widths, size_t nWidths)
@@ -279,6 +352,41 @@ namespace win32mm
   {
     // Create the button
     Create(parent, IDCANCEL, TEXT("Cancel"));
+  }
+
+
+  // ** cInput
+
+  inline cInput::cInput() :
+    control(NULL)
+  {
+  }
+
+  inline HWND cInput::GetHandle() const
+  {
+    return control;
+  }
+
+  inline void cInput::Create(cWindow& parent, int idControl)
+  {
+    // Create the edit control
+    control = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, TEXT(""), ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP, 0, 0, 0, 0, parent.GetWindowHandle(), (HMENU)idControl, NULL, (LPVOID)0);
+    ASSERT(control != NULL);
+
+    // Set the default font
+    parent.SetControlDefaultFont(control);
+  }
+
+  inline string_t cInput::GetValue() const
+  {
+    return TEXT("");
+    //return int(::SendMessage(control, UDM_GETPOS32, 0, 0));
+  }
+
+  inline void cInput::SetValue(const string_t& sValue)
+  {
+    //::SendMessage(control, UDM_SETPOS32 , 0, LPARAM(iValue));
+    (void)sValue;
   }
 
 
@@ -402,16 +510,16 @@ namespace win32mm
   {
     if (bComboBox) {
       control = CreateWindowEx(0, WC_COMBOBOXEX, NULL,
-                    WS_BORDER | WS_VISIBLE | WS_CHILD | CBS_DROPDOWN,
-                    // No size yet--resize after setting image list.
-                    0,      // Vertical position of Combobox
-                    0,      // Horizontal position of Combobox
-                    0,      // Sets the width of Combobox
-                    100,    // Sets the height of Combobox
-                    parent.GetWindowHandle(),
-                    (HMENU)idControl,
-                    GetHInstance(),
-                    NULL);
+        WS_BORDER | WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | CBS_DROPDOWN,
+        // No size yet--resize after setting image list.
+        0,      // Vertical position of Combobox
+        0,      // Horizontal position of Combobox
+        0,      // Sets the width of Combobox
+        100,    // Sets the height of Combobox
+        parent.GetWindowHandle(),
+        (HMENU)idControl,
+        GetHInstance(),
+        NULL);
     } else {
       control = ::CreateWindow(WC_COMBOBOXEX, TEXT(""), CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_CHILD | WS_CLIPCHILDREN | WS_OVERLAPPED | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 0, 0, 0, 150, parent.GetWindowHandle(), (HMENU)idControl, GetHInstance(), (LPVOID)0);
     }
@@ -460,6 +568,33 @@ namespace win32mm
   }
 
 
+  // ** cLinkControl
+  
+  inline cLinkControl::cLinkControl() :
+    control(NULL),
+    pListener(nullptr)
+  {
+  }
+
+  inline HWND cLinkControl::GetHandle() const
+  {
+    return control;
+  }
+
+
+  // ** cImageControl
+
+  inline cImageControl::cImageControl() :
+    control(NULL)
+  {
+  }
+
+  inline HWND cImageControl::GetHandle() const
+  {
+    return control;
+  }
+
+
   // ** cHorizontalLine
 
   inline cHorizontalLine::cHorizontalLine() :
@@ -474,7 +609,8 @@ namespace win32mm
 
   inline void cHorizontalLine::Create(cWindow& parent)
   {
-    // Create the horizontal line
+    // Create the control
+    control = ::CreateWindowEx(0, WC_STATIC, NULL, SS_ETCHEDFRAME | WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS, 0, 0, 0, 0, parent.GetWindowHandle(), 0, GetHInstance(), NULL);
   }
 
 
@@ -542,8 +678,8 @@ namespace win32mm
     int iNewMin = 0;
     int iNewMax = 0;
     GetRange(iNewMin, iNewMax);
-    ASSERT(iNewMin == iMin);
-    ASSERT(iNewMax == iMax);
+    //ASSERT(iNewMin == iMin);
+    //ASSERT(iNewMax == iMax);
   }
 
   inline int cScrollBar::GetPageSize() const
@@ -563,9 +699,9 @@ namespace win32mm
     info.fMask  = SIF_PAGE | SIF_DISABLENOSCROLL;
     info.nPage = UINT(iPageSize + 1);
     ::SetScrollInfo(control, SB_CTL, &info, TRUE);
-
+    
     // Make sure that worked
-    ASSERT(GetPageSize() == iPageSize);
+    //ASSERT(GetPageSize() == iPageSize);
   }
 
   inline int cScrollBar::GetPosition() const
@@ -587,8 +723,8 @@ namespace win32mm
     ::SetScrollInfo(control, SB_CTL, &info, TRUE);
 
     // Make sure that worked
-    const int iNewPosition = GetPosition();
-    ASSERT(iNewPosition == iPosition);
+    //const int iNewPosition = GetPosition();
+    //ASSERT(iNewPosition == iPosition);
   }
 }
 
