@@ -12,10 +12,10 @@ namespace spitfire
     class cLetterBox
     {
     public:
-      cLetterBox(size_t width, size_t height);
+      cLetterBox(size_t desiredWidth, size_t desiredHeight, size_t width, size_t height);
 
-      size_t desiredWidth;
-      size_t desiredHeight;
+      const size_t desiredWidth;
+      const size_t desiredHeight;
       float fDesiredRatio;
 
       float fRatio;
@@ -29,16 +29,14 @@ namespace spitfire
 
     // ** cLetterBox
 
-    inline cLetterBox::cLetterBox(size_t width, size_t height) :
-      desiredWidth(0),
-      desiredHeight(0),
+    inline cLetterBox::cLetterBox(size_t _desiredWidth, size_t _desiredHeight, size_t width, size_t height) :
+      desiredWidth(_desiredWidth),
+      desiredHeight(_desiredHeight),
       fDesiredRatio(0.0f),
       fRatio(0.0f),
       letterBoxedWidth(0),
       letterBoxedHeight(0)
     {
-      desiredWidth = 1920;
-      desiredHeight = 1080;
       fDesiredRatio = float(desiredWidth) / float(desiredHeight);
 
       fRatio = float(width) / float(height);
