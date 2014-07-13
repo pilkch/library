@@ -22,6 +22,9 @@
 #ifndef LIBOPENGLMM_WINDOW_H
 #define LIBOPENGLMM_WINDOW_H
 
+// Standard headers
+#include <map>
+
 // SDL headers
 #include <SDL2/SDL.h>
 
