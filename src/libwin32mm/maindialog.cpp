@@ -4,6 +4,8 @@
 // libwin32mm headers
 #include <libwin32mm/maindialog.h>
 
+#define WIN32MM_WM_USER_INIT_FINISHED (WM_APP + 684)
+
 namespace win32mm
 {
   #define WM_LIBWIN32MM_DESTROY_WINDOW (WM_USER + 1)
@@ -117,6 +119,15 @@ namespace win32mm
     switch(uMsg) {
       case WM_CREATE: {
         OnInit();
+
+        // Push a message onto the back of the queue
+        ::PostMessage(hwndWindow, WIN32MM_WM_USER_INIT_FINISHED, 0, 0);
+
+        break;
+      }
+
+      case WIN32MM_WM_USER_INIT_FINISHED: {
+        OnInitFinished();
         break;
       }
 
@@ -169,6 +180,7 @@ namespace win32mm
       }
     }
 
+    //return cDialog::DialogProc(hwnd, uMsg, wParam, lParam);
     return cWindow::WindowProc(hwnd, uMsg, wParam, lParam);
   }
 

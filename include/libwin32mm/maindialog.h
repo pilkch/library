@@ -18,6 +18,7 @@ namespace win32mm
 
   private:
     virtual void OnInit() {}
+    virtual void OnInitFinished() {}
     virtual void OnDestroy() {}
     
     virtual void OnResizing(size_t width, size_t height) { (void)width; (void)height; }
