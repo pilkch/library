@@ -170,14 +170,14 @@ namespace win32mm
         case WM_SETFOCUS:
         case WM_KILLFOCUS:
         case WM_ENABLE:
-          ::InvalidateRect(hwnd, NULL, FALSE);
+          Update();
           break;
 
         case WM_SIZING:
         case WM_SIZE:
           UpdateSize();
           OnSize();
-          Paint();
+          Update();
           break;
 
         case WM_PAINT:
