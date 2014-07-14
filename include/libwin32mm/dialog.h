@@ -37,6 +37,7 @@ namespace win32mm
     BOOL EvWmSizing(WPARAM wParam, LPARAM lParam);
 
     virtual void OnInit() = 0;
+    virtual void OnInitFinished() {}
     virtual void OnDestroy() {}
 
     virtual void OnClose(int iResult) override;

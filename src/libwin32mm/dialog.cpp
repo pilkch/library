@@ -10,6 +10,8 @@
 
 #define WIN32MM_FONT "MS Shell Dlg 2"
 
+#define WIN32MM_WM_USER_INIT_FINISHED (WM_APP + 684)
+
 namespace win32mm
 {
   // ** cHGLOBAL
@@ -246,7 +248,16 @@ namespace win32mm
         CenterOnParent();
 
         //EnableControls();
+
+        // Push a message onto the back of the queue
+        ::PostMessage(hwndWindow, WIN32MM_WM_USER_INIT_FINISHED, 0, 0);
+
         return TRUE;
+
+      case WIN32MM_WM_USER_INIT_FINISHED: {
+        OnInitFinished();
+        return FALSE;
+      }
 
       case WM_COMMAND: {
         switch (LOWORD(wParam)) {
