@@ -40,6 +40,8 @@ namespace win32mm
     virtual void OnInitFinished() {}
     virtual void OnDestroy() {}
 
+    virtual void OnDialogCreated() {} // For internal use, overridden by cMainDialog
+
     virtual void OnClose(int iResult) override;
     virtual bool OnOk() { return true; }
     virtual bool OnCancel() { return true; }

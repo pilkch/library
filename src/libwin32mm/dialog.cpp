@@ -7,6 +7,7 @@
 
 // libwin32mm headers
 #include <libwin32mm/dialog.h>
+#include <libwin32mm/maindialog.h>
 
 // Spitfire headers
 #include <spitfire/storage/filesystem.h>
@@ -325,8 +326,14 @@ namespace win32mm
         ASSERT(icon != NULL);
         ::SendMessage(hwnd, WM_SETICON, ICON_BIG, LPARAM(icon));
         ::SendMessage(hwnd, WM_SETICON, ICON_SMALL, LPARAM(icon));
+
+        pDialog->OnDialogCreated();
       }
     }
+
+    // Allow cMainDialog to handle this message
+    cMainDialog* pThis = static_cast<cMainDialog*>(::GetProp(hwnd, TEXT("cMainDialog")));
+    if (pThis != nullptr) return pThis->MainDialogProc(hwnd, uMsg, wParam, lParam);
 
     // Get our window pointer
     cDialog* pDialog = (cDialog*)::GetWindowLongPtr(hwnd, DWLP_USER);

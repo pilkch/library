@@ -1,26 +1,28 @@
 #ifndef LIBWIN32MM_MAINDIALOG_H
 #define LIBWIN32MM_MAINDIALOG_H
 
-#include <libwin32mm/window.h>
+#include <libwin32mm/dialog.h>
 
 namespace win32mm
 {
   // ** cMainDialog
 
-  class cMainDialog : public cWindow
+  class cMainDialog : public cDialog
   {
   public:
-    cMainDialog();
+    friend class cDialog;
 
-    bool Create();
+    cMainDialog();
 
     int Run();
 
   private:
+    virtual void OnDialogCreated() override;
+
     virtual void OnInit() {}
     virtual void OnInitFinished() {}
     virtual void OnDestroy() {}
-    
+
     virtual void OnResizing(size_t width, size_t height) { (void)width; (void)height; }
     virtual void OnResize(size_t width, size_t height) { (void)width; (void)height; }
 

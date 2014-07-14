@@ -16,94 +16,18 @@ namespace win32mm
   {
   }
 
-  bool cMainDialog::Create()
+  void cMainDialog::OnDialogCreated()
   {
-    const char_t* szWindowClass = TEXT("libwin32mm_window");
-
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = _MainDialogProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = GetHInstance();
-    wcex.hIcon          = LoadIcon(GetHInstance(), MAKEINTRESOURCE(IDI_APPLICATION));
-    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName   = NULL;
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-
-    if (!::RegisterClassEx(&wcex))
-    {
-      ::MessageBox(NULL, TEXT("Call to RegisterClassEx failed!"), TEXT("Win32 Guided Tour"), NULL);
-
-      return false;
-    }
-  
-    const char_t* szCaption = TEXT("My Application");
-
-    // The parameters to CreateWindow explained:
-    // szWindowClass: the name of the application
-    // szTitle: the text that appears in the title bar
-    // WS_OVERLAPPEDWINDOW: the type of window to create
-    // CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
-    // 500, 100: initial size (width, length)
-    // NULL: the parent of this window
-    // NULL: this application does not have a menu bar
-    // hInstance: the first parameter from WinMain
-    // NULL: not used in this application
-    /*hwndWindow = ::CreateWindow(
-        szWindowClass,
-        szCaption,
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        500, 100,
-        NULL,
-        NULL,
-        GetHInstance(),
-        NULL
-    );*/
-  
- 
-
-    // Initialize the structure members (not shown).
+    // Set the window property so that we can get it again in the future
     cMainDialog* pThis = this;
-    hwndWindow = ::CreateWindowEx(
-      WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED,                              // Optional window styles.
-      szWindowClass,
-      szCaption,
-      WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,            // Window style
-
-      // Size and position
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-      NULL,       // Parent window
-      NULL,       // Menu
-      GetHInstance(),
-      pThis
-    );
-    if (hwndWindow == NULL) {
-        ::MessageBox(NULL,
-            TEXT("Call to CreateWindow failed!"),
-            TEXT("Win32 Guided Tour"),
-            NULL);
-
-        return false;
-    }
-
-    // Set our default font
-    SetDefaultFont();
-
-    ::ShowWindow(hwndWindow, SW_NORMAL);
-    ::UpdateWindow(hwndWindow);
-
-    return true;
+    ::SetProp(hwndWindow, TEXT("cMainDialog"), (HANDLE)pThis);
   }
 
   int cMainDialog::Run()
   {
+    cWindow dummyWindow;
+    RunResizable(dummyWindow, TEXT(BUILD_APPLICATION_NAME), 300, 300);
+
     // Main message loop
     MSG msg;
     while (::GetMessage(&msg, NULL, 0, 0)) {
@@ -117,28 +41,16 @@ namespace win32mm
   LRESULT cMainDialog::MainDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     switch(uMsg) {
-      case WM_CREATE: {
-        OnInit();
-
-        // Push a message onto the back of the queue
-        ::PostMessage(hwndWindow, WIN32MM_WM_USER_INIT_FINISHED, 0, 0);
-
-        break;
-      }
-
-      case WIN32MM_WM_USER_INIT_FINISHED: {
-        OnInitFinished();
-        break;
-      }
-
       case WM_DESTROY: {
         // Notify the application
         OnDestroy();
 
+        hwndWindow = NULL;
+
         // Quit the application
         ::PostQuitMessage(0);
 
-        return 0;
+        return FALSE;
       }
 
       case WM_CLOSE: {
@@ -180,8 +92,7 @@ namespace win32mm
       }
     }
 
-    //return cDialog::DialogProc(hwnd, uMsg, wParam, lParam);
-    return cWindow::WindowProc(hwnd, uMsg, wParam, lParam);
+    return cDialog::DialogProc(hwnd, uMsg, wParam, lParam);
   }
 
   LRESULT CALLBACK cMainDialog::_MainDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -193,7 +104,7 @@ namespace win32mm
       // Set our window handle
       pThis->hwndWindow = hwnd;
 
-      // Set the window property so that we can get it in the future
+      // Set the window property so that we can get it again in the future
       ::SetProp(hwnd, TEXT("cMainDialog"), (HANDLE)pThis);
     }
 
