@@ -8,6 +8,9 @@
 // libwin32mm headers
 #include <libwin32mm/dialog.h>
 
+// Spitfire headers
+#include <spitfire/storage/filesystem.h>
+
 #define WIN32MM_FONT "MS Shell Dlg 2"
 
 #define WIN32MM_WM_USER_INIT_FINISHED (WM_APP + 684)
@@ -313,6 +316,15 @@ namespace win32mm
         if (pDialog->creationFlags.bResizable) pDialog->SetResizable(true);
         if (pDialog->creationFlags.bMaximizable) pDialog->SetMaximizable(true);
         if (pDialog->creationFlags.bMinimizable) pDialog->SetMinimizable(true);
+
+        // Set the icon for this dialog
+        const string_t sFolderPath = spitfire::filesystem::GetThisApplicationDirectory();
+        const string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, TEXT("data\\icons\\windows\\application.ico"));
+        ASSERT(spitfire::filesystem::FileExists(sFilePath));
+        HICON icon = ::HICON(LoadImage(GetHInstance(), sFilePath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
+        ASSERT(icon != NULL);
+        ::SendMessage(hwnd, WM_SETICON, ICON_BIG, LPARAM(icon));
+        ::SendMessage(hwnd, WM_SETICON, ICON_SMALL, LPARAM(icon));
       }
     }
 
