@@ -36,6 +36,9 @@ namespace spitfire
     // So we can run stdio and stream style i/o interchanged.
     //std::ios_base::sync_with_stdio();
 
+    // Set our application executable
+    filesystem::SetThisExecutable(string::ToString_t(argv[0]));
+
     ParseArguments(argc, argv);
   }
 

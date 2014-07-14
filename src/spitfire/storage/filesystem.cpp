@@ -86,7 +86,12 @@ namespace spitfire
     {
       CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
 
+      #if defined(__WIN__) && defined(BUILD_DEBUG)
+      // Remove the debug part of the path to leave the application directory
+      sApplicationDirectory = GetFolder(spitfire::string::Replace(executable, TEXT("project\\x64\\Debug\\"), TEXT("")));
+      #else
       sApplicationDirectory = GetFolder(executable);
+      #endif
 
       ASSERT(!sApplicationDirectory.empty());
 
