@@ -460,9 +460,10 @@ namespace opengl
 
     const int iDisplay = 1;
 
-    // Create our window if it has already been created
+    // Create our window if it has not already been created
     LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
-    if (window.pWindow == nullptr) {
+    const bool bCreated = (window.pWindow != nullptr);
+    if (!bCreated) {
       window.pWindow = SDL_CreateWindow("My Game Window",
         SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
         int(resolution.width), int(resolution.height),
@@ -495,6 +496,7 @@ namespace opengl
       return false;
     }
     #endif
+
 
     #ifdef BUILD_DEBUG
     LOG<<"cContext::_SetWindowVideoMode OpenGL Version: "<<(const char*)(glGetString(GL_VERSION))<<std::endl;
