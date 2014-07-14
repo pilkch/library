@@ -143,19 +143,26 @@ namespace win32mm
     return RunResizable(parent, 0, 0);
   }
 
+  cDialog::cDialogCreationFlags::cDialogCreationFlags() :
+    bResizable(false),
+    bMinimizable(false),
+    bMaximizable(false)
+  {
+  }
+
   bool cDialog::RunResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits)
   {
     cHGLOBAL hglobal;
 
     CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_EX_COMPOSITED | WS_VISIBLE | DS_MODALFRAME | WS_BORDER | WS_CAPTION | DS_3DLOOK | WS_SYSMENU | WS_OVERLAPPED | WS_THICKFRAME, WS_EX_DLGMODALFRAME);
 
-    LRESULT ret = DialogBoxIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
-
     // TODO: APPARENTLY WE ONLY NEED WS_THICKFRAME SO WE COULD JUST CALL THE OTHER FUNCTION
     // TODO: WORK OUT WHAT FLAGS ARE UNIQUE AND JUST PASS THOSE
-    SetResizable(true);
-    SetMinimizable(true);
-    SetMaximizable(true);
+    creationFlags.bResizable = true;
+    creationFlags.bMinimizable = true;
+    creationFlags.bMaximizable = true;
+
+    LRESULT ret = DialogBoxIndirectParam(NULL, (LPDLGTEMPLATE)hglobal.Get(), parent.GetWindowHandle(), _DialogProc, LPARAM(this));
 
     ::SetForegroundWindow(parent.GetWindowHandle());
     ::PostMessage(parent.GetWindowHandle(), WM_SHOWWINDOW, 0, 0);
@@ -283,6 +290,10 @@ namespace win32mm
         pDialog->SetWindowHandle(hwnd);
 
         pDialog->UpdateDPI();
+
+        if (pDialog->creationFlags.bResizable) pDialog->SetResizable(true);
+        if (pDialog->creationFlags.bMaximizable) pDialog->SetMaximizable(true);
+        if (pDialog->creationFlags.bMinimizable) pDialog->SetMinimizable(true);
       }
     }
 

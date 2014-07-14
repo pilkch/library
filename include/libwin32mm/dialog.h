@@ -40,6 +40,17 @@ namespace win32mm
     virtual bool OnOk() = 0;
     virtual bool OnCancel() { return true; }
     virtual void OnHelp() {}
+
+    class cDialogCreationFlags {
+    public:
+      cDialogCreationFlags();
+
+      bool bResizable;
+      bool bMinimizable;
+      bool bMaximizable;
+    };
+
+    cDialogCreationFlags creationFlags; // Initial flags that are setup after the dialog has been created
   };
 }
 
