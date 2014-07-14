@@ -143,7 +143,7 @@ namespace win32mm
 
   bool cAboutDialog::Run(cWindow& parent)
   {
-    return RunNonResizable(parent);
+    return RunNonResizable(parent, TEXT("About"));
   }
 
 

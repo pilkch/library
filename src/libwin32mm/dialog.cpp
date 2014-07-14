@@ -117,15 +117,26 @@ namespace win32mm
   }
 
 
-  // ** cDialog
+  // ** cDialogCreationFlags
 
-  bool cDialog::RunNonResizable(cWindow& parent)
+  cDialog::cDialogCreationFlags::cDialogCreationFlags() :
+    bResizable(false),
+    bMinimizable(false),
+    bMaximizable(false)
   {
-    return RunNonResizable(parent, 0, 0);
   }
 
-  bool cDialog::RunNonResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits)
+  // ** cDialog
+
+  bool cDialog::RunNonResizable(cWindow& parent, const string_t& sCaption)
   {
+    return RunNonResizable(parent, sCaption, 400, 400);
+  }
+
+  bool cDialog::RunNonResizable(cWindow& parent, const string_t& sCaption, int iWidthDialogUnits, int iHeightDialogUnits)
+  {
+    creationFlags.sCaption = sCaption;
+
     cHGLOBAL hglobal;
 
     CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_EX_COMPOSITED | WS_VISIBLE | WS_SYSMENU | DS_MODALFRAME | WS_CAPTION | DS_3DLOOK, WS_EX_DLGMODALFRAME);
@@ -138,20 +149,15 @@ namespace win32mm
     return (ret == IDOK);
   }
 
-  bool cDialog::RunResizable(cWindow& parent)
+  bool cDialog::RunResizable(cWindow& parent, const string_t& sCaption)
   {
-    return RunResizable(parent, 0, 0);
+    return RunResizable(parent, sCaption, 400, 400);
   }
 
-  cDialog::cDialogCreationFlags::cDialogCreationFlags() :
-    bResizable(false),
-    bMinimizable(false),
-    bMaximizable(false)
+  bool cDialog::RunResizable(cWindow& parent, const string_t& sCaption, int iWidthDialogUnits, int iHeightDialogUnits)
   {
-  }
+    creationFlags.sCaption = sCaption;
 
-  bool cDialog::RunResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits)
-  {
     cHGLOBAL hglobal;
 
     CreateDialogResource(hglobal, short(iWidthDialogUnits), short(iHeightDialogUnits), 0, TEXT(""), WS_POPUP | WS_CLIPCHILDREN | WS_EX_COMPOSITED | WS_VISIBLE | DS_MODALFRAME | WS_BORDER | WS_CAPTION | DS_3DLOOK | WS_SYSMENU | WS_OVERLAPPED | WS_THICKFRAME, WS_EX_DLGMODALFRAME);
@@ -290,6 +296,8 @@ namespace win32mm
         pDialog->SetWindowHandle(hwnd);
 
         pDialog->UpdateDPI();
+
+        pDialog->SetCaption(pDialog->creationFlags.sCaption);
 
         if (pDialog->creationFlags.bResizable) pDialog->SetResizable(true);
         if (pDialog->creationFlags.bMaximizable) pDialog->SetMaximizable(true);

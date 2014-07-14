@@ -12,10 +12,10 @@ namespace win32mm
   class cDialog : public cWindow
   {
   public:
-    bool RunNonResizable(cWindow& parent);
-    bool RunNonResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits);
-    bool RunResizable(cWindow& parent);
-    bool RunResizable(cWindow& parent, int iWidthDialogUnits, int iHeightDialogUnits);
+    bool RunNonResizable(cWindow& parent, const string_t& sCaption);
+    bool RunNonResizable(cWindow& parent, const string_t& sCaption, int iWidthDialogUnits, int iHeightDialogUnits);
+    bool RunResizable(cWindow& parent, const string_t& sCaption);
+    bool RunResizable(cWindow& parent, const string_t& sCaption, int iWidthDialogUnits, int iHeightDialogUnits);
 
     void ShowOkButton(bool bShow);
     void ShowCancelButton(bool bShow);
@@ -45,6 +45,7 @@ namespace win32mm
     public:
       cDialogCreationFlags();
 
+      string_t sCaption;
       bool bResizable;
       bool bMinimizable;
       bool bMaximizable;
