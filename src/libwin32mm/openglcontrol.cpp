@@ -75,7 +75,7 @@ namespace win32mm
     RegisterClass();
 
     // Create the OpenGL control
-    control = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT(LIBWIN32MM_OPENGL_CONTROLCLASS), TEXT(""), WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP, 0, 0, 0, 0, parent.GetWindowHandle(), (HMENU)idControl, GetHInstance(), (LPVOID)0);
+    control = ::CreateWindowEx(0, TEXT(LIBWIN32MM_OPENGL_CONTROLCLASS), TEXT(""), WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP, 0, 0, 0, 0, parent.GetWindowHandle(), (HMENU)idControl, GetHInstance(), (LPVOID)0);
 
     parent.SetControlDefaultFont(control);
 
