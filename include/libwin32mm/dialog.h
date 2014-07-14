@@ -24,20 +24,23 @@ namespace win32mm
     void DoOKButton() { PostMessage(hwndWindow, WM_COMMAND, IDOK, 0); }
     void DoCancelButton() { PostMessage(hwndWindow, WM_COMMAND, IDCANCEL, 0); }
 
+  protected:
+    LRESULT DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK _DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
   private:
+    void CreateDialogResource(cHGLOBAL& hglobal, int iWidthDU, int iHeightDU, int iMenu, const string_t& sCaption, DWORD uStyle, DWORD uExtStyle) const;
+
+    bool CreateModelessDialog(cWindow& parent);
+
     BOOL EvWmSize(WPARAM wParam, LPARAM lParam);
     BOOL EvWmSizing(WPARAM wParam, LPARAM lParam);
 
-    LRESULT DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static LRESULT CALLBACK _DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    
-    void CreateDialogResource(cHGLOBAL& hglobal, int iWidthDU, int iHeightDU, int iMenu, const string_t& sCaption, DWORD uStyle, DWORD uExtStyle) const;
-    bool CreateModelessDialog(cWindow& parent);
-
     virtual void OnInit() = 0;
     virtual void OnDestroy() {}
+
     virtual void OnClose(int iResult) override;
-    virtual bool OnOk() = 0;
+    virtual bool OnOk() { return true; }
     virtual bool OnCancel() { return true; }
     virtual void OnHelp() {}
 
