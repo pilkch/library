@@ -46,6 +46,11 @@ namespace win32mm
     ::PostMessage(hwndWindow, WM_COMMAND, IDCANCEL, 0);
   }
 
+  void cWindow::SetCaption(const string_t& sCaption)
+  {
+    ::SetWindowText(hwndWindow, sCaption.c_str());
+  }
+
   void cWindow::SetResizable(bool bResizable)
   {
     LONG iStyle = ::GetWindowLong(hwndWindow, GWL_STYLE);
@@ -126,7 +131,7 @@ namespace win32mm
     const HWND hwndParent = ::GetParent(hwndWindow);
 
     // If the window is minimized then we can just center it on the screen
-    if (IsMinimized(hwndParent)) {
+    if ((hwndParent == NULL) || IsMinimized(hwndParent)) {
       CenterOnScreen();
       return;
     }

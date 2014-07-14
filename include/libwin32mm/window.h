@@ -86,6 +86,8 @@ namespace win32mm
     int GetDPI() const;
     int ScaleByDPI(int iValue);
 
+    void SetCaption(const string_t& sCaption);
+
     void SetResizable(bool bResizable);
     void SetMinimizable(bool bMinimizable);
     void SetMaximizable(bool bMaximizable);
