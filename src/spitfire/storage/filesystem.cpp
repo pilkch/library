@@ -86,18 +86,14 @@ namespace spitfire
     {
       CONSOLE<<"SetThisExecutable executable="<<executable<<std::endl;
 
-#ifdef __WIN__
-      sApplicationDirectory = GetFolder(spitfire::string::Replace(executable, TEXT("\\"), TEXT("/")));
-#else
       sApplicationDirectory = GetFolder(executable);
-#endif
 
       ASSERT(!sApplicationDirectory.empty());
 
       // Replace ./ with the current directory
-      if (spitfire::string::StartsWith(sApplicationDirectory, TEXT("./"))) {
+      if (spitfire::string::StartsWith(sApplicationDirectory, TEXT(".") + sFolderSeparator)) {
         const string_t sCurrentDirectory = GetCurrentDirectory();
-        const string_t sEnd = spitfire::string::StripLeading(sApplicationDirectory, TEXT("./"));
+        const string_t sEnd = spitfire::string::StripLeading(sApplicationDirectory, TEXT(".") + sFolderSeparator);
 
         // Join the two parts together
         sApplicationDirectory = sCurrentDirectory + sEnd;
