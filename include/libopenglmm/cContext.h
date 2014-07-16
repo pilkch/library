@@ -29,7 +29,7 @@
 // Spifire headers
 #include <spitfire/math/cQuaternion.h>
 
-// liblibopenglmm headers
+// libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 
 typedef void* SDL_GLContext;
@@ -154,8 +154,10 @@ namespace opengl
     void SetSunAmbientColour(const spitfire::math::cColour& sunAmbientColour);
     void SetSunIntensity(float fSunIntensity);
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     void BeginRenderToScreen();
     void EndRenderToScreen(cWindow& window);
+    #endif
 
     void BeginRenderToTexture(cTextureFrameBufferObject& texture);
     void EndRenderToTexture(cTextureFrameBufferObject& texture);

@@ -690,6 +690,7 @@ namespace opengl
   }
 
 
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   void cContext::BeginRenderToScreen()
   {
     _BeginRenderShared(resolution.width, resolution.height);
@@ -701,6 +702,7 @@ namespace opengl
 
     if (bIsRenderingToWindow) window.SwapWindowFromContext();
   }
+  #endif
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
   {

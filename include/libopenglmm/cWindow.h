@@ -387,6 +387,18 @@ namespace opengl
     float x;
     float y;
   };
+
+
+  // ** Inlines
+
+  inline bool IsKeyPrintable(KEY key)
+  {
+    if ((key >= KEY::A) && (key <= KEY::Z)) return true;
+
+    if ((key >= KEY::SPACE) && (key <= KEY::BACKQUOTE)) return true;
+
+    return false;
+  }
 }
 
 #endif // LIBOPENGLMM_WINDOW_H

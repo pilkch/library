@@ -22,6 +22,10 @@
 #ifndef LIBOPENGLMM_H
 #define LIBOPENGLMM_H
 
+#if !defined(BUILD_LIBOPENGLMM_WINDOW_WIN32) && !defined(BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT)
+#define BUILD_LIBOPENGLMM_WINDOW_SDL
+#endif
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
