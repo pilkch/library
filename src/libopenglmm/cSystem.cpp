@@ -153,6 +153,7 @@ namespace opengl
     size_t nUsedMB = 0;
 
     if (IsGPUATI()) {
+      // TODO: Test this on an ATI card
       //int cur_avail_mem_kb = 0;
       //glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &cur_avail_mem_kb);
       //size_t nAvailableMB = cur_avail_mem_kb / 1024;
