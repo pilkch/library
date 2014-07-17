@@ -125,6 +125,9 @@ namespace opengl
   {
     LOG<<"cContext::cContext"<<std::endl;
 
+    // Get the current context
+    context = SDL_GL_GetCurrentContext();
+
     _SetDefaultFlags();
     _SetPerspective(resolution.width, resolution.height);
     targetWidth = resolution.width;
