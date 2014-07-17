@@ -72,6 +72,8 @@ namespace opengl
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT
     cContext* CreateSharedContextForWidget(const cResolution& resolution);
+    #elif defined(BUILD_LIBOPENGLMM_WINDOW_WIN32)
+    cContext* CreateSharedContextForControl(HWND control, const cResolution& resolution);
     #endif
 
     cContext* CreateSharedContextFromContext(const cContext& context);

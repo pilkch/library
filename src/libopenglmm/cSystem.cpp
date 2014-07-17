@@ -404,10 +404,19 @@ namespace opengl
     return new cContext(*this, window);
   }
 #endif
-
+  
+  #if defined(BUILD_LIBOPENGLMM_WINDOW_WIN32) || defined(BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT)
   #ifdef BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT
   cContext* cSystem::CreateSharedContextForWidget(const cResolution& resolution)
+  #elif defined(BUILD_LIBOPENGLMM_WINDOW_WIN32)
+  cContext* cSystem::CreateSharedContextForControl(HWND control, const cResolution& resolution)
+  #endif
   {
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_WIN32
+    // Ignored, we are really just documenting that this requires an already active control
+    (void)control;
+    #endif
+
     nContexts++;
 
     return new cContext(*this, resolution, true);
