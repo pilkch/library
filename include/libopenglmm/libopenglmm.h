@@ -22,7 +22,8 @@
 #ifndef LIBOPENGLMM_H
 #define LIBOPENGLMM_H
 
-#if !defined(BUILD_LIBOPENGLMM_WINDOW_WIN32) && !defined(BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT)
+// If no window method has been defined then default to SDL window creation
+#if !defined(BUILD_LIBOPENGLMM_WINDOW_WIN32) && !defined(BUILD_LIBOPENGLMM_WINDOW_GTKGLEXT) && !defined(BUILD_LIBOPENGLMM_WINDOW_SDL)
 #define BUILD_LIBOPENGLMM_WINDOW_SDL
 #endif
 
