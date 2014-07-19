@@ -461,7 +461,13 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     #endif
 
-    const int iDisplay = 3; // For debugging
+    #ifdef BUILD_DEBUG
+    // For debugging
+    const int iDisplay = SDL_GetNumVideoDisplays(); // Assume that the last monitor is the desired one (Works for most second monitor setups where a TV or larger monitor is the second or third device)
+    #else
+    // TODO: Allow selection of the monitor or use the default or same monitor that the mouse is currently on?
+    const int iDisplay = 1;
+    #endif
 
     // Create our window if it has not already been created
     LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
