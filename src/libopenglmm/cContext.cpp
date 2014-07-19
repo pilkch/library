@@ -461,7 +461,7 @@ namespace opengl
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     #endif
 
-    const int iDisplay = 1;
+    const int iDisplay = 3; // For debugging
 
     // Create our window if it has not already been created
     LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
