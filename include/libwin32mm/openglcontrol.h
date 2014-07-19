@@ -27,68 +27,68 @@ namespace win32mm
 
   class cOpenGLControl {
   public:
-     cOpenGLControl();
-     ~cOpenGLControl();
+    cOpenGLControl();
+    ~cOpenGLControl();
 
-     void Create(cWindow& parent, int idControl);
+    void Create(cWindow& parent, int idControl);
 
-     bool IsValid() const { return (control != NULL); }
+    bool IsValid() const { return (control != NULL); }
 
-     HWND GetHandle();
+    HWND GetHandle();
 
-     int GetWidth() const;
-     int GetHeight() const;
+    int GetWidth() const;
+    int GetHeight() const;
 
-     void Update();
+    void Update();
 
   private:
-     static void RegisterClass();
+    static void RegisterClass();
 
-     void UpdateSize();
+    void UpdateSize();
 
-     bool IsEnabled() const;
+    bool IsEnabled() const;
 
-     void Enable();
-     void Disable();
+    void Enable();
+    void Disable();
 
-     void SetCapture();  
-     void ReleaseCapture();
-     bool IsCaptured() const;
-     bool IsKeyboardFocused() const;
+    void SetCapture();  
+    void ReleaseCapture();
+    bool IsCaptured() const;
+    bool IsKeyboardFocused() const;
 
-     void Update(int x, int y, int width, int height);
+    void Update(int x, int y, int width, int height);
 
-     void Paint();
+    void Paint();
 
-     virtual void OnMouseIn() {}
-     virtual void OnMouseOut() {}
-     virtual void OnMouseMove(int x, int y)     { (void)x; (void)y; }
-     virtual void OnMouseHover(int x, int y)    { (void)x; (void)y; }
-     virtual void OnLButtonDown(int x, int y)   { (void)x; (void)y; }
-     virtual void OnLButtonUp(int x, int y)     { (void)x; (void)y; }
-     virtual void OnRButtonUp(int x, int y)     { (void)x; (void)y; }
-     virtual void OnRButtonDown(int x, int y)   { (void)x; (void)y; }
-     virtual void OnMButtonUp(int x, int y) { (void)x; (void)y; }
-     virtual void OnMButtonDown(int x, int y) { (void)x; (void)y; }
-     virtual void OnMouseWheel(int x, int y, int iDeltaUp) { (void)x; (void)y; (void)iDeltaUp; }
-     virtual void OnDoubleClick(int x, int y) { (void)x; (void)y; }
-     virtual bool OnKeyDown(const cKeyEvent& event) { (void)event; return false; }
-     virtual bool OnKeyUp(const cKeyEvent& event) { (void)event; return false; }
+    virtual void OnMouseIn() {}
+    virtual void OnMouseOut() {}
+    virtual void OnMouseMove(int x, int y)     { (void)x; (void)y; }
+    virtual void OnMouseHover(int x, int y)    { (void)x; (void)y; }
+    virtual void OnLButtonDown(int x, int y)   { (void)x; (void)y; }
+    virtual void OnLButtonUp(int x, int y)     { (void)x; (void)y; }
+    virtual void OnRButtonUp(int x, int y)     { (void)x; (void)y; }
+    virtual void OnRButtonDown(int x, int y)   { (void)x; (void)y; }
+    virtual void OnMButtonUp(int x, int y) { (void)x; (void)y; }
+    virtual void OnMButtonDown(int x, int y) { (void)x; (void)y; }
+    virtual void OnMouseWheel(int x, int y, int iDeltaUp) { (void)x; (void)y; (void)iDeltaUp; }
+    virtual void OnDoubleClick(int x, int y) { (void)x; (void)y; }
+    virtual bool OnKeyDown(const cKeyEvent& event) { (void)event; return false; }
+    virtual bool OnKeyUp(const cKeyEvent& event) { (void)event; return false; }
 
-     virtual void OnSize() = 0;
-     virtual void OnPaint() = 0;
+    virtual void OnSize() = 0;
+    virtual void OnPaint() = 0;
 
-     void EvPaint();
+    void EvPaint();
 
-     virtual LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-     static LRESULT CALLBACK _WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK _WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-     HWND control;
+    HWND control;
 
-     int iWidth;
-     int iHeight;
+    int iWidth;
+    int iHeight;
 
-     bool bMouseIn;
+    bool bMouseIn;
   };
 }
 
