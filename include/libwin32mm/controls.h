@@ -134,7 +134,10 @@ namespace win32mm
 
     string_t GetText() const;
     void SetText(const string_t& sText);
-    int AddString(const string_t& sText);
+
+    void AddItem(const string_t& sText);
+    size_t GetItemCount() const;
+    string_t GetItem(size_t index) const;
 
   private:
     void _Create(cWindow& parent, int idControl, bool bComboBox);
@@ -556,15 +559,30 @@ namespace win32mm
   {
     cWindow::SetControlText(control, sText);
   }
-
-  inline int cComboBox::AddString(const string_t& sText)
+  
+  inline void cComboBox::AddItem(const string_t& sText)
   {
     COMBOBOXEXITEM item;
     item.mask = CBEIF_TEXT;
     item.iItem = -1;
     item.pszText = const_cast<char_t*>(sText.c_str());
     item.cchTextMax = int(sText.length());
-    return ::SendMessage(control, CBEM_INSERTITEM, 0, LPARAM(&item));
+    ::SendMessage(control, CBEM_INSERTITEM, 0, LPARAM(&item));
+  }
+
+  inline size_t cComboBox::GetItemCount() const
+  {
+    const int result = (int)::SendMessage(control, CB_GETCOUNT, 0, 0);
+    return ((result >= 0) ? result : 0);
+  }
+
+  inline string_t cComboBox::GetItem(size_t index) const
+  {
+    // Create a temporary so that we can get the text for this item (Thanks Win32)
+    char_t szText[1024];
+    ::SendMessage(control, CB_GETLBTEXT, index, (LPARAM)szText);
+
+    return szText;
   }
 
 
