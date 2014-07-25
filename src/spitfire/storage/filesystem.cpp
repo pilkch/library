@@ -890,6 +890,7 @@ namespace spitfire
       return bIsOpen;
     }
 
+    #ifndef __WIN__
     bool UnzipFileToFolder(const string_t& sFullPathToZipFile, const string_t& sFullPathToExtractFilesTo)
     {
       // I know this is a hack, but it is the easiest and one of the most portable around
@@ -902,6 +903,7 @@ namespace spitfire
       o<<"\""<<sFullPathToExtractFilesTo<<"\"";
       return (system(spitfire::string::ToUTF8(o.str()).c_str()) == 0);
     }
+    #endif
 
     string_t MakeFilePath(const string_t& sDirectory, const string_t& sFile)
     {
