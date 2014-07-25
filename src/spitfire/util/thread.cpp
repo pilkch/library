@@ -22,6 +22,20 @@
 #include <spitfire/util/log.h>
 #include <spitfire/util/thread.h>
 
+#if defined(__WIN__) && defined(BUILD_DEBUG)
+const DWORD MS_VC_EXCEPTION = 0x406D1388;
+
+#pragma pack(push,8)
+typedef struct tagTHREADNAME_INFO
+{
+  DWORD dwType; // Must be 0x1000.
+  LPCSTR szName; // Pointer to name (in user addr space).
+  DWORD dwThreadID; // Thread ID (-1 = caller thread).
+  DWORD dwFlags; // Reserved for future use, must be zero.
+} THREADNAME_INFO;
+#pragma pack(pop)
+#endif
+
 namespace spitfire
 {
   namespace util
@@ -42,6 +56,28 @@ namespace spitfire
     }
 
 
+    #if defined(__WIN__) && defined(BUILD_DEBUG)
+    void SetThreadName(const char* szThreadName)
+    {
+      const DWORD dwThreadID = DWORD(-1); // Current thread
+
+      THREADNAME_INFO info;
+      info.dwType = 0x1000;
+      info.szName = szThreadName;
+      info.dwThreadID = dwThreadID;
+      info.dwFlags = 0;
+
+      __try
+      {
+        RaiseException( MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
+      }
+      __except(EXCEPTION_EXECUTE_HANDLER)
+      {
+      }
+    }
+    #endif
+
+
     // *** cThread
 
     // Not the most elegant method, but it works
@@ -50,6 +86,12 @@ namespace spitfire
       ASSERT(pData != nullptr);
       cThread* pThis = static_cast<cThread*>(pData);
       ASSERT(pThis != nullptr);
+
+      #if defined(__WIN__) && defined(BUILD_DEBUG)
+      // Set the thread name in debug mode
+      SetThreadName(spitfire::string::ToUTF8(pThis->sName).c_str());
+      #endif
+
       LOG<<"cThread::RunThreadFunction Calling ThreadFunction"<<std::endl;
       pThis->ThreadFunction();
       LOG<<"cThread::RunThreadFunction ThreadFunction returned"<<std::endl;
