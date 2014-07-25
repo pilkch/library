@@ -25,6 +25,7 @@
 
 #ifdef __WIN__
 #include <windows.h>
+#include <psapi.h>
 #endif
 
 #ifdef __LINUX__
@@ -632,6 +633,11 @@ Bail:
       CFRelease(tempValue);
       CFRelease(keyName);
       CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+    }
+#elif defined(__WIN__)
+    void ShowFolder(const string_t& sFolderPath)
+    {
+      ::ShellExecute(NULL, TEXT("open"), sFolderPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
     }
 #endif
   }
