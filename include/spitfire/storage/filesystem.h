@@ -70,6 +70,8 @@ namespace spitfire
     string_t GetHomeTempDirectory();
 #ifdef __APPLE__
     string_t GetResourcesPath();
+#elif defined(__WIN__)
+    string_t GetProgramFilesDirectory();
 #endif
 
     util::cDateTime GetLastModifiedDate(const string_t& sFilename);

@@ -355,6 +355,18 @@ namespace spitfire
     {
       return GetBundlePath() + string_t("/Contents/Resources/");
     }
+#elif defined(__WIN__)
+    string_t GetProgramFilesDirectory()
+    {
+      string_t sPath;
+      char_t szPath[MAX_PATH_LEN];
+      szPath[0] = 0;
+      const int iResult = ::SHGetFolderPath(0, CSIDL_PROGRAM_FILESX86 | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
+      ASSERT(iResult == 0);
+      sPath = string_t(szPath);
+      ASSERT(!sPath.empty());
+      return sPath;
+    }
 #endif
 
     void ChangeDirectoryToExecutablePath(const char* argv0)
