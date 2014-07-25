@@ -69,9 +69,9 @@ namespace spitfire
 
     size_t GetProcessorCoreCount()
     {
-      const size_t nConcurrency = static_cast<size_t>(boost::thread::hardware_concurrency());
+      const size_t nConcurrency = static_cast<size_t>(std::thread::hardware_concurrency());
 
-      return max(nConcurrency, 1);
+      return max<size_t>(nConcurrency, 1);
     }
 
     #ifdef __WIN__
