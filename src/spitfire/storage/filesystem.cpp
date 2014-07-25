@@ -428,7 +428,12 @@ namespace spitfire
       string_t result(path);
       if (spitfire::string::EndsWith(path, sFolderSeparator)) result = spitfire::string::StripAfterLastInclusive(result, sFolderSeparator);
 
-      return spitfire::string::StripAfterLast(result, sFolderSeparator);
+      result = spitfire::string::StripAfterLast(result, sFolderSeparator);
+      #ifdef __WIN__
+      // Add a folder separator if we have something like "C:"
+      if ((result.length() == 2) && (result[1] == TEXT(':'))) result += sFolderSeparator;
+      #endif
+      return result;
     }
 
     string_t GetFolder(const string_t& sFilePath)
