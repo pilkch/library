@@ -26,11 +26,15 @@
 
 namespace win32mm
 {
-  cKeyEvent::cKeyEvent() :
-    key(0),
+  cKeyModifiers::cKeyModifiers() :
     bControl(false),
     bAlt(false),
     bShift(false)
+  {
+  }
+
+  cKeyEvent::cKeyEvent() :
+    key(0)
   {
   }
 
@@ -164,6 +168,13 @@ namespace win32mm
     ::EndPaint(control, &ps);
   }
 
+  void cOpenGLControl::GetModifiersForMouseEvent(cKeyModifiers& modifiers, WPARAM wParam) const
+  {
+    modifiers.bControl = ((wParam & MK_CONTROL) != 0);
+    modifiers.bAlt = ((wParam & MK_ALT) != 0);
+    modifiers.bShift = ((wParam & MK_SHIFT) != 0);
+  }
+
   LRESULT cOpenGLControl::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
      switch (uMsg) {
@@ -188,8 +199,9 @@ namespace win32mm
           return TRUE;
 
         case WM_MOUSEMOVE: {
-           int x = int((short)LOWORD(lParam));
-           int y = int((short)HIWORD(lParam));
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+
            if (!bMouseIn) {
               TRACKMOUSEEVENT tme;
               tme.cbSize = sizeof(TRACKMOUSEEVENT);
@@ -200,7 +212,10 @@ namespace win32mm
               OnMouseIn();
               bMouseIn = true;
            }
-           OnMouseMove(x, y);
+
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnMouseMove(x, y, modifiers);
         } break;
 
         case WM_MOUSELEAVE:
@@ -211,62 +226,106 @@ namespace win32mm
            break;
 
         case WM_MOUSEHOVER:
-           if (bMouseIn) {
-              OnMouseHover(LOWORD(lParam), HIWORD(lParam));
+          if (bMouseIn) {
+            const int x = int((short)LOWORD(lParam));
+            const int y = int((short)HIWORD(lParam));
+            cKeyModifiers modifiers;
+            GetModifiersForMouseEvent(modifiers, wParam);
+            OnMouseHover(x, y, modifiers);
 
-              // Reset the track mouse event
-              TRACKMOUSEEVENT tme;
-              tme.cbSize = sizeof(TRACKMOUSEEVENT);
-              tme.dwFlags = TME_LEAVE | TME_HOVER;
-              tme.hwndTrack = hwnd;
-              tme.dwHoverTime = HOVER_DEFAULT;
-              ::TrackMouseEvent(&tme);
-           }
+            // Reset the track mouse event
+            TRACKMOUSEEVENT tme;
+            tme.cbSize = sizeof(TRACKMOUSEEVENT);
+            tme.dwFlags = TME_LEAVE | TME_HOVER;
+            tme.hwndTrack = hwnd;
+            tme.dwHoverTime = HOVER_DEFAULT;
+            ::TrackMouseEvent(&tme);
+          }
+          break;
+
+        case WM_LBUTTONDOWN: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnLButtonDown(x, y, modifiers);
            break;
+         }
 
-        case WM_LBUTTONDOWN:
-           OnLButtonDown(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_LBUTTONUP: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnLButtonUp(x, y, modifiers);
            break;
+         }
 
-        case WM_LBUTTONUP:
-           OnLButtonUp(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_RBUTTONDOWN: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnRButtonDown(x, y, modifiers);
            break;
+         }
 
-        case WM_RBUTTONDOWN:
-           OnRButtonDown(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_RBUTTONUP: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnRButtonUp(x, y, modifiers);
            break;
+         }
 
-        case WM_RBUTTONUP:
-           OnRButtonUp(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_MBUTTONDOWN: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnMButtonDown(x, y, modifiers);
            break;
+         }
 
-        case WM_MBUTTONDOWN:
-           OnMButtonDown(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_MBUTTONUP: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnMButtonUp(x, y, modifiers);
            break;
+         }
 
-        case WM_MBUTTONUP:
-           OnMButtonUp(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
+        case WM_LBUTTONDBLCLK: {
+           const int x = int((short)LOWORD(lParam));
+           const int y = int((short)HIWORD(lParam));
+           cKeyModifiers modifiers;
+           GetModifiersForMouseEvent(modifiers, wParam);
+           OnDoubleClick(x, y, modifiers);
            break;
+         }
 
-        case WM_LBUTTONDBLCLK:
-           OnDoubleClick(int((short)LOWORD(lParam)), int((short)HIWORD(lParam)));
-           break;
-
-        case WM_MOUSEWHEEL:
+        case WM_MOUSEWHEEL: {
            POINT pt;
            pt.x = LOWORD(lParam);
            pt.y = HIWORD(lParam);
-           if (::ScreenToClient(hwnd, &pt) == TRUE) OnMouseWheel(pt.x, pt.y, short(HIWORD(wParam)));
+           if (::ScreenToClient(hwnd, &pt) == TRUE) {
+             cKeyModifiers modifiers;
+             GetModifiersForMouseEvent(modifiers, wParam);
+             OnMouseWheel(pt.x, pt.y, short(HIWORD(wParam)), modifiers);
+           }
            break;
+         }
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
            if ((lParam & 0x40000000) == 0) {
               cKeyEvent event;
               event.key = wParam;
-              event.bControl = ((::GetKeyState(VK_CONTROL) & 0x8000) != 0);
-              event.bAlt = ((::GetKeyState(VK_MENU) & 0x8000) != 0);
-              event.bShift = ((::GetKeyState(VK_SHIFT) & 0x8000) != 0);
+              event.modifiers.bControl = ((::GetKeyState(VK_CONTROL) & 0x8000) != 0);
+              event.modifiers.bAlt = ((::GetKeyState(VK_MENU) & 0x8000) != 0);
+              event.modifiers.bShift = ((::GetKeyState(VK_SHIFT) & 0x8000) != 0);
               OnKeyDown(event);
            }
            break;
@@ -276,9 +335,9 @@ namespace win32mm
            if ((lParam & 0x40000000) == 0) {
               cKeyEvent event;
               event.key = wParam;
-              event.bControl = ((::GetKeyState(VK_CONTROL) & 0x8000) != 0);
-              event.bAlt = ((::GetKeyState(VK_MENU) & 0x8000) != 0);
-              event.bShift = ((::GetKeyState(VK_SHIFT) & 0x8000) != 0);
+              event.modifiers.bControl = ((::GetKeyState(VK_CONTROL) & 0x8000) != 0);
+              event.modifiers.bAlt = ((::GetKeyState(VK_MENU) & 0x8000) != 0);
+              event.modifiers.bShift = ((::GetKeyState(VK_SHIFT) & 0x8000) != 0);
               OnKeyUp(event);
            }
            break;

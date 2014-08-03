@@ -13,14 +13,21 @@ namespace win32mm
 {
   typedef uint32_t key_t;
 
+  class cKeyModifiers {
+  public:
+    cKeyModifiers();
+
+    bool bControl;
+    bool bAlt;
+    bool bShift;
+  };
+
   class cKeyEvent {
   public:
     cKeyEvent();
 
     key_t key;
-    bool bControl;
-    bool bAlt;
-    bool bShift;
+    cKeyModifiers modifiers;
   };
 
   // ** cOpenGLControl
@@ -62,16 +69,16 @@ namespace win32mm
 
     virtual void OnMouseIn() {}
     virtual void OnMouseOut() {}
-    virtual void OnMouseMove(int x, int y)     { (void)x; (void)y; }
-    virtual void OnMouseHover(int x, int y)    { (void)x; (void)y; }
-    virtual void OnLButtonDown(int x, int y)   { (void)x; (void)y; }
-    virtual void OnLButtonUp(int x, int y)     { (void)x; (void)y; }
-    virtual void OnRButtonUp(int x, int y)     { (void)x; (void)y; }
-    virtual void OnRButtonDown(int x, int y)   { (void)x; (void)y; }
-    virtual void OnMButtonUp(int x, int y) { (void)x; (void)y; }
-    virtual void OnMButtonDown(int x, int y) { (void)x; (void)y; }
-    virtual void OnMouseWheel(int x, int y, int iDeltaUp) { (void)x; (void)y; (void)iDeltaUp; }
-    virtual void OnDoubleClick(int x, int y) { (void)x; (void)y; }
+    virtual void OnMouseMove(int x, int y, const cKeyModifiers& modifiers)     { (void)x; (void)y; (void)modifiers; }
+    virtual void OnMouseHover(int x, int y, const cKeyModifiers& modifiers)    { (void)x; (void)y; (void)modifiers; }
+    virtual void OnLButtonDown(int x, int y, const cKeyModifiers& modifiers)   { (void)x; (void)y; (void)modifiers; }
+    virtual void OnLButtonUp(int x, int y, const cKeyModifiers& modifiers)     { (void)x; (void)y; (void)modifiers; }
+    virtual void OnRButtonUp(int x, int y, const cKeyModifiers& modifiers)     { (void)x; (void)y; (void)modifiers; }
+    virtual void OnRButtonDown(int x, int y, const cKeyModifiers& modifiers)   { (void)x; (void)y; (void)modifiers; }
+    virtual void OnMButtonUp(int x, int y, const cKeyModifiers& modifiers) { (void)x; (void)y; (void)modifiers; }
+    virtual void OnMButtonDown(int x, int y, const cKeyModifiers& modifiers) { (void)x; (void)y; (void)modifiers; }
+    virtual void OnMouseWheel(int x, int y, int iDeltaUp, const cKeyModifiers& modifiers) { (void)x; (void)y; (void)iDeltaUp; (void)modifiers; }
+    virtual void OnDoubleClick(int x, int y, const cKeyModifiers& modifiers) { (void)x; (void)y; (void)modifiers; }
     virtual bool OnKeyDown(const cKeyEvent& event) { (void)event; return false; }
     virtual bool OnKeyUp(const cKeyEvent& event) { (void)event; return false; }
 
@@ -79,6 +86,8 @@ namespace win32mm
     virtual void OnPaint() = 0;
 
     void EvPaint();
+
+    void GetModifiersForMouseEvent(cKeyModifiers& modifiers, WPARAM wParam) const;
 
     virtual LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK _WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
