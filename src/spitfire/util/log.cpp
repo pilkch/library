@@ -16,7 +16,6 @@
 #include <iomanip>
 
 // Boost headers
-#include <boost/smart_ptr.hpp>
 
 // SDL headers
 #include <SDL2/SDL.h>
