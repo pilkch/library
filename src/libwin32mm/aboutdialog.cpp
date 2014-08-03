@@ -113,7 +113,7 @@ namespace win32mm
     MoveControl(linkControl.GetHandle(), iX, iY, iWidth, iLinkControlHeight);
     iY += iLinkControlHeight + GetSpacerHeight();
 
-    MoveControl(horizontalLine.GetHandle(), iX, iY, iWidth, 1);
+    MoveControl(horizontalLine.GetLineHandle(), iX, iY, iWidth, 1);
     iY += 1 + GetSpacerHeight();
 
     const int iOkButtonWidth = MeasureOkButtonWidth();
