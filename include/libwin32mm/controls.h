@@ -200,12 +200,15 @@ namespace win32mm
   public:
     cHorizontalLine();
 
-    HWND GetHandle() const;
+    HWND GetLineHandle() const;
+    HWND GetStaticTextHandle() const;
 
     void Create(cWindow& parent);
+    void Create(cWindow& parent, const string_t& sText);
 
   private:
-    HWND control;
+    HWND lineControl;
+    HWND staticTextControl;
   };
 
   class cScrollBar : public cWindowProcHandler
@@ -477,7 +480,7 @@ namespace win32mm
   inline void cStatic::Create(cWindow& parent, const string_t& sText)
   {
     // Create the static text
-    control = ::CreateWindowEx(NULL, TEXT("STATIC"), sText.c_str(),
+    control = ::CreateWindowEx(NULL, WC_STATIC, sText.c_str(),
       WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SS_LEFT,
       50, 220, 100, 24,
       parent.GetWindowHandle(),
@@ -616,19 +619,51 @@ namespace win32mm
   // ** cHorizontalLine
 
   inline cHorizontalLine::cHorizontalLine() :
-    control(NULL)
+    lineControl(NULL),
+    staticTextControl(NULL)
   {
   }
 
-  inline HWND cHorizontalLine::GetHandle() const
+  inline HWND cHorizontalLine::GetLineHandle() const
   {
-    return control;
+    return lineControl;
+  }
+
+  inline HWND cHorizontalLine::GetStaticTextHandle() const
+  {
+    return staticTextControl;
   }
 
   inline void cHorizontalLine::Create(cWindow& parent)
   {
-    // Create the control
-    control = ::CreateWindowEx(0, WC_STATIC, NULL, SS_ETCHEDFRAME | WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS, 0, 0, 0, 0, parent.GetWindowHandle(), 0, GetHInstance(), NULL);
+    // Create the line control
+    lineControl = ::CreateWindowEx(
+      0, WC_STATIC, nullptr,
+      WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SS_LEFT | SS_ETCHEDHORZ,
+      0, 0, 0, 0,
+      parent.GetWindowHandle(), 0, GetHInstance(), NULL
+    );
+
+    // Set the default font
+    parent.SetControlDefaultFont(lineControl);
+  }
+
+  inline void cHorizontalLine::Create(cWindow& parent, const string_t& sText)
+  {
+    // Create the line control
+    Create(parent);
+
+    // Create the static text control
+    staticTextControl = ::CreateWindowEx(NULL, WC_STATIC, sText.c_str(),
+      WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SS_LEFT,
+      50, 220, 100, 24,
+      parent.GetWindowHandle(),
+      (HMENU)NULL,
+      ::GetModuleHandle(NULL), NULL
+    );
+
+    // Set the default font
+    parent.SetControlDefaultFont(staticTextControl);
   }
 
 
