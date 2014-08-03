@@ -1132,7 +1132,7 @@ namespace spitfire
         const string_t sFullPath = string::ToString_t(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
-          LOG<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
+          //LOG<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
           paths.push_back(sFile);
         }
       }
