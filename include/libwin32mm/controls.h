@@ -586,7 +586,7 @@ namespace win32mm
     }
 
     // Set the font for this control
-    ::SendMessage(control, WM_SETFONT, WPARAM(HFONT(::SendMessage(parent.GetWindowHandle(), WM_GETFONT, 0, 0))), TRUE);
+    parent.SetControlDefaultFont(control);
 
     // Set our user data for this control
     ::SetProp(control, TEXT("cComboBoxThis"), (HANDLE)this);
