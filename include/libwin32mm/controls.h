@@ -735,25 +735,25 @@ namespace win32mm
     return control;
   }
 
-  inline void cScrollBar::CreateVertical(cWindow& window, int idControl)
+  inline void cScrollBar::CreateVertical(cWindow& parent, int idControl)
   {
     // Create the scroll bar
-    control = ::CreateWindowEx(0, WC_SCROLLBAR, TEXT(""), SBS_VERT | WS_CHILD | WS_VISIBLE, 0, 0, window.GetScrollBarWidth(), 100, window.GetWindowHandle(), (HMENU)idControl, GetHInstance(), (LPVOID)0);
+    control = ::CreateWindowEx(0, WC_SCROLLBAR, TEXT(""), SBS_VERT | WS_CHILD | WS_VISIBLE, 0, 0, parent.GetScrollBarWidth(), 100, parent.GetWindowHandle(), (HMENU)idControl, GetHInstance(), (LPVOID)0);
  
     // Set the default font
-    window.SetControlDefaultFont(control);
+    parent.SetControlDefaultFont(control);
 
     // Set the default range and position
     SetRange(0, 100);
     SetPageSize(10);
     SetPosition(0);
 
-    pWindow = &window;
+    pWindow = &parent;
     
     // Set our user data for this control
     ::SetProp(control, TEXT("cScrollBarThis"), (HANDLE)this);
 
-    window.AddHandler(control, *this);
+    parent.AddHandler(control, *this);
   }
 
   inline void cScrollBar::Destroy()
