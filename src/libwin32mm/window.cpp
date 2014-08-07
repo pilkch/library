@@ -311,6 +311,9 @@ namespace win32mm
 
   void cWindow::BubbleTipShow(HWND control, const string_t& sText)
   {
+    // Hide any existing bubble tips
+    BubbleTipHide();
+
     // Set the focus to this control
     SetFocus(control);
 
