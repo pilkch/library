@@ -387,14 +387,14 @@ namespace win32mm
 
   inline string_t cInput::GetValue() const
   {
-    return TEXT("");
-    //return int(::SendMessage(control, UDM_GETPOS32, 0, 0));
+    string_t sText;
+    cWindow::GetControlText(control, sText);
+    return sText;
   }
 
   inline void cInput::SetValue(const string_t& sValue)
   {
-    //::SendMessage(control, UDM_SETPOS32 , 0, LPARAM(iValue));
-    (void)sValue;
+    cWindow::SetControlText(control, sValue);
   }
 
 
