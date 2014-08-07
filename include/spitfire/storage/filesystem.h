@@ -68,7 +68,9 @@ namespace spitfire
     // Use GetHomeTempDirectory() instead
     //string_t GetTempDirectory() { return GetHomeTempDirectory(); }
     string_t GetHomeTempDirectory();
-#ifdef __APPLE__
+#ifdef __LINUX__
+    string_t GetDrivesDirectory(); // Returns "/media/" on Linux
+#elif defined(__APPLE__)
     string_t GetResourcesPath();
 #elif defined(__WIN__)
     string_t GetProgramFilesDirectory();

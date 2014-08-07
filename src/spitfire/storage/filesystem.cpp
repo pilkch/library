@@ -336,7 +336,12 @@ namespace spitfire
       #endif
     }
 
-#ifdef __APPLE__
+    #ifdef __LINUX__
+    string_t GetDrivesDirectory()
+    {
+      return TEXT("/media/");
+    }
+    #elif defined(__APPLE__)
     string_t GetBundlePath()
     {
       CFBundleRef mainBundle = CFBundleGetMainBundle();
