@@ -21,6 +21,31 @@ namespace win32mm
   {
   }
 
+  void cFolderDialog::SetType(TYPE _type)
+  {
+    type = _type;
+  }
+
+  void cFolderDialog::SetCaption(const string_t& _sCaption)
+  {
+    sCaption = _sCaption;
+  }
+
+  void cFolderDialog::SetDefaultFolder(const string_t& _sDefaultFolder)
+  {
+    sDefaultFolder = _sDefaultFolder;
+  }
+
+  const string_t& cFolderDialog::GetSelectedFolder() const
+  {
+    return sSelectedFolder;
+  }
+
+  const std::list<string_t>& cFolderDialog::GetSelectedFolders() const
+  {
+    return selectedFolders;
+  }
+
   bool cFolderDialog::Run(const cWindow& parent)
   {
     sSelectedFolder.clear();
@@ -59,6 +84,6 @@ namespace win32mm
 
     COM_SAFE_RELEASE(pfd);
 
-    return true;
+    return (!sSelectedFolder.empty());
   }
 }
