@@ -117,6 +117,8 @@ namespace win32mm
 
     void Create(cWindow& parent, const string_t& sText);
 
+    void SetText(const string_t& sText);
+
   private:
     HWND control;
   };
@@ -490,6 +492,11 @@ namespace win32mm
 
     // Set the default font
     parent.SetControlDefaultFont(control);
+  }
+
+  inline void cStatic::SetText(const string_t& sText)
+  {
+    ::SetWindowText(control, sText.c_str());
   }
 
 
