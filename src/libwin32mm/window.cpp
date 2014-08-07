@@ -265,17 +265,17 @@ namespace win32mm
   {
     sText.clear();
 
-    int iLength = ::SendMessage(control, WM_GETTEXTLENGTH, 0, 0);
-    if (iLength > 0) {
-      std::vector<WCHAR> buf(iLength + 1);
-      ::SendMessage(control, WM_GETTEXT, buf.size(), LPARAM(static_cast<LPCWSTR>(&buf[0])));
+    const size_t len = ::GetWindowTextLength(control);
+    if (len != 0) {
+      std::vector<WCHAR> buf(len + 1);
+      ::GetWindowText(control, static_cast<LPWSTR>(&buf[0]), int(buf.size()));
       sText = &buf[0];
     }
   }
 
   void cWindow::SetControlText(HWND control, const string_t& sText)
   {
-    ::SendMessage(control, WM_SETTEXT, 0, LPARAM(sText.c_str()));
+    ::SetWindowText(control, sText.c_str());
   }
 
   void cWindow::SetDefaultFont()
