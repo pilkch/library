@@ -74,6 +74,22 @@ namespace win32mm
     HWND control;
   };
 
+  class cCheckBox
+  {
+  public:
+    cCheckBox();
+
+    HWND GetHandle() const;
+
+    void Create(cWindow& parent, int idControl, const string_t& sText);
+
+    bool IsChecked() const;
+    void SetChecked(bool bChecked);
+
+  private:
+    HWND control;
+  };
+
   class cInput
   {
   public:
@@ -302,6 +318,7 @@ namespace win32mm
     //parent.SetControlDefaultFont(control);
   }
 
+
   // ** cButton
 
   inline cButton::cButton() :
@@ -360,6 +377,37 @@ namespace win32mm
   {
     // Create the button
     Create(parent, IDCANCEL, TEXT("Cancel"));
+  }
+
+
+  // ** cCheckBox
+
+  inline cCheckBox::cCheckBox() :
+    control(NULL)
+  {
+  }
+
+  inline HWND cCheckBox::GetHandle() const
+  {
+    return control;
+  }
+
+  inline void cCheckBox::Create(cWindow& parent, int idControl, const string_t& sText)
+  {
+    // Create the button
+    control = ::CreateWindowEx(NULL, TEXT("BUTTON"), TEXT("Check box"),
+      WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+      50, 220, 100, 24,
+      parent.GetWindowHandle(),
+      (HMENU)idControl,
+      ::GetModuleHandle(NULL), NULL
+    );
+
+    // Set the default font
+    parent.SetControlDefaultFont(control);
+
+    // Set the text for this control
+    parent.SetControlText(control, sText);
   }
 
 

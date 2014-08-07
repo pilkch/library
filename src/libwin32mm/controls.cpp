@@ -11,6 +11,19 @@
 
 namespace win32mm
 {
+  // ** cCheckBox
+
+  bool cCheckBox::IsChecked() const
+  {
+    return (Button_GetCheck(control) == BST_CHECKED);
+  }
+
+  void cCheckBox::SetChecked(bool bChecked)
+  {
+    Button_SetCheck(control, (bChecked ? BST_CHECKED : BST_UNCHECKED));
+  }
+
+
   // ** cComboBox
 
   LRESULT APIENTRY cComboBox::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
