@@ -185,6 +185,18 @@ namespace win32mm
      }
   }
 
+  bool cWindow::IsControlEnabled(HWND control) const
+  {
+    ASSERT(control != NULL);
+    return (::IsWindowEnabled(control) == TRUE);
+  }
+
+  void cWindow::EnableControl(HWND control, bool bEnable)
+  {
+    ASSERT(control != NULL);
+    ::EnableWindow(control, (bEnable ? TRUE : FALSE));
+  }
+
   void cWindow::ShowControl(HWND control, bool bShow)
   {
     ASSERT(control != NULL);

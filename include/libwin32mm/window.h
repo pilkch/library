@@ -65,6 +65,8 @@ namespace win32mm
   class cWindow
   {
   public:
+    friend class cCheckBox;
+    friend class cInput;
     friend class cComboBox;
 
     cWindow();
@@ -122,6 +124,9 @@ namespace win32mm
     HWND GetControlHandle(int idControl) const;
 
     void GetControlSize(HWND control, int& iWidth, int& iHeight) const;
+
+    bool IsControlEnabled(HWND control) const;
+    void EnableControl(HWND control, bool bEnable);
 
     void ShowControl(HWND control, bool bShow);
     void MoveControl(HWND control, int x, int y, int width, int height);
