@@ -30,9 +30,6 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <direct.h>
-
-// This appears to have been removed?
-#define CSIDL_APPDATA                   0x001a        // <user name>\Application Data
 #endif
 
 #ifdef __LINUX__
@@ -237,7 +234,7 @@ namespace spitfire
     {
       string_t sPath;
 #ifdef __WIN__
-      sPath = GetWin32UserFolder(CSIDL_APPDATA);
+      sPath = GetWin32UserFolder(CSIDL_PROFILE);
 #elif defined(__APPLE__)
       FSRef dataFolderRef;
       OSErr theError = FSFindFolder(kUserDomain, kCurrentUserFolderType, kCreateFolder, &dataFolderRef);
