@@ -222,15 +222,22 @@ namespace spitfire
     }
 
 
+    #ifdef __WIN__    
+    string_t GetWin32UserFolder(uint16_t type)
+    {
+      char_t szPath[MAX_PATH_LEN];
+      szPath[0] = 0;
+      const int iResult = ::SHGetFolderPath(NULL, type | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
+      ASSERT(iResult == 0);
+      return string_t(szPath);
+    }
+    #endif
+
     string_t GetHomeDirectory()
     {
       string_t sPath;
 #ifdef __WIN__
-      char_t szPath[MAX_PATH_LEN];
-      szPath[0] = 0;
-      const int iResult = SHGetFolderPath(0, CSIDL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
-      ASSERT(iResult == 0);
-      sPath = szPath;
+      sPath = GetWin32UserFolder(CSIDL_APPDATA);
 #elif defined(__APPLE__)
       FSRef dataFolderRef;
       OSErr theError = FSFindFolder(kUserDomain, kCurrentUserFolderType, kCreateFolder, &dataFolderRef);
