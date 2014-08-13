@@ -175,22 +175,16 @@ namespace spitfire
     {
       if (FileExists(sTo)) return;
 
-      CopyContentsOfFile(sFrom, sTo);
-
-      // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
-      //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
+      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
     }
 
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo)
     {
-      CopyContentsOfFile(sFrom, sTo);
-
-      // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
-      //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
     }
 
     // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
