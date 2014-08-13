@@ -745,60 +745,6 @@ namespace spitfire
 
 
     template <class T>
-    inline string_t ToString(T value)
-    {
-      ostringstream_t s;
-      s<<value;
-      return s.str();
-    }
-
-    string_t ToString(uint8_t value)
-    {
-      return ToString<uint8_t>(value);
-    }
-
-    string_t ToString(int8_t value)
-    {
-      return ToString<int8_t>(value);
-    }
-
-    string_t ToString(uint16_t value)
-    {
-      return ToString<uint16_t>(value);
-    }
-
-    string_t ToString(int16_t value)
-    {
-      return ToString<int16_t>(value);
-    }
-
-    string_t ToString(uint32_t value)
-    {
-      return ToString<uint32_t>(value);
-    }
-
-    string_t ToString(int32_t value)
-    {
-      return ToString<int32_t>(value);
-    }
-
-    string_t ToString(uint64_t value)
-    {
-      return ToString<uint64_t>(value);
-    }
-
-    string_t ToString(int64_t value)
-    {
-      return ToString<int64_t>(value);
-    }
-
-    string_t ToString(float value)
-    {
-      return ToString<float>(value);
-    }
-
-
-    template <class T>
     inline T FromStringGeneric(const string_t& source)
     {
       T value = T(0);

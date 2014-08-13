@@ -673,6 +673,90 @@ namespace spitfire
     typedef cStringParserTemplate<char32_t, string32_t> cStringParserUTF32;
 
     typedef cStringParserTemplate<char_t, string_t> cStringParser;
+
+
+    // ** Inlines
+
+    inline string_t ToString(uint8_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(int8_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(uint16_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(int16_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(uint32_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(int32_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(uint64_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(int64_t value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
+
+    inline string_t ToString(float value)
+    {
+      #ifdef UNICODE
+      return std::to_wstring(value);
+      #else
+      return std::to_string(value);
+      #endif
+    }
   }
 }
 
