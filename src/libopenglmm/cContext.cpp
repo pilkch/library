@@ -699,19 +699,23 @@ namespace opengl
   }
 
 
-  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   void cContext::BeginRenderToScreen()
   {
     _BeginRenderShared(resolution.width, resolution.height);
   }
 
+  #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   void cContext::EndRenderToScreen(cWindow& window)
+  #else
+  void cContext::EndRenderToScreen()
+  #endif
   {
     _EndRenderShared();
 
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     if (bIsRenderingToWindow) window.SwapWindowFromContext();
+    #endif
   }
-  #endif
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
   {

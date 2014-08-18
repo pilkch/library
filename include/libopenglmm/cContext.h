@@ -154,9 +154,11 @@ namespace opengl
     void SetSunAmbientColour(const spitfire::math::cColour& sunAmbientColour);
     void SetSunIntensity(float fSunIntensity);
 
-    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     void BeginRenderToScreen();
+    #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     void EndRenderToScreen(cWindow& window);
+    #else
+    void EndRenderToScreen();
     #endif
 
     void BeginRenderToTexture(cTextureFrameBufferObject& texture);
