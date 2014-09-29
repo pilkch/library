@@ -23,9 +23,6 @@ namespace win32mm
     virtual void OnInitFinished() {}
     virtual void OnDestroy() {}
 
-    virtual void OnResizing(size_t width, size_t height) { (void)width; (void)height; }
-    virtual void OnResize(size_t width, size_t height) { (void)width; (void)height; }
-
     virtual bool OnQuit() { return true; } // Allow the application to veto quitting the application, return true if the application should quit
 
     LRESULT MainDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

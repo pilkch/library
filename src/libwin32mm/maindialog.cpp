@@ -70,7 +70,7 @@ namespace win32mm
       }
 
       case WM_SIZE: {
-        if (wParam != SIZE_MINIMIZED) OnResize(LOWORD(lParam), HIWORD(lParam));
+        if (wParam != SIZE_MINIMIZED) CallOnResize(LOWORD(lParam), HIWORD(lParam));
 
         break;
       }
@@ -86,7 +86,7 @@ namespace win32mm
           else pRect->bottom = pRect->top + iMinHeightPixels;
         }
 
-        if (wParam != SIZE_MINIMIZED) OnResizing(pRect->right - pRect->left, pRect->top - pRect->bottom);
+        if (wParam != SIZE_MINIMIZED) CallOnResizing(pRect->right - pRect->left, pRect->top - pRect->bottom);
 
         break;
       }

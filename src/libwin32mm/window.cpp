@@ -161,7 +161,12 @@ namespace win32mm
     ::SetWindowPos(GetWindowHandle(), HWND_TOP, x, y, 0, 0, SWP_NOOWNERZORDER | SWP_NOSIZE);
   }
 
-  void cWindow::CallOnResize(int iWidth, int iHeight)
+  void cWindow::CallOnResizing(size_t width, size_t height)
+  {
+    OnResizing(width, height);
+  }
+
+  void cWindow::CallOnResize(size_t width, size_t height)
   {
     if (IsMaximized()) {
       ::ShowWindow(hwndThumb, SW_HIDE);  // hide the resize thumb
@@ -170,10 +175,10 @@ namespace win32mm
       ::ShowWindow(hwndThumb, SW_SHOW);
       const int iThumbWidth = GetScrollBarWidth();
       const int iThumbHeight = GetScrollBarHeight();
-      ::SetWindowPos(hwndThumb, NULL, iWidth - iThumbWidth, iHeight - iThumbHeight, iThumbWidth, iThumbHeight, SWP_NOCOPYBITS | SWP_NOZORDER);
+      ::SetWindowPos(hwndThumb, NULL, int(width) - iThumbWidth, int(height) - iThumbHeight, iThumbWidth, iThumbHeight, SWP_NOCOPYBITS | SWP_NOZORDER);
     }
 
-    OnResize(iWidth, iHeight);
+    OnResize(width, height);
   }
 
   void cWindow::RelayoutControls()

@@ -191,7 +191,8 @@ namespace win32mm
 
     void UpdateDPI();
 
-    void CallOnResize(int iWidth, int iHeight);
+    void CallOnResizing(size_t width, size_t height);
+    void CallOnResize(size_t width, size_t height);
 
     static void GetControlText(HWND control, string_t& sText);
     static void SetControlText(HWND control, const string_t& sText);
@@ -205,7 +206,9 @@ namespace win32mm
 
   private:
     virtual void OnClose(int iResult) {}
-    virtual void OnResize(int iWidth, int iHeight) {}
+
+    virtual void OnResizing(size_t width, size_t height) { (void)width; (void)height; }
+    virtual void OnResize(size_t width, size_t height) { (void)width; (void)height; }
 
     int MeasureControlTextWidth(HWND control) const;
 
