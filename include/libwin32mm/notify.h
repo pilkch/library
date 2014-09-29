@@ -137,7 +137,7 @@ namespace win32mm
   {
     ASSERT(pHandler != nullptr);
     ASSERT(pHandlerFunction != nullptr);
-    ((*pHandler).*(pHandlerFunction))();
+    (pHandler->*(pHandlerFunction))();
   }
 
   template <class T>
