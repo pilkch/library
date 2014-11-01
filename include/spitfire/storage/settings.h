@@ -8,7 +8,7 @@
 #include <spitfire/storage/document.h>
 #include <spitfire/util/thread.h>
 
-// Bad Example
+// Example
 /*
 enum HANDORIENTATION
 {
@@ -18,7 +18,23 @@ enum HANDORIENTATION
 
   HANDORIENTATION_DEFAULT = HANDORIENTATION_RIGHT
 };
+*/
 
+// Good Example
+/*
+inline HANDORIENTATION GetHandOrientation()
+{
+  string_t sValue = TEXT("right");
+  if (GetApplicationProfileSetting(TEXT("View"), TEXT("HandOrientation"), TEXT("right"))) {
+    if (sValue == TEXT("right")) return HANDORIENTATION_RIGHT;
+    if (iValue == TEXT("left")) return HANDORIENTATION_LEFT;
+    if (iValue == TEXT("centre")) return HANDORIENTATION_CENTRE;
+  }
+  return HANDORIENTATION_DEFAULT;
+}*/
+
+// Bad Example
+/*
 inline HANDORIENTATION GetHandOrientation()
 {
   int iValue;
