@@ -487,6 +487,24 @@ namespace spitfire
     }
 
     template <class C, class S>
+    bool cStringParserTemplate<C, S>::GetToWhiteSpace(S& sResult) const
+    {
+      ASSERT(!IsEmpty());
+
+      const C* sz = s.Get();
+
+      const size_t n = s.GetLength();
+      for (size_t i = 0; i < n; i++) {
+        if (IsWhiteSpace(sz[i])) {
+          sResult.assign(s.Get(), i);
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    template <class C, class S>
     bool cStringParserTemplate<C, S>::GetToString(const S& sFind, S& sResult) const
     {
       ASSERT(!IsEmpty());
