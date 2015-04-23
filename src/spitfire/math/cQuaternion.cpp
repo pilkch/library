@@ -265,9 +265,9 @@ namespace spitfire
       const float sqz = z * z;
 
       return cVec3(
-        (atan2(2.0f * (y*z + x*w) , (-sqx - sqy + sqz + sqw)) * c180_DIV_PI),
-        (asin(-2.0f * (x*z - y*w)) * c180_DIV_PI),
-        (atan2(2.0f * (x*y + z*w),(sqx - sqy - sqz + sqw)) * c180_DIV_PI)
+        math::RadiansToDegrees(atan2(2.0f * (y * z + x * w) , (-sqx - sqy + sqz + sqw))),
+        math::RadiansToDegrees(asin(-2.0f * (x * z - y * w))),
+        math::RadiansToDegrees(atan2(2.0f * (x * y + z * w), (sqx - sqy - sqz + sqw)))
       );*/
 
       const float sqw = w * w;

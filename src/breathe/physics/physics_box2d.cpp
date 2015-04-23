@@ -400,7 +400,7 @@ namespace breathe
       p.y = pos.y;
 
       m.LoadIdentity();
-      //m.SetRotationZ(rot.z * math::cPI_DIV_180);
+      //m.SetRotationZ(math::DegreesToRadians(rot.z));
 
       m.SetTranslation(p);
 

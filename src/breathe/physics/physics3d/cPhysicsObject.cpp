@@ -128,7 +128,7 @@ namespace breathe
       math::cVec3 pos(posOriginal.x, posOriginal.y, posOriginal.z + fHeight);
 
       rotation.LoadIdentity();
-      rotation.SetFromAngles(rot * math::cPI_DIV_180);
+      rotation.SetFromAngles(math::DegreesToRadians(rot));
 
       const math::cMat4 m = rotation.GetMatrix();
 
