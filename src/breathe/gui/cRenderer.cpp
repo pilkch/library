@@ -60,8 +60,7 @@ namespace breathe
       pWidgetsShader(nullptr),
       pFont(nullptr),
       pTextureFrameBufferObject(nullptr),
-      pGuiShader(nullptr),
-      pVBO(nullptr)
+      pGuiShader(nullptr)
     {
     }
 
@@ -107,11 +106,11 @@ namespace breathe
       builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
       builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
 
-      pVBO = context.CreateStaticVertexBufferObject();
+      context.CreateStaticVertexBufferObject(vbo);
 
-      pVBO->SetData(pGeometryDataPtr);
+      vbo.SetData(pGeometryDataPtr);
 
-      pVBO->Compile2D();
+      vbo.Compile2D();
 
       pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(resolutionWidth, resolutionHeight, opengl::PIXELFORMAT::R8G8B8A8);
       ASSERT(pTextureFrameBufferObject != nullptr);
@@ -146,10 +145,7 @@ namespace breathe
         context.DestroyShader(pGuiShader);
         pGuiShader = nullptr;
       }
-      if (pVBO != nullptr) {
-        context.DestroyStaticVertexBufferObject(pVBO);
-        pVBO = nullptr;
-      }
+      context.DestroyStaticVertexBufferObject(vbo);
     }
 
     void cRenderer::SetWireFrame(bool _bWireFrame)
@@ -540,11 +536,12 @@ namespace breathe
           spitfire::math::cMat4 matModelView2D;
           matModelView2D.SetTranslation(0.0f, 0.0f, 0.0f);
 
-          opengl::cStaticVertexBufferObject* pVBO = context.CreateStaticVertexBufferObject();
+          opengl::cStaticVertexBufferObject vbo;
+          context.CreateStaticVertexBufferObject(vbo);
 
-          pVBO->SetData(pGeometryDataPtr);
+          vbo.SetData(pGeometryDataPtr);
 
-          pVBO->Compile2D();
+          vbo.Compile2D();
 
           context.EnableBlending();
 
@@ -555,9 +552,9 @@ namespace breathe
 
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
-          context.BindStaticVertexBufferObject2D(*pVBO);
-          context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
-          context.UnBindStaticVertexBufferObject2D(*pVBO);
+          context.BindStaticVertexBufferObject2D(vbo);
+          context.DrawStaticVertexBufferObjectTriangles2D(vbo);
+          context.UnBindStaticVertexBufferObject2D(vbo);
 
           context.UnBindShader(*pWidgetsShader);
 
@@ -565,7 +562,7 @@ namespace breathe
 
           context.DisableBlending();
 
-          context.DestroyStaticVertexBufferObject(pVBO);
+          context.DestroyStaticVertexBufferObject(vbo);
         }
 
         if (pTextGeometryDataPtr->nVertexCount != 0) {
@@ -573,23 +570,24 @@ namespace breathe
           spitfire::math::cMat4 matModelView2D;
           matModelView2D.SetTranslation(0.0f, 0.0f, 0.0f);
 
-          opengl::cStaticVertexBufferObject* pVBOText = context.CreateStaticVertexBufferObject();
+          opengl::cStaticVertexBufferObject vboText;
+          context.CreateStaticVertexBufferObject(vboText);
 
-          pVBOText->SetData(pTextGeometryDataPtr);
+          vboText.SetData(pTextGeometryDataPtr);
 
-          pVBOText->Compile2D();
+          vboText.Compile2D();
 
           context.BindFont(*pFont);
 
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
-          context.BindStaticVertexBufferObject2D(*pVBOText);
-          context.DrawStaticVertexBufferObjectTriangles2D(*pVBOText);
-          context.UnBindStaticVertexBufferObject2D(*pVBOText);
+          context.BindStaticVertexBufferObject2D(vboText);
+          context.DrawStaticVertexBufferObjectTriangles2D(vboText);
+          context.UnBindStaticVertexBufferObject2D(vboText);
 
           context.UnBindFont(*pFont);
 
-          context.DestroyStaticVertexBufferObject(pVBOText);
+          context.DestroyStaticVertexBufferObject(vboText);
         }
       }
     }
@@ -655,9 +653,9 @@ namespace breathe
 
         context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
-        context.BindStaticVertexBufferObject2D(*pVBO);
-        context.DrawStaticVertexBufferObjectTriangles2D(*pVBO);
-        context.UnBindStaticVertexBufferObject2D(*pVBO);
+        context.BindStaticVertexBufferObject2D(vbo);
+        context.DrawStaticVertexBufferObjectTriangles2D(vbo);
+        context.UnBindStaticVertexBufferObject2D(vbo);
 
         context.UnBindShader(*pGuiShader);
 

@@ -4,6 +4,7 @@
 // libopenglmm headers
 #include <libopenglmm/cFont.h>
 #include <libopenglmm/cTexture.h>
+#include <libopenglmm/cVertexBufferObject.h>
 
 // Breathe headers
 #include <breathe/gui/cManager.h>
@@ -77,7 +78,7 @@ namespace breathe
 
       opengl::cTextureFrameBufferObject* pTextureFrameBufferObject;
       opengl::cShader* pGuiShader;
-      opengl::cStaticVertexBufferObject* pVBO;
+      opengl::cStaticVertexBufferObject vbo;
 
       size_t resolutionWidth;
       size_t resolutionHeight;
