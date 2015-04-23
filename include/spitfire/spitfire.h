@@ -186,6 +186,11 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define GCC_VERSION_4_7 407
 #endif
 
+// Visual Studio 2012 still doesn't support C++11
+#if !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2013))
+#define BUILD_SPITFIRE_CPP11
+#endif
+
 // Override keyword to flag virtual functions which are overridden from the base class
 #if defined(COMPILER_MSVC) && (_MSC_VER < COMPILER_MSVC_2010)
 #define override
@@ -202,9 +207,9 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #define interface Interface
 #endif
 
-// Visual Studio 2012 still doesn't support C++11
-#if !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2013))
-#define BUILD_SPITFIRE_CPP11
+#ifndef BUILD_SPITFIRE_CPP11
+#define constexpr
+#define noexcept
 #endif
 
 // Deprecation flags
