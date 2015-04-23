@@ -139,8 +139,8 @@ namespace opengl
     cShader* CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
     void DestroyShader(cShader* pShader);
 
-    cStaticVertexBufferObject* CreateStaticVertexBufferObject();
-    void DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject);
+    void CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
+    void DestroyStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
 
 #ifdef BUILD_LIBOPENGLMM_FONT
     cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);

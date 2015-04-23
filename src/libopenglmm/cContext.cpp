@@ -370,21 +370,16 @@ namespace opengl
     delete pShader;
   }
 
-  cStaticVertexBufferObject* cContext::CreateStaticVertexBufferObject()
+  void cContext::CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo)
   {
-    cStaticVertexBufferObject* pStaticVertexBufferObject = new cStaticVertexBufferObject;
-    staticVertexBufferObjects.push_back(pStaticVertexBufferObject);
-    return pStaticVertexBufferObject;
+    staticVertexBufferObjects.push_back(&vbo);
   }
 
-  void cContext::DestroyStaticVertexBufferObject(cStaticVertexBufferObject* pStaticVertexBufferObject)
+  void cContext::DestroyStaticVertexBufferObject(cStaticVertexBufferObject& vbo)
   {
-    assert(pStaticVertexBufferObject != nullptr);
+    staticVertexBufferObjects.remove(&vbo);
 
-    staticVertexBufferObjects.remove(pStaticVertexBufferObject);
-
-    pStaticVertexBufferObject->Destroy();
-    delete pStaticVertexBufferObject;
+    vbo.Destroy();
   }
 
 
