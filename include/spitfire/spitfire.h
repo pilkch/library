@@ -274,11 +274,19 @@ typedef int32_t ssize_t;
 #endif
 
 
-// Like sizeof for arrays (Although using raw arrays like this is discouraged so we can probably remove this
+// Like sizeof for arrays
+#ifdef BUILD_SPITFIRE_CPP11
+template <typename T, size_t N>
+constexpr size_t countof(const T (&array)[N]) noexcept
+{
+  return N;
+}
+#else
 template <typename T, size_t N>
 char (&ArraySizeHelper(T (&array)[N]))[N];
 
 #define countof(array) (sizeof(ArraySizeHelper(array)))
+#endif
 
 
 // Utility types, objects etc.
