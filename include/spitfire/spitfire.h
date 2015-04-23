@@ -302,8 +302,8 @@ namespace spitfire
     x = nullptr;
   }
 
-  template <class T>
-  inline void SAFE_DELETE_ARRAY(T& x)
+  template <class T, size_t N>
+  inline void SAFE_DELETE_ARRAY(T (&x)[N])
   {
     delete [] x;
     x = nullptr;
