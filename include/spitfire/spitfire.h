@@ -265,7 +265,7 @@ typedef int32_t ssize_t;
 #define NO_COPY(T) \
   private: \
   T(const T&) = delete; \
-  T& operator=(const T&) = delete
+  T& operator=(const T&) = delete;
 #else
 #define NO_COPY(T) \
   private: \
