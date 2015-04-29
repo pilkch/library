@@ -35,20 +35,6 @@ namespace spitfire
       float GetGreyScale() const;
       float GetLuminance0To1() const;
 
-
-      // Hue, saturation, luminance
-      // http://en.wikipedia.org/wiki/HSL_and_HSV
-
-      void GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const;
-      void SetRGBFromHSL(float fHue, float fSaturation, float fLuminance);
-
-      // HSV/HSB
-      // http://en.wikipedia.org/wiki/HSL_and_HSV
-      // h are 0..360
-      // s and v are 0..1
-      void GetHSVFromRGB(float& fHue0To360, float& fSaturation, float& fValue) const;
-      void SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue);
-
       void Clamp(); // clamp all components to [0,1]
 
       void Negative(); // Inverts each component
@@ -136,21 +122,6 @@ namespace spitfire
       float GetGreyScale() const;
       float GetLuminance0To1() const;
 
-
-      // HSL
-      // http://en.wikipedia.org/wiki/HSL_and_HSV
-      // Hue is 0..360
-      // Saturation and luminance 0..1
-      void GetHSLFromRGB(float& fHue0To360, float& fSaturation0To1, float& fLuminance0To1) const;
-      void SetRGBFromHSL(float fHue0To360, float fSaturation0To1, float fLuminance0To1);
-
-      // HSV/HSB
-      // http://en.wikipedia.org/wiki/HSL_and_HSV
-      // Hue is 0..360
-      // Saturation and value are 0..1
-      void GetHSVFromRGB(float& fHue0To360, float& fSaturation0To1, float& fValue0To1) const;
-      void SetRGBFromHSV(float fHue0To360, float fSaturation0To1, float fValue0To1);
-
       void Clamp(); // clamp all components to [0,1]
       
       void Negative(); // Inverts each RGB component, doesn't change alpha
@@ -206,6 +177,56 @@ namespace spitfire
 
     // For backwards compatibility
     typedef cColour4 cColour;
+
+
+    // ** cColourHSL
+    //
+    // HSL
+    // http://en.wikipedia.org/wiki/HSL_and_HSV
+    // http://www.rapidtables.com/convert/color/rgb-to-hsl.htm
+    // Hue is 0..360
+    // Saturation and luminance 0..1
+
+    class cColourHSL
+    {
+    public:
+      cColourHSL();
+
+      cColour3 GetRGB() const;
+      cColour4 GetRGBA() const;
+      void SetFromRGB(const cColour3& colour);
+      void SetFromRGBA(const cColour4& colour);
+
+      float fHue0To360;
+      float fSaturation0To1;
+      float fLuminance0To1;
+
+    private:
+      float HueToRGB(float f1, float f2, float hue) const;
+    };
+
+
+    // ** cColourHSV
+    //
+    // HSV/HSB
+    // http://en.wikipedia.org/wiki/HSL_and_HSV
+    // Hue is 0..360
+    // Saturation and value are 0..1
+
+    class cColourHSV
+    {
+    public:
+      cColourHSV();
+
+      cColour3 GetRGB() const;
+      cColour4 GetRGBA() const;
+      void SetFromRGB(const cColour3& colour);
+      void SetFromRGBA(const cColour4& colour);
+
+      float fHue0To360;
+      float fSaturation0To1;
+      float fValue0To1;
+    };
   }
 }
 

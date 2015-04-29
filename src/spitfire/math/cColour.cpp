@@ -251,13 +251,61 @@ namespace spitfire
     }
 
 
+    // HSL
     // Hue, saturation, luminance
     // http://en.wikipedia.org/wiki/HSL_and_HSV
 
-    void cColour4::GetHSLFromRGB(float& fHue0To360, float& fSaturation0To1, float& fLuminance0To1) const
+    cColourHSL::cColourHSL() :
+      fHue0To360(0.0f),
+      fSaturation0To1(0.0f),
+      fLuminance0To1(0.0f)
     {
-      const float fmin = min(min(r, g), b);    // Min. value of RGB
-      const float fmax = max(max(r, g), b);    // Max. value of RGB
+    }
+
+    float cColourHSL::HueToRGB(float f1, float f2, float fHue) const
+    {
+      if (fHue < 0.0) fHue += 1.0;
+      else if (fHue > 1.0) fHue -= 1.0;
+
+      float res = 0.0f;
+      if ((6.0 * fHue) < 1.0) res = f1 + (f2 - f1) * 6.0 * fHue;
+      else if ((2.0 * fHue) < 1.0) res = f2;
+      else if ((3.0 * fHue) < 2.0) res = f1 + (f2 - f1) * ((2.0 / 3.0) - fHue) * 6.0;
+      else res = f1;
+
+      return res;
+    }
+
+    cColour3 cColourHSL::GetRGB() const
+    {
+      cColour3 colour;
+      if (fSaturation0To1 == 0.0f) colour.SetRGB(fLuminance0To1, fLuminance0To1, fLuminance0To1); // Luminance
+      else {
+        float f2;
+
+        if (fLuminance0To1 < 0.5f) f2 = fLuminance0To1 * (1.0f + fSaturation0To1);
+        else f2 = (fLuminance0To1 + fSaturation0To1) - (fSaturation0To1 * fLuminance0To1);
+
+        const float f1 = 2.0f * fHue0To360 - f2;
+
+        colour.r = HueToRGB(f1, f2, fHue0To360 + (1.0f / 3.0f));
+        colour.g = HueToRGB(f1, f2, fHue0To360);
+        colour.b = HueToRGB(f1, f2, fHue0To360 - (1.0f / 3.0f));
+      }
+
+      return colour;
+    }
+
+    cColour4 cColourHSL::GetRGBA() const
+    {
+      const cColour3 colourRGB = GetRGB();
+      return cColour4(colourRGB.r, colourRGB.g, colourRGB.b);
+    }
+
+    void cColourHSL::SetFromRGB(const cColour3& colour)
+    {
+      const float fmin = min(min(colour.r, colour.g), colour.b);    // Min. value of RGB
+      const float fmax = max(max(colour.r, colour.g), colour.b);    // Max. value of RGB
       const float delta = fmax - fmin;         // Delta RGB value
 
       // Luminance
@@ -276,76 +324,168 @@ namespace spitfire
         if (fLuminance0To1 < 0.5) fSaturation0To1 = delta / (fmax + fmin);
         else fSaturation0To1 = delta / (2.0 - fmax - fmin); 
 
-        const float deltaR = (((fmax - r) / 6.0) + (delta / 2.0)) / delta;
-        const float deltaG = (((fmax - g) / 6.0) + (delta / 2.0)) / delta;
-        const float deltaB = (((fmax - b) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaR = (((fmax - colour.r) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaG = (((fmax - colour.g) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaB = (((fmax - colour.b) / 6.0) + (delta / 2.0)) / delta;
 
         // Hue
-        if (r == fmax) fHue0To360 = deltaB - deltaG;
-        else if (g == fmax) fHue0To360 = (1.0 / 3.0) + deltaR - deltaB;
-        else if (b == fmax) fHue0To360 = (2.0 / 3.0) + deltaG - deltaR;
+        if (colour.r == fmax) fHue0To360 = deltaB - deltaG;
+        else if (colour.g == fmax) fHue0To360 = (1.0 / 3.0) + deltaR - deltaB;
+        else if (colour.b == fmax) fHue0To360 = (2.0 / 3.0) + deltaG - deltaR;
 
         if (fHue0To360 < 0.0) fHue0To360 += 1.0;
         else if (fHue0To360 > 1.0) fHue0To360 -= 1.0;
       }
     }
 
-
-
-    float cColour4::HueToRGBForSetRGBFromHSL(float f1, float f2, float fHue) const
+    void cColourHSL::SetFromRGBA(const cColour4& colour)
     {
-      if (fHue < 0.0) fHue += 1.0;
-      else if (fHue > 1.0) fHue -= 1.0;
-
-      float res = 0.0f;
-      if ((6.0 * fHue) < 1.0) res = f1 + (f2 - f1) * 6.0 * fHue;
-      else if ((2.0 * fHue) < 1.0) res = f2;
-      else if ((3.0 * fHue) < 2.0) res = f1 + (f2 - f1) * ((2.0 / 3.0) - fHue) * 6.0;
-      else res = f1;
-
-      return res;
+      const cColour3 colourRGB(colour.r, colour.g, colour.b);
+      return SetFromRGB(colourRGB);
     }
 
-    void cColour4::SetRGBFromHSL(float fHue, float fSaturation, float fLuminance)
-    {
-      if (fSaturation == 0.0f) SetRGB(fLuminance, fLuminance, fLuminance); // Luminance
-      else {
-        float f2;
-
-        if (fLuminance < 0.5f) f2 = fLuminance * (1.0f + fSaturation);
-        else f2 = (fLuminance + fSaturation) - (fSaturation * fLuminance);
-
-        const float f1 = 2.0f * fHue - f2;
-
-        r = HueToRGBForSetRGBFromHSL(f1, f2, fHue + (1.0f / 3.0f));
-        g = HueToRGBForSetRGBFromHSL(f1, f2, fHue);
-        b = HueToRGBForSetRGBFromHSL(f1, f2, fHue - (1.0f / 3.0f));
-      }
-    }
 
 
     // HSV/HSB
+    // Hue, saturation, value
     // http://en.wikipedia.org/wiki/HSL_and_HSV
-    void cColour4::GetHSVFromRGB(float& fHue0To360, float& fSaturation, float& fValue) const
+    
+    cColourHSV::cColourHSV() :
+      fHue0To360(0.0f),
+      fSaturation0To1(0.0f),
+      fValue0To1(0.0f)
     {
-       const double maxC = max(r, max(b, g));
-       const double minC = min(r, min(b, g));
+    }
+
+    cColour3 cColourHSV::GetRGB() const
+    {
+      cColour3 colour;
+
+      if (fValue0To1 > 0.0f) {
+        if (fSaturation0To1 <= 0) {
+          colour.r = fValue0To1;
+          colour.g = fValue0To1;
+          colour.b = fValue0To1;
+        } else {
+          const double hf = fHue0To360 / 60.0;
+          const int i = (int)floor(hf);
+          const double f = hf - i;
+          const double pv = fValue0To1 * (1 - fSaturation0To1);
+          const double qv = fValue0To1 * (1 - fSaturation0To1 * f);
+          const double tv = fValue0To1 * (1 - fSaturation0To1 * (1 - f));
+          switch (i) {
+
+            // Red is the dominant colour
+
+            case 0: {
+              colour.r = fValue0To1;
+              colour.g = tv;
+              colour.b = pv;
+              break;
+            }
+
+            // Green is the dominant colour
+
+            case 1: {
+              colour.r = qv;
+              colour.g = fValue0To1;
+              colour.b = pv;
+              break;
+            }
+            case 2: {
+              colour.r = pv;
+              colour.g = fValue0To1;
+              colour.b = tv;
+              break;
+            }
+
+            // Blue is the dominant colour
+
+            case 3: {
+              colour.r = pv;
+              colour.g = qv;
+              colour.b = fValue0To1;
+              break;
+            }
+            case 4: {
+              colour.r = tv;
+              colour.g = pv;
+              colour.b = fValue0To1;
+              break;
+            }
+
+            // Red is the dominant colour
+
+            case 5: {
+              colour.r = fValue0To1;
+              colour.g = pv;
+              colour.b = qv;
+              break;
+            }
+
+            // Just in case we overshoot on our math by a little, we put these here. Since its a switch it won't slow us down at all to put these here.
+
+            case 6: {
+              colour.r = fValue0To1;
+              colour.g = tv;
+              colour.b = pv;
+              break;
+            }
+            case -1: {
+              colour.r = fValue0To1;
+              colour.g = pv;
+              colour.b = qv;
+              break;
+            }
+
+            default: {
+              //std::cout<<"cColour4::SetRGBFromHSV HSV colour is not defined HSV("<<fHue0To360<<", "<<fSaturation<<", "<<fValue<<")"<<std::endl;
+              assert(false);
+
+              // Set to black/white
+              colour.r = fValue0To1;
+              colour.g = fValue0To1;
+              colour.b = fValue0To1;
+
+              break;
+            }
+          }
+        }
+      }
+
+      colour.r = clamp(colour.r, 0.0f, 1.0f);
+      colour.g = clamp(colour.g, 0.0f, 1.0f);
+      colour.b = clamp(colour.b, 0.0f, 1.0f);
+
+      return colour;
+    }
+
+    cColour4 cColourHSV::GetRGBA() const
+    {
+      const cColour3 colourRGB = GetRGB();
+      return cColour4(colourRGB.r, colourRGB.g, colourRGB.b);
+    }
+
+    void cColourHSV::SetFromRGB(const cColour3& colour)
+    {
+       const double maxC = max(colour.r, max(colour.b, colour.g));
+       const double minC = min(colour.r, min(colour.b, colour.g));
 
        fHue0To360 = 0.0f;
-       fSaturation = 0.0f;
-       fValue = maxC;
+       fSaturation0To1 = 0.0f;
+       fValue0To1 = maxC;
 
        const double delta = maxC - minC;
        if (delta == 0.0) {
           fHue0To360 = 0.0f;
-          fSaturation = 0.0f;
+          fSaturation0To1 = 0.0f;
        } else {
-          fSaturation = delta / maxC;
-          const double dR = 60.0 * (maxC - r) / delta + 180.0;
-          const double dG = 60.0 * (maxC - g) / delta + 180.0;
-          const double dB = 60.0 * (maxC - b) / delta + 180.0;
-          if (r == maxC) fHue0To360 = dB - dG;
-          else if (g == maxC) fHue0To360 = 120.0 + dR - dB;
+          fSaturation0To1 = delta / maxC;
+          const double dR = 60.0 * (maxC - colour.r) / delta + 180.0;
+          const double dG = 60.0 * (maxC - colour.g) / delta + 180.0;
+          const double dB = 60.0 * (maxC - colour.b) / delta + 180.0;
+          if (colour.r == maxC) fHue0To360 = dB - dG;
+          else if (colour.g == maxC) fHue0To360 = 120.0 + dR - dB;
           else fHue0To360 = 240.0 + dG - dR;
        }
 
@@ -353,110 +493,10 @@ namespace spitfire
        else if (fHue0To360 >= 360.0f) fHue0To360 -= 360.0f;
     }
 
-    void cColour4::SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue)
+    void cColourHSV::SetFromRGBA(const cColour4& colour)
     {
-       r = 0.0f;
-       g = 0.0f;
-       b = 0.0f;
-
-       if (fValue > 0.0f) {
-          if (fSaturation <= 0) {
-             r = fValue;
-             g = fValue;
-             b = fValue;
-          } else {
-             while (fHue0To360 < 0) fHue0To360 += 360;
-             while (fHue0To360 >= 360) fHue0To360 -= 360;
-
-             const double hf = fHue0To360 / 60.0;
-             const int i = (int)floor(hf);
-             const double f = hf - i;
-             const double pv = fValue * (1 - fSaturation);
-             const double qv = fValue * (1 - fSaturation * f);
-             const double tv = fValue * (1 - fSaturation * (1 - f));
-             switch (i) {
-
-                // Red is the dominant colour
-
-                case 0: {
-                  r = fValue;
-                  g = tv;
-                  b = pv;
-                  break;
-                }
-
-                // Green is the dominant colour
-
-                case 1: {
-                  r = qv;
-                  g = fValue;
-                  b = pv;
-                  break;
-                }
-                case 2: {
-                  r = pv;
-                  g = fValue;
-                  b = tv;
-                  break;
-                }
-
-                // Blue is the dominant colour
-
-                case 3: {
-                  r = pv;
-                  g = qv;
-                  b = fValue;
-                  break;
-                }
-                case 4: {
-                  r = tv;
-                  g = pv;
-                  b = fValue;
-                  break;
-                }
-
-                // Red is the dominant colour
-
-                case 5: {
-                  r = fValue;
-                  g = pv;
-                  b = qv;
-                  break;
-                }
-
-                // Just in case we overshoot on our math by a little, we put these here. Since its a switch it won't slow us down at all to put these here.
-
-                case 6: {
-                  r = fValue;
-                  g = tv;
-                  b = pv;
-                  break;
-                }
-                case -1: {
-                  r = fValue;
-                  g = pv;
-                  b = qv;
-                  break;
-                }
-
-                default: {
-                  //std::cout<<"cColour4::SetRGBFromHSV HSV colour is not defined HSV("<<fHue0To360<<", "<<fSaturation<<", "<<fValue<<")"<<std::endl;
-                  assert(false);
-
-                  // Set to black/white
-                  r = fValue;
-                  g = fValue;
-                  b = fValue;
-
-                  break;
-                }
-             }
-          }
-       }
-
-       r = clamp(r, 0.0f, 1.0f);
-       g = clamp(g, 0.0f, 1.0f);
-       b = clamp(b, 0.0f, 1.0f);
+      const cColour3 colourRGB(colour.r, colour.g, colour.b);
+      return SetFromRGB(colourRGB);
     }
   }
 }
