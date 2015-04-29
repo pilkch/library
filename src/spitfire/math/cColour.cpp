@@ -214,36 +214,39 @@ namespace spitfire
     // Hue, saturation, luminance
     // http://en.wikipedia.org/wiki/HSL_and_HSV
 
-    void cColour4::GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const
+    void cColour4::GetHSLFromRGB(float& fHue0To360, float& fSaturation0To1, float& fLuminance0To1) const
     {
-      float fmin = min(min(r, g), b);    //Min. value of RGB
-      float fmax = max(max(r, g), b);    //Max. value of RGB
-      float delta = fmax - fmin;             //Delta RGB value
+      const float fmin = min(min(r, g), b);    // Min. value of RGB
+      const float fmax = max(max(r, g), b);    // Max. value of RGB
+      const float delta = fmax - fmin;         // Delta RGB value
 
-      fLuminance = (fmax + fmin) / 2.0; // Luminance
+      // Luminance
+      fLuminance0To1 = (fmax + fmin) / 2.0;
 
-      if (delta == 0.0) { //This is a gray, no chroma...
-        fHue = 0.0;  // Hue
-        fSaturation = 0.0;  // Saturation
-      } else {            //Chromatic data...
-        if (fLuminance < 0.5)
-          fSaturation = delta / (fmax + fmin); // Saturation
-        else
-          fSaturation = delta / (2.0 - fmax - fmin); // Saturation
+      if (delta == 0.0) {
+        // Grey no chroma
 
-        float deltaR = (((fmax - r) / 6.0) + (delta / 2.0)) / delta;
-        float deltaG = (((fmax - g) / 6.0) + (delta / 2.0)) / delta;
-        float deltaB = (((fmax - b) / 6.0) + (delta / 2.0)) / delta;
+        // Set hue and saturation
+        fHue0To360 = 0.0;
+        fSaturation0To1 = 0.0;
+      } else {
+        // This colour has chroma
 
-        if (r == fmax)
-          fHue = deltaB - deltaG; // Hue
-        else if (g == fmax)
-          fHue = (1.0 / 3.0) + deltaR - deltaB; // Hue
-        else if (b == fmax)
-          fHue = (2.0 / 3.0) + deltaG - deltaR; // Hue
+        // Saturation
+        if (fLuminance0To1 < 0.5) fSaturation0To1 = delta / (fmax + fmin);
+        else fSaturation0To1 = delta / (2.0 - fmax - fmin); 
 
-        if (fHue < 0.0) fHue += 1.0; // Hue
-        else if (fHue > 1.0) fHue -= 1.0; // Hue
+        const float deltaR = (((fmax - r) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaG = (((fmax - g) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaB = (((fmax - b) / 6.0) + (delta / 2.0)) / delta;
+
+        // Hue
+        if (r == fmax) fHue0To360 = deltaB - deltaG;
+        else if (g == fmax) fHue0To360 = (1.0 / 3.0) + deltaR - deltaB;
+        else if (b == fmax) fHue0To360 = (2.0 / 3.0) + deltaG - deltaR;
+
+        if (fHue0To360 < 0.0) fHue0To360 += 1.0;
+        else if (fHue0To360 > 1.0) fHue0To360 -= 1.0;
       }
     }
 
@@ -272,7 +275,7 @@ namespace spitfire
         if (fLuminance < 0.5f) f2 = fLuminance * (1.0f + fSaturation);
         else f2 = (fLuminance + fSaturation) - (fSaturation * fLuminance);
 
-        float f1 = 2.0f * fHue - f2;
+        const float f1 = 2.0f * fHue - f2;
 
         r = HueToRGBForSetRGBFromHSL(f1, f2, fHue + (1.0f / 3.0f));
         g = HueToRGBForSetRGBFromHSL(f1, f2, fHue);
@@ -292,22 +295,22 @@ namespace spitfire
        fSaturation = 0.0f;
        fValue = maxC;
 
-       double delta = maxC - minC;
+       const double delta = maxC - minC;
        if (delta == 0.0) {
           fHue0To360 = 0.0f;
           fSaturation = 0.0f;
        } else {
           fSaturation = delta / maxC;
-          double dR = 60.0 * (maxC - r) / delta + 180.0;
-          double dG = 60.0 * (maxC - g) / delta + 180.0;
-          double dB = 60.0 * (maxC - b) / delta + 180.0;
+          const double dR = 60.0 * (maxC - r) / delta + 180.0;
+          const double dG = 60.0 * (maxC - g) / delta + 180.0;
+          const double dB = 60.0 * (maxC - b) / delta + 180.0;
           if (r == maxC) fHue0To360 = dB - dG;
           else if (g == maxC) fHue0To360 = 120.0 + dR - dB;
           else fHue0To360 = 240.0 + dG - dR;
        }
 
        if (fHue0To360 < 0.0f) fHue0To360 += 360.0f;
-       if (fHue0To360 >= 360.0f) fHue0To360 -= 360.0f;
+       else if (fHue0To360 >= 360.0f) fHue0To360 -= 360.0f;
     }
 
     void cColour4::SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue)

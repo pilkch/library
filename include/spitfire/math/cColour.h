@@ -135,18 +135,19 @@ namespace spitfire
       float GetLuminance0To1() const;
 
 
-      // Hue, saturation, luminance
+      // HSL
       // http://en.wikipedia.org/wiki/HSL_and_HSV
-
-      void GetHSLFromRGB(float& fHue, float& fSaturation, float& fLuminance) const;
-      void SetRGBFromHSL(float fHue, float fSaturation, float fLuminance);
+      // Hue is 0..360
+      // Saturation and luminance 0..1
+      void GetHSLFromRGB(float& fHue0To360, float& fSaturation0To1, float& fLuminance0To1) const;
+      void SetRGBFromHSL(float fHue0To360, float fSaturation0To1, float fLuminance0To1);
 
       // HSV/HSB
       // http://en.wikipedia.org/wiki/HSL_and_HSV
-      // h are 0..360
-      // s and v are 0..1
-      void GetHSVFromRGB(float& fHue0To360, float& fSaturation, float& fValue) const;
-      void SetRGBFromHSV(float fHue0To360, float fSaturation, float fValue);
+      // Hue is 0..360
+      // Saturation and value are 0..1
+      void GetHSVFromRGB(float& fHue0To360, float& fSaturation0To1, float& fValue0To1) const;
+      void SetRGBFromHSV(float fHue0To360, float fSaturation0To1, float fValue0To1);
 
       void Clamp(); // clamp all components to [0,1]
 
