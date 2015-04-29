@@ -51,6 +51,14 @@ namespace spitfire
       b = newBlue;
     }
 
+    void cColour3::Invert()
+    {
+      cColourHSV colourHSV;
+      colourHSV.SetFromRGB(*this);
+      colourHSV.Invert();
+      *this = colourHSV.GetRGB();
+    }
+
 
     // ** cColour4
 
@@ -123,6 +131,14 @@ namespace spitfire
       r = 1.0f - r;
       g = 1.0f - g;
       b = 1.0f - b;
+    }
+
+    void cColour4::Invert()
+    {
+      cColourHSV colourHSV;
+      colourHSV.SetFromRGBA(*this);
+      colourHSV.Invert();
+      *this = colourHSV.GetRGBA();
     }
 
     cColour4 cColour4::lerp(const cColour4& c2, float factor) const
@@ -497,6 +513,11 @@ namespace spitfire
     {
       const cColour3 colourRGB(colour.r, colour.g, colour.b);
       return SetFromRGB(colourRGB);
+    }
+
+    void cColourHSV::Invert()
+    {
+      fHue0To360 = 360 - fHue0To360;
     }
   }
 }
