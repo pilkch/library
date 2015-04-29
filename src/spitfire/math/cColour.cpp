@@ -21,6 +21,39 @@ namespace spitfire
 {
   namespace math
   {
+    // ** cColour3
+
+    cColour3::cColour3() :
+      r(0.0f),
+      g(0.0f),
+      b(0.0f)
+    {
+    }
+
+    cColour3::cColour3(float newRed, float newGreen, float newBlue) :
+      r(newRed),
+      g(newGreen),
+      b(newBlue)
+    {
+    }
+
+    cColour3::cColour3(const cColour3& rhs) :
+      r(rhs.r),
+      g(rhs.g),
+      b(rhs.b)
+    {
+    }
+
+    void cColour3::SetRGB(float newRed, float newGreen, float newBlue)
+    {
+      r = newRed;
+      g = newGreen;
+      b = newBlue;
+    }
+
+
+    // ** cColour4
+
     cColour4::cColour4() :
       r(0.0f),
       g(0.0f),
