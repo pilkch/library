@@ -270,6 +270,20 @@ namespace spitfire
       );
     }
 
+
+    // Mod a value by 1.0f and restrict it to 0..1
+    inline float Mod0To1(float fValue)
+    {
+      return fValue - (1.0f * floor(fValue / 1.0f));
+    }
+
+    // Mod a value by fMax and restrict it to 0..fMax
+    inline float Mod0ToMax(float fValue, float fMax)
+    {
+      return fValue - (fMax * floor(fValue / fMax));
+    }
+
+
     // Clamp an angle to -180..180
     template <typename T>
     T ClampAngle(T angle)

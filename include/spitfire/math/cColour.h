@@ -40,6 +40,8 @@ namespace spitfire
       void Negative(); // Inverts each component
       void Invert(); // Inverts a colour based on it's hue
 
+      cColour3 GetComplimentary() const; // Gets the matching complimentary colour
+
       // linear interpolate
       cColour3 lerp(const cColour3& c2, float factor) const;
 
@@ -124,6 +126,8 @@ namespace spitfire
       
       void Negative(); // Inverts each RGB component, doesn't change alpha
       void Invert(); // Inverts a colour based on it's hue
+
+      cColour4 GetComplimentary() const; // Gets the matching complimentary colour
 
       // linear interpolate
       cColour4 lerp(const cColour4& c2, float factor) const;
@@ -220,6 +224,8 @@ namespace spitfire
       void SetFromRGBA(const cColour4& colour);
 
       void Invert(); // Invert the colour based on the hue
+
+      void ShiftHue(float fDegrees); // Shift the hue by this amount
 
       float fHue0To360;
       float fSaturation0To1;
