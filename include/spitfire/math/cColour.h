@@ -82,9 +82,6 @@ namespace spitfire
       float r;
       float g;
       float b;
-
-    private:
-      float HueToRGBForSetRGBFromHSL(float f1, float f2, float hue) const;
     };
 
 
@@ -170,9 +167,6 @@ namespace spitfire
       float g;
       float b;
       float a;
-
-    private:
-      float HueToRGBForSetRGBFromHSL(float f1, float f2, float hue) const;
     };
 
     // For backwards compatibility
