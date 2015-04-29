@@ -51,6 +51,8 @@ namespace spitfire
 
       void Clamp(); // clamp all components to [0,1]
 
+      void Negative(); // Inverts each component
+
       // linear interpolate
       cColour3 lerp(const cColour3& c2, float factor) const;
 
@@ -150,6 +152,8 @@ namespace spitfire
       void SetRGBFromHSV(float fHue0To360, float fSaturation0To1, float fValue0To1);
 
       void Clamp(); // clamp all components to [0,1]
+      
+      void Negative(); // Inverts each RGB component, doesn't change alpha
 
       // linear interpolate
       cColour4 lerp(const cColour4& c2, float factor) const;

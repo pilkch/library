@@ -85,6 +85,13 @@ namespace spitfire
       a = clamp(a, 0.0f, 1.0f);
     }
 
+    void cColour4::Negative()
+    {
+      r = 1.0f - r;
+      g = 1.0f - g;
+      b = 1.0f - b;
+    }
+
     cColour4 cColour4::lerp(const cColour4& c2, float factor) const
     {
       return ((*this) * factor) + (c2 * (1.0f - factor));
