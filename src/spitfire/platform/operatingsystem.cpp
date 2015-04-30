@@ -252,7 +252,7 @@ namespace spitfire
     #endif
 
 
-    string_t GetOperatingSystemNameString()
+    string_t GetOSNameString()
     {
 #if defined(__WIN__)
       return TEXT("Windows");
@@ -269,18 +269,46 @@ namespace spitfire
 #endif
     }
 
-    /*void GetOSVersion(uint8_t& major);
-    void GetOSVersion(uint8_t& major, uint8_t& minor);
-    string_t GetOSVersionString();
-    string_t GetOSVersionStringShort();
+    #ifdef __WIN__
+    bool IsWindowsVersionAtLeast(int iMajorVersion, int iMinorVersion)
+    {
+      OSVERSIONINFOEX vi;
+      ZeroMemory(&vi, sizeof(vi));
+      vi.dwOSVersionInfoSize = sizeof(vi);
+      vi.dwMajorVersion = DWORD(iMajorVersion);
+      vi.dwMinorVersion = DWORD(iMinorVersion);
+      DWORDLONG dwlConditionMask = 0;
+      VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+      VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+      VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+      VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
+      return (::VerifyVersionInfo(&vi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR, dwlConditionMask) != FALSE);
+    }
 
-    ubuntu
+    bool IsWindows7OrLater()
+    {
+      return IsWindowsVersionAtLeast(6, 1);
+    }
 
-    lsb_release -a – get Ubuntu version
-    uname -r – get kernel version
-    uname -a - get kernal information*/
+    bool IsWindows8OrLater()
+    {
+      return IsWindowsVersionAtLeast(6, 2);
+    }
 
-#ifdef __APPLE__
+    bool IsWindows10OrLater()
+    {
+      return IsWindowsVersionAtLeast(6, 4);
+    }
+
+    void GetOSVersion(uint8_t& major, uint8_t& minor)
+    {
+      OSVERSIONINFO vi;
+      vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+      GetVersionEx(&vi);
+      major = uint8_t(vi.dwMajorVersion);
+      minor = uint8_t(vi.dwMinorVersion);
+    }
+#elif defined(__APPLE__)
     int32_t GetOSVersion()
     {
       SInt32 osVersion;
@@ -289,7 +317,7 @@ namespace spitfire
     }
 #endif
 
-    void GetOperatingSystemVersion(int& major, int& minor)
+    void GetOSVersion(int& major, int& minor)
     {
 #ifdef __WIN__
       OSVERSIONINFO vi;
@@ -303,25 +331,25 @@ namespace spitfire
 #endif
     }
 
-    string_t GetOperatingSystemVersionString()
+    string_t GetOSVersionString()
     {
       int major = 0;
       int minor = 0;
-      GetOperatingSystemVersion(major, minor);
+      GetOSVersion(major, minor);
 
       ostringstream_t o;
       o<<major<<TEXT(".")<<minor;
       return o.str();
     }
 
-    string_t GetOperatingSystemFullString()
+    string_t GetOSFullString()
     {
-      string_t s = TEXT("Unknown ") + GetOperatingSystemVersionString();
+      string_t s = TEXT("Unknown ") + GetOSVersionString();
 
 #ifdef __WIN__
       int major = 0;
       int minor = 0;
-      GetOperatingSystemVersion(major, minor);
+      GetOSVersion(major, minor);
 
       if (4 == major) {
         if (0 == minor) s = TEXT("95");
@@ -335,15 +363,16 @@ namespace spitfire
         if (0 == minor) s = TEXT("Vista");
         else if (minor == 1) s = TEXT("Windows 7");
         else if (minor >= 2) s = TEXT("Windows 8");
+        else if (minor >= 4) s = TEXT("Windows 10");
       }
 
       // Check if we are running in Wine
       if (IsWindowsRunningUnderWine()) s += TEXT(" under Wine");
       #else
-      #error "GetOperatingSystemFullString"
+      #error "GetOSFullString has not been implemented"
 #endif
 
-      return GetOperatingSystemNameString() + TEXT(" ") + s;
+      return GetOSNameString() + TEXT(" ") + s;
     }
 
 #ifdef __LINUX__
