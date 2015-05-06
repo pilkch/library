@@ -24,23 +24,6 @@
 #include <libopenglmm/cSystem.h>
 #include <libopenglmm/opengl.h>
 
-bool StringBeginsWith(const std::string& source, const std::string& find)
-{
-  if (source.length() < find.length()) return false;
-
-  return (source.substr(0, find.length()) == find);
-}
-
-std::string StringReplace(const std::string& source, const std::string& sFind, const std::string& sReplace)
-{
-  size_t j;
-  std::string temp(source);
-  for (;(j = temp.find(sFind)) != std::string::npos;) {
-    temp.replace(j, sFind.length(), sReplace);
-  }
-  return temp;
-}
-
 namespace opengl
 {
   // *** cShaderConstants
@@ -141,9 +124,8 @@ namespace opengl
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
-      )
-      {
-        sInfo = StringReplace(sInfo, "\n", "<br>");
+      ) {
+        sInfo = spitfire::string::Replace(sInfo, "\n", "<br>");
         LOG<<TEXT("cShader::CheckStatusVertex Vertex Shader ")<<sShaderVertex<<TEXT(": ")<<spitfire::string::ToString_t(sInfo)<<std::endl;
       }
       delete [] infoLog;
@@ -170,9 +152,8 @@ namespace opengl
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
-      )
-      {
-        sInfo = StringReplace(sInfo, "\n", "<br>");
+      ) {
+        sInfo = spitfire::string::Replace(sInfo, "\n", "<br>");
         LOG<<"cShader::CheckStatusFragment  Fragment Shader "<<sShaderFragment<<": "<<spitfire::string::ToString_t(sInfo)<<std::endl;
       }
       delete [] infoLog;
@@ -262,33 +243,33 @@ namespace opengl
     }
 
     // Check which uniforms this shader uses
-    if (StringBeginsWith(sLine, "uniform mat4 matProjection;")) bProjectionMatrix = true;
-    else if (StringBeginsWith(sLine, "uniform mat4 matModelView;")) bModelViewMatrix = true;
-    else if (StringBeginsWith(sLine, "uniform mat4 matModelViewProjection;")) bModelViewProjectionMatrix = true;
-    else if (StringBeginsWith(sLine, "uniform mat3 matNormal;")) bNormalMatrix = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit0;")) bTexUnit0 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit1;")) bTexUnit1 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit2;")) bTexUnit2 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2D texUnit3;")) bTexUnit3 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2DRect texUnit0;")) bTexUnit0 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2DRect texUnit1;")) bTexUnit1 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2DRect texUnit2;")) bTexUnit2 = true;
-    else if (StringBeginsWith(sLine, "uniform sampler2DRect texUnit3;")) bTexUnit3 = true;
-    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit0;")) bTexUnit0 = true;
-    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
-    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
-    else if (StringBeginsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
-    else if (StringBeginsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
-    else if (StringBeginsWith(sLine, "uniform vec3 sunPosition;")) bSunPosition = true;
-    else if (StringBeginsWith(sLine, "uniform vec4 sunAmbientColour;")) bSunAmbientColour = true;
-    else if (StringBeginsWith(sLine, "uniform float fSunIntensity;")) bSunIntensity = true;
+    if (spitfire::string::StartsWith(sLine, "uniform mat4 matProjection;")) bProjectionMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelView;")) bModelViewMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelViewProjection;")) bModelViewProjectionMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat3 matNormal;")) bNormalMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit0;")) bTexUnit0 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit1;")) bTexUnit1 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit2;")) bTexUnit2 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit0;")) bTexUnit0 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit1;")) bTexUnit1 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit2;")) bTexUnit2 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit0;")) bTexUnit0 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform vec3 sunPosition;")) bSunPosition = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform vec4 sunAmbientColour;")) bSunAmbientColour = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform float fSunIntensity;")) bSunIntensity = true;
   }
 
   void cShader::ParseLineVertexShader(const std::string& sLine)
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
     // "in vec3 vertexColour;"
-    if (StringBeginsWith(sLine, "in ")) {
+    if (spitfire::string::StartsWith(sLine, "in ")) {
       std::string::size_type space = sLine.find(" ", 3);
       if (space != std::string::npos) {
         // Skip the space
@@ -311,7 +292,7 @@ namespace opengl
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
     // "out vec3 fragmentColour;"
-    if (StringBeginsWith(sLine, "out ")) {
+    if (spitfire::string::StartsWith(sLine, "out ")) {
       std::string::size_type space = sLine.find(" ", 4);
       if (space != std::string::npos) {
         // Skip the space
