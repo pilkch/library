@@ -284,8 +284,6 @@ namespace opengl
       }
     }
     #endif
-
-    ParseLineShader(sLine);
   }
 
   void cShader::ParseLineFragmentShader(const std::string& sLine)
@@ -307,8 +305,6 @@ namespace opengl
       }
     }
     #endif
-
-    ParseLineShader(sLine);
   }
 
   void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
@@ -326,6 +322,7 @@ namespace opengl
         o<<"\n";
 
         ParseLineVertexShader(sLine);
+        ParseLineShader(sLine);
       };
 
       LOG<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
@@ -369,6 +366,7 @@ namespace opengl
         o<<"\n";
 
         ParseLineFragmentShader(sLine);
+        ParseLineShader(sLine);
       };
 
       LOG<<"cShader::_LoadFragmentShader Fragment shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
