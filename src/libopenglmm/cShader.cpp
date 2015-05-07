@@ -16,6 +16,7 @@
 #include <SDL2/SDL_image.h>
 
 // Spitfire headers
+#include <spitfire/storage/filesystem.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/string.h>
 
@@ -307,6 +308,47 @@ namespace opengl
     #endif
   }
 
+  // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
+  // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
+  // 2) It only processes one level of includes and is not recursive
+  // TODO: Allow recursive includes
+  std::string cShader::ParseInclude(const opengl::string_t& _sCurrentShaderPath, const std::string& sIncludeLine) const
+  {
+    // Parse the include line
+    spitfire::string::cStringParserUTF8 sp(sIncludeLine);
+    sp.SkipToStringAndSkip("<");
+    std::string sRelativeFilePath;
+    sp.GetToString(">", sRelativeFilePath);
+
+    // Read the whole included file
+    #ifdef __WIN__
+    const opengl::string_t sCurrentShaderPath = spitfire::string::Replace(_sCurrentShaderPath, TEXT("/"), TEXT("\\"));
+    #else
+    const opengl::string_t& sCurrentShaderPath = _sCurrentShaderPath;
+    #endif
+    const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(spitfire::filesystem::GetFolder(sCurrentShaderPath), spitfire::string::ToString_t(sRelativeFilePath));
+    std::ifstream f(spitfire::string::ToUTF8(sFilePath).c_str());
+    if (!f.is_open()) {
+      LOGERROR<<"cShader::ParseInclude Include not found \""<<sFilePath<<"\" for shader \""<<sShaderVertex<<"\""<<std::endl;
+      return "";
+    }
+
+    std::ostringstream o;
+    std::string sLine;
+    while (!f.eof()) {
+      std::getline(f, sLine);
+
+      // Skip version lines (Assume they are the same as the calling shader)
+      // TODO: Check the version of the include matches the version of the calling shader
+      if (spitfire::string::StartsWith(sLine, "#version")) continue;
+
+      o<<sLine;
+      o<<"\n";
+    };
+
+    return o.str();
+  }
+
   void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
   {
     sShaderVertex = _sShaderVertex;
@@ -318,11 +360,20 @@ namespace opengl
       while (!f.eof()) {
         std::getline(f, sLine);
 
-        o<<sLine;
-        o<<"\n";
+        if (spitfire::string::StartsWith(sLine, "#include <")) {
+          const std::string sLines = ParseInclude(sShaderVertex, sLine);
 
-        ParseLineVertexShader(sLine);
-        ParseLineShader(sLine);
+          // Add the lines
+          o<<sLines;
+          o<<"\n";
+        } else {
+          ParseLineVertexShader(sLine);
+          ParseLineShader(sLine);
+
+          // Add the line
+          o<<sLine;
+          o<<"\n";
+        }
       };
 
       LOG<<"cShader::_LoadVertexShader Vertex "<<cSystem::GetErrorString()<<" shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
@@ -362,11 +413,20 @@ namespace opengl
       while (!f.eof()) {
         std::getline(f, sLine);
 
-        o<<sLine;
-        o<<"\n";
+        if (spitfire::string::StartsWith(sLine, "#include <")) {
+          const std::string sLines = ParseInclude(sShaderVertex, sLine);
 
-        ParseLineFragmentShader(sLine);
-        ParseLineShader(sLine);
+          // Add the lines
+          o<<sLines;
+          o<<"\n";
+        } else {
+          ParseLineFragmentShader(sLine);
+          ParseLineShader(sLine);
+
+          // Add the line
+          o<<sLine;
+          o<<"\n";
+        }
       };
 
       LOG<<"cShader::_LoadFragmentShader Fragment shader=\""<<spitfire::string::ToString_t(o.str())<<"\""<<std::endl;
