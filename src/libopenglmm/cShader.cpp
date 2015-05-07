@@ -308,11 +308,20 @@ namespace opengl
     #endif
   }
 
+  size_t cShader::ParseVersion(const std::string& sLine) const
+  {
+    spitfire::string::cStringParserUTF8 sp(sLine);
+    sp.SkipToStringAndSkip("#version");
+    sp.SkipWhiteSpace();
+    const std::string sVersionNumber = sp.GetToEnd();
+    return spitfire::string::ToInt(spitfire::string::ToString_t(sVersionNumber));
+  }
+
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
   // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
   // 2) It only processes one level of includes and is not recursive
   // TODO: Allow recursive includes
-  std::string cShader::ParseInclude(const opengl::string_t& _sCurrentShaderPath, const std::string& sIncludeLine) const
+  std::string cShader::ParseInclude(const opengl::string_t& _sCurrentShaderPath, size_t uParentShaderVersion, const std::string& sIncludeLine) const
   {
     // Parse the include line
     spitfire::string::cStringParserUTF8 sp(sIncludeLine);
@@ -329,7 +338,7 @@ namespace opengl
     const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(spitfire::filesystem::GetFolder(sCurrentShaderPath), spitfire::string::ToString_t(sRelativeFilePath));
     std::ifstream f(spitfire::string::ToUTF8(sFilePath).c_str());
     if (!f.is_open()) {
-      LOGERROR<<"cShader::ParseInclude Include not found \""<<sFilePath<<"\" for shader \""<<sShaderVertex<<"\""<<std::endl;
+      LOGERROR<<"cShader::ParseInclude Include not found \""<<sFilePath<<"\" for shader \""<<_sCurrentShaderPath<<"\""<<std::endl;
       return "";
     }
 
@@ -340,7 +349,12 @@ namespace opengl
 
       // Skip version lines (Assume they are the same as the calling shader)
       // TODO: Check the version of the include matches the version of the calling shader
-      if (spitfire::string::StartsWith(sLine, "#version")) continue;
+      if (spitfire::string::StartsWith(sLine, "#version")) {
+        const size_t uShaderVersion = ParseVersion(sLine);
+        if (uShaderVersion != uParentShaderVersion) LOGERROR<<"cShader::ParseInclude Parent shader \""<<_sCurrentShaderPath<<"\" version "<<uParentShaderVersion<<" doesn't match included shader \""<<sFilePath<<"\" version "<<uShaderVersion<<""<<std::endl;
+
+        continue;
+      }
 
       o<<sLine;
       o<<"\n";
@@ -355,13 +369,18 @@ namespace opengl
 
     std::ifstream f(opengl::string::ToUTF8(sShaderVertex).c_str());
     if (f.is_open()) {
+      size_t uShaderVersion = 0;
+
       std::ostringstream o;
       std::string sLine;
       while (!f.eof()) {
         std::getline(f, sLine);
 
+        // Check if this is a version line
+        if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+
         if (spitfire::string::StartsWith(sLine, "#include <")) {
-          const std::string sLines = ParseInclude(sShaderVertex, sLine);
+          const std::string sLines = ParseInclude(sShaderVertex, uShaderVersion, sLine);
 
           // Add the lines
           o<<sLines;
@@ -408,13 +427,18 @@ namespace opengl
 
     std::ifstream f(opengl::string::ToUTF8(sShaderFragment).c_str());
     if (f.is_open()) {
+      size_t uShaderVersion = 0;
+
       std::ostringstream o;
       std::string sLine;
       while (!f.eof()) {
         std::getline(f, sLine);
 
+        // Check if this is a version line
+        if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+
         if (spitfire::string::StartsWith(sLine, "#include <")) {
-          const std::string sLines = ParseInclude(sShaderVertex, sLine);
+          const std::string sLines = ParseInclude(sShaderVertex, uShaderVersion, sLine);
 
           // Add the lines
           o<<sLines;

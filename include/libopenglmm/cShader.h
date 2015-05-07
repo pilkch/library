@@ -135,7 +135,8 @@ namespace opengl
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
     void _Compile();
 
-    std::string ParseInclude(const opengl::string_t& sCurrentShaderPath, const std::string& sLine) const;
+    size_t ParseVersion(const std::string& sLine) const;
+    std::string ParseInclude(const opengl::string_t& sCurrentShaderPath, size_t uParentShaderVersion, const std::string& sLine) const;
     void ParseLineShader(const std::string& sLine);
     void ParseLineFragmentShader(const std::string& sLine);
     void ParseLineVertexShader(const std::string& sLine);
