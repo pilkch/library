@@ -319,8 +319,6 @@ namespace opengl
 
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
   // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
-  // 2) It only processes one level of includes and is not recursive
-  // TODO: Allow recursive includes
   std::string cShader::ParseInclude(const opengl::string_t& _sCurrentShaderPath, size_t uParentShaderVersion, const std::string& sIncludeLine) const
   {
     // Parse the include line
@@ -347,8 +345,7 @@ namespace opengl
     while (!f.eof()) {
       std::getline(f, sLine);
 
-      // Skip version lines (Assume they are the same as the calling shader)
-      // TODO: Check the version of the include matches the version of the calling shader
+      // Check the versions match then skip it so that we only have one version line in the output file
       if (spitfire::string::StartsWith(sLine, "#version")) {
         const size_t uShaderVersion = ParseVersion(sLine);
         if (uShaderVersion != uParentShaderVersion) LOGERROR<<"cShader::ParseInclude Parent shader \""<<_sCurrentShaderPath<<"\" version "<<uParentShaderVersion<<" doesn't match included shader \""<<sFilePath<<"\" version "<<uShaderVersion<<""<<std::endl;
@@ -356,8 +353,17 @@ namespace opengl
         continue;
       }
 
-      o<<sLine;
-      o<<"\n";
+      if (spitfire::string::StartsWith(sLine, "#include <")) {
+        const std::string sLines = ParseInclude(sShaderVertex, uParentShaderVersion, sLine);
+
+        // Add the lines
+        o<<sLines;
+        o<<"\n";
+      } else {
+        // Add the line
+        o<<sLine;
+        o<<"\n";
+      }
     };
 
     return o.str();
