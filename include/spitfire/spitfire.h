@@ -105,6 +105,7 @@
 #endif
 
 #ifdef COMPILER_MSVC
+#define COMPILER_MSVC_2015 1900
 #define COMPILER_MSVC_2013 1800
 #define COMPILER_MSVC_2012 1700
 #define COMPILER_MSVC_2010 1600
@@ -275,7 +276,7 @@ typedef int32_t ssize_t;
 
 
 // Like sizeof for arrays
-#ifdef BUILD_SPITFIRE_CPP11
+#if defined(BUILD_SPITFIRE_CPP11) && (_MSC_VER >= COMPILER_MSVC_2015)
 template <typename T, size_t N>
 constexpr size_t countof(const T (&array)[N]) noexcept
 {
