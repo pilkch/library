@@ -37,7 +37,7 @@ namespace opengl
     pWindowEventListener(nullptr),
     pInputEventListener(nullptr)
   {
-		LOG("");
+    LOG("");
 
     pContext = system.CreateSharedContextFromWindow(*this);
 
