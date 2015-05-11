@@ -18,7 +18,6 @@
 // Boost headers
 #include <boost/filesystem.hpp>
 
-
 #ifdef __LINUX__
 #include <dirent.h>
 #include <pwd.h>
@@ -47,16 +46,12 @@
 #include <spitfire/spitfire.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/thread.h>
-
 #include <spitfire/platform/operatingsystem.h>
 #include <spitfire/platform/pipe.h>
-
 #include <spitfire/storage/filesystem.h>
-
 #ifndef FIRESTARTER
 #include <spitfire/util/log.h>
 #endif
-
 #ifdef BUILD_SUPPORT_MD5
 #include <spitfire/algorithm/md5.h>
 #endif
@@ -233,7 +228,7 @@ namespace spitfire
       FSRef dataFolderRef;
       OSErr theError = FSFindFolder(kUserDomain, kCurrentUserFolderType, kCreateFolder, &dataFolderRef);
       if (theError != noErr) {
-        LOG<<"GetHomeDirectory FSFindFolder FAILED"<<std::endl;
+        LOG("FSFindFolder FAILED"<<std::endl;
         string_t sUser = GetUserName();
         sPath = TEXT("/Users/") + sUser;
       } else {
@@ -273,7 +268,7 @@ namespace spitfire
       const int iResult = SHGetFolderPath(0, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szAppData);
       ASSERT(iResult == 0);
       ASSERT(szAppData[0] != 0);
-      LOG<<TEXT("GetHomeConfigurationFilesDirectory returning \"")<<szAppData<<TEXT("\"")<<std::endl;
+      LOG(TEXT("returning \""), szAppData, TEXT("\""));
       const string_t sFullPath = MakeFilePath(szAppData, TEXT(SPITFIRE_APPLICATION_COMPANY_NAME));
       return sFullPath;
       #else
@@ -324,7 +319,7 @@ namespace spitfire
       szPath[0] = 0;
       const int iResult = GetTempPath(MAX_PATH, szPath);
       if (iResult > MAX_PATH || (iResult == 0)) {
-        LOG<<"GetHomeTempDirectory GetTempPath FAILED iResult="<<spitfire::string::ToString(iResult)<<std::endl;
+        LOG("GetTempPath FAILED iResult=", spitfire::string::ToString(iResult));
         szPath[0] = 0;
       }
       return szPath;
@@ -393,7 +388,7 @@ namespace spitfire
       #else
       const char* szResult = getcwd(szDirectory, MAX_PATH_LEN);
       #endif
-      if (szResult == nullptr) LOG<<"GetCurrentDirectory getcwd FAILED errno="<<errno<<std::endl;
+      if (szResult == nullptr) LOG("getcwd FAILED errno=", errno);
       return spitfire::string::ToString_t(szDirectory);
     }
 
@@ -405,7 +400,7 @@ namespace spitfire
       #else
       int iResult = chdir(spitfire::string::ToUTF8(sDirectory).c_str());
       #endif
-      if (iResult != 0) LOG<<"ChangeToDirectory chdir FAILED iResult="<<iResult<<" errno="<<errno<<std::endl;
+      if (iResult != 0) LOG("chdir FAILED iResult=", iResult, " errno=", errno);
     }
 
     bool IsFolderWritable(const string_t& sFolder)
@@ -520,16 +515,16 @@ namespace spitfire
 
     string_t MakePathAbsolute(const string_t& sRootPath, const string_t& sRelativePath)
     {
-      std::cout<<"MakePathAbsolute"<<std::endl;
+      LOG("");
 
       // ""
       if (sRelativePath.empty() || (TEXT("./") == sRelativePath)) {
-        LOG<<"MakePathAbsolute 0 returning \""<<sRootPath<<"\""<<std::endl;
+        LOG("0 returning \"", sRootPath, "\"");
         return sRootPath;
       }
 
       if (TEXT(".") == sRelativePath) {
-        LOG<<"MakePathAbsolute 1 returning \""<<spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"))<<"\""<<std::endl;
+        LOG("1 returning \"", spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/")), "\"");
         return spitfire::string::StripAfterLastInclusive(sRootPath, TEXT("/"));
       }
 
@@ -537,7 +532,7 @@ namespace spitfire
       // ".********"
       if ((sRelativePath == TEXT(".")) || (((sRelativePath.length() > 2) && (sRelativePath[0] == TEXT('.'))) && (sRelativePath[1] != TEXT('.')))) {
         string_t expanded(sRelativePath.substr(2));
-        LOG<<"MakePathAbsolute 2 returning \""<<expanded<<"\""<<std::endl;
+        LOG("2 returning \"", expanded, "\"");
         return expanded;
       }
 
@@ -545,11 +540,11 @@ namespace spitfire
       string_t prefix = sRootPath;
       while (spitfire::string::StartsWith(expanded, TEXT("../"))) {
         expanded.erase(0, 3);
-        LOG<<"MakePathAbsolute prefix=\""<<prefix<<"\""<<std::endl;
+        LOG("prefix=\"", prefix, "\"");
         prefix = StripLastDirectory(prefix);
       };
 
-      LOG<<"MakePathAbsolute returning \""<<prefix<<expanded<<"\""<<std::endl;
+      LOG("returning \"", prefix, expanded, "\"");
       return prefix + expanded;
     }
 
@@ -622,7 +617,7 @@ namespace spitfire
 
       ASSERT(spitfire::string::EndsWith(expanded, sFolderSeparator));
       vDirectory.push_back(expanded);
-      LOG<<"FileSystem Added "<<expanded<<std::endl;
+      LOG("Added ", expanded);
     }
 
     bool IsFile(const string_t& sFilePath)
@@ -966,13 +961,13 @@ namespace spitfire
 
     cFilePathParser::cFilePathParser(const string_t& sFilePath)
     {
-      LOG<<"cFilePathParser::cFilePathParser \""<<sFilePath<<"\""<<std::endl;
+      LOG("\"", sFilePath, "\"");
       const string_t sPath = spitfire::filesystem::GetFolder(sFilePath);
       sFileName = spitfire::filesystem::GetFile(sFilePath);
 
       string::Split(sFilePath, cFilePathSeparator, vFolderNames);
       const size_t n = vFolderNames.size();
-      for (size_t i = 0; i < n; i++) LOG<<"Part=\""<<vFolderNames[i]<<"\""<<std::endl;
+      for (size_t i = 0; i < n; i++) LOG("Part=\"", vFolderNames[i], "\"");
     }
 
 
@@ -1057,7 +1052,7 @@ namespace spitfire
     // ********************************************* cScopedTemporaryFolder *********************************************
     cScopedTemporaryFolder::cScopedTemporaryFolder()
     {
-      LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder"<<std::endl;
+      LOG("");
 
     #ifdef __WIN__
       char_t szTempPath[MAX_PATH_LEN];
@@ -1084,14 +1079,14 @@ namespace spitfire
     #endif
 
       if (!DirectoryExists(sTemporarySubFolder)) {
-          LOG<<"cScopedTemporaryFolder::cScopedTemporaryFolder Creating sub folder \""<<sTemporarySubFolder<<"\""<<std::endl;
+        LOG("Creating sub folder \"", sTemporarySubFolder, "\"");
           CreateDirectory(sTemporarySubFolder);
       }
     }
 
     cScopedTemporaryFolder::~cScopedTemporaryFolder()
     {
-      LOG<<"cScopedTemporaryFolder::~cScopedTemporaryFolder"<<std::endl;
+      LOG("");
       ASSERT(DirectoryExists(sTemporarySubFolder));
 
       DeleteDirectory(sTemporarySubFolder);
@@ -1105,7 +1100,7 @@ namespace spitfire
 
     cScopedFolderDeleter::~cScopedFolderDeleter()
     {
-      LOG<<"cScopedFolderDeleter::~cScopedFolderDeleter"<<std::endl;
+      LOG("");
       ASSERT(DirectoryExists(sFullPath));
 
       DeleteDirectory(sFullPath);
@@ -1127,7 +1122,7 @@ namespace spitfire
       sParentFolder(directory)
     {
       if (!DirectoryExists(sParentFolder)) {
-        LOG<<"Folder \""<<sParentFolder<<"\" does not exist"<<std::endl;
+        LOG("Folder \"", sParentFolder, "\" does not exist");
         return;
       }
       const boost::filesystem::directory_iterator iterEnd;
@@ -1135,7 +1130,7 @@ namespace spitfire
         const string_t sFullPath = string::ToString_t(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
-          //LOG<<"cFolderIterator::cFolderIterator Adding \""<<sFile<<"\""<<std::endl;
+          //LOG("Adding \"", sFile, "\"");
           paths.push_back(sFile);
         }
       }
@@ -1295,16 +1290,16 @@ namespace spitfire
 
     bool cEntry::_GetFile(const string_t& sFile, string_t& sOutFullPath) const
     {
-      LOG<<"cEntry::_GetFile"<<std::endl;
+      LOG("");
 
       // If the file doesn't exists return false;
       if (!filesystem::FileExists(sFullPath + sFile)) {
-        LOG<<"cEntry::_GetFile File \""<<(sFullPath + sFile).c_str()<<"\" not found, returning false"<<std::endl;
+        LOG("File \"", (sFullPath + sFile).c_str(), "\" not found, returning false");
         return false;
       }
 
       // File exists, fill out the filename and return true
-      LOG<<"cEntry::_GetFile File \""<<(sFullPath + sFile).c_str()<<"\" found, returning true"<<std::endl;
+      LOG("File \"", (sFullPath + sFile).c_str(), "\" found, returning true");
       sOutFullPath = sFullPath + sFile;
       return true;
     }
@@ -1433,7 +1428,7 @@ namespace spitfire
 
     bool cVirtualFileSystem::GetFile(const string_t& sFile, string_t& sFullPath) const
     {
-      LOG<<"cVirtualFileSystem::GetFile"<<std::endl;
+      LOG("");
 
       // Check each entry in order from highest to lowest priority
       std::vector<cEntry*>::const_iterator iter = paths.begin();

@@ -134,7 +134,7 @@ namespace spitfire
       ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
 
       BOOL bResult = CreateProcess(NULL, &sCommand[0], NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, sFolderPath.c_str(), &siStartInfo, &piProcInfo);
-      if (bResult != TRUE) LOG<<"OpenFolder unable to find explorer.exe"<<std::endl;
+      if (bResult != TRUE) LOG("Unable to find explorer.exe");
       CloseHandle(piProcInfo.hThread);
       CloseHandle(piProcInfo.hProcess);
     }

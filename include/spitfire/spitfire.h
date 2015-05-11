@@ -324,20 +324,6 @@ namespace spitfire
 // NOTE: These are compile time so we do them in both debug and release
 #define STATIC_ASSERT(expression, szDescription) static_assert(expression, szDescription)
 
-
-// Logging and assert
-#if defined(__WIN__) && defined(BUILD_DEBUG)
-#define BUILD_LOGGING
-
-// LOG and LOGERROR are declared in spitfire/util/log.h
-#elif defined(UNICODE)
-#define LOG std::wcout
-#define LOGERROR std::wcerr
-#else
-#define LOG std::cout
-#define LOGERROR std::cerr
-#endif
-
 #ifdef ASSERT
 #undef ASSERT
 #endif
@@ -359,11 +345,40 @@ namespace spitfire
 #define ASSERT(p) spitfire::InformativeAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #else
-#define ASSERT assert
+// Assert
+namespace spitfire
+{
+  #ifdef COMPILER_MSVC
+  inline void DoAssert(bool b, const char* szAssert, const char* szFile, const char* szFunction, size_t line)
+  {
+    (void)szAssert;
+    (void)szFile;
+    (void)szFunction;
+    (void)line;
+
+    // TODO: Log the file, function and line
+
+    if (!b) __debugbreak();
+  }
+  #endif
+}
+
+#ifdef COMPILER_MSVC
+
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
+
+#define ASSERT(p) spitfire::DoAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+
+#else
+#define ASSERT(b) assert(b)
+#endif // COMPILER_MSVC
+
+#endif // BUILD_HTML_LOG
 
 #else
 #define ASSERT(...)
-#endif
+#endif // BUILD_DEBUG
 
 #endif // SPITFIRE_H

@@ -92,9 +92,9 @@ namespace spitfire
       SetThreadName(spitfire::string::ToUTF8(pThis->sName).c_str());
       #endif
 
-      LOG<<"cThread::RunThreadFunction Calling ThreadFunction"<<std::endl;
+      LOG("Calling ThreadFunction");
       pThis->ThreadFunction();
-      LOG<<"cThread::RunThreadFunction ThreadFunction returned"<<std::endl;
+      LOG("ThreadFunction returned");
 
       // Tell everyone that the thread has finished
       pThis->soDone.Signal();

@@ -47,14 +47,12 @@
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/geometry.h>
 
-#ifdef BUILD_LOGGING
-
 #define t "  "
 
 const int CONSOLE_MAXLINES = 50;
 
 
-spitfire::logging::cLog LOG;
+spitfire::logging::cLog gLog;
 spitfire::logging::cConsole CONSOLE;
 spitfire::logging::cScreen SCREEN;
 
@@ -343,7 +341,7 @@ namespace spitfire
     void cConsole::_AddLine(const string_t& o)
     {
       // Cascade output to log file
-      LOG._AddLine(o);
+      gLog._AddLine(o);
 
       lines.push_back(o);
 
@@ -508,5 +506,3 @@ namespace spitfire
     }
   }
 }
-
-#endif // BUILD_LOGGING

@@ -5,10 +5,6 @@
 #include <sstream>
 
 // Spitfire headers
-#include <spitfire/spitfire.h>
-
-#ifdef BUILD_LOGGING
-
 #include <spitfire/util/string.h>
 #include <spitfire/algorithm/algorithm.h>
 
@@ -16,10 +12,10 @@ namespace spitfire
 {
   namespace logging
   {
-    #undef Success
-    #undef Error
+#undef Success
+#undef Error
 
-    #undef ERROR
+#undef ERROR
 
     bool IsLogging();
 
@@ -135,10 +131,10 @@ namespace spitfire
 
       bool CreateLog();
 
-//#ifdef BUILD_DEBUG
+      //#ifdef BUILD_DEBUG
       void trace(const string_t& section);
       void trace(const string_t& section, const string_t& text);
-//#endif // BUILD_DEBUG
+      //#endif // BUILD_DEBUG
 
       string_t strfilename;
 
@@ -162,11 +158,7 @@ namespace spitfire
   }
 }
 
-extern spitfire::logging::cLog LOG;
-
-//#define LOGERROR LOG<<LOG_ERROR
-#define LOGERROR LOG
-
+extern spitfire::logging::cLog gLog;
 
 namespace breathe
 {
@@ -370,16 +362,75 @@ namespace spitfire
 
 extern spitfire::logging::cScreen SCREEN;
 
+
+#ifdef BUILD_DEBUG
+
+namespace spitfire
+{
+  namespace logging
+  {
+    inline void PrintToStringStream(ostringstream_t& o)
+    {
+      (void)o;
+    }
+
+    template<typename Argument, typename... OtherArguments>
+    inline void PrintToStringStream(ostringstream_t& o, const Argument& argument, const OtherArguments&... otherArguments)
+    {
+      // Add the first argument
+      o << argument;
+
+      // Process the remaining arguments
+      PrintToStringStream(o, otherArguments...);
+    }
+
+    template<typename Argument, typename... OtherArguments>
+    inline void PrintToLog(const std::string& sFunctionName, const Argument& argument, const OtherArguments&... otherArguments)
+    {
+      // Collect our arguments
+      ostringstream_t o;
+      o << string::ToString_t(sFunctionName) << TEXT(" ");
+      o.precision(2);
+      o << std::fixed;
+      PrintToStringStream(o, argument, otherArguments...);
+
+      // Print the string to the log
+      gLog<<o.str()<<std::endl;
+    }
+
+    template<typename Argument, typename... OtherArguments>
+    inline void PrintErrorToLog(const std::string& sFunctionName, const Argument& argument, const OtherArguments&... otherArguments)
+    {
+      // Collect our arguments
+      ostringstream_t o;
+      o << string::ToString_t(sFunctionName) << TEXT(" ");
+      o.precision(2);
+      o << std::fixed;
+      PrintToStringStream(o, argument, otherArguments...);
+
+      // Print the string to the log
+      gLog<<o.str()<<std::endl;
+    }
+  }
+}
+
+#define LOG(...) spitfire::logging::PrintToLog(__PRETTY_FUNCTION__, __VA_ARGS__)
+#define LOGERROR(...) spitfire::logging::PrintErrorToLog(__PRETTY_FUNCTION__, __VA_ARGS__)
+
+#elif defined(COMPILER_MSVC)
+
+// We use ... to avoid compiling the parameters
+// We use __noop to avoid this warning "C4390: ";" : empty controlled statement found; is this the intent?"
+#define LOGF(...) __noop
+#define LOGERRORF(...) __noop
+
 #else
 
-#ifdef UNICODE
-#define CONSOLE std::wcout
-#define SCREEN std::wcout
-#else
-#define CONSOLE std::cout
-#define SCREEN std::cout
-#endif
+// We use ... to avoid compiling the parameters
+// A noop is not required as there is no warning about empty control statements
+#define LOGF(...)
+#define LOGERRORF(...)
 
-#endif // BUILD_LOGGING
+#endif // BUILD_DEBUG
 
 #endif // CLOG_H
