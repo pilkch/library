@@ -37,7 +37,7 @@ namespace opengl
     pWindowEventListener(nullptr),
     pInputEventListener(nullptr)
   {
-    LOG<<"cWindow::cWindow "<<std::endl;
+		LOG("");
 
     pContext = system.CreateSharedContextFromWindow(*this);
 
@@ -59,7 +59,7 @@ namespace opengl
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
     if (!SDL_GetWindowWMInfo(pWindow, &info))  {
-      LOGERROR<<"cWindow::GetWindowHandle SDL_GetWindowWMInfo FAILED"<<std::endl;
+      LOGERROR("SDL_GetWindowWMInfo FAILED");
       return NULL;
     }
 
@@ -91,7 +91,7 @@ namespace opengl
 
     // Set the icon
     SDL_Surface* pIcon = IMG_Load("data/icons/application_32x32.png");
-    if (pIcon == nullptr) LOGERROR<<"cWindow::SetCaption Could not load data/icons/application_32x32.png"<<std::endl;
+    if (pIcon == nullptr) LOGERROR("Could not load data/icons/application_32x32.png");
     else {
       SDL_SetWindowIcon(pWindow, pIcon);
       SDL_FreeSurface(pIcon);
@@ -157,7 +157,7 @@ namespace opengl
     while (SDL_PollEvent(&sdlEvent)) {
       switch (sdlEvent.type) {
         case SDL_QUIT: {
-          LOG<<"cWindow::ProcessEvents Quit"<<std::endl;
+          LOG("Quit");
           if (pWindowEventListener != nullptr) {
             cWindowEvent event;
             event.type = TYPE::WINDOW_QUIT;
@@ -180,7 +180,7 @@ namespace opengl
         case SDL_WINDOWEVENT: {
           switch (sdlEvent.window.event) {
             case SDL_WINDOWEVENT_FOCUS_GAINED: {
-              LOG<<"cWindow::ProcessEvents Activated"<<std::endl;
+              LOG("Activated");
               if (pWindowEventListener != nullptr) {
                 cWindowEvent event;
                 event.type = TYPE::WINDOW_ACTIVATE;
@@ -189,7 +189,7 @@ namespace opengl
               break;
             }
             case SDL_WINDOWEVENT_FOCUS_LOST: {
-              LOG<<"cWindow::ProcessEvents Deactivated"<<std::endl;
+              LOG("Deactivated");
               if (pWindowEventListener != nullptr) {
                 cWindowEvent event;
                 event.type = TYPE::WINDOW_DEACTIVATE;
@@ -198,7 +198,7 @@ namespace opengl
               break;
             }
             case SDL_WINDOWEVENT_RESIZED: {
-              LOG<<"cWindow::ProcessEvents Resize"<<std::endl;
+              LOG("Resize");
 
               if (pWindowEventListener != nullptr) {
                 // Send an about to resize event

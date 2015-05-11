@@ -89,13 +89,13 @@ namespace opengl
   void cTexture::CopyFromImageToTexture()
   {
     if (!IsValid()) {
-      LOG<<"cTexture::CopyFromImageToTexture Texture is invalid, returning"<<std::endl;
+      LOGERROR("Texture is invalid, returning");
       return;
     }
 
     const uint8_t* pBuffer = image.GetPointerToBuffer();
     if (pBuffer == nullptr) {
-      LOG<<"cTexture::CopyFromImageToTexture Image is invalid, returning"<<std::endl;
+      LOGERROR("Image is invalid, returning");
       return;
     }
 

@@ -65,7 +65,7 @@ namespace opengl
   {
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
-      LOGERROR<<"cSystem::cSystem SDL_Init FAILED error="<<SDL_GetError()<<std::endl;
+      LOGERROR("SDL_Init FAILED error=", SDL_GetError());
       return;
     }
 
@@ -106,7 +106,7 @@ namespace opengl
     const string_t sError = GetErrorString(error);
     if (error == GL_NO_ERROR) return sError;
 
-    LOG<<TEXT("cSystem::GetErrorString Error ")<<sError<<std::endl;
+    LOG(TEXT("cSystem::GetErrorString Error "), sError);
     assert(error == GL_NO_ERROR);
     return sError;
   }
@@ -173,14 +173,14 @@ namespace opengl
   std::string cSystem::GetExtensions() const
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-    LOG<<"cSystem::GetExtensions"<<std::endl;
+    LOG("");
     std::ostringstream o;
     int iNumberOfExtensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &iNumberOfExtensions);
     o<<"Extensions not added";
     //for (int i = 0; i < iNumberOfExtensions; i++) {
     //  o<<glGetStringi(GL_EXTENSIONS, i);
-    //  LOG<<"cSystem::FindExtension \""<<o.str()<<"\""<<std::endl;
+    //  LOG("\"", o.str(), "\"");
     //  o<<" ";
     //}
     return o.str();
@@ -192,7 +192,7 @@ namespace opengl
   bool cSystem::FindExtension(const std::string& sExt) const
   {
     #if BUILD_LIBOPENGLMM_OPENGL_VERSION >= 300
-    LOG<<"cSystem::FindExtension"<<std::endl;
+    LOG("");
 
     (void)sExt;
 
@@ -206,7 +206,7 @@ namespace opengl
       t<<glGetStringi(GL_EXTENSIONS, i);
       ASSERT(glGetStringi(GL_EXTENSIONS, i) != nullptr);
       ASSERT(glGetStringi(GL_EXTENSIONS, i)[0] != 0);
-      LOG<<"cSystem::FindExtension \""<<t.str()<<"\""<<std::endl;
+      LOG("\"", t.str(), "\"");
       if (sExt == t.str()) return true;
     }
     return false;*/
@@ -266,7 +266,7 @@ namespace opengl
     SDL_DisplayMode currentDisplayMode;
     int iResult = SDL_GetDesktopDisplayMode(0, &currentDisplayMode);
     if (iResult != 0) {
-      LOG<<"cSystem::UpdateResolutions SDL_GetDesktopDisplayMode FAILED error="<<SDL_GetError()<<std::endl;
+      LOG("SDL_GetDesktopDisplayMode FAILED error=", SDL_GetError());
       return;
     }
 
@@ -289,36 +289,36 @@ namespace opengl
 
   void cSystem::UpdateCapabilities()
   {
-    LOG<<"cSystem::UpdateCapabilities glGetError="<<cSystem::GetErrorString()<<std::endl;
+    LOG("glGetError=", cSystem::GetErrorString());
 
     const char* szValue = nullptr;
 
     szValue = (const char*)glGetString(GL_VENDOR);
     assert(szValue != nullptr);
-    LOG<<"cSystem::UpdateCapabilities Vendor: "<<(szValue != nullptr ? szValue : "")<<std::endl;
+    LOG("Vendor: ", (szValue != nullptr ? szValue : ""));
     szValue = (const char*)glGetString(GL_RENDERER);
     assert(szValue != nullptr);
-    LOG<<"cSystem::UpdateCapabilities Renderer: "<<(szValue != nullptr ? szValue : "")<<std::endl;
+    LOG("Renderer: ", (szValue != nullptr ? szValue : ""));
     szValue = (const char*)glGetString(GL_VERSION);
     assert(szValue != nullptr);
-    LOG<<"cSystem::UpdateCapabilities Version: "<<(szValue != nullptr ? szValue : "")<<std::endl;
+    LOG("Version: ", (szValue != nullptr ? szValue : ""));
     szValue = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
     assert(szValue != nullptr);
-    LOG<<"cSystem::UpdateCapabilities GLSL Version: "<<(szValue != nullptr ? szValue : "")<<std::endl;
+    LOG("GLSL Version: ", (szValue != nullptr ? szValue : ""));
     const std::string sValue = GetExtensions();
-    LOG<<"cSystem::UpdateCapabilities Extensions: "<<spitfire::string::ToString_t(sValue)<<std::endl;
+    LOG("Extensions: ", spitfire::string::ToString_t(sValue));
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;
       tVendor<<glGetString(GL_VENDOR);
 
       const std::string sVendor(tVendor.str());
-      LOG<<"cSystem::UpdateCapabilities Vendor is neither ATI nor NVIDIA, vendor="<<spitfire::string::ToString_t(sVendor)<<std::endl;
+      LOG("Vendor is neither ATI nor NVIDIA, vendor=", spitfire::string::ToString_t(sVendor));
     }
 
-    if (FindExtension("GL_ARB_multitexture")) LOG<<"cSystem::UpdateCapabilities Found GL_ARB_multitexture"<<std::endl;
+    if (FindExtension("GL_ARB_multitexture")) LOG("Found GL_ARB_multitexture");
     else {
-      LOG<<"cSystem::UpdateCapabilities GL_ARB_multitexture is not present"<<std::endl;
+      LOG("GL_ARB_multitexture is not present");
       assert(false);
     }
 
@@ -331,14 +331,14 @@ namespace opengl
      // Limit the max texture size to MAX_TEXTURE_SIZE
     if (capabilities.iMaxTextureSize > MAX_TEXTURE_SIZE) capabilities.iMaxTextureSize = MAX_TEXTURE_SIZE;
 
-    LOG<<"cSystem::UpdateCapabilities Max texture size "<<capabilities.iMaxTextureSize<<std::endl;
+    LOG("Max texture size ", capabilities.iMaxTextureSize);
 
     // Cube Map Support
     if (FindExtension("GL_ARB_texture_cube_map")) {
-      LOG<<"cSystem::UpdateCapabilities Found GL_ARB_texture_cube_map"<<std::endl;
+      LOG("Found GL_ARB_texture_cube_map");
       capabilities.bIsCubemappingSupported = true;
     } else {
-      LOG<<"cSystem::UpdateCapabilities Not Found GL_ARB_texture_cube_map"<<std::endl;
+      LOG("Not Found GL_ARB_texture_cube_map");
     }
 
 
@@ -348,29 +348,29 @@ namespace opengl
       const string_t sShaderVersion = spitfire::string::ToString(fShaderVersion);
 
       if (fShaderVersion >= 1.0f) {
-        LOG<<"cSystem::UpdateCapabilities Found Shader"<<sShaderVersion<<std::endl;
+        LOG("Found Shader", sShaderVersion);
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = true;
       } else {
-        LOG<<"cSystem::UpdateCapabilities Not Found Shader1.1, version found is Shader"<<sShaderVersion<<std::endl;
+        LOG("Not Found Shader1.1, version found is Shader", sShaderVersion);
         capabilities.bIsShadersTwoPointZeroOrLaterSupported = false;
       }
     }
 
-    if (capabilities.bIsShadersTwoPointZeroOrLaterSupported) LOG<<"cSystem::UpdateCapabilities Can use shaders, shaders turned on"<<std::endl;
-    else LOG<<"cSystem::UpdateCapabilities Cannot use shaders, shaders turned off"<<std::endl;
+    if (capabilities.bIsShadersTwoPointZeroOrLaterSupported) LOG("Can use shaders, shaders turned on");
+    else LOG("Cannot use shaders, shaders turned off");
 
 
     // How many textures can we access in a vertex shader (As opposed to in the fragment shader)
     GLint iTextureUnitsInVertexShader = 0;
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &iTextureUnitsInVertexShader);
-    LOG<<"cSystem::UpdateCapabilities "<<iTextureUnitsInVertexShader<<" texture units accessable in vertex shader"<<std::endl;
+    LOG(iTextureUnitsInVertexShader, " texture units accessable in vertex shader");
 
 
     // Frame Buffer Object Support
     if (FindExtension("GL_EXT_framebuffer_object")) {
-      LOG<<"cSystem::UpdateCapabilities Found GL_EXT_framebuffer_object"<<std::endl;
+      LOG("Found GL_EXT_framebuffer_object");
       capabilities.bIsFrameBufferObjectSupported = true;
-    } else LOG<<"cSystem::UpdateCapabilities Not Found GL_EXT_framebuffer_object"<<std::endl;
+    } else LOG("Not Found GL_EXT_framebuffer_object");
 
 
     //capabilities.bIsFSAASupported = (GL_ARB_multisample != 0);

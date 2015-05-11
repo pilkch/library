@@ -58,10 +58,10 @@ namespace opengl
     fSunIntensity(0.0f),
     pCurrentShader(nullptr)
   {
-    LOG<<"cContext::cContext with window "<<std::endl;
+    LOG("With window ");
 
     if (!_SetWindowVideoMode(window, window.IsFullScreen())) {
-      LOG<<"cContext::cContext Error setting video mode"<<std::endl;
+      LOG("Error setting video mode");
       assert(false);
     }
 
@@ -95,7 +95,7 @@ namespace opengl
       } else {
           size_t uiActualSampleLevel = GetMultiSampleLevel();
           if (uiFSAASampleLevel != uiActualSampleLevel) {
-            LOG<<"cSystem::Create Requested sample level is "<<uiFSAASampleLevel<<", actual sample level is "<<uiActualSampleLevel<<std::endl;
+            LOG("Requested sample level is ", uiFSAASampleLevel, ", actual sample level is ", uiActualSampleLevel);
           }
 
           if ((uiActualSampleLevel == 2) || (uiActualSampleLevel == 4) || (uiActualSampleLevel == 8) || (uiActualSampleLevel == 16)) bIsFSAAEnabled = true;
@@ -104,7 +104,7 @@ namespace opengl
 
     bIsValid = true;
 
-    LOG<<"cContext::cContext with window returning, "<<cSystem::GetErrorString()<<std::endl;
+    LOG("With window returning, ", cSystem::GetErrorString());
   }
   #endif
 
@@ -123,7 +123,7 @@ namespace opengl
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
   {
-    LOG<<"cContext::cContext"<<std::endl;
+    LOG("");
 
     // Get the current context
     context = SDL_GL_GetCurrentContext();
@@ -138,7 +138,7 @@ namespace opengl
 
   cContext::~cContext()
   {
-    LOG<<"cContext::~cContext"<<std::endl;
+    LOG("");
 
     assert(pCurrentShader == nullptr); // Shaders must be unbound before this point
 
@@ -412,7 +412,7 @@ namespace opengl
   #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   bool cContext::_SetWindowVideoMode(cWindow& window, bool bIsFullScreen)
   {
-    LOG<<"cContext::_SetWindowVideoMode "<<std::endl;
+    LOG("");
     assert(bIsRenderingToWindow);
 
     // Avoid a divide by zero
@@ -436,10 +436,10 @@ namespace opengl
 
     // Create a window that is fullscreen with a custom resolution
     if (bIsFullScreen) {
-      LOG<<"cContext::_SetWindowVideoMode fullscreen"<<std::endl;
+      LOG("fullscreen");
       uiFlags |= SDL_WINDOW_FULLSCREEN;
     } else {
-      LOG<<"cContext::_SetWindowVideoMode window"<<std::endl;
+      LOG("window");
       uiFlags &= ~SDL_WINDOW_FULLSCREEN;
     }
 
@@ -458,14 +458,15 @@ namespace opengl
 
     #ifdef BUILD_DEBUG
     // For debugging
-    const int iDisplay = SDL_GetNumVideoDisplays(); // Assume that the last monitor is the desired one (Works for most second monitor setups where a TV or larger monitor is the second or third device)
+    //const int iDisplay = SDL_GetNumVideoDisplays(); // Assume that the last monitor is the desired one (Works for most second monitor setups where a TV or larger monitor is the second or third device)
+    const int iDisplay = 1;
     #else
     // TODO: Allow selection of the monitor or use the default or same monitor that the mouse is currently on?
     const int iDisplay = 1;
     #endif
 
     // Create our window if it has not already been created
-    LOG<<"cContext::_SetWindowVideoMode Calling SDL_CreateWindow"<<std::endl;
+    LOG("Calling SDL_CreateWindow");
     const bool bCreated = (window.pWindow != nullptr);
     if (!bCreated) {
       window.pWindow = SDL_CreateWindow("My Game Window",
@@ -479,37 +480,37 @@ namespace opengl
       //                        SDL_WINDOW_FULLSCREEN_DESKTOP);
 
       if (window.pWindow == nullptr) {
-        LOGERROR<<"cContext::_SetWindowVideoMode SDL_CreateWindow FAILED error="<<SDL_GetError()<<std::endl;
+        LOGERROR("cContext::_SetWindowVideoMode SDL_CreateWindow FAILED error=", SDL_GetError());
         return false;
       }
     }
 
     context = SDL_GL_CreateContext(window.pWindow);
     if (context == nullptr) {
-      LOGERROR<<"cContext::_SetWindowVideoMode SDL_GL_CreateContext FAILED error="<<SDL_GetError()<<std::endl;
+      LOGERROR("cContext::_SetWindowVideoMode SDL_GL_CreateContext FAILED error=", SDL_GetError());
       return false;
     }
 
     #ifdef __WIN__
     if (gl3wInit()) {
-      LOGERROR<<"cContext::_SetWindowVideoMode Failed to initialize OpenGL"<<std::endl;
+      LOGERROR("cContext::_SetWindowVideoMode Failed to initialize OpenGL");
       return false;
     }
     if (!gl3wIsSupported(iMajor, iMinor)) {
-      LOGERROR<<TEXT("cContext::_SetWindowVideoMode OpenGL ")<<spitfire::string::ToString(iMajor)<<TEXT(".")<<spitfire::string::ToString(iMinor)<<TEXT(" not supported")<<std::endl;
+      LOGERROR(TEXT("cContext::_SetWindowVideoMode OpenGL "), spitfire::string::ToString(iMajor), TEXT("."), spitfire::string::ToString(iMinor), TEXT(" not supported"));
       return false;
     }
     #endif
 
 
     #ifdef BUILD_DEBUG
-    LOG<<"cContext::_SetWindowVideoMode OpenGL Version: "<<(const char*)(glGetString(GL_VERSION))<<std::endl;
-    LOG<<"cContext::_SetWindowVideoMode OpenGL Vendor: "<<(const char*)(glGetString(GL_VENDOR))<<std::endl;
-    LOG<<"cContext::_SetWindowVideoMode OpenGL Renderer: "<<(const char*)(glGetString(GL_RENDERER))<<std::endl;
-    LOG<<"cContext::_SetWindowVideoMode GLSL Version: "<<(const char*)(glGetString(GL_SHADING_LANGUAGE_VERSION))<<std::endl;
+    LOG("OpenGL Version: ", (const char*)(glGetString(GL_VERSION)));
+    LOG("OpenGL Vendor: ", (const char*)(glGetString(GL_VENDOR)));
+    LOG("OpenGL Renderer: ", (const char*)(glGetString(GL_RENDERER)));
+    LOG("GLSL Version: ", (const char*)(glGetString(GL_SHADING_LANGUAGE_VERSION)));
     #endif
 
-    LOG<<"cContext::_SetWindowVideoMode returning true, "<<SDL_GetError()<<", "<<cSystem::GetErrorString()<<std::endl;
+    LOG("returning true, ", SDL_GetError(), ", ", cSystem::GetErrorString());
 
     return true;
   }
@@ -538,7 +539,7 @@ namespace opengl
 
   void cContext::_SetPerspective(size_t width, size_t height)
   {
-    //LOG<<"cContext::_SetPerspective "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
     // Setup our viewport
     glViewport(0, 0, (GLint)width, (GLint)height);
 
@@ -547,7 +548,7 @@ namespace opengl
 
     // Load identity matrix for the modelview matrix
     matModelView.LoadIdentity();
-    //LOG<<"cContext::_SetPerspective returning, "<<cSystem::GetErrorString()<<std::endl;
+    //LOG("returning, ", cSystem::GetErrorString());
   }
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix() const
@@ -610,7 +611,7 @@ namespace opengl
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     if (!_SetWindowVideoMode(window, false)) {
-      LOG<<"cContext::ResizeWindow Error setting video mode"<<std::endl;
+      LOG("Error setting video mode");
       assert(false);
     }
     #endif
@@ -645,7 +646,7 @@ namespace opengl
 
   void cContext::_BeginRenderShared(size_t width, size_t height)
   {
-    //LOG<<"cContext::_BeginRenderShared "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
     matTexture.LoadIdentity();
 
     targetWidth = width;
@@ -682,7 +683,7 @@ namespace opengl
     glPolygonMode(GL_FRONT, GL_FILL);
     #endif
     DisableWireframe();
-    //LOG<<"cContext::_BeginRenderShared returning, "<<cSystem::GetErrorString()<<std::endl;
+    //LOG("returning, ", cSystem::GetErrorString());
   }
 
   void cContext::_EndRenderShared()
@@ -714,7 +715,7 @@ namespace opengl
 
   void cContext::BeginRenderToTexture(cTextureFrameBufferObject& texture)
   {
-    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
     assert(texture.IsValid());
     assert(!texture.IsModeCubeMap()); // Cubemaps have to be rendered into each face separately
 
@@ -725,34 +726,34 @@ namespace opengl
     // First we bind the FBO so we can render to it
     glBindFramebuffer(GL_FRAMEBUFFER, texture.uiFBO);
 
-    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) LOG<<"cContext::BeginRenderToTexture Incomplete FBO "<<status<<std::endl;
+    if (status != GL_FRAMEBUFFER_COMPLETE) LOG("Incomplete FBO ", status);
 
-    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
 
-    //LOG<<"cContext::BeginRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
   }
 
   void cContext::EndRenderToTexture(cTextureFrameBufferObject& texture)
   {
-    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     _EndRenderShared();
 
-    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     // Set rendering back to default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     texture.GenerateMipMapsIfRequired();
 
-    //LOG<<"cContext::EndRenderToTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_TEXTURE_2D);
@@ -972,7 +973,7 @@ namespace opengl
 
   void cContext::BindTexture(size_t uTextureUnit, const cTexture& texture)
   {
-    //LOG<<"cContext::BindTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString());
 
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
@@ -985,7 +986,7 @@ namespace opengl
 
     glBindTexture(type, texture.GetTexture());
 
-    //LOG<<"cContext::BindTexture "<<cSystem::GetErrorString()<<std::endl;
+    //LOG(cSystem::GetErrorString()));
   }
 
   void cContext::UnBindTexture(size_t uTextureUnit, const cTexture& texture)
@@ -1069,7 +1070,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1082,7 +1083,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1095,7 +1096,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<"cContext::SetShaderConstant \""<<pCurrentShader->sShaderVertex<<"\":\""<<pCurrentShader->IsCompiledFragment()<<"\" Couldn't set \""<<spitfire::string::ToString_t(sConstant)<<"\" perhaps the constant is not actually used within the shader"<<std::endl;
+      LOG("\"", pCurrentShader->sShaderVertex, "\":\"", pCurrentShader->IsCompiledFragment(), "\" Couldn't set \"", spitfire::string::ToString_t(sConstant), "\" perhaps the constant is not actually used within the shader");
       assert(loc > 0);
       return false;
     }
@@ -1108,7 +1109,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1121,7 +1122,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1139,7 +1140,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1152,7 +1153,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG<<TEXT("cContext::SetShaderConstant \"")<<pCurrentShader->sShaderVertex<<TEXT("\":\"")<<pCurrentShader->IsCompiledFragment()<<TEXT("\" Couldn't set \"")<<spitfire::string::ToString_t(sConstant)<<TEXT("\" perhaps the constant is not actually used within the shader")<<std::endl;
+      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
