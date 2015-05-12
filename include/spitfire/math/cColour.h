@@ -231,6 +231,28 @@ namespace spitfire
       float fSaturation0To1;
       float fValue0To1;
     };
+
+
+    // ** cColourYUV
+    //
+    // YUV
+    // http://en.wikipedia.org/wiki/YUV
+    // Y, U, V are 0..1
+
+    class cColourYUV
+    {
+    public:
+      cColourYUV();
+
+      cColour3 GetRGB() const;
+      cColour4 GetRGBA() const;
+      void SetFromRGB(const cColour3& colour);
+      void SetFromRGBA(const cColour4& colour);
+      
+      float y;
+      float u;
+      float v;
+    };
   }
 }
 

@@ -540,5 +540,51 @@ namespace spitfire
     {
       fHue0To360 = math::Mod0ToMax(fHue0To360 + fDegrees, 360);
     }
+
+
+    // ** cColourYUV
+
+    cColourYUV::cColourYUV() :
+      y(0.0f),
+      u(0.0f),
+      v(0.0f)
+    {
+    }
+
+    cColour3 cColourYUV::GetRGB() const
+    {
+      const float Wr = 0.299f;
+      const float Wb = 0.114f;
+      const float Wg = 1 - Wr - Wb;
+
+      cColour3 colour;
+      colour.r = -1 - 2 * v * (-1 + Wr) + Wr + y;
+      colour.g = (Wb - 2 * u * Wb + (-1 + 2) * (Wb * Wb) + Wr - 2 * v * Wr + (-1 + 2 * v) * (Wr * Wr) + Wg * y) / Wg;
+      colour.b = -1 - 2 * u * (-1 + Wb) + Wb + y;
+      return colour;
+    }
+
+    cColour4 cColourYUV::GetRGBA() const
+    {
+      const cColour3 colourRGB = GetRGB();
+      return cColour4(colourRGB.r, colourRGB.g, colourRGB.b);
+    }
+
+    void cColourYUV::SetFromRGB(const cColour3& colour)
+    {
+      const float Wr = 0.299f;
+      const float Wb = 0.114f;
+      const float Wg = 1 - Wr - Wb;
+
+      y = Wr * colour.r + Wg * colour.g + Wb * colour.b;
+      u = (-1 - colour.b + Wb + y) / ((2 * Wb) - 2);
+      v = (-1 - colour.r + Wr + y) / ((2 * Wr) - 2);
+    }
+
+    void cColourYUV::SetFromRGBA(const cColour4& colour)
+    {
+      const cColour3 colourRGB(colour.r, colour.g, colour.b);
+      return SetFromRGB(colourRGB);
+    }
   }
 }
