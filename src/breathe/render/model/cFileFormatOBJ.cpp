@@ -58,7 +58,7 @@ namespace breathe
 
       size_t cFileFormatOBJ::LoadMesh(const std::vector<std::string> lines, size_t i, const size_t n, std::vector<float>& vertices, std::vector<float>& textureCoordinates, std::vector<float>& normals, cStaticModelMesh& mesh) const
       {
-        LOG<<"cFileFormatOBJ::LoadMesh i="<<i<<" n="<<n<<std::endl;
+        LOG("i=", i, " n=", n);
 
         std::vector<float> verticesIndices;
         std::vector<float> textureCoordinatesIndices;
@@ -75,7 +75,7 @@ namespace breathe
           if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "o") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"o\""<<std::endl;
+            LOG("lines[", i, "] (\"", lines[i], "\") != \"o\"");
             break;
           }
 
@@ -98,7 +98,7 @@ namespace breathe
           if (sType == "v") {
             // Vertex
             if (tokens.size() != 4) {
-              LOG<<"unexpected number of arguments to \"v\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+              LOGERROR("unexpected number of arguments to \"v\" at lines[", i, "] (\"", lines[i], "\")");
             }
 
             if (tokens.size() == 4) {
@@ -109,7 +109,7 @@ namespace breathe
           } else if (sType == "vt") {
             // Texture Coordinate
             if (tokens.size() != 3) {
-              LOG<<"unexpected number of arguments to \"vt\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+              LOGERROR("unexpected number of arguments to \"vt\" at lines[", i, "] (\"", lines[i], "\")");
             }
 
             if (tokens.size() == 3) {
@@ -120,7 +120,7 @@ namespace breathe
           } else if (sType == "vn") {
             // Normal
             if (tokens.size() != 4) {
-              LOG<<"unexpected number of arguments to \"vn\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+              LOGERROR("unexpected number of arguments to \"vn\" at lines[", i, "] (\"", lines[i], "\")");
             }
 
             if (tokens.size() == 4) {
@@ -130,7 +130,7 @@ namespace breathe
             }
           } else {
             // Unknown
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"v\" or \"vt\" or \"vn\""<<std::endl;
+            LOG("lines[", i, "] (\"", lines[i], "\") != \"v\" or \"vt\" or \"vn\"");
             break;
           }
         }
@@ -145,13 +145,13 @@ namespace breathe
           if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "usemtl") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"usemtl\""<<std::endl;
+            LOG("lines[", i, "] (\"", lines[i], "\") != \"usemtl\"");
             break;
           }
 
 
           if (tokens.size() != 2) {
-            LOG<<"unexpected number of arguments to \"usemtl\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            LOG("unexpected number of arguments to \"usemtl\" at lines[", i, "] (\"", lines[i], "\")");
           }
 
           if (tokens.size() == 2) {
@@ -169,12 +169,12 @@ namespace breathe
           if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "s") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"s\""<<std::endl;
+            LOG("lines[", i, "] (\"", lines[i], "\") != \"s\"");
             break;
           }
 
           //if (tokens.size() != 4) {
-          //  LOG<<"unexpected number of arguments to \"s\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+          //  LOG("unexpected number of arguments to \"s\" at lines[", i, "] (\"", lines[i], "\")");
           //}
 
           //if (tokens.size() == 4) {
@@ -193,17 +193,17 @@ namespace breathe
           if (SkipJunk(tokens[0])) continue;
 
           if (tokens[0] != "f") {
-            LOG<<"lines["<<i<<"] (\""<<lines[i]<<"\") != \"f\""<<std::endl;
+            LOG("lines[", i, "] (\"", lines[i], "\") != \"f\"");
             break;
           }
 
           if (tokens.size() == 3) {
-            LOG<<"This is a line (2 vertices) not a face, we don't support lines for \"f\", skipping lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            LOG("This is a line (2 vertices) not a face, we don't support lines for \"f\", skipping lines[", i, "] (\"", lines[i], "\")");
             continue;
           }
 
           if (tokens.size() != 4) {
-            LOG<<"unexpected number of arguments to \"f\" at lines["<<i<<"] (\""<<lines[i]<<"\")"<<std::endl;
+            LOG("unexpected number of arguments to \"f\" at lines[", i, "] (\"", lines[i], "\")");
             ASSERT(false);
           }
 
@@ -214,7 +214,7 @@ namespace breathe
               std::vector<std::string> elements;
               spitfire::string::Split(tokens[j + 1], '/', elements);
               if (elements.empty()) {
-                LOG<<"Pushing back \""<<tokens[j + 1]<<"\""<<std::endl;
+                LOG("Pushing back \"", tokens[j + 1], "\"");
                 elements.push_back(tokens[j + 1]);
               }
 
@@ -259,7 +259,7 @@ namespace breathe
         const size_t verticesIndicesSize = verticesIndices.size();
         const size_t textureCoordinatesIndicesSize = textureCoordinatesIndices.size();
         const size_t normalsIndicesSize = normalsIndices.size();
-        LOG<<"Before Vertices="<<verticesSize<<", TextureCoordinates="<<textureCoordinatesSize<<", Normals="<<normalsSize<<" VerticesIndices="<<verticesIndicesSize<<", TextureCoordinatesIndices="<<textureCoordinatesIndicesSize<<", NormalsIndices="<<normalsIndicesSize<<std::endl;
+        LOG("Before Vertices=", verticesSize, ", TextureCoordinates=", textureCoordinatesSize, ", Normals=", normalsSize, " VerticesIndices=", verticesIndicesSize, ", TextureCoordinatesIndices=", textureCoordinatesIndicesSize, ", NormalsIndices=", normalsIndicesSize);
 
         // Convert indices to vertices
         if (verticesIndicesSize != 0) {
@@ -270,13 +270,13 @@ namespace breathe
             if (index != 0) index--;
 
             for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {
-              //LOG<<"offset="<<offset<<std::endl;
+              //LOG("offset=", offset);
               if (offset >= verticesSize) {
-                LOG<<"index="<<index<<" offset="<<offset<<" verticesSize="<<verticesSize<<std::endl;
+                LOG("index=", index, " offset=", offset, " verticesSize=", verticesSize);
                 ASSERT(offset < verticesSize);
               }
               ASSERT(offset < verticesSize);
-              //LOG<<"vertices["<<offset<<"]="<<vertices[offset]<<std::endl;
+              //LOG("vertices[", offset, "]=", vertices[offset]);
               tempVertices.push_back(vertices[offset]);
             }
           }
@@ -294,9 +294,9 @@ namespace breathe
             if (index != 0) index--;
 
             for (size_t offset = 2 * index; offset < (2 * index) + 2; offset++) {
-              //LOG<<"offset="<<offset<<std::endl;
+              //LOG("offset=", offset);
               ASSERT(offset < textureCoordinatesSize);
-              //LOG<<"textureCoordinates["<<offset<<"]="<<textureCoordinates[offset]<<std::endl;
+              //LOG("textureCoordinates[", offset, "]=", textureCoordinates[offset]);
               tempTextureCoordinates.push_back(textureCoordinates[offset]);
             }
           }
@@ -323,9 +323,9 @@ namespace breathe
             if (index != 0) index--;
 
             for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {
-              //LOG<<"offset="<<offset<<std::endl;
+              //LOG("offset=", offset);
               ASSERT(offset < normalsSize);
-              //LOG<<"normals["<<offset<<"]="<<normals[offset]<<std::endl;
+              //LOG("normals[", offset, "]=", normals[offset]);
               tempNormals.push_back(normals[offset]);
             }
           }
@@ -337,10 +337,10 @@ namespace breathe
           const size_t a = mesh.vertices.size();
           const size_t b = mesh.textureCoordinates.size();
           const size_t c = mesh.normals.size();
-          LOG<<"After Vertices="<<a<<", TextureCoordinates="<<b<<", Normals="<<c<<std::endl;
+          LOG("After Vertices=", a, ", TextureCoordinates=", b, ", Normals=", c);
         }
 
-        LOG<<"cFileFormatOBJ::LoadMesh returning"<<std::endl;
+        LOG("cFileFormatOBJ::LoadMesh returning");
 
         return i;
       }
@@ -378,7 +378,7 @@ namespace breathe
 
       bool cFileFormatOBJ::Load(const string_t& sFilePath, cStaticModel& model) const
       {
-        LOG<<"cFileFormatOBJ::Load \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
+        LOG("cFileFormatOBJ::Load \"", string::ToUTF8(sFilePath), "\"");
 
         model.Clear();
 
@@ -388,7 +388,7 @@ namespace breathe
         if (lines.empty()) return false;
 
         string_t sDefaultMaterial = spitfire::filesystem::GetFileNoExtension(sFilePath);
-        LOG<<"cFileFormatOBJ::Load sDefaultMaterial=\""<<sDefaultMaterial<<"\""<<std::endl;
+        LOG("cFileFormatOBJ::Load sDefaultMaterial=\"", sDefaultMaterial, "\"");
 
         std::vector<float> vertices;
         std::vector<float> textureCoordinates;
@@ -435,7 +435,7 @@ namespace breathe
         }
 
         const size_t nMeshes = model.mesh.size();
-        LOG<<"Meshes="<<nMeshes<<std::endl;
+        LOG("Meshes=", nMeshes);
 
         return true;
       }
