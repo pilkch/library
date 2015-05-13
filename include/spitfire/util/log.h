@@ -374,6 +374,17 @@ namespace spitfire
       (void)o;
     }
 
+    // String specialisation due to issues with mixing std::string
+    template<typename... OtherArguments>
+    inline void PrintToStringStream(ostringstream_t& o, const std::string& sArgument, const OtherArguments&... otherArguments)
+    {
+      // Add the first argument
+      o << sArgument.c_str();
+
+      // Process the remaining arguments
+      PrintToStringStream(o, otherArguments...);
+    }
+
     template<typename Argument, typename... OtherArguments>
     inline void PrintToStringStream(ostringstream_t& o, const Argument& argument, const OtherArguments&... otherArguments)
     {
