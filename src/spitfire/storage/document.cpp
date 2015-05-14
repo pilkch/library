@@ -90,7 +90,7 @@ namespace spitfire
 
     util::PROCESS_RESULT cNode::LoadFromFile(util::cProcessInterface& interface, const string_t& inFilename)
     {
-      LOG<<"cNode::LoadFromFile \""<<inFilename<<"\""<<std::endl;
+      LOG("\"", inFilename, "\"");
       std::ifstream f(spitfire::string::ToUTF8(inFilename).c_str());
 
       if (!f.is_open()) {
@@ -110,13 +110,13 @@ namespace spitfire
       }
       f.close();
 
-      //LOG<<"XML "<<inFilename<<" contains \""<<spitfire::string::ToString_t(sData)<<"\", returning"<<std::endl;
+      //LOG(inFilename, " contains \"", spitfire::string::ToString_t(sData), "\", returning");
       return LoadFromString(interface, sData);
     }
 
     util::PROCESS_RESULT cNode::ParseFromStringParser(const util::cProcessInterface& interface, size_t& nProcessedElements, spitfire::string::cStringParserUTF8& sp)
     {
-      //std::cout<<"cNode::ParseFromString \""<<sp.GetToEnd()<<"\""<<std::endl;
+      //LOG("\"", sp.GetToEnd(), "\"");
 
       while (!sp.IsEnd()) {
         if (nProcessedElements > 100) {
@@ -127,7 +127,7 @@ namespace spitfire
         nProcessedElements++;
 
         //const std::string sTmp = sp.GetToEnd();
-        //std::cout<<"cNode::ParseFromString While \""<<sTmp<<"\""<<std::endl;
+        //LOG("While \"", sTmp, "\"");
 
         sp.SkipWhiteSpace();
 
@@ -135,11 +135,11 @@ namespace spitfire
         // <?xml version="1.0" encoding="UTF-8"?>
         while (sp.StartsWithAndSkip("<?xml")) {
           if (!sp.SkipToString("?>")) {
-            LOG<<"XML Unterminated XML declaration, returning false"<<std::endl;
+            LOG("Unterminated XML declaration, returning false");
             return util::PROCESS_RESULT::FAILED;
           }
 
-          //LOG<<"Found XML declaration node"<<std::endl;
+          //LOG("Found XML declaration node");
           type = TYPE::XML_DECLARATION;
           sp.SkipWhiteSpace();
         }
@@ -148,11 +148,11 @@ namespace spitfire
         // <!-- ... -->
         while (sp.StartsWithAndSkip("<!--")) {
           if (!sp.SkipToString("-->")) {
-            LOG<<"XML Unterminated Comment, returning false"<<std::endl;
+            LOG("Unterminated Comment, returning false");
             return util::PROCESS_RESULT::FAILED;
           }
 
-          //LOG<<"Found comment node"<<std::endl;
+          //LOG("Found comment node");
           type = TYPE::COMMENT;
         }
 
@@ -173,15 +173,15 @@ namespace spitfire
             std::string sClose;
             if (sp.GetToStringAndSkip(">", sClose)) {
               if (sClose != sName) {
-                LOG<<"XML Opening tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't match closing tag \""<<spitfire::string::ToString_t(sClose)<<"\", returning false"<<std::endl;
+                LOG("Opening tag \"", spitfire::string::ToString_t(sName), "\" doesn't match closing tag \"", spitfire::string::ToString_t(sClose), "\", returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
             } else {
-              LOG<<"XML Tag \""<<spitfire::string::ToString_t(sName)<<"\" doesn't have a closing tag, returning false"<<std::endl;
+              LOG("Tag \"", spitfire::string::ToString_t(sName), "\" doesn't have a closing tag, returning false");
               return util::PROCESS_RESULT::FAILED;
             }
 
-            //std::cout<<"Found end of tag, breaking"<<std::endl;
+            //LOG("Found end of tag, breaking");
             break;
           }
 
@@ -197,20 +197,20 @@ namespace spitfire
 
             cNode* p = CreateNodeAsChildAndAppend();
 
-            //LOG<<"Found node "<<spitfire::string::ToString_t(inName)<<std::endl;
+            //LOG("Found node ", spitfire::string::ToString_t(inName));
             p->sName = inName;
 
             // Fill in attributes if any, and find the end of the opening tag
             if (sp.GetCharacter() == '/') {
               // />
               if (!sp.SkipToStringAndSkip(">")) {
-                LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" doesn't have a closing bracket, returning false"<<std::endl;
+                LOG("Tag \"", spitfire::string::ToString_t(inName), "\" doesn't have a closing bracket, returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
             } else {
               std::string sData;
               if (!sp.GetToStringAndSkip(">", sData)) {
-                LOG<<"XML Tag \""<<spitfire::string::ToString_t(inName)<<"\" opening declaration doesn't terminate, returning false"<<std::endl;
+                LOG("Tag \"", spitfire::string::ToString_t(inName), "\" opening declaration doesn't terminate, returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
 
@@ -276,13 +276,13 @@ namespace spitfire
 
                 util::PROCESS_RESULT result = (*vChild.rbegin())->ParseFromStringParser(interface, nProcessedElements, sp);
                 if (result != util::PROCESS_RESULT::COMPLETE) {
-                  std::cerr<<"Error parsing child node, returning"<<std::endl;
+                  LOGERROR("Error parsing child node, returning");
                   return result;
                 }
               }
             }
           } else {
-            std::cout<<"here, returning true"<<std::endl;
+            LOG("here, returning true");
             return util::PROCESS_RESULT::COMPLETE;
           }
         } else {
@@ -291,12 +291,12 @@ namespace spitfire
 
           p->type = TYPE::CONTENT_ONLY;
           p->sContentOnly += string::StripTrailingWhiteSpace(sp.GetToEnd());
-          //std::cout<<"Content only, returning true"<<std::endl;
+          //LOG("Content only, returning true");
           return util::PROCESS_RESULT::COMPLETE;
         }
       }
 
-      //std::cout<<"At end of function, returning true"<<std::endl;
+      //LOG("At end of function, returning true");
       return util::PROCESS_RESULT::COMPLETE;
     }
 
@@ -317,7 +317,7 @@ namespace spitfire
         return true;
       }
 
-      LOG<<"XML Error could not open \""<<spitfire::string::ToString_t(sFilename)<<"\", returning false"<<std::endl;
+      LOG("Error could not open \"", spitfire::string::ToString_t(sFilename), "\", returning false");
       return false;
     }
 
@@ -365,10 +365,8 @@ namespace spitfire
     void cNode::PrintToLog(const std::string& sTab)
     {
       size_t i, n;
-      if (IsNameAndAttributesAndChildren())
-      {
-        if (!sName.empty())
-        {
+      if (IsNameAndAttributesAndChildren()) {
+        if (!sName.empty()) {
           std::string sTag = sTab + "&lt;" + sName;
           attribute_iterator iter=mAttribute.begin();
           for (;iter!=mAttribute.end();iter++)
@@ -377,14 +375,14 @@ namespace spitfire
           if (!vChild.empty()) sTag+="&gt;";
           else sTag+="/&gt;";
 
-          LOG<<"XML "<<spitfire::string::ToString_t(sTag)<<std::endl;
+          LOG(spitfire::string::ToString_t(sTag));
         }
-      } else LOG<<"XML "<<spitfire::string::ToString_t(sTab)<<"Content=\""<<spitfire::string::ToString_t(sContentOnly)<<"\""<<std::endl;
+      } else LOG(spitfire::string::ToString_t(sTab), "Content=\"", spitfire::string::ToString_t(sContentOnly), "\"");
 
       n = vChild.size();
       for (i=0;i<n;i++) vChild[i]->PrintToLog(sTab + "&nbsp;");
 
-      if (!vChild.empty() && !sName.empty()) LOG<<"XML "<<spitfire::string::ToString_t(sTab)<<"&lt;/"<<spitfire::string::ToString_t(sName)<<"&gt;"<<std::endl;
+      if (!vChild.empty() && !sName.empty()) LOG(spitfire::string::ToString_t(sTab) , "&lt;/" , spitfire::string::ToString_t(sName) , "&gt;");
     }
 #endif // BUILD_DEBUG
 
