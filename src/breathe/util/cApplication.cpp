@@ -138,7 +138,7 @@ namespace breathe
 
       fFramesPerSecond(60.0f)
     {
-      LOG<<"cApplication::cApplication \""<<argv[0]<<"\""<<std::endl;
+      LOG("\"", argv[0], "\"");
     }
 
     cApplication::~cApplication()
@@ -172,7 +172,7 @@ namespace breathe
 
       opengl::cResolution resolution = capabilities.GetCurrentResolution();
       if ((resolution.width < width) || (resolution.height < height) || ((resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8) && (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8))) {
-        LOGERROR<<"Current screen resolution is not adequate "<<resolution.width<<"x"<<resolution.height<<std::endl;
+        LOGERROR("Current screen resolution is not adequate ", resolution.width, "x", resolution.height);
         return false;
       }
 
@@ -182,13 +182,13 @@ namespace breathe
 
       pWindow = system.CreateWindow(TEXT(SPITFIRE_APPLICATION_NAME), resolution, false);
       if (pWindow == nullptr) {
-        LOGERROR<<"Window could not be created"<<std::endl;
+        LOGERROR("Window could not be created");
         return false;
       }
 
       pContext = pWindow->GetContext();
       if (pContext == nullptr) {
-        LOGERROR<<"Context could not be created"<<std::endl;
+        LOGERROR("Context could not be created");
         return false;
       }
 
@@ -242,7 +242,7 @@ namespace breathe
 
     void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
     {
-      LOG<<"cApplication::_OnWindowEvent"<<std::endl;
+      LOG("");
 
       // The resources are probably going to become invalid when the window is resized, so we need to handle destroying and reloading them ourselves
       if (event.IsAboutToResize()) {
@@ -409,7 +409,7 @@ namespace breathe
           if (t - T0 >= 5000) {
             const float seconds = (t - T0) / 1000.0f;
             fFramesPerSecond = Frames / seconds;
-            LOG<<Frames<<" frames in "<<seconds<<" seconds = "<<fFramesPerSecond<<" FPS"<<std::endl;
+            LOG(Frames, " frames in ", seconds, " seconds = ", fFramesPerSecond, " FPS");
             T0 = t;
             Frames = 0;
           }
@@ -497,7 +497,7 @@ namespace breathe
 
     srand(time(NULL));
 
-    LOG<<"This is printed to the log"<<std::endl;
+    LOG("This is printed to the log");
     CONSOLE<<"This is printed to the console"<<std::endl;
     SCREEN<<"This is printed to the screen"<<std::endl;
 
@@ -651,7 +651,7 @@ namespace breathe
     while (iter.IsValid()) {
       std::string sDirectory;
       if (iter.GetAttribute("path", sDirectory)) {
-        LOG<<"Adding Directory "<<sDirectory<<std::endl;
+        LOG("Adding Directory ", sDirectory);
         breathe::filesystem::AddDirectory(breathe::string::ToString_t(sDirectory));
       }
 
@@ -766,7 +766,7 @@ namespace breathe
 
     // Set our window icon
     SDL_Surface* pIcon = IMG_Load("data/icons/application_32x32.png");
-    if (pIcon == nullptr) LOGERROR<<"cApplication::InitApp Could not load data/icons/application_32x32.png"<<std::endl;
+    if (pIcon == nullptr) LOGERROR("Could not load data/icons/application_32x32.png");
     SDL_SetWindowIcon(pWindow, pIcon);
     SDL_FreeSurface(pIcon);
     pIcon = nullptr;
@@ -1039,7 +1039,7 @@ namespace breathe
 #ifdef BUILD_DEBUG
   void cApplication::CreateGameUnitTest()
   {
-    LOG<<"cApplication::CreateGameUnitTest"<<std::endl;
+    LOG("");
 
     // If we have already created our game unittest then we can reuse it
     if (pGameUnitTest != nullptr) return;
@@ -1617,17 +1617,17 @@ namespace breathe
 
   void cApplication::_OnWindowEvent(const opengl::cWindowEvent& event)
   {
-    LOG<<"cApplication::_OnWindowEvent"<<std::endl;
+    LOG("");
   }
 
   void cApplication::_OnMouseEvent(const opengl::cMouseEvent& event)
   {
-    LOG<<"cApplication::_OnMouseEvent"<<std::endl;
+    LOG("");
   }
 
   void cApplication::_OnKeyboardEvent(const opengl::cKeyboardEvent& event)
   {
-    LOG<<"cApplication::_OnKeyboardEvent"<<std::endl;
+    LOG("");
   }
 
   void cApplication::_UpdateInput(durationms_t currentTime)
@@ -1958,7 +1958,7 @@ namespace breathe
 
   void cApplication::cConsoleWindow::_OnEvent(const gui::cEvent& event)
   {
-    LOG<<"cApplication::cConsoleWindow::_OnEvent"<<std::endl;
+    LOG("");
   }
 
 

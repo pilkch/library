@@ -65,7 +65,7 @@ namespace breathe
 
     cManager* Create(DRIVER driver)
     {
-      LOG<<"audio::Create"<<std::endl;
+      LOG("audio::Create");
       ASSERT(pManager == nullptr);
 
       switch (driver) {
@@ -82,11 +82,11 @@ namespace breathe
         }
 #endif
         default: {
-          LOG<<"audio::Create UNKNOWN driver"<<std::endl;
+          LOG("audio::Create UNKNOWN driver");
         }
       }
 
-      LOG<<"audio::Create returning"<<std::endl;
+      LOG("audio::Create returning");
       ASSERT(pManager != nullptr);
 
       pManager->Init();
@@ -96,7 +96,7 @@ namespace breathe
 
     void Destroy(cManager*)
     {
-      LOG<<"audio::Destroy"<<std::endl;
+      LOG("audio::Destroy");
       ASSERT(pManager != nullptr);
 
       pManager->Destroy();
@@ -114,7 +114,7 @@ namespace breathe
 
     void cManager::Update(durationms_t currentTime, const math::cVec3& listenerPosition, const math::cVec3& listenerTarget, const math::cVec3& listenerUp)
     {
-      const cListener listener(listenerPosition, listenerTarget, listenerUp);
+      /*const cListener listener(listenerPosition, listenerTarget, listenerUp);
 
 
       std::list<cSourceRef>::iterator iter = lAudioSource.begin();
@@ -130,7 +130,7 @@ namespace breathe
       lAudioSource.sort(cSource::DistanceFromListenerCompare);
 
 
-      _Update(currentTime, listener);
+      _Update(currentTime, listener);*/
     }
 
 

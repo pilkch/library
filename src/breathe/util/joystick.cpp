@@ -184,7 +184,7 @@ namespace breathe
         controller.pController = SDL_GameControllerOpen(index);
 
         const char* szName = SDL_GameControllerName(controller.pController);
-        LOG<<"cJoystickManager::OpenGameController Using controller \""<<((szName != nullptr) ? szName : "Unknown controller")<<"\""<<std::endl;
+        LOG("Using controller \"", ((szName != nullptr) ? szName : "Unknown controller"), "\"");
 
         SDL_Joystick* pJoystick = SDL_GameControllerGetJoystick(controller.pController);
         if (SDL_JoystickIsHaptic(pJoystick)) {
@@ -279,22 +279,23 @@ namespace breathe
 
     void cJoystickManager::HandleSDLEvent(const SDL_Event& sdlEvent)
     {
-      LOG<<"cJoystickManager::HandleSDLEvent"<<std::endl;
+      LOG("");
+
       switch (sdlEvent.type) {
         case SDL_CONTROLLERDEVICEADDED: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERDEVICEADDED"<<std::endl;
+          LOG("SDL_CONTROLLERDEVICEADDED");
           const int index = sdlEvent.cdevice.which;
           OpenGameController(index);
           break;
         }
         case SDL_CONTROLLERDEVICEREMOVED: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERDEVICEREMOVED"<<std::endl;
+          LOG("SDL_CONTROLLERDEVICEREMOVED");
           const int index = sdlEvent.cdevice.which;
           CloseGameController(index);
           break;
         }
         case SDL_CONTROLLERBUTTONDOWN: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONDOWN device "<<sdlEvent.cdevice.which<<", button "<<sdlEvent.cbutton.which<<", "<<sdlEvent.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button))<<"')"<<std::endl;
+          LOG("SDL_CONTROLLERBUTTONDOWN device ", sdlEvent.cdevice.which, ", button ", sdlEvent.cbutton.which, ", ", sdlEvent.cbutton.button, " ('", ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button)), "')");
           if (pEventListener != nullptr) {
             cJoystickEvent event;
             event.type = cJoystickEvent::TYPE::BUTTON_DOWN;
@@ -305,7 +306,7 @@ namespace breathe
           break;
         }
         case SDL_CONTROLLERBUTTONUP: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERBUTTONUP device "<<sdlEvent.cdevice.which<<", button "<<sdlEvent.cbutton.which<<", "<<sdlEvent.cbutton.button<<" ('"<<ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button))<<"')"<<std::endl;
+          LOG("SDL_CONTROLLERBUTTONUP device ", sdlEvent.cdevice.which, ", button ", sdlEvent.cbutton.which, ", ", sdlEvent.cbutton.button, " ('", ControllerButtonName(static_cast<SDL_GameControllerButton>(sdlEvent.cbutton.button)), "')");
           if (pEventListener != nullptr) {
             cJoystickEvent event;
             event.type = cJoystickEvent::TYPE::BUTTON_UP;
@@ -316,7 +317,7 @@ namespace breathe
           break;
         }
         case SDL_CONTROLLERAXISMOTION: {
-          LOG<<"cJoystickManager::HandleSDLEvent SDL_CONTROLLERAXISMOTION device "<<sdlEvent.cdevice.which<<", axis "<<sdlEvent.caxis.which<<", "<<sdlEvent.caxis.axis<<" ('"<<ControllerAxisName(static_cast<SDL_GameControllerAxis>(sdlEvent.caxis.axis))<<"') value: "<<sdlEvent.caxis.value<<std::endl;
+          LOG("SDL_CONTROLLERAXISMOTION device " , sdlEvent.cdevice.which , ", axis " , sdlEvent.caxis.which , ", " , sdlEvent.caxis.axis , " ('" , ControllerAxisName(static_cast<SDL_GameControllerAxis>(sdlEvent.caxis.axis)) , "') value: " , sdlEvent.caxis.value);
           if (pEventListener != nullptr) {
             cJoystickEvent event;
             event.type = cJoystickEvent::TYPE::AXIS_MOTION;

@@ -75,10 +75,10 @@ namespace breathe
 
     bool cManager::_Init()
     {
-      LOG<<"cManager::_Init"<<std::endl;
+      LOG("");
 
       if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
-        LOG<<"cManager::_Init SDL_InitSubSystem FAILED to init SDL_INIT_AUDIO, returning false"<<std::endl;
+        LOG("SDL_InitSubSystem FAILED to init SDL_INIT_AUDIO, returning false");
         ReportError();
         ASSERT(false);
         return false;
@@ -89,7 +89,7 @@ namespace breathe
       int audio_channels = 2;
       int audio_buffers = 4096;
       if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-        LOG<<"cManager::_Init Mix_OpenAudio FAILED Unable to open audio, returning false"<<std::endl;
+        LOG("Mix_OpenAudio FAILED Unable to open audio, returning false");
         ReportError();
         ASSERT(false);
         return false;
@@ -99,7 +99,7 @@ namespace breathe
       Mix_AllocateChannels(16);
       ReportError();
 
-      LOG<<"cManager::_Init return true"<<std::endl;
+      LOG("return true");
       return true;
     }
 
@@ -236,7 +236,7 @@ namespace breathe
 
     void cManager::SetListener(const audio::cListener& listener)
     {
-      //LOG<<"cManager::SetListener"<<std::endl;
+      //LOG("");
 
       const math::cVec3 previousPosition = listenerPosition;
 
@@ -274,7 +274,7 @@ namespace breathe
 
 
       // Remove any sources that need removing
-      //LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
+      //LOG("Removing ", listToRemove.size(), " sources");
 
       iter = listToRemove.begin();
       iterEnd = listToRemove.end();
@@ -327,7 +327,7 @@ namespace breathe
 
     cBuffer::~cBuffer()
     {
-      LOG<<"cBuffer::~cBuffer"<<std::endl;
+      LOG("");
 
       // TODO: We should make sure we are not playing this chunk when we free it
       if (pChunk != nullptr) {
@@ -370,7 +370,8 @@ namespace breathe
 
     void cSource::Create(audio::cBufferRef pInBuffer)
     {
-      LOG<<"cSource::Create"<<std::endl;
+      LOG("");
+
       ASSERT(pBuffer == nullptr);
 
       ASSERT(pInBuffer != nullptr);
@@ -416,10 +417,10 @@ namespace breathe
 
     void cSource::_Remove()
     {
-      LOG<<"cSource::_Remove"<<std::endl;
+      LOG("");
 
       if (iChannel != 0) {
-        LOG<<"cSource::_Remove Calling alDeleteSources with iChannel="<<iChannel<<std::endl;
+        LOG("Calling alDeleteSources with iChannel=", iChannel);
         //FIXME: This needs to be called
         //alDeleteSources(1, &iChannel);
         ReportError();
@@ -429,18 +430,18 @@ namespace breathe
       // Now remove it from the list
       //cSourceRef temp(this);
       //RemoveSource(temp);
-      LOG<<"cSource::_Remove returning"<<std::endl;
+      LOG("returning");
     }
 
     void cSource::_Play()
     {
-      LOG<<"cSource::_Play"<<std::endl;
+      LOG("");
 
       if (iChannel < 0) {
         if (bLooping) iChannel = Mix_PlayChannel(-1, pBuffer->pChunk, -1);
         else iChannel = Mix_PlayChannel(-1, pBuffer->pChunk, 0);
 
-        if (iChannel < 0) LOG<<"cSource::_Play Mix_PlayChannel FAILED iChannel="<<iChannel<<std::endl;
+        if (iChannel < 0) LOG("Mix_PlayChannel FAILED iChannel=", iChannel);
 
         ReportError();
       }
@@ -451,7 +452,7 @@ namespace breathe
 
     void cSource::_Stop()
     {
-      LOG<<"cSource::_Stop"<<std::endl;
+      LOG("");
 
       if (iChannel >= 0) {
         Mix_HaltChannel(iChannel);
@@ -465,7 +466,7 @@ namespace breathe
 
     void cSource::_SetPosition(const spitfire::math::cVec3& _position)
     {
-      //LOG<<"cSource::_SetPosition"<<std::endl;
+      //LOG("");
       position = _position;
       //alSourcefv(iChannel, AL_POSITION, position.GetPointerConst());
       //ReportError();
@@ -480,7 +481,7 @@ namespace breathe
     {
       if (!IsValid()) return false;
 
-      //LOG<<"cSource::_IsPlaying"<<std::endl;
+      //LOG("");
       int value = Mix_Playing(iChannel);
       //ReportError();
       return (value == 1);
@@ -488,7 +489,7 @@ namespace breathe
 
     void cSource::_SetIsAttachedToScreen()
     {
-      LOG<<"cSource::_SetIsAttachedToScreen"<<std::endl;
+      LOG("");
       /*alSource3f(iChannel, AL_POSITION, 0.0f, 0.0f, 0.0f);
       ReportError();
       alSource3f(iChannel, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
