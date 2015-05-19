@@ -132,6 +132,13 @@ namespace opengl
     size_t nLights;
 
   private:
+    class cParserContext
+    {
+    public:
+      opengl::string_t sFolderPath;
+      size_t uShaderVersion;
+    };
+
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
     void _LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath);
@@ -139,7 +146,7 @@ namespace opengl
     void _Compile();
 
     size_t ParseVersion(const std::string& sLine) const;
-    std::string ParseInclude(const opengl::string_t& sFolderPath, size_t uParentShaderVersion, const std::string& sLine) const;
+    std::string ParseInclude(const cParserContext& parserContext, const std::string& sLine) const;
     void ParseLineShader(const std::string& sLine);
     void ParseLineFragmentShader(const std::string& sLine);
     void ParseLineVertexShader(const std::string& sLine);

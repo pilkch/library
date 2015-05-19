@@ -320,7 +320,7 @@ namespace opengl
 
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
   // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
-  std::string cShader::ParseInclude(const opengl::string_t& _sFolderPath, size_t uParentShaderVersion, const std::string& sIncludeLine) const
+  std::string cShader::ParseInclude(const cParserContext& parserContext, const std::string& sIncludeLine) const
   {
     // Parse the include line
     spitfire::string::cStringParserUTF8 sp(sIncludeLine);
@@ -330,9 +330,9 @@ namespace opengl
 
     // Read the whole included file
     #ifdef __WIN__
-    const opengl::string_t sFolderPath = spitfire::string::Replace(_sFolderPath, TEXT("/"), TEXT("\\"));
+    const opengl::string_t sFolderPath = spitfire::string::Replace(parserContext.sFolderPath, TEXT("/"), TEXT("\\"));
     #else
-    const opengl::string_t& sFolderPath = _sFolderPath;
+    const opengl::string_t& sFolderPath = parserContext.sFolderPath;
     #endif
     const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, spitfire::string::ToString_t(sRelativeFilePath));
     std::ifstream f(spitfire::string::ToUTF8(sFilePath).c_str());
@@ -349,13 +349,13 @@ namespace opengl
       // Check the versions match then skip it so that we only have one version line in the output file
       if (spitfire::string::StartsWith(sLine, "#version")) {
         const size_t uShaderVersion = ParseVersion(sLine);
-        if (uShaderVersion != uParentShaderVersion) LOGERROR("Parent shader \"", sFolderPath, "\" version ", uParentShaderVersion, " doesn't match included shader \"", sFilePath, "\" version ", uShaderVersion, "");
+        if (uShaderVersion != parserContext.uShaderVersion) LOGERROR("Parent shader \"", sFolderPath, "\" version ", parserContext.uShaderVersion, " doesn't match included shader \"", sFilePath, "\" version ", uShaderVersion, "");
 
         continue;
       }
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
-        const std::string sLines = ParseInclude(sFolderPath, uParentShaderVersion, sLine);
+        const std::string sLines = ParseInclude(parserContext, sLine);
 
         // Add the lines
         o<<sLines;
@@ -372,7 +372,9 @@ namespace opengl
 
   void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
   {
-    size_t uShaderVersion = 0;
+    cParserContext parserContext;
+    parserContext.sFolderPath = sFolderPath;
+    parserContext.uShaderVersion = 0;
 
     std::istringstream f(sText);
 
@@ -382,10 +384,10 @@ namespace opengl
       std::getline(f, sLine);
 
       // Check if this is a version line
-      if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+      if (spitfire::string::StartsWith(sLine, "#version")) parserContext.uShaderVersion = ParseVersion(sLine);
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
-        const std::string sLines = ParseInclude(sFolderPath, uShaderVersion, sLine);
+        const std::string sLines = ParseInclude(parserContext, sLine);
 
         // Add the lines
         o << sLines;
@@ -425,7 +427,9 @@ namespace opengl
 
   void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
   {
-    size_t uShaderVersion = 0;
+    cParserContext parserContext;
+    parserContext.sFolderPath = sFolderPath;
+    parserContext.uShaderVersion = 0;
 
     std::istringstream f(sText);
 
@@ -435,10 +439,10 @@ namespace opengl
       std::getline(f, sLine);
 
       // Check if this is a version line
-      if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+      if (spitfire::string::StartsWith(sLine, "#version")) parserContext.uShaderVersion = ParseVersion(sLine);
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
-        const std::string sLines = ParseInclude(sFolderPath, uShaderVersion, sLine);
+        const std::string sLines = ParseInclude(parserContext, sLine);
 
         // Add the lines
         o << sLines;
