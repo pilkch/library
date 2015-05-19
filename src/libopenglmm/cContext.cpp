@@ -360,6 +360,19 @@ namespace opengl
     return pShader;
   }
 
+  cShader* cContext::CreateShaderFromText(const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath)
+  {
+    cShader* pShader = new cShader;
+    if (!pShader->LoadVertexShaderAndFragmentShaderFromText(sVertexShaderText, sFragmentShaderText, sFolderPath)) {
+      delete pShader;
+      return nullptr;
+    }
+
+    shaders.push_back(pShader);
+
+    return pShader;
+  }
+
   void cContext::DestroyShader(cShader* pShader)
   {
     assert(pShader != nullptr);

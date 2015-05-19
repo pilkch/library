@@ -16,6 +16,7 @@
 #include <SDL2/SDL_image.h>
 
 // Spitfire headers
+#include <spitfire/storage/file.h>
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/string.h>
@@ -319,7 +320,7 @@ namespace opengl
 
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
   // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
-  std::string cShader::ParseInclude(const opengl::string_t& _sCurrentShaderPath, size_t uParentShaderVersion, const std::string& sIncludeLine) const
+  std::string cShader::ParseInclude(const opengl::string_t& _sFolderPath, size_t uParentShaderVersion, const std::string& sIncludeLine) const
   {
     // Parse the include line
     spitfire::string::cStringParserUTF8 sp(sIncludeLine);
@@ -329,14 +330,14 @@ namespace opengl
 
     // Read the whole included file
     #ifdef __WIN__
-    const opengl::string_t sCurrentShaderPath = spitfire::string::Replace(_sCurrentShaderPath, TEXT("/"), TEXT("\\"));
+    const opengl::string_t sFolderPath = spitfire::string::Replace(_sFolderPath, TEXT("/"), TEXT("\\"));
     #else
-    const opengl::string_t& sCurrentShaderPath = _sCurrentShaderPath;
+    const opengl::string_t& sFolderPath = _sFolderPath;
     #endif
-    const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(spitfire::filesystem::GetFolder(sCurrentShaderPath), spitfire::string::ToString_t(sRelativeFilePath));
+    const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, spitfire::string::ToString_t(sRelativeFilePath));
     std::ifstream f(spitfire::string::ToUTF8(sFilePath).c_str());
     if (!f.is_open()) {
-      LOGERROR("Include not found \"", sFilePath, "\" for shader \"", _sCurrentShaderPath, "\"");
+      LOGERROR("Include not found \"", sFilePath, "\" for shader \"", sFolderPath, "\"");
       return "";
     }
 
@@ -348,13 +349,13 @@ namespace opengl
       // Check the versions match then skip it so that we only have one version line in the output file
       if (spitfire::string::StartsWith(sLine, "#version")) {
         const size_t uShaderVersion = ParseVersion(sLine);
-        if (uShaderVersion != uParentShaderVersion) LOGERROR("Parent shader \"", _sCurrentShaderPath, "\" version ", uParentShaderVersion, " doesn't match included shader \"", sFilePath, "\" version ", uShaderVersion, "");
+        if (uShaderVersion != uParentShaderVersion) LOGERROR("Parent shader \"", sFolderPath, "\" version ", uParentShaderVersion, " doesn't match included shader \"", sFilePath, "\" version ", uShaderVersion, "");
 
         continue;
       }
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
-        const std::string sLines = ParseInclude(sShaderVertex, uParentShaderVersion, sLine);
+        const std::string sLines = ParseInclude(sFolderPath, uParentShaderVersion, sLine);
 
         // Add the lines
         o<<sLines;
@@ -369,120 +370,150 @@ namespace opengl
     return o.str();
   }
 
+  void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
+  {
+    size_t uShaderVersion = 0;
+
+    std::istringstream f(sText);
+
+    std::ostringstream o;
+    std::string sLine;
+    while (!f.eof()) {
+      std::getline(f, sLine);
+
+      // Check if this is a version line
+      if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+
+      if (spitfire::string::StartsWith(sLine, "#include <")) {
+        const std::string sLines = ParseInclude(sFolderPath, uShaderVersion, sLine);
+
+        // Add the lines
+        o << sLines;
+        o << "\n";
+      }
+      else {
+        ParseLineVertexShader(sLine);
+        ParseLineShader(sLine);
+
+        // Add the line
+        o << sLine;
+        o << "\n";
+      }
+    };
+
+    LOG("Vertex ", cSystem::GetErrorString(), " shader=\"", spitfire::string::ToString_t(o.str()), "\"");
+
+    uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
+    LOG("Vertex shader glGetError=", cSystem::GetErrorString());
+    CheckStatusVertex();
+    assert(uiShaderVertex != 0);
+
+    const std::string sBuffer = o.str();
+    const char* str = sBuffer.c_str();
+    glShaderSource(uiShaderVertex, 1, &str, NULL);
+    CheckStatusVertex();
+
+    glCompileShader(uiShaderVertex);
+    CheckStatusVertex();
+
+    if (IsCompiledVertex()) LOG("Vertex shader ", sShaderVertex, ": Compiled");
+    else {
+      LOGERROR("Vertex shader ", sShaderVertex, ": Not compiled");
+      assert(false);
+    }
+  }
+
+  void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
+  {
+    size_t uShaderVersion = 0;
+
+    std::istringstream f(sText);
+
+    std::ostringstream o;
+    std::string sLine;
+    while (!f.eof()) {
+      std::getline(f, sLine);
+
+      // Check if this is a version line
+      if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
+
+      if (spitfire::string::StartsWith(sLine, "#include <")) {
+        const std::string sLines = ParseInclude(sFolderPath, uShaderVersion, sLine);
+
+        // Add the lines
+        o << sLines;
+        o << "\n";
+      }
+      else {
+        ParseLineFragmentShader(sLine);
+        ParseLineShader(sLine);
+
+        // Add the line
+        o << sLine;
+        o << "\n";
+      }
+    };
+
+    LOG("Fragment shader=\"", spitfire::string::ToString_t(o.str()), "\"");
+
+    uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
+    LOG("Fragment shader glGetError=", cSystem::GetErrorString());
+    CheckStatusFragment();
+    assert(uiShaderFragment != 0);
+
+    const std::string sBuffer = o.str();
+    const char* str = sBuffer.c_str();
+    glShaderSource(uiShaderFragment, 1, &str, NULL);
+    CheckStatusFragment();
+
+    glCompileShader(uiShaderFragment);
+    CheckStatusFragment();
+
+    if (IsCompiledFragment()) LOG("Fragment shader ", sShaderFragment, ": Compiled");
+    else {
+      LOGERROR("Fragment shader ", sShaderFragment, ": Not compiled");
+      assert(false);
+    }
+  }
+
   void cShader::_LoadVertexShader(const opengl::string_t& _sShaderVertex)
   {
     sShaderVertex = _sShaderVertex;
 
-    std::ifstream f(opengl::string::ToUTF8(sShaderVertex).c_str());
-    if (f.is_open()) {
-      size_t uShaderVersion = 0;
-
-      std::ostringstream o;
-      std::string sLine;
-      while (!f.eof()) {
-        std::getline(f, sLine);
-
-        // Check if this is a version line
-        if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
-
-        if (spitfire::string::StartsWith(sLine, "#include <")) {
-          const std::string sLines = ParseInclude(sShaderVertex, uShaderVersion, sLine);
-
-          // Add the lines
-          o<<sLines;
-          o<<"\n";
-        } else {
-          ParseLineVertexShader(sLine);
-          ParseLineShader(sLine);
-
-          // Add the line
-          o<<sLine;
-          o<<"\n";
-        }
-      };
-
-      LOG("Vertex ", cSystem::GetErrorString(), " shader=\"", spitfire::string::ToString_t(o.str()), "\"");
-
-      uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
-      LOG("Vertex shader glGetError=", cSystem::GetErrorString());
-      CheckStatusVertex();
-      assert(uiShaderVertex != 0);
-
-      const std::string sBuffer = o.str();
-      const char* str = sBuffer.c_str();
-      glShaderSource(uiShaderVertex, 1, &str, NULL);
-      CheckStatusVertex();
-
-      glCompileShader(uiShaderVertex);
-      CheckStatusVertex();
-
-      if (IsCompiledVertex()) LOG("Vertex shader ", sShaderVertex, ": Compiled");
-      else {
-        LOGERROR("Vertex shader ", sShaderVertex, ": Not compiled");
-        assert(false);
-      }
-    } else {
+    std::string sText;
+    spitfire::storage::ReadText(sShaderVertex, sText);
+    if (sText.empty()) {
       LOGERROR("Shader not found ", sShaderVertex);
       uiShaderVertex = 0;
     }
+
+    #ifdef __WIN__
+    const opengl::string_t sCurrentShaderPath = spitfire::string::Replace(sShaderVertex, TEXT("/"), TEXT("\\"));
+    #else
+    const opengl::string_t& sCurrentShaderPath = sShaderVertex;
+    #endif
+    const string_t sFolderPath = spitfire::filesystem::GetFolder(sCurrentShaderPath);
+    _LoadVertexShaderFromText(sText, sFolderPath);
   }
 
   void cShader::_LoadFragmentShader(const opengl::string_t& _sShaderFragment)
   {
     sShaderFragment = _sShaderFragment;
 
-    std::ifstream f(opengl::string::ToUTF8(sShaderFragment).c_str());
-    if (f.is_open()) {
-      size_t uShaderVersion = 0;
-
-      std::ostringstream o;
-      std::string sLine;
-      while (!f.eof()) {
-        std::getline(f, sLine);
-
-        // Check if this is a version line
-        if (spitfire::string::StartsWith(sLine, "#version")) uShaderVersion = ParseVersion(sLine);
-
-        if (spitfire::string::StartsWith(sLine, "#include <")) {
-          const std::string sLines = ParseInclude(sShaderVertex, uShaderVersion, sLine);
-
-          // Add the lines
-          o<<sLines;
-          o<<"\n";
-        } else {
-          ParseLineFragmentShader(sLine);
-          ParseLineShader(sLine);
-
-          // Add the line
-          o<<sLine;
-          o<<"\n";
-        }
-      };
-
-      LOG("Fragment shader=\"", spitfire::string::ToString_t(o.str()), "\"");
-
-      uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
-      LOG("Fragment shader glGetError=", cSystem::GetErrorString());
-      CheckStatusFragment();
-      assert(uiShaderFragment != 0);
-
-      const std::string sBuffer = o.str();
-      const char* str = sBuffer.c_str();
-      glShaderSource(uiShaderFragment, 1, &str, NULL);
-      CheckStatusFragment();
-
-      glCompileShader(uiShaderFragment);
-      CheckStatusFragment();
-
-      if (IsCompiledFragment()) LOG("Fragment shader ", sShaderFragment, ": Compiled");
-      else {
-        LOGERROR("Fragment shader ", sShaderFragment, ": Not compiled");
-        assert(false);
-      }
-    } else {
+    std::string sText;
+    spitfire::storage::ReadText(sShaderFragment, sText);
+    if (sText.empty()) {
       LOGERROR("Shader not found ", sShaderFragment);
       uiShaderFragment = 0;
     }
+
+    #ifdef __WIN__
+    const opengl::string_t sCurrentShaderPath = spitfire::string::Replace(sShaderFragment, TEXT("/"), TEXT("\\"));
+    #else
+    const opengl::string_t& sCurrentShaderPath = sShaderFragment;
+    #endif
+    const string_t sFolderPath = spitfire::filesystem::GetFolder(sCurrentShaderPath);
+    _LoadFragmentShaderFromText(sText, sFolderPath);
   }
 
   void cShader::_Compile()
@@ -540,6 +571,17 @@ namespace opengl
 
     _LoadVertexShader(_sShaderVertex);
     _LoadFragmentShader(_sShaderFragment);
+    _Compile();
+
+    return IsCompiledProgram();
+  }
+
+  bool cShader::LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath)
+  {
+    LOG("glGetError=", cSystem::GetErrorString());
+
+    _LoadVertexShaderFromText(sShaderVertexText, sFolderPath);
+    _LoadFragmentShaderFromText(sShaderFragmentText, sFolderPath);
     _Compile();
 
     return IsCompiledProgram();

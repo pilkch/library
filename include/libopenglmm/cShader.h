@@ -84,6 +84,7 @@ namespace opengl
     bool LoadVertexShaderOnly(const opengl::string_t& sShaderVertex);
     bool LoadFragmentShaderOnly(const opengl::string_t& sShaderFragment);
     bool LoadVertexShaderAndFragmentShader(const opengl::string_t& sShaderVertex, const opengl::string_t& sShaderFragment);
+    bool LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath);
     void Destroy();
 
     void Bind();
@@ -133,10 +134,12 @@ namespace opengl
   private:
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
+    void _LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath);
+    void _LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath);
     void _Compile();
 
     size_t ParseVersion(const std::string& sLine) const;
-    std::string ParseInclude(const opengl::string_t& sCurrentShaderPath, size_t uParentShaderVersion, const std::string& sLine) const;
+    std::string ParseInclude(const opengl::string_t& sFolderPath, size_t uParentShaderVersion, const std::string& sLine) const;
     void ParseLineShader(const std::string& sLine);
     void ParseLineFragmentShader(const std::string& sLine);
     void ParseLineVertexShader(const std::string& sLine);

@@ -137,6 +137,7 @@ namespace opengl
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
 
     cShader* CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
+    cShader* CreateShaderFromText(const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath);
     void DestroyShader(cShader* pShader);
 
     void CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
