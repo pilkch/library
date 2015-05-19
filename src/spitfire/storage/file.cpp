@@ -137,6 +137,23 @@ namespace spitfire
       }
     }
 
+    void ReadText(const string_t& sFilePath, std::string& contents)
+    {
+      contents.clear();
+
+      std::ifstream file(spitfire::string::ToUTF8(sFilePath).c_str());
+      if (!file.is_open()) {
+        LOGERROR("Could not open \"", sFilePath, "\"");
+        return;
+      }
+
+      file.seekg(0, std::ios::end);
+      contents.reserve(file.tellg());
+      file.seekg(0, std::ios::beg);
+
+      contents.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    }
+
     void ReadText(const string_t& filename, std::vector<std::string>& contents)
     {
       contents.clear();

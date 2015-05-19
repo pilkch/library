@@ -52,6 +52,8 @@ namespace spitfire
 
     BYTEORDER DetectByteOrderMark(const string_t& filename, size_t& bytes);
 
+    void ReadText(const string_t& filename, std::string& contents);
+    void ReadText(const string_t& filename, std::wstring& contents);
     void ReadText(const string_t& filename, std::vector<std::string>& contents);
     void ReadText(const string_t& filename, std::vector<std::wstring>& contents);
     void AppendText(const string_t& filename, const std::string& contents);
