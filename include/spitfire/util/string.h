@@ -137,12 +137,17 @@ namespace spitfire
     inline const std::wstring& ToWchar_t(const std::wstring& source) { return source; }
 
 #ifdef UNICODE
-    inline string_t ToString_t(const std::string& source) { return ToWchar_t(source); }
-    inline const string_t& ToString_t(const std::wstring& source) { return source; }
+    inline string_t ToString(const char* szSource) { return ToWchar_t(szSource); }
+    inline string_t ToString(const wchar_t* szSource) { return string_t(szSource); }
+    inline string_t ToString(const std::string& source) { return ToWchar_t(source); }
+    inline const string_t& ToString(const std::wstring& source) { return source; }
 #else
-    inline const string_t& ToString_t(const std::string& source) { return source; }
-    inline string_t ToString_t(const std::wstring& source) { return ToUTF8(source); }
+    inline const string_t& ToString(const std::string& source) { return source; }
+    inline string_t ToString(const std::wstring& source) { return ToUTF8(source); }
 #endif
+
+    // Deprecated, remove December 2015
+#define ToString_t ToString
 
     inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
     string_t ToString(uint8_t value);
