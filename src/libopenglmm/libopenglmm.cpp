@@ -23,6 +23,9 @@ namespace opengl
   {
     std::string ToUTF8(const string_t& source)
     {
+      // Make sure that we don't try to dereference an emptry string via results.begin()
+      if (source.empty()) return "";
+
       #ifdef UNICODE
       std::string result(source.size(), char(0));
       typedef std::ctype<wchar_t> ctype_t;
