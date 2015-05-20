@@ -80,6 +80,12 @@ namespace opengl
   }
 
 
+  // ** cParserContext
+
+  bool cShader::cParserContext::AlreadyIncludedFile(const string_t& sFilePath) const
+  {
+    return (includedFilePaths.find(sFilePath) != includedFilePaths.end());
+  }
 
 
   // *** cShader
@@ -320,7 +326,7 @@ namespace opengl
 
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
   // 1) It is assumed that includes only contain global functions, no global inputs, outputs or other constructs
-  std::string cShader::ParseInclude(const cParserContext& parserContext, const std::string& sIncludeLine) const
+  std::string cShader::ParseInclude(cParserContext& parserContext, const std::string& sIncludeLine) const
   {
     // Parse the include line
     spitfire::string::cStringParserUTF8 sp(sIncludeLine);
@@ -335,11 +341,22 @@ namespace opengl
     const opengl::string_t& sFolderPath = parserContext.sFolderPath;
     #endif
     const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, spitfire::string::ToString_t(sRelativeFilePath));
+
+    // If we already included this file then just return (Prevents adding multiple definitions of functions and variables to the same shader)
+    if (parserContext.AlreadyIncludedFile(sFilePath)) {
+      LOG("Already included \"", sFilePath, "\", ignoring this include");
+      return "";
+    }
+
+    // Try to open the included file
     std::ifstream f(spitfire::string::ToUTF8(sFilePath).c_str());
     if (!f.is_open()) {
       LOGERROR("Include not found \"", sFilePath, "\" for shader \"", sFolderPath, "\"");
       return "";
     }
+
+    // Remember that we have included this file
+    parserContext.includedFilePaths.insert(sFilePath);
 
     std::ostringstream o;
     std::string sLine;

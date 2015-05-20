@@ -22,6 +22,9 @@
 #ifndef LIBOPENGLMM_CSHADER_H
 #define LIBOPENGLMM_CSHADER_H
 
+// Standard headers
+#include <set>
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
@@ -135,8 +138,12 @@ namespace opengl
     class cParserContext
     {
     public:
+      bool AlreadyIncludedFile(const string_t& sFilePath) const;
+
       opengl::string_t sFolderPath;
       size_t uShaderVersion;
+
+      std::set<opengl::string_t> includedFilePaths;
     };
 
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);
@@ -146,7 +153,7 @@ namespace opengl
     void _Compile();
 
     size_t ParseVersion(const std::string& sLine) const;
-    std::string ParseInclude(const cParserContext& parserContext, const std::string& sLine) const;
+    std::string ParseInclude(cParserContext& parserContext, const std::string& sLine) const;
     void ParseLineShader(const std::string& sLine);
     void ParseLineFragmentShader(const std::string& sLine);
     void ParseLineVertexShader(const std::string& sLine);
