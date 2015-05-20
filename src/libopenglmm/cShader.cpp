@@ -82,6 +82,12 @@ namespace opengl
 
   // ** cParserContext
 
+  cShader::cParserContext::cParserContext(const string_t& _sFolderPath) :
+    sFolderPath(_sFolderPath),
+    uShaderVersion(0)
+  {
+  }
+
   bool cShader::cParserContext::AlreadyIncludedFile(const string_t& sFilePath) const
   {
     return (includedFilePaths.find(sFilePath) != includedFilePaths.end());
@@ -389,9 +395,7 @@ namespace opengl
 
   void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
   {
-    cParserContext parserContext;
-    parserContext.sFolderPath = sFolderPath;
-    parserContext.uShaderVersion = 0;
+    cParserContext parserContext(sFolderPath);
 
     std::istringstream f(sText);
 
@@ -444,9 +448,7 @@ namespace opengl
 
   void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
   {
-    cParserContext parserContext;
-    parserContext.sFolderPath = sFolderPath;
-    parserContext.uShaderVersion = 0;
+    cParserContext parserContext(sFolderPath);
 
     std::istringstream f(sText);
 

@@ -138,6 +138,8 @@ namespace opengl
     class cParserContext
     {
     public:
+      explicit cParserContext(const string_t& sFolderPath);
+
       bool AlreadyIncludedFile(const string_t& sFilePath) const;
 
       opengl::string_t sFolderPath;
