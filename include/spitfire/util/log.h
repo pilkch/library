@@ -432,15 +432,15 @@ namespace spitfire
 
 // We use ... to avoid compiling the parameters
 // We use __noop to avoid this warning "C4390: ";" : empty controlled statement found; is this the intent?"
-#define LOGF(...) __noop
-#define LOGERRORF(...) __noop
+#define LOG(...) __noop
+#define LOGERROR(...) __noop
 
 #else
 
 // We use ... to avoid compiling the parameters
 // A noop is not required as there is no warning about empty control statements
-#define LOGF(...)
-#define LOGERRORF(...)
+#define LOG(...)
+#define LOGERROR(...)
 
 #endif // BUILD_DEBUG
 

@@ -213,8 +213,7 @@ namespace spitfire
     {
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      const int iResult = ::SHGetFolderPath(NULL, type | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
-      ASSERT(iResult == 0);
+      ::SHGetFolderPath(NULL, type | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
       return string_t(szPath);
     }
     #endif
@@ -265,8 +264,7 @@ namespace spitfire
       // C:\Documents and Settings\username\Local Settings\Application Data
       char_t szAppData[MAX_PATH_LEN];
       szAppData[0] = 0;
-      const int iResult = SHGetFolderPath(0, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szAppData);
-      ASSERT(iResult == 0);
+      SHGetFolderPath(0, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szAppData);
       ASSERT(szAppData[0] != 0);
       LOG(TEXT("returning \""), szAppData, TEXT("\""));
       const string_t sFullPath = MakeFilePath(szAppData, TEXT(SPITFIRE_APPLICATION_COMPANY_NAME));
@@ -283,8 +281,7 @@ namespace spitfire
 #ifdef WIN32
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      const int iResult = SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
-      ASSERT(iResult == 0);
+      SHGetFolderPath(0, CSIDL_MYPICTURES | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
@@ -300,8 +297,7 @@ namespace spitfire
 #ifdef WIN32
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      const int iResult = SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
-      ASSERT(iResult == 0);
+      SHGetFolderPath(0, CSIDL_MYMUSIC | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
@@ -359,8 +355,7 @@ namespace spitfire
       string_t sPath;
       char_t szPath[MAX_PATH_LEN];
       szPath[0] = 0;
-      const int iResult = ::SHGetFolderPath(0, CSIDL_PROGRAM_FILESX86 | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
-      ASSERT(iResult == 0);
+      ::SHGetFolderPath(0, CSIDL_PROGRAM_FILESX86 | CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT, szPath);
       sPath = string_t(szPath);
       ASSERT(!sPath.empty());
       return sPath;

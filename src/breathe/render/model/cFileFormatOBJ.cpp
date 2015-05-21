@@ -253,8 +253,10 @@ namespace breathe
 
         // Now convert from indices into vertices, texture coordinates and normals into actual vertices, texture coordinates and normals
         const size_t verticesSize = vertices.size();
+        #ifdef BUILD_DEBUG
         const size_t textureCoordinatesSize = textureCoordinates.size();
         const size_t normalsSize = normals.size();
+        #endif
 
         const size_t verticesIndicesSize = verticesIndices.size();
         const size_t textureCoordinatesIndicesSize = textureCoordinatesIndices.size();
@@ -333,12 +335,12 @@ namespace breathe
           mesh.normals = tempNormals;
         }
 
-        {
-          const size_t a = mesh.vertices.size();
-          const size_t b = mesh.textureCoordinates.size();
-          const size_t c = mesh.normals.size();
-          LOG("After Vertices=", a, ", TextureCoordinates=", b, ", Normals=", c);
-        }
+        #ifdef BUILD_DEBUG
+        const size_t a = mesh.vertices.size();
+        const size_t b = mesh.textureCoordinates.size();
+        const size_t c = mesh.normals.size();
+        LOG("After Vertices=", a, ", TextureCoordinates=", b, ", Normals=", c);
+        #endif
 
         LOG("cFileFormatOBJ::LoadMesh returning");
 
@@ -434,8 +436,10 @@ namespace breathe
           if (i != 0) i--;
         }
 
+        #ifdef BUILD_DEBUG
         const size_t nMeshes = model.mesh.size();
         LOG("Meshes=", nMeshes);
+        #endif
 
         return true;
       }
