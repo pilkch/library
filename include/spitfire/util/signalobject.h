@@ -29,9 +29,11 @@ namespace spitfire
       void Reset();
 
       void WaitForever();
-      bool WaitTimeoutMS(uint32_t uTimeOutMS);
+      bool WaitTimeoutMS(durationms_t uTimeOutMS);
 
     private:
+      NO_COPY(cSignalObject); // Copying is forbidden
+
       string_t sName;
       mutable std::mutex mutex;
       std::condition_variable condition;
@@ -93,7 +95,7 @@ namespace spitfire
       }
     }
 
-    inline bool cSignalObject::WaitTimeoutMS(uint32_t uTimeOutMS)
+    inline bool cSignalObject::WaitTimeoutMS(durationms_t uTimeOutMS)
     {
       const auto endTime = std::chrono::system_clock::now() + std::chrono::milliseconds(uTimeOutMS);
       bool bResult = false;
