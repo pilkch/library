@@ -413,8 +413,7 @@ namespace opengl
         // Add the lines
         o << sLines;
         o << "\n";
-      }
-      else {
+      } else {
         ParseLineVertexShader(sLine);
         ParseLineShader(sLine);
 
@@ -466,8 +465,7 @@ namespace opengl
         // Add the lines
         o << sLines;
         o << "\n";
-      }
-      else {
+      } else {
         ParseLineFragmentShader(sLine);
         ParseLineShader(sLine);
 
