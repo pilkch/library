@@ -393,7 +393,7 @@ namespace opengl
     return o.str();
   }
 
-  void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
+  void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
     cParserContext parserContext(sFolderPath);
 
@@ -405,7 +405,15 @@ namespace opengl
       std::getline(f, sLine);
 
       // Check if this is a version line
-      if (spitfire::string::StartsWith(sLine, "#version")) parserContext.uShaderVersion = ParseVersion(sLine);
+      if (spitfire::string::StartsWith(sLine, "#version")) {
+        parserContext.uShaderVersion = ParseVersion(sLine);
+
+        // Now that we have added our version we can add the defines straight away
+        o << "\n";
+        const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
+        for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
+        o << "\n";
+      }
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
         const std::string sLines = ParseInclude(parserContext, sLine);
@@ -445,7 +453,7 @@ namespace opengl
     }
   }
 
-  void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath)
+  void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
     cParserContext parserContext(sFolderPath);
 
@@ -457,7 +465,15 @@ namespace opengl
       std::getline(f, sLine);
 
       // Check if this is a version line
-      if (spitfire::string::StartsWith(sLine, "#version")) parserContext.uShaderVersion = ParseVersion(sLine);
+      if (spitfire::string::StartsWith(sLine, "#version")) {
+        parserContext.uShaderVersion = ParseVersion(sLine);
+
+        // Now that we have added our version we can add the defines straight away
+        o << "\n";
+        const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
+        for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
+        o << "\n";
+      }
 
       if (spitfire::string::StartsWith(sLine, "#include <")) {
         const std::string sLines = ParseInclude(parserContext, sLine);
@@ -597,12 +613,12 @@ namespace opengl
     return IsCompiledProgram();
   }
 
-  bool cShader::LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath)
+  bool cShader::LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
     LOG("glGetError=", cSystem::GetErrorString());
 
-    _LoadVertexShaderFromText(sShaderVertexText, sFolderPath);
-    _LoadFragmentShaderFromText(sShaderFragmentText, sFolderPath);
+    _LoadVertexShaderFromText(sShaderVertexText, sFolderPath, mapDefinesToAdd);
+    _LoadFragmentShaderFromText(sShaderFragmentText, sFolderPath, mapDefinesToAdd);
     _Compile();
 
     return IsCompiledProgram();
