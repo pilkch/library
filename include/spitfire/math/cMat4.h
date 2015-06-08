@@ -1,6 +1,7 @@
 #ifndef CMAT4_H
 #define CMAT4_H
 
+// Spitfire headers
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cVec4.h>
 

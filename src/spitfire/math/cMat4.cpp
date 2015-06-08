@@ -85,20 +85,18 @@ namespace spitfire
 
     cVec4 cMat4::GetColumn(size_t position) const
     {
-      if (position == 0) return cVec4(entries[0], entries[1], entries[2], entries[3]);
-
-      if (position == 1)
-        return cVec4(entries[4], entries[5], entries[6], entries[7]);
-
-      if (position == 2) return cVec4(entries[8], entries[9], entries[10], entries[11]);
-
-      if (position == 3) return cVec4(entries[12], entries[13], entries[14], entries[15]);
+      switch (position) {
+        case 0: return cVec4(entries[0], entries[1], entries[2], entries[3]);
+        case 1: return cVec4(entries[4], entries[5], entries[6], entries[7]);
+        case 2: return cVec4(entries[8], entries[9], entries[10], entries[11]);
+        case 3: return cVec4(entries[12], entries[13], entries[14], entries[15]);
+      };
 
       // "Illegal argument to cMat4::GetColumn()"
       return cVec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    void cMat4::LoadIdentity(void)
+    void cMat4::LoadIdentity()
     {
       entries[0] = 1.0f;
       entries[1] = 0.0f;
@@ -121,7 +119,7 @@ namespace spitfire
       entries[15] = 1.0f;
     }
 
-    void cMat4::LoadZero(void)
+    void cMat4::LoadZero()
     {
       for (size_t entry = 0; entry < 16; entry++) entries[entry] = 0;
     }
@@ -455,6 +453,7 @@ namespace spitfire
 
       return result;
     }
+
     cVec3 cMat4::GetTranslatedVec3(const cVec3& rhs) const
     {
       return cVec3(rhs.x + entries[12], rhs.y + entries[13], rhs.z + entries[14]);
