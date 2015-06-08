@@ -18,6 +18,8 @@ namespace spitfire
     class cMat3
     {
     public:
+      friend class cMat4;
+
       cMat3();
       cMat3(const cMat3& rhs);
       explicit cMat3(const cMat4& rhs);

@@ -10,6 +10,7 @@
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cVec4.h>
+#include <spitfire/math/cMat3.h>
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 
@@ -23,6 +24,11 @@ namespace spitfire
     }
 
     cMat4::cMat4(const cMat4& rhs)
+    {
+      SetFromMatrix(rhs);
+    }
+
+    cMat4::cMat4(const cMat3& rhs)
     {
       SetFromMatrix(rhs);
     }
@@ -801,6 +807,21 @@ namespace spitfire
     void cMat4::SetFromMatrix(const cMat4& rhs)
     {
       for (size_t i = 0; i < 16; i++) entries[i] = rhs.entries[i];
+    }
+
+    void cMat4::SetFromMatrix(const cMat3& rhs)
+    {
+      LoadIdentity();
+
+      entries[0] = rhs.entries[0];
+      entries[1] = rhs.entries[1];
+      entries[2] = rhs.entries[2];
+      entries[4] = rhs.entries[3];
+      entries[5] = rhs.entries[4];
+      entries[6] = rhs.entries[5];
+      entries[8] = rhs.entries[6];
+      entries[9] = rhs.entries[7];
+      entries[10] = rhs.entries[8];
     }
 
     void cMat4::SetFromOpenGLMatrix(const float* pEntries)

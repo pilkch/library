@@ -24,6 +24,7 @@ namespace spitfire
 
       cMat4();
       cMat4(const cMat4& rhs);
+      explicit cMat4(const cMat3& rhs);
       ~cMat4() {}
 
       const float& operator[](const size_t i) const;
@@ -118,6 +119,7 @@ namespace spitfire
       void SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar);
 
       void SetFromQuaternion(const cQuaternion& rhs);
+      void SetFromMatrix(const cMat3& rhs);
       void SetFromMatrix(const cMat4& rhs);
 
       // Get a pointer to a (float*) for glMultMatrixf etc
