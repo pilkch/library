@@ -127,7 +127,7 @@ namespace opengl
 
     int infologLength = 0;
     glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
-    LOG("glGetShaderiv glGetError=", cSystem::GetErrorString());
+    LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
@@ -140,7 +140,7 @@ namespace opengl
         sInfo.find("ERROR") != std::string::npos
       ) {
         sInfo = spitfire::string::Replace(sInfo, "\n", "<br>");
-        LOG(TEXT("cShader::CheckStatusVertex Vertex Shader "), sShaderVertex, TEXT(": "), spitfire::string::ToString_t(sInfo));
+        LOG(TEXT("Vertex Shader "), sShaderVertex, TEXT(": "), spitfire::string::ToString_t(sInfo));
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -155,7 +155,7 @@ namespace opengl
 
     int infologLength = 0;
     glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
-    LOG("glGetShaderiv glGetError=", cSystem::GetErrorString());
+    LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
