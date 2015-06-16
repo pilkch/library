@@ -46,6 +46,11 @@ namespace spitfire
       //w = w; // Note: w does not change
     }
 
+    float cQuaternion::GetDotProduct(const cQuaternion& rhs) const
+    {
+      return w * rhs.w + x * rhs.x + y * rhs.y + z * rhs.z;
+    }
+
     // Set a quaternion from angles of rotation about x, y, z
     void cQuaternion::SetFromAngles(const cVec3& v)
     {
@@ -248,12 +253,12 @@ namespace spitfire
       return 2.0f * acos(w);
     }
 
-    cVec3 cQuaternion::GetAxis() const
+    float cQuaternion::GetAngleDegrees() const
     {
       return RadiansToDegrees(GetAngleRadians());
     }
 
-    float cQuaternion::GetAngleDegrees() const
+    cVec3 cQuaternion::GetAxis() const
     {
       const float fScale = 1.0f / sqrt((x * x) + (y * y) + (z * z));
       return cVec3(fScale * x, fScale * y, fScale * z);

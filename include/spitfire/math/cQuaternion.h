@@ -72,6 +72,8 @@ namespace spitfire
 
       cQuaternion GetInverse() const;
       cQuaternion GetConjugate() const;
+      
+      float GetDotProduct(const cQuaternion& rhs) const;
 
       // Set spherical linear interpolated quaternion between q1 and q2, with respect to t
       // If the second is backwards, that is ok
