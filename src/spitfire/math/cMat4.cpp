@@ -14,6 +14,10 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cQuaternion.h>
 
+#ifdef BUILD_DEBUG
+#include <spitfire/util/log.h>
+#endif
+
 namespace spitfire
 {
   namespace math
