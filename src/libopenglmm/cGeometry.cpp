@@ -24,12 +24,12 @@ namespace opengl
     const spitfire::math::cVec2 vMax(fWidth * 0.5f, fDepth * 0.5f);
 
     // Upper Square
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, 0.0f), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
   }
 
   template <class T>
@@ -206,17 +206,12 @@ namespace opengl
 
     spitfire::math::cMat4 matScale;
     matScale.SetScale(0.1f);
-    spitfire::math::cMat4 matRotation;
-    matRotation.SetRotationX(spitfire::math::DegreesToRadians(90.0f));
-
-    spitfire::math::cMat4 matFinal;
-    matFinal = matScale * matRotation;
 
     const size_t nPoints = countof(verticesArray) / 3;
     for (size_t i = 0; i < nPoints; i++) {
       const size_t nPointOffset = i * 3;
       const size_t nTextureCoordinatesOffset = i * 2;
-      builder.PushBack(matFinal * spitfire::math::cVec3(verticesArray[nPointOffset], verticesArray[nPointOffset + 1], verticesArray[nPointOffset + 2]), matFinal * spitfire::math::cVec3(normalsArray[nPointOffset], normalsArray[nPointOffset + 1], normalsArray[nPointOffset + 2]), spitfire::math::cVec2(textureCoordinatesArray[nTextureCoordinatesOffset + 1], textureCoordinatesArray[nTextureCoordinatesOffset + 2]));
+      builder.PushBack(matScale * spitfire::math::cVec3(verticesArray[nPointOffset], verticesArray[nPointOffset + 1], verticesArray[nPointOffset + 2]), matScale * spitfire::math::cVec3(normalsArray[nPointOffset], normalsArray[nPointOffset + 1], normalsArray[nPointOffset + 2]), spitfire::math::cVec2(textureCoordinatesArray[nTextureCoordinatesOffset + 1], textureCoordinatesArray[nTextureCoordinatesOffset + 2]));
     }
 
     const size_t nIndices = countof(indicesArray);
