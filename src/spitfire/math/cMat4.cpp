@@ -222,18 +222,18 @@ namespace spitfire
 
     void cMat4::SetRotation(const cQuaternion& rhs)
     {
-      SetRotationAxis(rhs.GetAngle(), rhs.GetAxis());
+      SetRotationAxisAngleRadians(rhs.GetAxis(), rhs.GetAngleRadians());
     }
 
-    void cMat4::SetRotationAxis(float fAngleRadians, const cVec3& _axis)
+    void cMat4::SetRotationAxisAngleRadians(const cVec3& _axis, float fAngleRadians)
     {
       const cVec3 axis(_axis.GetNormalised());
 
-      float b = fAngleRadians;
+      const float b = fAngleRadians;
 
-      float c = cosf(b);
-      float ac = 1.00f - c;
-      float s = sinf(b);
+      const float c = cosf(b);
+      const float ac = 1.0f - c;
+      const float s = sinf(b);
 
       entries[0] = axis.x * axis.x * ac + c;
       entries[1] = axis.x * axis.y * ac + axis.z * s;
@@ -251,18 +251,18 @@ namespace spitfire
     void cMat4::SetRotationX(float fAngleRadians)
     {
       entries[5] = cosf(fAngleRadians);
-      entries[6] = sinf(fAngleRadians);
+      entries[6] = -sinf(fAngleRadians);
 
-      entries[9] = -sinf(fAngleRadians);
+      entries[9] = sinf(fAngleRadians);
       entries[10] = cosf(fAngleRadians);
     }
 
     void cMat4::SetRotationY(float fAngleRadians)
     {
       entries[0] = cosf(fAngleRadians);
-      entries[2] = -sinf(fAngleRadians);
+      entries[2] = sinf(fAngleRadians);
 
-      entries[8] = sinf(fAngleRadians);
+      entries[8] = -sinf(fAngleRadians);
       entries[10] = cosf(fAngleRadians);
     }
 
@@ -743,16 +743,19 @@ namespace spitfire
 
     void cMat4::SetPerspective(float fFovY, float fAspect, float fNear, float fFar)
     {
-      // Convert fov from degrees to radians
-      fFovY = math::DegreesToRadians(fFovY);
+      ASSERT(fAspect != 0.0f);
+      ASSERT(fFar != fNear);
 
-      const float fTop = fNear * tanf(fFovY * 0.5f);
-      const float fBottom = -fTop;
+      LoadIdentity();
 
-      const float fLeft = fAspect * fBottom;
-      const float fRight = fAspect * fTop;
+      const float fFovRadians = DegreesToRadians(fFovY);
+      const float fTanHalfFovY = tan(fFovRadians / 2.0f);
 
-      SetPerspective(fLeft, fRight, fBottom, fTop, fNear, fFar);
+      entries[0] = 1.0f / (fAspect * fTanHalfFovY);
+      entries[5] = 1.0f / (fTanHalfFovY);
+      entries[10] = -(fFar + fNear) / (fFar - fNear);
+      entries[11] = -1.0f;
+      entries[14] = -(2.0f * fFar * fNear) / (fFar - fNear);
     }
 
     void cMat4::SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar)

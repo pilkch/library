@@ -147,12 +147,12 @@ namespace spitfire
 
     const cVec3 v3Zero(0.0f, 0.0f, 0.0f);
 
-    const cVec3 v3Up(0.0f, 0.0f, 1.0f);
-    const cVec3 v3Down(0.0f, 0.0f, -1.0f);
-    const cVec3 v3Left(1.0f, 0.0f, 0.0f);
-    const cVec3 v3Right(-1.0f, 0.0f, 0.0f);
-    const cVec3 v3Front(0.0f, 1.0f, 0.0f);
-    const cVec3 v3Back(0.0f, -1.0f, 0.0f);
+    const cVec3 v3Up(0.0f, 1.0f, 0.0f);
+    const cVec3 v3Down(0.0f, -1.0f, 0.0f);
+    const cVec3 v3Left(-1.0f, 0.0f, 0.0f);
+    const cVec3 v3Right(1.0f, 0.0f, 0.0f);
+    const cVec3 v3Front(0.0f, 0.0f, 1.0f);
+    const cVec3 v3Back(0.0f, 0.0f, -1.0f);
   }
 }
 

@@ -274,12 +274,12 @@ namespace spitfire
 
     void cVec3::RotateByQuaternion(const cQuaternion& rhs)
     {
-      RotateAxis(rhs.GetAngle(), rhs.GetAxis());
+      RotateAxis(rhs.GetAngleRadians(), rhs.GetAxis());
     }
 
     cVec3 cVec3::GetRotatedByQuaternion(const cQuaternion& rhs) const
     {
-      return cVec3(GetRotatedAxis(rhs.GetAngle(), rhs.GetAxis()));
+      return cVec3(GetRotatedAxis(rhs.GetAngleRadians(), rhs.GetAxis()));
     }
 
     void cVec3::PackTo01()

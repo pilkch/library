@@ -243,33 +243,25 @@ namespace spitfire
     }
 
 
-    float cQuaternion::GetAngleDegrees() const
+    float cQuaternion::GetAngleRadians() const
     {
       return 2.0f * acos(w);
     }
 
     cVec3 cQuaternion::GetAxis() const
     {
-      const float angle = GetAngle();
-      const float scale = 1.0f / sin(angle * 0.5f);
+      return RadiansToDegrees(GetAngleRadians());
+    }
 
-      return cVec3(scale * x, scale * y, scale * z);
+    cVec3 cQuaternion::GetAxis() const
+    {
+      const float fScale = 1.0f / sqrt((x * x) + (y * y) + (z * z));
+      return cVec3(fScale * x, fScale * y, fScale * z);
     }
 
 
     cVec3 cQuaternion::GetEuler() const
     {
-      /*const float sqw = w * w;
-      const float sqx = x * x;
-      const float sqy = y * y;
-      const float sqz = z * z;
-
-      return cVec3(
-        math::RadiansToDegrees(atan2(2.0f * (y * z + x * w) , (-sqx - sqy + sqz + sqw))),
-        math::RadiansToDegrees(asin(-2.0f * (x * z - y * w))),
-        math::RadiansToDegrees(atan2(2.0f * (x * y + z * w), (sqx - sqy - sqz + sqw)))
-      );*/
-
       const float sqw = w * w;
       const float sqx = x * x;
       const float sqy = y * y;
@@ -316,56 +308,37 @@ namespace spitfire
 
     cMat4 cQuaternion::GetMatrix() const
     {
-      /*const double x2 = x * x;
-      const double y2 = y * y;
-      const double z2 = z * z;
-      const double w2 = w * w;
+      cQuaternion normalised(*this);
+      normalised.Normalise();
 
-      const double xy = x * y;
-      const double xz = x * z;
-      const double yz = y * z;
-      const double wx = w * x;
-      const double wy = w * y;
-      const double wz = w * z;*/
-
-      /*// First row
-      pMatrix[ 0] = 1.0f - 2.0f * ( y * y + z * z );
-      pMatrix[ 1] = 2.0f * ( x * y - w * z );
-      pMatrix[ 2] = 2.0f * ( x * z + w * y );
-      pMatrix[ 3] = 0.0f;
-
-      // Second row
-      pMatrix[ 4] = 2.0f * ( x * y + w * z );
-      pMatrix[ 5] = 1.0f - 2.0f * ( x * x + z * z );
-      pMatrix[ 6] = 2.0f * ( y * z - w * x );
-      pMatrix[ 7] = 0.0f;
-
-      // Third row
-      pMatrix[ 8] = 2.0f * ( x * z - w * y );
-      pMatrix[ 9] = 2.0f * ( y * z + w * x );
-      pMatrix[10] = 1.0f - 2.0f * ( x * x + y * y );
-      pMatrix[11] = 0.0f;*/
-
-      // Now pMatrix[] is a 4x4 homogeneous matrix that can be applied to an OpenGL Matrix
+      const float x2 = normalised.x * normalised.x;
+      const float y2 = normalised.y * normalised.y;
+      const float z2 = normalised.z * normalised.z;
+      const float xy = normalised.x * normalised.y;
+      const float xz = normalised.x * normalised.z;
+      const float yz = normalised.y * normalised.z;
+      const float wx = normalised.w * normalised.x;
+      const float wy = normalised.w * normalised.y;
+      const float wz = normalised.w * normalised.z;
 
       cMat4 mat;
 
       // First row
-      mat[ 0] = 1.0f - 2.0f * ( y * y + z * z );
-      mat[ 1] = 2.0f * (x * y + z * w);
-      mat[ 2] = 2.0f * (x * z - y * w);
-      mat[ 3] = 0.0f;
+      mat[0] = 1.0f - 2.0f * (y2 + z2);
+      mat[1] = 2.0f * (xy - wz);
+      mat[2] = mat[2] = 2.0f * (xz + wy);
+      mat[3] = 0.0f;
 
       // Second row
-      mat[ 4] = 2.0f * ( x * y - z * w );
-      mat[ 5] = 1.0f - 2.0f * ( x * x + z * z );
-      mat[ 6] = 2.0f * (z * y + x * w );
-      mat[ 7] = 0.0f;
+      mat[4] = 2.0f * (xy + wz);
+      mat[5] = 1.0f - 2.0f * (x2 + z2);
+      mat[6] = 2.0f * (yz - wx);
+      mat[7] = 0.0f;
 
       // Third row
-      mat[ 8] = 2.0f * ( x * z + y * w );
-      mat[ 9] = 2.0f * ( y * z - x * w );
-      mat[10] = 1.0f - 2.0f * ( x * x + y * y );
+      mat[8] = 2.0f * (xz - wy);
+      mat[9] = 2.0f * (yz + wx);
+      mat[10] = 1.0f - 2.0f * (x2 + y2);
       mat[11] = 0.0f;
 
       // Fourth row
@@ -374,34 +347,12 @@ namespace spitfire
       mat[14] = 0.0f;
       mat[15] = 1.0f;
 
-      /*printf( "GetMatrix()\n"
-      "%.02f, %.02f, %.02f, %.02f\n"
-      "%.02f, %.02f, %.02f, %.02f\n"
-      "%.02f, %.02f, %.02f, %.02f\n"
-      "%.02f, %.02f, %.02f, %.02f\n\n",
-      mat[0], mat[1], mat[2], mat[3],
-      mat[4], mat[5], mat[6], mat[7],
-      mat[8], mat[9], mat[10], mat[11],
-      mat[12], mat[13], mat[14], mat[15]);*/
-
       return mat;
     }
 
     // TODO: Remove these
     cMat4 cQuaternion::GetMD3Matrix() const
     {
-      /*const double x2 = x * x;
-      const double y2 = y * y;
-      const double z2 = z * z;
-      const double w2 = w * w;
-
-      const double xy = x * y;
-      const double xz = x * z;
-      const double yz = y * z;
-      const double wx = w * x;
-      const double wy = w * y;
-      const double wz = w * z;*/
-
       cMat4 mat;
 
       // First row

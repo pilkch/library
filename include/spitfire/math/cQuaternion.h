@@ -60,8 +60,9 @@ namespace spitfire
       void Normalise();
 
       // Retrieve axis/angle
+      float GetAngleRadians() const;
       float GetAngleDegrees() const;
-      float GetAngle() const { return GetAngleDegrees(); } // Deprecated
+      //float GetAngle() const { return GetAngleDegrees(); } // Deprecated
       cVec3 GetAxis() const;
       cVec3 GetEuler() const;
 

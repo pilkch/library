@@ -57,7 +57,7 @@ namespace spitfire
       void SetTranslation(float x, float y, float z) { SetTranslation(cVec3(x, y, z)); }
       void SetTranslation(const cVec3& translation);
       void SetRotation(const cQuaternion& rhs);
-      void SetRotationAxis(float fAngleRadians, const cVec3& axis);
+      void SetRotationAxisAngleRadians(const cVec3& axis, float fAngleRadians);
       void SetRotationX(float fAngleRadians);
       void SetRotationY(float fAngleRadians);
       void SetRotationZ(float fAngleRadians);
