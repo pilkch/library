@@ -162,8 +162,8 @@ inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator
 #endif
 
 #ifndef STRINGIFY
-#define _STRINGIFY(number) #number
-#define STRINGIFY(number)  _STRINGIFY(number)
+#define _STRINGIFY(value) #value
+#define STRINGIFY(value)  _STRINGIFY(value)
 #endif
 
 
