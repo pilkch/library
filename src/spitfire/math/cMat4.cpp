@@ -877,5 +877,58 @@ namespace spitfire
 
       MultiplyMatrix(matrix);
     }
+
+#ifdef BUILD_DEBUG
+    class cUnitTestContext
+    {
+    public:
+      cUnitTestContext();
+
+      void Assert(bool bCondition, const char* szText, const char* szFile, const char* szFunction, int iLine);
+
+      bool IsPassed() const { return !bError; }
+
+    private:
+      bool bError;
+    };
+
+    cUnitTestContext::cUnitTestContext() :
+      bError(false)
+    {
+    }
+
+    void cUnitTestContext::Assert(bool bCondition, const char* szText, const char* szFile, const char* szFunction, int iLine)
+    {
+      if (!bCondition) {
+        LOGERROR("Unit test condition failed \"", szText, "\" in file \"", szFile, "\", function \"", szFunction, "\", line ", iLine);
+        bError = true;
+      }
+    }
+    
+#define UTASSERT(b) unitTestContext.Assert(b, #b, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+
+    void UnitTestMat4Translation(cUnitTestContext& unitTestContext)
+    {
+      const cVec3 translation(1.0f, 2.0f, 3.0f);
+      cMat4 matTranslation;
+      matTranslation.SetTranslation(translation);
+
+      // Check the resulting translation
+      UTASSERT(matTranslation.GetTranslation().IsApproximatelyEqual(translation));
+
+      // Check each translation element
+      UTASSERT(IsApproximatelyEqual(matTranslation.GetEntry(12), translation.x));
+      UTASSERT(IsApproximatelyEqual(matTranslation.GetEntry(13), translation.y));
+      UTASSERT(IsApproximatelyEqual(matTranslation.GetEntry(14), translation.z));
+    }
+
+    void UnitTestMat4()
+    {
+      cUnitTestContext unitTestContext;
+      UnitTestMat4Translation(unitTestContext);
+      if (unitTestContext.IsPassed()) LOG("Unit test passed");
+      else LOGERROR("Unit test failed");
+    }
+#endif
   }
 }

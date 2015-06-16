@@ -36,6 +36,7 @@ namespace spitfire
 
       bool IsZeroVector() const;
 
+      bool IsApproximatelyEqual(const cVec3& rhs) const;
       bool IsWithinBounds(const cVec3& minimum, const cVec3& maximum) const;
 
       // vector algebra

@@ -253,7 +253,7 @@ namespace spitfire
       return RadiansToDegrees(GetAngleRadians());
     }
 
-    cVec3 cQuaternion::GetAxis() const
+    float cQuaternion::GetAngleDegrees() const
     {
       const float fScale = 1.0f / sqrt((x * x) + (y * y) + (z * z));
       return cVec3(fScale * x, fScale * y, fScale * z);

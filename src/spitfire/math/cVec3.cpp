@@ -54,6 +54,11 @@ namespace spitfire
       );
     }
 
+    bool cVec3::IsApproximatelyEqual(const cVec3& rhs) const
+    {
+      return cVec3(rhs - *this).IsZeroVector();
+    }
+
     bool cVec3::IsWithinBounds(const cVec3& minimum, const cVec3& maximum) const
     {
       return (

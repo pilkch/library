@@ -141,6 +141,10 @@ namespace spitfire
     private:
       float entries[16];
     };
+
+#ifdef BUILD_DEBUG
+    void UnitTestMat4();
+#endif
   }
 }
 
