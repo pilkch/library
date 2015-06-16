@@ -705,14 +705,18 @@ namespace voodoo
 
     if (buffer.empty()) return;
 
-    // This has not been implemented yet
-    assert(false);
-
-    /*// For each column swap it with the corresponding column on the other side of the image
+    // For each column swap it with the corresponding column on the other side of the image
     const size_t nBytesPerRow = GetBytesPerPixel() * width;
     const size_t halfWidth = width / 2;
     for (size_t y = 0; y < height; y++) {
-      std::memcpy(&buffer[(y * nBytesPerRow)], &buffer[(nBytesPerRow * height) - (y * nBytesPerRow)], nBytesPerRow);
-    }*/
+      for (size_t x = 0; x < halfWidth; x++) {
+        const size_t indexA = (nBytesPerRow * y) + (4 * x);
+        const size_t indexB = (nBytesPerRow * (y + 1)) - (4 * (x + 1));
+        std::swap(buffer[indexA], buffer[indexB]);
+        std::swap(buffer[indexA + 1], buffer[indexB + 1]);
+        std::swap(buffer[indexA + 2], buffer[indexB + 2]);
+        std::swap(buffer[indexA + 3], buffer[indexB + 3]);
+      }
+    }
   }
 }
