@@ -1144,6 +1144,11 @@ namespace opengl
     return true;
   }
 
+  bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour3& value)
+  {
+    return SetShaderConstant(sConstant, spitfire::math::cVec3(value.r, value.g, value.b));
+  }
+
   bool cContext::SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour& value)
   {
     return SetShaderConstant(sConstant, spitfire::math::cVec4(value.r, value.g, value.b, value.a));

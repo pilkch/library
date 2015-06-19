@@ -210,6 +210,7 @@ namespace opengl
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec2& value);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec3& value);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec4& value);
+    bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour3& value); // NOTE: This will try to look for a vec3 in the shader
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cColour& value); // NOTE: This will try to look for a vec4 in the shader
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat3& matrix);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat4& matrix);
