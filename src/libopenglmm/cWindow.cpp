@@ -98,6 +98,13 @@ namespace opengl
     }
   }
 
+  bool cWindow::IsActive() const
+  {
+    // Return true if this window has focus
+    uint32_t uFlags = SDL_GetWindowFlags(pWindow);
+    return ((uFlags & SDL_WINDOW_INPUT_FOCUS) != 0);
+  }
+
   void cWindow::ShowCursor(bool bShow)
   {
     SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);

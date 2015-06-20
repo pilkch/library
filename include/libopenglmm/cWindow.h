@@ -234,6 +234,8 @@ namespace opengl
     const opengl::string_t& GetCaption() const;
     void SetCaption(const opengl::string_t& sCaption);
 
+    bool IsActive() const;
+
     void ShowCursor(bool bShow);
     void WarpCursorToMiddleOfScreen();
 
