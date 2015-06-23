@@ -43,6 +43,9 @@ namespace spitfire
   }
   */
 
+    // ** cTimer
+    //
+    // For calculating the frames per second and timing how long each frame takes to render
     class cTimer
     {
     public:
