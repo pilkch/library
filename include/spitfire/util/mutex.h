@@ -9,12 +9,14 @@
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
+#include <spitfire/util/string.h>
 
 namespace spitfire
 {
   namespace util
   {
     class cLockObject;
+    class cSignalObject;
 
     class cMutex
     {
