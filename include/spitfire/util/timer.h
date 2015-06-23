@@ -3,15 +3,16 @@
 
 #include <spitfire/spitfire.h>
 
-#ifdef PLATFORM_LINUX_OR_UNIX
-// Standard headers
-#include <sys/time.h>
-#endif
-
 namespace spitfire
 {
   namespace util
   {
+    // Set up data for time functions
+    void TimeInit();
+
+    // Get the time since epoch in milliseconds
+    durationms_t GetTimeMS();
+
   /*
   TODO: Use std::high_resolution_clock
   // http://en.cppreference.com/w/cpp/chrono/high_resolution_clock
@@ -75,24 +76,8 @@ namespace spitfire
     };
 
 
-    #ifdef __WIN__
-    struct timeval {
-      long tv_sec;  // Time interval, in seconds
-      long tv_usec; // Time interval, in microseconds
-    };
-    struct timezone {
-      int tz_minuteswest; // Minutes W of Greenwich
-      int tz_dsttime;     // Type of daylight savings correction
-    };
-    // http://social.msdn.microsoft.com/Forums/en-US/vcgeneral/thread/430449b3-f6dd-4e18-84de-eebd26a8d668/
-    int gettimeofday(struct timeval* tv, struct timezone* tz);
-    #endif
 
-    inline durationms_t GetTimeMS()
     {
-      timeval tvNow;
-      gettimeofday(&tvNow, nullptr);
-      return (uint64_t(tvNow.tv_sec) * 1000) + (uint64_t(tvNow.tv_usec) / 1000);
     }
   }
 }
