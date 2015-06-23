@@ -43,6 +43,23 @@ namespace spitfire
   }
   */
 
+    // ** cTimeOut
+    //
+    // For use in a loop for example to work out 
+
+    class cTimeOut {
+    public:
+      explicit cTimeOut(durationms_t uTimeOutMS);
+
+      bool IsExpired() const;
+
+      durationms_t GetRemainingMS() const;
+
+    private:
+      const durationms_t uEndTimeMS;
+    };
+
+
     // ** cTimer
     //
     // For calculating the frames per second and timing how long each frame takes to render
@@ -79,8 +96,22 @@ namespace spitfire
     };
 
 
+    // ** cTimeOut
 
+    inline cTimeOut::cTimeOut(durationms_t uTimeOutMS) :
+      uEndTimeMS(GetTimeMS() + uTimeOutMS)
     {
+    }
+
+    inline bool cTimeOut::IsExpired() const
+    {
+      return (GetTimeMS() > uEndTimeMS);
+    }
+
+    inline durationms_t cTimeOut::GetRemainingMS() const
+    {
+      const int64_t iRemainingMS = int64_t(uEndTimeMS) - int64_t(GetTimeMS());
+      return (iRemainingMS >= 0) ? iRemainingMS : 0;
     }
   }
 }
