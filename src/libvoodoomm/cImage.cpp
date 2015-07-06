@@ -492,7 +492,7 @@ namespace voodoo
     std::cout<<"cImage::CreateFromBuffer "<<_width<<"x"<<_height<<std::endl;
 
     // Only RGBA is supported at the moment
-    assert(_pixelFormat == PIXELFORMAT::R8G8B8A8);
+    assert((_pixelFormat == PIXELFORMAT::R8G8B8) || (_pixelFormat == PIXELFORMAT::R8G8B8A8));
 
     width = _width;
     height = _height;
@@ -633,16 +633,24 @@ namespace voodoo
   void cImage::FillColour(uint8_t red, uint8_t green, uint8_t blue)
   {
     // Only RGBA is supported at the moment
-    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
+    assert((pixelFormat == PIXELFORMAT::R8G8B8) || (pixelFormat == PIXELFORMAT::R8G8B8A8));
 
     const size_t n = width * height * GetBytesPerPixel();
     buffer.resize(n);
 
-    for (size_t i = 0; i < n; i += 4) {
-      buffer[i] = red; // Red
-      buffer[i + 1] = green; // Green
-      buffer[i + 2] = blue; // Blue
-      buffer[i + 3] = 255; // Apha
+    if (pixelFormat == PIXELFORMAT::R8G8B8) {
+      for (size_t i = 0; i < n; i += 3) {
+        buffer[i] = red; // Red
+        buffer[i + 1] = green; // Green
+        buffer[i + 2] = blue; // Blue
+      }
+    } else {
+      for (size_t i = 0; i < n; i += 4) {
+        buffer[i] = red; // Red
+        buffer[i + 1] = green; // Green
+        buffer[i + 2] = blue; // Blue
+        buffer[i + 3] = 255; // Apha
+      }
     }
   }
 
