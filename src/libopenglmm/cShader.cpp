@@ -102,6 +102,9 @@ namespace opengl
     uiShaderProgram(0),
 
     bProjectionMatrix(false),
+    bViewMatrix(false),
+    bViewProjectionMatrix(false),
+    bModelMatrix(false),
     bModelViewMatrix(false),
     bModelViewProjectionMatrix(false),
     bNormalMatrix(false),
@@ -258,6 +261,9 @@ namespace opengl
 
     // Check which uniforms this shader uses
     if (spitfire::string::StartsWith(sLine, "uniform mat4 matProjection;")) bProjectionMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat4 matView;")) bViewMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat4 matViewProjection;")) bViewProjectionMatrix = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModel;")) bModelMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelView;")) bModelViewMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelViewProjection;")) bModelViewProjectionMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat3 matNormal;")) bNormalMatrix = true;
