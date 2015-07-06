@@ -795,8 +795,27 @@ namespace opengl
   {
     assert(pCurrentShader != nullptr);
 
-    spitfire::math::cMat4 _matProjection = CalculateProjectionMatrixRenderMode2D(type);
+    const spitfire::math::cMat4 _matProjection = CalculateProjectionMatrixRenderMode2D(type);
     SetShaderProjectionAndModelViewMatrices(_matProjection, _matModelView);
+  }
+
+  void cContext::SetShaderProjectionAndViewAndModelMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matView, const spitfire::math::cMat4& matModel)
+  {
+    // Update the view matrix on the shader if required
+    if (pCurrentShader->bViewMatrix) SetShaderConstant("matView", matView);
+
+    // Update the view projection matrix on the shader if required
+    if (pCurrentShader->bViewProjectionMatrix) {
+      const spitfire::math::cMat4 matViewProjection(matProjection * matView);
+      SetShaderConstant("matViewProjection", matViewProjection);
+    }
+
+    // Update the model matrix on the shader if required
+    if (pCurrentShader->bModelMatrix) SetShaderConstant("matModel", matModel);
+
+    // Set the rest of matrices as normal
+    const spitfire::math::cMat4 matModelView(matView * matModel);
+    SetShaderProjectionAndModelViewMatrices(matProjection, matModelView);
   }
 
   void cContext::SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& _matProjection, const spitfire::math::cMat4& _matModelView)

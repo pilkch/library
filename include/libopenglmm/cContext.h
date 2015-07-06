@@ -216,6 +216,7 @@ namespace opengl
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cMat4& matrix);
 
     // A shader must already be bound before these are called
+    void SetShaderProjectionAndViewAndModelMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matView, const spitfire::math::cMat4& matModel);
     void SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matModelView);
     void SetShaderProjectionAndModelViewMatricesRenderMode2D(MODE2D_TYPE type, const spitfire::math::cMat4& matModelView);
     //void SetTextureMatrix(const spitfire::math::cMat3& matTexture);
