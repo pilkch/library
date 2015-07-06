@@ -24,12 +24,12 @@ namespace opengl
     const spitfire::math::cVec2 vMax(fWidth * 0.5f, fDepth * 0.5f);
 
     // Upper Square
-    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
   }
 
   template <class T>
