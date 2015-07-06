@@ -331,7 +331,7 @@ namespace spitfire
       // First row
       mat[0] = 1.0f - 2.0f * (y2 + z2);
       mat[1] = 2.0f * (xy - wz);
-      mat[2] = mat[2] = 2.0f * (xz + wy);
+      mat[2] = 2.0f * (xz + wy);
       mat[3] = 0.0f;
 
       // Second row
