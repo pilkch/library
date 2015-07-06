@@ -112,7 +112,7 @@ namespace opengl
     // Bind so that the next operations happen on this texture
     glBindTexture(textureType, uiTexture);
 
-    GLenum internal = GL_RGBA;
+    GLenum internal = (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) ? GL_RGB : GL_RGBA;
     GLenum type = GL_UNSIGNED_BYTE;
 
     // Settings to make the texture look a bit nicer when we do blit it to the screen
@@ -136,7 +136,7 @@ namespace opengl
     }
 
     // Copy from image to texture
-    glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, pBuffer);
+    glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, internal, type, pBuffer);
 
     if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
