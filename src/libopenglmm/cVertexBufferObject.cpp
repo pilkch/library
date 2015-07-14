@@ -196,25 +196,25 @@ namespace opengl
     }
 
     // Tell the shader where the texture coordinates are (We specify them in groups of 2)
-    if (texturecoordinate_size >= 2) {
+    if (nTextureCoordinateSize >= 2) {
       glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
-    if (texturecoordinate_size >= 4) {
+    if (nTextureCoordinateSize >= 4) {
       glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
-    if (texturecoordinate_size >= 6) {
+    if (nTextureCoordinateSize >= 6) {
       glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
     }
-    if (texturecoordinate_size >= 8) {
+    if (nTextureCoordinateSize >= 8) {
       glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
@@ -222,23 +222,23 @@ namespace opengl
     }
 
     // Tell the shader where the float user data are (These are special fields that can be used to store user specified data such as tangents, blend weights, etc.)
-    if (floatUserData0_size != 0) {
+    if (nFloatUserData0Size != 0) {
       glVertexAttribPointer(shaderAttribute, int(nFloatUserData0Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
-      nBufferOffset += floatUserData0_size * sizeof(GLfloat);
+      nBufferOffset += nFloatUserData0Size * sizeof(GLfloat);
     }
-    if (floatUserData1_size != 0) {
+    if (nFloatUserData1Size != 0) {
       glVertexAttribPointer(shaderAttribute, int(nFloatUserData1Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
-      nBufferOffset += floatUserData1_size * sizeof(GLfloat);
+      nBufferOffset += nFloatUserData1Size * sizeof(GLfloat);
     }
-    if (floatUserData2_size != 0) {
+    if (nFloatUserData2Size != 0) {
       glVertexAttribPointer(shaderAttribute, int(nFloatUserData2Size), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
-      nBufferOffset += floatUserData2_size * sizeof(GLfloat);
+      nBufferOffset += nFloatUserData2Size * sizeof(GLfloat);
     }
     #endif
 
