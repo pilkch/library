@@ -310,7 +310,7 @@ namespace opengl
     (void)pixelFormat;
 
     cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height)) {
+    if (!pTexture->CreateFrameBufferObject(width, height, true, false)) {
       delete pTexture;
       return nullptr;
     }
@@ -326,7 +326,20 @@ namespace opengl
 
     cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
     pTexture->SetDoNotUseMipMaps();
-    if (!pTexture->CreateFrameBufferObject(width, height)) {
+    if (!pTexture->CreateFrameBufferObject(width, height, true, false)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
+  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectWithDepth(size_t width, size_t height)
+  {
+    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
+    if (!pTexture->CreateFrameBufferObject(width, height, true, true)) {
       delete pTexture;
       return nullptr;
     }
@@ -742,7 +755,7 @@ namespace opengl
     //LOG(cSystem::GetErrorString());
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) LOG("Incomplete FBO ", status);
+    if (status != GL_FRAMEBUFFER_COMPLETE) LOGERROR("Incomplete FBO ", status);
 
     //LOG(cSystem::GetErrorString());
 
@@ -1060,6 +1073,39 @@ namespace opengl
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
     glDisable(GL_TEXTURE_CUBE_MAP);
+    #endif
+  }
+
+
+  void cContext::BindTextureDepthBuffer(size_t uTextureUnit, const cTextureFrameBufferObject& texture)
+  {
+    //LOG(cSystem::GetErrorString());
+
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #endif
+
+    GLenum type = GL_TEXTURE_2D;
+    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+
+    glBindTexture(type, texture.GetDepthTexture());
+
+    //LOG(cSystem::GetErrorString()));
+  }
+
+  void cContext::UnBindTextureDepthBuffer(size_t uTextureUnit, const cTextureFrameBufferObject& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
+
+    GLenum type = GL_TEXTURE_2D;
+    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+
+    glBindTexture(type, 0);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glDisable(type);
     #endif
   }
 

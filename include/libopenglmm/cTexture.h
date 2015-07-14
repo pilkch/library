@@ -130,19 +130,24 @@ namespace opengl
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }
 
-    bool CreateFrameBufferObject(size_t width, size_t height);
+    bool CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer);
 
     void GenerateMipMapsIfRequired();
 
     void SelectMipMapLevelOfDetail(float fLevelOfDetail);
 
+    bool IsDepthTexturePresent() const;
+    unsigned int GetDepthTexture() const;
+
     unsigned int uiFBO;            // Our handle to the FBO
     unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
 
   private:
-    bool _IsValid() const { return (uiTexture != 0) && (uiFBO != 0) && (uiFBODepthBuffer != 0); }
-    void _Create();
+    bool _IsValid() const { return ((uiTexture != 0) && (uiFBO != 0)) || ((uiDepthTexture != 0) && (uiFBODepthBuffer != 0)); }
+    void Create(bool bColourBuffer, bool bDepthBuffer);
     void _Destroy();
+
+    unsigned int uiDepthTexture;
 
     bool bIsCubeMap;
   };

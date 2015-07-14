@@ -240,6 +240,7 @@ namespace opengl
   cTextureFrameBufferObject::cTextureFrameBufferObject() :
     uiFBO(0),
     uiFBODepthBuffer(0),
+    uiDepthTexture(0),
     bIsCubeMap(false)
   {
     image.SetWidth(DEFAULT_FBO_TEXTURE_WIDTH);
@@ -249,102 +250,139 @@ namespace opengl
   cTextureFrameBufferObject::~cTextureFrameBufferObject()
   {
     assert(uiTexture == 0);
+    assert(uiDepthTexture == 0);
   }
 
-  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height)
+  bool cTextureFrameBufferObject::IsDepthTexturePresent() const
+  {
+    return (uiDepthTexture != 0);
+  }
+
+  unsigned int cTextureFrameBufferObject::GetDepthTexture() const
+  {
+    //ASSERT(glIsTexture(uiFBODepthBuffer) == GL_TRUE);
+    //return uiFBODepthBuffer;
+    ASSERT(glIsTexture(uiDepthTexture) == GL_TRUE);
+    return uiDepthTexture;
+  }
+
+  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer)
   {
     image.SetWidth(width);
     image.SetHeight(height);
 
-    Create();
+    Create(bColourBuffer, bDepthBuffer);
 
     return IsValid();
   }
 
-  void cTextureFrameBufferObject::_Create()
+  void cTextureFrameBufferObject::Create(bool bColourBuffer, bool bDepthBuffer)
   {
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.282D.29.2C_mipmaps
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.28Cubemap.29
+    // http://www.gamedev.net/topic/617910-rendering-to-and-using-a-depth-texture/
 
     const size_t uiWidth = image.GetWidth();
     const size_t uiHeight = image.GetHeight();
 
-    // Create FBO
     glGenFramebuffers(1, &uiFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, uiFBO);
 
-    if (!bIsCubeMap) {
-      const bool bIsRectangle = uiWidth != uiHeight;
+    // Create FBO for colour buffer
+    if (bColourBuffer) {
+      if (!bIsCubeMap) {
+        const bool bIsRectangle = uiWidth != uiHeight;
 
-      // Turn off mipmaps for rectangular textures
-      if (bIsRectangle) bIsUsingMipMaps = false;
+        // Turn off mipmaps for rectangular textures
+        if (bIsRectangle) bIsUsingMipMaps = false;
+
+        const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+
+        // Now setup a texture to render to
+        glGenTextures(1, &uiTexture);
+        glBindTexture(textureType, uiTexture);
+
+        GLenum internal = GL_RGBA8;
+        GLenum type = GL_UNSIGNED_BYTE;
+
+        // We want all FBO textures to be 16bit as we will get more precision hopefully
+        internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
+        //internal = GL_RGBA32F;
+        type = GL_FLOAT;
+
+        glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, NULL);
+
+        glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        if (bIsUsingMipMaps) {
+          glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+          glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+          glGenerateMipmap(textureType);
+        }
+
+        // And attach it to the FBO so we can render to it
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureType, uiTexture, 0);
+      } else {
+        // Cube maps have to be square, power of two textures
+        assert(spitfire::math::IsPowerOfTwo(uiWidth));
+        assert(spitfire::math::IsPowerOfTwo(uiHeight));
+        assert(uiWidth == uiHeight);
+
+        // Now setup a texture to render to
+        glGenTextures(1, &uiTexture);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, uiTexture);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        // NULL means reserve texture memory, but texels are undefined
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+
+        // Attach one of the faces of the Cubemap texture to this FBO
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
+      }
+    }
+
+    if (bDepthBuffer) {
+      const bool bIsRectangle = uiWidth != uiHeight;
 
       const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
 
-      // Now setup a texture to render to
-      glGenTextures(1, &uiTexture);
-      glBindTexture(textureType, uiTexture);
+      // Create the texture for the depth
+      glGenTextures(1, &uiDepthTexture);
+      glBindTexture(textureType, uiDepthTexture);
 
-      GLenum internal = GL_RGBA8;
-      GLenum type = GL_UNSIGNED_BYTE;
+      glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_NONE);
+      glTexImage2D(textureType, 0, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
-      // We want all FBO textures to be 16bit as we will get more precision hopefully
-      internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
-      //internal = GL_RGBA32F;
-      type = GL_FLOAT;
+      glBindTexture(textureType, 0);
 
-      glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, NULL);
+      // Create the Render Buffer for Depth
+      glGenRenderbuffers(1, &uiFBODepthBuffer);
+      glBindRenderbuffer(GL_RENDERBUFFER, uiFBODepthBuffer);
+      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight));
 
-      glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      // Attach the depth render buffer to the FBO as it's depth attachment
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uiFBODepthBuffer);
 
-      if (bIsUsingMipMaps) {
-        glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(textureType);
-      }
-
-      // And attach it to the FBO so we can render to it
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureType, uiTexture, 0);
-    } else {
-      // Cube maps have to be square, power of two textures
-      assert(spitfire::math::IsPowerOfTwo(uiWidth));
-      assert(spitfire::math::IsPowerOfTwo(uiHeight));
-      assert(uiWidth == uiHeight);
-
-      // Now setup a texture to render to
-      glGenTextures(1, &uiTexture);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, uiTexture);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-      // NULL means reserve texture memory, but texels are undefined
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-      // Attach one of the faces of the Cubemap texture to this FBO
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
+      // Attach it to the FBO so we can render to it
+      //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, uiDepthTexture, 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureType, uiDepthTexture, 0);
     }
-
-
-
-    // Create the Render Buffer for Depth
-    glGenRenderbuffers(1, &uiFBODepthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, uiFBODepthBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight));
-
-    // Attach the depth render buffer to the FBO as it's depth attachment
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uiFBODepthBuffer);
-
 
 
     // Check our status to make sure that we have a complete and ready to use FBO
@@ -389,7 +427,7 @@ namespace opengl
         }
       }
 
-      std::cout<<"cTextureFrameBufferObject::_Create FAILED status="<<sError<<std::endl;
+      LOGERROR("FAILED status=", sError);
       assert(status == GL_FRAMEBUFFER_COMPLETE);
     }
 
@@ -406,6 +444,9 @@ namespace opengl
 
     // Unbind this texture if it is bound
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDeleteTextures(1, &uiDepthTexture);
+    uiDepthTexture = 0;
 
     glDeleteTextures(1, &uiTexture);
     uiTexture = 0;
