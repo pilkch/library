@@ -207,6 +207,18 @@ namespace opengl
   };
 
 
+  class cGeometryBuilder_v3_n3_t2_user3
+  {
+  public:
+    explicit cGeometryBuilder_v3_n3_t2_user3(cGeometryData& data);
+
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec3& user0);
+
+  private:
+    cGeometryData& data;
+  };
+
+
 
   inline cGeometryBuilder_v2::cGeometryBuilder_v2(cGeometryData& _data) :
     data(_data)
@@ -600,6 +612,32 @@ namespace opengl
   inline void cGeometryBuilder_v3_n3_t2_t2_t2_i::PushBackIndex(uint16_t index)
   {
     data.indices.push_back(index);
+  }
+
+
+  inline cGeometryBuilder_v3_n3_t2_user3::cGeometryBuilder_v3_n3_t2_user3(cGeometryData& _data) :
+    data(_data)
+  {
+    data.nVerticesPerPoint = 3;
+    data.nNormalsPerPoint = 3;
+    data.nTextureCoordinatesPerPoint = 2;
+    data.nFloatUserData0PerPoint = 3;
+  }
+
+  inline void cGeometryBuilder_v3_n3_t2_user3::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cVec3& user0)
+  {
+    data.vertices.push_back(vertex.x);
+    data.vertices.push_back(vertex.y);
+    data.vertices.push_back(vertex.z);
+    data.vertices.push_back(normal.x);
+    data.vertices.push_back(normal.y);
+    data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
+    data.vertices.push_back(user0.x);
+    data.vertices.push_back(user0.y);
+    data.vertices.push_back(user0.z);
+    data.nVertexCount++;
   }
 
 
