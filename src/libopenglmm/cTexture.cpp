@@ -302,13 +302,10 @@ namespace opengl
         glGenTextures(1, &uiTexture);
         glBindTexture(textureType, uiTexture);
 
-        GLenum internal = GL_RGBA8;
-        GLenum type = GL_UNSIGNED_BYTE;
-
         // We want all FBO textures to be 16bit as we will get more precision hopefully
-        internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
+        GLenum internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
         //internal = GL_RGBA32F;
-        type = GL_FLOAT;
+        GLenum type = GL_FLOAT;
 
         glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, NULL);
 
