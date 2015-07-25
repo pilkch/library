@@ -288,6 +288,9 @@ namespace opengl
     spitfire::math::cMat4 matModelView;
     spitfire::math::cMat3 matTexture;
 
+    float fNear;
+    float fFar;
+
     spitfire::math::cColour clearColour;
     spitfire::math::cColour ambientColour;
 

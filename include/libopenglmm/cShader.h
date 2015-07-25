@@ -129,6 +129,10 @@ namespace opengl
     bool bTexUnit2;
     bool bTexUnit3;
 
+    // Near and far distances
+    bool bNear;
+    bool bFar;
+
     bool bCameraPos;
     bool bAmbientColour;
     bool bSunPosition;

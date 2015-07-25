@@ -114,6 +114,9 @@ namespace opengl
     bTexUnit2(false),
     bTexUnit3(false),
 
+    bNear(false),
+    bFar(false),
+
     bCameraPos(false),
     bAmbientColour(false),
     bSunPosition(false),
@@ -279,6 +282,8 @@ namespace opengl
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform float fNear;")) bNear = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform float fFar;")) bFar = true;
     else if (spitfire::string::StartsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
     else if (spitfire::string::StartsWith(sLine, "uniform vec3 sunPosition;")) bSunPosition = true;
     else if (spitfire::string::StartsWith(sLine, "uniform vec4 sunAmbientColour;")) bSunAmbientColour = true;

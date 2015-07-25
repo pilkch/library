@@ -52,6 +52,8 @@ namespace opengl
     pSurface(nullptr),
     targetWidth(0),
     targetHeight(0),
+    fNear(0.1f),
+    fFar(1000.0f),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     sunAmbientColour(1.0f, 1.0f, 1.0f, 1.0f),
@@ -119,6 +121,8 @@ namespace opengl
     #endif
     targetWidth(0),
     targetHeight(0),
+    fNear(0.1f),
+    fFar(1000.0f),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
     pCurrentShader(nullptr)
@@ -587,9 +591,8 @@ namespace opengl
     // Set our perspective
     assert(height != 0); // Protect against a divide by zero
     const GLfloat fRatio = (GLfloat)width / (GLfloat)height;
-    const float fMaximumViewDistance = 1000.0f;
     spitfire::math::cMat4 matrix;
-    matrix.SetPerspective(fFOV, fRatio, 0.1f, fMaximumViewDistance);
+    matrix.SetPerspective(fFOV, fRatio, fNear, fFar);
     return matrix;
   }
 
@@ -1128,6 +1131,9 @@ namespace opengl
     if (shader.bTexUnit1) SetShaderConstant("texUnit1", 1);
     if (shader.bTexUnit2) SetShaderConstant("texUnit2", 2);
     if (shader.bTexUnit3) SetShaderConstant("texUnit3", 3);
+
+    if (shader.bNear) SetShaderConstant("fNear", fNear);
+    if (shader.bFar) SetShaderConstant("fFar", fFar);
 
     if (shader.bAmbientColour) SetShaderConstant("ambientColour", ambientColour);
     if (shader.bSunAmbientColour) SetShaderConstant("sunAmbientColour", sunAmbientColour);
