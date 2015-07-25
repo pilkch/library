@@ -355,23 +355,27 @@ namespace opengl
 
       const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
 
+      const GLenum internal = GL_DEPTH_COMPONENT;
+      const GLenum type = GL_FLOAT;
+
       // Create the texture for the depth
       glGenTextures(1, &uiDepthTexture);
       glBindTexture(textureType, uiDepthTexture);
 
-      glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_NONE);
-      glTexImage2D(textureType, 0, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+      glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+      glTexParameteri(textureType, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_DEPTH_COMPONENT, type, nullptr);
 
       glBindTexture(textureType, 0);
 
       // Create the Render Buffer for Depth
       glGenRenderbuffers(1, &uiFBODepthBuffer);
       glBindRenderbuffer(GL_RENDERBUFFER, uiFBODepthBuffer);
-      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, int(uiWidth), int(uiHeight));
+      glRenderbufferStorage(GL_RENDERBUFFER, internal, int(uiWidth), int(uiHeight));
 
       // Attach the depth render buffer to the FBO as it's depth attachment
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uiFBODepthBuffer);
