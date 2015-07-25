@@ -420,7 +420,7 @@ namespace spitfire
       PrintToStringStream(o, argument, otherArguments...);
 
       // Print the string to the log
-      gLog<<o.str()<<std::endl;
+      gLog<<"Error: "<<o.str()<<std::endl;
     }
   }
 }
