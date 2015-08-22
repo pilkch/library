@@ -129,11 +129,11 @@ namespace opengl
 
   void cShader::CheckStatusVertex()
   {
-    LOG("Last error=", cSystem::GetErrorString());
+    //LOG("Last error=", cSystem::GetErrorString());
 
     int infologLength = 0;
     glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
-    LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
+    //LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
@@ -152,16 +152,16 @@ namespace opengl
       infoLog = nullptr;
     }
 
-    LOG("returning");
+    //LOG("returning");
   }
 
   void cShader::CheckStatusFragment()
   {
-    LOG("Last error=", cSystem::GetErrorString());
+    //LOG("Last error=", cSystem::GetErrorString());
 
     int infologLength = 0;
     glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
-    LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
+    //LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
@@ -180,16 +180,16 @@ namespace opengl
       infoLog = nullptr;
     }
 
-    LOG("returning");
+    //LOG("returning");
   }
 
   void cShader::CheckStatusProgram()
   {
-    LOG("Last error=", cSystem::GetErrorString());
+    //LOG("Last error=", cSystem::GetErrorString());
 
     int infologLength = 0;
     glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
-    LOG("glGetShaderiv glGetError=", cSystem::GetErrorString());
+    //LOG("glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
     if (infologLength > 0) {
       char* infoLog = new char[infologLength];
@@ -209,7 +209,7 @@ namespace opengl
       infoLog = nullptr;
     }
 
-    LOG("returning");
+    //LOG("returning");
   }
 
   bool cShader::IsCompiledVertex() const
@@ -530,6 +530,7 @@ namespace opengl
 
     std::string sText;
     spitfire::storage::ReadText(sShaderVertex, sText);
+    ASSERT(!sText.empty());
     if (sText.empty()) {
       LOGERROR("Shader not found ", sShaderVertex);
       uiShaderVertex = 0;
@@ -550,6 +551,7 @@ namespace opengl
 
     std::string sText;
     spitfire::storage::ReadText(sShaderFragment, sText);
+    ASSERT(!sText.empty());
     if (sText.empty()) {
       LOGERROR("Shader not found ", sShaderFragment);
       uiShaderFragment = 0;
