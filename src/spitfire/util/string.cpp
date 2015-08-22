@@ -717,10 +717,21 @@ namespace spitfire
 
       return true;
     }
+    
+    // Utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
+    // http://en.cppreference.com/w/cpp/locale/wstring_convert/~wstring_convert
+    template<class Facet>
+    struct DeletableFacet : public Facet
+    {
+      template<class ...Args>
+      DeletableFacet(Args&& ...args) : Facet(std::forward<Args>(args)...) {}
+      ~DeletableFacet() {}
+    };
 
     std::wstring ToWchar_t(const std::string& source)
     {
-      std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+      typedef DeletableFacet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> local_facet_t;
+      std::wstring_convert<local_facet_t> convert(new local_facet_t(""));
       return convert.from_bytes(source);
     }
 
