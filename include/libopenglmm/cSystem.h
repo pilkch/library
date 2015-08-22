@@ -60,7 +60,7 @@ namespace opengl
     // Debug windowed mode resolutions for testing various aspect ratios
     static void GetWindowedTestResolution4By3(size_t& width, size_t& height) { width = 1000; height = 750; }
     static void GetWindowedTestResolution16By10(size_t& width, size_t& height) { width = 1000; height = 624; }
-    static void GetWindowedTestResolution16By9(size_t& width, size_t& height) { width = 1000; height = 562; }
+    static void GetWindowedTestResolution16By9(size_t& width, size_t& height) { width = 1280; height = 720; }
     #endif
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
