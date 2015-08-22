@@ -355,7 +355,7 @@ namespace opengl
 
       const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
 
-      const GLenum internal = GL_DEPTH_COMPONENT;
+      const GLenum internal = GL_DEPTH_COMPONENT32;
       const GLenum type = GL_FLOAT;
 
       // Create the texture for the depth
