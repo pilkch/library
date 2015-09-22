@@ -17,6 +17,7 @@
 namespace opengl
 {
   // Templated functions to take any builder
+
   template <class T>
   void CreatePlaneTemplated(T& builder, float fWidth, float fDepth)
   {
@@ -30,6 +31,21 @@ namespace opengl
     builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f));
     builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 1.0f));
+  }
+
+  template <class T>
+  void CreatePlaneTemplated(T& builder, float fWidth, float fDepth, float fTextureU, float fTextureV)
+  {
+    const spitfire::math::cVec2 vMin(-fWidth * 0.5f, -fDepth * 0.5f);
+    const spitfire::math::cVec2 vMax(fWidth * 0.5f, fDepth * 0.5f);
+
+    // Upper Square
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(fTextureU, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(fTextureU, fTextureV));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, fTextureV));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMax.x, 0.0f, vMax.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(fTextureU, 0.0f));
+    builder.PushBack(spitfire::math::cVec3(vMin.x, 0.0f, vMin.y), spitfire::math::cVec3(0.0f, 1.0f, 0.0f), spitfire::math::cVec2(0.0f, fTextureV));
   }
 
   template <class T>
@@ -220,6 +236,22 @@ namespace opengl
     }
   }
 
+  void cGeometryBuilder::CreatePlane(float fWidth, float fDepth, float fTextureU, float fTextureV, cGeometryData& data, size_t nTextureUnits)
+  {
+    if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2 builder(data);
+      CreatePlaneTemplated(builder, fWidth, fDepth, fTextureU, fTextureV);
+    } else if (nTextureUnits == 2) {
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
+      CreatePlaneTemplated(builder, fWidth, fDepth, fTextureU, fTextureV);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
+      CreatePlaneTemplated(builder, fWidth, fDepth, fTextureU, fTextureV);
+    } else {
+      std::cout << "cGeometryBuilder::CreatePlane Invalid nTextureUnits " << nTextureUnits << std::endl;
+      assert(false);
+    }
+  }
 
   void cGeometryBuilder::CreatePlane(float fWidth, float fDepth, cGeometryData& data, size_t nTextureUnits)
   {

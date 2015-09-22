@@ -645,6 +645,7 @@ namespace opengl
   {
   public:
     void CreatePlane(float fWidth, float fDepth, cGeometryData& data, size_t nTextureUnits);
+    void CreatePlane(float fWidth, float fDepth, float fTextureU, float fTextureV, cGeometryData& data, size_t nTextureUnits);
     void CreateCube(float fWidthAndDepthAndHeight, cGeometryData& data, size_t nTextureUnits);
     void CreateBox(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits);
     void CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
