@@ -808,28 +808,19 @@ namespace spitfire
 
     void cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
     {
-      cVec3 f = target - eye;
-      f.Normalise();
+      // http://www.3dgep.com/understanding-the-view-matrix/#Look_At_Camera
 
-      cVec3 u = up;
-      u.Normalise();
+      const spitfire::math::cVec3 zaxis = (eye - target).GetNormalised();         // The "forward" vector
+      const spitfire::math::cVec3 xaxis = up.CrossProduct(zaxis).GetNormalised(); // The "right" vector
+      const spitfire::math::cVec3 yaxis = zaxis.CrossProduct(xaxis);              // The "up" vector
 
-      cVec3 s;
-      s.Cross(f, u);
-      s.Normalise();
-
-      u.Cross(s, f);
-
-      cMat4 m0;
-      m0.entries[0] = s.x; m0.entries[4] = s.y; m0.entries[8] = s.z; m0.entries[12] = 0.0f;
-      m0.entries[1] = u.x; m0.entries[5] = u.y; m0.entries[9] = u.z; m0.entries[13] = 0.0f;
-      m0.entries[2] = -f.x; m0.entries[6] = -f.y; m0.entries[10] = -f.z; m0.entries[14] = 0.0f;
-      m0.entries[3] = 0.0f; m0.entries[7] = 0.0f; m0.entries[11] = 0.0f; m0.entries[15] = 1.0f;
-
-      cMat4 m1;
-      m1.SetTranslation(-eye);
-
-      *this = m0 * m1;
+      // Create a 4x4 view matrix from the right, up, forward and eye position vectors
+      SetEntries(
+        xaxis.x, yaxis.x, zaxis.x, 0.0f,
+        xaxis.y, yaxis.y, zaxis.y, 0.0f,
+        xaxis.z, yaxis.z, zaxis.z, 0.0f,
+        -xaxis.DotProduct(eye), -yaxis.DotProduct(eye), -zaxis.DotProduct(eye), 1.0f
+      );
     }
 
     void cMat4::SetFromQuaternion(const cQuaternion& rhs)
