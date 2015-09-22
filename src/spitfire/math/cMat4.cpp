@@ -37,6 +37,11 @@ namespace spitfire
       SetFromMatrix(rhs);
     }
 
+    cMat4::cMat4(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, float value9, float value10, float value11, float value12, float value13, float value14, float value15)
+    {
+      SetEntries(value0, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15);
+    }
+
     cMat4& cMat4::operator=(const cMat4& rhs)
     {
       SetFromMatrix(rhs);
@@ -69,12 +74,6 @@ namespace spitfire
       return entries[(y * 4) + x];
     }
 
-    void cMat4::SetEntry(size_t position, float value)
-    {
-      assert(position < 16);
-      entries[position] = value;
-    }
-
     float cMat4::GetEntry(size_t position) const
     {
       assert(position < 16);
@@ -105,6 +104,33 @@ namespace spitfire
       // "Illegal argument to cMat4::GetColumn()"
       return cVec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
+
+    void cMat4::SetEntry(size_t position, float value)
+    {
+      assert(position < 16);
+      entries[position] = value;
+    }
+
+    void cMat4::SetEntries(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, float value9, float value10, float value11, float value12, float value13, float value14, float value15)
+    {
+      entries[0] = value0;
+      entries[1] = value1;
+      entries[2] = value2;
+      entries[3] = value3;
+      entries[4] = value4;
+      entries[5] = value5;
+      entries[6] = value6;
+      entries[7] = value7;
+      entries[8] = value8;
+      entries[9] = value9;
+      entries[10] = value10;
+      entries[11] = value11;
+      entries[12] = value12;
+      entries[13] = value13;
+      entries[14] = value14;
+      entries[15] = value15;
+    }
+
 
     void cMat4::LoadIdentity()
     {

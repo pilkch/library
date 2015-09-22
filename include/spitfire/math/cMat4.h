@@ -25,6 +25,7 @@ namespace spitfire
       cMat4();
       cMat4(const cMat4& rhs);
       explicit cMat4(const cMat3& rhs);
+      cMat4(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, float value9, float value10, float value11, float value12, float value13, float value14, float value15);
       ~cMat4() {}
 
       const float& operator[](const size_t i) const;
@@ -33,10 +34,11 @@ namespace spitfire
       const float& GetValue(const size_t x, const size_t y) const;
       float& GetValue(const size_t x, const size_t y);
 
-      void SetEntry(size_t position, float value);
       float GetEntry(size_t position) const;
       cVec4 GetRow(size_t position) const;
       cVec4 GetColumn(size_t position) const;
+      void SetEntry(size_t position, float value);
+      void SetEntries(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, float value9, float value10, float value11, float value12, float value13, float value14, float value15);
 
       void LoadIdentity();
       void LoadZero();
