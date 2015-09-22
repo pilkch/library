@@ -32,7 +32,7 @@ namespace spitfire
 
     const float fOneOverOneThousand = 1.0f / 1000.0f;
 
-    cTimer::cTimer() :
+    cFPSTimer::cFPSTimer() :
       iCount(0),
       lastTimeMS(0.0f),
       beginTimeMS(0.0f),
@@ -46,7 +46,7 @@ namespace spitfire
     {
     }
 
-    void cTimer::InitWithLockedFPS(unsigned int uiHz)
+    void cFPSTimer::InitWithLockedFPS(unsigned int uiHz)
     {
       iCount = 0;
 
@@ -60,7 +60,7 @@ namespace spitfire
       endTimeMS = lastTimeMS;
     }
 
-    void cTimer::InitWithUnspecifiedFPS()
+    void cFPSTimer::InitWithUnspecifiedFPS()
     {
       iCount = 0;
 
@@ -76,12 +76,12 @@ namespace spitfire
     }
 
 
-    void cTimer::Begin()
+    void cFPSTimer::Begin()
     {
       beginTimeMS = float(GetTimeMS());
     }
 
-    void cTimer::End()
+    void cFPSTimer::End()
     {
       const float currentTime = float(GetTimeMS());
 

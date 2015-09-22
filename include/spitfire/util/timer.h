@@ -63,10 +63,11 @@ namespace spitfire
     // ** cTimer
     //
     // For calculating the frames per second and timing how long each frame takes to render
-    class cTimer
+    // TODO: Move this into breathe
+    class cFPSTimer
     {
     public:
-      cTimer();
+      cFPSTimer();
 
       void InitWithLockedFPS(unsigned int uiHz);
       void InitWithUnspecifiedFPS();
