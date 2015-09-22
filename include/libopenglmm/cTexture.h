@@ -130,7 +130,7 @@ namespace opengl
     bool IsModeCubeMap() const { return bIsCubeMap; }
     void SetModeCubeMap() { bIsCubeMap = true; }
 
-    bool CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer);
+    bool CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow);
 
     void GenerateMipMapsIfRequired();
 
@@ -144,7 +144,7 @@ namespace opengl
 
   private:
     bool _IsValid() const { return ((uiTexture != 0) && (uiFBO != 0)) || ((uiDepthTexture != 0) && (uiFBODepthBuffer != 0)); }
-    void Create(bool bColourBuffer, bool bDepthBuffer);
+    void Create(bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow);
     void _Destroy();
 
     unsigned int uiDepthTexture;

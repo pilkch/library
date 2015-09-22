@@ -266,17 +266,17 @@ namespace opengl
     return uiDepthTexture;
   }
 
-  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer)
+  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow)
   {
     image.SetWidth(width);
     image.SetHeight(height);
 
-    Create(bColourBuffer, bDepthBuffer);
+    Create(bColourBuffer, bDepthBuffer, bDepthShadow);
 
     return IsValid();
   }
 
-  void cTextureFrameBufferObject::Create(bool bColourBuffer, bool bDepthBuffer)
+  void cTextureFrameBufferObject::Create(bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow)
   {
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.282D.29.2C_mipmaps
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.28Cubemap.29
@@ -367,7 +367,8 @@ namespace opengl
       glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-      glTexParameteri(textureType, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      const GLenum compareMode = (bDepthShadow ? GL_COMPARE_REF_TO_TEXTURE : GL_NONE);
+      glTexParameteri(textureType, GL_TEXTURE_COMPARE_MODE, compareMode);
       glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_DEPTH_COMPONENT, type, nullptr);
 
       glBindTexture(textureType, 0);

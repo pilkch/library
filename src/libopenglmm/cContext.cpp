@@ -314,7 +314,7 @@ namespace opengl
     (void)pixelFormat;
 
     cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, true, false)) {
+    if (!pTexture->CreateFrameBufferObject(width, height, true, false, false)) {
       delete pTexture;
       return nullptr;
     }
@@ -330,7 +330,33 @@ namespace opengl
 
     cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
     pTexture->SetDoNotUseMipMaps();
-    if (!pTexture->CreateFrameBufferObject(width, height, true, false)) {
+    if (!pTexture->CreateFrameBufferObject(width, height, true, false, false)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
+  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectDepthShadowOnly(size_t width, size_t height)
+  {
+    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
+    if (!pTexture->CreateFrameBufferObject(width, height, false, true, true)) {
+      delete pTexture;
+      return nullptr;
+    }
+
+    //textures.push_back(pTexture);
+
+    return pTexture;
+  }
+
+  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectDepthOnly(size_t width, size_t height)
+  {
+    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
+    if (!pTexture->CreateFrameBufferObject(width, height, false, true, false)) {
       delete pTexture;
       return nullptr;
     }
@@ -343,7 +369,7 @@ namespace opengl
   cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectWithDepth(size_t width, size_t height)
   {
     cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, true, true)) {
+    if (!pTexture->CreateFrameBufferObject(width, height, true, true, false)) {
       delete pTexture;
       return nullptr;
     }
