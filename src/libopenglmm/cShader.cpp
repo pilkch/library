@@ -282,6 +282,10 @@ namespace opengl
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
     else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit0;")) bTexUnit0 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit1;")) bTexUnit1 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit2;")) bTexUnit2 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit3;")) bTexUnit3 = true;
     else if (spitfire::string::StartsWith(sLine, "uniform float fNear;")) bNear = true;
     else if (spitfire::string::StartsWith(sLine, "uniform float fFar;")) bFar = true;
     else if (spitfire::string::StartsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;
