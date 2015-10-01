@@ -22,6 +22,19 @@ namespace spitfire
       LoadIdentity();
     }
 
+    cMat3::cMat3(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8)
+    {
+      entries[0] = value0;
+      entries[1] = value1;
+      entries[2] = value2;
+      entries[3] = value3;
+      entries[4] = value4;
+      entries[5] = value5;
+      entries[6] = value6;
+      entries[7] = value7;
+      entries[8] = value8;
+    }
+
     cMat3::cMat3(const cMat3& rhs)
     {
       SetFromMatrix(rhs);
