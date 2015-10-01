@@ -135,7 +135,7 @@ namespace opengl
     glGetShaderiv(uiShaderVertex, GL_INFO_LOG_LENGTH, &infologLength);
     //LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
-    if (infologLength > 0) {
+    if (infologLength > 1) {
       char* infoLog = new char[infologLength];
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
@@ -163,7 +163,7 @@ namespace opengl
     glGetShaderiv(uiShaderFragment, GL_INFO_LOG_LENGTH, &infologLength);
     //LOG(TEXT("Vertex Shader "), sShaderVertex, ", glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
-    if (infologLength > 0) {
+    if (infologLength > 1) {
       char* infoLog = new char[infologLength];
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
@@ -191,7 +191,7 @@ namespace opengl
     glGetProgramiv(uiShaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
     //LOG("glGetShaderiv glGetError=", cSystem::GetErrorString());
     //infologLength = 1024;
-    if (infologLength > 0) {
+    if (infologLength > 1) {
       char* infoLog = new char[infologLength];
       infoLog[0] = 0;
       glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
