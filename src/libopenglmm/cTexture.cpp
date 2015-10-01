@@ -364,8 +364,13 @@ namespace opengl
 
       glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      // Add a border colour so that everything outside the shadowmap is rendered in full light
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+      const float borderColour[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+      glTexParameterfv(textureType, GL_TEXTURE_BORDER_COLOR, borderColour);
+      
       glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
       const GLenum compareMode = (bDepthShadow ? GL_COMPARE_REF_TO_TEXTURE : GL_NONE);
       glTexParameteri(textureType, GL_TEXTURE_COMPARE_MODE, compareMode);
