@@ -107,6 +107,7 @@ namespace opengl
     const spitfire::math::cMat3& GetTextureMatrix() const { return matTexture; }
 
     spitfire::math::cMat4 CalculateProjectionMatrix() const;
+    spitfire::math::cMat4 CalculateProjectionMatrix(float fFOV) const;
     spitfire::math::cMat4 CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const;
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL

@@ -609,7 +609,12 @@ namespace opengl
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix() const
   {
-    return CalculateProjectionMatrix(targetWidth, targetHeight, 45.0f);
+    return CalculateProjectionMatrix(45.0f);
+  }
+
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(float fFOV) const
+  {
+    return CalculateProjectionMatrix(targetWidth, targetHeight, fFOV);
   }
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const
