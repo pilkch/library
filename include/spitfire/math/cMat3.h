@@ -21,6 +21,7 @@ namespace spitfire
       friend class cMat4;
 
       cMat3();
+      cMat3(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8);
       cMat3(const cMat3& rhs);
       explicit cMat3(const cMat4& rhs);
       ~cMat3() {}
