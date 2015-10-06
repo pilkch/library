@@ -370,6 +370,7 @@ namespace spitfire
 #endif
 
 #define ASSERT(p) spitfire::DoAssert(p, #p, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+#define ASSERT_MSG(p, message, ...) if (!(p)) { LOGERROR(message); ASSERT(p); }
 
 #else
 #define ASSERT(b) assert(b)
