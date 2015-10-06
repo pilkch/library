@@ -93,6 +93,30 @@ namespace spitfire
     inline float DegreesToRadians(float x) { return x * cPI_DIV_180; }
 
 
+    template<class T>
+    T min3(T a, T b, T c)
+    {
+      return min(min(a, b), c);
+    }
+
+    template<class T>
+    T min4(T a, T b, T c, T d)
+    {
+      return min(min(min(a, b), c), d);
+    }
+
+    template<class T>
+    T max3(T a, T b, T c)
+    {
+      return max(max(a, b), c);
+    }
+
+    template<class T>
+    T max4(T a, T b, T c, T d)
+    {
+      return max(max(max(a, b), c), d);
+    }
+
 
     template<class T>
     T GetLog2(T value)
