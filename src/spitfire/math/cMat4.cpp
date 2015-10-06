@@ -252,30 +252,57 @@ namespace spitfire
 
     void cMat4::SetRotation(const cQuaternion& rhs)
     {
-      SetRotationAxisAngleRadians(rhs.GetAxis(), rhs.GetAngleRadians());
+      const float xx = rhs.x * rhs.x;
+      const float xy = rhs.x * rhs.y;
+      const float xz = rhs.x * rhs.z;
+      const float xw = rhs.x * rhs.w;
+
+      const float yy = rhs.y * rhs.y;
+      const float yz = rhs.y * rhs.z;
+      const float yw = rhs.y * rhs.w;
+
+      const float zz = rhs.z * rhs.z;
+      const float zw = rhs.z * rhs.w;
+
+      entries[0] = 1.0f - 2.0f * (yy + zz);
+      entries[1] = 2.0f * (xy - zw);
+      entries[2] = 2.0f * (xz + yw);
+      entries[3] = 0.0f;
+
+      entries[4] = 2.0f * (xy + zw);
+      entries[5] = 1.0f - 2.0f * (xx + zz);
+      entries[6] = 2.0f * (yz - xw);
+      entries[7] = 0.0f;
+
+      entries[8] = 2.0f * (xz - yw);
+      entries[9] = 2.0f * (yz + xw);
+      entries[10] = 1.0f - 2.0f * (xx + yy);
+      entries[11] = 0.0f;
+
+      entries[12] = 0.0f;
+      entries[13] = 0.0f;
+      entries[14] = 0.0f;
+      entries[15] = 1.0f;
     }
 
-    void cMat4::SetRotationAxisAngleRadians(const cVec3& _axis, float fAngleRadians)
+    void cMat4::SetRotationAxisAngleRadians(const cVec3& axis, float fAngleRadians)
     {
-      const cVec3 axis(_axis.GetNormalised());
+      if (axis.IsZeroVector() || spitfire::math::IsApproximatelyZero(fAngleRadians)) {
+        LoadIdentity();
+        return;
+      }
 
-      const float b = fAngleRadians;
+      const float c = cosf(fAngleRadians);
+      const float l_c = 1.0f - c;
 
-      const float c = cosf(b);
-      const float ac = 1.0f - c;
-      const float s = sinf(b);
+      const float s = sin(fAngleRadians);
 
-      entries[0] = axis.x * axis.x * ac + c;
-      entries[1] = axis.x * axis.y * ac + axis.z * s;
-      entries[2] = axis.x * axis.z * ac - axis.y * s;
-
-      entries[4] = axis.y * axis.x * ac - axis.z * s;
-      entries[5] = axis.y * axis.y * ac + c;
-      entries[6] = axis.y * axis.z * ac + axis.x * s;
-
-      entries[8] = axis.z * axis.x * ac + axis.y * s;
-      entries[9] = axis.z * axis.y * ac - axis.x * s;
-      entries[10] = axis.z * axis.z * ac + c;
+      SetEntries(
+        axis.x * axis.x + (1.0f - axis.x * axis.x) * c, axis.x * axis.y * l_c - axis.z * s, axis.x * axis.z * l_c + axis.y * s, 0.0f,
+        axis.x * axis.y * l_c + axis.z * s, axis.y * axis.y + (1.0f - axis.y * axis.y) * c, axis.y * axis.z * l_c - axis.x * s, 0.0f,
+        axis.x * axis.z * l_c - axis.y * s, axis.y * axis.z * l_c + axis.x * s, axis.z * axis.z + (1 - axis.z * axis.z) * c, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+      );
     }
 
     void cMat4::SetRotationX(float fAngleRadians)
