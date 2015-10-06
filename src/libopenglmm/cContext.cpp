@@ -144,15 +144,15 @@ namespace opengl
   {
     LOG("");
 
-    assert(pCurrentShader == nullptr); // Shaders must be unbound before this point
+    ASSERT_MSG(pCurrentShader == nullptr, "A shader is still bound"); // Shaders must be unbound before this point
 
-#ifdef BUILD_LIBOPENGLMM_FONT
-    assert(fonts.empty());
+    #ifdef BUILD_LIBOPENGLMM_FONT
+    ASSERT_MSG(fonts.empty(), fonts.size(), " fonts have not been destroyed");
 #endif
-    assert(textures.empty());
-    assert(cubeMapTextures.empty());
-    assert(shaders.empty());
-    assert(staticVertexBufferObjects.empty());
+    ASSERT_MSG(textures.empty(), textures.size(), " textures have not been destroyed");
+    ASSERT_MSG(cubeMapTextures.empty(), cubeMapTextures.size(), " cube map textures have not been destroyed");
+    ASSERT_MSG(shaders.empty(), shaders.size(), " shaders have not been destroyed");
+    ASSERT_MSG(staticVertexBufferObjects.empty(), staticVertexBufferObjects.size(), " vertex buffer objects have not been destroyed");
 
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     // Destroy the surface
