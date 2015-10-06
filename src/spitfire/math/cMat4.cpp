@@ -837,17 +837,19 @@ namespace spitfire
     {
       // http://www.3dgep.com/understanding-the-view-matrix/#Look_At_Camera
 
-      const spitfire::math::cVec3 zaxis = (eye - target).GetNormalised();         // The "forward" vector
-      const spitfire::math::cVec3 xaxis = up.CrossProduct(zaxis).GetNormalised(); // The "right" vector
-      const spitfire::math::cVec3 yaxis = zaxis.CrossProduct(xaxis);              // The "up" vector
-
-      // Create a 4x4 view matrix from the right, up, forward and eye position vectors
-      SetEntries(
-        xaxis.x, yaxis.x, zaxis.x, 0.0f,
-        xaxis.y, yaxis.y, zaxis.y, 0.0f,
-        xaxis.z, yaxis.z, zaxis.z, 0.0f,
-        -xaxis.DotProduct(eye), -yaxis.DotProduct(eye), -zaxis.DotProduct(eye), 1.0f
+      const cVec3 vz = (eye - target).GetNormalised();
+      const cVec3 vx = (up.CrossProduct(vz)).GetNormalised();
+      // vy doesn't need to be normalized because it's a cross
+      // product of 2 normalized vectors
+      const cVec3 vy = vz.CrossProduct(vx);
+      const cMat4 inverseViewMatrix(
+        vx.x, vx.y, vx.z, 0.0f,
+        vy.x, vy.y, vy.z, 0.0f,
+        vz.x, vz.y, vz.z, 0.0f,
+        eye.x, eye.y, eye.z, 1.0f
       );
+
+      *this = inverseViewMatrix.GetInverse();
     }
 
     void cMat4::SetFromQuaternion(const cQuaternion& rhs)
