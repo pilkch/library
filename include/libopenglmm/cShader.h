@@ -124,10 +124,15 @@ namespace opengl
     bool bModelViewProjectionMatrix;
     bool bNormalMatrix;
 
-    bool bTexUnit0;
-    bool bTexUnit1;
-    bool bTexUnit2;
-    bool bTexUnit3;
+    enum class TEXTURE_UNIT_TYPE {
+      DISABLED,
+      TEXTURE_1D,
+      TEXTURE_2D,
+      TEXTURE_2D_RECT,
+      TEXTURE_2D_SHADOW,
+      TEXTURE_CUBE,
+    };
+    TEXTURE_UNIT_TYPE textureUnitType[MAX_TEXTURE_UNITS];
 
     // Near and far distances
     bool bNear;

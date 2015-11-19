@@ -21,6 +21,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/cTexture.h>
+#include <libopenglmm/cSystem.h>
 #include <libopenglmm/opengl.h>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
@@ -54,6 +55,17 @@ namespace opengl
     assert(uiTexture == 0);
   }
 
+  unsigned int cTexture::GetTextureType() const
+  {
+    const size_t width = GetWidth();
+    const size_t height = GetHeight();
+
+    if (width == height) return GL_TEXTURE_2D;
+    else if ((width == 1) || (height == 1)) return GL_TEXTURE_1D;
+
+    return GL_TEXTURE_RECTANGLE;
+  }
+
   bool cTexture::CreateFromImage(const voodoo::cImage& _image)
   {
     assert(_image.IsValid());
@@ -72,11 +84,10 @@ namespace opengl
     glGenTextures(1, &uiTexture);
 
     // Bind so that the next operations happen on this texture
-    const bool bIsRectangle = GetWidth() != GetHeight();
-
-    const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+    const GLenum textureType = GetTextureType();
 
     glBindTexture(textureType, uiTexture);
+
   }
 
   void cTexture::_Destroy()
@@ -88,6 +99,8 @@ namespace opengl
 
   void cTexture::CopyFromImageToTexture()
   {
+    LOG("glGetError=", cSystem::GetErrorString());
+
     if (!IsValid()) {
       LOGERROR("Texture is invalid, returning");
       return;
@@ -107,7 +120,7 @@ namespace opengl
     // Turn off mipmaps for rectangular textures
     if (bIsRectangle) bIsUsingMipMaps = false;
 
-    const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+    const GLenum textureType = GetTextureType();
 
     // Bind so that the next operations happen on this texture
     glBindTexture(textureType, uiTexture);
@@ -124,8 +137,8 @@ namespace opengl
       glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
 
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     if (bIsUsingMipMaps) {
       glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -136,7 +149,8 @@ namespace opengl
     }
 
     // Copy from image to texture
-    glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, internal, type, pBuffer);
+    if (textureType == GL_TEXTURE_1D) glTexImage1D(textureType, 0, internal, int(max(uiWidth, uiHeight)), 0, internal, type, pBuffer);
+    else glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, internal, type, pBuffer);
 
     if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
@@ -296,7 +310,7 @@ namespace opengl
         // Turn off mipmaps for rectangular textures
         if (bIsRectangle) bIsUsingMipMaps = false;
 
-        const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+        const GLenum textureType = GetTextureType();
 
         // Now setup a texture to render to
         glGenTextures(1, &uiTexture);
@@ -351,9 +365,7 @@ namespace opengl
     }
 
     if (bDepthBuffer) {
-      const bool bIsRectangle = uiWidth != uiHeight;
-
-      const GLenum textureType = (bIsRectangle ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D);
+      const GLenum textureType = GetTextureType();
 
       const GLenum internal = GL_DEPTH_COMPONENT32;
       const GLenum type = GL_FLOAT;
@@ -468,11 +480,15 @@ namespace opengl
   void cTextureFrameBufferObject::GenerateMipMapsIfRequired()
   {
     if (bIsUsingMipMaps) {
-      glBindTexture(GL_TEXTURE_2D, uiTexture);
+      ASSERT(GetWidth() == GetHeight());
 
-        glGenerateMipmap(GL_TEXTURE_2D);
+      const GLenum textureType = GetTextureType();
 
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindTexture(textureType, uiTexture);
+
+        glGenerateMipmap(textureType);
+
+      glBindTexture(textureType, 0);
     }
   }
 

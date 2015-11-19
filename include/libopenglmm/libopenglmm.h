@@ -70,7 +70,7 @@ namespace opengl
     std::string ToUTF8(const string_t& source);
   }
 
-  const size_t MAX_TEXTURE_UNITS = 3;
+  const size_t MAX_TEXTURE_UNITS = 4;
   const size_t MAX_TEXTURE_SIZE = 2048;
   const size_t MAX_LIGHTS = 8;
 

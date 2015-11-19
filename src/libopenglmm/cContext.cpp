@@ -1060,10 +1060,27 @@ namespace opengl
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
     #endif
 
-    GLenum type = GL_TEXTURE_2D;
-    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+    const GLenum type = texture.GetTextureType();
 
     glBindTexture(type, texture.GetTexture());
+
+    // If we are rendering with a shader check that it expects the same texture type as we have just bound
+    if (pCurrentShader != nullptr) {
+      switch (type) {
+        case GL_TEXTURE_1D: {
+          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_1D);
+          break;
+        }
+        case GL_TEXTURE_2D: {
+          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_2D);
+          break;
+        }
+        case GL_TEXTURE_RECTANGLE: {
+          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT);
+          break;
+        }
+      };
+    }
 
     //LOG(cSystem::GetErrorString()));
   }
@@ -1073,8 +1090,7 @@ namespace opengl
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
 
-    GLenum type = GL_TEXTURE_2D;
-    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+    const GLenum type = texture.GetTextureType();
 
     glBindTexture(type, 0);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -1095,6 +1111,9 @@ namespace opengl
     glEnable(GL_TEXTURE_CUBE_MAP);
     #endif
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetTexture());
+
+    // If we are rendering with a shader check that it expects the same texture type as we have just bound
+    if (pCurrentShader != nullptr) ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_CUBE);
   }
 
   void cContext::UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
@@ -1121,8 +1140,7 @@ namespace opengl
     glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
     #endif
 
-    GLenum type = GL_TEXTURE_2D;
-    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+    const GLenum type = texture.GetTextureType();
 
     glBindTexture(type, texture.GetDepthTexture());
 
@@ -1134,8 +1152,7 @@ namespace opengl
     // Activate the current texture unit
     glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
 
-    GLenum type = GL_TEXTURE_2D;
-    if (texture.GetWidth() != texture.GetHeight()) type = GL_TEXTURE_RECTANGLE;
+    const GLenum type = texture.GetTextureType();
 
     glBindTexture(type, 0);
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -1158,10 +1175,12 @@ namespace opengl
     //  - brightness: HDR, Top Gear Shader, Night Vision
     //  - exposure: HDR, Top Gear Shader
 
-    if (shader.bTexUnit0) SetShaderConstant("texUnit0", 0);
-    if (shader.bTexUnit1) SetShaderConstant("texUnit1", 1);
-    if (shader.bTexUnit2) SetShaderConstant("texUnit2", 2);
-    if (shader.bTexUnit3) SetShaderConstant("texUnit3", 3);
+    STATIC_ASSERT(MAX_TEXTURE_UNITS == 4, "This code was designed for a maximum of 4 texture units");
+
+    if (shader.textureUnitType[0] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit0", 0);
+    if (shader.textureUnitType[1] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit1", 1);
+    if (shader.textureUnitType[2] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit2", 2);
+    if (shader.textureUnitType[3] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit3", 3);
 
     if (shader.bNear) SetShaderConstant("fNear", fNear);
     if (shader.bFar) SetShaderConstant("fFar", fFar);
@@ -1185,7 +1204,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1198,7 +1217,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1211,7 +1230,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG("\"", pCurrentShader->sShaderVertex, "\":\"", pCurrentShader->IsCompiledFragment(), "\" Couldn't set \"", spitfire::string::ToString_t(sConstant), "\" perhaps the constant is not actually used within the shader");
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1224,7 +1243,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1237,7 +1256,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1260,7 +1279,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1273,7 +1292,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("cContext::SetShaderConstant \""), pCurrentShader->sShaderVertex, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }

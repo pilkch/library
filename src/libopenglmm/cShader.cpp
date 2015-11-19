@@ -109,11 +109,6 @@ namespace opengl
     bModelViewProjectionMatrix(false),
     bNormalMatrix(false),
 
-    bTexUnit0(false),
-    bTexUnit1(false),
-    bTexUnit2(false),
-    bTexUnit3(false),
-
     bNear(false),
     bFar(false),
 
@@ -125,6 +120,8 @@ namespace opengl
 
     nLights(0)
   {
+    // Set our texture unit types to disabled to start with
+    for (size_t i = 0; i < MAX_TEXTURE_UNITS; i++) textureUnitType[i] = TEXTURE_UNIT_TYPE::DISABLED;
   }
 
   void cShader::CheckStatusVertex()
@@ -262,6 +259,8 @@ namespace opengl
       assert(false);
     }
 
+    STATIC_ASSERT(MAX_TEXTURE_UNITS == 4, "This code was designed for a maximum of 4 texture units");
+
     // Check which uniforms this shader uses
     if (spitfire::string::StartsWith(sLine, "uniform mat4 matProjection;")) bProjectionMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat4 matView;")) bViewMatrix = true;
@@ -270,22 +269,26 @@ namespace opengl
     else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelView;")) bModelViewMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat4 matModelViewProjection;")) bModelViewProjectionMatrix = true;
     else if (spitfire::string::StartsWith(sLine, "uniform mat3 matNormal;")) bNormalMatrix = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit0;")) bTexUnit0 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit1;")) bTexUnit1 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit2;")) bTexUnit2 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit3;")) bTexUnit3 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit0;")) bTexUnit0 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit1;")) bTexUnit1 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit2;")) bTexUnit2 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit3;")) bTexUnit3 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit0;")) bTexUnit0 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit1;")) bTexUnit1 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit2;")) bTexUnit2 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit3;")) bTexUnit3 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit0;")) bTexUnit0 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit1;")) bTexUnit1 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit2;")) bTexUnit2 = true;
-    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit3;")) bTexUnit3 = true;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler1D texUnit0;")) textureUnitType[0] = TEXTURE_UNIT_TYPE::TEXTURE_1D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler1D texUnit1;")) textureUnitType[1] = TEXTURE_UNIT_TYPE::TEXTURE_1D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler1D texUnit2;")) textureUnitType[2] = TEXTURE_UNIT_TYPE::TEXTURE_1D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler1D texUnit3;")) textureUnitType[3] = TEXTURE_UNIT_TYPE::TEXTURE_1D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit0;")) textureUnitType[0] = TEXTURE_UNIT_TYPE::TEXTURE_2D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit1;")) textureUnitType[1] = TEXTURE_UNIT_TYPE::TEXTURE_2D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit2;")) textureUnitType[2] = TEXTURE_UNIT_TYPE::TEXTURE_2D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2D texUnit3;")) textureUnitType[3] = TEXTURE_UNIT_TYPE::TEXTURE_2D;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit0;")) textureUnitType[0] = TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit1;")) textureUnitType[1] = TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit2;")) textureUnitType[2] = TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DRect texUnit3;")) textureUnitType[3] = TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit0;")) textureUnitType[0] = TEXTURE_UNIT_TYPE::TEXTURE_CUBE;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit1;")) textureUnitType[1] = TEXTURE_UNIT_TYPE::TEXTURE_CUBE;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit2;")) textureUnitType[2] = TEXTURE_UNIT_TYPE::TEXTURE_CUBE;
+    else if (spitfire::string::StartsWith(sLine, "uniform samplerCube texUnit3;")) textureUnitType[3] = TEXTURE_UNIT_TYPE::TEXTURE_CUBE;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit0;")) textureUnitType[0] = TEXTURE_UNIT_TYPE::TEXTURE_2D_SHADOW;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit1;")) textureUnitType[1] = TEXTURE_UNIT_TYPE::TEXTURE_2D_SHADOW;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit2;")) textureUnitType[2] = TEXTURE_UNIT_TYPE::TEXTURE_2D_SHADOW;
+    else if (spitfire::string::StartsWith(sLine, "uniform sampler2DShadow texUnit3;")) textureUnitType[3] = TEXTURE_UNIT_TYPE::TEXTURE_2D_SHADOW;
     else if (spitfire::string::StartsWith(sLine, "uniform float fNear;")) bNear = true;
     else if (spitfire::string::StartsWith(sLine, "uniform float fFar;")) bFar = true;
     else if (spitfire::string::StartsWith(sLine, "uniform vec4 ambientColour;")) bAmbientColour = true;

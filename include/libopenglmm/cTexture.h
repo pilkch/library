@@ -53,12 +53,15 @@ namespace opengl
 
     bool IsValid() const { return _IsValid(); }
 
-    bool IsRectangle() const { return (GetWidth() != GetHeight()); }
+    bool IsSquare() const { return GetWidth() == GetHeight(); }
+    bool IsRectangle() const { return !IsSquare(); }
 
     size_t GetWidth() const { return image.GetWidth(); }
     size_t GetHeight() const { return image.GetHeight(); }
 
     unsigned int GetTexture() const { return uiTexture; }
+
+    unsigned int GetTextureType() const;
 
     void SetDoNotUseMipMaps() { bIsUsingMipMaps = false; }
 
