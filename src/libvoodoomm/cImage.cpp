@@ -150,13 +150,6 @@ namespace voodoo
     // Only RGBA textures are supported at the moment
     assert(_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
 
-    // Only width and heights divisible by 2 are supported at the moment
-    assert(spitfire::math::IsDivisibleByTwo(_image.GetWidth()));
-    assert(spitfire::math::IsDivisibleByTwo(_image.GetHeight()));
-
-    // Only square textures are supported at the moment
-    assert(_image.GetWidth() == _image.GetHeight());
-
     image = _image;
 
     return true;
