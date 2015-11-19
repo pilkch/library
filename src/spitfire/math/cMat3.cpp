@@ -144,6 +144,28 @@ namespace spitfire
       for (size_t entry = 0; entry < 9; entry++) entries[entry] = 0;
     }
 
+    cMat3 cMat3::operator*(const cMat3& rhs) const
+    {
+      cMat3 result;
+      result.SetEntry(0, (entries[0] * rhs.GetEntry(0)) + (entries[3] * rhs.GetEntry(1)) + (entries[6] * rhs.GetEntry(2)));
+      result.SetEntry(3, (entries[0] * rhs.GetEntry(3)) + (entries[3] * rhs.GetEntry(4)) + (entries[6] * rhs.GetEntry(5)));
+      result.SetEntry(6, (entries[0] * rhs.GetEntry(6)) + (entries[3] * rhs.GetEntry(7)) + (entries[6] * rhs.GetEntry(8)));
+
+      result.SetEntry(1, (entries[1] * rhs.GetEntry(0)) + (entries[4] * rhs.GetEntry(1)) + (entries[7] * rhs.GetEntry(2)));
+      result.SetEntry(4, (entries[1] * rhs.GetEntry(3)) + (entries[4] * rhs.GetEntry(4)) + (entries[7] * rhs.GetEntry(5)));
+      result.SetEntry(7, (entries[1] * rhs.GetEntry(6)) + (entries[4] * rhs.GetEntry(7)) + (entries[7] * rhs.GetEntry(8)));
+
+      result.SetEntry(2, (entries[2] * rhs.GetEntry(0)) + (entries[5] * rhs.GetEntry(1)) + (entries[8] * rhs.GetEntry(2)));
+      result.SetEntry(5, (entries[2] * rhs.GetEntry(3)) + (entries[5] * rhs.GetEntry(4)) + (entries[8] * rhs.GetEntry(5)));
+      result.SetEntry(8, (entries[2] * rhs.GetEntry(6)) + (entries[5] * rhs.GetEntry(7)) + (entries[8] * rhs.GetEntry(8)));
+
+      return result;
+    }
+
+    void cMat3::operator*=(const cMat3& rhs)
+    {
+      (*this) = (*this) * rhs;
+    }
 
     cMat3 cMat3::operator/(const float rhs) const
     {

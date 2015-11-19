@@ -46,6 +46,8 @@ namespace spitfire
       cMat3& operator=(const cMat4& rhs);
 
       // Operations
+      cMat3 operator*(const cMat3& rhs) const;
+      void operator*=(const cMat3& rhs);
       cMat3 operator/(float rhs) const;
       void operator/=(float rhs);
 
