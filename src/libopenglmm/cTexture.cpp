@@ -155,6 +155,40 @@ namespace opengl
     if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
 
+  void cTexture::SetMinFilter(TEXTURE_FILTER filter)
+  {
+    const GLenum textureType = GetTextureType();
+    GLenum mode = GL_LINEAR;
+    if (filter == TEXTURE_FILTER::NEAREST) mode = GL_NEAREST;
+    else if (filter == TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST) mode = GL_LINEAR_MIPMAP_NEAREST;
+    glBindTexture(textureType, uiTexture);
+    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, mode);
+    glBindTexture(textureType, uiTexture);
+  }
+
+  void cTexture::SetMagFilter(TEXTURE_FILTER filter)
+  {
+    LOG("glGetError=", cSystem::GetErrorString());
+    const GLenum textureType = GetTextureType();
+    GLenum mode = GL_LINEAR;
+    if (filter == TEXTURE_FILTER::NEAREST) mode = GL_NEAREST;
+    else if (filter == TEXTURE_FILTER::LINEAR_MIPMAP_NEAREST) mode = GL_LINEAR_MIPMAP_NEAREST;
+    glBindTexture(textureType, uiTexture);
+    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, mode);
+    glBindTexture(textureType, uiTexture);
+  }
+
+  void cTexture::SetWrap(TEXTURE_WRAP wrap)
+  {
+    LOG("glGetError=", cSystem::GetErrorString());
+    const GLenum textureType = GetTextureType();
+    const GLenum mode = (wrap == TEXTURE_WRAP::CLAMP_TO_EDGE ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    glBindTexture(textureType, uiTexture);
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_S, mode);
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_T, mode);
+    glBindTexture(textureType, uiTexture);
+  }
+
   void cTexture::Reload()
   {
     // Delete the old texture

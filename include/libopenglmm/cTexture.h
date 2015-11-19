@@ -43,6 +43,17 @@
 
 namespace opengl
 {
+  enum class TEXTURE_FILTER {
+    NEAREST,
+    LINEAR,
+    LINEAR_MIPMAP_NEAREST,
+  };
+
+  enum class TEXTURE_WRAP {
+    REPEAT,
+    CLAMP_TO_EDGE,
+  };
+
   // ** cTexture
 
   class cTexture
@@ -64,6 +75,10 @@ namespace opengl
     unsigned int GetTextureType() const;
 
     void SetDoNotUseMipMaps() { bIsUsingMipMaps = false; }
+
+    void SetMinFilter(TEXTURE_FILTER magFilter);
+    void SetMagFilter(TEXTURE_FILTER magFilter);
+    void SetWrap(TEXTURE_WRAP wrap);
 
     bool CreateFromImage(const voodoo::cImage& image);
 
