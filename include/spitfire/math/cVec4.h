@@ -9,7 +9,9 @@ namespace spitfire
     {
     public:
       // Constructors
-      cVec4(float newX = 0.0f, float newY = 0.0f, float newZ = 0.0f, float newW=0.0f);
+      cVec4();
+      cVec4(float value);
+      cVec4(float newX, float newY, float newZ, float newW);
       explicit cVec4(const float* rhs);
       cVec4(const cVec4& rhs);
       explicit cVec4(const cVec3& rhs); // convert cVec3 to cVec4

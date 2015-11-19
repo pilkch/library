@@ -21,6 +21,22 @@ namespace spitfire
 {
   namespace math
   {
+    cVec4::cVec4() :
+      x(0.0f),
+      y(0.0f),
+      z(0.0f),
+      w(0.0f)
+    {
+    }
+
+    cVec4::cVec4(float value) :
+      x(value),
+      y(value),
+      z(value),
+      w(value)
+    {
+    }
+
     cVec4::cVec4(float newX, float newY, float newZ, float newW)
     {
       x=newX;
