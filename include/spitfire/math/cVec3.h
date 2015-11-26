@@ -15,6 +15,7 @@ namespace spitfire
     {
     public:
       cVec3() : x(0.0f), y(0.0f), z(0.0f) {}
+      cVec3(float value) : x(value), y(value), z(value) {}
       cVec3(float newX, float newY, float newZ) : x(newX), y(newY), z(newZ) {}
       explicit cVec3(const float* rhs) { x = *rhs; y = rhs[1]; z = rhs[2]; }
       cVec3(const cVec3& rhs) : x(rhs.x), y(rhs.y), z(rhs.z) {}
