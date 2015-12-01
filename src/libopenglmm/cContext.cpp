@@ -390,40 +390,29 @@ namespace opengl
   }
 
 
-  cShader* cContext::CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName)
+  void cContext::CreateShader(cShader& shader, const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName)
   {
-    cShader* pShader = new cShader;
-    if (!pShader->LoadVertexShaderAndFragmentShader(sVertexShaderFileName, sFragmentShaderFileName)) {
-      delete pShader;
-      return nullptr;
+    if (!shader.LoadVertexShaderAndFragmentShader(sVertexShaderFileName, sFragmentShaderFileName)) {
+      return;
     }
 
-    shaders.push_back(pShader);
-
-    return pShader;
+    shaders.push_back(&shader);
   }
 
-  cShader* cContext::CreateShaderFromText(const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
+  void cContext::CreateShaderFromText(cShader& shader, const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
-    cShader* pShader = new cShader;
-    if (!pShader->LoadVertexShaderAndFragmentShaderFromText(sVertexShaderText, sFragmentShaderText, sFolderPath, mapDefinesToAdd)) {
-      delete pShader;
-      return nullptr;
+    if (!shader.LoadVertexShaderAndFragmentShaderFromText(sVertexShaderText, sFragmentShaderText, sFolderPath, mapDefinesToAdd)) {
+      return;
     }
 
-    shaders.push_back(pShader);
-
-    return pShader;
+    shaders.push_back(&shader);
   }
 
-  void cContext::DestroyShader(cShader* pShader)
+  void cContext::DestroyShader(cShader& shader)
   {
-    assert(pShader != nullptr);
+    shaders.remove(&shader);
 
-    shaders.remove(pShader);
-
-    pShader->Destroy();
-    delete pShader;
+    shader.Destroy();
   }
 
   void cContext::CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo)
@@ -1033,19 +1022,19 @@ namespace opengl
 
 
 #ifdef BUILD_LIBOPENGLMM_FONT
-  void cContext::BindFont(const cFont& font)
+  void cContext::BindFont(cFont& font)
   {
     assert(font.IsValid());
 
     BindTexture(0, *(font.pTexture));
-    BindShader(*(font.pShader));
+    BindShader(font.shader);
   }
 
-  void cContext::UnBindFont(const cFont& font)
+  void cContext::UnBindFont(cFont& font)
   {
     assert(font.IsValid());
 
-    UnBindShader(*(font.pShader));
+    UnBindShader(font.shader);
     UnBindTexture(0, *(font.pTexture));
   }
 #endif

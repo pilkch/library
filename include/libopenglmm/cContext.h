@@ -140,9 +140,9 @@ namespace opengl
     cTextureFrameBufferObject* CreateTextureFrameBufferObjectWithDepth(size_t width, size_t height);
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
 
-    cShader* CreateShader(const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
-    cShader* CreateShaderFromText(const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
-    void DestroyShader(cShader* pShader);
+    void CreateShader(cShader& shader, const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
+    void CreateShaderFromText(cShader& shader, const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
+    void DestroyShader(cShader& pShader);
 
     void CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
@@ -195,8 +195,8 @@ namespace opengl
 
 
 #ifdef BUILD_LIBOPENGLMM_FONT
-    void BindFont(const cFont& font);
-    void UnBindFont(const cFont& font);
+    void BindFont(cFont& font);
+    void UnBindFont(cFont& font);
 #endif
 
 

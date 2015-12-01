@@ -31,6 +31,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
+#include <libopenglmm/cShader.h>
 
 struct SDL_Surface;
 
@@ -49,7 +50,7 @@ namespace opengl
     cFont();
     ~cFont();
 
-    bool IsValid() const { return (pTexture != nullptr) && (pShader != nullptr); }
+    bool IsValid() const { return (pTexture != nullptr) && shader.IsCompiledProgram(); }
 
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
@@ -63,7 +64,7 @@ namespace opengl
     void Destroy(cContext& context);
 
     cTexture* pTexture;
-    cShader* pShader;
+    cShader shader;
 
   private:
     std::vector<float> fGlyphU;

@@ -126,15 +126,14 @@ namespace opengl
 
 
   cFont::cFont() :
-    pTexture(nullptr),
-    pShader(nullptr)
+    pTexture(nullptr)
   {
   }
 
   cFont::~cFont()
   {
     assert(pTexture == nullptr);
-    assert(pShader == nullptr);
+    assert(!shader.IsCompiledProgram());
   }
 
   size_t RoundDownToNearestEvenNumber(size_t value)
@@ -214,8 +213,8 @@ namespace opengl
       return false;
     }
 
-    pShader = context.CreateShader(sVertexShader, sFragmentShader);
-    if (pShader == nullptr) {
+    context.CreateShader(shader, sVertexShader, sFragmentShader);
+    if (!shader.IsCompiledProgram()) {
       std::cout<<"cFont::cFont CreateShader FAILED, returning false"<<std::endl;
       return false;
     }
@@ -226,10 +225,7 @@ namespace opengl
 
   void cFont::Destroy(cContext& context)
   {
-    if (pShader != nullptr) {
-      context.DestroyShader(pShader);
-      pShader = nullptr;
-    }
+    if (shader.IsCompiledProgram()) context.DestroyShader(shader);
 
     if (pTexture != nullptr) {
       context.DestroyTexture(pTexture);
