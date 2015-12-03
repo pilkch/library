@@ -133,12 +133,12 @@ namespace opengl
     );
     void DestroyTextureCubeMap(cTextureCubeMap* pTexture);
 
-    cTextureFrameBufferObject* CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat);
-    cTextureFrameBufferObject* CreateTextureFrameBufferObjectNoMipMaps(size_t width, size_t height, PIXELFORMAT pixelFormat);
-    cTextureFrameBufferObject* CreateTextureFrameBufferObjectDepthShadowOnly(size_t width, size_t height);
-    cTextureFrameBufferObject* CreateTextureFrameBufferObjectDepthOnly(size_t width, size_t height);
-    cTextureFrameBufferObject* CreateTextureFrameBufferObjectWithDepth(size_t width, size_t height);
-    void DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture);
+    void CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void CreateTextureFrameBufferObjectDepthShadowOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height);
+    void CreateTextureFrameBufferObjectDepthOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height);
+    void CreateTextureFrameBufferObjectWithDepth(cTextureFrameBufferObject& fbo, size_t width, size_t height);
+    void DestroyTextureFrameBufferObject(cTextureFrameBufferObject& pTexture);
 
     void CreateShader(cShader& shader, const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
     void CreateShaderFromText(cShader& shader, const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());

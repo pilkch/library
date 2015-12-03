@@ -278,84 +278,53 @@ namespace opengl
   }
 
 
-  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat)
+  void cContext::CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     (void)pixelFormat;
 
-    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, true, false, false)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!fbo.CreateFrameBufferObject(width, height, true, false, false)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&fbo);
   }
 
-  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectNoMipMaps(size_t width, size_t height, PIXELFORMAT pixelFormat)
+  void cContext::CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     (void)pixelFormat;
 
-    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    pTexture->SetDoNotUseMipMaps();
-    if (!pTexture->CreateFrameBufferObject(width, height, true, false, false)) {
-      delete pTexture;
-      return nullptr;
-    }
+    fbo.SetDoNotUseMipMaps();
+    if (!fbo.CreateFrameBufferObject(width, height, true, false, false)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&fbo);
   }
 
-  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectDepthShadowOnly(size_t width, size_t height)
+  void cContext::CreateTextureFrameBufferObjectDepthShadowOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
-    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, false, true, true)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!fbo.CreateFrameBufferObject(width, height, false, true, true)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&fbo);
   }
 
-  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectDepthOnly(size_t width, size_t height)
+  void cContext::CreateTextureFrameBufferObjectDepthOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
-    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, false, true, false)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!fbo.CreateFrameBufferObject(width, height, false, true, false)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&fbo);
   }
 
-  cTextureFrameBufferObject* cContext::CreateTextureFrameBufferObjectWithDepth(size_t width, size_t height)
+  void cContext::CreateTextureFrameBufferObjectWithDepth(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
-    cTextureFrameBufferObject* pTexture = new cTextureFrameBufferObject;
-    if (!pTexture->CreateFrameBufferObject(width, height, true, true, false)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!fbo.CreateFrameBufferObject(width, height, true, true, false)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&fbo);
   }
 
-  void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject* pTexture)
+  void cContext::DestroyTextureFrameBufferObject(cTextureFrameBufferObject& fbo)
   {
-    assert(pTexture != nullptr);
+    assert(fbo.IsValid());
 
-    //textures.remove(pTexture);
+    //textures.remove(&fbo);
 
-    pTexture->Destroy();
-    delete pTexture;
+    fbo.Destroy();
   }
 
 
