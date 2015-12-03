@@ -124,15 +124,11 @@ namespace opengl
   }
 
 
-
-  cFont::cFont() :
-    pTexture(nullptr)
-  {
-  }
+  // ** cFont
 
   cFont::~cFont()
   {
-    assert(pTexture == nullptr);
+    assert(!texture.IsValid());
     assert(!shader.IsCompiledProgram());
   }
 
@@ -203,12 +199,12 @@ namespace opengl
     FT_Done_FreeType(library);
 
     // Create our texture from the buffer
-    pTexture = context.CreateTextureFromBufferNoMipMaps(pBuffer, nBufferWidth, nBufferHeight, PIXELFORMAT::R8G8B8A8);
+    context.CreateTextureFromBufferNoMipMaps(texture, pBuffer, nBufferWidth, nBufferHeight, PIXELFORMAT::R8G8B8A8);
 
     delete [] pBuffer;
     pBuffer = nullptr;
 
-    if (pTexture == nullptr) {
+    if (!texture.IsValid()) {
       std::cout<<"cFont::cFont CreateTextureFromBuffer FAILED, returning false"<<std::endl;
       return false;
     }
@@ -227,10 +223,7 @@ namespace opengl
   {
     if (shader.IsCompiledProgram()) context.DestroyShader(shader);
 
-    if (pTexture != nullptr) {
-      context.DestroyTexture(pTexture);
-      pTexture = nullptr;
-    }
+    if (texture.IsValid()) context.DestroyTexture(texture);
   }
 
   spitfire::math::cVec2 cFont::GetDimensions(const opengl::string_t& sText) const

@@ -116,12 +116,12 @@ namespace opengl
     void ResizeWindow(const cResolution& resolution);
     #endif
 
-    cTexture* CreateTexture(const opengl::string_t& sFileName);
-    cTexture* CreateTextureNoMipMaps(const opengl::string_t& sFileName);
-    cTexture* CreateTextureFromImage(const voodoo::cImage& image);
-    cTexture* CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
-    cTexture* CreateTextureFromBufferNoMipMaps(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
-    void DestroyTexture(cTexture* pTexture);
+    void CreateTexture(cTexture& texture, const opengl::string_t& sFileName);
+    void CreateTextureNoMipMaps(cTexture& texture, const opengl::string_t& sFileName);
+    void CreateTextureFromImage(cTexture& texture, const voodoo::cImage& image);
+    void CreateTextureFromBuffer(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void CreateTextureFromBufferNoMipMaps(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void DestroyTexture(cTexture& texture);
 
     cTextureCubeMap* CreateTextureCubeMap(
       const opengl::string_t& filePathPositiveX,

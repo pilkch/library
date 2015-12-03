@@ -32,13 +32,13 @@
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
 #include <libopenglmm/cShader.h>
+#include <libopenglmm/cTexture.h>
 
 struct SDL_Surface;
 
 namespace opengl
 {
   class cContext;
-  class cTexture;
   class cShader;
   class cGeometryBuilder_v2_c4_t2;
 
@@ -47,10 +47,9 @@ namespace opengl
   public:
     friend class cContext;
 
-    cFont();
     ~cFont();
 
-    bool IsValid() const { return (pTexture != nullptr) && shader.IsCompiledProgram(); }
+    bool IsValid() const { return (texture.IsValid() && shader.IsCompiledProgram()); }
 
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
     void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
@@ -63,7 +62,7 @@ namespace opengl
     bool Load(cContext& context, const string_t& sFilename, size_t height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
     void Destroy(cContext& context);
 
-    cTexture* pTexture;
+    cTexture texture;
     cShader shader;
 
   private:

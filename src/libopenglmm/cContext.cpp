@@ -175,99 +175,68 @@ namespace opengl
   }
 
 
-  cTexture* cContext::CreateTexture(const opengl::string_t& sFileName)
+  void cContext::CreateTexture(cTexture& texture, const opengl::string_t& sFileName)
   {
     voodoo::cImage image;
-    if (!image.LoadFromFile(sFileName)) return nullptr;
+    if (!image.LoadFromFile(sFileName)) return;
 
-    cTexture* pTexture = new cTexture;
-    if (!pTexture->CreateFromImage(image)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!texture.CreateFromImage(image)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&texture);
   }
 
-  cTexture* cContext::CreateTextureNoMipMaps(const opengl::string_t& sFileName)
+  void cContext::CreateTextureNoMipMaps(cTexture& texture, const opengl::string_t& sFileName)
   {
     voodoo::cImage image;
-    if (!image.LoadFromFile(sFileName)) return nullptr;
+    if (!image.LoadFromFile(sFileName)) return;
 
-    cTexture* pTexture = new cTexture;
-    pTexture->SetDoNotUseMipMaps();
-    if (!pTexture->CreateFromImage(image)) {
-      delete pTexture;
-      return nullptr;
-    }
+    texture.SetDoNotUseMipMaps();
+    if (!texture.CreateFromImage(image)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&texture);
   }
 
-  cTexture* cContext::CreateTextureFromImage(const voodoo::cImage& image)
+  void cContext::CreateTextureFromImage(cTexture& texture, const voodoo::cImage& image)
   {
     assert(image.IsValid());
 
-    cTexture* pTexture = new cTexture;
-    if (!pTexture->CreateFromImage(image)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!texture.CreateFromImage(image)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&texture);
   }
 
-  cTexture* cContext::CreateTextureFromBuffer(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  void cContext::CreateTextureFromBuffer(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     assert(pBuffer != nullptr);
 
     voodoo::cImage image;
-    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return nullptr;
+    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return;
 
-    cTexture* pTexture = new cTexture;
-    if (!pTexture->CreateFromImage(image)) {
-      delete pTexture;
-      return nullptr;
-    }
+    if (!texture.CreateFromImage(image)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&texture);
   }
 
-  cTexture* cContext::CreateTextureFromBufferNoMipMaps(const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
+  void cContext::CreateTextureFromBufferNoMipMaps(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     assert(pBuffer != nullptr);
 
     voodoo::cImage image;
-    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return nullptr;
+    if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return;
 
-    cTexture* pTexture = new cTexture;
-    pTexture->SetDoNotUseMipMaps();
-    if (!pTexture->CreateFromImage(image)) {
-      delete pTexture;
-      return nullptr;
-    }
+    texture.SetDoNotUseMipMaps();
+    if (!texture.CreateFromImage(image)) return;
 
-    //textures.push_back(pTexture);
-
-    return pTexture;
+    //textures.push_back(&texture);
   }
 
-  void cContext::DestroyTexture(cTexture* pTexture)
+  void cContext::DestroyTexture(cTexture& texture)
   {
-    assert(pTexture != nullptr);
+    assert(texture.IsValid());
 
-    //textures.remove(pTexture);
+    //textures.remove(&texture);
 
-    pTexture->Destroy();
-    delete pTexture;
+    texture.Destroy();
   }
 
   cTextureCubeMap* cContext::CreateTextureCubeMap(
@@ -1026,7 +995,7 @@ namespace opengl
   {
     assert(font.IsValid());
 
-    BindTexture(0, *(font.pTexture));
+    BindTexture(0, font.texture);
     BindShader(font.shader);
   }
 
@@ -1035,7 +1004,7 @@ namespace opengl
     assert(font.IsValid());
 
     UnBindShader(font.shader);
-    UnBindTexture(0, *(font.pTexture));
+    UnBindTexture(0, font.texture);
   }
 #endif
 
