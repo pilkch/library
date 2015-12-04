@@ -229,6 +229,8 @@ namespace opengl
 
   bool cShader::IsCompiledProgram() const
   {
+    if (uiShaderProgram == 0) return false; 
+    
     GLint value = GL_FALSE;
     glGetProgramiv(uiShaderProgram, GL_LINK_STATUS, &value);
     return (value == GL_TRUE);
