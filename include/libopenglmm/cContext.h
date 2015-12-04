@@ -123,7 +123,8 @@ namespace opengl
     void CreateTextureFromBufferNoMipMaps(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture& texture);
 
-    cTextureCubeMap* CreateTextureCubeMap(
+    void CreateTextureCubeMap(
+      cTextureCubeMap& texture,
       const opengl::string_t& filePathPositiveX,
       const opengl::string_t& filePathNegativeX,
       const opengl::string_t& filePathPositiveY,
@@ -131,7 +132,7 @@ namespace opengl
       const opengl::string_t& filePathPositiveZ,
       const opengl::string_t& filePathNegativeZ
     );
-    void DestroyTextureCubeMap(cTextureCubeMap* pTexture);
+    void DestroyTextureCubeMap(cTextureCubeMap& texture);
 
     void CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);

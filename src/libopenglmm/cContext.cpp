@@ -239,7 +239,8 @@ namespace opengl
     texture.Destroy();
   }
 
-  cTextureCubeMap* cContext::CreateTextureCubeMap(
+  void cContext::CreateTextureCubeMap(
+    cTextureCubeMap& texture,
     const opengl::string_t& filePathPositiveX,
     const opengl::string_t& filePathNegativeX,
     const opengl::string_t& filePathPositiveY,
@@ -248,8 +249,7 @@ namespace opengl
     const opengl::string_t& filePathNegativeZ
   )
   {
-    cTextureCubeMap* pTexture = new cTextureCubeMap;
-    if (!pTexture->CreateFromFilePaths(
+    if (!texture.CreateFromFilePaths(
         filePathPositiveX,
         filePathNegativeX,
         filePathPositiveY,
@@ -258,23 +258,19 @@ namespace opengl
         filePathNegativeZ
       )
     ) {
-      delete pTexture;
-      return nullptr;
+      return;
     }
 
-    //cubeMapTextures.push_back(pTexture);
-
-    return pTexture;
+    //cubeMapTextures.push_back(&texture);
   }
 
-  void cContext::DestroyTextureCubeMap(cTextureCubeMap* pTexture)
+  void cContext::DestroyTextureCubeMap(cTextureCubeMap& texture)
   {
-    assert(pTexture != nullptr);
+    assert(texture.IsValid());
 
-    //cubeMapTextures.remove(pTexture);
+    //cubeMapTextures.remove(&texture);
 
-    pTexture->Destroy();
-    delete pTexture;
+    texture.Destroy();
   }
 
 
