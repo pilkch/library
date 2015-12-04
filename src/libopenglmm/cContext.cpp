@@ -347,6 +347,8 @@ namespace opengl
     shaders.remove(&shader);
 
     shader.Destroy();
+
+    ASSERT(!shader.IsCompiledProgram());
   }
 
   void cContext::CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo)

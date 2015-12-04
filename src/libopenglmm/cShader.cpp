@@ -211,6 +211,8 @@ namespace opengl
 
   bool cShader::IsCompiledVertex() const
   {
+    if (uiShaderVertex == 0) return false;
+
     GLint value = GL_FALSE;
     glGetShaderiv(uiShaderVertex, GL_COMPILE_STATUS, &value);
     return (value == GL_TRUE);
@@ -218,6 +220,8 @@ namespace opengl
 
   bool cShader::IsCompiledFragment() const
   {
+    if (uiShaderFragment == 0) return false;
+
     GLint value = GL_FALSE;
     glGetShaderiv(uiShaderFragment, GL_COMPILE_STATUS, &value);
     return (value == GL_TRUE);
