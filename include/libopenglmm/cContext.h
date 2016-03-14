@@ -213,6 +213,7 @@ namespace opengl
     void BindShader(cShader& shader);
     void UnBindShader(cShader& shader);
 
+    bool SetShaderConstant(const std::string& sConstant, unsigned int value);
     bool SetShaderConstant(const std::string& sConstant, int value);
     bool SetShaderConstant(const std::string& sConstant, float value);
     bool SetShaderConstant(const std::string& sConstant, const spitfire::math::cVec2& value);

@@ -1125,6 +1125,19 @@ namespace opengl
     pCurrentShader = nullptr;
   }
 
+  bool cContext::SetShaderConstant(const std::string& sConstant, unsigned int value)
+  {
+    GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
+    if (loc == -1) {
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      assert(loc > 0);
+      return false;
+    }
+
+    glUniform1ui(loc, value);
+    return true;
+  }
+
   bool cContext::SetShaderConstant(const std::string& sConstant, int value)
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
