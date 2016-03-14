@@ -120,16 +120,6 @@
 #ifdef BUILD_DEBUG
 // Use CRT memory leak detection
 #include <crtdbg.h>
-#ifdef COMPILER_MSVC
-//#define _CRTDBG_MAP_ALLOC
-inline void *__cdecl operator new(size_t n, const char *fn, int l) { return ::operator new(n, 1, fn, l); }
-inline void __cdecl operator delete(void *p, const char *fn, int l) { ::operator delete(p, 1, fn, l); }
-#define new new(__FILE__,__LINE__)
-#endif
-#endif
-
-#ifndef WIN32_LEAN_AND_MEAN 
-#error "WIN32_LEAN_AND_MEAN must be defined on Windows"
 #endif
 
 #ifndef NOMINMAX

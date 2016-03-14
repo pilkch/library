@@ -1268,7 +1268,7 @@ namespace spitfire
       void SetPriority(PRIORITY _priority) { priority = _priority; }
 
     // Returns true and sets sFullPath to the fullpath ie. "/home/chris/.spitfire/shared/data/texture/testing.png" if found
-      bool GetFile(const string_t& sFile, string_t& sFullPath) const { return _GetFile(sFile, sFullPath); }
+      bool GetFile(const string_t& sFile, string_t& _sFullPath) const { return _GetFile(sFile, _sFullPath); }
 
     private:
       virtual bool _GetFile(const string_t& sFile, string_t& sFullPath) const;

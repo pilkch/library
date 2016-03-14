@@ -267,8 +267,8 @@ namespace breathe
         if (verticesIndicesSize != 0) {
           std::vector<float_t> tempVertices;
 
-          for (size_t i = 0; i < verticesIndicesSize; i++) {
-            size_t index = verticesIndices[i];
+          for (size_t j = 0; j < verticesIndicesSize; j++) {
+            size_t index = verticesIndices[j];
             if (index != 0) index--;
 
             for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {
@@ -291,8 +291,8 @@ namespace breathe
         if (textureCoordinatesIndicesSize != 0) {
           std::vector<float_t> tempTextureCoordinates;
 
-          for (size_t i = 0; i < textureCoordinatesIndicesSize; i++) {
-            size_t index = textureCoordinatesIndices[i];
+          for (size_t j = 0; j < textureCoordinatesIndicesSize; j++) {
+            size_t index = textureCoordinatesIndices[j];
             if (index != 0) index--;
 
             for (size_t offset = 2 * index; offset < (2 * index) + 2; offset++) {
@@ -320,8 +320,8 @@ namespace breathe
         if (normalsIndicesSize != 0) {
           std::vector<float_t> tempNormals;
 
-          for (size_t i = 0; i < normalsIndicesSize; i++) {
-            size_t index = normalsIndices[i];
+          for (size_t j = 0; j < normalsIndicesSize; j++) {
+            size_t index = normalsIndices[j];
             if (index != 0) index--;
 
             for (size_t offset = 3 * index; offset < (3 * index) + 3; offset++) {

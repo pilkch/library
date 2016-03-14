@@ -352,9 +352,9 @@ namespace spitfire
       message.push_back(pMessage);
     }
 
-    inline void cScreen::AddClosedCaption(const string_t& actor, const string_t& line, uint32_t life)
+    inline void cScreen::AddClosedCaption(const string_t& actor, const string_t& _line, uint32_t life)
     {
-      cGameClosedCaption* pMessage = new cGameClosedCaption(actor, line, life);
+      cGameClosedCaption* pMessage = new cGameClosedCaption(actor, _line, life);
       closedCaption.push_back(pMessage);
     }
   }

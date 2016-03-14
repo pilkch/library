@@ -121,7 +121,7 @@ namespace spitfire
 
     inline void OpenFolder(const string_t& sFolderPath)
     {
-      if (uint32_t(ShellExecute(NULL, TEXT("explore"), sFolderPath.c_str(), NULL, NULL, SW_SHOWNORMAL)) >= 32) return;
+      if (size_t(ShellExecute(NULL, TEXT("explore"), sFolderPath.c_str(), NULL, NULL, SW_SHOWNORMAL)) >= 32) return;
 
       string_t sCommand(TEXT("explorer.exe \"") + sFolderPath + TEXT("\""));
       STARTUPINFO siStartInfo;

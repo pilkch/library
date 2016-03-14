@@ -143,9 +143,9 @@ namespace opengl
     return (IsKeyDown(key) || IsKeyHeld(key));
   }
 
-  void cWindow::OnResizeWindow(const cResolution& _resolution, bool bIsFullScreen)
+  void cWindow::OnResizeWindow(const cResolution& _resolution, bool _bIsFullScreen)
   {
-    (void)bIsFullScreen;
+    (void)_bIsFullScreen;
 
     assert(pContext != nullptr);
 
@@ -214,11 +214,11 @@ namespace opengl
                 pWindowEventListener->OnWindowEvent(event);
               }
 
-              cResolution resolution;
-              resolution.width = size_t(sdlEvent.window.data1);
-              resolution.height = size_t(sdlEvent.window.data2);
-              resolution.pixelFormat = GetPixelFormat();
-              OnResizeWindow(resolution, IsFullScreen());
+              cResolution newResolution;
+              newResolution.width = size_t(sdlEvent.window.data1);
+              newResolution.height = size_t(sdlEvent.window.data2);
+              newResolution.pixelFormat = GetPixelFormat();
+              OnResizeWindow(newResolution, IsFullScreen());
 
               // Send a resized event
               if (pWindowEventListener != nullptr) {

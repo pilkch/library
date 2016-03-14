@@ -771,14 +771,14 @@ namespace opengl
     SetShaderProjectionAndModelViewMatrices(_matProjection, _matModelView);
   }
 
-  void cContext::SetShaderProjectionAndViewAndModelMatrices(const spitfire::math::cMat4& matProjection, const spitfire::math::cMat4& matView, const spitfire::math::cMat4& matModel)
+  void cContext::SetShaderProjectionAndViewAndModelMatrices(const spitfire::math::cMat4& _matProjection, const spitfire::math::cMat4& matView, const spitfire::math::cMat4& matModel)
   {
     // Update the view matrix on the shader if required
     if (pCurrentShader->bViewMatrix) SetShaderConstant("matView", matView);
 
     // Update the view projection matrix on the shader if required
     if (pCurrentShader->bViewProjectionMatrix) {
-      const spitfire::math::cMat4 matViewProjection(matProjection * matView);
+      const spitfire::math::cMat4 matViewProjection(_matProjection * matView);
       SetShaderConstant("matViewProjection", matViewProjection);
     }
 
@@ -786,8 +786,8 @@ namespace opengl
     if (pCurrentShader->bModelMatrix) SetShaderConstant("matModel", matModel);
 
     // Set the rest of matrices as normal
-    const spitfire::math::cMat4 matModelView(matView * matModel);
-    SetShaderProjectionAndModelViewMatrices(matProjection, matModelView);
+    const spitfire::math::cMat4 newMatModelView(matView * matModel);
+    SetShaderProjectionAndModelViewMatrices(_matProjection, newMatModelView);
   }
 
   void cContext::SetShaderProjectionAndModelViewMatrices(const spitfire::math::cMat4& _matProjection, const spitfire::math::cMat4& _matModelView)

@@ -18,14 +18,14 @@ namespace spitfire
     void TimeInit()
     {
       ASSERT(IsMainThread());
-      timeInitCalled = std::chrono::high_resolution_clock::now();
+      timeInitCalled = std::chrono::system_clock::now();
       bTimeInitCalled = true;
     }
 
     durationms_t GetTimeMS()
     {
       ASSERT(bTimeInitCalled);
-      std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
+      std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
       return std::chrono::duration_cast<std::chrono::milliseconds>(now - timeInitCalled).count();
     }
 

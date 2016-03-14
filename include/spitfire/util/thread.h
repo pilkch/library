@@ -13,6 +13,11 @@
 #include <spitfire/util/process.h>
 #include <spitfire/util/signalobject.h>
 
+#ifdef __WIN__
+// Yield is defined in Win32, thanks Microsoft!
+#undef Yield
+#endif
+
 namespace spitfire
 {
   namespace util

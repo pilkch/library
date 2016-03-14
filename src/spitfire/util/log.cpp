@@ -153,11 +153,11 @@ namespace spitfire
     }
 
 //#ifdef BUILD_DEBUG
-    void cLog::trace(const string_t& section)
+    void cLog::trace(const string_t& _section)
     {
       if (!bIsLogging) return;
 
-      string_t s = TEXT("<!> ") + spitfire::string::ToString_t(section);
+      string_t s = TEXT("<!> ") + spitfire::string::ToString_t(_section);
 #ifdef __WIN__
       s += TEXT("\n");
       OutputDebugString(s.c_str());
@@ -166,9 +166,9 @@ namespace spitfire
 #endif
     }
 
-    void cLog::trace(const string_t& section, const string_t& text)
+    void cLog::trace(const string_t& _section, const string_t& text)
     {
-      trace(section + TEXT(" - ") + text);
+      trace(_section + TEXT(" - ") + text);
     }
 //#endif //BUILD_DEBUG
 
@@ -227,7 +227,7 @@ namespace spitfire
   //#endif
     }
 
-    void cLog::Success(const string_t& section, const string_t& text)
+    void cLog::Success(const string_t& _section, const string_t& text)
     {
       if (!bIsLogging) return;
 
@@ -237,7 +237,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << string::ToUTF8(startline) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(section) << string::ToUTF8(endcolumn) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
+      logfile << string::ToUTF8(startline) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(_section) << string::ToUTF8(endcolumn) <<string::ToUTF8(startsuccesscolumn[scol])<< string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
 
       //Close the file
       logfile.close();
@@ -245,11 +245,11 @@ namespace spitfire
       scol=!scol;
 
   //#ifdef BUILD_DEBUG
-      trace(section, text);
+      trace(_section, text);
   //#endif //BUILD_DEBUG
     }
 
-    void cLog::Error(const string_t& section, const string_t& text)
+    void cLog::Error(const string_t& _section, const string_t& text)
     {
       if (!bIsLogging) return;
 
@@ -259,14 +259,14 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile <<string::ToUTF8(startline)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(section)<<string::ToUTF8(endcolumn)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(text)<<string::ToUTF8(endline)<<std::endl;
+      logfile <<string::ToUTF8(startline)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(_section)<<string::ToUTF8(endcolumn)<<string::ToUTF8(starterrorcolumn[ecol])<<string::ToUTF8(text)<<string::ToUTF8(endline)<<std::endl;
 
       logfile.close();
 
       ecol=!ecol;
 
   //#ifdef BUILD_DEBUG
-      trace(section, text);
+      trace(_section, text);
   //#endif //BUILD_DEBUG
     }
 
