@@ -365,27 +365,18 @@ namespace opengl
 
 
 #ifdef BUILD_LIBOPENGLMM_FONT
-  cFont* cContext::CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
+  void cContext::CreateFont(cFont& font, const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
-    cFont* pFont = new cFont;
-    if (!pFont->Load(*this, sFileName, fontSize, sVertexShader, sFragmentShader)) {
-      delete pFont;
-      return nullptr;
-    }
+    if (!font.Load(*this, sFileName, fontSize, sVertexShader, sFragmentShader)) return;
 
-    fonts.push_back(pFont);
-
-    return pFont;
+    fonts.push_back(&font);
   }
 
-  void cContext::DestroyFont(cFont* pFont)
+  void cContext::DestroyFont(cFont& font)
   {
-    assert(pFont != nullptr);
+    fonts.remove(&font);
 
-    fonts.remove(pFont);
-
-    pFont->Destroy(*this);
-    delete pFont;
+    font.Destroy(*this);
   }
 #endif
 

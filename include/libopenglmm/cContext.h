@@ -149,8 +149,8 @@ namespace opengl
     void DestroyStaticVertexBufferObject(cStaticVertexBufferObject& vbo);
 
 #ifdef BUILD_LIBOPENGLMM_FONT
-    cFont* CreateFont(const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
-    void DestroyFont(cFont* pFont);
+    void CreateFont(cFont& font, const opengl::string_t& sFileName, size_t fontSize, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
+    void DestroyFont(cFont& font);
 #endif
 
 
