@@ -365,6 +365,40 @@ namespace spitfire
     }
   }
 
+
+  void LangLangTagUnitTest()
+  {
+    {
+      const string_t sLangTag = TEXT("%1 something %2");
+      const string_t sResult = spitfire::LANG(sLangTag, "first", 2);
+      const string_t sExpected = TEXT("first something 2");
+      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
+    }
+    {
+      const string_t sLangTag = TEXT("And a different order %2 and %1");
+      const string_t sResult = LANG(sLangTag, "first", 2);
+      const string_t sExpected = TEXT("And a different order 2 and first");
+      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
+    }
+    {
+      const string_t sLangTag = TEXT("No arguments");
+      const string_t sResult = LANG(sLangTag);
+      const string_t sExpected = TEXT("No arguments");
+      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
+    }
+    {
+      const string_t sLangTag = TEXT("Arguments with no replacement");
+      const string_t sResult = LANG(sLangTag, 3, "something");
+      const string_t sExpected = TEXT("Arguments with no replacement");
+      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
+    }
+    {
+      const string_t sLangTag = TEXT("Multiple of the same %1 argument %1");
+      const string_t sResult = LANG(sLangTag, "something", 2, 3);
+      const string_t sExpected = TEXT("Multiple of the same something argument something");
+      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
+    }
+  }
 }
 
 
