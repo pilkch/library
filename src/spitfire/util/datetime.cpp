@@ -458,6 +458,24 @@ namespace spitfire
       return (datetime > rhs.datetime);
     }
 
+    cDateTime cDateTime::operator+(const boost::posix_time::time_duration& duration) const
+    {
+      cDateTime copy(*this);
+      copy.datetime += duration;
+      return copy;
+    }
+
+    cDateTime cDateTime::operator-(const boost::posix_time::time_duration& duration) const
+    {
+      cDateTime copy(*this);
+      copy.datetime -= duration;
+      return copy;
+    }
+
+    boost::posix_time::time_duration cDateTime::operator-(const cDateTime& rhs) const
+    {
+      return datetime - rhs.datetime;
+    }
   }
 }
 

@@ -105,6 +105,12 @@ namespace spitfire
       bool operator<(const cDateTime& rhs) const;
       bool operator>(const cDateTime& rhs) const;
 
+      cDateTime operator+(const boost::posix_time::time_duration& duration) const;
+      cDateTime operator-(const boost::posix_time::time_duration& duration) const;
+
+      // Get the difference between two dates
+      boost::posix_time::time_duration operator-(const cDateTime& rhs) const;
+
     private:
       static boost::posix_time::ptime GetLocalTimeNow() { return boost::posix_time::microsec_clock::local_time(); }
       static boost::posix_time::ptime GetUniversalTime() { return boost::posix_time::microsec_clock::universal_time(); }
