@@ -171,6 +171,200 @@ namespace spitfire
     storage::AppendText(sFilename, spitfire::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
     return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
   }
+
+
+
+  namespace util
+  {
+    string_t LangHumanReadableTime(const cDateTime& dateTimeNow, const cDateTime& dateTime)
+    {
+      const boost::posix_time::time_duration duration = dateTime - dateTimeNow;
+
+      int64_t milliseconds = duration.total_milliseconds();
+
+      // Handle dates in the past
+      // NOTE: This is the same code as the positive path just with "About x hours ago" instead of "In about x hours"
+      if (milliseconds < 0) {
+        // Make the milliseconds positive
+        milliseconds = -milliseconds;
+
+        // Now
+        if (milliseconds < 1000) return TEXT("Now");
+
+        // Seconds
+        const uint64_t seconds = milliseconds / 1000;
+        if (seconds <= 1) return TEXT("1 second ago");
+        else if (seconds <= 30) return string::ToString(seconds) + TEXT(" seconds ago");
+
+        // Minutes
+        const uint64_t minutes = seconds / 60;
+        if (minutes <= 1) return TEXT("About 1 minute ago");
+        else if (minutes < 60) return TEXT("About ") + string::ToString(minutes) + TEXT(" minutes ago");
+
+        // Hours
+        const uint64_t hours = minutes / 60;
+        if (hours <= 1) return TEXT("About ") + string::ToString(hours) + TEXT(" hour ago");
+        else if (hours < 24) return TEXT("About ") + string::ToString(hours) + TEXT(" hours ago");
+
+        // Days
+        const uint64_t days = hours / 24;
+        if (days <= 1) return TEXT("About 1 day ago");
+
+        return TEXT("About ") + string::ToString(days) + TEXT(" days ago");
+      }
+
+      // Now
+      if (milliseconds < 1000) return TEXT("Now");
+
+      // Seconds
+      const uint64_t seconds = milliseconds / 1000;
+      if (seconds <= 1) return TEXT("In 1 second");
+      else if (seconds <= 30) return TEXT("In ") + string::ToString(seconds) + TEXT(" seconds");
+
+      // Minutes
+      const uint64_t minutes = seconds / 60;
+      if (minutes <= 1) return TEXT("In about 1 minute");
+      else if (minutes < 60) return TEXT("In about ") + string::ToString(minutes) + TEXT(" minutes");
+
+      // Hours
+      const uint64_t hours = minutes / 60;
+      if (hours <= 1) return TEXT("In about ") + string::ToString(hours) + TEXT(" hour");
+      else if (hours < 24) return TEXT("In about ") + string::ToString(hours) + TEXT(" hours");
+
+      // Days
+      const uint64_t days = hours / 24;
+      if (days <= 1) return TEXT("In about 1 day");
+
+      return TEXT("In about ") + string::ToString(days) + TEXT(" days");
+    }
+
+    string_t LangHumanReadableDuration(const boost::posix_time::time_duration& duration)
+    {
+      const int64_t milliseconds = duration.total_milliseconds();
+
+      // We don't handle negative durations
+      if (milliseconds < 0) return TEXT("0 seconds");
+
+      // Seconds
+      const uint64_t seconds = milliseconds / 1000;
+      if (seconds <= 1) return TEXT("1 second");
+      else if (seconds <= 30) return string::ToString(seconds) + TEXT(" seconds");
+
+      // Minutes
+      const uint64_t minutes = seconds / 60;
+      if (minutes <= 1) return TEXT("About 1 minute");
+      else if (minutes < 60) return TEXT("About ") + string::ToString(minutes) + TEXT(" minutes");
+
+      // Hours
+      const uint64_t hours = minutes / 60;
+      if (hours <= 1) return TEXT("About ") + string::ToString(hours) + TEXT(" hour");
+      else if (hours < 24) return TEXT("About ") + string::ToString(hours) + TEXT(" hours");
+
+      // Days
+      const uint64_t days = hours / 24;
+      if (days <= 1) return TEXT("About 1 day");
+      
+      return TEXT("About ") + string::ToString(days) + TEXT(" days");
+    }
+
+// Assert that matches the Google Test definition
+#ifdef ASSERT_TRUE
+#error "Remove this definition of ASSERT_TRUE"
+#endif
+#define ASSERT_TRUE assert
+
+    void LangHumanReadableTimeUnitTest()
+    {
+      const cDateTime now(2015, 6, 5, 4, 3);
+
+      struct cTestPair {
+        const boost::posix_time::time_duration duration;
+        const string_t sExpected;
+      };
+      
+      const cTestPair pairs[] = {
+        { - (boost::posix_time::hours(240) + boost::posix_time::minutes(1)), TEXT("About 10 days ago") },
+        { - (boost::posix_time::hours(48) + boost::posix_time::minutes(1)), TEXT("About 2 days ago") },
+        { - (boost::posix_time::hours(24) + boost::posix_time::minutes(1)), TEXT("About 1 day ago") },
+        { - boost::posix_time::hours(24), TEXT("About 1 day ago") },
+        { - (boost::posix_time::hours(23) + boost::posix_time::minutes(59)), TEXT("About 23 hours ago") },
+        { - (boost::posix_time::hours(1) + boost::posix_time::minutes(1)), TEXT("About 1 hour ago") },
+        { - boost::posix_time::hours(1), TEXT("About 1 hour ago") },
+        { - (boost::posix_time::minutes(59) + boost::posix_time::seconds(59)), TEXT("About 59 minutes ago") },
+        { - (boost::posix_time::minutes(2) + boost::posix_time::seconds(1)), TEXT("About 2 minutes ago") },
+        { - boost::posix_time::minutes(2), TEXT("About 2 minutes ago") },
+        { - (boost::posix_time::minutes(1) + boost::posix_time::seconds(58)), TEXT("About 1 minute ago") },
+        { - boost::posix_time::minutes(1), TEXT("About 1 minute ago") },
+        { - boost::posix_time::seconds(59), TEXT("About 1 minute ago") },
+        { - boost::posix_time::seconds(31), TEXT("About 1 minute ago") },
+        { - boost::posix_time::seconds(30), TEXT("30 seconds ago") },
+        { - boost::posix_time::seconds(29), TEXT("29 seconds ago") },
+        { - boost::posix_time::seconds(2), TEXT("2 seconds ago") },
+        { - boost::posix_time::seconds(1), TEXT("1 second ago") },
+        { boost::posix_time::seconds(0), TEXT("Now") },
+        { boost::posix_time::seconds(1), TEXT("In 1 second") },
+        { boost::posix_time::seconds(2), TEXT("In 2 seconds") },
+        { boost::posix_time::seconds(29), TEXT("In 29 seconds") },
+        { boost::posix_time::seconds(30), TEXT("In 30 seconds") },
+        { boost::posix_time::seconds(31), TEXT("In about 1 minute") },
+        { boost::posix_time::seconds(59), TEXT("In about 1 minute") },
+        { boost::posix_time::minutes(1), TEXT("In about 1 minute") },
+        { boost::posix_time::minutes(1) + boost::posix_time::seconds(58), TEXT("In about 1 minute") },
+        { boost::posix_time::minutes(2), TEXT("In about 2 minutes") },
+        { boost::posix_time::minutes(2) + boost::posix_time::seconds(1), TEXT("In about 2 minutes") },
+        { boost::posix_time::minutes(59) + boost::posix_time::seconds(59), TEXT("In about 59 minutes") },
+        { boost::posix_time::hours(1), TEXT("In about 1 hour") },
+        { boost::posix_time::hours(1) + boost::posix_time::minutes(1), TEXT("In about 1 hour") },
+        { boost::posix_time::hours(23) + boost::posix_time::minutes(59), TEXT("In about 23 hours") },
+        { boost::posix_time::hours(24), TEXT("In about 1 day") },
+        { boost::posix_time::hours(24) + boost::posix_time::minutes(1), TEXT("In about 1 day") },
+        { boost::posix_time::hours(48) + boost::posix_time::minutes(1), TEXT("In about 2 days") },
+        { boost::posix_time::hours(240) + boost::posix_time::minutes(1), TEXT("In about 10 days") },
+      };
+
+      const size_t n = countof(pairs);
+      for (size_t i = 0; i < n; i++) {
+        const string_t sResult = LangHumanReadableTime(now, cDateTime(now + pairs[i].duration));
+        ASSERT_TRUE(sResult == pairs[i].sExpected);
+      }
+    }
+
+    void LangHumanReadableDurationUnitTest()
+    {
+      struct cTestPair {
+        const boost::posix_time::time_duration duration;
+        const string_t sExpected;
+      };
+
+      const cTestPair pairs[] = {
+        { boost::posix_time::seconds(1), TEXT("1 second") },
+        { boost::posix_time::seconds(2), TEXT("2 seconds") },
+        { boost::posix_time::seconds(29), TEXT("29 seconds") },
+        { boost::posix_time::seconds(30), TEXT("30 seconds") },
+        { boost::posix_time::seconds(31), TEXT("About 1 minute") },
+        { boost::posix_time::seconds(59), TEXT("About 1 minute") },
+        { boost::posix_time::minutes(1), TEXT("About 1 minute") },
+        { boost::posix_time::minutes(1) + boost::posix_time::seconds(58), TEXT("About 1 minute") },
+        { boost::posix_time::minutes(2), TEXT("About 2 minutes") },
+        { boost::posix_time::minutes(2) + boost::posix_time::seconds(1), TEXT("About 2 minutes") },
+        { boost::posix_time::minutes(59) + boost::posix_time::seconds(59), TEXT("About 59 minutes") },
+        { boost::posix_time::hours(1), TEXT("About 1 hour") },
+        { boost::posix_time::hours(1) + boost::posix_time::minutes(1), TEXT("About 1 hour") },
+        { boost::posix_time::hours(23) + boost::posix_time::minutes(59), TEXT("About 23 hours") },
+        { boost::posix_time::hours(24), TEXT("About 1 day") },
+        { boost::posix_time::hours(24) + boost::posix_time::minutes(1), TEXT("About 1 day") },
+        { boost::posix_time::hours(48) + boost::posix_time::minutes(1), TEXT("About 2 days") },
+        { boost::posix_time::hours(240) + boost::posix_time::minutes(1), TEXT("About 10 days") },
+      };
+
+      const size_t n = countof(pairs);
+      for (size_t i = 0; i < n; i++) {
+        const string_t sResult = LangHumanReadableDuration(pairs[i].duration);
+        ASSERT_TRUE(sResult == pairs[i].sExpected);
+      }
+    }
+  }
+
 }
 
 
