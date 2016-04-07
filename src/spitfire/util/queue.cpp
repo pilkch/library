@@ -14,9 +14,6 @@
 #include <map>
 #include <stack>
 
-// Boost headers
-#include <boost/bind.hpp>
-
 // Spitfire headers
 #include <spitfire/util/queue.h>
 

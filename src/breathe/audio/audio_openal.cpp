@@ -553,7 +553,7 @@ namespace breathe
 
       cSourceRef pSource;
       while(iter != iterEnd) {
-        pSource = boost::static_pointer_cast<openal::cSource>(*iter);
+        pSource = std::static_pointer_cast<openal::cSource>(*iter);
         if (pSource->IsValid()) pSource->Play();
 
         iter++;
@@ -732,7 +732,7 @@ namespace breathe
       ASSERT(pInBuffer != nullptr);
       ASSERT(pInBuffer->IsValid());
 
-      pBuffer = boost::static_pointer_cast<openal::cBuffer>(pInBuffer);
+      pBuffer = std::static_pointer_cast<openal::cBuffer>(pInBuffer);
 
       alGenSources(1, &uiSource);
       ReportError();
