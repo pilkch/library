@@ -13,13 +13,6 @@
 #include <iomanip>
 #include <sstream>
 
-// Boost headers
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/microsec_time_clock.hpp>
-#include <boost/date_time/local_time_adjustor.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
@@ -140,119 +133,131 @@ namespace spitfire
       SetFromLocalTimeNow();
     }
 
-    cDateTime::cDateTime(int year, int month, int day)
+    cDateTime::cDateTime(int year, int month, int day) :
+      cDateTime(year, month, day, 0, 0)
     {
-      datetime = boost::posix_time::ptime(boost::gregorian::date(year, month, day), boost::posix_time::hours(0));
     }
 
-    cDateTime::cDateTime(int year, int month, int day, int hour, int minute)
+    cDateTime::cDateTime(int year, int month, int day, int hours, int minutes) :
+      cDateTime(year, month, day, hours, minutes, 0)
     {
-      datetime = boost::posix_time::ptime(boost::gregorian::date(year, month, day), boost::posix_time::hours(hour) + boost::posix_time::minutes(minute));
     }
 
-    cDateTime::cDateTime(int year, int month, int day, int hour, int minute, int second)
+    cDateTime::cDateTime(int year, int month, int day, int hours, int minutes, int seconds)
     {
-      datetime = boost::posix_time::ptime(boost::gregorian::date(year, month, day), boost::posix_time::hours(hour) + boost::posix_time::minutes(minute) + boost::posix_time::seconds(second));
-    }
+      struct std::tm t;
+      t.tm_sec = seconds;        // second of minute (0 .. 59 and 60 for leap seconds)
+      t.tm_min = minutes;        // minute of hour (0 .. 59)
+      t.tm_hour = hours;      // hour of day (0 .. 23)
+      t.tm_mday = day;       // day of month (0 .. 31)
+      t.tm_mon = month - 1;      // month of year (0 .. 11)
+      t.tm_year = year - 1900; // year since 1900
+      t.tm_isdst = -1;       // determine whether daylight saving time
+      const std::time_t time = std::mktime(&t);
+      ASSERT(time != -1);
 
-    // Same again, but multiply milliseconds by 1000 get get microseconds
-    cDateTime::cDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond)
-    {
-      datetime = boost::posix_time::ptime(boost::gregorian::date(year, month, day), boost::posix_time::hours(hour) + boost::posix_time::minutes(minute) + boost::posix_time::seconds(second) + boost::posix_time::microseconds(1000 * millisecond));
+      SetFromTimeT(time);
     }
 
     WEEKDAY cDateTime::GetWeekDay() const
     {
-      WEEKDAY result = WEEKDAY::MONDAY;
-      boost::gregorian::date d = datetime.date();
-      boost::gregorian::greg_weekday wd = d.day_of_week();
-      switch (wd) {
-        case boost::gregorian::Monday: result = WEEKDAY::MONDAY; break;
-        case boost::gregorian::Tuesday: result = WEEKDAY::TUESDAY; break;
-        case boost::gregorian::Wednesday: result = WEEKDAY::WEDNESDAY; break;
-        case boost::gregorian::Thursday: result = WEEKDAY::THURSDAY; break;
-        case boost::gregorian::Friday: result = WEEKDAY::FRIDAY; break;
-        case boost::gregorian::Saturday: result = WEEKDAY::SATURDAY; break;
-        case boost::gregorian::Sunday: result = WEEKDAY::SUNDAY; break;
+      time_t time = std::chrono::system_clock::to_time_t(datetime);
+      std::chrono::system_clock::time_point currentTimeRounded = std::chrono::system_clock::from_time_t(time);
+      if (currentTimeRounded > datetime) {
+        time--;
+        currentTimeRounded -= std::chrono::seconds(1);
+      }
+      tm values;
+      localtime_s(&values, &time);
+
+      WEEKDAY result = WEEKDAY::SUNDAY;
+
+      switch (values.tm_wday) {
+        case 0: result = WEEKDAY::SUNDAY; break;
+        case 1: result = WEEKDAY::MONDAY; break;
+        case 2: result = WEEKDAY::TUESDAY; break;
+        case 3: result = WEEKDAY::WEDNESDAY; break;
+        case 4: result = WEEKDAY::THURSDAY; break;
+        case 5: result = WEEKDAY::FRIDAY; break;
+        case 6: result = WEEKDAY::SATURDAY; break;
       };
 
       return result;
     }
 
-    uint16_t cDateTime::GetMilliSeconds() const
+    bool cDateTime::GetDateTimeFields(cDateTimeFields& fields) const
     {
-      ASSERT(IsValid());
-      // Unfortunately there is not a simple function to get the number of milliseconds, so we get the total
-      // number of milliseconds and then subtract the hours, minutes and seconds to get the remainder
-      const boost::posix_time::time_duration duration = datetime.time_of_day();
-      const long millisecondsTotal = duration.total_milliseconds();
-      const long remainder = millisecondsTotal - (((((duration.hours() * 60) + duration.minutes()) * 60) + duration.seconds()) * 1000);
-      ASSERT(remainder >= 0);
-      ASSERT(remainder < 1000);
-      return uint16_t(remainder);
-    }
+      time_t time = std::chrono::system_clock::to_time_t(datetime);
+      std::chrono::system_clock::time_point currentTimeRounded = std::chrono::system_clock::from_time_t(time);
+      if (currentTimeRounded > datetime) {
+        time--;
+        currentTimeRounded -= std::chrono::seconds(1);
+      }
+      tm values;
+      localtime_s(&values, &time);
 
-    uint32_t cDateTime::GetMillisecondsSinceMidnight() const
-    {
-      ASSERT(IsValid());
-      return ((((((GetHours() * 60) + GetMinutes()) * 60) + GetSeconds()) * 1000) + GetMilliSeconds());
-    }
+      fields.year = values.tm_year + 1900;
+      fields.month = values.tm_mon;
+      fields.day = values.tm_mday;
+      fields.hours = values.tm_hour;
+      fields.minutes = values.tm_min;
+      fields.seconds = values.tm_sec;
+      fields.milliseconds = std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(datetime - currentTimeRounded).count();
 
-    // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
-    uint64_t cDateTime::GetMillisecondsSince0AD() const
-    {
-      ASSERT(IsValid());
-      const boost::posix_time::time_duration duration = datetime.time_of_day();
-      return duration.total_milliseconds();
-    }
-
-    void cDateTime::AddDays(int days)
-    {
-      boost::posix_time::time_duration duration = boost::posix_time::hours(24 * days);
-      datetime += duration;
+      return true;
     }
 
     time_t cDateTime::GetTimeT() const
     {
-      static boost::posix_time::ptime epoch(boost::gregorian::date(1970, 1, 1));
-
-      // Get the number of seconds since 1970
-      boost::posix_time::time_duration::sec_type seconds = (datetime - epoch).total_seconds();
-
-      // TODO: Check overflow here
-
-      return time_t(seconds);
+      return std::chrono::system_clock::to_time_t(datetime);
     }
 
     void cDateTime::SetFromTimeT(time_t time)
     {
-      datetime = boost::posix_time::from_time_t(time);
+      datetime = std::chrono::system_clock::from_time_t(time);
     }
 
-    /*void GetTimeNow()
+    // Stolen from http://stackoverflow.com/a/9088549/1074390
+    // Get the UTC timezone offset (e.g. -8 hours for PST)
+    int get_utc_offset()
     {
-      using namespace boost::posix_time;
-      using namespace boost::gregorian;
+      // Get the local time for Jan 2, 1900 00:00 UTC
+      const time_t zero = 24 * 60 * 60L;
+      struct tm tm_utc;
+      localtime_s(&tm_utc, &zero);
+      int gmtime_hours = tm_utc.tm_hour;
 
-      //get the current time from the clock -- one second resolution
-      ptime now = second_clock::local_time();
+      // If the local time is the "day before" the UTC, subtract 24 hours from the hours to get the UTC offset
+      if (tm_utc.tm_mday < 2) gmtime_hours -= 24;
 
-      //Get the date part out of the time
-      date today = now.date();
-      boost::posix_time::time_duration time = now.time_of_day();
+      return gmtime_hours;
+    }
 
-      std::cout << to_simple_string(now) << std::endl;
-      std::cout << to_simple_string(today) << std::endl;
-      std::cout << to_simple_string(time) << std::endl;
-    }*/
+    // Stolen from http://stackoverflow.com/a/9088549/1074390
+    // The UTC analogue of mktime (much like timegm on some systems)
+    time_t tm_to_time_t_utc(struct tm& tm_utc)
+    {
+      // Get the epoch time relative to the local time zone, and then add the appropriate number of seconds to make it UTC
+      return std::mktime(&tm_utc) + get_utc_offset() * 3600;
+    }
 
+    std::chrono::system_clock::time_point cDateTime::GetUniversalTime()
+    {
+      const time_t now = time(NULL);
+      tm tm_now_utc;
+      gmtime_s(&tm_now_utc, &now);
+
+      const time_t now_utc = tm_to_time_t_utc(tm_now_utc);
+
+      return std::chrono::system_clock::from_time_t(now_utc);
+    }
 
     // http://en.wikipedia.org/wiki/ISO_8601
     // Z means UTC zero offset ie. this time is global and to get the local time we then added our local time zone offset
     // 19980717T140855,10Z
     // OR
     // 19980717T140855,10+hhmm
-    string_t cDateTime::GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const
+    /*string_t cDateTime::GetISO8601UTCStringWithTimeZoneOffset(const std::chrono::system_clock::duration& offset) const
     {
       ASSERT(IsValid());
 
@@ -302,11 +307,11 @@ namespace spitfire
     // 19980717T140855,10Z
     // OR
     // 19980717T140855,10+hhmm
-    bool cDateTime::SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset)
+    bool cDateTime::SetFromISO8601UTCString(const string_t& rhs, std::chrono::system_clock::duration& offset)
     {
       // Set the offset to zero for the moment
-      datetime = boost::posix_time::ptime(boost::gregorian::date(0, boost::gregorian::Jan, 1), boost::posix_time::hours(0));
-      offset = boost::posix_time::time_duration(0, 0, 0, 0);
+      datetime = std::chrono::system_clock::time_point(boost::gregorian::date(0, boost::gregorian::Jan, 1), boost::posix_time::hours(0));
+      offset = std::chrono::system_clock::duration(0, 0, 0, 0);
 
       // Find either a Z, + or -
       size_t zOrPlusOrMinus = rhs.find(TEXT("Z"));
@@ -333,13 +338,13 @@ namespace spitfire
 
       int minutes = spitfire::string::ToUnsignedInt(after.substr(2, 3));
 
-      offset = boost::posix_time::time_duration(hours, minutes, 0, 0);
+      offset = std::chrono::system_clock::duration(hours, minutes, 0, 0);
       return true;
     }
 
     bool cDateTime::SetFromISO8601UTCString(const string_t& rhs)
     {
-      boost::posix_time::time_duration offset;
+      std::chrono::system_clock::duration offset;
       return SetFromISO8601UTCString(rhs, offset);
     }
 
@@ -411,37 +416,7 @@ namespace spitfire
       o<<std::setw(2)<<GetDay();
 
       return o.str();
-    }
-
-
-
-    boost::posix_time::time_duration cDateTime::GetLocalTimeZoneOffset()
-    {
-      const boost::posix_time::ptime t10(boost::gregorian::date(2002, boost::gregorian::Jan, 1), boost::posix_time::hours(7));
-      const boost::posix_time::ptime t11 = boost::date_time::c_local_adjustor<boost::posix_time::ptime>::utc_to_local(t10);
-
-      return t11 - t10;
-    }
-
-    bool cDateTime::IsTimeZoneOffsetNonZero(const boost::posix_time::time_duration& offset)
-    {
-      return offset.total_seconds() != 0;
-    }
-
-    void cDateTime::ConvertFromLocalToUTC()
-    {
-      ASSERT(IsValid());
-
-      //datetime = boost::date_time::c_local_adjustor<boost::posix_time::ptime>.local_to_utc(datetime);
-      ASSERT(false);
-    }
-
-    void cDateTime::ConvertFromUTCToLocal()
-    {
-      ASSERT(IsValid());
-
-      datetime = boost::date_time::c_local_adjustor<boost::posix_time::ptime>::utc_to_local(datetime);
-    }
+    }*/
 
     bool cDateTime::operator==(const cDateTime& rhs) const
     {
@@ -458,21 +433,21 @@ namespace spitfire
       return (datetime > rhs.datetime);
     }
 
-    cDateTime cDateTime::operator+(const boost::posix_time::time_duration& duration) const
+    cDateTime cDateTime::operator+(const std::chrono::system_clock::duration& duration) const
     {
       cDateTime copy(*this);
       copy.datetime += duration;
       return copy;
     }
 
-    cDateTime cDateTime::operator-(const boost::posix_time::time_duration& duration) const
+    cDateTime cDateTime::operator-(const std::chrono::system_clock::duration& duration) const
     {
       cDateTime copy(*this);
       copy.datetime -= duration;
       return copy;
     }
 
-    boost::posix_time::time_duration cDateTime::operator-(const cDateTime& rhs) const
+    std::chrono::system_clock::duration cDateTime::operator-(const cDateTime& rhs) const
     {
       return datetime - rhs.datetime;
     }

@@ -39,7 +39,7 @@ namespace spitfire
     little_sleep(std::chrono::microseconds(100));
 
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    std::cout << "waited for "<< std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count()<< " microseconds\n";
+    std::cout << "waited for "<< std::chrono::duration_cast<std::chrono::duration<int, std::micro>>(elapsed).count()<< " microseconds\n";
   }
   */
 

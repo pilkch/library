@@ -4,8 +4,8 @@
 // Standard headers
 #include <mutex>
 
-// Boost headers
-#include <boost/date_time/posix_time/posix_time.hpp>
+// Standard headers
+#include <chrono>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

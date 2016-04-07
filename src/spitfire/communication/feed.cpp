@@ -15,10 +15,6 @@
 // Boost headers
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/microsec_time_clock.hpp>
-#include <boost/date_time/local_time_adjustor.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
 #include <boost/asio.hpp>
 
 // Other libraries
