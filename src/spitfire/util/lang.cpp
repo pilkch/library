@@ -13,9 +13,8 @@
 #include <map>
 #include <stack>
 
-// Boost headers
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/microsec_time_clock.hpp>
+// Standard headers
+#include <chrono>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -30,6 +29,7 @@
 
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/file.h>
+#include <spitfire/util/log.h>
 
 namespace spitfire
 {
@@ -178,9 +178,9 @@ namespace spitfire
   {
     string_t LangHumanReadableTime(const cDateTime& dateTimeNow, const cDateTime& dateTime)
     {
-      const boost::posix_time::time_duration duration = dateTime - dateTimeNow;
+      const std::chrono::system_clock::duration duration = dateTime - dateTimeNow;
 
-      int64_t milliseconds = duration.total_milliseconds();
+      int64_t milliseconds = std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(duration).count();
 
       // Handle dates in the past
       // NOTE: This is the same code as the positive path just with "About x hours ago" instead of "In about x hours"
@@ -238,9 +238,9 @@ namespace spitfire
       return TEXT("In about ") + string::ToString(days) + TEXT(" days");
     }
 
-    string_t LangHumanReadableDuration(const boost::posix_time::time_duration& duration)
+    string_t LangHumanReadableDuration(const std::chrono::system_clock::duration& duration)
     {
-      const int64_t milliseconds = duration.total_milliseconds();
+      const int64_t milliseconds = std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(duration).count();
 
       // We don't handle negative durations
       if (milliseconds < 0) return TEXT("0 seconds");
@@ -278,48 +278,48 @@ namespace spitfire
       const cDateTime now(2015, 6, 5, 4, 3);
 
       struct cTestPair {
-        const boost::posix_time::time_duration duration;
+        const std::chrono::system_clock::duration duration;
         const string_t sExpected;
       };
       
       const cTestPair pairs[] = {
-        { - (boost::posix_time::hours(240) + boost::posix_time::minutes(1)), TEXT("About 10 days ago") },
-        { - (boost::posix_time::hours(48) + boost::posix_time::minutes(1)), TEXT("About 2 days ago") },
-        { - (boost::posix_time::hours(24) + boost::posix_time::minutes(1)), TEXT("About 1 day ago") },
-        { - boost::posix_time::hours(24), TEXT("About 1 day ago") },
-        { - (boost::posix_time::hours(23) + boost::posix_time::minutes(59)), TEXT("About 23 hours ago") },
-        { - (boost::posix_time::hours(1) + boost::posix_time::minutes(1)), TEXT("About 1 hour ago") },
-        { - boost::posix_time::hours(1), TEXT("About 1 hour ago") },
-        { - (boost::posix_time::minutes(59) + boost::posix_time::seconds(59)), TEXT("About 59 minutes ago") },
-        { - (boost::posix_time::minutes(2) + boost::posix_time::seconds(1)), TEXT("About 2 minutes ago") },
-        { - boost::posix_time::minutes(2), TEXT("About 2 minutes ago") },
-        { - (boost::posix_time::minutes(1) + boost::posix_time::seconds(58)), TEXT("About 1 minute ago") },
-        { - boost::posix_time::minutes(1), TEXT("About 1 minute ago") },
-        { - boost::posix_time::seconds(59), TEXT("About 1 minute ago") },
-        { - boost::posix_time::seconds(31), TEXT("About 1 minute ago") },
-        { - boost::posix_time::seconds(30), TEXT("30 seconds ago") },
-        { - boost::posix_time::seconds(29), TEXT("29 seconds ago") },
-        { - boost::posix_time::seconds(2), TEXT("2 seconds ago") },
-        { - boost::posix_time::seconds(1), TEXT("1 second ago") },
-        { boost::posix_time::seconds(0), TEXT("Now") },
-        { boost::posix_time::seconds(1), TEXT("In 1 second") },
-        { boost::posix_time::seconds(2), TEXT("In 2 seconds") },
-        { boost::posix_time::seconds(29), TEXT("In 29 seconds") },
-        { boost::posix_time::seconds(30), TEXT("In 30 seconds") },
-        { boost::posix_time::seconds(31), TEXT("In about 1 minute") },
-        { boost::posix_time::seconds(59), TEXT("In about 1 minute") },
-        { boost::posix_time::minutes(1), TEXT("In about 1 minute") },
-        { boost::posix_time::minutes(1) + boost::posix_time::seconds(58), TEXT("In about 1 minute") },
-        { boost::posix_time::minutes(2), TEXT("In about 2 minutes") },
-        { boost::posix_time::minutes(2) + boost::posix_time::seconds(1), TEXT("In about 2 minutes") },
-        { boost::posix_time::minutes(59) + boost::posix_time::seconds(59), TEXT("In about 59 minutes") },
-        { boost::posix_time::hours(1), TEXT("In about 1 hour") },
-        { boost::posix_time::hours(1) + boost::posix_time::minutes(1), TEXT("In about 1 hour") },
-        { boost::posix_time::hours(23) + boost::posix_time::minutes(59), TEXT("In about 23 hours") },
-        { boost::posix_time::hours(24), TEXT("In about 1 day") },
-        { boost::posix_time::hours(24) + boost::posix_time::minutes(1), TEXT("In about 1 day") },
-        { boost::posix_time::hours(48) + boost::posix_time::minutes(1), TEXT("In about 2 days") },
-        { boost::posix_time::hours(240) + boost::posix_time::minutes(1), TEXT("In about 10 days") },
+        { - (std::chrono::hours(240) + std::chrono::minutes(1)), TEXT("About 10 days ago") },
+        { - (std::chrono::hours(48) + std::chrono::minutes(1)), TEXT("About 2 days ago") },
+        { - (std::chrono::hours(24) + std::chrono::minutes(1)), TEXT("About 1 day ago") },
+        { -std::chrono::hours(24), TEXT("About 1 day ago") },
+        { - (std::chrono::hours(23) + std::chrono::minutes(59)), TEXT("About 23 hours ago") },
+        { - (std::chrono::hours(1) + std::chrono::minutes(1)), TEXT("About 1 hour ago") },
+        { -std::chrono::hours(1), TEXT("About 1 hour ago") },
+        { - (std::chrono::minutes(59) + std::chrono::seconds(59)), TEXT("About 59 minutes ago") },
+        { - (std::chrono::minutes(2) + std::chrono::seconds(1)), TEXT("About 2 minutes ago") },
+        { -std::chrono::minutes(2), TEXT("About 2 minutes ago") },
+        { - (std::chrono::minutes(1) + std::chrono::seconds(58)), TEXT("About 1 minute ago") },
+        { -std::chrono::minutes(1), TEXT("About 1 minute ago") },
+        { -std::chrono::seconds(59), TEXT("About 1 minute ago") },
+        { -std::chrono::seconds(31), TEXT("About 1 minute ago") },
+        { -std::chrono::seconds(30), TEXT("30 seconds ago") },
+        { -std::chrono::seconds(29), TEXT("29 seconds ago") },
+        { -std::chrono::seconds(2), TEXT("2 seconds ago") },
+        { -std::chrono::seconds(1), TEXT("1 second ago") },
+        { std::chrono::seconds(0), TEXT("Now") },
+        { std::chrono::seconds(1), TEXT("In 1 second") },
+        { std::chrono::seconds(2), TEXT("In 2 seconds") },
+        { std::chrono::seconds(29), TEXT("In 29 seconds") },
+        { std::chrono::seconds(30), TEXT("In 30 seconds") },
+        { std::chrono::seconds(31), TEXT("In about 1 minute") },
+        { std::chrono::seconds(59), TEXT("In about 1 minute") },
+        { std::chrono::minutes(1), TEXT("In about 1 minute") },
+        { std::chrono::minutes(1) + std::chrono::seconds(58), TEXT("In about 1 minute") },
+        { std::chrono::minutes(2), TEXT("In about 2 minutes") },
+        { std::chrono::minutes(2) + std::chrono::seconds(1), TEXT("In about 2 minutes") },
+        { std::chrono::minutes(59) + std::chrono::seconds(59), TEXT("In about 59 minutes") },
+        { std::chrono::hours(1), TEXT("In about 1 hour") },
+        { std::chrono::hours(1) + std::chrono::minutes(1), TEXT("In about 1 hour") },
+        { std::chrono::hours(23) + std::chrono::minutes(59), TEXT("In about 23 hours") },
+        { std::chrono::hours(24), TEXT("In about 1 day") },
+        { std::chrono::hours(24) + std::chrono::minutes(1), TEXT("In about 1 day") },
+        { std::chrono::hours(48) + std::chrono::minutes(1), TEXT("In about 2 days") },
+        { std::chrono::hours(240) + std::chrono::minutes(1), TEXT("In about 10 days") },
       };
 
       const size_t n = countof(pairs);
@@ -332,29 +332,29 @@ namespace spitfire
     void LangHumanReadableDurationUnitTest()
     {
       struct cTestPair {
-        const boost::posix_time::time_duration duration;
+        const std::chrono::system_clock::duration duration;
         const string_t sExpected;
       };
 
       const cTestPair pairs[] = {
-        { boost::posix_time::seconds(1), TEXT("1 second") },
-        { boost::posix_time::seconds(2), TEXT("2 seconds") },
-        { boost::posix_time::seconds(29), TEXT("29 seconds") },
-        { boost::posix_time::seconds(30), TEXT("30 seconds") },
-        { boost::posix_time::seconds(31), TEXT("About 1 minute") },
-        { boost::posix_time::seconds(59), TEXT("About 1 minute") },
-        { boost::posix_time::minutes(1), TEXT("About 1 minute") },
-        { boost::posix_time::minutes(1) + boost::posix_time::seconds(58), TEXT("About 1 minute") },
-        { boost::posix_time::minutes(2), TEXT("About 2 minutes") },
-        { boost::posix_time::minutes(2) + boost::posix_time::seconds(1), TEXT("About 2 minutes") },
-        { boost::posix_time::minutes(59) + boost::posix_time::seconds(59), TEXT("About 59 minutes") },
-        { boost::posix_time::hours(1), TEXT("About 1 hour") },
-        { boost::posix_time::hours(1) + boost::posix_time::minutes(1), TEXT("About 1 hour") },
-        { boost::posix_time::hours(23) + boost::posix_time::minutes(59), TEXT("About 23 hours") },
-        { boost::posix_time::hours(24), TEXT("About 1 day") },
-        { boost::posix_time::hours(24) + boost::posix_time::minutes(1), TEXT("About 1 day") },
-        { boost::posix_time::hours(48) + boost::posix_time::minutes(1), TEXT("About 2 days") },
-        { boost::posix_time::hours(240) + boost::posix_time::minutes(1), TEXT("About 10 days") },
+        { std::chrono::seconds(1), TEXT("1 second") },
+        { std::chrono::seconds(2), TEXT("2 seconds") },
+        { std::chrono::seconds(29), TEXT("29 seconds") },
+        { std::chrono::seconds(30), TEXT("30 seconds") },
+        { std::chrono::seconds(31), TEXT("About 1 minute") },
+        { std::chrono::seconds(59), TEXT("About 1 minute") },
+        { std::chrono::minutes(1), TEXT("About 1 minute") },
+        { std::chrono::minutes(1) + std::chrono::seconds(58), TEXT("About 1 minute") },
+        { std::chrono::minutes(2), TEXT("About 2 minutes") },
+        { std::chrono::minutes(2) + std::chrono::seconds(1), TEXT("About 2 minutes") },
+        { std::chrono::minutes(59) + std::chrono::seconds(59), TEXT("About 59 minutes") },
+        { std::chrono::hours(1), TEXT("About 1 hour") },
+        { std::chrono::hours(1) + std::chrono::minutes(1), TEXT("About 1 hour") },
+        { std::chrono::hours(23) + std::chrono::minutes(59), TEXT("About 23 hours") },
+        { std::chrono::hours(24), TEXT("About 1 day") },
+        { std::chrono::hours(24) + std::chrono::minutes(1), TEXT("About 1 day") },
+        { std::chrono::hours(48) + std::chrono::minutes(1), TEXT("About 2 days") },
+        { std::chrono::hours(240) + std::chrono::minutes(1), TEXT("About 10 days") },
       };
 
       const size_t n = countof(pairs);

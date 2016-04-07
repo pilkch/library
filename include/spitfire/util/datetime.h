@@ -1,8 +1,8 @@
 #ifndef CDATETIME_H
 #define CDATETIME_H
 
-// Boost headers
-#include <boost/date_time.hpp>
+// Standard headers
+#include <chrono>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -34,33 +34,33 @@ namespace spitfire
     string_t MonthToShortString(int month);
     int StringToMonth(const string_t& sMonth);
 
+    struct cDateTimeFields {
+      int year;
+      int month;
+      int day;
+      int hours;
+      int minutes;
+      int seconds;
+      int milliseconds;
+    };
+
     class cDateTime
     {
     public:
       cDateTime(); // Defaults to local time now
       cDateTime(int year, int month, int day);
-      cDateTime(int year, int month, int day, int hour, int minute);
-      cDateTime(int year, int month, int day, int hour, int minute, int second);
-      cDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
+      cDateTime(int year, int month, int day, int hours, int minutes);
+      cDateTime(int year, int month, int day, int hours, int minutes, int seconds);
+      cDateTime(int year, int month, int day, int hours, int minutes, int seconds, int milliseconds);
 
       // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
-      bool IsValid() const { return !datetime.is_not_a_date_time() && !datetime.date().is_special() && !datetime.time_of_day().is_special();  }
+      bool IsValid() const { return datetime != std::chrono::system_clock::time_point::time_point();  }
 
-      bool IsUnixEpoch() const { return ((GetYear() == 1970) && (GetMonth() == 1) && (GetDay() == 1) && (GetHours() == 0) && (GetMinutes() == 0) && (GetSeconds() == 0) && (GetMilliSeconds() == 0)); }
+      bool IsUnixEpoch() const { return !IsValid(); }
 
       WEEKDAY GetWeekDay() const; // Returns the day of the week of this date
 
-      uint16_t GetYear() const { ASSERT(IsValid()); return datetime.date().year(); }
-      uint16_t GetMonth() const { ASSERT(IsValid()); return datetime.date().month(); }
-      uint16_t GetDay() const { ASSERT(IsValid()); return datetime.date().day(); }
-      uint16_t GetHours() const { ASSERT(IsValid()); return datetime.time_of_day().hours(); }
-      uint16_t GetMinutes() const { ASSERT(IsValid()); return datetime.time_of_day().minutes(); }
-      uint16_t GetSeconds() const { ASSERT(IsValid()); return datetime.time_of_day().seconds(); }
-      uint16_t GetMilliSeconds() const;
-
-      uint32_t GetMillisecondsSinceMidnight() const;
-      // This is the total milliseconds in the year, month, day, hours, minutes, seconds and milliseconds since 0 AD
-      uint64_t GetMillisecondsSince0AD() const;
+      bool GetDateTimeFields(cDateTimeFields& fields) const;
 
       void AddDays(int days);
 
@@ -70,12 +70,12 @@ namespace spitfire
 
       // ISO 8601 UTC Format with time zone offset
       // 2013-12-19T00:16:34+00:00
-      string_t GetISO8601UTCStringWithTimeZoneOffset(const boost::posix_time::time_duration& offset) const;
+      string_t GetISO8601UTCStringWithTimeZoneOffset(const std::chrono::system_clock::duration& offset) const;
 
       // ISO 8601 UTC format
       // 2013-12-19T00:16Z
       string_t GetISO8601UTCString() const;
-      bool SetFromISO8601UTCString(const string_t& rhs, boost::posix_time::time_duration& offset); // Returns true and sets offset if there is one
+      bool SetFromISO8601UTCString(const string_t& rhs, std::chrono::system_clock::duration& offset); // Returns true and sets offset if there is one
       bool SetFromISO8601UTCString(const string_t& rhs);
 
 
@@ -97,27 +97,22 @@ namespace spitfire
       void SetFromUnixEpoch() { *this = cDateTime(1970, 1, 1); }
       void SetFromLocalTimeNow() { datetime = GetLocalTimeNow(); }
       void SetFromUniversalTimeNow() { datetime = GetUniversalTime(); }
-
-      void ConvertFromLocalToUTC();
-      void ConvertFromUTCToLocal();
-
+      
       bool operator==(const cDateTime& rhs) const;
       bool operator<(const cDateTime& rhs) const;
       bool operator>(const cDateTime& rhs) const;
 
-      cDateTime operator+(const boost::posix_time::time_duration& duration) const;
-      cDateTime operator-(const boost::posix_time::time_duration& duration) const;
+      cDateTime operator+(const std::chrono::system_clock::duration& duration) const;
+      cDateTime operator-(const std::chrono::system_clock::duration& duration) const;
 
       // Get the difference between two dates
-      boost::posix_time::time_duration operator-(const cDateTime& rhs) const;
+      std::chrono::system_clock::duration operator-(const cDateTime& rhs) const;
 
     private:
-      static boost::posix_time::ptime GetLocalTimeNow() { return boost::posix_time::microsec_clock::local_time(); }
-      static boost::posix_time::ptime GetUniversalTime() { return boost::posix_time::microsec_clock::universal_time(); }
-      static boost::posix_time::time_duration GetLocalTimeZoneOffset();
-      static bool IsTimeZoneOffsetNonZero(const boost::posix_time::time_duration& offset);
+      static std::chrono::system_clock::time_point GetLocalTimeNow() { return std::chrono::system_clock::now(); }
+      static std::chrono::system_clock::time_point GetUniversalTime();
 
-      boost::posix_time::ptime datetime;
+      std::chrono::system_clock::time_point datetime;
     };
   }
 }

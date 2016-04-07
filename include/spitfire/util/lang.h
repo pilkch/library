@@ -87,7 +87,7 @@ namespace spitfire
     class cDateTime;
 
     string_t LangHumanReadableTime(const cDateTime& dateTimeNow, const cDateTime& dateTime);
-    string_t LangHumanReadableDuration(const boost::posix_time::time_duration& duration);
+    string_t LangHumanReadableDuration(const std::chrono::system_clock::duration& duration);
   }
 }
 

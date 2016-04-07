@@ -2,10 +2,9 @@
 #define CTHREAD_H
 
 // Standard headers
+#include <algorithm>
+#include <chrono>
 #include <thread>
-
-// Boost headers
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
