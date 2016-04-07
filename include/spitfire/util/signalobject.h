@@ -6,10 +6,6 @@
 #include <condition_variable>
 #include <mutex>
 
-// Boost headers
-#include <boost/bind/bind.hpp>
-#include <boost/thread/thread_time.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 

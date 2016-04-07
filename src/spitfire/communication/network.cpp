@@ -351,6 +351,7 @@ namespace spitfire
 
     void cConnectedClient::Write(const std::string& sData)
     {
+      // TODO: Replace this code with something like this or C++11 bind
       /*message = sData;
 
       boost::asio::async_write(socket, boost::asio::buffer(message),

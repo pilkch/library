@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Box2D headers
 #include <Box2D/Box2D.h>
 #include <Box2D/Rope/b2Rope.h>

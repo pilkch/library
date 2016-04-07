@@ -10,10 +10,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-
 // Other libraries
 #include <AL/al.h>
 #include <AL/alc.h>

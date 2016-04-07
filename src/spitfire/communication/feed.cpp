@@ -13,8 +13,6 @@
 #include <sstream>
 
 // Boost headers
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
 
 // Other libraries

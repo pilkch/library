@@ -2,7 +2,6 @@
 #define CHTTP_H
 
 // Boost headers
-#include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
 // Spitfire headers

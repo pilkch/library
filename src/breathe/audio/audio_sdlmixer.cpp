@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>

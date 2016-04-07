@@ -17,8 +17,6 @@
 #include <bitset>
 
 // Boost includes
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
 
 //FreeType Headers

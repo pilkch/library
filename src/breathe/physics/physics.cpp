@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #ifdef BUILD_PHYSICS_BULLET
 #include <btBulletDynamicsCommon.h>
