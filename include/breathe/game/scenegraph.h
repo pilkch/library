@@ -76,7 +76,7 @@ namespace breathe
     class cSkyDomeAtmosphereRenderer;
   }
 
-  typedef cSmartPtr<sky::cSkySystem> cSkySystemRef;
+  typedef std::shared_ptr<sky::cSkySystem> cSkySystemRef;
 
   namespace scenegraph_common
   {
@@ -442,12 +442,12 @@ namespace breathe
 
     class cSceneNode;
 
-    typedef cSmartPtr<cSceneNode> cSceneNodeRef;
+    typedef std::shared_ptr<cSceneNode> cSceneNodeRef;
 
     // Uses a quaternion to work out world rotation
     // Only call GenerateBoundingVolume at the very end of setting rotations and positions for all nodes
 
-    class cSceneNode : public boost::enable_shared_from_this<cSceneNode>
+    class cSceneNode : public std::enable_shared_from_this<cSceneNode>
     {
     public:
       friend class cUpdateVisitor;
@@ -593,7 +593,7 @@ namespace breathe
 
 
     class cGroupNode : public cSceneNode {};
-    typedef cSmartPtr<cGroupNode> cGroupNodeRef;
+    typedef std::shared_ptr<cGroupNode> cGroupNodeRef;
 
 
     // Adds everything below this node to the list of 2D objects to be rendered, ie. HUD
@@ -618,7 +618,7 @@ namespace breathe
       void _Cull(cCullVisitor& visitor);
     };
 
-    typedef cSmartPtr<cModelNode> cModelNodeRef;
+    typedef std::shared_ptr<cModelNode> cModelNodeRef;
 
     class cAnimationNode : public cSceneNode
     {
@@ -630,7 +630,7 @@ namespace breathe
       void _Cull(cCullVisitor& visitor);
     };
 
-    typedef cSmartPtr<cAnimationNode> cAnimationNodeRef;
+    typedef std::shared_ptr<cAnimationNode> cAnimationNodeRef;
 
     class cParticleSystemNode : public cSceneNode
     {
@@ -641,7 +641,7 @@ namespace breathe
       void _Cull(cCullVisitor& visitor);
     };
 
-    typedef cSmartPtr<cParticleSystemNode> cParticleSystemNodeRef;
+    typedef std::shared_ptr<cParticleSystemNode> cParticleSystemNodeRef;
 
     class cLightNode : public cSceneNode
     {
@@ -656,7 +656,7 @@ namespace breathe
       float_t fMaximumDistanceRadius;
     };
 
-    typedef cSmartPtr<cLightNode> cLightNodeRef;
+    typedef std::shared_ptr<cLightNode> cLightNodeRef;
 
 
     class cSwitchNode : public cSceneNode
@@ -715,7 +715,7 @@ namespace breathe
       index = LOD;
     }
 
-    typedef cSmartPtr<cLODNode> cLODNodeRef;
+    typedef std::shared_ptr<cLODNode> cLODNodeRef;
 
 
     class cPagedLODNodeChild : public cSceneNode
@@ -743,7 +743,7 @@ namespace breathe
       cLODNodeRef trees; // Anything else gets added here such as trees
     };
 
-    typedef cSmartPtr<cPagedLODNodeChild> cPagedLODNodeChildRef;
+    typedef std::shared_ptr<cPagedLODNodeChild> cPagedLODNodeChildRef;
 
     class cPagedLODNode : public cSceneNode
     {
@@ -762,7 +762,7 @@ namespace breathe
       // cQuadTree<cPagedLODNodeChildRef> quadtree;
     };
 
-    typedef cSmartPtr<cPagedLODNode> cPagedLODNodeRef;
+    typedef std::shared_ptr<cPagedLODNode> cPagedLODNodeRef;
 
 
 

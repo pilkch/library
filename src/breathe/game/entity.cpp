@@ -1,7 +1,4 @@
-
-// Boost includes
-#include <boost/shared_ptr.hpp>
-
+// Breathe headers
 #include <breathe/game/entity.h>
 
 void cUpdateDirtyEntitiesVisitor::VisitDirtyEntitiesInThisList(durationms_t currentTime, cEntityList::iterator iter, const cEntityList::iterator iterEnd)

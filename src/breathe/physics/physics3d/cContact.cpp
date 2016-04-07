@@ -11,10 +11,6 @@
 #include <fstream>
 #include <sstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 // Anything else
 #include <ode/ode.h>
 

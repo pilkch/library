@@ -10,10 +10,6 @@
 #include <iostream>
 #include <sstream>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 // OpenGL headers
 #include <GL/GLee.h>
 

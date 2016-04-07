@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #include <ode/ode.h>
 
@@ -22,7 +19,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 
@@ -205,7 +201,7 @@ namespace breathe
         body_iterator iter = lPhysicsBody.begin();
         const body_iterator iterEnd = lPhysicsBody.end();
         while(iterEnd != iter) {
-          ode::cBodyRef pBody = boost::static_pointer_cast<ode::cBody>(*iter);
+          ode::cBodyRef pBody = std::static_pointer_cast<ode::cBody>(*iter);
           dBodyID b = pBody->GetBody();
           if (b != NULL) {
             dReal const* av = dBodyGetAngularVel(b);

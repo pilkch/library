@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Box2D headers
 #include <Box2D/Box2D.h>
 #include <Box2D/Rope/b2Rope.h>
@@ -22,7 +19,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 

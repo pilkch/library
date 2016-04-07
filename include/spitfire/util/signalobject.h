@@ -2,13 +2,9 @@
 #define SPITFIRE_SIGNALOBJECT_H
 
 // Standard headers
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
-
-// Boost headers
-#include <boost/bind/bind.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread_time.hpp>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

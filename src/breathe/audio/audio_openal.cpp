@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -25,7 +22,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
@@ -557,7 +553,7 @@ namespace breathe
 
       cSourceRef pSource;
       while(iter != iterEnd) {
-        pSource = boost::static_pointer_cast<openal::cSource>(*iter);
+        pSource = std::static_pointer_cast<openal::cSource>(*iter);
         if (pSource->IsValid()) pSource->Play();
 
         iter++;
@@ -736,7 +732,7 @@ namespace breathe
       ASSERT(pInBuffer != nullptr);
       ASSERT(pInBuffer->IsValid());
 
-      pBuffer = boost::static_pointer_cast<openal::cBuffer>(pInBuffer);
+      pBuffer = std::static_pointer_cast<openal::cBuffer>(pInBuffer);
 
       alGenSources(1, &uiSource);
       ReportError();

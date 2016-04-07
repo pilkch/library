@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #ifdef BUILD_PHYSICS_BULLET
 #include <btBulletDynamicsCommon.h>
@@ -33,7 +30,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 

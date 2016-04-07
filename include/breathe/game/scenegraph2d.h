@@ -165,12 +165,12 @@ namespace breathe
 
     class cSceneNode;
 
-    typedef cSmartPtr<cSceneNode> cSceneNodeRef;
+    typedef std::shared_ptr<cSceneNode> cSceneNodeRef;
 
     // Uses a quaternion to work out world rotation
     // Only call GenerateBoundingVolume at the very end of setting rotations and positions for all nodes
 
-    class cSceneNode : public boost::enable_shared_from_this<cSceneNode>
+    class cSceneNode : public std::enable_shared_from_this<cSceneNode>
     {
     public:
       friend class cUpdateVisitor;
@@ -296,7 +296,7 @@ namespace breathe
 
 
     class cGroupNode : public cSceneNode {};
-    typedef cSmartPtr<cGroupNode> cGroupNodeRef;
+    typedef std::shared_ptr<cGroupNode> cGroupNodeRef;
 
 
 
@@ -442,7 +442,7 @@ namespace breathe
       cVertexBuffer vertexBuffer;
     };
 
-    typedef cSmartPtr<cGraphNode> cGraphNodeRef;
+    typedef std::shared_ptr<cGraphNode> cGraphNodeRef;
 
 
 

@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
@@ -23,7 +20,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 
@@ -196,7 +192,7 @@ namespace breathe
         body_iterator iter = lPhysicsBody.begin();
         const body_iterator iterEnd = lPhysicsBody.end();
         while(iterEnd != iter) {
-          bullet::cBodyRef pBody = boost::static_pointer_cast<bullet::cBody>(*iter);
+          bullet::cBodyRef pBody = std::static_pointer_cast<bullet::cBody>(*iter);
           dBodyID b = pBody->GetBody();
           if (b != NULL) {
             dReal const* av = dBodyGetAngularVel(b);
@@ -610,7 +606,7 @@ namespace breathe
 
       pChassis = pWorld->CreateEmptyBody();
 
-      bullet::cBodyRef pChassisAsBulletBody = boost::static_pointer_cast<bullet::cBody>(pChassis);
+      bullet::cBodyRef pChassisAsBulletBody = std::static_pointer_cast<bullet::cBody>(pChassis);
 
       btRigidBody* m_carChassis = pChassisAsBulletBody->CreateLocalCreateRigidBody(pWorld, 800, tr, compound);
       //m_carChassis->setDamping(0.2,0.2);
@@ -725,7 +721,7 @@ namespace breathe
 
 
 
-      bullet::cBodyRef pChassisAsBulletBody = boost::static_pointer_cast<bullet::cBody>(pChassis);
+      bullet::cBodyRef pChassisAsBulletBody = std::static_pointer_cast<bullet::cBody>(pChassis);
       btRigidBody* pChassisAsBulletRigidBody = pChassisAsBulletBody->GetBody();
 
 

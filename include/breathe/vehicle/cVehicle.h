@@ -99,10 +99,10 @@ namespace breathe
     };
 
     class cVehicle2;
-    typedef cSmartPtr<cVehicle2> cVehicleRef;
+    typedef std::shared_ptr<cVehicle2> cVehicleRef;
 
     class cVehicle2 :
-      public boost::enable_shared_from_this<cVehicle2>
+      public std::enable_shared_from_this<cVehicle2>
     {
     private:
       cVehicle2();

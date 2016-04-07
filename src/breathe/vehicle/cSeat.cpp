@@ -12,10 +12,6 @@
 #include <list>
 #include <set>
 
-// Boost headers
-#include <boost/smart_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 // OpenGL
 #include <GL/GLee.h>
 
@@ -23,7 +19,6 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 

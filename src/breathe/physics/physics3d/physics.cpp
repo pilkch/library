@@ -7,10 +7,6 @@
 #include <list>
 #include <vector>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 //#include <opal/opal.h>
 
 #include <ode/ode.h>

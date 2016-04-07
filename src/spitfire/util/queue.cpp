@@ -14,11 +14,6 @@
 #include <map>
 #include <stack>
 
-// Boost headers
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/bind.hpp>
-
 // Spitfire headers
 #include <spitfire/util/queue.h>
 

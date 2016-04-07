@@ -11,7 +11,7 @@ namespace breathe
     //{
     //};
 
-    //typedef cSmartPtr<cModel> cModelRef;
+    //typedef std::shared_ptr<cModel> cModelRef;
 
     class cAnimationPart
     {

@@ -12,9 +12,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/smart_ptr.hpp>
-
 // Other libraries
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -22,7 +19,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
 
@@ -227,7 +223,7 @@ namespace breathe
 
       cSourceRef pSource;
       while(iter != iterEnd) {
-        pSource = boost::static_pointer_cast<sdlmixer::cSource>(*iter);
+        pSource = std::static_pointer_cast<sdlmixer::cSource>(*iter);
         if (pSource->IsValid()) pSource->Play();
 
         iter++;
@@ -377,7 +373,7 @@ namespace breathe
       ASSERT(pInBuffer != nullptr);
       ASSERT(pInBuffer->IsValid());
 
-      pBuffer = boost::static_pointer_cast<sdlmixer::cBuffer>(pInBuffer);
+      pBuffer = std::static_pointer_cast<sdlmixer::cBuffer>(pInBuffer);
     }
 
     void cSource::_SetVolume(float fVolume)

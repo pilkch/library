@@ -14,9 +14,6 @@
 #include <fstream>
 #include <sstream>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 // FreeType headers
 #include <freetype/ft2build.h>
 #include <freetype/freetype.h>

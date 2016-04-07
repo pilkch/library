@@ -11,9 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-
 // OpenGL headers
 #include <GL/GLee.h>
 
@@ -100,7 +97,7 @@ namespace breathe
               std::string sModel;
               if (iter.GetAttribute("model", sModel)) {
                 LOG<<"Adding Model "<<sModel<<std::endl;
-                cSmartPtr<cWorldModel> pModel(new cWorldModel);
+                std::shared_ptr<cWorldModel> pModel(new cWorldModel);
 
                 pModel->model = spitfire::string::ToString_t(sModel);
                 iter.GetAttribute("position", pModel->position);
@@ -127,7 +124,7 @@ namespace breathe
               std::string sName;
               if (iter.GetAttribute("name", sName)) {
                 LOG<<"Adding Entity "<<sName<<std::endl;
-                cSmartPtr<cWorldEntity> pEntity(new cWorldEntity);
+                std::shared_ptr<cWorldEntity> pEntity(new cWorldEntity);
 
                 pEntity->name = spitfire::string::ToString_t(sName);
                 iter.GetAttribute("position", pEntity->position);
@@ -188,8 +185,8 @@ namespace breathe
         worldElement->AppendChild(modelsElement);
 
         // Models
-        std::list<cSmartPtr<cWorldModel> >::const_iterator iter = data.models.begin();
-        const std::list<cSmartPtr<cWorldModel> >::const_iterator iterEnd = data.models.end();
+        std::list<std::shared_ptr<cWorldModel> >::const_iterator iter = data.models.begin();
+        const std::list<std::shared_ptr<cWorldModel> >::const_iterator iterEnd = data.models.end();
         while (iter != iterEnd) {
           xml::element* modelElement = doc.CreateElement("model");
           modelsElement->AppendChild(modelElement);
@@ -207,13 +204,13 @@ namespace breathe
         worldElement->AppendChild(entitiesElement);
 
         // Entities
-        std::list<cSmartPtr<cWorldEntity> >::const_iterator iter = data.entities.begin();
-        const std::list<cSmartPtr<cWorldEntity> >::const_iterator iterEnd = data.entities.end();
+        std::list<std::shared_ptr<cWorldEntity> >::const_iterator iter = data.entities.begin();
+        const std::list<std::shared_ptr<cWorldEntity> >::const_iterator iterEnd = data.entities.end();
         while (iter != iterEnd) {
           xml::element* entityElement = doc.CreateElement("entity");
           entitiesElement->AppendChild(entityElement);
 
-          cSmartPtr<cWorldEntity> pEntity = (*iter);
+          std::shared_ptr<cWorldEntity> pEntity = (*iter);
 
           entityElement->AddAttribute("name", pEntity->name);
           entityElement->AddAttribute("position", pEntity->position);

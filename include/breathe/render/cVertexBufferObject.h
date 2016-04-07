@@ -11,11 +11,11 @@ namespace breathe
     using opengl::cStaticVertexBufferObject;
 
     typedef cStaticVertexBufferObject cVertexBufferObject;
-    typedef cSmartPtr<cVertexBufferObject> cVertexBufferObjectRef;
-    typedef cSmartPtr<cVertexBufferObject> cStaticVertexBufferObjectRef;
+    typedef std::shared_ptr<cVertexBufferObject> cVertexBufferObjectRef;
+    typedef std::shared_ptr<cVertexBufferObject> cStaticVertexBufferObjectRef;
 
     typedef cStaticVertexBufferObject cDynamicVertexBufferObject;
-    typedef cSmartPtr<cDynamicVertexBufferObject> cDynamicVertexBufferObjectRef;
+    typedef std::shared_ptr<cDynamicVertexBufferObject> cDynamicVertexBufferObjectRef;
   }
 }
 

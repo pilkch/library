@@ -17,10 +17,6 @@
 #include <bitset>
 
 // Boost includes
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
 
 //FreeType Headers
@@ -41,7 +37,6 @@
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/cTimer.h>

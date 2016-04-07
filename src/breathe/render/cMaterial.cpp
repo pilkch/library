@@ -14,9 +14,6 @@
 #include <map>
 #include <string>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 #include <GL/GLee.h>
 
 #include <SDL/SDL.h>

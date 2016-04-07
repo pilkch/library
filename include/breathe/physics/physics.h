@@ -3,13 +3,8 @@
 
 #if defined(BUILD_PHYSICS_2D) || defined(BUILD_PHYSICS_3D)
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
-
-#include <spitfire/util/cSmartPtr.h>
 
 #include <spitfire/math/cVec2.h>
 #ifdef BUILD_PHYSICS_3D
@@ -68,28 +63,28 @@ namespace breathe
     class cSphereProperties;
 
     class cBody;
-    typedef cSmartPtr<cBody> cBodyRef;
+    typedef std::shared_ptr<cBody> cBodyRef;
 
     class cHeightmapProperties;
 
     class cHeightmap;
-    typedef cSmartPtr<cHeightmap> cHeightmapRef;
+    typedef std::shared_ptr<cHeightmap> cHeightmapRef;
 
     class cSpringProperties;
 
     class cSpring;
-    typedef cSmartPtr<cSpring> cSpringRef;
+    typedef std::shared_ptr<cSpring> cSpringRef;
 
     class cCarProperties;
 
     class cCar;
-    typedef cSmartPtr<cCar> cCarRef;
+    typedef std::shared_ptr<cCar> cCarRef;
 
     #ifdef BUILD_PHYSICS_2D
     class cRopeProperties;
 
     class cRope;
-    typedef cSmartPtr<cRope> cRopeRef;
+    typedef std::shared_ptr<cRope> cRopeRef;
     #endif
 
     class cRayCast;

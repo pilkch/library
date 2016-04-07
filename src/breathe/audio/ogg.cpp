@@ -10,11 +10,6 @@
 #include <sstream>
 #include <fstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-
 // Other libraries
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -25,7 +20,6 @@
 // Spitfire
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 #include <spitfire/util/thread.h>

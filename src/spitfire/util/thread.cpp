@@ -14,9 +14,6 @@
 #include <map>
 #include <stack>
 
-// Boost headers
-#include <boost/bind.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 #include <spitfire/util/log.h>
@@ -116,7 +113,7 @@ namespace spitfire
       soAction.Reset();
 
       cThread* pThis = this;
-      pThread = new std::thread(boost::bind(&cThread::RunThreadFunction, pThis));
+      pThread = new std::thread(std::bind(&cThread::RunThreadFunction, pThis));
     }
   }
 }
