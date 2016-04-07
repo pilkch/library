@@ -4,7 +4,6 @@
 #include <breathe/breathe.h>
 
 #include <spitfire/util/string.h>
-#include <spitfire/util/cSmartPtr.h>
 
 namespace breathe
 {
@@ -13,14 +12,14 @@ namespace breathe
     namespace material
     {
       class cMaterial;
-      typedef cSmartPtr<cMaterial> cMaterialRef;
+      typedef std::shared_ptr<cMaterial> cMaterialRef;
     }
 
 
     namespace model
     {
       class cMesh;
-      typedef cSmartPtr<cMesh> cMeshRef;
+      typedef std::shared_ptr<cMesh> cMeshRef;
 
       //uiTextures  |  uiTriangles  fVerticies  vNormals  fTexCoords
       //------------+---------------------------------------------

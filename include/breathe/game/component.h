@@ -64,7 +64,7 @@ namespace breathe
 
 
     class cGameObject;
-    typedef cSmartPtr<cGameObject> cGameObjectRef;
+    typedef std::shared_ptr<cGameObject> cGameObjectRef;
 
     class cComponent
     {

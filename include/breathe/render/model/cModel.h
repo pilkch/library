@@ -28,7 +28,7 @@ namespace breathe
         unsigned int uiTriangles;
       };
 
-      typedef cSmartPtr<cModel> cModelRef;
+      typedef std::shared_ptr<cModel> cModelRef;
     }
   }
 }

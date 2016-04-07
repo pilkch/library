@@ -9,7 +9,7 @@ namespace breathe
     {
     };
 
-    typedef cSmartPtr<cPhysicsConstraint> cPhysicsConstraintRef;*/
+    typedef std::shared_ptr<cPhysicsConstraint> cPhysicsConstraintRef;*/
   }
 }
 

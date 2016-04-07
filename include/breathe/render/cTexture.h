@@ -4,9 +4,6 @@
 // libopenglmm headers
 #include <libopenglmm/cTexture.h>
 
-// Spitfire headers
-#include <spitfire/util/cSmartPtr.h>
-
 namespace breathe
 {
   namespace render
@@ -35,8 +32,8 @@ namespace breathe
     using opengl::cTextureFrameBufferObject;
 
 
-    typedef cSmartPtr<cTexture> cTextureRef;
-    typedef cSmartPtr<cTextureFrameBufferObject> cTextureFrameBufferObjectRef;
+    typedef std::shared_ptr<cTexture> cTextureRef;
+    typedef std::shared_ptr<cTextureFrameBufferObject> cTextureFrameBufferObjectRef;
   }
 }
 

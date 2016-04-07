@@ -17,9 +17,6 @@
 #include <map>
 #include <algorithm>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 // OpenGL headers
 #include <GL/GLee.h>
 
@@ -32,7 +29,6 @@
 
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cTimer.h>
 
 #include <spitfire/math/math.h>

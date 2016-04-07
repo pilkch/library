@@ -15,9 +15,6 @@
 #include <list>
 #include <algorithm>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 // Anything else
 #include <GL/GLee.h>
 #include <GL/glu.h>

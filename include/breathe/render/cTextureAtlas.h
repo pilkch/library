@@ -194,7 +194,7 @@ namespace breathe
       void BlitSurface(SDL_Surface* src, unsigned int x, unsigned int y);
     };
 
-    typedef cSmartPtr<cTextureAtlas> cTextureAtlasRef;*/
+    typedef std::shared_ptr<cTextureAtlas> cTextureAtlasRef;*/
   }
 }
 

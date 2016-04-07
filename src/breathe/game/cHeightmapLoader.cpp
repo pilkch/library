@@ -11,9 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-
 // OpenGL headers
 #include <GL/GLee.h>
 

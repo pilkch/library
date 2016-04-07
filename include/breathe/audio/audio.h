@@ -4,15 +4,12 @@
 // Standard headers
 #include <list>
 #include <map>
-
-// Boost headers
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/string.h>
-#include <spitfire/util/cSmartPtr.h>
 
 #include <spitfire/math/cVec3.h>
 
@@ -35,8 +32,8 @@ namespace breathe
     class cListener;
     class cSource;
     class cBuffer;
-    typedef cSmartPtr<cSource> cSourceRef;
-    typedef cSmartPtr<cBuffer> cBufferRef;
+    typedef std::shared_ptr<cSource> cSourceRef;
+    typedef std::shared_ptr<cBuffer> cBufferRef;
 
     enum class DRIVER {
 #ifdef BUILD_AUDIO_OPENAL

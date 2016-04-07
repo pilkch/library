@@ -11,13 +11,9 @@
 #include <iostream>
 #include <fstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 

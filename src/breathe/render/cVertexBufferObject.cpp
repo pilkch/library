@@ -15,15 +15,11 @@
 #include <iostream>
 #include <fstream>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 #include <GL/GLee.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 

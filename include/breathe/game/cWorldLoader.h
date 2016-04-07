@@ -3,8 +3,6 @@
 
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
-
 #include <spitfire/math/math.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cQuaternion.h>
@@ -79,9 +77,9 @@ namespace breathe
 
       void Clear();
 
-      //cSmartPtr<cWorldTerrain> pTerrain;
-      std::list<cSmartPtr<cWorldModel> > models; // NOTE: Models are purely visual
-      std::list<cSmartPtr<cWorldEntity> > entities;
+      //std::shared_ptr<cWorldTerrain> pTerrain;
+      std::list<std::shared_ptr<cWorldModel> > models; // NOTE: Models are purely visual
+      std::list<std::shared_ptr<cWorldEntity> > entities;
     };
 
     class cWorldXMLReader

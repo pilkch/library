@@ -3,8 +3,6 @@
 
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
-
 #include <spitfire/math/cVec3.h>
 
 #include <breathe/audio/audio.h>
@@ -25,8 +23,8 @@ namespace breathe
     // Forward declaration
     class cSource;
     class cBuffer;
-    typedef cSmartPtr<cSource> cSourceRef;
-    typedef cSmartPtr<cBuffer> cBufferRef;
+    typedef std::shared_ptr<cSource> cSourceRef;
+    typedef std::shared_ptr<cBuffer> cBufferRef;
 
     void ReportError();
 

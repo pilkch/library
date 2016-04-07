@@ -11,10 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-// Boost includes
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 // OpenGL headers
 #include <GL/GLee.h>
 
@@ -92,13 +88,9 @@
 #include <iostream>
 #include <fstream>
 
-// Boost headers
-#include <boost/shared_ptr.hpp>
-
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/cString.h>
 #include <spitfire/util/log.h>
 

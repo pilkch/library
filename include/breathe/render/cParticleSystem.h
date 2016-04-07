@@ -13,7 +13,7 @@ namespace breathe
     namespace model
     {
       class cMesh;
-      typedef cSmartPtr<cMesh> cMeshRef;
+      typedef std::shared_ptr<cMesh> cMeshRef;
     }
 
     class cParticle

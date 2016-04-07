@@ -5,7 +5,6 @@
 #include <libopenglmm/cShader.h>
 
 // Spitfire headers
-#include <spitfire/util/cSmartPtr.h>
 #include <spitfire/util/string.h>
 
 // Breathe headers
@@ -71,7 +70,7 @@ namespace breathe
       };
 
       class cMaterial;
-      typedef cSmartPtr<cMaterial> cMaterialRef;
+      typedef std::shared_ptr<cMaterial> cMaterialRef;
 
       class cMaterial
       {

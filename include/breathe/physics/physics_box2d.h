@@ -46,16 +46,16 @@ namespace breathe
   {
     // Forward declaration
     class cBody;
-    typedef cSmartPtr<cBody> cBodyRef;
+    typedef std::shared_ptr<cBody> cBodyRef;
 
     class cHeightmap;
-    typedef cSmartPtr<cHeightmap> cHeightmapRef;
+    typedef std::shared_ptr<cHeightmap> cHeightmapRef;
 
     class cCar;
-    typedef cSmartPtr<cCar> cCarRef;
+    typedef std::shared_ptr<cCar> cCarRef;
 
     class cRope;
-    typedef cSmartPtr<cRope> cRopeRef;
+    typedef std::shared_ptr<cRope> cRopeRef;
 
     class cWorld : public physics::cWorld
     {
