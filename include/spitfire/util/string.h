@@ -54,8 +54,8 @@ namespace spitfire
 
     // Is the character for this key in the printable range of ascii characters?
     // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
-    inline bool IsPrintableCharacter(char c) { return (c >= 32); }
-    inline bool IsPrintableCharacter(wchar_t c) { return (c >= 32) && (c <= 127); } // NOTE: This just takes care of ASCII printable characters, there are many more printable characters after 127 too, that this function does not cover
+    constexpr inline bool IsPrintableCharacter(char c) { return (c >= 32); }
+    constexpr inline bool IsPrintableCharacter(wchar_t c) { return (c >= 32) && (c <= 127); } // NOTE: This just takes care of ASCII printable characters, there are many more printable characters after 127 too, that this function does not cover
 
     inline const char* Find(const char* szText, const char* szFind) { return std::strstr(szText, szFind); }
     inline const wchar_t* Find(const wchar_t* szText, const wchar_t* szFind) { return wcsstr(szText, szFind); }
@@ -131,18 +131,18 @@ namespace spitfire
     std::string ToASCII(const std::string& source);
 
     std::string ToUTF8(const std::wstring& source);
-    inline const std::string& ToUTF8(const std::string& source) { return source; }
+    constexpr inline const std::string& ToUTF8(const std::string& source) { return source; }
 
     std::wstring ToWchar_t(const std::string& source);
-    inline const std::wstring& ToWchar_t(const std::wstring& source) { return source; }
+    constexpr inline const std::wstring& ToWchar_t(const std::wstring& source) { return source; }
 
 #ifdef UNICODE
     inline string_t ToString(const char* szSource) { return ToWchar_t(szSource); }
     inline string_t ToString(const wchar_t* szSource) { return string_t(szSource); }
     inline string_t ToString(const std::string& source) { return ToWchar_t(source); }
-    inline const string_t& ToString(const std::wstring& source) { return source; }
+    constexpr inline const string_t& ToString(const std::wstring& source) { return source; }
 #else
-    inline const string_t& ToString(const std::string& source) { return source; }
+    constexpr inline const string_t& ToString(const std::string& source) { return source; }
     inline string_t ToString(const std::wstring& source) { return ToUTF8(source); }
 #endif
 
@@ -189,7 +189,7 @@ namespace spitfire
 
 
     template <class T>
-    inline T ConvertFromHexDigit(char hex)
+    constexpr inline T ConvertFromHexDigit(char hex)
     {
       if (isalpha(hex)) return T(hex) - T('0');
       else if (isupper(hex)) return T(hex) - T('a') + T(0xA);
@@ -198,7 +198,7 @@ namespace spitfire
     }
 
     template <class T>
-    inline T ConvertFromHexDigit(wchar_t hex)
+    constexpr inline T ConvertFromHexDigit(wchar_t hex)
     {
       if (isalpha(hex)) return T(hex) - T('0');
       else if (isupper(hex)) return T(hex) - T('a') + T(0xA);
@@ -207,7 +207,7 @@ namespace spitfire
     }
 
     template <class T>
-    inline char ConvertToHexDigit(T value)
+    constexpr inline char ConvertToHexDigit(T value)
     {
       ASSERT(value < 16);
 
