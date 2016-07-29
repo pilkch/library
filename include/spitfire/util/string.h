@@ -42,8 +42,6 @@ namespace spitfire
 
   namespace string
   {
-    void Init(); // Call this in main()
-
     bool IsWhiteSpace(char c);
     bool IsWhiteSpace(wchar_t c);
 

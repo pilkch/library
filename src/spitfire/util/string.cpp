@@ -88,10 +88,20 @@ namespace spitfire
 
     void Init()
     {
-      std::locale::global(std::locale(""));
+      assert(!bIsInitCalled);
+
+      // http://stackoverflow.com/questions/17991431/convert-a-unicode-string-in-c-to-upper-case/17993266#17993266
+      // The recommendation is to use the default, "", but for me numbers were printed with commas, "12,345,678", so we use the "C" locale
+      std::locale::global(std::locale("C"));
+
       bIsInitCalled = true;
     }
 
+
+    class cStringCallInit {
+    public:
+      cStringCallInit() { Init(); }
+    };
 
     class cLocalisedStringTransformer
     {
@@ -127,7 +137,7 @@ namespace spitfire
         // http://wiki.forum.nokia.com/index.php/CS001143_-_Converting_date_and_time_to_string_in_Open_C%2B%2B
 
         // Get the time_put facet
-        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (loc);
+        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (std::locale());
 
         tm now;
 
@@ -142,16 +152,53 @@ namespace spitfire
         return o.str();
       }
 
-      const std::locale& GetLocale() const { return loc; }
-      std::locale& GetLocale() { return loc; }
+      void ToUpper(std::string& text);
+      void ToUpper(std::wstring& text);
+      void ToLower(std::string& text);
+      void ToLower(std::wstring& text);
 
     private:
-      std::locale loc;
+      cStringCallInit callInit; // Ensures that the global Init is called before the facets are created
+      const std::ctype<char>& facet_char;
+      const std::ctype<wchar_t>& facet_wchar_t;
     };
 
     cLocalisedStringTransformer::cLocalisedStringTransformer() :
-      loc("C")
+      facet_char(std::use_facet<std::ctype<char>>(std::locale())),
+      facet_wchar_t(std::use_facet<std::ctype<wchar_t>>(std::locale()))
     {
+    }
+
+    void cLocalisedStringTransformer::ToUpper(std::string& text)
+    {
+      std::string buffer(text);
+      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToUpper(std::wstring& text)
+    {
+      std::wstring buffer(text);
+      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToLower(std::string& text)
+    {
+      std::string buffer(text);
+      //facet_char.tolower(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToLower(std::wstring& text)
+    {
+      std::wstring buffer(text);
+      //facet_wchar_t.tolower(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
+      text = buffer;
     }
 
     cLocalisedStringTransformer gLocalisedStringTransformer;
@@ -548,25 +595,34 @@ namespace spitfire
     std::string ToLower(const std::string& sText)
     {
       ASSERT(bIsInitCalled);
-      return std::tolower(sText, gLocalisedStringTransformer.GetLocale());
+      std::string buffer(sText);
+      gLocalisedStringTransformer.ToLower(buffer);
+      return buffer;
     }
 
     std::wstring ToLower(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return std::tolower(sText, gLocalisedStringTransformer.GetLocale());
+      std::wstring buffer(sText);
+      gLocalisedStringTransformer.ToLower(buffer);
+      return buffer;
     }
 
     std::string ToUpper(const std::string& sText)
     {
+      std::cout<<"ToUpper"<<std::endl;
       ASSERT(bIsInitCalled);
-      return std::toupper(sText, gLocalisedStringTransformer.GetLocale());
+      std::string buffer(sText);
+      gLocalisedStringTransformer.ToUpper(buffer);
+      return buffer;
     }
 
     std::wstring ToUpper(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return std::toupper(sText, gLocalisedStringTransformer.GetLocale());
+      std::wstring buffer(sText);
+      gLocalisedStringTransformer.ToUpper(buffer);
+      return buffer;
     }
 
 
