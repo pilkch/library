@@ -288,23 +288,10 @@ namespace spitfire
 
     std::ostringstream t;
 
-    t << std::hex << std::setw(2) << std::setfill('0');
-    t << static_cast < unsigned short > (pResult[0]);
-    t << static_cast < unsigned short > (pResult[1]);
-    t << static_cast < unsigned short > (pResult[2]);
-    t << static_cast < unsigned short > (pResult[3]);
-    t << static_cast < unsigned short > (pResult[4]);
-    t << static_cast < unsigned short > (pResult[5]);
-    t << static_cast < unsigned short > (pResult[6]);
-    t << static_cast < unsigned short > (pResult[7]);
-    t << static_cast < unsigned short > (pResult[8]);
-    t << static_cast < unsigned short > (pResult[9]);
-    t << static_cast < unsigned short > (pResult[10]);
-    t << static_cast < unsigned short > (pResult[11]);
-    t << static_cast < unsigned short > (pResult[12]);
-    t << static_cast < unsigned short > (pResult[13]);
-    t << static_cast < unsigned short > (pResult[14]);
-    t << static_cast < unsigned short > (pResult[15]);
+    for (size_t i = 0; i < 16; i++) {
+      t << std::hex << std::setw(2) << std::setfill('0');
+      t << static_cast < unsigned short > (pResult[i]);
+    }
 
     sResult = t.str();
   }
