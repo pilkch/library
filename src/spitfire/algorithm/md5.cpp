@@ -448,6 +448,11 @@ public:
     bResult = test.CalculateForBuffer(szText, strlen(szText));
     ASSERT(bResult);
     ASSERT(test.GetResultFormatted() == TEXT("fcfb62be1afe450706c373d7b9cbb3e3"));
+
+
+    const std::string text = "abcdefghijklmnopqrstuvwxyz";
+    test.CalculateForString(text.c_str());
+    ASSERT_TRUE(test.GetResultFormatted() == "c3fcd3d76192e4007dfb496cca67e13b");
   }
 };
 

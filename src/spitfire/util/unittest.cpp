@@ -99,11 +99,10 @@ namespace spitfire
     }
 
 
-    // *** RunUnitTests
 
-    void RunUnitTests()
+    void RunAllUnitTests()
     {
-      cUnitTester_t::Get().RunUnitTests();
+      cUnitTester_t::Get().RunAllUnitTests();
     }
   }
 }

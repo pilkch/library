@@ -33,7 +33,7 @@ namespace spitfire
       cUnitTestBase(const cUnitTestBase&);
     };
 
-    void RunUnitTests();
+    void RunAllUnitTests();
   }
 }
 

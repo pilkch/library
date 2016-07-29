@@ -1,8 +1,8 @@
 // Standard headers
 #include <iostream>
 
-// Unit test headers
-#include "main.h"
+// Spitfire headers
+#include <spitfire/util/unittest.h>
 
 int main(int argc, char** argv)
 {
@@ -11,8 +11,7 @@ int main(int argc, char** argv)
 
   std::cout<<"main Running tests"<<std::endl;
 
-  Test_Spitfire();
-  Test_Breathe();
+  spitfire::util::RunAllUnitTests();
 
   std::cout<<"main All tests run successfully"<<std::endl;
 
