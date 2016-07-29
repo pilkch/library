@@ -36,7 +36,9 @@ namespace spitfire
       virtual ~cUnitTester();
 
       void AddUnitTest(cUnitTestBase* unittest);
-      void RunUnitTests();
+
+      void RunSingleUnitTest(const string_t& sUnitTestName);
+      void RunAllUnitTests();
 
     private:
       NO_COPY(cUnitTester);
@@ -54,7 +56,26 @@ namespace spitfire
       unittests.push_back(unittest);
     }
 
-    void cUnitTester::RunUnitTests()
+    void cUnitTester::RunSingleUnitTest(const string_t& sUnitTestName)
+    {
+      SCREEN<<"Running unit test \""<<sUnitTestName<<"\""<<std::endl;
+
+      std::list<cUnitTestBase*>::iterator iter(unittests.begin());
+      const std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
+
+      while (iter != iterEnd) {
+        if ((*iter)->GetName() == sUnitTestName) {
+          (*iter)->Run();
+          break;
+        }
+
+        iter++;
+      }
+
+      SCREEN<<"Finished running unit test \""<<sUnitTestName<<"\""<<std::endl;
+    }
+
+    void cUnitTester::RunAllUnitTests()
     {
       SCREEN<<"Running unit tests"<<std::endl;
 
@@ -99,6 +120,10 @@ namespace spitfire
     }
 
 
+    void RunSingleUnitTest(const string_t& sUnitTestName)
+    {
+      cUnitTester_t::Get().RunSingleUnitTest(sUnitTestName);
+    }
 
     void RunAllUnitTests()
     {
