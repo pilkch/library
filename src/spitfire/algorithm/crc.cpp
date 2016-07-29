@@ -1,4 +1,8 @@
+// Standard headers
+#include <iostream>
+#include <fstream>
 
+// Boost headers
 #include <boost/crc.hpp>  // for boost::crc_32_type
 
 // Redefine this to change to processing buffer size
@@ -36,7 +40,7 @@ namespace spitfire
 
     T result;
 
-    result.process_bytes(sString, sString.length());
+    result.process_bytes(static_cast<const void*>(sString.c_str()), sString.length());
 
     sResult = result.checksum();
     std::cout<<std::hex<<std::uppercase<<sResult<<std::endl;
@@ -72,13 +76,13 @@ namespace spitfire
   bool cCRC::CalculateCRC16ForString(char* szString)
   {
     bIsCRC32 = false;
-    return CalculateCRCForString<crc_16_type>(szString, sResult);
+    return CalculateCRCForString<boost::crc_16_type>(szString, sResult);
   }
 
   bool cCRC::CalculateCRC16ForBuffer(char* pBuffer, size_t len)
   {
     bIsCRC32 = false;
-    return CalculateCRCForBuffer<crc_16_type>(pBuffer, len, sResult);
+    return CalculateCRCForBuffer<boost::crc_16_type>(pBuffer, len, sResult);
   }
 
   bool cCRC::CalculateCRC16ForFile(const string_t& sFilename)
@@ -91,13 +95,13 @@ namespace spitfire
   bool cCRC::CalculateCRC32ForString(char* szString)
   {
     bIsCRC32 = true;
-    return CalculateCRCForString<crc_32_type>(szString, sResult);
+    return CalculateCRCForString<boost::crc_32_type>(szString, sResult);
   }
 
   bool cCRC::CalculateCRC32ForBuffer(char* pBuffer, size_t len)
   {
     bIsCRC32 = true;
-    return CalculateCRCForBuffer<crc_32_type>(pBuffer, len, sResult);
+    return CalculateCRCForBuffer<boost::crc_32_type>(pBuffer, len, sResult);
   }
 
   bool cCRC::CalculateCRC32ForFile(const string_t& sFilename)

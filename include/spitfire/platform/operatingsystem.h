@@ -8,6 +8,8 @@
 #ifdef __WIN__
 // Windows headers
 #include <shellapi.h>
+#else
+#include <unistd.h>
 #endif
 
 namespace spitfire

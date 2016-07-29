@@ -306,14 +306,14 @@ namespace opengl
     assert(szValue != nullptr);
     LOG("GLSL Version: ", (szValue != nullptr ? szValue : ""));
     const std::string sValue = GetExtensions();
-    LOG("Extensions: ", spitfire::string::ToString_t(sValue));
+    LOG("Extensions: ", spitfire::string::ToString(sValue));
 
     if (!IsGPUNVIDIA() && !IsGPUATI()) {
       std::ostringstream tVendor;
       tVendor<<glGetString(GL_VENDOR);
 
       const std::string sVendor(tVendor.str());
-      LOG("Vendor is neither ATI nor NVIDIA, vendor=", spitfire::string::ToString_t(sVendor));
+      LOG("Vendor is neither ATI nor NVIDIA, vendor=", spitfire::string::ToString(sVendor));
     }
 
     if (FindExtension("GL_ARB_multitexture")) LOG("Found GL_ARB_multitexture");

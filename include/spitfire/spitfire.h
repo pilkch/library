@@ -27,6 +27,7 @@
 #define SPITFIRE_H
 
 // Standard headers
+#include <cassert>
 #include <string>
 
 //#ifndef SPITFIRE_APPLICATION_NAME
@@ -266,7 +267,7 @@ typedef int32_t ssize_t;
 
 
 // Like sizeof for arrays
-#if defined(BUILD_SPITFIRE_CPP11) && (_MSC_VER >= COMPILER_MSVC_2015)
+#if defined(BUILD_SPITFIRE_CPP11) && !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2015))
 template <typename T, size_t N>
 constexpr size_t countof(const T (&array)[N]) noexcept
 {
@@ -364,6 +365,7 @@ namespace spitfire
 
 #else
 #define ASSERT(b) assert(b)
+#define ASSERT_MSG(p, message, ...) if (!(p)) { std::cerr<<message<<std::endl; ASSERT(p); }
 #endif // COMPILER_MSVC
 
 #endif // BUILD_HTML_LOG

@@ -156,7 +156,7 @@ namespace spitfire
     {
       if (!bIsLogging) return;
 
-      string_t s = TEXT("<!> ") + spitfire::string::ToString_t(_section);
+      string_t s = TEXT("<!> ") + spitfire::string::ToString(_section);
 #ifdef __WIN__
       s += TEXT("\n");
       OutputDebugString(s.c_str());

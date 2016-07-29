@@ -148,7 +148,7 @@ namespace opengl
 
     #ifdef BUILD_LIBOPENGLMM_FONT
     ASSERT_MSG(fonts.empty(), fonts.size(), " fonts have not been destroyed");
-#endif
+    #endif
     ASSERT_MSG(textures.empty(), textures.size(), " textures have not been destroyed");
     ASSERT_MSG(cubeMapTextures.empty(), cubeMapTextures.size(), " cube map textures have not been destroyed");
     ASSERT_MSG(shaders.empty(), shaders.size(), " shaders have not been destroyed");
@@ -1120,7 +1120,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1133,7 +1133,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1146,7 +1146,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1159,7 +1159,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1172,7 +1172,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1185,7 +1185,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1208,7 +1208,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }
@@ -1221,7 +1221,7 @@ namespace opengl
   {
     GLint loc = glGetUniformLocation(pCurrentShader->uiShaderProgram, sConstant.c_str());
     if (loc == -1) {
-      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString_t(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
+      LOG(TEXT("\""), pCurrentShader->sShaderVertex, TEXT("\", \""), pCurrentShader->sShaderFragment, TEXT("\":\""), pCurrentShader->IsCompiledFragment(), TEXT("\" Couldn't set \""), spitfire::string::ToString(sConstant), TEXT("\" perhaps the constant is not actually used within the shader"));
       assert(loc > 0);
       return false;
     }

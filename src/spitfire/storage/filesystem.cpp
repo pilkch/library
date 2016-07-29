@@ -234,7 +234,7 @@ namespace spitfire
         char szPath[MAX_PATH_LEN];
         szPath[0] = 0;
         FSRefMakePath(&dataFolderRef, (UInt8*)szPath, 200);
-        sPath = spitfire::string::ToString_t(szPath);
+        sPath = spitfire::string::ToString(szPath);
       }
 #elif defined(PLATFORM_LINUX_OR_UNIX)
       sPath = TEXT("/opt");
@@ -247,11 +247,11 @@ namespace spitfire
 
       if (pw != nullptr) {
         // We have a valid password entity
-        sPath = string::ToString_t(pw->pw_dir);
+        sPath = string::ToString(pw->pw_dir);
       } else {
         // Try XDG
         xdg::cXdg xdg;
-        sPath = string::ToString_t(xdg.GetHomeDirectory());
+        sPath = string::ToString(xdg.GetHomeDirectory());
       }
 #endif
       ASSERT(!sPath.empty());
@@ -271,7 +271,7 @@ namespace spitfire
       return sFullPath;
       #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeConfigDirectory());
+      return string::ToString(xdg.GetHomeConfigDirectory());
       #endif
     }
 
@@ -285,7 +285,7 @@ namespace spitfire
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomePicturesDirectory());
+      return string::ToString(xdg.GetHomePicturesDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -301,7 +301,7 @@ namespace spitfire
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeMusicDirectory());
+      return string::ToString(xdg.GetHomeMusicDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -321,7 +321,7 @@ namespace spitfire
       return szPath;
       #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeTempDirectory());
+      return string::ToString(xdg.GetHomeTempDirectory());
       #endif
     }
 
@@ -364,7 +364,7 @@ namespace spitfire
 
     void ChangeDirectoryToExecutablePath(const char* argv0)
     {
-      string_t sExecutablePath = spitfire::string::ToString_t(argv0);
+      string_t sExecutablePath = spitfire::string::ToString(argv0);
       string_t::size_type last_pos = sExecutablePath.find_last_of(TEXT("\\/"));
       if (last_pos != string_t::npos) {
         const string_t sExecutableFolder = sExecutablePath.substr(0, last_pos);
@@ -384,7 +384,7 @@ namespace spitfire
       const char* szResult = getcwd(szDirectory, MAX_PATH_LEN);
       #endif
       if (szResult == nullptr) LOG("getcwd FAILED errno=", errno);
-      return spitfire::string::ToString_t(szDirectory);
+      return spitfire::string::ToString(szDirectory);
     }
 
     void ChangeToDirectory(const string_t& sDirectory)
@@ -704,7 +704,7 @@ namespace spitfire
         std::vector<string_t>::iterator iter = vDirectory.begin();
         const std::vector<string_t>::iterator iterEnd = vDirectory.end();
         while (iter != iterEnd) {
-          string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
+          string_t filename = spitfire::string::ToString((*iter) + sFilename);
           CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
           if (FileExists(filename)) {
             CONSOLE<<"FindFile Found "<<filename<<" returning true"<<std::endl;
@@ -722,7 +722,7 @@ namespace spitfire
         // iter = vDirectory.begin();
         // string_t sFile = GetFile(sFilename);
         // while(iter != vDirectory.end()) {
-        //   string_t filename = spitfire::string::ToString_t(spitfire::string::ToString_t((*iter) + sFilename));
+        //   string_t filename = spitfire::string::ToString(spitfire::string::ToString((*iter) + sFilename));
         //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
         //   if (FileExists(filename)) {
         //     CONSOLE<<"Found "<<filename<<std::endl;
@@ -849,7 +849,7 @@ namespace spitfire
     {
       cMD5 m;
       m.CheckFile(spitfire::string::ToUTF8(sFilename));
-      return spitfire::string::ToString_t(m.GetResult());
+      return spitfire::string::ToString(m.GetResult());
     }
 #endif
 
@@ -858,7 +858,7 @@ namespace spitfire
     {
       cSHA1 s;
       s.CheckFile(spitfire::string::ToUTF8(sFilename));
-      return spitfire::string::ToString_t(s.GetResult());
+      return spitfire::string::ToString(s.GetResult());
     }
 #endif
 
@@ -1070,7 +1070,7 @@ namespace spitfire
       (void)szResult;
       ASSERT(szResult != nullptr);
 
-      sTemporarySubFolder = spitfire::string::ToString_t(szTempFolderPath);
+      sTemporarySubFolder = spitfire::string::ToString(szTempFolderPath);
     #endif
 
       if (!DirectoryExists(sTemporarySubFolder)) {

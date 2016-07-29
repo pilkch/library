@@ -29,9 +29,6 @@
 // libxdgmm headers
 #include <libxdgmm/libxdgmm.h>
 
-// Until C++0x we need to define this ourselves
-#define nullptr NULL
-
 namespace trash
 {
   bool IsUserRoot()

@@ -20,7 +20,6 @@
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/string.h>
-#include <spitfire/util/log.h>
 
 namespace spitfire
 {
@@ -73,7 +72,7 @@ namespace spitfire
       //logging::TurnOnLogging();
 
       std::cout<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-      LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
+      std::cerr<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
       assert(bIsResultTrue);
 
       // If logging was off then keep it off
