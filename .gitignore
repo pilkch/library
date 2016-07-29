@@ -4,7 +4,11 @@
 ._*
 ~$*
 *~
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
 *.kate-swp
+*.kdev4
 .*.swp
 *.pbxuser
 *.perspectivev3
@@ -13,4 +17,8 @@ Thumbs.db
 
 
 include/spitfire/platform/apple.h
+
+tests/library_unittest
+tests/log
+tests/Makefile
 
