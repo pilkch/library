@@ -824,55 +824,46 @@ namespace spitfire
     {
       ostringstream_t ss;
 
-      for (size_t i = 7; i > 0; i++) {
+      for (size_t i = 7; i > 0; i--) {
         if (value < (uint32_t(0x1) << uint32_t(i))) ss<<TEXT("0");
       }
 
-      ss<<std::hex<<value;
+      ss<<std::hex<<std::uppercase<<value;
 
       return ss.str();
     }
 
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue)
     {
-      const int r = int(red * 255.0f);
-      const int g = int(green * 255.0f);
-      const int b = int(blue * 255.0f);
-
       ostringstream_t ss;
 
-      if (r < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<r;
+      if (red < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(red);
 
-      if (g < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<g;
+      if (green < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(green);
 
-      if (b < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<b;
+      if (blue < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(blue);
 
       return ss.str();
     }
 
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
     {
-      const int r = int(red * 255.0f);
-      const int g = int(green * 255.0f);
-      const int b = int(blue * 255.0f);
-      const int a = int(alpha * 255.0f);
-
       ostringstream_t ss;
 
-      if (r < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<r;
+      if (red < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(red);
 
-      if (g < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<g;
+      if (green < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(green);
 
-      if (b < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<b;
+      if (blue < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(blue);
 
-      if (a < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<a;
+      if (alpha < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(alpha);
 
       return ss.str();
     }
@@ -1123,24 +1114,32 @@ public:
   {
   }
 
-  void Test()
+  void TestUpperLower()
   {
     // Upper and lower case conversions
     ASSERT(spitfire::string::ToUpper("abcdef") == "ABCDEF");
     ASSERT(spitfire::string::ToUpper("ABCDEF") == "ABCDEF");
     ASSERT(spitfire::string::ToLower("abcdef") == "abcdef");
     ASSERT(spitfire::string::ToLower("ABCDEF") == "abcdef");
+  }
 
+  void TestUpperLowerUnicode()
+  {
+    std::cout<<"TestUpperLowerUnicode"<<std::endl;
     // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
     const std::string grussen = "grüßEN";
 
     const std::string upper = spitfire::string::ToUpper(grussen);
+    std::cout<<"upper: \""<<upper<<"\""<<std::endl;
     ASSERT(upper == "GRÜSSEN");
 
     const std::string lower = spitfire::string::ToLower(grussen);
+    std::cout<<"lower: \""<<lower<<"\""<<std::endl;
     ASSERT(lower == "grüßen");
+  }
 
-
+  void TestIECHumanReadableByteSizes()
+  {
     // IEC Byte Size Formats
 
     ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
@@ -1162,8 +1161,10 @@ public:
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846975) == TEXT("1023 PiB"));
 
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846976) == TEXT("1 EiB"));
+  }
 
-
+  void TestHex()
+  {
     // Hex conversions
 
     ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("0")) == 0x0);
@@ -1172,7 +1173,7 @@ public:
     ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0, 0x0) == TEXT("00000000"));
 
     ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("FFFFffff")) == 0xFFFFFFFF);
-    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FFFFFFFF"));
+    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FF"));
     ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF) == TEXT("FFFFFF"));
     ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF, 0xFF) == TEXT("FFFFFFFF"));
 
@@ -1180,6 +1181,14 @@ public:
     ASSERT(spitfire::string::ToHexString(0x12345678) == TEXT("12345678"));
     ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56) == TEXT("123456"));
     ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56, 0x78) == TEXT("12345678"));
+  }
+
+  void Test()
+  {
+    TestUpperLower();
+    //TestUpperLowerUnicode(); // This one doesn't make sense depending on the locale and the word, "ß" should or should not be converted to "ss", so we'll ignore it for now
+    TestIECHumanReadableByteSizes();
+    TestHex();
   }
 };
 

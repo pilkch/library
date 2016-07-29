@@ -123,7 +123,6 @@ namespace spitfire
 
 #ifdef BUILD_SPITFIRE_UNITTEST
 
-#include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
 class cBase64UnitTest : protected spitfire::util::cUnitTestBase
@@ -133,6 +132,7 @@ public:
     cUnitTestBase(TEXT("cBase64UnitTest"))
   {
   }
+
   void TestBase64(const std::string sText, const std::string& sExpectedResult)
   {
     const std::string sResult = spitfire::algorithm::Base64Encode(sText);
@@ -143,7 +143,7 @@ public:
     const std::string sDecoded = spitfire::algorithm::Base64Decode(sResult);
 
     // Make sure that the encoded string decodes back to the original text as expected
-    ASSERT(sText == sExpectedResult);
+    ASSERT(sText == sDecoded);
   }
 
   void Test()
@@ -156,4 +156,4 @@ public:
 
 cBase64UnitTest gBase64UnitTest;
 
-#endif // BUILD_DEBUG
+#endif // BUILD_SPITFIRE_UNITTEST
