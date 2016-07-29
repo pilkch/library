@@ -21,7 +21,6 @@
 
 // Boost includes
 #include <boost/algorithm/string.hpp>
-#include <boost/locale.hpp>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <iconv.h>
@@ -89,7 +88,7 @@ namespace spitfire
 
     void Init()
     {
-      std::locale::global(boost::locale::generator().generate(""));
+      std::locale::global(std::locale(""));
       bIsInitCalled = true;
     }
 
@@ -142,6 +141,9 @@ namespace spitfire
 
         return o.str();
       }
+
+      const std::locale& GetLocale() const { return loc; }
+      std::locale& GetLocale() { return loc; }
 
     private:
       std::locale loc;
@@ -546,25 +548,25 @@ namespace spitfire
     std::string ToLower(const std::string& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_lower(sText);
+      return std::tolower(sText, gLocalisedStringTransformer.GetLocale());
     }
 
     std::wstring ToLower(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_lower(sText);
+      return std::tolower(sText, gLocalisedStringTransformer.GetLocale());
     }
 
     std::string ToUpper(const std::string& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_upper(sText);
+      return std::toupper(sText, gLocalisedStringTransformer.GetLocale());
     }
 
     std::wstring ToUpper(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_upper(sText);
+      return std::toupper(sText, gLocalisedStringTransformer.GetLocale());
     }
 
 

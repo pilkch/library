@@ -1,6 +1,9 @@
 #ifndef CCRC_H
 #define CCRC_H
 
+// Spitfire headers
+#include <spitfire/util/string.h>
+
 namespace spitfire
 {
   class cCRC

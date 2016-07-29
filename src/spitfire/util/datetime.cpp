@@ -168,7 +168,11 @@ namespace spitfire
         currentTimeRounded -= std::chrono::seconds(1);
       }
       tm values;
+      #ifdef __WIN__
       localtime_s(&values, &time);
+      #else
+      localtime_r(&time, &values);
+      #endif
 
       WEEKDAY result = WEEKDAY::SUNDAY;
 
@@ -194,7 +198,11 @@ namespace spitfire
         currentTimeRounded -= std::chrono::seconds(1);
       }
       tm values;
+      #ifdef __WIN__
       localtime_s(&values, &time);
+      #else
+      localtime_r(&time, &values);
+      #endif
 
       fields.year = values.tm_year + 1900;
       fields.month = values.tm_mon;
@@ -224,7 +232,11 @@ namespace spitfire
       // Get the local time for Jan 2, 1900 00:00 UTC
       const time_t zero = 24 * 60 * 60L;
       struct tm tm_utc;
+      #ifdef __WIN__
       localtime_s(&tm_utc, &zero);
+      #else
+      localtime_r(&zero, &tm_utc);
+      #endif
       int gmtime_hours = tm_utc.tm_hour;
 
       // If the local time is the "day before" the UTC, subtract 24 hours from the hours to get the UTC offset
@@ -245,7 +257,11 @@ namespace spitfire
     {
       const time_t now = time(NULL);
       tm tm_now_utc;
+      #ifdef __WIN__
       gmtime_s(&tm_now_utc, &now);
+      #else
+      gmtime_r(&now, &tm_now_utc);
+      #endif
 
       const time_t now_utc = tm_to_time_t_utc(tm_now_utc);
 

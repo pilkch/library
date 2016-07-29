@@ -28,16 +28,18 @@ namespace spitfire
       return (isalnum(c) || (c == '+') || (c == '/'));
     }
 
-    std::string Base64Encode(const unsigned char* pBuffer, unsigned int len)
+    std::string Base64Encode(const void* _pBuffer, size_t len)
     {
+      const unsigned char* pBuffer = static_cast<const unsigned char*>(_pBuffer);
+
       std::string ret;
 
       int i = 0;
       unsigned char char_array_3[3] = { 0, 0, 0 };
       unsigned char char_array_4[4] = { 0, 0, 0, 0 };
 
-      while (in_len--) {
-        char_array_3[i++] = *(bytes_to_encode++);
+      while (len--) {
+        char_array_3[i++] = *(pBuffer++);
 
         if (i == 3) {
           char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
@@ -69,18 +71,23 @@ namespace spitfire
       return ret;
     }
 
+    std::string Base64Encode(const std::string& sText)
+    {
+      return Base64Encode(static_cast<const void*>(sText.c_str()), sText.length());
+    }
+
     std::string Base64Decode(const std::string& sText)
     {
       std::string ret;
 
-      int len = encoded_string.size();
+      int len = sText.size();
       int i = 0;
       int k = 0;
       unsigned char char_array_3[3] = { 0, 0, 0 };
       unsigned char char_array_4[4] = { 0, 0, 0, 0 };
 
-      while (len-- && (encoded_string[k] != '=') && IsBase64Character(encoded_string[k])) {
-        char_array_4[i++] = encoded_string[k];
+      while (len-- && (sText[k] != '=') && IsBase64Character(sText[k])) {
+        char_array_4[i++] = sText[k];
         k++;
 
         if (i == 4) {
@@ -114,7 +121,7 @@ namespace spitfire
 }
 
 
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
@@ -125,25 +132,23 @@ public:
     cUnitTestBase(TEXT("cStringUnitTest"))
   {
   }
-  void TestString(const std::string sText, const std::string& sEncoded)
+  void TestString(const std::string sText, const std::string& sExpectedResult)
   {
-    const std::string sResult = spitfire::util::Base64Encode(sText);
+    const std::string sResult = spitfire::algorithm::Base64Encode(sText);
 
     // Make sure that the text encodes as expected
-    ASSERT(sResult == sEncoded);
+    ASSERT(sResult == sExpectedResult);
 
-    const std::string sDecoded = spitfire::util::Base64Decode(sResult);
+    const std::string sDecoded = spitfire::algorithm::Base64Decode(sResult);
 
     // Make sure that the encoded string decodes back to the original text as expected
-    ASSERT(sText == sDecoded);
+    ASSERT(sText == sExpectedResult);
   }
 
   void Test()
   {
-    TestString("");
-    TestString("chris");
-    TestString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-    TestBuffer();
+    TestString("giraffe", "Z2lyYWZmZQ==");
+    TestString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw==");
   }
 };
 

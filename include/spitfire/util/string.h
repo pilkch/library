@@ -142,12 +142,11 @@ namespace spitfire
     inline string_t ToString(const std::string& source) { return ToWchar_t(source); }
     constexpr inline const string_t& ToString(const std::wstring& source) { return source; }
 #else
+    inline string_t ToString(const char* szSource) { return string_t(szSource); }
+    inline string_t ToString(const wchar_t* szSource) { return ToUTF8(szSource); }
     constexpr inline const string_t& ToString(const std::string& source) { return source; }
     inline string_t ToString(const std::wstring& source) { return ToUTF8(source); }
 #endif
-
-    // Deprecated, remove December 2015
-#define ToString_t ToString
 
     inline string_t ToString(bool value) { return (value ? TEXT("true") : TEXT("false")); }
     string_t ToString(uint8_t value);

@@ -431,7 +431,7 @@ namespace spitfire
     //char temp[17];
     //std::strcpy(temp, (char*)result);
     //return std::string(temp);
-    return string::ToString_t(sResult);
+    return string::ToString(sResult);
   }
   }
 }

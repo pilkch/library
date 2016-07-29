@@ -54,7 +54,7 @@ namespace spitfire
       cDateTime(int year, int month, int day, int hours, int minutes, int seconds, int milliseconds);
 
       // Is special doesn't compile on gcc for some reason?  Complains about something deep down in a template function
-      bool IsValid() const { return datetime != std::chrono::system_clock::time_point::time_point();  }
+      bool IsValid() const { return datetime != std::chrono::system_clock::time_point();  }
 
       bool IsUnixEpoch() const { return !IsValid(); }
 
