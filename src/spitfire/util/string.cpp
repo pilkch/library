@@ -1110,8 +1110,8 @@ namespace spitfire
 }
 
 
-#ifdef SPITFIRE_UNITTESTS
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
+
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
@@ -1126,18 +1126,18 @@ public:
   void Test()
   {
     // Upper and lower case conversions
-    ASSERT(ToUpper("abcdef") == "ABCDEF");
-    ASSERT(ToUpper("ABCDEF") == "ABCDEF");
-    ASSERT(ToLower("abcdef") == "abcdef");
-    ASSERT(ToLower("ABCDEF") == "abcdef");
+    ASSERT(spitfire::string::ToUpper("abcdef") == "ABCDEF");
+    ASSERT(spitfire::string::ToUpper("ABCDEF") == "ABCDEF");
+    ASSERT(spitfire::string::ToLower("abcdef") == "abcdef");
+    ASSERT(spitfire::string::ToLower("ABCDEF") == "abcdef");
 
     // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
     const std::string grussen = "grüßEN";
 
-    const std::string upper = ToUpper(grussen);
+    const std::string upper = spitfire::string::ToUpper(grussen);
     ASSERT(upper == "GRÜSSEN");
 
-    const std::string lower = ToLower(grussen);
+    const std::string lower = spitfire::string::ToLower(grussen);
     ASSERT(lower == "grüßen");
 
 
@@ -1184,5 +1184,5 @@ public:
 };
 
 cStringUnitTest gStringUnitTest;
-#endif // BUILD_DEBUG
-#endif // SPITFIRE_UNITTESTS
+
+#endif // BUILD_SPITFIRE_UNITTEST

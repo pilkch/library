@@ -119,7 +119,6 @@ namespace spitfire
 }
 
 #ifdef BUILD_SPITFIRE_UNITTEST
-#ifdef BUILD_DEBUG
 
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
@@ -176,5 +175,4 @@ public:
 
 cThreadUnitTest gThreadUnitTest;
 
-#endif // BUILD_DEBUG
 #endif // BUILD_SPITFIRE_UNITTEST
