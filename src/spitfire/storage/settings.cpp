@@ -15,9 +15,6 @@
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 #include <spitfire/util/string.h>
-#ifdef BUILD_SPITFIRE_UNITTEST
-#include <spitfire/util/unittest.h>
-#endif
 
 #include <spitfire/storage/filesystem.h>
 #include <spitfire/storage/settings.h>
@@ -356,55 +353,61 @@ namespace spitfire
     return false;
   }
 #endif // BUILD_SETTINGS_PROFILES
+}
 
 
 #ifdef BUILD_SPITFIRE_UNITTEST
-  class cSettingsUnitTest : protected util::cUnitTestBase
+
+#ifdef BUILD_SPITFIRE_UNITTEST
+#include <spitfire/util/unittest.h>
+#endif
+
+class cSettingsUnitTest : protected util::cUnitTestBase
+{
+public:
+  cSettingsUnitTest() :
+    cUnitTestBase(TEXT("cSettingsUnitTest"))
   {
-  public:
-    cSettingsUnitTest() :
-      cUnitTestBase(TEXT("cSettingsUnitTest"))
-    {
-    }
+  }
 
-    void Test()
-    {
-      // TODO: Fix this test, it is totally broken, none of these functions have been implemented
+  void Test()
+  {
+    // TODO: Fix this test, it is totally broken, none of these functions have been implemented
 
-      const string_t sTestProfile(TEXT("TestProfile"));
+    const string_t sTestProfile(TEXT("TestProfile"));
 
-      const string_t sTestSection(TEXT("TestSection"));
-      const string_t sTestSubSection(TEXT("TestSubSection"));
-      const string_t sTestValue(TEXT("this is a settings string which is get and set in the settings"));
+    const string_t sTestSection(TEXT("TestSection"));
+    const string_t sTestSubSection(TEXT("TestSubSection"));
+    const string_t sTestValue(TEXT("this is a settings string which is get and set in the settings"));
 
-      bool bResult = false;
-      string_t sValue;
+    bool bResult = false;
+    string_t sValue;
 
 #ifdef BUILD_SETTINGS_GLOBAL
-      SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestValue);
-      sValue.clear();
-      bResult = GetGlobalSettingsString(sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult != false);
-      ASSERT(sValue == sTestValue);
+    SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestValue);
+    sValue.clear();
+    bResult = GetGlobalSettingsString(sTestSection, sTestSubSection, sValue);
+    ASSERT(bResult != false);
+    ASSERT(sValue == sTestValue);
 #endif
 
-      SetApplicationUserSetting(sTestSection, sTestSubSection, sTestValue);
-      sValue.clear();
-      bResult = GetApplicationUserSetting(sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult != false);
-      ASSERT(sValue == sTestValue);
+    SetApplicationUserSetting(sTestSection, sTestSubSection, sTestValue);
+    sValue.clear();
+    bResult = GetApplicationUserSetting(sTestSection, sTestSubSection, sValue);
+    ASSERT(bResult != false);
+    ASSERT(sValue == sTestValue);
 
 #ifdef BUILD_SETTINGS_PROFILE
-      Create profile
-      SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestValue);
-      sValue.clear();
-      bResult = GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sValue);
-      ASSERT(bResult != false);
-      ASSERT(sValue == sTestValue);
+    Create profile
+    SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestValue);
+    sValue.clear();
+    bResult = GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sValue);
+    ASSERT(bResult != false);
+    ASSERT(sValue == sTestValue);
 #endif
-    }
-  };
+  }
+};
 
-  cSettingsUnitTest gSettingsUnitTest;
-#endif
-}
+cSettingsUnitTest gSettingsUnitTest;
+
+#endif // BUILD_SPITFIRE_UNITTEST

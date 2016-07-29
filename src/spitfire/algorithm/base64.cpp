@@ -122,17 +122,18 @@ namespace spitfire
 
 
 #ifdef BUILD_SPITFIRE_UNITTEST
+
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
-class cStringUnitTest : protected spitfire::util::cUnitTestBase
+class cBase64UnitTest : protected spitfire::util::cUnitTestBase
 {
 public:
-  cStringUnitTest() :
-    cUnitTestBase(TEXT("cStringUnitTest"))
+  cBase64UnitTest() :
+    cUnitTestBase(TEXT("cBase64UnitTest"))
   {
   }
-  void TestString(const std::string sText, const std::string& sExpectedResult)
+  void TestBase64(const std::string sText, const std::string& sExpectedResult)
   {
     const std::string sResult = spitfire::algorithm::Base64Encode(sText);
 
@@ -147,10 +148,11 @@ public:
 
   void Test()
   {
-    TestString("giraffe", "Z2lyYWZmZQ==");
-    TestString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw==");
+    TestBase64("giraffe", "Z2lyYWZmZQ==");
+    TestBase64("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw==");
   }
 };
 
-cStringUnitTest gStringUnitTest;
+cBase64UnitTest gBase64UnitTest;
+
 #endif // BUILD_DEBUG

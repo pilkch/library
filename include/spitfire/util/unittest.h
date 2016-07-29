@@ -7,8 +7,6 @@
 
 #include <spitfire/util/string.h>
 
-#if !defined NDEBUG || defined(BUILD_DEBUG)
-
 namespace spitfire
 {
   namespace util
@@ -38,7 +36,5 @@ namespace spitfire
     void RunUnitTests();
   }
 }
-
-#endif // BUILD_DEBUG
 
 #endif // UNITEST_H
