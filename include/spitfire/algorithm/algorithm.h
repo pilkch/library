@@ -76,6 +76,8 @@ namespace spitfire
   //
   // A vector with a constant size
   //
+  // TODO: This is a dodgy class, it should either be a ring buffer or a list/double ended stack that doesn't offer random access
+  //
   template <class T>
   class constant_stack
   {
