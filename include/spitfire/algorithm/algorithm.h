@@ -20,7 +20,7 @@ namespace spitfire
     template <class T>
     inline void push_back(std::vector<T>& v, const size_t n, const T& value)
     {
-      v.insert(v.begin(), n, value);
+      v.insert(v.end(), n, value);
     }
   }
 
