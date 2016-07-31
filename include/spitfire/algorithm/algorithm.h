@@ -26,13 +26,6 @@ namespace spitfire
 
   namespace algorithm
   {
-    template <template<class> class C, class T>
-    inline bool Contains(const C<T>& rhs, const T& value)
-    {
-      const typename C<T>::const_iterator iter(rhs.find(value));
-      return (iter != rhs.end());
-    }
-
     // If std::sort would just take userdata we could remove this function
     template <class RandomAccessIterator, class Compare, class UserData>
     void SortWithUserData(RandomAccessIterator first, const RandomAccessIterator last, Compare comp, const UserData& userData)
