@@ -6,24 +6,15 @@
 
 namespace spitfire
 {
-  class cCRC
+  class cCRC16
   {
   public:
-    cCRC() { SetTypeCRC32(); }
+    bool CalculateForString(const char* szString);
+    bool CalculateForBuffer(const char* pBuffer, size_t len);
+    bool CalculateForFile(const string_t& sFilename);
 
-    void SetTypeCRC16() { bIsCRC32 = false; sResult.clear(); }
-    void SetTypeCRC32() { bIsCRC32 = true; sResult.clear(); }
-
-    bool CalculateCRC16ForString(char* szString);
-    bool CalculateCRC16ForBuffer(char* pBuffer, size_t len);
-    bool CalculateCRC16ForFile(const string_t& sFilename);
-
-    bool CalculateCRC32ForString(char* szString);
-    bool CalculateCRC32ForBuffer(char* pBuffer, size_t len);
-    bool CalculateCRC32ForFile(const string_t& sFilename);
-
-    bool operator==(const cCRC & rhs) const { return sResult == rhs.sResult; }
-    bool operator!=(const cCRC & rhs) const { return sResult != rhs.sResult; }
+    bool operator==(const cCRC16 & rhs) const { return sResult == rhs.sResult; }
+    bool operator!=(const cCRC16 & rhs) const { return sResult != rhs.sResult; }
 
     bool operator==(const string_t& rhs) const { return sResult == rhs; }
     bool operator!=(const string_t& rhs) const { return sResult != rhs; }
@@ -32,7 +23,27 @@ namespace spitfire
     string_t GetResultFormatted() const;
 
   private:
-    bool bIsCRC32;
+    string_t sResult;
+  };
+
+
+  class cCRC32
+  {
+  public:
+    bool CalculateForString(const char* szString);
+    bool CalculateForBuffer(const char* pBuffer, size_t len);
+    bool CalculateForFile(const string_t& sFilename);
+
+    bool operator==(const cCRC32 & rhs) const { return sResult == rhs.sResult; }
+    bool operator!=(const cCRC32 & rhs) const { return sResult != rhs.sResult; }
+
+    bool operator==(const string_t& rhs) const { return sResult == rhs; }
+    bool operator!=(const string_t& rhs) const { return sResult != rhs; }
+
+    string_t GetResult() const;
+    string_t GetResultFormatted() const;
+
+  private:
     string_t sResult;
   };
 }
