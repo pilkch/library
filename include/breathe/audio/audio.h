@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 // Standard headers
+#include <cmath>
 #include <list>
 #include <map>
 #include <memory>
@@ -25,6 +26,17 @@ namespace breathe
   namespace audio
   {
     typedef char sample_t;
+
+    inline float AmplitudeTodB(float fAmplitude)
+    {
+      return 20.0f * log10(fAmplitude);
+    }
+ 
+    inline float dBToAmplitude(float fdB)
+    {
+      return pow(10.0f, fdB / 20.0f);
+    }
+
 
     // Forward declaration
     class cManager;
