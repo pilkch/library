@@ -252,23 +252,25 @@ namespace spitfire
     const std::list<T>& GetPossibleItems() const;
 
     T GetRandomItem();
-    void Clear();
+
+    void ClearPossibleItemsAndResetCurrentPool();
+    void ResetCurrentPool();
 
   private:
-    std::list<T> original;
-    std::list<T> possible;
+    std::list<T> possible; // The possible outcomes
+    std::list<T> currentPool; // The current pool of possible outcomes
   };
 
   template <class T>
   void cRandomBucket<T>::AddItem(T value)
   {
-    original.push_back(value);
+    possible.push_back(value);
   }
 
   template <class T>
   void cRandomBucket<T>::AddItems(T value, size_t number)
   {
-    for (size_t i = 0; i < number; i++) original.push_back(value);
+    for (size_t i = 0; i < number; i++) possible.push_back(value);
   }
 
   template <class T>
@@ -281,16 +283,16 @@ namespace spitfire
   T cRandomBucket<T>::GetRandomItem()
   {
     // If original is empty we have a problem
-    assert(!original.empty());
+    assert(!possible.empty());
 
     // If we don't have any more items to select then refresh the list to the original items
-    if (possible.empty()) possible = original;
+    if (currentPool.empty()) currentPool = possible;
 
     // Get an index to a random item in the list
-    uint32_t index = spitfire::math::random(int(possible.size()));
+    const uint32_t index = spitfire::math::random(uint32_t(currentPool.size()));
 
-    typename std::list<T>::iterator iter = possible.begin();
-    const typename std::list<T>::iterator iterEnd = possible.end();
+    typename std::list<T>::iterator iter = currentPool.begin();
+    const typename std::list<T>::iterator iterEnd = currentPool.end();
 
     // Iterate through to index
     std::advance(iter, index);
@@ -299,19 +301,25 @@ namespace spitfire
     assert(iter != iterEnd);
 
     // Get the item
-    T item = *iter;
+    const T item = *iter;
 
     // Remove the item
-    possible.erase(iter);
+    currentPool.erase(iter);
 
     return item;
   }
 
   template <class T>
-  void cRandomBucket<T>::Clear()
+  void cRandomBucket<T>::ClearPossibleItemsAndResetCurrentPool()
   {
-    original.clear();
     possible.clear();
+    currentPool.clear();
+  }
+
+  template <class T>
+  void cRandomBucket<T>::ResetCurrentPool()
+  {
+    currentPool.clear();
   }
 
 
