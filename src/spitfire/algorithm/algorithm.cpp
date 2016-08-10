@@ -1,3 +1,7 @@
+// Standard headers
+#include <iostream>
+#include <sstream>
+
 // Spitfire headers
 #include <spitfire/algorithm/algorithm.h>
 
@@ -65,11 +69,73 @@ public:
     }
   }
 
+  void CheckDynamicContainer2D(spitfire::cDynamicContainer2D<int>& values, size_t width, size_t height)
+  {
+    const size_t n = width * height;
+
+    values.RemoveAllEntriesAndSetNewSize(width, height);
+
+    ASSERT_TRUE(values.GetWidth() == width);
+    ASSERT_TRUE(values.GetHeight() == height);
+    ASSERT_TRUE(values.size() == n);
+
+    for (size_t i = 0; i < n; i++) values[i] = i;
+
+    for (size_t i = 0; i < n; i++) {
+      ASSERT_TRUE(values[i] == int(i));
+      ASSERT_TRUE(values.GetElement(i) == int(i));
+      const size_t x = i % width;
+      const size_t y = i / width;
+      ASSERT_TRUE(values.GetElement(x, y) == int(i));
+    }
+  }
+
+  void TestDynamicContainer2D()
+  {
+    spitfire::cDynamicContainer2D<int> values(5, 10);
+
+    // First width and height
+    CheckDynamicContainer2D(values, 5, 10);
+
+    // Resize to another width and height
+    {
+      const size_t width = 9;
+      const size_t height = 8;
+
+      values.RemoveAllEntriesAndSetNewSize(width, height);
+
+      CheckDynamicContainer2D(values, width, height);
+    }
+  }
+
+  void TestBinaryCodedDecimal()
+  {
+    // Conversion from 12 to 0x12 for example
+    for (uint8_t i = 0; i < 255; i++) {
+      const uint8_t x = spitfire::algorithm::ToBinaryCodedDecimal(i);
+
+      std::stringstream ss;
+      ss<<std::hex<<int(x);
+      uint32_t y = 0;
+      ss>>y;
+
+      //std::cout<<"i="<<int(i)<<", ss="<<ss.str()<<", y="<<y<<", x="<<int(x)<<std::endl;
+      ASSERT_TRUE(y == uint32_t(x));
+    }
+
+    // Conversion from 0x12 to 12 for example
+    for (uint8_t i = 0; i < 128; i++) {
+      ASSERT_TRUE(spitfire::algorithm::FromBinaryCodedDecimal(spitfire::algorithm::ToBinaryCodedDecimal(i)) == i);
+    }
+  }
+
   void Test()
   {
     TestVector();
     TestSortWithUserData();
     TestContainer2D();
+    TestDynamicContainer2D();
+    TestBinaryCodedDecimal();
   }
 };
 
