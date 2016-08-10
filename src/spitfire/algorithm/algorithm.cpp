@@ -108,6 +108,49 @@ public:
     }
   }
 
+  void TestRandomBucket()
+  {
+    spitfire::cRandomBucket<int> bucket;
+    bucket.AddItem(1);
+
+    ASSERT_TRUE(bucket.GetPossibleItems().size() == 1);
+
+    // This shouldn't do anything
+    bucket.ResetCurrentPool();
+
+    for (size_t i = 0; i < 20; i++) {
+      ASSERT_TRUE(bucket.GetRandomItem() == 1);
+    }
+
+    // This shouldn't do anything
+    bucket.ResetCurrentPool();
+
+    bucket.AddItem(2);
+    bucket.AddItem(3);
+    bucket.AddItem(4);
+    bucket.AddItem(5);
+
+    // This shouldn't do anything
+    bucket.ResetCurrentPool();
+
+    ASSERT_TRUE(bucket.GetPossibleItems().size() == 5);
+
+    // Add 8 three times
+    bucket.AddItems(8, 3);
+
+    ASSERT_TRUE(bucket.GetPossibleItems().size() == 8);
+
+    for (size_t i = 0; i < 20; i++) {
+      bucket.GetRandomItem();
+    }
+
+    bucket.ResetCurrentPool();
+
+    bucket.ClearPossibleItemsAndResetCurrentPool();
+
+    ASSERT_TRUE(bucket.GetPossibleItems().size() == 0);
+  }
+
   void TestBinaryCodedDecimal()
   {
     // Conversion from 12 to 0x12 for example
@@ -135,6 +178,7 @@ public:
     TestSortWithUserData();
     TestContainer2D();
     TestDynamicContainer2D();
+    TestRandomBucket();
     TestBinaryCodedDecimal();
   }
 };
