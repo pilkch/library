@@ -81,7 +81,7 @@ SET(LIBRARY_SPITFIRE_SOURCE_DIRECTORY spitfire/)
 SET(LIBRARY_SPITFIRE_SOURCE_FILES
 spitfire.cpp
 algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
-math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cQuaternion.cpp math/math.cpp math/cColour.cpp
+math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cQuaternion.cpp math/math.cpp math/units.cpp
 storage/file.cpp storage/filesystem.cpp
 util/datetime.cpp util/log.cpp util/string.cpp util/thread.cpp util/unittest.cpp)
 
