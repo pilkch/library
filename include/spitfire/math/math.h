@@ -215,6 +215,11 @@ namespace spitfire
 
     template<class T> inline bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }
 
+    inline bool IsApproximatelyEqual(float_t a, float_t b, float_t fEpsilon)
+    {
+      return (((a + fEpsilon) > b) && ((a - fEpsilon) < b));
+    }
+
     inline bool IsApproximatelyEqual(float_t a, float_t b)
     {
       return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
