@@ -1,33 +1,26 @@
-#include <cstdlib>
+#include <iostream>
 #include <cmath>
 
 #include <vector>
 #include <limits>
 
 // Spitfire Includes
-#include <spitfire/spitfire.h>
+#include <spitfire/math/units.h>
+
+
+#ifdef BUILD_SPITFIRE_UNITTEST
+
 #include <spitfire/util/unittest.h>
-#include <spitfire/math/math.h>
 
-
-namespace spitfire
-{
-  namespace math
-  {
-  }
-}
-
-#ifdef BUILD_DEBUG
-class cMathUnitsUnitTest : protected breathe::util::cUnitTestBase
+class cMathUnitsUnitTest : protected spitfire::util::cUnitTestBase
 {
 public:
   cMathUnitsUnitTest() :
     cUnitTestBase(TEXT("cMathUnitsUnitTest"))
   {
-    printf("cMathUnitsUnitTest\n");
   }
 
-  void Test();
+  virtual void Test() override;
 };
 
 
@@ -36,45 +29,48 @@ void cMathUnitsUnitTest::Test()
    {
       const float fValueOriginal = 12345.67f;
 
-      math::cLength length;
+      spitfire::math::cLength length;
       length.SetFromKiloMeters(fValueOriginal);
-      ASSERT(IsApproximatelyEqual(fValueOriginal, length.GetKiloMeters()));
+      std::cout<<"length="<<length.GetKiloMeters()<<std::endl;
+      ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fValueOriginal, length.GetKiloMeters(), 0.1f));
 
-      math::cForce force;
-      force.SetFromKiloWatts(fValueOriginal);
-      ASSERT(IsApproximatelyEqual(fValueOriginal, force.GetKiloWatts()));
+      spitfire::math::cForce force;
+      force.SetFromNewtons(fValueOriginal);
+      std::cout<<"newtons="<<force.GetNewtons()<<std::endl;
+      ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fValueOriginal, force.GetNewtons(), 0.1f));
 
-      math::cTorque torque;
+      spitfire::math::cPower power;
+      power.SetFromKiloWatts(fValueOriginal);
+      std::cout<<"kw="<<power.GetKiloWatts()<<std::endl;
+      ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fValueOriginal, power.GetKiloWatts(), 0.1f));
+
+      spitfire::math::cTorque torque;
       torque.SetFromNewtonMeters(fValueOriginal);
-      ASSERT(IsApproximatelyEqual(fValueOriginal, torque.GetNewtonMeters()));
+      std::cout<<"nm="<<torque.GetNewtonMeters()<<std::endl;
+      ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fValueOriginal, torque.GetNewtonMeters(), 0.1f));
 
-      math::cSpeed speed;
+      spitfire::math::cSpeed speed;
       speed.SetFromMetersPerSecond(fValueOriginal);
-      ASSERT(IsApproximatelyEqual(fValueOriginal, speed.GetMetersPerSecond()));
+      std::cout<<"m/s="<<speed.GetMetersPerSecond()<<std::endl;
+      ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fValueOriginal, speed.GetMetersPerSecond(), 0.1f));
    }
 
   {
     const float fKW = 150.0f;
     const float fRPM = 4000.0f;
 
-    math::cForce forceOriginal;
-    forceOriginal.SetFromKiloWatts(fKW);
+    spitfire::math::cPower powerOriginal;
+    powerOriginal.SetFromKiloWatts(fKW);
 
-    const math::cTorque torque(forceOriginal.GetTorqueAtRPM(fRPM));
+    const spitfire::math::cTorque torque(powerOriginal.GetTorqueAtRPM(fRPM));
 
-    const math::cForce forceConverted(torque.GetForceAtRPM(fRPM));
+    const spitfire::math::cPower powerConverted(torque.GetPowerAtRPM(fRPM));
 
-    const float fResult = forceConverted.GetKiloWatts();
-    if (!IsApproximatelyEqual(fKW, fResult)) {
-      breathe::stringstream_t o;
-      o<<TEXT("cMathUnitsUnitTest FAILED force to torque to force, fKW=");
-      o<<fKW;
-      o<<TEXT(", fResult=");
-      o<<fResult;
-      SetFailed(o.str());
-    }
+    const float fResult = powerConverted.GetKiloWatts();
+    ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fKW, fResult));
   }
 }
 
 cMathUnitsUnitTest gMathUnitsUnitTest;
-#endif
+
+#endif // BUILD_SPITFIRE_UNITTEST

@@ -20,7 +20,6 @@
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/string.h>
-#include <spitfire/util/log.h>
 
 namespace spitfire
 {
@@ -73,7 +72,7 @@ namespace spitfire
       //logging::TurnOnLogging();
 
       std::cout<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
-      LOG<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
+      std::cerr<<"ASSERTION FAILED "<<szAssert<<" "<<szFile<<" "<<szFunction<<":"<<line<<std::endl;
       assert(bIsResultTrue);
 
       // If logging was off then keep it off
@@ -82,3 +81,52 @@ namespace spitfire
   }
 #endif
 }
+
+
+#ifdef BUILD_SPITFIRE_UNITTEST
+
+#include <spitfire/util/unittest.h>
+
+class cSpitfireUnitTest : protected spitfire::util::cUnitTestBase
+{
+public:
+  cSpitfireUnitTest() :
+    cUnitTestBase(TEXT("cSpitfireUnitTest"))
+  {
+  }
+
+  void TestCountOf()
+  {
+    char text[14];
+    ASSERT_TRUE(countof(text) == 14);
+
+    int stuff[9];
+    ASSERT_TRUE(countof(stuff) == 9);
+  }
+
+  void TestSafeDelete()
+  {
+    int* x = new int;
+    spitfire::SAFE_DELETE(x);
+    ASSERT_TRUE(x == nullptr);
+  }
+
+  void TestSafeDeleteArray()
+  {
+    int* y = new int[10];
+    spitfire::SAFE_DELETE_ARRAY(y);
+    ASSERT_TRUE(y == nullptr);
+  }
+
+  void Test()
+  {
+    TestCountOf();
+    TestSafeDelete();
+    TestSafeDeleteArray();
+  }
+};
+
+cSpitfireUnitTest gSpitfireUnitTest;
+
+#endif // BUILD_SPITFIRE_UNITTEST
+

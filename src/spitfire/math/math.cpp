@@ -34,23 +34,34 @@ namespace spitfire
   }
 }
 
-#if 0
+#ifdef BUILD_SPITFIRE_UNITTEST
+
+#include <spitfire/util/unittest.h>
+
+class cMathMathUnitTest : protected spitfire::util::cUnitTestBase
+{
+public:
+  cMathMathUnitTest () :
+    cUnitTestBase(TEXT("cMathMathUnitTest"))
+  {
+  }
+
 void TestInteger(float fValue, int iExpectedInteger)
 {
-   int iInteger = GetIntegerPart(fValue);
-   ASSERT(iInteger == iExpectedInteger);
+   const int iInteger = spitfire::math::GetIntegerPart(fValue);
+   ASSERT_TRUE(iInteger == iExpectedInteger);
 }
 
 void TestIntegerAndFraction(float fValue, int iExpectedInteger, float fApproximateExpectedFraction)
 {
    int iInteger = 0;
    float fFraction = 0;
-   GetIntegerAndFractionParts(fValue, iInteger, fFraction);
-   ASSERT(iInteger == iExpectedInteger);
-   ASSERT(IsApproximatelyEqual(fFraction, fApproximateExpectedFraction));
+   spitfire::math::GetIntegerAndFractionParts(fValue, iInteger, fFraction);
+   ASSERT_TRUE(iInteger == iExpectedInteger);
+   ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fFraction, fApproximateExpectedFraction));
 }
 
-void Test()
+virtual void Test() override
 {
    TestInteger(-1.0f, -1);
    TestInteger(0.0f, 0);
@@ -66,4 +77,9 @@ void Test()
    TestIntegerAndFraction(1.9999f, 1, 0.9999f);
    TestIntegerAndFraction(2.0f, 2, 0.0f);
 }
-#endif
+
+};
+
+cMathMathUnitTest gMathMathUnitTest;
+
+#endif // BUILD_SPITFIRE_UNITTEST

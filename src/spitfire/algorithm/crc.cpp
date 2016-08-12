@@ -1,20 +1,21 @@
+// Standard headers
+#include <array>
+#include <iostream>
+#include <fstream>
 
-#include <boost/crc.hpp>  // for boost::crc_32_type
+// Boost headers
+#include <boost/crc.hpp>
 
-// Redefine this to change to processing buffer size
-#ifndef PRIVATE_BUFFER_SIZE
-#define PRIVATE_BUFFER_SIZE  1024
-#endif
-
+// Spitfire headers
 #include <spitfire/algorithm/crc.h>
 
 namespace spitfire
 {
-  // Global objects
-  const std::streamsize buffer_size = PRIVATE_BUFFER_SIZE;
+  // Redefine this to change to processing buffer size
+  const std::streamsize CRC_BUFFER_SIZE = 1024;
 
 
-  template <class T>
+  template <class T, typename I>
   bool CalculateCRCForBuffer(const char* pBuffer, size_t len, string_t& sResult)
   {
     sResult.clear();
@@ -23,86 +24,133 @@ namespace spitfire
 
     result.process_bytes(pBuffer, len);
 
-    sResult = result.checksum();
-    std::cout<<std::hex<<std::uppercase<<sResult<<std::endl;
+    const I crc = result.checksum();
+    sResult = "0x" + spitfire::string::ToHexString(crc);
+    std::cout<<"CalculateCRCForBuffer result="<<sResult<<std::endl;
 
     return true;
   }
 
-  template <class T>
+  template <class T, typename I>
   bool CalculateCRCForString(const string_t& sString, string_t& sResult)
   {
     sResult.clear();
 
     T result;
 
-    result.process_bytes(sString, sString.length());
+    result.process_bytes(static_cast<const void*>(sString.c_str()), sString.length());
 
-    sResult = result.checksum();
-    std::cout<<std::hex<<std::uppercase<<sResult<<std::endl;
+    const I crc = result.checksum();
+    sResult = "0x" + spitfire::string::ToHexString(crc);
+    std::cout<<"CalculateCRCForString result="<<sResult<<std::endl;
 
     return true;
   }
 
-  template <class T>
+  template <class T, typename I>
   bool CalculateCRCForFile(const string_t& sFilename, string_t& sResult)
   {
     sResult.clear();
 
     std::ifstream ifs(sFilename, std::ios_base::binary);
-    if (ifs.is_open()) {
-      T result;
-
-      char buffer[buffer_size];
-
-      do {
-        ifs.read(buffer, buffer_size);
-        result.process_bytes(buffer, ifs.gcount());
-      } while (ifs);
-
-      sResult = result.checksum();
-      std::cout<<std::hex<<std::uppercase<<sResult<<std::endl;
+    if (!ifs.is_open()) {
+      std::cerr<<"CalculateCRCForFile ifstream FAILED opening file '"<<sFilename<<"'."<< std::endl;
+      return false;
     }
 
-    std::cerr<<"cCRC::CalculateCRC32ForFile ifstream FAILED opening file '"<<sFilename<<"'."<< std::endl;
-    return false;
+    T result;
+
+    std::array<char, CRC_BUFFER_SIZE> buffer;
+
+    do {
+      ifs.read(buffer.data(), CRC_BUFFER_SIZE);
+      result.process_bytes(buffer.data(), ifs.gcount());
+    } while (ifs);
+
+    const I crc = result.checksum();
+    sResult = "0x" + spitfire::string::ToHexString(crc);
+    std::cout<<"CalculateCRCForFile result="<<sResult<<std::endl;
+    return true;
   }
 
 
-  bool cCRC::CalculateCRC16ForString(char* szString)
+  // ** cCRC16
+
+  bool cCRC16::CalculateForString(const char* szString)
   {
-    bIsCRC32 = false;
-    return CalculateCRCForString<crc_16_type>(szString, sResult);
+    return CalculateCRCForString<boost::crc_16_type, uint16_t>(szString, sResult);
   }
 
-  bool cCRC::CalculateCRC16ForBuffer(char* pBuffer, size_t len)
+  bool cCRC16::CalculateForBuffer(const char* pBuffer, size_t len)
   {
-    bIsCRC32 = false;
-    return CalculateCRCForBuffer<crc_16_type>(pBuffer, len, sResult);
+    return CalculateCRCForBuffer<boost::crc_16_type, uint16_t>(pBuffer, len, sResult);
   }
 
-  bool cCRC::CalculateCRC16ForFile(const string_t& sFilename)
+  bool cCRC16::CalculateForFile(const string_t& sFilename)
   {
-    bIsCRC32 = false;
-    return CalculateCRCForFile<boost::crc_16_type>(sFilename, sResult);
+    return CalculateCRCForFile<boost::crc_16_type, uint16_t>(sFilename, sResult);
+  }
+
+  string_t cCRC16::GetResult() const
+  {
+    return sResult;
   }
 
 
-  bool cCRC::CalculateCRC32ForString(char* szString)
+  // ** cCRC32
+
+  bool cCRC32::CalculateForString(const char* szString)
   {
-    bIsCRC32 = true;
-    return CalculateCRCForString<crc_32_type>(szString, sResult);
+    return CalculateCRCForString<boost::crc_32_type, uint32_t>(szString, sResult);
   }
 
-  bool cCRC::CalculateCRC32ForBuffer(char* pBuffer, size_t len)
+  bool cCRC32::CalculateForBuffer(const char* pBuffer, size_t len)
   {
-    bIsCRC32 = true;
-    return CalculateCRCForBuffer<crc_32_type>(pBuffer, len, sResult);
+    return CalculateCRCForBuffer<boost::crc_32_type, uint32_t>(pBuffer, len, sResult);
   }
 
-  bool cCRC::CalculateCRC32ForFile(const string_t& sFilename)
+  bool cCRC32::CalculateForFile(const string_t& sFilename)
   {
-    bIsCRC32 = true;
-    return CalculateCRCForFile<boost::crc_32_type>(sFilename, sResult);
+    return CalculateCRCForFile<boost::crc_32_type, uint32_t>(sFilename, sResult);
+  }
+
+  string_t cCRC32::GetResult() const
+  {
+    return sResult;
   }
 }
+
+
+#ifdef BUILD_SPITFIRE_UNITTEST
+
+#include <spitfire/util/unittest.h>
+
+class cCRCUnitTest : protected spitfire::util::cUnitTestBase
+{
+public:
+  cCRCUnitTest() :
+    cUnitTestBase(TEXT("cCRCUnitTest"))
+  {
+  }
+
+  template<class T>
+  void TestCRC(const std::string sText, const std::string& sExpectedResult)
+  {
+    T crc;
+    crc.CalculateForString(sText.c_str());
+
+    // Make sure that the text encodes as expected
+    std::cout<<"TestCRC result="<<crc.GetResult()<<std::endl;
+    ASSERT(crc.GetResult() == sExpectedResult);
+  }
+
+  void Test()
+  {
+    TestCRC<spitfire::cCRC16>("abcdefghijklmnopqrstuvwxyz", "0x9C1D");
+    TestCRC<spitfire::cCRC32>("abcdefghijklmnopqrstuvwxyz", "0x4C2750BD");
+  }
+};
+
+cCRCUnitTest gCRCUnitTest;
+
+#endif // BUILD_SPITFIRE_UNITTEST

@@ -256,7 +256,7 @@ namespace spitfire
 }
 
 
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
 
 #include <spitfire/util/unittest.h>
 
@@ -282,32 +282,32 @@ public:
 
     // Should be approximately 2.0f
     f = a.GetDistance(b);
-    ASSERT(spitfire::math::IsApproximatelyEqual(f, 2.0f));
+    ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(f, 2.0f));
 
     // Should be approximately 4.0f
     f = a.GetDistanceCentreToCentre(b);
-    ASSERT(spitfire::math::IsApproximatelyEqual(f, 4.0f));
+    ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(f, 4.0f));
 
 
     // Should not collide
     a.SetRadius(2.9f);
-    ASSERT(!a.Collide(b));
+    ASSERT_TRUE(!a.Collide(b));
 
     // Should collide
     a.SetRadius(3.5f);
-    ASSERT(a.Collide(b));
+    ASSERT_TRUE(a.Collide(b));
 
     // Should collide
     a.SetRadius(4.0f);
-    ASSERT(a.Collide(b));
+    ASSERT_TRUE(a.Collide(b));
 
     // Should collide
     a.SetRadius(4.5f);
-    ASSERT(a.Collide(b));
+    ASSERT_TRUE(a.Collide(b));
 
     // Should collide
     a.SetRadius(100.0f);
-    ASSERT(a.Collide(b));
+    ASSERT_TRUE(a.Collide(b));
   }
 };
 
@@ -356,7 +356,7 @@ public:
       points.push_back(spitfire::math::cVec2(10, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT(points == generator.GetPoints());
+      ASSERT_TRUE(points == generator.GetPoints());
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -387,7 +387,7 @@ public:
       points.push_back(spitfire::math::cVec2(10, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT(points == generator.GetPoints());
+      ASSERT_TRUE(points == generator.GetPoints());
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -408,7 +408,7 @@ public:
       points.push_back(spitfire::math::cVec2(10, 5));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT(points == generator.GetPoints());
+      ASSERT_TRUE(points == generator.GetPoints());
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -429,11 +429,11 @@ public:
       points.push_back(spitfire::math::cVec2(5, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT(points == generator.GetPoints());
+      ASSERT_TRUE(points == generator.GetPoints());
     }
   }
 };
 
 cLineGeneratorUnitTest gLineGeneratorUnitTest;
 
-#endif // BUILD_DEBUG
+#endif // BUILD_SPITFIRE_UNITTEST

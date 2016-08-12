@@ -21,7 +21,6 @@
 
 // Boost includes
 #include <boost/algorithm/string.hpp>
-#include <boost/locale.hpp>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <iconv.h>
@@ -89,10 +88,20 @@ namespace spitfire
 
     void Init()
     {
-      std::locale::global(boost::locale::generator().generate(""));
+      assert(!bIsInitCalled);
+
+      // http://stackoverflow.com/questions/17991431/convert-a-unicode-string-in-c-to-upper-case/17993266#17993266
+      // The recommendation is to use the default, "", but for me numbers were printed with commas, "12,345,678", so we use the "C" locale
+      std::locale::global(std::locale("C"));
+
       bIsInitCalled = true;
     }
 
+
+    class cStringCallInit {
+    public:
+      cStringCallInit() { Init(); }
+    };
 
     class cLocalisedStringTransformer
     {
@@ -128,7 +137,7 @@ namespace spitfire
         // http://wiki.forum.nokia.com/index.php/CS001143_-_Converting_date_and_time_to_string_in_Open_C%2B%2B
 
         // Get the time_put facet
-        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (loc);
+        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (std::locale());
 
         tm now;
 
@@ -143,13 +152,53 @@ namespace spitfire
         return o.str();
       }
 
+      void ToUpper(std::string& text);
+      void ToUpper(std::wstring& text);
+      void ToLower(std::string& text);
+      void ToLower(std::wstring& text);
+
     private:
-      std::locale loc;
+      cStringCallInit callInit; // Ensures that the global Init is called before the facets are created
+      const std::ctype<char>& facet_char;
+      const std::ctype<wchar_t>& facet_wchar_t;
     };
 
     cLocalisedStringTransformer::cLocalisedStringTransformer() :
-      loc("C")
+      facet_char(std::use_facet<std::ctype<char>>(std::locale())),
+      facet_wchar_t(std::use_facet<std::ctype<wchar_t>>(std::locale()))
     {
+    }
+
+    void cLocalisedStringTransformer::ToUpper(std::string& text)
+    {
+      std::string buffer(text);
+      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToUpper(std::wstring& text)
+    {
+      std::wstring buffer(text);
+      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToLower(std::string& text)
+    {
+      std::string buffer(text);
+      //facet_char.tolower(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
+      text = buffer;
+    }
+
+    void cLocalisedStringTransformer::ToLower(std::wstring& text)
+    {
+      std::wstring buffer(text);
+      //facet_wchar_t.tolower(&buffer[0], &buffer[0] + buffer.length());
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
+      text = buffer;
     }
 
     cLocalisedStringTransformer gLocalisedStringTransformer;
@@ -546,25 +595,34 @@ namespace spitfire
     std::string ToLower(const std::string& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_lower(sText);
+      std::string buffer(sText);
+      gLocalisedStringTransformer.ToLower(buffer);
+      return buffer;
     }
 
     std::wstring ToLower(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_lower(sText);
+      std::wstring buffer(sText);
+      gLocalisedStringTransformer.ToLower(buffer);
+      return buffer;
     }
 
     std::string ToUpper(const std::string& sText)
     {
+      std::cout<<"ToUpper"<<std::endl;
       ASSERT(bIsInitCalled);
-      return boost::locale::to_upper(sText);
+      std::string buffer(sText);
+      gLocalisedStringTransformer.ToUpper(buffer);
+      return buffer;
     }
 
     std::wstring ToUpper(const std::wstring& sText)
     {
       ASSERT(bIsInitCalled);
-      return boost::locale::to_upper(sText);
+      std::wstring buffer(sText);
+      gLocalisedStringTransformer.ToUpper(buffer);
+      return buffer;
     }
 
 
@@ -822,55 +880,46 @@ namespace spitfire
     {
       ostringstream_t ss;
 
-      for (size_t i = 7; i > 0; i++) {
+      for (size_t i = 7; i > 0; i--) {
         if (value < (uint32_t(0x1) << uint32_t(i))) ss<<TEXT("0");
       }
 
-      ss<<std::hex<<value;
+      ss<<std::hex<<std::uppercase<<value;
 
       return ss.str();
     }
 
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue)
     {
-      const int r = int(red * 255.0f);
-      const int g = int(green * 255.0f);
-      const int b = int(blue * 255.0f);
-
       ostringstream_t ss;
 
-      if (r < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<r;
+      if (red < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(red);
 
-      if (g < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<g;
+      if (green < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(green);
 
-      if (b < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<b;
+      if (blue < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(blue);
 
       return ss.str();
     }
 
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
     {
-      const int r = int(red * 255.0f);
-      const int g = int(green * 255.0f);
-      const int b = int(blue * 255.0f);
-      const int a = int(alpha * 255.0f);
-
       ostringstream_t ss;
 
-      if (r < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<r;
+      if (red < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(red);
 
-      if (g < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<g;
+      if (green < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(green);
 
-      if (b < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<b;
+      if (blue < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(blue);
 
-      if (a < 0x10) ss<<TEXT("0");
-      ss<<std::hex<<a;
+      if (alpha < 0x10) ss<<TEXT("0");
+      ss<<std::hex<<std::uppercase<<uint32_t(alpha);
 
       return ss.str();
     }
@@ -1108,8 +1157,8 @@ namespace spitfire
 }
 
 
-#ifdef SPITFIRE_UNITTESTS
-#ifdef BUILD_DEBUG
+#ifdef BUILD_SPITFIRE_UNITTEST
+
 #include <spitfire/util/log.h>
 #include <spitfire/util/unittest.h>
 
@@ -1121,24 +1170,32 @@ public:
   {
   }
 
-  void Test()
+  void TestUpperLower()
   {
     // Upper and lower case conversions
-    ASSERT(ToUpper("abcdef") == "ABCDEF");
-    ASSERT(ToUpper("ABCDEF") == "ABCDEF");
-    ASSERT(ToLower("abcdef") == "abcdef");
-    ASSERT(ToLower("ABCDEF") == "abcdef");
+    ASSERT(spitfire::string::ToUpper("abcdef") == "ABCDEF");
+    ASSERT(spitfire::string::ToUpper("ABCDEF") == "ABCDEF");
+    ASSERT(spitfire::string::ToLower("abcdef") == "abcdef");
+    ASSERT(spitfire::string::ToLower("ABCDEF") == "abcdef");
+  }
 
+  void TestUpperLowerUnicode()
+  {
+    std::cout<<"TestUpperLowerUnicode"<<std::endl;
     // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
     const std::string grussen = "grüßEN";
 
-    const std::string upper = ToUpper(grussen);
+    const std::string upper = spitfire::string::ToUpper(grussen);
+    std::cout<<"upper: \""<<upper<<"\""<<std::endl;
     ASSERT(upper == "GRÜSSEN");
 
-    const std::string lower = ToLower(grussen);
+    const std::string lower = spitfire::string::ToLower(grussen);
+    std::cout<<"lower: \""<<lower<<"\""<<std::endl;
     ASSERT(lower == "grüßen");
+  }
 
-
+  void TestIECHumanReadableByteSizes()
+  {
     // IEC Byte Size Formats
 
     ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
@@ -1160,8 +1217,10 @@ public:
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846975) == TEXT("1023 PiB"));
 
     ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846976) == TEXT("1 EiB"));
+  }
 
-
+  void TestHex()
+  {
     // Hex conversions
 
     ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("0")) == 0x0);
@@ -1170,7 +1229,7 @@ public:
     ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0, 0x0) == TEXT("00000000"));
 
     ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("FFFFffff")) == 0xFFFFFFFF);
-    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FFFFFFFF"));
+    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FF"));
     ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF) == TEXT("FFFFFF"));
     ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF, 0xFF) == TEXT("FFFFFFFF"));
 
@@ -1179,8 +1238,16 @@ public:
     ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56) == TEXT("123456"));
     ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56, 0x78) == TEXT("12345678"));
   }
+
+  void Test()
+  {
+    TestUpperLower();
+    //TestUpperLowerUnicode(); // This one doesn't make sense depending on the locale and the word, "ß" should or should not be converted to "ss", so we'll ignore it for now
+    TestIECHumanReadableByteSizes();
+    TestHex();
+  }
 };
 
 cStringUnitTest gStringUnitTest;
-#endif // BUILD_DEBUG
-#endif // SPITFIRE_UNITTESTS
+
+#endif // BUILD_SPITFIRE_UNITTEST

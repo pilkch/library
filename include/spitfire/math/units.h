@@ -148,6 +148,8 @@ namespace spitfire
     class cLength
     {
     public:
+      cLength() : fValueMeters(0.0f) {}
+
       float GetCentiMeters() const { return fValueMeters * 100.0f; }
       float GetMeters() const { return fValueMeters; }
       float GetKiloMeters() const { return fValueMeters * 0.001f; }
@@ -169,41 +171,56 @@ namespace spitfire
     class cForce
     {
     public:
-      float GetGrams() const { return fValueKg * 1000.0f; }
-      float GetKiloGrams() const { return fValueKg; }
-      float GetTons() const { return fValueKg * 0.001f; }
+      cForce() : fValueNewtons(0.0f) {}
 
-      //float GetWatts() const { return KiloGramsToWatts(fValueKg); }
-      //float GetKiloWatts() const { return KiloGramsToKiloWatts(fValueKg); }
+      float GetGrams() const { return fValueNewtons * 1000.0f; }
+      float GetKiloGrams() const { return fValueNewtons; }
+      float GetTons() const { return fValueNewtons * 0.001f; }
+      float GetNewtons() const { return fValueNewtons; }
 
-      float GetPounds() const { return KiloGramsToPounds(fValueKg); }
-
-      float GetHorsePower() const { return KiloGramsToPounds(fValueKg); }
+      float GetPounds() const { return KiloGramsToPounds(fValueNewtons); }
 
 
-      void SetFromKiloGrams(float fKg) { fValueKg = fKg; }
-      //void SetFromKiloWatts(float fKW) { fValueKg = KiloWattsToKiloGrams(fKW); }
+      void SetFromKiloGrams(float fKg) { fValueNewtons = fKg; }
+      void SetFromNewtons(float fNetwons) { fValueNewtons = fNetwons; }
 
-      //void SetFromHorsepower(float fHP) { fValueKg = HorsePowerToKiloGrams(fHP); }
+    private:
+      float fValueNewtons;
+    };
+
+    class cPower
+    {
+    public:
+      cPower() : fValueKiloWatts(0.0f) {}
+
+      float GetWatts() const { return fValueKiloWatts * 1000.0f; }
+      float GetKiloWatts() const { return fValueKiloWatts; }
+      float GetHorsePower() const { return KwToHP(fValueKiloWatts); }
+
+
+      void SetFromWatts(float fWatts) { fValueKiloWatts = fWatts / 1000.0f; }
+      void SetFromKiloWatts(float fKiloWatts) { fValueKiloWatts = fKiloWatts; }
 
 
       cTorque GetTorqueAtRPM(float fRPM) const;
 
     private:
-      float fValueKg;
+      float fValueKiloWatts;
     };
 
     class cTorque
     {
     public:
+      cTorque() : fValueNm(0.0f) {}
+
       float GetNewtonMeters() const { return fValueNm; }
 
-      //float GetFootPounds() const { return fValueNm * ; }
+      float GetFootPounds() const { return NmTolbft(fValueNm); }
 
       void SetFromNewtonMeters(float fNm) { fValueNm = fNm; }
 
 
-      cForce GetForceAtRPM(float fRPM) const;
+      cPower GetPowerAtRPM(float fRPM) const;
 
     private:
       float fValueNm;
@@ -212,6 +229,8 @@ namespace spitfire
     class cSpeed
     {
     public:
+      cSpeed() : fValueKPH(0.0f) {}
+
       float GetMetersPerSecond() const { return km_h_to_m_s(fValueKPH); }
       float GetKiloMetersPerHour() const { return fValueKPH; }
 
@@ -229,20 +248,18 @@ namespace spitfire
 
     // *** Inlines
 
-    inline cTorque cForce::GetTorqueAtRPM(float fRPM) const
+    inline cTorque cPower::GetTorqueAtRPM(float fRPM) const
     {
-      cTorque f;
-      ASSERT(false);
-      //f.SetFromNewtonMeters(KwToNm(GetKiloWatts(), fRPM));
-      return f;
+      cTorque torque;
+      torque.SetFromNewtonMeters(KwToNm(fValueKiloWatts, fRPM));
+      return torque;
     }
 
-    inline cForce cTorque::GetForceAtRPM(float fRPM) const
+    inline cPower cTorque::GetPowerAtRPM(float fRPM) const
     {
-      cForce f;
-      ASSERT(false);
-      //f.SetFromKiloWatts(NmToKw(GetNewtonMeters(), fRPM));
-      return f;
+      cPower power;
+      power.SetFromKiloWatts(NmToKw(fValueNm, fRPM));
+      return power;
     }
   }
 }

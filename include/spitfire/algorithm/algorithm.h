@@ -20,54 +20,33 @@ namespace spitfire
     template <class T>
     inline void push_back(std::vector<T>& v, const size_t n, const T& value)
     {
-      v.insert(v.begin(), n, value);
+      v.insert(v.end(), n, value);
     }
   }
 
   namespace algorithm
   {
-    template <template<class> class C, class T>
-    inline bool Contains(const C<T>& rhs, const T& value)
-    {
-      const typename C<T>::const_iterator iter(rhs.find(value));
-      return (iter != rhs.end());
-    }
-
     // If std::sort would just take userdata we could remove this function
-    template <class RandomAccessIterator, class Compare, class UserData>
-    void SortWithUserData(RandomAccessIterator first, const RandomAccessIterator last, Compare comp, const UserData& userData)
+    template <class RandomAccessIterator, typename Compare, typename UserData>
+    void SortWithUserData(RandomAccessIterator first, const RandomAccessIterator last, Compare compare, UserData& userData)
     {
-      RandomAccessIterator current = first;
-      RandomAccessIterator next = first;
-      next++;
+      typedef typename RandomAccessIterator::value_type T;
 
-      size_t n = 0;
+      struct comparison_object : public std::binary_function<T, T, bool>
       {
-        RandomAccessIterator count = first;
-        while (count != last) {
-          n++;
+        comparison_object(Compare _compare, UserData& _userData) : compare(_compare), userData(_userData) {}
 
-          count++;
-        }
-      }
-
-      bool bIsSorted = false; // Flag to stop unnecessary passes, flase when swap occurs
-      for (size_t pass = 1; (pass < n) && !bIsSorted; ++pass) {
-        bIsSorted = true;
-
-        RandomAccessIterator passCurrent = current;
-        RandomAccessIterator passNext = next;
-        for(; (passCurrent != last) && (passNext != last); passCurrent++, passNext++) {
-          // Compare both values and swap if necessary
-          if (comp(*passCurrent, *passNext, userData)) {
-            std::iter_swap(passCurrent, passNext); // Should this be swap(*passCurrent, *passNext)?
-            bIsSorted = false;
-          }
+        bool operator()(const T& lhs, const T& rhs) const
+        {
+          return compare(lhs, rhs, userData);
         }
 
-        current++;
-        next++;
-      }
+        Compare compare;
+        UserData& userData;
+      };
+
+      comparison_object comparison(compare, userData);
+      std::sort(first, last, comparison);
     }
   }
 
@@ -75,6 +54,8 @@ namespace spitfire
   // ** constant_stack
   //
   // A vector with a constant size
+  //
+  // TODO: This is a dodgy class, it should either be a ring buffer or a list/double ended stack that doesn't offer random access
   //
   template <class T>
   class constant_stack
@@ -271,23 +252,25 @@ namespace spitfire
     const std::list<T>& GetPossibleItems() const;
 
     T GetRandomItem();
-    void Clear();
+
+    void ClearPossibleItemsAndResetCurrentPool();
+    void ResetCurrentPool();
 
   private:
-    std::list<T> original;
-    std::list<T> possible;
+    std::list<T> possible; // The possible outcomes
+    std::list<T> currentPool; // The current pool of possible outcomes
   };
 
   template <class T>
   void cRandomBucket<T>::AddItem(T value)
   {
-    original.push_back(value);
+    possible.push_back(value);
   }
 
   template <class T>
   void cRandomBucket<T>::AddItems(T value, size_t number)
   {
-    for (size_t i = 0; i < number; i++) original.push_back(value);
+    for (size_t i = 0; i < number; i++) possible.push_back(value);
   }
 
   template <class T>
@@ -300,16 +283,16 @@ namespace spitfire
   T cRandomBucket<T>::GetRandomItem()
   {
     // If original is empty we have a problem
-    assert(!original.empty());
+    assert(!possible.empty());
 
     // If we don't have any more items to select then refresh the list to the original items
-    if (possible.empty()) possible = original;
+    if (currentPool.empty()) currentPool = possible;
 
     // Get an index to a random item in the list
-    uint32_t index = spitfire::math::random(int(possible.size()));
+    const uint32_t index = spitfire::math::random(uint32_t(currentPool.size()));
 
-    typename std::list<T>::iterator iter = possible.begin();
-    const typename std::list<T>::iterator iterEnd = possible.end();
+    typename std::list<T>::iterator iter = currentPool.begin();
+    const typename std::list<T>::iterator iterEnd = currentPool.end();
 
     // Iterate through to index
     std::advance(iter, index);
@@ -318,19 +301,25 @@ namespace spitfire
     assert(iter != iterEnd);
 
     // Get the item
-    T item = *iter;
+    const T item = *iter;
 
     // Remove the item
-    possible.erase(iter);
+    currentPool.erase(iter);
 
     return item;
   }
 
   template <class T>
-  void cRandomBucket<T>::Clear()
+  void cRandomBucket<T>::ClearPossibleItemsAndResetCurrentPool()
   {
-    original.clear();
     possible.clear();
+    currentPool.clear();
+  }
+
+  template <class T>
+  void cRandomBucket<T>::ResetCurrentPool()
+  {
+    currentPool.clear();
   }
 
 

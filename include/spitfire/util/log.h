@@ -47,14 +47,14 @@ namespace spitfire
 
       cLogBase& operator<<(const std::string& t)
       {
-        line += string::ToString_t(t);
+        line += string::ToString(t);
 
         return *this;
       }
 
       cLogBase& operator<<(const std::wstring& t)
       {
-        line += string::ToString_t(t);
+        line += string::ToString(t);
 
         return *this;
       }
@@ -374,6 +374,7 @@ namespace spitfire
       (void)o;
     }
 
+    #ifdef UNICODE
     // String specialisation due to issues with mixing std::string
     template<typename... OtherArguments>
     inline void PrintToStringStream(ostringstream_t& o, const std::string& sArgument, const OtherArguments&... otherArguments)
@@ -384,6 +385,7 @@ namespace spitfire
       // Process the remaining arguments
       PrintToStringStream(o, otherArguments...);
     }
+    #endif
 
     template<typename Argument, typename... OtherArguments>
     inline void PrintToStringStream(ostringstream_t& o, const Argument& argument, const OtherArguments&... otherArguments)
@@ -400,7 +402,7 @@ namespace spitfire
     {
       // Collect our arguments
       ostringstream_t o;
-      o << string::ToString_t(sFunctionName) << TEXT(" ");
+      o << string::ToString(sFunctionName) << TEXT(" ");
       o.precision(2);
       o << std::fixed;
       PrintToStringStream(o, argument, otherArguments...);
@@ -414,7 +416,7 @@ namespace spitfire
     {
       // Collect our arguments
       ostringstream_t o;
-      o << string::ToString_t(sFunctionName) << TEXT(" ");
+      o << string::ToString(sFunctionName) << TEXT(" ");
       o.precision(2);
       o << std::fixed;
       PrintToStringStream(o, argument, otherArguments...);

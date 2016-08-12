@@ -22,7 +22,7 @@ namespace breathe
     class cNode
     {
     public:
-      void Sort(); // Sort the edges travelling away from this node in order of cheapest first
+      void SortEdgesCheapestFirst(); // Sort the edges travelling away from this node in order of cheapest first
 
       size_t index;
       spitfire::math::cVec3 position;
@@ -56,24 +56,30 @@ namespace breathe
     class cGraph
     {
     public:
+      ~cGraph();
+
       size_t AddNode(const spitfire::math::cVec3& position, float fCost);
 
       // NOTE: The total cost is fCostMultiplier * length(start to end)
       void AddEdge(size_t nodeFrom, size_t nodeTo, float fCostMultiplier);
 
-      void Build(); // Sorts the edges within each node, may do more work later on such as calculating distances and costs
+      void Optimise(); // Sorts the edges within each node, may do more work later on such as calculating distances and costs
 
       size_t GetNumberOfNodes() const { return nodes.size(); }
       size_t GetNumberOfEdges() const { return edges.size(); }
 
-      const cNode& GetNode(size_t i) const { ASSERT(i < nodes.size()); return nodes[i]; }
-      const cEdge& GetEdge(size_t i) const { ASSERT(i < edges.size()); return edges[i]; }
+      const cNode& GetNode(size_t i) const { ASSERT(i < nodes.size()); return *(nodes[i]); }
+      const cEdge& GetEdge(size_t i) const { ASSERT(i < edges.size()); return *(edges[i]); }
+
+      const cNode* GetClosestNode(const spitfire::math::cVec3& position) const;
 
     private:
       void Sort(); // Sort the edges in cNode::vEdges
 
-      std::vector<cNode> nodes;
-      std::vector<cEdge> edges;
+      // If we want to allow dynamic nodes and edges then we have to make these pointer so that the whole buffer doesn't
+      // get reallocated when adding nodes or edges, invalidating all the previous pointers to these entries
+      std::vector<cNode*> nodes;
+      std::vector<cEdge*> edges;
     };
 
 
@@ -82,6 +88,9 @@ namespace breathe
     //
     // I wasn't happy with the APIs for any of the current implementations of Dijkstra's algorithm (Even Boost's) so I have written my own implementation based on this blog post:
     // http://ersinacar.com/dijkstra-algorithm_51.html
+    //
+    // This is another implementation:
+    // http://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
     //
     // I basically just followed the very helpful notes:
     // 1. Assign to every node a distance value. Set it to zero for our initial node and to infinity for all other nodes.
@@ -93,13 +102,17 @@ namespace breathe
     // Notes:
     // Each edge is in a single direction, between node0 and node1 there could be hundreds of edges going either direction.
     // Each node only knows about the edges heading away from it.
+    //
     class cDijkstra
     {
     public:
+      void GetLowestCostPath(const cGraph& graph, const spitfire::math::cVec3& start, const spitfire::math::cVec3& end, std::vector<size_t>& path);
       void GetLowestCostPath(const cGraph& graph, size_t nodeStart, size_t nodeEnd, std::vector<size_t>& path);
 
     private:
-      void _GetLowestCostPathRecursive(const cGraph& graph, const cNode* pNodeCurrent, const cNode* pNodeEnd, float fDistanceFromStartNode, std::vector<size_t>& path);
+      void ResetContext(const cGraph& graph);
+
+      void _GetLowestCostPathRecursive(const cGraph& graph, const cNode* pNodeCurrent, const cNode* pNodeEnd, std::vector<size_t>& path);
 
       std::vector<float> nodeDistanceFromStart;
       std::vector<bool> nodeVisited; // NOTE: I'm not sure how standard this is?

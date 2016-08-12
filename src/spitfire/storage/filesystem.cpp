@@ -15,8 +15,8 @@
 #include <sstream>
 #include <fstream>
 
-// Boost headers
-#include <boost/filesystem.hpp>
+// C++17 headers
+#include <experimental/filesystem>
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -136,16 +136,16 @@ namespace spitfire
     bool DeleteFile(const string_t& sFilename)
     {
       CONSOLE<<"DeleteFile \""<<sFilename<<"\""<<std::endl;
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      boost::filesystem::remove(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      std::experimental::filesystem::remove(file);
       return !FileExists(sFilename);
     }
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
       CONSOLE<<"DeleteDirectory \""<<sFoldername<<"\""<<std::endl;
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
-      return (boost::filesystem::remove_all(file) != 0);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
+      return (std::experimental::filesystem::remove_all(file) != 0);
     }
 
     void MoveFileToTrash(const string_t& sFilePath)
@@ -170,16 +170,16 @@ namespace spitfire
     {
       if (FileExists(sTo)) return;
 
-      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
+      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::experimental::filesystem::copy_file(from, to, std::experimental::filesystem::copy_options::none);
     }
 
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo)
     {
-      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::experimental::filesystem::copy_file(from, to, std::experimental::filesystem::copy_options::overwrite_existing);
     }
 
     // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
@@ -201,9 +201,9 @@ namespace spitfire
     bool MoveFile(const string_t& sFrom, const string_t& sTo)
     {
       //CONSOLE<<"MoveFile From \""<<sFrom<<"\", to \""<<sTo<<"\""<<std::endl;
-      const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      boost::filesystem::rename(from, to);
+      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::experimental::filesystem::rename(from, to);
       return FileExists(sTo);
     }
 
@@ -234,7 +234,7 @@ namespace spitfire
         char szPath[MAX_PATH_LEN];
         szPath[0] = 0;
         FSRefMakePath(&dataFolderRef, (UInt8*)szPath, 200);
-        sPath = spitfire::string::ToString_t(szPath);
+        sPath = spitfire::string::ToString(szPath);
       }
 #elif defined(PLATFORM_LINUX_OR_UNIX)
       sPath = TEXT("/opt");
@@ -247,11 +247,11 @@ namespace spitfire
 
       if (pw != nullptr) {
         // We have a valid password entity
-        sPath = string::ToString_t(pw->pw_dir);
+        sPath = string::ToString(pw->pw_dir);
       } else {
         // Try XDG
         xdg::cXdg xdg;
-        sPath = string::ToString_t(xdg.GetHomeDirectory());
+        sPath = string::ToString(xdg.GetHomeDirectory());
       }
 #endif
       ASSERT(!sPath.empty());
@@ -271,7 +271,7 @@ namespace spitfire
       return sFullPath;
       #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeConfigDirectory());
+      return string::ToString(xdg.GetHomeConfigDirectory());
       #endif
     }
 
@@ -285,7 +285,7 @@ namespace spitfire
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomePicturesDirectory());
+      return string::ToString(xdg.GetHomePicturesDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -301,7 +301,7 @@ namespace spitfire
       sPath = string_t(szPath);
 #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeMusicDirectory());
+      return string::ToString(xdg.GetHomeMusicDirectory());
 #endif
       ASSERT(!sPath.empty());
       return sPath;
@@ -321,7 +321,7 @@ namespace spitfire
       return szPath;
       #else
       xdg::cXdg xdg;
-      return string::ToString_t(xdg.GetHomeTempDirectory());
+      return string::ToString(xdg.GetHomeTempDirectory());
       #endif
     }
 
@@ -364,7 +364,7 @@ namespace spitfire
 
     void ChangeDirectoryToExecutablePath(const char* argv0)
     {
-      string_t sExecutablePath = spitfire::string::ToString_t(argv0);
+      string_t sExecutablePath = spitfire::string::ToString(argv0);
       string_t::size_type last_pos = sExecutablePath.find_last_of(TEXT("\\/"));
       if (last_pos != string_t::npos) {
         const string_t sExecutableFolder = sExecutablePath.substr(0, last_pos);
@@ -384,7 +384,7 @@ namespace spitfire
       const char* szResult = getcwd(szDirectory, MAX_PATH_LEN);
       #endif
       if (szResult == nullptr) LOG("getcwd FAILED errno=", errno);
-      return spitfire::string::ToString_t(szDirectory);
+      return spitfire::string::ToString(szDirectory);
     }
 
     void ChangeToDirectory(const string_t& sDirectory)
@@ -489,7 +489,7 @@ namespace spitfire
 
     string_t GetExtension(const string_t& sFilename)
     {
-      return string::ToString_t(boost::filesystem::extension(sFilename));
+      return string::ToString(std::experimental::filesystem::path(sFilename).extension());
     }
 
 
@@ -617,20 +617,20 @@ namespace spitfire
 
     bool IsFile(const string_t& sFilePath)
     {
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
-      return boost::filesystem::is_regular_file(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      return std::experimental::filesystem::is_regular_file(file);
     }
 
     bool IsFolder(const string_t& sFolderPath)
     {
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFolderPath));
-      return boost::filesystem::is_directory(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFolderPath));
+      return std::experimental::filesystem::is_directory(file);
     }
 
     bool IsSymlink(const std::string& sPath)
     {
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return boost::filesystem::is_symlink(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return std::experimental::filesystem::is_symlink(file);
     }
 
 #ifdef __WIN__
@@ -642,8 +642,8 @@ namespace spitfire
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
 #endif
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      return boost::filesystem::exists(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return std::experimental::filesystem::exists(file);
     }
 
 #ifdef __WIN__
@@ -655,8 +655,8 @@ namespace spitfire
 #ifdef __WIN__
 #pragma pop_macro("DirectoryExists")
 #endif
-      const boost::filesystem::path folder(spitfire::string::ToUTF8(sFolderName));
-      return boost::filesystem::exists(folder);
+      const std::experimental::filesystem::path folder(spitfire::string::ToUTF8(sFolderName));
+      return std::experimental::filesystem::exists(folder);
     }
 
     bool FindFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
@@ -704,7 +704,7 @@ namespace spitfire
         std::vector<string_t>::iterator iter = vDirectory.begin();
         const std::vector<string_t>::iterator iterEnd = vDirectory.end();
         while (iter != iterEnd) {
-          string_t filename = spitfire::string::ToString_t((*iter) + sFilename);
+          string_t filename = spitfire::string::ToString((*iter) + sFilename);
           CONSOLE<<"FindFile Attempting to open "<<filename<<std::endl;
           if (FileExists(filename)) {
             CONSOLE<<"FindFile Found "<<filename<<" returning true"<<std::endl;
@@ -722,7 +722,7 @@ namespace spitfire
         // iter = vDirectory.begin();
         // string_t sFile = GetFile(sFilename);
         // while(iter != vDirectory.end()) {
-        //   string_t filename = spitfire::string::ToString_t(spitfire::string::ToString_t((*iter) + sFilename));
+        //   string_t filename = spitfire::string::ToString(spitfire::string::ToString((*iter) + sFilename));
         //   CONSOLE<<"Attempting to open "<<filename<<std::endl;
         //   if (FileExists(filename)) {
         //     CONSOLE<<"Found "<<filename<<std::endl;
@@ -770,24 +770,24 @@ namespace spitfire
     spitfire::util::cDateTime GetLastModifiedDate(const string_t& sFilePath)
     {
       ASSERT(FileExists(sFilePath));
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
       spitfire::util::cDateTime dateTime;
-      dateTime.SetFromTimeT(boost::filesystem::last_write_time(file));
+      dateTime.SetFromTimeT(std::chrono::system_clock::to_time_t(std::experimental::filesystem::last_write_time(file)));
       return dateTime;
     }
 
     void SetLastModifiedDate(const string_t& sFilePath, const util::cDateTime& dateTime)
     {
       ASSERT(FileExists(sFilePath));
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
-      boost::filesystem::last_write_time(file, dateTime.GetTimeT());
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      std::experimental::filesystem::last_write_time(file, std::chrono::system_clock::from_time_t(dateTime.GetTimeT()));
     }
 
     uint64_t GetFileSizeBytes(const string_t& sFilename)
     {
       ASSERT(FileExists(sFilename));
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      return boost::filesystem::file_size(file);
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return std::experimental::filesystem::file_size(file);
     }
 
 
@@ -849,7 +849,7 @@ namespace spitfire
     {
       cMD5 m;
       m.CheckFile(spitfire::string::ToUTF8(sFilename));
-      return spitfire::string::ToString_t(m.GetResult());
+      return spitfire::string::ToString(m.GetResult());
     }
 #endif
 
@@ -858,13 +858,13 @@ namespace spitfire
     {
       cSHA1 s;
       s.CheckFile(spitfire::string::ToUTF8(sFilename));
-      return spitfire::string::ToString_t(s.GetResult());
+      return spitfire::string::ToString(s.GetResult());
     }
 #endif
 
     bool CreateDirectory(const string_t& sFolderPath)
     {
-      return boost::filesystem::create_directories(sFolderPath);
+      return std::experimental::filesystem::create_directories(sFolderPath);
     }
 
 #ifdef __WIN__
@@ -985,14 +985,14 @@ namespace spitfire
 
     bool cPath::IsFile() const
     {
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return (boost::filesystem::exists(file) && boost::filesystem::is_regular(file));
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (std::experimental::filesystem::exists(file) && std::experimental::filesystem::is_regular_file(file));
     }
 
     bool cPath::IsFolder() const
     {
-      const boost::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return (boost::filesystem::exists(file) && boost::filesystem::is_directory(file));
+      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (std::experimental::filesystem::exists(file) && std::experimental::filesystem::is_directory(file));
     }
 
     string_t cPath::GetDirectory() const // Returns just the directory "/folder1/folder2/"
@@ -1070,7 +1070,7 @@ namespace spitfire
       (void)szResult;
       ASSERT(szResult != nullptr);
 
-      sTemporarySubFolder = spitfire::string::ToString_t(szTempFolderPath);
+      sTemporarySubFolder = spitfire::string::ToString(szTempFolderPath);
     #endif
 
       if (!DirectoryExists(sTemporarySubFolder)) {
@@ -1120,9 +1120,9 @@ namespace spitfire
         LOG("Folder \"", sParentFolder, "\" does not exist");
         return;
       }
-      const boost::filesystem::directory_iterator iterEnd;
-      for (boost::filesystem::directory_iterator iter(sParentFolder); iter != iterEnd; iter++) {
-        const string_t sFullPath = string::ToString_t(iter->path().string());
+      const std::experimental::filesystem::directory_iterator iterEnd;
+      for (std::experimental::filesystem::directory_iterator iter(sParentFolder); iter != iterEnd; iter++) {
+        const string_t sFullPath = string::ToString(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {
           //LOG("Adding \"", sFile, "\"");

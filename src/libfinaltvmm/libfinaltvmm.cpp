@@ -14,9 +14,6 @@
 // libfinaltvmm headers
 #include <libfinaltvmm/libfinaltvmm.h>
 
-// Until C++0x we need to define this ourselves
-#define nullptr NULL
-
 namespace finaltv
 {
   const std::string STR_END = "\r\n";

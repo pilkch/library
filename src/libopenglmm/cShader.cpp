@@ -137,13 +137,13 @@ namespace opengl
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderVertex, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG(spitfire::string::ToString_t(sInfo));
+      LOG(spitfire::string::ToString(sInfo));
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
       ) {
         sInfo = spitfire::string::Replace(sInfo, "\n", "<br>");
-        LOG(TEXT("Vertex Shader "), sShaderVertex, TEXT(": "), spitfire::string::ToString_t(sInfo));
+        LOG(TEXT("Vertex Shader "), sShaderVertex, TEXT(": "), spitfire::string::ToString(sInfo));
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -165,13 +165,13 @@ namespace opengl
       infoLog[0] = 0;
       glGetShaderInfoLog(uiShaderFragment, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG(spitfire::string::ToString_t(sInfo));
+      LOG(spitfire::string::ToString(sInfo));
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("ERROR") != std::string::npos
       ) {
         sInfo = spitfire::string::Replace(sInfo, "\n", "<br>");
-        LOG("Fragment Shader ", sShaderFragment, ": ", spitfire::string::ToString_t(sInfo));
+        LOG("Fragment Shader ", sShaderFragment, ": ", spitfire::string::ToString(sInfo));
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -193,14 +193,14 @@ namespace opengl
       infoLog[0] = 0;
       glGetProgramInfoLog(uiShaderProgram, infologLength, NULL, infoLog);
       std::string sInfo(infoLog);
-      LOG(spitfire::string::ToString_t(sInfo));
+      LOG(spitfire::string::ToString(sInfo));
       if (
         sInfo.find("not been successfully compiled") != std::string::npos ||
         sInfo.find("Warning") != std::string::npos
       ) {
-        LOG("Program ", spitfire::string::ToString_t(sShaderVertex), " ", spitfire::string::ToString_t(sShaderFragment), ": ", spitfire::string::ToString_t(infoLog));
+        LOG("Program ", spitfire::string::ToString(sShaderVertex), " ", spitfire::string::ToString(sShaderFragment), ": ", spitfire::string::ToString(infoLog));
       } else {
-        LOG("Program ", spitfire::string::ToString_t(sShaderVertex), " ", spitfire::string::ToString_t(sShaderFragment), ": ", spitfire::string::ToString_t(infoLog));
+        LOG("Program ", spitfire::string::ToString(sShaderVertex), " ", spitfire::string::ToString(sShaderFragment), ": ", spitfire::string::ToString(infoLog));
       }
       delete [] infoLog;
       infoLog = nullptr;
@@ -317,7 +317,7 @@ namespace opengl
         if (semiColon != std::string::npos) {
           const std::string sName(sLine.substr(space, semiColon - space));
           vAttributes.push_back(sName);
-          LOG("\"", spitfire::string::ToString_t(sName), "\"");
+          LOG("\"", spitfire::string::ToString(sName), "\"");
         }
       }
     }
@@ -338,7 +338,7 @@ namespace opengl
         if (semiColon != std::string::npos) {
           const std::string sName(sLine.substr(space, semiColon - space));
           vFragmentDataLocations.push_back(sName);
-          LOG("\"", spitfire::string::ToString_t(sName), "\"");
+          LOG("\"", spitfire::string::ToString(sName), "\"");
         }
       }
     }
@@ -351,7 +351,7 @@ namespace opengl
     sp.SkipToStringAndSkip("#version");
     sp.SkipWhiteSpace();
     const std::string sVersionNumber = sp.GetToEnd();
-    return spitfire::string::ToInt(spitfire::string::ToString_t(sVersionNumber));
+    return spitfire::string::ToInt(spitfire::string::ToString(sVersionNumber));
   }
 
   // NOTE: This does not do the normal vertex/fragment shader parsing for variables,
@@ -370,7 +370,7 @@ namespace opengl
     #else
     const opengl::string_t& sFolderPath = parserContext.sFolderPath;
     #endif
-    const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, spitfire::string::ToString_t(sRelativeFilePath));
+    const opengl::string_t sFilePath = spitfire::filesystem::MakeFilePath(sFolderPath, spitfire::string::ToString(sRelativeFilePath));
 
     // If we already included this file then just return (Prevents adding multiple definitions of functions and variables to the same shader)
     if (parserContext.AlreadyIncludedFile(sFilePath)) {
@@ -455,7 +455,7 @@ namespace opengl
       }
     };
 
-    LOG("Vertex ", cSystem::GetErrorString(), " shader=\"", spitfire::string::ToString_t(o.str()), "\"");
+    LOG("Vertex ", cSystem::GetErrorString(), " shader=\"", spitfire::string::ToString(o.str()), "\"");
 
     uiShaderVertex = glCreateShader(GL_VERTEX_SHADER);
     LOG("Vertex shader glGetError=", cSystem::GetErrorString());
@@ -515,7 +515,7 @@ namespace opengl
       }
     };
 
-    LOG("Fragment shader=\"", spitfire::string::ToString_t(o.str()), "\"");
+    LOG("Fragment shader=\"", spitfire::string::ToString(o.str()), "\"");
 
     uiShaderFragment = glCreateShader(GL_FRAGMENT_SHADER);
     LOG("Fragment shader glGetError=", cSystem::GetErrorString());
