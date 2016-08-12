@@ -110,7 +110,7 @@ namespace spitfire
       }
       f.close();
 
-      //LOG(inFilename, " contains \"", spitfire::string::ToString_t(sData), "\", returning");
+      //LOG(inFilename, " contains \"", spitfire::string::ToString(sData), "\", returning");
       return LoadFromString(interface, sData);
     }
 
@@ -173,11 +173,11 @@ namespace spitfire
             std::string sClose;
             if (sp.GetToStringAndSkip(">", sClose)) {
               if (sClose != sName) {
-                LOG("Opening tag \"", spitfire::string::ToString_t(sName), "\" doesn't match closing tag \"", spitfire::string::ToString_t(sClose), "\", returning false");
+                LOG("Opening tag \"", spitfire::string::ToString(sName), "\" doesn't match closing tag \"", spitfire::string::ToString(sClose), "\", returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
             } else {
-              LOG("Tag \"", spitfire::string::ToString_t(sName), "\" doesn't have a closing tag, returning false");
+              LOG("Tag \"", spitfire::string::ToString(sName), "\" doesn't have a closing tag, returning false");
               return util::PROCESS_RESULT::FAILED;
             }
 
@@ -197,20 +197,20 @@ namespace spitfire
 
             cNode* p = CreateNodeAsChildAndAppend();
 
-            //LOG("Found node ", spitfire::string::ToString_t(inName));
+            //LOG("Found node ", spitfire::string::ToString(inName));
             p->sName = inName;
 
             // Fill in attributes if any, and find the end of the opening tag
             if (sp.GetCharacter() == '/') {
               // />
               if (!sp.SkipToStringAndSkip(">")) {
-                LOG("Tag \"", spitfire::string::ToString_t(inName), "\" doesn't have a closing bracket, returning false");
+                LOG("Tag \"", spitfire::string::ToString(inName), "\" doesn't have a closing bracket, returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
             } else {
               std::string sData;
               if (!sp.GetToStringAndSkip(">", sData)) {
-                LOG("Tag \"", spitfire::string::ToString_t(inName), "\" opening declaration doesn't terminate, returning false");
+                LOG("Tag \"", spitfire::string::ToString(inName), "\" opening declaration doesn't terminate, returning false");
                 return util::PROCESS_RESULT::FAILED;
               }
 
@@ -317,7 +317,7 @@ namespace spitfire
         return true;
       }
 
-      LOG("Error could not open \"", spitfire::string::ToString_t(sFilename), "\", returning false");
+      LOG("Error could not open \"", spitfire::string::ToString(sFilename), "\", returning false");
       return false;
     }
 
@@ -375,14 +375,14 @@ namespace spitfire
           if (!vChild.empty()) sTag+="&gt;";
           else sTag+="/&gt;";
 
-          LOG(spitfire::string::ToString_t(sTag));
+          LOG(spitfire::string::ToString(sTag));
         }
-      } else LOG(spitfire::string::ToString_t(sTab), "Content=\"", spitfire::string::ToString_t(sContentOnly), "\"");
+      } else LOG(spitfire::string::ToString(sTab), "Content=\"", spitfire::string::ToString(sContentOnly), "\"");
 
       n = vChild.size();
       for (i=0;i<n;i++) vChild[i]->PrintToLog(sTab + "&nbsp;");
 
-      if (!vChild.empty() && !sName.empty()) LOG(spitfire::string::ToString_t(sTab) , "&lt;/" , spitfire::string::ToString_t(sName) , "&gt;");
+      if (!vChild.empty() && !sName.empty()) LOG(spitfire::string::ToString(sTab) , "&lt;/" , spitfire::string::ToString(sName) , "&gt;");
     }
 #endif // BUILD_DEBUG
 
@@ -653,7 +653,7 @@ namespace spitfire
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = spitfire::string::ToBool(spitfire::string::ToString_t(iter->second));
+        value = spitfire::string::ToBool(spitfire::string::ToString(iter->second));
 
         return true;
       }
@@ -665,7 +665,7 @@ namespace spitfire
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(iter->second));
+        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString(iter->second));
 
         return true;
       }
@@ -677,7 +677,7 @@ namespace spitfire
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = spitfire::string::ToInt(spitfire::string::ToString_t(iter->second));
+        value = spitfire::string::ToInt(spitfire::string::ToString(iter->second));
 
         return true;
       }
@@ -689,7 +689,7 @@ namespace spitfire
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(iter->second));
+        value = spitfire::string::ToUnsignedInt(spitfire::string::ToString(iter->second));
 
         return true;
       }
@@ -701,7 +701,7 @@ namespace spitfire
     {
       const_attribute_iterator iter = mAttribute.find(sAttribute);
       if (iter != mAttribute.end()) {
-        value = spitfire::string::ToInt(spitfire::string::ToString_t(iter->second));
+        value = spitfire::string::ToInt(spitfire::string::ToString(iter->second));
 
         return true;
       }
@@ -741,9 +741,9 @@ namespace spitfire
         spitfire::string::Split(iter->second, ',', vSplit);
 
         const size_t n = vSplit.size();
-        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
-        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
-        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
+        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[0]));
+        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[1]));
+        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[2]));
 
         return true;
       }
@@ -761,10 +761,10 @@ namespace spitfire
         spitfire::string::Split(iter->second, ',', vSplit);
 
         const size_t n = vSplit.size();
-        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
-        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
-        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
-        if (n > 3) value.w = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
+        if (n > 0) value.x = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[0]));
+        if (n > 1) value.y = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[1]));
+        if (n > 2) value.z = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[2]));
+        if (n > 3) value.w = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[3]));
 
         return true;
       }
@@ -784,10 +784,10 @@ namespace spitfire
         spitfire::string::Split(iter->second, ',', vSplit);
 
         const size_t n = vSplit.size();
-        if (n > 0) value.r = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[0]));
-        if (n > 1) value.g = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[1]));
-        if (n > 2) value.b = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[2]));
-        if (n > 3) value.a = spitfire::string::ToFloat(spitfire::string::ToString_t(vSplit[3]));
+        if (n > 0) value.r = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[0]));
+        else if (n > 1) value.g = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[1]));
+        else if (n > 2) value.b = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[2]));
+        else if (n > 3) value.a = spitfire::string::ToFloat(spitfire::string::ToString(vSplit[3]));
 
         return true;
       }

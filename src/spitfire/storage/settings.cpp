@@ -28,20 +28,24 @@ namespace spitfire
 {
   namespace storage
   {
-    void cSettingsDocument::Load()
+    bool cSettingsDocument::Load()
     {
       assert(spitfire::util::IsMainThread());
+
+      const string_t sFilePath = spitfire::filesystem::GetThisApplicationSettingsDirectory() + TEXT("config.xml");
+      if (!spitfire::filesystem::FileExists(sFilePath)) return true;
 
       // Read the xml document
       spitfire::xml::reader reader;
 
       spitfire::util::cProcessInterfaceVoid interface;
-      const string_t sFilename = spitfire::filesystem::GetThisApplicationSettingsDirectory() + TEXT("config.xml");
-      spitfire::util::PROCESS_RESULT result = reader.ReadFromFile(interface, document, sFilename);
-      if (result != spitfire::util::PROCESS_RESULT::COMPLETE) std::cout<<"cSettings::Load \""<<spitfire::string::ToUTF8(sFilename)<<"\" not found"<<std::endl;
+      const spitfire::util::PROCESS_RESULT result = reader.ReadFromFile(interface, document, sFilePath);
+      if (result != spitfire::util::PROCESS_RESULT::COMPLETE) std::cout<<"cSettings::Load \""<<spitfire::string::ToUTF8(sFilePath)<<"\" not found"<<std::endl;
+
+      return (result == spitfire::util::PROCESS_RESULT::COMPLETE);
     }
 
-    void cSettingsDocument::Save()
+    bool cSettingsDocument::Save() const
     {
       assert(spitfire::util::IsMainThread());
 
@@ -52,11 +56,13 @@ namespace spitfire
       // Write the xml document
       spitfire::xml::writer writer;
 
-      const string_t sFilename = sFolder + TEXT("config.xml");
-      if (!writer.WriteToFile(document, sFilename)) {
-        std::cout<<"cSettings::Save Error saving to file \""<<spitfire::string::ToUTF8(sFilename)<<"\""<<std::endl;
-        return;
+      const string_t sFilePath = sFolder + TEXT("config.xml");
+      if (!writer.WriteToFile(document, sFilePath)) {
+        std::cout<<"cSettings::Save Error saving to file \""<<spitfire::string::ToUTF8(sFilePath)<<"\""<<std::endl;
+        return false;
       }
+
+      return true;
     }
 
     void cSettingsDocument::RemoveValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute)
@@ -133,6 +139,9 @@ namespace spitfire
       // Remove the count
       RemoveValue(sSection, sItem, sAttribute + TEXT("Count"));
     }
+
+
+    spitfire::storage::cSettingsDocument gSettingsDocument;
   }
 
 #ifdef BUILD_SETTINGS_GLOBAL
@@ -222,6 +231,11 @@ namespace spitfire
 
   void SetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, bool value)
   {
+    if (!spitfire::storage::gSettingsDocument.Load()) return;
+
+    spitfire::storage::gSettingsDocument.SetValue(section, subsection, subsubsection, value);
+
+    spitfire::storage::gSettingsDocument.Save();
   }
 
   void SetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, int value)
@@ -250,7 +264,9 @@ namespace spitfire
 
   bool GetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, bool& value)
   {
-    return false;
+    if (!spitfire::storage::gSettingsDocument.Load()) return false;
+
+    return spitfire::storage::gSettingsDocument.GetValue(section, subsection, subsubsection, value);
   }
 
   bool GetApplicationUserSetting(const string_t& section, const string_t& subsection, const string_t& subsubsection, int& value)
@@ -362,7 +378,7 @@ namespace spitfire
 #include <spitfire/util/unittest.h>
 #endif
 
-class cSettingsUnitTest : protected util::cUnitTestBase
+class cSettingsUnitTest : protected spitfire::util::cUnitTestBase
 {
 public:
   cSettingsUnitTest() :
@@ -374,36 +390,38 @@ public:
   {
     // TODO: Fix this test, it is totally broken, none of these functions have been implemented
 
-    const string_t sTestProfile(TEXT("TestProfile"));
+    const spitfire::string_t sTestProfile(TEXT("TestProfile"));
 
-    const string_t sTestSection(TEXT("TestSection"));
-    const string_t sTestSubSection(TEXT("TestSubSection"));
-    const string_t sTestValue(TEXT("this is a settings string which is get and set in the settings"));
+    const spitfire::string_t sTestSection(TEXT("TestSection"));
+    const spitfire::string_t sTestSubSection(TEXT("TestSubSection"));
+    const spitfire::string_t sTestSubSubSection(TEXT("TestSubSubSection"));
+    const spitfire::string_t sTestValue(TEXT("this is a settings string which is get and set in the settings"));
 
     bool bResult = false;
-    string_t sValue;
+    spitfire::string_t sValue;
 
 #ifdef BUILD_SETTINGS_GLOBAL
-    SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestValue);
+    spitfire::SetGlobalSettingsSetString(sTestSection, sTestSubSection, sTestSubSubSection, sTestValue);
     sValue.clear();
-    bResult = GetGlobalSettingsString(sTestSection, sTestSubSection, sValue);
-    ASSERT(bResult != false);
-    ASSERT(sValue == sTestValue);
+    bResult = spitfire::GetGlobalSettingsString(sTestSection, sTestSubSection, sTestSubSubSection, sValue);
+    ASSERT_TRUE(bResult);
+    ASSERT_TRUE(sValue == sTestValue);
 #endif
 
-    SetApplicationUserSetting(sTestSection, sTestSubSection, sTestValue);
+    // TODO: Fix this test
+    spitfire::SetApplicationUserSetting(sTestSection, sTestSubSection, sTestSubSubSection, sTestValue);
     sValue.clear();
-    bResult = GetApplicationUserSetting(sTestSection, sTestSubSection, sValue);
-    ASSERT(bResult != false);
-    ASSERT(sValue == sTestValue);
+    bResult = spitfire::GetApplicationUserSetting(sTestSection, sTestSubSection, sTestSubSubSection, sValue);
+    ASSERT_TRUE(bResult);
+    ASSERT_TRUE(sValue == sTestValue);
 
 #ifdef BUILD_SETTINGS_PROFILE
     Create profile
-    SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestValue);
+    spitfire::SetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestSubSubSection, sTestValue);
     sValue.clear();
-    bResult = GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sValue);
-    ASSERT(bResult != false);
-    ASSERT(sValue == sTestValue);
+    bResult = spitfire::GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestSubSubSection, sValue);
+    ASSERT_TRUE(bResult);
+    ASSERT_TRUE(sValue == sTestValue);
 #endif
   }
 };

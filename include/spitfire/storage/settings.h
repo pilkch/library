@@ -53,8 +53,8 @@ namespace spitfire
     class cSettingsDocument
     {
     public:
-      void Load();
-      void Save();
+      bool Load();
+      bool Save() const;
 
       template <class T>
       T GetValue(const string_t& sSection, const string_t& sItem, const string_t& sAttribute, const T& valueDefault) const;
