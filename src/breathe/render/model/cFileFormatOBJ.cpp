@@ -76,9 +76,9 @@ namespace breathe
           }
 
           //if (tokens.size() == 4) {
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[1])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[2])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[3])));
           //}
         }
 
@@ -98,9 +98,9 @@ namespace breathe
             }
 
             if (tokens.size() == 4) {
-              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[1])));
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[2])));
+              vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[3])));
             }
           } else if (sType == "vt") {
             // Texture Coordinate
@@ -110,8 +110,8 @@ namespace breathe
 
             if (tokens.size() == 3) {
               // The y coordinate always seems to be flipped, ie. 1..0 instead of 0..1, so we cater for that by flipping it again
-              textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-              textureCoordinates.push_back(1.0f - spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
+              textureCoordinates.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[1])));
+              textureCoordinates.push_back(1.0f - spitfire::string::ToFloat(spitfire::string::ToString(tokens[2])));
             }
           } else if (sType == "vn") {
             // Normal
@@ -120,9 +120,9 @@ namespace breathe
             }
 
             if (tokens.size() == 4) {
-              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[1])));
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[2])));
+              normals.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[3])));
             }
           } else {
             // Unknown
@@ -151,7 +151,7 @@ namespace breathe
           }
 
           if (tokens.size() == 2) {
-            mesh.sMaterial = spitfire::string::ToString_t(tokens[1]);
+            mesh.sMaterial = spitfire::string::ToString(tokens[1]);
           }
         }
 
@@ -174,9 +174,9 @@ namespace breathe
           //}
 
           //if (tokens.size() == 4) {
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[1])));
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[2])));
-          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString_t(tokens[3])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[1])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[2])));
+          //  vertices.push_back(spitfire::string::ToFloat(spitfire::string::ToString(tokens[3])));
           //}
         }
 
@@ -218,14 +218,14 @@ namespace breathe
               ASSERT(l >= 1);
 
               size_t item = 0;
-              size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
+              size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[item]));
               if (value == 0) value = 1;
               verticesIndices.push_back(value);
               item++;
 
               if (l >= 2) {
                 if (!elements[item].empty()) {
-                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
+                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[item]));
                   if (value == 0) value = 1;
                   textureCoordinatesIndices.push_back(value);
                   item++;
@@ -234,7 +234,7 @@ namespace breathe
 
               if (l >= 3) {
                 if (!elements[item].empty()) {
-                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString_t(elements[item]));
+                  size_t value = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[item]));
                   if (value == 0) value = 1;
                   normalsIndices.push_back(value);
                   item++;

@@ -2,6 +2,7 @@
 #define CFILEFORMATOBJ_H
 
 // Standard headers
+#include <map>
 #include <vector>
 
 // Breathe headers
