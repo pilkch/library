@@ -67,6 +67,11 @@ namespace opengl
     floatUserData2_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nFloatUserData2PerPoint * sizeof(GLfloat);
   }
 
+  size_t cStaticVertexBufferObject::GetTextureUnitCount() const
+  {
+    return nTextureUnits;
+  }
+
   size_t cStaticVertexBufferObject::GetApproximateTriangleCount() const
   {
     return (pGeometryDataPtr != nullptr) ? (pGeometryDataPtr->nVertexCount / 3) : 0;

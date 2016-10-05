@@ -53,6 +53,7 @@ namespace opengl
 
     void SetData(cGeometryDataPtr pGeometryDataPtr);
 
+    size_t GetTextureUnitCount() const;
     size_t GetApproximateTriangleCount() const;
 
     bool IsCompiled() const { return bIsCompiled; }
