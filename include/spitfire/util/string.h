@@ -777,6 +777,22 @@ namespace spitfire
       return std::to_string(value);
       #endif
     }
+
+
+    inline void FromString(const string_t& source, uint64_t& value)
+    {
+      value = std::stoull(source);
+    }
+
+    inline void FromString(const string_t& source, int64_t& value)
+    {
+      value = std::stoll(source);
+    }
+
+    inline void FromString(const string_t& source, float& value)
+    {
+      value = std::stof(source);
+    }
   }
 }
 

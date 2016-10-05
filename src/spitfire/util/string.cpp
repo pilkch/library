@@ -813,31 +813,6 @@ namespace spitfire
     }
 
 
-    template <class T>
-    inline T FromStringGeneric(const string_t& source)
-    {
-      T value = T(0);
-      istringstream_t stm(source);
-      stm>>value;
-      return value;
-    }
-
-    void FromString(const string_t& source, uint64_t& value)
-    {
-      value = FromStringGeneric<uint64_t>(source);
-    }
-
-    void FromString(const string_t& source, int64_t& value)
-    {
-      value = FromStringGeneric<int64_t>(source);
-    }
-
-    void FromString(const string_t& source, float& value)
-    {
-      value = FromStringGeneric<float>(source);
-    }
-
-
     // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
     // eg. "FE1234" -> 16650804
