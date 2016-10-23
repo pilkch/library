@@ -683,6 +683,7 @@ namespace opengl
     void CreatePlane(float fWidth, float fDepth, float fTextureU, float fTextureV, cGeometryData& data, size_t nTextureUnits);
     void CreateCube(float fWidthAndDepthAndHeight, cGeometryData& data, size_t nTextureUnits);
     void CreateBox(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits);
+    void CreateBoxWithTopAndBottomColours(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop);
     void CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
     void CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
     void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, cGeometryData& data); // This is primarily for openglmm_gears and there are no texture coordinates generated
