@@ -168,7 +168,7 @@ namespace opengl
 
     for (int i = 0; i <= latitudes; i++) {
       double lat0 = spitfire::math::cPI * (-0.5 + double(i - 1) / latitudes);
-      double z0  = sin(lat0);
+      double z0 = sin(lat0);
       double zr0 = cos(lat0);
 
       double lat1 = spitfire::math::cPI * (-0.5 + double(i) / latitudes);
@@ -194,6 +194,45 @@ namespace opengl
           builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
           builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
       }
+    }
+  }
+
+  template <class T>
+  void CreateCylinderTemplated(T& builder, float fRadius, float fHeight, size_t nCircleSegments)
+  {
+    assert(nCircleSegments != 0);
+
+    const int longitudes = int(nCircleSegments);
+
+    const spitfire::math::cVec2 textureCoordOffset(0.5f, 0.5f);
+
+    for (int j = 0; j <= longitudes; j++) {
+      const double lng0 = 2.0f * spitfire::math::cPI * double(j - 1) / longitudes;
+      const spitfire::math::cVec2 p0(cos(lng0), sin(lng0));
+
+      const double lng1 = 2.0f * spitfire::math::cPI * double(j) / longitudes;
+      const spitfire::math::cVec2 p1(cos(lng1), sin(lng1));
+
+      // Create a segment of the disc at the top
+      builder.PushBack(spitfire::math::cVec3(0.0f, fHeight, 0.0f), spitfire::math::v3Up, textureCoordOffset);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p1);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p0);
+
+      // Create a rectangle between the current longitude extents
+      spitfire::math::cQuaternion rotation;
+      // TODO: Calculate rotation of the normal for this side
+      const spitfire::math::cVec3 normal = rotation * spitfire::math::v3Left;
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, textureCoordOffset + p0);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, textureCoordOffset + p1);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1);
+
+      // Create a segment of the disc at the bottom
+      builder.PushBack(spitfire::math::cVec3(0.0f, 0.0f, 0.0f), spitfire::math::v3Down, textureCoordOffset);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p0);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p1);
     }
   }
 
@@ -369,6 +408,26 @@ namespace opengl
       CreateSphereTemplated(builder, fRadius, nSegments);
     } else {
       std::cout<<"cGeometryBuilder::CreateSphere Invalid nTextureUnits "<<nTextureUnits<<std::endl;
+      assert(false);
+    }
+  }
+
+  void cGeometryBuilder::CreateCylinder(float fRadius, float fHeight, size_t nCircleSegments, cGeometryData& data, size_t nTextureUnits)
+  {
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3 builder(data);
+      CreateCylinderTemplated(builder, fRadius, fHeight, nCircleSegments);
+    } else if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2 builder(data);
+      CreateCylinderTemplated(builder, fRadius, fHeight, nCircleSegments);
+    } else if (nTextureUnits == 2) {
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
+      CreateCylinderTemplated(builder, fRadius, fHeight, nCircleSegments);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
+      CreateCylinderTemplated(builder, fRadius, fHeight, nCircleSegments);
+    } else {
+      std::cout<<"cGeometryBuilder::CreateCylinder Invalid nTextureUnits "<<nTextureUnits<<std::endl;
       assert(false);
     }
   }
