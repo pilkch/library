@@ -348,7 +348,8 @@ namespace spitfire
     }
 
     // Linearly interpolate from a to b using mu = { 0..1 }
-    inline float mix(float a, float b, float mu)
+    template <class T>
+    inline T mix(const T& a, const T& b, float mu)
     {
       if (mu > 1.0f) return b;
       if (mu <= 0.0f) return a;
