@@ -237,6 +237,45 @@ namespace opengl
   }
 
   template <class T>
+  void CreateCylinderWithTopAndBottomColoursTemplated(T& builder, float fRadius, float fHeight, size_t nCircleSegments, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop)
+  {
+    assert(nCircleSegments != 0);
+
+    const int longitudes = int(nCircleSegments);
+
+    const spitfire::math::cVec2 textureCoordOffset(0.5f, 0.5f);
+
+    for (int j = 0; j <= longitudes; j++) {
+      const double lng0 = 2.0f * spitfire::math::cPI * double(j - 1) / longitudes;
+      const spitfire::math::cVec2 p0(cos(lng0), sin(lng0));
+
+      const double lng1 = 2.0f * spitfire::math::cPI * double(j) / longitudes;
+      const spitfire::math::cVec2 p1(cos(lng1), sin(lng1));
+
+      // Create a segment of the disc at the top
+      builder.PushBack(spitfire::math::cVec3(0.0f, fHeight, 0.0f), spitfire::math::v3Up, textureCoordOffset, colourTop);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p1, colourTop);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p0, colourTop);
+
+      // Create a rectangle between the current longitude extents
+      spitfire::math::cQuaternion rotation;
+      // TODO: Calculate rotation of the normal for this side
+      const spitfire::math::cVec3 normal = rotation * spitfire::math::v3Left;
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, textureCoordOffset + p0, colourTop);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1, colourTop);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0, colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, textureCoordOffset + p1, colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0, colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1, colourTop);
+
+      // Create a segment of the disc at the bottom
+      builder.PushBack(spitfire::math::cVec3(0.0f, 0.0f, 0.0f), spitfire::math::v3Down, textureCoordOffset, colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p0, colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p1, colourBottom);
+    }
+  }
+
+  template <class T>
   void CreateTeapotTemplated(T& builder, float fRadius, size_t nSegments)
   {
     (void)fRadius;
@@ -342,7 +381,7 @@ namespace opengl
       cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
       CreatePlaneTemplated(builder, fWidth, fDepth, fTextureU, fTextureV);
     } else {
-      std::cout << "cGeometryBuilder::CreatePlane Invalid nTextureUnits " << nTextureUnits << std::endl;
+      std::cout<<"cGeometryBuilder::CreatePlane Invalid nTextureUnits "<<nTextureUnits<<std::endl;
       assert(false);
     }
   }
@@ -392,6 +431,17 @@ namespace opengl
     }
   }
 
+  void cGeometryBuilder::CreateBoxWithTopAndBottomColours(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop)
+  {
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3_c4 builder(data);
+      CreateBoxWithTopAndBottomColoursTemplated(builder, fWidth, fDepth, fHeight, colourBottom, colourTop);
+    } else {
+      std::cout<<"cGeometryBuilder::CreateBoxWithTopAndBottomColours Invalid nTextureUnits "<<nTextureUnits<<std::endl;
+      assert(false);
+    }
+  }
+
   void cGeometryBuilder::CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
@@ -428,6 +478,26 @@ namespace opengl
       CreateCylinderTemplated(builder, fRadius, fHeight, nCircleSegments);
     } else {
       std::cout<<"cGeometryBuilder::CreateCylinder Invalid nTextureUnits "<<nTextureUnits<<std::endl;
+      assert(false);
+    }
+  }
+
+  void cGeometryBuilder::CreateCylinderWithTopAndBottomColours(float fRadius, float fHeight, size_t nCircleSegments, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop, cGeometryData& data, size_t nTextureUnits)
+  {
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3_c4 builder(data);
+      CreateCylinderWithTopAndBottomColoursTemplated(builder, fRadius, fHeight, nCircleSegments, colourBottom, colourTop);
+    /*} else if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2_c4 builder(data);
+      CreateCylinderWithTopAndBottomColoursTemplated(builder, fRadius, fHeight, nCircleSegments, colourBottom, colourTop);
+    } else if (nTextureUnits == 2) {
+      cGeometryBuilder_v3_n3_t2_t2_c4 builder(data);
+      CreateCylinderWithTopAndBottomColoursTemplated(builder, fRadius, fHeight, nCircleSegments, colourBottom, colourTop);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2_c4 builder(data);
+      CreateCylinderWithTopAndBottomColoursTemplated(builder, fRadius, fHeight, nCircleSegments, colourBottom, colourTop);*/
+    } else {
+      std::cout<<"cGeometryBuilder::CreateCylinderWithTopAndBottomColours Invalid nTextureUnits "<<nTextureUnits<<std::endl;
       assert(false);
     }
   }
