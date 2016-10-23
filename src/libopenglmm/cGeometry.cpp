@@ -11,6 +11,9 @@
 #include <map>
 #include <vector>
 
+// Spitfire headers
+#include <spitfire/math/cQuaternion.h>
+
 // libopenglmm headers
 #include <libopenglmm/cGeometry.h>
 
