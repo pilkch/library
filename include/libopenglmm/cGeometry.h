@@ -466,12 +466,12 @@ namespace opengl
     data.vertices.push_back(normal.x);
     data.vertices.push_back(normal.y);
     data.vertices.push_back(normal.z);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
     data.vertices.push_back(colour.r);
     data.vertices.push_back(colour.g);
     data.vertices.push_back(colour.b);
     data.vertices.push_back(colour.a);
-    data.vertices.push_back(textureCoord0.x);
-    data.vertices.push_back(textureCoord0.y);
     data.nVertexCount++;
   }
 
