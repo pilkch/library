@@ -126,19 +126,19 @@ namespace opengl
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, -1.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
 
     // Side Squares
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(0.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
 
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
     builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(0.0f, 0.0f, -1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
 
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 0.0f), colourTop);
@@ -147,12 +147,12 @@ namespace opengl
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMax.y, vMin.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
     builder.PushBack(spitfire::math::cVec3(vMax.x, vMin.y, vMax.z), spitfire::math::cVec3(1.0f, 0.0f, 0.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
 
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourTop);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourBottom);
-    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 0.0f), colourTop);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMin.y, vMin.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(0.0f, 1.0f), colourBottom);
+    builder.PushBack(spitfire::math::cVec3(vMin.x, vMax.y, vMax.z), spitfire::math::cVec3(-1.0f, 0.0f, 1.0f), spitfire::math::cVec2(1.0f, 0.0f), colourTop);
   }
 
   template <class T>
