@@ -213,6 +213,10 @@ namespace opengl
       const double lng1 = 2.0f * spitfire::math::cPI * double(j) / longitudes;
       const spitfire::math::cVec2 p1(cos(lng1), sin(lng1));
 
+      // Texture coordinates
+      const float t0 = double(j) / longitudes;
+      const float t1 = double(j + 1) / longitudes;
+
       // Create a segment of the disc at the top
       builder.PushBack(spitfire::math::cVec3(0.0f, fHeight, 0.0f), spitfire::math::v3Up, textureCoordOffset);
       builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p1);
@@ -222,12 +226,12 @@ namespace opengl
       spitfire::math::cQuaternion rotation;
       // TODO: Calculate rotation of the normal for this side
       const spitfire::math::cVec3 normal = rotation * spitfire::math::v3Left;
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, textureCoordOffset + p0);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1);
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, textureCoordOffset + p1);
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 0.0f));
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 0.0f));
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 1.0f));
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 1.0f));
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 1.0f));
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 0.0f));
 
       // Create a segment of the disc at the bottom
       builder.PushBack(spitfire::math::cVec3(0.0f, 0.0f, 0.0f), spitfire::math::v3Down, textureCoordOffset);
@@ -252,6 +256,10 @@ namespace opengl
       const double lng1 = 2.0f * spitfire::math::cPI * double(j) / longitudes;
       const spitfire::math::cVec2 p1(cos(lng1), sin(lng1));
 
+      // Texture coordinates
+      const float t0 = double(j) / longitudes;
+      const float t1 = double(j + 1) / longitudes;
+
       // Create a segment of the disc at the top
       builder.PushBack(spitfire::math::cVec3(0.0f, fHeight, 0.0f), spitfire::math::v3Up, textureCoordOffset, colourTop);
       builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), spitfire::math::v3Up, textureCoordOffset + p1, colourTop);
@@ -261,12 +269,12 @@ namespace opengl
       spitfire::math::cQuaternion rotation;
       // TODO: Calculate rotation of the normal for this side
       const spitfire::math::cVec3 normal = rotation * spitfire::math::v3Left;
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, textureCoordOffset + p0, colourTop);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1, colourTop);
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0, colourBottom);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, textureCoordOffset + p1, colourBottom);
-      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, textureCoordOffset + p0, colourBottom);
-      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, textureCoordOffset + p1, colourTop);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, fHeight, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 0.0f), colourTop);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 0.0f), colourTop);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 1.0f), colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 1.0f), colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), normal, spitfire::math::cVec2(t1, 1.0f), colourBottom);
+      builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, fHeight, p1.y * fRadius), normal, spitfire::math::cVec2(t0, 0.0f), colourTop);
 
       // Create a segment of the disc at the bottom
       builder.PushBack(spitfire::math::cVec3(0.0f, 0.0f, 0.0f), spitfire::math::v3Down, textureCoordOffset, colourBottom);
