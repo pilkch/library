@@ -110,6 +110,11 @@ namespace spitfire
     {
     }
 
+    cColour3 cColour4::GetRGB() const
+    {
+      return cColour3(r, g, b);
+    }
+
     void cColour4::SetRGB(float newR, float newG, float newB)
     {
       r = newR;

@@ -101,6 +101,8 @@ namespace spitfire
 
       inline void Clear() { r = g = b = 0.0f; a = 1.0f; }
 
+      cColour3 GetRGB() const;
+
       void SetRGB(float newR, float newG, float newB); // Set values, a is set to 1.0f
       void SetRGBA(float newR, float newG, float newB, float newA); // Set values
 
