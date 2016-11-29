@@ -121,14 +121,6 @@ namespace voodoo
     }
   }
 
-  /*cSurface& cSurface::operator=(const cSurface& rhs)
-  {
-    type = rhs.type;
-
-    image = rhs.image;
-    SDL_Surface* pSurface;
-  }*/
-
   const uint8_t* cSurface::GetPointerToBuffer() const
   {
     return image.GetPointerToBuffer();
@@ -350,11 +342,6 @@ namespace voodoo
   cImage::cImage() :
     pixelFormat(PIXELFORMAT::R8G8B8A8)
   {
-  }
-
-  cImage::~cImage()
-  {
-    buffer.clear();
   }
 
   cImage::cImage(const cImage& rhs)

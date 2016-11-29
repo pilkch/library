@@ -55,7 +55,6 @@ namespace voodoo
     friend class cSurface;
 
     cImage();
-    ~cImage();
 
     cImage(const cImage& rhs);
     cImage& operator=(const cImage& rhs);
