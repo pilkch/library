@@ -4,6 +4,7 @@
 // Standard headers
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <algorithm>
 
 // Spitfire headers
@@ -410,40 +411,54 @@ namespace spitfire
 
     // *** Random Number Generation
 
-    inline void SetRandomSeed(uint32_t seed)
-    {
-      return srand(seed);
-    }
+    // NOTE: This is a legacy random number generator, it is slightly less bad than nothing and should be used as a transition to cMersenneTwister and cScopedPredictableRandom are preferred
+    class cRand {
+    public:
+      cRand() :
+        cRand(time(nullptr))
+      {
+      }
 
-    inline uint32_t random(uint32_t maximum)
-    {
-      return rand() % maximum;
-    }
+      explicit cRand(uint32_t seed)
+      {
+        srand(seed);
+      }
 
-    inline uint32_t random(uint32_t minimum, uint32_t maximum)
-    {
-      return minimum + rand() % maximum;
-    }
+      inline void SetRandomSeed(uint32_t seed)
+      {
+        return srand(seed);
+      }
 
-    inline float randomZeroToOnef()
-    {
-      return float(rand() % 10000) * 0.0001f;
-    }
+      inline uint32_t random(uint32_t maximum)
+      {
+        return rand() % maximum;
+      }
 
-    inline float randomMinusOneToPlusOnef()
-    {
-      return -1.0f + float(rand() % 20000) * 0.0001f;
-    }
+      inline uint32_t random(uint32_t minimum, uint32_t maximum)
+      {
+        return minimum + rand() % maximum;
+      }
 
-    inline float randomf(float fMax)
-    {
-      return fMax * randomZeroToOnef();
-    }
+      inline float randomZeroToOnef()
+      {
+        return float(rand() % 10000) * 0.0001f;
+      }
 
-    inline float randomf(float fMin, float fMax)
-    {
-      return fMin + randomf(fMax - fMin);
-    }
+      inline float randomMinusOneToPlusOnef()
+      {
+        return -1.0f + float(rand() % 20000) * 0.0001f;
+      }
+
+      inline float randomf(float fMax)
+      {
+        return fMax * randomZeroToOnef();
+      }
+
+      inline float randomf(float fMin, float fMax)
+      {
+        return fMin + randomf(fMax - fMin);
+      }
+    };
 
 
     // For random number generation

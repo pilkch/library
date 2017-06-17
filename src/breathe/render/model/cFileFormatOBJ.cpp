@@ -305,10 +305,11 @@ namespace breathe
         // We always want to have enough texture coordinates so we invent more if needed
         // This is just a hack so that we never have to disable texturing, but the model should
         // really include enough texture coordinates instead
+        spitfire::math::cRand rand;
         const size_t nVertices = mesh.vertices.size() / 3;
         for (size_t iTextureCoordinate = mesh.textureCoordinates.size() / 2; iTextureCoordinate < nVertices; iTextureCoordinate++) {
-          mesh.textureCoordinates.push_back(math::randomZeroToOnef());
-          mesh.textureCoordinates.push_back(math::randomZeroToOnef());
+          mesh.textureCoordinates.push_back(rand.randomZeroToOnef());
+          mesh.textureCoordinates.push_back(rand.randomZeroToOnef());
         }
 
 
