@@ -685,6 +685,7 @@ namespace opengl
     void CreateBox(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits);
     void CreateBoxWithTopAndBottomColours(float fWidth, float fDepth, float fHeight, cGeometryData& data, size_t nTextureUnits, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop);
     void CreateSphere(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
+    void CreateSphere(const spitfire::math::cVec3& position, float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
     void CreateCylinder(float fRadius, float fHeight, size_t nCircleSegments, cGeometryData& data, size_t nTextureUnits);
     void CreateCylinderWithTopAndBottomColours(float fRadius, float fHeight, size_t nCircleSegments, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop, cGeometryData& data, size_t nTextureUnits);
     void CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);

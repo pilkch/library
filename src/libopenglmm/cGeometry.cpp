@@ -156,7 +156,7 @@ namespace opengl
   }
 
   template <class T>
-  void CreateSphereTemplated(T& builder, float fRadius, size_t nSegments)
+  void CreateSphereTemplated(T& builder, const spitfire::math::cVec3& position, float fRadius, size_t nSegments)
   {
     assert(nSegments != 0);
 
@@ -187,12 +187,12 @@ namespace opengl
           const float fU = float(j) * fSegmentTextureWidth;
           const float fV = float(i) * fSegmentTextureHeight;
 
-          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
-          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec2(fU, fV + fSegmentTextureHeight));
-          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
-          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV));
-          builder.PushBack(fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
-          builder.PushBack(fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec2(fU, fV + fSegmentTextureHeight));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec2(fU + fSegmentTextureWidth, fV + fSegmentTextureHeight));
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec2(fU, fV));
       }
     }
   }
@@ -457,16 +457,36 @@ namespace opengl
   {
     if (nTextureUnits == 0) {
       cGeometryBuilder_v3_n3 builder(data);
-      CreateSphereTemplated(builder, fRadius, nSegments);
+      CreateSphereTemplated(builder, spitfire::math::cVec3(), fRadius, nSegments);
     } else if (nTextureUnits == 1) {
       cGeometryBuilder_v3_n3_t2 builder(data);
-      CreateSphereTemplated(builder, fRadius, nSegments);
+      CreateSphereTemplated(builder, spitfire::math::cVec3(), fRadius, nSegments);
     } else if (nTextureUnits == 2) {
       cGeometryBuilder_v3_n3_t2_t2 builder(data);
-      CreateSphereTemplated(builder, fRadius, nSegments);
+      CreateSphereTemplated(builder, spitfire::math::cVec3(), fRadius, nSegments);
     } else if (nTextureUnits == 3) {
       cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
-      CreateSphereTemplated(builder, fRadius, nSegments);
+      CreateSphereTemplated(builder, spitfire::math::cVec3(), fRadius, nSegments);
+    } else {
+      std::cout<<"cGeometryBuilder::CreateSphere Invalid nTextureUnits "<<nTextureUnits<<std::endl;
+      assert(false);
+    }
+  }
+
+  void cGeometryBuilder::CreateSphere(const spitfire::math::cVec3& position, float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits)
+  {
+    if (nTextureUnits == 0) {
+      cGeometryBuilder_v3_n3 builder(data);
+      CreateSphereTemplated(builder, position, fRadius, nSegments);
+    } else if (nTextureUnits == 1) {
+      cGeometryBuilder_v3_n3_t2 builder(data);
+      CreateSphereTemplated(builder, position, fRadius, nSegments);
+    } else if (nTextureUnits == 2) {
+      cGeometryBuilder_v3_n3_t2_t2 builder(data);
+      CreateSphereTemplated(builder, position, fRadius, nSegments);
+    } else if (nTextureUnits == 3) {
+      cGeometryBuilder_v3_n3_t2_t2_t2 builder(data);
+      CreateSphereTemplated(builder, position, fRadius, nSegments);
     } else {
       std::cout<<"cGeometryBuilder::CreateSphere Invalid nTextureUnits "<<nTextureUnits<<std::endl;
       assert(false);
