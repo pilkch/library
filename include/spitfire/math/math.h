@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include <random>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -411,42 +412,43 @@ namespace spitfire
 
     // *** Random Number Generation
 
-    // NOTE: This is a legacy random number generator, it is slightly less bad than nothing and should be used as a transition to cMersenneTwister and cScopedPredictableRandom are preferred
+    // ** cRand
+    // Similar to using srand and rand
     class cRand {
     public:
-      cRand() :
-        cRand(time(nullptr))
+      cRand()
       {
+        generator.seed(time(nullptr));
       }
 
       explicit cRand(uint32_t seed)
       {
-        srand(seed);
+        generator.seed(seed);
       }
 
       inline void SetRandomSeed(uint32_t seed)
       {
-        return srand(seed);
+        generator.seed(seed);
       }
 
       inline uint32_t random(uint32_t maximum)
       {
-        return rand() % maximum;
+        return generator() % maximum;
       }
 
       inline uint32_t random(uint32_t minimum, uint32_t maximum)
       {
-        return minimum + rand() % maximum;
+        return minimum + generator() % maximum;
       }
 
       inline float randomZeroToOnef()
       {
-        return float(rand() % 10000) * 0.0001f;
+        return float(generator() % 10000) * 0.0001f;
       }
 
       inline float randomMinusOneToPlusOnef()
       {
-        return -1.0f + float(rand() % 20000) * 0.0001f;
+        return -1.0f + float(generator() % 20000) * 0.0001f;
       }
 
       inline float randomf(float fMax)
@@ -458,6 +460,9 @@ namespace spitfire
       {
         return fMin + randomf(fMax - fMin);
       }
+
+    private:
+      std::minstd_rand generator;
     };
 
 
