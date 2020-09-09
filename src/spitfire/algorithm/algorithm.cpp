@@ -4,6 +4,7 @@
 
 // Spitfire headers
 #include <spitfire/algorithm/algorithm.h>
+#include <spitfire/math/math.h>
 
 
 #ifdef BUILD_SPITFIRE_UNITTEST
@@ -25,13 +26,13 @@ public:
     // Add 7, 7, 7
     spitfire::vector::push_back(v, 3, 7);
 
-    ASSERT_TRUE(v.size() == 3);
-    ASSERT_TRUE(v == std::vector<int>( { 7, 7, 7 } ));
+    ASSERT_EQ(3, v.size());
+    ASSERT_TRUE(v == std::vector<int>( { 7, 7, 7 }));
 
     // Add 5, 5
     spitfire::vector::push_back(v, 2, 5);
 
-    ASSERT_TRUE(v.size() == 5);
+    ASSERT_EQ(5, v.size());
     ASSERT_TRUE(v == std::vector<int>( { 7, 7, 7, 5, 5 } ));
   }
 
@@ -54,18 +55,18 @@ public:
   {
     spitfire::cContainer2D<int, 5, 10> values;
 
-    ASSERT_TRUE(values.GetWidth() == 5);
-    ASSERT_TRUE(values.GetHeight() == 10);
-    ASSERT_TRUE(values.size() == 50);
+    ASSERT_EQ(5, values.GetWidth());
+    ASSERT_EQ(10, values.GetHeight());
+    ASSERT_EQ(50, values.size());
 
-    for (size_t i = 0; i < 50; i++) values[i] = i;
+    for (size_t i = 0; i < 50; i++) values[i] = int(i);
 
     for (size_t i = 0; i < 50; i++) {
-      ASSERT_TRUE(values[i] == int(i));
-      ASSERT_TRUE(values.GetElement(i) == int(i));
+      ASSERT_EQ(int(i), values[i]);
+      ASSERT_EQ(int(i), values.GetElement(i));
       const size_t x = i % 5;
       const size_t y = i / 5;
-      ASSERT_TRUE(values.GetElement(x, y) == int(i));
+      ASSERT_EQ(int(i), values.GetElement(x, y));
     }
   }
 
@@ -75,18 +76,18 @@ public:
 
     values.RemoveAllEntriesAndSetNewSize(width, height);
 
-    ASSERT_TRUE(values.GetWidth() == width);
-    ASSERT_TRUE(values.GetHeight() == height);
-    ASSERT_TRUE(values.size() == n);
+    ASSERT_EQ(width, values.GetWidth());
+    ASSERT_EQ(height, values.GetHeight());
+    ASSERT_EQ(n, values.size());
 
-    for (size_t i = 0; i < n; i++) values[i] = i;
+    for (size_t i = 0; i < n; i++) values[i] = int(i);
 
     for (size_t i = 0; i < n; i++) {
-      ASSERT_TRUE(values[i] == int(i));
-      ASSERT_TRUE(values.GetElement(i) == int(i));
+      ASSERT_EQ(int(i), values[i]);
+      ASSERT_EQ(int(i), values.GetElement(i));
       const size_t x = i % width;
       const size_t y = i / width;
-      ASSERT_TRUE(values.GetElement(x, y) == int(i));
+      ASSERT_EQ(int(i), values.GetElement(x, y));
     }
   }
 
@@ -113,13 +114,15 @@ public:
     spitfire::cRandomBucket<int> bucket;
     bucket.AddItem(1);
 
-    ASSERT_TRUE(bucket.GetPossibleItems().size() == 1);
+    ASSERT_EQ(1, bucket.GetPossibleItems().size());
 
     // This shouldn't do anything
     bucket.ResetCurrentPool();
 
+    spitfire::math::cRand rng;
+
     for (size_t i = 0; i < 20; i++) {
-      ASSERT_TRUE(bucket.GetRandomItem() == 1);
+      ASSERT_EQ(1, bucket.GetRandomItem(rng));
     }
 
     // This shouldn't do anything
@@ -133,22 +136,22 @@ public:
     // This shouldn't do anything
     bucket.ResetCurrentPool();
 
-    ASSERT_TRUE(bucket.GetPossibleItems().size() == 5);
+    ASSERT_EQ(5, bucket.GetPossibleItems().size());
 
     // Add 8 three times
     bucket.AddItems(8, 3);
 
-    ASSERT_TRUE(bucket.GetPossibleItems().size() == 8);
+    ASSERT_EQ(8, bucket.GetPossibleItems().size());
 
     for (size_t i = 0; i < 20; i++) {
-      bucket.GetRandomItem();
+      bucket.GetRandomItem(rng);
     }
 
     bucket.ResetCurrentPool();
 
     bucket.ClearPossibleItemsAndResetCurrentPool();
 
-    ASSERT_TRUE(bucket.GetPossibleItems().size() == 0);
+    ASSERT_EQ(0, bucket.GetPossibleItems().size());
   }
 
   void TestBinaryCodedDecimal()
@@ -163,12 +166,12 @@ public:
       ss>>y;
 
       //std::cout<<"i="<<int(i)<<", ss="<<ss.str()<<", y="<<y<<", x="<<int(x)<<std::endl;
-      ASSERT_TRUE(y == uint32_t(x));
+      ASSERT_EQ(uint32_t(x), y);
     }
 
     // Conversion from 0x12 to 12 for example
     for (uint8_t i = 0; i < 128; i++) {
-      ASSERT_TRUE(spitfire::algorithm::FromBinaryCodedDecimal(spitfire::algorithm::ToBinaryCodedDecimal(i)) == i);
+      ASSERT_EQ(i, spitfire::algorithm::FromBinaryCodedDecimal(spitfire::algorithm::ToBinaryCodedDecimal(i)));
     }
   }
 

@@ -16,7 +16,7 @@
 #include <fstream>
 
 // C++17 headers
-#include <experimental/filesystem>
+#include <filesystem>
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -136,16 +136,16 @@ namespace spitfire
     bool DeleteFile(const string_t& sFilename)
     {
       CONSOLE<<"DeleteFile \""<<sFilename<<"\""<<std::endl;
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      std::experimental::filesystem::remove(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      std::filesystem::remove(file);
       return !FileExists(sFilename);
     }
 
     bool DeleteDirectory(const string_t& sFoldername)
     {
       CONSOLE<<"DeleteDirectory \""<<sFoldername<<"\""<<std::endl;
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
-      return (std::experimental::filesystem::remove_all(file) != 0);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFoldername));
+      return (std::filesystem::remove_all(file) != 0);
     }
 
     void MoveFileToTrash(const string_t& sFilePath)
@@ -170,16 +170,16 @@ namespace spitfire
     {
       if (FileExists(sTo)) return;
 
-      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      std::experimental::filesystem::copy_file(from, to, std::experimental::filesystem::copy_options::none);
+      const std::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::filesystem::copy_file(from, to, std::filesystem::copy_options::none);
     }
 
     void CopyFileOverwrite(const string_t& sFrom, const string_t& sTo)
     {
-      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      std::experimental::filesystem::copy_file(from, to, std::experimental::filesystem::copy_options::overwrite_existing);
+      const std::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 
     // This is where we don't want to destroy the creation time etc. of the destination file, also if the destination
@@ -201,9 +201,9 @@ namespace spitfire
     bool MoveFile(const string_t& sFrom, const string_t& sTo)
     {
       //CONSOLE<<"MoveFile From \""<<sFrom<<"\", to \""<<sTo<<"\""<<std::endl;
-      const std::experimental::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-      const std::experimental::filesystem::path to(spitfire::string::ToUTF8(sTo));
-      std::experimental::filesystem::rename(from, to);
+      const std::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+      const std::filesystem::path to(spitfire::string::ToUTF8(sTo));
+      std::filesystem::rename(from, to);
       return FileExists(sTo);
     }
 
@@ -489,7 +489,7 @@ namespace spitfire
 
     string_t GetExtension(const string_t& sFilename)
     {
-      return string::ToString(std::experimental::filesystem::path(sFilename).extension());
+      return string::ToString(std::filesystem::path(sFilename).extension());
     }
 
 
@@ -617,20 +617,20 @@ namespace spitfire
 
     bool IsFile(const string_t& sFilePath)
     {
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
-      return std::experimental::filesystem::is_regular_file(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      return std::filesystem::is_regular_file(file);
     }
 
     bool IsFolder(const string_t& sFolderPath)
     {
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFolderPath));
-      return std::experimental::filesystem::is_directory(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFolderPath));
+      return std::filesystem::is_directory(file);
     }
 
     bool IsSymlink(const std::string& sPath)
     {
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return std::experimental::filesystem::is_symlink(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return std::filesystem::is_symlink(file);
     }
 
 #ifdef __WIN__
@@ -642,8 +642,8 @@ namespace spitfire
 #ifdef __WIN__
 #pragma pop_macro("FileExists")
 #endif
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      return std::experimental::filesystem::exists(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return std::filesystem::exists(file);
     }
 
 #ifdef __WIN__
@@ -655,8 +655,8 @@ namespace spitfire
 #ifdef __WIN__
 #pragma pop_macro("DirectoryExists")
 #endif
-      const std::experimental::filesystem::path folder(spitfire::string::ToUTF8(sFolderName));
-      return std::experimental::filesystem::exists(folder);
+      const std::filesystem::path folder(spitfire::string::ToUTF8(sFolderName));
+      return std::filesystem::exists(folder);
     }
 
     bool FindFile(const string_t& sPath, const string_t& sFilename, string_t& sOutFilename)
@@ -770,24 +770,42 @@ namespace spitfire
     spitfire::util::cDateTime GetLastModifiedDate(const string_t& sFilePath)
     {
       ASSERT(FileExists(sFilePath));
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
       spitfire::util::cDateTime dateTime;
-      dateTime.SetFromTimeT(std::chrono::system_clock::to_time_t(std::experimental::filesystem::last_write_time(file)));
+      #ifdef __WIN__
+      // HACK: MSVC uses a different type for the std::filesystem::file_time_type so it doesn't have a simple conversion to time_t
+      // https://stackoverflow.com/questions/61030383/how-to-convert-stdfilesystemfile-time-type-to-time-t
+      //dateTime.Set(std::filesystem::last_write_time(file));
+      //const auto ftime = std::filesystem::last_write_time(file);
+      //const std::time_t cftime = decltype(ftime)::clock::to_time_t(ftime);
+      //dateTime.SetFromTimeT(cftime);
+      const auto tp = std::filesystem::last_write_time(file);
+      const auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(tp - decltype(tp)::clock::now()
+                + std::chrono::system_clock::now());
+      dateTime.SetFromTimeT(std::chrono::system_clock::to_time_t(sctp));
+      #else
+      dateTime.SetFromTimeT(std::chrono::system_clock::to_time_t(std::filesystem::last_write_time(file)));
+      #endif
       return dateTime;
     }
 
     void SetLastModifiedDate(const string_t& sFilePath, const util::cDateTime& dateTime)
     {
       ASSERT(FileExists(sFilePath));
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
-      std::experimental::filesystem::last_write_time(file, std::chrono::system_clock::from_time_t(dateTime.GetTimeT()));
+      #ifdef __WIN__
+      // TODO: This won't work nicely in MSVC until C++20 because std::filesystem::last_write_time is not a time_t
+      (void)dateTime;
+      #else
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
+      std::filesystem::last_write_time(file, std::chrono::system_clock::from_time_t(dateTime.GetTimeT()));
+      #endif
     }
 
     uint64_t GetFileSizeBytes(const string_t& sFilename)
     {
       ASSERT(FileExists(sFilename));
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sFilename));
-      return std::experimental::filesystem::file_size(file);
+      const std::filesystem::path file(spitfire::string::ToUTF8(sFilename));
+      return std::filesystem::file_size(file);
     }
 
 
@@ -864,7 +882,7 @@ namespace spitfire
 
     bool CreateDirectory(const string_t& sFolderPath)
     {
-      return std::experimental::filesystem::create_directories(sFolderPath);
+      return std::filesystem::create_directories(sFolderPath);
     }
 
 #ifdef __WIN__
@@ -985,14 +1003,14 @@ namespace spitfire
 
     bool cPath::IsFile() const
     {
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return (std::experimental::filesystem::exists(file) && std::experimental::filesystem::is_regular_file(file));
+      const std::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (std::filesystem::exists(file) && std::filesystem::is_regular_file(file));
     }
 
     bool cPath::IsFolder() const
     {
-      const std::experimental::filesystem::path file(spitfire::string::ToUTF8(sPath));
-      return (std::experimental::filesystem::exists(file) && std::experimental::filesystem::is_directory(file));
+      const std::filesystem::path file(spitfire::string::ToUTF8(sPath));
+      return (std::filesystem::exists(file) && std::filesystem::is_directory(file));
     }
 
     string_t cPath::GetDirectory() const // Returns just the directory "/folder1/folder2/"
@@ -1120,8 +1138,8 @@ namespace spitfire
         LOG("Folder \"", sParentFolder, "\" does not exist");
         return;
       }
-      const std::experimental::filesystem::directory_iterator iterEnd;
-      for (std::experimental::filesystem::directory_iterator iter(sParentFolder); iter != iterEnd; iter++) {
+      const std::filesystem::directory_iterator iterEnd;
+      for (std::filesystem::directory_iterator iter(sParentFolder); iter != iterEnd; iter++) {
         const string_t sFullPath = string::ToString(iter->path().string());
         const string_t sFile = filesystem::GetFile(sFullPath);
         if ((sFile != TEXT(".")) && (sFile != TEXT(".."))) {

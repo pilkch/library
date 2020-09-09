@@ -40,14 +40,6 @@ namespace spitfire
     bool CheckBuffer(const char* pData, size_t len) { return CalculateForBuffer(pData, len); }
     bool CheckFile(const string_t& sFilePath) { return  CalculateForFile(sFilePath); }
 
-    bool SetResultFromFormatted(const string_t& sMD5Hash);
-
-    bool operator==(const cMD5& rhs) const;
-    bool operator!=(const cMD5& rhs) const { return !(*this == rhs); }
-
-    bool operator==(const std::string& rhs) const;
-    bool operator!=(const std::string& rhs) const { return !(*this == rhs); }
-
     std::string GetResult() const;
     string_t GetResultFormatted() const;
 

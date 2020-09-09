@@ -32,7 +32,7 @@ namespace spitfire
     {
       typedef typename RandomAccessIterator::value_type T;
 
-      struct comparison_object : public std::binary_function<T, T, bool>
+      struct comparison_object
       {
         comparison_object(Compare _compare, UserData& _userData) : compare(_compare), userData(_userData) {}
 
@@ -251,7 +251,7 @@ namespace spitfire
 
     const std::list<T>& GetPossibleItems() const;
 
-    T GetRandomItem();
+    T GetRandomItem(math::cRand& rng);
 
     void ClearPossibleItemsAndResetCurrentPool();
     void ResetCurrentPool();
@@ -280,7 +280,7 @@ namespace spitfire
   }
 
   template <class T>
-  T cRandomBucket<T>::GetRandomItem()
+  T cRandomBucket<T>::GetRandomItem(math::cRand& rng)
   {
     // If original is empty we have a problem
     assert(!possible.empty());
@@ -289,7 +289,7 @@ namespace spitfire
     if (currentPool.empty()) currentPool = possible;
 
     // Get an index to a random item in the list
-    const uint32_t index = spitfire::math::random(uint32_t(currentPool.size()));
+    const uint32_t index = rng.random(uint32_t(currentPool.size()));
 
     typename std::list<T>::iterator iter = currentPool.begin();
     const typename std::list<T>::iterator iterEnd = currentPool.end();

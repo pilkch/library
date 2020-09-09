@@ -45,19 +45,22 @@ namespace spitfire
 
     inline bool GetEnvironmentVariable(const string_t& sVariable, string_t& sValue)
     {
-      char_t szValue[MAX_STRING_LENGTH];
-      ::GetEnvironmentVariable(sVariable.c_str(), szValue, MAX_STRING_LENGTH);
+      const DWORD bufferSize = 65535; // Limit according to http://msdn.microsoft.com/en-us/library/ms683188.aspx
+      char_t szValue[bufferSize];
+      const DWORD result = ::GetEnvironmentVariable(sVariable.c_str(), szValue, bufferSize);
+      szValue[bufferSize] = 0;
       sValue = szValue;
+      return (result != 0);
     }
 
     inline bool SetEnvironmentVariable(const string_t& sVariable, const string_t& sValue)
     {
-      ::SetEnvironmentVariable(sVariable.c_str(), sValue.c_str());
+      return (::SetEnvironmentVariable(sVariable.c_str(), sValue.c_str()) != 0);
     }
 
     inline bool RemoveEnvironmentVariable(const string_t& sVariable)
     {
-      ::SetEnvironmentVariable(sVariable.c_str(), nullptr);
+      return (::SetEnvironmentVariable(sVariable.c_str(), nullptr) != 0);
     }
 #elif defined(PLATFORM_LINUX_OR_UNIX)
     // *** Environment variables

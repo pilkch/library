@@ -418,7 +418,7 @@ namespace spitfire
     public:
       cRand()
       {
-        generator.seed(time(nullptr));
+        generator.seed(static_cast<unsigned int>(time(nullptr)));
       }
 
       explicit cRand(uint32_t seed)

@@ -231,7 +231,7 @@ namespace spitfire
         if ((xVisit == x1) && (yVisit == y1)) bHasVisitedLastPoint = true;
 
         // Visit this point
-        cVec2 p(xVisit, yVisit);
+        cVec2 p(static_cast<float>(xVisit), static_cast<float>(yVisit));
         points.push_back(p);
 
         // Next
@@ -247,7 +247,7 @@ namespace spitfire
       if (!bHasVisitedLastPoint) {
         if (bIsSteep) std::swap(x1, y1);
 
-        cVec2 p(x1, y1);
+        cVec2 p(static_cast<float>(x1), static_cast<float>(y1));
         points.push_back(p);
       }
     }
@@ -356,7 +356,13 @@ public:
       points.push_back(spitfire::math::cVec2(10, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT_TRUE(points == generator.GetPoints());
+      const std::vector<spitfire::math::cVec2> generated = generator.GetPoints();
+      ASSERT_EQ(points.size(), generated.size());
+
+      for (size_t i = 0; i < generated.size(); i++) {
+        ASSERT_FLOAT_EQ(generated[i].x, points[i].x);
+        ASSERT_FLOAT_EQ(generated[i].y, points[i].y);
+      }
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -387,7 +393,13 @@ public:
       points.push_back(spitfire::math::cVec2(10, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT_TRUE(points == generator.GetPoints());
+      const std::vector<spitfire::math::cVec2> generated = generator.GetPoints();
+      ASSERT_EQ(points.size(), generated.size());
+
+      for (size_t i = 0; i < generated.size(); i++) {
+        ASSERT_FLOAT_EQ(generated[i].x, points[i].x);
+        ASSERT_FLOAT_EQ(generated[i].y, points[i].y);
+      }
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -408,7 +420,13 @@ public:
       points.push_back(spitfire::math::cVec2(10, 5));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT_TRUE(points == generator.GetPoints());
+      const std::vector<spitfire::math::cVec2> generated = generator.GetPoints();
+      ASSERT_EQ(points.size(), generated.size());
+
+      for (size_t i = 0; i < generated.size(); i++) {
+        ASSERT_FLOAT_EQ(generated[i].x, points[i].x);
+        ASSERT_FLOAT_EQ(generated[i].y, points[i].y);
+      }
     }
     {
       spitfire::math::cLineGenerator generator;
@@ -429,7 +447,13 @@ public:
       points.push_back(spitfire::math::cVec2(5, 10));
 
       // NOTE: This only works because we have specified exact coordinates
-      ASSERT_TRUE(points == generator.GetPoints());
+      const std::vector<spitfire::math::cVec2> generated = generator.GetPoints();
+      ASSERT_EQ(points.size(), generated.size());
+
+      for (size_t i = 0; i < generated.size(); i++) {
+        ASSERT_FLOAT_EQ(generated[i].x, points[i].x);
+        ASSERT_FLOAT_EQ(generated[i].y, points[i].y);
+      }
     }
   }
 };

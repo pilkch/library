@@ -1,5 +1,19 @@
 # Set the minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 3.10)
+
+# Set the C++ standard
+#SET(CMAKE_CXX_STANDARD 14)
+#SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD 20)
+
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+ENDIF()
+
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 # Set the project name
 PROJECT(library_unittest)
@@ -12,9 +26,10 @@ SET(PROJECT_DIRECTORY "./")
 SET(LIBRARY_INCLUDE "${CMAKE_SOURCE_DIR}/include/")
 SET(LIBRARY_SRC "${CMAKE_SOURCE_DIR}/src/")
 
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 # Add definitions, compiler switches, etc.
-ADD_DEFINITIONS("-Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -std=c++11 -ffor-scope -O2")
-
+ADD_DEFINITIONS("-std=c++17 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -ffor-scope -O2")
+ENDIF()
 
 IF("${CMAKE_SYSTEM}" MATCHES "Linux")
   ADD_DEFINITIONS("-D__LINUX__")
@@ -23,9 +38,12 @@ ENDIF()
 IF(WIN32)
   ADD_DEFINITIONS("-DUNICODE -D_UNICODE")
   ADD_DEFINITIONS("-DNOMINMAX")
+
+  ADD_DEFINITIONS("/std:c++latest")
 ENDIF()
 
 ADD_DEFINITIONS("-DSPITFIRE_APPLICATION_NAME_LWR=\"library_unittest\"")
+ADD_DEFINITIONS("-DSPITFIRE_APPLICATION_COMPANY_NAME=\"The Company\"")
 ADD_DEFINITIONS("-DBUILD_SPITFIRE_UNITTEST")
 
 INCLUDE_DIRECTORIES(${LIBRARY_INCLUDE} "./include/")
@@ -58,6 +76,8 @@ SET(OUTPUT_LIBRARY_BREATHE_SOURCE_FILES ${OUTPUT_FILES})
 
 
 
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
+
 SET(LIBRARY_LIBTRASHMM_SOURCE_DIRECTORY libtrashmm/)
 SET(LIBRARY_LIBTRASHMM_SOURCE_FILES
 libtrashmm.cpp
@@ -76,6 +96,20 @@ libxdgmm.cpp
 PREFIX_PATHS(${LIBRARY_LIBXDGMM_SOURCE_DIRECTORY} ${LIBRARY_LIBXDGMM_SOURCE_FILES})
 SET(OUTPUT_LIBRARY_LIBXDGMM_SOURCE_FILES ${OUTPUT_FILES})
 
+ELSE()
+
+SET(LIBRARY_LIBWIN32MM_SOURCE_DIRECTORY libwin32mm/)
+SET(LIBRARY_LIBWIN32MM_SOURCE_FILES
+#libwin32mm.cpp
+#aboutdialog.cpp bitmap.cpp controls.cpp dialog.cpp filebrowse.cpp
+filesystem2.cpp
+#keys.cpp maindialog.cpp progressdialog.cpp taskbar.cpp taskdialog.cpp window.cpp
+)
+
+PREFIX_PATHS(${LIBRARY_LIBWIN32MM_SOURCE_DIRECTORY} ${LIBRARY_LIBWIN32MM_SOURCE_FILES})
+SET(OUTPUT_LIBRARY_LIBWIN32MM_SOURCE_FILES ${OUTPUT_FILES})
+
+ENDIF()
 
 
 SET(LIBRARY_SPITFIRE_SOURCE_DIRECTORY spitfire/)
@@ -83,8 +117,11 @@ SET(LIBRARY_SPITFIRE_SOURCE_FILES
 spitfire.cpp
 algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
 math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
-storage/document.cpp storage/file.cpp storage/filesystem.cpp storage/settings.cpp storage/xml.cpp
-util/datetime.cpp util/log.cpp util/process.cpp util/string.cpp util/thread.cpp util/unittest.cpp)
+storage/file.cpp storage/filesystem.cpp 
+util/datetime.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/unittest.cpp
+)
+
+#storage/document.cpp storage/settings.cpp storage/xml.cpp
 
 IF(WIN32)
   SET(LIBRARY_SPITFIRE_SOURCE_FILES ${LIBRARY_SPITFIRE_SOURCE_FILES})
@@ -95,7 +132,7 @@ SET(OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES ${OUTPUT_FILES})
 
 
 
-SET(LIBRARY_SOURCE_FILES ${OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES} ${OUTPUT_LIBRARY_BREATHE_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBTRASHMM_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBXDGMM_SOURCE_FILES}
+SET(LIBRARY_SOURCE_FILES ${OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES} ${OUTPUT_LIBRARY_BREATHE_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBTRASHMM_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBXDGMM_SOURCE_FILES}  ${OUTPUT_LIBRARY_LIBWIN32MM_SOURCE_FILES}
 )
 PREFIX_PATHS(${LIBRARY_SRC} ${LIBRARY_SOURCE_FILES})
 SET(OUTPUT_LIBRARY_SOURCE_FILES ${OUTPUT_FILES})
@@ -103,6 +140,13 @@ MESSAGE(final=${OUTPUT_LIBRARY_SOURCE_FILES})
 
 #list all source files here
 ADD_EXECUTABLE(${PROJECT_NAME} src/main.cpp ${OUTPUT_LIBRARY_SOURCE_FILES} ${PROJECT_SOURCE_FILES})
+
+target_compile_features(library_unittest PUBLIC cxx_std_20)
+
+# HACK: Pass the C++ version to the compiler
+if(MSVC)
+    target_compile_options(library_unittest PUBLIC "/Zc:__cplusplus")
+endif()
 
 
 INCLUDE(FindPkgConfig)
@@ -112,14 +156,20 @@ SET(LIBRARIES
 )
 
 
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
+SET(STANDARD_LIBRARIES
+  stdc++fs
+  pthread
+)
+SET(XDG_LIBRARIES
+  xdg-basedir
+)
+ENDIF()
+
 # Some of the libraries have different names than their Find*.cmake name
 SET(LIBRARIES_LINKED
-  stdc++fs
-  boost_iostreams
-  boost_filesystem
-  boost_system
-  pthread
-  xdg-basedir
+  ${STANDARD_LIBRARIES}
+  ${XDG_LIBRARIES}
 )
 
 FOREACH(LIBRARY_FILE ${LIBRARIES})

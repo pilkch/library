@@ -19,9 +19,6 @@
 
 #include <locale>
 
-// Boost includes
-#include <boost/algorithm/string.hpp>
-
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <iconv.h>
 #endif
@@ -627,15 +624,30 @@ namespace spitfire
 
 
     // *** Comparison functions
+    bool CompareChar(char c1, char c2)
+    {
+      return (c1 == c2) || (std::toupper(c1) == std::toupper(c2));
+    }
+
+    bool CompareChar(wchar_t c1, wchar_t c2)
+    {
+      return (c1 == c2) || (std::toupper(c1) == std::toupper(c2));
+    }
 
     bool IsEqualInsensitive(const std::string& a, const std::string& b)
     {
-      return boost::iequals(a, b);
+      return (
+        (a.size() == b.size()) &&
+        std::equal(a.begin(), a.end(), b.begin(), b.end(), [](auto&& l, auto&& r) { return CompareChar(l, r); })
+      );
     }
 
     bool IsEqualInsensitive(const std::wstring& a, const std::wstring& b)
     {
-      return boost::iequals(a, b);
+      return (
+        (a.size() == b.size()) &&
+        std::equal(a.begin(), a.end(), b.begin(), b.end(), [](auto&& l, auto&& r) { return CompareChar(l, r); })
+      );
     }
 
 

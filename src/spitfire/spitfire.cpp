@@ -1,7 +1,5 @@
 // Standard headers
-#include <sys/time.h>
 #include <time.h>
-#include <unistd.h>
 
 #include <cassert>
 #include <cmath>
@@ -19,28 +17,22 @@
 
 #include <spitfire/spitfire.h>
 
+#ifndef __WIN__
+#include <sys/time.h>
+#include <unistd.h>
+#endif
+
 #include <spitfire/util/string.h>
+#include <spitfire/util/timer.h>
 
 namespace spitfire
 {
 #ifndef NDEBUG
-  uint32_t LogGetTimeStamp()
-  {
-    struct timeval time;
-
-    gettimeofday(&time, NULL);
-
-    long seconds  = time.tv_sec;
-    long useconds = time.tv_usec;
-
-    return ((seconds) * 1000 + useconds / 1000.0) + 0.5;
-  }
-
   std::string LogGetTime()
   {
-    static uint32_t start = LogGetTimeStamp();
+    static durationms_t start = util::GetTimeMS();
 
-    uint32_t total = LogGetTimeStamp() - start;
+    durationms_t total = util::GetTimeMS() - start;
 
     const uint32_t milliseconds = total % 1000;
     total /= 1000;
@@ -98,24 +90,24 @@ public:
   void TestCountOf()
   {
     char text[14];
-    ASSERT_TRUE(countof(text) == 14);
+    ASSERT_EQ(14, countof(text));
 
     int stuff[9];
-    ASSERT_TRUE(countof(stuff) == 9);
+    ASSERT_EQ(9, countof(stuff));
   }
 
   void TestSafeDelete()
   {
     int* x = new int;
     spitfire::SAFE_DELETE(x);
-    ASSERT_TRUE(x == nullptr);
+    ASSERT_EQ(nullptr, x);
   }
 
   void TestSafeDeleteArray()
   {
     int* y = new int[10];
     spitfire::SAFE_DELETE_ARRAY(y);
-    ASSERT_TRUE(y == nullptr);
+    ASSERT_EQ(nullptr, y);
   }
 
   void Test()

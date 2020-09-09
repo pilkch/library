@@ -307,12 +307,7 @@ namespace spitfire
 
   bool cMD5::CalculateForString(const char* szInput)
   {
-    cMD5_Context ctx;
-    ctx.Start();
-    ctx.Update((const unsigned char*)szInput, uint32_t(strlen(szInput)));
-    ctx.Finish(&result[0], sResult);
-
-    return true;
+    return CalculateForBuffer(szInput, strlen(szInput));
   }
 
   bool cMD5::CalculateForBuffer(const char* pData, size_t len)
@@ -368,49 +363,6 @@ namespace spitfire
     return (a & (unsigned char)(0xF)) * (unsigned char)(16) + (b & (unsigned char)(0xF));
   }
 
-  bool cMD5::SetResultFromFormatted(const string_t& sMD5Hash)
-  {
-    for (size_t i = 0; i < 32; i++) {
-      if ((sMD5Hash[i] > 'z') || (sMD5Hash[i] < '0')) return false;
-    }
-
-    result[0]  = h2d(sMD5Hash[0],  sMD5Hash[1]);
-    result[1]  = h2d(sMD5Hash[2],  sMD5Hash[3]);
-    result[2]  = h2d(sMD5Hash[4],  sMD5Hash[5]);
-    result[3]  = h2d(sMD5Hash[6],  sMD5Hash[7]);
-
-    result[4]  = h2d(sMD5Hash[8],  sMD5Hash[9]);
-    result[5]  = h2d(sMD5Hash[10], sMD5Hash[11]);
-    result[6]  = h2d(sMD5Hash[12], sMD5Hash[13]);
-    result[7]  = h2d(sMD5Hash[14], sMD5Hash[15]);
-
-    result[8]  = h2d(sMD5Hash[16], sMD5Hash[17]);
-    result[9]  = h2d(sMD5Hash[18], sMD5Hash[19]);
-    result[10] = h2d(sMD5Hash[20], sMD5Hash[21]);
-    result[11] = h2d(sMD5Hash[22], sMD5Hash[23]);
-
-    result[12] = h2d(sMD5Hash[24], sMD5Hash[25]);
-    result[13] = h2d(sMD5Hash[26], sMD5Hash[27]);
-    result[14] = h2d(sMD5Hash[28], sMD5Hash[29]);
-    result[15] = h2d(sMD5Hash[30], sMD5Hash[31]);
-
-    return true;
-  }
-
-  bool cMD5::operator==(const cMD5 & rhs) const
-  {
-    return (sResult == rhs.sResult);
-  }
-
-  bool cMD5::operator==(const std::string & rhs) const
-  {
-    return (sResult == rhs);
-  }
-
-  std::string cMD5::GetResult() const
-  {
-    return sResult;
-  }
 
   string_t cMD5::GetResultFormatted() const
   {
@@ -420,6 +372,7 @@ namespace spitfire
     //return std::string(temp);
     return string::ToString(sResult);
   }
+
   }
 }
 
@@ -441,18 +394,16 @@ public:
 
     spitfire::algorithm::cMD5 test;
 
-    bool bResult = test.CalculateForString(szText);
-    ASSERT(bResult);
-    ASSERT(test.GetResultFormatted() == TEXT("fcfb62be1afe450706c373d7b9cbb3e3"));
+    ASSERT_TRUE(test.CalculateForString(szText));
+    ASSERT_EQ(TEXT("fcfb62be1afe450706c373d7b9cbb3e3"), test.GetResultFormatted());
 
-    bResult = test.CalculateForBuffer(szText, strlen(szText));
-    ASSERT(bResult);
-    ASSERT(test.GetResultFormatted() == TEXT("fcfb62be1afe450706c373d7b9cbb3e3"));
+    ASSERT_TRUE(test.CalculateForBuffer(szText, strlen(szText)));
+    ASSERT_EQ(TEXT("fcfb62be1afe450706c373d7b9cbb3e3"), test.GetResultFormatted());
 
 
     const std::string text = "abcdefghijklmnopqrstuvwxyz";
-    test.CalculateForString(text.c_str());
-    ASSERT_TRUE(test.GetResultFormatted() == "c3fcd3d76192e4007dfb496cca67e13b");
+    ASSERT_TRUE(test.CalculateForString(text.c_str()));
+    ASSERT_EQ(TEXT("c3fcd3d76192e4007dfb496cca67e13b"), test.GetResultFormatted());
   }
 };
 

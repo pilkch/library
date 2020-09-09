@@ -3,10 +3,6 @@
  Copyright (C) 2005-present  
  [http://chris.iluo.net/](http://chris.iluo.net/)
 
-If you find this project helpful, please consider making a donation.
-
-[![Make a donation via Pledgie](http://www.pledgie.com/campaigns/17973.png?skin_name=chrome)](http://www.pledgie.com/campaigns/17973)
-
 ### License
 
 This library is free software; you can redistribute it and/or  
@@ -32,49 +28,56 @@ This is a collection of libraries including:
 *   libopenglmm a wrapper for OpenGL with support for OpenGL 3.3 core
 *   libtrashmm a library for deleting files on Linux
 *   libvoodoomm a library for dealing with images
+*   libgtkmm a wrapper for using GTK on Linux
 *   libwin32mm a wrapper for hiding all the Win32 rubbish
 *   libxdgmm a wrapper for xdg functionality on Linux
 
 ### Spitfire Utility Library
 
 algorithm  
- math  
- platform  
- storage  
- util  
+math  
+platform  
+storage  
+util  
 
 Spitfire provides all the basic functionality required for an application. It doesn't have any dependencies on third party libraries (Apart from native OS libraries) and doesn't force you to say, derive your application from a base class or structure your code in a particular way. Because it is so loosely coupled, you can easily just use the parts of Spitfire that you need and nothing more, and it can be used in any type of application; service, gui, fullscreen game or wxWidgets/Qt/GTK.
 
 ### Breathe Game Engine
 
 audio  
- communication  
- game  
- gui  
- loader_3ds  
- physics  
- render  
- vehicle  
+communication  
+game  
+gui  
+loader_3ds  
+physics  
+render  
+vehicle  
 
 Breathe makes heavy use of spitfire for basic functionality such as string utilities, filesystem functions and math library. It then extends these to add a scenegraph, OpenGL rendering and OpenAL audio to create a game engine. Breathe is only meant for game programming (Or at least applications that use SDL and create an OpenGL context for example editors) and is much more heavy handed in how you can use its classes. They often derive from the SDL thread wrapper cThread and assume that you want to use the various third party libraries, locking you in. Breathe started out as (And still is) a monolithic game engine library containing all of the Spitfire classes as well. There is still some overlap, but in the future the split will be more pronounced and we will have two separate libraries. Eventualy all Spitfire classes will be in their own namespace ("spitfire") and the transformation will be complete.
 
 **TODO: Draw relationship diagram from sheet of paper**
 
-### Getting a copy of the project on Linux
+## Building
 
-Pull this project:  
- yum install git  
- OR  
- sudo apt-get install git-core  
- git clone git@github.com:pilkch/library.git  
- OR  
- git clone https://github.com/pilkch/git@github.com:pilkch/library.git  
+### Get a copy of the project
+
+`git clone git@github.com:pilkch/library.git`  
+OR  
+`git clone https://github.com/pilkch/git@github.com:pilkch/library.git`  
+
+### Building on Windows
+
+Install required packages:  
+git
+mingw
+cmake
+VS Code
+boost
 
 ### Building on Linux
 
 Use a cmake file as used in Sudoku and Drive  
- Use yum to get all required libraries such as  
-
+Use yum to get all required libraries such as  
 *   yum install SDL-devel
 *   yum install SDL-image
 *   yum install SDL-ttf
@@ -83,13 +86,13 @@ Use a cmake file as used in Sudoku and Drive
 ### Usage
 
 Put the whole library folder somewhere on your hard drive.  
- Add to your build paths:  
- library/include  
- library/src  
- library/lib  
- Include required files from the library, add any required lib files to the project  
- Setup any required build flags  
- Compile
+Add to your build paths:  
+library/include  
+library/src  
+library/lib  
+Include required files from the library, add any required lib files to the project  
+Setup any required build flags  
+Compile
 
 ### Credit
 
