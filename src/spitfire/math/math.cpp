@@ -49,7 +49,7 @@ public:
 void TestInteger(float fValue, int iExpectedInteger)
 {
    const int iInteger = spitfire::math::GetIntegerPart(fValue);
-   ASSERT_TRUE(iInteger == iExpectedInteger);
+   ASSERT_EQ(iExpectedInteger, iInteger);
 }
 
 void TestIntegerAndFraction(float fValue, int iExpectedInteger, float fApproximateExpectedFraction)
@@ -57,7 +57,7 @@ void TestIntegerAndFraction(float fValue, int iExpectedInteger, float fApproxima
    int iInteger = 0;
    float fFraction = 0;
    spitfire::math::GetIntegerAndFractionParts(fValue, iInteger, fFraction);
-   ASSERT_TRUE(iInteger == iExpectedInteger);
+   ASSERT_EQ(iExpectedInteger, iInteger);
    ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fFraction, fApproximateExpectedFraction));
 }
 

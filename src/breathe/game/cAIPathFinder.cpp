@@ -294,15 +294,15 @@ void cAIPathFinderUnitTest::Test()
 
   // Test closest distances calculations for this graph
   {
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(1.0f, 3.0f, 0.0f))->index == 0);
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(1.0f, 3.1f, 0.0f))->index == 0);
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(1.1f, 3.0f, 0.0f))->index == 0);
+    ASSERT_EQ(0, graph.GetClosestNode(spitfire::math::cVec3(1.0f, 3.0f, 0.0f))->index);
+    ASSERT_EQ(0, graph.GetClosestNode(spitfire::math::cVec3(1.0f, 3.1f, 0.0f))->index);
+    ASSERT_EQ(0, graph.GetClosestNode(spitfire::math::cVec3(1.1f, 3.0f, 0.0f))->index);
 
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(1.0f, 1.0f, 0.0f))->index == 1);
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(-10.1f, -30.0f, 0.0f))->index == 1);
+    ASSERT_EQ(1, graph.GetClosestNode(spitfire::math::cVec3(1.0f, 1.0f, 0.0f))->index);
+    ASSERT_EQ(1, graph.GetClosestNode(spitfire::math::cVec3(-10.1f, -30.0f, 0.0f))->index);
 
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(10.0f, 4.0f, 0.0f))->index == 5);
-    ASSERT_TRUE(graph.GetClosestNode(spitfire::math::cVec3(100.0f, 40.0f, 0.0f))->index == 5);
+    ASSERT_EQ(5, graph.GetClosestNode(spitfire::math::cVec3(10.0f, 4.0f, 0.0f))->index);
+    ASSERT_EQ(5, graph.GetClosestNode(spitfire::math::cVec3(100.0f, 40.0f, 0.0f))->index);
   }
 
 

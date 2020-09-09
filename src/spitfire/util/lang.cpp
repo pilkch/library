@@ -325,7 +325,7 @@ namespace spitfire
       const size_t n = countof(pairs);
       for (size_t i = 0; i < n; i++) {
         const string_t sResult = LangHumanReadableTime(now, cDateTime(now + pairs[i].duration));
-        ASSERT_TRUE(sResult == pairs[i].sExpected);
+        ASSERT_EQ(pairs[i].sExpected, sResult);
       }
     }
 
@@ -360,7 +360,7 @@ namespace spitfire
       const size_t n = countof(pairs);
       for (size_t i = 0; i < n; i++) {
         const string_t sResult = LangHumanReadableDuration(pairs[i].duration);
-        ASSERT_TRUE(sResult == pairs[i].sExpected);
+        ASSERT_EQ(pairs[i].sExpected, sResult);
       }
     }
   }

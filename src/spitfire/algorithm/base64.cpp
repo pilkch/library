@@ -34,7 +34,7 @@ namespace spitfire
 
       std::string ret;
 
-      int i = 0;
+      size_t i = 0;
       unsigned char char_array_3[3] = { 0, 0, 0 };
       unsigned char char_array_4[4] = { 0, 0, 0, 0 };
 
@@ -54,16 +54,16 @@ namespace spitfire
       }
 
       if (i != 0) {
-        for (int j = i; j < 3; j++) char_array_3[j] = '\0';
+        for (size_t j = i; j < 3; j++) char_array_3[j] = '\0';
 
         char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
         char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
         char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
         char_array_4[3] = char_array_3[2] & 0x3f;
 
-        for (int j = 0; (j < i + 1); j++) ret += base64_chars[char_array_4[j]];
+        for (size_t j = 0; (j < i + 1); j++) ret += base64_chars[char_array_4[j]];
 
-        while(i++ < 3) {
+        while (i++ < 3) {
           ret += '=';
         }
       }
@@ -80,9 +80,9 @@ namespace spitfire
     {
       std::string ret;
 
-      int len = sText.size();
-      int i = 0;
-      int k = 0;
+      size_t len = sText.size();
+      size_t i = 0;
+      size_t k = 0;
       unsigned char char_array_3[3] = { 0, 0, 0 };
       unsigned char char_array_4[4] = { 0, 0, 0, 0 };
 
@@ -104,15 +104,15 @@ namespace spitfire
       }
 
       if (i) {
-        for (int j = i; j < 4; j++) char_array_4[j] = 0;
+        for (size_t j = i; j < 4; j++) char_array_4[j] = 0;
 
-        for (int j = 0; j < 4; j++) char_array_4[j] = base64_chars.find(char_array_4[j]);
+        for (size_t j = 0; j < 4; j++) char_array_4[j] = base64_chars.find(char_array_4[j]);
 
         char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
         char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
         char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
-        for (int j = 0; (j < i - 1); j++) ret += char_array_3[j];
+        for (size_t j = 0; (j < i - 1); j++) ret += char_array_3[j];
       }
 
       return ret;
@@ -133,24 +133,17 @@ public:
   {
   }
 
-  void TestBase64(const std::string sText, const std::string& sExpectedResult)
-  {
-    const std::string sResult = spitfire::algorithm::Base64Encode(sText);
-
-    // Make sure that the text encodes as expected
-    ASSERT(sResult == sExpectedResult);
-
-    const std::string sDecoded = spitfire::algorithm::Base64Decode(sResult);
-
-    // Make sure that the encoded string decodes back to the original text as expected
-    ASSERT(sText == sDecoded);
-  }
-
   void Test()
   {
-    TestBase64("abcdefghijklmnopqrstuvwxyz", "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=");
-    TestBase64("giraffe", "Z2lyYWZmZQ==");
-    TestBase64("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw==");
+    // Test encode
+    ASSERT_EQ("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=", spitfire::algorithm::Base64Encode("abcdefghijklmnopqrstuvwxyz"));
+    ASSERT_EQ("Z2lyYWZmZQ==", spitfire::algorithm::Base64Encode("giraffe"));
+    ASSERT_EQ("QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw==", spitfire::algorithm::Base64Encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"));
+
+    // Test decode
+    ASSERT_EQ("abcdefghijklmnopqrstuvwxyz", spitfire::algorithm::Base64Decode("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo="));
+    ASSERT_EQ("giraffe", spitfire::algorithm::Base64Decode("Z2lyYWZmZQ=="));
+    ASSERT_EQ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", spitfire::algorithm::Base64Decode("QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAxMjM0NTY3ODkrLw=="));
   }
 };
 

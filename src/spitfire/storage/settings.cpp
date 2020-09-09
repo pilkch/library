@@ -405,7 +405,7 @@ public:
     sValue.clear();
     bResult = spitfire::GetGlobalSettingsString(sTestSection, sTestSubSection, sTestSubSubSection, sValue);
     ASSERT_TRUE(bResult);
-    ASSERT_TRUE(sValue == sTestValue);
+    ASSERT_EQ(sTestValue, sValue);
 #endif
 
     // TODO: Fix this test
@@ -413,7 +413,7 @@ public:
     sValue.clear();
     bResult = spitfire::GetApplicationUserSetting(sTestSection, sTestSubSection, sTestSubSubSection, sValue);
     ASSERT_TRUE(bResult);
-    ASSERT_TRUE(sValue == sTestValue);
+    ASSERT_EQ(sTestValue, sValue);
 
 #ifdef BUILD_SETTINGS_PROFILE
     Create profile
@@ -421,7 +421,7 @@ public:
     sValue.clear();
     bResult = spitfire::GetProfileSettingsString(sProfile, sTestSection, sTestSubSection, sTestSubSubSection, sValue);
     ASSERT_TRUE(bResult);
-    ASSERT_TRUE(sValue == sTestValue);
+    ASSERT_EQ(sTestValue, sValue);
 #endif
   }
 };

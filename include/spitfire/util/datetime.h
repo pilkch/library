@@ -64,6 +64,9 @@ namespace spitfire
 
       void AddDays(int days);
 
+      void Set(const std::chrono::system_clock::time_point& time) { datetime = time; }
+      std::chrono::system_clock::time_point Get() const { return datetime; }
+
       time_t GetTimeT() const;
       void SetFromTimeT(time_t time);
 

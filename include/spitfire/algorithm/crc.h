@@ -6,45 +6,44 @@
 
 namespace spitfire
 {
+  // NOTE: Implements CRC-16-CCITT (poly 0x1021)
   class cCRC16
   {
   public:
-    bool CalculateForString(const char* szString);
-    bool CalculateForBuffer(const char* pBuffer, size_t len);
-    bool CalculateForFile(const string_t& sFilename);
+    cCRC16();
 
-    bool operator==(const cCRC16 & rhs) const { return sResult == rhs.sResult; }
-    bool operator!=(const cCRC16 & rhs) const { return sResult != rhs.sResult; }
-
-    bool operator==(const string_t& rhs) const { return sResult == rhs; }
-    bool operator!=(const string_t& rhs) const { return sResult != rhs; }
-
-    string_t GetResult() const;
-    string_t GetResultFormatted() const;
+    void ProcessBytes(const char* data, size_t data_length);
+  
+    string_t GetChecksum() const; // Returns something like "9C1D"
+  
+    static bool CalculateForString(const char* szString, string_t& result);
+    static bool CalculateForBuffer(const char* pBuffer, size_t len, string_t& result);
+    static bool CalculateForFile(const string_t& sFilename, string_t& result);
 
   private:
-    string_t sResult;
+    uint16_t digest;
   };
 
 
   class cCRC32
   {
   public:
-    bool CalculateForString(const char* szString);
-    bool CalculateForBuffer(const char* pBuffer, size_t len);
-    bool CalculateForFile(const string_t& sFilename);
+    cCRC32();
 
-    bool operator==(const cCRC32 & rhs) const { return sResult == rhs.sResult; }
-    bool operator!=(const cCRC32 & rhs) const { return sResult != rhs.sResult; }
+    void ProcessBytes(const char* data, size_t data_length);
 
-    bool operator==(const string_t& rhs) const { return sResult == rhs; }
-    bool operator!=(const string_t& rhs) const { return sResult != rhs; }
+    string_t GetChecksum() const; // Returns something like "A8FC45B2"
 
-    string_t GetResult() const;
-    string_t GetResultFormatted() const;
+    static bool CalculateForString(const char* szString, string_t& result);
+    static bool CalculateForBuffer(const char* pBuffer, size_t len, string_t& result);
+    static bool CalculateForFile(const string_t& sFilename, string_t& result);
 
   private:
-    string_t sResult;
+  	void GenerateTable();
+
+    uint32_t table[256];
+    uint32_t digest;
   };
 }
+
 #endif // CCRC_H

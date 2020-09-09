@@ -83,6 +83,7 @@ namespace spitfire
       const std::list<cUnitTestBase*>::iterator iterEnd(unittests.end());
 
       while (iter != iterEnd) {
+        SCREEN<<"Test: "<<(*iter)->GetName()<<std::endl;
         (*iter)->Run();
         iter++;
       }

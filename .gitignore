@@ -14,7 +14,9 @@ CMakeFiles
 *.perspectivev3
 *.mode1v3
 Thumbs.db
-
+.vscode
+build
+log
 
 include/spitfire/platform/apple.h
 

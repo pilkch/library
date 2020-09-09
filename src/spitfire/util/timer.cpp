@@ -55,7 +55,7 @@ namespace spitfire
       fUpdateInterval = 100.0f;
       fUpdateIntervalDivFPS = fUpdateInterval / 1000.0f;
 
-      lastTimeMS = GetTimeMS();
+      lastTimeMS = float(GetTimeMS());
       beginTimeMS = lastTimeMS;
       endTimeMS = lastTimeMS;
     }
@@ -70,7 +70,7 @@ namespace spitfire
       fUpdateInterval = 0.0f;
       fUpdateIntervalDivFPS = 0.0f;
 
-      lastTimeMS = GetTimeMS();
+      lastTimeMS = float(GetTimeMS());
       beginTimeMS = lastTimeMS;
       endTimeMS = lastTimeMS;
     }

@@ -38,7 +38,7 @@ namespace spitfire
     {
       normal = (p1 - p0).CrossProduct(p2 - p0);
 
-      const double length = normal.GetLength();
+      const float length = normal.GetLength();
 
       normal /= length;
       intercept = p0.DotProduct(normal);

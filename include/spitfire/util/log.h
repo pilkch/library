@@ -148,7 +148,6 @@ namespace spitfire
       string_t endline;
       string_t newline;
       string_t endtable;
-      string_t hash;
 
       string_t section;
 

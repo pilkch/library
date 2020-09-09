@@ -16,14 +16,13 @@
 
 namespace spitfire
 {
+  #ifndef __WIN__
   typedef char char8_t;
+  #endif
   typedef std::string string8_t;
 
   typedef std::u16string string16_t;
   typedef std::u32string string32_t;
-
-  //typedef std::u16string string16_t;
-  //typedef std::u32string string32_t;
 
   #ifdef UNICODE
   typedef wchar_t char_t;

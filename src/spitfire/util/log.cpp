@@ -90,13 +90,12 @@ namespace spitfire
     {
       scol = 0;
       ecol = 0;
-      hash = 35;
       starttable = TEXT(t) TEXT(t) TEXT(t) TEXT("<table border=\"0\" cellspacing=\"0\">");
       startline = TEXT(t) TEXT(t) TEXT(t) TEXT(t) TEXT("<tr>");
-      startsuccesscolumn[0] = TEXT("<td bgcolor=\"") + hash + TEXT("006600\" width=\"*\">");
-      startsuccesscolumn[1] = TEXT("<td bgcolor=\"") + hash + TEXT("005500\">");
-      starterrorcolumn[0] = TEXT("<td bgcolor=\"") + hash + TEXT("660000\">");
-      starterrorcolumn[1] = TEXT("<td bgcolor=\"") + hash + TEXT("550000\">");
+      startsuccesscolumn[0] = TEXT("<td bgcolor=\"#006600\" width=\"*\">");
+      startsuccesscolumn[1] = TEXT("<td bgcolor=\"#005500\">");
+      starterrorcolumn[0] = TEXT("<td bgcolor=\"#660000\">");
+      starterrorcolumn[1] = TEXT("<td bgcolor=\"#550000\">");
       endcolumn = TEXT("</td>");
       endline = TEXT("</td></tr>");
       newline = TEXT("<br>\n");
@@ -140,10 +139,10 @@ namespace spitfire
       logfile << t << t << "-->" << std::endl;
       logfile << t << t << "</style>" << std::endl;
       logfile << t << "</head>" << std::endl;
-      logfile << t << "<body font face=\"Tohama\" size=\"2\" bgcolor=\"" << hash.data()[0] << "000000\" text=\"" << hash.data()[0] << "FFFFFF\">" << std::endl;
+      logfile << t << "<body font face=\"Tohama\" size=\"2\" bgcolor=\"#000000\" text=\"#FFFFFF\">" << std::endl;
       logfile << t << t << "<center>" << std::endl;
       logfile << t << t << t << spitfire::string::ToUTF8(starttable) << std::endl;
-      logfile << t << t << t << spitfire::string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Component" << spitfire::string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0] << "0000FF\">Event" << string::ToUTF8(endline)<<std::endl;
+      logfile << t << t << t << spitfire::string::ToUTF8(startline) << "<td bgcolor=\"#0000FF\">Component" << spitfire::string::ToUTF8(endcolumn) << "<td bgcolor=\"#0000FF\">Event" << string::ToUTF8(endline)<<std::endl;
 
       //Close the file, return success
       logfile.close();
@@ -181,7 +180,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << string::ToUTF8(startline)<< "<td bgcolor=\"" <<hash.data()[0] << "0000CC\">&nbsp;" <<string::ToUTF8(endcolumn)<< "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" <<string::ToUTF8(endline)<<std::endl;
+      logfile << string::ToUTF8(startline)<< "<td bgcolor=\"#0000CC\">&nbsp;" <<string::ToUTF8(endcolumn)<< "<td bgcolor=\"#0000CC\">&nbsp;" <<string::ToUTF8(endline)<<std::endl;
       logfile.close();
     }
 
@@ -197,7 +196,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" <<string::ToUTF8(s1)<< string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">&nbsp;" << string::ToUTF8(endline)<<std::endl;
+      logfile << string::ToUTF8(startline) << "<td bgcolor=\"#0000CC\">" <<string::ToUTF8(s1)<< string::ToUTF8(endcolumn) << "<td bgcolor=\"#0000CC\">&nbsp;" << string::ToUTF8(endline)<<std::endl;
 
       logfile.close();
 
@@ -218,7 +217,7 @@ namespace spitfire
 
       if (!logfile.is_open()) return;
 
-      logfile << string::ToUTF8(startline) << "<td bgcolor=\"" << hash.data()[0] << "0000CC\">" << string::ToUTF8(s1) << string::ToUTF8(endcolumn) << "<td bgcolor=\"" << hash.data()[0]<< "0000CC\">" << string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
+      logfile << string::ToUTF8(startline) << "<td bgcolor=\"#0000CC\">" << string::ToUTF8(s1) << string::ToUTF8(endcolumn) << "<td bgcolor=\"#0000CC\">" << string::ToUTF8(text) << string::ToUTF8(endline)<<std::endl;
       logfile.close();
 
   //#ifdef BUILD_DEBUG

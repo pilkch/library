@@ -301,13 +301,13 @@ namespace spitfire
 
     float cColourHSL::HueToRGB(float f1, float f2, float fHue) const
     {
-      if (fHue < 0.0) fHue += 1.0;
-      else if (fHue > 1.0) fHue -= 1.0;
+      if (fHue < 0.0f) fHue += 1.0f;
+      else if (fHue > 1.0f) fHue -= 1.0f;
 
       float res = 0.0f;
-      if ((6.0 * fHue) < 1.0) res = f1 + (f2 - f1) * 6.0 * fHue;
-      else if ((2.0 * fHue) < 1.0) res = f2;
-      else if ((3.0 * fHue) < 2.0) res = f1 + (f2 - f1) * ((2.0 / 3.0) - fHue) * 6.0;
+      if ((6.0f * fHue) < 1.0f) res = f1 + (f2 - f1) * 6.0f * fHue;
+      else if ((2.0f * fHue) < 1.0f) res = f2;
+      else if ((3.0f * fHue) < 2.0f) res = f1 + (f2 - f1) * ((2.0f / 3.0f) - fHue) * 6.0f;
       else res = f1;
 
       return res;
@@ -346,32 +346,32 @@ namespace spitfire
       const float delta = fmax - fmin;         // Delta RGB value
 
       // Luminance
-      fLuminance0To1 = (fmax + fmin) / 2.0;
+      fLuminance0To1 = (fmax + fmin) / 2.0f;
 
-      if (delta == 0.0) {
+      if (delta == 0.0f) {
         // Grey no chroma
 
         // Set hue and saturation
-        fHue0To360 = 0.0;
-        fSaturation0To1 = 0.0;
+        fHue0To360 = 0.0f;
+        fSaturation0To1 = 0.0f;
       } else {
         // This colour has chroma
 
         // Saturation
-        if (fLuminance0To1 < 0.5) fSaturation0To1 = delta / (fmax + fmin);
-        else fSaturation0To1 = delta / (2.0 - fmax - fmin); 
+        if (fLuminance0To1 < 0.5f) fSaturation0To1 = delta / (fmax + fmin);
+        else fSaturation0To1 = delta / (2.0f - fmax - fmin); 
 
-        const float deltaR = (((fmax - colour.r) / 6.0) + (delta / 2.0)) / delta;
-        const float deltaG = (((fmax - colour.g) / 6.0) + (delta / 2.0)) / delta;
-        const float deltaB = (((fmax - colour.b) / 6.0) + (delta / 2.0)) / delta;
+        const float deltaR = (((fmax - colour.r) / 6.0f) + (delta / 2.0f)) / delta;
+        const float deltaG = (((fmax - colour.g) / 6.0f) + (delta / 2.0f)) / delta;
+        const float deltaB = (((fmax - colour.b) / 6.0f) + (delta / 2.0f)) / delta;
 
         // Hue
         if (colour.r == fmax) fHue0To360 = deltaB - deltaG;
-        else if (colour.g == fmax) fHue0To360 = (1.0 / 3.0) + deltaR - deltaB;
-        else if (colour.b == fmax) fHue0To360 = (2.0 / 3.0) + deltaG - deltaR;
+        else if (colour.g == fmax) fHue0To360 = (1.0f / 3.0f) + deltaR - deltaB;
+        else if (colour.b == fmax) fHue0To360 = (2.0f / 3.0f) + deltaG - deltaR;
 
-        if (fHue0To360 < 0.0) fHue0To360 += 1.0;
-        else if (fHue0To360 > 1.0) fHue0To360 -= 1.0;
+        if (fHue0To360 < 0.0f) fHue0To360 += 1.0f;
+        else if (fHue0To360 > 1.0f) fHue0To360 -= 1.0f;
       }
     }
 
@@ -399,17 +399,17 @@ namespace spitfire
       cColour3 colour;
 
       if (fValue0To1 > 0.0f) {
-        if (fSaturation0To1 <= 0) {
+        if (fSaturation0To1 <= 0.0f) {
           colour.r = fValue0To1;
           colour.g = fValue0To1;
           colour.b = fValue0To1;
         } else {
-          const double hf = fHue0To360 / 60.0;
+          const float hf = fHue0To360 / 60.0f;
           const int i = (int)floor(hf);
-          const double f = hf - i;
-          const double pv = fValue0To1 * (1 - fSaturation0To1);
-          const double qv = fValue0To1 * (1 - fSaturation0To1 * f);
-          const double tv = fValue0To1 * (1 - fSaturation0To1 * (1 - f));
+          const float f = hf - i;
+          const float pv = fValue0To1 * (1.0f - fSaturation0To1);
+          const float qv = fValue0To1 * (1.0f - fSaturation0To1 * f);
+          const float tv = fValue0To1 * (1.0f - fSaturation0To1 * (1.0f - f));
           switch (i) {
 
             // Red is the dominant colour
@@ -505,25 +505,25 @@ namespace spitfire
 
     void cColourHSV::SetFromRGB(const cColour3& colour)
     {
-       const double maxC = max(colour.r, max(colour.b, colour.g));
-       const double minC = min(colour.r, min(colour.b, colour.g));
+       const float maxC = max(colour.r, max(colour.b, colour.g));
+       const float minC = min(colour.r, min(colour.b, colour.g));
 
        fHue0To360 = 0.0f;
        fSaturation0To1 = 0.0f;
        fValue0To1 = maxC;
 
-       const double delta = maxC - minC;
-       if (delta == 0.0) {
+       const float delta = maxC - minC;
+       if (delta == 0.0f) {
           fHue0To360 = 0.0f;
           fSaturation0To1 = 0.0f;
        } else {
           fSaturation0To1 = delta / maxC;
-          const double dR = 60.0 * (maxC - colour.r) / delta + 180.0;
-          const double dG = 60.0 * (maxC - colour.g) / delta + 180.0;
-          const double dB = 60.0 * (maxC - colour.b) / delta + 180.0;
+          const float dR = 60.0f * (maxC - colour.r) / delta + 180.0f;
+          const float dG = 60.0f * (maxC - colour.g) / delta + 180.0f;
+          const float dB = 60.0f * (maxC - colour.b) / delta + 180.0f;
           if (colour.r == maxC) fHue0To360 = dB - dG;
-          else if (colour.g == maxC) fHue0To360 = 120.0 + dR - dB;
-          else fHue0To360 = 240.0 + dG - dR;
+          else if (colour.g == maxC) fHue0To360 = 120.0f + dR - dB;
+          else fHue0To360 = 240.0f + dG - dR;
        }
 
        if (fHue0To360 < 0.0f) fHue0To360 += 360.0f;
@@ -543,7 +543,7 @@ namespace spitfire
 
     void cColourHSV::ShiftHue(float fDegrees)
     {
-      fHue0To360 = math::Mod0ToMax(fHue0To360 + fDegrees, 360);
+      fHue0To360 = math::Mod0ToMax(fHue0To360 + fDegrees, 360.0f);
     }
 
 
@@ -560,12 +560,12 @@ namespace spitfire
     {
       const float Wr = 0.299f;
       const float Wb = 0.114f;
-      const float Wg = 1 - Wr - Wb;
+      const float Wg = 1.0f - Wr - Wb;
 
       cColour3 colour;
-      colour.r = -1 - 2 * v * (-1 + Wr) + Wr + y;
-      colour.g = (Wb - 2 * u * Wb + (-1 + 2) * (Wb * Wb) + Wr - 2 * v * Wr + (-1 + 2 * v) * (Wr * Wr) + Wg * y) / Wg;
-      colour.b = -1 - 2 * u * (-1 + Wb) + Wb + y;
+      colour.r = -1.0f - 2.0f * v * (-1.0f + Wr) + Wr + y;
+      colour.g = (Wb - 2.0f * u * Wb + (-1.0f + 2.0f) * (Wb * Wb) + Wr - 2.0f * v * Wr + (-1.0f + 2.0f * v) * (Wr * Wr) + Wg * y) / Wg;
+      colour.b = -.0f - 2.0f * u * (-1.0f + Wb) + Wb + y;
       return colour;
     }
 
@@ -579,11 +579,11 @@ namespace spitfire
     {
       const float Wr = 0.299f;
       const float Wb = 0.114f;
-      const float Wg = 1 - Wr - Wb;
+      const float Wg = 1.0f - Wr - Wb;
 
       y = Wr * colour.r + Wg * colour.g + Wb * colour.b;
-      u = (-1 - colour.b + Wb + y) / ((2 * Wb) - 2);
-      v = (-1 - colour.r + Wr + y) / ((2 * Wr) - 2);
+      u = (-1.0f - colour.b + Wb + y) / ((2.0f * Wb) - 2.0f);
+      v = (-1.0f - colour.r + Wr + y) / ((2.0f * Wr) - 2.0f);
     }
 
     void cColourYUV::SetFromRGBA(const cColour4& colour)

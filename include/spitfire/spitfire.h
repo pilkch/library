@@ -193,7 +193,7 @@
 #define final
 #endif
 
-#ifdef COMPILER_MSVC
+#ifdef __WIN__
 #undef interface
 // Avoid problems with using the interface keyword
 #define interface Interface
