@@ -106,15 +106,15 @@ namespace trash
 #ifdef __LINUX__
   bool DeleteFile(const std::string& sFilename)
   {
-    const boost::filesystem::path file(sFilename);
-    boost::filesystem::remove(file);
+    const std::filesystem::path file(sFilename);
+    std::filesystem::remove(file);
     return !FileExists(sFilename);
   }
 
   bool DeleteDirectory(const std::string& sFoldername)
   {
-    const boost::filesystem::path file(sFoldername);
-    return (boost::filesystem::remove_all(file) != 0);
+    const std::filesystem::path file(sFoldername);
+    return (std::filesystem::remove_all(file) != 0);
   }
 #endif
 
@@ -137,20 +137,18 @@ namespace trash
 
     CopyContentsOfFile(sFrom, sTo);
 
-    // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
-    //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-    //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-    //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::fail_if_exists);
+    //const std::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+    //const std::filesystem::path to(spitfire::string::ToUTF8(sTo));
+    //std::filesystem::copy_file(from, to, std::filesystem::copy_option::fail_if_exists);
   }
 
   void CopyFileOverwrite(const std::string& sFrom, const std::string& sTo)
   {
     CopyContentsOfFile(sFrom, sTo);
 
-    // TODO: This code doesn't compile because boost hasn't been compiled with C++0x support
-    //const boost::filesystem::path from(spitfire::string::ToUTF8(sFrom));
-    //const boost::filesystem::path to(spitfire::string::ToUTF8(sTo));
-    //boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+    //const std::filesystem::path from(spitfire::string::ToUTF8(sFrom));
+    //const std::filesystem::path to(spitfire::string::ToUTF8(sTo));
+    //std::filesystem::copy_file(from, to, std::filesystem::copy_option::overwrite_if_exists);
   }
 
   bool MoveFile(const std::string& sFromFile, const std::string& sToFile)
@@ -159,9 +157,9 @@ namespace trash
     struct stat a;
     struct stat b;
     if ((lstat(sFromFile.c_str(), &a) != -1) && (lstat(sToFile.c_str(), &b) != -1) && (a.st_dev == b.st_dev)) {
-      const boost::filesystem::path from(sFromFile);
-      const boost::filesystem::path to(sToFile);
-      boost::filesystem::rename(from, to);
+      const std::filesystem::path from(sFromFile);
+      const std::filesystem::path to(sToFile);
+      std::filesystem::rename(from, to);
     } else {
       // Can't just rename so we have to copy and delete
       CopyFile(sFromFile, sToFile);
@@ -183,7 +181,7 @@ namespace trash
 
   bool CreateFolder(const std::string& sFolderPath)
   {
-    return boost::filesystem::create_directories(sFolderPath);
+    return std::filesystem::create_directories(sFolderPath);
   }
 
   std::string URIEncodeFilePath(const std::string& sFilePath)

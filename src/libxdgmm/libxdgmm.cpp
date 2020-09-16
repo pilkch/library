@@ -64,8 +64,8 @@ namespace xdg
 
     bool DirectoryExists(const std::string& sFolderName)
     {
-      const boost::filesystem::path folder(sFolderName);
-      return boost::filesystem::exists(folder);
+      const std::filesystem::path folder(sFolderName);
+      return std::filesystem::exists(folder);
     }
 
 

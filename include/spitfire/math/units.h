@@ -9,15 +9,6 @@ namespace spitfire
   {
     // http://en.wikipedia.org/wiki/SI_derived_unit
     // http://www.racer.nl/tech/converting.htm
-    // TODO: Consider using Boost.Units library
-    // http://www.boost.org/doc/libs/1_38_0/doc/html/boost_units/FAQ.html#boost_units.FAQ.NoConstructorFromValueType
-    //typedef boost::quantity<boost::length> cLength;
-    //typedef boost::quantity<boost::force> cForce;
-    //typedef boost::quantity<boost::torque> cTorque;
-    //typedef boost::quantity<boost::volume> cVolume;
-    //typedef boost::quantity<boost::area> cArea;
-    //typedef boost::quantity<boost::time> cTime;
-
 
     inline float kphTomph(float kph) { return kph * 1.609344f; }
     inline float mphTokph(float mph) { return mph * 0.621371192f; }
