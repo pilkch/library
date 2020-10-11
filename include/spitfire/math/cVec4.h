@@ -78,6 +78,8 @@ namespace spitfire
       cVec4 operator-(void) const {return cVec4(-x, -y, -z, -w);}
       cVec4 operator+(void) const {return (*this);}
 
+      cVec4& operator=(const cVec4& rhs) = default;
+
       // Cast to pointer to float for glVertex4fv etc
       const float* GetPointerConst() const { return (const float*)this; }
 

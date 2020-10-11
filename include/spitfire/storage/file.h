@@ -59,6 +59,10 @@ namespace spitfire
     void AppendText(const string_t& filename, const std::string& contents);
     void AppendText(const string_t& filename, const std::wstring& contents);
 
+    // Write a whole file, replacing the contents if it already exists
+    void WriteTextContents(const string_t& filename, const std::string& contents);
+    void WriteTextContents(const string_t& filename, const std::wstring& contents);
+
 
     // For writing to text files
     // http://stackoverflow.com/questions/8689344/portable-end-of-line-newline-in-c/8689547#8689547

@@ -772,7 +772,7 @@ namespace spitfire
       ASSERT(FileExists(sFilePath));
       const std::filesystem::path file(spitfire::string::ToUTF8(sFilePath));
       spitfire::util::cDateTime dateTime;
-      #ifdef __WIN__
+      #if defined(__WIN__) || defined(__LINUX__)
       // HACK: MSVC uses a different type for the std::filesystem::file_time_type so it doesn't have a simple conversion to time_t
       // https://stackoverflow.com/questions/61030383/how-to-convert-stdfilesystemfile-time-type-to-time-t
       //dateTime.Set(std::filesystem::last_write_time(file));
@@ -792,8 +792,8 @@ namespace spitfire
     void SetLastModifiedDate(const string_t& sFilePath, const util::cDateTime& dateTime)
     {
       ASSERT(FileExists(sFilePath));
-      #ifdef __WIN__
-      // TODO: This won't work nicely in MSVC until C++20 because std::filesystem::last_write_time is not a time_t
+      #if defined(__WIN__) || defined(__LINUX__)
+      // TODO: This won't work nicely in MSVC or gcc until C++20 because std::filesystem::last_write_time is not a time_t
       (void)dateTime;
       #else
       const std::filesystem::path file(spitfire::string::ToUTF8(sFilePath));

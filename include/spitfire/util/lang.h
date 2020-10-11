@@ -60,21 +60,25 @@ namespace spitfire
   }
 
   template<typename Argument, typename... OtherArguments>
-  inline void ParseArgument(const string_t& sLangTag, size_t index, const Argument& argument, const OtherArguments&... otherArguments)
+  inline void ParseArgument(string_t& sLangTag, size_t index, const Argument& argument, const OtherArguments&... otherArguments)
   {
     // Find something like %1 in the lang tag and replace it with our argument
-    string::Replace(sLangTag, TEXT("%") + string::ToString(index + 1), string::ToString(argument));
+    sLangTag = string::Replace(sLangTag, TEXT("%") + string::ToString(index), string::ToString(argument));
 
     // Now we can increment our counter and process the remaining arguments
     index++;
     ParseArgument(sLangTag, index, otherArguments...);
   }
 
+  string_t LANG(const string_t& sLangTag);
+
   template<typename Argument, typename... OtherArguments>
   inline string_t LANG(const string_t& _sLangTag, const Argument& argument, const OtherArguments&... otherArguments)
   {
+    // Substitute the lang tag for the language
+    string_t sLangTag = LANG(_sLangTag);
+
     // Collect our arguments
-    string_t sLangTag = _sLangTag;
     size_t index = 1; // Start at 1 so that the parameters are 1..n+1
     ParseArgument(sLangTag, index, argument, otherArguments...);
 

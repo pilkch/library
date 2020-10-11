@@ -120,7 +120,7 @@ namespace spitfire
       cVec3& operator*=(float rhs);
       cVec3& operator/=(float rhs);
 
-      inline cVec3& operator=(const cVec3& rhs) { x=rhs.x; y=rhs.y; z=rhs.z; return *this; }
+      inline cVec3& operator=(const cVec3& rhs) = default;
 
 
       cVec3& operator*=(const cVec3& rhs)

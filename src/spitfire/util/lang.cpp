@@ -71,105 +71,87 @@ namespace spitfire
   }
 
 
-  std::map<std::wstring, std::wstring> langtags;
-
-  const std::wstring WCRLF(L"\r\n");
+  std::map<std::string, std::string> langtags_utf8;
 
   namespace util
   {
-    bool LastCharacterIsQuotationMark(const std::wstring& source)
+    bool LastCharacterIsQuotationMark(const std::string& source)
     {
-      return source[source.length() - 1] != TEXT('\"');
+      return (source[source.length() - 1] != '\"');
     }
 
     void LoadLanguageFile(const string_t& sFilename)
     {
-      std::vector<std::wstring> contents;
+      if (!filesystem::FileExists(sFilename)) return;
+
+      std::vector<std::string> contents;
       storage::ReadText(sFilename, contents);
 
-      CONSOLE<<"LoadLanguageFile "<<sFilename<<" Text has been read"<<std::endl;
+      std::string tag;
+      std::string value;
 
-      std::wstring tag;
-      std::wstring value;
-
-      std::wstring line;
+      std::string line;
 
       const size_t n = contents.size();
       for (size_t i = 0; i < n; i++) {
         line = spitfire::string::StripLeadingWhiteSpace(contents[i]);
-        CONSOLE<<"LoadLanguageFile contents["<<i<<"]=\""<<spitfire::string::ToString_t(line)<<"\""<<std::endl;
 
         // If we have enough characters for a comment string and the first 2 characters
         // are comment slashes then skip this line
-        if ((line.length() >= 2) && (line[0] == L'/') && (line[1] == L'/')) continue;
+        if ((line.length() >= 2) && (line[0] == '/') && (line[1] == '/')) continue;
 
-        CONSOLE<<"LoadLanguageFile Strip"<<std::endl;
-        tag = spitfire::string::StripAfterInclusive(line, L" \"");
-
-        CONSOLE<<"LoadLanguageFile Read quoted text"<<std::endl;
+        tag = spitfire::string::StripAfterInclusive(line, " \"");
 
         // Get a quotation marked value that can span multiple lines
-        value = spitfire::string::StripBeforeInclusive(line, L" \"");
+        value = spitfire::string::StripBeforeInclusive(line, " \"");
         if (LastCharacterIsQuotationMark(line)) {
           i++;
           while ((i < n) && !line.empty() && LastCharacterIsQuotationMark(line)) {
             line = contents[i];
-            value.append(L"\n" + line);
+            value.append("\n" + line);
             i++;
           }
 
           i--;
         }
 
-        CONSOLE<<"LoadLanguageFile Strip trailing"<<std::endl;
-        value = spitfire::string::StripTrailing(value, L"\"");
+        value = spitfire::string::StripTrailing(value, "\"");
 
         // Add tag
-        CONSOLE<<"LoadLanguageFile Tag \""<<spitfire::string::ToString_t(tag)<<"\"=\""<<spitfire::string::ToString_t(value)<<"\""<<std::endl;
-        langtags[tag] = value;
+        //CONSOLE<<"LoadLanguageFile Tag \""<<spitfire::string::ToString(tag)<<"\"=\""<<spitfire::string::ToString(value)<<"\""<<std::endl;
+        langtags_utf8[tag] = value;
       }
-
-      CONSOLE<<"LoadLanguageFile returning"<<std::endl;
     }
 
-    void LoadLanguageFiles()
+    void LoadLanguageFiles(const string_t& sDirectory)
     {
-      ASSERT(langtags.empty());
+      langtags_utf8.clear();
 
-      string_t actual_filename;
-      filesystem::FindFile(TEXT("lang.txt"), actual_filename);
-      LoadLanguageFile(actual_filename);
-      filesystem::FindFile(TEXT("shared_lang.txt"), actual_filename);
-      LoadLanguageFile(actual_filename);
+      LoadLanguageFile(filesystem::MakeFilePath(sDirectory, TEXT("lang.txt")));
+      LoadLanguageFile(filesystem::MakeFilePath(sDirectory, TEXT("shared_lang.txt")));
     }
   }
 
-  string_t LANG(const std::string& tag)
+  void LoadLanguageFiles()
   {
-    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(spitfire::string::ToWchar_t(tag));
-    if (iter != langtags.end()) {
-      CONSOLE<<"LANG["<<tag<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
-      return  spitfire::string::ToString_t(iter->second);
-    }
-
-    string_t sFilename;
-    filesystem::FindFile(TEXT("lang.txt"), sFilename);
-    storage::AppendText(sFilename, spitfire::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
-    return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
+    util::LoadLanguageFiles("data");
   }
 
-  string_t LANG(const std::wstring& tag)
+  string_t LookUpLangTag(const std::string& tag)
   {
-    std::map<std::wstring, std::wstring>::iterator iter = langtags.find(spitfire::string::ToWchar_t(tag));
-    if (iter != langtags.end()) {
-      CONSOLE<<"LANG["<<spitfire::string::ToString_t(tag)<<"]=\""<<spitfire::string::ToString_t(iter->second)<<"\""<<std::endl;
-      return  spitfire::string::ToString_t(iter->second);
+    std::map<std::string, std::string>::iterator iter = langtags_utf8.find(tag);
+    if (iter != langtags_utf8.end()) {
+      //CONSOLE<<"LANG["<<tag<<"]=\""<<spitfire::string::ToString(iter->second)<<"\""<<std::endl;
+      return  spitfire::string::ToString(iter->second);
     }
 
-    string_t sFilename;
-    filesystem::FindFile(TEXT("lang.txt"), sFilename);
-    storage::AppendText(sFilename, spitfire::string::ToWchar_t(tag) + L" \"AUTOMATICALLY GENERATED LANGTAG\"" + WCRLF);
-    return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString_t(tag);
+    storage::AppendText(TEXT("data/lang.txt"), tag + " \"AUTOMATICALLY GENERATED LANGTAG\"" + "\n");
+    return TEXT("LANG TAG NOT FOUND ") + spitfire::string::ToString(tag);
+  }
+
+  string_t LANG(const string_t& tag)
+  {
+    return LookUpLangTag(spitfire::string::ToUTF8(tag));
   }
 
 
@@ -265,138 +247,6 @@ namespace spitfire
       if (days <= 1) return TEXT("About 1 day");
       
       return TEXT("About ") + string::ToString(days) + TEXT(" days");
-    }
-
-// Assert that matches the Google Test definition
-#ifdef ASSERT_TRUE
-#error "Remove this definition of ASSERT_TRUE"
-#endif
-#define ASSERT_TRUE assert
-
-    void LangHumanReadableTimeUnitTest()
-    {
-      const cDateTime now(2015, 6, 5, 4, 3);
-
-      struct cTestPair {
-        const std::chrono::system_clock::duration duration;
-        const string_t sExpected;
-      };
-      
-      const cTestPair pairs[] = {
-        { - (std::chrono::hours(240) + std::chrono::minutes(1)), TEXT("About 10 days ago") },
-        { - (std::chrono::hours(48) + std::chrono::minutes(1)), TEXT("About 2 days ago") },
-        { - (std::chrono::hours(24) + std::chrono::minutes(1)), TEXT("About 1 day ago") },
-        { -std::chrono::hours(24), TEXT("About 1 day ago") },
-        { - (std::chrono::hours(23) + std::chrono::minutes(59)), TEXT("About 23 hours ago") },
-        { - (std::chrono::hours(1) + std::chrono::minutes(1)), TEXT("About 1 hour ago") },
-        { -std::chrono::hours(1), TEXT("About 1 hour ago") },
-        { - (std::chrono::minutes(59) + std::chrono::seconds(59)), TEXT("About 59 minutes ago") },
-        { - (std::chrono::minutes(2) + std::chrono::seconds(1)), TEXT("About 2 minutes ago") },
-        { -std::chrono::minutes(2), TEXT("About 2 minutes ago") },
-        { - (std::chrono::minutes(1) + std::chrono::seconds(58)), TEXT("About 1 minute ago") },
-        { -std::chrono::minutes(1), TEXT("About 1 minute ago") },
-        { -std::chrono::seconds(59), TEXT("About 1 minute ago") },
-        { -std::chrono::seconds(31), TEXT("About 1 minute ago") },
-        { -std::chrono::seconds(30), TEXT("30 seconds ago") },
-        { -std::chrono::seconds(29), TEXT("29 seconds ago") },
-        { -std::chrono::seconds(2), TEXT("2 seconds ago") },
-        { -std::chrono::seconds(1), TEXT("1 second ago") },
-        { std::chrono::seconds(0), TEXT("Now") },
-        { std::chrono::seconds(1), TEXT("In 1 second") },
-        { std::chrono::seconds(2), TEXT("In 2 seconds") },
-        { std::chrono::seconds(29), TEXT("In 29 seconds") },
-        { std::chrono::seconds(30), TEXT("In 30 seconds") },
-        { std::chrono::seconds(31), TEXT("In about 1 minute") },
-        { std::chrono::seconds(59), TEXT("In about 1 minute") },
-        { std::chrono::minutes(1), TEXT("In about 1 minute") },
-        { std::chrono::minutes(1) + std::chrono::seconds(58), TEXT("In about 1 minute") },
-        { std::chrono::minutes(2), TEXT("In about 2 minutes") },
-        { std::chrono::minutes(2) + std::chrono::seconds(1), TEXT("In about 2 minutes") },
-        { std::chrono::minutes(59) + std::chrono::seconds(59), TEXT("In about 59 minutes") },
-        { std::chrono::hours(1), TEXT("In about 1 hour") },
-        { std::chrono::hours(1) + std::chrono::minutes(1), TEXT("In about 1 hour") },
-        { std::chrono::hours(23) + std::chrono::minutes(59), TEXT("In about 23 hours") },
-        { std::chrono::hours(24), TEXT("In about 1 day") },
-        { std::chrono::hours(24) + std::chrono::minutes(1), TEXT("In about 1 day") },
-        { std::chrono::hours(48) + std::chrono::minutes(1), TEXT("In about 2 days") },
-        { std::chrono::hours(240) + std::chrono::minutes(1), TEXT("In about 10 days") },
-      };
-
-      const size_t n = countof(pairs);
-      for (size_t i = 0; i < n; i++) {
-        const string_t sResult = LangHumanReadableTime(now, cDateTime(now + pairs[i].duration));
-        ASSERT_EQ(pairs[i].sExpected, sResult);
-      }
-    }
-
-    void LangHumanReadableDurationUnitTest()
-    {
-      struct cTestPair {
-        const std::chrono::system_clock::duration duration;
-        const string_t sExpected;
-      };
-
-      const cTestPair pairs[] = {
-        { std::chrono::seconds(1), TEXT("1 second") },
-        { std::chrono::seconds(2), TEXT("2 seconds") },
-        { std::chrono::seconds(29), TEXT("29 seconds") },
-        { std::chrono::seconds(30), TEXT("30 seconds") },
-        { std::chrono::seconds(31), TEXT("About 1 minute") },
-        { std::chrono::seconds(59), TEXT("About 1 minute") },
-        { std::chrono::minutes(1), TEXT("About 1 minute") },
-        { std::chrono::minutes(1) + std::chrono::seconds(58), TEXT("About 1 minute") },
-        { std::chrono::minutes(2), TEXT("About 2 minutes") },
-        { std::chrono::minutes(2) + std::chrono::seconds(1), TEXT("About 2 minutes") },
-        { std::chrono::minutes(59) + std::chrono::seconds(59), TEXT("About 59 minutes") },
-        { std::chrono::hours(1), TEXT("About 1 hour") },
-        { std::chrono::hours(1) + std::chrono::minutes(1), TEXT("About 1 hour") },
-        { std::chrono::hours(23) + std::chrono::minutes(59), TEXT("About 23 hours") },
-        { std::chrono::hours(24), TEXT("About 1 day") },
-        { std::chrono::hours(24) + std::chrono::minutes(1), TEXT("About 1 day") },
-        { std::chrono::hours(48) + std::chrono::minutes(1), TEXT("About 2 days") },
-        { std::chrono::hours(240) + std::chrono::minutes(1), TEXT("About 10 days") },
-      };
-
-      const size_t n = countof(pairs);
-      for (size_t i = 0; i < n; i++) {
-        const string_t sResult = LangHumanReadableDuration(pairs[i].duration);
-        ASSERT_EQ(pairs[i].sExpected, sResult);
-      }
-    }
-  }
-
-
-  void LangLangTagUnitTest()
-  {
-    {
-      const string_t sLangTag = TEXT("%1 something %2");
-      const string_t sResult = spitfire::LANG(sLangTag, "first", 2);
-      const string_t sExpected = TEXT("first something 2");
-      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
-    }
-    {
-      const string_t sLangTag = TEXT("And a different order %2 and %1");
-      const string_t sResult = LANG(sLangTag, "first", 2);
-      const string_t sExpected = TEXT("And a different order 2 and first");
-      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
-    }
-    {
-      const string_t sLangTag = TEXT("No arguments");
-      const string_t sResult = LANG(sLangTag);
-      const string_t sExpected = TEXT("No arguments");
-      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
-    }
-    {
-      const string_t sLangTag = TEXT("Arguments with no replacement");
-      const string_t sResult = LANG(sLangTag, 3, "something");
-      const string_t sExpected = TEXT("Arguments with no replacement");
-      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
-    }
-    {
-      const string_t sLangTag = TEXT("Multiple of the same %1 argument %1");
-      const string_t sResult = LANG(sLangTag, "something", 2, 3);
-      const string_t sExpected = TEXT("Multiple of the same something argument something");
-      if (sLangTag != sExpected) LOG("Unit test failed for tag \"", sLangTag, "\", expected \"", sExpected, "\", result \"", sResult, "\"");
     }
   }
 }

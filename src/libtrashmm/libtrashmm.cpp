@@ -4,24 +4,21 @@
 #include <cassert>
 #include <cstring>
 
+#include <filesystem>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 
 #include <libgen.h>
-
-// Boost headers
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
-
-#include <fcntl.h>
-#include <sys/ioctl.h>
 
 // libtrashmm headers
 #include <libtrashmm/libtrashmm.h>

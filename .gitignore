@@ -21,6 +21,7 @@ log
 include/spitfire/platform/apple.h
 
 tests/library_unittest
+tests/data/lang.txt
 tests/log
 tests/Makefile
 

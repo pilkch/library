@@ -54,10 +54,10 @@ namespace spitfire
 
   // CCITT CRC16 implementation
   //
-  // Name                       : "XMODEM", also known as "ZMODEM", "CRC-16/ACORN"
+  // Name                       : CRC-16/CCITT-FALSE (NOTE: Uses the same table as: "XMODEM", also known as "ZMODEM", "CRC-16/ACORN", but those just use a different digest initialization)
   // Width                      : 16 bit
   // Poly                       : 1021 (That is actually x^16 + x^12 + x^5 + 1)
-  // Initialization             : 0000
+  // Digest initialization      : FFFF
   // Reflect Input byte         : False
   // Reflect Output CRC         : False
   // Xor constant to output CRC : 0000
@@ -101,7 +101,7 @@ namespace spitfire
   // ** cCRC16
 
   cCRC16::cCRC16() :
-    digest(0)
+    digest(0xffff)
   {
   }
 
@@ -192,40 +192,3 @@ namespace spitfire
   }
 }
 
-
-#ifdef BUILD_SPITFIRE_UNITTEST
-
-#include <spitfire/util/unittest.h>
-
-class cCRCUnitTest : protected spitfire::util::cUnitTestBase
-{
-public:
-  cCRCUnitTest() :
-    cUnitTestBase(TEXT("cCRCUnitTest"))
-  {
-  }
-
-  template<class T>
-  spitfire::string_t TestCRC(const std::string sText)
-  {
-    spitfire::string_t result;
-  
-    T crc;
-    crc.CalculateForString(sText.c_str(), result);
-
-    // Make sure that the text encodes as expected
-    //std::cout<<"TestCRC result="<<result<<std::endl;
-    return result;
-  }
-
-  void Test()
-  {
-    ASSERT_EQ(TEXT("31C3"), TestCRC<spitfire::cCRC16>("123456789"));
-    ASSERT_EQ(TEXT("53E2"), TestCRC<spitfire::cCRC16>("abcdefghijklmnopqrstuvwxyz"));
-    ASSERT_EQ(TEXT("4C2750BD"), TestCRC<spitfire::cCRC32>("abcdefghijklmnopqrstuvwxyz"));
-  }
-};
-
-cCRCUnitTest gCRCUnitTest;
-
-#endif // BUILD_SPITFIRE_UNITTEST
