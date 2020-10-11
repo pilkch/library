@@ -151,22 +151,21 @@ namespace spitfire
     }
 
 //#ifdef BUILD_DEBUG
-    void cLog::trace(const string_t& _section)
+    void cLog::trace(const string_t& text)
     {
       if (!bIsLogging) return;
 
-      string_t s = TEXT("<!> ") + spitfire::string::ToString(_section);
 #ifdef __WIN__
-      s += TEXT("\n");
-      OutputDebugString(s.c_str());
+      OutputDebugString(text.c_str());
 #else
-      cout_t<<s<<std::endl;
+      cout_t<<text<<std::endl;
 #endif
     }
 
     void cLog::trace(const string_t& _section, const string_t& text)
     {
-      trace(_section + TEXT(" - ") + text);
+      if (_section.empty()) trace(text);
+      else trace(_section + TEXT(" - ") + text);
     }
 //#endif //BUILD_DEBUG
 
@@ -342,8 +341,6 @@ namespace spitfire
       gLog._AddLine(o);
 
       lines.push_back(o);
-
-      if (bIsLogging) cout_t<<o<<std::endl;
 
       ClearLine();
     }

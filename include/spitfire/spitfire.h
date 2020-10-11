@@ -19,7 +19,6 @@
 
 // Defines
 // BUILD_HTML_LOG - Allow logging to HTML
-// BUILD_UNITTESTS - Build spitfire unit tests
 // BUILD_SDL - Build with SDL support
 // NDEBUG - Release build (Defaults to debug build otherwise)
 

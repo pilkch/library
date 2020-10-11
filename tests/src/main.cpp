@@ -1,19 +1,12 @@
-// Standard headers
-#include <iostream>
-
-// Spitfire headers
-#include <spitfire/util/unittest.h>
+// gtest headers
+#include <gtest/gtest.h>
 
 int main(int argc, char** argv)
 {
-  (void)argc;
-  (void)argv;
+  ::testing::InitGoogleTest(&argc, argv);
 
-  std::cout<<"main Running tests"<<std::endl;
+  // The settings functions haven't been implemented yet
+  testing::GTEST_FLAG(filter) = "-SpitfireStorage.TestSettings";
 
-  spitfire::util::RunAllUnitTests();
-
-  std::cout<<"main All tests run successfully"<<std::endl;
-
-  return EXIT_SUCCESS;
+  return RUN_ALL_TESTS();
 }

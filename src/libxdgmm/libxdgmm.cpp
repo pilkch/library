@@ -4,15 +4,11 @@
 #include <cassert>
 #include <cstring>
 
+#include <filesystem>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-// Boost headers
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -22,46 +18,6 @@
 
 namespace xdg
 {
-  std::string PipeReadToString(const std::string& sCommandLine)
-  {
-    //std::cout<<"PipeReadToString sCommandLine=\""<<sCommandLine<<"\""<<std::endl;
-
-    FILE* fhPipe = popen(sCommandLine.c_str(), "r");
-    if (fhPipe == nullptr) {
-      std::cout<<"PipeReadToString pipe is closed"<<std::endl;
-      return "";
-    }
-
-    int fd = fileno(fhPipe);
-    if (fd == -1) std::cout<<"PipeReadToString fd=-1"<<std::endl;
-    fcntl(fd, F_SETFD, FD_CLOEXEC); // Make sure it can be inherited
-
-    std::ostringstream o;
-
-    {
-      boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
-      //boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(fileno(fhPipe));
-      std::istream in(&fpstream);
-      // TODO: This is required to automatically close the stream when we are done but isn't supported on early versions of boost
-      //in.set_auto_close(false);
-
-      std::string sLine;
-      while (in) {
-        std::getline(in, sLine);
-        //std::cout<<"PipeReadToString \""<<sLine<<"\""<<std::endl;
-        o<<sLine;
-      }
-    }
-
-    pclose(fhPipe);
-    fhPipe = nullptr;
-
-    const std::string sBuffer(o.str());
-
-    //std::cout<<"PipeReadToString returning \""<<sBuffer<<"\""<<std::endl;
-    return sBuffer;
-  }
-
     bool DirectoryExists(const std::string& sFolderName)
     {
       const std::filesystem::path folder(sFolderName);
@@ -123,24 +79,10 @@ namespace xdg
 
   std::string cXdg::GetDirectory(const std::string& sTag) const
   {
-    // Try using xdg first
-    std::string sDirectory = PipeReadToString("xdg-user-dir " + sTag);
+    std::string sDirectory;
 
-    if (!sDirectory.empty()) {
-      // The directory is everything before the first new line or tab
-      const size_t n = sDirectory.length();
-      for (size_t i = 0; i < n; i++) {
-        if ((sDirectory[i] == '\r') || (sDirectory[i] == '\n') || (sDirectory[i] == '\t')) {
-          sDirectory = sDirectory.substr(0, i);
-          break;
-        }
-      }
-    }
-
-    if (sDirectory.empty()) {
-      // Xdg failed, get the directory from the environment variable for this tag
-      GetEnvironmentVariable(sTag.c_str(), sDirectory);
-    }
+    // Xdg failed, get the directory from the environment variable for this tag
+    GetEnvironmentVariable(sTag.c_str(), sDirectory);
 
     return sDirectory;
   }
@@ -148,24 +90,8 @@ namespace xdg
   std::string cXdg::GetHomeDirectory()
   {
     if (home.empty()) {
-      // Try using xdg first
-      home = PipeReadToString("xdg-user-dir");
-
-      if (!home.empty()) {
-        // The directory is everything before the first new line or tab
-        const size_t n = home.length();
-        for (size_t i = 0; i < n; i++) {
-          if ((home[i] == '\r') || (home[i] == '\n') || (home[i] == '\t')) {
-            home = home.substr(0, i);
-            break;
-          }
-        }
-      }
-
-      if (home.empty()) {
-        // Xdg failed, get the directory from the "HOME" environment variable
-        GetEnvironmentVariable("HOME", home);
-      }
+      // Xdg failed, get the directory from the "HOME" environment variable
+      GetEnvironmentVariable("HOME", home);
     }
 
     return home;

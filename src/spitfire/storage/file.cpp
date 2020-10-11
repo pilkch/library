@@ -247,6 +247,29 @@ namespace spitfire
     }
 
 
+    void WriteTextContents(const string_t& filename, const std::string& contents)
+    {
+      //size_t signature_bytes = 0;
+      //BYTEORDER byteOrder = DetectByteOrderMark(filename, signature_bytes);
+
+      std::ofstream file;
+      file.open(spitfire::string::ToUTF8(filename).c_str(), std::ios::out);
+
+      file<<contents;
+      /*if (BYTEORDER::UTF8 == byteOrder)
+      {
+
+      }*/
+
+      file.close();
+    }
+
+    void WriteTextContents(const string_t& filename, const std::wstring& contents)
+    {
+      WriteTextContents(filename, spitfire::string::ToUTF8(contents));
+    }
+
+
     // ** cReadFile
 
     cReadFile::cReadFile()

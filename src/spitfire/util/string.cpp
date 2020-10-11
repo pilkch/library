@@ -607,7 +607,6 @@ namespace spitfire
 
     std::string ToUpper(const std::string& sText)
     {
-      std::cout<<"ToUpper"<<std::endl;
       ASSERT(bIsInitCalled);
       std::string buffer(sText);
       gLocalisedStringTransformer.ToUpper(buffer);
@@ -1142,99 +1141,3 @@ namespace spitfire
     }*/
   }
 }
-
-
-#ifdef BUILD_SPITFIRE_UNITTEST
-
-#include <spitfire/util/log.h>
-#include <spitfire/util/unittest.h>
-
-class cStringUnitTest : protected spitfire::util::cUnitTestBase
-{
-public:
-  cStringUnitTest() :
-    cUnitTestBase(TEXT("cStringUnitTest"))
-  {
-  }
-
-  void TestUpperLower()
-  {
-    // Upper and lower case conversions
-    ASSERT(spitfire::string::ToUpper("abcdef") == "ABCDEF");
-    ASSERT(spitfire::string::ToUpper("ABCDEF") == "ABCDEF");
-    ASSERT(spitfire::string::ToLower("abcdef") == "abcdef");
-    ASSERT(spitfire::string::ToLower("ABCDEF") == "abcdef");
-  }
-
-  void TestUpperLowerUnicode()
-  {
-    std::cout<<"TestUpperLowerUnicode"<<std::endl;
-    // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
-    const std::string grussen = "grüßEN";
-
-    const std::string upper = spitfire::string::ToUpper(grussen);
-    std::cout<<"upper: \""<<upper<<"\""<<std::endl;
-    ASSERT(upper == "GRÜSSEN");
-
-    const std::string lower = spitfire::string::ToLower(grussen);
-    std::cout<<"lower: \""<<lower<<"\""<<std::endl;
-    ASSERT(lower == "grüßen");
-  }
-
-  void TestIECHumanReadableByteSizes()
-  {
-    // IEC Byte Size Formats
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(0) == TEXT("0 Bytes"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1023) == TEXT("1023 Bytes"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1024) == TEXT("1 KiB"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1048575) == TEXT("1023 KiB"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1048576) == TEXT("1 MiB"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1073741823) == TEXT("1023 MiB"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1073741824) == TEXT("1 GiB"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1099511627775) == TEXT("1023 GiB"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1099511627776) == TEXT("1 TiB"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1125899906842623) == TEXT("1023 TiB"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1125899906842624) == TEXT("1 PiB"));
-    ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846975) == TEXT("1023 PiB"));
-
-    ASSERT(spitfire::string::GetIECStringFromBytes(1152921504606846976) == TEXT("1 EiB"));
-  }
-
-  void TestHex()
-  {
-    // Hex conversions
-
-    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("0")) == 0x0);
-    ASSERT(spitfire::string::ToHexString(0x0) == TEXT("00000000"));
-    ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0) == TEXT("000000"));
-    ASSERT(spitfire::string::ToHexString(0x0, 0x0, 0x0, 0x0) == TEXT("00000000"));
-
-    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("FFFFffff")) == 0xFFFFFFFF);
-    ASSERT(spitfire::string::ToHexString(0xFF) == TEXT("FF"));
-    ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF) == TEXT("FFFFFF"));
-    ASSERT(spitfire::string::ToHexString(0xFF, 0xFF, 0xFF, 0xFF) == TEXT("FFFFFFFF"));
-
-    ASSERT(spitfire::string::FromHexStringToUint32_t(TEXT("12345678")) == 0x12345678);
-    ASSERT(spitfire::string::ToHexString(0x12345678) == TEXT("12345678"));
-    ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56) == TEXT("123456"));
-    ASSERT(spitfire::string::ToHexString(0x12, 0x34, 0x56, 0x78) == TEXT("12345678"));
-  }
-
-  void Test()
-  {
-    TestUpperLower();
-    //TestUpperLowerUnicode(); // This one doesn't make sense depending on the locale and the word, "ß" should or should not be converted to "ss", so we'll ignore it for now
-    TestIECHumanReadableByteSizes();
-    TestHex();
-  }
-};
-
-cStringUnitTest gStringUnitTest;
-
-#endif // BUILD_SPITFIRE_UNITTEST

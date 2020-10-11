@@ -375,38 +375,3 @@ namespace spitfire
 
   }
 }
-
-#ifdef BUILD_SPITFIRE_UNITTEST
-
-#include <spitfire/util/unittest.h>
-
-class cMD5UnitTest : protected spitfire::util::cUnitTestBase
-{
-public:
-  cMD5UnitTest() :
-    cUnitTestBase(TEXT("cMD5UnitTest"))
-  {
-  }
-
-  void Test()
-  {
-    const char szText[] = { "This is the testing string for the md5 unit test" };
-
-    spitfire::algorithm::cMD5 test;
-
-    ASSERT_TRUE(test.CalculateForString(szText));
-    ASSERT_EQ(TEXT("fcfb62be1afe450706c373d7b9cbb3e3"), test.GetResultFormatted());
-
-    ASSERT_TRUE(test.CalculateForBuffer(szText, strlen(szText)));
-    ASSERT_EQ(TEXT("fcfb62be1afe450706c373d7b9cbb3e3"), test.GetResultFormatted());
-
-
-    const std::string text = "abcdefghijklmnopqrstuvwxyz";
-    ASSERT_TRUE(test.CalculateForString(text.c_str()));
-    ASSERT_EQ(TEXT("c3fcd3d76192e4007dfb496cca67e13b"), test.GetResultFormatted());
-  }
-};
-
-cMD5UnitTest gMD5UnitTest;
-
-#endif // BUILD_DEBUG

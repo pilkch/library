@@ -81,6 +81,7 @@ namespace spitfire
       cColour3 operator-() const { return cColour3(-r, -g, -b); }
       cColour3 operator+() const { return (*this); }
 
+      cColour3& operator=(const cColour3& rhs) = default;
 
       float r;
       float g;
@@ -170,6 +171,7 @@ namespace spitfire
       cColour4 operator-() const { return cColour4(-r, -g, -b, -a); }
       cColour4 operator+() const { return (*this); }
 
+      cColour4& operator=(const cColour4& rhs) = default;
 
       float r;
       float g;

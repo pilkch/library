@@ -28,7 +28,7 @@ SET(LIBRARY_SRC "${CMAKE_SOURCE_DIR}/src/")
 
 IF(UNIX)
 # Add definitions, compiler switches, etc.
-ADD_DEFINITIONS("-std=c++17 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -ffor-scope -O2")
+ADD_DEFINITIONS("-std=c++17 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
 ENDIF()
 
 IF(UNIX)
@@ -44,7 +44,6 @@ ENDIF()
 
 ADD_DEFINITIONS("-DSPITFIRE_APPLICATION_NAME_LWR=\"library_unittest\"")
 ADD_DEFINITIONS("-DSPITFIRE_APPLICATION_COMPANY_NAME=\"The Company\"")
-ADD_DEFINITIONS("-DBUILD_SPITFIRE_UNITTEST")
 
 INCLUDE_DIRECTORIES(${LIBRARY_INCLUDE} "./include/")
 
@@ -114,11 +113,9 @@ SET(LIBRARY_SPITFIRE_SOURCE_FILES
 spitfire.cpp
 algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
 math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
-storage/file.cpp storage/filesystem.cpp 
-util/datetime.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/unittest.cpp
+storage/file.cpp storage/filesystem.cpp storage/document.cpp storage/settings.cpp storage/xml.cpp
+util/datetime.cpp util/lang.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp
 )
-
-#storage/document.cpp storage/settings.cpp storage/xml.cpp
 
 IF(WIN32)
   SET(LIBRARY_SPITFIRE_SOURCE_FILES ${LIBRARY_SPITFIRE_SOURCE_FILES})
@@ -135,8 +132,20 @@ PREFIX_PATHS(${LIBRARY_SRC} ${LIBRARY_SOURCE_FILES})
 SET(OUTPUT_LIBRARY_SOURCE_FILES ${OUTPUT_FILES})
 MESSAGE(final=${OUTPUT_LIBRARY_SOURCE_FILES})
 
-#list all source files here
-ADD_EXECUTABLE(${PROJECT_NAME} src/main.cpp ${OUTPUT_LIBRARY_SOURCE_FILES} ${PROJECT_SOURCE_FILES})
+# Test source files
+SET(TEST_SOURCE_FILES
+ai_path_finder_test.cpp
+algorithm_test.cpp base64_test.cpp crc_test.cpp
+#dispatcher_test.cpp notifications_test.cpp # Require gtkmm
+html_test.cpp
+geometry_test.cpp math_test.cpp units_test.cpp
+lang_test.cpp process_test.cpp settings_test.cpp spitfire_test.cpp string_test.cpp thread_test.cpp
+main.cpp
+)
+PREFIX_PATHS(src/ ${TEST_SOURCE_FILES})
+SET(OUTPUT_TEST_SOURCE_FILES ${OUTPUT_FILES})
+
+ADD_EXECUTABLE(${PROJECT_NAME} ${OUTPUT_TEST_SOURCE_FILES} ${OUTPUT_LIBRARY_SOURCE_FILES})
 
 
 IF(WIN32)
@@ -160,6 +169,7 @@ IF(UNIX)
 SET(STANDARD_LIBRARIES
   stdc++fs
   pthread
+  gtest
 )
 SET(XDG_LIBRARIES
   xdg-basedir

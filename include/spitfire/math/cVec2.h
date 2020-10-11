@@ -92,11 +92,12 @@ namespace spitfire
       // Cast to pointer to a (float *) for glVertex3fv etc
       const float* GetPointerConst() const { return (const float*)this; }
 
-      cVec2& operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this; }
+      cVec2& operator=(const cVec2& rhs) { x = rhs.x; y = rhs.y; return *this; };
       cVec2& operator=(const cVec3& rhs);
 
       // We do this so that x maps to u and y maps to v
       // for use in texture mapping as well as position coords
+      // TODO: Maybe don't do this? Provide u() and v() functions instead?
       float x;
       float y;
 
