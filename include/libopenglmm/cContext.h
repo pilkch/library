@@ -136,7 +136,7 @@ namespace opengl
 
     void CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
-    void CreateTextureFrameBufferObjectDepthShadowOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height);
+    void CreateTextureFrameBufferObjectDepthShadowOnlyNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height);
     void CreateTextureFrameBufferObjectDepthOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height);
     void CreateTextureFrameBufferObjectWithDepth(cTextureFrameBufferObject& fbo, size_t width, size_t height);
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject& pTexture);

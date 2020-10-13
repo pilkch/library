@@ -11,8 +11,10 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef __WIN__
 // OpenGL headers
 #include <GL/GLee.h>
+#endif
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

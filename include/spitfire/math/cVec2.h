@@ -1,6 +1,8 @@
 #ifndef CVEC2_H
 #define CVEC2_H
 
+#include <cmath>
+
 namespace spitfire
 {
   namespace math

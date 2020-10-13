@@ -29,8 +29,10 @@
 #ifdef BUILD_LIBOPENGLMM_OPENGL_STRICT
 #define GL3_PROTOTYPES 1 // Use OpenGL 3 core profile only
 #else
+#ifdef __WIN__
 #include <GL/GLee.h>
 #include <GL/glu.h>
+#endif
 #endif
 
 #ifdef __WIN__

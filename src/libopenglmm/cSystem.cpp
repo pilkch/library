@@ -102,13 +102,25 @@ namespace opengl
 
   string_t cSystem::GetErrorString()
   {
-    const GLenum error = glGetError();
-    const string_t sError = GetErrorString(error);
-    if (error == GL_NO_ERROR) return sError;
+    string_t sErrors;
 
-    LOG(TEXT("cSystem::GetErrorString Error "), sError);
-    assert(error == GL_NO_ERROR);
-    return sError;
+    while (true) {
+      const GLenum error = glGetError();
+      if (error == GL_NO_ERROR) break;
+
+      if (sErrors.empty()) {
+        sErrors = GetErrorString(error);
+      } else {
+        sErrors += ", " + GetErrorString(error);
+      }
+    }
+
+    if (!sErrors.empty()) {
+      LOG(TEXT("cSystem::GetErrorString Errors: "), sErrors);
+      assert(sErrors.empty());
+    }
+
+    return sErrors;
   }
 
   bool cSystem::IsGPUATI() const

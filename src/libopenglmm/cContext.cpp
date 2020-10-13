@@ -293,8 +293,9 @@ namespace opengl
     //textures.push_back(&fbo);
   }
 
-  void cContext::CreateTextureFrameBufferObjectDepthShadowOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height)
+  void cContext::CreateTextureFrameBufferObjectDepthShadowOnlyNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
+    fbo.SetDoNotUseMipMaps();
     if (!fbo.CreateFrameBufferObject(width, height, false, true, true)) return;
 
     //textures.push_back(&fbo);
