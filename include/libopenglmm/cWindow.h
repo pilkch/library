@@ -324,6 +324,8 @@ namespace opengl
     #endif
     KEY_DOWN,
     KEY_UP,
+    MOUSE_SCROLL_UP,
+    MOUSE_SCROLL_DOWN,
     MOUSE_DOWN,
     MOUSE_UP,
     MOUSE_MOVE,
@@ -377,6 +379,8 @@ namespace opengl
     cMouseEvent();
 
     bool IsMouseMove() const { return (type == TYPE::MOUSE_MOVE); }
+    bool IsScrollUp() const { return (type == TYPE::MOUSE_SCROLL_UP); }
+    bool IsScrollDown() const { return (type == TYPE::MOUSE_SCROLL_DOWN); }
     bool IsButtonDown() const { return (type == TYPE::MOUSE_DOWN); }
     bool IsButtonUp() const { return (type == TYPE::MOUSE_UP); }
     unsigned int GetButton() const { return button; }
