@@ -1,14 +1,10 @@
-#ifndef CNETWORK_H
-#define CNETWORK_H
+#pragma once
 
 // Standard headers
 #include <list>
-
-// Boost headers
-#include <boost/asio.hpp>
+#include <experimental/net>
 
 // Spitfire headers
-#include <spitfire/math/math.h>
 #include <spitfire/util/queue.h>
 #include <spitfire/util/string.h>
 #include <spitfire/util/thread.h>
@@ -78,15 +74,6 @@ namespace spitfire
     bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses);
 
 
-    // For choosing a static port look at this list
-    // http://en.wikipedia.org/wiki/List_of_well-known_ports_(computing)
-
-    // Random dynamic port between 49152 and 65535
-    inline port_t GetDynamicPort()
-    {
-      return port_t(49152) + port_t(math::random(16383));
-    }
-
 
     // ** cConnectionTCP
     //
@@ -110,8 +97,8 @@ namespace spitfire
 
     private:
       bool bIsOpen;
-      boost::asio::io_service io_service;
-      boost::asio::ip::tcp::socket socket;
+      std::experimental::net::io_context io_context;
+      std::experimental::net::ip::tcp::socket socket;
     };
 
 
@@ -127,7 +114,7 @@ namespace spitfire
     class cConnectedClient : public spitfire::util::cThread
     {
     public:
-      explicit cConnectedClient(boost::asio::io_service& socket);
+      explicit cConnectedClient(std::experimental::net::io_context& socket);
 
       void Start(cServer& server);
 
@@ -140,12 +127,12 @@ namespace spitfire
       size_t GetBytesToRead();
       size_t GetBytesAvailable();
 
-      const boost::asio::ip::tcp::socket& GetSocket() const
+      const std::experimental::net::ip::tcp::socket& GetSocket() const
       {
         return socket;
       }
 
-      boost::asio::ip::tcp::socket& GetSocket()
+      std::experimental::net::ip::tcp::socket& GetSocket()
       {
         return socket;
       }
@@ -158,14 +145,14 @@ namespace spitfire
     private:
       virtual void ThreadFunction() override;
 
-      /*void WriteCallback(const boost::system::error_code& error, size_t bytes_transferred)
+      /*void WriteCallback(const std::error_code& error, size_t bytes_transferred)
       {
         std::cout<<"WriteCallback error="<<error<<", bytes="<<bytes_transferred<<std::endl;
       }*/
 
       util::cSignalObject soAction;
 
-      boost::asio::ip::tcp::socket socket;
+      std::experimental::net::ip::tcp::socket socket;
       //std::string message;
 
       cServer* pServer;
@@ -187,13 +174,13 @@ namespace spitfire
       virtual void ThreadFunction() override;
 
       void StartAccept();
-      void OnConnection(const boost::system::error_code& error);
+      void OnConnection(const std::error_code& error);
 
       util::cSignalObject soAction;
 
       cServer& server;
-      boost::asio::io_service io_service;
-      boost::asio::ip::tcp::acceptor acceptor;
+      std::experimental::net::io_context io_context;
+      std::experimental::net::ip::tcp::acceptor acceptor;
 
       cConnectedClient* pNewConnection;
     };
@@ -265,5 +252,3 @@ namespace spitfire
     };
   }
 }
-
-#endif // CNETWORK_H

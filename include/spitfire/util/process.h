@@ -2,10 +2,11 @@
 #define CPROCESS_H
 
 // Spitfire headers
+#include <spitfire/spitfire.h>
 #include <spitfire/util/string.h>
 //#include <spitfire/util/mutex.h>
 //#include <spitfire/util/queue.h>
-#include <spitfire/util/signalobject.h>
+//#include <spitfire/util/signalobject.h>
 
 //
 // *** cProcess/cProcessInterface

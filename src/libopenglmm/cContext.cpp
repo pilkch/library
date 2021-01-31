@@ -477,6 +477,7 @@ namespace opengl
 
 
     #ifdef BUILD_DEBUG
+    LOG("Context size: ", resolution.width, "x", resolution.height);
     LOG("OpenGL Version: ", (const char*)(glGetString(GL_VERSION)));
     LOG("OpenGL Vendor: ", (const char*)(glGetString(GL_VENDOR)));
     LOG("OpenGL Renderer: ", (const char*)(glGetString(GL_RENDERER)));

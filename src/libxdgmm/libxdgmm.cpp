@@ -18,6 +18,13 @@
 
 namespace xdg
 {
+  std::string ToString(size_t value)
+  {
+    std::ostringstream o;
+    o<<value;
+    return o.str();
+  }
+
     bool DirectoryExists(const std::string& sFolderName)
     {
       const std::filesystem::path folder(sFolderName);
@@ -235,22 +242,16 @@ namespace xdg
   }
 
 
-  std::string ToString(size_t value)
-  {
-    std::ostringstream o;
-    o<<value;
-    return o.str();
-  }
-
-
   cScreenSaverInhibit::cScreenSaverInhibit(size_t _XWindowsWindowID) :
     XWindowsWindowID(_XWindowsWindowID)
   {
-    system(("xdg-screensaver suspend " + ToString(XWindowsWindowID)).c_str());
+    const int result = system(("xdg-screensaver suspend " + ToString(XWindowsWindowID)).c_str());
+    if (result != 0) std::cerr<<"Error running command \"xdg-screensaver suspend "<<XWindowsWindowID<<"\""<<std::endl;
   }
 
   cScreenSaverInhibit::~cScreenSaverInhibit()
   {
-    system(("xdg-screensaver resume " + ToString(XWindowsWindowID)).c_str());
+    const int result = system(("xdg-screensaver resume " + ToString(XWindowsWindowID)).c_str());
+    if (result != 0) std::cerr<<"Error running command \"xdg-screensaver resume "<<XWindowsWindowID<<"\""<<std::endl;
   }
 }

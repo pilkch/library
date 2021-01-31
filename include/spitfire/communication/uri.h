@@ -57,7 +57,8 @@ namespace spitfire
       PROTOCOL GetProtocol() const { return protocol; }
       const std::string& GetUsername() const { return username; }
       const std::string& GetPassword() const { return password; }
-      const std::string& GetServer() const { return server; }
+      const std::string& GetServer() const { return server; } // Deprecated, use GetHost() below
+      const std::string& GetHost() const { return server; }
       port_t GetPort() const { return port; }
       const std::string& GetRelativePath() const { return relativePath; }
       std::string GetFullURI() const;

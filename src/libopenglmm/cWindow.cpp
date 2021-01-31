@@ -263,6 +263,26 @@ namespace opengl
           break;
         }
 
+        case SDL_MOUSEWHEEL: {
+          if (pInputEventListener != nullptr) {
+            cMouseEvent event;
+
+            if (sdlEvent.wheel.y > 0) {
+              event.type = TYPE::MOUSE_SCROLL_UP;
+            }
+            else if (sdlEvent.wheel.y < 0) {
+              event.type = TYPE::MOUSE_SCROLL_DOWN;
+            }
+
+            // NOTE: We can also check sdlEvent.wheel.x for scrolling left and right
+
+            event.x = sdlEvent.button.x;
+            event.y = sdlEvent.button.y;
+            pInputEventListener->OnMouseEvent(event);
+          }
+          break;
+        }
+
         case SDL_MOUSEBUTTONUP: {
           if (pInputEventListener != nullptr) {
             cMouseEvent event;
