@@ -227,10 +227,8 @@
 typedef float float32_t; // For reading/writing to and from files/network
 typedef double float64_t; // For reading/writing to and from files/network
 
-// Warning on PLATFORM_LINUX_OR_UNIX this may be 80 bit floating-point (long double)
-#ifdef COMPILER_MSVC
+// NOTE: math.h also defines this
 typedef float float_t;
-#endif
 
 // Apparently Visual Studio doesn't have ssize_t
 #ifdef COMPILER_MSVC

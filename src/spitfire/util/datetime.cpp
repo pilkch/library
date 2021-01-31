@@ -159,6 +159,11 @@ namespace spitfire
       SetFromTimeT(time);
     }
 
+    void cDateTime::AddDays(int days)
+    {
+      datetime += std::chrono::hours(days * 24);
+    }
+
     WEEKDAY cDateTime::GetWeekDay() const
     {
       time_t time = std::chrono::system_clock::to_time_t(datetime);
@@ -362,7 +367,7 @@ namespace spitfire
     {
       std::chrono::system_clock::duration offset;
       return SetFromISO8601UTCString(rhs, offset);
-    }
+    }*/
 
 
     // RFC 1123 Format
@@ -372,29 +377,32 @@ namespace spitfire
     {
       ASSERT(IsValid());
 
+      cDateTimeFields fields;
+      GetDateTimeFields(fields);
+
       ostringstream_t o;
 
       o<<std::setfill(TEXT('0'));
 
       o<<WeekDayToShortString(GetWeekDay());
       o<<TEXT(", ");
-      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetDay());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.day);
       o<<TEXT(" ");
-      o<<MonthToShortString(GetMonth());
+      o<<MonthToShortString(fields.month);
       o<<TEXT(" ");
-      o<<std::setw(4)<<std::setfill(TEXT('0'))<<int(GetYear());
+      o<<std::setw(4)<<std::setfill(TEXT('0'))<<int(fields.year);
       o<<TEXT(" ");
-      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetHours());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.hours);
       o<<TEXT(':');
-      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetMinutes());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.minutes);
       o<<TEXT(':');
-      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(GetSeconds());
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.seconds);
       o<<TEXT(" GMT");
 
       return o.str();
     }
 
-    // RFC 3339 Format
+    /*// RFC 3339 Format
     // YYYY-MM-DDThh:mm:ss
     // 2006-03-20T17:53:38
     string_t cDateTime::GetRFC3339String() const
