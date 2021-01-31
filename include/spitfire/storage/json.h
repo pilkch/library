@@ -29,6 +29,9 @@ namespace spitfire
       cNode* CreateNode(const std::string& sName); // This element is owned by the caller of this function
       void AppendChild(cNode* pChild); // this cNode takes ownership of the node inside this function, do not delete pChild, cNode will do this for you
 
+      const cNode* GetChild(const std::string& sName) const;
+      cNode* GetChild(const std::string& sName);
+
       std::string GetName() const { return sNameUTF8; }
       void SetName(const std::string& sName) { sNameUTF8 = sName; }
 
@@ -42,7 +45,7 @@ namespace spitfire
 
       const std::vector<cNode*>& GetValueObjectOrArray() const { ASSERT((type == TYPE::OBJECT) || (type == TYPE::ARRAY)); return vValueObjectOrArray; }
       std::vector<cNode*>& GetValueObjectOrArray() { ASSERT((type == TYPE::OBJECT) || (type == TYPE::ARRAY)); return vValueObjectOrArray; }
-      std::string GetValueString() const { ASSERT(type == TYPE::STRING); return sValueUTF8String; }
+      std::string GetValueString() const;
       int GetValueInt() const { ASSERT(type == TYPE::INT); return iValueInt; }
       double GetValueFloat() const { ASSERT(type == TYPE::FLOAT); return dValueFloat; }
       bool GetValueBool() const { ASSERT(type == TYPE::BOOL_); return bValueBool; }
@@ -56,6 +59,10 @@ namespace spitfire
       void SetTypeBool(bool bValue) { type = TYPE::BOOL_; bValueBool = bValue; }
 
       void Clear();
+
+      bool GetAttribute(const std::string& sAttribute, std::string& value) const;
+      bool GetAttribute(const std::string& sAttribute, uint8_t& value) const;
+      bool GetAttribute(const std::string& sAttribute, uint16_t& value) const;
 
       void SetAttribute(const std::string& sAttribute, const char* szValue);
       void SetAttribute(const std::string& sAttribute, const wchar_t* szValue);
@@ -76,7 +83,7 @@ namespace spitfire
 
         bool IsValid() const;
 
-        cConstIterator operator++(int);
+        cConstIterator operator++(int) { Next(); return *this; }
         void Next();
         void Next(const std::string& sName);
 

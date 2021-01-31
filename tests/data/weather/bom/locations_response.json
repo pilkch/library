@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "response_timestamp": "2021-01-20T11:24:33Z"
+  },
+  "data": [
+    {
+      "geohash": "r3dp2mm",
+      "id": "Aranda-r3dp2mm",
+      "name": "Aranda",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r3dp2j4",
+      "id": "Cook-r3dp2j4",
+      "name": "Cook",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r39zrrm",
+      "id": "Hawker-r39zrrm",
+      "name": "Hawker",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r3dp2n8",
+      "id": "Macquarie-r3dp2n8",
+      "name": "Macquarie",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r39zx9n",
+      "id": "Page-r39zx9n",
+      "name": "Page",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r39zx3w",
+      "id": "Scullin-r39zx3w",
+      "name": "Scullin",
+      "postcode": "2614",
+      "state": "ACT"
+    },
+    {
+      "geohash": "r39zrwy",
+      "id": "Weetangera-r39zrwy",
+      "name": "Weetangera",
+      "postcode": "2614",
+      "state": "ACT"
+    }
+  ]
+}
