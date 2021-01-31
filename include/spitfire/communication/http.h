@@ -1,8 +1,7 @@
-#ifndef CHTTP_H
-#define CHTTP_H
+#pragma once
 
-// Boost headers
-#include <boost/asio.hpp>
+// Standard headers
+#include <experimental/net>
 
 // Spitfire headers
 #include <spitfire/communication/network.h>
@@ -24,6 +23,8 @@ namespace spitfire
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
       // http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
       // http://en.wikipedia.org/wiki/List_of_HTTP_headers
+
+      std::string URLEncode(const std::string& url);
 
       enum class METHOD {
         GET,
@@ -342,5 +343,3 @@ namespace spitfire
     }
   }
 }
-
-#endif // CHTTP_H

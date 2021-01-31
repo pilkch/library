@@ -16,9 +16,6 @@
 #include <mutex>
 #include <thread>
 
-// Boost headers
-#include <boost/asio.hpp>
-
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
@@ -43,7 +40,7 @@
 #include <breathe/breathe.h>
 
 
-const size_t STR_LEN = 512;
+const size_t STR_LEN = 8 * 1024;
 const std::string STR_END = "\r\n";
 
 template <class V>
@@ -131,7 +128,7 @@ namespace spitfire
       }
 
       // We didn't find the extension, so return the default mime
-      LOG<<"GetMimeTypeFromExtension Mime type not known for file type \""<<sExtension<<"\""<<std::endl;
+      gLog<<"GetMimeTypeFromExtension Mime type not known for file type \""<<sExtension<<"\""<<std::endl;
       bServeInline = false;
       return "application/octet-stream";
     }
@@ -206,7 +203,7 @@ namespace spitfire
             // Skip because we have read two extra characters
             i += 2;
           } else {
-            LOG<<"cHTTP::Decode Invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
+            gLog<<"cHTTP::Decode Invalid %-escapes in \""<<encodedString<<"\""<<std::endl;
             return "";
           }
         } else {
@@ -253,6 +250,24 @@ namespace spitfire
 
     namespace http
     {
+      std::string URLEncode(const std::string& _url)
+      {
+        std::ostringstream o;
+
+        for (auto& c : _url) {
+          switch (c) {
+            case ' ': {
+              o<<'+';
+              break;
+            }
+            default:
+              o<<c;
+          }
+        }
+
+        return o.str();
+      }
+
       string_t GetStatusAsString(STATUS status)
       {
         return spitfire::string::ToString(int(status));
@@ -288,13 +303,13 @@ namespace spitfire
 
         // Parse path
         if (!sp.GetToStringAndSkip(": ", sKey)) {
-          LOG<<"ParseRequestPair Couldn't parse key, returning false"<<std::endl;
+          gLog<<"ParseRequestPair Couldn't parse key, returning false"<<std::endl;
           return false;
         }
 
         // Get to the end of the line
         if (!sp.GetToOneOfTheseCharacters("\r\n", sValue)) {
-          LOG<<"ParseRequestPair Couldn't parse value, returning false"<<std::endl;
+          gLog<<"ParseRequestPair Couldn't parse value, returning false"<<std::endl;
           return false;
         }
 
@@ -308,20 +323,20 @@ namespace spitfire
           if (sp.GetCharacter() == '\n') sp.SkipCharacter();
         } else if (c == '\n') sp.SkipCharacter();
 
-        //LOG<<"ParseRequestPair returning \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
+        //gLog<<"ParseRequestPair returning \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
         return true;
       }
 
       bool ParseRequest(cRequest& request, const std::string& sRequest)
       {
-        LOG<<"ParseRequest sRequest=\""<<sRequest<<"\""<<std::endl;
+        gLog<<"ParseRequest sRequest=\""<<sRequest<<"\""<<std::endl;
 
         request.Clear();
 
         string::cStringParserUTF8 sp(sRequest);
 
         if (sp.IsEnd()) {
-          LOG<<"ParseRequest Empty string, returning false"<<std::endl;
+          gLog<<"ParseRequest Empty string, returning false"<<std::endl;
           return false;
         }
 
@@ -329,7 +344,7 @@ namespace spitfire
 
         // Parse method
         if (!sp.GetToWhiteSpaceAndSkip(sValue)) {
-          LOG<<"ParseRequest Couldn't parse method, returning false"<<std::endl;
+          gLog<<"ParseRequest Couldn't parse method, returning false"<<std::endl;
           return false;
         }
 
@@ -338,7 +353,7 @@ namespace spitfire
 
         // Parse path
         if (!sp.GetToWhiteSpaceAndSkip(sValue)) {
-          LOG<<"ParseRequest Couldn't parse path, returning false"<<std::endl;
+          gLog<<"ParseRequest Couldn't parse path, returning false"<<std::endl;
           return false;
         }
 
@@ -367,12 +382,12 @@ namespace spitfire
         }
 
         // Decode any form url encoded data
-        LOG<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
+        gLog<<"request.GetContentType()=\""<<request.GetContentType()<<"\""<<std::endl;
         if (spitfire::string::StartsWith(request.GetContentType(), "application/x-www-form-urlencoded")) {
           const size_t nContentLengthBytes = request.GetContentLengthBytes();
           if (nContentLengthBytes != 0) {
             if (sp.IsEnd()) {
-              LOG<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
+              gLog<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
               return false;
             }
 
@@ -380,7 +395,7 @@ namespace spitfire
             sp.SkipToStringAndSkip("\n");
 
             if (sp.IsEnd()) {
-              LOG<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
+              gLog<<"ParseRequest Could not read the url encoded content, returning false"<<std::endl;
               return false;
             }
 
@@ -388,14 +403,14 @@ namespace spitfire
             // action=delete&track=140736481787360&x=14&y=14
             std::string sLine = sp.GetToEndAndSkip();
             if (sLine.length() < nContentLengthBytes) {
-              LOG<<"ParseRequest URL encoded content length was less than the expected "<<nContentLengthBytes<<", actual "<<sLine.length()<<", returning false"<<std::endl;
+              gLog<<"ParseRequest URL encoded content length was less than the expected "<<nContentLengthBytes<<", actual "<<sLine.length()<<", returning false"<<std::endl;
               return false;
             }
 
             // Make sure that we ignore bytes after the content length
             sLine.resize(nContentLengthBytes);
 
-            LOG<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
+            gLog<<"ParseRequest url encoded string \""<<sLine<<"\""<<std::endl;
 
             // Decode our url encoded string;
             std::vector<std::string> pairs;
@@ -403,22 +418,22 @@ namespace spitfire
 
             const size_t n = pairs.size();
             for (size_t i = 0; i < n; i++) {
-              LOG<<"ParseRequest Pair \""<<pairs[i]<<"\""<<std::endl;
+              gLog<<"ParseRequest Pair \""<<pairs[i]<<"\""<<std::endl;
               size_t found = 0;
               if (!spitfire::string::Find(pairs[i], "=", found)) {
-                LOG<<"ParseRequest Invalid pair \""<<pairs[i]<<"\", returning false"<<std::endl;
+                gLog<<"ParseRequest Invalid pair \""<<pairs[i]<<"\", returning false"<<std::endl;
                 return false;
               }
 
               const std::string sKey = pairs[i].substr(0, found);
               const std::string sValue = spitfire::network::Decode(pairs[i].substr(found + 1));
-              LOG<<"ParseRequest Split \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
+              gLog<<"ParseRequest Split \""<<sKey<<"\"=\""<<sValue<<"\""<<std::endl;
               request.AddFormData(sKey, sValue);
             }
           }
         }
 
-        LOG<<"ParseRequest returning true"<<std::endl;
+        gLog<<"ParseRequest returning true"<<std::endl;
         return true;
       }
 
@@ -518,7 +533,7 @@ namespace spitfire
 
       std::string cResponse::ToString() const
       {
-        LOG<<"cResponse::ToString mime=\""<<sMimeType<<"\""<<std::endl;
+        gLog<<"cResponse::ToString mime=\""<<sMimeType<<"\""<<std::endl;
 
         std::ostringstream o;
         o<<"HTTP/1.1 "<<GetStatusAsString(status)<<" "<<GetStatusDescription(status)<<"\n";
@@ -596,7 +611,7 @@ namespace spitfire
 
       void cConnectionHTTP::ParseHeader()
       {
-        LOG<<"cConnectionHTTP::ParseHeader"<<std::endl;
+        gLog<<"cConnectionHTTP::ParseHeader"<<std::endl;
 
         headerValues.clear();
 
@@ -605,7 +620,7 @@ namespace spitfire
         string::SplitOnNewLines(header, vHeader);
 
         if (vHeader.empty()) {
-          LOG<<"cConnectionHTTP::ParseHeader No lines to parse, returning"<<std::endl;
+          gLog<<"cConnectionHTTP::ParseHeader No lines to parse, returning"<<std::endl;
           return;
         }
 
@@ -616,7 +631,7 @@ namespace spitfire
           string::SplitOnNewLines(vHeader[0], vParts);
 
           if (vParts.size() >= 3) {
-            status = string::ToInt(string::ToString_t(vParts[1]));
+            status = string::ToInt(string::ToString(vParts[1]));
           }
         }
 
@@ -947,17 +962,17 @@ Content-Transfer-Encoding: binary
 
         // Check if the path is trying to be tricky
         if ((string::CountOccurrences(sResolvedLocalFilePath, "./") != 0) || (string::CountOccurrences(sResolvedLocalFilePath, "..") != 0)) {
-          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a compressed path, returning false"<<std::endl;
+          gLog<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a compressed path, returning false"<<std::endl;
           return false;
         } else if (!filesystem::FileExists(sResolvedLocalFilePath)) {
-          LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" was not found, returning false"<<std::endl;
+          gLog<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" was not found, returning false"<<std::endl;
           return false;
         }
 
         // Look for index.html if it is a folder
         if (filesystem::IsFolder(sResolvedLocalFilePath)) {
           if (!filesystem::FileExists(sResolvedLocalFilePath + "index.html")) {
-            LOG<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a folder, but it doesn't contain an index.html, returning false"<<std::endl;
+            gLog<<"cServer::GetLocalFilePathInWebDirectory Request path \""<<sResolvedLocalFilePath<<"\" is a folder, but it doesn't contain an index.html, returning false"<<std::endl;
             return false;
           }
 
@@ -991,7 +1006,7 @@ Content-Transfer-Encoding: binary
 
       size_t cConnectionHTTP::ReadHeader(network::cConnectionTCP& connection)
       {
-        LOG<<"cConnectionHTTP::ReadHeader"<<std::endl;
+        gLog<<"cConnectionHTTP::ReadHeader"<<std::endl;
         ASSERT(connection.IsOpen());
 
         // If this fails we have already read the header
@@ -1003,23 +1018,23 @@ Content-Transfer-Encoding: binary
 
         //const size_t bytes_readable = connection.GetBytesToRead();
 
-        //LOG<<"cConnectionHTTP::ReadHeader bytes_readable="<<bytes_readable<<std::endl;
+        //gLog<<"cConnectionHTTP::ReadHeader bytes_readable="<<bytes_readable<<std::endl;
 
         size_t len = 0;
         char szHeaderBuffer[nBufferLength + 1];
-        //LOG<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
+        //gLog<<"cConnectionHTTP::ReadHeader About to start reading stuff"<<std::endl;
         while (connection.IsOpen()) {
-          //LOG<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
+          //gLog<<"cConnectionHTTP::ReadHeader Reading"<<std::endl;
           len = connection.Read(szHeaderBuffer, nBufferLength, 5000);
-          //LOG<<"cConnectionHTTP::ReadHeader Read has finished"<<std::endl;
+          //gLog<<"cConnectionHTTP::ReadHeader Read has finished"<<std::endl;
           if (len == 0) {
-            LOG<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
+            gLog<<"cConnectionHTTP::ReadHeader Read 0 bytes, breaking"<<std::endl;
             break;
           }
 
-          //LOG<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
+          gLog<<"cConnectionHTTP::ReadHeader Terminating string"<<std::endl;
           szHeaderBuffer[len] = 0;
-          //LOG<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
+          gLog<<"cConnectionHTTP::ReadHeader Read "<<len<<" bytes into buffer szHeaderBuffer=\""<<szHeaderBuffer<<"\""<<std::endl;
 
           std::string sBuffer(szHeaderBuffer);
           std::string::size_type i = sBuffer.find("\r\n\r\n");
@@ -1028,52 +1043,53 @@ Content-Transfer-Encoding: binary
             header += sBuffer;
           } else {
             header += sBuffer.substr(0, i);
-            //LOG<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
+            gLog<<"cConnectionHTTP::ReadHeader Read into buffer header=\""<<header<<"\""<<std::endl;
 
             // Skip "\r\n\r\n"
             i += 4;
 
             ASSERT(len >= i);
             const size_t nBufferRead = len - i;
+            std::cout<<"cConnectionHTTP::ReadHeader nBufferRead="<<nBufferRead<<std::endl;
 
             if (nBufferRead != 0) {
               // There is something to put in the content buffer so fill it up and return
 
               // Make space to append the next chunk to the end of our current header buffer
-              //LOG<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
+              //gLog<<"cConnectionHTTP::ReadHeader Content reserving  "<<nBufferRead<<" bytes"<<std::endl;
               content.reserve(nBufferRead);
 
               // Append to the header
-              //LOG<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
+              gLog<<"cConnectionHTTP::ReadHeader Content inserting  "<<nBufferRead<<" bytes"<<std::endl;
               content.insert(content.begin(), nBufferRead, '\0');
-              //LOG<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
+              //gLog<<"cConnectionHTTP::ReadHeader Content copying "<<nBufferRead<<" bytes"<<std::endl;
               memcpy(&content[0], &szHeaderBuffer[i], nBufferRead);
               break;
             }
           }
         }
 
-        //LOG<<"cConnectionHTTP::ReadHeader Parsing the header \""<<header<<"\""<<std::endl;
+        //gLog<<"cConnectionHTTP::ReadHeader Parsing the header \""<<header<<"\""<<std::endl;
         // Actually parse the header into status, key value pairs etc.
         ParseHeader();
 
-        LOG<<"cConnectionHTTP::ReadHeader returning "<<header.length()<<std::endl;
+        gLog<<"cConnectionHTTP::ReadHeader returning "<<header.length()<<std::endl;
         return header.length();
       }
 
       size_t cConnectionHTTP::ReadContent(network::cConnectionTCP& connection, void* pOutContent, size_t len)
       {
-        LOG<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
+        gLog<<"cConnectionHTTP::ReadContent len="<<len<<std::endl;
 
         size_t nContentReadThisTimeAround = 0;
 
         // If we already have content data then read from there first
         const size_t nBufferRead = content.size();
-        //LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
+        //gLog<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<std::endl;
         if (nBufferRead != 0) {
-          //LOG<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
+          //gLog<<"cConnectionHTTP::ReadContent Reading "<<nBufferRead<<" previous bytes"<<std::endl;
           const size_t smaller = min(nBufferRead, len);
-          //LOG<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
+          //gLog<<"cConnectionHTTP::ReadContent Actually reading "<<smaller<<" previous bytes"<<std::endl;
           memcpy(pOutContent, &content[0], smaller);
 
           // Increment our buffer
@@ -1090,13 +1106,13 @@ Content-Transfer-Encoding: binary
 
         if (len != 0) {
           if (!connection.IsOpen()) {
-            LOG<<"cConnectionHTTP::ReadContent Connection is closed, returning "<<nContentReadThisTimeAround<<std::endl;
+            gLog<<"cConnectionHTTP::ReadContent Connection is closed, returning "<<nContentReadThisTimeAround<<std::endl;
             return nContentReadThisTimeAround;
           }
 
           // Now read the rest from the connection
           const size_t n = connection.Read(pOutContent, len, 2000);
-          //LOG<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
+          //gLog<<"cConnectionHTTP::ReadContent nBufferRead="<<nBufferRead<<" n="<<n<<std::endl;
           nContentReadThisTimeAround += n;
         }
 
@@ -1107,7 +1123,7 @@ Content-Transfer-Encoding: binary
         //   ... ends in "\r\n0\r\n"
         // }
 
-        LOG<<"cConnectionHTTP::ReadContent returning "<<nContentReadThisTimeAround<<std::endl;
+        gLog<<"cConnectionHTTP::ReadContent returning "<<nContentReadThisTimeAround<<std::endl;
         return nContentReadThisTimeAround;
       }
 
@@ -1127,7 +1143,7 @@ Content-Transfer-Encoding: binary
       {
         std::map<std::string, std::string>::const_iterator iter = MapFindCaseInsensitive(headerValues, "Content-Length");
         if (iter != headerValues.end()) {
-          return string::ToUnsignedInt(string::ToString_t(iter->second));
+          return string::ToUnsignedInt(string::ToString(iter->second));
         }
 
         return 0;
@@ -1179,9 +1195,9 @@ Content-Transfer-Encoding: binary
 
       void cHTTP::Download(const std::string& path, METHOD method, cRequestListener& listener) const
       {
-        LOG<<"cHTTP::Download"<<std::endl;
+        gLog<<"cHTTP::Download"<<std::endl;
 
-        cURI uri(path);
+        cURI uri(spitfire::network::http::URLEncode(path));
 
         cRequest request;
         request.SetHost(uri.GetServer());
@@ -1195,7 +1211,7 @@ Content-Transfer-Encoding: binary
 
       void cHTTP::SendRequest(const cRequest& request, cRequestListener& listener) const
       {
-        LOG<<"cHTTP::SendRequest"<<std::endl;
+        gLog<<"cHTTP::SendRequest"<<std::endl;
 
         breathe::network::cConnectionTCP connection;
 
@@ -1204,7 +1220,7 @@ Content-Transfer-Encoding: binary
 
       void cHTTP::SendRequest(cConnectionTCP& connection, const cRequest& request, cRequestListener& listener) const
       {
-        LOG<<"cHTTP::SendRequest"<<std::endl;
+        gLog<<"cHTTP::SendRequest"<<std::endl;
 
         // Start downloading at the beginning
         //uint32_t progress = 0;
@@ -1218,7 +1234,7 @@ Content-Transfer-Encoding: binary
         connection.Open(spitfire::string::ToUTF8(request.GetHost()), 80);
 
         if (!connection.IsOpen()) {
-          LOG<<"cHTTP::SendRequest Connection failed, returning"<<std::endl;
+          gLog<<"cHTTP::SendRequest Connection failed, returning"<<std::endl;
           state = STATE::CONNECTION_FAILED;
           return;
         }
@@ -1232,7 +1248,7 @@ Content-Transfer-Encoding: binary
             const size_t len = sRequestHeader.length();
             const size_t sent = connection.Write(sRequestHeader.c_str(), len);
             if (sent != len) {
-              LOG<<"cHTTP::SendRequest Sending request, Write FAILED"<<std::endl;
+              gLog<<"cHTTP::SendRequest Sending request, Write FAILED"<<std::endl;
               return;
             }
           }
@@ -1260,7 +1276,7 @@ Content-Transfer-Encoding: binary
               const size_t len = sContent.length();
               const size_t sent = connection.Write(sContent.c_str(), len);
               if (sent != len) {
-                LOG<<"cHTTP::SendRequest Sending content, Write FAILED"<<std::endl;
+                gLog<<"cHTTP::SendRequest Sending content, Write FAILED"<<std::endl;
                 return;
               }
             } else {
@@ -1313,7 +1329,7 @@ Content-Transfer-Encoding: binary
                   const size_t len = sContentLength.length();
                   const size_t sent = connection.Write(sContentLength.c_str(), len);
                   if (sent != len) {
-                    LOG<<"cHTTP::SendRequest Sending content length, Write FAILED"<<std::endl;
+                    gLog<<"cHTTP::SendRequest Sending content length, Write FAILED"<<std::endl;
                     return;
                   }
                 }
@@ -1324,37 +1340,37 @@ Content-Transfer-Encoding: binary
                   const size_t len = sContentBegin.length();
                   const size_t sent = connection.Write(sContentBegin.c_str(), len);
                   if (sent != len) {
-                    LOG<<"cHTTP::SendRequest Sending begin of content, Write FAILED"<<std::endl;
+                    gLog<<"cHTTP::SendRequest Sending begin of content, Write FAILED"<<std::endl;
                     return;
                   }
                 }
 
                 {
                   // Send the contents of the file
-                  LOG<<"cHTTP::SendRequest Sending content of file"<<std::endl;
+                  gLog<<"cHTTP::SendRequest Sending content of file"<<std::endl;
                   std::ifstream file;
 
                   file.open(spitfire::string::ToUTF8(request.file.sFilePath).c_str(), std::ios::in | std::ios::binary);
 
                   if (!file.good()) {
-                      LOG<<"cHTTP::SendRequest File not opened \""<<request.file.sFilePath<<"\""<<std::endl;
+                      gLog<<"cHTTP::SendRequest File not opened \""<<request.file.sFilePath<<"\""<<std::endl;
                       return;
                   }
 
                   uint8_t buffer[1024];
 
                   while (!file.eof()) {
-                    LOG<<"cHTTP::SendRequest Reading into buffer"<<std::endl;
+                    gLog<<"cHTTP::SendRequest Reading into buffer"<<std::endl;
                     const size_t nRead = file.readsome((char*)buffer, 1024);
                     if (nRead == 0) {
-                      LOG<<"cHTTP::SendRequest Finished reading file"<<std::endl;
+                      gLog<<"cHTTP::SendRequest Finished reading file"<<std::endl;
                       break;
                     }
                     assert(nRead <= 1024);
                     const size_t len = nRead;
                     const size_t sent = connection.Write((char*)buffer, len);
                     if (sent != len) {
-                      LOG<<"cHTTP::SendRequest Sending file contents, Write FAILED"<<std::endl;
+                      gLog<<"cHTTP::SendRequest Sending file contents, Write FAILED"<<std::endl;
                       return;
                     }
                   }
@@ -1365,7 +1381,7 @@ Content-Transfer-Encoding: binary
                   const size_t len = sContentEnd.length();
                   const size_t sent = connection.Write(sContentEnd.c_str(), len);
                   if (sent != len) {
-                    LOG<<"cHTTP::SendRequest Sending end of content, Write FAILED"<<std::endl;
+                    gLog<<"cHTTP::SendRequest Sending end of content, Write FAILED"<<std::endl;
                     return;
                   }
                 }
@@ -1384,12 +1400,12 @@ Content-Transfer-Encoding: binary
         cConnectionHTTP reader;
         size_t len = reader.ReadHeader(connection);
         if (len == 0) {
-          LOG<<"cHTTP::SendRequest ReadHeader FAILED"<<std::endl;
+          gLog<<"cHTTP::SendRequest ReadHeader FAILED"<<std::endl;
           return;
         }
 
 
-        LOG<<"cHTTP::SendRequest About to read content"<<std::endl;
+        gLog<<"cHTTP::SendRequest About to read content"<<std::endl;
         state = STATE::RECEIVING_CONTENT;
 
         bool bIsText = true;
@@ -1401,7 +1417,7 @@ Content-Transfer-Encoding: binary
             if (len != 0) {
               buffer[len] = 0;
               sContent = buffer;
-              LOG<<"Content: "<<sContent<<std::endl;
+              gLog<<"Content: "<<sContent<<std::endl;
               listener.OnTextContentReceived(sContent);
             }
           } while (len != 0);
@@ -1416,7 +1432,7 @@ Content-Transfer-Encoding: binary
         connection.Close();
 
         state = STATE::FINISHED;
-        LOG<<"cHTTP::SendRequest Finished, returning"<<std::endl;
+        gLog<<"cHTTP::SendRequest Finished, returning"<<std::endl;
       }
     }
   }

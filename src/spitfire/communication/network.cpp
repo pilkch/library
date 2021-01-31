@@ -15,9 +15,6 @@
 #include <mutex>
 #include <thread>
 
-// Boost headers
-#include <boost/asio.hpp>
-
 // Other libraries
 #ifdef WIN32
 #include <windows.h>
@@ -115,14 +112,14 @@ namespace spitfire
 
     bool Init()
     {
-      LOG<<"cNetwork Init"<<std::endl;
+      gLog<<"cNetwork Init"<<std::endl;
 
       return true;
     }
 
     void Destroy()
     {
-      LOG<<"cNetwork Destroy"<<std::endl;
+      gLog<<"cNetwork Destroy"<<std::endl;
     }
 
     bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses)
@@ -145,7 +142,7 @@ namespace spitfire
           char host[NI_MAXHOST];
           int s = getnameinfo(pAddr, sizeof(struct sockaddr_in), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
           if (s != 0) {
-            LOG<<"GetIPAddressesOfNetworkInterfaces getnameinfo FAILED: "<<gai_strerror(s)<<std::endl;
+            gLog<<"GetIPAddressesOfNetworkInterfaces getnameinfo FAILED: "<<gai_strerror(s)<<std::endl;
             return false;
           }
 
@@ -164,7 +161,7 @@ namespace spitfire
 
     cConnectionTCP::cConnectionTCP() :
       bIsOpen(false),
-      socket(io_service)
+      socket(io_context)
     {
     }
 
@@ -172,22 +169,26 @@ namespace spitfire
     {
       ASSERT(!IsOpen());
 
-      boost::asio::ip::tcp::resolver resolver(io_service);
+      std::cout<<"cConnectionTCP::Open "<<host<<":"<<port<<std::endl;
 
-      const std::string sPort = spitfire::string::ToUTF8(spitfire::string::ToString(port));
-      boost::asio::ip::tcp::resolver::query query(host, sPort);
-      boost::system::error_code error = boost::asio::error::host_not_found;
-      boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, error);
-      boost::asio::ip::tcp::resolver::iterator end;
+      std::experimental::net::ip::tcp::resolver resolver(io_context);
 
-      error = boost::asio::error::host_not_found;
-      while (error && (endpoint_iterator != end)) {
-        socket.close();
-        socket.connect(*endpoint_iterator++, error);
+      std::error_code error;
+      std::experimental::net::ip::tcp::resolver::results_type results = resolver.resolve(host, std::to_string(port), error);
+      if (results.empty()) {
+        return false;
       }
 
+      for(std::experimental::net::ip::tcp::endpoint const& endpoint : results)
+      {
+          std::cout << endpoint << "\n";
+      }
+
+      std::experimental::net::ip::tcp::endpoint server = *(results.begin());
+      socket.connect(server, error);
+
       if (error) {
-        LOG<<"cConnectionTCP::Open ERROR Finding a connection"<<std::endl;
+        gLog<<"cConnectionTCP::Open ERROR Finding a connection"<<std::endl;
         return false;
       }
 
@@ -211,11 +212,11 @@ namespace spitfire
     size_t cConnectionTCP::GetBytesToRead()
     {
       // Check if there are any bytes available
-      boost::asio::socket_base::bytes_readable command(true);
+      //std::experimental::net::socket_base::bytes_readable command(true);
+      //socket.io_control(command);
+      //return command.get();
 
-      socket.io_control(command);
-
-      return command.get();
+      return 0;
     }
 
     size_t cConnectionTCP::GetBytesAvailable()
@@ -225,41 +226,41 @@ namespace spitfire
 
     size_t cConnectionTCP::Read(void* buffer, size_t len, timeoutms_t timeoutMS)
     {
-      LOG<<"cConnectionTCP::Read Reading with timeout "<<timeoutMS<<std::endl;
+      gLog<<"cConnectionTCP::Read Reading up to "<<len<<" bytes with timeout "<<timeoutMS<<std::endl;
 
       ASSERT(IsOpen());
 
-      boost::system::error_code error;
+      std::error_code error;
 
-      const size_t nLength = socket.read_some(boost::asio::buffer(static_cast<char*>(buffer), len), error);
+      const size_t nLength = socket.read_some(std::experimental::net::buffer(static_cast<char*>(buffer), len), error);
 
-      if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
+      /*if (error == std::experimental::net::error::eof) { // Connection closed cleanly by peer.
         Close();
-      } else if (error) {
-        LOG<<"cConnectionTCP::Read ERROR When reading from socket"<<std::endl;
+      } else*/ if (error) {
+        gLog<<"cConnectionTCP::Read ERROR When reading from socket"<<std::endl;
         Close();
       } else {
         ASSERT(nLength <= len);
       }
 
-      LOG<<"cConnectionTCP::Read len="<<nLength<<std::endl;
+      gLog<<"cConnectionTCP::Read len="<<nLength<<std::endl;
       return nLength;
     }
 
     size_t cConnectionTCP::Write(const void* buffer, size_t len)
     {
-      LOG<<"cConnectionTCP::Write"<<std::endl;
+      gLog<<"cConnectionTCP::Write"<<std::endl;
 
       ASSERT(IsOpen());
 
-      boost::system::error_code error;
+      std::error_code error;
 
-      const size_t nLength = socket.write_some(boost::asio::buffer(static_cast<const char*>(buffer), len), error);
+      const size_t nLength = socket.write_some(std::experimental::net::buffer(static_cast<const char*>(buffer), len), error);
 
-      if (error == boost::asio::error::eof) { // Connection closed cleanly by peer.
+      /*if (error == std::experimental::net::error::eof) { // Connection closed cleanly by peer.
         Close();
-      } else if (error) {
-        LOG<<"cConnectionTCP::Write ERROR When reading from socket"<<std::endl;
+      } else*/ if (error) {
+        gLog<<"cConnectionTCP::Write ERROR When reading from socket"<<std::endl;
         Close();
       } else {
         ASSERT(nLength == len);
@@ -273,7 +274,7 @@ namespace spitfire
 
     // ** cConnectedClient
 
-    cConnectedClient::cConnectedClient(boost::asio::io_service& _socket) :
+    cConnectedClient::cConnectedClient(std::experimental::net::io_context& _socket) :
       util::cThread(soAction, "cServer"),
       soAction("soAction"),
       socket(_socket),
@@ -288,7 +289,7 @@ namespace spitfire
 
     void cConnectedClient::Start(cServer& server)
     {
-      LOG<<"cConnectedClient::Start"<<std::endl;
+      gLog<<"cConnectedClient::Start"<<std::endl;
 
       pServer = &server;
 
@@ -297,21 +298,21 @@ namespace spitfire
 
     void cConnectedClient::ThreadFunction()
     {
-      LOG<<"cConnectedClient::ThreadFunction"<<std::endl;
+      gLog<<"cConnectedClient::ThreadFunction"<<std::endl;
 
       try {
         pServer->RunClientConnection(*this);
       }
       catch (std::exception& e) {
         // Catch any boost asio socket errors
-        LOG<<e.what()<<std::endl;
+        gLog<<e.what()<<std::endl;
       }
 
       pServer->OnClientConnectionFinished(*this);
 
       pServer = nullptr;
 
-      LOG<<"cConnectedClient::ThreadFunction returning"<<std::endl;
+      gLog<<"cConnectedClient::ThreadFunction returning"<<std::endl;
     }
 
     bool cConnectedClient::IsOpen()
@@ -321,17 +322,17 @@ namespace spitfire
 
     void cConnectedClient::SetNoDelay()
     {
-      socket.set_option(boost::asio::ip::tcp::no_delay(true));
+      socket.set_option(std::experimental::net::ip::tcp::no_delay(true));
     }
 
     size_t cConnectedClient::GetBytesToRead()
     {
       // Check if there are any bytes available
-      boost::asio::socket_base::bytes_readable command(true);
+      //std::experimental::net::socket_base::bytes_readable command(true);
+      //socket.io_control(command);
+      //return command.get();
 
-      socket.io_control(command);
-
-      return command.get();
+      return 0;
     }
 
     size_t cConnectedClient::GetBytesAvailable()
@@ -341,12 +342,12 @@ namespace spitfire
 
     size_t cConnectedClient::Read(uint8_t* pBuffer, size_t nBufferSize)
     {
-      return socket.receive(boost::asio::buffer(pBuffer, nBufferSize));
+      return socket.receive(std::experimental::net::buffer(pBuffer, nBufferSize));
     }
 
     void cConnectedClient::Write(const uint8_t* pBuffer, size_t nBufferSize)
     {
-      boost::asio::write(socket, boost::asio::buffer(pBuffer, nBufferSize), boost::asio::transfer_all());
+      socket.write_some(std::experimental::net::buffer(pBuffer, nBufferSize));
     }
 
     void cConnectedClient::Write(const std::string& sData)
@@ -354,12 +355,12 @@ namespace spitfire
       // TODO: Replace this code with something like this or C++11 bind
       /*message = sData;
 
-      boost::asio::async_write(socket, boost::asio::buffer(message),
+      std::experimental::net::async_write(socket, std::experimental::net::buffer(message),
           boost::bind(&cConnectedClient::WriteCallback, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));*/
+            std::experimental::net::placeholders::error,
+            std::experimental::net::placeholders::bytes_transferred));*/
 
-      boost::asio::write(socket, boost::asio::buffer(sData), boost::asio::transfer_all());
+      socket.write_some(std::experimental::net::buffer(sData));
     }
 
 
@@ -370,7 +371,7 @@ namespace spitfire
       util::cThread(soAction, "cServer"),
       soAction("soAction"),
       server(_server),
-      acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), uiPort)),
+      acceptor(io_context, std::experimental::net::ip::tcp::endpoint(std::experimental::net::ip::tcp::v4(), uiPort)),
       pNewConnection(nullptr)
     {
     }
@@ -378,7 +379,7 @@ namespace spitfire
     void cTCPConnectionListener::StopThreadNow()
     {
       // Tell the service to stop
-      io_service.stop();
+      io_context.stop();
 
       // Stop the thread
       util::cThread::StopThreadNow();
@@ -390,32 +391,33 @@ namespace spitfire
       StartAccept();
 
       // Run the io service
-      io_service.run();
+      io_context.run();
 
       SAFE_DELETE(pNewConnection);
     }
 
     void cTCPConnectionListener::StartAccept()
     {
-      LOG<<"cTCPConnectionListener::StartAccept"<<std::endl;
+      gLog<<"cTCPConnectionListener::StartAccept"<<std::endl;
 
       // Make sure that there isn't a current connection in progress
       ASSERT(pNewConnection == nullptr);
 
       // Create a new connection and try to accept it
-      pNewConnection = new cConnectedClient(acceptor.get_io_service());
+      pNewConnection = new cConnectedClient(acceptor.get_executor().context());
 
       // Try to accept a connection some time in the future
-      acceptor.async_accept(pNewConnection->GetSocket(),
-        boost::bind(&cTCPConnectionListener::OnConnection, this, boost::asio::placeholders::error));
+      //acceptor.async_accept(pNewConnection->GetSocket(),
+      //  std::bind(&cTCPConnectionListener::OnConnection, this, std::experimental::net::placeholders::error));
+      gLog.Error("network", "What goes here?");
     }
 
-    void cTCPConnectionListener::OnConnection(const boost::system::error_code& error)
+    void cTCPConnectionListener::OnConnection(const std::error_code& error)
     {
-      LOG<<"cTCPConnectionListener::OnConnection"<<std::endl;
+      gLog<<"cTCPConnectionListener::OnConnection"<<std::endl;
 
       if (error) {
-        LOG<<"cTCPConnectionListener::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
+        gLog<<"cTCPConnectionListener::OnConnection error="<<error<<", pNewConnection="<<uint64_t(pNewConnection)<<std::endl;
 
         // Delete the connection
         SAFE_DELETE(pNewConnection);
@@ -484,7 +486,7 @@ namespace spitfire
 
     void cServer::OnConnectedClient(cConnectedClient* pNewConnection)
     {
-      LOG<<"cServer::OnConnectedClient New connection started"<<std::endl;
+      gLog<<"cServer::OnConnectedClient New connection started"<<std::endl;
 
       ASSERT(pNewConnection != nullptr);
 
@@ -506,7 +508,7 @@ namespace spitfire
 
     void cServer::OnClientConnectionFinished(cConnectedClient& connection)
     {
-      LOG<<"cServer::OnClientConnectionFinished Sending event CLIENT_CONNECTION_FINISHED"<<std::endl;
+      gLog<<"cServer::OnClientConnectionFinished Sending event CLIENT_CONNECTION_FINISHED"<<std::endl;
       cServerEvent* pEvent = new cServerEvent;
       pEvent->type = SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED;
       pEvent->pConnectedClient = &connection;
@@ -521,7 +523,7 @@ namespace spitfire
 
     void cServer::ThreadFunction()
     {
-      LOG<<"cServer::ThreadFunction"<<std::endl;
+      gLog<<"cServer::ThreadFunction"<<std::endl;
 
       pTCPConnectionListener = new cTCPConnectionListener(*this, uiPort);
       pTCPConnectionListener->Run();
@@ -534,7 +536,7 @@ namespace spitfire
         cServerEvent* pEvent = eventQueue.RemoveItemFromFront();
         if (pEvent != nullptr) {
           if (pEvent->type == SERVER_EVENT_TYPE::CLIENT_CONNECTION_FINISHED) {
-            LOG<<"cServer::ThreadFunction Processing event CLIENT_CONNECTION_FINISHED"<<std::endl;
+            gLog<<"cServer::ThreadFunction Processing event CLIENT_CONNECTION_FINISHED"<<std::endl;
             ASSERT(pEvent->pConnectedClient != nullptr);
 
             if (!pEvent->pConnectedClient->IsRunning()) {
@@ -570,7 +572,7 @@ namespace spitfire
         spitfire::SAFE_DELETE(pEvent);
       }
 
-      LOG<<"cServer::ThreadFunction returning"<<std::endl;
+      gLog<<"cServer::ThreadFunction returning"<<std::endl;
     }
   }
 }
