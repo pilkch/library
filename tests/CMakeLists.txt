@@ -84,6 +84,16 @@ SET(OUTPUT_LIBRARY_LIBTRASHMM_SOURCE_FILES ${OUTPUT_FILES})
 
 
 
+SET(LIBRARY_LIBGNUTLSMM_SOURCE_DIRECTORY libgnutlsmm/)
+SET(LIBRARY_LIBGNUTLSMM_SOURCE_FILES
+gnutlsmm.cpp
+)
+
+PREFIX_PATHS(${LIBRARY_LIBGNUTLSMM_SOURCE_DIRECTORY} ${LIBRARY_LIBGNUTLSMM_SOURCE_FILES})
+SET(OUTPUT_LIBRARY_LIBGNUTLSMM_SOURCE_FILES ${OUTPUT_FILES})
+
+
+
 SET(LIBRARY_LIBXDGMM_SOURCE_DIRECTORY libxdgmm/)
 SET(LIBRARY_LIBXDGMM_SOURCE_FILES
 libxdgmm.cpp
@@ -115,7 +125,7 @@ algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
 communication/http.cpp communication/network.cpp
 math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
 storage/file.cpp storage/filesystem.cpp storage/json.cpp storage/document.cpp storage/settings.cpp storage/xml.cpp
-util/datetime.cpp util/lang.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp
+util/datetime.cpp util/lang.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/weather_bom.cpp
 )
 
 IF(WIN32)
@@ -127,7 +137,7 @@ SET(OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES ${OUTPUT_FILES})
 
 
 
-SET(LIBRARY_SOURCE_FILES ${OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES} ${OUTPUT_LIBRARY_BREATHE_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBTRASHMM_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBXDGMM_SOURCE_FILES}  ${OUTPUT_LIBRARY_LIBWIN32MM_SOURCE_FILES}
+SET(LIBRARY_SOURCE_FILES ${OUTPUT_LIBRARY_SPITFIRE_SOURCE_FILES} ${OUTPUT_LIBRARY_BREATHE_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBTRASHMM_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBGNUTLSMM_SOURCE_FILES} ${OUTPUT_LIBRARY_LIBXDGMM_SOURCE_FILES}  ${OUTPUT_LIBRARY_LIBWIN32MM_SOURCE_FILES}
 )
 PREFIX_PATHS(${LIBRARY_SRC} ${LIBRARY_SOURCE_FILES})
 SET(OUTPUT_LIBRARY_SOURCE_FILES ${OUTPUT_FILES})
@@ -142,6 +152,7 @@ html_test.cpp
 geometry_test.cpp math_test.cpp units_test.cpp
 lang_test.cpp process_test.cpp settings_test.cpp spitfire_test.cpp string_test.cpp thread_test.cpp
 network_test.cpp
+weather_bom_test.cpp
 main.cpp
 )
 PREFIX_PATHS(src/ ${TEST_SOURCE_FILES})
@@ -171,6 +182,7 @@ IF(UNIX)
 SET(STANDARD_LIBRARIES
   stdc++fs
   pthread
+  gnutls
   gtest
 )
 SET(XDG_LIBRARIES

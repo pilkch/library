@@ -64,6 +64,30 @@ namespace spitfire
       vValueObjectOrArray.push_back(pChild);
     }
 
+    const cNode* cNode::GetChild(const std::string& sName) const
+    {
+      ASSERT(type == TYPE::OBJECT);
+      for (auto&& item : vValueObjectOrArray) {
+        if (item->GetName() == sName) {
+          return item;
+        }
+      }
+
+      return nullptr;
+    }
+
+    cNode* cNode::GetChild(const std::string& sName)
+    {
+      ASSERT(type == TYPE::OBJECT);
+      for (auto&& item : vValueObjectOrArray) {
+        if (item->GetName() == sName) {
+          return item;
+        }
+      }
+
+      return nullptr;
+    }
+
     void cNode::Clear()
     {
       type = TYPE::NULL_;
@@ -76,6 +100,76 @@ namespace spitfire
       iValueInt = 0;
       dValueFloat = 0.0;
       bValueBool = false;
+    }
+
+    std::string cNode::GetValueString() const
+    {
+      switch (type) {
+        case TYPE::BOOL_: {
+          return spitfire::string::ToString(bValueBool);
+        }
+        case TYPE::INT: {
+          return spitfire::string::ToString(iValueInt);
+        }
+        case TYPE::FLOAT: {
+          std::cout<<"GetValueString \""<<sNameUTF8<<"\" returning "<<dValueFloat<<std::endl;
+          // TODO: Move this to ToString?
+          std::ostringstream o;
+          o<<dValueFloat;
+          return o.str();
+        }
+      }
+
+      return sValueUTF8String;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, uint8_t& value) const
+    {
+      ASSERT(type == TYPE::OBJECT);
+      for (auto&& item : vValueObjectOrArray) {
+        if (item->GetName() == sAttribute) {
+          const int iValue = item->GetValueInt();
+          if ((iValue >= 0) && (iValue <= 0xff)) {
+            value = static_cast<uint8_t>(iValue);
+            return true;
+          }
+
+          break;
+        }
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, uint16_t& value) const
+    {
+      ASSERT(type == TYPE::OBJECT);
+      for (auto&& item : vValueObjectOrArray) {
+        if (item->GetName() == sAttribute) {
+          const int iValue = item->GetValueInt();
+          if ((iValue >= 0) && (iValue <= 0xffff)) {
+            value = static_cast<uint16_t>(iValue);
+            return true;
+          }
+
+          break;
+        }
+      }
+
+      return false;
+    }
+
+    bool cNode::GetAttribute(const std::string& sAttribute, std::string& value) const
+    {
+      ASSERT(type == TYPE::OBJECT);
+      for (auto&& item : vValueObjectOrArray) {
+        if (item->GetName() == sAttribute) {
+          value = item->GetValueString();
+          return true;
+        }
+      }
+
+      return false;
     }
 
     void cNode::SetAttribute(const std::string& sAttribute, const char* szValue)
@@ -136,7 +230,7 @@ namespace spitfire
 
       if (!f.is_open()) {
 #ifndef FIRESTARTER
-        LOG.Error("JSON", spitfire::string::ToUTF8(filename) + " not found, returning false");
+        gLog.Error("JSON", spitfire::string::ToUTF8(filename) + " not found, returning false");
         CONSOLE<<"JSON "<<filename<<" not found, returning false"<<std::endl;
 #endif
         return false;
@@ -299,13 +393,13 @@ namespace spitfire
                 while (true) {
                   if (sp.IsEnd()) {
                     #ifndef FIRESTARTER
-                    LOG.Error("JSON", "Unexpected end of string while reading value, returning false");
+                    gLog.Error("JSON", "Unexpected end of string while reading value, returning false");
                     #endif
                     return false;
                   }
 
                   c = sp.GetCharacter();
-                  if ((c == ',') || spitfire::string::IsWhiteSpace(c)) break;
+                  if ((c == ',') || (c == '}') || spitfire::string::IsWhiteSpace(c)) break;
                   else {
                     sValue += c;
                     sp.SkipCharacter();
@@ -325,12 +419,12 @@ namespace spitfire
                 } else if (sValue.find('.') != std::string::npos) {
                   std::cout<<"Found float"<<std::endl;
                   // Read a float value
-                  const double dValueFloat = string::ToFloat(string::ToString_t(sValue));
+                  const double dValueFloat = string::ToFloat(string::ToString(sValue));
                   pProperty->SetTypeFloat(dValueFloat);
                 } else {
                   std::cout<<"Found int"<<std::endl;
                   // Read an int value
-                  const int iValueInt = string::ToInt(string::ToString_t(sValue));
+                  const int iValueInt = string::ToInt(string::ToString(sValue));
                   pProperty->SetTypeInt(iValueInt);
                 }
               }
@@ -383,7 +477,7 @@ namespace spitfire
 
       if (!f.is_open()) {
 #ifndef FIRESTARTER
-      LOG.Error("JSON", spitfire::string::ToUTF8(filename) + " not opened, returning false");
+      gLog.Error("JSON", spitfire::string::ToUTF8(filename) + " not opened, returning false");
 #endif
         return false;
       }
@@ -438,7 +532,7 @@ namespace spitfire
             else if (child.IsTypeBool()) o<<spitfire::string::ToUTF8(spitfire::string::ToString(child.GetValueBool()));
             else {
 #ifndef FIRESTARTER
-              LOG.Error("JSON", "WriteObjectOrArray Error writing child \"" + child.GetName() + "\", it is an unknown type");
+              gLog.Error("JSON", "WriteObjectOrArray Error writing child \"" + child.GetName() + "\", it is an unknown type");
 #endif
               return false;
             }
