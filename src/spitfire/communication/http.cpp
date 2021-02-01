@@ -1456,9 +1456,13 @@ Content-Transfer-Encoding: binary
 
         const spitfire::network::cURI uri(spitfire::network::http::URLEncode(url));
 
-        const std::string ip = hostname_lookup_ip(uri.GetHost());
+        std::optional<std::experimental::net::ip::tcp::endpoint> endpoint = hostname_lookup_endpoint(uri.GetHost(), "https");
+        if (!endpoint) {
+          std::cerr<<"Error looking up hostname"<<std::endl;
+          return;
+        }
 
-        tcp_connection connection;
+        spitfire::network::cConnectionTCP connection;
 
         gnutlsmm::client_session session;
 
@@ -1483,8 +1487,8 @@ Content-Transfer-Encoding: binary
         session.set_priority("SECURE128:+SECURE192:-VERS-ALL:+VERS-TLS1.2:%SAFE_RENEGOTIATION", nullptr);
 
         // connect to the peer
-        connection.connect(ip, uri.GetPort());
-        session.set_transport_ptr((gnutls_transport_ptr_t)(ptrdiff_t)connection.get_sd());
+        connection.Open(endpoint.value());
+        session.set_transport_ptr((gnutls_transport_ptr_t)(ptrdiff_t)connection.GetFD());
 
         // Perform the TLS handshake
         const int result = session.handshake();
@@ -1506,7 +1510,7 @@ Content-Transfer-Encoding: binary
 
         char buffer[MAX_BUF + 1];
 
-        util::poll_read p(connection.get_sd());
+        util::poll_read p(connection.GetFD());
 
         const int timeout_ms = 2000;
 
@@ -1531,7 +1535,7 @@ Content-Transfer-Encoding: binary
                 switch (p.poll(timeout_ms)) {
                     case util::POLL_READ_RESULT::DATA_READY: {
                         // Check if bytes are actually available (Otherwise if we try to read again the gnutls session object goes into a bad state and gnutlsxx throws an exception)
-                        if (connection.get_bytes_available() == 0) {
+                        if (connection.GetBytesToRead() == 0) {
                             //std::cout<<"but no bytes available"<<std::endl;
                             no_bytes_retries++;
 

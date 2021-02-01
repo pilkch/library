@@ -135,22 +135,39 @@ namespace spitfire
     }
 
 
+    std::optional<std::experimental::net::ip::tcp::endpoint> hostname_lookup_endpoint(const std::string& hostname, const std::string& protocol)
+    {
+      std::experimental::net::io_context io_context;
+      std::experimental::net::ip::tcp::resolver resolver(io_context);
+
+      std::error_code error;
+      std::experimental::net::ip::tcp::resolver::results_type results = resolver.resolve(hostname, protocol, error);
+      if (results.empty()) {
+        std::cerr<<"hostname_lookup_ip resolve failed"<<std::endl;
+        return std::nullopt;
+      }
+
+      for (auto&& item : results) {
+        // Return the first result
+        return item.endpoint();
+      }
+
+      return std::nullopt;
+    }
+
     std::string hostname_lookup_ip(const std::string& hostname)
     {
-      const struct hostent* he = gethostbyname(hostname.c_str());
-      if (he == nullptr) {
-        std::cerr<<"hostname_lookup_ip gethostbyname failed, errno="<<errno<<std::endl;
-        return "";
+      std::experimental::net::io_context io_context;
+      std::experimental::net::ip::tcp::resolver resolver(io_context);
+
+      const std::string protocol = "http";
+      std::optional<std::experimental::net::ip::tcp::endpoint> endpoint = hostname_lookup_endpoint(hostname, protocol);
+      if (endpoint) {
+        std::ostringstream o;
+        o<<endpoint.value().address();
+        return o.str();
       }
 
-      const struct in_addr** addr_list = (const struct in_addr**)he->h_addr_list;
-
-      for (int i = 0; addr_list[i] != nullptr; i++) {
-        // Get the first result
-        const std::string ip = inet_ntoa(*addr_list[i]);
-        return ip;
-      }
-      
       return "";
     }
 
@@ -189,52 +206,6 @@ namespace spitfire
     }
 
 
-    // ** tcp_connection
-
-    tcp_connection::tcp_connection() :
-        sd(-1)
-    {
-    }
-
-    tcp_connection::~tcp_connection()
-    {
-        close();
-    }
-
-    bool tcp_connection::connect(const std::string& ip, int port)
-    {
-        close();
-
-        // Connect to server
-        sd = ::socket(AF_INET, SOCK_STREAM, 0);
-
-        struct sockaddr_in sa;
-        ::memset(&sa, '\0', sizeof(sa));
-        sa.sin_family = AF_INET;
-        sa.sin_port = ::htons(port);
-        ::inet_pton(AF_INET, ip.c_str(), &sa.sin_addr);
-
-        const int result = ::connect(sd, (struct sockaddr *) &sa, sizeof(sa));
-        return (result >= 0);
-    }
-
-    void tcp_connection::close()
-    {
-        if (sd != -1) {
-            ::shutdown(sd, SHUT_RDWR); // No more receptions or transmissions
-            ::close(sd);
-            sd = -1;
-        }
-    }
-
-    size_t tcp_connection::get_bytes_available() const
-    {
-      int bytes_available = 0;
-      ::ioctl(sd, FIONREAD, &bytes_available);
-      return size_t(std::max(0, bytes_available));
-    }
-
-
     // *** cConnectionTCP
 
     cConnectionTCP::cConnectionTCP() :
@@ -243,27 +214,27 @@ namespace spitfire
     {
     }
 
-    bool cConnectionTCP::Open(const std::string& host, port_t port)
+    bool cConnectionTCP::Open(const std::string& ip, port_t port)
     {
       ASSERT(!IsOpen());
 
-      std::cout<<"cConnectionTCP::Open "<<host<<":"<<port<<std::endl;
+      std::cout<<"cConnectionTCP::Open "<<ip<<":"<<port<<std::endl;
 
-      std::experimental::net::ip::tcp::resolver resolver(io_context);
+      std::optional<std::experimental::net::ip::tcp::endpoint> endpoint = hostname_lookup_endpoint(ip, "http");
+      if (endpoint) {
+        // Set the correct port
+        endpoint.value().port(port);
 
+        return Open(endpoint.value());
+      }
+
+      return false;
+    }
+
+    bool cConnectionTCP::Open(const std::experimental::net::ip::tcp::endpoint& endpoint)
+    {
       std::error_code error;
-      std::experimental::net::ip::tcp::resolver::results_type results = resolver.resolve(host, std::to_string(port), error);
-      if (results.empty()) {
-        return false;
-      }
-
-      for(std::experimental::net::ip::tcp::endpoint const& endpoint : results)
-      {
-          std::cout << endpoint << "\n";
-      }
-
-      std::experimental::net::ip::tcp::endpoint server = *(results.begin());
-      socket.connect(server, error);
+      socket.connect(endpoint, error);
 
       if (error) {
         gLog<<"cConnectionTCP::Open ERROR Finding a connection"<<std::endl;
@@ -287,19 +258,17 @@ namespace spitfire
       return bIsOpen;
     }
 
+    #ifndef __WIN__
+    int cConnectionTCP::GetFD()
+    {
+      return socket.native_handle();
+    }
+    #endif
+
     size_t cConnectionTCP::GetBytesToRead()
     {
-      // Check if there are any bytes available
-      //std::experimental::net::socket_base::bytes_readable command(true);
-      //socket.io_control(command);
-      //return command.get();
-
-      return 0;
-    }
-
-    size_t cConnectionTCP::GetBytesAvailable()
-    {
-      return socket.available();
+      std::error_code error;
+      return socket.available(error);
     }
 
     size_t cConnectionTCP::Read(void* buffer, size_t len, timeoutms_t timeoutMS)
@@ -405,17 +374,8 @@ namespace spitfire
 
     size_t cConnectedClient::GetBytesToRead()
     {
-      // Check if there are any bytes available
-      //std::experimental::net::socket_base::bytes_readable command(true);
-      //socket.io_control(command);
-      //return command.get();
-
-      return 0;
-    }
-
-    size_t cConnectedClient::GetBytesAvailable()
-    {
-      return socket.available();
+      std::error_code error;
+      return socket.available(error);
     }
 
     size_t cConnectedClient::Read(uint8_t* pBuffer, size_t nBufferSize)

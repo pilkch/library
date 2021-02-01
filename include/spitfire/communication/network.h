@@ -2,6 +2,7 @@
 
 // Standard headers
 #include <list>
+#include <optional>
 #include <experimental/net>
 
 // Spitfire headers
@@ -71,28 +72,15 @@ namespace spitfire
     bool Init();
     void Destroy();
 
+    // Get an end point for a hostname and protocol
+    std::optional<std::experimental::net::ip::tcp::endpoint> hostname_lookup_endpoint(const std::string& hostname, const std::string& protocol);
+
     // Get the IP for a hostname
     // ie. "www.google.com" might return "172.217.25.132"
     std::string hostname_lookup_ip(const std::string& hostname);
 
     bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses);
 
-
-    class tcp_connection {
-    public:
-        tcp_connection();
-        ~tcp_connection();
-
-        bool connect(const std::string& ip, int port);
-        void close();
-
-        int get_sd() const { return sd; }
-
-      size_t get_bytes_available() const;
-
-    private:
-        int sd;
-    };
 
 
     // ** cConnectionTCP
@@ -105,12 +93,16 @@ namespace spitfire
       cConnectionTCP();
 
       bool Open(const std::string& host, port_t port);
+      bool Open(const std::experimental::net::ip::tcp::endpoint& endpoint);
       void Close();
 
       bool IsOpen() const;
 
+      #ifndef __WIN__
+      int GetFD();
+      #endif
+
       size_t GetBytesToRead();
-      size_t GetBytesAvailable();
 
       size_t Read(void* buffer, size_t len, timeoutms_t timeoutMS);
       size_t Write(const void* buffer, size_t len);
@@ -145,7 +137,6 @@ namespace spitfire
       void SetNoDelay(); // Set no delay so that we don't buffer our data before sending (This should only be required for EventSources)
 
       size_t GetBytesToRead();
-      size_t GetBytesAvailable();
 
       const std::experimental::net::ip::tcp::socket& GetSocket() const
       {
