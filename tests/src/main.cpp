@@ -1,11 +1,11 @@
 // gtest headers
 #include <gtest/gtest.h>
 
-#include <gnutls/gnutls.h>
+#include <spitfire/communication/network.h>
 
 int main(int argc, char** argv)
 {
-  gnutls_global_init();
+  spitfire::network::Init();
 
   ::testing::InitGoogleTest(&argc, argv);
 
@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 
   const int result = RUN_ALL_TESTS();
 
-  gnutls_global_deinit();
+  spitfire::network::Destroy();
 
   return result;
 }

@@ -33,6 +33,7 @@ ENDIF()
 
 IF(UNIX)
   ADD_DEFINITIONS("-D__LINUX__")
+  ADD_DEFINITIONS("-DBUILD_NETWORK_TLS")
 ENDIF()
 
 IF(WIN32)
@@ -125,7 +126,7 @@ algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
 communication/http.cpp communication/network.cpp
 math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
 storage/file.cpp storage/filesystem.cpp storage/json.cpp storage/document.cpp storage/settings.cpp storage/xml.cpp
-util/datetime.cpp util/lang.cpp util/log.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/weather_bom.cpp
+util/datetime.cpp util/lang.cpp util/log.cpp util/poll.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/weather_bom.cpp
 )
 
 IF(WIN32)

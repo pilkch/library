@@ -21,11 +21,18 @@
 #include <windows.h>
 #endif
 
+#ifdef BUILD_NETWORK_TLS
+#include <gnutls/gnutls.h>
+
+#include <libgnutlsmm/gnutlsmm.h>
+#endif // BUILD_NETWORK_TLS
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
 #include <spitfire/util/string.h>
 #include <spitfire/util/log.h>
+#include <spitfire/util/poll.h>
 #include <spitfire/util/thread.h>
 
 #include <spitfire/storage/filesystem.h>
@@ -1434,6 +1441,156 @@ Content-Transfer-Encoding: binary
         state = STATE::FINISHED;
         gLog<<"cHTTP::SendRequest Finished, returning"<<std::endl;
       }
+
+
+      #ifdef BUILD_NETWORK_TLS
+      // Use the system ca-certificates file
+      // Unfortunately this can differ in each distribution.  This worked on Ubuntu
+      const std::string ca_certificates_file_path = "/etc/ssl/certs/ca-certificates.crt";
+
+      const size_t MAX_BUF = 4 * 1024; // 4k read buffer
+
+      void DownloadHTTPS(const std::string& url, spitfire::network::http::cRequestListener& listener)
+      {
+        std::cout<<"DownloadHTTPS \""<<url<<"\""<<std::endl;
+
+        const spitfire::network::cURI uri(spitfire::network::http::URLEncode(url));
+
+        const std::string ip = hostname_lookup_ip(uri.GetHost());
+
+        tcp_connection connection;
+
+        gnutlsmm::client_session session;
+
+        session.init();
+
+        // X509 stuff
+        gnutlsmm::certificate_credentials credentials;
+
+        credentials.init();
+
+        // Set the trusted ca file
+        credentials.set_x509_trust_file(ca_certificates_file_path.c_str(), GNUTLS_X509_FMT_PEM);
+
+        // Put the x509 credentials to the current session
+        session.set_credentials(credentials);
+
+        // Set TLS version and cypher priorities
+        // https://gnutls.org/manual/html_node/Priority-Strings.html
+        // NOTE: No SSL, only TLS1.2
+        // TODO: TLS1.3 didn't seem to work, server dependent?
+        //session.set_priority ("NORMAL:+SRP:+SRP-RSA:+SRP-DSS:-DHE-RSA:-VERS-SSL3.0:%SAFE_RENEGOTIATION:%LATEST_RECORD_VERSION", nullptr);
+        session.set_priority("SECURE128:+SECURE192:-VERS-ALL:+VERS-TLS1.2:%SAFE_RENEGOTIATION", nullptr);
+
+        // connect to the peer
+        connection.connect(ip, uri.GetPort());
+        session.set_transport_ptr((gnutls_transport_ptr_t)(ptrdiff_t)connection.get_sd());
+
+        // Perform the TLS handshake
+        const int result = session.handshake();
+        if (result < 0) {
+            throw std::runtime_error("DownloadHTTPS Handshake failed, error " + std::to_string(result));
+        }
+
+        std::cout<<"DownloadHTTPS Handshake completed"<<std::endl;
+
+        std::cout<<"DownloadHTTPS Sending HTTP request"<<std::endl;
+        const std::string request =
+          "GET /" + uri.GetRelativePath() + " HTTP/1.0\r\n"
+          "Host: " + uri.GetHost() + "\r\n"
+          "\r\n";
+        std::cout<<"DownloadHTTPS Request: \""<<request<<"\""<<std::endl;
+        session.send(request.c_str(), request.length());
+
+        std::cout<<"DownloadHTTPS Reading response"<<std::endl;
+
+        char buffer[MAX_BUF + 1];
+
+        util::poll_read p(connection.get_sd());
+
+        const int timeout_ms = 2000;
+
+        // Once we start not receiving data we retry 10 times in 100ms and then exit
+        size_t no_bytes_retries = 0;
+        const size_t max_no_bytes_retries = 10;
+        const size_t retries_timeout_ms = 10;
+
+        std::string received_so_far;
+
+        bool reading_headers = true;
+
+        // NOTE: gnutls_record_recv may return GNUTLS_E_PREMATURE_TERMINATION
+        // https://lists.gnupg.org/pipermail/gnutls-help/2014-May/003455.html
+        // This means the peer has terminated the TLS session using a TCP RST (i.e., called close()).
+        // Since gnutls cannot distinguish that termination from an attacker terminating the session it warns you with this error code.
+
+        while (no_bytes_retries < max_no_bytes_retries) {
+            // Check if there is already something in the gnutls buffers
+            if (session.check_pending() == 0) {
+                // There was no gnutls data ready, check the socket
+                switch (p.poll(timeout_ms)) {
+                    case util::POLL_READ_RESULT::DATA_READY: {
+                        // Check if bytes are actually available (Otherwise if we try to read again the gnutls session object goes into a bad state and gnutlsxx throws an exception)
+                        if (connection.get_bytes_available() == 0) {
+                            //std::cout<<"but no bytes available"<<std::endl;
+                            no_bytes_retries++;
+
+                            // Don't hog the CPU
+                            spitfire::util::SleepThisThreadMS(retries_timeout_ms);
+
+                            continue;
+                        }
+                    }
+                    case util::POLL_READ_RESULT::ERROR: {
+                        break;
+                    }
+                    case util::POLL_READ_RESULT::TIMED_OUT: {
+                        // We hit the 2 second timeout, we are probably done
+                        break;
+                    }
+                }
+            }
+
+            const ssize_t result = session.recv(buffer, MAX_BUF);
+            if (result == 0) {
+                std::cout<<"DownloadHTTPS Peer has closed the TLS connection"<<std::endl;
+                break;
+            } else if (result < 0) {
+                std::cerr<<"DownloadHTTPS Read error: "<<gnutls_strerror_name(result)<<" "<<gnutls_strerror(result)<<std::endl;
+                break;
+            }
+
+            const size_t bytes_read = result;
+            //std::cout << "Received " << bytes_read << " bytes" << std::endl;
+            if (reading_headers) {
+                received_so_far.append(buffer, bytes_read);
+
+                size_t i = received_so_far.find("\r\n\r\n");
+                if (i != std::string::npos) {
+                    std::cout<<"DownloadHTTPS Headers received"<<std::endl;
+
+                    // Anything after this was file content
+                    i += strlen("\r\n\r\n");
+
+                    // We are now up to the content
+                    reading_headers = false;
+
+                    std::cout<<"DownloadHTTPS Reading content"<<std::endl;
+
+                    // Add to the file content
+                    listener.OnTextContentReceived(std::string(&received_so_far[i], received_so_far.length() - i));
+                }
+            } else {
+                // Everything else is content
+                listener.OnTextContentReceived(std::string(buffer, bytes_read));
+            }
+        }
+
+        session.bye(GNUTLS_SHUT_RDWR);
+
+        std::cout<<"DownloadHTTPS Finished"<<std::endl;
+      }
+      #endif // BUILD_NETWORK_TLS
     }
   }
 }

@@ -71,8 +71,28 @@ namespace spitfire
     bool Init();
     void Destroy();
 
+    // Get the IP for a hostname
+    // ie. "www.google.com" might return "172.217.25.132"
+    std::string hostname_lookup_ip(const std::string& hostname);
+
     bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses);
 
+
+    class tcp_connection {
+    public:
+        tcp_connection();
+        ~tcp_connection();
+
+        bool connect(const std::string& ip, int port);
+        void close();
+
+        int get_sd() const { return sd; }
+
+      size_t get_bytes_available() const;
+
+    private:
+        int sd;
+    };
 
 
     // ** cConnectionTCP

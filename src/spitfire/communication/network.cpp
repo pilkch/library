@@ -30,6 +30,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef BUILD_NETWORK_TLS
+#include <gnutls/gnutls.h>
+#endif
+
 // Spitfire headers
 #include <spitfire/spitfire.h>
 
@@ -114,12 +118,40 @@ namespace spitfire
     {
       gLog<<"cNetwork Init"<<std::endl;
 
+      #ifdef BUILD_NETWORK_TLS
+      gnutls_global_init();
+      #endif
+
       return true;
     }
 
     void Destroy()
     {
       gLog<<"cNetwork Destroy"<<std::endl;
+
+      #ifdef BUILD_NETWORK_TLS
+      gnutls_global_deinit();
+      #endif
+    }
+
+
+    std::string hostname_lookup_ip(const std::string& hostname)
+    {
+      const struct hostent* he = gethostbyname(hostname.c_str());
+      if (he == nullptr) {
+        std::cerr<<"hostname_lookup_ip gethostbyname failed, errno="<<errno<<std::endl;
+        return "";
+      }
+
+      const struct in_addr** addr_list = (const struct in_addr**)he->h_addr_list;
+
+      for (int i = 0; addr_list[i] != nullptr; i++) {
+        // Get the first result
+        const std::string ip = inet_ntoa(*addr_list[i]);
+        return ip;
+      }
+      
+      return "";
     }
 
     bool GetIPAddressesOfNetworkInterfaces(std::list<cIPAddress>& addresses)
@@ -154,6 +186,52 @@ namespace spitfire
       freeifaddrs(ifaddr);
 
       return true;
+    }
+
+
+    // ** tcp_connection
+
+    tcp_connection::tcp_connection() :
+        sd(-1)
+    {
+    }
+
+    tcp_connection::~tcp_connection()
+    {
+        close();
+    }
+
+    bool tcp_connection::connect(const std::string& ip, int port)
+    {
+        close();
+
+        // Connect to server
+        sd = ::socket(AF_INET, SOCK_STREAM, 0);
+
+        struct sockaddr_in sa;
+        ::memset(&sa, '\0', sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_port = ::htons(port);
+        ::inet_pton(AF_INET, ip.c_str(), &sa.sin_addr);
+
+        const int result = ::connect(sd, (struct sockaddr *) &sa, sizeof(sa));
+        return (result >= 0);
+    }
+
+    void tcp_connection::close()
+    {
+        if (sd != -1) {
+            ::shutdown(sd, SHUT_RDWR); // No more receptions or transmissions
+            ::close(sd);
+            sd = -1;
+        }
+    }
+
+    size_t tcp_connection::get_bytes_available() const
+    {
+      int bytes_available = 0;
+      ::ioctl(sd, FIONREAD, &bytes_available);
+      return size_t(std::max(0, bytes_available));
     }
 
 

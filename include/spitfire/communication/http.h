@@ -273,6 +273,12 @@ namespace spitfire
       typedef cRequestListener cRequestListenerVoid;
 
 
+
+      #ifdef BUILD_NETWORK_TLS
+      void DownloadHTTPS(const std::string& url, spitfire::network::http::cRequestListener& listener);
+      #endif // BUILD_NETWORK_TLS
+
+
       // ** cHTTP
       //
       // A class for performing HTTP requests and receiving data or downloading files
