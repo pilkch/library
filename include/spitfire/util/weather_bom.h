@@ -19,6 +19,8 @@ namespace util {
 
 namespace weather {
 
+namespace bom {
+
   struct locations_response_entry {
     std::string id; // eg. "Aranda-r3dp2mm"
     std::string geohash; // eg. "r3dp2mm"
@@ -64,6 +66,8 @@ namespace weather {
   // Example API calls:
   // https://api.weather.bom.gov.au/v1/locations/r3dp2m/observations
   bool GetWeatherReading(const std::string& geohash, weather_reading& reading);
+}
+
 }
 
 }

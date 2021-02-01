@@ -15,8 +15,8 @@ TEST(Weather, TestBOMParseSearchLocationsJSONResponse)
   // Test parsing returned stations json
   std::string locations_json;
   spitfire::storage::ReadText("data/weather/bom/locations_response.json", locations_json);
-  std::vector<spitfire::util::weather::locations_response_entry> locations;
-  ASSERT_TRUE(spitfire::util::weather::ParseSearchLocationsJSONResponse(locations_json, locations));
+  std::vector<spitfire::util::weather::bom::locations_response_entry> locations;
+  ASSERT_TRUE(spitfire::util::weather::bom::ParseSearchLocationsJSONResponse(locations_json, locations));
   ASSERT_EQ(7, locations.size());
 
   ASSERT_STREQ("Aranda-r3dp2mm", locations[0].id.c_str());
@@ -67,8 +67,8 @@ TEST(Weather, TestBOMParseGetWeatherJSONResponse)
   // Parse the returned weather json
   std::string weather_json;
   spitfire::storage::ReadText("data/weather/bom/observations_response.json", weather_json);
-  spitfire::util::weather::weather_reading reading;
-  ASSERT_TRUE(spitfire::util::weather::ParseGetWeatherJSONResponse(weather_json, reading));
+  spitfire::util::weather::bom::weather_reading reading;
+  ASSERT_TRUE(spitfire::util::weather::bom::ParseGetWeatherJSONResponse(weather_json, reading));
   ASSERT_STREQ("15.1", reading.temp_celcius.c_str());
   ASSERT_STREQ("13.3", reading.temp_feels_like_celcius.c_str());
   ASSERT_EQ(9, reading.wind.speed_kilometres);
@@ -82,8 +82,8 @@ TEST(Weather, TestBOMRequestLocationsQuery)
 {
   // Perform a locations query
   const std::string search = "Hawker ACT";
-  std::vector<spitfire::util::weather::locations_response_entry> locations;
-  ASSERT_TRUE(spitfire::util::weather::SearchLocations(search, locations));
+  std::vector<spitfire::util::weather::bom::locations_response_entry> locations;
+  ASSERT_TRUE(spitfire::util::weather::bom::SearchLocations(search, locations));
   ASSERT_EQ(1, locations.size());
   for (auto&& location : locations) {
     std::cout<<"Location: "<<location.name<<", "<<location.state<<" "<<location.postcode<<std::endl;
@@ -96,8 +96,8 @@ TEST(Weather, TestBOMBRequestWeatherReadingQuery)
 {
   // Perform a weather reading query
   const std::string geohash = "r39zrrm"; // Hawker, ACT 2614
-  spitfire::util::weather::weather_reading reading;
-  ASSERT_TRUE(spitfire::util::weather::GetWeatherReading(geohash, reading));
+  spitfire::util::weather::bom::weather_reading reading;
+  ASSERT_TRUE(spitfire::util::weather::bom::GetWeatherReading(geohash, reading));
   ASSERT_FALSE(reading.temp_celcius.empty());
   ASSERT_FALSE(reading.rain_since_9am_millimetres.empty());
   std::cout<<"Weather reading: "<<reading.temp_celcius<<"°C, "<<reading.rain_since_9am_millimetres<<"mm of rain since 9am"<<std::endl;

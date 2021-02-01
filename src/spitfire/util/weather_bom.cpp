@@ -35,11 +35,11 @@ const size_t MAX_BUF = 4 * 1024; // 4k read buffer
 
 // Get the IP for a hostname
 // ie. "www.google.com" might return "172.217.25.132"
-std::string hostname_to_ip(const std::string& hostname)
+std::string hostname_lookup_ip(const std::string& hostname)
 {
     const struct hostent* he = gethostbyname(hostname.c_str());
     if (he == nullptr) {
-        std::cerr<<"hostname_to_ip gethostbyname failed, errno="<<errno<<std::endl;
+        std::cerr<<"hostname_lookup_ip gethostbyname failed, errno="<<errno<<std::endl;
         return "";
     }
 
@@ -63,6 +63,8 @@ public:
     void close();
 
     int get_sd() const { return sd; }
+
+  size_t get_bytes_available() const;
 
 private:
     int sd;
@@ -102,6 +104,13 @@ void tcp_connection::close()
         ::close(sd);
         sd = -1;
     }
+}
+
+size_t tcp_connection::get_bytes_available() const
+{
+  int bytes_available = 0;
+  ::ioctl(sd, FIONREAD, &bytes_available);
+  return size_t(std::max(0, bytes_available));
 }
 
 
@@ -148,38 +157,13 @@ POLL_READ_RESULT poll_read::poll(int timeout_ms)
 }
 
 
-size_t get_bytes_available(int fd)
-{
-    int bytes_available = 0;
-    ::ioctl(fd, FIONREAD, &bytes_available);
-    return size_t(std::max(0, bytes_available));
-}
-
-bool sleep_ms(int timeout_ms)
-{
-    struct timespec ts;
-    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
-        return false;
-    }
-
-    const uint64_t absolute_timeout_ns = ((ts.tv_sec * 1000000000L) + ts.tv_nsec) + (timeout_ms * 1000000);
-    ts.tv_sec = absolute_timeout_ns / 1000000000L;
-    ts.tv_nsec = absolute_timeout_ns % 1000000000L;
-
-    while (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, nullptr) && errno == EINTR)
-        ;
-
-    return true;
-}
-
-
 void Download(const std::string& url, spitfire::network::http::cRequestListener& listener)
 {
   std::cout<<"Download \""<<url<<"\""<<std::endl;
 
   const spitfire::network::cURI uri(spitfire::network::http::URLEncode(url));
 
-  const std::string ip = hostname_to_ip(uri.GetHost());
+  const std::string ip = hostname_lookup_ip(uri.GetHost());
 
   tcp_connection connection;
 
@@ -254,11 +238,13 @@ void Download(const std::string& url, spitfire::network::http::cRequestListener&
           switch (p.poll(timeout_ms)) {
               case POLL_READ_RESULT::DATA_READY: {
                   // Check if bytes are actually available (Otherwise if we try to read again the gnutls session object goes into a bad state and gnutlsxx throws an exception)
-                  if (get_bytes_available(connection.get_sd()) == 0) {
+                  if (connection.get_bytes_available() == 0) {
                       //std::cout<<"but no bytes available"<<std::endl;
                       no_bytes_retries++;
+
                       // Don't hog the CPU
-                      sleep_ms(retries_timeout_ms);
+                      spitfire::util::SleepThisThreadMS(retries_timeout_ms);
+
                       continue;
                   }
               }
@@ -320,6 +306,8 @@ namespace spitfire {
 namespace util {
 
 namespace weather {
+
+namespace bom {
 
   class text_content_listener : public spitfire::network::http::cRequestListener {
   public:
@@ -438,6 +426,8 @@ namespace weather {
 
     return ParseGetWeatherJSONResponse(response_json, reading);
   }
+}
+
 }
 
 }
