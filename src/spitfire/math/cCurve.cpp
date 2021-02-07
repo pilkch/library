@@ -1,10 +1,3 @@
-#include <cstdlib>
-#include <cmath>
-
-#include <limits>
-#include <vector>
-#include <map>
-
 // Spitfire Includes
 #include <spitfire/spitfire.h>
 
@@ -15,45 +8,48 @@ namespace spitfire
 {
   namespace math
   {
-    cCurve::cCurve()
-    {
-      AddPoint(0.0f, 0.0f);
-    }
-
-    // x has to be >= 0.0f, it can however go past the last point in the list, it will become the new last point
-    // y can be any value it likes
     void cCurve::AddPoint(float_t fX, float_t fY)
     {
-      ASSERT(fX >= 0.0f);
+      auto iter = points.begin();
+      auto iterEnd = points.end();
+      while (iter != iterEnd) {
+        if (iter->x > fX) {
+          points.insert(iter, cVec2(fX, fY));
+          return;
+        }
 
-      points[fX] = fY;
+        iter++;
+      }
+
+      // All the existing points were before this one, so add it at the end
+      points.push_back(cVec2(fX, fY));
     }
 
     float_t cCurve::GetYAtPointX(float_t fMu) const
     {
-      if (fMu < 0.0f) return 0.0f;
-
-      float_t fX0 = 0.0f;
-      float_t fX1 = 0.0f;
-      float_t fY0 = 0.0f;
-      float_t fY1 = 0.0f;
+      if (points.empty()) {
+        // No point data
+        return 0.0f;
+      } else if (points.size() == 1) {
+        // Not enough points to integrate
+        return points[0].y;
+      }
 
       bool bFound = false;
 
-      std::map<float_t, float_t>::const_iterator iter(points.begin());
-      const std::map<float_t, float_t>::const_iterator iterEnd(points.end());
+      auto iter = points.begin();
+      auto iterEnd = points.end();
+
+      // Default these values to the first point
+      cVec2 first = *iter;
+      cVec2 second = *iter;
+
       while (iter != iterEnd) {
-        const float_t fCurrentX = iter->first;
-        const float_t fCurrentY = iter->second;
-
         // Shuffle the previous values
-        fX0 = fX1;
-        fX1 = fCurrentX;
+        first = second;
+        second = *iter;
 
-        fY0 = fY1;
-        fY1 = fCurrentY;
-
-        if (fCurrentX > fMu) {
+        if (second.x >= fMu) {
           // We have found the pair that we are between
           bFound = true;
           break;
@@ -62,10 +58,16 @@ namespace spitfire
         iter++;
       };
 
-      if (!bFound) return 0.0f;
+      // We are outside the range so just return the last y value
+      if (!bFound) return first.y;
+
+      // Check if these are actually the same point in which case we can just return the y value directly
+      if (first.x == second.y) {
+        return first.y;
+      }
 
       // Finally return the y value at our x value
-      return math::interpolate_linear(fX0, fY0, fX1, fY1, fMu);
+      return math::interpolate_linear(first.x, first.y, second.x, second.y, fMu);
     }
   }
 }
