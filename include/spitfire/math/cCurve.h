@@ -12,7 +12,9 @@ namespace spitfire
     // In an editor or if you were to graph this on paper,
     // x would go from left (0.0f) to right (n)
     // y would go from bottom (0.0f) to top (n)
-    // When x is < 0.0f or x is > n, y is 0.0f
+    //
+    // NOTE: x and y can be negative
+    // NOTE: When looking up a value if the specified x is clamped to the range of first x .. last x in the points array
     //
     // Typical uses are:
     // engineRPM : torqueNm
@@ -25,13 +27,11 @@ namespace spitfire
     class cCurve
     {
     public:
-      cCurve();
-
       void AddPoint(float_t fX, float_t fY);
       float_t GetYAtPointX(float_t fX) const;
 
     private:
-      std::map<float_t, float_t> points;
+      std::vector<cVec2> points;
     };
   }
 }
