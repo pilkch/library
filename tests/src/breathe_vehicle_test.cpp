@@ -3,21 +3,14 @@
 #include <iostream>
 #include <fstream>
 
+#include <spitfire/math/units.h>
+#include <spitfire/math/cCurve.h>
+
 // Breathe headers
-//#include <breathe/vehicle/vehicle.h>
+#include <breathe/vehicle/vehicle.h>
 
 // gtest headers
 #include <gtest/gtest.h>
-
-
-
-#include <spitfire/math/math.h>
-#include <spitfire/math/cCurve.h>
-
-namespace spitfire {
-
-namespace math {
-
 
 namespace {
 
