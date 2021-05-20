@@ -1504,7 +1504,7 @@ namespace breathe
       ASSERT(wheels.size() == 4);
 
 
-      const car::cAmbientSettings ambientSettings(math::cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER, math::cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA, math::cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS);
+      const car::cAmbientSettings ambientSettings(math::GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER, math::GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA, math::GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS);
 
       // Update the engine first
       engine.SetAmbientSettings(ambientSettings);
