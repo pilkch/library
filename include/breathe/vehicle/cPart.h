@@ -283,7 +283,7 @@ namespace breathe
       //   if (fWheelRPM < fSlowestWheel) fSlowestWheel = fWheelRPM;
       //   if (fWheelRPM > fFastestWheel) fFastestWheel = fWheelRPM;
       // }
-            //
+      //
       // if (fSlowestWheel > 0.0f) {
       //   const float_t fRatio = fFastestWheel / fSlowestWheel;
       //   if (fRatio > 1.2) fAccelerator = 0.0f;
@@ -297,6 +297,19 @@ namespace breathe
       bool bAntiLockBrakingSystem;
       float_t fAntiLockBrakingSystem; // 0.0f-1.0f
     };
+
+
+
+    // ECU
+    // Reads/looks after air-fuel ratio (AFR); idle speed; electronic throttle; ignition timing; knock.
+
+    class cECU : public cPart
+    {
+    public:
+
+    };
+
+
 
 
 
