@@ -55,3 +55,33 @@ TEST(SpitfireMath, TestUnits)
     ASSERT_TRUE(spitfire::math::IsApproximatelyEqual(fKW, fResult));
   }
 }
+
+TEST(SpitfireMath, TestUnitsGetForceOfDragN)
+{
+  const float fCoefficientOfFriction = 0.30f;
+  const float fObjectFrontalAreaMetersSquared = 2.2f;
+  const float fDensityOfMediumKgPerMeterSquared = 1.29f;
+
+  {
+    const float fSpeedOfObjectMetersPerSecond = 1.0f;
+    EXPECT_NEAR(spitfire::math::GetForceOfDragN(fCoefficientOfFriction, fObjectFrontalAreaMetersSquared, fDensityOfMediumKgPerMeterSquared, fSpeedOfObjectMetersPerSecond), 0.4257f, 0.1f);
+  }
+
+  {
+    const float fSpeedOfObjectMetersPerSecond = 10.0f;
+    EXPECT_NEAR(spitfire::math::GetForceOfDragN(fCoefficientOfFriction, fObjectFrontalAreaMetersSquared, fDensityOfMediumKgPerMeterSquared, fSpeedOfObjectMetersPerSecond), 42.57f, 0.1f);
+  }
+}
+
+TEST(SpitfireMath, TestUnitsGearRatios)
+{
+  const float fGearRatio = 3.0f / 1.0f;
+  const float fInputRPM = 2700.0f;
+  const float fInputTorqueNm = 140.0f;
+
+  const float fOutputRPM = spitfire::math::GetGearOutputRPM(fGearRatio, fInputRPM);
+  EXPECT_NEAR(fOutputRPM, 900.0f, 0.1f);
+
+  const float fOutputTorqueNm = spitfire::math::GetGearOutputTorqueNm(fGearRatio, fInputTorqueNm);
+  EXPECT_NEAR(fOutputTorqueNm, 420.0f, 0.1f);
+}

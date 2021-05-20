@@ -10,6 +10,9 @@ namespace spitfire
     // http://en.wikipedia.org/wiki/SI_derived_unit
     // http://www.racer.nl/tech/converting.htm
 
+    inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
+    inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
+
     inline float kphTomph(float kph) { return kph * 1.609344f; }
     inline float mphTokph(float mph) { return mph * 0.621371192f; }
 
@@ -19,6 +22,48 @@ namespace spitfire
 
     inline float MPGToLitresPerHundredKilometres(float fMPG) { return 235.214583f / fMPG; }
     inline float LitresPerHundredKilometresToMPG(float fLitresPerHundredKilometres) { return 235.214583f / fLitresPerHundredKilometres; }
+
+
+
+    // Electricity
+    //
+    // I - Current, amps
+    // V - Voltage, volts
+    // R - Resistance, ohms
+    // P - Power, watts
+
+
+    // Ohm’s Law
+    // The current through the conductor is directly proportional to applied voltage and is expressed as:
+    //
+    // I = V / R
+    //
+    // where I – current, measured in amperes (A);
+    // V – applied voltage, measured in volts (V);
+    // R – resistance, measured in ohms (Ω).
+    //
+    constexpr float GetCurrentAmpsThroughConductor(float fAppliedVoltage, float fResistanceOhms)
+    {
+      const float fCurrentAmps = fAppliedVoltage / fResistanceOhms;
+      return fCurrentAmps;
+    }
+
+
+    // The consumed electrical power of the motor is defined by the following formula:
+    //
+    // Pin = I * V
+    //
+    // where Pin – input power, measured in watts (W);
+    // I – current, measured in amperes (A);
+    // V – applied voltage, measured in volts (V).
+    //
+    constexpr float GetInputConsumedPowerWatts(float fCurrentAmps, float fAppliedVoltage)
+    {
+      const float fInputPowerWatts = fCurrentAmps * fAppliedVoltage;
+      return fInputPowerWatts;
+    }
+
+
 
 
     // Power/Torque
@@ -51,8 +96,107 @@ namespace spitfire
     inline float RPMToRadiansPerSecond(float RPM) { return RPM * 0.10471976f; }
     inline float RadiansPerSecondToRPM(float RadiansPerSecond) { return RadiansPerSecond * 9.5493f; }
 
-    inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
-    inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
+
+    // The output mechanical power of the motor can be calculated by using the following formula:
+    //
+    // Pout = τ * ω
+    //
+    // where Pout – output power, measured in watts (W);
+    // τ – torque, measured in Newton meters (N•m);
+    // ω – angular speed, measured in radians per second (rad/s).
+    //
+    constexpr float GetMotorOutputMechanicalPowerW(float fTorqueNM, float fAngularSpeedRadiansPerSecond)
+    {
+      const float fOutputPowerWatts = fTorqueNM * fAngularSpeedRadiansPerSecond;
+      return fOutputPowerWatts;
+    }
+
+
+    // Calculate angular speed if you know rotational speed of the motor in rpm:
+    //
+    // ω = rpm * 2π / 60
+    //
+    // where ω – angular speed, measured in radians per second (rad/s);
+    // rpm – rotational speed in revolutions per minute;
+    // π – mathematical constant pi (3.14).
+    // 60 – number of seconds in a minute.
+    //
+    constexpr float GetMotorAngularSpeedRadiansPerSecond(float fRPM)
+    {
+      const float fOutputMotorAngularSpeedRadiansPerSecond = fRPM * ((2.0f * spitfire::math::cPI) / 60.0f);
+      return fOutputMotorAngularSpeedRadiansPerSecond;
+    }
+
+
+    // Gearing up and down
+
+    constexpr float GetGearOutputRPM(float fGearRatio, float fInputRPM)
+    {
+      if (fGearRatio == 0.0f) return 0.0f;
+
+      return fInputRPM / fGearRatio;
+    }
+
+    constexpr float GetGearOutputTorqueNm(float fGearRatio, float fInputTorqueNm)
+    {
+      return fGearRatio * fInputTorqueNm;
+    }
+
+
+
+    // Mass and force
+
+    constexpr float MassKgToForceNewtons(float fMassKg)
+    {
+      return fMassKg * 9.8066500286389f;
+    }
+
+    constexpr float ForceNewtonsToMassKg(float fForceNewtons)
+    {
+      return fForceNewtons * 0.101971621f;
+    }
+
+
+    // Inertia
+    //
+    // https://courses.lumenlearning.com/physics/chapter/10-3-dynamics-of-rotational-motion-rotational-inertia/
+
+
+    // NOTE: The axis goes through the "circles", a drive shaft for example
+
+    constexpr float CalculateMomentOfInertiaCylinder(float fRadiusMeters, float fMassKg)
+    {
+      return (fMassKg * (fRadiusMeters * fRadiusMeters)) / 2.0f;
+    }
+
+
+    // NOTE: The axis goes through the ring, a tire for example
+
+    constexpr float CalculateMomentOfInertiaRing(float fInnerRadiusMeters, float fOuterRadiusMeters, float fMassKg)
+    {
+      return (fMassKg * ((fInnerRadiusMeters * fInnerRadiusMeters) + (fOuterRadiusMeters * fOuterRadiusMeters))) / 2.0f;
+    }
+
+
+    constexpr float TorqueFromMomentOfInertiaAndAngularlAcceleration(float fMomentOfInertia, float fAngularAccelerationRadiansPerSecondSquared)
+    {
+      // t = Ia
+      return fMomentOfInertia * fAngularAccelerationRadiansPerSecondSquared;
+    }
+
+    constexpr float AngularlAccelerationRadiansPerSecondSquaredFromMomentOfInertiaAndTorque(float fMomentOfInertia, float fTorqueNm)
+    {
+      // a = t / I
+      return fTorqueNm / fMomentOfInertia;
+    }
+
+
+    // NOTE: A wheel is roughly a a cylinder for the rim plus a ring for the tire
+
+
+
+
+
 
 
 
@@ -75,11 +219,12 @@ namespace spitfire
     inline float CubicFeetPerSecondToCubicMetresPerSecond(float fCubicFeetPerSecond) { return fCubicFeetPerSecond * 0.0283170172f; }
 
 
-    // http://en.wikipedia.org/wiki/Density_of_air
+    // https://en.wikipedia.org/wiki/Density_of_air
+    // At 20 °C and 101.325 kPa, dry air has a density of 1.2041 kg/m³
     // http://en.wikipedia.org/wiki/ISO_1
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f;
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f;
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f; // kPa
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f; // °C
 
 
     // http://en.wikipedia.org/wiki/Density_of_air#Altitude
@@ -109,6 +254,30 @@ namespace spitfire
 
       return (p / (R * T));
     }
+
+
+    // Drag
+
+    // Calculate the force of drag for an object moving throw a medium at a specific speed
+    //
+    // Fdrag = 0.5 * Cd * A * rho * v²
+    //
+    constexpr float GetForceOfDragN(float fCoefficientOfFriction, float fObjectFrontalAreaMetersSquared, float fDensityOfMediumKgPerMeterSquared, float fSpeedOfObjectMetersPerSecond)
+    {
+      return 0.5f * fCoefficientOfFriction * fObjectFrontalAreaMetersSquared * fDensityOfMediumKgPerMeterSquared * (fSpeedOfObjectMetersPerSecond * fSpeedOfObjectMetersPerSecond);
+    }
+
+    // Calculate the force of lift/downforce for an object moving throw a medium at a specific speed
+    // NOTE: This is exactly the same equation as we used to calculate the drag force above, but using the coefficient of lift/downforce instead of the coefficient of drag
+    // NOTE: When the coefficient of lift/downforce is positive it is generating lift, negative it is generating downforce
+    //
+    // Fdown = 0.5 * Cl * A * rho * v²
+    //
+    constexpr float GetForceOfLiftDownforceN(float fCoefficientOfLiftOrDownforce, float fObjectFrontalAreaMetersSquared, float fDensityOfMediumKgPerMeterSquared, float fSpeedOfObjectMetersPerSecond)
+    {
+      return 0.5f * fCoefficientOfLiftOrDownforce * fObjectFrontalAreaMetersSquared * fDensityOfMediumKgPerMeterSquared * (fSpeedOfObjectMetersPerSecond * fSpeedOfObjectMetersPerSecond);
+    }
+
 
 
     inline float CentimetersToMillimeters(float fCentimeters) { return 0.1f * fCentimeters; }
