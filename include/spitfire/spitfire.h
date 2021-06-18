@@ -251,10 +251,11 @@ typedef int32_t ssize_t;
 
 // Prevent a class from being copied
 #ifdef BUILD_SPITFIRE_CPP11
-#define NO_COPY(T) \
-  private: \
-  T(const T&) = delete; \
-  T& operator=(const T&) = delete;
+// Just add these manually
+//#define NO_COPY(TYPE)
+//  private:
+//  TYPE(const TYPE&) = delete;
+//  TYPE& operator=(const TYPE&) = delete;
 #else
 #define NO_COPY(T) \
   private: \

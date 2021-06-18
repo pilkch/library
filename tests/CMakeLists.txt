@@ -5,9 +5,8 @@ SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 IF(UNIX)
-SET(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+SET(CMAKE_CXX_STANDARD 20)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 ELSE()
 # Set the C++ standard
 #SET(CMAKE_CXX_STANDARD 14)
@@ -28,7 +27,7 @@ SET(LIBRARY_SRC "${CMAKE_SOURCE_DIR}/src/")
 
 IF(UNIX)
 # Add definitions, compiler switches, etc.
-ADD_DEFINITIONS("-std=c++17 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
+ADD_DEFINITIONS("-std=c++20 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
 ENDIF()
 
 IF(UNIX)

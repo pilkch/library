@@ -91,7 +91,8 @@ namespace spitfire
       T file;
 
     private:
-      NO_COPY(cFile<T>);
+      cFile(const cFile&) = delete;
+      cFile& operator=(const cFile&) = delete;
     };
 
 
