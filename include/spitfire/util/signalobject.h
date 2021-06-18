@@ -29,7 +29,8 @@ namespace spitfire
       bool WaitTimeoutMS(durationms_t uTimeOutMS);
 
     private:
-      NO_COPY(cSignalObject); // Copying is forbidden
+      cSignalObject(const cSignalObject&) = delete;
+      cSignalObject& operator=(const cSignalObject&) = delete;
 
       string_t sName;
       mutable std::mutex mutex;

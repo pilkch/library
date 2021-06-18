@@ -29,10 +29,11 @@ namespace spitfire
       const string_t& GetName() const { return sName; }
 
     private:
+      cMutex(const cMutex&) = delete;
+      cMutex& operator=(const cMutex&) = delete;
+
       const string_t sName;
       std::mutex mutex;
-
-      NO_COPY(cMutex);
     };
 
     class cLockObject
@@ -41,9 +42,10 @@ namespace spitfire
       explicit cLockObject(cMutex& mutex);
 
     private:
-      std::lock_guard<std::mutex> lock;
+      cLockObject(const cLockObject&) = delete;
+      cLockObject& operator=(const cLockObject&) = delete;
 
-      NO_COPY(cLockObject);
+      std::lock_guard<std::mutex> lock;
     };
 
 

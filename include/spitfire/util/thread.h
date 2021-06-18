@@ -70,6 +70,9 @@ namespace spitfire
       void Yield();
 
     private:
+      cThread(const cThread&) = delete;
+      cThread& operator=(const cThread&) = delete;
+
       virtual bool _IsToStop() const override;
 
       static int RunThreadFunction(void* pThis);
@@ -82,8 +85,6 @@ namespace spitfire
       std::thread* pThread;
       cSignalObject soStop;    // Signals that the thread should stop
       cSignalObject soDone;    // Signals that the thread has finished
-
-      NO_COPY(cThread);
     };
 
 
