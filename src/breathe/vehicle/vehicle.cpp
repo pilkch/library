@@ -107,12 +107,44 @@ Body::Body() :
 
 }
 
-Vehicle::Vehicle() :
-  starterMotorEngaged(false),
+
+VehicleInputs::VehicleInputs() :
+  headlights(false),
+  ignitionKeyTurned(false),
+  fHandBrake0To1(0.0f),
   fPedalTravelClutch0To1(0.0f),
   fPedalTravelAccelerator0To1(0.0f),
   fPedalTravelBrake0To1(0.0f)
 {
+}
+
+void VehicleInputs::Clear()
+{
+  headlights = false;
+  ignitionKeyTurned = false;
+  fHandBrake0To1 = 0.0f;
+  fPedalTravelClutch0To1 = 0.0f;
+  fPedalTravelAccelerator0To1 = 0.0f;
+  fPedalTravelBrake0To1 = 0.0f;
+}
+
+
+ECUActions::ECUActions() :
+  headlights(false),
+  fHandBrake0To1(0.0f),
+  fClutch0To1(0.0f),
+  fThrottle0To1(0.0f),
+  fBrake0To1(0.0f)
+{
+}
+
+void ECUActions::Clear()
+{
+  headlights = false;
+  fHandBrake0To1 = 0.0f;
+  fClutch0To1 = 0.0f;
+  fThrottle0To1 = 0.0f;
+  fBrake0To1 = 0.0f;
 }
 
 
@@ -186,8 +218,22 @@ float GetTorqueConverterTorqueOutNm(float fInputTorqueNm)
 }
 
 
-void UpdateECU(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle, float& fOutputThrottle0To1)
+void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
+  // Update the vehicle from the player inputs
+  vehicle.ecuActions.headlights = inputs.headlights;
+  vehicle.ecuActions.fHandBrake0To1 = spitfire::math::clamp(inputs.fHandBrake0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fClutch0To1 = spitfire::math::clamp(inputs.fPedalTravelClutch0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fThrottle0To1 = spitfire::math::clamp(inputs.fPedalTravelAccelerator0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fBrake0To1 = spitfire::math::clamp(inputs.fPedalTravelBrake0To1, 0.0f, 1.0f);
+
+  if (inputs.ignitionKeyTurned) {
+    vehicle.ecuActions.headlights = false; // Turn off the lights when we are starting the engine
+    vehicle.engine.starterMotor.fInputVoltage = 12.0f;
+  } else {
+    vehicle.engine.starterMotor.fInputVoltage = 0.0f;
+  }
+
   const breathe::vehicle::part::ECU& ecu = vehicle.ecu;
 
   if (vehicle.engine.IsRunning()) {
@@ -210,19 +256,24 @@ void UpdateECU(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehic
 
     // Check if we need to adjust the idle RPM speed
     if (fRPMDiff > ecu.fIdleLargeDifferenceRPM) {
-      fOutputThrottle0To1 = max(fOutputThrottle0To1, ecu.fIdleLargeThrottleCorrection0To1);
+      vehicle.ecuActions.fThrottle0To1 = max(vehicle.ecuActions.fThrottle0To1, ecu.fIdleLargeThrottleCorrection0To1);
     } else if (fRPMDiff > ecu.fIdleSmallDifferenceRPM) {
-      fOutputThrottle0To1 = max(fOutputThrottle0To1, ecu.fIdleSmallThrottleCorrection0To1);
+      vehicle.ecuActions.fThrottle0To1 = max(vehicle.ecuActions.fThrottle0To1, ecu.fIdleSmallThrottleCorrection0To1);
     }
 
 
     // Rev limiter
     if (vehicle.GetRPMAtFlywheel() >= ecu.fRevLimiterThrottleCutRPM) {
-      fOutputThrottle0To1 = 0.0f;
+      vehicle.ecuActions.fThrottle0To1 = 0.0f;
     }
-
-    fOutputThrottle0To1 = spitfire::math::clamp(fOutputThrottle0To1, 0.0f, 1.0f);
   }
+
+
+  // Clamp vehicle inputs
+  vehicle.ecuActions.fHandBrake0To1 = spitfire::math::clamp(vehicle.ecuActions.fHandBrake0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fClutch0To1 = spitfire::math::clamp(vehicle.ecuActions.fClutch0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fThrottle0To1 = spitfire::math::clamp(vehicle.ecuActions.fThrottle0To1, 0.0f, 1.0f);
+  vehicle.ecuActions.fBrake0To1 = spitfire::math::clamp(vehicle.ecuActions.fBrake0To1, 0.0f, 1.0f);
 }
 
 void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle)
@@ -247,13 +298,9 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
 */
 }
 
-void Update(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle)
+void Update(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
-  vehicle.engine.starterMotor.fInputVoltage = (vehicle.starterMotorEngaged ? 12.0f : 0.0f);
-
-  float fResultingThrottle0To1 = vehicle.fPedalTravelAccelerator0To1;
-
-  UpdateECU(fTimeStepFractionOfSecond, vehicle, fResultingThrottle0To1);
+  UpdateECU(fTimeStepFractionOfSecond, inputs, vehicle);
 
   UpdateEngineDrivetrainWheels(fTimeStepFractionOfSecond, vehicle);
 }

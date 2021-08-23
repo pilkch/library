@@ -239,10 +239,10 @@ void BodySetSettings(breathe::vehicle::part::Body& body)
   body.fDragCoefficient = 0.31f;
 }
 
-void RunUpdateIterations(size_t nIterations, breathe::vehicle::Vehicle& vehicle)
+void RunUpdateIterations(size_t nIterations, breathe::vehicle::VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
   for (size_t i = 0; i < nIterations; i++) {
-    breathe::vehicle::Update(fTimeStepMS, vehicle);
+    breathe::vehicle::Update(fTimeStepMS, inputs, vehicle);
   }
 }
 
@@ -349,28 +349,39 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   BodySetSettings(vehicle.body);
 
   // The engine should not be running yet
+  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 000.0f, 1.0f);
+  EXPECT_FALSE(vehicle.engine.IsRunning());
   EXPECT_NEAR(vehicle.GetRPMAtFlywheel(), 0.0f, 0.1f);
   EXPECT_NEAR(vehicle.GetRPMAfterClutch(), 0.0f, 0.1f);
   EXPECT_NEAR(vehicle.GetRPMAfterGearBox(), 0.0f, 0.1f);
 
+  breathe::vehicle::VehicleInputs inputs;
+
   // Test the starter motor starting up
   // Initially not started
-  RunUpdateIterations(3, vehicle);
+  RunUpdateIterations(3, inputs, vehicle);
+
+  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 000.0f, 1.0f);
+  EXPECT_FALSE(vehicle.engine.IsRunning());
 
   // Crank the starter motor
-  vehicle.starterMotorEngaged = true;
+  inputs.ignitionKeyTurned = true;
 
   // Wait for it to start the engine
-  RunUpdateIterations(200, vehicle);
+  RunUpdateIterations(200, inputs, vehicle);
 
   // The starter motor should now be turning
   EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 800.0f, 50.0f);
+  EXPECT_TRUE(vehicle.engine.IsRunning());
 
   // The starter motor can be turned off now
-  vehicle.starterMotorEngaged = false;
+  inputs.ignitionKeyTurned = false;
 
   // Wait for the starter motor to disengage and the engine to settle
-  RunUpdateIterations(200, vehicle);
+  RunUpdateIterations(200, inputs, vehicle);
+
+  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 800.0f, 50.0f);
+  EXPECT_TRUE(vehicle.engine.IsRunning());
 
   // The engine should now be started
   EXPECT_NEAR(vehicle.GetRPMAtFlywheel(), 800.0f, 50.0f);

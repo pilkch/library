@@ -201,10 +201,34 @@ public:
 }
 
 
+struct VehicleInputs {
+public:
+  VehicleInputs();
+
+  void Clear();
+
+  bool headlights; // NOTE: We could have off, auto, low, high
+  bool ignitionKeyTurned;
+  float fHandBrake0To1;
+  float fPedalTravelClutch0To1;
+  float fPedalTravelAccelerator0To1; // 0 means the foot is off the pedal, 1 means the pedal is to the floor
+  float fPedalTravelBrake0To1;
+};
+
+struct ECUActions {
+  ECUActions();
+
+  void Clear();
+
+  bool headlights;
+  float fHandBrake0To1;
+  float fClutch0To1;
+  float fThrottle0To1;
+  float fBrake0To1;
+};
+
 class Vehicle {
 public:
-  Vehicle();
-
   float GetRPMAtFlywheel() const { return engine.GetRPM(); }
   float GetRPMAfterClutch() const { return 0.0f; }
   float GetRPMAfterGearBox() const { return 0.0f; }
@@ -216,10 +240,8 @@ public:
   part::Body body;
 
   // Dynamic
-  bool starterMotorEngaged;
-  float fPedalTravelClutch0To1;
-  float fPedalTravelAccelerator0To1; // 0 means the foot is off the pedal, 1 means the pedal is to the floor
-  float fPedalTravelBrake0To1;
+  // NOTE: These inputs are the vehicle inputs after being processed by the ECU
+  ECUActions ecuActions;
 };
 
 
@@ -239,11 +261,11 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
 
 float GetTorqueConverterTorqueOutNm(float fInputTorqueNm);
 
-void UpdateECU(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle, float& fOutputThrottle0To1);
+void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle);
 
 void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle);
 
-void Update(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle);
+void Update(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle);
 
 }
 
