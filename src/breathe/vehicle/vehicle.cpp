@@ -167,6 +167,8 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
   return fOutputTorqueNm;
 }
 
+// https://simplemotor.com/calculations/
+
 float GetTorqueConverterTorqueOutNm(float fInputTorqueNm)
 {
   /*const float fInputPowerW = fInputTorqueNm * RPMToRadiansPerSecond(fRotationalSpeedInputShaftRPM);

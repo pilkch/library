@@ -97,6 +97,9 @@ namespace spitfire
     inline float RadiansPerSecondToRPM(float RadiansPerSecond) { return RadiansPerSecond * 9.5493f; }
 
 
+    // Motors
+    // https://simplemotor.com/calculations/
+
     // The output mechanical power of the motor can be calculated by using the following formula:
     //
     // Pout = τ * ω
