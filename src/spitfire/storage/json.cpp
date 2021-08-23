@@ -112,7 +112,7 @@ namespace spitfire
           return spitfire::string::ToString(iValueInt);
         }
         case TYPE::FLOAT: {
-          std::cout<<"GetValueString \""<<sNameUTF8<<"\" returning "<<dValueFloat<<std::endl;
+          //std::cout<<"GetValueString \""<<sNameUTF8<<"\" returning "<<dValueFloat<<std::endl;
           // TODO: Move this to ToString?
           std::ostringstream o;
           o<<dValueFloat;
@@ -251,8 +251,6 @@ namespace spitfire
 
     bool reader::ReadFromStringUTF8(cDocument& doc, const std::string& content) const
     {
-      std::cout<<"reader::ReadFromStringUTF8"<<std::endl;
-
       doc.Clear();
       doc.SetTypeObject();
 
@@ -264,8 +262,6 @@ namespace spitfire
 
     bool reader::ReadObjectOrArray(cNode& object, string::cStringParserUTF8& sp) const
     {
-      std::cout<<"reader::ReadObjectOrArray"<<std::endl;
-
       sp.SkipWhiteSpace();
 
       char c = sp.GetCharacter();
@@ -276,14 +272,12 @@ namespace spitfire
 
       sp.SkipCharacter();
 
-      std::cout<<"reader::ReadObjectOrArray Entering loop"<<std::endl;
       while (true) {
         if (sp.IsEnd()) {
           std::cout<<"reader::ReadObjectOrArray At end of string, returning false"<<std::endl;
           return false;
         }
 
-        std::cout<<"reader::ReadObjectOrArray Inside loop "<<sp.GetToEnd()<<std::endl;
         sp.SkipWhiteSpace();
         c = sp.GetCharacter();
         if ((c == '}') || (c == ']')) {
@@ -326,7 +320,6 @@ namespace spitfire
             return false;
           }
         } else {
-          std::cout<<"reader::ReadObjectOrArray Reading string "<<sp.GetToEnd()<<std::endl;
           std::string sName;
           if (!ReadString(sName, sp)) {
             std::cout<<"reader::ReadObjectOrArray Error reading string, returning false"<<std::endl;
@@ -406,23 +399,23 @@ namespace spitfire
                   }
                 }
 
-                std::cout<<"Value \""<<sValue<<"\""<<std::endl;
+                //std::cout<<"Value \""<<sValue<<"\""<<std::endl;
                 cNode* pProperty = object.CreateNode();
                 object.AppendChild(pProperty);
                 pProperty->SetName(sName);
 
                 if ((sValue == "true") || (sValue == "false")) {
-                  std::cout<<"Found bool"<<std::endl;
+                  //std::cout<<"Found bool"<<std::endl;
                   // Read a boolean
                   const bool bIsValueTrue = (sValue == "true");
                   pProperty->SetTypeBool(bIsValueTrue);
                 } else if (sValue.find('.') != std::string::npos) {
-                  std::cout<<"Found float"<<std::endl;
+                  //std::cout<<"Found float"<<std::endl;
                   // Read a float value
                   const double dValueFloat = string::ToFloat(string::ToString(sValue));
                   pProperty->SetTypeFloat(dValueFloat);
                 } else {
-                  std::cout<<"Found int"<<std::endl;
+                  //std::cout<<"Found int"<<std::endl;
                   // Read an int value
                   const int iValueInt = string::ToInt(string::ToString(sValue));
                   pProperty->SetTypeInt(iValueInt);
@@ -442,13 +435,11 @@ namespace spitfire
         }
       }
 
-      std::cout<<"reader::ReadObjectOrArray Returning true"<<std::endl;
       return true;
     }
 
     bool reader::ReadString(std::string& sValue, string::cStringParserUTF8& sp) const
     {
-      std::cout<<"reader::ReadString"<<std::endl;
       char c = sp.GetCharacterAndSkip();
       if (c != '"') return false;
 
