@@ -249,19 +249,43 @@ namespace spitfire
     }
 
     // http://en.wikipedia.org/wiki/Density_of_air#Temperature_and_pressure
-    inline float GetDensityOfAirKgPerCubicMeterForPressureKPAAndTemperatureDegreesCelcius(float fPressureKPA, float fTemperatureDegreesCelcius)
+    inline float GetDensityOfAirKgPerCubicMeterForPressurePAAndTemperatureDegreesCelcius(float fPressurePa, float fTemperatureDegreesCelcius)
     {
-      const float p = 1000.0f * fPressureKPA; // absolute pressure (must be in Pa not KPA)
+      const float p = fPressurePa; // absolute pressure (must be in Pa not KPA)
       const float R = 287.05f; // specific gas constant for dry air is 287.05 J/(kg·K) in SI units
       const float T = DegreesCelciusToKelvin(fTemperatureDegreesCelcius); // absolute temperature
 
       return (p / (R * T));
     }
 
+    // Adiabatic compression
+    // https://phys.libretexts.org/Bookshelves/University_Physics/Book%3A_University_Physics_(OpenStax)/Book%3A_University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/03%3A_The_First_Law_of_Thermodynamics/3.07%3A_Adiabatic_Processes_for_an_Ideal_Gas
+    // Assumptions:
+    // The gas is air consisting of molecular nitrogen and oxygen only (thus a diatomic gas with 5 degrees of freedom, and so γ = 7/5, or γ = 1.4)
+    // Assume the compression happens quickly enough that no heat escapes or transfers out of the volume to the container
+    inline float GetPressurePaCompressGasAdiabatically(float fVolumeLitres, float fPressurePa, float fCompressedVolumeLitres)
+    {
+      const float r = 1.4; // γ = 1.4
+      return fPressurePa * pow((fVolumeLitres / fCompressedVolumeLitres), r);
+    }
+
+    // Ideal gas law
+    inline float GetTemperatureKelvinsCompressGasAdiabatically(float fVolumeLitres, float fTemperatureKelvins, float fPressurePa, float fCompressedVolumeLitres, float fPressure2Pa)
+    {
+      return ((fPressure2Pa * fCompressedVolumeLitres) / (fPressurePa * fVolumeLitres)) * fTemperatureKelvins;
+    }
+
+    inline float GetWorkRequiredJoulesToCompressGasAdiabatically(float fVolumeLitres, float fTemperatureKelvins, float fPressurePa, float fCompressedVolumeLitres, float fPressure2Pa)
+    {
+      const float r = 1.4; // γ = 1.4
+      return (1.0f / (1.0f - r)) * ((fPressure2Pa * fCompressedVolumeLitres) - (fPressurePa * fVolumeLitres));
+    }
+
+
 
     // Drag
 
-    // Calculate the force of drag for an object moving throw a medium at a specific speed
+    // Calculate the force of drag for an object moving through a medium at a specific speed
     //
     // Fdrag = 0.5 * Cd * A * rho * v²
     //
@@ -270,7 +294,7 @@ namespace spitfire
       return 0.5f * fCoefficientOfFriction * fObjectFrontalAreaMetersSquared * fDensityOfMediumKgPerMeterSquared * (fSpeedOfObjectMetersPerSecond * fSpeedOfObjectMetersPerSecond);
     }
 
-    // Calculate the force of lift/downforce for an object moving throw a medium at a specific speed
+    // Calculate the force of lift/downforce for an object moving through a medium at a specific speed
     // NOTE: This is exactly the same equation as we used to calculate the drag force above, but using the coefficient of lift/downforce instead of the coefficient of drag
     // NOTE: When the coefficient of lift/downforce is positive it is generating lift, negative it is generating downforce
     //
