@@ -44,6 +44,10 @@ namespace spitfire
       cVec2 first = *iter;
       cVec2 second = *iter;
 
+      if (fMu <= first.x) {
+        return first.y;
+      }
+
       while (iter != iterEnd) {
         // Shuffle the previous values
         first = second;
@@ -59,10 +63,12 @@ namespace spitfire
       };
 
       // We are outside the range so just return the last y value
-      if (!bFound) return first.y;
+      if (!bFound) {
+        return second.y;
+      }
 
       // Check if these are actually the same point in which case we can just return the y value directly
-      if (first.x == second.y) {
+      if (first.x == second.x) {
         return first.y;
       }
 
