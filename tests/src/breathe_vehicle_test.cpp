@@ -105,6 +105,7 @@ void EnvironmentSetSettings(breathe::Environment& environment)
 // Dual Mass Flywheel Weight: 12.92 Kg
 // Pressure Pate Weight: 5.21 Kg
 // Clutch Disc Weight: 0.68 Kg
+// Max Torque Capacity: 440 Nm? (Limited by the pressure plate apparently?)
 //
 //
 // BorgWarner K03 turbocharger
@@ -182,27 +183,39 @@ Efficiency 85%?
 
 void ClutchSetSettings(breathe::vehicle::part::Clutch& clutch)
 {
+  // TODO: These figures don't give us 440 Nm maximum torque capacity, so something is off
+
   // Golf GTI
   clutch.fMassKg = 0.68f;
 
-  // Calculate the area of the "donut" contact area of the clutch plate
   const float fSurfaceOuterRadiuscm = 12.0f;
   const float fSurfaceInnerRadiuscm = fSurfaceOuterRadiuscm - 3.0f; // 3cm wide contact surface
-  clutch.fSurfacem2 = (spitfire::math::cPI * fSurfaceOuterRadiuscm * fSurfaceOuterRadiuscm) - (spitfire::math::cPI * fSurfaceInnerRadiuscm * fSurfaceInnerRadiuscm);
+  const float fSurfaceOuterRadiusm = fSurfaceOuterRadiuscm / 100.0f;
+  const float fSurfaceInnerRadiusm = fSurfaceInnerRadiuscm / 100.0f;
+
+  // Calculate the area of the "donut" contact area of the clutch plate
+  clutch.fSurfacem2 = (spitfire::math::cPI * fSurfaceOuterRadiusm * fSurfaceOuterRadiusm) - (spitfire::math::cPI * fSurfaceInnerRadiusm * fSurfaceInnerRadiusm);
+
+  // Average of inner and outer disc radius
+  clutch.fSurfaceMeanEffectiveRadiusm = (fSurfaceOuterRadiusm + fSurfaceInnerRadiusm) / 2.0f;
 
   clutch.fFrictionCoefficient = 0.8f;
 
+  // TODO: This is rubbish, set real values
   clutch.curveTravel0To1_To_Engagement0To1.AddPoint(0.0f, 0.0f); // 0Nm at 0 A
   clutch.curveTravel0To1_To_Engagement0To1.AddPoint(100.0f, 0.0f); // 0Nm at 100 A
   clutch.curveTravel0To1_To_Engagement0To1.AddPoint(800.0f, 21.23f); // 21.23 Nm at 800 A
   clutch.curveTravel0To1_To_Engagement0To1.AddPoint(2000.0f, 21.23f); // 21.23 Nm for values greater than 800 A
 
+  // TODO: This is rubbish, set real values
   clutch.curveEngagement0To1_To_MaxNm.AddPoint(0.0f, 0.0f); // 0Nm at 0 A
   clutch.curveEngagement0To1_To_MaxNm.AddPoint(100.0f, 0.0f); // 0Nm at 100 A
   clutch.curveEngagement0To1_To_MaxNm.AddPoint(800.0f, 21.23f); // 21.23 Nm at 800 A
   clutch.curveEngagement0To1_To_MaxNm.AddPoint(2000.0f, 21.23f); // 21.23 Nm for values greater than 800 A
 
-  // ... 440 Nm torque capacity for a stock golf GTI clutch? (Limited by the pressure plate apparently?)
+  // 380lbs of clamping force for a stock Golf GTI clutch diaphram?
+  // 380lbs = 172kg = 1686 N
+  clutch.fMaxEngagedForceN = 1686.0f;
 }
 
 void GearBoxSetSettings(breathe::vehicle::part::GearBox& gearBox)
@@ -268,71 +281,74 @@ TEST(Breathe, TestVehicleClutch)
 
   ClutchSetSettings(clutch);
 
+  const float fTorqueCapacityNm = breathe::vehicle::GetClutchTorqueCapacityNm(clutch);
+  ASSERT_NEAR(283.248f, fTorqueCapacityNm, 0.1f);
+
   // Clutch fully engaged
 
   breathe::vehicle::CLUTCH_STATE clutchState = breathe::vehicle::CLUTCH_STATE::OPEN;
   float fOutputTorqueNm = 0.0f;
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 0.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 10.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 10.0f, 0.1f);
+  EXPECT_NEAR(10.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 100.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 100.0f, 0.1f);
+  EXPECT_NEAR(100.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 200.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 200.0f, 0.1f);
+  EXPECT_NEAR(200.0f, fOutputTorqueNm, 0.1f);
+
+  // Slipping
+  // The clutch's maximum torque capacity is calculated at 283 Nm so everything after this should slip
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 300.0f, clutch, clutchState);
-  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 300.0f, 0.1f);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(283.248f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 500.0f, clutch, clutchState);
-  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 500.0f, 0.1f);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(283.248f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 1000.0f, clutch, clutchState);
-  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 1000.0f, 0.1f);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(283.248f, fOutputTorqueNm, 0.1f);
 
 
-  // Clutch fully disengaged
+  // Clutch fully disengaged, no contact, no slipping
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 0.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 10.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 100.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 200.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 300.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 500.0f, clutch, clutchState);
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 0.0f, 0.1f);
-
-
-  // Slipping
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(1.0f, 1000.0f, clutch, clutchState);
-  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
-  EXPECT_NEAR(fOutputTorqueNm, 100.0f, 0.1f);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::OPEN, clutchState);
+  EXPECT_NEAR(0.0f, fOutputTorqueNm, 0.1f);
 }
 
 TEST(Breathe, TestVehicleStarterMotorStartEngine)

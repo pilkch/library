@@ -257,6 +257,7 @@ enum class CLUTCH_STATE {
   LOCKED,
 };
 
+float GetClutchTorqueCapacityNm(const breathe::vehicle::part::Clutch& clutch);
 float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm, const breathe::vehicle::part::Clutch& clutch, CLUTCH_STATE& outputClutchState);
 
 float GetTorqueConverterTorqueOutNm(float fInputTorqueNm);

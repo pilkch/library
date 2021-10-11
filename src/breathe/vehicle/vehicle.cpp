@@ -147,22 +147,15 @@ void ECUActions::Clear()
   fBrake0To1 = 0.0f;
 }
 
-
-
-float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm, const breathe::vehicle::part::Clutch& clutch, CLUTCH_STATE& outputClutchState)
+float GetClutchTorqueCapacityNm(const breathe::vehicle::part::Clutch& clutch)
 {
-  float fOutputTorqueNm = 0.0f;
-
-  outputClutchState = CLUTCH_STATE::OPEN;
-
 #if 1
   // Maximum torque this clutch can hold without slipping
-  // http://86.43.94.97/moodlecp9a/mod/resource/view.php?id=235
+  // https://86.43.94.97/moodlecp9a/mod/resource/view.php?id=235
   // T=SPμR
   //
   // T is the maximum torque that could be transmitted (measured in SI units, Nm)
   // S is the number of friction couples in contact. For example, in a single plate dry clutch, there are 2 friction couples: one between the front of the clutch disc and the flywheel, and one between the back of the clutch disk and the pressure plate.
-  // This is just a number, with no units of measurement.
   // P Pressure plate clamping force. [This is a force and is measured in newtons]
   // μ is the coefficient of friction between the clutch lining and the flywheel and pressure plate. This is just a ratio, with no units of measurement.
   // R is the mean (average) effective radius (M.E.R.) of the clutch disc. This is a distance and is measured in metres.
@@ -170,9 +163,7 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
   // 2 friction couples for a single plate dry clutch
   const size_t frictionCouples = 2;
 
-  const float fPressurePlateClampingForceN = 0.0f; // TODO: Calculate this
-
-  const float fTorqueCapacityNm = float(frictionCouples) * fPressurePlateClampingForceN * clutch.fFrictionCoefficient * clutch.fSurfaceMeanEffectiveRadiusm;
+  const float fTorqueCapacityNm = float(frictionCouples) * clutch.fMaxEngagedForceN * clutch.fFrictionCoefficient * clutch.fSurfaceMeanEffectiveRadiusm;
 #else
   const float fNormalForceN = fEngagement0To1 * clutch.fMaxEngagedForceN;
 
@@ -184,10 +175,24 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
   const float fTorqueCapacityNm = ...;
 #endif
 
-  if (fInputTorqueNm > 0.0f) {
+  return fTorqueCapacityNm;
+}
+
+float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm, const breathe::vehicle::part::Clutch& clutch, CLUTCH_STATE& outputClutchState)
+{
+  float fOutputTorqueNm = 0.0f;
+
+  outputClutchState = CLUTCH_STATE::OPEN;
+
+  if (fPedalTravelClutch0To1 <= 0.9f) {
+    const float fEngagement0To1 = 1.0f - fPedalTravelClutch0To1;
+
+    const float fMaxTorqueCapacityNm = GetClutchTorqueCapacityNm(clutch);
+    const float fTorqueCapacityNm = fEngagement0To1 * fMaxTorqueCapacityNm;
+
     if (fInputTorqueNm > fTorqueCapacityNm) {
       // Slipping
-      fOutputTorqueNm = fInputTorqueNm - fTorqueCapacityNm;
+      fOutputTorqueNm = fTorqueCapacityNm;
       outputClutchState = CLUTCH_STATE::SLIPPING;
     } else {
       // Locking
