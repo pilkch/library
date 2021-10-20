@@ -365,10 +365,14 @@ namespace opengl
     matScale.SetScale(0.1f);
 
     const size_t nPoints = countof(verticesArray) / 3;
+
+    ASSERT(countof(normalsArray) == nPoints * 3);
+    ASSERT(countof(textureCoordinatesArray) == nPoints * 2);
+
     for (size_t i = 0; i < nPoints; i++) {
       const size_t nPointOffset = i * 3;
       const size_t nTextureCoordinatesOffset = i * 2;
-      builder.PushBack(matScale * spitfire::math::cVec3(verticesArray[nPointOffset], verticesArray[nPointOffset + 1], verticesArray[nPointOffset + 2]), matScale * spitfire::math::cVec3(normalsArray[nPointOffset], normalsArray[nPointOffset + 1], normalsArray[nPointOffset + 2]), spitfire::math::cVec2(textureCoordinatesArray[nTextureCoordinatesOffset + 1], textureCoordinatesArray[nTextureCoordinatesOffset + 2]));
+      builder.PushBack(matScale * spitfire::math::cVec3(verticesArray[nPointOffset], verticesArray[nPointOffset + 1], verticesArray[nPointOffset + 2]), matScale * spitfire::math::cVec3(normalsArray[nPointOffset], normalsArray[nPointOffset + 1], normalsArray[nPointOffset + 2]), spitfire::math::cVec2(textureCoordinatesArray[nTextureCoordinatesOffset], textureCoordinatesArray[nTextureCoordinatesOffset + 1]));
     }
 
     const size_t nIndices = countof(indicesArray);

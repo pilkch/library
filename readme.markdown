@@ -76,12 +76,24 @@ boost
 
 ### Building on Linux
 
-Use a cmake file as used in Sudoku and Drive  
-Use yum to get all required libraries such as  
-*   yum install SDL-devel
-*   yum install SDL-image
-*   yum install SDL-ttf
-*   yum install SDL-net
+Use yum to get all required libraries such as:
+```bash
+sudo yum install gcc gcc-c++ make cmake
+sudo yum install gtest-devel
+sudo yum install gnutls-devel
+sudo yum install libxdg-basedir-devel
+sudo yum install SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
+sudo yum install mesa-libGL1-devel mesa-libGLU1-devel
+sudo yum install GLee-devel
+sudo yum install freetype-devel
+```
+
+To build and run the tests:
+```bash
+cd tests
+cmake .
+make
+```
 
 ### Usage
 
