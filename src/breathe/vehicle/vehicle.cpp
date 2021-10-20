@@ -67,6 +67,7 @@ Engine::Engine() :
   fPistonMassKg(1.0f),
   fConrodMassKg(1.0f),
   fCrankShaftMassKg(1.0f),
+  fCrankRPM(150.0f),
   fStallRPM(550.0f),
 
   fCrankshaftRotationRadians(0.0f),
@@ -86,7 +87,9 @@ bool Engine::IsRunning() const
   return ((starterMotor.fInputVoltage < 0.01f) && (GetRPM() >= fStallRPM));
 }
 
+
 ECU::ECU() :
+  powerState(POWER_STATE::OFF),
   fIdleDesiredColdRPM(1200.0f),
   fIdleDesiredOperatingRPM(800.0f),
 
@@ -190,6 +193,13 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
     const float fMaxTorqueCapacityNm = GetClutchTorqueCapacityNm(clutch);
     const float fTorqueCapacityNm = fEngagement0To1 * fMaxTorqueCapacityNm;
 
+    std::cout<<"clutch.fFrictionCoefficient: "<<clutch.fFrictionCoefficient<<std::endl;
+    std::cout<<"clutch.fSurfaceMeanEffectiveRadiusm: "<<clutch.fSurfaceMeanEffectiveRadiusm<<std::endl;
+    std::cout<<"clutch.fSurfacem2: "<<clutch.fSurfacem2<<std::endl;
+    std::cout<<"fInputTorqueNm: "<<fInputTorqueNm<<std::endl;
+    std::cout<<"fEngagement0To1: "<<fEngagement0To1<<std::endl;
+    std::cout<<"fTorqueCapacityNm: "<<fTorqueCapacityNm<<std::endl;
+
     if (fInputTorqueNm > fTorqueCapacityNm) {
       // Slipping
       fOutputTorqueNm = fTorqueCapacityNm;
@@ -199,6 +209,9 @@ float GetClutchOutputTorqueNm(float fPedalTravelClutch0To1, float fInputTorqueNm
       fOutputTorqueNm = fInputTorqueNm;
       outputClutchState = CLUTCH_STATE::LOCKED;
     }
+
+    // TODO: SLIPPING, // not enough clamping force and difference in speed > 100 rpm?
+    // TODO: MICRO_SPLIPPING, // not enough clamping force and difference in speed > 10 rpm?
   }
 
   return fOutputTorqueNm;
@@ -232,16 +245,38 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
   vehicle.ecuActions.fThrottle0To1 = spitfire::math::clamp(inputs.fPedalTravelAccelerator0To1, 0.0f, 1.0f);
   vehicle.ecuActions.fBrake0To1 = spitfire::math::clamp(inputs.fPedalTravelBrake0To1, 0.0f, 1.0f);
 
-  if (inputs.ignitionKeyTurned) {
+  part::ECU& ecu = vehicle.ecu;
+
+  // Check if we need to transition to a new state
+  if ((ecu.powerState == part::ECU::POWER_STATE::OFF) || (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON)) {
+    if (inputs.ignitionKeyTurned && !vehicle.engine.IsRunning()) {
+      ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING;
+    }
+  }
+
+  if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) {
+    if (vehicle.engine.IsRunning()) {
+      ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING;
+    }
+  }
+
+  if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING) {
+    if (!vehicle.engine.IsRunning()) {
+      // The engine has stalled, return to accessories on
+      ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_ON;
+    }
+  }
+
+
+
+  if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) {
     vehicle.ecuActions.headlights = false; // Turn off the lights when we are starting the engine
     vehicle.engine.starterMotor.fInputVoltage = 12.0f;
   } else {
     vehicle.engine.starterMotor.fInputVoltage = 0.0f;
   }
 
-  const breathe::vehicle::part::ECU& ecu = vehicle.ecu;
-
-  if (vehicle.engine.IsRunning()) {
+  if ((ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) || (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING)) {
     const float fRPM = vehicle.GetRPMAtFlywheel();
 
     // Adjust idle RPM speed to keep the engine from stalling
@@ -283,6 +318,26 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
 
 void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle)
 {
+  if (vehicle.engine.starterMotor.fInputVoltage >= 12.0f) {
+    // NOTE: When voltage is applied to the starter motor a solenoid pushes the starter motor drive shaft out to engage the starter motor cog with the flywheel
+    // We just assume a perfect connection is occuring when a voltage is applied and there is zero connection when no voltage is applied
+
+    // Apply the voltage to the starter motor to start it turning
+    // HACK: We just asssume if the input voltage is >= 12V then we are driving the starter motor and we apply torque based on the RPM of the motor
+
+    // *********** Uncomment this
+    /*const float fStarterMotorTorqueNm = vehicle.engine.curveRPMToTorqueNm.GetYAtPointX(vehicle.engine.fRPM);
+
+    ... calculate torque required to turn 
+    const float fRequiredTorqueToTurnCrankshaftNm = ...;
+
+    if (fRequiredTorqueToTurnCrankshaftNm > fStallTorqueNm) {
+      ... burning out starter motor
+    } else {
+      ... apply torque
+    }*/
+  }
+
   /*const float fEngineTorqueNm = vehicle.engine.fOutputRPMAtFlywheel ...;
 
   CLUTCH_STATE clutchState = CLUTCH_STATE::OPEN;

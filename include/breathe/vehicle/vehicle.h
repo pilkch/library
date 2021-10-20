@@ -55,7 +55,7 @@ public:
   float fFreeRunCurrentAmps;
   float fStallTorqueNm; // If there is this much or more torque to overcome then the electric motor is "stalling" and will draw its maximum current, get warm and start burning out
 
-  spitfire::math::cCurve curveAmpInToTorqueOutNm;
+  spitfire::math::cCurve curveRPMToTorqueNm;
 
   uint8_t uiOutputGearTeeth;
 
@@ -145,6 +145,9 @@ public:
   float fConrodMassKg;
   float fCrankShaftMassKg;
 
+  // TODO: This is really a function of the torque applied to the crank shaft by the starter motor
+  float fCrankRPM;
+
   // TODO: This should really be a function of how much power the engine is making and how much load there is from the drive train
   float fStallRPM;
 
@@ -165,7 +168,7 @@ public:
 };
 
 
-// TODO: Typically we would idle will typically be higher for say 30 seconds after starting until the engine has reached the operating temperature range
+// TODO: Typically we would idle higher for say 30 seconds after starting until the engine has reached the operating temperature range
 // TODO: Support turning on the radiator fans when the water temperature goes too high
 // TODO: Identify slipping wheels and support traction control (Cut ignition? Apply the brake to just that wheel?)
 // TODO: Identify locked up wheels and support ABS (Release brake)
@@ -173,6 +176,14 @@ public:
 class ECU {
 public:
   ECU();
+
+  enum class POWER_STATE {
+    OFF,
+    ACCESSORIES_ON, // We haven't turned on the engine yet or it has stalled
+    ACCESSORIES_OFF_STARTER_MOTOR_FIRING, // We are trying to start the engine
+    ACCESSORIES_ON_ENGINE_RUNNING, // We have started the engine and it is currently running normally
+  };
+  POWER_STATE powerState;
 
   float fIdleDesiredColdRPM; // Our target RPM when the engine is cold
   float fIdleDesiredOperatingRPM; // Our target RPM when the engine is at operating temperature

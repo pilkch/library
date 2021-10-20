@@ -175,10 +175,11 @@ Efficiency 85%?
   starterMotor.fStallTorqueNm = 42.7f;
   //starterMotor.uiOutputGearTeeth = ;
 
-  starterMotor.curveAmpInToTorqueOutNm.AddPoint(0.0f, 0.0f); // 0Nm at 0 A
-  starterMotor.curveAmpInToTorqueOutNm.AddPoint(100.0f, 0.0f); // 0Nm at 100 A
-  starterMotor.curveAmpInToTorqueOutNm.AddPoint(800.0f, 21.23f); // 21.23 Nm at 800 A
-  starterMotor.curveAmpInToTorqueOutNm.AddPoint(2000.0f, 21.23f); // 21.23 Nm for values greater than 800 A
+  // NOTE: This is a curve, not a straight line
+  starterMotor.curveRPMToTorqueNm.AddPoint(0.0f, 22.5f); // 22.5 Nm at 0 RPM
+  starterMotor.curveRPMToTorqueNm.AddPoint(1000.0f, 21.0f); // 21.0 Nm at 1000 RPM
+  starterMotor.curveRPMToTorqueNm.AddPoint(3000.0f, 9.0f); // 21.0 Nm at 1000 RPM
+  starterMotor.curveRPMToTorqueNm.AddPoint(3600.0f, 0.0f); // 0 Nm for 3600 RPM and greater
 }
 
 void ClutchSetSettings(breathe::vehicle::part::Clutch& clutch)
@@ -267,12 +268,24 @@ TEST(Breathe, TestVehicleStarterMotorSettings)
   breathe::vehicle::part::ElectricMotor starterMotor;
   StarterMotorSetSettings(starterMotor);
 
-  // Check the amp in to torque out curve
-  EXPECT_NEAR(starterMotor.curveAmpInToTorqueOutNm.GetYAtPointX(0.0f), 0.0f, 0.001f);
-  EXPECT_NEAR(starterMotor.curveAmpInToTorqueOutNm.GetYAtPointX(100.0f), 0.0f, 0.001f);
-  EXPECT_NEAR(starterMotor.curveAmpInToTorqueOutNm.GetYAtPointX(400.0f), 9.098f, 0.001f);
-  EXPECT_NEAR(starterMotor.curveAmpInToTorqueOutNm.GetYAtPointX(800.0f), 21.23f, 0.001f);
-  EXPECT_NEAR(starterMotor.curveAmpInToTorqueOutNm.GetYAtPointX(900.0f), 21.23f, 0.001f);
+  // Check the RPM in to torque out curve
+  EXPECT_NEAR(22.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(0.0f), 0.001f);
+  EXPECT_NEAR(22.35f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(100.0f), 0.001f);
+  EXPECT_NEAR(21.75f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(500.0f), 0.001f);
+  EXPECT_NEAR(21.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(1000.0f), 0.001f);
+  EXPECT_NEAR(19.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(1250.0f), 0.001f);
+  EXPECT_NEAR(18.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(1500.0f), 0.001f);
+  EXPECT_NEAR(16.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(1750.0f), 0.001f);
+  EXPECT_NEAR(15.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(2000.0f), 0.001f);
+  EXPECT_NEAR(9.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3000.0f), 0.001f);
+  EXPECT_NEAR(7.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3100.0f), 0.001f);
+  EXPECT_NEAR(6.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3200.0f), 0.001f);
+  EXPECT_NEAR(4.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3300.0f), 0.001f);
+  EXPECT_NEAR(3.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3400.0f), 0.001f);
+  EXPECT_NEAR(1.5f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3500.0f), 0.001f);
+  EXPECT_NEAR(0.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3600.0f), 0.001f);
+  EXPECT_NEAR(0.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(3700.0f), 0.001f);
+  EXPECT_NEAR(0.0f, starterMotor.curveRPMToTorqueNm.GetYAtPointX(5000.0f), 0.001f);
 }
 
 TEST(Breathe, TestVehicleClutch)
@@ -365,11 +378,11 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   BodySetSettings(vehicle.body);
 
   // The engine should not be running yet
-  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 000.0f, 1.0f);
+  EXPECT_NEAR(0.0f, vehicle.engine.starterMotor.fRPM, 1.0f);
   EXPECT_FALSE(vehicle.engine.IsRunning());
-  EXPECT_NEAR(vehicle.GetRPMAtFlywheel(), 0.0f, 0.1f);
-  EXPECT_NEAR(vehicle.GetRPMAfterClutch(), 0.0f, 0.1f);
-  EXPECT_NEAR(vehicle.GetRPMAfterGearBox(), 0.0f, 0.1f);
+  EXPECT_NEAR(0.0f, vehicle.GetRPMAtFlywheel(), 0.1f);
+  EXPECT_NEAR(0.0f, vehicle.GetRPMAfterClutch(), 0.1f);
+  EXPECT_NEAR(0.0f, vehicle.GetRPMAfterGearBox(), 0.1f);
 
   breathe::vehicle::VehicleInputs inputs;
 
@@ -377,7 +390,7 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   // Initially not started
   RunUpdateIterations(3, inputs, vehicle);
 
-  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 000.0f, 1.0f);
+  EXPECT_NEAR(0.0f, vehicle.engine.starterMotor.fRPM, 1.0f);
   EXPECT_FALSE(vehicle.engine.IsRunning());
 
   // Crank the starter motor
@@ -387,7 +400,7 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   RunUpdateIterations(200, inputs, vehicle);
 
   // The starter motor should now be turning
-  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 800.0f, 50.0f);
+  EXPECT_NEAR(800.0f, vehicle.engine.starterMotor.fRPM, 50.0f);
   EXPECT_TRUE(vehicle.engine.IsRunning());
 
   // The starter motor can be turned off now
@@ -396,11 +409,11 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   // Wait for the starter motor to disengage and the engine to settle
   RunUpdateIterations(200, inputs, vehicle);
 
-  EXPECT_NEAR(vehicle.engine.starterMotor.fRPM, 800.0f, 50.0f);
+  EXPECT_NEAR(800.0f, vehicle.engine.starterMotor.fRPM, 50.0f);
   EXPECT_TRUE(vehicle.engine.IsRunning());
 
   // The engine should now be started
-  EXPECT_NEAR(vehicle.GetRPMAtFlywheel(), 800.0f, 50.0f);
-  EXPECT_NEAR(vehicle.GetRPMAfterClutch(), 800.0f, 50.0f);
-  EXPECT_NEAR(vehicle.GetRPMAfterGearBox(), 800.0f, 50.0f);
+  EXPECT_NEAR(800.0f, vehicle.GetRPMAtFlywheel(), 50.0f);
+  EXPECT_NEAR(800.0f, vehicle.GetRPMAfterClutch(), 50.0f);
+  EXPECT_NEAR(800.0f, vehicle.GetRPMAfterGearBox(), 50.0f);
 }
