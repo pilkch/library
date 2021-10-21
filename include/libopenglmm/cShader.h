@@ -23,6 +23,7 @@
 #define LIBOPENGLMM_CSHADER_H
 
 // Standard headers
+#include <map>
 #include <set>
 
 // Spitfire headers
