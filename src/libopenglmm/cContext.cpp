@@ -937,6 +937,17 @@ namespace opengl
   }
 
 
+  void cContext::EnableCulling()
+  {
+    glEnable(GL_CULL_FACE);
+  }
+
+  void cContext::DisableCulling()
+  {
+    glDisable(GL_CULL_FACE);
+  }
+
+
   void cContext::EnableWireframe()
   {
     glDisable(GL_CULL_FACE);

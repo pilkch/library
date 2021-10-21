@@ -177,6 +177,9 @@ namespace opengl
     void EndRenderMode2D();
 
 
+    void EnableCulling();
+    void DisableCulling();
+
     void EnableWireframe();
     void DisableWireframe();
 
