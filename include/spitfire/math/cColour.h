@@ -1,5 +1,4 @@
-#ifndef CCOLOUR_H
-#define CCOLOUR_H
+#pragma once
 
 namespace spitfire
 {
@@ -257,7 +256,18 @@ namespace spitfire
       float u;
       float v;
     };
+
+    class cColour_sRGB
+    {
+    public:
+      cColour_sRGB();
+
+      void SetFromRGB(const cColour& colour);
+
+      float r;
+      float g;
+      float b;
+    };
   }
 }
 
-#endif // CCOLOUR_H
