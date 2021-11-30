@@ -125,7 +125,10 @@ namespace opengl
     // Bind so that the next operations happen on this texture
     glBindTexture(textureType, uiTexture);
 
-    GLenum internal = (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) ? GL_RGB : GL_RGBA;
+    GLenum internal = GL_RGBA;
+    if (image.GetPixelFormat() == voodoo::PIXELFORMAT::H8) internal = GL_RED;
+    else if (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) internal = GL_RGB;
+  
     GLenum type = GL_UNSIGNED_BYTE;
 
     // Settings to make the texture look a bit nicer when we do blit it to the screen

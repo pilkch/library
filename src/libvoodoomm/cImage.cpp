@@ -255,7 +255,7 @@ namespace voodoo
   {
     assert(IsSurfaceValid());
 
-    image.CreateFromBuffer(GetPointerToSurfacePixelBuffer(), width, height, PIXELFORMAT::R8G8B8A8);
+    image.CreateFromBuffer(GetPointerToSurfacePixelBuffer(), width, height, image.pixelFormat);
   }
 
   void cSurface::CopyFromBufferToSurface()
@@ -445,7 +445,7 @@ namespace voodoo
   {
     std::cout<<"cImage::CreateEmptyImage "<<_width<<"x"<<_height<<std::endl;
 
-    // Only RGBA is supported at the moment
+    // TODO: Support all formats
     assert(_pixelFormat == PIXELFORMAT::R8G8B8A8);
 
     width = _width;
@@ -469,8 +469,8 @@ namespace voodoo
   {
     std::cout<<"cImage::CreateFromBuffer "<<_width<<"x"<<_height<<std::endl;
 
-    // Only RGBA is supported at the moment
-    assert((_pixelFormat == PIXELFORMAT::R8G8B8) || (_pixelFormat == PIXELFORMAT::R8G8B8A8));
+    // TODO: Support all formats
+    assert((_pixelFormat == PIXELFORMAT::H8) || (_pixelFormat == PIXELFORMAT::R8G8B8) || (_pixelFormat == PIXELFORMAT::R8G8B8A8));
 
     width = _width;
     height = _height;
