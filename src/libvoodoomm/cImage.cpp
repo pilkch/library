@@ -139,8 +139,8 @@ namespace voodoo
 
   bool cSurface::CreateFromImage(const cImage& _image)
   {
-    // Only RGBA textures are supported at the moment
-    assert(_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+    // Only RGB and RGBA textures are supported at the moment
+    assert((_image.GetPixelFormat() == PIXELFORMAT::R8G8B8) || (_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8));
 
     image = _image;
 
@@ -260,8 +260,8 @@ namespace voodoo
 
   void cSurface::CopyFromBufferToSurface()
   {
-    // Only RGBA is supported at the moment
-    assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+    // Only RGB and RGBA images are supported at the moment
+    assert((image.GetPixelFormat() == PIXELFORMAT::R8G8B8) || (image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8));
 
     if (!image.IsValid()) return;
 
@@ -272,21 +272,14 @@ namespace voodoo
 
     if (!IsSurfaceValid()) {
       // Load the buffer into a surface
-      const int depth = 32;
+      const int depth = (image.GetPixelFormat() == PIXELFORMAT::R8G8B8) ? 24 : 32;
       const int pitch = int(bytesPerRow);
 
       // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-      uint32_t rmask = 0xFF000000;
-      uint32_t gmask = 0x00FF0000;
-      uint32_t bmask = 0x0000FF00;
-      uint32_t amask = 0x000000FF;
-#else
-      uint32_t rmask = 0x000000FF;
-      uint32_t gmask = 0x0000FF00;
-      uint32_t bmask = 0x00FF0000;
-      uint32_t amask = 0xFF000000;
-#endif
+      const uint32_t rmask = 0x000000FF;
+      const uint32_t gmask = 0x0000FF00;
+      const uint32_t bmask = 0x00FF0000;
+      const uint32_t amask = (image.GetPixelFormat() == PIXELFORMAT::R8G8B8) ? 0 : 0xFF000000;
 
       const uint8_t* pBuffer = image.GetPointerToBuffer();
       pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, int(width), int(height), depth, pitch, rmask, gmask, bmask, amask);
@@ -452,7 +445,7 @@ namespace voodoo
     height = _height;
     pixelFormat = _pixelFormat;
 
-    const size_t n = _width * _height;
+    const size_t n = _width * _height * GetBytesPerPixel();
     buffer.resize(n, 0);
     FillBlack();
 
@@ -477,8 +470,7 @@ namespace voodoo
     pixelFormat = _pixelFormat;
 
     const size_t n = width * height * GetBytesPerPixel();
-    buffer.resize(n, 0);
-    std::memcpy(buffer.data(), _pBuffer, n);
+    buffer.assign(_pBuffer, _pBuffer + n);
 
     return true;
   }
