@@ -78,6 +78,7 @@ namespace voodoo
 
     bool LoadFromFile(const string_t& sFilename);
     bool SaveToBMP(const string_t& sFilename) const;
+    bool SaveToPNG(const string_t& sFilename) const;
 
     const uint8_t* GetPointerToBuffer() const;
     const uint8_t* GetPointerToSurfacePixelBuffer() const;
@@ -327,6 +328,14 @@ namespace voodoo
     return true;
   }
 
+  bool cSurface::SaveToPNG(const string_t& sFilename) const
+  {
+    assert(IsSurfaceValid());
+    assert(pSurface->format->BitsPerPixel == 32); // Only 32 bit RGBA surfaces are supported because IMG_SavePNG is broken, it always outputs a 32 bit RGBA PNG
+    IMG_SavePNG(pSurface, string::ToUTF8(sFilename).c_str());
+    return true;
+  }
+
 
   // ** cImage
 
@@ -486,6 +495,19 @@ namespace voodoo
     }
 
     return surface.SaveToBMP(sFilename);
+  }
+
+  bool cImage::SaveToPNG(const string_t& sFilename) const
+  {
+    cSurface surface;
+    surface.CreateFromImage(*this);
+    surface.CopyFromBufferToSurface();
+    if (!surface.IsSurfaceValid()) {
+      std::cerr<<"cImage::SaveToPNG Surface is invalid, returning false"<<std::endl;
+      return false;
+    }
+
+    return surface.SaveToPNG(sFilename);
   }
 
   void cImage::CreateFromImageHalfSize(const cImage& image)
