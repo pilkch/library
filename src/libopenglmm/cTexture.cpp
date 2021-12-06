@@ -263,7 +263,7 @@ namespace opengl
         const uint8_t* pBuffer = image.GetPointerToBuffer();
         if (pBuffer != nullptr) {
           // Copy from image to texture
-          glTexImage2D(axisToFilePath[i].axis, 0, GL_RGBA, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+          glTexImage2D(axisToFilePath[i].axis, 0, GL_RGB, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
