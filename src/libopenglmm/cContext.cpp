@@ -183,6 +183,8 @@ namespace opengl
     if (!texture.CreateFromImage(image)) return;
 
     //textures.push_back(&texture);
+
+    //std::cout<<"cContext::CreateTexture \""<<sFileName<<"\" has "<<int(image.GetPixelFormat())<<", "<<int(image.GetBytesPerPixel())<<", "<<int(image.GetBitsPerPixel())<<std::endl;
   }
 
   void cContext::CreateTextureNoMipMaps(cTexture& texture, const opengl::string_t& sFileName)
@@ -993,24 +995,6 @@ namespace opengl
 
     glBindTexture(type, texture.GetTexture());
 
-    // If we are rendering with a shader check that it expects the same texture type as we have just bound
-    if (pCurrentShader != nullptr) {
-      switch (type) {
-        case GL_TEXTURE_1D: {
-          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_1D);
-          break;
-        }
-        case GL_TEXTURE_2D: {
-          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_2D);
-          break;
-        }
-        case GL_TEXTURE_RECTANGLE: {
-          ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_2D_RECT);
-          break;
-        }
-      };
-    }
-
     //LOG(cSystem::GetErrorString()));
   }
 
@@ -1040,9 +1024,6 @@ namespace opengl
     glEnable(GL_TEXTURE_CUBE_MAP);
     #endif
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetTexture());
-
-    // If we are rendering with a shader check that it expects the same texture type as we have just bound
-    if (pCurrentShader != nullptr) ASSERT(pCurrentShader->textureUnitType[uTextureUnit] == cShader::TEXTURE_UNIT_TYPE::TEXTURE_CUBE);
   }
 
   void cContext::UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
@@ -1104,12 +1085,16 @@ namespace opengl
     //  - brightness: HDR, Top Gear Shader, Night Vision
     //  - exposure: HDR, Top Gear Shader
 
-    STATIC_ASSERT(MAX_TEXTURE_UNITS == 4, "This code was designed for a maximum of 4 texture units");
+    STATIC_ASSERT(MAX_TEXTURE_UNITS == 8, "This code was designed for a maximum of 4 texture units");
 
     if (shader.textureUnitType[0] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit0", 0);
     if (shader.textureUnitType[1] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit1", 1);
     if (shader.textureUnitType[2] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit2", 2);
     if (shader.textureUnitType[3] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit3", 3);
+    if (shader.textureUnitType[4] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit4", 4);
+    if (shader.textureUnitType[5] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit5", 5);
+    if (shader.textureUnitType[6] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit6", 6);
+    if (shader.textureUnitType[7] != cShader::TEXTURE_UNIT_TYPE::DISABLED) SetShaderConstant("texUnit7", 7);
 
     if (shader.bNear) SetShaderConstant("fNear", fNear);
     if (shader.bFar) SetShaderConstant("fFar", fFar);

@@ -55,8 +55,22 @@ namespace voodoo
     H32  // float heightmap
   };
 
-  size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat);
-  size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat);
+  inline constexpr size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat)
+  {
+    if (pixelFormat == PIXELFORMAT::H8) return 1;
+    else if (pixelFormat == PIXELFORMAT::H16) return 2;
+    else if (pixelFormat == PIXELFORMAT::H32) return 4;
+    else if (pixelFormat == PIXELFORMAT::R5G6B5) return 2;
+    else if (pixelFormat == PIXELFORMAT::R8G8B8) return 3;
+    else if (pixelFormat == PIXELFORMAT::R8G8B8A8) return 4;
+
+    return 0;
+  }
+
+  inline constexpr size_t GetBitsForPixelFormat(PIXELFORMAT pixelFormat)
+  {
+    return 8 * GetBytesForPixelFormat(pixelFormat);
+  }
 
   class cImage;
   class cSurface;

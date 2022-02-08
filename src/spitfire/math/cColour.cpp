@@ -17,6 +17,25 @@
 #include <spitfire/math/cOctree.h>
 #include <spitfire/math/cColour.h>
 
+namespace {
+
+// Convertes an sRGB value in the range [0, 255] to a linear value in the range [0, 1]
+inline constexpr float sRGBToLinear(float sRGB)
+{
+  if (sRGB <= 0.04045f) return sRGB / 12.92f;
+
+  return pow((sRGB + 0.055f) / 1.055f, 2.4f);
+}
+
+// Converts a linear value in the range [0, 1] to an sRGB value in the range [0, 255]
+inline constexpr float LinearTo_sRGB(float linear)
+{
+  if (linear <= 0.0031308f) return linear * 12.92f;
+
+  return 1.055f * pow(linear, 1.0f / 2.4f) - 0.055f;
+}
+
+}
 namespace spitfire
 {
   namespace math
@@ -590,6 +609,23 @@ namespace spitfire
     {
       const cColour3 colourRGB(colour.r, colour.g, colour.b);
       return SetFromRGB(colourRGB);
+    }
+
+
+
+
+    cColour_sRGB::cColour_sRGB() :
+      r(0.0f),
+      g(0.0f),
+      b(0.0f)
+    {
+    }
+
+    void cColour_sRGB::SetFromRGB(const cColour& colour)
+    {
+      r = LinearTo_sRGB(colour.r);
+      g = LinearTo_sRGB(colour.g);
+      b = LinearTo_sRGB(colour.b);
     }
   }
 }

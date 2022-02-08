@@ -184,6 +184,9 @@ namespace breathe
 
         // Read faces into indices
         for (; i < n; i++) {
+          // https://paulbourke.net/dataformats/obj/
+          // NOTE: Each face needs at least 3 vertices, but could be a polygon with N vertices
+
           spitfire::string::Split(lines[i], ' ', tokens);
           if (tokens.empty()) continue;
 
@@ -195,25 +198,22 @@ namespace breathe
             break;
           }
 
-          if (tokens.size() == 3) {
-            LOG("This is a line (2 vertices) not a face, we don't support lines for \"f\", skipping lines[", i, "] (\"", lines[i], "\")");
+          if (tokens.size() < 4) {
+            LOG("Not enough vertices for a face, skipping lines[", i, "] (\"", lines[i], "\")");
             continue;
           }
 
-          if (tokens.size() != 4) {
-            LOG("unexpected number of arguments to \"f\" at lines[", i, "] (\"", lines[i], "\")");
-            ASSERT(false);
-          }
-
           if (tokens.size() == 4) {
-            // Triangle
+            // 3 vertices, a triangle
             const size_t k = 3;
             for (size_t j = 0; j < k; j++) {
+              const size_t index = j + 1;
+
               std::vector<std::string> elements;
-              spitfire::string::Split(tokens[j + 1], '/', elements);
+              spitfire::string::Split(tokens[index], '/', elements);
               if (elements.empty()) {
-                LOG("Pushing back \"", tokens[j + 1], "\"");
-                elements.push_back(tokens[j + 1]);
+                LOG("Pushing back \"", tokens[index], "\"");
+                elements.push_back(tokens[index]);
               }
 
               const size_t l = elements.size();
@@ -241,6 +241,75 @@ namespace breathe
                   normalsIndices.push_back(value);
                   item++;
                 }
+              }
+            }
+          } else {
+            // More than 3 vertices, an arbitrary polygon
+            // Our naive strategy is to just make a fan of triangles that fan out from the first vertex, vertex 0
+            // So we add the first two vertices, then for every remaining vertex we create a each triangle is made up of v[0], v[i-1], v[i]
+
+            // Check the format of the point is:
+            // f v1[/vt1][/vn1] v2[/vt2][/vn2] v3[/vt3][/vn3] ...
+            {
+              std::vector<std::string> elements;
+              spitfire::string::Split(tokens[1], '/', elements);
+              if (elements.size() != 3) {
+                LOG("Unsupported point format lines[", i, "] (\"", lines[i], "\")");
+                continue;
+              }
+            }
+
+            struct Point {
+              size_t vertexIndex;
+              size_t textureCoordinateIndex;
+              size_t normalIndex;
+            };
+            Point p0 = { 0, 0, 0 };
+            Point pLast = { 0, 0, 0 };
+            Point p = { 0, 0, 0 };
+
+            const size_t k = tokens.size() - 1;
+            for (size_t j = 0; j < k; j++) {
+              const size_t index = j + 1;
+
+              std::vector<std::string> elements;
+              spitfire::string::Split(tokens[index], '/', elements);
+
+              const size_t l = elements.size();
+              ASSERT(l == 3);
+
+              p.vertexIndex = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[0]));
+              if (p.vertexIndex == 0) p.vertexIndex = 1;
+
+              p.textureCoordinateIndex = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[1]));
+              if (p.textureCoordinateIndex == 0) p.textureCoordinateIndex = 1;
+
+              p.normalIndex = spitfire::string::ToUnsignedInt(spitfire::string::ToString(elements[2]));
+              if (p.normalIndex == 0) p.normalIndex = 1;
+
+              if (j == 0) {
+                p0 = p;
+              } else if (j == 1) {
+                pLast = p;
+              } else {
+                // From the third vertex onwards we can output p0, pLast, and the current vertex
+
+                // p0
+                verticesIndices.push_back(p0.vertexIndex);
+                textureCoordinatesIndices.push_back(p0.textureCoordinateIndex);
+                normalsIndices.push_back(p0.normalIndex);
+
+                // pLast
+                verticesIndices.push_back(pLast.vertexIndex);
+                textureCoordinatesIndices.push_back(pLast.textureCoordinateIndex);
+                normalsIndices.push_back(pLast.normalIndex);
+
+                // p
+                verticesIndices.push_back(p.vertexIndex);
+                textureCoordinatesIndices.push_back(p.textureCoordinateIndex);
+                normalsIndices.push_back(p.normalIndex);
+
+                pLast = p;
               }
             }
           }
