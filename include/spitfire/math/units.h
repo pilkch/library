@@ -232,6 +232,7 @@ namespace spitfire
 
     // http://en.wikipedia.org/wiki/Density_of_air#Altitude
     // returns density of air in kg/m3 for the given altitude in meters
+    // NOTE: This assumes the temperature and pressure of the air falls off at a known rate towards the atmosphere, ignoring heat from the sun, local humidity, and local wind changes
     inline float GetDensityOfAirKgPerCubicMeterForAltitudeMeters(float fAltitudeMeters)
     {
       const float h = fAltitudeMeters;
@@ -246,6 +247,80 @@ namespace spitfire
       const float p = p0 * (pow(1.0f - ((L * h) / T0), (g * M) / (R * L)));
 
       return (p * M) / (R * T);
+    }
+
+
+    
+    // Get the temperature, density, and pressure for an altitude in the standard atmosphere
+    // Correct to 86 km.  Only approximate thereafter.
+    // NOTE: This is just an approximation ignoring the current weather effects:
+    // 1. Heat from the sun
+    // 2. Local humidity
+    // 3. Local wind changes
+    // https://www.pdas.com/atmosdownload.html
+    inline void GetApproximateAtmosphereAtAltitudeMeters(
+        float fAltitudeMeters, // geometric altitude, meters
+        float& fDensityKgPerCubicMeter, // Density/sea-level standard density
+        float& fPressurePa,   // Pressure/sea-level standard pressure
+        float& fTemperatureCelcius,   // Temperature/sea-level standard temperature
+        float& fSpeedOfSoundMetersPerSecond
+    ) {
+      fDensityKgPerCubicMeter = 0.0f;
+      fPressurePa = 0.0f;
+      fTemperatureCelcius = 0.0f;
+      fSpeedOfSoundMetersPerSecond = 0.0f;
+
+      const double REARTH = 6356.766;    // polar radius of the Earth (km)
+      const double GMR = 34.163195;
+      const size_t NTAB = 8;
+
+      static double htab[NTAB] = { 0.0,  11.0, 20.0, 32.0, 47.0, 51.0, 71.0, 84.852 };
+      static double ttab[NTAB] = { 288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.946 };
+      static double ptab[NTAB] = { 1.0, 2.2336110E-1, 5.4032950E-2, 8.5666784E-3, 1.0945601E-3, 6.6063531E-4, 3.9046834E-5, 3.68501E-6 };
+      static double gtab[NTAB] = { -6.5, 0, 1.0, 2.8, 0, -2.8, -2.0, 0.0 };
+
+      const float fAltitudeKm = fAltitudeMeters / 1000.0f;
+      const double fAltitudeGeoPotentialKm = fAltitudeKm * REARTH / (fAltitudeKm + REARTH);     //  geometric to geopotential altitude
+
+      // The original code used a binary search, but that is pointless when we typically want lower altitudes, just check the height of each layer in order
+      // NOTE: The altitude for each layer specifies the lower bound of the layer, so we want the highest possible layer that doesn't go over our specified height
+      size_t match = 0;
+      for (size_t i = 0; i < NTAB; i++) {
+
+        if (fAltitudeGeoPotentialKm <= htab[i]) {
+          break;
+        }
+
+        match = i;
+      }
+
+      double tgrad=gtab[match];                      // temp. gradient of local layer
+      double tbase=ttab[match];                      // base temp. of local layer
+      double deltah = fAltitudeGeoPotentialKm - htab[match];                   // height above local base
+      double tlocal = tbase + tgrad * deltah;          // local temperature
+
+      const double theta = tlocal / ttab[0]; // Temperature/sea-level standard temperature
+      double delta = 0.0; // Pressure/sea-level standard pressure
+
+      if (0.0 == tgrad) {                                         // pressure ratio
+        delta = ptab[match] * exp(-GMR * deltah / tbase);
+      } else {
+        delta = ptab[match] * pow(tbase / tlocal, GMR / tgrad);
+      }
+
+      const double sigma = delta / theta; // Density/sea-level standard density
+
+      const double TZERO = 288.15; // sea level temperature, kelvins
+      const double PZERO = 101325.0; // sea-level pressure, Pa
+      const double RHOZERO = 1.225; // sea level density, kg/cu.m
+      const double AZERO = 340.294; // sea-level speed of sound, m/sec
+
+      const float fTemperatureKelvins = TZERO * theta;
+
+      fTemperatureCelcius = KelvinToDegreesCelcius(fTemperatureKelvins);
+      fPressurePa = PZERO * delta;
+      fDensityKgPerCubicMeter = RHOZERO * sigma;
+      fSpeedOfSoundMetersPerSecond = AZERO * sqrt(theta);
     }
 
     // http://en.wikipedia.org/wiki/Density_of_air#Temperature_and_pressure

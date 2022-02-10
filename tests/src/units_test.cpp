@@ -116,6 +116,82 @@ TEST(SpitfireMath, TestUnitsPressure)
     const float fRequiredJoules = spitfire::math::GetWorkRequiredJoulesToCompressGasAdiabatically(fInitialVolumeCubicMeters, fTemperatureKelvins, fPressurePa, fResultingVolumeCubicMeters, fPressure2Pa);
     EXPECT_NEAR(fRequiredJoules, -378.0f, 1.0f);
   }
+
+
+
+  {
+    // https://www.pdas.com/atmosTable1SI.html
+
+    float fDensity = 0.0f;
+    float fPressure = 0.0f;
+    float fTemperatureCelcius = 0.0f;
+    float fSpeedOfSoundMetersPerSecond = 0.0f;
+
+    // THe most common area of the tables
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(-2000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 1.478E+0, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 1.278E+5 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(301.2), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 347.9f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(0.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 1.225E+0, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 1.013E+5 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(288.1), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 340.3, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(2000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 1.007E+0, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 7.950E+4 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(275.2f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 332.5f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(4000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 8.193E-1, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 6.166E+4 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(262.2f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 324.6f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(6000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 6.601E-1, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 4.722E+4 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(249.2f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 316.5f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(8000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 5.258E-1, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 3.565E+4 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(236.2f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 308.1f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(10000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 4.135E-1, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 2.650E+4 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(223.3f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 299.5f, 1.0f);
+
+
+    // A peak in the speed of sound
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(50000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 1.027E-3, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 7.977E+1 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(270.6f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 329.8f, 1.0f);
+  
+
+    // Approaching the altitude limit
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(84000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 9.690E-6, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 5.308E-1 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(190.8f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 276.9f, 1.0f);
+
+    spitfire::math::GetApproximateAtmosphereAtAltitudeMeters(86000.0f, fDensity, fPressure, fTemperatureCelcius, fSpeedOfSoundMetersPerSecond);
+    EXPECT_NEAR(fDensity, 6.955E-6, 1.0f);
+    EXPECT_NEAR(fPressure * 0.001f, 3.732E-1 * 0.001f, 1.0f);
+    EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(186.9f), 1.0f);
+    EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 274.1f, 1.0f);
+  }
 }
 
 TEST(SpitfireMath, TestUnitsGetForceOfDragN)
