@@ -208,6 +208,7 @@ namespace spitfire
     inline float DegreesCelciusToKelvin(float fDegreesCelcius) { return fDegreesCelcius + 273.15f; }
 
 
+    // https://en.wikipedia.org/wiki/Pascal_(unit)
     // http://en.wikipedia.org/wiki/Pounds_per_square_inch
     // ^ = square
     // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
@@ -226,6 +227,7 @@ namespace spitfire
     // At 20 °C and 101.325 kPa, dry air has a density of 1.2041 kg/m³
     // http://en.wikipedia.org/wiki/ISO_1
     const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_PA = 101325.0f; // Pa
     const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f; // kPa
     const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f; // °C
 
