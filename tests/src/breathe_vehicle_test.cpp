@@ -317,7 +317,24 @@ TEST(Breathe, TestVehicleClutch)
   EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::LOCKED, clutchState);
   EXPECT_NEAR(200.0f, fOutputTorqueNm, 0.1f);
 
-  // Slipping
+
+  // Slipping due to clutch not being fully engaged or fully disengaged
+  // The clutch's maximum torque capacity is calculated at 283 Nm so everything after this should slip
+
+  fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.3f, 200.0f, clutch, clutchState);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(198.27f, fOutputTorqueNm, 0.1f);
+
+  fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.5f, 200.0f, clutch, clutchState);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(141.62f, fOutputTorqueNm, 0.1f);
+
+  fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.8f, 2000.0f, clutch, clutchState);
+  EXPECT_EQ(breathe::vehicle::CLUTCH_STATE::SLIPPING, clutchState);
+  EXPECT_NEAR(56.64f, fOutputTorqueNm, 0.1f);
+
+
+  // Slipping due to too much torque
   // The clutch's maximum torque capacity is calculated at 283 Nm so everything after this should slip
 
   fOutputTorqueNm = breathe::vehicle::GetClutchOutputTorqueNm(0.0f, 300.0f, clutch, clutchState);

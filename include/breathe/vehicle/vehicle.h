@@ -261,6 +261,7 @@ public:
 // slipping, some amount of torque is transmitted between input and output shafts; the speed difference between input and output shaft is significant (e.g. 500 rpm)
 // micro-slipping, almost all of the input torque is transmitted through the clutch; the speed difference between input and output shaft is very small, around 5-10 rpm
 // locked (closed, clamped), there is no slip between input and output shaft, all the input torque is transmitted through the clutch
+// TODO: Do we even care about micro slipping? Just check if state == SLIPPING and then check the difference between input and output torque?
 enum class CLUTCH_STATE {
   OPEN,
   SLIPPING,
