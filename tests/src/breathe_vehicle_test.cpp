@@ -145,8 +145,8 @@ void EngineSetSettings(breathe::vehicle::part::Engine& engine)
   // Golf GTI
   engine.fTotalEngineMassKg = 144.0f;
   engine.fBlockMassKg = 33.0f;
-  engine.fPistonMassKg = 0.4989f;
-  engine.fConrodMassKg = 0.5477f;
+  engine.fIndividualPistonMassKg = 0.4989f;
+  engine.fIndividualConrodMassKg = 0.5477f;
   engine.fBoreMillimetres = 82.5f;
   engine.fStrokeMillimetres = 92.8f;
 
@@ -235,7 +235,7 @@ void GearBoxSetSettings(breathe::vehicle::part::GearBox& gearBox)
   const float fFinalDrive1 = 3.94f;
   const float fFinalDrive2 = 3.09f;
 
-  gearBox.gears = {
+  gearBox.gearRatios = {
     1.0f / (1.64f * fFinalDrive1), // Reverse
     0.0f, // Neutral
     1.0f / (3.36f * fFinalDrive1),

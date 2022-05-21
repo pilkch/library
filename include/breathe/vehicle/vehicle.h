@@ -23,6 +23,25 @@ namespace vehicle {
 
 namespace part {
 
+/*inline void UpdateTireModel(Output& output)
+{
+  const float fSpeedDifferenceKPH = abs(fVehicleSpeedKPH - fTireSpeedKPH);
+  if (fSpeedDifferenceKPH < 10.0f) {
+    // Low speed, Pacejka doesn't work properly
+    CalculateTireModelLowSpeed(output);
+  } else if ((fSpeedDifferenceKPH >= 10.0f) && (fSpeedDifferenceKPH <= 20.0f)) {
+    // Between 10 and 20 KPH we need to blend between the low speed tire model and Pacejka
+    Output outputLowSpeed;
+    CalculateTireModelLowSpeed(outputLowSpeed);
+    Output outputPacejka;
+    CalculateTireModelPacejka(outputPacejka);
+    output = mix(outputLowSpeed, outputPacejka, fSpeedDifferenceKPH);
+  } else {
+    // Higher speed, pure Pacejka
+    CalculateTireModelPacejka(outputPacejka);
+  }
+}*/
+
 // Fuel densities
 // NOTE: These are at room temperature (20 degrees C)
 const float FUEL_DENSITY_PETROL_KG_PER_LITRE = 0.75f;
@@ -74,6 +93,8 @@ public:
   Clutch();
 
   float fMassKg;
+  float fInertiaInput;
+  float fInertiaOutput;
   float fSurfaceMeanEffectiveRadiusm;
   float fSurfacem2;
   float fFrictionCoefficient;
@@ -102,11 +123,37 @@ class TorqueConverter {
 
 class GearBox {
 public:
-  std::vector<float> gears; // Negative for a reverse gear, 0 for neutral and positive for forwards gears
+  GearBox();
+
+  std::vector<float> gearRatios; // Negative for a reverse gear, 0 for neutral and positive for forwards gears
+
+  float fInputShaftInertia;
+  float fCounterShaftInertia;
+  float fIdlerGearInertia;
+  float fOutputShaftInertia;
 
   // Dynamic
   size_t currentGear;
 };
+
+class Differential {
+public:
+  Differential();
+
+  enum class TYPE {
+    OPEN,
+    ONE_WAY,
+    TWO_WAY,
+    LOCKED,
+  };
+
+  TYPE type;
+  float fInputShaftInertia; // NOTE: For RWD and AWD this is the whole driveshaft
+  float fOutputShaft1Inertia;
+  float fOutputShaft2Inertia;
+  float fRatio;
+};
+
 
 
 class Engine {
@@ -147,9 +194,13 @@ public:
 
   float fTotalEngineMassKg;
   float fBlockMassKg;
-  float fPistonMassKg;
-  float fConrodMassKg;
+  float fIndividualPistonMassKg;
+  float fIndividualConrodMassKg;
   float fCrankShaftMassKg;
+
+  float fIndividualPistonInertia;
+  float fIndividualConrodInertia;
+  float fCrankShaftInertia;
 
   // TODO: This is really a function of the torque applied to the crank shaft by the starter motor
   float fCrankRPM;
@@ -161,6 +212,7 @@ public:
     FlyWheel();
 
     float fMassKg;
+    float fInertia;
     uint8_t uiTeeth;
   };
 
@@ -279,6 +331,13 @@ public:
   float fDragCoefficient;
 };
 
+class Wheel {
+public:
+  Wheel();
+
+  float fInertia;
+};
+
 }
 
 
@@ -310,6 +369,8 @@ struct ECUActions {
 
 class Vehicle {
 public:
+  Vehicle();
+
   float GetRPMAtFlywheel() const { return engine.GetRPM(); }
   float GetRPMAfterClutch() const { return 0.0f; }
   float GetRPMAfterGearBox() const { return 0.0f; }
@@ -318,7 +379,9 @@ public:
   part::ECU ecu;
   part::Clutch clutch;
   part::GearBox gearBox;
+  part::Differential differential;
   part::Body body;
+  std::vector<part::Wheel> wheels;
 
   // Dynamic
   // NOTE: These inputs are the vehicle inputs after being processed by the ECU

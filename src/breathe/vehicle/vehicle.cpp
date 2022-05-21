@@ -55,6 +55,25 @@ TorqueConverter::TorqueConverter() :
 {
 }
 
+GearBox::GearBox() :
+  fInputShaftInertia(1.0f),
+  fCounterShaftInertia(1.0f),
+  fIdlerGearInertia(1.0f),
+  fOutputShaftInertia(1.0f),
+  currentGear(0)
+{
+}
+
+Differential::Differential() :
+  type(TYPE::OPEN),
+  fInputShaftInertia(1.0f),
+  fOutputShaft1Inertia(1.0f),
+  fOutputShaft2Inertia(1.0f),
+  fRatio(1.0f)
+{
+}
+
+
 Engine::Engine() :
   cylinderArrangement(CYLINDER_ARRANGEMENT::V),
   cylinders(6),
@@ -64,8 +83,8 @@ Engine::Engine() :
   fDisplacementLitres(1.0f),
   fTotalEngineMassKg(10.0f),
   fBlockMassKg(1.0f),
-  fPistonMassKg(1.0f),
-  fConrodMassKg(1.0f),
+  fIndividualPistonMassKg(1.0f),
+  fIndividualConrodMassKg(1.0f),
   fCrankShaftMassKg(1.0f),
   fCrankRPM(150.0f),
   fStallRPM(550.0f),
@@ -105,6 +124,11 @@ ECU::ECU() :
 Body::Body() :
   fFrontalAreaMetersSquared(0.0f),
   fDragCoefficient(0.0f)
+{
+}
+
+Wheel::Wheel() :
+  fInertia(1.0f)
 {
 }
 
@@ -149,6 +173,16 @@ void ECUActions::Clear()
   fThrottle0To1 = 0.0f;
   fBrake0To1 = 0.0f;
 }
+
+
+Vehicle::Vehicle()
+{
+  wheels.push_back(vehicle::part::Wheel());
+  wheels.push_back(vehicle::part::Wheel());
+  wheels.push_back(vehicle::part::Wheel());
+  wheels.push_back(vehicle::part::Wheel());
+}
+
 
 float GetClutchTorqueCapacityNm(const breathe::vehicle::part::Clutch& clutch)
 {
@@ -316,6 +350,53 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
   vehicle.ecuActions.fBrake0To1 = spitfire::math::clamp(vehicle.ecuActions.fBrake0To1, 0.0f, 1.0f);
 }
 
+
+class EffectiveInertiaCalculator {
+public:
+  EffectiveInertiaCalculator() :
+    fInertiaFirstBody(1.0f)
+  {
+  }
+
+  void InitWithInertiaOfFirstBody(float fInertiaFirstBody)
+  {
+    fInertiaFirstBody = fInertiaFirstBody;
+  }
+
+  void AddBodyWithEffectiveInertia(float fInertia)
+  {
+    // NOTE: This is a bit of a hack, for bodies that are added to the last inertia with no gear change we add it as if it were a gear change of 1x, this generates more calculations, but makes the code simple
+    AddGearRatioAndBodyWithInertia(1.0f, fInertia);
+  }
+
+  void AddGearRatioAndBodyWithInertia(float fGearRatio, float fInertia)
+  {
+    chainOfGearRatioAndInertias.push_back(std::make_pair(fGearRatio, fInertia));
+  }
+
+  float GetEffectiveInertia() const
+  {
+    // http://www.racer.nl/tech/effinertia.htm
+    // Start with the first body effective inertia, then add every subsequent gear ratio and inertia
+    // I_effective = I_1 + (gearRatio1^2)*I_2 + ((gearRatio2*gearRatio1)^2)*I_3 + ((gearRatio3*gearRatio2*gearRatio1)^2)*I_4
+
+    float fEffectiveInertia = fInertiaFirstBody;
+    float fEffectiveGearRatio = 1.0f;
+
+    for (auto&& p : chainOfGearRatioAndInertias) {
+      fEffectiveGearRatio *= p.first;
+      fEffectiveInertia += (fEffectiveGearRatio * fEffectiveGearRatio) * p.second;
+    }
+
+    return fEffectiveInertia;
+  }
+
+private:
+  float fInertiaFirstBody;
+  std::vector<std::pair<float, float>> chainOfGearRatioAndInertias;
+};
+
+
 void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle)
 {
   if (vehicle.engine.starterMotor.fInputVoltage >= 12.0f) {
@@ -329,7 +410,7 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
     /*const float fStarterMotorTorqueNm = vehicle.engine.curveRPMToTorqueNm.GetYAtPointX(vehicle.engine.fRPM);
 
     ... calculate torque required to turn 
-    const float fRequiredTorqueToTurnCrankshaftNm = ...;
+    const float fRequiredTorqueToTurnCrankshaftNm = calculate torque required to turn;
 
     if (fRequiredTorqueToTurnCrankshaftNm > fStallTorqueNm) {
       ... burning out starter motor
@@ -350,12 +431,73 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
   } else {
     ... at least some torque is being applied to the gearbox
   }
+*/
 
-  const float fEngineConnectedInertia = ... get inertia of engine components, flywheel, then if clutch in inertia of gearbox, driveshaft, diff, etc.;
+  // Get the effective inertia of engine components, flywheel, then if clutch in inertia of gearbox, driveshaft, diff, etc.
+
+  breathe::vehicle::EffectiveInertiaCalculator effectiveInertiaCalculator;
+
+  effectiveInertiaCalculator.InitWithInertiaOfFirstBody((vehicle.engine.cylinders * (vehicle.engine.fIndividualPistonInertia + vehicle.engine.fIndividualConrodInertia)) + vehicle.engine.fCrankShaftInertia + vehicle.engine.flyWheel.fInertia);
+
+/*
+  const float fEngineConnectedInertia = ... 
 
   vehicle.engine.fCrankshaftAngularVelocityRadiansPerSecond += fTimeStepFractionOfSecond * fEngineConnectedInertia * fEngineTorqueNm;
   vehicle.engine.fCrankshaftRotationRadians += fTimeStepFractionOfSecond * vehicle.engine.fCrankshaftAngularVelocityRadiansPerSecond;
 */
+
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaInput);
+  // TODO: Only do the rest of this if the clutch is engaged
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaOutput);
+
+
+  const breathe::vehicle::part::GearBox& gearBox = vehicle.gearBox;
+  assert(gearBox.currentGear < gearBox.gearRatios.size());
+  const float fGearRatio = gearBox.gearRatios[gearBox.currentGear];
+
+  // NOTE: This isn't exactly accurate, we simulate the gear ratio as the effective ratio across the gearbox, but we don't know the individual ratios between input shaft, counter shaft, idler gear and output shaft
+  // We nominate one engagement to be use fGearRatio and the others just use 1.0 so that they don't modify the effective gear ratio across the gearbox
+
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(gearBox.fInputShaftInertia);
+
+  if (fGearRatio < -0.1f) {
+    // Reverse, use input shaft, idler gear, counter shaft, and output shaft
+    effectiveInertiaCalculator.AddBodyWithEffectiveInertia(gearBox.fCounterShaftInertia);
+    effectiveInertiaCalculator.AddGearRatioAndBodyWithInertia(fGearRatio, gearBox.fIdlerGearInertia);
+    effectiveInertiaCalculator.AddBodyWithEffectiveInertia(gearBox.fOutputShaftInertia);
+  } else if (spitfire::math::IsApproximatelyEqual(fGearRatio, 0.0f)) {
+    // Neutral, input shaft only, no gear is engaged
+  } else if (spitfire::math::IsApproximatelyEqual(fGearRatio, 1.0f, 0.1f)) {
+    // 1:1 ratio is a special case, don't use counter shaft
+    effectiveInertiaCalculator.AddBodyWithEffectiveInertia(gearBox.fOutputShaftInertia);
+  } else {
+    // All other gears use the input shaft, counter shaft and output shaft
+    effectiveInertiaCalculator.AddGearRatioAndBodyWithInertia(fGearRatio, gearBox.fCounterShaftInertia);
+    effectiveInertiaCalculator.AddBodyWithEffectiveInertia(gearBox.fOutputShaftInertia);
+  }
+
+
+
+  const breathe::vehicle::part::Differential& differential = vehicle.differential;
+
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(differential.fInputShaftInertia);
+
+
+  breathe::vehicle::EffectiveInertiaCalculator effectiveInertiaCalculator1 = effectiveInertiaCalculator;
+  breathe::vehicle::EffectiveInertiaCalculator effectiveInertiaCalculator2 = effectiveInertiaCalculator;
+
+  effectiveInertiaCalculator1.AddGearRatioAndBodyWithInertia(differential.fRatio, differential.fOutputShaft1Inertia);
+  effectiveInertiaCalculator2.AddGearRatioAndBodyWithInertia(differential.fRatio, differential.fOutputShaft2Inertia);
+
+
+  assert(vehicle.wheels.size() >= 2);
+  effectiveInertiaCalculator1.AddBodyWithEffectiveInertia(vehicle.wheels[0].fInertia);
+  effectiveInertiaCalculator2.AddBodyWithEffectiveInertia(vehicle.wheels[1].fInertia);
+
+
+  //const float fEffectiveInertia1 = effectiveInertiaCalculator1.GetEffectiveInertia();
+  //const float fEffectiveInertia2 = effectiveInertiaCalculator2.GetEffectiveInertia();
+  //std::cout<<"Driveline effective inertia at wheels 1 is "<<fEffectiveInertia1<<", 2 is "<<fEffectiveInertia2<<std::endl;
 }
 
 void Update(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
