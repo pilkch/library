@@ -31,20 +31,35 @@
 #include <libopenglmm/cFont.h>
 #include <libopenglmm/opengl.h>
 
+// https://kevinboone.me/fbtextdemo.html
+
 namespace opengl
 {
-  // Create a display list coresponding to the give character.
-  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outU, float& outV, float& outWidth, float& outHeight, float& outAdvanceX, float& outAdvanceY)
+  size_t RoundDownToNearestEvenNumber(size_t value)
+  {
+    // Round down to the nearest even number
+    value = (2 * (value / 2));
+    ASSERT((value % 2) == 0);
+    return value;
+  }
+
+  void DrawGlyphToBuffer(GLubyte* pBuffer, size_t nBufferWidth, size_t nBufferHeight, size_t columns, size_t rows, size_t glyphPixelHeightAndWidth, FT_Face face, char ch, float& outU, float& outV, float& outU_Width, float& outV_Height, float& outWidth, float& outHeight, float& outAdvanceX, float& outAdvanceY, float& outOffsetX, float& outOffsetY)
   {
     (void)nBufferHeight;
 
     outWidth = 0.0f;
     outHeight = 0.0f;
 
-    // The first thing we do is get FreeType to render our character into a bitmap.  This actually requires a couple of FreeType commands:
+    // Get FreeType to render our character into a bitmap
+
+    const FT_UInt characterIndex = FT_Get_Char_Index(face, ch);
+    if (characterIndex == 0) {
+      std::cout<<"DrawGlyphToBuffer FT_Get_Char_Index FAILED"<<std::endl;
+      return;
+    }
 
     // Load the Glyph for our character.
-    if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT)) {
+    if (FT_Load_Glyph(face, characterIndex, FT_LOAD_DEFAULT)) {
       std::cout<<"DrawGlyphToBuffer FT_Load_Glyph FAILED"<<std::endl;
       return;
     }
@@ -56,6 +71,14 @@ namespace opengl
       return;
     }
 
+    const int bbox_ymax = face->bbox.yMax / 64;
+    const int glyph_width = face->glyph->metrics.width / 64;
+    const int glyph_height = face->glyph->metrics.height / 64;
+    //const int advance = face->glyph->metrics.horiAdvance / 64;
+    const int advance = face->glyph->metrics.horiAdvance / 64;
+    const int x_off = (advance - glyph_width) / 2;
+    const int y_off = bbox_ymax - face->glyph->metrics.horiBearingY / 64;
+
     // Convert the glyph to a bitmap.
     FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
     FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
@@ -63,37 +86,10 @@ namespace opengl
     // This reference will make accessing the bitmap easier
     const FT_Bitmap& bitmap = bitmap_glyph->bitmap;
 
-    // Use our helper function to get the widths of the bitmap data that we will need in order to create our texture.
-    //size_t width = spitfire::math::NextPowerOfTwo(bitmap.width);
-    //size_t height = spitfire::math::NextPowerOfTwo(bitmap.rows);
     const size_t width = glyphPixelHeightAndWidth;
     const size_t height = glyphPixelHeightAndWidth;
 
-    // Allocate memory for the texture data.
-    GLubyte* expanded_data = new GLubyte[width * height];
-
-    const size_t nSrcRowWidthBytes = width;
-
-    // Here we fill in the data for the expanded bitmap.
-    // Notice that we are using two channel bitmap (one for
-    // luminocity and one for alpha), but we assign
-    // both luminocity and alpha to the value that we
-    // find in the FreeType bitmap.
-    // We use the ?: operator so that value which we use
-    // will be 0 if we are in the padding zone, and whatever
-    // is the the Freetype bitmap otherwise.
-    for (size_t y = 0; y < height; y++) {
-      for (size_t x = 0; x < width; x++) {
-        if ((x >= size_t(bitmap.width)) || (y >= size_t(bitmap.rows))) {
-          expanded_data[(nSrcRowWidthBytes * y) + x] = 0;
-        } else {
-          expanded_data[(nSrcRowWidthBytes * y) + x] = bitmap.buffer[(bitmap.width * y) + x];
-        }
-      }
-    }
-
-
-    // Copy expanded_data into pBuffer
+    // Copy the Freetype bitmap into pBuffer
     assert(ch >= 0);
     const size_t index = size_t(ch);
 
@@ -102,29 +98,47 @@ namespace opengl
 
     for (size_t y = 0; y < height; y++) {
       for (size_t x = 0; x < width; x++) {
-        const uint8_t value = expanded_data[(y * nSrcRowWidthBytes) + x];
-        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4))] = value;
-        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 1] = value;
-        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 2] = value;
-        pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 3] = value;
+        if ((x < size_t(bitmap.width)) && (y < size_t(bitmap.rows))) {
+          const uint8_t value = bitmap.buffer[(bitmap.width * y) + x];
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4))] = value;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 1] = value;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 2] = value;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 3] = value;
+        } else {
+          // Outside the Freetype bitmap, just fill in zeroes
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4))] = 0;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 1] = 0;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 2] = 0;
+          pBuffer[nDestOffset + ((y * nDestRowWidthBytes) + (x * 4)) + 3] = 0;
+        }
       }
     }
 
-    // With the texture created, we don't need to expanded data anymore
-    delete [] expanded_data;
-    expanded_data = nullptr;
 
+    // NOTE: The UV coordinates are 0..1
+    outU = (float(index % rows) * glyphPixelHeightAndWidth) / float(width) / float(columns);
+    outV = (float(index / columns) * glyphPixelHeightAndWidth) / float(height) / float(rows);
+    outU_Width = float(glyph_width) / float(width) / float(columns);
+    outV_Height = float(glyph_height) / float(height) / float(rows);
 
-    outU = float(bitmap_glyph->left) / float(width) / float(columns);
-    outV = float(bitmap_glyph->top) / float(height) / float(rows);
-    outWidth = float(bitmap.width) / float(width) / float(columns);
-    outHeight = float(bitmap.rows) / float(height) / float(rows);
-    outAdvanceX = float(face->glyph->advance.x) / 128.0f / float(width) / float(columns); // 128 is just a magic number that looks ok
-    outAdvanceY = float(face->glyph->advance.y) / 128.0f / float(height) / float(rows); // 128 is just a magic number that looks ok
+    // The width, height, advance, and offset values are in pixels
+    outWidth = float(face->glyph->metrics.width / 64);
+    outHeight = float(face->glyph->metrics.height / 64);
+    outAdvanceX = float(face->glyph->advance.x / 64);
+    outAdvanceY = float(face->glyph->advance.y / 64);
+    outOffsetX = float(x_off);
+    outOffsetY = float(y_off);
+
+    //std::cout<<"characterIndex "<<characterIndex<<", ch "<<ch<<", bitmap dimensions "<<bitmap.width<<"x"<<bitmap.rows<<", glyphPixelHeightAndWidth "<<glyphPixelHeightAndWidth<<"x"<<glyphPixelHeightAndWidth<<", advance: "<<advance<<", outAdvanceX "<<outAdvanceX<<std::endl;
   }
 
 
   // ** cFont
+
+  cFont::cFont() :
+    glyphPixelHeightAndWidth(0)
+  {
+  }
 
   cFont::~cFont()
   {
@@ -132,19 +146,11 @@ namespace opengl
     assert(!shader.IsCompiledProgram());
   }
 
-  size_t RoundDownToNearestEvenNumber(size_t value)
-  {
-    // Round down to the nearest even number
-    value = (2 * (value / 2));
-    ASSERT((value % 2) == 0);
-    return value;
-  }
-
   bool cFont::Load(cContext& context, const opengl::string_t& sFilename, size_t _height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader)
   {
     std::cout<<"cFont::Load \""<<opengl::string::ToUTF8(sFilename)<<"\""<<std::endl;
 
-    // Create and initilize a freetype font library.
+    // Create and initilize a freetype font library
     FT_Library library;
     if (FT_Init_FreeType(&library)) {
       std::cout<<"cFont::cFont FT_Init_FreeType FAILED, returning false"<<std::endl;
@@ -154,7 +160,7 @@ namespace opengl
     // This is where we load in the font information from the file.
     // Of all the places where the code might die, this is the most likely,
     // as FT_New_Face will die if the font file does not exist or is somehow broken.
-    FT_Face face = NULL;
+    FT_Face face = nullptr;
     if (FT_New_Face(library, opengl::string::ToUTF8(sFilename).c_str(), 0, &face )) {
       std::cout<<"cFont::cFont FT_New_Face FAILED to load font \""<<opengl::string::ToUTF8(sFilename)<<"\", returning false"<<std::endl;
       return false;
@@ -164,45 +170,47 @@ namespace opengl
     // in terms of 1/64ths of pixels.  Thus, to make a font
     // h pixels high, we need to request a size of h*64.
     const size_t height = RoundDownToNearestEvenNumber(_height);
-    FT_Set_Char_Size(face, int(height * 64), int(height * 64), 96, 96);
+    //FT_Set_Pixel_Sizes(face, 0, int(height * 64));
+    FT_Set_Pixel_Sizes(face, 0, height);
 
 
-    const size_t n = 128;
     const size_t rows = 16;
     const size_t columns = 16;
+    const size_t n = rows * columns;
 
     fGlyphU.insert(fGlyphU.begin(), n, 0.0f);
     fGlyphV.insert(fGlyphV.begin(), n, 0.0f);
+    fGlyphU_Width.insert(fGlyphU_Width.begin(), n, 0.0f);
+    fGlyphV_Height.insert(fGlyphV_Height.begin(), n, 0.0f);
     fGlyphWidth.insert(fGlyphWidth.begin(), n, 0.0f);
     fGlyphHeight.insert(fGlyphHeight.begin(), n, 0.0f);
     fGlyphAdvanceX.insert(fGlyphAdvanceX.begin(), n, 0.0f);
     fGlyphAdvanceY.insert(fGlyphAdvanceY.begin(), n, 0.0f);
+    fGlyphOffsetX.insert(fGlyphOffsetX.begin(), n, 0.0f);
+    fGlyphOffsetY.insert(fGlyphOffsetY.begin(), n, 0.0f);
 
-    const size_t glyphPixelHeightAndWidth = spitfire::math::NextPowerOfTwo(int(height * 2));
+    glyphPixelHeightAndWidth = spitfire::math::NextPowerOfTwo(int(height * 2));
 
     const size_t nBufferWidth = columns * glyphPixelHeightAndWidth;
     const size_t nBufferHeight = rows * glyphPixelHeightAndWidth;
     const size_t nBufferSizeBytes = nBufferWidth * nBufferHeight * 4;
 
-    uint8_t* pBuffer = new uint8_t[nBufferSizeBytes];
+    std::vector<uint8_t> buffer;
+    buffer.resize(nBufferSizeBytes);
 
-    // This is where we actually create each of the fonts display lists.
+    // Render first 128 characters to a bitmap
     for (size_t i = 0; i < n; i++) {
-      DrawGlyphToBuffer(pBuffer, nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, char(i), fGlyphU[i], fGlyphV[i], fGlyphWidth[i], fGlyphHeight[i], fGlyphAdvanceX[i], fGlyphAdvanceY[i]);
+      DrawGlyphToBuffer(buffer.data(), nBufferWidth, nBufferHeight, columns, rows, glyphPixelHeightAndWidth, face, char(i), fGlyphU[i], fGlyphV[i], fGlyphU_Width[i], fGlyphV_Height[i], fGlyphWidth[i], fGlyphHeight[i], fGlyphAdvanceX[i], fGlyphAdvanceY[i], fGlyphOffsetX[i], fGlyphOffsetY[i]);
     }
 
-    // We don't need the face information now that the display
-    // lists have been created, so we free the assosiated resources.
+    // We are done with font now
     FT_Done_Face(face);
 
-    // Ditto for the library.
+    // And the library
     FT_Done_FreeType(library);
 
     // Create our texture from the buffer
-    context.CreateTextureFromBufferNoMipMaps(texture, pBuffer, nBufferWidth, nBufferHeight, PIXELFORMAT::R8G8B8A8);
-
-    delete [] pBuffer;
-    pBuffer = nullptr;
+    context.CreateTextureFromBufferNoMipMaps(texture, buffer.data(), nBufferWidth, nBufferHeight, PIXELFORMAT::R8G8B8A8);
 
     if (!texture.IsValid()) {
       std::cout<<"cFont::cFont CreateTextureFromBuffer FAILED, returning false"<<std::endl;
@@ -230,7 +238,7 @@ namespace opengl
   {
     spitfire::math::cVec2 dimensions;
 
-    float fCharacterWidth = 0.0f;
+    //float fCharacterWidth = 0.0f;
     float fCharacterHeight = 0.0f;
 
     const size_t n = sText.size();
@@ -240,21 +248,15 @@ namespace opengl
       size_t c = size_t(sText[i]);
 
       // Now lookup the character in the array of widths and heights
-      fCharacterWidth = fGlyphWidth[c];
+      //fCharacterWidth = fGlyphWidth[c];
       fCharacterHeight = fGlyphHeight[c];
 
-      // Add the character width and glyph advance value
-      dimensions.x += fCharacterWidth + fGlyphAdvanceX[i];
+      // Add the glyph advance value
+      dimensions.x += fGlyphAdvanceX[i];
 
       // If this is the tallest character so far then set our current tallest character to us
       if (fCharacterHeight > dimensions.y) dimensions.y = fCharacterHeight;
     }
-
-    // I'm not sure why 1000?  This seems to work and look nice but I don't have a clue what
-    // the right value is/where it is from, I thought I wouldn't have to do anything to this number, we could just use it directly?
-    //const float fOneOver1000 = 1.0f / 1000;
-    //dimensions.x *= fOneOver1000;
-    //dimensions.y *= fOneOver1000;
 
     return dimensions;
   }
@@ -280,62 +282,92 @@ namespace opengl
     return dimensions;
   }
 
-  void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
+  void cFont::MeasureOrPushBack(opengl::cGeometryBuilder_v2_c4_t2* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const
   {
     (void)fRotationDegrees;
 
-#if 1
     spitfire::math::cVec2 position(_position);
 
-    const size_t rows = 16;
-    const size_t columns = 16;
+     if (pOutDimensions != nullptr) {
+       pOutDimensions->x = 0.0f;
+       pOutDimensions->y = 0.0f;
+     }
 
-    const float fGridWidth = 1.0f / float(rows);
-    const float fGridHeight = 1.0f / float(columns);
-
+#if 1
     // For each character calculate the position in the world and the position in the texture and add a quad to the buffer
     const std::string sTextUTF8 = opengl::string::ToUTF8(sText);
     const size_t n = sTextUTF8.length();
     for (size_t i = 0; i < n; i++) {
       const char c = sTextUTF8[i];
-      //std::cout<<"cFont::PushBack c="<<c<<", x="<<position.x<<std::endl;
       const size_t index = size_t(c);
-
-      const float fCharacterX = - fGlyphU[index];
-      const float fCharacterY = - fGlyphV[index];
 
       const float fCharacterWidth = fGlyphWidth[index];
       const float fCharacterHeight = fGlyphHeight[index];
 
-      // TODO: Find out where in the texture this character is
-      const float fTextureCharacterOffsetU = (float(index % rows) * fGridWidth) + fGlyphU[i];
-      const float fTextureCharacterOffsetV = (float(index / columns) * fGridHeight) + fGlyphV[i];
+      // Find out where in the texture this character is
+      const float fTextureCharacterOffsetU = fGlyphU[index];
+      const float fTextureCharacterOffsetV = fGlyphV[index];
+ 
+      const float fTextureCharacterWidth = fGlyphU_Width[index];
+      const float fTextureCharacterHeight = fGlyphV_Height[index];
 
-      const float fTextureCharacterWidth = fGlyphWidth[index];
-      const float fTextureCharacterHeight = fGlyphHeight[index];
+      const spitfire::math::cVec2 offset(fGlyphOffsetX[index], fGlyphOffsetY[index]);
 
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX + fCharacterWidth, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
-      builder.PushBack(position + scale * spitfire::math::cVec2(fCharacterX, fCharacterY + fCharacterHeight), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      if (pBuilder != nullptr) {
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+      } else {
+        pOutDimensions->x += scale.x * fGlyphAdvanceX[index];
+        pOutDimensions->y = max(pOutDimensions->y, scale.y * fGlyphAdvanceY[index]); // Take the great of our current value and the advance y for this glyph
+      }
+
+      //std::cout<<"Before position.x "<<position.x<<", i "<<i<<", c "<<c<<", index "<<index<<", scale x "<<scale.x<<
+      //  ", fGlyphAdvanceX "<<fGlyphAdvanceX[index]<<", fGlyphOffsetX "<<fGlyphOffsetX[index]<<", fGlyphU "<<fGlyphU[index]<<", fGlyphV "<<fGlyphV[index]<<", fGlyphU_Width "<<fGlyphU_Width[index]<<", fGlyphV_Height "<<fGlyphV_Height[index]<<", fGlyphWidth "<<fGlyphWidth[index]<<", fGlyphHeight "<<fGlyphHeight[index]<<std::endl;
 
       // Move the cursor for the next character
-      position.x += scale.x * (fCharacterWidth + fGlyphAdvanceX[i]) * cosf(fRotationDegrees);
-      position.y += scale.y * (fCharacterWidth + fGlyphAdvanceX[i]) * sinf(fRotationDegrees);
-
       // TODO: Work out how to incorporate this with the scale and rotation
-      //position.y += fGlyphAdvanceY[i];
+      position.x += scale.x * fGlyphAdvanceX[index];// * cosf(fRotationDegrees);
+
+      //std::cout<<"After position.x "<<position.x<<std::endl;
     }
 #else
-    // For viewing the whole font
-    builder.PushBack(spitfire::math::cVec2(0.0f, 1.0f), colour, spitfire::math::cVec2(0.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec2(1.0f, 1.0f), colour, spitfire::math::cVec2(1.0f, 1.0f));
-    builder.PushBack(spitfire::math::cVec2(1.0f, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec2(1.0f, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec2(0.0f, 0.0f), colour, spitfire::math::cVec2(0.0f, 0.0f));
-    builder.PushBack(spitfire::math::cVec2(0.0f, 1.0f), colour, spitfire::math::cVec2(0.0f, 1.0f));
+    if (pBuilder != nullptr) {
+      // TODO: This doesn't allow any measuring
+      // For viewing the whole font
+      const spitfire::math::cVec2 position(_position);
+      const size_t rows = 16;
+      const size_t columns = 16;
+      const float fWidth = float(columns) * glyphPixelHeightAndWidth;
+      const float fHeight = float(rows) * glyphPixelHeightAndWidth;
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), colour, spitfire::math::cVec2(0.0f, 1.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, fHeight), colour, spitfire::math::cVec2(1.0f, 1.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, 0.0f), colour, spitfire::math::cVec2(0.0f, 0.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), colour, spitfire::math::cVec2(0.0f, 1.0f));
+    }
 #endif
+  }
+
+  void cFont::Measure(const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2& outDimensions) const
+  {
+    MeasureOrPushBack(nullptr, sText, colour, position, fRotationDegrees, scale, &outDimensions);
+  }
+
+  void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
+  {
+    spitfire::math::cVec2 position(_position);
+
+    if ((flags & HORIZONTAL_ALIGNMENT_CENTERED) == HORIZONTAL_ALIGNMENT_CENTERED) {
+      spitfire::math::cVec2 dimensions;
+      MeasureOrPushBack(nullptr, sText, colour, position, fRotationDegrees, scale, &dimensions);
+      position.x -= 0.5f * dimensions.x;
+    }
+
+    MeasureOrPushBack(&builder, sText, colour, position, fRotationDegrees, scale, nullptr);
   }
 }
