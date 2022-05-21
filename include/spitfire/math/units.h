@@ -7,6 +7,8 @@ namespace spitfire
 {
   namespace math
   {
+    constexpr float fGravityMetersPerSecondSquared = 9.8066500286389f; // Earth-surface gravitational acceleration g = 9.80665 m/s2
+
     // http://en.wikipedia.org/wiki/SI_derived_unit
     // http://www.racer.nl/tech/converting.htm
 
@@ -151,7 +153,7 @@ namespace spitfire
 
     constexpr float MassKgToForceNewtons(float fMassKg)
     {
-      return fMassKg * 9.8066500286389f;
+      return fMassKg * fGravityMetersPerSecondSquared;
     }
 
     constexpr float ForceNewtonsToMassKg(float fForceNewtons)
@@ -218,6 +220,9 @@ namespace spitfire
     inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
     inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
 
+    inline float PaToBar(float Pa) { return Pa * 0.00001f; }
+    inline float BarToPa(float bar) { return bar * 100000.0f; }
+
     // http://en.wikipedia.org/wiki/Cubic_metre_per_second
     inline float CubicMetresPerSecondToCubicFeetPerSecond(float fCubicMetresPerSecond) { return fCubicMetresPerSecond * 35.314454f; }
     inline float CubicFeetPerSecondToCubicMetresPerSecond(float fCubicFeetPerSecond) { return fCubicFeetPerSecond * 0.0283170172f; }
@@ -243,10 +248,9 @@ namespace spitfire
       const float T = T0 - (L * h);
 
       const float p0 = 101325.0f; // sea level standard atmospheric pressure p0 = 101325 Pa
-      const float g = 9.80665f; // Earth-surface gravitational acceleration g = 9.80665 m/s2.
       const float M = 0.0289644f; // molar mass of dry air M = 0.0289644 kg/mol
       const float R = 8.31447f; // universal gas constant R = 8.31447 J/(mol·K)
-      const float p = p0 * (pow(1.0f - ((L * h) / T0), (g * M) / (R * L)));
+      const float p = p0 * (pow(1.0f - ((L * h) / T0), (fGravityMetersPerSecondSquared * M) / (R * L)));
 
       return (p * M) / (R * T);
     }
@@ -358,6 +362,26 @@ namespace spitfire
       return (1.0f / (1.0f - r)) * ((fPressure2Pa * fCompressedVolumeLitres) - (fPressurePa * fVolumeLitres));
     }
 
+
+    // Pressure underwater
+    // https://www.alternatewars.com/BBOW/Engineering/Water_Pressure.htm
+    // Pressure = (DensityFluid * GravityAcceleration * DepthObject) + PressureAtmosphere
+    //
+    // NOTE: You need to think about:
+    //  1. What the fluid is and what density it is (Usually fresh water or sea water)
+    //  2. At what elevation is the surface of the water? The atmosphere also pushes on the water, so it is added, it varies at different elevations
+    //
+    // Densities:
+    // Fresh water: 1,000 kg/m3
+    // Sea water: 1,030 kg/m3
+    //
+    // Extra water density as depth is increased (This isn't modelled):
+    // At the bottom of the Mariana trench, the water column above exerts a pressure of 1,086 bars (15,750 psi).
+    // At this pressure, the density of water is increased by 4.96%. The temperature at the bottom is 1 to 4 °C (34 to 39 °F).
+    inline constexpr float GetUnderWaterPressurePa(float fWaterDensityKgPerCubicMeter, float fAirPressurePa, float fDepthMeters)
+    {
+      return (fWaterDensityKgPerCubicMeter * fGravityMetersPerSecondSquared * fDepthMeters) + fAirPressurePa;
+    }
 
 
     // Drag

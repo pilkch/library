@@ -27,7 +27,7 @@ SET(LIBRARY_SRC "${CMAKE_SOURCE_DIR}/src/")
 
 IF(UNIX)
 # Add definitions, compiler switches, etc.
-ADD_DEFINITIONS("-std=c++20 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
+ADD_DEFINITIONS("-std=c++20 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wsuggest-override -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
 ENDIF()
 
 IF(UNIX)

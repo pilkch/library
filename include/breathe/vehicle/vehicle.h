@@ -23,6 +23,11 @@ namespace vehicle {
 
 namespace part {
 
+// Fuel densities
+// NOTE: These are at room temperature (20 degrees C)
+const float FUEL_DENSITY_PETROL_KG_PER_LITRE = 0.75f;
+const float FUEL_DENSITY_DIESEL_KG_PER_LITRE = 0.83f; // European EN 590 Diesel
+
 
 // From vdrift
 
@@ -103,6 +108,7 @@ public:
   size_t currentGear;
 };
 
+
 class Engine {
 public:
   Engine();
@@ -166,6 +172,70 @@ public:
   float fCrankshaftAngularVelocityRadiansPerSecond;
   float fOilTemperatureCelcius;
 };
+
+
+// Calcualte the engine displacement
+// https://carbiketech.com/engine-capacity-cc/
+// V = π/4 x (D)² x H x N
+inline constexpr float GetEngineDisplacementLitres(size_t nCylinders, float fPistonBoremm, float fPistonStrokemm)
+{
+  const float fCubicMillimeters = ((spitfire::math::cPI * 0.25f * (fPistonBoremm * fPistonBoremm) * fPistonStrokemm) * nCylinders);
+
+  // Convert to cubic litres
+  return fCubicMillimeters * 0.000001f;
+}
+
+// Number of revolutions per power stroke
+// https://en.wikipedia.org/wiki/Mean_effective_pressure
+// For a 2-stroke engine: 1
+// For a 4-stroke engine: 2
+inline constexpr float GetRevolutionsPerPowerStroke(Engine::STROKE stroke)
+{
+  return (stroke == Engine::STROKE::TWO) ? 1.0f : 2.0f;
+}
+
+// The number of firing strokes per second is the number of revolutions per second in the case of two-stroke engines and half the number of revolutions per second in the case of four stroke engines
+// https://www.alternatewars.com/BBOW/Engineering/PistonEngine_Power.htm
+inline constexpr float GetNumberOfFiringStrokesPerSecond(float fRPM, Engine::STROKE stroke)
+{
+  const float fRevolutionsPerSecond = fRPM / 60.0f;
+  return (stroke == Engine::STROKE::TWO) ? fRevolutionsPerSecond : (fRevolutionsPerSecond * 0.5f);
+}
+
+// https://www.alternatewars.com/BBOW/Engineering/PistonEngine_Power.htm
+// MPS = ( 2 * Stroke * RPM ) / 60
+inline constexpr float GetMeanPistonSpeedMetersPerSecond(float fPistonStrokemm, float fRPM)
+{
+  const float fPistonStrokeLengthMeters = fPistonStrokemm * 0.001f;
+  return (2.0f * fPistonStrokeLengthMeters * fRPM) / 60.0f;
+}
+
+// https://en.wikipedia.org/wiki/Mean_effective_pressure
+// BMEP = 2pi nc * (T/Vd)
+// nc is the number of revolutions per power stroke
+// T is the torque in Nm
+// Vd is the displacement volume in cubic meters
+inline constexpr float GetBrakeMeanEffectivePressurePa(float fDisplacementLitres, float fTorqueNm, Engine::STROKE stroke)
+{
+  const float fDisplacementCubicMeters = fDisplacementLitres * 0.001f;
+  const float fRevolutionsPerPowerStroke = GetRevolutionsPerPowerStroke(stroke);
+  return (((2.0f * spitfire::math::cPI * fRevolutionsPerPowerStroke) * fTorqueNm) / fDisplacementCubicMeters);
+}
+
+
+// Basic Equation for Piston Engine Power Output
+// https://www.alternatewars.com/BBOW/Engineering/PistonEngine_Power.htm
+// P = (n * ( π / 4 ) * D^2 * L) * p * N
+inline constexpr float EngineEstimatePowerKiloWatts(size_t nCylinders, float fPistonBoremm, float fPistonStrokemm, float fMeanEffectivePressurePa, float fNumberOfFiringStrokesPerSecond)
+{
+  const float fPistonBoreMeters = fPistonBoremm * 0.001f;
+  const float fPistonStrokeMeters = fPistonStrokemm * 0.001f;
+  const float fPowerWatts = (nCylinders * (spitfire::math::cPI / 4.0f) * (fPistonBoreMeters * fPistonBoreMeters) * fPistonStrokeMeters) * fMeanEffectivePressurePa * fNumberOfFiringStrokesPerSecond;
+
+  // Convert to kilowatts
+  return fPowerWatts * 0.001f;
+}
+
 
 
 // TODO: Typically we would idle higher for say 30 seconds after starting until the engine has reached the operating temperature range

@@ -263,6 +263,51 @@ void RunUpdateIterations(size_t nIterations, breathe::vehicle::VehicleInputs& in
 }
 
 
+TEST(Breathe, TestVehicleEngineFunctions)
+{
+  // NOTE: Due to rounding these figures are all a bit different from the example
+  // https://www.alternatewars.com/BBOW/Engineering/PistonEngine_Power.htm
+
+  {
+    const size_t nCylinders = 8;
+    const float fPistonBoremm = 100.0f;
+    const float fPistonStrokemm = 78.0f;
+    const float fDisplacementLitres = breathe::vehicle::part::GetEngineDisplacementLitres(nCylinders, fPistonBoremm, fPistonStrokemm);
+    EXPECT_NEAR(fDisplacementLitres, 4.90088454f, 0.001f);
+  }
+
+  {
+    const float fPistonStrokemm = 175.0f;
+    const float fRPM = 2500.0f;
+    const float fMeanPistonSpeedMetersPerSecond = breathe::vehicle::part::GetMeanPistonSpeedMetersPerSecond(fPistonStrokemm, fRPM);
+    EXPECT_NEAR(fMeanPistonSpeedMetersPerSecond, 14.583f, 0.001f);
+  }
+
+  {
+    const float fDisplacementLitres = 2.0f;
+    const float fTorqueNm = 160.0f;
+    const float fBrakeMeanEffectivePressurePa = breathe::vehicle::part::GetBrakeMeanEffectivePressurePa(fDisplacementLitres, fTorqueNm, breathe::vehicle::part::Engine::STROKE::FOUR);
+    EXPECT_NEAR(fBrakeMeanEffectivePressurePa, 1005309.625f, 0.001f);
+  }
+
+  {
+    const float fRPM = 2000.0f;
+
+    const float fNumberOfFiringStrokesPerSecond = breathe::vehicle::part::GetNumberOfFiringStrokesPerSecond(fRPM, breathe::vehicle::part::Engine::STROKE::FOUR);
+    EXPECT_NEAR(fNumberOfFiringStrokesPerSecond, 16.6667f, 0.001f);
+
+    const size_t nCylinders = 8;
+    const float fPistonBoremm = 115.0f;
+    const float fPistonStrokemm = 135.0f;
+    const float fMeanEffectivePressurePa = spitfire::math::BarToPa(10.0f);
+    EXPECT_NEAR(fMeanEffectivePressurePa, 1000000.0f, 0.001f);
+
+    const float fPowerKiloWatts = breathe::vehicle::part::EngineEstimatePowerKiloWatts(nCylinders, fPistonBoremm, fPistonStrokemm, fMeanEffectivePressurePa, fNumberOfFiringStrokesPerSecond);
+    EXPECT_NEAR(fPowerKiloWatts, 186.964f, 0.001f);
+  }
+}
+
+
 TEST(Breathe, TestVehicleStarterMotorSettings)
 {
   breathe::vehicle::part::ElectricMotor starterMotor;

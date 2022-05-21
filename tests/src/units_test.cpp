@@ -59,6 +59,14 @@ TEST(SpitfireMath, TestUnits)
 TEST(SpitfireMath, TestUnitsPressure)
 {
   {
+    const float fPA = spitfire::math::BarToPa(12.3f);
+    EXPECT_NEAR(fPA, 1230000.0f, 0.001f);
+
+    const float fBar = spitfire::math::PaToBar(1230000.0f);
+    EXPECT_NEAR(fBar, 12.3f, 0.001f);
+  }
+
+  {
     // https://en.wikipedia.org/wiki/Adiabatic_process#Example_of_adiabatic_compression
     // P2 = P1(V1/V2)^r
     // P2 = 100000 * (0.001/0.0001)^1.4
@@ -192,7 +200,23 @@ TEST(SpitfireMath, TestUnitsPressure)
     EXPECT_NEAR(fTemperatureCelcius, spitfire::math::KelvinToDegreesCelcius(186.9f), 1.0f);
     EXPECT_NEAR(fSpeedOfSoundMetersPerSecond, 274.1f, 1.0f);
   }
+
+
+  {
+    // Test underwater pressure
+    // https://www.alternatewars.com/BBOW/Engineering/Water_Pressure.htm
+    float fPressurePa = spitfire::math::GetUnderWaterPressurePa(1030.0f, 101325.0f, 15.25f);
+    EXPECT_NEAR(fPressurePa, 255362.95f, 0.1f);
+
+    fPressurePa = spitfire::math::GetUnderWaterPressurePa(1030.0f, 101325.0f, 200.0f);
+    EXPECT_NEAR(fPressurePa, 2121494.9f, 0.1f);
+
+    // https://en.wikipedia.org/wiki/Mariana_Trench
+    fPressurePa = spitfire::math::GetUnderWaterPressurePa(1030.0f, 101325.0f, 11034.0f);
+    EXPECT_NEAR(fPressurePa, 111554104.0f, 0.1f);
+  }
 }
+
 
 TEST(SpitfireMath, TestUnitsGetForceOfDragN)
 {
