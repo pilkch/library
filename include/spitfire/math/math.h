@@ -42,13 +42,13 @@
 
 
 template <class T>
-inline T min(const T& a, const T& b)
+inline constexpr T min(const T& a, const T& b)
 {
   return (a < b) ? a : b;
 }
 
 template <class T>
-inline T max(const T& a, const T& b)
+inline constexpr T max(const T& a, const T& b)
 {
   return (a > b) ? a : b;
 }
@@ -91,37 +91,37 @@ namespace spitfire
     // ln(2)
     constexpr float_t cLN2             = 0.693147180559945309417f;
 
-    inline float RadiansToDegrees(float x) { return x * c180_DIV_PI; }
-    inline float DegreesToRadians(float x) { return x * cPI_DIV_180; }
+    inline constexpr float RadiansToDegrees(float x) { return x * c180_DIV_PI; }
+    inline constexpr float DegreesToRadians(float x) { return x * cPI_DIV_180; }
 
 
     template<class T>
-    T min3(T a, T b, T c)
+    inline constexpr T min3(T a, T b, T c)
     {
       return min(min(a, b), c);
     }
 
     template<class T>
-    T min4(T a, T b, T c, T d)
+    inline constexpr T min4(T a, T b, T c, T d)
     {
       return min(min(min(a, b), c), d);
     }
 
     template<class T>
-    T max3(T a, T b, T c)
+    inline constexpr T max3(T a, T b, T c)
     {
       return max(max(a, b), c);
     }
 
     template<class T>
-    T max4(T a, T b, T c, T d)
+    inline constexpr T max4(T a, T b, T c, T d)
     {
       return max(max(max(a, b), c), d);
     }
 
 
     template<class T>
-    T GetLog2(T value)
+    inline constexpr T GetLog2(T value)
     {
       T power = 0;
       while (value != 0) {
@@ -133,45 +133,45 @@ namespace spitfire
     }
 
     // Return -1, 0, 1 for VALUE < 0, == 0, > 0, respectively.
-    template <typename T> T sign(T value) { return value == 0 ? 0 : (value > 0 ? 1 : -1); }
+    template <typename T> inline constexpr T sign(T value) { return value == 0 ? 0 : (value > 0 ? 1 : -1); }
 
     // Round a to nearest int
-    template <typename T> T round(T value) { return ((value) > 0 ? int(value + 0.5) : -int(0.5 - value)); }
+    template <typename T> inline constexpr T round(T value) { return ((value) > 0 ? int(value + 0.5) : -int(0.5 - value)); }
 
     // Performs a fast round on a float
-    inline int round(const float_t f)
+    inline constexpr int round(const float_t f)
     {
       // Add a magical cookie to the float to transform its bits into its rounded integer representation
       // http://www.d6.com/users/checker/pdfs/gdmfp.pdf
       return int(double(f + 6755399441055744.L));
     }
 
-    inline float_t RoundDown(float_t fValue)
+    inline constexpr float_t RoundDown(float_t fValue)
     {
       //return int(fValue);
 
       return floorf(fValue);
     }
 
-    inline float_t RoundUp(float_t fValue)
+    inline constexpr float_t RoundUp(float_t fValue)
     {
       //return int(fValue) + 1;
 
       return ceilf(fValue);
     }
 
-    inline int RoundUpToNearestInt(float_t fValue)
+    inline constexpr int RoundUpToNearestInt(float_t fValue)
     {
       return static_cast<int>(std::ceil(fValue));
     }
 
 
-    inline int GetIntegerPart(float_t fValue)
+    inline constexpr int GetIntegerPart(float_t fValue)
     {
       return int(floor(fValue));
     }
 
-    inline void GetIntegerAndFractionParts(float_t fValue, int& integer, float_t& fraction)
+    inline constexpr void GetIntegerAndFractionParts(float_t fValue, int& integer, float_t& fraction)
     {
       double dInteger = 0;
       double dFraction = modf(fValue , &dInteger);
@@ -181,32 +181,32 @@ namespace spitfire
 
 
     // Clip VALUE to the range LOW--HIGH.
-    template <typename T> T clip(T value, T low, T high) { return max(min(value, high), low); }
+    template <typename T> inline constexpr T clip(T value, T low, T high) { return max(min(value, high), low); }
 
     // True if VALUE is in the range LOW--HIGH.
-    template <typename T> bool IsInRange(T value, T low, T high) { return (value >= low) && (value <= high); }
+    template <typename T> inline constexpr bool IsInRange(T value, T low, T high) { return (value >= low) && (value <= high); }
 
     // Return LOW or HIGH, whichever is closer to VALUE.
-    template <typename T> T closer(T value, T low, T  high) { return (std::abs(value - low) < std::abs(value - high)) ? low : high; }
+    template <typename T> inline constexpr T closer(T value, T low, T  high) { return (std::abs(value - low) < std::abs(value - high)) ? low : high; }
 
 
     // Square a number
-    template <typename T> T square(T value) { return value * value; }
+    template <typename T> inline constexpr T square(T value) { return value * value; }
 
-    inline float squared(float x)
+    inline constexpr float squared(float x)
     {
       return (x * x);
     }
 
-    inline float sqrtf(float x)
+    inline constexpr float sqrtf(float x)
     {
       return ::sqrtf(x);
     }
 
-    template <class T> inline bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
+    template <class T> inline constexpr bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
 
     // This function gets the first power of 2 >= the int that we pass it.
-    inline int NextPowerOfTwo(int n)
+    inline constexpr int NextPowerOfTwo(int n)
     {
       // TODO: Surely 2 is the first power of two after 0?
       int value = 1;
@@ -215,39 +215,39 @@ namespace spitfire
       return value;
     }
 
-    template<class T> inline bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }
+    template<class T> inline constexpr bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }
 
-    inline bool IsApproximatelyEqual(float_t a, float_t b, float_t fEpsilon)
+    inline constexpr bool IsApproximatelyEqual(float_t a, float_t b, float_t fEpsilon)
     {
       return (((a + fEpsilon) > b) && ((a - fEpsilon) < b));
     }
 
-    inline bool IsApproximatelyEqual(float_t a, float_t b)
+    inline constexpr bool IsApproximatelyEqual(float_t a, float_t b)
     {
       return (((a + cEPSILON) > b) && ((a - cEPSILON) < b));
     }
 
-    inline bool IsApproximatelyZero(float_t value)
+    inline constexpr bool IsApproximatelyZero(float_t value)
     {
       return ((value < cEPSILON) && (value > -cEPSILON));
     }
 
 
     // Cube a number
-    template <typename T> T cube(T value) { return value * value * value; }
+    template <typename T> inline constexpr T cube(T value) { return value * value * value; }
 
     // Areas and volumes
-    template<class T> T AreaOfCircle(T r) { return T(cPI) * r * r; }
-    template<class T> T SurfaceAreaOfSphere(T r) { return T(4.0f * cPI) * r * r; }
-    template<class T> T VolumeOfSphere(T r) { return T(c4_DIV_3 * cPI) * r * r * r; }
+    template<class T> inline constexpr T AreaOfCircle(T r) { return T(cPI) * r * r; }
+    template<class T> inline constexpr T SurfaceAreaOfSphere(T r) { return T(4.0f * cPI) * r * r; }
+    template<class T> inline constexpr T VolumeOfSphere(T r) { return T(c4_DIV_3 * cPI) * r * r * r; }
 
     // Return f(x) for a line with slope through (x1, y1).
-    template <typename T> T intercept(T x, T x1, T y1, T slope) { return y1 - slope * (x1 - x); }
+    template <typename T> inline constexpr T intercept(T x, T x1, T y1, T slope) { return y1 - slope * (x1 - x); }
 
 
     // *** Interpolation
 
-    template <class T> inline T lerp(T a, T b, T mu) { return a + ((b - a) * mu); }
+    template <class T> inline constexpr T lerp(T a, T b, T mu) { return a + ((b - a) * mu); }
 
     // http://local.wasp.uwa.edu.au/~pbourke/other/interpolation/
 
@@ -256,7 +256,7 @@ namespace spitfire
     // Return f(mu) for the linear interpolation between (x1, y1) and (x2, y2) (where x1 and x2 are not equally spaced?)
     // mu is between x1 and x2
     template <typename T>
-    T interpolate_linear(T x1, T y1, T x2, T y2, T mu)
+    inline constexpr T interpolate_linear(T x1, T y1, T x2, T y2, T mu)
     {
       ASSERT(mu >= x1);
       ASSERT(mu <= x2);
@@ -266,7 +266,7 @@ namespace spitfire
     // Return f(mu) for the linear interpolation where y0, y1, y2, y3 are all equally spaced
     // mu is between 0.0f and 1.0f
     template <typename T>
-    T interpolate_linear(T y1, T y2, T mu)
+    inline constexpr T interpolate_linear(T y1, T y2, T mu)
     {
       ASSERT(mu >= 0.0f);
       ASSERT(mu <= 1.0f);
@@ -275,7 +275,7 @@ namespace spitfire
 
     // Return f(mu) for the cosine interpolation where y0, y1, y2, y3 are all equally spaced
     template <typename T>
-    T interpolate_cosine(T y1, T y2, T mu)
+    inline constexpr T interpolate_cosine(T y1, T y2, T mu)
     {
       const T mu2 = (1.0f - cos(mu * cPI)) * 0.5f;
       return (y1 * (1.0f - mu2) + y2 * mu2);
@@ -286,7 +286,7 @@ namespace spitfire
 
     // Return f(mu) for the cubic interpolation where y0, y1, y2, y3 are all equally spaced
     template <typename T>
-    T interpolate_cubic(T y0, T y1, T y2, T y3, T mu)
+    inline constexpr T interpolate_cubic(T y0, T y1, T y2, T y3, T mu)
     {
       const T a0 = y3 - y2 - y0 + y1;
       const T a1 = y0 - y1 - a0;
@@ -303,13 +303,13 @@ namespace spitfire
 
 
     // Mod a value by 1.0f and restrict it to 0..1
-    inline float Mod0To1(float fValue)
+    inline constexpr  float Mod0To1(float fValue)
     {
       return fValue - (1.0f * floor(fValue / 1.0f));
     }
 
     // Mod a value by fMax and restrict it to 0..fMax
-    inline float Mod0ToMax(float fValue, float fMax)
+    inline constexpr  float Mod0ToMax(float fValue, float fMax)
     {
       return fValue - (fMax * floor(fValue / fMax));
     }
@@ -317,7 +317,7 @@ namespace spitfire
 
     // Clamp an angle to -180..180
     template <typename T>
-    T ClampAngle(T angle)
+    inline constexpr T ClampAngle(T angle)
     {
       if (angle < 0.0f) angle = 180.0f - (T)fmod(fabs(angle), 360.0f);
       else angle = -180.0f + (T)fmod(angle, 360.0f);
@@ -327,7 +327,7 @@ namespace spitfire
 
     // Return angle in the interval [minimum, minimum + 2pi]
     template <typename T>
-    T branch(T angle, T minimum)
+    inline constexpr T branch(T angle, T minimum)
     {
       while (angle > minimum + c2_PI) angle -= c2_PI;
       while (angle <= minimum) angle += c2_PI;
@@ -336,14 +336,14 @@ namespace spitfire
     }
 
     template <class T>
-    T clamp(const T& i, const T& lower, const T& upper)
+    inline constexpr T clamp(const T& i, const T& lower, const T& upper)
     {
       return (i < lower) ? lower : (i > upper) ? upper : i;
     }
 
     // Smooth step from a to b using mu = { 0..1 }
     template <class T>
-    T smooth_step(T a, T b, float mu)
+    inline constexpr T smooth_step(T a, T b, float mu)
     {
       const T num = clamp(mu, 0.0f, 1.0f);
       return lerp(a, b, (num * num) * (3.0f - (2.0f * num)));
@@ -351,7 +351,7 @@ namespace spitfire
 
     // Linearly interpolate from a to b using mu = { 0..1 }
     template <class T>
-    inline T mix(const T& a, const T& b, float mu)
+    inline constexpr T mix(const T& a, const T& b, float mu)
     {
       if (mu > 1.0f) return b;
       if (mu <= 0.0f) return a;
@@ -361,7 +361,7 @@ namespace spitfire
 
     // Same as above but smoother, m approaches 1.0f at x = 0.0f and x = 1.0f
     // http://www.walterzorn.com/grapher/grapher_e.htm
-    inline float mix_smooth(float a, float b, float mu)
+    inline constexpr float mix_smooth(float a, float b, float mu)
     {
       if (mu > 1.0f) return b;
       if (mu <= 0.0f) return a;
@@ -371,7 +371,7 @@ namespace spitfire
       return (fAmountOfA * a) + ((1.0f - fAmountOfA) * b);
     }
 
-    inline float slow_in_out(float value)
+    inline constexpr float slow_in_out(float value)
     {
       if (value < 1.0f) value = 1.0f / (1.0f + exp((-value * 12.0f) + 6.0f));
 
@@ -379,7 +379,7 @@ namespace spitfire
     }
 
 
-    inline bool PointIsWithinBounds(float x, float y, float bounds_x, float bounds_y, float bounds_width, float bounds_height)
+    inline constexpr bool PointIsWithinBounds(float x, float y, float bounds_x, float bounds_y, float bounds_width, float bounds_height)
     {
       return
         ((x > bounds_x) && (x < (bounds_x + bounds_width))) &&
@@ -388,7 +388,7 @@ namespace spitfire
 
     // This is for calling with cVec2, cVec3 or cVec4
     template <class T>
-    inline float GetDistance(const T& from, const T& to)
+    inline constexpr float GetDistance(const T& from, const T& to)
     {
       return (from - to).GetLength();
     }
@@ -396,13 +396,13 @@ namespace spitfire
 
     // This is for calling with int, float or double
     template <class T>
-    inline bool IsApproximatelyEqual(const T& lhs, const T& rhs)
+    inline constexpr bool IsApproximatelyEqual(const T& lhs, const T& rhs)
     {
       const T temp(lhs - rhs);
       return (temp > -cEPSILON) && (temp < cEPSILON);
     }
 
-    inline float_t Atan2Degrees(float_t x, float_t y)
+    inline constexpr float_t Atan2Degrees(float_t x, float_t y)
     {
       if ((fabs(x) < cEPSILON) && (fabs(y) < cEPSILON)) return 0.0f;
 
