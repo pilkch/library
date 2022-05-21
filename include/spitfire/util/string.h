@@ -16,9 +16,6 @@
 
 namespace spitfire
 {
-  #ifndef __WIN__
-  typedef char char8_t;
-  #endif
   typedef std::string string8_t;
 
   typedef std::u16string string16_t;
@@ -115,7 +112,7 @@ namespace spitfire
     // For UTF8 this function will return 1, 2, 3, 4 or 5
     // For UTF16 this function will return 1 or 2
     // For UTF32 this function will always return 1
-    size_t GetSurrogatePairCountForMultiByteCharacter(char8_t c);
+    size_t GetSurrogatePairCountForMultiByteCharacter(char c);
     size_t GetSurrogatePairCountForMultiByteCharacter(char16_t c);
     inline size_t GetSurrogatePairCountForMultiByteCharacter(char32_t c) { (void)c; return 1; }
     #ifdef __WIN__
@@ -687,7 +684,7 @@ namespace spitfire
     }
 
 
-    typedef cStringParserTemplate<char8_t, string8_t> cStringParserUTF8;
+    typedef cStringParserTemplate<char, string8_t> cStringParserUTF8;
     typedef cStringParserTemplate<char16_t, string16_t> cStringParserUTF16;
     typedef cStringParserTemplate<char32_t, string32_t> cStringParserUTF32;
 

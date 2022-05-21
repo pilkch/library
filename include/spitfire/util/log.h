@@ -225,7 +225,8 @@ namespace spitfire
       string_t current;
 
     private:
-      NO_COPY(cConsoleBase);
+      cConsoleBase(const cConsoleBase&) = delete;
+      cConsoleBase& operator=(const cConsoleBase&) = delete;
     };
   }
 

@@ -679,7 +679,7 @@ namespace spitfire
       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
     };
 
-    size_t GetSurrogatePairCountForMultiByteCharacter(char8_t ch)
+    size_t GetSurrogatePairCountForMultiByteCharacter(char ch)
     {
       #if 0
       size_t c = size_t(ch);

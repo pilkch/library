@@ -55,7 +55,30 @@ namespace breathe
     };
 
 
-    // Forward declaration
+    // Densities
+    // https://www.alternatewars.com/BBOW/Engineering/Miscellaneous_Material_Info.htm
+    // NOTE: These are at room temperature (20 degrees C)
+    const float DENSITY_MUD_KG_PER_CUBIC_METER = 1.73f;
+    const float DENSITY_FRESH_WATER_KG_PER_CUBIC_METER = 1.0f;
+    const float DENSITY_SEA_WATER_KG_PER_CUBIC_METER = 1.03f;
+    const float DENSITY_GRAVEL_WET_KG_PER_CUBIC_METER = 2.0f;
+    const float DENSITY_SAND_DRY_KG_PER_CUBIC_METER = 1.602f;
+    const float DENSITY_SAND_WET_KG_PER_CUBIC_METER = 1.922f;
+    const float DENSITY_SNOW_COMPACTED_KG_PER_CUBIC_METER = 0.481f;
+    const float DENSITY_SNOW_FRESH_KG_PER_CUBIC_METER = 0.160f;
+    const float DENSITY_ICE_KG_PER_CUBIC_METER = 0.919;
+
+
+    // Kinetic Energy
+    // https://www.alternatewars.com/BBOW/Engineering/Kinetic_Energy.htm
+    // KE = 0.5 * Mass * Velocity^2
+    inline constexpr float GetKineticEnergyJoules(float fMassKg, float fVelocityMetersPerSecond)
+    {
+      return (0.5f * fMassKg * fVelocityMetersPerSecond * fVelocityMetersPerSecond);
+    }
+
+
+    // Forward declarations
     class cWorld;
 
 

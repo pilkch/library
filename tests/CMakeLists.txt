@@ -5,9 +5,8 @@ SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 IF(UNIX)
-SET(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+SET(CMAKE_CXX_STANDARD 20)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 ELSE()
 # Set the C++ standard
 #SET(CMAKE_CXX_STANDARD 14)
@@ -28,7 +27,7 @@ SET(LIBRARY_SRC "${CMAKE_SOURCE_DIR}/src/")
 
 IF(UNIX)
 # Add definitions, compiler switches, etc.
-ADD_DEFINITIONS("-std=c++17 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
+ADD_DEFINITIONS("-std=c++20 -Wall -W -Wextra -Werror -Wformat -Wformat-y2k -Winit-self -Wstack-protector -Wunknown-pragmas -Wundef -Wwrite-strings -Wno-unused-parameter -Wpointer-arith -Wno-switch -Woverloaded-virtual -Wsuggest-override -Wno-stack-protector -Wmissing-include-dirs -Wuninitialized -O2")
 ENDIF()
 
 IF(UNIX)
@@ -66,6 +65,7 @@ ENDMACRO(PREFIX_PATHS)
 SET(LIBRARY_BREATHE_SOURCE_DIRECTORY breathe/)
 SET(LIBRARY_BREATHE_SOURCE_FILES
 game/cAIPathFinder.cpp
+vehicle/vehicle.cpp
 )
 
 PREFIX_PATHS(${LIBRARY_BREATHE_SOURCE_DIRECTORY} ${LIBRARY_BREATHE_SOURCE_FILES})
@@ -124,7 +124,7 @@ SET(LIBRARY_SPITFIRE_SOURCE_FILES
 spitfire.cpp
 algorithm/algorithm.cpp algorithm/base64.cpp algorithm/crc.cpp algorithm/md5.cpp
 communication/http.cpp communication/network.cpp
-math/cColour.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
+math/cColour.cpp math/cCurve.cpp math/cVec2.cpp math/cVec3.cpp math/cVec4.cpp math/cMat3.cpp math/cMat4.cpp math/cPlane.cpp math/cQuaternion.cpp math/geometry.cpp math/math.cpp math/units.cpp
 storage/file.cpp storage/filesystem.cpp storage/json.cpp storage/document.cpp storage/settings.cpp storage/xml.cpp
 util/datetime.cpp util/lang.cpp util/log.cpp util/poll.cpp util/process.cpp util/string.cpp util/timer.cpp util/thread.cpp util/weather_bom.cpp
 )
@@ -154,6 +154,7 @@ geometry_test.cpp math_test.cpp units_test.cpp
 lang_test.cpp process_test.cpp settings_test.cpp spitfire_test.cpp string_test.cpp thread_test.cpp
 network_test.cpp
 weather_bom_test.cpp
+breathe_vehicle_test.cpp
 main.cpp
 )
 PREFIX_PATHS(src/ ${TEST_SOURCE_FILES})

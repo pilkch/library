@@ -7,8 +7,13 @@ namespace spitfire
 {
   namespace math
   {
+    constexpr float fGravityMetersPerSecondSquared = 9.8066500286389f; // Earth-surface gravitational acceleration g = 9.80665 m/s2
+
     // http://en.wikipedia.org/wiki/SI_derived_unit
     // http://www.racer.nl/tech/converting.htm
+
+    inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
+    inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
 
     inline float kphTomph(float kph) { return kph * 1.609344f; }
     inline float mphTokph(float mph) { return mph * 0.621371192f; }
@@ -19,6 +24,48 @@ namespace spitfire
 
     inline float MPGToLitresPerHundredKilometres(float fMPG) { return 235.214583f / fMPG; }
     inline float LitresPerHundredKilometresToMPG(float fLitresPerHundredKilometres) { return 235.214583f / fLitresPerHundredKilometres; }
+
+
+
+    // Electricity
+    //
+    // I - Current, amps
+    // V - Voltage, volts
+    // R - Resistance, ohms
+    // P - Power, watts
+
+
+    // Ohm’s Law
+    // The current through the conductor is directly proportional to applied voltage and is expressed as:
+    //
+    // I = V / R
+    //
+    // where I – current, measured in amperes (A);
+    // V – applied voltage, measured in volts (V);
+    // R – resistance, measured in ohms (Ω).
+    //
+    constexpr float GetCurrentAmpsThroughConductor(float fAppliedVoltage, float fResistanceOhms)
+    {
+      const float fCurrentAmps = fAppliedVoltage / fResistanceOhms;
+      return fCurrentAmps;
+    }
+
+
+    // The consumed electrical power of the motor is defined by the following formula:
+    //
+    // Pin = I * V
+    //
+    // where Pin – input power, measured in watts (W);
+    // I – current, measured in amperes (A);
+    // V – applied voltage, measured in volts (V).
+    //
+    constexpr float GetInputConsumedPowerWatts(float fCurrentAmps, float fAppliedVoltage)
+    {
+      const float fInputPowerWatts = fCurrentAmps * fAppliedVoltage;
+      return fInputPowerWatts;
+    }
+
+
 
 
     // Power/Torque
@@ -51,8 +98,110 @@ namespace spitfire
     inline float RPMToRadiansPerSecond(float RPM) { return RPM * 0.10471976f; }
     inline float RadiansPerSecondToRPM(float RadiansPerSecond) { return RadiansPerSecond * 9.5493f; }
 
-    inline float m_s_to_km_h(float m_s) { return m_s * 3.6f; }
-    inline float km_h_to_m_s(float km_h) { return km_h / 3.6f; }
+
+    // Motors
+    // https://simplemotor.com/calculations/
+
+    // The output mechanical power of the motor can be calculated by using the following formula:
+    //
+    // Pout = τ * ω
+    //
+    // where Pout – output power, measured in watts (W);
+    // τ – torque, measured in Newton meters (N•m);
+    // ω – angular speed, measured in radians per second (rad/s).
+    //
+    constexpr float GetMotorOutputMechanicalPowerW(float fTorqueNM, float fAngularSpeedRadiansPerSecond)
+    {
+      const float fOutputPowerWatts = fTorqueNM * fAngularSpeedRadiansPerSecond;
+      return fOutputPowerWatts;
+    }
+
+
+    // Calculate angular speed if you know rotational speed of the motor in rpm:
+    //
+    // ω = rpm * 2π / 60
+    //
+    // where ω – angular speed, measured in radians per second (rad/s);
+    // rpm – rotational speed in revolutions per minute;
+    // π – mathematical constant pi (3.14).
+    // 60 – number of seconds in a minute.
+    //
+    constexpr float GetMotorAngularSpeedRadiansPerSecond(float fRPM)
+    {
+      const float fOutputMotorAngularSpeedRadiansPerSecond = fRPM * ((2.0f * spitfire::math::cPI) / 60.0f);
+      return fOutputMotorAngularSpeedRadiansPerSecond;
+    }
+
+
+    // Gearing up and down
+
+    constexpr float GetGearOutputRPM(float fGearRatio, float fInputRPM)
+    {
+      if (fGearRatio == 0.0f) return 0.0f;
+
+      return fInputRPM / fGearRatio;
+    }
+
+    constexpr float GetGearOutputTorqueNm(float fGearRatio, float fInputTorqueNm)
+    {
+      return fGearRatio * fInputTorqueNm;
+    }
+
+
+
+    // Mass and force
+
+    constexpr float MassKgToForceNewtons(float fMassKg)
+    {
+      return fMassKg * fGravityMetersPerSecondSquared;
+    }
+
+    constexpr float ForceNewtonsToMassKg(float fForceNewtons)
+    {
+      return fForceNewtons * 0.101971621f;
+    }
+
+
+    // Inertia
+    //
+    // https://courses.lumenlearning.com/physics/chapter/10-3-dynamics-of-rotational-motion-rotational-inertia/
+
+
+    // NOTE: The axis goes through the "circles", a drive shaft for example
+
+    constexpr float CalculateMomentOfInertiaCylinder(float fRadiusMeters, float fMassKg)
+    {
+      return (fMassKg * (fRadiusMeters * fRadiusMeters)) / 2.0f;
+    }
+
+
+    // NOTE: The axis goes through the ring, a tire for example
+
+    constexpr float CalculateMomentOfInertiaRing(float fInnerRadiusMeters, float fOuterRadiusMeters, float fMassKg)
+    {
+      return (fMassKg * ((fInnerRadiusMeters * fInnerRadiusMeters) + (fOuterRadiusMeters * fOuterRadiusMeters))) / 2.0f;
+    }
+
+
+    constexpr float TorqueFromMomentOfInertiaAndAngularlAcceleration(float fMomentOfInertia, float fAngularAccelerationRadiansPerSecondSquared)
+    {
+      // t = Ia
+      return fMomentOfInertia * fAngularAccelerationRadiansPerSecondSquared;
+    }
+
+    constexpr float AngularlAccelerationRadiansPerSecondSquaredFromMomentOfInertiaAndTorque(float fMomentOfInertia, float fTorqueNm)
+    {
+      // a = t / I
+      return fTorqueNm / fMomentOfInertia;
+    }
+
+
+    // NOTE: A wheel is roughly a a cylinder for the rim plus a ring for the tire
+
+
+
+
+
 
 
 
@@ -61,6 +210,7 @@ namespace spitfire
     inline float DegreesCelciusToKelvin(float fDegreesCelcius) { return fDegreesCelcius + 273.15f; }
 
 
+    // https://en.wikipedia.org/wiki/Pascal_(unit)
     // http://en.wikipedia.org/wiki/Pounds_per_square_inch
     // ^ = square
     // 1 pascal (Pa) ≡ 1 N/(m^2) ≡ 1 J/(m^3) ≡ 1 kg/(m*(s^2))
@@ -70,20 +220,26 @@ namespace spitfire
     inline float KPaTopsi(float KPa) { return KPa * 6.89475728001037f; }
     inline float psiToKPa(float psi) { return psi * 0.145037738007f; }
 
+    inline float PaToBar(float Pa) { return Pa * 0.00001f; }
+    inline float BarToPa(float bar) { return bar * 100000.0f; }
+
     // http://en.wikipedia.org/wiki/Cubic_metre_per_second
     inline float CubicMetresPerSecondToCubicFeetPerSecond(float fCubicMetresPerSecond) { return fCubicMetresPerSecond * 35.314454f; }
     inline float CubicFeetPerSecondToCubicMetresPerSecond(float fCubicFeetPerSecond) { return fCubicFeetPerSecond * 0.0283170172f; }
 
 
-    // http://en.wikipedia.org/wiki/Density_of_air
+    // https://en.wikipedia.org/wiki/Density_of_air
+    // At 20 °C and 101.325 kPa, dry air has a density of 1.2041 kg/m³
     // http://en.wikipedia.org/wiki/ISO_1
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f;
-    const float cAMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f;
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_DENSITY_KG_PER_CUBIC_METER = 1.2041f; // 1.2 kg/m3
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_PA = 101325.0f; // Pa
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_PRESSURE_KPA = 101.325f; // kPa
+    const float GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS = 20.0f; // °C
 
 
     // http://en.wikipedia.org/wiki/Density_of_air#Altitude
     // returns density of air in kg/m3 for the given altitude in meters
+    // NOTE: This assumes the temperature and pressure of the air falls off at a known rate towards the atmosphere, ignoring heat from the sun, local humidity, and local wind changes
     inline float GetDensityOfAirKgPerCubicMeterForAltitudeMeters(float fAltitudeMeters)
     {
       const float h = fAltitudeMeters;
@@ -92,23 +248,164 @@ namespace spitfire
       const float T = T0 - (L * h);
 
       const float p0 = 101325.0f; // sea level standard atmospheric pressure p0 = 101325 Pa
-      const float g = 9.80665f; // Earth-surface gravitational acceleration g = 9.80665 m/s2.
       const float M = 0.0289644f; // molar mass of dry air M = 0.0289644 kg/mol
       const float R = 8.31447f; // universal gas constant R = 8.31447 J/(mol·K)
-      const float p = p0 * (pow(1.0f - ((L * h) / T0), (g * M) / (R * L)));
+      const float p = p0 * (pow(1.0f - ((L * h) / T0), (fGravityMetersPerSecondSquared * M) / (R * L)));
 
       return (p * M) / (R * T);
     }
 
+
+    
+    // Get the temperature, density, and pressure for an altitude in the standard atmosphere
+    // Correct to 86 km.  Only approximate thereafter.
+    // NOTE: This is just an approximation ignoring the current weather effects:
+    // 1. Heat from the sun
+    // 2. Local humidity
+    // 3. Local wind changes
+    // https://www.pdas.com/atmosdownload.html
+    inline void GetApproximateAtmosphereAtAltitudeMeters(
+        float fAltitudeMeters, // geometric altitude, meters
+        float& fDensityKgPerCubicMeter, // Density/sea-level standard density
+        float& fPressurePa,   // Pressure/sea-level standard pressure
+        float& fTemperatureCelcius,   // Temperature/sea-level standard temperature
+        float& fSpeedOfSoundMetersPerSecond
+    ) {
+      fDensityKgPerCubicMeter = 0.0f;
+      fPressurePa = 0.0f;
+      fTemperatureCelcius = 0.0f;
+      fSpeedOfSoundMetersPerSecond = 0.0f;
+
+      const double REARTH = 6356.766;    // polar radius of the Earth (km)
+      const double GMR = 34.163195;
+      const size_t NTAB = 8;
+
+      static double htab[NTAB] = { 0.0,  11.0, 20.0, 32.0, 47.0, 51.0, 71.0, 84.852 };
+      static double ttab[NTAB] = { 288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.946 };
+      static double ptab[NTAB] = { 1.0, 2.2336110E-1, 5.4032950E-2, 8.5666784E-3, 1.0945601E-3, 6.6063531E-4, 3.9046834E-5, 3.68501E-6 };
+      static double gtab[NTAB] = { -6.5, 0, 1.0, 2.8, 0, -2.8, -2.0, 0.0 };
+
+      const float fAltitudeKm = fAltitudeMeters / 1000.0f;
+      const double fAltitudeGeoPotentialKm = fAltitudeKm * REARTH / (fAltitudeKm + REARTH);     //  geometric to geopotential altitude
+
+      // The original code used a binary search, but that is pointless when we typically want lower altitudes, just check the height of each layer in order
+      // NOTE: The altitude for each layer specifies the lower bound of the layer, so we want the highest possible layer that doesn't go over our specified height
+      size_t match = 0;
+      for (size_t i = 0; i < NTAB; i++) {
+
+        if (fAltitudeGeoPotentialKm <= htab[i]) {
+          break;
+        }
+
+        match = i;
+      }
+
+      double tgrad=gtab[match];                      // temp. gradient of local layer
+      double tbase=ttab[match];                      // base temp. of local layer
+      double deltah = fAltitudeGeoPotentialKm - htab[match];                   // height above local base
+      double tlocal = tbase + tgrad * deltah;          // local temperature
+
+      const double theta = tlocal / ttab[0]; // Temperature/sea-level standard temperature
+      double delta = 0.0; // Pressure/sea-level standard pressure
+
+      if (0.0 == tgrad) {                                         // pressure ratio
+        delta = ptab[match] * exp(-GMR * deltah / tbase);
+      } else {
+        delta = ptab[match] * pow(tbase / tlocal, GMR / tgrad);
+      }
+
+      const double sigma = delta / theta; // Density/sea-level standard density
+
+      const double TZERO = 288.15; // sea level temperature, kelvins
+      const double PZERO = 101325.0; // sea-level pressure, Pa
+      const double RHOZERO = 1.225; // sea level density, kg/cu.m
+      const double AZERO = 340.294; // sea-level speed of sound, m/sec
+
+      const float fTemperatureKelvins = TZERO * theta;
+
+      fTemperatureCelcius = KelvinToDegreesCelcius(fTemperatureKelvins);
+      fPressurePa = PZERO * delta;
+      fDensityKgPerCubicMeter = RHOZERO * sigma;
+      fSpeedOfSoundMetersPerSecond = AZERO * sqrt(theta);
+    }
+
     // http://en.wikipedia.org/wiki/Density_of_air#Temperature_and_pressure
-    inline float GetDensityOfAirKgPerCubicMeterForPressureKPAAndTemperatureDegreesCelcius(float fPressureKPA, float fTemperatureDegreesCelcius)
+    inline float GetDensityOfAirKgPerCubicMeterForPressurePAAndTemperatureDegreesCelcius(float fPressurePa, float fTemperatureDegreesCelcius)
     {
-      const float p = 1000.0f * fPressureKPA; // absolute pressure (must be in Pa not KPA)
+      const float p = fPressurePa; // absolute pressure (must be in Pa not KPA)
       const float R = 287.05f; // specific gas constant for dry air is 287.05 J/(kg·K) in SI units
       const float T = DegreesCelciusToKelvin(fTemperatureDegreesCelcius); // absolute temperature
 
       return (p / (R * T));
     }
+
+    // Adiabatic compression
+    // https://phys.libretexts.org/Bookshelves/University_Physics/Book%3A_University_Physics_(OpenStax)/Book%3A_University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/03%3A_The_First_Law_of_Thermodynamics/3.07%3A_Adiabatic_Processes_for_an_Ideal_Gas
+    // Assumptions:
+    // The gas is air consisting of molecular nitrogen and oxygen only (thus a diatomic gas with 5 degrees of freedom, and so γ = 7/5, or γ = 1.4)
+    // Assume the compression happens quickly enough that no heat escapes or transfers out of the volume to the container
+    inline float GetPressurePaCompressGasAdiabatically(float fVolumeLitres, float fPressurePa, float fCompressedVolumeLitres)
+    {
+      const float r = 1.4; // γ = 1.4
+      return fPressurePa * pow((fVolumeLitres / fCompressedVolumeLitres), r);
+    }
+
+    // Ideal gas law
+    inline float GetTemperatureKelvinsCompressGasAdiabatically(float fVolumeLitres, float fTemperatureKelvins, float fPressurePa, float fCompressedVolumeLitres, float fPressure2Pa)
+    {
+      return ((fPressure2Pa * fCompressedVolumeLitres) / (fPressurePa * fVolumeLitres)) * fTemperatureKelvins;
+    }
+
+    inline float GetWorkRequiredJoulesToCompressGasAdiabatically(float fVolumeLitres, float fTemperatureKelvins, float fPressurePa, float fCompressedVolumeLitres, float fPressure2Pa)
+    {
+      const float r = 1.4; // γ = 1.4
+      return (1.0f / (1.0f - r)) * ((fPressure2Pa * fCompressedVolumeLitres) - (fPressurePa * fVolumeLitres));
+    }
+
+
+    // Pressure underwater
+    // https://www.alternatewars.com/BBOW/Engineering/Water_Pressure.htm
+    // Pressure = (DensityFluid * GravityAcceleration * DepthObject) + PressureAtmosphere
+    //
+    // NOTE: You need to think about:
+    //  1. What the fluid is and what density it is (Usually fresh water or sea water)
+    //  2. At what elevation is the surface of the water? The atmosphere also pushes on the water, so it is added, it varies at different elevations
+    //
+    // Densities:
+    // Fresh water: 1,000 kg/m3
+    // Sea water: 1,030 kg/m3
+    //
+    // Extra water density as depth is increased (This isn't modelled):
+    // At the bottom of the Mariana trench, the water column above exerts a pressure of 1,086 bars (15,750 psi).
+    // At this pressure, the density of water is increased by 4.96%. The temperature at the bottom is 1 to 4 °C (34 to 39 °F).
+    inline constexpr float GetUnderWaterPressurePa(float fWaterDensityKgPerCubicMeter, float fAirPressurePa, float fDepthMeters)
+    {
+      return (fWaterDensityKgPerCubicMeter * fGravityMetersPerSecondSquared * fDepthMeters) + fAirPressurePa;
+    }
+
+
+    // Drag
+
+    // Calculate the force of drag for an object moving through a medium at a specific speed
+    //
+    // Fdrag = 0.5 * Cd * A * rho * v²
+    //
+    constexpr float GetForceOfDragN(float fCoefficientOfFriction, float fObjectFrontalAreaMetersSquared, float fDensityOfMediumKgPerMeterSquared, float fSpeedOfObjectMetersPerSecond)
+    {
+      return 0.5f * fCoefficientOfFriction * fObjectFrontalAreaMetersSquared * fDensityOfMediumKgPerMeterSquared * (fSpeedOfObjectMetersPerSecond * fSpeedOfObjectMetersPerSecond);
+    }
+
+    // Calculate the force of lift/downforce for an object moving through a medium at a specific speed
+    // NOTE: This is exactly the same equation as we used to calculate the drag force above, but using the coefficient of lift/downforce instead of the coefficient of drag
+    // NOTE: When the coefficient of lift/downforce is positive it is generating lift, negative it is generating downforce
+    //
+    // Fdown = 0.5 * Cl * A * rho * v²
+    //
+    constexpr float GetForceOfLiftDownforceN(float fCoefficientOfLiftOrDownforce, float fObjectFrontalAreaMetersSquared, float fDensityOfMediumKgPerMeterSquared, float fSpeedOfObjectMetersPerSecond)
+    {
+      return 0.5f * fCoefficientOfLiftOrDownforce * fObjectFrontalAreaMetersSquared * fDensityOfMediumKgPerMeterSquared * (fSpeedOfObjectMetersPerSecond * fSpeedOfObjectMetersPerSecond);
+    }
+
 
 
     inline float CentimetersToMillimeters(float fCentimeters) { return 0.1f * fCentimeters; }

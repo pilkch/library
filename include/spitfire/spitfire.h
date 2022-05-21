@@ -251,10 +251,13 @@ typedef int32_t ssize_t;
 
 // Prevent a class from being copied
 #ifdef BUILD_SPITFIRE_CPP11
-#define NO_COPY(T) \
-  private: \
-  T(const T&) = delete; \
-  T& operator=(const T&) = delete;
+// Just add these manually
+//#define NO_COPY(TYPE)
+//  private:
+//  TYPE(const TYPE&) = delete;
+//  TYPE& operator=(const TYPE&) = delete;
+//  TYPE(TYPE&&) noexcept = delete;
+//  TYPE& operator=(TYPE&&) noexcept = delete;
 #else
 #define NO_COPY(T) \
   private: \
@@ -291,7 +294,7 @@ namespace spitfire
 
   // Safe deleting functions
   // These will delete your object/array and set your pointer to NULL so that we avoid double deletes
-
+  // TODO: Replace this with std::unique_ptr<MyObject> p = std::make_unique<MyObject>();
   template <class T>
   inline void SAFE_DELETE(T& x)
   {
@@ -299,6 +302,7 @@ namespace spitfire
     x = nullptr;
   }
 
+  // TODO: Replace this with std::vector
   template <class T>
   inline void SAFE_DELETE_ARRAY(T& x)
   {
