@@ -13,6 +13,7 @@
 
 // Spitfire headers
 #include <spitfire/math/cQuaternion.h>
+#include <spitfire/math/geometry.h>
 
 // libopenglmm headers
 #include <libopenglmm/cGeometry.h>
@@ -716,6 +717,27 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), -fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r1 * cosf(angle + 3.0f * da), r1 * sinf(angle + 3.0f * da), fWidth * 0.5f), normal);
       builder.PushBack(spitfire::math::cVec3(r2 * cosf(angle + 2.0f * da), r2 * sinf(angle + 2.0f * da), fWidth * 0.5f), normal);
+    }
+  }
+
+
+  void cGeometryBuilder::CreateCircle(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments)
+  {
+    CreateArc(builder, center, fRadius, nSegments, 0.0f, 360.0f);
+  }
+
+  void cGeometryBuilder::CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop)
+  {
+    const float fSegmentArcDegrees = (fEndAngleDegrees0AtTop - fStartAngleDegrees0AtTop) / float(nSegments);
+    for (size_t i = 0; i < nSegments; i++) {
+      const float fAngleDegrees0 = fStartAngleDegrees0AtTop + (i * fSegmentArcDegrees);
+      const float fAngleDegrees1 = fStartAngleDegrees0AtTop + ((i + 1) * fSegmentArcDegrees);
+      const spitfire::math::cVec2 point0 = center + spitfire::math::CalculateCartesianCoordinate(fAngleDegrees0, fRadius);
+      const spitfire::math::cVec2 point1 = center + spitfire::math::CalculateCartesianCoordinate(fAngleDegrees1, fRadius);
+
+      builder.PushBack(center);
+      builder.PushBack(point1);
+      builder.PushBack(point0);
     }
   }
 }

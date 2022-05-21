@@ -12,6 +12,24 @@ namespace spitfire
 {
   namespace math
   {
+    inline float CalculateCircleCircumference(float fRadius)
+    {
+      return 2.0f * cPI * fRadius;
+    }
+
+    inline float CalculateArcAngleFromRadiusAndLengthOfArcCurve(float fRadius, float fLengthOfArcCurve)
+    {
+      // https://www.allmathtricks.com/circle-formulas-area-circumference/#Arc_and_sector_of_a_circle
+      return (fLengthOfArcCurve * 180.0f) / (cPI * fRadius);
+    }
+
+    inline cVec2 CalculateCartesianCoordinate(float fAngleDegrees, float fRadius)
+    {
+      const float fAngleRadians = (cPI / 180.0f) * (fAngleDegrees - 90.0f);
+      return cVec2(fRadius * cosf(fAngleRadians), fRadius * sinf(fAngleRadians));
+    }
+
+
     inline float GetAngleBetweenPoints(const cVec2& point1, const cVec2& point2)
     {
       const float z_delta = (point1.y - point2.y);
@@ -52,6 +70,24 @@ namespace spitfire
       if (result < -180.0f) return result + 360.0f;
 
       return result;
+    }
+
+
+    inline bool IsPointInCircle(const cVec2& point, const cVec2& centre, float radius)
+    {
+      const float distance = (point.x - centre.x) * (point.x - centre.x) + (point.y - centre.y) * (point.y - centre.y);
+      return (distance <= radius * radius);
+    }
+
+    inline bool IsPointInTriangle(const cVec2& point, const cVec2& p0, const cVec2& p1, const cVec2& p2)
+    {
+      // https://jsfiddle.net/PerroAZUL/zdaY8/1/
+      const float A = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
+      const float sign = A < 0.0f ? -1.0f : 1.0f;
+      const float s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * point.x + (p0.x - p2.x) * point.y) * sign;
+      const float t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * point.x + (p1.x - p0.x) * point.y) * sign;
+
+      return (s > 0) && (t > 0) && (s + t) < 2.0f * A * sign;
     }
 
 

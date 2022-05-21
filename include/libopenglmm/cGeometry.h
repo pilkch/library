@@ -690,6 +690,11 @@ namespace opengl
     void CreateCylinderWithTopAndBottomColours(float fRadius, float fHeight, size_t nCircleSegments, const spitfire::math::cColour4& colourBottom, const spitfire::math::cColour4& colourTop, cGeometryData& data, size_t nTextureUnits);
     void CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits);
     void CreateGear(float fInnerRadius, float fOuterRadius, float fWidth, size_t nTeeth, float fToothDepth, cGeometryData& data); // This is primarily for openglmm_gears and there are no texture coordinates generated
+
+    // 2D geometry, mainly for creating GUI elements
+    static void CreateCircle(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments); // A full circle
+    static void CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop); // A pizza slice
+    static void CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fInnerRadius, float fOuterRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop); // Part of the outside of a donut
   };
 }
 
