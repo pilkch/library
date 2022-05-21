@@ -73,7 +73,7 @@ namespace spitfire
       cThread(const cThread&) = delete;
       cThread& operator=(const cThread&) = delete;
 
-      virtual bool _IsToStop() const override;
+      bool _IsToStop() const;
 
       static int RunThreadFunction(void* pThis);
       virtual void ThreadFunction() = 0;

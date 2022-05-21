@@ -66,7 +66,7 @@ namespace spitfire
       void SetPercentageCompleteSecondaryIndeterminate() { _SetPercentageCompleteSecondaryIndeterminate(); }
 
     private:
-      virtual bool _IsToStop() const { return false; }
+      bool _IsToStop() const { return false; }
 
       virtual void _SetCancellable(bool bCancellable) { (void)bCancellable; }
 
