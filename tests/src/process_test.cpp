@@ -20,7 +20,7 @@ public:
   explicit MyProcess(spitfire::util::cProcessInterface& interface);
 
 private:
-  spitfire::util::PROCESS_RESULT ProcessFunction();
+  virtual spitfire::util::PROCESS_RESULT ProcessFunction() override;
 
   bool DoStuff(size_t i);
 };
@@ -70,11 +70,11 @@ public:
 private:
   bool _IsToStop() const { return bIsToStop; }
 
-  void _SetTextPrimary(const spitfire::string_t& sText) { std::cout<<"Text Primary: "<<spitfire::string::ToUTF8(sText).c_str()<<std::endl; }
-  void _SetTextSecondary(const spitfire::string_t& sText) { std::cout<<"Text Secondary: "<<spitfire::string::ToUTF8(sText).c_str()<<std::endl; }
+  virtual void _SetTextPrimary(const spitfire::string_t& sText) override { std::cout<<"Text Primary: "<<spitfire::string::ToUTF8(sText).c_str()<<std::endl; }
+  virtual void _SetTextSecondary(const spitfire::string_t& sText) override { std::cout<<"Text Secondary: "<<spitfire::string::ToUTF8(sText).c_str()<<std::endl; }
 
-  void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) { std::cout<<"Percentage Primary: "<<fPercentageComplete0To100<<std::endl; }
-  void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) { std::cout<<"Percentage Primary: "<<fPercentageComplete0To100<<std::endl; }
+  virtual void _SetPercentageCompletePrimary0To100(float_t fPercentageComplete0To100) override { std::cout<<"Percentage Primary: "<<fPercentageComplete0To100<<std::endl; }
+  virtual void _SetPercentageCompleteSecondary0To100(float_t fPercentageComplete0To100) override { std::cout<<"Percentage Primary: "<<fPercentageComplete0To100<<std::endl; }
 
   bool bIsToStop;
 };

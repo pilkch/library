@@ -119,11 +119,11 @@ namespace spitfire
       void Newline(const string_t& s1);
       void Newline(const string_t& s1, const string_t& text);
 
-      void Success(const string_t& section, const string_t& text);
-      void Error(const string_t& section, const string_t& text);
+      virtual void Success(const string_t& section, const string_t& text) override;
+      virtual void Error(const string_t& section, const string_t& text) override;
 
     private:
-      void _AddLine(const string_t& o)
+      virtual void _AddLine(const string_t& o) override
       {
         Success(section, o);
         ClearLine();
@@ -246,11 +246,11 @@ namespace spitfire
       void Newline(const string_t& s1);
       void Newline(const string_t& s1, const string_t& text);*/
 
-      void Success(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
-      void Error(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
+      virtual void Success(const string_t& section, const string_t& text) override { _AddLine(section + TEXT(" ") + text); }
+      virtual void Error(const string_t& section, const string_t& text) override { _AddLine(section + TEXT(" ") + text); }
 
     private:
-      void _AddLine(const string_t& o);
+      virtual void _AddLine(const string_t& o) override;
     };
   }
 }
@@ -267,8 +267,8 @@ namespace spitfire
       cScreen();
       ~cScreen();
 
-      void Success(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
-      void Error(const string_t& section, const string_t& text) { _AddLine(section + TEXT(" ") + text); }
+      virtual void Success(const string_t& section, const string_t& text) override { _AddLine(section + TEXT(" ") + text); }
+      virtual void Error(const string_t& section, const string_t& text) override { _AddLine(section + TEXT(" ") + text); }
 
       const std::list<string_t>& GetLines() const;
 
@@ -315,7 +315,7 @@ namespace spitfire
         uint32_t life;
       };
 
-      void _AddLine(const string_t& o)
+      virtual void _AddLine(const string_t& o) override
       {
         // Cascade output to console
         CONSOLE._AddLine(o);

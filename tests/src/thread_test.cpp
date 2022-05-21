@@ -29,7 +29,7 @@ public:
   cDerivedThreadForUnitTest();
 
 private:
-  void ThreadFunction();
+  virtual void ThreadFunction() override;
 
   spitfire::util::cSignalObject soAction;
 };
