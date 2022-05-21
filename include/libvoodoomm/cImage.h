@@ -78,16 +78,20 @@ namespace voodoo
     PIXELFORMAT GetPixelFormat() const { return pixelFormat; }
     size_t GetBytesPerPixel() const;
     size_t GetBitsPerPixel() const;
+    size_t GetBytesPerRow() const;
 
     void SetWidth(size_t _width) { width = _width; }
     void SetHeight(size_t _height) { height = _height; }
     void SetPixelFormat(PIXELFORMAT _pixelFormat) { pixelFormat = _pixelFormat; }
 
     const uint8_t* GetPointerToBuffer() const;
+    uint8_t* GetPointerToBuffer();
 
     void FillColour(uint8_t red, uint8_t green, uint8_t blue);
     void FillBlack();
     void FillWhite();
+    void FillMagenta();
+    void FillTestPattern();
 
     void ConvertToGreyScale();
     void ConvertToNegative();

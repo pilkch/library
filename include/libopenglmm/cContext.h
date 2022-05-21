@@ -31,6 +31,7 @@
 
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
+#include <libopenglmm/cTexture.h>
 
 typedef void* SDL_GLContext;
 
@@ -48,9 +49,6 @@ namespace opengl
 #ifdef BUILD_LIBOPENGLMM_FONT
   class cFont;
 #endif
-  class cTexture;
-  class cTextureCubeMap;
-  class cTextureFrameBufferObject;
   class cShader;
   class cStaticVertexBufferObject;
 
@@ -119,6 +117,7 @@ namespace opengl
     void CreateTexture(cTexture& texture, const opengl::string_t& sFileName);
     void CreateTextureNoMipMaps(cTexture& texture, const opengl::string_t& sFileName);
     void CreateTextureFromImage(cTexture& texture, const voodoo::cImage& image);
+    void CreateTextureFromImageNoMipMaps(cTexture& texture, const voodoo::cImage& image);
     void CreateTextureFromBuffer(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void CreateTextureFromBufferNoMipMaps(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat);
     void DestroyTexture(cTexture& texture);
@@ -132,10 +131,22 @@ namespace opengl
       const opengl::string_t& filePathPositiveZ,
       const opengl::string_t& filePathNegativeZ
     );
+
+    void CreateTextureCubeMapFloat(
+      cTextureCubeMap& texture,
+      const opengl::string_t& filePathPositiveX,
+      const opengl::string_t& filePathNegativeX,
+      const opengl::string_t& filePathPositiveY,
+      const opengl::string_t& filePathNegativeY,
+      const opengl::string_t& filePathPositiveZ,
+      const opengl::string_t& filePathNegativeZ
+    );
     void DestroyTextureCubeMap(cTextureCubeMap& texture);
 
     void CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat, const cTextureFrameBufferObject::FLAGS& flags);
     void CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat);
+    void CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat, const cTextureFrameBufferObject::FLAGS& flags);
     void CreateTextureFrameBufferObjectDepthShadowOnlyNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height);
     void CreateTextureFrameBufferObjectDepthOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height);
     void CreateTextureFrameBufferObjectWithDepth(cTextureFrameBufferObject& fbo, size_t width, size_t height);
@@ -168,10 +179,9 @@ namespace opengl
     #endif
 
     void BeginRenderToTexture(cTextureFrameBufferObject& texture);
+    void BeginRenderToCubeMapTexture(cTextureFrameBufferObject& texture);
+    void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face);
     void EndRenderToTexture(cTextureFrameBufferObject& texture);
-
-    //void BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face);
-    //void EndRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture);
 
     void BeginRenderMode2D(MODE2D_TYPE type);
     void EndRenderMode2D();
@@ -209,6 +219,9 @@ namespace opengl
 
     void BindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture);
     void UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture);
+
+    void BindTextureCubeMap(size_t uTextureUnit, const cTextureFrameBufferObject& texture); // NOTE: This pair of functions are pretty gross, a cubemap could be a cTextureCubeMap or a cTextureFrameBufferObject so we have to overload here
+    void UnBindTextureCubeMap(size_t uTextureUnit, const cTextureFrameBufferObject& texture);
 
     void BindTextureDepthBuffer(size_t uTextureUnit, const cTextureFrameBufferObject& texture);
     void UnBindTextureDepthBuffer(size_t uTextureUnit, const cTextureFrameBufferObject& texture);

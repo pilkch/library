@@ -50,9 +50,11 @@ namespace voodoo
     R8G8B8A8,
     R8G8B8,
     R5G6B5,
+    RGB16F, // RGB, 3 half float 16 bit channels
+    RGB32F, // RGB, 3 float 32 bit channels
     H8,  // uint8_t heightmap
     H16, // uint16_t heightmap
-    H32  // float heightmap
+    H32  // float heightmap, single float 32 bit channel
   };
 
   inline constexpr size_t GetBytesForPixelFormat(PIXELFORMAT pixelFormat)
@@ -63,6 +65,8 @@ namespace voodoo
     else if (pixelFormat == PIXELFORMAT::R5G6B5) return 2;
     else if (pixelFormat == PIXELFORMAT::R8G8B8) return 3;
     else if (pixelFormat == PIXELFORMAT::R8G8B8A8) return 4;
+    else if (pixelFormat == PIXELFORMAT::RGB16F) return 6;
+    else if (pixelFormat == PIXELFORMAT::RGB32F) return 12;
 
     return 0;
   }

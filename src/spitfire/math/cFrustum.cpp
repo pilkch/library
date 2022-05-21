@@ -146,7 +146,7 @@ namespace spitfire
       eye = eye.lerp(eyeIdeal, 0.05f);
       up = up.lerp(upIdeal, 0.05f);
 
-      m.LookAt(eye, target, up);
+      m.SetLookAt(eye, target, up);
 
 
       right = target.CrossProduct(up);

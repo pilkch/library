@@ -57,12 +57,20 @@ namespace opengl
 
   unsigned int cTexture::GetTextureType() const
   {
+    // TODO: This doesn't take into account cubemaps
+  
     const size_t width = GetWidth();
     const size_t height = GetHeight();
 
-    if (width == height) return GL_TEXTURE_2D;
-    else if ((width == 1) || (height == 1)) return GL_TEXTURE_1D;
+    if (width == height) {
+      //std::cout<<"Returning GL_TEXTURE_2D"<<std::endl;
+      return GL_TEXTURE_2D;
+    } else if ((width == 1) || (height == 1)) {
+      //std::cout<<"Returning GL_TEXTURE_1D"<<std::endl;
+      return GL_TEXTURE_1D;
+    }
 
+    //std::cout<<"Returning GL_TEXTURE_RECTANGLE"<<std::endl;
     return GL_TEXTURE_RECTANGLE;
   }
 
@@ -87,7 +95,6 @@ namespace opengl
     const GLenum textureType = GetTextureType();
 
     glBindTexture(textureType, uiTexture);
-
   }
 
   void cTexture::_Destroy()
@@ -125,11 +132,29 @@ namespace opengl
     // Bind so that the next operations happen on this texture
     glBindTexture(textureType, uiTexture);
 
+    // Destination
     GLenum internal = GL_RGBA;
-    if (image.GetPixelFormat() == voodoo::PIXELFORMAT::H8) internal = GL_RED;
-    else if (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) internal = GL_RGB;
-  
+
+    // Source
+    GLenum format = GL_RGBA;
     GLenum type = GL_UNSIGNED_BYTE;
+
+    // 16 bit floats as a source is not supported because I don't know what type the source would be, something like float16? float16_t?
+    assert(image.GetPixelFormat() != voodoo::PIXELFORMAT::RGB16F);
+  
+    if (image.GetPixelFormat() == voodoo::PIXELFORMAT::H8) {
+      internal = GL_RED;
+      format = GL_RED;
+      type = GL_UNSIGNED_BYTE;
+    } else if (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) {
+      internal = GL_RGB;
+      format = GL_RGB;
+      type = GL_UNSIGNED_BYTE;
+    } else if ((image.GetPixelFormat() == voodoo::PIXELFORMAT::RGB16F) || (image.GetPixelFormat() == voodoo::PIXELFORMAT::RGB32F)) {
+      internal = GL_RGB16F;
+      format = GL_RGB;
+      type = GL_FLOAT;
+    }
 
     // Settings to make the texture look a bit nicer when we do blit it to the screen
     glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -140,20 +165,31 @@ namespace opengl
       glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
 
-    //glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
     if (bIsUsingMipMaps) {
       glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       #if BUILD_LIBOPENGLMM_OPENGL_VERSION < 300
       glTexParameteri(textureType, GL_GENERATE_MIPMAP, GL_TRUE);
       #endif
+    } else {
+      glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     // Copy from image to texture
-    if (textureType == GL_TEXTURE_1D) glTexImage1D(textureType, 0, internal, int(max(uiWidth, uiHeight)), 0, internal, type, pBuffer);
-    else glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, internal, type, pBuffer);
+    if (textureType == GL_TEXTURE_1D) glTexImage1D(textureType, 0, internal, int(max(uiWidth, uiHeight)), 0, format, type, pBuffer);
+    else if ((image.GetPixelFormat() == voodoo::PIXELFORMAT::RGB16F) || (image.GetPixelFormat() == voodoo::PIXELFORMAT::RGB32F)) {
+      const float* pBufferAsFloat = reinterpret_cast<const float*>(image.GetPointerToBuffer());
+      if (pBufferAsFloat == nullptr) {
+        LOGERROR("Float image is invalid, returning");
+        return;
+      }
+
+      std::cout<<"Creating float texture "<<uiWidth<<"x"<<uiHeight<<std::endl;
+      glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, format, type, pBufferAsFloat);
+    } else {
+      glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, format, type, pBuffer);
+    }
 
     if (bIsUsingMipMaps) glGenerateMipmap(textureType);
   }
@@ -225,7 +261,8 @@ namespace opengl
     const opengl::string_t& filePathPositiveY,
     const opengl::string_t& filePathNegativeY,
     const opengl::string_t& filePathPositiveZ,
-    const opengl::string_t& filePathNegativeZ
+    const opengl::string_t& filePathNegativeZ,
+    bool bIsFloat
   )
   {
     struct AxisToFilePath {
@@ -259,11 +296,21 @@ namespace opengl
         assert(spitfire::math::IsPowerOfTwo(image.GetWidth()));
         assert(spitfire::math::IsPowerOfTwo(image.GetHeight()));
         assert(image.GetWidth() == image.GetHeight());
+        if (bIsFloat) assert(image.GetPixelFormat() == voodoo::PIXELFORMAT::RGB32F);
 
-        const uint8_t* pBuffer = image.GetPointerToBuffer();
-        if (pBuffer != nullptr) {
+        if (image.GetPointerToBuffer() != nullptr) {
           // Copy from image to texture
-          glTexImage2D(axisToFilePath[i].axis, 0, GL_RGBA, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+          if (bIsFloat) {
+            const float* pBufferAsFloat = reinterpret_cast<const float*>(image.GetPointerToBuffer());
+            if (pBufferAsFloat != nullptr) {
+              glTexImage2D(axisToFilePath[i].axis, 0, GL_RGB16F, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGB, GL_FLOAT, pBufferAsFloat);
+            }
+          } else {
+            const uint8_t* pBuffer = image.GetPointerToBuffer();
+            if (pBuffer != nullptr) {
+              glTexImage2D(axisToFilePath[i].axis, 0, GL_RGBA, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+            }
+          }
 
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
           glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -317,17 +364,17 @@ namespace opengl
     return uiDepthTexture;
   }
 
-  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow)
+  bool cTextureFrameBufferObject::CreateFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat, const FLAGS& flags)
   {
     image.SetWidth(width);
     image.SetHeight(height);
 
-    Create(bColourBuffer, bDepthBuffer, bDepthShadow);
+    Create(pixelFormat, flags);
 
     return IsValid();
   }
 
-  void cTextureFrameBufferObject::Create(bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow)
+  void cTextureFrameBufferObject::Create(PIXELFORMAT pixelFormat, const FLAGS& flags)
   {
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.282D.29.2C_mipmaps
     // http://www.opengl.org/wiki/GL_EXT_framebuffer_object#Quick_example.2C_render_to_texture_.28Cubemap.29
@@ -335,12 +382,14 @@ namespace opengl
 
     const size_t uiWidth = image.GetWidth();
     const size_t uiHeight = image.GetHeight();
+  
+    bIsCubeMap = flags.bCubeMap;
 
     glGenFramebuffers(1, &uiFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, uiFBO);
 
     // Create FBO for colour buffer
-    if (bColourBuffer) {
+    if (flags.bColourBuffer) {
       if (!bIsCubeMap) {
         const bool bIsRectangle = uiWidth != uiHeight;
 
@@ -353,12 +402,10 @@ namespace opengl
         glGenTextures(1, &uiTexture);
         glBindTexture(textureType, uiTexture);
 
-        // We want all FBO textures to be 16bit as we will get more precision hopefully
-        GLenum internal = GL_RGBA16F; // This seems good enough and won't use twice as much(!) memory as 32bit
-        //internal = GL_RGBA32F;
-        GLenum type = GL_FLOAT;
+        GLenum internal = GL_RGBA8;
+        if (pixelFormat == PIXELFORMAT::RGB16F) internal = GL_RGB16F;
 
-        glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_RGBA, type, NULL);
+        glTexImage2D(textureType, 0, internal, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
 
         glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -385,23 +432,26 @@ namespace opengl
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // NULL means reserve texture memory, but texels are undefined
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+        GLenum internal = GL_RGBA8;
+        if (pixelFormat == PIXELFORMAT::RGB16F) internal = GL_RGB16F;
+
+        for (size_t i = 0; i < 6; i++) {
+          // NULL means reserve texture memory, but texels are undefined
+          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internal, int(uiWidth), int(uiHeight), 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+        }
 
         // Attach one of the faces of the Cubemap texture to this FBO
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, uiTexture, 0);
       }
     }
 
-    if (bDepthBuffer) {
+    // TODO: Do we ever not want a depth buffer? 2D GUI rendering perhaps?
+    assert(flags.bDepthBuffer);
+
+    if (flags.bDepthBuffer) {
       const GLenum textureType = GetTextureType();
 
       const GLenum internal = GL_DEPTH_COMPONENT32;
@@ -415,7 +465,7 @@ namespace opengl
       glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(textureType, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
-      if (bDepthShadow) {
+      if (flags.bDepthShadow) {
         // Add a border colour so that everything outside the shadowmap is rendered in full light
         glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -514,18 +564,23 @@ namespace opengl
     uiTexture = 0;
   }
 
+  void cTextureFrameBufferObject::GenerateMipMaps()
+  {
+    ASSERT(GetWidth() == GetHeight());
+
+    const GLenum textureType = (bIsCubeMap ? GL_TEXTURE_CUBE_MAP : GetTextureType());
+
+    glBindTexture(textureType, uiTexture);
+
+      glGenerateMipmap(textureType);
+
+    glBindTexture(textureType, 0);
+  }
+
   void cTextureFrameBufferObject::GenerateMipMapsIfRequired()
   {
     if (bIsUsingMipMaps) {
-      ASSERT(GetWidth() == GetHeight());
-
-      const GLenum textureType = GetTextureType();
-
-      glBindTexture(textureType, uiTexture);
-
-        glGenerateMipmap(textureType);
-
-      glBindTexture(textureType, 0);
+      GenerateMipMaps();
     }
   }
 

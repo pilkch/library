@@ -42,6 +42,24 @@
 
 namespace opengl
 {
+
+namespace {
+
+GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
+{
+  GLenum openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+  if (face == CUBE_MAP_FACE::NEGATIVE_X) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+  else if (face == CUBE_MAP_FACE::POSITIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+  else if (face == CUBE_MAP_FACE::NEGATIVE_Y) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+  else if (face == CUBE_MAP_FACE::POSITIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+  else if (face == CUBE_MAP_FACE::NEGATIVE_Z) openGLFace = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+
+  return openGLFace;
+}
+
+}
+
+
   #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
   cContext::cContext(cSystem& _system, cWindow& window) :
     system(_system),
@@ -52,7 +70,7 @@ namespace opengl
     pSurface(nullptr),
     targetWidth(0),
     targetHeight(0),
-    fNear(0.1f),
+    fNear(0.001f),
     fFar(1000.0f),
     clearColour(0.0f, 0.0f, 0.0f, 1.0f),
     ambientColour(1.0f, 1.0f, 1.0f, 1.0f),
@@ -207,10 +225,21 @@ namespace opengl
     //textures.push_back(&texture);
   }
 
+  void cContext::CreateTextureFromImageNoMipMaps(cTexture& texture, const voodoo::cImage& image)
+  {
+    assert(image.IsValid());
+
+    texture.SetDoNotUseMipMaps();
+    if (!texture.CreateFromImage(image)) return;
+
+    //textures.push_back(&texture);
+  }
+
   void cContext::CreateTextureFromBuffer(cTexture& texture, const uint8_t* pBuffer, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
     assert(pBuffer != nullptr);
 
+    // TODO: To avoid an extra copy we should just get the cImage version of CreateTextureFromImage above to call this version instead
     voodoo::cImage image;
     if (!image.CreateFromBuffer(pBuffer, width, height, pixelFormat)) return;
 
@@ -251,13 +280,42 @@ namespace opengl
     const opengl::string_t& filePathNegativeZ
   )
   {
+    const bool bIsFloat = false;
     if (!texture.CreateFromFilePaths(
         filePathPositiveX,
         filePathNegativeX,
         filePathPositiveY,
         filePathNegativeY,
         filePathPositiveZ,
-        filePathNegativeZ
+        filePathNegativeZ,
+        bIsFloat
+      )
+    ) {
+      return;
+    }
+
+    //cubeMapTextures.push_back(&texture);
+  }
+
+  void cContext::CreateTextureCubeMapFloat(
+    cTextureCubeMap& texture,
+    const opengl::string_t& filePathPositiveX,
+    const opengl::string_t& filePathNegativeX,
+    const opengl::string_t& filePathPositiveY,
+    const opengl::string_t& filePathNegativeY,
+    const opengl::string_t& filePathPositiveZ,
+    const opengl::string_t& filePathNegativeZ
+  )
+  {
+    const bool bIsFloat = true;
+    if (!texture.CreateFromFilePaths(
+        filePathPositiveX,
+        filePathNegativeX,
+        filePathPositiveY,
+        filePathNegativeY,
+        filePathPositiveZ,
+        filePathNegativeZ,
+        bIsFloat
       )
     ) {
       return;
@@ -278,41 +336,71 @@ namespace opengl
 
   void cContext::CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
-    (void)pixelFormat;
+    cTextureFrameBufferObject::FLAGS flags;
+    flags.SetColourBuffer();
+    flags.SetDepthBuffer();
 
-    if (!fbo.CreateFrameBufferObject(width, height, true, false, false)) return;
+    if (!fbo.CreateFrameBufferObject(width, height, pixelFormat, flags)) return;
 
     //textures.push_back(&fbo);
   }
 
+  void cContext::CreateTextureFrameBufferObject(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat, const cTextureFrameBufferObject::FLAGS& flags)
+  {
+    if (!fbo.CreateFrameBufferObject(width, height, pixelFormat, flags)) return;
+  }
+
   void cContext::CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat)
   {
-    (void)pixelFormat;
+    cTextureFrameBufferObject::FLAGS flags;
+    flags.SetColourBuffer();
+    flags.SetDepthBuffer();
 
     fbo.SetDoNotUseMipMaps();
-    if (!fbo.CreateFrameBufferObject(width, height, true, false, false)) return;
+    if (!fbo.CreateFrameBufferObject(width, height, pixelFormat, flags)) return;
+
+    //textures.push_back(&fbo);
+  }
+
+  void cContext::CreateTextureFrameBufferObjectNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height, PIXELFORMAT pixelFormat, const cTextureFrameBufferObject::FLAGS& flags)
+  {
+    fbo.SetDoNotUseMipMaps();
+    if (!fbo.CreateFrameBufferObject(width, height, pixelFormat, flags)) return;
 
     //textures.push_back(&fbo);
   }
 
   void cContext::CreateTextureFrameBufferObjectDepthShadowOnlyNoMipMaps(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
+    cTextureFrameBufferObject::FLAGS flags;
+    flags.bColourBuffer = false;
+    flags.SetDepthBuffer();
+    flags.SetDepthShadow();
+
     fbo.SetDoNotUseMipMaps();
-    if (!fbo.CreateFrameBufferObject(width, height, false, true, true)) return;
+    if (!fbo.CreateFrameBufferObject(width, height, opengl::PIXELFORMAT::RGB32F, flags)) return;
 
     //textures.push_back(&fbo);
   }
 
   void cContext::CreateTextureFrameBufferObjectDepthOnly(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
-    if (!fbo.CreateFrameBufferObject(width, height, false, true, false)) return;
+    cTextureFrameBufferObject::FLAGS flags;
+    flags.bColourBuffer = false;
+    flags.SetDepthBuffer();
+  
+    if (!fbo.CreateFrameBufferObject(width, height, opengl::PIXELFORMAT::RGB16F, flags)) return;
 
     //textures.push_back(&fbo);
   }
 
   void cContext::CreateTextureFrameBufferObjectWithDepth(cTextureFrameBufferObject& fbo, size_t width, size_t height)
   {
-    if (!fbo.CreateFrameBufferObject(width, height, true, true, false)) return;
+    cTextureFrameBufferObject::FLAGS flags;
+    flags.SetColourBuffer();
+    flags.SetDepthBuffer();
+  
+    if (!fbo.CreateFrameBufferObject(width, height, opengl::PIXELFORMAT::RGB16F, flags)) return;
 
     //textures.push_back(&fbo);
   }
@@ -486,9 +574,12 @@ namespace opengl
     LOG("GLSL Version: ", (const char*)(glGetString(GL_SHADING_LANGUAGE_VERSION)));
     #endif
 
-    LOG("returning true, ", SDL_GetError(), ", ", cSystem::GetErrorString());
+    const char* szError = SDL_GetError();
+    const bool bIsNullOrEmpty = (szError == nullptr) || (szError[0] == 0);
+    const bool result = bIsNullOrEmpty;
+    LOG("returning ", result, ", ", szError, ", ", cSystem::GetErrorString());
 
-    return true;
+    return result;
   }
   #endif
 
@@ -532,19 +623,17 @@ namespace opengl
     return CalculateProjectionMatrix(45.0f);
   }
 
-  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(float fFOV) const
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(float fFOVDegrees) const
   {
-    return CalculateProjectionMatrix(targetWidth, targetHeight, fFOV);
+    return CalculateProjectionMatrix(targetWidth, targetHeight, fFOVDegrees);
   }
 
-  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(size_t width, size_t height, float fFOV) const
+  spitfire::math::cMat4 cContext::CalculateProjectionMatrix(size_t width, size_t height, float fFOVDegrees) const
   {
     // Set our perspective
     assert(height != 0); // Protect against a divide by zero
     const GLfloat fRatio = (GLfloat)width / (GLfloat)height;
-    spitfire::math::cMat4 matrix;
-    matrix.SetPerspective(fFOV, fRatio, fNear, fFar);
-    return matrix;
+    return spitfire::math::cMat4::Perspective(spitfire::math::DegreesToRadians(fFOVDegrees), fRatio, fNear, fFar);
   }
 
   spitfire::math::cMat4 cContext::CalculateProjectionMatrixRenderMode2D(MODE2D_TYPE type) const
@@ -716,6 +805,37 @@ namespace opengl
     _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
 
     //LOG(cSystem::GetErrorString());
+  }
+
+  void cContext::BeginRenderToCubeMapTexture(cTextureFrameBufferObject& texture)
+  {
+    ASSERT(texture.IsValid());
+    ASSERT(texture.IsModeCubeMap());
+
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glEnable(GL_TEXTURE_2D);
+    ...
+    #endif
+
+    // First we bind the FBO so we can render to it
+    glBindFramebuffer(GL_FRAMEBUFFER, texture.uiFBO);
+  
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) LOGERROR("Incomplete FBO ", status);
+  }
+
+  void cContext::BeginRenderToCubeMapTextureFace(cTextureFrameBufferObject& texture, CUBE_MAP_FACE face)
+  {
+    ASSERT(texture.IsValid());
+    ASSERT(texture.IsModeCubeMap());
+
+    // Get a GL_TEXTURE_CUBE_MAP_POSITIVE_X style GLenum for the which face we are using
+    const GLenum openGLFace = CubeMapFaceToGLenum(face);
+
+    // Bind the actual face we want to render to
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, openGLFace, texture.GetTexture(), 0);
+
+    _BeginRenderShared(texture.GetWidth(), texture.GetHeight());
   }
 
   void cContext::EndRenderToTexture(cTextureFrameBufferObject& texture)
@@ -1027,6 +1147,34 @@ namespace opengl
   }
 
   void cContext::UnBindTextureCubeMap(size_t uTextureUnit, const cTextureCubeMap& texture)
+  {
+    (void)texture;
+
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glDisable(GL_TEXTURE_CUBE_MAP);
+    #endif
+  }
+
+
+  void cContext::BindTextureCubeMap(size_t uTextureUnit, const cTextureFrameBufferObject& texture)
+  {
+    // Activate the current texture unit
+    glActiveTexture(GL_TEXTURE0 + int(uTextureUnit));
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glClientActiveTexture(GL_TEXTURE0 + uTextureUnit);
+    #endif
+
+    #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    #endif
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetTexture());
+  }
+
+  void cContext::UnBindTextureCubeMap(size_t uTextureUnit, const cTextureFrameBufferObject& texture)
   {
     (void)texture;
 
