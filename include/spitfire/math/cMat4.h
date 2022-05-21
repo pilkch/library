@@ -25,14 +25,21 @@ namespace spitfire
       cMat4();
       cMat4(const cMat4& rhs);
       explicit cMat4(const cMat3& rhs);
+      cMat4(cMat4&& rhs);
       cMat4(float value0, float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, float value9, float value10, float value11, float value12, float value13, float value14, float value15);
       ~cMat4() {}
+
+      // glm style functions
+      static cMat4 Perspective(float fFovYRadians, float fAspectRatio, float fNear, float fFar);
+      static cMat4 LookAt(const cVec3& eye, const cVec3& target, const cVec3& up);
 
       const float& operator[](const size_t i) const;
       float& operator[](const size_t i);
 
       const float& GetValue(const size_t x, const size_t y) const;
       float& GetValue(const size_t x, const size_t y);
+    
+      void SetValue(size_t x, size_t y, float value);
 
       float GetEntry(size_t position) const;
       cVec4 GetRow(size_t position) const;
@@ -71,6 +78,7 @@ namespace spitfire
 
       // Assignment operator
       cMat4& operator=(const cMat4& rhs);
+      cMat4& operator=(const cMat4&& rhs);
 
       // Binary operators
       cMat4 operator+(const cMat4& rhs) const;
@@ -117,7 +125,7 @@ namespace spitfire
       cMat4 GetInverseTranspose() const;
 
       void SetPerspective(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar);
-      void SetPerspective(float fFOVy, float fAspectRatio, float fNear, float fFar);
+      void SetPerspective(float fFovYDegrees, float fAspectRatio, float fNear, float fFar);
       void SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar);
 
       void SetFromQuaternion(const cQuaternion& rhs);
@@ -132,7 +140,7 @@ namespace spitfire
       // glGetFloatv(GL_MODELVIEW_MATRIX, modl);
       void SetFromOpenGLMatrix(const float* pEntries);
 
-      void LookAt(const cVec3& eye, const cVec3& target, const cVec3& up);
+      void SetLookAt(const cVec3& eye, const cVec3& target, const cVec3& up);
 
       // OpenGL matrix operations
       void MultiplyMatrix(const cMat4& rhs);

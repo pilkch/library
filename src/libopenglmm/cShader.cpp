@@ -448,16 +448,20 @@ namespace opengl
     while (!f.eof()) {
       std::getline(f, sLine);
 
-      bool bIsVersionLine = false;
-
       // Check if this is a version line
       if (spitfire::string::StartsWith(sLine, "#version")) {
         parserContext.uShaderVersion = ParseVersion(sLine);
 
-        bIsVersionLine = true;
-      }
+        o<<sLine<<"\n";
 
-      if (spitfire::string::StartsWith(sLine, "#include <")) {
+        if (!mapDefinesToAdd.empty()) {
+          // Now that we have added our version we can add the defines straight away
+          o << "\n";
+          const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
+          for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
+          o << "\n";
+        }
+      } else if (spitfire::string::StartsWith(sLine, "#include <")) {
         const std::string sLines = ParseInclude(parserContext, sLine);
 
         // Add the lines
@@ -470,13 +474,6 @@ namespace opengl
         // Add the line
         o << sLine;
         o << "\n";
-
-        if (bIsVersionLine) {
-          // Now that we have added our version we can add the defines straight away
-          const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
-          for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
-          o << "\n";
-        }
       }
     };
 
@@ -517,14 +514,16 @@ namespace opengl
       if (spitfire::string::StartsWith(sLine, "#version")) {
         parserContext.uShaderVersion = ParseVersion(sLine);
 
-        // Now that we have added our version we can add the defines straight away
-        o << "\n";
-        const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
-        for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
-        o << "\n";
-      }
+        o<<sLine<<"\n";
 
-      if (spitfire::string::StartsWith(sLine, "#include <")) {
+        if (!mapDefinesToAdd.empty()) {
+          // Now that we have added our version we can add the defines straight away
+          o << "\n";
+          const std::map<std::string, int>::const_iterator iterEnd(mapDefinesToAdd.end());
+          for (std::map<std::string, int>::const_iterator iter(mapDefinesToAdd.begin()); iter != iterEnd; iter++) o << "#define " << iter->first << " " << iter->second << "\n";
+          o << "\n";
+        }
+      } else if (spitfire::string::StartsWith(sLine, "#include <")) {
         const std::string sLines = ParseInclude(parserContext, sLine);
 
         // Add the lines

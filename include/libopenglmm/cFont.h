@@ -47,16 +47,24 @@ namespace opengl
   public:
     friend class cContext;
 
+    cFont();
     ~cFont();
 
     bool IsValid() const { return (texture.IsValid() && shader.IsCompiledProgram()); }
 
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
+    enum FLAGS {
+      HORIZONTAL_ALIGNMENT_LEFT_ALIGNED = 0,
+      HORIZONTAL_ALIGNMENT_CENTERED = 1
+    };
 
     spitfire::math::cVec2 GetDimensions(const string_t& sText) const;
     spitfire::math::cVec2 GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine) const;
+    void Measure(const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2& outDimensions) const;
+
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, HORIZONTAL_ALIGNMENT_LEFT_ALIGNED, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, flags, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, flags, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
 
   protected:
     bool Load(cContext& context, const string_t& sFilename, size_t height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
@@ -66,12 +74,22 @@ namespace opengl
     cShader shader;
 
   private:
+    void MeasureOrPushBack(opengl::cGeometryBuilder_v2_c4_t2* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const;
+
+    // TODO: Use cTextureAtlas? Or don't use textures at all and create a VBO from the text outline instead?
+
+    size_t glyphPixelHeightAndWidth; // The width and height of the area set aside for each glyph in the bitmap image
+
     std::vector<float> fGlyphU;
     std::vector<float> fGlyphV;
+    std::vector<float> fGlyphU_Width;
+    std::vector<float> fGlyphV_Height;
     std::vector<float> fGlyphWidth;
     std::vector<float> fGlyphHeight;
     std::vector<float> fGlyphAdvanceX;
     std::vector<float> fGlyphAdvanceY;
+    std::vector<float> fGlyphOffsetX;
+    std::vector<float> fGlyphOffsetY;
   };
 }
 

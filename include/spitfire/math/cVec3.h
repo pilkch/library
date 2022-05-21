@@ -44,7 +44,7 @@ namespace spitfire
       void Cross(const cVec3& a, const cVec3& b);
       cVec3 CrossProduct(const cVec3& rhs) const;
 
-      inline float DotProduct(const cVec3& rhs) const { return (x * rhs.x) + (y * rhs.y) + (z * rhs.z); }
+      inline constexpr float DotProduct(const cVec3& rhs) const { return (x * rhs.x) + (y * rhs.y) + (z * rhs.z); }
 
 
       // Returns/sets to -x, -y, -z
@@ -155,6 +155,12 @@ namespace spitfire
     const cVec3 v3Right(1.0f, 0.0f, 0.0f);
     const cVec3 v3Front(0.0f, 0.0f, -1.0f);
     const cVec3 v3Back(0.0f, 0.0f, 1.0f);
+
+
+    // GLSL/glm style helper functions
+    inline cVec3 normalize(const cVec3& a) { return a.GetNormalised(); }
+    inline cVec3 cross(const cVec3& a, const cVec3& b) { return a.CrossProduct(b); }
+    inline constexpr float dot(const cVec3& a, const cVec3& b) { return a.DotProduct(b); }
   }
 }
 

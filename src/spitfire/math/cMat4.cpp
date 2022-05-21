@@ -32,6 +32,11 @@ namespace spitfire
       SetFromMatrix(rhs);
     }
 
+    cMat4::cMat4(cMat4&& rhs)
+    {
+      SetFromMatrix(rhs);
+    }
+
     cMat4::cMat4(const cMat3& rhs)
     {
       SetFromMatrix(rhs);
@@ -43,6 +48,12 @@ namespace spitfire
     }
 
     cMat4& cMat4::operator=(const cMat4& rhs)
+    {
+      SetFromMatrix(rhs);
+      return *this;
+    }
+
+    cMat4& cMat4::operator=(const cMat4&& rhs)
     {
       SetFromMatrix(rhs);
       return *this;
@@ -72,6 +83,13 @@ namespace spitfire
       assert(x < 4);
       assert(y < 4);
       return entries[(y * 4) + x];
+    }
+
+    void cMat4::SetValue(size_t x, size_t y, float value)
+    {
+      assert(x < 4);
+      assert(y < 4);
+      entries[(x * 4) + y] = value;
     }
 
     float cMat4::GetEntry(size_t position) const
@@ -771,6 +789,21 @@ namespace spitfire
     }
 
 
+    cMat4 cMat4::Perspective(float fFovYRadians, float fAspectRatio, float fNear, float fFar)
+    {
+      cMat4 result;
+      const float fFovYDegrees = RadiansToDegrees(fFovYRadians);
+      result.SetPerspective(fFovYDegrees, fAspectRatio, fNear, fFar);
+      return result;
+    }
+
+    cMat4 cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
+    {
+      cMat4 result;
+      result.SetLookAt(eye, target, up);
+      return result;
+    }
+
     void cMat4::SetPerspective(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar)
     {
       LoadZero();
@@ -798,14 +831,14 @@ namespace spitfire
       }
     }
 
-    void cMat4::SetPerspective(float fFovY, float fAspect, float fNear, float fFar)
+    void cMat4::SetPerspective(float fFovYDegrees, float fAspect, float fNear, float fFar)
     {
       ASSERT(fAspect != 0.0f);
       ASSERT(fFar != fNear);
 
       LoadIdentity();
 
-      const float fFovRadians = DegreesToRadians(fFovY);
+      const float fFovRadians = DegreesToRadians(fFovYDegrees);
       const float fTanHalfFovY = tan(fFovRadians / 2.0f);
 
       entries[0] = 1.0f / (fAspect * fTanHalfFovY);
@@ -833,7 +866,7 @@ namespace spitfire
       entries[14] = -(fFar + fNear) / (fFar - fNear);
     }
 
-    void cMat4::LookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
+    void cMat4::SetLookAt(const cVec3& eye, const cVec3& target, const cVec3& up)
     {
       // http://www.3dgep.com/understanding-the-view-matrix/#Look_At_Camera
 
