@@ -20,6 +20,7 @@
 
 // libvoodoomm headers
 #include <libvoodoomm/cImage.h>
+#include <libvoodoomm/hdr.h>
 
 #ifdef PLATFORM_LINUX_OR_UNIX
 #include <sys/stat.h>
@@ -370,16 +371,7 @@ namespace voodoo
 
   size_t cImage::GetBytesPerPixel() const
   {
-    switch (pixelFormat) {
-      case PIXELFORMAT::H8: return 1;
-      case PIXELFORMAT::H16:
-      case PIXELFORMAT::R5G6B5: {
-        return 2;
-      }
-      case PIXELFORMAT::R8G8B8: return 3;
-    };
-    assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
-    return 4;
+    return GetBytesForPixelFormat(pixelFormat);
   }
 
   size_t cImage::GetBitsPerPixel() const
@@ -387,7 +379,18 @@ namespace voodoo
     return (8 * GetBytesPerPixel());
   }
 
+  size_t cImage::GetBytesPerRow() const
+  {
+    return (width * GetBytesPerPixel());
+  }
+
   const uint8_t* cImage::GetPointerToBuffer() const
+  {
+    assert(!buffer.empty());
+    return buffer.data();
+  }
+
+  uint8_t* cImage::GetPointerToBuffer()
   {
     assert(!buffer.empty());
     return buffer.data();
@@ -397,8 +400,17 @@ namespace voodoo
   {
     const string_t sExtension = GetFileExtension(sFilePath);
 
+    const bool bIsSupportedNative = (
+      (sExtension == TEXT("hdr"))
+    );
+
+    if (bIsSupportedNative) {
+      return true;
+    }
+
+
     // Check the built in supported formats
-    bool bIsSupported = (
+    bool bIsSupportedSDL = (
       (sExtension == TEXT("bmp")) ||
       (sExtension == TEXT("cur")) ||
       (sExtension == TEXT("gif")) ||
@@ -412,10 +424,10 @@ namespace voodoo
     );
 
     // Check the dynamically supported formats
-    if (!bIsSupported) {
+    if (!bIsSupportedSDL) {
       SDL_RWops* pRWops = SDL_RWFromFile(string::ToUTF8(sFilePath).c_str(), "rb");
       if (pRWops != nullptr) {
-        bIsSupported = (IMG_isJPG(pRWops) || IMG_isTIF(pRWops) || IMG_isPNG(pRWops)); // NOTE: In later versions of SDL there is also IMG_isWEBP
+        bIsSupportedSDL = (IMG_isJPG(pRWops) || IMG_isTIF(pRWops) || IMG_isPNG(pRWops)); // NOTE: In later versions of SDL there is also IMG_isWEBP
 
         // TODO: Is this required?  Does it crash?
         if (pRWops != nullptr) {
@@ -425,14 +437,21 @@ namespace voodoo
       }
     }
 
-    return bIsSupported;
+    return (bIsSupportedNative || bIsSupportedSDL);
   }
 
-  bool cImage::LoadFromFile(const string_t& sFilename)
+  bool cImage::LoadFromFile(const string_t& sFilePath)
   {
+    const string_t sExtension = GetFileExtension(sFilePath);
+    if (sExtension == TEXT("hdr")) {
+      if (LoadHDR(sFilePath, *this)) {
+        return true;
+      }
+    }
+
     cSurface surface;
-    if (!surface.LoadFromFile(sFilename)) {
-      std::cout<<"cImage::LoadFromFile Failed to load file \""<<string::ToUTF8(sFilename)<<"\""<<std::endl;
+    if (!surface.LoadFromFile(sFilePath)) {
+      std::cout<<"cImage::LoadFromFile Failed to load file \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
       return false;
     }
 
@@ -445,16 +464,12 @@ namespace voodoo
   {
     std::cout<<"cImage::CreateEmptyImage "<<_width<<"x"<<_height<<std::endl;
 
-    // TODO: Support all formats
-    assert(_pixelFormat == PIXELFORMAT::R8G8B8A8);
-
     width = _width;
     height = _height;
     pixelFormat = _pixelFormat;
 
-    const size_t n = _width * _height;
+    const size_t n = height * GetBytesPerRow();
     buffer.resize(n, 0);
-    FillBlack();
 
     return true;
   }
@@ -664,11 +679,66 @@ namespace voodoo
     }
   }
 
-  void cImage::FlipVertically()
+  void cImage::FillTestPattern()
   {
     // Only RGBA is supported at the moment
     assert(pixelFormat == PIXELFORMAT::R8G8B8A8);
 
+    const size_t n = width * height;
+    buffer.resize(n);
+
+    const size_t bytesPerPixel = GetBytesPerPixel();
+    const size_t bytesPerRow = GetBytesPerRow();
+
+    uint8_t* pBuffer = buffer.data();
+
+    // Top left, red
+    for (size_t y = 0; y < height / 2; y++) {
+      for (size_t x = 0; x < width / 2; x++) {
+        uint8_t* pPixel = pBuffer + (y * bytesPerRow) + (x * bytesPerPixel);
+        pPixel[0] = 0x00;
+        pPixel[1] = 0x00;
+        pPixel[2] = 0xFF;
+        pPixel[3] = 0xFF;
+      }
+    }
+
+    // Top right, green
+    for (size_t y = 0; y < height / 2; y++) {
+      for (size_t x = width / 2; x < width; x++) {
+        uint8_t* pPixel = pBuffer + (y * bytesPerRow) + (x * bytesPerPixel);
+        pPixel[0] = 0x00;
+        pPixel[1] = 0xFF;
+        pPixel[2] = 0x00;
+        pPixel[3] = 0xFF;
+      }
+    }
+
+    // Bottom left, blue
+    for (size_t y = height / 2; y < height; y++) {
+      for (size_t x = 0; x < width / 2; x++) {
+        uint8_t* pPixel = pBuffer + (y * bytesPerRow) + (x * bytesPerPixel);
+        pPixel[0] = 0xFF;
+        pPixel[1] = 0x00;
+        pPixel[2] = 0x00;
+        pPixel[3] = 0xFF;
+      }
+    }
+
+    // Bottom right, yellow
+    for (size_t y = height / 2; y < height; y++) {
+      for (size_t x = width / 2; x < width; x++) {
+        uint8_t* pPixel = pBuffer + (y * bytesPerRow) + (x * bytesPerPixel);
+        pPixel[0] = 0xFF;
+        pPixel[1] = 0xFF;
+        pPixel[2] = 0x00;
+        pPixel[3] = 0xFF;
+      }
+    }
+  }
+
+  void cImage::FlipVertically()
+  {
     if (buffer.empty()) return;
 
     // For each row swap it with the corresponding row on the other side of the image

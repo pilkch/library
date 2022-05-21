@@ -69,6 +69,7 @@ namespace opengl
 
     size_t GetWidth() const { return image.GetWidth(); }
     size_t GetHeight() const { return image.GetHeight(); }
+    PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
 
     unsigned int GetTexture() const { return uiTexture; }
 
@@ -125,7 +126,8 @@ namespace opengl
       const opengl::string_t& filePathPositiveY,
       const opengl::string_t& filePathNegativeY,
       const opengl::string_t& filePathPositiveZ,
-      const opengl::string_t& filePathNegativeZ
+      const opengl::string_t& filePathNegativeZ,
+      bool bIsFloat
     );
     void Destroy();
 
@@ -145,11 +147,38 @@ namespace opengl
     cTextureFrameBufferObject();
     ~cTextureFrameBufferObject();
 
+    class FLAGS {
+    public:
+      FLAGS() :
+        bColourBuffer(true),
+        bDepthBuffer(false),
+        bDepthShadow(false),
+        bCubeMap(false)
+      {
+      }
+
+      void SetColourBuffer() { bColourBuffer = true; }
+      void SetDepthBuffer() { bDepthBuffer = true; }
+      void SetDepthShadow() { bDepthShadow = true; }
+      void SetModeCubeMap() { bCubeMap = true; }
+
+      bool bColourBuffer;
+      bool bDepthBuffer;
+      bool bDepthShadow;
+      bool bCubeMap;
+    };
+
     bool IsModeCubeMap() const { return bIsCubeMap; }
-    void SetModeCubeMap() { bIsCubeMap = true; }
 
-    bool CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow);
+    // Deprecated
+    // opengl::PIXELFORMAT::RGB16F by default
+    //bool CreateFrameBufferObject(size_t width, size_t height, bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow);
 
+    bool CreateFrameBufferObject(size_t width, size_t height, PIXELFORMAT pixelFormat, const FLAGS& flags);
+
+    void GenerateMipMaps();
+
+    // TODO: Get rid of this function and require the caller to call it manually
     void GenerateMipMapsIfRequired();
 
     void SelectMipMapLevelOfDetail(float fLevelOfDetail);
@@ -162,7 +191,7 @@ namespace opengl
 
   private:
     bool _IsValid() const { return ((uiTexture != 0) && (uiFBO != 0)) || ((uiDepthTexture != 0) && (uiFBODepthBuffer != 0)); }
-    void Create(bool bColourBuffer, bool bDepthBuffer, bool bDepthShadow);
+    void Create(PIXELFORMAT pixelFormat, const FLAGS& flags);
     void _Destroy();
 
     unsigned int uiDepthTexture;
