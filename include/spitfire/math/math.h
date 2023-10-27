@@ -477,6 +477,16 @@ namespace spitfire
       uint32_t GetRandomNumber0ToN(uint32_t maximum);
       float GetRandomNumber0To1();
 
+      inline float randomf(float fMax)
+      {
+        return fMax * GetRandomNumber0To1();
+      }
+
+      inline float randomf(float fMin, float fMax)
+      {
+        return fMin + randomf(fMax - fMin);
+      }
+
     private:
       uint32_t GetRandomNumberAndIncrement();
 

@@ -33,6 +33,7 @@ namespace spitfire
       return v3Zero;
     }
 
+
     // *** cRay2
 
     void cRay2::SetOriginAndDirection(const cVec2& _origin, const cVec2& _direction)
@@ -47,6 +48,7 @@ namespace spitfire
 
       length = _length;
     }
+
 
     // *** cRay3
 
@@ -143,14 +145,47 @@ namespace spitfire
       return false;
     }
 
-
-    bool cRay3::CollideWithAABB(const cAABB3& rhs, float& fDepth) const
+    bool Raycast(const cRay3& ray, const cAABB3& aabb, float& fDepth)
     {
       fDepth = cINFINITY;
 
-      ASSERT(false);
+      const cVec3 dirNormalised(ray.direction.GetNormalised());
 
-      return false;
+      const float t1 = (aabb.cornerMin.x - ray.origin.x) / dirNormalised.x;
+      const float t2 = (aabb.cornerMax.x - ray.origin.x) / dirNormalised.x;
+      const float t3 = (aabb.cornerMin.y - ray.origin.y) / dirNormalised.y;
+      const float t4 = (aabb.cornerMax.y - ray.origin.y) / dirNormalised.y;
+      const float t5 = (aabb.cornerMin.z - ray.origin.z) / dirNormalised.z;
+      const float t6 = (aabb.cornerMax.z - ray.origin.z) / dirNormalised.z;
+
+      const float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+      const float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+
+      // if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
+      if (tmax < 0.0f) {
+        fDepth = 0.0f;
+        return false;
+      }
+
+      // if tmin > tmax, ray doesn't intersect AABB
+      if (tmin > tmax) {
+        fDepth = 0.0f;
+        return false;
+      }
+
+      if (tmin < 0.0f) {
+        fDepth = tmax;
+        return true;
+      }
+
+      fDepth = tmin;
+      return true;
+    }
+
+    bool cRay3::CollideWithAABB(const cAABB3& rhs, float& fDepth) const
+    {
+      // NOTE: This doesn't check the length, should the ray even have a length?
+      return Raycast(*this, rhs, fDepth);
     }
 
     bool cRay3::CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const

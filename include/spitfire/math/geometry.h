@@ -73,6 +73,21 @@ namespace spitfire
     }
 
 
+    // Find the closest point on a line
+    // https://stackoverflow.com/a/47484153/1074390
+    inline cVec3 GetClosestPointOnLine(const cVec3& a, const cVec3& b, const cVec3& point)
+    {
+      const cVec3 AB = b - a;
+      const cVec3 AP = point - a;
+      const float lengthSqrAB = AB.GetSquaredLength();
+      const float t = (AP.x * AB.x + AP.y * AB.y + AP.z * AB.z) / lengthSqrAB;
+
+      const float t_clamped = clamp(t, 0.0f, 1.0f);
+
+      return a + (t_clamped * AB);
+    }
+
+
     inline bool IsPointInCircle(const cVec2& point, const cVec2& centre, float radius)
     {
       const float distance = (point.x - centre.x) * (point.x - centre.x) + (point.y - centre.y) * (point.y - centre.y);
@@ -111,7 +126,7 @@ namespace spitfire
       void SetPosition(const cVec3& position);
       void SetRadius(float fRadius);
 
-      bool Collide(const cSphere& rhs);
+      bool Collide(const cSphere& rhs) const;
       float GetDistance(const cSphere& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
 
@@ -147,7 +162,7 @@ namespace spitfire
       fRadius = _fRadius;
     }
 
-    inline bool cSphere::Collide(const cSphere& rhs)
+    inline bool cSphere::Collide(const cSphere& rhs) const
     {
       return (GetDistance(rhs) < 0.0f);
     }
@@ -165,6 +180,67 @@ namespace spitfire
     }
 
 
+    // A cylinder with a dome on each end
+    // NOTE: This is axis aligned, it is always standing on it's end
+    class cCapsule
+    {
+    public:
+      cCapsule();
+
+      void SetBase(const cVec3& base);
+      void SetTip(const cVec3& tip);
+      void SetRadius(float fRadius);
+
+      bool Collide(const cVec3& point) const;
+
+      cVec3 base; // The internal centre point of the lower dome
+      cVec3 tip;  // The internal centre point of the upper dome
+      float_t fRadius;
+    };
+
+    inline cCapsule::cCapsule() :
+      fRadius(1.0f)
+    {
+    }
+
+    inline void cCapsule::SetBase(const cVec3& _base)
+    {
+      base = _base;
+    }
+
+    inline void cCapsule::SetTip(const cVec3& _tip)
+    {
+      tip = _tip;
+    }
+
+    inline void cCapsule::SetRadius(float _fRadius)
+    {
+      fRadius = _fRadius;
+    }
+
+    inline bool cCapsule::Collide(const cVec3& point) const
+    {
+      // https://arrowinmyknee.com/2021/03/15/some-math-about-capsule-collision/
+
+      // Check if the point is inside an infinite cylinder centered around the capsule's base
+      const cVec2 capsuleCentre2D(base.x, base.z);
+      const cVec2 pointCentre2D(point.x, point.z);
+      const float fDistance2D = (capsuleCentre2D - pointCentre2D).GetLength();
+      if (fDistance2D <= fRadius) {
+        // We are inside the infinite capsule, check if we are within the cylinder part
+        if ((point.y >= base.y) && (point.y >= base.y)) return true;
+
+        // Check if we are within one of the domes on the ends
+        const float fDistanceToBase = (base - point).GetLength();
+        if (fDistanceToBase < fRadius) return true;
+
+        const float fDistanceToTip = (tip - point).GetLength();
+        if (fDistanceToTip < fRadius) return true;
+      }
+
+      return false;
+    }
+
 
     class cCube
     {
@@ -175,7 +251,7 @@ namespace spitfire
 
       void SetHalfWidth(float fHalfWidth);
 
-      bool Collide(const cCube& rhs);
+      bool Collide(const cCube& rhs) const;
       float GetDistance(const cCube& rhs) const;
       float GetDistanceCentreToCentre(const cCube& rhs) const;
       float GetDistanceCentreToCentre(const cSphere& rhs) const;
@@ -293,7 +369,6 @@ namespace spitfire
       bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
       bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
 
-    private:
       cVec3 origin;
       cVec3 direction;
       float_t length;
@@ -321,6 +396,7 @@ namespace spitfire
       //void SetWidth(float width);
       //void SetHeight(float height);
       //void SetDepth(float depth);
+      void SetMinMax(const cVec3& min, const cVec3& max);
 
       cVec3 GetCentre() const;
       void AddToVolume(const cVec3& point);
@@ -331,7 +407,6 @@ namespace spitfire
       bool Intersect(const cLine3& line) const;
       bool Intersect(const cAABB3& box) const;
 
-    private:
       cVec3 cornerMin;
       cVec3 cornerMax;
     };
@@ -343,6 +418,12 @@ namespace spitfire
         cornerMin.y + 0.5f * (cornerMax.y - cornerMin.y),
         cornerMin.z + 0.5f * (cornerMax.z - cornerMin.z)
       );
+    }
+
+    inline void cAABB3::SetMinMax(const cVec3& min, const cVec3& max)
+    {
+      cornerMin = min;
+      cornerMax = max;
     }
 
     inline void cAABB3::AddToVolume(const cVec3& point)

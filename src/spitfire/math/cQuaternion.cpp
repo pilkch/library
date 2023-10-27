@@ -219,11 +219,16 @@ namespace spitfire
 
     void cQuaternion::SetFromVectors(const cVec3& source, const cVec3& destination)
     {
+      // https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another/1171995#1171995
+
       const cVec3 axis(source.CrossProduct(destination));
 
-      const float fAngleRadians = acos(source.GetNormalised().DotProduct(destination.GetNormalised()));
+      x = axis.x;
+      y = axis.y;
+      z = axis.z;
+      w = sqrt(source.GetSquaredLength() * destination.GetSquaredLength()) + source.DotProduct(destination);
 
-      SetFromAxisAngle(axis, fAngleRadians);
+      Normalise();
     }
 
     void cQuaternion::SetFromODEQuaternion(const float* q)
