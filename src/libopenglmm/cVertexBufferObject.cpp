@@ -31,8 +31,8 @@ namespace opengl
     bIs2D(false),
     vertex_size(0),
     normal_size(0),
-    colour_size(0),
     texturecoordinate_size(0),
+    colour_size(0),
     indices_size(0),
     floatUserData0_size(0),
     floatUserData1_size(0),
@@ -59,8 +59,8 @@ namespace opengl
     // Set our byte sizes which finally get sent to OpenGL
     vertex_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nVerticesPerPoint * sizeof(GLfloat);
     normal_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nNormalsPerPoint * sizeof(GLfloat);
-    colour_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nColoursPerPoint * sizeof(GLfloat);
     texturecoordinate_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nTextureCoordinatesPerPoint * sizeof(GLfloat);
+    colour_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nColoursPerPoint * sizeof(GLfloat);
     indices_size = pGeometryDataPtr->indices.size() * sizeof(GLushort);
     floatUserData0_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nFloatUserData0PerPoint * sizeof(GLfloat);
     floatUserData1_size = pGeometryDataPtr->nVertexCount * pGeometryDataPtr->nFloatUserData1PerPoint * sizeof(GLfloat);
@@ -111,24 +111,23 @@ namespace opengl
     // Allocate enough memory for the whole buffer
     // Also GL_DYNAMIC_DRAW and GL_STREAM_DRAW
     const size_t nBufferSizeBytes =
-      vertex_size + normal_size + colour_size + texturecoordinate_size +
+      vertex_size + normal_size + texturecoordinate_size + colour_size +
       floatUserData0_size + floatUserData1_size + floatUserData2_size
     ;
     glBufferData(GL_ARRAY_BUFFER, nBufferSizeBytes, nullptr, GL_STATIC_DRAW);
 
     const size_t nVertexSize = pGeometryDataPtr->nVerticesPerPoint;
     const size_t nNormalSize = pGeometryDataPtr->nNormalsPerPoint;
-    const size_t nColourSize = pGeometryDataPtr->nColoursPerPoint;
     const size_t nTextureCoordinateSize = pGeometryDataPtr->nTextureCoordinatesPerPoint;
+    const size_t nColourSize = pGeometryDataPtr->nColoursPerPoint;
     const size_t nFloatUserData0Size = pGeometryDataPtr->nFloatUserData0PerPoint;
     const size_t nFloatUserData1Size = pGeometryDataPtr->nFloatUserData1PerPoint;
     const size_t nFloatUserData2Size = pGeometryDataPtr->nFloatUserData2PerPoint;
 
     const size_t nVertexSizeBytes = nVertexSize * sizeof(GLfloat);
     const size_t nNormalSizeBytes = nNormalSize * sizeof(GLfloat);
-    const size_t nColourSizeBytes = nColourSize * sizeof(GLfloat);
 
-    const size_t nStrideBytes = (nVertexSize + nNormalSize + nColourSize + nTextureCoordinateSize + nFloatUserData0Size + nFloatUserData1Size + nFloatUserData2Size) * sizeof(GLfloat);
+    const size_t nStrideBytes = (nVertexSize + nNormalSize + nTextureCoordinateSize + nColourSize + nFloatUserData0Size + nFloatUserData1Size + nFloatUserData2Size) * sizeof(GLfloat);
 
     //std::cout<<"cStaticVertexBufferObject::Compile y glGetError="<<cSystem::GetErrorString()<<std::endl;
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
@@ -144,25 +143,25 @@ namespace opengl
       glDisableClientState(GL_NORMAL_ARRAY);
     }
 
-    if (colour_size != 0) {
-      glEnableClientState(GL_COLOR_ARRAY);
-        // Describe to OpenGL where the colour data is in the buffer
-        glColorPointer(4, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes));
-      glDisableClientState(GL_COLOR_ARRAY);
-    }
-
     if (texturecoordinate_size != 0) {
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         // Describe to OpenGL where the texture coordinate data is in the buffer
-        glTexCoordPointer(nTextureUnits, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + nColourSizeBytes));
+        glTexCoordPointer(nTextureUnits, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes));
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    if (colour_size != 0) {
+      glEnableClientState(GL_COLOR_ARRAY);
+        // Describe to OpenGL where the colour data is in the buffer
+        glColorPointer(4, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + nTextureCoordinateSizeBytes));
+      glDisableClientState(GL_COLOR_ARRAY);
     }
     #endif
 
     // http://www.informit.com/articles/article.aspx?p=1377833&seqNum=7
 
     //std::cout<<"cStaticVertexBufferObject::Compile b0 glGetError="<<cSystem::GetErrorString()<<std::endl;
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size + normal_size + colour_size + texturecoordinate_size + floatUserData0_size + floatUserData1_size + floatUserData2_size, pGeometryDataPtr->vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_size + normal_size + texturecoordinate_size + colour_size + floatUserData0_size + floatUserData1_size + floatUserData2_size, pGeometryDataPtr->vertices.data());
     //std::cout<<"cStaticVertexBufferObject::Compile b1 glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     // Index buffer
@@ -192,14 +191,6 @@ namespace opengl
       nBufferOffset += nNormalSizeBytes;
     }
 
-    // Tell the shader where the colours are
-    if (colour_size != 0) {
-      glVertexAttribPointer(shaderAttribute, int(nColourSize), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
-      glEnableVertexAttribArray(shaderAttribute);
-      shaderAttribute++;
-      nBufferOffset += nColourSizeBytes;
-    }
-
     // Tell the shader where the texture coordinates are (We specify them in groups of 2)
     if (nTextureCoordinateSize >= 2) {
       glVertexAttribPointer(shaderAttribute, 2, GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
@@ -224,6 +215,14 @@ namespace opengl
       glEnableVertexAttribArray(shaderAttribute);
       shaderAttribute++;
       nBufferOffset += 2 * sizeof(GLfloat);
+    }
+
+    // Tell the shader where the colours are
+    if (colour_size != 0) {
+      glVertexAttribPointer(shaderAttribute, int(nColourSize), GL_FLOAT, GL_FALSE, int(nStrideBytes), BUFFER_OFFSET(nBufferOffset));
+      glEnableVertexAttribArray(shaderAttribute);
+      shaderAttribute++;
+      nBufferOffset += 4 * sizeof(GLfloat);
     }
 
     // Tell the shader where the float user data are (These are special fields that can be used to store user specified data such as tangents, blend weights, etc.)
@@ -262,11 +261,11 @@ namespace opengl
     //std::cout<<"cStaticVertexBufferObject::Compile unbound buffer, glGetError="<<cSystem::GetErrorString()<<std::endl;
 
     #ifndef BUILD_LIBOPENGLMM_OPENGL_STRICT
-    // Disable texture coordinate information
-    if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
     // Disable colour information
     if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
+  
+    // Disable texture coordinate information
+    if (texturecoordinate_size != 0) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     // Disable normal information
     if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
@@ -309,8 +308,8 @@ namespace opengl
 
     vertex_size = 0;
     normal_size = 0;
-    colour_size = 0;
     texturecoordinate_size = 0;
+    colour_size = 0;
     indices_size = 0;
     floatUserData0_size = 0;
     floatUserData1_size = 0;
@@ -333,14 +332,14 @@ namespace opengl
 
     const size_t nVertexSize = pGeometryDataPtr->nVerticesPerPoint;
     const size_t nNormalSize = pGeometryDataPtr->nNormalsPerPoint;
-    const size_t nColourSize = pGeometryDataPtr->nColoursPerPoint;
     const size_t nTextureCoordinateSize = pGeometryDataPtr->nTextureCoordinatesPerPoint;
+    const size_t nColourSize = pGeometryDataPtr->nColoursPerPoint;
 
     const size_t nVertexSizeBytes = nVertexSize * sizeof(GLfloat);
     const size_t nNormalSizeBytes = nNormalSize * sizeof(GLfloat);
-    const size_t nColourSizeBytes = nColourSize * sizeof(GLfloat);
+    const size_t nTextureCoordinatesSizeBytes = nTextureCoordinateSize * sizeof(GLfloat);
 
-    const size_t nStrideBytes = (nVertexSize + nNormalSize + nColourSize + nTextureCoordinateSize) * sizeof(GLfloat);
+    const size_t nStrideBytes = (nVertexSize + nNormalSize + nTextureCoordinateSize + nColourSize) * sizeof(GLfloat);
 
     // Enable vertex information
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -355,13 +354,6 @@ namespace opengl
       glNormalPointer(GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes));
     }
 
-    // Enable colour information
-    if (colour_size > 0) {
-      // Describe to OpenGL where the colour coordinate data is in the buffer
-      glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(4, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes));
-    }
-
     // Enable texture coordinate information
     if (texturecoordinate_size > 0) {
       for (size_t i = 0; i < nTextureUnits; i++) {
@@ -369,8 +361,15 @@ namespace opengl
         glClientActiveTexture(GL_TEXTURE0 + i);
 
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + nColourSizeBytes + (2 * i * sizeof(GL_FLOAT))));
+        glTexCoordPointer(2, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + (2 * i * sizeof(GL_FLOAT))));
       }
+    }
+
+    // Enable colour information
+    if (colour_size > 0) {
+      // Describe to OpenGL where the colour coordinate data is in the buffer
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(4, GL_FLOAT, nStrideBytes, BUFFER_OFFSET(nVertexSizeBytes + nNormalSizeBytes + nTextureCoordinatesSizeBytes));
     }
     #endif
   }
@@ -392,6 +391,9 @@ namespace opengl
     // Disable the vertex array
     glBindVertexArray(0);
     #else
+    // Disable colour information
+    if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
+  
     // Disable texture coordinate information
     if (texturecoordinate_size != 0) {
       for (size_t i = 0; i < nTextureUnits; i++) {
@@ -401,9 +403,6 @@ namespace opengl
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
     }
-
-    // Disable colour information
-    if (colour_size != 0) glDisableClientState(GL_COLOR_ARRAY);
 
     // Disable normal information
     if (normal_size != 0) glDisableClientState(GL_NORMAL_ARRAY);
