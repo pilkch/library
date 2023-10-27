@@ -75,14 +75,7 @@ namespace spitfire
     {
       assert(x < 4);
       assert(y < 4);
-      return entries[(y * 4) + x];
-    }
-
-    float& cMat4::GetValue(const size_t x, const size_t y)
-    {
-      assert(x < 4);
-      assert(y < 4);
-      return entries[(y * 4) + x];
+      return entries[(x * 4) + y];
     }
 
     void cMat4::SetValue(size_t x, size_t y, float value)

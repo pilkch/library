@@ -37,7 +37,6 @@ namespace spitfire
       float& operator[](const size_t i);
 
       const float& GetValue(const size_t x, const size_t y) const;
-      float& GetValue(const size_t x, const size_t y);
     
       void SetValue(size_t x, size_t y, float value);
 
