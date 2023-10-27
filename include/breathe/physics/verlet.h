@@ -52,6 +52,7 @@ struct Particle {
   spitfire::math::cVec3 pos;
 };
 
+// A distance constraint, as the points get closer together or further apart the points are pushed/pulled to maintain a set distance
 struct Spring {
   Spring(Particle* _a, Particle* _b, float _fDistance, float _fStiffness) :
     a(_a),
@@ -67,10 +68,28 @@ struct Spring {
   float fStiffness;
 };
 
+// Like a weak spring constraint, only constraining the maximum length, but doesn't care if the particles move closer together
+struct Rope {
+  Rope(Particle* _a, Particle* _b, float _fMaxDistance, float _fStiffness) :
+    a(_a),
+    b(_b),
+    fMaxDistance(_fMaxDistance),
+    fStiffness(_fStiffness)
+  {
+  }
+
+  Particle* a;
+  Particle* b;
+  float fMaxDistance;
+  float fStiffness;
+};
+
+
 struct cGroup {
   std::vector<Particle> particles;
   std::vector<Particle*> pins; // A pin is a fixed point constraint
   std::vector<Spring> springs;
+  std::vector<Rope> ropes;
 };
 
 void Update(const cWorld& world, cGroup& group);

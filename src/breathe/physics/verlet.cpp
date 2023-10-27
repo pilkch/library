@@ -123,6 +123,21 @@ void Update(const cWorld& world, cGroup& group)
     }
   }
 
+  // Apply rope constraints with relaxing
+  for (size_t i = 0; i < relaxationSteps; ++i) {
+    for (auto& rope : group.ropes) {
+      const spitfire::math::cVec3 normal = rope.a->pos - rope.b->pos;
+      const float m = normal.GetSquaredLength();
+      // Only enforce a maximum length, the rope doesn't care when the points are closer than the maximum length
+      if (m > (rope.fMaxDistance * rope.fMaxDistance)) {
+        const float fScale = (((rope.fMaxDistance * rope.fMaxDistance) - m) / m) * rope.fStiffness * fStepCoefficient;
+        const spitfire::math::cVec3 offset = fScale * normal;
+        rope.a->pos += offset;
+        rope.b->pos -= offset;
+      }
+    }
+  }
+
   // Apply our pin constraints (Move all pinned points back to their starting positions)
   for (auto& pin : group.pins) {
     pin->pos = pin->lastPos;
