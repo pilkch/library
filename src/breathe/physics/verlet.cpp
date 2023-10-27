@@ -14,29 +14,39 @@ namespace physics {
 
 namespace verlet {
 
+// ** cWindProperties
+
+cWindProperties::cWindProperties() :
+  generalWindForce(0.0f, 0.0f, 0.0f),
+  fMaxHorizontalForce(0.0f),
+  fMaxVerticalForce(0.0f)
+{
+}
+
 // ** cWorld
 
 cWorld::cWorld() :
   updatesSinceLastMajorChange(0),
   updatesSinceLastMinorChange(0),
-  gravity(-9.8f)
+  fGravity(-9.8f)
+{
+}
+
+void cWorld::Init(float fGravity, const cWindProperties& windProperties)
 {
   spitfire::math::cRand rng;
 
   // General wind direction
-  const spitfire::math::cVec3 generalWind(0.3f, 0.0f, 0.3f);
-
-  const float fMaxHorizontalForce = 0.1f;
-  const float fMaxVerticalForce = 0.1f;
+  const spitfire::math::cVec3 generalWind(windProperties.generalWindForce);
 
   // Add some randomish major events
   for (size_t i = 0; i < 10; i++) {
-    majorWindEvents.push_back(generalWind + spitfire::math::cVec3(fMaxHorizontalForce * rng.randomMinusOneToPlusOnef(), fMaxVerticalForce * rng.randomMinusOneToPlusOnef(), fMaxHorizontalForce * rng.randomMinusOneToPlusOnef()));
+    majorWindEvents.push_back(generalWind + spitfire::math::cVec3(windProperties.fMaxHorizontalForce * rng.randomMinusOneToPlusOnef(), windProperties.fMaxVerticalForce * rng.randomMinusOneToPlusOnef(), windProperties.fMaxHorizontalForce * rng.randomMinusOneToPlusOnef()));
   }
 
   // Add some minor fluctuations
   for (size_t i = 0; i < 20; i++) {
-    minorWindFluctuations.push_back(0.1f * spitfire::math::cVec3(fMaxHorizontalForce * rng.randomMinusOneToPlusOnef(), fMaxVerticalForce * rng.randomMinusOneToPlusOnef(), fMaxHorizontalForce * rng.randomMinusOneToPlusOnef()));
+    minorWindFluctuations.push_back(0.1f * spitfire::math::cVec3(windProperties.fMaxHorizontalForce * rng.randomMinusOneToPlusOnef(), windProperties.fMaxVerticalForce * rng.randomMinusOneToPlusOnef(), windProperties.fMaxHorizontalForce * rng.randomMinusOneToPlusOnef()));
   }
 }
 
@@ -79,7 +89,7 @@ void Update(const cWorld& world, cGroup& group)
   // The particle and constraints updating code is based on verlet-js
   // https://github.com/subprotocol/verlet-js
 
-  const spitfire::math::cVec3 forces = 0.0001f * world.GetGravity() + 0.01f * world.GetWind();
+  const spitfire::math::cVec3 forces = 0.0001f * spitfire::math::cVec3(0.0f, world.GetGravity(), 0.0f) + 0.01f * world.GetWind();
 
 	const float fFriction = 0.99f;
 

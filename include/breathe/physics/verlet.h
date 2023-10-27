@@ -12,11 +12,22 @@ namespace physics {
 
 namespace verlet {
 
+struct cWindProperties {
+  cWindProperties();
+
+  spitfire::math::cVec3 generalWindForce;
+
+  float fMaxHorizontalForce;
+  float fMaxVerticalForce;
+};
+
 class cWorld {
 public:
   cWorld();
 
-  spitfire::math::cVec3 GetGravity() const { return gravity; }
+  void Init(float fGravity, const cWindProperties& windProperties);
+
+  float GetGravity() const { return fGravity; }
   spitfire::math::cVec3 GetWind() const { return *majorWindEvents.begin() + *minorWindFluctuations.begin(); }
 
   void Update();
@@ -25,8 +36,10 @@ private:
   size_t updatesSinceLastMajorChange;
   size_t updatesSinceLastMinorChange;
 
-  spitfire::math::cVec3 gravity;
+  float fGravity;
 
+  // The major and minor wind events coming up
+  // These are just a list of speeds that are coming up in the next time steps
   std::list<spitfire::math::cVec3> majorWindEvents;
   std::list<spitfire::math::cVec3> minorWindFluctuations;
 };
