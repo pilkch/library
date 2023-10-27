@@ -282,7 +282,7 @@ namespace opengl
     return dimensions;
   }
 
-  void cFont::MeasureOrPushBack(opengl::cGeometryBuilder_v2_c4_t2* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const
+  void cFont::MeasureOrPushBack(opengl::cGeometryBuilder_v2_t2_c4* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const
   {
     (void)fRotationDegrees;
 
@@ -314,12 +314,12 @@ namespace opengl
       const spitfire::math::cVec2 offset(fGlyphOffsetX[index], fGlyphOffsetY[index]);
 
       if (pBuilder != nullptr) {
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight));
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV));
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, 0.0f)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV));
-        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), colour, spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight));
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight), colour);
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, fCharacterHeight)), spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV + fTextureCharacterHeight), colour);
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV), colour);
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(fCharacterWidth, 0.0f)), spitfire::math::cVec2(fTextureCharacterOffsetU + fTextureCharacterWidth, fTextureCharacterOffsetV), colour);
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, 0.0f)), spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV), colour);
+        pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight), colour);
       } else {
         pOutDimensions->x += scale.x * fGlyphAdvanceX[index];
         pOutDimensions->y = max(pOutDimensions->y, scale.y * fGlyphAdvanceY[index]); // Take the great of our current value and the advance y for this glyph
@@ -343,12 +343,12 @@ namespace opengl
       const size_t columns = 16;
       const float fWidth = float(columns) * glyphPixelHeightAndWidth;
       const float fHeight = float(rows) * glyphPixelHeightAndWidth;
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), colour, spitfire::math::cVec2(0.0f, 1.0f));
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, fHeight), colour, spitfire::math::cVec2(1.0f, 1.0f));
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), colour, spitfire::math::cVec2(1.0f, 0.0f));
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, 0.0f), colour, spitfire::math::cVec2(0.0f, 0.0f));
-      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), colour, spitfire::math::cVec2(0.0f, 1.0f));
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), spitfire::math::cVec2(0.0f, 1.0f), colour);
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, fHeight), spitfire::math::cVec2(1.0f, 1.0f), colour);
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), spitfire::math::cVec2(1.0f, 0.0f), colour);
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(fWidth, 0.0f), spitfire::math::cVec2(1.0f, 0.0f), colour);
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, 0.0f), spitfire::math::cVec2(0.0f, 0.0f), colour);
+      pBuilder->PushBack(position + scale * spitfire::math::cVec2(0.0f, fHeight), spitfire::math::cVec2(0.0f, 1.0f), colour);
     }
 #endif
   }
@@ -358,7 +358,7 @@ namespace opengl
     MeasureOrPushBack(nullptr, sText, colour, position, fRotationDegrees, scale, &outDimensions);
   }
 
-  void cFont::PushBack(opengl::cGeometryBuilder_v2_c4_t2& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
+  void cFont::PushBack(opengl::cGeometryBuilder_v2_t2_c4& builder, const opengl::string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale) const
   {
     spitfire::math::cVec2 position(_position);
 

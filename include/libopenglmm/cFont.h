@@ -40,7 +40,7 @@ namespace opengl
 {
   class cContext;
   class cShader;
-  class cGeometryBuilder_v2_c4_t2;
+  class cGeometryBuilder_v2_t2_c4;
 
   class cFont
   {
@@ -61,10 +61,10 @@ namespace opengl
     spitfire::math::cVec2 GetDimensionsLineWrap(const string_t& sText, float fMaxWidthOfLine) const;
     void Measure(const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2& outDimensions) const;
 
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, HORIZONTAL_ALIGNMENT_LEFT_ALIGNED, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, flags, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, flags, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
-    void PushBack(cGeometryBuilder_v2_c4_t2& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
+    void PushBack(cGeometryBuilder_v2_t2_c4& builder, const string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, HORIZONTAL_ALIGNMENT_LEFT_ALIGNED, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_t2_c4& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags, const spitfire::math::cVec2& position) const { PushBack(builder, sText, colour, flags, position, 0.0f, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_t2_c4& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees) const { PushBack(builder, sText, colour, flags, position, fRotationDegrees, spitfire::math::cVec2(1.0f, 1.0f)); }
+    void PushBack(cGeometryBuilder_v2_t2_c4& builder, const string_t& sText, const spitfire::math::cColour& colour, FLAGS flags,const spitfire::math::cVec2& position, float fRotationDegrees, const spitfire::math::cVec2& scale) const;
 
   protected:
     bool Load(cContext& context, const string_t& sFilename, size_t height, const opengl::string_t& sVertexShader, const opengl::string_t& sFragmentShader);
@@ -74,7 +74,7 @@ namespace opengl
     cShader shader;
 
   private:
-    void MeasureOrPushBack(opengl::cGeometryBuilder_v2_c4_t2* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const;
+    void MeasureOrPushBack(opengl::cGeometryBuilder_v2_t2_c4* pBuilder, const opengl::string_t& sText, const spitfire::math::cColour& colour, const spitfire::math::cVec2& _position, float fRotationDegrees, const spitfire::math::cVec2& scale, spitfire::math::cVec2* pOutDimensions) const;
 
     // TODO: Use cTextureAtlas? Or don't use textures at all and create a VBO from the text outline instead?
 

@@ -156,6 +156,7 @@ namespace opengl
       type = GL_FLOAT;
     }
 
+
     // Settings to make the texture look a bit nicer when we do blit it to the screen
     glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -172,8 +173,8 @@ namespace opengl
       glTexParameteri(textureType, GL_GENERATE_MIPMAP, GL_TRUE);
       #endif
     } else {
-      glTexParameterf(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameterf(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     // Copy from image to texture
@@ -306,9 +307,14 @@ namespace opengl
               glTexImage2D(axisToFilePath[i].axis, 0, GL_RGB16F, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGB, GL_FLOAT, pBufferAsFloat);
             }
           } else {
+            GLenum type = GL_RGBA;
+            if (image.GetPixelFormat() == voodoo::PIXELFORMAT::R8G8B8) {
+              type = GL_RGB;
+            }
+
             const uint8_t* pBuffer = image.GetPointerToBuffer();
             if (pBuffer != nullptr) {
-              glTexImage2D(axisToFilePath[i].axis, 0, GL_RGBA, int(image.GetWidth()), int(image.GetHeight()), 0, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+              glTexImage2D(axisToFilePath[i].axis, 0, type, int(image.GetWidth()), int(image.GetHeight()), 0, type, GL_UNSIGNED_BYTE, pBuffer);
             }
           }
 

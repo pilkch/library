@@ -81,12 +81,12 @@ namespace opengl
     cGeometryData& data;
   };
 
-  class cGeometryBuilder_v2_c4_t2
+  class cGeometryBuilder_v2_t2_c4
   {
   public:
-    explicit cGeometryBuilder_v2_c4_t2(cGeometryData& data);
+    explicit cGeometryBuilder_v2_t2_c4(cGeometryData& data);
 
-    void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour, const spitfire::math::cVec2& textureCoord0);
+    void PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour4& colour);
 
   private:
     cGeometryData& data;
@@ -160,7 +160,7 @@ namespace opengl
   public:
     explicit cGeometryBuilder_v3_n3_t2_c4(cGeometryData& data);
 
-    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour);
+    void PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour4& colour);
 
   private:
     cGeometryData& data;
@@ -312,24 +312,24 @@ namespace opengl
   }
 
 
-  inline cGeometryBuilder_v2_c4_t2::cGeometryBuilder_v2_c4_t2(cGeometryData& _data) :
+  inline cGeometryBuilder_v2_t2_c4::cGeometryBuilder_v2_t2_c4(cGeometryData& _data) :
     data(_data)
   {
     data.nVerticesPerPoint = 2;
-    data.nColoursPerPoint = 4;
     data.nTextureCoordinatesPerPoint = 2;
+    data.nColoursPerPoint = 4;
   }
 
-  inline void cGeometryBuilder_v2_c4_t2::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cColour& colour, const spitfire::math::cVec2& textureCoord0)
+  inline void cGeometryBuilder_v2_t2_c4::PushBack(const spitfire::math::cVec2& vertex, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour)
   {
     data.vertices.push_back(vertex.x);
     data.vertices.push_back(vertex.y);
+    data.vertices.push_back(textureCoord0.x);
+    data.vertices.push_back(textureCoord0.y);
     data.vertices.push_back(colour.r);
     data.vertices.push_back(colour.g);
     data.vertices.push_back(colour.b);
     data.vertices.push_back(colour.a);
-    data.vertices.push_back(textureCoord0.x);
-    data.vertices.push_back(textureCoord0.y);
     data.nVertexCount++;
   }
 
@@ -454,11 +454,11 @@ namespace opengl
   {
     data.nVerticesPerPoint = 3;
     data.nNormalsPerPoint = 3;
-    data.nColoursPerPoint = 4;
     data.nTextureCoordinatesPerPoint = 2;
+    data.nColoursPerPoint = 4;
   }
 
-  inline void cGeometryBuilder_v3_n3_t2_c4::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour& colour)
+  inline void cGeometryBuilder_v3_n3_t2_c4::PushBack(const spitfire::math::cVec3& vertex, const spitfire::math::cVec3& normal, const spitfire::math::cVec2& textureCoord0, const spitfire::math::cColour4& colour)
   {
     data.vertices.push_back(vertex.x);
     data.vertices.push_back(vertex.y);

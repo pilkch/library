@@ -94,8 +94,8 @@ namespace opengl
 
     GLsizeiptr vertex_size;
     GLsizeiptr normal_size;
-    GLsizeiptr colour_size;
     GLsizeiptr texturecoordinate_size;
+    GLsizeiptr colour_size;
     GLsizeiptr indices_size;
     GLsizeiptr floatUserData0_size;
     GLsizeiptr floatUserData1_size;

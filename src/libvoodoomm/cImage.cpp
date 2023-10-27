@@ -177,19 +177,8 @@ namespace voodoo
       image.pixelFormat = PIXELFORMAT::H16;
     } else if (24 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
-      // Add alpha channel
-      SDL_PixelFormat* pPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_ABGR8888);
-
-      SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, pPixelFormat, SDL_SWSURFACE);
-      SDL_FreeSurface(pSurface);
-
-      SDL_FreeFormat(pPixelFormat);
-
-      pSurface = pConvertedSurface;
-
-      // The image has now been converted to RGBA
       type = IMAGE_TYPE::BITMAP;
-      image.pixelFormat = PIXELFORMAT::R8G8B8A8;
+      image.pixelFormat = PIXELFORMAT::R8G8B8;
     } else if (32 == pSurface->format->BitsPerPixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
 
