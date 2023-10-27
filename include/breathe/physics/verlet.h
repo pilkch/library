@@ -3,6 +3,7 @@
 #include <list>
 #include <vector>
 
+#include <spitfire/math/geometry.h>
 #include <spitfire/math/cVec3.h>
 
 namespace breathe {
@@ -60,6 +61,8 @@ struct cGroup {
 };
 
 void Update(const cWorld& world, cGroup& group);
+void Collide(cGroup& group, const spitfire::math::cCapsule& capsule);
+void CollideGroundPlane(cGroup& group, float fGroundHeight);
 
 }
 

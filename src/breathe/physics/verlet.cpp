@@ -98,23 +98,74 @@ void Update(const cWorld& world, cGroup& group)
     p.pos += velocity;
   }
 
-  // Apply constraints
   const float relaxationSteps = 16;
-	const float fStepCoefficient = 1.0f / float(relaxationSteps);
+  const float fStepCoefficient = 1.0f / float(relaxationSteps);
 
-	// Apply spring constraints with relaxing
+  // Apply spring constraints with relaxing
   for (size_t i = 0; i < relaxationSteps; ++i) {
     for (auto& spring : group.springs) {
       const spitfire::math::cVec3 normal = spring.a->pos - spring.b->pos;
-      const float m = normal.GetLength() * normal.GetLength();
-      const float fScale = ((spring.fDistance * spring.fDistance - m) / m) * spring.fStiffness * fStepCoefficient;
+      const float m = normal.GetSquaredLength();
+      const float fScale = (((spring.fDistance * spring.fDistance) - m) / m) * spring.fStiffness * fStepCoefficient;
       const spitfire::math::cVec3 offset = fScale * normal;
       spring.a->pos += offset;
       spring.b->pos -= offset;
     }
-	}
+  }
 
   // Apply our pin constraints (Move all pinned points back to their starting positions)
+  for (auto& pin : group.pins) {
+    pin->pos = pin->lastPos;
+  }
+}
+
+void Collide(cGroup& group, const spitfire::math::cCapsule& capsule)
+{
+  const float relaxationSteps = 16;
+  const float fStepCoefficient = 1.0f / float(relaxationSteps);
+
+  // Apply collision constraints with relaxing
+  for (size_t i = 0; i < relaxationSteps; ++i) {
+    for (auto& p : group.particles) {
+      if (capsule.Collide(p.pos)) {
+        // Try to push the particle out of the capsule
+        const spitfire::math::cVec3 closestPoint = spitfire::math::GetClosestPointOnLine(capsule.base, capsule.tip, p.pos);
+        const spitfire::math::cVec3 normal = spitfire::math::normalize(p.pos - closestPoint);
+        const float fIntrusionDistance = capsule.fRadius - (closestPoint - p.pos).GetLength();
+
+        const float fScale = fIntrusionDistance * fStepCoefficient;
+        const spitfire::math::cVec3 offset = fScale * normal;
+        p.pos += offset;
+      }
+    }
+	}
+
+  // Reapply our pin constraints (Move all pinned points back to their starting positions)
+  for (auto& pin : group.pins) {
+    pin->pos = pin->lastPos;
+  }
+}
+
+void CollideGroundPlane(cGroup& group, float fGroundHeight)
+{
+  const float relaxationSteps = 16;
+  const float fStepCoefficient = 1.0f / float(relaxationSteps);
+
+  // Apply collision constraints with relaxing
+  for (size_t i = 0; i < relaxationSteps; ++i) {
+    for (auto& p : group.particles) {
+      if (p.pos.y < fGroundHeight) {
+        // Try to push the particle out of the ground
+        const float fIntrusionDistance = fGroundHeight - p.pos.y;
+
+        const float fScale = fIntrusionDistance * fStepCoefficient;
+        const float offset = fScale;
+        p.pos.y += offset;
+      }
+    }
+	}
+
+  // Reapply our pin constraints (Move all pinned points back to their starting positions)
   for (auto& pin : group.pins) {
     pin->pos = pin->lastPos;
   }
