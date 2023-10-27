@@ -834,11 +834,11 @@ namespace spitfire
       const float fFovRadians = DegreesToRadians(fFovYDegrees);
       const float fTanHalfFovY = tan(fFovRadians / 2.0f);
 
-      entries[0] = 1.0f / (fAspect * fTanHalfFovY);
-      entries[5] = 1.0f / (fTanHalfFovY);
-      entries[10] = -(fFar + fNear) / (fFar - fNear);
-      entries[11] = -1.0f;
-      entries[14] = -(2.0f * fFar * fNear) / (fFar - fNear);
+      SetValue(0, 0, 1.0f / (fAspect * fTanHalfFovY));
+      SetValue(1, 1, 1.0f / fTanHalfFovY);
+      SetValue(2, 2, - (fFar + fNear) / (fFar - fNear));
+      SetValue(2, 3, -1.0f);
+      SetValue(3, 2, - (2.0f * fFar * fNear) / (fFar - fNear));
     }
 
     void cMat4::SetOrtho(float fLeft, float fRight, float fBottom, float fTop, float fNear, float fFar)
