@@ -1,0 +1,33 @@
+stages:
+  - build
+  - tests-and-checks
+
+default:
+  before_script:
+    - dnf install -y gnutls-devel libxdg-basedir-devel
+      SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
+      mesa-libGL-devel mesa-libGLU-devel GLee-devel
+      freetype-devel
+    # json-c-devel libxml2-devel gnutls-devel
+
+build:
+  stage: build
+  tags:
+    - linux
+    - cpp
+    - make
+  script:
+    - cd tests
+    - cmake .
+    - make -j
+  artifacts:
+    untracked: true
+
+unit-test:
+  stage: tests-and-checks
+  needs: [build]
+  tags:
+    - linux
+  script:
+    - cd tests
+    - ./library_unittest
