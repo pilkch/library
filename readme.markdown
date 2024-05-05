@@ -88,6 +88,12 @@ sudo yum install GLee-devel
 sudo yum install freetype-devel
 ```
 
+Gcc 13.2 C++ experimental library has a small issue, two constructors are not inlined, so you may have to modify the headers:
+```bash
+sudo sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/13/experimental/socket
+sudo sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/13/experimental/buffer
+```
+
 To build and run the tests:
 ```bash
 cd tests

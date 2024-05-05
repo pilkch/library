@@ -9,6 +9,9 @@ default:
       mesa-libGL-devel mesa-libGLU-devel GLee-devel
       freetype-devel
     # json-c-devel libxml2-devel gnutls-devel
+    # Fix the Gcc 13 C++ headers
+    - sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/13/experimental/socket
+    - sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/13/experimental/buffer
 
 build:
   stage: build
