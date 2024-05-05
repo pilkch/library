@@ -11,7 +11,11 @@ int main(int argc, char** argv)
 
   // The settings functions haven't been implemented yet
   // The unicode functions don't actually handle unicode yet
-  testing::GTEST_FLAG(filter) = "-SpitfireStorage.TestSettings:SpitfireString.TestUpperLowerUnicode";
+  //testing::GTEST_FLAG(filter) = "-SpitfireStorage.TestSettings";
+  //testing::GTEST_FLAG(filter) = "SpitfireString.Test*";
+  //testing::GTEST_FLAG(filter) = "-SpitfireMath.*:Breathe.TestVehicle*";
+  //testing::GTEST_FLAG(filter) = "SpitfireMath.TestUnitsPressure";
+  //testing::GTEST_FLAG(filter) = "Voodoo.*";
 
   const int result = RUN_ALL_TESTS();
 

@@ -97,12 +97,12 @@ namespace spitfire
     std::string HTMLDecode(const std::string& source);
     std::string HTMLEncode(const std::string& source);
 
-    std::string ToLower(const std::string& source);
-    std::string ToUpper(const std::string& source);
+    std::string ToLower(const std::string& text);
+    std::string ToUpper(const std::string& text);
     bool IsEqualInsensitive(const std::string& a, const std::string& b);
 
-    std::wstring ToLower(const std::wstring& source);
-    std::wstring ToUpper(const std::wstring& source);
+    std::wstring ToLower(const std::wstring& text);
+    std::wstring ToUpper(const std::wstring& text);
     bool IsEqualInsensitive(const std::wstring& a, const std::wstring& b);
 
 
@@ -176,6 +176,7 @@ namespace spitfire
     // Converts an unsigned integer to a string containing a hexadecimal number
     // eg. 16650804 -> "FE1234"
 
+    string_t ToHexString(uint16_t value);
     string_t ToHexString(uint32_t value);
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue);
     string_t ToHexString(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
