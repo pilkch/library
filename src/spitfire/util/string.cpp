@@ -84,7 +84,10 @@ namespace spitfire
     class cLocalisedStringTransformer
     {
     public:
-      cLocalisedStringTransformer();
+      cLocalisedStringTransformer() :
+        tmput_char(std::use_facet<std::time_put<char>>(std::locale("")))
+      {
+      }
 
       // Other Possible functions
       // bool isspace(c, loc);
@@ -114,9 +117,6 @@ namespace spitfire
 
         // http://wiki.forum.nokia.com/index.php/CS001143_-_Converting_date_and_time_to_string_in_Open_C%2B%2B
 
-        // Get the time_put facet
-        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (std::locale());
-
         tm now;
 
         // We don't care about the other fields for this formatting, perhaps we should set them too though just in case?
@@ -125,12 +125,13 @@ namespace spitfire
         now.tm_sec = seconds;
 
         // http://www.cplusplus.com/reference/clibrary/ctime/strftime/
-        tmput.put(o, o, ' ', &now, 'X');
+        tmput_char.put(o, o, ' ', &now, 'X');
 
         return o.str();
       }
 
     private:
+      const std::time_put<char>& tmput_char;
     };
 
 
