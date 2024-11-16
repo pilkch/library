@@ -21,14 +21,40 @@ Environment::Environment() :
 
 namespace vehicle {
 
+// Battery
+//
+// https://haynes.com/en-au/tips-tutorials/how-test-car-battery
+// https://mechanicbase.com/electric/car-battery-ideal-voltage-range/
+//
+// Measured voltage should be at least 12.6 volts for a healthy battery
+// At 12.2 volts it is only 50% charged
+// Below 12 volts it is classed as discharged
+// With the engine running the voltage should read between 13.5 and 14.7 volts for a healthy battery and alternator
+//
+// With the engine turned off, the voltage on the meter should be 12.4 to 12.6 volts on a healthy battery.
+// The measurement should rise after you start the car engine and the alternator starts to charge the electrical system. A fully charged car battery voltage falls between 13.7 and 14.7 volts with the engine running.
+// Once it goes under 12 volts, the engine will struggle to start. It will be nearly impossible to start a car engine with a voltage under 11 volts. 
+const float BATTERY_HEALTHY_VOLTAGE = 12.8f;
+
+// Cranking
+//
+// Cranking process and factors https://rusefi.com/forum/viewtopic.php?t=2021
+// Minimum crank RPM https://www.quora.com/What-would-a-normal-RPM-be-when-cranking-a-car-that-wont-start
+// The minimum crank RPM is roughly 200–300 RPM for a good starter motor and a good battery
+// The engine RPM at which the starter motor gets the engine to to start, note that this is the resulting figure after the starter motor is fighting against friction and compression
+// HACK: This is just a typical crank RPM, when the engine RPM gets to this minimum it will fire, the engine RPM will rise to approximately the idle RPM, and the power to the starter motor will be cut and it will be disengaged
+const float fMinimumCrankRPM = 230.0f;
+
 namespace part {
 
 ElectricMotor::ElectricMotor() :
   fFreeRunSpeedRPM(0.0f),
   fFreeRunCurrentAmps(1.0f),
   fStallTorqueNm(1.0f),
-  uiOutputGearTeeth(1),
+  fInertiaKgMeterSquared(1.0f),
+  uiOutputGearTeeth(10),
   fInputVoltage(0.0f),
+  fAngularVelocityRadiansPerSecond(0.0f),
   fRPM(0.0f)
 {
 }
@@ -44,6 +70,9 @@ Clutch::Clutch() :
 
 Engine::FlyWheel::FlyWheel() :
   fMassKg(1.0f),
+  fRadiusm(0.12f),
+  fInertiaKgMeterSquared(1.0f),
+  fAngularVelocityRadiansPerSecond(0.0f),
   uiTeeth(1)
 {
 }
@@ -80,16 +109,18 @@ Engine::Engine() :
   fBoreMillimetres(1.0f),
   fStrokeMillimetres(1.0f),
   fPistonRodLengthMillimetres(1.0f),
-  fDisplacementLitres(1.0f),
+  fCylinderDisplacementVolumeLitres(1.0f),
   fTotalEngineMassKg(10.0f),
   fBlockMassKg(1.0f),
   fIndividualPistonMassKg(1.0f),
   fIndividualConrodMassKg(1.0f),
   fCrankShaftMassKg(1.0f),
-  fCrankRPM(150.0f),
+  fIndividualPistonInertiaKgMeterSquared(1.0f),
+  fIndividualConrodInertiaKgMeterSquared(1.0f),
+  fCrankshaftInertiaKgMeterSquared(1.0f),
+  fCrankRPM(0.0f),
   fStallRPM(550.0f),
 
-  fCrankshaftRotationRadians(0.0f),
   fCrankshaftAngularVelocityRadiansPerSecond(0.0f),
   fOilTemperatureCelcius(spitfire::math::GENERIC_AMBIENT_AIR_AT_SEA_LEVEL_TEMPERATURE_DEGREES_CELCIUS)
 {
@@ -103,8 +134,14 @@ bool Engine::IsRunning() const
 
   // TODO: Count as running if the engine has not gone below the stall speed since the last time the ignition was turned on?
 
-  return ((starterMotor.fInputVoltage < 0.01f) && (GetRPM() >= fStallRPM));
+  return ((starterMotor.fInputVoltage < 0.01f) && (fCrankRPM >= fStallRPM));
 }
+
+bool Engine::IsAboveStallSpeed() const
+{
+  return (fCrankRPM >= fStallRPM);
+}
+
 
 
 ECU::ECU() :
@@ -128,7 +165,7 @@ Body::Body() :
 }
 
 Wheel::Wheel() :
-  fInertia(1.0f)
+  fInertiaKgMeterSquared(1.0f)
 {
 }
 
@@ -269,7 +306,6 @@ float GetTorqueConverterTorqueOutNm(float fInputTorqueNm)
   return 0.0f;
 }
 
-
 void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
   // Update the vehicle from the player inputs
@@ -283,20 +319,19 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
 
   // Check if we need to transition to a new state
   if ((ecu.powerState == part::ECU::POWER_STATE::OFF) || (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON)) {
-    if (inputs.ignitionKeyTurned && !vehicle.engine.IsRunning()) {
+    if (inputs.ignitionKeyTurned && !vehicle.engine.IsAboveStallSpeed()) {
+      std::cout<<"UpdateECU changing state to ACCESSORIES_OFF_STARTER_MOTOR_FIRING"<<std::endl;
       ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING;
     }
-  }
-
-  if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) {
-    if (vehicle.engine.IsRunning()) {
+  } else if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) {
+    if (vehicle.engine.IsAboveStallSpeed()) {
+      std::cout<<"UpdateECU changing state to ACCESSORIES_ON_ENGINE_RUNNING"<<std::endl;
       ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING;
     }
-  }
-
-  if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING) {
-    if (!vehicle.engine.IsRunning()) {
+  } else if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING) {
+    if (!vehicle.engine.IsAboveStallSpeed()) {
       // The engine has stalled, return to accessories on
+      std::cout<<"UpdateECU changing state to ACCESSORIES_ON"<<std::endl;
       ecu.powerState = part::ECU::POWER_STATE::ACCESSORIES_ON;
     }
   }
@@ -305,7 +340,7 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
 
   if (ecu.powerState == part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING) {
     vehicle.ecuActions.headlights = false; // Turn off the lights when we are starting the engine
-    vehicle.engine.starterMotor.fInputVoltage = 12.0f;
+    vehicle.engine.starterMotor.fInputVoltage = BATTERY_HEALTHY_VOLTAGE;
   } else {
     vehicle.engine.starterMotor.fInputVoltage = 0.0f;
   }
@@ -354,24 +389,24 @@ void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, bre
 class EffectiveInertiaCalculator {
 public:
   EffectiveInertiaCalculator() :
-    fInertiaFirstBody(1.0f)
+    fInertiaFirstBodyKgMeterSquared(1.0f)
   {
   }
 
-  void InitWithInertiaOfFirstBody(float fInertiaFirstBody)
+  void InitWithInertiaOfFirstBody(float fInertiaFirstBodyKgMeterSquared)
   {
-    fInertiaFirstBody = fInertiaFirstBody;
+    fInertiaFirstBodyKgMeterSquared = fInertiaFirstBodyKgMeterSquared;
   }
 
-  void AddBodyWithEffectiveInertia(float fInertia)
+  void AddBodyWithEffectiveInertia(float fInertiaKgMeterSquared)
   {
     // NOTE: This is a bit of a hack, for bodies that are added to the last inertia with no gear change we add it as if it were a gear change of 1x, this generates more calculations, but makes the code simple
-    AddGearRatioAndBodyWithInertia(1.0f, fInertia);
+    AddGearRatioAndBodyWithInertia(1.0f, fInertiaKgMeterSquared);
   }
 
-  void AddGearRatioAndBodyWithInertia(float fGearRatio, float fInertia)
+  void AddGearRatioAndBodyWithInertia(float fGearRatio, float fInertiaKgMeterSquared)
   {
-    chainOfGearRatioAndInertias.push_back(std::make_pair(fGearRatio, fInertia));
+    chainOfGearRatioAndInertias.push_back(std::make_pair(fGearRatio, fInertiaKgMeterSquared));
   }
 
   float GetEffectiveInertia() const
@@ -380,10 +415,11 @@ public:
     // Start with the first body effective inertia, then add every subsequent gear ratio and inertia
     // I_effective = I_1 + (gearRatio1^2)*I_2 + ((gearRatio2*gearRatio1)^2)*I_3 + ((gearRatio3*gearRatio2*gearRatio1)^2)*I_4
 
-    float fEffectiveInertia = fInertiaFirstBody;
+    float fEffectiveInertia = fInertiaFirstBodyKgMeterSquared;
     float fEffectiveGearRatio = 1.0f;
 
     for (auto&& p : chainOfGearRatioAndInertias) {
+      //std::cout<<"Effective inertia adding "<<p.first<<", "<<p.second<<std::endl;
       fEffectiveGearRatio *= p.first;
       fEffectiveInertia += (fEffectiveGearRatio * fEffectiveGearRatio) * p.second;
     }
@@ -392,13 +428,34 @@ public:
   }
 
 private:
-  float fInertiaFirstBody;
+  float fInertiaFirstBodyKgMeterSquared;
   std::vector<std::pair<float, float>> chainOfGearRatioAndInertias;
 };
 
 
-void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle)
+// t = I.α
+// t is the torque on axis of rotation required to change its motion with an angular acceleration 'a'
+// I is the moment of inertia
+
+float GetTorqueNmRequiredForAngularAcceleration(float fInertia, float fAngularAcceleration)
 {
+  return (fInertia * fAngularAcceleration);
+}
+
+float GetAngularAccelerationForTorqueNm(float fInertia, float fTorqueNm)
+{
+  return (fTorqueNm / fInertia);
+}
+
+
+
+
+void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, const Environment& environment, breathe::vehicle::Vehicle& vehicle)
+{
+  spitfire::math::RPMTorquePair outputStarterMotorRPMAndTorqueNm;
+
+  const float fStarterToFlyWheelGearRatio = float(vehicle.engine.flyWheel.uiTeeth) / float(vehicle.engine.starterMotor.uiOutputGearTeeth);
+
   if (vehicle.engine.starterMotor.fInputVoltage >= 12.0f) {
     // NOTE: When voltage is applied to the starter motor a solenoid pushes the starter motor drive shaft out to engage the starter motor cog with the flywheel
     // We just assume a perfect connection is occuring when a voltage is applied and there is zero connection when no voltage is applied
@@ -406,17 +463,27 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
     // Apply the voltage to the starter motor to start it turning
     // HACK: We just asssume if the input voltage is >= 12V then we are driving the starter motor and we apply torque based on the RPM of the motor
 
-    // *********** Uncomment this
-    /*const float fStarterMotorTorqueNm = vehicle.engine.curveRPMToTorqueNm.GetYAtPointX(vehicle.engine.fRPM);
+    spitfire::math::RPMTorquePair starterMotorRPMAndTorqueNm;
+    starterMotorRPMAndTorqueNm.fRPM = vehicle.engine.starterMotor.fRPM;
+    starterMotorRPMAndTorqueNm.fTorqueNm = vehicle.engine.starterMotor.curveRPMToTorqueNm.GetYAtPointX(vehicle.engine.starterMotor.fRPM);
 
-    ... calculate torque required to turn 
-    const float fRequiredTorqueToTurnCrankshaftNm = calculate torque required to turn;
+    spitfire::math::ApplyGear(starterMotorRPMAndTorqueNm, fStarterToFlyWheelGearRatio, outputStarterMotorRPMAndTorqueNm);
 
-    if (fRequiredTorqueToTurnCrankshaftNm > fStallTorqueNm) {
-      ... burning out starter motor
-    } else {
-      ... apply torque
-    }*/
+    vehicle.engine.starterMotor.fRPM = outputStarterMotorRPMAndTorqueNm.fRPM;
+
+    // Just for debugging keep track of the highest RPM we have acheived
+    static float fDebugMaxRPM = 0.0f;
+    if (outputStarterMotorRPMAndTorqueNm.fRPM > fDebugMaxRPM) fDebugMaxRPM = outputStarterMotorRPMAndTorqueNm.fRPM;
+
+    std::cout<<"Update starter motor to fly wheel gear ratio "<<fStarterToFlyWheelGearRatio<<", in "<<starterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<starterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, out "<<outputStarterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<outputStarterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, debug max rpm was "<<fDebugMaxRPM<<" rpm"<<std::endl;
+
+
+
+    //if (fTorqueRequiredToTurnCrankshaftNm > vehicle.engine.starterMotor.fStallTorqueNm) {
+      // Burning out starter motor, trying to turn starter motor but something is stopping it
+    //} else {
+      // Starter motor applying torque
+    //}
   }
 
   /*const float fEngineTorqueNm = vehicle.engine.fOutputRPMAtFlywheel ...;
@@ -437,7 +504,10 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
 
   breathe::vehicle::EffectiveInertiaCalculator effectiveInertiaCalculator;
 
-  effectiveInertiaCalculator.InitWithInertiaOfFirstBody((vehicle.engine.cylinders * (vehicle.engine.fIndividualPistonInertia + vehicle.engine.fIndividualConrodInertia)) + vehicle.engine.fCrankShaftInertia + vehicle.engine.flyWheel.fInertia);
+  effectiveInertiaCalculator.InitWithInertiaOfFirstBody(vehicle.engine.cylinders * (vehicle.engine.fIndividualPistonInertiaKgMeterSquared + vehicle.engine.fIndividualConrodInertiaKgMeterSquared));
+
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.engine.fCrankshaftInertiaKgMeterSquared);
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.engine.flyWheel.fInertiaKgMeterSquared);
 
 /*
   const float fEngineConnectedInertia = ... 
@@ -446,9 +516,55 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
   vehicle.engine.fCrankshaftRotationRadians += fTimeStepFractionOfSecond * vehicle.engine.fCrankshaftAngularVelocityRadiansPerSecond;
 */
 
-  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaInput);
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaInputKgMeterSquared);
+
+
+
+  float fTotalTorqueNm = 0.0f;
+
+  // Add our starter motor torque
+  fTotalTorqueNm += outputStarterMotorRPMAndTorqueNm.fTorqueNm; 
+
+  // If the engine is running then add the engine torque
+  if (vehicle.engine.fCrankRPM >= fMinimumCrankRPM) {
+    fTotalTorqueNm += vehicle.engine.curveRPMToTorqueNm.GetYAtPointX(vehicle.engine.fCrankRPM);
+  }
+
+  // HACK: Magic numbers
+  if (vehicle.engine.fCrankRPM > 0.000f) {
+    // Friction and compression losses
+    // This is proportional to the RPM as it the number of revolutions and compressions strokes increase with the RPM
+    fTotalTorqueNm -= 0.1f * vehicle.engine.fCrankRPM;
+  }
+
+
+  if (fTotalTorqueNm >= 0.001f) {
+    // TODO: Switch to verlet integration https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
+
+    // Simple Euler integration
+    // acceleration = force(time, position) / mass;
+    // time += timestep;
+    // position += timestep * velocity;
+    // velocity += timestep * acceleration;
+
+    // Acceleration
+    // Now calculate the acceleration by dividing the resulting force by your vehicle's mass (in Kg). 15000 N / 1500 Kg = 10 m/s2 (We are just doing the engine internals here, up to the clutch, compression is not taken into account)
+    const float fTotalAccelerationMetersPerSecondSquared = fTotalTorqueNm / effectiveInertiaCalculator.GetEffectiveInertia();
+
+    // TODO: Add the equivalent of the "position += timestep * velocity;" step above too
+
+    // Apply this acceleration to the current speed, accounting for how much time the engine power is being applied for (ie how many seconds each run loop iteration is supposed to simulate). If your current speed is about 9 m/s (~20 mph) and you want each loop iteration to simulate 0.1 seconds, you'd do 9 m/s + (10 m/s2 * 0.1) = 10 m/s (new speed)
+    //std::cout<<"rpm: "<<vehicle.engine.fCrankRPM<<", torque "<<fTotalTorqueNm<<" Nm, "<<effectiveInertiaCalculator.GetEffectiveInertia()<<" inertia, adding "<<fTimeStepFractionOfSecond<<" * "<<fTotalAccelerationMetersPerSecondSquared<<std::endl;
+    vehicle.engine.fCrankRPM += (fTimeStepFractionOfSecond * fTotalAccelerationMetersPerSecondSquared);
+
+    // TODO: Work backwards to find the starter motor RPM?
+    //vehicle.engine.fCrankRPM = spitfire::math::GetGearOutputRPM(vehicle.engine.starterMotor.fRPM, fStarterToFlyWheelGearRatio);
+  }
+
+
+
   // TODO: Only do the rest of this if the clutch is engaged
-  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaOutput);
+  effectiveInertiaCalculator.AddBodyWithEffectiveInertia(vehicle.clutch.fInertiaOutputKgMeterSquared);
 
 
   const breathe::vehicle::part::GearBox& gearBox = vehicle.gearBox;
@@ -489,22 +605,28 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehi
   effectiveInertiaCalculator1.AddGearRatioAndBodyWithInertia(differential.fRatio, differential.fOutputShaft1Inertia);
   effectiveInertiaCalculator2.AddGearRatioAndBodyWithInertia(differential.fRatio, differential.fOutputShaft2Inertia);
 
-
   assert(vehicle.wheels.size() >= 2);
-  effectiveInertiaCalculator1.AddBodyWithEffectiveInertia(vehicle.wheels[0].fInertia);
-  effectiveInertiaCalculator2.AddBodyWithEffectiveInertia(vehicle.wheels[1].fInertia);
+  effectiveInertiaCalculator1.AddBodyWithEffectiveInertia(vehicle.wheels[0].fInertiaKgMeterSquared);
+  effectiveInertiaCalculator2.AddBodyWithEffectiveInertia(vehicle.wheels[1].fInertiaKgMeterSquared);
 
 
   //const float fEffectiveInertia1 = effectiveInertiaCalculator1.GetEffectiveInertia();
   //const float fEffectiveInertia2 = effectiveInertiaCalculator2.GetEffectiveInertia();
   //std::cout<<"Driveline effective inertia at wheels 1 is "<<fEffectiveInertia1<<", 2 is "<<fEffectiveInertia2<<std::endl;
+
+
+
+  // Final force acting on the road from the tyres
+  // https://x-engineer.org/calculate-wheel-torque-engine/
+  // Torque is a measure of force and distance, not force alone, so we need to divide it by the drive wheel's total radius to get just force alone. 5544 N-m / 0.34105m = 16255.681 Newtons (that's 3654 lbs) 
+  //fForceFromWheelsToRoadNewtons = outputWheelRPMAndTorque.fTorqueNm / vehicle.wheels[0].fRadiusm;
 }
 
-void Update(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
+void Update(float fTimeStepFractionOfSecond, const Environment& environment, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
   UpdateECU(fTimeStepFractionOfSecond, inputs, vehicle);
 
-  UpdateEngineDrivetrainWheels(fTimeStepFractionOfSecond, vehicle);
+  UpdateEngineDrivetrainWheels(fTimeStepFractionOfSecond, environment, vehicle);
 }
 
 }

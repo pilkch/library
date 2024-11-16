@@ -16,7 +16,8 @@ int main(int argc, char** argv)
   testing::GTEST_FLAG(filter) = "-SpitfireStorage.TestSettings:Weather.TestBOMRequestLocationsQuery";
 
   //testing::GTEST_FLAG(filter) = "SpitfireString.Test*";
-  //testing::GTEST_FLAG(filter) = "-SpitfireMath.*:Breathe.TestVehicle*";
+  //testing::GTEST_FLAG(filter) = "SpitfireMath.*";
+  //testing::GTEST_FLAG(filter) = "SpitfireMath.*:Breathe.TestVehicle*";
   //testing::GTEST_FLAG(filter) = "SpitfireMath.TestUnitsPressure";
   //testing::GTEST_FLAG(filter) = "Voodoo.*";
 

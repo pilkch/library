@@ -11,10 +11,17 @@
 
 // gtest headers
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 namespace {
 
-const size_t timeStepsPerSecond = 60;
+template <typename T>
+auto IsInRange(T lo, T hi) {
+  return testing::AllOf(testing::Ge(lo), testing::Le(hi));
+}
+
+
+const size_t timeStepsPerSecond = 1000;
 const float fTimeStepMS = 1000.0f / float(timeStepsPerSecond);
 const float fTimeStepFractionOfSecond = 1.0f / float(timeStepsPerSecond);
 
@@ -51,6 +58,8 @@ void EnvironmentSetSettings(breathe::Environment& environment)
 // Variable intake manifold
 // Firing order: 1-3-4-2
 // Compression ratio of 9.6:1
+// Compression readings for a the 2.0-litre engine in the Golf GTI Mk5 should be around 190 – 200 psi
+// Compression: 200 PSI
 // Direct injection (Volkswagen’s ‘Fuel Stratified Injection’ or ‘FSI’)
 // Bosch Motronic MED 17.5 engine management system
 //
@@ -105,7 +114,16 @@ void EnvironmentSetSettings(breathe::Environment& environment)
 // Dual Mass Flywheel Weight: 12.92 Kg
 // Pressure Pate Weight: 5.21 Kg
 // Clutch Disc Weight: 0.68 Kg
+// Diameter: 240 mm (For a Mk7, but presumably Mk6 would be similar)
 // Max Torque Capacity: 440 Nm? (Limited by the pressure plate apparently?)
+//
+// Starter motor
+// Model: 02M911023G
+// Power: 1.1 kW
+// Estimated moving parts properties: Rotor and shaft, 15mm radius, 120mm length, steel density 7.85g/cm³, equals approximately 0.665kg moving parts weight
+// Teeth: 10
+//
+// Flywheel teeth: 132
 //
 //
 // BorgWarner K03 turbocharger
@@ -137,8 +155,6 @@ void EnvironmentSetSettings(breathe::Environment& environment)
 // The front axle, which is statically loaded with 882 kilograms, remains unaffected at 200 km / h, i.e. the lift is zero.
 // The drag coefficient has decreased significantly (from 0.33 to 0.31) and the lift is improved: at 200 km / h it approaches zero.
 //
-//
-
 
 void EngineSetSettings(breathe::vehicle::part::Engine& engine)
 {
@@ -150,8 +166,29 @@ void EngineSetSettings(breathe::vehicle::part::Engine& engine)
   engine.fBoreMillimetres = 82.5f;
   engine.fStrokeMillimetres = 92.8f;
 
+  // Torque curve
+  engine.curveRPMToTorqueNm.AddPoint(0.0f, 80.0f);
+  engine.curveRPMToTorqueNm.AddPoint(1000.0f, 100.0f);
+  engine.curveRPMToTorqueNm.AddPoint(2000.0f, 218.01f);
+  engine.curveRPMToTorqueNm.AddPoint(2200.0f, 240.79f);
+  engine.curveRPMToTorqueNm.AddPoint(2400.0f, 195.23f);
+  engine.curveRPMToTorqueNm.AddPoint(2800.0f, 309.12f);
+  engine.curveRPMToTorqueNm.AddPoint(3200.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(3400.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(3600.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(3800.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(4000.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(4200.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(4400.0f, 354.68f);
+  engine.curveRPMToTorqueNm.AddPoint(5200.0f, 331.90f);
+  engine.curveRPMToTorqueNm.AddPoint(6000.0f, 343.29f);
+  engine.curveRPMToTorqueNm.AddPoint(6200.0f, 309.12f);
+  engine.curveRPMToTorqueNm.AddPoint(6800.0f, 266.34f);
+  engine.curveRPMToTorqueNm.AddPoint(7600.0f, 0.0f);
+
   engine.flyWheel.fMassKg = 12.92f;
-  engine.flyWheel.uiTeeth = 134; // Not sure if this is correct
+  engine.flyWheel.fRadiusm = 0.12f;
+  engine.flyWheel.uiTeeth = 132;
 }
 
 void StarterMotorSetSettings(breathe::vehicle::part::ElectricMotor& starterMotor)
@@ -173,13 +210,19 @@ Efficiency 85%?
   starterMotor.fFreeRunSpeedRPM = 10803.0f;
   starterMotor.fFreeRunCurrentAmps = 87.0f;
   starterMotor.fStallTorqueNm = 42.7f;
-  //starterMotor.uiOutputGearTeeth = ;
 
   // NOTE: This is a curve, not a straight line
   starterMotor.curveRPMToTorqueNm.AddPoint(0.0f, 22.5f); // 22.5 Nm at 0 RPM
   starterMotor.curveRPMToTorqueNm.AddPoint(1000.0f, 21.0f); // 21.0 Nm at 1000 RPM
   starterMotor.curveRPMToTorqueNm.AddPoint(3000.0f, 9.0f); // 21.0 Nm at 1000 RPM
   starterMotor.curveRPMToTorqueNm.AddPoint(3600.0f, 0.0f); // 0 Nm for 3600 RPM and greater
+
+  // Approximation of rotating drive shaft of the starter motor
+  const float fRadiusMeters = 0.015f; // 15mm radius
+  const float fMassKg = 0.665f;
+  starterMotor.fInertiaKgMeterSquared = spitfire::math::CalculateMomentOfInertiaCylinder(fRadiusMeters, fMassKg);
+
+  starterMotor.uiOutputGearTeeth = 10;
 }
 
 void ClutchSetSettings(breathe::vehicle::part::Clutch& clutch)
@@ -253,10 +296,10 @@ void BodySetSettings(breathe::vehicle::part::Body& body)
   body.fDragCoefficient = 0.31f;
 }
 
-void RunUpdateIterations(size_t nIterations, breathe::vehicle::VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
+void RunUpdateIterations(size_t nIterations, const breathe::Environment& environment, breathe::vehicle::VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
 {
   for (size_t i = 0; i < nIterations; i++) {
-    breathe::vehicle::Update(fTimeStepMS, inputs, vehicle);
+    breathe::vehicle::Update(fTimeStepFractionOfSecond, environment, inputs, vehicle);
   }
 }
 
@@ -272,8 +315,8 @@ TEST(Breathe, TestVehicleEngineFunctions)
     const size_t nCylinders = 8;
     const float fPistonBoremm = 100.0f;
     const float fPistonStrokemm = 78.0f;
-    const float fDisplacementLitres = breathe::vehicle::part::GetEngineDisplacementLitres(nCylinders, fPistonBoremm, fPistonStrokemm);
-    EXPECT_NEAR(fDisplacementLitres, 4.90088454f, 0.001f);
+    const float fEngineDisplacementVolumeLitres = breathe::vehicle::part::GetEngineDisplacementLitres(nCylinders, fPistonBoremm, fPistonStrokemm);
+    EXPECT_NEAR(fEngineDisplacementVolumeLitres, 4.90088454f, 0.001f);
   }
 
   {
@@ -284,9 +327,9 @@ TEST(Breathe, TestVehicleEngineFunctions)
   }
 
   {
-    const float fDisplacementLitres = 2.0f;
+    const float fEngineDisplacementVolumeLitres = 2.0f;
     const float fTorqueNm = 160.0f;
-    const float fBrakeMeanEffectivePressurePa = breathe::vehicle::part::GetBrakeMeanEffectivePressurePa(fDisplacementLitres, fTorqueNm, breathe::vehicle::part::Engine::STROKE::FOUR);
+    const float fBrakeMeanEffectivePressurePa = breathe::vehicle::part::GetBrakeMeanEffectivePressurePa(fEngineDisplacementVolumeLitres, fTorqueNm, breathe::vehicle::part::Engine::STROKE::FOUR);
     EXPECT_NEAR(fBrakeMeanEffectivePressurePa, 1005309.625f, 0.001f);
   }
 
@@ -440,7 +483,8 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
   BodySetSettings(vehicle.body);
 
   // The engine should not be running yet
-  EXPECT_NEAR(0.0f, vehicle.engine.starterMotor.fRPM, 1.0f);
+  EXPECT_EQ(breathe::vehicle::part::ECU::POWER_STATE::OFF, vehicle.ecu.powerState);
+  EXPECT_NEAR(0.0f, vehicle.engine.fCrankRPM, 1.0f);
   EXPECT_FALSE(vehicle.engine.IsRunning());
   EXPECT_NEAR(0.0f, vehicle.GetRPMAtFlywheel(), 0.1f);
   EXPECT_NEAR(0.0f, vehicle.GetRPMAfterClutch(), 0.1f);
@@ -450,32 +494,44 @@ TEST(Breathe, TestVehicleStarterMotorStartEngine)
 
   // Test the starter motor starting up
   // Initially not started
-  RunUpdateIterations(3, inputs, vehicle);
+  RunUpdateIterations(3, environment, inputs, vehicle);
 
-  EXPECT_NEAR(0.0f, vehicle.engine.starterMotor.fRPM, 1.0f);
+  EXPECT_EQ(breathe::vehicle::part::ECU::POWER_STATE::OFF, vehicle.ecu.powerState);
+  EXPECT_NEAR(0.0f, vehicle.engine.fCrankRPM, 1.0f);
   EXPECT_FALSE(vehicle.engine.IsRunning());
+  EXPECT_FALSE(vehicle.engine.IsAboveStallSpeed());
 
   // Crank the starter motor
   inputs.ignitionKeyTurned = true;
 
+  // Start applying the starter motor
+  RunUpdateIterations(1, environment, inputs, vehicle);
+
+  // The starter motor should now be trying to start the engine
+  EXPECT_EQ(breathe::vehicle::part::ECU::POWER_STATE::ACCESSORIES_OFF_STARTER_MOTOR_FIRING, vehicle.ecu.powerState);
+
   // Wait for it to start the engine
-  RunUpdateIterations(200, inputs, vehicle);
+  RunUpdateIterations(500000, environment, inputs, vehicle);
 
-  // The starter motor should now be turning
-  EXPECT_NEAR(800.0f, vehicle.engine.starterMotor.fRPM, 50.0f);
+  // The engine should now be running without the starter motor
+  EXPECT_EQ(breathe::vehicle::part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING, vehicle.ecu.powerState);
+  EXPECT_THAT(vehicle.engine.GetRPM(), IsInRange(790.0f, 1200.0f));
   EXPECT_TRUE(vehicle.engine.IsRunning());
+  EXPECT_TRUE(vehicle.engine.IsAboveStallSpeed());
 
-  // The starter motor can be turned off now
+  // We can now return the key to the accessories position
   inputs.ignitionKeyTurned = false;
 
   // Wait for the starter motor to disengage and the engine to settle
-  RunUpdateIterations(200, inputs, vehicle);
+  RunUpdateIterations(3000000, environment, inputs, vehicle);
 
-  EXPECT_NEAR(800.0f, vehicle.engine.starterMotor.fRPM, 50.0f);
+  EXPECT_EQ(breathe::vehicle::part::ECU::POWER_STATE::ACCESSORIES_ON_ENGINE_RUNNING, vehicle.ecu.powerState);
+  EXPECT_THAT(vehicle.engine.GetRPM(), IsInRange(790.0f, 1200.0f));
   EXPECT_TRUE(vehicle.engine.IsRunning());
+  EXPECT_TRUE(vehicle.engine.IsAboveStallSpeed());
 
-  // The engine should now be started
-  EXPECT_NEAR(800.0f, vehicle.GetRPMAtFlywheel(), 50.0f);
-  EXPECT_NEAR(800.0f, vehicle.GetRPMAfterClutch(), 50.0f);
-  EXPECT_NEAR(800.0f, vehicle.GetRPMAfterGearBox(), 50.0f);
+  // Check that the engine is now running on it's own power without the starter
+  EXPECT_THAT(vehicle.GetRPMAtFlywheel(), IsInRange(790.0f, 1200.0f));
+  EXPECT_NEAR(0.0f, vehicle.GetRPMAfterClutch(), 50.0f);
+  EXPECT_NEAR(0.0f, vehicle.GetRPMAfterGearBox(), 50.0f);
 }
