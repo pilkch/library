@@ -12,10 +12,6 @@
 #include <vector>
 #include <list>
 
-// OpenGL headers
-//#include <GL/GLee.h>
-//#include <GL/glu.h>
-
 // SDL headers
 #include <SDL2/SDL_image.h>
 

@@ -44,7 +44,6 @@ TEST(SpitfireStorage, TestSettings)
   ASSERT_EQ(sTestValue, sValue);
 #endif
 
-  // TODO: Fix this test
   spitfire::SetApplicationUserSetting(sTestSection, sTestSubSection, sTestSubSubSection, sTestValue);
   sValue.clear();
   bResult = spitfire::GetApplicationUserSetting(sTestSection, sTestSubSection, sTestSubSubSection, sValue);

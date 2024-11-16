@@ -150,7 +150,11 @@ namespace breathe
       bool IsValid() const { return _IsValid(); }
 
     private:
-      NO_COPY(cBuffer);
+      // No copy
+      cBuffer(const cBuffer&) = delete;
+      cBuffer& operator=(const cBuffer&) = delete;
+      cBuffer(cBuffer&&) noexcept = delete;
+      cBuffer& operator=(cBuffer&&) noexcept = delete;
 
       virtual bool _IsValid() const = 0;
     };
@@ -198,7 +202,11 @@ namespace breathe
       float_t fDistanceFromListenerMeters;
 
     private:
-      NO_COPY(cSource);
+      // No copy
+      cSource(const cSource&) = delete;
+      cSource& operator=(const cSource&) = delete;
+      cSource(cSource&&) noexcept = delete;
+      cSource& operator=(cSource&&) noexcept = delete;
 
       virtual bool _IsLooping() const = 0;
       virtual bool _IsValid() const = 0;
@@ -285,7 +293,12 @@ namespace breathe
 
     private:
       cSourceMix();
-      NO_COPY(cSourceMix);
+
+      // No copy
+      cSourceMix(const cSourceMix&) = delete;
+      cSourceMix& operator=(const cSourceMix&) = delete;
+      cSourceMix(cSourceMix&&) noexcept = delete;
+      cSourceMix& operator=(cSourceMix&&) noexcept = delete;
 
       cSourceRef source0;
       cSourceRef source1;
