@@ -4,7 +4,8 @@ stages:
 
 default:
   before_script:
-    - dnf install -y gnutls-devel libxdg-basedir-devel
+    - dnf install -y gtest-devel gmock-devel
+      gnutls-devel libxdg-basedir-devel
       SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
       mesa-libGL-devel mesa-libGLU-devel GLee-devel
       freetype-devel

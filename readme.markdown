@@ -78,8 +78,7 @@ boost
 
 Use yum to get all required libraries such as:
 ```bash
-sudo yum install gcc gcc-c++ make cmake
-sudo yum install gtest-devel
+sudo yum install gcc gcc-c++ make cmake gtest-devel gmock-devel
 sudo yum install gnutls-devel
 sudo yum install libxdg-basedir-devel
 sudo yum install SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
