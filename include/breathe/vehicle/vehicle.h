@@ -81,10 +81,12 @@ public:
 
   spitfire::math::cCurve curveRPMToTorqueNm;
 
+  float fInertiaKgMeterSquared;
   uint8_t uiOutputGearTeeth;
 
   // Dynamic
   float fInputVoltage;
+  float fAngularVelocityRadiansPerSecond;
   float fRPM;
 };
 
@@ -93,8 +95,8 @@ public:
   Clutch();
 
   float fMassKg;
-  float fInertiaInput;
-  float fInertiaOutput;
+  float fInertiaInputKgMeterSquared;
+  float fInertiaOutputKgMeterSquared;
   float fSurfaceMeanEffectiveRadiusm;
   float fSurfacem2;
   float fFrictionCoefficient;
@@ -161,8 +163,9 @@ public:
   Engine();
 
   bool IsRunning() const;
+  bool IsAboveStallSpeed() const;
 
-  float GetRPM() const { return spitfire::math::RadiansPerSecondToRPM(fCrankshaftAngularVelocityRadiansPerSecond); }
+  float GetRPM() const { return fCrankRPM; } //return spitfire::math::RadiansPerSecondToRPM(fCrankshaftAngularVelocityRadiansPerSecond); }
 
   // TODO: Do we care about the angle for V and W engines?
   enum class CYLINDER_ARRANGEMENT {
@@ -190,7 +193,7 @@ public:
   float fBoreMillimetres;
   float fStrokeMillimetres;
   float fPistonRodLengthMillimetres;
-  float fDisplacementLitres;
+  float fCylinderDisplacementVolumeLitres;
 
   float fTotalEngineMassKg;
   float fBlockMassKg;
@@ -198,9 +201,11 @@ public:
   float fIndividualConrodMassKg;
   float fCrankShaftMassKg;
 
-  float fIndividualPistonInertia;
-  float fIndividualConrodInertia;
-  float fCrankShaftInertia;
+  float fIndividualPistonInertiaKgMeterSquared;
+  float fIndividualConrodInertiaKgMeterSquared;
+  float fCrankshaftInertiaKgMeterSquared;
+
+  spitfire::math::cCurve curveRPMToTorqueNm;
 
   // TODO: This is really a function of the torque applied to the crank shaft by the starter motor
   float fCrankRPM;
@@ -212,7 +217,9 @@ public:
     FlyWheel();
 
     float fMassKg;
-    float fInertia;
+    float fRadiusm;
+    float fInertiaKgMeterSquared;
+    float fAngularVelocityRadiansPerSecond;
     uint8_t uiTeeth;
   };
 
@@ -220,7 +227,6 @@ public:
   ElectricMotor starterMotor;
 
   // Dynamic
-  float fCrankshaftRotationRadians;
   float fCrankshaftAngularVelocityRadiansPerSecond;
   float fOilTemperatureCelcius;
 };
@@ -267,11 +273,11 @@ inline constexpr float GetMeanPistonSpeedMetersPerSecond(float fPistonStrokemm, 
 // nc is the number of revolutions per power stroke
 // T is the torque in Nm
 // Vd is the displacement volume in cubic meters
-inline constexpr float GetBrakeMeanEffectivePressurePa(float fDisplacementLitres, float fTorqueNm, Engine::STROKE stroke)
+inline constexpr float GetBrakeMeanEffectivePressurePa(float fEngineDisplacementVolumeLitres, float fTorqueNm, Engine::STROKE stroke)
 {
-  const float fDisplacementCubicMeters = fDisplacementLitres * 0.001f;
+  const float fEngineDisplacementCubicMeters = fEngineDisplacementVolumeLitres * 0.001f;
   const float fRevolutionsPerPowerStroke = GetRevolutionsPerPowerStroke(stroke);
-  return (((2.0f * spitfire::math::cPI * fRevolutionsPerPowerStroke) * fTorqueNm) / fDisplacementCubicMeters);
+  return (((2.0f * spitfire::math::cPI * fRevolutionsPerPowerStroke) * fTorqueNm) / fEngineDisplacementCubicMeters);
 }
 
 
@@ -335,7 +341,7 @@ class Wheel {
 public:
   Wheel();
 
-  float fInertia;
+  float fInertiaKgMeterSquared;
 };
 
 }
@@ -409,9 +415,9 @@ float GetTorqueConverterTorqueOutNm(float fInputTorqueNm);
 
 void UpdateECU(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle);
 
-void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, breathe::vehicle::Vehicle& vehicle);
+void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, const Environment& environment, breathe::vehicle::Vehicle& vehicle);
 
-void Update(float fTimeStepFractionOfSecond, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle);
+void Update(float fTimeStepFractionOfSecond, const Environment& environment, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle);
 
 }
 

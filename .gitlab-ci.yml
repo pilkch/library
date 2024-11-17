@@ -1,0 +1,37 @@
+stages:
+  - build
+  - tests-and-checks
+
+default:
+  before_script:
+    - dnf install -y gtest-devel gmock-devel
+      gnutls-devel libxdg-basedir-devel
+      SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
+      mesa-libGL-devel mesa-libGLU-devel GLee-devel
+      freetype-devel
+    # json-c-devel libxml2-devel gnutls-devel
+    # Fix the Gcc 13 C++ headers
+    - sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/13/experimental/socket
+    - sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/13/experimental/buffer
+
+build:
+  stage: build
+  tags:
+    - linux
+    - cpp
+    - make
+  script:
+    - cd tests
+    - cmake .
+    - make -j
+  artifacts:
+    untracked: true
+
+unit-test:
+  stage: tests-and-checks
+  needs: [build]
+  tags:
+    - linux
+  script:
+    - cd tests
+    - ./library_unittest

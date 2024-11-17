@@ -1,6 +1,8 @@
 #ifndef CTEXTURE_H
 #define CTEXTURE_H
 
+#include <memory>
+
 // libopenglmm headers
 #include <libopenglmm/cTexture.h>
 

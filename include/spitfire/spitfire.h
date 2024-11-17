@@ -179,7 +179,7 @@
 
 // Visual Studio 2012 still doesn't support C++11
 #if !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2013))
-#define BUILD_SPITFIRE_CPP11
+#define BUILD_SPITFIRE_CPP11_AND_LATER
 #endif
 
 // Override keyword to flag virtual functions which are overridden from the base class
@@ -198,7 +198,7 @@
 #define interface Interface
 #endif
 
-#ifndef BUILD_SPITFIRE_CPP11
+#ifndef BUILD_SPITFIRE_CPP11_AND_LATER
 #define constexpr
 #define noexcept
 #endif
@@ -250,7 +250,7 @@ typedef int32_t ssize_t;
 
 
 // Prevent a class from being copied
-#ifdef BUILD_SPITFIRE_CPP11
+#ifdef BUILD_SPITFIRE_CPP11_AND_LATER
 // Just add these manually
 //#define NO_COPY(TYPE)
 //  private:
@@ -267,7 +267,7 @@ typedef int32_t ssize_t;
 
 
 // Like sizeof for arrays
-#if defined(BUILD_SPITFIRE_CPP11) && !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2015))
+#if defined(BUILD_SPITFIRE_CPP11_AND_LATER) && !defined(COMPILER_MSVC) || (defined(COMPILER_MSVC) && (_MSC_VER >= COMPILER_MSVC_2015))
 template <typename T, size_t N>
 constexpr size_t countof(const T (&array)[N]) noexcept
 {

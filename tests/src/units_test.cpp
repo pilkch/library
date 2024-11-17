@@ -237,13 +237,26 @@ TEST(SpitfireMath, TestUnitsGetForceOfDragN)
 
 TEST(SpitfireMath, TestUnitsGearRatios)
 {
-  const float fGearRatio = 3.0f / 1.0f;
+  const size_t inputTeeth = 10;
+  const size_t outputTeeth = 30;
+  const float fGearRatio = float(outputTeeth) / float(inputTeeth);
   const float fInputRPM = 2700.0f;
-  const float fInputTorqueNm = 140.0f;
+  const float fInputTorqueNm = 150.0f;
 
   const float fOutputRPM = spitfire::math::GetGearOutputRPM(fGearRatio, fInputRPM);
   EXPECT_NEAR(fOutputRPM, 900.0f, 0.1f);
 
   const float fOutputTorqueNm = spitfire::math::GetGearOutputTorqueNm(fGearRatio, fInputTorqueNm);
-  EXPECT_NEAR(fOutputTorqueNm, 420.0f, 0.1f);
+  EXPECT_NEAR(fOutputTorqueNm, 450.0f, 0.1f);
+
+
+  spitfire::math::RPMTorquePair input;
+  input.fRPM = fInputRPM;
+  input.fTorqueNm = fInputTorqueNm;
+
+  spitfire::math::RPMTorquePair output;
+  spitfire::math::ApplyGear(input, fGearRatio, output);
+
+  EXPECT_NEAR(output.fRPM, 900.0f, 0.1f);
+  EXPECT_NEAR(output.fTorqueNm, 450.0f, 0.1f);
 }

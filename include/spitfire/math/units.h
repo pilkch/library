@@ -147,6 +147,18 @@ namespace spitfire
       return fGearRatio * fInputTorqueNm;
     }
 
+    struct RPMTorquePair {
+      RPMTorquePair() : fRPM(0.0f), fTorqueNm(0.0f) {}
+
+      float fRPM;
+      float fTorqueNm;
+    };
+
+    constexpr void ApplyGear(const RPMTorquePair& input, float fGearRatio, RPMTorquePair& output)
+    {
+      output.fRPM = spitfire::math::GetGearOutputRPM(fGearRatio, input.fRPM);
+      output.fTorqueNm = spitfire::math::GetGearOutputTorqueNm(fGearRatio, input.fTorqueNm);
+    }
 
 
     // Mass and force
@@ -171,7 +183,7 @@ namespace spitfire
 
     constexpr float CalculateMomentOfInertiaCylinder(float fRadiusMeters, float fMassKg)
     {
-      return (fMassKg * (fRadiusMeters * fRadiusMeters)) / 2.0f;
+      return 0.5f * (fMassKg * (fRadiusMeters * fRadiusMeters));
     }
 
 
@@ -179,7 +191,7 @@ namespace spitfire
 
     constexpr float CalculateMomentOfInertiaRing(float fInnerRadiusMeters, float fOuterRadiusMeters, float fMassKg)
     {
-      return (fMassKg * ((fInnerRadiusMeters * fInnerRadiusMeters) + (fOuterRadiusMeters * fOuterRadiusMeters))) / 2.0f;
+      return 0.5f * (fMassKg * ((fInnerRadiusMeters * fInnerRadiusMeters) + (fOuterRadiusMeters * fOuterRadiusMeters)));
     }
 
 

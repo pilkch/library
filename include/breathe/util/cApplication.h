@@ -134,7 +134,9 @@ namespace breathe
       virtual void _DestroyResources() {}
 
       virtual void _HandleSDLEvent(const SDL_Event& event) override;
+      #ifdef __WIN__
       virtual LRESULT _HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+      #endif
 
       virtual void _OnWindowEvent(const opengl::cWindowEvent& event) override;
       virtual void _OnMouseEvent(const opengl::cMouseEvent& event) override;
@@ -142,7 +144,9 @@ namespace breathe
 
       virtual void OnJoystickEvent(const util::cJoystickEvent& event) override;
 
+      #ifdef __WIN__
       virtual LRESULT HandleApplicationWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return FALSE; }
+      #endif
       virtual void OnApplicationWindowEvent(const gui::cWindowEvent& event) {}
 
       // State event management (Transitioning between states)

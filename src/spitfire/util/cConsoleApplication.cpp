@@ -31,13 +31,11 @@ namespace spitfire
 
     spitfire::util::SetMainThread();
 
-    spitfire::string::Init();
-
     // So we can run stdio and stream style i/o interchanged.
     //std::ios_base::sync_with_stdio();
 
     // Set our application executable
-    filesystem::SetThisExecutable(string::ToString_t(argv[0]));
+    filesystem::SetThisExecutable(string::ToString(argv[0]));
 
     ParseArguments(argc, argv);
   }
@@ -55,11 +53,11 @@ namespace spitfire
   void cConsoleApplication::ParseArguments(int argc, const char* const* argv)
   {
     // The first argument is the executable name
-    sApplicationName = spitfire::filesystem::GetFile(spitfire::string::ToString_t(argv[0]));
+    sApplicationName = spitfire::filesystem::GetFile(spitfire::string::ToString(argv[0]));
 
     // The rest of the arguments are parameters
     const size_t n = argc;
-    for (size_t i = 1; i < n; i++) vArguments.push_back(spitfire::string::ToString_t(argv[i]));
+    for (size_t i = 1; i < n; i++) vArguments.push_back(spitfire::string::ToString(argv[i]));
   }
 
   bool cConsoleApplication::IsArgumentPresent(const string_t& sArgument) const

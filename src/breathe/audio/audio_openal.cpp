@@ -17,7 +17,7 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 // Spitfire
 #include <spitfire/spitfire.h>
@@ -197,7 +197,7 @@ namespace breathe
 
     bool cManager::_Init()
     {
-      LOG<<"cManager::_Init"<<std::endl;
+      std::cout<<"cManager::_Init"<<std::endl;
 
 #if 1
       device = alcOpenDevice(NULL);
@@ -216,16 +216,16 @@ namespace breathe
       ReportError();
 
       if (bIsEnumerationExtension) {
-        LOG<<"cManager::_Init Extension \"ALC_ENUMERATION_EXT\" is present"<<std::endl;
+        std::cout<<"cManager::_Init Extension \"ALC_ENUMERATION_EXT\" is present"<<std::endl;
         const char* szDeviceList = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
         ReportError();
-        if (szDeviceList == nullptr) LOG<<"audio::Init No devices found"<<std::endl;
-        else LOG<<szDeviceList<<std::endl;
-      } else LOG<<"cManager::_Init Extension \"ALC_ENUMERATION_EXT\" is not present"<<std::endl;
+        if (szDeviceList == nullptr) std::cout<<"audio::Init No devices found"<<std::endl;
+        else std::cout<<szDeviceList<<std::endl;
+      } else std::cout<<"cManager::_Init Extension \"ALC_ENUMERATION_EXT\" is not present"<<std::endl;
 
 
 #if 1
-      LOG<<"cManager::_Init alutInitWithoutContext"<<std::endl;
+      std::cout<<"cManager::_Init alutInitWithoutContext"<<std::endl;
       alutInitWithoutContext(nullptr, nullptr);
       ReportError();
 
@@ -237,16 +237,16 @@ namespace breathe
       t<<iMajor;
       t<<".";
       t<<iMinor;
-      LOG<<"cManager::_Init Audio "<<t.str()<<std::endl;
+      std::cout<<"cManager::_Init Audio "<<t.str()<<std::endl;
       ReportError();
 
 
       PrintExtensions("ALC extensions", ' ', alcGetString(device, ALC_EXTENSIONS));
       ReportError();
 
-      LOG<<"cManager::_Init OpenAL vendor string: "<<alGetString(AL_VENDOR)<<std::endl;
-      LOG<<"cManager::_Init OpenAL renderer string: "<<alGetString(AL_RENDERER)<<std::endl;
-      LOG<<"cManager::_Init OpenAL version string: "<<alGetString(AL_VERSION)<<std::endl;
+      std::cout<<"cManager::_Init OpenAL vendor string: "<<alGetString(AL_VENDOR)<<std::endl;
+      std::cout<<"cManager::_Init OpenAL renderer string: "<<alGetString(AL_RENDERER)<<std::endl;
+      std::cout<<"cManager::_Init OpenAL version string: "<<alGetString(AL_VERSION)<<std::endl;
       PrintExtensions("OpenAL extensions", ' ', alGetString(AL_EXTENSIONS));
       ReportError();
 
@@ -254,8 +254,8 @@ namespace breathe
       const ALCchar* szDefaultDevice = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
       ReportError();
       if (szDefaultDevice != nullptr) {
-        LOG<<"cManager::_Init Default device found "<<szDefaultDevice<<std::endl;
-        LOG<<"cManager::_Init Opening device \""<<szDefaultDevice<<"\""<<std::endl;
+        std::cout<<"cManager::_Init Default device found "<<szDefaultDevice<<std::endl;
+        std::cout<<"cManager::_Init Opening device \""<<szDefaultDevice<<"\""<<std::endl;
         device = alcOpenDevice(szDefaultDevice);
         ReportError();
       }
@@ -266,24 +266,24 @@ namespace breathe
 #elif defined(__LINUX__)
         const char* szInitString = nullptr;
 #endif
-        LOG<<"cManager::_Init Opening device \""<<szInitString<<"\""<<std::endl;
+        std::cout<<"cManager::_Init Opening device \""<<szInitString<<"\""<<std::endl;
         device = alcOpenDevice(szInitString);
         ReportError();
         if (device == NULL) {
-          LOG<<"cManager::_Init alcOpenDevice FAILED"<<std::endl;
+          std::cout<<"cManager::_Init alcOpenDevice FAILED"<<std::endl;
 
           // Ok, that failed, try the default device
           device = alcOpenDevice(NULL); // select the "default device"
           ReportError();
           if (device == NULL) {
-            LOG<<"cManager::_Init alcOpenDevice FAILED, returning"<<std::endl;
+            std::cout<<"cManager::_Init alcOpenDevice FAILED, returning"<<std::endl;
             return false;
           }
         }
       }
 
       // Create our context
-      LOG<<"cManager::_Init Creating context"<<std::endl;
+      std::cout<<"cManager::_Init Creating context"<<std::endl;
       const ALCint attributes[] = {
         //ALC_FREQUENCY, 44100, // The rate of audio playback.
         //ALC_REFRESH, 4096, // The size (in bytes) of each chunk sent to the device.
@@ -295,19 +295,19 @@ namespace breathe
       if (context == NULL) {
         alcCloseDevice(device);
         ReportError();
-        LOG<<"cManager::_Init alcCreateContext FAILED, returning"<<std::endl;
+        std::cout<<"cManager::_Init alcCreateContext FAILED, returning"<<std::endl;
         return false;
       }
 
-      LOG<<"cManager::_Init Making context current"<<std::endl;
+      std::cout<<"cManager::_Init Making context current"<<std::endl;
       alcMakeContextCurrent(context);
       ReportError();
 
-      LOG<<"cManager::_Init Setting context to processing"<<std::endl;
+      std::cout<<"cManager::_Init Setting context to processing"<<std::endl;
       alcProcessContext(context);
       ReportError();
 #else
-      LOG<<"cManager::_Init alutInit"<<std::endl;
+      std::cout<<"cManager::_Init alutInit"<<std::endl;
       alutInit(nullptr, nullptr);
       ReportError();
 
@@ -319,7 +319,7 @@ namespace breathe
       t<<iMajor;
       t<<".";
       t<<iMinor;
-      LOG<<"cManager::_Init Audio "<<t.str()<<std::endl;
+      std::cout<<"cManager::_Init Audio "<<t.str()<<std::endl;
       ReportError();
 
 
@@ -328,22 +328,22 @@ namespace breathe
       if (context == NULL) {
         alcCloseDevice(device);
         ReportError();
-        LOG<<"cManager::_Init alcGetCurrentContext FAILED, returning"<<std::endl;
+        std::cout<<"cManager::_Init alcGetCurrentContext FAILED, returning"<<std::endl;
         return breathe::BAD;
       }
 
 
-      LOG<<"cManager::_Init Making context current"<<std::endl;
+      std::cout<<"cManager::_Init Making context current"<<std::endl;
       alcMakeContextCurrent(context);
       ReportError();
 #endif
 
 
       // Check for EAX 2.0 support
-      LOG<<"cManager::_Init Checking for EAX 2.0"<<std::endl;
+      std::cout<<"cManager::_Init Checking for EAX 2.0"<<std::endl;
       g_bEAX = alIsExtensionPresent("EAX2.0");
       ReportError();
-      LOG<<"cManager::_Init EAX "<<(g_bEAX ? "is" : "is not")<<" supported"<<std::endl;
+      std::cout<<"cManager::_Init EAX "<<(g_bEAX ? "is" : "is not")<<" supported"<<std::endl;
 
       // Assuming g_bEAX == AL_TRUE after that code, then EAX 2.0 is available on your soundcard.
       // Note that the reverb is muted by default (Room level == -10000mB), so you will need
@@ -351,41 +351,41 @@ namespace breathe
 
 
       // Surround sound
-      LOG<<"cManager::_Init Checking for surround sound"<<std::endl;
+      std::cout<<"cManager::_Init Checking for surround sound"<<std::endl;
       ALenum eBufferFormat = 0;
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_81CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init 8.1 Surround sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init 8.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_71CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init 7.1 Surround sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init 7.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_61CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init 6.1 Surround sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init 6.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_51CHN16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init 5.1 Surround sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init 5.1 Surround sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_QUAD16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init Quad Speaker Surround sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init Quad Speaker Surround sound supported, returning"<<std::endl;
         return true;
       }
 
@@ -393,14 +393,14 @@ namespace breathe
       eBufferFormat = alGetEnumValue("AL_FORMAT_STEREO16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init Stereo sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init Stereo sound supported, returning"<<std::endl;
         return true;
       }
 
       eBufferFormat = alGetEnumValue("AL_FORMAT_MONO16");
       ReportError();
       if (eBufferFormat) {
-        LOG<<"openal cManager::_Init Mono sound supported, returning"<<std::endl;
+        std::cout<<"openal cManager::_Init Mono sound supported, returning"<<std::endl;
         return true;
       }
 
@@ -410,7 +410,7 @@ namespace breathe
       alDopplerFactor(fDopplerFactor);
       alDopplerVelocity(fDopplerVelocity);
 
-      LOG<<"openal cManager::_Init Unknown sound setup, returning"<<std::endl;
+      std::cout<<"openal cManager::_Init Unknown sound setup, returning"<<std::endl;
       return false;
     }
 
@@ -562,7 +562,7 @@ namespace breathe
 
     void cManager::SetListener(const audio::cListener& listener)
     {
-      //LOG<<"SetListener"<<std::endl;
+      //std::cout<<"SetListener"<<std::endl;
 
       const math::cVec3& position = listener.GetPosition();
       const math::cVec3& lookAtPoint = listener.GetTarget();
@@ -612,7 +612,7 @@ namespace breathe
 
 
       // Remove any sources that need removing
-      //LOG<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
+      //std::cout<<"Removing "<<listToRemove.size()<<" sources"<<std::endl;
 
       iter = listToRemove.begin();
       iterEnd = listToRemove.end();
@@ -670,7 +670,7 @@ namespace breathe
 
     cBuffer::~cBuffer()
     {
-      LOG<<"cBuffer::~cBuffer"<<std::endl;
+      std::cout<<"cBuffer::~cBuffer"<<std::endl;
       if (uiBuffer != 0) {
         alDeleteBuffers(1, &uiBuffer);
         ReportError();
@@ -726,7 +726,7 @@ namespace breathe
 
     void cSource::Create(audio::cBufferRef pInBuffer)
     {
-      LOG<<"cSource::Create"<<std::endl;
+      std::cout<<"cSource::Create"<<std::endl;
       ASSERT(pBuffer == nullptr);
 
       ASSERT(pInBuffer != nullptr);
@@ -777,10 +777,10 @@ namespace breathe
 
     void cSource::_Remove()
     {
-      LOG<<"cSource::_Remove"<<std::endl;
+      std::cout<<"cSource::_Remove"<<std::endl;
 
       if (uiSource != 0) {
-        LOG<<"cSource::_Remove Calling alDeleteSources with uiSource="<<uiSource<<std::endl;
+        std::cerr<<"cSource::_Remove Calling alDeleteSources with uiSource="<<uiSource<<std::endl;
         //FIXME: This needs to be called
         //alDeleteSources(1, &uiSource);
         ReportError();
@@ -790,12 +790,12 @@ namespace breathe
       // Now remove it from the list
       //cSourceRef temp(this);
       //RemoveSource(temp);
-      LOG<<"cSource::_Remove returning"<<std::endl;
+      std::cout<<"cSource::_Remove returning"<<std::endl;
     }
 
     void cSource::_Play()
     {
-      LOG<<"cSource::_Play"<<std::endl;
+      std::cout<<"cSource::_Play"<<std::endl;
       alSourcePlay(uiSource);
       ReportError();
 
@@ -807,7 +807,7 @@ namespace breathe
 
     void cSource::_Stop()
     {
-      LOG<<"cSource::_Stop"<<std::endl;
+      std::cout<<"cSource::_Stop"<<std::endl;
       alSourceStop(uiSource);
       ReportError();
     }
@@ -818,7 +818,7 @@ namespace breathe
 
     void cSource::_SetPosition(const spitfire::math::cVec3& position)
     {
-      //LOG<<"cSource::_SetPosition"<<std::endl;
+      //std::cout<<"cSource::_SetPosition"<<std::endl;
       alSourcefv(uiSource, AL_POSITION, position.GetPointerConst());
       //ReportError();
     }
@@ -833,7 +833,7 @@ namespace breathe
       if (!IsValid()) return false;
 
       ALint value = AL_PLAYING;
-      //LOG<<"cSource::_IsPlaying"<<std::endl;
+      //std::cout<<"cSource::_IsPlaying"<<std::endl;
       alGetSourcei(uiSource, AL_SOURCE_STATE, &value);
       //ReportError();
       return (AL_PLAYING == value);
@@ -841,7 +841,7 @@ namespace breathe
 
     void cSource::_SetIsAttachedToScreen()
     {
-      LOG<<"cSource::_SetIsAttachedToScreen"<<std::endl;
+      std::cout<<"cSource::_SetIsAttachedToScreen"<<std::endl;
       alSource3f(uiSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
       ReportError();
       alSource3f(uiSource, AL_VELOCITY, 0.0f, 0.0f, 0.0f);

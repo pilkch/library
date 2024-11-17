@@ -78,14 +78,19 @@ boost
 
 Use yum to get all required libraries such as:
 ```bash
-sudo yum install gcc gcc-c++ make cmake
-sudo yum install gtest-devel
+sudo yum install gcc gcc-c++ make cmake gtest-devel gmock-devel
 sudo yum install gnutls-devel
 sudo yum install libxdg-basedir-devel
 sudo yum install SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
 sudo yum install mesa-libGL1-devel mesa-libGLU1-devel
 sudo yum install GLee-devel
 sudo yum install freetype-devel
+```
+
+Gcc 13.2 C++ experimental library has a small issue, two constructors are not inlined, so you may have to modify the headers:
+```bash
+sudo sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/13/experimental/socket
+sudo sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/13/experimental/buffer
 ```
 
 To build and run the tests:

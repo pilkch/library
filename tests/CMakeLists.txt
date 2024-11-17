@@ -150,7 +150,7 @@ ai_path_finder_test.cpp
 algorithm_test.cpp base64_test.cpp crc_test.cpp
 #dispatcher_test.cpp notifications_test.cpp # Require gtkmm
 html_test.cpp
-geometry_test.cpp math_test.cpp units_test.cpp
+geometry_test.cpp math_test.cpp math_curve_test.cpp units_test.cpp
 lang_test.cpp process_test.cpp settings_test.cpp spitfire_test.cpp string_test.cpp thread_test.cpp
 network_test.cpp
 weather_bom_test.cpp

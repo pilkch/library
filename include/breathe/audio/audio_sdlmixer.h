@@ -120,7 +120,12 @@ namespace breathe
 
     private:
       cBuffer();
-      NO_COPY(cBuffer);
+
+      // No copy
+      cBuffer(const cBuffer&) = delete;
+      cBuffer& operator=(const cBuffer&) = delete;
+      cBuffer(cBuffer&&) noexcept = delete;
+      cBuffer& operator=(cBuffer&&) noexcept = delete;
 
       virtual bool _IsValid() const { return (pChunk != nullptr); }
 
@@ -140,7 +145,12 @@ namespace breathe
 
     private:
       cSource();
-      NO_COPY(cSource);
+
+      // No copy
+      cSource(const cSource&) = delete;
+      cSource& operator=(const cSource&) = delete;
+      cSource(cSource&&) noexcept = delete;
+      cSource& operator=(cSource&&) noexcept = delete;
 
       virtual bool _IsLooping() const { return bLooping; }
       virtual bool _IsValid() const;

@@ -81,29 +81,13 @@ namespace spitfire
     };
 
 
-    bool bIsInitCalled = false;
-
-    void Init()
-    {
-      assert(!bIsInitCalled);
-
-      // http://stackoverflow.com/questions/17991431/convert-a-unicode-string-in-c-to-upper-case/17993266#17993266
-      // The recommendation is to use the default, "", but for me numbers were printed with commas, "12,345,678", so we use the "C" locale
-      std::locale::global(std::locale("C"));
-
-      bIsInitCalled = true;
-    }
-
-
-    class cStringCallInit {
-    public:
-      cStringCallInit() { Init(); }
-    };
-
     class cLocalisedStringTransformer
     {
     public:
-      cLocalisedStringTransformer();
+      cLocalisedStringTransformer() :
+        tmput_char(std::use_facet<std::time_put<char>>(std::locale("")))
+      {
+      }
 
       // Other Possible functions
       // bool isspace(c, loc);
@@ -133,9 +117,6 @@ namespace spitfire
 
         // http://wiki.forum.nokia.com/index.php/CS001143_-_Converting_date_and_time_to_string_in_Open_C%2B%2B
 
-        // Get the time_put facet
-        const std::time_put<C>& tmput = std::use_facet<std::time_put<C> > (std::locale());
-
         tm now;
 
         // We don't care about the other fields for this formatting, perhaps we should set them too though just in case?
@@ -144,59 +125,15 @@ namespace spitfire
         now.tm_sec = seconds;
 
         // http://www.cplusplus.com/reference/clibrary/ctime/strftime/
-        tmput.put(o, o, ' ', &now, 'X');
+        tmput_char.put(o, o, ' ', &now, 'X');
 
         return o.str();
       }
 
-      void ToUpper(std::string& text);
-      void ToUpper(std::wstring& text);
-      void ToLower(std::string& text);
-      void ToLower(std::wstring& text);
-
     private:
-      cStringCallInit callInit; // Ensures that the global Init is called before the facets are created
-      const std::ctype<char>& facet_char;
-      const std::ctype<wchar_t>& facet_wchar_t;
+      const std::time_put<char>& tmput_char;
     };
 
-    cLocalisedStringTransformer::cLocalisedStringTransformer() :
-      facet_char(std::use_facet<std::ctype<char>>(std::locale())),
-      facet_wchar_t(std::use_facet<std::ctype<wchar_t>>(std::locale()))
-    {
-    }
-
-    void cLocalisedStringTransformer::ToUpper(std::string& text)
-    {
-      std::string buffer(text);
-      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
-      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
-      text = buffer;
-    }
-
-    void cLocalisedStringTransformer::ToUpper(std::wstring& text)
-    {
-      std::wstring buffer(text);
-      //facet_char.toupper(&buffer[0], &buffer[0] + buffer.length());
-      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))toupper);
-      text = buffer;
-    }
-
-    void cLocalisedStringTransformer::ToLower(std::string& text)
-    {
-      std::string buffer(text);
-      //facet_char.tolower(&buffer[0], &buffer[0] + buffer.length());
-      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
-      text = buffer;
-    }
-
-    void cLocalisedStringTransformer::ToLower(std::wstring& text)
-    {
-      std::wstring buffer(text);
-      //facet_wchar_t.tolower(&buffer[0], &buffer[0] + buffer.length());
-      std::transform(buffer.begin(), buffer.end(), buffer.begin(), (int(*)(int))tolower);
-      text = buffer;
-    }
 
     cLocalisedStringTransformer gLocalisedStringTransformer;
 
@@ -587,38 +524,37 @@ namespace spitfire
     }
 
 
-    // *** Conversion Functions
+    // *** Case Conversion Functions
+    //
+    // NOTE: This only handles ASCII, it does not handle other languages such as German, Russian, Swedish, Greek
+    // http://www.cplusplus.com/faq/sequences/strings/case-conversion/
 
-    std::string ToLower(const std::string& sText)
+    std::string ToUpper(const std::string& text)
     {
-      ASSERT(bIsInitCalled);
-      std::string buffer(sText);
-      gLocalisedStringTransformer.ToLower(buffer);
-      return buffer;
+      std::string output(text);
+      transform(output.begin(), output.end(), output.begin(), ::toupper);
+      return output;
     }
 
-    std::wstring ToLower(const std::wstring& sText)
+    std::wstring ToUpper(const std::wstring& text)
     {
-      ASSERT(bIsInitCalled);
-      std::wstring buffer(sText);
-      gLocalisedStringTransformer.ToLower(buffer);
-      return buffer;
+      std::wstring output(text);
+      transform(output.begin(), output.end(), output.begin(), ::toupper);
+      return output;
     }
 
-    std::string ToUpper(const std::string& sText)
+    std::string ToLower(const std::string& text)
     {
-      ASSERT(bIsInitCalled);
-      std::string buffer(sText);
-      gLocalisedStringTransformer.ToUpper(buffer);
-      return buffer;
+      std::string output(text);
+      transform(output.begin(), output.end(), output.begin(), ::tolower);
+      return output;
     }
 
-    std::wstring ToUpper(const std::wstring& sText)
+    std::wstring ToLower(const std::wstring& text)
     {
-      ASSERT(bIsInitCalled);
-      std::wstring buffer(sText);
-      gLocalisedStringTransformer.ToUpper(buffer);
-      return buffer;
+      std::wstring output(text);
+      transform(output.begin(), output.end(), output.begin(), ::tolower);
+      return output;
     }
 
 
@@ -862,15 +798,29 @@ namespace spitfire
       return GenericFromHexStringToUint32_t<std::wstring, wchar_t>(source);
     }
 
-    string_t ToHexString(uint32_t value)
+    string_t ToHexString(uint16_t value)
     {
+      // NOTE: If we just print normally with ss<<std::setfill('0')<<std::setw(8)<<std::hex<<value we can get something like "12,345,678" depending on the locale, so we print each octet separately
+
       ostringstream_t ss;
 
-      for (size_t i = 7; i > 0; i--) {
-        if (value < (uint32_t(0x1) << uint32_t(i))) ss<<TEXT("0");
-      }
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t((value & 0xFF00) >> 8);
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t(value & 0x00FF);
 
-      ss<<std::hex<<std::uppercase<<value;
+      return ss.str();
+    }
+
+
+    string_t ToHexString(uint32_t value)
+    {
+      // NOTE: If we just print normally with ss<<std::setfill('0')<<std::setw(8)<<std::hex<<value we can get something like "12,345,678" depending on the locale, so we print each octet separately
+
+      ostringstream_t ss;
+
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t(value >> 24);
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t((value & 0x00FF0000) >> 16);
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t((value & 0x0000FF00) >> 8);
+      ss<<std::uppercase<<std::setfill('0')<<std::setw(2)<<std::hex<<uint32_t(value & 0x000000FF);
 
       return ss.str();
     }

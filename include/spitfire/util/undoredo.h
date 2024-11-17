@@ -20,7 +20,11 @@ namespace spitfire
 
     const string_t _title;
 
-    NO_COPY(cUndoRedoState);
+    // No copy
+    cUndoRedoState(const cUndoRedoState&) = delete;
+    cUndoRedoState& operator=(const cUndoRedoState&) = delete;
+    cUndoRedoState(cUndoRedoState&&) noexcept = delete;
+    cUndoRedoState& operator=(cUndoRedoState&&) noexcept = delete;
   };
 
 
@@ -49,7 +53,11 @@ namespace spitfire
 
     void ClearRedo();
 
-    NO_COPY(cUndoRedo);
+    // No copy
+    cUndoRedo(const cUndoRedo&) = delete;
+    cUndoRedo& operator=(const cUndoRedo&) = delete;
+    cUndoRedo(cUndoRedo&&) noexcept = delete;
+    cUndoRedo& operator=(cUndoRedo&&) noexcept = delete;
   };
 
   //TODO: Move this to the cpp file

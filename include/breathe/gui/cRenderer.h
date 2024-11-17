@@ -41,27 +41,27 @@ namespace breathe
         BOTTOM_RIGHT
       };
 
-      void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour);
-      void AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates);
-      void AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation);
-      void AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates);
-      void AddCapsule(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour);
+      void AddRect(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour);
+      void AddRect(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates);
+      void AddArc(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation);
+      void AddArc(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates);
+      void AddCapsule(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour);
 
-      void AddDropShadow(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour);
+      void AddDropShadow(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour);
 
-      void AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& widget);
-      void AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget);
-      void AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget);
-      void AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget);
-      void AddComboBox(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cComboBox& widget);
-      void AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget);
-      void AddToolbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cToolbar& widget);
-      void AddScrollbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cScrollbar& widget);
+      void AddWindow(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cWindow& widget);
+      void AddStaticText(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cStaticText& widget);
+      void AddButton(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cButton& widget);
+      void AddInput(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cInput& widget);
+      void AddComboBox(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cComboBox& widget);
+      void AddSlider(opengl::cGeometryBuilder_v2_t2_c4& builder, const cSlider& widget);
+      void AddToolbar(opengl::cGeometryBuilder_v2_t2_c4& builder, const cToolbar& widget);
+      void AddScrollbar(opengl::cGeometryBuilder_v2_t2_c4& builder, const cScrollbar& widget);
 
-      void AddRetroButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroButton& widget);
-      void AddRetroInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInput& widget);
-      void AddRetroInputUpDown(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInputUpDown& widget);
-      void AddRetroColourPicker(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroColourPicker& widget);
+      void AddRetroButton(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroButton& widget);
+      void AddRetroInput(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroInput& widget);
+      void AddRetroInputUpDown(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroInputUpDown& widget);
+      void AddRetroColourPicker(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroColourPicker& widget);
 
       void AddChildrenOfWidget(const cWidget& widget);
 
@@ -72,12 +72,12 @@ namespace breathe
 
       bool bWireFrame;
 
-      opengl::cTexture* pWidgetsTexture;
-      opengl::cShader* pWidgetsShader;
-      opengl::cFont* pFont;
+      opengl::cTexture widgetsTexture;
+      opengl::cShader widgetsShader;
+      opengl::cFont font;
 
-      opengl::cTextureFrameBufferObject* pTextureFrameBufferObject;
-      opengl::cShader* pGuiShader;
+      opengl::cTextureFrameBufferObject textureFrameBufferObject;
+      opengl::cShader guiShader;
       opengl::cStaticVertexBufferObject vbo;
 
       size_t resolutionWidth;
