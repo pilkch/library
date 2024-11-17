@@ -177,8 +177,6 @@ namespace spitfire
 
         bShow(false),
 
-        pApp(nullptr),
-
         lines(10)
       {
       }
@@ -186,8 +184,6 @@ namespace spitfire
 
       size_t uiCursorBlink;
       size_t uiCursorPosition;
-
-      void SetApp(breathe::cApplication* inApp) { pApp = inApp; }
 
       const constant_stack<string_t>& GetLines() const { return lines; }
       const string_t& GetCurrentLine() const { return current; }
@@ -219,7 +215,6 @@ namespace spitfire
 
     protected:
       bool bShow;
-      breathe::cApplication* pApp;
 
       constant_stack<string_t> lines;
       string_t current;

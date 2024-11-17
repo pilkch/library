@@ -51,33 +51,28 @@ namespace breathe
     cRenderer::cRenderer(const cManager& _manager, opengl::cContext& _context) :
       manager(_manager),
       context(_context),
-      bWireFrame(false),
-      pWidgetsTexture(nullptr),
-      pWidgetsShader(nullptr),
-      pFont(nullptr),
-      pTextureFrameBufferObject(nullptr),
-      pGuiShader(nullptr)
+      bWireFrame(false)
     {
     }
 
     cRenderer::~cRenderer()
     {
-      ASSERT(pFont == nullptr);
+      ASSERT(font.IsValid());
     }
 
     bool cRenderer::LoadResources(size_t resolutionWidth, size_t resolutionHeight)
     {
-      pWidgetsTexture = context.CreateTexture(TEXT("data/textures/gui.png"));
-      ASSERT(pWidgetsTexture != nullptr);
-      pWidgetsShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
-      ASSERT(pWidgetsShader != nullptr);
+      context.CreateTexture(widgetsTexture, TEXT("data/textures/gui.png"));
+      ASSERT(widgetsTexture.IsValid());
+      context.CreateShader(widgetsShader, TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolour.frag"));
+      ASSERT(widgetsShader.IsCompiledProgram());
 
-      pGuiShader = context.CreateShader(TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolourrect.frag"));
-      ASSERT(pGuiShader != nullptr);
+      context.CreateShader(guiShader, TEXT("data/shaders/passthroughwithcolour.vert"), TEXT("data/shaders/passthroughwithcolourrect.frag"));
+      ASSERT(guiShader.IsCompiledProgram());
 
       opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
-      opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
+      opengl::cGeometryBuilder_v2_t2_c4 builder(*pGeometryDataPtr);
 
       const float fWidth = float(resolutionWidth) / float(resolutionHeight);
       const float fHeight = 1.0f;
@@ -95,12 +90,12 @@ namespace breathe
       const spitfire::math::cColour colour(1.0f, 1.0f, 1.0f, 1.0f);
 
       // Front facing triangles
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, spitfire::math::cVec2(fU2, fV2));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, spitfire::math::cVec2(fU2, fV));
-      builder.PushBack(spitfire::math::cVec2(x, y), colour, spitfire::math::cVec2(fU, fV));
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, spitfire::math::cVec2(fU, fV2));
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), spitfire::math::cVec2(fU, fV2), colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), spitfire::math::cVec2(fU2, fV2), colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), spitfire::math::cVec2(fU2, fV), colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), spitfire::math::cVec2(fU2, fV), colour);
+      builder.PushBack(spitfire::math::cVec2(x, y), spitfire::math::cVec2(fU, fV), colour);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), spitfire::math::cVec2(fU, fV2), colour);
 
       context.CreateStaticVertexBufferObject(vbo);
 
@@ -108,38 +103,33 @@ namespace breathe
 
       vbo.Compile2D();
 
-      pTextureFrameBufferObject = context.CreateTextureFrameBufferObjectNoMipMaps(resolutionWidth, resolutionHeight, opengl::PIXELFORMAT::R8G8B8A8);
-      ASSERT(pTextureFrameBufferObject != nullptr);
+      context.CreateTextureFrameBufferObjectNoMipMaps(textureFrameBufferObject, resolutionWidth, resolutionHeight, opengl::PIXELFORMAT::R8G8B8A8);
+      ASSERT(textureFrameBufferObject.IsValid());
 
       // Create the font for rendering text
-      pFont = context.CreateFont(TEXT("data/fonts/pricedown.ttf"), 32, TEXT("data/shaders/font.vert"), TEXT("data/shaders/font.frag"));
+      context.CreateFont(font, TEXT("data/fonts/pricedown.ttf"), 32, TEXT("data/shaders/font.vert"), TEXT("data/shaders/font.frag"));
 
       return true;
     }
 
     void cRenderer::DestroyResources()
     {
-      if (pFont != nullptr) {
-        context.DestroyFont(pFont);
-        pFont = nullptr;
+      if (font.IsValid()) {
+        context.DestroyFont(font);
       }
 
-      if (pWidgetsShader != nullptr) {
-        context.DestroyShader(pWidgetsShader);
-        pWidgetsShader = nullptr;
+      if (widgetsShader.IsCompiledProgram()) {
+        context.DestroyShader(widgetsShader);
       }
-      if (pWidgetsTexture != nullptr) {
-        context.DestroyTexture(pWidgetsTexture);
-        pWidgetsTexture = nullptr;
+      if (widgetsTexture.IsValid()) {
+        context.DestroyTexture(widgetsTexture);
       }
 
-      if (pTextureFrameBufferObject != nullptr) {
-        context.DestroyTextureFrameBufferObject(pTextureFrameBufferObject);
-        pTextureFrameBufferObject = nullptr;
+      if (textureFrameBufferObject.IsValid()) {
+        context.DestroyTextureFrameBufferObject(textureFrameBufferObject);
       }
-      if (pGuiShader != nullptr) {
-        context.DestroyShader(pGuiShader);
-        pGuiShader = nullptr;
+      if (guiShader.IsCompiledProgram()) {
+        context.DestroyShader(guiShader);
       }
       context.DestroyStaticVertexBufferObject(vbo);
     }
@@ -149,7 +139,7 @@ namespace breathe
       bWireFrame = _bWireFrame;
     }
 
-    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour)
+    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour)
     {
       const render::cTextureCoordinatesRectangle textureCoordinates(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -157,29 +147,29 @@ namespace breathe
       const float y = position.y;
 
       // Front facing triangles
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
-      builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), textureCoordinates.textureCoordinates[0], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), textureCoordinates.textureCoordinates[1], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), textureCoordinates.textureCoordinates[2], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), textureCoordinates.textureCoordinates[2], colour);
+      builder.PushBack(spitfire::math::cVec2(x, y), textureCoordinates.textureCoordinates[3], colour);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), textureCoordinates.textureCoordinates[0], colour);
     }
 
-    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates)
+    void cRenderer::AddRect(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, const spitfire::math::cColour& colour, const render::cTextureCoordinatesRectangle& textureCoordinates)
     {
       const float x = position.x;
       const float y = position.y;
 
       // Front facing triangles
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), colour, textureCoordinates.textureCoordinates[1]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
-      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), colour, textureCoordinates.textureCoordinates[2]);
-      builder.PushBack(spitfire::math::cVec2(x, y), colour, textureCoordinates.textureCoordinates[3]);
-      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), colour, textureCoordinates.textureCoordinates[0]);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), textureCoordinates.textureCoordinates[0], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y + fHeight), textureCoordinates.textureCoordinates[1], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), textureCoordinates.textureCoordinates[2], colour);
+      builder.PushBack(spitfire::math::cVec2(x + fWidth, y), textureCoordinates.textureCoordinates[2], colour);
+      builder.PushBack(spitfire::math::cVec2(x, y), textureCoordinates.textureCoordinates[3], colour);
+      builder.PushBack(spitfire::math::cVec2(x, y + fHeight), textureCoordinates.textureCoordinates[0], colour);
     }
 
-    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates)
+    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& _position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation, const render::cTextureCoordinatesRectangle& textureCoordinates)
     {
       // Get the rotation for this orientation
       float fAngle = -90.0f;
@@ -217,19 +207,19 @@ namespace breathe
 
         // Add the points
         // Each segment is a triangle, so for each iteration of the loop we add 3 points, 1 at the origin of the arc and the other 2 are along the outside of the arc
-        builder.PushBack(position + point1, colour, textureCoordinates.textureCoordinates[2]);
-        builder.PushBack(position + point0, colour, textureCoordinates.textureCoordinates[2]);
-        builder.PushBack(position, colour, textureCoordinates.textureCoordinates[0]);
+        builder.PushBack(position + point1, textureCoordinates.textureCoordinates[2], colour);
+        builder.PushBack(position + point0, textureCoordinates.textureCoordinates[2], colour);
+        builder.PushBack(position, textureCoordinates.textureCoordinates[0], colour);
       }
     }
 
-    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation)
+    void cRenderer::AddArc(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fRadius, const spitfire::math::cColour& colour, ORIENTATION orientation)
     {
       const render::cTextureCoordinatesRectangle textureCoordinates(0.0f, 0.0f, 0.0f, 0.0f);
       AddArc(builder, position, fRadius, colour, orientation, textureCoordinates);
     }
 
-    void cRenderer::AddCapsule(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
+    void cRenderer::AddCapsule(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
     {
       const float x = position.x;
       const float y = position.y;
@@ -246,7 +236,7 @@ namespace breathe
       AddArc(builder, spitfire::math::cVec2(x + fWidth - fRadius, y + fHeight - fRadius), fRadius, colour, ORIENTATION::BOTTOM_RIGHT);
     }
 
-    void cRenderer::AddDropShadow(opengl::cGeometryBuilder_v2_c4_t2& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
+    void cRenderer::AddDropShadow(opengl::cGeometryBuilder_v2_t2_c4& builder, const spitfire::math::cVec2& position, float fWidth, float fHeight, float fRadius, const spitfire::math::cColour& colour)
     {
       {
         // Add the rectangles for the sides, top and bottom
@@ -270,7 +260,7 @@ namespace breathe
       }
     }
 
-    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cWindow& window)
+    void cRenderer::AddWindow(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cWindow& window)
     {
       const spitfire::math::cVec2 position = window.GetAbsolutePosition();
 
@@ -288,18 +278,18 @@ namespace breathe
 
 
       // Create the text for this window
-      pFont->PushBack(builderText, window.sCaption, window.GetTextColour(), spitfire::math::cVec2(x + ((window.width - manager.GetTextWidth(window.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, window.sCaption, window.GetTextColour(), spitfire::math::cVec2(x + ((window.width - manager.GetTextWidth(window.sCaption)) * 0.5f), y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cStaticText& widget)
+    void cRenderer::AddStaticText(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cStaticText& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cButton& widget)
+    void cRenderer::AddButton(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cButton& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -311,10 +301,10 @@ namespace breathe
 
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, widget.sCaption, widget.GetTextColour(), spitfire::math::cVec2(position.x + ((widget.width - manager.GetTextWidth(widget.sCaption)) * 0.5f), position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cInput& widget)
+    void cRenderer::AddInput(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cInput& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -324,10 +314,10 @@ namespace breathe
       if (widget.IsFocused()) sCaption.append(TEXT("|"));
 
       // Create the text for this widget
-      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddComboBox(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cComboBox& widget)
+    void cRenderer::AddComboBox(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cComboBox& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -337,10 +327,10 @@ namespace breathe
       if (widget.IsFocused()) sCaption.append(TEXT("|"));
 
       // Create the text for this widget
-      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_c4_t2& builder, const cSlider& widget)
+    void cRenderer::AddSlider(opengl::cGeometryBuilder_v2_t2_c4& builder, const cSlider& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -349,7 +339,7 @@ namespace breathe
       AddRect(builder, position, widget.width, widget.height, colour);
     }
 
-    void cRenderer::AddToolbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cToolbar& widget)
+    void cRenderer::AddToolbar(opengl::cGeometryBuilder_v2_t2_c4& builder, const cToolbar& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -358,7 +348,7 @@ namespace breathe
       AddRect(builder, position, widget.width, widget.height, colour);
     }
 
-    void cRenderer::AddScrollbar(opengl::cGeometryBuilder_v2_c4_t2& builder, const cScrollbar& widget)
+    void cRenderer::AddScrollbar(opengl::cGeometryBuilder_v2_t2_c4& builder, const cScrollbar& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -367,7 +357,7 @@ namespace breathe
       AddRect(builder, position, widget.width, widget.height, colour);
     }
 
-    void cRenderer::AddRetroButton(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroButton& widget)
+    void cRenderer::AddRetroButton(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroButton& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -375,10 +365,10 @@ namespace breathe
       const spitfire::math::cColour colour = widget.IsFocused() ? colourRed : widget.GetTextColour();
 
       // Create the text for this widget
-      pFont->PushBack(builderText, widget.sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, widget.sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddRetroInput(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInput& widget)
+    void cRenderer::AddRetroInput(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroInput& widget)
     {
       const spitfire::math::cVec2 position = widget.GetAbsolutePosition();
 
@@ -389,10 +379,10 @@ namespace breathe
       if (widget.IsFocused()) sCaption.append(TEXT("|"));
 
       // Create the text for this widget
-      pFont->PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
+      font.PushBack(builderText, sCaption, colour, spitfire::math::cVec2(position.x + 0.01f, position.y + manager.GetTextHeight() + 0.005f));
     }
 
-    void cRenderer::AddRetroInputUpDown(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroInputUpDown& widget)
+    void cRenderer::AddRetroInputUpDown(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroInputUpDown& widget)
     {
       spitfire::math::cVec2 position = widget.GetAbsolutePosition() + spitfire::math::cVec2(0.01f, manager.GetTextHeight() + 0.005f);
 
@@ -400,14 +390,14 @@ namespace breathe
       const spitfire::math::cColour colour = widget.IsFocused() ? colourRed : widget.GetTextColour();
 
       // Create the text for this widget
-      pFont->PushBack(builderText, TEXT("<"), colour, position);
-      position.x += pFont->GetDimensions(TEXT("<")).x;
-      pFont->PushBack(builderText, widget.sCaption, colour, position);
-      position.x += pFont->GetDimensions(widget.sCaption).x;
-      pFont->PushBack(builderText, TEXT(">"), colour, position);
+      font.PushBack(builderText, TEXT("<"), colour, position);
+      position.x += font.GetDimensions(TEXT("<")).x;
+      font.PushBack(builderText, widget.sCaption, colour, position);
+      position.x += font.GetDimensions(widget.sCaption).x;
+      font.PushBack(builderText, TEXT(">"), colour, position);
     }
 
-    void cRenderer::AddRetroColourPicker(opengl::cGeometryBuilder_v2_c4_t2& builder, opengl::cGeometryBuilder_v2_c4_t2& builderText, const cRetroColourPicker& widget)
+    void cRenderer::AddRetroColourPicker(opengl::cGeometryBuilder_v2_t2_c4& builder, opengl::cGeometryBuilder_v2_t2_c4& builderText, const cRetroColourPicker& widget)
     {
       spitfire::math::cVec2 position = widget.GetAbsolutePosition() + spitfire::math::cVec2(0.01f, manager.GetTextHeight() + 0.005f);
 
@@ -415,32 +405,32 @@ namespace breathe
 
       const size_t selected = widget.GetSelectedColour();
 
-      const float fWidestBracket = max(pFont->GetDimensions(TEXT("<")).x, pFont->GetDimensions(TEXT("[")).x);
+      const float fWidestBracket = max(font.GetDimensions(TEXT("<")).x, font.GetDimensions(TEXT("[")).x);
 
       const size_t n = widget.GetNumberOfColours();
       for (size_t i = 0; i < n; i++) {
         const spitfire::math::cColour colour = widget.GetColour(i);
 
         // Create the text for this widget
-        if (i == selected) pFont->PushBack(builderText, widget.IsFocused() ? TEXT("[") : TEXT("["), colour, position);
+        if (i == selected) font.PushBack(builderText, widget.IsFocused() ? TEXT("[") : TEXT("["), colour, position);
         position.x += fWidestBracket;
 
         const string_t sName = widget.GetColourName(i);
-        pFont->PushBack(builderText, sName, colour, position);
-        position.x += pFont->GetDimensions(sName).x;
+        font.PushBack(builderText, sName, colour, position);
+        position.x += font.GetDimensions(sName).x;
 
-        if (i == selected) pFont->PushBack(builderText, widget.IsFocused() ? TEXT("]") : TEXT("]"), colour, position);
+        if (i == selected) font.PushBack(builderText, widget.IsFocused() ? TEXT("]") : TEXT("]"), colour, position);
         position.x += fWidestBracket;
       }
     }
 
-    //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_c4_t2& builder, voodoo::cImage& widget)
+    //void const cRenderer::AddImage(opengl::cGeometryBuilder_v2_t2_c4& builder, voodoo::cImage& widget)
     //{
     //  const voodoo::cImage& image = widget.GetImage();
     //  render image to texture
     //}
 
-    //void const cRenderer::AddGraph(opengl::cGeometryBuilder_v2_c4_t2& builder, cGraph& widget)
+    //void const cRenderer::AddGraph(opengl::cGeometryBuilder_v2_t2_c4& builder, cGraph& widget)
     //{
     //  const std::array<float>& values = widget.GetValues();
     //  for each value
@@ -460,15 +450,14 @@ namespace breathe
 
         opengl::cGeometryDataPtr pGeometryDataPtr = opengl::CreateGeometryData();
 
-        opengl::cGeometryBuilder_v2_c4_t2 builder(*pGeometryDataPtr);
+        opengl::cGeometryBuilder_v2_t2_c4 builder(*pGeometryDataPtr);
 
         // Text
-        assert(pFont != nullptr);
-        assert(pFont->IsValid());
+        assert(font.IsValid());
 
         opengl::cGeometryDataPtr pTextGeometryDataPtr = opengl::CreateGeometryData();
 
-        opengl::cGeometryBuilder_v2_c4_t2 builderText(*pTextGeometryDataPtr);
+        opengl::cGeometryBuilder_v2_t2_c4 builderText(*pTextGeometryDataPtr);
 
         switch (child.GetType()) {
           case WIDGET_TYPE::WINDOW:
@@ -542,9 +531,9 @@ namespace breathe
           context.EnableBlending();
 
           // Render the vbo to the frame buffer texture
-          context.BindTexture(0, *pWidgetsTexture);
+          context.BindTexture(0, widgetsTexture);
 
-          context.BindShader(*pWidgetsShader);
+          context.BindShader(widgetsShader);
 
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
@@ -552,9 +541,9 @@ namespace breathe
           context.DrawStaticVertexBufferObjectTriangles2D(vbo);
           context.UnBindStaticVertexBufferObject2D(vbo);
 
-          context.UnBindShader(*pWidgetsShader);
+          context.UnBindShader(widgetsShader);
 
-          context.UnBindTexture(0, *pWidgetsTexture);
+          context.UnBindTexture(0, widgetsTexture);
 
           context.DisableBlending();
 
@@ -573,7 +562,7 @@ namespace breathe
 
           vboText.Compile2D();
 
-          context.BindFont(*pFont);
+          context.BindFont(font);
 
           context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN_KEEP_ASPECT_RATIO, matModelView2D);
 
@@ -581,7 +570,7 @@ namespace breathe
           context.DrawStaticVertexBufferObjectTriangles2D(vboText);
           context.UnBindStaticVertexBufferObject2D(vboText);
 
-          context.UnBindFont(*pFont);
+          context.UnBindFont(font);
 
           context.DestroyStaticVertexBufferObject(vboText);
         }
@@ -613,7 +602,7 @@ namespace breathe
       const spitfire::math::cColour clearColour(0.0f, 0.0f, 0.0f, 0.0f);
       context.SetClearColour(clearColour);
 
-      context.BeginRenderToTexture(*pTextureFrameBufferObject);
+      context.BeginRenderToTexture(textureFrameBufferObject);
 
       context.BeginRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN);
 
@@ -628,7 +617,7 @@ namespace breathe
 
       context.EndRenderMode2D();
 
-      context.EndRenderToTexture(*pTextureFrameBufferObject);
+      context.EndRenderToTexture(textureFrameBufferObject);
     }
 
     void cRenderer::Render()
@@ -643,9 +632,9 @@ namespace breathe
 
         context.EnableBlending();
 
-        context.BindTexture(0, *pTextureFrameBufferObject);
+        context.BindTexture(0, textureFrameBufferObject);
 
-        context.BindShader(*pGuiShader);
+        context.BindShader(guiShader);
 
         context.SetShaderProjectionAndModelViewMatricesRenderMode2D(opengl::MODE2D_TYPE::Y_INCREASES_DOWN_SCREEN, matModelView2D);
 
@@ -653,9 +642,9 @@ namespace breathe
         context.DrawStaticVertexBufferObjectTriangles2D(vbo);
         context.UnBindStaticVertexBufferObject2D(vbo);
 
-        context.UnBindShader(*pGuiShader);
+        context.UnBindShader(guiShader);
 
-        context.UnBindTexture(0, *pTextureFrameBufferObject);
+        context.UnBindTexture(0, textureFrameBufferObject);
 
         context.DisableBlending();
       }
