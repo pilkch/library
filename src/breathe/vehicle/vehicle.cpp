@@ -473,9 +473,11 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, const Environ
 
     // Just for debugging keep track of the highest RPM we have acheived
     static float fDebugMaxRPM = 0.0f;
-    if (outputStarterMotorRPMAndTorqueNm.fRPM > fDebugMaxRPM) fDebugMaxRPM = outputStarterMotorRPMAndTorqueNm.fRPM;
+    if (starterMotorRPMAndTorqueNm.fRPM > fDebugMaxRPM) fDebugMaxRPM = starterMotorRPMAndTorqueNm.fRPM;
+    static float fDebugMaxTorqueNm = 0.0f;
+    if (starterMotorRPMAndTorqueNm.fTorqueNm > fDebugMaxTorqueNm) fDebugMaxTorqueNm = starterMotorRPMAndTorqueNm.fTorqueNm;
 
-    std::cout<<"Update starter motor to fly wheel gear ratio "<<fStarterToFlyWheelGearRatio<<", in "<<starterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<starterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, out "<<outputStarterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<outputStarterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, debug max rpm was "<<fDebugMaxRPM<<" rpm"<<std::endl;
+    std::cout<<"Update starter motor to fly wheel gear ratio "<<fStarterToFlyWheelGearRatio<<", in starter motor RPM "<<starterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<starterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, out crank "<<outputStarterMotorRPMAndTorqueNm.fRPM<<" rpm, "<<outputStarterMotorRPMAndTorqueNm.fTorqueNm<<" Nm, debug max rpm was "<<fDebugMaxRPM<<" rpm, max torque was "<<fDebugMaxTorqueNm<<" Nm"<<std::endl;
 
 
 
@@ -557,8 +559,8 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, const Environ
     //std::cout<<"rpm: "<<vehicle.engine.fCrankRPM<<", torque "<<fTotalTorqueNm<<" Nm, "<<effectiveInertiaCalculator.GetEffectiveInertia()<<" inertia, adding "<<fTimeStepFractionOfSecond<<" * "<<fTotalAccelerationMetersPerSecondSquared<<std::endl;
     vehicle.engine.fCrankRPM += (fTimeStepFractionOfSecond * fTotalAccelerationMetersPerSecondSquared);
 
-    // TODO: Work backwards to find the starter motor RPM?
-    //vehicle.engine.fCrankRPM = spitfire::math::GetGearOutputRPM(vehicle.engine.starterMotor.fRPM, fStarterToFlyWheelGearRatio);
+    // NOTE: This is a bit of a hack, we work backwards from the crank RPM to find the starter motor RPM
+    vehicle.engine.starterMotor.fRPM = spitfire::math::GetGearOutputRPM(1.0f / vehicle.engine.fCrankRPM, fStarterToFlyWheelGearRatio);
   }
 
 
@@ -620,6 +622,9 @@ void UpdateEngineDrivetrainWheels(float fTimeStepFractionOfSecond, const Environ
   // https://x-engineer.org/calculate-wheel-torque-engine/
   // Torque is a measure of force and distance, not force alone, so we need to divide it by the drive wheel's total radius to get just force alone. 5544 N-m / 0.34105m = 16255.681 Newtons (that's 3654 lbs) 
   //fForceFromWheelsToRoadNewtons = outputWheelRPMAndTorque.fTorqueNm / vehicle.wheels[0].fRadiusm;
+
+
+  //std::cout<<"Engine crank "<<vehicle.engine.fCrankRPM<<" rpm"<<std::endl;
 }
 
 void Update(float fTimeStepFractionOfSecond, const Environment& environment, const VehicleInputs& inputs, breathe::vehicle::Vehicle& vehicle)
