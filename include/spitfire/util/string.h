@@ -121,9 +121,6 @@ namespace spitfire
     inline size_t GetSurrogatePairCountForMultiByteCharacter(wchar_t c) { return GetSurrogatePairCountForMultiByteCharacter(char32_t(c)); }
     #endif
 
-    std::string ToASCII(const std::wstring& source);
-    std::string ToASCII(const std::string& source);
-
     std::string ToUTF8(const std::wstring& source);
     constexpr inline const std::string& ToUTF8(const std::string& source) { return source; }
 

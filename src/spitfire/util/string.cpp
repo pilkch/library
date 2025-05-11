@@ -746,20 +746,6 @@ namespace spitfire
       return convert.to_bytes(source);
     }
 
-
-    // TODO: Do a correct conversion
-    std::string ToASCII(const std::wstring& source)
-    {
-      return ToUTF8(source);
-    }
-
-    // TODO: Do a correct conversion
-    std::string ToASCII(const std::string& source)
-    {
-      return ToUTF8(source);
-    }
-
-
     // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
     // eg. "FE1234" -> 16650804
