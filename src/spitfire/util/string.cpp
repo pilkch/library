@@ -722,29 +722,35 @@ namespace spitfire
 
       return true;
     }
-    
-    // Utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
-    // http://en.cppreference.com/w/cpp/locale/wstring_convert/~wstring_convert
-    template<class Facet>
-    struct DeletableFacet : public Facet
-    {
-      template<class ...Args>
-      DeletableFacet(Args&& ...args) : Facet(std::forward<Args>(args)...) {}
-      ~DeletableFacet() {}
-    };
 
     std::wstring ToWchar_t(const std::string& source)
     {
-      typedef DeletableFacet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> local_facet_t;
-      std::wstring_convert<local_facet_t> convert(new local_facet_t(""));
-      return convert.from_bytes(source);
+      // https://stackoverflow.com/a/64855537
+      std::wstring result(source.size(), L' ');
+      result.resize(std::mbstowcs(&result[0], source.c_str(), source.size()));
+      return result;
     }
 
     std::string ToUTF8(const std::wstring& source)
     {
-      std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-      return convert.to_bytes(source);
+      // https://stackoverflow.com/a/64855537
+      std::string result;
+      // Reserve enough space for the maximum length the unicode string could be as UTF-8
+      result.reserve(6 * source.length());
+      std::string buff(MB_CUR_MAX, '\0');
+
+      for (wchar_t const& wc : source) {
+        const int mbCharLen = std::wctomb(&buff[0], wc);
+        if (mbCharLen < 1) break;
+
+        for (int i = 0; i < mbCharLen; ++i) {
+          result += buff[i];
+        }
+      }
+
+      return result;
     }
+
 
     // String to hex
     // Converts a string containing a hexadecimal number to an unsigned integer
