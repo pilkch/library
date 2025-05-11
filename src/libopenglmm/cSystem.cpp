@@ -12,7 +12,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -31,7 +31,7 @@ namespace opengl
   {
     switch (uiPixelFormat) {
       case SDL_PIXELFORMAT_RGBA8888: return PIXELFORMAT::R8G8B8A8;
-      case SDL_PIXELFORMAT_RGB888: return PIXELFORMAT::R8G8B8;
+      case SDL_PIXELFORMAT_XRGB8888: return PIXELFORMAT::R8G8B8;
       case SDL_PIXELFORMAT_RGB565: return PIXELFORMAT::R5G6B5;
     };
 
@@ -64,7 +64,7 @@ namespace opengl
     nContexts(0)
   {
     // Init SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
       LOGERROR("SDL_Init FAILED error=", SDL_GetError());
       return;
     }
@@ -275,9 +275,10 @@ namespace opengl
 
   void cSystem::UpdateResolutions()
   {
-    SDL_DisplayMode currentDisplayMode;
-    int iResult = SDL_GetDesktopDisplayMode(0, &currentDisplayMode);
-    if (iResult != 0) {
+    // TODO: Allow the user to choose which display?
+    SDL_DisplayID display = SDL_GetPrimaryDisplay();
+    const SDL_DisplayMode* pDisplayMode = SDL_GetDesktopDisplayMode(display);
+    if (pDisplayMode == nullptr) {
       LOG("SDL_GetDesktopDisplayMode FAILED error=", SDL_GetError());
       return;
     }
@@ -292,9 +293,9 @@ namespace opengl
     //}
 
     cResolution resolution;
-    resolution.width = currentDisplayMode.w;
-    resolution.height = currentDisplayMode.h;
-    resolution.pixelFormat = GetPixelFormatFromSDLPixelFormatEnum(currentDisplayMode.format);
+    resolution.width = pDisplayMode->w;
+    resolution.height = pDisplayMode->h;
+    resolution.pixelFormat = GetPixelFormatFromSDLPixelFormatEnum(pDisplayMode->format);
 
     capabilities.SetCurrentResolution(resolution);
   }

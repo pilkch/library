@@ -643,7 +643,7 @@ void init()
         }
         else
         {
-          SDL_FreeSurface(surface);
+          SDL_DestroySurface(surface);
           std::ostringstream t;
           t << surface->format->BytesPerPixel;
           LOG.Error("Texture", "Error Unknown Image Format (" + t.str() + ")");
@@ -702,7 +702,7 @@ void init()
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);*/
 
         // clean up
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
       }
 
 

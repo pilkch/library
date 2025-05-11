@@ -88,7 +88,7 @@ namespace opengl
     bool LoadVertexShaderOnly(const opengl::string_t& sShaderVertex);
     bool LoadFragmentShaderOnly(const opengl::string_t& sShaderFragment);
     bool LoadVertexShaderAndFragmentShader(const opengl::string_t& sShaderVertex, const opengl::string_t& sShaderFragment);
-    bool LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
+    bool LoadVertexShaderAndFragmentShaderFromText(const std::string& sVertexShaderName, const std::string& sVertexShaderText, const std::string& sFragmentShaderName, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
     void Destroy();
 
     void Bind();
@@ -163,8 +163,8 @@ namespace opengl
 
     void _LoadVertexShader(const opengl::string_t& sShaderVertex);
     void _LoadFragmentShader(const opengl::string_t& sShaderFragment);
-    void _LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
-    void _LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
+    void _LoadVertexShaderFromText(const opengl::string_t& sShaderName, const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
+    void _LoadFragmentShaderFromText(const opengl::string_t& sShaderName, const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
     void _Compile();
 
     size_t ParseVersion(const std::string& sLine) const;

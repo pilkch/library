@@ -167,8 +167,8 @@ namespace breathe
       const opengl::cCapabilities& capabilities = system.GetCapabilities();
 
       // Use a 16:9 windowed resolution
-      const size_t width = 1000;
-      const size_t height = 562;
+      const size_t width = 1080;
+      const size_t height = 1920;
 
       opengl::cResolution resolution = capabilities.GetCurrentResolution();
       if ((resolution.width < width) || (resolution.height < height) || ((resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8) && (resolution.pixelFormat != opengl::PIXELFORMAT::R8G8B8A8))) {
@@ -757,7 +757,7 @@ namespace breathe
     LoadConfigXML(resolution);
 
     // Init SDL
-    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0) {
+    if (!SDL_Init( SDL_INIT_VIDEO)) {
       LOG.Error("SDL", std::string("SDL_Init for video FAILED error=") + SDL_GetError());
       bReturnCode = false;
       return false;
@@ -770,13 +770,13 @@ namespace breathe
     SDL_Surface* pIcon = IMG_Load("data/icons/application_32x32.png");
     if (pIcon == nullptr) LOGERROR("Could not load data/icons/application_32x32.png");
     SDL_SetWindowIcon(pWindow, pIcon);
-    SDL_FreeSurface(pIcon);
+    SDL_DestroySurface(pIcon);
     pIcon = nullptr;
 
     {
       // Joysticks
 
-      if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
+      if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
         LOG.Error("SDL", std::string("SDL_InitSubSystem for joysticks FAILED error=") + SDL_GetError());
         bReturnCode = false;
         return false;
