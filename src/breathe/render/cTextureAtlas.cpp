@@ -16,8 +16,7 @@
 //#include <GL/GLee.h>
 //#include <GL/glu.h>
 
-#include <SDL2/SDL_image.h>
-
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>

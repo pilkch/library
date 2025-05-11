@@ -13,7 +13,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/storage/file.h>
@@ -437,8 +437,10 @@ namespace opengl
     return o.str();
   }
 
-  void cShader::_LoadVertexShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
+  void cShader::_LoadVertexShaderFromText(const std::string& sShaderName, const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
+    sShaderFragment = sShaderName;
+
     cParserContext parserContext(sFolderPath);
 
     std::istringstream f(sText);
@@ -499,8 +501,10 @@ namespace opengl
     }
   }
 
-  void cShader::_LoadFragmentShaderFromText(const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
+  void cShader::_LoadFragmentShaderFromText(const std::string& sShaderName, const std::string& sText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
+    sShaderFragment = sShaderName;
+
     cParserContext parserContext(sFolderPath);
 
     std::istringstream f(sText);
@@ -579,7 +583,7 @@ namespace opengl
     const opengl::string_t& sCurrentShaderPath = sShaderVertex;
     #endif
     const string_t sFolderPath = spitfire::filesystem::GetFolder(sCurrentShaderPath);
-    _LoadVertexShaderFromText(sText, sFolderPath);
+    _LoadVertexShaderFromText(sShaderVertex, sText, sFolderPath);
   }
 
   void cShader::_LoadFragmentShader(const opengl::string_t& _sShaderFragment)
@@ -600,7 +604,7 @@ namespace opengl
     const opengl::string_t& sCurrentShaderPath = sShaderFragment;
     #endif
     const string_t sFolderPath = spitfire::filesystem::GetFolder(sCurrentShaderPath);
-    _LoadFragmentShaderFromText(sText, sFolderPath);
+    _LoadFragmentShaderFromText(sShaderFragment, sText, sFolderPath);
   }
 
   void cShader::_Compile()
@@ -663,12 +667,12 @@ namespace opengl
     return IsCompiledProgram();
   }
 
-  bool cShader::LoadVertexShaderAndFragmentShaderFromText(const std::string& sShaderVertexText, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
+  bool cShader::LoadVertexShaderAndFragmentShaderFromText(const std::string& sVertexShaderName, const std::string& sShaderVertexText, const std::string& sFragmentShaderName, const std::string& sShaderFragmentText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
     LOG("glGetError=", cSystem::GetErrorString());
 
-    _LoadVertexShaderFromText(sShaderVertexText, sFolderPath, mapDefinesToAdd);
-    _LoadFragmentShaderFromText(sShaderFragmentText, sFolderPath, mapDefinesToAdd);
+    _LoadVertexShaderFromText(sVertexShaderName, sShaderVertexText, sFolderPath, mapDefinesToAdd);
+    _LoadFragmentShaderFromText(sFragmentShaderName, sShaderFragmentText, sFolderPath, mapDefinesToAdd);
     _Compile();
 
     return IsCompiledProgram();

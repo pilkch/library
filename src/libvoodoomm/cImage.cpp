@@ -13,7 +13,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/spitfire.h>
@@ -117,7 +117,7 @@ namespace voodoo
   void cSurface::Destroy()
   {
     if (pSurface != nullptr) {
-      SDL_FreeSurface(pSurface);
+      SDL_DestroySurface(pSurface);
       pSurface = nullptr;
     }
   }
@@ -167,29 +167,26 @@ namespace voodoo
     }
 
     // Check the format
-    if (8 == pSurface->format->BitsPerPixel) {
+    const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(pSurface->format);
+    if (8 == details->bits_per_pixel) {
       std::cout<<"cSurface::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
       image.pixelFormat = PIXELFORMAT::H8;
-    } else if (16 == pSurface->format->BitsPerPixel) {
+    } else if (16 == details->bits_per_pixel) {
       std::cout<<"cSurface::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
       image.pixelFormat = PIXELFORMAT::H16;
-    } else if (24 == pSurface->format->BitsPerPixel) {
+    } else if (24 == details->bits_per_pixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
       type = IMAGE_TYPE::BITMAP;
       image.pixelFormat = PIXELFORMAT::R8G8B8;
-    } else if (32 == pSurface->format->BitsPerPixel) {
+    } else if (32 == details->bits_per_pixel) {
       std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
 
       // Convert if BGR
-      if (pSurface->format->Rshift > pSurface->format->Bshift) {
-        SDL_PixelFormat* pPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
-
-        SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, pPixelFormat, SDL_SWSURFACE);
-        SDL_FreeSurface(pSurface);
-
-        SDL_FreeFormat(pPixelFormat);
+      if (details->Rshift > details->Bshift) {
+        SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, SDL_PIXELFORMAT_RGBA8888);
+        SDL_DestroySurface(pSurface);
 
         pSurface = pConvertedSurface;
       }
@@ -216,7 +213,7 @@ namespace voodoo
       image.pixelFormat = PIXELFORMAT::R8G8B8A8;
     } else {
       std::ostringstream t;
-      t << pSurface->format->BitsPerPixel;
+      t << details->bits_per_pixel;
       std::cout<<"cSurface::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
       return false;
     }
@@ -279,7 +276,7 @@ namespace voodoo
 #endif
 
       const uint8_t* pBuffer = image.GetPointerToBuffer();
-      pSurface = SDL_CreateRGBSurfaceFrom((void*)pBuffer, int(width), int(height), depth, pitch, rmask, gmask, bmask, amask);
+      pSurface = SDL_CreateSurfaceFrom(int(width), int(height), SDL_GetPixelFormatForMasks(depth, rmask, gmask, bmask, amask), (void*)pBuffer, pitch);
     } else {
       const uint8_t* pBuffer = image.GetPointerToBuffer();
       std::memcpy(pSurface->pixels, pBuffer, n);
@@ -297,7 +294,9 @@ namespace voodoo
   void cSurface::ConvertARGBToRGBA()
   {
     ASSERT(pSurface != nullptr);
-    ASSERT(pSurface->format->BitsPerPixel == 32);
+
+    const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(pSurface->format);
+    ASSERT(details->bits_per_pixel == 32);
 
     const size_t height = pSurface->h;
     const size_t nPitchBytes = pSurface->pitch;
@@ -414,15 +413,12 @@ namespace voodoo
 
     // Check the dynamically supported formats
     if (!bIsSupportedSDL) {
-      SDL_RWops* pRWops = SDL_RWFromFile(string::ToUTF8(sFilePath).c_str(), "rb");
-      if (pRWops != nullptr) {
-        bIsSupportedSDL = (IMG_isJPG(pRWops) || IMG_isTIF(pRWops) || IMG_isPNG(pRWops)); // NOTE: In later versions of SDL there is also IMG_isWEBP
+      SDL_IOStream* pIOStream = SDL_IOFromFile(string::ToUTF8(sFilePath).c_str(), "rb");
+      if (pIOStream != nullptr) {
+        bIsSupportedSDL = (IMG_isJPG(pIOStream) || IMG_isTIF(pIOStream) || IMG_isPNG(pIOStream)); // NOTE: In later versions of SDL there is also IMG_isWEBP
 
-        // TODO: Is this required?  Does it crash?
-        if (pRWops != nullptr) {
-          SDL_FreeRW(pRWops);
-          pRWops = nullptr;
-        }
+        SDL_CloseIO(pIOStream);
+        pIOStream = nullptr;
       }
     }
 
