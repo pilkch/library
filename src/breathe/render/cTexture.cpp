@@ -71,7 +71,7 @@ namespace breathe
     cTexture::~cTexture()
     {
       if (pSurface != nullptr) {
-        SDL_FreeSurface(pSurface);
+        SDL_DestroySurface(pSurface);
         pSurface = nullptr;
       }
 
@@ -115,7 +115,7 @@ namespace breathe
           0, 255
         };
         SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
-        SDL_FreeSurface(pSurface);
+        SDL_DestroySurface(pSurface);
         pSurface = pConvertedSurface;
       } else if (32 == pSurface->format->BitsPerPixel) {
         LOG.Success("Texture", breathe::string::ToUTF8(sFilename) + " is a 32 bit RGBA image");
@@ -129,7 +129,7 @@ namespace breathe
             0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
             0, 255};
           SDL_Surface* pConvertedSurface = SDL_ConvertSurface(pSurface, &format, SDL_SWSURFACE);
-          SDL_FreeSurface(pSurface);
+          SDL_DestroySurface(pSurface);
           pSurface = pConvertedSurface;
         }
 

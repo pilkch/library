@@ -33,7 +33,8 @@
 #include <libopenglmm/libopenglmm.h>
 #include <libopenglmm/cTexture.h>
 
-typedef void* SDL_GLContext;
+struct SDL_GLContextState;
+typedef struct SDL_GLContextState* SDL_GLContext;
 
 #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
 struct SDL_Surface;
@@ -153,7 +154,7 @@ namespace opengl
     void DestroyTextureFrameBufferObject(cTextureFrameBufferObject& pTexture);
 
     void CreateShader(cShader& shader, const opengl::string_t& sVertexShaderFileName, const opengl::string_t& sFragmentShaderFileName);
-    void CreateShaderFromText(cShader& shader, const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
+    void CreateShaderFromText(cShader& shader, const std::string& sVertexShaderName, const std::string& sVertexShaderText, const std::string& sFragmentShaderName, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd = std::map<std::string, int>());
     void DestroyShader(cShader& pShader);
 
     void CreateStaticVertexBufferObject(cStaticVertexBufferObject& vbo);

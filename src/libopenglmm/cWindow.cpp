@@ -12,8 +12,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -55,16 +54,7 @@ namespace opengl
   HWND cWindow::GetWindowHandle()
   {
     ASSERT(pWindow != nullptr);
-
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    if (!SDL_GetWindowWMInfo(pWindow, &info))  {
-      LOGERROR("SDL_GetWindowWMInfo FAILED");
-      return NULL;
-    }
-
-    // Store the windows handle
-    return info.info.win.window;
+    return (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(pWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
   }
   #endif
 
@@ -94,7 +84,7 @@ namespace opengl
     if (pIcon == nullptr) LOGERROR("Could not load data/icons/application_32x32.png");
     else {
       SDL_SetWindowIcon(pWindow, pIcon);
-      SDL_FreeSurface(pIcon);
+      SDL_DestroySurface(pIcon);
     }
   }
 
@@ -107,7 +97,8 @@ namespace opengl
 
   void cWindow::ShowCursor(bool bShow)
   {
-    SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
+    if (bShow) SDL_ShowCursor();
+    else SDL_HideCursor();
   }
 
   void cWindow::WarpCursorToMiddleOfScreen()
@@ -163,7 +154,7 @@ namespace opengl
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent)) {
       switch (sdlEvent.type) {
-        case SDL_QUIT: {
+        case SDL_EVENT_QUIT: {
           LOG("Quit");
           if (pWindowEventListener != nullptr) {
             cWindowEvent event;
@@ -184,86 +175,80 @@ namespace opengl
         }
         #endif
 
-        case SDL_WINDOWEVENT: {
-          switch (sdlEvent.window.event) {
-            case SDL_WINDOWEVENT_FOCUS_GAINED: {
-              LOG("Activated");
-              if (pWindowEventListener != nullptr) {
-                cWindowEvent event;
-                event.type = TYPE::WINDOW_ACTIVATE;
-                pWindowEventListener->OnWindowEvent(event);
-              }
-              break;
-            }
-            case SDL_WINDOWEVENT_FOCUS_LOST: {
-              LOG("Deactivated");
-              if (pWindowEventListener != nullptr) {
-                cWindowEvent event;
-                event.type = TYPE::WINDOW_DEACTIVATE;
-                pWindowEventListener->OnWindowEvent(event);
-              }
-              break;
-            }
-            case SDL_WINDOWEVENT_RESIZED: {
-              LOG("Resize");
+        case SDL_EVENT_WINDOW_FOCUS_GAINED: {
+          LOG("Activated");
+          if (pWindowEventListener != nullptr) {
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_ACTIVATE;
+            pWindowEventListener->OnWindowEvent(event);
+          }
+          break;
+        }
+        case SDL_EVENT_WINDOW_FOCUS_LOST: {
+          LOG("Deactivated");
+          if (pWindowEventListener != nullptr) {
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_DEACTIVATE;
+            pWindowEventListener->OnWindowEvent(event);
+          }
+          break;
+        }
+        case SDL_EVENT_WINDOW_RESIZED: {
+          LOG("Resize");
 
-              if (pWindowEventListener != nullptr) {
-                // Send an about to resize event
-                cWindowEvent event;
-                event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
-                pWindowEventListener->OnWindowEvent(event);
-              }
+          if (pWindowEventListener != nullptr) {
+            // Send an about to resize event
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_ABOUT_TO_RESIZE;
+            pWindowEventListener->OnWindowEvent(event);
+          }
 
-              cResolution newResolution;
-              newResolution.width = size_t(sdlEvent.window.data1);
-              newResolution.height = size_t(sdlEvent.window.data2);
-              newResolution.pixelFormat = GetPixelFormat();
-              OnResizeWindow(newResolution, IsFullScreen());
+          cResolution newResolution;
+          newResolution.width = size_t(sdlEvent.window.data1);
+          newResolution.height = size_t(sdlEvent.window.data2);
+          newResolution.pixelFormat = GetPixelFormat();
+          OnResizeWindow(newResolution, IsFullScreen());
 
-              // Send a resized event
-              if (pWindowEventListener != nullptr) {
-                cWindowEvent event;
-                event.type = TYPE::WINDOW_RESIZED;
-                pWindowEventListener->OnWindowEvent(event);
-              }
-
-              break;
-            }
-          };
+          // Send a resized event
+          if (pWindowEventListener != nullptr) {
+            cWindowEvent event;
+            event.type = TYPE::WINDOW_RESIZED;
+            pWindowEventListener->OnWindowEvent(event);
+          }
 
           break;
         }
 
-        case SDL_KEYDOWN: {
+        case SDL_EVENT_KEY_DOWN: {
           // Update our key state
-          KEY key = KEY(sdlEvent.key.keysym.sym);
+          KEY key = KEY(sdlEvent.key.key);
           keystates[key] = STATE::DOWN;
 
           if (pInputEventListener != nullptr) {
             cKeyboardEvent event;
             event.type = TYPE::KEY_DOWN;
-            event.keyCode = sdlEvent.key.keysym.sym;
+            event.keyCode = sdlEvent.key.key;
             pInputEventListener->OnKeyboardEvent(event);
           }
           break;
         }
 
-        case SDL_KEYUP: {
+        case SDL_EVENT_KEY_UP: {
           // Update our key state and add our key to the list of keys released this time step
-          KEY key = KEY(sdlEvent.key.keysym.sym);
+          KEY key = KEY(sdlEvent.key.key);
           keystates[key] = STATE::UP;
           keysUp.push_back(key);
 
           if (pInputEventListener != nullptr) {
             cKeyboardEvent event;
             event.type = TYPE::KEY_UP;
-            event.keyCode = sdlEvent.key.keysym.sym;
+            event.keyCode = sdlEvent.key.key;
             pInputEventListener->OnKeyboardEvent(event);
           }
           break;
         }
 
-        case SDL_MOUSEWHEEL: {
+        case SDL_EVENT_MOUSE_WHEEL: {
           if (pInputEventListener != nullptr) {
             cMouseEvent event;
 
@@ -283,7 +268,7 @@ namespace opengl
           break;
         }
 
-        case SDL_MOUSEBUTTONUP: {
+        case SDL_EVENT_MOUSE_BUTTON_UP: {
           if (pInputEventListener != nullptr) {
             cMouseEvent event;
             event.type = TYPE::MOUSE_UP;
@@ -295,7 +280,7 @@ namespace opengl
           break;
         }
 
-        case SDL_MOUSEBUTTONDOWN: {
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
           if (pInputEventListener != nullptr) {
             cMouseEvent event;
             event.type = TYPE::MOUSE_DOWN;
@@ -307,7 +292,7 @@ namespace opengl
           break;
         }
 
-        case SDL_MOUSEMOTION: {
+        case SDL_EVENT_MOUSE_MOTION: {
           if (pInputEventListener != nullptr) {
             cMouseEvent event;
             event.type = TYPE::MOUSE_MOVE;

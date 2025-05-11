@@ -73,7 +73,7 @@ namespace breathe
     {
       LOG("");
 
-      if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+      if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
         LOG("SDL_InitSubSystem FAILED to init SDL_INIT_AUDIO, returning false");
         ReportError();
         ASSERT(false);

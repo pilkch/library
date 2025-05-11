@@ -12,7 +12,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>
@@ -175,14 +175,14 @@ GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
     #ifdef BUILD_LIBOPENGLMM_WINDOW_SDL
     // Destroy the surface
     if (pSurface != nullptr) {
-      SDL_FreeSurface(pSurface);
+      SDL_DestroySurface(pSurface);
       pSurface = nullptr;
     }
     #endif
 
     // Destroy the context
     if (context != nullptr) {
-      SDL_GL_DeleteContext(context);
+      SDL_GL_DestroyContext(context);
       context = nullptr;
     }
   }
@@ -424,9 +424,9 @@ GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
     shaders.push_back(&shader);
   }
 
-  void cContext::CreateShaderFromText(cShader& shader, const std::string& sVertexShaderText, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
+  void cContext::CreateShaderFromText(cShader& shader, const std::string& sVertexShaderName, const std::string& sVertexShaderText, const std::string& sFragmentShaderName, const std::string& sFragmentShaderText, const opengl::string_t& sFolderPath, const std::map<std::string, int>& mapDefinesToAdd)
   {
-    if (!shader.LoadVertexShaderAndFragmentShaderFromText(sVertexShaderText, sFragmentShaderText, sFolderPath, mapDefinesToAdd)) {
+    if (!shader.LoadVertexShaderAndFragmentShaderFromText(sVertexShaderName, sVertexShaderText, sFragmentShaderName, sFragmentShaderText, sFolderPath, mapDefinesToAdd)) {
       return;
     }
 
@@ -484,17 +484,17 @@ GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
 
     // Destroy the old surface
     if (pSurface != nullptr) {
-      SDL_FreeSurface(pSurface);
+      SDL_DestroySurface(pSurface);
       pSurface = nullptr;
     }
 
     // Destroy the old context
     if (context != nullptr) {
-      SDL_GL_DeleteContext(context);
+      SDL_GL_DestroyContext(context);
       context = nullptr;
     }
 
-    unsigned int uiFlags = SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+    unsigned int uiFlags = SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     //uiFlags |= SDL_HWPALETTE;
 
     // Create a window that is fullscreen with a custom resolution
@@ -519,21 +519,15 @@ GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     #endif
 
-    #ifdef BUILD_DEBUG
-    // For debugging
-    //const int iDisplay = SDL_GetNumVideoDisplays(); // Assume that the last monitor is the desired one (Works for most second monitor setups where a TV or larger monitor is the second or third device)
-    const int iDisplay = 1;
-    #else
     // TODO: Allow selection of the monitor or use the default or same monitor that the mouse is currently on?
-    const int iDisplay = 1;
-    #endif
+    //const int iDisplay = 1;
 
     // Create our window if it has not already been created
     LOG("Calling SDL_CreateWindow");
     const bool bCreated = (window.pWindow != nullptr);
     if (!bCreated) {
       window.pWindow = SDL_CreateWindow("My Game Window",
-        SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
+        //SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay), SDL_WINDOWPOS_CENTERED_DISPLAY(iDisplay),
         int(resolution.width), int(resolution.height),
         uiFlags);
       // Create a fullscreen window with the current resolution

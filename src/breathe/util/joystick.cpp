@@ -145,7 +145,7 @@ namespace breathe
     {
       size_t nControllers = 0;
 
-      int nJoysticks = SDL_NumJoysticks();
+      const int nJoysticks = SDL_NumJoysticks();
       for (int i = 0; i < nJoysticks; i++) {
         if (SDL_IsGameController(i)) {
           OpenGameController(int(nControllers));
@@ -191,7 +191,7 @@ namespace breathe
           SDL_Haptic* pHaptic = SDL_HapticOpenFromJoystick(pJoystick);
           printf("Haptic Effects: %d\n", SDL_HapticNumEffects(pHaptic));
           printf("Haptic Query: %x\n", SDL_HapticQuery(pHaptic));
-          if (SDL_HapticRumbleSupported(pHaptic) == 0) {
+          if (!SDL_HapticRumbleSupported(pHaptic)) {
             SDL_HapticClose(pHaptic);
             pHaptic = nullptr;
           } else if (SDL_HapticRumbleInit(pHaptic) != 0) {
@@ -233,7 +233,7 @@ namespace breathe
 
     bool cJoystickManager::IsAttached(SDL_GameController* pController) const
     {
-      return (SDL_GameControllerGetAttached(pController) == 1);
+      return SDL_GamepadConnected(pController);
     }
 
     /*
@@ -247,7 +247,7 @@ namespace breathe
 
     void UpdateInput()
     {
-      /*if (SDL_GameControllerGetAttached( gamecontroller ) == 0) return;
+      /*if (SDL_GameControllerGetAttached(gamecontroller)) return;
 
       for (i = 0; i <SDL_CONTROLLER_BUTTON_MAX; ++i) {
         if (SDL_GameControllerGetButton(gamecontroller, i) == SDL_PRESSED) {

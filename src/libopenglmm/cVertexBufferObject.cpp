@@ -13,7 +13,7 @@
 #include <vector>
 
 // SDL headers
-#include <SDL2/SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 // libopenglmm headers
 #include <libopenglmm/cSystem.h>

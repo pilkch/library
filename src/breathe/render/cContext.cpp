@@ -611,7 +611,7 @@ namespace breathe
     {
       ASSERT(pSurface != nullptr);
 
-      SDL_FreeSurface(pSurface);
+      SDL_DestroySurface(pSurface);
       pSurface = nullptr;
     }
 
@@ -879,7 +879,7 @@ namespace breathe
       pPixels = nullptr;
 
       SDL_SaveBMP(pTempSurface, breathe::string::ToUTF8(sFilename).c_str());
-      SDL_FreeSurface(pTempSurface);
+      SDL_DestroySurface(pTempSurface);
     }
 
 
