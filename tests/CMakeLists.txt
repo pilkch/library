@@ -155,6 +155,7 @@ lang_test.cpp process_test.cpp settings_test.cpp spitfire_test.cpp string_test.c
 network_test.cpp
 weather_bom_test.cpp
 breathe_vehicle_test.cpp
+lixdgmm_test.cpp
 main.cpp
 )
 PREFIX_PATHS(src/ ${TEST_SOURCE_FILES})
