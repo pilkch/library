@@ -26,7 +26,7 @@
 #include <map>
 
 // SDL headers
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 // libopenglmm headers
 #include <libopenglmm/libopenglmm.h>
