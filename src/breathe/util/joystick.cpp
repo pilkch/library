@@ -2,7 +2,7 @@
 #include <iostream>
 
 // SDL headers
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 // Spitfire headers
 #include <spitfire/util/log.h>

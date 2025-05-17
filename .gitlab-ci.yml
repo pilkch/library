@@ -6,13 +6,13 @@ default:
   before_script:
     - dnf install -y gtest-devel gmock-devel
       gnutls-devel libxdg-basedir-devel
-      SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_net-devel SDL2_ttf-devel
+      SDL3-devel SDL3_image-devel
       mesa-libGL-devel mesa-libGLU-devel GLee-devel
       freetype-devel
     # json-c-devel libxml2-devel gnutls-devel
-    # Fix the Gcc 13 C++ headers
-    - sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/13/experimental/socket
-    - sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/13/experimental/buffer
+    # Fix the Gcc 15 C++ headers
+    - sed -i "/const error_category& socket_category() noexcept/c\  inline const error_category& socket_category() noexcept" /usr/include/c++/15/experimental/socket
+    - sed -i "/const error_category& stream_category() noexcept/c\  inline const error_category& stream_category() noexcept" /usr/include/c++/15/experimental/buffer
 
 build:
   stage: build

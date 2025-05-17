@@ -5,7 +5,7 @@
 #include <map>
 
 // SDL headers
-#include <SDL2/SDL_gamecontroller.h>
+#include <SDL3/SDL_gamecontroller.h>
 
 // Breathe headers
 #include <breathe/breathe.h>

@@ -17,7 +17,7 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 // Spitfire
 #include <spitfire/spitfire.h>
