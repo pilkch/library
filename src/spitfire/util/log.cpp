@@ -18,7 +18,7 @@
 // Boost headers
 
 // SDL headers
-#include <SDL2/SDL.h>
+//#include <SDL3/SDL.h>
 
 //#if defined(BUILD_DEBUG) && defined(__WIN__)
 //#include <windows.h>
@@ -436,6 +436,7 @@ namespace spitfire
       SDLK_COMPOSE    = 314,    //Multi-key compose key
       */
 
+      #if 0
       // Early exit
       if ((SDLK_ESCAPE == uiCode) || (SDLK_BACKQUOTE == uiCode)) return false;
 
@@ -496,6 +497,7 @@ namespace spitfire
 
       //When we press a key we want to see where we are up to
       uiCursorBlink = 0;
+      #endif
 
       return true;
     }

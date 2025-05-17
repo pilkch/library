@@ -13,8 +13,8 @@
 #include <fstream>
 
 // Other libraries
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_mixer.h>
 
 // Spitfire
 #include <spitfire/spitfire.h>
