@@ -1,5 +1,4 @@
-#ifndef COCTREE_H
-#define COCTREE_H
+#pragma once
 
 #include <spitfire/math/cFrustum.h>
 
@@ -24,7 +23,7 @@ namespace spitfire
     {
     public:
       cOctree();
-      virtual ~cOctree();
+      ~cOctree();
 
       // The current amount of subdivisions we are currently at.
       // This is used to make sure we don't go over the max amount
@@ -90,5 +89,3 @@ namespace spitfire
     };
   }
 }
-
-#endif // COCTREE_H
