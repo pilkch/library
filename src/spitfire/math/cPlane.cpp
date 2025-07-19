@@ -14,7 +14,6 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cPlane.h>
 #include <spitfire/math/cQuaternion.h>
-#include <spitfire/math/cFrustum.h>
 #include <spitfire/math/cColour.h>
 
 namespace spitfire

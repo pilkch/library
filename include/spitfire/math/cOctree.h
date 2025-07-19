@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cVec3.h>
 
 namespace spitfire
 {
@@ -64,11 +64,9 @@ namespace spitfire
       virtual size_t Render(cOctree* pNode) { (void)pNode; return 0; }
 
       // This initializes the data members
-      void create(cFrustum* newcFrustum);
+      void Create();
 
     public:
-      cFrustum* frustum;
-
       // This tells us if we have divided this node into more sub nodes
       bool m_bSubDivided;
 
