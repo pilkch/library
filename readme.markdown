@@ -21,16 +21,18 @@ You should have received a copy of the GNU Lesser General Public
 
 ### What is this?
 
+I often post videos on [https://www.youtube.com/@cgpilk](my youtube channel) which demonstrate the spitfire and libopenglmm parts.
+
 This is a collection of libraries including:
 
 *   Spitfire a collection of utility classes for dealing with maths, strings, files and threading
-*   Breathe game engine using SDL, OpenGL, OpenAL and Bullet
 *   libopenglmm a wrapper for OpenGL with support for OpenGL 3.3 core
 *   libtrashmm a library for deleting files on Linux
 *   libvoodoomm a library for dealing with images
-*   libgtkmm a wrapper for using GTK on Linux
-*   libwin32mm a wrapper for hiding all the Win32 rubbish
 *   libxdgmm a wrapper for xdg functionality on Linux
+*   Breathe game engine using SDL, OpenGL, OpenAL and Bullet **(Neglected)**
+*   libgtkmm a wrapper for using GTK on Linux **(Neglected)**
+*   libwin32mm a wrapper for hiding all the Win32 rubbish **(Neglected)**
 
 ### Spitfire Utility Library
 
