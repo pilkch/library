@@ -16,7 +16,6 @@ namespace spitfire
       explicit cVec2(const float* rhs);
       inline cVec2(float newX, float newY) : x(newX), y(newY), u(x), v(y) {}
       inline cVec2(const cVec2& rhs) : x(rhs.x), y(rhs.y), u(x), v(y) {}
-      cVec2(const cVec3& rhs);
 
       void Set(float newX, float newY); //set member variables
 

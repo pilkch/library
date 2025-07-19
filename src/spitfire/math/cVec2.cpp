@@ -32,14 +32,6 @@ namespace spitfire
       y=*(rhs+1);
     }
 
-    cVec2::cVec2(const cVec3& rhs) :
-      x(rhs.x),
-      y(rhs.y),
-      u(x),
-      v(y)
-    {
-    }
-
     void cVec2::Set(float newX, float newY)
     {
       x=newX;
