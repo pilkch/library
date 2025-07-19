@@ -199,6 +199,48 @@ namespace opengl
   }
 
   template <class T>
+  void CreateSphereTemplatedColour(T& builder, const spitfire::math::cVec3& position, float fRadius, size_t nSegments, const spitfire::math::cColour4& colour)
+  {
+    assert(nSegments != 0);
+
+    const int latitudes = int(nSegments);
+    const int longitudes = int(nSegments);
+
+    const float fSegmentTextureWidth = 1.0f / latitudes;
+    const float fSegmentTextureHeight = 1.0f / longitudes;
+
+    for (int i = 0; i <= latitudes; i++) {
+      double lat0 = spitfire::math::cPI * (-0.5 + double(i - 1) / latitudes);
+      double z0 = sin(lat0);
+      double zr0 = cos(lat0);
+
+      double lat1 = spitfire::math::cPI * (-0.5 + double(i) / latitudes);
+      double z1 = sin(lat1);
+      double zr1 = cos(lat1);
+
+      for (int j = 0; j <= longitudes; j++) {
+          double lng0 = 2 * spitfire::math::cPI * double(j - 1) / longitudes;
+          double x0 = cos(lng0);
+          double y0 = sin(lng0);
+
+          double lng1 = 2 * spitfire::math::cPI * double(j) / longitudes;
+          double x1 = cos(lng1);
+          double y1 = sin(lng1);
+
+          const float fU = float(j) * fSegmentTextureWidth;
+          const float fV = float(i) * fSegmentTextureHeight;
+
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), colour);
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), spitfire::math::cVec3(x0 * zr1, y0 * zr1, z1), colour);
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), colour);
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), spitfire::math::cVec3(x1 * zr0, y1 * zr0, z0), colour);
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), spitfire::math::cVec3(x1 * zr1, y1 * zr1, z1), colour);
+          builder.PushBack(position + fRadius * spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), spitfire::math::cVec3(x0 * zr0, y0 * zr0, z0), colour);
+      }
+    }
+  }
+
+  template <class T>
   void CreateCylinderTemplated(T& builder, float fRadius, float fHeight, size_t nCircleSegments)
   {
     assert(nCircleSegments != 0);
@@ -281,6 +323,34 @@ namespace opengl
       builder.PushBack(spitfire::math::cVec3(0.0f, 0.0f, 0.0f), spitfire::math::v3Down, textureCoordOffset, colourBottom);
       builder.PushBack(spitfire::math::cVec3(p0.x * fRadius, 0.0f, p0.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p0, colourBottom);
       builder.PushBack(spitfire::math::cVec3(p1.x * fRadius, 0.0f, p1.y * fRadius), spitfire::math::v3Down, textureCoordOffset + p1, colourBottom);
+    }
+  }
+
+  template <class T>
+  void CreateConeTemplated(T& builder, float fRadius, float fHeight, size_t nSegments)
+  {
+    assert(nSegments != 0);
+
+    const spitfire::math::cVec3 centerBottom(0.0f, 0.0f, 0.0f);
+    const spitfire::math::cVec3 centerTop(0.0f, fHeight, 0.0f);
+    const spitfire::math::cVec3 normal(0.0f, 1.0f, 0.0f);
+
+    const float fSegmentArcDegrees = 360.0f / float(nSegments);
+    for (size_t i = 0; i < nSegments; i++) {
+      const float fAngleDegrees0 = (i * fSegmentArcDegrees);
+      const float fAngleDegrees1 = ((i + 1) * fSegmentArcDegrees);
+      const spitfire::math::cVec2 point0 = spitfire::math::CalculateCartesianCoordinate(fAngleDegrees0, fRadius);
+      const spitfire::math::cVec2 point1 = spitfire::math::CalculateCartesianCoordinate(fAngleDegrees1, fRadius);
+
+      // Triangle on the bottom
+      builder.PushBack(centerBottom, normal);
+      builder.PushBack(spitfire::math::cVec3(point1.x, 0.0f, point1.y), normal);
+      builder.PushBack(spitfire::math::cVec3(point0.x, 0.0f, point0.y), normal);
+
+      // Triangle on the side going up to the point at the top
+      builder.PushBack(centerTop, normal);
+      builder.PushBack(spitfire::math::cVec3(point0.x, 0.0f, point0.y), normal);
+      builder.PushBack(spitfire::math::cVec3(point1.x, 0.0f, point1.y), normal);
     }
   }
 
