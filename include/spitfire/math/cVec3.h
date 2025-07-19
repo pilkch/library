@@ -28,6 +28,7 @@ namespace spitfire
       inline float GetZ() const { return z; }
 
       inline cVec2 GetXY() const { return cVec2(x, y); }
+      inline cVec2 GetXZ() const { return cVec2(x, z); }
 
       inline void Clear() { x = y = z = 0.0f; }
 

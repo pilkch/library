@@ -182,21 +182,21 @@ namespace spitfire
       return true;
     }
 
-    bool cRay3::CollideWithAABB(const cAABB3& rhs, float& fDepth) const
+    bool cRay3::CollideWithAABB(const cAABB3& rhs, float& fOutDepth) const
     {
       // NOTE: This doesn't check the length, should the ray even have a length?
-      return Raycast(*this, rhs, fDepth);
+      return Raycast(*this, rhs, fOutDepth);
     }
 
-    bool cRay3::CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const
+    bool cRay3::CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fOutDepth) const
     {
-      fDepth = cINFINITY;
+      fOutDepth = cINFINITY;
 
-      cPlane pl(p0, p1, p2);
+      const cPlane plane(p0, p1, p2);
 
-      if (!CollideWithPlane(pl, fDepth)) return false;
+      if (!CollideWithPlane(plane, fOutDepth)) return false;
 
-      const cVec3 I = origin + (fDepth * direction);
+      const cVec3 I = origin + (fOutDepth * direction);
 
       cVec3 N = (p1 - p0).CrossProduct(I - p0);
       cVec3 N2 = (p2 - p1).CrossProduct(I - p1);

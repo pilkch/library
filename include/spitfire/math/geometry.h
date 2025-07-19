@@ -87,6 +87,13 @@ namespace spitfire
       return a + (t_clamped * AB);
     }
 
+    inline bool IsPointInRect(const spitfire::math::cVec2& point, const cVec2& p0, const cVec2& p1)
+    {
+      return (
+        (point.x >= p0.x) && (point.x <= p1.x) &&
+        (point.y >= p0.y) && (point.y <= p1.y)
+      );
+    }
 
     inline bool IsPointInCircle(const cVec2& point, const cVec2& centre, float radius)
     {

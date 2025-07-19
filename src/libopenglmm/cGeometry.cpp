@@ -568,6 +568,11 @@ namespace opengl
     }
   }
 
+  void cGeometryBuilder::CreateSphere(const spitfire::math::cVec3& position, float fRadius, size_t nSegments, cGeometryBuilder_v3_n3_c4& builder, const spitfire::math::cColour4& colour)
+  {
+    CreateSphereTemplatedColour(builder, position, fRadius, nSegments, colour);
+  }
+
   void cGeometryBuilder::CreateCylinder(float fRadius, float fHeight, size_t nCircleSegments, cGeometryData& data, size_t nTextureUnits)
   {
     if (nTextureUnits == 0) {
@@ -606,6 +611,11 @@ namespace opengl
       std::cout<<"cGeometryBuilder::CreateCylinderWithTopAndBottomColours Invalid nTextureUnits "<<nTextureUnits<<std::endl;
       assert(false);
     }
+  }
+
+  void cGeometryBuilder::CreateCone(float fRadius, float fHeight, size_t nCircleSegments, cGeometryBuilder_v3_n3& builder)
+  {
+    CreateConeTemplated(builder, fRadius, fHeight, nCircleSegments);
   }
 
   void cGeometryBuilder::CreateTeapot(float fRadius, size_t nSegments, cGeometryData& data, size_t nTextureUnits)

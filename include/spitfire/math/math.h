@@ -205,17 +205,20 @@ namespace spitfire
 
     template <class T> inline constexpr bool IsDivisibleByTwo(T value) { return ((value % 2) == 0); }
 
-    // This function gets the first power of 2 >= the int that we pass it.
+    template<class T> inline constexpr bool IsPowerOfTwo(T value)
+    {
+      // https://stackoverflow.com/a/108329
+      return (value != 0) && ((value & (value - 1)) == 0);
+    }
+
+    // This function gets the first power of 2 >= n
     inline constexpr int NextPowerOfTwo(int n)
     {
-      // TODO: Surely 2 is the first power of two after 0?
-      int value = 1;
+      int value = 2;
       // Keep looping through the powers of two until we find one that is >= n
       while (value < n) value <<= 1;
       return value;
     }
-
-    template<class T> inline constexpr bool IsPowerOfTwo(T value) { return (value != 0) && ((value & (value - 1)) == 0); }
 
     inline constexpr bool IsApproximatelyEqual(float_t a, float_t b, float_t fEpsilon)
     {
