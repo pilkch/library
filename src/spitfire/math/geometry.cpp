@@ -16,6 +16,7 @@
 #include <spitfire/util/log.h>
 
 #include <spitfire/math/math.h>
+#include <spitfire/math/cOctree.h>
 #include <spitfire/math/cVec2.h>
 #include <spitfire/math/cVec3.h>
 #include <spitfire/math/cPlane.h>
@@ -208,10 +209,93 @@ namespace spitfire
       return true;
     }
 
+    bool cRay3::CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const
+    {
+      float fClosestDepth = cINFINITY;
+      float fDepth = cINFINITY;
+      bool found = false;
+
+      const size_t triangles = collisionTrianglePoints.size();
+      for (size_t i = 0; i < triangles; i += 3) {
+        if (CollideWithTriangle(collisionTrianglePoints[i], collisionTrianglePoints[i + 1], collisionTrianglePoints[i + 2], fDepth) && (fDepth < fClosestDepth)) {
+          // We found a (closer) collision
+          outCollision = origin + (fDepth * direction);
+          fClosestDepth = fDepth;
+          found = true;
+        }
+      }
+
+      return found;
+    }
+
+    bool cRay3::CollideRayWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const
+    {
+      if (pOctree == nullptr) {
+        return false;
+      }
+
+      const float fHalfWidth = pOctree->m_Width;
+      const cVec3 min(pOctree->m_vCenter - cVec3(fHalfWidth, fHalfWidth, fHalfWidth));
+      const cVec3 max(pOctree->m_vCenter + cVec3(fHalfWidth, fHalfWidth, fHalfWidth));
+
+      cAABB3 aabb;
+      aabb.SetMinMax(min, max);
+
+      float fClosestDepth = cINFINITY;
+      float fDepth = cINFINITY;
+
+      if (!CollideWithAABB(aabb, fDepth)) {
+        return false;
+      }
+
+
+      if (pOctree->IsSubDivided()) {
+        // Recurse to the bottom of these nodes and draw the end node's vertices
+        // Like creating the octree, we need to recurse through each of the 8 nodes.
+        return (
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_FRONT], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_BACK], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_BACK], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_FRONT], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_FRONT], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_BACK], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_BACK], outCollision) ||
+          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_FRONT], outCollision)
+        );
+      }
+
+
+      bool found = false;
+
+      // Make sure we have valid vertices assigned to this node
+      if (pOctree->m_pVertices != nullptr) {
+        cVec3* pVertices = pOctree->m_pVertices;
+
+        // Go through all of the vertices (the number of triangles * 3)
+        const size_t nVertices = pOctree->GetTriangleCount() * 3;
+        for (size_t i = 0; i < nVertices; i += 3) {
+          if (CollideWithTriangle(pVertices[i], pVertices[i + 1], pVertices[i + 2], fDepth) && (fDepth < fClosestDepth)) {
+            // We found a (closer) collision
+            outCollision = origin + (fDepth * direction);
+            fClosestDepth = fDepth;
+            found = true;
+          }
+        }
+      }
+
+      return found;
+    }
+
+    bool cRay3::CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const
+    {
+      return CollideRayWithOctreeNode(&octree, outCollision);
+    }
+
+
 
     // ** cRectangle
 
-    bool cRectangle::ContainsPoint(const spitfire::math::cVec2& point) const
+    bool cRectangle::ContainsPoint(const cVec2& point) const
     {
       return (point.x > x) && (point.y > y) && (point.x < x + width) && (point.y < y + height);
     }

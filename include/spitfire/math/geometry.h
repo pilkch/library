@@ -12,6 +12,8 @@ namespace spitfire
 {
   namespace math
   {
+    class cOctree;
+
     inline float CalculateCircleCircumference(float fRadius)
     {
       return 2.0f * cPI * fRadius;
@@ -87,7 +89,7 @@ namespace spitfire
       return a + (t_clamped * AB);
     }
 
-    inline bool IsPointInRect(const spitfire::math::cVec2& point, const cVec2& p0, const cVec2& p1)
+    inline bool IsPointInRect(const cVec2& point, const cVec2& p0, const cVec2& p1)
     {
       return (
         (point.x >= p0.x) && (point.x <= p1.x) &&
@@ -375,10 +377,15 @@ namespace spitfire
       bool CollideWithAABB(const cAABB3& rhs, float& fDepth) const;
       bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
       bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
+      bool CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const;
+      bool CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const;
 
       cVec3 origin;
       cVec3 direction;
       float_t length;
+
+    private:
+      bool CollideRayWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const;
     };
 
     inline cRay3::cRay3() :
@@ -519,7 +526,7 @@ namespace spitfire
       // completely enclosed.
       const cRectangle& AddRectangleToVolume(const cRectangle& rhs);
 
-      bool ContainsPoint(const spitfire::math::cVec2& point) const;
+      bool ContainsPoint(const cVec2& point) const;
 
       float x;
       float y;
