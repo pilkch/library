@@ -50,6 +50,15 @@ namespace spitfire
       intercept = rhs.intercept;
     }
 
+    void cPlane::SetFromPointAndNormal(const cVec3& point, const cVec3& _normal)
+    {
+      normal = _normal.GetNormalised();
+
+      const float length = normal.GetLength();
+
+      intercept = point.DotProduct(normal);
+    }
+
     void cPlane::SetFromPoints(const cVec3 & p0, const cVec3 & p1, const cVec3 & p2)
     {
       normal = (p1 - p0).CrossProduct(p2 - p0);
