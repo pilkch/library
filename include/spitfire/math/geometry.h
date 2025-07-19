@@ -374,8 +374,11 @@ namespace spitfire
       const float_t& GetLength() const { return length; }
 
       bool CollideWithPlane(const cPlane& rhs, float& fDepth) const;
+      bool CollideWithPlaneBetterButRequiresChangingPlaneClass(const spitfire::math::cVec3& plane_origin, const spitfire::math::cVec3& plane_normal, float& fOutDepth) const;
+      bool CollideWithDisc(const spitfire::math::cVec3& disc_origin, const spitfire::math::cVec3& disc_normal, float radius, float& fOutDepth) const;
       bool CollideWithAABB(const cAABB3& rhs, float& fDepth) const;
       bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
+      bool CollideWithCylinder(const spitfire::math::cVec3& p0, const spitfire::math::cVec3& p1, float fRadius, spitfire::math::cVec3& outCollision) const;
       bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
       bool CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const;
       bool CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const;

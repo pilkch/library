@@ -92,6 +92,40 @@ namespace spitfire
       return true;
     }
 
+    bool cRay3::CollideWithPlaneBetterButRequiresChangingPlaneClass(const cVec3& plane_origin, const cVec3& plane_normal, float& fOutDepth) const
+    {
+      // https://davidjcobb.github.io/articles/ray-plane-intersection
+      const float denom = dot(plane_normal, direction);
+      if (denom > cEPSILON || denom < -cEPSILON) {
+        const float  Hd = dot(plane_origin - origin, plane_normal) / denom;
+        if (Hd >= 0.0f) {
+          fOutDepth = Hd;
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    bool cRay3::CollideWithDisc(const cVec3& disc_origin, const cVec3& disc_normal, float radius, float& fOutDepth) const
+    {
+      // https://davidjcobb.github.io/articles/ray-disc-intersection
+
+      // Collide with the disc as a plane
+      if (!CollideWithPlaneBetterButRequiresChangingPlaneClass(disc_origin, disc_normal, fOutDepth)) {
+        return false;
+      }
+
+      // Now check that the collision point is within the disc radius
+      const cVec3 Hp = origin + direction * fOutDepth;
+      const cVec3 Dd = Hp - disc_origin;
+      if (dot(Dd, Dd) > radius * radius) {
+        return false;
+      }
+
+      return true;
+    }
+
     bool cRay3::CollideWithSphere(const cSphere& rhs, float& fDepth) const
     {
       fDepth = cINFINITY;
@@ -140,6 +174,173 @@ namespace spitfire
         // else the intersection point is at t0
         fDepth = t0;
         //fDepth -= (rhs.GetPosition() - origin).GetLength();
+        return true;
+      }
+
+      return false;
+    }
+
+    // Given coefficients in a quadratic equation, this function gives you the roots 
+    // and returns the number of roots. If there is only one root, then both root 
+    // variables are set to the same value.
+    //
+    int CalculateQuadraticRoots(const float a, const float b, const float c, float& fOutRootLower, float& fOutRootUpper)
+    {
+      const float discriminant = (b * b) - (4.0 * a * c);
+      if (discriminant > cEPSILON) {
+        float b_term = b < cEPSILON ? -b + sqrt(discriminant) : -b - sqrt(discriminant);
+
+        fOutRootLower = b_term / (2.0 * a); // Quadratic formula
+        fOutRootUpper = (2.0 * c) / b_term; // Reverse quadratic formula
+
+        if (fOutRootLower > fOutRootUpper) {
+          std::swap(fOutRootLower, fOutRootUpper); // Use of both formulae, plus this, avoids catastrophic cancellation due to floating-point limits
+        }
+
+        return 2;
+      } else if (discriminant > -cEPSILON && discriminant <= cEPSILON) {
+        fOutRootLower = -(b / 2.0 * a);
+        fOutRootUpper = fOutRootLower;
+        return 1;
+      }
+
+      fOutRootLower = NAN;
+      fOutRootUpper = NAN;
+
+      return 0;
+    }
+
+    bool RayCylinderIntersection(const cRay3& ray, const cVec3& p0, const cVec3& p1, float cylinder_radius, float& hit_distance
+    )
+    {
+      // https://davidjcobb.github.io/articles/ray-cylinder-intersection
+
+      // First, identify intersections between a line and an infinite cylinder. An infinite 
+      // cylinder has no base and extends in both directions.
+      const cVec3 Rl = ray.origin - p1;        // Ray origin local to centerpoint
+      const cVec3 Cs = p0 - p1;                // Cylinder spine
+      const float Ch = length(Cs);             // Cylinder height
+      const cVec3 Ca = Cs / Ch;                // Cylinder axis
+
+      const float Ca_dot_Rd = dot(Ca, ray.direction);
+      const float Ca_dot_Rl = dot(Ca, Rl);
+      const float Rl_dot_Rl = dot(Rl, Rl);
+
+      const float a = 1 - (Ca_dot_Rd * Ca_dot_Rd);
+      const float b = 2 * (dot(ray.direction, Rl) - Ca_dot_Rd * Ca_dot_Rl);
+      const float c = Rl_dot_Rl - Ca_dot_Rl * Ca_dot_Rl - (cylinder_radius * cylinder_radius);
+
+      float hit_near;
+      float hit_away;
+      auto  count = CalculateQuadraticRoots(a, b, c, hit_near, hit_away);
+      if (count == 0) {
+        // There is no intersection between a line (i.e. a "double-sided" ray) and the 
+        // infinite cylinder that matches our finite cylinder. This means that we cannot 
+        // be hitting any part of the cylinder: if we were hitting the base from the 
+        // inside, for example, then the "back of our ray" would be hitting the upper 
+        // part of the infinite cylinder.
+        return false;
+      }
+
+      //
+      // Now, we need to take our intersection points and ensure that they lie on the 
+      // surface of a finite cylinder. If one of them is past the edges of the finite 
+      // cylinder, then we need to check for a valid intersection with the endcaps.
+      //
+      if (count > 2) {
+        std::cerr<<"Error: Incorrect number of quadtratic roots"<<std::endl;
+        return false;
+      }
+
+      bool valid1 = true;
+      bool valid2 = true;
+
+      cVec3 Hp1 = ray.origin + ray.direction * hit_near;
+      const cVec3 Hp2 = ray.origin + ray.direction * hit_away;
+      float Ho1 = dot(p0 - Hp1, Ca); // height offset
+      const float Ho2 = dot(p0 - Hp2, Ca);
+      int valid_count = count;
+      if (hit_near < 0.0 || Ho1 < 1.0e-8 || Ho1 > Ch) {
+        valid1 = false;
+        --valid_count;
+      }
+      if (hit_away < 0.0 || Ho2 < 1.0e-8 || Ho2 > Ch) {
+        valid2 = false;
+        if (count > 1) {
+          --valid_count;
+        }
+      }
+
+      if (valid_count == 0) {
+        // The ray never hits the bounded cylinder's curved surface. If we're looking 
+        // along the cylinder's axis -- whether from inside or outside -- then the ray 
+        // could still hit an endcap.
+        // 
+        // Let's project the ray origin onto the cylinder's axis, and figure out which 
+        // endcap we're nearer to. (Well, actually, we already have that value: it's Ca_dot_Rl.
+        if (Ca_dot_Rl <= 0.0) { // above
+          valid1 = ray.CollideWithDisc(p0, Ca, cylinder_radius, hit_near);
+        } else if (Ca_dot_Rl >= Ch) { // below
+          valid1 = ray.CollideWithDisc(p1, Ca, cylinder_radius, hit_away);
+        } else {
+          // Inside, don't count as a collision
+          return false;
+        }
+
+        if (valid1) {
+          hit_distance = hit_near;
+          return true;
+        }
+
+        return false;
+      }
+      if (valid_count == 1) {
+        // The ray hits the cylinder's curved surface only once. This can only happen under 
+        // two cases: the ray originates from inside the cylinder, and points outward; or 
+        // the ray passes through the bounded cylinder once and then through an endcap.
+        if (valid2) {
+          Hp1 = Hp2;
+          Ho1 = Ho2;
+          valid1   = true;
+          hit_near = hit_away;
+        }
+
+        float disc_near;
+        float disc_away;
+        bool disc1 = ray.CollideWithDisc(p0, Ca, cylinder_radius, disc_near);
+        const bool disc2 = ray.CollideWithDisc(p1, Ca, cylinder_radius, disc_away);
+        if (disc1) {
+          if (disc2) {
+            if (disc_away < disc_near) {
+              disc_near = disc_away;
+            }
+          }
+        } else if (disc2) {
+          disc_near = hit_away;
+          disc1 = disc2;
+        }
+
+        if (disc1) {
+          if (disc_near < hit_near) {
+            hit_distance = disc_near;
+            return true;
+          }
+        } else {
+          // Inside, don't count as a collision
+          return false;
+        }
+      }
+
+      hit_distance = std::min(hit_near, hit_away);
+      return true;
+    }
+
+    bool cRay3::CollideWithCylinder(const cVec3& p0, const cVec3& p1, float fRadius, cVec3& outCollision) const
+    {
+      float fDepth = 0.0f;
+
+      if (RayCylinderIntersection(*this, p0, p1, fRadius, fDepth)) {
+        outCollision = origin + (fDepth * direction);
         return true;
       }
 
