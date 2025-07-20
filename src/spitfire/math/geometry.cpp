@@ -26,6 +26,60 @@ namespace spitfire
 {
   namespace math
   {
+    POLYGON_TYPE GetPolygonType(const Polygon& polygon)
+    {
+      const size_t nPoints = polygon.points.size();
+
+      if (nPoints < 3) {
+        // Not enough points to even make a triangle
+        return POLYGON_TYPE::INVALID;
+      }
+
+
+      if (nPoints > 3) {
+        // Check most of the points
+        for (size_t i = 0; i < nPoints - 2; i++) {
+          if (IsAngleReflex(polygon.points[i].GetXZ(), polygon.points[i + 1].GetXZ(), polygon.points[i + 2].GetXZ())) {
+            return POLYGON_TYPE::CONCAVE;
+          }
+        }
+
+        // Now check the points that wrap around
+        if (IsAngleReflex(polygon.points[nPoints - 2].GetXZ(), polygon.points[nPoints - 1].GetXZ(), polygon.points[0].GetXZ())) {
+          return POLYGON_TYPE::CONCAVE;
+        }
+
+        if (IsAngleReflex(polygon.points[nPoints - 1].GetXZ(), polygon.points[0].GetXZ(), polygon.points[1].GetXZ())) {
+          return POLYGON_TYPE::CONCAVE;
+        }
+      }
+
+      return POLYGON_TYPE::CONVEX;
+    }
+
+    WINDING_ORDER GetPolygonWindingOrder(const Polygon& polygon)
+    {
+      if (polygon.points.size() < 3) {
+        return WINDING_ORDER::INVALID;
+      }
+
+      // Sum up all the edges with (x2 − x1) * (y2 + y1), if the result is positive it is clockwise, otherwise counter clockwise
+      // https://stackoverflow.com/a/1165943
+
+      float fRunningTotal = 0.0f;
+
+      for (size_t i = 0; i < polygon.points.size() - 1; i++) {
+        fRunningTotal += (polygon.points[i + 1].x - polygon.points[i].x) * (polygon.points[i + 1].z + polygon.points[i].z);
+      }
+
+      // Add up the final point linking back to the start
+      const size_t last = polygon.points.size() - 1;
+      fRunningTotal += (polygon.points[0].x - polygon.points[last].x) * (polygon.points[0].z + polygon.points[last].z);
+
+      return (fRunningTotal > 0.0f) ? WINDING_ORDER::COUNTER_CLOCKWISE : WINDING_ORDER::CLOCKWISE;
+    }
+
+
     // *** cLine3
 
     cVec3 cLine3::GetTangent() const
