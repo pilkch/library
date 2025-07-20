@@ -52,6 +52,8 @@ namespace opengl
 
     bool IsValid() const { return (texture.IsValid() && shader.IsCompiledProgram()); }
 
+    const cTexture& GetTexture() const { return texture; }
+
     enum FLAGS {
       HORIZONTAL_ALIGNMENT_LEFT_ALIGNED = 0,
       HORIZONTAL_ALIGNMENT_CENTERED = 1
