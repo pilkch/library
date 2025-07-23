@@ -26,7 +26,7 @@ namespace spitfire
 {
   namespace math
   {
-    POLYGON_TYPE GetPolygonType(const Polygon& polygon)
+    POLYGON_TYPE GetPolygonType(const Polygon3& polygon)
     {
       const size_t nPoints = polygon.points.size();
 
@@ -57,7 +57,7 @@ namespace spitfire
       return POLYGON_TYPE::CONVEX;
     }
 
-    WINDING_ORDER GetPolygonWindingOrder(const Polygon& polygon)
+    WINDING_ORDER GetPolygonWindingOrder(const Polygon3& polygon)
     {
       if (polygon.points.size() < 3) {
         return WINDING_ORDER::INVALID;

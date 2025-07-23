@@ -145,14 +145,7 @@ namespace spitfire
     }
 
 
-    struct Polygon {
-      std::vector<cVec3> points;
-    };
-
-    inline constexpr cVec3 GetPolygonCenter(const Polygon& polygon)
-    {
-      return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec3(0.0f, 0.0f, 0.0f)) / float(polygon.points.size());
-    }
+    // Polygons
 
     enum class POLYGON_TYPE {
       INVALID,
@@ -160,15 +153,33 @@ namespace spitfire
       CONCAVE
     };
 
-    POLYGON_TYPE GetPolygonType(const Polygon& polygon);
-
     enum class WINDING_ORDER {
       INVALID,
       CLOCKWISE,
       COUNTER_CLOCKWISE,
     };
 
-    WINDING_ORDER GetPolygonWindingOrder(const Polygon& polygon);
+    struct Polygon2 {
+      std::vector<cVec2> points;
+    };
+
+    inline constexpr cVec2 GetPolygonCenter(const Polygon2& polygon)
+    {
+      return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec2()) / float(polygon.points.size());
+    }
+
+    POLYGON_TYPE GetPolygonType(const Polygon2& polygon);
+    WINDING_ORDER GetPolygonWindingOrder(const Polygon2& polygon);
+
+
+    struct Polygon3 {
+      std::vector<cVec3> points;
+    };
+
+    inline constexpr cVec3 GetPolygonCenter(const Polygon3& polygon)
+    {
+      return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec3()) / float(polygon.points.size());
+    }
 
 
     // This is for 2 dimensions
