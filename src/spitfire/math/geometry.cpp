@@ -653,5 +653,373 @@ namespace spitfire
       }
     }
 
+
+
+// Triangulation
+
+namespace delaunay {
+
+// https://github.com/jbegaint/delaunay-cpp/blob/master/delaunay.hpp
+
+struct Edge {
+  cVec2 p0;
+  cVec2 p1;
+
+  Edge(const cVec2& _p0, const cVec2& _p1) : p0{_p0}, p1{_p1} {}
+
+  bool operator==(const Edge& other) const
+  {
+    return ((other.p0 == p0 && other.p1 == p1) ||
+            (other.p0 == p1 && other.p1 == p0));
   }
+};
+
+struct Circle {
+  float x;
+  float y;
+  float radius;
+};
+
+struct Triangle {
+  cVec2 p0, p1, p2;
+  Edge e0, e1, e2;
+  Circle circle;
+
+  Triangle(const cVec2& _p0, const cVec2& _p1, const cVec2& _p2)
+      : p0{_p0},
+        p1{_p1},
+        p2{_p2},
+        e0{_p0, _p1},
+        e1{_p1, _p2},
+        e2{_p0, _p2},
+        circle{}
+  {
+    const float ax = p1.x - p0.x;
+    const float ay = p1.y - p0.y;
+    const float bx = p2.x - p0.x;
+    const float by = p2.y - p0.y;
+
+    const float m = p1.x * p1.x - p0.x * p0.x + p1.y * p1.y - p0.y * p0.y;
+    const float u = p2.x * p2.x - p0.x * p0.x + p2.y * p2.y - p0.y * p0.y;
+    const float s = 1.0f / (2.0f * (ax * by - ay * bx));
+
+    circle.x = ((p2.y - p0.y) * m + (p0.y - p1.y) * u) * s;
+    circle.y = ((p0.x - p2.x) * m + (p1.x - p0.x) * u) * s;
+
+    const float dx = p0.x - circle.x;
+    const float dy = p0.y - circle.y;
+    circle.radius = dx * dx + dy * dy;
+  }
+};
+
+struct Delaunay {
+  void Clear() {
+    triangles.clear();
+    edges.clear();
+  }
+
+  std::vector<Triangle> triangles;
+  std::vector<Edge> edges;
+};
+
+
+// NOTE: For Delaunay triangulation the polygon must be convex
+// If you pass it a concave polygon it will effectively make a convex polygon out of the whole area between all the points for you
+
+void Triangulate(const std::vector<cVec2>& points, Delaunay& outDelaunay)
+{
+  outDelaunay.Clear();
+
+  if (points.size() < 3) {
+    // Not enough points for even a single triangle
+    return;
+  }
+
+  float xmin = points[0].x;
+  float xmax = xmin;
+  float ymin = points[0].y;
+  float ymax = ymin;
+  for (auto const& pt : points) {
+    xmin = std::min(xmin, pt.x);
+    xmax = std::max(xmax, pt.x);
+    ymin = std::min(ymin, pt.y);
+    ymax = std::max(ymax, pt.y);
+  }
+
+  const float dx = xmax - xmin;
+  const float dy = ymax - ymin;
+  const float dmax = std::max(dx, dy);
+  const float midx = 0.5f * (xmin + xmax);
+  const float midy = 0.5f * (ymin + ymax);
+
+  const cVec2 p0(midx - 20.0f * dmax, midy - dmax);
+  const cVec2 p1(midx, midy + 20.0f * dmax);
+  const cVec2 p2(midx + 20.0f * dmax, midy - dmax);
+  outDelaunay.triangles.emplace_back(Triangle{p0, p1, p2});
+
+  for (auto const& pt : points) {
+    std::vector<Edge> edges;
+    std::vector<Triangle> tmps;
+    for (auto const& tri : outDelaunay.triangles) {
+      // Check if the point is inside the triangle circumcircle
+      const float dist = (tri.circle.x - pt.x) * (tri.circle.x - pt.x) +
+                        (tri.circle.y - pt.y) * (tri.circle.y - pt.y);
+      if ((dist - tri.circle.radius) <= cEPSILON) {
+        edges.push_back(tri.e0);
+        edges.push_back(tri.e1);
+        edges.push_back(tri.e2);
+      } else {
+        tmps.push_back(tri);
+      }
+    }
+
+    // Delete duplicate edges
+    std::vector<bool> remove(edges.size(), false);
+    for (auto it1 = edges.begin(); it1 != edges.end(); ++it1) {
+      for (auto it2 = edges.begin(); it2 != edges.end(); ++it2) {
+        if (it1 == it2) {
+          continue;
+        }
+
+        if (*it1 == *it2) {
+          remove[std::distance(edges.begin(), it1)] = true;
+          remove[std::distance(edges.begin(), it2)] = true;
+        }
+      }
+    }
+
+    edges.erase(
+        std::remove_if(edges.begin(), edges.end(),
+                       [&](auto const& e) { return remove[&e - &edges[0]]; }),
+        edges.end());
+
+    // Update triangulation
+    for (auto const& e : edges) {
+      tmps.push_back({e.p0, e.p1, {pt.x, pt.y}});
+    }
+    outDelaunay.triangles = tmps;
+  }
+
+  // Remove original super triangle
+  outDelaunay.triangles.erase(
+      std::remove_if(outDelaunay.triangles.begin(), outDelaunay.triangles.end(),
+                     [&](auto const& tri) {
+                       return ((tri.p0 == p0 || tri.p1 == p0 || tri.p2 == p0) ||
+                               (tri.p0 == p1 || tri.p1 == p1 || tri.p2 == p1) ||
+                               (tri.p0 == p2 || tri.p1 == p2 || tri.p2 == p2));
+                     }),
+      outDelaunay.triangles.end());
+
+  // Add edges
+  for (auto const& tri : outDelaunay.triangles) {
+    outDelaunay.edges.push_back(tri.e0);
+    outDelaunay.edges.push_back(tri.e1);
+    outDelaunay.edges.push_back(tri.e2);
+  }
+}
+
+}
+
+
+void DelaunayTriangulation(const Polygon3& polygon, std::vector<cVec3>& outTriangles, std::vector<cLine3>& outLines)
+{
+  outTriangles.clear();
+  outLines.clear();
+
+  if (polygon.points.size() < 3) {
+    // Not enough points to even make a triangle
+    return;
+  }
+
+  std::vector<cVec2> points;
+  for (auto p : polygon.points) points.push_back(p.GetXZ());
+
+  delaunay::Delaunay triangulation;
+  delaunay::Triangulate(points, triangulation);
+
+  for (auto const& t : triangulation.triangles) {
+    outTriangles.push_back(cVec3(t.p0.x, 0.0f, t.p0.y));
+    outTriangles.push_back(cVec3(t.p1.x, 0.0f, t.p1.y));
+    outTriangles.push_back(cVec3(t.p2.x, 0.0f, t.p2.y));
+  }
+
+  for (auto const& l : triangulation.edges) {
+    cLine3 line;
+    line.p0.Set(l.p0.x, 0.0f, l.p0.y);
+    line.p1.Set(l.p1.x, 0.0f, l.p1.y);
+    outLines.push_back(line);
+  }
+}
+
+
+namespace naive {
+
+struct Triangle2 {
+  spitfire::math::cVec2 p0;
+  spitfire::math::cVec2 p1;
+  spitfire::math::cVec2 p2;
+};
+
+inline bool IsPointInTriangle(const std::vector<cVec3>& points, const Triangle2& t)
+{
+  for (auto& p : points) {
+    if (IsPointInTriangle(p.GetXZ(), t.p0, t.p1, t.p2)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool IsPointInTriangle(const std::vector<cVec3>& points, const std::vector<Triangle2>& triangles)
+{
+  for (auto& t : triangles) {
+    if (IsPointInTriangle(points, t)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+}
+
+void NaiveTriangulation(const Polygon3& polygon, std::vector<cVec3>& outTriangles, std::vector<cLine3>& outLines)
+{
+  outTriangles.clear();
+  outLines.clear();
+
+  if (polygon.points.size() < 3) {
+    // Not enough points to even make a triangle
+    return;
+  }
+
+  std::vector<cVec3> remainingPoints = polygon.points;
+
+  while (remainingPoints.size() >= 3) {
+    if (!IsAngleReflex(
+      remainingPoints[0].GetXZ(),
+      remainingPoints[1].GetXZ(),
+      remainingPoints[2].GetXZ()
+    )) {
+      //std::cout<<"Regular remaining="<<remainingPoints.size()<<std::endl;
+      const std::vector<cVec3> otherPoints = std::vector<cVec3>(remainingPoints.begin() + 1, remainingPoints.end());
+      const naive::Triangle2 t(
+        remainingPoints[0].GetXZ(),
+        remainingPoints[1].GetXZ(),
+        remainingPoints[2].GetXZ()
+      );
+      if (!naive::IsPointInTriangle(otherPoints, t)) {
+        // Add this triangle and move on
+        outTriangles.push_back(cVec3(t.p0.x, remainingPoints[0].y, t.p0.y));
+        outTriangles.push_back(cVec3(t.p1.x, remainingPoints[1].y, t.p1.y));
+        outTriangles.push_back(cVec3(t.p2.x, remainingPoints[2].y, t.p2.y));
+
+        // Remove the second point, we now want to create a triangle with the first point, skip the second and join the 3rd and 4th
+        remainingPoints.erase(remainingPoints.begin() + 1);
+      } else {
+        std::cout<<"Can't add this triangle, skip this point"<<std::endl;
+        // Rotate the points so that we can come back to the first point after dealing with the others
+        std::rotate(remainingPoints.begin(), remainingPoints.begin() + 1, remainingPoints.end());
+        if (remainingPoints.size() == 3) {
+          //std::cout<<"3 points left ("<<remainingPoints[0].x<<", "<<remainingPoints[0].z<<") ("<<remainingPoints[1].x<<", "<<remainingPoints[1].z<<") ("<<remainingPoints[2].x<<", "<<remainingPoints[2].z<<")"<<std::endl;
+        }
+      }
+    } else {
+      //std::cout<<"Reflex remaining="<<remainingPoints.size()<<std::endl;
+      // Rotate the points so that we can come back to the first point after dealing with the others
+      std::rotate(remainingPoints.begin(), remainingPoints.begin() + 1, remainingPoints.end());
+      if (remainingPoints.size() == 3) {
+        //std::cout<<"3 points left ("<<remainingPoints[0].x<<", "<<remainingPoints[0].z<<") ("<<remainingPoints[1].x<<", "<<remainingPoints[1].z<<") ("<<remainingPoints[2].x<<", "<<remainingPoints[2].z<<")"<<std::endl;
+      }
+    }
+  }
+
+  // Add an outline for every triangle we have generated
+  const size_t n = outTriangles.size();
+  for (size_t i = 0; i < n; i += 3) {
+    cLine3 line;
+    line.p0 = outTriangles[i];
+    line.p1 = outTriangles[i + 1];
+    outLines.push_back(line);
+
+    line.p0 = outTriangles[i + 1];
+    line.p1 = outTriangles[i + 2];
+    outLines.push_back(line);
+
+    line.p0 = outTriangles[i + 2];
+    line.p1 = outTriangles[i];
+    outLines.push_back(line);
+  }
+}
+
+bool IsSelfIntersecting(const Polygon3& polygon)
+{
+  // Check if any of the pairs of lines between the outside points intersect
+  // https://stackoverflow.com/a/61160160
+
+  // We need at least two triangles to self intersect
+  const size_t len = polygon.points.size();
+  if (len < 4) {
+    return false;
+  }
+
+  for (size_t i = 0; i < len - 1; i++) {
+    for (size_t j = i + 2; j < len; j++) {
+      // Eliminate combinations already checked or not valid      
+      if ((i == 0) && ( j == (len-1)))
+      {
+        continue;
+      }
+
+      cVec2 outIntersection;
+      if (LineLineIntersect(
+        polygon.points[i].GetXZ(), polygon.points[i + 1].GetXZ(),
+        polygon.points[j].GetXZ(), polygon.points[(j + 1) % len].GetXZ(),
+        outIntersection
+      )) {
+        std::cout<<"Self intersecting i="<<i<<", j="<<j<<", at "<<outIntersection.x<< ","<<outIntersection.y<<std::endl;
+        return true;
+      }
+    }
+  }
+
+  std::cout<<"Not self intersecting"<<std::endl;
+  return false;
+}
+
+bool IsPolygonValid(const Polygon3& polygon)
+{
+  return ((polygon.points.size() >= 3) && !IsSelfIntersecting(polygon));
+}
+
+void TriangulatePolygon(const Polygon3& inPolygon, std::vector<cVec3>& outTriangles, std::vector<cLine3>& outLines)
+{
+  outTriangles.clear();
+  outLines.clear();
+
+  Polygon3 polygon = inPolygon;
+
+  if (!IsPolygonValid(polygon)) {
+    return;
+  }
+
+  const WINDING_ORDER winding = GetPolygonWindingOrder(polygon);
+  if (winding == WINDING_ORDER::CLOCKWISE) {
+    //std::cout<<"Clockwise, reversing"<<std::endl;
+    // Reverse the order to make it a counter clockwise polygon
+    std::reverse(polygon.points.begin(), polygon.points.end());
+  }
+
+  /*const POLYGON_TYPE type = GetPolygonType(polygon);
+  if (type == POLYGON_TYPE::CONVEX) {
+    DelaunayTriangulation(polygon, outLines);
+  } else if (type == POLYGON_TYPE::CONCAVE)*/ {
+    //std::cout<<"Concave"<<std::endl;
+    NaiveTriangulation(polygon, outTriangles, outLines);
+  }
+}
+
+}
+
 }

@@ -668,6 +668,21 @@ namespace spitfire
     private:
       std::vector<cVec2> points;
     };
+
+    
+    // Polygon Triangulation
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // NOTE: This function only returns geometry if the polygon contains at least 3 points, is convex, and is not self intersecting
+    void DelaunayTriangulation(const spitfire::math::Polygon3& polygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // NOTE: This function only returns geometry if the polygon contains at least 3 points, will work for concave polygons, that are not self intersecting
+    void NaiveTriangulation(const spitfire::math::Polygon3& polygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // This function uses either of the above methods, preferring Delaunay triangulation where possible, resorting to the naive approach if required
+    void TriangulatePolygon(const spitfire::math::Polygon3& inPolygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
   }
 }
 
