@@ -95,15 +95,14 @@ namespace spitfire
       return (distance <= radius * radius);
     }
 
-    inline constexpr bool IsPointInTriangle(const cVec2& point, const cVec2& p0, const cVec2& p1, const cVec2& p2)
+    inline constexpr bool IsPointInTriangle(const cVec2& point, const cVec2& t0, const cVec2& t1, const cVec2& t2)
     {
-      // https://jsfiddle.net/PerroAZUL/zdaY8/1/
-      const float A = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-      const float sign = A < 0.0f ? -1.0f : 1.0f;
-      const float s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * point.x + (p0.x - p2.x) * point.y) * sign;
-      const float t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * point.x + (p1.x - p0.x) * point.y) * sign;
-
-      return (s > 0) && (t > 0) && (s + t) < 2.0f * A * sign;
+      // Check the angle from each point on the triangle through the point we are querying, if all the angles are reflex then the point is inside the triangle
+      return (
+        spitfire::math::IsAngleReflex(t0, point, t1) &&
+        spitfire::math::IsAngleReflex(t1, point, t2) &&
+        spitfire::math::IsAngleReflex(t2, point, t0)
+      );
     }
 
     // TODO: Change this to cVec2 everywhere
