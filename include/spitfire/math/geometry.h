@@ -378,21 +378,36 @@ namespace spitfire
     class cPlane;
 
     // Two points that specify a straight line
+    class cLine2
+    {
+    public:
+      cLine2() {}
+      cLine2(const cVec2& p0, const cVec2& p1);
+
+      void Set(const cVec2& p0, const cVec2& p1);
+
+      const cVec2& GetOrigin() const { return p0; }
+      const cVec2& GetDestination() const { return p1; }
+
+      spitfire::math::cVec2 p0;
+      spitfire::math::cVec2 p1;
+    };
+
+    // Two points that specify a straight line
     class cLine3
     {
     public:
-      cLine3();
-      cLine3(const cVec3& origin, const cVec3& destination);
+      cLine3() {}
+      cLine3(const cVec3& p0, const cVec3& p1);
 
-      void SetPoints(const cVec3& origin, const cVec3& destination);
+      void Set(const cVec3& p0, const cVec3& p1);
 
-      const cVec3& GetOrigin() const { return origin; }
-      const cVec3& GetDestination() const { return destination; }
+      const cVec3& GetOrigin() const { return p0; }
+      const cVec3& GetDestination() const { return p1; }
       cVec3 GetTangent() const;
 
-    private:
-      cVec3 origin;
-      cVec3 destination;
+      spitfire::math::cVec3 p0;
+      spitfire::math::cVec3 p1;
     };
 
     // A point and direction to travel from that point, the ray itself is infinite length

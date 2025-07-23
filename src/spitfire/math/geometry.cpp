@@ -80,7 +80,34 @@ namespace spitfire
     }
 
 
+    // *** cLine2
+
+    cLine2::cLine2(const cVec2& _p0, const cVec2& _p1) :
+      p0(_p0),
+      p1(_p1)
+    {
+    }
+
+    void cLine2::Set(const cVec2& _p0, const cVec2& _p1)
+    {
+      p0 = _p0;
+      p1 = _p1;
+    }
+
+
     // *** cLine3
+
+    cLine3::cLine3(const cVec3& _p0, const cVec3& _p1) :
+      p0(_p0),
+      p1(_p1)
+    {
+    }
+
+    void cLine3::Set(const cVec3& _p0, const cVec3& _p1)
+    {
+      p0 = _p0;
+      p1 = _p1;
+    }
 
     cVec3 cLine3::GetTangent() const
     {
