@@ -45,6 +45,7 @@ namespace spitfire
       //vector algebra
       float DotProduct(const cVec4 & rhs) const;
       void Normalise();
+      cVec4 GetNormalised() const;
 
       //rotations
       void RotateX(double angle);

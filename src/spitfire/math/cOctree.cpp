@@ -58,10 +58,8 @@ namespace spitfire
       SAFE_DELETE(m_pOctreeNodes[7]);
     }
 
-    void cOctree::create(cFrustum* newFrustum)
+    void cOctree::Create()
     {
-      frustum = newFrustum;
-
       g_CurrentSubdivision=0;
       g_MaxSubdivisions=10;
       g_MaxTriangles=2000;

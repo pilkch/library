@@ -28,6 +28,7 @@ namespace spitfire
       inline float GetZ() const { return z; }
 
       inline cVec2 GetXY() const { return cVec2(x, y); }
+      inline cVec2 GetXZ() const { return cVec2(x, z); }
 
       inline void Clear() { x = y = z = 0.0f; }
 
@@ -158,8 +159,10 @@ namespace spitfire
 
 
     // GLSL/glm style helper functions
-    inline cVec3 normalize(const cVec3& a) { return a.GetNormalised(); }
-    inline cVec3 cross(const cVec3& a, const cVec3& b) { return a.CrossProduct(b); }
+    inline constexpr float length(const cVec3& v) { return v.GetLength(); }
+    inline constexpr float distance(const cVec3& p0, const cVec3& p1) { return (p1 - p0).GetLength(); }
+    inline constexpr cVec3 normalize(const cVec3& a) { return a.GetNormalised(); }
+    inline constexpr cVec3 cross(const cVec3& a, const cVec3& b) { return a.CrossProduct(b); }
     inline constexpr float dot(const cVec3& a, const cVec3& b) { return a.DotProduct(b); }
   }
 }

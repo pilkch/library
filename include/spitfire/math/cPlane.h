@@ -24,6 +24,7 @@ namespace spitfire
 
       void SetNormal(const cVec3& rhs) { normal = rhs; }
       void SetIntercept(float newIntercept) { intercept = newIntercept; }
+      void SetFromPointAndNormal(const cVec3& point, const cVec3& normal);
       void SetFromPoints(const cVec3& p0, const cVec3& p1, const cVec3& p2);
 
       void CalculateIntercept(const cVec3& pointOnPlane) { intercept = -normal.DotProduct(pointOnPlane); }

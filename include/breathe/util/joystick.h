@@ -5,7 +5,7 @@
 #include <map>
 
 // SDL headers
-#include <SDL3/SDL_gamecontroller.h>
+#include <SDL3/SDL_gamepad.h>
 
 // Breathe headers
 #include <breathe/breathe.h>
@@ -102,7 +102,7 @@ namespace breathe
       void OpenGameController(int index);
       void CloseGameController(int index);
 
-      bool IsAttached(SDL_GameController* pController) const;
+      bool IsAttached(SDL_Gamepad* pController) const;
 
       cJoystickEventListener* pEventListener;
       
@@ -111,7 +111,7 @@ namespace breathe
       public:
         cGameController();
 
-        SDL_GameController* pController;
+        SDL_Gamepad* pController;
         SDL_Haptic* pHaptic;
       };
 

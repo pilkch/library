@@ -14,7 +14,6 @@
 #include <spitfire/math/cMat4.h>
 #include <spitfire/math/cPlane.h>
 #include <spitfire/math/cQuaternion.h>
-#include <spitfire/math/cFrustum.h>
 #include <spitfire/math/cColour.h>
 
 namespace spitfire
@@ -48,6 +47,15 @@ namespace spitfire
     {
       normal = rhs.normal;
       intercept = rhs.intercept;
+    }
+
+    void cPlane::SetFromPointAndNormal(const cVec3& point, const cVec3& _normal)
+    {
+      normal = _normal.GetNormalised();
+
+      const float length = normal.GetLength();
+
+      intercept = point.DotProduct(normal);
     }
 
     void cPlane::SetFromPoints(const cVec3 & p0, const cVec3 & p1, const cVec3 & p2)

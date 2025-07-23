@@ -12,25 +12,27 @@ namespace spitfire
 {
   namespace math
   {
-    inline float CalculateCircleCircumference(float fRadius)
+    class cOctree;
+
+    inline constexpr float CalculateCircleCircumference(float fRadius)
     {
       return 2.0f * cPI * fRadius;
     }
 
-    inline float CalculateArcAngleFromRadiusAndLengthOfArcCurve(float fRadius, float fLengthOfArcCurve)
+    inline constexpr float CalculateArcAngleFromRadiusAndLengthOfArcCurve(float fRadius, float fLengthOfArcCurve)
     {
       // https://www.allmathtricks.com/circle-formulas-area-circumference/#Arc_and_sector_of_a_circle
       return (fLengthOfArcCurve * 180.0f) / (cPI * fRadius);
     }
 
-    inline cVec2 CalculateCartesianCoordinate(float fAngleDegrees, float fRadius)
+    inline constexpr cVec2 CalculateCartesianCoordinate(float fAngleDegrees, float fRadius)
     {
       const float fAngleRadians = (cPI / 180.0f) * (fAngleDegrees - 90.0f);
       return cVec2(fRadius * cosf(fAngleRadians), fRadius * sinf(fAngleRadians));
     }
 
 
-    inline float GetAngleBetweenPoints(const cVec2& point1, const cVec2& point2)
+    inline constexpr float GetAngleBetweenPoints(const cVec2& point1, const cVec2& point2)
     {
       const float z_delta = (point1.y - point2.y);
       const float x_delta = (point1.x - point2.x);
@@ -51,19 +53,26 @@ namespace spitfire
       return angle;
     }
 
-    inline float GetAngleDegreesFromNormal(const cVec2& normal)
+    // Checks if the angle between the 3 points is more than 180 degrees
+    bool constexpr IsAngleReflex(const cVec2& p0, const cVec2& p1, const cVec2& p2)
+    {
+      const float fValue = (p1.x - p0.x) * (p2.y - p1.y) - (p2.x - p1.x) * (p1.y - p0.y);
+      return (fValue > 0.0f);
+    }
+
+    inline constexpr float GetAngleDegreesFromNormal(const cVec2& normal)
     {
       //float fTargetAngleDegrees = 90.0f;
       //if (normal.x != 0.0f) fTargetAngleDegrees += RadiansToDegrees(atanf(normal.y / normal.x));
       return -RadiansToDegrees(atan2f(normal.x, normal.y));
     }
 
-    inline cVec2 GetNormalFromAngleDegrees(float fAngleDegrees)
+    inline constexpr cVec2 GetNormalFromAngleDegrees(float fAngleDegrees)
     {
       return (cVec2(cosf(DegreesToRadians(fAngleDegrees)), sinf(DegreesToRadians(fAngleDegrees)))).GetNormalised();
     }
 
-    inline float GetDifferenceBetweenAngles(float fAngle1, float fAngle2)
+    inline constexpr float GetDifferenceBetweenAngles(float fAngle1, float fAngle2)
     {
       const float result = (float)fmod(fAngle1 - fAngle2, 360.0f);
       if (result > 180.0f) return result - 360.0f;
@@ -72,10 +81,58 @@ namespace spitfire
       return result;
     }
 
+    inline constexpr bool IsPointInRect(const cVec2& point, const cVec2& p0, const cVec2& p1)
+    {
+      return (
+        (point.x >= p0.x) && (point.x <= p1.x) &&
+        (point.y >= p0.y) && (point.y <= p1.y)
+      );
+    }
+
+    inline constexpr bool IsPointInCircle(const cVec2& point, const cVec2& centre, float radius)
+    {
+      const float distance = (point.x - centre.x) * (point.x - centre.x) + (point.y - centre.y) * (point.y - centre.y);
+      return (distance <= radius * radius);
+    }
+
+    inline constexpr bool IsPointInTriangle(const cVec2& point, const cVec2& t0, const cVec2& t1, const cVec2& t2)
+    {
+      // Check the angle from each point on the triangle through the point we are querying, if all the angles are reflex then the point is inside the triangle
+      return (
+        spitfire::math::IsAngleReflex(t0, point, t1) &&
+        spitfire::math::IsAngleReflex(t1, point, t2) &&
+        spitfire::math::IsAngleReflex(t2, point, t0)
+      );
+    }
+
+    // TODO: Change this to cVec2 everywhere
+    inline constexpr bool LineLineIntersect(const cVec2& p1, const cVec2& p2, const cVec2& p3, const cVec2& p4, cVec2& outIntersection)
+    {
+      // https://gamedev.stackexchange.com/a/172154
+
+      float ua = 0.0f;
+      float ub = 0.0f;
+      const float ud = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+
+      if (ud != 0.0f) {
+        ua = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / ud;
+        ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / ud;
+
+        if (ua < 0.0f || ua > 1.0f || ub < 0.0f || ub > 1.0f) ua = 0.0f;
+      }
+
+      if (ua > 0.000001f) {
+        outIntersection.Set(ua * (p2.x - p1.x), ua * (p2.y - p1.y));
+        return true;
+      }
+
+      return false;
+    }
+
 
     // Find the closest point on a line
     // https://stackoverflow.com/a/47484153/1074390
-    inline cVec3 GetClosestPointOnLine(const cVec3& a, const cVec3& b, const cVec3& point)
+    inline constexpr cVec3 GetClosestPointOnLine(const cVec3& a, const cVec3& b, const cVec3& point)
     {
       const cVec3 AB = b - a;
       const cVec3 AP = point - a;
@@ -88,21 +145,40 @@ namespace spitfire
     }
 
 
-    inline bool IsPointInCircle(const cVec2& point, const cVec2& centre, float radius)
+    // Polygons
+
+    enum class POLYGON_TYPE {
+      INVALID,
+      CONVEX,
+      CONCAVE
+    };
+
+    enum class WINDING_ORDER {
+      INVALID,
+      CLOCKWISE,
+      COUNTER_CLOCKWISE,
+    };
+
+    struct Polygon2 {
+      std::vector<cVec2> points;
+    };
+
+    inline constexpr cVec2 GetPolygonCenter(const Polygon2& polygon)
     {
-      const float distance = (point.x - centre.x) * (point.x - centre.x) + (point.y - centre.y) * (point.y - centre.y);
-      return (distance <= radius * radius);
+      return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec2()) / float(polygon.points.size());
     }
 
-    inline bool IsPointInTriangle(const cVec2& point, const cVec2& p0, const cVec2& p1, const cVec2& p2)
-    {
-      // https://jsfiddle.net/PerroAZUL/zdaY8/1/
-      const float A = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-      const float sign = A < 0.0f ? -1.0f : 1.0f;
-      const float s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * point.x + (p0.x - p2.x) * point.y) * sign;
-      const float t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * point.x + (p1.x - p0.x) * point.y) * sign;
+    POLYGON_TYPE GetPolygonType(const Polygon2& polygon);
+    WINDING_ORDER GetPolygonWindingOrder(const Polygon2& polygon);
 
-      return (s > 0) && (t > 0) && (s + t) < 2.0f * A * sign;
+
+    struct Polygon3 {
+      std::vector<cVec3> points;
+    };
+
+    inline constexpr cVec3 GetPolygonCenter(const Polygon3& polygon)
+    {
+      return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec3()) / float(polygon.points.size());
     }
 
 
@@ -302,21 +378,36 @@ namespace spitfire
     class cPlane;
 
     // Two points that specify a straight line
+    class cLine2
+    {
+    public:
+      cLine2() {}
+      cLine2(const cVec2& p0, const cVec2& p1);
+
+      void Set(const cVec2& p0, const cVec2& p1);
+
+      const cVec2& GetOrigin() const { return p0; }
+      const cVec2& GetDestination() const { return p1; }
+
+      spitfire::math::cVec2 p0;
+      spitfire::math::cVec2 p1;
+    };
+
+    // Two points that specify a straight line
     class cLine3
     {
     public:
-      cLine3();
-      cLine3(const cVec3& origin, const cVec3& destination);
+      cLine3() {}
+      cLine3(const cVec3& p0, const cVec3& p1);
 
-      void SetPoints(const cVec3& origin, const cVec3& destination);
+      void Set(const cVec3& p0, const cVec3& p1);
 
-      const cVec3& GetOrigin() const { return origin; }
-      const cVec3& GetDestination() const { return destination; }
+      const cVec3& GetOrigin() const { return p0; }
+      const cVec3& GetDestination() const { return p1; }
       cVec3 GetTangent() const;
 
-    private:
-      cVec3 origin;
-      cVec3 destination;
+      spitfire::math::cVec3 p0;
+      spitfire::math::cVec3 p1;
     };
 
     // A point and direction to travel from that point, the ray itself is infinite length
@@ -365,13 +456,21 @@ namespace spitfire
       const float_t& GetLength() const { return length; }
 
       bool CollideWithPlane(const cPlane& rhs, float& fDepth) const;
+      bool CollideWithPlaneBetterButRequiresChangingPlaneClass(const cVec3& plane_origin, const cVec3& plane_normal, float& fOutDepth) const;
+      bool CollideWithDisc(const cVec3& disc_origin, const cVec3& disc_normal, float radius, float& fOutDepth) const;
       bool CollideWithAABB(const cAABB3& rhs, float& fDepth) const;
       bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
+      bool CollideWithCylinder(const cVec3& p0, const cVec3& p1, float fRadius, cVec3& outCollision) const;
       bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
+      bool CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const;
+      bool CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const;
 
       cVec3 origin;
       cVec3 direction;
       float_t length;
+
+    private:
+      bool CollideRayWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const;
     };
 
     inline cRay3::cRay3() :
@@ -512,7 +611,7 @@ namespace spitfire
       // completely enclosed.
       const cRectangle& AddRectangleToVolume(const cRectangle& rhs);
 
-      bool ContainsPoint(const spitfire::math::cVec2& point) const;
+      bool ContainsPoint(const cVec2& point) const;
 
       float x;
       float y;
@@ -569,6 +668,21 @@ namespace spitfire
     private:
       std::vector<cVec2> points;
     };
+
+    
+    // Polygon Triangulation
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // NOTE: This function only returns geometry if the polygon contains at least 3 points, is convex, and is not self intersecting
+    void DelaunayTriangulation(const spitfire::math::Polygon3& polygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // NOTE: This function only returns geometry if the polygon contains at least 3 points, will work for concave polygons, that are not self intersecting
+    void NaiveTriangulation(const spitfire::math::Polygon3& polygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
+
+    // NOTE: The triangulation is done in 2D using the X and Z points as 2D X, Y points
+    // This function uses either of the above methods, preferring Delaunay triangulation where possible, resorting to the naive approach if required
+    void TriangulatePolygon(const spitfire::math::Polygon3& inPolygon, std::vector<spitfire::math::cVec3>& outTriangles, std::vector<spitfire::math::cLine3>& outLines);
   }
 }
 

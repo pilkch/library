@@ -175,6 +175,15 @@ namespace spitfire
       return cVec4(v3d.x, v3d.y, v3d.z, w);
     }
 
+    cVec4 cVec4::GetNormalised() const
+    {
+      cVec4 result(*this);
+
+      result.Normalise();
+
+      return result;
+    }
+
     cVec4 cVec4::lerp(const cVec4 & v2, float factor)
     {
       cVec4 result;

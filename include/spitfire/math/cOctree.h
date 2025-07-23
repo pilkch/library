@@ -1,7 +1,6 @@
-#ifndef COCTREE_H
-#define COCTREE_H
+#pragma once
 
-#include <spitfire/math/cFrustum.h>
+#include <spitfire/math/cVec3.h>
 
 namespace spitfire
 {
@@ -24,7 +23,7 @@ namespace spitfire
     {
     public:
       cOctree();
-      virtual ~cOctree();
+      ~cOctree();
 
       // The current amount of subdivisions we are currently at.
       // This is used to make sure we don't go over the max amount
@@ -65,11 +64,9 @@ namespace spitfire
       virtual size_t Render(cOctree* pNode) { (void)pNode; return 0; }
 
       // This initializes the data members
-      void create(cFrustum* newcFrustum);
+      void Create();
 
     public:
-      cFrustum* frustum;
-
       // This tells us if we have divided this node into more sub nodes
       bool m_bSubDivided;
 
@@ -90,5 +87,3 @@ namespace spitfire
     };
   }
 }
-
-#endif // COCTREE_H
