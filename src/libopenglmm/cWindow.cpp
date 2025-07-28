@@ -153,6 +153,12 @@ namespace opengl
     // Handle all the events in the queue
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent)) {
+      // Allow imgui to handle any events first
+      if (pWindowEventListener->OnRawSDLEvent(sdlEvent)) {
+        // imgui handled the event
+        continue;
+      }
+
       switch (sdlEvent.type) {
         case SDL_EVENT_QUIT: {
           LOG("Quit");
