@@ -215,6 +215,9 @@ namespace opengl
     cWindow(cSystem& system, const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     ~cWindow();
 
+    const SDL_Window* GetSDLWindow() const { return pWindow; }
+    SDL_Window* GetSDLWindow() { return pWindow; }
+
     #ifdef __WIN__
     HWND GetWindowHandle();
     #endif
