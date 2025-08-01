@@ -181,6 +181,8 @@ namespace spitfire
       return std::accumulate(polygon.points.begin(), polygon.points.end(), cVec3()) / float(polygon.points.size());
     }
 
+    bool IsPolygonValid(const Polygon3& polygon);
+
 
     // This is for 2 dimensions
     class cCircle
