@@ -17,10 +17,23 @@ namespace spitfire
   {
     // This is just a convenience function (Is there already a way to do this without resorting to .begin()?)
     // I think we can just call insert directly, is this really needed?
-    template <class T>
+    template <typename T>
     inline void push_back(std::vector<T>& v, const size_t n, const T& value)
     {
       v.insert(v.end(), n, value);
+    }
+
+    // Just for convenience
+    template <typename T>
+    inline ssize_t find(std::vector<T>& v, const T& value)
+    {
+      for (size_t i = 0; i < v.size(); i++) {
+        if (v[i] == value) {
+          return i;
+        }
+      }
+
+      return -1;
     }
   }
 
