@@ -112,6 +112,12 @@ namespace spitfire
     const cVec2 v2Down(0.0f, -1.0f);
     const cVec2 v2Left(1.0f, 0.0f);
     const cVec2 v2Right(-1.0f, 0.0f);
+
+
+    // GLSL/glm style helper functions
+    inline constexpr float length(const cVec2& v) { return v.GetLength(); }
+    inline constexpr float distance(const cVec2& p0, const cVec2& p1) { return (p1 - p0).GetLength(); }
+    inline constexpr cVec2 normalize(const cVec2& a) { return a.GetNormalised(); }
   }
 }
 
