@@ -491,7 +491,7 @@ namespace spitfire
       return true;
     }
 
-    bool cRay3::CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const
+    bool cRay3::CollideWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const
     {
       float fClosestDepth = cINFINITY;
       float fDepth = cINFINITY;
@@ -510,7 +510,7 @@ namespace spitfire
       return found;
     }
 
-    bool cRay3::CollideRayWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const
+    bool cRay3::CollideWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const
     {
       if (pOctree == nullptr) {
         return false;
@@ -535,14 +535,14 @@ namespace spitfire
         // Recurse to the bottom of these nodes and draw the end node's vertices
         // Like creating the octree, we need to recurse through each of the 8 nodes.
         return (
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_FRONT], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_BACK], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_BACK], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_FRONT], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_FRONT], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_BACK], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_BACK], outCollision) ||
-          CollideRayWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_FRONT], outCollision)
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_FRONT], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[TOP_LEFT_BACK], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_BACK], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[TOP_RIGHT_FRONT], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_FRONT], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_LEFT_BACK], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_BACK], outCollision) ||
+          CollideWithOctreeNode(pOctree->m_pOctreeNodes[BOTTOM_RIGHT_FRONT], outCollision)
         );
       }
 
@@ -568,9 +568,9 @@ namespace spitfire
       return found;
     }
 
-    bool cRay3::CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const
+    bool cRay3::CollideWithOctree(const cOctree& octree, cVec3& outCollision) const
     {
-      return CollideRayWithOctreeNode(&octree, outCollision);
+      return CollideWithOctreeNode(&octree, outCollision);
     }
 
 
@@ -918,7 +918,7 @@ void NaiveTriangulation(const Polygon3& polygon, std::vector<cVec3>& outTriangle
         // Remove the second point, we now want to create a triangle with the first point, skip the second and join the 3rd and 4th
         remainingPoints.erase(remainingPoints.begin() + 1);
       } else {
-        std::cout<<"Can't add this triangle, skip this point"<<std::endl;
+        //std::cout<<"Can't add this triangle, skip this point"<<std::endl;
         // Rotate the points so that we can come back to the first point after dealing with the others
         std::rotate(remainingPoints.begin(), remainingPoints.begin() + 1, remainingPoints.end());
         if (remainingPoints.size() == 3) {
@@ -984,7 +984,7 @@ bool IsSelfIntersecting(const Polygon3& polygon)
     }
   }
 
-  std::cout<<"Not self intersecting"<<std::endl;
+  //std::cout<<"Not self intersecting"<<std::endl;
   return false;
 }
 

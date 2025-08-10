@@ -464,15 +464,15 @@ namespace spitfire
       bool CollideWithSphere(const cSphere& rhs, float& fDepth) const;
       bool CollideWithCylinder(const cVec3& p0, const cVec3& p1, float fRadius, cVec3& outCollision) const;
       bool CollideWithTriangle(const cVec3& p0, const cVec3& p1, const cVec3& p2, float& fDepth) const;
-      bool CollideRayWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const;
-      bool CollideRayWithOctree(const cOctree& octree, cVec3& outCollision) const;
+      bool CollideWithTriangles(const std::vector<cVec3>& collisionTrianglePoints, cVec3& outCollision) const;
+      bool CollideWithOctree(const cOctree& octree, cVec3& outCollision) const;
 
       cVec3 origin;
       cVec3 direction;
       float_t length;
 
     private:
-      bool CollideRayWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const;
+      bool CollideWithOctreeNode(const cOctree* pOctree, cVec3& outCollision) const;
     };
 
     inline cRay3::cRay3() :
