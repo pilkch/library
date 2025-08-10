@@ -806,6 +806,11 @@ namespace opengl
     CreateArc(builder, center, fRadius, nSegments, 0.0f, 360.0f);
   }
 
+  void cGeometryBuilder::CreateCircle(cGeometryBuilder_v2_c4& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, const spitfire::math::cColour4& colour)
+  {
+    CreateArc(builder, center, fRadius, nSegments, 0.0f, 360.0f, colour);
+  }
+
   void cGeometryBuilder::CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop)
   {
     const float fSegmentArcDegrees = (fEndAngleDegrees0AtTop - fStartAngleDegrees0AtTop) / float(nSegments);
@@ -818,6 +823,21 @@ namespace opengl
       builder.PushBack(center);
       builder.PushBack(point1);
       builder.PushBack(point0);
+    }
+  }
+
+  void cGeometryBuilder::CreateArc(cGeometryBuilder_v2_c4& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop, const spitfire::math::cColour4& colour)
+  {
+    const float fSegmentArcDegrees = (fEndAngleDegrees0AtTop - fStartAngleDegrees0AtTop) / float(nSegments);
+    for (size_t i = 0; i < nSegments; i++) {
+      const float fAngleDegrees0 = fStartAngleDegrees0AtTop + (i * fSegmentArcDegrees);
+      const float fAngleDegrees1 = fStartAngleDegrees0AtTop + ((i + 1) * fSegmentArcDegrees);
+      const spitfire::math::cVec2 point0 = center + spitfire::math::CalculateCartesianCoordinate(fAngleDegrees0, fRadius);
+      const spitfire::math::cVec2 point1 = center + spitfire::math::CalculateCartesianCoordinate(fAngleDegrees1, fRadius);
+
+      builder.PushBack(center, colour);
+      builder.PushBack(point1, colour);
+      builder.PushBack(point0, colour);
     }
   }
 }

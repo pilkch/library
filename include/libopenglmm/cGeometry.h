@@ -695,7 +695,9 @@ namespace opengl
 
     // 2D geometry, mainly for creating GUI elements
     static void CreateCircle(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments); // A full circle
+    static void CreateCircle(cGeometryBuilder_v2_c4& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, const spitfire::math::cColour4& colour); // A full circle
     static void CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop); // A pizza slice
+    static void CreateArc(cGeometryBuilder_v2_c4& builder, const spitfire::math::cVec2& center, float fRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop, const spitfire::math::cColour4& colour); // A pizza slice
     static void CreateArc(cGeometryBuilder_v2& builder, const spitfire::math::cVec2& center, float fInnerRadius, float fOuterRadius, size_t nSegments, float fStartAngleDegrees0AtTop, float fEndAngleDegrees0AtTop); // Part of the outside of a donut
   };
 }
