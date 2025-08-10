@@ -88,6 +88,10 @@ namespace spitfire
       string_t GetRFC1123Format() const;
       bool SetFromRFC1123Format(const string_t& rhs);
 
+      // RFC 1123 Format (Friendly variation)
+      // Wed, 05 Jun 2013 13:08:10
+      string_t GetRFC1123FormatNoTimeZone() const;
+
       // RFC 3339 Format
       // YYYY-MM-DDThh:mm:ss
       string_t GetRFC3339String() const;
