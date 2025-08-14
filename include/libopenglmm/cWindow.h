@@ -215,6 +215,9 @@ namespace opengl
     cWindow(cSystem& system, const opengl::string_t& sCaption, const cResolution& resolution, bool bIsFullScreen);
     ~cWindow();
 
+    const SDL_Window* GetSDLWindow() const { return pWindow; }
+    SDL_Window* GetSDLWindow() { return pWindow; }
+
     #ifdef __WIN__
     HWND GetWindowHandle();
     #endif
@@ -283,7 +286,9 @@ namespace opengl
   public:
     virtual ~cWindowEventListener() {}
 
-    void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); } // Allow the application to handle the raw event if nothing else handles it first
+    virtual bool OnRawSDLEvent(const SDL_Event& event) { return false; }  // Allow the application to handle the event first (Mainly for imgui) return true if the event was handled
+
+    void HandleSDLEvent(const SDL_Event& event) { _HandleSDLEvent(event); } // Allow the application to handle the raw event after everything else has been tried and ignored it
     #ifdef __WIN__
     LRESULT HandleWin32Event(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return _HandleWin32Event(hwnd, uMsg, wParam, lParam); }
     #endif

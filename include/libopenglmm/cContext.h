@@ -94,6 +94,9 @@ namespace opengl
     cContext(cSystem& system, const cResolution& resolution, bool bIsRenderingToWindow); // Created for an offscreen context or a context for gtkglext
     ~cContext();
 
+    SDL_GLContext GetSDLContext() const { return context; }
+    SDL_GLContext GetSDLContext() { return context; }
+
     bool IsValid() const;
 
     size_t GetWidth() const { return resolution.width; }
