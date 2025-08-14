@@ -4,6 +4,8 @@ namespace spitfire
 {
   namespace math
   {
+    class cColour4;
+
     // ** cColour3
 
     class cColour3
@@ -81,6 +83,8 @@ namespace spitfire
       cColour3 operator+() const { return (*this); }
 
       cColour3& operator=(const cColour3& rhs) = default;
+
+      cColour4 ToColour4() const;
 
       float r;
       float g;
@@ -178,9 +182,7 @@ namespace spitfire
       float a;
     };
 
-    // For backwards compatibility
     typedef cColour4 cColour;
-
 
     // ** cColourHSL
     //
@@ -268,6 +270,14 @@ namespace spitfire
       float g;
       float b;
     };
+
+
+    // Inlines
+
+    inline cColour4 cColour3::ToColour4() const
+    {
+      return cColour4(r, g, b);
+    }
   }
 }
 

@@ -371,7 +371,6 @@ namespace spitfire
 
 
     // RFC 1123 Format
-    // Must be in GMT time zone
     // Wed, 05 Jun 2013 13:08:10 GMT
     string_t cDateTime::GetRFC1123Format() const
     {
@@ -398,6 +397,36 @@ namespace spitfire
       o<<TEXT(':');
       o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.seconds);
       o<<TEXT(" GMT");
+
+      return o.str();
+    }
+
+    // RFC 1123 Format (Friendly variation)
+    // Wed, 05 Jun 2013 13:08:10
+    string_t cDateTime::GetRFC1123FormatNoTimeZone() const
+    {
+      ASSERT(IsValid());
+
+      cDateTimeFields fields;
+      GetDateTimeFields(fields);
+
+      ostringstream_t o;
+
+      o<<std::setfill(TEXT('0'));
+
+      o<<WeekDayToShortString(GetWeekDay());
+      o<<TEXT(", ");
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.day);
+      o<<TEXT(" ");
+      o<<MonthToShortString(fields.month);
+      o<<TEXT(" ");
+      o<<std::setw(4)<<std::setfill(TEXT('0'))<<int(fields.year);
+      o<<TEXT(" ");
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.hours);
+      o<<TEXT(':');
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.minutes);
+      o<<TEXT(':');
+      o<<std::setw(2)<<std::setfill(TEXT('0'))<<int(fields.seconds);
 
       return o.str();
     }
