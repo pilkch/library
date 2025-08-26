@@ -106,7 +106,7 @@ namespace opengl
 
   void cTexture::CopyFromImageToTexture()
   {
-    LOG("glGetError=", cSystem::GetErrorString());
+    //LOG("glGetError=", cSystem::GetErrorString());
 
     if (!IsValid()) {
       LOGERROR("Texture is invalid, returning");
