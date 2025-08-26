@@ -140,8 +140,8 @@ namespace voodoo
 
   bool cSurface::CreateFromImage(const cImage& _image)
   {
-    // Only RGBA textures are supported at the moment
-    assert(_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+    // Only RGB and RGBA textures are supported at the moment
+    assert((_image.GetPixelFormat() == PIXELFORMAT::R8G8B8) || (_image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8));
 
     image = _image;
 
@@ -247,8 +247,8 @@ namespace voodoo
 
   void cSurface::CopyFromBufferToSurface()
   {
-    // Only RGBA is supported at the moment
-    assert(image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8);
+    // Only RGB and RGBA are supported at the moment
+    assert((image.GetPixelFormat() == PIXELFORMAT::R8G8B8) || (image.GetPixelFormat() == PIXELFORMAT::R8G8B8A8));
 
     if (!image.IsValid()) return;
 
@@ -258,25 +258,38 @@ namespace voodoo
     const size_t n = bytesPerRow * height;
 
     if (!IsSurfaceValid()) {
-      // Load the buffer into a surface
-      const int depth = 32;
-      const int pitch = int(bytesPerRow);
+      switch (image.GetPixelFormat()) {
+        case PIXELFORMAT::R8G8B8: {
+          // Load the buffer into a surface
+          const int pitch = int(bytesPerRow);
 
-      // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-      uint32_t rmask = 0xFF000000;
-      uint32_t gmask = 0x00FF0000;
-      uint32_t bmask = 0x0000FF00;
-      uint32_t amask = 0x000000FF;
-#else
-      uint32_t rmask = 0x000000FF;
-      uint32_t gmask = 0x0000FF00;
-      uint32_t bmask = 0x00FF0000;
-      uint32_t amask = 0xFF000000;
-#endif
+          const uint8_t* pBuffer = image.GetPointerToBuffer();
+          pSurface = SDL_CreateSurfaceFrom(int(width), int(height), SDL_PIXELFORMAT_RGB24, (void*)pBuffer, pitch);
+          break;
+        }
+        case PIXELFORMAT::R8G8B8A8: {
+          // Load the buffer into a surface
+          // TODO: We can probably do something like RGB24 above?
+          const int depth = 32;
+          const int pitch = int(bytesPerRow);
 
-      const uint8_t* pBuffer = image.GetPointerToBuffer();
-      pSurface = SDL_CreateSurfaceFrom(int(width), int(height), SDL_GetPixelFormatForMasks(depth, rmask, gmask, bmask, amask), (void*)pBuffer, pitch);
+          // SDL interprets each pixel as a 32-bit number, so our masks must depend on the endianness (byte order) of the machine
+    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+          uint32_t rmask = 0xFF000000;
+          uint32_t gmask = 0x00FF0000;
+          uint32_t bmask = 0x0000FF00;
+          uint32_t amask = 0x000000FF;
+    #else
+          uint32_t rmask = 0x000000FF;
+          uint32_t gmask = 0x0000FF00;
+          uint32_t bmask = 0x00FF0000;
+          uint32_t amask = 0xFF000000;
+    #endif
+
+          const uint8_t* pBuffer = image.GetPointerToBuffer();
+          pSurface = SDL_CreateSurfaceFrom(int(width), int(height), SDL_GetPixelFormatForMasks(depth, rmask, gmask, bmask, amask), (void*)pBuffer, pitch);
+        }
+      }
     } else {
       const uint8_t* pBuffer = image.GetPointerToBuffer();
       std::memcpy(pSurface->pixels, pBuffer, n);
@@ -364,7 +377,7 @@ namespace voodoo
 
   size_t cImage::GetBitsPerPixel() const
   {
-    return (8 * GetBytesPerPixel());
+    return GetBitsForPixelFormat(pixelFormat);
   }
 
   size_t cImage::GetBytesPerRow() const

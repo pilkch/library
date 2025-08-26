@@ -86,6 +86,11 @@ namespace spitfire
       return colourHSV.GetRGB();
     }
 
+    cColour3 cColour3::operator +(const cColour3& rhs) const
+    {
+      return cColour3(r + rhs.r, g + rhs.g, b + rhs.b);
+    }
+
 
     // ** cColour4
 
