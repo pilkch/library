@@ -654,6 +654,9 @@ GLenum CubeMapFaceToGLenum(CUBE_MAP_FACE face)
       // Keep the aspect ratio of the screen, for example 16:9
       const float fRight = float(targetWidth) / float(targetHeight);
       matrix.SetOrtho(0.0f, fRight, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
+    } else if (type == MODE2D_TYPE::Y_INCREASES_UP_SCREEN_KEEP_DIMENSIONS_AND_ASPECT_RATIO) {
+      // Keep the width and height and aspect ratio of the screen, for example 1920x1080, 16:9
+      matrix.SetOrtho(0.0f, float(targetWidth), 0.0f, float(targetHeight), -1.0f, 1.0f); // Y axis increases up the screen
     } else {
       // Use an aspect ratio of 1:1
       matrix.SetOrtho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f); // Y axis increases up the screen
