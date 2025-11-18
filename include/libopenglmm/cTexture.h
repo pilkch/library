@@ -62,16 +62,16 @@ namespace opengl
     cTexture();
     virtual ~cTexture();
 
-    bool IsValid() const { return _IsValid(); }
+    inline bool IsValid() const { return _IsValid(); }
 
-    bool IsSquare() const { return GetWidth() == GetHeight(); }
-    bool IsRectangle() const { return !IsSquare(); }
+    inline bool IsSquare() const { return GetWidth() == GetHeight(); }
+    inline bool IsRectangle() const { return !IsSquare(); }
 
-    size_t GetWidth() const { return image.GetWidth(); }
-    size_t GetHeight() const { return image.GetHeight(); }
-    PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
+    inline size_t GetWidth() const { return image.GetWidth(); }
+    inline size_t GetHeight() const { return image.GetHeight(); }
+    inline PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
 
-    unsigned int GetTexture() const { return uiTexture; }
+    inline unsigned int GetTexture() const { return uiTexture; }
 
     unsigned int GetTextureType() const;
 
@@ -86,7 +86,8 @@ namespace opengl
     void CopyFromImageToTexture();
 
 
-    bool SaveToBMP(const opengl::string_t& sFilename) const { return image.SaveToBMP(sFilename); }
+    inline bool SaveToBMP(const opengl::string_t& sFilename) const { return image.SaveToBMP(sFilename); }
+    inline bool SaveToPNG(const opengl::string_t& sFilename) const { return image.SaveToPNG(sFilename); }
 
     void Create() { _Create(); }
     void Destroy() { _Destroy(); }

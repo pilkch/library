@@ -12,6 +12,12 @@
 #include <map>
 #include <vector>
 
+// stb headers
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 // SDL headers
 #include <SDL3_image/SDL_image.h>
 
@@ -65,20 +71,21 @@ namespace voodoo
     //cSurface(const cSurface& rhs);
     //cSurface& operator=(const cSurface& rhs);
 
-    bool IsSurfaceValid() const { return (pSurface != nullptr); }
+    constexpr bool IsSurfaceValid() const { return (pSurface != nullptr); }
 
-    size_t GetWidth() const { return image.GetWidth(); }
-    size_t GetHeight() const { return image.GetHeight(); }
-    PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
-    size_t GetBytesPerPixel() const { return image.GetBytesPerPixel(); }
-    IMAGE_TYPE GetType() const { return type; }
+    inline size_t GetWidth() const { return image.GetWidth(); }
+    inline size_t GetHeight() const { return image.GetHeight(); }
+    inline PIXELFORMAT GetPixelFormat() const { return image.GetPixelFormat(); }
+    inline size_t GetBytesPerPixel() const { return image.GetBytesPerPixel(); }
+    inline IMAGE_TYPE GetType() const { return type; }
 
     void Destroy();
 
     bool CreateFromImage(const cImage& image);
 
-    bool LoadFromFile(const string_t& sFilename);
-    bool SaveToBMP(const string_t& sFilename) const;
+    bool LoadFromFile(const string_t& sFilePath);
+    bool SaveToBMP(const string_t& sFilePath) const;
+    bool SaveToPNG(const string_t& sFilePath) const;
 
     const uint8_t* GetPointerToBuffer() const;
     const uint8_t* GetPointerToSurfacePixelBuffer() const;
@@ -94,8 +101,6 @@ namespace voodoo
 
   private:
     void Assign(const cSurface& rhs);
-
-    bool IsSameFormat(const cSurface& rhs) const;
 
     IMAGE_TYPE type;
 
@@ -148,40 +153,40 @@ namespace voodoo
     return true;
   }
 
-  bool cSurface::LoadFromFile(const string_t& sFilename)
+  bool cSurface::LoadFromFile(const string_t& sFilePath)
   {
-    std::cout<<"cSurface::LoadFromFile \""<<string::ToUTF8(sFilename)<<"\""<<std::endl;
+    std::cout<<"cSurface::LoadFromFile \""<<string::ToUTF8(sFilePath)<<"\""<<std::endl;
 
     Destroy();
 
     //unsigned int mode = 0;
-    pSurface = IMG_Load(string::ToUTF8(sFilename).c_str());
+    pSurface = IMG_Load(string::ToUTF8(sFilePath).c_str());
 
     // Could not load filename
     if (pSurface == nullptr) {
-      if (FileExists(sFilename)) std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" exists"<<std::endl;
-      else std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilename)<<" doesn't exist"<<std::endl;
+      if (FileExists(sFilePath)) std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilePath)<<" exists"<<std::endl;
+      else std::cout<<"cSurface::LoadFromFile Texture "<<string::ToUTF8(sFilePath)<<" doesn't exist"<<std::endl;
 
-      std::cout<<"cSurface::LoadFromFile Couldn't Load Texture "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Couldn't Load Texture "<<string::ToUTF8(sFilePath)<<", returning false"<<std::endl;
       return false;
     }
 
     // Check the format
     const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(pSurface->format);
     if (8 == details->bits_per_pixel) {
-      std::cout<<"cSurface::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Texture Greyscale Heightmap Image "<<string::ToUTF8(sFilePath)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
       image.pixelFormat = PIXELFORMAT::H8;
     } else if (16 == details->bits_per_pixel) {
-      std::cout<<"cSurface::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilename)<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Greyscale Heightmap Image "<<string::ToUTF8(sFilePath)<<std::endl;
       type = IMAGE_TYPE::HEIGHTMAP;
       image.pixelFormat = PIXELFORMAT::H16;
     } else if (24 == details->bits_per_pixel) {
-      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 24 bit RGB image"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilePath)<<" is a 24 bit RGB image"<<std::endl;
       type = IMAGE_TYPE::BITMAP;
       image.pixelFormat = PIXELFORMAT::R8G8B8;
     } else if (32 == details->bits_per_pixel) {
-      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilename)<<" is a 32 bit RGBA image"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile "<<string::ToUTF8(sFilePath)<<" is a 32 bit RGBA image"<<std::endl;
 
       // Convert if BGR
       if (details->Rshift > details->Bshift) {
@@ -214,7 +219,7 @@ namespace voodoo
     } else {
       std::ostringstream t;
       t << details->bits_per_pixel;
-      std::cout<<"cSurface::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<string::ToUTF8(sFilename)<<", returning false"<<std::endl;
+      std::cout<<"cSurface::LoadFromFile Error Unknown Image Format ("<<t.str()<<"bit) "<<string::ToUTF8(sFilePath)<<", returning false"<<std::endl;
       return false;
     }
 
@@ -329,11 +334,31 @@ namespace voodoo
     };
   }
 
-  bool cSurface::SaveToBMP(const string_t& sFilename) const
+  bool cSurface::SaveToBMP(const string_t& sFilePath) const
   {
     assert(IsSurfaceValid());
-    SDL_SaveBMP(pSurface, string::ToUTF8(sFilename).c_str());
-    return true;
+    return SDL_SaveBMP(pSurface, string::ToUTF8(sFilePath).c_str());
+  }
+
+  bool cSurface::SaveToPNG(const string_t& sFilePath) const
+  {
+    assert(IsSurfaceValid());
+    switch (image.GetPixelFormat()) {
+      case PIXELFORMAT::R8G8B8A8: {
+        // NOTE: IMG_SavePNG *always* outputs an RGBA image
+        return IMG_SavePNG(pSurface, string::ToUTF8(sFilePath).c_str());
+      }
+      case PIXELFORMAT::R8G8B8: {
+        const size_t width = pSurface->w;
+        const size_t height = pSurface->h;
+        const size_t nChannels = image.GetBytesPerPixel();
+        const uint8_t* pBuffer = image.GetPointerToBuffer();
+        stbi_write_png(sFilePath.c_str(), width, height, nChannels, pBuffer, width * nChannels);
+        return true;
+      }
+    }
+
+    return false;
   }
 
 
@@ -506,7 +531,20 @@ namespace voodoo
       return false;
     }
 
-    return surface.SaveToBMP(sFilename);
+    return surface.SaveToBMP(sFilePath);
+  }
+
+  bool cImage::SaveToPNG(const string_t& sFilePath) const
+  {
+    cSurface surface;
+    surface.CreateFromImage(*this);
+    surface.CopyFromBufferToSurface();
+    if (!surface.IsSurfaceValid()) {
+      std::cerr<<"cImage::SaveToPNG Surface is invalid, returning false"<<std::endl;
+      return false;
+    }
+
+    return surface.SaveToPNG(sFilePath);
   }
 
   void cImage::CreateFromImageHalfSize(const cImage& image)

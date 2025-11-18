@@ -62,6 +62,7 @@ namespace voodoo
     static bool IsLoadingSupported(const string_t& sFilePath);
     bool LoadFromFile(const string_t& sFilePath);
     bool SaveToBMP(const string_t& sFilePath) const;
+    bool SaveToPNG(const string_t& sFilePath) const;
 
     bool CreateEmptyImage(size_t width, size_t height, PIXELFORMAT pixelFormat);
     bool CreateFromImage(const cImage& image);
