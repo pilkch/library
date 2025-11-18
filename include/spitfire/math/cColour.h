@@ -1,5 +1,7 @@
 #pragma once
 
+#include <spitfire/math/math.h>
+
 namespace spitfire
 {
   namespace math
@@ -278,6 +280,24 @@ namespace spitfire
     {
       return cColour4(r, g, b);
     }
+
+    
+    inline constexpr cColourHSL mix(const cColourHSL& a, const cColourHSL& b, float fValue0To1)
+    {
+      cColourHSL result;
+      result.fHue0To360 = mix(a.fHue0To360, b.fHue0To360, fValue0To1);
+      result.fSaturation0To1 = mix(a.fSaturation0To1, b.fSaturation0To1, fValue0To1);
+      result.fLuminance0To1 = mix(a.fLuminance0To1, b.fLuminance0To1, fValue0To1);
+      return result;
+    }
+
+    inline constexpr cColourHSV mix(const cColourHSV& a, const cColourHSV& b, float fValue0To1)
+    {
+      cColourHSV result;
+      result.fHue0To360 = mix(a.fHue0To360, b.fHue0To360, fValue0To1);
+      result.fSaturation0To1 = mix(a.fSaturation0To1, b.fSaturation0To1, fValue0To1);
+      result.fValue0To1 = mix(a.fValue0To1, b.fValue0To1, fValue0To1);
+      return result;
+    }
   }
 }
-

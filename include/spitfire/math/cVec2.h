@@ -1,5 +1,4 @@
-#ifndef CVEC2_H
-#define CVEC2_H
+#pragma once
 
 #include <cmath>
 
@@ -12,10 +11,10 @@ namespace spitfire
     class cVec2
     {
     public:
-      inline cVec2() : x(0), y(0), u(x), v(y) {}
+      inline cVec2() : x(0), y(0) {}
       explicit cVec2(const float* rhs);
-      inline cVec2(float newX, float newY) : x(newX), y(newY), u(x), v(y) {}
-      inline cVec2(const cVec2& rhs) : x(rhs.x), y(rhs.y), u(x), v(y) {}
+      inline cVec2(float newX, float newY) : x(newX), y(newY) {}
+      inline cVec2(const cVec2& rhs) : x(rhs.x), y(rhs.y) {}
 
       void Set(float newX, float newY); //set member variables
 
@@ -42,6 +41,9 @@ namespace spitfire
       { return (x*x)+(y*y); }
 
       float GetMagnitude() const;
+
+      float dot(const cVec2& rhs) const;
+      float cross(const cVec2& rhs) const;
 
       //pack to [0,1] for color
       void PackTo01();
@@ -101,9 +103,6 @@ namespace spitfire
       // TODO: Maybe don't do this? Provide u() and v() functions instead?
       float x;
       float y;
-
-      float& u;
-      float& v;
     };
 
     const cVec2 v2Zero(0.0f, 0.0f);
@@ -118,7 +117,7 @@ namespace spitfire
     inline constexpr float length(const cVec2& v) { return v.GetLength(); }
     inline constexpr float distance(const cVec2& p0, const cVec2& p1) { return (p1 - p0).GetLength(); }
     inline constexpr cVec2 normalize(const cVec2& a) { return a.GetNormalised(); }
+    inline constexpr float cross(const cVec2& a, const cVec2& b) { return a.cross(b); }
+    inline constexpr float dot(const cVec2& a, const cVec2& b) { return a.dot(b); }
   }
 }
-
-#endif // CVEC2_H

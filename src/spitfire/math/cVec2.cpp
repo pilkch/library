@@ -23,13 +23,9 @@ namespace spitfire
   namespace math
   {
     cVec2::cVec2(const float* rhs) :
-      u(x),
-      v(y)
+      x(rhs[0]),
+      y(rhs[1])
     {
-      assert(rhs != nullptr);
-
-      x=*rhs;
-      y=*(rhs+1);
     }
 
     void cVec2::Set(float newX, float newY)
@@ -93,6 +89,16 @@ namespace spitfire
     float cVec2::GetMagnitude() const
     {
       return GetLength();
+    }
+
+    float cVec2::dot(const cVec2& rhs) const
+    {
+      return (x * rhs.x) + (y * rhs.y);
+    }
+
+    float cVec2::cross(const cVec2& rhs) const
+    {
+      return (x * rhs.y) - (y * rhs.x);
     }
 
     void cVec2::PackTo01()
