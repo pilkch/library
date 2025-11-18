@@ -66,6 +66,7 @@ public:
   void Init(size_t width, size_t height, voodoo::PIXELFORMAT pixelFormat);
 
   bool AddImage(const std::string& textureFilePath);
+  bool AddImageResizeNearestNeighbour(const std::string& textureFilePath, size_t cellWidthAndHeight);
 
   size_t GetWidth() const { return textureAtlas.GetWidth(); }
   size_t GetHeight() const { return textureAtlas.GetHeight(); }
@@ -73,6 +74,9 @@ public:
   const voodoo::cImage& GetImage() const { return textureAtlas; }
 
   const std::vector<cTextureAtlasEntry>& GetTextureAtlasEntries() const { return textureAtlasEntries; }
+
+private:
+  bool AddImageInternal(const std::string& textureFilePath, const voodoo::cImage& image);
 
   voodoo::cImage textureAtlas;
 

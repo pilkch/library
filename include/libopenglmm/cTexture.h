@@ -187,6 +187,8 @@ namespace opengl
     bool IsDepthTexturePresent() const;
     unsigned int GetDepthTexture() const;
 
+    void CopyFromTextureToImage(voodoo::cImage& outImage);
+
     unsigned int uiFBO;            // Our handle to the FBO
     unsigned int uiFBODepthBuffer; // Our handle to the depth render buffer
 

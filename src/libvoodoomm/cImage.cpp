@@ -521,7 +521,7 @@ namespace voodoo
     return true;
   }
 
-  bool cImage::SaveToBMP(const string_t& sFilename) const
+  bool cImage::SaveToBMP(const string_t& sFilePath) const
   {
     cSurface surface;
     surface.CreateFromImage(*this);
@@ -547,8 +547,40 @@ namespace voodoo
     return surface.SaveToPNG(sFilePath);
   }
 
+  void cImage::CreateFromImageResizeNearestNeighbour(const cImage& image, size_t width, size_t height)
+  {
+    // Only RGBA is supported at the moment
+    assert(image.pixelFormat == PIXELFORMAT::R8G8B8A8);
+
+    CreateEmptyImage(width, height, image.pixelFormat);
+
+    const size_t widthSource = image.width;
+    const size_t heightSource = image.height;
+
+    const size_t widthDestination = width;
+    const size_t heightDestination = height;
+
+    // How many pixels from the source to skip for every pixel in the destination
+    const size_t scalingFactorHorizontal = std::max<size_t>(1, widthSource / widthDestination);
+    const size_t scalingFactorVertical = std::max<size_t>(1, heightSource / heightDestination);
+
+    for (size_t y = 0; y < heightDestination; y++) {
+      for (size_t x = 0; x < widthDestination; x++) {
+        const size_t indexSource = (((y * scalingFactorVertical) * widthSource) + (x * scalingFactorHorizontal)) * 4;
+        const size_t indexDestination = ((y * widthDestination) + x) * 4;
+
+        buffer[indexDestination] = image.buffer[indexSource]; // Red
+        buffer[indexDestination + 1] = image.buffer[indexSource + 1]; // Green
+        buffer[indexDestination + 2] = image.buffer[indexSource + 2]; // Blue
+        buffer[indexDestination + 3] = image.buffer[indexSource + 3]; // Alpha
+      }
+    }
+  }
+
   void cImage::CreateFromImageHalfSize(const cImage& image)
   {
+    std::cout<<"cImage::CreateFromImageHalfSize source pf: "<<int(image.pixelFormat)<<std::endl;
+  
     // Only RGBA is supported at the moment
     assert(image.pixelFormat == PIXELFORMAT::R8G8B8A8);
 
@@ -566,13 +598,13 @@ namespace voodoo
 
     for (size_t y = 0; y < heightDestination; y++) {
       for (size_t x = 0; x < widthDestination; x++) {
-        const size_t indexSource = (2 * ((y * widthSource) + x)) * 4;
+        const size_t indexSource = (((2 * y) * (2 * widthDestination)) + (2 * x)) * 4;
         const size_t indexDestination = ((y * widthDestination) + x) * 4;
 
-        buffer[indexSource] = image.buffer[indexDestination]; // Red
-        buffer[indexSource + 1] = image.buffer[indexDestination + 1]; // Green
-        buffer[indexSource + 2] = image.buffer[indexDestination + 2]; // Blue
-        buffer[indexSource + 3] = image.buffer[indexDestination + 3]; // Alpha
+        buffer[indexDestination] = image.buffer[indexSource]; // Red
+        buffer[indexDestination + 1] = image.buffer[indexSource + 1]; // Green
+        buffer[indexDestination + 2] = image.buffer[indexSource + 2]; // Blue
+        buffer[indexDestination + 3] = image.buffer[indexSource + 3]; // Alpha
       }
     }
   }

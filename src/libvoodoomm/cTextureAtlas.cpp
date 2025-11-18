@@ -39,17 +39,38 @@ bool cTextureAtlas::AddImage(const std::string& textureFilePath)
     return false;
   }
 
+  return AddImageInternal(textureFilePath, image);
+}
+
+bool cTextureAtlas::AddImageResizeNearestNeighbour(const std::string& textureFilePath, size_t cellWidthAndHeight)
+{
+  std::cout<<"cTextureAtlas::AddImage Loading image \""<<textureFilePath<<"\""<<std::endl;
+
+  voodoo::cImage image;
+  if (!image.LoadFromFile(textureFilePath)) {
+    std::cout<<"cTextureAtlas::AddImage Error loading texture from file \""<<textureFilePath<<"\""<<std::endl;
+    return false;
+  }
+
+  voodoo::cImage imageResized;
+  imageResized.CreateFromImageResizeNearestNeighbour(image, cellWidthAndHeight, cellWidthAndHeight);
+
+  return AddImageInternal(textureFilePath, imageResized);
+}
+
+bool cTextureAtlas::AddImageInternal(const std::string& textureFilePath, const voodoo::cImage& image)
+{
   const size_t atlasWidth = textureAtlas.GetWidth();
   const size_t atlasHeight = textureAtlas.GetHeight();
 
   const size_t imageWidth = image.GetWidth();
   const size_t imageHeight = image.GetHeight();
   if ((imageWidth > atlasWidth) || (imageHeight > atlasHeight)) {
-    std::cout<<"cTextureAtlas::AddImage Error texture "<<imageWidth<<"x"<<imageHeight<<" is too large to fit in the atlas "<<atlasWidth<<"x"<<atlasHeight<<std::endl;
+    std::cout<<"cTextureAtlas::AddImageInternal Error texture "<<imageWidth<<"x"<<imageHeight<<" is too large to fit in the atlas "<<atlasWidth<<"x"<<atlasHeight<<std::endl;
     return false;
   }
 
-  std::cout<<"cTextureAtlas::AddImage loaded texture"<<std::endl;
+  std::cout<<"cTextureAtlas::AddImageInternal loaded texture"<<std::endl;
   // Try to place the image on this row
   if (imageWidth > (atlasWidth - currentX)) {
     // Move to the next row
@@ -61,11 +82,11 @@ bool cTextureAtlas::AddImage(const std::string& textureFilePath)
 
   // Try to place the image again, if it doesn't fit now it is never going to fit
   if ((imageWidth > (atlasWidth - currentX)) || (imageHeight > (atlasHeight - currentY))) {
-    std::cout<<"cTextureAtlas::AddImage Error no room left in texture atlas for texture \""<<textureFilePath<<"\""<<std::endl;
+    std::cout<<"cTextureAtlas::AddImageInternal Error no room left in texture atlas for texture \""<<textureFilePath<<"\""<<std::endl;
     return false;
   }
 
-  std::cout<<"cTextureAtlas::AddImage Adding entry"<<std::endl;
+  std::cout<<"cTextureAtlas::AddImageInternal Adding entry"<<std::endl;
   // We found a place for the texture, so add en entry for it
   cTextureAtlasEntry entry;
   entry.x = currentX;
@@ -74,14 +95,14 @@ bool cTextureAtlas::AddImage(const std::string& textureFilePath)
   entry.height = imageHeight;
   textureAtlasEntries.push_back(entry);
 
-  std::cout<<"cTextureAtlas::AddImage Copying image "<<imageWidth<<"x"<<imageHeight<<" into texture atlas "<<atlasWidth<<"x"<<atlasHeight<<" at point "<<currentX<<","<<currentY<<std::endl;
+  std::cout<<"cTextureAtlas::AddImageInternal Copying image "<<imageWidth<<"x"<<imageHeight<<" into texture atlas "<<atlasWidth<<"x"<<atlasHeight<<" at point "<<currentX<<","<<currentY<<std::endl;
   
   assert(image.GetPixelFormat() == textureAtlas.GetPixelFormat());
   // Copy the image to the texture atlas
   //uint8_t* pTextureAtlasBuffer = textureAtlas.GetPointerToBuffer() + (currentY * textureAtlas.GetBytesPerRow()) + (currentX * textureAtlas.GetBytesPerPixel());
   uint8_t* pTextureAtlasBuffer = textureAtlas.GetPointerToBuffer();
   assert(pTextureAtlasBuffer != nullptr);
-  uint8_t* pImageBuffer = image.GetPointerToBuffer();
+  const uint8_t* pImageBuffer = image.GetPointerToBuffer();
   assert(pImageBuffer != nullptr);
   for (size_t y = 0; y < imageHeight; y++) {
     //uint8_t* pDest = pTextureAtlasBuffer + (y * textureAtlas.GetBytesPerRow());
@@ -94,7 +115,7 @@ bool cTextureAtlas::AddImage(const std::string& textureFilePath)
   currentX += imageWidth;
   if (imageHeight > currentTallestInRow) currentTallestInRow = imageHeight;
 
-  std::cout<<"cTextureAtlas::AddImage returning"<<std::endl;
+  std::cout<<"cTextureAtlas::AddImageInternal returning"<<std::endl;
 
   return true;
 }
