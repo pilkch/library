@@ -1,5 +1,4 @@
-#ifndef CVEC2_H
-#define CVEC2_H
+#pragma once
 
 #include <cmath>
 
@@ -42,6 +41,9 @@ namespace spitfire
       { return (x*x)+(y*y); }
 
       float GetMagnitude() const;
+
+      float dot(const cVec2& rhs) const;
+      float cross(const cVec2& rhs) const;
 
       //pack to [0,1] for color
       void PackTo01();
@@ -118,7 +120,7 @@ namespace spitfire
     inline constexpr float length(const cVec2& v) { return v.GetLength(); }
     inline constexpr float distance(const cVec2& p0, const cVec2& p1) { return (p1 - p0).GetLength(); }
     inline constexpr cVec2 normalize(const cVec2& a) { return a.GetNormalised(); }
+    inline constexpr float cross(const cVec2& a, const cVec2& b) { return a.cross(b); }
+    inline constexpr float dot(const cVec2& a, const cVec2& b) { return a.dot(b); }
   }
 }
-
-#endif // CVEC2_H

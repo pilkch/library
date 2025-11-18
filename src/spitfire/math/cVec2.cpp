@@ -95,6 +95,16 @@ namespace spitfire
       return GetLength();
     }
 
+    float cVec2::dot(const cVec2& rhs) const
+    {
+      return (x * rhs.x) + (y * rhs.y);
+    }
+
+    float cVec2::cross(const cVec2& rhs) const
+    {
+      return (x * rhs.y) - (y * rhs.x);
+    }
+
     void cVec2::PackTo01()
     {
       (*this)=GetPackedTo01();
