@@ -321,8 +321,9 @@ namespace opengl
         pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, 0.0f)), spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV), colour);
         pBuilder->PushBack(position + scale * (offset + spitfire::math::cVec2(0.0f, fCharacterHeight)), spitfire::math::cVec2(fTextureCharacterOffsetU, fTextureCharacterOffsetV + fTextureCharacterHeight), colour);
       } else {
+        //std::cout<<"MeasureOrPushBack current fGlyphAdvanceY: "<<fGlyphAdvanceY[index]<<std::endl;
         pOutDimensions->x += scale.x * fGlyphAdvanceX[index];
-        pOutDimensions->y = max(pOutDimensions->y, scale.y * fGlyphAdvanceY[index]); // Take the great of our current value and the advance y for this glyph
+        pOutDimensions->y = max(pOutDimensions->y, scale.y * fGlyphAdvanceY[index]); // Take the greater of our current value and the advance y for this glyph
       }
 
       //std::cout<<"Before position.x "<<position.x<<", i "<<i<<", c "<<c<<", index "<<index<<", scale x "<<scale.x<<
@@ -332,7 +333,7 @@ namespace opengl
       // TODO: Work out how to incorporate this with the scale and rotation
       position.x += scale.x * fGlyphAdvanceX[index];// * cosf(fRotationDegrees);
 
-      //std::cout<<"After position.x "<<position.x<<std::endl;
+      //std::cout<<"After position.x "<<position.x<<", position.y "<<position.y<<std::endl;
     }
 #else
     if (pBuilder != nullptr) {
