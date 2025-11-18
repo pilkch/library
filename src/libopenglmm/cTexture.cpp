@@ -606,4 +606,26 @@ namespace opengl
     glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, fLevelOfDetail);
     #endif
   }
+
+  void cTextureFrameBufferObject::CopyFromTextureToImage(voodoo::cImage& outImage)
+  {
+    const size_t width = GetWidth();
+    const size_t height = GetHeight();
+
+    outImage.CreateEmptyImage(width, height, GetPixelFormat());
+
+    uint8_t* pBuffer = outImage.GetPointerToBuffer();
+    if (pBuffer == nullptr) {
+      LOGERROR("Image is invalid, returning");
+      return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, uiFBO);
+
+    // Copy the pixels from the FBO to the image
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
 }
