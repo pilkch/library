@@ -21,7 +21,7 @@ You should have received a copy of the GNU Lesser General Public
 
 ### What is this?
 
-I often post videos on [https://www.youtube.com/@cgpilk](my youtube channel) which demonstrate the spitfire and libopenglmm parts.
+I often post videos on [https://www.youtube.com/@cgpilk](https://www.youtube.com/@cgpilk) which demonstrate the spitfire and libopenglmm parts.
 
 This is a collection of libraries including:
 
